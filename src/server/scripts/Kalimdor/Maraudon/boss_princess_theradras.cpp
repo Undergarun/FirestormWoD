@@ -35,10 +35,10 @@ enum Spells
     SPELL_REPULSIVEGAZE         = 21869
 };
 
-class boss_princess_theradras : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_princess_theradras : public CreatureScript
 {
 public:
-    boss_princess_theradras() : MS::Game::Scripting::Interfaces::CreatureScript("boss_princess_theradras") { }
+    boss_princess_theradras() : CreatureScript("boss_princess_theradras") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

@@ -42,10 +42,10 @@ enum eEvents
     EVENT_VISCOUS_FLUID     = 2
 };
 
-class boss_commander_rimok : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_commander_rimok : public CreatureScript
 {
     public:
-        boss_commander_rimok() : MS::Game::Scripting::Interfaces::CreatureScript("boss_commander_rimok") {}
+        boss_commander_rimok() : CreatureScript("boss_commander_rimok") {}
 
         struct boss_commander_rimokAI : public BossAI
         {
@@ -122,10 +122,10 @@ class boss_commander_rimok : public MS::Game::Scripting::Interfaces::CreatureScr
         }
 };
 
-class npc_krikthik_swarmer : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_krikthik_swarmer : public CreatureScript
 {
     public:
-        npc_krikthik_swarmer() : MS::Game::Scripting::Interfaces::CreatureScript("npc_krikthik_swarmer") {}
+        npc_krikthik_swarmer() : CreatureScript("npc_krikthik_swarmer") {}
 
         struct npc_krikthik_swarmerAI : public ScriptedAI
         {
@@ -163,10 +163,10 @@ class npc_krikthik_swarmer : public MS::Game::Scripting::Interfaces::CreatureScr
         }
 };
 
-class npc_krikthik_saboteur : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_krikthik_saboteur : public CreatureScript
 {
     public:
-        npc_krikthik_saboteur() : MS::Game::Scripting::Interfaces::CreatureScript("npc_krikthik_saboteur") {}
+        npc_krikthik_saboteur() : CreatureScript("npc_krikthik_saboteur") {}
 
         struct npc_krikthik_saboteurAI : public ScriptedAI
         {
@@ -213,10 +213,10 @@ class npc_krikthik_saboteur : public MS::Game::Scripting::Interfaces::CreatureSc
         }
 };
 
-class npc_add_generator : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_add_generator : public CreatureScript
 {
     public:
-        npc_add_generator() : MS::Game::Scripting::Interfaces::CreatureScript("npc_add_generator") {}
+        npc_add_generator() : CreatureScript("npc_add_generator") {}
 
         struct npc_add_generatorAI : public ScriptedAI
         {
@@ -275,10 +275,10 @@ class npc_add_generator : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class npc_viscous_fluid : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_viscous_fluid : public CreatureScript
 {
     public:
-        npc_viscous_fluid() : MS::Game::Scripting::Interfaces::CreatureScript("npc_viscous_fluid") {}
+        npc_viscous_fluid() : CreatureScript("npc_viscous_fluid") {}
 
         struct npc_viscous_fluidAI : public ScriptedAI
         {
@@ -324,10 +324,10 @@ class npc_viscous_fluid : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class spell_rimok_saboteur_bombard: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_rimok_saboteur_bombard: public SpellScriptLoader
 {
     public:
-        spell_rimok_saboteur_bombard() :  MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rimok_saboteur_bombard") { }
+        spell_rimok_saboteur_bombard() :  SpellScriptLoader("spell_rimok_saboteur_bombard") { }
 
         class spell_rimok_saboteur_bombard_AuraScript : public AuraScript
         {

@@ -54,10 +54,10 @@ enum Adds
     NPC_FIREWALL_2C     = 49042,
 };
 
-class boss_glubtok : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_glubtok : public CreatureScript
 {
     public:
-        boss_glubtok() : MS::Game::Scripting::Interfaces::CreatureScript("boss_glubtok") { }
+        boss_glubtok() : CreatureScript("boss_glubtok") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {

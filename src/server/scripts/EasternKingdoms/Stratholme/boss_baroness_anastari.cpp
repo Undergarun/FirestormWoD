@@ -32,10 +32,10 @@ EndScriptData */
 #define SPELL_SILENCE    18327
 //#define SPELL_POSSESS   17244
 
-class boss_baroness_anastari : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_baroness_anastari : public CreatureScript
 {
 public:
-    boss_baroness_anastari() : MS::Game::Scripting::Interfaces::CreatureScript("boss_baroness_anastari") { }
+    boss_baroness_anastari() : CreatureScript("boss_baroness_anastari") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

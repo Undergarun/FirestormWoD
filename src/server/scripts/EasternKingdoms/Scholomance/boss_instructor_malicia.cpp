@@ -33,10 +33,10 @@ EndScriptData */
 #define SPELL_RENEW                10929
 #define SPELL_HEALINGTOUCH         9889
 
-class boss_instructor_malicia : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_instructor_malicia : public CreatureScript
 {
 public:
-    boss_instructor_malicia() : MS::Game::Scripting::Interfaces::CreatureScript("boss_instructor_malicia") { }
+    boss_instructor_malicia() : CreatureScript("boss_instructor_malicia") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

@@ -44,10 +44,10 @@ enum eActions
 {
 };
 
-class boss_chi_ji : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_chi_ji : public CreatureScript
 {
     public:
-        boss_chi_ji() : MS::Game::Scripting::Interfaces::CreatureScript("boss_chi_ji") { }
+        boss_chi_ji() : CreatureScript("boss_chi_ji") { }
 
         struct boss_chi_jiAI : public BossAI
         {

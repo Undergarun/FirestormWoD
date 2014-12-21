@@ -10,10 +10,10 @@
 #define GOSSIP_CHOICE "<Reach out to touch Chi-Ji.>"
 
 // Arness the Scale - 50787
-class mob_arness_the_scale : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_arness_the_scale : public CreatureScript
 {
     public:
-        mob_arness_the_scale() : MS::Game::Scripting::Interfaces::CreatureScript("mob_arness_the_scale")
+        mob_arness_the_scale() : CreatureScript("mob_arness_the_scale")
         {
         }
 
@@ -78,10 +78,10 @@ class mob_arness_the_scale : public MS::Game::Scripting::Interfaces::CreatureScr
 };
 
 // Gaarn the Toxic - 50340
-class mob_gaarn_the_toxic : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_gaarn_the_toxic : public CreatureScript
 {
     public:
-        mob_gaarn_the_toxic() : MS::Game::Scripting::Interfaces::CreatureScript("mob_gaarn_the_toxic")
+        mob_gaarn_the_toxic() : CreatureScript("mob_gaarn_the_toxic")
         {
         }
 
@@ -141,10 +141,10 @@ class mob_gaarn_the_toxic : public MS::Game::Scripting::Interfaces::CreatureScri
 };
 
 // Qu Nas - 50352
-class mob_qu_nas : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_qu_nas : public CreatureScript
 {
     public:
-        mob_qu_nas() : MS::Game::Scripting::Interfaces::CreatureScript("mob_qu_nas")
+        mob_qu_nas() : CreatureScript("mob_qu_nas")
         {
         }
 
@@ -210,10 +210,10 @@ class mob_qu_nas : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Torik Ethis - 50388
-class mob_torik_ethis : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_torik_ethis : public CreatureScript
 {
     public:
-        mob_torik_ethis() : MS::Game::Scripting::Interfaces::CreatureScript("mob_torik_ethis")
+        mob_torik_ethis() : CreatureScript("mob_torik_ethis")
         {
         }
 
@@ -289,10 +289,10 @@ class mob_torik_ethis : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Go Kan - 50331
-class mob_go_kan : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_go_kan : public CreatureScript
 {
     public:
-        mob_go_kan() : MS::Game::Scripting::Interfaces::CreatureScript("mob_go_kan")
+        mob_go_kan() : CreatureScript("mob_go_kan")
         {
         }
 
@@ -363,10 +363,10 @@ class mob_go_kan : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Spirit of the Crane - 60487
-class mob_spirit_of_the_crane : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_spirit_of_the_crane : public CreatureScript
 {
     public:
-        mob_spirit_of_the_crane() : MS::Game::Scripting::Interfaces::CreatureScript("mob_spirit_of_the_crane")
+        mob_spirit_of_the_crane() : CreatureScript("mob_spirit_of_the_crane")
         {
         }
 
@@ -383,10 +383,10 @@ class mob_spirit_of_the_crane : public MS::Game::Scripting::Interfaces::Creature
 };
 
 // Champion of Chi Ji - 60546
-class mob_champion_of_chi_ji : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_champion_of_chi_ji : public CreatureScript
 {
     public:
-        mob_champion_of_chi_ji() : MS::Game::Scripting::Interfaces::CreatureScript("mob_champion_of_chi_ji")
+        mob_champion_of_chi_ji() : CreatureScript("mob_champion_of_chi_ji")
         {
         }
 
@@ -470,10 +470,10 @@ class mob_champion_of_chi_ji : public MS::Game::Scripting::Interfaces::CreatureS
 };
 
 // Chi Torpedo - 119539
-class spell_chi_torpedo_periodic: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_chi_torpedo_periodic: public SpellScriptLoader
 {
     public:
-        spell_chi_torpedo_periodic() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_chi_torpedo_periodic") { }
+        spell_chi_torpedo_periodic() : SpellScriptLoader("spell_chi_torpedo_periodic") { }
 
         class spell_chi_torpedo_periodic_AuraScript : public AuraScript
         {
@@ -503,10 +503,10 @@ class spell_chi_torpedo_periodic: public MS::Game::Scripting::Interfaces::SpellS
 };
 
 // Andruin Wrynn - 59608
-class mob_anduin_wrynn : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_anduin_wrynn : public CreatureScript
 {
     public:
-        mob_anduin_wrynn() : MS::Game::Scripting::Interfaces::CreatureScript("mob_anduin_wrynn")
+        mob_anduin_wrynn() : CreatureScript("mob_anduin_wrynn")
         {
         }
 
@@ -522,10 +522,10 @@ class mob_anduin_wrynn : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Andruin Wrynn - 66975
-class mob_anduin_wrynn_escort : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_anduin_wrynn_escort : public CreatureScript
 {
     public:
-        mob_anduin_wrynn_escort() : MS::Game::Scripting::Interfaces::CreatureScript("mob_anduin_wrynn_escort")
+        mob_anduin_wrynn_escort() : CreatureScript("mob_anduin_wrynn_escort")
         {
         }
 
@@ -575,10 +575,10 @@ class mob_anduin_wrynn_escort : public MS::Game::Scripting::Interfaces::Creature
 };
 
 // Chi Ji - 59653
-class npc_chi_ji : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_chi_ji : public CreatureScript
 {
     public:
-        npc_chi_ji() : MS::Game::Scripting::Interfaces::CreatureScript("npc_chi_ji")
+        npc_chi_ji() : CreatureScript("npc_chi_ji")
         {
         }
 
@@ -609,10 +609,10 @@ class npc_chi_ji : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Sha of Despair - 59651
-class mob_sha_of_despair : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_sha_of_despair : public CreatureScript
 {
     public:
-        mob_sha_of_despair() : MS::Game::Scripting::Interfaces::CreatureScript("mob_sha_of_despair")
+        mob_sha_of_despair() : CreatureScript("mob_sha_of_despair")
         {
         }
 
@@ -642,10 +642,10 @@ class mob_sha_of_despair : public MS::Game::Scripting::Interfaces::CreatureScrip
 };
 
 // Thelonius - 60506
-class npc_thelonius : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_thelonius : public CreatureScript
 {
     public:
-        npc_thelonius() : MS::Game::Scripting::Interfaces::CreatureScript("npc_thelonius")
+        npc_thelonius() : CreatureScript("npc_thelonius")
         {
         }
 
@@ -707,10 +707,10 @@ class npc_thelonius : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 //Ella Ravenmane - 60530/60545/60533/60538
-class mob_ellia_ravenmane : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_ellia_ravenmane : public CreatureScript
 {
     public:
-        mob_ellia_ravenmane() : MS::Game::Scripting::Interfaces::CreatureScript("mob_ellia_ravenmane")
+        mob_ellia_ravenmane() : CreatureScript("mob_ellia_ravenmane")
         {
         }
 
@@ -993,10 +993,10 @@ class mob_ellia_ravenmane : public MS::Game::Scripting::Interfaces::CreatureScri
 };
 
 // Fat Long Fat - 60534/60543
-class mob_fat_long_fat : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_fat_long_fat : public CreatureScript
 {
     public:
-        mob_fat_long_fat() : MS::Game::Scripting::Interfaces::CreatureScript("mob_fat_long_fat")
+        mob_fat_long_fat() : CreatureScript("mob_fat_long_fat")
         {
         }
 
@@ -1208,10 +1208,10 @@ class mob_fat_long_fat : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Huck Wheelbarrow - 60540
-class mob_huck_wheelbarrow : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_huck_wheelbarrow : public CreatureScript
 {
     public:
-        mob_huck_wheelbarrow() : MS::Game::Scripting::Interfaces::CreatureScript("mob_huck_wheelbarrow")
+        mob_huck_wheelbarrow() : CreatureScript("mob_huck_wheelbarrow")
         {
         }
 
@@ -1369,10 +1369,10 @@ class mob_huck_wheelbarrow : public MS::Game::Scripting::Interfaces::CreatureScr
 };
 
 // Dextrous Izissha - 60536
-class mob_dextrous_izissha : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_dextrous_izissha : public CreatureScript
 {
     public:
-        mob_dextrous_izissha() : MS::Game::Scripting::Interfaces::CreatureScript("mob_dextrous_izissha")
+        mob_dextrous_izissha() : CreatureScript("mob_dextrous_izissha")
         {
         }
 
@@ -1530,10 +1530,10 @@ class mob_dextrous_izissha : public MS::Game::Scripting::Interfaces::CreatureScr
 };
 
 // Julia Bates - 60535
-class mob_julia_bates : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_julia_bates : public CreatureScript
 {
     public:
-        mob_julia_bates() : MS::Game::Scripting::Interfaces::CreatureScript("mob_julia_bates")
+        mob_julia_bates() : CreatureScript("mob_julia_bates")
         {
         }
 
@@ -1685,10 +1685,10 @@ class mob_julia_bates : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Kuo-Na Quillpaw - 60537
-class mob_kuo_na : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_kuo_na : public CreatureScript
 {
     public:
-        mob_kuo_na() : MS::Game::Scripting::Interfaces::CreatureScript("mob_kuo_na")
+        mob_kuo_na() : CreatureScript("mob_kuo_na")
         {
         }
 
@@ -1846,10 +1846,10 @@ class mob_kuo_na : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Mindel Sunspeaker - 60541
-class mob_mindel_sunspeaker : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_mindel_sunspeaker : public CreatureScript
 {
     public:
-        mob_mindel_sunspeaker() : MS::Game::Scripting::Interfaces::CreatureScript("mob_mindel_sunspeaker")
+        mob_mindel_sunspeaker() : CreatureScript("mob_mindel_sunspeaker")
         {
         }
 
@@ -2001,10 +2001,10 @@ class mob_mindel_sunspeaker : public MS::Game::Scripting::Interfaces::CreatureSc
 };
 
 // Minh Do-Tan - 60532
-class mob_minh_do_tan : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_minh_do_tan : public CreatureScript
 {
     public:
-        mob_minh_do_tan() : MS::Game::Scripting::Interfaces::CreatureScript("mob_minh_do_tan")
+        mob_minh_do_tan() : CreatureScript("mob_minh_do_tan")
         {
         }
 
@@ -2156,10 +2156,10 @@ class mob_minh_do_tan : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Thelonius - 60544
-class mob_thelonius : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_thelonius : public CreatureScript
 {
     public:
-        mob_thelonius() : MS::Game::Scripting::Interfaces::CreatureScript("mob_thelonius")
+        mob_thelonius() : CreatureScript("mob_thelonius")
         {
         }
 
@@ -2323,10 +2323,10 @@ class mob_thelonius : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Tukka-Tuk - 60539
-class mob_tukka_tuk : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_tukka_tuk : public CreatureScript
 {
     public:
-        mob_tukka_tuk() : MS::Game::Scripting::Interfaces::CreatureScript("mob_tukka_tuk")
+        mob_tukka_tuk() : CreatureScript("mob_tukka_tuk")
         {
         }
 
@@ -2484,10 +2484,10 @@ class mob_tukka_tuk : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Yan Quillpaw - 60542
-class mob_yan_quillpaw : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_yan_quillpaw : public CreatureScript
 {
     public:
-        mob_yan_quillpaw() : MS::Game::Scripting::Interfaces::CreatureScript("mob_yan_quillpaw")
+        mob_yan_quillpaw() : CreatureScript("mob_yan_quillpaw")
         {
         }
 

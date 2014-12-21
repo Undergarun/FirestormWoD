@@ -32,10 +32,10 @@ EndScriptData */
 #define SPELL_SUNDERINCLEAVE    25174
 #define SPELL_KNOCKAWAY         10101
 
-class boss_the_ravenian : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_the_ravenian : public CreatureScript
 {
 public:
-    boss_the_ravenian() : MS::Game::Scripting::Interfaces::CreatureScript("boss_the_ravenian") { }
+    boss_the_ravenian() : CreatureScript("boss_the_ravenian") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

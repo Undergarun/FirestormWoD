@@ -79,10 +79,10 @@ static Locations PipeLocations[] =
 
 static Locations CenterPoint = {1295.21f, 667.157f, 189.691f};
 
-class boss_sjonnir : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_sjonnir : public CreatureScript
 {
 public:
-    boss_sjonnir() : MS::Game::Scripting::Interfaces::CreatureScript("boss_sjonnir") { }
+    boss_sjonnir() : CreatureScript("boss_sjonnir") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -247,10 +247,10 @@ public:
 
 };
 
-class mob_malformed_ooze : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_malformed_ooze : public CreatureScript
 {
 public:
-    mob_malformed_ooze() : MS::Game::Scripting::Interfaces::CreatureScript("mob_malformed_ooze") { }
+    mob_malformed_ooze() : CreatureScript("mob_malformed_ooze") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -290,10 +290,10 @@ public:
 
 };
 
-class mob_iron_sludge : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_iron_sludge : public CreatureScript
 {
 public:
-    mob_iron_sludge() : MS::Game::Scripting::Interfaces::CreatureScript("mob_iron_sludge") { }
+    mob_iron_sludge() : CreatureScript("mob_iron_sludge") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -319,10 +319,10 @@ public:
 
 };
 
-class achievement_abuse_the_ooze : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
+class achievement_abuse_the_ooze : public AchievementCriteriaScript
 {
     public:
-        achievement_abuse_the_ooze() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_abuse_the_ooze")
+        achievement_abuse_the_ooze() : AchievementCriteriaScript("achievement_abuse_the_ooze")
         {
         }
 

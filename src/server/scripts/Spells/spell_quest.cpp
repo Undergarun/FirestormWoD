@@ -74,10 +74,10 @@ enum Quest55Data
     NPC_WEAKENED_MORBENT    = 24782,
 };
 
-class spell_q55_sacred_cleansing: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q55_sacred_cleansing: public SpellScriptLoader
 {
     public:
-        spell_q55_sacred_cleansing() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q55_sacred_cleansing") { }
+        spell_q55_sacred_cleansing() : SpellScriptLoader("spell_q55_sacred_cleansing") { }
 
         SpellScript* GetSpellScript() const
         {
@@ -93,10 +93,10 @@ enum Quest5206Data
     SPELL_CREATE_BONE_DUST = 17270
 };
 
-class spell_q5206_test_fetid_skull: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q5206_test_fetid_skull: public SpellScriptLoader
 {
     public:
-        spell_q5206_test_fetid_skull() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q5206_test_fetid_skull") { }
+        spell_q5206_test_fetid_skull() : SpellScriptLoader("spell_q5206_test_fetid_skull") { }
 
         class spell_q5206_test_fetid_skull_SpellScript : public SpellScript
         {
@@ -145,10 +145,10 @@ enum Quests6124_6129Data
     DESPAWN_TIME        = 30000
 };
 
-class spell_q6124_6129_apply_salve: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q6124_6129_apply_salve: public SpellScriptLoader
 {
     public:
-        spell_q6124_6129_apply_salve() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q6124_6129_apply_salve") { }
+        spell_q6124_6129_apply_salve() : SpellScriptLoader("spell_q6124_6129_apply_salve") { }
 
         class spell_q6124_6129_apply_salve_SpellScript : public SpellScript
         {
@@ -205,10 +205,10 @@ enum Quest10255Data
     NPC_DREADTUSK   = 16992,
 };
 
-class spell_q10255_administer_antidote: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q10255_administer_antidote: public SpellScriptLoader
 {
     public:
-        spell_q10255_administer_antidote() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q10255_administer_antidote") { }
+        spell_q10255_administer_antidote() : SpellScriptLoader("spell_q10255_administer_antidote") { }
 
         SpellScript* GetSpellScript() const
         {
@@ -225,10 +225,10 @@ enum Quest11396_11399Data
 };
 
 // 43874 Scourge Mur'gul Camp: Force Shield Arcane Purple x3
-class spell_q11396_11399_force_shield_arcane_purple_x3: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q11396_11399_force_shield_arcane_purple_x3: public SpellScriptLoader
 {
     public:
-        spell_q11396_11399_force_shield_arcane_purple_x3() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q11396_11399_force_shield_arcane_purple_x3") { }
+        spell_q11396_11399_force_shield_arcane_purple_x3() : SpellScriptLoader("spell_q11396_11399_force_shield_arcane_purple_x3") { }
 
         class spell_q11396_11399_force_shield_arcane_purple_x3_AuraScript : public AuraScript
         {
@@ -261,10 +261,10 @@ class spell_q11396_11399_force_shield_arcane_purple_x3: public MS::Game::Scripti
 };
 
 // 50133 Scourging Crystal Controller
-class spell_q11396_11399_scourging_crystal_controller: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q11396_11399_scourging_crystal_controller: public SpellScriptLoader
 {
     public:
-        spell_q11396_11399_scourging_crystal_controller() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q11396_11399_scourging_crystal_controller") { }
+        spell_q11396_11399_scourging_crystal_controller() : SpellScriptLoader("spell_q11396_11399_scourging_crystal_controller") { }
 
         class spell_q11396_11399_scourging_crystal_controller_SpellScript : public SpellScript
         {
@@ -299,10 +299,10 @@ class spell_q11396_11399_scourging_crystal_controller: public MS::Game::Scriptin
 };
 
 // 43882 Scourging Crystal Controller Dummy
-class spell_q11396_11399_scourging_crystal_controller_dummy: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q11396_11399_scourging_crystal_controller_dummy: public SpellScriptLoader
 {
     public:
-        spell_q11396_11399_scourging_crystal_controller_dummy() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q11396_11399_scourging_crystal_controller_dummy") { }
+        spell_q11396_11399_scourging_crystal_controller_dummy() : SpellScriptLoader("spell_q11396_11399_scourging_crystal_controller_dummy") { }
 
         class spell_q11396_11399_scourging_crystal_controller_dummy_SpellScript : public SpellScript
         {
@@ -342,10 +342,10 @@ enum Quest11515Data
     NPC_EMACIATED_FELBLOOD  = 24955
 };
 
-class spell_q11515_fel_siphon_dummy: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q11515_fel_siphon_dummy: public SpellScriptLoader
 {
     public:
-        spell_q11515_fel_siphon_dummy() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q11515_fel_siphon_dummy") { }
+        spell_q11515_fel_siphon_dummy() : SpellScriptLoader("spell_q11515_fel_siphon_dummy") { }
 
         SpellScript* GetSpellScript() const
         {
@@ -362,10 +362,10 @@ enum Quest11587Data
     SPELL_ARCANE_PRISONER_KILL_CREDIT    = 45456     // Arcane Prisoner Kill Credit
 };
 
-class spell_q11587_arcane_prisoner_rescue: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q11587_arcane_prisoner_rescue: public SpellScriptLoader
 {
     public:
-        spell_q11587_arcane_prisoner_rescue() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q11587_arcane_prisoner_rescue") { }
+        spell_q11587_arcane_prisoner_rescue() : SpellScriptLoader("spell_q11587_arcane_prisoner_rescue") { }
 
         class spell_q11587_arcane_prisoner_rescue_SpellScript : public SpellScript
         {
@@ -420,10 +420,10 @@ enum Quest11730Data
     NPC_55D_COLLECTATRON            = 25793
 };
 
-class spell_q11730_ultrasonic_screwdriver: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q11730_ultrasonic_screwdriver: public SpellScriptLoader
 {
     public:
-        spell_q11730_ultrasonic_screwdriver() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q11730_ultrasonic_screwdriver") { }
+        spell_q11730_ultrasonic_screwdriver() : SpellScriptLoader("spell_q11730_ultrasonic_screwdriver") { }
 
         class spell_q11730_ultrasonic_screwdriver_SpellScript : public SpellScript
         {
@@ -490,10 +490,10 @@ enum Quest12459Data
     NPC_WEAK_DEATHGAZE              = 27807,
 };
 
-class spell_q12459_seeds_of_natures_wrath: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q12459_seeds_of_natures_wrath: public SpellScriptLoader
 {
     public:
-        spell_q12459_seeds_of_natures_wrath() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q12459_seeds_of_natures_wrath") { }
+        spell_q12459_seeds_of_natures_wrath() : SpellScriptLoader("spell_q12459_seeds_of_natures_wrath") { }
 
         class spell_q12459_seeds_of_natures_wrath_SpellScript : public SpellScript
         {
@@ -537,10 +537,10 @@ enum Quest12634Data
     SPELL_SUMMON_ADVENTUROUS_DWARF  = 52070
 };
 
-class spell_q12634_despawn_fruit_tosser: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q12634_despawn_fruit_tosser: public SpellScriptLoader
 {
     public:
-        spell_q12634_despawn_fruit_tosser() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q12634_despawn_fruit_tosser") { }
+        spell_q12634_despawn_fruit_tosser() : SpellScriptLoader("spell_q12634_despawn_fruit_tosser") { }
 
         class spell_q12634_despawn_fruit_tosser_SpellScript : public SpellScript
         {
@@ -581,10 +581,10 @@ class spell_q12634_despawn_fruit_tosser: public MS::Game::Scripting::Interfaces:
 
 // http://www.wowhead.com/quest=12683 Burning to Help
 // 52308 Take Sputum Sample
-class spell_q12683_take_sputum_sample: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q12683_take_sputum_sample: public SpellScriptLoader
 {
     public:
-        spell_q12683_take_sputum_sample() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q12683_take_sputum_sample") { }
+        spell_q12683_take_sputum_sample() : SpellScriptLoader("spell_q12683_take_sputum_sample") { }
 
         class spell_q12683_take_sputum_sample_SpellScript : public SpellScript
         {
@@ -626,10 +626,10 @@ enum Quest12851Data
     SPELL_ABLAZE            = 54683,
 };
 
-class spell_q12851_going_bearback: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q12851_going_bearback: public SpellScriptLoader
 {
     public:
-        spell_q12851_going_bearback() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q12851_going_bearback") { }
+        spell_q12851_going_bearback() : SpellScriptLoader("spell_q12851_going_bearback") { }
 
         class spell_q12851_going_bearback_AuraScript : public AuraScript
         {
@@ -684,10 +684,10 @@ enum Quest12937Data
     NPC_FALLEN_EARTHEN_DEFENDER         = 30035,
 };
 
-class spell_q12937_relief_for_the_fallen: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q12937_relief_for_the_fallen: public SpellScriptLoader
 {
     public:
-        spell_q12937_relief_for_the_fallen() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q12937_relief_for_the_fallen") { }
+        spell_q12937_relief_for_the_fallen() : SpellScriptLoader("spell_q12937_relief_for_the_fallen") { }
 
         class spell_q12937_relief_for_the_fallen_SpellScript : public SpellScript
         {
@@ -735,10 +735,10 @@ enum Whoarethey
     SPELL_GENERIC_DISGUISE = 32756
 };
 
-class spell_q10041_q10040_who_are_they: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q10041_q10040_who_are_they: public SpellScriptLoader
 {
     public:
-        spell_q10041_q10040_who_are_they() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q10041_q10040_who_are_they") { }
+        spell_q10041_q10040_who_are_they() : SpellScriptLoader("spell_q10041_q10040_who_are_they") { }
 
         class spell_q10041_q10040_who_are_they_SpellScript : public SpellScript
         {
@@ -779,10 +779,10 @@ enum symboloflife
 };
 
 // 8593 Symbol of life dummy
-class spell_symbol_of_life_dummy: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_symbol_of_life_dummy: public SpellScriptLoader
 {
     public:
-        spell_symbol_of_life_dummy() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_symbol_of_life_dummy") { }
+        spell_symbol_of_life_dummy() : SpellScriptLoader("spell_symbol_of_life_dummy") { }
 
         class spell_symbol_of_life_dummy_SpellScript : public SpellScript
         {
@@ -822,10 +822,10 @@ enum Quest12659Data
     NPC_SCALPS_KC_BUNNY = 28622,
 };
 
-class spell_q12659_ahunaes_knife: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q12659_ahunaes_knife: public SpellScriptLoader
 {
     public:
-        spell_q12659_ahunaes_knife() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q12659_ahunaes_knife") { }
+        spell_q12659_ahunaes_knife() : SpellScriptLoader("spell_q12659_ahunaes_knife") { }
 
         class spell_q12659_ahunaes_knife_SpellScript : public SpellScript
         {
@@ -864,10 +864,10 @@ enum StoppingTheSpread
     SPELL_FLAMES                                 = 39199,
 };
 
-class spell_q9874_liquid_fire: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q9874_liquid_fire: public SpellScriptLoader
 {
     public:
-        spell_q9874_liquid_fire() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q9874_liquid_fire") { }
+        spell_q9874_liquid_fire() : SpellScriptLoader("spell_q9874_liquid_fire") { }
 
         class spell_q9874_liquid_fire_SpellScript : public SpellScript
         {
@@ -907,10 +907,10 @@ enum SalvagingLifesStength
     NPC_SHARD_KILL_CREDIT                        = 29303,
 };
 
-class spell_q12805_lifeblood_dummy: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q12805_lifeblood_dummy: public SpellScriptLoader
 {
     public:
-        spell_q12805_lifeblood_dummy() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q12805_lifeblood_dummy") { }
+        spell_q12805_lifeblood_dummy() : SpellScriptLoader("spell_q12805_lifeblood_dummy") { }
 
         class spell_q12805_lifeblood_dummy_SpellScript : public SpellScript
         {
@@ -955,10 +955,10 @@ enum BattleStandard
     NPC_KING_OF_THE_MOUNTAINT_KC                    = 31766,
 };
 
-class spell_q13280_13283_plant_battle_standard: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q13280_13283_plant_battle_standard: public SpellScriptLoader
 {
     public:
-        spell_q13280_13283_plant_battle_standard() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q13280_13283_plant_battle_standard") { }
+        spell_q13280_13283_plant_battle_standard() : SpellScriptLoader("spell_q13280_13283_plant_battle_standard") { }
 
         class spell_q13280_13283_plant_battle_standard_SpellScript : public SpellScript
         {
@@ -992,10 +992,10 @@ enum ChumTheWaterSummons
     SUMMON_NORTH_SEA_BLUE_SHARK = 66740
 };
 
-class spell_q14112_14145_chum_the_water: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q14112_14145_chum_the_water: public SpellScriptLoader
 {
     public:
-        spell_q14112_14145_chum_the_water() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q14112_14145_chum_the_water") { }
+        spell_q14112_14145_chum_the_water() : SpellScriptLoader("spell_q14112_14145_chum_the_water") { }
 
         class spell_q14112_14145_chum_the_water_SpellScript : public SpellScript
         {
@@ -1034,10 +1034,10 @@ enum RedSnapperVeryTasty
     SPELL_NEW_SUMMON_TEST   = 49214,
 };
 
-class spell_q9452_cast_net: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q9452_cast_net: public SpellScriptLoader
 {
     public:
-        spell_q9452_cast_net() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q9452_cast_net") { }
+        spell_q9452_cast_net() : SpellScriptLoader("spell_q9452_cast_net") { }
 
         class spell_q9452_cast_net_SpellScript : public SpellScript
         {
@@ -1073,10 +1073,10 @@ class spell_q9452_cast_net: public MS::Game::Scripting::Interfaces::SpellScriptL
 #define SAY_2 "The Helm of Hodir!"
 #define NPC_KILLCREDIT 30210 // Hodir's Helm KC Bunny
 
-class spell_q12987_read_pronouncement: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q12987_read_pronouncement: public SpellScriptLoader
 {
     public:
-        spell_q12987_read_pronouncement() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q12987_read_pronouncement") { }
+        spell_q12987_read_pronouncement() : SpellScriptLoader("spell_q12987_read_pronouncement") { }
 
         class spell_q12987_read_pronouncement_AuraScript : public AuraScript
         {
@@ -1114,10 +1114,10 @@ enum LeaveNothingToChance
     SPELL_LOWER_MINE_SHAFT_CREDIT   = 48745,
 };
 
-class spell_q12277_wintergarde_mine_explosion: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q12277_wintergarde_mine_explosion: public SpellScriptLoader
 {
     public:
-        spell_q12277_wintergarde_mine_explosion() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q12277_wintergarde_mine_explosion") { }
+        spell_q12277_wintergarde_mine_explosion() : SpellScriptLoader("spell_q12277_wintergarde_mine_explosion") { }
 
         class spell_q12277_wintergarde_mine_explosion_SpellScript : public SpellScript
         {
@@ -1167,10 +1167,10 @@ enum FocusOnTheBeach
     SPELL_BUNNY_CREDIT_BEAM = 47390,
 };
 
-class spell_q12066_bunny_kill_credit: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q12066_bunny_kill_credit: public SpellScriptLoader
 {
     public:
-        spell_q12066_bunny_kill_credit() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q12066_bunny_kill_credit") { }
+        spell_q12066_bunny_kill_credit() : SpellScriptLoader("spell_q12066_bunny_kill_credit") { }
 
         class spell_q12066_bunny_kill_credit_SpellScript : public SpellScript
         {
@@ -1205,10 +1205,10 @@ enum ACleansingSong
     AREA_WINTERGRASPRIVER           = 4388,
 };
 
-class spell_q12735_song_of_cleansing: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q12735_song_of_cleansing: public SpellScriptLoader
 {
     public:
-        spell_q12735_song_of_cleansing() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q12735_song_of_cleansing") { }
+        spell_q12735_song_of_cleansing() : SpellScriptLoader("spell_q12735_song_of_cleansing") { }
 
         class spell_q12735_song_of_cleansing_SpellScript : public SpellScript
         {
@@ -1250,10 +1250,10 @@ enum DefendingWyrmrestTemple
     SPELL_SUMMON_WYRMREST_DEFENDER = 49207
 };
 
-class spell_q12372_cast_from_gossip_trigger: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q12372_cast_from_gossip_trigger: public SpellScriptLoader
 {
     public:
-        spell_q12372_cast_from_gossip_trigger() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q12372_cast_from_gossip_trigger") { }
+        spell_q12372_cast_from_gossip_trigger() : SpellScriptLoader("spell_q12372_cast_from_gossip_trigger") { }
 
         class spell_q12372_cast_from_gossip_trigger_SpellScript : public SpellScript
         {
@@ -1283,10 +1283,10 @@ enum Quest12372Data
     NPC_WYRMREST_TEMPLE_CREDIT = 27698,
 };
 
-class spell_q12372_destabilize_azure_dragonshrine_dummy: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q12372_destabilize_azure_dragonshrine_dummy: public SpellScriptLoader
 {
     public:
-        spell_q12372_destabilize_azure_dragonshrine_dummy() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q12372_destabilize_azure_dragonshrine_dummy") { }
+        spell_q12372_destabilize_azure_dragonshrine_dummy() : SpellScriptLoader("spell_q12372_destabilize_azure_dragonshrine_dummy") { }
 
         class spell_q12372_destabilize_azure_dragonshrine_dummy_SpellScript : public SpellScript
         {
@@ -1328,10 +1328,10 @@ enum Quest11010_11102_11023Data
 };
 
 // 40113 Knockdown Fel Cannon: The Aggro Check Aura
-class spell_q11010_q11102_q11023_aggro_check_aura: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q11010_q11102_q11023_aggro_check_aura: public SpellScriptLoader
 {
     public:
-        spell_q11010_q11102_q11023_aggro_check_aura() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q11010_q11102_q11023_aggro_check_aura") { }
+        spell_q11010_q11102_q11023_aggro_check_aura() : SpellScriptLoader("spell_q11010_q11102_q11023_aggro_check_aura") { }
 
         class spell_q11010_q11102_q11023_aggro_check_aura_AuraScript : public AuraScript
         {
@@ -1357,10 +1357,10 @@ class spell_q11010_q11102_q11023_aggro_check_aura: public MS::Game::Scripting::I
 };
 
 // 40112 Knockdown Fel Cannon: The Aggro Check
-class spell_q11010_q11102_q11023_aggro_check: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q11010_q11102_q11023_aggro_check: public SpellScriptLoader
 {
     public:
-        spell_q11010_q11102_q11023_aggro_check() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q11010_q11102_q11023_aggro_check") { }
+        spell_q11010_q11102_q11023_aggro_check() : SpellScriptLoader("spell_q11010_q11102_q11023_aggro_check") { }
 
         class spell_q11010_q11102_q11023_aggro_check_SpellScript : public SpellScript
         {
@@ -1387,10 +1387,10 @@ class spell_q11010_q11102_q11023_aggro_check: public MS::Game::Scripting::Interf
 };
 
 // 40119 Knockdown Fel Cannon: The Aggro Burst
-class spell_q11010_q11102_q11023_aggro_burst: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q11010_q11102_q11023_aggro_burst: public SpellScriptLoader
 {
     public:
-        spell_q11010_q11102_q11023_aggro_burst() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q11010_q11102_q11023_aggro_burst") { }
+        spell_q11010_q11102_q11023_aggro_burst() : SpellScriptLoader("spell_q11010_q11102_q11023_aggro_burst") { }
 
         class spell_q11010_q11102_q11023_aggro_burst_AuraScript : public AuraScript
         {
@@ -1416,10 +1416,10 @@ class spell_q11010_q11102_q11023_aggro_burst: public MS::Game::Scripting::Interf
 };
 
 // 40056 Knockdown Fel Cannon: Choose Loc
-class spell_q11010_q11102_q11023_choose_loc: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q11010_q11102_q11023_choose_loc: public SpellScriptLoader
 {
     public:
-        spell_q11010_q11102_q11023_choose_loc() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q11010_q11102_q11023_choose_loc") { }
+        spell_q11010_q11102_q11023_choose_loc() : SpellScriptLoader("spell_q11010_q11102_q11023_choose_loc") { }
 
         class spell_q11010_q11102_q11023_choose_loc_SpellScript : public SpellScript
         {
@@ -1454,10 +1454,10 @@ class spell_q11010_q11102_q11023_choose_loc: public MS::Game::Scripting::Interfa
         }
 };
 
-class spell_q11010_q11102_q11023_throw_bomb: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q11010_q11102_q11023_throw_bomb: public SpellScriptLoader
 {
     public:
-        spell_q11010_q11102_q11023_throw_bomb() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q11010_q11102_q11023_throw_bomb") { }
+        spell_q11010_q11102_q11023_throw_bomb() : SpellScriptLoader("spell_q11010_q11102_q11023_throw_bomb") { }
 
         class spell_q11010_q11102_q11023_throw_bomb_SpellScript : public SpellScript
         {
@@ -1486,10 +1486,10 @@ class spell_q11010_q11102_q11023_throw_bomb: public MS::Game::Scripting::Interfa
 
 // http://www.wowhead.com/quest=11008 "Fires Over Skettis"
 // 39844 - Skyguard Blasting Charge
-class spell_q11008_blasting_charge: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q11008_blasting_charge: public SpellScriptLoader
 {
     public:
-        spell_q11008_blasting_charge() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q11008_blasting_charge") { }
+        spell_q11008_blasting_charge() : SpellScriptLoader("spell_q11008_blasting_charge") { }
 
         class spell_q11008_blasting_charge_SpellScript : public SpellScript
         {
@@ -1526,10 +1526,10 @@ enum Quest13291_13292_13239_13261Data
     SPELL_RIDE         = 56687
 };
 
-class spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy: public SpellScriptLoader
 {
     public:
-        spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy") { }
+        spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy() : SpellScriptLoader("spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy") { }
 
         class spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy_SpellScript : public SpellScript
         {
@@ -1564,10 +1564,10 @@ class spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy: public M
         }
 };
 
-class spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon: public SpellScriptLoader
 {
     public:
-        spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon") { }
+        spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon() : SpellScriptLoader("spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon") { }
 
         class spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon_SpellScript : public SpellScript
         {
@@ -1596,10 +1596,10 @@ class spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon: public MS
 };
 
 // 27421 Rayne's Seed
-class spell_q27421_rayne_seed: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q27421_rayne_seed: public SpellScriptLoader
 {
     public:
-        spell_q27421_rayne_seed() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q27421_rayne_seed") { }
+        spell_q27421_rayne_seed() : SpellScriptLoader("spell_q27421_rayne_seed") { }
 
         class spell_q27421_rayne_seed_SpellScript : public SpellScript
         {
@@ -1640,10 +1640,10 @@ class spell_q27421_rayne_seed: public MS::Game::Scripting::Interfaces::SpellScri
 };
 
 // 50662 Resuscitate
-class spell_q12512_resuscitate: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q12512_resuscitate: public SpellScriptLoader
 {
     public:
-        spell_q12512_resuscitate() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q12512_resuscitate") { }
+        spell_q12512_resuscitate() : SpellScriptLoader("spell_q12512_resuscitate") { }
 
         class spell_q12512_resuscitate_SpellScript : public SpellScript
         {
@@ -1677,10 +1677,10 @@ class spell_q12512_resuscitate: public MS::Game::Scripting::Interfaces::SpellScr
         };
 };
 
-class spell_q25792_burn_constriction_totem: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q25792_burn_constriction_totem: public SpellScriptLoader
 {
     public:
-        spell_q25792_burn_constriction_totem() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q25792_burn_constriction_totem") { }
+        spell_q25792_burn_constriction_totem() : SpellScriptLoader("spell_q25792_burn_constriction_totem") { }
 
         class spell_q25792_burn_constriction_totem_SpellScript : public SpellScript
         {
@@ -1711,10 +1711,10 @@ class spell_q25792_burn_constriction_totem: public MS::Game::Scripting::Interfac
 };
 
 // 40056 Knockdown Fel Cannon: Choose Loc
-class spell_q28334_darla_box_megaflares: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q28334_darla_box_megaflares: public SpellScriptLoader
 {
     public:
-        spell_q28334_darla_box_megaflares() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q28334_darla_box_megaflares") { }
+        spell_q28334_darla_box_megaflares() : SpellScriptLoader("spell_q28334_darla_box_megaflares") { }
 
         class spell_q28334_darla_box_megaflares_AuraScript : public AuraScript
         {
@@ -1759,10 +1759,10 @@ class spell_q28334_darla_box_megaflares: public MS::Game::Scripting::Interfaces:
 };
 
 // Ping Bunny - 122816
-class spell_q31112_ping_bunny: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q31112_ping_bunny: public SpellScriptLoader
 {
     public:
-        spell_q31112_ping_bunny() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q31112_ping_bunny") { }
+        spell_q31112_ping_bunny() : SpellScriptLoader("spell_q31112_ping_bunny") { }
 
         class spell_q31112_ping_bunny_SpellScript : public SpellScript
         {
@@ -1791,10 +1791,10 @@ class spell_q31112_ping_bunny: public MS::Game::Scripting::Interfaces::SpellScri
 #define AGITATED_EARTH_SPIRIT                  36845
 #define AGITATED_EARTH_SPIRIT_KILL_CREDIT      36872
 
-class spell_q14491_soothe_earth_spirit: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q14491_soothe_earth_spirit: public SpellScriptLoader
 {
     public:
-        spell_q14491_soothe_earth_spirit() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q14491_soothe_earth_spirit") { }
+        spell_q14491_soothe_earth_spirit() : SpellScriptLoader("spell_q14491_soothe_earth_spirit") { }
 
         class spell_q14491_soothe_earth_spirit_SpellScript : public SpellScript
         {
@@ -1832,10 +1832,10 @@ class spell_q14491_soothe_earth_spirit: public MS::Game::Scripting::Interfaces::
 #define MULGORE_OFFERING_KILL_CREDIT     38438
 #define GREATMOTHER_HAWKWIND     2991
 
-class spell_q24861_funeral_offering: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q24861_funeral_offering: public SpellScriptLoader
 {
     public:
-        spell_q24861_funeral_offering() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q24861_funeral_offering") { }
+        spell_q24861_funeral_offering() : SpellScriptLoader("spell_q24861_funeral_offering") { }
 
         class spell_q24861_funeral_offering_SpellScript : public SpellScript
         {
@@ -1867,10 +1867,10 @@ enum Quest_The_Storm_King
     SPELL_GRABBED               = 55424
 };
 
-class spell_q12919_gymers_grab: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q12919_gymers_grab: public SpellScriptLoader
 {
     public:
-        spell_q12919_gymers_grab() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q12919_gymers_grab") { }
+        spell_q12919_gymers_grab() : SpellScriptLoader("spell_q12919_gymers_grab") { }
 
         class spell_q12919_gymers_grab_SpellScript : public SpellScript
         {
@@ -1909,10 +1909,10 @@ enum Quest_The_Storm_King_Throw
     SPELL_VARGUL_EXPLOSION      = 55569
 };
 
-class spell_q12919_gymers_throw: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q12919_gymers_throw: public SpellScriptLoader
 {
     public:
-        spell_q12919_gymers_throw() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q12919_gymers_throw") { }
+        spell_q12919_gymers_throw() : SpellScriptLoader("spell_q12919_gymers_throw") { }
 
         class spell_q12919_gymers_throw_SpellScript : public SpellScript
         {
@@ -1945,10 +1945,10 @@ class spell_q12919_gymers_throw: public MS::Game::Scripting::Interfaces::SpellSc
 Many quest those require spell cast on trainng dummies. Starting quest class level 3
 */
 
-class spell_quests_spell_hit: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_quests_spell_hit: public SpellScriptLoader
 {
     public:
-        spell_quests_spell_hit() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_quests_spell_hit") { }
+        spell_quests_spell_hit() : SpellScriptLoader("spell_quests_spell_hit") { }
 
         class spell_quests_spell_hit_SpellScript : public SpellScript
         {
@@ -1976,10 +1976,10 @@ class spell_quests_spell_hit: public MS::Game::Scripting::Interfaces::SpellScrip
 
 #define BATHRAN_S_CORPSE     33183
 
-class spell_q13595_bottle_of_wildfire: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q13595_bottle_of_wildfire: public SpellScriptLoader
 {
     public:
-        spell_q13595_bottle_of_wildfire() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q13595_bottle_of_wildfire") { }
+        spell_q13595_bottle_of_wildfire() : SpellScriptLoader("spell_q13595_bottle_of_wildfire") { }
 
         class spell_q13595_bottle_of_wildfire_SpellScript : public SpellScript
         {
@@ -2007,10 +2007,10 @@ class spell_q13595_bottle_of_wildfire: public MS::Game::Scripting::Interfaces::S
 
 #define TIDAL_SPIRIT_KILL_CREDIT     32937
 
-class spell_q13523_elune_s_presence_dummy: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q13523_elune_s_presence_dummy: public SpellScriptLoader
 {
     public:
-        spell_q13523_elune_s_presence_dummy() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q13523_elune_s_presence_dummy") { }
+        spell_q13523_elune_s_presence_dummy() : SpellScriptLoader("spell_q13523_elune_s_presence_dummy") { }
 
         class spell_q13523_elune_s_presence_dummy_SpellScript : public SpellScript
         {
@@ -2037,10 +2037,10 @@ class spell_q13523_elune_s_presence_dummy: public MS::Game::Scripting::Interface
 
 #define ZORAM_GAR_LIGHTHOUSE_KILL_CREDIT     34329
 
-class spell_q13890_throw_oil: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q13890_throw_oil: public SpellScriptLoader
 {
     public:
-        spell_q13890_throw_oil() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q13890_throw_oil") { }
+        spell_q13890_throw_oil() : SpellScriptLoader("spell_q13890_throw_oil") { }
 
         class spell_q13890_throw_oil_SpellScript : public SpellScript
         {
@@ -2067,10 +2067,10 @@ class spell_q13890_throw_oil: public MS::Game::Scripting::Interfaces::SpellScrip
 
 #define DWARVEN_ARTILLERY_GEARS_KILL_CREDIT     38250
 
-class spell_q24747_custom_kill_credit: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q24747_custom_kill_credit: public SpellScriptLoader
 {
     public:
-        spell_q24747_custom_kill_credit() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q24747_custom_kill_credit") { }
+        spell_q24747_custom_kill_credit() : SpellScriptLoader("spell_q24747_custom_kill_credit") { }
 
         class spell_q24747_custom_kill_credit_SpellScript : public SpellScript
         {
@@ -2099,10 +2099,10 @@ class spell_q24747_custom_kill_credit: public MS::Game::Scripting::Interfaces::S
 #define KYPARI_ZAR_KILL_CREDIT_2 63287
 #define KYPARI_ZAR_QUEST 31022
 
-class spell_q31022_attune_to_kypari_vos: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q31022_attune_to_kypari_vos: public SpellScriptLoader
 {
     public:
-        spell_q31022_attune_to_kypari_vos() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q31022_attune_to_kypari_vos") { }
+        spell_q31022_attune_to_kypari_vos() : SpellScriptLoader("spell_q31022_attune_to_kypari_vos") { }
 
         class spell_q31022_attune_to_kypari_vos_SpellScript : public SpellScript
         {
@@ -2140,10 +2140,10 @@ class spell_q31022_attune_to_kypari_vos: public MS::Game::Scripting::Interfaces:
 #define FIRES_FIRST_KILL_CREDIT 63107
 #define FIRES_SECOND_KILL_CREDIT 63108
 
-class spell_q31085_ruining_fork: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q31085_ruining_fork: public SpellScriptLoader
 {
     public:
-        spell_q31085_ruining_fork() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q31085_ruining_fork") { }
+        spell_q31085_ruining_fork() : SpellScriptLoader("spell_q31085_ruining_fork") { }
 
         class spell_q31085_ruining_fork_SpellScript : public SpellScript
         {
@@ -2181,10 +2181,10 @@ class spell_q31085_ruining_fork: public MS::Game::Scripting::Interfaces::SpellSc
 #define IN_HER_CLUTCH_QUEST 31010
 #define CRYSTAL_KILL_CREDIT 62665
 
-class spell_q31009_klaxxi_resoning_crystal: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q31009_klaxxi_resoning_crystal: public SpellScriptLoader
 {
     public:
-        spell_q31009_klaxxi_resoning_crystal() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q31009_klaxxi_resoning_crystal") { }
+        spell_q31009_klaxxi_resoning_crystal() : SpellScriptLoader("spell_q31009_klaxxi_resoning_crystal") { }
 
         class spell_q31009_klaxxi_resoning_crystal_SpellScript : public SpellScript
         {
@@ -2226,10 +2226,10 @@ class spell_q31009_klaxxi_resoning_crystal: public MS::Game::Scripting::Interfac
 #define QUEST_A_WORTHY_BREW 31538
 #define A_WORTHY_BREW_KILL_CREDIT 64945
 
-class spell_q31538_ella_s_brew: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q31538_ella_s_brew: public SpellScriptLoader
 {
     public:
-        spell_q31538_ella_s_brew() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q31538_ella_s_brew")
+        spell_q31538_ella_s_brew() : SpellScriptLoader("spell_q31538_ella_s_brew")
         {
         }
 
@@ -2289,10 +2289,10 @@ class spell_q31538_ella_s_brew: public MS::Game::Scripting::Interfaces::SpellScr
         }
 };
 
-class spell_q29939_throw_goblin_fisher: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q29939_throw_goblin_fisher: public SpellScriptLoader
 {
     public:
-        spell_q29939_throw_goblin_fisher() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q29939_throw_goblin_fisher")
+        spell_q29939_throw_goblin_fisher() : SpellScriptLoader("spell_q29939_throw_goblin_fisher")
         {
         }
 
@@ -2327,10 +2327,10 @@ class spell_q29939_throw_goblin_fisher: public MS::Game::Scripting::Interfaces::
         }
 };
 
-class spell_q30151_throw_ball: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q30151_throw_ball: public SpellScriptLoader
 {
     public:
-        spell_q30151_throw_ball() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q30151_throw_ball")
+        spell_q30151_throw_ball() : SpellScriptLoader("spell_q30151_throw_ball")
         {
         }
 
@@ -2361,10 +2361,10 @@ class spell_q30151_throw_ball: public MS::Game::Scripting::Interfaces::SpellScri
         }
 };
 
-class spell_q30136_silken_rope: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_q30136_silken_rope: public SpellScriptLoader
 {
     public:
-        spell_q30136_silken_rope() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q30136_silken_rope")
+        spell_q30136_silken_rope() : SpellScriptLoader("spell_q30136_silken_rope")
         {
         }
 

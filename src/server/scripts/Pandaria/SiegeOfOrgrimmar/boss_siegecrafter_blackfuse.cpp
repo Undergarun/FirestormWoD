@@ -56,10 +56,10 @@ enum eSays
     */
 };
 
-class boss_siegecrafter_blackfuse : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_siegecrafter_blackfuse : public CreatureScript
 {
 	public:
-		boss_siegecrafter_blackfuse() : MS::Game::Scripting::Interfaces::CreatureScript("boss_siegecrafter_blackfuse") { }
+		boss_siegecrafter_blackfuse() : CreatureScript("boss_siegecrafter_blackfuse") { }
 
 		struct boss_siegecrafter_blackfuseAI : public BossAI
 		{
@@ -144,10 +144,10 @@ class boss_siegecrafter_blackfuse : public MS::Game::Scripting::Interfaces::Crea
 		}
 };
 
-class mob_automated_shredder : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_automated_shredder : public CreatureScript
 {
 	public:
-		mob_automated_shredder() : MS::Game::Scripting::Interfaces::CreatureScript("mob_automated_shredder") { }
+		mob_automated_shredder() : CreatureScript("mob_automated_shredder") { }
 
 		struct mob_automated_shredderAI : public ScriptedAI
 		{

@@ -28,10 +28,10 @@
 3- Sjonnir The Ironshaper
 */
 
-class instance_halls_of_stone : public MS::Game::Scripting::Interfaces::InstanceMapScript
+class instance_halls_of_stone : public InstanceMapScript
 {
 public:
-    instance_halls_of_stone() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_halls_of_stone", 599) { }
+    instance_halls_of_stone() : InstanceMapScript("instance_halls_of_stone", 599) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {

@@ -18,12 +18,12 @@ enum
     GARRISON_KEEPING_IT_TOGETHER    = 0x0004,
 };
 
-class instance_Garrison_A1 : public MS::Game::Scripting::Interfaces::InstanceMapScript
+class instance_Garrison_A1 : public InstanceMapScript
 {
     public:
         /// Constructor
         instance_Garrison_A1()
-            : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_Garrison_A1", 1158)
+            : InstanceMapScript("instance_Garrison_A1", 1158)
         {
 
         }

@@ -24,10 +24,10 @@
 
 #define GOSSIP_SENDER_ULDUAR_PORT 603
 
-class ulduar_teleporter : public MS::Game::Scripting::Interfaces::GameObjectScript
+class ulduar_teleporter : public GameObjectScript
 {
     public:
-        ulduar_teleporter() : MS::Game::Scripting::Interfaces::GameObjectScript("ulduar_teleporter") { }
+        ulduar_teleporter() : GameObjectScript("ulduar_teleporter") { }
 
         bool OnGossipHello(Player* player, GameObject* gameObject)
         {

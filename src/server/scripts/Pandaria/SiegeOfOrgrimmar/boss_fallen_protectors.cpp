@@ -122,10 +122,10 @@ enum ePhases
     PHASE_MEDITATION
 };
 
-class boss_sun_tenderheart : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_sun_tenderheart : public CreatureScript
 {
 	public:
-		boss_sun_tenderheart() : MS::Game::Scripting::Interfaces::CreatureScript("boss_sun_tenderheart") { }
+		boss_sun_tenderheart() : CreatureScript("boss_sun_tenderheart") { }
 
 		struct boss_sun_tenderheartAI : public BossAI
 		{
@@ -317,10 +317,10 @@ class boss_sun_tenderheart : public MS::Game::Scripting::Interfaces::CreatureScr
 		}
 };
 
-class boss_he_softfoot : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_he_softfoot : public CreatureScript
 {
     public:
-        boss_he_softfoot() : MS::Game::Scripting::Interfaces::CreatureScript("boss_he_softfoot") { }
+        boss_he_softfoot() : CreatureScript("boss_he_softfoot") { }
 
         struct boss_he_softfootAI : public BossAI
         {
@@ -512,10 +512,10 @@ class boss_he_softfoot : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class boss_rook_stonetoe : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_rook_stonetoe : public CreatureScript
 {
     public:
-        boss_rook_stonetoe() : MS::Game::Scripting::Interfaces::CreatureScript("boss_rook_stonetoe") { }
+        boss_rook_stonetoe() : CreatureScript("boss_rook_stonetoe") { }
 
         struct boss_rook_stonetoeAI : public BossAI
         {
@@ -703,10 +703,10 @@ class boss_rook_stonetoe : public MS::Game::Scripting::Interfaces::CreatureScrip
         }
 };
 
-class mob_embodied_misery : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_embodied_misery : public CreatureScript
 {
     public:
-        mob_embodied_misery() : MS::Game::Scripting::Interfaces::CreatureScript("mob_embodied_misery") { }
+        mob_embodied_misery() : CreatureScript("mob_embodied_misery") { }
 
         struct mob_embodied_miseryAI : public ScriptedAI
         {
@@ -757,10 +757,10 @@ class mob_embodied_misery : public MS::Game::Scripting::Interfaces::CreatureScri
         }
 };
 
-class mob_embodied_sorrow : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_embodied_sorrow : public CreatureScript
 {
     public:
-        mob_embodied_sorrow() : MS::Game::Scripting::Interfaces::CreatureScript("mob_embodied_sorrow") { }
+        mob_embodied_sorrow() : CreatureScript("mob_embodied_sorrow") { }
 
         struct mob_embodied_sorrowAI : public ScriptedAI
         {
@@ -811,10 +811,10 @@ class mob_embodied_sorrow : public MS::Game::Scripting::Interfaces::CreatureScri
         }
 };
 
-class mob_embodied_gloom : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_embodied_gloom : public CreatureScript
 {
     public:
-        mob_embodied_gloom() : MS::Game::Scripting::Interfaces::CreatureScript("mob_embodied_gloom") { }
+        mob_embodied_gloom() : CreatureScript("mob_embodied_gloom") { }
 
         struct mob_embodied_gloomAI : public ScriptedAI
         {
@@ -865,10 +865,10 @@ class mob_embodied_gloom : public MS::Game::Scripting::Interfaces::CreatureScrip
         }
 };
 
-class mob_embodied_despair : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_embodied_despair : public CreatureScript
 {
     public:
-        mob_embodied_despair() : MS::Game::Scripting::Interfaces::CreatureScript("mob_embodied_despair") { }
+        mob_embodied_despair() : CreatureScript("mob_embodied_despair") { }
 
         struct mob_embodied_despairAI : public ScriptedAI
         {
@@ -905,10 +905,10 @@ class mob_embodied_despair : public MS::Game::Scripting::Interfaces::CreatureScr
         }
 };
 
-class mob_embodied_desperation : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_embodied_desperation : public CreatureScript
 {
     public:
-        mob_embodied_desperation() : MS::Game::Scripting::Interfaces::CreatureScript("mob_embodied_desperation") { }
+        mob_embodied_desperation() : CreatureScript("mob_embodied_desperation") { }
 
         struct mob_embodied_desperationAI : public ScriptedAI
         {
@@ -946,10 +946,10 @@ class mob_embodied_desperation : public MS::Game::Scripting::Interfaces::Creatur
 };
 
 // Calamity - 143491
-class spell_calamity_aoe: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_calamity_aoe: public SpellScriptLoader
 {
     public:
-        spell_calamity_aoe() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_calamity_aoe") { }
+        spell_calamity_aoe() : SpellScriptLoader("spell_calamity_aoe") { }
 
         class spell_calamity_aoe_SpellScript : public SpellScript
         {

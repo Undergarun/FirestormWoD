@@ -29,10 +29,10 @@
 4 - Eck the Ferocious
 */
 
-class instance_gundrak : public MS::Game::Scripting::Interfaces::InstanceMapScript
+class instance_gundrak : public InstanceMapScript
 {
 public:
-    instance_gundrak() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_gundrak", 604) { }
+    instance_gundrak() : InstanceMapScript("instance_gundrak", 604) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
@@ -516,10 +516,10 @@ public:
 
 };
 
-class go_gundrak_altar : public MS::Game::Scripting::Interfaces::GameObjectScript
+class go_gundrak_altar : public GameObjectScript
 {
 public:
-    go_gundrak_altar() : MS::Game::Scripting::Interfaces::GameObjectScript("go_gundrak_altar") { }
+    go_gundrak_altar() : GameObjectScript("go_gundrak_altar") { }
 
     bool OnGossipHello(Player* /*player*/, GameObject* go)
     {

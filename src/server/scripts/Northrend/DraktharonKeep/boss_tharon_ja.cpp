@@ -65,10 +65,10 @@ enum CombatPhase
     GOING_SKELETAL
 };
 
-class boss_tharon_ja : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_tharon_ja : public CreatureScript
 {
 public:
-    boss_tharon_ja() : MS::Game::Scripting::Interfaces::CreatureScript("boss_tharon_ja") { }
+    boss_tharon_ja() : CreatureScript("boss_tharon_ja") { }
 
     struct boss_tharon_jaAI : public ScriptedAI
     {

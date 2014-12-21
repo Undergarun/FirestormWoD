@@ -111,10 +111,10 @@ const Position poolPos[5] =
     {2792.82f, 1.93924f, 2.46328f, 0.0f}
 };
 
-class boss_echo_of_tyrande : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_echo_of_tyrande : public CreatureScript
 {
     public:
-        boss_echo_of_tyrande() : MS::Game::Scripting::Interfaces::CreatureScript("boss_echo_of_tyrande") { }
+        boss_echo_of_tyrande() : CreatureScript("boss_echo_of_tyrande") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -431,10 +431,10 @@ class boss_echo_of_tyrande : public MS::Game::Scripting::Interfaces::CreatureScr
         };
 };
 
-class npc_echo_of_tyrande_moonlance : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_echo_of_tyrande_moonlance : public CreatureScript
 {
     public:
-        npc_echo_of_tyrande_moonlance() : MS::Game::Scripting::Interfaces::CreatureScript("npc_echo_of_tyrande_moonlance") { }
+        npc_echo_of_tyrande_moonlance() : CreatureScript("npc_echo_of_tyrande_moonlance") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -481,10 +481,10 @@ class npc_echo_of_tyrande_moonlance : public MS::Game::Scripting::Interfaces::Cr
         };
 };
 
-class npc_echo_of_tyrande_pool_of_moonlight : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_echo_of_tyrande_pool_of_moonlight : public CreatureScript
 {
     public:
-        npc_echo_of_tyrande_pool_of_moonlight() : MS::Game::Scripting::Interfaces::CreatureScript("npc_echo_of_tyrande_pool_of_moonlight") { }
+        npc_echo_of_tyrande_pool_of_moonlight() : CreatureScript("npc_echo_of_tyrande_pool_of_moonlight") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -528,10 +528,10 @@ class npc_echo_of_tyrande_pool_of_moonlight : public MS::Game::Scripting::Interf
         };
 };
 
-class spell_echo_of_tyrande_tears_of_elune_script: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_echo_of_tyrande_tears_of_elune_script: public SpellScriptLoader
 {
     public:
-        spell_echo_of_tyrande_tears_of_elune_script() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_echo_of_tyrande_tears_of_elune_script") { }
+        spell_echo_of_tyrande_tears_of_elune_script() : SpellScriptLoader("spell_echo_of_tyrande_tears_of_elune_script") { }
 
         class spell_echo_of_tyrande_tears_of_elune_script_SpellScript : public SpellScript
         {
@@ -558,10 +558,10 @@ class spell_echo_of_tyrande_tears_of_elune_script: public MS::Game::Scripting::I
         }
 };
 
-class at_et_tyrande : public MS::Game::Scripting::Interfaces::AreaTriggerScript
+class at_et_tyrande : public AreaTriggerScript
 {
     public:
-        at_et_tyrande() : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_et_tyrande") { }
+        at_et_tyrande() : AreaTriggerScript("at_et_tyrande") { }
 
         bool OnTrigger(Player* pPlayer, const AreaTriggerEntry* /*pAt*/)
         {

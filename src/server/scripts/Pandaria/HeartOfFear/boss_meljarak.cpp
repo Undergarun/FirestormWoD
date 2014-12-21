@@ -261,10 +261,10 @@ bool StartPack(InstanceScript* pInstance, Creature* launcher, Unit* attacker)
     return true;
 }
 
-class boss_wind_lord_meljarak : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_wind_lord_meljarak : public CreatureScript
 {
 public:
-    boss_wind_lord_meljarak() : MS::Game::Scripting::Interfaces::CreatureScript("boss_wind_lord_meljarak") { }
+    boss_wind_lord_meljarak() : CreatureScript("boss_wind_lord_meljarak") { }
 
     struct boss_wind_lord_meljarakAI : public BossAI
     {
@@ -765,10 +765,10 @@ public:
 };
 
 // Korthik Elite Blademaster: 62402 - handled in boss script, script here only used for life sharing
-class npc_korthik_elite_blademaster : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_korthik_elite_blademaster : public CreatureScript
 {
 public:
-    npc_korthik_elite_blademaster() : MS::Game::Scripting::Interfaces::CreatureScript("npc_korthik_elite_blademaster") { }
+    npc_korthik_elite_blademaster() : CreatureScript("npc_korthik_elite_blademaster") { }
 
     struct npc_korthik_elite_blademasterAI: public ScriptedAI
     {
@@ -901,10 +901,10 @@ struct NonAlreadyAmberPrisoner : public std::unary_function<Unit*, bool>
 };
 
 // Srathik Amber Trapper: 62405.
-class npc_srathik_amber_trapper : public MS::Game::Scripting::Interfaces::CreatureScript 
+class npc_srathik_amber_trapper : public CreatureScript 
 {
 public:
-    npc_srathik_amber_trapper() : MS::Game::Scripting::Interfaces::CreatureScript("npc_srathik_amber_trapper") { }
+    npc_srathik_amber_trapper() : CreatureScript("npc_srathik_amber_trapper") { }
 
     struct npc_srathik_amber_trapperAI: public ScriptedAI 
     {
@@ -1062,10 +1062,10 @@ public:
 };
 
 // Zarthik Battle Mender: 62408.
-class npc_zarthik_battle_mender : public MS::Game::Scripting::Interfaces::CreatureScript 
+class npc_zarthik_battle_mender : public CreatureScript 
 {
 public:
-    npc_zarthik_battle_mender() : MS::Game::Scripting::Interfaces::CreatureScript("npc_zarthik_battle_mender") { }
+    npc_zarthik_battle_mender() : CreatureScript("npc_zarthik_battle_mender") { }
 
     struct npc_zarthik_battle_menderAI: public ScriptedAI 
     {
@@ -1232,10 +1232,10 @@ public:
 };
 
 // Wind Bomb: 67053.
-class npc_wind_bomb_meljarak : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_wind_bomb_meljarak : public CreatureScript
 {
     public:
-        npc_wind_bomb_meljarak() : MS::Game::Scripting::Interfaces::CreatureScript("npc_wind_bomb_meljarak") { }
+        npc_wind_bomb_meljarak() : CreatureScript("npc_wind_bomb_meljarak") { }
 
         struct npc_wind_bomb_meljarakAI : public ScriptedAI
         {
@@ -1287,10 +1287,10 @@ class npc_wind_bomb_meljarak : public MS::Game::Scripting::Interfaces::CreatureS
 };
 
 // Corrosive Resin Pool: 67046.
-class npc_corrosive_resin_pool : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_corrosive_resin_pool : public CreatureScript
 {
 public:
-	npc_corrosive_resin_pool() : MS::Game::Scripting::Interfaces::CreatureScript("npc_corrosive_resin_pool") { }
+	npc_corrosive_resin_pool() : CreatureScript("npc_corrosive_resin_pool") { }
 
 	struct npc_corrosive_resin_poolAI : public ScriptedAI
 	{
@@ -1313,10 +1313,10 @@ public:
 };
 
 // Amber Prison: 62531.
-class npc_amber_prison_meljarak : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_amber_prison_meljarak : public CreatureScript
 {
 public:
-    npc_amber_prison_meljarak() : MS::Game::Scripting::Interfaces::CreatureScript("npc_amber_prison_meljarak") { }
+    npc_amber_prison_meljarak() : CreatureScript("npc_amber_prison_meljarak") { }
 
     struct npc_amber_prison_meljarakAI : public ScriptedAI
     {
@@ -1364,7 +1364,7 @@ public:
 };
 
 // 63930 - Whirling Blade
-class npc_whirling_blade : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_whirling_blade : public CreatureScript
 {
 public:
     npc_whirling_blade(): CreatureScript("npc_whirling_blade") { }
@@ -1431,10 +1431,10 @@ public:
 };
 
 // Corrosive Resin: 122064.
-class spell_meljarak_corrosive_resin: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_meljarak_corrosive_resin: public SpellScriptLoader
 {
     public:
-        spell_meljarak_corrosive_resin() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_meljarak_corrosive_resin") { }
+        spell_meljarak_corrosive_resin() : SpellScriptLoader("spell_meljarak_corrosive_resin") { }
 
         class spell_meljarak_corrosive_resin_AuraScript : public AuraScript
         {
@@ -1477,10 +1477,10 @@ class spell_meljarak_corrosive_resin: public MS::Game::Scripting::Interfaces::Sp
 };
 
 // mending - 122147
-class spell_mending: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_mending: public SpellScriptLoader
 {
 public:
-    spell_mending() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mending") { }
+    spell_mending() : SpellScriptLoader("spell_mending") { }
 
     class spell_mending_SpellScript : public SpellScript
     {
@@ -1537,10 +1537,10 @@ public:
 };
 
 // 121897 - Whirling Blade - Flying Sword
-class spell_whirling_blade_sword: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_whirling_blade_sword: public SpellScriptLoader
 {
 public:
-    spell_whirling_blade_sword() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_whirling_blade_sword") { }
+    spell_whirling_blade_sword() : SpellScriptLoader("spell_whirling_blade_sword") { }
 
     class spell_whirling_blade_sword_SpellScript : public SpellScript
     {
@@ -1579,10 +1579,10 @@ public:
 };
 
 // 121898 - Wirling Blade - Damages
-class spell_whirling_blade_damages: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_whirling_blade_damages: public SpellScriptLoader
 {
 public:
-    spell_whirling_blade_damages() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_whirling_blade_damages") { }
+    spell_whirling_blade_damages() : SpellScriptLoader("spell_whirling_blade_damages") { }
 
     class spell_whirling_blade_damages_SpellScript : public SpellScript
     {
@@ -1625,10 +1625,10 @@ public:
 };
 
 // 211675 - Kri'thik Weapon Rack
-class go_krithik_weapon_rack : public MS::Game::Scripting::Interfaces::GameObjectScript
+class go_krithik_weapon_rack : public GameObjectScript
 {
     public:
-        go_krithik_weapon_rack() : MS::Game::Scripting::Interfaces::GameObjectScript("go_krithik_weapon_rack") { }
+        go_krithik_weapon_rack() : GameObjectScript("go_krithik_weapon_rack") { }
 
         bool OnGossipHello(Player* player, GameObject* go)
         {

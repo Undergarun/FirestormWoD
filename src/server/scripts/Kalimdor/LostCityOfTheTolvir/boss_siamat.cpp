@@ -90,10 +90,10 @@ const uint32 StaticShock[3]=
 
 #define    FLOR_COORD_Z    36.0f
 
-class boss_siamat : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_siamat : public CreatureScript
 {
 public:
-    boss_siamat() : MS::Game::Scripting::Interfaces::CreatureScript("boss_siamat") { }
+    boss_siamat() : CreatureScript("boss_siamat") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -270,10 +270,10 @@ public:
     };
 };
 
-class npc_servant_of_siamat : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_servant_of_siamat : public CreatureScript
 {
 public:
-    npc_servant_of_siamat() : MS::Game::Scripting::Interfaces::CreatureScript("npc_servant_of_siamat") { }
+    npc_servant_of_siamat() : CreatureScript("npc_servant_of_siamat") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -369,10 +369,10 @@ public:
     };
 };
 
-class npc_siamat_minion : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_siamat_minion : public CreatureScript
 {
 public:
-    npc_siamat_minion() : MS::Game::Scripting::Interfaces::CreatureScript("npc_siamat_minion") { }
+    npc_siamat_minion() : CreatureScript("npc_siamat_minion") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -460,10 +460,10 @@ public:
     };
 };
 
-class npc_cloud_burst : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_cloud_burst : public CreatureScript
 {
 public:
-    npc_cloud_burst() : MS::Game::Scripting::Interfaces::CreatureScript("npc_cloud_burst") { }
+    npc_cloud_burst() : CreatureScript("npc_cloud_burst") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -500,10 +500,10 @@ public:
     };
 };
 
-class spell_wailing_winds: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_wailing_winds: public SpellScriptLoader
 {
     public:
-        spell_wailing_winds() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_wailing_winds") { }
+        spell_wailing_winds() : SpellScriptLoader("spell_wailing_winds") { }
 
         class spell_wailing_winds_SpellScript : public SpellScript
         {
@@ -549,10 +549,10 @@ class spell_wailing_winds: public MS::Game::Scripting::Interfaces::SpellScriptLo
         }
 };
 
-class spell_gathered_storms: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_gathered_storms: public SpellScriptLoader
 {
     public:
-        spell_gathered_storms() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gathered_storms") { }
+        spell_gathered_storms() : SpellScriptLoader("spell_gathered_storms") { }
 
         class spell_gathered_storms_SpellScript : public SpellScript
         {
@@ -587,10 +587,10 @@ class spell_gathered_storms: public MS::Game::Scripting::Interfaces::SpellScript
         }
 };
 
-class achievement_headed_south : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
+class achievement_headed_south : public AchievementCriteriaScript
 {
     public:
-        achievement_headed_south() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_headed_south") { }
+        achievement_headed_south() : AchievementCriteriaScript("achievement_headed_south") { }
 
         bool OnCheck(Player* source, Unit* /*target*/)
         {

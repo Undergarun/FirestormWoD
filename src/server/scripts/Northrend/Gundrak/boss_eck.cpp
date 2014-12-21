@@ -30,10 +30,10 @@ enum Spells
 
 static Position EckSpawnPoint = { 1643.877930f, 936.278015f, 107.204948f, 0.668432f };
 
-class boss_eck : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_eck : public CreatureScript
 {
 public:
-    boss_eck() : MS::Game::Scripting::Interfaces::CreatureScript("boss_eck") { }
+    boss_eck() : CreatureScript("boss_eck") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -134,10 +134,10 @@ public:
 
 };
 
-class npc_ruins_dweller : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_ruins_dweller : public CreatureScript
 {
 public:
-    npc_ruins_dweller() : MS::Game::Scripting::Interfaces::CreatureScript("npc_ruins_dweller") { }
+    npc_ruins_dweller() : CreatureScript("npc_ruins_dweller") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

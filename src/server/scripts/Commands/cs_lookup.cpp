@@ -29,10 +29,10 @@ EndScriptData */
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 
-class lookup_commandscript: public MS::Game::Scripting::Interfaces::CommandScript
+class lookup_commandscript: public CommandScript
 {
 public:
-    lookup_commandscript() : MS::Game::Scripting::Interfaces::CommandScript("lookup_commandscript") { }
+    lookup_commandscript() : CommandScript("lookup_commandscript") { }
 
     ChatCommand* GetCommands() const
     {

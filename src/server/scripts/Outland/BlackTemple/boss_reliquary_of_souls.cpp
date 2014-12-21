@@ -102,10 +102,10 @@ static Position2d Coords[]=
     {450.4f, 168.3f}
 };
 
-class npc_enslaved_soul : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_enslaved_soul : public CreatureScript
 {
 public:
-    npc_enslaved_soul() : MS::Game::Scripting::Interfaces::CreatureScript("npc_enslaved_soul") { }
+    npc_enslaved_soul() : CreatureScript("npc_enslaved_soul") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -131,10 +131,10 @@ public:
 
 };
 
-class boss_reliquary_of_souls : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_reliquary_of_souls : public CreatureScript
 {
 public:
-    boss_reliquary_of_souls() : MS::Game::Scripting::Interfaces::CreatureScript("boss_reliquary_of_souls") { }
+    boss_reliquary_of_souls() : CreatureScript("boss_reliquary_of_souls") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -385,10 +385,10 @@ void npc_enslaved_soul::npc_enslaved_soulAI::JustDied(Unit* /*killer*/)
     DoCast(me, SPELL_SOUL_RELEASE, true);
 }
 
-class boss_essence_of_suffering : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_essence_of_suffering : public CreatureScript
 {
 public:
-    boss_essence_of_suffering() : MS::Game::Scripting::Interfaces::CreatureScript("boss_essence_of_suffering") { }
+    boss_essence_of_suffering() : CreatureScript("boss_essence_of_suffering") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -511,10 +511,10 @@ public:
 
 };
 
-class boss_essence_of_desire : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_essence_of_desire : public CreatureScript
 {
 public:
-    boss_essence_of_desire() : MS::Game::Scripting::Interfaces::CreatureScript("boss_essence_of_desire") { }
+    boss_essence_of_desire() : CreatureScript("boss_essence_of_desire") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -615,10 +615,10 @@ public:
 
 };
 
-class boss_essence_of_anger : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_essence_of_anger : public CreatureScript
 {
 public:
-    boss_essence_of_anger() : MS::Game::Scripting::Interfaces::CreatureScript("boss_essence_of_anger") { }
+    boss_essence_of_anger() : CreatureScript("boss_essence_of_anger") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

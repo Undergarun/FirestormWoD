@@ -67,10 +67,10 @@ enum Spells
     SPELL_ROGUE                 = 23414     //Paralise
 };
 
-class boss_nefarian : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_nefarian : public CreatureScript
 {
 public:
-    boss_nefarian() : MS::Game::Scripting::Interfaces::CreatureScript("boss_nefarian") { }
+    boss_nefarian() : CreatureScript("boss_nefarian") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

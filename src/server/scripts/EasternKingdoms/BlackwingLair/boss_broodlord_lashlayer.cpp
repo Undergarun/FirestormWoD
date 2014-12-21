@@ -40,10 +40,10 @@ enum Spells
     SPELL_KNOCKBACK         = 25778
 };
 
-class boss_broodlord : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_broodlord : public CreatureScript
 {
 public:
-    boss_broodlord() : MS::Game::Scripting::Interfaces::CreatureScript("boss_broodlord") { }
+    boss_broodlord() : CreatureScript("boss_broodlord") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

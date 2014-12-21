@@ -44,10 +44,10 @@ enum Mist
     FACTION_DARNASSUS       = 79
 };
 
-class npc_mist : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_mist : public CreatureScript
 {
 public:
-    npc_mist() : MS::Game::Scripting::Interfaces::CreatureScript("npc_mist") { }
+    npc_mist() : CreatureScript("npc_mist") { }
 
     bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {

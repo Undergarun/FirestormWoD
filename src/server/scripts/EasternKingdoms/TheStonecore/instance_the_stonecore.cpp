@@ -1,10 +1,10 @@
 #include "ScriptPCH.h"
 #include "the_stonecore.h"
 
-class instance_the_stonecore : public MS::Game::Scripting::Interfaces::InstanceMapScript
+class instance_the_stonecore : public InstanceMapScript
 {
 public:
-    instance_the_stonecore() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_the_stonecore", 725) { }
+    instance_the_stonecore() : InstanceMapScript("instance_the_stonecore", 725) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {

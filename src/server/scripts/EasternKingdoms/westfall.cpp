@@ -50,10 +50,10 @@ enum eEnums
     EQUIP_ID_RIFLE      = 2511
 };
 
-class npc_daphne_stilwell : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_daphne_stilwell : public CreatureScript
 {
 public:
-    npc_daphne_stilwell() : MS::Game::Scripting::Interfaces::CreatureScript("npc_daphne_stilwell") { }
+    npc_daphne_stilwell() : CreatureScript("npc_daphne_stilwell") { }
 
     bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
     {
@@ -207,10 +207,10 @@ public:
 
 #define QUEST_DEFIAS_BROTHERHOOD    155
 
-class npc_defias_traitor : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_defias_traitor : public CreatureScript
 {
 public:
-    npc_defias_traitor() : MS::Game::Scripting::Interfaces::CreatureScript("npc_defias_traitor") { }
+    npc_defias_traitor() : CreatureScript("npc_defias_traitor") { }
 
     bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
@@ -273,10 +273,10 @@ enum clodoEnum {
 
 };
 
-class npc_westfall_stew : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_westfall_stew : public CreatureScript
 {
     public:
-        npc_westfall_stew() : MS::Game::Scripting::Interfaces::CreatureScript("npc_westfall_stew") { }
+        npc_westfall_stew() : CreatureScript("npc_westfall_stew") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {

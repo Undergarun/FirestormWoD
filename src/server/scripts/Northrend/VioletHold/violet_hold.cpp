@@ -248,10 +248,10 @@ const Position MovePosition = {1806.955566f, 803.851807f, 44.363323f, 0.0f};
 const Position playerTeleportPosition = {1830.531006f, 803.939758f, 44.340508f, 6.281611f};
 const Position sinclariOutsidePosition = {1817.315674f, 804.060608f, 44.363998f, 0.0f};
 
-class npc_sinclari_vh : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_sinclari_vh : public CreatureScript
 {
 public:
-    npc_sinclari_vh() : MS::Game::Scripting::Interfaces::CreatureScript("npc_sinclari_vh") { }
+    npc_sinclari_vh() : CreatureScript("npc_sinclari_vh") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
@@ -414,10 +414,10 @@ public:
 
 };
 
-class mob_azure_saboteur : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_azure_saboteur : public CreatureScript
 {
 public:
-    mob_azure_saboteur() : MS::Game::Scripting::Interfaces::CreatureScript("mob_azure_saboteur") { }
+    mob_azure_saboteur() : CreatureScript("mob_azure_saboteur") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -538,10 +538,10 @@ public:
 
 };
 
-class npc_teleportation_portal_vh : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_teleportation_portal_vh : public CreatureScript
 {
 public:
-    npc_teleportation_portal_vh() : MS::Game::Scripting::Interfaces::CreatureScript("npc_teleportation_portal_vh") { }
+    npc_teleportation_portal_vh() : CreatureScript("npc_teleportation_portal_vh") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -795,10 +795,10 @@ struct violet_hold_trashAI : public npc_escortAI
 
 };
 
-class mob_azure_invader : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_azure_invader : public CreatureScript
 {
 public:
-    mob_azure_invader() : MS::Game::Scripting::Interfaces::CreatureScript("mob_azure_invader") { }
+    mob_azure_invader() : CreatureScript("mob_azure_invader") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -873,10 +873,10 @@ public:
 
 };
 
-class mob_azure_binder : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_azure_binder : public CreatureScript
 {
 public:
-    mob_azure_binder() : MS::Game::Scripting::Interfaces::CreatureScript("mob_azure_binder") { }
+    mob_azure_binder() : CreatureScript("mob_azure_binder") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -951,10 +951,10 @@ public:
 
 };
 
-class mob_azure_mage_slayer : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_azure_mage_slayer : public CreatureScript
 {
 public:
-    mob_azure_mage_slayer() : MS::Game::Scripting::Interfaces::CreatureScript("mob_azure_mage_slayer") { }
+    mob_azure_mage_slayer() : CreatureScript("mob_azure_mage_slayer") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1011,10 +1011,10 @@ public:
 
 };
 
-class mob_azure_raider : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_azure_raider : public CreatureScript
 {
 public:
-    mob_azure_raider() : MS::Game::Scripting::Interfaces::CreatureScript("mob_azure_raider") { }
+    mob_azure_raider() : CreatureScript("mob_azure_raider") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1063,10 +1063,10 @@ public:
 
 };
 
-class mob_azure_stalker : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_azure_stalker : public CreatureScript
 {
 public:
-    mob_azure_stalker() : MS::Game::Scripting::Interfaces::CreatureScript("mob_azure_stalker") { }
+    mob_azure_stalker() : CreatureScript("mob_azure_stalker") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1127,10 +1127,10 @@ public:
 
 };
 
-class mob_azure_spellbreaker : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_azure_spellbreaker : public CreatureScript
 {
 public:
-    mob_azure_spellbreaker() : MS::Game::Scripting::Interfaces::CreatureScript("mob_azure_spellbreaker") { }
+    mob_azure_spellbreaker() : CreatureScript("mob_azure_spellbreaker") { }
 
     struct mob_azure_spellbreakerAI : public violet_hold_trashAI
     {
@@ -1206,10 +1206,10 @@ public:
     }
 };
 
-class mob_azure_captain : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_azure_captain : public CreatureScript
 {
 public:
-    mob_azure_captain() : MS::Game::Scripting::Interfaces::CreatureScript("mob_azure_captain") { }
+    mob_azure_captain() : CreatureScript("mob_azure_captain") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1258,10 +1258,10 @@ public:
 
 };
 
-class mob_azure_sorceror : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_azure_sorceror : public CreatureScript
 {
 public:
-    mob_azure_sorceror() : MS::Game::Scripting::Interfaces::CreatureScript("mob_azure_sorceror") { }
+    mob_azure_sorceror() : CreatureScript("mob_azure_sorceror") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

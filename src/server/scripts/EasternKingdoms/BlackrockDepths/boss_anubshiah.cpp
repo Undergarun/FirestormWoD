@@ -28,10 +28,10 @@ enum Spells
     SPELL_ENVELOPINGWEB                                    = 15471
 };
 
-class boss_anubshiah : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_anubshiah : public CreatureScript
 {
 public:
-    boss_anubshiah() : MS::Game::Scripting::Interfaces::CreatureScript("boss_anubshiah") { }
+    boss_anubshiah() : CreatureScript("boss_anubshiah") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

@@ -36,10 +36,10 @@ enum eEvents
     EVENT_GROW              = 1,
 };
 
-class boss_jinbak : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_jinbak : public CreatureScript
 {
     public:
-        boss_jinbak() : MS::Game::Scripting::Interfaces::CreatureScript("boss_jinbak") {}
+        boss_jinbak() : CreatureScript("boss_jinbak") {}
 
         struct boss_jinbakAI : public BossAI
         {
@@ -91,10 +91,10 @@ class boss_jinbak : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class npc_sap_puddle : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_sap_puddle : public CreatureScript
 {
     public:
-        npc_sap_puddle() : MS::Game::Scripting::Interfaces::CreatureScript("npc_sap_puddle") {}
+        npc_sap_puddle() : CreatureScript("npc_sap_puddle") {}
 
         struct npc_sap_puddleAI : public Scripted_NoMovementAI
         {

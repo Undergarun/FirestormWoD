@@ -43,7 +43,7 @@ enum eEnums
     SPELL_BERSERK               = 27680
 };
 
-class boss_void_reaver : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_void_reaver : public CreatureScript
 {
     public:
 

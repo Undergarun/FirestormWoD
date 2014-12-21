@@ -48,10 +48,10 @@ enum Adds
     NPC_ISISET_ADD_CONTROLLER   = 42382,
 };
 
-class boss_isiset : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_isiset : public CreatureScript
 {
     public:
-        boss_isiset() : MS::Game::Scripting::Interfaces::CreatureScript("boss_isiset") { }
+        boss_isiset() : CreatureScript("boss_isiset") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -244,10 +244,10 @@ class boss_isiset : public MS::Game::Scripting::Interfaces::CreatureScript
         };
 };
 
-class npc_isiset_astral_rain : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_isiset_astral_rain : public CreatureScript
 {
     public:
-        npc_isiset_astral_rain() : MS::Game::Scripting::Interfaces::CreatureScript("npc_isiset_astral_rain") { }
+        npc_isiset_astral_rain() : CreatureScript("npc_isiset_astral_rain") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -322,10 +322,10 @@ class npc_isiset_astral_rain : public MS::Game::Scripting::Interfaces::CreatureS
         };
 };
 
-class npc_isiset_celestial_call : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_isiset_celestial_call : public CreatureScript
 {
     public:
-        npc_isiset_celestial_call() : MS::Game::Scripting::Interfaces::CreatureScript("npc_isiset_celestial_call") { }
+        npc_isiset_celestial_call() : CreatureScript("npc_isiset_celestial_call") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -400,10 +400,10 @@ class npc_isiset_celestial_call : public MS::Game::Scripting::Interfaces::Creatu
         };
 };
 
-class npc_isiset_veil_of_sky : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_isiset_veil_of_sky : public CreatureScript
 {
     public:
-        npc_isiset_veil_of_sky() : MS::Game::Scripting::Interfaces::CreatureScript("npc_isiset_veil_of_sky") { }
+        npc_isiset_veil_of_sky() : CreatureScript("npc_isiset_veil_of_sky") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -478,10 +478,10 @@ class npc_isiset_veil_of_sky : public MS::Game::Scripting::Interfaces::CreatureS
         };
 };
 
-class npc_isiset_astral_familiar : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_isiset_astral_familiar : public CreatureScript
 {
     public:
-        npc_isiset_astral_familiar() : MS::Game::Scripting::Interfaces::CreatureScript("npc_isiset_astral_familiar") { }
+        npc_isiset_astral_familiar() : CreatureScript("npc_isiset_astral_familiar") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -561,10 +561,10 @@ class OrientationCheck
         WorldObject* caster;
 };
 
-class spell_isiset_supernova_dis: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_isiset_supernova_dis: public SpellScriptLoader
 {
     public:
-        spell_isiset_supernova_dis() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_isiset_supernova_dis") { }
+        spell_isiset_supernova_dis() : SpellScriptLoader("spell_isiset_supernova_dis") { }
         class spell_isiset_supernova_dis_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_isiset_supernova_dis_SpellScript);
@@ -586,10 +586,10 @@ class spell_isiset_supernova_dis: public MS::Game::Scripting::Interfaces::SpellS
         }
 };
 
-class spell_isiset_supernova_dmg: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_isiset_supernova_dmg: public SpellScriptLoader
 {
     public:
-        spell_isiset_supernova_dmg() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_isiset_supernova_dmg") { }
+        spell_isiset_supernova_dmg() : SpellScriptLoader("spell_isiset_supernova_dmg") { }
         class spell_isiset_supernova_dmg_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_isiset_supernova_dmg_SpellScript);

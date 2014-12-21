@@ -7,10 +7,10 @@
 #include "InstanceScript.h"
 #include "siege_of_the_niuzao_temple.h"
 
-class instance_siege_of_the_niuzao_temple : public MS::Game::Scripting::Interfaces::InstanceMapScript
+class instance_siege_of_the_niuzao_temple : public InstanceMapScript
 {
 public:
-    instance_siege_of_the_niuzao_temple() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_siege_of_the_niuzao_temple", 1011) { }
+    instance_siege_of_the_niuzao_temple() : InstanceMapScript("instance_siege_of_the_niuzao_temple", 1011) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {

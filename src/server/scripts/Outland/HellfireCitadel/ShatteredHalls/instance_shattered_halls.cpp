@@ -31,11 +31,11 @@ EndScriptData */
 
 #define DOOR_NETHEKURSE     1
 
-class instance_shattered_halls : public MS::Game::Scripting::Interfaces::InstanceMapScript
+class instance_shattered_halls : public InstanceMapScript
 {
     public:
         instance_shattered_halls()
-            : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_shattered_halls", 540)
+            : InstanceMapScript("instance_shattered_halls", 540)
         {
         }
         struct instance_shattered_halls_InstanceMapScript : public InstanceScript

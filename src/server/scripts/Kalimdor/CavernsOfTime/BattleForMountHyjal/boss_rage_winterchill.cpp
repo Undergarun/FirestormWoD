@@ -37,10 +37,10 @@ enum Texts
     SAY_ONAGGRO         = 4,
 };
 
-class boss_rage_winterchill : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_rage_winterchill : public CreatureScript
 {
 public:
-    boss_rage_winterchill() : MS::Game::Scripting::Interfaces::CreatureScript("boss_rage_winterchill") { }
+    boss_rage_winterchill() : CreatureScript("boss_rage_winterchill") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

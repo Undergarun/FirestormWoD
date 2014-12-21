@@ -76,10 +76,10 @@ const Position movepos[9] =
     {-513.85f, -19.04f, 343.93f, 6.15f}
 };
 
-class boss_setesh : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_setesh : public CreatureScript
 {
     public:
-        boss_setesh() : MS::Game::Scripting::Interfaces::CreatureScript("boss_setesh") { }
+        boss_setesh() : CreatureScript("boss_setesh") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -185,10 +185,10 @@ class boss_setesh : public MS::Game::Scripting::Interfaces::CreatureScript
         };
 };
 
-class npc_setesh_chaos_portal : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_setesh_chaos_portal : public CreatureScript
 {
     public:
-        npc_setesh_chaos_portal() : MS::Game::Scripting::Interfaces::CreatureScript("npc_setesh_chaos_portal") { }
+        npc_setesh_chaos_portal() : CreatureScript("npc_setesh_chaos_portal") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -304,10 +304,10 @@ class npc_setesh_chaos_portal : public MS::Game::Scripting::Interfaces::Creature
 
 };
 
-class npc_setesh_void_sentinel : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_setesh_void_sentinel : public CreatureScript
 {
     public:
-        npc_setesh_void_sentinel() : MS::Game::Scripting::Interfaces::CreatureScript("npc_setesh_void_sentinel") { }
+        npc_setesh_void_sentinel() : CreatureScript("npc_setesh_void_sentinel") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -359,10 +359,10 @@ class npc_setesh_void_sentinel : public MS::Game::Scripting::Interfaces::Creatur
 
 };
 
-class npc_setesh_void_seeker : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_setesh_void_seeker : public CreatureScript
 {
     public:
-        npc_setesh_void_seeker() : MS::Game::Scripting::Interfaces::CreatureScript("npc_setesh_void_seeker") { }
+        npc_setesh_void_seeker() : CreatureScript("npc_setesh_void_seeker") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {

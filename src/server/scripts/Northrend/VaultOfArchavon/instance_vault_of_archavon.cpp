@@ -26,10 +26,10 @@
 4 - Toravon the Ice Watcher event
 */
 
-class instance_archavon : public MS::Game::Scripting::Interfaces::InstanceMapScript
+class instance_archavon : public InstanceMapScript
 {
     public:
-        instance_archavon() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_archavon", 624) { }
+        instance_archavon() : InstanceMapScript("instance_archavon", 624) { }
 
         struct instance_archavon_InstanceMapScript : public InstanceScript
         {

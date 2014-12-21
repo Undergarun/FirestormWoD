@@ -60,10 +60,10 @@ enum eEnums
     INTERVAL_SWITCH                 = 6
 };
 
-class boss_vexallus : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_vexallus : public CreatureScript
 {
 public:
-    boss_vexallus() : MS::Game::Scripting::Interfaces::CreatureScript("boss_vexallus") { }
+    boss_vexallus() : CreatureScript("boss_vexallus") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -195,10 +195,10 @@ public:
 
 };
 
-class mob_pure_energy : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_pure_energy : public CreatureScript
 {
 public:
-    mob_pure_energy() : MS::Game::Scripting::Interfaces::CreatureScript("mob_pure_energy") { }
+    mob_pure_energy() : CreatureScript("mob_pure_energy") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

@@ -33,10 +33,10 @@ static DoorData const doorData[] =
     {0,                                 0,              DOOR_TYPE_ROOM,         BOUNDARY_NONE   },
 };
 
-class instance_ulduar : public MS::Game::Scripting::Interfaces::InstanceMapScript
+class instance_ulduar : public InstanceMapScript
 {
     public:
-        instance_ulduar() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_ulduar", 603) { }
+        instance_ulduar() : InstanceMapScript("instance_ulduar", 603) { }
 
         struct instance_ulduar_InstanceMapScript : public InstanceScript
         {
@@ -1258,10 +1258,10 @@ class instance_ulduar : public MS::Game::Scripting::Interfaces::InstanceMapScrip
         }
 };
 
-class go_call_tram : public MS::Game::Scripting::Interfaces::GameObjectScript
+class go_call_tram : public GameObjectScript
 {
     public:
-        go_call_tram() : MS::Game::Scripting::Interfaces::GameObjectScript("go_call_tram") { }
+        go_call_tram() : GameObjectScript("go_call_tram") { }
 
         bool OnGossipHello(Player* /*player*/, GameObject* go)
         {

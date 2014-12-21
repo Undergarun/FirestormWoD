@@ -29,10 +29,10 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "MapManager.h"
 
-class instance_commandscript: public MS::Game::Scripting::Interfaces::CommandScript
+class instance_commandscript: public CommandScript
 {
 public:
-    instance_commandscript() : MS::Game::Scripting::Interfaces::CommandScript("instance_commandscript") { }
+    instance_commandscript() : CommandScript("instance_commandscript") { }
 
     ChatCommand* GetCommands() const
     {

@@ -253,10 +253,10 @@ Position const upperNestPos[5] =
 };
 
 // Ji-Kun - 69712
-class boss_ji_kun : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_ji_kun : public CreatureScript
 {
     public:
-        boss_ji_kun() : MS::Game::Scripting::Interfaces::CreatureScript("boss_ji_kun") { }
+        boss_ji_kun() : CreatureScript("boss_ji_kun") { }
 
         struct boss_ji_kunAI : public BossAI
         {
@@ -626,10 +626,10 @@ class boss_ji_kun : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Jump to Boss Platform - 69885
-class mob_jump_to_boss_platform : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_jump_to_boss_platform : public CreatureScript
 {
     public:
-        mob_jump_to_boss_platform() : MS::Game::Scripting::Interfaces::CreatureScript("mob_jump_to_boss_platform") { }
+        mob_jump_to_boss_platform() : CreatureScript("mob_jump_to_boss_platform") { }
 
         struct mob_jump_to_boss_platformAI : public ScriptedAI
         {
@@ -672,10 +672,10 @@ class mob_jump_to_boss_platform : public MS::Game::Scripting::Interfaces::Creatu
 };
 
 // Fall Catcher - 69839
-class mob_fall_catcher : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_fall_catcher : public CreatureScript
 {
     public:
-        mob_fall_catcher() : MS::Game::Scripting::Interfaces::CreatureScript("mob_fall_catcher") { }
+        mob_fall_catcher() : CreatureScript("mob_fall_catcher") { }
 
         struct mob_fall_catcherAI : public ScriptedAI
         {
@@ -783,10 +783,10 @@ class mob_fall_catcher : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Incubater - 69626
-class mob_incubater : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_incubater : public CreatureScript
 {
     public:
-        mob_incubater() : MS::Game::Scripting::Interfaces::CreatureScript("mob_incubater") { }
+        mob_incubater() : CreatureScript("mob_incubater") { }
 
         struct mob_incubaterAI : public ScriptedAI
         {
@@ -883,10 +883,10 @@ class mob_incubater : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Young egg of Ki-Kun - 68194
-class mob_young_egg_of_jikun : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_young_egg_of_jikun : public CreatureScript
 {
     public:
-        mob_young_egg_of_jikun() : MS::Game::Scripting::Interfaces::CreatureScript("mob_young_egg_of_jikun") { }
+        mob_young_egg_of_jikun() : CreatureScript("mob_young_egg_of_jikun") { }
 
         struct mob_young_egg_of_jikunAI : public ScriptedAI
         {
@@ -938,10 +938,10 @@ class mob_young_egg_of_jikun : public MS::Game::Scripting::Interfaces::CreatureS
 };
 
 // Hatchling - 68192
-class mob_hatchling : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_hatchling : public CreatureScript
 {
     public:
-        mob_hatchling() : MS::Game::Scripting::Interfaces::CreatureScript("mob_hatchling") { }
+        mob_hatchling() : CreatureScript("mob_hatchling") { }
 
         struct mob_hatchlingAI : public ScriptedAI
         {
@@ -1065,10 +1065,10 @@ class mob_hatchling : public MS::Game::Scripting::Interfaces::CreatureScript
 
 // Ji-Kun Fledgling's Egg - 68202
 // Mature Egg of Ji-Kun - 69628
-class mob_fledgling_egg : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_fledgling_egg : public CreatureScript
 {
     public:
-        mob_fledgling_egg() : MS::Game::Scripting::Interfaces::CreatureScript("mob_fledgling_egg") { }
+        mob_fledgling_egg() : CreatureScript("mob_fledgling_egg") { }
         
         struct mob_fledgling_eggAI : public ScriptedAI
         {
@@ -1117,10 +1117,10 @@ class mob_fledgling_egg : public MS::Game::Scripting::Interfaces::CreatureScript
 
 // Juvenile - 70095 (born from 68202 - Ji_Kun Fledgling's Egg)
 // Juvenile - 69836 (born from 69628 - Mature egg of Ji-Kun)
-class mob_juvenile : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_juvenile : public CreatureScript
 {
     public:
-        mob_juvenile() : MS::Game::Scripting::Interfaces::CreatureScript("mob_juvenile") { }
+        mob_juvenile() : CreatureScript("mob_juvenile") { }
 
         struct mob_juvenileAI : public ScriptedAI
         {
@@ -1210,10 +1210,10 @@ class mob_juvenile : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Feed - 68178
-class mob_feed : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_feed : public CreatureScript
 {
     public:
-        mob_feed() : MS::Game::Scripting::Interfaces::CreatureScript("mob_feed") { }
+        mob_feed() : CreatureScript("mob_feed") { }
 
         struct mob_feedAI : public ScriptedAI
         {
@@ -1316,10 +1316,10 @@ class mob_feed : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Feed Pool - 68188
-class mob_feed_pool : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_feed_pool : public CreatureScript
 {
     public:
-        mob_feed_pool() : MS::Game::Scripting::Interfaces::CreatureScript("mob_feed_pool") { }
+        mob_feed_pool() : CreatureScript("mob_feed_pool") { }
 
         struct mob_feed_poolAI : public ScriptedAI
         {
@@ -1476,10 +1476,10 @@ class mob_feed_pool : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Exit Chamber [DNT] - 70734
-class mob_jikun_exit_chamber : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_jikun_exit_chamber : public CreatureScript
 {
     public:
-        mob_jikun_exit_chamber() : MS::Game::Scripting::Interfaces::CreatureScript("mob_jikun_exit_chamber") { }
+        mob_jikun_exit_chamber() : CreatureScript("mob_jikun_exit_chamber") { }
 
         struct mob_jikun_exit_chamberAI : public ScriptedAI
         {
@@ -1505,10 +1505,10 @@ class mob_jikun_exit_chamber : public MS::Game::Scripting::Interfaces::CreatureS
 };
 
 // Nest Guardian - 70134
-class mob_nest_guardian : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_nest_guardian : public CreatureScript
 {
     public:
-        mob_nest_guardian() : MS::Game::Scripting::Interfaces::CreatureScript("mob_nest_guardian") { }
+        mob_nest_guardian() : CreatureScript("mob_nest_guardian") { }
 
         struct mob_nest_guardianAI : public ScriptedAI
         {
@@ -1575,10 +1575,10 @@ class mob_nest_guardian : public MS::Game::Scripting::Interfaces::CreatureScript
 
 
 // Caw - 138923
-class spell_caw: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_caw: public SpellScriptLoader
 {
     public:
-        spell_caw() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_caw") { }
+        spell_caw() : SpellScriptLoader("spell_caw") { }
 
         class spell_caw_SpellScript : public SpellScript
         {
@@ -1604,10 +1604,10 @@ class spell_caw: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 };
 
 // Infected Talons - 140094
-class spell_infected_talons: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_infected_talons: public SpellScriptLoader
 {
     public:
-        spell_infected_talons() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_infected_talons") { }
+        spell_infected_talons() : SpellScriptLoader("spell_infected_talons") { }
 
         class spell_infected_talons_AuraScript : public AuraScript
         {
@@ -1647,10 +1647,10 @@ class spell_infected_talons: public MS::Game::Scripting::Interfaces::SpellScript
 };
 
 // Regurgitate - 134385
-class spell_regurgitate: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_regurgitate: public SpellScriptLoader
 {
     public:
-        spell_regurgitate() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_regurgitate") { }
+        spell_regurgitate() : SpellScriptLoader("spell_regurgitate") { }
 
         class spell_regurgitate_SpellScript : public SpellScript
         {
@@ -1690,10 +1690,10 @@ class spell_regurgitate: public MS::Game::Scripting::Interfaces::SpellScriptLoad
 };
 
 // 134339 - Daedalian Wings
-class spell_daedalian_wings: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_daedalian_wings: public SpellScriptLoader
 {
     public:
-        spell_daedalian_wings() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_daedalian_wings") { }
+        spell_daedalian_wings() : SpellScriptLoader("spell_daedalian_wings") { }
 
         class spell_daedalian_wings_SpellScript : public SpellScript
         {
@@ -1735,10 +1735,10 @@ class spell_daedalian_wings: public MS::Game::Scripting::Interfaces::SpellScript
 };
 
 // 133755 - Flight
-class spell_flight: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_flight: public SpellScriptLoader
 {
     public:
-        spell_flight() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_flight") { }
+        spell_flight() : SpellScriptLoader("spell_flight") { }
 
         class spell_flight_SpellScript : public SpellScript
         {
@@ -1792,10 +1792,10 @@ class spell_flight: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 };
 
 // Screech - 140640
-class spell_screech: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_screech: public SpellScriptLoader
 {
     public:
-        spell_screech() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_screech") { }
+        spell_screech() : SpellScriptLoader("spell_screech") { }
 
         class spell_screech_SpellScript : public SpellScript
         {
@@ -1825,10 +1825,10 @@ class spell_screech: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 };
 
 // Feather of Ji-Kun - 218543
-class go_feather_of_jikun : public MS::Game::Scripting::Interfaces::GameObjectScript
+class go_feather_of_jikun : public GameObjectScript
 {
     public:
-        go_feather_of_jikun() : MS::Game::Scripting::Interfaces::GameObjectScript("go_feather_of_jikun") { }
+        go_feather_of_jikun() : GameObjectScript("go_feather_of_jikun") { }
 
         struct go_feather_of_jikunAI : public GameObjectAI
         {

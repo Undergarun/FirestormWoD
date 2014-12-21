@@ -99,7 +99,7 @@ enum eSpells
 
 typedef std::map<uint64, uint64> CubeMap;
 
-class mob_abyssal : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_abyssal : public CreatureScript
 {
     public:
 
@@ -205,7 +205,7 @@ class mob_abyssal : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class boss_magtheridon : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_magtheridon : public CreatureScript
 {
     public:
 
@@ -471,7 +471,7 @@ class boss_magtheridon : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class mob_hellfire_channeler : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_hellfire_channeler : public CreatureScript
 {
     public:
 
@@ -591,10 +591,10 @@ class mob_hellfire_channeler : public MS::Game::Scripting::Interfaces::CreatureS
 };
 
 //Manticron Cube
-class go_manticron_cube : public MS::Game::Scripting::Interfaces::GameObjectScript
+class go_manticron_cube : public GameObjectScript
 {
 public:
-    go_manticron_cube() : MS::Game::Scripting::Interfaces::GameObjectScript("go_manticron_cube")
+    go_manticron_cube() : GameObjectScript("go_manticron_cube")
     {
     }
 

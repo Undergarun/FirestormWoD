@@ -80,10 +80,10 @@ enum Spells
 //If nefarian dies then he will kill himself then he will kill himself in his hiding place
 //To prevent players from doing the event twice
 
-class boss_victor_nefarius : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_victor_nefarius : public CreatureScript
 {
 public:
-    boss_victor_nefarius() : MS::Game::Scripting::Interfaces::CreatureScript("boss_victor_nefarius") { }
+    boss_victor_nefarius() : CreatureScript("boss_victor_nefarius") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {

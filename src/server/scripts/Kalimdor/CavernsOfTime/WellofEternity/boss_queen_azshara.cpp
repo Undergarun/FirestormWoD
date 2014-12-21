@@ -101,10 +101,10 @@ const uint32 addsEntry[6] =
     NPC_ENCHANTED_MAGUS_ARCANE
 };
 
-class boss_queen_azshara : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_queen_azshara : public CreatureScript
 {
     public:
-        boss_queen_azshara() : MS::Game::Scripting::Interfaces::CreatureScript("boss_queen_azshara") { }
+        boss_queen_azshara() : CreatureScript("boss_queen_azshara") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -274,11 +274,11 @@ class boss_queen_azshara : public MS::Game::Scripting::Interfaces::CreatureScrip
         };
 };
 
-class npc_queen_azshara_enchanted_magus : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_queen_azshara_enchanted_magus : public CreatureScript
 {
     public:
 
-        npc_queen_azshara_enchanted_magus() : MS::Game::Scripting::Interfaces::CreatureScript("npc_queen_azshara_enchanted_magus") { }
+        npc_queen_azshara_enchanted_magus() : CreatureScript("npc_queen_azshara_enchanted_magus") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -400,11 +400,11 @@ class npc_queen_azshara_enchanted_magus : public MS::Game::Scripting::Interfaces
         };
 };
 
-class npc_queen_azshara_hammer_of_divinity : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_queen_azshara_hammer_of_divinity : public CreatureScript
 {
     public:
 
-        npc_queen_azshara_hammer_of_divinity() : MS::Game::Scripting::Interfaces::CreatureScript("npc_queen_azshara_hammer_of_divinity") { }
+        npc_queen_azshara_hammer_of_divinity() : CreatureScript("npc_queen_azshara_hammer_of_divinity") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -439,10 +439,10 @@ class npc_queen_azshara_hammer_of_divinity : public MS::Game::Scripting::Interfa
         };
 };
 
-class spell_queen_azshara_coldflame: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_queen_azshara_coldflame: public SpellScriptLoader
 {
     public:
-        spell_queen_azshara_coldflame() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_queen_azshara_coldflame") { }
+        spell_queen_azshara_coldflame() : SpellScriptLoader("spell_queen_azshara_coldflame") { }
 
         class spell_queen_azshara_coldflame_AuraScript : public AuraScript
         {
@@ -487,10 +487,10 @@ class spell_queen_azshara_coldflame: public MS::Game::Scripting::Interfaces::Spe
         }
 };
 
-class spell_queen_azshara_arcane_bomb: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_queen_azshara_arcane_bomb: public SpellScriptLoader
 {
     public:
-        spell_queen_azshara_arcane_bomb() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_queen_azshara_arcane_bomb") { }
+        spell_queen_azshara_arcane_bomb() : SpellScriptLoader("spell_queen_azshara_arcane_bomb") { }
 
         class spell_queen_azshara_arcane_bomb_SpellScript : public SpellScript
         {

@@ -38,10 +38,10 @@ EndContentData */
 
 #define GOSSIP_SW "Tell me a story, Skorn."
 
-class npc_skorn_whitecloud : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_skorn_whitecloud : public CreatureScript
 {
 public:
-    npc_skorn_whitecloud() : MS::Game::Scripting::Interfaces::CreatureScript("npc_skorn_whitecloud") { }
+    npc_skorn_whitecloud() : CreatureScript("npc_skorn_whitecloud") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
@@ -84,10 +84,10 @@ enum KyleFrenzied
     POINT_ID                = 1
 };
 
-class npc_kyle_frenzied : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_kyle_frenzied : public CreatureScript
 {
 public:
-    npc_kyle_frenzied() : MS::Game::Scripting::Interfaces::CreatureScript("npc_kyle_frenzied") { }
+    npc_kyle_frenzied() : CreatureScript("npc_kyle_frenzied") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

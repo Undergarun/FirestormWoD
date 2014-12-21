@@ -61,10 +61,10 @@ enum eEnums
     GCD_YELL                        = 2
 };
 
-class boss_najentus : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_najentus : public CreatureScript
 {
 public:
-    boss_najentus() : MS::Game::Scripting::Interfaces::CreatureScript("boss_najentus") { }
+    boss_najentus() : CreatureScript("boss_najentus") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -210,10 +210,10 @@ public:
 
 };
 
-class go_najentus_spine : public MS::Game::Scripting::Interfaces::GameObjectScript
+class go_najentus_spine : public GameObjectScript
 {
 public:
-    go_najentus_spine() : MS::Game::Scripting::Interfaces::GameObjectScript("go_najentus_spine") { }
+    go_najentus_spine() : GameObjectScript("go_najentus_spine") { }
 
     bool OnGossipHello(Player* player, GameObject* go)
     {

@@ -71,10 +71,10 @@ const Position drahgavalionaPos[2] =
     {-431.79f, -697.17f, 268.62f, 3.45f}
 };
 
-class boss_drahga_shadowburner : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_drahga_shadowburner : public CreatureScript
 {
     public:
-        boss_drahga_shadowburner() : MS::Game::Scripting::Interfaces::CreatureScript("boss_drahga_shadowburner") { }
+        boss_drahga_shadowburner() : CreatureScript("boss_drahga_shadowburner") { }
 
         struct boss_drahga_shadowburnerAI : public ScriptedAI
         {
@@ -221,10 +221,10 @@ class boss_drahga_shadowburner : public MS::Game::Scripting::Interfaces::Creatur
         }
 };
 
-class npc_drahga_valiona : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_drahga_valiona : public CreatureScript
 {
     public:
-        npc_drahga_valiona() : MS::Game::Scripting::Interfaces::CreatureScript("npc_drahga_valiona") { }
+        npc_drahga_valiona() : CreatureScript("npc_drahga_valiona") { }
 
         struct npc_drahga_valionaAI : public ScriptedAI
         {
@@ -351,11 +351,11 @@ class npc_drahga_valiona : public MS::Game::Scripting::Interfaces::CreatureScrip
         }
 };
 
-class npc_invocation_of_flame_stalker : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_invocation_of_flame_stalker : public CreatureScript
 {
     public:
 
-        npc_invocation_of_flame_stalker() : MS::Game::Scripting::Interfaces::CreatureScript("npc_invocation_of_flame_stalker"){}
+        npc_invocation_of_flame_stalker() : CreatureScript("npc_invocation_of_flame_stalker"){}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -390,11 +390,11 @@ class npc_invocation_of_flame_stalker : public MS::Game::Scripting::Interfaces::
         };
 };
 
-class npc_invoked_flaming_spirit : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_invoked_flaming_spirit : public CreatureScript
 {
     public:
 
-        npc_invoked_flaming_spirit() : MS::Game::Scripting::Interfaces::CreatureScript("npc_invoked_flaming_spirit"){}
+        npc_invoked_flaming_spirit() : CreatureScript("npc_invoked_flaming_spirit"){}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -437,11 +437,11 @@ class npc_invoked_flaming_spirit : public MS::Game::Scripting::Interfaces::Creat
         };
 };
 
-class npc_seeping_twilight : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_seeping_twilight : public CreatureScript
 {
     public:
 
-        npc_seeping_twilight() : MS::Game::Scripting::Interfaces::CreatureScript("npc_seeping_twilight"){}
+        npc_seeping_twilight() : CreatureScript("npc_seeping_twilight"){}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -462,10 +462,10 @@ class npc_seeping_twilight : public MS::Game::Scripting::Interfaces::CreatureScr
         };
 };
 
-class spell_drahga_supernova: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_drahga_supernova: public SpellScriptLoader
 {
     public:
-        spell_drahga_supernova() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_drahga_supernova") { }
+        spell_drahga_supernova() : SpellScriptLoader("spell_drahga_supernova") { }
 
         class spell_drahga_supernova_SpellScript : public SpellScript
         {

@@ -45,10 +45,10 @@ enum Entries
     SPELL_COSMETIC_LOW_POLY_FIRE = 56274
 };
 
-class npc_apothecary_hanes : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_apothecary_hanes : public CreatureScript
 {
 public:
-    npc_apothecary_hanes() : MS::Game::Scripting::Interfaces::CreatureScript("npc_apothecary_hanes") { }
+    npc_apothecary_hanes() : CreatureScript("npc_apothecary_hanes") { }
 
     bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
@@ -164,10 +164,10 @@ enum ePlaguehound
     QUEST_SNIFF_OUT_ENEMY        = 11253
 };
 
-class npc_plaguehound_tracker : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_plaguehound_tracker : public CreatureScript
 {
 public:
-    npc_plaguehound_tracker() : MS::Game::Scripting::Interfaces::CreatureScript("npc_plaguehound_tracker") { }
+    npc_plaguehound_tracker() : CreatureScript("npc_plaguehound_tracker") { }
 
     struct npc_plaguehound_trackerAI : public npc_escortAI
     {
@@ -222,10 +222,10 @@ enum eRazael
     GOSSIP_TEXTID_LYANA2 = 11588
 };
 
-class npc_razael_and_lyana : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_razael_and_lyana : public CreatureScript
 {
 public:
-    npc_razael_and_lyana() : MS::Game::Scripting::Interfaces::CreatureScript("npc_razael_and_lyana") { }
+    npc_razael_and_lyana() : CreatureScript("npc_razael_and_lyana") { }
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
@@ -291,10 +291,10 @@ enum eMcGoyver
     GOSSIP_TEXTID_MCGOYVER              = 12193
 };
 
-class npc_mcgoyver : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_mcgoyver : public CreatureScript
 {
 public:
-    npc_mcgoyver() : MS::Game::Scripting::Interfaces::CreatureScript("npc_mcgoyver") { }
+    npc_mcgoyver() : CreatureScript("npc_mcgoyver") { }
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
@@ -345,10 +345,10 @@ enum eDaegarnn
 static float afSummon[] = {838.81f, -4678.06f, -94.182f};
 static float afCenter[] = {801.88f, -4721.87f, -96.143f};
 
-class npc_daegarn : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_daegarn : public CreatureScript
 {
 public:
-    npc_daegarn() : MS::Game::Scripting::Interfaces::CreatureScript("npc_daegarn") { }
+    npc_daegarn() : CreatureScript("npc_daegarn") { }
 
     bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
     {

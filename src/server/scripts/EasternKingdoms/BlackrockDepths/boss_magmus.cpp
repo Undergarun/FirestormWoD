@@ -30,10 +30,10 @@ enum eEnums
     DATA_THRONE_DOOR                                       = 24 // not id or guid of doors but number of enum in blackrock_depths.h
 };
 
-class boss_magmus : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_magmus : public CreatureScript
 {
 public:
-    boss_magmus() : MS::Game::Scripting::Interfaces::CreatureScript("boss_magmus") { }
+    boss_magmus() : CreatureScript("boss_magmus") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

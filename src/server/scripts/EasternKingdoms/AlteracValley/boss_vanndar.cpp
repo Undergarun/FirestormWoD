@@ -35,10 +35,10 @@ enum Spells
     SPELL_STORMBOLT                               = 20685 // not sure
 };
 
-class boss_vanndar : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_vanndar : public CreatureScript
 {
 public:
-    boss_vanndar() : MS::Game::Scripting::Interfaces::CreatureScript("boss_vanndar") { }
+    boss_vanndar() : CreatureScript("boss_vanndar") { }
 
     struct boss_vanndarAI : public ScriptedAI
     {

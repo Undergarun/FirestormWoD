@@ -47,10 +47,10 @@ EndContentData */
 #define QUEST_WILLIX_THE_IMPORTER 1144
 #define ENTRY_BOAR 4514
 
-class npc_willix : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_willix : public CreatureScript
 {
 public:
-    npc_willix() : MS::Game::Scripting::Interfaces::CreatureScript("npc_willix") { }
+    npc_willix() : CreatureScript("npc_willix") { }
 
     bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {

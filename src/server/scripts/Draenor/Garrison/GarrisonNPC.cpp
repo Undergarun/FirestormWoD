@@ -42,7 +42,7 @@ float gGarrisonCreationCoords[][4] =
 };
 
 /// Garrison Ford
-class npc_GarrisonFord : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_GarrisonFord : public CreatureScript
 {
     public:
         /// Constructor
@@ -92,7 +92,7 @@ class npc_GarrisonFord : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 /// Garrison ROPE owner
-class npc_GarrisonCartRope : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_GarrisonCartRope : public CreatureScript
 {
     public:
         /// Constructor
@@ -151,7 +151,7 @@ class npc_GarrisonCartRope : public MS::Game::Scripting::Interfaces::CreatureScr
 };
 
 /// Garrison assistant brightstone
-class npc_AssistantBrightstone : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_AssistantBrightstone : public CreatureScript
 {
     public:
         /// Constructor
@@ -196,7 +196,7 @@ class npc_AssistantBrightstone : public MS::Game::Scripting::Interfaces::Creatur
 };
 
 /// Garrison shelly hamby
-class npc_ShellyHamby : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_ShellyHamby : public CreatureScript
 {
     public:
         /// Constructor
@@ -232,7 +232,7 @@ class npc_ShellyHamby : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 /// Garrison baros alexston
-class npc_BarosAlexsom : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_BarosAlexsom : public CreatureScript
 {
     public:
         /// Constructor
@@ -268,7 +268,7 @@ class npc_BarosAlexsom : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 /// Garrison vindicator maraad
-class npc_VindicatorMaraad : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_VindicatorMaraad : public CreatureScript
 {
     public:
         /// Constructor
@@ -298,7 +298,7 @@ class npc_VindicatorMaraad : public MS::Game::Scripting::Interfaces::CreatureScr
 };
 
 /// Lunarfall Laborer
-class npc_LunarfallLaborer : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_LunarfallLaborer : public CreatureScript
 {
     public:
         /// Constructor

@@ -28,10 +28,10 @@ EndScriptData */
 #include "Config.h"
 #include "ObjectAccessor.h"
 
-class server_commandscript: public MS::Game::Scripting::Interfaces::CommandScript
+class server_commandscript: public CommandScript
 {
 public:
-    server_commandscript() : MS::Game::Scripting::Interfaces::CommandScript("server_commandscript") { }
+    server_commandscript() : CommandScript("server_commandscript") { }
 
     ChatCommand* GetCommands() const
     {

@@ -44,10 +44,10 @@ enum Events
     EVENT_SHARED_SUFFERING,
 };
 
-class boss_marwyn : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_marwyn : public CreatureScript
 {
 public:
-    boss_marwyn() : MS::Game::Scripting::Interfaces::CreatureScript("boss_marwyn") { }
+    boss_marwyn() : CreatureScript("boss_marwyn") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

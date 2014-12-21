@@ -67,10 +67,10 @@ enum eMatureNetherwing
     NPC_EVENT_PINGER            = 22131
 };
 
-class mob_mature_netherwing_drake : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_mature_netherwing_drake : public CreatureScript
 {
 public:
-    mob_mature_netherwing_drake() : MS::Game::Scripting::Interfaces::CreatureScript("mob_mature_netherwing_drake") { }
+    mob_mature_netherwing_drake() : CreatureScript("mob_mature_netherwing_drake") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -198,10 +198,10 @@ public:
 #define CREATURE_DRAGONMAW_SUBJUGATOR   21718
 #define CREATURE_ESCAPE_DUMMY           22317
 
-class mob_enslaved_netherwing_drake : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_enslaved_netherwing_drake : public CreatureScript
 {
 public:
-    mob_enslaved_netherwing_drake() : MS::Game::Scripting::Interfaces::CreatureScript("mob_enslaved_netherwing_drake") { }
+    mob_enslaved_netherwing_drake() : CreatureScript("mob_enslaved_netherwing_drake") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -329,10 +329,10 @@ public:
 # mob_dragonmaw_peon
 #####*/
 
-class mob_dragonmaw_peon : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_dragonmaw_peon : public CreatureScript
 {
 public:
-    mob_dragonmaw_peon() : MS::Game::Scripting::Interfaces::CreatureScript("mob_dragonmaw_peon") { }
+    mob_dragonmaw_peon() : CreatureScript("mob_dragonmaw_peon") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -408,10 +408,10 @@ public:
 ## npc_drake_dealer_hurlunk
 ######*/
 
-class npc_drake_dealer_hurlunk : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_drake_dealer_hurlunk : public CreatureScript
 {
 public:
-    npc_drake_dealer_hurlunk() : MS::Game::Scripting::Interfaces::CreatureScript("npc_drake_dealer_hurlunk") { }
+    npc_drake_dealer_hurlunk() : CreatureScript("npc_drake_dealer_hurlunk") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
@@ -440,10 +440,10 @@ public:
 #define GOSSIP_HSK1 "Take Flanis's Pack"
 #define GOSSIP_HSK2 "Take Kagrosh's Pack"
 
-class npcs_flanis_swiftwing_and_kagrosh : public MS::Game::Scripting::Interfaces::CreatureScript
+class npcs_flanis_swiftwing_and_kagrosh : public CreatureScript
 {
 public:
-    npcs_flanis_swiftwing_and_kagrosh() : MS::Game::Scripting::Interfaces::CreatureScript("npcs_flanis_swiftwing_and_kagrosh") { }
+    npcs_flanis_swiftwing_and_kagrosh() : CreatureScript("npcs_flanis_swiftwing_and_kagrosh") { }
 
     bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
     {
@@ -497,10 +497,10 @@ public:
 #define GOSSIP_SMO4 "Who are these bidders?"
 #define GOSSIP_SMO5 "Well... yes."
 
-class npc_murkblood_overseer : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_murkblood_overseer : public CreatureScript
 {
 public:
-    npc_murkblood_overseer() : MS::Game::Scripting::Interfaces::CreatureScript("npc_murkblood_overseer") { }
+    npc_murkblood_overseer() : CreatureScript("npc_murkblood_overseer") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
@@ -564,10 +564,10 @@ public:
 #define GOSSIP_ORONOK6 "So what of the cipher now? And your boys?"
 #define GOSSIP_ORONOK7 "I will find your boys and the cipher, Oronok."
 
-class npc_oronok_tornheart : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_oronok_tornheart : public CreatureScript
 {
 public:
-    npc_oronok_tornheart() : MS::Game::Scripting::Interfaces::CreatureScript("npc_oronok_tornheart") { }
+    npc_oronok_tornheart() : CreatureScript("npc_oronok_tornheart") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
@@ -642,10 +642,10 @@ enum Karynaku
     TAXI_PATH_ID            = 649,
 };
 
-class npc_karynaku : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_karynaku : public CreatureScript
 {
     public:
-        npc_karynaku() : MS::Game::Scripting::Interfaces::CreatureScript("npc_karynaku") { }
+        npc_karynaku() : CreatureScript("npc_karynaku") { }
 
         bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
         {
@@ -695,10 +695,10 @@ enum eOverlordData
     YARZILL_THE_MERC_SAY            = -1000621,
 };
 
-class npc_overlord_morghor : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_overlord_morghor : public CreatureScript
 {
 public:
-    npc_overlord_morghor() : MS::Game::Scripting::Interfaces::CreatureScript("npc_overlord_morghor") { }
+    npc_overlord_morghor() : CreatureScript("npc_overlord_morghor") { }
 
     bool OnQuestAccept(Player* player, Creature* creature, const Quest *_Quest)
     {
@@ -982,10 +982,10 @@ enum eEarthmender
     FACTION_EARTHEN             = 1726                      //guessed
 };
 
-class npc_earthmender_wilda : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_earthmender_wilda : public CreatureScript
 {
 public:
-    npc_earthmender_wilda() : MS::Game::Scripting::Interfaces::CreatureScript("npc_earthmender_wilda") { }
+    npc_earthmender_wilda() : CreatureScript("npc_earthmender_wilda") { }
 
     bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
     {
@@ -1229,10 +1229,10 @@ static SpawnSpells SpawnCast[]=
 # mob_torloth_the_magnificent
 #####*/
 
-class mob_torloth_the_magnificent : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_torloth_the_magnificent : public CreatureScript
 {
 public:
-    mob_torloth_the_magnificent() : MS::Game::Scripting::Interfaces::CreatureScript("mob_torloth_the_magnificent") { }
+    mob_torloth_the_magnificent() : CreatureScript("mob_torloth_the_magnificent") { }
 
     CreatureAI* GetAI(Creature* c) const
     {
@@ -1389,10 +1389,10 @@ public:
 # npc_lord_illidan_stormrage
 #####*/
 
-class npc_lord_illidan_stormrage : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_lord_illidan_stormrage : public CreatureScript
 {
 public:
-    npc_lord_illidan_stormrage() : MS::Game::Scripting::Interfaces::CreatureScript("npc_lord_illidan_stormrage") { }
+    npc_lord_illidan_stormrage() : CreatureScript("npc_lord_illidan_stormrage") { }
 
     CreatureAI* GetAI(Creature* c) const
     {
@@ -1534,10 +1534,10 @@ public:
 # mob_illidari_spawn
 ######*/
 
-class mob_illidari_spawn : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_illidari_spawn : public CreatureScript
 {
 public:
-    mob_illidari_spawn() : MS::Game::Scripting::Interfaces::CreatureScript("mob_illidari_spawn") { }
+    mob_illidari_spawn() : CreatureScript("mob_illidari_spawn") { }
 
     CreatureAI* GetAI(Creature* c) const
     {
@@ -1722,10 +1722,10 @@ void npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI::SummonNextWave()
 # go_crystal_prison
 ######*/
 
-class go_crystal_prison : public MS::Game::Scripting::Interfaces::GameObjectScript
+class go_crystal_prison : public GameObjectScript
 {
 public:
-    go_crystal_prison() : MS::Game::Scripting::Interfaces::GameObjectScript("go_crystal_prison") { }
+    go_crystal_prison() : GameObjectScript("go_crystal_prison") { }
 
     bool OnQuestAccept(Player* player, GameObject* /*go*/, Quest const* quest)
     {
@@ -1788,10 +1788,10 @@ public:
 #define ENRAGED_SOUL_FRIENDLY 35
 #define ENRAGED_SOUL_HOSTILE 14
 
-class npc_enraged_spirit : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_enraged_spirit : public CreatureScript
 {
 public:
-    npc_enraged_spirit() : MS::Game::Scripting::Interfaces::CreatureScript("npc_enraged_spirit") { }
+    npc_enraged_spirit() : CreatureScript("npc_enraged_spirit") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1875,10 +1875,10 @@ enum ZuluhedChains
     NPC_KARYNAKU    = 22112,
 };
 
-class spell_unlocking_zuluheds_chains: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_unlocking_zuluheds_chains: public SpellScriptLoader
 {
 public:
-    spell_unlocking_zuluheds_chains() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_unlocking_zuluheds_chains") { }
+    spell_unlocking_zuluheds_chains() : SpellScriptLoader("spell_unlocking_zuluheds_chains") { }
 
     class spell_unlocking_zuluheds_chains_SpellScript : public SpellScript
     {
@@ -1916,10 +1916,10 @@ enum ShadowMoonTuberEnum
     DATA_BOAR = 1
 };
 
-class npc_shadowmoon_tuber_node : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_shadowmoon_tuber_node : public CreatureScript
 {
 public:
-    npc_shadowmoon_tuber_node() : MS::Game::Scripting::Interfaces::CreatureScript("npc_shadowmoon_tuber_node") {}
+    npc_shadowmoon_tuber_node() : CreatureScript("npc_shadowmoon_tuber_node") {}
 
     struct npc_shadowmoon_tuber_nodeAI : public ScriptedAI
     {
@@ -2007,10 +2007,10 @@ enum eCollidusTheWarpWatcherEvents
     EVENT_PSYCHIC_SCREAM    = 3
 };
 
-class mob_collidus_the_warp_watcher : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_collidus_the_warp_watcher : public CreatureScript
 {
     public:
-        mob_collidus_the_warp_watcher() : MS::Game::Scripting::Interfaces::CreatureScript("mob_collidus_the_warp_watcher")
+        mob_collidus_the_warp_watcher() : CreatureScript("mob_collidus_the_warp_watcher")
         {
         }
 

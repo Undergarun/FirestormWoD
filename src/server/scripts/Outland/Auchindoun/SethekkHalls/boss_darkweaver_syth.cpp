@@ -55,10 +55,10 @@ EndScriptData */
 #define SPELL_SHADOW_BUFFET         DUNGEON_MODE(33529, 38143)
 
 // 18472
-class boss_darkweaver_syth : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_darkweaver_syth : public CreatureScript
 {
 public:
-    boss_darkweaver_syth() : MS::Game::Scripting::Interfaces::CreatureScript("boss_darkweaver_syth") { }
+    boss_darkweaver_syth() : CreatureScript("boss_darkweaver_syth") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -211,10 +211,10 @@ public:
 };
 
 /* ELEMENTALS */
-class mob_syth_fire : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_syth_fire : public CreatureScript
 {
 public:
-    mob_syth_fire() : MS::Game::Scripting::Interfaces::CreatureScript("mob_syth_fire") { }
+    mob_syth_fire() : CreatureScript("mob_syth_fire") { }
 
     struct mob_syth_fireAI : public ScriptedAI
     {
@@ -269,10 +269,10 @@ public:
     }
 };
 
-class mob_syth_arcane : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_syth_arcane : public CreatureScript
 {
 public:
-    mob_syth_arcane() : MS::Game::Scripting::Interfaces::CreatureScript("mob_syth_arcane") { }
+    mob_syth_arcane() : CreatureScript("mob_syth_arcane") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -327,10 +327,10 @@ public:
     };
 };
 
-class mob_syth_frost : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_syth_frost : public CreatureScript
 {
 public:
-    mob_syth_frost() : MS::Game::Scripting::Interfaces::CreatureScript("mob_syth_frost") { }
+    mob_syth_frost() : CreatureScript("mob_syth_frost") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -386,10 +386,10 @@ public:
 
 };
 
-class mob_syth_shadow : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_syth_shadow : public CreatureScript
 {
 public:
-    mob_syth_shadow() : MS::Game::Scripting::Interfaces::CreatureScript("mob_syth_shadow") { }
+    mob_syth_shadow() : CreatureScript("mob_syth_shadow") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

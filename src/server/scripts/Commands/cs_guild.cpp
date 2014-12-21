@@ -28,10 +28,10 @@ EndScriptData */
 #include "GuildMgr.h"
 #include "ObjectAccessor.h"
 
-class guild_commandscript: public MS::Game::Scripting::Interfaces::CommandScript
+class guild_commandscript: public CommandScript
 {
     public:
-        guild_commandscript() : MS::Game::Scripting::Interfaces::CommandScript("guild_commandscript") { }
+        guild_commandscript() : CommandScript("guild_commandscript") { }
 
         ChatCommand* GetCommands() const
         {

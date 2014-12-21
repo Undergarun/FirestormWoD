@@ -39,10 +39,10 @@ EndScriptData */
 4 - Murmur event
 */
 
-class instance_shadow_labyrinth : public MS::Game::Scripting::Interfaces::InstanceMapScript
+class instance_shadow_labyrinth : public InstanceMapScript
 {
 public:
-    instance_shadow_labyrinth() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_shadow_labyrinth", 555) { }
+    instance_shadow_labyrinth() : InstanceMapScript("instance_shadow_labyrinth", 555) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {

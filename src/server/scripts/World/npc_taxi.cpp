@@ -60,10 +60,10 @@ EndScriptData
 #define GOSSIP_WILLIAMKEILAR2   "Take me to Eastwall Tower."
 #define GOSSIP_WILLIAMKEILAR3   "Take me to Crown Guard Tower."
 
-class npc_taxi : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_taxi : public CreatureScript
 {
 public:
-    npc_taxi() : MS::Game::Scripting::Interfaces::CreatureScript("npc_taxi") { }
+    npc_taxi() : CreatureScript("npc_taxi") { }
 
     bool OnGossipHello(Player* player, Creature* creature)
     {

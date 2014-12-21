@@ -61,10 +61,10 @@ enum Yells
     SAY_LICH_KING_WIN                  = 10,
 };
 
-class boss_lich_king_hor : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_lich_king_hor : public CreatureScript
 {
     public:
-        boss_lich_king_hor() : MS::Game::Scripting::Interfaces::CreatureScript("boss_lich_king_hor") { }
+        boss_lich_king_hor() : CreatureScript("boss_lich_king_hor") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -384,10 +384,10 @@ class boss_lich_king_hor : public MS::Game::Scripting::Interfaces::CreatureScrip
         };
 };
 
-class npc_raging_gnoul : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_raging_gnoul : public CreatureScript
 {
     public:
-        npc_raging_gnoul() : MS::Game::Scripting::Interfaces::CreatureScript("npc_raging_gnoul") { }
+        npc_raging_gnoul() : CreatureScript("npc_raging_gnoul") { }
 
         struct npc_raging_gnoulAI : public ScriptedAI
         {
@@ -477,10 +477,10 @@ class npc_raging_gnoul : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class npc_risen_witch_doctor : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_risen_witch_doctor : public CreatureScript
 {
     public:
-        npc_risen_witch_doctor() : MS::Game::Scripting::Interfaces::CreatureScript("npc_risen_witch_doctor") { }
+        npc_risen_witch_doctor() : CreatureScript("npc_risen_witch_doctor") { }
 
         struct npc_risen_witch_doctorAI : public ScriptedAI
         {
@@ -593,10 +593,10 @@ class npc_risen_witch_doctor : public MS::Game::Scripting::Interfaces::CreatureS
         }
 };
 
-class npc_abon : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_abon : public CreatureScript
 {
     public:
-        npc_abon() : MS::Game::Scripting::Interfaces::CreatureScript("npc_abon") { }
+        npc_abon() : CreatureScript("npc_abon") { }
 
         struct npc_abonAI : public ScriptedAI
         {

@@ -47,10 +47,10 @@ enum CaptainSkarloc
     SPELL_CONSECRATION          = 38385
 };
 
-class boss_captain_skarloc : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_captain_skarloc : public CreatureScript
 {
 public:
-    boss_captain_skarloc() : MS::Game::Scripting::Interfaces::CreatureScript("boss_captain_skarloc") { }
+    boss_captain_skarloc() : CreatureScript("boss_captain_skarloc") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

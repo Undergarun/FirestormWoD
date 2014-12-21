@@ -13,12 +13,12 @@ enum
 };
 
 /// Garrison cache generic script
-class go_garrison_cache : public MS::Game::Scripting::Interfaces::GameObjectScript
+class go_garrison_cache : public GameObjectScript
 {
     public:
         /// Constructor
         go_garrison_cache() : 
-            MS::Game::Scripting::Interfaces::GameObjectScript("go_garrison_cache")
+            GameObjectScript("go_garrison_cache")
         { 
         
         }
@@ -39,12 +39,12 @@ class go_garrison_cache : public MS::Game::Scripting::Interfaces::GameObjectScri
 };
 
 /// Garrison cache generic script
-class go_garrison_outhouse : public MS::Game::Scripting::Interfaces::GameObjectScript
+class go_garrison_outhouse : public GameObjectScript
 {
     public:
         /// Constructor
         go_garrison_outhouse() :
-            MS::Game::Scripting::Interfaces::GameObjectScript("go_garrison_outhouse")
+            GameObjectScript("go_garrison_outhouse")
         { 
         
         }

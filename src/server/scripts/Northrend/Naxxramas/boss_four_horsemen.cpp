@@ -87,10 +87,10 @@ const int32 SAY_DEATH[]     =   {-1533057, -1533050, -1533074, -1533064};
 #define ACTION_SET_ATTACK 1
 #define ACTION_SET_RESET 2
 
-class boss_four_horsemen : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_four_horsemen : public CreatureScript
 {
 public:
-    boss_four_horsemen() : MS::Game::Scripting::Interfaces::CreatureScript("boss_four_horsemen") { }
+    boss_four_horsemen() : CreatureScript("boss_four_horsemen") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -418,10 +418,10 @@ public:
 
 };
 
-class spell_four_horsemen_mark: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_four_horsemen_mark: public SpellScriptLoader
 {
     public:
-        spell_four_horsemen_mark() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_four_horsemen_mark") { }
+        spell_four_horsemen_mark() : SpellScriptLoader("spell_four_horsemen_mark") { }
 
         class spell_four_horsemen_mark_AuraScript : public AuraScript
         {

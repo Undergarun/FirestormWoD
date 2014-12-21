@@ -25,10 +25,10 @@ enum Spells
     SPELL_FRENZY                                           = 28371
 };
 
-class boss_grizzle : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_grizzle : public CreatureScript
 {
 public:
-    boss_grizzle() : MS::Game::Scripting::Interfaces::CreatureScript("boss_grizzle") { }
+    boss_grizzle() : CreatureScript("boss_grizzle") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

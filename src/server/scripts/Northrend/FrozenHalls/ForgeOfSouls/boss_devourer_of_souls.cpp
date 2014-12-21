@@ -118,10 +118,10 @@ Position const CrucibleSummonPos = {5672.294f,2520.686f, 713.4386f, 0.9599311f};
 
 #define DATA_THREE_FACED        1
 
-class boss_devourer_of_souls : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_devourer_of_souls : public CreatureScript
 {
     public:
-        boss_devourer_of_souls() : MS::Game::Scripting::Interfaces::CreatureScript("boss_devourer_of_souls") { }
+        boss_devourer_of_souls() : CreatureScript("boss_devourer_of_souls") { }
 
         struct boss_devourer_of_soulsAI : public BossAI
         {
@@ -370,10 +370,10 @@ class boss_devourer_of_souls : public MS::Game::Scripting::Interfaces::CreatureS
         }
 };
 
-class achievement_three_faced : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
+class achievement_three_faced : public AchievementCriteriaScript
 {
     public:
-        achievement_three_faced() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_three_faced")
+        achievement_three_faced() : AchievementCriteriaScript("achievement_three_faced")
         {
         }
 

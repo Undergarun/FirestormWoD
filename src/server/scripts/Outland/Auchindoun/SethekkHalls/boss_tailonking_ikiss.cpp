@@ -54,10 +54,10 @@ EndScriptData */
 #define H_SPELL_ARCANE_EXPLOSION    40425
 
 // 18473
-class boss_talon_king_ikiss : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_talon_king_ikiss : public CreatureScript
 {
 public:
-    boss_talon_king_ikiss() : MS::Game::Scripting::Interfaces::CreatureScript("boss_talon_king_ikiss") { }
+    boss_talon_king_ikiss() : CreatureScript("boss_talon_king_ikiss") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

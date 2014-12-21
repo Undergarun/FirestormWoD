@@ -84,10 +84,10 @@ Position const FlamecallerWaypoints[MAX_PATH_FLAMECALLER_WAYPOINTS*2] =
     {3014.970f, 561.8073f, 88.83527f, 0.0f},
 };
 
-class boss_general_zarithrian : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_general_zarithrian : public CreatureScript
 {
     public:
-        boss_general_zarithrian() : MS::Game::Scripting::Interfaces::CreatureScript("boss_general_zarithrian") { }
+        boss_general_zarithrian() : CreatureScript("boss_general_zarithrian") { }
 
         struct boss_general_zarithrianAI : public BossAI
         {
@@ -206,10 +206,10 @@ class boss_general_zarithrian : public MS::Game::Scripting::Interfaces::Creature
         }
 };
 
-class npc_onyx_flamecaller : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_onyx_flamecaller : public CreatureScript
 {
     public:
-        npc_onyx_flamecaller() : MS::Game::Scripting::Interfaces::CreatureScript("npc_onyx_flamecaller") { }
+        npc_onyx_flamecaller() : CreatureScript("npc_onyx_flamecaller") { }
 
         struct npc_onyx_flamecallerAI : public npc_escortAI
         {

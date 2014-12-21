@@ -9,10 +9,10 @@ DoorData const doorData[] =
     {0,                     0,              DOOR_TYPE_ROOM,       BOUNDARY_NONE}, // END
 };
 
-class instance_baradin_hold : public MS::Game::Scripting::Interfaces::InstanceMapScript
+class instance_baradin_hold : public InstanceMapScript
 {
     public:
-        instance_baradin_hold() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_baradin_hold", 757) { }
+        instance_baradin_hold() : InstanceMapScript("instance_baradin_hold", 757) { }
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const
         {

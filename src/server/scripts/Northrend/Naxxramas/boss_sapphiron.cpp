@@ -70,10 +70,10 @@ enum Events
 
 typedef std::map<uint64, uint64> IceBlockMap;
 
-class boss_sapphiron : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_sapphiron : public CreatureScript
 {
 public:
-    boss_sapphiron() : MS::Game::Scripting::Interfaces::CreatureScript("boss_sapphiron") { }
+    boss_sapphiron() : CreatureScript("boss_sapphiron") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

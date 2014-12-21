@@ -28,7 +28,7 @@
 #include "ScriptMgr.h"
 #include "ObjectAccessor.h"
 
-LFGPlayerScript::LFGPlayerScript() : MS::Game::Scripting::Interfaces::PlayerScript("LFGPlayerScript")
+LFGPlayerScript::LFGPlayerScript() : PlayerScript("LFGPlayerScript")
 {
 }
 
@@ -62,7 +62,7 @@ void LFGPlayerScript::OnBindToInstance(Player* player, Difficulty difficulty, ui
         sLFGMgr->InitializeLockedDungeons(player);
 }
 
-LFGGroupScript::LFGGroupScript() : MS::Game::Scripting::Interfaces::GroupScript("LFGGroupScript")
+LFGGroupScript::LFGGroupScript() : GroupScript("LFGGroupScript")
 {
 }
 

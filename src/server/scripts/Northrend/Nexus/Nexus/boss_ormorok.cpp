@@ -50,10 +50,10 @@ enum Creatures
 
 #define SPIKE_DISTANCE                            5.0f
 
-class boss_ormorok : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_ormorok : public CreatureScript
 {
 public:
-    boss_ormorok() : MS::Game::Scripting::Interfaces::CreatureScript("boss_ormorok") { }
+    boss_ormorok() : CreatureScript("boss_ormorok") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -223,10 +223,10 @@ public:
 
 };
 
-class mob_crystal_spike : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_crystal_spike : public CreatureScript
 {
 public:
-    mob_crystal_spike() : MS::Game::Scripting::Interfaces::CreatureScript("mob_crystal_spike") { }
+    mob_crystal_spike() : CreatureScript("mob_crystal_spike") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -266,10 +266,10 @@ public:
 
 };
 
-class mob_crystalline_tangler : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_crystalline_tangler : public CreatureScript
 {
 public:
-    mob_crystalline_tangler() : MS::Game::Scripting::Interfaces::CreatureScript("mob_crystalline_tangler") { }
+    mob_crystalline_tangler() : CreatureScript("mob_crystalline_tangler") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

@@ -48,10 +48,10 @@ enum Events
     EVENT_OVERRUN   = 5
 };
 
-class boss_doomwalker : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_doomwalker : public CreatureScript
 {
     public:
-        boss_doomwalker() : MS::Game::Scripting::Interfaces::CreatureScript("boss_doomwalker") { }
+        boss_doomwalker() : CreatureScript("boss_doomwalker") { }
 
         struct boss_doomwalkerAI : public ScriptedAI
         {

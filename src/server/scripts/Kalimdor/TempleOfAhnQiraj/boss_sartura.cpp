@@ -38,10 +38,10 @@ EndScriptData */
 #define SPELL_WHIRLWINDADD                           26038
 #define SPELL_KNOCKBACK                              26027
 
-class boss_sartura : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_sartura : public CreatureScript
 {
 public:
-    boss_sartura() : MS::Game::Scripting::Interfaces::CreatureScript("boss_sartura") { }
+    boss_sartura() : CreatureScript("boss_sartura") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -181,10 +181,10 @@ public:
 
 };
 
-class mob_sartura_royal_guard : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_sartura_royal_guard : public CreatureScript
 {
 public:
-    mob_sartura_royal_guard() : MS::Game::Scripting::Interfaces::CreatureScript("mob_sartura_royal_guard") { }
+    mob_sartura_royal_guard() : CreatureScript("mob_sartura_royal_guard") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

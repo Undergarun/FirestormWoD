@@ -29,10 +29,10 @@ enum spells
     RESIDUE = 120938,
 };
 
-class mob_sikthik_guardian : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_sikthik_guardian : public CreatureScript
 {
     public:
-        mob_sikthik_guardian() : MS::Game::Scripting::Interfaces::CreatureScript("mob_sikthik_guardian") {}
+        mob_sikthik_guardian() : CreatureScript("mob_sikthik_guardian") {}
 
         struct mob_sikthik_guardianAI : public ScriptedAI
         {
@@ -69,10 +69,10 @@ class mob_sikthik_guardian : public MS::Game::Scripting::Interfaces::CreatureScr
         }
 };
 
-class mob_resin_flake : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_resin_flake : public CreatureScript
 {
     public:
-        mob_resin_flake() : MS::Game::Scripting::Interfaces::CreatureScript("mob_resin_flake") {}
+        mob_resin_flake() : CreatureScript("mob_resin_flake") {}
 
         struct mob_resin_flakeAI : public ScriptedAI
         {
@@ -109,10 +109,10 @@ class mob_resin_flake : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class mob_sikthik_amber_weaver : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_sikthik_amber_weaver : public CreatureScript
 {
     public:
-        mob_sikthik_amber_weaver() : MS::Game::Scripting::Interfaces::CreatureScript("mob_sikthik_amber_weaver") {}
+        mob_sikthik_amber_weaver() : CreatureScript("mob_sikthik_amber_weaver") {}
 
         struct mob_sikthik_amber_weaverAI : public ScriptedAI
         {
@@ -164,10 +164,10 @@ class mob_sikthik_amber_weaver : public MS::Game::Scripting::Interfaces::Creatur
         }
 };
 
-class spell_resin_weaving: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_resin_weaving: public SpellScriptLoader
 {
     public:
-        spell_resin_weaving() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_resin_weaving") { }
+        spell_resin_weaving() : SpellScriptLoader("spell_resin_weaving") { }
 
         class spell_resin_weaving_AuraScript : public AuraScript
         {

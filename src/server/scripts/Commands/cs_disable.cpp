@@ -28,10 +28,10 @@ EndScriptData */
 #include "DisableMgr.h"
 #include "OutdoorPvP.h"
 
-class disable_commandscript: public MS::Game::Scripting::Interfaces::CommandScript
+class disable_commandscript: public CommandScript
 {
 public:
-    disable_commandscript() : MS::Game::Scripting::Interfaces::CommandScript("disable_commandscript") { }
+    disable_commandscript() : CommandScript("disable_commandscript") { }
 
     ChatCommand* GetCommands() const
     {

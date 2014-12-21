@@ -43,10 +43,10 @@ Position statuesPos[4] =
     { 5839.0f, 6211.5f, 158.083f, 0.781267f }  // SE
 };
 
-class instance_throne_of_thunder : public MS::Game::Scripting::Interfaces::InstanceMapScript
+class instance_throne_of_thunder : public InstanceMapScript
 {
     public:
-        instance_throne_of_thunder() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_throne_of_thunder", 1098) { }
+        instance_throne_of_thunder() : InstanceMapScript("instance_throne_of_thunder", 1098) { }
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const
         {

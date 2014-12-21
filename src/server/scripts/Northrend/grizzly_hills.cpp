@@ -51,10 +51,10 @@ enum eFloppy
 };
 
 //emily
-class npc_emily : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_emily : public CreatureScript
 {
 public:
-    npc_emily() : MS::Game::Scripting::Interfaces::CreatureScript("npc_emily") { }
+    npc_emily() : CreatureScript("npc_emily") { }
 
     struct npc_emilyAI : public npc_escortAI
     {
@@ -224,10 +224,10 @@ public:
 };
 
 //mrfloppy
-class npc_mrfloppy : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_mrfloppy : public CreatureScript
 {
 public:
-    npc_mrfloppy() : MS::Game::Scripting::Interfaces::CreatureScript("npc_mrfloppy") { }
+    npc_mrfloppy() : CreatureScript("npc_mrfloppy") { }
 
     struct npc_mrfloppyAI : public ScriptedAI
     {
@@ -289,10 +289,10 @@ enum eSounds
     SOUND_MALE          = 12670
 };
 
-class npc_outhouse_bunny : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_outhouse_bunny : public CreatureScript
 {
 public:
-    npc_outhouse_bunny() : MS::Game::Scripting::Interfaces::CreatureScript("npc_outhouse_bunny") { }
+    npc_outhouse_bunny() : CreatureScript("npc_outhouse_bunny") { }
 
     struct npc_outhouse_bunnyAI : public ScriptedAI
     {
@@ -350,10 +350,10 @@ enum etallhornstage
     OBJECT_HAUNCH                   = 188665
 };
 
-class npc_tallhorn_stag : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_tallhorn_stag : public CreatureScript
 {
 public:
-    npc_tallhorn_stag() : MS::Game::Scripting::Interfaces::CreatureScript("npc_tallhorn_stag") { }
+    npc_tallhorn_stag() : CreatureScript("npc_tallhorn_stag") { }
 
     struct npc_tallhorn_stagAI : public ScriptedAI
     {
@@ -395,10 +395,10 @@ enum eamberpinewoodsman
     TALLHORN_STAG                   = 26363
 };
 
-class npc_amberpine_woodsman : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_amberpine_woodsman : public CreatureScript
 {
 public:
-    npc_amberpine_woodsman() : MS::Game::Scripting::Interfaces::CreatureScript("npc_amberpine_woodsman") { }
+    npc_amberpine_woodsman() : CreatureScript("npc_amberpine_woodsman") { }
 
     struct npc_amberpine_woodsmanAI : public ScriptedAI
     {
@@ -467,10 +467,10 @@ enum eSkirmisher
     RANDOM_SAY_3             =  -1800046         //Thank you. $Class!
 };
 
-class npc_wounded_skirmisher : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_wounded_skirmisher : public CreatureScript
 {
 public:
-    npc_wounded_skirmisher() : MS::Game::Scripting::Interfaces::CreatureScript("npc_wounded_skirmisher") { }
+    npc_wounded_skirmisher() : CreatureScript("npc_wounded_skirmisher") { }
 
     struct npc_wounded_skirmisherAI : public ScriptedAI
     {
@@ -536,10 +536,10 @@ enum eSentry
     SPELL_CHARGED_SENTRY_TOTEM                   = 52703,
 };
 
-class npc_lightning_sentry : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_lightning_sentry : public CreatureScript
 {
 public:
-    npc_lightning_sentry() : MS::Game::Scripting::Interfaces::CreatureScript("npc_lightning_sentry") { }
+    npc_lightning_sentry() : CreatureScript("npc_lightning_sentry") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -603,10 +603,10 @@ enum eSmokeEmOut
     SPELL_VENTURE_STRAGGLER_CREDIT               = 49093,
 };
 
-class npc_venture_co_straggler : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_venture_co_straggler : public CreatureScript
 {
     public:
-        npc_venture_co_straggler() : MS::Game::Scripting::Interfaces::CreatureScript("npc_venture_co_straggler") { }
+        npc_venture_co_straggler() : CreatureScript("npc_venture_co_straggler") { }
 
         struct npc_venture_co_stragglerAI : public ScriptedAI
         {

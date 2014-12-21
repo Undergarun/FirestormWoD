@@ -3,10 +3,10 @@
 
 #define MAX_ENCOUNTER 3
 
-class instance_the_vortex_pinnacle : public MS::Game::Scripting::Interfaces::InstanceMapScript
+class instance_the_vortex_pinnacle : public InstanceMapScript
 {
     public:
-        instance_the_vortex_pinnacle() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_the_vortex_pinnacle", 657) { }
+        instance_the_vortex_pinnacle() : InstanceMapScript("instance_the_vortex_pinnacle", 657) { }
         
         InstanceScript* GetInstanceScript(InstanceMap* map) const
         {

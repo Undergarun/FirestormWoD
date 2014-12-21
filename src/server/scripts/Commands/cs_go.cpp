@@ -28,10 +28,10 @@ EndScriptData */
 #include "TicketMgr.h"
 #include "Chat.h"
 
-class go_commandscript: public MS::Game::Scripting::Interfaces::CommandScript
+class go_commandscript: public CommandScript
 {
 public:
-    go_commandscript() : MS::Game::Scripting::Interfaces::CommandScript("go_commandscript") { }
+    go_commandscript() : CommandScript("go_commandscript") { }
 
     ChatCommand* GetCommands() const
     {

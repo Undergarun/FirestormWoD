@@ -36,11 +36,11 @@ EndScriptData */
 3 - Void Reaver event
 */
 
-class instance_the_eye : public MS::Game::Scripting::Interfaces::InstanceMapScript
+class instance_the_eye : public InstanceMapScript
 {
     public:
         instance_the_eye()
-            : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_the_eye", 550)
+            : InstanceMapScript("instance_the_eye", 550)
         {
         }
 

@@ -26,10 +26,10 @@ EndScriptData */
 #include "AccountMgr.h"
 #include "Chat.h"
 
-class account_commandscript: public MS::Game::Scripting::Interfaces::CommandScript
+class account_commandscript: public CommandScript
 {
 public:
-    account_commandscript() : MS::Game::Scripting::Interfaces::CommandScript("account_commandscript") { }
+    account_commandscript() : CommandScript("account_commandscript") { }
 
     ChatCommand* GetCommands() const
     {

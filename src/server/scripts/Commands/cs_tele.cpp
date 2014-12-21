@@ -28,10 +28,10 @@ EndScriptData */
 #include "Chat.h"
 #include "Group.h"
 
-class tele_commandscript: public MS::Game::Scripting::Interfaces::CommandScript
+class tele_commandscript: public CommandScript
 {
 public:
-    tele_commandscript() : MS::Game::Scripting::Interfaces::CommandScript("tele_commandscript") { }
+    tele_commandscript() : CommandScript("tele_commandscript") { }
 
     ChatCommand* GetCommands() const
     {

@@ -273,10 +273,10 @@ class ValithriaDespawner : public BasicEvent
         Creature* _creature;
 };
 
-class boss_valithria_dreamwalker : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_valithria_dreamwalker : public CreatureScript
 {
     public:
-        boss_valithria_dreamwalker() : MS::Game::Scripting::Interfaces::CreatureScript("boss_valithria_dreamwalker") { }
+        boss_valithria_dreamwalker() : CreatureScript("boss_valithria_dreamwalker") { }
 
         struct boss_valithria_dreamwalkerAI : public ScriptedAI
         {
@@ -494,10 +494,10 @@ class boss_valithria_dreamwalker : public MS::Game::Scripting::Interfaces::Creat
         }
 };
 
-class npc_green_dragon_combat_trigger : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_green_dragon_combat_trigger : public CreatureScript
 {
     public:
-        npc_green_dragon_combat_trigger() : MS::Game::Scripting::Interfaces::CreatureScript("npc_green_dragon_combat_trigger") { }
+        npc_green_dragon_combat_trigger() : CreatureScript("npc_green_dragon_combat_trigger") { }
 
         struct npc_green_dragon_combat_triggerAI : public BossAI
         {
@@ -597,10 +597,10 @@ class npc_green_dragon_combat_trigger : public MS::Game::Scripting::Interfaces::
         }
 };
 
-class npc_the_lich_king_controller : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_the_lich_king_controller : public CreatureScript
 {
     public:
-        npc_the_lich_king_controller() : MS::Game::Scripting::Interfaces::CreatureScript("npc_the_lich_king_controller") { }
+        npc_the_lich_king_controller() : CreatureScript("npc_the_lich_king_controller") { }
 
         struct npc_the_lich_king_controllerAI : public ScriptedAI
         {
@@ -686,10 +686,10 @@ class npc_the_lich_king_controller : public MS::Game::Scripting::Interfaces::Cre
         }
 };
 
-class npc_risen_archmage : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_risen_archmage : public CreatureScript
 {
     public:
-        npc_risen_archmage() : MS::Game::Scripting::Interfaces::CreatureScript("npc_risen_archmage") { }
+        npc_risen_archmage() : CreatureScript("npc_risen_archmage") { }
 
         struct npc_risen_archmageAI : public ScriptedAI
         {
@@ -804,10 +804,10 @@ class npc_risen_archmage : public MS::Game::Scripting::Interfaces::CreatureScrip
         }
 };
 
-class npc_blazing_skeleton : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_blazing_skeleton : public CreatureScript
 {
     public:
-        npc_blazing_skeleton() : MS::Game::Scripting::Interfaces::CreatureScript("npc_blazing_skeleton") { }
+        npc_blazing_skeleton() : CreatureScript("npc_blazing_skeleton") { }
 
         struct npc_blazing_skeletonAI : public ScriptedAI
         {
@@ -863,10 +863,10 @@ class npc_blazing_skeleton : public MS::Game::Scripting::Interfaces::CreatureScr
         }
 };
 
-class npc_suppresser : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_suppresser : public CreatureScript
 {
     public:
-        npc_suppresser() : MS::Game::Scripting::Interfaces::CreatureScript("npc_suppresser") { }
+        npc_suppresser() : CreatureScript("npc_suppresser") { }
 
         struct npc_suppresserAI : public ScriptedAI
         {
@@ -929,10 +929,10 @@ class npc_suppresser : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class npc_blistering_zombie : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_blistering_zombie : public CreatureScript
 {
     public:
-        npc_blistering_zombie() : MS::Game::Scripting::Interfaces::CreatureScript("npc_blistering_zombie") { }
+        npc_blistering_zombie() : CreatureScript("npc_blistering_zombie") { }
 
         struct npc_blistering_zombieAI : public ScriptedAI
         {
@@ -960,10 +960,10 @@ class npc_blistering_zombie : public MS::Game::Scripting::Interfaces::CreatureSc
         }
 };
 
-class npc_gluttonous_abomination : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_gluttonous_abomination : public CreatureScript
 {
     public:
-        npc_gluttonous_abomination() : MS::Game::Scripting::Interfaces::CreatureScript("npc_gluttonous_abomination") { }
+        npc_gluttonous_abomination() : CreatureScript("npc_gluttonous_abomination") { }
 
         struct npc_gluttonous_abominationAI : public ScriptedAI
         {
@@ -1026,10 +1026,10 @@ class npc_gluttonous_abomination : public MS::Game::Scripting::Interfaces::Creat
         }
 };
 
-class npc_dream_portal : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_dream_portal : public CreatureScript
 {
     public:
-        npc_dream_portal() : MS::Game::Scripting::Interfaces::CreatureScript("npc_dream_portal") { }
+        npc_dream_portal() : CreatureScript("npc_dream_portal") { }
 
         struct npc_dream_portalAI : public CreatureAI
         {
@@ -1067,10 +1067,10 @@ class npc_dream_portal : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class npc_dream_cloud : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_dream_cloud : public CreatureScript
 {
     public:
-        npc_dream_cloud() : MS::Game::Scripting::Interfaces::CreatureScript("npc_dream_cloud") { }
+        npc_dream_cloud() : CreatureScript("npc_dream_cloud") { }
 
         struct npc_dream_cloudAI : public ScriptedAI
         {
@@ -1131,10 +1131,10 @@ class npc_dream_cloud : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class spell_dreamwalker_mana_void: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dreamwalker_mana_void: public SpellScriptLoader
 {
     public:
-        spell_dreamwalker_mana_void() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dreamwalker_mana_void") { }
+        spell_dreamwalker_mana_void() : SpellScriptLoader("spell_dreamwalker_mana_void") { }
 
         class spell_dreamwalker_mana_void_AuraScript : public AuraScript
         {
@@ -1161,10 +1161,10 @@ class spell_dreamwalker_mana_void: public MS::Game::Scripting::Interfaces::Spell
         }
 };
 
-class spell_dreamwalker_decay_periodic_timer: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dreamwalker_decay_periodic_timer: public SpellScriptLoader
 {
     public:
-        spell_dreamwalker_decay_periodic_timer() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dreamwalker_decay_periodic_timer") { }
+        spell_dreamwalker_decay_periodic_timer() : SpellScriptLoader("spell_dreamwalker_decay_periodic_timer") { }
 
         class spell_dreamwalker_decay_periodic_timer_AuraScript : public AuraScript
         {
@@ -1199,10 +1199,10 @@ class spell_dreamwalker_decay_periodic_timer: public MS::Game::Scripting::Interf
         }
 };
 
-class spell_dreamwalker_summoner: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dreamwalker_summoner: public SpellScriptLoader
 {
     public:
-        spell_dreamwalker_summoner() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dreamwalker_summoner") { }
+        spell_dreamwalker_summoner() : SpellScriptLoader("spell_dreamwalker_summoner") { }
 
         class spell_dreamwalker_summoner_SpellScript : public SpellScript
         {
@@ -1248,10 +1248,10 @@ class spell_dreamwalker_summoner: public MS::Game::Scripting::Interfaces::SpellS
         }
 };
 
-class spell_dreamwalker_summon_suppresser: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dreamwalker_summon_suppresser: public SpellScriptLoader
 {
     public:
-        spell_dreamwalker_summon_suppresser() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dreamwalker_summon_suppresser") { }
+        spell_dreamwalker_summon_suppresser() : SpellScriptLoader("spell_dreamwalker_summon_suppresser") { }
 
         class spell_dreamwalker_summon_suppresser_AuraScript : public AuraScript
         {
@@ -1289,10 +1289,10 @@ class spell_dreamwalker_summon_suppresser: public MS::Game::Scripting::Interface
         }
 };
 
-class spell_dreamwalker_summon_suppresser_effect: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dreamwalker_summon_suppresser_effect: public SpellScriptLoader
 {
     public:
-        spell_dreamwalker_summon_suppresser_effect() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dreamwalker_summon_suppresser_effect") { }
+        spell_dreamwalker_summon_suppresser_effect() : SpellScriptLoader("spell_dreamwalker_summon_suppresser_effect") { }
 
         class spell_dreamwalker_summon_suppresser_effect_SpellScript : public SpellScript
         {
@@ -1326,10 +1326,10 @@ class spell_dreamwalker_summon_suppresser_effect: public MS::Game::Scripting::In
         }
 };
 
-class spell_dreamwalker_summon_dream_portal: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dreamwalker_summon_dream_portal: public SpellScriptLoader
 {
     public:
-        spell_dreamwalker_summon_dream_portal() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dreamwalker_summon_dream_portal") { }
+        spell_dreamwalker_summon_dream_portal() : SpellScriptLoader("spell_dreamwalker_summon_dream_portal") { }
 
         class spell_dreamwalker_summon_dream_portal_SpellScript : public SpellScript
         {
@@ -1357,10 +1357,10 @@ class spell_dreamwalker_summon_dream_portal: public MS::Game::Scripting::Interfa
         }
 };
 
-class spell_dreamwalker_summon_nightmare_portal: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dreamwalker_summon_nightmare_portal: public SpellScriptLoader
 {
     public:
-        spell_dreamwalker_summon_nightmare_portal() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dreamwalker_summon_nightmare_portal") { }
+        spell_dreamwalker_summon_nightmare_portal() : SpellScriptLoader("spell_dreamwalker_summon_nightmare_portal") { }
 
         class spell_dreamwalker_summon_nightmare_portal_SpellScript : public SpellScript
         {
@@ -1388,10 +1388,10 @@ class spell_dreamwalker_summon_nightmare_portal: public MS::Game::Scripting::Int
         }
 };
 
-class spell_dreamwalker_nightmare_cloud: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dreamwalker_nightmare_cloud: public SpellScriptLoader
 {
     public:
-        spell_dreamwalker_nightmare_cloud() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dreamwalker_nightmare_cloud") { }
+        spell_dreamwalker_nightmare_cloud() : SpellScriptLoader("spell_dreamwalker_nightmare_cloud") { }
 
         class spell_dreamwalker_nightmare_cloud_AuraScript : public AuraScript
         {
@@ -1423,10 +1423,10 @@ class spell_dreamwalker_nightmare_cloud: public MS::Game::Scripting::Interfaces:
         }
 };
 
-class spell_dreamwalker_twisted_nightmares: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dreamwalker_twisted_nightmares: public SpellScriptLoader
 {
     public:
-        spell_dreamwalker_twisted_nightmares() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dreamwalker_twisted_nightmares") { }
+        spell_dreamwalker_twisted_nightmares() : SpellScriptLoader("spell_dreamwalker_twisted_nightmares") { }
 
         class spell_dreamwalker_twisted_nightmares_SpellScript : public SpellScript
         {
@@ -1455,10 +1455,10 @@ class spell_dreamwalker_twisted_nightmares: public MS::Game::Scripting::Interfac
         }
 };
 
-class achievement_portal_jockey : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
+class achievement_portal_jockey : public AchievementCriteriaScript
 {
     public:
-        achievement_portal_jockey() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_portal_jockey") { }
+        achievement_portal_jockey() : AchievementCriteriaScript("achievement_portal_jockey") { }
 
         bool OnCheck(Player* /*source*/, Unit* target)
         {

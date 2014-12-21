@@ -47,10 +47,10 @@ enum Events
 
 Position const xerestraszaMovePos = {3151.236f, 379.8733f, 86.31996f, 0.0f};
 
-class npc_xerestrasza : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_xerestrasza : public CreatureScript
 {
     public:
-        npc_xerestrasza() : MS::Game::Scripting::Interfaces::CreatureScript("npc_xerestrasza") { }
+        npc_xerestrasza() : CreatureScript("npc_xerestrasza") { }
 
         struct npc_xerestraszaAI : public ScriptedAI
         {
@@ -144,10 +144,10 @@ class npc_xerestrasza : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class at_baltharus_plateau : public MS::Game::Scripting::Interfaces::AreaTriggerScript
+class at_baltharus_plateau : public AreaTriggerScript
 {
     public:
-        at_baltharus_plateau() : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_baltharus_plateau") { }
+        at_baltharus_plateau() : AreaTriggerScript("at_baltharus_plateau") { }
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
         {

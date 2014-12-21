@@ -84,10 +84,10 @@ enum MovementPoints
 
 #define DATA_COLDFLAME_GUID 0
 
-class boss_lord_marrowgar : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_lord_marrowgar : public CreatureScript
 {
     public:
-        boss_lord_marrowgar() : MS::Game::Scripting::Interfaces::CreatureScript("boss_lord_marrowgar") { }
+        boss_lord_marrowgar() : CreatureScript("boss_lord_marrowgar") { }
 
         struct boss_lord_marrowgarAI : public BossAI
         {
@@ -311,10 +311,10 @@ class boss_lord_marrowgar : public MS::Game::Scripting::Interfaces::CreatureScri
 
 typedef boss_lord_marrowgar::boss_lord_marrowgarAI MarrowgarAI;
 
-class npc_coldflame : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_coldflame : public CreatureScript
 {
     public:
-        npc_coldflame() : MS::Game::Scripting::Interfaces::CreatureScript("npc_coldflame") { }
+        npc_coldflame() : CreatureScript("npc_coldflame") { }
 
         struct npc_coldflameAI : public ScriptedAI
         {
@@ -382,10 +382,10 @@ class npc_coldflame : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class npc_bone_spike : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_bone_spike : public CreatureScript
 {
     public:
-        npc_bone_spike() : MS::Game::Scripting::Interfaces::CreatureScript("npc_bone_spike") { }
+        npc_bone_spike() : CreatureScript("npc_bone_spike") { }
 
         struct npc_bone_spikeAI : public Scripted_NoMovementAI
         {
@@ -459,10 +459,10 @@ class npc_bone_spike : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class spell_marrowgar_coldflame: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_marrowgar_coldflame: public SpellScriptLoader
 {
     public:
-        spell_marrowgar_coldflame() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_marrowgar_coldflame") { }
+        spell_marrowgar_coldflame() : SpellScriptLoader("spell_marrowgar_coldflame") { }
 
         class spell_marrowgar_coldflame_SpellScript : public SpellScript
         {
@@ -501,10 +501,10 @@ class spell_marrowgar_coldflame: public MS::Game::Scripting::Interfaces::SpellSc
         }
 };
 
-class spell_marrowgar_coldflame_bonestorm: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_marrowgar_coldflame_bonestorm: public SpellScriptLoader
 {
     public:
-        spell_marrowgar_coldflame_bonestorm() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_marrowgar_coldflame_bonestorm") { }
+        spell_marrowgar_coldflame_bonestorm() : SpellScriptLoader("spell_marrowgar_coldflame_bonestorm") { }
 
         class spell_marrowgar_coldflame_SpellScript : public SpellScript
         {
@@ -529,10 +529,10 @@ class spell_marrowgar_coldflame_bonestorm: public MS::Game::Scripting::Interface
         }
 };
 
-class spell_marrowgar_coldflame_damage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_marrowgar_coldflame_damage: public SpellScriptLoader
 {
     public:
-        spell_marrowgar_coldflame_damage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_marrowgar_coldflame_damage") { }
+        spell_marrowgar_coldflame_damage() : SpellScriptLoader("spell_marrowgar_coldflame_damage") { }
 
         class spell_marrowgar_coldflame_damage_AuraScript : public AuraScript
         {
@@ -559,10 +559,10 @@ class spell_marrowgar_coldflame_damage: public MS::Game::Scripting::Interfaces::
         }
 };
 
-class spell_marrowgar_bone_spike_graveyard: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_marrowgar_bone_spike_graveyard: public SpellScriptLoader
 {
     public:
-        spell_marrowgar_bone_spike_graveyard() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_marrowgar_bone_spike_graveyard") { }
+        spell_marrowgar_bone_spike_graveyard() : SpellScriptLoader("spell_marrowgar_bone_spike_graveyard") { }
 
         class spell_marrowgar_bone_spike_graveyard_SpellScript : public SpellScript
         {
@@ -632,10 +632,10 @@ class spell_marrowgar_bone_spike_graveyard: public MS::Game::Scripting::Interfac
         }
 };
 
-class spell_marrowgar_bone_storm: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_marrowgar_bone_storm: public SpellScriptLoader
 {
     public:
-        spell_marrowgar_bone_storm() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_marrowgar_bone_storm") { }
+        spell_marrowgar_bone_storm() : SpellScriptLoader("spell_marrowgar_bone_storm") { }
 
         class spell_marrowgar_bone_storm_SpellScript : public SpellScript
         {

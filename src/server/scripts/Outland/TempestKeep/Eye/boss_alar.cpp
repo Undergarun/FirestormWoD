@@ -71,7 +71,7 @@ enum WaitEventType
     WE_SUMMON   = 10
 };
 
-class boss_alar : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_alar : public CreatureScript
 {
     public:
 
@@ -457,7 +457,7 @@ class boss_alar : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class mob_ember_of_alar : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_ember_of_alar : public CreatureScript
 {
     public:
 
@@ -536,7 +536,7 @@ class mob_ember_of_alar : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class mob_flame_patch_alar : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_flame_patch_alar : public CreatureScript
 {
     public:
 

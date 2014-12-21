@@ -172,10 +172,10 @@ Position const introFinalPos = {4660.490f, 2769.200f, 430.0000f, 0.000000f};
 Position const triggerPos    = {4680.231f, 2769.134f, 379.9256f, 3.121708f};
 Position const triggerEndPos = {4680.180f, 2769.150f, 365.5000f, 3.121708f};
 
-class boss_blood_council_controller : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_blood_council_controller : public CreatureScript
 {
     public:
-        boss_blood_council_controller() : MS::Game::Scripting::Interfaces::CreatureScript("boss_blood_council_controller") { }
+        boss_blood_council_controller() : CreatureScript("boss_blood_council_controller") { }
 
         struct boss_blood_council_controllerAI : public BossAI
         {
@@ -360,10 +360,10 @@ class boss_blood_council_controller : public MS::Game::Scripting::Interfaces::Cr
         }
 };
 
-class boss_prince_keleseth_icc : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_prince_keleseth_icc : public CreatureScript
 {
     public:
-        boss_prince_keleseth_icc() : MS::Game::Scripting::Interfaces::CreatureScript("boss_prince_keleseth_icc") { }
+        boss_prince_keleseth_icc() : CreatureScript("boss_prince_keleseth_icc") { }
 
         struct boss_prince_kelesethAI : public BossAI
         {
@@ -576,10 +576,10 @@ class boss_prince_keleseth_icc : public MS::Game::Scripting::Interfaces::Creatur
         }
 };
 
-class boss_prince_taldaram_icc : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_prince_taldaram_icc : public CreatureScript
 {
     public:
-        boss_prince_taldaram_icc() : MS::Game::Scripting::Interfaces::CreatureScript("boss_prince_taldaram_icc") { }
+        boss_prince_taldaram_icc() : CreatureScript("boss_prince_taldaram_icc") { }
 
         struct boss_prince_taldaramAI : public BossAI
         {
@@ -799,10 +799,10 @@ class boss_prince_taldaram_icc : public MS::Game::Scripting::Interfaces::Creatur
         }
 };
 
-class boss_prince_valanar_icc : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_prince_valanar_icc : public CreatureScript
 {
     public:
-        boss_prince_valanar_icc() : MS::Game::Scripting::Interfaces::CreatureScript("boss_prince_valanar_icc") { }
+        boss_prince_valanar_icc() : CreatureScript("boss_prince_valanar_icc") { }
 
         struct boss_prince_valanarAI : public BossAI
         {
@@ -1045,10 +1045,10 @@ class boss_prince_valanar_icc : public MS::Game::Scripting::Interfaces::Creature
         }
 };
 
-class npc_blood_queen_lana_thel : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_blood_queen_lana_thel : public CreatureScript
 {
     public:
-        npc_blood_queen_lana_thel() : MS::Game::Scripting::Interfaces::CreatureScript("npc_blood_queen_lana_thel") { }
+        npc_blood_queen_lana_thel() : CreatureScript("npc_blood_queen_lana_thel") { }
 
         struct npc_blood_queen_lana_thelAI : public ScriptedAI
         {
@@ -1138,10 +1138,10 @@ class npc_blood_queen_lana_thel : public MS::Game::Scripting::Interfaces::Creatu
         }
 };
 
-class npc_ball_of_flame : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_ball_of_flame : public CreatureScript
 {
     public:
-        npc_ball_of_flame() : MS::Game::Scripting::Interfaces::CreatureScript("npc_ball_of_flame") { }
+        npc_ball_of_flame() : CreatureScript("npc_ball_of_flame") { }
 
         struct npc_ball_of_flameAI : public ScriptedAI
         {
@@ -1223,10 +1223,10 @@ class npc_ball_of_flame : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class npc_kinetic_bomb : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_kinetic_bomb : public CreatureScript
 {
     public:
-        npc_kinetic_bomb() : MS::Game::Scripting::Interfaces::CreatureScript("npc_kinetic_bomb") { }
+        npc_kinetic_bomb() : CreatureScript("npc_kinetic_bomb") { }
 
         struct npc_kinetic_bombAI : public ScriptedAI
         {
@@ -1292,10 +1292,10 @@ class npc_kinetic_bomb : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class npc_dark_nucleus : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_dark_nucleus : public CreatureScript
 {
     public:
-        npc_dark_nucleus() : MS::Game::Scripting::Interfaces::CreatureScript("npc_dark_nucleus") { }
+        npc_dark_nucleus() : CreatureScript("npc_dark_nucleus") { }
 
         struct npc_dark_nucleusAI : public ScriptedAI
         {
@@ -1389,10 +1389,10 @@ class npc_dark_nucleus : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class spell_taldaram_glittering_sparks: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_taldaram_glittering_sparks: public SpellScriptLoader
 {
     public:
-        spell_taldaram_glittering_sparks() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_taldaram_glittering_sparks") { }
+        spell_taldaram_glittering_sparks() : SpellScriptLoader("spell_taldaram_glittering_sparks") { }
 
         class spell_taldaram_glittering_sparks_SpellScript : public SpellScript
         {
@@ -1416,10 +1416,10 @@ class spell_taldaram_glittering_sparks: public MS::Game::Scripting::Interfaces::
         }
 };
 
-class spell_taldaram_summon_flame_ball: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_taldaram_summon_flame_ball: public SpellScriptLoader
 {
     public:
-        spell_taldaram_summon_flame_ball() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_taldaram_summon_flame_ball") { }
+        spell_taldaram_summon_flame_ball() : SpellScriptLoader("spell_taldaram_summon_flame_ball") { }
 
         class spell_taldaram_summon_flame_ball_SpellScript : public SpellScript
         {
@@ -1443,10 +1443,10 @@ class spell_taldaram_summon_flame_ball: public MS::Game::Scripting::Interfaces::
         }
 };
 
-class spell_taldaram_flame_ball_visual: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_taldaram_flame_ball_visual: public SpellScriptLoader
 {
     public:
-        spell_taldaram_flame_ball_visual() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_taldaram_flame_ball_visual") { }
+        spell_taldaram_flame_ball_visual() : SpellScriptLoader("spell_taldaram_flame_ball_visual") { }
 
         class spell_flame_ball_visual_AuraScript : public AuraScript
         {
@@ -1487,10 +1487,10 @@ class spell_taldaram_flame_ball_visual: public MS::Game::Scripting::Interfaces::
         }
 };
 
-class spell_taldaram_ball_of_inferno_flame: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_taldaram_ball_of_inferno_flame: public SpellScriptLoader
 {
     public:
-        spell_taldaram_ball_of_inferno_flame() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_taldaram_ball_of_inferno_flame") { }
+        spell_taldaram_ball_of_inferno_flame() : SpellScriptLoader("spell_taldaram_ball_of_inferno_flame") { }
 
         class spell_taldaram_ball_of_inferno_flame_SpellScript : public SpellScript
         {
@@ -1514,10 +1514,10 @@ class spell_taldaram_ball_of_inferno_flame: public MS::Game::Scripting::Interfac
         }
 };
 
-class spell_valanar_kinetic_bomb: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_valanar_kinetic_bomb: public SpellScriptLoader
 {
     public:
-        spell_valanar_kinetic_bomb() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_valanar_kinetic_bomb") { }
+        spell_valanar_kinetic_bomb() : SpellScriptLoader("spell_valanar_kinetic_bomb") { }
 
         class spell_valanar_kinetic_bomb_SpellScript : public SpellScript
         {
@@ -1574,10 +1574,10 @@ class spell_valanar_kinetic_bomb: public MS::Game::Scripting::Interfaces::SpellS
         }
 };
 
-class spell_valanar_kinetic_bomb_knockback: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_valanar_kinetic_bomb_knockback: public SpellScriptLoader
 {
     public:
-        spell_valanar_kinetic_bomb_knockback() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_valanar_kinetic_bomb_knockback") { }
+        spell_valanar_kinetic_bomb_knockback() : SpellScriptLoader("spell_valanar_kinetic_bomb_knockback") { }
 
         class spell_valanar_kinetic_bomb_knockback_SpellScript : public SpellScript
         {
@@ -1601,10 +1601,10 @@ class spell_valanar_kinetic_bomb_knockback: public MS::Game::Scripting::Interfac
         }
 };
 
-class spell_valanar_kinetic_bomb_absorb: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_valanar_kinetic_bomb_absorb: public SpellScriptLoader
 {
     public:
-        spell_valanar_kinetic_bomb_absorb() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_valanar_kinetic_bomb_absorb") { }
+        spell_valanar_kinetic_bomb_absorb() : SpellScriptLoader("spell_valanar_kinetic_bomb_absorb") { }
 
         class spell_valanar_kinetic_bomb_absorb_AuraScript : public AuraScript
         {
@@ -1629,10 +1629,10 @@ class spell_valanar_kinetic_bomb_absorb: public MS::Game::Scripting::Interfaces:
         }
 };
 
-class spell_blood_council_shadow_prison: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_blood_council_shadow_prison: public SpellScriptLoader
 {
     public:
-        spell_blood_council_shadow_prison() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_blood_council_shadow_prison") { }
+        spell_blood_council_shadow_prison() : SpellScriptLoader("spell_blood_council_shadow_prison") { }
 
         class spell_blood_council_shadow_prison_AuraScript : public AuraScript
         {
@@ -1656,10 +1656,10 @@ class spell_blood_council_shadow_prison: public MS::Game::Scripting::Interfaces:
         }
 };
 
-class spell_blood_council_shadow_prison_damage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_blood_council_shadow_prison_damage: public SpellScriptLoader
 {
     public:
-        spell_blood_council_shadow_prison_damage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_blood_council_shadow_prison_damage") { }
+        spell_blood_council_shadow_prison_damage() : SpellScriptLoader("spell_blood_council_shadow_prison_damage") { }
 
         class spell_blood_council_shadow_prison_SpellScript : public SpellScript
         {

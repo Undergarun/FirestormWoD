@@ -85,10 +85,10 @@ enum Actions
 
 #define GOSSIP_BRANN_START_EVENT "Let's go"
 
-class npc_air_warden : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_air_warden : public CreatureScript
 {
     public:
-        npc_air_warden() : MS::Game::Scripting::Interfaces::CreatureScript("npc_air_warden") {}
+        npc_air_warden() : CreatureScript("npc_air_warden") {}
  
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -161,10 +161,10 @@ class npc_air_warden : public MS::Game::Scripting::Interfaces::CreatureScript
         };
 };
 
-class npc_flame_warden : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_flame_warden : public CreatureScript
 {
     public:
-        npc_flame_warden() : MS::Game::Scripting::Interfaces::CreatureScript("npc_flame_warden") {}
+        npc_flame_warden() : CreatureScript("npc_flame_warden") {}
  
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -242,10 +242,10 @@ class npc_flame_warden : public MS::Game::Scripting::Interfaces::CreatureScript
         };
 };
 
-class npc_water_warden : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_water_warden : public CreatureScript
 {
     public:
-        npc_water_warden() : MS::Game::Scripting::Interfaces::CreatureScript("npc_water_warden") {}
+        npc_water_warden() : CreatureScript("npc_water_warden") {}
  
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -318,10 +318,10 @@ class npc_water_warden : public MS::Game::Scripting::Interfaces::CreatureScript
         };
 };
 
-class npc_earth_warden : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_earth_warden : public CreatureScript
 {
     public:
-        npc_earth_warden() : MS::Game::Scripting::Interfaces::CreatureScript("npc_earth_warden") {}
+        npc_earth_warden() : CreatureScript("npc_earth_warden") {}
  
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -400,10 +400,10 @@ class npc_earth_warden : public MS::Game::Scripting::Interfaces::CreatureScript
         };
 };
 
-class npc_water_warden_water_bubble : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_water_warden_water_bubble : public CreatureScript
 {
     public:
-        npc_water_warden_water_bubble() : MS::Game::Scripting::Interfaces::CreatureScript("npc_water_warden_water_bubble") { }
+        npc_water_warden_water_bubble() : CreatureScript("npc_water_warden_water_bubble") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -448,10 +448,10 @@ class npc_water_warden_water_bubble : public MS::Game::Scripting::Interfaces::Cr
         };
 };
 
-class npc_halls_of_origination_brann_bronzebeard : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_halls_of_origination_brann_bronzebeard : public CreatureScript
 {
     public:
-        npc_halls_of_origination_brann_bronzebeard() : MS::Game::Scripting::Interfaces::CreatureScript("npc_halls_of_origination_brann_bronzebeard") {}
+        npc_halls_of_origination_brann_bronzebeard() : CreatureScript("npc_halls_of_origination_brann_bronzebeard") {}
  
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -566,10 +566,10 @@ class npc_halls_of_origination_brann_bronzebeard : public MS::Game::Scripting::I
         };
 };
 
-class go_halls_of_origination_transit_device : public MS::Game::Scripting::Interfaces::GameObjectScript
+class go_halls_of_origination_transit_device : public GameObjectScript
 {
     public:
-        go_halls_of_origination_transit_device() : MS::Game::Scripting::Interfaces::GameObjectScript("go_halls_of_origination_transit_device"){ }
+        go_halls_of_origination_transit_device() : GameObjectScript("go_halls_of_origination_transit_device"){ }
 
         bool OnGossipHello(Player* pPlayer, GameObject* pGo)
         {

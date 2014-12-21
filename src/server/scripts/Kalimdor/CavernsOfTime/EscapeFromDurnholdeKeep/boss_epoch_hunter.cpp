@@ -45,10 +45,10 @@ enum EpochHunter
     SPELL_WING_BUFFET           = 31475
 };
 
-class boss_epoch_hunter : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_epoch_hunter : public CreatureScript
 {
 public:
-    boss_epoch_hunter() : MS::Game::Scripting::Interfaces::CreatureScript("boss_epoch_hunter") { }
+    boss_epoch_hunter() : CreatureScript("boss_epoch_hunter") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

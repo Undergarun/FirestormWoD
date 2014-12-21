@@ -162,10 +162,10 @@ enum AchievementControl
     ACHI_FAILED                     = 4
 };
 
-class boss_skadi : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_skadi : public CreatureScript
 {
     public:
-        boss_skadi() : MS::Game::Scripting::Interfaces::CreatureScript("boss_skadi") { }
+        boss_skadi() : CreatureScript("boss_skadi") { }
 
         struct boss_skadiAI : public ScriptedAI
         {
@@ -504,10 +504,10 @@ class boss_skadi : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class go_harpoon_launcher : public MS::Game::Scripting::Interfaces::GameObjectScript
+class go_harpoon_launcher : public GameObjectScript
 {
 public:
-    go_harpoon_launcher() : MS::Game::Scripting::Interfaces::GameObjectScript("go_harpoon_launcher") { }
+    go_harpoon_launcher() : GameObjectScript("go_harpoon_launcher") { }
 
     bool OnGossipHello(Player* player, GameObject* go)
     {

@@ -51,10 +51,10 @@ EndScriptData */
 #define ADD_4Z 104.732f
 #define ADD_4O 3.16f
 
-class boss_darkmaster_gandling : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_darkmaster_gandling : public CreatureScript
 {
 public:
-    boss_darkmaster_gandling() : MS::Game::Scripting::Interfaces::CreatureScript("boss_darkmaster_gandling") { }
+    boss_darkmaster_gandling() : CreatureScript("boss_darkmaster_gandling") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

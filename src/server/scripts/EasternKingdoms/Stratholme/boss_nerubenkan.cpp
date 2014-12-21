@@ -32,10 +32,10 @@ EndScriptData */
 #define SPELL_CRYPT_SCARABS         31602
 #define SPELL_RAISEUNDEADSCARAB     17235
 
-class boss_nerubenkan : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_nerubenkan : public CreatureScript
 {
 public:
-    boss_nerubenkan() : MS::Game::Scripting::Interfaces::CreatureScript("boss_nerubenkan") { }
+    boss_nerubenkan() : CreatureScript("boss_nerubenkan") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

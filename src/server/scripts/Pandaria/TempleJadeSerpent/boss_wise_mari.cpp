@@ -94,10 +94,10 @@ static const float hydrolanceRightTrigger[5][3] =
     {1029.213f, -2560.569f, 174.2403f},
 };
 
-class boss_wase_mari : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_wase_mari : public CreatureScript
 {
     public:
-        boss_wase_mari() : MS::Game::Scripting::Interfaces::CreatureScript("boss_wase_mari") { }
+        boss_wase_mari() : CreatureScript("boss_wase_mari") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -378,10 +378,10 @@ class boss_wase_mari : public MS::Game::Scripting::Interfaces::CreatureScript
         };
 };
 
-class mob_corrupt_living_water : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_corrupt_living_water : public CreatureScript
 {
     public:
-        mob_corrupt_living_water() : MS::Game::Scripting::Interfaces::CreatureScript("mob_corrupt_living_water") { }
+        mob_corrupt_living_water() : CreatureScript("mob_corrupt_living_water") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {

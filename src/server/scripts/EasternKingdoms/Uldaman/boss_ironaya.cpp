@@ -31,7 +31,7 @@ EndScriptData */
 #define SPELL_KNOCKAWAY             10101
 #define SPELL_WSTOMP                11876
 
-class boss_ironaya : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_ironaya : public CreatureScript
 {
     public:
 

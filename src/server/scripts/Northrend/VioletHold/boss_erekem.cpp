@@ -43,10 +43,10 @@ enum Yells
     SAY_BOTH_ADDS_KILLED                        = -1608017
 };
 
-class boss_erekem : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_erekem : public CreatureScript
 {
 public:
-    boss_erekem() : MS::Game::Scripting::Interfaces::CreatureScript("boss_erekem") { }
+    boss_erekem() : CreatureScript("boss_erekem") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -258,10 +258,10 @@ enum GuardSpells
     SPELL_STRIKE                          = 14516
 };
 
-class mob_erekem_guard : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_erekem_guard : public CreatureScript
 {
 public:
-    mob_erekem_guard() : MS::Game::Scripting::Interfaces::CreatureScript("mob_erekem_guard") { }
+    mob_erekem_guard() : CreatureScript("mob_erekem_guard") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

@@ -43,10 +43,10 @@ enum WaterElementalSpells
     SPELL_WATERBOLT                               = 46983
 };
 
-class mob_water_elemental : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_water_elemental : public CreatureScript
 {
 public:
-    mob_water_elemental() : MS::Game::Scripting::Interfaces::CreatureScript("mob_water_elemental") { }
+    mob_water_elemental() : CreatureScript("mob_water_elemental") { }
 
     struct mob_water_elementalAI : public ScriptedAI
     {
@@ -96,10 +96,10 @@ public:
     }
 };
 
-class boss_balinda : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_balinda : public CreatureScript
 {
 public:
-    boss_balinda() : MS::Game::Scripting::Interfaces::CreatureScript("boss_balinda") { }
+    boss_balinda() : CreatureScript("boss_balinda") { }
 
     struct boss_balindaAI : public ScriptedAI
     {

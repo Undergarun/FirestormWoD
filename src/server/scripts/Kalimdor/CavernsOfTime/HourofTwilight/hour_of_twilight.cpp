@@ -18,10 +18,10 @@ enum Adds
     NPC_EARTHEN_SHELL_TARGET        = 55445,
 };
 
-class npc_hour_of_twilight_life_warden : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_hour_of_twilight_life_warden : public CreatureScript
 {
     public:
-        npc_hour_of_twilight_life_warden() : MS::Game::Scripting::Interfaces::CreatureScript("npc_hour_of_twilight_life_warden") { }
+        npc_hour_of_twilight_life_warden() : CreatureScript("npc_hour_of_twilight_life_warden") { }
 
         bool OnGossipHello(Player* pPlayer, Creature* pCreature)
         {

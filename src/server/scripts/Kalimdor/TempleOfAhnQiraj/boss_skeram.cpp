@@ -52,10 +52,10 @@ class ov_mycoordinates
         }
 };
 
-class boss_skeram : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_skeram : public CreatureScript
 {
 public:
-    boss_skeram() : MS::Game::Scripting::Interfaces::CreatureScript("boss_skeram") { }
+    boss_skeram() : CreatureScript("boss_skeram") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

@@ -46,10 +46,10 @@ enum eSays
 {
 };
 
-class boss_thok_the_bloodthirsty : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_thok_the_bloodthirsty : public CreatureScript
 {
     public:
-        boss_thok_the_bloodthirsty() : MS::Game::Scripting::Interfaces::CreatureScript("boss_thok_the_bloodthirsty") { }
+        boss_thok_the_bloodthirsty() : CreatureScript("boss_thok_the_bloodthirsty") { }
 
         struct boss_thok_the_bloodthirstyAI : public BossAI
         {
@@ -134,10 +134,10 @@ class boss_thok_the_bloodthirsty : public MS::Game::Scripting::Interfaces::Creat
         }
 };
 
-class mob_korkron_jailer : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_korkron_jailer : public CreatureScript
 {
     public:
-        mob_korkron_jailer() : MS::Game::Scripting::Interfaces::CreatureScript("mob_korkron_jailer") { }
+        mob_korkron_jailer() : CreatureScript("mob_korkron_jailer") { }
 
         struct mob_korkron_jailerAI : public ScriptedAI
         {
@@ -167,10 +167,10 @@ class mob_korkron_jailer : public MS::Game::Scripting::Interfaces::CreatureScrip
         }
 };
 
-class mob_akolik : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_akolik : public CreatureScript
 {
     public:
-        mob_akolik() : MS::Game::Scripting::Interfaces::CreatureScript("mob_akolik") { }
+        mob_akolik() : CreatureScript("mob_akolik") { }
 
         struct mob_akolikAI : public ScriptedAI
         {
@@ -200,10 +200,10 @@ class mob_akolik : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class mob_waterspeaker_gorai : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_waterspeaker_gorai : public CreatureScript
 {
     public:
-        mob_waterspeaker_gorai() : MS::Game::Scripting::Interfaces::CreatureScript("mob_waterspeaker_gorai") { }
+        mob_waterspeaker_gorai() : CreatureScript("mob_waterspeaker_gorai") { }
 
         struct mob_waterspeaker_goraiAI : public ScriptedAI
         {
@@ -233,10 +233,10 @@ class mob_waterspeaker_gorai : public MS::Game::Scripting::Interfaces::CreatureS
         }
 };
 
-class mob_montak : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_montak : public CreatureScript
 {
     public:
-        mob_montak() : MS::Game::Scripting::Interfaces::CreatureScript("mob_montak") { }
+        mob_montak() : CreatureScript("mob_montak") { }
 
         struct mob_montakAI : public ScriptedAI
         {

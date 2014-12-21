@@ -38,10 +38,10 @@ enum eEnums
     SPELL_ARCANEBUBBLE          = 9438,
 };
 
-class boss_arcanist_doan : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_arcanist_doan : public CreatureScript
 {
 public:
-    boss_arcanist_doan() : MS::Game::Scripting::Interfaces::CreatureScript("boss_arcanist_doan") { }
+    boss_arcanist_doan() : CreatureScript("boss_arcanist_doan") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

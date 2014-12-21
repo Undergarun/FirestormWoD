@@ -25,10 +25,10 @@ EndScriptData */
 
 #define MAX_ENCOUNTER 4
 
-class instance_trial_of_the_champion : public MS::Game::Scripting::Interfaces::InstanceMapScript
+class instance_trial_of_the_champion : public InstanceMapScript
 {
 public:
-    instance_trial_of_the_champion() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_trial_of_the_champion", 650) { }
+    instance_trial_of_the_champion() : InstanceMapScript("instance_trial_of_the_champion", 650) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* pMap) const
     {

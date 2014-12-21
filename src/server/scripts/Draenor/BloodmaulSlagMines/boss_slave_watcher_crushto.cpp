@@ -7,7 +7,7 @@ namespace MS
         namespace Bloodmaul
         {
             // Entry: 74787
-            class boss_SlaveWatcherCrushto : public Game::Scripting::Interfaces::CreatureScript
+            class boss_SlaveWatcherCrushto : public CreatureScript
             {
             public:
                 boss_SlaveWatcherCrushto()

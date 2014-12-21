@@ -39,10 +39,10 @@ DoorData const doorData[] =
     {0,                             0,              DOOR_TYPE_ROOM,     0}, // EOF
 };
 
-class instance_heart_of_fear : public MS::Game::Scripting::Interfaces::InstanceMapScript
+class instance_heart_of_fear : public InstanceMapScript
 {
     public:
-        instance_heart_of_fear() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_heart_of_fear", 1009) { }
+        instance_heart_of_fear() : InstanceMapScript("instance_heart_of_fear", 1009) { }
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const
         {

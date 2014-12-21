@@ -290,10 +290,10 @@ const Position randomPos[34] =
     {-976.46f, -585.91f, 831.90f, 2.92f}
 };
 
-class boss_feludius : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_feludius : public CreatureScript
 {
     public:
-        boss_feludius() : MS::Game::Scripting::Interfaces::CreatureScript("boss_feludius") { }
+        boss_feludius() : CreatureScript("boss_feludius") { }
 
         CreatureAI * GetAI(Creature* pCreature) const
         {
@@ -511,10 +511,10 @@ class boss_feludius : public MS::Game::Scripting::Interfaces::CreatureScript
         };
 };
 
-class boss_ignacious : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_ignacious : public CreatureScript
 {
     public:
-        boss_ignacious() : MS::Game::Scripting::Interfaces::CreatureScript("boss_ignacious") { }
+        boss_ignacious() : CreatureScript("boss_ignacious") { }
 
         CreatureAI * GetAI(Creature * pCreature) const
         {
@@ -789,10 +789,10 @@ class boss_ignacious : public MS::Game::Scripting::Interfaces::CreatureScript
         };
 };
 
-class boss_arion : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_arion : public CreatureScript
 {
     public:
-        boss_arion() : MS::Game::Scripting::Interfaces::CreatureScript("boss_arion") { }
+        boss_arion() : CreatureScript("boss_arion") { }
 
         CreatureAI * GetAI(Creature * pCreature) const
         {
@@ -983,10 +983,10 @@ class boss_arion : public MS::Game::Scripting::Interfaces::CreatureScript
         };
 };
 
-class boss_terrastra : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_terrastra : public CreatureScript
 {
     public:
-        boss_terrastra() : MS::Game::Scripting::Interfaces::CreatureScript("boss_terrastra") { }
+        boss_terrastra() : CreatureScript("boss_terrastra") { }
 
         CreatureAI * GetAI(Creature * pCreature) const
         {
@@ -1157,10 +1157,10 @@ class boss_terrastra : public MS::Game::Scripting::Interfaces::CreatureScript
         };
 };
 
-class boss_elementium_monstrosity : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_elementium_monstrosity : public CreatureScript
 {
     public:
-        boss_elementium_monstrosity() : MS::Game::Scripting::Interfaces::CreatureScript("boss_elementium_monstrosity") { }
+        boss_elementium_monstrosity() : CreatureScript("boss_elementium_monstrosity") { }
 
         CreatureAI * GetAI(Creature * pCreature) const
         {
@@ -1321,10 +1321,10 @@ class boss_elementium_monstrosity : public MS::Game::Scripting::Interfaces::Crea
 };
 
 
-class npc_violent_cyclone : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_violent_cyclone : public CreatureScript
 {
 public:
-    npc_violent_cyclone() : MS::Game::Scripting::Interfaces::CreatureScript("npc_violent_cyclone") { }
+    npc_violent_cyclone() : CreatureScript("npc_violent_cyclone") { }
 
     CreatureAI* GetAI(Creature* pCreature) const
     {
@@ -1359,10 +1359,10 @@ public:
     };
 };
 
-class npc_bt_gravity_well : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_bt_gravity_well : public CreatureScript
 {
 public:
-    npc_bt_gravity_well() : MS::Game::Scripting::Interfaces::CreatureScript("npc_bt_gravity_well") { }
+    npc_bt_gravity_well() : CreatureScript("npc_bt_gravity_well") { }
 
     CreatureAI* GetAI(Creature* pCreature) const
     {
@@ -1412,10 +1412,10 @@ public:
     };
 };
 
-class npc_ignacious_inferno_leap : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_ignacious_inferno_leap : public CreatureScript
 {
     public:
-        npc_ignacious_inferno_leap() : MS::Game::Scripting::Interfaces::CreatureScript("npc_ignacious_inferno_leap") { }
+        npc_ignacious_inferno_leap() : CreatureScript("npc_ignacious_inferno_leap") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -1458,10 +1458,10 @@ class npc_ignacious_inferno_leap : public MS::Game::Scripting::Interfaces::Creat
         };
 };
 
-class npc_ignacious_inferno_rush : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_ignacious_inferno_rush : public CreatureScript
 {
     public:
-        npc_ignacious_inferno_rush() : MS::Game::Scripting::Interfaces::CreatureScript("npc_ignacious_inferno_rush") { }
+        npc_ignacious_inferno_rush() : CreatureScript("npc_ignacious_inferno_rush") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -1487,10 +1487,10 @@ class npc_ignacious_inferno_rush : public MS::Game::Scripting::Interfaces::Creat
         };
 };
 
-class npc_feludius_water_bomb : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_feludius_water_bomb : public CreatureScript
 {
     public:
-        npc_feludius_water_bomb() : MS::Game::Scripting::Interfaces::CreatureScript("npc_feludius_water_bomb") { }
+        npc_feludius_water_bomb() : CreatureScript("npc_feludius_water_bomb") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -1517,10 +1517,10 @@ class npc_feludius_water_bomb : public MS::Game::Scripting::Interfaces::Creature
         };
 };
 
-class npc_ignacious_flame_strike : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_ignacious_flame_strike : public CreatureScript
 {
     public:
-        npc_ignacious_flame_strike() : MS::Game::Scripting::Interfaces::CreatureScript("npc_ignacious_flame_strike") { }
+        npc_ignacious_flame_strike() : CreatureScript("npc_ignacious_flame_strike") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -1567,10 +1567,10 @@ class npc_ignacious_flame_strike : public MS::Game::Scripting::Interfaces::Creat
         };
 };
 
-class npc_liquid_ice : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_liquid_ice : public CreatureScript
 {
     public:
-        npc_liquid_ice() : MS::Game::Scripting::Interfaces::CreatureScript("npc_liquid_ice") { }
+        npc_liquid_ice() : CreatureScript("npc_liquid_ice") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -1605,10 +1605,10 @@ class npc_liquid_ice : public MS::Game::Scripting::Interfaces::CreatureScript
         };
 };
 
-class npc_ascendant_council_plume_stalker : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_ascendant_council_plume_stalker : public CreatureScript
 {
     public:
-        npc_ascendant_council_plume_stalker() : MS::Game::Scripting::Interfaces::CreatureScript("npc_ascendant_council_plume_stalker") { }
+        npc_ascendant_council_plume_stalker() : CreatureScript("npc_ascendant_council_plume_stalker") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -1658,10 +1658,10 @@ class npc_ascendant_council_plume_stalker : public MS::Game::Scripting::Interfac
         };
 };
 
-class npc_eruption_target : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_eruption_target : public CreatureScript
 {
     public:
-        npc_eruption_target() : MS::Game::Scripting::Interfaces::CreatureScript("npc_eruption_target") { }
+        npc_eruption_target() : CreatureScript("npc_eruption_target") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -1710,10 +1710,10 @@ class npc_eruption_target : public MS::Game::Scripting::Interfaces::CreatureScri
         };
 };
 
-class spell_feludius_glaciate: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_feludius_glaciate: public SpellScriptLoader
 {
     public:
-        spell_feludius_glaciate() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_feludius_glaciate") { }
+        spell_feludius_glaciate() : SpellScriptLoader("spell_feludius_glaciate") { }
 
 
         class spell_feludius_glaciate_SpellScript : public SpellScript
@@ -1749,10 +1749,10 @@ class spell_feludius_glaciate: public MS::Game::Scripting::Interfaces::SpellScri
         }
 };
 
-class spell_ignis_rising_flames: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_ignis_rising_flames: public SpellScriptLoader
 {
     public:
-        spell_ignis_rising_flames() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_ignis_rising_flames") { }
+        spell_ignis_rising_flames() : SpellScriptLoader("spell_ignis_rising_flames") { }
  
         class spell_ignis_rising_flames_AuraScript : public AuraScript
         {
@@ -1778,10 +1778,10 @@ class spell_ignis_rising_flames: public MS::Game::Scripting::Interfaces::SpellSc
         }
 };
 
-class spell_ignacious_inferno_rush: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_ignacious_inferno_rush: public SpellScriptLoader
 {
     public:
-        spell_ignacious_inferno_rush() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_ignacious_inferno_rush") { }
+        spell_ignacious_inferno_rush() : SpellScriptLoader("spell_ignacious_inferno_rush") { }
 
 
         class spell_ignacious_inferno_rush_SpellScript : public SpellScript
@@ -1810,10 +1810,10 @@ class spell_ignacious_inferno_rush: public MS::Game::Scripting::Interfaces::Spel
         }
 };
 
-class spell_arion_lashing_winds: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_arion_lashing_winds: public SpellScriptLoader
 {
     public:
-        spell_arion_lashing_winds() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_arion_lashing_winds") { }
+        spell_arion_lashing_winds() : SpellScriptLoader("spell_arion_lashing_winds") { }
 
         class spell_arion_lashing_winds_SpellScript : public SpellScript
         {
@@ -1839,10 +1839,10 @@ class spell_arion_lashing_winds: public MS::Game::Scripting::Interfaces::SpellSc
         }
 };
 
-class spell_arion_chain_lightning: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_arion_chain_lightning: public SpellScriptLoader
 {
     public:
-        spell_arion_chain_lightning() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_arion_chain_lightning") { }
+        spell_arion_chain_lightning() : SpellScriptLoader("spell_arion_chain_lightning") { }
 
         class spell_arion_chain_lightning_SpellScript : public SpellScript
         {
@@ -1872,10 +1872,10 @@ class spell_arion_chain_lightning: public MS::Game::Scripting::Interfaces::Spell
         }
 };
 
-class spell_arion_disperse: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_arion_disperse: public SpellScriptLoader
 {
     public:
-        spell_arion_disperse() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_arion_disperse") { }
+        spell_arion_disperse() : SpellScriptLoader("spell_arion_disperse") { }
 
         class spell_arion_disperse_SpellScript : public SpellScript
         {
@@ -1903,10 +1903,10 @@ class spell_arion_disperse: public MS::Game::Scripting::Interfaces::SpellScriptL
         }
 };
 
-class spell_terrastra_eruption: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_terrastra_eruption: public SpellScriptLoader
 {
     public:
-        spell_terrastra_eruption() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_terrastra_eruption") { }
+        spell_terrastra_eruption() : SpellScriptLoader("spell_terrastra_eruption") { }
 
         class spell_terrastra_eruption_SpellScript : public SpellScript
         {
@@ -1932,10 +1932,10 @@ class spell_terrastra_eruption: public MS::Game::Scripting::Interfaces::SpellScr
         }
 };
 
-class spell_arion_thundershock: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_arion_thundershock: public SpellScriptLoader
 {
     public:
-        spell_arion_thundershock() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_arion_thundershock") { }
+        spell_arion_thundershock() : SpellScriptLoader("spell_arion_thundershock") { }
 
 
         class spell_arion_thundershock_SpellScript : public SpellScript
@@ -1965,10 +1965,10 @@ class spell_arion_thundershock: public MS::Game::Scripting::Interfaces::SpellScr
         }
 };
 
-class spell_terrastra_quake: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_terrastra_quake: public SpellScriptLoader
 {
     public:
-        spell_terrastra_quake() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_terrastra_quake") { }
+        spell_terrastra_quake() : SpellScriptLoader("spell_terrastra_quake") { }
 
 
         class spell_terrastra_quake_SpellScript : public SpellScript
@@ -1997,10 +1997,10 @@ class spell_terrastra_quake: public MS::Game::Scripting::Interfaces::SpellScript
         }
 };
 
-class spell_terrastra_harden_skin: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_terrastra_harden_skin: public SpellScriptLoader
 {
     public:
-        spell_terrastra_harden_skin() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_terrastra_harden_skin") { }
+        spell_terrastra_harden_skin() : SpellScriptLoader("spell_terrastra_harden_skin") { }
 
         class spell_terrastra_harden_skin_AuraScript : public AuraScript
         {
@@ -2036,10 +2036,10 @@ class spell_terrastra_harden_skin: public MS::Game::Scripting::Interfaces::Spell
         }
 };
 
-class spell_monstrosity_cryogenic_aura: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monstrosity_cryogenic_aura: public SpellScriptLoader
 {
     public:
-        spell_monstrosity_cryogenic_aura() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monstrosity_cryogenic_aura") { }
+        spell_monstrosity_cryogenic_aura() : SpellScriptLoader("spell_monstrosity_cryogenic_aura") { }
  
         class spell_monstrosity_cryogenic_aura_AuraScript : public AuraScript
         {
@@ -2072,10 +2072,10 @@ class spell_monstrosity_cryogenic_aura: public MS::Game::Scripting::Interfaces::
         }
 };
 
-class spell_elemental_statis: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_elemental_statis: public SpellScriptLoader
 {
     public:
-        spell_elemental_statis() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_elemental_statis") { }
+        spell_elemental_statis() : SpellScriptLoader("spell_elemental_statis") { }
 
         class spell_elemental_statis_AuraScript : public AuraScript
         {

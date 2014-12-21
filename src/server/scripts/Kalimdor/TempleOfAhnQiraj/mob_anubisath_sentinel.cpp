@@ -56,10 +56,10 @@ EndScriptData */
 #define SPELL_STORM_BUFF        2148
 #define SPELL_STORM             26546
 
-class mob_anubisath_sentinel : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_anubisath_sentinel : public CreatureScript
 {
 public:
-    mob_anubisath_sentinel() : MS::Game::Scripting::Interfaces::CreatureScript("mob_anubisath_sentinel") { }
+    mob_anubisath_sentinel() : CreatureScript("mob_anubisath_sentinel") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

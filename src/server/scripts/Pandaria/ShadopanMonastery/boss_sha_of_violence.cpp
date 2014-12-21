@@ -44,10 +44,10 @@ enum eEvents
     EVENT_DISORIENTING_SMASH    = 3,
 };
 
-class boss_sha_of_violence : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_sha_of_violence : public CreatureScript
 {
     public:
-        boss_sha_of_violence() : MS::Game::Scripting::Interfaces::CreatureScript("boss_sha_of_violence") {}
+        boss_sha_of_violence() : CreatureScript("boss_sha_of_violence") {}
 
         struct boss_sha_of_violenceAI : public BossAI
         {

@@ -273,10 +273,10 @@ struct npc_mounted_championAI : ScriptedAI
     }
 };
 
-class generic_vehicleAI_toc5 : public MS::Game::Scripting::Interfaces::CreatureScript
+class generic_vehicleAI_toc5 : public CreatureScript
 {
 public:
-    generic_vehicleAI_toc5() : MS::Game::Scripting::Interfaces::CreatureScript("generic_vehicleAI_toc5") { }
+    generic_vehicleAI_toc5() : CreatureScript("generic_vehicleAI_toc5") { }
 
     struct generic_vehicleAI_toc5AI : public npc_mounted_championAI
     {
@@ -289,10 +289,10 @@ public:
     }
 };
 
-class boss_warrior_toc5 : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_warrior_toc5 : public CreatureScript
 {
 public:
-    boss_warrior_toc5() : MS::Game::Scripting::Interfaces::CreatureScript("boss_warrior_toc5") { }
+    boss_warrior_toc5() : CreatureScript("boss_warrior_toc5") { }
 
     // Marshal Jacob Alerius && Mokra the Skullcrusher || Warrior
     struct boss_warrior_toc5AI : public npc_mounted_championAI
@@ -448,10 +448,10 @@ public:
     }
 };
 
-class boss_mage_toc5 : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_mage_toc5 : public CreatureScript
 {
 public:
-    boss_mage_toc5() : MS::Game::Scripting::Interfaces::CreatureScript("boss_mage_toc5") { }
+    boss_mage_toc5() : CreatureScript("boss_mage_toc5") { }
 
     // Ambrose Boltspark && Eressea Dawnsinger || Mage
     struct boss_mage_toc5AI : public npc_mounted_championAI
@@ -607,10 +607,10 @@ public:
     }
 };
 
-class boss_shaman_toc5 : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_shaman_toc5 : public CreatureScript
 {
 public:
-    boss_shaman_toc5() : MS::Game::Scripting::Interfaces::CreatureScript("boss_shaman_toc5") { }
+    boss_shaman_toc5() : CreatureScript("boss_shaman_toc5") { }
 
     // Colosos && Runok Wildmane || Shaman
     struct boss_shaman_toc5AI : public npc_mounted_championAI
@@ -789,10 +789,10 @@ public:
     }
 };
 
-class boss_hunter_toc5 : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_hunter_toc5 : public CreatureScript
 {
 public:
-    boss_hunter_toc5() : MS::Game::Scripting::Interfaces::CreatureScript("boss_hunter_toc5") { }
+    boss_hunter_toc5() : CreatureScript("boss_hunter_toc5") { }
 
     // Jaelyne Evensong && Zul'tore || Hunter
     struct boss_hunter_toc5AI : public npc_mounted_championAI
@@ -975,10 +975,10 @@ public:
     }
 };
 
-class boss_rouge_toc5 : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_rouge_toc5 : public CreatureScript
 {
 public:
-    boss_rouge_toc5() : MS::Game::Scripting::Interfaces::CreatureScript("boss_rouge_toc5") { }
+    boss_rouge_toc5() : CreatureScript("boss_rouge_toc5") { }
 
     // Lana Stouthammer Evensong && Deathstalker Visceri || Rouge
     struct boss_rouge_toc5AI : public npc_mounted_championAI
@@ -1144,10 +1144,10 @@ enum vehicleSpells
     SPELL_THROW_VISUAL = 45827,
 };
 
-class spell_toc5_ride_mount: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_toc5_ride_mount: public SpellScriptLoader
 {
     public:
-        spell_toc5_ride_mount() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_toc5_ride_mount") {}
+        spell_toc5_ride_mount() : SpellScriptLoader("spell_toc5_ride_mount") {}
 
         class spell_toc5_ride_mount_SpellScript : public SpellScript
         {
@@ -1226,10 +1226,10 @@ class player_hex_mendingAI : public PlayerAI
         uint64 casterGUID;
 };
 
-class spell_toc5_hex_mending: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_toc5_hex_mending: public SpellScriptLoader
 {
     public:
-        spell_toc5_hex_mending() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_toc5_hex_mending") { }
+        spell_toc5_hex_mending() : SpellScriptLoader("spell_toc5_hex_mending") { }
 
         class spell_toc5_hex_mending_AuraScript : public AuraScript
         {

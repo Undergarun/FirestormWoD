@@ -36,10 +36,10 @@ EndScriptData */
 #define SPELL_WYVERNSTING 26180
 #define SPELL_ACIDSPIT 26050
 
-class boss_huhuran : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_huhuran : public CreatureScript
 {
 public:
-    boss_huhuran() : MS::Game::Scripting::Interfaces::CreatureScript("boss_huhuran") { }
+    boss_huhuran() : CreatureScript("boss_huhuran") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

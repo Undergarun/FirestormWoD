@@ -26,7 +26,7 @@
 class Player;
 class Group;
 
-class LFGPlayerScript : public MS::Game::Scripting::Interfaces::PlayerScript
+class LFGPlayerScript : public PlayerScript
 {
     public:
         LFGPlayerScript();
@@ -38,7 +38,7 @@ class LFGPlayerScript : public MS::Game::Scripting::Interfaces::PlayerScript
         void OnBindToInstance(Player* player, Difficulty difficulty, uint32 mapId, bool permanent);
 };
 
-class LFGGroupScript : public MS::Game::Scripting::Interfaces::GroupScript
+class LFGGroupScript : public GroupScript
 {
     public:
         LFGGroupScript();

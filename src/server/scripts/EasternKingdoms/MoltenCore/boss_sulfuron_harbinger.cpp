@@ -56,10 +56,10 @@ enum Events
     EVENT_IMMOLATE              = 8,
 };
 
-class boss_sulfuron : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_sulfuron : public CreatureScript
 {
     public:
-        boss_sulfuron() : MS::Game::Scripting::Interfaces::CreatureScript("boss_sulfuron") { }
+        boss_sulfuron() : CreatureScript("boss_sulfuron") { }
 
         struct boss_sulfuronAI : public BossAI
         {
@@ -133,10 +133,10 @@ class boss_sulfuron : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class mob_flamewaker_priest : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_flamewaker_priest : public CreatureScript
 {
     public:
-        mob_flamewaker_priest() : MS::Game::Scripting::Interfaces::CreatureScript("mob_flamewaker_priest") { }
+        mob_flamewaker_priest() : CreatureScript("mob_flamewaker_priest") { }
 
         struct mob_flamewaker_priestAI : public ScriptedAI
         {

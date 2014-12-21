@@ -69,10 +69,10 @@ enum Events
     EVENT_OUTRO_3           = 7,
 };
 
-class boss_majordomo : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_majordomo : public CreatureScript
 {
     public:
-        boss_majordomo() : MS::Game::Scripting::Interfaces::CreatureScript("boss_majordomo") { }
+        boss_majordomo() : CreatureScript("boss_majordomo") { }
 
         struct boss_majordomoAI : public BossAI
         {

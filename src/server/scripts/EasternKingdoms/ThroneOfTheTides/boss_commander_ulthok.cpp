@@ -33,10 +33,10 @@ enum Adds
     NPC_DARK_FISSURE = 40784,
 };
 
-class boss_commander_ulthok : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_commander_ulthok : public CreatureScript
 {
     public:
-        boss_commander_ulthok() : MS::Game::Scripting::Interfaces::CreatureScript("boss_commander_ulthok") { }
+        boss_commander_ulthok() : CreatureScript("boss_commander_ulthok") { }
 
         CreatureAI* GetAI(Creature *pCreature) const
         {
@@ -142,10 +142,10 @@ class boss_commander_ulthok : public MS::Game::Scripting::Interfaces::CreatureSc
 
 };
 
-class npc_ulthok_dark_fissure : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_ulthok_dark_fissure : public CreatureScript
 {
     public:
-        npc_ulthok_dark_fissure() : MS::Game::Scripting::Interfaces::CreatureScript("npc_ulthok_dark_fissure") { }
+        npc_ulthok_dark_fissure() : CreatureScript("npc_ulthok_dark_fissure") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -172,10 +172,10 @@ class npc_ulthok_dark_fissure : public MS::Game::Scripting::Interfaces::Creature
         };
 };
 
-class at_tott_commander_ulthok : public MS::Game::Scripting::Interfaces::AreaTriggerScript
+class at_tott_commander_ulthok : public AreaTriggerScript
 {
     public:
-        at_tott_commander_ulthok() : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_tott_commander_ulthok") { }
+        at_tott_commander_ulthok() : AreaTriggerScript("at_tott_commander_ulthok") { }
 
         bool OnTrigger(Player* pPlayer, const AreaTriggerEntry* /*pAt*/)
         {

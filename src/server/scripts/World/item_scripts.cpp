@@ -43,10 +43,10 @@ enum eOnlyForFlight
     SPELL_ARCANE_CHARGES    = 45072
 };
 
-class item_only_for_flight : public MS::Game::Scripting::Interfaces::ItemScript
+class item_only_for_flight : public ItemScript
 {
 public:
-    item_only_for_flight() : MS::Game::Scripting::Interfaces::ItemScript("item_only_for_flight") { }
+    item_only_for_flight() : ItemScript("item_only_for_flight") { }
 
     bool OnUse(Player* player, Item* item, SpellCastTargets const& /*targets*/)
     {
@@ -84,10 +84,10 @@ public:
 # item_nether_wraith_beacon
 #####*/
 
-class item_nether_wraith_beacon : public MS::Game::Scripting::Interfaces::ItemScript
+class item_nether_wraith_beacon : public ItemScript
 {
 public:
-    item_nether_wraith_beacon() : MS::Game::Scripting::Interfaces::ItemScript("item_nether_wraith_beacon") { }
+    item_nether_wraith_beacon() : ItemScript("item_nether_wraith_beacon") { }
 
     bool OnUse(Player* player, Item* /*item*/, SpellCastTargets const& /*targets*/)
     {
@@ -107,10 +107,10 @@ public:
 # item_gor_dreks_ointment
 #####*/
 
-class item_gor_dreks_ointment : public MS::Game::Scripting::Interfaces::ItemScript
+class item_gor_dreks_ointment : public ItemScript
 {
 public:
-    item_gor_dreks_ointment() : MS::Game::Scripting::Interfaces::ItemScript("item_gor_dreks_ointment") { }
+    item_gor_dreks_ointment() : ItemScript("item_gor_dreks_ointment") { }
 
     bool OnUse(Player* player, Item* item, SpellCastTargets const& targets)
     {
@@ -127,10 +127,10 @@ public:
 # item_incendiary_explosives
 #####*/
 
-class item_incendiary_explosives : public MS::Game::Scripting::Interfaces::ItemScript
+class item_incendiary_explosives : public ItemScript
 {
 public:
-    item_incendiary_explosives() : MS::Game::Scripting::Interfaces::ItemScript("item_incendiary_explosives") { }
+    item_incendiary_explosives() : ItemScript("item_incendiary_explosives") { }
 
     bool OnUse(Player* player, Item* item, SpellCastTargets const & /*targets*/)
     {
@@ -148,10 +148,10 @@ public:
 # item_mysterious_egg
 #####*/
 
-class item_mysterious_egg : public MS::Game::Scripting::Interfaces::ItemScript
+class item_mysterious_egg : public ItemScript
 {
 public:
-    item_mysterious_egg() : MS::Game::Scripting::Interfaces::ItemScript("item_mysterious_egg") { }
+    item_mysterious_egg() : ItemScript("item_mysterious_egg") { }
 
     bool OnExpire(Player* player, ItemTemplate const* /*pItemProto*/)
     {
@@ -168,10 +168,10 @@ public:
 # item_disgusting_jar
 #####*/
 
-class item_disgusting_jar : public MS::Game::Scripting::Interfaces::ItemScript
+class item_disgusting_jar : public ItemScript
 {
 public:
-    item_disgusting_jar() : MS::Game::Scripting::Interfaces::ItemScript("item_disgusting_jar") {}
+    item_disgusting_jar() : ItemScript("item_disgusting_jar") {}
 
     bool OnExpire(Player* player, ItemTemplate const* /*pItemProto*/)
     {
@@ -217,10 +217,10 @@ const uint32 CaribouTraps[CaribouTrapsNum] =
     GO_CARIBOU_TRAP_11, GO_CARIBOU_TRAP_12, GO_CARIBOU_TRAP_13, GO_CARIBOU_TRAP_14, GO_CARIBOU_TRAP_15,
 };
 
-class item_pile_fake_furs : public MS::Game::Scripting::Interfaces::ItemScript
+class item_pile_fake_furs : public ItemScript
 {
 public:
-    item_pile_fake_furs() : MS::Game::Scripting::Interfaces::ItemScript("item_pile_fake_furs") { }
+    item_pile_fake_furs() : ItemScript("item_pile_fake_furs") { }
 
     bool OnUse(Player* player, Item* /*item*/, SpellCastTargets const & /*targets*/)
     {
@@ -262,10 +262,10 @@ enum ePetrovClusterBombs
     ZONE_ID_HOWLING             = 495
 };
 
-class item_petrov_cluster_bombs : public MS::Game::Scripting::Interfaces::ItemScript
+class item_petrov_cluster_bombs : public ItemScript
 {
 public:
-    item_petrov_cluster_bombs() : MS::Game::Scripting::Interfaces::ItemScript("item_petrov_cluster_bombs") { }
+    item_petrov_cluster_bombs() : ItemScript("item_petrov_cluster_bombs") { }
 
     bool OnUse(Player* player, Item* /*item*/, const SpellCastTargets & /*targets*/)
     {
@@ -326,10 +326,10 @@ const uint32 MammothTraps[MammothTrapsNum] =
     GO_MAMMOTH_TRAP_21, GO_MAMMOTH_TRAP_22
 };
 
-class item_dehta_trap_smasher : public MS::Game::Scripting::Interfaces::ItemScript
+class item_dehta_trap_smasher : public ItemScript
 {
 public:
-    item_dehta_trap_smasher() : MS::Game::Scripting::Interfaces::ItemScript("item_dehta_trap_smasher") { }
+    item_dehta_trap_smasher() : ItemScript("item_dehta_trap_smasher") { }
 
     bool OnUse(Player* player, Item* /*item*/, const SpellCastTargets & /*targets*/)
     {
@@ -362,10 +362,10 @@ enum TheEmissary
     NPC_LEVIROTH            =   26452
 };
 
-class item_trident_of_nazjan : public MS::Game::Scripting::Interfaces::ItemScript
+class item_trident_of_nazjan : public ItemScript
 {
 public:
-    item_trident_of_nazjan() : MS::Game::Scripting::Interfaces::ItemScript("item_Trident_of_Nazjan") { }
+    item_trident_of_nazjan() : ItemScript("item_Trident_of_Nazjan") { }
 
     bool OnUse(Player* player, Item* item, const SpellCastTargets & /*targets*/)
     {
@@ -389,10 +389,10 @@ enum eCapturedFrog
     NPC_VANIRAS_SENTRY_TOTEM     = 40187
 };
 
-class item_captured_frog : public MS::Game::Scripting::Interfaces::ItemScript
+class item_captured_frog : public ItemScript
 {
 public:
-    item_captured_frog() : MS::Game::Scripting::Interfaces::ItemScript("item_captured_frog") { }
+    item_captured_frog() : ItemScript("item_captured_frog") { }
 
     bool OnUse(Player* player, Item* item, SpellCastTargets const& /*targets*/)
     {
@@ -409,10 +409,10 @@ public:
     }
 };
 
-class item_sylvanas_music_box : public MS::Game::Scripting::Interfaces::ItemScript
+class item_sylvanas_music_box : public ItemScript
 {
     public:
-        item_sylvanas_music_box() : MS::Game::Scripting::Interfaces::ItemScript("item_sylvanas_music_box") { }
+        item_sylvanas_music_box() : ItemScript("item_sylvanas_music_box") { }
 
         bool OnUse(Player* player, Item* item, SpellCastTargets const& /*targets*/)
         {

@@ -52,10 +52,10 @@ enum Misc
     DATA_CONTAINMENT_SPHERES                      = 3,
 };
 
-class boss_keristrasza : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_keristrasza : public CreatureScript
 {
 public:
-    boss_keristrasza() : MS::Game::Scripting::Interfaces::CreatureScript("boss_keristrasza") { }
+    boss_keristrasza() : CreatureScript("boss_keristrasza") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -206,10 +206,10 @@ public:
 
 };
 
-class containment_sphere : public MS::Game::Scripting::Interfaces::GameObjectScript
+class containment_sphere : public GameObjectScript
 {
 public:
-    containment_sphere() : MS::Game::Scripting::Interfaces::GameObjectScript("containment_sphere") { }
+    containment_sphere() : GameObjectScript("containment_sphere") { }
 
     bool OnGossipHello(Player* /*player*/, GameObject* go)
     {
@@ -229,10 +229,10 @@ public:
 
 };
 
-class spell_intense_cold: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_intense_cold: public SpellScriptLoader
 {
     public:
-        spell_intense_cold() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_intense_cold") { }
+        spell_intense_cold() : SpellScriptLoader("spell_intense_cold") { }
 
         class spell_intense_cold_AuraScript : public AuraScript
         {
@@ -261,10 +261,10 @@ class spell_intense_cold: public MS::Game::Scripting::Interfaces::SpellScriptLoa
         }
 };
 
-class achievement_intense_cold : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
+class achievement_intense_cold : public AchievementCriteriaScript
 {
     public:
-        achievement_intense_cold() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_intense_cold")
+        achievement_intense_cold() : AchievementCriteriaScript("achievement_intense_cold")
         {
         }
 

@@ -43,10 +43,10 @@ Position const SummonPositions[10] =
     {838.510f, -829.840f, -232.000f, 2.00000f},
 };
 
-class instance_molten_core : public MS::Game::Scripting::Interfaces::InstanceMapScript
+class instance_molten_core : public InstanceMapScript
 {
     public:
-        instance_molten_core() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_molten_core", 409) { }
+        instance_molten_core() : InstanceMapScript("instance_molten_core", 409) { }
 
         struct instance_molten_core_InstanceMapScript : public InstanceScript
         {

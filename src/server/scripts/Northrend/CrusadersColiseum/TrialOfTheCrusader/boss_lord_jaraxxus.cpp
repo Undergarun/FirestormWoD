@@ -91,10 +91,10 @@ enum Events
     EVENT_MISTRESS_KISS             = 10
 };
 
-class boss_jaraxxus : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_jaraxxus : public CreatureScript
 {
     public:
-        boss_jaraxxus() : MS::Game::Scripting::Interfaces::CreatureScript("boss_jaraxxus") { }
+        boss_jaraxxus() : CreatureScript("boss_jaraxxus") { }
 
         struct boss_jaraxxusAI : public BossAI
         {
@@ -221,10 +221,10 @@ class boss_jaraxxus : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class mob_legion_flame : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_legion_flame : public CreatureScript
 {
     public:
-        mob_legion_flame() : MS::Game::Scripting::Interfaces::CreatureScript("mob_legion_flame") { }
+        mob_legion_flame() : CreatureScript("mob_legion_flame") { }
 
         struct mob_legion_flameAI : public Scripted_NoMovementAI
         {
@@ -256,10 +256,10 @@ class mob_legion_flame : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class mob_infernal_volcano : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_infernal_volcano : public CreatureScript
 {
     public:
-        mob_infernal_volcano() : MS::Game::Scripting::Interfaces::CreatureScript("mob_infernal_volcano") { }
+        mob_infernal_volcano() : CreatureScript("mob_infernal_volcano") { }
 
         struct mob_infernal_volcanoAI : public Scripted_NoMovementAI
         {
@@ -309,10 +309,10 @@ class mob_infernal_volcano : public MS::Game::Scripting::Interfaces::CreatureScr
         }
 };
 
-class mob_fel_infernal : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_fel_infernal : public CreatureScript
 {
     public:
-        mob_fel_infernal() : MS::Game::Scripting::Interfaces::CreatureScript("mob_fel_infernal") { }
+        mob_fel_infernal() : CreatureScript("mob_fel_infernal") { }
 
         struct mob_fel_infernalAI : public ScriptedAI
         {
@@ -360,10 +360,10 @@ class mob_fel_infernal : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class mob_nether_portal : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_nether_portal : public CreatureScript
 {
     public:
-        mob_nether_portal() : MS::Game::Scripting::Interfaces::CreatureScript("mob_nether_portal") { }
+        mob_nether_portal() : CreatureScript("mob_nether_portal") { }
 
         struct mob_nether_portalAI : public ScriptedAI
         {
@@ -413,10 +413,10 @@ class mob_nether_portal : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class mob_mistress_of_pain : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_mistress_of_pain : public CreatureScript
 {
     public:
-        mob_mistress_of_pain() : MS::Game::Scripting::Interfaces::CreatureScript("mob_mistress_of_pain") { }
+        mob_mistress_of_pain() : CreatureScript("mob_mistress_of_pain") { }
 
         struct mob_mistress_of_painAI : public ScriptedAI
         {
@@ -493,10 +493,10 @@ class mob_mistress_of_pain : public MS::Game::Scripting::Interfaces::CreatureScr
         }
 };
 
-class spell_mistress_kiss: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_mistress_kiss: public SpellScriptLoader
 {
     public:
-        spell_mistress_kiss() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mistress_kiss") { }
+        spell_mistress_kiss() : SpellScriptLoader("spell_mistress_kiss") { }
 
         class spell_mistress_kiss_AuraScript : public AuraScript
         {
@@ -536,10 +536,10 @@ class spell_mistress_kiss: public MS::Game::Scripting::Interfaces::SpellScriptLo
         }
 };
 
-class spell_mistress_kiss_area: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_mistress_kiss_area: public SpellScriptLoader
 {
     public:
-        spell_mistress_kiss_area() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mistress_kiss_area") {}
+        spell_mistress_kiss_area() : SpellScriptLoader("spell_mistress_kiss_area") {}
 
         class spell_mistress_kiss_area_SpellScript : public SpellScript
         {

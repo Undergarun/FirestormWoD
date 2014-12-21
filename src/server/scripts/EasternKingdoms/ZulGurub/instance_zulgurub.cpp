@@ -14,10 +14,10 @@ static const DoorData doordata[] =
     {0,                         0,                       DOOR_TYPE_ROOM,     BOUNDARY_NONE},
 };
 
-class instance_zulgurub : public MS::Game::Scripting::Interfaces::InstanceMapScript
+class instance_zulgurub : public InstanceMapScript
 {
     public:
-        instance_zulgurub() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_zulgurub", 859) { }
+        instance_zulgurub() : InstanceMapScript("instance_zulgurub", 859) { }
         
         InstanceScript* GetInstanceScript(InstanceMap* map) const
         {

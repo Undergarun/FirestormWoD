@@ -28,10 +28,10 @@ EndScriptData */
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 
-class ban_commandscript: public MS::Game::Scripting::Interfaces::CommandScript
+class ban_commandscript: public CommandScript
 {
 public:
-    ban_commandscript() : MS::Game::Scripting::Interfaces::CommandScript("ban_commandscript") { }
+    ban_commandscript() : CommandScript("ban_commandscript") { }
 
     ChatCommand* GetCommands() const
     {

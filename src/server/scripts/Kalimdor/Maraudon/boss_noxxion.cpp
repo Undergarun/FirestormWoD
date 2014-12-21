@@ -32,10 +32,10 @@ enum Spells
     SPELL_UPPERCUT              = 22916
 };
 
-class boss_noxxion : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_noxxion : public CreatureScript
 {
 public:
-    boss_noxxion() : MS::Game::Scripting::Interfaces::CreatureScript("boss_noxxion") { }
+    boss_noxxion() : CreatureScript("boss_noxxion") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

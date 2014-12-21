@@ -49,7 +49,7 @@ enum eSpells
 
 #define ENTRY_FRAYER                19953
 
-class boss_high_botanist_freywinn : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_high_botanist_freywinn : public CreatureScript
 {
     public:
 

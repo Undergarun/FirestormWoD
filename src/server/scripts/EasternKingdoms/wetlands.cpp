@@ -46,10 +46,10 @@ enum eTapokeSlim
     NPC_TAPOKE_SLIM_JAHN        = 4962
 };
 
-class npc_tapoke_slim_jahn : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_tapoke_slim_jahn : public CreatureScript
 {
 public:
-    npc_tapoke_slim_jahn() : MS::Game::Scripting::Interfaces::CreatureScript("npc_tapoke_slim_jahn") { }
+    npc_tapoke_slim_jahn() : CreatureScript("npc_tapoke_slim_jahn") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -136,10 +136,10 @@ public:
 ## npc_mikhail
 ######*/
 
-class npc_mikhail : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_mikhail : public CreatureScript
 {
 public:
-    npc_mikhail() : MS::Game::Scripting::Interfaces::CreatureScript("npc_mikhail") { }
+    npc_mikhail() : CreatureScript("npc_mikhail") { }
 
     bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
     {

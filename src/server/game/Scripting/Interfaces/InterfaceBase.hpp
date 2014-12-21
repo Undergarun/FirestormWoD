@@ -42,14 +42,7 @@ class Vehicle;
 class WorldPacket;
 class WorldSocket;
 class WorldObject;
-
-namespace MS { namespace Game { namespace Scripting 
-{
-    class ScriptMgr;
-
-}   ///< Namespace Scripting
-}   ///< Namespace Game
-}   ///< Namespace MS
+class ScriptMgr;
 
 struct AchievementCriteriaData;
 struct AuctionEntry;
@@ -124,95 +117,87 @@ void DoScriptText(int32 textEntry, WorldObject* pSource, Unit* target = nullptr)
 /// Now you simply call these two functions from anywhere in the core to trigger the
 /// event on all registered scripts of that type.
 
-namespace MS { namespace Game { namespace Scripting { namespace Interfaces 
+/// World Object script interface
+/// @t_DatabaseBound : It indicates whether or not this script type must be assigned in the database.
+class ScriptObject
 {
+    friend class ScriptMgr;
 
-    /// World Object script interface
-    /// @t_DatabaseBound : It indicates whether or not this script type must be assigned in the database.
-    class ScriptObject
-    {
-        friend class MS::Game::Scripting::ScriptMgr;
+    public:
+        /// Do not override this in scripts; it should be overridden by the various script type classes.
+        /// It indicates whether or not this script type must be assigned in the database.
+        virtual bool IsDatabaseBound() const = 0;
+        /// Return script name
+        const std::string & GetName() 
+        {
+            return m_Name;
+        }
 
-        public:
-            /// Do not override this in scripts; it should be overridden by the various script type classes.
-            /// It indicates whether or not this script type must be assigned in the database.
-            virtual bool IsDatabaseBound() const = 0;
-            /// Return script name
-            const std::string & GetName() 
-            {
-                return m_Name;
-            }
+    protected:
+        /// Constructor
+        /// @p_Name : Script Name
+        ScriptObject(const char * p_Name)
+            : m_Name(p_Name)
+        {
 
-        protected:
-            /// Constructor
-            /// @p_Name : Script Name
-            ScriptObject(const char * p_Name)
-                : m_Name(p_Name)
-            {
+        }
+        /// Destructor
+        virtual ~ScriptObject()
+        {
 
-            }
-            /// Destructor
-            virtual ~ScriptObject()
-            {
+        }
 
-            }
+    private:
+        /// Script Name
+        const std::string m_Name;
+};
 
-        private:
-            /// Script Name
-            const std::string m_Name;
-    };
+template<bool t_DatabaseBound> class ScriptObjectImpl : public ScriptObject
+{
+    protected:
+        /// Constructor
+        /// @p_Name : Script Name
+        ScriptObjectImpl(const char * p_Name)
+            : ScriptObject(p_Name)
+        {
 
-    template<bool t_DatabaseBound> class ScriptObjectImpl : public ScriptObject
-    {
-        protected:
-            /// Constructor
-            /// @p_Name : Script Name
-            ScriptObjectImpl(const char * p_Name)
-                : ScriptObject(p_Name)
-            {
+        }
+        /// Destructor
+        virtual ~ScriptObjectImpl()
+        {
 
-            }
-            /// Destructor
-            virtual ~ScriptObjectImpl()
-            {
+        }
 
-            }
+    public:
+        /// Do not override this in scripts; it should be overridden by the various script type classes.
+        /// It indicates whether or not this script type must be assigned in the database.
+        virtual bool IsDatabaseBound() const
+        {
+            return t_DatabaseBound;
+        }
 
-        public:
-            /// Do not override this in scripts; it should be overridden by the various script type classes.
-            /// It indicates whether or not this script type must be assigned in the database.
-            virtual bool IsDatabaseBound() const
-            {
-                return t_DatabaseBound;
-            }
+};
 
-    };
+/// Update script base interface
+template<class TObject> class UpdatableScript
+{
+    protected:
+        /// Constructor
+        UpdatableScript()
+        {
 
-    /// Update script base interface
-    template<class TObject> class UpdatableScript
-    {
-        protected:
-            /// Constructor
-            UpdatableScript()
-            {
+        }
 
-            }
+    public:
+        /// On update
+        /// @p_Object : Updated object instance
+        /// @p_Diff   : Time since last update
+        virtual void OnUpdate(TObject * p_Object, uint32 p_Diff) 
+        { 
+            UNUSED(p_Object);
+            UNUSED(p_Diff);
+        }
 
-        public:
-            /// On update
-            /// @p_Object : Updated object instance
-            /// @p_Diff   : Time since last update
-            virtual void OnUpdate(TObject * p_Object, uint32 p_Diff) 
-            { 
-                UNUSED(p_Object);
-                UNUSED(p_Diff);
-            }
-
-    };
-
-}   ///< Namespace Interfaces
-}   ///< Namespace Scripting
-}   ///< Namespace Game
-}   ///< Namespace MS
+};
 
 #endif  ///< SCRIPTING_INTERFACES_INTERFACEBASE

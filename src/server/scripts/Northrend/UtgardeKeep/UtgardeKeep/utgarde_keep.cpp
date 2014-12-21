@@ -28,10 +28,10 @@ uint32 entry_search[3] =
     186611
 };
 
-class npc_dragonflayer_forge_master : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_dragonflayer_forge_master : public CreatureScript
 {
 public:
-    npc_dragonflayer_forge_master() : MS::Game::Scripting::Interfaces::CreatureScript("npc_dragonflayer_forge_master") { }
+    npc_dragonflayer_forge_master() : CreatureScript("npc_dragonflayer_forge_master") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -170,10 +170,10 @@ enum TickingTimeBomb
 {
     SPELL_TICKING_TIME_BOMB_EXPLODE = 59687
 };
-class spell_ticking_time_bomb: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_ticking_time_bomb: public SpellScriptLoader
 {
     public:
-        spell_ticking_time_bomb() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_ticking_time_bomb") { }
+        spell_ticking_time_bomb() : SpellScriptLoader("spell_ticking_time_bomb") { }
 
         class spell_ticking_time_bomb_AuraScript : public AuraScript
         {
@@ -208,10 +208,10 @@ enum Fixate
 {
     SPELL_FIXATE_TRIGGER = 40415
 };
-class spell_fixate: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_fixate: public SpellScriptLoader
 {
     public:
-        spell_fixate() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_fixate") { }
+        spell_fixate() : SpellScriptLoader("spell_fixate") { }
 
         class spell_fixate_SpellScript : public SpellScript
         {

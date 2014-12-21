@@ -62,10 +62,10 @@ enum Texts
 	YELL_TREAD_LIGHTLY                             = -1877022,
 };
 
-class boss_general_husam : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_general_husam : public CreatureScript
 {
 public:
-    boss_general_husam() : MS::Game::Scripting::Interfaces::CreatureScript("boss_general_husam") { }
+    boss_general_husam() : CreatureScript("boss_general_husam") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -243,10 +243,10 @@ public:
     };
 };
 
-class npc_land_mine : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_land_mine : public CreatureScript
 {
 public:
-    npc_land_mine() : MS::Game::Scripting::Interfaces::CreatureScript("npc_land_mine") { }
+    npc_land_mine() : CreatureScript("npc_land_mine") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -363,10 +363,10 @@ public:
     };
 };
 
-class npc_shockwave_stalker : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_shockwave_stalker : public CreatureScript
 {
 public:
-    npc_shockwave_stalker() : MS::Game::Scripting::Interfaces::CreatureScript("npc_shockwave_stalker") { }
+    npc_shockwave_stalker() : CreatureScript("npc_shockwave_stalker") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -458,10 +458,10 @@ public:
     };
 };
 
-class npc_bad_intentios_target : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_bad_intentios_target : public CreatureScript
 {
 public:
-    npc_bad_intentios_target() : MS::Game::Scripting::Interfaces::CreatureScript("npc_bad_intentios_target") { }
+    npc_bad_intentios_target() : CreatureScript("npc_bad_intentios_target") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -506,10 +506,10 @@ public:
     };
 };
 
-class spell_bad_intentions: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_bad_intentions: public SpellScriptLoader
 {
     public:
-        spell_bad_intentions() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_bad_intentions") { }
+        spell_bad_intentions() : SpellScriptLoader("spell_bad_intentions") { }
 
         class spell_bad_intentions_SpellScript : public SpellScript
         {
@@ -538,10 +538,10 @@ class spell_bad_intentions: public MS::Game::Scripting::Interfaces::SpellScriptL
         }
 };
 
-class spell_hurl: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hurl: public SpellScriptLoader
 {
     public:
-        spell_hurl() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hurl") { }
+        spell_hurl() : SpellScriptLoader("spell_hurl") { }
 
         class spell_hurl_SpellScript : public SpellScript
         {

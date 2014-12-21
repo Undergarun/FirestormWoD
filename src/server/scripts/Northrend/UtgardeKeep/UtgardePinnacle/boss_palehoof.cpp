@@ -85,10 +85,10 @@ enum Phase
 
 #define ACTION_NEXT_PHASE 0
 
-class boss_palehoof : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_palehoof : public CreatureScript
 {
     public:
-        boss_palehoof() : MS::Game::Scripting::Interfaces::CreatureScript("boss_palehoof") { }
+        boss_palehoof() : CreatureScript("boss_palehoof") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -302,10 +302,10 @@ enum RavenousSpells
     SPELL_TERRIFYING_ROAR                       = 48144
 };
 
-class mob_ravenous_furbolg : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_ravenous_furbolg : public CreatureScript
 {
 public:
-    mob_ravenous_furbolg() : MS::Game::Scripting::Interfaces::CreatureScript("mob_ravenous_furbolg") { }
+    mob_ravenous_furbolg() : CreatureScript("mob_ravenous_furbolg") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -415,10 +415,10 @@ enum FrenziedSpells
     SPELL_ENRAGE_2                              = 48142
 };
 
-class mob_frenzied_worgen : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_frenzied_worgen : public CreatureScript
 {
 public:
-    mob_frenzied_worgen() : MS::Game::Scripting::Interfaces::CreatureScript("mob_frenzied_worgen") { }
+    mob_frenzied_worgen() : CreatureScript("mob_frenzied_worgen") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -531,10 +531,10 @@ enum FerociousSpells
     SPELL_STOMP                                 = 48131
 };
 
-class mob_ferocious_rhino : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_ferocious_rhino : public CreatureScript
 {
 public:
-    mob_ferocious_rhino() : MS::Game::Scripting::Interfaces::CreatureScript("mob_ferocious_rhino") { }
+    mob_ferocious_rhino() : CreatureScript("mob_ferocious_rhino") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -651,10 +651,10 @@ enum MassiveAdds
   CREATURE_JORMUNGAR_WORM                     = 27228
 };
 
-class mob_massive_jormungar : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_massive_jormungar : public CreatureScript
 {
 public:
-    mob_massive_jormungar() : MS::Game::Scripting::Interfaces::CreatureScript("mob_massive_jormungar") { }
+    mob_massive_jormungar() : CreatureScript("mob_massive_jormungar") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -757,10 +757,10 @@ public:
 
 };
 
-class mob_palehoof_orb : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_palehoof_orb : public CreatureScript
 {
 public:
-    mob_palehoof_orb() : MS::Game::Scripting::Interfaces::CreatureScript("mob_palehoof_orb") { }
+    mob_palehoof_orb() : CreatureScript("mob_palehoof_orb") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -847,10 +847,10 @@ public:
 
 };
 
-class go_palehoof_sphere : public MS::Game::Scripting::Interfaces::GameObjectScript
+class go_palehoof_sphere : public GameObjectScript
 {
 public:
-    go_palehoof_sphere() : MS::Game::Scripting::Interfaces::GameObjectScript("go_palehoof_sphere") { }
+    go_palehoof_sphere() : GameObjectScript("go_palehoof_sphere") { }
 
     bool OnGossipHello(Player* /*player*/, GameObject* go)
     {

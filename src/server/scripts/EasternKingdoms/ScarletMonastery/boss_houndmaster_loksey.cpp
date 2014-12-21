@@ -33,10 +33,10 @@ enum eEnums
     SPELL_BLOODLUST                 = 6742
 };
 
-class boss_houndmaster_loksey : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_houndmaster_loksey : public CreatureScript
 {
 public:
-    boss_houndmaster_loksey() : MS::Game::Scripting::Interfaces::CreatureScript("boss_houndmaster_loksey") { }
+    boss_houndmaster_loksey() : CreatureScript("boss_houndmaster_loksey") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

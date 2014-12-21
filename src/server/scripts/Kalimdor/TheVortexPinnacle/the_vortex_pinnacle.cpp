@@ -158,10 +158,10 @@ enum Other
     TYPE_SLIPSTREAM    = 1,
 };
 
-class npc_vortex_pinnacle_slipsteam : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_vortex_pinnacle_slipsteam : public CreatureScript
 {
     public:
-        npc_vortex_pinnacle_slipsteam() : MS::Game::Scripting::Interfaces::CreatureScript("npc_vortex_pinnacle_slipsteam") { }
+        npc_vortex_pinnacle_slipsteam() : CreatureScript("npc_vortex_pinnacle_slipsteam") { }
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -213,10 +213,10 @@ class npc_vortex_pinnacle_slipsteam : public MS::Game::Scripting::Interfaces::Cr
      };
 };
 
-class npc_skyfall_star : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_skyfall_star : public CreatureScript
 {
     public:
-        npc_skyfall_star() : MS::Game::Scripting::Interfaces::CreatureScript("npc_skyfall_star") { }
+        npc_skyfall_star() : CreatureScript("npc_skyfall_star") { }
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -273,10 +273,10 @@ class npc_skyfall_star : public MS::Game::Scripting::Interfaces::CreatureScript
      };
 };
 
-class npc_cloud_prince : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_cloud_prince : public CreatureScript
 {
     public:
-        npc_cloud_prince() : MS::Game::Scripting::Interfaces::CreatureScript("npc_cloud_prince") { }
+        npc_cloud_prince() : CreatureScript("npc_cloud_prince") { }
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -332,10 +332,10 @@ class npc_cloud_prince : public MS::Game::Scripting::Interfaces::CreatureScript
      };
 };
 
-class npc_whipping_wind : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_whipping_wind : public CreatureScript
 {
     public:
-        npc_whipping_wind() : MS::Game::Scripting::Interfaces::CreatureScript("npc_whipping_wind") { }
+        npc_whipping_wind() : CreatureScript("npc_whipping_wind") { }
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -385,10 +385,10 @@ class npc_whipping_wind : public MS::Game::Scripting::Interfaces::CreatureScript
      };
 };
 
-class npc_young_storm_dragon : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_young_storm_dragon : public CreatureScript
 {
     public:
-        npc_young_storm_dragon() : MS::Game::Scripting::Interfaces::CreatureScript("npc_young_storm_dragon") { }
+        npc_young_storm_dragon() : CreatureScript("npc_young_storm_dragon") { }
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -451,10 +451,10 @@ class npc_young_storm_dragon : public MS::Game::Scripting::Interfaces::CreatureS
      };
 };
 
-class npc_armored_mistral : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_armored_mistral : public CreatureScript
 {
     public:
-        npc_armored_mistral() : MS::Game::Scripting::Interfaces::CreatureScript("npc_armored_mistral") { }
+        npc_armored_mistral() : CreatureScript("npc_armored_mistral") { }
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -510,10 +510,10 @@ class npc_armored_mistral : public MS::Game::Scripting::Interfaces::CreatureScri
      };
 };
 
-class npc_empyrean_assassin : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_empyrean_assassin : public CreatureScript
 {
     public:
-        npc_empyrean_assassin() : MS::Game::Scripting::Interfaces::CreatureScript("npc_empyrean_assassin") { }
+        npc_empyrean_assassin() : CreatureScript("npc_empyrean_assassin") { }
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -564,10 +564,10 @@ class npc_empyrean_assassin : public MS::Game::Scripting::Interfaces::CreatureSc
      };
 };
 
-class npc_executor_of_the_caliph : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_executor_of_the_caliph : public CreatureScript
 {
     public:
-        npc_executor_of_the_caliph() : MS::Game::Scripting::Interfaces::CreatureScript("npc_executor_of_the_caliph") { }
+        npc_executor_of_the_caliph() : CreatureScript("npc_executor_of_the_caliph") { }
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -627,10 +627,10 @@ class npc_executor_of_the_caliph : public MS::Game::Scripting::Interfaces::Creat
      };
 };
 
-class npc_gust_soldier : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_gust_soldier : public CreatureScript
 {
     public:
-        npc_gust_soldier() : MS::Game::Scripting::Interfaces::CreatureScript("npc_gust_soldier") { }
+        npc_gust_soldier() : CreatureScript("npc_gust_soldier") { }
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -686,10 +686,10 @@ class npc_gust_soldier : public MS::Game::Scripting::Interfaces::CreatureScript
      };
 };
 
-class npc_lurking_tempest : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_lurking_tempest : public CreatureScript
 {
     public:
-        npc_lurking_tempest() : MS::Game::Scripting::Interfaces::CreatureScript("npc_lurking_tempest") { }
+        npc_lurking_tempest() : CreatureScript("npc_lurking_tempest") { }
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -719,10 +719,10 @@ class npc_lurking_tempest : public MS::Game::Scripting::Interfaces::CreatureScri
      };
 };
 
-class npc_howling_gale : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_howling_gale : public CreatureScript
 {
     public:
-        npc_howling_gale() : MS::Game::Scripting::Interfaces::CreatureScript("npc_howling_gale") { }
+        npc_howling_gale() : CreatureScript("npc_howling_gale") { }
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -806,10 +806,10 @@ class npc_howling_gale : public MS::Game::Scripting::Interfaces::CreatureScript
      };
 };
 
-class npc_minister_of_air : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_minister_of_air : public CreatureScript
 {
     public:
-        npc_minister_of_air() : MS::Game::Scripting::Interfaces::CreatureScript("npc_minister_of_air") { }
+        npc_minister_of_air() : CreatureScript("npc_minister_of_air") { }
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -865,10 +865,10 @@ class npc_minister_of_air : public MS::Game::Scripting::Interfaces::CreatureScri
      };
 };
 
-class npc_servant_of_asaad : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_servant_of_asaad : public CreatureScript
 {
     public:
-        npc_servant_of_asaad() : MS::Game::Scripting::Interfaces::CreatureScript("npc_servant_of_asaad") { }
+        npc_servant_of_asaad() : CreatureScript("npc_servant_of_asaad") { }
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -924,10 +924,10 @@ class npc_servant_of_asaad : public MS::Game::Scripting::Interfaces::CreatureScr
      };
 };
 
-class npc_temple_adept : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_temple_adept : public CreatureScript
 {
     public:
-        npc_temple_adept() : MS::Game::Scripting::Interfaces::CreatureScript("npc_temple_adept") { }
+        npc_temple_adept() : CreatureScript("npc_temple_adept") { }
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -998,10 +998,10 @@ class npc_temple_adept : public MS::Game::Scripting::Interfaces::CreatureScript
      };
 };
 
-class npc_turbulent_squall : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_turbulent_squall : public CreatureScript
 {
     public:
-        npc_turbulent_squall() : MS::Game::Scripting::Interfaces::CreatureScript("npc_turbulent_squall") { }
+        npc_turbulent_squall() : CreatureScript("npc_turbulent_squall") { }
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -1063,10 +1063,10 @@ class npc_turbulent_squall : public MS::Game::Scripting::Interfaces::CreatureScr
      };
 };
 
-class npc_wild_vortex : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_wild_vortex : public CreatureScript
 {
     public:
-        npc_wild_vortex() : MS::Game::Scripting::Interfaces::CreatureScript("npc_wild_vortex") { }
+        npc_wild_vortex() : CreatureScript("npc_wild_vortex") { }
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -1128,10 +1128,10 @@ class npc_wild_vortex : public MS::Game::Scripting::Interfaces::CreatureScript
      };
 };
 
-class spell_minister_of_air_lightning_lash: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_minister_of_air_lightning_lash: public SpellScriptLoader
 {
     public:
-        spell_minister_of_air_lightning_lash() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_minister_of_air_lightning_lash") { }
+        spell_minister_of_air_lightning_lash() : SpellScriptLoader("spell_minister_of_air_lightning_lash") { }
 
 
         class spell_minister_of_air_lightning_lash_SpellScript : public SpellScript
@@ -1159,10 +1159,10 @@ class spell_minister_of_air_lightning_lash: public MS::Game::Scripting::Interfac
         }
 };
 
-class spell_howling_gale_howling_gale: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_howling_gale_howling_gale: public SpellScriptLoader
 {
     public:
-        spell_howling_gale_howling_gale() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_howling_gale_howling_gale") { }
+        spell_howling_gale_howling_gale() : SpellScriptLoader("spell_howling_gale_howling_gale") { }
  
         class spell_howling_gale_howling_gale_AuraScript : public AuraScript
         {

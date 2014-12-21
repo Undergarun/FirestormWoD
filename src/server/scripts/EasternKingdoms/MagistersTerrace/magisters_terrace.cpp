@@ -53,10 +53,10 @@ const float afKaelLandPoint[] = {225.045f, -276.236f, -5.434f};
 
 // This is friendly keal that appear after used Orb.
 // If we assume DB handle summon, summon appear somewhere outside the platform where Orb is
-class npc_kalecgos : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_kalecgos : public CreatureScript
 {
 public:
-    npc_kalecgos() : MS::Game::Scripting::Interfaces::CreatureScript("npc_kalecgos") { }
+    npc_kalecgos() : CreatureScript("npc_kalecgos") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {

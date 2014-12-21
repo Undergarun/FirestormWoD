@@ -108,10 +108,10 @@ enum Achievement
     DATA_POLARITY_SWITCH    = 76047605,
 };
 
-class boss_thaddius : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_thaddius : public CreatureScript
 {
 public:
-    boss_thaddius() : MS::Game::Scripting::Interfaces::CreatureScript("boss_thaddius") { }
+    boss_thaddius() : CreatureScript("boss_thaddius") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -283,10 +283,10 @@ public:
 
 };
 
-class mob_stalagg : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_stalagg : public CreatureScript
 {
 public:
-    mob_stalagg() : MS::Game::Scripting::Interfaces::CreatureScript("mob_stalagg") { }
+    mob_stalagg() : CreatureScript("mob_stalagg") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -369,10 +369,10 @@ public:
 
 };
 
-class mob_feugen : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_feugen : public CreatureScript
 {
 public:
-    mob_feugen() : MS::Game::Scripting::Interfaces::CreatureScript("mob_feugen") { }
+    mob_feugen() : CreatureScript("mob_feugen") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -429,10 +429,10 @@ public:
 
 };
 
-class spell_thaddius_pos_neg_charge: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_thaddius_pos_neg_charge: public SpellScriptLoader
 {
     public:
-        spell_thaddius_pos_neg_charge() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_thaddius_pos_neg_charge") { }
+        spell_thaddius_pos_neg_charge() : SpellScriptLoader("spell_thaddius_pos_neg_charge") { }
 
         class spell_thaddius_pos_neg_charge_SpellScript : public SpellScript
         {
@@ -508,10 +508,10 @@ class spell_thaddius_pos_neg_charge: public MS::Game::Scripting::Interfaces::Spe
         }
 };
 
-class spell_thaddius_polarity_shift: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_thaddius_polarity_shift: public SpellScriptLoader
 {
     public:
-        spell_thaddius_polarity_shift() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_thaddius_polarity_shift") { }
+        spell_thaddius_polarity_shift() : SpellScriptLoader("spell_thaddius_polarity_shift") { }
 
         class spell_thaddius_polarity_shift_SpellScript : public SpellScript
         {
@@ -543,10 +543,10 @@ class spell_thaddius_polarity_shift: public MS::Game::Scripting::Interfaces::Spe
         }
 };
 
-class achievement_polarity_switch : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
+class achievement_polarity_switch : public AchievementCriteriaScript
 {
     public:
-        achievement_polarity_switch() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_polarity_switch") { }
+        achievement_polarity_switch() : AchievementCriteriaScript("achievement_polarity_switch") { }
 
         bool OnCheck(Player* /*source*/, Unit* target)
         {

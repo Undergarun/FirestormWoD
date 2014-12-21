@@ -221,10 +221,10 @@ enum infiniteActions
 };
 
 // Elegon - 60410
-class boss_elegon : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_elegon : public CreatureScript
 {
     public:
-        boss_elegon() : MS::Game::Scripting::Interfaces::CreatureScript("boss_elegon") {}
+        boss_elegon() : CreatureScript("boss_elegon") {}
 
         struct boss_elegonAI : public BossAI
         {
@@ -919,10 +919,10 @@ class boss_elegon : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Empyreal Focus - 60776
-class mob_empyreal_focus : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_empyreal_focus : public CreatureScript
 {
     public:
-        mob_empyreal_focus() : MS::Game::Scripting::Interfaces::CreatureScript("mob_empyreal_focus") { }
+        mob_empyreal_focus() : CreatureScript("mob_empyreal_focus") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -1086,10 +1086,10 @@ class mob_empyreal_focus : public MS::Game::Scripting::Interfaces::CreatureScrip
 };
 
 // Celestial Protector - 60793
-class mob_celestial_protector : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_celestial_protector : public CreatureScript
 {
     public:
-        mob_celestial_protector() : MS::Game::Scripting::Interfaces::CreatureScript("mob_celestial_protector") { }
+        mob_celestial_protector() : CreatureScript("mob_celestial_protector") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -1215,10 +1215,10 @@ class mob_celestial_protector : public MS::Game::Scripting::Interfaces::Creature
 };
 
 // Cosmic Spark - 62618
-class mob_cosmic_spark : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_cosmic_spark : public CreatureScript
 {
     public:
-        mob_cosmic_spark() : MS::Game::Scripting::Interfaces::CreatureScript("mob_cosmic_spark") { }
+        mob_cosmic_spark() : CreatureScript("mob_cosmic_spark") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -1324,10 +1324,10 @@ enum energyChargeActions
 };
 
 // Energy Charge - 60913
-class mob_energy_charge : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_energy_charge : public CreatureScript
 {
     public:
-        mob_energy_charge() : MS::Game::Scripting::Interfaces::CreatureScript("mob_energy_charge") { }
+        mob_energy_charge() : CreatureScript("mob_energy_charge") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -1410,10 +1410,10 @@ enum infiniteEvents
 };
 
 // Infinite Energy - 65293
-class mob_infinite_energy : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_infinite_energy : public CreatureScript
 {
     public:
-        mob_infinite_energy() : MS::Game::Scripting::Interfaces::CreatureScript("mob_infinite_energy"){ }
+        mob_infinite_energy() : CreatureScript("mob_infinite_energy"){ }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -1673,10 +1673,10 @@ class mob_infinite_energy : public MS::Game::Scripting::Interfaces::CreatureScri
 };
 
 // Celestial Control Console - 211650
-class go_celestial_control_console : public MS::Game::Scripting::Interfaces::GameObjectScript
+class go_celestial_control_console : public GameObjectScript
 {
     public:
-        go_celestial_control_console() : MS::Game::Scripting::Interfaces::GameObjectScript("go_celestial_control_console") { }
+        go_celestial_control_console() : GameObjectScript("go_celestial_control_console") { }
 
         void OnGameObjectStateChanged(GameObject* go, uint32 state)
         {
@@ -1706,10 +1706,10 @@ class go_celestial_control_console : public MS::Game::Scripting::Interfaces::Gam
 };
 
 // Spawn Flash 1 Periodic - 127785
-class spell_spawn_flash_1_periodic: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_spawn_flash_1_periodic: public SpellScriptLoader
 {
     public:
-        spell_spawn_flash_1_periodic() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_spawn_flash_1_periodic") { }
+        spell_spawn_flash_1_periodic() : SpellScriptLoader("spell_spawn_flash_1_periodic") { }
 
         class spell_spawn_flash_1_periodic_AuraScript : public AuraScript
         {
@@ -1737,10 +1737,10 @@ class spell_spawn_flash_1_periodic: public MS::Game::Scripting::Interfaces::Spel
 };
 
 // Spawn Flash 2 Periodic - 127783
-class spell_spawn_flash_2_periodic: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_spawn_flash_2_periodic: public SpellScriptLoader
 {
     public:
-        spell_spawn_flash_2_periodic() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_spawn_flash_2_periodic") { }
+        spell_spawn_flash_2_periodic() : SpellScriptLoader("spell_spawn_flash_2_periodic") { }
 
         class spell_spawn_flash_2_periodic_AuraScript : public AuraScript
         {
@@ -1770,10 +1770,10 @@ class spell_spawn_flash_2_periodic: public MS::Game::Scripting::Interfaces::Spel
 };
 
 // Spawn Flash 3 Periodic - 127781
-class spell_spawn_flash_3_periodic: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_spawn_flash_3_periodic: public SpellScriptLoader
 {
     public:
-        spell_spawn_flash_3_periodic() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_spawn_flash_3_periodic") { }
+        spell_spawn_flash_3_periodic() : SpellScriptLoader("spell_spawn_flash_3_periodic") { }
 
         class spell_spawn_flash_3_periodic_AuraScript : public AuraScript
         {
@@ -1799,10 +1799,10 @@ class spell_spawn_flash_3_periodic: public MS::Game::Scripting::Interfaces::Spel
 };
 
 // Touch of Titans - 117874
-class spell_touch_of_titans: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_touch_of_titans: public SpellScriptLoader
 {
     public:
-        spell_touch_of_titans() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_touch_of_titans") { }
+        spell_touch_of_titans() : SpellScriptLoader("spell_touch_of_titans") { }
 
         class spell_touch_of_titans_AuraScript : public AuraScript
         {
@@ -1850,10 +1850,10 @@ class spell_touch_of_titans: public MS::Game::Scripting::Interfaces::SpellScript
 };
 
 // Radiating Energies - 118313 (outside) or Radiating Energies - 122741 (inside)
-class spell_radiating_energies: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_radiating_energies: public SpellScriptLoader
 {
     public:
-        spell_radiating_energies() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_radiating_energies") { }
+        spell_radiating_energies() : SpellScriptLoader("spell_radiating_energies") { }
 
         class spell_radiating_energies_SpellScript : public SpellScript
         {
@@ -1888,10 +1888,10 @@ class spell_radiating_energies: public MS::Game::Scripting::Interfaces::SpellScr
 };
 
 // Draw Power - 119360 and Draw Power - 124967
-class spell_draw_power: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_draw_power: public SpellScriptLoader
 {
     public:
-        spell_draw_power() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_draw_power") { }
+        spell_draw_power() : SpellScriptLoader("spell_draw_power") { }
 
         class spell_draw_power_AuraScript : public AuraScript
         {
@@ -1919,10 +1919,10 @@ class spell_draw_power: public MS::Game::Scripting::Interfaces::SpellScriptLoade
 };
 
 // Core Checker - 118024
-class spell_core_checker: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_core_checker: public SpellScriptLoader
 {
     public:
-        spell_core_checker() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_core_checker") { }
+        spell_core_checker() : SpellScriptLoader("spell_core_checker") { }
 
         class spell_core_checker_AuraScript : public AuraScript
         {
@@ -1954,10 +1954,10 @@ class spell_core_checker: public MS::Game::Scripting::Interfaces::SpellScriptLoa
 };
 
 // Grasping Energy Tendrils - 127362
-class spell_grasping_energy_tendrils: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_grasping_energy_tendrils: public SpellScriptLoader
 {
     public:
-        spell_grasping_energy_tendrils() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_grasping_energy_tendrils") { }
+        spell_grasping_energy_tendrils() : SpellScriptLoader("spell_grasping_energy_tendrils") { }
 
         class spell_grasping_energy_tendrils_SpellScript : public SpellScript
         {
@@ -2007,10 +2007,10 @@ class spell_grasping_energy_tendrils: public MS::Game::Scripting::Interfaces::Sp
 };
 
 // Destabilizing Energies - 132222
-class spell_destabilizing_energies: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_destabilizing_energies: public SpellScriptLoader
 {
     public:
-        spell_destabilizing_energies() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_destabilizing_energies") { }
+        spell_destabilizing_energies() : SpellScriptLoader("spell_destabilizing_energies") { }
 
         class spell_destabilizing_energies_AuraScript : public AuraScript
         {
@@ -2040,10 +2040,10 @@ class spell_destabilizing_energies: public MS::Game::Scripting::Interfaces::Spel
 };
 
 // Total Annihilation - 127911
-class spell_total_annihilation: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_total_annihilation: public SpellScriptLoader
 {
     public:
-        spell_total_annihilation() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_total_annihilation") { }
+        spell_total_annihilation() : SpellScriptLoader("spell_total_annihilation") { }
 
         class spell_total_annihilation_SpellScript : public SpellScript
         {
@@ -2090,10 +2090,10 @@ class spell_total_annihilation: public MS::Game::Scripting::Interfaces::SpellScr
 };
 
 // Unstable Energy - 116994
-class spell_unstable_energy: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_unstable_energy: public SpellScriptLoader
 {
     public:
-        spell_unstable_energy() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_unstable_energy") { }
+        spell_unstable_energy() : SpellScriptLoader("spell_unstable_energy") { }
 
         class spell_unstable_energy_AuraScript : public AuraScript
         {

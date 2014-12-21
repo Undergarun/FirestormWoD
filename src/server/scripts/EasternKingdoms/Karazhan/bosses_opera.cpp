@@ -104,10 +104,10 @@ void SummonCroneIfReady(InstanceScript* instance, Creature* creature)
     }
 };
 
-class boss_dorothee : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_dorothee : public CreatureScript
 {
 public:
-    boss_dorothee() : MS::Game::Scripting::Interfaces::CreatureScript("boss_dorothee") { }
+    boss_dorothee() : CreatureScript("boss_dorothee") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -219,10 +219,10 @@ public:
 
 };
 
-class mob_tito : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_tito : public CreatureScript
 {
 public:
-    mob_tito() : MS::Game::Scripting::Interfaces::CreatureScript("mob_tito") { }
+    mob_tito() : CreatureScript("mob_tito") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -286,10 +286,10 @@ void boss_dorothee::boss_dorotheeAI::SummonTito()
     }
 }
 
-class boss_strawman : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_strawman : public CreatureScript
 {
 public:
-    boss_strawman() : MS::Game::Scripting::Interfaces::CreatureScript("boss_strawman") { }
+    boss_strawman() : CreatureScript("boss_strawman") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -401,10 +401,10 @@ public:
 
 };
 
-class boss_tinhead : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_tinhead : public CreatureScript
 {
 public:
-    boss_tinhead() : MS::Game::Scripting::Interfaces::CreatureScript("boss_tinhead") { }
+    boss_tinhead() : CreatureScript("boss_tinhead") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -511,10 +511,10 @@ public:
 
 };
 
-class boss_roar : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_roar : public CreatureScript
 {
 public:
-    boss_roar() : MS::Game::Scripting::Interfaces::CreatureScript("boss_roar") { }
+    boss_roar() : CreatureScript("boss_roar") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -620,10 +620,10 @@ public:
 
 };
 
-class boss_crone : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_crone : public CreatureScript
 {
 public:
-    boss_crone() : MS::Game::Scripting::Interfaces::CreatureScript("boss_crone") { }
+    boss_crone() : CreatureScript("boss_crone") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -702,10 +702,10 @@ public:
 
 };
 
-class mob_cyclone : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_cyclone : public CreatureScript
 {
 public:
-    mob_cyclone() : MS::Game::Scripting::Interfaces::CreatureScript("mob_cyclone") { }
+    mob_cyclone() : CreatureScript("mob_cyclone") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -766,10 +766,10 @@ public:
 /**** The Wolf's Entry* ***/
 #define CREATURE_BIG_BAD_WOLF           17521
 
-class npc_grandmother : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_grandmother : public CreatureScript
 {
 public:
-    npc_grandmother() : MS::Game::Scripting::Interfaces::CreatureScript("npc_grandmother") { }
+    npc_grandmother() : CreatureScript("npc_grandmother") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
@@ -795,10 +795,10 @@ public:
 
 };
 
-class boss_bigbadwolf : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_bigbadwolf : public CreatureScript
 {
 public:
-    boss_bigbadwolf() : MS::Game::Scripting::Interfaces::CreatureScript("boss_bigbadwolf") { }
+    boss_bigbadwolf() : CreatureScript("boss_bigbadwolf") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -994,10 +994,10 @@ void Resurrect(Creature* target)
             target->GetMotionMaster()->Initialize();
 };
 
-class boss_julianne : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_julianne : public CreatureScript
 {
 public:
-    boss_julianne() : MS::Game::Scripting::Interfaces::CreatureScript("boss_julianne") { }
+    boss_julianne() : CreatureScript("boss_julianne") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1117,10 +1117,10 @@ public:
 
 };
 
-class boss_romulo : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_romulo : public CreatureScript
 {
 public:
-    boss_romulo() : MS::Game::Scripting::Interfaces::CreatureScript("boss_romulo") { }
+    boss_romulo() : CreatureScript("boss_romulo") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

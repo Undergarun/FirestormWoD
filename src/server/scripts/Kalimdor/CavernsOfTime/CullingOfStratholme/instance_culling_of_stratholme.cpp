@@ -50,10 +50,10 @@ const char* zombiefestWarnings[12] =
     "|cFFFFFC00 [Zombiefest!] |cFFFF0000 failed.",
 };
 
-class instance_culling_of_stratholme : public MS::Game::Scripting::Interfaces::InstanceMapScript
+class instance_culling_of_stratholme : public InstanceMapScript
 {
     public:
-        instance_culling_of_stratholme() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_culling_of_stratholme", 595) { }
+        instance_culling_of_stratholme() : InstanceMapScript("instance_culling_of_stratholme", 595) { }
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const
         {

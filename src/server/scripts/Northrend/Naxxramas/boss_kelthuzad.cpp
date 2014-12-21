@@ -263,10 +263,10 @@ struct NotCharmedTargetSelector : public std::unary_function<Unit*, bool>
     }
 };
 
-class boss_kelthuzad : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_kelthuzad : public CreatureScript
 {
 public:
-    boss_kelthuzad() : MS::Game::Scripting::Interfaces::CreatureScript("boss_kelthuzad") { }
+    boss_kelthuzad() : CreatureScript("boss_kelthuzad") { }
 
     struct boss_kelthuzadAI : public BossAI
     {
@@ -657,10 +657,10 @@ public:
 
 };
 
-class at_kelthuzad_center : public MS::Game::Scripting::Interfaces::AreaTriggerScript
+class at_kelthuzad_center : public AreaTriggerScript
 {
 public:
-    at_kelthuzad_center() : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_kelthuzad_center") { }
+    at_kelthuzad_center() : AreaTriggerScript("at_kelthuzad_center") { }
 
     bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/)
     {
@@ -720,10 +720,10 @@ public:
     }
 };
 
-class npc_kelthuzad_abomination : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_kelthuzad_abomination : public CreatureScript
 {
     public:
-        npc_kelthuzad_abomination() : MS::Game::Scripting::Interfaces::CreatureScript("npc_kelthuzad_abomination") { }
+        npc_kelthuzad_abomination() : CreatureScript("npc_kelthuzad_abomination") { }
 
         struct npc_kelthuzad_abominationAI : public ScriptedAI
         {
@@ -777,10 +777,10 @@ class npc_kelthuzad_abomination : public MS::Game::Scripting::Interfaces::Creatu
         }
 };
 
-class spell_kelthuzad_detonate_mana: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_kelthuzad_detonate_mana: public SpellScriptLoader
 {
     public:
-        spell_kelthuzad_detonate_mana() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_kelthuzad_detonate_mana") { }
+        spell_kelthuzad_detonate_mana() : SpellScriptLoader("spell_kelthuzad_detonate_mana") { }
 
         class spell_kelthuzad_detonate_mana_AuraScript : public AuraScript
         {
@@ -817,10 +817,10 @@ class spell_kelthuzad_detonate_mana: public MS::Game::Scripting::Interfaces::Spe
         }
 };
 
-class achievement_just_cant_get_enough : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
+class achievement_just_cant_get_enough : public AchievementCriteriaScript
 {
    public:
-       achievement_just_cant_get_enough() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_just_cant_get_enough") { }
+       achievement_just_cant_get_enough() : AchievementCriteriaScript("achievement_just_cant_get_enough") { }
 
        bool OnCheck(Player* /*player*/, Unit* target)
        {

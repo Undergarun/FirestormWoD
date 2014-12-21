@@ -144,10 +144,10 @@ enum eTsulongTexts
 };
 
 // 62442 - Tsulong
-class boss_tsulong : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_tsulong : public CreatureScript
 {
     public:
-        boss_tsulong() : MS::Game::Scripting::Interfaces::CreatureScript("boss_tsulong") { }
+        boss_tsulong() : CreatureScript("boss_tsulong") { }
 
         struct boss_tsulongAI : public BossAI
         {
@@ -680,10 +680,10 @@ class boss_tsulong : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // 62849 - Sunbeam
-class npc_sunbeam : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_sunbeam : public CreatureScript
 {
     public:
-        npc_sunbeam() : MS::Game::Scripting::Interfaces::CreatureScript("npc_sunbeam") { }
+        npc_sunbeam() : CreatureScript("npc_sunbeam") { }
 
         struct npc_sunbeamAI : public ScriptedAI
         {
@@ -779,10 +779,10 @@ class npc_sunbeam : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // 63446 - The Dark of Night
-class npc_dark_of_night : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_dark_of_night : public CreatureScript
 {
     public:
-        npc_dark_of_night() : MS::Game::Scripting::Interfaces::CreatureScript("npc_dark_of_night") { }
+        npc_dark_of_night() : CreatureScript("npc_dark_of_night") { }
 
         struct npc_dark_of_nightAI : public CreatureAI
         {
@@ -853,10 +853,10 @@ class npc_dark_of_night : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // 63337 - Light of the day
-class npc_ligth_of_day : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_ligth_of_day : public CreatureScript
 {
     public:
-        npc_ligth_of_day() : MS::Game::Scripting::Interfaces::CreatureScript("npc_light_of_day") { }
+        npc_ligth_of_day() : CreatureScript("npc_light_of_day") { }
 
         struct npc_light_of_dayAI : public ScriptedAI
         {
@@ -883,10 +883,10 @@ class npc_ligth_of_day : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // 62979 - Embodied Terror
-class npc_embodied_terror : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_embodied_terror : public CreatureScript
 {
     public:
-        npc_embodied_terror() : MS::Game::Scripting::Interfaces::CreatureScript("npc_embodied_terror") { }
+        npc_embodied_terror() : CreatureScript("npc_embodied_terror") { }
 
         struct npc_embodied_terrorAI : public CreatureAI
         {
@@ -943,10 +943,10 @@ class npc_embodied_terror : public MS::Game::Scripting::Interfaces::CreatureScri
 };
 
 // 62977 - Fright Spawn
-class npc_tiny_terror : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_tiny_terror : public CreatureScript
 {
     public:
-        npc_tiny_terror() : MS::Game::Scripting::Interfaces::CreatureScript("npc_tiny_terror") { }
+        npc_tiny_terror() : CreatureScript("npc_tiny_terror") { }
 
         struct npc_tiny_terrorAI : public CreatureAI
         {
@@ -989,10 +989,10 @@ class npc_tiny_terror : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // 62919 - Unstable Sha
-class npc_unstable_sha : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_unstable_sha : public CreatureScript
 {
     public:
-        npc_unstable_sha() : MS::Game::Scripting::Interfaces::CreatureScript("npc_unstable_sha") { }
+        npc_unstable_sha() : CreatureScript("npc_unstable_sha") { }
 
         struct npc_unstable_shaAI : public CreatureAI
         {
@@ -1077,10 +1077,10 @@ class npc_unstable_sha : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // 125843, jam spell ? - Dread Shadows
-class spell_dread_shadows_damage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dread_shadows_damage: public SpellScriptLoader
 {
     public:
-        spell_dread_shadows_damage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dread_shadows_damage") { }
+        spell_dread_shadows_damage() : SpellScriptLoader("spell_dread_shadows_damage") { }
 
         class spell_dread_shadows_damage_SpellScript : public SpellScript
         {
@@ -1118,10 +1118,10 @@ class DreadShadowsTargetCheck
 };
 
 // 122768 - Dread Shadows
-class spell_dread_shadows_malus: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dread_shadows_malus: public SpellScriptLoader
 {
     public:
-        spell_dread_shadows_malus() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dread_shadows_malus") { }
+        spell_dread_shadows_malus() : SpellScriptLoader("spell_dread_shadows_malus") { }
 
         class spell_dread_shadows_malus_SpellScript : public SpellScript
         {
@@ -1147,10 +1147,10 @@ class spell_dread_shadows_malus: public MS::Game::Scripting::Interfaces::SpellSc
 };
 
 // 122789 - Sunbeam
-class spell_sunbeam: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_sunbeam: public SpellScriptLoader
 {
     public:
-        spell_sunbeam() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sunbeam") { }
+        spell_sunbeam() : SpellScriptLoader("spell_sunbeam") { }
 
         class spell_sunbeam_SpellScript : public SpellScript
         {
@@ -1229,10 +1229,10 @@ class spell_sunbeam: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 };
 
 // 122855 - Sun Breath
-class spell_sun_breath: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_sun_breath: public SpellScriptLoader
 {
     public:
-        spell_sun_breath() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sun_breath") { }
+        spell_sun_breath() : SpellScriptLoader("spell_sun_breath") { }
 
         class spell_sun_breath_SpellScript : public SpellScript
         {
@@ -1267,10 +1267,10 @@ class spell_sun_breath: public MS::Game::Scripting::Interfaces::SpellScriptLoade
 };
 
 // 123018 - Terrorize
-class spell_terrorize_player: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_terrorize_player: public SpellScriptLoader
 {
     public:
-        spell_terrorize_player() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_terrorize_player") { }
+        spell_terrorize_player() : SpellScriptLoader("spell_terrorize_player") { }
 
         class spell_terrorize_player_SpellScript : public SpellScript
         {
@@ -1297,10 +1297,10 @@ class spell_terrorize_player: public MS::Game::Scripting::Interfaces::SpellScrip
         }
 };
 // 123697 - Instability
-class spell_instability: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_instability: public SpellScriptLoader
 {
     public:
-        spell_instability() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_instability") { }
+        spell_instability() : SpellScriptLoader("spell_instability") { }
 
         class spell_instability_SpellScript : public SpellScript
         {
@@ -1330,10 +1330,10 @@ class spell_instability: public MS::Game::Scripting::Interfaces::SpellScriptLoad
 };
 
 // 123716 - Light of the day
-class spell_light_of_the_day: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_light_of_the_day: public SpellScriptLoader
 {
     public:
-        spell_light_of_the_day() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_light_of_the_day") { }
+        spell_light_of_the_day() : SpellScriptLoader("spell_light_of_the_day") { }
 
         class spell_light_of_the_day_AuraScript : public AuraScript
         {

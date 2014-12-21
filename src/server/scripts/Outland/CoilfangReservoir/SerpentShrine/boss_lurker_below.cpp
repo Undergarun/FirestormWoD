@@ -67,10 +67,10 @@ float AddPos[9][3] =
     {42.471519f, -445.115295f, -19.769423f}
 };
 
-class boss_the_lurker_below : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_the_lurker_below : public CreatureScript
 {
 public:
-    boss_the_lurker_below() : MS::Game::Scripting::Interfaces::CreatureScript("boss_the_lurker_below") { }
+    boss_the_lurker_below() : CreatureScript("boss_the_lurker_below") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -357,10 +357,10 @@ public:
      };
 };
 
-class mob_coilfang_ambusher : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_coilfang_ambusher : public CreatureScript
 {
 public:
-    mob_coilfang_ambusher() : MS::Game::Scripting::Interfaces::CreatureScript("mob_coilfang_ambusher") { }
+    mob_coilfang_ambusher() : CreatureScript("mob_coilfang_ambusher") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -415,10 +415,10 @@ public:
 
 };
 
-class go_strange_pool : public MS::Game::Scripting::Interfaces::GameObjectScript
+class go_strange_pool : public GameObjectScript
 {
     public:
-        go_strange_pool() : MS::Game::Scripting::Interfaces::GameObjectScript("go_strange_pool") {}
+        go_strange_pool() : GameObjectScript("go_strange_pool") {}
 
         bool OnGossipHello(Player* player, GameObject* go)
         {

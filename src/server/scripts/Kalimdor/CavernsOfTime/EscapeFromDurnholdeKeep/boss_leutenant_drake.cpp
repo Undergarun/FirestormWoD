@@ -32,10 +32,10 @@ EndScriptData */
 ## go_barrel_old_hillsbrad
 ######*/
 
-class go_barrel_old_hillsbrad : public MS::Game::Scripting::Interfaces::GameObjectScript
+class go_barrel_old_hillsbrad : public GameObjectScript
 {
 public:
-    go_barrel_old_hillsbrad() : MS::Game::Scripting::Interfaces::GameObjectScript("go_barrel_old_hillsbrad") { }
+    go_barrel_old_hillsbrad() : GameObjectScript("go_barrel_old_hillsbrad") { }
 
     bool OnGossipHello(Player* /*player*/, GameObject* go)
     {
@@ -102,10 +102,10 @@ static Location DrakeWP[]=
     {18, 2128.20f, 70.9763f, 64.4221f}
 };
 
-class boss_lieutenant_drake : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_lieutenant_drake : public CreatureScript
 {
 public:
-    boss_lieutenant_drake() : MS::Game::Scripting::Interfaces::CreatureScript("boss_lieutenant_drake") { }
+    boss_lieutenant_drake() : CreatureScript("boss_lieutenant_drake") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

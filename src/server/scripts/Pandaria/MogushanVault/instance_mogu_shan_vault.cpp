@@ -75,10 +75,10 @@ Position woeMiddleSpawnPos[1] =
     {3812.60f, 1536.72f, 367.64f, 0.16f}
 };
 
-class instance_mogu_shan_vault : public MS::Game::Scripting::Interfaces::InstanceMapScript
+class instance_mogu_shan_vault : public InstanceMapScript
 {
     public:
-        instance_mogu_shan_vault() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_mogu_shan_vault", 1008) { }
+        instance_mogu_shan_vault() : InstanceMapScript("instance_mogu_shan_vault", 1008) { }
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const
         {

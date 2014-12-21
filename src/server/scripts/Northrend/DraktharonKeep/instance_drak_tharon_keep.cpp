@@ -43,10 +43,10 @@ enum GameObjects
     GO_NOVOS_CRYSTAL_4                            = 189302
 };
 
-class instance_drak_tharon : public MS::Game::Scripting::Interfaces::InstanceMapScript
+class instance_drak_tharon : public InstanceMapScript
 {
 public:
-    instance_drak_tharon() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_drak_tharon", 600) { }
+    instance_drak_tharon() : InstanceMapScript("instance_drak_tharon", 600) { }
 
     struct instance_drak_tharon_InstanceScript : public InstanceScript
     {

@@ -10,10 +10,10 @@ DoorData const doorData[] =
 
 };
 
-class instance_shadowfang_keep : public MS::Game::Scripting::Interfaces::InstanceMapScript
+class instance_shadowfang_keep : public InstanceMapScript
 {
     public:
-        instance_shadowfang_keep() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_shadowfang_keep", 33) { }
+        instance_shadowfang_keep() : InstanceMapScript("instance_shadowfang_keep", 33) { }
 
         InstanceScript* GetInstanceScript(InstanceMap* pMap) const
         {

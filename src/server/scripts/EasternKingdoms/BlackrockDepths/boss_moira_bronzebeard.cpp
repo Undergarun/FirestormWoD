@@ -29,10 +29,10 @@ enum Spells
     SPELL_SMITE                                            = 10934
 };
 
-class boss_moira_bronzebeard : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_moira_bronzebeard : public CreatureScript
 {
 public:
-    boss_moira_bronzebeard() : MS::Game::Scripting::Interfaces::CreatureScript("boss_moira_bronzebeard") { }
+    boss_moira_bronzebeard() : CreatureScript("boss_moira_bronzebeard") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

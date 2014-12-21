@@ -56,10 +56,10 @@ enum Creatures
 
 Position AddSpawnPoint = { -260.493011f, -622.968018f, 26.605301f, 3.036870f };
 
-class boss_trollgore : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_trollgore : public CreatureScript
 {
 public:
-    boss_trollgore() : MS::Game::Scripting::Interfaces::CreatureScript("boss_trollgore") { }
+    boss_trollgore() : CreatureScript("boss_trollgore") { }
 
     struct boss_trollgoreAI : public ScriptedAI
     {
@@ -197,10 +197,10 @@ public:
     }
 };
 
-class achievement_consumption_junction : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
+class achievement_consumption_junction : public AchievementCriteriaScript
 {
     public:
-        achievement_consumption_junction() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_consumption_junction")
+        achievement_consumption_junction() : AchievementCriteriaScript("achievement_consumption_junction")
         {
         }
 

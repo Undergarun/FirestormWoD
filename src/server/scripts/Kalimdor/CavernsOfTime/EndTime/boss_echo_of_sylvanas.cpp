@@ -83,10 +83,10 @@ const Position ghoulPos[8] =
     {3818.82f, 935.256f, 56.0161f, 5.49779f}
 };
 
-class boss_echo_of_sylvanas : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_echo_of_sylvanas : public CreatureScript
 {
     public:
-        boss_echo_of_sylvanas() : MS::Game::Scripting::Interfaces::CreatureScript("boss_echo_of_sylvanas") { }
+        boss_echo_of_sylvanas() : CreatureScript("boss_echo_of_sylvanas") { }
 
          CreatureAI* GetAI(Creature* creature) const
         {
@@ -285,11 +285,11 @@ class boss_echo_of_sylvanas : public MS::Game::Scripting::Interfaces::CreatureSc
         };
 };
 
-class npc_echo_of_sylvanas_ghoul : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_echo_of_sylvanas_ghoul : public CreatureScript
 {
     public:
 
-        npc_echo_of_sylvanas_ghoul() : MS::Game::Scripting::Interfaces::CreatureScript("npc_echo_of_sylvanas_ghoul") { }
+        npc_echo_of_sylvanas_ghoul() : CreatureScript("npc_echo_of_sylvanas_ghoul") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -318,11 +318,11 @@ class npc_echo_of_sylvanas_ghoul : public MS::Game::Scripting::Interfaces::Creat
         };
 };
 
-class npc_echo_of_sylvanas_risen_ghoul : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_echo_of_sylvanas_risen_ghoul : public CreatureScript
 {
     public:
 
-        npc_echo_of_sylvanas_risen_ghoul() : MS::Game::Scripting::Interfaces::CreatureScript("npc_echo_of_sylvanas_risen_ghoul") { }
+        npc_echo_of_sylvanas_risen_ghoul() : CreatureScript("npc_echo_of_sylvanas_risen_ghoul") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -422,10 +422,10 @@ class npc_echo_of_sylvanas_risen_ghoul : public MS::Game::Scripting::Interfaces:
         };
 };
 
-class spell_echo_of_sylvanas_wracking_pain_dmg: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_echo_of_sylvanas_wracking_pain_dmg: public SpellScriptLoader
 {
     public:
-        spell_echo_of_sylvanas_wracking_pain_dmg() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_echo_of_sylvanas_wracking_pain_dmg") { }
+        spell_echo_of_sylvanas_wracking_pain_dmg() : SpellScriptLoader("spell_echo_of_sylvanas_wracking_pain_dmg") { }
 
         class spell_echo_of_sylvanas_wracking_pain_dmg_SpellScript : public SpellScript
         {
@@ -487,10 +487,10 @@ class spell_echo_of_sylvanas_wracking_pain_dmg: public MS::Game::Scripting::Inte
         }
 };
 
-class spell_echo_of_sylvanas_death_grip_aoe: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_echo_of_sylvanas_death_grip_aoe: public SpellScriptLoader
 {
     public:
-        spell_echo_of_sylvanas_death_grip_aoe() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_echo_of_sylvanas_death_grip_aoe") { }
+        spell_echo_of_sylvanas_death_grip_aoe() : SpellScriptLoader("spell_echo_of_sylvanas_death_grip_aoe") { }
 
         class spell_echo_of_sylvanas_death_grip_aoe_SpellScript : public SpellScript
         {
@@ -516,10 +516,10 @@ class spell_echo_of_sylvanas_death_grip_aoe: public MS::Game::Scripting::Interfa
         }
 };
 
-class spell_echo_of_sylvanas_seeping_shadows: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_echo_of_sylvanas_seeping_shadows: public SpellScriptLoader
 {
     public:
-        spell_echo_of_sylvanas_seeping_shadows() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_echo_of_sylvanas_seeping_shadows") { }
+        spell_echo_of_sylvanas_seeping_shadows() : SpellScriptLoader("spell_echo_of_sylvanas_seeping_shadows") { }
 
         class spell_echo_of_sylvanas_seeping_shadows_AuraScript : public AuraScript
         {
@@ -551,10 +551,10 @@ class spell_echo_of_sylvanas_seeping_shadows: public MS::Game::Scripting::Interf
         }
 };
 
-class achievement_several_ties : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
+class achievement_several_ties : public AchievementCriteriaScript
 {
     public:
-        achievement_several_ties() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_several_ties") { }
+        achievement_several_ties() : AchievementCriteriaScript("achievement_several_ties") { }
 
         bool OnCheck(Player* source, Unit* target)
         {

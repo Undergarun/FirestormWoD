@@ -64,10 +64,10 @@ enum Phases
     PHASE_COMBAT    = 2
 };
 
-class boss_baltharus_the_warborn : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_baltharus_the_warborn : public CreatureScript
 {
     public:
-        boss_baltharus_the_warborn() : MS::Game::Scripting::Interfaces::CreatureScript("boss_baltharus_the_warborn") { }
+        boss_baltharus_the_warborn() : CreatureScript("boss_baltharus_the_warborn") { }
 
         struct boss_baltharus_the_warbornAI : public BossAI
         {
@@ -228,10 +228,10 @@ class boss_baltharus_the_warborn : public MS::Game::Scripting::Interfaces::Creat
         }
 };
 
-class npc_baltharus_the_warborn_clone : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_baltharus_the_warborn_clone : public CreatureScript
 {
     public:
-        npc_baltharus_the_warborn_clone() : MS::Game::Scripting::Interfaces::CreatureScript("npc_baltharus_the_warborn_clone") { }
+        npc_baltharus_the_warborn_clone() : CreatureScript("npc_baltharus_the_warborn_clone") { }
 
         struct npc_baltharus_the_warborn_cloneAI : public ScriptedAI
         {
@@ -318,10 +318,10 @@ class npc_baltharus_the_warborn_clone : public MS::Game::Scripting::Interfaces::
         }
 };
 
-class spell_baltharus_enervating_brand_trigger: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_baltharus_enervating_brand_trigger: public SpellScriptLoader
 {
     public:
-        spell_baltharus_enervating_brand_trigger() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_baltharus_enervating_brand_trigger") { }
+        spell_baltharus_enervating_brand_trigger() : SpellScriptLoader("spell_baltharus_enervating_brand_trigger") { }
 
         class spell_baltharus_enervating_brand_trigger_SpellScript : public SpellScript
         {

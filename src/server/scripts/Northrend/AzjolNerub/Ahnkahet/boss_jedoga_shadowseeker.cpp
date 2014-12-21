@@ -60,10 +60,10 @@ const Position JedogaPosition[2] =
 #define ACTION_INITIAND_KILLED                    1
 #define DATA_VOLUNTEER_WORK                       2
 
-class boss_jedoga_shadowseeker : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_jedoga_shadowseeker : public CreatureScript
 {
 public:
-    boss_jedoga_shadowseeker() : MS::Game::Scripting::Interfaces::CreatureScript("boss_jedoga_shadowseeker") { }
+    boss_jedoga_shadowseeker() : CreatureScript("boss_jedoga_shadowseeker") { }
 
     struct boss_jedoga_shadowseekerAI : public ScriptedAI
     {
@@ -342,10 +342,10 @@ public:
     }
 };
 
-class mob_jedoga_initiand : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_jedoga_initiand : public CreatureScript
 {
 public:
-    mob_jedoga_initiand() : MS::Game::Scripting::Interfaces::CreatureScript("mob_jedoga_initiand") { }
+    mob_jedoga_initiand() : CreatureScript("mob_jedoga_initiand") { }
 
     struct mob_jedoga_initiandAI : public ScriptedAI
     {
@@ -518,10 +518,10 @@ enum AufseherSpell
   SPELL_BEAM_VISUAL_JEDOGAS_AUFSEHER_2            = 56312
 };
 
-class npc_jedogas_aufseher_trigger : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_jedogas_aufseher_trigger : public CreatureScript
 {
 public:
-    npc_jedogas_aufseher_trigger() : MS::Game::Scripting::Interfaces::CreatureScript("npc_jedogas_aufseher_trigger") { }
+    npc_jedogas_aufseher_trigger() : CreatureScript("npc_jedogas_aufseher_trigger") { }
 
     struct npc_jedogas_aufseher_triggerAI : public Scripted_NoMovementAI
     {
@@ -592,10 +592,10 @@ public:
     }
 };
 
-class achievement_volunteer_work : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
+class achievement_volunteer_work : public AchievementCriteriaScript
 {
     public:
-        achievement_volunteer_work() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_volunteer_work")
+        achievement_volunteer_work() : AchievementCriteriaScript("achievement_volunteer_work")
         {
         }
 

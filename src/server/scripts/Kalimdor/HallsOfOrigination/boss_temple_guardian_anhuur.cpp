@@ -80,10 +80,10 @@ const Position SpawnPosition[] =
 
 const Position bosspos = {-640.527f, 334.855f, 78.345f, 1.54f};
 
-class boss_temple_guardian_anhuur : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_temple_guardian_anhuur : public CreatureScript
 {
     public:
-        boss_temple_guardian_anhuur() : MS::Game::Scripting::Interfaces::CreatureScript("boss_temple_guardian_anhuur") { }
+        boss_temple_guardian_anhuur() : CreatureScript("boss_temple_guardian_anhuur") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -268,10 +268,10 @@ class boss_temple_guardian_anhuur : public MS::Game::Scripting::Interfaces::Crea
         };
 };
 
-class npc_pit_snake : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_pit_snake : public CreatureScript
 {
     public:
-        npc_pit_snake() : MS::Game::Scripting::Interfaces::CreatureScript("npc_pit_snake") { }
+        npc_pit_snake() : CreatureScript("npc_pit_snake") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -319,10 +319,10 @@ class npc_pit_snake : public MS::Game::Scripting::Interfaces::CreatureScript
         };
 };
 
-class go_beacon_of_light : public MS::Game::Scripting::Interfaces::GameObjectScript
+class go_beacon_of_light : public GameObjectScript
 {
 public:
-    go_beacon_of_light() : MS::Game::Scripting::Interfaces::GameObjectScript("go_beacon_of_light") { }
+    go_beacon_of_light() : GameObjectScript("go_beacon_of_light") { }
 
     bool OnGossipHello(Player* pPlayer, GameObject* pGO)
     {
@@ -335,10 +335,10 @@ public:
 
 typedef boss_temple_guardian_anhuur::boss_temple_guardian_anhuurAI AnhuurAI;
 
-class achievement_i_hate_that_song : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
+class achievement_i_hate_that_song : public AchievementCriteriaScript
 {
     public:
-        achievement_i_hate_that_song() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_i_hate_that_song") { }
+        achievement_i_hate_that_song() : AchievementCriteriaScript("achievement_i_hate_that_song") { }
 
         bool OnCheck(Player* source, Unit* target)
         {

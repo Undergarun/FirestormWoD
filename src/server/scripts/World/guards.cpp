@@ -47,10 +47,10 @@ enum GuardGeneric
     NPC_ORGRIMMAR_GRUNT             = 3296
 };
 
-class guard_generic : public MS::Game::Scripting::Interfaces::CreatureScript
+class guard_generic : public CreatureScript
 {
 public:
-    guard_generic() : MS::Game::Scripting::Interfaces::CreatureScript("guard_generic") { }
+    guard_generic() : CreatureScript("guard_generic") { }
 
     struct guard_genericAI : public GuardAI
     {
@@ -256,10 +256,10 @@ enum GuardShattrath
     SPELL_EXILE                = 39533
 };
 
-class guard_shattrath_scryer : public MS::Game::Scripting::Interfaces::CreatureScript
+class guard_shattrath_scryer : public CreatureScript
 {
 public:
-    guard_shattrath_scryer() : MS::Game::Scripting::Interfaces::CreatureScript("guard_shattrath_scryer") { }
+    guard_shattrath_scryer() : CreatureScript("guard_shattrath_scryer") { }
 
     struct guard_shattrath_scryerAI : public GuardAI
     {
@@ -321,10 +321,10 @@ public:
     }
 };
 
-class guard_shattrath_aldor : public MS::Game::Scripting::Interfaces::CreatureScript
+class guard_shattrath_aldor : public CreatureScript
 {
 public:
-    guard_shattrath_aldor() : MS::Game::Scripting::Interfaces::CreatureScript("guard_shattrath_aldor") { }
+    guard_shattrath_aldor() : CreatureScript("guard_shattrath_aldor") { }
 
     struct guard_shattrath_aldorAI : public GuardAI
     {

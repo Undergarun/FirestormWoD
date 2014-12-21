@@ -48,10 +48,10 @@ EndScriptData */
 5 - Lady Vashj Event
 */
 
-class go_bridge_console : public MS::Game::Scripting::Interfaces::GameObjectScript
+class go_bridge_console : public GameObjectScript
 {
     public:
-        go_bridge_console() : MS::Game::Scripting::Interfaces::GameObjectScript("go_bridge_console") { }
+        go_bridge_console() : GameObjectScript("go_bridge_console") { }
 
         bool OnGossipHello(Player* /*player*/, GameObject* go)
         {
@@ -67,10 +67,10 @@ class go_bridge_console : public MS::Game::Scripting::Interfaces::GameObjectScri
         }
 };
 
-class instance_serpent_shrine : public MS::Game::Scripting::Interfaces::InstanceMapScript
+class instance_serpent_shrine : public InstanceMapScript
 {
     public:
-        instance_serpent_shrine() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_serpent_shrine", 548) { }
+        instance_serpent_shrine() : InstanceMapScript("instance_serpent_shrine", 548) { }
 
         struct instance_serpentshrine_cavern_InstanceMapScript : public InstanceScript
         {

@@ -66,10 +66,10 @@ static Position AddSpawnPoint = { -379.20f, -816.76f, 59.70f, 0.0f };
 static Position CrystalHandlerSpawnPoint = { -326.626343f, -709.956604f, 27.813314f, 0.0f };
 static Position AddDestinyPoint = { -379.314545f, -772.577637f, 28.58837f, 0.0f };
 
-class boss_novos : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_novos : public CreatureScript
 {
 public:
-    boss_novos() : MS::Game::Scripting::Interfaces::CreatureScript("boss_novos") { }
+    boss_novos() : CreatureScript("boss_novos") { }
 
     struct boss_novosAI : public Scripted_NoMovementAI
     {
@@ -254,10 +254,10 @@ enum CrystalHandlerSpells
     H_SPELL_FLASH_OF_DARKNESS                     = 59004
 };
 
-class mob_crystal_handler : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_crystal_handler : public CreatureScript
 {
 public:
-    mob_crystal_handler() : MS::Game::Scripting::Interfaces::CreatureScript("mob_crystal_handler") { }
+    mob_crystal_handler() : CreatureScript("mob_crystal_handler") { }
 
     struct mob_crystal_handlerAI : public ScriptedAI
     {
@@ -311,10 +311,10 @@ public:
     }
 };
 
-class mob_novos_minion : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_novos_minion : public CreatureScript
 {
 public:
-    mob_novos_minion() : MS::Game::Scripting::Interfaces::CreatureScript("mob_novos_minion") { }
+    mob_novos_minion() : CreatureScript("mob_novos_minion") { }
 
     struct mob_novos_minionAI : public ScriptedAI
     {
@@ -344,10 +344,10 @@ public:
     }
 };
 
-class achievement_oh_novos : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
+class achievement_oh_novos : public AchievementCriteriaScript
 {
     public:
-        achievement_oh_novos() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_oh_novos")
+        achievement_oh_novos() : AchievementCriteriaScript("achievement_oh_novos")
         {
         }
 

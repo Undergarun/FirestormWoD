@@ -200,10 +200,10 @@ uint32 const g_AnimaRingSpells[12] =
 #define MAX_ANIMA_CAPACITY 4
 
 // Dark Animus - 69427
-class boss_dark_animus : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_dark_animus : public CreatureScript
 {
     public:
-        boss_dark_animus() : MS::Game::Scripting::Interfaces::CreatureScript("boss_dark_animus") { }
+        boss_dark_animus() : CreatureScript("boss_dark_animus") { }
 
         struct boss_dark_animusAI : public BossAI
         {
@@ -400,10 +400,10 @@ class boss_dark_animus : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Anima Orb - 69756
-class mob_anima_orb : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_anima_orb : public CreatureScript
 {
     public:
-        mob_anima_orb() : MS::Game::Scripting::Interfaces::CreatureScript("mob_anima_orb") { }
+        mob_anima_orb() : CreatureScript("mob_anima_orb") { }
 
         struct mob_anima_orbAI : public ScriptedAI
         {
@@ -589,10 +589,10 @@ class mob_anima_orb : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Dark Ritualist - 69702
-class mob_dark_ritualist : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_dark_ritualist : public CreatureScript
 {
     public:
-        mob_dark_ritualist() : MS::Game::Scripting::Interfaces::CreatureScript("mob_dark_ritualist") { }
+        mob_dark_ritualist() : CreatureScript("mob_dark_ritualist") { }
 
         struct mob_dark_ritualistAI : public ScriptedAI
         {
@@ -687,10 +687,10 @@ class mob_dark_ritualist : public MS::Game::Scripting::Interfaces::CreatureScrip
 };
 
 // Anima Golem - 69701
-class mob_anima_golem : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_anima_golem : public CreatureScript
 {
     public:
-        mob_anima_golem() : MS::Game::Scripting::Interfaces::CreatureScript("mob_anima_golem") { }
+        mob_anima_golem() : CreatureScript("mob_anima_golem") { }
 
         struct mob_anima_golemAI : public ScriptedAI
         {
@@ -845,10 +845,10 @@ class mob_anima_golem : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Large Anima Golem - 69700
-class mob_large_anima_golem : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_large_anima_golem : public CreatureScript
 {
     public:
-        mob_large_anima_golem() : MS::Game::Scripting::Interfaces::CreatureScript("mob_large_anima_golem") { }
+        mob_large_anima_golem() : CreatureScript("mob_large_anima_golem") { }
 
         struct mob_large_anima_golemAI : public ScriptedAI
         {
@@ -1003,10 +1003,10 @@ class mob_large_anima_golem : public MS::Game::Scripting::Interfaces::CreatureSc
 };
 
 // Massive Anima Golem = 69699
-class mob_massive_anima_golem : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_massive_anima_golem : public CreatureScript
 {
     public:
-        mob_massive_anima_golem() : MS::Game::Scripting::Interfaces::CreatureScript("mob_massive_anima_golem") { }
+        mob_massive_anima_golem() : CreatureScript("mob_massive_anima_golem") { }
 
         struct mob_massive_anima_golemAI : public ScriptedAI
         {
@@ -1120,10 +1120,10 @@ class mob_massive_anima_golem : public MS::Game::Scripting::Interfaces::Creature
 };
 
 // Crimson Wake - 69951
-class mob_crimson_wake : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_crimson_wake : public CreatureScript
 {
     public:
-        mob_crimson_wake() : MS::Game::Scripting::Interfaces::CreatureScript("mob_crimson_wake") { }
+        mob_crimson_wake() : CreatureScript("mob_crimson_wake") { }
 
         struct mob_crimson_wakeAI : public ScriptedAI
         {
@@ -1164,10 +1164,10 @@ class mob_crimson_wake : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Long Ritual Lightning - 137994
-class spell_long_ritual_lightning: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_long_ritual_lightning: public SpellScriptLoader
 {
     public:
-        spell_long_ritual_lightning() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_long_ritual_lightning") { }
+        spell_long_ritual_lightning() : SpellScriptLoader("spell_long_ritual_lightning") { }
 
         class spell_long_ritual_lightning_SpellScript : public SpellScript
         {
@@ -1203,10 +1203,10 @@ class spell_long_ritual_lightning: public MS::Game::Scripting::Interfaces::Spell
 };
 
 // Transfusion (AoE) - 138118
-class spell_transfusion_aoe: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_transfusion_aoe: public SpellScriptLoader
 {
     public:
-        spell_transfusion_aoe() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_transfusion_aoe") { }
+        spell_transfusion_aoe() : SpellScriptLoader("spell_transfusion_aoe") { }
 
         class spell_transfusion_aoe_SpellScript : public SpellScript
         {
@@ -1254,10 +1254,10 @@ class spell_transfusion_aoe: public MS::Game::Scripting::Interfaces::SpellScript
 };
 
 // Transfusion (Searcher) - 138378
-class spell_transfusion_searcher: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_transfusion_searcher: public SpellScriptLoader
 {
     public:
-        spell_transfusion_searcher() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_transfusion_searcher") { }
+        spell_transfusion_searcher() : SpellScriptLoader("spell_transfusion_searcher") { }
 
         class spell_transfusion_searcher_SpellScript : public SpellScript
         {
@@ -1336,10 +1336,10 @@ class spell_transfusion_searcher: public MS::Game::Scripting::Interfaces::SpellS
 };
 
 // Crimson Wake (Slow) - 138482
-class spell_crimson_wake_slow: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_crimson_wake_slow: public SpellScriptLoader
 {
     public:
-        spell_crimson_wake_slow() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_crimson_wake_slow") {}
+        spell_crimson_wake_slow() : SpellScriptLoader("spell_crimson_wake_slow") {}
 
         class spell_crimson_wake_slow_AuraScript : public AuraScript
         {
@@ -1364,10 +1364,10 @@ class spell_crimson_wake_slow: public MS::Game::Scripting::Interfaces::SpellScri
 };
 
 // Crimson Wake (Medium) - 138484
-class spell_crimson_wake_medium: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_crimson_wake_medium: public SpellScriptLoader
 {
     public:
-        spell_crimson_wake_medium() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_crimson_wake_medium") {}
+        spell_crimson_wake_medium() : SpellScriptLoader("spell_crimson_wake_medium") {}
 
         class spell_crimson_wake_medium_AuraScript : public AuraScript
         {
@@ -1392,10 +1392,10 @@ class spell_crimson_wake_medium: public MS::Game::Scripting::Interfaces::SpellSc
 };
 
 // Fixated - 138486
-class spell_fixated: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_fixated: public SpellScriptLoader
 {
     public:
-        spell_fixated() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_fixated") {}
+        spell_fixated() : SpellScriptLoader("spell_fixated") {}
 
         class spell_fixated_AuraScript : public AuraScript
         {
@@ -1420,10 +1420,10 @@ class spell_fixated: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 };
 
 // Matter Swap - 138609
-class spell_matter_swap: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_matter_swap: public SpellScriptLoader
 {
     public:
-        spell_matter_swap() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_matter_swap") { }
+        spell_matter_swap() : SpellScriptLoader("spell_matter_swap") { }
 
         class spell_matter_swap_SpellScript : public SpellScript
         {
@@ -1608,10 +1608,10 @@ class spell_matter_swap: public MS::Game::Scripting::Interfaces::SpellScriptLoad
 };
 
 // Targeted: Matter Swap - 139919
-class spell_targeted_matter_swap: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_targeted_matter_swap: public SpellScriptLoader
 {
     public:
-        spell_targeted_matter_swap() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_targeted_matter_swap") { }
+        spell_targeted_matter_swap() : SpellScriptLoader("spell_targeted_matter_swap") { }
 
         class spell_targeted_matter_swap_SpellScript : public SpellScript
         {
@@ -1639,10 +1639,10 @@ class spell_targeted_matter_swap: public MS::Game::Scripting::Interfaces::SpellS
 };
 
 // Anima Ring - 136954
-class spell_anima_ring: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_anima_ring: public SpellScriptLoader
 {
     public:
-        spell_anima_ring() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_anima_ring") { }
+        spell_anima_ring() : SpellScriptLoader("spell_anima_ring") { }
 
         class spell_anima_ring_SpellScript : public SpellScript
         {
@@ -1696,10 +1696,10 @@ class spell_anima_ring: public MS::Game::Scripting::Interfaces::SpellScriptLoade
 };
 
 // Activation Sequence - 139537
-class spell_activation_sequence: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_activation_sequence: public SpellScriptLoader
 {
     public:
-        spell_activation_sequence() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_activation_sequence") {}
+        spell_activation_sequence() : SpellScriptLoader("spell_activation_sequence") {}
 
         class spell_activation_sequence_AuraScript : public AuraScript
         {
@@ -1724,10 +1724,10 @@ class spell_activation_sequence: public MS::Game::Scripting::Interfaces::SpellSc
 };
 
 // Siphon Anima - 138644
-class spell_siphon_anima: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_siphon_anima: public SpellScriptLoader
 {
     public:
-        spell_siphon_anima() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_siphon_anima") { }
+        spell_siphon_anima() : SpellScriptLoader("spell_siphon_anima") { }
 
         class spell_siphon_anima_SpellScript : public SpellScript
         {
@@ -1766,10 +1766,10 @@ class spell_siphon_anima: public MS::Game::Scripting::Interfaces::SpellScriptLoa
 };
 
 // Touch of the Animus - 138659
-class spell_touch_of_the_animus: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_touch_of_the_animus: public SpellScriptLoader
 {
     public:
-        spell_touch_of_the_animus() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_touch_of_the_animus") { }
+        spell_touch_of_the_animus() : SpellScriptLoader("spell_touch_of_the_animus") { }
 
         class spell_touch_of_the_animus_SpellScript : public SpellScript
         {
@@ -1796,10 +1796,10 @@ class spell_touch_of_the_animus: public MS::Game::Scripting::Interfaces::SpellSc
 };
 
 // Anima Font - 138691
-class spell_anima_font: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_anima_font: public SpellScriptLoader
 {
     public:
-        spell_anima_font() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_anima_font") { }
+        spell_anima_font() : SpellScriptLoader("spell_anima_font") { }
 
         class spell_anima_font_SpellScript : public SpellScript
         {
@@ -1826,10 +1826,10 @@ class spell_anima_font: public MS::Game::Scripting::Interfaces::SpellScriptLoade
 };
 
 // Anima Font (Dummy - trigger missile) - 138694
-class spell_anima_font_dummy: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_anima_font_dummy: public SpellScriptLoader
 {
     public:
-        spell_anima_font_dummy() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_anima_font_dummy") { }
+        spell_anima_font_dummy() : SpellScriptLoader("spell_anima_font_dummy") { }
 
         class spell_anima_font_dummy_SpellScript : public SpellScript
         {
@@ -1866,10 +1866,10 @@ class spell_anima_font_dummy: public MS::Game::Scripting::Interfaces::SpellScrip
 };
 
 // FULL POWER - 138734
-class spell_full_power: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_full_power: public SpellScriptLoader
 {
     public:
-        spell_full_power() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_full_power") { }
+        spell_full_power() : SpellScriptLoader("spell_full_power") { }
 
         class spell_full_power_SpellScript : public SpellScript
         {
@@ -1897,10 +1897,10 @@ class spell_full_power: public MS::Game::Scripting::Interfaces::SpellScriptLoade
 };
 
 // Empower Golem - 138780
-class spell_empower_golem: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_empower_golem: public SpellScriptLoader
 {
     public:
-        spell_empower_golem() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_empower_golem") { }
+        spell_empower_golem() : SpellScriptLoader("spell_empower_golem") { }
 
         class spell_empower_golem_SpellScript : public SpellScript
         {

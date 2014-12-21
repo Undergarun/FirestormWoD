@@ -72,7 +72,7 @@ const float ShadowmoonChannelers[5][4]=
 };
 
 // 17377
-class boss_kelidan_the_breaker : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_kelidan_the_breaker : public CreatureScript
 {
     public:
 
@@ -297,11 +297,11 @@ enum eShadowmoon
     SPELL_CHANNELING        = 39123
 };
 
-class mob_shadowmoon_channeler : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_shadowmoon_channeler : public CreatureScript
 {
     public:
 
-        mob_shadowmoon_channeler() : MS::Game::Scripting::Interfaces::CreatureScript("mob_shadowmoon_channeler") {}
+        mob_shadowmoon_channeler() : CreatureScript("mob_shadowmoon_channeler") {}
 
         struct mob_shadowmoon_channelerAI : public ScriptedAI
         {

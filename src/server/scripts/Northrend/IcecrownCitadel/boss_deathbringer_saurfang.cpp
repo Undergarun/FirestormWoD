@@ -237,10 +237,10 @@ Position const chokePos[6] =
 
 Position const finalPos = {-563.7552f, 2211.328f, 538.7848f, 0.0f};
 
-class boss_deathbringer_saurfang : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_deathbringer_saurfang : public CreatureScript
 {
     public:
-        boss_deathbringer_saurfang() : MS::Game::Scripting::Interfaces::CreatureScript("boss_deathbringer_saurfang") { }
+        boss_deathbringer_saurfang() : CreatureScript("boss_deathbringer_saurfang") { }
 
         struct boss_deathbringer_saurfangAI : public BossAI
         {
@@ -581,10 +581,10 @@ class boss_deathbringer_saurfang : public MS::Game::Scripting::Interfaces::Creat
         }
 };
 
-class npc_high_overlord_saurfang_icc : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_high_overlord_saurfang_icc : public CreatureScript
 {
     public:
-        npc_high_overlord_saurfang_icc() : MS::Game::Scripting::Interfaces::CreatureScript("npc_high_overlord_saurfang_icc") { }
+        npc_high_overlord_saurfang_icc() : CreatureScript("npc_high_overlord_saurfang_icc") { }
 
         struct npc_high_overlord_saurfangAI : public ScriptedAI
         {
@@ -792,10 +792,10 @@ class npc_high_overlord_saurfang_icc : public MS::Game::Scripting::Interfaces::C
         }
 };
 
-class npc_muradin_bronzebeard_icc : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_muradin_bronzebeard_icc : public CreatureScript
 {
     public:
-        npc_muradin_bronzebeard_icc() : MS::Game::Scripting::Interfaces::CreatureScript("npc_muradin_bronzebeard_icc") { }
+        npc_muradin_bronzebeard_icc() : CreatureScript("npc_muradin_bronzebeard_icc") { }
 
         struct npc_muradin_bronzebeard_iccAI : public ScriptedAI
         {
@@ -941,10 +941,10 @@ class npc_muradin_bronzebeard_icc : public MS::Game::Scripting::Interfaces::Crea
         }
 };
 
-class npc_saurfang_event : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_saurfang_event : public CreatureScript
 {
     public:
-        npc_saurfang_event() : MS::Game::Scripting::Interfaces::CreatureScript("npc_saurfang_event") { }
+        npc_saurfang_event() : CreatureScript("npc_saurfang_event") { }
 
         struct npc_saurfang_eventAI : public ScriptedAI
         {
@@ -986,10 +986,10 @@ class npc_saurfang_event : public MS::Game::Scripting::Interfaces::CreatureScrip
         }
 };
 
-class spell_deathbringer_blood_link: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_deathbringer_blood_link: public SpellScriptLoader
 {
     public:
-        spell_deathbringer_blood_link() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_deathbringer_blood_link") { }
+        spell_deathbringer_blood_link() : SpellScriptLoader("spell_deathbringer_blood_link") { }
 
         class spell_deathbringer_blood_link_SpellScript : public SpellScript
         {
@@ -1022,10 +1022,10 @@ class spell_deathbringer_blood_link: public MS::Game::Scripting::Interfaces::Spe
         }
 };
 
-class spell_deathbringer_blood_link_aura: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_deathbringer_blood_link_aura: public SpellScriptLoader
 {
     public:
-        spell_deathbringer_blood_link_aura() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_deathbringer_blood_link_aura") { }
+        spell_deathbringer_blood_link_aura() : SpellScriptLoader("spell_deathbringer_blood_link_aura") { }
 
         class spell_deathbringer_blood_link_AuraScript : public AuraScript
         {
@@ -1058,10 +1058,10 @@ class spell_deathbringer_blood_link_aura: public MS::Game::Scripting::Interfaces
         }
 };
 
-class spell_deathbringer_blood_power: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_deathbringer_blood_power: public SpellScriptLoader
 {
     public:
-        spell_deathbringer_blood_power() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_deathbringer_blood_power") { }
+        spell_deathbringer_blood_power() : SpellScriptLoader("spell_deathbringer_blood_power") { }
 
         class spell_deathbringer_blood_power_SpellScript : public SpellScript
         {
@@ -1107,10 +1107,10 @@ class spell_deathbringer_blood_power: public MS::Game::Scripting::Interfaces::Sp
         }
 };
 
-class spell_deathbringer_rune_of_blood: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_deathbringer_rune_of_blood: public SpellScriptLoader
 {
     public:
-        spell_deathbringer_rune_of_blood() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_deathbringer_rune_of_blood") { }
+        spell_deathbringer_rune_of_blood() : SpellScriptLoader("spell_deathbringer_rune_of_blood") { }
 
         class spell_deathbringer_rune_of_blood_SpellScript : public SpellScript
         {
@@ -1142,10 +1142,10 @@ class spell_deathbringer_rune_of_blood: public MS::Game::Scripting::Interfaces::
         }
 };
 
-class spell_deathbringer_blood_nova: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_deathbringer_blood_nova: public SpellScriptLoader
 {
     public:
-        spell_deathbringer_blood_nova() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_deathbringer_blood_nova") { }
+        spell_deathbringer_blood_nova() : SpellScriptLoader("spell_deathbringer_blood_nova") { }
 
         class spell_deathbringer_blood_nova_SpellScript : public SpellScript
         {
@@ -1177,10 +1177,10 @@ class spell_deathbringer_blood_nova: public MS::Game::Scripting::Interfaces::Spe
         }
 };
 
-class spell_deathbringer_blood_nova_targeting: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_deathbringer_blood_nova_targeting: public SpellScriptLoader
 {
     public:
-        spell_deathbringer_blood_nova_targeting() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_deathbringer_blood_nova_targeting") { }
+        spell_deathbringer_blood_nova_targeting() : SpellScriptLoader("spell_deathbringer_blood_nova_targeting") { }
 
         class spell_deathbringer_blood_nova_targeting_SpellScript : public SpellScript
         {
@@ -1256,10 +1256,10 @@ class spell_deathbringer_blood_nova_targeting: public MS::Game::Scripting::Inter
         }
 };
 
-class spell_deathbringer_boiling_blood: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_deathbringer_boiling_blood: public SpellScriptLoader
 {
     public:
-        spell_deathbringer_boiling_blood() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_deathbringer_boiling_blood") { }
+        spell_deathbringer_boiling_blood() : SpellScriptLoader("spell_deathbringer_boiling_blood") { }
 
         class spell_deathbringer_boiling_blood_AuraScript : public AuraScript
         {
@@ -1286,10 +1286,10 @@ class spell_deathbringer_boiling_blood: public MS::Game::Scripting::Interfaces::
         }
 };
 
-class spell_deathbringer_remove_marks: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_deathbringer_remove_marks: public SpellScriptLoader
 {
     public:
-        spell_deathbringer_remove_marks() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_deathbringer_remove_marks") { }
+        spell_deathbringer_remove_marks() : SpellScriptLoader("spell_deathbringer_remove_marks") { }
 
         class spell_deathbringer_remove_marks_SpellScript : public SpellScript
         {
@@ -1313,10 +1313,10 @@ class spell_deathbringer_remove_marks: public MS::Game::Scripting::Interfaces::S
         }
 };
 
-class achievement_ive_gone_and_made_a_mess : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
+class achievement_ive_gone_and_made_a_mess : public AchievementCriteriaScript
 {
     public:
-        achievement_ive_gone_and_made_a_mess() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_ive_gone_and_made_a_mess") { }
+        achievement_ive_gone_and_made_a_mess() : AchievementCriteriaScript("achievement_ive_gone_and_made_a_mess") { }
 
         bool OnCheck(Player* /*source*/, Unit* target)
         {

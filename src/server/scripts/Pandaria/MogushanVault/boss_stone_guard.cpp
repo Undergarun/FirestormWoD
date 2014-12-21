@@ -126,10 +126,10 @@ Position stoneGuardsPos[4] =
 #define DATA_FIGHT 1
 
 // 60089 - Stone Guard Controller
-class boss_stone_guard_controler : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_stone_guard_controler : public CreatureScript
 {
     public:
-        boss_stone_guard_controler() : MS::Game::Scripting::Interfaces::CreatureScript("boss_stone_guard_controler") {}
+        boss_stone_guard_controler() : CreatureScript("boss_stone_guard_controler") {}
 
         struct boss_stone_guard_controlerAI : public ScriptedAI
         {
@@ -469,10 +469,10 @@ class boss_stone_guard_controler : public MS::Game::Scripting::Interfaces::Creat
 // 60043 - Jade Guardian
 // 60047 - Amethyst Guardian
 // 60051 - Cobalt Guardian
-class boss_generic_guardian : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_generic_guardian : public CreatureScript
 {
     public:
-        boss_generic_guardian() : MS::Game::Scripting::Interfaces::CreatureScript("boss_generic_guardian") {}
+        boss_generic_guardian() : CreatureScript("boss_generic_guardian") {}
 
         struct boss_generic_guardianAI : public BossAI
         {
@@ -960,10 +960,10 @@ enum eMineSpell
 };
 
 // 65803 - Cobalt mine
-class mob_cobalt_mine : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_cobalt_mine : public CreatureScript
 {
     public:
-        mob_cobalt_mine() : MS::Game::Scripting::Interfaces::CreatureScript("mob_cobalt_mine") {}
+        mob_cobalt_mine() : CreatureScript("mob_cobalt_mine") {}
 
         struct mob_cobalt_mineAI : public ScriptedAI
         {
@@ -1019,10 +1019,10 @@ class mob_cobalt_mine : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Generic Living Crystals : 60304 (Cobalt) 60306 (Jade) 60307 (Jasper) 60308 (Amethyst)
-class mob_living_crystal : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_living_crystal : public CreatureScript
 {
     public:
-        mob_living_crystal() : MS::Game::Scripting::Interfaces::CreatureScript("mob_living_crystal") { }
+        mob_living_crystal() : CreatureScript("mob_living_crystal") { }
 
         struct mob_living_crystalAI : public ScriptedAI
         {
@@ -1118,10 +1118,10 @@ class mob_living_crystal : public MS::Game::Scripting::Interfaces::CreatureScrip
 };
 
 // Tiling Creature - 62026 - Using a random creature not used anywhere else
-class mob_tiling_creature : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_tiling_creature : public CreatureScript
 {
     public :
-        mob_tiling_creature() : MS::Game::Scripting::Interfaces::CreatureScript("mob_tiling_creature") { }
+        mob_tiling_creature() : CreatureScript("mob_tiling_creature") { }
 
         struct mob_tiling_creatureAI : public ScriptedAI
         {
@@ -1247,10 +1247,10 @@ class mob_tiling_creature : public MS::Game::Scripting::Interfaces::CreatureScri
 };
 
 // Petrification - 115852 / 116006 / 116036 / 116057
-class spell_petrification: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_petrification: public SpellScriptLoader
 {
     public:
-        spell_petrification() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_petrification") { }
+        spell_petrification() : SpellScriptLoader("spell_petrification") { }
 
         class spell_petrification_AuraScript : public AuraScript
         {
@@ -1308,10 +1308,10 @@ class spell_petrification: public MS::Game::Scripting::Interfaces::SpellScriptLo
 };
 
 // Jasper Chains - 130395
-class spell_jasper_chains: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_jasper_chains: public SpellScriptLoader
 {
     public:
-        spell_jasper_chains() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_jasper_chains") { }
+        spell_jasper_chains() : SpellScriptLoader("spell_jasper_chains") { }
 
         class spell_jasper_chains_AuraScript : public AuraScript
         {
@@ -1374,10 +1374,10 @@ class spell_jasper_chains: public MS::Game::Scripting::Interfaces::SpellScriptLo
 };
 
 // Jasper Chains (damage) - 130404
-class spell_jasper_chains_damage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_jasper_chains_damage: public SpellScriptLoader
 {
     public:
-        spell_jasper_chains_damage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_jasper_chains_damage") { }
+        spell_jasper_chains_damage() : SpellScriptLoader("spell_jasper_chains_damage") { }
 
         class spell_jasper_chains_damage_SpellScript : public SpellScript
         {

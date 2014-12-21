@@ -43,7 +43,7 @@ enum eEnums
 };
 
 // 17381
-class boss_the_maker : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_the_maker : public CreatureScript
 {
     public:
 

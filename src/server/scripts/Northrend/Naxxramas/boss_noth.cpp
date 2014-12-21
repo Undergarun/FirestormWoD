@@ -64,10 +64,10 @@ enum Events
     EVENT_GROUND,
 };
 
-class boss_noth : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_noth : public CreatureScript
 {
 public:
-    boss_noth() : MS::Game::Scripting::Interfaces::CreatureScript("boss_noth") { }
+    boss_noth() : CreatureScript("boss_noth") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

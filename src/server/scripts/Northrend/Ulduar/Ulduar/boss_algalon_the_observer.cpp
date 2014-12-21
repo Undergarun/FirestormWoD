@@ -294,10 +294,10 @@ class SummonUnleashedDarkMatter : public BasicEvent
         Unit* _caster;
 };
 
-class boss_algalon_the_observer : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_algalon_the_observer : public CreatureScript
 {
     public:
-        boss_algalon_the_observer() : MS::Game::Scripting::Interfaces::CreatureScript("boss_algalon_the_observer") {}
+        boss_algalon_the_observer() : CreatureScript("boss_algalon_the_observer") {}
 
         struct boss_algalon_the_observerAI : public BossAI
         {
@@ -705,10 +705,10 @@ class boss_algalon_the_observer : public MS::Game::Scripting::Interfaces::Creatu
         }
 };
 
-class npc_living_constellation : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_living_constellation : public CreatureScript
 {
     public:
-        npc_living_constellation() : MS::Game::Scripting::Interfaces::CreatureScript("npc_living_constellation") { }
+        npc_living_constellation() : CreatureScript("npc_living_constellation") { }
 
         struct npc_living_constellationAI : public CreatureAI
         {
@@ -798,10 +798,10 @@ class npc_living_constellation : public MS::Game::Scripting::Interfaces::Creatur
         }
 };
 
-class npc_collapsing_star : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_collapsing_star : public CreatureScript
 {
     public:
-        npc_collapsing_star() : MS::Game::Scripting::Interfaces::CreatureScript("npc_collapsing_star") { }
+        npc_collapsing_star() : CreatureScript("npc_collapsing_star") { }
 
         struct npc_collapsing_starAI : public PassiveAI
         {
@@ -848,10 +848,10 @@ class npc_collapsing_star : public MS::Game::Scripting::Interfaces::CreatureScri
         }
 };
 
-class npc_brann_bronzebeard_algalon : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_brann_bronzebeard_algalon : public CreatureScript
 {
     public:
-        npc_brann_bronzebeard_algalon() : MS::Game::Scripting::Interfaces::CreatureScript("npc_brann_bronzebeard_algalon") { }
+        npc_brann_bronzebeard_algalon() : CreatureScript("npc_brann_bronzebeard_algalon") { }
 
         struct npc_brann_bronzebeard_algalonAI : public CreatureAI
         {
@@ -952,10 +952,10 @@ class npc_brann_bronzebeard_algalon : public MS::Game::Scripting::Interfaces::Cr
         }
 };
 
-class go_celestial_planetarium_access : public MS::Game::Scripting::Interfaces::GameObjectScript
+class go_celestial_planetarium_access : public GameObjectScript
 {
     public:
-        go_celestial_planetarium_access() : MS::Game::Scripting::Interfaces::GameObjectScript("go_celestial_planetarium_access") {}
+        go_celestial_planetarium_access() : GameObjectScript("go_celestial_planetarium_access") {}
 
         struct go_celestial_planetarium_accessAI : public GameObjectAI
         {
@@ -1031,10 +1031,10 @@ class go_celestial_planetarium_access : public MS::Game::Scripting::Interfaces::
         }
 };
 
-class spell_algalon_phase_punch: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_algalon_phase_punch: public SpellScriptLoader
 {
     public:
-        spell_algalon_phase_punch() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_algalon_phase_punch") { }
+        spell_algalon_phase_punch() : SpellScriptLoader("spell_algalon_phase_punch") { }
 
         class spell_algalon_phase_punch_AuraScript : public AuraScript
         {
@@ -1085,10 +1085,10 @@ class NotVictimFilter
         Unit* _victim;
 };
 
-class spell_algalon_arcane_barrage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_algalon_arcane_barrage: public SpellScriptLoader
 {
     public:
-        spell_algalon_arcane_barrage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_algalon_arcane_barrage") { }
+        spell_algalon_arcane_barrage() : SpellScriptLoader("spell_algalon_arcane_barrage") { }
 
         class spell_algalon_arcane_barrage_SpellScript : public SpellScript
         {
@@ -1120,10 +1120,10 @@ class ActiveConstellationFilter
         }
 };
 
-class spell_algalon_trigger_3_adds: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_algalon_trigger_3_adds: public SpellScriptLoader
 {
     public:
-        spell_algalon_trigger_3_adds() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_algalon_trigger_3_adds") { }
+        spell_algalon_trigger_3_adds() : SpellScriptLoader("spell_algalon_trigger_3_adds") { }
 
         class spell_algalon_trigger_3_adds_SpellScript : public SpellScript
         {
@@ -1156,10 +1156,10 @@ class spell_algalon_trigger_3_adds: public MS::Game::Scripting::Interfaces::Spel
         }
 };
 
-class spell_algalon_collapse: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_algalon_collapse: public SpellScriptLoader
 {
     public:
-        spell_algalon_collapse() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_algalon_collapse") { }
+        spell_algalon_collapse() : SpellScriptLoader("spell_algalon_collapse") { }
 
         class spell_algalon_collapse_AuraScript : public AuraScript
         {
@@ -1183,10 +1183,10 @@ class spell_algalon_collapse: public MS::Game::Scripting::Interfaces::SpellScrip
         }
 };
 
-class spell_algalon_big_bang: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_algalon_big_bang: public SpellScriptLoader
 {
     public:
-        spell_algalon_big_bang() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_algalon_big_bang") { }
+        spell_algalon_big_bang() : SpellScriptLoader("spell_algalon_big_bang") { }
 
         class spell_algalon_big_bang_SpellScript : public SpellScript
         {
@@ -1224,10 +1224,10 @@ class spell_algalon_big_bang: public MS::Game::Scripting::Interfaces::SpellScrip
         }
 };
 
-class spell_algalon_remove_phase: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_algalon_remove_phase: public SpellScriptLoader
 {
     public:
-        spell_algalon_remove_phase() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_algalon_remove_phase") { }
+        spell_algalon_remove_phase() : SpellScriptLoader("spell_algalon_remove_phase") { }
 
         class spell_algalon_remove_phase_AuraScript : public AuraScript
         {
@@ -1251,10 +1251,10 @@ class spell_algalon_remove_phase: public MS::Game::Scripting::Interfaces::SpellS
         }
 };
 
-class spell_algalon_cosmic_smash: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_algalon_cosmic_smash: public SpellScriptLoader
 {
     public:
-        spell_algalon_cosmic_smash() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_algalon_cosmic_smash") { }
+        spell_algalon_cosmic_smash() : SpellScriptLoader("spell_algalon_cosmic_smash") { }
 
         class spell_algalon_cosmic_smash_SpellScript : public SpellScript
         {
@@ -1279,10 +1279,10 @@ class spell_algalon_cosmic_smash: public MS::Game::Scripting::Interfaces::SpellS
         }
 };
 
-class spell_algalon_cosmic_smash_damage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_algalon_cosmic_smash_damage: public SpellScriptLoader
 {
     public:
-        spell_algalon_cosmic_smash_damage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_algalon_cosmic_smash_damage") { }
+        spell_algalon_cosmic_smash_damage() : SpellScriptLoader("spell_algalon_cosmic_smash_damage") { }
 
         class spell_algalon_cosmic_smash_damage_SpellScript : public SpellScript
         {
@@ -1310,10 +1310,10 @@ class spell_algalon_cosmic_smash_damage: public MS::Game::Scripting::Interfaces:
         }
 };
 
-class spell_algalon_supermassive_fail: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_algalon_supermassive_fail: public SpellScriptLoader
 {
     public:
-        spell_algalon_supermassive_fail() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_algalon_supermassive_fail") { }
+        spell_algalon_supermassive_fail() : SpellScriptLoader("spell_algalon_supermassive_fail") { }
 
         class spell_algalon_supermassive_fail_SpellScript : public SpellScript
         {
@@ -1339,10 +1339,10 @@ class spell_algalon_supermassive_fail: public MS::Game::Scripting::Interfaces::S
         }
 };
 
-class achievement_he_feeds_on_your_tears : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
+class achievement_he_feeds_on_your_tears : public AchievementCriteriaScript
 {
     public:
-        achievement_he_feeds_on_your_tears() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_he_feeds_on_your_tears") { }
+        achievement_he_feeds_on_your_tears() : AchievementCriteriaScript("achievement_he_feeds_on_your_tears") { }
 
         bool OnCheck(Player* /*source*/, Unit* target)
         {

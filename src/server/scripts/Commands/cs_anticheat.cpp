@@ -18,10 +18,10 @@
 #include "Chat.h"
 #include "AnticheatMgr.h"
 
-class anticheat_commandscript: public MS::Game::Scripting::Interfaces::CommandScript
+class anticheat_commandscript: public CommandScript
 {
 public:
-    anticheat_commandscript() : MS::Game::Scripting::Interfaces::CommandScript("anticheat_commandscript") { }
+    anticheat_commandscript() : CommandScript("anticheat_commandscript") { }
 
     ChatCommand* GetCommands() const
     {

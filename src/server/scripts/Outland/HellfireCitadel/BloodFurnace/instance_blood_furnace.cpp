@@ -32,11 +32,11 @@ EndScriptData */
 #define ENTRY_SEWER2                 181766
 #define MAX_ENCOUNTER                   3
 
-class instance_blood_furnace : public MS::Game::Scripting::Interfaces::InstanceMapScript
+class instance_blood_furnace : public InstanceMapScript
 {
     public:
         instance_blood_furnace()
-            : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_blood_furnace", 542) {}
+            : InstanceMapScript("instance_blood_furnace", 542) {}
 
         struct instance_blood_furnace_InstanceMapScript : public InstanceScript
         {

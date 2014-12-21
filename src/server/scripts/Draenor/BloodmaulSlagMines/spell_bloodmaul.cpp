@@ -7,11 +7,11 @@ namespace MS
         namespace Bloodmaul
         {
             // Lava splash - 152809
-            class spell_LavaSplash: public Game::Scripting::Interfaces::SpellScriptLoader
+            class spell_LavaSplash: public SpellScriptLoader
             {
             public:
                 spell_LavaSplash()
-                    : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_LavaSplash")
+                    : SpellScriptLoader("spell_LavaSplash")
                 {
                 }
 
@@ -47,11 +47,11 @@ namespace MS
             };
 
             // Volcanic Eruption - 151698
-            class spell_VolcanicEruption: public Game::Scripting::Interfaces::SpellScriptLoader
+            class spell_VolcanicEruption: public SpellScriptLoader
             {
             public:
                 spell_VolcanicEruption()
-                    : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_VolcanicEruption")
+                    : SpellScriptLoader("spell_VolcanicEruption")
                 {
                 }
 
@@ -87,11 +87,11 @@ namespace MS
             };
 
             // Raise the miners - 150801
-            class spell_RaiseTheMiners: public Game::Scripting::Interfaces::SpellScriptLoader
+            class spell_RaiseTheMiners: public SpellScriptLoader
             {
             public:
                 spell_RaiseTheMiners()
-                    : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_RaiseTheMiners")
+                    : SpellScriptLoader("spell_RaiseTheMiners")
                 {
                 }
 
@@ -124,11 +124,11 @@ namespace MS
             };
 
             // FerociousYell - 150759
-            class spell_FerociousYell: public Game::Scripting::Interfaces::SpellScriptLoader
+            class spell_FerociousYell: public SpellScriptLoader
             {
             public:
                 spell_FerociousYell()
-                    : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_FerociousYell")
+                    : SpellScriptLoader("spell_FerociousYell")
                 {
                 }
 
@@ -159,11 +159,11 @@ namespace MS
             };
 
             // SuppressField - 151581
-            class spell_SuppressionField: public Game::Scripting::Interfaces::SpellScriptLoader
+            class spell_SuppressionField: public SpellScriptLoader
             {
             public:
                 spell_SuppressionField()
-                    : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_SuppressionField")
+                    : SpellScriptLoader("spell_SuppressionField")
                 {
                 }
 
@@ -199,11 +199,11 @@ namespace MS
             };
 
             // Chain Grip - 151990
-            class spell_ChainGrip: public Game::Scripting::Interfaces::SpellScriptLoader
+            class spell_ChainGrip: public SpellScriptLoader
             {
             public:
                 spell_ChainGrip()
-                    : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_ChainGrip")
+                    : SpellScriptLoader("spell_ChainGrip")
                 {
                 }
 

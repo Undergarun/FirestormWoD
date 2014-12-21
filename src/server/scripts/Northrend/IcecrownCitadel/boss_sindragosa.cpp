@@ -195,10 +195,10 @@ class FrostBombExplosion : public BasicEvent
         uint64 _sindragosaGUID;
 };
 
-class boss_sindragosa : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_sindragosa : public CreatureScript
 {
     public:
-        boss_sindragosa() : MS::Game::Scripting::Interfaces::CreatureScript("boss_sindragosa") { }
+        boss_sindragosa() : CreatureScript("boss_sindragosa") { }
 
         struct boss_sindragosaAI : public BossAI
         {
@@ -604,10 +604,10 @@ class boss_sindragosa : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class npc_ice_tomb : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_ice_tomb : public CreatureScript
 {
     public:
-        npc_ice_tomb() : MS::Game::Scripting::Interfaces::CreatureScript("npc_ice_tomb") { }
+        npc_ice_tomb() : CreatureScript("npc_ice_tomb") { }
 
         struct npc_ice_tombAI : public Scripted_NoMovementAI
         {
@@ -706,10 +706,10 @@ class npc_ice_tomb : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class npc_spinestalker : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_spinestalker : public CreatureScript
 {
     public:
-        npc_spinestalker() : MS::Game::Scripting::Interfaces::CreatureScript("npc_spinestalker") { }
+        npc_spinestalker() : CreatureScript("npc_spinestalker") { }
 
         struct npc_spinestalkerAI : public ScriptedAI
         {
@@ -838,10 +838,10 @@ class npc_spinestalker : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class npc_rimefang : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_rimefang : public CreatureScript
 {
     public:
-        npc_rimefang() : MS::Game::Scripting::Interfaces::CreatureScript("npc_rimefang_icc") { }
+        npc_rimefang() : CreatureScript("npc_rimefang_icc") { }
 
         struct npc_rimefangAI : public ScriptedAI
         {
@@ -999,10 +999,10 @@ class npc_rimefang : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class npc_sindragosa_trash : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_sindragosa_trash : public CreatureScript
 {
     public:
-        npc_sindragosa_trash() : MS::Game::Scripting::Interfaces::CreatureScript("npc_sindragosa_trash") { }
+        npc_sindragosa_trash() : CreatureScript("npc_sindragosa_trash") { }
 
         struct npc_sindragosa_trashAI : public ScriptedAI
         {
@@ -1103,10 +1103,10 @@ class npc_sindragosa_trash : public MS::Game::Scripting::Interfaces::CreatureScr
         }
 };
 
-class spell_sindragosa_s_fury: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_sindragosa_s_fury: public SpellScriptLoader
 {
     public:
-        spell_sindragosa_s_fury() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sindragosa_s_fury") { }
+        spell_sindragosa_s_fury() : SpellScriptLoader("spell_sindragosa_s_fury") { }
 
         class spell_sindragosa_s_fury_SpellScript : public SpellScript
         {
@@ -1190,10 +1190,10 @@ class UnchainedMagicTargetSelector
         }
 };
 
-class spell_sindragosa_unchained_magic: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_sindragosa_unchained_magic: public SpellScriptLoader
 {
     public:
-        spell_sindragosa_unchained_magic() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sindragosa_unchained_magic") { }
+        spell_sindragosa_unchained_magic() : SpellScriptLoader("spell_sindragosa_unchained_magic") { }
 
         class spell_sindragosa_unchained_magic_SpellScript : public SpellScript
         {
@@ -1219,10 +1219,10 @@ class spell_sindragosa_unchained_magic: public MS::Game::Scripting::Interfaces::
         }
 };
 
-class spell_sindragosa_instability: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_sindragosa_instability: public SpellScriptLoader
 {
     public:
-        spell_sindragosa_instability() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sindragosa_instability") { }
+        spell_sindragosa_instability() : SpellScriptLoader("spell_sindragosa_instability") { }
 
         class spell_sindragosa_instability_AuraScript : public AuraScript
         {
@@ -1253,10 +1253,10 @@ class spell_sindragosa_instability: public MS::Game::Scripting::Interfaces::Spel
         }
 };
 
-class spell_sindragosa_frost_beacon: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_sindragosa_frost_beacon: public SpellScriptLoader
 {
     public:
-        spell_sindragosa_frost_beacon() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sindragosa_frost_beacon") { }
+        spell_sindragosa_frost_beacon() : SpellScriptLoader("spell_sindragosa_frost_beacon") { }
 
         class spell_sindragosa_frost_beacon_AuraScript : public AuraScript
         {
@@ -1288,10 +1288,10 @@ class spell_sindragosa_frost_beacon: public MS::Game::Scripting::Interfaces::Spe
         }
 };
 
-class spell_sindragosa_ice_tomb: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_sindragosa_ice_tomb: public SpellScriptLoader
 {
     public:
-        spell_sindragosa_ice_tomb() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sindragosa_ice_tomb_trap") { }
+        spell_sindragosa_ice_tomb() : SpellScriptLoader("spell_sindragosa_ice_tomb_trap") { }
 
         class spell_sindragosa_ice_tomb_SpellScript : public SpellScript
         {
@@ -1353,10 +1353,10 @@ class spell_sindragosa_ice_tomb: public MS::Game::Scripting::Interfaces::SpellSc
         }
 };
 
-class spell_sindragosa_icy_grip: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_sindragosa_icy_grip: public SpellScriptLoader
 {
     public:
-        spell_sindragosa_icy_grip() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sindragosa_icy_grip") { }
+        spell_sindragosa_icy_grip() : SpellScriptLoader("spell_sindragosa_icy_grip") { }
 
         class spell_sindragosa_icy_grip_SpellScript : public SpellScript
         {
@@ -1417,10 +1417,10 @@ class MysticBuffetTargetFilter
         Unit* _caster;
 };
 
-class spell_sindragosa_mystic_buffet: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_sindragosa_mystic_buffet: public SpellScriptLoader
 {
     public:
-        spell_sindragosa_mystic_buffet() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sindragosa_mystic_buffet") { }
+        spell_sindragosa_mystic_buffet() : SpellScriptLoader("spell_sindragosa_mystic_buffet") { }
 
         class spell_sindragosa_mystic_buffet_SpellScript : public SpellScript
         {
@@ -1443,10 +1443,10 @@ class spell_sindragosa_mystic_buffet: public MS::Game::Scripting::Interfaces::Sp
         }
 };
 
-class spell_rimefang_icy_blast: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_rimefang_icy_blast: public SpellScriptLoader
 {
     public:
-        spell_rimefang_icy_blast() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rimefang_icy_blast") { }
+        spell_rimefang_icy_blast() : SpellScriptLoader("spell_rimefang_icy_blast") { }
 
         class spell_rimefang_icy_blast_SpellScript : public SpellScript
         {
@@ -1495,10 +1495,10 @@ class OrderWhelpTargetSelector
         Creature* _owner;
 };
 
-class spell_frostwarden_handler_order_whelp: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_frostwarden_handler_order_whelp: public SpellScriptLoader
 {
     public:
-        spell_frostwarden_handler_order_whelp() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_frostwarden_handler_order_whelp") { }
+        spell_frostwarden_handler_order_whelp() : SpellScriptLoader("spell_frostwarden_handler_order_whelp") { }
 
         class spell_frostwarden_handler_order_whelp_SpellScript : public SpellScript
         {
@@ -1550,10 +1550,10 @@ class spell_frostwarden_handler_order_whelp: public MS::Game::Scripting::Interfa
         }
 };
 
-class spell_frostwarden_handler_focus_fire: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_frostwarden_handler_focus_fire: public SpellScriptLoader
 {
     public:
-        spell_frostwarden_handler_focus_fire() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_frostwarden_handler_focus_fire") { }
+        spell_frostwarden_handler_focus_fire() : SpellScriptLoader("spell_frostwarden_handler_focus_fire") { }
 
         class spell_frostwarden_handler_focus_fire_SpellScript : public SpellScript
         {
@@ -1603,10 +1603,10 @@ class spell_frostwarden_handler_focus_fire: public MS::Game::Scripting::Interfac
         }
 };
 
-class at_sindragosa_lair : public MS::Game::Scripting::Interfaces::AreaTriggerScript
+class at_sindragosa_lair : public AreaTriggerScript
 {
     public:
-        at_sindragosa_lair() : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_sindragosa_lair") { }
+        at_sindragosa_lair() : AreaTriggerScript("at_sindragosa_lair") { }
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
         {
@@ -1635,10 +1635,10 @@ class at_sindragosa_lair : public MS::Game::Scripting::Interfaces::AreaTriggerSc
         }
 };
 
-class achievement_all_you_can_eat : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
+class achievement_all_you_can_eat : public AchievementCriteriaScript
 {
     public:
-        achievement_all_you_can_eat() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_all_you_can_eat") { }
+        achievement_all_you_can_eat() : AchievementCriteriaScript("achievement_all_you_can_eat") { }
 
         bool OnCheck(Player* /*source*/, Unit* target)
         {

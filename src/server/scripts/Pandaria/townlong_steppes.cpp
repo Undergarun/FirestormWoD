@@ -5,10 +5,10 @@
 #include "townlong_steppes.h"
 
 // Kah'tir - 50355
-class mob_kah_tir : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_kah_tir : public CreatureScript
 {
     public:
-        mob_kah_tir() : MS::Game::Scripting::Interfaces::CreatureScript("mob_kah_tir")
+        mob_kah_tir() : CreatureScript("mob_kah_tir")
         {
         }
 
@@ -74,10 +74,10 @@ class mob_kah_tir : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Lith'ik the Stalker - 50734
-class mob_lith_ik : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_lith_ik : public CreatureScript
 {
     public:
-        mob_lith_ik() : MS::Game::Scripting::Interfaces::CreatureScript("mob_lith_ik")
+        mob_lith_ik() : CreatureScript("mob_lith_ik")
         {
         }
 
@@ -154,10 +154,10 @@ class mob_lith_ik : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Darkwoods Faerie - 62522
-class mob_darkwoods_faerie : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_darkwoods_faerie : public CreatureScript
 {
     public:
-        mob_darkwoods_faerie() : MS::Game::Scripting::Interfaces::CreatureScript("mob_darkwoods_faerie")
+        mob_darkwoods_faerie() : CreatureScript("mob_darkwoods_faerie")
         {
         }
 
@@ -239,10 +239,10 @@ class mob_darkwoods_faerie : public MS::Game::Scripting::Interfaces::CreatureScr
 };
 
 // Hei Feng - 63920
-class mob_hei_feng : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_hei_feng : public CreatureScript
 {
     public:
-        mob_hei_feng() : MS::Game::Scripting::Interfaces::CreatureScript("mob_hei_feng")
+        mob_hei_feng() : CreatureScript("mob_hei_feng")
         {
         }
 
@@ -308,10 +308,10 @@ class mob_hei_feng : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Eshelon - 50772
-class mob_eshelon : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_eshelon : public CreatureScript
 {
     public:
-        mob_eshelon() : MS::Game::Scripting::Interfaces::CreatureScript("mob_eshelon")
+        mob_eshelon() : CreatureScript("mob_eshelon")
         {
         }
 
@@ -383,10 +383,10 @@ class mob_eshelon : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Restless Leng - 65586
-class mob_restless_leng : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_restless_leng : public CreatureScript
 {
     public:
-        mob_restless_leng() : MS::Game::Scripting::Interfaces::CreatureScript("mob_restless_leng")
+        mob_restless_leng() : CreatureScript("mob_restless_leng")
         {
         }
 

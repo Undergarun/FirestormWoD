@@ -61,10 +61,10 @@ const uint32 Adds[6]=
     19876,
 };
 
-class boss_moroes : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_moroes : public CreatureScript
 {
 public:
-    boss_moroes() : MS::Game::Scripting::Interfaces::CreatureScript("boss_moroes") { }
+    boss_moroes() : CreatureScript("boss_moroes") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -397,10 +397,10 @@ struct boss_moroes_guestAI : public ScriptedAI
 #define SPELL_SHIELDBASH        11972
 #define SPELL_SHIELDWALL        29390
 
-class boss_baroness_dorothea_millstipe : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_baroness_dorothea_millstipe : public CreatureScript
 {
 public:
-    boss_baroness_dorothea_millstipe() : MS::Game::Scripting::Interfaces::CreatureScript("boss_baroness_dorothea_millstipe") { }
+    boss_baroness_dorothea_millstipe() : CreatureScript("boss_baroness_dorothea_millstipe") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -461,10 +461,10 @@ public:
 
 };
 
-class boss_baron_rafe_dreuger : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_baron_rafe_dreuger : public CreatureScript
 {
 public:
-    boss_baron_rafe_dreuger() : MS::Game::Scripting::Interfaces::CreatureScript("boss_baron_rafe_dreuger") { }
+    boss_baron_rafe_dreuger() : CreatureScript("boss_baron_rafe_dreuger") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -519,10 +519,10 @@ public:
 
 };
 
-class boss_lady_catriona_von_indi : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_lady_catriona_von_indi : public CreatureScript
 {
 public:
-    boss_lady_catriona_von_indi() : MS::Game::Scripting::Interfaces::CreatureScript("boss_lady_catriona_von_indi") { }
+    boss_lady_catriona_von_indi() : CreatureScript("boss_lady_catriona_von_indi") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -589,10 +589,10 @@ public:
 
 };
 
-class boss_lady_keira_berrybuck : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_lady_keira_berrybuck : public CreatureScript
 {
 public:
-    boss_lady_keira_berrybuck() : MS::Game::Scripting::Interfaces::CreatureScript("boss_lady_keira_berrybuck") { }
+    boss_lady_keira_berrybuck() : CreatureScript("boss_lady_keira_berrybuck") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -662,10 +662,10 @@ public:
 
 };
 
-class boss_lord_robin_daris : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_lord_robin_daris : public CreatureScript
 {
 public:
-    boss_lord_robin_daris() : MS::Game::Scripting::Interfaces::CreatureScript("boss_lord_robin_daris") { }
+    boss_lord_robin_daris() : CreatureScript("boss_lord_robin_daris") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -719,10 +719,10 @@ public:
 
 };
 
-class boss_lord_crispin_ference : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_lord_crispin_ference : public CreatureScript
 {
 public:
-    boss_lord_crispin_ference() : MS::Game::Scripting::Interfaces::CreatureScript("boss_lord_crispin_ference") { }
+    boss_lord_crispin_ference() : CreatureScript("boss_lord_crispin_ference") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

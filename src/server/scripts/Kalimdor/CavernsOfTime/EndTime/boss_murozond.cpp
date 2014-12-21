@@ -76,10 +76,10 @@ enum Other
 
 const Position landPos = {4169.71f, -433.40f, 120.0f, 2.59f};
 
-class boss_murozond : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_murozond : public CreatureScript
 {
     public:
-        boss_murozond() : MS::Game::Scripting::Interfaces::CreatureScript("boss_murozond") { }
+        boss_murozond() : CreatureScript("boss_murozond") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -367,10 +367,10 @@ class boss_murozond : public MS::Game::Scripting::Interfaces::CreatureScript
         };   
 };
 
-class npc_murozond_mirror_image : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_murozond_mirror_image : public CreatureScript
 {
     public:
-        npc_murozond_mirror_image() : MS::Game::Scripting::Interfaces::CreatureScript("npc_murozond_mirror_image") { }
+        npc_murozond_mirror_image() : CreatureScript("npc_murozond_mirror_image") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -450,11 +450,11 @@ class npc_murozond_mirror_image : public MS::Game::Scripting::Interfaces::Creatu
         };
 };
 
-class npc_end_time_nozdormu : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_end_time_nozdormu : public CreatureScript
 {
     public:
 
-        npc_end_time_nozdormu() : MS::Game::Scripting::Interfaces::CreatureScript("npc_end_time_nozdormu") { }
+        npc_end_time_nozdormu() : CreatureScript("npc_end_time_nozdormu") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -527,10 +527,10 @@ class npc_end_time_nozdormu : public MS::Game::Scripting::Interfaces::CreatureSc
         };
 };
 
-class go_murozond_hourglass_of_time : public MS::Game::Scripting::Interfaces::GameObjectScript
+class go_murozond_hourglass_of_time : public GameObjectScript
 {
     public:
-        go_murozond_hourglass_of_time() : MS::Game::Scripting::Interfaces::GameObjectScript("go_murozond_hourglass_of_time") { }
+        go_murozond_hourglass_of_time() : GameObjectScript("go_murozond_hourglass_of_time") { }
 
         bool OnGossipHello(Player* pPlayer, GameObject* pGo)
         {

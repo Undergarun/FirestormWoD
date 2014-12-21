@@ -51,10 +51,10 @@ enum Yells
     SAY_SHATTER                                 = -1599010
 };
 
-class boss_krystallus : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_krystallus : public CreatureScript
 {
 public:
-    boss_krystallus() : MS::Game::Scripting::Interfaces::CreatureScript("boss_krystallus") { }
+    boss_krystallus() : CreatureScript("boss_krystallus") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -183,10 +183,10 @@ public:
 
 };
 
-class spell_krystallus_shatter: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_krystallus_shatter: public SpellScriptLoader
 {
     public:
-        spell_krystallus_shatter() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_krystallus_shatter") { }
+        spell_krystallus_shatter() : SpellScriptLoader("spell_krystallus_shatter") { }
 
         class spell_krystallus_shatter_SpellScript : public SpellScript
         {
@@ -213,10 +213,10 @@ class spell_krystallus_shatter: public MS::Game::Scripting::Interfaces::SpellScr
         }
 };
 
-class spell_krystallus_shatter_effect: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_krystallus_shatter_effect: public SpellScriptLoader
 {
     public:
-        spell_krystallus_shatter_effect() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_krystallus_shatter_effect") { }
+        spell_krystallus_shatter_effect() : SpellScriptLoader("spell_krystallus_shatter_effect") { }
 
         class spell_krystallus_shatter_effect_SpellScript : public SpellScript
         {

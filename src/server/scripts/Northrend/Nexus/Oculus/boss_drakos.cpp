@@ -50,10 +50,10 @@ enum DrakosEvents
     EVENT_BOMB_SUMMON
 };
 
-class boss_drakos : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_drakos : public CreatureScript
 {
     public:
-        boss_drakos() : MS::Game::Scripting::Interfaces::CreatureScript("boss_drakos") { }
+        boss_drakos() : CreatureScript("boss_drakos") { }
 
         struct boss_drakosAI : public BossAI
         {
@@ -146,10 +146,10 @@ class boss_drakos : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class npc_unstable_sphere : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_unstable_sphere : public CreatureScript
 {
     public:
-        npc_unstable_sphere() : MS::Game::Scripting::Interfaces::CreatureScript("npc_unstable_sphere") { }
+        npc_unstable_sphere() : CreatureScript("npc_unstable_sphere") { }
 
         struct npc_unstable_sphereAI : public ScriptedAI
         {

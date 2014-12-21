@@ -137,10 +137,10 @@ static const char* Text[]=
 
 #define EMOTE_LAUGHS    "Headless Horseman laughs"  // needs assigned to db.
 
-class mob_wisp_invis : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_wisp_invis : public CreatureScript
 {
 public:
-    mob_wisp_invis() : MS::Game::Scripting::Interfaces::CreatureScript("mob_wisp_invis") { }
+    mob_wisp_invis() : CreatureScript("mob_wisp_invis") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -216,10 +216,10 @@ public:
     };
 };
 
-class mob_head : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_head : public CreatureScript
 {
 public:
-    mob_head() : MS::Game::Scripting::Interfaces::CreatureScript("mob_head") { }
+    mob_head() : CreatureScript("mob_head") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -361,10 +361,10 @@ public:
     };
 };
 
-class boss_headless_horseman : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_headless_horseman : public CreatureScript
 {
 public:
-    boss_headless_horseman() : MS::Game::Scripting::Interfaces::CreatureScript("boss_headless_horseman") { }
+    boss_headless_horseman() : CreatureScript("boss_headless_horseman") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -769,10 +769,10 @@ public:
     };
 };
 
-class mob_pulsing_pumpkin : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_pulsing_pumpkin : public CreatureScript
 {
 public:
-    mob_pulsing_pumpkin() : MS::Game::Scripting::Interfaces::CreatureScript("mob_pulsing_pumpkin") { }
+    mob_pulsing_pumpkin() : CreatureScript("mob_pulsing_pumpkin") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -858,10 +858,10 @@ public:
     };
 };
 
-class go_loosely_turned_soil : public MS::Game::Scripting::Interfaces::GameObjectScript
+class go_loosely_turned_soil : public GameObjectScript
 {
 public:
-    go_loosely_turned_soil() : MS::Game::Scripting::Interfaces::GameObjectScript("go_loosely_turned_soil") { }
+    go_loosely_turned_soil() : GameObjectScript("go_loosely_turned_soil") { }
 
     bool OnGossipHello(Player* player, GameObject* soil)
     {

@@ -31,10 +31,10 @@ EndScriptData */
 #define SPELL_SHADOWOFEBONROC       23340
 #define SPELL_HEAL                  41386                   //Thea Heal spell of his Shadow
 
-class boss_ebonroc : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_ebonroc : public CreatureScript
 {
 public:
-    boss_ebonroc() : MS::Game::Scripting::Interfaces::CreatureScript("boss_ebonroc") { }
+    boss_ebonroc() : CreatureScript("boss_ebonroc") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

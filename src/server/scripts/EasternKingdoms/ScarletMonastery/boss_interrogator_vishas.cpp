@@ -41,10 +41,10 @@ enum Spells
     SPELL_SHADOWWORDPAIN    = 2767
 };
 
-class boss_interrogator_vishas : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_interrogator_vishas : public CreatureScript
 {
 public:
-    boss_interrogator_vishas() : MS::Game::Scripting::Interfaces::CreatureScript("boss_interrogator_vishas") { }
+    boss_interrogator_vishas() : CreatureScript("boss_interrogator_vishas") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

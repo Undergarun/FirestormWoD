@@ -15,10 +15,10 @@ enum ePhases
     PHASE_2,
 };
 
-class boss_argaloth : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_argaloth : public CreatureScript
 {
     public:
-        boss_argaloth() : MS::Game::Scripting::Interfaces::CreatureScript("boss_argaloth") { }
+        boss_argaloth() : CreatureScript("boss_argaloth") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {

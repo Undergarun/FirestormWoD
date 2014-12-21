@@ -3,7 +3,7 @@
 #include "PetBattleAbilityEffect.h"
 #include "DB2Stores.h"
 
-class PlayerScript_Battle_Pet_Training_Spell: public MS::Game::Scripting::Interfaces::PlayerScript
+class PlayerScript_Battle_Pet_Training_Spell: public PlayerScript
 {
 public:
     PlayerScript_Battle_Pet_Training_Spell() :PlayerScript("PlayerScript_Battle_Pet_Training_Spell") {}

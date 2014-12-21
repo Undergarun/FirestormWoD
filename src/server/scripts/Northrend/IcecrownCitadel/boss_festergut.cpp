@@ -73,10 +73,10 @@ enum Events
 
 #define DATA_INOCULATED_STACK 69291
 
-class boss_festergut : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_festergut : public CreatureScript
 {
     public:
-        boss_festergut() : MS::Game::Scripting::Interfaces::CreatureScript("boss_festergut") { }
+        boss_festergut() : CreatureScript("boss_festergut") { }
 
         struct boss_festergutAI : public BossAI
         {
@@ -273,10 +273,10 @@ class boss_festergut : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class npc_stinky_icc : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_stinky_icc : public CreatureScript
 {
     public:
-        npc_stinky_icc() : MS::Game::Scripting::Interfaces::CreatureScript("npc_stinky_icc") { }
+        npc_stinky_icc() : CreatureScript("npc_stinky_icc") { }
 
         struct npc_stinky_iccAI : public ScriptedAI
         {
@@ -347,10 +347,10 @@ class npc_stinky_icc : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class spell_festergut_pungent_blight: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_festergut_pungent_blight: public SpellScriptLoader
 {
     public:
-        spell_festergut_pungent_blight() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_festergut_pungent_blight") { }
+        spell_festergut_pungent_blight() : SpellScriptLoader("spell_festergut_pungent_blight") { }
 
         class spell_festergut_pungent_blight_SpellScript : public SpellScript
         {
@@ -383,10 +383,10 @@ class spell_festergut_pungent_blight: public MS::Game::Scripting::Interfaces::Sp
         }
 };
 
-class spell_festergut_gastric_bloat: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_festergut_gastric_bloat: public SpellScriptLoader
 {
     public:
-        spell_festergut_gastric_bloat() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_festergut_gastric_bloat") { }
+        spell_festergut_gastric_bloat() : SpellScriptLoader("spell_festergut_gastric_bloat") { }
 
         class spell_festergut_gastric_bloat_SpellScript : public SpellScript
         {
@@ -421,10 +421,10 @@ class spell_festergut_gastric_bloat: public MS::Game::Scripting::Interfaces::Spe
         }
 };
 
-class spell_festergut_blighted_spores: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_festergut_blighted_spores: public SpellScriptLoader
 {
     public:
-        spell_festergut_blighted_spores() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_festergut_blighted_spores") { }
+        spell_festergut_blighted_spores() : SpellScriptLoader("spell_festergut_blighted_spores") { }
 
         class spell_festergut_blighted_spores_AuraScript : public AuraScript
         {
@@ -461,10 +461,10 @@ class spell_festergut_blighted_spores: public MS::Game::Scripting::Interfaces::S
         }
 };
 
-class achievement_flu_shot_shortage : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
+class achievement_flu_shot_shortage : public AchievementCriteriaScript
 {
     public:
-        achievement_flu_shot_shortage() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_flu_shot_shortage") { }
+        achievement_flu_shot_shortage() : AchievementCriteriaScript("achievement_flu_shot_shortage") { }
 
         bool OnCheck(Player* /*source*/, Unit* target)
         {

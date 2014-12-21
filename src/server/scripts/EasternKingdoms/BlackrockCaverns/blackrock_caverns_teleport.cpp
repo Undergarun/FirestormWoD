@@ -6,10 +6,10 @@
 
 #define GOSSIP_SENDER_PORT 645
 
-class bc_teleport : public MS::Game::Scripting::Interfaces::GameObjectScript
+class bc_teleport : public GameObjectScript
 {
     public:
-        bc_teleport() : MS::Game::Scripting::Interfaces::GameObjectScript("bc_teleport") { }
+        bc_teleport() : GameObjectScript("bc_teleport") { }
 
         bool OnGossipHello(Player* player, GameObject* go)
         {

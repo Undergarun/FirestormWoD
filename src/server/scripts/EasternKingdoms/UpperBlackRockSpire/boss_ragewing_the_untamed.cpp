@@ -112,10 +112,10 @@ static Position const g_RagewingWhelpSpawnPos[eBossDatas::MaxWhelps] =
 };
 
 ///< Ragewing the Untamed - 76585
-class boss_ragewing_the_untamed : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_ragewing_the_untamed : public CreatureScript
 {
     public:
-        boss_ragewing_the_untamed() : MS::Game::Scripting::Interfaces::CreatureScript("boss_ragewing_the_untamed") { }
+        boss_ragewing_the_untamed() : CreatureScript("boss_ragewing_the_untamed") { }
 
         struct boss_ragewing_the_untamedAI : public BossAI
         {
@@ -472,10 +472,10 @@ class boss_ragewing_the_untamed : public MS::Game::Scripting::Interfaces::Creatu
 };
 
 ///< Fire Storm Stalker - 76885
-class mob_fire_storm_stalker : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_fire_storm_stalker : public CreatureScript
 {
     public:
-        mob_fire_storm_stalker() : MS::Game::Scripting::Interfaces::CreatureScript("mob_fire_storm_stalker") { }
+        mob_fire_storm_stalker() : CreatureScript("mob_fire_storm_stalker") { }
 
         struct mob_fire_storm_stalkerAI : public ScriptedAI
         {
@@ -501,10 +501,10 @@ class mob_fire_storm_stalker : public MS::Game::Scripting::Interfaces::CreatureS
 };
 
 ///< Engulfing Fire Invisible Stalker R to L - 76813
-class mob_engulfing_fire_stalker_r_to_l : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_engulfing_fire_stalker_r_to_l : public CreatureScript
 {
     public:
-        mob_engulfing_fire_stalker_r_to_l() : MS::Game::Scripting::Interfaces::CreatureScript("mob_engulfing_fire_stalker_r_to_l") { }
+        mob_engulfing_fire_stalker_r_to_l() : CreatureScript("mob_engulfing_fire_stalker_r_to_l") { }
 
         struct mob_engulfing_fire_stalker_r_to_lAI : public ScriptedAI
         {
@@ -585,10 +585,10 @@ class mob_engulfing_fire_stalker_r_to_l : public MS::Game::Scripting::Interfaces
 };
 
 ///< Engulfing Fire Invisible Stalker L to R - 76837
-class mob_engulfing_fire_stalker_l_to_r : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_engulfing_fire_stalker_l_to_r : public CreatureScript
 {
     public:
-        mob_engulfing_fire_stalker_l_to_r() : MS::Game::Scripting::Interfaces::CreatureScript("mob_engulfing_fire_stalker_l_to_r") { }
+        mob_engulfing_fire_stalker_l_to_r() : CreatureScript("mob_engulfing_fire_stalker_l_to_r") { }
 
         struct mob_engulfing_fire_stalker_l_to_rAI : public ScriptedAI
         {
@@ -652,10 +652,10 @@ class mob_engulfing_fire_stalker_l_to_r : public MS::Game::Scripting::Interfaces
 };
 
 ///< Ragewing Whelp - 83745
-class mob_ragewing_whelp : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_ragewing_whelp : public CreatureScript
 {
     public:
-        mob_ragewing_whelp() : MS::Game::Scripting::Interfaces::CreatureScript("mob_ragewing_whelp") { }
+        mob_ragewing_whelp() : CreatureScript("mob_ragewing_whelp") { }
 
         struct mob_ragewing_whelpAI : public ScriptedAI
         {
@@ -705,10 +705,10 @@ class mob_ragewing_whelp : public MS::Game::Scripting::Interfaces::CreatureScrip
 };
 
 ///< Magma Spit - 155051
-class areatrigger_magma_spit : public MS::Game::Scripting::Interfaces::AreaTriggerEntityScript
+class areatrigger_magma_spit : public AreaTriggerEntityScript
 {
     public:
-        areatrigger_magma_spit() : MS::Game::Scripting::Interfaces::AreaTriggerEntityScript("areatrigger_magma_spit") { }
+        areatrigger_magma_spit() : AreaTriggerEntityScript("areatrigger_magma_spit") { }
 
         enum eSpells
         {
@@ -731,17 +731,17 @@ class areatrigger_magma_spit : public MS::Game::Scripting::Interfaces::AreaTrigg
             }
         }
 
-        MS::Game::Scripting::Interfaces::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new areatrigger_magma_spit();
         }
 };
 
 ///< Fire Storm (Missile) - 155073
-class spell_fire_storm_missile: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_fire_storm_missile: public SpellScriptLoader
 {
     public:
-        spell_fire_storm_missile() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_fire_storm_missile") { }
+        spell_fire_storm_missile() : SpellScriptLoader("spell_fire_storm_missile") { }
 
         class spell_fire_storm_missile_SpellScript : public SpellScript
         {

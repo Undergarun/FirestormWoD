@@ -64,10 +64,10 @@ enum Misc
 ## Boss Ionar
 ######*/
 
-class boss_ionar : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_ionar : public CreatureScript
 {
 public:
-    boss_ionar() : MS::Game::Scripting::Interfaces::CreatureScript("boss_ionar") { }
+    boss_ionar() : CreatureScript("boss_ionar") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -294,10 +294,10 @@ public:
 ## mob_spark_of_ionar
 ######*/
 
-class mob_spark_of_ionar : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_spark_of_ionar : public CreatureScript
 {
 public:
-    mob_spark_of_ionar() : MS::Game::Scripting::Interfaces::CreatureScript("mob_spark_of_ionar") { }
+    mob_spark_of_ionar() : CreatureScript("mob_spark_of_ionar") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

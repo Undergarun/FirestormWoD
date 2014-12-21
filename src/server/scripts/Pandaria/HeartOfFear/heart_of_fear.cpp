@@ -26,10 +26,10 @@
 #include "MoveSplineInit.h"
 
 // 63048 - Kor'thik Slicer
-class mob_kor_thik_slicer : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_kor_thik_slicer : public CreatureScript
 {
     public:
-        mob_kor_thik_slicer() : MS::Game::Scripting::Interfaces::CreatureScript("mob_kor_thik_slicer") {}
+        mob_kor_thik_slicer() : CreatureScript("mob_kor_thik_slicer") {}
 
         struct mob_kor_thik_slicerAI : public ScriptedAI
         {
@@ -111,10 +111,10 @@ class mob_kor_thik_slicer : public MS::Game::Scripting::Interfaces::CreatureScri
 };
 
 // 63036 - Kor'thik extremist
-class mob_kor_thik_extremist : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_kor_thik_extremist : public CreatureScript
 {
     public:
-        mob_kor_thik_extremist() : MS::Game::Scripting::Interfaces::CreatureScript("mob_kor_thik_extremist") {}
+        mob_kor_thik_extremist() : CreatureScript("mob_kor_thik_extremist") {}
 
         struct mob_kor_thik_extremistAI : public ScriptedAI
         {
@@ -171,10 +171,10 @@ class mob_kor_thik_extremist : public MS::Game::Scripting::Interfaces::CreatureS
 };
 
 // 63032 - Sra'thik Shield Master
-class mob_sra_thik_shield_master : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_sra_thik_shield_master : public CreatureScript
 {
     public:
-        mob_sra_thik_shield_master() : MS::Game::Scripting::Interfaces::CreatureScript("mob_sra_thik_shield_master") {}
+        mob_sra_thik_shield_master() : CreatureScript("mob_sra_thik_shield_master") {}
 
         struct mob_sra_thik_shield_masterAI : public ScriptedAI
         {
@@ -254,10 +254,10 @@ class mob_sra_thik_shield_master : public MS::Game::Scripting::Interfaces::Creat
 };
 
 // 63049 - Set'thik Swiftblade
-class mob_set_thik_swiftblade : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_set_thik_swiftblade : public CreatureScript
 {
     public:
-        mob_set_thik_swiftblade() : MS::Game::Scripting::Interfaces::CreatureScript("mob_set_thik_swiftblade") {}
+        mob_set_thik_swiftblade() : CreatureScript("mob_set_thik_swiftblade") {}
 
         struct mob_set_thik_swiftbladeAI : public ScriptedAI
         {
@@ -322,10 +322,10 @@ class mob_set_thik_swiftblade : public MS::Game::Scripting::Interfaces::Creature
 };
 
 // 67177 - 66181 - 63853 - Zar'thik Supplicant
-class mob_zar_thik_supplicant : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_zar_thik_supplicant : public CreatureScript
 {
     public:
-        mob_zar_thik_supplicant() : MS::Game::Scripting::Interfaces::CreatureScript("mob_zar_thik_supplicant") {}
+        mob_zar_thik_supplicant() : CreatureScript("mob_zar_thik_supplicant") {}
 
         struct mob_zar_thik_supplicantAI : public ScriptedAI
         {
@@ -388,10 +388,10 @@ class mob_zar_thik_supplicant : public MS::Game::Scripting::Interfaces::Creature
 };
 
 // 63030 - Enslaved Bonesmasher
-class mob_enslaved_bonesmasher : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_enslaved_bonesmasher : public CreatureScript
 {
     public:
-        mob_enslaved_bonesmasher() : MS::Game::Scripting::Interfaces::CreatureScript("mob_enslaved_bonesmasher") {}
+        mob_enslaved_bonesmasher() : CreatureScript("mob_enslaved_bonesmasher") {}
 
         struct mob_enslaved_bonesmasherAI : public ScriptedAI
         {
@@ -449,10 +449,10 @@ class mob_enslaved_bonesmasher : public MS::Game::Scripting::Interfaces::Creatur
 };
 
 // 64358 - Set'thik Tempest
-class mob_set_thik_tempest : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_set_thik_tempest : public CreatureScript
 {
     public:
-        mob_set_thik_tempest() : MS::Game::Scripting::Interfaces::CreatureScript("mob_set_thik_tempest") {}
+        mob_set_thik_tempest() : CreatureScript("mob_set_thik_tempest") {}
 
         struct mob_set_thik_tempestAI : public ScriptedAI
         {
@@ -506,10 +506,10 @@ class mob_set_thik_tempest : public MS::Game::Scripting::Interfaces::CreatureScr
 };
 
 // 63031 - Set'thik Fanatic
-class mob_set_thik_fanatic : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_set_thik_fanatic : public CreatureScript
 {
     public:
-        mob_set_thik_fanatic() : MS::Game::Scripting::Interfaces::CreatureScript("mob_set_thik_fanatic") {}
+        mob_set_thik_fanatic() : CreatureScript("mob_set_thik_fanatic") {}
 
         struct mob_set_thik_fanaticAI : public ScriptedAI
         {
@@ -571,10 +571,10 @@ class mob_set_thik_fanatic : public MS::Game::Scripting::Interfaces::CreatureScr
 };
 
 // 63593 - Set'thik Zephyrian
-class mob_set_thik_zephyrian : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_set_thik_zephyrian : public CreatureScript
 {
     public:
-        mob_set_thik_zephyrian() : MS::Game::Scripting::Interfaces::CreatureScript("mob_set_thik_zephyrian") {}
+        mob_set_thik_zephyrian() : CreatureScript("mob_set_thik_zephyrian") {}
 
         struct mob_set_thik_zephyrianAI : public ScriptedAI
         {
@@ -631,10 +631,10 @@ class mob_set_thik_zephyrian : public MS::Game::Scripting::Interfaces::CreatureS
 };
 
 // 64353 - Set'thik Gale-Slicer
-class mob_set_thik_gale_slicer : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_set_thik_gale_slicer : public CreatureScript
 {
     public:
-        mob_set_thik_gale_slicer() : MS::Game::Scripting::Interfaces::CreatureScript("mob_set_thik_gale_slicer") {}
+        mob_set_thik_gale_slicer() : CreatureScript("mob_set_thik_gale_slicer") {}
 
         struct mob_set_thik_gale_slicerAI : public ScriptedAI
         {
@@ -689,10 +689,10 @@ class mob_set_thik_gale_slicer : public MS::Game::Scripting::Interfaces::Creatur
 };
 
 // 64338 - Instructor Kli'thak <Keeper of Wind Step>
-class mob_instructor_kli_thak : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_instructor_kli_thak : public CreatureScript
 {
     public:
-        mob_instructor_kli_thak() : MS::Game::Scripting::Interfaces::CreatureScript("mob_instructor_kli_thak") {}
+        mob_instructor_kli_thak() : CreatureScript("mob_instructor_kli_thak") {}
 
         struct mob_instructor_kli_thakAI : public ScriptedAI
         {
@@ -752,10 +752,10 @@ class mob_instructor_kli_thak : public MS::Game::Scripting::Interfaces::Creature
 };
 
 // 64339 - Instructor Tak'thok <Keeper of Overwhelming Assault>
-class mob_instructor_tak_thok : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_instructor_tak_thok : public CreatureScript
 {
     public:
-        mob_instructor_tak_thok() : MS::Game::Scripting::Interfaces::CreatureScript("mob_instructor_tak_thok") {}
+        mob_instructor_tak_thok() : CreatureScript("mob_instructor_tak_thok") {}
 
         struct mob_instructor_tak_thokAI : public ScriptedAI
         {
@@ -811,10 +811,10 @@ class mob_instructor_tak_thok : public MS::Game::Scripting::Interfaces::Creature
 };
 
 // 64340 - Instructor Maltik <Keeper of Unseen Strike>
-class mob_instructor_maltik : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_instructor_maltik : public CreatureScript
 {
     public:
-        mob_instructor_maltik() : MS::Game::Scripting::Interfaces::CreatureScript("mob_instructor_maltik") { }
+        mob_instructor_maltik() : CreatureScript("mob_instructor_maltik") { }
 
         struct mob_instructor_maltikAI : public ScriptedAI
         {
@@ -875,10 +875,10 @@ class mob_instructor_maltik : public MS::Game::Scripting::Interfaces::CreatureSc
 };
 
 // 64341 - Instructor Zarik <Keeper of Tempest Slash>
-class mob_instructor_zarik : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_instructor_zarik : public CreatureScript
 {
     public:
-        mob_instructor_zarik() : MS::Game::Scripting::Interfaces::CreatureScript("mob_instructor_zarik") { }
+        mob_instructor_zarik() : CreatureScript("mob_instructor_zarik") { }
 
         struct mob_instructor_zarikAI : public ScriptedAI
         {
@@ -933,10 +933,10 @@ class mob_instructor_zarik : public MS::Game::Scripting::Interfaces::CreatureScr
 };
 
 // 63035 - Zar'thik Zealot
-class mob_zar_thik_zealot : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_zar_thik_zealot : public CreatureScript
 {
     public:
-        mob_zar_thik_zealot() : MS::Game::Scripting::Interfaces::CreatureScript("mob_zar_thik_zealot") {}
+        mob_zar_thik_zealot() : CreatureScript("mob_zar_thik_zealot") {}
 
         struct mob_zar_thik_zealotAI : public ScriptedAI
         {
@@ -994,10 +994,10 @@ class mob_zar_thik_zealot : public MS::Game::Scripting::Interfaces::CreatureScri
 };
 
 // 64357 - Kor'thik Swarmer
-class mob_kor_thik_swarmer : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_kor_thik_swarmer : public CreatureScript
 {
     public:
-        mob_kor_thik_swarmer() : MS::Game::Scripting::Interfaces::CreatureScript("mob_kor_thik_swarmer") {}
+        mob_kor_thik_swarmer() : CreatureScript("mob_kor_thik_swarmer") {}
 
         struct mob_kor_thik_swarmerAI : public ScriptedAI
         {
@@ -1053,10 +1053,10 @@ class mob_kor_thik_swarmer : public MS::Game::Scripting::Interfaces::CreatureScr
 };
 
 // 63592 - Set'thik Gustwing
-class mob_set_thik_gustwing : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_set_thik_gustwing : public CreatureScript
 {
     public:
-        mob_set_thik_gustwing() : MS::Game::Scripting::Interfaces::CreatureScript("mob_set_thik_gustwing") {}
+        mob_set_thik_gustwing() : CreatureScript("mob_set_thik_gustwing") {}
 
         struct mob_set_thik_gustwingAI : public ScriptedAI
         {
@@ -1137,10 +1137,10 @@ Position unsokDiagPoint[2] =
 };
 
 // 63594 / 63597 - Coagulated Amber
-class mob_coagulated_amber : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_coagulated_amber : public CreatureScript
 {
     public:
-        mob_coagulated_amber() : MS::Game::Scripting::Interfaces::CreatureScript("mob_coagulated_amber") {}
+        mob_coagulated_amber() : CreatureScript("mob_coagulated_amber") {}
 
         struct mob_coagulated_amberAI : public ScriptedAI
         {
@@ -1232,10 +1232,10 @@ class mob_coagulated_amber : public MS::Game::Scripting::Interfaces::CreatureScr
 };
 
 // 64355 - Kor'thik Silentwing
-class mob_kor_thik_silentwing : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_kor_thik_silentwing : public CreatureScript
 {
     public:
-        mob_kor_thik_silentwing() : MS::Game::Scripting::Interfaces::CreatureScript("mob_kor_thik_silentwing") { }
+        mob_kor_thik_silentwing() : CreatureScript("mob_kor_thik_silentwing") { }
 
         struct mob_kor_thik_silentwingAI : public ScriptedAI
         {
@@ -1295,10 +1295,10 @@ class mob_kor_thik_silentwing : public MS::Game::Scripting::Interfaces::Creature
 };
 
 // 63599 - Zephyr (summoned by Set'thik Zephyrian - 63593)
-class mob_zephyr : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_zephyr : public CreatureScript
 {
     public:
-        mob_zephyr() : MS::Game::Scripting::Interfaces::CreatureScript("mob_zephyr") { }
+        mob_zephyr() : CreatureScript("mob_zephyr") { }
 
         struct mob_zephyrAI : public ScriptedAI
         {
@@ -1419,10 +1419,10 @@ class mob_zephyr : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // 64916 - Kor'thik Swarmguard
-class mob_korthik_swarmguard : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_korthik_swarmguard : public CreatureScript
 {
 public:
-    mob_korthik_swarmguard() : MS::Game::Scripting::Interfaces::CreatureScript("mob_korthik_swarmguard") { }
+    mob_korthik_swarmguard() : CreatureScript("mob_korthik_swarmguard") { }
 
     struct mob_korthik_swarmguardAI : public ScriptedAI
     {
@@ -1559,10 +1559,10 @@ public:
 };
 
 // 64917 - Sra'thik Ambercaller
-class mob_srathik_ambercaller : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_srathik_ambercaller : public CreatureScript
 {
 public:
-    mob_srathik_ambercaller() : MS::Game::Scripting::Interfaces::CreatureScript("mob_srathik_ambercaller") { }
+    mob_srathik_ambercaller() : CreatureScript("mob_srathik_ambercaller") { }
 
     struct mob_srathik_ambercallerAI : public ScriptedAI
     {
@@ -1662,10 +1662,10 @@ Position atriumPath[9] =
 };
 
 // 64902 - Kor'thik Fleshrender
-class mob_korthik_fleshrender : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_korthik_fleshrender : public CreatureScript
 {
 public:
-    mob_korthik_fleshrender() : MS::Game::Scripting::Interfaces::CreatureScript("mob_korthik_fleshrender") { }
+    mob_korthik_fleshrender() : CreatureScript("mob_korthik_fleshrender") { }
 
     struct mob_korthik_fleshrenderAI : ScriptedAI
     {
@@ -1760,10 +1760,10 @@ public:
 };
 
 // 63569 - Amber Searsting
-class mob_amber_searsting : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_amber_searsting : public CreatureScript
 {
 public:
-    mob_amber_searsting() : MS::Game::Scripting::Interfaces::CreatureScript("mob_amber_searsting") { }
+    mob_amber_searsting() : CreatureScript("mob_amber_searsting") { }
 
     struct mob_amber_searstingAI : public ScriptedAI
     {
@@ -1821,10 +1821,10 @@ public:
 };
 
 // 63568 - Amber-Ridden Mushan
-class mob_amberridden_mushan : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_amberridden_mushan : public CreatureScript
 {
 public:
-    mob_amberridden_mushan() : MS::Game::Scripting::Interfaces::CreatureScript("mob_amberridden_mushan") { }
+    mob_amberridden_mushan() : CreatureScript("mob_amberridden_mushan") { }
 
     struct mob_amberridden_mushanAI : public ScriptedAI
     {
@@ -1881,10 +1881,10 @@ public:
 };
 
 // 63570 - Sra'thik Pool-Tender
-class mob_srathik_pooltender : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_srathik_pooltender : public CreatureScript
 {
 public:
-    mob_srathik_pooltender() : MS::Game::Scripting::Interfaces::CreatureScript("mob_srathik_pooltender") { }
+    mob_srathik_pooltender() : CreatureScript("mob_srathik_pooltender") { }
 
     struct mob_srathik_pooltenderAI : public ScriptedAI
     {
@@ -1976,10 +1976,10 @@ bool ShekZeerCheckTrash(Creature* me)
 }
 
 // 64454 - Zar'thik Augurer
-class mob_zarthik_augurer : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_zarthik_augurer : public CreatureScript
 {
 public:
-    mob_zarthik_augurer() : MS::Game::Scripting::Interfaces::CreatureScript("mob_zarthik_augurer") { }
+    mob_zarthik_augurer() : CreatureScript("mob_zarthik_augurer") { }
 
     struct mob_zarthik_augurerAI : public ScriptedAI
     {
@@ -2053,10 +2053,10 @@ public:
 };
 
 // 64453 - Set'thik Windblade
-class mob_setthik_windblade : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_setthik_windblade : public CreatureScript
 {
 public:
-    mob_setthik_windblade() : MS::Game::Scripting::Interfaces::CreatureScript("mob_setthik_windblade") { }
+    mob_setthik_windblade() : CreatureScript("mob_setthik_windblade") { }
 
     struct mob_setthik_windbladeAI : public ScriptedAI
     {
@@ -2132,10 +2132,10 @@ public:
 };
 
 // 64458 - Kor'thik Warsinger
-class mob_korthik_warsinger : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_korthik_warsinger : public CreatureScript
 {
 public:
-    mob_korthik_warsinger() : MS::Game::Scripting::Interfaces::CreatureScript("mob_korthik_warsinger") { }
+    mob_korthik_warsinger() : CreatureScript("mob_korthik_warsinger") { }
 
     struct mob_korthik_warsingerAI : ScriptedAI
     {
@@ -2210,10 +2210,10 @@ public:
 };
 
 // 123421 - Vital Strikes
-class spell_vital_strikes: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_vital_strikes: public SpellScriptLoader
 {
     public:
-        spell_vital_strikes() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_vital_strikes") { }
+        spell_vital_strikes() : SpellScriptLoader("spell_vital_strikes") { }
 
         class spell_vital_strikes_AuraScript : public AuraScript
         {

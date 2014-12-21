@@ -33,10 +33,10 @@ enum Yells
     YELL_EVADE                                    = 1
 };
 
-class boss_galvangar : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_galvangar : public CreatureScript
 {
 public:
-    boss_galvangar() : MS::Game::Scripting::Interfaces::CreatureScript("boss_galvangar") { }
+    boss_galvangar() : CreatureScript("boss_galvangar") { }
 
     struct boss_galvangarAI : public ScriptedAI
     {

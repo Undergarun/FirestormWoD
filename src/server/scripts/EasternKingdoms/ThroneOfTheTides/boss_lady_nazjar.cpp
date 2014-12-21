@@ -81,10 +81,10 @@ const Position summonPos[3] =
 
 const Position centerPos = {192.05f, 802.52f, 807.64f, 3.14f};
 
-class boss_lady_nazjar : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_lady_nazjar : public CreatureScript
 {
     public:
-        boss_lady_nazjar() : MS::Game::Scripting::Interfaces::CreatureScript("boss_lady_nazjar") { }
+        boss_lady_nazjar() : CreatureScript("boss_lady_nazjar") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -327,10 +327,10 @@ class boss_lady_nazjar : public MS::Game::Scripting::Interfaces::CreatureScript
         };
 };
 
-class npc_lady_nazjar_honnor_guard : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_lady_nazjar_honnor_guard : public CreatureScript
 {
     public:
-        npc_lady_nazjar_honnor_guard() : MS::Game::Scripting::Interfaces::CreatureScript("npc_lady_nazjar_honnor_guard") { }
+        npc_lady_nazjar_honnor_guard() : CreatureScript("npc_lady_nazjar_honnor_guard") { }
 
         CreatureAI* GetAI(Creature *creature) const
         {
@@ -389,10 +389,10 @@ class npc_lady_nazjar_honnor_guard : public MS::Game::Scripting::Interfaces::Cre
         };
 };
 
-class npc_lady_nazjar_tempest_witch : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_lady_nazjar_tempest_witch : public CreatureScript
 {
     public:
-        npc_lady_nazjar_tempest_witch() : MS::Game::Scripting::Interfaces::CreatureScript("npc_lady_nazjar_tempest_witch") { }
+        npc_lady_nazjar_tempest_witch() : CreatureScript("npc_lady_nazjar_tempest_witch") { }
 
         CreatureAI* GetAI(Creature *creature) const
         {
@@ -447,10 +447,10 @@ class npc_lady_nazjar_tempest_witch : public MS::Game::Scripting::Interfaces::Cr
         };
 };
 
-class npc_lady_nazjar_waterspout : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_lady_nazjar_waterspout : public CreatureScript
 {
     public:
-        npc_lady_nazjar_waterspout() : MS::Game::Scripting::Interfaces::CreatureScript("npc_lady_nazjar_waterspout") { }
+        npc_lady_nazjar_waterspout() : CreatureScript("npc_lady_nazjar_waterspout") { }
 
         CreatureAI* GetAI(Creature *creature) const
         {
@@ -496,10 +496,10 @@ class npc_lady_nazjar_waterspout : public MS::Game::Scripting::Interfaces::Creat
         };
 };
 
-class npc_lady_nazjar_geyser : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_lady_nazjar_geyser : public CreatureScript
 {
     public:
-        npc_lady_nazjar_geyser() : MS::Game::Scripting::Interfaces::CreatureScript("npc_lady_nazjar_geyser") { }
+        npc_lady_nazjar_geyser() : CreatureScript("npc_lady_nazjar_geyser") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {

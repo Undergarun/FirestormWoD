@@ -99,10 +99,10 @@ const uint32 ThrowFoodSpells[12] =
 const Position cauldronPos = {-64.07f, -820.27f, 41.17f, 0.0f};
 const Position movePos = {-71.292213f, -819.792297f, 40.51f, 0.04f};
 
-class boss_captain_cookie : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_captain_cookie : public CreatureScript
 {
     public:
-        boss_captain_cookie() : MS::Game::Scripting::Interfaces::CreatureScript("boss_captain_cookie") { }
+        boss_captain_cookie() : CreatureScript("boss_captain_cookie") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -212,10 +212,10 @@ class boss_captain_cookie : public MS::Game::Scripting::Interfaces::CreatureScri
         };
 };
 
-class npc_captain_cookie_cauldron : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_captain_cookie_cauldron : public CreatureScript
 {
     public:
-        npc_captain_cookie_cauldron() : MS::Game::Scripting::Interfaces::CreatureScript("npc_captain_cookie_cauldron") { }
+        npc_captain_cookie_cauldron() : CreatureScript("npc_captain_cookie_cauldron") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -239,10 +239,10 @@ class npc_captain_cookie_cauldron : public MS::Game::Scripting::Interfaces::Crea
         };
 };
 
-class npc_captain_cookie_good_food : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_captain_cookie_good_food : public CreatureScript
 {
     public:
-        npc_captain_cookie_good_food() : MS::Game::Scripting::Interfaces::CreatureScript("npc_captain_cookie_good_food") { }
+        npc_captain_cookie_good_food() : CreatureScript("npc_captain_cookie_good_food") { }
      
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -290,10 +290,10 @@ class npc_captain_cookie_good_food : public MS::Game::Scripting::Interfaces::Cre
         };
 };
 
-class npc_captain_cookie_bad_food : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_captain_cookie_bad_food : public CreatureScript
 {
     public:
-        npc_captain_cookie_bad_food() : MS::Game::Scripting::Interfaces::CreatureScript("npc_captain_cookie_bad_food") { }
+        npc_captain_cookie_bad_food() : CreatureScript("npc_captain_cookie_bad_food") { }
      
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -339,10 +339,10 @@ class npc_captain_cookie_bad_food : public MS::Game::Scripting::Interfaces::Crea
         };
 };
 
-class spell_captain_cookie_setiated: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_captain_cookie_setiated: public SpellScriptLoader
 {
     public:
-        spell_captain_cookie_setiated() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_captain_cookie_setiated") { }
+        spell_captain_cookie_setiated() : SpellScriptLoader("spell_captain_cookie_setiated") { }
 
 
         class spell_captain_cookie_setiated_SpellScript : public SpellScript
@@ -370,10 +370,10 @@ class spell_captain_cookie_setiated: public MS::Game::Scripting::Interfaces::Spe
         }
 };
 
-class spell_captain_cookie_nauseated: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_captain_cookie_nauseated: public SpellScriptLoader
 {
     public:
-        spell_captain_cookie_nauseated() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_captain_cookie_nauseated") { }
+        spell_captain_cookie_nauseated() : SpellScriptLoader("spell_captain_cookie_nauseated") { }
 
 
         class spell_captain_cookie_nauseated_SpellScript : public SpellScript
@@ -401,10 +401,10 @@ class spell_captain_cookie_nauseated: public MS::Game::Scripting::Interfaces::Sp
         }
 };
 
-class spell_captain_cookie_throw_food_targeting: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_captain_cookie_throw_food_targeting: public SpellScriptLoader
 {
     public:
-        spell_captain_cookie_throw_food_targeting() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_captain_cookie_throw_food_targeting") { }
+        spell_captain_cookie_throw_food_targeting() : SpellScriptLoader("spell_captain_cookie_throw_food_targeting") { }
 
         class spell_captain_cookie_throw_food_targeting_SpellScript : public SpellScript
         {

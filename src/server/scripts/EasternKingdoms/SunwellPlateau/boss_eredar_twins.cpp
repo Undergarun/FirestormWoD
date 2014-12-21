@@ -86,10 +86,10 @@ enum Spells
     SPELL_BLAZE_BURN        =   45246
 };
 
-class boss_sacrolash : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_sacrolash : public CreatureScript
 {
 public:
-    boss_sacrolash() : MS::Game::Scripting::Interfaces::CreatureScript("boss_sacrolash") { }
+    boss_sacrolash() : CreatureScript("boss_sacrolash") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -360,10 +360,10 @@ public:
 
 };
 
-class boss_alythess : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_alythess : public CreatureScript
 {
 public:
-    boss_alythess() : MS::Game::Scripting::Interfaces::CreatureScript("boss_alythess") { }
+    boss_alythess() : CreatureScript("boss_alythess") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -706,10 +706,10 @@ public:
 
 };
 
-class mob_shadow_image : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_shadow_image : public CreatureScript
 {
 public:
-    mob_shadow_image() : MS::Game::Scripting::Interfaces::CreatureScript("mob_shadow_image") { }
+    mob_shadow_image() : CreatureScript("mob_shadow_image") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

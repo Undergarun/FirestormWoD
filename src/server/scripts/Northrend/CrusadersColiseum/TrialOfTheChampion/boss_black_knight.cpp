@@ -88,10 +88,10 @@ enum Says
     SAY_DEATH               = 5,
 };
 
-class boss_black_knight : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_black_knight : public CreatureScript
 {
 public:
-    boss_black_knight() : MS::Game::Scripting::Interfaces::CreatureScript("boss_black_knight") { }
+    boss_black_knight() : CreatureScript("boss_black_knight") { }
 
     struct boss_black_knightAI : public ScriptedAI
     {
@@ -383,10 +383,10 @@ public:
     }
 };
 
-class npc_risen_ghoul : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_risen_ghoul : public CreatureScript
 {
 public:
-    npc_risen_ghoul() : MS::Game::Scripting::Interfaces::CreatureScript("npc_risen_ghoul") { }
+    npc_risen_ghoul() : CreatureScript("npc_risen_ghoul") { }
 
     struct npc_risen_ghoulAI : public ScriptedAI
     {
@@ -444,10 +444,10 @@ public:
     }
 };
 
-class npc_black_knight_skeletal_gryphon : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_black_knight_skeletal_gryphon : public CreatureScript
 {
 public:
-    npc_black_knight_skeletal_gryphon() : MS::Game::Scripting::Interfaces::CreatureScript("npc_black_knight_skeletal_gryphon") { }
+    npc_black_knight_skeletal_gryphon() : CreatureScript("npc_black_knight_skeletal_gryphon") { }
 
     struct npc_black_knight_skeletal_gryphonAI : public npc_escortAI
     {

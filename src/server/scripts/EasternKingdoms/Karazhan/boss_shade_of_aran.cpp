@@ -81,10 +81,10 @@ enum SuperSpell
     SUPER_AE,
 };
 
-class boss_shade_of_aran : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_shade_of_aran : public CreatureScript
 {
 public:
-    boss_shade_of_aran() : MS::Game::Scripting::Interfaces::CreatureScript("boss_shade_of_aran") { }
+    boss_shade_of_aran() : CreatureScript("boss_shade_of_aran") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -511,10 +511,10 @@ public:
 
 };
 
-class mob_aran_elemental : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_aran_elemental : public CreatureScript
 {
 public:
-    mob_aran_elemental() : MS::Game::Scripting::Interfaces::CreatureScript("mob_aran_elemental") { }
+    mob_aran_elemental() : CreatureScript("mob_aran_elemental") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

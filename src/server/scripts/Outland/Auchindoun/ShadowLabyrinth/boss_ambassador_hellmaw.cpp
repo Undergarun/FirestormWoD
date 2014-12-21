@@ -46,10 +46,10 @@ enum eEnums
 };
 
 // 18731
-class boss_ambassador_hellmaw : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_ambassador_hellmaw : public CreatureScript
 {
 public:
-    boss_ambassador_hellmaw() : MS::Game::Scripting::Interfaces::CreatureScript("boss_ambassador_hellmaw") { }
+    boss_ambassador_hellmaw() : CreatureScript("boss_ambassador_hellmaw") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

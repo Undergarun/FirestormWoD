@@ -63,7 +63,7 @@ enum Actions
     ACTION_COMBINE  = 1,
 };
 
-class boss_halazzi : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_halazzi : public CreatureScript
 {
     public:
 
@@ -243,11 +243,11 @@ class boss_halazzi : public MS::Game::Scripting::Interfaces::CreatureScript
         };
 };
 
-class npc_halazzi_lynx : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_halazzi_lynx : public CreatureScript
 {
     public:
 
-        npc_halazzi_lynx() : MS::Game::Scripting::Interfaces::CreatureScript("npc_halazzi_lynx") {}
+        npc_halazzi_lynx() : CreatureScript("npc_halazzi_lynx") {}
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -333,10 +333,10 @@ class npc_halazzi_lynx : public MS::Game::Scripting::Interfaces::CreatureScript
         };
 };
 
-class npc_halazzi_water_totem : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_halazzi_water_totem : public CreatureScript
 {
     public:
-        npc_halazzi_water_totem() : MS::Game::Scripting::Interfaces::CreatureScript("npc_halazzi_water_totem") {}
+        npc_halazzi_water_totem() : CreatureScript("npc_halazzi_water_totem") {}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -353,10 +353,10 @@ class npc_halazzi_water_totem : public MS::Game::Scripting::Interfaces::Creature
       };
 };
 
-class npc_halazzi_lightning_totem : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_halazzi_lightning_totem : public CreatureScript
 {
     public:
-        npc_halazzi_lightning_totem() : MS::Game::Scripting::Interfaces::CreatureScript("npc_halazzi_lightning_totem") {}
+        npc_halazzi_lightning_totem() : CreatureScript("npc_halazzi_lightning_totem") {}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {

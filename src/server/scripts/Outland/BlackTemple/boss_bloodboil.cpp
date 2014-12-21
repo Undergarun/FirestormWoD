@@ -56,10 +56,10 @@ EndScriptData */
 
 //This is used to sort the players by distance in preparation for the Bloodboil cast.
 
-class boss_gurtogg_bloodboil : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_gurtogg_bloodboil : public CreatureScript
 {
 public:
-    boss_gurtogg_bloodboil() : MS::Game::Scripting::Interfaces::CreatureScript("boss_gurtogg_bloodboil") { }
+    boss_gurtogg_bloodboil() : CreatureScript("boss_gurtogg_bloodboil") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

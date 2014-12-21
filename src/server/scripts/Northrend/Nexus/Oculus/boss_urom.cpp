@@ -86,10 +86,10 @@ static uint32 TeleportSpells[]=
     SPELL_SUMMON_MENAGERIE, SPELL_SUMMON_MENAGERIE_2, SPELL_SUMMON_MENAGERIE_3
 };
 
-class boss_urom : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_urom : public CreatureScript
 {
     public:
-        boss_urom() : MS::Game::Scripting::Interfaces::CreatureScript("boss_urom") { }
+        boss_urom() : CreatureScript("boss_urom") { }
 
         struct boss_uromAI : public BossAI
         {

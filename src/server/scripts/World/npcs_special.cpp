@@ -118,10 +118,10 @@ SpawnAssociation spawnAssociations[] =
     {22126, 22122, SPAWNTYPE_ALARMBOT}                      //Air Force Trip Wire - Rooftop (Cenarion Expedition)
 };
 
-class npc_air_force_bots : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_air_force_bots : public CreatureScript
 {
     public:
-        npc_air_force_bots() : MS::Game::Scripting::Interfaces::CreatureScript("npc_air_force_bots") { }
+        npc_air_force_bots() : CreatureScript("npc_air_force_bots") { }
 
         struct npc_air_force_botsAI : public ScriptedAI
         {
@@ -287,10 +287,10 @@ enum
 
 #define GOSSIP_ITEM_GRANT   "You have thought well, spirit. I ask you to grant me the strength of your body and the strength of your heart."
 
-class npc_lunaclaw_spirit : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_lunaclaw_spirit : public CreatureScript
 {
     public:
-        npc_lunaclaw_spirit() : MS::Game::Scripting::Interfaces::CreatureScript("npc_lunaclaw_spirit") { }
+        npc_lunaclaw_spirit() : CreatureScript("npc_lunaclaw_spirit") { }
 
         bool OnGossipHello(Player* player, Creature* creature)
         {
@@ -324,10 +324,10 @@ class npc_lunaclaw_spirit : public MS::Game::Scripting::Interfaces::CreatureScri
 #define FACTION_FRIENDLY    35
 #define FACTION_CHICKEN     31
 
-class npc_chicken_cluck : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_chicken_cluck : public CreatureScript
 {
     public:
-        npc_chicken_cluck() : MS::Game::Scripting::Interfaces::CreatureScript("npc_chicken_cluck") { }
+        npc_chicken_cluck() : CreatureScript("npc_chicken_cluck") { }
 
         struct npc_chicken_cluckAI : public ScriptedAI
         {
@@ -416,10 +416,10 @@ class npc_chicken_cluck : public MS::Game::Scripting::Interfaces::CreatureScript
 #define SPELL_SEDUCTION     47057
 #define SPELL_FIERY_AURA    45427
 
-class npc_dancing_flames : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_dancing_flames : public CreatureScript
 {
     public:
-        npc_dancing_flames() : MS::Game::Scripting::Interfaces::CreatureScript("npc_dancing_flames") { }
+        npc_dancing_flames() : CreatureScript("npc_dancing_flames") { }
 
         struct npc_dancing_flamesAI : public ScriptedAI
         {
@@ -568,10 +568,10 @@ uint32 const HordeSoldierId[3] =
 ## npc_doctor (handles both Gustaf Vanhowzen and Gregory Victor)
 ######*/
 
-class npc_doctor : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_doctor : public CreatureScript
 {
     public:
-        npc_doctor() : MS::Game::Scripting::Interfaces::CreatureScript("npc_doctor") {}
+        npc_doctor() : CreatureScript("npc_doctor") {}
 
         struct npc_doctorAI : public ScriptedAI
         {
@@ -713,10 +713,10 @@ class npc_doctor : public MS::Game::Scripting::Interfaces::CreatureScript
 ## npc_injured_patient (handles all the patients, no matter Horde or Alliance)
 #####*/
 
-class npc_injured_patient : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_injured_patient : public CreatureScript
 {
     public:
-        npc_injured_patient() : MS::Game::Scripting::Interfaces::CreatureScript("npc_injured_patient") { }
+        npc_injured_patient() : CreatureScript("npc_injured_patient") { }
 
         struct npc_injured_patientAI : public ScriptedAI
         {
@@ -915,10 +915,10 @@ enum eGarments
     SAY_SHAYA_GOODBYE       = -1000174, //signed for 21469
 };
 
-class npc_garments_of_quests : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_garments_of_quests : public CreatureScript
 {
     public:
-        npc_garments_of_quests() : MS::Game::Scripting::Interfaces::CreatureScript("npc_garments_of_quests") { }
+        npc_garments_of_quests() : CreatureScript("npc_garments_of_quests") { }
 
         struct npc_garments_of_questsAI : public npc_escortAI
         {
@@ -1116,10 +1116,10 @@ class npc_garments_of_quests : public MS::Game::Scripting::Interfaces::CreatureS
 
 #define SPELL_DEATHTOUCH                5
 
-class npc_guardian : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_guardian : public CreatureScript
 {
     public:
-        npc_guardian() : MS::Game::Scripting::Interfaces::CreatureScript("npc_guardian") { }
+        npc_guardian() : CreatureScript("npc_guardian") { }
 
         struct npc_guardianAI : public ScriptedAI
         {
@@ -1157,10 +1157,10 @@ class npc_guardian : public MS::Game::Scripting::Interfaces::CreatureScript
 ## npc_mount_vendor
 ######*/
 
-class npc_mount_vendor : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_mount_vendor : public CreatureScript
 {
     public:
-        npc_mount_vendor() : MS::Game::Scripting::Interfaces::CreatureScript("npc_mount_vendor") { }
+        npc_mount_vendor() : CreatureScript("npc_mount_vendor") { }
 
         bool OnGossipHello(Player* player, Creature* creature)
         {
@@ -1267,10 +1267,10 @@ class npc_mount_vendor : public MS::Game::Scripting::Interfaces::CreatureScript
 #define GOSSIP_HELLO_ROGUE3 "Purchase a Dual Talent Specialization."
 #define GOSSIP_HELLO_ROGUE4 "I wish to unlearn my specialization"
 
-class npc_rogue_trainer : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_rogue_trainer : public CreatureScript
 {
     public:
-        npc_rogue_trainer() : MS::Game::Scripting::Interfaces::CreatureScript("npc_rogue_trainer") { }
+        npc_rogue_trainer() : CreatureScript("npc_rogue_trainer") { }
 
         bool OnGossipHello(Player* player, Creature* creature)
         {
@@ -1380,10 +1380,10 @@ class npc_rogue_trainer : public MS::Game::Scripting::Interfaces::CreatureScript
 #define GOSSIP_SENDACTION_SAYGE16   "Let the knight take credit"
 #define GOSSIP_SENDACTION_SAYGE17   "Thanks"
 
-class npc_sayge : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_sayge : public CreatureScript
 {
     public:
-        npc_sayge() : MS::Game::Scripting::Interfaces::CreatureScript("npc_sayge") { }
+        npc_sayge() : CreatureScript("npc_sayge") { }
 
         bool OnGossipHello(Player* player, Creature* creature)
         {
@@ -1507,10 +1507,10 @@ class npc_sayge : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class npc_steam_tonk : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_steam_tonk : public CreatureScript
 {
     public:
-        npc_steam_tonk() : MS::Game::Scripting::Interfaces::CreatureScript("npc_steam_tonk") { }
+        npc_steam_tonk() : CreatureScript("npc_steam_tonk") { }
 
         struct npc_steam_tonkAI : public ScriptedAI
         {
@@ -1542,10 +1542,10 @@ class npc_steam_tonk : public MS::Game::Scripting::Interfaces::CreatureScript
 
 #define SPELL_TONK_MINE_DETONATE 25099
 
-class npc_tonk_mine : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_tonk_mine : public CreatureScript
 {
     public:
-        npc_tonk_mine() : MS::Game::Scripting::Interfaces::CreatureScript("npc_tonk_mine") { }
+        npc_tonk_mine() : CreatureScript("npc_tonk_mine") { }
 
         struct npc_tonk_mineAI : public ScriptedAI
         {
@@ -1587,10 +1587,10 @@ class npc_tonk_mine : public MS::Game::Scripting::Interfaces::CreatureScript
 ## npc_brewfest_reveler
 ####*/
 
-class npc_brewfest_reveler : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_brewfest_reveler : public CreatureScript
 {
     public:
-        npc_brewfest_reveler() : MS::Game::Scripting::Interfaces::CreatureScript("npc_brewfest_reveler") { }
+        npc_brewfest_reveler() : CreatureScript("npc_brewfest_reveler") { }
 
         struct npc_brewfest_revelerAI : public ScriptedAI
         {
@@ -1624,10 +1624,10 @@ class npc_brewfest_reveler : public MS::Game::Scripting::Interfaces::CreatureScr
 
 #define C_VIPER 19921
 
-class npc_snake_trap : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_snake_trap : public CreatureScript
 {
     public:
-        npc_snake_trap() : MS::Game::Scripting::Interfaces::CreatureScript("npc_snake_trap_serpents") { }
+        npc_snake_trap() : CreatureScript("npc_snake_trap_serpents") { }
 
         struct npc_snake_trap_serpentsAI : public ScriptedAI
         {
@@ -1737,10 +1737,10 @@ class npc_snake_trap : public MS::Game::Scripting::Interfaces::CreatureScript
 #define SAY_RANDOM_MOJO6b   ", I know of a little swamp not too far from here...."
 #define SAY_RANDOM_MOJO7    "There's just never enough Mojo to go around..."
 
-class mob_mojo : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_mojo : public CreatureScript
 {
     public:
-        mob_mojo() : MS::Game::Scripting::Interfaces::CreatureScript("mob_mojo") { }
+        mob_mojo() : CreatureScript("mob_mojo") { }
 
         struct mob_mojoAI : public ScriptedAI
         {
@@ -1835,10 +1835,10 @@ enum imagesSpells
     SPELL_MAGE_GLYPH        = 63093
 };
 
-class npc_mirror_image : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_mirror_image : public CreatureScript
 {
     public:
-        npc_mirror_image() : MS::Game::Scripting::Interfaces::CreatureScript("npc_mirror_image") { }
+        npc_mirror_image() : CreatureScript("npc_mirror_image") { }
 
         struct npc_mirror_imageAI : CasterAI
         {
@@ -1987,10 +1987,10 @@ class npc_mirror_image : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class npc_ebon_gargoyle : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_ebon_gargoyle : public CreatureScript
 {
     public:
-        npc_ebon_gargoyle() : MS::Game::Scripting::Interfaces::CreatureScript("npc_ebon_gargoyle") { }
+        npc_ebon_gargoyle() : CreatureScript("npc_ebon_gargoyle") { }
 
         struct npc_ebon_gargoyleAI : CasterAI
         {
@@ -2105,10 +2105,10 @@ class npc_ebon_gargoyle : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Lightwell - 64571
-class npc_new_lightwell : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_new_lightwell : public CreatureScript
 {
     public:
-        npc_new_lightwell() : MS::Game::Scripting::Interfaces::CreatureScript("npc_new_lightwell") { }
+        npc_new_lightwell() : CreatureScript("npc_new_lightwell") { }
 
         struct npc_new_lightwellAI : public PassiveAI
         {
@@ -2187,10 +2187,10 @@ class npc_new_lightwell : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Lightwell - 31897
-class npc_lightwell : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_lightwell : public CreatureScript
 {
     public:
-        npc_lightwell() : MS::Game::Scripting::Interfaces::CreatureScript("npc_lightwell") { }
+        npc_lightwell() : CreatureScript("npc_lightwell") { }
 
         struct npc_lightwellAI : public PassiveAI
         {
@@ -2235,10 +2235,10 @@ enum eTrainingDummy
     NPC_TARGET_DUMMY                           = 2673
 };
 
-class npc_training_dummy : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_training_dummy : public CreatureScript
 {
     public:
-        npc_training_dummy() : MS::Game::Scripting::Interfaces::CreatureScript("npc_training_dummy") { }
+        npc_training_dummy() : CreatureScript("npc_training_dummy") { }
 
         struct npc_training_dummyAI : Scripted_NoMovementAI
         {
@@ -2335,10 +2335,10 @@ enum fireSpells
     SPELL_SHAMAN_FIRE_SHIELD    = 13376
 };
 
-class npc_fire_elemental : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_fire_elemental : public CreatureScript
 {
     public:
-        npc_fire_elemental() : MS::Game::Scripting::Interfaces::CreatureScript("npc_fire_elemental") { }
+        npc_fire_elemental() : CreatureScript("npc_fire_elemental") { }
 
         struct npc_fire_elementalAI : public ScriptedAI
         {
@@ -2412,10 +2412,10 @@ class npc_fire_elemental : public MS::Game::Scripting::Interfaces::CreatureScrip
 ######*/
 #define SPELL_ANGEREDEARTH        36213
 
-class npc_earth_elemental : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_earth_elemental : public CreatureScript
 {
     public:
-        npc_earth_elemental() : MS::Game::Scripting::Interfaces::CreatureScript("npc_earth_elemental") { }
+        npc_earth_elemental() : CreatureScript("npc_earth_elemental") { }
 
         struct npc_earth_elementalAI : public ScriptedAI
         {
@@ -2491,10 +2491,10 @@ enum WormholeSpells
     DATA_SHOW_UNDERGROUND       = 1,
 };
 
-class npc_wormhole : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_wormhole : public CreatureScript
 {
     public:
-        npc_wormhole() : MS::Game::Scripting::Interfaces::CreatureScript("npc_wormhole") {}
+        npc_wormhole() : CreatureScript("npc_wormhole") {}
 
         struct npc_wormholeAI : public PassiveAI
         {
@@ -2593,10 +2593,10 @@ enum ePetTrainer
 #define GOSSIP_PET2             "I wish to untrain my pet."
 #define GOSSIP_PET_CONFIRM      "Yes, please do."
 
-class npc_pet_trainer : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_pet_trainer : public CreatureScript
 {
     public:
-        npc_pet_trainer() : MS::Game::Scripting::Interfaces::CreatureScript("npc_pet_trainer") { }
+        npc_pet_trainer() : CreatureScript("npc_pet_trainer") { }
 
         bool OnGossipHello(Player* player, Creature* creature)
         {
@@ -2687,10 +2687,10 @@ enum eLockSmith
 #define GOSSIP_LOST_KEY_TO_THE_FOCUSING_IRIS    "I've lost my Key to the Focusing Iris."
 #define GOSSIP_LOST_HC_KEY_TO_THE_FOCUSING_IRIS "I've lost my Heroic Key to the Focusing Iris."
 
-class npc_locksmith : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_locksmith : public CreatureScript
 {
     public:
-        npc_locksmith() : MS::Game::Scripting::Interfaces::CreatureScript("npc_locksmith") { }
+        npc_locksmith() : CreatureScript("npc_locksmith") { }
 
         bool OnGossipHello(Player* player, Creature* creature)
         {
@@ -2792,10 +2792,10 @@ class npc_locksmith : public MS::Game::Scripting::Interfaces::CreatureScript
 #define GOSSIP_XP_OFF           "I no longer wish to gain experience."
 #define GOSSIP_XP_ON            "I wish to start gaining experience again."
 
-class npc_experience : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_experience : public CreatureScript
 {
     public:
-        npc_experience() : MS::Game::Scripting::Interfaces::CreatureScript("npc_experience") { }
+        npc_experience() : CreatureScript("npc_experience") { }
 
         bool OnGossipHello(Player* player, Creature* creature)
         {
@@ -2905,10 +2905,10 @@ enum Fireworks
 
 Position omenSummonPos = {7558.993f, -2839.999f, 450.0214f, 4.46f};
 
-class npc_firework : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_firework : public CreatureScript
 {
     public:
-        npc_firework() : MS::Game::Scripting::Interfaces::CreatureScript("npc_firework") { }
+        npc_firework() : CreatureScript("npc_firework") { }
 
         struct npc_fireworkAI : public ScriptedAI
         {
@@ -3139,10 +3139,10 @@ enum rabbitSpells
     NPC_SPRING_RABBIT           = 32791
 };
 
-class npc_spring_rabbit : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_spring_rabbit : public CreatureScript
 {
     public:
-        npc_spring_rabbit() : MS::Game::Scripting::Interfaces::CreatureScript("npc_spring_rabbit") { }
+        npc_spring_rabbit() : CreatureScript("npc_spring_rabbit") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -3223,10 +3223,10 @@ class npc_spring_rabbit : public MS::Game::Scripting::Interfaces::CreatureScript
 ## npc_generic_harpoon_cannon
 ######*/
 
-class npc_generic_harpoon_cannon : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_generic_harpoon_cannon : public CreatureScript
 {
     public:
-        npc_generic_harpoon_cannon() : MS::Game::Scripting::Interfaces::CreatureScript("npc_generic_harpoon_cannon") { }
+        npc_generic_harpoon_cannon() : CreatureScript("npc_generic_harpoon_cannon") { }
 
         struct npc_generic_harpoon_cannonAI : public ScriptedAI
         {
@@ -3252,10 +3252,10 @@ class npc_generic_harpoon_cannon : public MS::Game::Scripting::Interfaces::Creat
 #define GOSSIP_TP_STORMIND        "I would like to go to Stormwind"
 #define GOSSIP_TP_ORGRI           "I would like to go to Orgrimmar"
 
-class npc_choose_faction : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_choose_faction : public CreatureScript
 {
     public:
-        npc_choose_faction() : MS::Game::Scripting::Interfaces::CreatureScript("npc_choose_faction") { }
+        npc_choose_faction() : CreatureScript("npc_choose_faction") { }
 
         bool OnGossipHello(Player* player, Creature* creature)
         {
@@ -3284,10 +3284,10 @@ class npc_choose_faction : public MS::Game::Scripting::Interfaces::CreatureScrip
         }
 };
 
-class npc_choose_faction_after_shop : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_choose_faction_after_shop : public CreatureScript
 {
     public:
-        npc_choose_faction_after_shop() : MS::Game::Scripting::Interfaces::CreatureScript("npc_choose_faction_after_shop") { }
+        npc_choose_faction_after_shop() : CreatureScript("npc_choose_faction_after_shop") { }
 
         bool OnGossipHello(Player* player, Creature* creature)
         {
@@ -3328,10 +3328,10 @@ class npc_choose_faction_after_shop : public MS::Game::Scripting::Interfaces::Cr
 #define GOSSIP_TEXT_EXP_NORMAL   1589
 #define GOSSIP_ITEM_XP_CLOSE     "Good bye."
 
-class npc_rate_xp_modifier : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_rate_xp_modifier : public CreatureScript
 {
     public:
-        npc_rate_xp_modifier() : MS::Game::Scripting::Interfaces::CreatureScript("npc_rate_xp_modifier") { }
+        npc_rate_xp_modifier() : CreatureScript("npc_rate_xp_modifier") { }
 
         bool OnGossipHello(Player *pPlayer, Creature *pCreature)
         {
@@ -3377,10 +3377,10 @@ class npc_rate_xp_modifier : public MS::Game::Scripting::Interfaces::CreatureScr
 ## npc_capacitor_totem
 ######*/
 
-class npc_capacitor_totem : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_capacitor_totem : public CreatureScript
 {
     public:
-        npc_capacitor_totem() : MS::Game::Scripting::Interfaces::CreatureScript("npc_capacitor_totem") { }
+        npc_capacitor_totem() : CreatureScript("npc_capacitor_totem") { }
 
     struct npc_capacitor_totemAI : public ScriptedAI
     {
@@ -3407,10 +3407,10 @@ class npc_capacitor_totem : public MS::Game::Scripting::Interfaces::CreatureScri
 ## npc_feral_spirit
 ######*/
 
-class npc_feral_spirit : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_feral_spirit : public CreatureScript
 {
     public:
-        npc_feral_spirit() : MS::Game::Scripting::Interfaces::CreatureScript("npc_feral_spirit") { }
+        npc_feral_spirit() : CreatureScript("npc_feral_spirit") { }
 
         struct npc_feral_spiritAI : public ScriptedAI
         {
@@ -3453,10 +3453,10 @@ class npc_feral_spirit : public MS::Game::Scripting::Interfaces::CreatureScript
 ## npc_spirit_link_totem
 ######*/
 
-class npc_spirit_link_totem : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_spirit_link_totem : public CreatureScript
 {
     public:
-        npc_spirit_link_totem() : MS::Game::Scripting::Interfaces::CreatureScript("npc_spirit_link_totem") { }
+        npc_spirit_link_totem() : CreatureScript("npc_spirit_link_totem") { }
 
     struct npc_spirit_link_totemAI : public ScriptedAI
     {
@@ -3504,10 +3504,10 @@ class npc_spirit_link_totem : public MS::Game::Scripting::Interfaces::CreatureSc
 # npc_demoralizing_banner
 ######*/
 
-class npc_demoralizing_banner : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_demoralizing_banner : public CreatureScript
 {
     public:
-        npc_demoralizing_banner() : MS::Game::Scripting::Interfaces::CreatureScript("npc_demoralizing_banner") { }
+        npc_demoralizing_banner() : CreatureScript("npc_demoralizing_banner") { }
 
         struct npc_demoralizing_bannerAI : public ScriptedAI
         {
@@ -3558,10 +3558,10 @@ enum frozenOrbSpells
     SPELL_FINGERS_OF_FROST          = 126084,
 };
 
-class npc_frozen_orb : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_frozen_orb : public CreatureScript
 {
     public:
-        npc_frozen_orb() : MS::Game::Scripting::Interfaces::CreatureScript("npc_frozen_orb") { }
+        npc_frozen_orb() : CreatureScript("npc_frozen_orb") { }
 
         struct npc_frozen_orbAI : public ScriptedAI
         {
@@ -3634,10 +3634,10 @@ enum GuardianSpellsAndEntries
     SPELL_ANCIENT_HEALER            = 86674,
 };
 
-class npc_guardian_of_ancient_kings : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_guardian_of_ancient_kings : public CreatureScript
 {
     public:
-        npc_guardian_of_ancient_kings() : MS::Game::Scripting::Interfaces::CreatureScript("npc_guardian_of_ancient_kings") { }
+        npc_guardian_of_ancient_kings() : CreatureScript("npc_guardian_of_ancient_kings") { }
 
         struct npc_guardian_of_ancient_kingsAI : public ScriptedAI
         {
@@ -3720,10 +3720,10 @@ const int32 purpleAuras[6] = { 113931, 113915, 113916, 113917, 113918, 113919 };
 # npc_demonic_gateway_purple - 59271
 ######*/
 
-class npc_demonic_gateway_purple : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_demonic_gateway_purple : public CreatureScript
 {
     public:
-        npc_demonic_gateway_purple() : MS::Game::Scripting::Interfaces::CreatureScript("npc_demonic_gateway_purple") { }
+        npc_demonic_gateway_purple() : CreatureScript("npc_demonic_gateway_purple") { }
 
         struct npc_demonic_gateway_purpleAI : public ScriptedAI
         {
@@ -3812,10 +3812,10 @@ class npc_demonic_gateway_purple : public MS::Game::Scripting::Interfaces::Creat
 # new npc_demonic_gateway_green - 59262
 ######*/
 
-class npc_demonic_gateway_green : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_demonic_gateway_green : public CreatureScript
 {
     public:
-        npc_demonic_gateway_green() : MS::Game::Scripting::Interfaces::CreatureScript("npc_demonic_gateway_green") { }
+        npc_demonic_gateway_green() : CreatureScript("npc_demonic_gateway_green") { }
 
         struct npc_demonic_gateway_greenAI : public ScriptedAI
         {
@@ -3903,10 +3903,10 @@ class npc_demonic_gateway_green : public MS::Game::Scripting::Interfaces::Creatu
 # npc_dire_beast
 ######*/
 
-class npc_dire_beast : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_dire_beast : public CreatureScript
 {
     public:
-        npc_dire_beast() : MS::Game::Scripting::Interfaces::CreatureScript("npc_dire_beast") { }
+        npc_dire_beast() : CreatureScript("npc_dire_beast") { }
 
         struct npc_dire_beastAI : public ScriptedAI
         {
@@ -3960,10 +3960,10 @@ class npc_dire_beast : public MS::Game::Scripting::Interfaces::CreatureScript
 # npc_wild_imp
 ######*/
 
-class npc_wild_imp : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_wild_imp : public CreatureScript
 {
     public:
-        npc_wild_imp() : MS::Game::Scripting::Interfaces::CreatureScript("npc_wild_imp") { }
+        npc_wild_imp() : CreatureScript("npc_wild_imp") { }
 
         struct npc_wild_impAI : public ScriptedAI
         {
@@ -4044,10 +4044,10 @@ class npc_wild_imp : public MS::Game::Scripting::Interfaces::CreatureScript
 
 #define STONE_BULWARK_TOTEM_ABSORB      114889
 
-class npc_stone_bulwark_totem : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_stone_bulwark_totem : public CreatureScript
 {
     public:
-        npc_stone_bulwark_totem() : MS::Game::Scripting::Interfaces::CreatureScript("npc_stone_bulwark_totem") { }
+        npc_stone_bulwark_totem() : CreatureScript("npc_stone_bulwark_totem") { }
 
     struct npc_stone_bulwark_totemAI : public ScriptedAI
     {
@@ -4075,10 +4075,10 @@ class npc_stone_bulwark_totem : public MS::Game::Scripting::Interfaces::Creature
 
 #define EARTHGRAB       116943
 
-class npc_earthgrab_totem : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_earthgrab_totem : public CreatureScript
 {
     public:
-        npc_earthgrab_totem() : MS::Game::Scripting::Interfaces::CreatureScript("npc_earthgrab_totem") { }
+        npc_earthgrab_totem() : CreatureScript("npc_earthgrab_totem") { }
 
     struct npc_earthgrab_totemAI : public ScriptedAI
     {
@@ -4106,10 +4106,10 @@ class npc_earthgrab_totem : public MS::Game::Scripting::Interfaces::CreatureScri
 
 #define WINDWALK     114896
 
-class npc_windwalk_totem : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_windwalk_totem : public CreatureScript
 {
     public:
-        npc_windwalk_totem() : MS::Game::Scripting::Interfaces::CreatureScript("npc_windwalk_totem") { }
+        npc_windwalk_totem() : CreatureScript("npc_windwalk_totem") { }
 
     struct npc_windwalk_totemAI : public ScriptedAI
     {
@@ -4137,10 +4137,10 @@ class npc_windwalk_totem : public MS::Game::Scripting::Interfaces::CreatureScrip
 
 #define HEALING_TIDE     114941
 
-class npc_healing_tide_totem : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_healing_tide_totem : public CreatureScript
 {
     public:
-        npc_healing_tide_totem() : MS::Game::Scripting::Interfaces::CreatureScript("npc_healing_tide_totem") { }
+        npc_healing_tide_totem() : CreatureScript("npc_healing_tide_totem") { }
 
     struct npc_healing_tide_totemAI : public ScriptedAI
     {
@@ -4166,10 +4166,10 @@ class npc_healing_tide_totem : public MS::Game::Scripting::Interfaces::CreatureS
 ## npc_ring_of_frost
 ######*/
 
-class npc_ring_of_frost : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_ring_of_frost : public CreatureScript
 {
     public:
-        npc_ring_of_frost() : MS::Game::Scripting::Interfaces::CreatureScript("npc_ring_of_frost") { }
+        npc_ring_of_frost() : CreatureScript("npc_ring_of_frost") { }
 
         struct npc_ring_of_frostAI : public Scripted_NoMovementAI
         {
@@ -4248,10 +4248,10 @@ class npc_ring_of_frost : public MS::Game::Scripting::Interfaces::CreatureScript
 
 #define WILD_MUSHROOM_INVISIBILITY   92661
 
-class npc_wild_mushroom : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_wild_mushroom : public CreatureScript
 {
     public:
-        npc_wild_mushroom() : MS::Game::Scripting::Interfaces::CreatureScript("npc_wild_mushroom") { }
+        npc_wild_mushroom() : CreatureScript("npc_wild_mushroom") { }
 
         struct npc_wild_mushroomAI : public ScriptedAI
         {
@@ -4295,10 +4295,10 @@ class npc_wild_mushroom : public MS::Game::Scripting::Interfaces::CreatureScript
 #define FUNGAL_GROWTH_PERIODIC  81282
 #define FUNGAL_GROWTH_AREA      94339
 
-class npc_fungal_growth : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_fungal_growth : public CreatureScript
 {
     public:
-        npc_fungal_growth() : MS::Game::Scripting::Interfaces::CreatureScript("npc_fungal_growth") { }
+        npc_fungal_growth() : CreatureScript("npc_fungal_growth") { }
 
         struct npc_fungal_growthAI : public Scripted_NoMovementAI
         {
@@ -4352,10 +4352,10 @@ class npc_fungal_growth : public MS::Game::Scripting::Interfaces::CreatureScript
 #define BLOODWORM_BLOOD_STACKS  81277
 #define BLOODWORM_BLOOD_BURST   81280
 
-class npc_bloodworm : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_bloodworm : public CreatureScript
 {
     public:
-        npc_bloodworm() : MS::Game::Scripting::Interfaces::CreatureScript("npc_bloodworm") { }
+        npc_bloodworm() : CreatureScript("npc_bloodworm") { }
 
         struct npc_bloodwormAI : public ScriptedAI
         {
@@ -4462,10 +4462,10 @@ struct auraData
 
 #define ACTION_ALTER_TIME   1
 
-class npc_past_self : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_past_self : public CreatureScript
 {
     public:
-        npc_past_self() : MS::Game::Scripting::Interfaces::CreatureScript("npc_past_self") { }
+        npc_past_self() : CreatureScript("npc_past_self") { }
 
         struct npc_past_selfAI : public Scripted_NoMovementAI
         {
@@ -4597,10 +4597,10 @@ enum transcendenceActions
     ACTION_TELEPORT
 };
 
-class npc_transcendence_spirit : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_transcendence_spirit : public CreatureScript
 {
     public:
-        npc_transcendence_spirit() : MS::Game::Scripting::Interfaces::CreatureScript("npc_transcendence_spirit") { }
+        npc_transcendence_spirit() : CreatureScript("npc_transcendence_spirit") { }
 
         struct npc_transcendence_spiritAI : public Scripted_NoMovementAI
         {
@@ -4669,10 +4669,10 @@ enum voidTendrilsSpells
     SPELL_VOID_TENDRILS_ROOT = 108920,
 };
 
-class npc_void_tendrils : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_void_tendrils : public CreatureScript
 {
     public:
-        npc_void_tendrils() : MS::Game::Scripting::Interfaces::CreatureScript("npc_void_tendrils") { }
+        npc_void_tendrils() : CreatureScript("npc_void_tendrils") { }
 
         struct npc_void_tendrilsAI : public Scripted_NoMovementAI
         {
@@ -4745,10 +4745,10 @@ enum PsyfiendEvents
     EVENT_FEAR = 1
 };
 
-class npc_psyfiend : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_psyfiend : public CreatureScript
 {
     public:
-        npc_psyfiend() : MS::Game::Scripting::Interfaces::CreatureScript("npc_psyfiend") { }
+        npc_psyfiend() : CreatureScript("npc_psyfiend") { }
 
         struct npc_psyfiendAI : public Scripted_NoMovementAI
         {
@@ -4838,10 +4838,10 @@ enum spectralGuiseSpells
     SPELL_SPECTRAL_GUISE_STEALTH    = 119032,
 };
 
-class npc_spectral_guise : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_spectral_guise : public CreatureScript
 {
     public:
-        npc_spectral_guise() : MS::Game::Scripting::Interfaces::CreatureScript("npc_spectral_guise") { }
+        npc_spectral_guise() : CreatureScript("npc_spectral_guise") { }
 
         struct npc_spectral_guiseAI : public Scripted_NoMovementAI
         {
@@ -4909,10 +4909,10 @@ enum eForceOfNatureSpells
     SPELL_TREANT_EFFLORESCENCE  = 142424
 };
 
-class npc_force_of_nature : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_force_of_nature : public CreatureScript
 {
     public:
-        npc_force_of_nature() : MS::Game::Scripting::Interfaces::CreatureScript("npc_force_of_nature") { }
+        npc_force_of_nature() : CreatureScript("npc_force_of_nature") { }
 
         struct npc_force_of_natureAI : public ScriptedAI
         {
@@ -5005,10 +5005,10 @@ class npc_force_of_nature : public MS::Game::Scripting::Interfaces::CreatureScri
 };
 
 // Swiftmend - 142423
-class spell_special_swiftmend: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_special_swiftmend: public SpellScriptLoader
 {
     public:
-        spell_special_swiftmend() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_special_swiftmend") { }
+        spell_special_swiftmend() : SpellScriptLoader("spell_special_swiftmend") { }
 
         class spell_special_swiftmend_AuraScript : public AuraScript
         {
@@ -5041,10 +5041,10 @@ class spell_special_swiftmend: public MS::Game::Scripting::Interfaces::SpellScri
 
 #define MAGIC_BAMBOO_SHOOT 93314
 
-class npc_luo_meng : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_luo_meng : public CreatureScript
 {
     public:
-        npc_luo_meng() : MS::Game::Scripting::Interfaces::CreatureScript("npc_luo_meng") { }
+        npc_luo_meng() : CreatureScript("npc_luo_meng") { }
 
         struct npc_luo_mengAI : public ScriptedAI
         {
@@ -5114,10 +5114,10 @@ enum eSpiritMoves
 
 const uint32 visualMorph[3] = { 138080, 138083, 138081 }; // Storm, Earth and Fire
 
-class npc_monk_spirit : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_monk_spirit : public CreatureScript
 {
     public:
-        npc_monk_spirit() : MS::Game::Scripting::Interfaces::CreatureScript("npc_monk_spirit") { }
+        npc_monk_spirit() : CreatureScript("npc_monk_spirit") { }
 
         struct npc_monk_spiritAI : public ScriptedAI
         {
@@ -5249,10 +5249,10 @@ class npc_monk_spirit : public MS::Game::Scripting::Interfaces::CreatureScript
 ## npc_rogue_decoy - 62261
 ######*/
 
-class npc_rogue_decoy : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_rogue_decoy : public CreatureScript
 {
     public:
-        npc_rogue_decoy() : MS::Game::Scripting::Interfaces::CreatureScript("npc_rogue_decoy") { }
+        npc_rogue_decoy() : CreatureScript("npc_rogue_decoy") { }
 
         struct npc_rogue_decoyAI : public Scripted_NoMovementAI
         {
@@ -5294,10 +5294,10 @@ class npc_rogue_decoy : public MS::Game::Scripting::Interfaces::CreatureScript
 
 const uint32 displayIds[6] = { 26079, 25286, 10971, 201, 28292, 27870 };
 
-class npc_army_of_the_dead : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_army_of_the_dead : public CreatureScript
 {
     public:
-        npc_army_of_the_dead() : MS::Game::Scripting::Interfaces::CreatureScript("npc_army_of_the_dead") { }
+        npc_army_of_the_dead() : CreatureScript("npc_army_of_the_dead") { }
 
         struct npc_army_of_the_deadAI : public ScriptedAI
         {

@@ -46,10 +46,10 @@ enum eSays
 
 #define DATA_LESS_RABI                            1
 
-class boss_moorabi : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_moorabi : public CreatureScript
 {
 public:
-    boss_moorabi() : MS::Game::Scripting::Interfaces::CreatureScript("boss_moorabi") { }
+    boss_moorabi() : CreatureScript("boss_moorabi") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -171,10 +171,10 @@ public:
 
 };
 
-class achievement_less_rabi : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
+class achievement_less_rabi : public AchievementCriteriaScript
 {
     public:
-        achievement_less_rabi() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_less_rabi")
+        achievement_less_rabi() : AchievementCriteriaScript("achievement_less_rabi")
         {
         }
 

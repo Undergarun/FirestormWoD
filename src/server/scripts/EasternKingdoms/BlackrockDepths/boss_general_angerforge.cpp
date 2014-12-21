@@ -26,10 +26,10 @@ enum Spells
     SPELL_CLEAVE                                           = 20691
 };
 
-class boss_general_angerforge : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_general_angerforge : public CreatureScript
 {
 public:
-    boss_general_angerforge() : MS::Game::Scripting::Interfaces::CreatureScript("boss_general_angerforge") { }
+    boss_general_angerforge() : CreatureScript("boss_general_angerforge") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

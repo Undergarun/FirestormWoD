@@ -31,10 +31,10 @@ EndContentData */
 #include "ScriptedEscortAI.h"
 #include "ScriptedFollowerAI.h"
 
-class npc_a_me_01 : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_a_me_01 : public CreatureScript
 {
     public:
-        npc_a_me_01() : MS::Game::Scripting::Interfaces::CreatureScript("npc_a_me_01")
+        npc_a_me_01() : CreatureScript("npc_a_me_01")
         {
         }
 

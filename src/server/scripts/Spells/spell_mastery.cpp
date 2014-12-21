@@ -43,10 +43,10 @@ enum MasterySpells
 };
 
 // Mastery: Echo of Light - 77485
-class spell_mastery_echo_of_light: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_mastery_echo_of_light: public SpellScriptLoader
 {
     public:
-        spell_mastery_echo_of_light() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mastery_echo_of_light") { }
+        spell_mastery_echo_of_light() : SpellScriptLoader("spell_mastery_echo_of_light") { }
 
         class spell_mastery_echo_of_light_AuraScript : public AuraScript
         {
@@ -92,10 +92,10 @@ bool IcicleOverstack = false;
 
 // Called by Frostbolt - 116 and Frostfire bolt - 44614
 // Mastery: Icicles - 76613
-class spell_mastery_icicles: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_mastery_icicles: public SpellScriptLoader
 {
     public:
-        spell_mastery_icicles() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mastery_icicles") { }
+        spell_mastery_icicles() : SpellScriptLoader("spell_mastery_icicles") { }
 
         class spell_mastery_icicles_SpellScript : public SpellScript
         {
@@ -200,10 +200,10 @@ class spell_mastery_icicles: public MS::Game::Scripting::Interfaces::SpellScript
 };
 
 // Ice Lance - 30455
-class spell_mastery_icicles_trigger: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_mastery_icicles_trigger: public SpellScriptLoader
 {
     public:
-        spell_mastery_icicles_trigger() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mastery_icicles_trigger") { }
+        spell_mastery_icicles_trigger() : SpellScriptLoader("spell_mastery_icicles_trigger") { }
 
         class spell_mastery_icicles_trigger_SpellScript : public SpellScript
         {
@@ -232,10 +232,10 @@ class spell_mastery_icicles_trigger: public MS::Game::Scripting::Interfaces::Spe
 };
 
 // Icicles (periodic) - 148023
-class spell_mastery_icicles_periodic: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_mastery_icicles_periodic: public SpellScriptLoader
 {
     public:
-        spell_mastery_icicles_periodic() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mastery_icicles_periodic") { }
+        spell_mastery_icicles_periodic() : SpellScriptLoader("spell_mastery_icicles_periodic") { }
 
         class spell_mastery_icicles_periodic_AuraScript : public AuraScript
         {
@@ -284,10 +284,10 @@ class spell_mastery_icicles_periodic: public MS::Game::Scripting::Interfaces::Sp
 };
 
 // Icicles: 148017, 148018, 148019, 148020, 148021
-class spell_mastery_icicles_hit: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_mastery_icicles_hit: public SpellScriptLoader
 {
     public:
-        spell_mastery_icicles_hit() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mastery_icicles_hit") { }
+        spell_mastery_icicles_hit() : SpellScriptLoader("spell_mastery_icicles_hit") { }
 
         class spell_mastery_icicles_hit_SpellScript : public SpellScript
         {
@@ -338,10 +338,10 @@ class spell_mastery_icicles_hit: public MS::Game::Scripting::Interfaces::SpellSc
 
 // Called by Power Word : Shield - 17, Power Word : Shield (Divine Insight) - 123258, Spirit Shell - 114908, Angelic Bulwark - 114214 and Divine Aegis - 47753
 // Mastery : Shield Discipline - 77484
-class spell_mastery_shield_discipline: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_mastery_shield_discipline: public SpellScriptLoader
 {
     public:
-        spell_mastery_shield_discipline() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mastery_shield_discipline") { }
+        spell_mastery_shield_discipline() : SpellScriptLoader("spell_mastery_shield_discipline") { }
 
         class spell_mastery_shield_discipline_AuraScript : public AuraScript
         {
@@ -373,10 +373,10 @@ class spell_mastery_shield_discipline: public MS::Game::Scripting::Interfaces::S
 
 // Called by 45470 - Death Strike (Heal)
 // 77513 - Mastery : Blood Shield
-class spell_mastery_blood_shield: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_mastery_blood_shield: public SpellScriptLoader
 {
     public:
-        spell_mastery_blood_shield() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mastery_blood_shield") { }
+        spell_mastery_blood_shield() : SpellScriptLoader("spell_mastery_blood_shield") { }
 
         class spell_mastery_blood_shield_SpellScript : public SpellScript
         {
@@ -426,10 +426,10 @@ class spell_mastery_blood_shield: public MS::Game::Scripting::Interfaces::SpellS
 
 // Called by 133 - Fireball, 44614 - Frostfire Bolt, 108853 - Inferno Blast, 2948 - Scorch and 11366 - Pyroblast
 // 12846 - Mastery : Ignite
-class spell_mastery_ignite: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_mastery_ignite: public SpellScriptLoader
 {
     public:
-        spell_mastery_ignite() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mastery_ignite") { }
+        spell_mastery_ignite() : SpellScriptLoader("spell_mastery_ignite") { }
 
         class spell_mastery_ignite_SpellScript : public SpellScript
         {
@@ -478,10 +478,10 @@ class spell_mastery_ignite: public MS::Game::Scripting::Interfaces::SpellScriptL
 
 // Called by 35395 - Crusader Strike, 53595 - Hammer of the Righteous, 24275 - Hammer of Wrath, 85256 - Templar's Verdict and 53385 - Divine Storm
 // 76672 - Mastery : Hand of Light
-class spell_mastery_hand_of_light: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_mastery_hand_of_light: public SpellScriptLoader
 {
     public:
-        spell_mastery_hand_of_light() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mastery_hand_of_light") { }
+        spell_mastery_hand_of_light() : SpellScriptLoader("spell_mastery_hand_of_light") { }
 
         class spell_mastery_hand_of_light_SpellScript : public SpellScript
         {
@@ -520,10 +520,10 @@ class spell_mastery_hand_of_light: public MS::Game::Scripting::Interfaces::Spell
 
 // Called by 403 - Lightning Bolt, 421 - Chain Lightning, 51505 - Lava Burst and 117014 - Elemental Blast
 // 77222 - Mastery : Elemental Overload
-class spell_mastery_elemental_overload: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_mastery_elemental_overload: public SpellScriptLoader
 {
     public:
-        spell_mastery_elemental_overload() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mastery_elemental_overload") { }
+        spell_mastery_elemental_overload() : SpellScriptLoader("spell_mastery_elemental_overload") { }
 
         class spell_mastery_elemental_overload_SpellScript : public SpellScript
         {

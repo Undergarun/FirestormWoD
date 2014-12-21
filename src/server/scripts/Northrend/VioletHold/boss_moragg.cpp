@@ -25,10 +25,10 @@ enum Spells
     SPELL_OPTIC_LINK                           = 54396
 };
 
-class boss_moragg : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_moragg : public CreatureScript
 {
 public:
-    boss_moragg() : MS::Game::Scripting::Interfaces::CreatureScript("boss_moragg") { }
+    boss_moragg() : CreatureScript("boss_moragg") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

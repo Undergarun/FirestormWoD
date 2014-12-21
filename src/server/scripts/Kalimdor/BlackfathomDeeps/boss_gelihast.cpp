@@ -24,10 +24,10 @@ enum Spells
     SPELL_NET                                              = 6533
 };
 
-class boss_gelihast : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_gelihast : public CreatureScript
 {
 public:
-    boss_gelihast() : MS::Game::Scripting::Interfaces::CreatureScript("boss_gelihast") { }
+    boss_gelihast() : CreatureScript("boss_gelihast") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

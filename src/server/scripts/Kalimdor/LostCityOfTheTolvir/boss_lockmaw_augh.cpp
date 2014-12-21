@@ -91,10 +91,10 @@ const uint32 SummonRandomAugh[3]=
     SPELL_SUMMON_AUGH_BLOW_DART
 };
 
-class boss_lockmaw : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_lockmaw : public CreatureScript
 {
 public:
-    boss_lockmaw() : MS::Game::Scripting::Interfaces::CreatureScript("boss_lockmaw") { }
+    boss_lockmaw() : CreatureScript("boss_lockmaw") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -261,10 +261,10 @@ public:
     };
 };
 
-class npc_frenzied_croc : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_frenzied_croc : public CreatureScript
 {
 public:
-    npc_frenzied_croc() : MS::Game::Scripting::Interfaces::CreatureScript("npc_frenzied_croc") { }
+    npc_frenzied_croc() : CreatureScript("npc_frenzied_croc") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -343,10 +343,10 @@ public:
     };
 };
 
-class npc_augh_intro : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_augh_intro : public CreatureScript
 {
 public:
-    npc_augh_intro() : MS::Game::Scripting::Interfaces::CreatureScript("npc_augh_intro") { }
+    npc_augh_intro() : CreatureScript("npc_augh_intro") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -393,10 +393,10 @@ public:
     };
 };
 
-class npc_augh_blow_dart : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_augh_blow_dart : public CreatureScript
 {
 public:
-    npc_augh_blow_dart() : MS::Game::Scripting::Interfaces::CreatureScript("npc_augh_blow_dart") { }
+    npc_augh_blow_dart() : CreatureScript("npc_augh_blow_dart") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -457,10 +457,10 @@ public:
     };
 };
 
-class npc_augh_whirlwind : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_augh_whirlwind : public CreatureScript
 {
 public:
-    npc_augh_whirlwind() : MS::Game::Scripting::Interfaces::CreatureScript("npc_augh_whirlwind") { }
+    npc_augh_whirlwind() : CreatureScript("npc_augh_whirlwind") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -529,10 +529,10 @@ public:
     };
 };
 
-class npc_augh_dragons_breath : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_augh_dragons_breath : public CreatureScript
 {
 public:
-    npc_augh_dragons_breath() : MS::Game::Scripting::Interfaces::CreatureScript("npc_augh_dragons_breath") { }
+    npc_augh_dragons_breath() : CreatureScript("npc_augh_dragons_breath") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -616,10 +616,10 @@ public:
     };
 };
 
-class boss_augh : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_augh : public CreatureScript
 {
 public:
-    boss_augh() : MS::Game::Scripting::Interfaces::CreatureScript("boss_augh") { }
+    boss_augh() : CreatureScript("boss_augh") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -796,10 +796,10 @@ public:
     };
 };
 
-class spell_dust_flail: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dust_flail: public SpellScriptLoader
 {
     public:
-        spell_dust_flail() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dust_flail") { }
+        spell_dust_flail() : SpellScriptLoader("spell_dust_flail") { }
 
         class spell_dust_flail_AuraScript : public AuraScript
         {

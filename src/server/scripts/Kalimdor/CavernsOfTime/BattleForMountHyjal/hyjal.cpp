@@ -47,10 +47,10 @@ EndContentData */
 
 #define GOSSIP_ITEM_GM1             "[GM] Toggle Debug Timers"
 
-class npc_jaina_proudmoore : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_jaina_proudmoore : public CreatureScript
 {
 public:
-    npc_jaina_proudmoore() : MS::Game::Scripting::Interfaces::CreatureScript("npc_jaina_proudmoore") { }
+    npc_jaina_proudmoore() : CreatureScript("npc_jaina_proudmoore") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
@@ -123,10 +123,10 @@ public:
 
 };
 
-class npc_thrall : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_thrall : public CreatureScript
 {
 public:
-    npc_thrall() : MS::Game::Scripting::Interfaces::CreatureScript("npc_thrall") { }
+    npc_thrall() : CreatureScript("npc_thrall") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
@@ -201,10 +201,10 @@ public:
 
 };
 
-class npc_tyrande_whisperwind : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_tyrande_whisperwind : public CreatureScript
 {
 public:
-    npc_tyrande_whisperwind() : MS::Game::Scripting::Interfaces::CreatureScript("npc_tyrande_whisperwind") { }
+    npc_tyrande_whisperwind() : CreatureScript("npc_tyrande_whisperwind") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

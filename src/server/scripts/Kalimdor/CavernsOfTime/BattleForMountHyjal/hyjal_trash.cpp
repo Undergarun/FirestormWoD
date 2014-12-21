@@ -409,10 +409,10 @@ void hyjal_trashAI::JustDied(Unit* /*killer*/)
         me->RemoveFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);//no loot
 }
 
-class mob_giant_infernal : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_giant_infernal : public CreatureScript
 {
 public:
-    mob_giant_infernal() : MS::Game::Scripting::Interfaces::CreatureScript("mob_giant_infernal") { }
+    mob_giant_infernal() : CreatureScript("mob_giant_infernal") { }
 
     struct mob_giant_infernalAI : public hyjal_trashAI
     {
@@ -548,10 +548,10 @@ public:
     }
 };
 
-class mob_abomination : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_abomination : public CreatureScript
 {
 public:
-    mob_abomination() : MS::Game::Scripting::Interfaces::CreatureScript("mob_abomination") { }
+    mob_abomination() : CreatureScript("mob_abomination") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -647,10 +647,10 @@ public:
 
 };
 
-class mob_ghoul : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_ghoul : public CreatureScript
 {
 public:
-    mob_ghoul() : MS::Game::Scripting::Interfaces::CreatureScript("mob_ghoul") { }
+    mob_ghoul() : CreatureScript("mob_ghoul") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -750,10 +750,10 @@ public:
 
 };
 
-class mob_necromancer : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_necromancer : public CreatureScript
 {
 public:
-    mob_necromancer() : MS::Game::Scripting::Interfaces::CreatureScript("mob_necromancer") { }
+    mob_necromancer() : CreatureScript("mob_necromancer") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -878,10 +878,10 @@ public:
 
 };
 
-class mob_banshee : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_banshee : public CreatureScript
 {
 public:
-    mob_banshee() : MS::Game::Scripting::Interfaces::CreatureScript("mob_banshee") { }
+    mob_banshee() : CreatureScript("mob_banshee") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -982,10 +982,10 @@ public:
 
 };
 
-class mob_crypt_fiend : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_crypt_fiend : public CreatureScript
 {
 public:
-    mob_crypt_fiend() : MS::Game::Scripting::Interfaces::CreatureScript("mob_crypt_fiend") { }
+    mob_crypt_fiend() : CreatureScript("mob_crypt_fiend") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1073,10 +1073,10 @@ public:
 
 };
 
-class mob_fel_stalker : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_fel_stalker : public CreatureScript
 {
 public:
-    mob_fel_stalker() : MS::Game::Scripting::Interfaces::CreatureScript("mob_fel_stalker") { }
+    mob_fel_stalker() : CreatureScript("mob_fel_stalker") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1164,10 +1164,10 @@ public:
 
 };
 
-class mob_frost_wyrm : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_frost_wyrm : public CreatureScript
 {
 public:
-    mob_frost_wyrm() : MS::Game::Scripting::Interfaces::CreatureScript("mob_frost_wyrm") { }
+    mob_frost_wyrm() : CreatureScript("mob_frost_wyrm") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1279,10 +1279,10 @@ public:
 
 };
 
-class mob_gargoyle : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_gargoyle : public CreatureScript
 {
 public:
-    mob_gargoyle() : MS::Game::Scripting::Interfaces::CreatureScript("mob_gargoyle") { }
+    mob_gargoyle() : CreatureScript("mob_gargoyle") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1434,10 +1434,10 @@ public:
 
 };
 
-class alliance_rifleman : public MS::Game::Scripting::Interfaces::CreatureScript
+class alliance_rifleman : public CreatureScript
 {
 public:
-    alliance_rifleman() : MS::Game::Scripting::Interfaces::CreatureScript("alliance_rifleman") { }
+    alliance_rifleman() : CreatureScript("alliance_rifleman") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

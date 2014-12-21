@@ -90,10 +90,10 @@ enum eEvents
     EVENT_RAGE,
 };
 
-class mob_crystalspawn_giant : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_crystalspawn_giant : public CreatureScript
 {
 public:
-    mob_crystalspawn_giant() : MS::Game::Scripting::Interfaces::CreatureScript("mob_crystalspawn_giant") { }
+    mob_crystalspawn_giant() : CreatureScript("mob_crystalspawn_giant") { }
 
     CreatureAI* GetAI(Creature* pCreature) const
     {
@@ -145,10 +145,10 @@ public:
 
 };
 
-class mob_impp : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_impp : public CreatureScript
 {
 public:
-    mob_impp() : MS::Game::Scripting::Interfaces::CreatureScript("mob_impp") { }
+    mob_impp() : CreatureScript("mob_impp") { }
 
     CreatureAI* GetAI(Creature* pCreature) const
     {
@@ -217,10 +217,10 @@ const Position millhousemanastormscPos[3] =
     {1151.45f, 885.74f, 284.96f, 3.36f}
 };
 
-class mob_millhouse_manastorm : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_millhouse_manastorm : public CreatureScript
 {
 public:
-    mob_millhouse_manastorm() : MS::Game::Scripting::Interfaces::CreatureScript("mob_millhouse_manastorm") { }
+    mob_millhouse_manastorm() : CreatureScript("mob_millhouse_manastorm") { }
 
     CreatureAI* GetAI(Creature* pCreature) const
     {

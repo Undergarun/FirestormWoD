@@ -96,10 +96,10 @@ enum Actions
 #define MAX_Y 715.623901f
 #define MIN_Y 697.285217f
 
-class boss_daakara : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_daakara : public CreatureScript
 {
     public:
-        boss_daakara() : MS::Game::Scripting::Interfaces::CreatureScript("boss_daakara") { }
+        boss_daakara() : CreatureScript("boss_daakara") { }
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -362,11 +362,11 @@ class boss_daakara : public MS::Game::Scripting::Interfaces::CreatureScript
         };
 };
 
-class npc_daakara_vortex : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_daakara_vortex : public CreatureScript
 {
     public:
 
-        npc_daakara_vortex() : MS::Game::Scripting::Interfaces::CreatureScript("npc_daakara_vortex") {}
+        npc_daakara_vortex() : CreatureScript("npc_daakara_vortex") {}
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -418,11 +418,11 @@ class npc_daakara_vortex : public MS::Game::Scripting::Interfaces::CreatureScrip
         };
 };
 
-class npc_daakara_pillar_of_flame : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_daakara_pillar_of_flame : public CreatureScript
 {
     public:
 
-        npc_daakara_pillar_of_flame() : MS::Game::Scripting::Interfaces::CreatureScript("npc_daakara_pillar_of_flame") {}
+        npc_daakara_pillar_of_flame() : CreatureScript("npc_daakara_pillar_of_flame") {}
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -460,11 +460,11 @@ class npc_daakara_pillar_of_flame : public MS::Game::Scripting::Interfaces::Crea
         };
 };
 
-class npc_daakara_amani_lynx : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_daakara_amani_lynx : public CreatureScript
 {
     public:
 
-        npc_daakara_amani_lynx() : MS::Game::Scripting::Interfaces::CreatureScript("npc_daakara_amani_lynx") {}
+        npc_daakara_amani_lynx() : CreatureScript("npc_daakara_amani_lynx") {}
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -513,10 +513,10 @@ class npc_daakara_amani_lynx : public MS::Game::Scripting::Interfaces::CreatureS
         };
 };
 
-class spell_daakara_claw_rage_charge: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_daakara_claw_rage_charge: public SpellScriptLoader
 {
     public:
-        spell_daakara_claw_rage_charge() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_daakara_claw_rage_charge") { }
+        spell_daakara_claw_rage_charge() : SpellScriptLoader("spell_daakara_claw_rage_charge") { }
 
         class spell_daakara_claw_rage_charge_SpellScript : public SpellScript
         {
@@ -544,10 +544,10 @@ class spell_daakara_claw_rage_charge: public MS::Game::Scripting::Interfaces::Sp
         }
 };
 
-class spell_daakara_sweeping_winds: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_daakara_sweeping_winds: public SpellScriptLoader
 {
     public:
-        spell_daakara_sweeping_winds() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_daakara_sweeping_winds") { }
+        spell_daakara_sweeping_winds() : SpellScriptLoader("spell_daakara_sweeping_winds") { }
 
         class spell_daakara_sweeping_winds_SpellScript : public SpellScript
         {
@@ -573,10 +573,10 @@ class spell_daakara_sweeping_winds: public MS::Game::Scripting::Interfaces::Spel
 
 typedef boss_daakara::boss_daakaraAI DaakaraAI;
 
-class achievement_ring_out : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
+class achievement_ring_out : public AchievementCriteriaScript
 {
     public:
-        achievement_ring_out() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_ring_out") { }
+        achievement_ring_out() : AchievementCriteriaScript("achievement_ring_out") { }
 
         bool OnCheck(Player* source, Unit* target)
         {

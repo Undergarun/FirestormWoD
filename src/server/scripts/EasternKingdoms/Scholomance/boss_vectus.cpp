@@ -34,10 +34,10 @@ enum eEnums
     SPELL_FRENZY                 = 8269 //28371,
 };
 
-class boss_vectus : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_vectus : public CreatureScript
 {
 public:
-    boss_vectus() : MS::Game::Scripting::Interfaces::CreatureScript("boss_vectus") { }
+    boss_vectus() : CreatureScript("boss_vectus") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

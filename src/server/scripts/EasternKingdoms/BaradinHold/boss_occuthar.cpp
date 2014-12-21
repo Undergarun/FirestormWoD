@@ -34,10 +34,10 @@ enum Adds
     NPC_EYESTALK        = 52369,
 };
 
-class boss_occuthar : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_occuthar : public CreatureScript
 {
     public:
-        boss_occuthar() : MS::Game::Scripting::Interfaces::CreatureScript("boss_occuthar") { }
+        boss_occuthar() : CreatureScript("boss_occuthar") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -134,10 +134,10 @@ class boss_occuthar : public MS::Game::Scripting::Interfaces::CreatureScript
         };
 };
 
-class npc_occuthar_eyestalk : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_occuthar_eyestalk : public CreatureScript
 {
     public:
-        npc_occuthar_eyestalk() : MS::Game::Scripting::Interfaces::CreatureScript("npc_occuthar_eyestalk") { }
+        npc_occuthar_eyestalk() : CreatureScript("npc_occuthar_eyestalk") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -166,10 +166,10 @@ class npc_occuthar_eyestalk : public MS::Game::Scripting::Interfaces::CreatureSc
         };
 };
 
-class npc_occuthar_eye_of_occuthar : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_occuthar_eye_of_occuthar : public CreatureScript
 {
     public:
-        npc_occuthar_eye_of_occuthar() : MS::Game::Scripting::Interfaces::CreatureScript("npc_occuthar_eye_of_occuthar") { }
+        npc_occuthar_eye_of_occuthar() : CreatureScript("npc_occuthar_eye_of_occuthar") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -214,10 +214,10 @@ class npc_occuthar_eye_of_occuthar : public MS::Game::Scripting::Interfaces::Cre
         };
 };
 
-class spell_occuthar_eye_of_occuthar: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_occuthar_eye_of_occuthar: public SpellScriptLoader
 {
     public:
-        spell_occuthar_eye_of_occuthar() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_occuthar_eye_of_occuthar") { }
+        spell_occuthar_eye_of_occuthar() : SpellScriptLoader("spell_occuthar_eye_of_occuthar") { }
 
         class spell_occuthar_eye_of_occuthar_SpellScript : public SpellScript
         {

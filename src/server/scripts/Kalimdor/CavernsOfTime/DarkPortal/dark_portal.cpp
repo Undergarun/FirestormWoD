@@ -58,10 +58,10 @@ EndContentData */
 
 #define C_COUNCIL_ENFORCER      17023
 
-class npc_medivh_bm : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_medivh_bm : public CreatureScript
 {
 public:
-    npc_medivh_bm() : MS::Game::Scripting::Interfaces::CreatureScript("npc_medivh_bm") { }
+    npc_medivh_bm() : CreatureScript("npc_medivh_bm") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -251,10 +251,10 @@ static Wave PortalWaves[]=
     { {C_EXECU, C_VANQU, C_CHRON, C_ASSAS} }
 };
 
-class npc_time_rift : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_time_rift : public CreatureScript
 {
 public:
-    npc_time_rift() : MS::Game::Scripting::Interfaces::CreatureScript("npc_time_rift") { }
+    npc_time_rift() : CreatureScript("npc_time_rift") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -367,10 +367,10 @@ public:
 #define SPELL_CHRONO_BEACON     34975
 #define ITEM_CHRONO_BEACON      24289
 
-class npc_saat : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_saat : public CreatureScript
 {
 public:
-    npc_saat() : MS::Game::Scripting::Interfaces::CreatureScript("npc_saat") { }
+    npc_saat() : CreatureScript("npc_saat") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {

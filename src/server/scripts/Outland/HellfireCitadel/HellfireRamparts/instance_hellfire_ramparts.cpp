@@ -27,11 +27,11 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "hellfire_ramparts.h"
 
-class instance_ramparts : public MS::Game::Scripting::Interfaces::InstanceMapScript
+class instance_ramparts : public InstanceMapScript
 {
     public:
         instance_ramparts()
-            : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_ramparts", 543)
+            : InstanceMapScript("instance_ramparts", 543)
         {
         }
 

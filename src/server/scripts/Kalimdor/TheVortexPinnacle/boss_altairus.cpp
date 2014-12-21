@@ -41,10 +41,10 @@ const Position twisterPos[8] =
     {-1219.45f, 68.33f, 734.17f, 0.0f},
 };
 
-class boss_altairus : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_altairus : public CreatureScript
 {
     public:
-        boss_altairus() : MS::Game::Scripting::Interfaces::CreatureScript("boss_altairus") { }
+        boss_altairus() : CreatureScript("boss_altairus") { }
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -193,10 +193,10 @@ class boss_altairus : public MS::Game::Scripting::Interfaces::CreatureScript
         };
 };
 
-class npc_air_current : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_air_current : public CreatureScript
 {
     public:
-        npc_air_current() : MS::Game::Scripting::Interfaces::CreatureScript("npc_air_current") { }
+        npc_air_current() : CreatureScript("npc_air_current") { }
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -223,10 +223,10 @@ class npc_air_current : public MS::Game::Scripting::Interfaces::CreatureScript
      };
 };
 
-/*class npc_altairus_twister : public MS::Game::Scripting::Interfaces::CreatureScript
+/*class npc_altairus_twister : public CreatureScript
 {
     public:
-        npc_altairus_twister() : MS::Game::Scripting::Interfaces::CreatureScript("npc_altairus_twister") { }
+        npc_altairus_twister() : CreatureScript("npc_altairus_twister") { }
         
         CreatureAI* GetAI(Creature* pCreature) const
         {

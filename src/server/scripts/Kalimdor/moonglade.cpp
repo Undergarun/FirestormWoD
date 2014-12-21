@@ -53,10 +53,10 @@ enum Omen
     EVENT_DESPAWN               = 3,
 };
 
-class npc_omen : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_omen : public CreatureScript
 {
 public:
-    npc_omen() : MS::Game::Scripting::Interfaces::CreatureScript("npc_omen") { }
+    npc_omen() : CreatureScript("npc_omen") { }
 
     struct npc_omenAI : public ScriptedAI
     {
@@ -135,10 +135,10 @@ public:
     }
 };
 
-class npc_giant_spotlight : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_giant_spotlight : public CreatureScript
 {
 public:
-    npc_giant_spotlight() : MS::Game::Scripting::Interfaces::CreatureScript("npc_giant_spotlight") { }
+    npc_giant_spotlight() : CreatureScript("npc_giant_spotlight") { }
 
     struct npc_giant_spotlightAI : public ScriptedAI
     {

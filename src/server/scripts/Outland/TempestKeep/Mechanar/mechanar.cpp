@@ -4,10 +4,10 @@
 #include "InstanceScript.h"
 #include "mechanar.h"
 
-class gatewatcher_gyro_kill : public MS::Game::Scripting::Interfaces::CreatureScript
+class gatewatcher_gyro_kill : public CreatureScript
 {
     public:
-        gatewatcher_gyro_kill() : MS::Game::Scripting::Interfaces::CreatureScript("gatewatcher_gyro_kill") {}
+        gatewatcher_gyro_kill() : CreatureScript("gatewatcher_gyro_kill") {}
 
         struct gatewatcher_gyro_killAI : public ScriptedAI
         {

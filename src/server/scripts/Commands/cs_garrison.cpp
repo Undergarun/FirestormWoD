@@ -5,12 +5,12 @@
 #include "ObjectMgr.h"
 
 /// Garrison commands
-class garrison_commandscript: public MS::Game::Scripting::Interfaces::CommandScript
+class garrison_commandscript: public CommandScript
 {
     public:
         /// Constructor
         garrison_commandscript() 
-            : MS::Game::Scripting::Interfaces::CommandScript("garrison_commandscript")
+            : CommandScript("garrison_commandscript")
         { 
 
         }

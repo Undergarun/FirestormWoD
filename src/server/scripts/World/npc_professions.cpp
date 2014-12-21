@@ -369,10 +369,10 @@ void ProcessUnlearnAction(Player* player, Creature* creature, uint32 spellId, ui
 # start menues alchemy
 ###*/
 
-class npc_prof_alchemy : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_prof_alchemy : public CreatureScript
 {
 public:
-    npc_prof_alchemy() : MS::Game::Scripting::Interfaces::CreatureScript("npc_prof_alchemy") { }
+    npc_prof_alchemy() : CreatureScript("npc_prof_alchemy") { }
 
     inline bool HasAlchemySpell(Player* player)
     {
@@ -534,10 +534,10 @@ public:
 # start menues blacksmith
 ###*/
 
-class npc_prof_blacksmith : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_prof_blacksmith : public CreatureScript
 {
 public:
-    npc_prof_blacksmith() : MS::Game::Scripting::Interfaces::CreatureScript("npc_prof_blacksmith") { }
+    npc_prof_blacksmith() : CreatureScript("npc_prof_blacksmith") { }
 
     inline bool HasWeaponSub(Player* player)
     {
@@ -786,10 +786,10 @@ enum eEngineeringTrinkets
 #define GOSSIP_ITEM_JHORDY      "I must build a beacon for this marvelous device!"
 #define GOSSIP_ITEM_KABLAM      "[PH] Unknown"
 
-class npc_engineering_tele_trinket : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_engineering_tele_trinket : public CreatureScript
 {
 public:
-    npc_engineering_tele_trinket() : MS::Game::Scripting::Interfaces::CreatureScript("npc_engineering_tele_trinket") { }
+    npc_engineering_tele_trinket() : CreatureScript("npc_engineering_tele_trinket") { }
 
     bool CanLearn(Player* player, uint32 textId, uint32 altTextId, uint32 skillValue, uint32 reqSpellId, uint32 spellId, uint32& npcTextId)
     {
@@ -878,10 +878,10 @@ public:
 # start menues leatherworking
 ###*/
 
-class npc_prof_leather : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_prof_leather : public CreatureScript
 {
 public:
-    npc_prof_leather() : MS::Game::Scripting::Interfaces::CreatureScript("npc_prof_leather") { }
+    npc_prof_leather() : CreatureScript("npc_prof_leather") { }
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
@@ -996,10 +996,10 @@ public:
 # start menues tailoring
 ###*/
 
-class npc_prof_tailor : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_prof_tailor : public CreatureScript
 {
 public:
-    npc_prof_tailor() : MS::Game::Scripting::Interfaces::CreatureScript("npc_prof_tailor") { }
+    npc_prof_tailor() : CreatureScript("npc_prof_tailor") { }
 
     inline bool HasTailorSpell(Player* player)
     {

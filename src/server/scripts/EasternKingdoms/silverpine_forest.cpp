@@ -57,10 +57,10 @@ enum eErland
     NPC_QUINN           = 1951
 };
 
-class npc_deathstalker_erland : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_deathstalker_erland : public CreatureScript
 {
 public:
-    npc_deathstalker_erland() : MS::Game::Scripting::Interfaces::CreatureScript("npc_deathstalker_erland") { }
+    npc_deathstalker_erland() : CreatureScript("npc_deathstalker_erland") { }
 
     struct npc_deathstalker_erlandAI : public npc_escortAI
     {

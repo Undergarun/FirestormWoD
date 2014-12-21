@@ -45,10 +45,10 @@ enum win_friends
     SPELL_PERSUASIVE_STRIKE           = 52781
 };
 
-class npc_crusade_persuaded : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_crusade_persuaded : public CreatureScript
 {
 public:
-    npc_crusade_persuaded() : MS::Game::Scripting::Interfaces::CreatureScript("npc_crusade_persuaded") { }
+    npc_crusade_persuaded() : CreatureScript("npc_crusade_persuaded") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -194,10 +194,10 @@ enum Koltira
     MODEL_DEATH_KNIGHT_MOUNT        = 25278
 };
 
-class npc_koltira_deathweaver : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_koltira_deathweaver : public CreatureScript
 {
 public:
-    npc_koltira_deathweaver() : MS::Game::Scripting::Interfaces::CreatureScript("npc_koltira_deathweaver") { }
+    npc_koltira_deathweaver() : CreatureScript("npc_koltira_deathweaver") { }
 
     bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
     {
@@ -370,10 +370,10 @@ enum ScarletCourierEnum
     NPC_SCARLET_COURIER                = 29076
 };
 
-class mob_scarlet_courier : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_scarlet_courier : public CreatureScript
 {
 public:
-    mob_scarlet_courier() : MS::Game::Scripting::Interfaces::CreatureScript("mob_scarlet_courier") { }
+    mob_scarlet_courier() : CreatureScript("mob_scarlet_courier") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -464,10 +464,10 @@ enum valroth
     SPELL_SUMMON_VALROTH_REMAINS      = 52929
 };
 
-class mob_high_inquisitor_valroth : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_high_inquisitor_valroth : public CreatureScript
 {
 public:
-    mob_high_inquisitor_valroth() : MS::Game::Scripting::Interfaces::CreatureScript("mob_high_inquisitor_valroth") { }
+    mob_high_inquisitor_valroth() : CreatureScript("mob_high_inquisitor_valroth") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -600,10 +600,10 @@ enum SpecialSurprise
     NPC_PLAGUEFIST              = 29053
 };
 
-class npc_a_special_surprise : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_a_special_surprise : public CreatureScript
 {
 public:
-    npc_a_special_surprise() : MS::Game::Scripting::Interfaces::CreatureScript("npc_a_special_surprise") { }
+    npc_a_special_surprise() : CreatureScript("npc_a_special_surprise") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

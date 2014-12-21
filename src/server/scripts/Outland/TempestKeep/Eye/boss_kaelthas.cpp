@@ -267,7 +267,7 @@ struct advisorbase_ai : public ScriptedAI
     }
 };
 
-class boss_kaelthas : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_kaelthas : public CreatureScript
 {
     public:
 
@@ -1000,7 +1000,7 @@ class boss_kaelthas : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 //Thaladred the Darkener AI
-class boss_thaladred_the_darkener : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_thaladred_the_darkener : public CreatureScript
 {
     public:
 
@@ -1098,7 +1098,7 @@ class boss_thaladred_the_darkener : public MS::Game::Scripting::Interfaces::Crea
 };
 
 //Lord Sanguinar AI
-class boss_lord_sanguinar : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_lord_sanguinar : public CreatureScript
 {
     public:
 
@@ -1165,7 +1165,7 @@ class boss_lord_sanguinar : public MS::Game::Scripting::Interfaces::CreatureScri
         }
 };
 //Grand Astromancer Capernian AI
-class boss_grand_astromancer_capernian : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_grand_astromancer_capernian : public CreatureScript
 {
     public:
 
@@ -1310,7 +1310,7 @@ class boss_grand_astromancer_capernian : public MS::Game::Scripting::Interfaces:
 };
 
 //Master Engineer Telonicus AI
-class boss_master_engineer_telonicus : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_master_engineer_telonicus : public CreatureScript
 {
     public:
 
@@ -1393,7 +1393,7 @@ class boss_master_engineer_telonicus : public MS::Game::Scripting::Interfaces::C
 };
 
 //Flame Strike AI
-class mob_kael_flamestrike : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_kael_flamestrike : public CreatureScript
 {
     public:
 
@@ -1457,7 +1457,7 @@ class mob_kael_flamestrike : public MS::Game::Scripting::Interfaces::CreatureScr
 };
 
 //Phoenix AI
-class mob_phoenix_tk : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_phoenix_tk : public CreatureScript
 {
     public:
 
@@ -1511,7 +1511,7 @@ class mob_phoenix_tk : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 //Phoenix Egg AI
-class mob_phoenix_egg_tk : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_phoenix_egg_tk : public CreatureScript
 {
     public:
 

@@ -77,10 +77,10 @@ EndScriptData */
 #define SPELL_SHOOT    16496
 //#define SPELL_SUMMONCRIMSONRIFLEMAN    17279
 
-class boss_cannon_master_willey : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_cannon_master_willey : public CreatureScript
 {
 public:
-    boss_cannon_master_willey() : MS::Game::Scripting::Interfaces::CreatureScript("boss_cannon_master_willey") { }
+    boss_cannon_master_willey() : CreatureScript("boss_cannon_master_willey") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

@@ -66,10 +66,10 @@ enum eEnums
 /*######
 ## Boss Volkhan
 ######*/
-class boss_volkhan : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_volkhan : public CreatureScript
 {
 public:
-    boss_volkhan() : MS::Game::Scripting::Interfaces::CreatureScript("boss_volkhan") { }
+    boss_volkhan() : CreatureScript("boss_volkhan") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -363,10 +363,10 @@ public:
 /*######
 ## mob_molten_golem
 ######*/
-class mob_molten_golem : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_molten_golem : public CreatureScript
 {
 public:
-    mob_molten_golem() : MS::Game::Scripting::Interfaces::CreatureScript("mob_molten_golem") { }
+    mob_molten_golem() : CreatureScript("mob_molten_golem") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

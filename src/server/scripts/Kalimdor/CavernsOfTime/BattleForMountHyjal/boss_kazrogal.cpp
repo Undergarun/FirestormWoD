@@ -42,10 +42,10 @@ enum Sounds
     SOUND_ONDEATH       = 11018,
 };
 
-class boss_kazrogal : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_kazrogal : public CreatureScript
 {
 public:
-    boss_kazrogal() : MS::Game::Scripting::Interfaces::CreatureScript("boss_kazrogal") { }
+    boss_kazrogal() : CreatureScript("boss_kazrogal") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -177,10 +177,10 @@ class MarkTargetFilter
         }
 };
 
-class spell_mark_of_kazrogal: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_mark_of_kazrogal: public SpellScriptLoader
 {
     public:
-        spell_mark_of_kazrogal() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mark_of_kazrogal") { }
+        spell_mark_of_kazrogal() : SpellScriptLoader("spell_mark_of_kazrogal") { }
 
         class spell_mark_of_kazrogal_SpellScript : public SpellScript
         {

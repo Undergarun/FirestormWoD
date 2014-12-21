@@ -65,10 +65,10 @@ enum Actions
     ACTION_SUMMON_DIE   = 1
 };
 
-class boss_bronjahm : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_bronjahm : public CreatureScript
 {
     public:
-        boss_bronjahm() : MS::Game::Scripting::Interfaces::CreatureScript("boss_bronjahm") { }
+        boss_bronjahm() : CreatureScript("boss_bronjahm") { }
 
         struct boss_bronjahmAI : public BossAI
         {
@@ -226,10 +226,10 @@ class boss_bronjahm : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class mob_corrupted_soul_fragment : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_corrupted_soul_fragment : public CreatureScript
 {
     public:
-        mob_corrupted_soul_fragment() : MS::Game::Scripting::Interfaces::CreatureScript("mob_corrupted_soul_fragment") { }
+        mob_corrupted_soul_fragment() : CreatureScript("mob_corrupted_soul_fragment") { }
 
         struct mob_corrupted_soul_fragmentAI : public ScriptedAI
         {
@@ -271,10 +271,10 @@ class mob_corrupted_soul_fragment : public MS::Game::Scripting::Interfaces::Crea
         }
 };
 
-class spell_bronjahm_magic_bane: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_bronjahm_magic_bane: public SpellScriptLoader
 {
     public:
-        spell_bronjahm_magic_bane() :  MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_bronjahm_magic_bane") { }
+        spell_bronjahm_magic_bane() :  SpellScriptLoader("spell_bronjahm_magic_bane") { }
 
         class spell_bronjahm_magic_bane_SpellScript : public SpellScript
         {
@@ -305,10 +305,10 @@ class spell_bronjahm_magic_bane: public MS::Game::Scripting::Interfaces::SpellSc
         }
 };
 
-class spell_bronjahm_consume_soul: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_bronjahm_consume_soul: public SpellScriptLoader
 {
     public:
-        spell_bronjahm_consume_soul() :  MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_bronjahm_consume_soul") { }
+        spell_bronjahm_consume_soul() :  SpellScriptLoader("spell_bronjahm_consume_soul") { }
 
         class spell_bronjahm_consume_soul_SpellScript : public SpellScript
         {
@@ -332,10 +332,10 @@ class spell_bronjahm_consume_soul: public MS::Game::Scripting::Interfaces::Spell
         }
 };
 
-class spell_bronjahm_soulstorm_channel: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_bronjahm_soulstorm_channel: public SpellScriptLoader
 {
     public:
-        spell_bronjahm_soulstorm_channel() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_bronjahm_soulstorm_channel") { }
+        spell_bronjahm_soulstorm_channel() : SpellScriptLoader("spell_bronjahm_soulstorm_channel") { }
 
         class spell_bronjahm_soulstorm_channel_AuraScript : public AuraScript
         {
@@ -360,10 +360,10 @@ class spell_bronjahm_soulstorm_channel: public MS::Game::Scripting::Interfaces::
         }
 };
 
-class spell_bronjahm_soulstorm_visual: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_bronjahm_soulstorm_visual: public SpellScriptLoader
 {
     public:
-        spell_bronjahm_soulstorm_visual() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_bronjahm_soulstorm_visual") { }
+        spell_bronjahm_soulstorm_visual() : SpellScriptLoader("spell_bronjahm_soulstorm_visual") { }
 
         class spell_bronjahm_soulstorm_visual_AuraScript : public AuraScript
         {
@@ -406,10 +406,10 @@ class DistanceCheck
         Unit* caster;
 };
 
-class spell_bronjahm_soulstorm_targeting: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_bronjahm_soulstorm_targeting: public SpellScriptLoader
 {
     public:
-        spell_bronjahm_soulstorm_targeting() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_bronjahm_soulstorm_targeting") { }
+        spell_bronjahm_soulstorm_targeting() : SpellScriptLoader("spell_bronjahm_soulstorm_targeting") { }
 
         class spell_bronjahm_soulstorm_targeting_SpellScript : public SpellScript
         {
@@ -442,10 +442,10 @@ class spell_bronjahm_soulstorm_targeting: public MS::Game::Scripting::Interfaces
         }
 };
 
-class achievement_soul_power : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
+class achievement_soul_power : public AchievementCriteriaScript
 {
     public:
-        achievement_soul_power() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_soul_power") { }
+        achievement_soul_power() : AchievementCriteriaScript("achievement_soul_power") { }
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {

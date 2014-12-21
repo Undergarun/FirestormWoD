@@ -40,10 +40,10 @@ enum eAgnetta
     FACTION_HOSTILE_AT1             = 45
 };
 
-class npc_agnetta_tyrsdottar : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_agnetta_tyrsdottar : public CreatureScript
 {
 public:
-    npc_agnetta_tyrsdottar() : MS::Game::Scripting::Interfaces::CreatureScript("npc_agnetta_tyrsdottar") { }
+    npc_agnetta_tyrsdottar() : CreatureScript("npc_agnetta_tyrsdottar") { }
 
     struct npc_agnetta_tyrsdottarAI : public ScriptedAI
     {
@@ -97,10 +97,10 @@ enum eFrostbornScout
     QUEST_MISSING_SCOUTS  =  12864
 };
 
-class npc_frostborn_scout : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_frostborn_scout : public CreatureScript
 {
 public:
-    npc_frostborn_scout() : MS::Game::Scripting::Interfaces::CreatureScript("npc_frostborn_scout") { }
+    npc_frostborn_scout() : CreatureScript("npc_frostborn_scout") { }
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
@@ -156,10 +156,10 @@ enum eThorim
     GOSSIP_TEXTID_THORIM4 = 13803
 };
 
-class npc_thorim : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_thorim : public CreatureScript
 {
 public:
-    npc_thorim() : MS::Game::Scripting::Interfaces::CreatureScript("npc_thorim") { }
+    npc_thorim() : CreatureScript("npc_thorim") { }
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
@@ -215,10 +215,10 @@ enum eVictoriousChallenger
     SPELL_REND_VC                   = 11977
 };
 
-class npc_victorious_challenger : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_victorious_challenger : public CreatureScript
 {
 public:
-    npc_victorious_challenger() : MS::Game::Scripting::Interfaces::CreatureScript("npc_victorious_challenger") { }
+    npc_victorious_challenger() : CreatureScript("npc_victorious_challenger") { }
 
     struct npc_victorious_challengerAI : public ScriptedAI
     {
@@ -319,10 +319,10 @@ enum eLokliraCrone
     GOSSIP_TEXTID_LOK3  = 13780
 };
 
-class npc_loklira_crone : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_loklira_crone : public CreatureScript
 {
 public:
-    npc_loklira_crone() : MS::Game::Scripting::Interfaces::CreatureScript("npc_loklira_crone") { }
+    npc_loklira_crone() : CreatureScript("npc_loklira_crone") { }
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
@@ -377,10 +377,10 @@ enum eInjuredGoblin
 
 #define GOSSIP_ITEM_1       "I am ready, lets get you out of here"
 
-class npc_injured_goblin : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_injured_goblin : public CreatureScript
 {
 public:
-    npc_injured_goblin() : MS::Game::Scripting::Interfaces::CreatureScript("npc_injured_goblin") { }
+    npc_injured_goblin() : CreatureScript("npc_injured_goblin") { }
 
     struct npc_injured_goblinAI : public npc_escortAI
     {
@@ -472,10 +472,10 @@ public:
 #define SPELL_MECHANO_HOG           60866
 #define SPELL_MEKGINEERS_CHOPPER    60867
 
-class npc_roxi_ramrocket : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_roxi_ramrocket : public CreatureScript
 {
 public:
-    npc_roxi_ramrocket() : MS::Game::Scripting::Interfaces::CreatureScript("npc_roxi_ramrocket") { }
+    npc_roxi_ramrocket() : CreatureScript("npc_roxi_ramrocket") { }
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
@@ -526,10 +526,10 @@ enum brunhildar {
     SPELL_ICE_LANCE            = 55046
 };
 
-class npc_brunnhildar_prisoner : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_brunnhildar_prisoner : public CreatureScript
 {
 public:
-    npc_brunnhildar_prisoner() : MS::Game::Scripting::Interfaces::CreatureScript("npc_brunnhildar_prisoner") { }
+    npc_brunnhildar_prisoner() : CreatureScript("npc_brunnhildar_prisoner") { }
 
     struct npc_brunnhildar_prisonerAI : public ScriptedAI
     {
@@ -661,10 +661,10 @@ public:
     }
 };
 
-class npc_icefang : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_icefang : public CreatureScript
 {
 public:
-    npc_icefang() : MS::Game::Scripting::Interfaces::CreatureScript("npc_icefang") { }
+    npc_icefang() : CreatureScript("npc_icefang") { }
 
     struct npc_icefangAI : public npc_escortAI
     {
@@ -710,7 +710,7 @@ public:
     }
 };
 
-class npc_hyldsmeet_protodrake : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_hyldsmeet_protodrake : public CreatureScript
 {
     enum NPCs
     {
@@ -718,7 +718,7 @@ class npc_hyldsmeet_protodrake : public MS::Game::Scripting::Interfaces::Creatur
     };
 
     public:
-        npc_hyldsmeet_protodrake() : MS::Game::Scripting::Interfaces::CreatureScript("npc_hyldsmeet_protodrake") { }
+        npc_hyldsmeet_protodrake() : CreatureScript("npc_hyldsmeet_protodrake") { }
 
         class npc_hyldsmeet_protodrakeAI : public CreatureAI
         {
@@ -763,10 +763,10 @@ enum CloseRift
     SPELL_DESPAWN_RIFT          = 61665
 };
 
-class spell_close_rift: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_close_rift: public SpellScriptLoader
 {
     public:
-        spell_close_rift() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_close_rift") { }
+        spell_close_rift() : SpellScriptLoader("spell_close_rift") { }
 
         class spell_close_rift_AuraScript : public AuraScript
         {

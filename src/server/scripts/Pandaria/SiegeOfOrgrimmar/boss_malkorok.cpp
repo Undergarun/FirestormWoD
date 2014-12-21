@@ -51,10 +51,10 @@ enum eSays
     TALK_DEATH
 };
 
-class boss_malkorok : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_malkorok : public CreatureScript
 {
     public:
-        boss_malkorok() : MS::Game::Scripting::Interfaces::CreatureScript("boss_malkorok") { }
+        boss_malkorok() : CreatureScript("boss_malkorok") { }
 
         struct boss_malkorokAI : public BossAI
         {

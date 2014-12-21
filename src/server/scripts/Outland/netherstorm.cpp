@@ -68,10 +68,10 @@ enum eManaforgeConsoleData
     SPELL_INTERRUPT_2           = 35176,                       //ACID mobs should cast this (Manaforge Ara-version)
 };
 
-class npc_manaforge_control_console : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_manaforge_control_console : public CreatureScript
 {
 public:
-    npc_manaforge_control_console() : MS::Game::Scripting::Interfaces::CreatureScript("npc_manaforge_control_console") { }
+    npc_manaforge_control_console() : CreatureScript("npc_manaforge_control_console") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -304,10 +304,10 @@ public:
 ######*/
 
 //TODO: clean up this workaround when Trinity adds support to do it properly (with gossip selections instead of instant summon)
-class go_manaforge_control_console : public MS::Game::Scripting::Interfaces::GameObjectScript
+class go_manaforge_control_console : public GameObjectScript
 {
 public:
-    go_manaforge_control_console() : MS::Game::Scripting::Interfaces::GameObjectScript("go_manaforge_control_console") { }
+    go_manaforge_control_console() : GameObjectScript("go_manaforge_control_console") { }
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
@@ -384,10 +384,10 @@ const uint32 CreatureEntry[3] =
     21504                                                 // Pathaleon
 };
 
-class npc_commander_dawnforge : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_commander_dawnforge : public CreatureScript
 {
 public:
-    npc_commander_dawnforge() : MS::Game::Scripting::Interfaces::CreatureScript("npc_commander_dawnforge") { }
+    npc_commander_dawnforge() : CreatureScript("npc_commander_dawnforge") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -635,10 +635,10 @@ public:
     };
 };
 
-class at_commander_dawnforge : public MS::Game::Scripting::Interfaces::AreaTriggerScript
+class at_commander_dawnforge : public AreaTriggerScript
 {
 public:
-    at_commander_dawnforge() : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_commander_dawnforge") { }
+    at_commander_dawnforge() : AreaTriggerScript("at_commander_dawnforge") { }
 
     bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/)
     {
@@ -674,10 +674,10 @@ enum eProfessorDabiriData
 
 #define GOSSIP_ITEM "I need a new phase distruptor, Professor"
 
-class npc_professor_dabiri : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_professor_dabiri : public CreatureScript
 {
 public:
-    npc_professor_dabiri() : MS::Game::Scripting::Interfaces::CreatureScript("npc_professor_dabiri") { }
+    npc_professor_dabiri() : CreatureScript("npc_professor_dabiri") { }
 
     bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
@@ -734,10 +734,10 @@ enum ePhaseHunterData
     SPELL_DE_MATERIALIZE            = 34814,
 };
 
-class mob_phase_hunter : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_phase_hunter : public CreatureScript
 {
 public:
-    mob_phase_hunter() : MS::Game::Scripting::Interfaces::CreatureScript("mob_phase_hunter") { }
+    mob_phase_hunter() : CreatureScript("mob_phase_hunter") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -860,10 +860,10 @@ enum eBessyData
     SAY_THADELL_2   = -1000525,
 };
 
-class npc_bessy : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_bessy : public CreatureScript
 {
 public:
-    npc_bessy() : MS::Game::Scripting::Interfaces::CreatureScript("npc_bessy") { }
+    npc_bessy() : CreatureScript("npc_bessy") { }
 
     bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
@@ -942,10 +942,10 @@ enum
     GO_DRAENEI_MACHINE = 183771
 };
 
-class npc_maxx_a_million_escort : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_maxx_a_million_escort : public CreatureScript
 {
 public:
-    npc_maxx_a_million_escort() : MS::Game::Scripting::Interfaces::CreatureScript("npc_maxx_a_million_escort") { }
+    npc_maxx_a_million_escort() : CreatureScript("npc_maxx_a_million_escort") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1045,10 +1045,10 @@ enum CaptainTyralius
     SAY_FREE                = 0,
 };
 
-class go_captain_tyralius_prison : public MS::Game::Scripting::Interfaces::GameObjectScript
+class go_captain_tyralius_prison : public GameObjectScript
 {
     public:
-        go_captain_tyralius_prison() : MS::Game::Scripting::Interfaces::GameObjectScript("go_captain_tyralius_prison") { }
+        go_captain_tyralius_prison() : GameObjectScript("go_captain_tyralius_prison") { }
 
         bool OnGossipHello(Player* player, GameObject* go)
         {

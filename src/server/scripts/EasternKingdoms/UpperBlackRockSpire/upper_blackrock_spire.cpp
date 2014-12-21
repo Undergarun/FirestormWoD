@@ -123,10 +123,10 @@ enum eTalks
 };
 
 ///< Black Iron Grunt - 76179
-class mob_black_iron_grunt : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_black_iron_grunt : public CreatureScript
 {
     public:
-        mob_black_iron_grunt() : MS::Game::Scripting::Interfaces::CreatureScript("mob_black_iron_grunt") { }
+        mob_black_iron_grunt() : CreatureScript("mob_black_iron_grunt") { }
 
         struct mob_black_iron_gruntAI : public ScriptedAI
         {
@@ -198,10 +198,10 @@ class mob_black_iron_grunt : public MS::Game::Scripting::Interfaces::CreatureScr
 };
 
 ///< Rallying Banner - 76222
-class mob_rallying_banner : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_rallying_banner : public CreatureScript
 {
     public:
-        mob_rallying_banner() : MS::Game::Scripting::Interfaces::CreatureScript("mob_rallying_banner") { }
+        mob_rallying_banner() : CreatureScript("mob_rallying_banner") { }
 
         struct mob_rallying_bannerAI : public ScriptedAI
         {
@@ -235,10 +235,10 @@ class mob_rallying_banner : public MS::Game::Scripting::Interfaces::CreatureScri
 };
 
 ///< Black Iron Leadbelcher - 76157
-class mob_black_iron_leadbelcher : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_black_iron_leadbelcher : public CreatureScript
 {
     public:
-        mob_black_iron_leadbelcher() : MS::Game::Scripting::Interfaces::CreatureScript("mob_black_iron_leadbelcher") { }
+        mob_black_iron_leadbelcher() : CreatureScript("mob_black_iron_leadbelcher") { }
 
         struct mob_black_iron_leadbelcherAI : public ScriptedAI
         {
@@ -337,10 +337,10 @@ class mob_black_iron_leadbelcher : public MS::Game::Scripting::Interfaces::Creat
 };
 
 ///< Sentry Cannon - 76314
-class mob_sentry_cannon : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_sentry_cannon : public CreatureScript
 {
     public:
-        mob_sentry_cannon() : MS::Game::Scripting::Interfaces::CreatureScript("mob_sentry_cannon") { }
+        mob_sentry_cannon() : CreatureScript("mob_sentry_cannon") { }
 
         struct mob_sentry_cannonAI : public ScriptedAI
         {
@@ -391,10 +391,10 @@ class mob_sentry_cannon : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 ///< Ragemaw Worg - 76181
-class mob_ragemaw_worg : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_ragemaw_worg : public CreatureScript
 {
     public:
-        mob_ragemaw_worg() : MS::Game::Scripting::Interfaces::CreatureScript("mob_ragemaw_worg") { }
+        mob_ragemaw_worg() : CreatureScript("mob_ragemaw_worg") { }
 
         struct mob_ragemaw_worgAI : public ScriptedAI
         {
@@ -451,10 +451,10 @@ class mob_ragemaw_worg : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 ///< Black Iron Warcaster - 76151
-class mob_black_iron_warcaster : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_black_iron_warcaster : public CreatureScript
 {
     public:
-        mob_black_iron_warcaster() : MS::Game::Scripting::Interfaces::CreatureScript("mob_black_iron_warcaster") { }
+        mob_black_iron_warcaster() : CreatureScript("mob_black_iron_warcaster") { }
 
         struct mob_black_iron_warcasterAI : public ScriptedAI
         {
@@ -510,10 +510,10 @@ class mob_black_iron_warcaster : public MS::Game::Scripting::Interfaces::Creatur
 };
 
 ///< Rune Glow - 76396
-class mob_rune_glow : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_rune_glow : public CreatureScript
 {
     public:
-        mob_rune_glow() : MS::Game::Scripting::Interfaces::CreatureScript("mob_rune_glow") { }
+        mob_rune_glow() : CreatureScript("mob_rune_glow") { }
 
         struct mob_rune_glowAI : public ScriptedAI
         {
@@ -568,10 +568,10 @@ class mob_rune_glow : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 ///< Black Iron Alchemist - 76100
-class mob_black_iron_alchemist : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_black_iron_alchemist : public CreatureScript
 {
     public:
-        mob_black_iron_alchemist() : MS::Game::Scripting::Interfaces::CreatureScript("mob_black_iron_alchemist") { }
+        mob_black_iron_alchemist() : CreatureScript("mob_black_iron_alchemist") { }
 
         struct mob_black_iron_alchemistAI : public ScriptedAI
         {
@@ -627,10 +627,10 @@ class mob_black_iron_alchemist : public MS::Game::Scripting::Interfaces::Creatur
 };
 
 ///< Black Iron Engineer - 76101
-class mob_black_iron_engineer : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_black_iron_engineer : public CreatureScript
 {
     public:
-        mob_black_iron_engineer() : MS::Game::Scripting::Interfaces::CreatureScript("mob_black_iron_engineer") { }
+        mob_black_iron_engineer() : CreatureScript("mob_black_iron_engineer") { }
 
         struct mob_black_iron_engineerAI : public ScriptedAI
         {
@@ -681,10 +681,10 @@ class mob_black_iron_engineer : public MS::Game::Scripting::Interfaces::Creature
 
 ///< Drakonid Monstrosity - 76018
 ///< Drakonid Monstrosity - 82556
-class mob_drakonid_monstrosity : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_drakonid_monstrosity : public CreatureScript
 {
     public:
-        mob_drakonid_monstrosity() : MS::Game::Scripting::Interfaces::CreatureScript("mob_drakonid_monstrosity") { }
+        mob_drakonid_monstrosity() : CreatureScript("mob_drakonid_monstrosity") { }
 
         struct mob_drakonid_monstrosityAI : public ScriptedAI
         {
@@ -734,10 +734,10 @@ class mob_drakonid_monstrosity : public MS::Game::Scripting::Interfaces::Creatur
 
 ///< Black Iron Veteran - 77034
 ///< Black Iron Veteran - 84462
-class mob_black_iron_veteran : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_black_iron_veteran : public CreatureScript
 {
     public:
-        mob_black_iron_veteran() : MS::Game::Scripting::Interfaces::CreatureScript("mob_black_iron_veteran") { }
+        mob_black_iron_veteran() : CreatureScript("mob_black_iron_veteran") { }
 
         struct mob_black_iron_veteranAI : public ScriptedAI
         {
@@ -794,10 +794,10 @@ class mob_black_iron_veteran : public MS::Game::Scripting::Interfaces::CreatureS
 
 ///< Black Iron Dreadweaver - 77035
 ///< Black Iron Dreadweaver - 84475
-class mob_black_iron_dreadweaver : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_black_iron_dreadweaver : public CreatureScript
 {
     public:
-        mob_black_iron_dreadweaver() : MS::Game::Scripting::Interfaces::CreatureScript("mob_black_iron_dreadweaver") { }
+        mob_black_iron_dreadweaver() : CreatureScript("mob_black_iron_dreadweaver") { }
 
         struct mob_black_iron_dreadweaverAI : public ScriptedAI
         {
@@ -858,10 +858,10 @@ class mob_black_iron_dreadweaver : public MS::Game::Scripting::Interfaces::Creat
 };
 
 ///< Black Iron Summoner - 77036
-class mob_black_iron_summoner : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_black_iron_summoner : public CreatureScript
 {
     public:
-        mob_black_iron_summoner() : MS::Game::Scripting::Interfaces::CreatureScript("mob_black_iron_summoner") { }
+        mob_black_iron_summoner() : CreatureScript("mob_black_iron_summoner") { }
 
         struct mob_black_iron_summonerAI : public ScriptedAI
         {
@@ -928,10 +928,10 @@ class mob_black_iron_summoner : public MS::Game::Scripting::Interfaces::Creature
 };
 
 ///< Black Iron Elite - 77037
-class mob_black_iron_elite : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_black_iron_elite : public CreatureScript
 {
     public:
-        mob_black_iron_elite() : MS::Game::Scripting::Interfaces::CreatureScript("mob_black_iron_elite") { }
+        mob_black_iron_elite() : CreatureScript("mob_black_iron_elite") { }
 
         struct mob_black_iron_eliteAI : public ScriptedAI
         {
@@ -991,10 +991,10 @@ class mob_black_iron_elite : public MS::Game::Scripting::Interfaces::CreatureScr
 };
 
 ///< Black Iron Siegebreaker - 77033
-class mob_black_iron_siegebreaker : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_black_iron_siegebreaker : public CreatureScript
 {
     public:
-        mob_black_iron_siegebreaker() : MS::Game::Scripting::Interfaces::CreatureScript("mob_black_iron_siegebreaker") { }
+        mob_black_iron_siegebreaker() : CreatureScript("mob_black_iron_siegebreaker") { }
 
         struct mob_black_iron_siegebreakerAI : public ScriptedAI
         {
@@ -1049,10 +1049,10 @@ class mob_black_iron_siegebreaker : public MS::Game::Scripting::Interfaces::Crea
 };
 
 ///< Black Iron Groundshaker - 76599
-class mob_black_iron_groundshaker : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_black_iron_groundshaker : public CreatureScript
 {
     public:
-        mob_black_iron_groundshaker() : MS::Game::Scripting::Interfaces::CreatureScript("mob_black_iron_groundshaker") { }
+        mob_black_iron_groundshaker() : CreatureScript("mob_black_iron_groundshaker") { }
 
         struct mob_black_iron_groundshakerAI : public ScriptedAI
         {
@@ -1118,10 +1118,10 @@ class mob_black_iron_groundshaker : public MS::Game::Scripting::Interfaces::Crea
 };
 
 ///< Black Iron Drake-Keeper - 76935
-class mob_black_iron_drakekeeper : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_black_iron_drakekeeper : public CreatureScript
 {
     public:
-        mob_black_iron_drakekeeper() : MS::Game::Scripting::Interfaces::CreatureScript("mob_black_iron_drakekeeper") { }
+        mob_black_iron_drakekeeper() : CreatureScript("mob_black_iron_drakekeeper") { }
 
         struct mob_black_iron_drakekeeperAI : public ScriptedAI
         {
@@ -1181,10 +1181,10 @@ class mob_black_iron_drakekeeper : public MS::Game::Scripting::Interfaces::Creat
 };
 
 ///< Emberscale Adolescent - 76696
-class mob_emberscale_adolescent : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_emberscale_adolescent : public CreatureScript
 {
     public:
-        mob_emberscale_adolescent() : MS::Game::Scripting::Interfaces::CreatureScript("mob_emberscale_adolescent") { }
+        mob_emberscale_adolescent() : CreatureScript("mob_emberscale_adolescent") { }
 
         struct mob_emberscale_adolescentAI : public ScriptedAI
         {
@@ -1212,10 +1212,10 @@ class mob_emberscale_adolescent : public MS::Game::Scripting::Interfaces::Creatu
 };
 
 ///< Leeroy Jenkins - 77075
-class mob_leeroy_jenkins : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_leeroy_jenkins : public CreatureScript
 {
     public:
-        mob_leeroy_jenkins() : MS::Game::Scripting::Interfaces::CreatureScript("mob_leeroy_jenkins") { }
+        mob_leeroy_jenkins() : CreatureScript("mob_leeroy_jenkins") { }
 
         struct mob_leeroy_jenkinsAI : public ScriptedAI
         {
@@ -1498,10 +1498,10 @@ class mob_leeroy_jenkins : public MS::Game::Scripting::Interfaces::CreatureScrip
 };
 
 ///< Son of the Beast - 77927
-class mob_son_of_the_beast : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_son_of_the_beast : public CreatureScript
 {
     public:
-        mob_son_of_the_beast() : MS::Game::Scripting::Interfaces::CreatureScript("mob_son_of_the_beast") { }
+        mob_son_of_the_beast() : CreatureScript("mob_son_of_the_beast") { }
 
         struct mob_son_of_the_beastAI : public ScriptedAI
         {
@@ -1601,10 +1601,10 @@ class mob_son_of_the_beast : public MS::Game::Scripting::Interfaces::CreatureScr
 };
 
 ///< Black Iron Wyrmcaller - 80649
-class mob_black_iron_wyrmcaller : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_black_iron_wyrmcaller : public CreatureScript
 {
     public:
-        mob_black_iron_wyrmcaller() : MS::Game::Scripting::Interfaces::CreatureScript("mob_black_iron_wyrmcaller") { }
+        mob_black_iron_wyrmcaller() : CreatureScript("mob_black_iron_wyrmcaller") { }
 
         struct mob_black_iron_wyrmcallerAI : public ScriptedAI
         {
@@ -1687,10 +1687,10 @@ class mob_black_iron_wyrmcaller : public MS::Game::Scripting::Interfaces::Creatu
 };
 
 ///< Emberscale Ironflight - 77180
-class mob_emberscale_ironflight : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_emberscale_ironflight : public CreatureScript
 {
     public:
-        mob_emberscale_ironflight() : MS::Game::Scripting::Interfaces::CreatureScript("mob_emberscale_ironflight") { }
+        mob_emberscale_ironflight() : CreatureScript("mob_emberscale_ironflight") { }
 
         struct mob_emberscale_ironflightAI : public ScriptedAI
         {
@@ -1751,10 +1751,10 @@ class mob_emberscale_ironflight : public MS::Game::Scripting::Interfaces::Creatu
 };
 
 ///< Black Iron Flame Reaver - 80678
-class mob_black_iron_flame_reaver : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_black_iron_flame_reaver : public CreatureScript
 {
     public:
-        mob_black_iron_flame_reaver() : MS::Game::Scripting::Interfaces::CreatureScript("mob_black_iron_flame_reaver") { }
+        mob_black_iron_flame_reaver() : CreatureScript("mob_black_iron_flame_reaver") { }
 
         struct mob_black_iron_flame_reaverAI : public ScriptedAI
         {
@@ -1814,10 +1814,10 @@ class mob_black_iron_flame_reaver : public MS::Game::Scripting::Interfaces::Crea
 };
 
 ///< Black Iron Rageguard - 82418
-class mob_black_iron_rageguard : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_black_iron_rageguard : public CreatureScript
 {
     public:
-        mob_black_iron_rageguard() : MS::Game::Scripting::Interfaces::CreatureScript("mob_black_iron_rageguard") { }
+        mob_black_iron_rageguard() : CreatureScript("mob_black_iron_rageguard") { }
 
         struct mob_black_iron_rageguardAI : public ScriptedAI
         {
@@ -1884,10 +1884,10 @@ class mob_black_iron_rageguard : public MS::Game::Scripting::Interfaces::Creatur
 };
 
 ///< Emberscale Whelping - 76694
-class mob_emberscale_whelping : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_emberscale_whelping : public CreatureScript
 {
     public:
-        mob_emberscale_whelping() : MS::Game::Scripting::Interfaces::CreatureScript("mob_emberscale_whelping") { }
+        mob_emberscale_whelping() : CreatureScript("mob_emberscale_whelping") { }
 
         struct mob_emberscale_whelpingAI : public ScriptedAI
         {
@@ -1907,10 +1907,10 @@ class mob_emberscale_whelping : public MS::Game::Scripting::Interfaces::Creature
 };
 
 ///< Rallying Banner - 153799
-class areatrigger_rallying_banner : public MS::Game::Scripting::Interfaces::AreaTriggerEntityScript
+class areatrigger_rallying_banner : public AreaTriggerEntityScript
 {
     public:
-        areatrigger_rallying_banner() : MS::Game::Scripting::Interfaces::AreaTriggerEntityScript("areatrigger_rallying_banner") { }
+        areatrigger_rallying_banner() : AreaTriggerEntityScript("areatrigger_rallying_banner") { }
 
         uint32 m_GrowTime;
 
@@ -1954,17 +1954,17 @@ class areatrigger_rallying_banner : public MS::Game::Scripting::Interfaces::Area
                 m_GrowTime -= p_Time;
         }
 
-        MS::Game::Scripting::Interfaces::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new areatrigger_rallying_banner();
         }
 };
 
 ///< Fiery Trail - 157364
-class areatrigger_fiery_trail : public MS::Game::Scripting::Interfaces::AreaTriggerEntityScript
+class areatrigger_fiery_trail : public AreaTriggerEntityScript
 {
     public:
-        areatrigger_fiery_trail() : MS::Game::Scripting::Interfaces::AreaTriggerEntityScript("areatrigger_fiery_trail") { }
+        areatrigger_fiery_trail() : AreaTriggerEntityScript("areatrigger_fiery_trail") { }
 
         enum eSpells
         {
@@ -1987,17 +1987,17 @@ class areatrigger_fiery_trail : public MS::Game::Scripting::Interfaces::AreaTrig
             }
         }
 
-        MS::Game::Scripting::Interfaces::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new areatrigger_fiery_trail();
         }
 };
 
 ///< Shrapnel Storm - 153942
-class spell_shrapnel_storm: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_shrapnel_storm: public SpellScriptLoader
 {
     public:
-        spell_shrapnel_storm() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_shrapnel_storm") { }
+        spell_shrapnel_storm() : SpellScriptLoader("spell_shrapnel_storm") { }
 
         class spell_shrapnel_storm_SpellScript : public SpellScript
         {
@@ -2025,10 +2025,10 @@ class spell_shrapnel_storm: public MS::Game::Scripting::Interfaces::SpellScriptL
 };
 
 ///< Eruption - 155037
-class spell_eruption: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_eruption: public SpellScriptLoader
 {
     public:
-        spell_eruption() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_eruption") { }
+        spell_eruption() : SpellScriptLoader("spell_eruption") { }
 
         class spell_eruption_SpellScript : public SpellScript
         {
@@ -2070,10 +2070,10 @@ class spell_eruption: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 };
 
 ///< Class Specific Res - 157175
-class spell_class_specific_res: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_class_specific_res: public SpellScriptLoader
 {
     public:
-        spell_class_specific_res() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_class_specific_res") { }
+        spell_class_specific_res() : SpellScriptLoader("spell_class_specific_res") { }
 
         class spell_class_specific_res_SpellScript : public SpellScript
         {
@@ -2126,10 +2126,10 @@ class spell_class_specific_res: public MS::Game::Scripting::Interfaces::SpellScr
 };
 
 ///< Whelp Cage - 227011
-class go_ubrs_whelp_cage : public MS::Game::Scripting::Interfaces::GameObjectScript
+class go_ubrs_whelp_cage : public GameObjectScript
 {
     public:
-        go_ubrs_whelp_cage() : MS::Game::Scripting::Interfaces::GameObjectScript("go_ubrs_whelp_cage") { }
+        go_ubrs_whelp_cage() : GameObjectScript("go_ubrs_whelp_cage") { }
 
         bool GossipHello(Player* p_Player, GameObject* p_Gameobject)
         {

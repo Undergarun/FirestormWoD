@@ -66,10 +66,10 @@ enum eTalk
     TALK_AGGRO = 5,
 };
 
-class boss_sha_of_anger : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_sha_of_anger : public CreatureScript
 {
     public:
-        boss_sha_of_anger() : MS::Game::Scripting::Interfaces::CreatureScript("boss_sha_of_anger") { }
+        boss_sha_of_anger() : CreatureScript("boss_sha_of_anger") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -303,10 +303,10 @@ class boss_sha_of_anger : public MS::Game::Scripting::Interfaces::CreatureScript
         };
 };
 
-class mob_sha_of_anger_bunny : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_sha_of_anger_bunny : public CreatureScript
 {
     public:
-        mob_sha_of_anger_bunny() : MS::Game::Scripting::Interfaces::CreatureScript("mob_sha_of_anger_bunny") {}
+        mob_sha_of_anger_bunny() : CreatureScript("mob_sha_of_anger_bunny") {}
 
         struct mob_sha_of_anger_bunnyAI : public ScriptedAI
         {
@@ -359,10 +359,10 @@ class mob_sha_of_anger_bunny : public MS::Game::Scripting::Interfaces::CreatureS
         }
 };
 
-class spell_sha_of_anger_aggressive_behaviour: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_sha_of_anger_aggressive_behaviour: public SpellScriptLoader
 {
     public:
-        spell_sha_of_anger_aggressive_behaviour() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_of_anger_aggressive_behaviour") { }
+        spell_sha_of_anger_aggressive_behaviour() : SpellScriptLoader("spell_sha_of_anger_aggressive_behaviour") { }
 
         class spell_sha_of_anger_aggressive_behaviour_AuraScript : public AuraScript
         {
@@ -414,10 +414,10 @@ class spell_sha_of_anger_aggressive_behaviour: public MS::Game::Scripting::Inter
 };
 
 // Overcome by Anger - 129356
- class spell_sha_of_anger_overcome_by_anger: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+ class spell_sha_of_anger_overcome_by_anger: public SpellScriptLoader
  {
     public:
-        spell_sha_of_anger_overcome_by_anger() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_of_anger_overcome_by_anger") { }
+        spell_sha_of_anger_overcome_by_anger() : SpellScriptLoader("spell_sha_of_anger_overcome_by_anger") { }
  
         class spell_sha_of_anger_overcome_by_anger_AuraScript : public AuraScript
         {

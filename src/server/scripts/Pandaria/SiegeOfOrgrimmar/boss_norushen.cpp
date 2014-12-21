@@ -38,10 +38,10 @@ enum eEvents
 {
 };
 
-class boss_norushen : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_norushen : public CreatureScript
 {
     public:
-        boss_norushen() : MS::Game::Scripting::Interfaces::CreatureScript("boss_norushen") { }
+        boss_norushen() : CreatureScript("boss_norushen") { }
 
         struct boss_norushenAI : public BossAI
         {
@@ -60,10 +60,10 @@ class boss_norushen : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class boss_amalgam_of_corruption : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_amalgam_of_corruption : public CreatureScript
 {
     public:
-        boss_amalgam_of_corruption() : MS::Game::Scripting::Interfaces::CreatureScript("boss_amalgam_of_corruption") { }
+        boss_amalgam_of_corruption() : CreatureScript("boss_amalgam_of_corruption") { }
 
         struct boss_amalgam_of_corruptionAI : public BossAI
         {
@@ -82,10 +82,10 @@ class boss_amalgam_of_corruption : public MS::Game::Scripting::Interfaces::Creat
         }
 };
 
-class mob_essence_of_corruption : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_essence_of_corruption : public CreatureScript
 {
     public:
-        mob_essence_of_corruption() : MS::Game::Scripting::Interfaces::CreatureScript("mob_essence_of_corruption") { }
+        mob_essence_of_corruption() : CreatureScript("mob_essence_of_corruption") { }
 
         struct mob_essence_of_corruptionAI : public ScriptedAI
         {
@@ -104,10 +104,10 @@ class mob_essence_of_corruption : public MS::Game::Scripting::Interfaces::Creatu
         }
 };
 
-class mob_manifestation_of_corruption : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_manifestation_of_corruption : public CreatureScript
 {
     public:
-        mob_manifestation_of_corruption() : MS::Game::Scripting::Interfaces::CreatureScript("mob_manifestation_of_corruption") { }
+        mob_manifestation_of_corruption() : CreatureScript("mob_manifestation_of_corruption") { }
 
         struct mob_manifestation_of_corruptionAI : public ScriptedAI
         {

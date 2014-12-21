@@ -43,10 +43,10 @@ EndScriptData */
 
 #define SPELL_HOLY_LIGHT    25263
 #define SPELL_DIVINE_SHIELD 13874
-class boss_silver_hand_bosses : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_silver_hand_bosses : public CreatureScript
 {
 public:
-    boss_silver_hand_bosses() : MS::Game::Scripting::Interfaces::CreatureScript("boss_silver_hand_bosses") { }
+    boss_silver_hand_bosses() : CreatureScript("boss_silver_hand_bosses") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

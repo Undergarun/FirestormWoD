@@ -198,10 +198,10 @@ const Position spawnLocations[] =
  *        XT-002 DECONSTRUCTOR
  *
  *///----------------------------------------------------
-class boss_xt002 : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_xt002 : public CreatureScript
 {
     public:
-        boss_xt002() : MS::Game::Scripting::Interfaces::CreatureScript("boss_xt002") { }        
+        boss_xt002() : CreatureScript("boss_xt002") { }        
 
         struct boss_xt002_AI : public BossAI
         {
@@ -484,10 +484,10 @@ class boss_xt002 : public MS::Game::Scripting::Interfaces::CreatureScript
 /*-------------------------------------------------------
  *        XT-002 HEART
  *///----------------------------------------------------
-class mob_xt002_heart : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_xt002_heart : public CreatureScript
 {
     public:
-        mob_xt002_heart() : MS::Game::Scripting::Interfaces::CreatureScript("mob_xt002_heart") {}        
+        mob_xt002_heart() : CreatureScript("mob_xt002_heart") {}        
 
         struct mob_xt002_heartAI : public Scripted_NoMovementAI
         {
@@ -537,10 +537,10 @@ class mob_xt002_heart : public MS::Game::Scripting::Interfaces::CreatureScript
 /*-------------------------------------------------------
  *        XS-013 SCRAPBOT
  *///----------------------------------------------------
-class mob_scrapbot : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_scrapbot : public CreatureScript
 {
     public:
-        mob_scrapbot() : MS::Game::Scripting::Interfaces::CreatureScript("mob_scrapbot") {}        
+        mob_scrapbot() : CreatureScript("mob_scrapbot") {}        
 
         struct mob_scrapbotAI : public ScriptedAI
         {
@@ -600,10 +600,10 @@ class mob_scrapbot : public MS::Game::Scripting::Interfaces::CreatureScript
 /*-------------------------------------------------------
  *        XM-024 PUMMELLER
  *///----------------------------------------------------
-class mob_pummeller : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_pummeller : public CreatureScript
 {
     public:
-        mob_pummeller() : MS::Game::Scripting::Interfaces::CreatureScript("mob_pummeller") {}        
+        mob_pummeller() : CreatureScript("mob_pummeller") {}        
 
         struct mob_pummellerAI : public ScriptedAI
         {
@@ -694,10 +694,10 @@ class BoomEvent : public BasicEvent
         Creature* _me;
 };
 
-class mob_boombot : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_boombot : public CreatureScript
 {
     public:
-        mob_boombot() : MS::Game::Scripting::Interfaces::CreatureScript("mob_boombot") {}        
+        mob_boombot() : CreatureScript("mob_boombot") {}        
 
         struct mob_boombotAI : public ScriptedAI
         {
@@ -767,10 +767,10 @@ class mob_boombot : public MS::Game::Scripting::Interfaces::CreatureScript
 /*-------------------------------------------------------
  *        LIFE SPARK
  *///----------------------------------------------------
-class mob_life_spark : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_life_spark : public CreatureScript
 {
     public:
-        mob_life_spark() : MS::Game::Scripting::Interfaces::CreatureScript("mob_life_spark") {}        
+        mob_life_spark() : CreatureScript("mob_life_spark") {}        
 
         struct mob_life_sparkAI : public ScriptedAI
         {
@@ -807,10 +807,10 @@ class mob_life_spark : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class mob_void_zone : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_void_zone : public CreatureScript
 {
     public:
-        mob_void_zone() : MS::Game::Scripting::Interfaces::CreatureScript("mob_void_zone") {}
+        mob_void_zone() : CreatureScript("mob_void_zone") {}
 
         struct mob_void_zoneAI : public Scripted_NoMovementAI
         {
@@ -847,10 +847,10 @@ class mob_void_zone : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class spell_xt002_searing_light_spawn_life_spark: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_xt002_searing_light_spawn_life_spark: public SpellScriptLoader
 {
     public:
-        spell_xt002_searing_light_spawn_life_spark() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_xt002_searing_light_spawn_life_spark") {}
+        spell_xt002_searing_light_spawn_life_spark() : SpellScriptLoader("spell_xt002_searing_light_spawn_life_spark") {}
 
         class spell_xt002_searing_light_spawn_life_spark_AuraScript : public AuraScript
         {
@@ -885,10 +885,10 @@ class spell_xt002_searing_light_spawn_life_spark: public MS::Game::Scripting::In
         }
 };
 
-class spell_xt002_gravity_bomb_aura: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_xt002_gravity_bomb_aura: public SpellScriptLoader
 {
     public:
-        spell_xt002_gravity_bomb_aura() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_xt002_gravity_bomb_aura") {}
+        spell_xt002_gravity_bomb_aura() : SpellScriptLoader("spell_xt002_gravity_bomb_aura") {}
 
         class spell_xt002_gravity_bomb_aura_AuraScript : public AuraScript
         {
@@ -956,10 +956,10 @@ class BombTargetSelector : public std::unary_function<Unit *, bool>
         Unit const* _victim;
 };
 
-class spell_xt002_gravity_bomb_aura_target: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_xt002_gravity_bomb_aura_target: public SpellScriptLoader
 {
     public:
-        spell_xt002_gravity_bomb_aura_target() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_xt002_gravity_bomb_aura_target") {}
+        spell_xt002_gravity_bomb_aura_target() : SpellScriptLoader("spell_xt002_gravity_bomb_aura_target") {}
 
         class spell_xt002_gravity_bomb_targeting_SpellScript : public SpellScript
         {
@@ -1005,10 +1005,10 @@ class spell_xt002_gravity_bomb_aura_target: public MS::Game::Scripting::Interfac
         }
 };
 
-class spell_xt002_gravity_bomb_damage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_xt002_gravity_bomb_damage: public SpellScriptLoader
 {
     public:
-        spell_xt002_gravity_bomb_damage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_xt002_gravity_bomb_damage") {}
+        spell_xt002_gravity_bomb_damage() : SpellScriptLoader("spell_xt002_gravity_bomb_damage") {}
 
         class spell_xt002_gravity_bomb_damage_SpellScript : public SpellScript
         {
@@ -1037,10 +1037,10 @@ class spell_xt002_gravity_bomb_damage: public MS::Game::Scripting::Interfaces::S
         }
 };
 
-class spell_xt002_heart_overload_periodic: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_xt002_heart_overload_periodic: public SpellScriptLoader
 {
     public:
-        spell_xt002_heart_overload_periodic() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_xt002_heart_overload_periodic") {}
+        spell_xt002_heart_overload_periodic() : SpellScriptLoader("spell_xt002_heart_overload_periodic") {}
 
         class spell_xt002_heart_overload_periodic_SpellScript : public SpellScript
         {
@@ -1103,10 +1103,10 @@ class spell_xt002_heart_overload_periodic: public MS::Game::Scripting::Interface
         }
 };
 
-class spell_xt002_tympanic_tantrum: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_xt002_tympanic_tantrum: public SpellScriptLoader
 {
     public:
-        spell_xt002_tympanic_tantrum() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_xt002_tympanic_tantrum") {}
+        spell_xt002_tympanic_tantrum() : SpellScriptLoader("spell_xt002_tympanic_tantrum") {}
 
         class spell_xt002_tympanic_tantrum_SpellScript : public SpellScript
         {
@@ -1140,10 +1140,10 @@ class spell_xt002_tympanic_tantrum: public MS::Game::Scripting::Interfaces::Spel
         }
 };
 
-class spell_xt002_submerged: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_xt002_submerged: public SpellScriptLoader
 {
     public:
-        spell_xt002_submerged() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_xt002_submerged") {}
+        spell_xt002_submerged() : SpellScriptLoader("spell_xt002_submerged") {}
 
         class spell_xt002_submerged_SpellScript : public SpellScript
         {
@@ -1171,10 +1171,10 @@ class spell_xt002_submerged: public MS::Game::Scripting::Interfaces::SpellScript
         }
 };
 
-class spell_xt002_stand: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_xt002_stand: public SpellScriptLoader
 {
     public:
-        spell_xt002_stand() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_xt002_stand") {}
+        spell_xt002_stand() : SpellScriptLoader("spell_xt002_stand") {}
 
         class spell_xt002_stand_SpellScript : public SpellScript
         {
@@ -1202,10 +1202,10 @@ class spell_xt002_stand: public MS::Game::Scripting::Interfaces::SpellScriptLoad
         }
 };
 
-class achievement_nerf_engineering : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
+class achievement_nerf_engineering : public AchievementCriteriaScript
 {
     public:
-        achievement_nerf_engineering() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_nerf_engineering") {}
+        achievement_nerf_engineering() : AchievementCriteriaScript("achievement_nerf_engineering") {}
 
         bool OnCheck(Player* /*source*/, Unit* target)
         {
@@ -1216,10 +1216,10 @@ class achievement_nerf_engineering : public MS::Game::Scripting::Interfaces::Ach
         }
 };
 
-class achievement_heartbreaker : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
+class achievement_heartbreaker : public AchievementCriteriaScript
 {
     public:
-        achievement_heartbreaker() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_heartbreaker") {}
+        achievement_heartbreaker() : AchievementCriteriaScript("achievement_heartbreaker") {}
 
         bool OnCheck(Player* /*source*/, Unit* target)
         {
@@ -1230,10 +1230,10 @@ class achievement_heartbreaker : public MS::Game::Scripting::Interfaces::Achieve
         }
 };
 
-class achievement_nerf_gravity_bombs : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
+class achievement_nerf_gravity_bombs : public AchievementCriteriaScript
 {
     public:
-        achievement_nerf_gravity_bombs() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_nerf_gravity_bombs") {}
+        achievement_nerf_gravity_bombs() : AchievementCriteriaScript("achievement_nerf_gravity_bombs") {}
 
         bool OnCheck(Player* /*source*/, Unit* target)
         {

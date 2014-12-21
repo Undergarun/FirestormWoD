@@ -40,10 +40,10 @@ enum Yells
     SAY_DEATH       = -1509027
 };
 
-class boss_ossirian : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_ossirian : public CreatureScript
 {
     public:
-        boss_ossirian() : MS::Game::Scripting::Interfaces::CreatureScript("boss_ossirian") { }
+        boss_ossirian() : CreatureScript("boss_ossirian") { }
 
         struct boss_ossirianAI : public ScriptedAI
         {

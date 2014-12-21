@@ -9,10 +9,10 @@
 #include "stormstout_brewery.h"
 #include "Vehicle.h"
 
-class boss_ook_ook : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_ook_ook : public CreatureScript
 {
     public:
-        boss_ook_ook() : MS::Game::Scripting::Interfaces::CreatureScript("boss_ook_ook") { }
+        boss_ook_ook() : CreatureScript("boss_ook_ook") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -62,10 +62,10 @@ enum eSpells
     SPELL_FORCECAST_BARREL_DROP     = 122385,
 };
 
-class npc_barrel : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_barrel : public CreatureScript
 {
     public:
-        npc_barrel() : MS::Game::Scripting::Interfaces::CreatureScript("npc_barrel") { }
+        npc_barrel() : CreatureScript("npc_barrel") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -129,10 +129,10 @@ class npc_barrel : public MS::Game::Scripting::Interfaces::CreatureScript
         };
 };
 
-class spell_ook_ook_barrel_ride: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_ook_ook_barrel_ride: public SpellScriptLoader
 {
     public:
-        spell_ook_ook_barrel_ride() :  MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_ook_ook_barrel_ride") { }
+        spell_ook_ook_barrel_ride() :  SpellScriptLoader("spell_ook_ook_barrel_ride") { }
 
         class spell_ook_ook_barrel_ride_AuraScript : public AuraScript
         {
@@ -157,10 +157,10 @@ class spell_ook_ook_barrel_ride: public MS::Game::Scripting::Interfaces::SpellSc
         }
 };
 
-class spell_ook_ook_barrel: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_ook_ook_barrel: public SpellScriptLoader
 {
     public:
-        spell_ook_ook_barrel() :  MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_ook_ook_barrel") { }
+        spell_ook_ook_barrel() :  SpellScriptLoader("spell_ook_ook_barrel") { }
 
         class spell_ook_ook_barrel_AuraScript : public AuraScript
         {

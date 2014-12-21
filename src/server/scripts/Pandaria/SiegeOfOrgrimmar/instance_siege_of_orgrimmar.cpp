@@ -39,10 +39,10 @@ DoorData const doorData[] =
     {0,                                      0,                         DOOR_TYPE_ROOM,       BOUNDARY_NONE},// END
 };
 
-class instance_siege_of_orgrimmar : public MS::Game::Scripting::Interfaces::InstanceMapScript
+class instance_siege_of_orgrimmar : public InstanceMapScript
 {
     public:
-        instance_siege_of_orgrimmar() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_siege_of_orgrimmar", 1136) { }
+        instance_siege_of_orgrimmar() : InstanceMapScript("instance_siege_of_orgrimmar", 1136) { }
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const
         {

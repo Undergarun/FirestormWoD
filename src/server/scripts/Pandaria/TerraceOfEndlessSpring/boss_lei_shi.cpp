@@ -92,10 +92,10 @@ Position hidePositions[4] =
 #define HEROIC_DIST_TO_VORTEX 21.0f
 #define DIST_TO_SCARY_FOG_DOT 4.5f
 
-class boss_lei_shi : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_lei_shi : public CreatureScript
 {
     public:
-        boss_lei_shi() : MS::Game::Scripting::Interfaces::CreatureScript("boss_lei_shi") { }
+        boss_lei_shi() : CreatureScript("boss_lei_shi") { }
 
         struct boss_lei_shiAI : public BossAI
         {
@@ -636,10 +636,10 @@ class boss_lei_shi : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Animated Protector - 62995
-class mob_animated_protector : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_animated_protector : public CreatureScript
 {
     public:
-        mob_animated_protector() : MS::Game::Scripting::Interfaces::CreatureScript("mob_animated_protector") { }
+        mob_animated_protector() : CreatureScript("mob_animated_protector") { }
 
         struct mob_animated_protectorAI : public ScriptedAI
         {
@@ -669,10 +669,10 @@ class mob_animated_protector : public MS::Game::Scripting::Interfaces::CreatureS
 };
 
 // Lei Shi (hidden) - 63099
-class mob_lei_shi_hidden : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_lei_shi_hidden : public CreatureScript
 {
     public:
-        mob_lei_shi_hidden() : MS::Game::Scripting::Interfaces::CreatureScript("mob_lei_shi_hidden") { }
+        mob_lei_shi_hidden() : CreatureScript("mob_lei_shi_hidden") { }
 
         struct mob_lei_shi_hiddenAI : public ScriptedAI
         {
@@ -750,10 +750,10 @@ class mob_lei_shi_hidden : public MS::Game::Scripting::Interfaces::CreatureScrip
 };
 
 // Get Away! - 123461
-class spell_get_away: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_get_away: public SpellScriptLoader
 {
     public:
-        spell_get_away() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_get_away") { }
+        spell_get_away() : SpellScriptLoader("spell_get_away") { }
 
         class spell_get_away_AuraScript : public AuraScript
         {
@@ -780,10 +780,10 @@ class spell_get_away: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 };
 
 // Get Away! - 123467
-class spell_get_away_damage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_get_away_damage: public SpellScriptLoader
 {
     public:
-        spell_get_away_damage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_get_away_damage") { }
+        spell_get_away_damage() : SpellScriptLoader("spell_get_away_damage") { }
 
         class spell_get_away_damage_SpellScript : public SpellScript
         {
@@ -810,10 +810,10 @@ class spell_get_away_damage: public MS::Game::Scripting::Interfaces::SpellScript
 };
 
 // Hide - 123244
-class spell_hide: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hide: public SpellScriptLoader
 {
     public:
-        spell_hide() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hide") { }
+        spell_hide() : SpellScriptLoader("spell_hide") { }
 
         class spell_hide_AuraScript : public AuraScript
         {
@@ -862,10 +862,10 @@ class spell_hide: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 };
 
 // Hide (stacks) - 123233
-class spell_hide_stacks: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hide_stacks: public SpellScriptLoader
 {
     public:
-        spell_hide_stacks() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hide_stacks") { }
+        spell_hide_stacks() : SpellScriptLoader("spell_hide_stacks") { }
 
         class spell_hide_stacks_AuraScript : public AuraScript
         {
@@ -892,10 +892,10 @@ class spell_hide_stacks: public MS::Game::Scripting::Interfaces::SpellScriptLoad
 };
 
 // Scary Fog (DoT) - 123705
-class spell_scary_fog_dot: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_scary_fog_dot: public SpellScriptLoader
 {
     public:
-        spell_scary_fog_dot() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_scary_fog_dot") { }
+        spell_scary_fog_dot() : SpellScriptLoader("spell_scary_fog_dot") { }
 
         class spell_scary_fog_dot_SpellScript : public SpellScript
         {
@@ -960,10 +960,10 @@ class spell_scary_fog_dot: public MS::Game::Scripting::Interfaces::SpellScriptLo
 };
 
 // Scary Fog (stacks) - 123712
-class spell_scary_fog_stacks: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_scary_fog_stacks: public SpellScriptLoader
 {
     public:
-        spell_scary_fog_stacks() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_scary_fog_stacks") { }
+        spell_scary_fog_stacks() : SpellScriptLoader("spell_scary_fog_stacks") { }
 
         class spell_scary_fog_stacks_SpellScript : public SpellScript
         {

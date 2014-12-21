@@ -44,10 +44,10 @@ EndScriptData */
 #define SPELL_WARLORDS_RAGE_PROC    36453
 
 // 17954
-class mob_naga_distiller : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_naga_distiller : public CreatureScript
 {
 public:
-    mob_naga_distiller() : MS::Game::Scripting::Interfaces::CreatureScript("mob_naga_distiller") { }
+    mob_naga_distiller() : CreatureScript("mob_naga_distiller") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -103,10 +103,10 @@ public:
 };
 
 // 17798
-class boss_warlord_kalithresh : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_warlord_kalithresh : public CreatureScript
 {
 public:
-    boss_warlord_kalithresh() : MS::Game::Scripting::Interfaces::CreatureScript("boss_warlord_kalithresh") { }
+    boss_warlord_kalithresh() : CreatureScript("boss_warlord_kalithresh") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

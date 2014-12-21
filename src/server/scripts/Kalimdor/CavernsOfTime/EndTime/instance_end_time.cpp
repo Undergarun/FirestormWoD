@@ -3,10 +3,10 @@
 
 #define MAX_ENCOUNTER 5
 
-class instance_end_time : public MS::Game::Scripting::Interfaces::InstanceMapScript
+class instance_end_time : public InstanceMapScript
 {
     public:
-        instance_end_time() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_end_time", 938) { }
+        instance_end_time() : InstanceMapScript("instance_end_time", 938) { }
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const
         {

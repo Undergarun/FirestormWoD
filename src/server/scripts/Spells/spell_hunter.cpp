@@ -138,10 +138,10 @@ enum HunterSpells
 
 // Called by Explosive Shot - 53301
 // Hunter's Mark - 1130
-class spell_hun_hunters_mark: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_hunters_mark: public SpellScriptLoader
 {
     public:
-        spell_hun_hunters_mark() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_hunters_mark") { }
+        spell_hun_hunters_mark() : SpellScriptLoader("spell_hun_hunters_mark") { }
 
         class spell_hun_hunters_mark_SpellScript : public SpellScript
         {
@@ -171,10 +171,10 @@ class spell_hun_hunters_mark: public MS::Game::Scripting::Interfaces::SpellScrip
 const uint32 fireworksSpells[4] = { 127937, 127936, 127961, 127951 };
 
 // Fireworks - 127933
-class spell_hun_fireworks: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_fireworks: public SpellScriptLoader
 {
     public:
-        spell_hun_fireworks() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_fireworks") { }
+        spell_hun_fireworks() : SpellScriptLoader("spell_hun_fireworks") { }
 
         class spell_hun_fireworks_SpellScript : public SpellScript
         {
@@ -199,10 +199,10 @@ class spell_hun_fireworks: public MS::Game::Scripting::Interfaces::SpellScriptLo
 };
 
 // Glyph of Fireworks - 57903
-class spell_hun_glyph_of_fireworks: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_glyph_of_fireworks: public SpellScriptLoader
 {
     public:
-        spell_hun_glyph_of_fireworks() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_glyph_of_fireworks") { }
+        spell_hun_glyph_of_fireworks() : SpellScriptLoader("spell_hun_glyph_of_fireworks") { }
 
         class spell_hun_glyph_of_fireworks_AuraScript : public AuraScript
         {
@@ -236,10 +236,10 @@ class spell_hun_glyph_of_fireworks: public MS::Game::Scripting::Interfaces::Spel
 
 // Called by Aspect of the Pack - 13159, Aspect of the Hawk - 13165 and Aspect of the Cheetah - 5118
 // Glyph of Aspects - 122492
-class spell_hun_glyph_of_aspects: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_glyph_of_aspects: public SpellScriptLoader
 {
     public:
-        spell_hun_glyph_of_aspects() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_glyph_of_aspects") { }
+        spell_hun_glyph_of_aspects() : SpellScriptLoader("spell_hun_glyph_of_aspects") { }
 
         class spell_hun_glyph_of_aspects_SpellScript : public SpellScript
         {
@@ -282,10 +282,10 @@ class spell_hun_glyph_of_aspects: public MS::Game::Scripting::Interfaces::SpellS
 };
 
 // Glyph of animal bond - 20895
-class spell_hun_glyph_of_animal_bond: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_glyph_of_animal_bond: public SpellScriptLoader
 {
 public:
-    spell_hun_glyph_of_animal_bond() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_glyph_of_animal_bond") { }
+    spell_hun_glyph_of_animal_bond() : SpellScriptLoader("spell_hun_glyph_of_animal_bond") { }
 
     class spell_hun_glyph_of_animal_bond_SpellScript : public SpellScript
     {
@@ -310,10 +310,10 @@ public:
 };
 
 // Lock and Load - 56453
-class spell_hun_lock_and_load_proc: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_lock_and_load_proc: public SpellScriptLoader
 {
     public:
-        spell_hun_lock_and_load_proc() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_lock_and_load_proc") { }
+        spell_hun_lock_and_load_proc() : SpellScriptLoader("spell_hun_lock_and_load_proc") { }
 
         class spell_hun_lock_and_load_proc_SpellScript : public SpellScript
         {
@@ -341,10 +341,10 @@ class spell_hun_lock_and_load_proc: public MS::Game::Scripting::Interfaces::Spel
 };
 
 // Bestial Wrath - 19574 and The Beast Within - 34471
-class spell_hun_bestial_wrath_dispel: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_bestial_wrath_dispel: public SpellScriptLoader
 {
     public:
-        spell_hun_bestial_wrath_dispel() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_bestial_wrath_dispel") { }
+        spell_hun_bestial_wrath_dispel() : SpellScriptLoader("spell_hun_bestial_wrath_dispel") { }
 
         class spell_hun_bestial_wrath_dispel_AuraScript : public AuraScript
         {
@@ -389,10 +389,10 @@ class spell_hun_bestial_wrath_dispel: public MS::Game::Scripting::Interfaces::Sp
 
 // Called by Arcane Shot - 3044
 // Item PvP - Hunter S13 2P - 131564
-class spell_hun_item_pvp_s13_2p: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_item_pvp_s13_2p: public SpellScriptLoader
 {
     public:
-        spell_hun_item_pvp_s13_2p() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_item_pvp_s13_2p") { }
+        spell_hun_item_pvp_s13_2p() : SpellScriptLoader("spell_hun_item_pvp_s13_2p") { }
 
         class spell_hun_item_pvp_s13_2p_SpellScript : public SpellScript
         {
@@ -418,10 +418,10 @@ class spell_hun_item_pvp_s13_2p: public MS::Game::Scripting::Interfaces::SpellSc
 };
 
 // Spirit Bond - 118694
-class spell_hun_spirit_bond: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_spirit_bond: public SpellScriptLoader
 {
     public:
-        spell_hun_spirit_bond() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_spirit_bond") { }
+        spell_hun_spirit_bond() : SpellScriptLoader("spell_hun_spirit_bond") { }
 
         class spell_hun_spirit_bond_AuraScript : public AuraScript
         {
@@ -449,10 +449,10 @@ class spell_hun_spirit_bond: public MS::Game::Scripting::Interfaces::SpellScript
 };
 
 // Spirit Bond - 109212
-class spell_hun_spirit_bond_apply: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_spirit_bond_apply: public SpellScriptLoader
 {
 public:
-    spell_hun_spirit_bond_apply() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_spirit_bond_apply") { }
+    spell_hun_spirit_bond_apply() : SpellScriptLoader("spell_hun_spirit_bond_apply") { }
 
     class spell_hun_spirit_bond_apply_SpellScript : public SpellScript
     {
@@ -478,10 +478,10 @@ public:
 };
 
 // Glyph of Aspect of the Beast - 125042
-class spell_hun_glyph_of_aspect_of_the_beast: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_glyph_of_aspect_of_the_beast: public SpellScriptLoader
 {
     public:
-        spell_hun_glyph_of_aspect_of_the_beast() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_glyph_of_aspect_of_the_beast") { }
+        spell_hun_glyph_of_aspect_of_the_beast() : SpellScriptLoader("spell_hun_glyph_of_aspect_of_the_beast") { }
 
         class spell_hun_glyph_of_aspect_of_the_beast_AuraScript : public AuraScript
         {
@@ -514,10 +514,10 @@ class spell_hun_glyph_of_aspect_of_the_beast: public MS::Game::Scripting::Interf
 };
 
 // Glaive Toss (damage) - 120761 and 121414
-class spell_hun_glaive_toss_damage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_glaive_toss_damage: public SpellScriptLoader
 {
     public:
-        spell_hun_glaive_toss_damage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_glaive_toss_damage") { }
+        spell_hun_glaive_toss_damage() : SpellScriptLoader("spell_hun_glaive_toss_damage") { }
 
         class spell_hun_glaive_toss_damage_SpellScript : public SpellScript
         {
@@ -631,10 +631,10 @@ class spell_hun_glaive_toss_damage: public MS::Game::Scripting::Interfaces::Spel
 };
 
 // Glaive Toss (Missile data) - 120755 and 120756
-class spell_hun_glaive_toss_missile: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_glaive_toss_missile: public SpellScriptLoader
 {
     public:
-        spell_hun_glaive_toss_missile() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_glaive_toss_missile") { }
+        spell_hun_glaive_toss_missile() : SpellScriptLoader("spell_hun_glaive_toss_missile") { }
 
         class spell_hun_glaive_toss_missile_SpellScript : public SpellScript
         {
@@ -700,10 +700,10 @@ class spell_hun_glaive_toss_missile: public MS::Game::Scripting::Interfaces::Spe
 };
 
 // Glyph of Fetch - 126746
-class spell_hun_glyph_of_fetch: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_glyph_of_fetch: public SpellScriptLoader
 {
     public:
-        spell_hun_glyph_of_fetch() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_glyph_of_fetch") { }
+        spell_hun_glyph_of_fetch() : SpellScriptLoader("spell_hun_glyph_of_fetch") { }
 
         class spell_hun_glyph_of_fetch_AuraScript : public AuraScript
         {
@@ -736,10 +736,10 @@ class spell_hun_glyph_of_fetch: public MS::Game::Scripting::Interfaces::SpellScr
 };
 
 // Tracking - 118424
-class spell_hun_tracking: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_tracking: public SpellScriptLoader
 {
     public:
-        spell_hun_tracking() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_tracking") { }
+        spell_hun_tracking() : SpellScriptLoader("spell_hun_tracking") { }
 
         class spell_hun_tracking_AuraScript : public AuraScript
         {
@@ -776,10 +776,10 @@ class spell_hun_tracking: public MS::Game::Scripting::Interfaces::SpellScriptLoa
 };
 
 // Dash - 113073
-class spell_hun_dash: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_dash: public SpellScriptLoader
 {
     public:
-        spell_hun_dash() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_dash") { }
+        spell_hun_dash() : SpellScriptLoader("spell_hun_dash") { }
 
         class spell_hun_dash_SpellScript : public SpellScript
         {
@@ -804,10 +804,10 @@ class spell_hun_dash: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 };
 
 // Dire Beast - 120679
-class spell_hun_dire_beast: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_dire_beast: public SpellScriptLoader
 {
     public:
-        spell_hun_dire_beast() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_dire_beast") { }
+        spell_hun_dire_beast() : SpellScriptLoader("spell_hun_dire_beast") { }
 
         class spell_hun_dire_beast_SpellScript : public SpellScript
         {
@@ -884,10 +884,10 @@ class spell_hun_dire_beast: public MS::Game::Scripting::Interfaces::SpellScriptL
 };
 
 // A Murder of Crows - 131894
-class spell_hun_a_murder_of_crows: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_a_murder_of_crows: public SpellScriptLoader
 {
     public:
-        spell_hun_a_murder_of_crows() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_a_murder_of_crows") { }
+        spell_hun_a_murder_of_crows() : SpellScriptLoader("spell_hun_a_murder_of_crows") { }
 
         class spell_hun_a_murder_of_crows_AuraScript : public AuraScript
         {
@@ -927,10 +927,10 @@ class spell_hun_a_murder_of_crows: public MS::Game::Scripting::Interfaces::Spell
 };
 
 // Focus Fire - 82692
-class spell_hun_focus_fire: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_focus_fire: public SpellScriptLoader
 {
     public:
-        spell_hun_focus_fire() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_focus_fire") { }
+        spell_hun_focus_fire() : SpellScriptLoader("spell_hun_focus_fire") { }
 
         class spell_hun_focus_fire_SpellScript : public SpellScript
         {
@@ -985,10 +985,10 @@ class spell_hun_focus_fire: public MS::Game::Scripting::Interfaces::SpellScriptL
 };
 
 // Frenzy - 19615
-class spell_hun_frenzy: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_frenzy: public SpellScriptLoader
 {
     public:
-        spell_hun_frenzy() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_frenzy") { }
+        spell_hun_frenzy() : SpellScriptLoader("spell_hun_frenzy") { }
 
         class spell_hun_frenzy_SpellScript : public SpellScript
         {
@@ -1038,10 +1038,10 @@ class spell_hun_frenzy: public MS::Game::Scripting::Interfaces::SpellScriptLoade
 };
 
 // Lynx Rush - 120697
-class spell_hun_lynx_rush: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_lynx_rush: public SpellScriptLoader
 {
     public:
-        spell_hun_lynx_rush() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_lynx_rush") { }
+        spell_hun_lynx_rush() : SpellScriptLoader("spell_hun_lynx_rush") { }
 
         class spell_hun_lynx_rush_AuraScript : public AuraScript
         {
@@ -1183,10 +1183,10 @@ class spell_hun_lynx_rush: public MS::Game::Scripting::Interfaces::SpellScriptLo
 };
 
 // Beast Cleave - 118455
-class spell_hun_beast_cleave_proc: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_beast_cleave_proc: public SpellScriptLoader
 {
     public:
-        spell_hun_beast_cleave_proc() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_beast_cleave_proc") { }
+        spell_hun_beast_cleave_proc() : SpellScriptLoader("spell_hun_beast_cleave_proc") { }
 
         class spell_hun_beast_cleave_proc_AuraScript : public AuraScript
         {
@@ -1230,10 +1230,10 @@ class spell_hun_beast_cleave_proc: public MS::Game::Scripting::Interfaces::Spell
 
 // Called by Multi Shot - 2643
 // Beast Cleave - 115939
-class spell_hun_beast_cleave: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_beast_cleave: public SpellScriptLoader
 {
     public:
-        spell_hun_beast_cleave() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_beast_cleave") { }
+        spell_hun_beast_cleave() : SpellScriptLoader("spell_hun_beast_cleave") { }
 
         class spell_hun_beast_cleave_SpellScript : public SpellScript
         {
@@ -1261,10 +1261,10 @@ class spell_hun_beast_cleave: public MS::Game::Scripting::Interfaces::SpellScrip
 
 // Called by Arcane Shot - 3044
 // Cobra Strikes - 53260
-class spell_hun_cobra_strikes: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_cobra_strikes: public SpellScriptLoader
 {
     public:
-        spell_hun_cobra_strikes() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_cobra_strikes") { }
+        spell_hun_cobra_strikes() : SpellScriptLoader("spell_hun_cobra_strikes") { }
 
         class spell_hun_cobra_strikes_SpellScript : public SpellScript
         {
@@ -1303,10 +1303,10 @@ class spell_hun_cobra_strikes: public MS::Game::Scripting::Interfaces::SpellScri
 };
 
 // Barrage damage - 120361
-class spell_hun_barrage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_barrage: public SpellScriptLoader
 {
     public:
-        spell_hun_barrage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_barrage") { }
+        spell_hun_barrage() : SpellScriptLoader("spell_hun_barrage") { }
 
         class spell_hun_barrage_SpellScript : public SpellScript
         {
@@ -1333,10 +1333,10 @@ class spell_hun_barrage: public MS::Game::Scripting::Interfaces::SpellScriptLoad
 };
 
 // Binding Shot - 117405
-class spell_hun_binding_shot: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_binding_shot: public SpellScriptLoader
 {
     public:
-        spell_hun_binding_shot() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_binding_shot") { }
+        spell_hun_binding_shot() : SpellScriptLoader("spell_hun_binding_shot") { }
 
         class spell_hun_binding_shot_zone_AuraScript : public AuraScript
         {
@@ -1399,10 +1399,10 @@ class spell_hun_binding_shot: public MS::Game::Scripting::Interfaces::SpellScrip
 };
 
 // Binding Shot - 109248
-class spell_hun_binding_shot_zone: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_binding_shot_zone: public SpellScriptLoader
 {
     public:
-        spell_hun_binding_shot_zone() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_binding_shot_zone") { }
+        spell_hun_binding_shot_zone() : SpellScriptLoader("spell_hun_binding_shot_zone") { }
 
         class spell_hun_binding_shot_zone_AuraScript : public AuraScript
         {
@@ -1431,10 +1431,10 @@ class spell_hun_binding_shot_zone: public MS::Game::Scripting::Interfaces::Spell
 
 // Called by Serpent Sting - 118253
 // Improved Serpent Sting - 82834
-class spell_hun_improved_serpent_sting: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_improved_serpent_sting: public SpellScriptLoader
 {
     public:
-        spell_hun_improved_serpent_sting() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_improved_serpent_sting") { }
+        spell_hun_improved_serpent_sting() : SpellScriptLoader("spell_hun_improved_serpent_sting") { }
 
         class spell_hun_improved_serpent_sting_SpellScript : public SpellScript
         {
@@ -1501,10 +1501,10 @@ class spell_hun_improved_serpent_sting: public MS::Game::Scripting::Interfaces::
 };
 
 // Powershot - 109259
-class spell_hun_powershot: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_powershot: public SpellScriptLoader
 {
     public:
-        spell_hun_powershot() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_powershot") { }
+        spell_hun_powershot() : SpellScriptLoader("spell_hun_powershot") { }
 
         class spell_hun_powershot_SpellScript : public SpellScript
         {
@@ -1578,10 +1578,10 @@ class spell_hun_powershot: public MS::Game::Scripting::Interfaces::SpellScriptLo
 };
 
 // Feign Death - 5384
-class spell_hun_feign_death: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_feign_death: public SpellScriptLoader
 {
     public:
-        spell_hun_feign_death() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_feign_death") { }
+        spell_hun_feign_death() : SpellScriptLoader("spell_hun_feign_death") { }
 
         class spell_hun_feign_death_AuraScript : public AuraScript
         {
@@ -1619,10 +1619,10 @@ class spell_hun_feign_death: public MS::Game::Scripting::Interfaces::SpellScript
 };
 
 // Camouflage - 51755
-class spell_hun_camouflage_visual: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_camouflage_visual: public SpellScriptLoader
 {
     public:
-        spell_hun_camouflage_visual() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_camouflage_visual") { }
+        spell_hun_camouflage_visual() : SpellScriptLoader("spell_hun_camouflage_visual") { }
 
         class spell_hun_camouflage_visual_AuraScript : public AuraScript
         {
@@ -1651,10 +1651,10 @@ class spell_hun_camouflage_visual: public MS::Game::Scripting::Interfaces::Spell
 
 // Called by Multi Shot - 2643
 // Serpent Spread - 87935
-class spell_hun_serpent_spread: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_serpent_spread: public SpellScriptLoader
 {
     public:
-        spell_hun_serpent_spread() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_serpent_spread") { }
+        spell_hun_serpent_spread() : SpellScriptLoader("spell_hun_serpent_spread") { }
 
         class spell_hun_serpent_spread_SpellScript : public SpellScript
         {
@@ -1681,10 +1681,10 @@ class spell_hun_serpent_spread: public MS::Game::Scripting::Interfaces::SpellScr
 };
 
 // Ancient Hysteria - 90355
-class spell_hun_ancient_hysteria: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_ancient_hysteria: public SpellScriptLoader
 {
     public:
-        spell_hun_ancient_hysteria() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_ancient_hysteria") { }
+        spell_hun_ancient_hysteria() : SpellScriptLoader("spell_hun_ancient_hysteria") { }
 
         class spell_hun_ancient_hysteria_SpellScript : public SpellScript
         {
@@ -1734,10 +1734,10 @@ class spell_hun_ancient_hysteria: public MS::Game::Scripting::Interfaces::SpellS
 };
 
 // Kill Command - 34026
-class spell_hun_kill_command: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_kill_command: public SpellScriptLoader
 {
     public:
-        spell_hun_kill_command() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_kill_command") { }
+        spell_hun_kill_command() : SpellScriptLoader("spell_hun_kill_command") { }
 
         class spell_hun_kill_command_SpellScript : public SpellScript
         {
@@ -1802,10 +1802,10 @@ class spell_hun_kill_command: public MS::Game::Scripting::Interfaces::SpellScrip
 };
 
 // Cobra Shot - 77767
-class spell_hun_cobra_shot: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_cobra_shot: public SpellScriptLoader
 {
     public:
-        spell_hun_cobra_shot() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_cobra_shot") { }
+        spell_hun_cobra_shot() : SpellScriptLoader("spell_hun_cobra_shot") { }
 
         class spell_hun_cobra_shot_SpellScript : public SpellScript
         {
@@ -1830,10 +1830,10 @@ class spell_hun_cobra_shot: public MS::Game::Scripting::Interfaces::SpellScriptL
 };
 
 // Steady Shot - 56641
-class spell_hun_steady_shot: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_steady_shot: public SpellScriptLoader
 {
     public:
-        spell_hun_steady_shot() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_steady_shot") { }
+        spell_hun_steady_shot() : SpellScriptLoader("spell_hun_steady_shot") { }
 
         class spell_hun_steady_shot_SpellScript : public SpellScript
         {
@@ -1862,10 +1862,10 @@ class spell_hun_steady_shot: public MS::Game::Scripting::Interfaces::SpellScript
 };
 
 // Chimera Shot - 53209
-class spell_hun_chimera_shot: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_chimera_shot: public SpellScriptLoader
 {
     public:
-        spell_hun_chimera_shot() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_chimera_shot") { }
+        spell_hun_chimera_shot() : SpellScriptLoader("spell_hun_chimera_shot") { }
 
         class spell_hun_chimera_shot_SpellScript : public SpellScript
         {
@@ -1895,10 +1895,10 @@ class spell_hun_chimera_shot: public MS::Game::Scripting::Interfaces::SpellScrip
         }
 };
 
-class spell_hun_last_stand_pet: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_last_stand_pet: public SpellScriptLoader
 {
     public:
-        spell_hun_last_stand_pet() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_last_stand_pet") { }
+        spell_hun_last_stand_pet() : SpellScriptLoader("spell_hun_last_stand_pet") { }
 
         class spell_hun_last_stand_pet_SpellScript : public SpellScript
         {
@@ -1932,10 +1932,10 @@ class spell_hun_last_stand_pet: public MS::Game::Scripting::Interfaces::SpellScr
 };
 
 // Master's Call - 53271
-class spell_hun_masters_call: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_masters_call: public SpellScriptLoader
 {
     public:
-        spell_hun_masters_call() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_masters_call") { }
+        spell_hun_masters_call() : SpellScriptLoader("spell_hun_masters_call") { }
 
         class spell_hun_masters_call_SpellScript : public SpellScript
         {
@@ -1999,10 +1999,10 @@ class spell_hun_masters_call: public MS::Game::Scripting::Interfaces::SpellScrip
 };
 
 // Scatter Shot - 37506
-class spell_hun_scatter_shot: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_scatter_shot: public SpellScriptLoader
 {
     public:
-        spell_hun_scatter_shot() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_scatter_shot") { }
+        spell_hun_scatter_shot() : SpellScriptLoader("spell_hun_scatter_shot") { }
 
         class spell_hun_scatter_shot_SpellScript : public SpellScript
         {
@@ -2045,10 +2045,10 @@ enum eSniperTrainingSpells
     SPELL_SNIPER_TRAINING_BUFF_R1   = 64418,
 };
 
-class spell_hun_sniper_training: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_sniper_training: public SpellScriptLoader
 {
     public:
-        spell_hun_sniper_training() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_sniper_training") { }
+        spell_hun_sniper_training() : SpellScriptLoader("spell_hun_sniper_training") { }
 
         class spell_hun_sniper_training_AuraScript : public AuraScript
         {
@@ -2103,10 +2103,10 @@ class spell_hun_sniper_training: public MS::Game::Scripting::Interfaces::SpellSc
         }
 };
 
-class spell_hun_pet_heart_of_the_phoenix: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_pet_heart_of_the_phoenix: public SpellScriptLoader
 {
     public:
-        spell_hun_pet_heart_of_the_phoenix() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_pet_heart_of_the_phoenix") { }
+        spell_hun_pet_heart_of_the_phoenix() : SpellScriptLoader("spell_hun_pet_heart_of_the_phoenix") { }
 
         class spell_hun_pet_heart_of_the_phoenix_SpellScript : public SpellScript
         {
@@ -2150,10 +2150,10 @@ class spell_hun_pet_heart_of_the_phoenix: public MS::Game::Scripting::Interfaces
         }
 };
 
-class spell_hun_pet_carrion_feeder: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_pet_carrion_feeder: public SpellScriptLoader
 {
     public:
-        spell_hun_pet_carrion_feeder() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_pet_carrion_feeder") { }
+        spell_hun_pet_carrion_feeder() : SpellScriptLoader("spell_hun_pet_carrion_feeder") { }
 
         class spell_hun_pet_carrion_feeder_SpellScript : public SpellScript
         {
@@ -2208,10 +2208,10 @@ class spell_hun_pet_carrion_feeder: public MS::Game::Scripting::Interfaces::Spel
 };
 
 // Misdirection - 34477
-class spell_hun_misdirection: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_misdirection: public SpellScriptLoader
 {
     public:
-        spell_hun_misdirection() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_misdirection") { }
+        spell_hun_misdirection() : SpellScriptLoader("spell_hun_misdirection") { }
 
         class spell_hun_misdirection_AuraScript : public AuraScript
         {
@@ -2273,10 +2273,10 @@ class spell_hun_misdirection: public MS::Game::Scripting::Interfaces::SpellScrip
 };
 
 // Misdirection (proc) - 35079
-class spell_hun_misdirection_proc: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_misdirection_proc: public SpellScriptLoader
 {
     public:
-        spell_hun_misdirection_proc() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_misdirection_proc") { }
+        spell_hun_misdirection_proc() : SpellScriptLoader("spell_hun_misdirection_proc") { }
 
         class spell_hun_misdirection_proc_AuraScript : public AuraScript
         {
@@ -2301,10 +2301,10 @@ class spell_hun_misdirection_proc: public MS::Game::Scripting::Interfaces::Spell
 };
 
 // Disengage - 781
-class spell_hun_disengage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_disengage: public SpellScriptLoader
 {
     public:
-        spell_hun_disengage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_disengage") { }
+        spell_hun_disengage() : SpellScriptLoader("spell_hun_disengage") { }
 
         class spell_hun_disengage_SpellScript : public SpellScript
         {
@@ -2352,10 +2352,10 @@ class spell_hun_disengage: public MS::Game::Scripting::Interfaces::SpellScriptLo
 };
 
 // Tame Beast - 1515
-class spell_hun_tame_beast: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_tame_beast: public SpellScriptLoader
 {
     public:
-        spell_hun_tame_beast() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_tame_beast") { }
+        spell_hun_tame_beast() : SpellScriptLoader("spell_hun_tame_beast") { }
 
         class spell_hun_tame_beast_SpellScript : public SpellScript
         {
@@ -2410,10 +2410,10 @@ class spell_hun_tame_beast: public MS::Game::Scripting::Interfaces::SpellScriptL
 };
 
 //Kill shot - 53351
-class spell_hun_kill_shot: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_kill_shot: public SpellScriptLoader
 {
 public:
-    spell_hun_kill_shot() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_kill_shot") { }
+    spell_hun_kill_shot() : SpellScriptLoader("spell_hun_kill_shot") { }
 
     class spell_hun_kill_shot_SpellScript : public SpellScript
     {
@@ -2445,10 +2445,10 @@ public:
 };
 
 //Bombardment - 35110 
-class spell_hun_bombardment: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_bombardment: public SpellScriptLoader
 {
 public:
-    spell_hun_bombardment() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_bombardment") { }
+    spell_hun_bombardment() : SpellScriptLoader("spell_hun_bombardment") { }
 
     class spell_hun_bombardment_AuraScript : public AuraScript
     {
@@ -2476,7 +2476,7 @@ public:
 };
 
 // Thrill of the Hunt - 109396
-class PlayerScript_thrill_of_the_hunt: public MS::Game::Scripting::Interfaces::PlayerScript
+class PlayerScript_thrill_of_the_hunt: public PlayerScript
 {
 public:
     PlayerScript_thrill_of_the_hunt() :PlayerScript("PlayerScript_thrill_of_the_hunt") {}

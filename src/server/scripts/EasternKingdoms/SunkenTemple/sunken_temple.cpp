@@ -35,10 +35,10 @@ EndContentData */
 # at_malfurion_Stormrage_trigger
 #####*/
 
-class at_malfurion_stormrage : public MS::Game::Scripting::Interfaces::AreaTriggerScript
+class at_malfurion_stormrage : public AreaTriggerScript
 {
 public:
-    at_malfurion_stormrage() : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_malfurion_stormrage") { }
+    at_malfurion_stormrage() : AreaTriggerScript("at_malfurion_stormrage") { }
 
     bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/)
     {
@@ -52,10 +52,10 @@ public:
 # go_atalai_statue
 #####*/
 
-class go_atalai_statue : public MS::Game::Scripting::Interfaces::GameObjectScript
+class go_atalai_statue : public GameObjectScript
 {
 public:
-    go_atalai_statue() : MS::Game::Scripting::Interfaces::GameObjectScript("go_atalai_statue") { }
+    go_atalai_statue() : GameObjectScript("go_atalai_statue") { }
 
     bool OnGossipHello(Player* player, GameObject* go)
     {

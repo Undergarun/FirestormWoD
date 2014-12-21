@@ -33,10 +33,10 @@ enum Spells
     SPELL_LANDSLIDE         = 21808
 };
 
-class boss_landslide : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_landslide : public CreatureScript
 {
 public:
-    boss_landslide() : MS::Game::Scripting::Interfaces::CreatureScript("boss_landslide") { }
+    boss_landslide() : CreatureScript("boss_landslide") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

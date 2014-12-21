@@ -144,10 +144,10 @@ Position poolPositionsTab[4] =
 };
 
 // 62511 - Amber-Shaper Un'sok
-class boss_unsok : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_unsok : public CreatureScript
 {
     public:
-        boss_unsok() : MS::Game::Scripting::Interfaces::CreatureScript("boss_unsok") { }
+        boss_unsok() : CreatureScript("boss_unsok") { }
 
         struct boss_unsokAI : public BossAI
         {
@@ -601,10 +601,10 @@ class boss_unsok : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // 62701 - Mutated Construct
-class mob_mutated_construct : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_mutated_construct : public CreatureScript
 {
     public:
-        mob_mutated_construct() : MS::Game::Scripting::Interfaces::CreatureScript("mob_mutated_construct") { }
+        mob_mutated_construct() : CreatureScript("mob_mutated_construct") { }
 
         struct mob_mutated_constructAI : public ScriptedAI
         {
@@ -642,10 +642,10 @@ class mob_mutated_construct : public MS::Game::Scripting::Interfaces::CreatureSc
 };
 
 // 62711 - Amber Monstruosity
-class mob_amber_monstruosity : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_amber_monstruosity : public CreatureScript
 {
     public:
-        mob_amber_monstruosity() : MS::Game::Scripting::Interfaces::CreatureScript("mob_amber_monstruosity") { }
+        mob_amber_monstruosity() : CreatureScript("mob_amber_monstruosity") { }
 
         struct mob_amber_monstruosityAI : public ScriptedAI
         {
@@ -724,10 +724,10 @@ class mob_amber_monstruosity : public MS::Game::Scripting::Interfaces::CreatureS
 };
 
 // 62691 - Living Amber
-class mob_living_amber : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_living_amber : public CreatureScript
 {
 public:
-    mob_living_amber() : MS::Game::Scripting::Interfaces::CreatureScript("mob_living_amber") { }
+    mob_living_amber() : CreatureScript("mob_living_amber") { }
 
     struct mob_living_amberAI : ScriptedAI
     {
@@ -805,10 +805,10 @@ public:
 };
 
 // 62762 - Amber Pool Stalker
-class mob_amber_pool_stalker : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_amber_pool_stalker : public CreatureScript
 {
     public:
-        mob_amber_pool_stalker() : MS::Game::Scripting::Interfaces::CreatureScript("mob_amber_pool_stalker") { }
+        mob_amber_pool_stalker() : CreatureScript("mob_amber_pool_stalker") { }
 
         struct mob_amber_pool_stalkerAI : public ScriptedAI
         {
@@ -916,10 +916,10 @@ class mob_amber_pool_stalker : public MS::Game::Scripting::Interfaces::CreatureS
 };
 
 // 64283 - Amber Globule
-class mob_amber_globule : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_amber_globule : public CreatureScript
 {
     public:
-        mob_amber_globule() : MS::Game::Scripting::Interfaces::CreatureScript("mob_amber_globule") { }
+        mob_amber_globule() : CreatureScript("mob_amber_globule") { }
 
         struct mob_amber_globuleAI : public ScriptedAI
         {
@@ -1055,10 +1055,10 @@ class mob_amber_globule : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // 62510 - Amber Scalpel
-class mob_amber_scalpel : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_amber_scalpel : public CreatureScript
 {
     public:
-        mob_amber_scalpel() : MS::Game::Scripting::Interfaces::CreatureScript("mob_amber_scalpel") { }
+        mob_amber_scalpel() : CreatureScript("mob_amber_scalpel") { }
 
         struct mob_amber_scalpelAI : public ScriptedAI
         {
@@ -1115,10 +1115,10 @@ class mob_amber_scalpel : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // 121995 - Amber Scalpel - Summoning Living Amber
-class spell_amber_scalpel: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_amber_scalpel: public SpellScriptLoader
 {
     public:
-        spell_amber_scalpel() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_amber_scalpel")  { }
+        spell_amber_scalpel() : SpellScriptLoader("spell_amber_scalpel")  { }
 
         class spell_amber_scalpel_SpellScript : public SpellScript
         {
@@ -1150,10 +1150,10 @@ class spell_amber_scalpel: public MS::Game::Scripting::Interfaces::SpellScriptLo
 };
 
 // 122395 - Struggle for Control
-class spell_struggle_for_control: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_struggle_for_control: public SpellScriptLoader
 {
     public:
-        spell_struggle_for_control() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_struggle_for_control") { }
+        spell_struggle_for_control() : SpellScriptLoader("spell_struggle_for_control") { }
 
         class spell_struggle_for_control_SpellScript : public SpellScript
         {
@@ -1179,10 +1179,10 @@ class spell_struggle_for_control: public MS::Game::Scripting::Interfaces::SpellS
 };
 
 // 123156 - Consume Amber
-class spell_consume_amber: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_consume_amber: public SpellScriptLoader
 {
     public:
-        spell_consume_amber() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_consume_amber") { }
+        spell_consume_amber() : SpellScriptLoader("spell_consume_amber") { }
 
         class spell_consume_amber_SpellScript : public SpellScript
         {
@@ -1220,10 +1220,10 @@ class spell_consume_amber: public MS::Game::Scripting::Interfaces::SpellScriptLo
 };
 
 // 123060 - Break Free
-class spell_break_free : MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_break_free : SpellScriptLoader
 {
     public:
-        spell_break_free() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_break_free") { }
+        spell_break_free() : SpellScriptLoader("spell_break_free") { }
         
         class spell_break_free_SpellScript : public SpellScript
         {
@@ -1248,10 +1248,10 @@ class spell_break_free : MS::Game::Scripting::Interfaces::SpellScriptLoader
 };
 
 // 122415 - Grab
-class spell_grab: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_grab: public SpellScriptLoader
 {
     public:
-        spell_grab() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_grab") { }
+        spell_grab() : SpellScriptLoader("spell_grab") { }
 
         class spell_grab_SpellScript : public SpellScript
         {
@@ -1277,10 +1277,10 @@ class spell_grab: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 };
 
 // 122413 - Fling
-class spell_fling: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_fling: public SpellScriptLoader
 {
     public:
-        spell_fling() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_fling") { }
+        spell_fling() : SpellScriptLoader("spell_fling") { }
 
         class spell_fling_SpellScript : public SpellScript
         {
@@ -1334,10 +1334,10 @@ class spell_fling: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 };
 
 // 122420 - Fling, victim thrown
-class spell_fling_thrown: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_fling_thrown: public SpellScriptLoader
 {
     public:
-        spell_fling_thrown() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_fling_thrown") { }
+        spell_fling_thrown() : SpellScriptLoader("spell_fling_thrown") { }
 
         class spell_fling_thrown_SpellScript : public SpellScript
         {
@@ -1362,10 +1362,10 @@ class spell_fling_thrown: public MS::Game::Scripting::Interfaces::SpellScriptLoa
 };
 
 // 122547 - Draw Power
-class spell_unsok_draw_power: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_unsok_draw_power: public SpellScriptLoader
 {
 public:
-    spell_unsok_draw_power() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_unsok_draw_power") { }
+    spell_unsok_draw_power() : SpellScriptLoader("spell_unsok_draw_power") { }
 
     class spell_unsok_draw_power_SpellScript : public SpellScript
     {
@@ -1390,10 +1390,10 @@ public:
 };
 
 // 123014 - Volatile amber
-class spell_volatile_amber: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_volatile_amber: public SpellScriptLoader
 {
 public:
-    spell_volatile_amber() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_volatile_amber") { }
+    spell_volatile_amber() : SpellScriptLoader("spell_volatile_amber") { }
 
     class spell_volatile_amber_SpellScript : public SpellScript
     {

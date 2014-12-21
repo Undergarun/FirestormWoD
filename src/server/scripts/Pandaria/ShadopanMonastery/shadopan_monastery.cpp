@@ -50,7 +50,7 @@ enum eEvents
     EVENT_VOLLEY_OF_HATRED      = 10,
 };
 
-class npc_shadopan_ambusher : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_shadopan_ambusher : public CreatureScript
 {
     public:
         npc_shadopan_ambusher() :  CreatureScript("npc_shadopan_ambusher") { }
@@ -120,7 +120,7 @@ class npc_shadopan_ambusher : public MS::Game::Scripting::Interfaces::CreatureSc
         }
 };
 
-class npc_shadopan_archery : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_shadopan_archery : public CreatureScript
 {
     public:
         npc_shadopan_archery() :  CreatureScript("npc_shadopan_archery") { }
@@ -188,7 +188,7 @@ class npc_shadopan_archery : public MS::Game::Scripting::Interfaces::CreatureScr
         }
 };
 
-class npc_shadopan_hatred : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_shadopan_hatred : public CreatureScript
 {
     public:
         npc_shadopan_hatred() :  CreatureScript("npc_shadopan_hatred") { }
@@ -326,10 +326,10 @@ class npc_shadopan_hatred : public MS::Game::Scripting::Interfaces::CreatureScri
         }
 };
 
-class spell_shadopan_explosion: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_shadopan_explosion: public SpellScriptLoader
 {
     public:
-        spell_shadopan_explosion() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_shadopan_explosion") { }
+        spell_shadopan_explosion() : SpellScriptLoader("spell_shadopan_explosion") { }
 
         class spell_shadopan_explosion_AuraScript : public AuraScript
         {
@@ -354,10 +354,10 @@ class spell_shadopan_explosion: public MS::Game::Scripting::Interfaces::SpellScr
         }
 };
 
-class spell_shadopan_apparitions: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_shadopan_apparitions: public SpellScriptLoader
 {
     public:
-        spell_shadopan_apparitions() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_shadopan_apparitions") { }
+        spell_shadopan_apparitions() : SpellScriptLoader("spell_shadopan_apparitions") { }
 
         class spell_shadopan_apparitions_AuraScript : public AuraScript
         {
@@ -407,11 +407,11 @@ enum areaTrigger
     AREATRIGGER_ARCHERY_SECOND_END      = 7126,
 };
 
-class areatrigger_at_shadopan_archery : public MS::Game::Scripting::Interfaces::AreaTriggerScript
+class areatrigger_at_shadopan_archery : public AreaTriggerScript
 {
     public:
 
-        areatrigger_at_shadopan_archery() : MS::Game::Scripting::Interfaces::AreaTriggerScript("areatrigger_at_shadopan_archery") {}
+        areatrigger_at_shadopan_archery() : AreaTriggerScript("areatrigger_at_shadopan_archery") {}
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
         {

@@ -60,10 +60,10 @@ float IntroWay[8][3] =
     {-11163.00f, -1903.00f, 91.473f}
 };
 
-class boss_nightbane : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_nightbane : public CreatureScript
 {
 public:
-    boss_nightbane() : MS::Game::Scripting::Interfaces::CreatureScript("boss_nightbane") { }
+    boss_nightbane() : CreatureScript("boss_nightbane") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -360,10 +360,10 @@ public:
     };
 };
 
-class go_blackened_urn : public MS::Game::Scripting::Interfaces::GameObjectScript
+class go_blackened_urn : public GameObjectScript
 {
     public:
-        go_blackened_urn() : MS::Game::Scripting::Interfaces::GameObjectScript("go_blackened_urn") { }
+        go_blackened_urn() : GameObjectScript("go_blackened_urn") { }
 
         bool OnGossipHello(Player* player, GameObject* go)
         {

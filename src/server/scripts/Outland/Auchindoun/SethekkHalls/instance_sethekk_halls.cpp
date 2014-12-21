@@ -33,10 +33,10 @@ enum eEnums
     IKISS_DOOR = 177203,
 };
 
-class instance_sethekk_halls : public MS::Game::Scripting::Interfaces::InstanceMapScript
+class instance_sethekk_halls : public InstanceMapScript
 {
 public:
-    instance_sethekk_halls() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_sethekk_halls", 556) { }
+    instance_sethekk_halls() : InstanceMapScript("instance_sethekk_halls", 556) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {

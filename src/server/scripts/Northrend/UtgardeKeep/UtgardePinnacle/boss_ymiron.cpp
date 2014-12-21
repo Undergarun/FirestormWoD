@@ -96,10 +96,10 @@ static ActiveBoatStruct ActiveBoat[4] =
 
 #define DATA_KINGS_BANE                     2157
 
-class boss_ymiron : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_ymiron : public CreatureScript
 {
 public:
-    boss_ymiron() : MS::Game::Scripting::Interfaces::CreatureScript("boss_ymiron") { }
+    boss_ymiron() : CreatureScript("boss_ymiron") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -399,10 +399,10 @@ public:
 
 };
 
-class achievement_kings_bane : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
+class achievement_kings_bane : public AchievementCriteriaScript
 {
     public:
-        achievement_kings_bane() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_kings_bane")
+        achievement_kings_bane() : AchievementCriteriaScript("achievement_kings_bane")
         {
         }
 

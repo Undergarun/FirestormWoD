@@ -75,10 +75,10 @@ enum eTalks
     TALK_SLAY_02,
 };
 
-class boss_sha_of_doubt : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_sha_of_doubt : public CreatureScript
 {
     public:
-        boss_sha_of_doubt() : MS::Game::Scripting::Interfaces::CreatureScript("boss_sha_of_doubt") { }
+        boss_sha_of_doubt() : CreatureScript("boss_sha_of_doubt") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -183,10 +183,10 @@ class boss_sha_of_doubt : public MS::Game::Scripting::Interfaces::CreatureScript
         };
 };
 
-class mob_figment_of_doubt : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_figment_of_doubt : public CreatureScript
 {
     public:
-        mob_figment_of_doubt() : MS::Game::Scripting::Interfaces::CreatureScript("mob_figment_of_doubt") { }
+        mob_figment_of_doubt() : CreatureScript("mob_figment_of_doubt") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {

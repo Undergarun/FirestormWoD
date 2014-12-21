@@ -87,10 +87,10 @@ enum DeathKnightSpells
 uint32 g_TabDeasesDK[3] = { DK_SPELL_FROST_FEVER, DK_SPELL_BLOOD_PLAGUE, DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA };
 
 // Death and Decay - 43265
-class spell_dk_death_and_decay: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dk_death_and_decay: public SpellScriptLoader
 {
     public:
-        spell_dk_death_and_decay() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dk_death_and_decay") { }
+        spell_dk_death_and_decay() : SpellScriptLoader("spell_dk_death_and_decay") { }
 
         class spell_dk_death_and_decay_SpellScript : public SpellScript
         {
@@ -116,10 +116,10 @@ class spell_dk_death_and_decay: public MS::Game::Scripting::Interfaces::SpellScr
 };
 
 // Death Barrier - 115635
-class spell_dk_death_barrier: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dk_death_barrier: public SpellScriptLoader
 {
     public:
-        spell_dk_death_barrier() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dk_death_barrier") { }
+        spell_dk_death_barrier() : SpellScriptLoader("spell_dk_death_barrier") { }
 
         class spell_dk_death_barrier_AuraScript : public AuraScript
         {
@@ -147,10 +147,10 @@ class spell_dk_death_barrier: public MS::Game::Scripting::Interfaces::SpellScrip
 };
 
 // Plague Strike - 45462
-class spell_dk_plague_strike: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dk_plague_strike: public SpellScriptLoader
 {
     public:
-        spell_dk_plague_strike() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dk_plague_strike") { }
+        spell_dk_plague_strike() : SpellScriptLoader("spell_dk_plague_strike") { }
 
         class spell_dk_plague_strike_SpellScript : public SpellScript
         {
@@ -189,10 +189,10 @@ class spell_dk_plague_strike: public MS::Game::Scripting::Interfaces::SpellScrip
 
 
 // Gorefiend's Grasp - 108199
-class spell_dk_gorefiends_grasp: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dk_gorefiends_grasp: public SpellScriptLoader
 {
     public:
-        spell_dk_gorefiends_grasp() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dk_gorefiends_grasp") { }
+        spell_dk_gorefiends_grasp() : SpellScriptLoader("spell_dk_gorefiends_grasp") { }
 
         class spell_dk_gorefiends_grasp_SpellScript : public SpellScript
         {
@@ -245,10 +245,10 @@ class spell_dk_gorefiends_grasp: public MS::Game::Scripting::Interfaces::SpellSc
 };
 
 // Dark transformation - transform pet spell - 63560
-class spell_dk_dark_transformation_form: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dk_dark_transformation_form: public SpellScriptLoader
 {
     public:
-        spell_dk_dark_transformation_form() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dk_dark_transformation_form") { }
+        spell_dk_dark_transformation_form() : SpellScriptLoader("spell_dk_dark_transformation_form") { }
 
         class spell_dk_dark_transformation_form_SpellScript : public SpellScript
         {
@@ -282,10 +282,10 @@ class spell_dk_dark_transformation_form: public MS::Game::Scripting::Interfaces:
 };
 
 // Desecrated ground - 118009
-class spell_dk_desecrated_ground: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dk_desecrated_ground: public SpellScriptLoader
 {
     public:
-        spell_dk_desecrated_ground() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dk_desecrated_ground") { }
+        spell_dk_desecrated_ground() : SpellScriptLoader("spell_dk_desecrated_ground") { }
 
         class spell_dk_desecrated_ground_AuraScript : public AuraScript
         {
@@ -312,10 +312,10 @@ class spell_dk_desecrated_ground: public MS::Game::Scripting::Interfaces::SpellS
 };
 
 // Festering Strike - 85948
-class spell_dk_festering_strike: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dk_festering_strike: public SpellScriptLoader
 {
     public:
-        spell_dk_festering_strike() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dk_festering_strike") { }
+        spell_dk_festering_strike() : SpellScriptLoader("spell_dk_festering_strike") { }
 
         class spell_dk_festering_strike_SpellScript : public SpellScript
         {
@@ -369,10 +369,10 @@ class spell_dk_festering_strike: public MS::Game::Scripting::Interfaces::SpellSc
 };
 
 // Death Strike heal - 45470
-class spell_dk_death_strike_heal: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dk_death_strike_heal: public SpellScriptLoader
 {
     public:
-        spell_dk_death_strike_heal() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dk_death_strike_heal") { }
+        spell_dk_death_strike_heal() : SpellScriptLoader("spell_dk_death_strike_heal") { }
 
         class spell_dk_death_strike_heal_SpellScript : public SpellScript
         {
@@ -409,10 +409,10 @@ class spell_dk_death_strike_heal: public MS::Game::Scripting::Interfaces::SpellS
 };
 
 // Howling Blast - 49184
-class spell_dk_howling_blast: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dk_howling_blast: public SpellScriptLoader
 {
     public:
-        spell_dk_howling_blast() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dk_howling_blast") { }
+        spell_dk_howling_blast() : SpellScriptLoader("spell_dk_howling_blast") { }
 
         class spell_dk_howling_blast_SpellScript : public SpellScript
         {
@@ -459,10 +459,10 @@ class spell_dk_howling_blast: public MS::Game::Scripting::Interfaces::SpellScrip
 };
 
 // Conversion - 119975
-class spell_dk_conversion: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dk_conversion: public SpellScriptLoader
 {
 public:
-    spell_dk_conversion() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dk_conversion") { }
+    spell_dk_conversion() : SpellScriptLoader("spell_dk_conversion") { }
 
     class spell_dk_conversion_AuraScript : public AuraScript
     {
@@ -487,10 +487,10 @@ public:
 };
 
 // Remorseless Winter - 115000
-class spell_dk_remorseless_winter: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dk_remorseless_winter: public SpellScriptLoader
 {
     public:
-        spell_dk_remorseless_winter() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dk_remorseless_winter") { }
+        spell_dk_remorseless_winter() : SpellScriptLoader("spell_dk_remorseless_winter") { }
 
         class spell_dk_remorseless_winter_SpellScript : public SpellScript
         {
@@ -518,10 +518,10 @@ class spell_dk_remorseless_winter: public MS::Game::Scripting::Interfaces::Spell
 };
 
 // Soul Reaper - 130736 (unholy) or 130735 (frost) or 114866 (blood)
-class spell_dk_soul_reaper: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dk_soul_reaper: public SpellScriptLoader
 {
     public:
-        spell_dk_soul_reaper() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dk_soul_reaper") { }
+        spell_dk_soul_reaper() : SpellScriptLoader("spell_dk_soul_reaper") { }
 
         class spell_dk_soul_reaper_AuraScript : public AuraScript
         {
@@ -552,10 +552,10 @@ class spell_dk_soul_reaper: public MS::Game::Scripting::Interfaces::SpellScriptL
 };
 
 // Pillar of Frost - 51271
-class spell_dk_pillar_of_frost: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dk_pillar_of_frost: public SpellScriptLoader
 {
     public:
-        spell_dk_pillar_of_frost() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dk_pillar_of_frost") { }
+        spell_dk_pillar_of_frost() : SpellScriptLoader("spell_dk_pillar_of_frost") { }
 
         class spell_dk_pillar_of_frost_AuraScript : public AuraScript
         {
@@ -587,7 +587,7 @@ class spell_dk_pillar_of_frost: public MS::Game::Scripting::Interfaces::SpellScr
 };
 
 // Blood Tap - 45529
-class PlayerScript_Blood_Tap: public MS::Game::Scripting::Interfaces::PlayerScript
+class PlayerScript_Blood_Tap: public PlayerScript
 {
     public:
         PlayerScript_Blood_Tap() :PlayerScript("PlayerScript_Blood_Tap") {}
@@ -619,10 +619,10 @@ class PlayerScript_Blood_Tap: public MS::Game::Scripting::Interfaces::PlayerScri
 };
 
 // Blood Tap - 45529
-class spell_dk_blood_tap: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dk_blood_tap: public SpellScriptLoader
 {
     public:
-        spell_dk_blood_tap() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dk_blood_tap") { }
+        spell_dk_blood_tap() : SpellScriptLoader("spell_dk_blood_tap") { }
 
         class spell_dk_blood_tap_SpellScript : public SpellScript
         {
@@ -690,10 +690,10 @@ class spell_dk_blood_tap: public MS::Game::Scripting::Interfaces::SpellScriptLoa
 };
 
 // Death Siphon - 108196
-class spell_dk_death_siphon: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dk_death_siphon: public SpellScriptLoader
 {
     public:
-        spell_dk_death_siphon() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dk_death_siphon") { }
+        spell_dk_death_siphon() : SpellScriptLoader("spell_dk_death_siphon") { }
 
         class spell_dk_death_siphon_SpellScript : public SpellScript
         {
@@ -724,10 +724,10 @@ class spell_dk_death_siphon: public MS::Game::Scripting::Interfaces::SpellScript
 };
 
 // Improved Blood Presence - 50371
-class spell_dk_improved_blood_presence: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dk_improved_blood_presence: public SpellScriptLoader
 {
     public:
-        spell_dk_improved_blood_presence() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dk_improved_blood_presence") { }
+        spell_dk_improved_blood_presence() : SpellScriptLoader("spell_dk_improved_blood_presence") { }
 
         class spell_dk_improved_blood_presence_SpellScript : public SpellScript
         {
@@ -752,10 +752,10 @@ class spell_dk_improved_blood_presence: public MS::Game::Scripting::Interfaces::
 };
 
 // Unholy Presence - 48265 and Improved Unholy Presence - 50392
-class spell_dk_unholy_presence: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dk_unholy_presence: public SpellScriptLoader
 {
     public:
-        spell_dk_unholy_presence() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dk_unholy_presence") { }
+        spell_dk_unholy_presence() : SpellScriptLoader("spell_dk_unholy_presence") { }
 
         class spell_dk_unholy_presence_AuraScript : public AuraScript
         {
@@ -787,10 +787,10 @@ class spell_dk_unholy_presence: public MS::Game::Scripting::Interfaces::SpellScr
 };
 
 // Death Strike - 49998
-class spell_dk_death_strike: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dk_death_strike: public SpellScriptLoader
 {
     public:
-        spell_dk_death_strike() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dk_death_strike") { }
+        spell_dk_death_strike() : SpellScriptLoader("spell_dk_death_strike") { }
 
         class spell_dk_death_strike_SpellScript : public SpellScript
         {
@@ -851,10 +851,10 @@ class spell_dk_death_strike: public MS::Game::Scripting::Interfaces::SpellScript
 };
 
 // Purgatory - 116888
-class spell_dk_purgatory: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dk_purgatory: public SpellScriptLoader
 {
     public:
-        spell_dk_purgatory() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dk_purgatory") { }
+        spell_dk_purgatory() : SpellScriptLoader("spell_dk_purgatory") { }
 
         class spell_dk_purgatory_AuraScript : public AuraScript
         {
@@ -883,10 +883,10 @@ class spell_dk_purgatory: public MS::Game::Scripting::Interfaces::SpellScriptLoa
 };
 
 // Purgatory - 114556
-class spell_dk_purgatory_absorb: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dk_purgatory_absorb: public SpellScriptLoader
 {
     public:
-        spell_dk_purgatory_absorb() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dk_purgatory_absorb") { }
+        spell_dk_purgatory_absorb() : SpellScriptLoader("spell_dk_purgatory_absorb") { }
 
         class spell_dk_purgatory_absorb_AuraScript : public AuraScript
         {
@@ -936,10 +936,10 @@ class spell_dk_purgatory_absorb: public MS::Game::Scripting::Interfaces::SpellSc
 };
 
 // Plague Leech - 123693
-class spell_dk_plague_leech: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dk_plague_leech: public SpellScriptLoader
 {
     public:
-        spell_dk_plague_leech() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dk_plague_leech") { }
+        spell_dk_plague_leech() : SpellScriptLoader("spell_dk_plague_leech") { }
 
         class spell_dk_plague_leech_SpellScript : public SpellScript
         {
@@ -1012,10 +1012,10 @@ class spell_dk_plague_leech: public MS::Game::Scripting::Interfaces::SpellScript
 };
 
 // Unholy Blight - 115994
-class spell_dk_unholy_blight: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dk_unholy_blight: public SpellScriptLoader
 {
     public:
-        spell_dk_unholy_blight() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dk_unholy_blight") { }
+        spell_dk_unholy_blight() : SpellScriptLoader("spell_dk_unholy_blight") { }
 
         class spell_dk_unholy_blight_SpellScript : public SpellScript
         {
@@ -1047,10 +1047,10 @@ class spell_dk_unholy_blight: public MS::Game::Scripting::Interfaces::SpellScrip
 
 // Called by Chains of Ice - 45524
 // Chilblains - 50041
-class spell_dk_chilblains: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dk_chilblains: public SpellScriptLoader
 {
     public:
-        spell_dk_chilblains() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dk_chilblains") { }
+        spell_dk_chilblains() : SpellScriptLoader("spell_dk_chilblains") { }
 
         class spell_dk_chilblains_SpellScript : public SpellScript
         {
@@ -1077,10 +1077,10 @@ class spell_dk_chilblains: public MS::Game::Scripting::Interfaces::SpellScriptLo
 };
 
 // Outbreak - 77575
-class spell_dk_outbreak: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dk_outbreak: public SpellScriptLoader
 {
     public:
-        spell_dk_outbreak() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dk_outbreak") { }
+        spell_dk_outbreak() : SpellScriptLoader("spell_dk_outbreak") { }
 
         class spell_dk_outbreak_SpellScript : public SpellScript
         {
@@ -1111,10 +1111,10 @@ class spell_dk_outbreak: public MS::Game::Scripting::Interfaces::SpellScriptLoad
 };
 
 // Raise Dead - 46584
-class spell_dk_raise_dead: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dk_raise_dead: public SpellScriptLoader
 {
     public:
-        spell_dk_raise_dead() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dk_raise_dead") { }
+        spell_dk_raise_dead() : SpellScriptLoader("spell_dk_raise_dead") { }
 
         class spell_dk_raise_dead_SpellScript : public SpellScript
         {
@@ -1144,10 +1144,10 @@ class spell_dk_raise_dead: public MS::Game::Scripting::Interfaces::SpellScriptLo
 };
 
 // 50462 - Anti-Magic Shell (on raid member)
-class spell_dk_anti_magic_shell_raid: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dk_anti_magic_shell_raid: public SpellScriptLoader
 {
     public:
-        spell_dk_anti_magic_shell_raid() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dk_anti_magic_shell_raid") { }
+        spell_dk_anti_magic_shell_raid() : SpellScriptLoader("spell_dk_anti_magic_shell_raid") { }
 
         class spell_dk_anti_magic_shell_raid_AuraScript : public AuraScript
         {
@@ -1186,10 +1186,10 @@ class spell_dk_anti_magic_shell_raid: public MS::Game::Scripting::Interfaces::Sp
 };
 
 // 48707 - Anti-Magic Shell (on self)
-class spell_dk_anti_magic_shell_self: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dk_anti_magic_shell_self: public SpellScriptLoader
 {
     public:
-        spell_dk_anti_magic_shell_self() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dk_anti_magic_shell_self") { }
+        spell_dk_anti_magic_shell_self() : SpellScriptLoader("spell_dk_anti_magic_shell_self") { }
 
         class spell_dk_anti_magic_shell_self_AuraScript : public AuraScript
         {
@@ -1245,10 +1245,10 @@ class spell_dk_anti_magic_shell_self: public MS::Game::Scripting::Interfaces::Sp
 };
 
 // 50461 - Anti-Magic Zone
-class spell_dk_anti_magic_zone: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dk_anti_magic_zone: public SpellScriptLoader
 {
     public:
-        spell_dk_anti_magic_zone() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dk_anti_magic_zone") { }
+        spell_dk_anti_magic_zone() : SpellScriptLoader("spell_dk_anti_magic_zone") { }
 
         class spell_dk_anti_magic_zone_AuraScript : public AuraScript
         {
@@ -1296,10 +1296,10 @@ class spell_dk_anti_magic_zone: public MS::Game::Scripting::Interfaces::SpellScr
 };
 
 // Death Gate - 53822
-class spell_dk_death_gate_teleport: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dk_death_gate_teleport: public SpellScriptLoader
 {
     public:
-        spell_dk_death_gate_teleport() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dk_death_gate_teleport") {}
+        spell_dk_death_gate_teleport() : SpellScriptLoader("spell_dk_death_gate_teleport") {}
 
         class spell_dk_death_gate_teleport_SpellScript : public SpellScript
         {
@@ -1335,10 +1335,10 @@ class spell_dk_death_gate_teleport: public MS::Game::Scripting::Interfaces::Spel
 };
 
 // Death Gate - 52751
-class spell_dk_death_gate: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dk_death_gate: public SpellScriptLoader
 {
     public:
-        spell_dk_death_gate() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dk_death_gate") {}
+        spell_dk_death_gate() : SpellScriptLoader("spell_dk_death_gate") {}
 
         class spell_dk_death_gate_SpellScript : public SpellScript
         {
@@ -1376,10 +1376,10 @@ class spell_dk_death_gate: public MS::Game::Scripting::Interfaces::SpellScriptLo
 };
 
 // Blood Boil - 50842
-class spell_dk_blood_boil: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dk_blood_boil: public SpellScriptLoader
 {
     public:
-        spell_dk_blood_boil() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dk_blood_boil") { }
+        spell_dk_blood_boil() : SpellScriptLoader("spell_dk_blood_boil") { }
 
         class spell_dk_blood_boil_SpellScript : public SpellScript
         {
@@ -1467,10 +1467,10 @@ class spell_dk_blood_boil: public MS::Game::Scripting::Interfaces::SpellScriptLo
 };
 
 // Reaping - 56835
-class spell_dk_reaping: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dk_reaping: public SpellScriptLoader
 {
     public:
-        spell_dk_reaping() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dk_reaping") { }
+        spell_dk_reaping() : SpellScriptLoader("spell_dk_reaping") { }
 
         class spell_dk_reaping_AuraScript : public AuraScript
         {
@@ -1498,10 +1498,10 @@ class spell_dk_reaping: public MS::Game::Scripting::Interfaces::SpellScriptLoade
 };
 
 // Death Grip - 49560
-class spell_dk_death_grip: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dk_death_grip: public SpellScriptLoader
 {
     public:
-        spell_dk_death_grip() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dk_death_grip") { }
+        spell_dk_death_grip() : SpellScriptLoader("spell_dk_death_grip") { }
 
         class spell_dk_death_grip_SpellScript : public SpellScript
         {
@@ -1531,10 +1531,10 @@ class spell_dk_death_grip: public MS::Game::Scripting::Interfaces::SpellScriptLo
 };
 
 // Corpse Explosion (Glyph) - 127344
-class spell_dk_corpse_explosion: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dk_corpse_explosion: public SpellScriptLoader
 {
     public:
-        spell_dk_corpse_explosion() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dk_corpse_explosion") { }
+        spell_dk_corpse_explosion() : SpellScriptLoader("spell_dk_corpse_explosion") { }
 
         class spell_dk_corpse_explosion_SpellScript : public SpellScript
         {
@@ -1580,10 +1580,10 @@ class spell_dk_corpse_explosion: public MS::Game::Scripting::Interfaces::SpellSc
 };
 
 // Glyph of Corpse Explosion - 59336
-class spell_dk_glyph_of_corpse_explosion: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dk_glyph_of_corpse_explosion: public SpellScriptLoader
 {
     public:
-        spell_dk_glyph_of_corpse_explosion() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dk_glyph_of_corpse_explosion") { }
+        spell_dk_glyph_of_corpse_explosion() : SpellScriptLoader("spell_dk_glyph_of_corpse_explosion") { }
 
         class spell_dk_glyph_of_corpse_explosion_AuraScript : public AuraScript
         {
@@ -1617,10 +1617,10 @@ class spell_dk_glyph_of_corpse_explosion: public MS::Game::Scripting::Interfaces
 
 // Glyph of Horn of Winter - 58680
 // Called by Horn of Winter - 57330
-class spell_dk_glyph_of_horn_of_winter: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dk_glyph_of_horn_of_winter: public SpellScriptLoader
 {
     public:
-        spell_dk_glyph_of_horn_of_winter() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dk_glyph_of_horn_of_winter") { }
+        spell_dk_glyph_of_horn_of_winter() : SpellScriptLoader("spell_dk_glyph_of_horn_of_winter") { }
 
         class spell_dk_glyph_of_horn_of_winter_SpellScript : public SpellScript
         {
@@ -1646,10 +1646,10 @@ class spell_dk_glyph_of_horn_of_winter: public MS::Game::Scripting::Interfaces::
 };
 
 // Icy touch 45477
-class spell_dk_icy_touch: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dk_icy_touch: public SpellScriptLoader
 {
     public:
-        spell_dk_icy_touch() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dk_icy_touch") { }
+        spell_dk_icy_touch() : SpellScriptLoader("spell_dk_icy_touch") { }
 
         class spell_dk_icy_touch_SpellScript : public SpellScript
         {
@@ -1677,10 +1677,10 @@ class spell_dk_icy_touch: public MS::Game::Scripting::Interfaces::SpellScriptLoa
 
 // Plaguebearer - 161497
 // Called by Death Coil 47541 & Frost Strike 49143
-class spell_dk_plaguebearer: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dk_plaguebearer: public SpellScriptLoader
 {
     public:
-        spell_dk_plaguebearer() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dk_plaguebearer") { }
+        spell_dk_plaguebearer() : SpellScriptLoader("spell_dk_plaguebearer") { }
 
         class spell_dk_plaguebearer_SpellScript : public SpellScript
         {
@@ -1720,10 +1720,10 @@ class spell_dk_plaguebearer: public MS::Game::Scripting::Interfaces::SpellScript
 };
 
 // Necrotic Plague - 155159
-class spell_dk_necrotic_plague_aura: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dk_necrotic_plague_aura: public SpellScriptLoader
 {
     public:
-        spell_dk_necrotic_plague_aura() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dk_necrotic_plague_aura") { }
+        spell_dk_necrotic_plague_aura() : SpellScriptLoader("spell_dk_necrotic_plague_aura") { }
 
         class spell_dk_necrotic_plague_aura_AuraScript : public AuraScript
         {
@@ -1763,7 +1763,7 @@ class spell_dk_necrotic_plague_aura: public MS::Game::Scripting::Interfaces::Spe
 };
 
 // Runic Empowerment - 81229
-class PlayerScript_Runic_Empowerment: public MS::Game::Scripting::Interfaces::PlayerScript
+class PlayerScript_Runic_Empowerment: public PlayerScript
 {
     public:
         PlayerScript_Runic_Empowerment() :PlayerScript("PlayerScript_Runic_Empowerment") {}
@@ -1808,7 +1808,7 @@ class PlayerScript_Runic_Empowerment: public MS::Game::Scripting::Interfaces::Pl
 };
 
 // Runic Corruption - 51462
-class PlayerScript_Corrupion_Runic: public MS::Game::Scripting::Interfaces::PlayerScript
+class PlayerScript_Corrupion_Runic: public PlayerScript
 {
     public:
         PlayerScript_Corrupion_Runic() :PlayerScript("PlayerScript_Corrupion_Runic") {}
@@ -1837,10 +1837,10 @@ class PlayerScript_Corrupion_Runic: public MS::Game::Scripting::Interfaces::Play
 };
 
 // Death Pact - 48743
-class spell_dk_death_pact: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dk_death_pact: public SpellScriptLoader
 {
     public:
-        spell_dk_death_pact() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dk_death_pact") { }
+        spell_dk_death_pact() : SpellScriptLoader("spell_dk_death_pact") { }
 
         class spell_dk_death_pact_AuraScript : public AuraScript
         {
@@ -1875,10 +1875,10 @@ class spell_dk_death_pact: public MS::Game::Scripting::Interfaces::SpellScriptLo
 };
 
 // Chilblains - 50041
-class spell_dk_chilblains_aura: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_dk_chilblains_aura: public SpellScriptLoader
 {
     public:
-        spell_dk_chilblains_aura() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dk_chilblains_aura") { }
+        spell_dk_chilblains_aura() : SpellScriptLoader("spell_dk_chilblains_aura") { }
 
         class spell_dk_chilblains_aura_AuraScript : public AuraScript
         {

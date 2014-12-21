@@ -41,10 +41,10 @@ EndScriptData */
 8 - Illidan Stormrage Event
 */
 
-class instance_black_temple : public MS::Game::Scripting::Interfaces::InstanceMapScript
+class instance_black_temple : public InstanceMapScript
 {
 public:
-    instance_black_temple() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_black_temple", 564) { }
+    instance_black_temple() : InstanceMapScript("instance_black_temple", 564) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {

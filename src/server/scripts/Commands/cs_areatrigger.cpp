@@ -23,10 +23,10 @@
 #include "TicketMgr.h"
 #include "Chat.h"
 
-class at_commandscript: public MS::Game::Scripting::Interfaces::CommandScript
+class at_commandscript: public CommandScript
 {
     public:
-        at_commandscript() : MS::Game::Scripting::Interfaces::CommandScript("at_commandscript") { }
+        at_commandscript() : CommandScript("at_commandscript") { }
 
         ChatCommand* GetCommands() const
         {

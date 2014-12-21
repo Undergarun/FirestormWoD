@@ -80,7 +80,7 @@ enum eSpells
 };
 
 // 16807
-class boss_grand_warlock_nethekurse : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_grand_warlock_nethekurse : public CreatureScript
 {
     public:
 
@@ -310,7 +310,7 @@ class boss_grand_warlock_nethekurse : public MS::Game::Scripting::Interfaces::Cr
 };
 
 // 17083
-class mob_fel_orc_convert : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_fel_orc_convert : public CreatureScript
 {
     public:
 
@@ -393,7 +393,7 @@ class mob_fel_orc_convert : public MS::Game::Scripting::Interfaces::CreatureScri
 };
 
 //NOTE: this Creature are also summoned by other spells, for different creatures
-class mob_lesser_shadow_fissure : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_lesser_shadow_fissure : public CreatureScript
 {
     public:
 

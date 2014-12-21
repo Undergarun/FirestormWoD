@@ -37,10 +37,10 @@ enum Entry
 
 #define MAX_ENCOUNTER 2
 
-class instance_scarlet_monastery : public MS::Game::Scripting::Interfaces::InstanceMapScript
+class instance_scarlet_monastery : public InstanceMapScript
 {
 public:
-    instance_scarlet_monastery() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_scarlet_monastery", 189) { }
+    instance_scarlet_monastery() : InstanceMapScript("instance_scarlet_monastery", 189) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {

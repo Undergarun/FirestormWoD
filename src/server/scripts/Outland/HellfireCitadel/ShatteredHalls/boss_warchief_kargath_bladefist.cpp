@@ -61,7 +61,7 @@ float AssassExit[3] = {184.233f, -84.29f, 2.3f}; // y -8
 float AddsEntrance[3] = {306.036f, -84.29f, 1.93f};
 
 // 16808
-class boss_warchief_kargath_bladefist : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_warchief_kargath_bladefist : public CreatureScript
 {
     public:
 

@@ -33,10 +33,10 @@ enum eAshaniGossips
 };
 
 // Springtender Ashani - 64846
-class npc_springtender_ashani : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_springtender_ashani : public CreatureScript
 {
     public:
-        npc_springtender_ashani() : MS::Game::Scripting::Interfaces::CreatureScript("npc_springtender_ashani") { }
+        npc_springtender_ashani() : CreatureScript("npc_springtender_ashani") { }
 
         struct npc_springtender_ashaniAI : public ScriptedAI
         {
@@ -92,10 +92,10 @@ enum eApparitionsEvents
 };
 
 // Apparition of Fear - 64368
-class npc_apparition_of_fear : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_apparition_of_fear : public CreatureScript
 {
     public:
-        npc_apparition_of_fear() : MS::Game::Scripting::Interfaces::CreatureScript("npc_apparition_of_fear") { }
+        npc_apparition_of_fear() : CreatureScript("npc_apparition_of_fear") { }
 
         struct npc_apparition_of_fearAI : public ScriptedAI
         {
@@ -244,10 +244,10 @@ class npc_apparition_of_fear : public MS::Game::Scripting::Interfaces::CreatureS
 };
 
 // Apparition of Terror - 66100
-class npc_apparition_of_terror : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_apparition_of_terror : public CreatureScript
 {
     public:
-        npc_apparition_of_terror() : MS::Game::Scripting::Interfaces::CreatureScript("npc_apparition_of_terror") { }
+        npc_apparition_of_terror() : CreatureScript("npc_apparition_of_terror") { }
 
         struct npc_apparition_of_terrorAI : public ScriptedAI
         {
@@ -395,10 +395,10 @@ class npc_apparition_of_terror : public MS::Game::Scripting::Interfaces::Creatur
 };
 
 // Night Terrors - 64390
-class mob_night_terrors : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_night_terrors : public CreatureScript
 {
     public:
-        mob_night_terrors() : MS::Game::Scripting::Interfaces::CreatureScript("mob_night_terrors") { }
+        mob_night_terrors() : CreatureScript("mob_night_terrors") { }
 
         struct mob_night_terrorsAI : public ScriptedAI
         {
@@ -420,10 +420,10 @@ class mob_night_terrors : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Night Terror (summon) - 64393
-class mob_night_terror_summon : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_night_terror_summon : public CreatureScript
 {
     public:
-        mob_night_terror_summon() : MS::Game::Scripting::Interfaces::CreatureScript("mob_night_terror_summon") { }
+        mob_night_terror_summon() : CreatureScript("mob_night_terror_summon") { }
 
         struct mob_night_terror_summonAI : public ScriptedAI
         {
@@ -478,10 +478,10 @@ class mob_night_terror_summon : public MS::Game::Scripting::Interfaces::Creature
 };
 
 // Night Terrors (missile) - 125736
-class spell_night_terrors_missile: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_night_terrors_missile: public SpellScriptLoader
 {
     public:
-        spell_night_terrors_missile() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_night_terrors_missile") { }
+        spell_night_terrors_missile() : SpellScriptLoader("spell_night_terrors_missile") { }
 
         class spell_night_terrors_missile_SpellScript : public SpellScript
         {
@@ -511,10 +511,10 @@ class spell_night_terrors_missile: public MS::Game::Scripting::Interfaces::Spell
 };
 
 // Night Terrors (periodic) - 125745
-class spell_night_terrors_periodic: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_night_terrors_periodic: public SpellScriptLoader
 {
     public:
-        spell_night_terrors_periodic() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_night_terrors_periodic") { }
+        spell_night_terrors_periodic() : SpellScriptLoader("spell_night_terrors_periodic") { }
 
         class spell_night_terrors_periodic_AuraScript : public AuraScript
         {

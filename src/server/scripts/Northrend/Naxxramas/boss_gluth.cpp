@@ -46,10 +46,10 @@ enum Events
 
 #define EMOTE_NEARBY    " spots a nearby zombie to devour!"
 
-class boss_gluth : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_gluth : public CreatureScript
 {
 public:
-    boss_gluth() : MS::Game::Scripting::Interfaces::CreatureScript("boss_gluth") { }
+    boss_gluth() : CreatureScript("boss_gluth") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

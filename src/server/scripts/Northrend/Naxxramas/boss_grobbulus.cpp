@@ -34,10 +34,10 @@
 
 #define MOB_FALLOUT_SLIME   16290
 
-class boss_grobbulus : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_grobbulus : public CreatureScript
 {
 public:
-    boss_grobbulus() : MS::Game::Scripting::Interfaces::CreatureScript("boss_grobbulus") { }
+    boss_grobbulus() : CreatureScript("boss_grobbulus") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -106,10 +106,10 @@ public:
 
 };
 
-class npc_grobbulus_poison_cloud : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_grobbulus_poison_cloud : public CreatureScript
 {
 public:
-    npc_grobbulus_poison_cloud() : MS::Game::Scripting::Interfaces::CreatureScript("npc_grobbulus_poison_cloud") { }
+    npc_grobbulus_poison_cloud() : CreatureScript("npc_grobbulus_poison_cloud") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

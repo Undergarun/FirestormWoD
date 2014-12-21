@@ -102,10 +102,10 @@ float Humanoides[6][5] =
 };
 
 uint32 EnrageTimer = 600000;
-class boss_entropius : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_entropius : public CreatureScript
 {
 public:
-    boss_entropius() : MS::Game::Scripting::Interfaces::CreatureScript("boss_entropius") { }
+    boss_entropius() : CreatureScript("boss_entropius") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -202,10 +202,10 @@ public:
 
 };
 
-class boss_muru : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_muru : public CreatureScript
 {
 public:
-    boss_muru() : MS::Game::Scripting::Interfaces::CreatureScript("boss_muru") { }
+    boss_muru() : CreatureScript("boss_muru") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -367,10 +367,10 @@ public:
 
 };
 
-class npc_muru_portal : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_muru_portal : public CreatureScript
 {
 public:
-    npc_muru_portal() : MS::Game::Scripting::Interfaces::CreatureScript("npc_muru_portal") { }
+    npc_muru_portal() : CreatureScript("npc_muru_portal") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -451,10 +451,10 @@ public:
 
 };
 
-class npc_dark_fiend : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_dark_fiend : public CreatureScript
 {
 public:
-    npc_dark_fiend() : MS::Game::Scripting::Interfaces::CreatureScript("npc_dark_fiend") { }
+    npc_dark_fiend() : CreatureScript("npc_dark_fiend") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -514,10 +514,10 @@ public:
 
 };
 
-class npc_void_sentinel : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_void_sentinel : public CreatureScript
 {
 public:
-    npc_void_sentinel() : MS::Game::Scripting::Interfaces::CreatureScript("npc_void_sentinel") { }
+    npc_void_sentinel() : CreatureScript("npc_void_sentinel") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -570,10 +570,10 @@ public:
 
 };
 
-class npc_blackhole : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_blackhole : public CreatureScript
 {
 public:
-    npc_blackhole() : MS::Game::Scripting::Interfaces::CreatureScript("npc_blackhole") { }
+    npc_blackhole() : CreatureScript("npc_blackhole") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

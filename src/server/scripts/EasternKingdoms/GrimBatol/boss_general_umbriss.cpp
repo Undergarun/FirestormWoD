@@ -52,11 +52,11 @@ const Position troggPos[2]=
     {-702.22f, -450.9f, 268.77f, 1.34f}
 };
 
-class boss_general_umbriss : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_general_umbriss : public CreatureScript
 {
     public:
 
-        boss_general_umbriss() : MS::Game::Scripting::Interfaces::CreatureScript("boss_general_umbriss"){}
+        boss_general_umbriss() : CreatureScript("boss_general_umbriss"){}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -216,11 +216,11 @@ class boss_general_umbriss : public MS::Game::Scripting::Interfaces::CreatureScr
 
 };
 
-class npc_malignant_trogg : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_malignant_trogg : public CreatureScript
 {
     public:
 
-        npc_malignant_trogg() : MS::Game::Scripting::Interfaces::CreatureScript("npc_malignant_trogg"){}
+        npc_malignant_trogg() : CreatureScript("npc_malignant_trogg"){}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -277,11 +277,11 @@ class npc_malignant_trogg : public MS::Game::Scripting::Interfaces::CreatureScri
         };
 };
 
-class npc_umbriss_trogg_dweller : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_umbriss_trogg_dweller : public CreatureScript
 {
     public:
 
-        npc_umbriss_trogg_dweller() : MS::Game::Scripting::Interfaces::CreatureScript("npc_umbriss_trogg_dweller"){}
+        npc_umbriss_trogg_dweller() : CreatureScript("npc_umbriss_trogg_dweller"){}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {

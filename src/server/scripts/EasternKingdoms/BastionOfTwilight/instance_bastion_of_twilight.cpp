@@ -17,10 +17,10 @@ static const DoorData doordata[] =
     {0,                     0,                      DOOR_TYPE_ROOM,       BOUNDARY_NONE}, // END
 };
 
-class instance_bastion_of_twilight : public MS::Game::Scripting::Interfaces::InstanceMapScript
+class instance_bastion_of_twilight : public InstanceMapScript
 {
 public:
-    instance_bastion_of_twilight() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_bastion_of_twilight", 671) { }
+    instance_bastion_of_twilight() : InstanceMapScript("instance_bastion_of_twilight", 671) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {

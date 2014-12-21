@@ -107,10 +107,10 @@ bool CheckAllBossDied(InstanceScript* instance, Creature* me)
 }
 
 //High King Maulgar AI
-class boss_high_king_maulgar : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_high_king_maulgar : public CreatureScript
 {
 public:
-    boss_high_king_maulgar() : MS::Game::Scripting::Interfaces::CreatureScript("boss_high_king_maulgar") { }
+    boss_high_king_maulgar() : CreatureScript("boss_high_king_maulgar") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -306,10 +306,10 @@ public:
 };
 
 //Olm The Summoner AI
-class boss_olm_the_summoner : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_olm_the_summoner : public CreatureScript
 {
 public:
-    boss_olm_the_summoner() : MS::Game::Scripting::Interfaces::CreatureScript("boss_olm_the_summoner") { }
+    boss_olm_the_summoner() : CreatureScript("boss_olm_the_summoner") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -434,10 +434,10 @@ public:
 };
 
 //Kiggler The Crazed AI
-class boss_kiggler_the_crazed : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_kiggler_the_crazed : public CreatureScript
 {
 public:
-    boss_kiggler_the_crazed() : MS::Game::Scripting::Interfaces::CreatureScript("boss_kiggler_the_crazed") { }
+    boss_kiggler_the_crazed() : CreatureScript("boss_kiggler_the_crazed") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -556,10 +556,10 @@ public:
 };
 
 //Blindeye The Seer AI
-class boss_blindeye_the_seer : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_blindeye_the_seer : public CreatureScript
 {
 public:
-    boss_blindeye_the_seer() : MS::Game::Scripting::Interfaces::CreatureScript("boss_blindeye_the_seer") { }
+    boss_blindeye_the_seer() : CreatureScript("boss_blindeye_the_seer") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -666,10 +666,10 @@ public:
 };
 
 //Krosh Firehand AI
-class boss_krosh_firehand : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_krosh_firehand : public CreatureScript
 {
 public:
-    boss_krosh_firehand() : MS::Game::Scripting::Interfaces::CreatureScript("boss_krosh_firehand") { }
+    boss_krosh_firehand() : CreatureScript("boss_krosh_firehand") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

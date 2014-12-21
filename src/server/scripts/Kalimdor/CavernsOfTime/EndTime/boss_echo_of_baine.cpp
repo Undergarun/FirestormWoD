@@ -37,10 +37,10 @@ enum Adds
     NPC_BAINES_TOTEM    = 54434,
 };
 
-class boss_echo_of_baine : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_echo_of_baine : public CreatureScript
 {
     public:
-        boss_echo_of_baine() : MS::Game::Scripting::Interfaces::CreatureScript("boss_echo_of_baine") { }
+        boss_echo_of_baine() : CreatureScript("boss_echo_of_baine") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -216,10 +216,10 @@ class boss_echo_of_baine : public MS::Game::Scripting::Interfaces::CreatureScrip
         };      
 };
 
-class npc_echo_of_baine_baines_totem : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_echo_of_baine_baines_totem : public CreatureScript
 {
     public:
-        npc_echo_of_baine_baines_totem() : MS::Game::Scripting::Interfaces::CreatureScript("npc_echo_of_baine_baines_totem") { }
+        npc_echo_of_baine_baines_totem() : CreatureScript("npc_echo_of_baine_baines_totem") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -247,10 +247,10 @@ class npc_echo_of_baine_baines_totem : public MS::Game::Scripting::Interfaces::C
         };      
 };
 
-class spell_echo_of_baine_pulverize_aoe: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_echo_of_baine_pulverize_aoe: public SpellScriptLoader
 {
     public:
-        spell_echo_of_baine_pulverize_aoe() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_echo_of_baine_pulverize_aoe") { }
+        spell_echo_of_baine_pulverize_aoe() : SpellScriptLoader("spell_echo_of_baine_pulverize_aoe") { }
 
         class spell_echo_of_baine_pulverize_aoe_SpellScript : public SpellScript
         {

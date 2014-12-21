@@ -10,10 +10,10 @@ static const DoorData doordata[] =
     {0,                          0,              DOOR_TYPE_ROOM,    BOUNDARY_NONE},
 };
 
-class instance_well_of_eternity : public MS::Game::Scripting::Interfaces::InstanceMapScript
+class instance_well_of_eternity : public InstanceMapScript
 {
     public:
-        instance_well_of_eternity() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_well_of_eternity", 939) { }
+        instance_well_of_eternity() : InstanceMapScript("instance_well_of_eternity", 939) { }
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const
         {

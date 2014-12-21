@@ -56,10 +56,10 @@ enum eEnums
     SPELL_KNOCK_BACK            = 24199,                    //Knockback spell until correct implementation is made
 };
 
-class boss_gruul : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_gruul : public CreatureScript
 {
 public:
-    boss_gruul() : MS::Game::Scripting::Interfaces::CreatureScript("boss_gruul") { }
+    boss_gruul() : CreatureScript("boss_gruul") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -255,10 +255,10 @@ public:
 
 };
 
-class spell_gruul_shatter: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_gruul_shatter: public SpellScriptLoader
 {
     public:
-        spell_gruul_shatter() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gruul_shatter") { }
+        spell_gruul_shatter() : SpellScriptLoader("spell_gruul_shatter") { }
 
         class spell_gruul_shatter_SpellScript : public SpellScript
         {
@@ -294,10 +294,10 @@ class spell_gruul_shatter: public MS::Game::Scripting::Interfaces::SpellScriptLo
         }
 };
 
-class spell_gruul_shatter_effect: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_gruul_shatter_effect: public SpellScriptLoader
 {
     public:
-        spell_gruul_shatter_effect() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gruul_shatter_effect") { }
+        spell_gruul_shatter_effect() : SpellScriptLoader("spell_gruul_shatter_effect") { }
 
         class spell_gruul_shatter_effect_SpellScript : public SpellScript
         {

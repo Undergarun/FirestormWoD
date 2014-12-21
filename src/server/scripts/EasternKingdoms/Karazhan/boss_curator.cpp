@@ -44,10 +44,10 @@ EndScriptData */
 #define SPELL_ENRAGE                    30403               //Arcane Infusion: Transforms Curator and adds damage.
 #define SPELL_BERSERK                   26662
 
-class boss_curator : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_curator : public CreatureScript
 {
 public:
-    boss_curator() : MS::Game::Scripting::Interfaces::CreatureScript("boss_curator") { }
+    boss_curator() : CreatureScript("boss_curator") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

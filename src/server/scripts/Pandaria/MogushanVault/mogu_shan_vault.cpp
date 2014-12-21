@@ -109,10 +109,10 @@ enum eTrashsActions
 };
 
 // 61334 / 61989 - Cursed Mogu Sculpture
-class mob_cursed_mogu_sculpture : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_cursed_mogu_sculpture : public CreatureScript
 {
     public:
-        mob_cursed_mogu_sculpture() : MS::Game::Scripting::Interfaces::CreatureScript("mob_cursed_mogu_sculture") {}
+        mob_cursed_mogu_sculpture() : CreatureScript("mob_cursed_mogu_sculture") {}
 
         struct mob_cursed_mogu_sculptureAI : public ScriptedAI
         {
@@ -295,10 +295,10 @@ class mob_cursed_mogu_sculpture : public MS::Game::Scripting::Interfaces::Creatu
 };
 
 // Ghost Essence - 120764
-class spell_ghost_essence: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_ghost_essence: public SpellScriptLoader
 {
     public:
-        spell_ghost_essence() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_ghost_essence") { }
+        spell_ghost_essence() : SpellScriptLoader("spell_ghost_essence") { }
 
         class spell_ghost_essence_SpellScript : public SpellScript
         {
@@ -333,10 +333,10 @@ class spell_ghost_essence: public MS::Game::Scripting::Interfaces::SpellScriptLo
 float quilenNewY[2] = { 1170.0f, 1240.0f };
 
 // 64183 - Enormous Stone Quilen
-class mob_enormous_stone_quilen : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_enormous_stone_quilen : public CreatureScript
 {
     public:
-        mob_enormous_stone_quilen() : MS::Game::Scripting::Interfaces::CreatureScript("mob_enormous_stone_quilen") {}
+        mob_enormous_stone_quilen() : CreatureScript("mob_enormous_stone_quilen") {}
 
         struct mob_enormous_stone_quilenAI : public ScriptedAI
         {
@@ -440,10 +440,10 @@ class mob_enormous_stone_quilen : public MS::Game::Scripting::Interfaces::Creatu
 };
 
 // 60576 - Stone Quilen
-class mob_stone_quilen : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_stone_quilen : public CreatureScript
 {
     public:
-        mob_stone_quilen() : MS::Game::Scripting::Interfaces::CreatureScript("mob_stone_quilen") {}
+        mob_stone_quilen() : CreatureScript("mob_stone_quilen") {}
 
         struct mob_stone_quilenAI : public ScriptedAI
         {
@@ -525,10 +525,10 @@ class mob_stone_quilen : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // 60375 - Zandalari Skullcharger
-class mob_zandalari_skullcharger : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_zandalari_skullcharger : public CreatureScript
 {
     public:
-        mob_zandalari_skullcharger() : MS::Game::Scripting::Interfaces::CreatureScript("mob_zandalari_skullcharger") {}
+        mob_zandalari_skullcharger() : CreatureScript("mob_zandalari_skullcharger") {}
 
         struct mob_zandalari_skullchargerAI : public ScriptedAI
         {
@@ -612,10 +612,10 @@ class mob_zandalari_skullcharger : public MS::Game::Scripting::Interfaces::Creat
 };
 
 // 125092 - Petrification
-class spell_mogu_petrification: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_mogu_petrification: public SpellScriptLoader
 {
     public:
-        spell_mogu_petrification() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mogu_petrification") { }
+        spell_mogu_petrification() : SpellScriptLoader("spell_mogu_petrification") { }
 
         class spell_mogu_petrification_AuraScript : public AuraScript
         {
@@ -691,10 +691,10 @@ enum eChoEvents
 };
 
 // 61348 - Lorewalker Cho
-class npc_lorewalker_cho : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_lorewalker_cho : public CreatureScript
 {
     public:
-        npc_lorewalker_cho() : MS::Game::Scripting::Interfaces::CreatureScript("npc_lorewalker_cho") { }
+        npc_lorewalker_cho() : CreatureScript("npc_lorewalker_cho") { }
 
         bool OnGossipHello(Player* player, Creature* creature)
         {
@@ -1301,10 +1301,10 @@ class npc_lorewalker_cho : public MS::Game::Scripting::Interfaces::CreatureScrip
 };
 
 // 61421 - Zian of the Endless Shadow
-class mob_zian : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_zian : public CreatureScript
 {
     public:
-        mob_zian() : MS::Game::Scripting::Interfaces::CreatureScript("mob_zian") { }
+        mob_zian() : CreatureScript("mob_zian") { }
 
         struct mob_zianAI : public ScriptedAI
         {
@@ -1383,10 +1383,10 @@ class mob_zian : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // 61250 - Sorcerer Mogu
-class mob_sorcerer_mogu : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_sorcerer_mogu : public CreatureScript
 {
     public:
-        mob_sorcerer_mogu() : MS::Game::Scripting::Interfaces::CreatureScript("mob_sorcerer_mogu") { }
+        mob_sorcerer_mogu() : CreatureScript("mob_sorcerer_mogu") { }
 
         struct mob_sorcerer_moguAI : public ScriptedAI
         {
@@ -1464,10 +1464,10 @@ class mob_sorcerer_mogu : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // 61423 - Qiang the Merciless
-class mob_qiang : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_qiang : public CreatureScript
 {
     public:
-        mob_qiang() : MS::Game::Scripting::Interfaces::CreatureScript("mob_qiang") { }
+        mob_qiang() : CreatureScript("mob_qiang") { }
 
         struct mob_qiangAI : public ScriptedAI
         {
@@ -1580,10 +1580,10 @@ class mob_qiang : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // 61341 - Mounted Mogu
-class mob_mounted_mogu : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_mounted_mogu : public CreatureScript
 {
     public:
-        mob_mounted_mogu() : MS::Game::Scripting::Interfaces::CreatureScript("mob_mounted_mogu") { }
+        mob_mounted_mogu() : CreatureScript("mob_mounted_mogu") { }
 
         struct mob_mounted_moguAI : public ScriptedAI
         {
@@ -1668,10 +1668,10 @@ class mob_mounted_mogu : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // 61427 - Subetai the Swift
-class mob_subetai : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_subetai : public CreatureScript
 {
     public:
-        mob_subetai() : MS::Game::Scripting::Interfaces::CreatureScript("mob_subetai") { }
+        mob_subetai() : CreatureScript("mob_subetai") { }
 
         struct mob_subetaiAI : public ScriptedAI
         {
@@ -1784,10 +1784,10 @@ class mob_subetai : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // 61345 - Mogu Archer
-class mob_mogu_archer : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_mogu_archer : public CreatureScript
 {
     public:
-        mob_mogu_archer() : MS::Game::Scripting::Interfaces::CreatureScript("mob_mogu_archer") { }
+        mob_mogu_archer() : CreatureScript("mob_mogu_archer") { }
 
         struct mob_mogu_archerAI : public ScriptedAI
         {
@@ -1868,10 +1868,10 @@ class mob_mogu_archer : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // 61429 - Meng the Demented
-class mob_meng : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_meng : public CreatureScript
 {
     public:
-        mob_meng() : MS::Game::Scripting::Interfaces::CreatureScript("mob_meng") { }
+        mob_meng() : CreatureScript("mob_meng") { }
 
         struct mob_mengAI : public ScriptedAI
         {
@@ -2018,10 +2018,10 @@ class mob_meng : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // 61347 - Kingsguard
-class mob_kingsguard : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_kingsguard : public CreatureScript
 {
     public:
-        mob_kingsguard() : MS::Game::Scripting::Interfaces::CreatureScript("mob_kingsguard") { }
+        mob_kingsguard() : CreatureScript("mob_kingsguard") { }
 
         struct mob_kingsguardAI : public ScriptedAI
         {
@@ -2113,10 +2113,10 @@ class mob_kingsguard : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // 61131 - Mogu'shan Secret-Keeper
-class mob_mogu_secret_keeper : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_mogu_secret_keeper : public CreatureScript
 {
     public:
-        mob_mogu_secret_keeper() : MS::Game::Scripting::Interfaces::CreatureScript("mob_mogu_secret_keeper") { }
+        mob_mogu_secret_keeper() : CreatureScript("mob_mogu_secret_keeper") { }
 
         struct mob_mogu_secret_keeperAI : public ScriptedAI
         {
@@ -2192,10 +2192,10 @@ class mob_mogu_secret_keeper : public MS::Game::Scripting::Interfaces::CreatureS
 // 64061 - Mogu'shan Warden
 // 64947 - Mogu'shan Warden
 // 64063 - Mogu'shan Arcanist
-class mob_mogu_warden : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_mogu_warden : public CreatureScript
 {
     public:
-        mob_mogu_warden() : MS::Game::Scripting::Interfaces::CreatureScript("mob_mogu_warden") { }
+        mob_mogu_warden() : CreatureScript("mob_mogu_warden") { }
 
         struct mob_mogu_wardenAI : public ScriptedAI
         {
@@ -2286,10 +2286,10 @@ class mob_mogu_warden : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // 64068 - Mogu'shan Engine Keeper
-class mob_mogu_engine_keeper : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_mogu_engine_keeper : public CreatureScript
 {
     public:
-        mob_mogu_engine_keeper() : MS::Game::Scripting::Interfaces::CreatureScript("mob_mogu_engine_keeper") { }
+        mob_mogu_engine_keeper() : CreatureScript("mob_mogu_engine_keeper") { }
 
         struct mob_mogu_engine_keeperAI : public ScriptedAI
         {

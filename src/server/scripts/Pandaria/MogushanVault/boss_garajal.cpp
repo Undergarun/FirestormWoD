@@ -111,10 +111,10 @@ enum GarajalGhostTalk
 };
 
 // 60143 - Gara'jal the Spiritbinder
-class boss_garajal : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_garajal : public CreatureScript
 {
     public:
-        boss_garajal() : MS::Game::Scripting::Interfaces::CreatureScript("boss_garajal") {}
+        boss_garajal() : CreatureScript("boss_garajal") {}
 
         struct boss_garajalAI : public BossAI
         {
@@ -383,10 +383,10 @@ class boss_garajal : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // 61140 - Gara'jal the Spiritbinder
-class mob_garajal_ghost : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_garajal_ghost : public CreatureScript
 {
     public:
-        mob_garajal_ghost() : MS::Game::Scripting::Interfaces::CreatureScript("mob_garajal_ghost") {}
+        mob_garajal_ghost() : CreatureScript("mob_garajal_ghost") {}
 
         struct mob_garajal_ghostAI : public ScriptedAI
         {
@@ -468,10 +468,10 @@ class mob_garajal_ghost : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // 60240 - Spirit Totem
-class mob_spirit_totem : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_spirit_totem : public CreatureScript
 {
     public:
-        mob_spirit_totem() : MS::Game::Scripting::Interfaces::CreatureScript("mob_spirit_totem") {}
+        mob_spirit_totem() : CreatureScript("mob_spirit_totem") {}
 
         struct mob_spirit_totemAI : public ScriptedAI
         {
@@ -537,10 +537,10 @@ class mob_spirit_totem : public MS::Game::Scripting::Interfaces::CreatureScript
 
 // 60184 - Shadowy Minion - Only visible in spirit world
 // 60940 - Shadowy Minion - Visible for all players
-class mob_shadowy_minion : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_shadowy_minion : public CreatureScript
 {
     public:
-        mob_shadowy_minion() : MS::Game::Scripting::Interfaces::CreatureScript("mob_shadowy_minion") {}
+        mob_shadowy_minion() : CreatureScript("mob_shadowy_minion") {}
 
         struct mob_shadowy_minionAI : public Scripted_NoMovementAI
         {
@@ -647,10 +647,10 @@ class mob_shadowy_minion : public MS::Game::Scripting::Interfaces::CreatureScrip
 };
 
 // 62003 - Severer of Souls
-class mob_soul_cutter : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_soul_cutter : public CreatureScript
 {
     public:
-        mob_soul_cutter() : MS::Game::Scripting::Interfaces::CreatureScript("mob_soul_cutter") {}
+        mob_soul_cutter() : CreatureScript("mob_soul_cutter") {}
 
         struct mob_soul_cutterAI : public ScriptedAI
         {
@@ -741,10 +741,10 @@ class mob_soul_cutter : public MS::Game::Scripting::Interfaces::CreatureScript
 
 // 60512 - Spirit Totem
 // 60513 - Spirit Totem
-class mob_spirit_totem_intro : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_spirit_totem_intro : public CreatureScript
 {
     public:
-        mob_spirit_totem_intro() : MS::Game::Scripting::Interfaces::CreatureScript("mob_spirit_totem_intro") {}
+        mob_spirit_totem_intro() : CreatureScript("mob_spirit_totem_intro") {}
 
         struct mob_spirit_totem_introAI : public ScriptedAI
         {
@@ -777,10 +777,10 @@ class mob_spirit_totem_intro : public MS::Game::Scripting::Interfaces::CreatureS
 };
 
 // Soul Back - 120715
-class spell_soul_back: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_soul_back: public SpellScriptLoader
 {
     public:
-        spell_soul_back() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_soul_back") { }
+        spell_soul_back() : SpellScriptLoader("spell_soul_back") { }
 
         class spell_soul_back_SpellScript : public SpellScript
         {
@@ -814,10 +814,10 @@ class spell_soul_back: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 };
 
 // Final Destination - 118469
-class spell_final_destination: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_final_destination: public SpellScriptLoader
 {
     public:
-        spell_final_destination() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_final_destination") { }
+        spell_final_destination() : SpellScriptLoader("spell_final_destination") { }
 
         class spell_final_destination_AuraScript : public AuraScript
         {
@@ -853,10 +853,10 @@ class spell_final_destination: public MS::Game::Scripting::Interfaces::SpellScri
 };
 
 // Voodoo Doll - 122151
-class spell_voodoo_doll: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_voodoo_doll: public SpellScriptLoader
 {
     public:
-        spell_voodoo_doll() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_voodoo_doll") { }
+        spell_voodoo_doll() : SpellScriptLoader("spell_voodoo_doll") { }
 
         class spell_voodoo_doll_AuraScript : public AuraScript
         {

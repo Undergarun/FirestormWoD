@@ -52,10 +52,10 @@ enum Events
 // Mob Frozen Orb
 #define MOB_FROZEN_ORB 38456    // 1 in 10 mode and 3 in 25 mode
 
-class boss_toravon : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_toravon : public CreatureScript
 {
     public:
-        boss_toravon() : MS::Game::Scripting::Interfaces::CreatureScript("boss_toravon") { }
+        boss_toravon() : CreatureScript("boss_toravon") { }
 
         struct boss_toravonAI : public BossAI
         {
@@ -119,10 +119,10 @@ class boss_toravon : public MS::Game::Scripting::Interfaces::CreatureScript
 /*######
 ##  Mob Frost Warder
 ######*/
-class mob_frost_warder : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_frost_warder : public CreatureScript
 {
     public:
-        mob_frost_warder() : MS::Game::Scripting::Interfaces::CreatureScript("mob_frost_warder") { }
+        mob_frost_warder() : CreatureScript("mob_frost_warder") { }
 
         struct mob_frost_warderAI : public ScriptedAI
         {
@@ -174,10 +174,10 @@ class mob_frost_warder : public MS::Game::Scripting::Interfaces::CreatureScript
 /*######
 ##  Mob Frozen Orb
 ######*/
-class mob_frozen_orb : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_frozen_orb : public CreatureScript
 {
 public:
-    mob_frozen_orb() : MS::Game::Scripting::Interfaces::CreatureScript("mob_frozen_orb") { }
+    mob_frozen_orb() : CreatureScript("mob_frozen_orb") { }
 
     struct mob_frozen_orbAI : public ScriptedAI
     {
@@ -229,10 +229,10 @@ public:
 /*######
 ##  Mob Frozen Orb Stalker
 ######*/
-class mob_frozen_orb_stalker : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_frozen_orb_stalker : public CreatureScript
 {
     public:
-        mob_frozen_orb_stalker() : MS::Game::Scripting::Interfaces::CreatureScript("mob_frozen_orb_stalker") { }
+        mob_frozen_orb_stalker() : CreatureScript("mob_frozen_orb_stalker") { }
 
         struct mob_frozen_orb_stalkerAI : public Scripted_NoMovementAI
         {

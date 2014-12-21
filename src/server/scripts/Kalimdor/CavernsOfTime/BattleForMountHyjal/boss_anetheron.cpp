@@ -40,10 +40,10 @@ enum Texts
     SAY_ONAGGRO         = 5,
 };
 
-class boss_anetheron : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_anetheron : public CreatureScript
 {
 public:
-    boss_anetheron() : MS::Game::Scripting::Interfaces::CreatureScript("boss_anetheron") { }
+    boss_anetheron() : CreatureScript("boss_anetheron") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -180,10 +180,10 @@ public:
 
 };
 
-class mob_towering_infernal : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_towering_infernal : public CreatureScript
 {
 public:
-    mob_towering_infernal() : MS::Game::Scripting::Interfaces::CreatureScript("mob_towering_infernal") { }
+    mob_towering_infernal() : CreatureScript("mob_towering_infernal") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

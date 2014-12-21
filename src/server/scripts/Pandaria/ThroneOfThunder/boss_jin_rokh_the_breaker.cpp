@@ -148,10 +148,10 @@ Position const conductiveWatersPos[4] =
 };
 
 // Jin'Rokh the Breaker - 69465
-class boss_jin_rokh_the_breaker : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_jin_rokh_the_breaker : public CreatureScript
 {
     public:
-        boss_jin_rokh_the_breaker() : MS::Game::Scripting::Interfaces::CreatureScript("boss_jin_rokh_the_breaker") { }
+        boss_jin_rokh_the_breaker() : CreatureScript("boss_jin_rokh_the_breaker") { }
 
         struct boss_jin_rokh_the_breakerAI : public BossAI
         {
@@ -499,10 +499,10 @@ class boss_jin_rokh_the_breaker : public MS::Game::Scripting::Interfaces::Creatu
 };
 
 // Focused Lightning - 69593
-class mob_focused_lightning : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_focused_lightning : public CreatureScript
 {
     public:
-        mob_focused_lightning() : MS::Game::Scripting::Interfaces::CreatureScript("mob_focused_lightning") { }
+        mob_focused_lightning() : CreatureScript("mob_focused_lightning") { }
 
         struct mob_focused_lightningAI : public ScriptedAI
         {
@@ -606,10 +606,10 @@ class mob_focused_lightning : public MS::Game::Scripting::Interfaces::CreatureSc
 };
 
 // Lightning Fissure - 69609
-class mob_lightning_fissure : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_lightning_fissure : public CreatureScript
 {
     public:
-        mob_lightning_fissure() : MS::Game::Scripting::Interfaces::CreatureScript("mob_lightning_fissure") { }
+        mob_lightning_fissure() : CreatureScript("mob_lightning_fissure") { }
 
         struct mob_lightning_fissureAI : public ScriptedAI
         {
@@ -653,10 +653,10 @@ class mob_lightning_fissure : public MS::Game::Scripting::Interfaces::CreatureSc
 };
 
 // Statue - 69467
-class mob_statue : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_statue : public CreatureScript
 {
     public:
-        mob_statue() : MS::Game::Scripting::Interfaces::CreatureScript("mob_statue") { }
+        mob_statue() : CreatureScript("mob_statue") { }
 
         struct mob_statueAI : public ScriptedAI
         {
@@ -771,10 +771,10 @@ class mob_statue : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Conductive Water - 69469
-class mob_conductive_water : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_conductive_water : public CreatureScript
 {
     public:
-        mob_conductive_water() : MS::Game::Scripting::Interfaces::CreatureScript("mob_conductive_water") { }
+        mob_conductive_water() : CreatureScript("mob_conductive_water") { }
 
         struct mob_conductive_waterAI : public ScriptedAI
         {
@@ -837,10 +837,10 @@ class mob_conductive_water : public MS::Game::Scripting::Interfaces::CreatureScr
 };
 
 // Call Da Storm Stalker - 69676
-class mob_call_da_storm_stalker : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_call_da_storm_stalker : public CreatureScript
 {
     public:
-        mob_call_da_storm_stalker() : MS::Game::Scripting::Interfaces::CreatureScript("mob_call_da_storm_stalker") { }
+        mob_call_da_storm_stalker() : CreatureScript("mob_call_da_storm_stalker") { }
 
         struct mob_call_da_storm_stalkerAI : public ScriptedAI
         {
@@ -868,10 +868,10 @@ class mob_call_da_storm_stalker : public MS::Game::Scripting::Interfaces::Creatu
 };
 
 // Lightning Spark - 69635
-class mob_lightning_spark : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_lightning_spark : public CreatureScript
 {
     public:
-        mob_lightning_spark() : MS::Game::Scripting::Interfaces::CreatureScript("mob_lightning_spark") { }
+        mob_lightning_spark() : CreatureScript("mob_lightning_spark") { }
 
         struct mob_lightning_sparkAI : public ScriptedAI
         {
@@ -912,10 +912,10 @@ class mob_lightning_spark : public MS::Game::Scripting::Interfaces::CreatureScri
 };
 
 // Lightning Pillar Spark Stalker - 69813
-class mob_lightning_pillar_stalker : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_lightning_pillar_stalker : public CreatureScript
 {
     public:
-        mob_lightning_pillar_stalker() : MS::Game::Scripting::Interfaces::CreatureScript("mob_lightning_pillar_stalker") { }
+        mob_lightning_pillar_stalker() : CreatureScript("mob_lightning_pillar_stalker") { }
 
         struct mob_lightning_pillar_stalkerAI : public ScriptedAI
         {
@@ -974,10 +974,10 @@ class mob_lightning_pillar_stalker : public MS::Game::Scripting::Interfaces::Cre
 };
 
 // Static Burst - 137162
-class spell_static_burst: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_static_burst: public SpellScriptLoader
 {
     public:
-        spell_static_burst() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_static_burst") { }
+        spell_static_burst() : SpellScriptLoader("spell_static_burst") { }
 
         class spell_static_burst_AuraScript : public AuraScript
         {
@@ -1008,10 +1008,10 @@ class spell_static_burst: public MS::Game::Scripting::Interfaces::SpellScriptLoa
 };
 
 // Static Wound - 138349
-class spell_static_wound: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_static_wound: public SpellScriptLoader
 {
     public:
-        spell_static_wound() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_static_wound") { }
+        spell_static_wound() : SpellScriptLoader("spell_static_wound") { }
 
         class spell_static_wound_AuraScript : public AuraScript
         {
@@ -1054,10 +1054,10 @@ class spell_static_wound: public MS::Game::Scripting::Interfaces::SpellScriptLoa
 };
 
 // Static Wound (Damages) - 138389
-class spell_static_wound_damage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_static_wound_damage: public SpellScriptLoader
 {
     public:
-        spell_static_wound_damage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_static_wound_damage") { }
+        spell_static_wound_damage() : SpellScriptLoader("spell_static_wound_damage") { }
 
         class spell_static_wound_damage_SpellScript : public SpellScript
         {
@@ -1088,10 +1088,10 @@ class spell_static_wound_damage: public MS::Game::Scripting::Interfaces::SpellSc
 };
 
 // Focused Lightning - 137399
-class spell_focused_lightning: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_focused_lightning: public SpellScriptLoader
 {
     public:
-        spell_focused_lightning() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_focused_lightning") { }
+        spell_focused_lightning() : SpellScriptLoader("spell_focused_lightning") { }
 
         class spell_focused_lightning_SpellScript : public SpellScript
         {
@@ -1125,10 +1125,10 @@ class spell_focused_lightning: public MS::Game::Scripting::Interfaces::SpellScri
 };
 
 // Focused Lightning - 137437
-class spell_focused_lightning_periodic: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_focused_lightning_periodic: public SpellScriptLoader
 {
     public:
-        spell_focused_lightning_periodic() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_focused_lightning_periodic") { }
+        spell_focused_lightning_periodic() : SpellScriptLoader("spell_focused_lightning_periodic") { }
 
         class spell_focused_lightning_periodic_AuraScript : public AuraScript
         {
@@ -1153,10 +1153,10 @@ class spell_focused_lightning_periodic: public MS::Game::Scripting::Interfaces::
 };
 
 // Focused Lightning - 137429
-class spell_focused_lightning_damage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_focused_lightning_damage: public SpellScriptLoader
 {
     public:
-        spell_focused_lightning_damage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_focused_lightning_damage") { }
+        spell_focused_lightning_damage() : SpellScriptLoader("spell_focused_lightning_damage") { }
 
         class spell_focused_lightning_damage_SpellScript : public SpellScript
         {
@@ -1184,10 +1184,10 @@ class spell_focused_lightning_damage: public MS::Game::Scripting::Interfaces::Sp
 };
 
 // Thundering Throw (Eject Player) - 137180
-class spell_thundering_throw_eject: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_thundering_throw_eject: public SpellScriptLoader
 {
     public:
-        spell_thundering_throw_eject() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_thundering_throw_eject") { }
+        spell_thundering_throw_eject() : SpellScriptLoader("spell_thundering_throw_eject") { }
 
         class spell_thundering_throw_eject_SpellScript : public SpellScript
         {
@@ -1267,10 +1267,10 @@ class spell_thundering_throw_eject: public MS::Game::Scripting::Interfaces::Spel
 };
 
 // Lightning Storm (Periodic) - 137313
-class spell_lightning_storm_periodic: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_lightning_storm_periodic: public SpellScriptLoader
 {
     public:
-        spell_lightning_storm_periodic() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_lightning_storm_periodic") { }
+        spell_lightning_storm_periodic() : SpellScriptLoader("spell_lightning_storm_periodic") { }
 
         class spell_lightning_storm_periodic_AuraScript : public AuraScript
         {
@@ -1301,10 +1301,10 @@ class spell_lightning_storm_periodic: public MS::Game::Scripting::Interfaces::Sp
 };
 
 // Ionization - 138732
-class spell_ionization: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_ionization: public SpellScriptLoader
 {
     public:
-        spell_ionization() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_ionization") { }
+        spell_ionization() : SpellScriptLoader("spell_ionization") { }
 
         class spell_ionization_SpellScript : public SpellScript
         {
@@ -1375,10 +1375,10 @@ class spell_ionization: public MS::Game::Scripting::Interfaces::SpellScriptLoade
 // Ionization Conduction - 138743
 // Focused Lightning Conduction - 137530
 // Lightning Fissure Conduction - 138133
-class spell_ionization_conduction: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_ionization_conduction: public SpellScriptLoader
 {
     public:
-        spell_ionization_conduction() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_ionization_conduction") { }
+        spell_ionization_conduction() : SpellScriptLoader("spell_ionization_conduction") { }
 
         class spell_ionization_conduction_SpellScript : public SpellScript
         {

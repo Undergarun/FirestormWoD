@@ -73,10 +73,10 @@ enum GameObjects
     GO_SPHERE2                                    = 193094
 };
 
-class boss_taldaram : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_taldaram : public CreatureScript
 {
 public:
-    boss_taldaram() : MS::Game::Scripting::Interfaces::CreatureScript("boss_taldaram") { }
+    boss_taldaram() : CreatureScript("boss_taldaram") { }
 
     struct boss_taldaramAI : public ScriptedAI
     {
@@ -334,10 +334,10 @@ public:
     }
 };
 
-class mob_taldaram_flamesphere : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_taldaram_flamesphere : public CreatureScript
 {
 public:
-    mob_taldaram_flamesphere() : MS::Game::Scripting::Interfaces::CreatureScript("mob_taldaram_flamesphere") { }
+    mob_taldaram_flamesphere() : CreatureScript("mob_taldaram_flamesphere") { }
 
     struct mob_taldaram_flamesphereAI : public ScriptedAI
     {
@@ -385,10 +385,10 @@ public:
     }
 };
 
-class prince_taldaram_sphere : public MS::Game::Scripting::Interfaces::GameObjectScript
+class prince_taldaram_sphere : public GameObjectScript
 {
 public:
-    prince_taldaram_sphere() : MS::Game::Scripting::Interfaces::GameObjectScript("prince_taldaram_sphere") { }
+    prince_taldaram_sphere() : GameObjectScript("prince_taldaram_sphere") { }
 
     bool OnGossipHello(Player* /*player*/, GameObject* go)
     {

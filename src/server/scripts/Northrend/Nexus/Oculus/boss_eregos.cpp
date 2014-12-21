@@ -78,10 +78,10 @@ enum EregosData
     DATA_AMBER_VOID         = 2       // http://www.wowhead.com/achievement=2046
 };
 
-class boss_eregos : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_eregos : public CreatureScript
 {
     public:
-        boss_eregos() : MS::Game::Scripting::Interfaces::CreatureScript("boss_eregos") { }
+        boss_eregos() : CreatureScript("boss_eregos") { }
 
         struct boss_eregosAI : public BossAI
         {
@@ -250,10 +250,10 @@ class boss_eregos : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class spell_eregos_planar_shift: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_eregos_planar_shift: public SpellScriptLoader
 {
     public:
-        spell_eregos_planar_shift() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_eregos_planar_shift") { }
+        spell_eregos_planar_shift() : SpellScriptLoader("spell_eregos_planar_shift") { }
 
         class spell_eregos_planar_shift_AuraScript : public AuraScript
         {
@@ -277,10 +277,10 @@ class spell_eregos_planar_shift: public MS::Game::Scripting::Interfaces::SpellSc
         }
 };
 
-class achievement_gen_eregos_void : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
+class achievement_gen_eregos_void : public AchievementCriteriaScript
 {
     public:
-        achievement_gen_eregos_void(char const* name, uint32 data) : MS::Game::Scripting::Interfaces::AchievementCriteriaScript(name), _data(data) { }
+        achievement_gen_eregos_void(char const* name, uint32 data) : AchievementCriteriaScript(name), _data(data) { }
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {

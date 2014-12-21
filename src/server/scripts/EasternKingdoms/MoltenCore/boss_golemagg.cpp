@@ -52,10 +52,10 @@ enum Events
     EVENT_EARTHQUAKE    = 2,
 };
 
-class boss_golemagg : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_golemagg : public CreatureScript
 {
     public:
-        boss_golemagg() : MS::Game::Scripting::Interfaces::CreatureScript("boss_golemagg") { }
+        boss_golemagg() : CreatureScript("boss_golemagg") { }
 
         struct boss_golemaggAI : public BossAI
         {
@@ -122,10 +122,10 @@ class boss_golemagg : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class mob_core_rager : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_core_rager : public CreatureScript
 {
     public:
-        mob_core_rager() : MS::Game::Scripting::Interfaces::CreatureScript("mob_core_rager") { }
+        mob_core_rager() : CreatureScript("mob_core_rager") { }
 
         struct mob_core_ragerAI : public ScriptedAI
         {

@@ -53,10 +53,10 @@ enum eSays
 };
 
 // Nalak - 69099
-class boss_nalak : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_nalak : public CreatureScript
 {
     public:
-        boss_nalak() : MS::Game::Scripting::Interfaces::CreatureScript("boss_nalak") { }
+        boss_nalak() : CreatureScript("boss_nalak") { }
 
         struct boss_nalakAI : public BossAI
         {
@@ -153,10 +153,10 @@ class boss_nalak : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Lightning Tether (periodic triggered) - 136350
-class spell_lightning_tether: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_lightning_tether: public SpellScriptLoader
 {
     public:
-        spell_lightning_tether() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_lightning_tether") { }
+        spell_lightning_tether() : SpellScriptLoader("spell_lightning_tether") { }
 
         class spell_lightning_tether_SpellScript : public SpellScript
         {

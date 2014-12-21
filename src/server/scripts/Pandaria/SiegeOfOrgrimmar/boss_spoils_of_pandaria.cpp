@@ -35,10 +35,10 @@ enum eSays
 {
 };
 
-class boss_spoils_of_pandaria : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_spoils_of_pandaria : public CreatureScript
 {
 	public:
-		boss_spoils_of_pandaria() : MS::Game::Scripting::Interfaces::CreatureScript("boss_spoils_of_pandaria") { }
+		boss_spoils_of_pandaria() : CreatureScript("boss_spoils_of_pandaria") { }
 
 		struct boss_spoils_of_pandariaAI : public BossAI
 		{
@@ -123,10 +123,10 @@ class boss_spoils_of_pandaria : public MS::Game::Scripting::Interfaces::Creature
 		}
 };
 
-class mob_secured_stockpile_of_spoils : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_secured_stockpile_of_spoils : public CreatureScript
 {
     public:
-        mob_secured_stockpile_of_spoils() : MS::Game::Scripting::Interfaces::CreatureScript("mob_secured_stockpile_of_spoils") { }
+        mob_secured_stockpile_of_spoils() : CreatureScript("mob_secured_stockpile_of_spoils") { }
 
         struct mob_secured_stockpile_of_spoilsAI : public ScriptedAI
         {
@@ -156,10 +156,10 @@ class mob_secured_stockpile_of_spoils : public MS::Game::Scripting::Interfaces::
         }
 };
 
-class mob_modified_anima_golem : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_modified_anima_golem : public CreatureScript
 {
     public:
-        mob_modified_anima_golem() : MS::Game::Scripting::Interfaces::CreatureScript("mob_modified_anima_golem") { }
+        mob_modified_anima_golem() : CreatureScript("mob_modified_anima_golem") { }
 
         struct mob_modified_anima_golemAI : public ScriptedAI
         {
@@ -189,10 +189,10 @@ class mob_modified_anima_golem : public MS::Game::Scripting::Interfaces::Creatur
     }
 };
 
-class mob_mogu_shadow_ritualist : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_mogu_shadow_ritualist : public CreatureScript
 {
     public:
-        mob_mogu_shadow_ritualist() : MS::Game::Scripting::Interfaces::CreatureScript("mob_mogu_shadow_ritualist") { }
+        mob_mogu_shadow_ritualist() : CreatureScript("mob_mogu_shadow_ritualist") { }
 
         struct mob_mogu_shadow_ritualistAI: public ScriptedAI
         {
@@ -222,10 +222,10 @@ class mob_mogu_shadow_ritualist : public MS::Game::Scripting::Interfaces::Creatu
         }
 };
 
-class mob_zarthik_amber_priest : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_zarthik_amber_priest : public CreatureScript
 { 
     public:
-        mob_zarthik_amber_priest() : MS::Game::Scripting::Interfaces::CreatureScript("mob_zarthik_amber_priest") { }
+        mob_zarthik_amber_priest() : CreatureScript("mob_zarthik_amber_priest") { }
 
         struct mob_zarthik_amber_priestAI : public ScriptedAI
         {
@@ -255,10 +255,10 @@ class mob_zarthik_amber_priest : public MS::Game::Scripting::Interfaces::Creatur
         }
 };
 
-class mob_setthik_wielder : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_setthik_wielder : public CreatureScript
 {
     public:
-        mob_setthik_wielder() : MS::Game::Scripting::Interfaces::CreatureScript("mob_setthik_wielder") { }
+        mob_setthik_wielder() : CreatureScript("mob_setthik_wielder") { }
 
         struct mob_setthik_wielderAI : public ScriptedAI
         {
@@ -288,10 +288,10 @@ class mob_setthik_wielder : public MS::Game::Scripting::Interfaces::CreatureScri
         }
 };
 
-class mob_animated_stone_mogu : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_animated_stone_mogu : public CreatureScript
 {
     public:
-        mob_animated_stone_mogu() : MS::Game::Scripting::Interfaces::CreatureScript("mob_animated_stone_mogu") { }
+        mob_animated_stone_mogu() : CreatureScript("mob_animated_stone_mogu") { }
 
         struct mob_animated_stone_moguAI : public ScriptedAI
         {
@@ -321,10 +321,10 @@ class mob_animated_stone_mogu : public MS::Game::Scripting::Interfaces::Creature
         }
 };
 
-class mob_burial_urn : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_burial_urn : public CreatureScript
 {
     public:
-        mob_burial_urn() : MS::Game::Scripting::Interfaces::CreatureScript("mob_burial_urn") { }
+        mob_burial_urn() : CreatureScript("mob_burial_urn") { }
 
         struct mob_burial_urnAI : public ScriptedAI
         {
@@ -354,10 +354,10 @@ class mob_burial_urn : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class mob_quilen_gardians : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_quilen_gardians : public CreatureScript
 {
     public:
-        mob_quilen_gardians() : MS::Game::Scripting::Interfaces::CreatureScript("mob_quilen_gardians") { }
+        mob_quilen_gardians() : CreatureScript("mob_quilen_gardians") { }
 
         struct mob_quilen_gardiansAI : public ScriptedAI
         {
@@ -387,10 +387,10 @@ class mob_quilen_gardians : public MS::Game::Scripting::Interfaces::CreatureScri
         }
 };
 
-class mob_srithik_bombardier : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_srithik_bombardier : public CreatureScript
 {
     public:
-        mob_srithik_bombardier() : MS::Game::Scripting::Interfaces::CreatureScript("mob_srithik_bombardier") { }
+        mob_srithik_bombardier() : CreatureScript("mob_srithik_bombardier") { }
 
         struct mob_srithik_bombardierAI : public ScriptedAI
         {
@@ -420,10 +420,10 @@ class mob_srithik_bombardier : public MS::Game::Scripting::Interfaces::CreatureS
         }
 };
 
-class mob_korthik_warcaller : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_korthik_warcaller : public CreatureScript
 {
     public:
-        mob_korthik_warcaller() : MS::Game::Scripting::Interfaces::CreatureScript("mob_korthik_warcaller") { }
+        mob_korthik_warcaller() : CreatureScript("mob_korthik_warcaller") { }
 
         struct mob_korthik_warcallerAI : public ScriptedAI
         {
@@ -453,10 +453,10 @@ class mob_korthik_warcaller : public MS::Game::Scripting::Interfaces::CreatureSc
         }
 };
 
-class mob_ancient_breawmaster_spirit : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_ancient_breawmaster_spirit : public CreatureScript
 {
     public:
-        mob_ancient_breawmaster_spirit() : MS::Game::Scripting::Interfaces::CreatureScript("mob_ancient_breawmaster_spirit") { }
+        mob_ancient_breawmaster_spirit() : CreatureScript("mob_ancient_breawmaster_spirit") { }
 
         struct mob_ancient_breawmaster_spiritAI: public ScriptedAI
         {
@@ -486,10 +486,10 @@ class mob_ancient_breawmaster_spirit : public MS::Game::Scripting::Interfaces::C
         }
 };
 
-class mob_wise_misteweaver_spirit : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_wise_misteweaver_spirit : public CreatureScript
 {
     public:
-        mob_wise_misteweaver_spirit() : MS::Game::Scripting::Interfaces::CreatureScript("mob_wise_misteweaver_spirit") { }
+        mob_wise_misteweaver_spirit() : CreatureScript("mob_wise_misteweaver_spirit") { }
 
         struct mob_wise_misteweaver_spiritAI : public ScriptedAI
         {
@@ -519,10 +519,10 @@ class mob_wise_misteweaver_spirit : public MS::Game::Scripting::Interfaces::Crea
         }
 };
 
-class mob_namelesse_windwallker_spirit : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_namelesse_windwallker_spirit : public CreatureScript
 {
     public:
-        mob_namelesse_windwallker_spirit() : MS::Game::Scripting::Interfaces::CreatureScript("mob_namelesse_windwallker_spirit") { } 
+        mob_namelesse_windwallker_spirit() : CreatureScript("mob_namelesse_windwallker_spirit") { } 
 
         struct mob_namelesse_windwallker_spiritAI : public ScriptedAI
         {

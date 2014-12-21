@@ -36,10 +36,10 @@ enum eDrakuruShackles
     QUEST_TROLLS_IS_GONE_CRAZY = 12861,
 };
 
-class npc_drakuru_shackles : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_drakuru_shackles : public CreatureScript
 {
 public:
-    npc_drakuru_shackles() : MS::Game::Scripting::Interfaces::CreatureScript("npc_drakuru_shackles") { }
+    npc_drakuru_shackles() : CreatureScript("npc_drakuru_shackles") { }
 
     struct npc_drakuru_shacklesAI : public ScriptedAI
     {
@@ -126,10 +126,10 @@ const char * SAY_RAGECLAW_3 =      "No more mister nice wolvar!";
 
 #define SAY_RAGECLAW RAND(SAY_RAGECLAW_1, SAY_RAGECLAW_2, SAY_RAGECLAW_3)
 
-class npc_captured_rageclaw : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_captured_rageclaw : public CreatureScript
 {
 public:
-    npc_captured_rageclaw() : MS::Game::Scripting::Interfaces::CreatureScript("npc_captured_rageclaw") { }
+    npc_captured_rageclaw() : CreatureScript("npc_captured_rageclaw") { }
 
     struct npc_captured_rageclawAI : public ScriptedAI
     {
@@ -204,10 +204,10 @@ enum eGymer
     SPELL_GYMER                   = 55568
 };
 
-class npc_gymer : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_gymer : public CreatureScript
 {
 public:
-    npc_gymer() : MS::Game::Scripting::Interfaces::CreatureScript("npc_gymer") { }
+    npc_gymer() : CreatureScript("npc_gymer") { }
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
@@ -327,10 +327,10 @@ const Position AddSpawnPosition[] =
     {5828.899f, -2960.15479f, 312.751648f, 3.53f}, // caster location
 };
 
-class npc_gurgthock : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_gurgthock : public CreatureScript
 {
 public:
-    npc_gurgthock() : MS::Game::Scripting::Interfaces::CreatureScript("npc_gurgthock") { }
+    npc_gurgthock() : CreatureScript("npc_gurgthock") { }
 
     struct npc_gurgthockAI : public ScriptedAI
     {
@@ -583,10 +583,10 @@ enum eOrinokoTuskbreaker
     SAY_CALL_FOR_HELP       = -1571032
 };
 
-class npc_orinoko_tuskbreaker : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_orinoko_tuskbreaker : public CreatureScript
 {
 public:
-    npc_orinoko_tuskbreaker() : MS::Game::Scripting::Interfaces::CreatureScript("npc_orinoko_tuskbreaker") { }
+    npc_orinoko_tuskbreaker() : CreatureScript("npc_orinoko_tuskbreaker") { }
 
     struct npc_orinoko_tuskbreakerAI : public ScriptedAI
     {
@@ -724,10 +724,10 @@ enum eKorrakBloodrager
     SPELL_ENRAGE   = 42745
 };
 
-class npc_korrak_bloodrager : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_korrak_bloodrager : public CreatureScript
 {
 public:
-    npc_korrak_bloodrager() : MS::Game::Scripting::Interfaces::CreatureScript("npc_korrak_bloodrager") { }
+    npc_korrak_bloodrager() : CreatureScript("npc_korrak_bloodrager") { }
 
     struct npc_korrak_bloodragerAI : public npc_escortAI
     {
@@ -825,10 +825,10 @@ enum eYggdras
     SPELL_JORMUNGAR_SPAWN   = 55859
 };
 
-class npc_yggdras : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_yggdras : public CreatureScript
 {
 public:
-    npc_yggdras() : MS::Game::Scripting::Interfaces::CreatureScript("npc_yggdras") { }
+    npc_yggdras() : CreatureScript("npc_yggdras") { }
 
     struct npc_yggdrasAI : public ScriptedAI
     {
@@ -929,10 +929,10 @@ enum eStinkbeard
     SPELL_THUNDERCLAP       = 15588
 };
 
-class npc_stinkbeard : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_stinkbeard : public CreatureScript
 {
 public:
-    npc_stinkbeard() : MS::Game::Scripting::Interfaces::CreatureScript("npc_stinkbeard") { }
+    npc_stinkbeard() : CreatureScript("npc_stinkbeard") { }
 
     struct npc_stinkbeardAI : public npc_escortAI
     {
@@ -1057,10 +1057,10 @@ public:
 ## npc_elemental_lord
 ####*/
 
-class npc_elemental_lord : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_elemental_lord : public CreatureScript
 {
 public:
-    npc_elemental_lord() : MS::Game::Scripting::Interfaces::CreatureScript("npc_elemental_lord") { }
+    npc_elemental_lord() : CreatureScript("npc_elemental_lord") { }
 
     struct npc_elemental_lordAI : public ScriptedAI
     {
@@ -1208,10 +1208,10 @@ public:
 ## npc_fiend_elemental
 ####*/
 
-class npc_fiend_elemental : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_fiend_elemental : public CreatureScript
 {
 public:
-    npc_fiend_elemental() : MS::Game::Scripting::Interfaces::CreatureScript("npc_fiend_elemental") { }
+    npc_fiend_elemental() : CreatureScript("npc_fiend_elemental") { }
 
     struct npc_fiend_elementalAI : public ScriptedAI
     {
@@ -1275,10 +1275,10 @@ public:
 ## npc_released_offspring_harkoa
 ####*/
 
-class npc_released_offspring_harkoa : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_released_offspring_harkoa : public CreatureScript
 {
 public:
-    npc_released_offspring_harkoa() : MS::Game::Scripting::Interfaces::CreatureScript("npc_released_offspring_harkoa") { }
+    npc_released_offspring_harkoa() : CreatureScript("npc_released_offspring_harkoa") { }
 
     struct npc_released_offspring_harkoaAI : public ScriptedAI
     {
@@ -1324,10 +1324,10 @@ enum eCrusade_recruit
 
 #define GOSSIP_ITEM_1 "Get out there and make those Scourge wish they were never reborn!"
 
-class npc_crusade_recruit : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_crusade_recruit : public CreatureScript
 {
 public:
-    npc_crusade_recruit() : MS::Game::Scripting::Interfaces::CreatureScript("npc_crusade_recruit") { }
+    npc_crusade_recruit() : CreatureScript("npc_crusade_recruit") { }
 
     struct npc_crusade_recruitAI : public ScriptedAI
     {
@@ -1428,10 +1428,10 @@ enum eScourgeEnclosure
     NPC_GYMER_DUMMY                               = 29928   //from quest template
 };
 
-class go_scourge_enclosure : public MS::Game::Scripting::Interfaces::GameObjectScript
+class go_scourge_enclosure : public GameObjectScript
 {
 public:
-    go_scourge_enclosure() : MS::Game::Scripting::Interfaces::GameObjectScript("go_scourge_enclosure") { }
+    go_scourge_enclosure() : GameObjectScript("go_scourge_enclosure") { }
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
@@ -1459,10 +1459,10 @@ enum StormCloud
     RIDE_VEHICLE        = 43671
 };
 
-class npc_storm_cloud : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_storm_cloud : public CreatureScript
 {
     public:
-        npc_storm_cloud() : MS::Game::Scripting::Interfaces::CreatureScript("npc_storm_cloud") { }
+        npc_storm_cloud() : CreatureScript("npc_storm_cloud") { }
 
         struct npc_storm_cloudAI : public ScriptedAI
         {

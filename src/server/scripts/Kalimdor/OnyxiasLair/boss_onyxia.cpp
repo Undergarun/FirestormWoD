@@ -124,10 +124,10 @@ Position const SpawnLocations[3]=
     {-145.950f, -212.831f, -68.659f, 0.0f}
 };
 
-class boss_onyxia : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_onyxia : public CreatureScript
 {
 public:
-    boss_onyxia() : MS::Game::Scripting::Interfaces::CreatureScript("boss_onyxia") { }
+    boss_onyxia() : CreatureScript("boss_onyxia") { }
 
     struct boss_onyxiaAI : public BossAI
     {

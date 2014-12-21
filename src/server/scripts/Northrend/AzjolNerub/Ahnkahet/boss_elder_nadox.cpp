@@ -57,10 +57,10 @@ enum Events
     DATA_RESPECT_YOUR_ELDERS
 };
 
-class boss_elder_nadox : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_elder_nadox : public CreatureScript
 {
     public:
-        boss_elder_nadox() : MS::Game::Scripting::Interfaces::CreatureScript("boss_elder_nadox") { }
+        boss_elder_nadox() : CreatureScript("boss_elder_nadox") { }
 
         struct boss_elder_nadoxAI : public ScriptedAI
         {
@@ -194,10 +194,10 @@ class boss_elder_nadox : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class mob_ahnkahar_nerubian : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_ahnkahar_nerubian : public CreatureScript
 {
     public:
-        mob_ahnkahar_nerubian() : MS::Game::Scripting::Interfaces::CreatureScript("mob_ahnkahar_nerubian") { }
+        mob_ahnkahar_nerubian() : CreatureScript("mob_ahnkahar_nerubian") { }
 
         struct mob_ahnkahar_nerubianAI : public ScriptedAI
         {
@@ -250,10 +250,10 @@ class mob_ahnkahar_nerubian : public MS::Game::Scripting::Interfaces::CreatureSc
 };
 
 //HACK: No, AI. Replace with proper db content?
-class mob_nadox_eggs : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_nadox_eggs : public CreatureScript
 {
 public:
-    mob_nadox_eggs() : MS::Game::Scripting::Interfaces::CreatureScript("mob_nadox_eggs") { }
+    mob_nadox_eggs() : CreatureScript("mob_nadox_eggs") { }
 
     struct mob_nadox_eggsAI : public Scripted_NoMovementAI
     {
@@ -288,10 +288,10 @@ public:
     }
 };
 
-class spell_elder_nadox_guardian: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_elder_nadox_guardian: public SpellScriptLoader
 {
 public:
-    spell_elder_nadox_guardian() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_elder_nadox_guardian") { }
+    spell_elder_nadox_guardian() : SpellScriptLoader("spell_elder_nadox_guardian") { }
 
     class spell_elder_nadox_guardian_SpellScript : public SpellScript
     {
@@ -315,10 +315,10 @@ public:
     }
 };
 
-class achievement_respect_your_elders : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
+class achievement_respect_your_elders : public AchievementCriteriaScript
 {
 public:
-    achievement_respect_your_elders() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_respect_your_elders") {}
+    achievement_respect_your_elders() : AchievementCriteriaScript("achievement_respect_your_elders") {}
 
     bool OnCheck(Player* /*player*/, Unit* target)
     {

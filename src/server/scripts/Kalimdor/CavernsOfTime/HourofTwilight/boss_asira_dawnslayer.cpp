@@ -34,10 +34,10 @@ enum Adds
 
 };
 
-class boss_asira_dawnslayer : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_asira_dawnslayer : public CreatureScript
 {
     public:
-        boss_asira_dawnslayer() : MS::Game::Scripting::Interfaces::CreatureScript("boss_asira_dawnslayer") { }
+        boss_asira_dawnslayer() : CreatureScript("boss_asira_dawnslayer") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -148,10 +148,10 @@ class boss_asira_dawnslayer : public MS::Game::Scripting::Interfaces::CreatureSc
         };   
 };
 
-class spell_asira_dawnslayer_blade_barrier: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_asira_dawnslayer_blade_barrier: public SpellScriptLoader
 {
     public:
-        spell_asira_dawnslayer_blade_barrier() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_asira_dawnslayer_blade_barrier") { }
+        spell_asira_dawnslayer_blade_barrier() : SpellScriptLoader("spell_asira_dawnslayer_blade_barrier") { }
 
         class spell_asira_dawnslayer_blade_barrier_AuraScript : public AuraScript
         {
@@ -191,10 +191,10 @@ class spell_asira_dawnslayer_blade_barrier: public MS::Game::Scripting::Interfac
         }
 };
 
-class spell_asira_dawnslayer_throw_knife: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_asira_dawnslayer_throw_knife: public SpellScriptLoader
 { 
     public:
-        spell_asira_dawnslayer_throw_knife() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_asira_dawnslayer_throw_knife") { }
+        spell_asira_dawnslayer_throw_knife() : SpellScriptLoader("spell_asira_dawnslayer_throw_knife") { }
 
         class spell_asira_dawnslayer_throw_knife_SpellScript : public SpellScript
         {
@@ -247,10 +247,10 @@ class spell_asira_dawnslayer_throw_knife: public MS::Game::Scripting::Interfaces
         }
 };
 
-class spell_asira_dawnslayer_mark_of_silence: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_asira_dawnslayer_mark_of_silence: public SpellScriptLoader
 { 
     public:
-        spell_asira_dawnslayer_mark_of_silence() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_asira_dawnslayer_mark_of_silence") { }
+        spell_asira_dawnslayer_mark_of_silence() : SpellScriptLoader("spell_asira_dawnslayer_mark_of_silence") { }
 
         class spell_asira_dawnslayer_mark_of_silence_SpellScript : public SpellScript
         {

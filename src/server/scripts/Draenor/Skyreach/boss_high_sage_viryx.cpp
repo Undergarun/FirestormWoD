@@ -5,7 +5,7 @@ namespace MS
 {
     namespace InstanceSkyreach
     {
-        class mob_SkyreachShieldConstruct : public Game::Scripting::Interfaces::CreatureScript
+        class mob_SkyreachShieldConstruct : public CreatureScript
         {
         public:
             // Entry: 76292
@@ -95,7 +95,7 @@ namespace MS
             { 1140.494f, 1822.770f, 263.72f }
         };
 
-        class mob_SolarZealot : public Game::Scripting::Interfaces::CreatureScript
+        class mob_SolarZealot : public CreatureScript
         {
         public:
             // Entry: 76267
@@ -180,7 +180,7 @@ namespace MS
             };
         };
 
-        class mob_ArakkoaMagnifyingGlassFocus : public Game::Scripting::Interfaces::CreatureScript
+        class mob_ArakkoaMagnifyingGlassFocus : public CreatureScript
         {
         public:
             // Entry: 76083
@@ -247,7 +247,7 @@ namespace MS
         };
 
         // FIXME: Adds and solar zealot should spawn differently.
-        class boss_HighSageViryx : public Game::Scripting::Interfaces::CreatureScript
+        class boss_HighSageViryx : public CreatureScript
         {
         public:
             // Entry: 76266

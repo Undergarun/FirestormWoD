@@ -16,10 +16,10 @@ namespace MS
                 { 0, 0, DOOR_TYPE_ROOM, 0 }  // EOF
             };
 
-            class instance_Bloodmaul : public Game::Scripting::Interfaces::InstanceMapScript
+            class instance_Bloodmaul : public InstanceMapScript
             {
             public:
-                instance_Bloodmaul() : Game::Scripting::Interfaces::InstanceMapScript("instance_Bloodmaul", 1175) { }
+                instance_Bloodmaul() : InstanceMapScript("instance_Bloodmaul", 1175) { }
 
                 struct instance_BloodmaulInstanceMapScript : public InstanceScript
                 {
@@ -274,12 +274,12 @@ namespace MS
                 }
             };
 
-            class AreaTrigger_at_SpawnSlagna : public Game::Scripting::Interfaces::AreaTriggerScript
+            class AreaTrigger_at_SpawnSlagna : public AreaTriggerScript
             {
             public:
 
                 AreaTrigger_at_SpawnSlagna()
-                    : Game::Scripting::Interfaces::AreaTriggerScript("at_SpawnSlagna")
+                    : AreaTriggerScript("at_SpawnSlagna")
                 {
                 }
 

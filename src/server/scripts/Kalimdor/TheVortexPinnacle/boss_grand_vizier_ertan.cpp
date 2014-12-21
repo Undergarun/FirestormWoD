@@ -46,10 +46,10 @@ const Position ertanvortexPos_1[8] =
     {-719.55f,   -21.19f, 635.67f, 0.0f},
 };
 
-class boss_grand_vizier_ertan : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_grand_vizier_ertan : public CreatureScript
 {
     public:
-        boss_grand_vizier_ertan() : MS::Game::Scripting::Interfaces::CreatureScript("boss_grand_vizier_ertan") { }
+        boss_grand_vizier_ertan() : CreatureScript("boss_grand_vizier_ertan") { }
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -178,10 +178,10 @@ class boss_grand_vizier_ertan : public MS::Game::Scripting::Interfaces::Creature
         };
 };
 
-class npc_ertan_vortex : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_ertan_vortex : public CreatureScript
 {
     public:
-        npc_ertan_vortex() : MS::Game::Scripting::Interfaces::CreatureScript("npc_ertan_vortex") { }
+        npc_ertan_vortex() : CreatureScript("npc_ertan_vortex") { }
         
         CreatureAI* GetAI(Creature* pCreature) const
         {

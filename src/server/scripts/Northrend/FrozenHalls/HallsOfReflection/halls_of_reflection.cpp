@@ -189,10 +189,10 @@ const Position FalricStartPos        = {5334.979980f, 1982.399536f, 709.320129f,
 const Position MarwynStartPos        = {5283.878906f, 2030.459595f, 709.319641f, 5.506670f}; // Marwyn start position 
 const Position ChestPos              = {5246.187500f, 1649.079468f, 784.301758f, 0.901268f}; // Chest position 
 
-class npc_jaina_or_sylvanas_hor : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_jaina_or_sylvanas_hor : public CreatureScript
 {
     public:
-        npc_jaina_or_sylvanas_hor() : MS::Game::Scripting::Interfaces::CreatureScript("npc_jaina_or_sylvanas_hor") { }
+        npc_jaina_or_sylvanas_hor() : CreatureScript("npc_jaina_or_sylvanas_hor") { }
 
     // AI of Part1
     struct npc_jaina_or_sylvanas_horAI : public ScriptedAI
@@ -729,10 +729,10 @@ protected:
     uint32 InternalWaveId;
 };
 
-class npc_ghostly_priest : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_ghostly_priest : public CreatureScript
 {
     public:
-        npc_ghostly_priest() : MS::Game::Scripting::Interfaces::CreatureScript("npc_ghostly_priest") { }
+        npc_ghostly_priest() : CreatureScript("npc_ghostly_priest") { }
 
         struct npc_ghostly_priestAI : public npc_gauntlet_trash
         {
@@ -805,10 +805,10 @@ class npc_ghostly_priest : public MS::Game::Scripting::Interfaces::CreatureScrip
         }
 };
 
-class npc_phantom_mage : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_phantom_mage : public CreatureScript
 {
     public:
-        npc_phantom_mage() : MS::Game::Scripting::Interfaces::CreatureScript("npc_phantom_mage") { }
+        npc_phantom_mage() : CreatureScript("npc_phantom_mage") { }
 
         struct npc_phantom_mageAI : public npc_gauntlet_trash
         {
@@ -880,10 +880,10 @@ class npc_phantom_mage : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class npc_phantom_hallucination : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_phantom_hallucination : public CreatureScript
 {
     public:
-        npc_phantom_hallucination() : MS::Game::Scripting::Interfaces::CreatureScript("npc_phantom_hallucination") { }
+        npc_phantom_hallucination() : CreatureScript("npc_phantom_hallucination") { }
 
         struct npc_phantom_hallucinationAI : public npc_phantom_mage::npc_phantom_mageAI
         {
@@ -901,10 +901,10 @@ class npc_phantom_hallucination : public MS::Game::Scripting::Interfaces::Creatu
         }
 };
 
-class npc_shadowy_mercenary : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_shadowy_mercenary : public CreatureScript
 {
     public:
-        npc_shadowy_mercenary() : MS::Game::Scripting::Interfaces::CreatureScript("npc_shadowy_mercenary") { }
+        npc_shadowy_mercenary() : CreatureScript("npc_shadowy_mercenary") { }
 
         struct npc_shadowy_mercenaryAI : public npc_gauntlet_trash
         {
@@ -966,10 +966,10 @@ class npc_shadowy_mercenary : public MS::Game::Scripting::Interfaces::CreatureSc
         }
 };
 
-class npc_spectral_footman : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_spectral_footman : public CreatureScript
 {
     public:
-        npc_spectral_footman() : MS::Game::Scripting::Interfaces::CreatureScript("npc_spectral_footman") { }
+        npc_spectral_footman() : CreatureScript("npc_spectral_footman") { }
 
         struct npc_spectral_footmanAI : public npc_gauntlet_trash
         {
@@ -1025,10 +1025,10 @@ class npc_spectral_footman : public MS::Game::Scripting::Interfaces::CreatureScr
         }
 };
 
-class npc_tortured_rifleman : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_tortured_rifleman : public CreatureScript
 {
     public:
-        npc_tortured_rifleman() : MS::Game::Scripting::Interfaces::CreatureScript("npc_tortured_rifleman") { }
+        npc_tortured_rifleman() : CreatureScript("npc_tortured_rifleman") { }
 
         struct npc_tortured_riflemanAI : public npc_gauntlet_trash
         {
@@ -1106,10 +1106,10 @@ enum QueldelarEnums
     SPELL_WHIRLWIND             = 67716
 };
 
-class npc_queldelar : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_queldelar : public CreatureScript
 {
     public:
-        npc_queldelar() : MS::Game::Scripting::Interfaces::CreatureScript("npc_queldelar") { }
+        npc_queldelar() : CreatureScript("npc_queldelar") { }
 
         struct npc_queldelarAI  : public ScriptedAI
         { 
@@ -1197,10 +1197,10 @@ enum GeneralEvents
     SPELL_SPIRIT_BURST           = 69900, // 73046 on hc
 };
 
-class npc_frostworn_general : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_frostworn_general : public CreatureScript
 {
     public:
-        npc_frostworn_general() : MS::Game::Scripting::Interfaces::CreatureScript("npc_frostworn_general") { }
+        npc_frostworn_general() : CreatureScript("npc_frostworn_general") { }
 
         struct npc_frostworn_generalAI : public ScriptedAI
         {
@@ -1299,10 +1299,10 @@ class npc_frostworn_general : public MS::Game::Scripting::Interfaces::CreatureSc
         }
 };
 
-class npc_spiritual_reflection : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_spiritual_reflection : public CreatureScript
 {
     public:
-        npc_spiritual_reflection() : MS::Game::Scripting::Interfaces::CreatureScript("npc_spiritual_reflection") { }
+        npc_spiritual_reflection() : CreatureScript("npc_spiritual_reflection") { }
 
         struct npc_spiritual_reflectionAI : public ScriptedAI
         {
@@ -1397,10 +1397,10 @@ const Position CannonSpawns[4] =
     {5275.90f, 1633.22f, 802.25f, 0.00f},
 };
 
-class npc_jaina_and_sylvana_hor_part2 : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_jaina_and_sylvana_hor_part2 : public CreatureScript
 {
     public:
-        npc_jaina_and_sylvana_hor_part2() : MS::Game::Scripting::Interfaces::CreatureScript("npc_jaina_and_sylvana_hor_part2") { }
+        npc_jaina_and_sylvana_hor_part2() : CreatureScript("npc_jaina_and_sylvana_hor_part2") { }
 
         bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
         {
@@ -2021,10 +2021,10 @@ class npc_jaina_and_sylvana_hor_part2 : public MS::Game::Scripting::Interfaces::
         };
 };
 
-class at_hor_intro_start : public MS::Game::Scripting::Interfaces::AreaTriggerScript
+class at_hor_intro_start : public AreaTriggerScript
 {
     public:
-        at_hor_intro_start() : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_hor_intro_start") {}
+        at_hor_intro_start() : AreaTriggerScript("at_hor_intro_start") {}
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
         {
@@ -2040,10 +2040,10 @@ class at_hor_intro_start : public MS::Game::Scripting::Interfaces::AreaTriggerSc
         }
 };
 
-class at_hor_waves_restarter : public MS::Game::Scripting::Interfaces::AreaTriggerScript
+class at_hor_waves_restarter : public AreaTriggerScript
 {
     public:
-        at_hor_waves_restarter() : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_hor_waves_restarter") {}
+        at_hor_waves_restarter() : AreaTriggerScript("at_hor_waves_restarter") {}
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
         {
@@ -2072,10 +2072,10 @@ class at_hor_waves_restarter : public MS::Game::Scripting::Interfaces::AreaTrigg
         }
 };
 
-class at_hor_door_teleport : public MS::Game::Scripting::Interfaces::AreaTriggerScript
+class at_hor_door_teleport : public AreaTriggerScript
 {
     public:
-        at_hor_door_teleport() : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_hor_door_teleport") {}
+        at_hor_door_teleport() : AreaTriggerScript("at_hor_door_teleport") {}
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
         {

@@ -89,10 +89,10 @@ const Position  twilightarcherPos[13] =
     {-481.352f, -477.21f, 280.714f, 3.72334f}
 };
 
-class boss_forgemaster_throngus : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_forgemaster_throngus : public CreatureScript
 {
     public:
-        boss_forgemaster_throngus() : MS::Game::Scripting::Interfaces::CreatureScript("boss_forgemaster_throngus") { }
+        boss_forgemaster_throngus() : CreatureScript("boss_forgemaster_throngus") { }
 
         struct boss_forgemaster_throngusAI : public ScriptedAI
         {
@@ -218,11 +218,11 @@ class boss_forgemaster_throngus : public MS::Game::Scripting::Interfaces::Creatu
 
 
 
-class npc_throngus_fire_patch : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_throngus_fire_patch : public CreatureScript
 {
     public:
 
-        npc_throngus_fire_patch() : MS::Game::Scripting::Interfaces::CreatureScript("npc_throngus_fire_patch"){}
+        npc_throngus_fire_patch() : CreatureScript("npc_throngus_fire_patch"){}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -248,10 +248,10 @@ class npc_throngus_fire_patch : public MS::Game::Scripting::Interfaces::Creature
         };
 };
 
-class spell_throngus_pick_weapon: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_throngus_pick_weapon: public SpellScriptLoader
 {
     public:
-        spell_throngus_pick_weapon() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_throngus_pick_weapon") { }
+        spell_throngus_pick_weapon() : SpellScriptLoader("spell_throngus_pick_weapon") { }
 
         class spell_throngus_pick_weapon_SpellScript : public SpellScript
         {

@@ -37,10 +37,10 @@ enum LazyPeon
     SPELL_AWAKEN_PEON   = 19938
 };
 
-class npc_lazy_peon : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_lazy_peon : public CreatureScript
 {
 public:
-    npc_lazy_peon() : MS::Game::Scripting::Interfaces::CreatureScript("npc_lazy_peon") { }
+    npc_lazy_peon() : CreatureScript("npc_lazy_peon") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -112,10 +112,10 @@ enum VoodooSpells
 };
 
 // 17009
-class spell_voodoo: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_voodoo: public SpellScriptLoader
 {
     public:
-        spell_voodoo() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_voodoo") {}
+        spell_voodoo() : SpellScriptLoader("spell_voodoo") {}
 
         class spell_voodoo_SpellScript : public SpellScript
         {

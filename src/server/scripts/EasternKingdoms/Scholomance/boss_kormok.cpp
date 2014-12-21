@@ -29,10 +29,10 @@ EndScriptData */
 #define SPELL_SHADOWBOLTVOLLEY      20741
 #define SPELL_BONESHIELD            27688
 
-class boss_kormok : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_kormok : public CreatureScript
 {
 public:
-    boss_kormok() : MS::Game::Scripting::Interfaces::CreatureScript("boss_kormok") { }
+    boss_kormok() : CreatureScript("boss_kormok") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

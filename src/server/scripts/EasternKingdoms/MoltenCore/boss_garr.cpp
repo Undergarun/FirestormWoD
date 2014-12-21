@@ -46,10 +46,10 @@ enum Events
     EVENT_MAGMA_SHACKLES     = 2,
 };
 
-class boss_garr : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_garr : public CreatureScript
 {
     public:
-        boss_garr() : MS::Game::Scripting::Interfaces::CreatureScript("boss_garr") { }
+        boss_garr() : CreatureScript("boss_garr") { }
 
         struct boss_garrAI : public BossAI
         {
@@ -101,10 +101,10 @@ class boss_garr : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class mob_firesworn : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_firesworn : public CreatureScript
 {
     public:
-        mob_firesworn() : MS::Game::Scripting::Interfaces::CreatureScript("mob_firesworn") { }
+        mob_firesworn() : CreatureScript("mob_firesworn") { }
 
         struct mob_fireswornAI : public ScriptedAI
         {

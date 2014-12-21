@@ -51,10 +51,10 @@ enum Erozion
 ## npc_erozion
 ######*/
 
-class npc_erozion : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_erozion : public CreatureScript
 {
 public:
-    npc_erozion() : MS::Game::Scripting::Interfaces::CreatureScript("npc_erozion") { }
+    npc_erozion() : CreatureScript("npc_erozion") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
@@ -181,10 +181,10 @@ enum ThrallOldHillsbrad
 #define GOSSIP_ITEM_TARREN      "We're ready, Thrall."
 #define GOSSIP_ITEM_WALKING     "[PH] Start walking."
 
-class npc_thrall_old_hillsbrad : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_thrall_old_hillsbrad : public CreatureScript
 {
 public:
-    npc_thrall_old_hillsbrad() : MS::Game::Scripting::Interfaces::CreatureScript("npc_thrall_old_hillsbrad") { }
+    npc_thrall_old_hillsbrad() : CreatureScript("npc_thrall_old_hillsbrad") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -566,10 +566,10 @@ enum Taretha
 #define GOSSIP_ITEM_EPOCH1      "Strange wizard?"
 #define GOSSIP_ITEM_EPOCH2      "We'll get you out. Taretha. Don't worry. I doubt the wizard would wander too far away."
 
-class npc_taretha : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_taretha : public CreatureScript
 {
 public:
-    npc_taretha() : MS::Game::Scripting::Interfaces::CreatureScript("npc_taretha") { }
+    npc_taretha() : CreatureScript("npc_taretha") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

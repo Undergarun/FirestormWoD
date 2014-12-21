@@ -73,10 +73,10 @@ enum Events
     EVENT_INTRO_5           = 12,
 };
 
-class boss_ragnaros : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_ragnaros : public CreatureScript
 {
     public:
-        boss_ragnaros() : MS::Game::Scripting::Interfaces::CreatureScript("boss_ragnaros") { }
+        boss_ragnaros() : CreatureScript("boss_ragnaros") { }
 
         struct boss_ragnarosAI : public BossAI
         {
@@ -310,10 +310,10 @@ class boss_ragnaros : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class mob_son_of_flame : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_son_of_flame : public CreatureScript
 {
     public:
-        mob_son_of_flame() : MS::Game::Scripting::Interfaces::CreatureScript("mob_SonOfFlame") { }
+        mob_son_of_flame() : CreatureScript("mob_SonOfFlame") { }
 
         struct mob_son_of_flameAI : public ScriptedAI //didnt work correctly in EAI for me...
         {

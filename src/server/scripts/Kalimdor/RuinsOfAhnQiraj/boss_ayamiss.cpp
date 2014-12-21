@@ -35,10 +35,10 @@ enum eAyamiss
     SPELL_FEED                  =  25721,
 };
 
-class boss_ayamiss : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_ayamiss : public CreatureScript
 {
     public:
-        boss_ayamiss() : MS::Game::Scripting::Interfaces::CreatureScript("boss_ayamiss") { }
+        boss_ayamiss() : CreatureScript("boss_ayamiss") { }
 
         struct boss_ayamissAI : public ScriptedAI
         {

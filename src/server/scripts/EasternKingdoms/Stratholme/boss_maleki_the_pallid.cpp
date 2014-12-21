@@ -32,10 +32,10 @@ EndScriptData */
 #define SPELL_DRAIN_MANA    17243
 #define SPELL_ICETOMB    16869
 
-class boss_maleki_the_pallid : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_maleki_the_pallid : public CreatureScript
 {
 public:
-    boss_maleki_the_pallid() : MS::Game::Scripting::Interfaces::CreatureScript("boss_maleki_the_pallid") { }
+    boss_maleki_the_pallid() : CreatureScript("boss_maleki_the_pallid") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

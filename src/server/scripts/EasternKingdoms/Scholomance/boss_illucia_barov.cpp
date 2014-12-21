@@ -32,10 +32,10 @@ EndScriptData */
 #define SPELL_SILENCE           15487
 #define SPELL_FEAR              6215
 
-class boss_illucia_barov : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_illucia_barov : public CreatureScript
 {
 public:
-    boss_illucia_barov() : MS::Game::Scripting::Interfaces::CreatureScript("boss_illucia_barov") { }
+    boss_illucia_barov() : CreatureScript("boss_illucia_barov") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

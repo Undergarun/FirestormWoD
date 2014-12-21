@@ -127,10 +127,10 @@ enum PaladinSpells
 };
 
 // Glyph of devotion aura - 146955
-class spell_pal_glyph_of_devotian_aura: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_glyph_of_devotian_aura: public SpellScriptLoader
 {
     public:
-        spell_pal_glyph_of_devotian_aura() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_glyph_of_devotian_aura") { }
+        spell_pal_glyph_of_devotian_aura() : SpellScriptLoader("spell_pal_glyph_of_devotian_aura") { }
 
         class spell_pal_glyph_of_devotian_aura_SpellScript : public SpellScript
         {
@@ -162,10 +162,10 @@ class spell_pal_glyph_of_devotian_aura: public MS::Game::Scripting::Interfaces::
         }
 };
 
-class spell_pal_glyph_of_devotian_trigger_aura: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_glyph_of_devotian_trigger_aura: public SpellScriptLoader
 {
     public:
-        spell_pal_glyph_of_devotian_trigger_aura() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_glyph_of_devotian_trigger_aura") { }
+        spell_pal_glyph_of_devotian_trigger_aura() : SpellScriptLoader("spell_pal_glyph_of_devotian_trigger_aura") { }
 
         class spell_pal_glyph_of_devotian_aura_SpellScript : public SpellScript
         {
@@ -200,10 +200,10 @@ class spell_pal_glyph_of_devotian_trigger_aura: public MS::Game::Scripting::Inte
 };
 
 // Hammer of Wrath - 24275 - 158392 - 157496
-class spell_pal_hammer_of_wrath: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_hammer_of_wrath: public SpellScriptLoader
 {
 public:
-    spell_pal_hammer_of_wrath() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_hammer_of_wrath") { }
+    spell_pal_hammer_of_wrath() : SpellScriptLoader("spell_pal_hammer_of_wrath") { }
 
     class spell_pal_hammer_of_wrath_SpellScript : public SpellScript
     {
@@ -241,10 +241,10 @@ public:
 };
 
 // Exorcism - 879
-class spell_pal_exorcism_energize: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_exorcism_energize: public SpellScriptLoader
 {
     public:
-        spell_pal_exorcism_energize() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_exorcism_energize") { }
+        spell_pal_exorcism_energize() : SpellScriptLoader("spell_pal_exorcism_energize") { }
 
         class spell_pal_exorcism_energize_SpellScript : public SpellScript
         {
@@ -272,10 +272,10 @@ class spell_pal_exorcism_energize: public MS::Game::Scripting::Interfaces::Spell
 
 // Called by Divine Storm - 53385
 // Glyph of Divine Storm - 63220
-class spell_pal_glyph_of_divine_storm: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_glyph_of_divine_storm: public SpellScriptLoader
 {
     public:
-        spell_pal_glyph_of_divine_storm() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_glyph_of_divine_storm") { }
+        spell_pal_glyph_of_divine_storm() : SpellScriptLoader("spell_pal_glyph_of_divine_storm") { }
 
         class spell_pal_glyph_of_divine_storm_SpellScript : public SpellScript
         {
@@ -301,10 +301,10 @@ class spell_pal_glyph_of_divine_storm: public MS::Game::Scripting::Interfaces::S
 };
 
 // Holy Radiance - 82327
-class spell_pal_daybreak: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_daybreak: public SpellScriptLoader
 {
     public:
-        spell_pal_daybreak() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_daybreak") { }
+        spell_pal_daybreak() : SpellScriptLoader("spell_pal_daybreak") { }
 
         class spell_pal_daybreak_SpellScript : public SpellScript
         {
@@ -334,10 +334,10 @@ class spell_pal_daybreak: public MS::Game::Scripting::Interfaces::SpellScriptLoa
 };
 
 // Hand of Purity - 114039
-class spell_pal_hand_of_purity: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_hand_of_purity: public SpellScriptLoader
 {
     public:
-        spell_pal_hand_of_purity() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_hand_of_purity") { }
+        spell_pal_hand_of_purity() : SpellScriptLoader("spell_pal_hand_of_purity") { }
 
         class spell_pal_hand_of_purity_AuraScript : public AuraScript
         {
@@ -387,10 +387,10 @@ class spell_pal_hand_of_purity: public MS::Game::Scripting::Interfaces::SpellScr
 
 // Called by Avenging Wrath - 31884
 // Glyph of Avenging Wrath - 54927
-class spell_pal_glyph_of_avenging_wrath: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_glyph_of_avenging_wrath: public SpellScriptLoader
 {
     public:
-        spell_pal_glyph_of_avenging_wrath() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_glyph_of_avenging_wrath") { }
+        spell_pal_glyph_of_avenging_wrath() : SpellScriptLoader("spell_pal_glyph_of_avenging_wrath") { }
 
         class spell_pal_glyph_of_avenging_wrath_SpellScript : public SpellScript
         {
@@ -416,10 +416,10 @@ class spell_pal_glyph_of_avenging_wrath: public MS::Game::Scripting::Interfaces:
 };
 
 // Shield of the Righteous - 53600
-class spell_pal_shield_of_the_righteous: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_shield_of_the_righteous: public SpellScriptLoader
 {
     public:
-        spell_pal_shield_of_the_righteous() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_shield_of_the_righteous") { }
+        spell_pal_shield_of_the_righteous() : SpellScriptLoader("spell_pal_shield_of_the_righteous") { }
 
         class spell_pal_shield_of_the_righteous_SpellScript : public SpellScript
         {
@@ -452,10 +452,10 @@ class spell_pal_shield_of_the_righteous: public MS::Game::Scripting::Interfaces:
 
 // Selfless healer - 85804
 // Called by flash of light - 19750
-class spell_pal_selfless_healer: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_selfless_healer: public SpellScriptLoader
 {
     public:
-        spell_pal_selfless_healer() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_selfless_healer") { }
+        spell_pal_selfless_healer() : SpellScriptLoader("spell_pal_selfless_healer") { }
 
         class spell_pal_selfless_healer_SpellScript : public SpellScript
         {
@@ -492,10 +492,10 @@ class spell_pal_selfless_healer: public MS::Game::Scripting::Interfaces::SpellSc
 
 // Called by Flash of Light - 19750 and Divine Light - 82326
 // Tower of Radiance - 85512
-class spell_pal_tower_of_radiance: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_tower_of_radiance: public SpellScriptLoader
 {
     public:
-        spell_pal_tower_of_radiance() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_tower_of_radiance") { }
+        spell_pal_tower_of_radiance() : SpellScriptLoader("spell_pal_tower_of_radiance") { }
 
         class spell_pal_tower_of_radiance_SpellScript : public SpellScript
         {
@@ -545,10 +545,10 @@ class spell_pal_tower_of_radiance: public MS::Game::Scripting::Interfaces::Spell
 };
 
 // Sacred shield - 20925 and Sacred Shield (Holy) - 148039
-class spell_pal_sacred_shield: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_sacred_shield: public SpellScriptLoader
 {
     public:
-        spell_pal_sacred_shield() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_sacred_shield") { }
+        spell_pal_sacred_shield() : SpellScriptLoader("spell_pal_sacred_shield") { }
 
         class spell_pal_sacred_shield_AuraScript : public AuraScript
         {
@@ -574,10 +574,10 @@ class spell_pal_sacred_shield: public MS::Game::Scripting::Interfaces::SpellScri
 };
 
 // Sacred shield absorb - 65148
-class spell_pal_sacred_shield_absorb: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_sacred_shield_absorb: public SpellScriptLoader
 {
     public:
-        spell_pal_sacred_shield_absorb() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_sacred_shield_absorb") { }
+        spell_pal_sacred_shield_absorb() : SpellScriptLoader("spell_pal_sacred_shield_absorb") { }
 
         class spell_pal_sacred_shield_absorb_AuraScript : public AuraScript
         {
@@ -602,10 +602,10 @@ class spell_pal_sacred_shield_absorb: public MS::Game::Scripting::Interfaces::Sp
 };
 
 // Emancipate - 121783
-class spell_pal_emancipate: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_emancipate: public SpellScriptLoader
 {
     public:
-        spell_pal_emancipate() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_emancipate") { }
+        spell_pal_emancipate() : SpellScriptLoader("spell_pal_emancipate") { }
 
         class spell_pal_emancipate_SpellScript : public SpellScript
         {
@@ -645,10 +645,10 @@ class spell_pal_emancipate: public MS::Game::Scripting::Interfaces::SpellScriptL
 };
 
 // Exorcism!  - 59578
-class spell_pal_art_of_war: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_art_of_war: public SpellScriptLoader
 {
     public:
-        spell_pal_art_of_war() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_art_of_war") { }
+        spell_pal_art_of_war() : SpellScriptLoader("spell_pal_art_of_war") { }
 
         class spell_pal_art_of_war_SpellScript : public SpellScript
         {
@@ -680,10 +680,10 @@ class spell_pal_art_of_war: public MS::Game::Scripting::Interfaces::SpellScriptL
 };
 
 // Seal of Insight - 20167
-class spell_pal_seal_of_insight: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_seal_of_insight: public SpellScriptLoader
 {
     public:
-        spell_pal_seal_of_insight() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_seal_of_insight") { }
+        spell_pal_seal_of_insight() : SpellScriptLoader("spell_pal_seal_of_insight") { }
 
         class spell_pal_seal_of_insight_SpellScript : public SpellScript
         {
@@ -708,10 +708,10 @@ class spell_pal_seal_of_insight: public MS::Game::Scripting::Interfaces::SpellSc
 };
 
 // Blinding Light - 115750
-class spell_pal_blinding_light: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_blinding_light: public SpellScriptLoader
 {
     public:
-        spell_pal_blinding_light() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_blinding_light") { }
+        spell_pal_blinding_light() : SpellScriptLoader("spell_pal_blinding_light") { }
 
         class spell_pal_blinding_light_SpellScript : public SpellScript
         {
@@ -744,10 +744,10 @@ class spell_pal_blinding_light: public MS::Game::Scripting::Interfaces::SpellScr
 };
 
 // Hand of Protection - 1022
-class spell_pal_hand_of_protection: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_hand_of_protection: public SpellScriptLoader
 {
     public:
-        spell_pal_hand_of_protection() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_hand_of_protection") { }
+        spell_pal_hand_of_protection() : SpellScriptLoader("spell_pal_hand_of_protection") { }
 
         class spell_pal_hand_of_protection_SpellScript : public SpellScript
         {
@@ -784,10 +784,10 @@ class spell_pal_hand_of_protection: public MS::Game::Scripting::Interfaces::Spel
 };
 
 // Cleanse - 4987
-class spell_pal_cleanse: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_cleanse: public SpellScriptLoader
 {
     public:
-        spell_pal_cleanse() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_cleanse") { }
+        spell_pal_cleanse() : SpellScriptLoader("spell_pal_cleanse") { }
 
         class spell_pal_cleanse_SpellScript : public SpellScript
         {
@@ -839,10 +839,10 @@ class spell_pal_cleanse: public MS::Game::Scripting::Interfaces::SpellScriptLoad
 };
 
 // Divine Shield - 642 and Divine Shield - 110700
-class spell_pal_divine_shield: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_divine_shield: public SpellScriptLoader
 {
     public:
-        spell_pal_divine_shield() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_divine_shield") { }
+        spell_pal_divine_shield() : SpellScriptLoader("spell_pal_divine_shield") { }
 
         class spell_pal_divine_shield_SpellScript : public SpellScript
         {
@@ -878,10 +878,10 @@ class spell_pal_divine_shield: public MS::Game::Scripting::Interfaces::SpellScri
 };
 
 // Execution Sentence - 114916 and Stay of Execution - 114917
-class spell_pal_execution_sentence_dispel: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_execution_sentence_dispel: public SpellScriptLoader
 {
     public:
-        spell_pal_execution_sentence_dispel() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_execution_sentence_dispel") { }
+        spell_pal_execution_sentence_dispel() : SpellScriptLoader("spell_pal_execution_sentence_dispel") { }
 
         class spell_pal_execution_sentence_dispel_AuraScript : public AuraScript
         {
@@ -921,10 +921,10 @@ class spell_pal_execution_sentence_dispel: public MS::Game::Scripting::Interface
 };
 
 // Execution Sentence - 114157
-class spell_pal_execution_sentence: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_execution_sentence: public SpellScriptLoader
 {
     public:
-        spell_pal_execution_sentence() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_execution_sentence") { }
+        spell_pal_execution_sentence() : SpellScriptLoader("spell_pal_execution_sentence") { }
 
         class spell_pal_execution_sentence_SpellScript : public SpellScript
         {
@@ -959,10 +959,10 @@ class spell_pal_execution_sentence: public MS::Game::Scripting::Interfaces::Spel
 };
 
 // Light's Hammer (periodic dummy for npc) - 114918
-class spell_pal_lights_hammer: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_lights_hammer: public SpellScriptLoader
 {
     public:
-        spell_pal_lights_hammer() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_lights_hammer") { }
+        spell_pal_lights_hammer() : SpellScriptLoader("spell_pal_lights_hammer") { }
 
         class spell_pal_lights_hammer_AuraScript : public AuraScript
         {
@@ -994,10 +994,10 @@ class spell_pal_lights_hammer: public MS::Game::Scripting::Interfaces::SpellScri
 
 // called by Holy Prism (damage) - 114852 or Holy Prism (heal) - 114871
 // Holy Prism visual for other targets
-class spell_pal_holy_prism_visual: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_holy_prism_visual: public SpellScriptLoader
 {
     public:
-        spell_pal_holy_prism_visual() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_holy_prism_visual") { }
+        spell_pal_holy_prism_visual() : SpellScriptLoader("spell_pal_holy_prism_visual") { }
 
         class spell_pal_holy_prism_visual_SpellScript : public SpellScript
         {
@@ -1031,10 +1031,10 @@ class spell_pal_holy_prism_visual: public MS::Game::Scripting::Interfaces::Spell
 
 // called by Holy Prism (visual damage) - 114862 or Holy Prism (visual heal) - 121551
 // Holy Prism (damage) - 114852 or Holy Prism (heal) - 114871
-class spell_pal_holy_prism_effect: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_holy_prism_effect: public SpellScriptLoader
 {
     public:
-        spell_pal_holy_prism_effect() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_holy_prism_effect") { }
+        spell_pal_holy_prism_effect() : SpellScriptLoader("spell_pal_holy_prism_effect") { }
 
         class spell_pal_holy_prism_effect_SpellScript : public SpellScript
         {
@@ -1069,10 +1069,10 @@ class spell_pal_holy_prism_effect: public MS::Game::Scripting::Interfaces::Spell
 };
 
 // Holy Prism - 114165
-class spell_pal_holy_prism: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_holy_prism: public SpellScriptLoader
 {
     public:
-        spell_pal_holy_prism() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_holy_prism") { }
+        spell_pal_holy_prism() : SpellScriptLoader("spell_pal_holy_prism") { }
 
         class spell_pal_holy_prism_SpellScript : public SpellScript
         {
@@ -1111,10 +1111,10 @@ class spell_pal_holy_prism: public MS::Game::Scripting::Interfaces::SpellScriptL
 };
 
 // Consecration - 26573 (periodic dummy)
-class spell_pal_consecration: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_consecration: public SpellScriptLoader
 {
     public:
-        spell_pal_consecration() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_consecration") { }
+        spell_pal_consecration() : SpellScriptLoader("spell_pal_consecration") { }
 
         class spell_pal_consecration_AuraScript : public AuraScript
         {
@@ -1139,10 +1139,10 @@ class spell_pal_consecration: public MS::Game::Scripting::Interfaces::SpellScrip
 };
 
 // Consecration - 26573
-class spell_pal_consecration_area: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_consecration_area: public SpellScriptLoader
 {
     public:
-        spell_pal_consecration_area() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_consecration_area") { }
+        spell_pal_consecration_area() : SpellScriptLoader("spell_pal_consecration_area") { }
 
         class spell_pal_consecration_area_SpellScript : public SpellScript
         {
@@ -1167,10 +1167,10 @@ class spell_pal_consecration_area: public MS::Game::Scripting::Interfaces::Spell
 };
 
 //  Word of Glory (Heal) - 130551
-class spell_pal_word_of_glory_heal: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_word_of_glory_heal: public SpellScriptLoader
 {
 public:
-    spell_pal_word_of_glory_heal() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_word_of_glory_heal") { }
+    spell_pal_word_of_glory_heal() : SpellScriptLoader("spell_pal_word_of_glory_heal") { }
 
     class spell_pal_word_of_glory_heal_SpellScript : public SpellScript
     {
@@ -1220,10 +1220,10 @@ public:
 };
 
 //  Word of Glory (Damage) - 130552
-class spell_pal_word_of_glory_damage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_word_of_glory_damage: public SpellScriptLoader
 {
 public:
-    spell_pal_word_of_glory_damage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_word_of_glory_damage") { }
+    spell_pal_word_of_glory_damage() : SpellScriptLoader("spell_pal_word_of_glory_damage") { }
 
     class spell_pal_word_of_glory_damage_SpellScript : public SpellScript
     {
@@ -1258,10 +1258,10 @@ public:
 };
 
 // Word of Glory - 85673 - 136494
-class spell_pal_word_of_glory: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_word_of_glory: public SpellScriptLoader
 {
     public:
-        spell_pal_word_of_glory() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_word_of_glory") { }
+        spell_pal_word_of_glory() : SpellScriptLoader("spell_pal_word_of_glory") { }
 
         class spell_pal_word_of_glory_SpellScript : public SpellScript
         {
@@ -1321,10 +1321,10 @@ class spell_pal_word_of_glory: public MS::Game::Scripting::Interfaces::SpellScri
 };
 
 // Judgment - 20271
-class spell_pal_judgment: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_judgment: public SpellScriptLoader
 {
     public:
-        spell_pal_judgment() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_judgment") { }
+        spell_pal_judgment() : SpellScriptLoader("spell_pal_judgment") { }
 
         class spell_pal_judgment_SpellScript : public SpellScript
         {
@@ -1380,10 +1380,10 @@ class spell_pal_judgment: public MS::Game::Scripting::Interfaces::SpellScriptLoa
 };
 
 // Ardent Defender - 31850
-class spell_pal_ardent_defender: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_ardent_defender: public SpellScriptLoader
 {
     public:
-        spell_pal_ardent_defender() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_ardent_defender") { }
+        spell_pal_ardent_defender() : SpellScriptLoader("spell_pal_ardent_defender") { }
 
         class spell_pal_ardent_defender_AuraScript : public AuraScript
         {
@@ -1435,10 +1435,10 @@ class spell_pal_ardent_defender: public MS::Game::Scripting::Interfaces::SpellSc
 };
 
 // Blessing of faith - 37877
-class spell_pal_blessing_of_faith: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_blessing_of_faith: public SpellScriptLoader
 {
     public:
-        spell_pal_blessing_of_faith() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_blessing_of_faith") { }
+        spell_pal_blessing_of_faith() : SpellScriptLoader("spell_pal_blessing_of_faith") { }
 
         class spell_pal_blessing_of_faith_SpellScript : public SpellScript
         {
@@ -1483,10 +1483,10 @@ class spell_pal_blessing_of_faith: public MS::Game::Scripting::Interfaces::Spell
 };
 
 // Holy Shock (heal) - 25914
-class spell_pal_holy_shock_heal: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_holy_shock_heal: public SpellScriptLoader
 {
     public:
-        spell_pal_holy_shock_heal() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_holy_shock_heal") { }
+        spell_pal_holy_shock_heal() : SpellScriptLoader("spell_pal_holy_shock_heal") { }
 
         class spell_pal_holy_shock_heal_SpellScript : public SpellScript
         {
@@ -1519,10 +1519,10 @@ class spell_pal_holy_shock_heal: public MS::Game::Scripting::Interfaces::SpellSc
 };
 
 // Holy Shock (damage) - 25912
-class spell_pal_holy_shock_damage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_holy_shock_damage: public SpellScriptLoader
 {
     public:
-        spell_pal_holy_shock_damage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_holy_shock_damage") { }
+        spell_pal_holy_shock_damage() : SpellScriptLoader("spell_pal_holy_shock_damage") { }
 
         class spell_pal_holy_shock_damage_SpellScript : public SpellScript
         {
@@ -1563,10 +1563,10 @@ class spell_pal_holy_shock_damage: public MS::Game::Scripting::Interfaces::Spell
 };
 
 // Holy Shock - 20473
-class spell_pal_holy_shock: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_holy_shock: public SpellScriptLoader
 {
     public:
-        spell_pal_holy_shock() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_holy_shock") { }
+        spell_pal_holy_shock() : SpellScriptLoader("spell_pal_holy_shock") { }
 
         class spell_pal_holy_shock_SpellScript : public SpellScript
         {
@@ -1654,10 +1654,10 @@ class spell_pal_holy_shock: public MS::Game::Scripting::Interfaces::SpellScriptL
 };
 
 // Lay on Hands - 633
-class spell_pal_lay_on_hands: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_lay_on_hands: public SpellScriptLoader
 {
     public:
-        spell_pal_lay_on_hands() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_lay_on_hands") { }
+        spell_pal_lay_on_hands() : SpellScriptLoader("spell_pal_lay_on_hands") { }
 
         class spell_pal_lay_on_hands_SpellScript : public SpellScript
         {
@@ -1694,10 +1694,10 @@ class spell_pal_lay_on_hands: public MS::Game::Scripting::Interfaces::SpellScrip
 };
 
 // Righteous defense - 31789
-class spell_pal_righteous_defense: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_righteous_defense: public SpellScriptLoader
 {
     public:
-        spell_pal_righteous_defense() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_righteous_defense") { }
+        spell_pal_righteous_defense() : SpellScriptLoader("spell_pal_righteous_defense") { }
 
         class spell_pal_righteous_defense_SpellScript : public SpellScript
         {
@@ -1733,10 +1733,10 @@ class spell_pal_righteous_defense: public MS::Game::Scripting::Interfaces::Spell
 };
 
 // Eternal Flame - 114163
-class spell_pal_eternal_flame: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_eternal_flame: public SpellScriptLoader
 {
 public:
-    spell_pal_eternal_flame() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_eternal_flame") { }
+    spell_pal_eternal_flame() : SpellScriptLoader("spell_pal_eternal_flame") { }
 
     class spell_pal_eternal_flame_SpellScript : public SpellScript
     {
@@ -1803,10 +1803,10 @@ public:
 
 
 // Eternal Flame Aura periodic heal- 156322
-class spell_pal_eternal_flame_periodic_heal: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_eternal_flame_periodic_heal: public SpellScriptLoader
 {
 public:
-    spell_pal_eternal_flame_periodic_heal() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_eternal_flame_periodic_heal") { }
+    spell_pal_eternal_flame_periodic_heal() : SpellScriptLoader("spell_pal_eternal_flame_periodic_heal") { }
 
     class spell_pal_eternal_flame_periodic_heal_AuraScript : public AuraScript
     {
@@ -1843,10 +1843,10 @@ public:
 };
 
 // Holy Wrath - 119072
-class spell_pal_holy_wrath: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_holy_wrath: public SpellScriptLoader
 {
 public:
-    spell_pal_holy_wrath() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_holy_wrath") { }
+    spell_pal_holy_wrath() : SpellScriptLoader("spell_pal_holy_wrath") { }
 
     class spell_pal_holy_wrath_SpellScript : public SpellScript
     {
@@ -1872,7 +1872,7 @@ public:
 };
 
 // Empowered Divine Storm - 174718
-class PlayerScript_empowered_divine_storm: public MS::Game::Scripting::Interfaces::PlayerScript
+class PlayerScript_empowered_divine_storm: public PlayerScript
 {
 public:
     PlayerScript_empowered_divine_storm() :PlayerScript("PlayerScript_empowered_divine_storm") {}
@@ -1889,10 +1889,10 @@ public:
 // Call by Word of Glory 85673 - Shield of Righteous 53600
 // Call by Light of dawn 85222
 // Divine Purpose - 86172
-class spell_pal_divine_purpose: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_divine_purpose: public SpellScriptLoader
 {
 public:
-    spell_pal_divine_purpose() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_divine_purpose") { }
+    spell_pal_divine_purpose() : SpellScriptLoader("spell_pal_divine_purpose") { }
 
     class spell_pal_divine_purpose_SpellScript : public SpellScript
     {
@@ -1936,10 +1936,10 @@ public:
 };
 
 // Holy Shield - 152261
-class spell_pal_holy_shield: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_holy_shield: public SpellScriptLoader
 {
 public:
-    spell_pal_holy_shield() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_holy_shield") { }
+    spell_pal_holy_shield() : SpellScriptLoader("spell_pal_holy_shield") { }
 
     class spell_pal_holy_shield_AuraScript : public AuraScript
     {
@@ -1963,10 +1963,10 @@ public:
 };
 
 // Beacon of Faith - 156910
-class spell_pal_beacon_of_faith: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_pal_beacon_of_faith: public SpellScriptLoader
 {
 public:
-    spell_pal_beacon_of_faith() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pal_beacon_of_faith") { }
+    spell_pal_beacon_of_faith() : SpellScriptLoader("spell_pal_beacon_of_faith") { }
 
     class spell_pal_beacon_of_faith_SpellScript : public SpellScript
     {

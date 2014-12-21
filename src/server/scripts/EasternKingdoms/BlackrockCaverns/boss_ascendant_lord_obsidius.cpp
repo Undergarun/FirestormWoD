@@ -40,10 +40,10 @@ const Position shadowofobsidiusPos[3] =
 	{335.24f, 556.08f, 66.0f, 1.64f},
 	{330.25f, 549.84f, 660.f, 3.10f}
 };
-class boss_ascendant_lord_obsidius : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_ascendant_lord_obsidius : public CreatureScript
 {
     public:
-        boss_ascendant_lord_obsidius() : MS::Game::Scripting::Interfaces::CreatureScript("boss_ascendant_lord_obsidius") { }
+        boss_ascendant_lord_obsidius() : CreatureScript("boss_ascendant_lord_obsidius") { }
      
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -156,10 +156,10 @@ class boss_ascendant_lord_obsidius : public MS::Game::Scripting::Interfaces::Cre
         };
 };
 
-class npc_shadow_of_obsidius : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_shadow_of_obsidius : public CreatureScript
 {
     public:
-        npc_shadow_of_obsidius() : MS::Game::Scripting::Interfaces::CreatureScript("npc_shadow_of_obsidius") { }
+        npc_shadow_of_obsidius() : CreatureScript("npc_shadow_of_obsidius") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {

@@ -91,10 +91,10 @@ Position const SpawnPointGuardian[2] =
     { 550.188660f, 324.264557f, 237.7412f, 0.0f }
 };
 
-class boss_anub_arak : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_anub_arak : public CreatureScript
 {
     public:
-        boss_anub_arak() : MS::Game::Scripting::Interfaces::CreatureScript("boss_anub_arak") { }
+        boss_anub_arak() : CreatureScript("boss_anub_arak") { }
 
         struct boss_anub_arakAI : public ScriptedAI
         {

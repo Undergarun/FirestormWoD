@@ -32,10 +32,10 @@ enum Events
 {
 };
 
-class boss_wushoolay : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_wushoolay : public CreatureScript
 {
     public:
-        boss_wushoolay() : MS::Game::Scripting::Interfaces::CreatureScript("boss_wushoolay") { }
+        boss_wushoolay() : CreatureScript("boss_wushoolay") { }
 
         struct boss_wushoolayAI : public BossAI
         {

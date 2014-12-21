@@ -10,10 +10,10 @@
 #define GOSSIP_CHOICE_1 "Challenge the Patriarch."
 
 // Shadow of Doubt - 57389
-class mob_shadow_of_doubt : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_shadow_of_doubt : public CreatureScript
 {
     public:
-        mob_shadow_of_doubt() : MS::Game::Scripting::Interfaces::CreatureScript("mob_shadow_of_doubt") 
+        mob_shadow_of_doubt() : CreatureScript("mob_shadow_of_doubt") 
 		{ 
 		}
 
@@ -77,10 +77,10 @@ class mob_shadow_of_doubt : public MS::Game::Scripting::Interfaces::CreatureScri
 };
 
 // Kor'nas Nightsavage - 50338
-class mob_kor_nas_nightsavage : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_kor_nas_nightsavage : public CreatureScript
 {
     public:
-        mob_kor_nas_nightsavage() : MS::Game::Scripting::Interfaces::CreatureScript("mob_kor_nas_nightsavage")
+        mob_kor_nas_nightsavage() : CreatureScript("mob_kor_nas_nightsavage")
         {
         }
 
@@ -140,10 +140,10 @@ class mob_kor_nas_nightsavage : public MS::Game::Scripting::Interfaces::Creature
 };
 
 // Krax'ik - 50363
-class mob_krax_ik : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_krax_ik : public CreatureScript
 {
     public:
-        mob_krax_ik() : MS::Game::Scripting::Interfaces::CreatureScript("mob_krax_ik")
+        mob_krax_ik() : CreatureScript("mob_krax_ik")
         {
         }
 
@@ -227,10 +227,10 @@ class mob_krax_ik : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Mister Ferocious - 50823
-class mob_mister_ferocious : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_mister_ferocious : public CreatureScript
 {
     public:
-        mob_mister_ferocious() : MS::Game::Scripting::Interfaces::CreatureScript("mob_mister_ferocious")
+        mob_mister_ferocious() : CreatureScript("mob_mister_ferocious")
         {
         }
 
@@ -301,10 +301,10 @@ class mob_mister_ferocious : public MS::Game::Scripting::Interfaces::CreatureScr
 };
 
 // Akkalar - 66937
-class mob_akkalar : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_akkalar : public CreatureScript
 {
     public:
-        mob_akkalar() : MS::Game::Scripting::Interfaces::CreatureScript("mob_akkalar")
+        mob_akkalar() : CreatureScript("mob_akkalar")
         {
         }
 
@@ -382,10 +382,10 @@ class mob_akkalar : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Grookin Outrunner - 67149
-class mob_grookin_outrunner : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_grookin_outrunner : public CreatureScript
 {
     public:
-        mob_grookin_outrunner() : MS::Game::Scripting::Interfaces::CreatureScript("mob_grookin_outrunner")
+        mob_grookin_outrunner() : CreatureScript("mob_grookin_outrunner")
         {
         }
 
@@ -444,10 +444,10 @@ class mob_grookin_outrunner : public MS::Game::Scripting::Interfaces::CreatureSc
 };
 
 // Bamboo Python - 59769
-class mob_bamboo_python : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_bamboo_python : public CreatureScript
 {
     public:
-        mob_bamboo_python() : MS::Game::Scripting::Interfaces::CreatureScript("mob_bamboo_python")
+        mob_bamboo_python() : CreatureScript("mob_bamboo_python")
         {
         }
 
@@ -502,10 +502,10 @@ class mob_bamboo_python : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Rakira - 66622
-class mob_rakira : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_rakira : public CreatureScript
 {
     public:
-        mob_rakira() : MS::Game::Scripting::Interfaces::CreatureScript("mob_rakira")
+        mob_rakira() : CreatureScript("mob_rakira")
         {
         }
 
@@ -583,10 +583,10 @@ class mob_rakira : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Ro'shen - 66617
-class mob_ro_shen : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_ro_shen : public CreatureScript
 {
     public:
-        mob_ro_shen() : MS::Game::Scripting::Interfaces::CreatureScript("mob_ro_shen")
+        mob_ro_shen() : CreatureScript("mob_ro_shen")
         {
         }
 
@@ -682,10 +682,10 @@ class mob_ro_shen : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Sha Remnant - 59434
-class mob_sha_reminant : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_sha_reminant : public CreatureScript
 {
     public:
-        mob_sha_reminant() : MS::Game::Scripting::Interfaces::CreatureScript("mob_sha_reminant")
+        mob_sha_reminant() : CreatureScript("mob_sha_reminant")
         {
         }
 
@@ -745,10 +745,10 @@ class mob_sha_reminant : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Pandriarch Windfur - 56206
-class mob_pandriarch_windfur : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_pandriarch_windfur : public CreatureScript
 {
     public:
-        mob_pandriarch_windfur() : MS::Game::Scripting::Interfaces::CreatureScript("mob_pandriarch_windfur")
+        mob_pandriarch_windfur() : CreatureScript("mob_pandriarch_windfur")
         {
         }
 
@@ -882,10 +882,10 @@ class mob_pandriarch_windfur : public MS::Game::Scripting::Interfaces::CreatureS
 };
 
 // Pandriarch Bramblestaff - 56209
-class mob_pandriarch_bramblestaff : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_pandriarch_bramblestaff : public CreatureScript
 {
     public:
-        mob_pandriarch_bramblestaff() : MS::Game::Scripting::Interfaces::CreatureScript("mob_pandriarch_bramblestaff")
+        mob_pandriarch_bramblestaff() : CreatureScript("mob_pandriarch_bramblestaff")
         {
         }
 
@@ -1028,10 +1028,10 @@ class mob_pandriarch_bramblestaff : public MS::Game::Scripting::Interfaces::Crea
 };
 
 // Pandriarch Goldendraft - 56210
-class mob_pandriarch_goldendraft : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_pandriarch_goldendraft : public CreatureScript
 {
     public:
-        mob_pandriarch_goldendraft() : MS::Game::Scripting::Interfaces::CreatureScript("mob_pandriarch_goldendraft")
+        mob_pandriarch_goldendraft() : CreatureScript("mob_pandriarch_goldendraft")
         {
         }
 
@@ -1156,10 +1156,10 @@ class mob_pandriarch_goldendraft : public MS::Game::Scripting::Interfaces::Creat
 };
 
 // Big Bao - 58512
-class mob_big_bao : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_big_bao : public CreatureScript
 {
     public:
-        mob_big_bao() : MS::Game::Scripting::Interfaces::CreatureScript("mob_big_bao")
+        mob_big_bao() : CreatureScript("mob_big_bao")
         {
         }
 
@@ -1290,10 +1290,10 @@ class mob_big_bao : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Hutia - 69946
-class mob_hutia : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_hutia : public CreatureScript
 {
     public:
-        mob_hutia() : MS::Game::Scripting::Interfaces::CreatureScript("mob_hutia")
+        mob_hutia() : CreatureScript("mob_hutia")
         {
         }
 
@@ -1359,10 +1359,10 @@ class mob_hutia : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Elder Anli - 58564
-class npc_elder_anli : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_elder_anli : public CreatureScript
 {
     public:
-        npc_elder_anli() : MS::Game::Scripting::Interfaces::CreatureScript("npc_elder_anli")
+        npc_elder_anli() : CreatureScript("npc_elder_anli")
         {
         }
 
@@ -1425,10 +1425,10 @@ class npc_elder_anli : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Kher Shan - 56329
-class mob_kher_shan : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_kher_shan : public CreatureScript
 {
     public:
-        mob_kher_shan() : MS::Game::Scripting::Interfaces::CreatureScript("mob_kher_shan")
+        mob_kher_shan() : CreatureScript("mob_kher_shan")
         {
         }
 
@@ -1455,10 +1455,10 @@ class mob_kher_shan : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Pearlfin Aqualyte - 54959/56585/56591/56592
-class mob_pearlfin_aqualyte : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_pearlfin_aqualyte : public CreatureScript
 {
     public:
-        mob_pearlfin_aqualyte() : MS::Game::Scripting::Interfaces::CreatureScript("mob_pearlfin_aqualyte")
+        mob_pearlfin_aqualyte() : CreatureScript("mob_pearlfin_aqualyte")
         {
         }
 
@@ -1475,10 +1475,10 @@ class mob_pearlfin_aqualyte : public MS::Game::Scripting::Interfaces::CreatureSc
 };
 
 // Pearlfin Villager - 56233
-class mob_pearlfin_villager : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_pearlfin_villager : public CreatureScript
 {
     public:
-        mob_pearlfin_villager() : MS::Game::Scripting::Interfaces::CreatureScript("mob_pearlfin_villager")
+        mob_pearlfin_villager() : CreatureScript("mob_pearlfin_villager")
         {
         }
 
@@ -1495,10 +1495,10 @@ class mob_pearlfin_villager : public MS::Game::Scripting::Interfaces::CreatureSc
 };
 
 // Elder Lusshan - 54960 ## Instructor Sharpfin - 56690 ## Ot-Temmdo - 56693 ## Pearlkeeper Fujin - 59058
-class mob_pearlfin_situation : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_pearlfin_situation : public CreatureScript
 {
     public:
-        mob_pearlfin_situation() : MS::Game::Scripting::Interfaces::CreatureScript("mob_pearlfin_situation")
+        mob_pearlfin_situation() : CreatureScript("mob_pearlfin_situation")
         {
         }
 
@@ -1550,10 +1550,10 @@ class mob_pearlfin_situation : public MS::Game::Scripting::Interfaces::CreatureS
 
 // Hozen Cage - 209586
 // Initial LockId : 1979
-class gob_hozen_cage : public MS::Game::Scripting::Interfaces::GameObjectScript
+class gob_hozen_cage : public GameObjectScript
 {
     public:
-        gob_hozen_cage() : MS::Game::Scripting::Interfaces::GameObjectScript("gob_hozen_cage")
+        gob_hozen_cage() : GameObjectScript("gob_hozen_cage")
         {
         }
 
@@ -1574,10 +1574,10 @@ class gob_hozen_cage : public MS::Game::Scripting::Interfaces::GameObjectScript
 };
 
 // Widow's Web - 65634
-class mob_widow_s_web : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_widow_s_web : public CreatureScript
 {
     public:
-        mob_widow_s_web() : MS::Game::Scripting::Interfaces::CreatureScript("mob_widow_s_web")
+        mob_widow_s_web() : CreatureScript("mob_widow_s_web")
         {
         }
 
@@ -1613,10 +1613,10 @@ class mob_widow_s_web : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Freed Sri-La Villager - 65647
-class mob_freed_sri_la_villager : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_freed_sri_la_villager : public CreatureScript
 {
     public:
-        mob_freed_sri_la_villager() : MS::Game::Scripting::Interfaces::CreatureScript("mob_freed_sri_la_villager")
+        mob_freed_sri_la_villager() : CreatureScript("mob_freed_sri_la_villager")
         {
         }
 
@@ -1656,10 +1656,10 @@ class mob_freed_sri_la_villager : public MS::Game::Scripting::Interfaces::Creatu
 };
 
 // Windward Hatchling - 58220/58243/58244
-class mob_windward_hatchling : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_windward_hatchling : public CreatureScript
 {
     public:
-        mob_windward_hatchling() : MS::Game::Scripting::Interfaces::CreatureScript("mob_windward_hatchling")
+        mob_windward_hatchling() : CreatureScript("mob_windward_hatchling")
         {
         }
 
@@ -1688,10 +1688,10 @@ class mob_windward_hatchling : public MS::Game::Scripting::Interfaces::CreatureS
 };
 
 // Custom npc 1 - 690701
-class npc_custom_npc : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_custom_npc : public CreatureScript
 {
     public:
-        npc_custom_npc() : MS::Game::Scripting::Interfaces::CreatureScript("npc_custom_npc")
+        npc_custom_npc() : CreatureScript("npc_custom_npc")
         {
         }
 
@@ -1762,10 +1762,10 @@ class npc_custom_npc : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Jade Cloud Serpent - 58527
-class mob_jade_cloud_serpent : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_jade_cloud_serpent : public CreatureScript
 {
     public:
-        mob_jade_cloud_serpent() : MS::Game::Scripting::Interfaces::CreatureScript("mob_jade_cloud_serpent")
+        mob_jade_cloud_serpent() : CreatureScript("mob_jade_cloud_serpent")
         {
         }
 
@@ -1835,10 +1835,10 @@ class mob_jade_cloud_serpent : public MS::Game::Scripting::Interfaces::CreatureS
 };
 
 // Instructor Windblade - 58420
-class mob_instructor_windblade : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_instructor_windblade : public CreatureScript
 {
     public:
-        mob_instructor_windblade() : MS::Game::Scripting::Interfaces::CreatureScript("mob_instructor_windblade")
+        mob_instructor_windblade() : CreatureScript("mob_instructor_windblade")
         {
         }
 
@@ -1884,10 +1884,10 @@ class mob_instructor_windblade : public MS::Game::Scripting::Interfaces::Creatur
 };
 
 // Cloud Ring - 58426
-class npc_cloud_ring : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_cloud_ring : public CreatureScript
 {
     public:
-        npc_cloud_ring() : MS::Game::Scripting::Interfaces::CreatureScript("npc_cloud_ring")
+        npc_cloud_ring() : CreatureScript("npc_cloud_ring")
         {
         }
 
@@ -1938,10 +1938,10 @@ class npc_cloud_ring : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Instructor Skythorn - 58228
-class npc_instructor_skythorn : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_instructor_skythorn : public CreatureScript
 {
     public:
-        npc_instructor_skythorn() : MS::Game::Scripting::Interfaces::CreatureScript("npc_instructor_skythorn")
+        npc_instructor_skythorn() : CreatureScript("npc_instructor_skythorn")
         {
         }
 
@@ -1973,10 +1973,10 @@ class npc_instructor_skythorn : public MS::Game::Scripting::Interfaces::Creature
 };
 
 // Big Bao - 66026
-class mob_second_big_bao : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_second_big_bao : public CreatureScript
 {
     public:
-        mob_second_big_bao() : MS::Game::Scripting::Interfaces::CreatureScript("mob_second_big_bao")
+        mob_second_big_bao() : CreatureScript("mob_second_big_bao")
         {
         }
 
@@ -2114,10 +2114,10 @@ class mob_second_big_bao : public MS::Game::Scripting::Interfaces::CreatureScrip
 };
 
 // Ace Longpaw - 66025
-class mob_ace_longpaw : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_ace_longpaw : public CreatureScript
 {
     public:
-        mob_ace_longpaw() : MS::Game::Scripting::Interfaces::CreatureScript("mob_ace_longpaw")
+        mob_ace_longpaw() : CreatureScript("mob_ace_longpaw")
         {
         }
 
@@ -2255,10 +2255,10 @@ class mob_ace_longpaw : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Ningha Darkwheel - 66027
-class mob_ningha_darkwheel : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_ningha_darkwheel : public CreatureScript
 {
     public:
-        mob_ningha_darkwheel() : MS::Game::Scripting::Interfaces::CreatureScript("mob_ningha_darkwheel")
+        mob_ningha_darkwheel() : CreatureScript("mob_ningha_darkwheel")
         {
         }
 
@@ -2396,10 +2396,10 @@ class mob_ningha_darkwheel : public MS::Game::Scripting::Interfaces::CreatureScr
 };
 
 // Que-Row Whitebrow - 66028
-class mob_qua_row_whitebrow : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_qua_row_whitebrow : public CreatureScript
 {
     public:
-        mob_qua_row_whitebrow() : MS::Game::Scripting::Interfaces::CreatureScript("mob_qua_row_whitebrow")
+        mob_qua_row_whitebrow() : CreatureScript("mob_qua_row_whitebrow")
         {
         }
 
@@ -2537,10 +2537,10 @@ class mob_qua_row_whitebrow : public MS::Game::Scripting::Interfaces::CreatureSc
 };
 
 // Suchi The Sweet - 66029
-class mob_suchi_the_sweet : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_suchi_the_sweet : public CreatureScript
 {
     public:
-        mob_suchi_the_sweet() : MS::Game::Scripting::Interfaces::CreatureScript("mob_suchi_the_sweet")
+        mob_suchi_the_sweet() : CreatureScript("mob_suchi_the_sweet")
         {
         }
 
@@ -2678,10 +2678,10 @@ class mob_suchi_the_sweet : public MS::Game::Scripting::Interfaces::CreatureScri
 };
 
 // Fei - 56784
-class npc_fei : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_fei : public CreatureScript
 {
     public:
-        npc_fei() : MS::Game::Scripting::Interfaces::CreatureScript("npc_fei")
+        npc_fei() : CreatureScript("npc_fei")
         {
         }
 
@@ -2701,10 +2701,10 @@ class npc_fei : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Student of Chi-Ji - 60601/60602/60603
-class mob_chi_ji_student : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_chi_ji_student : public CreatureScript
 {
     public:
-        mob_chi_ji_student() : MS::Game::Scripting::Interfaces::CreatureScript("mob_chi_ji_student")
+        mob_chi_ji_student() : CreatureScript("mob_chi_ji_student")
         {
         }
 

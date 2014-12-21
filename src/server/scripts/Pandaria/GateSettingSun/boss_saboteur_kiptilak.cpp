@@ -47,10 +47,10 @@ enum eWorldInFlames
     WIF_30      = 2
 };
 
-class boss_saboteur_kiptilak : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_saboteur_kiptilak : public CreatureScript
 {
     public:
-        boss_saboteur_kiptilak() : MS::Game::Scripting::Interfaces::CreatureScript("boss_saboteur_kiptilak") {}
+        boss_saboteur_kiptilak() : CreatureScript("boss_saboteur_kiptilak") {}
 
         struct boss_saboteur_kiptilakAI : public BossAI
         {
@@ -175,10 +175,10 @@ class boss_saboteur_kiptilak : public MS::Game::Scripting::Interfaces::CreatureS
         }
 };
 
-class npc_munition_explosion_bunny : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_munition_explosion_bunny : public CreatureScript
 {
 public:
-    npc_munition_explosion_bunny() : MS::Game::Scripting::Interfaces::CreatureScript("npc_munition_explosion_bunny") { }
+    npc_munition_explosion_bunny() : CreatureScript("npc_munition_explosion_bunny") { }
 
     struct npc_munition_explosion_bunnyAI : public ScriptedAI
     {
@@ -287,10 +287,10 @@ class CheckMunitionExplosionPredicate
         Unit* _caster;
 };
 
-class spell_kiptilak_munitions_explosion: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_kiptilak_munitions_explosion: public SpellScriptLoader
 {
     public:
-        spell_kiptilak_munitions_explosion() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_kiptilak_munitions_explosion") { }
+        spell_kiptilak_munitions_explosion() : SpellScriptLoader("spell_kiptilak_munitions_explosion") { }
 
         class spell_kiptilak_munitions_explosion_SpellScript : public SpellScript
         {
@@ -315,10 +315,10 @@ class spell_kiptilak_munitions_explosion: public MS::Game::Scripting::Interfaces
         }
 };
 
-class spell_kiptilak_sabotage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_kiptilak_sabotage: public SpellScriptLoader
 {
     public:
-        spell_kiptilak_sabotage() :  MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_kiptilak_sabotage") { }
+        spell_kiptilak_sabotage() :  SpellScriptLoader("spell_kiptilak_sabotage") { }
 
         class spell_kiptilak_sabotage_AuraScript : public AuraScript
         {

@@ -26,10 +26,10 @@ EndScriptData */
 #include "ObjectMgr.h"
 #include "Chat.h"
 
-class honor_commandscript: public MS::Game::Scripting::Interfaces::CommandScript
+class honor_commandscript: public CommandScript
 {
 public:
-    honor_commandscript() : MS::Game::Scripting::Interfaces::CommandScript("honor_commandscript") { }
+    honor_commandscript() : CommandScript("honor_commandscript") { }
 
     ChatCommand* GetCommands() const
     {

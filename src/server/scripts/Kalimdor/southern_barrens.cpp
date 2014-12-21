@@ -13,10 +13,10 @@ enum eHighRoadScoutEvents
     EVENT_THROW        = 1,
 };
 
-class mob_high_road_scout : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_high_road_scout : public CreatureScript
 {
     public:
-        mob_high_road_scout() : MS::Game::Scripting::Interfaces::CreatureScript("mob_high_road_scout") { }
+        mob_high_road_scout() : CreatureScript("mob_high_road_scout") { }
 
         struct mob_high_road_scoutAI : public ScriptedAI
         {
@@ -88,10 +88,10 @@ enum eSabersnoutEvents
     EVENT_STRIKE                          = 5,
 };
 
-class mob_sabersnout : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_sabersnout : public CreatureScript
 {
     public:
-        mob_sabersnout() : MS::Game::Scripting::Interfaces::CreatureScript("mob_sabersnout") { }
+        mob_sabersnout() : CreatureScript("mob_sabersnout") { }
 
         struct mob_sabersnoutAI : public ScriptedAI
         {

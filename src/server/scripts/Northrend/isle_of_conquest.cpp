@@ -21,10 +21,10 @@
 // TO-DO: This should be done with SmartAI, but yet it does not correctly support vehicles's AIs.
 //        Even adding ReactState Passive we still have issues using SmartAI.
 
-class npc_four_car_garage : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_four_car_garage : public CreatureScript
 {
     public:
-        npc_four_car_garage() : MS::Game::Scripting::Interfaces::CreatureScript("npc_four_car_garage") {}
+        npc_four_car_garage() : CreatureScript("npc_four_car_garage") {}
 
         struct npc_four_car_garageAI : public NullCreatureAI
         {
@@ -83,10 +83,10 @@ enum BossEvents
     EVENT_CHECK_ROOM        = 4
 };
 
-class boss_isle_of_conquest : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_isle_of_conquest : public CreatureScript
 {
     public:
-        boss_isle_of_conquest() : MS::Game::Scripting::Interfaces::CreatureScript("boss_isle_of_conquest") { }
+        boss_isle_of_conquest() : CreatureScript("boss_isle_of_conquest") { }
 
         struct boss_isle_of_conquestAI : public ScriptedAI
         {

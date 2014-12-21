@@ -243,10 +243,10 @@ void ProtectorsWipe(InstanceScript* pInstance)
 }
 
 //  60585 - Elder Regail
-class boss_ancient_regail : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_ancient_regail : public CreatureScript
 {
     public:
-        boss_ancient_regail() : MS::Game::Scripting::Interfaces::CreatureScript("boss_ancient_regail") { }
+        boss_ancient_regail() : CreatureScript("boss_ancient_regail") { }
 
         struct boss_ancient_regailAI : public BossAI
         {
@@ -596,10 +596,10 @@ class boss_ancient_regail : public MS::Game::Scripting::Interfaces::CreatureScri
 };
 
 // 60586 - Elder Asani
-class boss_ancient_asani : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_ancient_asani : public CreatureScript
 {
     public:
-        boss_ancient_asani() : MS::Game::Scripting::Interfaces::CreatureScript("boss_ancient_asani") { }
+        boss_ancient_asani() : CreatureScript("boss_ancient_asani") { }
 
         struct boss_ancient_asaniAI : public BossAI
         {
@@ -942,10 +942,10 @@ class boss_ancient_asani : public MS::Game::Scripting::Interfaces::CreatureScrip
 };
 
 // 60583 - Protector Kaolan
-class boss_protector_kaolan : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_protector_kaolan : public CreatureScript
 {
     public:
-        boss_protector_kaolan() : MS::Game::Scripting::Interfaces::CreatureScript("boss_protector_kaolan") { }
+        boss_protector_kaolan() : CreatureScript("boss_protector_kaolan") { }
 
         struct boss_protector_kaolanAI : public BossAI
         {
@@ -1300,10 +1300,10 @@ class boss_protector_kaolan : public MS::Game::Scripting::Interfaces::CreatureSc
 };
 
 // Defiled Ground - 60906
-class mob_defiled_ground : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_defiled_ground : public CreatureScript
 {
     public:
-        mob_defiled_ground() : MS::Game::Scripting::Interfaces::CreatureScript("mob_defiled_ground") { }
+        mob_defiled_ground() : CreatureScript("mob_defiled_ground") { }
 
         struct mob_defiled_groundAI : public ScriptedAI
         {
@@ -1325,10 +1325,10 @@ class mob_defiled_ground : public MS::Game::Scripting::Interfaces::CreatureScrip
 };
 
 // Coalesced Corruption - 60886
-class mob_coalesced_corruption : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_coalesced_corruption : public CreatureScript
 {
     public:
-        mob_coalesced_corruption() : MS::Game::Scripting::Interfaces::CreatureScript("mob_coalesced_corruption") { }
+        mob_coalesced_corruption() : CreatureScript("mob_coalesced_corruption") { }
 
         struct mob_coalesced_corruptionAI : public ScriptedAI
         {
@@ -1348,10 +1348,10 @@ class mob_coalesced_corruption : public MS::Game::Scripting::Interfaces::Creatur
 };
 
 // Cleansing Water - 60646
-class mob_cleansing_water : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_cleansing_water : public CreatureScript
 {
     public:
-        mob_cleansing_water() : MS::Game::Scripting::Interfaces::CreatureScript("mob_cleansing_water") { }
+        mob_cleansing_water() : CreatureScript("mob_cleansing_water") { }
 
         struct mob_cleansing_waterAI : public ScriptedAI
         {
@@ -1396,10 +1396,10 @@ class mob_cleansing_water : public MS::Game::Scripting::Interfaces::CreatureScri
 };
 
 // Corrupting Waters - 60621
-class mob_corrupting_waters : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_corrupting_waters : public CreatureScript
 {
     public:
-        mob_corrupting_waters() : MS::Game::Scripting::Interfaces::CreatureScript("mob_corrupting_waters") { }
+        mob_corrupting_waters() : CreatureScript("mob_corrupting_waters") { }
 
         struct mob_corrupting_watersAI : public ScriptedAI
         {
@@ -1426,10 +1426,10 @@ class mob_corrupting_waters : public MS::Game::Scripting::Interfaces::CreatureSc
 #define MOVE_POINT_PROTECTOR 9999
 
 // Minion of Fear - 60885
-class mob_minion_of_fear : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_minion_of_fear : public CreatureScript
 {
     public:
-        mob_minion_of_fear() : MS::Game::Scripting::Interfaces::CreatureScript("mob_minion_of_fear") { }
+        mob_minion_of_fear() : CreatureScript("mob_minion_of_fear") { }
 
         struct mob_minion_of_fearAI : public ScriptedAI
         {
@@ -1517,10 +1517,10 @@ class mob_minion_of_fear : public MS::Game::Scripting::Interfaces::CreatureScrip
 };
 
 // Minion of Fear Controller - 60957
-class mob_minion_of_fear_controller : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_minion_of_fear_controller : public CreatureScript
 {
     public:
-        mob_minion_of_fear_controller() : MS::Game::Scripting::Interfaces::CreatureScript("mob_minion_of_fear_controller") { }
+        mob_minion_of_fear_controller() : CreatureScript("mob_minion_of_fear_controller") { }
 
         struct mob_minion_of_fear_controllerAI : public ScriptedAI
         {
@@ -1607,10 +1607,10 @@ class mob_minion_of_fear_controller : public MS::Game::Scripting::Interfaces::Cr
 };
 
 // Defiled Ground (damage) - 117988
-class spell_defiled_ground_damage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_defiled_ground_damage: public SpellScriptLoader
 {
     public:
-        spell_defiled_ground_damage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_defiled_ground_damage") { }
+        spell_defiled_ground_damage() : SpellScriptLoader("spell_defiled_ground_damage") { }
 
         class spell_defiled_ground_damage_SpellScript : public SpellScript
         {
@@ -1642,10 +1642,10 @@ class spell_defiled_ground_damage: public MS::Game::Scripting::Interfaces::Spell
 };
 
 // Expelled Corruption (triggered) - 117955
-class spell_expelled_corruption: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_expelled_corruption: public SpellScriptLoader
 {
     public:
-        spell_expelled_corruption() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_expelled_corruption") { }
+        spell_expelled_corruption() : SpellScriptLoader("spell_expelled_corruption") { }
 
         class spell_expelled_corruption_SpellScript : public SpellScript
         {
@@ -1678,10 +1678,10 @@ class spell_expelled_corruption: public MS::Game::Scripting::Interfaces::SpellSc
 };
 
 // Lightning Storm - 118064, 118040, 118053, 118054, 118055, 118077
-class spell_lightning_storm_aura: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_lightning_storm_aura: public SpellScriptLoader
 {
     public:
-        spell_lightning_storm_aura() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_lightning_storm_aura") { }
+        spell_lightning_storm_aura() : SpellScriptLoader("spell_lightning_storm_aura") { }
 
         class spell_lightning_storm_aura_AuraScript : public AuraScript
         {
@@ -1741,10 +1741,10 @@ class spell_lightning_storm_aura: public MS::Game::Scripting::Interfaces::SpellS
 };
 
 // Lightning Storm (damage) - 118004, 118005, 118007, 118008
-class spell_lightning_storm_damage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_lightning_storm_damage: public SpellScriptLoader
 {
     public:
-        spell_lightning_storm_damage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_lightning_storm_damage") { }
+        spell_lightning_storm_damage() : SpellScriptLoader("spell_lightning_storm_damage") { }
 
         class spell_lightning_storm_damage_SpellScript : public SpellScript
         {
@@ -1801,10 +1801,10 @@ class spell_lightning_storm_damage: public MS::Game::Scripting::Interfaces::Spel
 };
 
 // Lightning Prison - 111850
-class spell_lightning_prison: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_lightning_prison: public SpellScriptLoader
 {
     public:
-        spell_lightning_prison() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_lightning_prison") { }
+        spell_lightning_prison() : SpellScriptLoader("spell_lightning_prison") { }
 
         class spell_lightning_prison_SpellScript : public SpellScript
         {
@@ -1828,10 +1828,10 @@ class spell_lightning_prison: public MS::Game::Scripting::Interfaces::SpellScrip
 };
 
 // Corrupted Essence - 118191
-class spell_corrupted_essence: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_corrupted_essence: public SpellScriptLoader
 {
     public:
-        spell_corrupted_essence() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_corrupted_essence") { }
+        spell_corrupted_essence() : SpellScriptLoader("spell_corrupted_essence") { }
 
         class spell_corrupted_essence_AuraScript : public AuraScript
         {
@@ -1908,10 +1908,10 @@ class spell_corrupted_essence: public MS::Game::Scripting::Interfaces::SpellScri
 };
 
 // Superior Corrupted Essence - 117905
-class spell_superior_corrupted_essence: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_superior_corrupted_essence: public SpellScriptLoader
 {
     public:
-        spell_superior_corrupted_essence() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_superior_corrupted_essence") { }
+        spell_superior_corrupted_essence() : SpellScriptLoader("spell_superior_corrupted_essence") { }
 
         class spell_superior_corrupted_essence_AuraScript : public AuraScript
         {
@@ -1945,10 +1945,10 @@ class spell_superior_corrupted_essence: public MS::Game::Scripting::Interfaces::
 };
 
 // Cleansing Waters - 117283
-class spell_cleansing_waters_regen: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_cleansing_waters_regen: public SpellScriptLoader
 {
     public:
-        spell_cleansing_waters_regen() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_cleansing_waters_regen") { }
+        spell_cleansing_waters_regen() : SpellScriptLoader("spell_cleansing_waters_regen") { }
 
         class spell_cleansing_waters_regen_SpellScript : public SpellScript
         {

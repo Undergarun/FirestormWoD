@@ -23,10 +23,10 @@
 ## npc_gnomeregan_survivor
 ######*/
 
-class npc_gnomeregan_survivor : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_gnomeregan_survivor : public CreatureScript
 {
 public:
-    npc_gnomeregan_survivor() : MS::Game::Scripting::Interfaces::CreatureScript("npc_gnomeregan_survivor") { }
+    npc_gnomeregan_survivor() : CreatureScript("npc_gnomeregan_survivor") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -57,10 +57,10 @@ public:
 ## npc_flying_target_machin
 ######*/
 
-class npc_flying_target_machin : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_flying_target_machin : public CreatureScript
 {
 public:
-    npc_flying_target_machin() : MS::Game::Scripting::Interfaces::CreatureScript("npc_flying_target_machin") { }
+    npc_flying_target_machin() : CreatureScript("npc_flying_target_machin") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -90,10 +90,10 @@ public:
 #define QUEST_WITHDRAW_TO_THE_LOADING_ROOM  28169
 #define NPC_IMUN_AGENT                      47836
 
-class npc_carvo_blastbolt : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_carvo_blastbolt : public CreatureScript
 {
 public:
-    npc_carvo_blastbolt() : MS::Game::Scripting::Interfaces::CreatureScript("npc_carvo_blastbolt") { }
+    npc_carvo_blastbolt() : CreatureScript("npc_carvo_blastbolt") { }
 
     bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
@@ -108,10 +108,10 @@ public:
 ## npc_imun_agent_escort
 ######*/
 
-class npc_imun_agent_escort : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_imun_agent_escort : public CreatureScript
 {
 public:
-    npc_imun_agent_escort() : MS::Game::Scripting::Interfaces::CreatureScript("npc_imun_agent_escort") { }
+    npc_imun_agent_escort() : CreatureScript("npc_imun_agent_escort") { }
 
     struct npc_imun_agent_escortAI : public npc_escortAI
     {
@@ -160,10 +160,10 @@ public:
 
 #define SPELL_IRRADIE   80653
 
-class npc_sanitron : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_sanitron : public CreatureScript
 {
 public:
-    npc_sanitron() : MS::Game::Scripting::Interfaces::CreatureScript("npc_sanitron") { }
+    npc_sanitron() : CreatureScript("npc_sanitron") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -264,10 +264,10 @@ public:
 ## npc_canon_propre
 ######*/
 
-class npc_canon_propre : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_canon_propre : public CreatureScript
 {
 public:
-    npc_canon_propre() : MS::Game::Scripting::Interfaces::CreatureScript("npc_canon_propre") { }
+    npc_canon_propre() : CreatureScript("npc_canon_propre") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -308,10 +308,10 @@ public:
 
 #define GOSSIP_TEXT "Envoyez moi a la surface, Torben !"
 
-class npc_gnomeregan_torben : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_gnomeregan_torben : public CreatureScript
 {
 public:
-    npc_gnomeregan_torben() : MS::Game::Scripting::Interfaces::CreatureScript("npc_gnomeregan_torben") { }
+    npc_gnomeregan_torben() : CreatureScript("npc_gnomeregan_torben") { }
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
@@ -337,10 +337,10 @@ public:
 ## npc_gnomeregan_recrue
 ######*/
 
-class npc_gnomeregan_recrue : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_gnomeregan_recrue : public CreatureScript
 {
 public:
-    npc_gnomeregan_recrue() : MS::Game::Scripting::Interfaces::CreatureScript("npc_gnomeregan_recrue") { }
+    npc_gnomeregan_recrue() : CreatureScript("npc_gnomeregan_recrue") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

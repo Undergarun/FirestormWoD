@@ -91,10 +91,10 @@ enum eModels
     INVISIBLE_CREATURE_MODEL                   = 11686,
 };
 
-class boss_high_prophet_barim : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_high_prophet_barim : public CreatureScript
 {
 public:
-    boss_high_prophet_barim() : MS::Game::Scripting::Interfaces::CreatureScript("boss_high_prophet_barim") { }
+    boss_high_prophet_barim() : CreatureScript("boss_high_prophet_barim") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -345,10 +345,10 @@ public:
     };
 };
 
-class npc_blaze_of_the_heavens : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_blaze_of_the_heavens : public CreatureScript
 {
 public:
-    npc_blaze_of_the_heavens() : MS::Game::Scripting::Interfaces::CreatureScript("npc_blaze_of_the_heavens") { }
+    npc_blaze_of_the_heavens() : CreatureScript("npc_blaze_of_the_heavens") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -538,10 +538,10 @@ public:
     };
 };
 
-class npc_repentance_mirror : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_repentance_mirror : public CreatureScript
 {
 public:
-    npc_repentance_mirror() : MS::Game::Scripting::Interfaces::CreatureScript("npc_repentance_mirror") { }
+    npc_repentance_mirror() : CreatureScript("npc_repentance_mirror") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -612,10 +612,10 @@ public:
     };
 };
 
-class npc_harbinger_of_darkness : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_harbinger_of_darkness : public CreatureScript
 {
 public:
-    npc_harbinger_of_darkness() : MS::Game::Scripting::Interfaces::CreatureScript("npc_harbinger_of_darkness") { }
+    npc_harbinger_of_darkness() : CreatureScript("npc_harbinger_of_darkness") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -756,10 +756,10 @@ public:
     };
 };
 
-class npc_soul_fragment : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_soul_fragment : public CreatureScript
 {
 public:
-    npc_soul_fragment() : MS::Game::Scripting::Interfaces::CreatureScript("npc_soul_fragment") { }
+    npc_soul_fragment() : CreatureScript("npc_soul_fragment") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -939,10 +939,10 @@ public:
     };
 };
 
-class spell_repentance_pull_player: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_repentance_pull_player: public SpellScriptLoader
 {
     public:
-        spell_repentance_pull_player() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_repentance_pull_player") { }
+        spell_repentance_pull_player() : SpellScriptLoader("spell_repentance_pull_player") { }
 
         class spell_repentance_pull_player_SpellScript : public SpellScript
         {
@@ -983,10 +983,10 @@ class spell_repentance_pull_player: public MS::Game::Scripting::Interfaces::Spel
         }
 };
 
-class spell_repentance_trigger_clone_spell: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_repentance_trigger_clone_spell: public SpellScriptLoader
 {
     public:
-        spell_repentance_trigger_clone_spell() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_repentance_trigger_clone_spell") { }
+        spell_repentance_trigger_clone_spell() : SpellScriptLoader("spell_repentance_trigger_clone_spell") { }
 
         class spell_repentance_trigger_clone_spell_SpellScript : public SpellScript
         {
@@ -1016,10 +1016,10 @@ class spell_repentance_trigger_clone_spell: public MS::Game::Scripting::Interfac
         }
 };
 
-class spell_copy_melee_weapon: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_copy_melee_weapon: public SpellScriptLoader
 {
     public:
-        spell_copy_melee_weapon() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_copy_melee_weapon") { }
+        spell_copy_melee_weapon() : SpellScriptLoader("spell_copy_melee_weapon") { }
 
         class spell_copy_melee_weapon_AuraScript : public AuraScript
         {
@@ -1077,10 +1077,10 @@ class spell_copy_melee_weapon: public MS::Game::Scripting::Interfaces::SpellScri
         }
 };
 
-class spell_repentance_player_kneel: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_repentance_player_kneel: public SpellScriptLoader
 {
     public:
-        spell_repentance_player_kneel() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_repentance_player_kneel") { }
+        spell_repentance_player_kneel() : SpellScriptLoader("spell_repentance_player_kneel") { }
 
         class spell_repentance_player_kneel_AuraScript : public AuraScript
         {
@@ -1103,10 +1103,10 @@ class spell_repentance_player_kneel: public MS::Game::Scripting::Interfaces::Spe
         }
 };
 
-class spell_repentance_player_summon_mirror: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_repentance_player_summon_mirror: public SpellScriptLoader
 {
     public:
-        spell_repentance_player_summon_mirror() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_repentance_player_summon_mirror") { }
+        spell_repentance_player_summon_mirror() : SpellScriptLoader("spell_repentance_player_summon_mirror") { }
 
         class spell_repentance_player_summon_mirror_SpellScript : public SpellScript
         {

@@ -222,10 +222,10 @@ float RiftAndSpawnsLocations[ENCOUNTER_CHRONO_SPAWNS][5]=
 #define GOSSIP_ITEM_ARTHAS_5 "I'm ready to battle the dreadlord, sire."
 #define GOSSIP_ITEM_ARTHAS_6 "Quick, sire. No time to lose."
 
-class npc_arthas : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_arthas : public CreatureScript
 {
 public:
-    npc_arthas() : MS::Game::Scripting::Interfaces::CreatureScript("npc_arthas") { }
+    npc_arthas() : CreatureScript("npc_arthas") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
@@ -1288,10 +1288,10 @@ public:
 
 };
 
-class npc_crate_helper : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_crate_helper : public CreatureScript
 {
     public:
-        npc_crate_helper() : MS::Game::Scripting::Interfaces::CreatureScript("npc_create_helper_cot") { }
+        npc_crate_helper() : CreatureScript("npc_create_helper_cot") { }
 
         struct npc_crate_helperAI : public NullCreatureAI
         {
@@ -1328,10 +1328,10 @@ class npc_crate_helper : public MS::Game::Scripting::Interfaces::CreatureScript
 #define GOSSIP_ITEM_CHROMIE_0 "I need something to reveal the intentions of the pest."
 #define GOSSIP_ITEM_CHROMIE_1 "Take me to the entrance of Stratholme."
 
-class npc_chromie : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_chromie : public CreatureScript
 {
 public:
-    npc_chromie() : MS::Game::Scripting::Interfaces::CreatureScript("npc_chromie") { }
+    npc_chromie() : CreatureScript("npc_chromie") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
@@ -1374,10 +1374,10 @@ public:
     }
 };
 
-class npc_cos_zombie : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_cos_zombie : public CreatureScript
 {
     public:
-        npc_cos_zombie() : MS::Game::Scripting::Interfaces::CreatureScript("npc_cos_zombie") { }
+        npc_cos_zombie() : CreatureScript("npc_cos_zombie") { }
 
         struct npc_cos_zombieAI : public ScriptedAI
         {

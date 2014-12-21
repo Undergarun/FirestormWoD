@@ -57,10 +57,10 @@ enum eArete
     QUEST_THE_STORY_THUS_FAR    = 12807
 };
 
-class npc_arete : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_arete : public CreatureScript
 {
 public:
-    npc_arete() : MS::Game::Scripting::Interfaces::CreatureScript("npc_arete") { }
+    npc_arete() : CreatureScript("npc_arete") { }
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
@@ -134,10 +134,10 @@ enum eSquireDavid
 #define GOSSIP_SQUIRE_ITEM_1 "I am ready to fight!"
 #define GOSSIP_SQUIRE_ITEM_2 "How do the Argent Crusader raiders fight?"
 
-class npc_squire_david : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_squire_david : public CreatureScript
 {
 public:
-    npc_squire_david() : MS::Game::Scripting::Interfaces::CreatureScript("npc_squire_david") { }
+    npc_squire_david() : CreatureScript("npc_squire_david") { }
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
@@ -175,10 +175,10 @@ enum eArgentValiant
     SPELL_KILL_CREDIT           = 63049
 };
 
-class npc_argent_valiant : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_argent_valiant : public CreatureScript
 {
 public:
-    npc_argent_valiant() : MS::Game::Scripting::Interfaces::CreatureScript("npc_argent_valiant") { }
+    npc_argent_valiant() : CreatureScript("npc_argent_valiant") { }
 
     struct npc_argent_valiantAI : public ScriptedAI
     {
@@ -258,10 +258,10 @@ enum eGuardianPavilion
     SPELL_TRESPASSER_A                            = 63986,
 };
 
-class npc_guardian_pavilion : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_guardian_pavilion : public CreatureScript
 {
 public:
-    npc_guardian_pavilion() : MS::Game::Scripting::Interfaces::CreatureScript("npc_guardian_pavilion") { }
+    npc_guardian_pavilion() : CreatureScript("npc_guardian_pavilion") { }
 
     struct npc_guardian_pavilionAI : public Scripted_NoMovementAI
     {
@@ -303,10 +303,10 @@ enum eVerethTheCunning
     SPELL_SUBDUED_LITHE_STALKER = 58151,
 };
 
-class npc_vereth_the_cunning : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_vereth_the_cunning : public CreatureScript
 {
 public:
-    npc_vereth_the_cunning() : MS::Game::Scripting::Interfaces::CreatureScript("npc_vereth_the_cunning") { }
+    npc_vereth_the_cunning() : CreatureScript("npc_vereth_the_cunning") { }
 
     struct npc_vereth_the_cunningAI : public ScriptedAI
     {
@@ -364,7 +364,7 @@ enum TournamentDummy
     EVENT_DUMMY_RESET         = 2,
 };
 
-class npc_tournament_training_dummy : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_tournament_training_dummy : public CreatureScript
 {
     public:
         npc_tournament_training_dummy(): CreatureScript("npc_tournament_training_dummy"){}
@@ -493,10 +493,10 @@ class npc_tournament_training_dummy : public MS::Game::Scripting::Interfaces::Cr
 
 };
 
-class npc_hakmund_of_argus : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_hakmund_of_argus : public CreatureScript
 {
     public:
-        npc_hakmund_of_argus() : MS::Game::Scripting::Interfaces::CreatureScript("npc_hakmund_of_argus")
+        npc_hakmund_of_argus() : CreatureScript("npc_hakmund_of_argus")
         {
         }
 

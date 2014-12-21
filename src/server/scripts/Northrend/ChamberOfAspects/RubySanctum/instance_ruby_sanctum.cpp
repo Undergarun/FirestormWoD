@@ -28,10 +28,10 @@ DoorData const doorData[] =
     {0,                 0,                          DOOR_TYPE_ROOM,     BOUNDARY_NONE},
 };
 
-class instance_ruby_sanctum : public MS::Game::Scripting::Interfaces::InstanceMapScript
+class instance_ruby_sanctum : public InstanceMapScript
 {
     public:
-        instance_ruby_sanctum() : MS::Game::Scripting::Interfaces::InstanceMapScript(RSScriptName, 724) { }
+        instance_ruby_sanctum() : InstanceMapScript(RSScriptName, 724) { }
 
         struct instance_ruby_sanctum_InstanceMapScript : public InstanceScript
         {

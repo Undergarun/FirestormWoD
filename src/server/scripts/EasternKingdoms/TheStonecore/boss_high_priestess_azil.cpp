@@ -47,10 +47,10 @@ Position highpriestessazilAddsPos[2] =
 
 Position highpriestessazilStandPos = {1337.79f, 963.39f, 214.18f, 1.8f};
 
-class boss_high_priestess_azil : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_high_priestess_azil : public CreatureScript
 {
     public:
-        boss_high_priestess_azil() : MS::Game::Scripting::Interfaces::CreatureScript("boss_high_priestess_azil") { }
+        boss_high_priestess_azil() : CreatureScript("boss_high_priestess_azil") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -198,10 +198,10 @@ class boss_high_priestess_azil : public MS::Game::Scripting::Interfaces::Creatur
         };
 };
 
-class npc_gravity_well : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_gravity_well : public CreatureScript
 {
     public:
-        npc_gravity_well() : MS::Game::Scripting::Interfaces::CreatureScript("npc_gravity_well") { }
+        npc_gravity_well() : CreatureScript("npc_gravity_well") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -247,10 +247,10 @@ class npc_gravity_well : public MS::Game::Scripting::Interfaces::CreatureScript
         };
 };
 
-class spell_high_priestess_azil_gravity_well_script: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_high_priestess_azil_gravity_well_script: public SpellScriptLoader
 {
     public:
-        spell_high_priestess_azil_gravity_well_script() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_high_priestess_azil_gravity_well_script") { }
+        spell_high_priestess_azil_gravity_well_script() : SpellScriptLoader("spell_high_priestess_azil_gravity_well_script") { }
 
 
         class spell_high_priestess_azil_gravity_well_script_SpellScript : public SpellScript

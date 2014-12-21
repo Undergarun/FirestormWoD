@@ -57,10 +57,10 @@ enum CustodianOfTime
     WHISPER_CUSTODIAN_14    = 13
 };
 
-class npc_custodian_of_time : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_custodian_of_time : public CreatureScript
 {
 public:
-    npc_custodian_of_time() : MS::Game::Scripting::Interfaces::CreatureScript("npc_custodian_of_time") { }
+    npc_custodian_of_time() : CreatureScript("npc_custodian_of_time") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -173,10 +173,10 @@ public:
 
 #define GOSSIP_ITEM_FLIGHT  "Please take me to the master's lair."
 
-class npc_steward_of_time : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_steward_of_time : public CreatureScript
 {
 public:
-    npc_steward_of_time() : MS::Game::Scripting::Interfaces::CreatureScript("npc_steward_of_time") { }
+    npc_steward_of_time() : CreatureScript("npc_steward_of_time") { }
 
     bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest)
     {
@@ -233,10 +233,10 @@ enum Npc00X17
     SPAWN_SECOND_2          = 7805
 };
 
-class npc_OOX17 : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_OOX17 : public CreatureScript
 {
 public:
-    npc_OOX17() : MS::Game::Scripting::Interfaces::CreatureScript("npc_OOX17") { }
+    npc_OOX17() : CreatureScript("npc_OOX17") { }
 
     bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {

@@ -55,10 +55,10 @@ bool     obelisk_one, obelisk_two, obelisk_three, obelisk_four, obelisk_five;
 ######*/
 
 //TODO: add support for quest 10512 + Creature abilities
-class mobs_bladespire_ogre : public MS::Game::Scripting::Interfaces::CreatureScript
+class mobs_bladespire_ogre : public CreatureScript
 {
 public:
-    mobs_bladespire_ogre() : MS::Game::Scripting::Interfaces::CreatureScript("mobs_bladespire_ogre") { }
+    mobs_bladespire_ogre() : CreatureScript("mobs_bladespire_ogre") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -106,10 +106,10 @@ enum eNetherdrake
     SPELL_INTANGIBLE_PRESENCE   = 36513
 };
 
-class mobs_nether_drake : public MS::Game::Scripting::Interfaces::CreatureScript
+class mobs_nether_drake : public CreatureScript
 {
 public:
-    mobs_nether_drake() : MS::Game::Scripting::Interfaces::CreatureScript("mobs_nether_drake") { }
+    mobs_nether_drake() : CreatureScript("mobs_nether_drake") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -279,10 +279,10 @@ enum eDaranelle
     SPELL_LASHHAN_CHANNEL   = 36904
 };
 
-class npc_daranelle : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_daranelle : public CreatureScript
 {
 public:
-    npc_daranelle() : MS::Game::Scripting::Interfaces::CreatureScript("npc_daranelle") { }
+    npc_daranelle() : CreatureScript("npc_daranelle") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -320,10 +320,10 @@ public:
 
 #define GOSSIP_HELLO_ON "Overseer, I am here to negotiate on behalf of the Cenarion Expedition."
 
-class npc_overseer_nuaar : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_overseer_nuaar : public CreatureScript
 {
 public:
-    npc_overseer_nuaar() : MS::Game::Scripting::Interfaces::CreatureScript("npc_overseer_nuaar") { }
+    npc_overseer_nuaar() : CreatureScript("npc_overseer_nuaar") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
@@ -354,10 +354,10 @@ public:
 #define GOSSIP_HELLO_STE    "Yes... yes, it's me."
 #define GOSSIP_SELECT_STE   "Yes elder. Tell me more of the book."
 
-class npc_saikkal_the_elder : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_saikkal_the_elder : public CreatureScript
 {
 public:
-    npc_saikkal_the_elder() : MS::Game::Scripting::Interfaces::CreatureScript("npc_saikkal_the_elder") { }
+    npc_saikkal_the_elder() : CreatureScript("npc_saikkal_the_elder") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
@@ -391,10 +391,10 @@ public:
 ## go_legion_obelisk
 ######*/
 
-class go_legion_obelisk : public MS::Game::Scripting::Interfaces::GameObjectScript
+class go_legion_obelisk : public GameObjectScript
 {
 public:
-    go_legion_obelisk() : MS::Game::Scripting::Interfaces::GameObjectScript("go_legion_obelisk") { }
+    go_legion_obelisk() : GameObjectScript("go_legion_obelisk") { }
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
@@ -448,10 +448,10 @@ enum eBloodmaul
     QUEST_BLADESPIRE_KEGGER                     = 10545,
 };
 
-class npc_bloodmaul_brutebane : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_bloodmaul_brutebane : public CreatureScript
 {
 public:
-    npc_bloodmaul_brutebane() : MS::Game::Scripting::Interfaces::CreatureScript("npc_bloodmaul_brutebane") { }
+    npc_bloodmaul_brutebane() : CreatureScript("npc_bloodmaul_brutebane") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -484,10 +484,10 @@ public:
 ## npc_ogre_brute
 ######*/
 
-class npc_ogre_brute : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_ogre_brute : public CreatureScript
 {
 public:
-    npc_ogre_brute() : MS::Game::Scripting::Interfaces::CreatureScript("npc_ogre_brute") { }
+    npc_ogre_brute() : CreatureScript("npc_ogre_brute") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -555,10 +555,10 @@ enum TheThunderspike
     QUEST_THUNDERSPIKE  = 10526,
 };
 
-class go_thunderspike : public MS::Game::Scripting::Interfaces::GameObjectScript
+class go_thunderspike : public GameObjectScript
 {
     public:
-        go_thunderspike() : MS::Game::Scripting::Interfaces::GameObjectScript("go_thunderspike") { }
+        go_thunderspike() : GameObjectScript("go_thunderspike") { }
 
         bool OnGossipHello(Player* player, GameObject* go)
         {
@@ -641,10 +641,10 @@ enum SimonColors
     SIMON_MAX_COLORS    = 4,
 };
 
-class npc_simon_bunny : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_simon_bunny : public CreatureScript
 {
     public:
-        npc_simon_bunny() : MS::Game::Scripting::Interfaces::CreatureScript("npc_simon_bunny") { }
+        npc_simon_bunny() : CreatureScript("npc_simon_bunny") { }
 
         struct npc_simon_bunnyAI : public ScriptedAI
         {
@@ -1093,10 +1093,10 @@ class npc_simon_bunny : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class go_simon_cluster : public MS::Game::Scripting::Interfaces::GameObjectScript
+class go_simon_cluster : public GameObjectScript
 {
     public:
-        go_simon_cluster() : MS::Game::Scripting::Interfaces::GameObjectScript("go_simon_cluster") { }
+        go_simon_cluster() : GameObjectScript("go_simon_cluster") { }
 
         bool OnGossipHello(Player* player, GameObject* go)
         {
@@ -1119,10 +1119,10 @@ enum ApexisRelic
     SPELL_TAKE_REAGENTS_GROUP = 41146,
 };
 
-class go_apexis_relic : public MS::Game::Scripting::Interfaces::GameObjectScript
+class go_apexis_relic : public GameObjectScript
 {
     public:
-        go_apexis_relic() : MS::Game::Scripting::Interfaces::GameObjectScript("go_apexis_relic") { }
+        go_apexis_relic() : GameObjectScript("go_apexis_relic") { }
 
         bool OnGossipHello(Player* player, GameObject* go)
         {

@@ -75,10 +75,10 @@ enum Events
     EVENT_CHOGALL_DLG                = 119,
 };
 
-class npc_twilight_portal_shaper : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_twilight_portal_shaper : public CreatureScript
 {
 public:
-    npc_twilight_portal_shaper() : MS::Game::Scripting::Interfaces::CreatureScript("npc_twilight_portal_shaper") { }
+    npc_twilight_portal_shaper() : CreatureScript("npc_twilight_portal_shaper") { }
 
     CreatureAI* GetAI(Creature* pCreature) const
     {
@@ -152,10 +152,10 @@ public:
     };
 };
 
-class npc_twilight_shifter : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_twilight_shifter : public CreatureScript
 {
 public:
-    npc_twilight_shifter() : MS::Game::Scripting::Interfaces::CreatureScript("npc_twilight_shifter") { }
+    npc_twilight_shifter() : CreatureScript("npc_twilight_shifter") { }
 
     CreatureAI* GetAI(Creature* pCreature) const
     {
@@ -213,10 +213,10 @@ public:
     };
 };
 
-class npc_twilight_shadow_mender : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_twilight_shadow_mender : public CreatureScript
 {
 public:
-    npc_twilight_shadow_mender() : MS::Game::Scripting::Interfaces::CreatureScript("npc_twilight_shadow_mender") { }
+    npc_twilight_shadow_mender() : CreatureScript("npc_twilight_shadow_mender") { }
 
     CreatureAI* GetAI(Creature* pCreature) const
     {
@@ -273,10 +273,10 @@ public:
     };
 };
 
-class npc_chogall_dlg : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_chogall_dlg : public CreatureScript
 {
 public:
-    npc_chogall_dlg() : MS::Game::Scripting::Interfaces::CreatureScript("npc_chogall_dlg") { }
+    npc_chogall_dlg() : CreatureScript("npc_chogall_dlg") { }
 
     CreatureAI* GetAI(Creature* pCreature) const
     {
@@ -379,10 +379,10 @@ public:
     };
 };
 
-class at_bt_entrance : public MS::Game::Scripting::Interfaces::AreaTriggerScript
+class at_bt_entrance : public AreaTriggerScript
 {
 public:
-    at_bt_entrance() : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_bt_entrance") { }
+    at_bt_entrance() : AreaTriggerScript("at_bt_entrance") { }
 
     bool OnTrigger(Player* pPlayer, const AreaTriggerEntry* /*pAt*/)
     {
@@ -402,10 +402,10 @@ public:
     }
 };
 
-class at_bt_halfus : public MS::Game::Scripting::Interfaces::AreaTriggerScript
+class at_bt_halfus : public AreaTriggerScript
 {
 public:
-    at_bt_halfus() : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_bt_halfus") { }
+    at_bt_halfus() : AreaTriggerScript("at_bt_halfus") { }
 
     bool OnTrigger(Player* pPlayer, const AreaTriggerEntry* /*pAt*/)
     {
@@ -423,10 +423,10 @@ public:
     }
 };
 
-class at_bt_valiona_theralion : public MS::Game::Scripting::Interfaces::AreaTriggerScript
+class at_bt_valiona_theralion : public AreaTriggerScript
 {
 public:
-    at_bt_valiona_theralion() : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_bt_valiona_theralion") { }
+    at_bt_valiona_theralion() : AreaTriggerScript("at_bt_valiona_theralion") { }
 
     bool OnTrigger(Player* pPlayer, const AreaTriggerEntry* /*pAt*/)
     {
@@ -444,10 +444,10 @@ public:
     }
 };
 
-class at_bt_council_1 : public MS::Game::Scripting::Interfaces::AreaTriggerScript
+class at_bt_council_1 : public AreaTriggerScript
 {
 public:
-    at_bt_council_1() : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_bt_council_1") { }
+    at_bt_council_1() : AreaTriggerScript("at_bt_council_1") { }
 
     bool OnTrigger(Player* pPlayer, const AreaTriggerEntry* /*pAt*/)
     {
@@ -465,10 +465,10 @@ public:
     }
 };
 
-class at_bt_council_2 : public MS::Game::Scripting::Interfaces::AreaTriggerScript
+class at_bt_council_2 : public AreaTriggerScript
 {
 public:
-    at_bt_council_2() : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_bt_council_2") { }
+    at_bt_council_2() : AreaTriggerScript("at_bt_council_2") { }
 
     bool OnTrigger(Player* pPlayer, const AreaTriggerEntry* /*pAt*/)
     {
@@ -486,10 +486,10 @@ public:
     }
 };
 
-class at_bt_council_3 : public MS::Game::Scripting::Interfaces::AreaTriggerScript
+class at_bt_council_3 : public AreaTriggerScript
 {
 public:
-    at_bt_council_3() : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_bt_council_3") { }
+    at_bt_council_3() : AreaTriggerScript("at_bt_council_3") { }
 
     bool OnTrigger(Player* pPlayer, const AreaTriggerEntry* /*pAt*/)
     {
@@ -507,10 +507,10 @@ public:
     }
 };
 
-class at_bt_chogall : public MS::Game::Scripting::Interfaces::AreaTriggerScript
+class at_bt_chogall : public AreaTriggerScript
 {
 public:
-    at_bt_chogall() : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_bt_chogall") { }
+    at_bt_chogall() : AreaTriggerScript("at_bt_chogall") { }
 
     bool OnTrigger(Player* pPlayer, const AreaTriggerEntry* /*pAt*/)
     {
@@ -528,10 +528,10 @@ public:
     }
 };
 
-class at_bt_sinestra : public MS::Game::Scripting::Interfaces::AreaTriggerScript
+class at_bt_sinestra : public AreaTriggerScript
 {
 public:
-    at_bt_sinestra() : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_bt_sinestra") { }
+    at_bt_sinestra() : AreaTriggerScript("at_bt_sinestra") { }
 
     bool OnTrigger(Player* pPlayer, const AreaTriggerEntry* /*pAt*/)
     {

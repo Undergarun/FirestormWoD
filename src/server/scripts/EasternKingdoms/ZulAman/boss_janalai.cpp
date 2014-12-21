@@ -122,11 +122,11 @@ const Position posEggs[36] =
     {-39.7956f, 1081.47f, 18.7948f, 2.74017f}
 };
 
-class boss_janalai : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_janalai : public CreatureScript
 {
     public:
 
-        boss_janalai() : MS::Game::Scripting::Interfaces::CreatureScript("boss_janalai") {}
+        boss_janalai() : CreatureScript("boss_janalai") {}
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -301,10 +301,10 @@ class boss_janalai : public MS::Game::Scripting::Interfaces::CreatureScript
         };
 };
 
-class npc_janalai_hatcher : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_janalai_hatcher : public CreatureScript
 {
     public:
-        npc_janalai_hatcher() : MS::Game::Scripting::Interfaces::CreatureScript("npc_janalai_hatcher") {}
+        npc_janalai_hatcher() : CreatureScript("npc_janalai_hatcher") {}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -392,7 +392,7 @@ class npc_janalai_hatcher : public MS::Game::Scripting::Interfaces::CreatureScri
         };
 };
 
-class npc_janalai_egg : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_janalai_egg : public CreatureScript
 {
     public:
         npc_janalai_egg(): CreatureScript("npc_janalai_egg") {}
@@ -420,10 +420,10 @@ class npc_janalai_egg : public MS::Game::Scripting::Interfaces::CreatureScript
         };
 };
 
-class npc_janalai_firebomb : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_janalai_firebomb : public CreatureScript
 {
     public:
-        npc_janalai_firebomb() : MS::Game::Scripting::Interfaces::CreatureScript("npc_janalai_firebomb") {}
+        npc_janalai_firebomb() : CreatureScript("npc_janalai_firebomb") {}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -447,10 +447,10 @@ class npc_janalai_firebomb : public MS::Game::Scripting::Interfaces::CreatureScr
       };
 };
 
-class npc_janalai_hatchling : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_janalai_hatchling : public CreatureScript
 {
     public:
-        npc_janalai_hatchling() : MS::Game::Scripting::Interfaces::CreatureScript("npc_janalai_hatchling")  {}
+        npc_janalai_hatchling() : CreatureScript("npc_janalai_hatchling")  {}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -509,10 +509,10 @@ class npc_janalai_hatchling : public MS::Game::Scripting::Interfaces::CreatureSc
         };
 };
 
-class spell_janalai_flame_breath: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_janalai_flame_breath: public SpellScriptLoader
 {
     public:
-        spell_janalai_flame_breath() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_janalai_flame_breath") { }
+        spell_janalai_flame_breath() : SpellScriptLoader("spell_janalai_flame_breath") { }
 
         class spell_janalai_flame_breath_AuraScript : public AuraScript
         {

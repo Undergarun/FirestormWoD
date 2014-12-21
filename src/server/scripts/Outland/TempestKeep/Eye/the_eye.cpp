@@ -37,7 +37,7 @@ enum eSpells
     SPELL_KNOCKAWAY        = 22893,
 };
 
-class mob_crystalcore_devastator : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_crystalcore_devastator : public CreatureScript
 {
     public:
 

@@ -39,10 +39,10 @@ EndScriptData */
 3 - Warlord Kalithresh Event
 */
 
-class go_main_chambers_access_panel : public MS::Game::Scripting::Interfaces::GameObjectScript
+class go_main_chambers_access_panel : public GameObjectScript
 {
 public:
-    go_main_chambers_access_panel() : MS::Game::Scripting::Interfaces::GameObjectScript("go_main_chambers_access_panel") { }
+    go_main_chambers_access_panel() : GameObjectScript("go_main_chambers_access_panel") { }
 
     bool OnGossipHello(Player* /*player*/, GameObject* go)
     {
@@ -62,10 +62,10 @@ public:
 
 };
 
-class instance_steam_vault : public MS::Game::Scripting::Interfaces::InstanceMapScript
+class instance_steam_vault : public InstanceMapScript
 {
 public:
-    instance_steam_vault() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_steam_vault", 545) { }
+    instance_steam_vault() : InstanceMapScript("instance_steam_vault", 545) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {

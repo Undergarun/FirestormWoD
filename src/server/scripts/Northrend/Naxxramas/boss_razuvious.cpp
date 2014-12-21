@@ -53,10 +53,10 @@ enum Events
     EVENT_COMMAND,
 };
 
-class boss_razuvious : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_razuvious : public CreatureScript
 {
 public:
-    boss_razuvious() : MS::Game::Scripting::Interfaces::CreatureScript("boss_razuvious") { }
+    boss_razuvious() : CreatureScript("boss_razuvious") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

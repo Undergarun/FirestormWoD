@@ -42,10 +42,10 @@ enum Events
     EVENT_SHADOW_BOLT       = 3,
 };
 
-class boss_gehennas : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_gehennas : public CreatureScript
 {
     public:
-        boss_gehennas() : MS::Game::Scripting::Interfaces::CreatureScript("boss_gehennas") { }
+        boss_gehennas() : CreatureScript("boss_gehennas") { }
 
         struct boss_gehennasAI : public BossAI
         {

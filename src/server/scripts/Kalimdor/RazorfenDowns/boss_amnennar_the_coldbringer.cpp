@@ -37,10 +37,10 @@ EndScriptData */
 #define SPELL_FROST_NOVA        15531
 #define SPELL_FROST_SPECTRES    12642
 
-class boss_amnennar_the_coldbringer : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_amnennar_the_coldbringer : public CreatureScript
 {
 public:
-    boss_amnennar_the_coldbringer() : MS::Game::Scripting::Interfaces::CreatureScript("boss_amnennar_the_coldbringer") { }
+    boss_amnennar_the_coldbringer() : CreatureScript("boss_amnennar_the_coldbringer") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

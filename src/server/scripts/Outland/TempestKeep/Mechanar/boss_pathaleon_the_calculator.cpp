@@ -55,7 +55,7 @@ enum eSpells
     SPELL_ARCANE_MISSILES          = 35034,
 };
 
-class boss_pathaleon_the_calculator : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_pathaleon_the_calculator : public CreatureScript
 {
     public:
 
@@ -199,7 +199,7 @@ class boss_pathaleon_the_calculator : public MS::Game::Scripting::Interfaces::Cr
             }
 };
 
-class mob_nether_wraith : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_nether_wraith : public CreatureScript
 {
     public:
 

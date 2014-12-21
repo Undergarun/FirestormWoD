@@ -48,10 +48,10 @@ enum Events
     EVENT_LAVA_BOMB     = 3,
 };
 
-class boss_magmadar : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_magmadar : public CreatureScript
 {
     public:
-        boss_magmadar() : MS::Game::Scripting::Interfaces::CreatureScript("boss_magmadar") { }
+        boss_magmadar() : CreatureScript("boss_magmadar") { }
 
         struct boss_magmadarAI : public BossAI
         {

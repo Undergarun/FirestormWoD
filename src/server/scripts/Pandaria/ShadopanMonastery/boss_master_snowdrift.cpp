@@ -130,10 +130,10 @@ Position ClonePos[3] =
 
 #define defaultrand urand(1000, 10000)
 
-class boss_master_snowdrift : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_master_snowdrift : public CreatureScript
 {
     public:
-        boss_master_snowdrift() : MS::Game::Scripting::Interfaces::CreatureScript("boss_master_snowdrift") {}
+        boss_master_snowdrift() : CreatureScript("boss_master_snowdrift") {}
 
         struct boss_master_snowdriftAI : public BossAI
         {
@@ -427,7 +427,7 @@ class boss_master_snowdrift : public MS::Game::Scripting::Interfaces::CreatureSc
         }
 };
 
-class npc_snowdrift_novice : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_snowdrift_novice : public CreatureScript
 {
     public:
         npc_snowdrift_novice() :  CreatureScript("npc_snowdrift_novice") { }
@@ -523,7 +523,7 @@ class npc_snowdrift_novice : public MS::Game::Scripting::Interfaces::CreatureScr
         }
 };
 
-class npc_snowdrift_miniboss : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_snowdrift_miniboss : public CreatureScript
 {
     public:
         npc_snowdrift_miniboss() :  CreatureScript("npc_snowdrift_miniboss") { }
@@ -678,7 +678,7 @@ class npc_snowdrift_miniboss : public MS::Game::Scripting::Interfaces::CreatureS
         }
 };
 
-class npc_snowdrift_clone : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_snowdrift_clone : public CreatureScript
 {
     public:
         npc_snowdrift_clone() :  CreatureScript("npc_snowdrift_clone") { }
@@ -717,7 +717,7 @@ class npc_snowdrift_clone : public MS::Game::Scripting::Interfaces::CreatureScri
         }
 };
 
-class npc_snowdrift_fireball : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_snowdrift_fireball : public CreatureScript
 {
     public:
         npc_snowdrift_fireball() :  CreatureScript("npc_snowdrift_fireball") { }

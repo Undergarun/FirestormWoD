@@ -49,10 +49,10 @@ enum eEnums
 #define GOSSIP_ITEM_TEA     "Teach me the cooking recipe"
 #define GOSSIP_ITEM_POTION  "Teach me the alchemy recipe"
 
-class npc_henry_stern : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_henry_stern : public CreatureScript
 {
 public:
-    npc_henry_stern() : MS::Game::Scripting::Interfaces::CreatureScript("npc_henry_stern") { }
+    npc_henry_stern() : CreatureScript("npc_henry_stern") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
@@ -89,10 +89,10 @@ public:
 ## go_gong
 ######*/
 
-class go_gong : public MS::Game::Scripting::Interfaces::GameObjectScript
+class go_gong : public GameObjectScript
 {
 public:
-    go_gong() : MS::Game::Scripting::Interfaces::GameObjectScript("go_gong") { }
+    go_gong() : GameObjectScript("go_gong") { }
 
     bool OnGossipHello(Player* /*player*/, GameObject* go)
     {
@@ -115,10 +115,10 @@ enum eTombCreature
     SPELL_WEB                   = 745
 };
 
-class npc_tomb_creature : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_tomb_creature : public CreatureScript
 {
 public:
-    npc_tomb_creature() : MS::Game::Scripting::Interfaces::CreatureScript("npc_tomb_creature") { }
+    npc_tomb_creature() : CreatureScript("npc_tomb_creature") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

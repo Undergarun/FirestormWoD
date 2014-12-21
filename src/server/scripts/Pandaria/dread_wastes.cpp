@@ -5,10 +5,10 @@
 #include "dread_wastes.h"
 
 // Ik-Ik the Nimble - 50836
-class mob_ik_ik_the_nimble : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_ik_ik_the_nimble : public CreatureScript
 {
     public:
-        mob_ik_ik_the_nimble() : MS::Game::Scripting::Interfaces::CreatureScript("mob_ik_ik_the_nimble")
+        mob_ik_ik_the_nimble() : CreatureScript("mob_ik_ik_the_nimble")
         {
         }
 
@@ -86,10 +86,10 @@ class mob_ik_ik_the_nimble : public MS::Game::Scripting::Interfaces::CreatureScr
 };
 
 // Adjunct Kree'zot - 62301
-class mob_adjunct_kree_zot : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_adjunct_kree_zot : public CreatureScript
 {
     public:
-        mob_adjunct_kree_zot() : MS::Game::Scripting::Interfaces::CreatureScript("mob_adjunct_kree_zot")
+        mob_adjunct_kree_zot() : CreatureScript("mob_adjunct_kree_zot")
         {
         }
 
@@ -161,10 +161,10 @@ class mob_adjunct_kree_zot : public MS::Game::Scripting::Interfaces::CreatureScr
 };
 
 // Dread Fearbringer - 65496
-class mob_dread_fearbringer : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_dread_fearbringer : public CreatureScript
 {
     public:
-        mob_dread_fearbringer() : MS::Game::Scripting::Interfaces::CreatureScript("mob_dread_fearbringer")
+        mob_dread_fearbringer() : CreatureScript("mob_dread_fearbringer")
         {
         }
 
@@ -214,10 +214,10 @@ class mob_dread_fearbringer : public MS::Game::Scripting::Interfaces::CreatureSc
 };
 
 // Dread Kunchong - 64717
-class mob_dread_kunchong : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_dread_kunchong : public CreatureScript
 {
     public:
-        mob_dread_kunchong() : MS::Game::Scripting::Interfaces::CreatureScript("mob_dread_kunchong")
+        mob_dread_kunchong() : CreatureScript("mob_dread_kunchong")
         {
         }
 
@@ -342,10 +342,10 @@ class mob_dread_kunchong : public MS::Game::Scripting::Interfaces::CreatureScrip
 };
 
 // Dread Matriarch - 66187
-class mob_dread_matriarch : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_dread_matriarch : public CreatureScript
 {
     public:
-        mob_dread_matriarch() : MS::Game::Scripting::Interfaces::CreatureScript("mob_dread_matriarch")
+        mob_dread_matriarch() : CreatureScript("mob_dread_matriarch")
         {
         }
 
@@ -414,10 +414,10 @@ class mob_dread_matriarch : public MS::Game::Scripting::Interfaces::CreatureScri
 };
 
 // Elder Spindlegrin - 65391
-class mob_elder_spindlegrin : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_elder_spindlegrin : public CreatureScript
 {
     public:
-        mob_elder_spindlegrin() : MS::Game::Scripting::Interfaces::CreatureScript("mob_elder_spindlegrin")
+        mob_elder_spindlegrin() : CreatureScript("mob_elder_spindlegrin")
         {
         }
 
@@ -489,10 +489,10 @@ class mob_elder_spindlegrin : public MS::Game::Scripting::Interfaces::CreatureSc
 };
 
 // Hulking Kor'thik Fleshrender - 62686
-class mob_hulking_kor_thik_fleshrender : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_hulking_kor_thik_fleshrender : public CreatureScript
 {
     public:
-        mob_hulking_kor_thik_fleshrender() : MS::Game::Scripting::Interfaces::CreatureScript("mob_hulking_kor_thik_fleshrender")
+        mob_hulking_kor_thik_fleshrender() : CreatureScript("mob_hulking_kor_thik_fleshrender")
         {
         }
 
@@ -558,10 +558,10 @@ class mob_hulking_kor_thik_fleshrender : public MS::Game::Scripting::Interfaces:
 };
 
 // Ik'thik Amberstinger - 63728
-class mob_ik_thik_amberstinger : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_ik_thik_amberstinger : public CreatureScript
 {
     public:
-        mob_ik_thik_amberstinger() : MS::Game::Scripting::Interfaces::CreatureScript("mob_ik_thik_amberstinger")
+        mob_ik_thik_amberstinger() : CreatureScript("mob_ik_thik_amberstinger")
         {
         }
 
@@ -633,10 +633,10 @@ class mob_ik_thik_amberstinger : public MS::Game::Scripting::Interfaces::Creatur
 };
 
 // Ik'thik Kunchong - 65582
-class mob_ik_thik_kunchong : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_ik_thik_kunchong : public CreatureScript
 {
     public:
-        mob_ik_thik_kunchong() : MS::Game::Scripting::Interfaces::CreatureScript("mob_ik_thik_kunchong")
+        mob_ik_thik_kunchong() : CreatureScript("mob_ik_thik_kunchong")
         {
         }
 
@@ -696,10 +696,10 @@ class mob_ik_thik_kunchong : public MS::Game::Scripting::Interfaces::CreatureScr
 };
 
 // Ik'thik Terrorclaw - 65632
-class mob_ik_thik_terrorclaw : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_ik_thik_terrorclaw : public CreatureScript
 {
     public:
-        mob_ik_thik_terrorclaw() : MS::Game::Scripting::Interfaces::CreatureScript("mob_ik_thik_terrorclaw")
+        mob_ik_thik_terrorclaw() : CreatureScript("mob_ik_thik_terrorclaw")
         {
         }
 
@@ -830,10 +830,10 @@ class mob_ik_thik_terrorclaw : public MS::Game::Scripting::Interfaces::CreatureS
 };
 
 // Karanosh - 64724
-class mob_karanosh : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_karanosh : public CreatureScript
 {
     public:
-        mob_karanosh() : MS::Game::Scripting::Interfaces::CreatureScript("mob_karanosh")
+        mob_karanosh() : CreatureScript("mob_karanosh")
         {
         }
 
@@ -893,10 +893,10 @@ class mob_karanosh : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Kypa'rak - 65229
-class mob_kypa_rak : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_kypa_rak : public CreatureScript
 {
     public:
-        mob_kypa_rak() : MS::Game::Scripting::Interfaces::CreatureScript("mob_kypa_rak")
+        mob_kypa_rak() : CreatureScript("mob_kypa_rak")
         {
         }
 
@@ -973,10 +973,10 @@ class mob_kypa_rak : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Manifestation of Terror - 66785
-class mob_manifestation_of_terror : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_manifestation_of_terror : public CreatureScript
 {
     public:
-        mob_manifestation_of_terror() : MS::Game::Scripting::Interfaces::CreatureScript("mob_manifestation_of_terror")
+        mob_manifestation_of_terror() : CreatureScript("mob_manifestation_of_terror")
         {
         }
 
@@ -1048,10 +1048,10 @@ class mob_manifestation_of_terror : public MS::Game::Scripting::Interfaces::Crea
 };
 
 // Shox'tik - 66784
-class mob_shox_tik : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_shox_tik : public CreatureScript
 {
     public:
-        mob_shox_tik() : MS::Game::Scripting::Interfaces::CreatureScript("mob_shox_tik")
+        mob_shox_tik() : CreatureScript("mob_shox_tik")
         {
         }
 
@@ -1123,10 +1123,10 @@ class mob_shox_tik : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Wake of Horror - 64626
-class mob_wake_of_horror : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_wake_of_horror : public CreatureScript
 {
     public:
-        mob_wake_of_horror() : MS::Game::Scripting::Interfaces::CreatureScript("mob_wake_of_horror")
+        mob_wake_of_horror() : CreatureScript("mob_wake_of_horror")
         {
         }
 
@@ -1251,10 +1251,10 @@ class mob_wake_of_horror : public MS::Game::Scripting::Interfaces::CreatureScrip
 };
 
 // Warlord Gurthan - 65502
-class mob_warlord_gurthan : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_warlord_gurthan : public CreatureScript
 {
     public:
-        mob_warlord_gurthan() : MS::Game::Scripting::Interfaces::CreatureScript("mob_warlord_gurthan")
+        mob_warlord_gurthan() : CreatureScript("mob_warlord_gurthan")
         {
         }
 
@@ -1326,10 +1326,10 @@ class mob_warlord_gurthan : public MS::Game::Scripting::Interfaces::CreatureScri
 };
 
 // Ai-Li Skymirror - 50821
-class mob_ai_li_skymirror : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_ai_li_skymirror : public CreatureScript
  {
      public:
-         mob_ai_li_skymirror() : MS::Game::Scripting::Interfaces::CreatureScript("mob_ai_li_skymirror")
+         mob_ai_li_skymirror() : CreatureScript("mob_ai_li_skymirror")
          {
          }
 
@@ -1401,10 +1401,10 @@ class mob_ai_li_skymirror : public MS::Game::Scripting::Interfaces::CreatureScri
 };
 
 // Overgrown Seacarp - 65394
-class mob_overgrown_seacarp : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_overgrown_seacarp : public CreatureScript
 {
     public:
-        mob_overgrown_seacarp() : MS::Game::Scripting::Interfaces::CreatureScript("mob_overgrown_seacarp")
+        mob_overgrown_seacarp() : CreatureScript("mob_overgrown_seacarp")
         {
         }
 
@@ -1464,10 +1464,10 @@ class mob_overgrown_seacarp : public MS::Game::Scripting::Interfaces::CreatureSc
 };
 
 // Gar'lok - 50739
-class mob_gar_lok : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_gar_lok : public CreatureScript
 {
     public:
-        mob_gar_lok() : MS::Game::Scripting::Interfaces::CreatureScript("mob_gar_lok")
+        mob_gar_lok() : CreatureScript("mob_gar_lok")
         {
         }
 
@@ -1551,10 +1551,10 @@ class mob_gar_lok : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Dak the Breaker - 50334
-class mob_dak_the_breaker : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_dak_the_breaker : public CreatureScript
 {
     public:
-        mob_dak_the_breaker() : MS::Game::Scripting::Interfaces::CreatureScript("mob_dak_the_breaker")
+        mob_dak_the_breaker() : CreatureScript("mob_dak_the_breaker")
         {
         }
 
@@ -1631,10 +1631,10 @@ class mob_dak_the_breaker : public MS::Game::Scripting::Interfaces::CreatureScri
 };
 
 // Nalash Verdantis - 50776
-class mob_nalash_verdantis : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_nalash_verdantis : public CreatureScript
 {
     public:
-        mob_nalash_verdantis() : MS::Game::Scripting::Interfaces::CreatureScript("mob_nalash_verdantis")
+        mob_nalash_verdantis() : CreatureScript("mob_nalash_verdantis")
         {
         }
 
@@ -1711,10 +1711,10 @@ class mob_nalash_verdantis : public MS::Game::Scripting::Interfaces::CreatureScr
 };
 
 // Vengeful Spirit - 69806
-class mob_vengeful_spirit : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_vengeful_spirit : public CreatureScript
 {
     public:
-        mob_vengeful_spirit() : MS::Game::Scripting::Interfaces::CreatureScript("mob_vengeful_spirit")
+        mob_vengeful_spirit() : CreatureScript("mob_vengeful_spirit")
         {
         }
 
@@ -1774,10 +1774,10 @@ class mob_vengeful_spirit : public MS::Game::Scripting::Interfaces::CreatureScri
 };
 
 // Hisek the Swarmkeeper - 64672
-class mob_hisek_the_swarmkeeper : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_hisek_the_swarmkeeper : public CreatureScript
 {
     public:
-        mob_hisek_the_swarmkeeper() : MS::Game::Scripting::Interfaces::CreatureScript("mob_hisek_the_swarmkeeper")
+        mob_hisek_the_swarmkeeper() : CreatureScript("mob_hisek_the_swarmkeeper")
         {
         }
 
@@ -1811,10 +1811,10 @@ class mob_hisek_the_swarmkeeper : public MS::Game::Scripting::Interfaces::Creatu
 };
 
 // Hisek the Swarmkeeper - 64705
-class mob_hisek_the_swarmkeeper_two : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_hisek_the_swarmkeeper_two : public CreatureScript
 {
     public:
-        mob_hisek_the_swarmkeeper_two() : MS::Game::Scripting::Interfaces::CreatureScript("mob_hisek_the_swarmkeeper_two")
+        mob_hisek_the_swarmkeeper_two() : CreatureScript("mob_hisek_the_swarmkeeper_two")
         {
         }
 
@@ -1940,10 +1940,10 @@ class mob_hisek_the_swarmkeeper_two : public MS::Game::Scripting::Interfaces::Cr
 };
 
 // Klaxxi Traitor - 64583
-class mob_klaxxi_traitor : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_klaxxi_traitor : public CreatureScript
 {
     public:
-        mob_klaxxi_traitor() : MS::Game::Scripting::Interfaces::CreatureScript("mob_klaxxi_traitor")
+        mob_klaxxi_traitor() : CreatureScript("mob_klaxxi_traitor")
         {
         }
 
@@ -1998,10 +1998,10 @@ class mob_klaxxi_traitor : public MS::Game::Scripting::Interfaces::CreatureScrip
 };
 
 // Ancient Amber Chunk - 212980/212868/214674
-class go_ancient_amber_chunk : public MS::Game::Scripting::Interfaces::GameObjectScript
+class go_ancient_amber_chunk : public GameObjectScript
 {
     public:
-        go_ancient_amber_chunk() : MS::Game::Scripting::Interfaces::GameObjectScript("go_ancient_amber_chunk")
+        go_ancient_amber_chunk() : GameObjectScript("go_ancient_amber_chunk")
         {
         }
 
@@ -2025,10 +2025,10 @@ class go_ancient_amber_chunk : public MS::Game::Scripting::Interfaces::GameObjec
 };
 
 // Discover Amberglow Bunny - 65328
-class mob_discover_amberglow_bunny : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_discover_amberglow_bunny : public CreatureScript
 {
     public:
-        mob_discover_amberglow_bunny() : MS::Game::Scripting::Interfaces::CreatureScript("mob_discover_amberglow_bunny")
+        mob_discover_amberglow_bunny() : CreatureScript("mob_discover_amberglow_bunny")
         {
         }
 
@@ -2056,10 +2056,10 @@ class mob_discover_amberglow_bunny : public MS::Game::Scripting::Interfaces::Cre
 };
 
 //  Kaz'Tik the Manipulator - 63876
-class mob_kaz_tik_the_manipulator : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_kaz_tik_the_manipulator : public CreatureScript
 {
     public:
-        mob_kaz_tik_the_manipulator() : MS::Game::Scripting::Interfaces::CreatureScript("mob_kaz_tik_the_manipulator")
+        mob_kaz_tik_the_manipulator() : CreatureScript("mob_kaz_tik_the_manipulator")
         {
         }
 
@@ -2118,10 +2118,10 @@ class mob_kaz_tik_the_manipulator : public MS::Game::Scripting::Interfaces::Crea
 };
 
 // Kunchong Cage - 214292
-class go_kunchong_cage : public MS::Game::Scripting::Interfaces::GameObjectScript
+class go_kunchong_cage : public GameObjectScript
 {
 public:
-    go_kunchong_cage() : MS::Game::Scripting::Interfaces::GameObjectScript("go_kunchong_cage")
+    go_kunchong_cage() : GameObjectScript("go_kunchong_cage")
     {
     }
 
@@ -2136,10 +2136,10 @@ public:
 };
 
 // Kaz'tik the Manipulator - 64013
-class mob_second_kaz_tik_the_manipulator : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_second_kaz_tik_the_manipulator : public CreatureScript
 {
     public:
-        mob_second_kaz_tik_the_manipulator() : MS::Game::Scripting::Interfaces::CreatureScript("mob_second_kaz_tik_the_manipulator")
+        mob_second_kaz_tik_the_manipulator() : CreatureScript("mob_second_kaz_tik_the_manipulator")
         {
         }
 
@@ -2285,10 +2285,10 @@ class mob_second_kaz_tik_the_manipulator : public MS::Game::Scripting::Interface
 };
 
 // Muckscale Ripper - 64197
-class mob_muckscale_ripper : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_muckscale_ripper : public CreatureScript
 {
     public:
-        mob_muckscale_ripper() : MS::Game::Scripting::Interfaces::CreatureScript("mob_muckscale_ripper")
+        mob_muckscale_ripper() : CreatureScript("mob_muckscale_ripper")
         {
         }
 
@@ -2371,10 +2371,10 @@ class mob_muckscale_ripper : public MS::Game::Scripting::Interfaces::CreatureScr
 };
 
 // Skeer the Bloodseeker - 63071
-class mob_skeer_the_bloodseeker : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_skeer_the_bloodseeker : public CreatureScript
 {
     public:
-        mob_skeer_the_bloodseeker() : MS::Game::Scripting::Interfaces::CreatureScript("mob_skeer_the_bloodseeker")
+        mob_skeer_the_bloodseeker() : CreatureScript("mob_skeer_the_bloodseeker")
         {
         }
 
@@ -2540,10 +2540,10 @@ class mob_skeer_the_bloodseeker : public MS::Game::Scripting::Interfaces::Creatu
 };
 
 // Muckscale Flesheater - 63465
-class mob_muckscale_flesheater : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_muckscale_flesheater : public CreatureScript
 {
     public:
-        mob_muckscale_flesheater() : MS::Game::Scripting::Interfaces::CreatureScript("mob_muckscale_flesheater")
+        mob_muckscale_flesheater() : CreatureScript("mob_muckscale_flesheater")
         {
         }
 
@@ -2621,10 +2621,10 @@ class mob_muckscale_flesheater : public MS::Game::Scripting::Interfaces::Creatur
 };
 
 // Muckscale Serpentus - 63466
-class mob_muckscale_serpentus : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_muckscale_serpentus : public CreatureScript
 {
     public:
-        mob_muckscale_serpentus() : MS::Game::Scripting::Interfaces::CreatureScript("mob_muckscale_serpentus")
+        mob_muckscale_serpentus() : CreatureScript("mob_muckscale_serpentus")
         {
         }
 
@@ -2708,10 +2708,10 @@ class mob_muckscale_serpentus : public MS::Game::Scripting::Interfaces::Creature
 };
 
 // Oracle Hiss'ir - 63998
-class mob_oracle_hiss_ir : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_oracle_hiss_ir : public CreatureScript
 {
     public:
-        mob_oracle_hiss_ir() : MS::Game::Scripting::Interfaces::CreatureScript("mob_oracle_hiss_ir")
+        mob_oracle_hiss_ir() : CreatureScript("mob_oracle_hiss_ir")
         {
         }
 
@@ -2777,10 +2777,10 @@ class mob_oracle_hiss_ir : public MS::Game::Scripting::Interfaces::CreatureScrip
 };
 
 // Muckscale Flesh-Hunter - 63997/64194
-class mob_muckscale_flesh_hunter : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_muckscale_flesh_hunter : public CreatureScript
 {
     public:
-        mob_muckscale_flesh_hunter() : MS::Game::Scripting::Interfaces::CreatureScript("mob_muckscale_flesh_hunter")
+        mob_muckscale_flesh_hunter() : CreatureScript("mob_muckscale_flesh_hunter")
         {
         }
 
@@ -2852,10 +2852,10 @@ class mob_muckscale_flesh_hunter : public MS::Game::Scripting::Interfaces::Creat
 };
 
 // Muckscale Slayer - 64196/63999
-class mob_muckscale_slayer : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_muckscale_slayer : public CreatureScript
 {
     public:
-        mob_muckscale_slayer() : MS::Game::Scripting::Interfaces::CreatureScript("mob_muckscale_slayer")
+        mob_muckscale_slayer() : CreatureScript("mob_muckscale_slayer")
         {
         }
 
@@ -2921,10 +2921,10 @@ class mob_muckscale_slayer : public MS::Game::Scripting::Interfaces::CreatureScr
 };
 
 // Muckscale Shaman - 64195/64008
-class mob_muckscale_shaman : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_muckscale_shaman : public CreatureScript
 {
     public:
-        mob_muckscale_shaman() : MS::Game::Scripting::Interfaces::CreatureScript("mob_muckscale_shaman")
+        mob_muckscale_shaman() : CreatureScript("mob_muckscale_shaman")
         {
         }
 
@@ -2990,10 +2990,10 @@ class mob_muckscale_shaman : public MS::Game::Scripting::Interfaces::CreatureScr
 };
 
 // Zandalari Warbringer - 69769/69842
-class mob_zandalari_warbringer : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_zandalari_warbringer : public CreatureScript
 {
     public:
-        mob_zandalari_warbringer() : MS::Game::Scripting::Interfaces::CreatureScript("mob_zandalari_warbringer")
+        mob_zandalari_warbringer() : CreatureScript("mob_zandalari_warbringer")
         {
         }
 

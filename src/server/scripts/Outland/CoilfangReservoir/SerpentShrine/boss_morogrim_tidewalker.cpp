@@ -78,10 +78,10 @@ float MurlocCords[10][4] =
 };
 
 //Morogrim Tidewalker AI
-class boss_morogrim_tidewalker : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_morogrim_tidewalker : public CreatureScript
 {
 public:
-    boss_morogrim_tidewalker() : MS::Game::Scripting::Interfaces::CreatureScript("boss_morogrim_tidewalker") { }
+    boss_morogrim_tidewalker() : CreatureScript("boss_morogrim_tidewalker") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -293,10 +293,10 @@ public:
 //Water Globule AI
 #define SPELL_GLOBULE_EXPLOSION 37871
 
-class mob_water_globule : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_water_globule : public CreatureScript
 {
 public:
-    mob_water_globule() : MS::Game::Scripting::Interfaces::CreatureScript("mob_water_globule") { }
+    mob_water_globule() : CreatureScript("mob_water_globule") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

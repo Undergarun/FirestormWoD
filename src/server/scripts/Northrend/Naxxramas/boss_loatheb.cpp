@@ -53,10 +53,10 @@ enum Achievement
     DATA_ACHIEVEMENT_SPORE_LOSER    = 21822183,
 };
 
-class boss_loatheb : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_loatheb : public CreatureScript
 {
     public:
-        boss_loatheb() : MS::Game::Scripting::Interfaces::CreatureScript("boss_loatheb") { }
+        boss_loatheb() : CreatureScript("boss_loatheb") { }
 
         struct boss_loathebAI : public BossAI
         {
@@ -145,10 +145,10 @@ class boss_loatheb : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class achievement_spore_loser : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
+class achievement_spore_loser : public AchievementCriteriaScript
 {
     public:
-        achievement_spore_loser() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_spore_loser") { }
+        achievement_spore_loser() : AchievementCriteriaScript("achievement_spore_loser") { }
 
         bool OnCheck(Player* /*source*/, Unit* target)
         {
@@ -158,10 +158,10 @@ class achievement_spore_loser : public MS::Game::Scripting::Interfaces::Achievem
 
 typedef boss_loatheb::boss_loathebAI LoathebAI;
 
-class spell_loatheb_necrotic_aura_warning: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_loatheb_necrotic_aura_warning: public SpellScriptLoader
 {
     public:
-        spell_loatheb_necrotic_aura_warning() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_loatheb_necrotic_aura_warning") { }
+        spell_loatheb_necrotic_aura_warning() : SpellScriptLoader("spell_loatheb_necrotic_aura_warning") { }
 
         class spell_loatheb_necrotic_aura_warning_AuraScript : public AuraScript
         {

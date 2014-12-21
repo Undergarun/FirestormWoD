@@ -56,10 +56,10 @@ enum eAeranas
     C_AERANAS               = 17085
 };
 
-class npc_aeranas : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_aeranas : public CreatureScript
 {
 public:
-    npc_aeranas() : MS::Game::Scripting::Interfaces::CreatureScript("npc_aeranas") { }
+    npc_aeranas() : CreatureScript("npc_aeranas") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -143,10 +143,10 @@ enum eAncestralWolf
     NPC_RYGA                        = 17123
 };
 
-class npc_ancestral_wolf : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_ancestral_wolf : public CreatureScript
 {
 public:
-    npc_ancestral_wolf() : MS::Game::Scripting::Interfaces::CreatureScript("npc_ancestral_wolf") { }
+    npc_ancestral_wolf() : CreatureScript("npc_ancestral_wolf") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -205,10 +205,10 @@ public:
 ## go_haaleshi_altar
 ######*/
 
-class go_haaleshi_altar : public MS::Game::Scripting::Interfaces::GameObjectScript
+class go_haaleshi_altar : public GameObjectScript
 {
 public:
-    go_haaleshi_altar() : MS::Game::Scripting::Interfaces::GameObjectScript("go_haaleshi_altar") { }
+    go_haaleshi_altar() : GameObjectScript("go_haaleshi_altar") { }
 
     bool OnGossipHello(Player* /*player*/, GameObject* go)
     {
@@ -228,10 +228,10 @@ enum eNaladu
     GOSSIP_TEXTID_NALADU1   = 9788
 };
 
-class npc_naladu : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_naladu : public CreatureScript
 {
 public:
-    npc_naladu() : MS::Game::Scripting::Interfaces::CreatureScript("npc_naladu") { }
+    npc_naladu() : CreatureScript("npc_naladu") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
@@ -267,10 +267,10 @@ enum eTracy
     QUEST_DIGGING_FOR_PRAYER_BEADS       = 10916
 };
 
-class npc_tracy_proudwell : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_tracy_proudwell : public CreatureScript
 {
 public:
-    npc_tracy_proudwell() : MS::Game::Scripting::Interfaces::CreatureScript("npc_tracy_proudwell") { }
+    npc_tracy_proudwell() : CreatureScript("npc_tracy_proudwell") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
@@ -323,10 +323,10 @@ enum eTrollbane
     GOSSIP_TEXTID_TROLLBANE3        = 8772
 };
 
-class npc_trollbane : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_trollbane : public CreatureScript
 {
 public:
-    npc_trollbane() : MS::Game::Scripting::Interfaces::CreatureScript("npc_trollbane") { }
+    npc_trollbane() : CreatureScript("npc_trollbane") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
@@ -376,10 +376,10 @@ enum eWoundedBloodElf
     QUEST_ROAD_TO_FALCON_WATCH  = 9375
 };
 
-class npc_wounded_blood_elf : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_wounded_blood_elf : public CreatureScript
 {
 public:
-    npc_wounded_blood_elf() : MS::Game::Scripting::Interfaces::CreatureScript("npc_wounded_blood_elf") { }
+    npc_wounded_blood_elf() : CreatureScript("npc_wounded_blood_elf") { }
 
     bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
@@ -464,10 +464,10 @@ enum eFelGuard
     NPC_DERANGED_HELBOAR                          = 16863
 };
 
-class npc_fel_guard_hound : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_fel_guard_hound : public CreatureScript
 {
 public:
-    npc_fel_guard_hound() : MS::Game::Scripting::Interfaces::CreatureScript("npc_fel_guard_hound") { }
+    npc_fel_guard_hound() : CreatureScript("npc_fel_guard_hound") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

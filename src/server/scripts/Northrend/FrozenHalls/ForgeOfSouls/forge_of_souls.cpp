@@ -147,10 +147,10 @@ enum Phase
     PHASE_INTRO,
 };
 
-class npc_sylvanas_fos : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_sylvanas_fos : public CreatureScript
 {
 public:
-    npc_sylvanas_fos() : MS::Game::Scripting::Interfaces::CreatureScript("npc_sylvanas_fos") { }
+    npc_sylvanas_fos() : CreatureScript("npc_sylvanas_fos") { }
 
     struct npc_sylvanas_fosAI : public ScriptedAI
     {
@@ -273,10 +273,10 @@ public:
     }
 };
 
-class npc_jaina_fos : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_jaina_fos : public CreatureScript
 {
 public:
-    npc_jaina_fos() : MS::Game::Scripting::Interfaces::CreatureScript("npc_jaina_fos") { }
+    npc_jaina_fos() : CreatureScript("npc_jaina_fos") { }
 
     struct npc_jaina_fosAI: public ScriptedAI
     {
@@ -410,10 +410,10 @@ public:
     }
 };
 
-class mob_spiteful_apparition : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_spiteful_apparition : public CreatureScript
 {
 public:
-    mob_spiteful_apparition() : MS::Game::Scripting::Interfaces::CreatureScript("mob_spiteful_apparition") { }
+    mob_spiteful_apparition() : CreatureScript("mob_spiteful_apparition") { }
 
     struct mob_spiteful_apparitionAI: public ScriptedAI
     {
@@ -465,10 +465,10 @@ public:
     }
 };
 
-class mob_spectral_warden : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_spectral_warden : public CreatureScript
 {
 public:
-    mob_spectral_warden() : MS::Game::Scripting::Interfaces::CreatureScript("mob_spectral_warden") { }
+    mob_spectral_warden() : CreatureScript("mob_spectral_warden") { }
 
     struct mob_spectral_wardenAI: public ScriptedAI
     {
@@ -525,10 +525,10 @@ public:
     }
 };
 
-class mob_soulguard_watchman : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_soulguard_watchman : public CreatureScript
 {
 public:
-    mob_soulguard_watchman() : MS::Game::Scripting::Interfaces::CreatureScript("mob_soulguard_watchman") { }
+    mob_soulguard_watchman() : CreatureScript("mob_soulguard_watchman") { }
 
     struct mob_soulguard_watchmanAI: public ScriptedAI
     {
@@ -582,10 +582,10 @@ public:
     }
 };
 
-class mob_soulguard_reaper : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_soulguard_reaper : public CreatureScript
 {
 public:
-    mob_soulguard_reaper() : MS::Game::Scripting::Interfaces::CreatureScript("mob_soulguard_reaper") { }
+    mob_soulguard_reaper() : CreatureScript("mob_soulguard_reaper") { }
 
     struct mob_soulguard_reaperAI: public ScriptedAI
     {
@@ -641,10 +641,10 @@ public:
     }
 };
 
-class mob_soulguard_bonecaster : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_soulguard_bonecaster : public CreatureScript
 {
 public:
-    mob_soulguard_bonecaster() : MS::Game::Scripting::Interfaces::CreatureScript("mob_soulguard_bonecaster") { }
+    mob_soulguard_bonecaster() : CreatureScript("mob_soulguard_bonecaster") { }
 
     struct mob_soulguard_bonecasterAI: public ScriptedAI
     {
@@ -704,10 +704,10 @@ public:
     }
 };
 
-class mob_soulguard_animator : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_soulguard_animator : public CreatureScript
 {
 public:
-    mob_soulguard_animator() : MS::Game::Scripting::Interfaces::CreatureScript("mob_soulguard_animator") { }
+    mob_soulguard_animator() : CreatureScript("mob_soulguard_animator") { }
 
     struct mob_soulguard_animatorAI : public ScriptedAI
     {
@@ -777,10 +777,10 @@ public:
     }
 };
 
-class mob_soulguard_adept : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_soulguard_adept : public CreatureScript
 {
 public:
-    mob_soulguard_adept() : MS::Game::Scripting::Interfaces::CreatureScript("mob_soulguard_adept") { }
+    mob_soulguard_adept() : CreatureScript("mob_soulguard_adept") { }
 
     struct mob_soulguard_adeptAI: public ScriptedAI
     {
@@ -849,10 +849,10 @@ public:
     }
 };
 
-class mob_soul_horror : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_soul_horror : public CreatureScript
 {
 public:
-    mob_soul_horror() : MS::Game::Scripting::Interfaces::CreatureScript("mob_soul_horror") { }
+    mob_soul_horror() : CreatureScript("mob_soul_horror") { }
 
     struct mob_soul_horrorAI : public ScriptedAI
     {

@@ -7,7 +7,7 @@ namespace MS
         namespace Bloodmaul
         {
             // Entry: 75211
-            class mob_MagmaLord : public Game::Scripting::Interfaces::CreatureScript
+            class mob_MagmaLord : public CreatureScript
             {
             public:
                 mob_MagmaLord()
@@ -114,7 +114,7 @@ namespace MS
             };
 
             // Entry: 75209
-            class mob_MoltenEarthElemental : public Game::Scripting::Interfaces::CreatureScript
+            class mob_MoltenEarthElemental : public CreatureScript
             {
             public:
                 mob_MoltenEarthElemental()
@@ -187,7 +187,7 @@ namespace MS
             };
 
             // Entry: 75406
-            class mob_Slagna : public Game::Scripting::Interfaces::CreatureScript
+            class mob_Slagna : public CreatureScript
             {
             public:
                 mob_Slagna()
@@ -264,7 +264,7 @@ namespace MS
             };
 
             // Entry: 74355
-            class mob_CapturedMiner : public Game::Scripting::Interfaces::CreatureScript
+            class mob_CapturedMiner : public CreatureScript
             {
             public:
                 mob_CapturedMiner()
@@ -301,7 +301,7 @@ namespace MS
             };
 
             // Entry: 75272
-            class mob_BloodmaulOgreMage : public Game::Scripting::Interfaces::CreatureScript
+            class mob_BloodmaulOgreMage : public CreatureScript
             {
             public:
                 mob_BloodmaulOgreMage()
@@ -375,7 +375,7 @@ namespace MS
             };
 
             // Entry: 75210
-            class mob_BloodmaulWarder : public Game::Scripting::Interfaces::CreatureScript
+            class mob_BloodmaulWarder : public CreatureScript
             {
             public:
                 mob_BloodmaulWarder()
@@ -449,7 +449,7 @@ namespace MS
             };
 
             // Entry: 75198
-            class mob_BloodmaulGeomancer : public Game::Scripting::Interfaces::CreatureScript
+            class mob_BloodmaulGeomancer : public CreatureScript
             {
             public:
                 mob_BloodmaulGeomancer()
@@ -532,7 +532,7 @@ namespace MS
             };
 
             // Entry: 75426
-            class mob_BloodmaulOverseer : public Game::Scripting::Interfaces::CreatureScript
+            class mob_BloodmaulOverseer : public CreatureScript
             {
             public:
                 mob_BloodmaulOverseer()
@@ -607,7 +607,7 @@ namespace MS
             };
 
             // Entry: 75191
-            class mob_BloodmaulSlaver : public Game::Scripting::Interfaces::CreatureScript
+            class mob_BloodmaulSlaver : public CreatureScript
             {
             public:
                 mob_BloodmaulSlaver()
@@ -689,7 +689,7 @@ namespace MS
             };
 
             // Entry: 84978
-            class mob_BloodmaulEnforcer : public Game::Scripting::Interfaces::CreatureScript
+            class mob_BloodmaulEnforcer : public CreatureScript
             {
             public:
                 mob_BloodmaulEnforcer()

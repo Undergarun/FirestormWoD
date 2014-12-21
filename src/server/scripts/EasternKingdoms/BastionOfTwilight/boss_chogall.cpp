@@ -244,10 +244,10 @@ void AddCorruption(Unit* pPlayer, uint32 value)
     }
 }
 
-class boss_chogall : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_chogall : public CreatureScript
 {
     public:
-        boss_chogall() : MS::Game::Scripting::Interfaces::CreatureScript("boss_chogall") { }
+        boss_chogall() : CreatureScript("boss_chogall") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -504,10 +504,10 @@ class boss_chogall : public MS::Game::Scripting::Interfaces::CreatureScript
         };
 };
 
-class npc_chogall_fire_portal : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_chogall_fire_portal : public CreatureScript
 {
     public:
-        npc_chogall_fire_portal() : MS::Game::Scripting::Interfaces::CreatureScript("npc_chogall_fire_portal") { }
+        npc_chogall_fire_portal() : CreatureScript("npc_chogall_fire_portal") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -555,10 +555,10 @@ class npc_chogall_fire_portal : public MS::Game::Scripting::Interfaces::Creature
         };
 };
 
-class npc_chogall_shadow_portal : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_chogall_shadow_portal : public CreatureScript
 {
     public:
-        npc_chogall_shadow_portal() : MS::Game::Scripting::Interfaces::CreatureScript("npc_chogall_shadow_portal") { }
+        npc_chogall_shadow_portal() : CreatureScript("npc_chogall_shadow_portal") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -609,10 +609,10 @@ class npc_chogall_shadow_portal : public MS::Game::Scripting::Interfaces::Creatu
         };
 };
 
-class npc_chogall_fire_elemental : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_chogall_fire_elemental : public CreatureScript
 {
     public:
-        npc_chogall_fire_elemental() : MS::Game::Scripting::Interfaces::CreatureScript("npc_chogall_fire_elemental") { }
+        npc_chogall_fire_elemental() : CreatureScript("npc_chogall_fire_elemental") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -680,10 +680,10 @@ class npc_chogall_fire_elemental : public MS::Game::Scripting::Interfaces::Creat
         };
 };
 
-class npc_chogall_shadow_lord : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_chogall_shadow_lord : public CreatureScript
 {
     public:
-        npc_chogall_shadow_lord() : MS::Game::Scripting::Interfaces::CreatureScript("npc_chogall_shadow_lord") { }
+        npc_chogall_shadow_lord() : CreatureScript("npc_chogall_shadow_lord") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -751,10 +751,10 @@ class npc_chogall_shadow_lord : public MS::Game::Scripting::Interfaces::Creature
         };
 };
 
-class npc_chogall_blaze : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_chogall_blaze : public CreatureScript
 {
     public:
-        npc_chogall_blaze() : MS::Game::Scripting::Interfaces::CreatureScript("npc_chogall_blaze") { }
+        npc_chogall_blaze() : CreatureScript("npc_chogall_blaze") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -789,10 +789,10 @@ class npc_chogall_blaze : public MS::Game::Scripting::Interfaces::CreatureScript
         };
 };
 
-class npc_chogall_corruption : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_chogall_corruption : public CreatureScript
 {
     public:
-        npc_chogall_corruption() : MS::Game::Scripting::Interfaces::CreatureScript("npc_chogall_corruption") { }
+        npc_chogall_corruption() : CreatureScript("npc_chogall_corruption") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -827,10 +827,10 @@ class npc_chogall_corruption : public MS::Game::Scripting::Interfaces::CreatureS
         };
 };
 
-class npc_chogall_darkened_creation : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_chogall_darkened_creation : public CreatureScript
 {
     public:
-        npc_chogall_darkened_creation() : MS::Game::Scripting::Interfaces::CreatureScript("npc_chogall_darkened_creation") { }
+        npc_chogall_darkened_creation() : CreatureScript("npc_chogall_darkened_creation") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -901,10 +901,10 @@ class npc_chogall_darkened_creation : public MS::Game::Scripting::Interfaces::Cr
         };
 };
 
-class npc_chogall_malformation : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_chogall_malformation : public CreatureScript
 {
     public:
-        npc_chogall_malformation() : MS::Game::Scripting::Interfaces::CreatureScript("npc_chogall_malformation") { }
+        npc_chogall_malformation() : CreatureScript("npc_chogall_malformation") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -976,10 +976,10 @@ class npc_chogall_malformation : public MS::Game::Scripting::Interfaces::Creatur
         };
 };
 
-class npc_chogall_corrupting_adherent : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_chogall_corrupting_adherent : public CreatureScript
 {
     public:
-        npc_chogall_corrupting_adherent() : MS::Game::Scripting::Interfaces::CreatureScript("npc_chogall_corrupting_adherent") { }
+        npc_chogall_corrupting_adherent() : CreatureScript("npc_chogall_corrupting_adherent") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -1117,10 +1117,10 @@ class npc_chogall_corrupting_adherent : public MS::Game::Scripting::Interfaces::
         };
 };
 
-class npc_chogall_blood_of_the_old_god : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_chogall_blood_of_the_old_god : public CreatureScript
 {
     public:
-        npc_chogall_blood_of_the_old_god() : MS::Game::Scripting::Interfaces::CreatureScript("npc_chogall_blood_of_the_old_god") { }
+        npc_chogall_blood_of_the_old_god() : CreatureScript("npc_chogall_blood_of_the_old_god") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -1165,10 +1165,10 @@ class npc_chogall_blood_of_the_old_god : public MS::Game::Scripting::Interfaces:
         };
 };
 
-class spell_chogall_conversion: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_chogall_conversion: public SpellScriptLoader
 {
     public:
-        spell_chogall_conversion() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_chogall_conversion") { }
+        spell_chogall_conversion() : SpellScriptLoader("spell_chogall_conversion") { }
 
         class spell_chogall_conversion_SpellScript : public SpellScript
         {
@@ -1196,10 +1196,10 @@ class spell_chogall_conversion: public MS::Game::Scripting::Interfaces::SpellScr
         }
 };
 
-class spell_chogall_summon_corrupting_adherent: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_chogall_summon_corrupting_adherent: public SpellScriptLoader
 {
     public:
-        spell_chogall_summon_corrupting_adherent() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_chogall_summon_corrupting_adherent") { }
+        spell_chogall_summon_corrupting_adherent() : SpellScriptLoader("spell_chogall_summon_corrupting_adherent") { }
 
         class spell_chogall_summon_corrupting_adherent_SpellScript : public SpellScript
         {
@@ -1225,10 +1225,10 @@ class spell_chogall_summon_corrupting_adherent: public MS::Game::Scripting::Inte
         }
 };
 
-class spell_chogall_fester_blood_script: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_chogall_fester_blood_script: public SpellScriptLoader
 {
     public:
-        spell_chogall_fester_blood_script() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_chogall_fester_blood_script") { }
+        spell_chogall_fester_blood_script() : SpellScriptLoader("spell_chogall_fester_blood_script") { }
 
         class spell_chogall_fester_blood_script_SpellScript : public SpellScript
         {
@@ -1255,10 +1255,10 @@ class spell_chogall_fester_blood_script: public MS::Game::Scripting::Interfaces:
         }
 };
 
-class spell_chogall_corruption_accelerated_corruption: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_chogall_corruption_accelerated_corruption: public SpellScriptLoader
 {
     public:
-        spell_chogall_corruption_accelerated_corruption() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_chogall_corruption_accelerated_corruption") { }
+        spell_chogall_corruption_accelerated_corruption() : SpellScriptLoader("spell_chogall_corruption_accelerated_corruption") { }
 
         class spell_chogall_corruption_accelerated_corruption_SpellScript : public SpellScript
         {
@@ -1284,10 +1284,10 @@ class spell_chogall_corruption_accelerated_corruption: public MS::Game::Scriptin
         }
 };
 
-class spell_chogall_corruption_sickness_corruption: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_chogall_corruption_sickness_corruption: public SpellScriptLoader
 {
     public:
-        spell_chogall_corruption_sickness_corruption() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_chogall_corruption_sickness_corruption") { }
+        spell_chogall_corruption_sickness_corruption() : SpellScriptLoader("spell_chogall_corruption_sickness_corruption") { }
 
         class spell_chogall_corruption_sickness_corruption_SpellScript : public SpellScript
         {
@@ -1314,10 +1314,10 @@ class spell_chogall_corruption_sickness_corruption: public MS::Game::Scripting::
         }
 };
 
-class spell_chogall_corrupting_crash_corruption: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_chogall_corrupting_crash_corruption: public SpellScriptLoader
 {
     public:
-        spell_chogall_corrupting_crash_corruption() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_chogall_corrupting_crash_corruption") { }
+        spell_chogall_corrupting_crash_corruption() : SpellScriptLoader("spell_chogall_corrupting_crash_corruption") { }
 
         class spell_chogall_corrupting_crash_corruption_SpellScript : public SpellScript
         {
@@ -1343,10 +1343,10 @@ class spell_chogall_corrupting_crash_corruption: public MS::Game::Scripting::Int
         }
 };
 
-class spell_chogall_depravity_corruption: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_chogall_depravity_corruption: public SpellScriptLoader
 {
     public:
-        spell_chogall_depravity_corruption() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_chogall_depravity_corruption") { }
+        spell_chogall_depravity_corruption() : SpellScriptLoader("spell_chogall_depravity_corruption") { }
 
         class spell_chogall_depravity_corruption_SpellScript : public SpellScript
         {
@@ -1372,10 +1372,10 @@ class spell_chogall_depravity_corruption: public MS::Game::Scripting::Interfaces
         }
 };
 
-class spell_chogall_sprayed_corruption_corruption: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_chogall_sprayed_corruption_corruption: public SpellScriptLoader
 {
     public:
-        spell_chogall_sprayed_corruption_corruption() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_chogall_sprayed_corruption_corruption") { }
+        spell_chogall_sprayed_corruption_corruption() : SpellScriptLoader("spell_chogall_sprayed_corruption_corruption") { }
 
         class spell_chogall_sprayed_corruption_corruption_SpellScript : public SpellScript
         {
@@ -1401,10 +1401,10 @@ class spell_chogall_sprayed_corruption_corruption: public MS::Game::Scripting::I
         }
 };
 
-class spell_chogall_spilled_blood_of_the_old_god_corruption: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_chogall_spilled_blood_of_the_old_god_corruption: public SpellScriptLoader
 {
     public:
-        spell_chogall_spilled_blood_of_the_old_god_corruption() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_chogall_spilled_blood_of_the_old_god_corruption") { }
+        spell_chogall_spilled_blood_of_the_old_god_corruption() : SpellScriptLoader("spell_chogall_spilled_blood_of_the_old_god_corruption") { }
 
         class spell_chogall_spilled_blood_of_the_old_god_corruption_SpellScript : public SpellScript
         {
@@ -1430,10 +1430,10 @@ class spell_chogall_spilled_blood_of_the_old_god_corruption: public MS::Game::Sc
         }
 };
 
-class spell_chogall_corruption_of_the_old_god_corruption: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_chogall_corruption_of_the_old_god_corruption: public SpellScriptLoader
 {
     public:
-        spell_chogall_corruption_of_the_old_god_corruption() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_chogall_corruption_of_the_old_god_corruption") { }
+        spell_chogall_corruption_of_the_old_god_corruption() : SpellScriptLoader("spell_chogall_corruption_of_the_old_god_corruption") { }
 
         class spell_chogall_corruption_of_the_old_god_corruption_SpellScript : public SpellScript
         {
@@ -1473,10 +1473,10 @@ class spell_chogall_corruption_of_the_old_god_corruption: public MS::Game::Scrip
         }
 };
 
-class spell_chogall_worshipping: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_chogall_worshipping: public SpellScriptLoader
 {
     public:
-        spell_chogall_worshipping() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_chogall_worshipping") { }
+        spell_chogall_worshipping() : SpellScriptLoader("spell_chogall_worshipping") { }
 
         class spell_chogall_worshipping_AuraScript : public AuraScript
         {

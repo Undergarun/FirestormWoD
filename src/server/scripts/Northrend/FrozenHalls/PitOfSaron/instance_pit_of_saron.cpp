@@ -32,10 +32,10 @@ DoorData const Doors[] =
     {0,                     0,              DOOR_TYPE_ROOM,       BOUNDARY_NONE}, // END
 };
 
-class instance_pit_of_saron : public MS::Game::Scripting::Interfaces::InstanceMapScript
+class instance_pit_of_saron : public InstanceMapScript
 {
     public:
-        instance_pit_of_saron() : MS::Game::Scripting::Interfaces::InstanceMapScript(PoSScriptName, 658) { }
+        instance_pit_of_saron() : InstanceMapScript(PoSScriptName, 658) { }
 
         struct instance_pit_of_saron_InstanceScript : public InstanceScript
         {

@@ -79,10 +79,10 @@ const Position addSpawnPos[2] =
     {-249.71f, 2263.23f, 100.89f, 5.15f}
 };
 
-class boss_commander_springvale : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_commander_springvale : public CreatureScript
 {
     public:
-        boss_commander_springvale() : MS::Game::Scripting::Interfaces::CreatureScript("boss_commander_springvale") { }
+        boss_commander_springvale() : CreatureScript("boss_commander_springvale") { }
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -193,10 +193,10 @@ class boss_commander_springvale : public MS::Game::Scripting::Interfaces::Creatu
 };
 
 
-class npc_springvale_wailing_guardsman : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_springvale_wailing_guardsman : public CreatureScript
 {
     public:
-        npc_springvale_wailing_guardsman() : MS::Game::Scripting::Interfaces::CreatureScript("npc_springvale_wailing_guardsman") { }
+        npc_springvale_wailing_guardsman() : CreatureScript("npc_springvale_wailing_guardsman") { }
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -259,10 +259,10 @@ class npc_springvale_wailing_guardsman : public MS::Game::Scripting::Interfaces:
          };
 };
 
-class npc_springvale_tormented_officer : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_springvale_tormented_officer : public CreatureScript
 {
     public:
-        npc_springvale_tormented_officer() : MS::Game::Scripting::Interfaces::CreatureScript("npc_springvale_tormented_officer") { }
+        npc_springvale_tormented_officer() : CreatureScript("npc_springvale_tormented_officer") { }
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -323,10 +323,10 @@ class npc_springvale_tormented_officer : public MS::Game::Scripting::Interfaces:
          };
 };
 
-class npc_springvale_desecration_bunny : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_springvale_desecration_bunny : public CreatureScript
 {
     public:
-        npc_springvale_desecration_bunny() : MS::Game::Scripting::Interfaces::CreatureScript("npc_springvale_desecration_bunny") { }
+        npc_springvale_desecration_bunny() : CreatureScript("npc_springvale_desecration_bunny") { }
         
         CreatureAI* GetAI(Creature* pCreature) const
         {

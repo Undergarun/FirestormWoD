@@ -56,7 +56,7 @@ enum eEnums
     MOB_VENGEFUL_SURGE      = 2776
 };
 
-class npc_professor_phizzlethorpe : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_professor_phizzlethorpe : public CreatureScript
 {
     public:
 

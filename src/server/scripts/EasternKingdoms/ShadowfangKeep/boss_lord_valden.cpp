@@ -46,10 +46,10 @@ enum Adds
     NPC_MYSTERY_TOXIN_2 = 50439,
 };
 
-class boss_lord_valden : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_lord_valden : public CreatureScript
 {
     public:
-        boss_lord_valden() : MS::Game::Scripting::Interfaces::CreatureScript("boss_lord_valden") { }
+        boss_lord_valden() : CreatureScript("boss_lord_valden") { }
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -154,10 +154,10 @@ class boss_lord_valden : public MS::Game::Scripting::Interfaces::CreatureScript
         };
 };
 
-class npc_valden_mystery_toxin : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_valden_mystery_toxin : public CreatureScript
 {
     public:
-        npc_valden_mystery_toxin() : MS::Game::Scripting::Interfaces::CreatureScript("npc_valden_mystery_toxin") { }
+        npc_valden_mystery_toxin() : CreatureScript("npc_valden_mystery_toxin") { }
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -185,10 +185,10 @@ class npc_valden_mystery_toxin : public MS::Game::Scripting::Interfaces::Creatur
      };
 };
 
-class spell_valden_toxic_coagulant: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_valden_toxic_coagulant: public SpellScriptLoader
 {
     public:
-        spell_valden_toxic_coagulant() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_valden_toxic_coagulant") { }
+        spell_valden_toxic_coagulant() : SpellScriptLoader("spell_valden_toxic_coagulant") { }
 
         class spell_valden_toxic_coagulant_AuraScript : public AuraScript
         {

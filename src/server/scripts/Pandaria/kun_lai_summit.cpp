@@ -7,10 +7,10 @@
 #define GOSSIP_CHOICE_1 "I challenge you."
 
 // Nessos the Oracle - 50789
-class mob_nessos_the_oracle : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_nessos_the_oracle : public CreatureScript
 {
     public:
-        mob_nessos_the_oracle() : MS::Game::Scripting::Interfaces::CreatureScript("mob_nessos_the_oracle")
+        mob_nessos_the_oracle() : CreatureScript("mob_nessos_the_oracle")
         {
         }
 
@@ -78,10 +78,10 @@ class mob_nessos_the_oracle : public MS::Game::Scripting::Interfaces::CreatureSc
 };
 
 // Ski'thik - 50733
-class mob_ski_thik : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_ski_thik : public CreatureScript
 {
     public:
-        mob_ski_thik() : MS::Game::Scripting::Interfaces::CreatureScript("mob_ski_thik")
+        mob_ski_thik() : CreatureScript("mob_ski_thik")
         {
         }
 
@@ -159,10 +159,10 @@ class mob_ski_thik : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Havak - 50354
-class mob_havak : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_havak : public CreatureScript
 {
     public:
-        mob_havak() : MS::Game::Scripting::Interfaces::CreatureScript("mob_havak")
+        mob_havak() : CreatureScript("mob_havak")
         {
         }
 
@@ -229,10 +229,10 @@ class mob_havak : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Mogujia Soul-Caller - 59797
-class mob_mogujia_soul_caller : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_mogujia_soul_caller : public CreatureScript
 {
     public:
-        mob_mogujia_soul_caller() : MS::Game::Scripting::Interfaces::CreatureScript("mob_mogujia_soul_caller")
+        mob_mogujia_soul_caller() : CreatureScript("mob_mogujia_soul_caller")
         {
         }
 
@@ -298,10 +298,10 @@ class mob_mogujia_soul_caller : public MS::Game::Scripting::Interfaces::Creature
 };
 
 // Quilen Stonemaw - 64014
-class mob_quilen_stonemaw : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_quilen_stonemaw : public CreatureScript
 {
     public:
-        mob_quilen_stonemaw() : MS::Game::Scripting::Interfaces::CreatureScript("mob_quilen_stonemaw")
+        mob_quilen_stonemaw() : CreatureScript("mob_quilen_stonemaw")
         {
         }
 
@@ -355,10 +355,10 @@ class mob_quilen_stonemaw : public MS::Game::Scripting::Interfaces::CreatureScri
 };
 
 // Zai the Outcast - 50769
-class mob_zai_the_outcast : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_zai_the_outcast : public CreatureScript
 {
     public:
-        mob_zai_the_outcast() : MS::Game::Scripting::Interfaces::CreatureScript("mob_zai_the_outcast")
+        mob_zai_the_outcast() : CreatureScript("mob_zai_the_outcast")
         {
         }
 
@@ -435,10 +435,10 @@ class mob_zai_the_outcast : public MS::Game::Scripting::Interfaces::CreatureScri
 };
 
 // Zhi the Harmonious - 64537
-class mob_zhi_the_harmonious : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_zhi_the_harmonious : public CreatureScript
 {
     public:
-        mob_zhi_the_harmonious() : MS::Game::Scripting::Interfaces::CreatureScript("mob_zhi_the_harmonious")
+        mob_zhi_the_harmonious() : CreatureScript("mob_zhi_the_harmonious")
         {
         }
 
@@ -479,10 +479,10 @@ class mob_zhi_the_harmonious : public MS::Game::Scripting::Interfaces::CreatureS
 };
 
 // Anduin Wrynn - 64540
-class mob_andruin_wrynn : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_andruin_wrynn : public CreatureScript
 {
     public:
-        mob_andruin_wrynn() : MS::Game::Scripting::Interfaces::CreatureScript("mob_andruin_wrynn")
+        mob_andruin_wrynn() : CreatureScript("mob_andruin_wrynn")
         {
         }
 
@@ -529,10 +529,10 @@ class mob_andruin_wrynn : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Taran Zhu - 64536
-class mob_taran_zhu_white_tiger : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_taran_zhu_white_tiger : public CreatureScript
 {
     public:
-        mob_taran_zhu_white_tiger() : MS::Game::Scripting::Interfaces::CreatureScript("mob_taran_zhu_white_tiger")
+        mob_taran_zhu_white_tiger() : CreatureScript("mob_taran_zhu_white_tiger")
         {
         }
 
@@ -579,10 +579,10 @@ class mob_taran_zhu_white_tiger : public MS::Game::Scripting::Interfaces::Creatu
 };
 
 // Xuen - 64528
-class npc_xuen : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_xuen : public CreatureScript
 {
     public:
-        npc_xuen() : MS::Game::Scripting::Interfaces::CreatureScript("npc_xuen")
+        npc_xuen() : CreatureScript("npc_xuen")
         {
         }
 
@@ -836,10 +836,10 @@ class npc_xuen : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Spirit of Violence - 64656
-class mob_spirit_of_violence : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_spirit_of_violence : public CreatureScript
 {
     public:
-        mob_spirit_of_violence() : MS::Game::Scripting::Interfaces::CreatureScript("mob_spirit_of_violence")
+        mob_spirit_of_violence() : CreatureScript("mob_spirit_of_violence")
         {
         }
 
@@ -923,10 +923,10 @@ class mob_spirit_of_violence : public MS::Game::Scripting::Interfaces::CreatureS
 };
 
 // Spirit of Anger - 64684
-class mob_spirit_of_anger : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_spirit_of_anger : public CreatureScript
 {
     public:
-        mob_spirit_of_anger() : MS::Game::Scripting::Interfaces::CreatureScript("mob_spirit_of_anger")
+        mob_spirit_of_anger() : CreatureScript("mob_spirit_of_anger")
         {
         }
 
@@ -1019,10 +1019,10 @@ class mob_spirit_of_anger : public MS::Game::Scripting::Interfaces::CreatureScri
 };
 
 // Spirit of Hatred - 64742/64744
-class mob_spirit_of_hatred : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_spirit_of_hatred : public CreatureScript
 {
     public:
-        mob_spirit_of_hatred() : MS::Game::Scripting::Interfaces::CreatureScript("mob_spirit_of_hatred")
+        mob_spirit_of_hatred() : CreatureScript("mob_spirit_of_hatred")
         {
         }
 
@@ -1114,10 +1114,10 @@ class mob_spirit_of_hatred : public MS::Game::Scripting::Interfaces::CreatureScr
 };
 
 // Xuen - 60968
-class npc_questgiver_xuen : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_questgiver_xuen : public CreatureScript
 {
     public:
-        npc_questgiver_xuen() : MS::Game::Scripting::Interfaces::CreatureScript("npc_questgiver_xuen")
+        npc_questgiver_xuen() : CreatureScript("npc_questgiver_xuen")
         {
         }
 
@@ -1161,10 +1161,10 @@ class npc_questgiver_xuen : public MS::Game::Scripting::Interfaces::CreatureScri
 };
 
 // Lun-Chi - 60994
-class mob_lun_chi : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_lun_chi : public CreatureScript
 {
     public:
-        mob_lun_chi() : MS::Game::Scripting::Interfaces::CreatureScript("mob_lun_chi")
+        mob_lun_chi() : CreatureScript("mob_lun_chi")
         {
         }
 
@@ -1324,10 +1324,10 @@ class mob_lun_chi : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Brewmaster Chani - 60996
-class mob_brewmaster_chani : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_brewmaster_chani : public CreatureScript
 {
     public:
-        mob_brewmaster_chani() : MS::Game::Scripting::Interfaces::CreatureScript("mob_brewmaster_chani")
+        mob_brewmaster_chani() : CreatureScript("mob_brewmaster_chani")
         {
         }
 
@@ -1481,10 +1481,10 @@ class mob_brewmaster_chani : public MS::Game::Scripting::Interfaces::CreatureScr
 };
 
 // Kang Bramblestaff - 60978
-class mob_kang_bramblestaff : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_kang_bramblestaff : public CreatureScript
 {
     public:
-        mob_kang_bramblestaff() : MS::Game::Scripting::Interfaces::CreatureScript("mob_kang_bramblestaff")
+        mob_kang_bramblestaff() : CreatureScript("mob_kang_bramblestaff")
         {
         }
 
@@ -1644,10 +1644,10 @@ class mob_kang_bramblestaff : public MS::Game::Scripting::Interfaces::CreatureSc
 };
 
 // Clever Ashyo - 60980
-class mob_clever_ashyo : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_clever_ashyo : public CreatureScript
 {
     public:
-        mob_clever_ashyo() : MS::Game::Scripting::Interfaces::CreatureScript("mob_clever_ashyo")
+        mob_clever_ashyo() : CreatureScript("mob_clever_ashyo")
         {
         }
 
@@ -1823,10 +1823,10 @@ class mob_clever_ashyo : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Ken-Ken - 60979
-class mob_ken_ken : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_ken_ken : public CreatureScript
 {
     public:
-        mob_ken_ken() : MS::Game::Scripting::Interfaces::CreatureScript("mob_ken_ken")
+        mob_ken_ken() : CreatureScript("mob_ken_ken")
         {
         }
 
@@ -2002,10 +2002,10 @@ class mob_ken_ken : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // The Wrestler - 60997
-class mob_the_wrestler : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_the_wrestler : public CreatureScript
 {
     public:
-        mob_the_wrestler() : MS::Game::Scripting::Interfaces::CreatureScript("mob_the_wrestler")
+        mob_the_wrestler() : CreatureScript("mob_the_wrestler")
         {
         }
 
@@ -2165,10 +2165,10 @@ class mob_the_wrestler : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Master Boom Boom - 61013
-class mob_master_boom_boom : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_master_boom_boom : public CreatureScript
 {
     public:
-        mob_master_boom_boom() : MS::Game::Scripting::Interfaces::CreatureScript("mob_master_boom_boom")
+        mob_master_boom_boom() : CreatureScript("mob_master_boom_boom")
         {
         }
 
@@ -2322,10 +2322,10 @@ class mob_master_boom_boom : public MS::Game::Scripting::Interfaces::CreatureScr
 };
 
 // Master Windfur - 61012
-class mob_master_windfur : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_master_windfur : public CreatureScript
 {
     public:
-        mob_master_windfur() : MS::Game::Scripting::Interfaces::CreatureScript("mob_master_windfur")
+        mob_master_windfur() : CreatureScript("mob_master_windfur")
         {
         }
 
@@ -2479,10 +2479,10 @@ class mob_master_windfur : public MS::Game::Scripting::Interfaces::CreatureScrip
 };
 
 // Tankiss - 61006
-class mob_tankiss : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_tankiss : public CreatureScript
 {
     public:
-        mob_tankiss() : MS::Game::Scripting::Interfaces::CreatureScript("mob_tankiss")
+        mob_tankiss() : CreatureScript("mob_tankiss")
         {
         }
 
@@ -2676,10 +2676,10 @@ class mob_tankiss : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Healiss - 61004
-class mob_healiss : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_healiss : public CreatureScript
 {
     public:
-        mob_healiss() : MS::Game::Scripting::Interfaces::CreatureScript("mob_healiss")
+        mob_healiss() : CreatureScript("mob_healiss")
         {
         }
 
@@ -2873,10 +2873,10 @@ class mob_healiss : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Hackiss - 61007
-class mob_hackiss : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_hackiss : public CreatureScript
 {
     public:
-        mob_hackiss() : MS::Game::Scripting::Interfaces::CreatureScript("mob_hackiss")
+        mob_hackiss() : CreatureScript("mob_hackiss")
         {
         }
 

@@ -4,7 +4,7 @@ namespace MS
 {
     namespace InstanceSkyreach
     {
-        class boss_Ranjit : public Game::Scripting::Interfaces::CreatureScript
+        class boss_Ranjit : public CreatureScript
         {
         public:
             // Entry: 86238

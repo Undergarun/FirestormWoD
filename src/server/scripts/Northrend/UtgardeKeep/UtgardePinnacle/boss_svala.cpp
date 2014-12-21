@@ -109,10 +109,10 @@ static const float spectatorWP[2][3] =
 
 static Position ArthasPos = { 295.81f, -366.16f, 92.57f, 1.58f };
 
-class boss_svala : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_svala : public CreatureScript
 {
 public:
-    boss_svala() : MS::Game::Scripting::Interfaces::CreatureScript("boss_svala") { }
+    boss_svala() : CreatureScript("boss_svala") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -512,10 +512,10 @@ public:
 
 };
 
-class npc_ritual_channeler : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_ritual_channeler : public CreatureScript
 {
 public:
-    npc_ritual_channeler() : MS::Game::Scripting::Interfaces::CreatureScript("npc_ritual_channeler") { }
+    npc_ritual_channeler() : CreatureScript("npc_ritual_channeler") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -559,10 +559,10 @@ public:
     };
 };
 
-class npc_spectator : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_spectator : public CreatureScript
 {
 public:
-    npc_spectator() : MS::Game::Scripting::Interfaces::CreatureScript("npc_spectator") { }
+    npc_spectator() : CreatureScript("npc_spectator") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -606,10 +606,10 @@ class RitualTargetCheck
         Unit* caster;
 };
 
-class spell_paralyze_pinnacle: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_paralyze_pinnacle: public SpellScriptLoader
 {
     public:
-        spell_paralyze_pinnacle() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_paralyze_pinnacle") { }
+        spell_paralyze_pinnacle() : SpellScriptLoader("spell_paralyze_pinnacle") { }
 
         class spell_paralyze_pinnacle_SpellScript : public SpellScript
         {
@@ -632,10 +632,10 @@ class spell_paralyze_pinnacle: public MS::Game::Scripting::Interfaces::SpellScri
         }
 };
 
-class npc_scourge_hulk : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_scourge_hulk : public CreatureScript
 {
     public:
-        npc_scourge_hulk() : MS::Game::Scripting::Interfaces::CreatureScript("npc_scourge_hulk") { }
+        npc_scourge_hulk() : CreatureScript("npc_scourge_hulk") { }
 
         struct npc_scourge_hulkAI : public ScriptedAI
         {
@@ -698,10 +698,10 @@ class npc_scourge_hulk : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class achievement_incredible_hulk : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
+class achievement_incredible_hulk : public AchievementCriteriaScript
 {
     public:
-        achievement_incredible_hulk() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_incredible_hulk") { }
+        achievement_incredible_hulk() : AchievementCriteriaScript("achievement_incredible_hulk") { }
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {

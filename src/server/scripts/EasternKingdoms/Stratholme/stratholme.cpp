@@ -39,10 +39,10 @@ EndContentData */
 ## go_gauntlet_gate (this is the _first_ of the gauntlet gates, two exist)
 ######*/
 
-class go_gauntlet_gate : public MS::Game::Scripting::Interfaces::GameObjectScript
+class go_gauntlet_gate : public GameObjectScript
 {
 public:
-    go_gauntlet_gate() : MS::Game::Scripting::Interfaces::GameObjectScript("go_gauntlet_gate") { }
+    go_gauntlet_gate() : GameObjectScript("go_gauntlet_gate") { }
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
@@ -88,10 +88,10 @@ public:
 #define SAY_ZAPPED2 -1329002
 #define SAY_ZAPPED3 -1329003
 
-class mob_freed_soul : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_freed_soul : public CreatureScript
 {
 public:
-    mob_freed_soul() : MS::Game::Scripting::Interfaces::CreatureScript("mob_freed_soul") { }
+    mob_freed_soul() : CreatureScript("mob_freed_soul") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -122,10 +122,10 @@ public:
 #define ENTRY_RESTLESS      11122
 #define ENTRY_FREED         11136
 
-class mob_restless_soul : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_restless_soul : public CreatureScript
 {
 public:
-    mob_restless_soul() : MS::Game::Scripting::Interfaces::CreatureScript("mob_restless_soul") { }
+    mob_restless_soul() : CreatureScript("mob_restless_soul") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -200,10 +200,10 @@ enum eGhostlyCitizenSpells
     SPELL_SLAP              = 6754
 };
 
-class mobs_spectral_ghostly_citizen : public MS::Game::Scripting::Interfaces::CreatureScript
+class mobs_spectral_ghostly_citizen : public CreatureScript
 {
 public:
-    mobs_spectral_ghostly_citizen() : MS::Game::Scripting::Interfaces::CreatureScript("mobs_spectral_ghostly_citizen") { }
+    mobs_spectral_ghostly_citizen() : CreatureScript("mobs_spectral_ghostly_citizen") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

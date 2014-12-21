@@ -1068,10 +1068,10 @@ BattlegroundDG::~BattlegroundDG()
 
 // Horde mine cart - 141210
 // Alliance mine cart - 140876
-class spell_mine_cart : public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_mine_cart : public SpellScriptLoader
 {
     public:
-        spell_mine_cart() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mine_cart") { }
+        spell_mine_cart() : SpellScriptLoader("spell_mine_cart") { }
 
         class spell_mine_cart_AuraScript : public AuraScript
         {
@@ -1110,10 +1110,10 @@ class spell_mine_cart : public MS::Game::Scripting::Interfaces::SpellScriptLoade
 };
 
 // Mine cart - 71071 / 71073
-class npc_dg_cart : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_dg_cart : public CreatureScript
 {
     public:
-        npc_dg_cart() : MS::Game::Scripting::Interfaces::CreatureScript("npc_dg_cart") { }
+        npc_dg_cart() : CreatureScript("npc_dg_cart") { }
 
         enum
         {

@@ -67,10 +67,10 @@ enum Spells
 
 #define FELMYST 25038
 
-class boss_brutallus : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_brutallus : public CreatureScript
 {
 public:
-    boss_brutallus() : MS::Game::Scripting::Interfaces::CreatureScript("boss_brutallus") { }
+    boss_brutallus() : CreatureScript("boss_brutallus") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

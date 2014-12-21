@@ -38,10 +38,10 @@ EndScriptData */
 #define SPELL_HEAL      25807
 #define SPELL_FEAR      19408
 
-class boss_kri : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_kri : public CreatureScript
 {
 public:
-    boss_kri() : MS::Game::Scripting::Interfaces::CreatureScript("boss_kri") { }
+    boss_kri() : CreatureScript("boss_kri") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -141,10 +141,10 @@ public:
 
 };
 
-class boss_vem : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_vem : public CreatureScript
 {
 public:
-    boss_vem() : MS::Game::Scripting::Interfaces::CreatureScript("boss_vem") { }
+    boss_vem() : CreatureScript("boss_vem") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -240,10 +240,10 @@ public:
 
 };
 
-class boss_yauj : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_yauj : public CreatureScript
 {
 public:
-    boss_yauj() : MS::Game::Scripting::Interfaces::CreatureScript("boss_yauj") { }
+    boss_yauj() : CreatureScript("boss_yauj") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

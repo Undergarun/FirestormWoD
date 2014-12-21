@@ -51,11 +51,11 @@ enum eUnits
 4 - Harbinger Skyriss event, 5 sub-events
 */
 
-class instance_arcatraz : public MS::Game::Scripting::Interfaces::InstanceMapScript
+class instance_arcatraz : public InstanceMapScript
 {
     public:
         instance_arcatraz()
-            : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_arcatraz", 552)
+            : InstanceMapScript("instance_arcatraz", 552)
         {
         }
         struct instance_arcatraz_InstanceMapScript : public InstanceScript

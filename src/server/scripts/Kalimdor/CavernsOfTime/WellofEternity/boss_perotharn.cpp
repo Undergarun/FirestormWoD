@@ -95,10 +95,10 @@ enum Points
 
 const Position centerPos = {3335.07f, -4891.54f, 181.16f, 0.0f};
 
-class boss_perotharn : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_perotharn : public CreatureScript
 {
     public:
-        boss_perotharn() : MS::Game::Scripting::Interfaces::CreatureScript("boss_perotharn") { }
+        boss_perotharn() : CreatureScript("boss_perotharn") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -347,10 +347,10 @@ class boss_perotharn : public MS::Game::Scripting::Interfaces::CreatureScript
         };
 };
 
-class npc_perotharn_eye_of_perotharn : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_perotharn_eye_of_perotharn : public CreatureScript
 {
     public:
-        npc_perotharn_eye_of_perotharn() : MS::Game::Scripting::Interfaces::CreatureScript("npc_perotharn_eye_of_perotharn") {}
+        npc_perotharn_eye_of_perotharn() : CreatureScript("npc_perotharn_eye_of_perotharn") {}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -433,10 +433,10 @@ class npc_perotharn_eye_of_perotharn : public MS::Game::Scripting::Interfaces::C
         };
 };
 
-class spell_perotharn_drain_essence: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_perotharn_drain_essence: public SpellScriptLoader
 {
     public:
-        spell_perotharn_drain_essence() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_perotharn_drain_essence") { }
+        spell_perotharn_drain_essence() : SpellScriptLoader("spell_perotharn_drain_essence") { }
 
         class spell_perotharn_drain_essence_AuraScript : public AuraScript
         {
@@ -467,10 +467,10 @@ class spell_perotharn_drain_essence: public MS::Game::Scripting::Interfaces::Spe
         }
 };
 
-class spell_perotharn_drain_essence_dmg: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_perotharn_drain_essence_dmg: public SpellScriptLoader
 {
     public:
-        spell_perotharn_drain_essence_dmg() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_perotharn_drain_essence_dmg") { }
+        spell_perotharn_drain_essence_dmg() : SpellScriptLoader("spell_perotharn_drain_essence_dmg") { }
 
         class spell_perotharn_drain_essence_dmg_SpellScript : public SpellScript
         {
@@ -493,10 +493,10 @@ class spell_perotharn_drain_essence_dmg: public MS::Game::Scripting::Interfaces:
         }
 };
 
-class spell_perotharn_punishing_flames_dmg: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_perotharn_punishing_flames_dmg: public SpellScriptLoader
 {
     public:
-        spell_perotharn_punishing_flames_dmg() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_perotharn_punishing_flames_dmg") { }
+        spell_perotharn_punishing_flames_dmg() : SpellScriptLoader("spell_perotharn_punishing_flames_dmg") { }
 
         class spell_perotharn_punishing_flames_dmg_SpellScript : public SpellScript
         {
@@ -540,10 +540,10 @@ class spell_perotharn_punishing_flames_dmg: public MS::Game::Scripting::Interfac
 
 typedef boss_perotharn::boss_perotharnAI PerotharnAI;
 
-class achievement_lazy_eye : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
+class achievement_lazy_eye : public AchievementCriteriaScript
 {
     public:
-        achievement_lazy_eye() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_lazy_eye") { }
+        achievement_lazy_eye() : AchievementCriteriaScript("achievement_lazy_eye") { }
 
         bool OnCheck(Player* source, Unit* target)
         {

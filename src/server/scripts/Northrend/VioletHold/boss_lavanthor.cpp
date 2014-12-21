@@ -29,10 +29,10 @@ enum Spells
   H_SPELL_LAVA_BURN                             = 59594
 };
 
-class boss_lavanthor : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_lavanthor : public CreatureScript
 {
 public:
-    boss_lavanthor() : MS::Game::Scripting::Interfaces::CreatureScript("boss_lavanthor") { }
+    boss_lavanthor() : CreatureScript("boss_lavanthor") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

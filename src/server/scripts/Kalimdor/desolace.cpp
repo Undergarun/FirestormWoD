@@ -55,10 +55,10 @@ enum DyingKodo
 
 };
 
-class npc_aged_dying_ancient_kodo : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_aged_dying_ancient_kodo : public CreatureScript
 {
 public:
-    npc_aged_dying_ancient_kodo() : MS::Game::Scripting::Interfaces::CreatureScript("npc_aged_dying_ancient_kodo") { }
+    npc_aged_dying_ancient_kodo() : CreatureScript("npc_aged_dying_ancient_kodo") { }
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
@@ -181,10 +181,10 @@ enum DemonPortal
     QUEST_PORTAL_OF_THE_LEGION  = 5581,
 };
 
-class go_demon_portal : public MS::Game::Scripting::Interfaces::GameObjectScript
+class go_demon_portal : public GameObjectScript
 {
     public:
-        go_demon_portal() : MS::Game::Scripting::Interfaces::GameObjectScript("go_demon_portal") { }
+        go_demon_portal() : GameObjectScript("go_demon_portal") { }
 
         bool OnGossipHello(Player* player, GameObject* go)
         {
@@ -198,10 +198,10 @@ class go_demon_portal : public MS::Game::Scripting::Interfaces::GameObjectScript
         }
 };
 
-class npc_dalinda_malem : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_dalinda_malem : public CreatureScript
 {
     public:
-        npc_dalinda_malem() : MS::Game::Scripting::Interfaces::CreatureScript("npc_dalinda_malem")
+        npc_dalinda_malem() : CreatureScript("npc_dalinda_malem")
         {
         }
 

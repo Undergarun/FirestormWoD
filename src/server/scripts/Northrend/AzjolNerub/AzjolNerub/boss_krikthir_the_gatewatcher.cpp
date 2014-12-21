@@ -87,10 +87,10 @@ const Position SpawnPoint[] =
     { 552.625f, 706.408f, 777.177f, 3.4383f   }
 };
 
-class boss_krik_thir : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_krik_thir : public CreatureScript
 {
 public:
-    boss_krik_thir() : MS::Game::Scripting::Interfaces::CreatureScript("boss_krik_thir") { }
+    boss_krik_thir() : CreatureScript("boss_krik_thir") { }
 
     struct boss_krik_thirAI : public ScriptedAI
     {
@@ -205,10 +205,10 @@ public:
     }
 };
 
-class npc_skittering_infector : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_skittering_infector : public CreatureScript
 {
 public:
-    npc_skittering_infector() : MS::Game::Scripting::Interfaces::CreatureScript("npc_skittering_infector") { }
+    npc_skittering_infector() : CreatureScript("npc_skittering_infector") { }
 
     struct npc_skittering_infectorAI : public ScriptedAI
     {
@@ -227,10 +227,10 @@ public:
     }
 };
 
-class npc_anub_ar_skirmisher : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_anub_ar_skirmisher : public CreatureScript
 {
 public:
-    npc_anub_ar_skirmisher() : MS::Game::Scripting::Interfaces::CreatureScript("npc_anub_ar_skirmisher") { }
+    npc_anub_ar_skirmisher() : CreatureScript("npc_anub_ar_skirmisher") { }
 
     struct npc_anub_ar_skirmisherAI : public ScriptedAI
     {
@@ -278,10 +278,10 @@ public:
     }
 };
 
-class npc_anub_ar_shadowcaster : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_anub_ar_shadowcaster : public CreatureScript
 {
 public:
-    npc_anub_ar_shadowcaster() : MS::Game::Scripting::Interfaces::CreatureScript("npc_anub_ar_shadowcaster") { }
+    npc_anub_ar_shadowcaster() : CreatureScript("npc_anub_ar_shadowcaster") { }
 
     struct npc_anub_ar_shadowcasterAI : public ScriptedAI
     {
@@ -324,10 +324,10 @@ public:
     }
 };
 
-class npc_anub_ar_warrior : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_anub_ar_warrior : public CreatureScript
 {
 public:
-    npc_anub_ar_warrior() : MS::Game::Scripting::Interfaces::CreatureScript("npc_anub_ar_warrior") { }
+    npc_anub_ar_warrior() : CreatureScript("npc_anub_ar_warrior") { }
 
     struct npc_anub_ar_warriorAI : public ScriptedAI
     {
@@ -369,10 +369,10 @@ public:
     }
 };
 
-class npc_watcher_gashra : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_watcher_gashra : public CreatureScript
 {
 public:
-    npc_watcher_gashra() : MS::Game::Scripting::Interfaces::CreatureScript("npc_watcher_gashra") { }
+    npc_watcher_gashra() : CreatureScript("npc_watcher_gashra") { }
 
     struct npc_watcher_gashraAI : public ScriptedAI
     {
@@ -420,10 +420,10 @@ public:
     }
 };
 
-class npc_watcher_narjil : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_watcher_narjil : public CreatureScript
 {
 public:
-    npc_watcher_narjil() : MS::Game::Scripting::Interfaces::CreatureScript("npc_watcher_narjil") { }
+    npc_watcher_narjil() : CreatureScript("npc_watcher_narjil") { }
 
     struct npc_watcher_narjilAI : public ScriptedAI
     {
@@ -474,10 +474,10 @@ public:
     }
 };
 
-class npc_watcher_silthik : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_watcher_silthik : public CreatureScript
 {
 public:
-    npc_watcher_silthik() : MS::Game::Scripting::Interfaces::CreatureScript("npc_watcher_silthik") { }
+    npc_watcher_silthik() : CreatureScript("npc_watcher_silthik") { }
 
     struct npc_watcher_silthikAI : public ScriptedAI
     {
@@ -530,10 +530,10 @@ public:
     }
 };
 
-class achievement_watch_him_die : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
+class achievement_watch_him_die : public AchievementCriteriaScript
 {
     public:
-        achievement_watch_him_die() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_watch_him_die")
+        achievement_watch_him_die() : AchievementCriteriaScript("achievement_watch_him_die")
         {
         }
 

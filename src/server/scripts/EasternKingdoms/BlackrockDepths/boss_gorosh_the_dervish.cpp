@@ -25,10 +25,10 @@ enum Spells
     SPELL_MORTALSTRIKE                                     = 24573
 };
 
-class boss_gorosh_the_dervish : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_gorosh_the_dervish : public CreatureScript
 {
 public:
-    boss_gorosh_the_dervish() : MS::Game::Scripting::Interfaces::CreatureScript("boss_gorosh_the_dervish") { }
+    boss_gorosh_the_dervish() : CreatureScript("boss_gorosh_the_dervish") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

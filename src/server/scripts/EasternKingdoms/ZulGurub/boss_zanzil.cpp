@@ -58,10 +58,10 @@ const Position zombiePos[4] =
 };
 
 
-class boss_zanzil : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_zanzil : public CreatureScript
 {
     public:
-        boss_zanzil() : MS::Game::Scripting::Interfaces::CreatureScript("boss_zanzil") { }
+        boss_zanzil() : CreatureScript("boss_zanzil") { }
 
         struct boss_zanzilAI : public BossAI
         {
@@ -177,11 +177,11 @@ class boss_zanzil : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class npc_zanzil_berserker : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_zanzil_berserker : public CreatureScript
 {
     public:
 
-        npc_zanzil_berserker() : MS::Game::Scripting::Interfaces::CreatureScript("npc_zanzil_berserker") {}
+        npc_zanzil_berserker() : CreatureScript("npc_zanzil_berserker") {}
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -258,10 +258,10 @@ class npc_zanzil_berserker : public MS::Game::Scripting::Interfaces::CreatureScr
         };
 };
 
-class spell_zanzil_pursuit: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_zanzil_pursuit: public SpellScriptLoader
 {
     public:
-        spell_zanzil_pursuit() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_zanzil_pursuit") { }
+        spell_zanzil_pursuit() : SpellScriptLoader("spell_zanzil_pursuit") { }
 
         class spell_zanzil_pursuit_SpellScript : public SpellScript
         {
@@ -293,10 +293,10 @@ class spell_zanzil_pursuit: public MS::Game::Scripting::Interfaces::SpellScriptL
         }
 };
 
-class spell_zanzil_fire: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_zanzil_fire: public SpellScriptLoader
 {
     public:
-        spell_zanzil_fire() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_zanzil_fire") { }
+        spell_zanzil_fire() : SpellScriptLoader("spell_zanzil_fire") { }
 
         class spell_zanzil_fire_AuraScript : public AuraScript
         {
@@ -341,10 +341,10 @@ class spell_zanzil_fire: public MS::Game::Scripting::Interfaces::SpellScriptLoad
         }
 };
 
-class spell_frostburn_formula: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_frostburn_formula: public SpellScriptLoader
 {
     public:
-        spell_frostburn_formula() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_frostburn_formula") { }
+        spell_frostburn_formula() : SpellScriptLoader("spell_frostburn_formula") { }
 
         class spell_frostburn_formula_SpellScript : public SpellScript
         {

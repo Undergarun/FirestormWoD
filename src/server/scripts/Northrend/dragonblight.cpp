@@ -43,10 +43,10 @@ enum eEnums
 
 #define GOSSIP_ITEM_WHAT_HAPPENED   "Alexstrasza, can you show me what happened here?"
 
-class npc_alexstrasza_wr_gate : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_alexstrasza_wr_gate : public CreatureScript
 {
 public:
-    npc_alexstrasza_wr_gate() : MS::Game::Scripting::Interfaces::CreatureScript("npc_alexstrasza_wr_gate") { }
+    npc_alexstrasza_wr_gate() : CreatureScript("npc_alexstrasza_wr_gate") { }
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
@@ -91,10 +91,10 @@ enum StrengthenAncientsMisc
     FACTION_WALKER_ENEMY    = 14
 };
 
-class spell_q12096_q12092_dummy: public MS::Game::Scripting::Interfaces::SpellScriptLoader // Strengthen the Ancients: On Interact Dummy to Woodlands Walker
+class spell_q12096_q12092_dummy: public SpellScriptLoader // Strengthen the Ancients: On Interact Dummy to Woodlands Walker
 {
 public:
-    spell_q12096_q12092_dummy() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q12096_q12092_dummy") { }
+    spell_q12096_q12092_dummy() : SpellScriptLoader("spell_q12096_q12092_dummy") { }
 
     class spell_q12096_q12092_dummy_SpellScript : public SpellScript
     {
@@ -138,10 +138,10 @@ public:
     }
 };
 
-class spell_q12096_q12092_bark: public MS::Game::Scripting::Interfaces::SpellScriptLoader // Bark of the Walkers
+class spell_q12096_q12092_bark: public SpellScriptLoader // Bark of the Walkers
 {
 public:
-    spell_q12096_q12092_bark() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q12096_q12092_bark") { }
+    spell_q12096_q12092_bark() : SpellScriptLoader("spell_q12096_q12092_bark") { }
 
     class spell_q12096_q12092_bark_SpellScript : public SpellScript
     {
@@ -184,10 +184,10 @@ enum WyrmDefenderEnum
 
 #define GOSSIP_ITEM_1 "We need to get into the fight. Are you ready?"
 
-class npc_wyrmrest_defender : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_wyrmrest_defender : public CreatureScript
 {
 public:
-    npc_wyrmrest_defender() : MS::Game::Scripting::Interfaces::CreatureScript("npc_wyrmrest_defender") { }
+    npc_wyrmrest_defender() : CreatureScript("npc_wyrmrest_defender") { }
 
     bool OnGossipHello(Player* player, Creature* creature)
     { 

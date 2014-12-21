@@ -28,13 +28,13 @@
 #include "SkillDiscovery.h"
 
 // Generic script for handling item dummy effects which trigger another spell.
-class spell_item_trigger_spell: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_trigger_spell: public SpellScriptLoader
 {
     private:
         uint32 _triggeredSpellId;
 
     public:
-        spell_item_trigger_spell(const char* name, uint32 triggeredSpellId) : MS::Game::Scripting::Interfaces::SpellScriptLoader(name), _triggeredSpellId(triggeredSpellId) { }
+        spell_item_trigger_spell(const char* name, uint32 triggeredSpellId) : SpellScriptLoader(name), _triggeredSpellId(triggeredSpellId) { }
 
         class spell_item_trigger_spell_SpellScript : public SpellScript
         {
@@ -82,10 +82,10 @@ enum DeviateFishSpells
     SPELL_HEALTHY_SPIRIT    = 8068,
 };
 
-class spell_item_deviate_fish: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_deviate_fish: public SpellScriptLoader
 {
     public:
-        spell_item_deviate_fish() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_deviate_fish") { }
+        spell_item_deviate_fish() : SpellScriptLoader("spell_item_deviate_fish") { }
 
         class spell_item_deviate_fish_SpellScript : public SpellScript
         {
@@ -132,10 +132,10 @@ enum FlaskOfTheNorthSpells
     SPELL_FLASK_OF_THE_NORTH_STR = 67018,
 };
 
-class spell_item_flask_of_the_north: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_flask_of_the_north: public SpellScriptLoader
 {
     public:
-        spell_item_flask_of_the_north() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_flask_of_the_north") { }
+        spell_item_flask_of_the_north() : SpellScriptLoader("spell_item_flask_of_the_north") { }
 
         class spell_item_flask_of_the_north_SpellScript : public SpellScript
         {
@@ -201,10 +201,10 @@ enum GnomishDeathRay
     SPELL_GNOMISH_DEATH_RAY_TARGET = 13279,
 };
 
-class spell_item_gnomish_death_ray: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_gnomish_death_ray: public SpellScriptLoader
 {
     public:
-        spell_item_gnomish_death_ray() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_gnomish_death_ray") { }
+        spell_item_gnomish_death_ray() : SpellScriptLoader("spell_item_gnomish_death_ray") { }
 
         class spell_item_gnomish_death_ray_SpellScript : public SpellScript
         {
@@ -252,10 +252,10 @@ enum MakeAWish
     SPELL_MR_PINCHYS_GIFT           = 33064,
 };
 
-class spell_item_make_a_wish: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_make_a_wish: public SpellScriptLoader
 {
     public:
-        spell_item_make_a_wish() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_make_a_wish") { }
+        spell_item_make_a_wish() : SpellScriptLoader("spell_item_make_a_wish") { }
 
         class spell_item_make_a_wish_SpellScript : public SpellScript
         {
@@ -301,10 +301,10 @@ class spell_item_make_a_wish: public MS::Game::Scripting::Interfaces::SpellScrip
 
 // http://www.wowhead.com/item=32686 Mingo's Fortune Giblets
 // 40802 Mingo's Fortune Generator
-class spell_item_mingos_fortune_generator: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_mingos_fortune_generator: public SpellScriptLoader
 {
     public:
-        spell_item_mingos_fortune_generator() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_mingos_fortune_generator") { }
+        spell_item_mingos_fortune_generator() : SpellScriptLoader("spell_item_mingos_fortune_generator") { }
 
         class spell_item_mingos_fortune_generator_SpellScript : public SpellScript
         {
@@ -364,10 +364,10 @@ enum NetOMaticSpells
     SPELL_NET_O_MATIC_TRIGGERED3 = 13099,
 };
 
-class spell_item_net_o_matic: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_net_o_matic: public SpellScriptLoader
 {
     public:
-        spell_item_net_o_matic() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_net_o_matic") { }
+        spell_item_net_o_matic() : SpellScriptLoader("spell_item_net_o_matic") { }
 
         class spell_item_net_o_matic_SpellScript : public SpellScript
         {
@@ -416,10 +416,10 @@ enum NoggenfoggerElixirSpells
     SPELL_NOGGENFOGGER_ELIXIR_TRIGGERED3 = 16591,
 };
 
-class spell_item_noggenfogger_elixir: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_noggenfogger_elixir: public SpellScriptLoader
 {
     public:
-        spell_item_noggenfogger_elixir() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_noggenfogger_elixir") { }
+        spell_item_noggenfogger_elixir() : SpellScriptLoader("spell_item_noggenfogger_elixir") { }
 
         class spell_item_noggenfogger_elixir_SpellScript : public SpellScript
         {
@@ -472,10 +472,10 @@ enum SavoryDeviateDelight
     SPELL_YAAARRRR_FEMALE   = 8222,
 };
 
-class spell_item_savory_deviate_delight: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_savory_deviate_delight: public SpellScriptLoader
 {
     public:
-        spell_item_savory_deviate_delight() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_savory_deviate_delight") { }
+        spell_item_savory_deviate_delight() : SpellScriptLoader("spell_item_savory_deviate_delight") { }
 
         class spell_item_savory_deviate_delight_SpellScript : public SpellScript
         {
@@ -532,10 +532,10 @@ enum SixDemonBagSpells
     SPELL_ENVELOPING_WINDS          = 25189,
 };
 
-class spell_item_six_demon_bag: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_six_demon_bag: public SpellScriptLoader
 {
     public:
-        spell_item_six_demon_bag() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_six_demon_bag") { }
+        spell_item_six_demon_bag() : SpellScriptLoader("spell_item_six_demon_bag") { }
 
         class spell_item_six_demon_bag_SpellScript : public SpellScript
         {
@@ -600,10 +600,10 @@ enum UnderbellyElixirSpells
     SPELL_UNDERBELLY_ELIXIR_TRIGGERED3 = 59843,
 };
 
-class spell_item_underbelly_elixir: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_underbelly_elixir: public SpellScriptLoader
 {
     public:
-        spell_item_underbelly_elixir() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_underbelly_elixir") { }
+        spell_item_underbelly_elixir() : SpellScriptLoader("spell_item_underbelly_elixir") { }
 
         class spell_item_underbelly_elixir_SpellScript : public SpellScript
         {
@@ -651,10 +651,10 @@ enum eShadowmourneVisuals
     SPELL_SHADOWMOURNE_CHAOS_BANE_BUFF  = 73422,
 };
 
-class spell_item_shadowmourne: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_shadowmourne: public SpellScriptLoader
 {
 public:
-    spell_item_shadowmourne() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_shadowmourne") { }
+    spell_item_shadowmourne() : SpellScriptLoader("spell_item_shadowmourne") { }
 
     class spell_item_shadowmourne_AuraScript : public AuraScript
     {
@@ -715,10 +715,10 @@ enum AirRifleSpells
     SPELL_AIR_RIFLE_SHOOT_SELF  = 65577,
 };
 
-class spell_item_red_rider_air_rifle: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_red_rider_air_rifle: public SpellScriptLoader
 {
     public:
-        spell_item_red_rider_air_rifle() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_red_rider_air_rifle") { }
+        spell_item_red_rider_air_rifle() : SpellScriptLoader("spell_item_red_rider_air_rifle") { }
 
         class spell_item_red_rider_air_rifle_SpellScript : public SpellScript
         {
@@ -780,10 +780,10 @@ enum CreateHeartCandy
     ITEM_HEART_CANDY_8 = 21820,
 };
 
-class spell_item_create_heart_candy: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_create_heart_candy: public SpellScriptLoader
 {
     public:
-        spell_item_create_heart_candy() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_create_heart_candy") { }
+        spell_item_create_heart_candy() : SpellScriptLoader("spell_item_create_heart_candy") { }
 
         class spell_item_create_heart_candy_SpellScript : public SpellScript
         {
@@ -812,10 +812,10 @@ class spell_item_create_heart_candy: public MS::Game::Scripting::Interfaces::Spe
 };
 
 // Item 45912 spell 64323
-class spell_item_book_of_glyph_mastery: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_book_of_glyph_mastery: public SpellScriptLoader
 {
     public:
-        spell_item_book_of_glyph_mastery() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_book_of_glyph_mastery") {}
+        spell_item_book_of_glyph_mastery() : SpellScriptLoader("spell_item_book_of_glyph_mastery") {}
 
         class spell_item_book_of_glyph_mastery_SpellScript : public SpellScript
         {
@@ -855,10 +855,10 @@ enum GiftOfTheHarvester
     MAX_GHOULS  = 5,
 };
 
-class spell_item_gift_of_the_harvester: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_gift_of_the_harvester: public SpellScriptLoader
 {
     public:
-        spell_item_gift_of_the_harvester() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_gift_of_the_harvester") {}
+        spell_item_gift_of_the_harvester() : SpellScriptLoader("spell_item_gift_of_the_harvester") {}
 
         class spell_item_gift_of_the_harvester_SpellScript : public SpellScript
         {
@@ -896,10 +896,10 @@ enum Sinkholes
     NPC_NORTHWEST_SINKHOLE  = 25666,
 };
 
-class spell_item_map_of_the_geyser_fields: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_map_of_the_geyser_fields: public SpellScriptLoader
 {
     public:
-        spell_item_map_of_the_geyser_fields() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_map_of_the_geyser_fields") {}
+        spell_item_map_of_the_geyser_fields() : SpellScriptLoader("spell_item_map_of_the_geyser_fields") {}
 
         class spell_item_map_of_the_geyser_fields_SpellScript : public SpellScript
         {
@@ -936,10 +936,10 @@ enum VanquishedClutchesSpells
     SPELL_CORRUPTOR     = 64984,
 };
 
-class spell_item_vanquished_clutches: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_vanquished_clutches: public SpellScriptLoader
 {
     public:
-        spell_item_vanquished_clutches() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_vanquished_clutches") { }
+        spell_item_vanquished_clutches() : SpellScriptLoader("spell_item_vanquished_clutches") { }
 
         class spell_item_vanquished_clutches_SpellScript : public SpellScript
         {
@@ -981,10 +981,10 @@ enum MagicEater
     SPELL_WELL_FED_5                             = 57291,
 };
 
-class spell_magic_eater_food: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_magic_eater_food: public SpellScriptLoader
 {
     public:
-        spell_magic_eater_food() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_magic_eater_food") {}
+        spell_magic_eater_food() : SpellScriptLoader("spell_magic_eater_food") {}
 
         class spell_magic_eater_food_AuraScript : public AuraScript
         {
@@ -1029,10 +1029,10 @@ class spell_magic_eater_food: public MS::Game::Scripting::Interfaces::SpellScrip
         }
 };
 
-class spell_item_shimmering_vessel: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_shimmering_vessel: public SpellScriptLoader
 {
     public:
-        spell_item_shimmering_vessel() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_shimmering_vessel") { }
+        spell_item_shimmering_vessel() : SpellScriptLoader("spell_item_shimmering_vessel") { }
 
         class spell_item_shimmering_vessel_SpellScript : public SpellScript
         {
@@ -1063,10 +1063,10 @@ enum PurifyHelboarMeat
     ITEM_PURIFIED_HELBOAR_MEAT              = 23248,
 };
 
-class spell_item_purify_helboar_meat: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_purify_helboar_meat: public SpellScriptLoader
 {
     public:
-        spell_item_purify_helboar_meat() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_purify_helboar_meat") { }
+        spell_item_purify_helboar_meat() : SpellScriptLoader("spell_item_purify_helboar_meat") { }
 
         class spell_item_purify_helboar_meat_SpellScript : public SpellScript
         {
@@ -1111,10 +1111,10 @@ enum CrystalPrison
     OBJECT_IMPRISONED_DOOMGUARD     = 179644,
 };
 
-class spell_item_crystal_prison_dummy_dnd: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_crystal_prison_dummy_dnd: public SpellScriptLoader
 {
     public:
-        spell_item_crystal_prison_dummy_dnd() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_crystal_prison_dummy_dnd") { }
+        spell_item_crystal_prison_dummy_dnd() : SpellScriptLoader("spell_item_crystal_prison_dummy_dnd") { }
 
         class spell_item_crystal_prison_dummy_dnd_SpellScript : public SpellScript
         {
@@ -1158,10 +1158,10 @@ enum ReindeerTransformation
     SPELL_REINDEER_60                           = 25858,
 };
 
-class spell_item_reindeer_transformation: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_reindeer_transformation: public SpellScriptLoader
 {
     public:
-        spell_item_reindeer_transformation() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_reindeer_transformation") { }
+        spell_item_reindeer_transformation() : SpellScriptLoader("spell_item_reindeer_transformation") { }
 
         class spell_item_reindeer_transformation_SpellScript : public SpellScript
         {
@@ -1223,10 +1223,10 @@ enum NighInvulnerability
     SPELL_COMPLETE_VULNERABILITY                = 30457,
 };
 
-class spell_item_nigh_invulnerability: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_nigh_invulnerability: public SpellScriptLoader
 {
     public:
-        spell_item_nigh_invulnerability() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_nigh_invulnerability") { }
+        spell_item_nigh_invulnerability() : SpellScriptLoader("spell_item_nigh_invulnerability") { }
 
         class spell_item_nigh_invulnerability_SpellScript : public SpellScript
         {
@@ -1269,10 +1269,10 @@ enum Poultryzer
     SPELL_POULTRYIZER_BACKFIRE   = 30504,
 };
 
-class spell_item_poultryizer: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_poultryizer: public SpellScriptLoader
 {
     public:
-        spell_item_poultryizer() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_poultryizer") { }
+        spell_item_poultryizer() : SpellScriptLoader("spell_item_poultryizer") { }
 
         class spell_item_poultryizer_SpellScript : public SpellScript
         {
@@ -1309,10 +1309,10 @@ enum SocretharsStone
     SPELL_SOCRETHAR_FROM_SEAT   = 35744,
 };
 
-class spell_item_socrethars_stone: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_socrethars_stone: public SpellScriptLoader
 {
     public:
-        spell_item_socrethars_stone() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_socrethars_stone") { }
+        spell_item_socrethars_stone() : SpellScriptLoader("spell_item_socrethars_stone") { }
 
         class spell_item_socrethars_stone_SpellScript : public SpellScript
         {
@@ -1364,10 +1364,10 @@ enum DemonBroiledSurprise
     NPC_ABYSSAL_FLAMEBRINGER                = 19973,
 };
 
-class spell_item_demon_broiled_surprise: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_demon_broiled_surprise: public SpellScriptLoader
 {
     public:
-        spell_item_demon_broiled_surprise() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_demon_broiled_surprise") { }
+        spell_item_demon_broiled_surprise() : SpellScriptLoader("spell_item_demon_broiled_surprise") { }
 
         class spell_item_demon_broiled_surprise_SpellScript : public SpellScript
         {
@@ -1421,10 +1421,10 @@ enum CompleteRaptorCapture
     SPELL_RAPTOR_CAPTURE_CREDIT     = 42337,
 };
 
-class spell_item_complete_raptor_capture: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_complete_raptor_capture: public SpellScriptLoader
 {
     public:
-        spell_item_complete_raptor_capture() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_complete_raptor_capture") { }
+        spell_item_complete_raptor_capture() : SpellScriptLoader("spell_item_complete_raptor_capture") { }
 
         class spell_item_complete_raptor_capture_SpellScript : public SpellScript
         {
@@ -1467,10 +1467,10 @@ enum ImpaleLeviroth
     SPELL_LEVIROTH_SELF_IMPALE  = 49882,
 };
 
-class spell_item_impale_leviroth: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_impale_leviroth: public SpellScriptLoader
 {
     public:
-        spell_item_impale_leviroth() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_impale_leviroth") { }
+        spell_item_impale_leviroth() : SpellScriptLoader("spell_item_impale_leviroth") { }
 
         class spell_item_impale_leviroth_SpellScript : public SpellScript
         {
@@ -1512,10 +1512,10 @@ enum BrewfestMountTransformation
     SPELL_BREWFEST_MOUNT_TRANSFORM_REVERSE      = 52845,
 };
 
-class spell_item_brewfest_mount_transformation: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_brewfest_mount_transformation: public SpellScriptLoader
 {
     public:
-        spell_item_brewfest_mount_transformation() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_brewfest_mount_transformation") { }
+        spell_item_brewfest_mount_transformation() : SpellScriptLoader("spell_item_brewfest_mount_transformation") { }
 
         class spell_item_brewfest_mount_transformation_SpellScript : public SpellScript
         {
@@ -1575,10 +1575,10 @@ enum NitroBoots
     SPELL_NITRO_BOOTS_BACKFIRE      = 46014,
 };
 
-class spell_item_nitro_boots: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_nitro_boots: public SpellScriptLoader
 {
     public:
-        spell_item_nitro_boots() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_nitro_boots") { }
+        spell_item_nitro_boots() : SpellScriptLoader("spell_item_nitro_boots") { }
 
         class spell_item_nitro_boots_SpellScript : public SpellScript
         {
@@ -1622,10 +1622,10 @@ enum TeachLanguage
     SPELL_LEARN_GOBLIN_BINARY       = 50246,
 };
 
-class spell_item_teach_language: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_teach_language: public SpellScriptLoader
 {
     public:
-        spell_item_teach_language() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_teach_language") { }
+        spell_item_teach_language() : SpellScriptLoader("spell_item_teach_language") { }
 
         class spell_item_teach_language_SpellScript : public SpellScript
         {
@@ -1668,10 +1668,10 @@ enum RocketBoots
     SPELL_ROCKET_BOOTS_PROC      = 30452,
 };
 
-class spell_item_rocket_boots: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_rocket_boots: public SpellScriptLoader
 {
     public:
-        spell_item_rocket_boots() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_rocket_boots") { }
+        spell_item_rocket_boots() : SpellScriptLoader("spell_item_rocket_boots") { }
 
         class spell_item_rocket_boots_SpellScript : public SpellScript
         {
@@ -1728,10 +1728,10 @@ enum PygmyOil
     SPELL_PYGMY_OIL_SMALLER_AURA    = 53805,
 };
 
-class spell_item_pygmy_oil: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_pygmy_oil: public SpellScriptLoader
 {
     public:
-        spell_item_pygmy_oil() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_pygmy_oil") { }
+        spell_item_pygmy_oil() : SpellScriptLoader("spell_item_pygmy_oil") { }
 
         class spell_item_pygmy_oil_SpellScript : public SpellScript
         {
@@ -1774,10 +1774,10 @@ class spell_item_pygmy_oil: public MS::Game::Scripting::Interfaces::SpellScriptL
         }
 };
 
-class spell_item_unusual_compass: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_unusual_compass: public SpellScriptLoader
 {
     public:
-        spell_item_unusual_compass() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_unusual_compass") { }
+        spell_item_unusual_compass() : SpellScriptLoader("spell_item_unusual_compass") { }
 
         class spell_item_unusual_compass_SpellScript : public SpellScript
         {
@@ -1810,10 +1810,10 @@ enum ChickenCover
     QUEST_FLOWN_THE_COOP            = 12532,
 };
 
-class spell_item_chicken_cover: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_chicken_cover: public SpellScriptLoader
 {
     public:
-        spell_item_chicken_cover() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_chicken_cover") { }
+        spell_item_chicken_cover() : SpellScriptLoader("spell_item_chicken_cover") { }
 
         class spell_item_chicken_cover_SpellScript : public SpellScript
         {
@@ -1862,10 +1862,10 @@ enum Refocus
     SPELL_MULTISHOT     = 2643,
 };
 
-class spell_item_refocus: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_refocus: public SpellScriptLoader
 {
     public:
-        spell_item_refocus() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_refocus") { }
+        spell_item_refocus() : SpellScriptLoader("spell_item_refocus") { }
 
         class spell_item_refocus_SpellScript : public SpellScript
         {
@@ -1897,10 +1897,10 @@ class spell_item_refocus: public MS::Game::Scripting::Interfaces::SpellScriptLoa
         }
 };
 
-class spell_item_muisek_vessel: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_muisek_vessel: public SpellScriptLoader
 {
     public:
-        spell_item_muisek_vessel() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_muisek_vessel") { }
+        spell_item_muisek_vessel() : SpellScriptLoader("spell_item_muisek_vessel") { }
 
         class spell_item_muisek_vessel_SpellScript : public SpellScript
         {
@@ -1930,10 +1930,10 @@ enum GreatmothersSoulcather
     SPELL_FORCE_CAST_SUMMON_GNOME_SOUL = 46486,
 };
 
-class spell_item_greatmothers_soulcatcher: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_greatmothers_soulcatcher: public SpellScriptLoader
 {
 public:
-    spell_item_greatmothers_soulcatcher() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_greatmothers_soulcatcher") { }
+    spell_item_greatmothers_soulcatcher() : SpellScriptLoader("spell_item_greatmothers_soulcatcher") { }
 
     class spell_item_greatmothers_soulcatcher_SpellScript : public SpellScript
     {
@@ -1958,10 +1958,10 @@ public:
 };
 
 // Enohar Explosive Arrows - 78838
-class spell_item_enohar_explosive_arrows: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_enohar_explosive_arrows: public SpellScriptLoader
 {
     public:
-        spell_item_enohar_explosive_arrows() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_enohar_explosive_arrows") { }
+        spell_item_enohar_explosive_arrows() : SpellScriptLoader("spell_item_enohar_explosive_arrows") { }
 
         class spell_item_enohar_explosive_arrows_SpellScript : public SpellScript
         {
@@ -1993,10 +1993,10 @@ enum HolyThurible
     NPC_WITHDRAWN_SOUL           = 45166,
 };
 
-class spell_item_holy_thurible: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_holy_thurible: public SpellScriptLoader
 {
     public:
-        spell_item_holy_thurible() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_holy_thurible") { }
+        spell_item_holy_thurible() : SpellScriptLoader("spell_item_holy_thurible") { }
 
         class spell_item_holy_thurible_SpellScript : public SpellScript
         {
@@ -2037,10 +2037,10 @@ enum bandage
     NPC_WOUNDED_DEFENDER      = 38805,
 };
 
-class spell_item_bandage_q24944: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_bandage_q24944: public SpellScriptLoader
 {
     public:
-        spell_item_bandage_q24944() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_bandage_q24944") { }
+        spell_item_bandage_q24944() : SpellScriptLoader("spell_item_bandage_q24944") { }
 
         class spell_item_bandage_q24944_SpellScript : public SpellScript
         {
@@ -2071,10 +2071,10 @@ class spell_item_bandage_q24944: public MS::Game::Scripting::Interfaces::SpellSc
         }
 };
 
-class spell_item_gen_alchemy_mop: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_gen_alchemy_mop: public SpellScriptLoader
 {
     public:
-        spell_item_gen_alchemy_mop() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_gen_alchemy_mop") { }
+        spell_item_gen_alchemy_mop() : SpellScriptLoader("spell_item_gen_alchemy_mop") { }
 
         class spell_item_gen_alchemy_mop_SpellScript : public SpellScript
         {
@@ -2108,10 +2108,10 @@ class spell_item_gen_alchemy_mop: public MS::Game::Scripting::Interfaces::SpellS
         }
 };
 
-class spell_alchemist_rejuvenation: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_alchemist_rejuvenation: public SpellScriptLoader
 {
     public:
-        spell_alchemist_rejuvenation() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_alchemist_rejuvenation") { }
+        spell_alchemist_rejuvenation() : SpellScriptLoader("spell_alchemist_rejuvenation") { }
 
         class spell_alchemist_rejuvenation_SpellScript : public SpellScript
         {
@@ -2192,10 +2192,10 @@ class spell_alchemist_rejuvenation: public MS::Game::Scripting::Interfaces::Spel
 
 #define SPELL_AMBER_PRISON 127266
 
-class spell_item_amber_prison: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_amber_prison: public SpellScriptLoader
 {
     public:
-        spell_item_amber_prison() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_amber_prison") { }
+        spell_item_amber_prison() : SpellScriptLoader("spell_item_amber_prison") { }
 
         class spell_item_amber_prison_SpellScript : public SpellScript
         {
@@ -2238,10 +2238,10 @@ class spell_item_amber_prison: public MS::Game::Scripting::Interfaces::SpellScri
         }
 };
 
-class spell_item_first_aid: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_first_aid: public SpellScriptLoader
 {
     public:
-        spell_item_first_aid() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_first_aid") { }
+        spell_item_first_aid() : SpellScriptLoader("spell_item_first_aid") { }
 
         class spell_item_first_aid_SpellScript : public SpellScript
         {
@@ -2280,10 +2280,10 @@ class spell_item_first_aid: public MS::Game::Scripting::Interfaces::SpellScriptL
         }
 };
 
-class spell_item_imputting_the_final_code: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_imputting_the_final_code: public SpellScriptLoader
 {
     public:
-        spell_item_imputting_the_final_code() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_imputting_the_final_code") { }
+        spell_item_imputting_the_final_code() : SpellScriptLoader("spell_item_imputting_the_final_code") { }
 
         class spell_item_imputting_the_final_code_SpellScript : public SpellScript
         {
@@ -2314,10 +2314,10 @@ class spell_item_imputting_the_final_code: public MS::Game::Scripting::Interface
         }
 };
 
-class spell_item_pot_of_fire: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_pot_of_fire: public SpellScriptLoader
 {
     public:
-        spell_item_pot_of_fire() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_pot_of_fire") { }
+        spell_item_pot_of_fire() : SpellScriptLoader("spell_item_pot_of_fire") { }
 
         class spell_item_pot_of_fire_SpellScript : public SpellScript
         {
@@ -2378,10 +2378,10 @@ class spell_item_pot_of_fire: public MS::Game::Scripting::Interfaces::SpellScrip
         }
 };
 
-class spell_item_dit_da_jow: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_dit_da_jow: public SpellScriptLoader
 {
     public:
-        spell_item_dit_da_jow() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_dit_da_jow") { }
+        spell_item_dit_da_jow() : SpellScriptLoader("spell_item_dit_da_jow") { }
 
         class spell_item_dit_da_jow_SpellScript : public SpellScript
         {
@@ -2420,10 +2420,10 @@ class spell_item_dit_da_jow: public MS::Game::Scripting::Interfaces::SpellScript
         }
 };
 
-class spell_item_zuluhed_chains: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_zuluhed_chains: public SpellScriptLoader
 {
     public:
-        spell_item_zuluhed_chains() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_zuluhed_chains") { }
+        spell_item_zuluhed_chains() : SpellScriptLoader("spell_item_zuluhed_chains") { }
 
         class spell_item_zuluhed_chains_SpellScript : public SpellScript
         {
@@ -2454,10 +2454,10 @@ class spell_item_zuluhed_chains: public MS::Game::Scripting::Interfaces::SpellSc
         }
 };
 
-class spell_item_yak_s_milk: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_yak_s_milk: public SpellScriptLoader
 {
     public:
-        spell_item_yak_s_milk() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_yak_s_milk") { }
+        spell_item_yak_s_milk() : SpellScriptLoader("spell_item_yak_s_milk") { }
 
         class spell_item_yak_s_milk_SpellScript : public SpellScript
         {
@@ -2496,10 +2496,10 @@ class spell_item_yak_s_milk: public MS::Game::Scripting::Interfaces::SpellScript
         }
 };
 
-class spell_item_throw_mantra: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_item_throw_mantra: public SpellScriptLoader
 {
     public:
-        spell_item_throw_mantra() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_item_throw_mantra") { }
+        spell_item_throw_mantra() : SpellScriptLoader("spell_item_throw_mantra") { }
 
         class spell_item_throw_mantra_SpellScript : public SpellScript
         {

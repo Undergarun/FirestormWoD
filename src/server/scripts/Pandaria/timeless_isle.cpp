@@ -5,10 +5,10 @@
 #include "timeless_isle.h"
 
 // Anduin Wrynn - 73061
-class npc_prince_anduin : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_prince_anduin : public CreatureScript
 {
     public:
-        npc_prince_anduin() : MS::Game::Scripting::Interfaces::CreatureScript("npc_prince_anduin") 
+        npc_prince_anduin() : CreatureScript("npc_prince_anduin") 
 		{ 
 		}
 
@@ -56,10 +56,10 @@ class npc_prince_anduin : public MS::Game::Scripting::Interfaces::CreatureScript
 };
 
 // Kairoz - 72870
-class npc_kairoz : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_kairoz : public CreatureScript
 {
     public:
-        npc_kairoz() : MS::Game::Scripting::Interfaces::CreatureScript("npc_kairoz") 
+        npc_kairoz() : CreatureScript("npc_kairoz") 
 		{
 		}
 

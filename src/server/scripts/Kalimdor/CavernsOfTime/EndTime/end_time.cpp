@@ -101,11 +101,11 @@ enum Adds
     NPC_TIME_TWISTED_GEIST      = 54511,
 };
 
-class npc_end_time_image_of_nozdormu : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_end_time_image_of_nozdormu : public CreatureScript
 {
     public:
 
-        npc_end_time_image_of_nozdormu() : MS::Game::Scripting::Interfaces::CreatureScript("npc_end_time_image_of_nozdormu") { }
+        npc_end_time_image_of_nozdormu() : CreatureScript("npc_end_time_image_of_nozdormu") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -189,11 +189,11 @@ class npc_end_time_image_of_nozdormu : public MS::Game::Scripting::Interfaces::C
         };
 };
 
-class npc_end_time_infinite_warden : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_end_time_infinite_warden : public CreatureScript
 {
     public:
 
-        npc_end_time_infinite_warden() : MS::Game::Scripting::Interfaces::CreatureScript("npc_end_time_infinite_warden") { }
+        npc_end_time_infinite_warden() : CreatureScript("npc_end_time_infinite_warden") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -251,11 +251,11 @@ class npc_end_time_infinite_warden : public MS::Game::Scripting::Interfaces::Cre
         };
 };
 
-class npc_end_time_infinite_suppressor : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_end_time_infinite_suppressor : public CreatureScript
 {
     public:
 
-        npc_end_time_infinite_suppressor() : MS::Game::Scripting::Interfaces::CreatureScript("npc_end_time_infinite_suppressor") { }
+        npc_end_time_infinite_suppressor() : CreatureScript("npc_end_time_infinite_suppressor") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {

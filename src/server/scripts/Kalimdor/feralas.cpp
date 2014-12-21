@@ -28,10 +28,10 @@ EndScriptData */
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
 
-class npc_homing_robot_oox_22_fe : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_homing_robot_oox_22_fe : public CreatureScript
 {
     public:
-        npc_homing_robot_oox_22_fe() : MS::Game::Scripting::Interfaces::CreatureScript("npc_homing_robot_oox_22_fe")
+        npc_homing_robot_oox_22_fe() : CreatureScript("npc_homing_robot_oox_22_fe")
         {
         }
 

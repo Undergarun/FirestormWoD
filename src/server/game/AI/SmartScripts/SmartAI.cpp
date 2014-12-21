@@ -943,11 +943,11 @@ void SmartGameObjectAI::EventInform(uint32 eventId)
     GetScript()->ProcessEventsFor(SMART_EVENT_GO_EVENT_INFORM, NULL, eventId);
 }
 
-class SmartTrigger : public MS::Game::Scripting::Interfaces::AreaTriggerScript
+class SmartTrigger : public AreaTriggerScript
 {
     public:
 
-        SmartTrigger() : MS::Game::Scripting::Interfaces::AreaTriggerScript("SmartTrigger") {}
+        SmartTrigger() : AreaTriggerScript("SmartTrigger") {}
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
         {

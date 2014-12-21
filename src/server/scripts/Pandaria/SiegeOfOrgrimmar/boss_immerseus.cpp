@@ -63,10 +63,10 @@ enum eTalk
 {
 };
 
-class boss_immerseus : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_immerseus : public CreatureScript
 {
     public:
-        boss_immerseus() : MS::Game::Scripting::Interfaces::CreatureScript("boss_immerseus") { }
+        boss_immerseus() : CreatureScript("boss_immerseus") { }
 
         struct boss_immerseusAI : public BossAI
         {
@@ -225,10 +225,10 @@ class boss_immerseus : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class mob_contaminated_puddle : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_contaminated_puddle : public CreatureScript
 {
     public:
-        mob_contaminated_puddle() : MS::Game::Scripting::Interfaces::CreatureScript("mob_contaminated_puddle") { }
+        mob_contaminated_puddle() : CreatureScript("mob_contaminated_puddle") { }
 
         struct mob_contaminated_puddleAI : public ScriptedAI
         {
@@ -256,10 +256,10 @@ class mob_contaminated_puddle : public MS::Game::Scripting::Interfaces::Creature
         }
 };
 
-class mob_sha_puddle : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_sha_puddle : public CreatureScript
 {
     public:
-        mob_sha_puddle() : MS::Game::Scripting::Interfaces::CreatureScript("mob_sha_puddle") { }
+        mob_sha_puddle() : CreatureScript("mob_sha_puddle") { }
 
         struct mob_sha_puddleAI : public ScriptedAI
         {

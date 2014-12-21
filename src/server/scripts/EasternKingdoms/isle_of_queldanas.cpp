@@ -40,10 +40,10 @@ EndContentData */
 
 #define SPELL_CONVERT_CREDIT    45009
 
-class npc_converted_sentry : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_converted_sentry : public CreatureScript
 {
 public:
-    npc_converted_sentry() : MS::Game::Scripting::Interfaces::CreatureScript("npc_converted_sentry") { }
+    npc_converted_sentry() : CreatureScript("npc_converted_sentry") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -97,10 +97,10 @@ public:
 #define QUESTG  11541
 #define DM      25060
 
-class npc_greengill_slave : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_greengill_slave : public CreatureScript
 {
 public:
-    npc_greengill_slave() : MS::Game::Scripting::Interfaces::CreatureScript("npc_greengill_slave") { }
+    npc_greengill_slave() : CreatureScript("npc_greengill_slave") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

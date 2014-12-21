@@ -30,10 +30,10 @@ enum Adds
 Position slabhidegroundPos = {1278.23f, 1212.27f, 247.28f, 0.0f};
 Position slabhideflyPos = {1278.23f, 1212.27f, 257.28f, 0.0f};
 
-class boss_slabhide : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_slabhide : public CreatureScript
 {
     public:
-        boss_slabhide() : MS::Game::Scripting::Interfaces::CreatureScript("boss_slabhide") { }
+        boss_slabhide() : CreatureScript("boss_slabhide") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -153,10 +153,10 @@ class boss_slabhide : public MS::Game::Scripting::Interfaces::CreatureScript
 
 };
 
-class npc_lava_fissure : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_lava_fissure : public CreatureScript
 {
     public:
-        npc_lava_fissure() : MS::Game::Scripting::Interfaces::CreatureScript("npc_lava_fissure") { }
+        npc_lava_fissure() : CreatureScript("npc_lava_fissure") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {

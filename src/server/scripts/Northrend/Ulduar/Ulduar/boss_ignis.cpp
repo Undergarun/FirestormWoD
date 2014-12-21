@@ -111,10 +111,10 @@ Position const ConstructSpawnPosition[CONSTRUCT_SPAWN_POINTS] =
     {543.256f, 224.831f, 360.891f, 0.122173f},
 };
 
-class boss_ignis : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_ignis : public CreatureScript
 {
     public:
-        boss_ignis() : MS::Game::Scripting::Interfaces::CreatureScript("boss_ignis") { }
+        boss_ignis() : CreatureScript("boss_ignis") { }
 
         struct boss_ignis_AI : public BossAI
         {
@@ -332,10 +332,10 @@ class boss_ignis : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class npc_iron_construct : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_iron_construct : public CreatureScript
 {
     public:
-        npc_iron_construct() : MS::Game::Scripting::Interfaces::CreatureScript("npc_iron_construct") { }
+        npc_iron_construct() : CreatureScript("npc_iron_construct") { }
 
         struct npc_iron_constructAI : public ScriptedAI
         {
@@ -413,10 +413,10 @@ class npc_iron_construct : public MS::Game::Scripting::Interfaces::CreatureScrip
         }
 };
 
-class npc_scorch_ground : public MS::Game::Scripting::Interfaces::CreatureScript
+class npc_scorch_ground : public CreatureScript
 {
     public:
-        npc_scorch_ground() : MS::Game::Scripting::Interfaces::CreatureScript("npc_scorch_ground") { }
+        npc_scorch_ground() : CreatureScript("npc_scorch_ground") { }
 
         struct npc_scorch_groundAI : public ScriptedAI
         {
@@ -479,10 +479,10 @@ class npc_scorch_ground : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class spell_ignis_slag_pot: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_ignis_slag_pot: public SpellScriptLoader
 {
     public:
-        spell_ignis_slag_pot() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_ignis_slag_pot") { }
+        spell_ignis_slag_pot() : SpellScriptLoader("spell_ignis_slag_pot") { }
 
         class spell_ignis_slag_pot_AuraScript : public AuraScript
         {
@@ -529,10 +529,10 @@ class spell_ignis_slag_pot: public MS::Game::Scripting::Interfaces::SpellScriptL
         }
 };
 
-class achievement_ignis_shattered : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
+class achievement_ignis_shattered : public AchievementCriteriaScript
 {
     public:
-        achievement_ignis_shattered() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_ignis_shattered") { }
+        achievement_ignis_shattered() : AchievementCriteriaScript("achievement_ignis_shattered") { }
 
         bool OnCheck(Player* /*source*/, Unit* target)
         {
@@ -543,10 +543,10 @@ class achievement_ignis_shattered : public MS::Game::Scripting::Interfaces::Achi
         }
 };
 
-class achievement_ignis_hot_pocket : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
+class achievement_ignis_hot_pocket : public AchievementCriteriaScript
 {
     public:
-        achievement_ignis_hot_pocket() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_ignis_hot_pocket") { }
+        achievement_ignis_hot_pocket() : AchievementCriteriaScript("achievement_ignis_hot_pocket") { }
 
         bool OnCheck(Player* source, Unit* /*target*/)
         {

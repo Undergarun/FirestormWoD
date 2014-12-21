@@ -315,10 +315,10 @@ void StartEncounter(InstanceScript* instance, Creature* caller)
 /*                          Steelbreaker                                */
 /************************************************************************/
 
-class boss_steelbreaker : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_steelbreaker : public CreatureScript
 {
     public:
-        boss_steelbreaker() : MS::Game::Scripting::Interfaces::CreatureScript("boss_steelbreaker") {}
+        boss_steelbreaker() : CreatureScript("boss_steelbreaker") {}
 
         struct boss_steelbreakerAI : public BossAI
         {
@@ -543,10 +543,10 @@ class boss_steelbreaker : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class spell_steelbreaker_static_disruption: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_steelbreaker_static_disruption: public SpellScriptLoader
 {
 public:
-    spell_steelbreaker_static_disruption() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_steelbreaker_static_disruption") {}
+    spell_steelbreaker_static_disruption() : SpellScriptLoader("spell_steelbreaker_static_disruption") {}
 
     class spell_steelbreaker_static_disruption_SpellScript : public SpellScript
     {
@@ -585,10 +585,10 @@ public:
     }
 };
 
-class spell_steelbreaker_electrical_charge: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_steelbreaker_electrical_charge: public SpellScriptLoader
 {
 public:
-    spell_steelbreaker_electrical_charge() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_steelbreaker_electrical_charge") {}
+    spell_steelbreaker_electrical_charge() : SpellScriptLoader("spell_steelbreaker_electrical_charge") {}
 
     class spell_steelbreaker_electrical_charge_AuraScript : public AuraScript
     {
@@ -618,10 +618,10 @@ public:
 /*                              Molgeim                                 */
 /************************************************************************/
 
-class boss_runemaster_molgeim : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_runemaster_molgeim : public CreatureScript
 {
     public:
-        boss_runemaster_molgeim() : MS::Game::Scripting::Interfaces::CreatureScript("boss_runemaster_molgeim") {}
+        boss_runemaster_molgeim() : CreatureScript("boss_runemaster_molgeim") {}
 
         struct boss_runemaster_molgeimAI : public BossAI
         {
@@ -788,10 +788,10 @@ class boss_runemaster_molgeim : public MS::Game::Scripting::Interfaces::Creature
         }
 };
 
-class mob_rune_of_power : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_rune_of_power : public CreatureScript
 {
     public:
-        mob_rune_of_power() : MS::Game::Scripting::Interfaces::CreatureScript("mob_rune_of_power") {}
+        mob_rune_of_power() : CreatureScript("mob_rune_of_power") {}
 
         struct mob_rune_of_powerAI : public Scripted_NoMovementAI
         {
@@ -812,10 +812,10 @@ class mob_rune_of_power : public MS::Game::Scripting::Interfaces::CreatureScript
         }
 };
 
-class mob_lightning_elemental : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_lightning_elemental : public CreatureScript
 {
     public:
-        mob_lightning_elemental() : MS::Game::Scripting::Interfaces::CreatureScript("mob_lightning_elemental") {}
+        mob_lightning_elemental() : CreatureScript("mob_lightning_elemental") {}
 
         struct mob_lightning_elementalAI : public ScriptedAI
         {
@@ -857,10 +857,10 @@ class mob_lightning_elemental : public MS::Game::Scripting::Interfaces::Creature
         }
 };
 
-class mob_rune_of_summoning : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_rune_of_summoning : public CreatureScript
 {
     public:
-        mob_rune_of_summoning() : MS::Game::Scripting::Interfaces::CreatureScript("mob_rune_of_summoning") {}
+        mob_rune_of_summoning() : CreatureScript("mob_rune_of_summoning") {}
 
         struct mob_rune_of_summoningAI : public ScriptedAI
         {
@@ -911,10 +911,10 @@ class mob_rune_of_summoning : public MS::Game::Scripting::Interfaces::CreatureSc
 /*                             Brundir                                  */
 /************************************************************************/
 
-class boss_stormcaller_brundir : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_stormcaller_brundir : public CreatureScript
 {
     public:
-        boss_stormcaller_brundir() : MS::Game::Scripting::Interfaces::CreatureScript("boss_stormcaller_brundir") {}
+        boss_stormcaller_brundir() : CreatureScript("boss_stormcaller_brundir") {}
 
         struct boss_stormcaller_brundirAI : public BossAI
         {
@@ -1219,10 +1219,10 @@ class boss_stormcaller_brundir : public MS::Game::Scripting::Interfaces::Creatur
         }
 };
 
-class spell_shield_of_runes: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_shield_of_runes: public SpellScriptLoader
 {
     public:
-        spell_shield_of_runes() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_shield_of_runes") {}
+        spell_shield_of_runes() : SpellScriptLoader("spell_shield_of_runes") {}
 
         class spell_shield_of_runes_AuraScript : public AuraScript
         {
@@ -1251,10 +1251,10 @@ class spell_shield_of_runes: public MS::Game::Scripting::Interfaces::SpellScript
         }
 };
 
-class spell_assembly_meltdown: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_assembly_meltdown: public SpellScriptLoader
 {
     public:
-        spell_assembly_meltdown() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_assembly_meltdown") {}
+        spell_assembly_meltdown() : SpellScriptLoader("spell_assembly_meltdown") {}
 
         class spell_assembly_meltdown_SpellScript : public SpellScript
         {
@@ -1315,10 +1315,10 @@ struct IsNoAssemblyMember
     }
 };
 
-class spell_supercharge: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_supercharge: public SpellScriptLoader
 {
     public:
-        spell_supercharge() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_supercharge") {}
+        spell_supercharge() : SpellScriptLoader("spell_supercharge") {}
 
         class spell_supercharge_SpellScript : public SpellScript
         {
@@ -1343,10 +1343,10 @@ class spell_supercharge: public MS::Game::Scripting::Interfaces::SpellScriptLoad
         }
 };
 
-class achievement_i_choose_you : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
+class achievement_i_choose_you : public AchievementCriteriaScript
 {
     public:
-        achievement_i_choose_you(const char* name) : MS::Game::Scripting::Interfaces::AchievementCriteriaScript(name) {}
+        achievement_i_choose_you(const char* name) : AchievementCriteriaScript(name) {}
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {
@@ -1361,10 +1361,10 @@ class achievement_i_choose_you : public MS::Game::Scripting::Interfaces::Achieve
         }
 };
 
-class achievement_but_i_am_on_your_side : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
+class achievement_but_i_am_on_your_side : public AchievementCriteriaScript
 {
     public:
-        achievement_but_i_am_on_your_side(const char* name) : MS::Game::Scripting::Interfaces::AchievementCriteriaScript(name) {}
+        achievement_but_i_am_on_your_side(const char* name) : AchievementCriteriaScript(name) {}
 
         bool OnCheck(Player* player, Unit* target)
         {
@@ -1379,10 +1379,10 @@ class achievement_but_i_am_on_your_side : public MS::Game::Scripting::Interfaces
         }
 };
 
-class achievement_cant_do_that_while_stunned : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
+class achievement_cant_do_that_while_stunned : public AchievementCriteriaScript
 {
     public:
-        achievement_cant_do_that_while_stunned(const char* name) : MS::Game::Scripting::Interfaces::AchievementCriteriaScript(name) {}
+        achievement_cant_do_that_while_stunned(const char* name) : AchievementCriteriaScript(name) {}
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {

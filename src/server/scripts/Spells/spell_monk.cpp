@@ -124,7 +124,7 @@ enum MonkSpells
 };
 
 // Tiger Eye Brew - 123980 & Mana Tea - 123766
-class PlayerScript_TigereEyeBrew_ManaTea: public MS::Game::Scripting::Interfaces::PlayerScript
+class PlayerScript_TigereEyeBrew_ManaTea: public PlayerScript
 {
     public:
         PlayerScript_TigereEyeBrew_ManaTea() :PlayerScript("PlayerScript_TigereEyeBrew_ManaTea") {}
@@ -143,10 +143,10 @@ class PlayerScript_TigereEyeBrew_ManaTea: public MS::Game::Scripting::Interfaces
 
 // Called by 100780 / 108557 / 115698 / 115687 / 115693 / 115695 - Jab (and overrides)
 // 115636 - Mastery : Combo Breaker
-class spell_monk_combo_breaker: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_combo_breaker: public SpellScriptLoader
 {
     public:
-        spell_monk_combo_breaker() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_combo_breaker") { }
+        spell_monk_combo_breaker() : SpellScriptLoader("spell_monk_combo_breaker") { }
 
         class spell_monk_combo_breaker_SpellScript : public SpellScript
         {
@@ -185,10 +185,10 @@ class spell_monk_combo_breaker: public MS::Game::Scripting::Interfaces::SpellScr
 };
 
 // Ring of Peace (dummy) - 140023
-class spell_monk_ring_of_peace_dummy: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_ring_of_peace_dummy: public SpellScriptLoader
 {
     public:
-        spell_monk_ring_of_peace_dummy() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_ring_of_peace_dummy") {}
+        spell_monk_ring_of_peace_dummy() : SpellScriptLoader("spell_monk_ring_of_peace_dummy") {}
 
         class spell_monk_ring_of_peace_dummy_AuraScript : public AuraScript
         {
@@ -219,10 +219,10 @@ class spell_monk_ring_of_peace_dummy: public MS::Game::Scripting::Interfaces::Sp
 };
 
 // Ring of Peace - 116844
-class spell_monk_ring_of_peace: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_ring_of_peace: public SpellScriptLoader
 {
     public:
-        spell_monk_ring_of_peace() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_ring_of_peace") { }
+        spell_monk_ring_of_peace() : SpellScriptLoader("spell_monk_ring_of_peace") { }
 
         class spell_monk_ring_of_peace_AuraScript : public AuraScript
         {
@@ -260,10 +260,10 @@ class spell_monk_ring_of_peace: public MS::Game::Scripting::Interfaces::SpellScr
 };
 
 // Zen Meditation = 115176
-class spell_monk_zen_meditation: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_zen_meditation: public SpellScriptLoader
 {
     public:
-        spell_monk_zen_meditation() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_zen_meditation") { }
+        spell_monk_zen_meditation() : SpellScriptLoader("spell_monk_zen_meditation") { }
 
         class spell_monk_zen_meditation_AuraScript : public AuraScript
         {
@@ -292,10 +292,10 @@ const uint32 summonsMonk[3] = { 138122, 138121, 138123 }; // Storm, Earth and Fi
 const uint32 visualMorph[3] = { 138080, 138083, 138081 }; // Storm, Earth and Fire
 
 // Storm, Earth and Fire - 138130
-class spell_monk_storm_earth_and_fire_stats: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_storm_earth_and_fire_stats: public SpellScriptLoader
 {
     public:
-        spell_monk_storm_earth_and_fire_stats() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_storm_earth_and_fire_stats") { }
+        spell_monk_storm_earth_and_fire_stats() : SpellScriptLoader("spell_monk_storm_earth_and_fire_stats") { }
 
         class spell_monk_storm_earth_and_fire_stats_AuraScript : public AuraScript
         {
@@ -380,10 +380,10 @@ class spell_monk_storm_earth_and_fire_stats: public MS::Game::Scripting::Interfa
 };
 
 // Storm, Earth and Fire - 137639
-class spell_monk_storm_earth_and_fire: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_storm_earth_and_fire: public SpellScriptLoader
 {
     public:
-        spell_monk_storm_earth_and_fire() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_storm_earth_and_fire") { }
+        spell_monk_storm_earth_and_fire() : SpellScriptLoader("spell_monk_storm_earth_and_fire") { }
 
         class spell_monk_storm_earth_and_fire_SpellScript : public SpellScript
         {
@@ -603,10 +603,10 @@ class spell_monk_storm_earth_and_fire: public MS::Game::Scripting::Interfaces::S
 
 // Called by Jab - 100780 / 108557 / 115698 / 115687 / 115693 / 115695
 // Muscle Memory - 139598
-class spell_monk_muscle_memory: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_muscle_memory: public SpellScriptLoader
 {
     public:
-        spell_monk_muscle_memory() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_muscle_memory") { }
+        spell_monk_muscle_memory() : SpellScriptLoader("spell_monk_muscle_memory") { }
 
         class spell_monk_muscle_memory_SpellScript : public SpellScript
         {
@@ -637,10 +637,10 @@ class spell_monk_muscle_memory: public MS::Game::Scripting::Interfaces::SpellScr
 };
 
 // Chi Brew - 115399
-class spell_monk_chi_brew: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_chi_brew: public SpellScriptLoader
 {
     public:
-        spell_monk_chi_brew() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_chi_brew") { }
+        spell_monk_chi_brew() : SpellScriptLoader("spell_monk_chi_brew") { }
 
         class spell_monk_chi_brew_SpellScript : public SpellScript
         {
@@ -702,10 +702,10 @@ class spell_monk_chi_brew: public MS::Game::Scripting::Interfaces::SpellScriptLo
 };
 
 // Fists of Fury (stun effect) - 120086
-class spell_monk_fists_of_fury_stun: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_fists_of_fury_stun: public SpellScriptLoader
 {
     public:
-        spell_monk_fists_of_fury_stun() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_fists_of_fury_stun") { }
+        spell_monk_fists_of_fury_stun() : SpellScriptLoader("spell_monk_fists_of_fury_stun") { }
 
         class spell_monk_fists_of_fury_stun_SpellScript : public SpellScript
         {
@@ -729,10 +729,10 @@ class spell_monk_fists_of_fury_stun: public MS::Game::Scripting::Interfaces::Spe
 };
 
 // Chi Wave (healing bolt) - 132464
-class spell_monk_chi_wave_healing_bolt: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_chi_wave_healing_bolt: public SpellScriptLoader
 {
     public:
-        spell_monk_chi_wave_healing_bolt() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_chi_wave_healing_bolt") { }
+        spell_monk_chi_wave_healing_bolt() : SpellScriptLoader("spell_monk_chi_wave_healing_bolt") { }
 
         class spell_monk_chi_wave_healing_bolt_SpellScript : public SpellScript
         {
@@ -761,10 +761,10 @@ class spell_monk_chi_wave_healing_bolt: public MS::Game::Scripting::Interfaces::
 };
 
 // Chi Wave (damage) - 132467 and Chi Wave (heal) - 132463
-class spell_monk_chi_wave_bolt: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_chi_wave_bolt: public SpellScriptLoader
 {
     public:
-        spell_monk_chi_wave_bolt() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_chi_wave_bolt") { }
+        spell_monk_chi_wave_bolt() : SpellScriptLoader("spell_monk_chi_wave_bolt") { }
 
         class spell_monk_chi_wave_bolt_SpellScript : public SpellScript
         {
@@ -873,10 +873,10 @@ class spell_monk_chi_wave_bolt: public MS::Game::Scripting::Interfaces::SpellScr
 };
 
 // Chi Wave (talent) - 115098
-class spell_monk_chi_wave: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_chi_wave: public SpellScriptLoader
 {
     public:
-        spell_monk_chi_wave() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_chi_wave") { }
+        spell_monk_chi_wave() : SpellScriptLoader("spell_monk_chi_wave") { }
 
         class spell_monk_chi_wave_SpellScript : public SpellScript
         {
@@ -927,10 +927,10 @@ class spell_monk_chi_wave: public MS::Game::Scripting::Interfaces::SpellScriptLo
 };
 
 // Grapple Weapon - 117368
-class spell_monk_grapple_weapon: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_grapple_weapon: public SpellScriptLoader
 {
     public:
-        spell_monk_grapple_weapon() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_grapple_weapon") { }
+        spell_monk_grapple_weapon() : SpellScriptLoader("spell_monk_grapple_weapon") { }
 
         class spell_monk_grapple_weapon_SpellScript : public SpellScript
         {
@@ -1005,10 +1005,10 @@ class spell_monk_grapple_weapon: public MS::Game::Scripting::Interfaces::SpellSc
 };
 
 // Transcendence : Transfer - 119996
-class spell_monk_transcendence_transfer: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_transcendence_transfer: public SpellScriptLoader
 {
     public:
-        spell_monk_transcendence_transfer() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_transcendence_transfer") { }
+        spell_monk_transcendence_transfer() : SpellScriptLoader("spell_monk_transcendence_transfer") { }
 
         class spell_monk_transcendence_transfer_SpellScript : public SpellScript
         {
@@ -1061,10 +1061,10 @@ class spell_monk_transcendence_transfer: public MS::Game::Scripting::Interfaces:
 };
 
 // Serpent's Zeal - 127722
-class spell_monk_serpents_zeal: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_serpents_zeal: public SpellScriptLoader
 {
     public:
-        spell_monk_serpents_zeal() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_serpents_zeal") { }
+        spell_monk_serpents_zeal() : SpellScriptLoader("spell_monk_serpents_zeal") { }
 
         class spell_monk_serpents_zeal_AuraScript : public AuraScript
         {
@@ -1140,10 +1140,10 @@ class spell_monk_serpents_zeal: public MS::Game::Scripting::Interfaces::SpellScr
 };
 
 // Dampen Harm - 122278
-class spell_monk_dampen_harm: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_dampen_harm: public SpellScriptLoader
 {
     public:
-        spell_monk_dampen_harm() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_dampen_harm") { }
+        spell_monk_dampen_harm() : SpellScriptLoader("spell_monk_dampen_harm") { }
 
         class spell_monk_dampen_harm_AuraScript : public AuraScript
         {
@@ -1191,10 +1191,10 @@ class spell_monk_dampen_harm: public MS::Game::Scripting::Interfaces::SpellScrip
 
 // Called by Thunder Focus Tea - 116680
 // Item S12 4P - Mistweaver - 124487
-class spell_monk_item_s12_4p_mistweaver: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_item_s12_4p_mistweaver: public SpellScriptLoader
 {
     public:
-        spell_monk_item_s12_4p_mistweaver() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_item_s12_4p_mistweaver") { }
+        spell_monk_item_s12_4p_mistweaver() : SpellScriptLoader("spell_monk_item_s12_4p_mistweaver") { }
 
         class spell_monk_item_s12_4p_mistweaver_SpellScript : public SpellScript
         {
@@ -1227,10 +1227,10 @@ struct auraData
 };
 
 // Diffuse Magic - 122783
-class spell_monk_diffuse_magic: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_diffuse_magic: public SpellScriptLoader
 {
     public:
-        spell_monk_diffuse_magic() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_diffuse_magic") { }
+        spell_monk_diffuse_magic() : SpellScriptLoader("spell_monk_diffuse_magic") { }
 
         class spell_monk_diffuse_magic_SpellScript : public SpellScript
         {
@@ -1311,10 +1311,10 @@ class spell_monk_diffuse_magic: public MS::Game::Scripting::Interfaces::SpellScr
 };
 
 // Summon Black Ox Statue - 115315
-class spell_monk_black_ox_statue: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_black_ox_statue: public SpellScriptLoader
 {
     public:
-        spell_monk_black_ox_statue() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_black_ox_statue") { }
+        spell_monk_black_ox_statue() : SpellScriptLoader("spell_monk_black_ox_statue") { }
 
         class spell_monk_black_ox_statue_SpellScript : public SpellScript
         {
@@ -1468,10 +1468,10 @@ class spell_monk_black_ox_statue: public MS::Game::Scripting::Interfaces::SpellS
 };
 
 // Guard - 115295 and Guard - 118604
-class spell_monk_guard: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_guard: public SpellScriptLoader
 {
     public:
-        spell_monk_guard() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_guard") { }
+        spell_monk_guard() : SpellScriptLoader("spell_monk_guard") { }
 
         class spell_monk_guard_AuraScript : public AuraScript
         {
@@ -1502,10 +1502,10 @@ class spell_monk_guard: public MS::Game::Scripting::Interfaces::SpellScriptLoade
 };
 
 // Bear Hug - 127361
-class spell_monk_bear_hug: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_bear_hug: public SpellScriptLoader
 {
     public:
-        spell_monk_bear_hug() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_bear_hug") { }
+        spell_monk_bear_hug() : SpellScriptLoader("spell_monk_bear_hug") { }
 
         class spell_monk_bear_hug_SpellScript : public SpellScript
         {
@@ -1533,10 +1533,10 @@ class spell_monk_bear_hug: public MS::Game::Scripting::Interfaces::SpellScriptLo
 };
 
 // Zen Flight - 125883
-class spell_monk_zen_flight_check: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_zen_flight_check: public SpellScriptLoader
 {
     public:
-        spell_monk_zen_flight_check() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_zen_flight_check") { }
+        spell_monk_zen_flight_check() : SpellScriptLoader("spell_monk_zen_flight_check") { }
 
         class spell_monk_zen_flight_check_SpellScript : public SpellScript
         {
@@ -1574,10 +1574,10 @@ class spell_monk_zen_flight_check: public MS::Game::Scripting::Interfaces::Spell
 };
 
 // Glyph of Zen Flight - 125893
-class spell_monk_glyph_of_zen_flight: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_glyph_of_zen_flight: public SpellScriptLoader
 {
     public:
-        spell_monk_glyph_of_zen_flight() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_glyph_of_zen_flight") { }
+        spell_monk_glyph_of_zen_flight() : SpellScriptLoader("spell_monk_glyph_of_zen_flight") { }
 
         class spell_monk_glyph_of_zen_flight_AuraScript : public AuraScript
         {
@@ -1612,10 +1612,10 @@ class spell_monk_glyph_of_zen_flight: public MS::Game::Scripting::Interfaces::Sp
 // Called by Jab - 100780, Soothing Mist (Energize) - 116335, Spinning Crane Kick (Energize) - 129881
 // Crackling Jade Lightning (Energize) - 123333 and Expel Harm - 115072
 // Power Strikes - 121817
-class spell_monk_power_strikes: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_power_strikes: public SpellScriptLoader
 {
     public:
-        spell_monk_power_strikes() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_power_strikes") { }
+        spell_monk_power_strikes() : SpellScriptLoader("spell_monk_power_strikes") { }
 
         class spell_monk_power_strikes_SpellScript : public SpellScript
         {
@@ -1647,10 +1647,10 @@ class spell_monk_power_strikes: public MS::Game::Scripting::Interfaces::SpellScr
 };
 
 // Crackling Jade Lightning - 117952
-class spell_monk_crackling_jade_lightning: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_crackling_jade_lightning: public SpellScriptLoader
 {
     public:
-        spell_monk_crackling_jade_lightning() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_crackling_jade_lightning") { }
+        spell_monk_crackling_jade_lightning() : SpellScriptLoader("spell_monk_crackling_jade_lightning") { }
 
         class spell_monk_crackling_jade_lightning_AuraScript : public AuraScript
         {
@@ -1704,10 +1704,10 @@ class spell_monk_crackling_jade_lightning: public MS::Game::Scripting::Interface
 };
 
 // Touch of Karma - 122470
-class spell_monk_touch_of_karma: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_touch_of_karma: public SpellScriptLoader
 {
     public:
-        spell_monk_touch_of_karma() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_touch_of_karma") { }
+        spell_monk_touch_of_karma() : SpellScriptLoader("spell_monk_touch_of_karma") { }
 
         class spell_monk_touch_of_karma_AuraScript : public AuraScript
         {
@@ -1755,10 +1755,10 @@ class spell_monk_touch_of_karma: public MS::Game::Scripting::Interfaces::SpellSc
 };
 
 // Spinning Fire Blossom - 123408
-class spell_monk_spinning_fire_blossom_damage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_spinning_fire_blossom_damage: public SpellScriptLoader
 {
     public:
-        spell_monk_spinning_fire_blossom_damage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_spinning_fire_blossom_damage") { }
+        spell_monk_spinning_fire_blossom_damage() : SpellScriptLoader("spell_monk_spinning_fire_blossom_damage") { }
 
         class spell_monk_spinning_fire_blossom_damage_SpellScript : public SpellScript
         {
@@ -1805,10 +1805,10 @@ class spell_monk_spinning_fire_blossom_damage: public MS::Game::Scripting::Inter
 };
 
 // Spinning Fire Blossom - 115073
-class spell_monk_spinning_fire_blossom: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_spinning_fire_blossom: public SpellScriptLoader
 {
     public:
-        spell_monk_spinning_fire_blossom() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_spinning_fire_blossom") { }
+        spell_monk_spinning_fire_blossom() : SpellScriptLoader("spell_monk_spinning_fire_blossom") { }
 
         class spell_monk_spinning_fire_blossom_SpellScript : public SpellScript
         {
@@ -1866,10 +1866,10 @@ class spell_monk_spinning_fire_blossom: public MS::Game::Scripting::Interfaces::
 
 // Called by Uplift - 116670 and Uplift - 130316
 // Thunder Focus Tea - 116680
-class spell_monk_thunder_focus_tea: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_thunder_focus_tea: public SpellScriptLoader
 {
     public:
-        spell_monk_thunder_focus_tea() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_thunder_focus_tea") { }
+        spell_monk_thunder_focus_tea() : SpellScriptLoader("spell_monk_thunder_focus_tea") { }
 
         class spell_monk_thunder_focus_tea_SpellScript : public SpellScript
         {
@@ -1916,10 +1916,10 @@ class spell_monk_thunder_focus_tea: public MS::Game::Scripting::Interfaces::Spel
 };
 
 // Summon Jade Serpent Statue - 115313
-class spell_monk_jade_serpent_statue: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_jade_serpent_statue: public SpellScriptLoader
 {
     public:
-        spell_monk_jade_serpent_statue() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_jade_serpent_statue") { }
+        spell_monk_jade_serpent_statue() : SpellScriptLoader("spell_monk_jade_serpent_statue") { }
 
         class spell_monk_jade_serpent_statue_SpellScript : public SpellScript
         {
@@ -1981,10 +1981,10 @@ class spell_monk_jade_serpent_statue: public MS::Game::Scripting::Interfaces::Sp
 
 // Called by Spinning Crane Kick - 107270
 // Teachings of the Monastery - 116645
-class spell_monk_teachings_of_the_monastery: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_teachings_of_the_monastery: public SpellScriptLoader
 {
     public:
-        spell_monk_teachings_of_the_monastery() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_teachings_of_the_monastery") { }
+        spell_monk_teachings_of_the_monastery() : SpellScriptLoader("spell_monk_teachings_of_the_monastery") { }
 
         class spell_monk_teachings_of_the_monastery_SpellScript : public SpellScript
         {
@@ -2010,10 +2010,10 @@ class spell_monk_teachings_of_the_monastery: public MS::Game::Scripting::Interfa
 };
 
 // Mana Tea - 115294
-class spell_monk_mana_tea: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_mana_tea: public SpellScriptLoader
 {
     public:
-        spell_monk_mana_tea() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_mana_tea") { }
+        spell_monk_mana_tea() : SpellScriptLoader("spell_monk_mana_tea") { }
 
         class spell_monk_mana_tea_SpellScript : public SpellScript
         {
@@ -2104,10 +2104,10 @@ class spell_monk_mana_tea: public MS::Game::Scripting::Interfaces::SpellScriptLo
 };
 
 // Brewing : Mana Tea - 123766
-class spell_monk_mana_tea_stacks: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_mana_tea_stacks: public SpellScriptLoader
 {
     public:
-        spell_monk_mana_tea_stacks() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_mana_tea_stacks") { }
+        spell_monk_mana_tea_stacks() : SpellScriptLoader("spell_monk_mana_tea_stacks") { }
 
         class spell_monk_mana_tea_stacks_AuraScript : public AuraScript
         {
@@ -2160,10 +2160,10 @@ class spell_monk_mana_tea_stacks: public MS::Game::Scripting::Interfaces::SpellS
 };
 
 // Enveloping Mist - 124682
-class spell_monk_enveloping_mist: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_enveloping_mist: public SpellScriptLoader
 {
     public:
-        spell_monk_enveloping_mist() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_enveloping_mist") { }
+        spell_monk_enveloping_mist() : SpellScriptLoader("spell_monk_enveloping_mist") { }
 
         class spell_monk_enveloping_mist_SpellScript : public SpellScript
         {
@@ -2202,10 +2202,10 @@ class spell_monk_enveloping_mist: public MS::Game::Scripting::Interfaces::SpellS
 };
 
 // Surging Mist - 116694
-class spell_monk_surging_mist: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_surging_mist: public SpellScriptLoader
 {
     public:
-        spell_monk_surging_mist() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_surging_mist") { }
+        spell_monk_surging_mist() : SpellScriptLoader("spell_monk_surging_mist") { }
 
         class spell_monk_surging_mist_SpellScript : public SpellScript
         {
@@ -2244,10 +2244,10 @@ class spell_monk_surging_mist: public MS::Game::Scripting::Interfaces::SpellScri
 };
 
 // Renewing Mist (heal) - 115151
-class spell_monk_renewing_mist_hot: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_renewing_mist_hot: public SpellScriptLoader
 {
     public:
-        spell_monk_renewing_mist_hot() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_renewing_mist_hot") { }
+        spell_monk_renewing_mist_hot() : SpellScriptLoader("spell_monk_renewing_mist_hot") { }
 
         class spell_monk_renewing_mist_hot_SpellScript : public SpellScript
         {
@@ -2273,10 +2273,10 @@ class spell_monk_renewing_mist_hot: public MS::Game::Scripting::Interfaces::Spel
 };
 
 // Renewing Mist - 119611
-class spell_monk_renewing_mist: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_renewing_mist: public SpellScriptLoader
 {
     public:
-        spell_monk_renewing_mist() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_renewing_mist") { }
+        spell_monk_renewing_mist() : SpellScriptLoader("spell_monk_renewing_mist") { }
 
         class spell_monk_renewing_mist_SpellScript : public SpellScript
         {
@@ -2454,10 +2454,10 @@ class spell_monk_renewing_mist: public MS::Game::Scripting::Interfaces::SpellScr
 };
 
 // Healing Elixirs (aura) - 134563
-class spell_monk_healing_elixirs_aura: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_healing_elixirs_aura: public SpellScriptLoader
 {
     public:
-        spell_monk_healing_elixirs_aura() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_healing_elixirs_aura") { }
+        spell_monk_healing_elixirs_aura() : SpellScriptLoader("spell_monk_healing_elixirs_aura") { }
 
         class spell_monk_healing_elixirs_aura_AuraScript : public AuraScript
         {
@@ -2501,10 +2501,10 @@ class spell_monk_healing_elixirs_aura: public MS::Game::Scripting::Interfaces::S
 // Called by : Fortifying Brew - 115203, Chi Brew - 115399, Elusive Brew - 115308, Tigereye Brew - 116740
 // Purifying Brew - 119582, Mana Tea - 115294, Thunder Focus Tea - 116680 and Energizing Brew - 115288
 // Healing Elixirs - 122280
-class spell_monk_healing_elixirs: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_healing_elixirs: public SpellScriptLoader
 {
     public:
-        spell_monk_healing_elixirs() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_healing_elixirs") { }
+        spell_monk_healing_elixirs() : SpellScriptLoader("spell_monk_healing_elixirs") { }
 
         class spell_monk_healing_elixirs_SpellScript : public SpellScript
         {
@@ -2535,10 +2535,10 @@ class spell_monk_healing_elixirs: public MS::Game::Scripting::Interfaces::SpellS
 };
 
 // Zen Sphere - 124081
-class spell_monk_zen_sphere: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_zen_sphere: public SpellScriptLoader
 {
     public:
-        spell_monk_zen_sphere() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_zen_sphere") { }
+        spell_monk_zen_sphere() : SpellScriptLoader("spell_monk_zen_sphere") { }
 
         class spell_monk_zen_sphere_hot_AuraScript : public AuraScript
         {
@@ -2581,10 +2581,10 @@ enum ChiBurstSpells
 };
 
 // Chi Burst - 123986
-class spell_monk_chi_burst: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_chi_burst: public SpellScriptLoader
 {
     public:
-        spell_monk_chi_burst() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_chi_burst") { }
+        spell_monk_chi_burst() : SpellScriptLoader("spell_monk_chi_burst") { }
 
         class spell_monk_chi_burst_SpellScript : public SpellScript
         {
@@ -2645,10 +2645,10 @@ class spell_monk_chi_burst: public MS::Game::Scripting::Interfaces::SpellScriptL
 };
 
 // Energizing Brew - 115288
-class spell_monk_energizing_brew: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_energizing_brew: public SpellScriptLoader
 {
     public:
-        spell_monk_energizing_brew() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_energizing_brew") { }
+        spell_monk_energizing_brew() : SpellScriptLoader("spell_monk_energizing_brew") { }
 
         class spell_monk_energizing_brew_SpellScript : public SpellScript
         {
@@ -2674,10 +2674,10 @@ class spell_monk_energizing_brew: public MS::Game::Scripting::Interfaces::SpellS
 };
 
 // Spear Hand Strike - 116705
-class spell_monk_spear_hand_strike: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_spear_hand_strike: public SpellScriptLoader
 {
     public:
-        spell_monk_spear_hand_strike() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_spear_hand_strike") { }
+        spell_monk_spear_hand_strike() : SpellScriptLoader("spell_monk_spear_hand_strike") { }
 
         class spell_monk_spear_hand_strike_SpellScript : public SpellScript
         {
@@ -2711,10 +2711,10 @@ class spell_monk_spear_hand_strike: public MS::Game::Scripting::Interfaces::Spel
 };
 
 // Tigereye Brew - 116740
-class spell_monk_tigereye_brew: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_tigereye_brew: public SpellScriptLoader
 {
     public:
-        spell_monk_tigereye_brew() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_tigereye_brew") { }
+        spell_monk_tigereye_brew() : SpellScriptLoader("spell_monk_tigereye_brew") { }
 
         class spell_monk_tigereye_brew_SpellScript : public SpellScript
         {
@@ -2770,10 +2770,10 @@ class spell_monk_tigereye_brew: public MS::Game::Scripting::Interfaces::SpellScr
 };
 
 // Tiger's Lust - 116841
-class spell_monk_tigers_lust: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_tigers_lust: public SpellScriptLoader
 {
     public:
-        spell_monk_tigers_lust() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_tigers_lust") { }
+        spell_monk_tigers_lust() : SpellScriptLoader("spell_monk_tigers_lust") { }
 
         class spell_monk_tigers_lust_SpellScript : public SpellScript
         {
@@ -2806,10 +2806,10 @@ class spell_monk_tigers_lust: public MS::Game::Scripting::Interfaces::SpellScrip
 };
 
 // Flying Serpent Kick - 115057
-class spell_monk_flying_serpent_kick: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_flying_serpent_kick: public SpellScriptLoader
 {
     public:
-        spell_monk_flying_serpent_kick() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_flying_serpent_kick") { }
+        spell_monk_flying_serpent_kick() : SpellScriptLoader("spell_monk_flying_serpent_kick") { }
 
         class spell_monk_flying_serpent_kick_SpellScript : public SpellScript
         {
@@ -2873,10 +2873,10 @@ class spell_monk_flying_serpent_kick: public MS::Game::Scripting::Interfaces::Sp
 };
 
 // Chi Torpedo - 115008 or Chi Torpedo (3 charges) - 121828
-class spell_monk_chi_torpedo: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_chi_torpedo: public SpellScriptLoader
 {
     public:
-        spell_monk_chi_torpedo() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_chi_torpedo") { }
+        spell_monk_chi_torpedo() : SpellScriptLoader("spell_monk_chi_torpedo") { }
 
         class spell_monk_chi_torpedo_SpellScript : public SpellScript
         {
@@ -2919,10 +2919,10 @@ class spell_monk_chi_torpedo: public MS::Game::Scripting::Interfaces::SpellScrip
 };
 
 // Purifying Brew - 119582
-class spell_monk_purifying_brew: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_purifying_brew: public SpellScriptLoader
 {
     public:
-        spell_monk_purifying_brew() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_purifying_brew") { }
+        spell_monk_purifying_brew() : SpellScriptLoader("spell_monk_purifying_brew") { }
 
         class spell_monk_purifying_brew_SpellScript : public SpellScript
         {
@@ -2960,10 +2960,10 @@ class spell_monk_purifying_brew: public MS::Game::Scripting::Interfaces::SpellSc
 };
 
 // Clash - 122057 and Clash - 126449
-class spell_monk_clash: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_clash: public SpellScriptLoader
 {
     public:
-        spell_monk_clash() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_clash") { }
+        spell_monk_clash() : SpellScriptLoader("spell_monk_clash") { }
 
         class spell_monk_clash_SpellScript : public SpellScript
         {
@@ -2998,10 +2998,10 @@ class spell_monk_clash: public MS::Game::Scripting::Interfaces::SpellScriptLoade
 };
 
 // Keg Smash - 121253
-class spell_monk_keg_smash: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_keg_smash: public SpellScriptLoader
 {
     public:
-        spell_monk_keg_smash() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_keg_smash") { }
+        spell_monk_keg_smash() : SpellScriptLoader("spell_monk_keg_smash") { }
 
         class spell_monk_keg_smash_SpellScript : public SpellScript
         {
@@ -3061,10 +3061,10 @@ class spell_monk_keg_smash: public MS::Game::Scripting::Interfaces::SpellScriptL
 };
 
 // Elusive Brew - 115308
-class spell_monk_elusive_brew: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_elusive_brew: public SpellScriptLoader
 {
     public:
-        spell_monk_elusive_brew() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_elusive_brew") { }
+        spell_monk_elusive_brew() : SpellScriptLoader("spell_monk_elusive_brew") { }
 
         class spell_monk_elusive_brew_SpellScript : public SpellScript
         {
@@ -3118,10 +3118,10 @@ enum BreathOfFireSpells
 };
 
 // Breath of Fire - 115181
-class spell_monk_breath_of_fire: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_breath_of_fire: public SpellScriptLoader
 {
     public:
-        spell_monk_breath_of_fire() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_breath_of_fire") { }
+        spell_monk_breath_of_fire() : SpellScriptLoader("spell_monk_breath_of_fire") { }
 
         class spell_monk_breath_of_fire_SpellScript : public SpellScript
         {
@@ -3158,10 +3158,10 @@ class spell_monk_breath_of_fire: public MS::Game::Scripting::Interfaces::SpellSc
 };
 
 // Soothing Mist - 115175
-class spell_monk_soothing_mist: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_soothing_mist: public SpellScriptLoader
 {
     public:
-        spell_monk_soothing_mist() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_soothing_mist") { }
+        spell_monk_soothing_mist() : SpellScriptLoader("spell_monk_soothing_mist") { }
 
         class spell_monk_soothing_mist_AuraScript : public AuraScript
         {
@@ -3302,10 +3302,10 @@ class spell_monk_soothing_mist: public MS::Game::Scripting::Interfaces::SpellScr
 };
 
 // Disable - 116095
-class spell_monk_disable: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_disable: public SpellScriptLoader
 {
     public:
-        spell_monk_disable() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_disable") { }
+        spell_monk_disable() : SpellScriptLoader("spell_monk_disable") { }
 
         class spell_monk_disable_SpellScript : public SpellScript
         {
@@ -3375,10 +3375,10 @@ class spell_monk_disable: public MS::Game::Scripting::Interfaces::SpellScriptLoa
 };
 
 // Zen Pilgrimage - 126892 and Zen Pilgrimage : Return - 126895
-class spell_monk_zen_pilgrimage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_zen_pilgrimage: public SpellScriptLoader
 {
     public:
-        spell_monk_zen_pilgrimage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_zen_pilgrimage") { }
+        spell_monk_zen_pilgrimage() : SpellScriptLoader("spell_monk_zen_pilgrimage") { }
 
         class spell_monk_zen_pilgrimage_SpellScript : public SpellScript
         {
@@ -3424,10 +3424,10 @@ class spell_monk_zen_pilgrimage: public MS::Game::Scripting::Interfaces::SpellSc
 };
 
 // Provoke - 115546
-class spell_monk_provoke: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_provoke: public SpellScriptLoader
 {
     public:
-        spell_monk_provoke() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_provoke") { }
+        spell_monk_provoke() : SpellScriptLoader("spell_monk_provoke") { }
 
         class spell_monk_provoke_SpellScript : public SpellScript
         {
@@ -3467,10 +3467,10 @@ class spell_monk_provoke: public MS::Game::Scripting::Interfaces::SpellScriptLoa
 };
 
 // Paralysis - 115078
-class spell_monk_paralysis: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_paralysis: public SpellScriptLoader
 {
     public:
-        spell_monk_paralysis() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_paralysis") { }
+        spell_monk_paralysis() : SpellScriptLoader("spell_monk_paralysis") { }
 
         class spell_monk_paralysis_SpellScript : public SpellScript
         {
@@ -3524,10 +3524,10 @@ class spell_monk_paralysis: public MS::Game::Scripting::Interfaces::SpellScriptL
 };
 
 // Touch of Death - 115080
-class spell_monk_touch_of_death: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_touch_of_death: public SpellScriptLoader
 {
     public:
-        spell_monk_touch_of_death() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_touch_of_death") { }
+        spell_monk_touch_of_death() : SpellScriptLoader("spell_monk_touch_of_death") { }
 
         class spell_monk_touch_of_death_SpellScript : public SpellScript
         {
@@ -3578,10 +3578,10 @@ class spell_monk_touch_of_death: public MS::Game::Scripting::Interfaces::SpellSc
 };
 
 // Fortifying brew - 115203
-class spell_monk_fortifying_brew: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_fortifying_brew: public SpellScriptLoader
 {
     public:
-        spell_monk_fortifying_brew() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_fortifying_brew") { }
+        spell_monk_fortifying_brew() : SpellScriptLoader("spell_monk_fortifying_brew") { }
 
         class spell_monk_fortifying_brew_SpellScript : public SpellScript
         {
@@ -3607,10 +3607,10 @@ class spell_monk_fortifying_brew: public MS::Game::Scripting::Interfaces::SpellS
 };
 
 // Legacy of the Emperor - 115921
-class spell_monk_legacy_of_the_emperor: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_legacy_of_the_emperor: public SpellScriptLoader
 {
     public:
-        spell_monk_legacy_of_the_emperor() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_legacy_of_the_emperor") { }
+        spell_monk_legacy_of_the_emperor() : SpellScriptLoader("spell_monk_legacy_of_the_emperor") { }
 
         class spell_monk_legacy_of_the_emperor_SpellScript : public SpellScript
         {
@@ -3642,10 +3642,10 @@ class spell_monk_legacy_of_the_emperor: public MS::Game::Scripting::Interfaces::
 };
 
 // Roll - 109132 or Roll (3 charges) - 121827
-class spell_monk_roll: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_roll: public SpellScriptLoader
 {
     public:
-        spell_monk_roll() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_roll") { }
+        spell_monk_roll() : SpellScriptLoader("spell_monk_roll") { }
 
         class spell_monk_roll_SpellScript : public SpellScript
         {
@@ -3697,10 +3697,10 @@ class spell_monk_roll: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 };
 
 // Brewing : Tigereye Brew - 123980
-class spell_monk_tigereye_brew_stacks: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_tigereye_brew_stacks: public SpellScriptLoader
 {
     public:
-        spell_monk_tigereye_brew_stacks() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_tigereye_brew_stacks") { }
+        spell_monk_tigereye_brew_stacks() : SpellScriptLoader("spell_monk_tigereye_brew_stacks") { }
 
         class spell_monk_tigereye_brew_stacks_AuraScript : public AuraScript
         {
@@ -3757,10 +3757,10 @@ enum SpinningCraneKickSpells
 };
 
 // Spinning Crane Kick - 101546
-class spell_monk_spinning_crane_kick: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_spinning_crane_kick: public SpellScriptLoader
 {
 public:
-    spell_monk_spinning_crane_kick() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_spinning_crane_kick") { }
+    spell_monk_spinning_crane_kick() : SpellScriptLoader("spell_monk_spinning_crane_kick") { }
 
     class spell_monk_spinning_crane_kick_AuraScript : public AuraScript
     {
@@ -3807,10 +3807,10 @@ enum RushingJadeWindSpells
 };
 
 // Rushing Jade Wind - 116847
-class spell_monk_rushing_jade_wind: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_rushing_jade_wind: public SpellScriptLoader
 {
 public:
-    spell_monk_rushing_jade_wind() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_rushing_jade_wind") { }
+    spell_monk_rushing_jade_wind() : SpellScriptLoader("spell_monk_rushing_jade_wind") { }
 
     class spell_monk_rushing_jade_wind_AuraScript : public AuraScript
     {
@@ -3855,10 +3855,10 @@ enum FistsOfFurySpells
 };
 
 // Fists of Fury - 113656
-class spell_monk_fists_of_fury: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_fists_of_fury: public SpellScriptLoader
 {
 public:
-    spell_monk_fists_of_fury() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_fists_of_fury") { }
+    spell_monk_fists_of_fury() : SpellScriptLoader("spell_monk_fists_of_fury") { }
 
     class spell_monk_fists_of_fury_AuraScript : public AuraScript
     {
@@ -3897,10 +3897,10 @@ enum JabSpells
     //SPELL_MONK_MANA_MEDITATION            = 121278
 };
 
-class spell_monk_jab: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_jab: public SpellScriptLoader
 {
 public:
-    spell_monk_jab() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_jab") { }
+    spell_monk_jab() : SpellScriptLoader("spell_monk_jab") { }
 
     class spell_monk_jab_SpellScript : public SpellScript
     {
@@ -3940,10 +3940,10 @@ enum TigerPalmSpells
 };
 
 // Tiger Palm - 100787
-class spell_monk_tiger_palm: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_tiger_palm: public SpellScriptLoader
 {
 public:
-    spell_monk_tiger_palm() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_tiger_palm") { }
+    spell_monk_tiger_palm() : SpellScriptLoader("spell_monk_tiger_palm") { }
 
     class spell_monk_tiger_palm_SpellScript : public SpellScript
     {
@@ -3994,10 +3994,10 @@ enum BlackoutKickSpells
 };
 
 // Blackout Kick - 100784
-class spell_monk_blackout_kick: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_blackout_kick: public SpellScriptLoader
 {
 public:
-    spell_monk_blackout_kick() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_blackout_kick") { }
+    spell_monk_blackout_kick() : SpellScriptLoader("spell_monk_blackout_kick") { }
 
     class spell_monk_blackout_kick_SpellScript : public SpellScript
     {
@@ -4088,10 +4088,10 @@ enum ExpelHarmSpells
 };
 
 // Expel Harm - 115072
-class spell_monk_expel_harm: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_expel_harm: public SpellScriptLoader
 {
 public:
-    spell_monk_expel_harm() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_expel_harm") { }
+    spell_monk_expel_harm() : SpellScriptLoader("spell_monk_expel_harm") { }
 
     class spell_monk_expel_harm_SpellScript : public SpellScript
     {
@@ -4161,10 +4161,10 @@ enum HurricaneStrikeSpells
 };
 
 // Hurricane Strike - 158221
-class spell_monk_hurricane_strike: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_hurricane_strike: public SpellScriptLoader
 {
 public:
-    spell_monk_hurricane_strike() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_hurricane_strike") { }
+    spell_monk_hurricane_strike() : SpellScriptLoader("spell_monk_hurricane_strike") { }
 
     class spell_monk_hurricane_strike_SpellScript : public SpellScript
     {
@@ -4234,7 +4234,7 @@ enum SerenitySpells
 };
 
 // Serenity - 152173
-class spell_monk_serenity: public MS::Game::Scripting::Interfaces::PlayerScript
+class spell_monk_serenity: public PlayerScript
 {
 public:
     spell_monk_serenity() :PlayerScript("spell_monk_serenity") {}
@@ -4253,10 +4253,10 @@ public:
 };
 
 // Detox - 115450
-class spell_monk_detox: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_detox: public SpellScriptLoader
 {
 public:
-    spell_monk_detox() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_detox") { }
+    spell_monk_detox() : SpellScriptLoader("spell_monk_detox") { }
 
     class spell_monk_detox_SpellScript : public SpellScript
     {
@@ -4287,10 +4287,10 @@ public:
 };
 
 // /Rising Sun Kick - 107428
-class spell_monk_rising_sun_kick: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_rising_sun_kick: public SpellScriptLoader
 {
 public:
-    spell_monk_rising_sun_kick() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_rising_sun_kick") { }
+    spell_monk_rising_sun_kick() : SpellScriptLoader("spell_monk_rising_sun_kick") { }
 
     class spell_monk_rising_sun_kick_SpellScript : public SpellScript
     {
@@ -4331,10 +4331,10 @@ public:
 };
 
 // Stance of the Fierce Tiger - 103985
-class spell_monk_stance_of_tiger: public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_monk_stance_of_tiger: public SpellScriptLoader
 {
 public:
-    spell_monk_stance_of_tiger() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_monk_stance_of_tiger") { }
+    spell_monk_stance_of_tiger() : SpellScriptLoader("spell_monk_stance_of_tiger") { }
 
     class spell_monk_stance_of_tiger_AuraScript : public AuraScript
     {

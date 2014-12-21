@@ -50,10 +50,10 @@ enum event
     EVENT_AURA
 };
 
-class boss_amanitar : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_amanitar : public CreatureScript
 {
 public:
-    boss_amanitar() : MS::Game::Scripting::Interfaces::CreatureScript("boss_amanitar") { }
+    boss_amanitar() : CreatureScript("boss_amanitar") { }
 
     struct boss_amanitarAI : public BossAI
     {
@@ -177,10 +177,10 @@ public:
     }
 };
 
-class mob_amanitar_mushrooms : public MS::Game::Scripting::Interfaces::CreatureScript
+class mob_amanitar_mushrooms : public CreatureScript
 {
 public:
-    mob_amanitar_mushrooms() : MS::Game::Scripting::Interfaces::CreatureScript("mob_amanitar_mushrooms") { }
+    mob_amanitar_mushrooms() : CreatureScript("mob_amanitar_mushrooms") { }
 
     struct mob_amanitar_mushroomsAI : public Scripted_NoMovementAI
     {

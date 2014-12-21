@@ -32,10 +32,10 @@ enum Yells
     EMOTE_TARGET               = -1509002
 };
 
-class boss_buru : public MS::Game::Scripting::Interfaces::CreatureScript
+class boss_buru : public CreatureScript
 {
     public:
-        boss_buru() : MS::Game::Scripting::Interfaces::CreatureScript("boss_buru") { }
+        boss_buru() : CreatureScript("boss_buru") { }
 
         struct boss_buruAI : public ScriptedAI
         {
