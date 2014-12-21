@@ -58,7 +58,7 @@ namespace MS { namespace Game { namespace Scripting { namespace Interfaces
             /// Called after a passenger is removed from a vehicle.
             /// @p_Vehicle   : Vehicle instance
             /// @p_Passanger : Passenger to remove
-            virtual void OnRemovePassenger(Vehicle* p_Vehicle, Unit * p_Passenger)
+            virtual void OnRemovePassenger(Vehicle * p_Vehicle, Unit * p_Passenger)
             {
                 UNUSED(p_Vehicle);
                 UNUSED(p_Passenger);

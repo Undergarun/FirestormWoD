@@ -61,7 +61,7 @@ namespace MS { namespace Game { namespace Scripting { namespace Interfaces
 
             /// Called when a group is disbanded.
             /// @p_Group : Group Instance
-            virtual void OnDisband(Group* p_Group)
+            virtual void OnDisband(Group * p_Group)
             {
                 UNUSED(p_Group);
             }

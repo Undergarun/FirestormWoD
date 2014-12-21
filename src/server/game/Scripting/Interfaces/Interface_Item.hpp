@@ -22,7 +22,7 @@ namespace MS { namespace Game { namespace Scripting { namespace Interfaces
             /// @p_SpellID     : Dummy effect origin spell ID
             /// @p_EffectIndex : Dummy effect index
             /// @p_Target      : Spell target
-            virtual bool OnDummyEffect(Unit* p_Caster, uint32 p_SpellID, SpellEffIndex p_EffectIndex, Item* p_Target)
+            virtual bool OnDummyEffect(Unit * p_Caster, uint32 p_SpellID, SpellEffIndex p_EffectIndex, Item* p_Target)
             {
                 UNUSED(p_Caster);
                 UNUSED(p_SpellID);
@@ -49,7 +49,7 @@ namespace MS { namespace Game { namespace Scripting { namespace Interfaces
             /// @p_Player           : Player who use this item
             /// @p_Item             : Used Item instance
             /// @p_SpellCastTargets : Item spell action targets
-            virtual bool OnUse(Player* p_Player, Item * p_Item, const SpellCastTargets & p_SpellCastTargets)
+            virtual bool OnUse(Player * p_Player, Item * p_Item, const SpellCastTargets & p_SpellCastTargets)
             {
                 UNUSED(p_Player);
                 UNUSED(p_Item);
@@ -61,7 +61,7 @@ namespace MS { namespace Game { namespace Scripting { namespace Interfaces
             /// Called when the item expires (is destroyed).
             /// @p_Player       : Item destroyer player instance
             /// @p_ItemTemplate : Destroyed item template
-            virtual bool OnExpire(Player* p_Player, const ItemTemplate * p_ItemTemplate)
+            virtual bool OnExpire(Player * p_Player, const ItemTemplate * p_ItemTemplate)
             {
                 UNUSED(p_Player);
                 UNUSED(p_ItemTemplate);

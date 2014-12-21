@@ -117,6 +117,7 @@ namespace MS { namespace Game { namespace Scripting { namespace Interfaces
             }
 
             /// Called on every world tick (don't execute too heavy code here).
+            /// @p_Diff : Time since last update
             virtual void OnUpdate(uint32 p_Diff)
             {
                 UNUSED(p_Diff);
@@ -145,7 +146,7 @@ namespace MS { namespace Game { namespace Scripting { namespace Interfaces
 
         public:
             /// Should return a pointer to a valid command table (ChatCommand array) to be used by ChatHandler.
-            virtual ChatCommand* GetCommands() const = 0;
+            virtual ChatCommand * GetCommands() const = 0;
 
     };
 
@@ -181,7 +182,7 @@ namespace MS { namespace Game { namespace Scripting { namespace Interfaces
 
     };
 
-    /// Auction Houde Script Interface
+    /// Auction House Script Interface
     class AuctionHouseScript : public ScriptObjectImpl<false>
     {
         protected:
@@ -207,7 +208,7 @@ namespace MS { namespace Game { namespace Scripting { namespace Interfaces
                 UNUSED(p_AuctionHouseObject);
                 UNUSED(p_Entry);
             }
-            /// Called when an auction was succesfully completed.
+            /// Called when an auction was successfully completed.
             /// @p_AuctionHouseObject : Auction House Object Instance
             /// @p_Entry              : Auction instance
             virtual void OnAuctionSuccessful(AuctionHouseObject * p_AuctionHouseObject, AuctionEntry * p_Entry)

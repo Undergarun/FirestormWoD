@@ -84,7 +84,7 @@ namespace MS { namespace Game { namespace Scripting { namespace Interfaces
             /// Called when calculating the experience rate for group experience.
             /// @p_Rate   : Dest XP rate
             /// @p_Count  : Group member count
-            /// @p_IdRaid : Is a raid group
+            /// @p_IsRaid : Is a raid group
             virtual void OnGroupRateCalculation(float & p_Rate, uint32 p_Count, bool p_IsRaid)
             {
                 UNUSED(p_Rate);
@@ -122,7 +122,7 @@ namespace MS { namespace Game { namespace Scripting { namespace Interfaces
             /// Called when a single condition is checked for a player.
             /// @p_Condition  : Condition instance
             /// @p_SourceInfo : Condition  source
-            virtual bool OnConditionCheck(Condition  *p_Condition, ConditionSourceInfo & p_SourceInfo) 
+            virtual bool OnConditionCheck(Condition * p_Condition, ConditionSourceInfo & p_SourceInfo) 
             {
                 UNUSED(p_Condition);
                 UNUSED(p_SourceInfo);
@@ -179,11 +179,11 @@ namespace MS { namespace Game { namespace Scripting { namespace Interfaces
 
             /// Called when a player's level changes (right before the level is applied)
             /// @p_Player   : Player instance
-            /// @p_NewLevel : New player Level
-            virtual void OnLevelChanged(Player * p_Player, uint8 p_NewLevel)
+            /// @p_OldLevel : Old player Level
+            virtual void OnLevelChanged(Player * p_Player, uint8 p_OldLevel)
             { 
                 UNUSED(p_Player);
-                UNUSED(p_NewLevel);
+                UNUSED(p_OldLevel);
             }
 
             /// Called when a player's talent points are reset (right before the reset is done)
@@ -238,7 +238,7 @@ namespace MS { namespace Game { namespace Scripting { namespace Interfaces
             }
             /// Called when a duel starts (after 3s countdown)
             /// @p_Player1 : First player
-            /// @p_Player1 : Second player
+            /// @p_Player2 : Second player
             virtual void OnDuelStart(Player * p_Player1, Player * p_Player2)
             {
                 UNUSED(p_Player1);
@@ -323,7 +323,7 @@ namespace MS { namespace Game { namespace Scripting { namespace Interfaces
                 UNUSED(p_Message);
             }
 
-            // Both of the below are called on emote opcodes.
+            /// Both of the below are called on emote opcodes.
             /// @p_Player : Player instance
             /// @p_Emote  : Emote ID
             virtual void OnEmote(Player* p_Player, uint32 p_Emote)
@@ -354,14 +354,13 @@ namespace MS { namespace Game { namespace Scripting { namespace Interfaces
                 UNUSED(p_Spell);
                 UNUSED(p_SkipCheck);
             }
-
             /// When the player learn a spell
             /// @p_Player  : Player instance
-            /// @p_SpellId : Learned spell ID
-            virtual void OnSpellLearned(Player * p_Player, uint32 p_SpellId)
+            /// @p_SpellID : Learned spell ID
+            virtual void OnSpellLearned(Player * p_Player, uint32 p_SpellID)
             {
                 UNUSED(p_Player);
-                UNUSED(p_SpellId);
+                UNUSED(p_SpellID);
             }
 
             /// Called when a player logs in.
@@ -389,7 +388,7 @@ namespace MS { namespace Game { namespace Scripting { namespace Interfaces
                 UNUSED(p_GUID);
             }
 
-            // Called when a player is bound to an instance
+            /// Called when a player is bound to an instance
             /// @p_Player     : Player instance
             /// @p_Difficulty : Instance Difficulty ID
             /// @p_MapID      : Instance Map ID
@@ -402,7 +401,7 @@ namespace MS { namespace Game { namespace Scripting { namespace Interfaces
                 UNUSED(p_Permanent);
             }
 
-            // Called when a player switches to a new zone
+            /// Called when a player switches to a new zone
             /// @p_Player : Player instance
             /// @p_NewZoneID : New player zone ID
             /// @p_OldZoneID : Old player zone ID
@@ -430,7 +429,6 @@ namespace MS { namespace Game { namespace Scripting { namespace Interfaces
                 UNUSED(p_Player);
                 UNUSED(p_Quest);
             }
-
             /// Called when a player validates some quest objective
             /// @p_Player      : Player instance
             /// @p_QuestID     : Quest ID

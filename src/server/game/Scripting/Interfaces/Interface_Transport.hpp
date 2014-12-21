@@ -19,25 +19,24 @@ namespace MS { namespace Game { namespace Scripting { namespace Interfaces
         public:
             /// Called when a player boards the transport.
             /// @p_Transport : Transport instance
-            virtual void OnAddPassenger(Transport* p_Transport, Player* p_Player)
+            /// @p_Player    : Added player passenger instance
+            virtual void OnAddPassenger(Transport * p_Transport, Player * p_Player)
             { 
                 UNUSED(p_Transport);
                 UNUSED(p_Player);
             }
-
             /// Called when a creature boards the transport.
             /// @p_Transport : Transport instance
             /// @p_Creature  : Added creature passenger instance
-            virtual void OnAddCreaturePassenger(Transport* p_Transport, Creature* p_Creature)
+            virtual void OnAddCreaturePassenger(Transport * p_Transport, Creature * p_Creature)
             {
                 UNUSED(p_Transport);
                 UNUSED(p_Creature);
             }
-
             /// Called when a player exits the transport.
             /// @p_Transport : Transport instance
             /// @p_Player    : Added player passenger instance
-            virtual void OnRemovePassenger(Transport* p_Transport, Player* p_Player)
+            virtual void OnRemovePassenger(Transport * p_Transport, Player * p_Player)
             {
                 UNUSED(p_Transport);
                 UNUSED(p_Player);

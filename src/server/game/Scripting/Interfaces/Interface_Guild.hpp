@@ -135,6 +135,7 @@ namespace MS { namespace Game { namespace Scripting { namespace Interfaces
             }
             /// @p_Guild          : Guild instance
             /// @p_EventType      : Event type
+            /// @p_TabID          : Source tab ID
             /// @p_PlayerGUID     : Player GUID
             /// @p_ItemOrMoney    : Item entry or gold amount
             /// @p_ItemStackCount : Item stack count

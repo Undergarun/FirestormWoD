@@ -33,8 +33,8 @@ namespace MS { namespace Game { namespace Scripting { namespace Interfaces
             }
 
             /// Called when a player opens a gossip dialog with the GameObject.
-            /// @p_Player   : Source player instance
-            /// @p_Creature : Target GameObject instance
+            /// @p_Player     : Source player instance
+            /// @p_GameObject : Target GameObject instance
             virtual bool OnGossipHello(Player * p_Player, GameObject * p_GameObject)
             {
                 UNUSED(p_Player);
@@ -43,10 +43,10 @@ namespace MS { namespace Game { namespace Scripting { namespace Interfaces
                 return false;
             }
             /// Called when a player selects a gossip item in the GameObject's gossip menu.
-            /// @p_Player   : Source player instance
-            /// @p_Creature : Target GameObject instance
-            /// @p_Sender   : Sender menu
-            /// @p_Action   : Action
+            /// @p_Player     : Source player instance
+            /// @p_GameObject : Target GameObject instance
+            /// @p_Sender     : Sender menu
+            /// @p_Action     : Action
             virtual bool OnGossipSelect(Player * p_Player, GameObject * p_GameObject, uint32 p_Sender, uint32 p_Action)
             {
                 UNUSED(p_Player);
@@ -57,11 +57,11 @@ namespace MS { namespace Game { namespace Scripting { namespace Interfaces
                 return false;
             }
             /// Called when a player selects a gossip with a code in the GameObject's gossip menu.
-            /// @p_Player   : Source player instance
-            /// @p_Creature : Target GameObject instance
-            /// @p_Sender   : Sender menu
-            /// @p_Action   : Action
-            /// @p_Code     : Player input code
+            /// @p_Player     : Source player instance
+            /// @p_GameObject : Target GameObject instance
+            /// @p_Sender     : Sender menu
+            /// @p_Action     : Action
+            /// @p_Code       : Player input code
             virtual bool OnGossipSelectCode(Player * p_Player, GameObject * p_GameObject, uint32 p_Sender, uint32 p_Action, const char * p_Code)
             {
                 UNUSED(p_Player);
