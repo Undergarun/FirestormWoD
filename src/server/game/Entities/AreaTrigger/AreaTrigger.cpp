@@ -28,7 +28,6 @@
 #include "ScriptedCreature.h"
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
-#include "AreaTriggerScript.h"
 
 AreaTrigger::AreaTrigger()
     : WorldObject(false),

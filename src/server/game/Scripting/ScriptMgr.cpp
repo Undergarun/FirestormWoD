@@ -31,7 +31,6 @@
 #include "GossipDef.h"
 #include "CreatureAIImpl.h"
 #include "SpellAuraEffects.h"
-#include "AreaTriggerScript.h"
 
 namespace
 {
@@ -305,7 +304,7 @@ void ScriptMgr::Unload()
     SCR_CLEAR(PlayerScript);
     SCR_CLEAR(GuildScript);
     SCR_CLEAR(GroupScript);
-    SCR_CLEAR(MS::AreaTriggerEntityScript);
+    SCR_CLEAR(AreaTriggerEntityScript);
 
     #undef SCR_CLEAR
 
@@ -1031,7 +1030,7 @@ void ScriptMgr::OnCreateAreaTriggerEntity(AreaTrigger* p_AreaTrigger)
     // On creation, we look for instanciating a new script, localy to the AreaTrigger.
     if (!p_AreaTrigger->GetScript())
     {
-        MS::AreaTriggerEntityScript* l_AreaTriggerScript = ScriptRegistry<MS::AreaTriggerEntityScript>::GetScriptById(p_AreaTrigger->GetMainTemplate()->m_ScriptId);
+        AreaTriggerEntityScript* l_AreaTriggerScript = ScriptRegistry<AreaTriggerEntityScript>::GetScriptById(p_AreaTrigger->GetMainTemplate()->m_ScriptId);
         if (l_AreaTriggerScript == nullptr)
             return;
 
@@ -1308,11 +1307,6 @@ void ScriptMgr::OnPlayerLevelChanged(Player* player, uint8 oldLevel)
     FOREACH_SCRIPT(PlayerScript)->OnLevelChanged(player, oldLevel);
 }
 
-void ScriptMgr::OnPlayerFreeTalentPointsChanged(Player* player, uint32 points)
-{
-    FOREACH_SCRIPT(PlayerScript)->OnFreeTalentPointsChanged(player, points);
-}
-
 void ScriptMgr::OnPlayerTalentsReset(Player* player, bool noCost)
 {
     FOREACH_SCRIPT(PlayerScript)->OnTalentsReset(player, noCost);
@@ -1521,166 +1515,216 @@ void ScriptMgr::OnGroupDisband(Group* group)
     FOREACH_SCRIPT(GroupScript)->OnDisband(group);
 }
 
-SpellScriptLoader::SpellScriptLoader(const char* name)
-    : ScriptObject(name)
+/// Constructor
+/// @p_Name : Script name
+SpellScriptLoader::SpellScriptLoader(const char * p_Name)
+    : ScriptObjectImpl(p_Name)
 {
     ScriptRegistry<SpellScriptLoader>::AddScript(this);
 }
 
-ServerScript::ServerScript(const char* name)
-    : ScriptObject(name)
+/// Constructor
+/// @p_Name : Script name
+ServerScript::ServerScript(const char * p_Name)
+    : ScriptObjectImpl(p_Name)
 {
     ScriptRegistry<ServerScript>::AddScript(this);
 }
 
-WorldScript::WorldScript(const char* name)
-    : ScriptObject(name)
+/// Constructor
+/// @p_Name : Script Name
+WorldScript::WorldScript(const char * p_Name)
+    : ScriptObjectImpl(p_Name)
 {
     ScriptRegistry<WorldScript>::AddScript(this);
 }
 
-FormulaScript::FormulaScript(const char* name)
-    : ScriptObject(name)
+/// Constructor
+/// @p_Name : Script Name
+FormulaScript::FormulaScript(const char * p_Name)
+    : ScriptObjectImpl(p_Name)
 {
     ScriptRegistry<FormulaScript>::AddScript(this);
 }
 
-WorldMapScript::WorldMapScript(const char* name, uint32 mapId)
-    : ScriptObject(name), MapScript<Map>(mapId)
+/// Constructor
+/// @p_Name  : Script Name
+/// @p_MapID : Map Script map ID
+WorldMapScript::WorldMapScript(const char * p_Name, uint32 p_MapID)
+    : ScriptObjectImpl(p_Name), MapScript<Map>(p_MapID)
 {
     if (GetEntry() && !GetEntry()->IsWorldMap())
-        sLog->outError(LOG_FILTER_TSCR, "WorldMapScript for map %u is invalid.", mapId);
+        sLog->outError(LOG_FILTER_TSCR, "WorldMapScript for map %u is invalid.", p_MapID);
 
     ScriptRegistry<WorldMapScript>::AddScript(this);
 }
 
-InstanceMapScript::InstanceMapScript(const char* name, uint32 mapId)
-    : ScriptObject(name), MapScript<InstanceMap>(mapId)
+/// Constructor
+/// @p_Name  : Script Name
+/// @p_MapID : Map Script map ID
+InstanceMapScript::InstanceMapScript(const char * p_Name, uint32 p_MapID)
+    : ScriptObjectImpl(p_Name), MapScript<InstanceMap>(p_MapID)
 {
     if (GetEntry() && !GetEntry()->IsDungeon())
-        sLog->outError(LOG_FILTER_TSCR, "InstanceMapScript for map %u is invalid.", mapId);
+        sLog->outError(LOG_FILTER_TSCR, "InstanceMapScript for map %u is invalid.", p_MapID);
 
     ScriptRegistry<InstanceMapScript>::AddScript(this);
 }
 
-BattlegroundMapScript::BattlegroundMapScript(const char* name, uint32 mapId)
-    : ScriptObject(name), MapScript<BattlegroundMap>(mapId)
+/// Constructor
+/// @p_Name  : Script Name
+/// @p_MapID : Map Script map ID
+BattlegroundMapScript::BattlegroundMapScript(const char * p_Name, uint32 p_MapID)
+    : ScriptObjectImpl(p_Name), MapScript<BattlegroundMap>(p_MapID)
 {
     if (GetEntry() && !GetEntry()->IsBattleground())
-        sLog->outError(LOG_FILTER_TSCR, "BattlegroundMapScript for map %u is invalid.", mapId);
+        sLog->outError(LOG_FILTER_TSCR, "BattlegroundMapScript for map %u is invalid.", p_MapID);
 
     ScriptRegistry<BattlegroundMapScript>::AddScript(this);
 }
 
-ItemScript::ItemScript(const char* name)
-    : ScriptObject(name)
+/// Constructor
+/// @p_Name : Script Name
+ItemScript::ItemScript(const char * p_Name)
+    : ScriptObjectImpl(p_Name)
 {
     ScriptRegistry<ItemScript>::AddScript(this);
 }
 
-CreatureScript::CreatureScript(const char* name)
-    : ScriptObject(name)
+/// Constructor
+/// @p_Name : Script Name
+CreatureScript::CreatureScript(const char * p_Name)
+    : ScriptObjectImpl(p_Name)
 {
     ScriptRegistry<CreatureScript>::AddScript(this);
 }
 
-GameObjectScript::GameObjectScript(const char* name)
-    : ScriptObject(name)
+/// Constructor
+/// @p_Name : Script Name
+GameObjectScript::GameObjectScript(const char * p_Name)
+    : ScriptObjectImpl(p_Name)
 {
     ScriptRegistry<GameObjectScript>::AddScript(this);
 }
 
-AreaTriggerScript::AreaTriggerScript(const char* name)
-    : ScriptObject(name)
+/// Constructor
+/// @p_Name : Script p_Name
+AreaTriggerScript::AreaTriggerScript(const char* p_Name)
+    : ScriptObjectImpl(p_Name)
 {
     ScriptRegistry<AreaTriggerScript>::AddScript(this);
 }
 
-BattlegroundScript::BattlegroundScript(const char* name)
-    : ScriptObject(name)
+/// Constructor
+/// @p_Name : Script p_Name
+BattlegroundScript::BattlegroundScript(const char* p_Name)
+    : ScriptObjectImpl(p_Name)
 {
     ScriptRegistry<BattlegroundScript>::AddScript(this);
 }
 
-OutdoorPvPScript::OutdoorPvPScript(const char* name)
-    : ScriptObject(name)
+/// Constructor
+/// @p_Name : Script p_Name
+OutdoorPvPScript::OutdoorPvPScript(const char* p_Name)
+    : ScriptObjectImpl(p_Name)
 {
     ScriptRegistry<OutdoorPvPScript>::AddScript(this);
 }
 
-CommandScript::CommandScript(const char* name)
-    : ScriptObject(name)
+/// Constructor
+/// @p_Name : Script p_Name
+CommandScript::CommandScript(const char* p_Name)
+    : ScriptObjectImpl(p_Name)
 {
     ScriptRegistry<CommandScript>::AddScript(this);
 }
 
-WeatherScript::WeatherScript(const char* name)
-    : ScriptObject(name)
+/// Constructor
+/// @p_Name : Script p_Name
+WeatherScript::WeatherScript(const char* p_Name)
+    : ScriptObjectImpl(p_Name)
 {
     ScriptRegistry<WeatherScript>::AddScript(this);
 }
 
-AuctionHouseScript::AuctionHouseScript(const char* name)
-    : ScriptObject(name)
+/// Constructor
+/// @p_Name : Script p_Name
+AuctionHouseScript::AuctionHouseScript(const char* p_Name)
+    : ScriptObjectImpl(p_Name)
 {
     ScriptRegistry<AuctionHouseScript>::AddScript(this);
 }
 
-ConditionScript::ConditionScript(const char* name)
-    : ScriptObject(name)
+/// Constructor
+/// @p_Name : Script p_Name
+ConditionScript::ConditionScript(const char* p_Name)
+    : ScriptObjectImpl(p_Name)
 {
     ScriptRegistry<ConditionScript>::AddScript(this);
 }
 
-VehicleScript::VehicleScript(const char* name)
-    : ScriptObject(name)
+/// Constructor
+/// @p_Name : Script p_Name
+VehicleScript::VehicleScript(const char* p_Name)
+    : ScriptObjectImpl(p_Name)
 {
     ScriptRegistry<VehicleScript>::AddScript(this);
 }
 
-DynamicObjectScript::DynamicObjectScript(const char* name)
-    : ScriptObject(name)
+/// Constructor
+/// @p_Name : Script p_Name
+DynamicObjectScript::DynamicObjectScript(const char* p_Name)
+    : ScriptObjectImpl(p_Name)
 {
     ScriptRegistry<DynamicObjectScript>::AddScript(this);
 }
 
-TransportScript::TransportScript(const char* name)
-    : ScriptObject(name)
+/// Constructor
+/// @p_Name : Script p_Name
+TransportScript::TransportScript(const char* p_Name)
+    : ScriptObjectImpl(p_Name)
 {
     ScriptRegistry<TransportScript>::AddScript(this);
 }
 
-AchievementCriteriaScript::AchievementCriteriaScript(const char* name)
-    : ScriptObject(name)
+/// Constructor
+/// @p_Name : Script p_Name
+AchievementCriteriaScript::AchievementCriteriaScript(const char* p_Name)
+    : ScriptObjectImpl(p_Name)
 {
     ScriptRegistry<AchievementCriteriaScript>::AddScript(this);
 }
 
-PlayerScript::PlayerScript(const char* name)
-    : ScriptObject(name)
+/// Constructor
+/// @p_Name : Script p_Name
+PlayerScript::PlayerScript(const char* p_Name)
+    : ScriptObjectImpl(p_Name)
 {
     ScriptRegistry<PlayerScript>::AddScript(this);
 }
 
-GuildScript::GuildScript(const char* name)
-    : ScriptObject(name)
+/// Constructor
+/// @p_Name : Script p_Name
+GuildScript::GuildScript(const char* p_Name)
+    : ScriptObjectImpl(p_Name)
 {
     ScriptRegistry<GuildScript>::AddScript(this);
 }
 
-GroupScript::GroupScript(const char* name)
-    : ScriptObject(name)
+/// Constructor
+/// @p_Name : Script p_Name
+GroupScript::GroupScript(const char* p_Name)
+    : ScriptObjectImpl(p_Name)
 {
     ScriptRegistry<GroupScript>::AddScript(this);
 }
 
-namespace MS
+/// Constructor
+/// @p_Name : Script Name
+AreaTriggerEntityScript::AreaTriggerEntityScript(char const* p_Name)
+    : ScriptObjectImpl(p_Name)
 {
-    AreaTriggerEntityScript::AreaTriggerEntityScript(char const* p_Name)
-        : ScriptObject(p_Name)
-    {
-        ScriptRegistry<MS::AreaTriggerEntityScript>::AddScript(this);
-    }
+    ScriptRegistry<AreaTriggerEntityScript>::AddScript(this);
 }
 
 // Instantiate static members of ScriptRegistry.
@@ -1712,7 +1756,7 @@ template class ScriptRegistry<AchievementCriteriaScript>;
 template class ScriptRegistry<PlayerScript>;
 template class ScriptRegistry<GuildScript>;
 template class ScriptRegistry<GroupScript>;
-template class ScriptRegistry<MS::AreaTriggerEntityScript>;
+template class ScriptRegistry<AreaTriggerEntityScript>;
 
 // Undefine utility macros.
 #undef GET_SCRIPT_RET
