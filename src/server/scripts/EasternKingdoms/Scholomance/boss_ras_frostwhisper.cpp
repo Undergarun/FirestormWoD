@@ -33,10 +33,10 @@ EndScriptData */
 #define SPELL_CHILLNOVA         18099
 #define SPELL_FROSTVOLLEY       8398
 
-class boss_boss_ras_frostwhisper : public CreatureScript
+class boss_boss_ras_frostwhisper : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_boss_ras_frostwhisper() : CreatureScript("boss_boss_ras_frostwhisper") { }
+    boss_boss_ras_frostwhisper() : MS::Game::Scripting::Interfaces::CreatureScript("boss_boss_ras_frostwhisper") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

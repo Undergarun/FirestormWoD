@@ -46,10 +46,10 @@ enum Events
     EVENT_DEFILING_HORROR,
 };
 
-class boss_falric : public CreatureScript
+class boss_falric : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_falric() : CreatureScript("boss_falric") { }
+    boss_falric() : MS::Game::Scripting::Interfaces::CreatureScript("boss_falric") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

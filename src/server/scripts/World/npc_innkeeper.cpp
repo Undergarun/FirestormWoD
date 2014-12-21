@@ -40,10 +40,10 @@ EndScriptData */
 #define LOCALE_INNKEEPER_0 "Make this inn my home."
 #define LOCALE_INNKEEPER_3 "Ich möchte dieses Gasthaus zu meinem Heimatort machen."
 
-class npc_innkeeper : public CreatureScript
+class npc_innkeeper : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_innkeeper() : CreatureScript("npc_innkeeper") { }
+    npc_innkeeper() : MS::Game::Scripting::Interfaces::CreatureScript("npc_innkeeper") { }
 
     bool OnGossipHello(Player* player, Creature* creature)
     {

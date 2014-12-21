@@ -34,10 +34,10 @@ EndScriptData */
 3 - Loken
 */
 
-class instance_halls_of_lightning : public InstanceMapScript
+class instance_halls_of_lightning : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
 public:
-    instance_halls_of_lightning() : InstanceMapScript("instance_halls_of_lightning", 602) { }
+    instance_halls_of_lightning() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_halls_of_lightning", 602) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {

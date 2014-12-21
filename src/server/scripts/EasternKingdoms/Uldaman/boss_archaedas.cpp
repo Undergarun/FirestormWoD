@@ -52,7 +52,7 @@ enum eSpells
     SPELL_AWAKEN_EARTHEN_GUARDIAN    = 10252,
 };
 
-class boss_archaedas : public CreatureScript
+class boss_archaedas : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
@@ -221,7 +221,7 @@ EndScriptData */
 
 #define SPELL_ARCHAEDAS_AWAKEN  10347
 
-class mob_archaedas_minions : public CreatureScript
+class mob_archaedas_minions : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
@@ -320,7 +320,7 @@ EndScriptData */
 
 #define SPELL_SELF_DESTRUCT 9874
 
-class mob_stonekeepers : public CreatureScript
+class mob_stonekeepers : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
@@ -385,12 +385,12 @@ EndScriptData */
 
 #define SPELL_BOSS_OBJECT_VISUAL    11206
 
-class go_altar_of_archaedas : public GameObjectScript
+class go_altar_of_archaedas : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
     public:
 
         go_altar_of_archaedas()
-            : GameObjectScript("go_altar_of_archaedas")
+            : MS::Game::Scripting::Interfaces::GameObjectScript("go_altar_of_archaedas")
         {
         }
 
@@ -418,12 +418,12 @@ EndScriptData */
 
 #define SPELL_BOSS_OBJECT_VISUAL    11206
 
-class go_altar_of_the_keepers : public GameObjectScript
+class go_altar_of_the_keepers : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
     public:
 
         go_altar_of_the_keepers()
-            : GameObjectScript("go_altar_of_the_keepers")
+            : MS::Game::Scripting::Interfaces::GameObjectScript("go_altar_of_the_keepers")
         {
         }
 

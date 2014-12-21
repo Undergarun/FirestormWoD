@@ -5,10 +5,10 @@
 
 #define ACTION_TALK 1
 
-class mob_master_shang_xi : public CreatureScript
+class mob_master_shang_xi : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_master_shang_xi() : CreatureScript("mob_master_shang_xi") { }
+        mob_master_shang_xi() : MS::Game::Scripting::Interfaces::CreatureScript("mob_master_shang_xi") { }
 
         bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
         {
@@ -92,10 +92,10 @@ class mob_master_shang_xi : public CreatureScript
         };
 };
 
-class go_wandering_weapon_rack : public GameObjectScript
+class go_wandering_weapon_rack : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_wandering_weapon_rack() : GameObjectScript("go_wandering_weapon_rack") { }
+    go_wandering_weapon_rack() : MS::Game::Scripting::Interfaces::GameObjectScript("go_wandering_weapon_rack") { }
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
@@ -136,10 +136,10 @@ public:
     }
 };
 
-class mob_training_target : public CreatureScript
+class mob_training_target : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_training_target() : CreatureScript("mob_training_target") { }
+    mob_training_target() : MS::Game::Scripting::Interfaces::CreatureScript("mob_training_target") { }
     CreatureAI* GetAI(Creature* creature) const
     {
         return new mob_training_targetAI(creature);
@@ -161,10 +161,10 @@ public:
     };
 };
 
-class mob_tushui_trainee : public CreatureScript
+class mob_tushui_trainee : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_tushui_trainee() : CreatureScript("mob_tushui_trainee") { }
+        mob_tushui_trainee() : MS::Game::Scripting::Interfaces::CreatureScript("mob_tushui_trainee") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -275,10 +275,10 @@ enum eJaominEvents
     EVENT_STUNNED       = 8
 };
 
-class boss_jaomin_ro : public CreatureScript
+class boss_jaomin_ro : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_jaomin_ro() : CreatureScript("boss_jaomin_ro") { }
+    boss_jaomin_ro() : MS::Game::Scripting::Interfaces::CreatureScript("boss_jaomin_ro") { }
     
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -452,10 +452,10 @@ public:
     };
 };
 
-class mob_attacker_dimwind : public CreatureScript
+class mob_attacker_dimwind : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_attacker_dimwind() : CreatureScript("mob_attacker_dimwind") { }
+    mob_attacker_dimwind() : MS::Game::Scripting::Interfaces::CreatureScript("mob_attacker_dimwind") { }
     CreatureAI* GetAI(Creature* creature) const
     {
         return new mob_attacker_dimwindAI(creature);
@@ -479,10 +479,10 @@ public:
     };
 };
 
-class mob_min_dimwind : public CreatureScript
+class mob_min_dimwind : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_min_dimwind() : CreatureScript("mob_min_dimwind") { }
+    mob_min_dimwind() : MS::Game::Scripting::Interfaces::CreatureScript("mob_min_dimwind") { }
     
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -613,10 +613,10 @@ public:
     };
 };
 
-class mob_aysa_lake_escort : public CreatureScript
+class mob_aysa_lake_escort : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_aysa_lake_escort() : CreatureScript("mob_aysa_lake_escort") { }
+    mob_aysa_lake_escort() : MS::Game::Scripting::Interfaces::CreatureScript("mob_aysa_lake_escort") { }
 
     struct mob_aysa_lake_escortAI : public npc_escortAI
     {        
@@ -686,10 +686,10 @@ public:
 
 #define ACTION_TALK_1 2
 
-class mob_aysa : public CreatureScript
+class mob_aysa : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_aysa() : CreatureScript("mob_aysa") { }
+    mob_aysa() : MS::Game::Scripting::Interfaces::CreatureScript("mob_aysa") { }
 
     bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
@@ -933,10 +933,10 @@ public:
     };
 };
 
-class boss_living_air : public CreatureScript
+class boss_living_air : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_living_air() : CreatureScript("boss_living_air") { }
+    boss_living_air() : MS::Game::Scripting::Interfaces::CreatureScript("boss_living_air") { }
     
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -986,10 +986,10 @@ public:
 
 #define QUEST_ONLY_THE_WORTHY_SHALL_PASS  29421
 
-class npc_li_fei : public CreatureScript
+class npc_li_fei : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_li_fei() : CreatureScript("npc_li_fei") {}
+    npc_li_fei() : MS::Game::Scripting::Interfaces::CreatureScript("npc_li_fei") {}
 
     bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
@@ -1017,10 +1017,10 @@ enum eLiFeiAuras
     AURA_BLESSING_OF_THE_RED_FLAME     = 102508
 };
 
-class boss_li_fei_fight : public CreatureScript
+class boss_li_fei_fight : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_li_fei_fight() : CreatureScript("boss_li_fei_fight") { }
+    boss_li_fei_fight() : MS::Game::Scripting::Interfaces::CreatureScript("boss_li_fei_fight") { }
     
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1180,10 +1180,10 @@ public:
 };
 
 // Huo Benediction - 102630
-class spell_huo_benediction: public SpellScriptLoader
+class spell_huo_benediction: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_huo_benediction() : SpellScriptLoader("spell_huo_benediction") { }
+        spell_huo_benediction() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_huo_benediction") { }
 
         class spell_huo_benediction_AuraScript : public AuraScript
         {
@@ -1241,10 +1241,10 @@ class spell_huo_benediction: public SpellScriptLoader
         }
 };
 
-class AreaTrigger_at_temple_entrance : public AreaTriggerScript
+class AreaTrigger_at_temple_entrance : public MS::Game::Scripting::Interfaces::AreaTriggerScript
 {
     public:
-        AreaTrigger_at_temple_entrance() : AreaTriggerScript("AreaTrigger_at_temple_entrance")
+        AreaTrigger_at_temple_entrance() : MS::Game::Scripting::Interfaces::AreaTriggerScript("AreaTrigger_at_temple_entrance")
         {}
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
@@ -1275,10 +1275,10 @@ class AreaTrigger_at_temple_entrance : public AreaTriggerScript
 };
 
 
-class mob_trainee_nim : public CreatureScript
+class mob_trainee_nim : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_trainee_nim() : CreatureScript("mob_trainee_nim") { }
+    mob_trainee_nim() : MS::Game::Scripting::Interfaces::CreatureScript("mob_trainee_nim") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1332,10 +1332,10 @@ enum eActions
     ACTION_PUNCH = 0
 };
 
-class mob_instructors : public CreatureScript
+class mob_instructors : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_instructors() : CreatureScript("mob_instructors") { }
+    mob_instructors() : MS::Game::Scripting::Interfaces::CreatureScript("mob_instructors") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1391,10 +1391,10 @@ public:
     };
 };
 
-class mob_aspiring_trainee : public CreatureScript
+class mob_aspiring_trainee : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_aspiring_trainee() : CreatureScript("mob_aspiring_trainee") { }
+    mob_aspiring_trainee() : MS::Game::Scripting::Interfaces::CreatureScript("mob_aspiring_trainee") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1447,10 +1447,10 @@ public:
     };
 };
 
-class mob_huojin_trainee : public CreatureScript
+class mob_huojin_trainee : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_huojin_trainee() : CreatureScript("mob_huojin_trainee") { }
+        mob_huojin_trainee() : MS::Game::Scripting::Interfaces::CreatureScript("mob_huojin_trainee") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -1526,10 +1526,10 @@ class mob_huojin_trainee : public CreatureScript
         };
 };
 
-class npc_merchant_lorvo : public CreatureScript
+class npc_merchant_lorvo : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_merchant_lorvo() : CreatureScript("npc_merchant_lorvo") { }
+        npc_merchant_lorvo() : MS::Game::Scripting::Interfaces::CreatureScript("npc_merchant_lorvo") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -1584,10 +1584,10 @@ class npc_merchant_lorvo : public CreatureScript
         };
 };
 
-class mob_ji_firepaw : public CreatureScript
+class mob_ji_firepaw : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_ji_firepaw() : CreatureScript("mob_ji_firepaw") { }
+        mob_ji_firepaw() : MS::Game::Scripting::Interfaces::CreatureScript("mob_ji_firepaw") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -1638,10 +1638,10 @@ class mob_ji_firepaw : public CreatureScript
         };
 };
 
-class mob_huojin_monk : public CreatureScript
+class mob_huojin_monk : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_huojin_monk() : CreatureScript("mob_huojin_monk") { }
+        mob_huojin_monk() : MS::Game::Scripting::Interfaces::CreatureScript("mob_huojin_monk") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -1688,10 +1688,10 @@ class mob_huojin_monk : public CreatureScript
         };
 };
 
-class mob_chia_hui_autumnleaf : public CreatureScript
+class mob_chia_hui_autumnleaf : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_chia_hui_autumnleaf() : CreatureScript("mob_chia_hui_autumnleaf") { }
+        mob_chia_hui_autumnleaf() : MS::Game::Scripting::Interfaces::CreatureScript("mob_chia_hui_autumnleaf") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -1742,10 +1742,10 @@ class mob_chia_hui_autumnleaf : public CreatureScript
         };
 };
 
-class mob_brewer_lin : public CreatureScript
+class mob_brewer_lin : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_brewer_lin() : CreatureScript("mob_brewer_lin") { }
+        mob_brewer_lin() : MS::Game::Scripting::Interfaces::CreatureScript("mob_brewer_lin") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {

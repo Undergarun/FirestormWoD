@@ -37,10 +37,10 @@ enum eSpells
    SPELL_WOUNDED_PRIDE            = 144358
 };
 
-class boss_sha_of_pride : public CreatureScript
+class boss_sha_of_pride : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_sha_of_pride() : CreatureScript("boss_sha_of_pride") { }
+        boss_sha_of_pride() : MS::Game::Scripting::Interfaces::CreatureScript("boss_sha_of_pride") { }
 
         struct boss_sha_of_prideAI : public BossAI
         {
@@ -59,10 +59,10 @@ class boss_sha_of_pride : public CreatureScript
         }
 };
 
-class mob_reflection : public CreatureScript
+class mob_reflection : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_reflection() : CreatureScript("mob_reflection") { }
+        mob_reflection() : MS::Game::Scripting::Interfaces::CreatureScript("mob_reflection") { }
 
         struct mob_reflectionAI : public ScriptedAI
         {

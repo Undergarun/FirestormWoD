@@ -270,10 +270,10 @@ struct BerserkSelector
 /*                         Thorim                                       */
 /************************************************************************/
 
-class npc_thorim_controller : public CreatureScript
+class npc_thorim_controller : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_thorim_controller() : CreatureScript("npc_thorim_controller") { }
+        npc_thorim_controller() : MS::Game::Scripting::Interfaces::CreatureScript("npc_thorim_controller") { }
 
         struct npc_thorim_controllerAI : public ScriptedAI
         {
@@ -420,10 +420,10 @@ class npc_thorim_controller : public CreatureScript
         }
 };
 
-class boss_thorim : public CreatureScript
+class boss_thorim : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_thorim() : CreatureScript("boss_thorim") { }
+        boss_thorim() : MS::Game::Scripting::Interfaces::CreatureScript("boss_thorim") { }
 
         struct boss_thorimAI : public BossAI
         {
@@ -909,7 +909,7 @@ class PrePhaseAddHelper
         ManCnt diffi;
 };
 
-class npc_thorim_pre_phase_add : public CreatureScript
+class npc_thorim_pre_phase_add : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     private:
         enum
@@ -920,7 +920,7 @@ class npc_thorim_pre_phase_add : public CreatureScript
         };
 
     public:
-        npc_thorim_pre_phase_add() : CreatureScript("npc_thorim_pre_phase_add") {}
+        npc_thorim_pre_phase_add() : MS::Game::Scripting::Interfaces::CreatureScript("npc_thorim_pre_phase_add") {}
 
         struct npc_thorim_pre_phaseAI : public ScriptedAI
         {
@@ -1131,7 +1131,7 @@ class ArenaPhaseAddHelper
         ManCnt diffi;
 };
 
-class npc_thorim_arena_phase_add : public CreatureScript
+class npc_thorim_arena_phase_add : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     private:
         enum
@@ -1142,7 +1142,7 @@ class npc_thorim_arena_phase_add : public CreatureScript
         };
 
     public:
-        npc_thorim_arena_phase_add() : CreatureScript("npc_thorim_arena_phase_add") {}
+        npc_thorim_arena_phase_add() : MS::Game::Scripting::Interfaces::CreatureScript("npc_thorim_arena_phase_add") {}
 
         struct npc_thorim_arena_phaseAI : public ScriptedAI
         {
@@ -1278,10 +1278,10 @@ SummonLocation colossusAddLocations[]=
     {{2227.47f, -345.37f, 412.18f, 1.566f}, 33110}
 };
 
-class npc_runic_colossus : public CreatureScript
+class npc_runic_colossus : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_runic_colossus() : CreatureScript("npc_runic_colossus") {}
+        npc_runic_colossus() : MS::Game::Scripting::Interfaces::CreatureScript("npc_runic_colossus") {}
 
         struct npc_runic_colossusAI : public ScriptedAI
         {
@@ -1425,10 +1425,10 @@ class npc_runic_colossus : public CreatureScript
         }
 };
 
-class npc_runic_smash : public CreatureScript
+class npc_runic_smash : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_runic_smash() : CreatureScript("npc_runic_smash") {}
+        npc_runic_smash() : MS::Game::Scripting::Interfaces::CreatureScript("npc_runic_smash") {}
 
         struct npc_runic_smashAI : public Scripted_NoMovementAI
         {
@@ -1482,10 +1482,10 @@ SummonLocation giantAddLocations[]=
     {{2230.93f, -434.27f, 412.26f, 1.931f}, 33110}
 };
 
-class npc_ancient_rune_giant : public CreatureScript
+class npc_ancient_rune_giant : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_ancient_rune_giant() : CreatureScript("npc_ancient_rune_giant") {}
+        npc_ancient_rune_giant() : MS::Game::Scripting::Interfaces::CreatureScript("npc_ancient_rune_giant") {}
 
         struct npc_ancient_rune_giantAI : public ScriptedAI
         {
@@ -1580,10 +1580,10 @@ class npc_ancient_rune_giant : public CreatureScript
         }
 };
 
-class npc_sif : public CreatureScript
+class npc_sif : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_sif() : CreatureScript("npc_sif") {}
+        npc_sif() : MS::Game::Scripting::Interfaces::CreatureScript("npc_sif") {}
 
         struct npc_sifAI : public ScriptedAI
         {
@@ -1674,10 +1674,10 @@ class npc_sif : public CreatureScript
         }
 };
 
-class npc_lightning_orb : public CreatureScript
+class npc_lightning_orb : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_lightning_orb() : CreatureScript("npc_lightning_orb") { }
+        npc_lightning_orb() : MS::Game::Scripting::Interfaces::CreatureScript("npc_lightning_orb") { }
 
         struct npc_lightning_orbAI : public ScriptedAI
         {
@@ -1699,10 +1699,10 @@ class npc_lightning_orb : public CreatureScript
         }
 };
 
-class npc_thorim_combat_trigger : public CreatureScript
+class npc_thorim_combat_trigger : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_thorim_combat_trigger() : CreatureScript("npc_thorim_combat_trigger") { }
+        npc_thorim_combat_trigger() : MS::Game::Scripting::Interfaces::CreatureScript("npc_thorim_combat_trigger") { }
 
         struct npc_thorim_combat_triggerAI : public ScriptedAI
         {
@@ -1756,10 +1756,10 @@ class npc_thorim_combat_trigger : public CreatureScript
         }
 };
 
-class spell_stormhammer_targeting : public SpellScriptLoader
+class spell_stormhammer_targeting: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_stormhammer_targeting() : SpellScriptLoader("spell_stormhammer_targeting") {}
+        spell_stormhammer_targeting() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_stormhammer_targeting") {}
 
         class spell_stormhammer_targeting_SpellScript : public SpellScript
         {
@@ -1802,10 +1802,10 @@ class spell_stormhammer_targeting : public SpellScriptLoader
         }
 };
 
-class spell_thorim_charge_orb_targeting : public SpellScriptLoader
+class spell_thorim_charge_orb_targeting: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_thorim_charge_orb_targeting() : SpellScriptLoader("spell_thorim_charge_orb_targeting") {}
+        spell_thorim_charge_orb_targeting() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_thorim_charge_orb_targeting") {}
 
         class spell_thorim_charge_orb_targeting_SpellScript : public SpellScript
         {
@@ -1847,10 +1847,10 @@ class spell_thorim_charge_orb_targeting : public SpellScriptLoader
         }
 };
 
-class spell_thorim_berserk : public SpellScriptLoader
+class spell_thorim_berserk: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_thorim_berserk() : SpellScriptLoader("spell_thorim_berserk") {}
+        spell_thorim_berserk() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_thorim_berserk") {}
 
         class spell_thorim_berserk_SpellScript : public SpellScript
         {
@@ -1890,10 +1890,10 @@ class LightingReleaseTargetFilter
         Unit* _caster;
 };
 
-class spell_thorim_lightning_release : public SpellScriptLoader
+class spell_thorim_lightning_release: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_thorim_lightning_release() : SpellScriptLoader("spell_thorim_lightning_release") { }
+        spell_thorim_lightning_release() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_thorim_lightning_release") { }
 
         class spell_thorim_lightning_release_SpellScript : public SpellScript
         {
@@ -1918,10 +1918,10 @@ class spell_thorim_lightning_release : public SpellScriptLoader
         }
 };
 
-class spell_thorim_lightning_destruction : public SpellScriptLoader
+class spell_thorim_lightning_destruction: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_thorim_lightning_destruction() : SpellScriptLoader("spell_thorim_lightning_destruction") {}
+        spell_thorim_lightning_destruction() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_thorim_lightning_destruction") {}
 
         class spell_thorim_lightning_destruction_SpellScript : public SpellScript
         {
@@ -1945,10 +1945,10 @@ class spell_thorim_lightning_destruction : public SpellScriptLoader
         }
 };
 
-class spell_thorim_runic_fortification : public SpellScriptLoader
+class spell_thorim_runic_fortification: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_thorim_runic_fortification() : SpellScriptLoader("spell_thorim_runic_fortification") { }
+        spell_thorim_runic_fortification() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_thorim_runic_fortification") { }
 
         class spell_thorim_runic_fortification_SpellScript : public SpellScript
         {
@@ -1973,10 +1973,10 @@ class spell_thorim_runic_fortification : public SpellScriptLoader
         }
 };
 
-class go_thorim_lever : public GameObjectScript
+class go_thorim_lever : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
     public:
-        go_thorim_lever() : GameObjectScript("go_thorim_lever") {}
+        go_thorim_lever() : MS::Game::Scripting::Interfaces::GameObjectScript("go_thorim_lever") {}
 
         bool OnGossipHello(Player* /*player*/, GameObject* go)
         {
@@ -1990,10 +1990,10 @@ class go_thorim_lever : public GameObjectScript
         }
 };
 
-class achievement_lose_illusion : public AchievementCriteriaScript
+class achievement_lose_illusion : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_lose_illusion(const char* name) : AchievementCriteriaScript(name) {}
+        achievement_lose_illusion(const char* name) : MS::Game::Scripting::Interfaces::AchievementCriteriaScript(name) {}
 
         bool OnCheck(Player* player, Unit* /*target*/)
         {
@@ -2012,10 +2012,10 @@ class achievement_lose_illusion : public AchievementCriteriaScript
         }
 };
 
-class achievement_do_not_stand_in_the_lighting : public AchievementCriteriaScript
+class achievement_do_not_stand_in_the_lighting : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_do_not_stand_in_the_lighting(const char* name) : AchievementCriteriaScript(name) {}
+        achievement_do_not_stand_in_the_lighting(const char* name) : MS::Game::Scripting::Interfaces::AchievementCriteriaScript(name) {}
 
         bool OnCheck(Player* player, Unit* /*target*/)
         {
@@ -2034,10 +2034,10 @@ class achievement_do_not_stand_in_the_lighting : public AchievementCriteriaScrip
         }
 };
 
-class achievement_who_needs_bloodlust : public AchievementCriteriaScript
+class achievement_who_needs_bloodlust : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_who_needs_bloodlust(const char* name) : AchievementCriteriaScript(name) {}
+        achievement_who_needs_bloodlust(const char* name) : MS::Game::Scripting::Interfaces::AchievementCriteriaScript(name) {}
 
         bool OnCheck(Player* player, Unit* /*target*/)
         {

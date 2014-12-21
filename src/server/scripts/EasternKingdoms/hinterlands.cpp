@@ -52,10 +52,10 @@ enum eOOX
     FACTION_ESCORTEE_H      = 775
 };
 
-class npc_00x09hl : public CreatureScript
+class npc_00x09hl : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_00x09hl() : CreatureScript("npc_00x09hl") { }
+    npc_00x09hl() : MS::Game::Scripting::Interfaces::CreatureScript("npc_00x09hl") { }
 
     bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
     {

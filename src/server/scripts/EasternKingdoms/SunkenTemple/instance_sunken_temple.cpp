@@ -40,10 +40,10 @@ EndScriptData */
 
 #define NPC_MALFURION_STORMRAGE 15362
 
-class instance_sunken_temple : public InstanceMapScript
+class instance_sunken_temple : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
 public:
-    instance_sunken_temple() : InstanceMapScript("instance_sunken_temple", 109) { }
+    instance_sunken_temple() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_sunken_temple", 109) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {

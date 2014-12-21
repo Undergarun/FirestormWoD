@@ -42,7 +42,7 @@ enum eSpells
     SPELL_CRYSTALLINE_SLUMBER   = 3636,
 };
 
-class mob_jadespine_basilisk : public CreatureScript
+class mob_jadespine_basilisk : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
@@ -105,10 +105,10 @@ class mob_jadespine_basilisk : public CreatureScript
 ## go_keystone_chamber
 ######*/
 
-class go_keystone_chamber : public GameObjectScript
+class go_keystone_chamber : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_keystone_chamber() : GameObjectScript("go_keystone_chamber") { }
+    go_keystone_chamber() : MS::Game::Scripting::Interfaces::GameObjectScript("go_keystone_chamber") { }
 
     bool OnGossipHello(Player* /*player*/, GameObject* go)
     {
@@ -125,12 +125,12 @@ public:
 
 #define QUEST_HIDDEN_CHAMBER    2240
 
-class AreaTrigger_at_map_chamber : public AreaTriggerScript
+class AreaTrigger_at_map_chamber : public MS::Game::Scripting::Interfaces::AreaTriggerScript
 {
     public:
 
         AreaTrigger_at_map_chamber()
-            : AreaTriggerScript("at_map_chamber")
+            : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_map_chamber")
         {
         }
 

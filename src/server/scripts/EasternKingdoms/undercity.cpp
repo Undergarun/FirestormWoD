@@ -71,10 +71,10 @@ float HighborneLoc[4][3]=
 #define HIGHBORNE_LOC_Y             -61.00f
 #define HIGHBORNE_LOC_Y_NEW         -55.50f
 
-class npc_lady_sylvanas_windrunner : public CreatureScript
+class npc_lady_sylvanas_windrunner : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_lady_sylvanas_windrunner() : CreatureScript("npc_lady_sylvanas_windrunner") { }
+    npc_lady_sylvanas_windrunner() : MS::Game::Scripting::Interfaces::CreatureScript("npc_lady_sylvanas_windrunner") { }
 
     bool OnQuestReward(Player* /*player*/, Creature* creature, const Quest *_Quest, uint32 /*slot*/)
     {
@@ -230,10 +230,10 @@ public:
 ## npc_highborne_lamenter
 ######*/
 
-class npc_highborne_lamenter : public CreatureScript
+class npc_highborne_lamenter : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_highborne_lamenter() : CreatureScript("npc_highborne_lamenter") { }
+    npc_highborne_lamenter() : MS::Game::Scripting::Interfaces::CreatureScript("npc_highborne_lamenter") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -297,10 +297,10 @@ public:
 #define GOSSIP_HPF2 "Kel'Thuzad"
 #define GOSSIP_HPF3 "Ner'zhul"
 
-class npc_parqual_fintallas : public CreatureScript
+class npc_parqual_fintallas : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_parqual_fintallas() : CreatureScript("npc_parqual_fintallas") { }
+    npc_parqual_fintallas() : MS::Game::Scripting::Interfaces::CreatureScript("npc_parqual_fintallas") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {

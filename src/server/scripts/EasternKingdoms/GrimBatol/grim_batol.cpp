@@ -244,11 +244,11 @@ enum Events
 
 };
 
-class npc_ascended_flameseeker : public CreatureScript
+class npc_ascended_flameseeker : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_ascended_flameseeker() : CreatureScript("npc_ascended_flameseeker"){}
+        npc_ascended_flameseeker() : MS::Game::Scripting::Interfaces::CreatureScript("npc_ascended_flameseeker"){}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -305,11 +305,11 @@ class npc_ascended_flameseeker : public CreatureScript
         };
 };
 
-class npc_ascended_rockbreaker : public CreatureScript
+class npc_ascended_rockbreaker : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_ascended_rockbreaker() : CreatureScript("npc_ascended_rockbreaker"){}
+        npc_ascended_rockbreaker() : MS::Game::Scripting::Interfaces::CreatureScript("npc_ascended_rockbreaker"){}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -371,11 +371,11 @@ class npc_ascended_rockbreaker : public CreatureScript
         };
 };
 
-class npc_ascended_waterlasher : public CreatureScript
+class npc_ascended_waterlasher : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_ascended_waterlasher() : CreatureScript("npc_ascended_waterlasher"){}
+        npc_ascended_waterlasher() : MS::Game::Scripting::Interfaces::CreatureScript("npc_ascended_waterlasher"){}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -435,11 +435,11 @@ class npc_ascended_waterlasher : public CreatureScript
         };
 };
 
-class npc_ascended_windwalker: public CreatureScript
+class npc_ascended_windwalker : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_ascended_windwalker() : CreatureScript("npc_ascended_windwalker"){}
+        npc_ascended_windwalker() : MS::Game::Scripting::Interfaces::CreatureScript("npc_ascended_windwalker"){}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -489,11 +489,11 @@ class npc_ascended_windwalker: public CreatureScript
         };
 };
 
-class npc_azureborne_guardian: public CreatureScript
+class npc_azureborne_guardian : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_azureborne_guardian() : CreatureScript("npc_azureborne_guardian"){}
+        npc_azureborne_guardian() : MS::Game::Scripting::Interfaces::CreatureScript("npc_azureborne_guardian"){}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -549,11 +549,11 @@ class npc_azureborne_guardian: public CreatureScript
         };
 };
 
-class npc_azureborne_seer: public CreatureScript
+class npc_azureborne_seer : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_azureborne_seer() : CreatureScript("npc_azureborne_seer"){}
+        npc_azureborne_seer() : MS::Game::Scripting::Interfaces::CreatureScript("npc_azureborne_seer"){}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -616,11 +616,11 @@ class npc_azureborne_seer: public CreatureScript
         };
 };
 
-class npc_azureborne_warlord: public CreatureScript
+class npc_azureborne_warlord : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_azureborne_warlord() : CreatureScript("npc_azureborne_warlord"){}
+        npc_azureborne_warlord() : MS::Game::Scripting::Interfaces::CreatureScript("npc_azureborne_warlord"){}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -675,11 +675,11 @@ class npc_azureborne_warlord: public CreatureScript
         };
 };
 
-class npc_crimsonborne_guardian: public CreatureScript
+class npc_crimsonborne_guardian : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_crimsonborne_guardian() : CreatureScript("npc_crimsonborne_guardian"){}
+        npc_crimsonborne_guardian() : MS::Game::Scripting::Interfaces::CreatureScript("npc_crimsonborne_guardian"){}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -730,11 +730,11 @@ class npc_crimsonborne_guardian: public CreatureScript
         };
 };
 
-class npc_crimsonborne_seer: public CreatureScript
+class npc_crimsonborne_seer : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_crimsonborne_seer() : CreatureScript("npc_crimsonborne_seer"){}
+        npc_crimsonborne_seer() : MS::Game::Scripting::Interfaces::CreatureScript("npc_crimsonborne_seer"){}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -790,11 +790,11 @@ class npc_crimsonborne_seer: public CreatureScript
         };
 };
 
-class npc_crimsonborne_warlord: public CreatureScript
+class npc_crimsonborne_warlord : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_crimsonborne_warlord() : CreatureScript("npc_crimsonborne_warlord"){}
+        npc_crimsonborne_warlord() : MS::Game::Scripting::Interfaces::CreatureScript("npc_crimsonborne_warlord"){}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -849,11 +849,11 @@ class npc_crimsonborne_warlord: public CreatureScript
         };
 };
 
-class npc_enslaved_burning_ember: public CreatureScript
+class npc_enslaved_burning_ember : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_enslaved_burning_ember() : CreatureScript("npc_enslaved_burning_ember"){}
+        npc_enslaved_burning_ember() : MS::Game::Scripting::Interfaces::CreatureScript("npc_enslaved_burning_ember"){}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -904,11 +904,11 @@ class npc_enslaved_burning_ember: public CreatureScript
         };
 };
 
-class npc_enslaved_rock_elemental: public CreatureScript
+class npc_enslaved_rock_elemental : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_enslaved_rock_elemental() : CreatureScript("npc_enslaved_rock_elemental"){}
+        npc_enslaved_rock_elemental() : MS::Game::Scripting::Interfaces::CreatureScript("npc_enslaved_rock_elemental"){}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -958,11 +958,11 @@ class npc_enslaved_rock_elemental: public CreatureScript
         };
 };
 
-class npc_enslaved_gronn_brute: public CreatureScript
+class npc_enslaved_gronn_brute : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_enslaved_gronn_brute() : CreatureScript("npc_enslaved_gronn_brute"){}
+        npc_enslaved_gronn_brute() : MS::Game::Scripting::Interfaces::CreatureScript("npc_enslaved_gronn_brute"){}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -1012,11 +1012,11 @@ class npc_enslaved_gronn_brute: public CreatureScript
         };
 };
 
-class npc_faceless_corruptor : public CreatureScript
+class npc_faceless_corruptor : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_faceless_corruptor() : CreatureScript("npc_faceless_corruptor"){}
+        npc_faceless_corruptor() : MS::Game::Scripting::Interfaces::CreatureScript("npc_faceless_corruptor"){}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -1078,11 +1078,11 @@ class npc_faceless_corruptor : public CreatureScript
         };
 };
 
-class npc_trogg_dweller : public CreatureScript
+class npc_trogg_dweller : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_trogg_dweller() : CreatureScript("npc_trogg_dweller"){}
+        npc_trogg_dweller() : MS::Game::Scripting::Interfaces::CreatureScript("npc_trogg_dweller"){}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -1133,11 +1133,11 @@ class npc_trogg_dweller : public CreatureScript
         };
 };
 
-class npc_twilight_armsmaster : public CreatureScript
+class npc_twilight_armsmaster : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_twilight_armsmaster() : CreatureScript("npc_twilight_armsmaster"){}
+        npc_twilight_armsmaster() : MS::Game::Scripting::Interfaces::CreatureScript("npc_twilight_armsmaster"){}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -1192,11 +1192,11 @@ class npc_twilight_armsmaster : public CreatureScript
         };
 };
 
-class npc_twilight_beguiler : public CreatureScript
+class npc_twilight_beguiler : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_twilight_beguiler() : CreatureScript("npc_twilight_beguiler"){}
+        npc_twilight_beguiler() : MS::Game::Scripting::Interfaces::CreatureScript("npc_twilight_beguiler"){}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -1255,11 +1255,11 @@ class npc_twilight_beguiler : public CreatureScript
         };
 };
 
-class npc_twilight_drake : public CreatureScript
+class npc_twilight_drake : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_twilight_drake() : CreatureScript("npc_twilight_drake"){}
+        npc_twilight_drake() : MS::Game::Scripting::Interfaces::CreatureScript("npc_twilight_drake"){}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -1309,11 +1309,11 @@ class npc_twilight_drake : public CreatureScript
         };
 };
 
-class npc_twilight_earthshaper : public CreatureScript
+class npc_twilight_earthshaper : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_twilight_earthshaper() : CreatureScript("npc_twilight_earthshaper"){}
+        npc_twilight_earthshaper() : MS::Game::Scripting::Interfaces::CreatureScript("npc_twilight_earthshaper"){}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -1370,11 +1370,11 @@ class npc_twilight_earthshaper : public CreatureScript
         };
 };
 
-class npc_twilight_enforcer : public CreatureScript
+class npc_twilight_enforcer : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_twilight_enforcer() : CreatureScript("npc_twilight_enforcer"){}
+        npc_twilight_enforcer() : MS::Game::Scripting::Interfaces::CreatureScript("npc_twilight_enforcer"){}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -1425,11 +1425,11 @@ class npc_twilight_enforcer : public CreatureScript
         };
 };
 
-class npc_twilight_firecatcher : public CreatureScript
+class npc_twilight_firecatcher : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_twilight_firecatcher() : CreatureScript("npc_twilight_firecatcher"){}
+        npc_twilight_firecatcher() : MS::Game::Scripting::Interfaces::CreatureScript("npc_twilight_firecatcher"){}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -1486,11 +1486,11 @@ class npc_twilight_firecatcher : public CreatureScript
         };
 };
 
-class npc_twilight_shadow_weaver : public CreatureScript
+class npc_twilight_shadow_weaver : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_twilight_shadow_weaver() : CreatureScript("npc_twilight_shadow_weaver"){}
+        npc_twilight_shadow_weaver() : MS::Game::Scripting::Interfaces::CreatureScript("npc_twilight_shadow_weaver"){}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -1548,11 +1548,11 @@ class npc_twilight_shadow_weaver : public CreatureScript
         };
 };
 
-class npc_twilight_stormbreaker : public CreatureScript
+class npc_twilight_stormbreaker : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_twilight_stormbreaker() : CreatureScript("npc_twilight_stormbreaker"){}
+        npc_twilight_stormbreaker() : MS::Game::Scripting::Interfaces::CreatureScript("npc_twilight_stormbreaker"){}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -1609,11 +1609,11 @@ class npc_twilight_stormbreaker : public CreatureScript
         };
 };
 
-class npc_twilight_thundercaller : public CreatureScript
+class npc_twilight_thundercaller : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_twilight_thundercaller() : CreatureScript("npc_twilight_thundercaller"){}
+        npc_twilight_thundercaller() : MS::Game::Scripting::Interfaces::CreatureScript("npc_twilight_thundercaller"){}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -1672,11 +1672,11 @@ class npc_twilight_thundercaller : public CreatureScript
 
 #define SAY_CALL_WYRM "Come to my aid, Drake!"
 
-class npc_twilight_wyrmcaller : public CreatureScript
+class npc_twilight_wyrmcaller : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_twilight_wyrmcaller() : CreatureScript("npc_twilight_wyrmcaller"){}
+        npc_twilight_wyrmcaller() : MS::Game::Scripting::Interfaces::CreatureScript("npc_twilight_wyrmcaller"){}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -1751,11 +1751,11 @@ class npc_twilight_wyrmcaller : public CreatureScript
         };
 };
 
-class npc_twilight_war_mage : public CreatureScript
+class npc_twilight_war_mage : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_twilight_war_mage() : CreatureScript("npc_twilight_war_mage"){}
+        npc_twilight_war_mage() : MS::Game::Scripting::Interfaces::CreatureScript("npc_twilight_war_mage"){}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -1810,11 +1810,11 @@ class npc_twilight_war_mage : public CreatureScript
         };
 };
 
-class npc_ascended_rockbreaker_fissure : public CreatureScript
+class npc_ascended_rockbreaker_fissure : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_ascended_rockbreaker_fissure() : CreatureScript("npc_ascended_rockbreaker_fissure"){}
+        npc_ascended_rockbreaker_fissure() : MS::Game::Scripting::Interfaces::CreatureScript("npc_ascended_rockbreaker_fissure"){}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -1840,11 +1840,11 @@ class npc_ascended_rockbreaker_fissure : public CreatureScript
         };
 };
 
-class npc_crimsonborne_warlord_empowering_flames : public CreatureScript
+class npc_crimsonborne_warlord_empowering_flames : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_crimsonborne_warlord_empowering_flames() : CreatureScript("npc_crimsonborne_warlord_empowering_flames"){}
+        npc_crimsonborne_warlord_empowering_flames() : MS::Game::Scripting::Interfaces::CreatureScript("npc_crimsonborne_warlord_empowering_flames"){}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -1870,10 +1870,10 @@ class npc_crimsonborne_warlord_empowering_flames : public CreatureScript
         };
 };
 
-class spell_twilight_enforcer_meat_grinder : public SpellScriptLoader
+class spell_twilight_enforcer_meat_grinder: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_twilight_enforcer_meat_grinder() : SpellScriptLoader("spell_twilight_enforcer_meat_grinder") { }
+        spell_twilight_enforcer_meat_grinder() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_twilight_enforcer_meat_grinder") { }
 
         class spell_twilight_enforcer_meat_grinder_AuraScript : public AuraScript
         {
@@ -1899,10 +1899,10 @@ class spell_twilight_enforcer_meat_grinder : public SpellScriptLoader
         }
 };
 
-class spell_twilight_shadow_weaver_shadow_weave : public SpellScriptLoader
+class spell_twilight_shadow_weaver_shadow_weave: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_twilight_shadow_weaver_shadow_weave() : SpellScriptLoader("spell_twilight_shadow_weaver_shadow_weave") { }
+        spell_twilight_shadow_weaver_shadow_weave() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_twilight_shadow_weaver_shadow_weave") { }
 
 
         class spell_twilight_shadow_weaver_shadow_weave_SpellScript : public SpellScript
@@ -1931,10 +1931,10 @@ class spell_twilight_shadow_weaver_shadow_weave : public SpellScriptLoader
         }
 };
 
-class spell_twilight_thundercaller_electric_blast: public SpellScriptLoader
+class spell_twilight_thundercaller_electric_blast: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_twilight_thundercaller_electric_blast() : SpellScriptLoader("spell_twilight_thundercaller_electric_blast") { }
+        spell_twilight_thundercaller_electric_blast() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_twilight_thundercaller_electric_blast") { }
 
 
         class spell_twilight_thundercaller_electric_blast_SpellScript : public SpellScript

@@ -63,10 +63,10 @@ Position const RiftLocation[6] =
 
 #define DATA_CHAOS_THEORY                         1
 
-class boss_anomalus : public CreatureScript
+class boss_anomalus : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_anomalus() : CreatureScript("boss_anomalus") { }
+        boss_anomalus() : MS::Game::Scripting::Interfaces::CreatureScript("boss_anomalus") { }
 
         struct boss_anomalusAI : public ScriptedAI
         {
@@ -186,10 +186,10 @@ class boss_anomalus : public CreatureScript
         }
 };
 
-class mob_chaotic_rift : public CreatureScript
+class mob_chaotic_rift : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_chaotic_rift() : CreatureScript("mob_chaotic_rift") { }
+        mob_chaotic_rift() : MS::Game::Scripting::Interfaces::CreatureScript("mob_chaotic_rift") { }
 
         struct mob_chaotic_riftAI : public Scripted_NoMovementAI
         {
@@ -253,10 +253,10 @@ class mob_chaotic_rift : public CreatureScript
         }
 };
 
-class achievement_chaos_theory : public AchievementCriteriaScript
+class achievement_chaos_theory : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_chaos_theory() : AchievementCriteriaScript("achievement_chaos_theory")
+        achievement_chaos_theory() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_chaos_theory")
         {
         }
 

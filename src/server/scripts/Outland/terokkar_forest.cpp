@@ -52,10 +52,10 @@ EndContentData */
 #define SPELL_PULVERIZE                 2676
 //#define SPELL_QUID9889                32174
 
-class mob_unkor_the_ruthless : public CreatureScript
+class mob_unkor_the_ruthless : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_unkor_the_ruthless() : CreatureScript("mob_unkor_the_ruthless") { }
+    mob_unkor_the_ruthless() : MS::Game::Scripting::Interfaces::CreatureScript("mob_unkor_the_ruthless") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -158,10 +158,10 @@ public:
 ## mob_infested_root_walker
 ######*/
 
-class mob_infested_root_walker : public CreatureScript
+class mob_infested_root_walker : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_infested_root_walker() : CreatureScript("mob_infested_root_walker") { }
+    mob_infested_root_walker() : MS::Game::Scripting::Interfaces::CreatureScript("mob_infested_root_walker") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -189,10 +189,10 @@ public:
 /*######
 ## mob_skywing
 ######*/
-class npc_skywing : public CreatureScript
+class npc_skywing : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_skywing() : CreatureScript("npc_skywing") { }
+    npc_skywing() : MS::Game::Scripting::Interfaces::CreatureScript("npc_skywing") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -251,10 +251,10 @@ public:
 ## mob_rotting_forest_rager
 ######*/
 
-class mob_rotting_forest_rager : public CreatureScript
+class mob_rotting_forest_rager : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_rotting_forest_rager() : CreatureScript("mob_rotting_forest_rager") { }
+    mob_rotting_forest_rager() : MS::Game::Scripting::Interfaces::CreatureScript("mob_rotting_forest_rager") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -290,10 +290,10 @@ const uint32 netherwebVictims[6] =
 {
     18470, 16805, 21242, 18452, 22482, 21285
 };
-class mob_netherweb_victim : public CreatureScript
+class mob_netherweb_victim : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_netherweb_victim() : CreatureScript("mob_netherweb_victim") { }
+    mob_netherweb_victim() : MS::Game::Scripting::Interfaces::CreatureScript("mob_netherweb_victim") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -352,10 +352,10 @@ enum eFloon
     QUEST_CRACK_SKULLS      = 10009
 };
 
-class npc_floon : public CreatureScript
+class npc_floon : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_floon() : CreatureScript("npc_floon") { }
+    npc_floon() : MS::Game::Scripting::Interfaces::CreatureScript("npc_floon") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
@@ -456,10 +456,10 @@ enum eIslaStarmaneData
     SPELL_CAT       = 32447,
 };
 
-class npc_isla_starmane : public CreatureScript
+class npc_isla_starmane : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_isla_starmane() : CreatureScript("npc_isla_starmane") { }
+    npc_isla_starmane() : MS::Game::Scripting::Interfaces::CreatureScript("npc_isla_starmane") { }
 
     struct npc_isla_starmaneAI : public npc_escortAI
     {
@@ -545,10 +545,10 @@ public:
 #define GOSSIP_S_GEZZARAK_THE_HUNTRESS         "Summon Gezzarak the Huntress"
 #define GOSSIP_S_VAKKIZ_THE_WINDRAGER         "Summon Vakkiz the Windrager"
 
-class go_skull_pile : public GameObjectScript
+class go_skull_pile : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_skull_pile() : GameObjectScript("go_skull_pile") { }
+    go_skull_pile() : MS::Game::Scripting::Interfaces::GameObjectScript("go_skull_pile") { }
 
     bool OnGossipSelect(Player* player, GameObject* go, uint32 sender, uint32 action)
     {
@@ -603,10 +603,10 @@ enum eSlim
     FACTION_CONSORTIUM  = 933
 };
 
-class npc_slim : public CreatureScript
+class npc_slim : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_slim() : CreatureScript("npc_slim") { }
+    npc_slim() : MS::Game::Scripting::Interfaces::CreatureScript("npc_slim") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
@@ -641,10 +641,10 @@ enum eAkuno
     NPC_CABAL_SKRIMISHER    = 21661
 };
 
-class npc_akuno : public CreatureScript
+class npc_akuno : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_akuno() : CreatureScript("npc_akuno") { }
+    npc_akuno() : MS::Game::Scripting::Interfaces::CreatureScript("npc_akuno") { }
 
     bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {

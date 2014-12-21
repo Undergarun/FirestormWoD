@@ -333,10 +333,10 @@ class VehicleCheckPredicate
         bool operator()(uint64 guid) { return IS_VEHICLE_GUID(guid); }
 };
 
-class boss_malygos : public CreatureScript
+class boss_malygos : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_malygos() : CreatureScript("boss_malygos") { }
+    boss_malygos() : MS::Game::Scripting::Interfaces::CreatureScript("boss_malygos") { }
 
     struct boss_malygosAI : public BossAI
     {
@@ -1080,10 +1080,10 @@ public:
     }
 };
 
-class npc_portal_eoe: public CreatureScript
+class npc_portal_eoe : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_portal_eoe() : CreatureScript("npc_portal_eoe") { }
+    npc_portal_eoe() : MS::Game::Scripting::Interfaces::CreatureScript("npc_portal_eoe") { }
 
     struct npc_portal_eoeAI : public ScriptedAI
     {
@@ -1133,10 +1133,10 @@ public:
     }
 };
 
-class npc_power_spark: public CreatureScript
+class npc_power_spark : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_power_spark() : CreatureScript("npc_power_spark") { }
+    npc_power_spark() : MS::Game::Scripting::Interfaces::CreatureScript("npc_power_spark") { }
 
     struct npc_power_sparkAI : public ScriptedAI
     {
@@ -1196,10 +1196,10 @@ public:
     }
 };
 
-class npc_melee_hover_disk : public CreatureScript
+class npc_melee_hover_disk : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_melee_hover_disk() : CreatureScript("npc_melee_hover_disk") { }
+    npc_melee_hover_disk() : MS::Game::Scripting::Interfaces::CreatureScript("npc_melee_hover_disk") { }
 
     struct npc_melee_hover_diskAI : public VehicleAI
     {
@@ -1284,10 +1284,10 @@ public:
     }
 };
 
-class npc_caster_hover_disk : public CreatureScript
+class npc_caster_hover_disk : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_caster_hover_disk() : CreatureScript("npc_caster_hover_disk") { }
+    npc_caster_hover_disk() : MS::Game::Scripting::Interfaces::CreatureScript("npc_caster_hover_disk") { }
 
     struct npc_caster_hover_diskAI : public VehicleAI
     {
@@ -1373,10 +1373,10 @@ public:
     }
 };
 
-class npc_nexus_lord : public CreatureScript
+class npc_nexus_lord : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_nexus_lord() : CreatureScript("npc_nexus_lord") { }
+        npc_nexus_lord() : MS::Game::Scripting::Interfaces::CreatureScript("npc_nexus_lord") { }
 
         struct npc_nexus_lordAI : public ScriptedAI
         {
@@ -1449,10 +1449,10 @@ class npc_nexus_lord : public CreatureScript
         }
 };
 
-class npc_scion_of_eternity : public CreatureScript
+class npc_scion_of_eternity : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_scion_of_eternity() : CreatureScript("npc_scion_of_eternity") { }
+        npc_scion_of_eternity() : MS::Game::Scripting::Interfaces::CreatureScript("npc_scion_of_eternity") { }
 
         struct npc_scion_of_eternityAI : public ScriptedAI
         {
@@ -1516,10 +1516,10 @@ class npc_scion_of_eternity : public CreatureScript
         }
 };
 
-class npc_arcane_overload : public CreatureScript
+class npc_arcane_overload : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_arcane_overload() : CreatureScript("npc_arcane_overload") { }
+    npc_arcane_overload() : MS::Game::Scripting::Interfaces::CreatureScript("npc_arcane_overload") { }
 
     struct npc_arcane_overloadAI : public ScriptedAI
     {
@@ -1575,10 +1575,10 @@ public:
 };
 
 // SmartAI does not work correctly for vehicles
-class npc_wyrmrest_skytalon : public CreatureScript
+class npc_wyrmrest_skytalon : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_wyrmrest_skytalon() : CreatureScript("npc_wyrmrest_skytalon") { }
+    npc_wyrmrest_skytalon() : MS::Game::Scripting::Interfaces::CreatureScript("npc_wyrmrest_skytalon") { }
 
     struct npc_wyrmrest_skytalonAI : public VehicleAI
     {
@@ -1641,10 +1641,10 @@ public:
 
 // We shouldn't use SAI for stuff that aren't within boss main mechanic
 // and SAI type of despawn can cause problems here.
-class npc_static_field : public CreatureScript
+class npc_static_field : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_static_field() : CreatureScript("npc_static_field") { }
+        npc_static_field() : MS::Game::Scripting::Interfaces::CreatureScript("npc_static_field") { }
 
         struct npc_static_fieldAI : public ScriptedAI
         {
@@ -1665,10 +1665,10 @@ class npc_static_field : public CreatureScript
         }
 };
 
-class spell_malygos_portal_beam : public SpellScriptLoader
+class spell_malygos_portal_beam: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_malygos_portal_beam() : SpellScriptLoader("spell_malygos_portal_beam") { }
+        spell_malygos_portal_beam() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_malygos_portal_beam") { }
 
         class spell_malygos_portal_beam_AuraScript : public AuraScript
         {
@@ -1712,10 +1712,10 @@ class spell_malygos_portal_beam : public SpellScriptLoader
         }
 };
 
-class spell_malygos_random_portal : public SpellScriptLoader
+class spell_malygos_random_portal: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_malygos_random_portal() : SpellScriptLoader("spell_malygos_random_portal") { }
+        spell_malygos_random_portal() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_malygos_random_portal") { }
 
         class spell_malygos_random_portal_SpellScript : public SpellScript
         {
@@ -1768,10 +1768,10 @@ class IsCreatureVehicleCheck
         bool _isVehicle;
 };
 
-class spell_malygos_arcane_storm : public SpellScriptLoader
+class spell_malygos_arcane_storm: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_malygos_arcane_storm() : SpellScriptLoader("spell_malygos_arcane_storm") { }
+        spell_malygos_arcane_storm() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_malygos_arcane_storm") { }
 
         class spell_malygos_arcane_storm_SpellScript : public SpellScript
         {
@@ -1828,10 +1828,10 @@ class spell_malygos_arcane_storm : public SpellScriptLoader
         }
 };
 
-class spell_malygos_vortex_dummy : public SpellScriptLoader
+class spell_malygos_vortex_dummy: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_malygos_vortex_dummy() : SpellScriptLoader("spell_malygos_vortex_dummy") { }
+    spell_malygos_vortex_dummy() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_malygos_vortex_dummy") { }
 
     class spell_malygos_vortex_dummy_SpellScript : public SpellScript
     {
@@ -1865,10 +1865,10 @@ public:
     }
 };
 
-class spell_malygos_vortex_visual : public SpellScriptLoader
+class spell_malygos_vortex_visual: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_malygos_vortex_visual() : SpellScriptLoader("spell_malygos_vortex_visual") { }
+        spell_malygos_vortex_visual() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_malygos_vortex_visual") { }
 
         class spell_malygos_vortex_visual_AuraScript : public AuraScript
         {
@@ -1944,10 +1944,10 @@ class ExactDistanceCheck
         float _dist;
 };
 
-class spell_arcane_overload : public SpellScriptLoader
+class spell_arcane_overload: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_arcane_overload() : SpellScriptLoader("spell_arcane_overload") { }
+        spell_arcane_overload() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_arcane_overload") { }
 
         class spell_arcane_overload_SpellScript : public SpellScript
         {
@@ -1977,10 +1977,10 @@ class spell_arcane_overload : public SpellScriptLoader
         }
 };
 
-class spell_nexus_lord_align_disk_aggro : public SpellScriptLoader
+class spell_nexus_lord_align_disk_aggro: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_nexus_lord_align_disk_aggro() : SpellScriptLoader("spell_nexus_lord_align_disk_aggro") { }
+        spell_nexus_lord_align_disk_aggro() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_nexus_lord_align_disk_aggro") { }
 
         class spell_nexus_lord_align_disk_aggro_SpellScript : public SpellScript
         {
@@ -2028,10 +2028,10 @@ class IsPlayerOnHoverDisk
         bool _isOnHoverDisk;
 };
 
-class spell_scion_of_eternity_arcane_barrage : public SpellScriptLoader
+class spell_scion_of_eternity_arcane_barrage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_scion_of_eternity_arcane_barrage() : SpellScriptLoader("spell_scion_of_eternity_arcane_barrage") { }
+        spell_scion_of_eternity_arcane_barrage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_scion_of_eternity_arcane_barrage") { }
 
         class spell_scion_of_eternity_arcane_barrage_SpellScript : public SpellScript
         {
@@ -2112,10 +2112,10 @@ class spell_scion_of_eternity_arcane_barrage : public SpellScriptLoader
         }
 };
 
-class spell_malygos_destroy_platform_channel : public SpellScriptLoader
+class spell_malygos_destroy_platform_channel: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_malygos_destroy_platform_channel() : SpellScriptLoader("spell_malygos_destroy_platform_channel") { }
+        spell_malygos_destroy_platform_channel() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_malygos_destroy_platform_channel") { }
 
         class spell_malygos_destroy_platform_channel_AuraScript : public AuraScript
         {
@@ -2154,10 +2154,10 @@ class spell_malygos_destroy_platform_channel : public SpellScriptLoader
         }
 };
 
-class spell_alexstrasza_bunny_destroy_platform_boom_visual : public SpellScriptLoader
+class spell_alexstrasza_bunny_destroy_platform_boom_visual: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_alexstrasza_bunny_destroy_platform_boom_visual() : SpellScriptLoader("spell_alexstrasza_bunny_destroy_platform_boom_visual") { }
+        spell_alexstrasza_bunny_destroy_platform_boom_visual() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_alexstrasza_bunny_destroy_platform_boom_visual") { }
 
         class spell_alexstrasza_bunny_destroy_platform_boom_visual_SpellScript : public SpellScript
         {
@@ -2194,10 +2194,10 @@ class spell_alexstrasza_bunny_destroy_platform_boom_visual : public SpellScriptL
         }
 };
 
-class spell_alexstrasza_bunny_destroy_platform_event : public SpellScriptLoader
+class spell_alexstrasza_bunny_destroy_platform_event: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_alexstrasza_bunny_destroy_platform_event() : SpellScriptLoader("spell_alexstrasza_bunny_destroy_platform_event") { }
+        spell_alexstrasza_bunny_destroy_platform_event() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_alexstrasza_bunny_destroy_platform_event") { }
 
         class spell_alexstrasza_bunny_destroy_platform_event_SpellScript : public SpellScript
         {
@@ -2234,10 +2234,10 @@ class spell_alexstrasza_bunny_destroy_platform_event : public SpellScriptLoader
         }
 };
 
-class spell_wyrmrest_skytalon_summon_red_dragon_buddy : public SpellScriptLoader
+class spell_wyrmrest_skytalon_summon_red_dragon_buddy: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_wyrmrest_skytalon_summon_red_dragon_buddy() : SpellScriptLoader("spell_wyrmrest_skytalon_summon_red_dragon_buddy") { }
+        spell_wyrmrest_skytalon_summon_red_dragon_buddy() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_wyrmrest_skytalon_summon_red_dragon_buddy") { }
 
         class spell_wyrmrest_skytalon_summon_red_dragon_buddy_SpellScript : public SpellScript
         {
@@ -2270,10 +2270,10 @@ class spell_wyrmrest_skytalon_summon_red_dragon_buddy : public SpellScriptLoader
         }
 };
 
-class spell_wyrmrest_skytalon_ride_red_dragon_buddy_trigger : public SpellScriptLoader
+class spell_wyrmrest_skytalon_ride_red_dragon_buddy_trigger: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_wyrmrest_skytalon_ride_red_dragon_buddy_trigger() : SpellScriptLoader("spell_wyrmrest_skytalon_ride_red_dragon_buddy_trigger") { }
+        spell_wyrmrest_skytalon_ride_red_dragon_buddy_trigger() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_wyrmrest_skytalon_ride_red_dragon_buddy_trigger") { }
 
         class spell_wyrmrest_skytalon_ride_red_dragon_buddy_trigger_SpellScript : public SpellScript
         {
@@ -2302,10 +2302,10 @@ class spell_wyrmrest_skytalon_ride_red_dragon_buddy_trigger : public SpellScript
         }
 };
 
-class spell_malygos_surge_of_power_warning_selector_25 : public SpellScriptLoader
+class spell_malygos_surge_of_power_warning_selector_25: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_malygos_surge_of_power_warning_selector_25() : SpellScriptLoader("spell_malygos_surge_of_power_warning_selector_25") { }
+        spell_malygos_surge_of_power_warning_selector_25() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_malygos_surge_of_power_warning_selector_25") { }
 
         class spell_malygos_surge_of_power_warning_selector_25_SpellScript : public SpellScript
         {
@@ -2368,10 +2368,10 @@ class spell_malygos_surge_of_power_warning_selector_25 : public SpellScriptLoade
         }
 };
 
-class spell_malygos_surge_of_power_25 : public SpellScriptLoader
+class spell_malygos_surge_of_power_25: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_malygos_surge_of_power_25() : SpellScriptLoader("spell_malygos_surge_of_power_25") { }
+        spell_malygos_surge_of_power_25() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_malygos_surge_of_power_25") { }
 
         class spell_malygos_surge_of_power_25_SpellScript : public SpellScript
         {
@@ -2419,10 +2419,10 @@ class spell_malygos_surge_of_power_25 : public SpellScriptLoader
         }
 };
 
-class spell_alexstrasza_gift_beam : public SpellScriptLoader
+class spell_alexstrasza_gift_beam: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_alexstrasza_gift_beam() : SpellScriptLoader("spell_alexstrasza_gift_beam") { }
+        spell_alexstrasza_gift_beam() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_alexstrasza_gift_beam") { }
 
         class spell_alexstrasza_gift_beam_AuraScript : public AuraScript
         {
@@ -2466,10 +2466,10 @@ class spell_alexstrasza_gift_beam : public SpellScriptLoader
         }
 };
 
-class spell_alexstrasza_gift_beam_visual : public SpellScriptLoader
+class spell_alexstrasza_gift_beam_visual: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_alexstrasza_gift_beam_visual() : SpellScriptLoader("spell_alexstrasza_gift_beam_visual") { }
+        spell_alexstrasza_gift_beam_visual() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_alexstrasza_gift_beam_visual") { }
 
         class spell_alexstrasza_gift_beam_visual_AuraScript : public AuraScript
         {
@@ -2522,10 +2522,10 @@ class spell_alexstrasza_gift_beam_visual : public SpellScriptLoader
         }
 };
 
-class achievement_denyin_the_scion : public AchievementCriteriaScript
+class achievement_denyin_the_scion : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_denyin_the_scion() : AchievementCriteriaScript("achievement_denyin_the_scion") { }
+        achievement_denyin_the_scion() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_denyin_the_scion") { }
 
         bool OnCheck(Player* source, Unit* /*target*/)
         {

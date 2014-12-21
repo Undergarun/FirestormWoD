@@ -3,10 +3,10 @@
 
 #define ENCOUNTERS 5
 
-class instance_blackrock_caverns : public InstanceMapScript
+class instance_blackrock_caverns : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
 public:
-    instance_blackrock_caverns() : InstanceMapScript("instance_blackrock_caverns", 645) { }
+    instance_blackrock_caverns() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_blackrock_caverns", 645) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {

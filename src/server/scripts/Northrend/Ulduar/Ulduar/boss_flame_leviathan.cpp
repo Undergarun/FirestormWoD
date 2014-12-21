@@ -232,10 +232,10 @@ Position const FreyaBeacons[FREYA_SPAWNS] =
     {185.62f, 54.78f, 409.81f, 0.0f},
 };
 
-class boss_flame_leviathan : public CreatureScript
+class boss_flame_leviathan : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_flame_leviathan() : CreatureScript("boss_flame_leviathan") { }
+        boss_flame_leviathan() : MS::Game::Scripting::Interfaces::CreatureScript("boss_flame_leviathan") { }
 
         struct boss_flame_leviathanAI : public BossAI
         {
@@ -576,10 +576,10 @@ class boss_flame_leviathan : public CreatureScript
         }
 };
 
-class boss_flame_leviathan_seat : public CreatureScript
+class boss_flame_leviathan_seat : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_flame_leviathan_seat() : CreatureScript("boss_flame_leviathan_seat") { }
+        boss_flame_leviathan_seat() : MS::Game::Scripting::Interfaces::CreatureScript("boss_flame_leviathan_seat") { }
 
         struct boss_flame_leviathan_seatAI : public ScriptedAI
         {
@@ -640,10 +640,10 @@ class boss_flame_leviathan_seat : public CreatureScript
         }
 };
 
-class boss_flame_leviathan_defense_cannon : public CreatureScript
+class boss_flame_leviathan_defense_cannon : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_flame_leviathan_defense_cannon() : CreatureScript("boss_flame_leviathan_defense_cannon") { }
+        boss_flame_leviathan_defense_cannon() : MS::Game::Scripting::Interfaces::CreatureScript("boss_flame_leviathan_defense_cannon") { }
 
         struct boss_flame_leviathan_defense_cannonAI : public ScriptedAI
         {
@@ -690,10 +690,10 @@ class boss_flame_leviathan_defense_cannon : public CreatureScript
         }
 };
 
-class boss_flame_leviathan_defense_turret : public CreatureScript
+class boss_flame_leviathan_defense_turret : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_flame_leviathan_defense_turret() : CreatureScript("boss_flame_leviathan_defense_turret") { }
+        boss_flame_leviathan_defense_turret() : MS::Game::Scripting::Interfaces::CreatureScript("boss_flame_leviathan_defense_turret") { }
 
         struct boss_flame_leviathan_defense_turretAI : public TurretAI
         {
@@ -719,10 +719,10 @@ class boss_flame_leviathan_defense_turret : public CreatureScript
         }
 };
 
-class boss_flame_leviathan_overload_device : public CreatureScript
+class boss_flame_leviathan_overload_device : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_flame_leviathan_overload_device() : CreatureScript("boss_flame_leviathan_overload_device") { }
+        boss_flame_leviathan_overload_device() : MS::Game::Scripting::Interfaces::CreatureScript("boss_flame_leviathan_overload_device") { }
 
         struct boss_flame_leviathan_overload_deviceAI : public PassiveAI
         {
@@ -755,10 +755,10 @@ class boss_flame_leviathan_overload_device : public CreatureScript
         }
 };
 
-class boss_flame_leviathan_safety_container : public CreatureScript
+class boss_flame_leviathan_safety_container : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_flame_leviathan_safety_container() : CreatureScript("boss_flame_leviathan_safety_container") { }
+        boss_flame_leviathan_safety_container() : MS::Game::Scripting::Interfaces::CreatureScript("boss_flame_leviathan_safety_container") { }
 
         struct boss_flame_leviathan_safety_containerAI : public PassiveAI
         {
@@ -786,10 +786,10 @@ class boss_flame_leviathan_safety_container : public CreatureScript
         }
 };
 
-class npc_mechanolift : public CreatureScript
+class npc_mechanolift : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_mechanolift() : CreatureScript("npc_mechanolift") { }
+        npc_mechanolift() : MS::Game::Scripting::Interfaces::CreatureScript("npc_mechanolift") { }
 
         struct npc_mechanoliftAI : public PassiveAI
         {
@@ -849,10 +849,10 @@ class npc_mechanolift : public CreatureScript
         }
 };
 
-class npc_liquid_pyrite : public CreatureScript
+class npc_liquid_pyrite : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_liquid_pyrite() : CreatureScript("npc_liquid_pyrite") {}
+        npc_liquid_pyrite() : MS::Game::Scripting::Interfaces::CreatureScript("npc_liquid_pyrite") {}
 
         struct npc_liquid_pyriteAI : public PassiveAI
         {
@@ -902,10 +902,10 @@ class npc_liquid_pyrite : public CreatureScript
         }
 };
 
-class npc_pool_of_tar : public CreatureScript
+class npc_pool_of_tar : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_pool_of_tar() : CreatureScript("npc_pool_of_tar") { }
+        npc_pool_of_tar() : MS::Game::Scripting::Interfaces::CreatureScript("npc_pool_of_tar") { }
 
         struct npc_pool_of_tarAI : public ScriptedAI
         {
@@ -936,10 +936,10 @@ class npc_pool_of_tar : public CreatureScript
         }
 };
 
-class npc_colossus : public CreatureScript
+class npc_colossus : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_colossus() : CreatureScript("npc_colossus") {}
+        npc_colossus() : MS::Game::Scripting::Interfaces::CreatureScript("npc_colossus") {}
 
         struct npc_colossusAI : public ScriptedAI
         {
@@ -988,10 +988,10 @@ class npc_colossus : public CreatureScript
         }
 };
 
-class npc_thorims_hammer : public CreatureScript
+class npc_thorims_hammer : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_thorims_hammer() : CreatureScript("npc_thorims_hammer") { }
+        npc_thorims_hammer() : MS::Game::Scripting::Interfaces::CreatureScript("npc_thorims_hammer") { }
 
         struct npc_thorims_hammerAI : public ScriptedAI
         {
@@ -1025,10 +1025,10 @@ class npc_thorims_hammer : public CreatureScript
         }
 };
 
-class npc_mimirons_inferno : public CreatureScript
+class npc_mimirons_inferno : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_mimirons_inferno() : CreatureScript("npc_mimirons_inferno") { }
+    npc_mimirons_inferno() : MS::Game::Scripting::Interfaces::CreatureScript("npc_mimirons_inferno") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1082,10 +1082,10 @@ public:
 
 };
 
-class npc_hodirs_fury : public CreatureScript
+class npc_hodirs_fury : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_hodirs_fury() : CreatureScript("npc_hodirs_fury") { }
+        npc_hodirs_fury() : MS::Game::Scripting::Interfaces::CreatureScript("npc_hodirs_fury") { }
 
         struct npc_hodirs_furyAI : public ScriptedAI
         {
@@ -1119,10 +1119,10 @@ class npc_hodirs_fury : public CreatureScript
         }
 };
 
-class npc_freyas_ward : public CreatureScript
+class npc_freyas_ward : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_freyas_ward() : CreatureScript("npc_freyas_ward") { }
+        npc_freyas_ward() : MS::Game::Scripting::Interfaces::CreatureScript("npc_freyas_ward") { }
 
         struct npc_freyas_wardAI : public ScriptedAI
         {
@@ -1162,10 +1162,10 @@ class npc_freyas_ward : public CreatureScript
         }
 };
 
-class npc_freya_ward_summon : public CreatureScript
+class npc_freya_ward_summon : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_freya_ward_summon() : CreatureScript("npc_freya_ward_summon") { }
+        npc_freya_ward_summon() : MS::Game::Scripting::Interfaces::CreatureScript("npc_freya_ward_summon") { }
 
         struct npc_freya_ward_summonAI : public ScriptedAI
         {
@@ -1208,10 +1208,10 @@ class npc_freya_ward_summon : public CreatureScript
 #define GOSSIP_ITEM_1  "Activate secondary defensive systems"
 #define GOSSIP_ITEM_2  "Confirmed"
 
-class npc_lorekeeper : public CreatureScript
+class npc_lorekeeper : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_lorekeeper() : CreatureScript("npc_lorekeeper") { }
+        npc_lorekeeper() : MS::Game::Scripting::Interfaces::CreatureScript("npc_lorekeeper") { }
 
         struct npc_lorekeeperAI : public ScriptedAI
         {
@@ -1303,10 +1303,10 @@ class npc_lorekeeper : public CreatureScript
 //#define GOSSIP_ITEM_2  "xxxxx"
 //
 /*
-class npc_brann_bronzebeard : public CreatureScript
+class npc_brann_bronzebeard : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_brann_bronzebeard() : CreatureScript("npc_brann_bronzebeard") { }
+    npc_brann_bronzebeard() : MS::Game::Scripting::Interfaces::CreatureScript("npc_brann_bronzebeard") { }
 
     //bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action)
     //{
@@ -1347,10 +1347,10 @@ public:
 }
 */
 
-class go_ulduar_tower : public GameObjectScript
+class go_ulduar_tower : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
     public:
-        go_ulduar_tower() : GameObjectScript("go_ulduar_tower") { }
+        go_ulduar_tower() : MS::Game::Scripting::Interfaces::GameObjectScript("go_ulduar_tower") { }
 
         void OnDestroyed(GameObject* go, Player* /*player*/)
         {
@@ -1380,10 +1380,10 @@ class go_ulduar_tower : public GameObjectScript
         }
 };
 
-class achievement_three_car_garage_demolisher : public AchievementCriteriaScript
+class achievement_three_car_garage_demolisher : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_three_car_garage_demolisher() : AchievementCriteriaScript("achievement_three_car_garage_demolisher") { }
+        achievement_three_car_garage_demolisher() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_three_car_garage_demolisher") { }
 
         bool OnCheck(Player* source, Unit* /*target*/)
         {
@@ -1397,10 +1397,10 @@ class achievement_three_car_garage_demolisher : public AchievementCriteriaScript
         }
 };
 
-class achievement_three_car_garage_chopper : public AchievementCriteriaScript
+class achievement_three_car_garage_chopper : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_three_car_garage_chopper() : AchievementCriteriaScript("achievement_three_car_garage_chopper") { }
+        achievement_three_car_garage_chopper() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_three_car_garage_chopper") { }
 
         bool OnCheck(Player* source, Unit* /*target*/)
         {
@@ -1414,10 +1414,10 @@ class achievement_three_car_garage_chopper : public AchievementCriteriaScript
         }
 };
 
-class achievement_three_car_garage_siege : public AchievementCriteriaScript
+class achievement_three_car_garage_siege : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_three_car_garage_siege() : AchievementCriteriaScript("achievement_three_car_garage_siege") { }
+        achievement_three_car_garage_siege() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_three_car_garage_siege") { }
 
         bool OnCheck(Player* source, Unit* /*target*/)
         {
@@ -1431,10 +1431,10 @@ class achievement_three_car_garage_siege : public AchievementCriteriaScript
         }
 };
 
-class achievement_shutout : public AchievementCriteriaScript
+class achievement_shutout : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_shutout() : AchievementCriteriaScript("achievement_shutout") { }
+        achievement_shutout() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_shutout") { }
 
         bool OnCheck(Player* /*source*/, Unit* target)
         {
@@ -1447,10 +1447,10 @@ class achievement_shutout : public AchievementCriteriaScript
         }
 };
 
-class achievement_unbroken : public AchievementCriteriaScript
+class achievement_unbroken : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_unbroken() : AchievementCriteriaScript("achievement_unbroken") { }
+        achievement_unbroken() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_unbroken") { }
 
         bool OnCheck(Player* /*source*/, Unit* target)
         {
@@ -1462,10 +1462,10 @@ class achievement_unbroken : public AchievementCriteriaScript
         }
 };
 
-class achievement_orbital_bombardment : public AchievementCriteriaScript
+class achievement_orbital_bombardment : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_orbital_bombardment() : AchievementCriteriaScript("achievement_orbital_bombardment") { }
+        achievement_orbital_bombardment() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_orbital_bombardment") { }
 
         bool OnCheck(Player* /*source*/, Unit* target)
         {
@@ -1480,10 +1480,10 @@ class achievement_orbital_bombardment : public AchievementCriteriaScript
         }
 };
 
-class achievement_orbital_devastation : public AchievementCriteriaScript
+class achievement_orbital_devastation : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_orbital_devastation() : AchievementCriteriaScript("achievement_orbital_devastation") { }
+        achievement_orbital_devastation() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_orbital_devastation") { }
 
         bool OnCheck(Player* /*source*/, Unit* target)
         {
@@ -1498,10 +1498,10 @@ class achievement_orbital_devastation : public AchievementCriteriaScript
         }
 };
 
-class achievement_nuked_from_orbit : public AchievementCriteriaScript
+class achievement_nuked_from_orbit : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_nuked_from_orbit() : AchievementCriteriaScript("achievement_nuked_from_orbit") { }
+        achievement_nuked_from_orbit() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_nuked_from_orbit") { }
 
         bool OnCheck(Player* /*source*/, Unit* target)
         {
@@ -1516,10 +1516,10 @@ class achievement_nuked_from_orbit : public AchievementCriteriaScript
         }
 };
 
-class achievement_orbit_uary : public AchievementCriteriaScript
+class achievement_orbit_uary : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_orbit_uary() : AchievementCriteriaScript("achievement_orbit_uary") { }
+        achievement_orbit_uary() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_orbit_uary") { }
 
         bool OnCheck(Player* /*source*/, Unit* target)
         {
@@ -1534,7 +1534,7 @@ class achievement_orbit_uary : public AchievementCriteriaScript
         }
 };
 
-class spell_load_into_catapult : public SpellScriptLoader
+class spell_load_into_catapult: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     enum Spells
     {
@@ -1542,7 +1542,7 @@ class spell_load_into_catapult : public SpellScriptLoader
     };
 
     public:
-        spell_load_into_catapult() : SpellScriptLoader("spell_load_into_catapult") { }
+        spell_load_into_catapult() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_load_into_catapult") { }
 
         class spell_load_into_catapult_AuraScript : public AuraScript
         {
@@ -1579,7 +1579,7 @@ class spell_load_into_catapult : public SpellScriptLoader
         }
 };
 
-class spell_auto_repair : public SpellScriptLoader
+class spell_auto_repair: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     enum Spells
     {
@@ -1587,7 +1587,7 @@ class spell_auto_repair : public SpellScriptLoader
     };
 
     public:
-        spell_auto_repair() : SpellScriptLoader("spell_auto_repair") {}
+        spell_auto_repair() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_auto_repair") {}
 
         class spell_auto_repair_SpellScript : public SpellScript
         {
@@ -1645,10 +1645,10 @@ class spell_auto_repair : public SpellScriptLoader
         }
 };
 
-class spell_systems_shutdown : public SpellScriptLoader
+class spell_systems_shutdown: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_systems_shutdown() : SpellScriptLoader("spell_systems_shutdown") { }
+        spell_systems_shutdown() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_systems_shutdown") { }
 
         class spell_systems_shutdown_AuraScript : public AuraScript
         {
@@ -1731,10 +1731,10 @@ class FlameLeviathanPursuedTargetSelector
         Unit const* _me;
 };
 
-class spell_pursue : public SpellScriptLoader
+class spell_pursue: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pursue() : SpellScriptLoader("spell_pursue") {}
+        spell_pursue() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pursue") {}
 
         class spell_pursue_SpellScript : public SpellScript
         {
@@ -1803,10 +1803,10 @@ class spell_pursue : public SpellScriptLoader
         }
 };
 
-class spell_vehicle_throw_passenger : public SpellScriptLoader
+class spell_vehicle_throw_passenger: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_vehicle_throw_passenger() : SpellScriptLoader("spell_vehicle_throw_passenger") {}
+        spell_vehicle_throw_passenger() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_vehicle_throw_passenger") {}
 
         class spell_vehicle_throw_passenger_SpellScript : public SpellScript
         {

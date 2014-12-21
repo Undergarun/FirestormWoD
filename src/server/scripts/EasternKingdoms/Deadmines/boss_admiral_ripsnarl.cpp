@@ -111,10 +111,10 @@ const Position dummyPos[38] =
     {-70.941f, -835.523f, 40.6859f}
 };
 
-class boss_admiral_ripsnarl : public CreatureScript
+class boss_admiral_ripsnarl : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_admiral_ripsnarl() : CreatureScript("boss_admiral_ripsnarl") { }
+        boss_admiral_ripsnarl() : MS::Game::Scripting::Interfaces::CreatureScript("boss_admiral_ripsnarl") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -289,10 +289,10 @@ class boss_admiral_ripsnarl : public CreatureScript
 };
 
 // 47626
-class npc_admiral_ripsnarl_vapor : public CreatureScript
+class npc_admiral_ripsnarl_vapor : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_admiral_ripsnarl_vapor() : CreatureScript("npc_admiral_ripsnarl_vapor") { }
+        npc_admiral_ripsnarl_vapor() : MS::Game::Scripting::Interfaces::CreatureScript("npc_admiral_ripsnarl_vapor") { }
      
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -372,10 +372,10 @@ class npc_admiral_ripsnarl_vapor : public CreatureScript
         };
 };
 
-class spell_admiral_ripsnarl_coalesce : public SpellScriptLoader
+class spell_admiral_ripsnarl_coalesce: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_admiral_ripsnarl_coalesce() : SpellScriptLoader("spell_admiral_ripsnarl_coalesce") { }
+        spell_admiral_ripsnarl_coalesce() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_admiral_ripsnarl_coalesce") { }
 
         class spell_admiral_ripsnarl_coalesce_SpellScript : public SpellScript
         {

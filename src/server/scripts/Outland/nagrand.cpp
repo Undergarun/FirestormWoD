@@ -53,10 +53,10 @@ EndContentData */
 #define GOSSIP_SGG11 "I will return to Azeroth at once, Greatmother."
 
 //all the textId's for the below is unknown, but i do believe the gossip item texts are proper.
-class npc_greatmother_geyah : public CreatureScript
+class npc_greatmother_geyah : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_greatmother_geyah() : CreatureScript("npc_greatmother_geyah") { }
+    npc_greatmother_geyah() : MS::Game::Scripting::Interfaces::CreatureScript("npc_greatmother_geyah") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
@@ -171,10 +171,10 @@ enum eMagharCaptive
 static float m_afAmbushA[]= {-1568.805786f, 8533.873047f, 1.958f};
 static float m_afAmbushB[]= {-1491.554321f, 8506.483398f, 1.248f};
 
-class npc_maghar_captive : public CreatureScript
+class npc_maghar_captive : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_maghar_captive() : CreatureScript("npc_maghar_captive") { }
+    npc_maghar_captive() : MS::Game::Scripting::Interfaces::CreatureScript("npc_maghar_captive") { }
 
     bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
     {
@@ -314,10 +314,10 @@ public:
 ## npc_creditmarker_visist_with_ancestors
 ######*/
 
-class npc_creditmarker_visit_with_ancestors : public CreatureScript
+class npc_creditmarker_visit_with_ancestors : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_creditmarker_visit_with_ancestors() : CreatureScript("npc_creditmarker_visit_with_ancestors") { }
+    npc_creditmarker_visit_with_ancestors() : MS::Game::Scripting::Interfaces::CreatureScript("npc_creditmarker_visit_with_ancestors") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -379,10 +379,10 @@ enum CorkiData
   CORKI_SAY_LAST                                = -1800073
 };
 
-class go_corkis_prison : public GameObjectScript
+class go_corkis_prison : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-  go_corkis_prison() : GameObjectScript("go_corkis_prison") { }
+  go_corkis_prison() : MS::Game::Scripting::Interfaces::GameObjectScript("go_corkis_prison") { }
 
   bool OnGossipHello(Player* player, GameObject* go)
   {
@@ -422,10 +422,10 @@ public:
   }
 };
 
-class npc_corki : public CreatureScript
+class npc_corki : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-  npc_corki() : CreatureScript("npc_corki") { }
+  npc_corki() : MS::Game::Scripting::Interfaces::CreatureScript("npc_corki") { }
 
   CreatureAI* GetAI(Creature* creature) const
   {
@@ -506,10 +506,10 @@ enum KurenaiCaptive
 static float kurenaiAmbushA[]= {-1568.805786f, 8533.873047f, 1.958f};
 static float kurenaiAmbushB[]= {-1491.554321f, 8506.483398f, 1.248f};
 
-class npc_kurenai_captive : public CreatureScript
+class npc_kurenai_captive : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_kurenai_captive() : CreatureScript("npc_kurenai_captive") { }
+    npc_kurenai_captive() : MS::Game::Scripting::Interfaces::CreatureScript("npc_kurenai_captive") { }
 
     bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
     {
@@ -674,10 +674,10 @@ enum FindingTheSurvivorsData
     SAY_FREE                                        = 0,
 };
 
-class go_warmaul_prison : public GameObjectScript
+class go_warmaul_prison : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
     public:
-        go_warmaul_prison() : GameObjectScript("go_warmaul_prison") { }
+        go_warmaul_prison() : MS::Game::Scripting::Interfaces::GameObjectScript("go_warmaul_prison") { }
 
         bool OnGossipHello(Player* player, GameObject* go)
         {

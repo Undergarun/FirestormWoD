@@ -51,10 +51,10 @@ enum Actions
     ACTION_STONE_PHASE_END   = 2,
 };
 
-class boss_moam : public CreatureScript
+class boss_moam : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_moam() : CreatureScript("boss_moam") { }
+        boss_moam() : MS::Game::Scripting::Interfaces::CreatureScript("boss_moam") { }
 
         struct boss_moamAI : public BossAI
         {

@@ -30,10 +30,10 @@ enum Events
     EVENT_TROLLFORM         = 6,
 };
 
-class boss_nalorakk : public CreatureScript
+class boss_nalorakk : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_nalorakk() : CreatureScript("boss_nalorakk") {}
+        boss_nalorakk() : MS::Game::Scripting::Interfaces::CreatureScript("boss_nalorakk") {}
         
         CreatureAI* GetAI(Creature* pCreature) const
         {

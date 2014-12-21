@@ -185,10 +185,10 @@ class FreezeTrapSearcher
         float _range;
 };
 
-class npc_flash_freeze : public CreatureScript
+class npc_flash_freeze : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_flash_freeze() : CreatureScript("npc_flash_freeze") {}
+        npc_flash_freeze() : MS::Game::Scripting::Interfaces::CreatureScript("npc_flash_freeze") {}
 
         struct npc_flash_freezeAI : public Scripted_NoMovementAI
         {
@@ -267,10 +267,10 @@ class npc_flash_freeze : public CreatureScript
         }
 };
 
-class npc_ice_block : public CreatureScript
+class npc_ice_block : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_ice_block() : CreatureScript("npc_ice_block") { }
+        npc_ice_block() : MS::Game::Scripting::Interfaces::CreatureScript("npc_ice_block") { }
 
         struct npc_ice_blockAI : public Scripted_NoMovementAI
         {
@@ -326,10 +326,10 @@ class npc_ice_block : public CreatureScript
         }
 };
 
-class boss_hodir : public CreatureScript
+class boss_hodir : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_hodir() : CreatureScript("boss_hodir") { }
+        boss_hodir() : MS::Game::Scripting::Interfaces::CreatureScript("boss_hodir") { }
 
         struct boss_hodirAI : public BossAI
         {
@@ -605,10 +605,10 @@ class boss_hodir : public CreatureScript
         };
 };
 
-class npc_icicle : public CreatureScript
+class npc_icicle : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_icicle() : CreatureScript("npc_icicle") { }
+        npc_icicle() : MS::Game::Scripting::Interfaces::CreatureScript("npc_icicle") { }
 
         struct npc_icicleAI : public Scripted_NoMovementAI
         {
@@ -654,10 +654,10 @@ class npc_icicle : public CreatureScript
         };
 };
 
-class npc_snowpacked_icicle : public CreatureScript
+class npc_snowpacked_icicle : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_snowpacked_icicle() : CreatureScript("npc_snowpacked_icicle") { }
+        npc_snowpacked_icicle() : MS::Game::Scripting::Interfaces::CreatureScript("npc_snowpacked_icicle") { }
 
         struct npc_snowpacked_icicleAI : public Scripted_NoMovementAI
         {
@@ -695,10 +695,10 @@ class npc_snowpacked_icicle : public CreatureScript
         };
 };
 
-class npc_hodir_priest : public CreatureScript
+class npc_hodir_priest : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_hodir_priest() : CreatureScript("npc_hodir_priest") { }
+        npc_hodir_priest() : MS::Game::Scripting::Interfaces::CreatureScript("npc_hodir_priest") { }
 
         struct npc_hodir_priestAI : public ScriptedAI
         {
@@ -769,10 +769,10 @@ class npc_hodir_priest : public CreatureScript
         };
 };
 
-class npc_hodir_shaman : public CreatureScript
+class npc_hodir_shaman : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_hodir_shaman() : CreatureScript("npc_hodir_shaman") { }
+        npc_hodir_shaman() : MS::Game::Scripting::Interfaces::CreatureScript("npc_hodir_shaman") { }
 
         struct npc_hodir_shamanAI : public ScriptedAI
         {
@@ -842,10 +842,10 @@ class npc_hodir_shaman : public CreatureScript
         };
 };
 
-class npc_hodir_druid : public CreatureScript
+class npc_hodir_druid : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_hodir_druid() : CreatureScript("npc_hodir_druid") { }
+        npc_hodir_druid() : MS::Game::Scripting::Interfaces::CreatureScript("npc_hodir_druid") { }
 
         struct npc_hodir_druidAI : public ScriptedAI
         {
@@ -909,10 +909,10 @@ class npc_hodir_druid : public CreatureScript
         };
 };
 
-class npc_hodir_mage : public CreatureScript
+class npc_hodir_mage : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_hodir_mage() : CreatureScript("npc_hodir_mage") { }
+        npc_hodir_mage() : MS::Game::Scripting::Interfaces::CreatureScript("npc_hodir_mage") { }
 
         struct npc_hodir_mageAI : public ScriptedAI
         {
@@ -988,10 +988,10 @@ class npc_hodir_mage : public CreatureScript
         };
 };
 
-class npc_toasty_fire : public CreatureScript
+class npc_toasty_fire : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_toasty_fire() : CreatureScript("npc_toasty_fire") { }
+        npc_toasty_fire() : MS::Game::Scripting::Interfaces::CreatureScript("npc_toasty_fire") { }
 
         struct npc_toasty_fireAI : public ScriptedAI
         {
@@ -1028,10 +1028,10 @@ class npc_toasty_fire : public CreatureScript
         };
 };
 
-class spell_biting_cold : public SpellScriptLoader
+class spell_biting_cold: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_biting_cold() : SpellScriptLoader("spell_biting_cold") { }
+        spell_biting_cold() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_biting_cold") { }
 
         class spell_biting_cold_AuraScript : public AuraScript
         {
@@ -1084,10 +1084,10 @@ class spell_biting_cold : public SpellScriptLoader
         }
 };
 
-class spell_biting_cold_dot : public SpellScriptLoader
+class spell_biting_cold_dot: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_biting_cold_dot() : SpellScriptLoader("spell_biting_cold_dot") { }
+        spell_biting_cold_dot() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_biting_cold_dot") { }
 
         class spell_biting_cold_dot_AuraScript : public AuraScript
         {
@@ -1118,10 +1118,10 @@ class spell_biting_cold_dot : public SpellScriptLoader
         }
 };
 
-class achievement_staying_buffed_all_winter : public AchievementCriteriaScript
+class achievement_staying_buffed_all_winter : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_staying_buffed_all_winter(const char* name) : AchievementCriteriaScript(name) {}
+        achievement_staying_buffed_all_winter(const char* name) : MS::Game::Scripting::Interfaces::AchievementCriteriaScript(name) {}
 
         bool OnCheck(Player* player, Unit* /*target*/)
         {
@@ -1135,10 +1135,10 @@ class achievement_staying_buffed_all_winter : public AchievementCriteriaScript
         }
 };
 
-class achievement_i_could_say_that_this_cache_was_rare : public AchievementCriteriaScript
+class achievement_i_could_say_that_this_cache_was_rare : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_i_could_say_that_this_cache_was_rare(const char* name) : AchievementCriteriaScript(name) {}
+        achievement_i_could_say_that_this_cache_was_rare(const char* name) : MS::Game::Scripting::Interfaces::AchievementCriteriaScript(name) {}
 
         bool OnCheck(Player* player, Unit* /*target*/)
         {
@@ -1157,10 +1157,10 @@ class achievement_i_could_say_that_this_cache_was_rare : public AchievementCrite
         }
 };
 
-class achievement_getting_cold_in_here : public AchievementCriteriaScript
+class achievement_getting_cold_in_here : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_getting_cold_in_here(const char* name) : AchievementCriteriaScript(name) {}
+        achievement_getting_cold_in_here(const char* name) : MS::Game::Scripting::Interfaces::AchievementCriteriaScript(name) {}
 
         bool OnCheck(Player* player, Unit* /*target*/)
         {
@@ -1179,10 +1179,10 @@ class achievement_getting_cold_in_here : public AchievementCriteriaScript
         }
 };
 
-class achievement_cheese_the_freeze : public AchievementCriteriaScript
+class achievement_cheese_the_freeze : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_cheese_the_freeze(const char* name) : AchievementCriteriaScript(name) {}
+        achievement_cheese_the_freeze(const char* name) : MS::Game::Scripting::Interfaces::AchievementCriteriaScript(name) {}
 
         bool OnCheck(Player* player, Unit* /*target*/)
         {
@@ -1201,10 +1201,10 @@ class achievement_cheese_the_freeze : public AchievementCriteriaScript
         }
 };
 
-class achievement_i_have_the_coolest_friends : public AchievementCriteriaScript
+class achievement_i_have_the_coolest_friends : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_i_have_the_coolest_friends(const char* name) : AchievementCriteriaScript(name) {}
+        achievement_i_have_the_coolest_friends(const char* name) : MS::Game::Scripting::Interfaces::AchievementCriteriaScript(name) {}
 
         bool OnCheck(Player* player, Unit* /*target*/)
         {

@@ -29,10 +29,10 @@ EndScriptData */
 #include "ObjectMgr.h"
 #include <iostream>
 
-class list_commandscript : public CommandScript
+class list_commandscript: public MS::Game::Scripting::Interfaces::CommandScript
 {
 public:
-    list_commandscript() : CommandScript("list_commandscript") { }
+    list_commandscript() : MS::Game::Scripting::Interfaces::CommandScript("list_commandscript") { }
 
     ChatCommand* GetCommands() const
     {

@@ -50,10 +50,10 @@ enum Spells
     SPELL_FW_METEOR_FISTS_B                     = 67331,
 };
 
-class boss_koralon : public CreatureScript
+class boss_koralon : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_koralon() : CreatureScript("boss_koralon") { }
+        boss_koralon() : MS::Game::Scripting::Interfaces::CreatureScript("boss_koralon") { }
 
         struct boss_koralonAI : public BossAI
         {
@@ -125,10 +125,10 @@ class boss_koralon : public CreatureScript
 /*######
 ##  Mob Flame Warder
 ######*/
-class mob_flame_warder : public CreatureScript
+class mob_flame_warder : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_flame_warder() : CreatureScript("mob_flame_warder") { }
+        mob_flame_warder() : MS::Game::Scripting::Interfaces::CreatureScript("mob_flame_warder") { }
 
         struct mob_flame_warderAI : public ScriptedAI
         {

@@ -38,10 +38,10 @@ EndScriptData */
 // Enrage for his spawns
 #define SPELL_ENRAGE       28798
 
-class boss_fankriss : public CreatureScript
+class boss_fankriss : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_fankriss() : CreatureScript("boss_fankriss") { }
+    boss_fankriss() : MS::Game::Scripting::Interfaces::CreatureScript("boss_fankriss") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

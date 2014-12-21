@@ -31,10 +31,10 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 
-class npc_pao_ka_swiftmountain : public CreatureScript
+class npc_pao_ka_swiftmountain : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_pao_ka_swiftmountain() : CreatureScript("npc_pao_ka_swiftmountain")
+        npc_pao_ka_swiftmountain() : MS::Game::Scripting::Interfaces::CreatureScript("npc_pao_ka_swiftmountain")
         {
         }
 
@@ -62,10 +62,10 @@ class npc_pao_ka_swiftmountain : public CreatureScript
         };
 };
 
-class npc_kanati_greycloud : public CreatureScript
+class npc_kanati_greycloud : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_kanati_greycloud() : CreatureScript("npc_kanati_greycloud")
+        npc_kanati_greycloud() : MS::Game::Scripting::Interfaces::CreatureScript("npc_kanati_greycloud")
         {
         }
 
@@ -93,10 +93,10 @@ class npc_kanati_greycloud : public CreatureScript
         };
 };
 
-class npc_lakota_windsong : public CreatureScript
+class npc_lakota_windsong : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_lakota_windsong() : CreatureScript("npc_lakota_windsong")
+        npc_lakota_windsong() : MS::Game::Scripting::Interfaces::CreatureScript("npc_lakota_windsong")
         {
         }
 

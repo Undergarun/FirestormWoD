@@ -333,10 +333,10 @@ enum Spells
     SPELL_CLAW                      = 67793
 };
 
-class boss_toc_champion_controller : public CreatureScript
+class boss_toc_champion_controller : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_toc_champion_controller() : CreatureScript("boss_toc_champion_controller") { }
+        boss_toc_champion_controller() : MS::Game::Scripting::Interfaces::CreatureScript("boss_toc_champion_controller") { }
 
         struct boss_toc_champion_controllerAI : public ScriptedAI
         {
@@ -741,10 +741,10 @@ struct boss_faction_championsAI : public BossAI
 /********************************************************************
                             HEALERS
 ********************************************************************/
-class mob_toc_druid : public CreatureScript
+class mob_toc_druid : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_toc_druid() : CreatureScript("mob_toc_druid") { }
+        mob_toc_druid() : MS::Game::Scripting::Interfaces::CreatureScript("mob_toc_druid") { }
 
         struct mob_toc_druidAI : public boss_faction_championsAI
         {
@@ -834,10 +834,10 @@ class mob_toc_druid : public CreatureScript
         }
 };
 
-class mob_toc_shaman : public CreatureScript
+class mob_toc_shaman : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_toc_shaman() : CreatureScript("mob_toc_shaman") { }
+        mob_toc_shaman() : MS::Game::Scripting::Interfaces::CreatureScript("mob_toc_shaman") { }
 
         struct mob_toc_shamanAI : public boss_faction_championsAI
         {
@@ -927,10 +927,10 @@ class mob_toc_shaman : public CreatureScript
         }
 };
 
-class mob_toc_paladin : public CreatureScript
+class mob_toc_paladin : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_toc_paladin() : CreatureScript("mob_toc_paladin") { }
+        mob_toc_paladin() : MS::Game::Scripting::Interfaces::CreatureScript("mob_toc_paladin") { }
 
         struct mob_toc_paladinAI : public boss_faction_championsAI
         {
@@ -1031,10 +1031,10 @@ class mob_toc_paladin : public CreatureScript
         }
 };
 
-class mob_toc_priest : public CreatureScript
+class mob_toc_priest : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_toc_priest() : CreatureScript("mob_toc_priest") { }
+        mob_toc_priest() : MS::Game::Scripting::Interfaces::CreatureScript("mob_toc_priest") { }
 
         struct mob_toc_priestAI : public boss_faction_championsAI
         {
@@ -1119,10 +1119,10 @@ class mob_toc_priest : public CreatureScript
 /********************************************************************
                             RANGED
 ********************************************************************/
-class mob_toc_shadow_priest : public CreatureScript
+class mob_toc_shadow_priest : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_toc_shadow_priest() : CreatureScript("mob_toc_shadow_priest") { }
+        mob_toc_shadow_priest() : MS::Game::Scripting::Interfaces::CreatureScript("mob_toc_shadow_priest") { }
 
         struct mob_toc_shadow_priestAI : public boss_faction_championsAI
         {
@@ -1214,10 +1214,10 @@ class mob_toc_shadow_priest : public CreatureScript
         }
 };
 
-class mob_toc_warlock : public CreatureScript
+class mob_toc_warlock : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_toc_warlock() : CreatureScript("mob_toc_warlock") { }
+        mob_toc_warlock() : MS::Game::Scripting::Interfaces::CreatureScript("mob_toc_warlock") { }
 
         struct mob_toc_warlockAI : public boss_faction_championsAI
         {
@@ -1305,10 +1305,10 @@ class mob_toc_warlock : public CreatureScript
         }
 };
 
-class mob_toc_mage : public CreatureScript
+class mob_toc_mage : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_toc_mage() : CreatureScript("mob_toc_mage") { }
+        mob_toc_mage() : MS::Game::Scripting::Interfaces::CreatureScript("mob_toc_mage") { }
 
         struct mob_toc_mageAI : public boss_faction_championsAI
         {
@@ -1399,10 +1399,10 @@ class mob_toc_mage : public CreatureScript
         }
 };
 
-class mob_toc_hunter : public CreatureScript
+class mob_toc_hunter : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_toc_hunter() : CreatureScript("mob_toc_hunter") { }
+        mob_toc_hunter() : MS::Game::Scripting::Interfaces::CreatureScript("mob_toc_hunter") { }
 
         struct mob_toc_hunterAI : public boss_faction_championsAI
         {
@@ -1501,10 +1501,10 @@ class mob_toc_hunter : public CreatureScript
         }
 };
 
-class mob_toc_boomkin : public CreatureScript
+class mob_toc_boomkin : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_toc_boomkin() : CreatureScript("mob_toc_boomkin") { }
+        mob_toc_boomkin() : MS::Game::Scripting::Interfaces::CreatureScript("mob_toc_boomkin") { }
 
         struct mob_toc_boomkinAI : public boss_faction_championsAI
         {
@@ -1596,10 +1596,10 @@ class mob_toc_boomkin : public CreatureScript
 /********************************************************************
                             MELEE
 ********************************************************************/
-class mob_toc_warrior : public CreatureScript
+class mob_toc_warrior : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_toc_warrior() : CreatureScript("mob_toc_warrior") { }
+        mob_toc_warrior() : MS::Game::Scripting::Interfaces::CreatureScript("mob_toc_warrior") { }
 
         struct mob_toc_warriorAI : public boss_faction_championsAI
         {
@@ -1697,10 +1697,10 @@ class mob_toc_warrior : public CreatureScript
         }
 };
 
-class mob_toc_dk : public CreatureScript
+class mob_toc_dk : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_toc_dk() : CreatureScript("mob_toc_dk") { }
+        mob_toc_dk() : MS::Game::Scripting::Interfaces::CreatureScript("mob_toc_dk") { }
 
         struct mob_toc_dkAI : public boss_faction_championsAI
         {
@@ -1793,10 +1793,10 @@ class mob_toc_dk : public CreatureScript
         }
 };
 
-class mob_toc_rogue : public CreatureScript
+class mob_toc_rogue : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_toc_rogue() : CreatureScript("mob_toc_rogue") { }
+        mob_toc_rogue() : MS::Game::Scripting::Interfaces::CreatureScript("mob_toc_rogue") { }
 
         struct mob_toc_rogueAI : public boss_faction_championsAI
         {
@@ -1898,10 +1898,10 @@ class mob_toc_rogue : public CreatureScript
         }
 };
 
-class mob_toc_enh_shaman : public CreatureScript
+class mob_toc_enh_shaman : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_toc_enh_shaman() : CreatureScript("mob_toc_enh_shaman") { }
+        mob_toc_enh_shaman() : MS::Game::Scripting::Interfaces::CreatureScript("mob_toc_enh_shaman") { }
 
         struct mob_toc_enh_shamanAI : public boss_faction_championsAI
         {
@@ -2024,10 +2024,10 @@ class mob_toc_enh_shaman : public CreatureScript
         }
 };
 
-class mob_toc_retro_paladin : public CreatureScript
+class mob_toc_retro_paladin : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_toc_retro_paladin() : CreatureScript("mob_toc_retro_paladin") { }
+        mob_toc_retro_paladin() : MS::Game::Scripting::Interfaces::CreatureScript("mob_toc_retro_paladin") { }
 
         struct mob_toc_retro_paladinAI : public boss_faction_championsAI
         {
@@ -2130,10 +2130,10 @@ class mob_toc_retro_paladin : public CreatureScript
         }
 };
 
-class mob_toc_pet_warlock : public CreatureScript
+class mob_toc_pet_warlock : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_toc_pet_warlock() : CreatureScript("mob_toc_pet_warlock") { }
+        mob_toc_pet_warlock() : MS::Game::Scripting::Interfaces::CreatureScript("mob_toc_pet_warlock") { }
 
         struct mob_toc_pet_warlockAI : public boss_faction_championsAI
         {
@@ -2182,10 +2182,10 @@ class mob_toc_pet_warlock : public CreatureScript
         }
 };
 
-class mob_toc_pet_hunter : public CreatureScript
+class mob_toc_pet_hunter : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_toc_pet_hunter() : CreatureScript("mob_toc_pet_hunter") { }
+        mob_toc_pet_hunter() : MS::Game::Scripting::Interfaces::CreatureScript("mob_toc_pet_hunter") { }
 
         struct mob_toc_pet_hunterAI : public boss_faction_championsAI
         {
@@ -2222,10 +2222,10 @@ class mob_toc_pet_hunter : public CreatureScript
         }
 };
 
-class spell_faction_champion_death_grip : public SpellScriptLoader
+class spell_faction_champion_death_grip: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_faction_champion_death_grip() : SpellScriptLoader("spell_faction_champion_death_grip") { }
+        spell_faction_champion_death_grip() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_faction_champion_death_grip") { }
 
         class spell_faction_champion_death_grip_SpellScript : public SpellScript
         {
@@ -2260,10 +2260,10 @@ class spell_faction_champion_death_grip : public SpellScriptLoader
         }
 };
 
-class spell_toc_bloodlust : public SpellScriptLoader
+class spell_toc_bloodlust: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_toc_bloodlust() : SpellScriptLoader("spell_toc_bloodlust") { }
+        spell_toc_bloodlust() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_toc_bloodlust") { }
 
         class spell_toc_bloodlust_SpellScript : public SpellScript
         {
@@ -2301,10 +2301,10 @@ class spell_toc_bloodlust : public SpellScriptLoader
         }
 };
 
-class spell_toc_heroism : public SpellScriptLoader
+class spell_toc_heroism: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_toc_heroism() : SpellScriptLoader("spell_toc_heroism") { }
+        spell_toc_heroism() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_toc_heroism") { }
 
         class spell_toc_heroism_SpellScript : public SpellScript
         {

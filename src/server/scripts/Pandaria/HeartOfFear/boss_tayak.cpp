@@ -151,10 +151,10 @@ Position const Tornado2[3] =
 };
 
 // Zorlok - 62980
-class boss_tayak : public CreatureScript
+class boss_tayak : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_tayak() : CreatureScript("boss_tayak") { }
+        boss_tayak() : MS::Game::Scripting::Interfaces::CreatureScript("boss_tayak") { }
 
         struct boss_tayakAI : public BossAI
         {
@@ -702,10 +702,10 @@ class boss_tayak : public CreatureScript
 };
 
 // Heart of Fear - Armsmaster Ta'yak Tempest Stalker (LTD): 62908.
-class npc_tempest_slash_tornado : public CreatureScript
+class npc_tempest_slash_tornado : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_tempest_slash_tornado() : CreatureScript("npc_tempest_slash_tornado") { }
+        npc_tempest_slash_tornado() : MS::Game::Scripting::Interfaces::CreatureScript("npc_tempest_slash_tornado") { }
 
         struct npc_tempest_slash_tornadoAI : public ScriptedAI
         {
@@ -889,10 +889,10 @@ class npc_tempest_slash_tornado : public CreatureScript
 };
 
 // Heart of Fear - Armsmaster Ta'yak - Storm Unleashed West 1 Tornado (LTD): 63278.
-class npc_storm_unleashed_tornado : public CreatureScript
+class npc_storm_unleashed_tornado : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_storm_unleashed_tornado() : CreatureScript("npc_storm_unleashed_tornado") { }
+        npc_storm_unleashed_tornado() : MS::Game::Scripting::Interfaces::CreatureScript("npc_storm_unleashed_tornado") { }
 
         struct npc_storm_unleashed_tornadoAI : public ScriptedAI
         {
@@ -984,10 +984,10 @@ class npc_storm_unleashed_tornado : public CreatureScript
 };
 
 // Gale Winds Stalker - 63292
-class mob_gale_winds_stalker : public CreatureScript
+class mob_gale_winds_stalker : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public :
-        mob_gale_winds_stalker() : CreatureScript("mob_gale_winds_stalker") { }
+        mob_gale_winds_stalker() : MS::Game::Scripting::Interfaces::CreatureScript("mob_gale_winds_stalker") { }
 
         struct mob_gale_winds_stalkerAI : public ScriptedAI
         {
@@ -1102,10 +1102,10 @@ class mob_gale_winds_stalker : public CreatureScript
 };
 
 // 123175 - Wind Step
-class spell_wind_step : public SpellScriptLoader
+class spell_wind_step: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_wind_step() : SpellScriptLoader("spell_wind_step") { }
+        spell_wind_step() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_wind_step") { }
 
         class spell_wind_stepSpellScript : public SpellScript
         {
@@ -1138,10 +1138,10 @@ class spell_wind_step : public SpellScriptLoader
 };
 
 // Wind Step: 123459
-class spell_tayak_wind_step: public SpellScriptLoader
+class spell_tayak_wind_step: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_tayak_wind_step() : SpellScriptLoader("spell_tayak_wind_step") { }
+        spell_tayak_wind_step() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_tayak_wind_step") { }
 
         class spell_tayak_wind_stepAuraScript: public AuraScript
         {
@@ -1166,10 +1166,10 @@ class spell_tayak_wind_step: public SpellScriptLoader
 };
 
 // 122982 - Unseen Strike
-class spell_unseen_strike_aura : public SpellScriptLoader
+class spell_unseen_strike_aura: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_unseen_strike_aura() : SpellScriptLoader("spell_unseen_strike") { }
+        spell_unseen_strike_aura() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_unseen_strike") { }
 
         class spell_unseen_strike_auraAuraScript : public AuraScript
         {
@@ -1195,10 +1195,10 @@ class spell_unseen_strike_aura : public SpellScriptLoader
 };
 
 // 122994 - Unseen Strike
-class spell_unseen_strike_dmg : public SpellScriptLoader
+class spell_unseen_strike_dmg: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public :
-        spell_unseen_strike_dmg() : SpellScriptLoader("spell_unseen_strike_dmg") { }
+        spell_unseen_strike_dmg() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_unseen_strike_dmg") { }
 
         class spell_unseen_strike_dmgSpellScript : public SpellScript
         {
@@ -1231,10 +1231,10 @@ class spell_unseen_strike_dmg : public SpellScriptLoader
 };
 
 // Storm Unleashed Ride Me: 124258.
-class spell_tayak_storms_vehicle: public SpellScriptLoader
+class spell_tayak_storms_vehicle: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_tayak_storms_vehicle() : SpellScriptLoader("spell_tayak_storms_vehicle") { }
+        spell_tayak_storms_vehicle() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_tayak_storms_vehicle") { }
 
         class spell_tayak_storms_vehicleSpellScript: public SpellScript
         {
@@ -1276,10 +1276,10 @@ class spell_tayak_storms_vehicle: public SpellScriptLoader
 };
 
 // Storm Unleashed: 124783.
-class spell_tayak_storm_unleashed_dmg: public SpellScriptLoader
+class spell_tayak_storm_unleashed_dmg: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_tayak_storm_unleashed_dmg() : SpellScriptLoader("spell_tayak_storm_unleashed_dmg") { }
+        spell_tayak_storm_unleashed_dmg() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_tayak_storm_unleashed_dmg") { }
 
         class spell_tayak_storm_unleashed_dmgSpellScript : public SpellScript
         {
@@ -1313,10 +1313,10 @@ class spell_tayak_storm_unleashed_dmg: public SpellScriptLoader
 };
 
 // 122853 - Tempest Slash (damage aura)
-class spell_tempest_slash : public SpellScriptLoader
+class spell_tempest_slash: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public :
-        spell_tempest_slash() : SpellScriptLoader("spell_tempest_slash") { }
+        spell_tempest_slash() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_tempest_slash") { }
 
         class spell_tempest_slash_AuraScript : public AuraScript
         {
@@ -1341,10 +1341,10 @@ class spell_tempest_slash : public SpellScriptLoader
 };
 
 // 123814 - Storm unleashed - Boss visual effect
-class spell_tayak_su_visual : public SpellScriptLoader
+class spell_tayak_su_visual: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_tayak_su_visual() : SpellScriptLoader("spell_tayak_su_visual") { }
+        spell_tayak_su_visual() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_tayak_su_visual") { }
 
         class spell_tayak_su_visualAuraScript : public AuraScript
         {
@@ -1369,10 +1369,10 @@ class spell_tayak_su_visual : public SpellScriptLoader
 };
 
 // 124024 - Storm unleashed dummy visual
-class spell_su_dummy_visual : public SpellScriptLoader
+class spell_su_dummy_visual: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_su_dummy_visual() : SpellScriptLoader("spell_su_dummy_visual") { }
+        spell_su_dummy_visual() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_su_dummy_visual") { }
 
         class spell_su_dummy_visualAuraScript : public AuraScript
         {
@@ -1397,10 +1397,10 @@ class spell_su_dummy_visual : public SpellScriptLoader
 };
 
 // 123633 - Gale Winds
-class spell_gale_winds : public SpellScriptLoader
+class spell_gale_winds: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gale_winds() : SpellScriptLoader("spell_gale_winds") { }
+        spell_gale_winds() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gale_winds") { }
 
         class spell_gale_windsAuraScript : public AuraScript
         {
@@ -1425,10 +1425,10 @@ class spell_gale_winds : public SpellScriptLoader
 };
 
 // 123600 - Storm unleashed
-class spell_su_dummy : public SpellScriptLoader
+class spell_su_dummy: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_su_dummy() : SpellScriptLoader("spell_su_dummy") { }
+        spell_su_dummy() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_su_dummy") { }
 
         class spell_su_dummyAuraScript : public AuraScript
         {
@@ -1459,10 +1459,10 @@ class spell_su_dummy : public SpellScriptLoader
 };
 
 // 123616 - Storm unleashed
-class spell_su_dumaura : public SpellScriptLoader
+class spell_su_dumaura: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_su_dumaura() : SpellScriptLoader("spell_su_dumaura") { }
+        spell_su_dumaura() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_su_dumaura") { }
 
         class spell_su_dumauraAuraScript : public AuraScript
         {
@@ -1493,10 +1493,10 @@ class spell_su_dumaura : public SpellScriptLoader
 };
 
 // 125310
-class spell_blade_tempest : public SpellScriptLoader
+class spell_blade_tempest: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_blade_tempest() : SpellScriptLoader("spell_blade_tempest") { }
+        spell_blade_tempest() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_blade_tempest") { }
 
         class spell_blade_tempest_SpellScript : public SpellScript
         {

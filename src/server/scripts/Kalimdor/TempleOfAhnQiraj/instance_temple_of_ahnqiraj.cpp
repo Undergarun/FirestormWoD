@@ -27,10 +27,10 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "temple_of_ahnqiraj.h"
 
-class instance_temple_of_ahnqiraj : public InstanceMapScript
+class instance_temple_of_ahnqiraj : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
 public:
-    instance_temple_of_ahnqiraj() : InstanceMapScript("instance_temple_of_ahnqiraj", 531) { }
+    instance_temple_of_ahnqiraj() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_temple_of_ahnqiraj", 531) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {

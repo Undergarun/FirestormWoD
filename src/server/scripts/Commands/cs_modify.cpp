@@ -27,10 +27,10 @@ EndScriptData */
 #include "Chat.h"
 #include <stdlib.h>
 
-class modify_commandscript : public CommandScript
+class modify_commandscript: public MS::Game::Scripting::Interfaces::CommandScript
 {
 public:
-    modify_commandscript() : CommandScript("modify_commandscript") { }
+    modify_commandscript() : MS::Game::Scripting::Interfaces::CommandScript("modify_commandscript") { }
 
     ChatCommand* GetCommands() const
     {

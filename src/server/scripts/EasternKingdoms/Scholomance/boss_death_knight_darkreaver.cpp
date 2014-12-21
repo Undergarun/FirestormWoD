@@ -26,10 +26,10 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
-class boss_death_knight_darkreaver : public CreatureScript
+class boss_death_knight_darkreaver : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_death_knight_darkreaver() : CreatureScript("boss_death_knight_darkreaver") { }
+    boss_death_knight_darkreaver() : MS::Game::Scripting::Interfaces::CreatureScript("boss_death_knight_darkreaver") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

@@ -217,10 +217,10 @@ Position shieldPositions[3] =
 #define SHIELD_POSITIONS_COUNT 3;
 
 // Feng The Accursed - 60009
-class boss_feng : public CreatureScript
+class boss_feng : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_feng() : CreatureScript("boss_feng") {}
+        boss_feng() : MS::Game::Scripting::Interfaces::CreatureScript("boss_feng") {}
 
         struct boss_fengAI : public BossAI
         {
@@ -745,10 +745,10 @@ enum eLightningFistSpell
 };
 
 // Lightning Charge - 60241
-class mob_lightning_fist : public CreatureScript
+class mob_lightning_fist : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_lightning_fist() : CreatureScript("mob_lightning_fist") {}
+        mob_lightning_fist() : MS::Game::Scripting::Interfaces::CreatureScript("mob_lightning_fist") {}
 
         struct mob_lightning_fistAI : public ScriptedAI
         {
@@ -807,10 +807,10 @@ class mob_lightning_fist : public CreatureScript
 };
 
 // Siphoning Shield - 60627
-class mob_siphon_shield : public CreatureScript
+class mob_siphon_shield : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public :
-        mob_siphon_shield() : CreatureScript("mob_siphon_shield") { }
+        mob_siphon_shield() : MS::Game::Scripting::Interfaces::CreatureScript("mob_siphon_shield") { }
 
         struct mob_siphon_shieldAI : public ScriptedAI
         {
@@ -993,10 +993,10 @@ class mob_siphon_shield : public CreatureScript
 };
 
 // Soul Fragment - 60781
-class mob_soul_fragment : public CreatureScript
+class mob_soul_fragment : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_soul_fragment() : CreatureScript("mob_soul_fragment") { }
+        mob_soul_fragment() : MS::Game::Scripting::Interfaces::CreatureScript("mob_soul_fragment") { }
 
         struct mob_soul_fragmentAI : public ScriptedAI
         {
@@ -1098,10 +1098,10 @@ class mob_soul_fragment : public CreatureScript
 };
 
 // Wildfire Spark - 60438
-class mob_wild_spark : public CreatureScript
+class mob_wild_spark : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_wild_spark() : CreatureScript("mob_wild_spark") {}
+        mob_wild_spark() : MS::Game::Scripting::Interfaces::CreatureScript("mob_wild_spark") {}
 
         struct mob_wild_sparkAI : public ScriptedAI
         {
@@ -1162,10 +1162,10 @@ class mob_wild_spark : public CreatureScript
 };
 
 // Mogu Epicenter - 116040
-class spell_mogu_epicenter : public SpellScriptLoader
+class spell_mogu_epicenter: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_mogu_epicenter() : SpellScriptLoader("spell_mogu_epicenter") { }
+        spell_mogu_epicenter() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mogu_epicenter") { }
 
         class spell_mogu_epicenter_SpellScript : public SpellScript
         {
@@ -1198,10 +1198,10 @@ class spell_mogu_epicenter : public SpellScriptLoader
 };
 
 // Wildfire Spark - 116583
-class spell_mogu_wildfire_spark : public SpellScriptLoader
+class spell_mogu_wildfire_spark: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_mogu_wildfire_spark() : SpellScriptLoader("spell_mogu_wildfire_spark") { }
+        spell_mogu_wildfire_spark() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mogu_wildfire_spark") { }
 
         class spell_mogu_wildfire_spark_SpellScript : public SpellScript
         {
@@ -1237,10 +1237,10 @@ class spell_mogu_wildfire_spark : public SpellScriptLoader
 };
 
 // Wildfire spark - 116784
-class spell_wildfire_spark : public SpellScriptLoader
+class spell_wildfire_spark: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_wildfire_spark() : SpellScriptLoader("spell_wildfire_spark") { }
+        spell_wildfire_spark() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_wildfire_spark") { }
 
         class spell_wildfire_spark_AuraScript : public AuraScript
         {
@@ -1273,10 +1273,10 @@ class spell_wildfire_spark : public SpellScriptLoader
 };
 
 // Wildfire Infusion (stacks) - 116821
-class spell_wildfire_infusion_stacks : public SpellScriptLoader
+class spell_wildfire_infusion_stacks: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_wildfire_infusion_stacks() : SpellScriptLoader("spell_wildfire_infusion_stacks") { }
+        spell_wildfire_infusion_stacks() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_wildfire_infusion_stacks") { }
 
         class spell_wildfire_infusion_stacks_AuraScript : public AuraScript
         {
@@ -1308,10 +1308,10 @@ class spell_wildfire_infusion_stacks : public SpellScriptLoader
 };
 
 // Wildfire Infusion - 116816
-class spell_mogu_wildfire_infusion : public SpellScriptLoader
+class spell_mogu_wildfire_infusion: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_mogu_wildfire_infusion() : SpellScriptLoader("spell_mogu_wildfire_infusion") { }
+        spell_mogu_wildfire_infusion() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mogu_wildfire_infusion") { }
 
         class spell_mogu_wildfire_infusion_SpellScript : public SpellScript
         {
@@ -1337,10 +1337,10 @@ class spell_mogu_wildfire_infusion : public SpellScriptLoader
 };
 
 // Draw Flame - 116711
-class spell_draw_flame : public SpellScriptLoader
+class spell_draw_flame: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_draw_flame() : SpellScriptLoader("spell_draw_flame") { }
+        spell_draw_flame() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_draw_flame") { }
 
         class spell_draw_flame_SpellScript : public SpellScript
         {
@@ -1373,10 +1373,10 @@ class spell_draw_flame : public SpellScriptLoader
 };
 
 // Arcane Velocity - 116365
-class spell_mogu_arcane_velocity : public SpellScriptLoader
+class spell_mogu_arcane_velocity: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_mogu_arcane_velocity() : SpellScriptLoader("spell_mogu_arcane_velocity") { }
+        spell_mogu_arcane_velocity() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mogu_arcane_velocity") { }
 
         class spell_mogu_arcane_velocity_SpellScript : public SpellScript
         {
@@ -1413,10 +1413,10 @@ class spell_mogu_arcane_velocity : public SpellScriptLoader
 };
 
 // Arcane Resonance - 116434
-class spell_mogu_arcane_resonance : public SpellScriptLoader
+class spell_mogu_arcane_resonance: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_mogu_arcane_resonance() : SpellScriptLoader("spell_mogu_arcane_resonance") { }
+        spell_mogu_arcane_resonance() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mogu_arcane_resonance") { }
 
         class spell_mogu_arcane_resonance_SpellScript : public SpellScript
         {
@@ -1451,10 +1451,10 @@ class spell_mogu_arcane_resonance : public SpellScriptLoader
 };
 
 // Mogu Inversion - 118300 / 118302 / 118304 / 118305 / 118307 / 118308 / 132296 / 132297 / 132298
-class spell_mogu_inversion : public SpellScriptLoader
+class spell_mogu_inversion: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_mogu_inversion() : SpellScriptLoader("spell_mogu_inversion") { }
+        spell_mogu_inversion() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mogu_inversion") { }
 
         class spell_mogu_inversion_AuraScript : public AuraScript
         {
@@ -1486,10 +1486,10 @@ class spell_mogu_inversion : public SpellScriptLoader
 };
 
 // Spirit Bolt - 118530
-class spell_spirit_bolt : public SpellScriptLoader
+class spell_spirit_bolt: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_spirit_bolt() : SpellScriptLoader("spell_spirit_bolt") { }
+        spell_spirit_bolt() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_spirit_bolt") { }
 
         class spell_spirit_bolt_SpellScript : public SpellScript
         {
@@ -1545,10 +1545,10 @@ class spell_spirit_bolt : public SpellScriptLoader
 };
 
 // Nullification Barrier - for Shield action purpose
-class spell_nullification_barrier : public SpellScriptLoader
+class spell_nullification_barrier: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_nullification_barrier() : SpellScriptLoader("spell_nullification_barrier") { }
+        spell_nullification_barrier() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_nullification_barrier") { }
 
         class spell_nullification_barrierSpellScript : public SpellScript
         {
@@ -1573,10 +1573,10 @@ class spell_nullification_barrier : public SpellScriptLoader
 };
 
 // GameObject - 211628 - Shroud of reversal
-class go_inversion : public GameObjectScript
+class go_inversion : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
     public:
-        go_inversion() : GameObjectScript("go_inversion") { }
+        go_inversion() : MS::Game::Scripting::Interfaces::GameObjectScript("go_inversion") { }
 
         struct go_inversionAI : public GameObjectAI
         {
@@ -1595,10 +1595,10 @@ class go_inversion : public GameObjectScript
 };
 
 // GameObject - 211626 - Nullification Barrier
-class go_cancel : public GameObjectScript
+class go_cancel : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
     public:
-        go_cancel() : GameObjectScript("go_cancel") { }
+        go_cancel() : MS::Game::Scripting::Interfaces::GameObjectScript("go_cancel") { }
 
         struct go_cancelAI : public GameObjectAI
         {

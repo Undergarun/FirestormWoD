@@ -53,10 +53,10 @@ enum Events
     EVENT_WHIRL             = 8,    // set= 10s cd
 };
 
-class boss_archavon : public CreatureScript
+class boss_archavon : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_archavon() : CreatureScript("boss_archavon") { }
+        boss_archavon() : MS::Game::Scripting::Interfaces::CreatureScript("boss_archavon") { }
 
         struct boss_archavonAI : public BossAI
         {
@@ -129,10 +129,10 @@ class boss_archavon : public CreatureScript
 /*######
 ##  Mob Archavon Warder
 ######*/
-class mob_archavon_warder : public CreatureScript
+class mob_archavon_warder : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_archavon_warder() : CreatureScript("mob_archavon_warder") { }
+        mob_archavon_warder() : MS::Game::Scripting::Interfaces::CreatureScript("mob_archavon_warder") { }
 
         struct mob_archavon_warderAI : public ScriptedAI //npc 32353
         {

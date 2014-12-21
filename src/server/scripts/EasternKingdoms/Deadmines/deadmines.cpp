@@ -9,10 +9,10 @@ enum Adds
     NPC_VANESSA_VANCLEEF_1  = 42371, // little
 };
 
-class go_defias_cannon : public GameObjectScript
+class go_defias_cannon : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
     public:
-        go_defias_cannon() : GameObjectScript("go_defias_cannon") { }
+        go_defias_cannon() : MS::Game::Scripting::Interfaces::GameObjectScript("go_defias_cannon") { }
 
         bool OnGossipHello(Player* pPlayer, GameObject* pGo)
         {

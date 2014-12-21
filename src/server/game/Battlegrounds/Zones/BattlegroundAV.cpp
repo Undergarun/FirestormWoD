@@ -1547,10 +1547,10 @@ bool BattlegroundAV::IsAllTowersControlledAndCaptainAlive(uint32 team) const
 #define REGZAR_TEXT_NEED " supplies are needed for the next upgrade!"
 #define REGZAR_TEXT_MAX "You're already at 1500 supplies!"
 
-class npc_regzar : public CreatureScript
+class npc_regzar : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_regzar() : CreatureScript("npc_regzar") { }
+    npc_regzar() : MS::Game::Scripting::Interfaces::CreatureScript("npc_regzar") { }
 
     bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
     {

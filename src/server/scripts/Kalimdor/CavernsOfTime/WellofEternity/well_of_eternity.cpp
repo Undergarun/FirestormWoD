@@ -291,11 +291,11 @@ const Position illidan2Pos[10] =
 
 const Position tyrandePos = {3310.190674f, -5691.714355f, 14.78f, 1.78f};
 
-class npc_well_of_eternity_nozdormu : public CreatureScript
+class npc_well_of_eternity_nozdormu : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_well_of_eternity_nozdormu() : CreatureScript("npc_well_of_eternity_nozdormu") { }
+        npc_well_of_eternity_nozdormu() : MS::Game::Scripting::Interfaces::CreatureScript("npc_well_of_eternity_nozdormu") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -383,11 +383,11 @@ class npc_well_of_eternity_nozdormu : public CreatureScript
         };
 };
 
-class npc_well_of_eternity_legion_demon : public CreatureScript
+class npc_well_of_eternity_legion_demon : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_well_of_eternity_legion_demon() : CreatureScript("npc_well_of_eternity_legion_demon") { }
+        npc_well_of_eternity_legion_demon() : MS::Game::Scripting::Interfaces::CreatureScript("npc_well_of_eternity_legion_demon") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -496,11 +496,11 @@ class npc_well_of_eternity_legion_demon : public CreatureScript
         };
 };
 
-class npc_well_of_eternity_illidan_1 : public CreatureScript
+class npc_well_of_eternity_illidan_1 : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_well_of_eternity_illidan_1() : CreatureScript("npc_well_of_eternity_illidan_1") { }
+        npc_well_of_eternity_illidan_1() : MS::Game::Scripting::Interfaces::CreatureScript("npc_well_of_eternity_illidan_1") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -667,11 +667,11 @@ class npc_well_of_eternity_illidan_1 : public CreatureScript
         };
 };
 
-class npc_well_of_eternity_eternal_champion : public CreatureScript
+class npc_well_of_eternity_eternal_champion : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_well_of_eternity_eternal_champion() : CreatureScript("npc_well_of_eternity_eternal_champion") { }
+        npc_well_of_eternity_eternal_champion() : MS::Game::Scripting::Interfaces::CreatureScript("npc_well_of_eternity_eternal_champion") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -727,11 +727,11 @@ class npc_well_of_eternity_eternal_champion : public CreatureScript
         };
 };
 
-class npc_well_of_eternity_eye_of_legion : public CreatureScript
+class npc_well_of_eternity_eye_of_legion : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_well_of_eternity_eye_of_legion() : CreatureScript("npc_well_of_eternity_eye_of_legion") { }
+        npc_well_of_eternity_eye_of_legion() : MS::Game::Scripting::Interfaces::CreatureScript("npc_well_of_eternity_eye_of_legion") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -785,11 +785,11 @@ class npc_well_of_eternity_eye_of_legion : public CreatureScript
         };
 };
 
-class npc_well_of_eternity_enchanted_highmistress : public CreatureScript
+class npc_well_of_eternity_enchanted_highmistress : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_well_of_eternity_enchanted_highmistress() : CreatureScript("npc_well_of_eternity_enchanted_highmistress") { }
+        npc_well_of_eternity_enchanted_highmistress() : MS::Game::Scripting::Interfaces::CreatureScript("npc_well_of_eternity_enchanted_highmistress") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -866,11 +866,11 @@ class npc_well_of_eternity_enchanted_highmistress : public CreatureScript
         };
 };
 
-class npc_well_of_eternity_royal_handmaiden : public CreatureScript
+class npc_well_of_eternity_royal_handmaiden : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_well_of_eternity_royal_handmaiden() : CreatureScript("npc_well_of_eternity_royal_handmaiden") { }
+        npc_well_of_eternity_royal_handmaiden() : MS::Game::Scripting::Interfaces::CreatureScript("npc_well_of_eternity_royal_handmaiden") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -971,11 +971,11 @@ static void TrashEvaded(Creature* creature)
     creature->VisitNearbyGridObject(SIZE_OF_GRIDS, worker);
 }
 
-class npc_well_of_eternity_doomguard_annihilator : public CreatureScript
+class npc_well_of_eternity_doomguard_annihilator : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_well_of_eternity_doomguard_annihilator() : CreatureScript("npc_well_of_eternity_doomguard_annihilator") { }
+        npc_well_of_eternity_doomguard_annihilator() : MS::Game::Scripting::Interfaces::CreatureScript("npc_well_of_eternity_doomguard_annihilator") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -1014,11 +1014,11 @@ class npc_well_of_eternity_doomguard_annihilator : public CreatureScript
         };
 };
 
-class npc_well_of_eternity_illidan_2 : public CreatureScript
+class npc_well_of_eternity_illidan_2 : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_well_of_eternity_illidan_2() : CreatureScript("npc_well_of_eternity_illidan_2") { }
+        npc_well_of_eternity_illidan_2() : MS::Game::Scripting::Interfaces::CreatureScript("npc_well_of_eternity_illidan_2") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -1278,11 +1278,11 @@ class npc_well_of_eternity_illidan_2 : public CreatureScript
         };
 };
 
-class npc_well_of_eternity_tyrande : public CreatureScript
+class npc_well_of_eternity_tyrande : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_well_of_eternity_tyrande() : CreatureScript("npc_well_of_eternity_tyrande") { }
+        npc_well_of_eternity_tyrande() : MS::Game::Scripting::Interfaces::CreatureScript("npc_well_of_eternity_tyrande") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -1443,11 +1443,11 @@ class npc_well_of_eternity_tyrande : public CreatureScript
         };
 };
 
-class npc_well_of_eternity_malfurion : public CreatureScript
+class npc_well_of_eternity_malfurion : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_well_of_eternity_malfurion() : CreatureScript("npc_well_of_eternity_malfurion") { }
+        npc_well_of_eternity_malfurion() : MS::Game::Scripting::Interfaces::CreatureScript("npc_well_of_eternity_malfurion") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -1475,11 +1475,11 @@ class npc_well_of_eternity_malfurion : public CreatureScript
         };
 };
 
-class npc_well_of_eternity_abyssal_doombringer : public CreatureScript
+class npc_well_of_eternity_abyssal_doombringer : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_well_of_eternity_abyssal_doombringer() : CreatureScript("npc_well_of_eternity_abyssal_doombringer") { }
+        npc_well_of_eternity_abyssal_doombringer() : MS::Game::Scripting::Interfaces::CreatureScript("npc_well_of_eternity_abyssal_doombringer") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -1550,11 +1550,11 @@ class npc_well_of_eternity_abyssal_doombringer : public CreatureScript
         };
 };
 
-class npc_well_of_eternity_dragon_soul : public CreatureScript
+class npc_well_of_eternity_dragon_soul : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_well_of_eternity_dragon_soul() : CreatureScript("npc_well_of_eternity_dragon_soul") { }
+        npc_well_of_eternity_dragon_soul() : MS::Game::Scripting::Interfaces::CreatureScript("npc_well_of_eternity_dragon_soul") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -1570,11 +1570,11 @@ class npc_well_of_eternity_dragon_soul : public CreatureScript
         };
 };
 
-class npc_well_of_eternity_portal_to_twisting_nether : public CreatureScript
+class npc_well_of_eternity_portal_to_twisting_nether : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_well_of_eternity_portal_to_twisting_nether() : CreatureScript("npc_well_of_eternity_portal_to_twisting_nether") { }
+        npc_well_of_eternity_portal_to_twisting_nether() : MS::Game::Scripting::Interfaces::CreatureScript("npc_well_of_eternity_portal_to_twisting_nether") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {

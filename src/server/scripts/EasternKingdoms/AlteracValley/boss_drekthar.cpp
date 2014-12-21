@@ -38,10 +38,10 @@ enum Yells
     YELL_RANDOM                                   = 3
 };
 
-class boss_drekthar : public CreatureScript
+class boss_drekthar : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_drekthar() : CreatureScript("boss_drekthar") { }
+    boss_drekthar() : MS::Game::Scripting::Interfaces::CreatureScript("boss_drekthar") { }
 
     struct boss_drektharAI : public ScriptedAI
     {

@@ -103,10 +103,10 @@ enum
     NUM_MESSAGES = 6
 };
 
-class npc_announcer_toc10 : public CreatureScript
+class npc_announcer_toc10 : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_announcer_toc10() : CreatureScript("npc_announcer_toc10") { }
+        npc_announcer_toc10() : MS::Game::Scripting::Interfaces::CreatureScript("npc_announcer_toc10") { }
 
         struct npc_announcer_toc10AI : public ScriptedAI
         {
@@ -222,10 +222,10 @@ class npc_announcer_toc10 : public CreatureScript
         }
 };
 
-class boss_lich_king_toc : public CreatureScript
+class boss_lich_king_toc : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_lich_king_toc() : CreatureScript("boss_lich_king_toc") { }
+        boss_lich_king_toc() : MS::Game::Scripting::Interfaces::CreatureScript("boss_lich_king_toc") { }
 
         struct boss_lich_king_tocAI : public ScriptedAI
         {
@@ -358,10 +358,10 @@ class boss_lich_king_toc : public CreatureScript
         }
 };
 
-class npc_fizzlebang_toc : public CreatureScript
+class npc_fizzlebang_toc : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_fizzlebang_toc() : CreatureScript("npc_fizzlebang_toc") { }
+        npc_fizzlebang_toc() : MS::Game::Scripting::Interfaces::CreatureScript("npc_fizzlebang_toc") { }
 
         struct npc_fizzlebang_tocAI : public ScriptedAI
         {
@@ -531,10 +531,10 @@ class npc_fizzlebang_toc : public CreatureScript
         }
 };
 
-class npc_tirion_toc : public CreatureScript
+class npc_tirion_toc : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_tirion_toc() : CreatureScript("npc_tirion_toc") { }
+        npc_tirion_toc() : MS::Game::Scripting::Interfaces::CreatureScript("npc_tirion_toc") { }
 
         struct npc_tirion_tocAI : public ScriptedAI
         {
@@ -819,10 +819,10 @@ class npc_tirion_toc : public CreatureScript
         }
 };
 
-class npc_garrosh_toc : public CreatureScript
+class npc_garrosh_toc : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_garrosh_toc() : CreatureScript("npc_garrosh_toc") { }
+        npc_garrosh_toc() : MS::Game::Scripting::Interfaces::CreatureScript("npc_garrosh_toc") { }
 
         struct npc_garrosh_tocAI : public ScriptedAI
         {
@@ -903,10 +903,10 @@ class npc_garrosh_toc : public CreatureScript
         }
 };
 
-class npc_varian_toc : public CreatureScript
+class npc_varian_toc : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_varian_toc() : CreatureScript("npc_varian_toc") { }
+        npc_varian_toc() : MS::Game::Scripting::Interfaces::CreatureScript("npc_varian_toc") { }
 
         struct npc_varian_tocAI : public ScriptedAI
         {

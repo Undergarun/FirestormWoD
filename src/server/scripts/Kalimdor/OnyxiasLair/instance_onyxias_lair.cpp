@@ -30,10 +30,10 @@ EndScriptData */
 #include "GridNotifiersImpl.h"
 #include "onyxias_lair.h"
 
-class instance_onyxias_lair : public InstanceMapScript
+class instance_onyxias_lair : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
 public:
-    instance_onyxias_lair() : InstanceMapScript("instance_onyxias_lair", 249) { }
+    instance_onyxias_lair() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_onyxias_lair", 249) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {

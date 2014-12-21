@@ -100,10 +100,10 @@ enum Spells
     CYANIGOSA_BLUE_AURA                           = 47759,
 };
 
-class instance_violet_hold : public InstanceMapScript
+class instance_violet_hold : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
 public:
-    instance_violet_hold() : InstanceMapScript("instance_violet_hold", 608) { }
+    instance_violet_hold() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_violet_hold", 608) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {

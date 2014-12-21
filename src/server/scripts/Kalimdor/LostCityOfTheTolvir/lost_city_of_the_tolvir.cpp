@@ -27,10 +27,10 @@ const Position RopeBeamPos[8]=
 
 const uint32 SpellRopBeam[4] = {84168, 84167, 84171, 84172};
 
-class npc_enslaved_bandit_tv : public CreatureScript
+class npc_enslaved_bandit_tv : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_enslaved_bandit_tv() : CreatureScript("npc_enslaved_bandit_tv") { }
+    npc_enslaved_bandit_tv() : MS::Game::Scripting::Interfaces::CreatureScript("npc_enslaved_bandit_tv") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -94,10 +94,10 @@ public:
     };
 };
 
-class npc_pygmy_brute_tv : public CreatureScript
+class npc_pygmy_brute_tv : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_pygmy_brute_tv() : CreatureScript("npc_pygmy_brute_tv") { }
+    npc_pygmy_brute_tv() : MS::Game::Scripting::Interfaces::CreatureScript("npc_pygmy_brute_tv") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -192,10 +192,10 @@ struct SlipstreamPlayer
     uint32 uiPersonalTimer;
 };
 
-class npc_wind_tunnel : public CreatureScript
+class npc_wind_tunnel : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_wind_tunnel() : CreatureScript("npc_wind_tunnel") { }
+    npc_wind_tunnel() : MS::Game::Scripting::Interfaces::CreatureScript("npc_wind_tunnel") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

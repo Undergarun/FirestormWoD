@@ -39,10 +39,10 @@ EndContentData */
 //possible creatures to be spawned
 uint32 const possibleSpawns[32] = {17322, 17661, 17496, 17522, 17340, 17352, 17333, 17524, 17654, 17348, 17339, 17345, 17359, 17353, 17336, 17550, 17330, 17701, 17321, 17680, 17325, 17320, 17683, 17342, 17715, 17334, 17341, 17338, 17337, 17346, 17344, 17327};
 
-class mob_webbed_creature : public CreatureScript
+class mob_webbed_creature : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_webbed_creature() : CreatureScript("mob_webbed_creature") { }
+    mob_webbed_creature() : MS::Game::Scripting::Interfaces::CreatureScript("mob_webbed_creature") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -94,10 +94,10 @@ public:
 #define GOSSIP_SELECT_CSA4   "[PH] "
 #define GOSSIP_SELECT_CSA5   "[PH] "
 
-class npc_captured_sunhawk_agent : public CreatureScript
+class npc_captured_sunhawk_agent : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_captured_sunhawk_agent() : CreatureScript("npc_captured_sunhawk_agent") { }
+    npc_captured_sunhawk_agent() : MS::Game::Scripting::Interfaces::CreatureScript("npc_captured_sunhawk_agent") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
@@ -160,10 +160,10 @@ enum Stillpine
     SAY_DIRECTION                                 = -1800074
 };
 
-class go_princess_stillpines_cage : public GameObjectScript
+class go_princess_stillpines_cage : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_princess_stillpines_cage() : GameObjectScript("go_princess_stillpines_cage") { }
+    go_princess_stillpines_cage() : MS::Game::Scripting::Interfaces::GameObjectScript("go_princess_stillpines_cage") { }
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
@@ -177,10 +177,10 @@ public:
     }
 };
 
-class npc_princess_stillpine : public CreatureScript
+class npc_princess_stillpine : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_princess_stillpine() : CreatureScript("npc_princess_stillpine") { }
+    npc_princess_stillpine() : MS::Game::Scripting::Interfaces::CreatureScript("npc_princess_stillpine") { }
 
     struct npc_princess_stillpineAI : public ScriptedAI
     {

@@ -88,10 +88,10 @@ float Spawnsway[2][3] =
     {1887.53f, 1263, 41}
 };
 
-class instance_zulfarrak : public InstanceMapScript
+class instance_zulfarrak : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
 public:
-    instance_zulfarrak() : InstanceMapScript("instance_zulfarrak", 209) { }
+    instance_zulfarrak() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_zulfarrak", 209) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {

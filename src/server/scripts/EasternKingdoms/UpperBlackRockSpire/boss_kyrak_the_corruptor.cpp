@@ -61,10 +61,10 @@ enum eSays
 };
 
 // Kyrak The Corruptor - 76021
-class boss_kyrak_the_corruptor : public CreatureScript
+class boss_kyrak_the_corruptor : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_kyrak_the_corruptor() : CreatureScript("boss_kyrak_the_corruptor") { }
+        boss_kyrak_the_corruptor() : MS::Game::Scripting::Interfaces::CreatureScript("boss_kyrak_the_corruptor") { }
 
         struct boss_kyrak_the_corruptorAI : public BossAI
         {
@@ -285,10 +285,10 @@ class boss_kyrak_the_corruptor : public CreatureScript
 };
 
 // Vileblood Serum - 161235
-class spell_vilebloom_serum : public SpellScriptLoader
+class spell_vilebloom_serum: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_vilebloom_serum() : SpellScriptLoader("spell_vilebloom_serum") { }
+        spell_vilebloom_serum() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_vilebloom_serum") { }
 
         class spell_vilebloom_serum_SpellScript : public SpellScript
         {
@@ -338,10 +338,10 @@ class spell_vilebloom_serum : public SpellScriptLoader
 };
 
 ///< Vileblood Serum - 161210
-class areatrigger_vileblood_serum : public AreaTriggerEntityScript
+class areatrigger_vileblood_serum : public MS::Game::Scripting::Interfaces::AreaTriggerEntityScript
 {
     public:
-        areatrigger_vileblood_serum() : AreaTriggerEntityScript("areatrigger_vileblood_serum") { }
+        areatrigger_vileblood_serum() : MS::Game::Scripting::Interfaces::AreaTriggerEntityScript("areatrigger_vileblood_serum") { }
 
         enum eSpells
         {
@@ -364,7 +364,7 @@ class areatrigger_vileblood_serum : public AreaTriggerEntityScript
             }
         }
 
-        AreaTriggerEntityScript* GetAI() const
+        MS::Game::Scripting::Interfaces::AreaTriggerEntityScript* GetAI() const
         {
             return new areatrigger_vileblood_serum();
         }

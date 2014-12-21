@@ -100,10 +100,10 @@ enum Says
     WHISPER_DRAKES_LOWHEALTH          = 4
 };
 
-class npc_verdisa_belgaristrasz_eternos : public CreatureScript
+class npc_verdisa_belgaristrasz_eternos : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_verdisa_belgaristrasz_eternos() : CreatureScript("npc_verdisa_belgaristrasz_eternos") { }
+        npc_verdisa_belgaristrasz_eternos() : MS::Game::Scripting::Interfaces::CreatureScript("npc_verdisa_belgaristrasz_eternos") { }
 
         struct npc_verdisa_belgaristrasz_eternosAI : public ScriptedAI
         {
@@ -191,10 +191,10 @@ class npc_verdisa_belgaristrasz_eternos : public CreatureScript
         }
 };
 
-class npc_image_belgaristrasz : public CreatureScript
+class npc_image_belgaristrasz : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_image_belgaristrasz() : CreatureScript("npc_image_belgaristrasz") { }
+        npc_image_belgaristrasz() : MS::Game::Scripting::Interfaces::CreatureScript("npc_image_belgaristrasz") { }
 
         struct npc_image_belgaristraszAI : public ScriptedAI
         {
@@ -222,10 +222,10 @@ class npc_image_belgaristrasz : public CreatureScript
         }
 };
 
-class npc_ruby_emerald_amber_drake : public CreatureScript
+class npc_ruby_emerald_amber_drake : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_ruby_emerald_amber_drake() : CreatureScript("npc_ruby_emerald_amber_drake") { }
+        npc_ruby_emerald_amber_drake() : MS::Game::Scripting::Interfaces::CreatureScript("npc_ruby_emerald_amber_drake") { }
 
         struct npc_ruby_emerald_amber_drakeAI : public VehicleAI
         {
@@ -367,10 +367,10 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
 // 49345 - Call Emerald Drake
 // 49461 - Call Amber Drake
 // 49462 - Call Ruby Drake
-class spell_oculus_call_ruby_emerald_amber_drake : public SpellScriptLoader
+class spell_oculus_call_ruby_emerald_amber_drake: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_oculus_call_ruby_emerald_amber_drake() : SpellScriptLoader("spell_oculus_call_ruby_emerald_amber_drake") { }
+        spell_oculus_call_ruby_emerald_amber_drake() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_oculus_call_ruby_emerald_amber_drake") { }
 
         class spell_oculus_call_ruby_emerald_amber_drake_SpellScript : public SpellScript
         {
@@ -409,10 +409,10 @@ class spell_oculus_call_ruby_emerald_amber_drake : public SpellScriptLoader
 // 49427 - Ride Emerald Drake Que
 // 49459 - Ride Amber Drake Que
 // 49463 - Ride Ruby Drake Que
-class spell_oculus_ride_ruby_emerald_amber_drake_que : public SpellScriptLoader
+class spell_oculus_ride_ruby_emerald_amber_drake_que: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_oculus_ride_ruby_emerald_amber_drake_que() : SpellScriptLoader("spell_oculus_ride_ruby_emerald_amber_drake_que") { }
+        spell_oculus_ride_ruby_emerald_amber_drake_que() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_oculus_ride_ruby_emerald_amber_drake_que") { }
 
         class spell_oculus_ride_ruby_emerald_amber_drake_que_AuraScript : public AuraScript
         {
@@ -439,10 +439,10 @@ class spell_oculus_ride_ruby_emerald_amber_drake_que : public SpellScriptLoader
 };
 
 // 49838 - Stop Time
-class spell_oculus_stop_time : public SpellScriptLoader
+class spell_oculus_stop_time: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_oculus_stop_time() : SpellScriptLoader("spell_oculus_stop_time") { }
+        spell_oculus_stop_time() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_oculus_stop_time") { }
 
         class spell_oculus_stop_time_AuraScript : public AuraScript
         {
@@ -478,10 +478,10 @@ class spell_oculus_stop_time : public SpellScriptLoader
         }
 };
 
-class spell_oculus_touch_the_nightmare : public SpellScriptLoader
+class spell_oculus_touch_the_nightmare: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_oculus_touch_the_nightmare() : SpellScriptLoader("spell_oculus_touch_the_nightmare") { }
+        spell_oculus_touch_the_nightmare() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_oculus_touch_the_nightmare") { }
 
         class spell_oculus_touch_the_nightmare_SpellScript : public SpellScript
         {
@@ -504,10 +504,10 @@ class spell_oculus_touch_the_nightmare : public SpellScriptLoader
         }
 };
 
-class spell_oculus_dream_funnel: public SpellScriptLoader
+class spell_oculus_dream_funnel: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_oculus_dream_funnel() : SpellScriptLoader("spell_oculus_dream_funnel") { }
+        spell_oculus_dream_funnel() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_oculus_dream_funnel") { }
 
         class spell_oculus_dream_funnel_AuraScript : public AuraScript
         {

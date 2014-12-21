@@ -38,10 +38,10 @@ enum Adds
     NPC_THRASHING_CHARGE    = 43743,
 };
 
-class boss_corborus : public CreatureScript
+class boss_corborus : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_corborus() : CreatureScript("boss_corborus") { }
+        boss_corborus() : MS::Game::Scripting::Interfaces::CreatureScript("boss_corborus") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -216,10 +216,10 @@ class boss_corborus : public CreatureScript
         };
 };
 
-class npc_rock_borer : public CreatureScript
+class npc_rock_borer : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_rock_borer() : CreatureScript("npc_rock_borer") { }
+        npc_rock_borer() : MS::Game::Scripting::Interfaces::CreatureScript("npc_rock_borer") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -271,10 +271,10 @@ class npc_rock_borer : public CreatureScript
         };
 };
 
-class npc_crystal_shard : public CreatureScript
+class npc_crystal_shard : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_crystal_shard() : CreatureScript("npc_crystal_shard") { }
+        npc_crystal_shard() : MS::Game::Scripting::Interfaces::CreatureScript("npc_crystal_shard") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {

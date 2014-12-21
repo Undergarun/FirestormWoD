@@ -41,10 +41,10 @@ enum Spells
     SPELL_CALAMITY_DMG          = 93810,
 };
 
-class boss_baron_ashbury : public CreatureScript
+class boss_baron_ashbury : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_baron_ashbury() : CreatureScript("boss_baron_ashbury") { }
+        boss_baron_ashbury() : MS::Game::Scripting::Interfaces::CreatureScript("boss_baron_ashbury") { }
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -180,10 +180,10 @@ class boss_baron_ashbury : public CreatureScript
 
 typedef boss_baron_ashbury::boss_baron_ashburyAI AshburyAI;
 
-class achievement_pardon_denied : public AchievementCriteriaScript
+class achievement_pardon_denied : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_pardon_denied() : AchievementCriteriaScript("achievement_pardon_denied") { }
+        achievement_pardon_denied() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_pardon_denied") { }
 
         bool OnCheck(Player* source, Unit* target)
         {

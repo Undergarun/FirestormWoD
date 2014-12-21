@@ -116,10 +116,10 @@ class ShellConcussionTargetSelector
 };
 
 // Tortos - 67977
-class boss_tortos : public CreatureScript
+class boss_tortos : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_tortos() : CreatureScript("boss_tortos") { }
+        boss_tortos() : MS::Game::Scripting::Interfaces::CreatureScript("boss_tortos") { }
 
         struct boss_tortosAI : public BossAI
         {
@@ -356,10 +356,10 @@ class boss_tortos : public CreatureScript
 };
 
 // Rockfall - 68219
-class mob_rockfall : public CreatureScript
+class mob_rockfall : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_rockfall() : CreatureScript("mob_rockfall") { }
+        mob_rockfall() : MS::Game::Scripting::Interfaces::CreatureScript("mob_rockfall") { }
 
         struct mob_rockfallAI : public ScriptedAI
         {
@@ -380,10 +380,10 @@ class mob_rockfall : public CreatureScript
 };
 
 // Vampiric Cave Bat - 68497
-class mob_vampiric_cave_bat_summon : public CreatureScript
+class mob_vampiric_cave_bat_summon : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_vampiric_cave_bat_summon() : CreatureScript("mob_vampiric_cave_bat_summon") { }
+        mob_vampiric_cave_bat_summon() : MS::Game::Scripting::Interfaces::CreatureScript("mob_vampiric_cave_bat_summon") { }
 
         struct mob_vampiric_cave_bat_summonAI : public ScriptedAI
         {
@@ -413,10 +413,10 @@ class mob_vampiric_cave_bat_summon : public CreatureScript
 };
 
 // Whirl Turtle - 67966
-class mob_whirl_turtle : public CreatureScript
+class mob_whirl_turtle : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_whirl_turtle() : CreatureScript("mob_whirl_turtle") { }
+        mob_whirl_turtle() : MS::Game::Scripting::Interfaces::CreatureScript("mob_whirl_turtle") { }
 
         struct mob_whirl_turtleAI : public ScriptedAI
         {
@@ -537,10 +537,10 @@ class mob_whirl_turtle : public CreatureScript
 };
 
 // Humming Crystal - 69639
-class mob_humming_crystal : public CreatureScript
+class mob_humming_crystal : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_humming_crystal() : CreatureScript("mob_humming_crystal") { }
+        mob_humming_crystal() : MS::Game::Scripting::Interfaces::CreatureScript("mob_humming_crystal") { }
 
         struct mob_humming_crystalAI : public ScriptedAI
         {
@@ -562,10 +562,10 @@ class mob_humming_crystal : public CreatureScript
 };
 
 // Quake Stomp - 134920
-class spell_quake_stomp : public SpellScriptLoader
+class spell_quake_stomp: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_quake_stomp() : SpellScriptLoader("spell_quake_stomp") { }
+        spell_quake_stomp() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_quake_stomp") { }
 
         class spell_quake_stomp_SpellScript : public SpellScript
         {
@@ -593,10 +593,10 @@ class spell_quake_stomp : public SpellScriptLoader
 };
 
 // Rockfall - 134364 / 140431
-class spell_rockfall : public SpellScriptLoader
+class spell_rockfall: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rockfall() : SpellScriptLoader("spell_rockfall") { }
+        spell_rockfall() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rockfall") { }
 
         class spell_rockfall_SpellScript : public SpellScript
         {
@@ -633,10 +633,10 @@ class spell_rockfall : public SpellScriptLoader
 };
 
 // Rockfall (damage) - 134539
-class spell_rockfall_damage : public SpellScriptLoader
+class spell_rockfall_damage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rockfall_damage() : SpellScriptLoader("spell_rockfall_damage") { }
+        spell_rockfall_damage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rockfall_damage") { }
 
         class spell_rockfall_damage_SpellScript : public SpellScript
         {
@@ -661,10 +661,10 @@ class spell_rockfall_damage : public SpellScriptLoader
 };
 
 // Rockfall (large damage) - 134476
-class spell_rockfall_large_damage : public SpellScriptLoader
+class spell_rockfall_large_damage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rockfall_large_damage() : SpellScriptLoader("spell_rockfall_large_damage") { }
+        spell_rockfall_large_damage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rockfall_large_damage") { }
 
         class spell_rockfall_large_damage_SpellScript : public SpellScript
         {
@@ -691,10 +691,10 @@ class spell_rockfall_large_damage : public SpellScriptLoader
 };
 
 // Call of Tortos - 136294
-class spell_call_of_tortos : public SpellScriptLoader
+class spell_call_of_tortos: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_call_of_tortos() : SpellScriptLoader("spell_call_of_tortos") { }
+        spell_call_of_tortos() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_call_of_tortos") { }
 
         class spell_call_of_tortos_SpellScript : public SpellScript
         {
@@ -719,10 +719,10 @@ class spell_call_of_tortos : public SpellScriptLoader
 };
 
 // Shell Block (triggered) - 140054
-class spell_shell_block : public SpellScriptLoader
+class spell_shell_block: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_shell_block() : SpellScriptLoader("spell_shell_block") { }
+        spell_shell_block() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_shell_block") { }
 
         class spell_shell_block_AuraScript : public AuraScript
         {
@@ -754,10 +754,10 @@ class spell_shell_block : public SpellScriptLoader
 };
 
 // Kick Shell - 134031
-class spell_kick_shell : public SpellScriptLoader
+class spell_kick_shell: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_kick_shell() : SpellScriptLoader("spell_kick_shell") { }
+        spell_kick_shell() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_kick_shell") { }
 
         class spell_kick_shell_AuraScript : public AuraScript
         {
@@ -803,10 +803,10 @@ class spell_kick_shell : public SpellScriptLoader
 };
 
 // Shell Concussion - 134091 / 136431
-class spell_shell_concussion : public SpellScriptLoader
+class spell_shell_concussion: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_shell_concussion() : SpellScriptLoader("spell_shell_concussion") { }
+        spell_shell_concussion() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_shell_concussion") { }
 
         class spell_shell_concussion_SpellScript : public SpellScript
         {
@@ -833,10 +833,10 @@ class spell_shell_concussion : public SpellScriptLoader
 };
 
 // Crystal Shell (damage absorb) - 137633
-class spell_crystal_shell_damage_absorption : public SpellScriptLoader
+class spell_crystal_shell_damage_absorption: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_crystal_shell_damage_absorption() : SpellScriptLoader("spell_crystal_shell_damage_absorption") { }
+        spell_crystal_shell_damage_absorption() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_crystal_shell_damage_absorption") { }
 
         class spell_crystal_shell_damage_absorption_AuraScript : public AuraScript
         {
@@ -868,10 +868,10 @@ class spell_crystal_shell_damage_absorption : public SpellScriptLoader
 };
 
 // Crystal Shell (heal absorb) - 137648 
-class spell_crystal_shell_heal_absorption : public SpellScriptLoader
+class spell_crystal_shell_heal_absorption: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_crystal_shell_heal_absorption() : SpellScriptLoader("spell_crystal_shell_heal_absorption") { }
+        spell_crystal_shell_heal_absorption() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_crystal_shell_heal_absorption") { }
 
         class spell_crystal_shell_heal_absorption_AuraScript : public AuraScript
         {

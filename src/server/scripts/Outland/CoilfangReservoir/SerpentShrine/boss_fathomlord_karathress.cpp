@@ -96,10 +96,10 @@ EndScriptData */
 
 #define MAX_ADVISORS 3
 //Fathom-Lord Karathress AI
-class boss_fathomlord_karathress : public CreatureScript
+class boss_fathomlord_karathress : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_fathomlord_karathress() : CreatureScript("boss_fathomlord_karathress") { }
+    boss_fathomlord_karathress() : MS::Game::Scripting::Interfaces::CreatureScript("boss_fathomlord_karathress") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -306,10 +306,10 @@ public:
 };
 
 //Fathom-Guard Sharkkis AI
-class boss_fathomguard_sharkkis : public CreatureScript
+class boss_fathomguard_sharkkis : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_fathomguard_sharkkis() : CreatureScript("boss_fathomguard_sharkkis") { }
+    boss_fathomguard_sharkkis() : MS::Game::Scripting::Interfaces::CreatureScript("boss_fathomguard_sharkkis") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -460,10 +460,10 @@ public:
 };
 
 //Fathom-Guard Tidalvess AI
-class boss_fathomguard_tidalvess : public CreatureScript
+class boss_fathomguard_tidalvess : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_fathomguard_tidalvess() : CreatureScript("boss_fathomguard_tidalvess") { }
+    boss_fathomguard_tidalvess() : MS::Game::Scripting::Interfaces::CreatureScript("boss_fathomguard_tidalvess") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -587,10 +587,10 @@ public:
 };
 
 //Fathom-Guard Caribdis AI
-class boss_fathomguard_caribdis : public CreatureScript
+class boss_fathomguard_caribdis : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_fathomguard_caribdis() : CreatureScript("boss_fathomguard_caribdis") { }
+    boss_fathomguard_caribdis() : MS::Game::Scripting::Interfaces::CreatureScript("boss_fathomguard_caribdis") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

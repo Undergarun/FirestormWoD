@@ -43,10 +43,10 @@
 
 #define NPC_WOLF    49871
 
-class npc_stormwind_infantry : public CreatureScript
+class npc_stormwind_infantry : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_stormwind_infantry() : CreatureScript("npc_stormwind_infantry") { }
+    npc_stormwind_infantry() : MS::Game::Scripting::Interfaces::CreatureScript("npc_stormwind_infantry") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -100,10 +100,10 @@ public:
 
 #define SPELL_HEAL          93072
 
-class npc_stormwind_injured_soldier : public CreatureScript
+class npc_stormwind_injured_soldier : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_stormwind_injured_soldier() : CreatureScript("npc_stormwind_injured_soldier") { }
+    npc_stormwind_injured_soldier() : MS::Game::Scripting::Interfaces::CreatureScript("npc_stormwind_injured_soldier") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -151,10 +151,10 @@ enum eTrainingDummySpells
     SPELL_PAUME_TIGRE   = 100787
 };
 
-class npc_training_dummy_start_zones : public CreatureScript
+class npc_training_dummy_start_zones : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_training_dummy_start_zones() : CreatureScript("npc_training_dummy_start_zones") { }
+    npc_training_dummy_start_zones() : MS::Game::Scripting::Interfaces::CreatureScript("npc_training_dummy_start_zones") { }
 
     struct npc_training_dummy_start_zonesAI : Scripted_NoMovementAI
     {
@@ -245,10 +245,10 @@ public:
 ## spell_quest_fear_no_evil
 ######*/
 
-class spell_quest_fear_no_evil : public SpellScriptLoader
+class spell_quest_fear_no_evil: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_quest_fear_no_evil() : SpellScriptLoader("spell_quest_fear_no_evil") { }
+        spell_quest_fear_no_evil() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_quest_fear_no_evil") { }
 
         class spell_quest_fear_no_evil_SpellScript : public SpellScript
         {
@@ -279,10 +279,10 @@ class spell_quest_fear_no_evil : public SpellScriptLoader
 
 #define SPELL_VISUAL_EXTINGUISHER   96028
 
-class spell_quest_extincteur : public SpellScriptLoader
+class spell_quest_extincteur: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_quest_extincteur() : SpellScriptLoader("spell_quest_extincteur") { }
+        spell_quest_extincteur() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_quest_extincteur") { }
 
         class spell_quest_extincteur_AuraScript : public AuraScript
         {

@@ -11,10 +11,10 @@ static const DoorData doordata[] =
     {0, 0, DOOR_TYPE_ROOM, BOUNDARY_NONE},
 };
 
-class instance_hour_of_twilight : public InstanceMapScript
+class instance_hour_of_twilight : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
     public:
-        instance_hour_of_twilight() : InstanceMapScript("instance_hour_of_twilight", 940) { }
+        instance_hour_of_twilight() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_hour_of_twilight", 940) { }
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const
         {

@@ -27,10 +27,10 @@ enum Spells
     SPELL_SHADOWSHIELD                                     = 22417
 };
 
-class boss_high_interrogator_gerstahn : public CreatureScript
+class boss_high_interrogator_gerstahn : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_high_interrogator_gerstahn() : CreatureScript("boss_high_interrogator_gerstahn") { }
+    boss_high_interrogator_gerstahn() : MS::Game::Scripting::Interfaces::CreatureScript("boss_high_interrogator_gerstahn") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

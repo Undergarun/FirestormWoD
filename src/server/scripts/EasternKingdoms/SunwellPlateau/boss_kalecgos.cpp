@@ -103,10 +103,10 @@ enum SWPActions
 
 uint32 WildMagic[] = { 44978, 45001, 45002, 45004, 45006, 45010 };
 
-class boss_kalecgos : public CreatureScript
+class boss_kalecgos : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_kalecgos() : CreatureScript("boss_kalecgos") { }
+    boss_kalecgos() : MS::Game::Scripting::Interfaces::CreatureScript("boss_kalecgos") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -432,10 +432,10 @@ public:
 
 };
 
-class boss_kalec : public CreatureScript
+class boss_kalec : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_kalec() : CreatureScript("boss_kalec") { }
+    boss_kalec() : MS::Game::Scripting::Interfaces::CreatureScript("boss_kalec") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -534,10 +534,10 @@ public:
 
 };
 
-class kalecgos_teleporter : public GameObjectScript
+class kalecgos_teleporter : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    kalecgos_teleporter() : GameObjectScript("kalecgos_teleporter") { }
+    kalecgos_teleporter() : MS::Game::Scripting::Interfaces::GameObjectScript("kalecgos_teleporter") { }
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
@@ -562,10 +562,10 @@ public:
 
 };
 
-class boss_sathrovarr : public CreatureScript
+class boss_sathrovarr : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_sathrovarr() : CreatureScript("boss_sathrovarr") { }
+    boss_sathrovarr() : MS::Game::Scripting::Interfaces::CreatureScript("boss_sathrovarr") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

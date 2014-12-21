@@ -266,10 +266,10 @@ class StartMovementEvent : public BasicEvent
         Creature* _owner;
 };
 
-class npc_iron_roots : public CreatureScript
+class npc_iron_roots : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_iron_roots() : CreatureScript("npc_iron_roots") { }
+        npc_iron_roots() : MS::Game::Scripting::Interfaces::CreatureScript("npc_iron_roots") { }
 
         struct npc_iron_rootsAI : public Scripted_NoMovementAI
         {
@@ -336,10 +336,10 @@ class npc_iron_roots : public CreatureScript
         }
 };
 
-class boss_freya : public CreatureScript
+class boss_freya : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_freya() : CreatureScript("boss_freya") { }
+        boss_freya() : MS::Game::Scripting::Interfaces::CreatureScript("boss_freya") { }
 
         struct boss_freyaAI : public BossAI
         {
@@ -896,10 +896,10 @@ class boss_freya : public CreatureScript
         }
 };
 
-class boss_elder_brightleaf : public CreatureScript
+class boss_elder_brightleaf : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_elder_brightleaf() : CreatureScript("boss_elder_brightleaf") { }
+        boss_elder_brightleaf() : MS::Game::Scripting::Interfaces::CreatureScript("boss_elder_brightleaf") { }
 
         struct boss_elder_brightleafAI : public BossAI
         {
@@ -1025,10 +1025,10 @@ class boss_elder_brightleaf : public CreatureScript
         }
 };
 
-class boss_elder_stonebark : public CreatureScript
+class boss_elder_stonebark : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_elder_stonebark() : CreatureScript("boss_elder_stonebark") { }
+        boss_elder_stonebark() : MS::Game::Scripting::Interfaces::CreatureScript("boss_elder_stonebark") { }
 
         struct boss_elder_stonebarkAI : public BossAI
         {
@@ -1155,10 +1155,10 @@ class boss_elder_stonebark : public CreatureScript
         }
 };
 
-class boss_elder_ironbranch : public CreatureScript
+class boss_elder_ironbranch : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_elder_ironbranch() : CreatureScript("boss_elder_ironbranch") { }
+        boss_elder_ironbranch() : MS::Game::Scripting::Interfaces::CreatureScript("boss_elder_ironbranch") { }
 
         struct boss_elder_ironbranchAI : public BossAI
         {
@@ -1272,10 +1272,10 @@ class boss_elder_ironbranch : public CreatureScript
         }
 };
 
-class npc_detonating_lasher : public CreatureScript
+class npc_detonating_lasher : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_detonating_lasher() : CreatureScript("npc_detonating_lasher") {}
+        npc_detonating_lasher() : MS::Game::Scripting::Interfaces::CreatureScript("npc_detonating_lasher") {}
 
         struct npc_detonating_lasherAI : public ScriptedAI
         {
@@ -1370,10 +1370,10 @@ class npc_detonating_lasher : public CreatureScript
         }
 };
 
-class npc_ancient_water_spirit : public CreatureScript
+class npc_ancient_water_spirit : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_ancient_water_spirit() : CreatureScript("npc_ancient_water_spirit") {}
+        npc_ancient_water_spirit() : MS::Game::Scripting::Interfaces::CreatureScript("npc_ancient_water_spirit") {}
 
         struct npc_ancient_water_spiritAI : public ScriptedAI
         {
@@ -1452,10 +1452,10 @@ class npc_ancient_water_spirit : public CreatureScript
         }
 };
 
-class npc_storm_lasher : public CreatureScript
+class npc_storm_lasher : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_storm_lasher() : CreatureScript("npc_storm_lasher") {}
+        npc_storm_lasher() : MS::Game::Scripting::Interfaces::CreatureScript("npc_storm_lasher") {}
 
         struct npc_storm_lasherAI : public ScriptedAI
         {
@@ -1543,10 +1543,10 @@ class npc_storm_lasher : public CreatureScript
         }
 };
 
-class npc_snaplasher : public CreatureScript
+class npc_snaplasher : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_snaplasher() : CreatureScript("npc_snaplasher") {}
+        npc_snaplasher() : MS::Game::Scripting::Interfaces::CreatureScript("npc_snaplasher") {}
 
         struct npc_snaplasherAI : public ScriptedAI
         {
@@ -1614,10 +1614,10 @@ class npc_snaplasher : public CreatureScript
         }
 };
 
-class npc_ancient_conservator : public CreatureScript
+class npc_ancient_conservator : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_ancient_conservator() : CreatureScript("npc_ancient_conservator") {}
+        npc_ancient_conservator() : MS::Game::Scripting::Interfaces::CreatureScript("npc_ancient_conservator") {}
 
         struct npc_ancient_conservatorAI : public ScriptedAI
         {
@@ -1710,10 +1710,10 @@ class npc_ancient_conservator : public CreatureScript
         }
 };
 
-class npc_sun_beam : public CreatureScript
+class npc_sun_beam : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_sun_beam() : CreatureScript("npc_sun_beam") {}
+        npc_sun_beam() : MS::Game::Scripting::Interfaces::CreatureScript("npc_sun_beam") {}
 
         struct npc_sun_beamAI : public Scripted_NoMovementAI
         {
@@ -1742,10 +1742,10 @@ class npc_sun_beam : public CreatureScript
         }
 };
 
-class npc_healthy_spore : public CreatureScript
+class npc_healthy_spore : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_healthy_spore() : CreatureScript("npc_healthy_spore") {}
+        npc_healthy_spore() : MS::Game::Scripting::Interfaces::CreatureScript("npc_healthy_spore") {}
 
         struct npc_healthy_sporeAI : public Scripted_NoMovementAI
         {
@@ -1793,10 +1793,10 @@ class npc_healthy_spore : public CreatureScript
         }
 };
 
-class npc_eonars_gift : public CreatureScript
+class npc_eonars_gift : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_eonars_gift() : CreatureScript("npc_eonars_gift") {}
+        npc_eonars_gift() : MS::Game::Scripting::Interfaces::CreatureScript("npc_eonars_gift") {}
 
         struct npc_eonars_giftAI : public Scripted_NoMovementAI
         {
@@ -1850,10 +1850,10 @@ class npc_eonars_gift : public CreatureScript
         }
 };
 
-class npc_nature_bomb : public CreatureScript
+class npc_nature_bomb : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_nature_bomb() : CreatureScript("npc_nature_bomb") {}
+        npc_nature_bomb() : MS::Game::Scripting::Interfaces::CreatureScript("npc_nature_bomb") {}
 
         struct npc_nature_bombAI : public Scripted_NoMovementAI
         {
@@ -1896,10 +1896,10 @@ class npc_nature_bomb : public CreatureScript
         }
 };
 
-class npc_unstable_sun_beam : public CreatureScript
+class npc_unstable_sun_beam : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_unstable_sun_beam() : CreatureScript("npc_unstable_sun_beam") { }
+        npc_unstable_sun_beam() : MS::Game::Scripting::Interfaces::CreatureScript("npc_unstable_sun_beam") { }
 
         struct npc_unstable_sun_beamAI : public Scripted_NoMovementAI
         {
@@ -1986,10 +1986,10 @@ class IsNoAllyOfNature
         }
 };
 
-class spell_essence_targeting_ironbranch : public SpellScriptLoader
+class spell_essence_targeting_ironbranch: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_essence_targeting_ironbranch() : SpellScriptLoader("spell_elder_ironbranch_essence_targeting") {}
+        spell_essence_targeting_ironbranch() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_elder_ironbranch_essence_targeting") {}
 
         class spell_essence_targeting_SpellScript : public SpellScript
         {
@@ -2012,10 +2012,10 @@ class spell_essence_targeting_ironbranch : public SpellScriptLoader
         }
 };
 
-class spell_essence_targeting_brightleaf : public SpellScriptLoader
+class spell_essence_targeting_brightleaf: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_essence_targeting_brightleaf() : SpellScriptLoader("spell_elder_brightleaf_essence_targeting") {}
+        spell_essence_targeting_brightleaf() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_elder_brightleaf_essence_targeting") {}
 
         class spell_essence_targeting_SpellScript : public SpellScript
         {
@@ -2040,10 +2040,10 @@ class spell_essence_targeting_brightleaf : public SpellScriptLoader
 };
 
 
-class spell_aggregation_pheromones_targeting : public SpellScriptLoader
+class spell_aggregation_pheromones_targeting: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_aggregation_pheromones_targeting() : SpellScriptLoader("spell_aggregation_pheromones_targeting") {}
+        spell_aggregation_pheromones_targeting() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_aggregation_pheromones_targeting") {}
 
         class spell_aggregation_pheromones_targeting_SpellScript : public SpellScript
         {
@@ -2071,10 +2071,10 @@ class spell_aggregation_pheromones_targeting : public SpellScriptLoader
 };
 
 // temporary to trigger spell on proper target
-class spell_elder_brightleaf_unstable_sun_beam : public SpellScriptLoader
+class spell_elder_brightleaf_unstable_sun_beam: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_elder_brightleaf_unstable_sun_beam() : SpellScriptLoader("spell_elder_brightleaf_unstable_sun_beam") {}
+        spell_elder_brightleaf_unstable_sun_beam() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_elder_brightleaf_unstable_sun_beam") {}
 
         class spell_elder_brightleaf_unstable_sun_beam_SpellScript : public SpellScript
         {
@@ -2105,10 +2105,10 @@ class spell_elder_brightleaf_unstable_sun_beam : public SpellScriptLoader
         }
 };
 
-class spell_freya_attuned_to_nature_dose_reduction : public SpellScriptLoader
+class spell_freya_attuned_to_nature_dose_reduction: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_freya_attuned_to_nature_dose_reduction() : SpellScriptLoader("spell_freya_attuned_to_nature_dose_reduction")
+        spell_freya_attuned_to_nature_dose_reduction() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_freya_attuned_to_nature_dose_reduction")
         {
         }
 
@@ -2154,10 +2154,10 @@ class spell_freya_attuned_to_nature_dose_reduction : public SpellScriptLoader
         }
 };
 
-class spell_freya_iron_roots : public SpellScriptLoader
+class spell_freya_iron_roots: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_freya_iron_roots() : SpellScriptLoader("spell_freya_iron_roots")
+        spell_freya_iron_roots() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_freya_iron_roots")
         {
         }
 
@@ -2189,10 +2189,10 @@ class spell_freya_iron_roots : public SpellScriptLoader
         }
 };
 
-class achievement_getting_back_to_nature : public AchievementCriteriaScript
+class achievement_getting_back_to_nature : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_getting_back_to_nature(const char* name) : AchievementCriteriaScript(name) {}
+        achievement_getting_back_to_nature(const char* name) : MS::Game::Scripting::Interfaces::AchievementCriteriaScript(name) {}
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {
@@ -2207,10 +2207,10 @@ class achievement_getting_back_to_nature : public AchievementCriteriaScript
         }
 };
 
-class achievement_knock_on_wood : public AchievementCriteriaScript
+class achievement_knock_on_wood : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_knock_on_wood(const char* name) : AchievementCriteriaScript(name) {}
+        achievement_knock_on_wood(const char* name) : MS::Game::Scripting::Interfaces::AchievementCriteriaScript(name) {}
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {
@@ -2225,10 +2225,10 @@ class achievement_knock_on_wood : public AchievementCriteriaScript
         }
 };
 
-class achievement_knock_knock_on_wood : public AchievementCriteriaScript
+class achievement_knock_knock_on_wood : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_knock_knock_on_wood(const char* name) : AchievementCriteriaScript(name) {}
+        achievement_knock_knock_on_wood(const char* name) : MS::Game::Scripting::Interfaces::AchievementCriteriaScript(name) {}
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {
@@ -2243,10 +2243,10 @@ class achievement_knock_knock_on_wood : public AchievementCriteriaScript
         }
 };
 
-class achievement_knock_knock_knock_on_wood : public AchievementCriteriaScript
+class achievement_knock_knock_knock_on_wood : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_knock_knock_knock_on_wood(const char* name) : AchievementCriteriaScript(name) {}
+        achievement_knock_knock_knock_on_wood(const char* name) : MS::Game::Scripting::Interfaces::AchievementCriteriaScript(name) {}
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {

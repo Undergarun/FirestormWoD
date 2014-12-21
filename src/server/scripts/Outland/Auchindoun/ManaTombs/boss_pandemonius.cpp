@@ -43,10 +43,10 @@ EndScriptData */
 #define H_SPELL_DARK_SHELL              38759
 
 // 18341
-class boss_pandemonius : public CreatureScript
+class boss_pandemonius : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_pandemonius() : CreatureScript("boss_pandemonius") { }
+    boss_pandemonius() : MS::Game::Scripting::Interfaces::CreatureScript("boss_pandemonius") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

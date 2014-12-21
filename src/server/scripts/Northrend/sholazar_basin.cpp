@@ -51,10 +51,10 @@ enum eRainspeaker
     FACTION_ESCORTEE_H                  = 775
 };
 
-class npc_injured_rainspeaker_oracle : public CreatureScript
+class npc_injured_rainspeaker_oracle : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_injured_rainspeaker_oracle() : CreatureScript("npc_injured_rainspeaker_oracle") { }
+    npc_injured_rainspeaker_oracle() : MS::Game::Scripting::Interfaces::CreatureScript("npc_injured_rainspeaker_oracle") { }
 
     struct npc_injured_rainspeaker_oracleAI : public npc_escortAI
     {
@@ -190,10 +190,10 @@ enum eVekjik
     QUEST_MAKING_PEACE          = 12573
 };
 
-class npc_vekjik : public CreatureScript
+class npc_vekjik : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_vekjik() : CreatureScript("npc_vekjik") { }
+    npc_vekjik() : MS::Game::Scripting::Interfaces::CreatureScript("npc_vekjik") { }
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
@@ -251,10 +251,10 @@ enum eFreya
     GOSSIP_TEXTID_AVATAR3    = 13305
 };
 
-class npc_avatar_of_freya : public CreatureScript
+class npc_avatar_of_freya : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_avatar_of_freya() : CreatureScript("npc_avatar_of_freya") { }
+    npc_avatar_of_freya() : MS::Game::Scripting::Interfaces::CreatureScript("npc_avatar_of_freya") { }
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
@@ -294,10 +294,10 @@ public:
 ## npc_bushwhacker
 ######*/
 
-class npc_bushwhacker : public CreatureScript
+class npc_bushwhacker : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_bushwhacker() : CreatureScript("npc_bushwhacker") { }
+    npc_bushwhacker() : MS::Game::Scripting::Interfaces::CreatureScript("npc_bushwhacker") { }
 
     struct npc_bushwhackerAI : public ScriptedAI
     {
@@ -352,10 +352,10 @@ enum eEnums
     QUEST_DISASTER              = 12688
 };
 
-class npc_engineer_helice : public CreatureScript
+class npc_engineer_helice : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_engineer_helice() : CreatureScript("npc_engineer_helice") { }
+    npc_engineer_helice() : MS::Game::Scripting::Interfaces::CreatureScript("npc_engineer_helice") { }
 
     struct npc_engineer_heliceAI : public npc_escortAI
     {
@@ -478,10 +478,10 @@ enum utils
     QUEST_ENTRY = 12645,
 };
 
-class npc_jungle_punch_target : public CreatureScript
+class npc_jungle_punch_target : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_jungle_punch_target() : CreatureScript("npc_jungle_punch_target") { }
+    npc_jungle_punch_target() : MS::Game::Scripting::Interfaces::CreatureScript("npc_jungle_punch_target") { }
 
     struct npc_jungle_punch_targetAI : public ScriptedAI
     {
@@ -602,10 +602,10 @@ enum eAdventurousDwarf
     SAY_DWARF_HELP      = -1571043
 };
 
-class npc_adventurous_dwarf : public CreatureScript
+class npc_adventurous_dwarf : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_adventurous_dwarf() : CreatureScript("npc_adventurous_dwarf") { }
+    npc_adventurous_dwarf() : MS::Game::Scripting::Interfaces::CreatureScript("npc_adventurous_dwarf") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -668,10 +668,10 @@ enum MiscLifewarden
     SPELL_WILD_GROWTH = 52948,
 };
 
-class spell_q12620_the_lifewarden_wrath : public SpellScriptLoader
+class spell_q12620_the_lifewarden_wrath: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_q12620_the_lifewarden_wrath() : SpellScriptLoader("spell_q12620_the_lifewarden_wrath") { }
+    spell_q12620_the_lifewarden_wrath() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q12620_the_lifewarden_wrath") { }
 
     class spell_q12620_the_lifewarden_wrath_SpellScript : public SpellScript
     {
@@ -756,10 +756,10 @@ enum KickWhatKick
     SAY_DROSTAN_REPLY_MISS = 0,
 };
 
-class spell_q12589_shoot_rjr : public SpellScriptLoader
+class spell_q12589_shoot_rjr: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_q12589_shoot_rjr() : SpellScriptLoader("spell_q12589_shoot_rjr") { }
+    spell_q12589_shoot_rjr() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_q12589_shoot_rjr") { }
 
     class spell_q12589_shoot_rjr_SpellScript : public SpellScript
     {

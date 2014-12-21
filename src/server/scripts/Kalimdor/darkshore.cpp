@@ -32,10 +32,10 @@ EndContentData */
 #include "ScriptedEscortAI.h"
 #include "ScriptedFollowerAI.h"
 
-class npc_prospector_remtravel : public CreatureScript
+class npc_prospector_remtravel : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_prospector_remtravel() : CreatureScript("npc_prospector_remtravel")
+        npc_prospector_remtravel() : MS::Game::Scripting::Interfaces::CreatureScript("npc_prospector_remtravel")
         {
         }
 

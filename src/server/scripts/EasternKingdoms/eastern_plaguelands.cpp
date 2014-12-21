@@ -34,10 +34,10 @@ EndContentData */
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 
-class mobs_ghoul_flayer : public CreatureScript
+class mobs_ghoul_flayer : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mobs_ghoul_flayer() : CreatureScript("mobs_ghoul_flayer") { }
+    mobs_ghoul_flayer() : MS::Game::Scripting::Interfaces::CreatureScript("mobs_ghoul_flayer") { }
 
     struct mobs_ghoul_flayerAI : public ScriptedAI
     {
@@ -64,10 +64,10 @@ public:
 ## npc_augustus_the_touched
 ######*/
 
-class npc_augustus_the_touched : public CreatureScript
+class npc_augustus_the_touched : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_augustus_the_touched() : CreatureScript("npc_augustus_the_touched") { }
+    npc_augustus_the_touched() : MS::Game::Scripting::Interfaces::CreatureScript("npc_augustus_the_touched") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
@@ -96,10 +96,10 @@ public:
 
 #define SPELL_SPIRIT_SPAWNIN    17321
 
-class npc_darrowshire_spirit : public CreatureScript
+class npc_darrowshire_spirit : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_darrowshire_spirit() : CreatureScript("npc_darrowshire_spirit") { }
+    npc_darrowshire_spirit() : MS::Game::Scripting::Interfaces::CreatureScript("npc_darrowshire_spirit") { }
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
@@ -137,10 +137,10 @@ public:
 #define GOSSIP_SELECT2  "That is terrible."
 #define GOSSIP_SELECT3  "I will, Tirion."
 
-class npc_tirion_fordring : public CreatureScript
+class npc_tirion_fordring : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_tirion_fordring() : CreatureScript("npc_tirion_fordring") { }
+    npc_tirion_fordring() : MS::Game::Scripting::Interfaces::CreatureScript("npc_tirion_fordring") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {

@@ -382,10 +382,10 @@ enum eEquipIds
 };
 
 // Zandalari Water-Binder - 69455
-class mob_zandalari_water_binder : public CreatureScript
+class mob_zandalari_water_binder : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_zandalari_water_binder() : CreatureScript("mob_zandalari_water_binder") { }
+        mob_zandalari_water_binder() : MS::Game::Scripting::Interfaces::CreatureScript("mob_zandalari_water_binder") { }
 
         struct mob_zandalari_water_binderAI : public ScriptedAI
         {
@@ -448,10 +448,10 @@ class mob_zandalari_water_binder : public CreatureScript
 };
 
 // Zandalari Blade Initiate - 70230
-class mob_zandalari_blade_initiate : public CreatureScript
+class mob_zandalari_blade_initiate : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_zandalari_blade_initiate() : CreatureScript("mob_zandalari_blade_initiate") { }
+        mob_zandalari_blade_initiate() : MS::Game::Scripting::Interfaces::CreatureScript("mob_zandalari_blade_initiate") { }
 
         struct mob_zandalari_blade_initiateAI : public ScriptedAI
         {
@@ -504,10 +504,10 @@ class mob_zandalari_blade_initiate : public CreatureScript
 };
 
 // Zandalari Spear-Shaper - 69388
-class mob_zandalari_spear_shaper : public CreatureScript
+class mob_zandalari_spear_shaper : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_zandalari_spear_shaper() : CreatureScript("mob_zandalari_spear_shaper") { }
+        mob_zandalari_spear_shaper() : MS::Game::Scripting::Interfaces::CreatureScript("mob_zandalari_spear_shaper") { }
 
         struct mob_zandalari_spear_shaperAI : public ScriptedAI
         {
@@ -577,10 +577,10 @@ class mob_zandalari_spear_shaper : public CreatureScript
 };
 
 // Thrown Spear - 69438
-class mob_thrown_spear : public CreatureScript
+class mob_thrown_spear : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_thrown_spear() : CreatureScript("mob_thrown_spear") { }
+        mob_thrown_spear() : MS::Game::Scripting::Interfaces::CreatureScript("mob_thrown_spear") { }
 
         struct mob_thrown_spearAI : public ScriptedAI
         {
@@ -602,10 +602,10 @@ class mob_thrown_spear : public CreatureScript
 };
 
 // Zandalari Storm-Caller - 69390
-class mob_zandalari_storm_caller : public CreatureScript
+class mob_zandalari_storm_caller : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_zandalari_storm_caller() : CreatureScript("mob_zandalari_storm_caller") { }
+        mob_zandalari_storm_caller() : MS::Game::Scripting::Interfaces::CreatureScript("mob_zandalari_storm_caller") { }
 
         struct mob_zandalari_storm_callerAI : public ScriptedAI
         {
@@ -686,10 +686,10 @@ class mob_zandalari_storm_caller : public CreatureScript
 };
 
 // Focused Lightning - 70174
-class mob_trash_focused_lightning : public CreatureScript
+class mob_trash_focused_lightning : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_trash_focused_lightning() : CreatureScript("mob_trash_focused_lightning") { }
+        mob_trash_focused_lightning() : MS::Game::Scripting::Interfaces::CreatureScript("mob_trash_focused_lightning") { }
 
         struct mob_trash_focused_lightningAI : public ScriptedAI
         {
@@ -765,10 +765,10 @@ class mob_trash_focused_lightning : public CreatureScript
 };
 
 // Ancient Python - 70448
-class mob_ancient_python : public CreatureScript
+class mob_ancient_python : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_ancient_python() : CreatureScript("mob_ancient_python") { }
+        mob_ancient_python() : MS::Game::Scripting::Interfaces::CreatureScript("mob_ancient_python") { }
 
         struct mob_ancient_pythonAI : public ScriptedAI
         {
@@ -834,10 +834,10 @@ class mob_ancient_python : public CreatureScript
 };
 
 // Spirit Flayer - 70246
-class mob_spirit_flayer : public CreatureScript
+class mob_spirit_flayer : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_spirit_flayer() : CreatureScript("mob_spirit_flayer") { }
+        mob_spirit_flayer() : MS::Game::Scripting::Interfaces::CreatureScript("mob_spirit_flayer") { }
 
         struct mob_spirit_flayerAI : public ScriptedAI
         {
@@ -883,10 +883,10 @@ class mob_spirit_flayer : public CreatureScript
 };
 
 // Tormented Spirit - 70341
-class mob_tourmented_spirit : public CreatureScript
+class mob_tourmented_spirit : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_tourmented_spirit() : CreatureScript("mob_tourmented_spirit") { }
+        mob_tourmented_spirit() : MS::Game::Scripting::Interfaces::CreatureScript("mob_tourmented_spirit") { }
 
         struct mob_tourmented_spiritAI : public ScriptedAI
         {
@@ -948,10 +948,10 @@ class mob_tourmented_spirit : public CreatureScript
 };
 
 // Soul-Fed Construct - 70308
-class mob_soul_fed_construct : public CreatureScript
+class mob_soul_fed_construct : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_soul_fed_construct() : CreatureScript("mob_soul_fed_construct") { }
+        mob_soul_fed_construct() : MS::Game::Scripting::Interfaces::CreatureScript("mob_soul_fed_construct") { }
 
         struct mob_soul_fed_constructAI : public ScriptedAI
         {
@@ -1005,10 +1005,10 @@ class mob_soul_fed_construct : public CreatureScript
 };
 
 // Stormbringer Draz'Kil - 70445
-class mob_stormbringer_draz_kil : public CreatureScript
+class mob_stormbringer_draz_kil : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_stormbringer_draz_kil() : CreatureScript("mob_stormbringer_draz_kil") { }
+        mob_stormbringer_draz_kil() : MS::Game::Scripting::Interfaces::CreatureScript("mob_stormbringer_draz_kil") { }
 
         struct mob_stormbringer_draz_kilAI : public ScriptedAI
         {
@@ -1075,10 +1075,10 @@ class mob_stormbringer_draz_kil : public CreatureScript
 };
 
 // General Purpose Bunny JMF (Ground) - 59394
-class mob_dark_winds : public CreatureScript
+class mob_dark_winds : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_dark_winds() : CreatureScript("mob_dark_winds") { }
+        mob_dark_winds() : MS::Game::Scripting::Interfaces::CreatureScript("mob_dark_winds") { }
 
         struct mob_dark_windsAI : public ScriptedAI
         {
@@ -1193,10 +1193,10 @@ class mob_dark_winds : public CreatureScript
 };
 
 // Drakkari Frost Warden - 69910
-class mob_drakkari_frost_warden : public CreatureScript
+class mob_drakkari_frost_warden : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_drakkari_frost_warden() : CreatureScript("mob_drakkari_frost_warden") { }
+        mob_drakkari_frost_warden() : MS::Game::Scripting::Interfaces::CreatureScript("mob_drakkari_frost_warden") { }
 
         struct mob_drakkari_frost_wardenAI : public ScriptedAI
         {
@@ -1254,10 +1254,10 @@ class mob_drakkari_frost_warden : public CreatureScript
 };
 
 // Glacial Freeze Totem - 70047
-class mob_gacial_freeze_totem : public CreatureScript
+class mob_gacial_freeze_totem : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_gacial_freeze_totem() : CreatureScript("mob_gacial_freeze_totem") { }
+        mob_gacial_freeze_totem() : MS::Game::Scripting::Interfaces::CreatureScript("mob_gacial_freeze_totem") { }
 
         struct mob_gacial_freeze_totemAI : public ScriptedAI
         {
@@ -1280,10 +1280,10 @@ class mob_gacial_freeze_totem : public CreatureScript
 
 // Gurubashi Berserker - 69905
 // Gurubashi Berserker - 69916
-class mob_gurubashi_berserker : public CreatureScript
+class mob_gurubashi_berserker : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_gurubashi_berserker() : CreatureScript("mob_gurubashi_berserker") { }
+        mob_gurubashi_berserker() : MS::Game::Scripting::Interfaces::CreatureScript("mob_gurubashi_berserker") { }
 
         struct mob_gurubashi_berserkerAI : public ScriptedAI
         {
@@ -1341,10 +1341,10 @@ class mob_gurubashi_berserker : public CreatureScript
 };
 
 // Amani'shi Flame Chanter - 69909
-class mob_amani_shi_flame_chanter : public CreatureScript
+class mob_amani_shi_flame_chanter : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_amani_shi_flame_chanter() : CreatureScript("mob_amani_shi_flame_chanter") { }
+        mob_amani_shi_flame_chanter() : MS::Game::Scripting::Interfaces::CreatureScript("mob_amani_shi_flame_chanter") { }
 
         struct mob_amani_shi_flame_chanterAI : public ScriptedAI
         {
@@ -1410,10 +1410,10 @@ class mob_amani_shi_flame_chanter : public CreatureScript
 };
 
 // Farraki Sand Conjurer - 69899
-class mob_farraki_sand_conjurer : public CreatureScript
+class mob_farraki_sand_conjurer : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_farraki_sand_conjurer() : CreatureScript("mob_farraki_sand_conjurer") { }
+        mob_farraki_sand_conjurer() : MS::Game::Scripting::Interfaces::CreatureScript("mob_farraki_sand_conjurer") { }
 
         struct mob_farraki_sand_conjurerAI : public ScriptedAI
         {
@@ -1478,10 +1478,10 @@ class mob_farraki_sand_conjurer : public CreatureScript
 };
 
 // Sand Elemental - 69944
-class mob_sand_elemental : public CreatureScript
+class mob_sand_elemental : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_sand_elemental() : CreatureScript("mob_sand_elemental") { }
+        mob_sand_elemental() : MS::Game::Scripting::Interfaces::CreatureScript("mob_sand_elemental") { }
 
         struct mob_sand_elementalAI : public ScriptedAI
         {
@@ -1508,10 +1508,10 @@ class mob_sand_elemental : public CreatureScript
 };
 
 // Zandalari High Priest - 69906
-class mob_zandalari_high_priest : public CreatureScript
+class mob_zandalari_high_priest : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_zandalari_high_priest() : CreatureScript("mob_zandalari_high_priest") { }
+        mob_zandalari_high_priest() : MS::Game::Scripting::Interfaces::CreatureScript("mob_zandalari_high_priest") { }
 
         struct mob_zandalari_high_priestAI : public ScriptedAI
         {
@@ -1582,10 +1582,10 @@ class mob_zandalari_high_priest : public CreatureScript
 };
 
 // Zandalari Prophet - 70557
-class mob_zandalari_prophet : public CreatureScript
+class mob_zandalari_prophet : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_zandalari_prophet() : CreatureScript("mob_zandalari_prophet") { }
+        mob_zandalari_prophet() : MS::Game::Scripting::Interfaces::CreatureScript("mob_zandalari_prophet") { }
 
         struct mob_zandalari_prophetAI : public ScriptedAI
         {
@@ -1649,10 +1649,10 @@ class mob_zandalari_prophet : public CreatureScript
 };
 
 // Zandalari Warlord - 69911
-class mob_zandalari_warlord : public CreatureScript
+class mob_zandalari_warlord : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_zandalari_warlord() : CreatureScript("mob_zandalari_warlord") { }
+        mob_zandalari_warlord() : MS::Game::Scripting::Interfaces::CreatureScript("mob_zandalari_warlord") { }
 
         struct mob_zandalari_warlordAI : public ScriptedAI
         {
@@ -1716,10 +1716,10 @@ class mob_zandalari_warlord : public CreatureScript
 };
 
 // Zandalari Prelate - 69927
-class mob_zandalari_prelate : public CreatureScript
+class mob_zandalari_prelate : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_zandalari_prelate() : CreatureScript("mob_zandalari_prelate") { }
+        mob_zandalari_prelate() : MS::Game::Scripting::Interfaces::CreatureScript("mob_zandalari_prelate") { }
 
         struct mob_zandalari_prelateAI : public ScriptedAI
         {
@@ -1797,10 +1797,10 @@ class mob_zandalari_prelate : public CreatureScript
 };
 
 // Waterspout - 70147
-class mob_waterspout : public CreatureScript
+class mob_waterspout : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_waterspout() : CreatureScript("mob_waterspout") { }
+        mob_waterspout() : MS::Game::Scripting::Interfaces::CreatureScript("mob_waterspout") { }
 
         struct mob_waterspoutAI : public ScriptedAI
         {
@@ -1842,10 +1842,10 @@ class mob_waterspout : public CreatureScript
 };
 
 // Vampiric Cave Bat - 69352
-class mob_vampiric_cave_bat : public CreatureScript
+class mob_vampiric_cave_bat : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_vampiric_cave_bat() : CreatureScript("mob_vampiric_cave_bat") { }
+        mob_vampiric_cave_bat() : MS::Game::Scripting::Interfaces::CreatureScript("mob_vampiric_cave_bat") { }
 
         struct mob_vampiric_cave_batAI : public ScriptedAI
         {
@@ -1875,10 +1875,10 @@ class mob_vampiric_cave_bat : public CreatureScript
 };
 
 // Greater Cave Bat - 69351
-class mob_greater_cave_bat : public CreatureScript
+class mob_greater_cave_bat : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_greater_cave_bat() : CreatureScript("mob_greater_cave_bat") { }
+        mob_greater_cave_bat() : MS::Game::Scripting::Interfaces::CreatureScript("mob_greater_cave_bat") { }
 
         struct mob_greater_cave_batAI : public ScriptedAI
         {
@@ -1935,10 +1935,10 @@ class mob_greater_cave_bat : public CreatureScript
 };
 
 // Mysterious Mushroom - 70545
-class mob_mysterious_mushroom : public CreatureScript
+class mob_mysterious_mushroom : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_mysterious_mushroom() : CreatureScript("mob_mysterious_mushroom") { }
+        mob_mysterious_mushroom() : MS::Game::Scripting::Interfaces::CreatureScript("mob_mysterious_mushroom") { }
 
         struct mob_mysterious_mushroomAI : public ScriptedAI
         {
@@ -1989,10 +1989,10 @@ class mob_mysterious_mushroom : public CreatureScript
 };
 
 // Shale Stalker - 70587
-class mob_shale_stalker : public CreatureScript
+class mob_shale_stalker : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_shale_stalker() : CreatureScript("mob_shale_stalker") { }
+        mob_shale_stalker() : MS::Game::Scripting::Interfaces::CreatureScript("mob_shale_stalker") { }
 
         struct mob_shale_stalkerAI : public ScriptedAI
         {
@@ -2043,10 +2043,10 @@ class mob_shale_stalker : public CreatureScript
 };
 
 // Fungal Growth - 70153
-class mob_fungal_growth : public CreatureScript
+class mob_fungal_growth : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_fungal_growth() : CreatureScript("mob_fungal_growth") { }
+        mob_fungal_growth() : MS::Game::Scripting::Interfaces::CreatureScript("mob_fungal_growth") { }
 
         struct mob_fungal_growthAI : public ScriptedAI
         {
@@ -2102,10 +2102,10 @@ class mob_fungal_growth : public CreatureScript
 };
 
 // Mist Lurker - 70594
-class mob_mist_lurker : public CreatureScript
+class mob_mist_lurker : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_mist_lurker() : CreatureScript("mob_mist_lurker") { }
+        mob_mist_lurker() : MS::Game::Scripting::Interfaces::CreatureScript("mob_mist_lurker") { }
 
         struct mob_mist_lurkerAI : public ScriptedAI
         {
@@ -2161,10 +2161,10 @@ class mob_mist_lurker : public CreatureScript
 };
 
 // Cavern Burrower - 70589
-class mob_cavern_burrower : public CreatureScript
+class mob_cavern_burrower : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_cavern_burrower() : CreatureScript("mob_cavern_burrower") { }
+        mob_cavern_burrower() : MS::Game::Scripting::Interfaces::CreatureScript("mob_cavern_burrower") { }
 
         struct mob_cavern_burrowerAI : public ScriptedAI
         {
@@ -2232,10 +2232,10 @@ class mob_cavern_burrower : public CreatureScript
 };
 
 // Eternal Guardian - 70586
-class mob_eternal_guardian : public CreatureScript
+class mob_eternal_guardian : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_eternal_guardian() : CreatureScript("mob_eternal_guardian") { }
+        mob_eternal_guardian() : MS::Game::Scripting::Interfaces::CreatureScript("mob_eternal_guardian") { }
 
         struct mob_eternal_guardianAI : public ScriptedAI
         {
@@ -2298,10 +2298,10 @@ class mob_eternal_guardian : public CreatureScript
 };
 
 // Bore Worm - 68221
-class mob_bore_worm : public CreatureScript
+class mob_bore_worm : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_bore_worm() : CreatureScript("mob_bore_worm") { }
+        mob_bore_worm() : MS::Game::Scripting::Interfaces::CreatureScript("mob_bore_worm") { }
 
         struct mob_bore_wormAI : public ScriptedAI
         {
@@ -2356,10 +2356,10 @@ class mob_bore_worm : public CreatureScript
 };
 
 // Bow Fly Swarm - 68222
-class mob_bow_fly_swarm : public CreatureScript
+class mob_bow_fly_swarm : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_bow_fly_swarm() : CreatureScript("mob_bow_fly_swarm") { }
+        mob_bow_fly_swarm() : MS::Game::Scripting::Interfaces::CreatureScript("mob_bow_fly_swarm") { }
 
         struct mob_bow_fly_swarmAI : public ScriptedAI
         {
@@ -2456,10 +2456,10 @@ class mob_bow_fly_swarm : public CreatureScript
 };
 
 // Gastropod - 68220
-class mob_gastropod : public CreatureScript
+class mob_gastropod : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_gastropod() : CreatureScript("mob_gastropod") { }
+        mob_gastropod() : MS::Game::Scripting::Interfaces::CreatureScript("mob_gastropod") { }
 
         struct mob_gastropodAI : public ScriptedAI
         {
@@ -2610,10 +2610,10 @@ class mob_gastropod : public CreatureScript
 };
 
 // Web - 68249
-class mob_web : public CreatureScript
+class mob_web : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_web() : CreatureScript("mob_web") { }
+        mob_web() : MS::Game::Scripting::Interfaces::CreatureScript("mob_web") { }
 
         struct mob_webAI : public ScriptedAI
         {
@@ -2695,10 +2695,10 @@ class mob_web : public CreatureScript
 };
 
 // Corpse Spider - 68248
-class mob_corpse_spider : public CreatureScript
+class mob_corpse_spider : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_corpse_spider() : CreatureScript("mob_corpse_spider") { }
+        mob_corpse_spider() : MS::Game::Scripting::Interfaces::CreatureScript("mob_corpse_spider") { }
 
         struct mob_corpse_spiderAI : public ScriptedAI
         {
@@ -2757,10 +2757,10 @@ class mob_corpse_spider : public CreatureScript
 };
 
 // Quivering Blob - 69383
-class mob_quivering_blob : public CreatureScript
+class mob_quivering_blob : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_quivering_blob() : CreatureScript("mob_quivering_blob") { }
+        mob_quivering_blob() : MS::Game::Scripting::Interfaces::CreatureScript("mob_quivering_blob") { }
 
         struct mob_quivering_blobAI : public ScriptedAI
         {
@@ -2811,10 +2811,10 @@ class mob_quivering_blob : public CreatureScript
 };
 
 // Ritual Guard - 70179
-class mob_ritual_guard : public CreatureScript
+class mob_ritual_guard : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_ritual_guard() : CreatureScript("mob_ritual_guard") { }
+        mob_ritual_guard() : MS::Game::Scripting::Interfaces::CreatureScript("mob_ritual_guard") { }
 
         struct mob_ritual_guardAI : public ScriptedAI
         {
@@ -2873,10 +2873,10 @@ class mob_ritual_guard : public CreatureScript
 };
 
 // Water Bolt - 139231
-class spell_water_bolt : public SpellScriptLoader
+class spell_water_bolt: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_water_bolt() : SpellScriptLoader("spell_water_bolt") { }
+        spell_water_bolt() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_water_bolt") { }
 
         class spell_water_bolt_SpellScript : public SpellScript
         {
@@ -2913,10 +2913,10 @@ class spell_water_bolt : public SpellScriptLoader
 };
 
 // Storm Weapon - 139218
-class spell_storm_weapon : public SpellScriptLoader
+class spell_storm_weapon: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_storm_weapon() : SpellScriptLoader("spell_storm_weapon") { }
+        spell_storm_weapon() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_storm_weapon") { }
 
         class spell_storm_weapon_AuraScript : public AuraScript
         {
@@ -2956,10 +2956,10 @@ class spell_storm_weapon : public SpellScriptLoader
 };
 
 // Focused Lightning (AoE) - 139209
-class spell_focused_lightning_aoe : public SpellScriptLoader
+class spell_focused_lightning_aoe: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_focused_lightning_aoe() : SpellScriptLoader("spell_focused_lightning_aoe") { }
+        spell_focused_lightning_aoe() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_focused_lightning_aoe") { }
 
         class spell_focused_lightning_aoe_SpellScript : public SpellScript
         {
@@ -2987,10 +2987,10 @@ class spell_focused_lightning_aoe : public SpellScriptLoader
 };
 
 // Spirit Light - 139461
-class spell_spirit_light : public SpellScriptLoader
+class spell_spirit_light: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_spirit_light() : SpellScriptLoader("spell_spirit_light") { }
+        spell_spirit_light() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_spirit_light") { }
 
         class spell_spirit_light_SpellScript : public SpellScript
         {
@@ -3021,10 +3021,10 @@ class spell_spirit_light : public SpellScriptLoader
 };
 
 // Glacial Freeze (damage & stun) - 138687
-class spell_glacial_freeze : public SpellScriptLoader
+class spell_glacial_freeze: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_glacial_freeze() : SpellScriptLoader("spell_glacial_freeze") { }
+        spell_glacial_freeze() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_glacial_freeze") { }
 
         class spell_glacial_freeze_SpellScript : public SpellScript
         {
@@ -3049,10 +3049,10 @@ class spell_glacial_freeze : public SpellScriptLoader
 };
 
 // Eruption - 138652
-class spell_eruption : public SpellScriptLoader
+class spell_eruption: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_eruption() : SpellScriptLoader("spell_eruption") { }
+        spell_eruption() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_eruption") { }
 
         class spell_eruption_SpellScript : public SpellScript
         {
@@ -3080,10 +3080,10 @@ class spell_eruption : public SpellScriptLoader
 };
 
 // Fiery Core - 138610
-class spell_fiery_core : public SpellScriptLoader
+class spell_fiery_core: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_fiery_core() : SpellScriptLoader("spell_fiery_core") { }
+        spell_fiery_core() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_fiery_core") { }
 
         class spell_fiery_core_AuraScript : public AuraScript
         {
@@ -3114,10 +3114,10 @@ class spell_fiery_core : public SpellScriptLoader
 };
 
 // Judgement of the Loa - 139223
-class spell_judgement_of_the_loa : public SpellScriptLoader
+class spell_judgement_of_the_loa: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_judgement_of_the_loa() : SpellScriptLoader("spell_judgement_of_the_loa") { }
+        spell_judgement_of_the_loa() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_judgement_of_the_loa") { }
 
         class spell_judgement_of_the_loa_SpellScript : public SpellScript
         {
@@ -3151,10 +3151,10 @@ class spell_judgement_of_the_loa : public SpellScriptLoader
 };
 
 // Waterspout (triggered) - 140814
-class spell_waterspout : public SpellScriptLoader
+class spell_waterspout: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_waterspout() : SpellScriptLoader("spell_waterspout") { }
+        spell_waterspout() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_waterspout") { }
 
         class spell_waterspout_SpellScript : public SpellScript
         {
@@ -3185,10 +3185,10 @@ class spell_waterspout : public SpellScriptLoader
 };
 
 // Drain the Weak - 135103
-class spell_drain_the_weak : public SpellScriptLoader
+class spell_drain_the_weak: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_drain_the_weak() : SpellScriptLoader("spell_drain_the_weak") { }
+        spell_drain_the_weak() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_drain_the_weak") { }
 
         class spell_drain_the_weak_AuraScript : public AuraScript
         {
@@ -3231,10 +3231,10 @@ class spell_drain_the_weak : public SpellScriptLoader
 };
 
 // Drain the Weak (damage) - 135101
-class spell_drain_the_weak_damage : public SpellScriptLoader
+class spell_drain_the_weak_damage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_drain_the_weak_damage() : SpellScriptLoader("spell_drain_the_weak_damage") { }
+        spell_drain_the_weak_damage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_drain_the_weak_damage") { }
 
         class spell_drain_the_weak_damage_SpellScript : public SpellScript
         {
@@ -3276,10 +3276,10 @@ class SonicCallTargetSelector
 };
 
 // Sonic Call - 140600
-class spell_sonic_call : public SpellScriptLoader
+class spell_sonic_call: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sonic_call() : SpellScriptLoader("spell_sonic_call") { }
+        spell_sonic_call() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sonic_call") { }
 
         class spell_sonic_call_SpellScript : public SpellScript
         {
@@ -3338,10 +3338,10 @@ class SiphonLifeTargetSelector
 };
 
 // Siphon Life - 140630
-class spell_siphon_life : public SpellScriptLoader
+class spell_siphon_life: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_siphon_life() : SpellScriptLoader("spell_siphon_life") { }
+        spell_siphon_life() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_siphon_life") { }
 
         class spell_siphon_life_SpellScript : public SpellScript
         {
@@ -3368,10 +3368,10 @@ class spell_siphon_life : public SpellScriptLoader
 };
 
 // Luciferase - 134470
-class spell_luciferase : public SpellScriptLoader
+class spell_luciferase: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_luciferase() : SpellScriptLoader("spell_luciferase") { }
+        spell_luciferase() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_luciferase") { }
 
         class spell_luciferase_SpellScript : public SpellScript
         {
@@ -3399,10 +3399,10 @@ class spell_luciferase : public SpellScriptLoader
 };
 
 // Fixated - 140306
-class spell_fixated : public SpellScriptLoader
+class spell_fixated: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_fixated() : SpellScriptLoader("spell_fixated") { }
+        spell_fixated() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_fixated") { }
 
         class spell_fixated_AuraScript : public AuraScript
         {
@@ -3430,10 +3430,10 @@ class spell_fixated : public SpellScriptLoader
 };
 
 // Devoured - 134415
-class spell_devoured : public SpellScriptLoader
+class spell_devoured: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_devoured() : SpellScriptLoader("spell_devoured") { }
+        spell_devoured() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_devoured") { }
 
         class spell_devoured_AuraScript : public AuraScript
         {
@@ -3461,10 +3461,10 @@ class spell_devoured : public SpellScriptLoader
 };
 
 // Ancient Mogu Bell - 218723
-class go_ancient_mogu_bell : public GameObjectScript
+class go_ancient_mogu_bell : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
     public:
-        go_ancient_mogu_bell() : GameObjectScript("go_ancient_mogu_bell") { }
+        go_ancient_mogu_bell() : MS::Game::Scripting::Interfaces::GameObjectScript("go_ancient_mogu_bell") { }
 
         bool OnGossipHello(Player* /*player*/, GameObject* go)
         {

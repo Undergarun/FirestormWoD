@@ -100,10 +100,10 @@ const Position spawnPos[5] =
     {-110.35f, 981.47f, 229.90f, 2.83f},
 };
 
-class npc_neptulon : public CreatureScript
+class npc_neptulon : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_neptulon() : CreatureScript("npc_neptulon") { }
+        npc_neptulon() : MS::Game::Scripting::Interfaces::CreatureScript("npc_neptulon") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -365,10 +365,10 @@ class npc_neptulon : public CreatureScript
         };        
 };
 
-class npc_vicious_mindslasher : public CreatureScript
+class npc_vicious_mindslasher : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_vicious_mindslasher() : CreatureScript("npc_vicious_mindslasher") { }
+        npc_vicious_mindslasher() : MS::Game::Scripting::Interfaces::CreatureScript("npc_vicious_mindslasher") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -438,10 +438,10 @@ class npc_vicious_mindslasher : public CreatureScript
         };
 };
 
-class npc_unyielding_behemoth : public CreatureScript
+class npc_unyielding_behemoth : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_unyielding_behemoth() : CreatureScript("npc_unyielding_behemoth") { }
+        npc_unyielding_behemoth() : MS::Game::Scripting::Interfaces::CreatureScript("npc_unyielding_behemoth") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -497,10 +497,10 @@ class npc_unyielding_behemoth : public CreatureScript
         };
 };
 
-class npc_faceless_sapper : public CreatureScript
+class npc_faceless_sapper : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_faceless_sapper() : CreatureScript("npc_faceless_sapper") { }
+        npc_faceless_sapper() : MS::Game::Scripting::Interfaces::CreatureScript("npc_faceless_sapper") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -537,10 +537,10 @@ class npc_faceless_sapper : public CreatureScript
         };
 };
 
-class npc_blight_of_ozumat : public CreatureScript
+class npc_blight_of_ozumat : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_blight_of_ozumat() : CreatureScript("npc_blight_of_ozumat") { }
+        npc_blight_of_ozumat() : MS::Game::Scripting::Interfaces::CreatureScript("npc_blight_of_ozumat") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -567,10 +567,10 @@ class npc_blight_of_ozumat : public CreatureScript
         };
 };
 
-class at_tott_ozumat : public AreaTriggerScript
+class at_tott_ozumat : public MS::Game::Scripting::Interfaces::AreaTriggerScript
 {
     public:
-        at_tott_ozumat() : AreaTriggerScript("at_tott_ozumat") { }
+        at_tott_ozumat() : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_tott_ozumat") { }
 
         bool OnTrigger(Player* pPlayer, const AreaTriggerEntry* /*pAt*/)
         {

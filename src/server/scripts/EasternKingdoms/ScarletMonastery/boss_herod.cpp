@@ -54,10 +54,10 @@ enum Entry
     ENTRY_SCARLET_MYRMIDON      = 4295
 };
 
-class boss_herod : public CreatureScript
+class boss_herod : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_herod() : CreatureScript("boss_herod") { }
+    boss_herod() : MS::Game::Scripting::Interfaces::CreatureScript("boss_herod") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -133,10 +133,10 @@ public:
     };
 };
 
-class mob_scarlet_trainee : public CreatureScript
+class mob_scarlet_trainee : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_scarlet_trainee() : CreatureScript("mob_scarlet_trainee") { }
+    mob_scarlet_trainee() : MS::Game::Scripting::Interfaces::CreatureScript("mob_scarlet_trainee") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

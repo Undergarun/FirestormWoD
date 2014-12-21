@@ -29,10 +29,10 @@ EndScriptData */
 
 #define MAX_ENCOUNTER   9
 
-class instance_wailing_caverns : public InstanceMapScript
+class instance_wailing_caverns : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
 public:
-    instance_wailing_caverns() : InstanceMapScript("instance_wailing_caverns", 43) { }
+    instance_wailing_caverns() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_wailing_caverns", 43) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {

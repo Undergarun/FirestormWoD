@@ -46,10 +46,10 @@ EndContentData */
 
 #define GOSSIP_SDA1 "Thanks, i need a Vitreous Focuser"
 
-class npcs_dithers_and_arbington : public CreatureScript
+class npcs_dithers_and_arbington : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npcs_dithers_and_arbington() : CreatureScript("npcs_dithers_and_arbington") { }
+    npcs_dithers_and_arbington() : MS::Game::Scripting::Interfaces::CreatureScript("npcs_dithers_and_arbington") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
@@ -119,10 +119,10 @@ enum eMyranda
 
 #define GOSSIP_ITEM_ILLUSION    "I am ready for the illusion, Myranda."
 
-class npc_myranda_the_hag : public CreatureScript
+class npc_myranda_the_hag : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_myranda_the_hag() : CreatureScript("npc_myranda_the_hag") { }
+    npc_myranda_the_hag() : MS::Game::Scripting::Interfaces::CreatureScript("npc_myranda_the_hag") { }
 
     bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
     {
@@ -158,10 +158,10 @@ public:
 ## npc_the_scourge_cauldron
 ######*/
 
-class npc_the_scourge_cauldron : public CreatureScript
+class npc_the_scourge_cauldron : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_the_scourge_cauldron() : CreatureScript("npc_the_scourge_cauldron") { }
+    npc_the_scourge_cauldron() : MS::Game::Scripting::Interfaces::CreatureScript("npc_the_scourge_cauldron") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -242,10 +242,10 @@ enum eAndorhalTower
     GO_BEACON_TORCH                             = 176093
 };
 
-class npc_andorhal_tower : public CreatureScript
+class npc_andorhal_tower : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_andorhal_tower() : CreatureScript("npc_andorhal_tower") { }
+    npc_andorhal_tower() : MS::Game::Scripting::Interfaces::CreatureScript("npc_andorhal_tower") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -288,10 +288,10 @@ enum eTruuen
     SAY_WP_6                    = -1800070   //Thank you my friend for making this possible. This is a day that I shall never forget! I think I will stay a while. Please return to High Priestess MacDonnell at the camp. I know that she'll be keenly interested to know of what has transpired here.
 };
 
-class npc_anchorite_truuen : public CreatureScript
+class npc_anchorite_truuen : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_anchorite_truuen() : CreatureScript("npc_anchorite_truuen") { }
+    npc_anchorite_truuen() : MS::Game::Scripting::Interfaces::CreatureScript("npc_anchorite_truuen") { }
 
     bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {

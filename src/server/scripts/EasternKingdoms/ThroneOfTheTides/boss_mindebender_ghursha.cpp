@@ -64,10 +64,10 @@ enum Adds
     NPC_MIND_FOG        = 40861,
 };
 
-class boss_erunak_stonespeaker : public CreatureScript
+class boss_erunak_stonespeaker : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_erunak_stonespeaker() : CreatureScript("boss_erunak_stonespeaker") { }
+        boss_erunak_stonespeaker() : MS::Game::Scripting::Interfaces::CreatureScript("boss_erunak_stonespeaker") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -200,10 +200,10 @@ class boss_erunak_stonespeaker : public CreatureScript
         };
 };
 
-class boss_mindbender_ghursha : public CreatureScript
+class boss_mindbender_ghursha : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_mindbender_ghursha() : CreatureScript("boss_mindbender_ghursha") { }
+        boss_mindbender_ghursha() : MS::Game::Scripting::Interfaces::CreatureScript("boss_mindbender_ghursha") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -323,10 +323,10 @@ class boss_mindbender_ghursha : public CreatureScript
         };
 };
 
-class npc_erunak_earth_shards : public CreatureScript
+class npc_erunak_earth_shards : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_erunak_earth_shards() : CreatureScript("npc_erunak_earth_shards") { }
+        npc_erunak_earth_shards() : MS::Game::Scripting::Interfaces::CreatureScript("npc_erunak_earth_shards") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -362,10 +362,10 @@ class npc_erunak_earth_shards : public CreatureScript
         };
 };
 
-class npc_ghursha_mind_fog : public CreatureScript
+class npc_ghursha_mind_fog : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_ghursha_mind_fog() : CreatureScript("npc_ghursha_mind_fog") { }
+        npc_ghursha_mind_fog() : MS::Game::Scripting::Interfaces::CreatureScript("npc_ghursha_mind_fog") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {

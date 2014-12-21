@@ -47,10 +47,10 @@ enum Phases
 #define ACTION_SAFETY_DANCE_FAIL 1
 #define DATA_SAFETY_DANCE        19962139
 
-class boss_heigan : public CreatureScript
+class boss_heigan : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_heigan() : CreatureScript("boss_heigan") { }
+    boss_heigan() : MS::Game::Scripting::Interfaces::CreatureScript("boss_heigan") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -170,10 +170,10 @@ public:
 
 };
 
-class spell_heigan_eruption : public SpellScriptLoader
+class spell_heigan_eruption: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_heigan_eruption() : SpellScriptLoader("spell_heigan_eruption") { }
+        spell_heigan_eruption() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_heigan_eruption") { }
 
         class spell_heigan_eruption_SpellScript : public SpellScript
         {
@@ -203,10 +203,10 @@ class spell_heigan_eruption : public SpellScriptLoader
         }
 };
 
-class achievement_safety_dance : public AchievementCriteriaScript
+class achievement_safety_dance : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_safety_dance() : AchievementCriteriaScript("achievement_safety_dance")
+        achievement_safety_dance() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_safety_dance")
         {
         }
 

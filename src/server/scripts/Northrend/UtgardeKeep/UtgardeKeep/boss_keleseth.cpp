@@ -73,10 +73,10 @@ float const SkeletonSpawnPoint[1][2] =
 
 float AttackLoc[3]= {197.636f, 194.046f, 40.8164f};
 
-class npc_frost_tomb : public CreatureScript
+class npc_frost_tomb : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_frost_tomb() : CreatureScript("npc_frost_tomb") {}
+    npc_frost_tomb() : MS::Game::Scripting::Interfaces::CreatureScript("npc_frost_tomb") {}
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -109,10 +109,10 @@ public:
     };
 };
 
-class boss_keleseth : public CreatureScript
+class boss_keleseth : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_keleseth() : CreatureScript("boss_keleseth") {}
+    boss_keleseth() : MS::Game::Scripting::Interfaces::CreatureScript("boss_keleseth") {}
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -244,10 +244,10 @@ public:
     };
 };
 
-class npc_vrykul_skeleton : public CreatureScript
+class npc_vrykul_skeleton : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_vrykul_skeleton() : CreatureScript("npc_vrykul_skeleton") {}
+    npc_vrykul_skeleton() : MS::Game::Scripting::Interfaces::CreatureScript("npc_vrykul_skeleton") {}
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -339,10 +339,10 @@ public:
     };
 };
 
-class spell_frost_tomb : public SpellScriptLoader
+class spell_frost_tomb: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_frost_tomb() : SpellScriptLoader("spell_frost_tomb") {}
+        spell_frost_tomb() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_frost_tomb") {}
 
         class spell_frost_tomb_AuraScript : public AuraScript
         {
@@ -368,10 +368,10 @@ class spell_frost_tomb : public SpellScriptLoader
 };
 
 
-class achievement_on_the_rocks : public AchievementCriteriaScript
+class achievement_on_the_rocks : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_on_the_rocks() : AchievementCriteriaScript("achievement_on_the_rocks") {}
+        achievement_on_the_rocks() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_on_the_rocks") {}
 
         bool OnCheck(Player* /*source*/, Unit* target)
         {

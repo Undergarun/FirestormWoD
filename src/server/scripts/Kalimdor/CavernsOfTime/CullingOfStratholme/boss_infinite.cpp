@@ -31,10 +31,10 @@ enum corruptorData
     NPC_TIME_RIFT           = 28409,
 };
 
-class boss_infinite_corruptor : public CreatureScript
+class boss_infinite_corruptor : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_infinite_corruptor() : CreatureScript("boss_infinite_corruptor") { }
+    boss_infinite_corruptor() : MS::Game::Scripting::Interfaces::CreatureScript("boss_infinite_corruptor") { }
 
     struct boss_infinite_corruptorAI : public ScriptedAI
     {

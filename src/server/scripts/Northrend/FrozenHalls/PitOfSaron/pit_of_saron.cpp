@@ -38,10 +38,10 @@ enum eEvents
     EVENT_TACTICAL_BLINK        = 2,
 };
 
-class mob_ymirjar_flamebearer : public CreatureScript
+class mob_ymirjar_flamebearer : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_ymirjar_flamebearer() : CreatureScript("mob_ymirjar_flamebearer") { }
+        mob_ymirjar_flamebearer() : MS::Game::Scripting::Interfaces::CreatureScript("mob_ymirjar_flamebearer") { }
 
         struct mob_ymirjar_flamebearerAI: public ScriptedAI
         {
@@ -103,10 +103,10 @@ class mob_ymirjar_flamebearer : public CreatureScript
         }
 };
 
-class mob_iceborn_protodrake : public CreatureScript
+class mob_iceborn_protodrake : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_iceborn_protodrake() : CreatureScript("mob_iceborn_protodrake") { }
+        mob_iceborn_protodrake() : MS::Game::Scripting::Interfaces::CreatureScript("mob_iceborn_protodrake") { }
 
         struct mob_iceborn_protodrakeAI: public ScriptedAI
         {
@@ -152,10 +152,10 @@ class mob_iceborn_protodrake : public CreatureScript
         }
 };
 
-class mob_geist_ambusher : public CreatureScript
+class mob_geist_ambusher : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_geist_ambusher() : CreatureScript("mob_geist_ambusher") { }
+        mob_geist_ambusher() : MS::Game::Scripting::Interfaces::CreatureScript("mob_geist_ambusher") { }
 
         struct mob_geist_ambusherAI: public ScriptedAI
         {
@@ -205,10 +205,10 @@ class mob_geist_ambusher : public CreatureScript
         }
 };
 
-class spell_trash_mob_glacial_strike : public SpellScriptLoader
+class spell_trash_mob_glacial_strike: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_trash_mob_glacial_strike() : SpellScriptLoader("spell_trash_mob_glacial_strike") { }
+        spell_trash_mob_glacial_strike() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_trash_mob_glacial_strike") { }
 
         class spell_trash_mob_glacial_strike_AuraScript : public AuraScript
         {

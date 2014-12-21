@@ -111,10 +111,10 @@ static Location BrokenWP[]=
 
 const uint32 spawnEntries[4]= { 23523, 23318, 23524 };
 
-class mob_ashtongue_channeler : public CreatureScript
+class mob_ashtongue_channeler : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_ashtongue_channeler() : CreatureScript("mob_ashtongue_channeler") { }
+    mob_ashtongue_channeler() : MS::Game::Scripting::Interfaces::CreatureScript("mob_ashtongue_channeler") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -140,10 +140,10 @@ public:
 
 };
 
-class mob_ashtongue_sorcerer : public CreatureScript
+class mob_ashtongue_sorcerer : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_ashtongue_sorcerer() : CreatureScript("mob_ashtongue_sorcerer") { }
+    mob_ashtongue_sorcerer() : MS::Game::Scripting::Interfaces::CreatureScript("mob_ashtongue_sorcerer") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -198,10 +198,10 @@ public:
 
 };
 
-class boss_shade_of_akama : public CreatureScript
+class boss_shade_of_akama : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_shade_of_akama() : CreatureScript("boss_shade_of_akama") { }
+    boss_shade_of_akama() : MS::Game::Scripting::Interfaces::CreatureScript("boss_shade_of_akama") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -545,10 +545,10 @@ void mob_ashtongue_sorcerer::mob_ashtongue_sorcererAI::JustDied(Unit* /*killer*/
     else sLog->outError(LOG_FILTER_TSCR, "SD2 ERROR: Sorcerer dead but unable to increment DeathCount for Shade of Akama.");
 }
 
-class npc_akama_shade : public CreatureScript
+class npc_akama_shade : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_akama_shade() : CreatureScript("npc_akama_shade") { }
+    npc_akama_shade() : MS::Game::Scripting::Interfaces::CreatureScript("npc_akama_shade") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {

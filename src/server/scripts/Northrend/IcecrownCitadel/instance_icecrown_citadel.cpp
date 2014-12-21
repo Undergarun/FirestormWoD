@@ -91,10 +91,10 @@ WeeklyQuest const WeeklyQuestData[WeeklyNPCs] =
     {NPC_VALITHRIA_DREAMWALKER_QUEST, {QUEST_RESPITE_FOR_A_TORNMENTED_SOUL_10, QUEST_RESPITE_FOR_A_TORNMENTED_SOUL_25}}, // Respite for a Tormented Soul
 };
 
-class instance_icecrown_citadel : public InstanceMapScript
+class instance_icecrown_citadel : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
     public:
-        instance_icecrown_citadel() : InstanceMapScript(ICCScriptName, 631) { }
+        instance_icecrown_citadel() : MS::Game::Scripting::Interfaces::InstanceMapScript(ICCScriptName, 631) { }
 
         struct instance_icecrown_citadel_InstanceMapScript : public InstanceScript
         {

@@ -213,10 +213,10 @@ class DaranavanMoveEvent : public BasicEvent
         Creature& _darnavan;
 };
 
-class boss_lady_deathwhisper : public CreatureScript
+class boss_lady_deathwhisper : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_lady_deathwhisper() : CreatureScript("boss_lady_deathwhisper") { }
+        boss_lady_deathwhisper() : MS::Game::Scripting::Interfaces::CreatureScript("boss_lady_deathwhisper") { }
 
         struct boss_lady_deathwhisperAI : public BossAI
         {
@@ -639,10 +639,10 @@ class boss_lady_deathwhisper : public CreatureScript
 
 typedef boss_lady_deathwhisper::boss_lady_deathwhisperAI DeathwisperAI;
 
-class npc_cult_fanatic : public CreatureScript
+class npc_cult_fanatic : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_cult_fanatic() : CreatureScript("npc_cult_fanatic") { }
+        npc_cult_fanatic() : MS::Game::Scripting::Interfaces::CreatureScript("npc_cult_fanatic") { }
 
         struct npc_cult_fanaticAI : public ScriptedAI
         {
@@ -722,10 +722,10 @@ class npc_cult_fanatic : public CreatureScript
         }
 };
 
-class npc_cult_adherent : public CreatureScript
+class npc_cult_adherent : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_cult_adherent() : CreatureScript("npc_cult_adherent") { }
+        npc_cult_adherent() : MS::Game::Scripting::Interfaces::CreatureScript("npc_cult_adherent") { }
 
         struct npc_cult_adherentAI : public ScriptedAI
         {
@@ -814,10 +814,10 @@ class npc_cult_adherent : public CreatureScript
         }
 };
 
-class npc_vengeful_shade : public CreatureScript
+class npc_vengeful_shade : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_vengeful_shade() : CreatureScript("npc_vengeful_shade") { }
+        npc_vengeful_shade() : MS::Game::Scripting::Interfaces::CreatureScript("npc_vengeful_shade") { }
 
         struct npc_vengeful_shadeAI : public ScriptedAI
         {
@@ -854,10 +854,10 @@ class npc_vengeful_shade : public CreatureScript
         }
 };
 
-class npc_darnavan : public CreatureScript
+class npc_darnavan : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_darnavan() : CreatureScript("npc_darnavan") { }
+        npc_darnavan() : MS::Game::Scripting::Interfaces::CreatureScript("npc_darnavan") { }
 
         struct npc_darnavanAI : public ScriptedAI
         {
@@ -975,10 +975,10 @@ class npc_darnavan : public CreatureScript
         }
 };
 
-class spell_deathwhisper_mana_barrier : public SpellScriptLoader
+class spell_deathwhisper_mana_barrier: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_deathwhisper_mana_barrier() : SpellScriptLoader("spell_deathwhisper_mana_barrier") { }
+        spell_deathwhisper_mana_barrier() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_deathwhisper_mana_barrier") { }
 
         class spell_deathwhisper_mana_barrier_AuraScript : public AuraScript
         {
@@ -1007,10 +1007,10 @@ class spell_deathwhisper_mana_barrier : public SpellScriptLoader
         }
 };
 
-class spell_cultist_dark_martyrdom : public SpellScriptLoader
+class spell_cultist_dark_martyrdom: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_cultist_dark_martyrdom() : SpellScriptLoader("spell_cultist_dark_martyrdom") { }
+        spell_cultist_dark_martyrdom() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_cultist_dark_martyrdom") { }
 
         class spell_cultist_dark_martyrdom_SpellScript : public SpellScript
         {

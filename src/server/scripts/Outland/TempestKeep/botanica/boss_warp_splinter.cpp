@@ -64,7 +64,7 @@ float treant_pos[6][3] =
 /*#####
 # mob_treant (Sapling)
 #####*/
-class mob_warp_splinter_treant : public CreatureScript
+class mob_warp_splinter_treant : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
@@ -128,7 +128,7 @@ class mob_warp_splinter_treant : public CreatureScript
 /*#####
 # boss_warp_splinter
 #####*/
-class boss_warp_splinter : public CreatureScript
+class boss_warp_splinter : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 

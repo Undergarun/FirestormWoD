@@ -87,10 +87,10 @@ enum Events
     EVENT_ENABLE_ATTACK     = 10,
 };
 
-class boss_rotface : public CreatureScript
+class boss_rotface : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_rotface() : CreatureScript("boss_rotface") { }
+        boss_rotface() : MS::Game::Scripting::Interfaces::CreatureScript("boss_rotface") { }
 
         struct boss_rotfaceAI : public BossAI
         {
@@ -235,10 +235,10 @@ class boss_rotface : public CreatureScript
         }
 };
 
-class npc_little_ooze : public CreatureScript
+class npc_little_ooze : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_little_ooze() : CreatureScript("npc_little_ooze") { }
+        npc_little_ooze() : MS::Game::Scripting::Interfaces::CreatureScript("npc_little_ooze") { }
 
         struct npc_little_oozeAI : public ScriptedAI
         {
@@ -293,10 +293,10 @@ class npc_little_ooze : public CreatureScript
         }
 };
 
-class npc_big_ooze : public CreatureScript
+class npc_big_ooze : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_big_ooze() : CreatureScript("npc_big_ooze") { }
+        npc_big_ooze() : MS::Game::Scripting::Interfaces::CreatureScript("npc_big_ooze") { }
 
         struct npc_big_oozeAI : public ScriptedAI
         {
@@ -374,10 +374,10 @@ class npc_big_ooze : public CreatureScript
         }
 };
 
-class npc_precious_icc : public CreatureScript
+class npc_precious_icc : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_precious_icc() : CreatureScript("npc_precious_icc") { }
+        npc_precious_icc() : MS::Game::Scripting::Interfaces::CreatureScript("npc_precious_icc") { }
 
         struct npc_precious_iccAI : public ScriptedAI
         {
@@ -465,10 +465,10 @@ class npc_precious_icc : public CreatureScript
         }
 };
 
-class spell_rotface_ooze_flood : public SpellScriptLoader
+class spell_rotface_ooze_flood: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rotface_ooze_flood() : SpellScriptLoader("spell_rotface_ooze_flood") { }
+        spell_rotface_ooze_flood() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rotface_ooze_flood") { }
 
         class spell_rotface_ooze_flood_SpellScript : public SpellScript
         {
@@ -515,10 +515,10 @@ class spell_rotface_ooze_flood : public SpellScriptLoader
         }
 };
 
-class spell_rotface_mutated_infection : public SpellScriptLoader
+class spell_rotface_mutated_infection: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rotface_mutated_infection() : SpellScriptLoader("spell_rotface_mutated_infection") { }
+        spell_rotface_mutated_infection() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rotface_mutated_infection") { }
 
         class spell_rotface_mutated_infection_SpellScript : public SpellScript
         {
@@ -575,10 +575,10 @@ class spell_rotface_mutated_infection : public SpellScriptLoader
         }
 };
 
-class spell_rotface_little_ooze_combine : public SpellScriptLoader
+class spell_rotface_little_ooze_combine: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rotface_little_ooze_combine() : SpellScriptLoader("spell_rotface_little_ooze_combine") { }
+        spell_rotface_little_ooze_combine() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rotface_little_ooze_combine") { }
 
         class spell_rotface_little_ooze_combine_SpellScript : public SpellScript
         {
@@ -607,10 +607,10 @@ class spell_rotface_little_ooze_combine : public SpellScriptLoader
         }
 };
 
-class spell_rotface_large_ooze_combine : public SpellScriptLoader
+class spell_rotface_large_ooze_combine: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rotface_large_ooze_combine() : SpellScriptLoader("spell_rotface_large_ooze_combine") { }
+        spell_rotface_large_ooze_combine() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rotface_large_ooze_combine") { }
 
         class spell_rotface_large_ooze_combine_SpellScript : public SpellScript
         {
@@ -667,10 +667,10 @@ class spell_rotface_large_ooze_combine : public SpellScriptLoader
         }
 };
 
-class spell_rotface_large_ooze_buff_combine : public SpellScriptLoader
+class spell_rotface_large_ooze_buff_combine: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rotface_large_ooze_buff_combine() : SpellScriptLoader("spell_rotface_large_ooze_buff_combine") { }
+        spell_rotface_large_ooze_buff_combine() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rotface_large_ooze_buff_combine") { }
 
         class spell_rotface_large_ooze_buff_combine_SpellScript : public SpellScript
         {
@@ -722,10 +722,10 @@ class spell_rotface_large_ooze_buff_combine : public SpellScriptLoader
         }
 };
 
-class spell_rotface_unstable_ooze_explosion_init : public SpellScriptLoader
+class spell_rotface_unstable_ooze_explosion_init: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rotface_unstable_ooze_explosion_init() : SpellScriptLoader("spell_rotface_unstable_ooze_explosion_init") { }
+        spell_rotface_unstable_ooze_explosion_init() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rotface_unstable_ooze_explosion_init") { }
 
         class spell_rotface_unstable_ooze_explosion_init_SpellScript : public SpellScript
         {
@@ -762,10 +762,10 @@ class spell_rotface_unstable_ooze_explosion_init : public SpellScriptLoader
         }
 };
 
-class spell_rotface_unstable_ooze_explosion : public SpellScriptLoader
+class spell_rotface_unstable_ooze_explosion: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rotface_unstable_ooze_explosion() : SpellScriptLoader("spell_rotface_unstable_ooze_explosion") { }
+        spell_rotface_unstable_ooze_explosion() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rotface_unstable_ooze_explosion") { }
 
         class spell_rotface_unstable_ooze_explosion_SpellScript : public SpellScript
         {
@@ -799,10 +799,10 @@ class spell_rotface_unstable_ooze_explosion : public SpellScriptLoader
         }
 };
 
-class spell_rotface_unstable_ooze_explosion_suicide : public SpellScriptLoader
+class spell_rotface_unstable_ooze_explosion_suicide: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rotface_unstable_ooze_explosion_suicide() : SpellScriptLoader("spell_rotface_unstable_ooze_explosion_suicide") { }
+        spell_rotface_unstable_ooze_explosion_suicide() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rotface_unstable_ooze_explosion_suicide") { }
 
         class spell_rotface_unstable_ooze_explosion_suicide_AuraScript : public AuraScript
         {
@@ -832,10 +832,10 @@ class spell_rotface_unstable_ooze_explosion_suicide : public SpellScriptLoader
         }
 };
 
-class spell_rotface_slime_spray : public SpellScriptLoader
+class spell_rotface_slime_spray: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rotface_slime_spray() : SpellScriptLoader("spell_rotface_slime_spray") { }
+        spell_rotface_slime_spray() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rotface_slime_spray") { }
 
         class spell_rotface_slime_spray_SpellScript : public SpellScript
         {

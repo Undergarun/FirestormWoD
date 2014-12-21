@@ -46,10 +46,10 @@ enum eEvents
 };
 
 // Oondasta - 69161
-class boss_oondasta : public CreatureScript
+class boss_oondasta : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_oondasta() : CreatureScript("boss_oondasta") { }
+        boss_oondasta() : MS::Game::Scripting::Interfaces::CreatureScript("boss_oondasta") { }
 
         struct boss_oondastaAI : public ScriptedAI
         {
@@ -169,10 +169,10 @@ class TankCheck : public std::unary_function<Unit*, bool>
 };
 
 // Alpha Male - Tank Threat Multiplier 138390.
-class spell_alpha_male_threat : public SpellScriptLoader
+class spell_alpha_male_threat: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_alpha_male_threat() : SpellScriptLoader("spell_alpha_male_threat") { }
+        spell_alpha_male_threat() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_alpha_male_threat") { }
 
         class spell_alpha_male_threat_SpellScript : public SpellScript
         {

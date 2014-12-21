@@ -32,11 +32,11 @@ enum eSpells
     SPELL_AWAKEN_VAULT_WALKER   = 10258,
 };
 
-class instance_uldaman : public InstanceMapScript
+class instance_uldaman : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
     public:
         instance_uldaman()
-            : InstanceMapScript("instance_uldaman", 70)
+            : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_uldaman", 70)
         {
         }
 

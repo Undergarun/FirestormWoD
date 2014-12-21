@@ -4,12 +4,12 @@
 #include "Garrison.h"
 
 /// Garrison commands
-class garrison_commandscript : public CommandScript
+class garrison_commandscript: public MS::Game::Scripting::Interfaces::CommandScript
 {
     public:
         /// Constructor
         garrison_commandscript() 
-            : CommandScript("garrison_commandscript") 
+            : MS::Game::Scripting::Interfaces::CommandScript("garrison_commandscript")
         { 
 
         }

@@ -64,10 +64,10 @@ Position const SpawnPos[] =
     {5299.250f, 2035.998f, 707.7781f, 5.026548f},
 };
 
-class instance_halls_of_reflection : public InstanceMapScript
+class instance_halls_of_reflection : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
 public:
-    instance_halls_of_reflection() : InstanceMapScript("instance_halls_of_reflection", 668) { }
+    instance_halls_of_reflection() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_halls_of_reflection", 668) { }
 
     struct instance_halls_of_reflection_InstanceMapScript : public InstanceScript
     {

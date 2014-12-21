@@ -52,7 +52,7 @@ enum eSpells
     SPELL_FIRE_TAIL                = 35278,
 };
 
-class boss_nethermancer_sepethrea : public CreatureScript
+class boss_nethermancer_sepethrea : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
@@ -174,7 +174,7 @@ class boss_nethermancer_sepethrea : public CreatureScript
             return new boss_nethermancer_sepethreaAI(creature);
         }
 };
-class mob_ragin_flames : public CreatureScript
+class mob_ragin_flames : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
         mob_ragin_flames()

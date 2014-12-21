@@ -58,10 +58,10 @@ enum Events
     EVENT_FRENZY,
 };
 
-class boss_maexxna : public CreatureScript
+class boss_maexxna : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_maexxna() : CreatureScript("boss_maexxna") { }
+    boss_maexxna() : MS::Game::Scripting::Interfaces::CreatureScript("boss_maexxna") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -149,10 +149,10 @@ public:
 
 };
 
-class mob_webwrap : public CreatureScript
+class mob_webwrap : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_webwrap() : CreatureScript("mob_webwrap") { }
+    mob_webwrap() : MS::Game::Scripting::Interfaces::CreatureScript("mob_webwrap") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

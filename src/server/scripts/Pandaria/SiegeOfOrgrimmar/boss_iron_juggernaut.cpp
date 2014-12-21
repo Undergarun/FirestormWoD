@@ -35,10 +35,10 @@ enum eEvents
 {
 };
 
-class boss_iron_juggernaut : public CreatureScript
+class boss_iron_juggernaut : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_iron_juggernaut() : CreatureScript("boss_iron_juggernaut") { }
+        boss_iron_juggernaut() : MS::Game::Scripting::Interfaces::CreatureScript("boss_iron_juggernaut") { }
 
         struct boss_iron_juggernautAI : public BossAI
         {
@@ -66,10 +66,10 @@ class boss_iron_juggernaut : public CreatureScript
         }
 };
 
-class mob_crawler_mine : public CreatureScript
+class mob_crawler_mine : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_crawler_mine() : CreatureScript("mob_crawler_mine") { }
+        mob_crawler_mine() : MS::Game::Scripting::Interfaces::CreatureScript("mob_crawler_mine") { }
 
         struct mob_crawler_mineAI : public ScriptedAI
         {

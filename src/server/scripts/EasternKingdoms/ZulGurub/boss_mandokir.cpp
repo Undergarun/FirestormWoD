@@ -72,11 +72,11 @@ const Position chainedspiritPos[8] =
     {-12330.3f, -1878.41f, 127.32f, 3.89208f}
 };
 
-class boss_mandokir : public CreatureScript
+class boss_mandokir : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        boss_mandokir() : CreatureScript("boss_mandokir") { }
+        boss_mandokir() : MS::Game::Scripting::Interfaces::CreatureScript("boss_mandokir") { }
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -218,11 +218,11 @@ class boss_mandokir : public CreatureScript
         };
 };
 
-class npc_mandokir_chained_spirit : public CreatureScript
+class npc_mandokir_chained_spirit : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_mandokir_chained_spirit() : CreatureScript("npc_mandokir_chained_spirit") {}
+        npc_mandokir_chained_spirit() : MS::Game::Scripting::Interfaces::CreatureScript("npc_mandokir_chained_spirit") {}
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -290,11 +290,11 @@ class npc_mandokir_chained_spirit : public CreatureScript
         };
 };
 
-class npc_mandokir_ohgan : public CreatureScript
+class npc_mandokir_ohgan : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_mandokir_ohgan() : CreatureScript("npc_mandokir_ohgan") {}
+        npc_mandokir_ohgan() : MS::Game::Scripting::Interfaces::CreatureScript("npc_mandokir_ohgan") {}
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -329,10 +329,10 @@ class npc_mandokir_ohgan : public CreatureScript
         };
 };
 
-class spell_mandokir_bloodletting : public SpellScriptLoader
+class spell_mandokir_bloodletting: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_mandokir_bloodletting() : SpellScriptLoader("spell_mandokir_bloodletting") { }
+        spell_mandokir_bloodletting() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mandokir_bloodletting") { }
 
         class spell_mandokir_bloodletting_AuraScript : public AuraScript
         {
@@ -363,10 +363,10 @@ class spell_mandokir_bloodletting : public SpellScriptLoader
 
 typedef boss_mandokir::boss_mandokirAI MandokirAI;
 
-class achievement_ohganot_so_fast : public AchievementCriteriaScript
+class achievement_ohganot_so_fast : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_ohganot_so_fast() : AchievementCriteriaScript("achievement_ohganot_so_fast") { }
+        achievement_ohganot_so_fast() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_ohganot_so_fast") { }
 
         bool OnCheck(Player* source, Unit* target)
         {

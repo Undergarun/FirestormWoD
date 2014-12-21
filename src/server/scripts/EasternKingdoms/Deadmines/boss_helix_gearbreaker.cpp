@@ -80,10 +80,10 @@ const Position helixcrewPos[4] =
     {-285.63f,-504.04f,60.16f, 0.0f}
 };
 
-class boss_helix_gearbreaker : public CreatureScript
+class boss_helix_gearbreaker : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_helix_gearbreaker() : CreatureScript("boss_helix_gearbreaker") { }
+        boss_helix_gearbreaker() : MS::Game::Scripting::Interfaces::CreatureScript("boss_helix_gearbreaker") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -192,10 +192,10 @@ class boss_helix_gearbreaker : public CreatureScript
         };
 };
 
-class npc_lumbering_oaf : public CreatureScript
+class npc_lumbering_oaf : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_lumbering_oaf() : CreatureScript("npc_lumbering_oaf") { }
+        npc_lumbering_oaf() : MS::Game::Scripting::Interfaces::CreatureScript("npc_lumbering_oaf") { }
      
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -319,10 +319,10 @@ class npc_lumbering_oaf : public CreatureScript
         };
 };
 
-class npc_sticky_bomb : public CreatureScript
+class npc_sticky_bomb : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_sticky_bomb() : CreatureScript("npc_sticky_bomb") { }
+        npc_sticky_bomb() : MS::Game::Scripting::Interfaces::CreatureScript("npc_sticky_bomb") { }
      
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -391,10 +391,10 @@ class npc_sticky_bomb : public CreatureScript
         };
 };
 
-class npc_helix_crew : public CreatureScript
+class npc_helix_crew : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_helix_crew() : CreatureScript("npc_helix_crew") { }
+        npc_helix_crew() : MS::Game::Scripting::Interfaces::CreatureScript("npc_helix_crew") { }
      
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -488,10 +488,10 @@ class npc_helix_crew : public CreatureScript
         };
 };
 
-class spell_helix_chest_bomb : public SpellScriptLoader
+class spell_helix_chest_bomb: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_helix_chest_bomb() : SpellScriptLoader("spell_helix_chest_bomb") { }
+        spell_helix_chest_bomb() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_helix_chest_bomb") { }
 
 
         class spell_helix_chest_bomb_AuraScript : public AuraScript
@@ -516,10 +516,10 @@ class spell_helix_chest_bomb : public SpellScriptLoader
         }
 };
 
-class spell_helix_force_player_to_ride_oaf : public SpellScriptLoader
+class spell_helix_force_player_to_ride_oaf: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_helix_force_player_to_ride_oaf() : SpellScriptLoader("spell_helix_force_player_to_ride_oaf") { }
+        spell_helix_force_player_to_ride_oaf() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_helix_force_player_to_ride_oaf") { }
 
 
         class spell_helix_force_player_to_ride_oaf_SpellScript : public SpellScript

@@ -1005,11 +1005,11 @@ void OutdoorPvPAshran::SetBattleState(uint32 p_NewState)
     SendUpdateWorldState(WORLD_STATE_CONTROL_THE_FLAG, WORLD_STATE_DISABLED);
 }
 
-class OutdoorPvP_Ashran : public OutdoorPvPScript
+class OutdoorPvP_Ashran : public MS::Game::Scripting::Interfaces::OutdoorPvPScript
 {
     public:
 
-        OutdoorPvP_Ashran() : OutdoorPvPScript("outdoorpvp_ashran") { }
+        OutdoorPvP_Ashran() : MS::Game::Scripting::Interfaces::OutdoorPvPScript("outdoorpvp_ashran") { }
 
         OutdoorPvP* GetOutdoorPvP() const
         {
@@ -1018,10 +1018,10 @@ class OutdoorPvP_Ashran : public OutdoorPvPScript
 };
 
 // A'shran Herald - 84113
-class npc_ashran_herald : public CreatureScript
+class npc_ashran_herald : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_ashran_herald() : CreatureScript("npc_ashran_herald") { }
+        npc_ashran_herald() : MS::Game::Scripting::Interfaces::CreatureScript("npc_ashran_herald") { }
 
         struct npc_ashran_heraldAI : public ScriptedAI
         {
@@ -1065,10 +1065,10 @@ class npc_ashran_herald : public CreatureScript
 };
 
 // SLG Generic MoP (Large AOI) - 68553
-class npc_slg_generic_mop : public CreatureScript
+class npc_slg_generic_mop : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_slg_generic_mop() : CreatureScript("npc_slg_generic_mop") { }
+        npc_slg_generic_mop() : MS::Game::Scripting::Interfaces::CreatureScript("npc_slg_generic_mop") { }
 
         struct npc_slg_generic_mopAI : public ScriptedAI
         {
@@ -1118,10 +1118,10 @@ class npc_slg_generic_mop : public CreatureScript
 
 // High Warlord Volrath - 82877
 // Grand Marshal Tremblade - 82876
-class npc_faction_boss : public CreatureScript
+class npc_faction_boss : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_faction_boss() : CreatureScript("npc_faction_boss") { }
+        npc_faction_boss() : MS::Game::Scripting::Interfaces::CreatureScript("npc_faction_boss") { }
 
         struct npc_faction_bossAI : public ScriptedAI
         {
@@ -1249,10 +1249,10 @@ class npc_faction_boss : public CreatureScript
 };
 
 // Blade Twister - 178795
-class spell_blade_twister : public SpellScriptLoader
+class spell_blade_twister: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_blade_twister() : SpellScriptLoader("spell_blade_twister") { }
+        spell_blade_twister() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_blade_twister") { }
 
         class spell_blade_twister_AuraScript : public AuraScript
         {

@@ -87,10 +87,10 @@ const Position jindoPos = {-11787.84f, -1698.48f, 52.9600f, 1.539f};
 
 const Position enterPos = {-11917.0f, -1230.14f, 92.29f, 4.78f};
 
-class boss_jindo_the_godbreaker : public CreatureScript
+class boss_jindo_the_godbreaker : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_jindo_the_godbreaker() : CreatureScript("boss_jindo_the_godbreaker") { }
+        boss_jindo_the_godbreaker() : MS::Game::Scripting::Interfaces::CreatureScript("boss_jindo_the_godbreaker") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -294,11 +294,11 @@ class boss_jindo_the_godbreaker : public CreatureScript
         };
 };
 
-class npc_jindo_gurubashi_spirit : public CreatureScript
+class npc_jindo_gurubashi_spirit : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_jindo_gurubashi_spirit() : CreatureScript("npc_jindo_gurubashi_spirit") {}
+        npc_jindo_gurubashi_spirit() : MS::Game::Scripting::Interfaces::CreatureScript("npc_jindo_gurubashi_spirit") {}
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -379,11 +379,11 @@ class npc_jindo_gurubashi_spirit : public CreatureScript
         };
 };
 
-class npc_jindo_spirit_of_hakkar : public CreatureScript
+class npc_jindo_spirit_of_hakkar : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_jindo_spirit_of_hakkar() : CreatureScript("npc_jindo_spirit_of_hakkar") {}
+        npc_jindo_spirit_of_hakkar() : MS::Game::Scripting::Interfaces::CreatureScript("npc_jindo_spirit_of_hakkar") {}
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -415,11 +415,11 @@ class npc_jindo_spirit_of_hakkar : public CreatureScript
         };
 };
 
-class npc_jindo_chains_of_hakkar : public CreatureScript
+class npc_jindo_chains_of_hakkar : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_jindo_chains_of_hakkar() : CreatureScript("npc_jindo_chains_of_hakkar") {}
+        npc_jindo_chains_of_hakkar() : MS::Game::Scripting::Interfaces::CreatureScript("npc_jindo_chains_of_hakkar") {}
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -451,11 +451,11 @@ class npc_jindo_chains_of_hakkar : public CreatureScript
         };
 };
 
-class npc_jindo_spirit_portal : public CreatureScript
+class npc_jindo_spirit_portal : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_jindo_spirit_portal() : CreatureScript("npc_jindo_spirit_portal") {}
+        npc_jindo_spirit_portal() : MS::Game::Scripting::Interfaces::CreatureScript("npc_jindo_spirit_portal") {}
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -476,10 +476,10 @@ class npc_jindo_spirit_portal : public CreatureScript
         };
 };
 
-class spell_jindo_shadow_spike_target : public SpellScriptLoader
+class spell_jindo_shadow_spike_target: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_jindo_shadow_spike_target() : SpellScriptLoader("spell_jindo_shadow_spike_target") { }
+        spell_jindo_shadow_spike_target() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_jindo_shadow_spike_target") { }
 
 
         class spell_jindo_shadow_spike_target_SpellScript : public SpellScript
@@ -519,10 +519,10 @@ class SpiritPortalCheck
         uint32 i_entry;
 };
 
-class spell_jindo_summon_spirit_target : public SpellScriptLoader
+class spell_jindo_summon_spirit_target: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_jindo_summon_spirit_target() : SpellScriptLoader("spell_jindo_summon_spirit_target") { }
+        spell_jindo_summon_spirit_target() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_jindo_summon_spirit_target") { }
 
 
         class spell_jindo_summon_spirit_target_SpellScript : public SpellScript
@@ -557,10 +557,10 @@ class spell_jindo_summon_spirit_target : public SpellScriptLoader
         }
 };
 
-class spell_jindo_spirit_warrior_gaze_target : public SpellScriptLoader
+class spell_jindo_spirit_warrior_gaze_target: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_jindo_spirit_warrior_gaze_target() : SpellScriptLoader("spell_jindo_spirit_warrior_gaze_target") { }
+        spell_jindo_spirit_warrior_gaze_target() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_jindo_spirit_warrior_gaze_target") { }
 
         class spell_jindo_spirit_warrior_gaze_target_SpellScript : public SpellScript
         {

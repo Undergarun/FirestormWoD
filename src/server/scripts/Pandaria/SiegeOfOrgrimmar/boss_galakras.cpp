@@ -34,10 +34,10 @@ enum eActions
 {
 };
 
-class boss_galakras : public CreatureScript
+class boss_galakras : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_galakras() : CreatureScript("boss_galakras") { }
+        boss_galakras() : MS::Game::Scripting::Interfaces::CreatureScript("boss_galakras") { }
 
         struct boss_galakrasAI : public BossAI
         {
@@ -56,10 +56,10 @@ class boss_galakras : public CreatureScript
         }
 };
 
-class mob_master_cannoneer_dagryn : public CreatureScript
+class mob_master_cannoneer_dagryn : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_master_cannoneer_dagryn() : CreatureScript("mob_master_cannoneer_dagryn") { }
+        mob_master_cannoneer_dagryn() : MS::Game::Scripting::Interfaces::CreatureScript("mob_master_cannoneer_dagryn") { }
 
         struct mob_master_cannoneer_dagrynAI : public ScriptedAI
         {
@@ -78,10 +78,10 @@ class mob_master_cannoneer_dagryn : public CreatureScript
         }
 };
 
-class mob_high_enforcer_thranok : public CreatureScript
+class mob_high_enforcer_thranok : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_high_enforcer_thranok() : CreatureScript("mob_high_enforcer_thranok") { }
+        mob_high_enforcer_thranok() : MS::Game::Scripting::Interfaces::CreatureScript("mob_high_enforcer_thranok") { }
 
         struct mob_high_enforcer_thranokAI : public ScriptedAI
         {
@@ -100,10 +100,10 @@ class mob_high_enforcer_thranok : public CreatureScript
         }
 };
 
-class mob_lieutenant_krugruk : public CreatureScript
+class mob_lieutenant_krugruk : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_lieutenant_krugruk() : CreatureScript("mob_lieutenant_krugruk") { }
+        mob_lieutenant_krugruk() : MS::Game::Scripting::Interfaces::CreatureScript("mob_lieutenant_krugruk") { }
 
         struct mob_lieutenant_krugrukAI : public ScriptedAI
         {
@@ -122,10 +122,10 @@ class mob_lieutenant_krugruk : public CreatureScript
         }
 };
 
-class mob_korgra_the_snake: public CreatureScript
+class mob_korgra_the_snake : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_korgra_the_snake() : CreatureScript("mob_korgra_the_snake") { }
+        mob_korgra_the_snake() : MS::Game::Scripting::Interfaces::CreatureScript("mob_korgra_the_snake") { }
 
         struct mob_korgra_the_snakeAI : public ScriptedAI
         {
@@ -144,10 +144,10 @@ class mob_korgra_the_snake: public CreatureScript
         }
 };
 
-class mob_dragonmaw_bonecrusher : public CreatureScript
+class mob_dragonmaw_bonecrusher : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_dragonmaw_bonecrusher() : CreatureScript("mob_dragonmaw_bonecrusher") { }
+        mob_dragonmaw_bonecrusher() : MS::Game::Scripting::Interfaces::CreatureScript("mob_dragonmaw_bonecrusher") { }
 
         struct mob_dragonmaw_bonecrusherAI : public ScriptedAI
         {

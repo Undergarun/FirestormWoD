@@ -44,10 +44,10 @@ enum eEvents
 {
 };
 
-class boss_earthbreaker_haromm : public CreatureScript
+class boss_earthbreaker_haromm : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_earthbreaker_haromm() : CreatureScript("boss_earthbreaker_haromm") { }
+        boss_earthbreaker_haromm() : MS::Game::Scripting::Interfaces::CreatureScript("boss_earthbreaker_haromm") { }
 
         struct boss_earthbreaker_harommAI : public BossAI
         {
@@ -77,10 +77,10 @@ class boss_earthbreaker_haromm : public CreatureScript
         }
 };
 
-class boss_bloodclaw : public CreatureScript
+class boss_bloodclaw : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_bloodclaw() : CreatureScript("boss_bloodclaw") { }
+        boss_bloodclaw() : MS::Game::Scripting::Interfaces::CreatureScript("boss_bloodclaw") { }
 
         struct boss_bloodclawAI : public BossAI
         {
@@ -110,10 +110,10 @@ class boss_bloodclaw : public CreatureScript
         }
 };
 
-class mob_darkfang : public CreatureScript
+class mob_darkfang : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_darkfang() : CreatureScript("mob_darkfang") { }
+        mob_darkfang() : MS::Game::Scripting::Interfaces::CreatureScript("mob_darkfang") { }
 
         struct mob_darkfangAI : public ScriptedAI
         {
@@ -143,10 +143,10 @@ class mob_darkfang : public CreatureScript
         }
 };
 
-class mob_foul_slime : public CreatureScript
+class mob_foul_slime : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_foul_slime() : CreatureScript("mob_foul_slime") { }
+        mob_foul_slime() : MS::Game::Scripting::Interfaces::CreatureScript("mob_foul_slime") { }
 
         struct mob_foul_slimeAI : public ScriptedAI
         {

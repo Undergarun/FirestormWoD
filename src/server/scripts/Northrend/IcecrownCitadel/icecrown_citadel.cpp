@@ -588,10 +588,10 @@ enum AshenRingRecover
     MAX_RINGS_NUMBER        = 20,
 };
 
-class npc_icc_ring_recover : public CreatureScript
+class npc_icc_ring_recover : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_icc_ring_recover() : CreatureScript("npc_icc_ring_recover") { }
+        npc_icc_ring_recover() : MS::Game::Scripting::Interfaces::CreatureScript("npc_icc_ring_recover") { }
 
         bool OnGossipHello(Player* player, Creature* creature)
         {
@@ -698,10 +698,10 @@ enum BuffRemoverEnum
     NPC_TEXT_ID_2   = 15606
 };
 
-class npc_icc_buff_remover : public CreatureScript
+class npc_icc_buff_remover : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_icc_buff_remover() : CreatureScript("npc_icc_buff_remover") { }
+        npc_icc_buff_remover() : MS::Game::Scripting::Interfaces::CreatureScript("npc_icc_buff_remover") { }
 
         bool OnGossipHello(Player* player, Creature* creature)
         {
@@ -737,10 +737,10 @@ class npc_icc_buff_remover : public CreatureScript
 };
 
 // at Light's Hammer
-class npc_highlord_tirion_fordring_lh : public CreatureScript
+class npc_highlord_tirion_fordring_lh : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_highlord_tirion_fordring_lh() : CreatureScript("npc_highlord_tirion_fordring_lh") { }
+        npc_highlord_tirion_fordring_lh() : MS::Game::Scripting::Interfaces::CreatureScript("npc_highlord_tirion_fordring_lh") { }
 
         struct npc_highlord_tirion_fordringAI : public ScriptedAI
         {
@@ -948,10 +948,10 @@ class npc_highlord_tirion_fordring_lh : public CreatureScript
         }
 };
 
-class npc_rotting_frost_giant : public CreatureScript
+class npc_rotting_frost_giant : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_rotting_frost_giant() : CreatureScript("npc_rotting_frost_giant") { }
+        npc_rotting_frost_giant() : MS::Game::Scripting::Interfaces::CreatureScript("npc_rotting_frost_giant") { }
 
         struct npc_rotting_frost_giantAI : public ScriptedAI
         {
@@ -1020,10 +1020,10 @@ class npc_rotting_frost_giant : public CreatureScript
         }
 };
 
-class npc_frost_freeze_trap : public CreatureScript
+class npc_frost_freeze_trap : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_frost_freeze_trap() : CreatureScript("npc_frost_freeze_trap") { }
+        npc_frost_freeze_trap() : MS::Game::Scripting::Interfaces::CreatureScript("npc_frost_freeze_trap") { }
 
         struct npc_frost_freeze_trapAI: public Scripted_NoMovementAI
         {
@@ -1065,10 +1065,10 @@ class npc_frost_freeze_trap : public CreatureScript
         }
 };
 
-class npc_alchemist_adrianna : public CreatureScript
+class npc_alchemist_adrianna : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_alchemist_adrianna() : CreatureScript("npc_alchemist_adrianna") { }
+        npc_alchemist_adrianna() : MS::Game::Scripting::Interfaces::CreatureScript("npc_alchemist_adrianna") { }
 
         bool OnGossipHello(Player* player, Creature* creature)
         {
@@ -1079,10 +1079,10 @@ class npc_alchemist_adrianna : public CreatureScript
         }
 };
 
-class boss_sister_svalna : public CreatureScript
+class boss_sister_svalna : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_sister_svalna() : CreatureScript("boss_sister_svalna") { }
+        boss_sister_svalna() : MS::Game::Scripting::Interfaces::CreatureScript("boss_sister_svalna") { }
 
         struct boss_sister_svalnaAI : public BossAI
         {
@@ -1291,10 +1291,10 @@ class boss_sister_svalna : public CreatureScript
         }
 };
 
-class npc_crok_scourgebane : public CreatureScript
+class npc_crok_scourgebane : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_crok_scourgebane() : CreatureScript("npc_crok_scourgebane") { }
+        npc_crok_scourgebane() : MS::Game::Scripting::Interfaces::CreatureScript("npc_crok_scourgebane") { }
 
         struct npc_crok_scourgebaneAI : public npc_escortAI
         {
@@ -1699,10 +1699,10 @@ struct npc_argent_captainAI : public ScriptedAI
         bool _firstDeath;
 };
 
-class npc_captain_arnath : public CreatureScript
+class npc_captain_arnath : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_captain_arnath() : CreatureScript("npc_captain_arnath") { }
+        npc_captain_arnath() : MS::Game::Scripting::Interfaces::CreatureScript("npc_captain_arnath") { }
 
         struct npc_captain_arnathAI : public npc_argent_captainAI
         {
@@ -1780,10 +1780,10 @@ class npc_captain_arnath : public CreatureScript
         }
 };
 
-class npc_captain_brandon : public CreatureScript
+class npc_captain_brandon : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_captain_brandon() : CreatureScript("npc_captain_brandon") { }
+        npc_captain_brandon() : MS::Game::Scripting::Interfaces::CreatureScript("npc_captain_brandon") { }
 
         struct npc_captain_brandonAI : public npc_argent_captainAI
         {
@@ -1848,10 +1848,10 @@ class npc_captain_brandon : public CreatureScript
         }
 };
 
-class npc_captain_grondel : public CreatureScript
+class npc_captain_grondel : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_captain_grondel() : CreatureScript("npc_captain_grondel") { }
+        npc_captain_grondel() : MS::Game::Scripting::Interfaces::CreatureScript("npc_captain_grondel") { }
 
         struct npc_captain_grondelAI : public npc_argent_captainAI
         {
@@ -1915,10 +1915,10 @@ class npc_captain_grondel : public CreatureScript
         }
 };
 
-class npc_captain_rupert : public CreatureScript
+class npc_captain_rupert : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_captain_rupert() : CreatureScript("npc_captain_rupert") { }
+        npc_captain_rupert() : MS::Game::Scripting::Interfaces::CreatureScript("npc_captain_rupert") { }
 
         struct npc_captain_rupertAI : public npc_argent_captainAI
         {
@@ -1978,10 +1978,10 @@ class npc_captain_rupert : public CreatureScript
         }
 };
 
-class npc_impaling_spear : public CreatureScript
+class npc_impaling_spear : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_impaling_spear() : CreatureScript("npc_impaling_spear") { }
+        npc_impaling_spear() : MS::Game::Scripting::Interfaces::CreatureScript("npc_impaling_spear") { }
 
         struct npc_impaling_spearAI : public CreatureAI
         {
@@ -2016,10 +2016,10 @@ class npc_impaling_spear : public CreatureScript
         }
 };
 
-class npc_arthas_teleport_visual : public CreatureScript
+class npc_arthas_teleport_visual : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_arthas_teleport_visual() : CreatureScript("npc_arthas_teleport_visual") { }
+        npc_arthas_teleport_visual() : MS::Game::Scripting::Interfaces::CreatureScript("npc_arthas_teleport_visual") { }
 
         struct npc_arthas_teleport_visualAI : public NullCreatureAI
         {
@@ -2066,10 +2066,10 @@ class npc_arthas_teleport_visual : public CreatureScript
         }
 };
 
-class spell_icc_stoneform : public SpellScriptLoader
+class spell_icc_stoneform: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_icc_stoneform() : SpellScriptLoader("spell_icc_stoneform") { }
+        spell_icc_stoneform() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_icc_stoneform") { }
 
         class spell_icc_stoneform_AuraScript : public AuraScript
         {
@@ -2108,10 +2108,10 @@ class spell_icc_stoneform : public SpellScriptLoader
         }
 };
 
-class spell_icc_sprit_alarm : public SpellScriptLoader
+class spell_icc_sprit_alarm: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_icc_sprit_alarm() : SpellScriptLoader("spell_icc_sprit_alarm") { }
+        spell_icc_sprit_alarm() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_icc_sprit_alarm") { }
 
         class spell_icc_sprit_alarm_SpellScript : public SpellScript
         {
@@ -2193,10 +2193,10 @@ class DeathPlagueTargetSelector
         Unit* _caster;
 };
 
-class spell_frost_giant_death_plague : public SpellScriptLoader
+class spell_frost_giant_death_plague: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_frost_giant_death_plague() : SpellScriptLoader("spell_frost_giant_death_plague") { }
+        spell_frost_giant_death_plague() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_frost_giant_death_plague") { }
 
         class spell_frost_giant_death_plague_SpellScript : public SpellScript
         {
@@ -2255,10 +2255,10 @@ class spell_frost_giant_death_plague : public SpellScriptLoader
         }
 };
 
-class spell_icc_harvest_blight_specimen : public SpellScriptLoader
+class spell_icc_harvest_blight_specimen: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_icc_harvest_blight_specimen() : SpellScriptLoader("spell_icc_harvest_blight_specimen") { }
+        spell_icc_harvest_blight_specimen() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_icc_harvest_blight_specimen") { }
 
         class spell_icc_harvest_blight_specimen_SpellScript : public SpellScript
         {
@@ -2299,10 +2299,10 @@ class AliveCheck
         }
 };
 
-class spell_svalna_revive_champion : public SpellScriptLoader
+class spell_svalna_revive_champion: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_svalna_revive_champion() : SpellScriptLoader("spell_svalna_revive_champion") { }
+        spell_svalna_revive_champion() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_svalna_revive_champion") { }
 
         class spell_svalna_revive_champion_SpellScript : public SpellScript
         {
@@ -2342,10 +2342,10 @@ class spell_svalna_revive_champion : public SpellScriptLoader
         }
 };
 
-class spell_svalna_remove_spear : public SpellScriptLoader
+class spell_svalna_remove_spear: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_svalna_remove_spear() : SpellScriptLoader("spell_svalna_remove_spear") { }
+        spell_svalna_remove_spear() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_svalna_remove_spear") { }
 
         class spell_svalna_remove_spear_SpellScript : public SpellScript
         {
@@ -2374,10 +2374,10 @@ class spell_svalna_remove_spear : public SpellScriptLoader
         }
 };
 
-class spell_icc_soul_missile : public SpellScriptLoader
+class spell_icc_soul_missile: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_icc_soul_missile() : SpellScriptLoader("spell_icc_soul_missile") { }
+        spell_icc_soul_missile() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_icc_soul_missile") { }
 
         class spell_icc_soul_missile_SpellScript : public SpellScript
         {
@@ -2401,10 +2401,10 @@ class spell_icc_soul_missile : public SpellScriptLoader
         }
 };
 
-class at_icc_saurfang_portal : public AreaTriggerScript
+class at_icc_saurfang_portal : public MS::Game::Scripting::Interfaces::AreaTriggerScript
 {
     public:
-        at_icc_saurfang_portal() : AreaTriggerScript("at_icc_saurfang_portal") { }
+        at_icc_saurfang_portal() : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_icc_saurfang_portal") { }
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
         {
@@ -2435,10 +2435,10 @@ class at_icc_saurfang_portal : public AreaTriggerScript
         }
 };
 
-class at_icc_shutdown_traps : public AreaTriggerScript
+class at_icc_shutdown_traps : public MS::Game::Scripting::Interfaces::AreaTriggerScript
 {
     public:
-        at_icc_shutdown_traps() : AreaTriggerScript("at_icc_shutdown_traps") { }
+        at_icc_shutdown_traps() : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_icc_shutdown_traps") { }
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
         {
@@ -2448,10 +2448,10 @@ class at_icc_shutdown_traps : public AreaTriggerScript
         }
 };
 
-class at_icc_start_blood_quickening : public AreaTriggerScript
+class at_icc_start_blood_quickening : public MS::Game::Scripting::Interfaces::AreaTriggerScript
 {
     public:
-        at_icc_start_blood_quickening() : AreaTriggerScript("at_icc_start_blood_quickening") { }
+        at_icc_start_blood_quickening() : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_icc_start_blood_quickening") { }
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
         {
@@ -2462,10 +2462,10 @@ class at_icc_start_blood_quickening : public AreaTriggerScript
         }
 };
 
-class at_icc_start_frostwing_gauntlet : public AreaTriggerScript
+class at_icc_start_frostwing_gauntlet : public MS::Game::Scripting::Interfaces::AreaTriggerScript
 {
     public:
-        at_icc_start_frostwing_gauntlet() : AreaTriggerScript("at_icc_start_frostwing_gauntlet") { }
+        at_icc_start_frostwing_gauntlet() : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_icc_start_frostwing_gauntlet") { }
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
         {
@@ -2481,10 +2481,10 @@ enum WardEnums
     SAY_AGGRO   = 0
 };
 
-class npc_sindragosas_ward : public CreatureScript
+class npc_sindragosas_ward : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_sindragosas_ward() : CreatureScript("npc_sindragosas_ward") { }
+        npc_sindragosas_ward() : MS::Game::Scripting::Interfaces::CreatureScript("npc_sindragosas_ward") { }
 
         struct npc_sindragosas_wardAI : public ScriptedAI
         {
@@ -2690,10 +2690,10 @@ class npc_sindragosas_ward : public CreatureScript
         }
 };
 
-class at_icc_start_sindragosa_gauntlet : public AreaTriggerScript
+class at_icc_start_sindragosa_gauntlet : public MS::Game::Scripting::Interfaces::AreaTriggerScript
 {
     public:
-        at_icc_start_sindragosa_gauntlet() : AreaTriggerScript("at_icc_start_sindragosa_gauntlet") { }
+        at_icc_start_sindragosa_gauntlet() : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_icc_start_sindragosa_gauntlet") { }
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
         {
@@ -2704,10 +2704,10 @@ class at_icc_start_sindragosa_gauntlet : public AreaTriggerScript
         }
 };
 
-class npc_blighted_abomination : public CreatureScript
+class npc_blighted_abomination : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_blighted_abomination() : CreatureScript("npc_blighted_abomination") { }
+        npc_blighted_abomination() : MS::Game::Scripting::Interfaces::CreatureScript("npc_blighted_abomination") { }
 
         struct npc_blighted_abominationAI : public ScriptedAI
         {
@@ -2765,10 +2765,10 @@ class npc_blighted_abomination : public CreatureScript
         }
 };
 
-class npc_vengeful_fleshreapert : public CreatureScript
+class npc_vengeful_fleshreapert : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_vengeful_fleshreapert() : CreatureScript("npc_vengeful_fleshreapert") { }
+        npc_vengeful_fleshreapert() : MS::Game::Scripting::Interfaces::CreatureScript("npc_vengeful_fleshreapert") { }
 
         struct npc_vengeful_fleshreapertAI : public ScriptedAI
         {
@@ -2822,10 +2822,10 @@ class npc_vengeful_fleshreapert : public CreatureScript
         }
 };
 
-class npc_plague_scientist : public CreatureScript
+class npc_plague_scientist : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_plague_scientist() : CreatureScript("npc_plague_scientist") { }
+        npc_plague_scientist() : MS::Game::Scripting::Interfaces::CreatureScript("npc_plague_scientist") { }
 
         struct npc_plague_scientistAI : public ScriptedAI
         {
@@ -2888,10 +2888,10 @@ class npc_plague_scientist : public CreatureScript
         }
 };
 
-class npc_pustulating_horror : public CreatureScript
+class npc_pustulating_horror : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_pustulating_horror() : CreatureScript("npc_pustulating_horror") { }
+        npc_pustulating_horror() : MS::Game::Scripting::Interfaces::CreatureScript("npc_pustulating_horror") { }
 
         struct npc_pustulating_horrorAI : public ScriptedAI
         {
@@ -2950,10 +2950,10 @@ class npc_pustulating_horror : public CreatureScript
         }
 };
 
-class npc_decaying_colossus : public CreatureScript
+class npc_decaying_colossus : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_decaying_colossus() : CreatureScript("npc_decaying_colossus") { }
+        npc_decaying_colossus() : MS::Game::Scripting::Interfaces::CreatureScript("npc_decaying_colossus") { }
 
         struct npc_decaying_colossusAI : public ScriptedAI
         {
@@ -3000,10 +3000,10 @@ class npc_decaying_colossus : public CreatureScript
         }
 };
 
-class npc_darkfallen_archmage : public CreatureScript
+class npc_darkfallen_archmage : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_darkfallen_archmage() : CreatureScript("npc_darkfallen_archmage") { }
+        npc_darkfallen_archmage() : MS::Game::Scripting::Interfaces::CreatureScript("npc_darkfallen_archmage") { }
 
         struct npc_darkfallen_archmageAI : public ScriptedAI
         {
@@ -3066,10 +3066,10 @@ class npc_darkfallen_archmage : public CreatureScript
         }
 };
 
-class npc_darkfallen_blood_knight : public CreatureScript
+class npc_darkfallen_blood_knight : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_darkfallen_blood_knight() : CreatureScript("npc_darkfallen_blood_knight") { }
+        npc_darkfallen_blood_knight() : MS::Game::Scripting::Interfaces::CreatureScript("npc_darkfallen_blood_knight") { }
 
         struct npc_darkfallen_blood_knightAI : public ScriptedAI
         {
@@ -3135,10 +3135,10 @@ enum Noblemisc
     NPC_VAMPIRIC_FIEND = 37901,
 };
 
-class npc_darkfallen_noble : public CreatureScript
+class npc_darkfallen_noble : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_darkfallen_noble() : CreatureScript("npc_darkfallen_noble") { }
+        npc_darkfallen_noble() : MS::Game::Scripting::Interfaces::CreatureScript("npc_darkfallen_noble") { }
 
         struct npc_darkfallen_nobleAI : public ScriptedAI
         {
@@ -3202,10 +3202,10 @@ class npc_darkfallen_noble : public CreatureScript
         }
 };
 
-class npc_vampiric_fiend : public CreatureScript
+class npc_vampiric_fiend : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_vampiric_fiend() : CreatureScript("npc_vampiric_fiend") { }
+        npc_vampiric_fiend() : MS::Game::Scripting::Interfaces::CreatureScript("npc_vampiric_fiend") { }
 
         struct npc_vampiric_fiendAI : public ScriptedAI
         {
@@ -3257,10 +3257,10 @@ class npc_vampiric_fiend : public CreatureScript
         }
 };
 
-class npc_darkfallen_advisor : public CreatureScript
+class npc_darkfallen_advisor : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_darkfallen_advisor() : CreatureScript("npc_darkfallen_advisor") { }
+        npc_darkfallen_advisor() : MS::Game::Scripting::Interfaces::CreatureScript("npc_darkfallen_advisor") { }
 
         struct npc_darkfallen_advisorAI : public ScriptedAI
         {
@@ -3316,10 +3316,10 @@ class npc_darkfallen_advisor : public CreatureScript
         }
 };
 
-class npc_darkfallen_commander : public CreatureScript
+class npc_darkfallen_commander : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_darkfallen_commander() : CreatureScript("npc_darkfallen_commander") { }
+        npc_darkfallen_commander() : MS::Game::Scripting::Interfaces::CreatureScript("npc_darkfallen_commander") { }
 
         struct npc_darkfallen_commanderAI : public ScriptedAI
         {
@@ -3372,10 +3372,10 @@ class npc_darkfallen_commander : public CreatureScript
         }
 };
 
-class npc_darkfallen_lieutenant : public CreatureScript
+class npc_darkfallen_lieutenant : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_darkfallen_lieutenant() : CreatureScript("npc_darkfallen_lieutenant") { }
+        npc_darkfallen_lieutenant() : MS::Game::Scripting::Interfaces::CreatureScript("npc_darkfallen_lieutenant") { }
 
         struct npc_darkfallen_lieutenantAI : public ScriptedAI
         {
@@ -3428,10 +3428,10 @@ class npc_darkfallen_lieutenant : public CreatureScript
         }
 };
 
-class npc_darkfallen_tactician : public CreatureScript
+class npc_darkfallen_tactician : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_darkfallen_tactician() : CreatureScript("npc_darkfallen_tactician") { }
+        npc_darkfallen_tactician() : MS::Game::Scripting::Interfaces::CreatureScript("npc_darkfallen_tactician") { }
 
         struct npc_darkfallen_tacticianAI : public ScriptedAI
         {
@@ -3494,10 +3494,10 @@ class npc_darkfallen_tactician : public CreatureScript
         }
 };
 
-class npc_ymirjar_deathbringer : public CreatureScript
+class npc_ymirjar_deathbringer : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_ymirjar_deathbringer() : CreatureScript("npc_ymirjar_deathbringer") { }
+        npc_ymirjar_deathbringer() : MS::Game::Scripting::Interfaces::CreatureScript("npc_ymirjar_deathbringer") { }
 
         struct npc_ymirjar_deathbringerAI : public ScriptedAI
         {
@@ -3555,10 +3555,10 @@ class npc_ymirjar_deathbringer : public CreatureScript
         }
 };
 
-class npc_ymirjar_frostbinder : public CreatureScript
+class npc_ymirjar_frostbinder : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_ymirjar_frostbinder() : CreatureScript("npc_ymirjar_frostbinder") { }
+        npc_ymirjar_frostbinder() : MS::Game::Scripting::Interfaces::CreatureScript("npc_ymirjar_frostbinder") { }
 
         struct npc_ymirjar_frostbinderAI : public ScriptedAI
         {
@@ -3607,10 +3607,10 @@ class npc_ymirjar_frostbinder : public CreatureScript
         }
 };
 
-class npc_ymirjar_battlemaiden : public CreatureScript
+class npc_ymirjar_battlemaiden : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_ymirjar_battlemaiden() : CreatureScript("npc_ymirjar_battlemaiden") { }
+        npc_ymirjar_battlemaiden() : MS::Game::Scripting::Interfaces::CreatureScript("npc_ymirjar_battlemaiden") { }
 
         struct npc_ymirjar_battlemaidenAI : public ScriptedAI
         {
@@ -3662,10 +3662,10 @@ class npc_ymirjar_battlemaiden : public CreatureScript
         }
 };
 
-class npc_ymirjar_huntress : public CreatureScript
+class npc_ymirjar_huntress : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_ymirjar_huntress() : CreatureScript("npc_ymirjar_huntress") { }
+        npc_ymirjar_huntress() : MS::Game::Scripting::Interfaces::CreatureScript("npc_ymirjar_huntress") { }
 
         struct npc_ymirjar_huntressAI : public ScriptedAI
         {
@@ -3741,10 +3741,10 @@ class npc_ymirjar_huntress : public CreatureScript
         }
 };
 
-class npc_ymirjar_warlord : public CreatureScript
+class npc_ymirjar_warlord : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_ymirjar_warlord() : CreatureScript("npc_ymirjar_warlord") { }
+        npc_ymirjar_warlord() : MS::Game::Scripting::Interfaces::CreatureScript("npc_ymirjar_warlord") { }
 
         struct npc_ymirjar_warlordAI : public ScriptedAI
         {

@@ -54,10 +54,10 @@ uint32 FragmentsCount = 1;
 
 static const Position jainaPos = {3004.780029f, 515.729004f, 21.55f, 3.12f};
 
-class boss_echo_of_jaina : public CreatureScript
+class boss_echo_of_jaina : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_echo_of_jaina() : CreatureScript("boss_echo_of_jaina") { }
+        boss_echo_of_jaina() : MS::Game::Scripting::Interfaces::CreatureScript("boss_echo_of_jaina") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -268,11 +268,11 @@ class boss_echo_of_jaina : public CreatureScript
         };
 };
 
-class npc_echo_of_jaina_blink_target : public CreatureScript
+class npc_echo_of_jaina_blink_target : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_echo_of_jaina_blink_target() : CreatureScript("npc_echo_of_jaina_blink_target") { }
+        npc_echo_of_jaina_blink_target() : MS::Game::Scripting::Interfaces::CreatureScript("npc_echo_of_jaina_blink_target") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -288,10 +288,10 @@ class npc_echo_of_jaina_blink_target : public CreatureScript
         };
 };
 
-class npc_echo_of_jaina_flarecore : public CreatureScript
+class npc_echo_of_jaina_flarecore : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_echo_of_jaina_flarecore() : CreatureScript("npc_echo_of_jaina_flarecore") { }
+        npc_echo_of_jaina_flarecore() : MS::Game::Scripting::Interfaces::CreatureScript("npc_echo_of_jaina_flarecore") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -346,10 +346,10 @@ class npc_echo_of_jaina_flarecore : public CreatureScript
         };
 };
 
-class go_echo_of_jaina_jaina_staff_fragment : public GameObjectScript
+class go_echo_of_jaina_jaina_staff_fragment : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
     public:
-        go_echo_of_jaina_jaina_staff_fragment() : GameObjectScript("go_echo_of_jaina_jaina_staff_fragment") { }
+        go_echo_of_jaina_jaina_staff_fragment() : MS::Game::Scripting::Interfaces::GameObjectScript("go_echo_of_jaina_jaina_staff_fragment") { }
 
         bool OnGossipHello(Player* pPlayer, GameObject* pGo)
         {

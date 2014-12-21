@@ -38,10 +38,10 @@ EndScriptData */
 
 #define MAX_ENCOUNTER          2
 
-class instance_scholomance : public InstanceMapScript
+class instance_scholomance : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
 public:
-    instance_scholomance() : InstanceMapScript("instance_scholomance", 289) { }
+    instance_scholomance() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_scholomance", 289) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {

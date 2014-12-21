@@ -52,10 +52,10 @@ enum eEvents
 {
 };
 
-class boss_garrosh_hellscream : public CreatureScript
+class boss_garrosh_hellscream : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_garrosh_hellscream() : CreatureScript("boss_garrosh_hellscream") { }
+        boss_garrosh_hellscream() : MS::Game::Scripting::Interfaces::CreatureScript("boss_garrosh_hellscream") { }
 
         struct boss_garrosh_hellscreamAI : public BossAI
         {
@@ -85,10 +85,10 @@ class boss_garrosh_hellscream : public CreatureScript
         }
 };
 
-class mob_siege_engineer : public CreatureScript
+class mob_siege_engineer : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_siege_engineer() : CreatureScript("mob_siege_engineer") { }
+        mob_siege_engineer() : MS::Game::Scripting::Interfaces::CreatureScript("mob_siege_engineer") { }
 
         struct mob_siege_engineerAI : public ScriptedAI
         {
@@ -118,10 +118,10 @@ class mob_siege_engineer : public CreatureScript
         }
 };
 
-class mob_korkron_warbringer : public CreatureScript
+class mob_korkron_warbringer : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_korkron_warbringer() : CreatureScript("mob_korkron_warbringer") { }
+        mob_korkron_warbringer() : MS::Game::Scripting::Interfaces::CreatureScript("mob_korkron_warbringer") { }
 
         struct mob_korkron_warbringerAI : public ScriptedAI
         {
@@ -151,10 +151,10 @@ class mob_korkron_warbringer : public CreatureScript
         }
 };
 
-class mob_wolf_rider_farseer : public CreatureScript
+class mob_wolf_rider_farseer : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_wolf_rider_farseer() : CreatureScript("mob_wolf_rider_farseer") { }
+        mob_wolf_rider_farseer() : MS::Game::Scripting::Interfaces::CreatureScript("mob_wolf_rider_farseer") { }
 
         struct mob_wolf_rider_farseerAI : public ScriptedAI
         {

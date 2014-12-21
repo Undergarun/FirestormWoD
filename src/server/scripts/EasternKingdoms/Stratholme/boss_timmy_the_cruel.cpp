@@ -30,10 +30,10 @@ EndScriptData */
 
 #define SPELL_RAVENOUSCLAW    17470
 
-class boss_timmy_the_cruel : public CreatureScript
+class boss_timmy_the_cruel : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_timmy_the_cruel() : CreatureScript("boss_timmy_the_cruel") { }
+    boss_timmy_the_cruel() : MS::Game::Scripting::Interfaces::CreatureScript("boss_timmy_the_cruel") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

@@ -30,10 +30,10 @@ EndScriptData */
 #define SPELL_WINGBUFFET        23339
 #define SPELL_FLAMEBUFFET       23341
 
-class boss_firemaw : public CreatureScript
+class boss_firemaw : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_firemaw() : CreatureScript("boss_firemaw") { }
+    boss_firemaw() : MS::Game::Scripting::Interfaces::CreatureScript("boss_firemaw") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

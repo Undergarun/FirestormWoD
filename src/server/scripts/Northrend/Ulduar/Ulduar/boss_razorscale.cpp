@@ -197,10 +197,10 @@ const Position RazorPreGround   = { 586.966f, -175.534f, GROUND_Z + 29, 1.543f }
 const Position RazorGround      = { 586.966f, -175.534f, GROUND_Z,      1.543f };
 const Position PosEngSpawn      = { 591.951f, -95.9680f, GROUND_Z,      0.000f };
 
-class boss_razorscale_controller : public CreatureScript
+class boss_razorscale_controller : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_razorscale_controller() : CreatureScript("boss_razorscale_controller") { }
+        boss_razorscale_controller() : MS::Game::Scripting::Interfaces::CreatureScript("boss_razorscale_controller") { }
 
         struct boss_razorscale_controllerAI : public BossAI
         {
@@ -353,10 +353,10 @@ class boss_razorscale_controller : public CreatureScript
         }
 };
 
-class go_razorscale_harpoon : public GameObjectScript
+class go_razorscale_harpoon : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
     public:
-        go_razorscale_harpoon() : GameObjectScript("go_razorscale_harpoon") {}
+        go_razorscale_harpoon() : MS::Game::Scripting::Interfaces::GameObjectScript("go_razorscale_harpoon") {}
 
         bool OnGossipHello(Player* /*player*/, GameObject* go)
         {
@@ -370,10 +370,10 @@ class go_razorscale_harpoon : public GameObjectScript
         }
 };
 
-class boss_razorscale : public CreatureScript
+class boss_razorscale : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_razorscale() : CreatureScript("boss_razorscale") { }
+        boss_razorscale() : MS::Game::Scripting::Interfaces::CreatureScript("boss_razorscale") { }
 
         struct boss_razorscaleAI : public BossAI
         {
@@ -669,10 +669,10 @@ class boss_razorscale : public CreatureScript
         }
 };
 
-class npc_expedition_commander : public CreatureScript
+class npc_expedition_commander : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_expedition_commander() : CreatureScript("npc_expedition_commander") { }
+        npc_expedition_commander() : MS::Game::Scripting::Interfaces::CreatureScript("npc_expedition_commander") { }
 
         struct npc_expedition_commanderAI : public ScriptedAI
         {
@@ -826,10 +826,10 @@ class npc_expedition_commander : public CreatureScript
         }
 };
 
-class npc_mole_machine_trigger : public CreatureScript
+class npc_mole_machine_trigger : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_mole_machine_trigger() : CreatureScript("npc_mole_machine_trigger") { }
+        npc_mole_machine_trigger() : MS::Game::Scripting::Interfaces::CreatureScript("npc_mole_machine_trigger") { }
 
         struct npc_mole_machine_triggerAI : public Scripted_NoMovementAI
         {
@@ -911,10 +911,10 @@ class npc_mole_machine_trigger : public CreatureScript
         }
 };
 
-class npc_devouring_flame : public CreatureScript
+class npc_devouring_flame : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_devouring_flame() : CreatureScript("npc_devouring_flame") { }
+        npc_devouring_flame() : MS::Game::Scripting::Interfaces::CreatureScript("npc_devouring_flame") { }
 
         struct npc_devouring_flameAI : public Scripted_NoMovementAI
         {
@@ -936,10 +936,10 @@ class npc_devouring_flame : public CreatureScript
         }
 };
 
-class npc_razorscale_harpoon_fire_state : public CreatureScript
+class npc_razorscale_harpoon_fire_state : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_razorscale_harpoon_fire_state() : CreatureScript("npc_razorscale_harpoon_fire_state") { }
+        npc_razorscale_harpoon_fire_state() : MS::Game::Scripting::Interfaces::CreatureScript("npc_razorscale_harpoon_fire_state") { }
 
         struct npc_razorscale_harpoon_fire_stateAI : public Scripted_NoMovementAI
         {
@@ -959,10 +959,10 @@ class npc_razorscale_harpoon_fire_state : public CreatureScript
         }
 };
 
-class npc_darkrune_watcher : public CreatureScript
+class npc_darkrune_watcher : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_darkrune_watcher() : CreatureScript("npc_darkrune_watcher") { }
+        npc_darkrune_watcher() : MS::Game::Scripting::Interfaces::CreatureScript("npc_darkrune_watcher") { }
 
         struct npc_darkrune_watcherAI : public ScriptedAI
         {
@@ -1024,10 +1024,10 @@ class npc_darkrune_watcher : public CreatureScript
         }
 };
 
-class npc_darkrune_guardian : public CreatureScript
+class npc_darkrune_guardian : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_darkrune_guardian() : CreatureScript("npc_darkrune_guardian") { }
+        npc_darkrune_guardian() : MS::Game::Scripting::Interfaces::CreatureScript("npc_darkrune_guardian") { }
 
         struct npc_darkrune_guardianAI : public ScriptedAI
         {
@@ -1089,10 +1089,10 @@ class npc_darkrune_guardian : public CreatureScript
         }
 };
 
-class npc_darkrune_sentinel : public CreatureScript
+class npc_darkrune_sentinel : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_darkrune_sentinel() : CreatureScript("npc_darkrune_sentinel") { }
+        npc_darkrune_sentinel() : MS::Game::Scripting::Interfaces::CreatureScript("npc_darkrune_sentinel") { }
 
         struct npc_darkrune_sentinelAI : public ScriptedAI
         {
@@ -1160,10 +1160,10 @@ class npc_darkrune_sentinel : public CreatureScript
         }
 };
 
-class spell_razorscale_devouring_flame : public SpellScriptLoader
+class spell_razorscale_devouring_flame: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_razorscale_devouring_flame() : SpellScriptLoader("spell_razorscale_devouring_flame") { }
+        spell_razorscale_devouring_flame() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_razorscale_devouring_flame") { }
 
         class spell_razorscale_devouring_flame_SpellScript : public SpellScript
         {
@@ -1193,10 +1193,10 @@ class spell_razorscale_devouring_flame : public SpellScriptLoader
         }
 };
 
-class spell_razorscale_firebolt : public SpellScriptLoader
+class spell_razorscale_firebolt: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_razorscale_firebolt() : SpellScriptLoader("spell_razorscale_firebolt") { }
+        spell_razorscale_firebolt() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_razorscale_firebolt") { }
 
         class spell_razorscale_firebolt_SpellScript : public SpellScript
         {
@@ -1220,10 +1220,10 @@ class spell_razorscale_firebolt : public SpellScriptLoader
         }
 };
 
-class spell_razorscale_flame_breath : public SpellScriptLoader
+class spell_razorscale_flame_breath: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_razorscale_flame_breath() : SpellScriptLoader("spell_razorscale_flame_breath") { }
+        spell_razorscale_flame_breath() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_razorscale_flame_breath") { }
 
         class spell_razorscale_flame_breath_SpellScript : public SpellScript
         {
@@ -1251,10 +1251,10 @@ class spell_razorscale_flame_breath : public SpellScriptLoader
         }
 };
 
-class achievement_iron_dwarf_medium_rare : public AchievementCriteriaScript
+class achievement_iron_dwarf_medium_rare : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_iron_dwarf_medium_rare() : AchievementCriteriaScript("achievement_iron_dwarf_medium_rare") { }
+        achievement_iron_dwarf_medium_rare() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_iron_dwarf_medium_rare") { }
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {
@@ -1262,10 +1262,10 @@ class achievement_iron_dwarf_medium_rare : public AchievementCriteriaScript
         }
 };
 
-class achievement_quick_shave : public AchievementCriteriaScript
+class achievement_quick_shave : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_quick_shave() : AchievementCriteriaScript("achievement_quick_shave") { }
+        achievement_quick_shave() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_quick_shave") { }
 
         bool OnCheck(Player* /*source*/, Unit* target)
         {

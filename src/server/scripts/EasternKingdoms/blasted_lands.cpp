@@ -41,10 +41,10 @@ EndContentData */
 #define SPELL_TELEPORT_SINGLE_IN_GROUP  13142
 #define SPELL_TELEPORT_GROUP            27686
 
-class npc_deathly_usher : public CreatureScript
+class npc_deathly_usher : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_deathly_usher() : CreatureScript("npc_deathly_usher") { }
+    npc_deathly_usher() : MS::Game::Scripting::Interfaces::CreatureScript("npc_deathly_usher") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
@@ -70,10 +70,10 @@ public:
 };
 
 // OLDWorld Trigger (DO NOT DELETE) - 15384
-class npc_world_invisible_trigger : public CreatureScript
+class npc_world_invisible_trigger : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_world_invisible_trigger() : CreatureScript("npc_world_invisible_trigger") { }
+        npc_world_invisible_trigger() : MS::Game::Scripting::Interfaces::CreatureScript("npc_world_invisible_trigger") { }
 
         struct npc_world_invisible_triggerAI : public ScriptedAI
         {
@@ -124,10 +124,10 @@ class npc_world_invisible_trigger : public CreatureScript
 };
 
 // Dark Portal phasing
-class PlayerScript_DarkPortal_Phasing : public PlayerScript
+class PlayerScript_DarkPortal_Phasing: public MS::Game::Scripting::Interfaces::PlayerScript
 {
     public:
-        PlayerScript_DarkPortal_Phasing() : PlayerScript("PlayerScript_DarkPortal_Phasing")
+        PlayerScript_DarkPortal_Phasing() : MS::Game::Scripting::Interfaces::PlayerScript("PlayerScript_DarkPortal_Phasing")
         {
             m_AlreadyInSwitchMapState = false;
         }

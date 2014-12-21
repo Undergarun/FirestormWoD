@@ -32,10 +32,10 @@ EndScriptData */
 
  #define C_MINDLESS_UNDEAD   11030
 
-class boss_ramstein_the_gorger : public CreatureScript
+class boss_ramstein_the_gorger : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_ramstein_the_gorger() : CreatureScript("boss_ramstein_the_gorger") { }
+    boss_ramstein_the_gorger() : MS::Game::Scripting::Interfaces::CreatureScript("boss_ramstein_the_gorger") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

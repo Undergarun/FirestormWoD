@@ -29,11 +29,11 @@ EndScriptData */
 
 #define MAX_ENCOUNTER      1
 
-class instance_mechanar : public InstanceMapScript
+class instance_mechanar : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
     public:
         instance_mechanar()
-            : InstanceMapScript("instance_mechanar", 554)
+            : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_mechanar", 554)
         {
         }
 

@@ -54,10 +54,10 @@ enum Achievements
     ACHIEV_GOOD_GRIEF_START_EVENT                 = 20383,
 };
 
-class boss_maiden_of_grief : public CreatureScript
+class boss_maiden_of_grief : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_maiden_of_grief() : CreatureScript("boss_maiden_of_grief") { }
+    boss_maiden_of_grief() : MS::Game::Scripting::Interfaces::CreatureScript("boss_maiden_of_grief") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

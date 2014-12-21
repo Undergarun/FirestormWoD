@@ -51,7 +51,7 @@ enum eOthers
 };
 
 // 17980
-class boss_laj : public CreatureScript
+class boss_laj : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 

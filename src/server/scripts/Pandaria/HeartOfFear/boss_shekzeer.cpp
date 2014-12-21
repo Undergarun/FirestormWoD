@@ -215,10 +215,10 @@ Position addSpawnRight[4] =
 };
 
 // Zorlok - 62837
-class boss_shekzeer : public CreatureScript
+class boss_shekzeer : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_shekzeer() : CreatureScript("boss_shekzeer") { }
+        boss_shekzeer() : MS::Game::Scripting::Interfaces::CreatureScript("boss_shekzeer") { }
 
         struct boss_shekzeerAI : public BossAI
         {
@@ -932,10 +932,10 @@ void ShekzeerBuffAdds(Creature* me)
 }
 
 // 63589 - Set'thik Windblade
-class mob_add_setthik_windblade : public CreatureScript
+class mob_add_setthik_windblade : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_add_setthik_windblade() : CreatureScript("mob_add_setthik_windblade") { }
+        mob_add_setthik_windblade() : MS::Game::Scripting::Interfaces::CreatureScript("mob_add_setthik_windblade") { }
 
         struct mob_add_setthik_windbladeAI : public ScriptedAI
         {
@@ -1035,10 +1035,10 @@ class mob_add_setthik_windblade : public CreatureScript
 };
 
 // 63591 - Kor'thik Reaver
-class mob_korthik_reaver : public CreatureScript
+class mob_korthik_reaver : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_korthik_reaver() : CreatureScript("mob_korthik_reaver") { }
+        mob_korthik_reaver() : MS::Game::Scripting::Interfaces::CreatureScript("mob_korthik_reaver") { }
 
         struct mob_korthik_reaverAI : public ScriptedAI
         {
@@ -1120,10 +1120,10 @@ class mob_korthik_reaver : public CreatureScript
 };
 
 // 63730 - Sticky Resin
-class mob_sticky_resin : public CreatureScript
+class mob_sticky_resin : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_sticky_resin() : CreatureScript("mob_sticky_resin") { }
+        mob_sticky_resin() : MS::Game::Scripting::Interfaces::CreatureScript("mob_sticky_resin") { }
 
         struct mob_sticky_resinAI : ScriptedAI
         {
@@ -1252,10 +1252,10 @@ class mob_sticky_resin : public CreatureScript
 };
 
 // 64351 - Amber trap
-class mob_amber_trap : public CreatureScript
+class mob_amber_trap : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_amber_trap() : CreatureScript("mob_amber_trap") { }
+        mob_amber_trap() : MS::Game::Scripting::Interfaces::CreatureScript("mob_amber_trap") { }
 
         struct mob_amber_trapAI : public ScriptedAI
         {
@@ -1365,10 +1365,10 @@ class mob_amber_trap : public CreatureScript
 };
 
 // 62847 - Dissonance Field
-class mob_dissonance_field : public CreatureScript
+class mob_dissonance_field : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_dissonance_field() : CreatureScript("mob_dissonance_field") { }
+        mob_dissonance_field() : MS::Game::Scripting::Interfaces::CreatureScript("mob_dissonance_field") { }
 
         struct mob_dissonance_fieldAI : public ScriptedAI
         {
@@ -1455,10 +1455,10 @@ class mob_dissonance_field : public CreatureScript
 };
 
 // 63942 - Sha of Fear
-class mob_sha_of_fear : public CreatureScript
+class mob_sha_of_fear : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_sha_of_fear() : CreatureScript("mob_sha_of_fear") { }
+        mob_sha_of_fear() : MS::Game::Scripting::Interfaces::CreatureScript("mob_sha_of_fear") { }
 
         struct mob_sha_of_fearAI : public ScriptedAI
         {
@@ -1586,10 +1586,10 @@ class mob_sha_of_fear : public CreatureScript
 };
 
 // 63445 - Heart of fear
-class mob_heart_of_fear : public CreatureScript
+class mob_heart_of_fear : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_heart_of_fear() : CreatureScript("mob_heart_of_fear") { }
+    mob_heart_of_fear() : MS::Game::Scripting::Interfaces::CreatureScript("mob_heart_of_fear") { }
 
     struct mob_heart_of_fearAI : public ScriptedAI
     {
@@ -1655,10 +1655,10 @@ public:
 };
 
 // 123707 - Eyes of the empress
-class spell_eyes_of_the_empress : public SpellScriptLoader
+class spell_eyes_of_the_empress: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_eyes_of_the_empress() : SpellScriptLoader("spell_eyes_of_the_empress") { }
+        spell_eyes_of_the_empress() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_eyes_of_the_empress") { }
 
         class spell_eyes_of_the_empress_SpellScript : public SpellScript
         {
@@ -1695,10 +1695,10 @@ class spell_eyes_of_the_empress : public SpellScriptLoader
 };
 
 // 123713 - Servant of the Empress
-class spell_servant_of_the_empress : public SpellScriptLoader
+class spell_servant_of_the_empress: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_servant_of_the_empress() : SpellScriptLoader("spell_servant_of_the_empress") { }
+    spell_servant_of_the_empress() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_servant_of_the_empress") { }
 
     class spell_servant_of_the_empress_SpellScript : public SpellScript
     {
@@ -1724,10 +1724,10 @@ public:
 };
 
 // 123792 - Cry of Terror
-class spell_cry_of_terror : public SpellScriptLoader
+class spell_cry_of_terror: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_cry_of_terror() : SpellScriptLoader("spell_cry_of_terror") { }
+        spell_cry_of_terror() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_cry_of_terror") { }
 
         class spell_cry_of_terror_SpellScript : public SpellScript
         {
@@ -1769,10 +1769,10 @@ class spell_cry_of_terror : public SpellScriptLoader
 };
 
 // 124843 - Amassing Darkness
-class spell_amassing_darkness : public SpellScriptLoader
+class spell_amassing_darkness: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_amassing_darkness() : SpellScriptLoader("spell_amassing_darkness") { }
+        spell_amassing_darkness() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_amassing_darkness") { }
 
         class spell_amassing_darkness_SpellScript : public SpellScript
         {
@@ -1818,10 +1818,10 @@ class spell_amassing_darkness : public SpellScriptLoader
 };
 
 // 124845 - Calamity
-class spell_calamity : public SpellScriptLoader
+class spell_calamity: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_calamity() : SpellScriptLoader("spell_calamity") { }
+        spell_calamity() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_calamity") { }
 
         class spell_calamity_SpellScript : public SpellScript
         {
@@ -1846,10 +1846,10 @@ class spell_calamity : public SpellScriptLoader
 };
 
 // 124862 - Visions of Demise
-class spell_visions_of_demise : public SpellScriptLoader
+class spell_visions_of_demise: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_visions_of_demise() : SpellScriptLoader("spell_visions_of_demise") { }
+        spell_visions_of_demise() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_visions_of_demise") { }
 
         class spell_visions_of_demise_SpellScript : public SpellScript
         {

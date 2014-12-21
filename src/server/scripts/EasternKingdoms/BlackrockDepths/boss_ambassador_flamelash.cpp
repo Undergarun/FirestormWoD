@@ -24,10 +24,10 @@ enum Spells
     SPELL_FIREBLAST                                        = 15573
 };
 
-class boss_ambassador_flamelash : public CreatureScript
+class boss_ambassador_flamelash : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_ambassador_flamelash() : CreatureScript("boss_ambassador_flamelash") { }
+    boss_ambassador_flamelash() : MS::Game::Scripting::Interfaces::CreatureScript("boss_ambassador_flamelash") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

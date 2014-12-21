@@ -54,10 +54,10 @@ enum Stinky
     EMOTE_DISAPPEAR                              = -1000516
 };
 
-class npc_stinky : public CreatureScript
+class npc_stinky : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-   npc_stinky() : CreatureScript("npc_stinky") { }
+   npc_stinky() : MS::Game::Scripting::Interfaces::CreatureScript("npc_stinky") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -168,10 +168,10 @@ enum SpellScripts
     SPELL_ENERGIZED             = 42492,
 };
 
-class spell_ooze_zap : public SpellScriptLoader
+class spell_ooze_zap: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_ooze_zap() : SpellScriptLoader("spell_ooze_zap") { }
+        spell_ooze_zap() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_ooze_zap") { }
 
         class spell_ooze_zap_SpellScript : public SpellScript
         {
@@ -215,10 +215,10 @@ class spell_ooze_zap : public SpellScriptLoader
         }
 };
 
-class spell_ooze_zap_channel_end : public SpellScriptLoader
+class spell_ooze_zap_channel_end: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_ooze_zap_channel_end() : SpellScriptLoader("spell_ooze_zap_channel_end") { }
+        spell_ooze_zap_channel_end() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_ooze_zap_channel_end") { }
 
         class spell_ooze_zap_channel_end_SpellScript : public SpellScript
         {
@@ -251,10 +251,10 @@ class spell_ooze_zap_channel_end : public SpellScriptLoader
         }
 };
 
-class spell_energize_aoe : public SpellScriptLoader
+class spell_energize_aoe: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_energize_aoe() : SpellScriptLoader("spell_energize_aoe") { }
+        spell_energize_aoe() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_energize_aoe") { }
 
         class spell_energize_aoe_SpellScript : public SpellScript
         {
@@ -309,10 +309,10 @@ enum PrisonersOfTheGrimTotems
     SAY_FREE                                        = 0,
 };
 
-class go_blackhoof_cage : public GameObjectScript
+class go_blackhoof_cage : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_blackhoof_cage() : GameObjectScript("go_blackhoof_cage") { }
+    go_blackhoof_cage() : MS::Game::Scripting::Interfaces::GameObjectScript("go_blackhoof_cage") { }
 
     bool OnGossipHello(Player* player, GameObject* go)
     {

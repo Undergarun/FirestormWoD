@@ -148,10 +148,10 @@ enum eGaralonDisplayId
 uint32 legSpells[4] = { SPELL_RIDE_FRONT_RIGHT, SPELL_RIDE_FRONT_LEFT, SPELL_RIDE_BACK_RIGHT, SPELL_RIDE_BACK_LEFT };
 
 // 62164 - Garalon
-class boss_garalon : public CreatureScript
+class boss_garalon : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_garalon() : CreatureScript("boss_garalon") { }
+    boss_garalon() : MS::Game::Scripting::Interfaces::CreatureScript("boss_garalon") { }
 
     struct boss_garalonAI : public BossAI
     {
@@ -584,10 +584,10 @@ public:
 };
 
 // Garalon's Leg: 63053.
-class npc_garalon_leg : public CreatureScript
+class npc_garalon_leg : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_garalon_leg() : CreatureScript("npc_garalon_leg") { }
+    npc_garalon_leg() : MS::Game::Scripting::Interfaces::CreatureScript("npc_garalon_leg") { }
 
     struct npc_garalon_legAI : public ScriptedAI
     {
@@ -715,10 +715,10 @@ public:
 };
 
 // Pheromone Trail: 63021.
-class npc_pheromone_trail : public CreatureScript
+class npc_pheromone_trail : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_pheromone_trail() : CreatureScript("npc_pheromone_trail") { }
+    npc_pheromone_trail() : MS::Game::Scripting::Interfaces::CreatureScript("npc_pheromone_trail") { }
 
     struct npc_pheromone_trailAI : public ScriptedAI
     {
@@ -742,10 +742,10 @@ public:
 };
 
 // Furious Swipe: 122735.
-class spell_garalon_furious_swipe: public SpellScriptLoader
+class spell_garalon_furious_swipe: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_garalon_furious_swipe() : SpellScriptLoader("spell_garalon_furious_swipe") { }
+        spell_garalon_furious_swipe() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_garalon_furious_swipe") { }
 
         class spell_garalon_furious_swipeSpellScript: public SpellScript
         {
@@ -785,10 +785,10 @@ class spell_garalon_furious_swipe: public SpellScriptLoader
 };
 
 // Pheromones (Force_Cast, 2 sec. cast time): 123808.
-class spell_garalon_pheromones_forcecast: public SpellScriptLoader
+class spell_garalon_pheromones_forcecast: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_garalon_pheromones_forcecast() : SpellScriptLoader("spell_garalon_pheromones_forcecast") { }
+        spell_garalon_pheromones_forcecast() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_garalon_pheromones_forcecast") { }
 
         class spell_garalon_pheromones_forcecastSpellScript: public SpellScript
         {
@@ -847,10 +847,10 @@ class TargetCheck : public std::unary_function<Unit*, bool>
 };
 
 // Mend Leg: 123495.
-class spell_garalon_mend_leg: public SpellScriptLoader
+class spell_garalon_mend_leg: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_garalon_mend_leg() : SpellScriptLoader("spell_garalon_mend_leg") { }
+        spell_garalon_mend_leg() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_garalon_mend_leg") { }
 
         class spell_garalon_mend_legSpellScript: public SpellScript
         {
@@ -918,10 +918,10 @@ class spell_garalon_mend_leg: public SpellScriptLoader
 };
 
 // Crush Trigger: 117709.
-class spell_garalon_crush_trigger: public SpellScriptLoader
+class spell_garalon_crush_trigger: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_garalon_crush_trigger() : SpellScriptLoader("spell_garalon_crush_trigger") { }
+        spell_garalon_crush_trigger() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_garalon_crush_trigger") { }
 
         class spell_garalon_crush_triggerSpellScript: public SpellScript
         {
@@ -977,10 +977,10 @@ class BossCheck : public std::unary_function<Unit*, bool>
 };
 
 // Pheromones Taunt: 123109.
-class spell_garalon_pheromones_taunt: public SpellScriptLoader
+class spell_garalon_pheromones_taunt: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_garalon_pheromones_taunt() : SpellScriptLoader("spell_garalon_pheromones_taunt") { }
+        spell_garalon_pheromones_taunt() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_garalon_pheromones_taunt") { }
 
         class spell_garalon_pheromones_tauntSpellScript: public SpellScript
         {
@@ -1022,10 +1022,10 @@ class spell_garalon_pheromones_taunt: public SpellScriptLoader
 };
 
 // Broken Leg: 122786.
-class spell_garalon_broken_leg : public SpellScriptLoader
+class spell_garalon_broken_leg: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_garalon_broken_leg() : SpellScriptLoader("spell_garalon_broken_leg") { }
+        spell_garalon_broken_leg() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_garalon_broken_leg") { }
 
         class spell_garalon_broken_leg_SpellScript : public SpellScript
         {
@@ -1068,10 +1068,10 @@ class spell_garalon_broken_leg : public SpellScriptLoader
 };
 
 // Damaged: 123818
-class spell_garalon_damaged : public SpellScriptLoader
+class spell_garalon_damaged: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_garalon_damaged() : SpellScriptLoader("spell_garalon_damaged") { }
+        spell_garalon_damaged() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_garalon_damaged") { }
 
         class spell_garalon_damaged_SpellScript : public SpellScript
         {
@@ -1111,10 +1111,10 @@ class spell_garalon_damaged : public SpellScriptLoader
 };
 
 // Pheromones summon 128573
-class spell_garalon_pheromones_summon : public SpellScriptLoader
+class spell_garalon_pheromones_summon: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_garalon_pheromones_summon() : SpellScriptLoader("spell_garalon_pheromones_summon") { }
+        spell_garalon_pheromones_summon() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_garalon_pheromones_summon") { }
 
         class spell_garalon_pheromones_summon_SpellScript : public SpellScript
         {
@@ -1162,10 +1162,10 @@ class spell_garalon_pheromones_summon : public SpellScriptLoader
 };
 
 // Pheromone Trail Dmg 123120
-class spell_garalon_pheromones_trail_dmg : public SpellScriptLoader
+class spell_garalon_pheromones_trail_dmg: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_garalon_pheromones_trail_dmg() : SpellScriptLoader("spell_garalon_pheromones_trail_dmg") { }
+    spell_garalon_pheromones_trail_dmg() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_garalon_pheromones_trail_dmg") { }
 
     class spell_garalon_pheromones_trail_dmg_SpellScript : public SpellScript
     {
@@ -1207,10 +1207,10 @@ public:
 };
 
 // Pheromones Switch 123100
-class spell_garalon_pheromones_switch : public SpellScriptLoader
+class spell_garalon_pheromones_switch: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_garalon_pheromones_switch() : SpellScriptLoader("spell_garalon_pheromones_switch") { }
+    spell_garalon_pheromones_switch() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_garalon_pheromones_switch") { }
 
     class spell_garalon_pheromones_switch_SpellScript : public SpellScript
     {
@@ -1260,10 +1260,10 @@ public:
 };
 
 // 128596, 128599, 128600, 128601 - Weak Points Cosmetic
-class spell_garalon_weak_points_cosmetic : public SpellScriptLoader
+class spell_garalon_weak_points_cosmetic: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_garalon_weak_points_cosmetic() : SpellScriptLoader("spell_garalon_weak_points_cosmetic") { }
+        spell_garalon_weak_points_cosmetic() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_garalon_weak_points_cosmetic") { }
 
         class spell_garalon_weak_points_cosmetic_AuraScript : public AuraScript
         {
@@ -1290,10 +1290,10 @@ class spell_garalon_weak_points_cosmetic : public SpellScriptLoader
 };
 
 // 123081 - Pungency
-class spell_garalon_pungency : public SpellScriptLoader
+class spell_garalon_pungency: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_garalon_pungency() : SpellScriptLoader("spell_garalon_pungency") { }
+        spell_garalon_pungency() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_garalon_pungency") { }
 
         class spell_garalon_pungencyAuraScript : public AuraScript
         {

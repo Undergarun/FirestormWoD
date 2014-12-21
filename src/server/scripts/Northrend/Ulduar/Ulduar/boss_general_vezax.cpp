@@ -102,10 +102,10 @@ enum VezaxActions
     ACTION_VAPORS_DIE   = 0 // Only used since a saronite vapor does not _really_ die
 };
 
-class boss_general_vezax : public CreatureScript
+class boss_general_vezax : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_general_vezax() : CreatureScript("boss_general_vezax") {}
+        boss_general_vezax() : MS::Game::Scripting::Interfaces::CreatureScript("boss_general_vezax") {}
 
         struct boss_general_vezaxAI : public BossAI
         {
@@ -313,10 +313,10 @@ class boss_general_vezax : public CreatureScript
         }
 };
 
-class boss_saronite_animus : public CreatureScript
+class boss_saronite_animus : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_saronite_animus() : CreatureScript("npc_saronite_animus") {}
+        boss_saronite_animus() : MS::Game::Scripting::Interfaces::CreatureScript("npc_saronite_animus") {}
 
         struct boss_saronite_animusAI : public ScriptedAI
         {
@@ -361,10 +361,10 @@ class boss_saronite_animus : public CreatureScript
         }
 };
 
-class npc_saronite_vapors : public CreatureScript
+class npc_saronite_vapors : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_saronite_vapors() : CreatureScript("npc_saronite_vapors") {}
+        npc_saronite_vapors() : MS::Game::Scripting::Interfaces::CreatureScript("npc_saronite_vapors") {}
 
         struct npc_saronite_vaporsAI : public ScriptedAI
         {
@@ -434,10 +434,10 @@ class npc_saronite_vapors : public CreatureScript
         }
 };
 
-class spell_aura_of_despair_aura : public SpellScriptLoader // Spell 62692
+class spell_aura_of_despair_aura: public MS::Game::Scripting::Interfaces::SpellScriptLoader // Spell 62692
 {
     public:
-        spell_aura_of_despair_aura() : SpellScriptLoader("spell_aura_of_despair_aura") { }
+        spell_aura_of_despair_aura() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_aura_of_despair_aura") { }
 
         class spell_aura_of_despair_AuraScript : public AuraScript
         {
@@ -490,10 +490,10 @@ class spell_aura_of_despair_aura : public SpellScriptLoader // Spell 62692
         }
 };
 
-class spell_mark_of_the_faceless : public SpellScriptLoader
+class spell_mark_of_the_faceless: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_mark_of_the_faceless() : SpellScriptLoader("spell_mark_of_the_faceless") {}
+        spell_mark_of_the_faceless() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mark_of_the_faceless") {}
 
         class spell_mark_of_the_faceless_AuraScript : public AuraScript
         {
@@ -524,10 +524,10 @@ class spell_mark_of_the_faceless : public SpellScriptLoader
         }
 };
 
-class spell_mark_of_the_faceless_drain : public SpellScriptLoader // 63278
+class spell_mark_of_the_faceless_drain: public MS::Game::Scripting::Interfaces::SpellScriptLoader // 63278
 {
     public:
-        spell_mark_of_the_faceless_drain() : SpellScriptLoader("spell_mark_of_the_faceless_drain") {}
+        spell_mark_of_the_faceless_drain() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mark_of_the_faceless_drain") {}
 
         class spell_mark_of_the_faceless_drain_SpellScript : public SpellScript
         {
@@ -550,10 +550,10 @@ class spell_mark_of_the_faceless_drain : public SpellScriptLoader // 63278
         }
 };
 
-class spell_saronite_vapors : public SpellScriptLoader // Spell 63323
+class spell_saronite_vapors: public MS::Game::Scripting::Interfaces::SpellScriptLoader // Spell 63323
 {
     public:
-        spell_saronite_vapors() : SpellScriptLoader("spell_saronite_vapors") {}
+        spell_saronite_vapors() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_saronite_vapors") {}
 
         class spell_saronite_vapors_AuraScript : public AuraScript
         {
@@ -622,10 +622,10 @@ class spell_saronite_vapors : public SpellScriptLoader // Spell 63323
         }
 };
 
-class achievement__shadowDodger : public AchievementCriteriaScript
+class achievement__shadowDodger : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement__shadowDodger(const char* name) : AchievementCriteriaScript(name) {}
+        achievement__shadowDodger(const char* name) : MS::Game::Scripting::Interfaces::AchievementCriteriaScript(name) {}
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {
@@ -638,10 +638,10 @@ class achievement__shadowDodger : public AchievementCriteriaScript
         }
 };
 
-class achievement_i_love_the_smell_of_saronite_in_the_morning : public AchievementCriteriaScript
+class achievement_i_love_the_smell_of_saronite_in_the_morning : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_i_love_the_smell_of_saronite_in_the_morning(const char* name) : AchievementCriteriaScript(name) {}
+        achievement_i_love_the_smell_of_saronite_in_the_morning(const char* name) : MS::Game::Scripting::Interfaces::AchievementCriteriaScript(name) {}
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {

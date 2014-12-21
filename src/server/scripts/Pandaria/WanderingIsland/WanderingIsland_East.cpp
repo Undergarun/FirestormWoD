@@ -7,10 +7,10 @@
 #define QUEST_SPIRIT_OF_WATER 29678
 #define QUEST_A_NEW_FRIEND    29679
 
-class AreaTrigger_at_bassin_curse : public AreaTriggerScript
+class AreaTrigger_at_bassin_curse : public MS::Game::Scripting::Interfaces::AreaTriggerScript
 {
     public:
-        AreaTrigger_at_bassin_curse() : AreaTriggerScript("AreaTrigger_at_bassin_curse")
+        AreaTrigger_at_bassin_curse() : MS::Game::Scripting::Interfaces::AreaTriggerScript("AreaTrigger_at_bassin_curse")
         {}
 
         enum eTriggers
@@ -70,10 +70,10 @@ class AreaTrigger_at_bassin_curse : public AreaTriggerScript
 };
 
 // Npc's : 54993 - 55083 - 57431
-class vehicle_balance_pole : public VehicleScript
+class vehicle_balance_pole : public MS::Game::Scripting::Interfaces::VehicleScript
 {
     public:
-        vehicle_balance_pole() : VehicleScript("vehicle_balance_pole") {}
+        vehicle_balance_pole() : MS::Game::Scripting::Interfaces::VehicleScript("vehicle_balance_pole") {}
 
         void OnAddPassenger(Vehicle* veh, Unit* passenger, int8 /*seatId*/)
         {
@@ -89,10 +89,10 @@ class vehicle_balance_pole : public VehicleScript
         }*/
 };
 
-class mob_tushui_monk : public CreatureScript
+class mob_tushui_monk : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_tushui_monk() : CreatureScript("mob_tushui_monk") { }
+    mob_tushui_monk() : MS::Game::Scripting::Interfaces::CreatureScript("mob_tushui_monk") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -132,10 +132,10 @@ public:
 };
 
 // Rock Jump - 103069 / 103070 / 103077
-class spell_rock_jump: public SpellScriptLoader
+class spell_rock_jump: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rock_jump() : SpellScriptLoader("spell_rock_jump") { }
+        spell_rock_jump() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rock_jump") { }
 
         class spell_rock_jump_SpellScript : public SpellScript
         {
@@ -184,10 +184,10 @@ Position rocksPos[4] =
     {1111.52f, 2849.84f, 94.84f, 1.94f}
 };
 
-class mob_shu_water_spirit : public CreatureScript
+class mob_shu_water_spirit : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_shu_water_spirit() : CreatureScript("mob_shu_water_spirit") { }
+    mob_shu_water_spirit() : MS::Game::Scripting::Interfaces::CreatureScript("mob_shu_water_spirit") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -324,10 +324,10 @@ public:
 };
 
 // Shu Benediction - 103245
-class spell_shu_benediction: public SpellScriptLoader
+class spell_shu_benediction: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_shu_benediction() : SpellScriptLoader("spell_shu_benediction") { }
+        spell_shu_benediction() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_shu_benediction") { }
 
         class spell_shu_benediction_AuraScript : public AuraScript
         {
@@ -386,10 +386,10 @@ class spell_shu_benediction: public SpellScriptLoader
 };
 
 // Grab Carriage - 115904
-class spell_grab_carriage: public SpellScriptLoader
+class spell_grab_carriage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_grab_carriage() : SpellScriptLoader("spell_grab_carriage") { }
+        spell_grab_carriage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_grab_carriage") { }
 
         class spell_grab_carriage_SpellScript : public SpellScript
         {
@@ -441,10 +441,10 @@ class spell_grab_carriage: public SpellScriptLoader
         }
 };
 
-class npc_nourished_yak : public CreatureScript
+class npc_nourished_yak : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_nourished_yak() : CreatureScript("npc_nourished_yak") { }
+    npc_nourished_yak() : MS::Game::Scripting::Interfaces::CreatureScript("npc_nourished_yak") { }
 
     struct npc_nourished_yakAI : public npc_escortAI
     {        
@@ -510,10 +510,10 @@ public:
     
 };
 
-class npc_water_spirit_dailo : public CreatureScript
+class npc_water_spirit_dailo : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_water_spirit_dailo() : CreatureScript("npc_water_spirit_dailo") { }
+    npc_water_spirit_dailo() : MS::Game::Scripting::Interfaces::CreatureScript("npc_water_spirit_dailo") { }
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
@@ -658,10 +658,10 @@ public:
     }
 };
 
-class AreaTrigger_at_middle_temple_from_east : public AreaTriggerScript
+class AreaTrigger_at_middle_temple_from_east : public MS::Game::Scripting::Interfaces::AreaTriggerScript
 {
     public:
-        AreaTrigger_at_middle_temple_from_east() : AreaTriggerScript("AreaTrigger_at_middle_temple_from_east") {}
+        AreaTrigger_at_middle_temple_from_east() : MS::Game::Scripting::Interfaces::AreaTriggerScript("AreaTrigger_at_middle_temple_from_east") {}
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
         {
@@ -678,10 +678,10 @@ class AreaTrigger_at_middle_temple_from_east : public AreaTriggerScript
 #define ACTION_TALK_1 1
 #define ACTION_TALK_2 2
 
-class mob_delivery_cart_tender : public CreatureScript
+class mob_delivery_cart_tender : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_delivery_cart_tender() : CreatureScript("mob_delivery_cart_tender") { }
+    mob_delivery_cart_tender() : MS::Game::Scripting::Interfaces::CreatureScript("mob_delivery_cart_tender") { }
 
     struct mob_delivery_cart_tenderAI : public ScriptedAI
     {
@@ -735,10 +735,10 @@ public:
 };
 
 
-class npc_ji_firepaw_killcredit : public CreatureScript
+class npc_ji_firepaw_killcredit : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_ji_firepaw_killcredit() : CreatureScript("npc_ji_firepaw_killcredit") { }
+        npc_ji_firepaw_killcredit() : MS::Game::Scripting::Interfaces::CreatureScript("npc_ji_firepaw_killcredit") { }
 
         struct npc_ji_firepaw_killcreditAI : public ScriptedAI
         {
@@ -783,10 +783,10 @@ class npc_ji_firepaw_killcredit : public CreatureScript
         }
 };
 
-class playerScript_AutoAcceptQuest : public PlayerScript
+class playerScript_AutoAcceptQuest: public MS::Game::Scripting::Interfaces::PlayerScript
 {
     public:
-        playerScript_AutoAcceptQuest() : PlayerScript("playerScript_AutoAcceptQuest") { }
+        playerScript_AutoAcceptQuest() : MS::Game::Scripting::Interfaces::PlayerScript("playerScript_AutoAcceptQuest") { }
 
         void OnQuestReward(Player* p_Player, const Quest* p_Quest)
         {

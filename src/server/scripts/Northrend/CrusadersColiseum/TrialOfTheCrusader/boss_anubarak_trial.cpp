@@ -155,10 +155,10 @@ enum Phases
     PHASE_SUBMERGED             = 2
 };
 
-class boss_anubarak_trial : public CreatureScript
+class boss_anubarak_trial : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_anubarak_trial() : CreatureScript("boss_anubarak_trial") { }
+        boss_anubarak_trial() : MS::Game::Scripting::Interfaces::CreatureScript("boss_anubarak_trial") { }
 
         struct boss_anubarak_trialAI : public BossAI
         {
@@ -429,10 +429,10 @@ class boss_anubarak_trial : public CreatureScript
         };
 };
 
-class mob_swarm_scarab : public CreatureScript
+class mob_swarm_scarab : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_swarm_scarab() : CreatureScript("mob_swarm_scarab") { }
+        mob_swarm_scarab() : MS::Game::Scripting::Interfaces::CreatureScript("mob_swarm_scarab") { }
 
         struct mob_swarm_scarabAI : public ScriptedAI
         {
@@ -501,10 +501,10 @@ class mob_swarm_scarab : public CreatureScript
         };
 };
 
-class mob_nerubian_burrower : public CreatureScript
+class mob_nerubian_burrower : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_nerubian_burrower() : CreatureScript("mob_nerubian_burrower") { }
+        mob_nerubian_burrower() : MS::Game::Scripting::Interfaces::CreatureScript("mob_nerubian_burrower") { }
 
         struct mob_nerubian_burrowerAI : public ScriptedAI
         {
@@ -590,10 +590,10 @@ class mob_nerubian_burrower : public CreatureScript
         };
 };
 
-class mob_frost_sphere : public CreatureScript
+class mob_frost_sphere : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_frost_sphere() : CreatureScript("mob_frost_sphere") { }
+        mob_frost_sphere() : MS::Game::Scripting::Interfaces::CreatureScript("mob_frost_sphere") { }
 
         struct mob_frost_sphereAI : public ScriptedAI
         {
@@ -663,10 +663,10 @@ class mob_frost_sphere : public CreatureScript
         };
 };
 
-class mob_anubarak_spike : public CreatureScript
+class mob_anubarak_spike : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_anubarak_spike() : CreatureScript("mob_anubarak_spike") { }
+        mob_anubarak_spike() : MS::Game::Scripting::Interfaces::CreatureScript("mob_anubarak_spike") { }
 
         struct mob_anubarak_spikeAI : public ScriptedAI
         {
@@ -810,10 +810,10 @@ class mob_anubarak_spike : public CreatureScript
         };
 };
 
-class spell_impale : public SpellScriptLoader
+class spell_impale: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_impale() : SpellScriptLoader("spell_impale") { }
+        spell_impale() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_impale") { }
 
         class spell_impale_SpellScript : public SpellScript
         {

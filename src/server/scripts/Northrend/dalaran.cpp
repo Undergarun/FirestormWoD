@@ -48,10 +48,10 @@ enum NPCs // All outdoor guards are within 35.0f of these NPCs
     NPC_SWEETBERRY_H = 29715,
 };
 
-class npc_mageguard_dalaran : public CreatureScript
+class npc_mageguard_dalaran : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_mageguard_dalaran() : CreatureScript("npc_mageguard_dalaran") { }
+    npc_mageguard_dalaran() : MS::Game::Scripting::Interfaces::CreatureScript("npc_mageguard_dalaran") { }
 
     struct npc_mageguard_dalaranAI : public Scripted_NoMovementAI
     {
@@ -135,10 +135,10 @@ enum eHiraSnowdawn
 
 #define GOSSIP_TEXT_TRAIN_HIRA "I seek training to ride a steed."
 
-class npc_hira_snowdawn : public CreatureScript
+class npc_hira_snowdawn : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_hira_snowdawn() : CreatureScript("npc_hira_snowdawn") { }
+    npc_hira_snowdawn() : MS::Game::Scripting::Interfaces::CreatureScript("npc_hira_snowdawn") { }
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
@@ -185,10 +185,10 @@ enum eArchmageVargoth
 #define GOSSIP_TEXT_FAMILIAR_WELCOME "I have a book that might interest you. Would you like to take a look?"
 #define GOSSIP_TEXT_FAMILIAR_THANKS  "Thank you! I will be sure to notify you if I find anything else."
 
-class npc_archmage_vargoth : public CreatureScript
+class npc_archmage_vargoth : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_archmage_vargoth() : CreatureScript("npc_archmage_vargoth") { }
+    npc_archmage_vargoth() : MS::Game::Scripting::Interfaces::CreatureScript("npc_archmage_vargoth") { }
 
     bool OnGossipHello (Player* pPlayer, Creature* pCreature)
     {

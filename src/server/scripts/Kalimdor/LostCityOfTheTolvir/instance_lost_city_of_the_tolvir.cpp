@@ -6,10 +6,10 @@ enum eScriptText
     YELL_FREE                    = -1877010,
 };
 
-class instance_lost_city_of_the_tolvir : public InstanceMapScript
+class instance_lost_city_of_the_tolvir : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
     public:
-        instance_lost_city_of_the_tolvir() : InstanceMapScript("instance_lost_city_of_the_tolvir", 755) { }
+        instance_lost_city_of_the_tolvir() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_lost_city_of_the_tolvir", 755) { }
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const
         {

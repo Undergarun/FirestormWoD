@@ -45,10 +45,10 @@ enum Events
     EVENT_BLINK             = 5,
 };
 
-class boss_shazzrah : public CreatureScript
+class boss_shazzrah : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_shazzrah() : CreatureScript("boss_shazzrah") { }
+        boss_shazzrah() : MS::Game::Scripting::Interfaces::CreatureScript("boss_shazzrah") { }
 
         struct boss_shazzrahAI : public BossAI
         {

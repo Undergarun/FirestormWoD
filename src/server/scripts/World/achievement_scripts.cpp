@@ -24,10 +24,10 @@
 #include "BattlegroundAV.h"
 #include "Vehicle.h"
 
-class achievement_resilient_victory : public AchievementCriteriaScript
+class achievement_resilient_victory : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_resilient_victory() : AchievementCriteriaScript("achievement_resilient_victory") { }
+        achievement_resilient_victory() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_resilient_victory") { }
 
         bool OnCheck(Player* source, Unit* /*target*/)
         {
@@ -45,10 +45,10 @@ class achievement_resilient_victory : public AchievementCriteriaScript
         }
 };
 
-class achievement_bg_control_all_nodes : public AchievementCriteriaScript
+class achievement_bg_control_all_nodes : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_bg_control_all_nodes() : AchievementCriteriaScript("achievement_bg_control_all_nodes") { }
+        achievement_bg_control_all_nodes() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_bg_control_all_nodes") { }
 
         bool OnCheck(Player* source, Unit* /*target*/)
         {
@@ -63,10 +63,10 @@ class achievement_bg_control_all_nodes : public AchievementCriteriaScript
         }
 };
 
-class achievement_save_the_day : public AchievementCriteriaScript
+class achievement_save_the_day : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_save_the_day() : AchievementCriteriaScript("achievement_save_the_day") { }
+        achievement_save_the_day() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_save_the_day") { }
 
         bool OnCheck(Player* source, Unit* target)
         {
@@ -89,10 +89,10 @@ class achievement_save_the_day : public AchievementCriteriaScript
         }
 };
 
-class achievement_bg_ic_resource_glut : public AchievementCriteriaScript
+class achievement_bg_ic_resource_glut : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_bg_ic_resource_glut() : AchievementCriteriaScript("achievement_bg_ic_resource_glut") { }
+        achievement_bg_ic_resource_glut() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_bg_ic_resource_glut") { }
 
         bool OnCheck(Player* source, Unit* /*target*/)
         {
@@ -103,10 +103,10 @@ class achievement_bg_ic_resource_glut : public AchievementCriteriaScript
         }
 };
 
-class achievement_bg_ic_glaive_grave : public AchievementCriteriaScript
+class achievement_bg_ic_glaive_grave : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_bg_ic_glaive_grave() : AchievementCriteriaScript("achievement_bg_ic_glaive_grave") { }
+        achievement_bg_ic_glaive_grave() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_bg_ic_glaive_grave") { }
 
         bool OnCheck(Player* source, Unit* /*target*/)
         {
@@ -120,10 +120,10 @@ class achievement_bg_ic_glaive_grave : public AchievementCriteriaScript
         }
 };
 
-class achievement_bg_ic_mowed_down : public AchievementCriteriaScript
+class achievement_bg_ic_mowed_down : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_bg_ic_mowed_down() : AchievementCriteriaScript("achievement_bg_ic_mowed_down") { }
+        achievement_bg_ic_mowed_down() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_bg_ic_mowed_down") { }
 
         bool OnCheck(Player* source, Unit* /*target*/)
         {
@@ -137,10 +137,10 @@ class achievement_bg_ic_mowed_down : public AchievementCriteriaScript
         }
 };
 
-class achievement_bg_sa_artillery : public AchievementCriteriaScript
+class achievement_bg_sa_artillery : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_bg_sa_artillery() : AchievementCriteriaScript("achievement_bg_sa_artillery") { }
+        achievement_bg_sa_artillery() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_bg_sa_artillery") { }
 
         bool OnCheck(Player* source, Unit* /*target*/)
         {
@@ -154,10 +154,10 @@ class achievement_bg_sa_artillery : public AchievementCriteriaScript
         }
 };
 
-class achievement_arena_kills : public AchievementCriteriaScript
+class achievement_arena_kills : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_arena_kills(char const* name, uint8 arenaType) : AchievementCriteriaScript(name),
+        achievement_arena_kills(char const* name, uint8 arenaType) : MS::Game::Scripting::Interfaces::AchievementCriteriaScript(name),
             _arenaType(arenaType)
         {
         }
@@ -175,10 +175,10 @@ class achievement_arena_kills : public AchievementCriteriaScript
         uint8 const _arenaType;
 };
 
-class achievement_sickly_gazelle : public AchievementCriteriaScript
+class achievement_sickly_gazelle : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
 public:
-    achievement_sickly_gazelle() : AchievementCriteriaScript("achievement_sickly_gazelle") { }
+    achievement_sickly_gazelle() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_sickly_gazelle") { }
 
     bool OnCheck(Player* /*source*/, Unit* target)
     {
@@ -193,10 +193,10 @@ public:
     }
 };
 
-class achievement_everything_counts : public AchievementCriteriaScript
+class achievement_everything_counts : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_everything_counts() : AchievementCriteriaScript("achievement_everything_counts") { }
+        achievement_everything_counts() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_everything_counts") { }
 
         bool OnCheck(Player* source, Unit* /*target*/)
         {
@@ -214,10 +214,10 @@ class achievement_everything_counts : public AchievementCriteriaScript
         }
 };
 
-class achievement_bg_av_perfection : public AchievementCriteriaScript
+class achievement_bg_av_perfection : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_bg_av_perfection() : AchievementCriteriaScript("achievement_bg_av_perfection") { }
+        achievement_bg_av_perfection() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_bg_av_perfection") { }
 
         bool OnCheck(Player* source, Unit* /*target*/)
         {
@@ -235,10 +235,10 @@ class achievement_bg_av_perfection : public AchievementCriteriaScript
         }
 };
 
-class achievement_bg_sa_defense_of_ancients : public AchievementCriteriaScript
+class achievement_bg_sa_defense_of_ancients : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_bg_sa_defense_of_ancients() : AchievementCriteriaScript("achievement_bg_sa_defense_of_ancients")
+        achievement_bg_sa_defense_of_ancients() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_bg_sa_defense_of_ancients")
         {
         }
 
@@ -271,10 +271,10 @@ enum ArgentTournamentAreas
     AREA_RING_OF_CHAMPIONS         = 4669,
 };
 
-class achievement_tilted : public AchievementCriteriaScript
+class achievement_tilted : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_tilted() : AchievementCriteriaScript("achievement_tilted") {}
+        achievement_tilted() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_tilted") {}
 
         bool OnCheck(Player* player, Unit* /*target*/)
         {
@@ -292,10 +292,10 @@ class achievement_tilted : public AchievementCriteriaScript
         }
 };
 
-class achievement_not_even_a_scratch : public AchievementCriteriaScript
+class achievement_not_even_a_scratch : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_not_even_a_scratch() : AchievementCriteriaScript("achievement_not_even_a_scratch") { }
+        achievement_not_even_a_scratch() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_not_even_a_scratch") { }
 
         bool OnCheck(Player* source, Unit* /*target*/)
         {

@@ -133,10 +133,10 @@ static Position const g_BurningBreathPos[eMisc::MaxBurningBreath] =
 };
 
 ///< Warlord Zaela - 77120
-class boss_warlord_zaela : public CreatureScript
+class boss_warlord_zaela : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_warlord_zaela() : CreatureScript("boss_warlord_zaela") { }
+        boss_warlord_zaela() : MS::Game::Scripting::Interfaces::CreatureScript("boss_warlord_zaela") { }
 
         struct boss_warlord_zaelaAI : public BossAI
         {
@@ -576,10 +576,10 @@ class boss_warlord_zaela : public CreatureScript
 };
 
 ///< Emberscale Ironflight - 82428
-class mob_zaela_emberscale_ironfight : public CreatureScript
+class mob_zaela_emberscale_ironfight : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_zaela_emberscale_ironfight() : CreatureScript("mob_zaela_emberscale_ironfight") { }
+        mob_zaela_emberscale_ironfight() : MS::Game::Scripting::Interfaces::CreatureScript("mob_zaela_emberscale_ironfight") { }
 
         struct mob_zaela_emberscale_ironfightAI : public ScriptedAI
         {
@@ -754,10 +754,10 @@ class mob_zaela_emberscale_ironfight : public CreatureScript
 };
 
 ///< Black Iron Wyrm Rider - 82429
-class mob_zaela_black_iron_wyrm_rider : public CreatureScript
+class mob_zaela_black_iron_wyrm_rider : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_zaela_black_iron_wyrm_rider() : CreatureScript("mob_zaela_black_iron_wyrm_rider") { }
+        mob_zaela_black_iron_wyrm_rider() : MS::Game::Scripting::Interfaces::CreatureScript("mob_zaela_black_iron_wyrm_rider") { }
 
         struct mob_zaela_black_iron_wyrm_riderAI : public ScriptedAI
         {
@@ -832,10 +832,10 @@ class mob_zaela_black_iron_wyrm_rider : public CreatureScript
 };
 
 ///< Burning Bridge - 166721
-class areatrigger_burning_bridge : public AreaTriggerEntityScript
+class areatrigger_burning_bridge : public MS::Game::Scripting::Interfaces::AreaTriggerEntityScript
 {
     public:
-        areatrigger_burning_bridge() : AreaTriggerEntityScript("areatrigger_burning_bridge") { }
+        areatrigger_burning_bridge() : MS::Game::Scripting::Interfaces::AreaTriggerEntityScript("areatrigger_burning_bridge") { }
 
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
@@ -853,17 +853,17 @@ class areatrigger_burning_bridge : public AreaTriggerEntityScript
             }
         }
 
-        AreaTriggerEntityScript* GetAI() const
+        MS::Game::Scripting::Interfaces::AreaTriggerEntityScript* GetAI() const
         {
             return new areatrigger_burning_bridge();
         }
 };
 
 ///< Burning Breath (triggered) - 166041
-class spell_burning_breath : public SpellScriptLoader
+class spell_burning_breath: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_burning_breath() : SpellScriptLoader("spell_burning_breath") { }
+        spell_burning_breath() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_burning_breath") { }
 
         class spell_burning_breath_SpellScript : public SpellScript
         {

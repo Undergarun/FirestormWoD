@@ -52,10 +52,10 @@ const Position SpawnsLocation[] =
     {-863.895f, -458.899f, -33.891f, 5.637f}
 };
 
-class instance_blackfathom_deeps : public InstanceMapScript
+class instance_blackfathom_deeps : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
 public:
-    instance_blackfathom_deeps() : InstanceMapScript("instance_blackfathom_deeps", 48) { }
+    instance_blackfathom_deeps() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_blackfathom_deeps", 48) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {

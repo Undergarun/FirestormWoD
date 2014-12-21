@@ -9,10 +9,10 @@
 #include "VMapFactory.h"
 #include "mogu_shan_palace.h"
 
-class instance_mogu_shan_palace : public InstanceMapScript
+class instance_mogu_shan_palace : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
 public:
-    instance_mogu_shan_palace() : InstanceMapScript("instance_mogu_shan_palace", 994) { }
+    instance_mogu_shan_palace() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_mogu_shan_palace", 994) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
@@ -604,10 +604,10 @@ public:
 
 };
 
-class go_mogushan_palace_temp_portal : public GameObjectScript
+class go_mogushan_palace_temp_portal : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_mogushan_palace_temp_portal() : GameObjectScript("go_mogushan_palace_temp_portal") { }
+    go_mogushan_palace_temp_portal() : MS::Game::Scripting::Interfaces::GameObjectScript("go_mogushan_palace_temp_portal") { }
 
     bool OnGossipHello(Player* player, GameObject* go)
     {

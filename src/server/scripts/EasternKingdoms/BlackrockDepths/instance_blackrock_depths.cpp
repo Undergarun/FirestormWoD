@@ -62,10 +62,10 @@ enum eEnums
     GO_CHEST_SEVEN          = 169243
 };
 
-class instance_blackrock_depths : public InstanceMapScript
+class instance_blackrock_depths : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
 public:
-    instance_blackrock_depths() : InstanceMapScript("instance_blackrock_depths", 230) { }
+    instance_blackrock_depths() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_blackrock_depths", 230) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {

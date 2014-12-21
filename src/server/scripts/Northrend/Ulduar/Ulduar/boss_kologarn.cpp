@@ -108,10 +108,10 @@ enum DataTypes
     DATA_IF_LOOKS_COULD_KILL    = 4
 };
 
-class boss_kologarn : public CreatureScript
+class boss_kologarn : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_kologarn() : CreatureScript("boss_kologarn") { }
+        boss_kologarn() : MS::Game::Scripting::Interfaces::CreatureScript("boss_kologarn") { }
 
         struct boss_kologarnAI : public BossAI
         {
@@ -495,10 +495,10 @@ class boss_kologarn : public CreatureScript
         }
 };
 
-class npc_kologarn_arm : public CreatureScript
+class npc_kologarn_arm : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_kologarn_arm() : CreatureScript("npc_kologarn_arm") {}
+        npc_kologarn_arm() : MS::Game::Scripting::Interfaces::CreatureScript("npc_kologarn_arm") {}
 
         struct npc_kologarn_armAI : public ScriptedAI
         {
@@ -523,10 +523,10 @@ class npc_kologarn_arm : public CreatureScript
         }
 };
 
-class npc_focused_eyebeam : public CreatureScript
+class npc_focused_eyebeam : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_focused_eyebeam() : CreatureScript("npc_focused_eyebeam") { }
+        npc_focused_eyebeam() : MS::Game::Scripting::Interfaces::CreatureScript("npc_focused_eyebeam") { }
 
         struct npc_focused_eyebeamAI : public ScriptedAI
         {
@@ -552,10 +552,10 @@ class npc_focused_eyebeam : public CreatureScript
         }
 };
 
-class spell_ulduar_rubble_summon : public SpellScriptLoader
+class spell_ulduar_rubble_summon: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_ulduar_rubble_summon() : SpellScriptLoader("spell_ulduar_rubble_summon") { }
+        spell_ulduar_rubble_summon() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_ulduar_rubble_summon") { }
 
         class spell_ulduar_rubble_summonSpellScript : public SpellScript
         {
@@ -606,10 +606,10 @@ class StoneGripTargetSelector : public std::unary_function<Unit*, bool>
         Unit const* _victim;
 };
 
-class spell_ulduar_stone_grip_cast_target : public SpellScriptLoader
+class spell_ulduar_stone_grip_cast_target: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_ulduar_stone_grip_cast_target() : SpellScriptLoader("spell_ulduar_stone_grip_cast_target") { }
+        spell_ulduar_stone_grip_cast_target() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_ulduar_stone_grip_cast_target") { }
 
         class spell_ulduar_stone_grip_cast_target_SpellScript : public SpellScript
         {
@@ -663,10 +663,10 @@ class spell_ulduar_stone_grip_cast_target : public SpellScriptLoader
         }
 };
 
-class spell_ulduar_cancel_stone_grip : public SpellScriptLoader
+class spell_ulduar_cancel_stone_grip: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_ulduar_cancel_stone_grip() : SpellScriptLoader("spell_ulduar_cancel_stone_grip") { }
+        spell_ulduar_cancel_stone_grip() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_ulduar_cancel_stone_grip") { }
 
         class spell_ulduar_cancel_stone_gripSpellScript : public SpellScript
         {
@@ -703,10 +703,10 @@ class spell_ulduar_cancel_stone_grip : public SpellScriptLoader
         }
 };
 
-class spell_ulduar_squeezed_lifeless : public SpellScriptLoader
+class spell_ulduar_squeezed_lifeless: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_ulduar_squeezed_lifeless() : SpellScriptLoader("spell_ulduar_squeezed_lifeless") { }
+        spell_ulduar_squeezed_lifeless() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_ulduar_squeezed_lifeless") { }
 
         class spell_ulduar_squeezed_lifeless_SpellScript : public SpellScript
         {
@@ -741,10 +741,10 @@ class spell_ulduar_squeezed_lifeless : public SpellScriptLoader
         }
 };
 
-class spell_ulduar_stone_grip_absorb : public SpellScriptLoader
+class spell_ulduar_stone_grip_absorb: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_ulduar_stone_grip_absorb() : SpellScriptLoader("spell_ulduar_stone_grip_absorb") { }
+        spell_ulduar_stone_grip_absorb() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_ulduar_stone_grip_absorb") { }
 
         class spell_ulduar_stone_grip_absorb_AuraScript : public AuraScript
         {
@@ -797,10 +797,10 @@ class spell_ulduar_stone_grip_absorb : public SpellScriptLoader
         }
 };
 
-class spell_ulduar_stone_grip : public SpellScriptLoader
+class spell_ulduar_stone_grip: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_ulduar_stone_grip() : SpellScriptLoader("spell_ulduar_stone_grip") { }
+        spell_ulduar_stone_grip() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_ulduar_stone_grip") { }
 
         class spell_ulduar_stone_grip_AuraScript : public AuraScript
         {
@@ -855,10 +855,10 @@ class spell_ulduar_stone_grip : public SpellScriptLoader
         }
 };
 
-class spell_kologarn_stone_shout : public SpellScriptLoader
+class spell_kologarn_stone_shout: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_kologarn_stone_shout() : SpellScriptLoader("spell_kologarn_stone_shout") { }
+        spell_kologarn_stone_shout() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_kologarn_stone_shout") { }
 
         class spell_kologarn_stone_shout_SpellScript : public SpellScript
         {
@@ -881,10 +881,10 @@ class spell_kologarn_stone_shout : public SpellScriptLoader
         }
 };
 
-class spell_kologarn_summon_focused_eyebeam : public SpellScriptLoader
+class spell_kologarn_summon_focused_eyebeam: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_kologarn_summon_focused_eyebeam() : SpellScriptLoader("spell_kologarn_summon_focused_eyebeam") { }
+        spell_kologarn_summon_focused_eyebeam() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_kologarn_summon_focused_eyebeam") { }
 
         class spell_kologarn_summon_focused_eyebeam_SpellScript : public SpellScript
         {
@@ -909,10 +909,10 @@ class spell_kologarn_summon_focused_eyebeam : public SpellScriptLoader
         }
 };
 
-class achievement_rubble_and_roll : public AchievementCriteriaScript
+class achievement_rubble_and_roll : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_rubble_and_roll(const char* name) : AchievementCriteriaScript(name) { }
+        achievement_rubble_and_roll(const char* name) : MS::Game::Scripting::Interfaces::AchievementCriteriaScript(name) { }
 
         bool OnCheck(Player* /*source*/, Unit* target)
         {
@@ -923,10 +923,10 @@ class achievement_rubble_and_roll : public AchievementCriteriaScript
         }
 };
 
-class achievement_with_open_arms : public AchievementCriteriaScript
+class achievement_with_open_arms : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_with_open_arms(const char* name) : AchievementCriteriaScript(name) { }
+        achievement_with_open_arms(const char* name) : MS::Game::Scripting::Interfaces::AchievementCriteriaScript(name) { }
 
         bool OnCheck(Player* /*source*/, Unit* target)
         {
@@ -937,10 +937,10 @@ class achievement_with_open_arms : public AchievementCriteriaScript
         }
 };
 
-class achievement_if_looks_could_kill : public AchievementCriteriaScript
+class achievement_if_looks_could_kill : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_if_looks_could_kill(const char* name) : AchievementCriteriaScript(name) { }
+        achievement_if_looks_could_kill(const char* name) : MS::Game::Scripting::Interfaces::AchievementCriteriaScript(name) { }
 
         bool OnCheck(Player* /*source*/, Unit* target)
         {
@@ -951,10 +951,10 @@ class achievement_if_looks_could_kill : public AchievementCriteriaScript
         }
 };
 
-class achievement_disarmed : public AchievementCriteriaScript
+class achievement_disarmed : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_disarmed(const char* name) : AchievementCriteriaScript(name) { }
+        achievement_disarmed(const char* name) : MS::Game::Scripting::Interfaces::AchievementCriteriaScript(name) { }
 
         bool OnCheck(Player* /*source*/, Unit* target)
         {

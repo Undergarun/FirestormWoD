@@ -660,12 +660,12 @@ void OPvPCapturePointNA::UpdateWyvernRoostWorldState(uint32 roost)
     }
 }
 
-class OutdoorPvP_nagrand : public OutdoorPvPScript
+class OutdoorPvP_nagrand : public MS::Game::Scripting::Interfaces::OutdoorPvPScript
 {
     public:
 
         OutdoorPvP_nagrand()
-            : OutdoorPvPScript("outdoorpvp_na")
+            : MS::Game::Scripting::Interfaces::OutdoorPvPScript("outdoorpvp_na")
         {
         }
 

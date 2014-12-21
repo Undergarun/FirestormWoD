@@ -57,10 +57,10 @@ enum ePrince
 };
 
 // 18344
-class boss_nexusprince_shaffar : public CreatureScript
+class boss_nexusprince_shaffar : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_nexusprince_shaffar() : CreatureScript("boss_nexusprince_shaffar") { }
+    boss_nexusprince_shaffar() : MS::Game::Scripting::Interfaces::CreatureScript("boss_nexusprince_shaffar") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -224,10 +224,10 @@ enum eEnums
 };
 
 // 18431
-class mob_ethereal_beacon : public CreatureScript
+class mob_ethereal_beacon : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_ethereal_beacon() : CreatureScript("mob_ethereal_beacon") { }
+    mob_ethereal_beacon() : MS::Game::Scripting::Interfaces::CreatureScript("mob_ethereal_beacon") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -316,10 +316,10 @@ enum eEthereal
     SPELL_ETHEREAL_APPRENTICE_FROSTBOLT         = 32370
 };
 
-class mob_ethereal_apprentice : public CreatureScript
+class mob_ethereal_apprentice : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_ethereal_apprentice() : CreatureScript("mob_ethereal_apprentice") { }
+    mob_ethereal_apprentice() : MS::Game::Scripting::Interfaces::CreatureScript("mob_ethereal_apprentice") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

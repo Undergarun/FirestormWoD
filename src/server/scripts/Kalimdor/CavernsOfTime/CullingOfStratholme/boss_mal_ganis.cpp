@@ -65,10 +65,10 @@ enum CombatPhases
     OUTRO
 };
 
-class boss_mal_ganis : public CreatureScript
+class boss_mal_ganis : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_mal_ganis() : CreatureScript("boss_mal_ganis") { }
+    boss_mal_ganis() : MS::Game::Scripting::Interfaces::CreatureScript("boss_mal_ganis") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

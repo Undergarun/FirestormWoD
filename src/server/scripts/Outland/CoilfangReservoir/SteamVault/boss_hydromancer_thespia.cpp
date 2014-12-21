@@ -48,10 +48,10 @@ EndContentData */
 #define H_SPELL_WATER_BOLT_VOLLEY   37924
 
 // 17797
-class boss_hydromancer_thespia : public CreatureScript
+class boss_hydromancer_thespia : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_hydromancer_thespia() : CreatureScript("boss_hydromancer_thespia") { }
+    boss_hydromancer_thespia() : MS::Game::Scripting::Interfaces::CreatureScript("boss_hydromancer_thespia") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -149,10 +149,10 @@ public:
 };
 
 // 17917
-class mob_coilfang_waterelemental : public CreatureScript
+class mob_coilfang_waterelemental : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_coilfang_waterelemental() : CreatureScript("mob_coilfang_waterelemental") { }
+    mob_coilfang_waterelemental() : MS::Game::Scripting::Interfaces::CreatureScript("mob_coilfang_waterelemental") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

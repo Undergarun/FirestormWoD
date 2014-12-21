@@ -100,10 +100,10 @@ Position const g_LightningFieldMovePos[4] =
 };
 
 ///< Orebender Gor'Ashan - 76413
-class boss_orebender_gorashan : public CreatureScript
+class boss_orebender_gorashan : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_orebender_gorashan() : CreatureScript("boss_orebender_gorashan") { }
+        boss_orebender_gorashan() : MS::Game::Scripting::Interfaces::CreatureScript("boss_orebender_gorashan") { }
 
         struct boss_orebender_gorashanAI : public BossAI
         {
@@ -389,10 +389,10 @@ class boss_orebender_gorashan : public CreatureScript
 };
 
 ///< Black Iron Apprentice - 76773
-class mob_black_iron_apprentice : public CreatureScript
+class mob_black_iron_apprentice : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_black_iron_apprentice() : CreatureScript("mob_black_iron_apprentice") { }
+        mob_black_iron_apprentice() : MS::Game::Scripting::Interfaces::CreatureScript("mob_black_iron_apprentice") { }
 
         struct mob_black_iron_apprenticeAI : public ScriptedAI
         {
@@ -425,10 +425,10 @@ class mob_black_iron_apprentice : public CreatureScript
 };
 
 ///< Rune of Power - 76417
-class mob_ubrs_rune_of_power : public CreatureScript
+class mob_ubrs_rune_of_power : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_ubrs_rune_of_power() : CreatureScript("mob_ubrs_rune_of_power") { }
+        mob_ubrs_rune_of_power() : MS::Game::Scripting::Interfaces::CreatureScript("mob_ubrs_rune_of_power") { }
 
         struct mob_ubrs_rune_of_powerAI : public ScriptedAI
         {
@@ -513,10 +513,10 @@ class mob_ubrs_rune_of_power : public CreatureScript
 };
 
 ///< Lightning Field - 76464
-class mob_lightning_field : public CreatureScript
+class mob_lightning_field : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_lightning_field() : CreatureScript("mob_lightning_field") { }
+        mob_lightning_field() : MS::Game::Scripting::Interfaces::CreatureScript("mob_lightning_field") { }
 
         struct mob_lightning_fieldAI : public ScriptedAI
         {
@@ -602,10 +602,10 @@ class mob_lightning_field : public CreatureScript
 };
 
 ///< Lodestone Spike - 154435
-class spell_lodestone_spike : public SpellScriptLoader
+class spell_lodestone_spike: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_lodestone_spike() : SpellScriptLoader("spell_lodestone_spike") { }
+        spell_lodestone_spike() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_lodestone_spike") { }
 
         class spell_lodestone_spike_SpellScript : public SpellScript
         {
@@ -633,10 +633,10 @@ class spell_lodestone_spike : public SpellScriptLoader
 };
 
 ///< Power Conduit - 166168
-class spell_power_conduit_hangover : public SpellScriptLoader
+class spell_power_conduit_hangover: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_power_conduit_hangover() : SpellScriptLoader("spell_power_conduit_hangover") { }
+        spell_power_conduit_hangover() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_power_conduit_hangover") { }
 
         class spell_power_conduit_hangover_AuraScript : public AuraScript
         {
@@ -661,10 +661,10 @@ class spell_power_conduit_hangover : public SpellScriptLoader
 };
 
 ///< Seal Conduit - 154302 / 154900 / 154901
-class spell_seal_conduit : public SpellScriptLoader
+class spell_seal_conduit: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_seal_conduit() : SpellScriptLoader("spell_seal_conduit") { }
+        spell_seal_conduit() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_seal_conduit") { }
 
         class spell_seal_conduit_SpellScript : public SpellScript
         {
@@ -692,10 +692,10 @@ class spell_seal_conduit : public SpellScriptLoader
 };
 
 ///< Electric Pulse - 154345
-class spell_electric_pulse : public SpellScriptLoader
+class spell_electric_pulse: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_electric_pulse() : SpellScriptLoader("spell_electric_pulse") { }
+        spell_electric_pulse() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_electric_pulse") { }
 
         class spell_electric_pulse_SpellScript : public SpellScript
         {
@@ -734,10 +734,10 @@ class spell_electric_pulse : public SpellScriptLoader
 };
 
 ///< Runic Conduit - 226704
-class go_runic_conduit : public GameObjectScript
+class go_runic_conduit : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
     public:
-        go_runic_conduit() : GameObjectScript("go_runic_conduit") { }
+        go_runic_conduit() : MS::Game::Scripting::Interfaces::GameObjectScript("go_runic_conduit") { }
 
         struct go_runic_conduitAI : public GameObjectAI
         {

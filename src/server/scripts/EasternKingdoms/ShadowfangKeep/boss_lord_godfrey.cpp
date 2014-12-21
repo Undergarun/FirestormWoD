@@ -48,10 +48,10 @@ enum Adds
 	NPC_PISTOL_BARRAGE		= 52065,
 };
 
-class boss_lord_godfrey : public CreatureScript
+class boss_lord_godfrey : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_lord_godfrey() : CreatureScript("boss_lord_godfrey") { }
+        boss_lord_godfrey() : MS::Game::Scripting::Interfaces::CreatureScript("boss_lord_godfrey") { }
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -153,10 +153,10 @@ class boss_lord_godfrey : public CreatureScript
 	     };
 };
 
-class npc_godfrey_pistol_barrage : public CreatureScript
+class npc_godfrey_pistol_barrage : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_godfrey_pistol_barrage() : CreatureScript("npc_godfrey_pistol_barrage") { }
+        npc_godfrey_pistol_barrage() : MS::Game::Scripting::Interfaces::CreatureScript("npc_godfrey_pistol_barrage") { }
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -179,10 +179,10 @@ class npc_godfrey_pistol_barrage : public CreatureScript
 	 };
 };
 
-class spell_godfrey_summon_bloodthirsty_ghouls : public SpellScriptLoader
+class spell_godfrey_summon_bloodthirsty_ghouls: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_godfrey_summon_bloodthirsty_ghouls() : SpellScriptLoader("spell_godfrey_summon_bloodthirsty_ghouls") { }
+        spell_godfrey_summon_bloodthirsty_ghouls() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_godfrey_summon_bloodthirsty_ghouls") { }
 
         class spell_godfrey_summon_bloodthirsty_ghouls_AuraScript : public AuraScript
         {

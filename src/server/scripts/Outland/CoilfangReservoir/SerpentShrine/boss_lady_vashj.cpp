@@ -132,10 +132,10 @@ float ShieldGeneratorChannelPos[4][4] =
     {49.3126f, -943.398f, 42.5501f, 2.40174f}
 };
 
-class boss_lady_vashj : public CreatureScript
+class boss_lady_vashj : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_lady_vashj() : CreatureScript("boss_lady_vashj") { }
+    boss_lady_vashj() : MS::Game::Scripting::Interfaces::CreatureScript("boss_lady_vashj") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -548,10 +548,10 @@ public:
 
 // Enchanted Elemental
 // If one of them reaches Vashj he will increase her damage done by 5%.
-class mob_enchanted_elemental : public CreatureScript
+class mob_enchanted_elemental : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_enchanted_elemental() : CreatureScript("mob_enchanted_elemental") { }
+    mob_enchanted_elemental() : MS::Game::Scripting::Interfaces::CreatureScript("mob_enchanted_elemental") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -642,10 +642,10 @@ public:
 
 // Tainted Elemental
 // This mob has 7, 900 life, doesn't move, and shoots Poison Bolts at one person anywhere in the area, doing 3, 000 nature damage and placing a posion doing 2, 000 damage every 2 seconds. He will switch targets often, or sometimes just hang on a single player, but there is nothing you can do about it except heal the damage and kill the Tainted Elemental
-class mob_tainted_elemental : public CreatureScript
+class mob_tainted_elemental : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_tainted_elemental() : CreatureScript("mob_tainted_elemental") { }
+    mob_tainted_elemental() : MS::Game::Scripting::Interfaces::CreatureScript("mob_tainted_elemental") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -711,10 +711,10 @@ public:
 
 //Toxic Sporebat
 //Toxic Spores: Used in Phase 3 by the Spore Bats, it creates a contaminated green patch of ground, dealing about 2775-3225 nature damage every second to anyone who stands in it.
-class mob_toxic_sporebat : public CreatureScript
+class mob_toxic_sporebat : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_toxic_sporebat() : CreatureScript("mob_toxic_sporebat") { }
+    mob_toxic_sporebat() : MS::Game::Scripting::Interfaces::CreatureScript("mob_toxic_sporebat") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -807,10 +807,10 @@ public:
 
 };
 
-class mob_shield_generator_channel : public CreatureScript
+class mob_shield_generator_channel : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_shield_generator_channel() : CreatureScript("mob_shield_generator_channel") { }
+    mob_shield_generator_channel() : MS::Game::Scripting::Interfaces::CreatureScript("mob_shield_generator_channel") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -864,10 +864,10 @@ public:
 
 };
 
-class item_tainted_core : public ItemScript
+class item_tainted_core : public MS::Game::Scripting::Interfaces::ItemScript
 {
 public:
-    item_tainted_core() : ItemScript("item_tainted_core") { }
+    item_tainted_core() : MS::Game::Scripting::Interfaces::ItemScript("item_tainted_core") { }
 
     bool OnUse(Player* player, Item* /*item*/, SpellCastTargets const& targets)
     {

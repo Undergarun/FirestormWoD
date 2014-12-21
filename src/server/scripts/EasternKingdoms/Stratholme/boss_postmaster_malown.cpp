@@ -37,10 +37,10 @@ EndScriptData */
 #define SPELL_CURSEOFTONGUES    12889
 #define SPELL_CALLOFTHEGRAVE    17831
 
-class boss_postmaster_malown : public CreatureScript
+class boss_postmaster_malown : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_postmaster_malown() : CreatureScript("boss_postmaster_malown") { }
+    boss_postmaster_malown() : MS::Game::Scripting::Interfaces::CreatureScript("boss_postmaster_malown") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

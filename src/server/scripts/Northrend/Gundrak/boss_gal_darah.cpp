@@ -64,10 +64,10 @@ enum CombatPhase
 
 #define DATA_SHARE_THE_LOVE                       1
 
-class boss_gal_darah : public CreatureScript
+class boss_gal_darah : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_gal_darah() : CreatureScript("boss_gal_darah") { }
+    boss_gal_darah() : MS::Game::Scripting::Interfaces::CreatureScript("boss_gal_darah") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -285,10 +285,10 @@ public:
 
 };
 
-class achievement_share_the_love : public AchievementCriteriaScript
+class achievement_share_the_love : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_share_the_love() : AchievementCriteriaScript("achievement_share_the_love")
+        achievement_share_the_love() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_share_the_love")
         {
         }
 

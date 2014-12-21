@@ -96,10 +96,10 @@ static InfernalPoint InfernalPoints[] =
 #define EQUIP_ID_AXE                33542                      //Axes info
 
 //---------Infernal code first
-class netherspite_infernal : public CreatureScript
+class netherspite_infernal : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    netherspite_infernal() : CreatureScript("netherspite_infernal") { }
+    netherspite_infernal() : MS::Game::Scripting::Interfaces::CreatureScript("netherspite_infernal") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -180,10 +180,10 @@ public:
 
 };
 
-class boss_malchezaar : public CreatureScript
+class boss_malchezaar : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_malchezaar() : CreatureScript("boss_malchezaar") { }
+    boss_malchezaar() : MS::Game::Scripting::Interfaces::CreatureScript("boss_malchezaar") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

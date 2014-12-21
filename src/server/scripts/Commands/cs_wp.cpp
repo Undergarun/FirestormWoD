@@ -27,10 +27,10 @@ EndScriptData */
 #include "WaypointManager.h"
 #include "Chat.h"
 
-class wp_commandscript : public CommandScript
+class wp_commandscript: public MS::Game::Scripting::Interfaces::CommandScript
 {
 public:
-    wp_commandscript() : CommandScript("wp_commandscript") { }
+    wp_commandscript() : MS::Game::Scripting::Interfaces::CommandScript("wp_commandscript") { }
 
     ChatCommand* GetCommands() const
     {

@@ -284,10 +284,10 @@ static Location LightofDawnLoc[]=
     {2273.972f, -5257.676f, 78.862f, 0},     // 29 Lich king moves forward
 };
 
-class npc_highlord_darion_mograine : public CreatureScript
+class npc_highlord_darion_mograine : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_highlord_darion_mograine() : CreatureScript("npc_highlord_darion_mograine") { }
+    npc_highlord_darion_mograine() : MS::Game::Scripting::Interfaces::CreatureScript("npc_highlord_darion_mograine") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
@@ -1683,10 +1683,10 @@ public:
 /*######
 ## npc the lich king in dawn of light
 ######*/
-class npc_the_lich_king_tirion_dawn : public CreatureScript
+class npc_the_lich_king_tirion_dawn : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_the_lich_king_tirion_dawn() : CreatureScript("npc_the_lich_king_tirion_dawn") { }
+    npc_the_lich_king_tirion_dawn() : MS::Game::Scripting::Interfaces::CreatureScript("npc_the_lich_king_tirion_dawn") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

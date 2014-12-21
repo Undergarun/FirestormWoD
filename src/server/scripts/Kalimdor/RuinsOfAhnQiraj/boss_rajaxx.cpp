@@ -56,10 +56,10 @@ enum Events
     EVENT_CHANGE_AGGRO      = 3,
 };
 
-class boss_rajaxx : public CreatureScript
+class boss_rajaxx : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_rajaxx() : CreatureScript("boss_rajaxx") { }
+        boss_rajaxx() : MS::Game::Scripting::Interfaces::CreatureScript("boss_rajaxx") { }
 
         struct boss_rajaxxAI : public BossAI
         {

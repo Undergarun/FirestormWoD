@@ -50,7 +50,7 @@ enum eSpells
     SPELL_SUMMON_FIENDISH_HOUND= 30707,
 };
 
-class boss_omor_the_unscarred : public CreatureScript
+class boss_omor_the_unscarred : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 

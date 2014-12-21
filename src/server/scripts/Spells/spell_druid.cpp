@@ -34,10 +34,10 @@ enum YseraGiftSpells
 };
 
 // Ysera's Gift - 145108
-class spell_dru_yseras_gift : public SpellScriptLoader
+class spell_dru_yseras_gift: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dru_yseras_gift() : SpellScriptLoader("spell_dru_yseras_gift") { }
+        spell_dru_yseras_gift() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_yseras_gift") { }
 
         class spell_dru_yseras_gift_AuraScript : public AuraScript
         {
@@ -96,10 +96,10 @@ enum ToothAndClawAbsorbSpells
 };
 
 // Tooth and Claw - 135597
-class spell_dru_tooth_and_claw_absorb : public SpellScriptLoader
+class spell_dru_tooth_and_claw_absorb: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dru_tooth_and_claw_absorb() : SpellScriptLoader("spell_dru_tooth_and_claw_absorb") { }
+        spell_dru_tooth_and_claw_absorb() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_tooth_and_claw_absorb") { }
 
         class spell_dru_tooth_and_claw_absorb_AuraScript : public AuraScript
         {
@@ -130,10 +130,10 @@ enum GenesisSpells
 };
 
 // Genesis - 145518
-class spell_dru_genesis : public SpellScriptLoader
+class spell_dru_genesis: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dru_genesis() : SpellScriptLoader("spell_dru_genesis") { }
+        spell_dru_genesis() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_genesis") { }
 
         class spell_dru_genesis_SpellScript : public SpellScript
         {
@@ -181,10 +181,10 @@ enum GlyphOfTheTreantSpells
 };
 
 // Glyph of the Treant - 125047
-class spell_dru_glyph_of_the_treant : public SpellScriptLoader
+class spell_dru_glyph_of_the_treant: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dru_glyph_of_the_treant() : SpellScriptLoader("spell_dru_glyph_of_the_treant") { }
+        spell_dru_glyph_of_the_treant() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_glyph_of_the_treant") { }
 
         class spell_dru_glyph_of_the_treant_AuraScript : public AuraScript
         {
@@ -222,10 +222,10 @@ enum IncarnationChosenOfElune
 };
 
 // Incarnation : Chosen of Elune - 102560
-class spell_dru_incarnation_chosen_of_elune : public SpellScriptLoader
+class spell_dru_incarnation_chosen_of_elune: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dru_incarnation_chosen_of_elune() : SpellScriptLoader("spell_dru_incarnation_chosen_of_elune") { }
+        spell_dru_incarnation_chosen_of_elune() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_incarnation_chosen_of_elune") { }
 
         class spell_dru_incarnation_chosen_of_elune_AuraScript : public AuraScript
         {
@@ -258,10 +258,10 @@ class spell_dru_incarnation_chosen_of_elune : public SpellScriptLoader
 
 // Called by Incarnation : Chosen of Elune - 102560, Incarnation : Son of Ursoc - 102558 and Incarnation : King of the Jungle - 102543
 // Incarnation - Skins
-class spell_dru_incarnation_skins : public SpellScriptLoader
+class spell_dru_incarnation_skins: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dru_incarnation_skins() : SpellScriptLoader("spell_dru_incarnation_skins") { }
+        spell_dru_incarnation_skins() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_incarnation_skins") { }
 
         class spell_dru_incarnation_skins_AuraScript : public AuraScript
         {
@@ -314,10 +314,10 @@ enum ItemPVPFeral4PBonus
 };
 
 // Item - PvP Feral 4P Bonus - 131537
-class spell_dru_item_pvp_feral_4p : public SpellScriptLoader
+class spell_dru_item_pvp_feral_4p: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dru_item_pvp_feral_4p() : SpellScriptLoader("spell_dru_item_pvp_feral_4p") { }
+        spell_dru_item_pvp_feral_4p() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_item_pvp_feral_4p") { }
 
         class spell_dru_item_pvp_feral_4p_AuraScript : public AuraScript
         {
@@ -369,10 +369,10 @@ class spell_dru_item_pvp_feral_4p : public SpellScriptLoader
 };
 
 // Wild Charge (Moonkin) - 102383
-class spell_dru_wild_charge_moonkin : public SpellScriptLoader
+class spell_dru_wild_charge_moonkin: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dru_wild_charge_moonkin() : SpellScriptLoader("spell_dru_wild_charge_moonkin") { }
+        spell_dru_wild_charge_moonkin() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_wild_charge_moonkin") { }
 
         class spell_dru_wild_charge_moonkin_SpellScript : public SpellScript
         {
@@ -404,10 +404,10 @@ class spell_dru_wild_charge_moonkin : public SpellScriptLoader
 };
 
 // Thrash (bear) - 77758
-class spell_dru_thrash_bear : public SpellScriptLoader
+class spell_dru_thrash_bear: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dru_thrash_bear() : SpellScriptLoader("spell_dru_thrash_bear") { }
+        spell_dru_thrash_bear() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_thrash_bear") { }
 
         class spell_dru_thrash_bear_AuraScript : public AuraScript
         {
@@ -435,10 +435,10 @@ class spell_dru_thrash_bear : public SpellScriptLoader
 };
 
 // Swipe - 106785
-class spell_dru_swipe : public SpellScriptLoader
+class spell_dru_swipe: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dru_swipe() : SpellScriptLoader("spell_dru_swipe") { }
+        spell_dru_swipe() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_swipe") { }
 
         class spell_dru_swipe_SpellScript : public SpellScript
         {
@@ -486,10 +486,10 @@ enum MaulSpells
 };
 
 // Maul - 6807
-class spell_dru_maul : public SpellScriptLoader
+class spell_dru_maul: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dru_maul() : SpellScriptLoader("spell_dru_maul") { }
+        spell_dru_maul() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_maul") { }
 
         class spell_dru_maul_SpellScript : public SpellScript
         {
@@ -540,10 +540,10 @@ enum MoonfireSpells
 };
 
 // Moonfire - 8921
-class spell_dru_moonfire : public SpellScriptLoader
+class spell_dru_moonfire: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dru_moonfire() : SpellScriptLoader("spell_dru_moonfire") { }
+        spell_dru_moonfire() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_moonfire") { }
 
         class spell_dru_moonfire_SpellScript : public SpellScript
         {
@@ -569,10 +569,10 @@ class spell_dru_moonfire : public SpellScriptLoader
 };
 
 // Moonfire - 164812
-class spell_dru_moonfire_damage : public SpellScriptLoader
+class spell_dru_moonfire_damage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dru_moonfire_damage() : SpellScriptLoader("spell_dru_moonfire_damage") { }
+        spell_dru_moonfire_damage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_moonfire_damage") { }
 
         class spell_dru_moonfire_damage_SpellScript : public SpellScript
         {
@@ -627,10 +627,10 @@ enum NaturesVigilSpells
 };
 
 // Nature's Vigil - 124974
-class spell_dru_natures_vigil : public SpellScriptLoader
+class spell_dru_natures_vigil: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dru_natures_vigil() : SpellScriptLoader("spell_dru_natures_vigil") { }
+        spell_dru_natures_vigil() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_natures_vigil") { }
 
         class spell_dru_natures_vigil_AuraScript : public AuraScript
         {
@@ -763,10 +763,10 @@ enum UrsolsVortexSpells
 };
 
 // Ursol's Vortex - 102793
-class spell_dru_ursols_vortex : public SpellScriptLoader
+class spell_dru_ursols_vortex: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_dru_ursols_vortex() : SpellScriptLoader("spell_dru_ursols_vortex") { }
+    spell_dru_ursols_vortex() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_ursols_vortex") { }
 
     class spell_dru_ursols_vortex_SpellScript : public SpellScript
     {
@@ -825,10 +825,10 @@ public:
 };
 
 // Ursol's Vortex (snare) - 127797
-class spell_dru_ursols_vortex_snare : public SpellScriptLoader
+class spell_dru_ursols_vortex_snare: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dru_ursols_vortex_snare() : SpellScriptLoader("spell_dru_ursols_vortex_snare") { }
+        spell_dru_ursols_vortex_snare() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_ursols_vortex_snare") { }
 
         class spell_dru_ursols_vortex_snare_AuraScript : public AuraScript
         {
@@ -870,10 +870,10 @@ enum SolarBeamSpells
 };
 
 // Solar beam - 78675
-class spell_dru_solar_beam : public SpellScriptLoader
+class spell_dru_solar_beam: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dru_solar_beam() : SpellScriptLoader("spell_dru_solar_beam") { }
+        spell_dru_solar_beam() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_solar_beam") { }
 
         class spell_dru_solar_beam_AuraScript : public AuraScript
         {
@@ -903,10 +903,10 @@ enum DashSpells
 };
 
 // Dash - 1850
-class spell_dru_dash : public SpellScriptLoader
+class spell_dru_dash: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dru_dash() : SpellScriptLoader("spell_dru_dash") { }
+        spell_dru_dash() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_dash") { }
 
         class spell_dru_dash_SpellScript : public SpellScript
         {
@@ -941,10 +941,10 @@ enum SavageDefenseSpells
 };
 
 // Savage Defense - 62606
-class spell_dru_savage_defense : public SpellScriptLoader
+class spell_dru_savage_defense: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dru_savage_defense() : SpellScriptLoader("spell_dru_savage_defense") { }
+        spell_dru_savage_defense() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_savage_defense") { }
 
         class spell_dru_savage_defense_SpellScript : public SpellScript
         {
@@ -977,10 +977,10 @@ enum LifebloomSpells
 
 // Called by Regrowth - 8936 and Healing Touch - 5185
 // Lifebloom - 33763 : Refresh duration
-class spell_dru_lifebloom_refresh : public SpellScriptLoader
+class spell_dru_lifebloom_refresh: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dru_lifebloom_refresh() : SpellScriptLoader("spell_dru_lifebloom_refresh") { }
+        spell_dru_lifebloom_refresh() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_lifebloom_refresh") { }
 
         class spell_dru_lifebloom_refresh_SpellScript : public SpellScript
         {
@@ -1012,10 +1012,10 @@ class spell_dru_lifebloom_refresh : public SpellScriptLoader
 };
 
 // Lifebloom - 33763
-class spell_dru_lifebloom : public SpellScriptLoader
+class spell_dru_lifebloom: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dru_lifebloom() : SpellScriptLoader("spell_dru_lifebloom") { }
+        spell_dru_lifebloom() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_lifebloom") { }
 
         class spell_dru_lifebloom_AuraScript : public AuraScript
         {
@@ -1087,10 +1087,10 @@ enum KillerInstinct
 
 // Called by Cat Form - 768 and Bear Form - 5487
 // Killer Instinct - 108299
-class spell_dru_killer_instinct : public SpellScriptLoader
+class spell_dru_killer_instinct: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dru_killer_instinct() : SpellScriptLoader("spell_dru_killer_instinct") { }
+        spell_dru_killer_instinct() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_killer_instinct") { }
 
         class spell_dru_killer_instinct_SpellScript : public SpellScript
         {
@@ -1122,10 +1122,10 @@ class spell_dru_killer_instinct : public SpellScriptLoader
 };
 
 // Nature's Cure - 88423 and Remove Corruption - 2782
-class spell_dru_natures_cure : public SpellScriptLoader
+class spell_dru_natures_cure: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dru_natures_cure() : SpellScriptLoader("spell_dru_natures_cure") { }
+        spell_dru_natures_cure() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_natures_cure") { }
 
         class spell_dru_natures_cure_SpellScript : public SpellScript
         {
@@ -1171,10 +1171,10 @@ class spell_dru_natures_cure : public SpellScriptLoader
 };
 
 // Cat Form - 768
-class spell_dru_cat_form : public SpellScriptLoader
+class spell_dru_cat_form: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dru_cat_form() : SpellScriptLoader("spell_dru_cat_form") { }
+        spell_dru_cat_form() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_cat_form") { }
 
         class spell_dru_cat_form_SpellScript : public SpellScript
         {
@@ -1204,10 +1204,10 @@ enum SkullBashSpells
 };
 
 // Skull Bash - 106839
-class spell_dru_skull_bash : public SpellScriptLoader
+class spell_dru_skull_bash: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dru_skull_bash() : SpellScriptLoader("spell_dru_skull_bash") { }
+        spell_dru_skull_bash() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_skull_bash") { }
 
         class spell_dru_skull_bash_SpellScript : public SpellScript
         {
@@ -1238,10 +1238,10 @@ enum FaerieSwarmSpells
 };
 
 // Faerie Swarm - 102355
-class spell_dru_faerie_swarm : public SpellScriptLoader
+class spell_dru_faerie_swarm: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dru_faerie_swarm() : SpellScriptLoader("spell_dru_faerie_swarm") { }
+        spell_dru_faerie_swarm() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_faerie_swarm") { }
 
         class spell_dru_faerie_swarm_SpellScript : public SpellScript
         {
@@ -1282,10 +1282,10 @@ enum WildMushroomSpells
 };
 
 // Wild Mushroom (Heal effect with growing) - 102792
-class spell_dru_wild_mushroom_heal : public SpellScriptLoader
+class spell_dru_wild_mushroom_heal: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dru_wild_mushroom_heal() : SpellScriptLoader("spell_dru_wild_mushroom_heal") { }
+        spell_dru_wild_mushroom_heal() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_wild_mushroom_heal") { }
 
         class spell_dru_wild_mushroom_heal_SpellScript : public SpellScript
         {
@@ -1333,10 +1333,10 @@ class spell_dru_wild_mushroom_heal : public SpellScriptLoader
 };
 
 // Wild Mushroom (Growing effect) - 138611
-class spell_dru_wild_mushroom_growing : public SpellScriptLoader
+class spell_dru_wild_mushroom_growing: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dru_wild_mushroom_growing() : SpellScriptLoader("spell_dru_wild_mushroom_growing") { }
+        spell_dru_wild_mushroom_growing() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_wild_mushroom_growing") { }
 
         class spell_dru_wild_mushroom_growing_AuraScript : public AuraScript
         {
@@ -1411,10 +1411,10 @@ class spell_dru_wild_mushroom_growing : public SpellScriptLoader
 };
 
 // Wild Mushroom (Restoration) - 145205
-class spell_dru_wild_mushroom_resto : public SpellScriptLoader
+class spell_dru_wild_mushroom_resto: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dru_wild_mushroom_resto() : SpellScriptLoader("spell_dru_wild_mushroom_resto") { }
+        spell_dru_wild_mushroom_resto() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_wild_mushroom_resto") { }
 
         class spell_dru_wild_mushroom_resto_SpellScript : public SpellScript
         {
@@ -1496,10 +1496,10 @@ class spell_dru_wild_mushroom_resto : public SpellScriptLoader
 };
 
 // Wild Mushroom - 88747
-class spell_dru_wild_mushroom : public SpellScriptLoader
+class spell_dru_wild_mushroom: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dru_wild_mushroom() : SpellScriptLoader("spell_dru_wild_mushroom") { }
+        spell_dru_wild_mushroom() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_wild_mushroom") { }
 
         class spell_dru_wild_mushroom_SpellScript : public SpellScript
         {
@@ -1561,10 +1561,10 @@ class spell_dru_wild_mushroom : public SpellScriptLoader
 };
 
 // Wild Mushroom : Detonate - 88751
-class spell_dru_wild_mushroom_detonate : public SpellScriptLoader
+class spell_dru_wild_mushroom_detonate: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dru_wild_mushroom_detonate() : SpellScriptLoader("spell_dru_wild_mushroom_detonate") { }
+        spell_dru_wild_mushroom_detonate() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_wild_mushroom_detonate") { }
 
         class spell_dru_wild_mushroom_detonate_SpellScript : public SpellScript
         {
@@ -1672,10 +1672,10 @@ class spell_dru_wild_mushroom_detonate : public SpellScriptLoader
 };
 
 // Wild Mushroom : Bloom - 102791
-class spell_dru_wild_mushroom_bloom : public SpellScriptLoader
+class spell_dru_wild_mushroom_bloom: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dru_wild_mushroom_bloom() : SpellScriptLoader("spell_dru_wild_mushroom_bloom") { }
+        spell_dru_wild_mushroom_bloom() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_wild_mushroom_bloom") { }
 
         class spell_dru_wild_mushroom_bloom_SpellScript : public SpellScript
         {
@@ -1793,10 +1793,10 @@ enum CelestialAlignementSpells
 };
 
 // Celestial Alignment - 112071
-class spell_dru_celestial_alignment : public SpellScriptLoader
+class spell_dru_celestial_alignment: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dru_celestial_alignment() : SpellScriptLoader("spell_dru_celestial_alignment") { }
+        spell_dru_celestial_alignment() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_celestial_alignment") { }
 
         class spell_dru_celestial_alignment_SpellScript : public SpellScript
         {
@@ -1864,10 +1864,10 @@ enum StampedingRoarSpells
 };
 
 // Stampeding Roar - 97993, Stampeding Roar (cat) - 77764 and Stampeding Roar(bear) - 77761
-class spell_dru_stampeding_roar : public SpellScriptLoader
+class spell_dru_stampeding_roar: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dru_stampeding_roar() : SpellScriptLoader("spell_dru_stampeding_roar") { }
+        spell_dru_stampeding_roar() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_stampeding_roar") { }
 
         class spell_dru_stampeding_roar_SpellScript : public SpellScript
         {
@@ -1903,10 +1903,10 @@ enum LacerateSpells
 };
 
 // Lacerate - 33745
-class spell_dru_lacerate : public SpellScriptLoader
+class spell_dru_lacerate: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dru_lacerate() : SpellScriptLoader("spell_dru_lacerate") { }
+        spell_dru_lacerate() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_lacerate") { }
 
         class spell_dru_lacerate_SpellScript : public SpellScript
         {
@@ -1933,10 +1933,10 @@ class spell_dru_lacerate : public SpellScriptLoader
 };
 
 // Faerie Fire - 770
-class spell_dru_faerie_fire : public SpellScriptLoader
+class spell_dru_faerie_fire: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dru_faerie_fire() : SpellScriptLoader("spell_dru_faerie_fire") { }
+        spell_dru_faerie_fire() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_faerie_fire") { }
 
         class spell_dru_faerie_fire_SpellScript : public SpellScript
         {
@@ -1963,10 +1963,10 @@ class spell_dru_faerie_fire : public SpellScriptLoader
 };
 
 // Teleport : Moonglade - 18960
-class spell_dru_teleport_moonglade : public SpellScriptLoader
+class spell_dru_teleport_moonglade: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dru_teleport_moonglade() : SpellScriptLoader("spell_dru_teleport_moonglade") { }
+        spell_dru_teleport_moonglade() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_teleport_moonglade") { }
 
         class spell_dru_teleport_moonglade_SpellScript : public SpellScript
         {
@@ -1996,10 +1996,10 @@ enum ActivateCatFormSpells
 };
 
 // Prowl - 5215, Displacer Beast - 102280 and Dash - 1850
-class spell_dru_activate_cat_form : public SpellScriptLoader
+class spell_dru_activate_cat_form: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dru_activate_cat_form() : SpellScriptLoader("spell_dru_activate_cat_form") { }
+        spell_dru_activate_cat_form() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_activate_cat_form") { }
 
         class spell_dru_activate_cat_form_SpellScript : public SpellScript
         {
@@ -2043,10 +2043,10 @@ enum EclipseSpells
 };
 
 // 5176 - Wrath, 2912 - Starfire and 78674 - Starsurge
-class spell_dru_eclipse : public SpellScriptLoader
+class spell_dru_eclipse: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dru_eclipse() : SpellScriptLoader("spell_dru_eclipse") { }
+        spell_dru_eclipse() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_eclipse") { }
 
         class spell_dru_eclipse_SpellScript : public SpellScript
         {
@@ -2223,10 +2223,10 @@ class spell_dru_eclipse : public SpellScriptLoader
         }
 };
 // T10 Restoration 4P - 70691
-class spell_dru_t10_restoration_4p_bonus : public SpellScriptLoader
+class spell_dru_t10_restoration_4p_bonus: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dru_t10_restoration_4p_bonus() : SpellScriptLoader("spell_dru_t10_restoration_4p_bonus") { }
+        spell_dru_t10_restoration_4p_bonus() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_t10_restoration_4p_bonus") { }
 
         class spell_dru_t10_restoration_4p_bonus_SpellScript : public SpellScript
         {
@@ -2285,10 +2285,10 @@ enum StarfallSpells
     SPELL_DRUID_GLYPH_OF_GUIDED_STARS = 146655
 };
 // Starfall (triggered) - 50286
-class spell_dru_starfall_dummy : public SpellScriptLoader
+class spell_dru_starfall_dummy: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dru_starfall_dummy() : SpellScriptLoader("spell_dru_starfall_dummy") { }
+        spell_dru_starfall_dummy() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_starfall_dummy") { }
 
         class spell_dru_starfall_dummy_SpellScript : public SpellScript
         {
@@ -2352,10 +2352,10 @@ enum SavageRoarSpells
 };
 
 // Savage Roar - 52610
-class spell_dru_savage_roar : public SpellScriptLoader
+class spell_dru_savage_roar: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dru_savage_roar() : SpellScriptLoader("spell_dru_savage_roar") { }
+        spell_dru_savage_roar() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_savage_roar") { }
 
         class spell_dru_savage_roar_SpellScript : public SpellScript
         {
@@ -2423,10 +2423,10 @@ enum SurvivalInstinctSpells
 };
 
 // Survival Instincts - 61336
-class spell_dru_survival_instincts : public SpellScriptLoader
+class spell_dru_survival_instincts: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dru_survival_instincts() : SpellScriptLoader("spell_dru_survival_instincts") { }
+        spell_dru_survival_instincts() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_survival_instincts") { }
 
         class spell_dru_survival_instincts_AuraScript : public AuraScript
         {
@@ -2458,10 +2458,10 @@ class spell_dru_survival_instincts : public SpellScriptLoader
 };
 
 // Swiftmend - 18562
-class spell_dru_swiftmend : public SpellScriptLoader
+class spell_dru_swiftmend: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dru_swiftmend() : SpellScriptLoader("spell_dru_swiftmend") { }
+        spell_dru_swiftmend() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_swiftmend") { }
 
         class spell_dru_swiftmend_SpellScript : public SpellScript
         {
@@ -2505,10 +2505,10 @@ enum DruidFormsSpells
 };
 
 // Travel form - 783
-class spell_dru_travel_form : public SpellScriptLoader
+class spell_dru_travel_form: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_dru_travel_form() : SpellScriptLoader("spell_dru_travel_form") { }
+    spell_dru_travel_form() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_travel_form") { }
 
     class spell_dru_travel_form_SpellScript : public SpellScript
     {
@@ -2567,10 +2567,10 @@ public:
     }
 };
 
-class spell_dru_travel_form_playerscript : public PlayerScript
+class spell_dru_travel_form_playerscript: public MS::Game::Scripting::Interfaces::PlayerScript
 {
     public:
-        spell_dru_travel_form_playerscript() : PlayerScript("spell_dru_travel_form_playerscript") {}
+        spell_dru_travel_form_playerscript() : MS::Game::Scripting::Interfaces::PlayerScript("spell_dru_travel_form_playerscript") {}
 
         bool CheckIfCanFlyInLoc(Player* p_Player)
         {
@@ -2654,10 +2654,10 @@ class spell_dru_travel_form_playerscript : public PlayerScript
 };
 
 // 40121 - Swift Flight Form (Passive)
-class spell_dru_swift_flight_passive : public SpellScriptLoader
+class spell_dru_swift_flight_passive: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_dru_swift_flight_passive() : SpellScriptLoader("spell_dru_swift_flight_passive") { }
+    spell_dru_swift_flight_passive() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_swift_flight_passive") { }
 
     class spell_dru_swift_flight_passive_AuraScript : public AuraScript
     {
@@ -2688,10 +2688,10 @@ public:
 };
 
 // 114338 - Glyph of the Stag
-class spell_dru_glyph_of_the_stag : public SpellScriptLoader
+class spell_dru_glyph_of_the_stag: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_dru_glyph_of_the_stag() : SpellScriptLoader("spell_dru_glyph_of_the_stag") { }
+    spell_dru_glyph_of_the_stag() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_glyph_of_the_stag") { }
 
     class spell_dru_glyph_of_the_stag_AuraScript : public AuraScript
     {
@@ -2754,10 +2754,10 @@ enum LeaderofthePackSpells
 };
 
 // 17007 - Lead of the Pack
-class spell_dru_leader_of_the_pack : public SpellScriptLoader
+class spell_dru_leader_of_the_pack: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_dru_leader_of_the_pack() : SpellScriptLoader("spell_dru_leader_of_the_pack") { }
+    spell_dru_leader_of_the_pack() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_leader_of_the_pack") { }
 
     class spell_dru_leader_of_the_pack_AuraScript : public AuraScript
     {
@@ -2787,10 +2787,10 @@ public:
 };
 
 // 24932 - Lead of the Pack (Critical)
-class spell_dru_leader_of_the_pack_critical : public SpellScriptLoader
+class spell_dru_leader_of_the_pack_critical: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_dru_leader_of_the_pack_critical() : SpellScriptLoader("spell_dru_leader_of_the_pack_critical") { }
+    spell_dru_leader_of_the_pack_critical() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_leader_of_the_pack_critical") { }
 
     class spell_dru_leader_of_the_pack_critical_AuraScript : public AuraScript
     {
@@ -2825,10 +2825,10 @@ enum SpellsRake
 };
 
 // Rake - 1822
-class spell_dru_rake : public SpellScriptLoader
+class spell_dru_rake: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_dru_rake() : SpellScriptLoader("spell_dru_rake") { }
+    spell_dru_rake() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_rake") { }
 
     class spell_dru_rake_SpellScript : public SpellScript
     {
@@ -2862,10 +2862,10 @@ enum SpellsShred
 };
 
 // Shred - 5221
-class spell_dru_shred : public SpellScriptLoader
+class spell_dru_shred: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_dru_shred() : SpellScriptLoader("spell_dru_shred") { }
+    spell_dru_shred() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_shred") { }
 
     class spell_dru_shred_SpellScript : public SpellScript
     {
@@ -2906,10 +2906,10 @@ enum SpellsFerociousBite
 };
 
 // Ferocious Bite - 22568
-class spell_dru_ferocious_bite : public SpellScriptLoader
+class spell_dru_ferocious_bite: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_dru_ferocious_bite() : SpellScriptLoader("spell_dru_ferocious_bite") { }
+    spell_dru_ferocious_bite() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_ferocious_bite") { }
 
     class spell_dru_ferocious_bite_SpellScript : public SpellScript
     {
@@ -2957,10 +2957,10 @@ public:
 };
 
 // Frenzied Regeneration - 22842
-class spell_dru_frenzied_regeneration : public SpellScriptLoader
+class spell_dru_frenzied_regeneration: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_dru_frenzied_regeneration() : SpellScriptLoader("spell_dru_frenzied_regeneration") { }
+    spell_dru_frenzied_regeneration() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_frenzied_regeneration") { }
 
     class spell_dru_frenzied_regeneration_SpellScript : public SpellScript
     {
@@ -2994,10 +2994,10 @@ public:
 };
 
 // Rip - 1079
-class spell_dru_rip : public SpellScriptLoader
+class spell_dru_rip: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_dru_rip() : SpellScriptLoader("spell_dru_rip") { }
+    spell_dru_rip() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dru_rip") { }
 
     class spell_dru_rip_AuraScript : public AuraScript
     {

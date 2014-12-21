@@ -5,10 +5,10 @@
 #define QUEST_A_NEW_FATE 29800
 #define A_NEW_FATE_KILL_CREDIT 57741
 
-class AreaTrigger_at_mandori : public AreaTriggerScript
+class AreaTrigger_at_mandori : public MS::Game::Scripting::Interfaces::AreaTriggerScript
 {
     public:
-        AreaTrigger_at_mandori() : AreaTriggerScript("AreaTrigger_at_mandori")
+        AreaTrigger_at_mandori() : MS::Game::Scripting::Interfaces::AreaTriggerScript("AreaTrigger_at_mandori")
         {}
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
@@ -39,10 +39,10 @@ class AreaTrigger_at_mandori : public AreaTriggerScript
         }
 };
 
-class mob_mandori_escort : public CreatureScript
+class mob_mandori_escort : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_mandori_escort() : CreatureScript("mob_mandori_escort") { }
+        mob_mandori_escort() : MS::Game::Scripting::Interfaces::CreatureScript("mob_mandori_escort") { }
 
     struct mob_mandori_escortAI : public npc_escortAI
     {        
@@ -228,10 +228,10 @@ class mob_mandori_escort : public CreatureScript
     }
 };
 
-class npc_korga : public CreatureScript
+class npc_korga : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_korga() : CreatureScript("npc_korga") { }
+        npc_korga() : MS::Game::Scripting::Interfaces::CreatureScript("npc_korga") { }
 
         bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
         {
@@ -243,10 +243,10 @@ class npc_korga : public CreatureScript
         }
 };
 
-class mob_ji_forest_escort : public CreatureScript
+class mob_ji_forest_escort : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_ji_forest_escort() : CreatureScript("mob_ji_forest_escort") { }
+    mob_ji_forest_escort() : MS::Game::Scripting::Interfaces::CreatureScript("mob_ji_forest_escort") { }
 
     struct mob_ji_forest_escortAI : public npc_escortAI
     {        
@@ -302,10 +302,10 @@ public:
     
 };
 
-class AreaTrigger_at_rescue_soldiers : public AreaTriggerScript
+class AreaTrigger_at_rescue_soldiers : public MS::Game::Scripting::Interfaces::AreaTriggerScript
 {
     public:
-        AreaTrigger_at_rescue_soldiers() : AreaTriggerScript("AreaTrigger_at_rescue_soldiers")
+        AreaTrigger_at_rescue_soldiers() : MS::Game::Scripting::Interfaces::AreaTriggerScript("AreaTrigger_at_rescue_soldiers")
         {}
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
@@ -323,10 +323,10 @@ class AreaTrigger_at_rescue_soldiers : public AreaTriggerScript
         }
 };
 
-class npc_hurted_soldier : public CreatureScript
+class npc_hurted_soldier : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_hurted_soldier() : CreatureScript("npc_hurted_soldier") { }
+    npc_hurted_soldier() : MS::Game::Scripting::Interfaces::CreatureScript("npc_hurted_soldier") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -377,10 +377,10 @@ public:
     };
 };
 
-class boss_vordraka : public CreatureScript
+class boss_vordraka : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_vordraka() : CreatureScript("boss_vordraka") { }
+        boss_vordraka() : MS::Game::Scripting::Interfaces::CreatureScript("boss_vordraka") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -454,10 +454,10 @@ class boss_vordraka : public CreatureScript
         };
 };
 
-class mob_aysa_gunship_crash : public CreatureScript
+class mob_aysa_gunship_crash : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_aysa_gunship_crash() : CreatureScript("mob_aysa_gunship_crash") { }
+        mob_aysa_gunship_crash() : MS::Game::Scripting::Interfaces::CreatureScript("mob_aysa_gunship_crash") { }
 
         bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
         {
@@ -486,10 +486,10 @@ class mob_aysa_gunship_crash : public CreatureScript
         }
 };
 
-class mob_aysa_gunship_crash_escort : public CreatureScript
+class mob_aysa_gunship_crash_escort : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_aysa_gunship_crash_escort() : CreatureScript("mob_aysa_gunship_crash_escort") { }
+    mob_aysa_gunship_crash_escort() : MS::Game::Scripting::Interfaces::CreatureScript("mob_aysa_gunship_crash_escort") { }
 
     struct mob_aysa_gunship_crash_escortAI : public npc_escortAI
     {        
@@ -660,10 +660,10 @@ enum eEnums
     SPELL_HEALER_H          = 117932,
 };
 
-class npc_ji_end_event : public CreatureScript
+class npc_ji_end_event : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_ji_end_event() : CreatureScript("npc_ji_end_event") { }
+    npc_ji_end_event() : MS::Game::Scripting::Interfaces::CreatureScript("npc_ji_end_event") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -845,10 +845,10 @@ public:
     };
 };
 
-class npc_shen_healer : public CreatureScript
+class npc_shen_healer : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_shen_healer() : CreatureScript("npc_shen_healer") { }
+        npc_shen_healer() : MS::Game::Scripting::Interfaces::CreatureScript("npc_shen_healer") { }
 
         struct npc_shen_healerAI : public ScriptedAI
         {        
@@ -877,10 +877,10 @@ class npc_shen_healer : public CreatureScript
 #define GOSSIP_TP_STORMIND        "I would like to go to Stormwind"
 #define GOSSIP_TP_ORGRI           "I would like to go to Orgrimmar"
 
-class npc_shang_xi_choose_faction : public CreatureScript
+class npc_shang_xi_choose_faction : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_shang_xi_choose_faction() : CreatureScript("npc_shang_xi_choose_faction") { }
+        npc_shang_xi_choose_faction() : MS::Game::Scripting::Interfaces::CreatureScript("npc_shang_xi_choose_faction") { }
 
         bool OnGossipHello(Player* player, Creature* creature)
         {

@@ -35,10 +35,10 @@ enum Achievements
     ACHIEV_VOLUNTEER_WORK                         = 2056
 };
 
-class instance_ahnkahet : public InstanceMapScript
+class instance_ahnkahet : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
 public:
-    instance_ahnkahet() : InstanceMapScript("instance_ahnkahet", 619) { }
+    instance_ahnkahet() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_ahnkahet", 619) { }
 
     struct instance_ahnkahet_InstanceScript : public InstanceScript
     {

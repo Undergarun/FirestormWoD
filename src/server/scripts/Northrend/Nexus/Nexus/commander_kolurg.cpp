@@ -38,10 +38,10 @@ Script Data End */
 #define SAY_KILL                                           -1576025
 #define SAY_DEATH                                          -1576026
 
-class boss_commander_kolurg : public CreatureScript
+class boss_commander_kolurg : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_commander_kolurg() : CreatureScript("boss_commander_kolurg") { }
+    boss_commander_kolurg() : MS::Game::Scripting::Interfaces::CreatureScript("boss_commander_kolurg") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

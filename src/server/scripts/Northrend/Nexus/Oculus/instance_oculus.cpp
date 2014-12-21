@@ -31,10 +31,10 @@ Position const VerdisaMove       = { 949.188f, 1032.91f, 359.967f, 1.093027f  };
 Position const BelgaristraszMove = { 941.453f, 1044.1f,  359.967f, 0.1984709f };
 Position const EternosMove       = { 943.202f, 1059.35f, 359.967f, 5.757278f  };
 
-class instance_oculus : public InstanceMapScript
+class instance_oculus : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
     public:
-        instance_oculus() : InstanceMapScript(OculusScriptName, 578) { }
+        instance_oculus() : MS::Game::Scripting::Interfaces::InstanceMapScript(OculusScriptName, 578) { }
 
         struct instance_oculus_InstanceMapScript : public InstanceScript
         {

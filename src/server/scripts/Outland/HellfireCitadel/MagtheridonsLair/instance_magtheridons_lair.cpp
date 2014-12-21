@@ -42,11 +42,11 @@ enum eSpells
 
 #define EMOTE_BONDS_WEAKEN          "'s bonds begin to weaken!"
 
-class instance_magtheridons_lair : public InstanceMapScript
+class instance_magtheridons_lair : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
     public:
         instance_magtheridons_lair()
-            : InstanceMapScript("instance_magtheridons_lair", 544)
+            : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_magtheridons_lair", 544)
         {
         }
 

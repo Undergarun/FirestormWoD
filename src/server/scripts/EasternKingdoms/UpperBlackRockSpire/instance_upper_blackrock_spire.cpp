@@ -45,10 +45,10 @@ static const BossScenarios g_BossScenarios[] =
     { 0,                         0                      }
 };
 
-class instance_upper_blackrock_spire : public InstanceMapScript
+class instance_upper_blackrock_spire : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
     public:
-        instance_upper_blackrock_spire() : InstanceMapScript("instance_upper_blackrock_spire", 1358) { }
+        instance_upper_blackrock_spire() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_upper_blackrock_spire", 1358) { }
 
         struct instance_upper_blackrock_spireInstanceMapScript : public InstanceScript
         {

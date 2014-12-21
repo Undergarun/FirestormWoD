@@ -40,10 +40,10 @@ EndScriptData */
 #define QUEST_ENTRY_DIVERSION   10283
 #define LODGE_QUEST_TRIGGER     20155
 
-class instance_old_hillsbrad : public InstanceMapScript
+class instance_old_hillsbrad : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
 public:
-    instance_old_hillsbrad() : InstanceMapScript("instance_old_hillsbrad", 560) { }
+    instance_old_hillsbrad() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_old_hillsbrad", 560) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {

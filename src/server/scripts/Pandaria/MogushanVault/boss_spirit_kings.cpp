@@ -231,10 +231,10 @@ uint32 spiritsOrder[4] =
 };
 
 // 60984 - Controller
-class boss_spirit_kings_controler : public CreatureScript
+class boss_spirit_kings_controler : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_spirit_kings_controler() : CreatureScript("boss_spirit_kings_controler") {}
+        boss_spirit_kings_controler() : MS::Game::Scripting::Interfaces::CreatureScript("boss_spirit_kings_controler") {}
 
         struct boss_spirit_kings_controlerAI : public BossAI
         {
@@ -636,10 +636,10 @@ class boss_spirit_kings_controler : public CreatureScript
 // 60708 - Meng the Demented
 // 60709 - Qiang the Merciless
 // 60710 - Subetai the Swift
-class boss_spirit_kings : public CreatureScript
+class boss_spirit_kings : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_spirit_kings() : CreatureScript("boss_spirit_kings") {}
+        boss_spirit_kings() : MS::Game::Scripting::Interfaces::CreatureScript("boss_spirit_kings") {}
 
         struct boss_spirit_kingsAI : public ScriptedAI
         {
@@ -1249,10 +1249,10 @@ class boss_spirit_kings : public CreatureScript
 };
 
 // 60958 - Pinning Arrow
-class mob_pinning_arrow : public CreatureScript
+class mob_pinning_arrow : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_pinning_arrow() : CreatureScript("mob_pinning_arrow") {}
+        mob_pinning_arrow() : MS::Game::Scripting::Interfaces::CreatureScript("mob_pinning_arrow") {}
 
         struct mob_pinning_arrowAI : public ScriptedAI
         {
@@ -1315,10 +1315,10 @@ class mob_pinning_arrow : public CreatureScript
 #define PHASE_COALESCING_SHADOW false
 
 // 60731 - Undying Shadows
-class mob_undying_shadow : public CreatureScript
+class mob_undying_shadow : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_undying_shadow() : CreatureScript("mob_undying_shadow") {}
+        mob_undying_shadow() : MS::Game::Scripting::Interfaces::CreatureScript("mob_undying_shadow") {}
 
         struct mob_undying_shadowAI : public ScriptedAI
         {
@@ -1425,10 +1425,10 @@ class mob_undying_shadow : public CreatureScript
 };
 
 // Massive Attack - 117921
-class spell_massive_attacks : public SpellScriptLoader
+class spell_massive_attacks: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_massive_attacks() : SpellScriptLoader("spell_massive_attacks") { }
+        spell_massive_attacks() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_massive_attacks") { }
 
         class spell_massive_attacks_SpellScript : public SpellScript
         {
@@ -1466,10 +1466,10 @@ class spell_massive_attacks : public SpellScriptLoader
 };
 
 // Volley (1) - 118094, Volley (2) - 118105 and Volley (3) - 118106
-class spell_volley : public SpellScriptLoader
+class spell_volley: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_volley() : SpellScriptLoader("spell_volley") { }
+        spell_volley() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_volley") { }
 
         class spell_volley_SpellScript : public SpellScript
         {
@@ -1521,10 +1521,10 @@ class spell_volley : public SpellScriptLoader
 };
 
 // Pinned Down - 118145
-class spell_pinned_down : public SpellScriptLoader
+class spell_pinned_down: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pinned_down() : SpellScriptLoader("spell_pinned_down") { }
+        spell_pinned_down() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pinned_down") { }
 
         class spell_pinned_down_SpellScript : public SpellScript
         {
@@ -1550,10 +1550,10 @@ class spell_pinned_down : public SpellScriptLoader
 };
 
 // Maddening Shout - 117708
-class spell_maddening_shout : public SpellScriptLoader
+class spell_maddening_shout: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_maddening_shout() : SpellScriptLoader("spell_maddening_shout") { }
+        spell_maddening_shout() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_maddening_shout") { }
 
         class spell_maddening_shout_AuraScript : public AuraScript
         {
@@ -1589,10 +1589,10 @@ class spell_maddening_shout : public SpellScriptLoader
 };
 
 // Cowardice - 117756 and Crazed - 117737
-class spell_crazed_cowardice : public SpellScriptLoader
+class spell_crazed_cowardice: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_crazed_cowardice() : SpellScriptLoader("spell_crazed_cowardice") { }
+        spell_crazed_cowardice() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_crazed_cowardice") { }
 
         class spell_crazed_cowardice_AuraScript : public AuraScript
         {
@@ -1695,10 +1695,10 @@ class spell_crazed_cowardice : public SpellScriptLoader
 };
 
 // Crazy Thought - 117833
-class spell_crazy_thought : public SpellScriptLoader
+class spell_crazy_thought: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_crazy_thought() : SpellScriptLoader("spell_crazy_thought") { }
+        spell_crazy_thought() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_crazy_thought") { }
 
         class spell_crazy_thought_SpellScript : public SpellScript
         {
@@ -1742,10 +1742,10 @@ class spell_crazy_thought : public SpellScriptLoader
 };
 
 // Coalescing Shadow - 117558
-class spell_coalescing_shadow : public SpellScriptLoader
+class spell_coalescing_shadow: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_coalescing_shadow() : SpellScriptLoader("spell_coalescing_shadow") { }
+        spell_coalescing_shadow() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_coalescing_shadow") { }
 
         class spell_coalescing_shadow_SpellScript : public SpellScript
         {
@@ -1778,10 +1778,10 @@ class spell_coalescing_shadow : public SpellScriptLoader
 };
 
 // 118162 - Sleight of hand
-class spell_sleight_of_hand : public SpellScriptLoader
+class spell_sleight_of_hand: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sleight_of_hand() : SpellScriptLoader("spell_sleight_of_hand") { }
+        spell_sleight_of_hand() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sleight_of_hand") { }
 
         class spell_sleight_of_hand_AuraScript : public AuraScript
         {
@@ -1813,10 +1813,10 @@ class spell_sleight_of_hand : public SpellScriptLoader
 };
 
 // 117697 - Shield of Darkness
-class spell_shield_of_darkness : public SpellScriptLoader
+class spell_shield_of_darkness: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_shield_of_darkness() : SpellScriptLoader("spell_shield_of_darkness") { }
+        spell_shield_of_darkness() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_shield_of_darkness") { }
 
         class spell_shield_of_darkness_SpellScript : public SpellScript
         {

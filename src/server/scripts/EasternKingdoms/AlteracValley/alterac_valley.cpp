@@ -48,7 +48,7 @@ enum Creatures
     NPC_WEST_FROSTWOLF_WARMASTER                  = 14777
 };
 
-class mob_av_marshal_or_warmaster : public CreatureScript
+class mob_av_marshal_or_warmaster : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 

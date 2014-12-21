@@ -229,10 +229,10 @@ bool AllBossesDead(Creature* me)
 }
 
 // Gara'Jal's Soul - 69182
-class npc_gara_jal_s_soul : public CreatureScript
+class npc_gara_jal_s_soul : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_gara_jal_s_soul() : CreatureScript("npc_gara_jal_s_soul") { }
+        npc_gara_jal_s_soul() : MS::Game::Scripting::Interfaces::CreatureScript("npc_gara_jal_s_soul") { }
 
         struct npc_gara_jal_s_soulAI : public ScriptedAI
         {
@@ -385,10 +385,10 @@ class npc_gara_jal_s_soul : public CreatureScript
 };
 
 // Gara'Jal the Spirit Binder - 69135
-class npc_gara_jal_the_spirit_binder : public CreatureScript
+class npc_gara_jal_the_spirit_binder : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_gara_jal_the_spirit_binder() : CreatureScript("npc_gara_jal_the_spirit_binder") { }
+    npc_gara_jal_the_spirit_binder() : MS::Game::Scripting::Interfaces::CreatureScript("npc_gara_jal_the_spirit_binder") { }
 
     struct npc_gara_jal_the_spirit_binderAI : public ScriptedAI
     {
@@ -411,10 +411,10 @@ public:
 };
 
 // Frost King Malakk - 69131
-class boss_king_malakk : public CreatureScript
+class boss_king_malakk : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_king_malakk() : CreatureScript("boss_king_malakk") { }
+        boss_king_malakk() : MS::Game::Scripting::Interfaces::CreatureScript("boss_king_malakk") { }
 
         struct boss_king_malakkAI : public BossAI
         {
@@ -712,10 +712,10 @@ class boss_king_malakk : public CreatureScript
 };
 
 // Kazra'jin - 69134
-class boss_kazra_jin : public CreatureScript
+class boss_kazra_jin : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_kazra_jin() : CreatureScript("boss_kazra_jin") { }
+        boss_kazra_jin() : MS::Game::Scripting::Interfaces::CreatureScript("boss_kazra_jin") { }
 
         struct boss_kazra_jinAI : public BossAI
         {
@@ -1131,10 +1131,10 @@ class boss_kazra_jin : public CreatureScript
 };
 
 // Sul the Sandcrawler - 69078
-class boss_sul_the_sandcrawler : public CreatureScript
+class boss_sul_the_sandcrawler : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_sul_the_sandcrawler() : CreatureScript("boss_sul_the_sandcrawler") { }
+        boss_sul_the_sandcrawler() : MS::Game::Scripting::Interfaces::CreatureScript("boss_sul_the_sandcrawler") { }
 
         struct boss_sul_the_sandcrawlerAI : public BossAI
         {
@@ -1444,10 +1444,10 @@ class boss_sul_the_sandcrawler : public CreatureScript
 };
 
 // Twisted Fate (first) - 69740
-class mob_first_twisted_fate : public CreatureScript
+class mob_first_twisted_fate : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_first_twisted_fate() : CreatureScript("mob_first_twisted_fate") { }
+        mob_first_twisted_fate() : MS::Game::Scripting::Interfaces::CreatureScript("mob_first_twisted_fate") { }
 
         struct mob_first_twisted_fateAI : public ScriptedAI
         {
@@ -1504,10 +1504,10 @@ class mob_first_twisted_fate : public CreatureScript
 };
 
 // Twisted Fate (second) - 69746
-class mob_second_twisted_fate : public CreatureScript
+class mob_second_twisted_fate : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_second_twisted_fate() : CreatureScript("mob_second_twisted_fate") { }
+        mob_second_twisted_fate() : MS::Game::Scripting::Interfaces::CreatureScript("mob_second_twisted_fate") { }
 
         struct mob_second_twisted_fateAI : public ScriptedAI
         {
@@ -1565,10 +1565,10 @@ class mob_second_twisted_fate : public CreatureScript
 };
 
 // High Priestess Mar'li - 69132
-class boss_high_priestress_mar_li : public CreatureScript
+class boss_high_priestress_mar_li : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_high_priestress_mar_li() : CreatureScript("boss_high_priestress_mar_li") { }
+        boss_high_priestress_mar_li() : MS::Game::Scripting::Interfaces::CreatureScript("boss_high_priestress_mar_li") { }
 
         struct boss_high_priestress_mar_liAI : public BossAI
         {
@@ -1922,10 +1922,10 @@ class boss_high_priestress_mar_li : public CreatureScript
 };
 
 // Living Sand - 69153
-class mob_living_sand : public CreatureScript
+class mob_living_sand : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_living_sand() : CreatureScript("mob_living_sand") { }
+        mob_living_sand() : MS::Game::Scripting::Interfaces::CreatureScript("mob_living_sand") { }
 
         struct mob_living_sandAI : public ScriptedAI
         {
@@ -2052,10 +2052,10 @@ class mob_living_sand : public CreatureScript
 };
 
 // Blessed Loa Spirit - 69480
-class mob_blessed_loa_spirit : public CreatureScript
+class mob_blessed_loa_spirit : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_blessed_loa_spirit() : CreatureScript("mob_blessed_loa_spirit") { }
+        mob_blessed_loa_spirit() : MS::Game::Scripting::Interfaces::CreatureScript("mob_blessed_loa_spirit") { }
 
         struct mob_blessed_loa_spiritAI : public ScriptedAI
         {
@@ -2146,10 +2146,10 @@ class mob_blessed_loa_spirit : public CreatureScript
 };
 
 // Shadowed Loa Spirit - 69548
-class mob_shadowed_lua_spirit : public CreatureScript
+class mob_shadowed_lua_spirit : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_shadowed_lua_spirit() : CreatureScript("mob_shadowed_lua_spirit") { }
+        mob_shadowed_lua_spirit() : MS::Game::Scripting::Interfaces::CreatureScript("mob_shadowed_lua_spirit") { }
 
         struct mob_shadowed_lua_spiritAI : public ScriptedAI
         {
@@ -2242,10 +2242,10 @@ class mob_shadowed_lua_spirit : public CreatureScript
 };
 
 // Reckless Charge (rolling) - 137117
-class spell_reckless_charge_rolling : public SpellScriptLoader
+class spell_reckless_charge_rolling: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_reckless_charge_rolling() : SpellScriptLoader("spell_reckless_charge_rolling") { }
+        spell_reckless_charge_rolling() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_reckless_charge_rolling") { }
 
         class spell_reckless_charge_rolling_SpellScript : public SpellScript
         {
@@ -2332,10 +2332,10 @@ class spell_reckless_charge_rolling : public SpellScriptLoader
 };
 
 // Reckless Charge (movement) - 137131
-class spell_reckless_charge_movement : public SpellScriptLoader
+class spell_reckless_charge_movement: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_reckless_charge_movement() : SpellScriptLoader("spell_reckless_charge_movement") { }
+        spell_reckless_charge_movement() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_reckless_charge_movement") { }
 
         class spell_reckless_charge_movement_SpellScript : public SpellScript
         {
@@ -2373,10 +2373,10 @@ class spell_reckless_charge_movement : public SpellScriptLoader
 };
 
 // Frigid Assault (Stun) - 136904
-class spell_frigid_assault : public SpellScriptLoader
+class spell_frigid_assault: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_frigid_assault() : SpellScriptLoader("spell_frigid_assault") { }
+        spell_frigid_assault() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_frigid_assault") { }
 
         class spell_frigid_assault_AuraScript : public AuraScript
         {
@@ -2427,10 +2427,10 @@ class spell_frigid_assault : public SpellScriptLoader
 };
 
 // Lingering Presence - 136467
-class spell_lingering_presence : public SpellScriptLoader
+class spell_lingering_presence: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_lingering_presence() : SpellScriptLoader("spell_lingering_presence") { }
+        spell_lingering_presence() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_lingering_presence") { }
 
         class spell_lingering_presence_AuraScript : public AuraScript
         {
@@ -2466,10 +2466,10 @@ class spell_lingering_presence : public SpellScriptLoader
 };
 
 // Biting Cold - 136917
-class spell_biting_cold_malakk : public SpellScriptLoader
+class spell_biting_cold_malakk: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_biting_cold_malakk() : SpellScriptLoader("spell_biting_cold_malakk") { }
+        spell_biting_cold_malakk() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_biting_cold_malakk") { }
 
         class spell_biting_cold_malakk_SpellScript : public SpellScript
         {
@@ -2496,10 +2496,10 @@ class spell_biting_cold_malakk : public SpellScriptLoader
 };
 
 // Frostbite - 136990
-class spell_frosbite_malakk : public SpellScriptLoader
+class spell_frosbite_malakk: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_frosbite_malakk() : SpellScriptLoader("spell_frosbite_malakk") { }
+        spell_frosbite_malakk() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_frosbite_malakk") { }
 
         class spell_frosbite_malakk_SpellScript : public SpellScript
         {
@@ -2526,10 +2526,10 @@ class spell_frosbite_malakk : public SpellScriptLoader
 };
 
 // Frostbite (aura) - 136922
-class spell_frosbite_malakk_aura : public SpellScriptLoader
+class spell_frosbite_malakk_aura: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_frosbite_malakk_aura() : SpellScriptLoader("spell_frosbite_malakk_aura") { }
+        spell_frosbite_malakk_aura() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_frosbite_malakk_aura") { }
 
         class spell_frosbite_malakk_aura_AuraScript : public AuraScript
         {
@@ -2611,10 +2611,10 @@ class spell_frosbite_malakk_aura : public SpellScriptLoader
 };
 
 // Overload (aura) - 137149 / Discharge - 137166
-class spell_overload_discharge_kazra_jin : public SpellScriptLoader
+class spell_overload_discharge_kazra_jin: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_overload_discharge_kazra_jin() : SpellScriptLoader("spell_overload_discharge_kazra_jin") { }
+        spell_overload_discharge_kazra_jin() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_overload_discharge_kazra_jin") { }
 
         class spell_overload_discharge_kazra_jin_AuraScript : public AuraScript
         {
@@ -2646,10 +2646,10 @@ class spell_overload_discharge_kazra_jin : public SpellScriptLoader
 };
 
 // Ensnared - 136878
-class spell_ensnared : public SpellScriptLoader
+class spell_ensnared: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_ensnared() : SpellScriptLoader("spell_ensnared") { }
+        spell_ensnared() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_ensnared") { }
 
         class spell_ensnared_AuraScript : public AuraScript
         {
@@ -2690,10 +2690,10 @@ class spell_ensnared : public SpellScriptLoader
 };
 
 // SandStorm - 136895
-class spell_sandstorm : public SpellScriptLoader
+class spell_sandstorm: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sandstorm() : SpellScriptLoader("spell_sandstorm") { }
+        spell_sandstorm() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sandstorm") { }
 
         class spell_sandstorm_AuraScript : public AuraScript
         {
@@ -2735,10 +2735,10 @@ class spell_sandstorm : public SpellScriptLoader
 };
 
 // Dark Power - 136507
-class spell_dark_power : public SpellScriptLoader
+class spell_dark_power: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dark_power() : SpellScriptLoader("spell_dark_power") { }
+        spell_dark_power() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dark_power") { }
 
         class spell_dark_power_SpellScript : public SpellScript
         {
@@ -2768,10 +2768,10 @@ class spell_dark_power : public SpellScriptLoader
 };
 
 // Soul Fragment - 137641
-class spell_soul_fragment : public SpellScriptLoader
+class spell_soul_fragment: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_soul_fragment() : SpellScriptLoader("spell_soul_fragment") { }
+        spell_soul_fragment() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_soul_fragment") { }
 
         class spell_soul_fragment_AuraScript : public AuraScript
         {
@@ -2803,10 +2803,10 @@ class spell_soul_fragment : public SpellScriptLoader
 };
 
 // Soul Fragment (switch) - 137643
-class spell_soul_fragment_switch : public SpellScriptLoader
+class spell_soul_fragment_switch: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_soul_fragment_switch() :  SpellScriptLoader("spell_soul_fragment_switch") { }
+        spell_soul_fragment_switch() :  MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_soul_fragment_switch") { }
 
         class spell_soul_fragment_switch_SpellScript : public SpellScript
         {
@@ -2843,10 +2843,10 @@ class spell_soul_fragment_switch : public SpellScriptLoader
 };
 
 // Twisted Fate (first)- 137943
-class spell_first_twisted_fate : public SpellScriptLoader
+class spell_first_twisted_fate: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_first_twisted_fate() :  SpellScriptLoader("spell_first_twisted_fate") { }
+        spell_first_twisted_fate() :  MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_first_twisted_fate") { }
 
         class spell_first_twisted_fate_SpellScript : public SpellScript
         {
@@ -2879,10 +2879,10 @@ class spell_first_twisted_fate : public SpellScriptLoader
 };
 
 // Twisted Fate (second) - 137964
-class spell_second_twisted_fate : public SpellScriptLoader
+class spell_second_twisted_fate: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_second_twisted_fate() :  SpellScriptLoader("spell_second_twisted_fate") { }
+        spell_second_twisted_fate() :  MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_second_twisted_fate") { }
 
         class spell_second_twisted_fate_SpellScript : public SpellScript
         {
@@ -2915,10 +2915,10 @@ class spell_second_twisted_fate : public SpellScriptLoader
 };
 
 // Twisted Fate (damage) - 137972
-class spell_twisted_fate_damage : public SpellScriptLoader
+class spell_twisted_fate_damage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_twisted_fate_damage() :  SpellScriptLoader("spell_twisted_fate_damage") { }
+        spell_twisted_fate_damage() :  MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_twisted_fate_damage") { }
 
         class spell_twisted_fate_damage_SpellScript : public SpellScript
         {

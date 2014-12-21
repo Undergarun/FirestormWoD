@@ -185,10 +185,10 @@ float rangeAttenuation2[2][2] =
 // Zorlok - 62980
 // Echo of Attenuation - 65173
 // Echo of Force and Verve - 65174
-class boss_zorlok : public CreatureScript
+class boss_zorlok : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_zorlok() : CreatureScript("boss_zorlok") { }
+        boss_zorlok() : MS::Game::Scripting::Interfaces::CreatureScript("boss_zorlok") { }
 
         struct boss_zorlokAI : public BossAI
         {
@@ -1093,10 +1093,10 @@ class boss_zorlok : public CreatureScript
 };
 
 // Sonic Ring - 62689
-class mob_sonic_ring : public CreatureScript
+class mob_sonic_ring : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_sonic_ring() : CreatureScript("mob_sonic_ring") { }
+        mob_sonic_ring() : MS::Game::Scripting::Interfaces::CreatureScript("mob_sonic_ring") { }
 
         struct mob_sonic_ringAI : public ScriptedAI
         {
@@ -1226,10 +1226,10 @@ class mob_sonic_ring : public CreatureScript
 };
 
 // Sonic Pulse (Heroic Mode) - 63837
-class mob_sonic_pulse : public CreatureScript
+class mob_sonic_pulse : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_sonic_pulse() : CreatureScript("mob_sonic_pulse") { }
+        mob_sonic_pulse() : MS::Game::Scripting::Interfaces::CreatureScript("mob_sonic_pulse") { }
 
         struct mob_sonic_pulseAI : public ScriptedAI
         {
@@ -1357,10 +1357,10 @@ class mob_sonic_pulse : public CreatureScript
 };
 
 // Inhale - 122852
-class spell_inhale : public SpellScriptLoader
+class spell_inhale: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_inhale() : SpellScriptLoader("spell_inhale") { }
+        spell_inhale() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_inhale") { }
 
         class spell_inhale_SpellScript : public SpellScript
         {
@@ -1385,10 +1385,10 @@ class spell_inhale : public SpellScriptLoader
 };
 
 // Attenuation - 122440
-class spell_attenuation : public SpellScriptLoader
+class spell_attenuation: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_attenuation() : SpellScriptLoader("spell_attenuation") { }
+        spell_attenuation() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_attenuation") { }
 
         class spell_attenuation_SpellScript : public SpellScript
         {
@@ -1419,10 +1419,10 @@ class spell_attenuation : public SpellScriptLoader
 };
 
 // Force and Verve (Aura) - 122718
-class spell_force_verve : public SpellScriptLoader
+class spell_force_verve: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_force_verve() : SpellScriptLoader("spell_force_verve") { }
+        spell_force_verve() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_force_verve") { }
 
         class spell_force_verve_SpellScript : public SpellScript
         {
@@ -1455,10 +1455,10 @@ class spell_force_verve : public SpellScriptLoader
 };
 
 // Sonic Ring (Aura) - 122336
-class spell_sonic_ring : public SpellScriptLoader
+class spell_sonic_ring: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sonic_ring() : SpellScriptLoader("spell_sonic_ring") { }
+        spell_sonic_ring() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sonic_ring") { }
 
         class spell_sonic_ring_AuraScript : public AuraScript
         {
@@ -1506,10 +1506,10 @@ class spell_sonic_ring : public SpellScriptLoader
 };
 
 // Sonic Pulse (Aura) - 124673
-class spell_sonic_pulse : public SpellScriptLoader
+class spell_sonic_pulse: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sonic_pulse() : SpellScriptLoader("spell_sonic_pulse") { }
+        spell_sonic_pulse() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sonic_pulse") { }
 
         class spell_sonic_pulse_AuraScript : public AuraScript
         {
@@ -1578,10 +1578,10 @@ class ExhaleTargetFilter : public std::unary_function<Unit*, bool>
 };
 
 // Exhale: 122761
-class spell_zorlok_exhale : public SpellScriptLoader
+class spell_zorlok_exhale: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_zorlok_exhale() : SpellScriptLoader("spell_zorlok_exhale") { }
+        spell_zorlok_exhale() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_zorlok_exhale") { }
 
         class spell_zorlok_exhale_SpellScript : public SpellScript
         {
@@ -1658,10 +1658,10 @@ class spell_zorlok_exhale : public SpellScriptLoader
 };
 
 // Exhale (damage): 122760
-class spell_zorlok_exhale_damage : public SpellScriptLoader
+class spell_zorlok_exhale_damage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_zorlok_exhale_damage() : SpellScriptLoader("spell_zorlok_exhale_damage") { }
+        spell_zorlok_exhale_damage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_zorlok_exhale_damage") { }
 
         class spell_zorlok_exhale_damage_SpellScript : public SpellScript
         {
@@ -1729,10 +1729,10 @@ class spell_zorlok_exhale_damage : public SpellScriptLoader
 };
 
 // 122740 - Convert
-class spell_convert : public SpellScriptLoader
+class spell_convert: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public :
-        spell_convert() : SpellScriptLoader("spell_convert") { }
+        spell_convert() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_convert") { }
 
         class spell_convertSpellScript : public SpellScript
         {

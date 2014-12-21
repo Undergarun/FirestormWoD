@@ -80,10 +80,10 @@ enum eEnums
 ## boss_bjarngrim
 ######*/
 
-class boss_bjarngrim : public CreatureScript
+class boss_bjarngrim : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_bjarngrim() : CreatureScript("boss_bjarngrim") { }
+    boss_bjarngrim() : MS::Game::Scripting::Interfaces::CreatureScript("boss_bjarngrim") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -372,10 +372,10 @@ public:
 ## mob_stormforged_lieutenant
 ######*/
 
-class mob_stormforged_lieutenant : public CreatureScript
+class mob_stormforged_lieutenant : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_stormforged_lieutenant() : CreatureScript("mob_stormforged_lieutenant") { }
+    mob_stormforged_lieutenant() : MS::Game::Scripting::Interfaces::CreatureScript("mob_stormforged_lieutenant") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

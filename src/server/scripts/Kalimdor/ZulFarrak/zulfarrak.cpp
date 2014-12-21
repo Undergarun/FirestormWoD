@@ -58,10 +58,10 @@ enum blySpells
 
 #define GOSSIP_BLY                  "[PH] In that case, I will take my reward!"
 
-class npc_sergeant_bly : public CreatureScript
+class npc_sergeant_bly : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_sergeant_bly() : CreatureScript("npc_sergeant_bly") { }
+    npc_sergeant_bly() : MS::Game::Scripting::Interfaces::CreatureScript("npc_sergeant_bly") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
@@ -201,10 +201,10 @@ public:
 +## go_troll_cage
 +######*/
 
-class go_troll_cage : public GameObjectScript
+class go_troll_cage : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_troll_cage() : GameObjectScript("go_troll_cage") { }
+    go_troll_cage() : MS::Game::Scripting::Interfaces::GameObjectScript("go_troll_cage") { }
 
     bool OnGossipHello(Player* /*player*/, GameObject* go)
     {
@@ -255,10 +255,10 @@ enum weegliSays
 
 #define GOSSIP_WEEGLI               "[PH] Please blow up the door."
 
-class npc_weegli_blastfuse : public CreatureScript
+class npc_weegli_blastfuse : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_weegli_blastfuse() : CreatureScript("npc_weegli_blastfuse") { }
+    npc_weegli_blastfuse() : MS::Game::Scripting::Interfaces::CreatureScript("npc_weegli_blastfuse") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
@@ -407,10 +407,10 @@ enum
     DEAD_HERO_CHANCE = 10
 };
 
-class go_shallow_grave : public GameObjectScript
+class go_shallow_grave : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_shallow_grave() : GameObjectScript("go_shallow_grave") { }
+    go_shallow_grave() : MS::Game::Scripting::Interfaces::GameObjectScript("go_shallow_grave") { }
 
     bool OnGossipHello(Player* /*player*/, GameObject* go)
     {
@@ -439,10 +439,10 @@ enum zumrahConsts
     ZUMRAH_HOSTILE_FACTION = 37
 };
 
-class at_zumrah : public AreaTriggerScript
+class at_zumrah : public MS::Game::Scripting::Interfaces::AreaTriggerScript
 {
 public:
-    at_zumrah() : AreaTriggerScript("at_zumrah") { }
+    at_zumrah() : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_zumrah") { }
 
     bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/)
     {

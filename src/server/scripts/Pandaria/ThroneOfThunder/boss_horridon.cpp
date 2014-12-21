@@ -295,10 +295,10 @@ class DoubleSwipeCheck
 };
 
 // Horridon - 68476
-class boss_horridon : public CreatureScript
+class boss_horridon : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_horridon() : CreatureScript("boss_horridon") { }
+        boss_horridon() : MS::Game::Scripting::Interfaces::CreatureScript("boss_horridon") { }
 
         struct boss_horridonAI : public BossAI
         {
@@ -983,10 +983,10 @@ class boss_horridon : public CreatureScript
 };
 
 // War-God Jalak - 69374
-class boss_war_god_jalak : public CreatureScript
+class boss_war_god_jalak : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_war_god_jalak() : CreatureScript("boss_war_god_jalak") { }
+        boss_war_god_jalak() : MS::Game::Scripting::Interfaces::CreatureScript("boss_war_god_jalak") { }
 
         struct boss_war_god_jalakAI : public BossAI
         {
@@ -1177,10 +1177,10 @@ class boss_war_god_jalak : public CreatureScript
 };
 
 // Sul'lithuz Stonegazer - 69172
-class mob_sul_lithuz_stonegazer : public CreatureScript
+class mob_sul_lithuz_stonegazer : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_sul_lithuz_stonegazer() : CreatureScript("mob_sul_lithuz_stonegazer") { }
+        mob_sul_lithuz_stonegazer() : MS::Game::Scripting::Interfaces::CreatureScript("mob_sul_lithuz_stonegazer") { }
 
         struct mob_sul_lithuz_stonegazerAI : public ScriptedAI
         {
@@ -1232,10 +1232,10 @@ class mob_sul_lithuz_stonegazer : public CreatureScript
 };
 
 // Farraki Skirmisher - 69173
-class mob_farraki_skirmisher : public CreatureScript
+class mob_farraki_skirmisher : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_farraki_skirmisher() : CreatureScript("mob_farraki_skirmisher") { }
+        mob_farraki_skirmisher() : MS::Game::Scripting::Interfaces::CreatureScript("mob_farraki_skirmisher") { }
 
         struct mob_farraki_skirmisherAI : public ScriptedAI
         {
@@ -1263,10 +1263,10 @@ class mob_farraki_skirmisher : public CreatureScript
 };
 
 // Farraki Wastewalker - 69175
-class mob_farraki_wastewalker : public CreatureScript
+class mob_farraki_wastewalker : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_farraki_wastewalker() : CreatureScript("mob_farraki_wastewalker") { }
+        mob_farraki_wastewalker() : MS::Game::Scripting::Interfaces::CreatureScript("mob_farraki_wastewalker") { }
 
         struct mob_farraki_wastewalkerAI : public ScriptedAI
         {
@@ -1324,10 +1324,10 @@ class mob_farraki_wastewalker : public CreatureScript
 };
 
 // Sand Trap - 69346
-class mob_sand_trap : public CreatureScript
+class mob_sand_trap : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_sand_trap() : CreatureScript("mob_sand_trap") { }
+        mob_sand_trap() : MS::Game::Scripting::Interfaces::CreatureScript("mob_sand_trap") { }
 
         struct mob_sand_trapAI : public ScriptedAI
         {
@@ -1350,10 +1350,10 @@ class mob_sand_trap : public CreatureScript
 };
 
 // Zandalari Dinomancer - 69221
-class mob_zandalari_dinomancer : public CreatureScript
+class mob_zandalari_dinomancer : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_zandalari_dinomancer() : CreatureScript("mob_zandalari_dinomancer") { }
+        mob_zandalari_dinomancer() : MS::Game::Scripting::Interfaces::CreatureScript("mob_zandalari_dinomancer") { }
 
         struct mob_zandalari_dinomancerAI : public ScriptedAI
         {
@@ -1503,10 +1503,10 @@ class mob_zandalari_dinomancer : public CreatureScript
 };
 
 // Gurubashi Bloodlord - 69167
-class mob_gurubashi_bloodlord : public CreatureScript
+class mob_gurubashi_bloodlord : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_gurubashi_bloodlord() : CreatureScript("mob_gurubashi_bloodlord") { }
+        mob_gurubashi_bloodlord() : MS::Game::Scripting::Interfaces::CreatureScript("mob_gurubashi_bloodlord") { }
 
         struct mob_gurubashi_bloodlordAI : public ScriptedAI
         {
@@ -1561,10 +1561,10 @@ class mob_gurubashi_bloodlord : public CreatureScript
 };
 
 // Gurubashi Venom Priest - 69164
-class mob_gurubashi_venom_priest : public CreatureScript
+class mob_gurubashi_venom_priest : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_gurubashi_venom_priest() : CreatureScript("mob_gurubashi_venom_priest") { }
+        mob_gurubashi_venom_priest() : MS::Game::Scripting::Interfaces::CreatureScript("mob_gurubashi_venom_priest") { }
 
         struct mob_gurubashi_venom_priestAI : public ScriptedAI
         {
@@ -1620,10 +1620,10 @@ class mob_gurubashi_venom_priest : public CreatureScript
 };
 
 // Venomous Effusion - 69314
-class mob_venomous_effusion : public CreatureScript
+class mob_venomous_effusion : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_venomous_effusion() : CreatureScript("mob_venomous_effusion") { }
+        mob_venomous_effusion() : MS::Game::Scripting::Interfaces::CreatureScript("mob_venomous_effusion") { }
 
         struct mob_venomous_effusionAI : public ScriptedAI
         {
@@ -1667,10 +1667,10 @@ class mob_venomous_effusion : public CreatureScript
 };
 
 // Risen Drakkari Warrior - 69184
-class mob_risen_drakkari_warrior : public CreatureScript
+class mob_risen_drakkari_warrior : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_risen_drakkari_warrior() : CreatureScript("mob_risen_drakkari_warrior") { }
+        mob_risen_drakkari_warrior() : MS::Game::Scripting::Interfaces::CreatureScript("mob_risen_drakkari_warrior") { }
 
         struct mob_risen_drakkari_warriorAI : public ScriptedAI
         {
@@ -1724,10 +1724,10 @@ class mob_risen_drakkari_warrior : public CreatureScript
 };
 
 // Risen Drakkari Champion - 69185
-class mob_risen_drakkari_champion : public CreatureScript
+class mob_risen_drakkari_champion : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_risen_drakkari_champion() : CreatureScript("mob_risen_drakkari_champion") { }
+        mob_risen_drakkari_champion() : MS::Game::Scripting::Interfaces::CreatureScript("mob_risen_drakkari_champion") { }
 
         struct mob_risen_drakkari_championAI : public ScriptedAI
         {
@@ -1781,10 +1781,10 @@ class mob_risen_drakkari_champion : public CreatureScript
 };
 
 // Drakkari Frozen Warlord - 69178
-class mob_drakkari_frozen_warlord : public CreatureScript
+class mob_drakkari_frozen_warlord : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_drakkari_frozen_warlord() : CreatureScript("mob_drakkari_frozen_warlord") { }
+        mob_drakkari_frozen_warlord() : MS::Game::Scripting::Interfaces::CreatureScript("mob_drakkari_frozen_warlord") { }
 
         struct mob_drakkari_frozen_warlordAI : public ScriptedAI
         {
@@ -1841,10 +1841,10 @@ class mob_drakkari_frozen_warlord : public CreatureScript
 };
 
 // Frozen Orb - 69268
-class mob_frozen_orb : public CreatureScript
+class mob_frozen_orb : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_frozen_orb() : CreatureScript("mob_frozen_orb") { }
+        mob_frozen_orb() : MS::Game::Scripting::Interfaces::CreatureScript("mob_frozen_orb") { }
 
         struct mob_frozen_orbAI : public ScriptedAI
         {
@@ -1868,10 +1868,10 @@ class mob_frozen_orb : public CreatureScript
 };
 
 // Amani'Shi Protector - 69169
-class mob_amani_shi_protector : public CreatureScript
+class mob_amani_shi_protector : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_amani_shi_protector() : CreatureScript("mob_amani_shi_protector") { }
+        mob_amani_shi_protector() : MS::Game::Scripting::Interfaces::CreatureScript("mob_amani_shi_protector") { }
 
         struct mob_amani_shi_protectorAI : public ScriptedAI
         {
@@ -1899,10 +1899,10 @@ class mob_amani_shi_protector : public CreatureScript
 };
 
 // Amani'Shi Flame Caster - 69168
-class mob_amani_shi_flame_caster : public CreatureScript
+class mob_amani_shi_flame_caster : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_amani_shi_flame_caster() : CreatureScript("mob_amani_shi_flame_caster") { }
+        mob_amani_shi_flame_caster() : MS::Game::Scripting::Interfaces::CreatureScript("mob_amani_shi_flame_caster") { }
 
         struct mob_amani_shi_flame_casterAI : public ScriptedAI
         {
@@ -1955,10 +1955,10 @@ class mob_amani_shi_flame_caster : public CreatureScript
 };
 
 // Amani Warbear - 69177
-class mob_amani_warbear : public CreatureScript
+class mob_amani_warbear : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_amani_warbear() : CreatureScript("mob_amani_warbear") { }
+        mob_amani_warbear() : MS::Game::Scripting::Interfaces::CreatureScript("mob_amani_warbear") { }
 
         struct mob_amani_warbearAI : public ScriptedAI
         {
@@ -2028,10 +2028,10 @@ class mob_amani_warbear : public CreatureScript
 };
 
 // Amani'shi Beast Shaman - 69176
-class mob_amani_shi_beast_shaman : public CreatureScript
+class mob_amani_shi_beast_shaman : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_amani_shi_beast_shaman() : CreatureScript("mob_amani_shi_beast_shaman") { }
+        mob_amani_shi_beast_shaman() : MS::Game::Scripting::Interfaces::CreatureScript("mob_amani_shi_beast_shaman") { }
 
         struct mob_amani_shi_beast_shamanAI : public ScriptedAI
         {
@@ -2109,10 +2109,10 @@ class mob_amani_shi_beast_shaman : public CreatureScript
 };
 
 // Lightning Nova Totem - 69215
-class mob_lightning_nova_totem : public CreatureScript
+class mob_lightning_nova_totem : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_lightning_nova_totem() : CreatureScript("mob_lightning_nova_totem") { }
+        mob_lightning_nova_totem() : MS::Game::Scripting::Interfaces::CreatureScript("mob_lightning_nova_totem") { }
 
         struct mob_lightning_nova_totemAI : public ScriptedAI
         {
@@ -2133,10 +2133,10 @@ class mob_lightning_nova_totem : public CreatureScript
 };
 
 // Direhorn Spirit - 70688
-class mob_direhorn_spirit : public CreatureScript
+class mob_direhorn_spirit : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_direhorn_spirit() : CreatureScript("mob_direhorn_spirit") { }
+        mob_direhorn_spirit() : MS::Game::Scripting::Interfaces::CreatureScript("mob_direhorn_spirit") { }
 
         struct mob_direhorn_spiritAI : public ScriptedAI
         {
@@ -2207,10 +2207,10 @@ class mob_direhorn_spirit : public CreatureScript
 };
 
 // Control of Horridon - 137433 / 137442 / 137443 / 137444
-class spell_control_of_horridon : public SpellScriptLoader
+class spell_control_of_horridon: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_control_of_horridon() : SpellScriptLoader("spell_control_of_horridon") { }
+        spell_control_of_horridon() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_control_of_horridon") { }
 
         class spell_control_of_horridon_AuraScript : public AuraScript
         {
@@ -2238,10 +2238,10 @@ class spell_control_of_horridon : public SpellScriptLoader
 };
 
 // Headache - 137294
-class spell_headache : public SpellScriptLoader
+class spell_headache: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_headache() : SpellScriptLoader("spell_headache") { }
+        spell_headache() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_headache") { }
 
         class spell_headache_AuraScript : public AuraScript
         {
@@ -2265,10 +2265,10 @@ class spell_headache : public SpellScriptLoader
 };
 
 // Dire Call - 137458
-class spell_dire_call : public SpellScriptLoader
+class spell_dire_call: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dire_call() : SpellScriptLoader("spell_dire_call") { }
+        spell_dire_call() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dire_call") { }
 
         class spell_dire_call_SpellScript : public SpellScript
         {
@@ -2296,10 +2296,10 @@ class spell_dire_call : public SpellScriptLoader
 };
 
 // Double Swipe - 136739 / 136740
-class spell_double_swipe : public SpellScriptLoader
+class spell_double_swipe: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_double_swipe() : SpellScriptLoader("spell_double_swipe") { }
+        spell_double_swipe() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_double_swipe") { }
 
         class spell_double_swipe_SpellScript : public SpellScript
         {
@@ -2330,10 +2330,10 @@ class spell_double_swipe : public SpellScriptLoader
 };
 
 // Wrought Iron Door - 218667
-class go_horridon_intro_door : public GameObjectScript
+class go_horridon_intro_door : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
     public:
-        go_horridon_intro_door() : GameObjectScript("go_horridon_intro_door") { }
+        go_horridon_intro_door() : MS::Game::Scripting::Interfaces::GameObjectScript("go_horridon_intro_door") { }
 
         bool OnGossipHello(Player* /*player*/, GameObject* go)
         {

@@ -37,11 +37,11 @@ const Position pupsPos[2] =
 	{119.81f, 588.90f, 76.35f, 6.22f}
 };
 
-class boss_beauty : public CreatureScript
+class boss_beauty : public MS::Game::Scripting::Interfaces::CreatureScript
 {
  
 public:
-    boss_beauty() : CreatureScript("boss_beauty") { }
+    boss_beauty() : MS::Game::Scripting::Interfaces::CreatureScript("boss_beauty") { }
  
     CreatureAI* GetAI(Creature* pCreature) const
     {

@@ -25,10 +25,10 @@ enum Spells
     SPELL_FRENZIED_RAGE                                    = 3490
 };
 
-class boss_aku_mai : public CreatureScript
+class boss_aku_mai : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_aku_mai() : CreatureScript("boss_aku_mai") { }
+    boss_aku_mai() : MS::Game::Scripting::Interfaces::CreatureScript("boss_aku_mai") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

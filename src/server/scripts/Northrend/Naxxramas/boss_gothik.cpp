@@ -156,10 +156,10 @@ struct NotOnSameSide : public std::unary_function<Unit*, bool>
         bool _onLiveSide;
 };
 
-class boss_gothik : public CreatureScript
+class boss_gothik : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_gothik() : CreatureScript("boss_gothik") { }
+        boss_gothik() : MS::Game::Scripting::Interfaces::CreatureScript("boss_gothik") { }
 
         struct boss_gothikAI : public BossAI
         {
@@ -504,10 +504,10 @@ class boss_gothik : public CreatureScript
         }
 };
 
-class mob_gothik_minion : public CreatureScript
+class mob_gothik_minion : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_gothik_minion() : CreatureScript("mob_gothik_minion") { }
+        mob_gothik_minion() : MS::Game::Scripting::Interfaces::CreatureScript("mob_gothik_minion") { }
 
         struct mob_gothik_minionAI : public CombatAI
         {
@@ -592,10 +592,10 @@ class mob_gothik_minion : public CreatureScript
         }
 };
 
-class spell_gothik_shadow_bolt_volley : public SpellScriptLoader
+class spell_gothik_shadow_bolt_volley: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gothik_shadow_bolt_volley() : SpellScriptLoader("spell_gothik_shadow_bolt_volley") { }
+        spell_gothik_shadow_bolt_volley() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gothik_shadow_bolt_volley") { }
 
         class spell_gothik_shadow_bolt_volley_SpellScript : public SpellScript
         {

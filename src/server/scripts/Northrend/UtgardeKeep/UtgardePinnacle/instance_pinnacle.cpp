@@ -34,10 +34,10 @@ enum GameObjects
     ENTRY_GORK_PALEHOOF_SPHERE                    = 188593
 };
 
-class instance_utgarde_pinnacle : public InstanceMapScript
+class instance_utgarde_pinnacle : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
 public:
-    instance_utgarde_pinnacle() : InstanceMapScript("instance_utgarde_pinnacle", 575) { }
+    instance_utgarde_pinnacle() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_utgarde_pinnacle", 575) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {

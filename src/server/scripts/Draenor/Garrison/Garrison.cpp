@@ -10,7 +10,7 @@ enum
     SPELL_GARRISON_HEARTHSTONE = 171253
 };
 
-class PlayerScript_Garrison : public PlayerScript
+class PlayerScript_Garrison: public MS::Game::Scripting::Interfaces::PlayerScript
 {
     public:
         PlayerScript_Garrison()
@@ -41,12 +41,12 @@ float gGarrisonHearthStoneTeleportCoord[][4] =
     {    0.f,       0.f,      0.f,      0.00f    }, ///< Alliance Level 3
 };
 
-class spell_garrison_hearthstone : public SpellScriptLoader
+class spell_garrison_hearthstone: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
         /// Constructor
         spell_garrison_hearthstone() 
-            : SpellScriptLoader("spell_garrison_hearthstone")
+            : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_garrison_hearthstone")
         { 
 
         }

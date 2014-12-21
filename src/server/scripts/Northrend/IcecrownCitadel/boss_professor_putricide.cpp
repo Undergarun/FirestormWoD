@@ -198,10 +198,10 @@ class AbominationDespawner
         Unit* _owner;
 };
 
-class boss_professor_putricide : public CreatureScript
+class boss_professor_putricide : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_professor_putricide() : CreatureScript("boss_professor_putricide") { }
+        boss_professor_putricide() : MS::Game::Scripting::Interfaces::CreatureScript("boss_professor_putricide") { }
 
         struct boss_professor_putricideAI : public BossAI
         {
@@ -772,10 +772,10 @@ class npc_putricide_oozeAI : public ScriptedAI
         uint32 _newTargetSelectTimer;
 };
 
-class npc_volatile_ooze : public CreatureScript
+class npc_volatile_ooze : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_volatile_ooze() : CreatureScript("npc_volatile_ooze") { }
+        npc_volatile_ooze() : MS::Game::Scripting::Interfaces::CreatureScript("npc_volatile_ooze") { }
 
         struct npc_volatile_oozeAI : public npc_putricide_oozeAI
         {
@@ -795,10 +795,10 @@ class npc_volatile_ooze : public CreatureScript
         }
 };
 
-class npc_gas_cloud : public CreatureScript
+class npc_gas_cloud : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_gas_cloud() : CreatureScript("npc_gas_cloud") { }
+        npc_gas_cloud() : MS::Game::Scripting::Interfaces::CreatureScript("npc_gas_cloud") { }
 
         struct npc_gas_cloudAI : public npc_putricide_oozeAI
         {
@@ -821,10 +821,10 @@ class npc_gas_cloud : public CreatureScript
         }
 };
 
-class spell_putricide_gaseous_bloat : public SpellScriptLoader
+class spell_putricide_gaseous_bloat: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_putricide_gaseous_bloat() : SpellScriptLoader("spell_putricide_gaseous_bloat") { }
+        spell_putricide_gaseous_bloat() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_putricide_gaseous_bloat") { }
 
         class spell_putricide_gaseous_bloat_AuraScript : public AuraScript
         {
@@ -872,10 +872,10 @@ class DebuffProtectionTargetSelector
         Creature* _owner;
 };
 
-class spell_putricide_ooze_channel : public SpellScriptLoader
+class spell_putricide_ooze_channel: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_putricide_ooze_channel() : SpellScriptLoader("spell_putricide_ooze_channel") { }
+        spell_putricide_ooze_channel() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_putricide_ooze_channel") { }
 
         class spell_putricide_ooze_channel_SpellScript : public SpellScript
         {
@@ -961,10 +961,10 @@ class ExactDistanceCheck
         float _dist;
 };
 
-class spell_putricide_slime_puddle : public SpellScriptLoader
+class spell_putricide_slime_puddle: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_putricide_slime_puddle() : SpellScriptLoader("spell_putricide_slime_puddle") { }
+        spell_putricide_slime_puddle() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_putricide_slime_puddle") { }
 
         class spell_putricide_slime_puddle_SpellScript : public SpellScript
         {
@@ -989,10 +989,10 @@ class spell_putricide_slime_puddle : public SpellScriptLoader
 };
 
 // this is here only because on retail you dont actually enter HEROIC mode for ICC
-class spell_putricide_slime_puddle_aura : public SpellScriptLoader
+class spell_putricide_slime_puddle_aura: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_putricide_slime_puddle_aura() : SpellScriptLoader("spell_putricide_slime_puddle_aura") { }
+        spell_putricide_slime_puddle_aura() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_putricide_slime_puddle_aura") { }
 
         class spell_putricide_slime_puddle_aura_SpellScript : public SpellScript
         {
@@ -1016,10 +1016,10 @@ class spell_putricide_slime_puddle_aura : public SpellScriptLoader
         }
 };
 
-class spell_putricide_unstable_experiment : public SpellScriptLoader
+class spell_putricide_unstable_experiment: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_putricide_unstable_experiment() : SpellScriptLoader("spell_putricide_unstable_experiment") { }
+        spell_putricide_unstable_experiment() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_putricide_unstable_experiment") { }
 
         class spell_putricide_unstable_experiment_SpellScript : public SpellScript
         {
@@ -1060,10 +1060,10 @@ class spell_putricide_unstable_experiment : public SpellScriptLoader
         }
 };
 
-class spell_putricide_ooze_eruption_searcher : public SpellScriptLoader
+class spell_putricide_ooze_eruption_searcher: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_putricide_ooze_eruption_searcher() : SpellScriptLoader("spell_putricide_ooze_eruption_searcher") { }
+        spell_putricide_ooze_eruption_searcher() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_putricide_ooze_eruption_searcher") { }
 
         class spell_putricide_ooze_eruption_searcher_SpellScript : public SpellScript
         {
@@ -1091,10 +1091,10 @@ class spell_putricide_ooze_eruption_searcher : public SpellScriptLoader
         }
 };
 
-class spell_putricide_choking_gas_bomb : public SpellScriptLoader
+class spell_putricide_choking_gas_bomb: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_putricide_choking_gas_bomb() : SpellScriptLoader("spell_putricide_choking_gas_bomb") { }
+        spell_putricide_choking_gas_bomb() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_putricide_choking_gas_bomb") { }
 
         class spell_putricide_choking_gas_bomb_SpellScript : public SpellScript
         {
@@ -1125,10 +1125,10 @@ class spell_putricide_choking_gas_bomb : public SpellScriptLoader
         }
 };
 
-class spell_putricide_unbound_plague : public SpellScriptLoader
+class spell_putricide_unbound_plague: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_putricide_unbound_plague() : SpellScriptLoader("spell_putricide_unbound_plague") { }
+        spell_putricide_unbound_plague() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_putricide_unbound_plague") { }
 
         class spell_putricide_unbound_plague_SpellScript : public SpellScript
         {
@@ -1198,10 +1198,10 @@ class spell_putricide_unbound_plague : public SpellScriptLoader
         }
 };
 
-class spell_putricide_eat_ooze : public SpellScriptLoader
+class spell_putricide_eat_ooze: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_putricide_eat_ooze() : SpellScriptLoader("spell_putricide_eat_ooze") { }
+        spell_putricide_eat_ooze() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_putricide_eat_ooze") { }
 
         class spell_putricide_eat_ooze_SpellScript : public SpellScript
         {
@@ -1250,10 +1250,10 @@ class spell_putricide_eat_ooze : public SpellScriptLoader
         }
 };
 
-class spell_putricide_mutated_plague : public SpellScriptLoader
+class spell_putricide_mutated_plague: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_putricide_mutated_plague() : SpellScriptLoader("spell_putricide_mutated_plague") { }
+        spell_putricide_mutated_plague() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_putricide_mutated_plague") { }
 
         class spell_putricide_mutated_plague_AuraScript : public AuraScript
         {
@@ -1300,10 +1300,10 @@ class spell_putricide_mutated_plague : public SpellScriptLoader
         }
 };
 
-class spell_putricide_mutation_init : public SpellScriptLoader
+class spell_putricide_mutation_init: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_putricide_mutation_init() : SpellScriptLoader("spell_putricide_mutation_init") { }
+        spell_putricide_mutation_init() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_putricide_mutation_init") { }
 
         class spell_putricide_mutation_init_SpellScript : public SpellScript
         {
@@ -1389,10 +1389,10 @@ class spell_putricide_mutation_init : public SpellScriptLoader
         }
 };
 
-class spell_putricide_mutated_transformation_dismiss : public SpellScriptLoader
+class spell_putricide_mutated_transformation_dismiss: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_putricide_mutated_transformation_dismiss() : SpellScriptLoader("spell_putricide_mutated_transformation_dismiss") { }
+        spell_putricide_mutated_transformation_dismiss() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_putricide_mutated_transformation_dismiss") { }
 
         class spell_putricide_mutated_transformation_dismiss_AuraScript : public AuraScript
         {
@@ -1416,10 +1416,10 @@ class spell_putricide_mutated_transformation_dismiss : public SpellScriptLoader
         }
 };
 
-class spell_putricide_mutated_transformation : public SpellScriptLoader
+class spell_putricide_mutated_transformation: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_putricide_mutated_transformation() : SpellScriptLoader("spell_putricide_mutated_transformation") { }
+        spell_putricide_mutated_transformation() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_putricide_mutated_transformation") { }
 
         class spell_putricide_mutated_transformation_SpellScript : public SpellScript
         {
@@ -1478,10 +1478,10 @@ class spell_putricide_mutated_transformation : public SpellScriptLoader
         }
 };
 
-class spell_putricide_mutated_transformation_dmg : public SpellScriptLoader
+class spell_putricide_mutated_transformation_dmg: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_putricide_mutated_transformation_dmg() : SpellScriptLoader("spell_putricide_mutated_transformation_dmg") { }
+        spell_putricide_mutated_transformation_dmg() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_putricide_mutated_transformation_dmg") { }
 
         class spell_putricide_mutated_transformation_dmg_SpellScript : public SpellScript
         {
@@ -1505,10 +1505,10 @@ class spell_putricide_mutated_transformation_dmg : public SpellScriptLoader
         }
 };
 
-class spell_putricide_regurgitated_ooze : public SpellScriptLoader
+class spell_putricide_regurgitated_ooze: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_putricide_regurgitated_ooze() : SpellScriptLoader("spell_putricide_regurgitated_ooze") { }
+        spell_putricide_regurgitated_ooze() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_putricide_regurgitated_ooze") { }
 
         class spell_putricide_regurgitated_ooze_SpellScript : public SpellScript
         {
@@ -1534,10 +1534,10 @@ class spell_putricide_regurgitated_ooze : public SpellScriptLoader
 };
 
 // Removes aura with id stored in effect value
-class spell_putricide_clear_aura_effect_value : public SpellScriptLoader
+class spell_putricide_clear_aura_effect_value: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_putricide_clear_aura_effect_value() : SpellScriptLoader("spell_putricide_clear_aura_effect_value") { }
+        spell_putricide_clear_aura_effect_value() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_putricide_clear_aura_effect_value") { }
 
         class spell_putricide_clear_aura_effect_value_SpellScript : public SpellScript
         {
@@ -1563,10 +1563,10 @@ class spell_putricide_clear_aura_effect_value : public SpellScriptLoader
 };
 
 // Stinky and Precious spell, it's here because its used for both (Festergut and Rotface "pets")
-class spell_stinky_precious_decimate : public SpellScriptLoader
+class spell_stinky_precious_decimate: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_stinky_precious_decimate() : SpellScriptLoader("spell_stinky_precious_decimate") { }
+        spell_stinky_precious_decimate() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_stinky_precious_decimate") { }
 
         class spell_stinky_precious_decimate_SpellScript : public SpellScript
         {
@@ -1612,10 +1612,10 @@ class ChokingGasTargetFilter
         Unit* _caster;
 };
 
-class spell_putricide_choking_gas_damage : public SpellScriptLoader
+class spell_putricide_choking_gas_damage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_putricide_choking_gas_damage() : SpellScriptLoader("spell_putricide_choking_gas_damage") { }
+        spell_putricide_choking_gas_damage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_putricide_choking_gas_damage") { }
 
         class spell_putricide_choking_gas_explosion_damage_SpellScript : public SpellScript
         {
@@ -1639,10 +1639,10 @@ class spell_putricide_choking_gas_damage : public SpellScriptLoader
         }
 };
 
-class spell_putricide_choking_gas_explosion_damage : public SpellScriptLoader
+class spell_putricide_choking_gas_explosion_damage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_putricide_choking_gas_explosion_damage() : SpellScriptLoader("spell_putricide_choking_gas_explosion_damage") { }
+        spell_putricide_choking_gas_explosion_damage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_putricide_choking_gas_explosion_damage") { }
 
         class spell_putricide_choking_gas_explosion_damage_SpellScript : public SpellScript
         {

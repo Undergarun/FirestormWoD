@@ -140,10 +140,10 @@ class SanctumSentrySearcher
         float _range;
 };
 
-class boss_auriaya : public CreatureScript
+class boss_auriaya : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_auriaya() : CreatureScript("boss_auriaya") { }
+        boss_auriaya() : MS::Game::Scripting::Interfaces::CreatureScript("boss_auriaya") { }
 
         struct boss_auriayaAI : public BossAI
         {
@@ -337,10 +337,10 @@ class boss_auriaya : public CreatureScript
         }
 };
 
-class npc_auriaya_seeping_trigger : public CreatureScript
+class npc_auriaya_seeping_trigger : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_auriaya_seeping_trigger() : CreatureScript("npc_auriaya_seeping_trigger") { }
+        npc_auriaya_seeping_trigger() : MS::Game::Scripting::Interfaces::CreatureScript("npc_auriaya_seeping_trigger") { }
 
         struct npc_auriaya_seeping_triggerAI : public ScriptedAI
         {
@@ -370,10 +370,10 @@ class npc_auriaya_seeping_trigger : public CreatureScript
         }
 };
 
-class npc_sanctum_sentry : public CreatureScript
+class npc_sanctum_sentry : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_sanctum_sentry() : CreatureScript("npc_sanctum_sentry") { }
+        npc_sanctum_sentry() : MS::Game::Scripting::Interfaces::CreatureScript("npc_sanctum_sentry") { }
 
         struct npc_sanctum_sentryAI : public ScriptedAI
         {
@@ -467,10 +467,10 @@ class npc_sanctum_sentry : public CreatureScript
         }
 };
 
-class npc_feral_defender : public CreatureScript
+class npc_feral_defender : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_feral_defender() : CreatureScript("npc_feral_defender") { }
+        npc_feral_defender() : MS::Game::Scripting::Interfaces::CreatureScript("npc_feral_defender") { }
 
         struct npc_feral_defenderAI : public ScriptedAI
         {
@@ -555,10 +555,10 @@ class SanctumSentryCheck
         }
 };
 
-class spell_auriaya_strenght_of_the_pack : public SpellScriptLoader
+class spell_auriaya_strenght_of_the_pack: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_auriaya_strenght_of_the_pack() : SpellScriptLoader("spell_auriaya_strenght_of_the_pack") { }
+        spell_auriaya_strenght_of_the_pack() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_auriaya_strenght_of_the_pack") { }
 
         class spell_auriaya_strenght_of_the_pack_SpellScript : public SpellScript
         {
@@ -581,10 +581,10 @@ class spell_auriaya_strenght_of_the_pack : public SpellScriptLoader
         }
 };
 */
-class spell_auriaya_sentinel_blast : public SpellScriptLoader
+class spell_auriaya_sentinel_blast: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_auriaya_sentinel_blast() : SpellScriptLoader("spell_auriaya_sentinel_blast") { }
+        spell_auriaya_sentinel_blast() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_auriaya_sentinel_blast") { }
 
         class spell_auriaya_sentinel_blast_SpellScript : public SpellScript
         {
@@ -609,10 +609,10 @@ class spell_auriaya_sentinel_blast : public SpellScriptLoader
 };
 
 
-class achievement_nine_lives : public AchievementCriteriaScript
+class achievement_nine_lives : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_nine_lives() : AchievementCriteriaScript("achievement_nine_lives")
+        achievement_nine_lives() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_nine_lives")
         {
         }
 
@@ -629,10 +629,10 @@ class achievement_nine_lives : public AchievementCriteriaScript
         }
 };
 
-class achievement_crazy_cat_lady : public AchievementCriteriaScript
+class achievement_crazy_cat_lady : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_crazy_cat_lady() : AchievementCriteriaScript("achievement_crazy_cat_lady")
+        achievement_crazy_cat_lady() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_crazy_cat_lady")
         {
         }
 

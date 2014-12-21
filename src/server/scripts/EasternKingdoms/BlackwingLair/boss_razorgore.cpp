@@ -44,10 +44,10 @@ enum Spells
     SPELL_CONFLAGRATION     = 23023
 };
 
-class boss_razorgore : public CreatureScript
+class boss_razorgore : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_razorgore() : CreatureScript("boss_razorgore") { }
+    boss_razorgore() : MS::Game::Scripting::Interfaces::CreatureScript("boss_razorgore") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

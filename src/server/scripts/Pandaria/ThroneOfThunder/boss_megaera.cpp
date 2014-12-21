@@ -186,10 +186,10 @@ static void BindPlayersToInstance(Creature* creature)
 };
 
 // Megaera - 68065
-class boss_megaera : public CreatureScript
+class boss_megaera : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_megaera() : CreatureScript("boss_megaera") { }
+        boss_megaera() : MS::Game::Scripting::Interfaces::CreatureScript("boss_megaera") { }
 
         struct boss_megaeraAI : public BossAI
         {
@@ -606,10 +606,10 @@ class boss_megaera : public CreatureScript
 // Frozen Head - 70235
 // Venomous Head - 70247
 // Arcane Head - 70248
-class boss_megaera_head : public CreatureScript
+class boss_megaera_head : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_megaera_head() : CreatureScript("boss_megaera_head") { }
+        boss_megaera_head() : MS::Game::Scripting::Interfaces::CreatureScript("boss_megaera_head") { }
 
         struct boss_megaera_headAI : public BossAI
         {
@@ -938,10 +938,10 @@ class boss_megaera_head : public CreatureScript
 // Back Frozen Head - 70250
 // Back Venomous Head - 70251
 // Back Arcane Head - 70252
-class boss_megaera_back_head : public CreatureScript
+class boss_megaera_back_head : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_megaera_back_head() : CreatureScript("boss_megaera_back_head") { }
+        boss_megaera_back_head() : MS::Game::Scripting::Interfaces::CreatureScript("boss_megaera_back_head") { }
 
         struct boss_megaera_back_headAI : public BossAI
         {
@@ -1174,10 +1174,10 @@ class boss_megaera_back_head : public CreatureScript
 };
 
 // Cinders - 70432
-class mob_cinders : public CreatureScript
+class mob_cinders : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_cinders() : CreatureScript("mob_cinders") { }
+        mob_cinders() : MS::Game::Scripting::Interfaces::CreatureScript("mob_cinders") { }
 
         struct mob_cindersAI : public ScriptedAI
         {
@@ -1233,10 +1233,10 @@ class mob_cinders : public CreatureScript
 };
 
 // Acid Rain - 70435
-class mob_acid_rain : public CreatureScript
+class mob_acid_rain : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_acid_rain() : CreatureScript("mob_acid_rain") { }
+        mob_acid_rain() : MS::Game::Scripting::Interfaces::CreatureScript("mob_acid_rain") { }
 
         struct mob_acid_rainAI : public ScriptedAI
         {
@@ -1280,10 +1280,10 @@ class mob_acid_rain : public CreatureScript
 };
 
 // Icy Ground - 70446
-class mob_icy_ground : public CreatureScript
+class mob_icy_ground : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_icy_ground() : CreatureScript("mob_icy_ground") { }
+        mob_icy_ground() : MS::Game::Scripting::Interfaces::CreatureScript("mob_icy_ground") { }
 
         struct mob_icy_groundAI : public ScriptedAI
         {
@@ -1348,10 +1348,10 @@ class mob_icy_ground : public CreatureScript
 };
 
 // Nether Wyrm - 70507
-class mob_nether_wyrm : public CreatureScript
+class mob_nether_wyrm : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_nether_wyrm() : CreatureScript("mob_nether_wyrm") { }
+        mob_nether_wyrm() : MS::Game::Scripting::Interfaces::CreatureScript("mob_nether_wyrm") { }
 
         struct mob_nether_wyrmAI : public ScriptedAI
         {
@@ -1408,10 +1408,10 @@ class mob_nether_wyrm : public CreatureScript
 };
 
 // Cinders - 139822
-class spell_cinders : public SpellScriptLoader
+class spell_cinders: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_cinders() : SpellScriptLoader("spell_cinders") { }
+        spell_cinders() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_cinders") { }
 
         class spell_cinders_AuraScript : public AuraScript
         {
@@ -1457,10 +1457,10 @@ class spell_cinders : public SpellScriptLoader
 };
 
 // Arctic Freeze (aura) - 139843
-class spell_arctic_freeze : public SpellScriptLoader
+class spell_arctic_freeze: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_arctic_freeze() : SpellScriptLoader("spell_arctic_freeze") { }
+        spell_arctic_freeze() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_arctic_freeze") { }
 
         class spell_arctic_freeze_AuraScript : public AuraScript
         {
@@ -1494,10 +1494,10 @@ class spell_arctic_freeze : public SpellScriptLoader
 };
 
 // Acid Rain (damage) - 139850
-class spell_acid_rain_damage : public SpellScriptLoader
+class spell_acid_rain_damage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_acid_rain_damage() : SpellScriptLoader("spell_acid_rain_damage") { }
+        spell_acid_rain_damage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_acid_rain_damage") { }
 
         class spell_acid_rain_damage_SpellScript : public SpellScript
         {
@@ -1528,10 +1528,10 @@ class spell_acid_rain_damage : public SpellScriptLoader
 };
 
 // Diffusion - 139993
-class spell_diffusion : public SpellScriptLoader
+class spell_diffusion: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_diffusion() : SpellScriptLoader("spell_diffusion") { }
+        spell_diffusion() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_diffusion") { }
 
         class spell_diffusion_AuraScript : public AuraScript
         {
@@ -1569,10 +1569,10 @@ class spell_diffusion : public SpellScriptLoader
 };
 
 // Nether Tear - 140138
-class spell_nether_tear : public SpellScriptLoader
+class spell_nether_tear: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_nether_tear() : SpellScriptLoader("spell_nether_tear") { }
+        spell_nether_tear() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_nether_tear") { }
 
         class spell_nether_tear_SpellScript : public SpellScript
         {
@@ -1630,10 +1630,10 @@ class spell_nether_tear : public SpellScriptLoader
 };
 
 // Rampage (periodic) - 139458
-class spell_rampage_periodic : public SpellScriptLoader
+class spell_rampage_periodic: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rampage_periodic() : SpellScriptLoader("spell_rampage_periodic") { }
+        spell_rampage_periodic() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rampage_periodic") { }
 
         class spell_rampage_periodic_AuraScript : public AuraScript
         {

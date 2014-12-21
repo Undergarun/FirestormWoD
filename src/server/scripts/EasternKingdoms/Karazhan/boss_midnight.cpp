@@ -47,10 +47,10 @@ EndScriptData */
 //Attumen (TODO: Use the summoning spell instead of Creature id. It works, but is not convenient for us)
 #define SUMMON_ATTUMEN 15550
 
-class boss_attumen : public CreatureScript
+class boss_attumen : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_attumen() : CreatureScript("boss_attumen") { }
+    boss_attumen() : MS::Game::Scripting::Interfaces::CreatureScript("boss_attumen") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -114,10 +114,10 @@ public:
 
 };
 
-class boss_midnight : public CreatureScript
+class boss_midnight : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_midnight() : CreatureScript("boss_midnight") { }
+    boss_midnight() : MS::Game::Scripting::Interfaces::CreatureScript("boss_midnight") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

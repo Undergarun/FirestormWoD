@@ -130,10 +130,10 @@ enum eStatus
     STATUS_LOREWALKER_STONESTEP_FINISH      = 6,
 };
 
-class instance_temple_of_jade_serpent : public InstanceMapScript
+class instance_temple_of_jade_serpent : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
 public:
-    instance_temple_of_jade_serpent() : InstanceMapScript("instance_temple_of_jade_serpent", 960) { }
+    instance_temple_of_jade_serpent() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_temple_of_jade_serpent", 960) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {

@@ -54,10 +54,10 @@ enum Yells
     SAY_SUMMON_GHOULS_2                         = -1595044
 };
 
-class boss_salramm : public CreatureScript
+class boss_salramm : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_salramm() : CreatureScript("boss_salramm") { }
+    boss_salramm() : MS::Game::Scripting::Interfaces::CreatureScript("boss_salramm") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

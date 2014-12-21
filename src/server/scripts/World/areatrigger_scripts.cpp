@@ -46,12 +46,12 @@ enum eCoilfangGOs
     GO_COILFANG_WATERFALL   = 184212
 };
 
-class AreaTrigger_at_coilfang_waterfall : public AreaTriggerScript
+class AreaTrigger_at_coilfang_waterfall : public MS::Game::Scripting::Interfaces::AreaTriggerScript
 {
     public:
 
         AreaTrigger_at_coilfang_waterfall()
-            : AreaTriggerScript("at_coilfang_waterfall")
+            : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_coilfang_waterfall")
         {
         }
 
@@ -78,12 +78,12 @@ enum eLegionTeleporter
     QUEST_GAINING_ACCESS_H  = 10604
 };
 
-class AreaTrigger_at_legion_teleporter : public AreaTriggerScript
+class AreaTrigger_at_legion_teleporter : public MS::Game::Scripting::Interfaces::AreaTriggerScript
 {
     public:
 
         AreaTrigger_at_legion_teleporter()
-            : AreaTriggerScript("at_legion_teleporter")
+            : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_legion_teleporter")
         {
         }
 
@@ -120,12 +120,12 @@ enum eStormwrightShelf
     SPELL_CREATE_TRUE_POWER_OF_THE_TEMPEST      = 53067
 };
 
-class AreaTrigger_at_stormwright_shelf : public AreaTriggerScript
+class AreaTrigger_at_stormwright_shelf : public MS::Game::Scripting::Interfaces::AreaTriggerScript
 {
     public:
 
         AreaTrigger_at_stormwright_shelf()
-            : AreaTriggerScript("at_stormwright_shelf")
+            : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_stormwright_shelf")
         {
         }
 
@@ -148,12 +148,12 @@ enum eScentLarkorwi
     NPC_LARKORWI_MATE                           = 9683
 };
 
-class AreaTrigger_at_scent_larkorwi : public AreaTriggerScript
+class AreaTrigger_at_scent_larkorwi : public MS::Game::Scripting::Interfaces::AreaTriggerScript
 {
     public:
 
         AreaTrigger_at_scent_larkorwi()
-            : AreaTriggerScript("at_scent_larkorwi")
+            : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_scent_larkorwi")
         {
         }
 
@@ -179,12 +179,12 @@ enum eAtLastRites
     QUEST_BREAKING_THROUGH                    = 11898,
 };
 
-class AreaTrigger_at_last_rites : public AreaTriggerScript
+class AreaTrigger_at_last_rites : public MS::Game::Scripting::Interfaces::AreaTriggerScript
 {
     public:
 
         AreaTrigger_at_last_rites()
-            : AreaTriggerScript("at_last_rites")
+            : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_last_rites")
         {
         }
 
@@ -236,12 +236,12 @@ enum eWaygate
     QUEST_THE_MAKERS_PERCH                      = 12559,
 };
 
-class AreaTrigger_at_sholazar_waygate : public AreaTriggerScript
+class AreaTrigger_at_sholazar_waygate : public MS::Game::Scripting::Interfaces::AreaTriggerScript
 {
     public:
 
         AreaTrigger_at_sholazar_waygate()
-            : AreaTriggerScript("at_sholazar_waygate")
+            : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_sholazar_waygate")
         {
         }
 
@@ -277,10 +277,10 @@ enum NatsLanding
     NPC_LURKING_SHARK  = 23928
 };
 
-class AreaTrigger_at_nats_landing : public AreaTriggerScript
+class AreaTrigger_at_nats_landing : public MS::Game::Scripting::Interfaces::AreaTriggerScript
 {
     public:
-        AreaTrigger_at_nats_landing() : AreaTriggerScript("at_nats_landing") { }
+        AreaTrigger_at_nats_landing() : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_nats_landing") { }
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
         {
@@ -327,10 +327,10 @@ enum BringYourOrphanTo
     AURA_ORPHAN_OUT                 = 58818,
 };
 
-class AreaTrigger_at_bring_your_orphan_to : public AreaTriggerScript
+class AreaTrigger_at_bring_your_orphan_to : public MS::Game::Scripting::Interfaces::AreaTriggerScript
 {
     public:
-        AreaTrigger_at_bring_your_orphan_to() : AreaTriggerScript("at_bring_your_orphan_to") { }
+        AreaTrigger_at_bring_your_orphan_to() : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_bring_your_orphan_to") { }
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
         {
@@ -388,10 +388,10 @@ enum Brewfest
     AREATRIGGER_TALK_COOLDOWN   = 5, // in seconds
 };
 
-class AreaTrigger_at_brewfest : public AreaTriggerScript
+class AreaTrigger_at_brewfest : public MS::Game::Scripting::Interfaces::AreaTriggerScript
 {
     public:
-        AreaTrigger_at_brewfest() : AreaTriggerScript("at_brewfest")
+        AreaTrigger_at_brewfest() : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_brewfest")
         {
             // Initialize for cooldown
             _triggerTimes[AT_BREWFEST_DUROTAR] = _triggerTimes[AT_BREWFEST_DUN_MOROGH] = 0;
@@ -442,10 +442,10 @@ enum Area52Entrance
     AT_AREA_52_EAST       = 4422,
 };
 
-class AreaTrigger_at_area_52_entrance : public AreaTriggerScript
+class AreaTrigger_at_area_52_entrance : public MS::Game::Scripting::Interfaces::AreaTriggerScript
 {
     public:
-        AreaTrigger_at_area_52_entrance() : AreaTriggerScript("at_area_52_entrance")
+        AreaTrigger_at_area_52_entrance() : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_area_52_entrance")
         {
             _triggerTimes[AT_AREA_52_SOUTH] = _triggerTimes[AT_AREA_52_NORTH] = _triggerTimes[AT_AREA_52_WEST] = _triggerTimes[AT_AREA_52_EAST] = 0;
         }
@@ -501,10 +501,10 @@ enum BaelModan
     SABOTAGE_QUEST  = 24747
 };
 
-class AreaTrigger_at_bael_modan : public AreaTriggerScript
+class AreaTrigger_at_bael_modan : public MS::Game::Scripting::Interfaces::AreaTriggerScript
 {
     public:
-        AreaTrigger_at_bael_modan() : AreaTriggerScript("AreaTrigger_at_bael_modan") { }
+        AreaTrigger_at_bael_modan() : MS::Game::Scripting::Interfaces::AreaTriggerScript("AreaTrigger_at_bael_modan") { }
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
         {
@@ -517,10 +517,10 @@ class AreaTrigger_at_bael_modan : public AreaTriggerScript
 
 #define KLAXXI_COUNCIL_QUEST 31006
 
-class AreaTrigger_at_klaxxi_vess : public AreaTriggerScript
+class AreaTrigger_at_klaxxi_vess : public MS::Game::Scripting::Interfaces::AreaTriggerScript
 {
     public:
-        AreaTrigger_at_klaxxi_vess() : AreaTriggerScript("AreaTrigger_at_klaxxi_vess") { }
+        AreaTrigger_at_klaxxi_vess() : MS::Game::Scripting::Interfaces::AreaTriggerScript("AreaTrigger_at_klaxxi_vess") { }
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
         {
@@ -531,10 +531,10 @@ class AreaTrigger_at_klaxxi_vess : public AreaTriggerScript
         }
 };
 
-class AreaTrigger_at_farmer_fung : public AreaTriggerScript
+class AreaTrigger_at_farmer_fung : public MS::Game::Scripting::Interfaces::AreaTriggerScript
 {
     public:
-        AreaTrigger_at_farmer_fung() : AreaTriggerScript("AreaTrigger_at_farmer_fung") { }
+        AreaTrigger_at_farmer_fung() : MS::Game::Scripting::Interfaces::AreaTriggerScript("AreaTrigger_at_farmer_fung") { }
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
         {
@@ -553,10 +553,10 @@ class AreaTrigger_at_farmer_fung : public AreaTriggerScript
         }
 };
 
-class areatrigger_at_serpent_nests : public AreaTriggerScript
+class areatrigger_at_serpent_nests : public MS::Game::Scripting::Interfaces::AreaTriggerScript
 {
     public:
-        areatrigger_at_serpent_nests() : AreaTriggerScript("areatrigger_at_serpent_nests") { }
+        areatrigger_at_serpent_nests() : MS::Game::Scripting::Interfaces::AreaTriggerScript("areatrigger_at_serpent_nests") { }
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
         {
@@ -588,10 +588,10 @@ class areatrigger_at_serpent_nests : public AreaTriggerScript
         }
 };
 
-class AreaTrigger_at_mason_s_folly : public AreaTriggerScript
+class AreaTrigger_at_mason_s_folly : public MS::Game::Scripting::Interfaces::AreaTriggerScript
 {
     public:
-        AreaTrigger_at_mason_s_folly() : AreaTriggerScript("AreaTrigger_at_mason_s_folly") { }
+        AreaTrigger_at_mason_s_folly() : MS::Game::Scripting::Interfaces::AreaTriggerScript("AreaTrigger_at_mason_s_folly") { }
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
         {
@@ -609,15 +609,15 @@ class AreaTrigger_at_mason_s_folly : public AreaTriggerScript
         }
 };
 
-class AreaTrigger_ice_trap : public AreaTriggerEntityScript
+class AreaTrigger_ice_trap : public MS::Game::Scripting::Interfaces::AreaTriggerEntityScript
 {
 public:
     AreaTrigger_ice_trap()
-        : AreaTriggerEntityScript("at_ice_trap")
+        : MS::Game::Scripting::Interfaces::AreaTriggerEntityScript("at_ice_trap")
     {
     }
 
-    AreaTriggerEntityScript* GetAI() const
+    MS::Game::Scripting::Interfaces::AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_ice_trap();
     }
@@ -643,15 +643,15 @@ public:
     }
 };
 
-class AreaTrigger_power_word_barrier : public AreaTriggerEntityScript
+class AreaTrigger_power_word_barrier : public MS::Game::Scripting::Interfaces::AreaTriggerEntityScript
 {
 public:
     AreaTrigger_power_word_barrier()
-        : AreaTriggerEntityScript("at_power_word_barrier")
+        : MS::Game::Scripting::Interfaces::AreaTriggerEntityScript("at_power_word_barrier")
     {
     }
 
-    AreaTriggerEntityScript* GetAI() const
+    MS::Game::Scripting::Interfaces::AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_power_word_barrier();
     }
@@ -670,15 +670,15 @@ public:
     }
 };
 
-class AreaTrigger_ursol_vortex : public AreaTriggerEntityScript
+class AreaTrigger_ursol_vortex : public MS::Game::Scripting::Interfaces::AreaTriggerEntityScript
 {
 public:
     AreaTrigger_ursol_vortex()
-        : AreaTriggerEntityScript("at_ursol_vortex")
+        : MS::Game::Scripting::Interfaces::AreaTriggerEntityScript("at_ursol_vortex")
     {
     }
 
-    AreaTriggerEntityScript* GetAI() const
+    MS::Game::Scripting::Interfaces::AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_ursol_vortex();
     }
@@ -700,15 +700,15 @@ public:
     }
 };
 
-class AreaTrigger_healing_sphere : public AreaTriggerEntityScript
+class AreaTrigger_healing_sphere : public MS::Game::Scripting::Interfaces::AreaTriggerEntityScript
 {
 public:
     AreaTrigger_healing_sphere()
-        : AreaTriggerEntityScript("at_healing_sphere")
+        : MS::Game::Scripting::Interfaces::AreaTriggerEntityScript("at_healing_sphere")
     {
     }
 
-    AreaTriggerEntityScript* GetAI() const
+    MS::Game::Scripting::Interfaces::AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_healing_sphere();
     }
@@ -735,15 +735,15 @@ public:
     }
 };
 
-class AreaTrigger_cancel_barrier : public AreaTriggerEntityScript
+class AreaTrigger_cancel_barrier : public MS::Game::Scripting::Interfaces::AreaTriggerEntityScript
 {
 public:
     AreaTrigger_cancel_barrier()
-        : AreaTriggerEntityScript("at_cancel_barrier")
+        : MS::Game::Scripting::Interfaces::AreaTriggerEntityScript("at_cancel_barrier")
     {
     }
 
-    AreaTriggerEntityScript* GetAI() const
+    MS::Game::Scripting::Interfaces::AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_cancel_barrier();
     }
@@ -763,15 +763,15 @@ public:
     }
 };
 
-class AreaTrigger_rune_of_power : public AreaTriggerEntityScript
+class AreaTrigger_rune_of_power : public MS::Game::Scripting::Interfaces::AreaTriggerEntityScript
 {
 public:
     AreaTrigger_rune_of_power()
-        : AreaTriggerEntityScript("at_rune_of_power")
+        : MS::Game::Scripting::Interfaces::AreaTriggerEntityScript("at_rune_of_power")
     {
     }
 
-    AreaTriggerEntityScript* GetAI() const
+    MS::Game::Scripting::Interfaces::AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_rune_of_power();
     }
@@ -802,15 +802,15 @@ public:
     }
 };
 
-class AreaTrigger_amethyst_pool : public AreaTriggerEntityScript
+class AreaTrigger_amethyst_pool : public MS::Game::Scripting::Interfaces::AreaTriggerEntityScript
 {
 public:
     AreaTrigger_amethyst_pool()
-        : AreaTriggerEntityScript("at_amethyst_pool")
+        : MS::Game::Scripting::Interfaces::AreaTriggerEntityScript("at_amethyst_pool")
     {
     }
 
-    AreaTriggerEntityScript* GetAI() const
+    MS::Game::Scripting::Interfaces::AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_amethyst_pool();
     }
@@ -839,15 +839,15 @@ public:
     }
 };
 
-class AreaTrigger_cancelling_noise_area_trigger : public AreaTriggerEntityScript
+class AreaTrigger_cancelling_noise_area_trigger : public MS::Game::Scripting::Interfaces::AreaTriggerEntityScript
 {
 public:
     AreaTrigger_cancelling_noise_area_trigger()
-        : AreaTriggerEntityScript("at_cancelling_noise_area_trigger")
+        : MS::Game::Scripting::Interfaces::AreaTriggerEntityScript("at_cancelling_noise_area_trigger")
     {
     }
 
-    AreaTriggerEntityScript* GetAI() const
+    MS::Game::Scripting::Interfaces::AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_cancelling_noise_area_trigger();
     }
@@ -886,15 +886,15 @@ public:
     }
 };
 
-class AreaTrigger_get_away : public AreaTriggerEntityScript
+class AreaTrigger_get_away : public MS::Game::Scripting::Interfaces::AreaTriggerEntityScript
 {
 public:
     AreaTrigger_get_away()
-        : AreaTriggerEntityScript("at_get_away")
+        : MS::Game::Scripting::Interfaces::AreaTriggerEntityScript("at_get_away")
     {
     }
 
-    AreaTriggerEntityScript* GetAI() const
+    MS::Game::Scripting::Interfaces::AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_get_away();
     }
@@ -936,15 +936,15 @@ public:
     }
 };
 
-class AreaTrigger_draw_power : public AreaTriggerEntityScript
+class AreaTrigger_draw_power : public MS::Game::Scripting::Interfaces::AreaTriggerEntityScript
 {
 public:
     AreaTrigger_draw_power()
-        : AreaTriggerEntityScript("at_draw_power")
+        : MS::Game::Scripting::Interfaces::AreaTriggerEntityScript("at_draw_power")
     {
     }
 
-    AreaTriggerEntityScript* GetAI() const
+    MS::Game::Scripting::Interfaces::AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_draw_power();
     }
@@ -972,15 +972,15 @@ public:
     }
 };
 
-class AreaTrigger_healing_sphere_2 : public AreaTriggerEntityScript
+class AreaTrigger_healing_sphere_2 : public MS::Game::Scripting::Interfaces::AreaTriggerEntityScript
 {
 public:
     AreaTrigger_healing_sphere_2()
-        : AreaTriggerEntityScript("at_healing_sphere_2")
+        : MS::Game::Scripting::Interfaces::AreaTriggerEntityScript("at_healing_sphere_2")
     {
     }
 
-    AreaTriggerEntityScript* GetAI() const
+    MS::Game::Scripting::Interfaces::AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_healing_sphere_2();
     }
@@ -1010,15 +1010,15 @@ public:
     }
 };
 
-class AreaTrigger_gift_of_the_serpent : public AreaTriggerEntityScript
+class AreaTrigger_gift_of_the_serpent : public MS::Game::Scripting::Interfaces::AreaTriggerEntityScript
 {
 public:
     AreaTrigger_gift_of_the_serpent()
-        : AreaTriggerEntityScript("at_gift_of_the_serpent")
+        : MS::Game::Scripting::Interfaces::AreaTriggerEntityScript("at_gift_of_the_serpent")
     {
     }
 
-    AreaTriggerEntityScript* GetAI() const
+    MS::Game::Scripting::Interfaces::AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_gift_of_the_serpent();
     }
@@ -1045,15 +1045,15 @@ public:
     }
 };
 
-class AreaTrigger_chi_sphere_afterlife : public AreaTriggerEntityScript
+class AreaTrigger_chi_sphere_afterlife : public MS::Game::Scripting::Interfaces::AreaTriggerEntityScript
 {
 public:
     AreaTrigger_chi_sphere_afterlife()
-        : AreaTriggerEntityScript("at_chi_sphere_afterlife")
+        : MS::Game::Scripting::Interfaces::AreaTriggerEntityScript("at_chi_sphere_afterlife")
     {
     }
 
-    AreaTriggerEntityScript* GetAI() const
+    MS::Game::Scripting::Interfaces::AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_chi_sphere_afterlife();
     }
@@ -1083,15 +1083,15 @@ public:
     }
 };
 
-class AreaTrigger_angelic_feather : public AreaTriggerEntityScript
+class AreaTrigger_angelic_feather : public MS::Game::Scripting::Interfaces::AreaTriggerEntityScript
 {
 public:
     AreaTrigger_angelic_feather()
-        : AreaTriggerEntityScript("at_angelic_feather")
+        : MS::Game::Scripting::Interfaces::AreaTriggerEntityScript("at_angelic_feather")
     {
     }
 
-    AreaTriggerEntityScript* GetAI() const
+    MS::Game::Scripting::Interfaces::AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_angelic_feather();
     }
@@ -1118,15 +1118,15 @@ public:
     }
 };
 
-class AreaTrigger_gift_of_the_ox : public AreaTriggerEntityScript
+class AreaTrigger_gift_of_the_ox : public MS::Game::Scripting::Interfaces::AreaTriggerEntityScript
 {
 public:
     AreaTrigger_gift_of_the_ox()
-        : AreaTriggerEntityScript("at_gift_of_the_ox")
+        : MS::Game::Scripting::Interfaces::AreaTriggerEntityScript("at_gift_of_the_ox")
     {
     }
 
-    AreaTriggerEntityScript* GetAI() const
+    MS::Game::Scripting::Interfaces::AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_gift_of_the_ox();
     }
@@ -1153,15 +1153,15 @@ public:
     }
 };
 
-class AreaTrigger_down_draft : public AreaTriggerEntityScript
+class AreaTrigger_down_draft : public MS::Game::Scripting::Interfaces::AreaTriggerEntityScript
 {
 public:
     AreaTrigger_down_draft()
-        : AreaTriggerEntityScript("at_down_draft")
+        : MS::Game::Scripting::Interfaces::AreaTriggerEntityScript("at_down_draft")
     {
     }
 
-    AreaTriggerEntityScript* GetAI() const
+    MS::Game::Scripting::Interfaces::AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_down_draft();
     }
@@ -1201,15 +1201,15 @@ public:
     }
 };
 
-class AreaTrigger_zen_sphere_1 : public AreaTriggerEntityScript
+class AreaTrigger_zen_sphere_1 : public MS::Game::Scripting::Interfaces::AreaTriggerEntityScript
 {
 public:
     AreaTrigger_zen_sphere_1()
-        : AreaTriggerEntityScript("at_zen_sphere_1")
+        : MS::Game::Scripting::Interfaces::AreaTriggerEntityScript("at_zen_sphere_1")
     {
     }
 
-    AreaTriggerEntityScript* GetAI() const
+    MS::Game::Scripting::Interfaces::AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_zen_sphere_1();
     }
@@ -1226,15 +1226,15 @@ public:
     }
 };
 
-class AreaTrigger_zen_sphere_2 : public AreaTriggerEntityScript
+class AreaTrigger_zen_sphere_2 : public MS::Game::Scripting::Interfaces::AreaTriggerEntityScript
 {
 public:
     AreaTrigger_zen_sphere_2()
-        : AreaTriggerEntityScript("at_zen_sphere_2")
+        : MS::Game::Scripting::Interfaces::AreaTriggerEntityScript("at_zen_sphere_2")
     {
     }
 
-    AreaTriggerEntityScript* GetAI() const
+    MS::Game::Scripting::Interfaces::AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_zen_sphere_2();
     }

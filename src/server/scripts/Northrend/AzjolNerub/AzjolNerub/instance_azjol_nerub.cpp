@@ -26,10 +26,10 @@
 2 - Anub'arak
 */
 
-class instance_azjol_nerub : public InstanceMapScript
+class instance_azjol_nerub : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
 public:
-    instance_azjol_nerub() : InstanceMapScript("instance_azjol_nerub", 601) { }
+    instance_azjol_nerub() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_azjol_nerub", 601) { }
 
     struct instance_azjol_nerub_InstanceScript : public InstanceScript
     {

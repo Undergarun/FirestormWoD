@@ -29,10 +29,10 @@ EndScriptData */
 
 #define WARD_KEEPERS_NR 2
 
-class instance_razorfen_kraul : public InstanceMapScript
+class instance_razorfen_kraul : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
 public:
-    instance_razorfen_kraul() : InstanceMapScript("instance_razorfen_kraul", 47) { }
+    instance_razorfen_kraul() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_razorfen_kraul", 47) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {

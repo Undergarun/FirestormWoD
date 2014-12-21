@@ -44,10 +44,10 @@ enum eEnums
     H_SPELL_SAND_BREATH = 39049
 };
 
-class boss_aeonus : public CreatureScript
+class boss_aeonus : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_aeonus() : CreatureScript("boss_aeonus") { }
+    boss_aeonus() : MS::Game::Scripting::Interfaces::CreatureScript("boss_aeonus") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

@@ -80,10 +80,10 @@ enum MiscData
 Position const northForgePos = {722.5643f, -234.1615f, 527.182f, 2.16421f};
 Position const southForgePos = {639.257f, -210.1198f, 529.015f, 0.523599f};
 
-class boss_garfrost : public CreatureScript
+class boss_garfrost : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_garfrost() : CreatureScript("boss_garfrost") { }
+        boss_garfrost() : MS::Game::Scripting::Interfaces::CreatureScript("boss_garfrost") { }
 
         struct boss_garfrostAI : public BossAI
         {
@@ -259,10 +259,10 @@ class boss_garfrost : public CreatureScript
         }
 };
 
-class spell_garfrost_permafrost : public SpellScriptLoader
+class spell_garfrost_permafrost: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_garfrost_permafrost() : SpellScriptLoader("spell_garfrost_permafrost") { }
+        spell_garfrost_permafrost() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_garfrost_permafrost") { }
 
         class spell_garfrost_permafrost_SpellScript : public SpellScript
         {
@@ -329,10 +329,10 @@ class spell_garfrost_permafrost : public SpellScriptLoader
         }
 };
 
-class achievement_doesnt_go_to_eleven : public AchievementCriteriaScript
+class achievement_doesnt_go_to_eleven : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_doesnt_go_to_eleven() : AchievementCriteriaScript("achievement_doesnt_go_to_eleven") { }
+        achievement_doesnt_go_to_eleven() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_doesnt_go_to_eleven") { }
 
         bool OnCheck(Player* /*source*/, Unit* target)
         {

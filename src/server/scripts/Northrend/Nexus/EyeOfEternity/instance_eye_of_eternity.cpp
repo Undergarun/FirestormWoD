@@ -21,10 +21,10 @@
 #include "eye_of_eternity.h"
 #include "Player.h"
 
-class instance_eye_of_eternity : public InstanceMapScript
+class instance_eye_of_eternity : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
 public:
-    instance_eye_of_eternity() : InstanceMapScript("instance_eye_of_eternity", 616) { }
+    instance_eye_of_eternity() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_eye_of_eternity", 616) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {

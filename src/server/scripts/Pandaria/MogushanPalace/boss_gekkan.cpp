@@ -10,10 +10,10 @@
 
 #define TYPE_GET_ENTOURAGE 14
 
-class boss_gekkan : public CreatureScript
+class boss_gekkan : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_gekkan() : CreatureScript("boss_gekkan") { }
+        boss_gekkan() : MS::Game::Scripting::Interfaces::CreatureScript("boss_gekkan") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -146,10 +146,10 @@ class boss_gekkan : public CreatureScript
         };
 };
 
-class mob_glintrok_skulker : public CreatureScript
+class mob_glintrok_skulker : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_glintrok_skulker() : CreatureScript("mob_glintrok_skulker") { }
+        mob_glintrok_skulker() : MS::Game::Scripting::Interfaces::CreatureScript("mob_glintrok_skulker") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -199,10 +199,10 @@ class mob_glintrok_skulker : public CreatureScript
         };
 };
 
-class mob_glintrok_ironhide : public CreatureScript
+class mob_glintrok_ironhide : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_glintrok_ironhide() : CreatureScript("mob_glintrok_ironhide") { }
+        mob_glintrok_ironhide() : MS::Game::Scripting::Interfaces::CreatureScript("mob_glintrok_ironhide") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -252,10 +252,10 @@ class mob_glintrok_ironhide : public CreatureScript
         };
 };
 
-class mob_glintrok_oracle : public CreatureScript
+class mob_glintrok_oracle : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_glintrok_oracle() : CreatureScript("mob_glintrok_oracle") { }
+        mob_glintrok_oracle() : MS::Game::Scripting::Interfaces::CreatureScript("mob_glintrok_oracle") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -311,10 +311,10 @@ class mob_glintrok_oracle : public CreatureScript
         };
 };
 
-class mob_glintrok_hexxer : public CreatureScript
+class mob_glintrok_hexxer : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_glintrok_hexxer() : CreatureScript("mob_glintrok_hexxer") { }
+        mob_glintrok_hexxer() : MS::Game::Scripting::Interfaces::CreatureScript("mob_glintrok_hexxer") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {

@@ -47,7 +47,7 @@ enum eSpells
     SPELL_RETALIATION      = 22857,
 };
 
-class boss_watchkeeper_gargolmar : public CreatureScript
+class boss_watchkeeper_gargolmar : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 

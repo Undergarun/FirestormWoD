@@ -196,10 +196,10 @@ Position heroicSha = { -1597.43f, -3815.56f, -279.50f, 3.141593f }; // Position 
 Position heroicPos = { -1722.40f, -3815.56f, -279.50f, 0.000000f }; // Base position for players in Heroic P2
 
 // 60999 - Sha of fear
-class boss_sha_of_fear : public CreatureScript
+class boss_sha_of_fear : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_sha_of_fear() : CreatureScript("boss_sha_of_fear") { }
+        boss_sha_of_fear() : MS::Game::Scripting::Interfaces::CreatureScript("boss_sha_of_fear") { }
 
         struct boss_sha_of_fearAI : public BossAI
         {
@@ -960,10 +960,10 @@ class boss_sha_of_fear : public CreatureScript
 };
 
 // Pure Light Terrace - 60788
-class mob_pure_light_terrace : public CreatureScript
+class mob_pure_light_terrace : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_pure_light_terrace() : CreatureScript("mob_pure_light_terrace") { }
+        mob_pure_light_terrace() : MS::Game::Scripting::Interfaces::CreatureScript("mob_pure_light_terrace") { }
 
         struct mob_pure_light_terraceAI : public ScriptedAI
         {
@@ -1079,10 +1079,10 @@ class mob_pure_light_terrace : public CreatureScript
 };
 
 // Return to the Terrace - 65736 (All modes, to return from shrines to the main platform)
-class mob_return_to_the_terrace : public CreatureScript
+class mob_return_to_the_terrace : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_return_to_the_terrace() : CreatureScript("mob_return_to_the_terrace") { }
+        mob_return_to_the_terrace() : MS::Game::Scripting::Interfaces::CreatureScript("mob_return_to_the_terrace") { }
 
         struct mob_return_to_the_terraceAI : public ScriptedAI
         {
@@ -1240,10 +1240,10 @@ class mob_return_to_the_terrace : public CreatureScript
 };
 
 // 61735 - Travel to Dread Expanse
-class mob_travel_to_dread_expanse : public CreatureScript
+class mob_travel_to_dread_expanse : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_travel_to_dread_expanse() : CreatureScript("mob_travel_to_dread_expanse") { }
+    mob_travel_to_dread_expanse() : MS::Game::Scripting::Interfaces::CreatureScript("mob_travel_to_dread_expanse") { }
 
     struct mob_travel_to_dread_expanseAI : public ScriptedAI
     {
@@ -1318,10 +1318,10 @@ public:
 };
 
 // Terror Spawn - 61034
-class mob_terror_spawn : public CreatureScript
+class mob_terror_spawn : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_terror_spawn() : CreatureScript("mob_terror_spawn") { }
+        mob_terror_spawn() : MS::Game::Scripting::Interfaces::CreatureScript("mob_terror_spawn") { }
 
         struct mob_terror_spawnAI : public ScriptedAI
         {
@@ -1382,10 +1382,10 @@ class mob_terror_spawn : public CreatureScript
 // Yang Guoshi - 61038
 // Cheng Kang - 61042
 // Jinlun Kun - 61046
-class mob_shrine_guardian : public CreatureScript
+class mob_shrine_guardian : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_shrine_guardian() : CreatureScript("mob_shrine_guardian") { }
+        mob_shrine_guardian() : MS::Game::Scripting::Interfaces::CreatureScript("mob_shrine_guardian") { }
 
         struct mob_shrine_guardianAI : public ScriptedAI
         {
@@ -1534,10 +1534,10 @@ class mob_shrine_guardian : public CreatureScript
 };
 
 // Sha Globe - 65691
-class mob_sha_globe : public CreatureScript
+class mob_sha_globe : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_sha_globe() : CreatureScript("mob_sha_globe") { }
+        mob_sha_globe() : MS::Game::Scripting::Interfaces::CreatureScript("mob_sha_globe") { }
 
         struct mob_sha_globeAI : public ScriptedAI
         {
@@ -1589,10 +1589,10 @@ class mob_sha_globe : public CreatureScript
 };
 
 // Dread Spawn - 61003
-class mob_dread_spawn : public CreatureScript
+class mob_dread_spawn : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_dread_spawn() : CreatureScript("mob_dread_spawn") { }
+        mob_dread_spawn() : MS::Game::Scripting::Interfaces::CreatureScript("mob_dread_spawn") { }
 
         struct mob_dread_spawnAI : public ScriptedAI
         {
@@ -1718,10 +1718,10 @@ class mob_dread_spawn : public CreatureScript
 };
 
 // Breath of Fear - 119414 / 125786
-class spell_breath_of_fear : public SpellScriptLoader
+class spell_breath_of_fear: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_breath_of_fear() : SpellScriptLoader("spell_breath_of_fear") { }
+        spell_breath_of_fear() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_breath_of_fear") { }
 
         class spell_breath_of_fear_SpellScript : public SpellScript
         {
@@ -1750,10 +1750,10 @@ class spell_breath_of_fear : public SpellScriptLoader
 };
 
 // Conjure Terror Spawn - 119108
-class spell_conjure_terror_spawn : public SpellScriptLoader
+class spell_conjure_terror_spawn: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_conjure_terror_spawn() : SpellScriptLoader("spell_conjure_terror_spawn") { }
+        spell_conjure_terror_spawn() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_conjure_terror_spawn") { }
 
         class spell_conjure_terror_spawn_AuraScript : public AuraScript
         {
@@ -1778,10 +1778,10 @@ class spell_conjure_terror_spawn : public SpellScriptLoader
 };
 
 // Penetrating Bolt - 129075
-class spell_penetrating_bolt : public SpellScriptLoader
+class spell_penetrating_bolt: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_penetrating_bolt() : SpellScriptLoader("spell_penetrating_bolt") { }
+        spell_penetrating_bolt() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_penetrating_bolt") { }
 
         class spell_penetrating_bolt_SpellScript : public SpellScript
         {
@@ -1827,10 +1827,10 @@ class spell_penetrating_bolt : public SpellScriptLoader
 };
 
 // Ominous Cackle - 119593
-class spell_ominous_cackle_cast : public SpellScriptLoader
+class spell_ominous_cackle_cast: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_ominous_cackle_cast() : SpellScriptLoader("spell_ominous_cackle_cast") { }
+        spell_ominous_cackle_cast() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_ominous_cackle_cast") { }
 
         class spell_ominous_cackle_cast_SpellScript : public SpellScript
         {
@@ -1938,10 +1938,10 @@ class spell_ominous_cackle_cast : public SpellScriptLoader
 };
 
 // Dread Spray - 120047
-class spell_dread_spray : public SpellScriptLoader
+class spell_dread_spray: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dread_spray() : SpellScriptLoader("spell_dread_spray") { }
+        spell_dread_spray() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dread_spray") { }
 
         class spell_dread_spray_AuraScript : public AuraScript
         {
@@ -1975,10 +1975,10 @@ class spell_dread_spray : public SpellScriptLoader
 };
 
 // Dread Spray (stacks) - 119983
-class spell_dread_spray_stacks : public SpellScriptLoader
+class spell_dread_spray_stacks: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dread_spray_stacks() : SpellScriptLoader("spell_dread_spray_stacks") { }
+        spell_dread_spray_stacks() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dread_spray_stacks") { }
 
         class spell_dread_spray_stacks_SpellScript : public SpellScript
         {
@@ -2048,10 +2048,10 @@ class spell_dread_spray_stacks : public SpellScriptLoader
 };
 
 // Sha Globe (periodic) - 129189
-class spell_sha_globe_periodic : public SpellScriptLoader
+class spell_sha_globe_periodic: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sha_globe_periodic() : SpellScriptLoader("spell_sha_globe_periodic") { }
+        spell_sha_globe_periodic() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_globe_periodic") { }
 
         class spell_sha_globe_periodic_SpellScript : public SpellScript
         {
@@ -2079,10 +2079,10 @@ class spell_sha_globe_periodic : public SpellScriptLoader
 };
 
 // Death Blossom - 119888
-class spell_death_blossom_periodic : public SpellScriptLoader
+class spell_death_blossom_periodic: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_death_blossom_periodic() : SpellScriptLoader("spell_death_blossom_periodic") { }
+        spell_death_blossom_periodic() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_death_blossom_periodic") { }
 
         class spell_death_blossom_periodic_AuraScript : public AuraScript
         {
@@ -2113,10 +2113,10 @@ class spell_death_blossom_periodic : public SpellScriptLoader
 };
 
 // Death Blossom (damage) - 119887
-class spell_death_blossom_damage : public SpellScriptLoader
+class spell_death_blossom_damage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_death_blossom_damage() : SpellScriptLoader("spell_death_blossom_damage") { }
+        spell_death_blossom_damage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_death_blossom_damage") { }
 
         class spell_death_blossom_damage_SpellScript : public SpellScript
         {
@@ -2154,10 +2154,10 @@ class spell_death_blossom_damage : public SpellScriptLoader
 };
 
 // Submerge - 120455
-class spell_submerge : public SpellScriptLoader
+class spell_submerge: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_submerge() : SpellScriptLoader("spell_submerge") { }
+        spell_submerge() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_submerge") { }
 
         class spell_submerge_SpellScript : public SpellScript
         {
@@ -2185,10 +2185,10 @@ class spell_submerge : public SpellScriptLoader
 };
 
 // Emerge - 120458
-class spell_emerge : public SpellScriptLoader
+class spell_emerge: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_emerge() : SpellScriptLoader("spell_emerge") { }
+        spell_emerge() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_emerge") { }
 
         class spell_emerge_SpellScript : public SpellScript
         {
@@ -2216,10 +2216,10 @@ class spell_emerge : public SpellScriptLoader
 };
 
 // 120519 - Waterspout
-class spell_sha_waterspout : public SpellScriptLoader
+class spell_sha_waterspout: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sha_waterspout() : SpellScriptLoader("spell_sha_waterspout") { }
+        spell_sha_waterspout() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_waterspout") { }
 
         class spell_sha_waterspout_SpellScript : public SpellScript
         {
@@ -2258,10 +2258,10 @@ class spell_sha_waterspout : public SpellScriptLoader
 };
 
 // 120285 - Transfer Light
-class spell_transfer_light : public SpellScriptLoader
+class spell_transfer_light: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_transfer_light() : SpellScriptLoader("spell_transfer_light") { }
+        spell_transfer_light() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_transfer_light") { }
 
         class spell_transfer_light_SpellScript : public SpellScript
         {
@@ -2301,10 +2301,10 @@ class spell_transfer_light : public SpellScriptLoader
 };
 
 // 120672 - Implacable Strike
-class spell_implacable_strike : public SpellScriptLoader
+class spell_implacable_strike: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_implacable_strike() : SpellScriptLoader("spell_implacable_strike") { }
+        spell_implacable_strike() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_implacable_strike") { }
 
         class spell_implacable_strike_SpellScript : public SpellScript
         {

@@ -96,10 +96,10 @@ static uint32 PaladinEntry[] = {CHAMPION_BLOODWRATH, CHAMPION_LIGHTREND, CHAMPIO
 ## npc_second_trial_paladin
 ######*/
 
-class npc_second_trial_paladin : public CreatureScript
+class npc_second_trial_paladin : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_second_trial_paladin() : CreatureScript("npc_second_trial_paladin") { }
+    npc_second_trial_paladin() : MS::Game::Scripting::Interfaces::CreatureScript("npc_second_trial_paladin") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -257,10 +257,10 @@ public:
 ## npc_second_trial_controller
 ######*/
 
-class npc_second_trial_controller : public CreatureScript
+class npc_second_trial_controller : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_second_trial_controller() : CreatureScript("npc_second_trial_controller") { }
+    npc_second_trial_controller() : MS::Game::Scripting::Interfaces::CreatureScript("npc_second_trial_controller") { }
 
     bool OnQuestAccept(Player* /*player*/, Creature* creature, Quest const* quest)
     {
@@ -414,10 +414,10 @@ void npc_second_trial_paladin::npc_secondTrialAI::JustDied(Unit* Killer)
 /*######
 ## go_second_trial
 ######*/
-class go_second_trial : public GameObjectScript
+class go_second_trial : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_second_trial() : GameObjectScript("go_second_trial") { }
+    go_second_trial() : MS::Game::Scripting::Interfaces::GameObjectScript("go_second_trial") { }
 
     bool OnGossipHello(Player* /*player*/, GameObject* go)
     {
@@ -437,10 +437,10 @@ public:
 #define MOB_GHARZUL     15958
 #define MOB_ANGERSHADE  15656
 
-class npc_apprentice_mirveda : public CreatureScript
+class npc_apprentice_mirveda : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_apprentice_mirveda() : CreatureScript("npc_apprentice_mirveda") { }
+    npc_apprentice_mirveda() : MS::Game::Scripting::Interfaces::CreatureScript("npc_apprentice_mirveda") { }
 
     bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
@@ -537,10 +537,10 @@ static Location SpawnLocations[] =
     {8267.97f, -7239.17f, 139.517f}
 };
 
-class npc_infused_crystal : public CreatureScript
+class npc_infused_crystal : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_infused_crystal() : CreatureScript("npc_infused_crystal") { }
+    npc_infused_crystal() : MS::Game::Scripting::Interfaces::CreatureScript("npc_infused_crystal") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

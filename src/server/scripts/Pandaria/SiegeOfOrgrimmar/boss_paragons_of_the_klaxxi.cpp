@@ -33,10 +33,10 @@ enum eSays
 {
 };
 
-class boss_kilruk_the_wind_reaver : public CreatureScript
+class boss_kilruk_the_wind_reaver : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_kilruk_the_wind_reaver() : CreatureScript("boss_kilruk_the_wind_reaver") { }
+        boss_kilruk_the_wind_reaver() : MS::Game::Scripting::Interfaces::CreatureScript("boss_kilruk_the_wind_reaver") { }
 
         struct boss_kilruk_the_wind_reaverAI : public BossAI
         {
@@ -121,10 +121,10 @@ class boss_kilruk_the_wind_reaver : public CreatureScript
         }
 };
 
-class boss_xaril_the_poisoned_mind : public CreatureScript
+class boss_xaril_the_poisoned_mind : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_xaril_the_poisoned_mind() : CreatureScript("boss_xaril_the_poisoned_mind") { }
+        boss_xaril_the_poisoned_mind() : MS::Game::Scripting::Interfaces::CreatureScript("boss_xaril_the_poisoned_mind") { }
 
         struct boss_xaril_the_poisoned_mindAI : public BossAI
         {
@@ -209,10 +209,10 @@ class boss_xaril_the_poisoned_mind : public CreatureScript
         }
 };
 
-class boss_kaztik_the_manipulator : public CreatureScript
+class boss_kaztik_the_manipulator : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_kaztik_the_manipulator() : CreatureScript("boss_kaztik_the_manipulator") { }
+        boss_kaztik_the_manipulator() : MS::Game::Scripting::Interfaces::CreatureScript("boss_kaztik_the_manipulator") { }
 
         struct boss_kaztik_the_manipulatorAI : public BossAI
         {
@@ -297,10 +297,10 @@ class boss_kaztik_the_manipulator : public CreatureScript
         }
 };
 
-class boss_korven_the_prime : public CreatureScript
+class boss_korven_the_prime : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_korven_the_prime() : CreatureScript("boss_korven_the_prime") { }
+        boss_korven_the_prime() : MS::Game::Scripting::Interfaces::CreatureScript("boss_korven_the_prime") { }
 
         struct boss_korven_the_primeAI : public BossAI
         {
@@ -385,10 +385,10 @@ class boss_korven_the_prime : public CreatureScript
         }
 };
 
-class boss_iyyokuk_the_lucid : public CreatureScript
+class boss_iyyokuk_the_lucid : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_iyyokuk_the_lucid() : CreatureScript("boss_iyyokuk_the_lucid") { }
+        boss_iyyokuk_the_lucid() : MS::Game::Scripting::Interfaces::CreatureScript("boss_iyyokuk_the_lucid") { }
 
         struct boss_iyyokuk_the_lucidAI : public BossAI
         {
@@ -473,10 +473,10 @@ class boss_iyyokuk_the_lucid : public CreatureScript
         }
 };
 
-class boss_karoz_the_locust : public CreatureScript
+class boss_karoz_the_locust : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_karoz_the_locust() : CreatureScript("boss_karoz_the_locust") { }
+        boss_karoz_the_locust() : MS::Game::Scripting::Interfaces::CreatureScript("boss_karoz_the_locust") { }
 
         struct boss_karoz_the_locustAI : public BossAI
         {
@@ -561,10 +561,10 @@ class boss_karoz_the_locust : public CreatureScript
         }
 };
 
-class boss_skeer_the_bloodseeker : public CreatureScript
+class boss_skeer_the_bloodseeker : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_skeer_the_bloodseeker() : CreatureScript("boss_skeer_the_bloodseeker") { }
+        boss_skeer_the_bloodseeker() : MS::Game::Scripting::Interfaces::CreatureScript("boss_skeer_the_bloodseeker") { }
 
         struct boss_skeer_the_bloodseekerAI : public BossAI
         {
@@ -649,10 +649,10 @@ class boss_skeer_the_bloodseeker : public CreatureScript
         }
 };
 
-class boss_rikkal_the_dissector : public CreatureScript
+class boss_rikkal_the_dissector : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_rikkal_the_dissector() : CreatureScript("boss_rikkal_the_dissector") { }
+        boss_rikkal_the_dissector() : MS::Game::Scripting::Interfaces::CreatureScript("boss_rikkal_the_dissector") { }
 
         struct boss_rikkal_the_dissectorAI : public BossAI
         {
@@ -737,10 +737,10 @@ class boss_rikkal_the_dissector : public CreatureScript
         }
 };
 
-class boss_hisek_the_swarmkeeper : public CreatureScript
+class boss_hisek_the_swarmkeeper : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_hisek_the_swarmkeeper() : CreatureScript("boss_hisek_the_swarmkeeper") { }
+        boss_hisek_the_swarmkeeper() : MS::Game::Scripting::Interfaces::CreatureScript("boss_hisek_the_swarmkeeper") { }
 
         struct boss_hisek_the_swarmkeeperAI : public BossAI
         {

@@ -37,10 +37,10 @@ EndScriptData */
 #define ENTRY_SPORE_STRIDER        22299
 
 // 17882
-class boss_the_black_stalker : public CreatureScript
+class boss_the_black_stalker : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_the_black_stalker() : CreatureScript("boss_the_black_stalker") { }
+    boss_the_black_stalker() : MS::Game::Scripting::Interfaces::CreatureScript("boss_the_black_stalker") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

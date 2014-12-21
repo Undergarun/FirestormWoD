@@ -22,10 +22,10 @@ enum InstanceTeleporter
 	MUROZOND_TELEPORT       = 6,
 };
 
-class go_end_time_teleport : public GameObjectScript
+class go_end_time_teleport : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
     public:
-        go_end_time_teleport() : GameObjectScript("go_end_time_teleport") { }
+        go_end_time_teleport() : MS::Game::Scripting::Interfaces::GameObjectScript("go_end_time_teleport") { }
 
         bool OnGossipHello(Player* pPlayer, GameObject* pGo)
         {

@@ -103,10 +103,10 @@ enum MageSpells
 
 
 // Greater Invisibility (remove timer) - 122293
-class spell_mage_greater_invisibility_removed : public SpellScriptLoader
+class spell_mage_greater_invisibility_removed: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_mage_greater_invisibility_removed() : SpellScriptLoader("spell_mage_greater_invisibility_removed") { }
+        spell_mage_greater_invisibility_removed() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mage_greater_invisibility_removed") { }
 
         class spell_mage_greater_invisibility_removed_AuraScript : public AuraScript
         {
@@ -132,10 +132,10 @@ class spell_mage_greater_invisibility_removed : public SpellScriptLoader
 };
 
 // Greater Invisibility (triggered) - 110960
-class spell_mage_greater_invisibility_triggered : public SpellScriptLoader
+class spell_mage_greater_invisibility_triggered: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_mage_greater_invisibility_triggered() : SpellScriptLoader("spell_mage_greater_invisibility_triggered") { }
+        spell_mage_greater_invisibility_triggered() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mage_greater_invisibility_triggered") { }
 
         class spell_mage_greater_invisibility_triggered_AuraScript : public AuraScript
         {
@@ -168,10 +168,10 @@ class spell_mage_greater_invisibility_triggered : public SpellScriptLoader
 
 // Called by Arcane Blast - 30451
 // Glyph of Slow - 86209
-class spell_mage_glyph_of_slow : public SpellScriptLoader
+class spell_mage_glyph_of_slow: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_mage_glyph_of_slow() : SpellScriptLoader("spell_mage_glyph_of_slow") { }
+        spell_mage_glyph_of_slow() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mage_glyph_of_slow") { }
 
         class spell_mage_glyph_of_slow_SpellScript : public SpellScript
         {
@@ -219,10 +219,10 @@ class spell_mage_glyph_of_slow : public SpellScriptLoader
 };
 
 // Frost Nova (Water Elemental) - 33395
-class spell_mage_pet_frost_nova : public SpellScriptLoader
+class spell_mage_pet_frost_nova: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_mage_pet_frost_nova() : SpellScriptLoader("spell_mage_pet_frost_nova") { }
+        spell_mage_pet_frost_nova() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mage_pet_frost_nova") { }
 
         class spell_mage_pet_frost_nova_SpellScript : public SpellScript
         {
@@ -278,10 +278,10 @@ class spell_mage_pet_frost_nova : public SpellScriptLoader
 
 // Called by Ice Block - 45438
 // Glyph of Ice Block - 115723
-class spell_mage_glyph_of_ice_block : public SpellScriptLoader
+class spell_mage_glyph_of_ice_block: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_mage_glyph_of_ice_block() : SpellScriptLoader("spell_mage_glyph_of_ice_block") { }
+        spell_mage_glyph_of_ice_block() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mage_glyph_of_ice_block") { }
 
         class spell_mage_glyph_of_ice_block_AuraScript : public AuraScript
         {
@@ -315,10 +315,10 @@ class spell_mage_glyph_of_ice_block : public SpellScriptLoader
 };
 
 // Arcane Missiles - 5143
-class spell_mage_arcane_missile : public SpellScriptLoader
+class spell_mage_arcane_missile: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_mage_arcane_missile() : SpellScriptLoader("spell_mage_arcane_missile") { }
+        spell_mage_arcane_missile() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mage_arcane_missile") { }
 
         class spell_mage_arcane_missile_AuraScript : public AuraScript
         {
@@ -373,10 +373,10 @@ class spell_mage_arcane_missile : public SpellScriptLoader
 };
 
 // Cauterize - 86949
-class spell_mage_cauterize : public SpellScriptLoader
+class spell_mage_cauterize: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_mage_cauterize() : SpellScriptLoader("spell_mage_cauterize") { }
+        spell_mage_cauterize() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mage_cauterize") { }
 
         class spell_mage_cauterize_AuraScript : public AuraScript
         {
@@ -464,10 +464,10 @@ class CheckArcaneBarrageImpactPredicate
 };
 
 // Arcane Barrage - 44425
-class spell_mage_arcane_barrage : public SpellScriptLoader
+class spell_mage_arcane_barrage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_mage_arcane_barrage() : SpellScriptLoader("spell_mage_arcane_barrage") { }
+        spell_mage_arcane_barrage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mage_arcane_barrage") { }
 
         class spell_mage_arcane_barrage_SpellScript : public SpellScript
         {
@@ -495,10 +495,10 @@ class spell_mage_arcane_barrage : public SpellScriptLoader
 };
 
 // Arcane Explosion - 1449
-class spell_mage_arcane_explosion : public SpellScriptLoader
+class spell_mage_arcane_explosion: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_mage_arcane_explosion() : SpellScriptLoader("spell_mage_arcane_explosion") { }
+        spell_mage_arcane_explosion() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mage_arcane_explosion") { }
 
         class spell_mage_arcane_explosion_SpellScript : public SpellScript
         {
@@ -526,10 +526,10 @@ class spell_mage_arcane_explosion : public SpellScriptLoader
 };
 
 // Frostbolt - 116
-class spell_mage_frostbolt : public SpellScriptLoader
+class spell_mage_frostbolt: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_mage_frostbolt() : SpellScriptLoader("spell_mage_frostbolt") { }
+        spell_mage_frostbolt() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mage_frostbolt") { }
 
         class spell_mage_frostbolt_SpellScript : public SpellScript
         {
@@ -614,10 +614,10 @@ class CheckNetherImpactPredicate
 };
 
 // Nether Tempest - 114923
-class spell_mage_nether_tempest : public SpellScriptLoader
+class spell_mage_nether_tempest: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_mage_nether_tempest() : SpellScriptLoader("spell_mage_nether_tempest") { }
+        spell_mage_nether_tempest() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mage_nether_tempest") { }
 
         class spell_mage_nether_tempest_AuraScript : public AuraScript
         {
@@ -662,10 +662,10 @@ class spell_mage_nether_tempest : public SpellScriptLoader
 };
 
 // Blazing Speed - 108843
-class spell_mage_blazing_speed : public SpellScriptLoader
+class spell_mage_blazing_speed: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_mage_blazing_speed() : SpellScriptLoader("spell_mage_blazing_speed") { }
+        spell_mage_blazing_speed() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mage_blazing_speed") { }
 
         class spell_mage_blazing_speed_SpellScript : public SpellScript
         {
@@ -690,10 +690,10 @@ class spell_mage_blazing_speed : public SpellScriptLoader
 };
 
 // Frostjaw - 102051
-class spell_mage_frostjaw : public SpellScriptLoader
+class spell_mage_frostjaw: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_mage_frostjaw() : SpellScriptLoader("spell_mage_frostjaw") { }
+        spell_mage_frostjaw() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mage_frostjaw") { }
 
         class spell_mage_frostjaw_SpellScript : public SpellScript
         {
@@ -731,10 +731,10 @@ class spell_mage_frostjaw : public SpellScriptLoader
 };
 
 // Combustion - 11129
-class spell_mage_combustion : public SpellScriptLoader
+class spell_mage_combustion: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_mage_combustion() : SpellScriptLoader("spell_mage_combustion") { }
+        spell_mage_combustion() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mage_combustion") { }
 
         class spell_mage_combustion_SpellScript : public SpellScript
         {
@@ -816,10 +816,10 @@ class CheckInfernoBlastImpactPredicate
 };
 
 // Inferno Blast - 108853
-class spell_mage_inferno_blast : public SpellScriptLoader
+class spell_mage_inferno_blast: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_mage_inferno_blast() : SpellScriptLoader("spell_mage_inferno_blast") { }
+        spell_mage_inferno_blast() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mage_inferno_blast") { }
 
         class spell_mage_inferno_blast_SpellScript : public SpellScript
         {
@@ -898,10 +898,10 @@ class spell_mage_inferno_blast : public SpellScriptLoader
 };
 
 // Replenish Mana - 5405
-class spell_mage_replenish_mana : public SpellScriptLoader
+class spell_mage_replenish_mana: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_mage_replenish_mana() : SpellScriptLoader("spell_mage_replenish_mana") { }
+        spell_mage_replenish_mana() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mage_replenish_mana") { }
 
         class spell_mage_replenish_mana_SpellScript : public SpellScript
         {
@@ -926,10 +926,10 @@ class spell_mage_replenish_mana : public SpellScriptLoader
 };
 
 // Evocation - 12051
-class spell_mage_evocation : public SpellScriptLoader
+class spell_mage_evocation: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_mage_evocation() : SpellScriptLoader("spell_mage_evocation") { }
+        spell_mage_evocation() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mage_evocation") { }
 
         class spell_mage_evocation_SpellScript : public SpellScript
         {
@@ -954,10 +954,10 @@ class spell_mage_evocation : public SpellScriptLoader
 };
 
 // Conjure Refreshment - 42955
-class spell_mage_conjure_refreshment : public SpellScriptLoader
+class spell_mage_conjure_refreshment: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_mage_conjure_refreshment() : SpellScriptLoader("spell_mage_conjure_refreshment") { }
+        spell_mage_conjure_refreshment() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mage_conjure_refreshment") { }
 
         class spell_mage_conjure_refreshment_SpellScript : public SpellScript
         {
@@ -999,10 +999,10 @@ class spell_mage_conjure_refreshment : public SpellScriptLoader
 };
 
 // Time Warp - 80353
-class spell_mage_time_warp : public SpellScriptLoader
+class spell_mage_time_warp: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_mage_time_warp() : SpellScriptLoader("spell_mage_time_warp") { }
+        spell_mage_time_warp() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mage_time_warp") { }
 
         class spell_mage_time_warp_SpellScript : public SpellScript
         {
@@ -1038,10 +1038,10 @@ class spell_mage_time_warp : public SpellScriptLoader
 };
 
 // Alter Time - 127140 (overrided)
-class spell_mage_alter_time_overrided : public SpellScriptLoader
+class spell_mage_alter_time_overrided: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_mage_alter_time_overrided() : SpellScriptLoader("spell_mage_alter_time_overrided") { }
+        spell_mage_alter_time_overrided() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mage_alter_time_overrided") { }
 
         class spell_mage_alter_time_overrided_SpellScript : public SpellScript
         {
@@ -1067,10 +1067,10 @@ class spell_mage_alter_time_overrided : public SpellScriptLoader
 };
 
 // Alter Time - 110909
-class spell_mage_alter_time : public SpellScriptLoader
+class spell_mage_alter_time: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_mage_alter_time() : SpellScriptLoader("spell_mage_alter_time") { }
+        spell_mage_alter_time() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mage_alter_time") { }
 
         class spell_mage_alter_time_AuraScript : public AuraScript
         {
@@ -1112,10 +1112,10 @@ class spell_mage_alter_time : public SpellScriptLoader
 };
 
 // Cold Snap - 11958
-class spell_mage_cold_snap : public SpellScriptLoader
+class spell_mage_cold_snap: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_mage_cold_snap() : SpellScriptLoader("spell_mage_cold_snap") { }
+        spell_mage_cold_snap() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mage_cold_snap") { }
 
         class spell_mage_cold_snap_SpellScript : public SpellScript
         {
@@ -1178,10 +1178,10 @@ class spell_mage_incanters_absorbtion_base_AuraScript : public AuraScript
 };
 
 // Incanter's Absorption
-class spell_mage_incanters_absorbtion_absorb : public SpellScriptLoader
+class spell_mage_incanters_absorbtion_absorb: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_mage_incanters_absorbtion_absorb() : SpellScriptLoader("spell_mage_incanters_absorbtion_absorb") { }
+        spell_mage_incanters_absorbtion_absorb() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mage_incanters_absorbtion_absorb") { }
 
         class spell_mage_incanters_absorbtion_absorb_AuraScript : public spell_mage_incanters_absorbtion_base_AuraScript
         {
@@ -1200,10 +1200,10 @@ class spell_mage_incanters_absorbtion_absorb : public SpellScriptLoader
 };
 
 // Incanter's Absorption
-class spell_mage_incanters_absorbtion_manashield : public SpellScriptLoader
+class spell_mage_incanters_absorbtion_manashield: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_mage_incanters_absorbtion_manashield() : SpellScriptLoader("spell_mage_incanters_absorbtion_manashield") { }
+        spell_mage_incanters_absorbtion_manashield() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mage_incanters_absorbtion_manashield") { }
 
         class spell_mage_incanters_absorbtion_manashield_AuraScript : public spell_mage_incanters_absorbtion_base_AuraScript
         {
@@ -1222,10 +1222,10 @@ class spell_mage_incanters_absorbtion_manashield : public SpellScriptLoader
 };
 
 // Living Bomb - 44457
-class spell_mage_living_bomb : public SpellScriptLoader
+class spell_mage_living_bomb: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_mage_living_bomb() : SpellScriptLoader("spell_mage_living_bomb") { }
+        spell_mage_living_bomb() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mage_living_bomb") { }
 
         class spell_mage_living_bomb_AuraScript : public AuraScript
         {
@@ -1257,10 +1257,10 @@ class spell_mage_living_bomb : public SpellScriptLoader
 };
 
 // Mirror Image - 55342
-class spell_mage_mirror_image_summon : public SpellScriptLoader
+class spell_mage_mirror_image_summon: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_mage_mirror_image_summon() : SpellScriptLoader("spell_mage_mirror_image_summon") { }
+        spell_mage_mirror_image_summon() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mage_mirror_image_summon") { }
 
         class spell_mage_mirror_image_summon_SpellScript : public SpellScript
         {
@@ -1289,10 +1289,10 @@ class spell_mage_mirror_image_summon : public SpellScriptLoader
 };
 
 // Ice Barrier - 11426
-class spell_mage_ice_barrier : public SpellScriptLoader
+class spell_mage_ice_barrier: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_mage_ice_barrier() : SpellScriptLoader("spell_mage_ice_barrier") { }
+        spell_mage_ice_barrier() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mage_ice_barrier") { }
 
         class spell_mage_ice_barrier_AuraScript : public AuraScript
         {
@@ -1318,10 +1318,10 @@ class spell_mage_ice_barrier : public SpellScriptLoader
 
 // Call by Arcane Blast 30451 - Fireball 133 - Frostbolt 116
 // Unstable Magic - 157976
-class spell_mage_unstable_magic : public SpellScriptLoader
+class spell_mage_unstable_magic: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_mage_unstable_magic() : SpellScriptLoader("spell_mage_unstable_magic") { }
+    spell_mage_unstable_magic() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mage_unstable_magic") { }
 
     class spell_mage_unstable_magic_SpellScript : public SpellScript
     {
@@ -1355,10 +1355,10 @@ public:
 };
 
 // Ice Lance - 30455
-class spell_mage_ice_lance : public SpellScriptLoader
+class spell_mage_ice_lance: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_mage_ice_lance() : SpellScriptLoader("spell_mage_ice_lance") { }
+    spell_mage_ice_lance() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mage_ice_lance") { }
 
     class spell_mage_ice_lance_SpellScript : public SpellScript
     {
@@ -1396,10 +1396,10 @@ public:
 };
 
 // Pyroblast - 11366
-class spell_mage_pyroblast : public SpellScriptLoader
+class spell_mage_pyroblast: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_mage_pyroblast() : SpellScriptLoader("spell_mage_pyroblast") { }
+    spell_mage_pyroblast() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mage_pyroblast") { }
 
     class spell_mage_pyroblast_SpellScript : public SpellScript
     {
@@ -1425,10 +1425,10 @@ public:
 };
 
 // FrostFire bolt - 44614
-class spell_mage_frostfire_bolt : public SpellScriptLoader
+class spell_mage_frostfire_bolt: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_mage_frostfire_bolt() : SpellScriptLoader("spell_mage_frostfire_bolt") { }
+    spell_mage_frostfire_bolt() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mage_frostfire_bolt") { }
 
     class spell_mage_frostfire_bolt_SpellScript : public SpellScript
     {
@@ -1455,10 +1455,10 @@ public:
 
 // Call by Fireball 133 - FrostFire Bolt 44614 - Pyroblast 11366 - Inferno Blast 108853
 // Kindling - 5405
-class spell_mage_kindling : public SpellScriptLoader
+class spell_mage_kindling: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_mage_kindling() : SpellScriptLoader("spell_mage_kindling") { }
+    spell_mage_kindling() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mage_kindling") { }
 
     class spell_mage_kindling_SpellScript : public SpellScript
     {

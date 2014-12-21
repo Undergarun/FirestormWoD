@@ -104,10 +104,10 @@ float Spawns[6][2]=
 #define SPAWN_Y             -1758
 #define SPAWN_O             4.738f
 
-class npc_barnes : public CreatureScript
+class npc_barnes : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_barnes() : CreatureScript("npc_barnes") { }
+    npc_barnes() : MS::Game::Scripting::Interfaces::CreatureScript("npc_barnes") { }
 
     struct npc_barnesAI : public npc_escortAI
     {
@@ -411,10 +411,10 @@ enum eBerthold
 
 #define GOSSIP_ITEM_TELEPORT    "Teleport me to the Guardian's Library"
 
-class npc_berthold : public CreatureScript
+class npc_berthold : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_berthold() : CreatureScript("npc_berthold") { }
+    npc_berthold() : MS::Game::Scripting::Interfaces::CreatureScript("npc_berthold") { }
 
     bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
     {
@@ -464,10 +464,10 @@ public:
 static float MedivPos[4] = {-11161.49f, -1902.24f, 91.48f, 1.94f};
 static float ArcanagosPos[4] = {-11169.75f, -1881.48f, 95.39f, 4.83f};
 
-class npc_image_of_medivh : public CreatureScript
+class npc_image_of_medivh : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_image_of_medivh() : CreatureScript("npc_image_of_medivh") { }
+    npc_image_of_medivh() : MS::Game::Scripting::Interfaces::CreatureScript("npc_image_of_medivh") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

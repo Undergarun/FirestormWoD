@@ -113,10 +113,10 @@ static CouncilYells CouncilEnrage[]=
 
 #define SPELL_BERSERK              45078
 
-class mob_blood_elf_council_voice_trigger : public CreatureScript
+class mob_blood_elf_council_voice_trigger : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_blood_elf_council_voice_trigger() : CreatureScript("mob_blood_elf_council_voice_trigger") { }
+    mob_blood_elf_council_voice_trigger() : MS::Game::Scripting::Interfaces::CreatureScript("mob_blood_elf_council_voice_trigger") { }
 
     CreatureAI* GetAI(Creature* c) const
     {
@@ -208,10 +208,10 @@ public:
 
 };
 
-class mob_illidari_council : public CreatureScript
+class mob_illidari_council : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_illidari_council() : CreatureScript("mob_illidari_council") { }
+    mob_illidari_council() : MS::Game::Scripting::Interfaces::CreatureScript("mob_illidari_council") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -467,10 +467,10 @@ struct boss_illidari_councilAI : public ScriptedAI
     }
 };
 
-class boss_gathios_the_shatterer : public CreatureScript
+class boss_gathios_the_shatterer : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_gathios_the_shatterer() : CreatureScript("boss_gathios_the_shatterer") { }
+    boss_gathios_the_shatterer() : MS::Game::Scripting::Interfaces::CreatureScript("boss_gathios_the_shatterer") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -599,10 +599,10 @@ public:
 
 };
 
-class boss_high_nethermancer_zerevor : public CreatureScript
+class boss_high_nethermancer_zerevor : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_high_nethermancer_zerevor() : CreatureScript("boss_high_nethermancer_zerevor") { }
+    boss_high_nethermancer_zerevor() : MS::Game::Scripting::Interfaces::CreatureScript("boss_high_nethermancer_zerevor") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -703,10 +703,10 @@ public:
 
 };
 
-class boss_lady_malande : public CreatureScript
+class boss_lady_malande : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_lady_malande() : CreatureScript("boss_lady_malande") { }
+    boss_lady_malande() : MS::Game::Scripting::Interfaces::CreatureScript("boss_lady_malande") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -781,10 +781,10 @@ public:
 
 };
 
-class boss_veras_darkshadow : public CreatureScript
+class boss_veras_darkshadow : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_veras_darkshadow() : CreatureScript("boss_veras_darkshadow") { }
+    boss_veras_darkshadow() : MS::Game::Scripting::Interfaces::CreatureScript("boss_veras_darkshadow") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -891,10 +891,10 @@ public:
 };
 
 // SPELL_REFLECTIVE_SHIELD
-class spell_boss_lady_malande_shield : public SpellScriptLoader
+class spell_boss_lady_malande_shield: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_boss_lady_malande_shield() : SpellScriptLoader("spell_boss_lady_malande_shield") { }
+    spell_boss_lady_malande_shield() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_boss_lady_malande_shield") { }
 
     class spell_boss_lady_malande_shield_AuraScript : public AuraScript
     {

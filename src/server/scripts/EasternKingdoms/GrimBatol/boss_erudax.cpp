@@ -114,10 +114,10 @@ const Position eggPos[23]    =
     {-751.01f, -886.38f, 234.87f, 3.27f},
 };
 
-class boss_erudax : public CreatureScript
+class boss_erudax : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_erudax() : CreatureScript("boss_erudax") { }
+        boss_erudax() : MS::Game::Scripting::Interfaces::CreatureScript("boss_erudax") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -260,11 +260,11 @@ class boss_erudax : public CreatureScript
         };
 };
 
-class npc_erudax_faceless_corruptor : public CreatureScript
+class npc_erudax_faceless_corruptor : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_erudax_faceless_corruptor() : CreatureScript("npc_erudax_faceless_corruptor"){}
+        npc_erudax_faceless_corruptor() : MS::Game::Scripting::Interfaces::CreatureScript("npc_erudax_faceless_corruptor"){}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -338,10 +338,10 @@ class npc_erudax_faceless_corruptor : public CreatureScript
         };
 };
 
-class npc_alexstrasza_egg : public CreatureScript
+class npc_alexstrasza_egg : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_alexstrasza_egg() : CreatureScript("npc_alexstrasza_egg") { }
+    npc_alexstrasza_egg() : MS::Game::Scripting::Interfaces::CreatureScript("npc_alexstrasza_egg") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -376,10 +376,10 @@ public:
     };
 };
 
-class npc_shadow_gale_stalker : public CreatureScript
+class npc_shadow_gale_stalker : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_shadow_gale_stalker() : CreatureScript("npc_shadow_gale_stalker") { }
+    npc_shadow_gale_stalker() : MS::Game::Scripting::Interfaces::CreatureScript("npc_shadow_gale_stalker") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -400,10 +400,10 @@ public:
     };
 };
 
-class npc_erudax_twilight_hatchling : public CreatureScript
+class npc_erudax_twilight_hatchling : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_erudax_twilight_hatchling() : CreatureScript("npc_erudax_twilight_hatchling") { }
+    npc_erudax_twilight_hatchling() : MS::Game::Scripting::Interfaces::CreatureScript("npc_erudax_twilight_hatchling") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -446,10 +446,10 @@ public:
     };
 };
 
-class spell_erudax_shadow_gale: public SpellScriptLoader
+class spell_erudax_shadow_gale: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_erudax_shadow_gale() : SpellScriptLoader("spell_erudax_shadow_gale") { }
+        spell_erudax_shadow_gale() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_erudax_shadow_gale") { }
 
 
         class spell_erudax_shadow_gale_SpellScript : public SpellScript

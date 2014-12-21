@@ -22,10 +22,10 @@
 #include "MapManager.h"
 #include "Chat.h"
 
-class gobject_commandscript : public CommandScript
+class gobject_commandscript: public MS::Game::Scripting::Interfaces::CommandScript
 {
     public:
-        gobject_commandscript() : CommandScript("gobject_commandscript") { }
+        gobject_commandscript() : MS::Game::Scripting::Interfaces::CommandScript("gobject_commandscript") { }
 
         ChatCommand* GetCommands() const
         {

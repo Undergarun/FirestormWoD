@@ -5,10 +5,10 @@
 #include "valley_of_the_four_winds.h"
 
 // Bonobos - 50828
-class mob_bonobos : public CreatureScript
+class mob_bonobos : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_bonobos() : CreatureScript("mob_bonobos")
+        mob_bonobos() : MS::Game::Scripting::Interfaces::CreatureScript("mob_bonobos")
         {
         }
 
@@ -79,10 +79,10 @@ class mob_bonobos : public CreatureScript
 };
 
 // Sele'na - 50766
-class mob_sele_na : public CreatureScript
+class mob_sele_na : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_sele_na() : CreatureScript("mob_sele_na")
+        mob_sele_na() : MS::Game::Scripting::Interfaces::CreatureScript("mob_sele_na")
         {
         }
 
@@ -153,10 +153,10 @@ class mob_sele_na : public CreatureScript
 };
 
 // Blackhoof - 51059
-class mob_blackhoof : public CreatureScript
+class mob_blackhoof : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_blackhoof() : CreatureScript("mob_blackhoof")
+        mob_blackhoof() : MS::Game::Scripting::Interfaces::CreatureScript("mob_blackhoof")
         {
         }
 
@@ -227,10 +227,10 @@ class mob_blackhoof : public CreatureScript
 };
 
 // Ik'thik Infestor - 56721 ## Ik'thik Warrior - 56722
-class mob_ik_thik_warrior : public CreatureScript
+class mob_ik_thik_warrior : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_ik_thik_warrior() : CreatureScript("mob_ik_thik_warrior")
+        mob_ik_thik_warrior() : MS::Game::Scripting::Interfaces::CreatureScript("mob_ik_thik_warrior")
         {
         }
 
@@ -295,10 +295,10 @@ class mob_ik_thik_warrior : public CreatureScript
 };
 
 // Sheepie - 64391
-class mob_sheepie : public CreatureScript
+class mob_sheepie : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_sheepie() : CreatureScript("mob_sheepie")
+    mob_sheepie() : MS::Game::Scripting::Interfaces::CreatureScript("mob_sheepie")
     {
     }
 
@@ -312,10 +312,10 @@ public:
 };
 
 // Krungko Fingerlicker - 64389
-class mob_krungko_fingerlicker : public CreatureScript
+class mob_krungko_fingerlicker : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_krungko_fingerlicker() : CreatureScript("mob_krungko_fingerlicker")
+        mob_krungko_fingerlicker() : MS::Game::Scripting::Interfaces::CreatureScript("mob_krungko_fingerlicker")
         {
         }
 
@@ -374,10 +374,10 @@ class mob_krungko_fingerlicker : public CreatureScript
 };
 
 // Jim-Jim - 59128
-class mob_jim_jim : public CreatureScript
+class mob_jim_jim : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_jim_jim() : CreatureScript("mob_jim_jim")
+        mob_jim_jim() : MS::Game::Scripting::Interfaces::CreatureScript("mob_jim_jim")
         {
         }
 
@@ -442,10 +442,10 @@ class mob_jim_jim : public CreatureScript
 };
 
 // Rit-Rit - 59132
-class mob_rit_rit : public CreatureScript
+class mob_rit_rit : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_rit_rit() : CreatureScript("mob_rit_rit")
+        mob_rit_rit() : MS::Game::Scripting::Interfaces::CreatureScript("mob_rit_rit")
         {
         }
 
@@ -505,10 +505,10 @@ class mob_rit_rit : public CreatureScript
 };
 
 // Kunzen Soupmaster - 59125
-class mob_kunzen_soupmaster : public CreatureScript
+class mob_kunzen_soupmaster : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_kunzen_soupmaster() : CreatureScript("mob_kunzen_soupmaster")
+        mob_kunzen_soupmaster() : MS::Game::Scripting::Interfaces::CreatureScript("mob_kunzen_soupmaster")
         {
         }
 
@@ -558,10 +558,10 @@ class mob_kunzen_soupmaster : public CreatureScript
 };
 
 // Maaka - 59129
-class mob_maaka : public CreatureScript
+class mob_maaka : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_maaka() : CreatureScript("mob_maaka")
+        mob_maaka() : MS::Game::Scripting::Interfaces::CreatureScript("mob_maaka")
         {
         }
 
@@ -626,10 +626,10 @@ class mob_maaka : public CreatureScript
 };
 
 // Teeku - 59130
-class mob_teeku : public CreatureScript
+class mob_teeku : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_teeku() : CreatureScript("mob_teeku")
+        mob_teeku() : MS::Game::Scripting::Interfaces::CreatureScript("mob_teeku")
         {
         }
 
@@ -694,10 +694,10 @@ class mob_teeku : public CreatureScript
 };
 
 // Kon-Kon - 59127
-class mob_kon_kon : public CreatureScript
+class mob_kon_kon : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_kon_kon() : CreatureScript("mob_kon_kon")
+        mob_kon_kon() : MS::Game::Scripting::Interfaces::CreatureScript("mob_kon_kon")
         {
         }
 
@@ -762,10 +762,10 @@ class mob_kon_kon : public CreatureScript
 };
 
 // Sheepie - 64385/64386
-class mob_second_sheepie : public CreatureScript
+class mob_second_sheepie : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_second_sheepie() : CreatureScript("mob_second_sheepie")
+        mob_second_sheepie() : MS::Game::Scripting::Interfaces::CreatureScript("mob_second_sheepie")
         {
         }
 
@@ -782,10 +782,10 @@ class mob_second_sheepie : public CreatureScript
 };
 
 // Hillpaw's Chicken - 58918
-class mob_hillpaw_s_chicken : public CreatureScript
+class mob_hillpaw_s_chicken : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_hillpaw_s_chicken() : CreatureScript("mob_hillpaw_s_chicken")
+        mob_hillpaw_s_chicken() : MS::Game::Scripting::Interfaces::CreatureScript("mob_hillpaw_s_chicken")
         {
         }
 
@@ -802,10 +802,10 @@ class mob_hillpaw_s_chicken : public CreatureScript
 };
 
 // Escaped Shagskin - 59491
-class mob_escaped_shagskin : public CreatureScript
+class mob_escaped_shagskin : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_escaped_shagskin() : CreatureScript("mob_escaped_shagskin")
+        mob_escaped_shagskin() : MS::Game::Scripting::Interfaces::CreatureScript("mob_escaped_shagskin")
         {
         }
 
@@ -821,10 +821,10 @@ class mob_escaped_shagskin : public CreatureScript
 };
 
 // Spicemaster Jin Jao - 59581
-class mob_jin_jao : public CreatureScript
+class mob_jin_jao : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_jin_jao() : CreatureScript("mob_jin_jao")
+        mob_jin_jao() : MS::Game::Scripting::Interfaces::CreatureScript("mob_jin_jao")
         {
         }
 
@@ -843,10 +843,10 @@ class mob_jin_jao : public CreatureScript
 };
 
 // Trader Jambeezi - 59583
-class mob_jambeezi : public CreatureScript
+class mob_jambeezi : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_jambeezi() : CreatureScript("mob_jambeezi")
+        mob_jambeezi() : MS::Game::Scripting::Interfaces::CreatureScript("mob_jambeezi")
         {
         }
 
@@ -865,10 +865,10 @@ class mob_jambeezi : public CreatureScript
 };
 
 // Innkeeper Lei Lan - 59582
-class mob_lei_lan : public CreatureScript
+class mob_lei_lan : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_lei_lan() : CreatureScript("mob_lei_lan")
+        mob_lei_lan() : MS::Game::Scripting::Interfaces::CreatureScript("mob_lei_lan")
         {
         }
 
@@ -887,10 +887,10 @@ class mob_lei_lan : public CreatureScript
 };
 
 // Lolo Lio - 59585
-class mob_lolo_lio : public CreatureScript
+class mob_lolo_lio : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_lolo_lio() : CreatureScript("mob_lolo_lio")
+        mob_lolo_lio() : MS::Game::Scripting::Interfaces::CreatureScript("mob_lolo_lio")
         {
         }
 
@@ -912,10 +912,10 @@ class mob_lolo_lio : public CreatureScript
 
 #define NPC_NOMI 64337
 
-class mob_nomi : public CreatureScript
+class mob_nomi : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_nomi() : CreatureScript("mob_nomi")
+        mob_nomi() : MS::Game::Scripting::Interfaces::CreatureScript("mob_nomi")
         {
         }
 

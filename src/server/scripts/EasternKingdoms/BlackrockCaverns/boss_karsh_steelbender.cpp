@@ -34,10 +34,10 @@ enum Adds
 
 const Position centerkarshPos = {237.84f, 784.76f, 95.67f, 1.95f};
 
-class boss_karsh_steelbender : public CreatureScript
+class boss_karsh_steelbender : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_karsh_steelbender() : CreatureScript("boss_karsh_steelbender") { }
+        boss_karsh_steelbender() : MS::Game::Scripting::Interfaces::CreatureScript("boss_karsh_steelbender") { }
      
         CreatureAI* GetAI(Creature* pCreature) const
         {

@@ -77,10 +77,10 @@ enum eEnums
 #define GOSSIP_ITEM_NARALEX     "Let the event begin!"
 #define ACHIEVEMENT_WAILING_CAVERNS 630
 
-class npc_disciple_of_naralex : public CreatureScript
+class npc_disciple_of_naralex : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_disciple_of_naralex() : CreatureScript("npc_disciple_of_naralex") { }
+    npc_disciple_of_naralex() : MS::Game::Scripting::Interfaces::CreatureScript("npc_disciple_of_naralex") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

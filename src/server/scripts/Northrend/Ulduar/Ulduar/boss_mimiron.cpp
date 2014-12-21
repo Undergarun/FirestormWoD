@@ -268,10 +268,10 @@ private:
     bool& __base;
 };
 
-class boss_mimiron : public CreatureScript
+class boss_mimiron : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_mimiron() : CreatureScript("boss_mimiron") {}
+        boss_mimiron() : MS::Game::Scripting::Interfaces::CreatureScript("boss_mimiron") {}
 
         struct boss_mimironAI : public BossAI
         {
@@ -851,10 +851,10 @@ class boss_mimiron : public CreatureScript
         }
 };
 
-class boss_leviathan_mk : public CreatureScript
+class boss_leviathan_mk : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_leviathan_mk() : CreatureScript("boss_leviathan_mk") {}
+        boss_leviathan_mk() : MS::Game::Scripting::Interfaces::CreatureScript("boss_leviathan_mk") {}
 
         struct boss_leviathan_mkAI : public ScriptedAI
         {
@@ -1065,10 +1065,10 @@ class boss_leviathan_mk : public CreatureScript
 };
 
 // Levi's turret
-class boss_leviathan_mk_turret : public CreatureScript
+class boss_leviathan_mk_turret : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_leviathan_mk_turret() : CreatureScript("boss_leviathan_mk_turret") {}
+        boss_leviathan_mk_turret() : MS::Game::Scripting::Interfaces::CreatureScript("boss_leviathan_mk_turret") {}
 
         struct boss_leviathan_mk_turretAI : public ScriptedAI
         {
@@ -1144,10 +1144,10 @@ class boss_leviathan_mk_turret : public CreatureScript
 
 // Npc that triggers the mine explosion
 // Bomb will explode after 35 seconds or if a potential target is within half a meter
-class npc_proximity_mine : public CreatureScript
+class npc_proximity_mine : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_proximity_mine() : CreatureScript("npc_proximity_mine") {}
+        npc_proximity_mine() : MS::Game::Scripting::Interfaces::CreatureScript("npc_proximity_mine") {}
 
         struct npc_proximity_mineAI : public Scripted_NoMovementAI
         {
@@ -1214,10 +1214,10 @@ class npc_proximity_mine : public CreatureScript
         }
 };
 
-class spell_proximity_mines : public SpellScriptLoader // Spell 63027
+class spell_proximity_mines: public MS::Game::Scripting::Interfaces::SpellScriptLoader // Spell 63027
 {
     public:
-        spell_proximity_mines() : SpellScriptLoader("spell_proximity_mines") {}
+        spell_proximity_mines() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_proximity_mines") {}
 
         class spell_proximity_mines_SpellScript : public SpellScript
         {
@@ -1244,10 +1244,10 @@ class spell_proximity_mines : public SpellScriptLoader // Spell 63027
         }
 };
 
-class boss_vx_001 : public CreatureScript
+class boss_vx_001 : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_vx_001() : CreatureScript("boss_vx_001") {}
+        boss_vx_001() : MS::Game::Scripting::Interfaces::CreatureScript("boss_vx_001") {}
 
         struct boss_vx_001AI : public Scripted_NoMovementAI
         {
@@ -1584,10 +1584,10 @@ class boss_vx_001 : public CreatureScript
         }
 };
 
-class npc_rocket_strike : public CreatureScript
+class npc_rocket_strike : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_rocket_strike() : CreatureScript("npc_rocket_strike") {}
+        npc_rocket_strike() : MS::Game::Scripting::Interfaces::CreatureScript("npc_rocket_strike") {}
 
         struct npc_rocket_strikeAI : public Scripted_NoMovementAI
         {
@@ -1624,10 +1624,10 @@ class npc_rocket_strike : public CreatureScript
         }
 };
 
-class spell_rapid_burst : public SpellScriptLoader
+class spell_rapid_burst: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rapid_burst() : SpellScriptLoader("spell_rapid_burst") {}
+        spell_rapid_burst() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rapid_burst") {}
 
         class spell_rapid_burst_AuraScript : public AuraScript
         {
@@ -1666,10 +1666,10 @@ class spell_rapid_burst : public SpellScriptLoader
         }
 };
 
-class boss_aerial_unit : public CreatureScript
+class boss_aerial_unit : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_aerial_unit() : CreatureScript("boss_aerial_unit") {}
+        boss_aerial_unit() : MS::Game::Scripting::Interfaces::CreatureScript("boss_aerial_unit") {}
 
         struct boss_aerial_unitAI : public ScriptedAI
         {
@@ -1921,10 +1921,10 @@ class boss_aerial_unit : public CreatureScript
         }
 };
 
-class npc_magnetic_core : public CreatureScript
+class npc_magnetic_core : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_magnetic_core() : CreatureScript("npc_magnetic_core") {}
+        npc_magnetic_core() : MS::Game::Scripting::Interfaces::CreatureScript("npc_magnetic_core") {}
 
         struct npc_magnetic_coreAI : public Scripted_NoMovementAI
         {
@@ -1946,10 +1946,10 @@ class npc_magnetic_core : public CreatureScript
         }
 };
 
-class npc_assault_bot : public CreatureScript
+class npc_assault_bot : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_assault_bot() : CreatureScript("npc_assault_bot") {}
+        npc_assault_bot() : MS::Game::Scripting::Interfaces::CreatureScript("npc_assault_bot") {}
 
         struct npc_assault_botAI : public ScriptedAI
         {
@@ -1994,10 +1994,10 @@ class npc_assault_bot : public CreatureScript
         }
 };
 
-class npc_emergency_bot : public CreatureScript
+class npc_emergency_bot : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_emergency_bot() : CreatureScript("npc_emergency_bot") {}
+        npc_emergency_bot() : MS::Game::Scripting::Interfaces::CreatureScript("npc_emergency_bot") {}
 
         struct npc_emergency_botAI : public ScriptedAI
         {
@@ -2042,10 +2042,10 @@ class npc_emergency_bot : public CreatureScript
         }
 };
 
-class npc_mimiron_bomb_bot : public CreatureScript
+class npc_mimiron_bomb_bot : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_mimiron_bomb_bot() : CreatureScript("npc_mimiron_bomb_bot") {}
+        npc_mimiron_bomb_bot() : MS::Game::Scripting::Interfaces::CreatureScript("npc_mimiron_bomb_bot") {}
 
         struct npc_mimiron_bomb_botAI : public ScriptedAI
         {
@@ -2125,10 +2125,10 @@ class npc_mimiron_bomb_bot : public CreatureScript
         }
 };
 
-class go_not_push_button : public GameObjectScript
+class go_not_push_button : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
     public:
-        go_not_push_button() : GameObjectScript("go_mimiron_hard_mode_activator") {}
+        go_not_push_button() : MS::Game::Scripting::Interfaces::GameObjectScript("go_mimiron_hard_mode_activator") {}
 
         bool OnGossipHello(Player* player, GameObject* go)
         {
@@ -2146,10 +2146,10 @@ class go_not_push_button : public GameObjectScript
         }
 };
 
-class npc_mimiron_flame_trigger : public CreatureScript
+class npc_mimiron_flame_trigger : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_mimiron_flame_trigger() : CreatureScript("npc_mimiron_flame_trigger") {}
+        npc_mimiron_flame_trigger() : MS::Game::Scripting::Interfaces::CreatureScript("npc_mimiron_flame_trigger") {}
 
         struct npc_mimiron_flame_triggerAI : public ScriptedAI
         {
@@ -2232,10 +2232,10 @@ class npc_mimiron_flame_trigger : public CreatureScript
         }
 };
 
-class npc_mimiron_flame_spread : public CreatureScript
+class npc_mimiron_flame_spread : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_mimiron_flame_spread() : CreatureScript("npc_mimiron_flame_spread") {}
+        npc_mimiron_flame_spread() : MS::Game::Scripting::Interfaces::CreatureScript("npc_mimiron_flame_spread") {}
 
         struct npc_mimiron_flame_spreadAI : public ScriptedAI
         {
@@ -2288,10 +2288,10 @@ class npc_mimiron_flame_spread : public CreatureScript
         }
 };
 
-class npc_frost_bomb : public CreatureScript
+class npc_frost_bomb : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_frost_bomb() : CreatureScript("npc_frost_bomb") {}
+        npc_frost_bomb() : MS::Game::Scripting::Interfaces::CreatureScript("npc_frost_bomb") {}
 
         struct npc_frost_bombAI : public Scripted_NoMovementAI
         {
@@ -2331,10 +2331,10 @@ class npc_frost_bomb : public CreatureScript
         }
 };
 
-class spell_frost_bomb : public SpellScriptLoader
+class spell_frost_bomb: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_frost_bomb() : SpellScriptLoader("spell_frost_bomb") {}
+        spell_frost_bomb() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_frost_bomb") {}
 
         class spell_frost_bomb_SpellScript : public SpellScript
         {
@@ -2364,10 +2364,10 @@ class spell_frost_bomb : public SpellScriptLoader
         }
 };
 
-class achievement_firefighter : public AchievementCriteriaScript
+class achievement_firefighter : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_firefighter(const char* name) : AchievementCriteriaScript(name) {}
+        achievement_firefighter(const char* name) : MS::Game::Scripting::Interfaces::AchievementCriteriaScript(name) {}
 
         bool OnCheck(Player* player, Unit* /*target*/)
         {
@@ -2379,10 +2379,10 @@ class achievement_firefighter : public AchievementCriteriaScript
         }
 };
 
-class achievement_set_up_us_the_bomb__proximity_mines : public AchievementCriteriaScript
+class achievement_set_up_us_the_bomb__proximity_mines : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_set_up_us_the_bomb__proximity_mines(const char* name) : AchievementCriteriaScript(name) {}
+        achievement_set_up_us_the_bomb__proximity_mines(const char* name) : MS::Game::Scripting::Interfaces::AchievementCriteriaScript(name) {}
 
         bool OnCheck(Player* player, Unit* /*target*/)
         {
@@ -2394,10 +2394,10 @@ class achievement_set_up_us_the_bomb__proximity_mines : public AchievementCriter
         }
 };
 
-class achievement_set_up_us_the_bomb__rocket_strikes : public AchievementCriteriaScript
+class achievement_set_up_us_the_bomb__rocket_strikes : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_set_up_us_the_bomb__rocket_strikes(const char* name) : AchievementCriteriaScript(name) {}
+        achievement_set_up_us_the_bomb__rocket_strikes(const char* name) : MS::Game::Scripting::Interfaces::AchievementCriteriaScript(name) {}
 
         bool OnCheck(Player* player, Unit* /*target*/)
         {
@@ -2409,10 +2409,10 @@ class achievement_set_up_us_the_bomb__rocket_strikes : public AchievementCriteri
         }
 };
 
-class achievement_set_up_us_the_bomb__boombot_explosion : public AchievementCriteriaScript
+class achievement_set_up_us_the_bomb__boombot_explosion : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_set_up_us_the_bomb__boombot_explosion(const char* name) : AchievementCriteriaScript(name) {}
+        achievement_set_up_us_the_bomb__boombot_explosion(const char* name) : MS::Game::Scripting::Interfaces::AchievementCriteriaScript(name) {}
 
         bool OnCheck(Player* player, Unit* /*target*/)
         {

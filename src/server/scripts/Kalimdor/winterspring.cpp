@@ -35,10 +35,10 @@ EndContentData */
 ## npc_rivern_frostwind
 ######*/
 
-class npc_rivern_frostwind : public CreatureScript
+class npc_rivern_frostwind : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_rivern_frostwind() : CreatureScript("npc_rivern_frostwind") { }
+    npc_rivern_frostwind() : MS::Game::Scripting::Interfaces::CreatureScript("npc_rivern_frostwind") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {

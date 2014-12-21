@@ -2,10 +2,10 @@
 #include "ScriptMgr.h"
 #include "Config.h"
 
-class duel_reset : public PlayerScript
+class duel_reset: public MS::Game::Scripting::Interfaces::PlayerScript
 {
     public:
-        duel_reset() : PlayerScript("duel_reset") {}
+        duel_reset() : MS::Game::Scripting::Interfaces::PlayerScript("duel_reset") {}
 
         void OnDuelEnd(Player* winner, Player* looser, DuelCompleteType type)
         {

@@ -34,10 +34,10 @@ enum Spells
 
 const Position HomePosition = {-815.817f, -145.299f, -25.870f, 0};
 
-class go_blackfathom_altar : public GameObjectScript
+class go_blackfathom_altar : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_blackfathom_altar() : GameObjectScript("go_blackfathom_altar") { }
+    go_blackfathom_altar() : MS::Game::Scripting::Interfaces::GameObjectScript("go_blackfathom_altar") { }
 
     bool OnGossipHello(Player* player, GameObject* /*go*/)
     {
@@ -47,10 +47,10 @@ public:
     }
 };
 
-class go_blackfathom_fire : public GameObjectScript
+class go_blackfathom_fire : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_blackfathom_fire() : GameObjectScript("go_blackfathom_fire") { }
+    go_blackfathom_fire() : MS::Game::Scripting::Interfaces::GameObjectScript("go_blackfathom_fire") { }
 
     bool OnGossipHello(Player* /*player*/, GameObject* go)
     {
@@ -67,10 +67,10 @@ public:
     }
 };
 
-class npc_blackfathom_deeps_event : public CreatureScript
+class npc_blackfathom_deeps_event : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_blackfathom_deeps_event() : CreatureScript("npc_blackfathom_deeps_event") { }
+    npc_blackfathom_deeps_event() : MS::Game::Scripting::Interfaces::CreatureScript("npc_blackfathom_deeps_event") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -199,10 +199,10 @@ enum Morridune
     SAY_MORRIDUNE_2 = -1048004
 };
 
-class npc_morridune : public CreatureScript
+class npc_morridune : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_morridune() : CreatureScript("npc_morridune") { }
+    npc_morridune() : MS::Game::Scripting::Interfaces::CreatureScript("npc_morridune") { }
 
     bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
     {

@@ -126,10 +126,10 @@ const Position halfusGoPos  = {-339.31f, -717.41f, 888.09f, 5.06f};
 
 Creature* whelps[8];
 
-class boss_halfus_wyrmbreaker : public CreatureScript
+class boss_halfus_wyrmbreaker : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_halfus_wyrmbreaker() : CreatureScript("boss_halfus_wyrmbreaker") {}
+        boss_halfus_wyrmbreaker() : MS::Game::Scripting::Interfaces::CreatureScript("boss_halfus_wyrmbreaker") {}
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -439,10 +439,10 @@ class boss_halfus_wyrmbreaker : public CreatureScript
         };
 };
 
-class npc_proto_behemoth : public CreatureScript
+class npc_proto_behemoth : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public :
-        npc_proto_behemoth() : CreatureScript("npc_proto_behemoth") { }
+        npc_proto_behemoth() : MS::Game::Scripting::Interfaces::CreatureScript("npc_proto_behemoth") { }
 
         struct npc_proto_behemothAI : public ScriptedAI 
         {
@@ -526,10 +526,10 @@ class npc_proto_behemoth : public CreatureScript
         }
 };
 
-class npc_orphaned_whelp : public CreatureScript
+class npc_orphaned_whelp : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_orphaned_whelp() : CreatureScript("npc_orphaned_whelp") { }
+        npc_orphaned_whelp() : MS::Game::Scripting::Interfaces::CreatureScript("npc_orphaned_whelp") { }
 
         CreatureAI * GetAI(Creature * creature) const
         {
@@ -592,10 +592,10 @@ class npc_orphaned_whelp : public CreatureScript
         };
 };
 
-class go_whelp_cage : public GameObjectScript
+class go_whelp_cage : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
     public:
-        go_whelp_cage() : GameObjectScript("go_whelp_cage") {}
+        go_whelp_cage() : MS::Game::Scripting::Interfaces::GameObjectScript("go_whelp_cage") {}
 
         bool OnGossipHello(Player* /*pPlayer*/, GameObject* pGo)
         {       
@@ -612,10 +612,10 @@ class go_whelp_cage : public GameObjectScript
         }
 };
 
-class npc_halfus_dragon : public CreatureScript
+class npc_halfus_dragon : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_halfus_dragon() : CreatureScript("npc_halfus_dragon") { }
+        npc_halfus_dragon() : MS::Game::Scripting::Interfaces::CreatureScript("npc_halfus_dragon") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -720,10 +720,10 @@ class npc_halfus_dragon : public CreatureScript
         };
 };
 
-class spell_halfus_stone_grip : public SpellScriptLoader
+class spell_halfus_stone_grip: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:                                                      
-        spell_halfus_stone_grip() : SpellScriptLoader("spell_halfus_stone_grip") { }
+        spell_halfus_stone_grip() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_halfus_stone_grip") { }
 
 
         class spell_halfus_stone_grip_AuraScript : public AuraScript 
@@ -750,10 +750,10 @@ class spell_halfus_stone_grip : public SpellScriptLoader
         }
 };
 
-class spell_halfus_fireball_barrage : public SpellScriptLoader
+class spell_halfus_fireball_barrage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_halfus_fireball_barrage() : SpellScriptLoader("spell_halfus_fireball_barrage") { }
+        spell_halfus_fireball_barrage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_halfus_fireball_barrage") { }
 
         class spell_halfus_fireball_barrage_SpellScript : public SpellScript
         {

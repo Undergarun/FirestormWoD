@@ -325,10 +325,10 @@ const Position collapsingtwilightportalPos = {-741.16f, -689.19f, 831.89f, 1.47f
 
 const Position twilightsentryPos = {-741.92f, -663.75f, 831.89f, 1.29f};
 
-class boss_theralion : public CreatureScript
+class boss_theralion : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_theralion() : CreatureScript("boss_theralion") {}
+        boss_theralion() : MS::Game::Scripting::Interfaces::CreatureScript("boss_theralion") {}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -633,10 +633,10 @@ class boss_theralion : public CreatureScript
         };
 };
 
-class boss_valiona : public CreatureScript
+class boss_valiona : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_valiona() : CreatureScript("boss_valiona") { }
+        boss_valiona() : MS::Game::Scripting::Interfaces::CreatureScript("boss_valiona") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -964,10 +964,10 @@ class boss_valiona : public CreatureScript
         };
 };
 
-class npc_fabolous_flames : public CreatureScript
+class npc_fabolous_flames : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_fabolous_flames() : CreatureScript("npc_fabolous_flames") { }
+        npc_fabolous_flames() : MS::Game::Scripting::Interfaces::CreatureScript("npc_fabolous_flames") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -993,10 +993,10 @@ class npc_fabolous_flames : public CreatureScript
         };
 };
 
-class npc_valiona_twilight_flames : public CreatureScript
+class npc_valiona_twilight_flames : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_valiona_twilight_flames() : CreatureScript("npc_valiona_twilight_flames") { }
+        npc_valiona_twilight_flames() : MS::Game::Scripting::Interfaces::CreatureScript("npc_valiona_twilight_flames") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -1022,10 +1022,10 @@ class npc_valiona_twilight_flames : public CreatureScript
         };
 };
 
-class npc_unstable_twilight : public CreatureScript
+class npc_unstable_twilight : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_unstable_twilight() : CreatureScript("npc_unstable_twilight") { }
+        npc_unstable_twilight() : MS::Game::Scripting::Interfaces::CreatureScript("npc_unstable_twilight") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -1076,10 +1076,10 @@ class npc_unstable_twilight : public CreatureScript
         };
 };
 
-class npc_twilight_sentry : public CreatureScript
+class npc_twilight_sentry : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_twilight_sentry() : CreatureScript("npc_twilight_sentry") { }
+        npc_twilight_sentry() : MS::Game::Scripting::Interfaces::CreatureScript("npc_twilight_sentry") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -1131,10 +1131,10 @@ class npc_twilight_sentry : public CreatureScript
         };
 };
 
-class npc_twilight_rift : public CreatureScript
+class npc_twilight_rift : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_twilight_rift() : CreatureScript("npc_twilight_rift") { }
+        npc_twilight_rift() : MS::Game::Scripting::Interfaces::CreatureScript("npc_twilight_rift") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -1177,10 +1177,10 @@ class npc_twilight_rift : public CreatureScript
         };
 };
 
-class npc_collapsing_twilight_portal : public CreatureScript
+class npc_collapsing_twilight_portal : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_collapsing_twilight_portal() : CreatureScript("npc_collapsing_twilight_portal") { }
+        npc_collapsing_twilight_portal() : MS::Game::Scripting::Interfaces::CreatureScript("npc_collapsing_twilight_portal") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -1234,10 +1234,10 @@ class npc_collapsing_twilight_portal : public CreatureScript
         };
 };
 
-class npc_dazzling_destruction_stalker : public CreatureScript
+class npc_dazzling_destruction_stalker : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_dazzling_destruction_stalker() : CreatureScript("npc_dazzling_destruction_stalker") { }
+        npc_dazzling_destruction_stalker() : MS::Game::Scripting::Interfaces::CreatureScript("npc_dazzling_destruction_stalker") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -1269,10 +1269,10 @@ class npc_dazzling_destruction_stalker : public CreatureScript
         };
 };
 
-class npc_theralion_flight_target_stalker : public CreatureScript
+class npc_theralion_flight_target_stalker : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_theralion_flight_target_stalker() : CreatureScript("npc_theralion_flight_target_stalker") { }
+        npc_theralion_flight_target_stalker() : MS::Game::Scripting::Interfaces::CreatureScript("npc_theralion_flight_target_stalker") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -1298,10 +1298,10 @@ class npc_theralion_flight_target_stalker : public CreatureScript
         };
 };
 
-class spell_valiona_blackout : public SpellScriptLoader
+class spell_valiona_blackout: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_valiona_blackout() : SpellScriptLoader("spell_valiona_blackout") { }
+        spell_valiona_blackout() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_valiona_blackout") { }
 
         class spell_valiona_blackout_AuraScript : public AuraScript
         {
@@ -1328,10 +1328,10 @@ class spell_valiona_blackout : public SpellScriptLoader
         }
 };
 
-class spell_valiona_twilight_meteorite : public SpellScriptLoader
+class spell_valiona_twilight_meteorite: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_valiona_twilight_meteorite() : SpellScriptLoader("spell_valiona_twilight_meteorite") { }
+        spell_valiona_twilight_meteorite() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_valiona_twilight_meteorite") { }
 
         class spell_valiona_twilight_meteorite_AuraScript : public AuraScript
         {
@@ -1357,10 +1357,10 @@ class spell_valiona_twilight_meteorite : public SpellScriptLoader
         }
 };
 
-class spell_valiona_twilight_flame_dmg_1 : public SpellScriptLoader
+class spell_valiona_twilight_flame_dmg_1: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_valiona_twilight_flame_dmg_1() : SpellScriptLoader("spell_valiona_twilight_flame_dmg_1") { }
+        spell_valiona_twilight_flame_dmg_1() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_valiona_twilight_flame_dmg_1") { }
 
 
         class spell_valiona_twilight_flame_dmg_1_SpellScript : public SpellScript
@@ -1392,10 +1392,10 @@ class spell_valiona_twilight_flame_dmg_1 : public SpellScriptLoader
         }
 };
 
-class spell_valiona_twilight_flame_dmg_2 : public SpellScriptLoader
+class spell_valiona_twilight_flame_dmg_2: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_valiona_twilight_flame_dmg_2() : SpellScriptLoader("spell_valiona_twilight_flame_dmg_2") { }
+        spell_valiona_twilight_flame_dmg_2() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_valiona_twilight_flame_dmg_2") { }
 
 
         class spell_valiona_twilight_flame_dmg_2_SpellScript : public SpellScript
@@ -1431,10 +1431,10 @@ class spell_valiona_twilight_flame_dmg_2 : public SpellScriptLoader
         }
 };
 
-class spell_theralion_dazzling_destruction : public SpellScriptLoader
+class spell_theralion_dazzling_destruction: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_theralion_dazzling_destruction() : SpellScriptLoader("spell_theralion_dazzling_destruction") { }
+        spell_theralion_dazzling_destruction() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_theralion_dazzling_destruction") { }
 
 
         class spell_theralion_dazzling_destruction_SpellScript : public SpellScript
@@ -1462,10 +1462,10 @@ class spell_theralion_dazzling_destruction : public SpellScriptLoader
         }
 };
 
-class spell_theralion_dazzling_destruction_dmg : public SpellScriptLoader
+class spell_theralion_dazzling_destruction_dmg: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_theralion_dazzling_destruction_dmg() : SpellScriptLoader("spell_theralion_dazzling_destruction_dmg") { }
+        spell_theralion_dazzling_destruction_dmg() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_theralion_dazzling_destruction_dmg") { }
 
 
         class spell_theralion_dazzling_destruction_dmg_SpellScript : public SpellScript
@@ -1496,10 +1496,10 @@ class spell_theralion_dazzling_destruction_dmg : public SpellScriptLoader
         }
 };
 
-class spell_valiona_devouring_flames_dmg : public SpellScriptLoader
+class spell_valiona_devouring_flames_dmg: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_valiona_devouring_flames_dmg() : SpellScriptLoader("spell_valiona_devouring_flames_dmg") { }
+        spell_valiona_devouring_flames_dmg() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_valiona_devouring_flames_dmg") { }
 
 
         class spell_valiona_devouring_flames_dmg_SpellScript : public SpellScript
@@ -1530,10 +1530,10 @@ class spell_valiona_devouring_flames_dmg : public SpellScriptLoader
         }
 };
 
-class spell_twilight_shift_stack : public SpellScriptLoader
+class spell_twilight_shift_stack: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_twilight_shift_stack() : SpellScriptLoader("spell_twilight_shift_stack") { }
+        spell_twilight_shift_stack() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_twilight_shift_stack") { }
 
 
         class spell_twilight_shift_stack_SpellScript : public SpellScript
@@ -1571,10 +1571,10 @@ class spell_twilight_shift_stack : public SpellScriptLoader
         }
 };
 
-class spell_shifting_reality : public SpellScriptLoader
+class spell_shifting_reality: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_shifting_reality() : SpellScriptLoader("spell_shifting_reality") { }
+        spell_shifting_reality() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_shifting_reality") { }
 
 
         class spell_shifting_reality_SpellScript : public SpellScript

@@ -109,10 +109,10 @@ uint32 const vehiclesList[MAX_WINTERGRASP_VEHICLES] =
     NPC_WINTERGRASP_SIEGE_ENGINE_HORDE
 };
 
-class npc_wg_demolisher_engineer : public CreatureScript
+class npc_wg_demolisher_engineer : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_wg_demolisher_engineer() : CreatureScript("npc_wg_demolisher_engineer") { }
+        npc_wg_demolisher_engineer() : MS::Game::Scripting::Interfaces::CreatureScript("npc_wg_demolisher_engineer") { }
 
         bool OnGossipHello(Player* player, Creature* creature)
         {
@@ -180,10 +180,10 @@ class npc_wg_demolisher_engineer : public CreatureScript
         }
 };
 
-class npc_wg_spirit_guide : public CreatureScript
+class npc_wg_spirit_guide : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_wg_spirit_guide() : CreatureScript("npc_wg_spirit_guide") { }
+        npc_wg_spirit_guide() : MS::Game::Scripting::Interfaces::CreatureScript("npc_wg_spirit_guide") { }
 
         bool OnGossipHello(Player* player, Creature* creature)
         {
@@ -236,10 +236,10 @@ class npc_wg_spirit_guide : public CreatureScript
         }
 };
 
-class npc_wg_queue : public CreatureScript
+class npc_wg_queue : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_wg_queue() : CreatureScript("npc_wg_queue") { }
+        npc_wg_queue() : MS::Game::Scripting::Interfaces::CreatureScript("npc_wg_queue") { }
 
         bool OnGossipHello(Player* player, Creature* creature)
         {
@@ -290,10 +290,10 @@ class npc_wg_queue : public CreatureScript
         }
 };
 
-class go_wg_vehicle_teleporter : public GameObjectScript
+class go_wg_vehicle_teleporter : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
     public:
-        go_wg_vehicle_teleporter() : GameObjectScript("go_wg_vehicle_teleporter") { }
+        go_wg_vehicle_teleporter() : MS::Game::Scripting::Interfaces::GameObjectScript("go_wg_vehicle_teleporter") { }
 
         struct go_wg_vehicle_teleporterAI : public GameObjectAI
         {
@@ -327,10 +327,10 @@ class go_wg_vehicle_teleporter : public GameObjectScript
         }
 };
 
-class npc_wg_quest_giver : public CreatureScript
+class npc_wg_quest_giver : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_wg_quest_giver() : CreatureScript("npc_wg_quest_giver") { }
+        npc_wg_quest_giver() : MS::Game::Scripting::Interfaces::CreatureScript("npc_wg_quest_giver") { }
 
         bool OnGossipHello(Player* player, Creature* creature)
         {
@@ -454,10 +454,10 @@ class npc_wg_quest_giver : public CreatureScript
         }
 };
 
-class spell_wintergrasp_force_building : public SpellScriptLoader
+class spell_wintergrasp_force_building: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_wintergrasp_force_building() : SpellScriptLoader("spell_wintergrasp_force_building") { }
+        spell_wintergrasp_force_building() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_wintergrasp_force_building") { }
 
         class spell_wintergrasp_force_building_SpellScript : public SpellScript
         {
@@ -491,10 +491,10 @@ class spell_wintergrasp_force_building : public SpellScriptLoader
         }
 };
 
-class spell_wintergrasp_grab_passenger : public SpellScriptLoader
+class spell_wintergrasp_grab_passenger: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_wintergrasp_grab_passenger() : SpellScriptLoader("spell_wintergrasp_grab_passenger") { }
+        spell_wintergrasp_grab_passenger() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_wintergrasp_grab_passenger") { }
 
         class spell_wintergrasp_grab_passenger_SpellScript : public SpellScript
         {
@@ -518,10 +518,10 @@ class spell_wintergrasp_grab_passenger : public SpellScriptLoader
         }
 };
 
-class achievement_wg_didnt_stand_a_chance : public AchievementCriteriaScript
+class achievement_wg_didnt_stand_a_chance : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
 public:
-    achievement_wg_didnt_stand_a_chance() : AchievementCriteriaScript("achievement_wg_didnt_stand_a_chance") { }
+    achievement_wg_didnt_stand_a_chance() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_wg_didnt_stand_a_chance") { }
 
     bool OnCheck(Player* source, Unit* target)
     {
@@ -542,10 +542,10 @@ public:
     }
 };
 
-class spell_wintergrasp_defender_teleport : public SpellScriptLoader
+class spell_wintergrasp_defender_teleport: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_wintergrasp_defender_teleport() : SpellScriptLoader("spell_wintergrasp_defender_teleport") { }
+    spell_wintergrasp_defender_teleport() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_wintergrasp_defender_teleport") { }
 
     class spell_wintergrasp_defender_teleport_SpellScript : public SpellScript
     {

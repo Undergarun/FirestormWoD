@@ -6,10 +6,10 @@
 #include "vale_of_eternal_blossoms.h"
 
 // Zhao-Jin the Bloodletter - 60273
-class mob_zhao_jin : public CreatureScript
+class mob_zhao_jin : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_zhao_jin() : CreatureScript("mob_zhao_jin")
+        mob_zhao_jin() : MS::Game::Scripting::Interfaces::CreatureScript("mob_zhao_jin")
         {
         }
 
@@ -66,10 +66,10 @@ class mob_zhao_jin : public CreatureScript
 };
 
 // Reanimated Jade Warrior - 60121
-class mob_reanimated_jade_warrior : public CreatureScript
+class mob_reanimated_jade_warrior : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_reanimated_jade_warrior() : CreatureScript("mob_reanimated_jade_warrior")
+        mob_reanimated_jade_warrior() : MS::Game::Scripting::Interfaces::CreatureScript("mob_reanimated_jade_warrior")
         {
         }
 
@@ -123,10 +123,10 @@ class mob_reanimated_jade_warrior : public CreatureScript
 };
 
 // Subjugated Serpent - 59158
-class mob_subjuged_serpent : public CreatureScript
+class mob_subjuged_serpent : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_subjuged_serpent() : CreatureScript("mob_subjuged_serpent")
+        mob_subjuged_serpent() : MS::Game::Scripting::Interfaces::CreatureScript("mob_subjuged_serpent")
         {
         }
 
@@ -203,10 +203,10 @@ class mob_subjuged_serpent : public CreatureScript
 };
 
 // Shao-Tien Behemoth - 65824
-class mob_shao_tien_behemoth : public CreatureScript
+class mob_shao_tien_behemoth : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_shao_tien_behemoth() : CreatureScript("mob_shao_tien_behemoth")
+        mob_shao_tien_behemoth() : MS::Game::Scripting::Interfaces::CreatureScript("mob_shao_tien_behemoth")
         {
         }
 
@@ -280,10 +280,10 @@ class mob_shao_tien_behemoth : public CreatureScript
 };
 
 // Shao-Tien Surveyor - 59379
-class mob_shao_tien_surveyor : public CreatureScript
+class mob_shao_tien_surveyor : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_shao_tien_surveyor() : CreatureScript("mob_shao_tien_surveyor")
+        mob_shao_tien_surveyor() : MS::Game::Scripting::Interfaces::CreatureScript("mob_shao_tien_surveyor")
         {
         }
 
@@ -354,10 +354,10 @@ class mob_shao_tien_surveyor : public CreatureScript
 };
 
 // Shado Pan Flare - 123193
-class spell_shadow_pan_flare : public SpellScriptLoader
+class spell_shadow_pan_flare: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_shadow_pan_flare() : SpellScriptLoader("spell_shadow_pan_flare")
+        spell_shadow_pan_flare() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_shadow_pan_flare")
         {
         }
 

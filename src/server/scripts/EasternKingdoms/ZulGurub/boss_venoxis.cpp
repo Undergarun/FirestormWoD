@@ -93,10 +93,10 @@ const Position mazeleftPos[18] =
     {-12001.17f, -1688.04f, 32.30f, 0.0f}
 };
 
-class boss_venoxis : public CreatureScript
+class boss_venoxis : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_venoxis() : CreatureScript("boss_venoxis") { }
+        boss_venoxis() : MS::Game::Scripting::Interfaces::CreatureScript("boss_venoxis") { }
         
 
         CreatureAI* GetAI(Creature* pCreature) const
@@ -248,11 +248,11 @@ class boss_venoxis : public CreatureScript
             }
         };
 };
-class npc_venoxis_bloodvenom : public CreatureScript
+class npc_venoxis_bloodvenom : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_venoxis_bloodvenom() : CreatureScript("npc_venoxis_bloodvenom") {}
+        npc_venoxis_bloodvenom() : MS::Game::Scripting::Interfaces::CreatureScript("npc_venoxis_bloodvenom") {}
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -308,11 +308,11 @@ class npc_venoxis_bloodvenom : public CreatureScript
         };
 };
 
-class npc_venoxis_venomous_effusion_stalker : public CreatureScript
+class npc_venoxis_venomous_effusion_stalker : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_venoxis_venomous_effusion_stalker() : CreatureScript("npc_venoxis_venomous_effusion_stalker") {}
+        npc_venoxis_venomous_effusion_stalker() : MS::Game::Scripting::Interfaces::CreatureScript("npc_venoxis_venomous_effusion_stalker") {}
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -379,11 +379,11 @@ class npc_venoxis_venomous_effusion_stalker : public CreatureScript
         };
 };
 
-class npc_venoxis_venomous_effusion : public CreatureScript
+class npc_venoxis_venomous_effusion : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_venoxis_venomous_effusion() : CreatureScript("npc_venoxis_venomous_effusion") {}
+        npc_venoxis_venomous_effusion() : MS::Game::Scripting::Interfaces::CreatureScript("npc_venoxis_venomous_effusion") {}
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -413,11 +413,11 @@ class npc_venoxis_venomous_effusion : public CreatureScript
         };
 };
 
-class npc_venoxis_venoxis_pool_of_acid_tears : public CreatureScript
+class npc_venoxis_venoxis_pool_of_acid_tears : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_venoxis_venoxis_pool_of_acid_tears() : CreatureScript("npc_venoxis_venoxis_pool_of_acid_tears") {}
+        npc_venoxis_venoxis_pool_of_acid_tears() : MS::Game::Scripting::Interfaces::CreatureScript("npc_venoxis_venoxis_pool_of_acid_tears") {}
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -434,10 +434,10 @@ class npc_venoxis_venoxis_pool_of_acid_tears : public CreatureScript
         };
 };
 
-class spell_venoxis_toxic_link : public SpellScriptLoader
+class spell_venoxis_toxic_link: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_venoxis_toxic_link() : SpellScriptLoader("spell_venoxis_toxic_link") { }
+        spell_venoxis_toxic_link() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_venoxis_toxic_link") { }
 
         class spell_venoxis_toxic_link_SpellScript : public SpellScript
         {
@@ -496,10 +496,10 @@ class spell_venoxis_toxic_link : public SpellScriptLoader
         }
 };
 
-class spell_venoxis_toxic_link_aura : public SpellScriptLoader
+class spell_venoxis_toxic_link_aura: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_venoxis_toxic_link_aura() : SpellScriptLoader("spell_venoxis_toxic_link_aura") { }
+        spell_venoxis_toxic_link_aura() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_venoxis_toxic_link_aura") { }
 
         class spell_venoxis_toxic_link_aura_AuraScript : public AuraScript
         {
@@ -566,10 +566,10 @@ class ExactDistanceCheck
         float _dist;
 };
 
-class spell_venoxis_pool_of_acid_tears_dmg : public SpellScriptLoader
+class spell_venoxis_pool_of_acid_tears_dmg: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_venoxis_pool_of_acid_tears_dmg() : SpellScriptLoader("spell_venoxis_pool_of_acid_tears_dmg") { }
+        spell_venoxis_pool_of_acid_tears_dmg() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_venoxis_pool_of_acid_tears_dmg") { }
 
         class spell_venoxis_pool_of_acid_tears_dmg_SpellScript : public SpellScript
         {

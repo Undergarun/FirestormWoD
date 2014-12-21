@@ -35,10 +35,10 @@ EndScriptData */
 #define MODEL_NORMAL            10433
 #define MODEL_HUMAN             3637
 
-class boss_magistrate_barthilas : public CreatureScript
+class boss_magistrate_barthilas : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_magistrate_barthilas() : CreatureScript("boss_magistrate_barthilas") { }
+    boss_magistrate_barthilas() : MS::Game::Scripting::Interfaces::CreatureScript("boss_magistrate_barthilas") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

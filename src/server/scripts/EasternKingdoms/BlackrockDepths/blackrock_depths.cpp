@@ -22,10 +22,10 @@
 #include "blackrock_depths.h"
 
 //go_shadowforge_brazier
-class go_shadowforge_brazier : public GameObjectScript
+class go_shadowforge_brazier : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_shadowforge_brazier() : GameObjectScript("go_shadowforge_brazier") { }
+    go_shadowforge_brazier() : MS::Game::Scripting::Interfaces::GameObjectScript("go_shadowforge_brazier") { }
 
     bool OnGossipHello(Player* /*player*/, GameObject* go)
     {
@@ -75,10 +75,10 @@ uint32 RingBoss[]=
     9032,                                                   // Hedrum
 };
 
-class at_ring_of_law : public AreaTriggerScript
+class at_ring_of_law : public MS::Game::Scripting::Interfaces::AreaTriggerScript
 {
 public:
-    at_ring_of_law() : AreaTriggerScript("at_ring_of_law") { }
+    at_ring_of_law() : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_ring_of_law") { }
 
     bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/)
     {
@@ -108,10 +108,10 @@ enum GrimstoneTexts
 };
 
 //TODO: implement quest part of event (different end boss)
-class npc_grimstone : public CreatureScript
+class npc_grimstone : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_grimstone() : CreatureScript("npc_grimstone") { }
+    npc_grimstone() : MS::Game::Scripting::Interfaces::CreatureScript("npc_grimstone") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -349,10 +349,10 @@ enum PhalanxSpells
     SPELL_MIGHTYBLOW                    = 14099
 };
 
-class mob_phalanx : public CreatureScript
+class mob_phalanx : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_phalanx() : CreatureScript("mob_phalanx") { }
+    mob_phalanx() : MS::Game::Scripting::Interfaces::CreatureScript("mob_phalanx") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -433,10 +433,10 @@ enum KharamQuests
 #define GOSSIP_ITEM_KHARAN_9    "Indeed."
 #define GOSSIP_ITEM_KHARAN_10   "The door is open, Kharan. You are a free man."
 
-class npc_kharan_mighthammer : public CreatureScript
+class npc_kharan_mighthammer : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_kharan_mighthammer() : CreatureScript("npc_kharan_mighthammer") { }
+    npc_kharan_mighthammer() : MS::Game::Scripting::Interfaces::CreatureScript("npc_kharan_mighthammer") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
@@ -527,10 +527,10 @@ enum LokhtosSpells
 #define GOSSIP_ITEM_SHOW_ACCESS     "Show me what I have access to, Lothos."
 #define GOSSIP_ITEM_GET_CONTRACT    "Get Thorium Brotherhood Contract"
 
-class npc_lokhtos_darkbargainer : public CreatureScript
+class npc_lokhtos_darkbargainer : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_lokhtos_darkbargainer() : CreatureScript("npc_lokhtos_darkbargainer") { }
+    npc_lokhtos_darkbargainer() : MS::Game::Scripting::Interfaces::CreatureScript("npc_lokhtos_darkbargainer") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
@@ -580,10 +580,10 @@ enum DughalQuests
 #define GOSSIP_DUGHAL           "You're free, Dughal! Get out of here!"
 
 /*
-class npc_dughal_stormwing : public CreatureScript
+class npc_dughal_stormwing : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_dughal_stormwing() : CreatureScript("npc_dughal_stormwing") { }
+    npc_dughal_stormwing() : MS::Game::Scripting::Interfaces::CreatureScript("npc_dughal_stormwing") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -692,10 +692,10 @@ public:
 
 /*
 Player* playerStart;
-class npc_marshal_windsor : public CreatureScript
+class npc_marshal_windsor : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_marshal_windsor() : CreatureScript("npc_marshal_windsor") { }
+    npc_marshal_windsor() : MS::Game::Scripting::Interfaces::CreatureScript("npc_marshal_windsor") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -872,10 +872,10 @@ public:
 
 /*
 int wp = 0;
-class npc_marshal_reginald_windsor : public CreatureScript
+class npc_marshal_reginald_windsor : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_marshal_reginald_windsor() : CreatureScript("npc_marshal_reginald_windsor") { }
+    npc_marshal_reginald_windsor() : MS::Game::Scripting::Interfaces::CreatureScript("npc_marshal_reginald_windsor") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1081,10 +1081,10 @@ public:
 #define SAY_TOBIAS_FREE         "Thank you! I will run for safety immediately!"
 
 /*
-class npc_tobias_seecher : public CreatureScript
+class npc_tobias_seecher : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_tobias_seecher() : CreatureScript("npc_tobias_seecher") { }
+    npc_tobias_seecher() : MS::Game::Scripting::Interfaces::CreatureScript("npc_tobias_seecher") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1199,10 +1199,10 @@ enum RocknotQuests
     QUEST_ALE                          = 4295
 };
 
-class npc_rocknot : public CreatureScript
+class npc_rocknot : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_rocknot() : CreatureScript("npc_rocknot") { }
+    npc_rocknot() : MS::Game::Scripting::Interfaces::CreatureScript("npc_rocknot") { }
 
     bool OnQuestReward(Player* /*player*/, Creature* creature, Quest const* quest, uint32 /*item*/)
     {

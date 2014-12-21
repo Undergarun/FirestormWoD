@@ -38,10 +38,10 @@ enum Rein
 };
 
 // 42023
-class npc_subjugator_devo : public CreatureScript
+class npc_subjugator_devo : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_subjugator_devo() : CreatureScript("npc_subjugator_devo") { }
+    npc_subjugator_devo() : MS::Game::Scripting::Interfaces::CreatureScript("npc_subjugator_devo") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -73,10 +73,10 @@ public:
     };
 };
 
-class npc_kaya_flathoof : public CreatureScript
+class npc_kaya_flathoof : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_kaya_flathoof() : CreatureScript("npc_kaya_flathoof")
+        npc_kaya_flathoof() : MS::Game::Scripting::Interfaces::CreatureScript("npc_kaya_flathoof")
         {
         }
 

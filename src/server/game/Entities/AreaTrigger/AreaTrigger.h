@@ -24,7 +24,16 @@
 
 class Unit;
 class SpellInfo;
-class AreaTriggerEntityScript;
+
+namespace MS { namespace Game { namespace Scripting { namespace Interfaces 
+{
+    class AreaTriggerEntityScript;
+
+}   ///< Namespace Interfaces
+}   ///< Namespace Scripting
+}   ///< Namespace Game
+}   ///< Namespace MS
+
 
 enum AreatriggerInterpolation
 {
@@ -199,8 +208,8 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         AreaTriggerTemplateList GetTemplates() const { return m_Templates; }
         const AreaTriggerTemplate* GetMainTemplate() const { return !m_Templates.empty() ? &m_Templates.front() : nullptr; }
 
-        AreaTriggerEntityScript* GetScript() const { return m_Script; }
-        void SetScript(AreaTriggerEntityScript* p_Script) { m_Script = p_Script; }
+        MS::Game::Scripting::Interfaces::AreaTriggerEntityScript * GetScript() const { return m_Script; }
+        void SetScript(MS::Game::Scripting::Interfaces::AreaTriggerEntityScript* p_Script) { m_Script = p_Script; }
 
         void SendMovementUpdate();
 
@@ -224,6 +233,6 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         AreatriggerInterpolation m_Trajectory;
         IntervalTimer m_UpdateTimer;
         AreaTriggerTemplateList m_Templates;
-        AreaTriggerEntityScript* m_Script;
+        MS::Game::Scripting::Interfaces::AreaTriggerEntityScript* m_Script;
 };
 #endif

@@ -3,7 +3,7 @@
 
 #include "ScriptPCH.h"
 
-class AnticheatScripts: public PlayerScript
+class AnticheatScripts : public MS::Game::Scripting::Interfaces::PlayerScript
 {
     public:
         AnticheatScripts();

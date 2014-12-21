@@ -1,10 +1,10 @@
 #include "grim_batol.h"
 #include "ScriptPCH.h"
 
-class instance_grim_batol : public InstanceMapScript
+class instance_grim_batol : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
 public:
-    instance_grim_batol() : InstanceMapScript("instance_grim_batol", 670) { }
+    instance_grim_batol() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_grim_batol", 670) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* pMap) const
     {

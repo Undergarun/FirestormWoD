@@ -30,10 +30,10 @@ EndScriptData */
 #define SPELL_ACID_GEYSER   38739
 
 // 17770
-class boss_hungarfen : public CreatureScript
+class boss_hungarfen : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_hungarfen() : CreatureScript("boss_hungarfen") { }
+    boss_hungarfen() : MS::Game::Scripting::Interfaces::CreatureScript("boss_hungarfen") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -102,10 +102,10 @@ public:
 #define SPELL_PUTRID_MUSHROOM   31690
 #define SPELL_GROW              31698
 
-class mob_underbog_mushroom : public CreatureScript
+class mob_underbog_mushroom : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_underbog_mushroom() : CreatureScript("mob_underbog_mushroom") { }
+    mob_underbog_mushroom() : MS::Game::Scripting::Interfaces::CreatureScript("mob_underbog_mushroom") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

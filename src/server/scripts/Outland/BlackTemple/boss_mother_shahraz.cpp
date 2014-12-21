@@ -79,10 +79,10 @@ static Locations TeleportPoint[]=
     {965.997f, 278.398f, 195.777f}
 };
 
-class boss_mother_shahraz : public CreatureScript
+class boss_mother_shahraz : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_mother_shahraz() : CreatureScript("boss_mother_shahraz") { }
+    boss_mother_shahraz() : MS::Game::Scripting::Interfaces::CreatureScript("boss_mother_shahraz") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

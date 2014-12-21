@@ -41,11 +41,11 @@ const Position twilightzealotPos[3] =
 	{587.57f, 984.64f, 155.35f, 4.49f}
 };
 
-class boss_corla_herald_of_twilight : public CreatureScript
+class boss_corla_herald_of_twilight : public MS::Game::Scripting::Interfaces::CreatureScript
 {
  
     public:
-        boss_corla_herald_of_twilight() : CreatureScript("boss_corla_herald_of_twilight") { }
+        boss_corla_herald_of_twilight() : MS::Game::Scripting::Interfaces::CreatureScript("boss_corla_herald_of_twilight") { }
      
         CreatureAI* GetAI(Creature* pCreature) const
         {

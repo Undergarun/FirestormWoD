@@ -108,10 +108,10 @@ class OrientationCheck : public std::unary_function<Unit*, bool>
         Unit* caster;
 };
 
-class spell_eadric_radiance : public SpellScriptLoader
+class spell_eadric_radiance: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_eadric_radiance() : SpellScriptLoader("spell_eadric_radiance") { }
+        spell_eadric_radiance() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_eadric_radiance") { }
         class spell_eadric_radiance_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_eadric_radiance_SpellScript);
@@ -134,10 +134,10 @@ class spell_eadric_radiance : public SpellScriptLoader
         }
 };
 
-class spell_eadric_hammer_of_righteous : public SpellScriptLoader
+class spell_eadric_hammer_of_righteous: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_eadric_hammer_of_righteous() : SpellScriptLoader("spell_eadric_hammer_of_righteous") {}
+        spell_eadric_hammer_of_righteous() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_eadric_hammer_of_righteous") {}
 
         class spell_eadric_hammer_of_righteousSpellScript : public SpellScript
         {
@@ -173,10 +173,10 @@ class spell_eadric_hammer_of_righteous : public SpellScriptLoader
         }
 };
 
-class boss_eadric : public CreatureScript
+class boss_eadric : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_eadric() : CreatureScript("boss_eadric") { }
+    boss_eadric() : MS::Game::Scripting::Interfaces::CreatureScript("boss_eadric") { }
     struct boss_eadricAI : public ScriptedAI
     {
         boss_eadricAI(Creature* creature) : ScriptedAI(creature) { }
@@ -324,10 +324,10 @@ public:
     }
 };
 
-class spell_paletress_shield : public SpellScriptLoader
+class spell_paletress_shield: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_paletress_shield() : SpellScriptLoader("spell_paletress_shield") { }
+        spell_paletress_shield() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_paletress_shield") { }
 
         class spell_paletress_shieldAuraScript : public AuraScript
         {
@@ -361,10 +361,10 @@ class spell_paletress_shield : public SpellScriptLoader
         }
 };
 
-class boss_paletress : public CreatureScript
+class boss_paletress : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_paletress() : CreatureScript("boss_paletress") { }
+    boss_paletress() : MS::Game::Scripting::Interfaces::CreatureScript("boss_paletress") { }
 
     struct boss_paletressAI : public ScriptedAI
     {
@@ -555,10 +555,10 @@ public:
     }
 };
 
-class npc_memory : public CreatureScript
+class npc_memory : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_memory() : CreatureScript("npc_memory") { }
+    npc_memory() : MS::Game::Scripting::Interfaces::CreatureScript("npc_memory") { }
 
     struct npc_memoryAI : public ScriptedAI
     {
@@ -630,10 +630,10 @@ public:
 };
 
 // 35305
-class npc_argent_monk : public CreatureScript
+class npc_argent_monk : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_argent_monk() : CreatureScript("npc_argent_monk") { }
+    npc_argent_monk() : MS::Game::Scripting::Interfaces::CreatureScript("npc_argent_monk") { }
 
     struct npc_argent_monkAI : public ScriptedAI
     {
@@ -707,10 +707,10 @@ public:
     }
 };
 
-class npc_argent_lightwielder : public CreatureScript
+class npc_argent_lightwielder : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_argent_lightwielder() : CreatureScript("npc_argent_lightwielder") { }
+    npc_argent_lightwielder() : MS::Game::Scripting::Interfaces::CreatureScript("npc_argent_lightwielder") { }
 
     struct npc_argent_lightwielderAI : public ScriptedAI
     {
@@ -787,10 +787,10 @@ public:
     }
 };
 
-class npc_argent_priest : public CreatureScript
+class npc_argent_priest : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_argent_priest() : CreatureScript("npc_argent_priest") { }
+    npc_argent_priest() : MS::Game::Scripting::Interfaces::CreatureScript("npc_argent_priest") { }
 
     struct npc_argent_priestAI : public ScriptedAI
     {

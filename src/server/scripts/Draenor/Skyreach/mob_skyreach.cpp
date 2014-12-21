@@ -14,10 +14,10 @@ namespace MS
 {
     namespace InstanceSkyreach
     {
-        class npc_GossipIntroOutro : public CreatureScript
+        class npc_GossipIntroOutro : public Game::Scripting::Interfaces::CreatureScript
         {
         public:
-            npc_GossipIntroOutro() : CreatureScript("npc_GossipIntroOutro")
+            npc_GossipIntroOutro() : Game::Scripting::Interfaces::CreatureScript("npc_GossipIntroOutro")
             {
             }
 
@@ -40,7 +40,7 @@ namespace MS
             }
         };
 
-        class mob_GrandDefenseConstruct : public CreatureScript
+        class mob_GrandDefenseConstruct : public Game::Scripting::Interfaces::CreatureScript
         {
         public:
             // Entry: 76145
@@ -124,7 +124,7 @@ namespace MS
             };
         };
 
-        class mob_YoungKaliri : public CreatureScript
+        class mob_YoungKaliri : public Game::Scripting::Interfaces::CreatureScript
         {
         public:
             // Entry: 76121
@@ -226,7 +226,7 @@ namespace MS
             };
         };
 
-        class mob_RadiantSupernova : public CreatureScript
+        class mob_RadiantSupernova : public Game::Scripting::Interfaces::CreatureScript
         {
         public:
             // Entry: 79463
@@ -306,7 +306,7 @@ namespace MS
             };
         };
 
-        class mob_DefenseConstruct : public CreatureScript
+        class mob_DefenseConstruct : public Game::Scripting::Interfaces::CreatureScript
         {
         public:
             // Entry: 76087
@@ -391,7 +391,7 @@ namespace MS
             };
         };
 
-        class mob_SolarMagnifier : public CreatureScript
+        class mob_SolarMagnifier : public Game::Scripting::Interfaces::CreatureScript
         {
         public:
             // Entry: 77559
@@ -487,7 +487,7 @@ namespace MS
             };
         };
 
-        class mob_DreadRavenHatchling : public CreatureScript
+        class mob_DreadRavenHatchling : public Game::Scripting::Interfaces::CreatureScript
         {
         public:
             // Entry: 76253
@@ -553,7 +553,7 @@ namespace MS
             };
         };
 
-        class mob_SkyreachSunTalon : public CreatureScript
+        class mob_SkyreachSunTalon : public Game::Scripting::Interfaces::CreatureScript
         {
         public:
             // Entry: 79093
@@ -640,7 +640,7 @@ namespace MS
             };
         };
 
-        class mob_AdornedBladetalon : public CreatureScript
+        class mob_AdornedBladetalon : public Game::Scripting::Interfaces::CreatureScript
         {
         public:
             // Entry: 79303
@@ -720,7 +720,7 @@ namespace MS
             };
         };
 
-        class mob_DrivingGaleCaller : public CreatureScript
+        class mob_DrivingGaleCaller : public Game::Scripting::Interfaces::CreatureScript
         {
         public:
             // Entry: 78932
@@ -790,7 +790,7 @@ namespace MS
             };
         };
 
-        class mob_AdeptOfTheDawn : public CreatureScript
+        class mob_AdeptOfTheDawn : public Game::Scripting::Interfaces::CreatureScript
         {
         public:
             // Entry: 79467
@@ -868,7 +868,7 @@ namespace MS
             };
         };
 
-        class mob_SkyReachOverlord : public CreatureScript
+        class mob_SkyReachOverlord : public Game::Scripting::Interfaces::CreatureScript
         {
         public:
             // Entry: 75975
@@ -940,7 +940,7 @@ namespace MS
             };
         };
 
-        class mob_WindFamiliar : public CreatureScript
+        class mob_WindFamiliar : public Game::Scripting::Interfaces::CreatureScript
         {
         public:
             // Entry: 76102
@@ -1026,7 +1026,7 @@ namespace MS
             };
         };
 
-        class mob_SolarFamiliar : public CreatureScript
+        class mob_SolarFamiliar : public Game::Scripting::Interfaces::CreatureScript
         {
         public:
             // Entry: 76097
@@ -1108,7 +1108,7 @@ namespace MS
             };
         };
 
-        class mob_SoaringChrakramMaster : public CreatureScript
+        class mob_SoaringChrakramMaster : public Game::Scripting::Interfaces::CreatureScript
         {
         public:
             // Entry: 76132
@@ -1207,7 +1207,7 @@ namespace MS
             };
         };
 
-        class mob_HeraldOfSunrise : public CreatureScript
+        class mob_HeraldOfSunrise : public Game::Scripting::Interfaces::CreatureScript
         {
         public:
             // Entry: 78933
@@ -1294,7 +1294,7 @@ namespace MS
             };
         };
 
-        class mob_WhirlingDervish : public CreatureScript
+        class mob_WhirlingDervish : public Game::Scripting::Interfaces::CreatureScript
         {
         public:
             // Entry: 77605
@@ -1371,7 +1371,7 @@ namespace MS
             };
         };
 
-        class mob_BloodedBladeFeather : public CreatureScript
+        class mob_BloodedBladeFeather : public Game::Scripting::Interfaces::CreatureScript
         {
         public:
             // Entry: 76205
@@ -1442,7 +1442,7 @@ namespace MS
             };
         };
 
-        class mob_InitiateOfTheRisingSun : public CreatureScript
+        class mob_InitiateOfTheRisingSun : public Game::Scripting::Interfaces::CreatureScript
         {
         public:
             // Entry: 79466
@@ -1521,7 +1521,7 @@ namespace MS
             };
         };
 
-        class mob_DivingChakramSpinner : public CreatureScript
+        class mob_DivingChakramSpinner : public Game::Scripting::Interfaces::CreatureScript
         {
         public:
             // Entry: 76116
@@ -1613,7 +1613,7 @@ namespace MS
             };
         };
 
-        class mob_BlindingSolarFlare : public CreatureScript
+        class mob_BlindingSolarFlare : public Game::Scripting::Interfaces::CreatureScript
         {
         public:
             // Entry: 79462

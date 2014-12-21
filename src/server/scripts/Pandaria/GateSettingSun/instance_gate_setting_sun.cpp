@@ -21,10 +21,10 @@ DoorData const doorData[] =
     {0,                                     0,                          DOOR_TYPE_ROOM,         BOUNDARY_NONE},// END
 };
 
-class instance_gate_setting_sun : public InstanceMapScript
+class instance_gate_setting_sun : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
 public:
-    instance_gate_setting_sun() : InstanceMapScript("instance_gate_setting_sun", 962) { }
+    instance_gate_setting_sun() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_gate_setting_sun", 962) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {

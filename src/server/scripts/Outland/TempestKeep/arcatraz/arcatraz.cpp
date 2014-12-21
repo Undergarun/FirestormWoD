@@ -66,7 +66,7 @@ enum eMillhouseSpells
     SPELL_PYROBLAST            = 33975,
 };
 
-class npc_millhouse_manastorm : public CreatureScript
+class npc_millhouse_manastorm : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
@@ -270,11 +270,11 @@ enum eWardenSpells
     SPELL_BUBBLE_VISUAL = 36849,
 };
 
-class npc_warden_mellichar : public CreatureScript
+class npc_warden_mellichar : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_warden_mellichar() : CreatureScript("npc_warden_mellichar")
+        npc_warden_mellichar() : MS::Game::Scripting::Interfaces::CreatureScript("npc_warden_mellichar")
         {
         }
 
@@ -529,11 +529,11 @@ enum ZerekethSpell
     SPELL_VOID_ZONE_DAMAGE = 36120,
 };
 
-class mob_zerekethvoidzone : public CreatureScript
+class mob_zerekethvoidzone : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        mob_zerekethvoidzone() : CreatureScript("mob_zerekethvoidzone")
+        mob_zerekethvoidzone() : MS::Game::Scripting::Interfaces::CreatureScript("mob_zerekethvoidzone")
         {
         }
         struct mob_zerekethvoidzoneAI : public ScriptedAI

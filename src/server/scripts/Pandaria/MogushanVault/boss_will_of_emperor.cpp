@@ -203,10 +203,10 @@ float tabAlcoves[26][4] =
 
 // Qin-Xi - 60399
 // Jan-Xi - 60400
-class boss_jin_qin_xi : public CreatureScript
+class boss_jin_qin_xi : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_jin_qin_xi() : CreatureScript("boss_jin_qin_xi") {}
+        boss_jin_qin_xi() : MS::Game::Scripting::Interfaces::CreatureScript("boss_jin_qin_xi") {}
 
         struct boss_jin_qin_xiAI : public BossAI
         {
@@ -881,10 +881,10 @@ class boss_jin_qin_xi : public CreatureScript
 // Emperor's Rage - 60396
 // Emperor's Strength - 60397
 // Emperor's Courage - 60398
-class mob_woe_add_generic : public CreatureScript
+class mob_woe_add_generic : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_woe_add_generic() : CreatureScript("mob_woe_add_generic") {}
+        mob_woe_add_generic() : MS::Game::Scripting::Interfaces::CreatureScript("mob_woe_add_generic") {}
 
         struct mob_woe_add_genericAI : public ScriptedAI
         {
@@ -1258,10 +1258,10 @@ class mob_woe_add_generic : public CreatureScript
 };
 
 // Titan Spark - 60480
-class mob_woe_titan_spark : public CreatureScript
+class mob_woe_titan_spark : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_woe_titan_spark() : CreatureScript("mob_woe_titan_spark") {}
+        mob_woe_titan_spark() : MS::Game::Scripting::Interfaces::CreatureScript("mob_woe_titan_spark") {}
 
         struct mob_woe_titan_sparkAI : public ScriptedAI
         {
@@ -1369,10 +1369,10 @@ class mob_woe_titan_spark : public CreatureScript
 };
 
 // Ancient Mogu Machine - 60648
-class mob_ancient_mogu_machine : public CreatureScript
+class mob_ancient_mogu_machine : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_ancient_mogu_machine() : CreatureScript("mob_ancient_mogu_machine") { }
+        mob_ancient_mogu_machine() : MS::Game::Scripting::Interfaces::CreatureScript("mob_ancient_mogu_machine") { }
     
         struct mob_ancient_mogu_machineAI : public ScriptedAI
         {
@@ -1468,10 +1468,10 @@ class mob_ancient_mogu_machine : public CreatureScript
 };
 
 // General Purpose Bunny JMF - 55091
-class mob_general_purpose_bunnyJMF : public CreatureScript
+class mob_general_purpose_bunnyJMF : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_general_purpose_bunnyJMF() : CreatureScript("mob_general_purpose_bunnyJMF") { }
+        mob_general_purpose_bunnyJMF() : MS::Game::Scripting::Interfaces::CreatureScript("mob_general_purpose_bunnyJMF") { }
     
         struct mob_general_purpose_bunnyJMFAI : public ScriptedAI
         {
@@ -1525,10 +1525,10 @@ class mob_general_purpose_bunnyJMF : public CreatureScript
 };
 
 // Cosmetic Lightning Spell - 127732
-class spell_cosmetic_lightning : public SpellScriptLoader
+class spell_cosmetic_lightning: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_cosmetic_lightning() : SpellScriptLoader("spell_cosmetic_lightning") { }
+        spell_cosmetic_lightning() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_cosmetic_lightning") { }
 
         class spell_cosmetic_lightning_SpellScript : public SpellScript
         {
@@ -1566,10 +1566,10 @@ class spell_cosmetic_lightning : public SpellScriptLoader
 };
 
 //  Terracotta spawn visual spawn-in - 118165
-class spell_terracota_spawn : public SpellScriptLoader
+class spell_terracota_spawn: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_terracota_spawn() : SpellScriptLoader("spell_terracota_spawn") { }
+        spell_terracota_spawn() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_terracota_spawn") { }
 
         class spell_terracota_spawn_AuraScript : public AuraScript
         {
@@ -1594,10 +1594,10 @@ class spell_terracota_spawn : public SpellScriptLoader
 };
 
 // Magnetized (Qin-Xi) - 116818
-class spell_magnetized_qin : public SpellScriptLoader
+class spell_magnetized_qin: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_magnetized_qin() : SpellScriptLoader("spell_magnetized_qin") { }
+        spell_magnetized_qin() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_magnetized_qin") { }
 
         class spell_magnetized_qin_AuraScript : public AuraScript
         {
@@ -1622,10 +1622,10 @@ class spell_magnetized_qin : public SpellScriptLoader
 };
 
 // Magnetized (Jan-Xi) - 117195
-class spell_magnetized_jan : public SpellScriptLoader
+class spell_magnetized_jan: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_magnetized_jan() : SpellScriptLoader("spell_magnetized_jan") { }
+        spell_magnetized_jan() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_magnetized_jan") { }
 
         class spell_magnetized_jan_AuraScript : public AuraScript
         {
@@ -1650,10 +1650,10 @@ class spell_magnetized_jan : public SpellScriptLoader
 };
 
 // Arc Left - 116968
-class spell_arc_visual : public SpellScriptLoader
+class spell_arc_visual: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_arc_visual() : SpellScriptLoader("spell_arc_visual") { }
+        spell_arc_visual() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_arc_visual") { }
 
         class spell_arc_visual_AuraScript : public AuraScript
         {
@@ -1691,10 +1691,10 @@ class spell_arc_visual : public SpellScriptLoader
 };
 
 //  Devastating Arc - 117006
-class spell_devastating_arc : public SpellScriptLoader
+class spell_devastating_arc: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_devastating_arc() : SpellScriptLoader("spell_devastating_arc") { }
+        spell_devastating_arc() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_devastating_arc") { }
 
         class spell_devastating_arc_AuraScript : public AuraScript
         {
@@ -1725,10 +1725,10 @@ class spell_devastating_arc : public SpellScriptLoader
 };
 
 // Impeding Thrust - 117485
-class spell_impeding_thrust : public SpellScriptLoader
+class spell_impeding_thrust: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_impeding_thrust() : SpellScriptLoader("spell_impeding_thrust") { }
+        spell_impeding_thrust() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_impeding_thrust") { }
 
         class spell_impeding_thrust_AuraScript : public AuraScript
         {
@@ -1757,10 +1757,10 @@ class spell_impeding_thrust : public SpellScriptLoader
 };
 
 // Titan gas - 116803 - triggered by Titan Gas (116779)
-class spell_titan_gas : public SpellScriptLoader
+class spell_titan_gas: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_titan_gas() : SpellScriptLoader("spell_titan_gas") { }
+        spell_titan_gas() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_titan_gas") { }
 
         class spell_titan_gas_AuraScript : public AuraScript
         {
@@ -1785,10 +1785,10 @@ class spell_titan_gas : public SpellScriptLoader
 };
 
 // Titan gas - 118327 - triggered by Titan Gas (116779)
-class spell_titan_gas2 : public SpellScriptLoader
+class spell_titan_gas2: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_titan_gas2() : SpellScriptLoader("spell_titan_gas2") { }
+        spell_titan_gas2() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_titan_gas2") { }
 
         class spell_titan_gas2_AuraScript : public AuraScript
         {
@@ -1813,10 +1813,10 @@ class spell_titan_gas2 : public SpellScriptLoader
 };
 
 // Energizing smash - 116550
-class spell_energizing_smash : public SpellScriptLoader
+class spell_energizing_smash: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_energizing_smash() : SpellScriptLoader("spell_energizing_smash") { }
+        spell_energizing_smash() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_energizing_smash") { }
         
         class spell_ernergizing_smash_SpellScript : public SpellScript
         {
@@ -1853,10 +1853,10 @@ class spell_energizing_smash : public SpellScriptLoader
 };
 
 // Energizing Smash - Visual - 116556
-class spell_energizing_visual : public SpellScriptLoader
+class spell_energizing_visual: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_energizing_visual() : SpellScriptLoader("spell_energizing_visual") { }
+        spell_energizing_visual() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_energizing_visual") { }
 
         class spell_energizing_visual_AuraScript : public AuraScript
         {
@@ -1888,10 +1888,10 @@ class spell_energizing_visual : public SpellScriptLoader
 };
 
 // Energized - 116605
-class spell_energized : public SpellScriptLoader
+class spell_energized: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public :
-        spell_energized() : SpellScriptLoader("spell_energized") { }
+        spell_energized() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_energized") { }
 
         class spell_energized_AuraScript : public AuraScript
         {
@@ -1911,10 +1911,10 @@ class spell_energized : public SpellScriptLoader
 };
 
 // Ancient Control Console - 211584
-class go_ancien_control_console : public GameObjectScript
+class go_ancien_control_console : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
     public:
-        go_ancien_control_console() : GameObjectScript("go_ancien_control_console")
+        go_ancien_control_console() : MS::Game::Scripting::Interfaces::GameObjectScript("go_ancien_control_console")
         {
             activated = false;
         }
@@ -1959,10 +1959,10 @@ class go_ancien_control_console : public GameObjectScript
 };
 
 // Achievement - 6455
-class achievement_show_me_you_moves : public AchievementCriteriaScript
+class achievement_show_me_you_moves : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_show_me_you_moves() : AchievementCriteriaScript("achievement_show_me_you_moves") { }
+        achievement_show_me_you_moves() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_show_me_you_moves") { }
 
         bool OnCheck(Player* source, Unit* /*target*/)
         {

@@ -63,10 +63,10 @@ float VoidPortalCoords[5][3] =
     {-261.4533f, -297.3298f, 17.1f}
 };
 
-class mob_voidtraveler : public CreatureScript
+class mob_voidtraveler : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_voidtraveler() : CreatureScript("mob_voidtraveler") { }
+    mob_voidtraveler() : MS::Game::Scripting::Interfaces::CreatureScript("mob_voidtraveler") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -139,10 +139,10 @@ public:
 };
 
 // 18732
-class boss_grandmaster_vorpil : public CreatureScript
+class boss_grandmaster_vorpil : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_grandmaster_vorpil() : CreatureScript("boss_grandmaster_vorpil") { }
+    boss_grandmaster_vorpil() : MS::Game::Scripting::Interfaces::CreatureScript("boss_grandmaster_vorpil") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

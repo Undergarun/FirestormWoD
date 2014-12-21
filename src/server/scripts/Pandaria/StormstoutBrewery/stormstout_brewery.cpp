@@ -15,10 +15,10 @@ enum eHabaneroBeer
     SPELL_PROC_EXPLOSION    = 106787
 };
 
-class spell_stormstout_brewery_habanero_beer : public SpellScriptLoader
+class spell_stormstout_brewery_habanero_beer: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_stormstout_brewery_habanero_beer() : SpellScriptLoader("spell_stormstout_brewery_habanero_beer") { }
+        spell_stormstout_brewery_habanero_beer() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_stormstout_brewery_habanero_beer") { }
 
         class spell_stormstout_brewery_habanero_beer_SpellScript : public SpellScript
         {

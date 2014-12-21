@@ -66,10 +66,10 @@ SummonDef m_aSummonPoint[]=
     {3457.338f, -3073.979f, 135.002f, 3.784f}                   //G2 back, right
 };
 
-class boss_dathrohan_balnazzar : public CreatureScript
+class boss_dathrohan_balnazzar : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_dathrohan_balnazzar() : CreatureScript("boss_dathrohan_balnazzar") { }
+    boss_dathrohan_balnazzar() : MS::Game::Scripting::Interfaces::CreatureScript("boss_dathrohan_balnazzar") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

@@ -75,10 +75,10 @@ enum Summons
 
 Position const NordrassilLoc = {5503.713f, -3523.436f, 1608.781f, 0.0f};
 
-class mob_ancient_wisp : public CreatureScript
+class mob_ancient_wisp : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_ancient_wisp() : CreatureScript("mob_ancient_wisp") { }
+    mob_ancient_wisp() : MS::Game::Scripting::Interfaces::CreatureScript("mob_ancient_wisp") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -136,10 +136,10 @@ public:
 
 /* This script is merely a placeholder for the Doomfire that triggers Doomfire spell. It will
    MoveChase the Doomfire Spirit always, until despawn (AttackStart is called upon it's spawn) */
-class mob_doomfire : public CreatureScript
+class mob_doomfire : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_doomfire() : CreatureScript("mob_doomfire") { }
+    mob_doomfire() : MS::Game::Scripting::Interfaces::CreatureScript("mob_doomfire") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -164,10 +164,10 @@ public:
 
 /* This is the script for the Doomfire Spirit Mob. This mob simply follow players or
    travels in random directions if target cannot be found. */
-class mob_doomfire_targetting : public CreatureScript
+class mob_doomfire_targetting : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_doomfire_targetting() : CreatureScript("mob_doomfire_targetting") { }
+    mob_doomfire_targetting() : MS::Game::Scripting::Interfaces::CreatureScript("mob_doomfire_targetting") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -235,10 +235,10 @@ public:
    For Doomfire, we summon a mob (Doomfire Spirit) for the Doomfire mob to follow. It's spirit will
    randomly select it's target to follow and then we create the random movement making it unpredictable. */
 
-class boss_archimonde : public CreatureScript
+class boss_archimonde : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_archimonde() : CreatureScript("boss_archimonde") { }
+    boss_archimonde() : MS::Game::Scripting::Interfaces::CreatureScript("boss_archimonde") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

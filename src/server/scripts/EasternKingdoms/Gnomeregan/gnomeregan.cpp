@@ -87,10 +87,10 @@ const Position SpawnPosition[] =
     {-494.195f, -89.553f, -149.131f, 3.254f}
 };
 
-class npc_blastmaster_emi_shortfuse : public CreatureScript
+class npc_blastmaster_emi_shortfuse : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_blastmaster_emi_shortfuse() : CreatureScript("npc_blastmaster_emi_shortfuse") { }
+    npc_blastmaster_emi_shortfuse() : MS::Game::Scripting::Interfaces::CreatureScript("npc_blastmaster_emi_shortfuse") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -547,10 +547,10 @@ public:
 
 };
 
-class boss_grubbis : public CreatureScript
+class boss_grubbis : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_grubbis() : CreatureScript("boss_grubbis") { }
+    boss_grubbis() : MS::Game::Scripting::Interfaces::CreatureScript("boss_grubbis") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

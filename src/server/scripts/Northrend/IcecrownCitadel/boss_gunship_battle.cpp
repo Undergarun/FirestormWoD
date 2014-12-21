@@ -773,10 +773,10 @@ void StopFight(Transport* t1, Transport* t2)
 }
 
 // Muradin Bronzebeard
-class npc_muradin_gunship : public CreatureScript
+class npc_muradin_gunship : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_muradin_gunship() : CreatureScript("npc_muradin_gunship") { }
+        npc_muradin_gunship() : MS::Game::Scripting::Interfaces::CreatureScript("npc_muradin_gunship") { }
 
         bool OnGossipHello(Player* player, Creature* creature)
         {
@@ -1210,10 +1210,10 @@ class npc_muradin_gunship : public CreatureScript
         }
 };
 
-class npc_gunship_skybreaker : public CreatureScript
+class npc_gunship_skybreaker : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_gunship_skybreaker() : CreatureScript("npc_gunship_skybreaker") { }
+        npc_gunship_skybreaker() : MS::Game::Scripting::Interfaces::CreatureScript("npc_gunship_skybreaker") { }
 
         struct npc_gunship_skybreakerAI : public Scripted_NoMovementAI
         {
@@ -1267,10 +1267,10 @@ class npc_gunship_skybreaker : public CreatureScript
         }
 };
 
-class npc_gunship_orgrimmar : public CreatureScript
+class npc_gunship_orgrimmar : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_gunship_orgrimmar() : CreatureScript("npc_gunship_orgrimmar") { }
+        npc_gunship_orgrimmar() : MS::Game::Scripting::Interfaces::CreatureScript("npc_gunship_orgrimmar") { }
 
         struct npc_gunship_orgrimmarAI : public Scripted_NoMovementAI
         {
@@ -1325,10 +1325,10 @@ class npc_gunship_orgrimmar : public CreatureScript
 };
 
 /* Kro'kron Axethrower */
-class npc_korkron_axethrower_rifleman : public CreatureScript
+class npc_korkron_axethrower_rifleman : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_korkron_axethrower_rifleman() : CreatureScript("npc_korkron_axethrower_rifleman") { }
+        npc_korkron_axethrower_rifleman() : MS::Game::Scripting::Interfaces::CreatureScript("npc_korkron_axethrower_rifleman") { }
 
         struct npc_korkron_axethrower_riflemanAI : public Scripted_NoMovementAI
         {
@@ -1433,10 +1433,10 @@ class npc_korkron_axethrower_rifleman : public CreatureScript
         }
 };
 
-class npc_sergeant : public CreatureScript
+class npc_sergeant : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_sergeant() : CreatureScript("npc_sergeant") { }
+        npc_sergeant() : MS::Game::Scripting::Interfaces::CreatureScript("npc_sergeant") { }
 
         struct npc_sergeantAI : public ScriptedAI
         {
@@ -1567,10 +1567,10 @@ class npc_sergeant : public CreatureScript
         }
 };
 
-class npc_marine_or_reaver : public CreatureScript
+class npc_marine_or_reaver : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_marine_or_reaver() : CreatureScript("npc_marine_or_reaver") { }
+        npc_marine_or_reaver() : MS::Game::Scripting::Interfaces::CreatureScript("npc_marine_or_reaver") { }
 
         struct npc_marine_or_reaverAI : public ScriptedAI
         {
@@ -1683,10 +1683,10 @@ class npc_marine_or_reaver : public CreatureScript
         }
 };
 
-class npc_gunship_mage : public CreatureScript
+class npc_gunship_mage : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_gunship_mage() : CreatureScript("npc_gunship_mage") { }
+        npc_gunship_mage() : MS::Game::Scripting::Interfaces::CreatureScript("npc_gunship_mage") { }
 
         struct npc_gunship_mageAI : public Scripted_NoMovementAI
         {
@@ -1778,10 +1778,10 @@ class npc_gunship_mage : public CreatureScript
 };
 
 /* Gunship Cannon (Horde / Ally) */
-class npc_gunship_cannon : public CreatureScript
+class npc_gunship_cannon : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_gunship_cannon() : CreatureScript("npc_gunship_cannon") { }
+        npc_gunship_cannon() : MS::Game::Scripting::Interfaces::CreatureScript("npc_gunship_cannon") { }
 
         struct npc_gunship_cannonAI : public ScriptedAI
         {
@@ -1839,10 +1839,10 @@ class npc_gunship_cannon : public CreatureScript
         }
 };
 
-class npc_mortar_soldier_or_rocketeer : public CreatureScript
+class npc_mortar_soldier_or_rocketeer : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_mortar_soldier_or_rocketeer() : CreatureScript("npc_mortar_soldier_or_rocketeer") { }
+        npc_mortar_soldier_or_rocketeer() : MS::Game::Scripting::Interfaces::CreatureScript("npc_mortar_soldier_or_rocketeer") { }
 
         struct npc_mortar_soldier_or_rocketeerAI : public Scripted_NoMovementAI
         {
@@ -1935,10 +1935,10 @@ class npc_mortar_soldier_or_rocketeer : public CreatureScript
         }
 };
 
-class npc_zafod_boombox : public CreatureScript
+class npc_zafod_boombox : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_zafod_boombox() : CreatureScript("npc_zafod_boombox") { }
+        npc_zafod_boombox() : MS::Game::Scripting::Interfaces::CreatureScript("npc_zafod_boombox") { }
 
         bool OnGossipHello(Player* player, Creature* creature)
         {
@@ -1982,10 +1982,10 @@ class npc_zafod_boombox : public CreatureScript
 };
 
 //
-class npc_saurfang_gunship : public CreatureScript
+class npc_saurfang_gunship : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_saurfang_gunship() : CreatureScript("npc_saurfang_gunship") { }
+        npc_saurfang_gunship() : MS::Game::Scripting::Interfaces::CreatureScript("npc_saurfang_gunship") { }
 
         bool OnGossipHello(Player* player, Creature* creature)
         {
@@ -2417,10 +2417,10 @@ class npc_saurfang_gunship : public CreatureScript
         }
 };
 
-class npc_gunship_portal : public CreatureScript
+class npc_gunship_portal : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_gunship_portal() : CreatureScript("npc_gunship_portal") { }
+        npc_gunship_portal() : MS::Game::Scripting::Interfaces::CreatureScript("npc_gunship_portal") { }
 
         struct npc_gunship_portalAI : public Scripted_NoMovementAI
         {
@@ -2469,10 +2469,10 @@ class npc_gunship_portal : public CreatureScript
 };
 
 
-class npc_gunship_trigger : public CreatureScript
+class npc_gunship_trigger : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_gunship_trigger() : CreatureScript("npc_gunship_trigger") { }
+        npc_gunship_trigger() : MS::Game::Scripting::Interfaces::CreatureScript("npc_gunship_trigger") { }
 
         struct npc_gunship_triggerAI : public Scripted_NoMovementAI
         {
@@ -2519,10 +2519,10 @@ class npc_gunship_trigger : public CreatureScript
 /* ----------------------------------- Rampart of Skulls NPCs ----------------------------------- */
 
 /* Kor'kron Primalist  37030*/
-class npc_korkron_primalist: public CreatureScript
+class npc_korkron_primalist : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_korkron_primalist() : CreatureScript("npc_korkron_primalist") { }
+        npc_korkron_primalist() : MS::Game::Scripting::Interfaces::CreatureScript("npc_korkron_primalist") { }
 
         struct npc_korkron_primalistAI : public ScriptedAI
         {
@@ -2637,10 +2637,10 @@ class npc_korkron_primalist: public CreatureScript
 };
 
 /* Kor'kron Defender  37032*/
-class npc_korkron_defender: public CreatureScript
+class npc_korkron_defender : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_korkron_defender() : CreatureScript("npc_korkron_defender") { }
+        npc_korkron_defender() : MS::Game::Scripting::Interfaces::CreatureScript("npc_korkron_defender") { }
 
         struct npc_korkron_defenderAI : public ScriptedAI
         {
@@ -2750,10 +2750,10 @@ class npc_korkron_defender: public CreatureScript
 };
 
 /* Skybreaker Vindicator  37003*/
-class npc_skybreaker_vindicator: public CreatureScript
+class npc_skybreaker_vindicator : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_skybreaker_vindicator() : CreatureScript("npc_skybreaker_vindicator") { }
+        npc_skybreaker_vindicator() : MS::Game::Scripting::Interfaces::CreatureScript("npc_skybreaker_vindicator") { }
 
         struct npc_skybreaker_vindicatorAI : public ScriptedAI
         {
@@ -2856,10 +2856,10 @@ class npc_skybreaker_vindicator: public CreatureScript
 };
 
 /* Skybreaker Protector  36998*/
-class npc_skybreaker_protector: public CreatureScript
+class npc_skybreaker_protector : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_skybreaker_protector() : CreatureScript("npc_skybreaker_protector") { }
+        npc_skybreaker_protector() : MS::Game::Scripting::Interfaces::CreatureScript("npc_skybreaker_protector") { }
 
         struct npc_skybreaker_protectorAI : public ScriptedAI
         {
@@ -2973,10 +2973,10 @@ class npc_skybreaker_protector: public CreatureScript
 
 
 /* Spire Frostwyrm  37230*/
-class npc_icc_spire_frostwyrm: public CreatureScript
+class npc_icc_spire_frostwyrm : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_icc_spire_frostwyrm() : CreatureScript("npc_icc_spire_frostwyrm") { }
+        npc_icc_spire_frostwyrm() : MS::Game::Scripting::Interfaces::CreatureScript("npc_icc_spire_frostwyrm") { }
 
         struct npc_icc_spire_frostwyrmAI : public ScriptedAI
         {
@@ -3071,10 +3071,10 @@ class npc_icc_spire_frostwyrm: public CreatureScript
 };
 
 /* ---------------------------------- AreaTrigger Scripts ------------------------------------- */
-class at_icc_land_frostwyrm : public AreaTriggerScript
+class at_icc_land_frostwyrm : public MS::Game::Scripting::Interfaces::AreaTriggerScript
 {
     public:
-        at_icc_land_frostwyrm() : AreaTriggerScript("at_icc_land_frostwyrm") { }
+        at_icc_land_frostwyrm() : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_icc_land_frostwyrm") { }
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* areaTrigger)
         {
@@ -3096,10 +3096,10 @@ class at_icc_land_frostwyrm : public AreaTriggerScript
 };
 
 /* transport script */
-class transport_gunship : public TransportScript
+class transport_gunship : public MS::Game::Scripting::Interfaces::TransportScript
 {
     public:
-        transport_gunship() : TransportScript("transport_gunship") { }
+        transport_gunship() : MS::Game::Scripting::Interfaces::TransportScript("transport_gunship") { }
 
         void OnRelocate(Transport* transport, uint32 waypointId, uint32 mapId, float x, float y, float z)
         {
@@ -3134,10 +3134,10 @@ class transport_gunship : public TransportScript
 };
 
 /* Remove Rocket Pack - 70713 */
-class spell_icc_remove_rocket_pack : public SpellScriptLoader
+class spell_icc_remove_rocket_pack: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_icc_remove_rocket_pack() : SpellScriptLoader("spell_icc_remove_rocket_pack") { }
+        spell_icc_remove_rocket_pack() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_icc_remove_rocket_pack") { }
 
         class spell_icc_remove_rocket_pack_SpellScript : public SpellScript
         {
@@ -3167,10 +3167,10 @@ class spell_icc_remove_rocket_pack : public SpellScriptLoader
 };
 
 /* spell 69471 Heat Drain */
-class spell_gb_heat_drain : public SpellScriptLoader
+class spell_gb_heat_drain: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gb_heat_drain() : SpellScriptLoader("spell_gb_heat_drain") { }
+        spell_gb_heat_drain() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gb_heat_drain") { }
 
         class spell_gb_heat_drain_SpellScript : public SpellScript
         {
@@ -3200,10 +3200,10 @@ class spell_gb_heat_drain : public SpellScriptLoader
 };
 
 /* spell 69488 Overheat Drain */
-class spell_gb_overheat_drain : public SpellScriptLoader
+class spell_gb_overheat_drain: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gb_overheat_drain() : SpellScriptLoader("spell_gb_overheat_drain") { }
+        spell_gb_overheat_drain() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gb_overheat_drain") { }
 
         class spell_gb_overheat_drain_SpellScript : public SpellScript
         {
@@ -3230,10 +3230,10 @@ class spell_gb_overheat_drain : public SpellScriptLoader
 };
 
 /* spell 69402 Incinerating Blast */
-class spell_gb_incinerating_blast : public SpellScriptLoader
+class spell_gb_incinerating_blast: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gb_incinerating_blast() : SpellScriptLoader("spell_gb_incinerating_blast") { }
+        spell_gb_incinerating_blast() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gb_incinerating_blast") { }
 
         class spell_gb_incinerating_blast_SpellScript : public SpellScript
         {
@@ -3262,10 +3262,10 @@ class spell_gb_incinerating_blast : public SpellScriptLoader
 };
 
 /* spell 71335, 70339 Burning Pitch */
-class spell_gb_burning_pitch : public SpellScriptLoader
+class spell_gb_burning_pitch: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gb_burning_pitch() : SpellScriptLoader("spell_gb_burning_pitch") { }
+        spell_gb_burning_pitch() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gb_burning_pitch") { }
 
         class spell_gb_burning_pitch_SpellScript : public SpellScript
         {
@@ -3311,10 +3311,10 @@ class spell_gb_burning_pitch : public SpellScriptLoader
 };
 
 /* spell 68645 Rocket Pack */
-class spell_rocket_pack : public SpellScriptLoader
+class spell_rocket_pack: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rocket_pack() : SpellScriptLoader("spell_rocket_pack") { }
+        spell_rocket_pack() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rocket_pack") { }
 
         class spell_rocket_pack_AuraScript : public AuraScript
         {

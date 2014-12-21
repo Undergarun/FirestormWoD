@@ -148,10 +148,10 @@ enum Phases
     PHASE_SUBMERGED         = 3 
 };
 
-class boss_gormok : public CreatureScript
+class boss_gormok : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_gormok() : CreatureScript("boss_gormok") { }
+        boss_gormok() : MS::Game::Scripting::Interfaces::CreatureScript("boss_gormok") { }
 
         struct boss_gormokAI : public BossAI
         {
@@ -287,10 +287,10 @@ class boss_gormok : public CreatureScript
         }
 };
 
-class mob_snobold_vassal : public CreatureScript
+class mob_snobold_vassal : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_snobold_vassal() : CreatureScript("mob_snobold_vassal") { }
+        mob_snobold_vassal() : MS::Game::Scripting::Interfaces::CreatureScript("mob_snobold_vassal") { }
 
         struct mob_snobold_vassalAI : public ScriptedAI
         {
@@ -460,10 +460,10 @@ class mob_snobold_vassal : public CreatureScript
         }
 };
 
-class npc_firebomb : public CreatureScript
+class npc_firebomb : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_firebomb() : CreatureScript("npc_firebomb") { }
+        npc_firebomb() : MS::Game::Scripting::Interfaces::CreatureScript("npc_firebomb") { }
 
         struct npc_firebombAI : public ScriptedAI
         {
@@ -687,10 +687,10 @@ struct boss_jormungarAI : public BossAI
         bool WasMobile;
 };
 
-class boss_acidmaw : public CreatureScript
+class boss_acidmaw : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_acidmaw() : CreatureScript("boss_acidmaw") { }
+        boss_acidmaw() : MS::Game::Scripting::Interfaces::CreatureScript("boss_acidmaw") { }
 
         struct boss_acidmawAI : public boss_jormungarAI
         {
@@ -718,10 +718,10 @@ class boss_acidmaw : public CreatureScript
         }
 };
 
-class boss_dreadscale : public CreatureScript
+class boss_dreadscale : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_dreadscale() : CreatureScript("boss_dreadscale") { }
+        boss_dreadscale() : MS::Game::Scripting::Interfaces::CreatureScript("boss_dreadscale") { }
 
         struct boss_dreadscaleAI : public boss_jormungarAI
         {
@@ -785,10 +785,10 @@ class boss_dreadscale : public CreatureScript
         }
 };
 
-class mob_slime_pool : public CreatureScript
+class mob_slime_pool : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_slime_pool() : CreatureScript("mob_slime_pool") { }
+        mob_slime_pool() : MS::Game::Scripting::Interfaces::CreatureScript("mob_slime_pool") { }
 
         struct mob_slime_poolAI : public ScriptedAI
         {
@@ -826,10 +826,10 @@ class mob_slime_pool : public CreatureScript
         }
 };
 
-class spell_gormok_fire_bomb : public SpellScriptLoader
+class spell_gormok_fire_bomb: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gormok_fire_bomb() : SpellScriptLoader("spell_gormok_fire_bomb") {}
+        spell_gormok_fire_bomb() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gormok_fire_bomb") {}
 
         class spell_gormok_fire_bomb_SpellScript : public SpellScript
         {
@@ -856,10 +856,10 @@ class spell_gormok_fire_bomb : public SpellScriptLoader
         }
 };
 
-class boss_icehowl : public CreatureScript
+class boss_icehowl : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_icehowl() : CreatureScript("boss_icehowl") { }
+        boss_icehowl() : MS::Game::Scripting::Interfaces::CreatureScript("boss_icehowl") { }
 
         struct boss_icehowlAI : public BossAI
         {

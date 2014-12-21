@@ -52,10 +52,10 @@ enum eRaliq
     FACTION_HOSTILE_RD      = 45
 };
 
-class npc_raliq_the_drunk : public CreatureScript
+class npc_raliq_the_drunk : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_raliq_the_drunk() : CreatureScript("npc_raliq_the_drunk") { }
+    npc_raliq_the_drunk() : MS::Game::Scripting::Interfaces::CreatureScript("npc_raliq_the_drunk") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
@@ -125,10 +125,10 @@ public:
 
 #define SPELL_MAGNETIC_PULL             31705
 
-class npc_salsalabim : public CreatureScript
+class npc_salsalabim : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_salsalabim() : CreatureScript("npc_salsalabim") { }
+    npc_salsalabim() : MS::Game::Scripting::Interfaces::CreatureScript("npc_salsalabim") { }
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
@@ -201,10 +201,10 @@ Purchase requires exalted reputation with Scryers/Aldor, Cenarion Expedition and
 ##################################################
 */
 
-class npc_shattrathflaskvendors : public CreatureScript
+class npc_shattrathflaskvendors : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_shattrathflaskvendors() : CreatureScript("npc_shattrathflaskvendors") { }
+    npc_shattrathflaskvendors() : MS::Game::Scripting::Interfaces::CreatureScript("npc_shattrathflaskvendors") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
@@ -255,10 +255,10 @@ public:
 
 #define GOSSIP_HZ "Take me to the Caverns of Time."
 
-class npc_zephyr : public CreatureScript
+class npc_zephyr : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_zephyr() : CreatureScript("npc_zephyr") { }
+    npc_zephyr() : MS::Game::Scripting::Interfaces::CreatureScript("npc_zephyr") { }
 
     bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
     {
@@ -306,10 +306,10 @@ public:
 #define WHISP19    -1000253
 #define WHISP20    -1000254
 #define WHISP21    -1000255
-class npc_kservant : public CreatureScript
+class npc_kservant : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_kservant() : CreatureScript("npc_kservant") { }
+    npc_kservant() : MS::Game::Scripting::Interfaces::CreatureScript("npc_kservant") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -438,10 +438,10 @@ public:
 #define NPC_CREEPJACK   19726
 #define NPC_MALONE      19725
 
-class npc_dirty_larry : public CreatureScript
+class npc_dirty_larry : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_dirty_larry() : CreatureScript("npc_dirty_larry") { }
+    npc_dirty_larry() : MS::Game::Scripting::Interfaces::CreatureScript("npc_dirty_larry") { }
 
     struct npc_dirty_larryAI : public ScriptedAI
     {
@@ -620,10 +620,10 @@ public:
 #define ISANAH_GOSSIP_1 "Who are the Sha'tar?"
 #define ISANAH_GOSSIP_2 "Isn't Shattrath a draenei city? Why do you allow others here?"
 
-class npc_ishanah : public CreatureScript
+class npc_ishanah : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_ishanah() : CreatureScript("npc_ishanah") { }
+    npc_ishanah() : MS::Game::Scripting::Interfaces::CreatureScript("npc_ishanah") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
@@ -661,10 +661,10 @@ public:
 #define KHADGAR_GOSSIP_5    "What happened next?"
 #define KHADGAR_GOSSIP_7    "There was something else I wanted to ask you."
 
-class npc_khadgar : public CreatureScript
+class npc_khadgar : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_khadgar() : CreatureScript("npc_khadgar") { }
+    npc_khadgar() : MS::Game::Scripting::Interfaces::CreatureScript("npc_khadgar") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {

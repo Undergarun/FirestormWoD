@@ -29,10 +29,10 @@ EndScriptData */
 
 #define GENERIC_CREATURE_COOLDOWN   5000
 
-class generic_creature : public CreatureScript
+class generic_creature : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    generic_creature() : CreatureScript("generic_creature") { }
+    generic_creature() : MS::Game::Scripting::Interfaces::CreatureScript("generic_creature") { }
 
     struct generic_creatureAI : public ScriptedAI
     {
@@ -169,10 +169,10 @@ public:
     }
 };
 
-class trigger_periodic : public CreatureScript
+class trigger_periodic : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    trigger_periodic() : CreatureScript("trigger_periodic") { }
+    trigger_periodic() : MS::Game::Scripting::Interfaces::CreatureScript("trigger_periodic") { }
 
     struct trigger_periodicAI : public NullCreatureAI
     {
@@ -205,10 +205,10 @@ public:
     }
 };
 
-class trigger_death : public CreatureScript
+class trigger_death : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    trigger_death() : CreatureScript("trigger_death") { }
+    trigger_death() : MS::Game::Scripting::Interfaces::CreatureScript("trigger_death") { }
 
     struct trigger_deathAI : public NullCreatureAI
     {
@@ -226,10 +226,10 @@ public:
     }
 };
 
-class npc_gilthares_firebough : public CreatureScript
+class npc_gilthares_firebough : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_gilthares_firebough() : CreatureScript("npc_gilthares_firebough")
+        npc_gilthares_firebough() : MS::Game::Scripting::Interfaces::CreatureScript("npc_gilthares_firebough")
         {
         }
 

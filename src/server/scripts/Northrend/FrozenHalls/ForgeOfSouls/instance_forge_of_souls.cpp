@@ -25,10 +25,10 @@
 1- The Devourer of Souls
 */
 
-class instance_forge_of_souls : public InstanceMapScript
+class instance_forge_of_souls : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
     public:
-        instance_forge_of_souls() : InstanceMapScript(FoSScriptName, 632) { }
+        instance_forge_of_souls() : MS::Game::Scripting::Interfaces::InstanceMapScript(FoSScriptName, 632) { }
 
         struct instance_forge_of_souls_InstanceScript : public InstanceScript
         {

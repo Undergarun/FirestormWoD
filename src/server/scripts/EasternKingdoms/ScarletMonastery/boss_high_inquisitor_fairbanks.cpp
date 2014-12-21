@@ -36,10 +36,10 @@ enum eSpells
     SPELL_SLEEP                     = 8399
 };
 
-class boss_high_inquisitor_fairbanks : public CreatureScript
+class boss_high_inquisitor_fairbanks : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_high_inquisitor_fairbanks() : CreatureScript("boss_high_inquisitor_fairbanks") { }
+    boss_high_inquisitor_fairbanks() : MS::Game::Scripting::Interfaces::CreatureScript("boss_high_inquisitor_fairbanks") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

@@ -8,10 +8,10 @@
 
 Position snowdriftCenterPos = {3659.08f, 3015.38f, 804.74f};
 
-class instance_shadopan_monastery : public InstanceMapScript
+class instance_shadopan_monastery : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
 public:
-    instance_shadopan_monastery() : InstanceMapScript("instance_shadopan_monastery", 959) { }
+    instance_shadopan_monastery() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_shadopan_monastery", 959) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {

@@ -33,10 +33,10 @@ enum Yells
     SAY_DEATH                                              = -1048000
 };
 
-class boss_kelris : public CreatureScript
+class boss_kelris : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_kelris() : CreatureScript("boss_kelris") { }
+    boss_kelris() : MS::Game::Scripting::Interfaces::CreatureScript("boss_kelris") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

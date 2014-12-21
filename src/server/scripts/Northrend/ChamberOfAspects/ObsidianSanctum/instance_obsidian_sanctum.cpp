@@ -25,10 +25,10 @@
 0 - Sartharion
 */
 
-class instance_obsidian_sanctum : public InstanceMapScript
+class instance_obsidian_sanctum : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
 public:
-    instance_obsidian_sanctum() : InstanceMapScript("instance_obsidian_sanctum", 615) { }
+    instance_obsidian_sanctum() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_obsidian_sanctum", 615) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {

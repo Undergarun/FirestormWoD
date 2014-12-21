@@ -16,12 +16,12 @@ enum
     GARRISON_PHASE_BASE             = 0x0001,
 };
 
-class instance_Garrison_H1 : public InstanceMapScript
+class instance_Garrison_H1 : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
     public:
         /// Constructor
         instance_Garrison_H1()
-            : InstanceMapScript("instance_Garrison_H1", 1158)
+            : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_Garrison_H1", 1158)
         {
 
         }

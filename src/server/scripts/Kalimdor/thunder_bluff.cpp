@@ -42,10 +42,10 @@ enum CairneBloodhoof
 
 #define GOSSIP_HCB "I know this is rather silly but a young ward who is a bit shy would like your hoofprint."
 //TODO: verify abilities/timers
-class npc_cairne_bloodhoof : public CreatureScript
+class npc_cairne_bloodhoof : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_cairne_bloodhoof() : CreatureScript("npc_cairne_bloodhoof") { }
+    npc_cairne_bloodhoof() : MS::Game::Scripting::Interfaces::CreatureScript("npc_cairne_bloodhoof") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

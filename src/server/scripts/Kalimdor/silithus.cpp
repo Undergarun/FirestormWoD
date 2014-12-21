@@ -46,10 +46,10 @@ EndContentData */
 #define GOSSIP_DEMITRIAN6 "Caught unaware? How?"
 #define GOSSIP_DEMITRIAN7 "So what did Ragnaros do next?"
 
-class npc_highlord_demitrian : public CreatureScript
+class npc_highlord_demitrian : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_highlord_demitrian() : CreatureScript("npc_highlord_demitrian") { }
+    npc_highlord_demitrian() : MS::Game::Scripting::Interfaces::CreatureScript("npc_highlord_demitrian") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
@@ -133,10 +133,10 @@ enum RutgarAndFrankal //trigger creatures to kill
     TRIGGER_RUTGAR      = 15222
 };
 
-class npcs_rutgar_and_frankal : public CreatureScript
+class npcs_rutgar_and_frankal : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npcs_rutgar_and_frankal() : CreatureScript("npcs_rutgar_and_frankal") { }
+    npcs_rutgar_and_frankal() : MS::Game::Scripting::Interfaces::CreatureScript("npcs_rutgar_and_frankal") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
@@ -337,10 +337,10 @@ enum WSTexts
 #define GOSSIP_ROYAL_AIR "High Marshal Whirlaxis! I hold your signet! Heed my call!"
 #define GOSSIP_ROYAL_WATER "Lord Skwol! I hold your signet! Heed my call!"
 
-class go_wind_stone : public GameObjectScript
+class go_wind_stone : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
     public:
-        go_wind_stone() : GameObjectScript("go_wind_stone") { }
+        go_wind_stone() : MS::Game::Scripting::Interfaces::GameObjectScript("go_wind_stone") { }
 
     private:
         uint8 GetPlayerRank(Player* player) // For random summoning

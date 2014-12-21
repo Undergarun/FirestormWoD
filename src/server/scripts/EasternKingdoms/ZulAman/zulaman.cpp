@@ -67,7 +67,7 @@ const Position posTurnPoint = {232.83f, 1367.78f, 48.58f, 1.79f};
 const Position posDownPoint = {227.75f, 1460.83f, 25.98f, 4.75f};
 const Position posUpPoint   = {280.12f, 1380.63f, 49.35f, 3.46f};
 
-class npc_zulaman_forest_frog : public CreatureScript
+class npc_zulaman_forest_frog : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
         
@@ -76,7 +76,7 @@ class npc_zulaman_forest_frog : public CreatureScript
             return new npc_zulaman_forest_frogAI(pCreature);
         }
 
-        npc_zulaman_forest_frog() : CreatureScript("npc_zulaman_forest_frog") { }
+        npc_zulaman_forest_frog() : MS::Game::Scripting::Interfaces::CreatureScript("npc_zulaman_forest_frog") { }
 
         struct npc_zulaman_forest_frogAI : public ScriptedAI
         {
@@ -160,10 +160,10 @@ class npc_zulaman_forest_frog : public CreatureScript
         };
 };
 
-class go_strange_gong : public GameObjectScript
+class go_strange_gong : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
     public:
-        go_strange_gong() : GameObjectScript("go_strange_gong") {}
+        go_strange_gong() : MS::Game::Scripting::Interfaces::GameObjectScript("go_strange_gong") {}
         
         bool OnGossipHello(Player* pPlayer, GameObject* pGo)
         {
@@ -175,10 +175,10 @@ class go_strange_gong : public GameObjectScript
         }
 };
 
-class npc_amanishi_tempest : public CreatureScript
+class npc_amanishi_tempest : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_amanishi_tempest() : CreatureScript("npc_amanishi_tempest") { }
+        npc_amanishi_tempest() : MS::Game::Scripting::Interfaces::CreatureScript("npc_amanishi_tempest") { }
         
         CreatureAI* GetAI(Creature* pCreature) const
         {

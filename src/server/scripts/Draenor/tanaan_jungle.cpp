@@ -28,10 +28,10 @@
 // /!\ IN PROGRESS ! /!\
 
 // Archmage Khadgar - 78558 (Main quest giver/taker)
-class npc_archmage_khadgar : public CreatureScript
+class npc_archmage_khadgar : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_archmage_khadgar() : CreatureScript("npc_archmage_khadgar")
+        npc_archmage_khadgar() : MS::Game::Scripting::Interfaces::CreatureScript("npc_archmage_khadgar")
         {
         }
 
@@ -69,10 +69,10 @@ class npc_archmage_khadgar : public CreatureScript
 };
 
 // 82188 - Mumper (Horde defenser)
-class npc_mumper : public CreatureScript
+class npc_mumper : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_mumper() : CreatureScript("npc_mumper") { }
+        npc_mumper() : MS::Game::Scripting::Interfaces::CreatureScript("npc_mumper") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -126,10 +126,10 @@ class npc_mumper : public CreatureScript
 };
 
 // 81990 - Moriccalas (Horde defenser)
-class npc_moriccalas : public CreatureScript
+class npc_moriccalas : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_moriccalas() : CreatureScript("npc_moriccalas") { }
+        npc_moriccalas() : MS::Game::Scripting::Interfaces::CreatureScript("npc_moriccalas") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -183,10 +183,10 @@ class npc_moriccalas : public CreatureScript
 };
 
 // 82007 - Tore (Horde defenser)
-class npc_tore : public CreatureScript
+class npc_tore : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_tore() : CreatureScript("npc_tore") { }
+        npc_tore() : MS::Game::Scripting::Interfaces::CreatureScript("npc_tore") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -245,10 +245,10 @@ class npc_tore : public CreatureScript
 };
 
 // 82010 - Bonesaw (Horde defenser)
-class npc_bonesaw : public CreatureScript
+class npc_bonesaw : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_bonesaw() : CreatureScript("npc_bonesaw") { }
+        npc_bonesaw() : MS::Game::Scripting::Interfaces::CreatureScript("npc_bonesaw") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -307,10 +307,10 @@ class npc_bonesaw : public CreatureScript
 };
 
 // 81994 - Corselle (Horde defenser)
-class npc_corselle : public CreatureScript
+class npc_corselle : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_corselle() : CreatureScript("npc_corselle") { }
+        npc_corselle() : MS::Game::Scripting::Interfaces::CreatureScript("npc_corselle") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -369,10 +369,10 @@ class npc_corselle : public CreatureScript
 };
 
 // 82011 - Northpaul (Horde defenser)
-class npc_northpaul : public CreatureScript
+class npc_northpaul : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_northpaul() : CreatureScript("npc_northpaul") { }
+        npc_northpaul() : MS::Game::Scripting::Interfaces::CreatureScript("npc_northpaul") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -426,10 +426,10 @@ class npc_northpaul : public CreatureScript
 };
 
 // 81997 - Roague (Horde defenser)
-class npc_roague : public CreatureScript
+class npc_roague : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_roague() : CreatureScript("npc_roague") { }
+        npc_roague() : MS::Game::Scripting::Interfaces::CreatureScript("npc_roague") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -480,10 +480,10 @@ class npc_roague : public CreatureScript
 };
 
 // 82082 - Racy (Horde defenser)
-class npc_racy : public CreatureScript
+class npc_racy : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_racy() : CreatureScript("npc_racy") { }
+        npc_racy() : MS::Game::Scripting::Interfaces::CreatureScript("npc_racy") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -534,10 +534,10 @@ class npc_racy : public CreatureScript
 };
 
 // 82191 - High Warlord Shoju (Horde defenser)
-class npc_high_warlord_shoju : public CreatureScript
+class npc_high_warlord_shoju : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_high_warlord_shoju() : CreatureScript("npc_high_warlord_shoju") { }
+        npc_high_warlord_shoju() : MS::Game::Scripting::Interfaces::CreatureScript("npc_high_warlord_shoju") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -588,10 +588,10 @@ class npc_high_warlord_shoju : public CreatureScript
 };
 
 // 83538 - Warsong Commander (ennemy)
-class npc_warsong_commander : public CreatureScript
+class npc_warsong_commander : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_warsong_commander() : CreatureScript("npc_warsong_commander") { }
+        npc_warsong_commander() : MS::Game::Scripting::Interfaces::CreatureScript("npc_warsong_commander") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -621,10 +621,10 @@ class npc_warsong_commander : public CreatureScript
 };
 
 // 78883 - Iron Grunt (ennemy)
-class npc_iron_grunt : public CreatureScript
+class npc_iron_grunt : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_iron_grunt() : CreatureScript("npc_iron_grunt") { }
+        npc_iron_grunt() : MS::Game::Scripting::Interfaces::CreatureScript("npc_iron_grunt") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -725,10 +725,10 @@ class npc_iron_grunt : public CreatureScript
 };
 
 // 82484 - Iron Gronnling (ennemy)
-class npc_iron_gronnling : public CreatureScript
+class npc_iron_gronnling : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_iron_gronnling() : CreatureScript("npc_iron_gronnling") { }
+        npc_iron_gronnling() : MS::Game::Scripting::Interfaces::CreatureScript("npc_iron_gronnling") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -758,10 +758,10 @@ class npc_iron_gronnling : public CreatureScript
 };
 
 // 81711 - ShadowMoon Ritualist (ennemy)
-class npc_shadowmoon_ritualist : public CreatureScript
+class npc_shadowmoon_ritualist : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_shadowmoon_ritualist() : CreatureScript("npc_shadowmoon_ritualist") { }
+        npc_shadowmoon_ritualist() : MS::Game::Scripting::Interfaces::CreatureScript("npc_shadowmoon_ritualist") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -788,10 +788,10 @@ class npc_shadowmoon_ritualist : public CreatureScript
 };
 
 // 237670/237667 - Dark Portal
-class go_platform_tanaan : public GameObjectScript
+class go_platform_tanaan : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
     public:
-        go_platform_tanaan() : GameObjectScript("go_platform_tanaan") { }
+        go_platform_tanaan() : MS::Game::Scripting::Interfaces::GameObjectScript("go_platform_tanaan") { }
 
         struct go_platform_tanaanAI : public GameObjectAI
         {

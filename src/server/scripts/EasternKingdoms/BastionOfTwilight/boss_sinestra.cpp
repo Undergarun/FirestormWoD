@@ -229,10 +229,10 @@ class ExactDistanceCheck
         float _dist;
 };
 
-class boss_sinestra : public CreatureScript
+class boss_sinestra : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_sinestra() : CreatureScript("boss_sinestra") { }
+        boss_sinestra() : MS::Game::Scripting::Interfaces::CreatureScript("boss_sinestra") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -598,10 +598,10 @@ class boss_sinestra : public CreatureScript
         };
 };
 
-class npc_sinestra_calen : public CreatureScript
+class npc_sinestra_calen : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_sinestra_calen() : CreatureScript("npc_sinestra_calen") { }
+        npc_sinestra_calen() : MS::Game::Scripting::Interfaces::CreatureScript("npc_sinestra_calen") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -706,10 +706,10 @@ class npc_sinestra_calen : public CreatureScript
         };
 };
 
-class npc_sinestra_twilight_whelp : public CreatureScript
+class npc_sinestra_twilight_whelp : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_sinestra_twilight_whelp() : CreatureScript("npc_sinestra_twilight_whelp") { }
+        npc_sinestra_twilight_whelp() : MS::Game::Scripting::Interfaces::CreatureScript("npc_sinestra_twilight_whelp") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -785,10 +785,10 @@ class npc_sinestra_twilight_whelp : public CreatureScript
         };
 };
 
-class npc_sinestra_twilight_flames : public CreatureScript
+class npc_sinestra_twilight_flames : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_sinestra_twilight_flames() : CreatureScript("npc_sinestra_twilight_flames") { }
+        npc_sinestra_twilight_flames() : MS::Game::Scripting::Interfaces::CreatureScript("npc_sinestra_twilight_flames") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -810,10 +810,10 @@ class npc_sinestra_twilight_flames : public CreatureScript
         };
 };
 
-class npc_sinestra_twilight_essence : public CreatureScript
+class npc_sinestra_twilight_essence : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_sinestra_twilight_essence() : CreatureScript("npc_sinestra_twilight_essence") { }
+        npc_sinestra_twilight_essence() : MS::Game::Scripting::Interfaces::CreatureScript("npc_sinestra_twilight_essence") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -859,10 +859,10 @@ class npc_sinestra_twilight_essence : public CreatureScript
         };
 };
 
-class npc_sinestra_barrier_stalker : public CreatureScript
+class npc_sinestra_barrier_stalker : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_sinestra_barrier_stalker() : CreatureScript("npc_sinestra_barrier_stalker") { }
+        npc_sinestra_barrier_stalker() : MS::Game::Scripting::Interfaces::CreatureScript("npc_sinestra_barrier_stalker") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -896,10 +896,10 @@ class npc_sinestra_barrier_stalker : public CreatureScript
         };
 };
 
-class npc_sinestra_shadow_orb : public CreatureScript
+class npc_sinestra_shadow_orb : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_sinestra_shadow_orb() : CreatureScript("npc_sinestra_shadow_orb") { }
+        npc_sinestra_shadow_orb() : MS::Game::Scripting::Interfaces::CreatureScript("npc_sinestra_shadow_orb") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -958,10 +958,10 @@ class npc_sinestra_shadow_orb : public CreatureScript
         };
 };
 
-class npc_sinestra_pulsing_twilight_egg : public CreatureScript
+class npc_sinestra_pulsing_twilight_egg : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_sinestra_pulsing_twilight_egg() : CreatureScript("npc_sinestra_pulsing_twilight_egg") { }
+        npc_sinestra_pulsing_twilight_egg() : MS::Game::Scripting::Interfaces::CreatureScript("npc_sinestra_pulsing_twilight_egg") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -1007,9 +1007,9 @@ class npc_sinestra_pulsing_twilight_egg : public CreatureScript
         };
 };
 
-class npc_sinestra_twilight_spitecaller : public CreatureScript{
+class npc_sinestra_twilight_spitecaller : public MS::Game::Scripting::Interfaces::CreatureScript{
     public:
-        npc_sinestra_twilight_spitecaller() : CreatureScript("npc_sinestra_twilight_spitecaller") { }
+        npc_sinestra_twilight_spitecaller() : MS::Game::Scripting::Interfaces::CreatureScript("npc_sinestra_twilight_spitecaller") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -1061,9 +1061,9 @@ class npc_sinestra_twilight_spitecaller : public CreatureScript{
         };
 };
 
-class npc_sinestra_twilight_drake : public CreatureScript{
+class npc_sinestra_twilight_drake : public MS::Game::Scripting::Interfaces::CreatureScript{
     public:
-        npc_sinestra_twilight_drake() : CreatureScript("npc_sinestra_twilight_drake") { }
+        npc_sinestra_twilight_drake() : MS::Game::Scripting::Interfaces::CreatureScript("npc_sinestra_twilight_drake") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -1135,10 +1135,10 @@ class npc_sinestra_twilight_drake : public CreatureScript{
         };
 };
 
-class spell_sinestra_wrack : public SpellScriptLoader
+class spell_sinestra_wrack: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sinestra_wrack() : SpellScriptLoader("spell_sinestra_wrack") { }
+        spell_sinestra_wrack() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sinestra_wrack") { }
 
         class spell_sinestra_wrack_AuraScript : public AuraScript
         {
@@ -1188,10 +1188,10 @@ class spell_sinestra_wrack : public SpellScriptLoader
         }
 };
 
-class spell_sinestra_twilight_extinction : public SpellScriptLoader
+class spell_sinestra_twilight_extinction: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sinestra_twilight_extinction() : SpellScriptLoader("spell_sinestra_twilight_extinction") { }
+        spell_sinestra_twilight_extinction() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sinestra_twilight_extinction") { }
 
         class spell_sinestra_twilight_extinction_AuraScript : public AuraScript
         {
@@ -1217,10 +1217,10 @@ class spell_sinestra_twilight_extinction : public SpellScriptLoader
         }
 };
 
-class spell_sinestra_indomitable : public SpellScriptLoader
+class spell_sinestra_indomitable: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sinestra_indomitable() : SpellScriptLoader("spell_sinestra_indomitable") { }
+        spell_sinestra_indomitable() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sinestra_indomitable") { }
 
         class spell_sinestra_indomitable_AuraScript : public AuraScript
         {
@@ -1260,10 +1260,10 @@ class spell_sinestra_indomitable : public SpellScriptLoader
         }
 };
 
-class spell_sinestra_indomitable_aura : public SpellScriptLoader
+class spell_sinestra_indomitable_aura: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sinestra_indomitable_aura() : SpellScriptLoader("spell_sinestra_indomitable_aura") { }
+        spell_sinestra_indomitable_aura() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sinestra_indomitable_aura") { }
 
         class spell_sinestra_indomitable_aura_AuraScript : public AuraScript
         {
@@ -1298,10 +1298,10 @@ class spell_sinestra_indomitable_aura : public SpellScriptLoader
         }
 };
 
-class spell_sinestra_mana_barrier : public SpellScriptLoader
+class spell_sinestra_mana_barrier: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sinestra_mana_barrier() : SpellScriptLoader("spell_sinestra_mana_barrier") { }
+        spell_sinestra_mana_barrier() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sinestra_mana_barrier") { }
 
         class spell_sinestra_mana_barrier_AuraScript : public AuraScript
         {
@@ -1333,10 +1333,10 @@ class spell_sinestra_mana_barrier : public SpellScriptLoader
         }
 };
 
-class spell_sinestra_pyrrhic_focus : public SpellScriptLoader
+class spell_sinestra_pyrrhic_focus: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sinestra_pyrrhic_focus() : SpellScriptLoader("spell_sinestra_pyrrhic_focus") { }
+        spell_sinestra_pyrrhic_focus() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sinestra_pyrrhic_focus") { }
 
         class spell_sinestra_pyrrhic_focus_AuraScript : public AuraScript
         {
@@ -1367,10 +1367,10 @@ class spell_sinestra_pyrrhic_focus : public SpellScriptLoader
         }
 };
 
-class spell_sinestra_twilight_slicer : public SpellScriptLoader
+class spell_sinestra_twilight_slicer: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sinestra_twilight_slicer() : SpellScriptLoader("spell_sinestra_twilight_slicer") { }
+        spell_sinestra_twilight_slicer() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sinestra_twilight_slicer") { }
 
         class spell_sinestra_twilight_slicer_SpellScript : public SpellScript
         {
@@ -1405,10 +1405,10 @@ class spell_sinestra_twilight_slicer : public SpellScriptLoader
         }
 };
 
-class spell_sinestra_twilight_essence : public SpellScriptLoader
+class spell_sinestra_twilight_essence: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sinestra_twilight_essence() : SpellScriptLoader("spell_sinestra_twilight_essence") { }
+        spell_sinestra_twilight_essence() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sinestra_twilight_essence") { }
 
         class spell_sinestra_twilight_essence_SpellScript : public SpellScript
         {
@@ -1456,10 +1456,10 @@ class spell_sinestra_twilight_essence : public SpellScriptLoader
         }
 };
 
-class achievement_i_cant_hear_you_over_the_sound_of_how_awesome_i_am : public AchievementCriteriaScript
+class achievement_i_cant_hear_you_over_the_sound_of_how_awesome_i_am : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_i_cant_hear_you_over_the_sound_of_how_awesome_i_am() : AchievementCriteriaScript("achievement_i_cant_hear_you_over_the_sound_of_how_awesome_i_am") { }
+        achievement_i_cant_hear_you_over_the_sound_of_how_awesome_i_am() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_i_cant_hear_you_over_the_sound_of_how_awesome_i_am") { }
 
         bool OnCheck(Player* source, Unit* target)
         {

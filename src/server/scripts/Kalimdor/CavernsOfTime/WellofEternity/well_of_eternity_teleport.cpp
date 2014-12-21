@@ -16,10 +16,10 @@ enum InstanceTeleporter
     WOE_TELEPORT            = 3,
 };
 
-class go_well_of_eternity_teleport : public GameObjectScript
+class go_well_of_eternity_teleport : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
     public:
-        go_well_of_eternity_teleport() : GameObjectScript("go_well_of_eternity_teleport") { }
+        go_well_of_eternity_teleport() : MS::Game::Scripting::Interfaces::GameObjectScript("go_well_of_eternity_teleport") { }
 
         bool OnGossipHello(Player* pPlayer, GameObject* pGo)
         {

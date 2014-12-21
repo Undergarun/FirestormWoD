@@ -67,10 +67,10 @@ const Position servitorPos[MAX_SERVITOR] =
     {4739.72f, 84.1997f, 107.23f, 5.30915f}*/
 };
 
-class boss_arcurion : public CreatureScript
+class boss_arcurion : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_arcurion() : CreatureScript("boss_arcurion") { }
+        boss_arcurion() : MS::Game::Scripting::Interfaces::CreatureScript("boss_arcurion") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -223,10 +223,10 @@ class boss_arcurion : public CreatureScript
         };   
 };
 
-class npc_arcurion_frozen_servitor : public CreatureScript
+class npc_arcurion_frozen_servitor : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_arcurion_frozen_servitor() : CreatureScript("npc_arcurion_frozen_servitor") { }
+        npc_arcurion_frozen_servitor() : MS::Game::Scripting::Interfaces::CreatureScript("npc_arcurion_frozen_servitor") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -265,10 +265,10 @@ class npc_arcurion_frozen_servitor : public CreatureScript
         };   
 };
 
-class spell_arcurion_icy_boulder : public SpellScriptLoader
+class spell_arcurion_icy_boulder: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_arcurion_icy_boulder() : SpellScriptLoader("spell_arcurion_icy_boulder") { }
+        spell_arcurion_icy_boulder() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_arcurion_icy_boulder") { }
 
         class spell_arcurion_icy_boulder_SpellScript : public SpellScript
         {

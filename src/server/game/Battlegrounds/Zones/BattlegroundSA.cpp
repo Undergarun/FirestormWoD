@@ -1027,10 +1027,10 @@ void BattlegroundSA::UpdateDemolisherSpawns()
 /// - The Blightbringer   - 193183
 /// - The Coffin Carrier  - 193184
 /// - The Frostbreaker    - 193185
-class go_sa_boat : public GameObjectScript
+class go_sa_boat : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
     public:
-        go_sa_boat() : GameObjectScript("go_sa_boat") {}
+        go_sa_boat() : MS::Game::Scripting::Interfaces::GameObjectScript("go_sa_boat") {}
 
         bool OnGameObjectElevatorCheck(GameObject const* p_GameObject) const
         {

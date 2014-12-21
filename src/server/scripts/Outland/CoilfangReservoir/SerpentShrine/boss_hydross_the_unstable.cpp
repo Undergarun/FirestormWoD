@@ -77,10 +77,10 @@ EndScriptData */
 #define SPAWN_X_DIFF4               12.577011f
 #define SPAWN_Y_DIFF4               4.72702f
 
-class boss_hydross_the_unstable : public CreatureScript
+class boss_hydross_the_unstable : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_hydross_the_unstable() : CreatureScript("boss_hydross_the_unstable") { }
+    boss_hydross_the_unstable() : MS::Game::Scripting::Interfaces::CreatureScript("boss_hydross_the_unstable") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

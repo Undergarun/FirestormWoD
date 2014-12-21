@@ -34,10 +34,10 @@ EndScriptData */
 
 #define SPELL_DIRTMOUND_PASSIVE 26092
 
-class boss_ouro : public CreatureScript
+class boss_ouro : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_ouro() : CreatureScript("boss_ouro") { }
+    boss_ouro() : MS::Game::Scripting::Interfaces::CreatureScript("boss_ouro") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

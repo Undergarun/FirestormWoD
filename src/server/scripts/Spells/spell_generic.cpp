@@ -35,10 +35,10 @@
 #include "LFGMgr.h"
 #include "Player.h"
 
-class spell_gen_absorb0_hitlimit1 : public SpellScriptLoader
+class spell_gen_absorb0_hitlimit1: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_absorb0_hitlimit1() : SpellScriptLoader("spell_gen_absorb0_hitlimit1") { }
+        spell_gen_absorb0_hitlimit1() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_absorb0_hitlimit1") { }
 
         class spell_gen_absorb0_hitlimit1_AuraScript : public AuraScript
         {
@@ -71,10 +71,10 @@ class spell_gen_absorb0_hitlimit1 : public SpellScriptLoader
 };
 
 // 41337 Aura of Anger
-class spell_gen_aura_of_anger : public SpellScriptLoader
+class spell_gen_aura_of_anger: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_aura_of_anger() : SpellScriptLoader("spell_gen_aura_of_anger") { }
+        spell_gen_aura_of_anger() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_aura_of_anger") { }
 
         class spell_gen_aura_of_anger_AuraScript : public AuraScript
         {
@@ -99,10 +99,10 @@ class spell_gen_aura_of_anger : public SpellScriptLoader
         }
 };
 
-class spell_gen_av_drekthar_presence : public SpellScriptLoader
+class spell_gen_av_drekthar_presence: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_av_drekthar_presence() : SpellScriptLoader("spell_gen_av_drekthar_presence") { }
+        spell_gen_av_drekthar_presence() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_av_drekthar_presence") { }
 
         class spell_gen_av_drekthar_presence_AuraScript : public AuraScript
         {
@@ -143,10 +143,10 @@ class spell_gen_av_drekthar_presence : public SpellScriptLoader
 };
 
 // 46394 Brutallus Burn
-class spell_gen_burn_brutallus : public SpellScriptLoader
+class spell_gen_burn_brutallus: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_burn_brutallus() : SpellScriptLoader("spell_gen_burn_brutallus") { }
+        spell_gen_burn_brutallus() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_burn_brutallus") { }
 
         class spell_gen_burn_brutallus_AuraScript : public AuraScript
         {
@@ -175,10 +175,10 @@ enum CannibalizeSpells
     SPELL_CANNIBALIZE_TRIGGERED = 20578,
 };
 
-class spell_gen_cannibalize : public SpellScriptLoader
+class spell_gen_cannibalize: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_cannibalize() : SpellScriptLoader("spell_gen_cannibalize") { }
+        spell_gen_cannibalize() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_cannibalize") { }
 
         class spell_gen_cannibalize_SpellScript : public SpellScript
         {
@@ -231,10 +231,10 @@ enum ParachuteSpells
     SPELL_PARACHUTE_BUFF    = 44795,
 };
 
-class spell_gen_parachute : public SpellScriptLoader
+class spell_gen_parachute: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_parachute() : SpellScriptLoader("spell_gen_parachute") { }
+        spell_gen_parachute() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_parachute") { }
 
         class spell_gen_parachute_AuraScript : public AuraScript
         {
@@ -276,10 +276,10 @@ enum NPCEntries
     NPC_IMP         = 416,
 };
 
-class spell_gen_pet_summoned : public SpellScriptLoader
+class spell_gen_pet_summoned: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_pet_summoned() : SpellScriptLoader("spell_gen_pet_summoned") { }
+        spell_gen_pet_summoned() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_pet_summoned") { }
 
         class spell_gen_pet_summoned_SpellScript : public SpellScript
         {
@@ -336,10 +336,10 @@ class spell_gen_pet_summoned : public SpellScriptLoader
         }
 };
 
-class spell_gen_remove_flight_auras : public SpellScriptLoader
+class spell_gen_remove_flight_auras: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_remove_flight_auras() : SpellScriptLoader("spell_gen_remove_flight_auras") {}
+        spell_gen_remove_flight_auras() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_remove_flight_auras") {}
 
         class spell_gen_remove_flight_auras_SpellScript : public SpellScript
         {
@@ -373,10 +373,10 @@ enum LeechingSwarmSpells
     SPELL_LEECHING_SWARM_HEAL   = 66125,
 };
 
-class spell_gen_leeching_swarm : public SpellScriptLoader
+class spell_gen_leeching_swarm: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_leeching_swarm() : SpellScriptLoader("spell_gen_leeching_swarm") { }
+        spell_gen_leeching_swarm() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_leeching_swarm") { }
 
         class spell_gen_leeching_swarm_AuraScript : public AuraScript
         {
@@ -430,10 +430,10 @@ enum EluneCandle
     SPELL_ELUNE_CANDLE_NORMAL      = 26636,
 };
 
-class spell_gen_elune_candle : public SpellScriptLoader
+class spell_gen_elune_candle: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_elune_candle() : SpellScriptLoader("spell_gen_elune_candle") {}
+        spell_gen_elune_candle() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_elune_candle") {}
 
         class spell_gen_elune_candle_SpellScript : public SpellScript
         {
@@ -485,10 +485,10 @@ class spell_gen_elune_candle : public SpellScriptLoader
         }
 };
 
-class spell_creature_permanent_feign_death : public SpellScriptLoader
+class spell_creature_permanent_feign_death: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_creature_permanent_feign_death() : SpellScriptLoader("spell_creature_permanent_feign_death") { }
+        spell_creature_permanent_feign_death() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_creature_permanent_feign_death") { }
 
         class spell_creature_permanent_feign_death_AuraScript : public AuraScript
         {
@@ -522,10 +522,10 @@ enum PvPTrinketTriggeredSpells
     SPELL_WILL_OF_THE_FORSAKEN_COOLDOWN_TRIGGER_WOTF    = 72757,
 };
 
-class spell_pvp_trinket_wotf_shared_cd : public SpellScriptLoader
+class spell_pvp_trinket_wotf_shared_cd: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pvp_trinket_wotf_shared_cd() : SpellScriptLoader("spell_pvp_trinket_wotf_shared_cd") {}
+        spell_pvp_trinket_wotf_shared_cd() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pvp_trinket_wotf_shared_cd") {}
 
         class spell_pvp_trinket_wotf_shared_cd_SpellScript : public SpellScript
         {
@@ -568,10 +568,10 @@ enum AnimalBloodPoolSpell
     SPELL_SPAWN_BLOOD_POOL  = 63471,
 };
 
-class spell_gen_animal_blood : public SpellScriptLoader
+class spell_gen_animal_blood: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_animal_blood() : SpellScriptLoader("spell_gen_animal_blood") { }
+        spell_gen_animal_blood() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_animal_blood") { }
 
         class spell_gen_animal_blood_AuraScript : public AuraScript
         {
@@ -617,10 +617,10 @@ enum DivineStormSpell
 };
 
 // 70769 Divine Storm!
-class spell_gen_divine_storm_cd_reset : public SpellScriptLoader
+class spell_gen_divine_storm_cd_reset: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_divine_storm_cd_reset() : SpellScriptLoader("spell_gen_divine_storm_cd_reset") {}
+        spell_gen_divine_storm_cd_reset() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_divine_storm_cd_reset") {}
 
         class spell_gen_divine_storm_cd_reset_SpellScript : public SpellScript
         {
@@ -657,10 +657,10 @@ class spell_gen_divine_storm_cd_reset : public SpellScriptLoader
         }
 };
 
-class spell_gen_gunship_portal : public SpellScriptLoader
+class spell_gen_gunship_portal: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_gunship_portal() : SpellScriptLoader("spell_gen_gunship_portal") { }
+        spell_gen_gunship_portal() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_gunship_portal") { }
 
         class spell_gen_gunship_portal_SpellScript : public SpellScript
         {
@@ -696,10 +696,10 @@ enum parachuteIC
     SPELL_PARACHUTE_IC = 66657,
 };
 
-class spell_gen_parachute_ic : public SpellScriptLoader
+class spell_gen_parachute_ic: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_parachute_ic() : SpellScriptLoader("spell_gen_parachute_ic") { }
+        spell_gen_parachute_ic() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_parachute_ic") { }
 
         class spell_gen_parachute_ic_AuraScript : public AuraScript
         {
@@ -724,10 +724,10 @@ class spell_gen_parachute_ic : public SpellScriptLoader
         }
 };
 
-class spell_gen_dungeon_credit : public SpellScriptLoader
+class spell_gen_dungeon_credit: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_dungeon_credit() : SpellScriptLoader("spell_gen_dungeon_credit") { }
+        spell_gen_dungeon_credit() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_dungeon_credit") { }
 
         class spell_gen_dungeon_credit_SpellScript : public SpellScript
         {
@@ -765,10 +765,10 @@ class spell_gen_dungeon_credit : public SpellScriptLoader
         }
 };
 
-class spell_gen_profession_research : public SpellScriptLoader
+class spell_gen_profession_research: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_profession_research() : SpellScriptLoader("spell_gen_profession_research") {}
+        spell_gen_profession_research() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_profession_research") {}
 
         class spell_gen_profession_research_SpellScript : public SpellScript
         {
@@ -802,10 +802,10 @@ class spell_gen_profession_research : public SpellScriptLoader
         }
 };
 
-class spell_generic_clone : public SpellScriptLoader
+class spell_generic_clone: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_generic_clone() : SpellScriptLoader("spell_generic_clone") { }
+        spell_generic_clone() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_generic_clone") { }
 
         class spell_generic_clone_SpellScript : public SpellScript
         {
@@ -843,10 +843,10 @@ enum CloneWeaponSpells
     SPELL_COPY_RANGED_AURA       = 57594
 };
 
-class spell_generic_clone_weapon : public SpellScriptLoader
+class spell_generic_clone_weapon: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_generic_clone_weapon() : SpellScriptLoader("spell_generic_clone_weapon") { }
+        spell_generic_clone_weapon() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_generic_clone_weapon") { }
 
         class spell_generic_clone_weapon_SpellScript : public SpellScript
         {
@@ -877,10 +877,10 @@ class spell_generic_clone_weapon : public SpellScriptLoader
                 }
 };
 
-class spell_gen_clone_weapon_aura : public SpellScriptLoader
+class spell_gen_clone_weapon_aura: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_clone_weapon_aura() : SpellScriptLoader("spell_gen_clone_weapon_aura") { }
+        spell_gen_clone_weapon_aura() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_clone_weapon_aura") { }
 
             class spell_gen_clone_weapon_auraScript : public AuraScript
             {
@@ -1001,10 +1001,10 @@ enum SeaforiumSpells
     SPELL_PLANT_CHARGES_CREDIT_ACHIEVEMENT = 60937,
 };
 
-class spell_gen_seaforium_blast : public SpellScriptLoader
+class spell_gen_seaforium_blast: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_seaforium_blast() : SpellScriptLoader("spell_gen_seaforium_blast") {}
+        spell_gen_seaforium_blast() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_seaforium_blast") {}
 
         class spell_gen_seaforium_blast_SpellScript : public SpellScript
         {
@@ -1049,10 +1049,10 @@ enum FriendOrFowl
     SPELL_TURKEY_VENGEANCE  = 25285,
 };
 
-class spell_gen_turkey_marker : public SpellScriptLoader
+class spell_gen_turkey_marker: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_turkey_marker() : SpellScriptLoader("spell_gen_turkey_marker") { }
+        spell_gen_turkey_marker() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_turkey_marker") { }
 
         class spell_gen_turkey_marker_AuraScript : public AuraScript
         {
@@ -1101,10 +1101,10 @@ enum MagicRoosterSpells
     SPELL_MAGIC_ROOSTER_TAUREN_MALE     = 66124,
 };
 
-class spell_gen_magic_rooster : public SpellScriptLoader
+class spell_gen_magic_rooster: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_magic_rooster() : SpellScriptLoader("spell_gen_magic_rooster") { }
+        spell_gen_magic_rooster() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_magic_rooster") { }
 
         class spell_gen_magic_rooster_SpellScript : public SpellScript
         {
@@ -1149,10 +1149,10 @@ class spell_gen_magic_rooster : public SpellScriptLoader
         }
 };
 
-class spell_gen_allow_cast_from_item_only : public SpellScriptLoader
+class spell_gen_allow_cast_from_item_only: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_allow_cast_from_item_only() : SpellScriptLoader("spell_gen_allow_cast_from_item_only") { }
+        spell_gen_allow_cast_from_item_only() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_allow_cast_from_item_only") { }
 
         class spell_gen_allow_cast_from_item_only_SpellScript : public SpellScript
         {
@@ -1182,10 +1182,10 @@ enum Launch
     SPELL_LAUNCH_NO_FALLING_DAMAGE = 66251
 };
 
-class spell_gen_launch : public SpellScriptLoader
+class spell_gen_launch: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_launch() : SpellScriptLoader("spell_gen_launch") {}
+        spell_gen_launch() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_launch") {}
 
         class spell_gen_launch_SpellScript : public SpellScript
         {
@@ -1234,10 +1234,10 @@ enum VehicleScaling
     SPELL_GEAR_SCALING      = 66668,
 };
 
-class spell_gen_vehicle_scaling : public SpellScriptLoader
+class spell_gen_vehicle_scaling: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_vehicle_scaling() : SpellScriptLoader("spell_gen_vehicle_scaling") { }
+        spell_gen_vehicle_scaling() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_vehicle_scaling") { }
 
         class spell_gen_vehicle_scaling_SpellScript : public SpellScript
         {
@@ -1312,10 +1312,10 @@ class spell_gen_vehicle_scaling : public SpellScriptLoader
         }
 };
 
-class spell_gen_oracle_wolvar_reputation : public SpellScriptLoader
+class spell_gen_oracle_wolvar_reputation: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_oracle_wolvar_reputation() : SpellScriptLoader("spell_gen_oracle_wolvar_reputation") { }
+        spell_gen_oracle_wolvar_reputation() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_oracle_wolvar_reputation") { }
 
         class spell_gen_oracle_wolvar_reputation_SpellScript : public SpellScript
         {
@@ -1357,10 +1357,10 @@ class spell_gen_oracle_wolvar_reputation : public SpellScriptLoader
         }
 };
 
-class spell_gen_luck_of_the_draw : public SpellScriptLoader
+class spell_gen_luck_of_the_draw: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_luck_of_the_draw() : SpellScriptLoader("spell_gen_luck_of_the_draw") { }
+        spell_gen_luck_of_the_draw() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_luck_of_the_draw") { }
 
         class spell_gen_luck_of_the_draw_AuraScript : public AuraScript
         {
@@ -1425,10 +1425,10 @@ enum DummyTrigger
     SPELL_PERSISTANT_SHIELD                 = 26467,
 };
 
-class spell_gen_dummy_trigger : public SpellScriptLoader
+class spell_gen_dummy_trigger: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_dummy_trigger() : SpellScriptLoader("spell_gen_dummy_trigger") { }
+        spell_gen_dummy_trigger() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_dummy_trigger") { }
 
         class spell_gen_dummy_trigger_SpellScript : public SpellScript
         {
@@ -1464,10 +1464,10 @@ class spell_gen_dummy_trigger : public SpellScriptLoader
 
 };
 
-class spell_gen_spirit_healer_res : public SpellScriptLoader
+class spell_gen_spirit_healer_res: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_spirit_healer_res(): SpellScriptLoader("spell_gen_spirit_healer_res") { }
+        spell_gen_spirit_healer_res(): MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_spirit_healer_res") { }
 
         class spell_gen_spirit_healer_res_SpellScript : public SpellScript
         {
@@ -1511,10 +1511,10 @@ enum TransporterBackfires
     SPELL_TRANSPORTER_MALFUNCTION_MISS          = 36902,
 };
 
-class spell_gen_gadgetzan_transporter_backfire : public SpellScriptLoader
+class spell_gen_gadgetzan_transporter_backfire: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_gadgetzan_transporter_backfire() : SpellScriptLoader("spell_gen_gadgetzan_transporter_backfire") { }
+        spell_gen_gadgetzan_transporter_backfire() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_gadgetzan_transporter_backfire") { }
 
         class spell_gen_gadgetzan_transporter_backfire_SpellScript : public SpellScript
         {
@@ -1558,10 +1558,10 @@ enum GnomishTransporter
     SPELL_TRANSPORTER_FAILURE                   = 23446,
 };
 
-class spell_gen_gnomish_transporter : public SpellScriptLoader
+class spell_gen_gnomish_transporter: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_gnomish_transporter() : SpellScriptLoader("spell_gen_gnomish_transporter") { }
+        spell_gen_gnomish_transporter() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_gnomish_transporter") { }
 
         class spell_gen_gnomish_transporter_SpellScript : public SpellScript
         {
@@ -1603,10 +1603,10 @@ enum DalaranDisguiseSpells
     SPELL_SILVER_COVENANT_DISGUISE_MALE    = 70972,
 };
 
-class spell_gen_dalaran_disguise : public SpellScriptLoader
+class spell_gen_dalaran_disguise: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_dalaran_disguise(const char* name) : SpellScriptLoader(name) {}
+        spell_gen_dalaran_disguise(const char* name) : MS::Game::Scripting::Interfaces::SpellScriptLoader(name) {}
 
         class spell_gen_dalaran_disguise_SpellScript : public SpellScript
         {
@@ -1695,10 +1695,10 @@ enum BreakShieldSpells
     SPELL_BREAK_SHIELD_TRIGGER_UNK               = 66480,
 };
 
-class spell_gen_break_shield: public SpellScriptLoader
+class spell_gen_break_shield: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_break_shield(const char* name) : SpellScriptLoader(name) {}
+        spell_gen_break_shield(const char* name) : MS::Game::Scripting::Interfaces::SpellScriptLoader(name) {}
 
         class spell_gen_break_shield_SpellScript : public SpellScript
         {
@@ -1821,10 +1821,10 @@ enum ChargeSpells
     SPELL_CHARGE_MISS_EFFECT            = 62977,
 };
 
-class spell_gen_mounted_charge: public SpellScriptLoader
+class spell_gen_mounted_charge: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_mounted_charge() : SpellScriptLoader("spell_gen_mounted_charge") { }
+        spell_gen_mounted_charge() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_mounted_charge") { }
 
         class spell_gen_mounted_charge_SpellScript : public SpellScript
         {
@@ -1939,10 +1939,10 @@ enum DefendVisuals
     SPELL_VISUAL_SHIELD_3 = 63132,
 };
 
-class spell_gen_defend : public SpellScriptLoader
+class spell_gen_defend: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_defend() : SpellScriptLoader("spell_gen_defend") { }
+        spell_gen_defend() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_defend") { }
 
         class spell_gen_defend_AuraScript : public AuraScript
         {
@@ -2024,10 +2024,10 @@ enum MountedDuelSpells
     SPELL_MOUNTED_DUEL        = 62875,
 };
 
-class spell_gen_tournament_duel : public SpellScriptLoader
+class spell_gen_tournament_duel: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_tournament_duel() : SpellScriptLoader("spell_gen_tournament_duel") { }
+        spell_gen_tournament_duel() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_tournament_duel") { }
 
         class spell_gen_tournament_duel_SpellScript : public SpellScript
         {
@@ -2076,10 +2076,10 @@ enum TournamentMountsSpells
     SPELL_LANCE_EQUIPPED = 62853,
 };
 
-class spell_gen_summon_tournament_mount : public SpellScriptLoader
+class spell_gen_summon_tournament_mount: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_summon_tournament_mount() : SpellScriptLoader("spell_gen_summon_tournament_mount") { }
+        spell_gen_summon_tournament_mount() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_summon_tournament_mount") { }
 
         class spell_gen_summon_tournament_mount_SpellScript : public SpellScript
         {
@@ -2213,10 +2213,10 @@ enum TournamentQuestsAchievements
     QUEST_A_VALIANT_OF_SILVERMOON      = 13696,
 };
 
-class spell_gen_on_tournament_mount : public SpellScriptLoader
+class spell_gen_on_tournament_mount: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_on_tournament_mount() : SpellScriptLoader("spell_gen_on_tournament_mount") { }
+        spell_gen_on_tournament_mount() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_on_tournament_mount") { }
 
         class spell_gen_on_tournament_mount_AuraScript : public AuraScript
         {
@@ -2371,10 +2371,10 @@ class spell_gen_on_tournament_mount : public SpellScriptLoader
         }
 };
 
-class spell_gen_tournament_pennant : public SpellScriptLoader
+class spell_gen_tournament_pennant: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_tournament_pennant() : SpellScriptLoader("spell_gen_tournament_pennant") { }
+        spell_gen_tournament_pennant() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_tournament_pennant") { }
 
         class spell_gen_tournament_pennant_AuraScript : public AuraScript
         {
@@ -2409,10 +2409,10 @@ enum ChaosBlast
     SPELL_CHAOS_BLAST   = 37675,
 };
 
-class spell_gen_chaos_blast : public SpellScriptLoader
+class spell_gen_chaos_blast: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_chaos_blast() : SpellScriptLoader("spell_gen_chaos_blast") { }
+        spell_gen_chaos_blast() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_chaos_blast") { }
 
         class spell_gen_chaos_blast_SpellScript : public SpellScript
         {
@@ -2445,10 +2445,10 @@ class spell_gen_chaos_blast : public SpellScriptLoader
 
 };
 
-class spell_gen_wg_water : public SpellScriptLoader
+class spell_gen_wg_water: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_wg_water() : SpellScriptLoader("spell_gen_wg_water") {}
+        spell_gen_wg_water() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_wg_water") {}
 
         class spell_gen_wg_water_SpellScript : public SpellScript
         {
@@ -2473,10 +2473,10 @@ class spell_gen_wg_water : public SpellScriptLoader
         }
 };
 
-class spell_gen_count_pct_from_max_hp : public SpellScriptLoader
+class spell_gen_count_pct_from_max_hp: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_count_pct_from_max_hp(char const* name, int32 damagePct = 0) : SpellScriptLoader(name), _damagePct(damagePct) { }
+        spell_gen_count_pct_from_max_hp(char const* name, int32 damagePct = 0) : MS::Game::Scripting::Interfaces::SpellScriptLoader(name), _damagePct(damagePct) { }
 
         class spell_gen_count_pct_from_max_hp_SpellScript : public SpellScript
         {
@@ -2511,10 +2511,10 @@ class spell_gen_count_pct_from_max_hp : public SpellScriptLoader
         int32 _damagePct;
 };
 
-class spell_gen_despawn_self : public SpellScriptLoader
+class spell_gen_despawn_self: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_gen_despawn_self() : SpellScriptLoader("spell_gen_despawn_self") { }
+    spell_gen_despawn_self() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_despawn_self") { }
 
     class spell_gen_despawn_self_SpellScript : public SpellScript
     {
@@ -2543,10 +2543,10 @@ public:
     }
 };
 
-class spell_gen_touch_the_nightmare : public SpellScriptLoader
+class spell_gen_touch_the_nightmare: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_gen_touch_the_nightmare() : SpellScriptLoader("spell_gen_touch_the_nightmare") { }
+    spell_gen_touch_the_nightmare() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_touch_the_nightmare") { }
 
     class spell_gen_touch_the_nightmare_SpellScript : public SpellScript
     {
@@ -2570,10 +2570,10 @@ public:
     }
 };
 
-class spell_gen_dream_funnel: public SpellScriptLoader
+class spell_gen_dream_funnel: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_gen_dream_funnel() : SpellScriptLoader("spell_gen_dream_funnel") { }
+    spell_gen_dream_funnel() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_dream_funnel") { }
 
     class spell_gen_dream_funnel_AuraScript : public AuraScript
     {
@@ -2605,10 +2605,10 @@ enum GenericBandage
     SPELL_RECENTLY_BANDAGED = 11196,
 };
 
-class spell_gen_bandage : public SpellScriptLoader
+class spell_gen_bandage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_bandage() : SpellScriptLoader("spell_gen_bandage") { }
+        spell_gen_bandage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_bandage") { }
 
         class spell_gen_bandage_SpellScript : public SpellScript
         {
@@ -2659,10 +2659,10 @@ enum GenericLifebloom
     SPELL_FACTION_CHAMPIONS_DRU_LIFEBLOOM_FINAL_HEAL    = 66094,
 };
 
-class spell_gen_lifebloom : public SpellScriptLoader
+class spell_gen_lifebloom: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_lifebloom(const char* name, uint32 spellId) : SpellScriptLoader(name), _spellId(spellId) { }
+        spell_gen_lifebloom(const char* name, uint32 spellId) : MS::Game::Scripting::Interfaces::SpellScriptLoader(name), _spellId(spellId) { }
 
         class spell_gen_lifebloom_AuraScript : public AuraScript
         {
@@ -2712,10 +2712,10 @@ enum SummonElemental
     SPELL_SUMMON_EARTH_ELEMENTAL = 19704
 };
 
-class spell_gen_summon_elemental : public SpellScriptLoader
+class spell_gen_summon_elemental: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_summon_elemental(const char* name, uint32 spellId) : SpellScriptLoader(name), _spellId(spellId) { }
+        spell_gen_summon_elemental(const char* name, uint32 spellId) : MS::Game::Scripting::Interfaces::SpellScriptLoader(name), _spellId(spellId) { }
 
         class spell_gen_summon_elemental_AuraScript : public AuraScript
         {
@@ -2825,10 +2825,10 @@ enum Mounts
     SPELL_X53_TOURING_ROCKET_310        = 76154,
 };
 
-class spell_gen_mount : public SpellScriptLoader
+class spell_gen_mount: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_mount(const char* name, uint32 mount0 = 0, uint32 mount60 = 0, uint32 mount100 = 0, uint32 mount150 = 0, uint32 mount280 = 0, uint32 mount310 = 0) : SpellScriptLoader(name),
+        spell_gen_mount(const char* name, uint32 mount0 = 0, uint32 mount60 = 0, uint32 mount100 = 0, uint32 mount150 = 0, uint32 mount280 = 0, uint32 mount310 = 0) : MS::Game::Scripting::Interfaces::SpellScriptLoader(name),
             _mount0(mount0), _mount60(mount60), _mount100(mount100), _mount150(mount150), _mount280(mount280), _mount310(mount310) { }
 
         class spell_gen_mount_SpellScript : public SpellScript
@@ -2961,10 +2961,10 @@ enum FoamSword
     SPELL_ON_GUARD = 62972,
 };
 
-class spell_gen_upper_deck_create_foam_sword : public SpellScriptLoader
+class spell_gen_upper_deck_create_foam_sword: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_gen_upper_deck_create_foam_sword() : SpellScriptLoader("spell_gen_upper_deck_create_foam_sword") { }
+    spell_gen_upper_deck_create_foam_sword() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_upper_deck_create_foam_sword") { }
 
     class spell_gen_upper_deck_create_foam_sword_SpellScript : public SpellScript
     {
@@ -2998,10 +2998,10 @@ public:
     }
 };
 
-class spell_gen_bonked : public SpellScriptLoader
+class spell_gen_bonked: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_gen_bonked() : SpellScriptLoader("spell_gen_bonked") { }
+    spell_gen_bonked() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_bonked") { }
 
     class spell_gen_bonked_SpellScript : public SpellScript
     {
@@ -3039,10 +3039,10 @@ public:
 };
 
 // TP to Stormwind (17334) or Orgrimmar (17609)
-class spell_gen_tp_storm_orgri : public SpellScriptLoader
+class spell_gen_tp_storm_orgri: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_tp_storm_orgri() : SpellScriptLoader("spell_gen_tp_storm_orgri") { }
+        spell_gen_tp_storm_orgri() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_tp_storm_orgri") { }
 
         class spell_gen_tp_storm_orgri_SpellScript : public SpellScript
         {
@@ -3081,10 +3081,10 @@ class spell_gen_tp_storm_orgri : public SpellScriptLoader
 };
 
 // Gift of the Naaru - 59548 or 59547 or 59545 or 59544 or 59543 or 59542 or 121093 or 28880
-class spell_gen_gift_of_the_naaru : public SpellScriptLoader
+class spell_gen_gift_of_the_naaru: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_gift_of_the_naaru() : SpellScriptLoader("spell_gen_gift_of_the_naaru") { }
+        spell_gen_gift_of_the_naaru() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_gift_of_the_naaru") { }
 
         class spell_gen_gift_of_the_naaru_AuraScript : public AuraScript
         {
@@ -3117,10 +3117,10 @@ enum RunningWildMountIds
     SPELL_ALTERED_FORM          = 97709,
 };
 
-class spell_gen_running_wild : public SpellScriptLoader
+class spell_gen_running_wild: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_running_wild() : SpellScriptLoader("spell_gen_running_wild") { }
+        spell_gen_running_wild() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_running_wild") { }
 
         class spell_gen_running_wild_AuraScript : public AuraScript
         {
@@ -3188,10 +3188,10 @@ class spell_gen_running_wild : public SpellScriptLoader
         }
 };
 
-class spell_gen_two_forms : public SpellScriptLoader
+class spell_gen_two_forms: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_two_forms() : SpellScriptLoader("spell_gen_two_forms") { }
+        spell_gen_two_forms() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_two_forms") { }
 
         class spell_gen_two_forms_SpellScript : public SpellScript
         {
@@ -3238,10 +3238,10 @@ class spell_gen_two_forms : public SpellScriptLoader
         }
 };
 
-class spell_gen_darkflight : public SpellScriptLoader
+class spell_gen_darkflight: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_darkflight() : SpellScriptLoader("spell_gen_darkflight") { }
+        spell_gen_darkflight() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_darkflight") { }
 
         class spell_gen_darkflight_SpellScript : public SpellScript
         {
@@ -3265,10 +3265,10 @@ class spell_gen_darkflight : public SpellScriptLoader
 };
 
 // Blood Fury - 20572 or Blood Fury - 33702
-class spell_gen_blood_fury : public SpellScriptLoader
+class spell_gen_blood_fury: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_blood_fury() : SpellScriptLoader("spell_gen_blood_fury") { }
+        spell_gen_blood_fury() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_blood_fury") { }
 
         class spell_gen_blood_fury_SpellScript : public SpellScript
         {
@@ -3298,10 +3298,10 @@ class spell_gen_blood_fury : public SpellScriptLoader
 #define GOBELING_GUMBO_BURP 42755
 
 // Gobelin Gumbo - 42760
-class spell_gen_gobelin_gumbo : public SpellScriptLoader
+class spell_gen_gobelin_gumbo: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_gobelin_gumbo() : SpellScriptLoader("spell_gen_gobelin_gumbo") { }
+        spell_gen_gobelin_gumbo() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_gobelin_gumbo") { }
 
         class spell_gen_gobelin_gumbo_AuraScript : public AuraScript
         {
@@ -3358,10 +3358,10 @@ enum magePolymorphForms
 };
 
 // TODO: move out of here and rename - not a mage spell
-class spell_mage_polymorph_cast_visual : public SpellScriptLoader
+class spell_mage_polymorph_cast_visual: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_mage_polymorph_cast_visual() : SpellScriptLoader("spell_mage_polymorph_visual") { }
+        spell_mage_polymorph_cast_visual() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mage_polymorph_visual") { }
 
         class spell_mage_polymorph_cast_visual_SpellScript : public SpellScript
         {
@@ -3409,10 +3409,10 @@ const uint32 spell_mage_polymorph_cast_visual::spell_mage_polymorph_cast_visual_
 };
 
 // Hardened Shell - 129787
-class spell_gen_hardened_shell : public SpellScriptLoader
+class spell_gen_hardened_shell: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_hardened_shell() : SpellScriptLoader("spell_gen_hardened_shell") { }
+        spell_gen_hardened_shell() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_hardened_shell") { }
 
         class spell_gen_hardened_shell_AuraScript : public AuraScript
         {
@@ -3445,10 +3445,10 @@ class spell_gen_hardened_shell : public SpellScriptLoader
         }
 };
 
-class spell_gen_ds_flush_knockback : public SpellScriptLoader
+class spell_gen_ds_flush_knockback: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_ds_flush_knockback() : SpellScriptLoader("spell_gen_ds_flush_knockback") {}
+        spell_gen_ds_flush_knockback() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_ds_flush_knockback") {}
 
         class spell_gen_ds_flush_knockback_SpellScript : public SpellScript
         {
@@ -3486,10 +3486,10 @@ class spell_gen_ds_flush_knockback : public SpellScriptLoader
 };
 
 // Orb of Power - 121164 / 121175 / 121176 / 121177
-class spell_gen_orb_of_power : public SpellScriptLoader
+class spell_gen_orb_of_power: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gen_orb_of_power() : SpellScriptLoader("spell_gen_orb_of_power") { }
+        spell_gen_orb_of_power() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gen_orb_of_power") { }
 
         class spell_gen_orb_of_power_AuraScript : public AuraScript
         {
@@ -3539,10 +3539,10 @@ class spell_gen_orb_of_power : public SpellScriptLoader
 };
 
 // Whispers of Insanity - 176151, custom script, that buff is used to reward player vote
-class spell_vote_buff : public SpellScriptLoader
+class spell_vote_buff: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_vote_buff() : SpellScriptLoader("spell_vote_buff") { }
+    spell_vote_buff() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_vote_buff") { }
 
     class spell_vote_buff_AuraScript : public AuraScript
     {

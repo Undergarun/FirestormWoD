@@ -28,10 +28,10 @@ EndScriptData */
 #include "ObjectMgr.h"
 #include "TicketMgr.h"
 
-class ticket_commandscript : public CommandScript
+class ticket_commandscript: public MS::Game::Scripting::Interfaces::CommandScript
 {
 public:
-    ticket_commandscript() : CommandScript("ticket_commandscript") { }
+    ticket_commandscript() : MS::Game::Scripting::Interfaces::CommandScript("ticket_commandscript") { }
 
     ChatCommand* GetCommands() const
     {

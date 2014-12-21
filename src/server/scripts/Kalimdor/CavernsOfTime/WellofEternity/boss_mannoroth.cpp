@@ -140,10 +140,10 @@ const Position stalkerPos[3] =
     {3339.81f, -5698.5f, 15.5043f, 3.97935f},
 };
 
-class boss_mannoroth : public CreatureScript
+class boss_mannoroth : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_mannoroth() : CreatureScript("boss_mannoroth") { }
+        boss_mannoroth() : MS::Game::Scripting::Interfaces::CreatureScript("boss_mannoroth") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -475,10 +475,10 @@ class boss_mannoroth : public CreatureScript
         };
 };
 
-class npc_mannoroth_varothen : public CreatureScript
+class npc_mannoroth_varothen : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_mannoroth_varothen() : CreatureScript("npc_mannoroth_varothen") { }
+        npc_mannoroth_varothen() : MS::Game::Scripting::Interfaces::CreatureScript("npc_mannoroth_varothen") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -581,10 +581,10 @@ class npc_mannoroth_varothen : public CreatureScript
         };
 };
 
-class npc_mannoroth_doomguard_debilitator : public CreatureScript
+class npc_mannoroth_doomguard_debilitator : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_mannoroth_doomguard_debilitator() : CreatureScript("npc_mannoroth_doomguard_debilitator") { }
+        npc_mannoroth_doomguard_debilitator() : MS::Game::Scripting::Interfaces::CreatureScript("npc_mannoroth_doomguard_debilitator") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -644,10 +644,10 @@ class npc_mannoroth_doomguard_debilitator : public CreatureScript
         };
 };
 
-class spell_mannoroth_gift_of_sargeras : public SpellScriptLoader
+class spell_mannoroth_gift_of_sargeras: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_mannoroth_gift_of_sargeras() : SpellScriptLoader("spell_mannoroth_gift_of_sargeras") { }
+        spell_mannoroth_gift_of_sargeras() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mannoroth_gift_of_sargeras") { }
 
         class spell_mannoroth_gift_of_sargeras_SpellScript : public SpellScript
         {
@@ -675,10 +675,10 @@ class spell_mannoroth_gift_of_sargeras : public SpellScriptLoader
 
 typedef boss_mannoroth::boss_mannorothAI MannorothAI;
 
-class achievement_thats_not_cannon : public AchievementCriteriaScript
+class achievement_thats_not_cannon : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_thats_not_cannon() : AchievementCriteriaScript("achievement_thats_not_cannon") { }
+        achievement_thats_not_cannon() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_thats_not_cannon") { }
 
         bool OnCheck(Player* source, Unit* target)
         {

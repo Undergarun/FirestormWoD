@@ -48,10 +48,10 @@ enum Yells
     SAY_DEATH                                   = -1595008 //"*gurgles*"
 };
 
-class boss_epoch : public CreatureScript
+class boss_epoch : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_epoch() : CreatureScript("boss_epoch") { }
+    boss_epoch() : MS::Game::Scripting::Interfaces::CreatureScript("boss_epoch") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

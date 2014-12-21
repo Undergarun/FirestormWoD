@@ -123,10 +123,10 @@ enum GossipTexts
     GOSSIP_TEXT_FACTION_CHAMPIONS_DEFEATED = 14737,
     GOSSIP_TEXT_ARGENT_CHAMPIONS_DEFEATED = 14738,
 };
-class npc_announcer_toc5 : public CreatureScript
+class npc_announcer_toc5 : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_announcer_toc5() : CreatureScript("npc_announcer_toc5") { }
+    npc_announcer_toc5() : MS::Game::Scripting::Interfaces::CreatureScript("npc_announcer_toc5") { }
 
     struct npc_announcer_toc5AI : public ScriptedAI
     {

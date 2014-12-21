@@ -145,10 +145,10 @@ Position gSpawnPositions[10] =
 };
 
 /// Primordius - 69017
-class boss_primordius : public CreatureScript
+class boss_primordius : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_primordius() : CreatureScript("boss_primordius") { }
+        boss_primordius() : MS::Game::Scripting::Interfaces::CreatureScript("boss_primordius") { }
 
         struct boss_primordiusAI : public BossAI
         {
@@ -400,10 +400,10 @@ class boss_primordius : public CreatureScript
 };
 
 /// Living Fluid - 69069
-class mob_living_fluid : public CreatureScript
+class mob_living_fluid : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_living_fluid() : CreatureScript("mob_living_fluid") { }
+        mob_living_fluid() : MS::Game::Scripting::Interfaces::CreatureScript("mob_living_fluid") { }
 
         struct mob_living_fluidAI : public ScriptedAI
         {
@@ -641,10 +641,10 @@ class mob_living_fluid : public CreatureScript
 };
 
 /// Viscous Horror - 69070
-class mob_viscous_horror : public CreatureScript
+class mob_viscous_horror : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_viscous_horror() : CreatureScript("mob_viscous_horror") { }
+        mob_viscous_horror() : MS::Game::Scripting::Interfaces::CreatureScript("mob_viscous_horror") { }
 
         struct mob_viscous_horrorAI : public ScriptedAI
         {
@@ -700,10 +700,10 @@ class mob_viscous_horror : public CreatureScript
 };
 
 /// Congeal Blood - 136051
-class spell_congeal_blood : public SpellScriptLoader
+class spell_congeal_blood: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_congeal_blood() : SpellScriptLoader("spell_congeal_blood") { }
+        spell_congeal_blood() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_congeal_blood") { }
 
         class spell_congeal_blood_SpellScript : public SpellScript
         {
@@ -733,10 +733,10 @@ class spell_congeal_blood : public SpellScriptLoader
 };
 
 /// Evolution - 139144
-class spell_primordius_evolution : public SpellScriptLoader
+class spell_primordius_evolution: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_primordius_evolution() : SpellScriptLoader("spell_primordius_evolution") { }
+        spell_primordius_evolution() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_primordius_evolution") { }
 
         class spell_primordius_evolution_AuraScript : public AuraScript
         {

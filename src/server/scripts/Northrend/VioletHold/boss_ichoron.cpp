@@ -69,10 +69,10 @@ static Position SpawnLoc[MAX_SPAWN_LOC]=
 
 #define DATA_DEHYDRATION                        1
 
-class boss_ichoron : public CreatureScript
+class boss_ichoron : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_ichoron() : CreatureScript("boss_ichoron") { }
+    boss_ichoron() : MS::Game::Scripting::Interfaces::CreatureScript("boss_ichoron") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -329,10 +329,10 @@ public:
 
 };
 
-class mob_ichor_globule : public CreatureScript
+class mob_ichor_globule : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_ichor_globule() : CreatureScript("mob_ichor_globule") { }
+    mob_ichor_globule() : MS::Game::Scripting::Interfaces::CreatureScript("mob_ichor_globule") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -393,10 +393,10 @@ public:
 
 };
 
-class achievement_dehydration : public AchievementCriteriaScript
+class achievement_dehydration : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_dehydration() : AchievementCriteriaScript("achievement_dehydration")
+        achievement_dehydration() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_dehydration")
         {
         }
 

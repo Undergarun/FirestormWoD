@@ -104,10 +104,10 @@ inline uint32 GetEruptionSection(float x, float y)
     return 3;
 }
 
-class instance_naxxramas : public InstanceMapScript
+class instance_naxxramas : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
 public:
-    instance_naxxramas() : InstanceMapScript("instance_naxxramas", 533) { }
+    instance_naxxramas() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_naxxramas", 533) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {

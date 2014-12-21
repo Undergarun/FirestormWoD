@@ -45,10 +45,10 @@ enum Yells
     SAY_SPECIAL_ATTACK_2                        = -1608009
 };
 
-class boss_cyanigosa : public CreatureScript
+class boss_cyanigosa : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_cyanigosa() : CreatureScript("boss_cyanigosa") { }
+    boss_cyanigosa() : MS::Game::Scripting::Interfaces::CreatureScript("boss_cyanigosa") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -159,10 +159,10 @@ public:
 
 };
 
-class achievement_defenseless : public AchievementCriteriaScript
+class achievement_defenseless : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_defenseless() : AchievementCriteriaScript("achievement_defenseless")
+        achievement_defenseless() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_defenseless")
         {
         }
 

@@ -102,7 +102,7 @@ static Yell KillingDelay[]=
     {-1000000, NPC_LEFT_HEAD},
 };
 
-class mob_omrogg_heads : public CreatureScript
+class mob_omrogg_heads : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
@@ -151,7 +151,7 @@ class mob_omrogg_heads : public CreatureScript
 };
 
 // 16809
-class boss_warbringer_omrogg : public CreatureScript
+class boss_warbringer_omrogg : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 

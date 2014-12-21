@@ -96,10 +96,10 @@ bool g_AddActivated[3] = { false, false, false };
 uint32 g_AddEntries[3] = { NPC_AZURE_FOG, NPC_AMBER_FOG, NPC_CRIMSON_FOG };
 
 // Durumu the forgotten - 68036
-class boss_durumu : public CreatureScript
+class boss_durumu : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_durumu() : CreatureScript("boss_durumu") { }
+        boss_durumu() : MS::Game::Scripting::Interfaces::CreatureScript("boss_durumu") { }
 
         struct boss_durumuAI : public BossAI
         {
@@ -310,10 +310,10 @@ class boss_durumu : public CreatureScript
 };
 
 // Hungry Eye - 67859 (Add for the spell DRAIN LIFE, coming from first phase)
-class mob_hungry_eye : public CreatureScript
+class mob_hungry_eye : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_hungry_eye() : CreatureScript("mob_hungry_eye") { }
+        mob_hungry_eye() : MS::Game::Scripting::Interfaces::CreatureScript("mob_hungry_eye") { }
 
         struct mob_hungry_eyeAI : public ScriptedAI
         {
@@ -390,10 +390,10 @@ class mob_hungry_eye : public CreatureScript
 };
 
 // Color adds - 69050/69051/69052
-class mob_durumu_second_phase_add : public CreatureScript
+class mob_durumu_second_phase_add : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_durumu_second_phase_add() : CreatureScript("mob_durumu_second_phase_add") { }
+        mob_durumu_second_phase_add() : MS::Game::Scripting::Interfaces::CreatureScript("mob_durumu_second_phase_add") { }
 
         struct mob_durumu_second_phase_addAI : public ScriptedAI
         {
@@ -614,10 +614,10 @@ class mob_durumu_second_phase_add : public CreatureScript
 };
 
 // Color Eyes - 67854/67855/67856
-class mob_second_phase_eye : public CreatureScript
+class mob_second_phase_eye : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_second_phase_eye() : CreatureScript("mob_second_phase_eye") { }
+        mob_second_phase_eye() : MS::Game::Scripting::Interfaces::CreatureScript("mob_second_phase_eye") { }
 
         struct mob_second_phase_eyeAI : public ScriptedAI
         {
@@ -931,10 +931,10 @@ class mob_second_phase_eye : public CreatureScript
 };
 
 // Arterial Cut (aura) - 133768
-class spell_arterial_cut : public SpellScriptLoader
+class spell_arterial_cut: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_arterial_cut() : SpellScriptLoader("spell_arterial_cut") { }
+        spell_arterial_cut() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_arterial_cut") { }
 
         class spell_arterial_cut_AuraScript : public AuraScript
         {
@@ -965,10 +965,10 @@ class spell_arterial_cut : public SpellScriptLoader
 };
 
 // Lingering Gaze - 138467
-class spell_lingering_gaze_main : public SpellScriptLoader
+class spell_lingering_gaze_main: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_lingering_gaze_main() : SpellScriptLoader("spell_lingering_gaze_main") { }
+        spell_lingering_gaze_main() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_lingering_gaze_main") { }
 
         class spell_lingering_gaze_main_SpellScript : public SpellScript
         {
@@ -1009,10 +1009,10 @@ class spell_lingering_gaze_main : public SpellScriptLoader
 };
 
 // Life drain (main) - 133795
-class spell_life_drain_main : public SpellScriptLoader
+class spell_life_drain_main: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_life_drain_main() : SpellScriptLoader("spell_life_drain_main") { }
+        spell_life_drain_main() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_life_drain_main") { }
 
         class spell_life_drain_main_AuraScript : public AuraScript
         {
@@ -1046,10 +1046,10 @@ class spell_life_drain_main : public SpellScriptLoader
 };
 
 // Life drain (aura) - 133796
-class spell_life_drain_dummy : public SpellScriptLoader
+class spell_life_drain_dummy: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_life_drain_dummy() : SpellScriptLoader("spell_life_drain_dummy") { }
+        spell_life_drain_dummy() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_life_drain_dummy") { }
 
         class spell_life_drain_dummy_AuraScript : public AuraScript
         {
@@ -1082,10 +1082,10 @@ class spell_life_drain_dummy : public SpellScriptLoader
 };
 
 // Life drain (aura) - 133796
-class spell_colorblind_phase_link_visual : public SpellScriptLoader
+class spell_colorblind_phase_link_visual: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_colorblind_phase_link_visual() : SpellScriptLoader("spell_colorblind_phase_link_visual") { }
+        spell_colorblind_phase_link_visual() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_colorblind_phase_link_visual") { }
 
         class spell_colorblind_phase_link_visual_AuraScript : public AuraScript
         {

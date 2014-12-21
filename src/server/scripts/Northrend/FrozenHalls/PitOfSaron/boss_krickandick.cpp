@@ -132,10 +132,10 @@ static const Position outroPos[8] =
     {914.4820f, 143.1602f, 633.3624f, 0.0000000f},  // Tyrannus fly up (not sniffed)
 };
 
-class boss_ick : public CreatureScript
+class boss_ick : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_ick() : CreatureScript("boss_ick") { }
+        boss_ick() : MS::Game::Scripting::Interfaces::CreatureScript("boss_ick") { }
 
         struct boss_ickAI : public BossAI
         {
@@ -287,10 +287,10 @@ class boss_ick : public CreatureScript
         }
 };
 
-class boss_krick : public CreatureScript
+class boss_krick : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_krick() : CreatureScript("boss_krick") { }
+        boss_krick() : MS::Game::Scripting::Interfaces::CreatureScript("boss_krick") { }
 
         struct boss_krickAI : public ScriptedAI
         {
@@ -515,10 +515,10 @@ class boss_krick : public CreatureScript
         }
 };
 
-class spell_krick_explosive_barrage : public SpellScriptLoader
+class spell_krick_explosive_barrage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_krick_explosive_barrage() : SpellScriptLoader("spell_krick_explosive_barrage") { }
+        spell_krick_explosive_barrage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_krick_explosive_barrage") { }
 
         class spell_krick_explosive_barrage_AuraScript : public AuraScript
         {
@@ -550,10 +550,10 @@ class spell_krick_explosive_barrage : public SpellScriptLoader
         }
 };
 
-class spell_ick_explosive_barrage : public SpellScriptLoader
+class spell_ick_explosive_barrage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_ick_explosive_barrage() : SpellScriptLoader("spell_ick_explosive_barrage") { }
+        spell_ick_explosive_barrage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_ick_explosive_barrage") { }
 
         class spell_ick_explosive_barrage_AuraScript : public AuraScript
         {
@@ -589,10 +589,10 @@ class spell_ick_explosive_barrage : public SpellScriptLoader
         }
 };
 
-class spell_exploding_orb_hasty_grow : public SpellScriptLoader
+class spell_exploding_orb_hasty_grow: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_exploding_orb_hasty_grow() : SpellScriptLoader("spell_exploding_orb_hasty_grow") { }
+        spell_exploding_orb_hasty_grow() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_exploding_orb_hasty_grow") { }
 
         class spell_exploding_orb_hasty_grow_AuraScript : public AuraScript
         {
@@ -624,10 +624,10 @@ class spell_exploding_orb_hasty_grow : public SpellScriptLoader
         }
 };
 
-class spell_krick_pursuit : public SpellScriptLoader
+class spell_krick_pursuit: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_krick_pursuit() : SpellScriptLoader("spell_krick_pursuit") { }
+        spell_krick_pursuit() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_krick_pursuit") { }
 
         class spell_krick_pursuit_SpellScript : public SpellScript
         {
@@ -684,10 +684,10 @@ class spell_krick_pursuit : public SpellScriptLoader
         }
 };
 
-class spell_krick_pursuit_confusion : public SpellScriptLoader
+class spell_krick_pursuit_confusion: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_krick_pursuit_confusion() : SpellScriptLoader("spell_krick_pursuit_confusion") { }
+        spell_krick_pursuit_confusion() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_krick_pursuit_confusion") { }
 
         class spell_krick_pursuit_confusion_AuraScript : public AuraScript
         {

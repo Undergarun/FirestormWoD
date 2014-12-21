@@ -55,10 +55,10 @@ enum GameObjects
     GO_ESCAPE_ORB           = 188173
 };
 
-class instance_magisters_terrace : public InstanceMapScript
+class instance_magisters_terrace : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
 public:
-    instance_magisters_terrace() : InstanceMapScript("instance_magisters_terrace", 585) { }
+    instance_magisters_terrace() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_magisters_terrace", 585) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {

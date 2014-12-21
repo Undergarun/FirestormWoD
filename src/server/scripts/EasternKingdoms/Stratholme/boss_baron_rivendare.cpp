@@ -78,10 +78,10 @@ EndScriptData */
 #define SPELL_RAISE_DEAD5   17479
 #define SPELL_RAISE_DEAD6   17480
 
-class boss_baron_rivendare : public CreatureScript
+class boss_baron_rivendare : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_baron_rivendare() : CreatureScript("boss_baron_rivendare") { }
+    boss_baron_rivendare() : MS::Game::Scripting::Interfaces::CreatureScript("boss_baron_rivendare") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

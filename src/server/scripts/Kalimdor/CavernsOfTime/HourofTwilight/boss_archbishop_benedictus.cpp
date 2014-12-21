@@ -92,10 +92,10 @@ enum Actions
     ACTION_TWILIGHT = 2,
 };
 
-class boss_archbishop_benedictus : public CreatureScript
+class boss_archbishop_benedictus : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_archbishop_benedictus() : CreatureScript("boss_archbishop_benedictus") { }
+        boss_archbishop_benedictus() : MS::Game::Scripting::Interfaces::CreatureScript("boss_archbishop_benedictus") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -268,10 +268,10 @@ class boss_archbishop_benedictus : public CreatureScript
         };   
 };
 
-class npc_archbishop_benedictus_purifying_light : public CreatureScript
+class npc_archbishop_benedictus_purifying_light : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_archbishop_benedictus_purifying_light() : CreatureScript("npc_archbishop_benedictus_purifying_light") { }
+        npc_archbishop_benedictus_purifying_light() : MS::Game::Scripting::Interfaces::CreatureScript("npc_archbishop_benedictus_purifying_light") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -321,10 +321,10 @@ class npc_archbishop_benedictus_purifying_light : public CreatureScript
         };   
 };
 
-class spell_archbishop_benedictus_purifying_light_targeting : public SpellScriptLoader
+class spell_archbishop_benedictus_purifying_light_targeting: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_archbishop_benedictus_purifying_light_targeting() : SpellScriptLoader("spell_archbishop_benedictus_purifying_light_targeting") { }
+        spell_archbishop_benedictus_purifying_light_targeting() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_archbishop_benedictus_purifying_light_targeting") { }
 
         class spell_archbishop_benedictus_purifying_light_targeting_SpellScript : public SpellScript
         {
@@ -351,10 +351,10 @@ class spell_archbishop_benedictus_purifying_light_targeting : public SpellScript
         }
 };
 
-class spell_archbishop_benedictus_righteous_snear_aoe : public SpellScriptLoader
+class spell_archbishop_benedictus_righteous_snear_aoe: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_archbishop_benedictus_righteous_snear_aoe() : SpellScriptLoader("spell_archbishop_benedictus_righteous_snear_aoe") { }
+        spell_archbishop_benedictus_righteous_snear_aoe() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_archbishop_benedictus_righteous_snear_aoe") { }
 
         class spell_archbishop_benedictus_righteous_snear_aoe_SpellScript : public SpellScript
         {

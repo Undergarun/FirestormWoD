@@ -20,10 +20,10 @@
 #include "Guild.h"
 #include "Group.h"
 
-class ChatLogScript : public PlayerScript
+class ChatLogScript: public MS::Game::Scripting::Interfaces::PlayerScript
 {
 public:
-    ChatLogScript() : PlayerScript("ChatLogScript") { }
+    ChatLogScript() : MS::Game::Scripting::Interfaces::PlayerScript("ChatLogScript") { }
 
     void OnChat(Player* player, uint32 type, uint32 lang, std::string& msg)
     {

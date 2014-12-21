@@ -234,12 +234,12 @@ bool OutdoorPvPSI::HandleCustomSpell(Player* player, uint32 spellId, GameObject*
     return true;
 }
 
-class OutdoorPvP_silithus : public OutdoorPvPScript
+class OutdoorPvP_silithus : public MS::Game::Scripting::Interfaces::OutdoorPvPScript
 {
     public:
 
         OutdoorPvP_silithus()
-            : OutdoorPvPScript("outdoorpvp_si")
+            : MS::Game::Scripting::Interfaces::OutdoorPvPScript("outdoorpvp_si")
         {
         }
 

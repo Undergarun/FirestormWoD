@@ -101,10 +101,10 @@ const Position addsPos[3] =
     {-57.057121f, -816.067200f, 41.852272f, 5.565719f}
 };
 
-class boss_vanessa_vancleef : public CreatureScript
+class boss_vanessa_vancleef : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_vanessa_vancleef() : CreatureScript("boss_vanessa_vancleef") { }
+        boss_vanessa_vancleef() : MS::Game::Scripting::Interfaces::CreatureScript("boss_vanessa_vancleef") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -230,10 +230,10 @@ class boss_vanessa_vancleef : public CreatureScript
         };
 };
 
-class npc_vanessa_vancleef_a_note_from_vanessa : public CreatureScript
+class npc_vanessa_vancleef_a_note_from_vanessa : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_vanessa_vancleef_a_note_from_vanessa() : CreatureScript("npc_vanessa_vancleef_a_note_from_vanessa") { }
+        npc_vanessa_vancleef_a_note_from_vanessa() : MS::Game::Scripting::Interfaces::CreatureScript("npc_vanessa_vancleef_a_note_from_vanessa") { }
      
         bool OnGossipHello(Player* pPlayer, Creature* pCreature)
         {
@@ -254,10 +254,10 @@ class npc_vanessa_vancleef_a_note_from_vanessa : public CreatureScript
         }
 };
 
-class npc_vanessa_vancleef_vanessa_sitting : public CreatureScript
+class npc_vanessa_vancleef_vanessa_sitting : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_vanessa_vancleef_vanessa_sitting() : CreatureScript("npc_vanessa_vancleef_vanessa_sitting") { }
+        npc_vanessa_vancleef_vanessa_sitting() : MS::Game::Scripting::Interfaces::CreatureScript("npc_vanessa_vancleef_vanessa_sitting") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -347,10 +347,10 @@ class npc_vanessa_vancleef_vanessa_sitting : public CreatureScript
         };
 };
 
-class npc_vanessa_vancleef_defias_enforcer : public CreatureScript
+class npc_vanessa_vancleef_defias_enforcer : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_vanessa_vancleef_defias_enforcer() : CreatureScript("npc_vanessa_vancleef_defias_enforcer") { }
+        npc_vanessa_vancleef_defias_enforcer() : MS::Game::Scripting::Interfaces::CreatureScript("npc_vanessa_vancleef_defias_enforcer") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -398,10 +398,10 @@ class npc_vanessa_vancleef_defias_enforcer : public CreatureScript
         };
 };
 
-class spell_vanessa_vancleef_backslash_targeting : public SpellScriptLoader
+class spell_vanessa_vancleef_backslash_targeting: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_vanessa_vancleef_backslash_targeting() : SpellScriptLoader("spell_vanessa_vancleef_backslash_targeting") { }
+        spell_vanessa_vancleef_backslash_targeting() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_vanessa_vancleef_backslash_targeting") { }
 
         class spell_vanessa_vancleef_backslash_targeting_SpellScript : public SpellScript
         {

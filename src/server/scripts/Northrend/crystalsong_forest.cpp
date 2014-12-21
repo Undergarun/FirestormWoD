@@ -43,10 +43,10 @@ enum NPCs
     NPC_WARMAGE_ILSUDRIA         = 32372
 };
 
-class npc_warmage_violetstand : public CreatureScript
+class npc_warmage_violetstand : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_warmage_violetstand() : CreatureScript("npc_warmage_violetstand") { }
+    npc_warmage_violetstand() : MS::Game::Scripting::Interfaces::CreatureScript("npc_warmage_violetstand") { }
 
     struct npc_warmage_violetstandAI : public Scripted_NoMovementAI
     {

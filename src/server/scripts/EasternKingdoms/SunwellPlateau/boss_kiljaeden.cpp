@@ -240,10 +240,10 @@ static Speech Speeches[]=
 };
 
 //AI for Kalecgos
-class boss_kalecgos_kj : public CreatureScript
+class boss_kalecgos_kj : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_kalecgos_kj() : CreatureScript("boss_kalecgos_kj") { }
+    boss_kalecgos_kj() : MS::Game::Scripting::Interfaces::CreatureScript("boss_kalecgos_kj") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -370,10 +370,10 @@ public:
 
 };
 
-class go_orb_of_the_blue_flight : public GameObjectScript
+class go_orb_of_the_blue_flight : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_orb_of_the_blue_flight() : GameObjectScript("go_orb_of_the_blue_flight") { }
+    go_orb_of_the_blue_flight() : MS::Game::Scripting::Interfaces::GameObjectScript("go_orb_of_the_blue_flight") { }
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
@@ -395,10 +395,10 @@ public:
 };
 
 //AI for Kil'jaeden Event Controller
-class mob_kiljaeden_controller : public CreatureScript
+class mob_kiljaeden_controller : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_kiljaeden_controller() : CreatureScript("mob_kiljaeden_controller") { }
+    mob_kiljaeden_controller() : MS::Game::Scripting::Interfaces::CreatureScript("mob_kiljaeden_controller") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -496,10 +496,10 @@ public:
 };
 
 //AI for Kil'jaeden
-class boss_kiljaeden : public CreatureScript
+class boss_kiljaeden : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_kiljaeden() : CreatureScript("boss_kiljaeden") { }
+    boss_kiljaeden() : MS::Game::Scripting::Interfaces::CreatureScript("boss_kiljaeden") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -904,10 +904,10 @@ public:
 };
 
 //AI for Hand of the Deceiver
-class mob_hand_of_the_deceiver : public CreatureScript
+class mob_hand_of_the_deceiver : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_hand_of_the_deceiver() : CreatureScript("mob_hand_of_the_deceiver") { }
+    mob_hand_of_the_deceiver() : MS::Game::Scripting::Interfaces::CreatureScript("mob_hand_of_the_deceiver") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1005,10 +1005,10 @@ public:
 };
 
 //AI for Felfire Portal
-class mob_felfire_portal : public CreatureScript
+class mob_felfire_portal : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_felfire_portal() : CreatureScript("mob_felfire_portal") { }
+    mob_felfire_portal() : MS::Game::Scripting::Interfaces::CreatureScript("mob_felfire_portal") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1050,10 +1050,10 @@ public:
 };
 
 //AI for Felfire Fiend
-class mob_volatile_felfire_fiend : public CreatureScript
+class mob_volatile_felfire_fiend : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_volatile_felfire_fiend() : CreatureScript("mob_volatile_felfire_fiend") { }
+    mob_volatile_felfire_fiend() : MS::Game::Scripting::Interfaces::CreatureScript("mob_volatile_felfire_fiend") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1108,10 +1108,10 @@ public:
 };
 
 //AI for Armageddon target
-class mob_armageddon : public CreatureScript
+class mob_armageddon : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_armageddon() : CreatureScript("mob_armageddon") { }
+    mob_armageddon() : MS::Game::Scripting::Interfaces::CreatureScript("mob_armageddon") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1163,10 +1163,10 @@ public:
 };
 
 //AI for Shield Orbs
-class mob_shield_orb : public CreatureScript
+class mob_shield_orb : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_shield_orb() : CreatureScript("mob_shield_orb") { }
+    mob_shield_orb() : MS::Game::Scripting::Interfaces::CreatureScript("mob_shield_orb") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1251,10 +1251,10 @@ public:
 };
 
 //AI for Sinister Reflection
-class mob_sinster_reflection : public CreatureScript
+class mob_sinster_reflection : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_sinster_reflection() : CreatureScript("mob_sinster_reflection") { }
+    mob_sinster_reflection() : MS::Game::Scripting::Interfaces::CreatureScript("mob_sinster_reflection") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

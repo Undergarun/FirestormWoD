@@ -40,10 +40,10 @@ EndScriptData */
 #include "ScriptSystem.h"
 #include "GuildMgr.h"
 
-class reload_commandscript : public CommandScript
+class reload_commandscript: public MS::Game::Scripting::Interfaces::CommandScript
 {
 public:
-    reload_commandscript() : CommandScript("reload_commandscript") { }
+    reload_commandscript() : MS::Game::Scripting::Interfaces::CommandScript("reload_commandscript") { }
 
     ChatCommand* GetCommands() const
     {

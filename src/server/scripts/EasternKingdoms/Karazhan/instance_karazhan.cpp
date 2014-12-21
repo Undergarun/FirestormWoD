@@ -44,10 +44,10 @@ EndScriptData */
 11 - Nightbane
 */
 
-class instance_karazhan : public InstanceMapScript
+class instance_karazhan : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
 public:
-    instance_karazhan() : InstanceMapScript("instance_karazhan", 532) { }
+    instance_karazhan() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_karazhan", 532) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {

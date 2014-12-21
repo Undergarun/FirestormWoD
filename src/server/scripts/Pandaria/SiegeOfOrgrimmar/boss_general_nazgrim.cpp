@@ -46,10 +46,10 @@ enum eSays
 {
 };
 
-class boss_general_nazgrim : public CreatureScript
+class boss_general_nazgrim : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 	public:
-		boss_general_nazgrim() : CreatureScript("boss_general_nazgrim") { }
+		boss_general_nazgrim() : MS::Game::Scripting::Interfaces::CreatureScript("boss_general_nazgrim") { }
 
 		struct boss_general_nazgrimAI : public BossAI
 		{
@@ -134,10 +134,10 @@ class boss_general_nazgrim : public CreatureScript
 		}
 };
 
-class mob_orgrimmar_faithful : public CreatureScript
+class mob_orgrimmar_faithful : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_orgrimmar_faithful() : CreatureScript("mob_orgrimmar_faithful") { }
+        mob_orgrimmar_faithful() : MS::Game::Scripting::Interfaces::CreatureScript("mob_orgrimmar_faithful") { }
 
         struct mob_orgrimmar_faithfulAI: public ScriptedAI
         { 
@@ -167,10 +167,10 @@ class mob_orgrimmar_faithful : public CreatureScript
         }
 };
 
-class mob_korkron_ironblade : public CreatureScript
+class mob_korkron_ironblade : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_korkron_ironblade() : CreatureScript("mob_korkron_ironblade") { }
+        mob_korkron_ironblade() : MS::Game::Scripting::Interfaces::CreatureScript("mob_korkron_ironblade") { }
 
         struct mob_korkron_ironbladeAI : public ScriptedAI
         {
@@ -200,10 +200,10 @@ class mob_korkron_ironblade : public CreatureScript
         }
 };
 
-class mob_korkron_arcweaver : public CreatureScript
+class mob_korkron_arcweaver : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_korkron_arcweaver() : CreatureScript("mob_korkron_arcweaver") { }
+        mob_korkron_arcweaver() : MS::Game::Scripting::Interfaces::CreatureScript("mob_korkron_arcweaver") { }
 
         struct mob_korkron_arcweaverAI : public ScriptedAI
         {
@@ -233,10 +233,10 @@ class mob_korkron_arcweaver : public CreatureScript
         }
 };
 
-class mob_korkron_assassin : public CreatureScript
+class mob_korkron_assassin : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_korkron_assassin() : CreatureScript("mob_korkron_assassin") { }
+        mob_korkron_assassin() : MS::Game::Scripting::Interfaces::CreatureScript("mob_korkron_assassin") { }
 
         struct mob_korkron_assassinAI : public ScriptedAI
         {
@@ -266,10 +266,10 @@ class mob_korkron_assassin : public CreatureScript
         }
 };
 
-class mob_korkron_warshaman : public CreatureScript
+class mob_korkron_warshaman : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_korkron_warshaman() : CreatureScript("mob_korkron_warshaman") { }
+        mob_korkron_warshaman() : MS::Game::Scripting::Interfaces::CreatureScript("mob_korkron_warshaman") { }
 
         struct mob_korkron_warshamanAI : public ScriptedAI
         {

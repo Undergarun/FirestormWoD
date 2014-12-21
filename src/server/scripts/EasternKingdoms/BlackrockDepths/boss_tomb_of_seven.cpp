@@ -42,10 +42,10 @@ enum Misc
 #define GOSSIP_ITEM_TEACH_3 "[PH] Continue..."
 #define GOSSIP_ITEM_TRIBUTE "I want to pay tribute"
 
-class boss_gloomrel : public CreatureScript
+class boss_gloomrel : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_gloomrel() : CreatureScript("boss_gloomrel") { }
+    boss_gloomrel() : MS::Game::Scripting::Interfaces::CreatureScript("boss_gloomrel") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
@@ -101,10 +101,10 @@ enum DoomrelSpells
 #define GOSSIP_ITEM_CHALLENGE   "Your bondage is at an end, Doom'rel. I challenge you!"
 #define GOSSIP_SELECT_DOOMREL   "[PH] Continue..."
 
-class boss_doomrel : public CreatureScript
+class boss_doomrel : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_doomrel() : CreatureScript("boss_doomrel") { }
+    boss_doomrel() : MS::Game::Scripting::Interfaces::CreatureScript("boss_doomrel") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {

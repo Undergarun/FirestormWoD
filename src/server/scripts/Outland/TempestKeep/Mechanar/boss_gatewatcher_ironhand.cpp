@@ -48,7 +48,7 @@ enum eSpells
     SPELL_STREAM_OF_MACHINE_FLUID  = 35311,
 };
 
-class boss_gatewatcher_iron_hand : public CreatureScript
+class boss_gatewatcher_iron_hand : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 

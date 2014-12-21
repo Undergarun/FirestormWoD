@@ -38,10 +38,10 @@ EndScriptData */
 #define SPELL_THUNDERING_STORM      39365
 
 // 18708
-class boss_murmur : public CreatureScript
+class boss_murmur : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_murmur() : CreatureScript("boss_murmur") { }
+    boss_murmur() : MS::Game::Scripting::Interfaces::CreatureScript("boss_murmur") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

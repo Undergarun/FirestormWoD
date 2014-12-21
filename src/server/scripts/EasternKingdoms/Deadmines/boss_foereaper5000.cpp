@@ -68,10 +68,10 @@ const Position moltenslagPos[4] =
     { -212.704f, -579.072f, 20.97f, 3.09f},
 };
 
-class boss_foereaper5000 : public CreatureScript
+class boss_foereaper5000 : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_foereaper5000() : CreatureScript("boss_foereaper5000") { }
+        boss_foereaper5000() : MS::Game::Scripting::Interfaces::CreatureScript("boss_foereaper5000") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -203,10 +203,10 @@ class boss_foereaper5000 : public CreatureScript
         };
 };
 
-class npc_foereaper_targeting_bunny: public CreatureScript
+class npc_foereaper_targeting_bunny : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_foereaper_targeting_bunny() : CreatureScript("npc_foereaper_targeting_bunny") { }
+        npc_foereaper_targeting_bunny() : MS::Game::Scripting::Interfaces::CreatureScript("npc_foereaper_targeting_bunny") { }
      
         CreatureAI* GetAI(Creature* pCreature) const
         {

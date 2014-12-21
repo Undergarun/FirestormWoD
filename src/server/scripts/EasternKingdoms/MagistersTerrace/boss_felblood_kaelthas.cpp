@@ -78,10 +78,10 @@ float KaelLocations[3][2]=
 
 #define LOCATION_Z                  -16.727455f
 
-class boss_felblood_kaelthas : public CreatureScript
+class boss_felblood_kaelthas : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_felblood_kaelthas() : CreatureScript("boss_felblood_kaelthas") { }
+    boss_felblood_kaelthas() : MS::Game::Scripting::Interfaces::CreatureScript("boss_felblood_kaelthas") { }
 
     CreatureAI* GetAI(Creature* c) const
     {
@@ -456,10 +456,10 @@ public:
 
 };
 
-class mob_felkael_flamestrike : public CreatureScript
+class mob_felkael_flamestrike : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_felkael_flamestrike() : CreatureScript("mob_felkael_flamestrike") { }
+    mob_felkael_flamestrike() : MS::Game::Scripting::Interfaces::CreatureScript("mob_felkael_flamestrike") { }
 
     CreatureAI* GetAI(Creature* c) const
     {
@@ -498,10 +498,10 @@ public:
 
 };
 
-class mob_felkael_phoenix : public CreatureScript
+class mob_felkael_phoenix : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_felkael_phoenix() : CreatureScript("mob_felkael_phoenix") { }
+    mob_felkael_phoenix() : MS::Game::Scripting::Interfaces::CreatureScript("mob_felkael_phoenix") { }
 
     CreatureAI* GetAI(Creature* c) const
     {
@@ -617,10 +617,10 @@ public:
 
 };
 
-class mob_felkael_phoenix_egg : public CreatureScript
+class mob_felkael_phoenix_egg : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_felkael_phoenix_egg() : CreatureScript("mob_felkael_phoenix_egg") { }
+    mob_felkael_phoenix_egg() : MS::Game::Scripting::Interfaces::CreatureScript("mob_felkael_phoenix_egg") { }
 
     CreatureAI* GetAI(Creature* c) const
     {
@@ -654,10 +654,10 @@ public:
 
 };
 
-class mob_arcane_sphere : public CreatureScript
+class mob_arcane_sphere : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_arcane_sphere() : CreatureScript("mob_arcane_sphere") { }
+    mob_arcane_sphere() : MS::Game::Scripting::Interfaces::CreatureScript("mob_arcane_sphere") { }
 
     CreatureAI* GetAI(Creature* c) const
     {

@@ -392,10 +392,10 @@ struct boss_twin_baseAI : public BossAI
         uint32 TouchSpellId;
 };
 
-class boss_fjola : public CreatureScript
+class boss_fjola : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_fjola() : CreatureScript("boss_fjola") { }
+        boss_fjola() : MS::Game::Scripting::Interfaces::CreatureScript("boss_fjola") { }
 
         struct boss_fjolaAI : public boss_twin_baseAI
         {
@@ -455,10 +455,10 @@ class boss_fjola : public CreatureScript
         }
 };
 
-class boss_eydis : public CreatureScript
+class boss_eydis : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_eydis() : CreatureScript("boss_eydis") { }
+        boss_eydis() : MS::Game::Scripting::Interfaces::CreatureScript("boss_eydis") { }
 
         struct boss_eydisAI : public boss_twin_baseAI
         {
@@ -490,10 +490,10 @@ class boss_eydis : public CreatureScript
         }
 };
 
-class mob_essence_of_twin : public CreatureScript
+class mob_essence_of_twin : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_essence_of_twin() : CreatureScript("mob_essence_of_twin") { }
+        mob_essence_of_twin() : MS::Game::Scripting::Interfaces::CreatureScript("mob_essence_of_twin") { }
 
         struct mob_essence_of_twinAI : public ScriptedAI
         {
@@ -585,10 +585,10 @@ struct mob_unleashed_ballAI : public ScriptedAI
         uint32 RangeCheckTimer;
 };
 
-class mob_unleashed_dark : public CreatureScript
+class mob_unleashed_dark : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_unleashed_dark() : CreatureScript("mob_unleashed_dark") { }
+        mob_unleashed_dark() : MS::Game::Scripting::Interfaces::CreatureScript("mob_unleashed_dark") { }
 
         struct mob_unleashed_darkAI : public mob_unleashed_ballAI
         {
@@ -617,10 +617,10 @@ class mob_unleashed_dark : public CreatureScript
         }
 };
 
-class mob_unleashed_light : public CreatureScript
+class mob_unleashed_light : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_unleashed_light() : CreatureScript("mob_unleashed_light") { }
+        mob_unleashed_light() : MS::Game::Scripting::Interfaces::CreatureScript("mob_unleashed_light") { }
 
         struct mob_unleashed_lightAI : public mob_unleashed_ballAI
         {
@@ -649,10 +649,10 @@ class mob_unleashed_light : public CreatureScript
         }
 };
 
-class mob_bullet_controller : public CreatureScript
+class mob_bullet_controller : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_bullet_controller() : CreatureScript("mob_bullet_controller") { }
+        mob_bullet_controller() : MS::Game::Scripting::Interfaces::CreatureScript("mob_bullet_controller") { }
 
         struct mob_bullet_controllerAI : public Scripted_NoMovementAI
         {
@@ -678,10 +678,10 @@ class mob_bullet_controller : public CreatureScript
         }
 };
 
-class spell_powering_up : public SpellScriptLoader
+class spell_powering_up: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_powering_up() : SpellScriptLoader("spell_powering_up") { }
+        spell_powering_up() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_powering_up") { }
 
         class spell_powering_up_SpellScript : public SpellScript
         {
@@ -736,10 +736,10 @@ class spell_powering_up : public SpellScriptLoader
         }
 };
 
-class spell_valkyr_essences : public SpellScriptLoader
+class spell_valkyr_essences: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_valkyr_essences() : SpellScriptLoader("spell_valkyr_essences") { }
+        spell_valkyr_essences() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_valkyr_essences") { }
 
         class spell_valkyr_essences_AuraScript : public AuraScript
         {
@@ -831,10 +831,10 @@ class spell_valkyr_essences : public SpellScriptLoader
         }
 };
 
-class spell_power_of_the_twins : public SpellScriptLoader
+class spell_power_of_the_twins: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_power_of_the_twins() : SpellScriptLoader("spell_power_of_the_twins") { }
+        spell_power_of_the_twins() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_power_of_the_twins") { }
 
         class spell_power_of_the_twins_AuraScript : public AuraScript
         {

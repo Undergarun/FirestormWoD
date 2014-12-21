@@ -37,10 +37,10 @@ EndContentData */
 ## npc_rathis_tomber
 ######*/
 
-class npc_rathis_tomber : public CreatureScript
+class npc_rathis_tomber : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_rathis_tomber() : CreatureScript("npc_rathis_tomber") { }
+    npc_rathis_tomber() : MS::Game::Scripting::Interfaces::CreatureScript("npc_rathis_tomber") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
@@ -88,10 +88,10 @@ enum eEnums
     FACTION_SMOON_E     = 1603,
 };
 
-class npc_ranger_lilatha : public CreatureScript
+class npc_ranger_lilatha : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_ranger_lilatha() : CreatureScript("npc_ranger_lilatha") { }
+    npc_ranger_lilatha() : MS::Game::Scripting::Interfaces::CreatureScript("npc_ranger_lilatha") { }
 
     struct npc_ranger_lilathaAI : public npc_escortAI
     {

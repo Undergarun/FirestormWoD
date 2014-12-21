@@ -88,10 +88,10 @@ const uint32 m_auiAddEntries[] =
     24556,                                                  //Zelfan
 };
 
-class boss_priestess_delrissa : public CreatureScript
+class boss_priestess_delrissa : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_priestess_delrissa() : CreatureScript("boss_priestess_delrissa") { }
+    boss_priestess_delrissa() : MS::Game::Scripting::Interfaces::CreatureScript("boss_priestess_delrissa") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -483,10 +483,10 @@ enum eRogueSpells
     SPELL_EVISCERATE        = 27611
 };
 
-class boss_kagani_nightstrike : public CreatureScript
+class boss_kagani_nightstrike : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_kagani_nightstrike() : CreatureScript("boss_kagani_nightstrike") { }
+    boss_kagani_nightstrike() : MS::Game::Scripting::Interfaces::CreatureScript("boss_kagani_nightstrike") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -588,10 +588,10 @@ enum eWarlockSpells
     SPELL_SUMMON_IMP            = 44163
 };
 
-class boss_ellris_duskhallow : public CreatureScript
+class boss_ellris_duskhallow : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_ellris_duskhallow() : CreatureScript("boss_ellris_duskhallow") { }
+    boss_ellris_duskhallow() : MS::Game::Scripting::Interfaces::CreatureScript("boss_ellris_duskhallow") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -680,10 +680,10 @@ enum eKickDown
     SPELL_SNAP_KICK     = 46182
 };
 
-class boss_eramas_brightblaze : public CreatureScript
+class boss_eramas_brightblaze : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_eramas_brightblaze() : CreatureScript("boss_eramas_brightblaze") { }
+    boss_eramas_brightblaze() : MS::Game::Scripting::Interfaces::CreatureScript("boss_eramas_brightblaze") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -742,10 +742,10 @@ enum eMageSpells
     SPELL_BLINK             = 14514
 };
 
-class boss_yazzai : public CreatureScript
+class boss_yazzai : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_yazzai() : CreatureScript("boss_yazzai") { }
+    boss_yazzai() : MS::Game::Scripting::Interfaces::CreatureScript("boss_yazzai") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -873,10 +873,10 @@ enum eWarriorSpells
     SPELL_MORTAL_STRIKE         = 44268
 };
 
-class boss_warlord_salaris : public CreatureScript
+class boss_warlord_salaris : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_warlord_salaris() : CreatureScript("boss_warlord_salaris") { }
+    boss_warlord_salaris() : MS::Game::Scripting::Interfaces::CreatureScript("boss_warlord_salaris") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -994,10 +994,10 @@ enum eHunterSpells
     NPC_SLIVER                  = 24552
 };
 
-class boss_garaxxas : public CreatureScript
+class boss_garaxxas : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_garaxxas() : CreatureScript("boss_garaxxas") { }
+    boss_garaxxas() : MS::Game::Scripting::Interfaces::CreatureScript("boss_garaxxas") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1117,10 +1117,10 @@ enum Spells
     SPELL_EARTHBIND_TOTEM       = 15786
 };
 
-class boss_apoko : public CreatureScript
+class boss_apoko : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_apoko() : CreatureScript("boss_apoko") { }
+    boss_apoko() : MS::Game::Scripting::Interfaces::CreatureScript("boss_apoko") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1216,10 +1216,10 @@ enum eEngineerSpells
     SPELL_SHEEP_EXPLOSION       = 44279
 };
 
-class boss_zelfan : public CreatureScript
+class boss_zelfan : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_zelfan() : CreatureScript("boss_zelfan") { }
+    boss_zelfan() : MS::Game::Scripting::Interfaces::CreatureScript("boss_zelfan") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1302,10 +1302,10 @@ public:
 };
 
 /*
-class mob_high_explosive_sheep : public CreatureScript
+class mob_high_explosive_sheep : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_high_explosive_sheep() : CreatureScript("mob_high_explosive_sheep") { }
+    mob_high_explosive_sheep() : MS::Game::Scripting::Interfaces::CreatureScript("mob_high_explosive_sheep") { }
 
     //CreatureAI* GetAI(Creature* creature) const
     //{

@@ -27,10 +27,10 @@ enum Factions
     FACTION_HOSTILE_FOR_ALL                       = 16
 };
 
-class instance_nexus : public InstanceMapScript
+class instance_nexus : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
 public:
-    instance_nexus() : InstanceMapScript("instance_nexus", 576) { }
+    instance_nexus() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_nexus", 576) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {

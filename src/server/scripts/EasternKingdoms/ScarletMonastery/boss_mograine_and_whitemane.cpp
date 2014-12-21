@@ -57,10 +57,10 @@ enum Spells
     SPELL_POWERWORDSHIELD        = 22187
 };
 
-class boss_scarlet_commander_mograine : public CreatureScript
+class boss_scarlet_commander_mograine : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_scarlet_commander_mograine() : CreatureScript("boss_scarlet_commander_mograine") { }
+    boss_scarlet_commander_mograine() : MS::Game::Scripting::Interfaces::CreatureScript("boss_scarlet_commander_mograine") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -222,10 +222,10 @@ public:
     };
 };
 
-class boss_high_inquisitor_whitemane : public CreatureScript
+class boss_high_inquisitor_whitemane : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_high_inquisitor_whitemane() : CreatureScript("boss_high_inquisitor_whitemane") { }
+    boss_high_inquisitor_whitemane() : MS::Game::Scripting::Interfaces::CreatureScript("boss_high_inquisitor_whitemane") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

@@ -26,10 +26,10 @@ EndScriptData */
 #include "Chat.h"
 #include "BattlefieldMgr.h"
 
-class bf_commandscript : public CommandScript
+class bf_commandscript: public MS::Game::Scripting::Interfaces::CommandScript
 {
 public:
-    bf_commandscript() : CommandScript("bf_commandscript") { }
+    bf_commandscript() : MS::Game::Scripting::Interfaces::CommandScript("bf_commandscript") { }
 
     ChatCommand* GetCommands() const
     {

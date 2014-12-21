@@ -28,10 +28,10 @@ EndScriptData */
 #include "ObjectMgr.h"
 #include "PlayerDump.h"
 
-class character_commandscript : public CommandScript
+class character_commandscript: public MS::Game::Scripting::Interfaces::CommandScript
 {
 public:
-    character_commandscript() : CommandScript("character_commandscript") { }
+    character_commandscript() : MS::Game::Scripting::Interfaces::CommandScript("character_commandscript") { }
 
     ChatCommand* GetCommands() const
     {

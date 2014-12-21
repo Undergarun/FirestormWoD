@@ -33,10 +33,10 @@ enum Spells
     SPELL_SOULSIPHON                = 7290
 };
 
-class boss_azshir_the_sleepless : public CreatureScript
+class boss_azshir_the_sleepless : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_azshir_the_sleepless() : CreatureScript("boss_azshir_the_sleepless") { }
+    boss_azshir_the_sleepless() : MS::Game::Scripting::Interfaces::CreatureScript("boss_azshir_the_sleepless") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

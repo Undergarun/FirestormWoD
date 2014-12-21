@@ -33,10 +33,10 @@ enum Spells
     SPELL_CORRUPT_FORCES        = 21968
 };
 
-class celebras_the_cursed : public CreatureScript
+class celebras_the_cursed : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    celebras_the_cursed() : CreatureScript("celebras_the_cursed") { }
+    celebras_the_cursed() : MS::Game::Scripting::Interfaces::CreatureScript("celebras_the_cursed") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

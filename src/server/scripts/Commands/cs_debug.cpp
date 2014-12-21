@@ -38,10 +38,10 @@ EndScriptData */
 
 #include <fstream>
 
-class debug_commandscript : public CommandScript
+class debug_commandscript: public MS::Game::Scripting::Interfaces::CommandScript
 {
     public:
-        debug_commandscript() : CommandScript("debug_commandscript") { }
+        debug_commandscript() : MS::Game::Scripting::Interfaces::CommandScript("debug_commandscript") { }
 
         ChatCommand* GetCommands() const
         {

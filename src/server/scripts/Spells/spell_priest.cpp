@@ -138,7 +138,7 @@ enum PriestSpells
 };
 
 // Shadow Orb - 77487 & Glyph od Shadow ravens - 57985
-class PlayerScript_Shadow_Orb : public PlayerScript
+class PlayerScript_Shadow_Orb: public MS::Game::Scripting::Interfaces::PlayerScript
 {
     public:
         PlayerScript_Shadow_Orb() :PlayerScript("PlayerScript_Shadow_Orb") {}
@@ -163,10 +163,10 @@ class PlayerScript_Shadow_Orb : public PlayerScript
 };
 
 // Confession (Glyph) - 126123
-class spell_pri_confession : public SpellScriptLoader
+class spell_pri_confession: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pri_confession() : SpellScriptLoader("spell_pri_confession") { }
+        spell_pri_confession() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_confession") { }
 
         class spell_pri_confession_SpellScript : public SpellScript
         {
@@ -204,10 +204,10 @@ class spell_pri_confession : public SpellScriptLoader
 };
 
 // Glyph of Confession - 126152
-class spell_pri_glyph_of_confession : public SpellScriptLoader
+class spell_pri_glyph_of_confession: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pri_glyph_of_confession() : SpellScriptLoader("spell_pri_glyph_of_confession") { }
+        spell_pri_glyph_of_confession() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_glyph_of_confession") { }
 
         class spell_pri_glyph_of_confession_AuraScript : public AuraScript
         {
@@ -240,10 +240,10 @@ class spell_pri_glyph_of_confession : public SpellScriptLoader
 };
 
 // Shadow Word: Death (overrided by Glyph) - 129176
-class spell_pri_shadow_word_death : public SpellScriptLoader
+class spell_pri_shadow_word_death: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pri_shadow_word_death() : SpellScriptLoader("spell_pri_shadow_word_death") { }
+        spell_pri_shadow_word_death() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_shadow_word_death") { }
 
         class spell_pri_shadow_word_death_SpellScript : public SpellScript
         {
@@ -284,10 +284,10 @@ class spell_pri_shadow_word_death : public SpellScriptLoader
 };
 
 // Holy Nova (heal) - 23455
-class spell_pri_holy_nova_heal : public SpellScriptLoader
+class spell_pri_holy_nova_heal: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pri_holy_nova_heal() : SpellScriptLoader("spell_pri_holy_nova_heal") { }
+        spell_pri_holy_nova_heal() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_holy_nova_heal") { }
 
         class spell_pri_holy_nova_heal_SpellScript : public SpellScript
         {
@@ -314,10 +314,10 @@ class spell_pri_holy_nova_heal : public SpellScriptLoader
 };
 
 // Holy Nova - 132157
-class spell_pri_holy_nova : public SpellScriptLoader
+class spell_pri_holy_nova: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pri_holy_nova() : SpellScriptLoader("spell_pri_holy_nova") { }
+        spell_pri_holy_nova() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_holy_nova") { }
 
         class spell_pri_holy_nova_SpellScript : public SpellScript
         {
@@ -342,10 +342,10 @@ class spell_pri_holy_nova : public SpellScriptLoader
 };
 
 // Glyph of Holy Nova - 125045
-class spell_pri_glyph_of_holy_nova : public SpellScriptLoader
+class spell_pri_glyph_of_holy_nova: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pri_glyph_of_holy_nova() : SpellScriptLoader("spell_pri_glyph_of_holy_nova") { }
+        spell_pri_glyph_of_holy_nova() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_glyph_of_holy_nova") { }
 
         class spell_pri_glyph_of_holy_nova_AuraScript : public AuraScript
         {
@@ -384,10 +384,10 @@ class spell_pri_glyph_of_holy_nova : public SpellScriptLoader
 };
 
 // Spectral Guise Charges - 119030
-class spell_pri_spectral_guise_charges : public SpellScriptLoader
+class spell_pri_spectral_guise_charges: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pri_spectral_guise_charges() : SpellScriptLoader("spell_pri_spectral_guise_charges") { }
+        spell_pri_spectral_guise_charges() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_spectral_guise_charges") { }
 
         class spell_pri_spectral_guise_charges_AuraScript : public AuraScript
         {
@@ -434,10 +434,10 @@ class spell_pri_spectral_guise_charges : public SpellScriptLoader
 };
 
 // Spirit of Redemption (Shapeshift) - 27827
-class spell_pri_spirit_of_redemption_form : public SpellScriptLoader
+class spell_pri_spirit_of_redemption_form: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pri_spirit_of_redemption_form() : SpellScriptLoader("spell_pri_spirit_of_redemption_form") { }
+        spell_pri_spirit_of_redemption_form() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_spirit_of_redemption_form") { }
 
         class spell_pri_spirit_of_redemption_form_AuraScript : public AuraScript
         {
@@ -467,10 +467,10 @@ class spell_pri_spirit_of_redemption_form : public SpellScriptLoader
 };
 
 // Spirit of Redemption - 20711
-class spell_pri_spirit_of_redemption : public SpellScriptLoader
+class spell_pri_spirit_of_redemption: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pri_spirit_of_redemption() : SpellScriptLoader("spell_pri_spirit_of_redemption") { }
+        spell_pri_spirit_of_redemption() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_spirit_of_redemption") { }
 
         class spell_pri_spirit_of_redemption_AuraScript : public AuraScript
         {
@@ -515,10 +515,10 @@ class spell_pri_spirit_of_redemption : public SpellScriptLoader
 
 // Called by Prayer of Mending - 33076
 // Item : S12 4P bonus - Heal
-class spell_pri_item_s12_4p_heal : public SpellScriptLoader
+class spell_pri_item_s12_4p_heal: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pri_item_s12_4p_heal() : SpellScriptLoader("spell_pri_item_s12_4p_heal") { }
+        spell_pri_item_s12_4p_heal() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_item_s12_4p_heal") { }
 
         class spell_pri_item_s12_4p_heal_SpellScript : public SpellScript
         {
@@ -546,10 +546,10 @@ class spell_pri_item_s12_4p_heal : public SpellScriptLoader
 
 // Called by Dispersion - 47585
 // Item : S12 2P bonus - Shadow
-class spell_pri_item_s12_2p_shadow : public SpellScriptLoader
+class spell_pri_item_s12_2p_shadow: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pri_item_s12_2p_shadow() : SpellScriptLoader("spell_pri_item_s12_2p_shadow") { }
+        spell_pri_item_s12_2p_shadow() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_item_s12_2p_shadow") { }
 
         class spell_pri_item_s12_2p_shadow_SpellScript : public SpellScript
         {
@@ -575,10 +575,10 @@ class spell_pri_item_s12_2p_shadow : public SpellScriptLoader
 };
 
 // Divine Insight - 124430
-class spell_pri_divine_insight_shadow : public SpellScriptLoader
+class spell_pri_divine_insight_shadow: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pri_divine_insight_shadow() : SpellScriptLoader("spell_pri_divine_insight_shadow") { }
+        spell_pri_divine_insight_shadow() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_divine_insight_shadow") { }
 
         class spell_pri_divine_insight_shadow_SpellScript : public SpellScript
         {
@@ -604,10 +604,10 @@ class spell_pri_divine_insight_shadow : public SpellScriptLoader
 };
 
 // Power Word - Solace - 129250
-class spell_pri_power_word_solace : public SpellScriptLoader
+class spell_pri_power_word_solace: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pri_power_word_solace() : SpellScriptLoader("spell_pri_power_word_solace") { }
+        spell_pri_power_word_solace() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_power_word_solace") { }
 
         class spell_pri_power_word_solace_SpellScript : public SpellScript
         {
@@ -635,10 +635,10 @@ class spell_pri_power_word_solace : public SpellScriptLoader
 };
 
 // Shadowfiend - 34433 or Mindbender - 123040
-class spell_pri_shadowfiend : public SpellScriptLoader
+class spell_pri_shadowfiend: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pri_shadowfiend() : SpellScriptLoader("spell_pri_shadowfiend") { }
+        spell_pri_shadowfiend() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_shadowfiend") { }
 
         class spell_pri_shadowfiend_SpellScript : public SpellScript
         {
@@ -682,10 +682,10 @@ class spell_pri_shadowfiend : public SpellScriptLoader
 
 // Surge of Light (Discipline, Holy) - 109186 
 // Surge of Light - 114255
-class spell_pri_surge_of_light : public SpellScriptLoader
+class spell_pri_surge_of_light: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pri_surge_of_light() : SpellScriptLoader("spell_pri_surge_of_light") { }
+        spell_pri_surge_of_light() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_surge_of_light") { }
 
         class spell_pri_surge_of_light_SpellScript : public SpellScript
         {
@@ -748,10 +748,10 @@ class spell_pri_surge_of_light : public SpellScriptLoader
 
 // Called by Leap of Faith - 73325 and Power Word : Shield - 17
 // Body and Soul - 64129
-class spell_pri_body_and_soul : public SpellScriptLoader
+class spell_pri_body_and_soul: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pri_body_and_soul() : SpellScriptLoader("spell_pri_body_and_soul") { }
+        spell_pri_body_and_soul() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_body_and_soul") { }
 
         class spell_pri_body_and_soul_SpellScript : public SpellScript
         {
@@ -778,10 +778,10 @@ class spell_pri_body_and_soul : public SpellScriptLoader
 };
 
 // Prayer of Mending (Divine Insight) - 123259
-class spell_pri_prayer_of_mending_divine_insight : public SpellScriptLoader
+class spell_pri_prayer_of_mending_divine_insight: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pri_prayer_of_mending_divine_insight() : SpellScriptLoader("spell_pri_prayer_of_mending_divine_insight") { }
+        spell_pri_prayer_of_mending_divine_insight() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_prayer_of_mending_divine_insight") { }
 
         class spell_pri_prayer_of_mending_divine_insight_SpellScript : public SpellScript
         {
@@ -860,10 +860,10 @@ class spell_pri_prayer_of_mending_divine_insight : public SpellScriptLoader
 
 // Called by Greater Heal - 2060 and Prayer of Healing - 596
 // Divine Insight (Holy) - 109175
-class spell_pri_divine_insight_holy : public SpellScriptLoader
+class spell_pri_divine_insight_holy: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pri_divine_insight_holy() : SpellScriptLoader("spell_pri_divine_insight_holy") { }
+        spell_pri_divine_insight_holy() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_divine_insight_holy") { }
 
         class spell_pri_divine_insight_holy_SpellScript : public SpellScript
         {
@@ -892,10 +892,10 @@ class spell_pri_divine_insight_holy : public SpellScriptLoader
 
 // Called by Power Word: Shield (Divine Insight) - 123258 and Power Word: Shield - 17
 // Divine Insight (Discipline) - 123266
-class spell_pri_divine_insight_discipline : public SpellScriptLoader
+class spell_pri_divine_insight_discipline: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pri_divine_insight_discipline() : SpellScriptLoader("spell_pri_divine_insight_discipline") { }
+        spell_pri_divine_insight_discipline() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_divine_insight_discipline") { }
 
         class spell_pri_divine_insight_discipline_SpellScript : public SpellScript
         {
@@ -921,10 +921,10 @@ class spell_pri_divine_insight_discipline : public SpellScriptLoader
 };
 
 // Holy Word : Sanctuary - 88685
-class spell_pri_holy_word_sanctuary : public SpellScriptLoader
+class spell_pri_holy_word_sanctuary: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pri_holy_word_sanctuary() : SpellScriptLoader("spell_pri_holy_word_sanctuary") { }
+        spell_pri_holy_word_sanctuary() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_holy_word_sanctuary") { }
 
         class spell_pri_holy_word_sanctuary_AuraScript : public AuraScript
         {
@@ -953,10 +953,10 @@ class spell_pri_holy_word_sanctuary : public SpellScriptLoader
 };
 
 // Power Word: Shield - 17
-class spell_pri_power_word_shield : public SpellScriptLoader
+class spell_pri_power_word_shield: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pri_power_word_shield() : SpellScriptLoader("spell_pri_power_word_shield") { }
+        spell_pri_power_word_shield() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_power_word_shield") { }
 
         class spell_pri_power_word_shield_AuraScript : public AuraScript
         {
@@ -1027,10 +1027,10 @@ class spell_pri_power_word_shield : public SpellScriptLoader
 
 // Called by Smite - 585
 // Chakra : Chastise - 81209
-class spell_pri_chakra_chastise : public SpellScriptLoader
+class spell_pri_chakra_chastise: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pri_chakra_chastise() : SpellScriptLoader("spell_pri_chakra_chastise") { }
+        spell_pri_chakra_chastise() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_chakra_chastise") { }
 
         class spell_pri_chakra_chastise_SpellScript : public SpellScript
         {
@@ -1058,10 +1058,10 @@ class spell_pri_chakra_chastise : public SpellScriptLoader
 };
 
 // Lightwell Renew - 60123
-class spell_pri_lightwell_renew : public SpellScriptLoader
+class spell_pri_lightwell_renew: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pri_lightwell_renew() : SpellScriptLoader("spell_pri_lightwell_renew") { }
+        spell_pri_lightwell_renew() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_lightwell_renew") { }
 
         class spell_pri_lightwell_renew_SpellScript : public SpellScript
         {
@@ -1101,10 +1101,10 @@ class spell_pri_lightwell_renew : public SpellScriptLoader
 
 // Called by Smite - 585, Holy Fire - 14914 and Penance - 47666
 // Atonement - 81749
-class spell_pri_atonement : public SpellScriptLoader
+class spell_pri_atonement: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pri_atonement() : SpellScriptLoader("spell_pri_atonement") { }
+        spell_pri_atonement() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_atonement") { }
 
         class spell_pri_atonement_SpellScript : public SpellScript
         {
@@ -1161,10 +1161,10 @@ enum Purify_Spell
 };
 
 // Purify - 527
-class spell_pri_purify : public SpellScriptLoader
+class spell_pri_purify: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pri_purify() : SpellScriptLoader("spell_pri_purify") { }
+        spell_pri_purify() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_purify") { }
 
         class spell_pri_purify_SpellScript : public SpellScript
         {
@@ -1212,10 +1212,10 @@ class spell_pri_purify : public SpellScriptLoader
 };
 
 // Devouring Plague - 2944
-class spell_pri_devouring_plague : public SpellScriptLoader
+class spell_pri_devouring_plague: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pri_devouring_plague() : SpellScriptLoader("spell_pri_devouring_plague") { }
+        spell_pri_devouring_plague() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_devouring_plague") { }
 
         class spell_pri_devouring_plague_SpellScript : public SpellScript
         {
@@ -1266,10 +1266,10 @@ class spell_pri_devouring_plague : public SpellScriptLoader
 };
 
 // Devouring Plague Periodic Damage - 158831
-class spell_pri_devouring_plague_aura : public SpellScriptLoader
+class spell_pri_devouring_plague_aura: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_pri_devouring_plague_aura() : SpellScriptLoader("spell_pri_devouring_plague_aura") { }
+    spell_pri_devouring_plague_aura() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_devouring_plague_aura") { }
 
     class spell_pri_devouring_plague_aura_AuraScript : public AuraScript
     {
@@ -1309,10 +1309,10 @@ public:
 
 // Called by Fade - 586
 // Phantasm - 108942
-class spell_pri_phantasm : public SpellScriptLoader
+class spell_pri_phantasm: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pri_phantasm() : SpellScriptLoader("spell_pri_phantasm") { }
+        spell_pri_phantasm() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_phantasm") { }
 
         class spell_pri_phantasm_SpellScript : public SpellScript
         {
@@ -1343,10 +1343,10 @@ class spell_pri_phantasm : public SpellScriptLoader
 };
 
 // Mind Spike - 73510
-class spell_pri_mind_spike : public SpellScriptLoader
+class spell_pri_mind_spike: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pri_mind_spike() : SpellScriptLoader("spell_pri_mind_spike") { }
+        spell_pri_mind_spike() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_mind_spike") { }
 
         class spell_pri_mind_spike_SpellScript : public SpellScript
         {
@@ -1390,10 +1390,10 @@ class spell_pri_mind_spike : public SpellScriptLoader
 
 // Called by Holy Fire - 14914, Smite - 585 and Penance - 47666
 // Evangelism - 81662
-class spell_pri_evangelism : public SpellScriptLoader
+class spell_pri_evangelism: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pri_evangelism() : SpellScriptLoader("spell_pri_evangelism") { }
+        spell_pri_evangelism() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_evangelism") { }
 
         class spell_pri_evangelism_SpellScript : public SpellScript
         {
@@ -1420,10 +1420,10 @@ class spell_pri_evangelism : public SpellScriptLoader
 };
 
 // Cascade - 127630 (damage trigger) or Cascade - 120786 (heal trigger)
-class spell_pri_cascade_second : public SpellScriptLoader
+class spell_pri_cascade_second: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pri_cascade_second() : SpellScriptLoader("spell_pri_cascade_second") { }
+        spell_pri_cascade_second() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_cascade_second") { }
 
         class spell_pri_cascade_second_SpellScript : public SpellScript
         {
@@ -1556,10 +1556,10 @@ class spell_pri_cascade_second : public SpellScriptLoader
 };
 
 // Cascade - 120785 (holy damage) or Cascade - 127628 (shadow damage) or Cascade - 127627 (shadow missile) or Cascade - 121146 (holy missile)
-class spell_pri_cascade_trigger : public SpellScriptLoader
+class spell_pri_cascade_trigger: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pri_cascade_trigger() : SpellScriptLoader("spell_pri_cascade_trigger") { }
+        spell_pri_cascade_trigger() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_cascade_trigger") { }
 
         class spell_pri_cascade_trigger_SpellScript : public SpellScript
         {
@@ -1596,10 +1596,10 @@ class spell_pri_cascade_trigger : public SpellScriptLoader
 };
 
 // Cascade (shadow) - 127632 and Cascade - 121135
-class spell_pri_cascade_first : public SpellScriptLoader
+class spell_pri_cascade_first: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pri_cascade_first() : SpellScriptLoader("spell_pri_cascade_first") { }
+        spell_pri_cascade_first() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_cascade_first") { }
 
         class spell_pri_cascade_first_SpellScript : public SpellScript
         {
@@ -1672,10 +1672,10 @@ class spell_pri_cascade_first : public SpellScriptLoader
 };
 
 // Halo - 120692 : Heal
-class spell_pri_halo_heal : public SpellScriptLoader
+class spell_pri_halo_heal: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pri_halo_heal() : SpellScriptLoader("spell_pri_halo_heal") { }
+        spell_pri_halo_heal() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_halo_heal") { }
 
         class spell_pri_halo_heal_SpellScript : public SpellScript
         {
@@ -1714,10 +1714,10 @@ enum Halo_Spell
 };
 
 // Halo Damage (shadow) - 120696
-class spell_pri_halo_damage : public SpellScriptLoader
+class spell_pri_halo_damage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pri_halo_damage() : SpellScriptLoader("spell_pri_halo_damage") { }
+        spell_pri_halo_damage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_halo_damage") { }
 
         class spell_pri_halo_damage_SpellScript : public SpellScript
         {
@@ -1752,10 +1752,10 @@ class spell_pri_halo_damage : public SpellScriptLoader
 
 // Halo - 120644 (damage)
 // Halo - 120517 (heal)
-class spell_pri_halo : public SpellScriptLoader
+class spell_pri_halo: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_pri_halo() : SpellScriptLoader("spell_pri_halo") { }
+    spell_pri_halo() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_halo") { }
 
     class spell_pri_halo_SpellScript : public SpellScript
     {
@@ -1809,10 +1809,10 @@ SpellScript* GetSpellScript() const
 };
 
 // Leap of Faith - 73325
-class spell_pri_leap_of_faith : public SpellScriptLoader
+class spell_pri_leap_of_faith: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pri_leap_of_faith() : SpellScriptLoader("spell_pri_leap_of_faith") { }
+        spell_pri_leap_of_faith() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_leap_of_faith") { }
 
         class spell_pri_leap_of_faith_SpellScript : public SpellScript
         {
@@ -1843,10 +1843,10 @@ enum PsychicHorror_Spell
 };
 
 // Psychic Horror - 64044
-class spell_pri_psychic_horror : public SpellScriptLoader
+class spell_pri_psychic_horror: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pri_psychic_horror() : SpellScriptLoader("spell_pri_psychic_horror") { }
+        spell_pri_psychic_horror() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_psychic_horror") { }
 
         class spell_pri_psychic_horror_SpellScript : public SpellScript
         {
@@ -1893,10 +1893,10 @@ class spell_pri_psychic_horror : public SpellScriptLoader
 };
 
 // Guardian Spirit - 47788
-class spell_pri_guardian_spirit : public SpellScriptLoader
+class spell_pri_guardian_spirit: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pri_guardian_spirit() : SpellScriptLoader("spell_pri_guardian_spirit") { }
+        spell_pri_guardian_spirit() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_guardian_spirit") { }
 
         class spell_pri_guardian_spirit_AuraScript : public AuraScript
         {
@@ -1950,10 +1950,10 @@ class spell_pri_guardian_spirit : public SpellScriptLoader
 };
 
 // Penance - 47540
-class spell_pri_penance : public SpellScriptLoader
+class spell_pri_penance: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pri_penance() : SpellScriptLoader("spell_pri_penance") { }
+        spell_pri_penance() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_penance") { }
 
         class spell_pri_penance_SpellScript : public SpellScript
         {
@@ -2034,10 +2034,10 @@ enum Prayer_Of_Mending_Spell
 };
 
 // Prayer of Mending Heal
-class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
+class spell_pri_prayer_of_mending_heal: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pri_prayer_of_mending_heal() : SpellScriptLoader("spell_pri_prayer_of_mending_heal") { }
+        spell_pri_prayer_of_mending_heal() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_prayer_of_mending_heal") { }
 
         class spell_pri_prayer_of_mending_heal_SpellScript : public SpellScript
         {
@@ -2070,10 +2070,10 @@ class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
 };
 
 // Vampiric Touch - 34914
-class spell_pri_vampiric_touch : public SpellScriptLoader
+class spell_pri_vampiric_touch: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pri_vampiric_touch() : SpellScriptLoader("spell_pri_vampiric_touch") { }
+        spell_pri_vampiric_touch() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_vampiric_touch") { }
 
         class spell_pri_vampiric_touch_AuraScript : public AuraScript
         {
@@ -2115,10 +2115,10 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
 
 // Called by Renew - 139
 // Rapid Renew - 95649
-class spell_pri_renew : public SpellScriptLoader
+class spell_pri_renew: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pri_renew() : SpellScriptLoader("spell_pri_renew") { }
+        spell_pri_renew() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_renew") { }
 
         class spell_pri_renew_AuraScript : public AuraScript
         {
@@ -2153,10 +2153,10 @@ class spell_pri_renew : public SpellScriptLoader
 };
 
 // Levitate - 1706
-class spell_pri_levitate : public SpellScriptLoader
+class spell_pri_levitate: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pri_levitate() : SpellScriptLoader("spell_pri_levitate") { }
+        spell_pri_levitate() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_levitate") { }
 
         class spell_pri_levitate_SpellScript : public SpellScript
         {
@@ -2183,10 +2183,10 @@ class spell_pri_levitate : public SpellScriptLoader
 
 // Call by Flah Heal 2061 - Heal 2060 - Prayer of healing 596
 // Spirit Shell - 109964
-class spell_pri_spirit_shell : public SpellScriptLoader
+class spell_pri_spirit_shell: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_pri_spirit_shell() : SpellScriptLoader("spell_pri_spirit_shell") { }
+    spell_pri_spirit_shell() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_spirit_shell") { }
 
     class spell_pri_spirit_shell_SpellScript : public SpellScript
     {
@@ -2216,10 +2216,10 @@ public:
 };
 
 // Flash heal - 2061
-class spell_pri_flash_heal : public SpellScriptLoader
+class spell_pri_flash_heal: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_pri_flash_heal() : SpellScriptLoader("spell_pri_flash_heal") { }
+    spell_pri_flash_heal() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_flash_heal") { }
 
     class spell_pri_flash_heal_SpellScript : public SpellScript
     {
@@ -2245,10 +2245,10 @@ public:
 };
 
 // Clarity of will - 152118
-class spell_pri_clarity_of_will : public SpellScriptLoader
+class spell_pri_clarity_of_will: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_pri_clarity_of_will() : SpellScriptLoader("spell_pri_clarity_of_will") { }
+    spell_pri_clarity_of_will() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_clarity_of_will") { }
 
     class spell_pri_clarity_of_will_AuraScript : public AuraScript
     {
@@ -2274,10 +2274,10 @@ public:
 };
 
 // Void Tendrils - 108920
-class spell_pri_void_tendrils : public SpellScriptLoader
+class spell_pri_void_tendrils: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_pri_void_tendrils() : SpellScriptLoader("spell_pri_void_tendrils") { }
+        spell_pri_void_tendrils() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_void_tendrils") { }
 
         class spell_pri_void_tendrils_SpellScript : public SpellScript
         {
@@ -2320,10 +2320,10 @@ class spell_pri_void_tendrils : public SpellScriptLoader
 };
 
 //Power word : Barrier Update - 145645
-class spell_pri_word_barrier_update : public SpellScriptLoader
+class spell_pri_word_barrier_update: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_pri_word_barrier_update() : SpellScriptLoader("spell_pri_word_barrier_update") { }
+    spell_pri_word_barrier_update() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_word_barrier_update") { }
 
     class spell_pri_word_barrier_update_AuraScript : public AuraScript
     {
@@ -2377,10 +2377,10 @@ public:
     }
 };
 //Power word : Barrier - 62618
-class spell_pri_power_word_barrier : public SpellScriptLoader
+class spell_pri_power_word_barrier: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_pri_power_word_barrier() : SpellScriptLoader("spell_pri_power_word_barrier") { }
+    spell_pri_power_word_barrier() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_power_word_barrier") { }
 
     class spell_pri_power_word_barrier_SpellScript : public SpellScript
     {
@@ -2406,10 +2406,10 @@ public:
 };
 
 // Archangel - 81700
-class spell_pri_archangel : public SpellScriptLoader
+class spell_pri_archangel: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_pri_archangel() : SpellScriptLoader("spell_pri_archangel") { }
+    spell_pri_archangel() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_archangel") { }
 
     class spell_pri_archangel_AuraScript : public AuraScript
     {
@@ -2438,10 +2438,10 @@ public:
 };
 
 // Prayer of Mending - 33076
-class spell_pri_prayer_of_mending : public SpellScriptLoader
+class spell_pri_prayer_of_mending: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_pri_prayer_of_mending() : SpellScriptLoader("spell_pri_prayer_of_mending") {}
+    spell_pri_prayer_of_mending() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_prayer_of_mending") {}
 
     class spell_pri_prayer_of_mending_SpellScript : public SpellScript
     {
@@ -2468,10 +2468,10 @@ public:
 
 // Call by Mind Spike 73510 - Mind Sear 48045 - Shadow Word: Death 32379
 // Clarity of Power - 155246
-class spell_pri_clarity_of_power : public SpellScriptLoader
+class spell_pri_clarity_of_power: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_pri_clarity_of_power() : SpellScriptLoader("spell_pri_clarity_of_power") {}
+    spell_pri_clarity_of_power() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_clarity_of_power") {}
 
     class spell_pri_clarity_of_power_SpellScript : public SpellScript
     {
@@ -2500,10 +2500,10 @@ public:
 
 // Call by Vampiric Touch 34914 - Devouring Plague 2944
 // Surge of Darkness - 162448
-class spell_pri_surge_of_darkness : public SpellScriptLoader
+class spell_pri_surge_of_darkness: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_pri_surge_of_darkness() : SpellScriptLoader("spell_pri_surge_of_darkness") {}
+    spell_pri_surge_of_darkness() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_surge_of_darkness") {}
 
     class spell_pri_surge_of_darkness_SpellScript : public SpellScript
     {
@@ -2530,10 +2530,10 @@ public:
 };
 
 // Angelic Feather - 121536
-class spell_pri_angelic_feather : public SpellScriptLoader
+class spell_pri_angelic_feather: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_pri_angelic_feather() : SpellScriptLoader("spell_pri_angelic_feather") {}
+    spell_pri_angelic_feather() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_angelic_feather") {}
 
     class spell_pri_angelic_feather_SpellScript : public SpellScript
     {
@@ -2559,10 +2559,10 @@ public:
 };
 
 // Shadow Word: Pain - 589
-class spell_pri_shadow_word_pain : public SpellScriptLoader
+class spell_pri_shadow_word_pain: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_pri_shadow_word_pain() : SpellScriptLoader("spell_pri_shadow_word_pain") { }
+    spell_pri_shadow_word_pain() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_pri_shadow_word_pain") { }
 
     class spell_pri_shadow_word_pain_AuraScript : public AuraScript
     {
@@ -2591,7 +2591,7 @@ public:
 };
 
 // Insanity - 132573
-class PlayerScript_insanity : public PlayerScript
+class PlayerScript_insanity: public MS::Game::Scripting::Interfaces::PlayerScript
 {
 public:
     PlayerScript_insanity() :PlayerScript("PlayerScript_insanity") {}

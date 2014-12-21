@@ -60,10 +60,10 @@ enum draeneiSurvivor
     SPELL_STUNNED       = 28630
 };
 
-class npc_draenei_survivor : public CreatureScript
+class npc_draenei_survivor : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_draenei_survivor() : CreatureScript("npc_draenei_survivor") { }
+    npc_draenei_survivor() : MS::Game::Scripting::Interfaces::CreatureScript("npc_draenei_survivor") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -197,10 +197,10 @@ enum Overgrind
 
 #define GOSSIP_FIGHT "Traitor! You will be brought to justice!"
 
-class npc_engineer_spark_overgrind : public CreatureScript
+class npc_engineer_spark_overgrind : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_engineer_spark_overgrind() : CreatureScript("npc_engineer_spark_overgrind") { }
+    npc_engineer_spark_overgrind() : MS::Game::Scripting::Interfaces::CreatureScript("npc_engineer_spark_overgrind") { }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
@@ -300,10 +300,10 @@ public:
 ## npc_injured_draenei
 ######*/
 
-class npc_injured_draenei : public CreatureScript
+class npc_injured_draenei : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_injured_draenei() : CreatureScript("npc_injured_draenei") { }
+    npc_injured_draenei() : MS::Game::Scripting::Interfaces::CreatureScript("npc_injured_draenei") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -355,10 +355,10 @@ enum Magwin
     QUEST_A_CRY_FOR_SAY_HELP    = 9528
 };
 
-class npc_magwin : public CreatureScript
+class npc_magwin : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_magwin() : CreatureScript("npc_magwin") { }
+    npc_magwin() : MS::Game::Scripting::Interfaces::CreatureScript("npc_magwin") { }
 
     bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
@@ -424,10 +424,10 @@ enum RavegerCage
     QUEST_STRENGTH_ONE      = 9582
 };
 
-class go_ravager_cage : public GameObjectScript
+class go_ravager_cage : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_ravager_cage() : GameObjectScript("go_ravager_cage") { }
+    go_ravager_cage() : MS::Game::Scripting::Interfaces::GameObjectScript("go_ravager_cage") { }
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
@@ -444,10 +444,10 @@ public:
     }
 };
 
-class npc_death_ravager : public CreatureScript
+class npc_death_ravager : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_death_ravager() : CreatureScript("npc_death_ravager") { }
+    npc_death_ravager() : MS::Game::Scripting::Interfaces::CreatureScript("npc_death_ravager") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -515,10 +515,10 @@ enum BristlelimbCage
     EVENT_DESPAWN                       = 1,
 };
 
-class npc_stillpine_capitive : public CreatureScript
+class npc_stillpine_capitive : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_stillpine_capitive() : CreatureScript("npc_stillpine_capitive") { }
+        npc_stillpine_capitive() : MS::Game::Scripting::Interfaces::CreatureScript("npc_stillpine_capitive") { }
 
         struct npc_stillpine_capitiveAI : public ScriptedAI
         {
@@ -585,10 +585,10 @@ class npc_stillpine_capitive : public CreatureScript
         }
 };
 
-class go_bristlelimb_cage : public GameObjectScript
+class go_bristlelimb_cage : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
     public:
-        go_bristlelimb_cage() : GameObjectScript("go_bristlelimb_cage") { }
+        go_bristlelimb_cage() : MS::Game::Scripting::Interfaces::GameObjectScript("go_bristlelimb_cage") { }
 
         bool OnGossipHello(Player* player, GameObject* go)
         {

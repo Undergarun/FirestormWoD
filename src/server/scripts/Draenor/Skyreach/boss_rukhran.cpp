@@ -37,7 +37,7 @@ namespace MS
             { 909.16f, 1883.930f, 214.40f },
         };
 
-        class mob_SolarFlare : public CreatureScript
+        class mob_SolarFlare : public Game::Scripting::Interfaces::CreatureScript
         {
         public:
             // Entry: 76227
@@ -152,7 +152,7 @@ namespace MS
             };
         };
 
-        class mob_SkyreachRavenWhisperer : public CreatureScript
+        class mob_SkyreachRavenWhisperer : public Game::Scripting::Interfaces::CreatureScript
         {
         public:
             // Entry: 76154
@@ -224,7 +224,7 @@ namespace MS
             };
         };
 
-        class boss_Rukhran : public CreatureScript
+        class boss_Rukhran : public Game::Scripting::Interfaces::CreatureScript
         {
         public:
             // Entry: 76143

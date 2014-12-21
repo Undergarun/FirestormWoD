@@ -137,10 +137,10 @@ enum WarlockSpells
 // Called by Grimoire: Imp - 111859, Grimoire: Voidwalker - 111895, Grimoire: Succubus - 111896
 // Grimoire: Felhunter - 111897 and Grimoire: Felguard - 111898
 // Grimoire of Service - Demons
-class spell_warl_grimoire_of_service : public SpellScriptLoader
+class spell_warl_grimoire_of_service: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_grimoire_of_service() : SpellScriptLoader("spell_warl_grimoire_of_service") { }
+        spell_warl_grimoire_of_service() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_grimoire_of_service") { }
 
         class spell_warl_grimoire_of_service_SpellScript : public SpellScript
         {
@@ -194,10 +194,10 @@ class spell_warl_grimoire_of_service : public SpellScriptLoader
 };
 
 // Haunt (dispel effect) - 48181
-class spell_warl_haunt_dispel : public SpellScriptLoader
+class spell_warl_haunt_dispel: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_haunt_dispel() : SpellScriptLoader("spell_warl_haunt_dispel") { }
+        spell_warl_haunt_dispel() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_haunt_dispel") { }
 
         class spell_warl_haunt_dispel_AuraScript : public AuraScript
         {
@@ -226,10 +226,10 @@ const int32 purpleAuras[6] = { 113931, 113915, 113916, 113917, 113918, 113919 };
 
 // Demonic Gateway (charges periodic) - 113901
 // TODO
-class spell_warl_demonic_gateway_charges : public SpellScriptLoader
+class spell_warl_demonic_gateway_charges: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_demonic_gateway_charges() : SpellScriptLoader("spell_warl_demonic_gateway_charges") { }
+        spell_warl_demonic_gateway_charges() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_demonic_gateway_charges") { }
 
         class spell_warl_demonic_gateway_charges_AuraScript : public AuraScript
         {
@@ -288,10 +288,10 @@ class spell_warl_demonic_gateway_charges : public SpellScriptLoader
 };
 
 // Grimoire of Supremacy - 108499
-class spell_warl_grimoire_of_supremacy : public SpellScriptLoader
+class spell_warl_grimoire_of_supremacy: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_grimoire_of_supremacy() : SpellScriptLoader("spell_warl_grimoire_of_supremacy") { }
+        spell_warl_grimoire_of_supremacy() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_grimoire_of_supremacy") { }
 
         class spell_warl_grimoire_of_supremacy_AuraScript : public AuraScript
         {
@@ -354,10 +354,10 @@ class spell_warl_grimoire_of_supremacy : public SpellScriptLoader
 };
 
 // Soulburn : Health Funnel - 104220
-class spell_warl_soulburn_health_funnel : public SpellScriptLoader
+class spell_warl_soulburn_health_funnel: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_soulburn_health_funnel() : SpellScriptLoader("spell_warl_soulburn_health_funnel") { }
+        spell_warl_soulburn_health_funnel() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_soulburn_health_funnel") { }
 
         class spell_warl_soulburn_health_funnel_SpellScript : public SpellScript
         {
@@ -383,10 +383,10 @@ class spell_warl_soulburn_health_funnel : public SpellScriptLoader
 };
 
 // Soulburn : Seed of Corruption - Damage - 87385
-class spell_warl_soulburn_seed_of_corruption_damage : public SpellScriptLoader
+class spell_warl_soulburn_seed_of_corruption_damage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_soulburn_seed_of_corruption_damage() : SpellScriptLoader("spell_warl_soulburn_seed_of_corruption_damage") { }
+        spell_warl_soulburn_seed_of_corruption_damage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_soulburn_seed_of_corruption_damage") { }
 
         class spell_warl_soulburn_seed_of_corruption_damage_SpellScript : public SpellScript
         {
@@ -420,10 +420,10 @@ class spell_warl_soulburn_seed_of_corruption_damage : public SpellScriptLoader
 };
 
 // Called by Soulburn : Seed of Corruption - 114790
-class spell_warl_soulburn_seed_of_corruption : public SpellScriptLoader
+class spell_warl_soulburn_seed_of_corruption: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_soulburn_seed_of_corruption() : SpellScriptLoader("spell_warl_soulburn_seed_of_corruption") { }
+        spell_warl_soulburn_seed_of_corruption() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_soulburn_seed_of_corruption") { }
 
         class spell_warl_soulburn_seed_of_corruption_SpellScript : public SpellScript
         {
@@ -454,10 +454,10 @@ class spell_warl_soulburn_seed_of_corruption : public SpellScriptLoader
 
 // Called by Soulburn : Curse of Enfeeblement - 109468 and Soulburn : Curse of Exhaustion - 104223
 // Soulburn - 74434
-class spell_warl_soulburn_override : public SpellScriptLoader
+class spell_warl_soulburn_override: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_soulburn_override() : SpellScriptLoader("spell_warl_soulburn_override") { }
+        spell_warl_soulburn_override() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_soulburn_override") { }
 
         class spell_warl_soulburn_remove_SpellScript : public SpellScript
         {
@@ -541,10 +541,10 @@ class spell_warl_soulburn_override : public SpellScriptLoader
 };
 
 // Imp Swarm - 104316
-class spell_warl_imp_swarm : public SpellScriptLoader
+class spell_warl_imp_swarm: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_imp_swarm() : SpellScriptLoader("spell_warl_imp_swarm") { }
+        spell_warl_imp_swarm() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_imp_swarm") { }
 
         class spell_warl_imp_swarm_SpellScript : public SpellScript
         {
@@ -575,10 +575,10 @@ class spell_warl_imp_swarm : public SpellScriptLoader
 };
 
 // Glyph of Imp Swarm - 56242
-class spell_warl_glyph_of_imp_swarm : public SpellScriptLoader
+class spell_warl_glyph_of_imp_swarm: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_glyph_of_imp_swarm() : SpellScriptLoader("spell_warl_glyph_of_imp_swarm") { }
+        spell_warl_glyph_of_imp_swarm() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_glyph_of_imp_swarm") { }
 
         class spell_warl_glyph_of_imp_swarm_AuraScript : public AuraScript
         {
@@ -612,10 +612,10 @@ class spell_warl_glyph_of_imp_swarm : public SpellScriptLoader
 };
 
 // Unbound Will - 108482
-class spell_warl_unbound_will : public SpellScriptLoader
+class spell_warl_unbound_will: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_unbound_will() : SpellScriptLoader("spell_warl_unbound_will") { }
+        spell_warl_unbound_will() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_unbound_will") { }
 
         class spell_warl_unbound_will_SpellScript : public SpellScript
         {
@@ -645,10 +645,10 @@ class spell_warl_unbound_will : public SpellScriptLoader
 };
 
 // Rain of Fire (damage) - 42223
-class spell_warl_rain_of_fire_damage : public SpellScriptLoader
+class spell_warl_rain_of_fire_damage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_rain_of_fire_damage() : SpellScriptLoader("spell_warl_rain_of_fire_damage") { }
+        spell_warl_rain_of_fire_damage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_rain_of_fire_damage") { }
 
         class spell_warl_rain_of_fire_damage_SpellScript : public SpellScript
         {
@@ -682,10 +682,10 @@ class spell_warl_rain_of_fire_damage : public SpellScriptLoader
 };
 
 // Voidwalker : Shield of Shadow - 103130
-class spell_warl_shield_of_shadow : public SpellScriptLoader
+class spell_warl_shield_of_shadow: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_shield_of_shadow() : SpellScriptLoader("spell_warl_shield_of_shadow") { }
+        spell_warl_shield_of_shadow() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_shield_of_shadow") { }
 
         class spell_warl_shield_of_shadow_AuraScript : public AuraScript
         {
@@ -721,10 +721,10 @@ class spell_warl_shield_of_shadow : public SpellScriptLoader
 };
 
 // Agony - 980
-class spell_warl_agony : public SpellScriptLoader
+class spell_warl_agony: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_agony() : SpellScriptLoader("spell_warl_agony") { }
+        spell_warl_agony() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_agony") { }
 
         class spell_warl_agony_AuraScript : public AuraScript
         {
@@ -763,10 +763,10 @@ class spell_warl_agony : public SpellScriptLoader
 };
 
 // Grimoire of Sacrifice - 108503
-class spell_warl_grimoire_of_sacrifice : public SpellScriptLoader
+class spell_warl_grimoire_of_sacrifice: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_grimoire_of_sacrifice() : SpellScriptLoader("spell_warl_grimoire_of_sacrifice") { }
+        spell_warl_grimoire_of_sacrifice() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_grimoire_of_sacrifice") { }
 
         class spell_warl_grimoire_of_sacrifice_SpellScript : public SpellScript
         {
@@ -981,10 +981,10 @@ class spell_warl_grimoire_of_sacrifice : public SpellScriptLoader
 };
 
 // Flames of Xoroth - 120451
-class spell_warl_flames_of_xoroth : public SpellScriptLoader
+class spell_warl_flames_of_xoroth: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_flames_of_xoroth() : SpellScriptLoader("spell_warl_flames_of_xoroth") { }
+        spell_warl_flames_of_xoroth() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_flames_of_xoroth") { }
 
         class spell_warl_flames_of_xoroth_SpellScript : public SpellScript
         {
@@ -1055,10 +1055,10 @@ class spell_warl_flames_of_xoroth : public SpellScriptLoader
 };
 
 // Soul Link - 108446
-class spell_warl_soul_link_dummy : public SpellScriptLoader
+class spell_warl_soul_link_dummy: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_soul_link_dummy() : SpellScriptLoader("spell_warl_soul_link_dummy") { }
+        spell_warl_soul_link_dummy() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_soul_link_dummy") { }
 
         class spell_warl_soul_link_dummy_AuraScript : public AuraScript
         {
@@ -1113,10 +1113,10 @@ class spell_warl_soul_link_dummy : public SpellScriptLoader
 };
 
 // Soul Link - 108415
-class spell_warl_soul_link : public SpellScriptLoader
+class spell_warl_soul_link: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_soul_link() : SpellScriptLoader("spell_warl_soul_link") { }
+        spell_warl_soul_link() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_soul_link") { }
 
         class spell_warl_soul_link_SpellScript : public SpellScript
         {
@@ -1163,10 +1163,10 @@ class spell_warl_soul_link : public SpellScriptLoader
 
 // Called by Shadowflame - 47960
 // Molten Core - 122351
-class spell_warl_molten_core_dot : public SpellScriptLoader
+class spell_warl_molten_core_dot: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_molten_core_dot() : SpellScriptLoader("spell_warl_molten_core_dot") { }
+        spell_warl_molten_core_dot() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_molten_core_dot") { }
 
         class spell_warl_molten_core_dot_AuraScript : public AuraScript
         {
@@ -1194,10 +1194,10 @@ class spell_warl_molten_core_dot : public SpellScriptLoader
 
 // Called by Shadow Bolt - 686 and Soul Fire - 6353
 // Decimate - 108869
-class spell_warl_decimate : public SpellScriptLoader
+class spell_warl_decimate: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_decimate() : SpellScriptLoader("spell_warl_decimate") { }
+        spell_warl_decimate() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_decimate") { }
 
         class spell_warl_decimate_SpellScript : public SpellScript
         {
@@ -1229,10 +1229,10 @@ class spell_warl_decimate : public SpellScriptLoader
 // Called by Shadow Bolt - 686, Soul Fire - 6353, Touch of Chaos - 103964 and Demonic Slash - 114175
 // Soul Fire (metamorphosis) - 104027
 // Demonic Call - 114925
-class spell_warl_demonic_call : public SpellScriptLoader
+class spell_warl_demonic_call: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_demonic_call() : SpellScriptLoader("spell_warl_demonic_call") { }
+        spell_warl_demonic_call() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_demonic_call") { }
 
         class spell_warl_demonic_call_SpellScript : public SpellScript
         {
@@ -1266,10 +1266,10 @@ class spell_warl_demonic_call : public SpellScriptLoader
 };
 
 // Touch of Chaos - 103964
-class spell_warl_touch_of_chaos : public SpellScriptLoader
+class spell_warl_touch_of_chaos: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_touch_of_chaos() : SpellScriptLoader("spell_warl_touch_of_chaos") { }
+        spell_warl_touch_of_chaos() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_touch_of_chaos") { }
 
         class spell_warl_touch_of_chaos_SpellScript : public SpellScript
         {
@@ -1303,10 +1303,10 @@ class spell_warl_touch_of_chaos : public SpellScriptLoader
 };
 
 // Immolation Aura - 104025
-class spell_warl_immolation_aura : public SpellScriptLoader
+class spell_warl_immolation_aura: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_immolation_aura() : SpellScriptLoader("spell_warl_immolation_aura") { }
+        spell_warl_immolation_aura() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_immolation_aura") { }
 
         class spell_warl_immolation_aura_AuraScript : public AuraScript
         {
@@ -1336,10 +1336,10 @@ enum SpellsDarkBargain
 };
 
 // Dark Bargain - 110913
-class spell_warl_dark_bargain : public SpellScriptLoader
+class spell_warl_dark_bargain: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_dark_bargain() : SpellScriptLoader("spell_warl_dark_bargain") { }
+        spell_warl_dark_bargain() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_dark_bargain") { }
 
         class spell_warl_dark_bargain_AuraScript : public AuraScript
         {
@@ -1386,10 +1386,10 @@ class spell_warl_dark_bargain : public SpellScriptLoader
 };
 
 // Dark Regeneration - 108359
-class spell_warl_dark_regeneration : public SpellScriptLoader
+class spell_warl_dark_regeneration: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_dark_regeneration() : SpellScriptLoader("spell_warl_dark_regeneration") { }
+        spell_warl_dark_regeneration() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_dark_regeneration") { }
 
         class spell_warl_dark_regeneration_AuraScript : public AuraScript
         {
@@ -1418,10 +1418,10 @@ class spell_warl_dark_regeneration : public SpellScriptLoader
 // Touch of Chaos - 103964, Demonic Slash - 114175, Soul Fire - 6353, Soul Fire (Metamorphosis) - 104027
 // Void Ray - 115422 and Shadow Burn - 17877
 // Soul Leech - 108370
-class spell_warl_soul_leech : public SpellScriptLoader
+class spell_warl_soul_leech: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_soul_leech() : SpellScriptLoader("spell_warl_soul_leech") { }
+        spell_warl_soul_leech() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_soul_leech") { }
 
         class spell_warl_soul_leech_SpellScript : public SpellScript
         {
@@ -1459,10 +1459,10 @@ class spell_warl_soul_leech : public SpellScriptLoader
 };
 
 // Sacrificial Pact - 108416
-class spell_warl_sacrificial_pact : public SpellScriptLoader
+class spell_warl_sacrificial_pact: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_sacrificial_pact() : SpellScriptLoader("spell_warl_sacrificial_pact") { }
+        spell_warl_sacrificial_pact() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_sacrificial_pact") { }
 
         class spell_warl_sacrificial_pact_AuraScript : public AuraScript
         {
@@ -1502,10 +1502,10 @@ class spell_warl_sacrificial_pact : public SpellScriptLoader
 };
 
 // Hand of Gul'Dan - 143381
-class spell_warl_hand_of_guldan : public SpellScriptLoader
+class spell_warl_hand_of_guldan: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_hand_of_guldan() : SpellScriptLoader("spell_warl_hand_of_guldan") { }
+        spell_warl_hand_of_guldan() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_hand_of_guldan") { }
 
         class spell_warl_hand_of_guldan_SpellScript : public SpellScript
         {
@@ -1531,10 +1531,10 @@ class spell_warl_hand_of_guldan : public SpellScriptLoader
 };
 
 // Hand of Gul'Dan (damage) - 86040
-class spell_warl_hand_of_guldan_damage : public SpellScriptLoader
+class spell_warl_hand_of_guldan_damage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_hand_of_guldan_damage() : SpellScriptLoader("spell_warl_hand_of_guldan_damage") { }
+        spell_warl_hand_of_guldan_damage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_hand_of_guldan_damage") { }
 
         class spell_warl_hand_of_guldan_damage_SpellScript : public SpellScript
         {
@@ -1560,10 +1560,10 @@ class spell_warl_hand_of_guldan_damage : public SpellScriptLoader
 };
 
 // Twilight Ward - 6229 and Twilight Ward (Metamorphosis) - 104048
-class spell_warl_twilight_ward_s12 : public SpellScriptLoader
+class spell_warl_twilight_ward_s12: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_twilight_ward_s12() : SpellScriptLoader("spell_warl_twilight_ward_s12") { }
+        spell_warl_twilight_ward_s12() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_twilight_ward_s12") { }
 
         class spell_warl_twilight_ward_s12_SpellScript : public SpellScript
         {
@@ -1606,10 +1606,10 @@ class spell_warl_twilight_ward_s12 : public SpellScriptLoader
 };
 
 // Hellfire - 1949
-class spell_warl_hellfire_periodic : public SpellScriptLoader
+class spell_warl_hellfire_periodic: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_hellfire_periodic() : SpellScriptLoader("spell_warl_hellfire_periodic") { }
+        spell_warl_hellfire_periodic() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_hellfire_periodic") { }
 
         class spell_warl_hellfire_periodic_AuraScript : public AuraScript
         {
@@ -1652,10 +1652,10 @@ class spell_warl_hellfire_periodic : public SpellScriptLoader
 };
 
 // Demonic Leap (jump) - 169157
-class spell_warl_demonic_leap_jump : public SpellScriptLoader
+class spell_warl_demonic_leap_jump: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_demonic_leap_jump() : SpellScriptLoader("spell_warl_demonic_leap_jump") { }
+        spell_warl_demonic_leap_jump() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_demonic_leap_jump") { }
 
         class spell_warl_demonic_leap_jump_SpellScript : public SpellScript
         {
@@ -1702,10 +1702,10 @@ class spell_warl_demonic_leap_jump : public SpellScriptLoader
 };
 
 // Demonic Leap - 109151
-class spell_warl_demonic_leap : public SpellScriptLoader
+class spell_warl_demonic_leap: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_demonic_leap() : SpellScriptLoader("spell_warl_demonic_leap") { }
+        spell_warl_demonic_leap() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_demonic_leap") { }
 
         class spell_warl_demonic_leap_SpellScript : public SpellScript
         {
@@ -1734,10 +1734,10 @@ class spell_warl_demonic_leap : public SpellScriptLoader
 };
 
 // Soul Swap : Soulburn - 119678
-class spell_warl_soul_swap_soulburn : public SpellScriptLoader
+class spell_warl_soul_swap_soulburn: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_soul_swap_soulburn() : SpellScriptLoader("spell_warl_soul_swap_soulburn") { }
+        spell_warl_soul_swap_soulburn() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_soul_swap_soulburn") { }
 
         class spell_warl_soul_swap_soulburn_SpellScript : public SpellScript
         {
@@ -1771,10 +1771,10 @@ class spell_warl_soul_swap_soulburn : public SpellScriptLoader
 };
 
 // Soul Swap - 86121 or Soul Swap : Exhale - 86213
-class spell_warl_soul_swap : public SpellScriptLoader
+class spell_warl_soul_swap: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_soul_swap() : SpellScriptLoader("spell_warl_soul_swap") { }
+        spell_warl_soul_swap() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_soul_swap") { }
 
         class spell_warl_soul_swap_SpellScript : public SpellScript
         {
@@ -1823,10 +1823,10 @@ enum DrainSoulSpells
 };
 
 // Drain Soul - 103103
-class spell_warl_drain_soul : public SpellScriptLoader
+class spell_warl_drain_soul: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_drain_soul() : SpellScriptLoader("spell_warl_drain_soul") { }
+        spell_warl_drain_soul() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_drain_soul") { }
 
         class spell_warl_drain_soul_SpellScript : public SpellScript
         {
@@ -1878,10 +1878,10 @@ class spell_warl_drain_soul : public SpellScriptLoader
 };
 
 // Demonic Gateway - 111771
-class spell_warl_demonic_gateway : public SpellScriptLoader
+class spell_warl_demonic_gateway: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_demonic_gateway() : SpellScriptLoader("spell_warl_demonic_gateway") { }
+        spell_warl_demonic_gateway() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_demonic_gateway") { }
 
         class spell_warl_demonic_gateway_SpellScript : public SpellScript
         {
@@ -1924,10 +1924,10 @@ class spell_warl_demonic_gateway : public SpellScriptLoader
 };
 
 // Rain of Fire - 104232
-class spell_warl_rain_of_fire : public SpellScriptLoader
+class spell_warl_rain_of_fire: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_rain_of_fire() : SpellScriptLoader("spell_warl_rain_of_fire") { }
+        spell_warl_rain_of_fire() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_rain_of_fire") { }
 
         class spell_warl_rain_of_fire_AuraScript : public AuraScript
         {
@@ -1960,10 +1960,10 @@ class spell_warl_rain_of_fire : public SpellScriptLoader
 };
 
 // Rain of Fire - 104232 and Rain of Fire - 5740
-class spell_warl_rain_of_fire_despawn : public SpellScriptLoader
+class spell_warl_rain_of_fire_despawn: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_rain_of_fire_despawn() : SpellScriptLoader("spell_warl_rain_of_fire_despawn") { }
+        spell_warl_rain_of_fire_despawn() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_rain_of_fire_despawn") { }
 
         class spell_warl_rain_of_fire_despawn_SpellScript : public SpellScript
         {
@@ -1997,10 +1997,10 @@ enum EmberTapSpells
     SPELL_WARL_SEARING_FLAMES = 174848
 };
 // Ember Tap - 114635
-class spell_warl_ember_tap : public SpellScriptLoader
+class spell_warl_ember_tap: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_ember_tap() : SpellScriptLoader("spell_warl_ember_tap") { }
+        spell_warl_ember_tap() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_ember_tap") { }
 
         class spell_warl_ember_tap_SpellScript : public SpellScript
         {
@@ -2052,10 +2052,10 @@ class spell_warl_ember_tap : public SpellScriptLoader
 // Curse of the Elements (Fire and Brimstone) - 104225, Curse of Enfeeblement (Fire and Brimstone) - 109468
 // Immolate (Fire and Brimstone) - 108686
 // Fire and Brimstone - 108683
-class spell_warl_fire_and_brimstone : public SpellScriptLoader
+class spell_warl_fire_and_brimstone: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_fire_and_brimstone() : SpellScriptLoader("spell_warl_fire_and_brimstone") { }
+        spell_warl_fire_and_brimstone() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_fire_and_brimstone") { }
 
         class spell_warl_fire_and_brimstone_SpellScript : public SpellScript
         {
@@ -2084,10 +2084,10 @@ class spell_warl_fire_and_brimstone : public SpellScriptLoader
 };
 
 // Conflagrate - 17962 and Conflagrate (Fire and Brimstone) - 108685
-class spell_warl_conflagrate_aura : public SpellScriptLoader
+class spell_warl_conflagrate_aura: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_conflagrate_aura() : SpellScriptLoader("spell_warl_conflagrate_aura") { }
+        spell_warl_conflagrate_aura() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_conflagrate_aura") { }
 
         class spell_warl_conflagrate_aura_SpellScript : public SpellScript
         {
@@ -2122,10 +2122,10 @@ class spell_warl_conflagrate_aura : public SpellScriptLoader
 };
 
 // Shadowburn - 29341
-class spell_warl_shadowburn : public SpellScriptLoader
+class spell_warl_shadowburn: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_shadowburn() : SpellScriptLoader("spell_warl_shadowburn") { }
+        spell_warl_shadowburn() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_shadowburn") { }
 
         class spell_warl_shadowburn_AuraScript : public AuraScript
         {
@@ -2163,10 +2163,10 @@ enum BurningEmbersSpells
 // Called By : Incinerate - 29722 and Incinerate (Fire and Brimstone) - 114654
 // Conflagrate - 17962 and Conflagrate (Fire and Brimstone) - 108685
 // Burning Embers generate
-class spell_warl_burning_embers : public SpellScriptLoader
+class spell_warl_burning_embers: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_burning_embers() : SpellScriptLoader("spell_warl_burning_embers") { }
+        spell_warl_burning_embers() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_burning_embers") { }
 
         class spell_warl_burning_embers_SpellScript : public SpellScript
         {
@@ -2212,10 +2212,10 @@ enum SpellsDrainLife
 };
 
 // Drain Life - 689
-class spell_warl_drain_life : public SpellScriptLoader
+class spell_warl_drain_life: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_drain_life() : SpellScriptLoader("spell_warl_drain_life") { }
+        spell_warl_drain_life() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_drain_life") { }
 
         class spell_warl_drain_life_AuraScript : public AuraScript
         {
@@ -2251,10 +2251,10 @@ class spell_warl_drain_life : public SpellScriptLoader
 };
 
 // Soul Harvest - 101976
-class spell_warl_soul_harverst : public SpellScriptLoader
+class spell_warl_soul_harverst: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_soul_harverst() : SpellScriptLoader("spell_warl_soul_harverst") { }
+        spell_warl_soul_harverst() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_soul_harverst") { }
 
         class spell_warl_soul_harverst_AuraScript : public AuraScript
         {
@@ -2305,10 +2305,10 @@ class spell_warl_soul_harverst : public SpellScriptLoader
 };
 
 // Life Tap - 1454
-class spell_warl_life_tap : public SpellScriptLoader
+class spell_warl_life_tap: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_life_tap() : SpellScriptLoader("spell_warl_life_tap") { }
+        spell_warl_life_tap() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_life_tap") { }
 
         class spell_warl_life_tap_SpellScript : public SpellScript
         {
@@ -2354,10 +2354,10 @@ class spell_warl_life_tap : public SpellScriptLoader
 };
 
 // Fear - 5782
-class spell_warl_fear : public SpellScriptLoader
+class spell_warl_fear: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_fear() : SpellScriptLoader("spell_warl_fear") { }
+        spell_warl_fear() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_fear") { }
 
         class spell_warl_fear_SpellScript : public SpellScript
         {
@@ -2390,10 +2390,10 @@ class spell_warl_fear : public SpellScriptLoader
 };
 
 // Banish - 710
-class spell_warl_banish : public SpellScriptLoader
+class spell_warl_banish: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_banish() : SpellScriptLoader("spell_warl_banish") { }
+        spell_warl_banish() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_banish") { }
 
         class spell_warl_banish_SpellScript : public SpellScript
         {
@@ -2445,10 +2445,10 @@ class spell_warl_banish : public SpellScriptLoader
 };
 
 // Create Healthstone - 6201
-class spell_warl_create_healthstone : public SpellScriptLoader
+class spell_warl_create_healthstone: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_create_healthstone() : SpellScriptLoader("spell_warl_create_healthstone") { }
+        spell_warl_create_healthstone() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_create_healthstone") { }
 
         class spell_warl_create_healthstone_SpellScript : public SpellScript
         {
@@ -2473,10 +2473,10 @@ class spell_warl_create_healthstone : public SpellScriptLoader
 };
 
 // Seed of Corruption - 27285
-class spell_warl_seed_of_corruption : public SpellScriptLoader
+class spell_warl_seed_of_corruption: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_seed_of_corruption() : SpellScriptLoader("spell_warl_seed_of_corruption") { }
+        spell_warl_seed_of_corruption() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_seed_of_corruption") { }
 
         class spell_warl_seed_of_corruption_SpellScript : public SpellScript
         {
@@ -2501,10 +2501,10 @@ class spell_warl_seed_of_corruption : public SpellScriptLoader
 };
 
 // Soulshatter - 29858
-class spell_warl_soulshatter : public SpellScriptLoader
+class spell_warl_soulshatter: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_soulshatter() : SpellScriptLoader("spell_warl_soulshatter") { }
+        spell_warl_soulshatter() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_soulshatter") { }
 
         class spell_warl_soulshatter_SpellScript : public SpellScript
         {
@@ -2542,10 +2542,10 @@ class spell_warl_soulshatter : public SpellScriptLoader
 };
 
 // Demonic Circle : Summon - 48018
-class spell_warl_demonic_circle_summon : public SpellScriptLoader
+class spell_warl_demonic_circle_summon: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_demonic_circle_summon() : SpellScriptLoader("spell_warl_demonic_circle_summon") { }
+        spell_warl_demonic_circle_summon() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_demonic_circle_summon") { }
 
         class spell_warl_demonic_circle_summon_AuraScript : public AuraScript
         {
@@ -2602,10 +2602,10 @@ class spell_warl_demonic_circle_summon : public SpellScriptLoader
 };
 
 // Demonic Circle : Teleport - 48020 and Soulburn : Demonic Circle : Teleport - 114794
-class spell_warl_demonic_circle_teleport : public SpellScriptLoader
+class spell_warl_demonic_circle_teleport: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_demonic_circle_teleport() : SpellScriptLoader("spell_warl_demonic_circle_teleport") { }
+        spell_warl_demonic_circle_teleport() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_demonic_circle_teleport") { }
 
         class spell_warl_demonic_circle_teleport_AuraScript : public AuraScript
         {
@@ -2649,10 +2649,10 @@ class spell_warl_demonic_circle_teleport : public SpellScriptLoader
 };
 
 // Unstable Affliction - 30108
-class spell_warl_unstable_affliction : public SpellScriptLoader
+class spell_warl_unstable_affliction: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_warl_unstable_affliction() : SpellScriptLoader("spell_warl_unstable_affliction") { }
+        spell_warl_unstable_affliction() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_warl_unstable_affliction") { }
 
         class spell_warl_unstable_affliction_AuraScript : public AuraScript
         {

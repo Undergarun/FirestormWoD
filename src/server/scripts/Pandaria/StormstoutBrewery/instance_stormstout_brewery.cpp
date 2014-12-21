@@ -7,10 +7,10 @@
 #include "InstanceScript.h"
 #include "stormstout_brewery.h"
 
-class instance_stormstout_brewery : public InstanceMapScript
+class instance_stormstout_brewery : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
 public:
-    instance_stormstout_brewery() : InstanceMapScript("instance_stormstout_brewery", 961) { }
+    instance_stormstout_brewery() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_stormstout_brewery", 961) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {

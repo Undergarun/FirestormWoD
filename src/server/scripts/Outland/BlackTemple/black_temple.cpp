@@ -39,10 +39,10 @@ EndContentData */
 #define SPELL_TELEPORT      41566                           // s41566 - Teleport to Ashtongue NPC's
 #define GOSSIP_OLUM1        "Teleport me to the other Ashtongue Deathsworn"
 
-class npc_spirit_of_olum : public CreatureScript
+class npc_spirit_of_olum : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_spirit_of_olum() : CreatureScript("npc_spirit_of_olum") { }
+    npc_spirit_of_olum() : MS::Game::Scripting::Interfaces::CreatureScript("npc_spirit_of_olum") { }
 
     bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
     {

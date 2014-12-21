@@ -57,10 +57,10 @@ enum Adds
     NPC_BLAZING_INFERNO         = 40927,
 };
 
-class boss_rajh : public CreatureScript
+class boss_rajh : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_rajh() : CreatureScript("boss_rajh") { }
+        boss_rajh() : MS::Game::Scripting::Interfaces::CreatureScript("boss_rajh") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -211,10 +211,10 @@ class boss_rajh : public CreatureScript
         };
 };
 
-class npc_rajh_solar_wind : public CreatureScript
+class npc_rajh_solar_wind : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_rajh_solar_wind() : CreatureScript("npc_rajh_solar_wind") { }
+        npc_rajh_solar_wind() : MS::Game::Scripting::Interfaces::CreatureScript("npc_rajh_solar_wind") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -238,10 +238,10 @@ class npc_rajh_solar_wind : public CreatureScript
 
 typedef boss_rajh::boss_rajhAI RajhAI;
 
-class achievement_sun_of_a : public AchievementCriteriaScript
+class achievement_sun_of_a : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_sun_of_a() : AchievementCriteriaScript("achievement_sun_of_a") { }
+        achievement_sun_of_a() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_sun_of_a") { }
 
         bool OnCheck(Player* source, Unit* target)
         {

@@ -72,7 +72,7 @@ const float VazrudenRing[2][3] =
     {-1377, 1760, 112}
 };
 
-class boss_nazan : public CreatureScript
+class boss_nazan : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
@@ -201,7 +201,7 @@ class boss_nazan : public CreatureScript
         }
 };
 
-class boss_vazruden : public CreatureScript
+class boss_vazruden : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
@@ -279,7 +279,7 @@ class boss_vazruden : public CreatureScript
         }
 };
 
-class boss_vazruden_the_herald : public CreatureScript
+class boss_vazruden_the_herald : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
@@ -460,7 +460,7 @@ class boss_vazruden_the_herald : public CreatureScript
         }
 };
 
-class mob_hellfire_sentry : public CreatureScript
+class mob_hellfire_sentry : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 

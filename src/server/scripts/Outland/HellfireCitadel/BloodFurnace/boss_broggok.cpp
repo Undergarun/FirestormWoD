@@ -39,7 +39,7 @@ enum eEnums
 };
 
 // 17380
-class boss_broggok : public CreatureScript
+class boss_broggok : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
@@ -138,10 +138,10 @@ class boss_broggok : public CreatureScript
         }
 };
 
-class go_broggok_lever : public GameObjectScript
+class go_broggok_lever : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_broggok_lever() : GameObjectScript("go_broggok_lever") {}
+    go_broggok_lever() : MS::Game::Scripting::Interfaces::GameObjectScript("go_broggok_lever") {}
 
     bool OnGossipHello(Player* /*player*/, GameObject* go)
     {

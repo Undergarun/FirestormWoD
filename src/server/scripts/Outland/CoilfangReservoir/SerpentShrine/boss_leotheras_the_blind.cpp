@@ -69,10 +69,10 @@ EndScriptData */
 #define SAY_FREE                -1548019
 #define SAY_DEATH               -1548020
 
-class mob_inner_demon : public CreatureScript
+class mob_inner_demon : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_inner_demon() : CreatureScript("mob_inner_demon") { }
+    mob_inner_demon() : MS::Game::Scripting::Interfaces::CreatureScript("mob_inner_demon") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -175,10 +175,10 @@ public:
 };
 
 //Original Leotheras the Blind AI
-class boss_leotheras_the_blind : public CreatureScript
+class boss_leotheras_the_blind : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_leotheras_the_blind() : CreatureScript("boss_leotheras_the_blind") { }
+    boss_leotheras_the_blind() : MS::Game::Scripting::Interfaces::CreatureScript("boss_leotheras_the_blind") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -606,10 +606,10 @@ public:
 };
 
 //Leotheras the Blind Demon Form AI
-class boss_leotheras_the_blind_demonform : public CreatureScript
+class boss_leotheras_the_blind_demonform : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_leotheras_the_blind_demonform() : CreatureScript("boss_leotheras_the_blind_demonform") { }
+    boss_leotheras_the_blind_demonform() : MS::Game::Scripting::Interfaces::CreatureScript("boss_leotheras_the_blind_demonform") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -679,10 +679,10 @@ public:
     };
 };
 
-class mob_greyheart_spellbinder : public CreatureScript
+class mob_greyheart_spellbinder : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_greyheart_spellbinder() : CreatureScript("mob_greyheart_spellbinder") { }
+    mob_greyheart_spellbinder() : MS::Game::Scripting::Interfaces::CreatureScript("mob_greyheart_spellbinder") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

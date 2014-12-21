@@ -370,10 +370,10 @@ static const Animation DemonTransformation[10]=
 #define EMOTE_SETS_GAZE_ON     "%s sets its gaze on $N!"
 #define EMOTE_UNABLE_TO_SUMMON "%s is unable to summon Maiev Shadowsong and enter Phase 4. Resetting Encounter."
 
-class mob_flame_of_azzinoth : public CreatureScript
+class mob_flame_of_azzinoth : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_flame_of_azzinoth() : CreatureScript("mob_flame_of_azzinoth") { }
+    mob_flame_of_azzinoth() : MS::Game::Scripting::Interfaces::CreatureScript("mob_flame_of_azzinoth") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -468,10 +468,10 @@ public:
 };
 
 /************************************** Illidan's AI* **************************************/
-class boss_illidan_stormrage : public CreatureScript
+class boss_illidan_stormrage : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_illidan_stormrage() : CreatureScript("boss_illidan_stormrage") { }
+    boss_illidan_stormrage() : MS::Game::Scripting::Interfaces::CreatureScript("boss_illidan_stormrage") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1157,10 +1157,10 @@ public:
 /********************************** End of Illidan AI* *****************************************/
 
 /******* Functions and vars for Akama's AI* *****/
-class boss_maiev_shadowsong : public CreatureScript
+class boss_maiev_shadowsong : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_maiev_shadowsong() : CreatureScript("boss_maiev_shadowsong") { }
+    boss_maiev_shadowsong() : MS::Game::Scripting::Interfaces::CreatureScript("boss_maiev_shadowsong") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1381,10 +1381,10 @@ public:
 
 };
 
-class npc_akama_illidan : public CreatureScript
+class npc_akama_illidan : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_akama_illidan() : CreatureScript("npc_akama_illidan") { }
+    npc_akama_illidan() : MS::Game::Scripting::Interfaces::CreatureScript("npc_akama_illidan") { }
 
     struct npc_akama_illidanAI : public ScriptedAI
     {
@@ -2024,10 +2024,10 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::HandleTalkSequence()
     ++TalkCount;
 }
 
-class mob_cage_trap_trigger : public CreatureScript
+class mob_cage_trap_trigger : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_cage_trap_trigger() : CreatureScript("mob_cage_trap_trigger") { }
+    mob_cage_trap_trigger() : MS::Game::Scripting::Interfaces::CreatureScript("mob_cage_trap_trigger") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -2102,10 +2102,10 @@ public:
     };
 };
 
-class gameobject_cage_trap : public GameObjectScript
+class gameobject_cage_trap : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    gameobject_cage_trap() : GameObjectScript("gameobject_cage_trap") { }
+    gameobject_cage_trap() : MS::Game::Scripting::Interfaces::GameObjectScript("gameobject_cage_trap") { }
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
@@ -2120,10 +2120,10 @@ public:
     }
 };
 
-class mob_shadow_demon : public CreatureScript
+class mob_shadow_demon : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_shadow_demon() : CreatureScript("mob_shadow_demon") { }
+    mob_shadow_demon() : MS::Game::Scripting::Interfaces::CreatureScript("mob_shadow_demon") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -2175,10 +2175,10 @@ public:
     };
 };
 
-class mob_blade_of_azzinoth : public CreatureScript
+class mob_blade_of_azzinoth : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_blade_of_azzinoth() : CreatureScript("mob_blade_of_azzinoth") { }
+    mob_blade_of_azzinoth() : MS::Game::Scripting::Interfaces::CreatureScript("mob_blade_of_azzinoth") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -2198,10 +2198,10 @@ public:
 
 };
 
-class mob_parasitic_shadowfiend : public CreatureScript
+class mob_parasitic_shadowfiend : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_parasitic_shadowfiend() : CreatureScript("mob_parasitic_shadowfiend") { }
+    mob_parasitic_shadowfiend() : MS::Game::Scripting::Interfaces::CreatureScript("mob_parasitic_shadowfiend") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

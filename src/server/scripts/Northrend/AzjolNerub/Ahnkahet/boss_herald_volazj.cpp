@@ -58,10 +58,10 @@ enum Achievements
     ACHIEV_QUICK_DEMISE_START_EVENT               = 20382,
 };
 
-class boss_volazj : public CreatureScript
+class boss_volazj : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_volazj() : CreatureScript("boss_volazj") { }
+    boss_volazj() : MS::Game::Scripting::Interfaces::CreatureScript("boss_volazj") { }
 
     struct boss_volazjAI : public ScriptedAI
     {

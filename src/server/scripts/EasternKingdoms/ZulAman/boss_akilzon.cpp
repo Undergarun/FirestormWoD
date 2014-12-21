@@ -47,10 +47,10 @@ enum Points
     POINT_HOME  = 1,
 };
 
-class boss_akilzon : public CreatureScript
+class boss_akilzon : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_akilzon() : CreatureScript("boss_akilzon") {}
+        boss_akilzon() : MS::Game::Scripting::Interfaces::CreatureScript("boss_akilzon") {}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -175,10 +175,10 @@ class boss_akilzon : public CreatureScript
         };
 };
 
-class npc_akilzon_soaring_eagle : public CreatureScript
+class npc_akilzon_soaring_eagle : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_akilzon_soaring_eagle() : CreatureScript("npc_akilzon_soaring_eagle") { }
+        npc_akilzon_soaring_eagle() : MS::Game::Scripting::Interfaces::CreatureScript("npc_akilzon_soaring_eagle") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -246,10 +246,10 @@ class npc_akilzon_soaring_eagle : public CreatureScript
         };
 };
 
-class npc_akilzon_amani_kidnapper : public CreatureScript
+class npc_akilzon_amani_kidnapper : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_akilzon_amani_kidnapper() : CreatureScript("npc_akilzon_amani_kidnapper") { }
+        npc_akilzon_amani_kidnapper() : MS::Game::Scripting::Interfaces::CreatureScript("npc_akilzon_amani_kidnapper") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -270,10 +270,10 @@ class npc_akilzon_amani_kidnapper : public CreatureScript
         };
 };
 
-class spell_akilzon_electrical_storm : public SpellScriptLoader
+class spell_akilzon_electrical_storm: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_akilzon_electrical_storm() :  SpellScriptLoader("spell_akilzon_electrical_storm") { }
+        spell_akilzon_electrical_storm() :  MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_akilzon_electrical_storm") { }
 
         class spell_akilzon_electrical_storm_AuraScript : public AuraScript
         {
@@ -331,10 +331,10 @@ class ElectricalSafeCheck
         }
 };
 
-class spell_akilzon_electrical_storm_dmg : public SpellScriptLoader
+class spell_akilzon_electrical_storm_dmg: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_akilzon_electrical_storm_dmg() : SpellScriptLoader("spell_akilzon_electrical_storm_dmg") { }
+        spell_akilzon_electrical_storm_dmg() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_akilzon_electrical_storm_dmg") { }
 
         class spell_akilzon_electrical_storm_dmg_SpellScript : public SpellScript
         {

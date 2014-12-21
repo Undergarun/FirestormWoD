@@ -34,10 +34,10 @@ EndScriptData */
 2 - Gruul event
 */
 
-class instance_gruuls_lair : public InstanceMapScript
+class instance_gruuls_lair : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
 public:
-    instance_gruuls_lair() : InstanceMapScript("instance_gruuls_lair", 565) { }
+    instance_gruuls_lair() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_gruuls_lair", 565) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {

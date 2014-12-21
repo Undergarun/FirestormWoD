@@ -165,10 +165,10 @@ const Position FleshTentaclePos[2] =
 //Kick out position
 const Position KickPos = { -8545.0f, 1984.0f, -96.0f, 0.0f};
 
-class boss_eye_of_cthun : public CreatureScript
+class boss_eye_of_cthun : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_eye_of_cthun() : CreatureScript("boss_eye_of_cthun") { }
+    boss_eye_of_cthun() : MS::Game::Scripting::Interfaces::CreatureScript("boss_eye_of_cthun") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -481,10 +481,10 @@ public:
 
 };
 
-class boss_cthun : public CreatureScript
+class boss_cthun : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_cthun() : CreatureScript("boss_cthun") { }
+    boss_cthun() : MS::Game::Scripting::Interfaces::CreatureScript("boss_cthun") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -954,10 +954,10 @@ public:
 
 };
 
-class mob_eye_tentacle : public CreatureScript
+class mob_eye_tentacle : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_eye_tentacle() : CreatureScript("mob_eye_tentacle") { }
+    mob_eye_tentacle() : MS::Game::Scripting::Interfaces::CreatureScript("mob_eye_tentacle") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1031,10 +1031,10 @@ public:
 
 };
 
-class mob_claw_tentacle : public CreatureScript
+class mob_claw_tentacle : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_claw_tentacle() : CreatureScript("mob_claw_tentacle") { }
+    mob_claw_tentacle() : MS::Game::Scripting::Interfaces::CreatureScript("mob_claw_tentacle") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1147,10 +1147,10 @@ public:
 
 };
 
-class mob_giant_claw_tentacle : public CreatureScript
+class mob_giant_claw_tentacle : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_giant_claw_tentacle() : CreatureScript("mob_giant_claw_tentacle") { }
+    mob_giant_claw_tentacle() : MS::Game::Scripting::Interfaces::CreatureScript("mob_giant_claw_tentacle") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1274,10 +1274,10 @@ public:
 
 };
 
-class mob_giant_eye_tentacle : public CreatureScript
+class mob_giant_eye_tentacle : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_giant_eye_tentacle() : CreatureScript("mob_giant_eye_tentacle") { }
+    mob_giant_eye_tentacle() : MS::Game::Scripting::Interfaces::CreatureScript("mob_giant_eye_tentacle") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1340,10 +1340,10 @@ public:
 
 };
 
-class mob_giant_flesh_tentacle : public CreatureScript
+class mob_giant_flesh_tentacle : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_giant_flesh_tentacle() : CreatureScript("mob_giant_flesh_tentacle") { }
+    mob_giant_flesh_tentacle() : MS::Game::Scripting::Interfaces::CreatureScript("mob_giant_flesh_tentacle") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

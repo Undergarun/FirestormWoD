@@ -6,10 +6,10 @@
 
 
 // 64616 - Wrathion
-class npc_wrathion : public CreatureScript
+class npc_wrathion : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_wrathion() : CreatureScript("npc_wrathion")
+        npc_wrathion() : MS::Game::Scripting::Interfaces::CreatureScript("npc_wrathion")
         {
         }
 
@@ -36,10 +36,10 @@ class npc_wrathion : public CreatureScript
 };
 
 // 64822 - Wrathion
-class npc_wrathion_mason : public CreatureScript
+class npc_wrathion_mason : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_wrathion_mason() : CreatureScript("npc_wrathion_mason")
+        npc_wrathion_mason() : MS::Game::Scripting::Interfaces::CreatureScript("npc_wrathion_mason")
         {
         }
 

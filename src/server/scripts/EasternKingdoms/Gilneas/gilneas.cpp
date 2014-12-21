@@ -26,10 +26,10 @@
 ## npc_prince_liam_greymane_phase1
 ######*/
 
-class npc_prince_liam_greymane_phase1 : public CreatureScript
+class npc_prince_liam_greymane_phase1 : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_prince_liam_greymane_phase1() : CreatureScript("npc_prince_liam_greymane_phase1") { }
+    npc_prince_liam_greymane_phase1() : MS::Game::Scripting::Interfaces::CreatureScript("npc_prince_liam_greymane_phase1") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -92,10 +92,10 @@ public:
 ## npc_gilneas_city_guard_phase1
 ######*/
 
-class npc_gilneas_city_guard_phase1 : public CreatureScript
+class npc_gilneas_city_guard_phase1 : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_gilneas_city_guard_phase1() : CreatureScript("npc_gilneas_city_guard_phase1") {}
+    npc_gilneas_city_guard_phase1() : MS::Game::Scripting::Interfaces::CreatureScript("npc_gilneas_city_guard_phase1") {}
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -146,10 +146,10 @@ public:
 ## npc_gilneas_city_guard_phase2
 ######*/
 
-class npc_gilneas_city_guard_phase2 : public CreatureScript
+class npc_gilneas_city_guard_phase2 : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_gilneas_city_guard_phase2() : CreatureScript("npc_gilneas_city_guard_phase2") {}
+    npc_gilneas_city_guard_phase2() : MS::Game::Scripting::Interfaces::CreatureScript("npc_gilneas_city_guard_phase2") {}
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -209,10 +209,10 @@ public:
 ## npc_prince_liam_greymane_phase2
 ######*/
 
-class npc_prince_liam_greymane_phase2 : public CreatureScript
+class npc_prince_liam_greymane_phase2 : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_prince_liam_greymane_phase2() : CreatureScript("npc_prince_liam_greymane_phase2") {}
+    npc_prince_liam_greymane_phase2() : MS::Game::Scripting::Interfaces::CreatureScript("npc_prince_liam_greymane_phase2") {}
 
     bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 opt)
     {
@@ -316,10 +316,10 @@ public:
 ## npc_gwen_armstead_p2
 ######*/
 
-class npc_gwen_armstead_p2 : public CreatureScript
+class npc_gwen_armstead_p2 : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_gwen_armstead_p2() : CreatureScript("npc_gwen_armstead_p2") {}
+    npc_gwen_armstead_p2() : MS::Game::Scripting::Interfaces::CreatureScript("npc_gwen_armstead_p2") {}
 
     bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 opt)
     {
@@ -340,10 +340,10 @@ public:
 ## npc_rampaging_worgen
 ######*/
 
-class npc_rampaging_worgen : public CreatureScript
+class npc_rampaging_worgen : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_rampaging_worgen() : CreatureScript("npc_rampaging_worgen") {}
+    npc_rampaging_worgen() : MS::Game::Scripting::Interfaces::CreatureScript("npc_rampaging_worgen") {}
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -413,10 +413,10 @@ public:
 ## npc_rampaging_worgen2
 ######*/
 
-class npc_rampaging_worgen2 : public CreatureScript
+class npc_rampaging_worgen2 : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_rampaging_worgen2() : CreatureScript("npc_rampaging_worgen2") {}
+    npc_rampaging_worgen2() : MS::Game::Scripting::Interfaces::CreatureScript("npc_rampaging_worgen2") {}
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -476,10 +476,10 @@ public:
 ## go_merchant_square_door
 ######*/
 
-class go_merchant_square_door : public GameObjectScript
+class go_merchant_square_door : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_merchant_square_door() : GameObjectScript("go_merchant_square_door"), aPlayer(NULL) {}
+    go_merchant_square_door() : MS::Game::Scripting::Interfaces::GameObjectScript("go_merchant_square_door"), aPlayer(NULL) {}
 
     float x, y, z, wx, wy, angle, tQuestCredit;
     bool opened;
@@ -584,10 +584,10 @@ struct Paths
     Point paths[8][10];   //pathID, pointID, Point
 };
 
-class npc_frightened_citizen : public CreatureScript
+class npc_frightened_citizen : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_frightened_citizen() : CreatureScript("npc_frightened_citizen") {}
+    npc_frightened_citizen() : MS::Game::Scripting::Interfaces::CreatureScript("npc_frightened_citizen") {}
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -748,10 +748,10 @@ public:
 ## npc_bloodfang_worgen
 ######*/
 
-class npc_bloodfang_worgen : public CreatureScript
+class npc_bloodfang_worgen : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_bloodfang_worgen() : CreatureScript("npc_bloodfang_worgen") {}
+    npc_bloodfang_worgen() : MS::Game::Scripting::Interfaces::CreatureScript("npc_bloodfang_worgen") {}
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -823,10 +823,10 @@ public:
 ## npc_sergeant_cleese
 ######*/
 
-class npc_sergeant_cleese : public CreatureScript
+class npc_sergeant_cleese : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_sergeant_cleese() : CreatureScript("npc_sergeant_cleese") {}
+    npc_sergeant_cleese() : MS::Game::Scripting::Interfaces::CreatureScript("npc_sergeant_cleese") {}
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -886,10 +886,10 @@ public:
 ## npc_gilnean_royal_guard
 ######*/
 
-class npc_gilnean_royal_guard : public CreatureScript
+class npc_gilnean_royal_guard : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_gilnean_royal_guard() : CreatureScript("npc_gilnean_royal_guard") {}
+    npc_gilnean_royal_guard() : MS::Game::Scripting::Interfaces::CreatureScript("npc_gilnean_royal_guard") {}
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -949,10 +949,10 @@ public:
 ## npc_mariam_spellwalker
 ######*/
 
-class npc_mariam_spellwalker : public CreatureScript
+class npc_mariam_spellwalker : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_mariam_spellwalker() : CreatureScript("npc_mariam_spellwalker") {}
+    npc_mariam_spellwalker() : MS::Game::Scripting::Interfaces::CreatureScript("npc_mariam_spellwalker") {}
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1004,10 +1004,10 @@ public:
 ## npc_sean_dempsey
 ######*/
 
-class npc_sean_dempsey : public CreatureScript
+class npc_sean_dempsey : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_sean_dempsey() : CreatureScript("npc_sean_dempsey") {}
+    npc_sean_dempsey() : MS::Game::Scripting::Interfaces::CreatureScript("npc_sean_dempsey") {}
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1110,10 +1110,10 @@ public:
 ## npc_lord_darius_crowley_c1
 ######*/
 
-class npc_lord_darius_crowley_c1 : public CreatureScript
+class npc_lord_darius_crowley_c1 : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_lord_darius_crowley_c1() : CreatureScript("npc_lord_darius_crowley_c1") {}
+    npc_lord_darius_crowley_c1() : MS::Game::Scripting::Interfaces::CreatureScript("npc_lord_darius_crowley_c1") {}
 
     bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
@@ -1198,10 +1198,10 @@ public:
 ## npc_worgen_runt_c1
 ######*/
 
-class npc_worgen_runt_c1 : public CreatureScript
+class npc_worgen_runt_c1 : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_worgen_runt_c1() : CreatureScript("npc_worgen_runt_c1") {}
+    npc_worgen_runt_c1() : MS::Game::Scripting::Interfaces::CreatureScript("npc_worgen_runt_c1") {}
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1328,10 +1328,10 @@ public:
 ## npc_worgen_runt_c2
 ######*/
 
-class npc_worgen_runt_c2 : public CreatureScript
+class npc_worgen_runt_c2 : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_worgen_runt_c2() : CreatureScript("npc_worgen_runt_c2") {}
+    npc_worgen_runt_c2() : MS::Game::Scripting::Interfaces::CreatureScript("npc_worgen_runt_c2") {}
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1458,10 +1458,10 @@ public:
 ## npc_worgen_alpha_c1
 ######*/
 
-class npc_worgen_alpha_c1 : public CreatureScript
+class npc_worgen_alpha_c1 : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_worgen_alpha_c1() : CreatureScript("npc_worgen_alpha_c1") {}
+    npc_worgen_alpha_c1() : MS::Game::Scripting::Interfaces::CreatureScript("npc_worgen_alpha_c1") {}
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1588,10 +1588,10 @@ public:
 ## npc_worgen_alpha_c2
 ######*/
 
-class npc_worgen_alpha_c2 : public CreatureScript
+class npc_worgen_alpha_c2 : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_worgen_alpha_c2() : CreatureScript("npc_worgen_alpha_c2") {}
+    npc_worgen_alpha_c2() : MS::Game::Scripting::Interfaces::CreatureScript("npc_worgen_alpha_c2") {}
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1692,10 +1692,10 @@ public:
 ## npc_josiah_avery_trigger
 ######*/
 
-class npc_josiah_avery_trigger : public CreatureScript
+class npc_josiah_avery_trigger : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_josiah_avery_trigger() : CreatureScript("npc_josiah_avery_trigger") {}
+    npc_josiah_avery_trigger() : MS::Game::Scripting::Interfaces::CreatureScript("npc_josiah_avery_trigger") {}
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1788,10 +1788,10 @@ public:
 ## npc_josiah_avery_p2
 ######*/
 
-class npc_josiah_avery_p2 : public CreatureScript
+class npc_josiah_avery_p2 : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_josiah_avery_p2() : CreatureScript("npc_josiah_avery_p2") {}
+    npc_josiah_avery_p2() : MS::Game::Scripting::Interfaces::CreatureScript("npc_josiah_avery_p2") {}
 
     bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 opt)
     {
@@ -1857,10 +1857,10 @@ public:
 ## npc_lorna_crowley_p4
 ######*/
 
-class npc_lorna_crowley_p4 : public CreatureScript
+class npc_lorna_crowley_p4 : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_lorna_crowley_p4() : CreatureScript("npc_lorna_crowley_p4") {}
+    npc_lorna_crowley_p4() : MS::Game::Scripting::Interfaces::CreatureScript("npc_lorna_crowley_p4") {}
 
     bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
@@ -1877,10 +1877,10 @@ public:
 # npc_gilnean_mastiff
 ######*/
 
-class npc_gilnean_mastiff : public CreatureScript
+class npc_gilnean_mastiff : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_gilnean_mastiff() : CreatureScript("npc_gilnean_mastiff") { }
+    npc_gilnean_mastiff() : MS::Game::Scripting::Interfaces::CreatureScript("npc_gilnean_mastiff") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1945,10 +1945,10 @@ public:
 ## npc_bloodfang_lurker
 ######*/
 
-class npc_bloodfang_lurker : public CreatureScript
+class npc_bloodfang_lurker : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_bloodfang_lurker() : CreatureScript("npc_bloodfang_lurker") {}
+    npc_bloodfang_lurker() : MS::Game::Scripting::Interfaces::CreatureScript("npc_bloodfang_lurker") {}
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -2009,10 +2009,10 @@ public:
 ## npc_king_genn_greymane_p4
 ######*/
 
-class npc_king_genn_greymane_p4 : public CreatureScript
+class npc_king_genn_greymane_p4 : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_king_genn_greymane_p4() : CreatureScript("npc_king_genn_greymane_p4") {}
+    npc_king_genn_greymane_p4() : MS::Game::Scripting::Interfaces::CreatureScript("npc_king_genn_greymane_p4") {}
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -2084,10 +2084,10 @@ public:
 ## npc_gilneas_city_guard_p8
 ######*/
 
-class npc_gilneas_city_guard_p8 : public CreatureScript
+class npc_gilneas_city_guard_p8 : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_gilneas_city_guard_p8() : CreatureScript("npc_gilneas_city_guard_p8") {}
+    npc_gilneas_city_guard_p8() : MS::Game::Scripting::Interfaces::CreatureScript("npc_gilneas_city_guard_p8") {}
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -2139,10 +2139,10 @@ public:
 ## npc_afflicted_gilnean_p8
 ######*/
 
-class npc_afflicted_gilnean_p8 : public CreatureScript
+class npc_afflicted_gilnean_p8 : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_afflicted_gilnean_p8() : CreatureScript("npc_afflicted_gilnean_p8") {}
+    npc_afflicted_gilnean_p8() : MS::Game::Scripting::Interfaces::CreatureScript("npc_afflicted_gilnean_p8") {}
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -2220,10 +2220,10 @@ public:
 ## npc_lord_darius_crowley_c3
 ######*/
 
-class npc_lord_darius_crowley_c3 : public CreatureScript
+class npc_lord_darius_crowley_c3 : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_lord_darius_crowley_c3() : CreatureScript("npc_lord_darius_crowley_c3") {}
+    npc_lord_darius_crowley_c3() : MS::Game::Scripting::Interfaces::CreatureScript("npc_lord_darius_crowley_c3") {}
 
     bool OnQuestComplete(Player* player, Creature* /*creature*/, Quest const* quest)
     {
@@ -2258,10 +2258,10 @@ public:
 ## npc_king_genn_greymane_c2
 ######*/
 
-class npc_king_genn_greymane_c2 : public CreatureScript
+class npc_king_genn_greymane_c2 : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_king_genn_greymane_c2() : CreatureScript("npc_king_genn_greymane_c2") {}
+    npc_king_genn_greymane_c2() : MS::Game::Scripting::Interfaces::CreatureScript("npc_king_genn_greymane_c2") {}
 
     bool OnQuestComplete(Player* player, Creature* /*creature*/, Quest const* /*quest*/)
     {
@@ -2276,10 +2276,10 @@ public:
 ## npc_greymane_horse
 ######*/
 
-class npc_greymane_horse : public CreatureScript
+class npc_greymane_horse : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_greymane_horse() : CreatureScript("npc_greymane_horse") { }
+    npc_greymane_horse() : MS::Game::Scripting::Interfaces::CreatureScript("npc_greymane_horse") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -2386,10 +2386,10 @@ public:
 ## npc_krennan_aranas_c2
 ######*/
 
-class npc_krennan_aranas_c2 : public CreatureScript
+class npc_krennan_aranas_c2 : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_krennan_aranas_c2() : CreatureScript("npc_krennan_aranas_c2") { }
+    npc_krennan_aranas_c2() : MS::Game::Scripting::Interfaces::CreatureScript("npc_krennan_aranas_c2") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -2464,10 +2464,10 @@ public:
 ## npc_commandeered_cannon
 ######*/
 
-class npc_commandeered_cannon : public CreatureScript
+class npc_commandeered_cannon : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_commandeered_cannon() : CreatureScript("npc_commandeered_cannon") { }
+    npc_commandeered_cannon() : MS::Game::Scripting::Interfaces::CreatureScript("npc_commandeered_cannon") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -2538,10 +2538,10 @@ public:
 ## npc_lord_godfrey_p4_8
 ######*/
 
-class npc_lord_godfrey_p4_8 : public CreatureScript
+class npc_lord_godfrey_p4_8 : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_lord_godfrey_p4_8() : CreatureScript("npc_lord_godfrey_p4_8") { }
+    npc_lord_godfrey_p4_8() : MS::Game::Scripting::Interfaces::CreatureScript("npc_lord_godfrey_p4_8") { }
 
     bool OnQuestReward(Player* player, Creature* godfrey, Quest const* quest, uint32 opt)
     {
@@ -2562,10 +2562,10 @@ public:
 };
 
 // Keg Placed - 68555
-class spell_keg_placed : public SpellScriptLoader
+class spell_keg_placed: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_keg_placed() : SpellScriptLoader("spell_keg_placed") {}
+        spell_keg_placed() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_keg_placed") {}
 
         class spell_keg_placed_AuraScript : public AuraScript
         {
@@ -2614,10 +2614,10 @@ class spell_keg_placed : public SpellScriptLoader
 ## npc_crowley_horse
 ######*/
 
-class npc_crowley_horse : public CreatureScript
+class npc_crowley_horse : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_crowley_horse() : CreatureScript("npc_crowley_horse") {}
+    npc_crowley_horse() : MS::Game::Scripting::Interfaces::CreatureScript("npc_crowley_horse") {}
 
     struct npc_crowley_horseAI : public npc_escortAI
     {
@@ -2735,10 +2735,10 @@ public:
 ## npc_bloodfang_stalker_c1
 ######*/
 
-class npc_bloodfang_stalker_c1 : public CreatureScript
+class npc_bloodfang_stalker_c1 : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_bloodfang_stalker_c1() : CreatureScript("npc_bloodfang_stalker_c1") {}
+    npc_bloodfang_stalker_c1() : MS::Game::Scripting::Interfaces::CreatureScript("npc_bloodfang_stalker_c1") {}
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -2858,10 +2858,10 @@ public:
 ## npc_gilnean_crow
 ######*/
 
-class npc_gilnean_crow : public CreatureScript
+class npc_gilnean_crow : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_gilnean_crow() : CreatureScript("npc_gilnean_crow") {}
+    npc_gilnean_crow() : MS::Game::Scripting::Interfaces::CreatureScript("npc_gilnean_crow") {}
 
     CreatureAI* GetAI(Creature* creature) const
     {

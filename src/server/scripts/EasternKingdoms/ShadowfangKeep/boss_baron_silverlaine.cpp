@@ -41,10 +41,10 @@ enum Adds
     NPC_NANDOS           = 50851,
 };
 
-class boss_baron_silverlaine : public CreatureScript
+class boss_baron_silverlaine : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_baron_silverlaine() : CreatureScript("boss_baron_silverlaine") { }
+        boss_baron_silverlaine() : MS::Game::Scripting::Interfaces::CreatureScript("boss_baron_silverlaine") { }
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -132,10 +132,10 @@ class boss_baron_silverlaine : public CreatureScript
          };
 };
 
-class npc_silverlaine_worgen : public CreatureScript
+class npc_silverlaine_worgen : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_silverlaine_worgen() : CreatureScript("npc_silverlaine_worgen") { }
+        npc_silverlaine_worgen() : MS::Game::Scripting::Interfaces::CreatureScript("npc_silverlaine_worgen") { }
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -167,10 +167,10 @@ class npc_silverlaine_worgen : public CreatureScript
          };
 };
 
-class npc_silverlaine_worgen_spirit : public CreatureScript
+class npc_silverlaine_worgen_spirit : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_silverlaine_worgen_spirit() : CreatureScript("npc_silverlaine_worgen_spirit") { }
+        npc_silverlaine_worgen_spirit() : MS::Game::Scripting::Interfaces::CreatureScript("npc_silverlaine_worgen_spirit") { }
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -203,10 +203,10 @@ class npc_silverlaine_worgen_spirit : public CreatureScript
          };
 };
 
-class spell_silverlaine_summon_worgen_spirit : public SpellScriptLoader
+class spell_silverlaine_summon_worgen_spirit: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_silverlaine_summon_worgen_spirit() : SpellScriptLoader("spell_silverlaine_summon_worgen_spirit") { }
+        spell_silverlaine_summon_worgen_spirit() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_silverlaine_summon_worgen_spirit") { }
 
 
         class spell_silverlaine_summon_worgen_spirit_SpellScript : public SpellScript

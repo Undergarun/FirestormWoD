@@ -9,7 +9,7 @@ namespace MS
         {
 
             // AreaTriggers for spells: 151582
-            class AreaTrigger_SuppresionField : public AreaTriggerEntityScript
+            class AreaTrigger_SuppresionField : public Game::Scripting::Interfaces::AreaTriggerEntityScript
             {
                 enum class Spells : uint32
                 {
@@ -20,12 +20,12 @@ namespace MS
 
             public:
                 AreaTrigger_SuppresionField()
-                    : AreaTriggerEntityScript("AreaTrigger_SuppresionField"),
+                    : MS::Game::Scripting::Interfaces::AreaTriggerEntityScript("AreaTrigger_SuppresionField"),
                     m_Targets()
                 {
                 }
 
-                AreaTriggerEntityScript* GetAI() const
+                MS::Game::Scripting::Interfaces::AreaTriggerEntityScript* GetAI() const
                 {
                     return new AreaTrigger_SuppresionField();
                 }

@@ -49,10 +49,10 @@ struct RangeCheck : public std::unary_function<Unit*, bool>
         float __maxdist;
 };
 
-class npc_ironwork_cannon : public CreatureScript
+class npc_ironwork_cannon : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_ironwork_cannon () : CreatureScript("npc_ironwork_cannon") { }
+        npc_ironwork_cannon () : MS::Game::Scripting::Interfaces::CreatureScript("npc_ironwork_cannon") { }
 
         struct npc_ironwork_cannonAI: public ScriptedAI
         {

@@ -267,7 +267,7 @@ struct advisorbase_ai : public ScriptedAI
     }
 };
 
-class boss_kaelthas : public CreatureScript
+class boss_kaelthas : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
@@ -1000,7 +1000,7 @@ class boss_kaelthas : public CreatureScript
 };
 
 //Thaladred the Darkener AI
-class boss_thaladred_the_darkener : public CreatureScript
+class boss_thaladred_the_darkener : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
@@ -1098,7 +1098,7 @@ class boss_thaladred_the_darkener : public CreatureScript
 };
 
 //Lord Sanguinar AI
-class boss_lord_sanguinar : public CreatureScript
+class boss_lord_sanguinar : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
@@ -1165,7 +1165,7 @@ class boss_lord_sanguinar : public CreatureScript
         }
 };
 //Grand Astromancer Capernian AI
-class boss_grand_astromancer_capernian : public CreatureScript
+class boss_grand_astromancer_capernian : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
@@ -1310,7 +1310,7 @@ class boss_grand_astromancer_capernian : public CreatureScript
 };
 
 //Master Engineer Telonicus AI
-class boss_master_engineer_telonicus : public CreatureScript
+class boss_master_engineer_telonicus : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
@@ -1393,7 +1393,7 @@ class boss_master_engineer_telonicus : public CreatureScript
 };
 
 //Flame Strike AI
-class mob_kael_flamestrike : public CreatureScript
+class mob_kael_flamestrike : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
@@ -1457,7 +1457,7 @@ class mob_kael_flamestrike : public CreatureScript
 };
 
 //Phoenix AI
-class mob_phoenix_tk : public CreatureScript
+class mob_phoenix_tk : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
@@ -1511,7 +1511,7 @@ class mob_phoenix_tk : public CreatureScript
 };
 
 //Phoenix Egg AI
-class mob_phoenix_egg_tk : public CreatureScript
+class mob_phoenix_egg_tk : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 

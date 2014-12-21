@@ -66,10 +66,10 @@ Position const SavianaRagefireFlyOutPos  = {3155.51f, 683.844f, 95.0f,   4.69f};
 Position const SavianaRagefireFlyInPos   = {3151.07f, 636.443f, 79.540f, 4.69f};
 Position const SavianaRagefireLandPos    = {3151.07f, 636.443f, 78.649f, 4.69f};
 
-class boss_saviana_ragefire : public CreatureScript
+class boss_saviana_ragefire : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_saviana_ragefire() : CreatureScript("boss_saviana_ragefire") { }
+        boss_saviana_ragefire() : MS::Game::Scripting::Interfaces::CreatureScript("boss_saviana_ragefire") { }
 
         struct boss_saviana_ragefireAI : public BossAI
         {
@@ -214,10 +214,10 @@ class ConflagrationTargetSelector
         }
 };
 
-class spell_saviana_conflagration_init : public SpellScriptLoader
+class spell_saviana_conflagration_init: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_saviana_conflagration_init() : SpellScriptLoader("spell_saviana_conflagration_init") { }
+        spell_saviana_conflagration_init() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_saviana_conflagration_init") { }
 
         class spell_saviana_conflagration_init_SpellScript : public SpellScript
         {
@@ -251,10 +251,10 @@ class spell_saviana_conflagration_init : public SpellScriptLoader
         }
 };
 
-class spell_saviana_conflagration_throwback : public SpellScriptLoader
+class spell_saviana_conflagration_throwback: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_saviana_conflagration_throwback() : SpellScriptLoader("spell_saviana_conflagration_throwback") { }
+        spell_saviana_conflagration_throwback() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_saviana_conflagration_throwback") { }
 
         class spell_saviana_conflagration_throwback_SpellScript : public SpellScript
         {

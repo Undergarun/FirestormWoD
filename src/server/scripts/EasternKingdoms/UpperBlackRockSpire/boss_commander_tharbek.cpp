@@ -179,10 +179,10 @@ Position const g_IronbarbThirdFlyPos    = { 177.4848f, -408.3633f, 116.7175f, 6.
 Position const g_IronbarbLastFlyPos     = { 188.2879f, -420.0663f, 110.8817f, 3.145754f };
 
 ///< Commander Tharbek - 79912
-class boss_commander_tharbek : public CreatureScript
+class boss_commander_tharbek : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_commander_tharbek() : CreatureScript("boss_commander_tharbek") { }
+        boss_commander_tharbek() : MS::Game::Scripting::Interfaces::CreatureScript("boss_commander_tharbek") { }
 
         struct boss_commander_tharbekAI : public BossAI
         {
@@ -716,10 +716,10 @@ class boss_commander_tharbek : public CreatureScript
 };
 
 ///< Ironbarb Skyreaver - 80098
-class mob_ironbarb_skyreaver : public CreatureScript
+class mob_ironbarb_skyreaver : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_ironbarb_skyreaver() : CreatureScript("mob_ironbarb_skyreaver") { }
+        mob_ironbarb_skyreaver() : MS::Game::Scripting::Interfaces::CreatureScript("mob_ironbarb_skyreaver") { }
 
         struct mob_ironbarb_skyreaverAI : public ScriptedAI
         {
@@ -950,10 +950,10 @@ class mob_ironbarb_skyreaver : public CreatureScript
 };
 
 ///< Imbued Iron Axe Stalker - 80307
-class mob_imbued_iron_axe_stalker : public CreatureScript
+class mob_imbued_iron_axe_stalker : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_imbued_iron_axe_stalker() : CreatureScript("mob_imbued_iron_axe_stalker") { }
+        mob_imbued_iron_axe_stalker() : MS::Game::Scripting::Interfaces::CreatureScript("mob_imbued_iron_axe_stalker") { }
 
         struct mob_imbued_iron_axe_stalkerAI : public ScriptedAI
         {
@@ -979,10 +979,10 @@ class mob_imbued_iron_axe_stalker : public CreatureScript
 };
 
 ///< Awbee - 86533
-class mob_awbee : public CreatureScript
+class mob_awbee : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_awbee() : CreatureScript("mob_awbee") { }
+        mob_awbee() : MS::Game::Scripting::Interfaces::CreatureScript("mob_awbee") { }
 
         struct mob_awbeeAI : public ScriptedAI
         {
@@ -1062,10 +1062,10 @@ class mob_awbee : public CreatureScript
 };
 
 ///< Noxious Spit - 161827
-class areatrigger_noxious_spit : public AreaTriggerEntityScript
+class areatrigger_noxious_spit : public MS::Game::Scripting::Interfaces::AreaTriggerEntityScript
 {
     public:
-        areatrigger_noxious_spit() : AreaTriggerEntityScript("areatrigger_noxious_spit") { }
+        areatrigger_noxious_spit() : MS::Game::Scripting::Interfaces::AreaTriggerEntityScript("areatrigger_noxious_spit") { }
 
         enum Spells
         {
@@ -1090,7 +1090,7 @@ class areatrigger_noxious_spit : public AreaTriggerEntityScript
             }
         }
 
-        AreaTriggerEntityScript* GetAI() const
+        MS::Game::Scripting::Interfaces::AreaTriggerEntityScript* GetAI() const
         {
             return new areatrigger_noxious_spit();
         }

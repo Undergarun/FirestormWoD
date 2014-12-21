@@ -33,10 +33,10 @@ namespace MS
             { 0,                    0 }, // EOF
         };
 
-        class instance_Skyreach : public InstanceMapScript
+        class instance_Skyreach : public Game::Scripting::Interfaces::InstanceMapScript
         {
         public:
-            instance_Skyreach() : InstanceMapScript("instance_Skyreach", 1209) { }
+            instance_Skyreach() : Game::Scripting::Interfaces::InstanceMapScript("instance_Skyreach", 1209) { }
 
             struct instance_SkyreachInstanceMapScript : public InstanceScript
             {

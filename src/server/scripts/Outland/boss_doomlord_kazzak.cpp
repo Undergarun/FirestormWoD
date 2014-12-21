@@ -58,10 +58,10 @@ enum Events
     EVENT_BERSERK               = 8
 };
 
-class boss_doomlord_kazzak : public CreatureScript
+class boss_doomlord_kazzak : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_doomlord_kazzak() : CreatureScript("boss_doomlord_kazzak") { }
+        boss_doomlord_kazzak() : MS::Game::Scripting::Interfaces::CreatureScript("boss_doomlord_kazzak") { }
 
         struct boss_doomlordkazzakAI : public ScriptedAI
         {
@@ -175,10 +175,10 @@ class boss_doomlord_kazzak : public CreatureScript
         }
 };
 
-class spell_mark_of_kazzak : public SpellScriptLoader
+class spell_mark_of_kazzak: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_mark_of_kazzak() : SpellScriptLoader("spell_mark_of_kazzak") { }
+        spell_mark_of_kazzak() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_mark_of_kazzak") { }
 
         class spell_mark_of_kazzak_AuraScript : public AuraScript
         {

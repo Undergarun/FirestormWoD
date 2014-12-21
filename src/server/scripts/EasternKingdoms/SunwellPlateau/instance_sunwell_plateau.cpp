@@ -38,10 +38,10 @@ EndScriptData */
 5 - Kil'Jaeden
 */
 
-class instance_sunwell_plateau : public InstanceMapScript
+class instance_sunwell_plateau : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
 public:
-    instance_sunwell_plateau() : InstanceMapScript("instance_sunwell_plateau", 580) { }
+    instance_sunwell_plateau() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_sunwell_plateau", 580) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {

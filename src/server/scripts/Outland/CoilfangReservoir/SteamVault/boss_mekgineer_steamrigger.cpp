@@ -50,10 +50,10 @@ EndContentData */
 #define ENTRY_STREAMRIGGER_MECHANIC 17951
 
 // 17796
-class boss_mekgineer_steamrigger : public CreatureScript
+class boss_mekgineer_steamrigger : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_mekgineer_steamrigger() : CreatureScript("boss_mekgineer_steamrigger") { }
+    boss_mekgineer_steamrigger() : MS::Game::Scripting::Interfaces::CreatureScript("boss_mekgineer_steamrigger") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -195,10 +195,10 @@ public:
 #define MIN_REPAIR_RANGE            (7.0f)                  //we can stop movement at this range to repair but not required
 
 // 17951
-class mob_steamrigger_mechanic : public CreatureScript
+class mob_steamrigger_mechanic : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_steamrigger_mechanic() : CreatureScript("mob_steamrigger_mechanic") { }
+    mob_steamrigger_mechanic() : MS::Game::Scripting::Interfaces::CreatureScript("mob_steamrigger_mechanic") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

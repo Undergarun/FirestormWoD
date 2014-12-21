@@ -38,10 +38,10 @@ enum eEnums
     SPELL_FIRENOVA          = 16079,
 };
 
-class boss_bloodmage_thalnos : public CreatureScript
+class boss_bloodmage_thalnos : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_bloodmage_thalnos() : CreatureScript("boss_bloodmage_thalnos") { }
+    boss_bloodmage_thalnos() : MS::Game::Scripting::Interfaces::CreatureScript("boss_bloodmage_thalnos") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

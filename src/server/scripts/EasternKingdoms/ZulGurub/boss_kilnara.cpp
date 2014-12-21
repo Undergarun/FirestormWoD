@@ -105,10 +105,10 @@ const Position cavePos[4] =
 
 
 
-class boss_kilnara : public CreatureScript
+class boss_kilnara : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_kilnara() : CreatureScript("boss_kilnara") { }
+        boss_kilnara() : MS::Game::Scripting::Interfaces::CreatureScript("boss_kilnara") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -288,11 +288,11 @@ class boss_kilnara : public CreatureScript
         };
 };
 
-class npc_kilnara_pride_of_bethekk : public CreatureScript
+class npc_kilnara_pride_of_bethekk : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_kilnara_pride_of_bethekk() : CreatureScript("npc_kilnara_pride_of_bethekk") {}
+        npc_kilnara_pride_of_bethekk() : MS::Game::Scripting::Interfaces::CreatureScript("npc_kilnara_pride_of_bethekk") {}
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -332,11 +332,11 @@ class npc_kilnara_pride_of_bethekk : public CreatureScript
         };
 };
 
-class npc_kilnara_wave_of_agony : public CreatureScript
+class npc_kilnara_wave_of_agony : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_kilnara_wave_of_agony() : CreatureScript("npc_kilnara_wave_of_agony") {}
+        npc_kilnara_wave_of_agony() : MS::Game::Scripting::Interfaces::CreatureScript("npc_kilnara_wave_of_agony") {}
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -356,11 +356,11 @@ class npc_kilnara_wave_of_agony : public CreatureScript
         };
 };
 
-class npc_kilnara_temple_rat : public CreatureScript
+class npc_kilnara_temple_rat : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_kilnara_temple_rat() : CreatureScript("npc_kilnara_temple_rat") {}
+        npc_kilnara_temple_rat() : MS::Game::Scripting::Interfaces::CreatureScript("npc_kilnara_temple_rat") {}
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -386,10 +386,10 @@ class npc_kilnara_temple_rat : public CreatureScript
         };
 };
 
-class spell_kilnara_wave_of_agony_target : public SpellScriptLoader
+class spell_kilnara_wave_of_agony_target: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_kilnara_wave_of_agony_target() : SpellScriptLoader("spell_kilnara_wave_of_agony_target") { }
+        spell_kilnara_wave_of_agony_target() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_kilnara_wave_of_agony_target") { }
 
 
         class spell_kilnara_wave_of_agony_target_SpellScript : public SpellScript
@@ -417,10 +417,10 @@ class spell_kilnara_wave_of_agony_target : public SpellScriptLoader
         }
 };
 
-class spell_kilnara_wave_of_agony_start : public SpellScriptLoader
+class spell_kilnara_wave_of_agony_start: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_kilnara_wave_of_agony_start() : SpellScriptLoader("spell_kilnara_wave_of_agony_start") { }
+        spell_kilnara_wave_of_agony_start() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_kilnara_wave_of_agony_start") { }
 
         class spell_kilnara_wave_of_agony_start_AuraScript : public AuraScript
         {
@@ -467,10 +467,10 @@ class PrideCheck
         }
 };
 
-class spell_kilnara_rat_lure : public SpellScriptLoader
+class spell_kilnara_rat_lure: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_kilnara_rat_lure() : SpellScriptLoader("spell_kilnara_rat_lure") { }
+        spell_kilnara_rat_lure() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_kilnara_rat_lure") { }
 
 
         class spell_kilnara_rat_lure_SpellScript : public SpellScript

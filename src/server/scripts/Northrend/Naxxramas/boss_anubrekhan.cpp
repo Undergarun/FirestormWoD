@@ -52,10 +52,10 @@ enum
     ACHIEV_TIMED_START_EVENT                      = 9891,
 };
 
-class boss_anubrekhan : public CreatureScript
+class boss_anubrekhan : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_anubrekhan() : CreatureScript("boss_anubrekhan") { }
+    boss_anubrekhan() : MS::Game::Scripting::Interfaces::CreatureScript("boss_anubrekhan") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

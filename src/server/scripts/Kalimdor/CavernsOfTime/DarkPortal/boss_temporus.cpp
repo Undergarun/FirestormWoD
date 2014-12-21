@@ -43,10 +43,10 @@ enum eEnums
     SPELL_REFLECT           = 38592                       //Not Implemented (Heroic mod)
 };
 
-class boss_temporus : public CreatureScript
+class boss_temporus : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_temporus() : CreatureScript("boss_temporus") { }
+    boss_temporus() : MS::Game::Scripting::Interfaces::CreatureScript("boss_temporus") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

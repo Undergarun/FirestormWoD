@@ -89,10 +89,10 @@ enum Spells
     SPELL_SHADOW_AXE_SUMMON                     = 42748
 };
 
-class boss_ingvar_the_plunderer : public CreatureScript
+class boss_ingvar_the_plunderer : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_ingvar_the_plunderer() : CreatureScript("boss_ingvar_the_plunderer") { }
+    boss_ingvar_the_plunderer() : MS::Game::Scripting::Interfaces::CreatureScript("boss_ingvar_the_plunderer") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -293,10 +293,10 @@ enum eSpells
     SPELL_INGVAR_TRANSFORM                      = 42796
 };
 
-class mob_annhylde_the_caller : public CreatureScript
+class mob_annhylde_the_caller : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_annhylde_the_caller() : CreatureScript("mob_annhylde_the_caller") { }
+    mob_annhylde_the_caller() : MS::Game::Scripting::Interfaces::CreatureScript("mob_annhylde_the_caller") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -410,10 +410,10 @@ enum eShadowAxe
     POINT_TARGET                                = 28
 };
 
-class mob_ingvar_throw_dummy : public CreatureScript
+class mob_ingvar_throw_dummy : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_ingvar_throw_dummy() : CreatureScript("mob_ingvar_throw_dummy") { }
+    mob_ingvar_throw_dummy() : MS::Game::Scripting::Interfaces::CreatureScript("mob_ingvar_throw_dummy") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

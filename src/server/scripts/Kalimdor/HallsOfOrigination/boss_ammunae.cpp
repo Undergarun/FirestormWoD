@@ -63,10 +63,10 @@ enum Adds
     NPC_SEEDLING_POD_3          = 40592, // 75687
 };
 
-class boss_ammunae : public CreatureScript
+class boss_ammunae : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_ammunae() : CreatureScript("boss_ammunae") { }
+        boss_ammunae() : MS::Game::Scripting::Interfaces::CreatureScript("boss_ammunae") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -206,10 +206,10 @@ class boss_ammunae : public CreatureScript
         };
 };
 
-class npc_ammunae_seedling_pod : public CreatureScript
+class npc_ammunae_seedling_pod : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_ammunae_seedling_pod() : CreatureScript("npc_ammunae_seedling_pod") { }
+        npc_ammunae_seedling_pod() : MS::Game::Scripting::Interfaces::CreatureScript("npc_ammunae_seedling_pod") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -254,10 +254,10 @@ class npc_ammunae_seedling_pod : public CreatureScript
 
 };
 
-class npc_ammunae_spore : public CreatureScript
+class npc_ammunae_spore : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_ammunae_spore() : CreatureScript("npc_ammunae_spore") { }
+        npc_ammunae_spore() : MS::Game::Scripting::Interfaces::CreatureScript("npc_ammunae_spore") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {

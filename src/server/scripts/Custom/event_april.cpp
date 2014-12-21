@@ -6,7 +6,7 @@
 #define EVENT_APRIL             100
 
 
-class PlayerScript_Event_April : public PlayerScript
+class PlayerScript_Event_April: public MS::Game::Scripting::Interfaces::PlayerScript
 {
     public:
         PlayerScript_Event_April():PlayerScript("PlayerScript_Event_April") {}

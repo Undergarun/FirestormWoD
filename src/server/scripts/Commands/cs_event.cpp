@@ -26,10 +26,10 @@ EndScriptData */
 #include "GameEventMgr.h"
 #include "Chat.h"
 
-class event_commandscript : public CommandScript
+class event_commandscript: public MS::Game::Scripting::Interfaces::CommandScript
 {
 public:
-    event_commandscript() : CommandScript("event_commandscript") { }
+    event_commandscript() : MS::Game::Scripting::Interfaces::CommandScript("event_commandscript") { }
 
     ChatCommand* GetCommands() const
     {

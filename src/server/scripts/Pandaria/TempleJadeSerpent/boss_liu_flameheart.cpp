@@ -102,10 +102,10 @@ enum eCreatures
     CREATURE_TRIGGER_WAVE = 56789,
 };
 
-class boss_liu_flameheart : public CreatureScript
+class boss_liu_flameheart : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_liu_flameheart() : CreatureScript("boss_liu_flameheart") { }
+        boss_liu_flameheart() : MS::Game::Scripting::Interfaces::CreatureScript("boss_liu_flameheart") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -352,10 +352,10 @@ class boss_liu_flameheart : public CreatureScript
         };
 };
 
-class boss_yu_lon : public CreatureScript
+class boss_yu_lon : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_yu_lon() : CreatureScript("boss_yu_lon") { }
+        boss_yu_lon() : MS::Game::Scripting::Interfaces::CreatureScript("boss_yu_lon") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -401,10 +401,10 @@ class boss_yu_lon : public CreatureScript
         };
 };
 
-class mob_trigger_liu_flameheart: public CreatureScript
+class mob_trigger_liu_flameheart : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_trigger_liu_flameheart() : CreatureScript("mob_trigger_liu_flameheart") { }
+        mob_trigger_liu_flameheart() : MS::Game::Scripting::Interfaces::CreatureScript("mob_trigger_liu_flameheart") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -438,10 +438,10 @@ class mob_trigger_liu_flameheart: public CreatureScript
         };
 };
 
-class mob_minion_of_doubt: public CreatureScript
+class mob_minion_of_doubt : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_minion_of_doubt() : CreatureScript("mob_minion_of_doubt") { }
+        mob_minion_of_doubt() : MS::Game::Scripting::Interfaces::CreatureScript("mob_minion_of_doubt") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -490,10 +490,10 @@ class mob_minion_of_doubt: public CreatureScript
         };
 };
 
-class mob_lesser_sha: public CreatureScript
+class mob_lesser_sha : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_lesser_sha() : CreatureScript("mob_lesser_sha") { }
+        mob_lesser_sha() : MS::Game::Scripting::Interfaces::CreatureScript("mob_lesser_sha") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {

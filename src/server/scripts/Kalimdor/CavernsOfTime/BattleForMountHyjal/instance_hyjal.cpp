@@ -42,10 +42,10 @@ enum Misc
 4 - Archimonde event
 */
 
-class instance_hyjal : public InstanceMapScript
+class instance_hyjal : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
 public:
-    instance_hyjal() : InstanceMapScript("instance_hyjal", 534) { }
+    instance_hyjal() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_hyjal", 534) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {

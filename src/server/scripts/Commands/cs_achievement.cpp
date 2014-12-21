@@ -25,10 +25,10 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "Chat.h"
 
-class achievement_commandscript : public CommandScript
+class achievement_commandscript: public MS::Game::Scripting::Interfaces::CommandScript
 {
 public:
-    achievement_commandscript() : CommandScript("achievement_commandscript") { }
+    achievement_commandscript() : MS::Game::Scripting::Interfaces::CommandScript("achievement_commandscript") { }
 
     ChatCommand* GetCommands() const
     {

@@ -107,10 +107,10 @@ enum eCreatures
     CREATURE_OSONG                  = 56872,
 };
 
-class boss_lorewalker_stonestep : public CreatureScript
+class boss_lorewalker_stonestep : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_lorewalker_stonestep() : CreatureScript("boss_lorewalker_stonestep") { }
+        boss_lorewalker_stonestep() : MS::Game::Scripting::Interfaces::CreatureScript("boss_lorewalker_stonestep") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -275,10 +275,10 @@ class boss_lorewalker_stonestep : public CreatureScript
         };
 };
 
-class mob_sun : public CreatureScript
+class mob_sun : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_sun() : CreatureScript("mob_sun") { }
+        mob_sun() : MS::Game::Scripting::Interfaces::CreatureScript("mob_sun") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -331,10 +331,10 @@ class mob_sun : public CreatureScript
         };
 };
 
-class mob_zao : public CreatureScript
+class mob_zao : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_zao() : CreatureScript("mob_zao") { }
+        mob_zao() : MS::Game::Scripting::Interfaces::CreatureScript("mob_zao") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -450,10 +450,10 @@ class mob_zao : public CreatureScript
         };
 };
 
-class mob_haunting_sha : public CreatureScript
+class mob_haunting_sha : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_haunting_sha() : CreatureScript("mob_haunting_sha") { }
+        mob_haunting_sha() : MS::Game::Scripting::Interfaces::CreatureScript("mob_haunting_sha") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -529,10 +529,10 @@ class mob_haunting_sha : public CreatureScript
         };
 };
 
-class mob_strife : public CreatureScript
+class mob_strife : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_strife() : CreatureScript("mob_strife") { }
+        mob_strife() : MS::Game::Scripting::Interfaces::CreatureScript("mob_strife") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -626,10 +626,10 @@ class mob_strife : public CreatureScript
         };
 };
 
-class mob_peril : public CreatureScript
+class mob_peril : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_peril() : CreatureScript("mob_peril") { }
+        mob_peril() : MS::Game::Scripting::Interfaces::CreatureScript("mob_peril") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -723,10 +723,10 @@ class mob_peril : public CreatureScript
         };
 };
 
-class mob_nodding_tiger: public CreatureScript
+class mob_nodding_tiger : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_nodding_tiger() : CreatureScript("mob_nodding_tiger") { }
+        mob_nodding_tiger() : MS::Game::Scripting::Interfaces::CreatureScript("mob_nodding_tiger") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -767,10 +767,10 @@ class mob_nodding_tiger: public CreatureScript
         };
 };
 
-class mob_golden_beetle: public CreatureScript
+class mob_golden_beetle : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_golden_beetle() : CreatureScript("mob_golden_beetle") { }
+        mob_golden_beetle() : MS::Game::Scripting::Interfaces::CreatureScript("mob_golden_beetle") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -821,10 +821,10 @@ class mob_golden_beetle: public CreatureScript
         };
 };
 
-class mob_jiang_xiang: public CreatureScript
+class mob_jiang_xiang : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_jiang_xiang() : CreatureScript("mob_jiang_xiang") { }
+        mob_jiang_xiang() : MS::Game::Scripting::Interfaces::CreatureScript("mob_jiang_xiang") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -870,10 +870,10 @@ class mob_jiang_xiang: public CreatureScript
         };
 };
 
-class mob_songbird_queen: public CreatureScript
+class mob_songbird_queen : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_songbird_queen() : CreatureScript("mob_songbird_queen") { }
+        mob_songbird_queen() : MS::Game::Scripting::Interfaces::CreatureScript("mob_songbird_queen") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -914,10 +914,10 @@ class mob_songbird_queen: public CreatureScript
         };
 };
 
-class mob_talking_fish: public CreatureScript
+class mob_talking_fish : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_talking_fish() : CreatureScript("mob_talking_fish") { }
+        mob_talking_fish() : MS::Game::Scripting::Interfaces::CreatureScript("mob_talking_fish") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {

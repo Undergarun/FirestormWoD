@@ -8,10 +8,10 @@
 #include "ScriptedCreature.h"
 #include "mogu_shan_palace.h"
 
-class boss_xin_the_weaponmaster : public CreatureScript
+class boss_xin_the_weaponmaster : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_xin_the_weaponmaster() : CreatureScript("boss_xin_the_weaponmaster") { }
+        boss_xin_the_weaponmaster() : MS::Game::Scripting::Interfaces::CreatureScript("boss_xin_the_weaponmaster") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -118,10 +118,10 @@ class boss_xin_the_weaponmaster : public CreatureScript
         };
 };
 
-class mob_animated_staff : public CreatureScript
+class mob_animated_staff : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_animated_staff() : CreatureScript("mob_animated_staff") { }
+        mob_animated_staff() : MS::Game::Scripting::Interfaces::CreatureScript("mob_animated_staff") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -279,10 +279,10 @@ class OnlyTriggerInFrontPredicate
         Unit* _caster;
 };
 
-class spell_dart : public SpellScriptLoader
+class spell_dart: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_dart() : SpellScriptLoader("spell_dart") { }
+        spell_dart() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_dart") { }
 
         class spell_dart_SpellScript : public SpellScript
         {

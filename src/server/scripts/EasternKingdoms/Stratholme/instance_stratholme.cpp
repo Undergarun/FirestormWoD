@@ -57,10 +57,10 @@ enum InstanceEvents
     EVENT_SLAUGHTER_SQUARE  = 2,
 };
 
-class instance_stratholme : public InstanceMapScript
+class instance_stratholme : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
     public:
-        instance_stratholme() : InstanceMapScript("instance_stratholme", 329) { }
+        instance_stratholme() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_stratholme", 329) { }
 
         struct instance_stratholme_InstanceMapScript : public InstanceScript
         {

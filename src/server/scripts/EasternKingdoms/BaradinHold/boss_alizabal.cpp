@@ -37,10 +37,10 @@ enum Events
     EVENT_BLADE_DANCE_AURA      = 6,
 };
 
-class boss_alizabal : public CreatureScript
+class boss_alizabal : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_alizabal() : CreatureScript("boss_alizabal") { }
+        boss_alizabal() : MS::Game::Scripting::Interfaces::CreatureScript("boss_alizabal") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -211,10 +211,10 @@ class boss_alizabal : public CreatureScript
         };
 };
 
-class spell_alizabal_seething_hate : public SpellScriptLoader
+class spell_alizabal_seething_hate: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_alizabal_seething_hate() : SpellScriptLoader("spell_alizabal_seething_hate") { }
+        spell_alizabal_seething_hate() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_alizabal_seething_hate") { }
 
         class spell_alizabal_seething_hate_SpellScript : public SpellScript
         {
@@ -240,10 +240,10 @@ class spell_alizabal_seething_hate : public SpellScriptLoader
         }
 };
 
-class spell_alizabal_blade_dance : public SpellScriptLoader
+class spell_alizabal_blade_dance: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_alizabal_blade_dance() : SpellScriptLoader("spell_alizabal_blade_dance") { }
+        spell_alizabal_blade_dance() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_alizabal_blade_dance") { }
 
         class spell_alizabal_blade_dance_SpellScript : public SpellScript
         {
@@ -270,10 +270,10 @@ class spell_alizabal_blade_dance : public SpellScriptLoader
         }
 };
 
-class spell_alizabal_blade_dance_dmg : public SpellScriptLoader
+class spell_alizabal_blade_dance_dmg: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_alizabal_blade_dance_dmg() : SpellScriptLoader("spell_alizabal_blade_dance_dmg") { }
+        spell_alizabal_blade_dance_dmg() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_alizabal_blade_dance_dmg") { }
 
         class spell_alizabal_blade_dance_dmg_SpellScript : public SpellScript
         {

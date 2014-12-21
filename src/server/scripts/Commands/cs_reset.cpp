@@ -26,10 +26,10 @@ EndScriptData */
 #include "Chat.h"
 #include "ObjectAccessor.h"
 
-class reset_commandscript : public CommandScript
+class reset_commandscript: public MS::Game::Scripting::Interfaces::CommandScript
 {
 public:
-    reset_commandscript() : CommandScript("reset_commandscript") { }
+    reset_commandscript() : MS::Game::Scripting::Interfaces::CommandScript("reset_commandscript") { }
 
     ChatCommand* GetCommands() const
     {

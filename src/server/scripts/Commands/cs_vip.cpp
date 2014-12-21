@@ -27,10 +27,10 @@
 #include "SpellAuras.h"
 
 
-class vip_commandscript : public CommandScript
+class vip_commandscript: public MS::Game::Scripting::Interfaces::CommandScript
 {
 public:
-    vip_commandscript() : CommandScript("vip_commandscript") { }
+    vip_commandscript() : MS::Game::Scripting::Interfaces::CommandScript("vip_commandscript") { }
 
     ChatCommand* GetCommands() const
     {

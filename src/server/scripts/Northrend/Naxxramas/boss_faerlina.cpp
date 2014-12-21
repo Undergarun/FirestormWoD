@@ -54,10 +54,10 @@ enum Events
 
 #define DATA_FRENZY_DISPELS 1
 
-class boss_faerlina : public CreatureScript
+class boss_faerlina : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_faerlina() : CreatureScript("boss_faerlina") { }
+        boss_faerlina() : MS::Game::Scripting::Interfaces::CreatureScript("boss_faerlina") { }
 
         struct boss_faerlinaAI : public BossAI
         {
@@ -182,10 +182,10 @@ class boss_faerlina : public CreatureScript
         }
 };
 
-class mob_faerlina_add : public CreatureScript
+class mob_faerlina_add : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_faerlina_add() : CreatureScript("mob_faerlina_add") { }
+        mob_faerlina_add() : MS::Game::Scripting::Interfaces::CreatureScript("mob_faerlina_add") { }
 
         struct mob_faerlina_addAI : public ScriptedAI
         {
@@ -219,10 +219,10 @@ class mob_faerlina_add : public CreatureScript
         }
 };
 
-class achievement_momma_said_knock_you_out : public AchievementCriteriaScript
+class achievement_momma_said_knock_you_out : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_momma_said_knock_you_out() : AchievementCriteriaScript("achievement_momma_said_knock_you_out") { }
+        achievement_momma_said_knock_you_out() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_momma_said_knock_you_out") { }
 
         bool OnCheck(Player* /*source*/, Unit* target)
         {

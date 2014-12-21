@@ -56,10 +56,10 @@ enum eEnums
 ## Boss Loken
 ######*/
 
-class boss_loken : public CreatureScript
+class boss_loken : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_loken() : CreatureScript("boss_loken") { }
+    boss_loken() : MS::Game::Scripting::Interfaces::CreatureScript("boss_loken") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -184,10 +184,10 @@ public:
 
 };
 
-class spell_loken_pulsing_shockwave : public SpellScriptLoader
+class spell_loken_pulsing_shockwave: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_loken_pulsing_shockwave() : SpellScriptLoader("spell_loken_pulsing_shockwave") { }
+        spell_loken_pulsing_shockwave() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_loken_pulsing_shockwave") { }
 
         class spell_loken_pulsing_shockwave_SpellScript : public SpellScript
         {

@@ -38,10 +38,10 @@ enum Yells
 # at_twilight_grove
 ######*/
 
-class at_twilight_grove : public AreaTriggerScript
+class at_twilight_grove : public MS::Game::Scripting::Interfaces::AreaTriggerScript
 {
 public:
-    at_twilight_grove() : AreaTriggerScript("at_twilight_grove") { }
+    at_twilight_grove() : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_twilight_grove") { }
 
     bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/)
     {
@@ -71,10 +71,10 @@ public:
 #define SPELL_CREATURE_OF_NIGHTMARE 25806
 #define SPELL_LEVEL_UP 24312
 
-class boss_twilight_corrupter : public CreatureScript
+class boss_twilight_corrupter : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_twilight_corrupter() : CreatureScript("boss_twilight_corrupter") { }
+    boss_twilight_corrupter() : MS::Game::Scripting::Interfaces::CreatureScript("boss_twilight_corrupter") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

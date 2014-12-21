@@ -17,10 +17,10 @@ enum spells
     SPELL_BOMB_AURA                     = 106875,
 };
 
-class mob_serpent_spine_defender : public CreatureScript
+class mob_serpent_spine_defender : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_serpent_spine_defender() : CreatureScript("mob_serpent_spine_defender") { }
+    mob_serpent_spine_defender() : MS::Game::Scripting::Interfaces::CreatureScript("mob_serpent_spine_defender") { }
 
     struct mob_serpent_spine_defenderAI : public ScriptedAI
     {
@@ -62,10 +62,10 @@ public:
     }
 };
 
-class npc_krikthik_bombarder : public CreatureScript
+class npc_krikthik_bombarder : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_krikthik_bombarder() : CreatureScript("npc_krikthik_bombarder") { }
+    npc_krikthik_bombarder() : MS::Game::Scripting::Interfaces::CreatureScript("npc_krikthik_bombarder") { }
 
     struct npc_krikthik_bombarderAI : public ScriptedAI
     {
@@ -111,10 +111,10 @@ public:
 };
 
 //8359
-class AreaTrigger_at_first_door : public AreaTriggerScript
+class AreaTrigger_at_first_door : public MS::Game::Scripting::Interfaces::AreaTriggerScript
 {
     public:
-        AreaTrigger_at_first_door() : AreaTriggerScript("at_first_door") {}
+        AreaTrigger_at_first_door() : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_first_door") {}
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
         {
@@ -125,10 +125,10 @@ class AreaTrigger_at_first_door : public AreaTriggerScript
         }
 };
 
-class go_setting_sun_brasier : public GameObjectScript
+class go_setting_sun_brasier : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_setting_sun_brasier() : GameObjectScript("go_setting_sun_brasier") { }
+    go_setting_sun_brasier() : MS::Game::Scripting::Interfaces::GameObjectScript("go_setting_sun_brasier") { }
 
     bool OnGossipHello(Player* player, GameObject* /*go*/)
     {
@@ -139,10 +139,10 @@ public:
     }
 };
 
-class go_setting_sun_temp_portal : public GameObjectScript
+class go_setting_sun_temp_portal : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_setting_sun_temp_portal() : GameObjectScript("go_setting_sun_temp_portal") { }
+    go_setting_sun_temp_portal() : MS::Game::Scripting::Interfaces::GameObjectScript("go_setting_sun_temp_portal") { }
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
@@ -163,10 +163,10 @@ public:
     }
 };
 
-class vehicle_artillery_to_wall : public VehicleScript
+class vehicle_artillery_to_wall : public MS::Game::Scripting::Interfaces::VehicleScript
 {
     public:
-        vehicle_artillery_to_wall() : VehicleScript("vehicle_artillery_to_wall") {}
+        vehicle_artillery_to_wall() : MS::Game::Scripting::Interfaces::VehicleScript("vehicle_artillery_to_wall") {}
 
         void OnAddPassenger(Vehicle* veh, Unit* /*passenger*/, int8 /*seatId*/)
         {
@@ -221,10 +221,10 @@ class vehicle_artillery_to_wall : public VehicleScript
         }
 };
 
-class go_setting_sun_elevator : public GameObjectScript
+class go_setting_sun_elevator : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
     public:
-        go_setting_sun_elevator() : GameObjectScript("go_setting_sun_elevator") { }
+        go_setting_sun_elevator() : MS::Game::Scripting::Interfaces::GameObjectScript("go_setting_sun_elevator") { }
 
         InstanceScript* m_Instance;
 

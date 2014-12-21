@@ -30,10 +30,10 @@ EndScriptData */
 #define SPELL_IMMOLATE             20294                    // Old ID  was 15570
 #define SPELL_VEILOFSHADOW         17820
 
-class boss_lord_alexei_barov : public CreatureScript
+class boss_lord_alexei_barov : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_lord_alexei_barov() : CreatureScript("boss_lord_alexei_barov") { }
+    boss_lord_alexei_barov() : MS::Game::Scripting::Interfaces::CreatureScript("boss_lord_alexei_barov") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

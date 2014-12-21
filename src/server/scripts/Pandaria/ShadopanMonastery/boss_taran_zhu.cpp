@@ -45,10 +45,10 @@ enum eEvents
     EVENT_GRIP_OF_HATE              = 5,
 };
 
-class boss_taran_zhu : public CreatureScript
+class boss_taran_zhu : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_taran_zhu() : CreatureScript("boss_taran_zhu") {}
+        boss_taran_zhu() : MS::Game::Scripting::Interfaces::CreatureScript("boss_taran_zhu") {}
 
         struct boss_taran_zhuAI : public BossAI
         {
@@ -140,10 +140,10 @@ class boss_taran_zhu : public CreatureScript
         }
 };
 
-class npc_gripping_hatred : public CreatureScript
+class npc_gripping_hatred : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_gripping_hatred() : CreatureScript("npc_gripping_hatred") { }
+    npc_gripping_hatred() : MS::Game::Scripting::Interfaces::CreatureScript("npc_gripping_hatred") { }
 
     struct npc_gripping_hatredAI : public ScriptedAI
     {
@@ -168,10 +168,10 @@ public:
     }
 };
 
-class spell_taran_zhu_hate : public SpellScriptLoader
+class spell_taran_zhu_hate: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_taran_zhu_hate() : SpellScriptLoader("spell_taran_zhu_hate") { }
+        spell_taran_zhu_hate() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_taran_zhu_hate") { }
 
         class spell_taran_zhu_hate_AuraScript : public AuraScript
         {
@@ -200,10 +200,10 @@ class spell_taran_zhu_hate : public SpellScriptLoader
         }
 };
 
-class spell_taran_zhu_meditation : public SpellScriptLoader
+class spell_taran_zhu_meditation: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_taran_zhu_meditation() : SpellScriptLoader("spell_taran_zhu_meditation") { }
+        spell_taran_zhu_meditation() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_taran_zhu_meditation") { }
 
         class spell_taran_zhu_meditation_AuraScript : public AuraScript
         {
@@ -232,10 +232,10 @@ class spell_taran_zhu_meditation : public SpellScriptLoader
         }
 };
 
-class spell_taran_zhu_grip_of_hate : public SpellScriptLoader
+class spell_taran_zhu_grip_of_hate: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_taran_zhu_grip_of_hate() : SpellScriptLoader("spell_taran_zhu_grip_of_hate") { }
+        spell_taran_zhu_grip_of_hate() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_taran_zhu_grip_of_hate") { }
 
         class spell_taran_zhu_grip_of_hate_SpellScript : public SpellScript
         {

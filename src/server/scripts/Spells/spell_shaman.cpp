@@ -127,10 +127,10 @@ enum ShamanSpells
 };
 
 // Totemic Projection - 108287
-class spell_sha_totemic_projection : public SpellScriptLoader
+class spell_sha_totemic_projection: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sha_totemic_projection() : SpellScriptLoader("spell_sha_totemic_projection") { }
+        spell_sha_totemic_projection() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_totemic_projection") { }
 
         class spell_sha_totemic_projection_SpellScript : public SpellScript
         {
@@ -208,10 +208,10 @@ class spell_sha_totemic_projection : public SpellScriptLoader
 };
 
 // Hex - 51514
-class spell_sha_hex : public SpellScriptLoader
+class spell_sha_hex: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sha_hex() : SpellScriptLoader("spell_sha_hex") { }
+        spell_sha_hex() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_hex") { }
 
         class spell_sha_hex_AuraScript : public AuraScript
         {
@@ -248,10 +248,10 @@ class spell_sha_hex : public SpellScriptLoader
 };
 
 // Water Ascendant - 114052
-class spell_sha_water_ascendant : public SpellScriptLoader
+class spell_sha_water_ascendant: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sha_water_ascendant() : SpellScriptLoader("spell_sha_water_ascendant") { }
+        spell_sha_water_ascendant() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_water_ascendant") { }
 
         class spell_sha_water_ascendant_AuraScript : public AuraScript
         {
@@ -330,10 +330,10 @@ class spell_sha_water_ascendant : public SpellScriptLoader
 
 // Called by Shamanistic Rage - 30823
 // Glyph of Shamanistic Rage - 63280
-class spell_sha_glyph_of_shamanistic_rage : public SpellScriptLoader
+class spell_sha_glyph_of_shamanistic_rage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sha_glyph_of_shamanistic_rage() : SpellScriptLoader("spell_sha_glyph_of_shamanistic_rage") { }
+        spell_sha_glyph_of_shamanistic_rage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_glyph_of_shamanistic_rage") { }
 
         class spell_sha_glyph_of_shamanistic_rage_SpellScript : public SpellScript
         {
@@ -368,10 +368,10 @@ class spell_sha_glyph_of_shamanistic_rage : public SpellScriptLoader
 
 // Called by Ghost Wolf - 2645
 // Glyph of Lakestrider - 55448
-class spell_sha_glyph_of_lakestrider : public SpellScriptLoader
+class spell_sha_glyph_of_lakestrider: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sha_glyph_of_lakestrider() : SpellScriptLoader("spell_sha_glyph_of_lakestrider") { }
+        spell_sha_glyph_of_lakestrider() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_glyph_of_lakestrider") { }
 
         class spell_sha_glyph_of_lakestrider_SpellScript : public SpellScript
         {
@@ -409,10 +409,10 @@ uint32 g_resetTotemCdSpells[] =
 };
 
 // 108285 - Call of the Elements
-class spell_sha_call_of_the_elements : public SpellScriptLoader
+class spell_sha_call_of_the_elements: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sha_call_of_the_elements() : SpellScriptLoader("spell_sha_call_of_the_elements") { }
+        spell_sha_call_of_the_elements() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_call_of_the_elements") { }
 
         class spell_sha_call_of_the_elements_SpellScript : public SpellScript
         {
@@ -445,10 +445,10 @@ class spell_sha_call_of_the_elements : public SpellScriptLoader
 // Called by Lightning Bolt - 403, Chain Lightning - 421, Earth Shock - 8042 and Stormstrike - 17364
 // Called by Lightning Bolt - 45284, Chain Lightning - 45297
 // Conductivity - 108282
-class spell_sha_conductivity : public SpellScriptLoader
+class spell_sha_conductivity: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sha_conductivity() : SpellScriptLoader("spell_sha_conductivity") { }
+        spell_sha_conductivity() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_conductivity") { }
 
         class spell_sha_conductivity_SpellScript : public SpellScript
         {
@@ -494,10 +494,10 @@ class spell_sha_conductivity : public SpellScriptLoader
 };
 
 // Ancestral Guidance - 108281
-class spell_sha_ancestral_guidance : public SpellScriptLoader
+class spell_sha_ancestral_guidance: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sha_ancestral_guidance() : SpellScriptLoader("spell_sha_ancestral_guidance") { }
+        spell_sha_ancestral_guidance() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_ancestral_guidance") { }
 
         class spell_sha_ancestral_guidance_AuraScript : public AuraScript
         {
@@ -546,10 +546,10 @@ class spell_sha_ancestral_guidance : public SpellScriptLoader
 };
 
 // 64695 - Earthgrab
-class spell_sha_earthgrab : public SpellScriptLoader
+class spell_sha_earthgrab: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sha_earthgrab() : SpellScriptLoader("spell_sha_earthgrab") { }
+        spell_sha_earthgrab() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_earthgrab") { }
 
         class spell_sha_earthgrab_SpellScript : public SpellScript
         {
@@ -594,10 +594,10 @@ class spell_sha_earthgrab : public SpellScriptLoader
 };
 
 // Stone Bulwark - 114889
-class spell_sha_stone_bulwark : public SpellScriptLoader
+class spell_sha_stone_bulwark: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sha_stone_bulwark() : SpellScriptLoader("spell_sha_stone_bulwark") { }
+        spell_sha_stone_bulwark() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_stone_bulwark") { }
 
         class spell_sha_stone_bulwark_AuraScript : public AuraScript
         {
@@ -639,10 +639,10 @@ class spell_sha_stone_bulwark : public SpellScriptLoader
 };
 
 // Frost Shock - 8056
-class spell_sha_frozen_power : public SpellScriptLoader
+class spell_sha_frozen_power: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sha_frozen_power() : SpellScriptLoader("spell_sha_frozen_power") { }
+        spell_sha_frozen_power() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_frozen_power") { }
 
         class spell_sha_frozen_power_SpellScript : public SpellScript
         {
@@ -677,10 +677,10 @@ class spell_sha_frozen_power : public SpellScriptLoader
 
 // Spirit Link - 98020 : triggered by 98017
 // Spirit Link Totem
-class spell_sha_spirit_link : public SpellScriptLoader
+class spell_sha_spirit_link: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sha_spirit_link() : SpellScriptLoader("spell_sha_spirit_link") { }
+        spell_sha_spirit_link() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_spirit_link") { }
 
         class spell_sha_spirit_link_SpellScript : public SpellScript
         {
@@ -728,10 +728,10 @@ class spell_sha_spirit_link : public SpellScriptLoader
 };
 
 // Fire Nova - 1535
-class spell_sha_fire_nova : public SpellScriptLoader
+class spell_sha_fire_nova: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sha_fire_nova() : SpellScriptLoader("spell_sha_fire_nova") { }
+        spell_sha_fire_nova() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_fire_nova") { }
 
         class spell_sha_fire_nova_SpellScript : public SpellScript
         {
@@ -769,10 +769,10 @@ class spell_sha_fire_nova : public SpellScriptLoader
 };
 
 // 88766 Fulmination handled in 8042 Earth Shock
-class spell_sha_fulmination : public SpellScriptLoader
+class spell_sha_fulmination: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sha_fulmination() : SpellScriptLoader("spell_sha_fulmination") { }
+        spell_sha_fulmination() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_fulmination") { }
 
         class spell_sha_fulmination_SpellScript : public SpellScript
         {
@@ -820,10 +820,10 @@ class spell_sha_fulmination : public SpellScriptLoader
 };
 
 // 77762 Lava Surge
-class spell_sha_lava_surge : public SpellScriptLoader
+class spell_sha_lava_surge: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sha_lava_surge() : SpellScriptLoader("spell_sha_lava_surge") { }
+        spell_sha_lava_surge() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_lava_surge") { }
 
         class spell_sha_lava_surge_AuraScript : public AuraScript
         {
@@ -853,10 +853,10 @@ class spell_sha_lava_surge : public SpellScriptLoader
 };
 
 // Healing Stream - 52042
-class spell_sha_healing_stream : public SpellScriptLoader
+class spell_sha_healing_stream: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sha_healing_stream() : SpellScriptLoader("spell_sha_healing_stream") { }
+        spell_sha_healing_stream() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_healing_stream") { }
 
         class spell_sha_healing_stream_SpellScript : public SpellScript
         {
@@ -895,10 +895,10 @@ class spell_sha_healing_stream : public SpellScriptLoader
 
 
 // Elemental Blast - 117014
-class spell_sha_elemental_blast : public SpellScriptLoader
+class spell_sha_elemental_blast: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sha_elemental_blast() : SpellScriptLoader("spell_sha_elemental_blast") { }
+        spell_sha_elemental_blast() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_elemental_blast") { }
 
         class spell_sha_elemental_blast_SpellScript : public SpellScript
         {
@@ -958,10 +958,10 @@ class spell_sha_elemental_blast : public SpellScriptLoader
 };
 
 // Earthquake : Ticks - 77478
-class spell_sha_earthquake_tick : public SpellScriptLoader
+class spell_sha_earthquake_tick: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sha_earthquake_tick() : SpellScriptLoader("spell_sha_earthquake_tick") { }
+        spell_sha_earthquake_tick() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_earthquake_tick") { }
 
         class spell_sha_earthquake_tick_SpellScript : public SpellScript
         {
@@ -996,10 +996,10 @@ class spell_sha_earthquake_tick : public SpellScriptLoader
 };
 
 // Earthquake - 61882
-class spell_sha_earthquake : public SpellScriptLoader
+class spell_sha_earthquake: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sha_earthquake() : SpellScriptLoader("spell_sha_earthquake") { }
+        spell_sha_earthquake() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_earthquake") { }
 
         class spell_sha_earthquake_AuraScript : public AuraScript
         {
@@ -1042,10 +1042,10 @@ class spell_sha_earthquake : public SpellScriptLoader
 };
 
 // Healing Rain - 73920
-class spell_sha_healing_rain : public SpellScriptLoader
+class spell_sha_healing_rain: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sha_healing_rain() : SpellScriptLoader("spell_sha_healing_rain") { }
+        spell_sha_healing_rain() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_healing_rain") { }
 
         class spell_sha_healing_rain_SpellScript : public SpellScript
         {
@@ -1107,10 +1107,10 @@ class spell_sha_healing_rain : public SpellScriptLoader
 };
 
 // Ascendance - 114049
-class spell_sha_ascendance : public SpellScriptLoader
+class spell_sha_ascendance: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sha_ascendance() : SpellScriptLoader("spell_sha_ascendance") { }
+        spell_sha_ascendance() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_ascendance") { }
 
         class spell_sha_ascendance_SpellScript : public SpellScript
         {
@@ -1195,10 +1195,10 @@ class EarthenPowerTargetSelector
         }
 };
 
-class spell_sha_bloodlust : public SpellScriptLoader
+class spell_sha_bloodlust: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sha_bloodlust() : SpellScriptLoader("spell_sha_bloodlust") { }
+        spell_sha_bloodlust() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_bloodlust") { }
 
         class spell_sha_bloodlust_SpellScript : public SpellScript
         {
@@ -1239,10 +1239,10 @@ class spell_sha_bloodlust : public SpellScriptLoader
         }
 };
 
-class spell_sha_heroism : public SpellScriptLoader
+class spell_sha_heroism: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sha_heroism() : SpellScriptLoader("spell_sha_heroism") { }
+        spell_sha_heroism() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_heroism") { }
 
         class spell_sha_heroism_SpellScript : public SpellScript
         {
@@ -1284,10 +1284,10 @@ class spell_sha_heroism : public SpellScriptLoader
 };
 
 // 58877 - Spirit Hunt
-class spell_sha_spirit_hunt : public SpellScriptLoader
+class spell_sha_spirit_hunt: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sha_spirit_hunt() : SpellScriptLoader("spell_sha_spirit_hunt") { }
+        spell_sha_spirit_hunt() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_spirit_hunt") { }
 
         class spell_sha_spirit_hunt_AuraScript : public AuraScript
         {
@@ -1314,10 +1314,10 @@ class spell_sha_spirit_hunt : public SpellScriptLoader
 };
 
 // 105792 - Lava Shock Spread
-class spell_sha_lava_lash_spread : public SpellScriptLoader
+class spell_sha_lava_lash_spread: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sha_lava_lash_spread() : SpellScriptLoader("spell_sha_lava_lash_spread") { }
+        spell_sha_lava_lash_spread() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_lava_lash_spread") { }
 
         class spell_sha_lava_lash_spread_SpellScript : public SpellScript
         {
@@ -1363,10 +1363,10 @@ class spell_sha_lava_lash_spread : public SpellScriptLoader
 };
 
 // 60103 - Lava Lash
-class spell_sha_lava_lash : public SpellScriptLoader
+class spell_sha_lava_lash: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sha_lava_lash() : SpellScriptLoader("spell_sha_lava_lash") { }
+        spell_sha_lava_lash() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_lava_lash") { }
 
         class spell_sha_lava_lash_SpellScript : public SpellScript
         {
@@ -1395,10 +1395,10 @@ class spell_sha_lava_lash : public SpellScriptLoader
 };
 
 // 33757 - Windfury
-class spell_sha_windfury : public SpellScriptLoader
+class spell_sha_windfury: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sha_windfury() : SpellScriptLoader("spell_sha_windfury") { }
+        spell_sha_windfury() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_windfury") { }
 
         class spell_sha_windfury_AuraScript : public AuraScript
         {
@@ -1442,10 +1442,10 @@ class spell_sha_windfury : public SpellScriptLoader
 };
 
 // 10400 - Flametongue
-class spell_sha_flametongue : public SpellScriptLoader
+class spell_sha_flametongue: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sha_flametongue() : SpellScriptLoader("spell_sha_flametongue") { }
+        spell_sha_flametongue() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_flametongue") { }
 
         class spell_sha_flametongue_AuraScript : public AuraScript
         {
@@ -1475,10 +1475,10 @@ class spell_sha_flametongue : public SpellScriptLoader
 };
 
 // 157804 - Improved Flame Shock
-class spell_sha_improoved_flame_shock : public SpellScriptLoader
+class spell_sha_improoved_flame_shock: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sha_improoved_flame_shock() : SpellScriptLoader("spell_sha_improoved_flame_shock") { }
+        spell_sha_improoved_flame_shock() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_improoved_flame_shock") { }
 
         class spell_sha_improoved_flame_shock_AuraScript : public AuraScript
         {
@@ -1506,10 +1506,10 @@ class spell_sha_improoved_flame_shock : public SpellScriptLoader
 };
 
 // 51533 - Feral Spirit
-class spell_sha_feral_spirit : public SpellScriptLoader
+class spell_sha_feral_spirit: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sha_feral_spirit() : SpellScriptLoader("spell_sha_feral_spirit") { }
+        spell_sha_feral_spirit() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_feral_spirit") { }
 
         class spell_sha_feral_spirit_SpellScript : public SpellScript
         {
@@ -1536,10 +1536,10 @@ class spell_sha_feral_spirit : public SpellScriptLoader
 };
 
 // 88766 - Fulmination
-class spell_sha_fulmination_proc : public SpellScriptLoader
+class spell_sha_fulmination_proc: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sha_fulmination_proc() : SpellScriptLoader("spell_sha_fulmination_proc") { }
+        spell_sha_fulmination_proc() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_fulmination_proc") { }
 
         class spell_sha_fulmination_proc_AuraScript : public AuraScript
         {
@@ -1580,10 +1580,10 @@ class spell_sha_fulmination_proc : public SpellScriptLoader
 };
 
 // 157765 Enhanced Chain Lightning
-class spell_sha_enhanced_chain_lightning : public SpellScriptLoader
+class spell_sha_enhanced_chain_lightning: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sha_enhanced_chain_lightning() : SpellScriptLoader("spell_sha_enhanced_chain_lightning") { }
+        spell_sha_enhanced_chain_lightning() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_enhanced_chain_lightning") { }
 
         class spell_sha_enhanced_chain_lightning_AuraScript : public AuraScript
         {
@@ -1609,10 +1609,10 @@ class spell_sha_enhanced_chain_lightning : public SpellScriptLoader
 };
 
 // 170374 - Molten Earth
-class spell_sha_molten_earth : public SpellScriptLoader
+class spell_sha_molten_earth: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sha_molten_earth() : SpellScriptLoader("spell_sha_molten_earth") { }
+        spell_sha_molten_earth() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_molten_earth") { }
 
         class spell_sha_molten_earth_AuraScript : public AuraScript
         {
@@ -1642,10 +1642,10 @@ class spell_sha_molten_earth : public SpellScriptLoader
 };
 
 // 170377 - Molten Earth Periodic
-class spell_sha_molten_earth_periodic : public SpellScriptLoader
+class spell_sha_molten_earth_periodic: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sha_molten_earth_periodic() : SpellScriptLoader("spell_sha_molten_earth_periodic") { }
+        spell_sha_molten_earth_periodic() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_molten_earth_periodic") { }
 
         class spell_sha_molten_earth_periodic_AuraScript : public AuraScript
         {
@@ -1677,10 +1677,10 @@ class spell_sha_molten_earth_periodic : public SpellScriptLoader
 };
 
 // 170379 - Molten Earth Damage
-class spell_sha_molten_earth_damage : public SpellScriptLoader
+class spell_sha_molten_earth_damage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sha_molten_earth_damage() : SpellScriptLoader("spell_sha_molten_earth_damage") { }
+        spell_sha_molten_earth_damage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_molten_earth_damage") { }
 
         class spell_sha_molten_earth_damage_SpellScript : public SpellScript
         {
@@ -1712,10 +1712,10 @@ class spell_sha_molten_earth_damage : public SpellScriptLoader
 
 
 // Echo of Elements - 108283
-class spell_sha_echo_of_elements : public SpellScriptLoader
+class spell_sha_echo_of_elements: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sha_echo_of_elements() : SpellScriptLoader("spell_sha_echo_of_elements") { }
+        spell_sha_echo_of_elements() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_echo_of_elements") { }
 
         class spell_sha_echo_of_elements_AuraScript : public AuraScript
         {
@@ -1758,10 +1758,10 @@ class spell_sha_echo_of_elements : public SpellScriptLoader
 };
 
 // 152255 Liquid Magma - a bit hacky, will do it properly later
-class spell_sha_liquid_magma : public SpellScriptLoader
+class spell_sha_liquid_magma: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sha_liquid_magma() : SpellScriptLoader("spell_sha_liquid_magma") { }
+        spell_sha_liquid_magma() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_liquid_magma") { }
 
         class spell_sha_liquid_magma_AuraScript: public AuraScript
         {
@@ -1836,10 +1836,10 @@ class spell_sha_liquid_magma : public SpellScriptLoader
 };
 
 // 157501 Liquid Magma
-class spell_sha_liquid_magma_visual : public SpellScriptLoader
+class spell_sha_liquid_magma_visual: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sha_liquid_magma_visual() : SpellScriptLoader("spell_sha_liquid_magma_visual") { }
+        spell_sha_liquid_magma_visual() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_liquid_magma_visual") { }
 
         class spell_sha_liquid_magma_visual_SpellScript : public SpellScript
         {
@@ -1863,10 +1863,10 @@ class spell_sha_liquid_magma_visual : public SpellScriptLoader
 };
 
 // 2645 Ghost Wolf
-class spell_sha_ghost_wolf : public SpellScriptLoader
+class spell_sha_ghost_wolf: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sha_ghost_wolf() : SpellScriptLoader("spell_sha_ghost_wolf") { }
+        spell_sha_ghost_wolf() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_ghost_wolf") { }
 
         class spell_sha_ghost_wolf_AuraScript : public AuraScript
         {
@@ -1910,10 +1910,10 @@ class spell_sha_ghost_wolf : public SpellScriptLoader
 };
 
 // 51505 Lava Burst
-class spell_sha_lava_burst : public SpellScriptLoader
+class spell_sha_lava_burst: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_sha_lava_burst() : SpellScriptLoader("spell_sha_lava_burst") { }
+        spell_sha_lava_burst() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_sha_lava_burst") { }
 
         class spell_sha_lava_burst_SpellScript : public SpellScript
         {

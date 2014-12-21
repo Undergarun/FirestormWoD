@@ -44,10 +44,10 @@ enum eEnums
     SPELL_ATTRACTION            = 38540                       //Not Implemented (Heroic mode)
 };
 
-class boss_chrono_lord_deja : public CreatureScript
+class boss_chrono_lord_deja : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_chrono_lord_deja() : CreatureScript("boss_chrono_lord_deja") { }
+    boss_chrono_lord_deja() : MS::Game::Scripting::Interfaces::CreatureScript("boss_chrono_lord_deja") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

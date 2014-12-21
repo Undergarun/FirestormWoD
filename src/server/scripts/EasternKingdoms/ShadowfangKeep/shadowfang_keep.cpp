@@ -3,10 +3,10 @@
 #include "Group.h"
 #include "shadowfang_keep.h"
 
-class npc_apothecary_hummel : public CreatureScript
+class npc_apothecary_hummel : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_apothecary_hummel() : CreatureScript("npc_apothecary_hummel") { }
+        npc_apothecary_hummel() : MS::Game::Scripting::Interfaces::CreatureScript("npc_apothecary_hummel") { }
         
         CreatureAI* GetAI(Creature* pCreature) const
         {

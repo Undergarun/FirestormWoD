@@ -128,10 +128,10 @@ bool IsVampire(Unit const* unit)
     return false;
 }
 
-class boss_blood_queen_lana_thel : public CreatureScript
+class boss_blood_queen_lana_thel : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_blood_queen_lana_thel() : CreatureScript("boss_blood_queen_lana_thel") { }
+        boss_blood_queen_lana_thel() : MS::Game::Scripting::Interfaces::CreatureScript("boss_blood_queen_lana_thel") { }
 
         struct boss_blood_queen_lana_thelAI : public BossAI
         {
@@ -509,10 +509,10 @@ class boss_blood_queen_lana_thel : public CreatureScript
 // helper for shortened code
 typedef boss_blood_queen_lana_thel::boss_blood_queen_lana_thelAI LanaThelAI;
 
-class spell_blood_queen_vampiric_bite : public SpellScriptLoader
+class spell_blood_queen_vampiric_bite: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_blood_queen_vampiric_bite() : SpellScriptLoader("spell_blood_queen_vampiric_bite") { }
+        spell_blood_queen_vampiric_bite() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_blood_queen_vampiric_bite") { }
 
         class spell_blood_queen_vampiric_bite_SpellScript : public SpellScript
         {
@@ -593,10 +593,10 @@ class spell_blood_queen_vampiric_bite : public SpellScriptLoader
         }
 };
 
-class spell_blood_queen_frenzied_bloodthirst : public SpellScriptLoader
+class spell_blood_queen_frenzied_bloodthirst: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_blood_queen_frenzied_bloodthirst() : SpellScriptLoader("spell_blood_queen_frenzied_bloodthirst") { }
+        spell_blood_queen_frenzied_bloodthirst() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_blood_queen_frenzied_bloodthirst") { }
 
         class spell_blood_queen_frenzied_bloodthirst_AuraScript : public AuraScript
         {
@@ -652,10 +652,10 @@ class BloodboltHitCheck
         LanaThelAI* _ai;
 };
 
-class spell_blood_queen_bloodbolt : public SpellScriptLoader
+class spell_blood_queen_bloodbolt: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_blood_queen_bloodbolt() : SpellScriptLoader("spell_blood_queen_bloodbolt") { }
+        spell_blood_queen_bloodbolt() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_blood_queen_bloodbolt") { }
 
         class spell_blood_queen_bloodbolt_SpellScript : public SpellScript
         {
@@ -702,10 +702,10 @@ class spell_blood_queen_bloodbolt : public SpellScriptLoader
         }
 };
 
-class spell_blood_queen_pact_of_the_darkfallen : public SpellScriptLoader
+class spell_blood_queen_pact_of_the_darkfallen: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_blood_queen_pact_of_the_darkfallen() : SpellScriptLoader("spell_blood_queen_pact_of_the_darkfallen") { }
+        spell_blood_queen_pact_of_the_darkfallen() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_blood_queen_pact_of_the_darkfallen") { }
 
         class spell_blood_queen_pact_of_the_darkfallen_SpellScript : public SpellScript
         {
@@ -750,10 +750,10 @@ class spell_blood_queen_pact_of_the_darkfallen : public SpellScriptLoader
         }
 };
 
-class spell_blood_queen_pact_of_the_darkfallen_dmg : public SpellScriptLoader
+class spell_blood_queen_pact_of_the_darkfallen_dmg: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_blood_queen_pact_of_the_darkfallen_dmg() : SpellScriptLoader("spell_blood_queen_pact_of_the_darkfallen_dmg") { }
+        spell_blood_queen_pact_of_the_darkfallen_dmg() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_blood_queen_pact_of_the_darkfallen_dmg") { }
 
         class spell_blood_queen_pact_of_the_darkfallen_dmg_AuraScript : public AuraScript
         {
@@ -788,10 +788,10 @@ class spell_blood_queen_pact_of_the_darkfallen_dmg : public SpellScriptLoader
         }
 };
 
-class spell_blood_queen_pact_of_the_darkfallen_dmg_target : public SpellScriptLoader
+class spell_blood_queen_pact_of_the_darkfallen_dmg_target: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_blood_queen_pact_of_the_darkfallen_dmg_target() : SpellScriptLoader("spell_blood_queen_pact_of_the_darkfallen_dmg_target") { }
+        spell_blood_queen_pact_of_the_darkfallen_dmg_target() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_blood_queen_pact_of_the_darkfallen_dmg_target") { }
 
         class spell_blood_queen_pact_of_the_darkfallen_dmg_SpellScript : public SpellScript
         {
@@ -815,10 +815,10 @@ class spell_blood_queen_pact_of_the_darkfallen_dmg_target : public SpellScriptLo
         }
 };
 
-class achievement_once_bitten_twice_shy_n : public AchievementCriteriaScript
+class achievement_once_bitten_twice_shy_n : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_once_bitten_twice_shy_n() : AchievementCriteriaScript("achievement_once_bitten_twice_shy_n") { }
+        achievement_once_bitten_twice_shy_n() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_once_bitten_twice_shy_n") { }
 
         bool OnCheck(Player* source, Unit* target)
         {
@@ -833,10 +833,10 @@ class achievement_once_bitten_twice_shy_n : public AchievementCriteriaScript
         }
 };
 
-class achievement_once_bitten_twice_shy_v : public AchievementCriteriaScript
+class achievement_once_bitten_twice_shy_v : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_once_bitten_twice_shy_v() : AchievementCriteriaScript("achievement_once_bitten_twice_shy_v") { }
+        achievement_once_bitten_twice_shy_v() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_once_bitten_twice_shy_v") { }
 
         bool OnCheck(Player* source, Unit* target)
         {
@@ -851,10 +851,10 @@ class achievement_once_bitten_twice_shy_v : public AchievementCriteriaScript
         }
 };
 
-class achievement_once_bitten_twice_shy_n25 : public AchievementCriteriaScript
+class achievement_once_bitten_twice_shy_n25 : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_once_bitten_twice_shy_n25() : AchievementCriteriaScript("achievement_once_bitten_twice_shy_n25") { }
+        achievement_once_bitten_twice_shy_n25() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_once_bitten_twice_shy_n25") { }
 
         bool OnCheck(Player* source, Unit* target)
         {
@@ -869,10 +869,10 @@ class achievement_once_bitten_twice_shy_n25 : public AchievementCriteriaScript
         }
 };
 
-class achievement_once_bitten_twice_shy_v25 : public AchievementCriteriaScript
+class achievement_once_bitten_twice_shy_v25 : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_once_bitten_twice_shy_v25() : AchievementCriteriaScript("achievement_once_bitten_twice_shy_v25") { }
+        achievement_once_bitten_twice_shy_v25() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_once_bitten_twice_shy_v25") { }
 
         bool OnCheck(Player* source, Unit* target)
         {

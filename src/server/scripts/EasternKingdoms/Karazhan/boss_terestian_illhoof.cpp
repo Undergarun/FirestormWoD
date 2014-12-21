@@ -58,10 +58,10 @@ EndScriptData */
 #define CREATURE_PORTAL         17265
 #define CREATURE_KILREK         17229
 
-class mob_kilrek : public CreatureScript
+class mob_kilrek : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_kilrek() : CreatureScript("mob_kilrek") { }
+    mob_kilrek() : MS::Game::Scripting::Interfaces::CreatureScript("mob_kilrek") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -130,10 +130,10 @@ public:
 
 };
 
-class mob_demon_chain : public CreatureScript
+class mob_demon_chain : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_demon_chain() : CreatureScript("mob_demon_chain") { }
+    mob_demon_chain() : MS::Game::Scripting::Interfaces::CreatureScript("mob_demon_chain") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -168,10 +168,10 @@ public:
 
 };
 
-class mob_fiendish_portal : public CreatureScript
+class mob_fiendish_portal : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_fiendish_portal() : CreatureScript("mob_fiendish_portal") { }
+    mob_fiendish_portal() : MS::Game::Scripting::Interfaces::CreatureScript("mob_fiendish_portal") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -205,10 +205,10 @@ public:
 
 #define SPELL_FIREBOLT  30050   // Blasts a target for 181-209 Fire damage.
 
-class mob_fiendish_imp : public CreatureScript
+class mob_fiendish_imp : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_fiendish_imp() : CreatureScript("mob_fiendish_imp") { }
+    mob_fiendish_imp() : MS::Game::Scripting::Interfaces::CreatureScript("mob_fiendish_imp") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -248,10 +248,10 @@ public:
 
 };
 
-class boss_terestian_illhoof : public CreatureScript
+class boss_terestian_illhoof : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_terestian_illhoof() : CreatureScript("boss_terestian_illhoof") { }
+    boss_terestian_illhoof() : MS::Game::Scripting::Interfaces::CreatureScript("boss_terestian_illhoof") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

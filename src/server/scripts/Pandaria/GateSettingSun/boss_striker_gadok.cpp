@@ -110,10 +110,10 @@ enum eStrafing
 #define MAX_STRIKER     10
 #define RADIUS_CIRCLE   100.0f
 
-class boss_striker_gadok : public CreatureScript
+class boss_striker_gadok : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_striker_gadok() : CreatureScript("boss_striker_gadok") {}
+        boss_striker_gadok() : MS::Game::Scripting::Interfaces::CreatureScript("boss_striker_gadok") {}
 
         struct boss_striker_gadokAI : public BossAI
         {
@@ -479,10 +479,10 @@ struct npc_krikthik : public ScriptedAI
     }
 };
 
-class npc_krikthik_striker : public CreatureScript
+class npc_krikthik_striker : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_krikthik_striker() : CreatureScript("npc_krikthik_striker") { }
+    npc_krikthik_striker() : MS::Game::Scripting::Interfaces::CreatureScript("npc_krikthik_striker") { }
 
     struct npc_krikthik_strikerAI : public npc_krikthik
     {
@@ -530,10 +530,10 @@ public:
     }
 };
 
-class npc_krikthik_disruptor : public CreatureScript
+class npc_krikthik_disruptor : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_krikthik_disruptor() : CreatureScript("npc_krikthik_disruptor") { }
+    npc_krikthik_disruptor() : MS::Game::Scripting::Interfaces::CreatureScript("npc_krikthik_disruptor") { }
 
     struct npc_krikthik_disruptorAI : public npc_krikthik
     {
@@ -599,10 +599,10 @@ public:
     }
 };
 
-class npc_flak_cannon : public CreatureScript
+class npc_flak_cannon : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_flak_cannon() : CreatureScript("npc_flak_cannon") { }
+    npc_flak_cannon() : MS::Game::Scripting::Interfaces::CreatureScript("npc_flak_cannon") { }
 
     struct npc_flak_cannonAI : public ScriptedAI
     {
@@ -645,10 +645,10 @@ public:
     }
 };
 
-class spell_gadok_strafing : public SpellScriptLoader
+class spell_gadok_strafing: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_gadok_strafing() :  SpellScriptLoader("spell_gadok_strafing") { }
+        spell_gadok_strafing() :  MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_gadok_strafing") { }
 
         class spell_gadok_strafing_SpellScript : public SpellScript
         {
@@ -689,10 +689,10 @@ class spell_gadok_strafing : public SpellScriptLoader
         }
 };
 
-class spell_prey_time : public SpellScriptLoader
+class spell_prey_time: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_prey_time() :  SpellScriptLoader("spell_prey_time") { }
+        spell_prey_time() :  MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_prey_time") { }
 
         class spell_prey_time_AuraScript : public AuraScript
         {

@@ -42,10 +42,10 @@ EndContentData */
 #define SPELL_FREEZING_TRAP     37368
 #define SPELL_HAMMER_OF_JUSTICE 37369
 
-class mob_stolen_soul : public CreatureScript
+class mob_stolen_soul : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_stolen_soul() : CreatureScript("mob_stolen_soul") { }
+    mob_stolen_soul() : MS::Game::Scripting::Interfaces::CreatureScript("mob_stolen_soul") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -154,10 +154,10 @@ public:
 #define ENTRY_STOLEN_SOUL           18441
 
 // 18373
-class boss_exarch_maladaar : public CreatureScript
+class boss_exarch_maladaar : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_exarch_maladaar() : CreatureScript("boss_exarch_maladaar") { }
+    boss_exarch_maladaar() : MS::Game::Scripting::Interfaces::CreatureScript("boss_exarch_maladaar") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -319,10 +319,10 @@ public:
 #define SPELL_AV_MORTAL_STRIKE          16856
 #define SPELL_AV_SUNDER_ARMOR           16145
 
-class mob_avatar_of_martyred : public CreatureScript
+class mob_avatar_of_martyred : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_avatar_of_martyred() : CreatureScript("mob_avatar_of_martyred") { }
+    mob_avatar_of_martyred() : MS::Game::Scripting::Interfaces::CreatureScript("mob_avatar_of_martyred") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

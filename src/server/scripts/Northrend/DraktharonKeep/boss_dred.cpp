@@ -45,10 +45,10 @@ enum Creatures
 #define ACTION_RAPTOR_KILLED                      1
 #define DATA_KING_DRED                            2
 
-class boss_dred : public CreatureScript
+class boss_dred : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_dred() : CreatureScript("boss_dred") { }
+        boss_dred() : MS::Game::Scripting::Interfaces::CreatureScript("boss_dred") { }
 
         struct boss_dredAI : public ScriptedAI
         {
@@ -174,10 +174,10 @@ class boss_dred : public CreatureScript
         }
 };
 
-class npc_drakkari_gutripper : public CreatureScript
+class npc_drakkari_gutripper : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_drakkari_gutripper() : CreatureScript("npc_drakkari_gutripper") { }
+        npc_drakkari_gutripper() : MS::Game::Scripting::Interfaces::CreatureScript("npc_drakkari_gutripper") { }
 
         struct npc_drakkari_gutripperAI : public ScriptedAI
         {
@@ -224,10 +224,10 @@ class npc_drakkari_gutripper : public CreatureScript
         }
 };
 
-class npc_drakkari_scytheclaw : public CreatureScript
+class npc_drakkari_scytheclaw : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_drakkari_scytheclaw() : CreatureScript("npc_drakkari_scytheclaw") { }
+        npc_drakkari_scytheclaw() : MS::Game::Scripting::Interfaces::CreatureScript("npc_drakkari_scytheclaw") { }
 
         struct npc_drakkari_scytheclawAI : public ScriptedAI
         {
@@ -274,10 +274,10 @@ class npc_drakkari_scytheclaw : public CreatureScript
         }
 };
 
-class achievement_king_dred : public AchievementCriteriaScript
+class achievement_king_dred : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_king_dred() : AchievementCriteriaScript("achievement_king_dred")
+        achievement_king_dred() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_king_dred")
         {
         }
 

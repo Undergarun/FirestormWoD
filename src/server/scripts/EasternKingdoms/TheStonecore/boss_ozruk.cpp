@@ -33,10 +33,10 @@ enum Events
     EVENT_SHATTER_1        = 6,
 };
 
-class boss_ozruk : public CreatureScript
+class boss_ozruk : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_ozruk() : CreatureScript("boss_ozruk") { }
+        boss_ozruk() : MS::Game::Scripting::Interfaces::CreatureScript("boss_ozruk") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {

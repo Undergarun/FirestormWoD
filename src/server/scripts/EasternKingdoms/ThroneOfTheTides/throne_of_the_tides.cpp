@@ -67,10 +67,10 @@ ozumat 1
 6646,643,-198.41f, 981.96f, 230.59f
 */
 
-class at_tott_lady_nazjar_event : public AreaTriggerScript
+class at_tott_lady_nazjar_event : public MS::Game::Scripting::Interfaces::AreaTriggerScript
 {
 public:
-    at_tott_lady_nazjar_event() : AreaTriggerScript("at_tott_lady_nazjar_event") { }
+    at_tott_lady_nazjar_event() : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_tott_lady_nazjar_event") { }
 
     bool OnTrigger(Player* pPlayer, const AreaTriggerEntry* /*pAt*/)
     {
@@ -94,10 +94,10 @@ const Position teleporterPos[2] =
     {-14.72f, 796.57f, 808.12f, 1.99f}, // upper
 };
 
-class npc_throne_of_the_tides_teleporter : public CreatureScript
+class npc_throne_of_the_tides_teleporter : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_throne_of_the_tides_teleporter() : CreatureScript("npc_throne_of_the_tides_teleporter"){}
+        npc_throne_of_the_tides_teleporter() : MS::Game::Scripting::Interfaces::CreatureScript("npc_throne_of_the_tides_teleporter"){}
 
         bool OnGossipHello(Player* pPlayer, Creature* pCreature)
         {
@@ -123,10 +123,10 @@ class npc_throne_of_the_tides_teleporter : public CreatureScript
         }
 };
 
-class npc_lady_nazjar_event : public CreatureScript
+class npc_lady_nazjar_event : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_lady_nazjar_event() : CreatureScript("npc_lady_nazjar_event") { }
+        npc_lady_nazjar_event() : MS::Game::Scripting::Interfaces::CreatureScript("npc_lady_nazjar_event") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -197,10 +197,10 @@ class npc_lady_nazjar_event : public CreatureScript
         };
 };
 
-class go_totd_defense_system : public GameObjectScript
+class go_totd_defense_system : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_totd_defense_system() : GameObjectScript("go_totd_defense_system") { }
+    go_totd_defense_system() : MS::Game::Scripting::Interfaces::GameObjectScript("go_totd_defense_system") { }
 
     bool OnGossipHello(Player* /*player*/, GameObject* go)
     {

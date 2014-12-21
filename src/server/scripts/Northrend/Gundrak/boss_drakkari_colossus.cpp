@@ -72,10 +72,10 @@ enum ElementalEvents
     EVENT_SURGE = 1
 };
 
-class boss_drakkari_colossus : public CreatureScript
+class boss_drakkari_colossus : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_drakkari_colossus() : CreatureScript("boss_drakkari_colossus") { }
+        boss_drakkari_colossus() : MS::Game::Scripting::Interfaces::CreatureScript("boss_drakkari_colossus") { }
 
         struct boss_drakkari_colossusAI : public BossAI
         {
@@ -251,10 +251,10 @@ class boss_drakkari_colossus : public CreatureScript
         }
 };
 
-class boss_drakkari_elemental : public CreatureScript
+class boss_drakkari_elemental : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_drakkari_elemental() : CreatureScript("boss_drakkari_elemental") { }
+        boss_drakkari_elemental() : MS::Game::Scripting::Interfaces::CreatureScript("boss_drakkari_elemental") { }
 
         struct boss_drakkari_elementalAI : public ScriptedAI
         {
@@ -384,10 +384,10 @@ class boss_drakkari_elemental : public CreatureScript
         }
 };
 
-class npc_living_mojo : public CreatureScript
+class npc_living_mojo : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_living_mojo() : CreatureScript("npc_living_mojo") { }
+    npc_living_mojo() : MS::Game::Scripting::Interfaces::CreatureScript("npc_living_mojo") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

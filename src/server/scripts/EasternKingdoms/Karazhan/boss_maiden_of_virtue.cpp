@@ -40,10 +40,10 @@ EndScriptData */
 #define SPELL_HOLYGROUND        29512
 #define SPELL_BERSERK           26662
 
-class boss_maiden_of_virtue : public CreatureScript
+class boss_maiden_of_virtue : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_maiden_of_virtue() : CreatureScript("boss_maiden_of_virtue") { }
+    boss_maiden_of_virtue() : MS::Game::Scripting::Interfaces::CreatureScript("boss_maiden_of_virtue") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

@@ -162,11 +162,11 @@ static PlayerAbilityStruct PlayerAbility[][3] =
     {SPELL_DR_MOONFIRE, ABILITY_TARGET_ENEMY, 8000}}
 };
 
-class boss_hex_lord_malacrass : public CreatureScript
+class boss_hex_lord_malacrass : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        boss_hex_lord_malacrass() : CreatureScript("boss_hex_lord_malacrass") {}
+        boss_hex_lord_malacrass() : MS::Game::Scripting::Interfaces::CreatureScript("boss_hex_lord_malacrass") {}
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -341,11 +341,11 @@ class boss_hex_lord_malacrass : public CreatureScript
         };
 };
 
-class npc_alyson_antille : public CreatureScript
+class npc_alyson_antille : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_alyson_antille() : CreatureScript("npc_alyson_antille") {}
+        npc_alyson_antille() : MS::Game::Scripting::Interfaces::CreatureScript("npc_alyson_antille") {}
          
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -402,11 +402,11 @@ class npc_alyson_antille : public CreatureScript
             }
         };
 };
-class npc_gazakroth : public CreatureScript
+class npc_gazakroth : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_gazakroth() : CreatureScript("npc_gazakroth") {}
+        npc_gazakroth() : MS::Game::Scripting::Interfaces::CreatureScript("npc_gazakroth") {}
          
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -440,11 +440,11 @@ class npc_gazakroth : public CreatureScript
         };
 };
 
-class npc_darkheart : public CreatureScript
+class npc_darkheart : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_darkheart() : CreatureScript("npc_darkheart") {}
+        npc_darkheart() : MS::Game::Scripting::Interfaces::CreatureScript("npc_darkheart") {}
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -479,11 +479,11 @@ class npc_darkheart : public CreatureScript
 
 
 
-class npc_slither : public CreatureScript
+class npc_slither : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_slither() : CreatureScript("npc_slither") {}
+        npc_slither() : MS::Game::Scripting::Interfaces::CreatureScript("npc_slither") {}
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -518,10 +518,10 @@ class npc_slither : public CreatureScript
         };
 };
 
-class spell_hexlord_unstable_affliction : public SpellScriptLoader
+class spell_hexlord_unstable_affliction: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_hexlord_unstable_affliction() : SpellScriptLoader("spell_hexlord_unstable_affliction") { }
+        spell_hexlord_unstable_affliction() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hexlord_unstable_affliction") { }
 
         class spell_hexlord_unstable_affliction_AuraScript : public AuraScript
         {

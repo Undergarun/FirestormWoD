@@ -85,10 +85,10 @@ enum eActions
 };
 
 // Galleon - 62346
-class boss_galion : public CreatureScript
+class boss_galion : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_galion() : CreatureScript("boss_galion") { }
+        boss_galion() : MS::Game::Scripting::Interfaces::CreatureScript("boss_galion") { }
 
         struct boss_galion_AI : public BossAI
         {
@@ -313,10 +313,10 @@ class boss_galion : public CreatureScript
 };
 
 // Chief Salyis - 62352
-class npc_chief_salyis : public CreatureScript
+class npc_chief_salyis : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_chief_salyis() : CreatureScript("npc_chief_salyis") { }
+        npc_chief_salyis() : MS::Game::Scripting::Interfaces::CreatureScript("npc_chief_salyis") { }
 
         struct npc_chief_salyisAI : public ScriptedAI
         {
@@ -348,10 +348,10 @@ class npc_chief_salyis : public CreatureScript
 };
 
 // Salyin Warmonger - 62351
-class npc_salyin_warmonger : public CreatureScript
+class npc_salyin_warmonger : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_salyin_warmonger() : CreatureScript("npc_salyin_warmonger") { }
+        npc_salyin_warmonger() : MS::Game::Scripting::Interfaces::CreatureScript("npc_salyin_warmonger") { }
 
         struct npc_salyin_warmongerAI : public ScriptedAI
         {
@@ -417,10 +417,10 @@ class npc_salyin_warmonger : public CreatureScript
 };
 
 // Impaling Pull - 121754
-class spell_impaling_pull : public SpellScriptLoader
+class spell_impaling_pull: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_impaling_pull() : SpellScriptLoader("spell_impaling_pull") { }
+        spell_impaling_pull() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_impaling_pull") { }
 
         class spell_impaling_pull_SpellScript : public SpellScript
         {

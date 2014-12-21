@@ -45,10 +45,10 @@ enum Yells
     SAY_DEATH                                   = -1595031
 };
 
-class boss_meathook : public CreatureScript
+class boss_meathook : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_meathook() : CreatureScript("boss_meathook") { }
+    boss_meathook() : MS::Game::Scripting::Interfaces::CreatureScript("boss_meathook") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

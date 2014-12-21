@@ -32,10 +32,10 @@ EndScriptData */
 #define SPELL_CORROSIVEACID          23313
 #define SPELL_NOXIOUSCATALYST        18151
 
-class boss_lorekeeper_polkelt : public CreatureScript
+class boss_lorekeeper_polkelt : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_lorekeeper_polkelt() : CreatureScript("boss_lorekeeper_polkelt") { }
+    boss_lorekeeper_polkelt() : MS::Game::Scripting::Interfaces::CreatureScript("boss_lorekeeper_polkelt") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

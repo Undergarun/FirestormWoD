@@ -6,10 +6,10 @@
 
 #define GOSSIP_WIND     "I would like to go back on the top of the temple"
 #define ACTION_TALK 1
-class mob_master_shang_xi_temple : public CreatureScript
+class mob_master_shang_xi_temple : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_master_shang_xi_temple() : CreatureScript("mob_master_shang_xi_temple") { }
+    mob_master_shang_xi_temple() : MS::Game::Scripting::Interfaces::CreatureScript("mob_master_shang_xi_temple") { }
 
     bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
@@ -131,10 +131,10 @@ public:
     };
 };
 
-class npc_wind_vehicle : public CreatureScript
+class npc_wind_vehicle : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_wind_vehicle() : CreatureScript("npc_wind_vehicle") { }
+    npc_wind_vehicle() : MS::Game::Scripting::Interfaces::CreatureScript("npc_wind_vehicle") { }
 
     struct npc_wind_vehicleAI : public npc_escortAI
     {        
@@ -183,10 +183,10 @@ public:
 
 };
 
-class AreaTrigger_at_wind_temple_entrance : public AreaTriggerScript
+class AreaTrigger_at_wind_temple_entrance : public MS::Game::Scripting::Interfaces::AreaTriggerScript
 {
 public:
-    AreaTrigger_at_wind_temple_entrance() : AreaTriggerScript("AreaTrigger_at_wind_temple_entrance")
+    AreaTrigger_at_wind_temple_entrance() : MS::Game::Scripting::Interfaces::AreaTriggerScript("AreaTrigger_at_wind_temple_entrance")
     {}
 
     bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
@@ -201,10 +201,10 @@ public:
     }
 };
 
-class mob_aysa_wind_temple_escort : public CreatureScript
+class mob_aysa_wind_temple_escort : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_aysa_wind_temple_escort() : CreatureScript("mob_aysa_wind_temple_escort") { }
+    mob_aysa_wind_temple_escort() : MS::Game::Scripting::Interfaces::CreatureScript("mob_aysa_wind_temple_escort") { }
 
     struct mob_aysa_wind_temple_escortAI : public npc_escortAI
     {        
@@ -274,10 +274,10 @@ public:
     }
 };
 
-class mob_frightened_wind : public CreatureScript
+class mob_frightened_wind : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_frightened_wind() : CreatureScript("mob_frightened_wind") { }
+    mob_frightened_wind() : MS::Game::Scripting::Interfaces::CreatureScript("mob_frightened_wind") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -324,10 +324,10 @@ public:
     };
 };
 
-class npc_aysa_in_wind_temple : public CreatureScript
+class npc_aysa_in_wind_temple : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_aysa_in_wind_temple() : CreatureScript("npc_aysa_in_wind_temple") { }
+    npc_aysa_in_wind_temple() : MS::Game::Scripting::Interfaces::CreatureScript("npc_aysa_in_wind_temple") { }
 
     bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
@@ -369,10 +369,10 @@ Position ZhaoPos[] =
     {736.90f, 4183.85f, 221.41f}
 };
 
-class boss_zhao_ren : public CreatureScript
+class boss_zhao_ren : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_zhao_ren() : CreatureScript("boss_zhao_ren") { }
+    boss_zhao_ren() : MS::Game::Scripting::Interfaces::CreatureScript("boss_zhao_ren") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -527,10 +527,10 @@ public:
     };
 };
 
-class npc_rocket_launcher : public CreatureScript
+class npc_rocket_launcher : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_rocket_launcher() : CreatureScript("npc_rocket_launcher") { }
+    npc_rocket_launcher() : MS::Game::Scripting::Interfaces::CreatureScript("npc_rocket_launcher") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -582,10 +582,10 @@ public:
     };
 };
 
-class mob_master_shang_xi_after_zhao : public CreatureScript
+class mob_master_shang_xi_after_zhao : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_master_shang_xi_after_zhao() : CreatureScript("mob_master_shang_xi_after_zhao") { }
+    mob_master_shang_xi_after_zhao() : MS::Game::Scripting::Interfaces::CreatureScript("mob_master_shang_xi_after_zhao") { }
 
     bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
@@ -597,10 +597,10 @@ public:
     }
 };
 
-class mob_master_shang_xi_after_zhao_escort : public CreatureScript
+class mob_master_shang_xi_after_zhao_escort : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_master_shang_xi_after_zhao_escort() : CreatureScript("mob_master_shang_xi_after_zhao_escort") { }
+    mob_master_shang_xi_after_zhao_escort() : MS::Game::Scripting::Interfaces::CreatureScript("mob_master_shang_xi_after_zhao_escort") { }
 
     struct mob_master_shang_xi_after_zhao_escortAI : public npc_escortAI
     {        
@@ -674,10 +674,10 @@ public:
     }
 };
 
-class mob_master_shang_xi_thousand_staff : public CreatureScript
+class mob_master_shang_xi_thousand_staff : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_master_shang_xi_thousand_staff() : CreatureScript("mob_master_shang_xi_thousand_staff") { }
+    mob_master_shang_xi_thousand_staff() : MS::Game::Scripting::Interfaces::CreatureScript("mob_master_shang_xi_thousand_staff") { }
 
     bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
@@ -689,10 +689,10 @@ public:
     }
 };
 
-class mob_master_shang_xi_thousand_staff_escort : public CreatureScript
+class mob_master_shang_xi_thousand_staff_escort : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_master_shang_xi_thousand_staff_escort() : CreatureScript("mob_master_shang_xi_thousand_staff_escort") { }
+    mob_master_shang_xi_thousand_staff_escort() : MS::Game::Scripting::Interfaces::CreatureScript("mob_master_shang_xi_thousand_staff_escort") { }
 
     struct mob_master_shang_xi_thousand_staff_escortAI : public npc_escortAI
     {        
@@ -849,10 +849,10 @@ public:
     }
 };
 
-class mob_shang_xi_air_balloon : public VehicleScript
+class mob_shang_xi_air_balloon : public MS::Game::Scripting::Interfaces::VehicleScript
 {
 public:
-    mob_shang_xi_air_balloon() : VehicleScript("mob_shang_xi_air_balloon") { }
+    mob_shang_xi_air_balloon() : MS::Game::Scripting::Interfaces::VehicleScript("mob_shang_xi_air_balloon") { }
 
     void OnAddPassenger(Vehicle* /*veh*/, Unit* passenger, int8 seatId)
     {
@@ -928,10 +928,10 @@ public:
     }
 };
 
-class npc_ji_firepaw : public CreatureScript
+class npc_ji_firepaw : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_ji_firepaw() : CreatureScript("npc_ji_firepaw")
+    npc_ji_firepaw() : MS::Game::Scripting::Interfaces::CreatureScript("npc_ji_firepaw")
     {
         isSummoned = false;
     }
@@ -999,10 +999,10 @@ public:
     }
 };
 
-class npc_ji_firepaw_escort : public CreatureScript
+class npc_ji_firepaw_escort : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_ji_firepaw_escort() : CreatureScript("npc_ji_firepaw_escort") { }
+    npc_ji_firepaw_escort() : MS::Game::Scripting::Interfaces::CreatureScript("npc_ji_firepaw_escort") { }
 
     struct npc_ji_firepaw_escortAI : public ScriptedAI
     {
@@ -1044,10 +1044,10 @@ public:
     }
 };
 
-class mob_guardian_of_the_elders : public CreatureScript
+class mob_guardian_of_the_elders : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_guardian_of_the_elders() : CreatureScript("mob_guardian_of_the_elders") { }
+        mob_guardian_of_the_elders() : MS::Game::Scripting::Interfaces::CreatureScript("mob_guardian_of_the_elders") { }
 
         struct mob_guardian_of_the_eldersAI : public ScriptedAI
         {
@@ -1077,10 +1077,10 @@ class mob_guardian_of_the_elders : public CreatureScript
         }
 };
 
-class gob_defaced_scroll_of_wisdom : public GameObjectScript
+class gob_defaced_scroll_of_wisdom : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    gob_defaced_scroll_of_wisdom() : GameObjectScript("gob_defaced_scroll_of_wisdom")
+    gob_defaced_scroll_of_wisdom() : MS::Game::Scripting::Interfaces::GameObjectScript("gob_defaced_scroll_of_wisdom")
     {
     }
 
@@ -1094,10 +1094,10 @@ public:
     }
 };
 
-class mob_shang_xi_second_air_balloon : public VehicleScript
+class mob_shang_xi_second_air_balloon : public MS::Game::Scripting::Interfaces::VehicleScript
 {
 public:
-    mob_shang_xi_second_air_balloon() : VehicleScript("mob_shang_xi_second_air_balloon") { }
+    mob_shang_xi_second_air_balloon() : MS::Game::Scripting::Interfaces::VehicleScript("mob_shang_xi_second_air_balloon") { }
 
     void OnAddPassenger(Vehicle* /*veh*/, Unit* passenger, int8 seatId)
     {

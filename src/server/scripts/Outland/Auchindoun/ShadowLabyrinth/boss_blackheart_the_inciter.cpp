@@ -56,10 +56,10 @@ EndScriptData */
 #define SAY2_DEATH          -1555027
 
 // 18667
-class boss_blackheart_the_inciter : public CreatureScript
+class boss_blackheart_the_inciter : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_blackheart_the_inciter() : CreatureScript("boss_blackheart_the_inciter") { }
+    boss_blackheart_the_inciter() : MS::Game::Scripting::Interfaces::CreatureScript("boss_blackheart_the_inciter") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

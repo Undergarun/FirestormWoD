@@ -53,10 +53,10 @@ enum Wizzlecrank
     NPC_MERCENARY       = 3282,
 };
 
-class npc_wizzlecrank_shredder : public CreatureScript
+class npc_wizzlecrank_shredder : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_wizzlecrank_shredder() : CreatureScript("npc_wizzlecrank_shredder") { }
+    npc_wizzlecrank_shredder() : MS::Game::Scripting::Interfaces::CreatureScript("npc_wizzlecrank_shredder") { }
 
     struct npc_wizzlecrank_shredderAI : public npc_escortAI
     {

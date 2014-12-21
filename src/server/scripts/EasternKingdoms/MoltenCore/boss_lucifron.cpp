@@ -42,10 +42,10 @@ enum Events
     EVENT_SHADOW_SHOCK      = 3,
 };
 
-class boss_lucifron : public CreatureScript
+class boss_lucifron : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_lucifron() : CreatureScript("boss_lucifron") { }
+        boss_lucifron() : MS::Game::Scripting::Interfaces::CreatureScript("boss_lucifron") { }
 
         struct boss_lucifronAI : public BossAI
         {

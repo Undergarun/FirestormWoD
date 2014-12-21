@@ -45,10 +45,10 @@ enum Events
     EVENT_LIVING_BOMB   = 3,
 };
 
-class boss_baron_geddon : public CreatureScript
+class boss_baron_geddon : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_baron_geddon() : CreatureScript("boss_baron_geddon") { }
+        boss_baron_geddon() : MS::Game::Scripting::Interfaces::CreatureScript("boss_baron_geddon") { }
 
         struct boss_baron_geddonAI : public BossAI
         {

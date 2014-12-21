@@ -58,10 +58,10 @@ enum Adds
     NPC_BEETLE_STALKER          = 40459,
 };
  
-class boss_earthrager_ptah : public CreatureScript
+class boss_earthrager_ptah : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_earthrager_ptah() : CreatureScript("boss_earthrager_ptah") {}
+        boss_earthrager_ptah() : MS::Game::Scripting::Interfaces::CreatureScript("boss_earthrager_ptah") {}
  
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -198,10 +198,10 @@ class boss_earthrager_ptah : public CreatureScript
         };
 };
 
-class npc_ptah_dustbone_horror: public CreatureScript
+class npc_ptah_dustbone_horror : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_ptah_dustbone_horror() : CreatureScript("npc_ptah_dustbone_horror") { }
+        npc_ptah_dustbone_horror() : MS::Game::Scripting::Interfaces::CreatureScript("npc_ptah_dustbone_horror") { }
 
         CreatureAI* GetAI(Creature* pCreature) const
         {

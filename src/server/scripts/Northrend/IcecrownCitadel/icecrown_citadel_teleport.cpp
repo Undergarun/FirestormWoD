@@ -23,10 +23,10 @@
 
 #define GOSSIP_SENDER_ICC_PORT 631
 
-class icecrown_citadel_teleport : public GameObjectScript
+class icecrown_citadel_teleport : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
     public:
-        icecrown_citadel_teleport() : GameObjectScript("icecrown_citadel_teleport") { }
+        icecrown_citadel_teleport() : MS::Game::Scripting::Interfaces::GameObjectScript("icecrown_citadel_teleport") { }
 
         bool OnGossipHello(Player* player, GameObject* go)
         {
@@ -72,10 +72,10 @@ class icecrown_citadel_teleport : public GameObjectScript
         }
 };
 
-class at_frozen_throne_teleport : public AreaTriggerScript
+class at_frozen_throne_teleport : public MS::Game::Scripting::Interfaces::AreaTriggerScript
 {
     public:
-        at_frozen_throne_teleport() : AreaTriggerScript("at_frozen_throne_teleport") { }
+        at_frozen_throne_teleport() : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_frozen_throne_teleport") { }
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
         {

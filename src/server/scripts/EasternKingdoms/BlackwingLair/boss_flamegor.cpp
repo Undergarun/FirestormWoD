@@ -38,10 +38,10 @@ enum Spells
     SPELL_FRENZY             = 23342                      //This spell periodically triggers fire nova
 };
 
-class boss_flamegor : public CreatureScript
+class boss_flamegor : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_flamegor() : CreatureScript("boss_flamegor") { }
+    boss_flamegor() : MS::Game::Scripting::Interfaces::CreatureScript("boss_flamegor") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

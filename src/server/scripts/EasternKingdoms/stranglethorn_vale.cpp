@@ -35,10 +35,10 @@ EndContentData */
 ## mob_yenniku
 ######*/
 
-class mob_yenniku : public CreatureScript
+class mob_yenniku : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_yenniku() : CreatureScript("mob_yenniku") { }
+    mob_yenniku() : MS::Game::Scripting::Interfaces::CreatureScript("mob_yenniku") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -124,10 +124,10 @@ public:
 #define GOSSIP_CHOICE_3 "<Do the deed.>"
 #define GOSSIP_CHOICE_4 "<Chicken out.>"
 
-class mob_bossy : public CreatureScript
+class mob_bossy : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_bossy() : CreatureScript("mob_bossy") { }
+    mob_bossy() : MS::Game::Scripting::Interfaces::CreatureScript("mob_bossy") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -193,10 +193,10 @@ public:
 
 #define GOSSIP_CHOICE_5 "I need an extra-large pirate hat. Seahorn's orders."
 
-class mob_narkk : public CreatureScript
+class mob_narkk : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_narkk() : CreatureScript("mob_narkk") { }
+    mob_narkk() : MS::Game::Scripting::Interfaces::CreatureScript("mob_narkk") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -251,10 +251,10 @@ public:
 
 #define GOSSIP_CHOICE_6 "Do you have the items I asked you ?"
 
-class mob_fleet_master_seahorn : public CreatureScript
+class mob_fleet_master_seahorn : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_fleet_master_seahorn() : CreatureScript("mob_fleet_master_seahorn") { }
+    mob_fleet_master_seahorn() : MS::Game::Scripting::Interfaces::CreatureScript("mob_fleet_master_seahorn") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

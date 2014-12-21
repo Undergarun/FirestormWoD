@@ -56,10 +56,10 @@ enum Yells
 
 const Position  CenterOfRoom = {504.80f, 89.07f, -16.12f, 6.27f};
 
-class boss_magus_telestra : public CreatureScript
+class boss_magus_telestra : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_magus_telestra() : CreatureScript("boss_magus_telestra") { }
+    boss_magus_telestra() : MS::Game::Scripting::Interfaces::CreatureScript("boss_magus_telestra") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -338,10 +338,10 @@ public:
 
 };
 
-class achievement_split_personality : public AchievementCriteriaScript
+class achievement_split_personality : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_split_personality() : AchievementCriteriaScript("achievement_split_personality")
+        achievement_split_personality() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_split_personality")
         {
         }
 

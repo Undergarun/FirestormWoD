@@ -42,10 +42,10 @@ enum eStillbladeData
     SPELL_REVIVE_SELF           = 32343,
 };
 
-class npc_blood_knight_stillblade : public CreatureScript
+class npc_blood_knight_stillblade : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_blood_knight_stillblade() : CreatureScript("npc_blood_knight_stillblade") { }
+    npc_blood_knight_stillblade() : MS::Game::Scripting::Interfaces::CreatureScript("npc_blood_knight_stillblade") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

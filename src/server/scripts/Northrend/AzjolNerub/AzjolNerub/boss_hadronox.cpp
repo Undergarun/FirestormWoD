@@ -91,10 +91,10 @@ Position const AddWaypoints[6] =
     {606.844604f, 515.054199f, 696.2f, 0.0f}
 };
 
-class boss_hadronox : public CreatureScript
+class boss_hadronox : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_hadronox() : CreatureScript("boss_hadronox") { }
+        boss_hadronox() : MS::Game::Scripting::Interfaces::CreatureScript("boss_hadronox") { }
 
         struct boss_hadronoxAI : public ScriptedAI
         {
@@ -313,10 +313,10 @@ class boss_hadronox : public CreatureScript
         }
 };
 
-class npc_anubar_crusher : public CreatureScript
+class npc_anubar_crusher : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_anubar_crusher() : CreatureScript("npc_anubar_crusher") { }
+        npc_anubar_crusher() : MS::Game::Scripting::Interfaces::CreatureScript("npc_anubar_crusher") { }
 
         struct npc_anubar_crusherAI : public ScriptedAI
         {
@@ -380,10 +380,10 @@ class npc_anubar_crusher : public CreatureScript
         }
 };
 
-class npc_hadronox_nerubian : public CreatureScript
+class npc_hadronox_nerubian : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_hadronox_nerubian() : CreatureScript("npc_hadronox_nerubian") { }
+        npc_hadronox_nerubian() : MS::Game::Scripting::Interfaces::CreatureScript("npc_hadronox_nerubian") { }
 
         struct npc_hadronox_nerubianAI : public ScriptedAI
         {
@@ -467,10 +467,10 @@ class npc_hadronox_nerubian : public CreatureScript
         }
 };
 
-class spell_hadronox_leech_poison : public SpellScriptLoader
+class spell_hadronox_leech_poison: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_hadronox_leech_poison() : SpellScriptLoader("spell_hadronox_leech_poison") { }
+        spell_hadronox_leech_poison() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hadronox_leech_poison") { }
 
         class spell_hadronox_leech_poison_AuraScript : public AuraScript
         {
@@ -495,10 +495,10 @@ class spell_hadronox_leech_poison : public SpellScriptLoader
         }
 };
 
-class achievement_hadronox_denied : public AchievementCriteriaScript
+class achievement_hadronox_denied : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_hadronox_denied() : AchievementCriteriaScript("achievement_hadronox_denied")
+        achievement_hadronox_denied() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_hadronox_denied")
         {
         }
 

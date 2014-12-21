@@ -60,10 +60,10 @@ enum Spells
     SPELL_ENRAGE                                           = 28747
 };
 
-class boss_chromaggus : public CreatureScript
+class boss_chromaggus : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_chromaggus() : CreatureScript("boss_chromaggus") { }
+    boss_chromaggus() : MS::Game::Scripting::Interfaces::CreatureScript("boss_chromaggus") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

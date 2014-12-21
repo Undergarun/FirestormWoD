@@ -118,10 +118,10 @@ static const Position rimefangPos[10] =
 
 static const Position miscPos = {1018.376f, 167.2495f, 628.2811f, 0.000000f};   //tyrannus combat start position
 
-class boss_tyrannus : public CreatureScript
+class boss_tyrannus : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_tyrannus() : CreatureScript("boss_tyrannus") { }
+        boss_tyrannus() : MS::Game::Scripting::Interfaces::CreatureScript("boss_tyrannus") { }
 
         struct boss_tyrannusAI : public BossAI
         {
@@ -280,10 +280,10 @@ class boss_tyrannus : public CreatureScript
         }
 };
 
-class boss_rimefang : public CreatureScript
+class boss_rimefang : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_rimefang() : CreatureScript("boss_rimefang") { }
+        boss_rimefang() : MS::Game::Scripting::Interfaces::CreatureScript("boss_rimefang") { }
 
         struct boss_rimefangAI : public ScriptedAI
         {
@@ -416,10 +416,10 @@ class player_overlord_brandAI : public PlayerAI
         uint64 tyrannusGuid;
 };
 
-class spell_tyrannus_overlord_brand : public SpellScriptLoader
+class spell_tyrannus_overlord_brand: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_tyrannus_overlord_brand() : SpellScriptLoader("spell_tyrannus_overlord_brand") { }
+        spell_tyrannus_overlord_brand() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_tyrannus_overlord_brand") { }
 
         class spell_tyrannus_overlord_brand_AuraScript : public AuraScript
         {
@@ -462,10 +462,10 @@ class spell_tyrannus_overlord_brand : public SpellScriptLoader
         }
 };
 
-class spell_tyrannus_mark_of_rimefang : public SpellScriptLoader
+class spell_tyrannus_mark_of_rimefang: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_tyrannus_mark_of_rimefang() : SpellScriptLoader("spell_tyrannus_mark_of_rimefang") { }
+        spell_tyrannus_mark_of_rimefang() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_tyrannus_mark_of_rimefang") { }
 
         class spell_tyrannus_mark_of_rimefang_AuraScript : public AuraScript
         {
@@ -494,10 +494,10 @@ class spell_tyrannus_mark_of_rimefang : public SpellScriptLoader
         }
 };
 
-class at_tyrannus_event_starter : public AreaTriggerScript
+class at_tyrannus_event_starter : public MS::Game::Scripting::Interfaces::AreaTriggerScript
 {
     public:
-        at_tyrannus_event_starter() : AreaTriggerScript("at_tyrannus_event_starter") { }
+        at_tyrannus_event_starter() : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_tyrannus_event_starter") { }
 
         bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/)
         {

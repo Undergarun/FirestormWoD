@@ -86,10 +86,10 @@ Position chargePos[4] =
     { 958.30f, 2330.15f, 296.18f, 0.0f }
 };
 
-class boss_raigonn : public CreatureScript
+class boss_raigonn : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_raigonn() : CreatureScript("boss_raigonn") {}
+        boss_raigonn() : MS::Game::Scripting::Interfaces::CreatureScript("boss_raigonn") {}
 
         struct boss_raigonnAI : public BossAI
         {
@@ -429,7 +429,7 @@ class boss_raigonn : public CreatureScript
         }
 };
 
-class npc_raigonn_weak_spot : public CreatureScript
+class npc_raigonn_weak_spot : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
         npc_raigonn_weak_spot() :  CreatureScript("npc_raigonn_weak_spot") { }
@@ -469,7 +469,7 @@ class npc_raigonn_weak_spot : public CreatureScript
         }
 };
 
-class npc_krikthik_protectorat : public CreatureScript
+class npc_krikthik_protectorat : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
         npc_krikthik_protectorat() :  CreatureScript("npc_krikthik_protectorat") { }
@@ -502,7 +502,7 @@ class npc_krikthik_protectorat : public CreatureScript
         }
 };
 
-class npc_krikthik_engulfer : public CreatureScript
+class npc_krikthik_engulfer : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
         npc_krikthik_engulfer() :  CreatureScript("npc_krikthik_engulfer") { }
@@ -545,7 +545,7 @@ class npc_krikthik_engulfer : public CreatureScript
         }
 };
 
-class npc_krikthik_swarm_bringer : public CreatureScript
+class npc_krikthik_swarm_bringer : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
         npc_krikthik_swarm_bringer() :  CreatureScript("npc_krikthik_swarm_bringer") { }
@@ -587,10 +587,10 @@ class npc_krikthik_swarm_bringer : public CreatureScript
         }
 };
 
-class vehicle_artillery : public VehicleScript
+class vehicle_artillery : public MS::Game::Scripting::Interfaces::VehicleScript
 {
     public:
-        vehicle_artillery() : VehicleScript("vehicle_artillery") {}
+        vehicle_artillery() : MS::Game::Scripting::Interfaces::VehicleScript("vehicle_artillery") {}
 
         void OnAddPassenger(Vehicle* veh, Unit* /*passenger*/, int8 /*seatId*/)
         {

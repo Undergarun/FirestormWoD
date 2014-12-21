@@ -70,10 +70,10 @@ static Position SpawnLoc[]=
 
 #define DATA_SNAKES_WHYD_IT_HAVE_TO_BE_SNAKES 1
 
-class boss_slad_ran : public CreatureScript
+class boss_slad_ran : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_slad_ran() : CreatureScript("boss_slad_ran") { }
+    boss_slad_ran() : MS::Game::Scripting::Interfaces::CreatureScript("boss_slad_ran") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -209,10 +209,10 @@ public:
 
 };
 
-class mob_slad_ran_constrictor : public CreatureScript
+class mob_slad_ran_constrictor : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_slad_ran_constrictor() : CreatureScript("mob_slad_ran_constrictor") { }
+    mob_slad_ran_constrictor() : MS::Game::Scripting::Interfaces::CreatureScript("mob_slad_ran_constrictor") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -262,10 +262,10 @@ public:
 
 };
 
-class mob_slad_ran_viper : public CreatureScript
+class mob_slad_ran_viper : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_slad_ran_viper() : CreatureScript("mob_slad_ran_viper") { }
+    mob_slad_ran_viper() : MS::Game::Scripting::Interfaces::CreatureScript("mob_slad_ran_viper") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -300,10 +300,10 @@ public:
 
 };
 
-class achievement_snakes_whyd_it_have_to_be_snakes : public AchievementCriteriaScript
+class achievement_snakes_whyd_it_have_to_be_snakes : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_snakes_whyd_it_have_to_be_snakes() : AchievementCriteriaScript("achievement_snakes_whyd_it_have_to_be_snakes")
+        achievement_snakes_whyd_it_have_to_be_snakes() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_snakes_whyd_it_have_to_be_snakes")
         {
         }
 

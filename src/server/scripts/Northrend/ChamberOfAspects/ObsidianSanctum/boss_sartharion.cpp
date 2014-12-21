@@ -216,10 +216,10 @@ Locations TwilightEggsSarth[] =
 ## Boss Sartharion
 ######*/
 
-class boss_sartharion : public CreatureScript
+class boss_sartharion : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_sartharion() : CreatureScript("boss_sartharion") { }
+    boss_sartharion() : MS::Game::Scripting::Interfaces::CreatureScript("boss_sartharion") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -991,10 +991,10 @@ struct dummy_dragonAI : public ScriptedAI
 ## Mob Tenebron
 ######*/
 
-class mob_tenebron : public CreatureScript
+class mob_tenebron : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_tenebron() : CreatureScript("mob_tenebron") { }
+    mob_tenebron() : MS::Game::Scripting::Interfaces::CreatureScript("mob_tenebron") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1080,10 +1080,10 @@ public:
 ## Mob Shadron
 ######*/
 
-class mob_shadron : public CreatureScript
+class mob_shadron : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_shadron() : CreatureScript("mob_shadron") { }
+    mob_shadron() : MS::Game::Scripting::Interfaces::CreatureScript("mob_shadron") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1184,10 +1184,10 @@ public:
 ## Mob Vesperon
 ######*/
 
-class mob_vesperon : public CreatureScript
+class mob_vesperon : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_vesperon() : CreatureScript("mob_vesperon") { }
+    mob_vesperon() : MS::Game::Scripting::Interfaces::CreatureScript("mob_vesperon") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1279,10 +1279,10 @@ public:
 ## Mob Acolyte of Shadron
 ######*/
 
-class mob_acolyte_of_shadron : public CreatureScript
+class mob_acolyte_of_shadron : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_acolyte_of_shadron() : CreatureScript("mob_acolyte_of_shadron") { }
+    mob_acolyte_of_shadron() : MS::Game::Scripting::Interfaces::CreatureScript("mob_acolyte_of_shadron") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1390,10 +1390,10 @@ public:
 ## Mob Acolyte of Vesperon
 ######*/
 
-class mob_acolyte_of_vesperon : public CreatureScript
+class mob_acolyte_of_vesperon : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_acolyte_of_vesperon() : CreatureScript("mob_acolyte_of_vesperon") { }
+    mob_acolyte_of_vesperon() : MS::Game::Scripting::Interfaces::CreatureScript("mob_acolyte_of_vesperon") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1487,10 +1487,10 @@ public:
 ## Mob Twilight Eggs
 ######*/
 
-class mob_twilight_eggs : public CreatureScript
+class mob_twilight_eggs : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_twilight_eggs() : CreatureScript("mob_twilight_eggs") { }
+    mob_twilight_eggs() : MS::Game::Scripting::Interfaces::CreatureScript("mob_twilight_eggs") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1557,10 +1557,10 @@ public:
 /*######
 ## Mob Flame Tsunami
 ######*/
-class npc_flame_tsunami : public CreatureScript
+class npc_flame_tsunami : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_flame_tsunami() : CreatureScript("npc_flame_tsunami") { }
+    npc_flame_tsunami() : MS::Game::Scripting::Interfaces::CreatureScript("npc_flame_tsunami") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1613,10 +1613,10 @@ public:
 };
 
 // Twilight Fissure
-class npc_twilight_fissure : public CreatureScript
+class npc_twilight_fissure : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_twilight_fissure() : CreatureScript("npc_twilight_fissure") { }
+    npc_twilight_fissure() : MS::Game::Scripting::Interfaces::CreatureScript("npc_twilight_fissure") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1662,10 +1662,10 @@ public:
 ## Mob Twilight Whelps
 ######*/
 
-class mob_twilight_whelp : public CreatureScript
+class mob_twilight_whelp : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_twilight_whelp() : CreatureScript("mob_twilight_whelp") { }
+    mob_twilight_whelp() : MS::Game::Scripting::Interfaces::CreatureScript("mob_twilight_whelp") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1709,10 +1709,10 @@ public:
 
 };
 
-class achievement_twilight_assist : public AchievementCriteriaScript
+class achievement_twilight_assist : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_twilight_assist() : AchievementCriteriaScript("achievement_twilight_assist")
+        achievement_twilight_assist() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_twilight_assist")
         {
         }
 
@@ -1729,10 +1729,10 @@ class achievement_twilight_assist : public AchievementCriteriaScript
         }
 };
 
-class achievement_twilight_duo : public AchievementCriteriaScript
+class achievement_twilight_duo : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_twilight_duo() : AchievementCriteriaScript("achievement_twilight_duo")
+        achievement_twilight_duo() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_twilight_duo")
         {
         }
 
@@ -1749,10 +1749,10 @@ class achievement_twilight_duo : public AchievementCriteriaScript
         }
 };
 
-class achievement_twilight_zone : public AchievementCriteriaScript
+class achievement_twilight_zone : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_twilight_zone() : AchievementCriteriaScript("achievement_twilight_zone")
+        achievement_twilight_zone() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_twilight_zone")
         {
         }
 

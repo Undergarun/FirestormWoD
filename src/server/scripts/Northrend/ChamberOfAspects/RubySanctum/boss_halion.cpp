@@ -303,10 +303,10 @@ protected:
     bool _canEvade;
 };
 
-class boss_halion : public CreatureScript
+class boss_halion : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_halion() : CreatureScript("boss_halion") { }
+        boss_halion() : MS::Game::Scripting::Interfaces::CreatureScript("boss_halion") { }
 
         struct boss_halionAI : public generic_halionAI
         {
@@ -486,10 +486,10 @@ class boss_halion : public CreatureScript
 
 typedef boss_halion::boss_halionAI HalionAI;
 
-class boss_twilight_halion : public CreatureScript
+class boss_twilight_halion : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_twilight_halion() : CreatureScript("boss_twilight_halion") { }
+        boss_twilight_halion() : MS::Game::Scripting::Interfaces::CreatureScript("boss_twilight_halion") { }
 
         struct boss_twilight_halionAI : public generic_halionAI
         {
@@ -605,10 +605,10 @@ class boss_twilight_halion : public CreatureScript
         }
 };
 
-class npc_halion_controller : public CreatureScript
+class npc_halion_controller : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_halion_controller() : CreatureScript("npc_halion_controller") { }
+        npc_halion_controller() : MS::Game::Scripting::Interfaces::CreatureScript("npc_halion_controller") { }
 
         struct npc_halion_controllerAI : public ScriptedAI
         {
@@ -1044,10 +1044,10 @@ class npc_halion_controller : public CreatureScript
 
 typedef npc_halion_controller::npc_halion_controllerAI controllerAI;
 
-class npc_meteor_strike_initial : public CreatureScript
+class npc_meteor_strike_initial : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_meteor_strike_initial() : CreatureScript("npc_meteor_strike_initial") { }
+        npc_meteor_strike_initial() : MS::Game::Scripting::Interfaces::CreatureScript("npc_meteor_strike_initial") { }
 
         struct npc_meteor_strike_initialAI : public ScriptedAI
         {
@@ -1118,10 +1118,10 @@ class npc_meteor_strike_initial : public CreatureScript
         }
 };
 
-class npc_meteor_strike : public CreatureScript
+class npc_meteor_strike : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_meteor_strike() : CreatureScript("npc_meteor_strike") { }
+        npc_meteor_strike() : MS::Game::Scripting::Interfaces::CreatureScript("npc_meteor_strike") { }
 
         struct npc_meteor_strikeAI : public ScriptedAI
         {
@@ -1198,10 +1198,10 @@ class npc_meteor_strike : public CreatureScript
         }
 };
 
-class npc_combustion_consumption : public CreatureScript
+class npc_combustion_consumption : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_combustion_consumption() : CreatureScript("npc_combustion_consumption") { }
+        npc_combustion_consumption() : MS::Game::Scripting::Interfaces::CreatureScript("npc_combustion_consumption") { }
 
         struct npc_combustion_consumptionAI : public ScriptedAI
         {
@@ -1270,10 +1270,10 @@ class npc_combustion_consumption : public CreatureScript
         }
 };
 
-class npc_living_inferno : public CreatureScript
+class npc_living_inferno : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_living_inferno() : CreatureScript("npc_living_inferno") { }
+        npc_living_inferno() : MS::Game::Scripting::Interfaces::CreatureScript("npc_living_inferno") { }
 
         struct npc_living_infernoAI : public ScriptedAI
         {
@@ -1342,10 +1342,10 @@ class npc_living_inferno : public CreatureScript
 };
 
 //! Need sniff data
-class npc_living_ember : public CreatureScript
+class npc_living_ember : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_living_ember() : CreatureScript("npc_living_ember") { }
+        npc_living_ember() : MS::Game::Scripting::Interfaces::CreatureScript("npc_living_ember") { }
 
         struct npc_living_emberAI : public ScriptedAI
         {
@@ -1407,10 +1407,10 @@ class npc_living_ember : public CreatureScript
         }
 };
 
-class npc_shadow_orb : public CreatureScript
+class npc_shadow_orb : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_shadow_orb() : CreatureScript("npc_shadow_orb") { }
+        npc_shadow_orb() : MS::Game::Scripting::Interfaces::CreatureScript("npc_shadow_orb") { }
 
         struct npc_shadow_orbAI : public ScriptedAI
         {
@@ -1453,10 +1453,10 @@ class npc_shadow_orb : public CreatureScript
         }
 };
 
-class go_twilight_portal : public GameObjectScript
+class go_twilight_portal : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
     public:
-        go_twilight_portal() : GameObjectScript("go_twilight_portal") { }
+        go_twilight_portal() : MS::Game::Scripting::Interfaces::GameObjectScript("go_twilight_portal") { }
 
         struct go_twilight_portalAI : public GameObjectAI
         {
@@ -1512,10 +1512,10 @@ class go_twilight_portal : public GameObjectScript
         }
 };
 
-class spell_halion_meteor_strike_marker : public SpellScriptLoader
+class spell_halion_meteor_strike_marker: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_halion_meteor_strike_marker() : SpellScriptLoader("spell_halion_meteor_strike_marker") { }
+        spell_halion_meteor_strike_marker() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_halion_meteor_strike_marker") { }
 
         class spell_halion_meteor_strike_marker_AuraScript : public AuraScript
         {
@@ -1543,10 +1543,10 @@ class spell_halion_meteor_strike_marker : public SpellScriptLoader
         }
 };
 
-class spell_halion_combustion_consumption : public SpellScriptLoader
+class spell_halion_combustion_consumption: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_halion_combustion_consumption(char const* scriptName, uint32 spell) : SpellScriptLoader(scriptName), _spellID(spell) { }
+        spell_halion_combustion_consumption(char const* scriptName, uint32 spell) : MS::Game::Scripting::Interfaces::SpellScriptLoader(scriptName), _spellID(spell) { }
 
         class spell_halion_combustion_consumption_AuraScript : public AuraScript
         {
@@ -1600,10 +1600,10 @@ class spell_halion_combustion_consumption : public SpellScriptLoader
         uint32 _spellID;
 };
 
-class spell_halion_marks : public SpellScriptLoader
+class spell_halion_marks: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_halion_marks(char const* scriptName, uint32 summonSpell, uint32 removeSpell) : SpellScriptLoader(scriptName),
+        spell_halion_marks(char const* scriptName, uint32 summonSpell, uint32 removeSpell) : MS::Game::Scripting::Interfaces::SpellScriptLoader(scriptName),
             _summonSpell(summonSpell), _removeSpell(removeSpell) { }
 
         class spell_halion_marks_AuraScript : public AuraScript
@@ -1661,10 +1661,10 @@ class spell_halion_marks : public SpellScriptLoader
         uint32 _removeSpell;
 };
 
-class spell_halion_damage_aoe_summon : public SpellScriptLoader
+class spell_halion_damage_aoe_summon: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_halion_damage_aoe_summon() : SpellScriptLoader("spell_halion_damage_aoe_summon") { }
+        spell_halion_damage_aoe_summon() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_halion_damage_aoe_summon") { }
 
         class spell_halion_damage_aoe_summon_SpellScript : public SpellScript
         {
@@ -1697,10 +1697,10 @@ class spell_halion_damage_aoe_summon : public SpellScriptLoader
         }
 };
 
-class spell_halion_twilight_realm_handlers : public SpellScriptLoader
+class spell_halion_twilight_realm_handlers: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_halion_twilight_realm_handlers(const char* scriptName, uint32 beforeHitSpell, bool isApplyHandler) : SpellScriptLoader(scriptName),
+        spell_halion_twilight_realm_handlers(const char* scriptName, uint32 beforeHitSpell, bool isApplyHandler) : MS::Game::Scripting::Interfaces::SpellScriptLoader(scriptName),
             _beforeHitSpell(beforeHitSpell), _isApplyHandler(isApplyHandler)
         { }
 
@@ -1763,10 +1763,10 @@ class spell_halion_twilight_realm_handlers : public SpellScriptLoader
         bool _isApplyHandler;
 };
 
-class spell_halion_clear_debuffs : public SpellScriptLoader
+class spell_halion_clear_debuffs: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_halion_clear_debuffs() : SpellScriptLoader("spell_halion_clear_debuffs") { }
+        spell_halion_clear_debuffs() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_halion_clear_debuffs") { }
 
         class spell_halion_clear_debuffs_SpellScript : public SpellScript
         {
@@ -1814,10 +1814,10 @@ class TwilightCutterSelector
         Unit* _cutterCaster;
 };
 
-class spell_halion_twilight_cutter : public SpellScriptLoader
+class spell_halion_twilight_cutter: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_halion_twilight_cutter() : SpellScriptLoader("spell_halion_twilight_cutter") { }
+        spell_halion_twilight_cutter() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_halion_twilight_cutter") { }
 
         class spell_halion_twilight_cutter_SpellScript : public SpellScript
         {
@@ -1854,10 +1854,10 @@ class spell_halion_twilight_cutter : public SpellScriptLoader
         }
 };
 
-class spell_halion_twilight_phasing : public SpellScriptLoader
+class spell_halion_twilight_phasing: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_halion_twilight_phasing() : SpellScriptLoader("spell_halion_twilight_phasing") { }
+        spell_halion_twilight_phasing() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_halion_twilight_phasing") { }
 
         class spell_halion_twilight_phasing_SpellScript : public SpellScript
         {
@@ -1902,10 +1902,10 @@ class spell_halion_twilight_phasing : public SpellScriptLoader
         }
 };
 
-class spell_halion_summon_exit_portals : public SpellScriptLoader
+class spell_halion_summon_exit_portals: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_halion_summon_exit_portals() : SpellScriptLoader("spell_halion_summon_exit_portals") { }
+        spell_halion_summon_exit_portals() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_halion_summon_exit_portals") { }
 
         class spell_halion_summon_exit_portals_SpellScript : public SpellScript
         {
@@ -1955,10 +1955,10 @@ class ExactDistanceCheck
         float _dist;
 };
 
-class spell_halion_mark_damage_aura : public SpellScriptLoader
+class spell_halion_mark_damage_aura: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_halion_mark_damage_aura() : SpellScriptLoader("spell_halion_mark_damage_aura") { }
+        spell_halion_mark_damage_aura() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_halion_mark_damage_aura") { }
 
         class spell_halion_mark_damage_aura_SpellScript : public SpellScript
         {
@@ -1981,10 +1981,10 @@ class spell_halion_mark_damage_aura : public SpellScriptLoader
         }
 };
 
-class spell_halion_mark_damage_aura_heroic : public SpellScriptLoader
+class spell_halion_mark_damage_aura_heroic: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_halion_mark_damage_aura_heroic() : SpellScriptLoader("spell_halion_mark_damage_aura_heroic") { }
+        spell_halion_mark_damage_aura_heroic() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_halion_mark_damage_aura_heroic") { }
 
         class spell_halion_mark_damage_aura_heroic_SpellScript : public SpellScript
         {

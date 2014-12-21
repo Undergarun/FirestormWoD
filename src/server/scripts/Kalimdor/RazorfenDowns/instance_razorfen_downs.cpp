@@ -21,10 +21,10 @@
 
 #define    MAX_ENCOUNTER  1
 
-class instance_razorfen_downs : public InstanceMapScript
+class instance_razorfen_downs : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
 public:
-    instance_razorfen_downs() : InstanceMapScript("instance_razorfen_downs", 129) { }
+    instance_razorfen_downs() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_razorfen_downs", 129) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {

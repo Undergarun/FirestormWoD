@@ -31,10 +31,10 @@ enum CreatureIds
 };
 
 // 50063
-class boss_akmahat : public CreatureScript
+class boss_akmahat : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_akmahat() : CreatureScript("boss_akmahat") { }
+    boss_akmahat() : MS::Game::Scripting::Interfaces::CreatureScript("boss_akmahat") { }
     
     CreatureAI* GetAI(Creature* pCreature) const
     {
@@ -141,10 +141,10 @@ public:
 };
 
 // 51293
-class npc_akmahat_fury_of_the_sands : public CreatureScript
+class npc_akmahat_fury_of_the_sands : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_akmahat_fury_of_the_sands() : CreatureScript("npc_akmahat_fury_of_the_sands") { }
+    npc_akmahat_fury_of_the_sands() : MS::Game::Scripting::Interfaces::CreatureScript("npc_akmahat_fury_of_the_sands") { }
     
     CreatureAI* GetAI(Creature* pCreature) const
     {
@@ -194,10 +194,10 @@ enum eHarrisonJonesTexts
 #define ACTION_FOURTH_MOVE 4
 #define ACTION_FIFTH_MOVE 5
 
-class mob_harrison_jones : public CreatureScript
+class mob_harrison_jones : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_harrison_jones() : CreatureScript("mob_harrison_jones")
+    mob_harrison_jones() : MS::Game::Scripting::Interfaces::CreatureScript("mob_harrison_jones")
     {
     }
     bool OnGossipHello(Player* player, Creature* creature)
@@ -307,10 +307,10 @@ public:
 
 #define NPC_ULDUM_WATCHER 45316
 
-class mob_harrison_jones_2 : public CreatureScript
+class mob_harrison_jones_2 : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_harrison_jones_2() : CreatureScript("mob_harrison_jones_2")
+    mob_harrison_jones_2() : MS::Game::Scripting::Interfaces::CreatureScript("mob_harrison_jones_2")
     {
     }
 
@@ -400,10 +400,10 @@ enum eLurkingTempestEvents
 };
 
 
-class mob_lurking_tempest : public CreatureScript
+class mob_lurking_tempest : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_lurking_tempest() : CreatureScript("mob_lurking_tempest")
+    mob_lurking_tempest() : MS::Game::Scripting::Interfaces::CreatureScript("mob_lurking_tempest")
     {
     }
 

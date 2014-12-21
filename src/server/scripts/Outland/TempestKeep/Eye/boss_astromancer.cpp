@@ -77,7 +77,7 @@ const float PORTAL_Z                    = 17.005f;
 static float SolarianPos[4] = {432.909f, -373.424f, 17.9608f, 1.06421f};
 */
 
-class boss_high_astromancer_solarian : public CreatureScript
+class boss_high_astromancer_solarian : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
@@ -410,7 +410,7 @@ class boss_high_astromancer_solarian : public CreatureScript
         }
 };
 
-class mob_solarium_priest : public CreatureScript
+class mob_solarium_priest : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
@@ -497,10 +497,10 @@ class mob_solarium_priest : public CreatureScript
         }
 };
 
-class spell_astromancer_wrath_of_the_astromancer : public SpellScriptLoader
+class spell_astromancer_wrath_of_the_astromancer: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_astromancer_wrath_of_the_astromancer() : SpellScriptLoader("spell_astromancer_wrath_of_the_astromancer") { }
+        spell_astromancer_wrath_of_the_astromancer() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_astromancer_wrath_of_the_astromancer") { }
 
         class spell_astromancer_wrath_of_the_astromancer_AuraScript : public AuraScript
         {

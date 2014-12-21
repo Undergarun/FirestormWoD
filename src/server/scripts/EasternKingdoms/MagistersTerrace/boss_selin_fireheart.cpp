@@ -52,10 +52,10 @@ EndScriptData */
 
 #define CREATURE_FEL_CRYSTAL            24722
 
-class boss_selin_fireheart : public CreatureScript
+class boss_selin_fireheart : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_selin_fireheart() : CreatureScript("boss_selin_fireheart") { }
+    boss_selin_fireheart() : MS::Game::Scripting::Interfaces::CreatureScript("boss_selin_fireheart") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -323,10 +323,10 @@ public:
 
 };
 
-class mob_fel_crystal : public CreatureScript
+class mob_fel_crystal : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_fel_crystal() : CreatureScript("mob_fel_crystal") { }
+    mob_fel_crystal() : MS::Game::Scripting::Interfaces::CreatureScript("mob_fel_crystal") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

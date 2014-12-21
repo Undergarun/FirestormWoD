@@ -34,10 +34,10 @@ enum Spells
     SPELL_FROSTNOVA                 = 15531
 };
 
-class boss_scorn : public CreatureScript
+class boss_scorn : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_scorn() : CreatureScript("boss_scorn") { }
+    boss_scorn() : MS::Game::Scripting::Interfaces::CreatureScript("boss_scorn") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

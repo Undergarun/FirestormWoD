@@ -55,10 +55,10 @@ EndScriptData */
 
 #define GCD_CAST    1
 
-class molten_flame : public CreatureScript
+class molten_flame : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    molten_flame() : CreatureScript("molten_flame") { }
+    molten_flame() : MS::Game::Scripting::Interfaces::CreatureScript("molten_flame") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -81,10 +81,10 @@ public:
 
 };
 
-class boss_supremus : public CreatureScript
+class boss_supremus : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_supremus() : CreatureScript("boss_supremus") { }
+    boss_supremus() : MS::Game::Scripting::Interfaces::CreatureScript("boss_supremus") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -261,10 +261,10 @@ public:
 
 };
 
-class npc_volcano : public CreatureScript
+class npc_volcano : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_volcano() : CreatureScript("npc_volcano") { }
+    npc_volcano() : MS::Game::Scripting::Interfaces::CreatureScript("npc_volcano") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

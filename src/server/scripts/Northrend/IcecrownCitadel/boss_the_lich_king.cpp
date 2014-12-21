@@ -506,10 +506,10 @@ class TriggerWickedSpirit : public BasicEvent
         uint32 _counter;
 };
 
-class boss_the_lich_king : public CreatureScript
+class boss_the_lich_king : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_the_lich_king() : CreatureScript("boss_the_lich_king") { }
+        boss_the_lich_king() : MS::Game::Scripting::Interfaces::CreatureScript("boss_the_lich_king") { }
 
         struct boss_the_lich_kingAI : public BossAI
         {
@@ -1262,10 +1262,10 @@ class boss_the_lich_king : public CreatureScript
         }
 };
 
-class npc_tirion_fordring_tft : public CreatureScript
+class npc_tirion_fordring_tft : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_tirion_fordring_tft() : CreatureScript("npc_tirion_fordring_tft") { }
+        npc_tirion_fordring_tft() : MS::Game::Scripting::Interfaces::CreatureScript("npc_tirion_fordring_tft") { }
 
         struct npc_tirion_fordringAI : public ScriptedAI
         {
@@ -1425,7 +1425,7 @@ class npc_tirion_fordring_tft : public CreatureScript
         }
 };
 
-class npc_drudge_ghoul_icc : public CreatureScript
+class npc_drudge_ghoul_icc : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
         npc_drudge_ghoul_icc() :  CreatureScript("npc_drudge_ghoul_icc") { }
@@ -1476,7 +1476,7 @@ class npc_drudge_ghoul_icc : public CreatureScript
         }
 };
 
-class npc_shambling_horror_icc : public CreatureScript
+class npc_shambling_horror_icc : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
         npc_shambling_horror_icc() :  CreatureScript("npc_shambling_horror_icc") { }
@@ -1548,10 +1548,10 @@ class npc_shambling_horror_icc : public CreatureScript
         }
 };
 
-class npc_raging_spirit : public CreatureScript
+class npc_raging_spirit : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_raging_spirit() : CreatureScript("npc_raging_spirit") { }
+        npc_raging_spirit() : MS::Game::Scripting::Interfaces::CreatureScript("npc_raging_spirit") { }
 
         struct npc_raging_spiritAI : public ScriptedAI
         {
@@ -1657,10 +1657,10 @@ class npc_raging_spirit : public CreatureScript
         }
 };
 
-class npc_valkyr_shadowguard : public CreatureScript
+class npc_valkyr_shadowguard : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_valkyr_shadowguard() : CreatureScript("npc_valkyr_shadowguard") { }
+        npc_valkyr_shadowguard() : MS::Game::Scripting::Interfaces::CreatureScript("npc_valkyr_shadowguard") { }
 
         struct npc_valkyr_shadowguardAI : public ScriptedAI
         {
@@ -1821,10 +1821,10 @@ class npc_valkyr_shadowguard : public CreatureScript
         }
 };
 
-class npc_lich_king_spirit : public CreatureScript
+class npc_lich_king_spirit : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_lich_king_spirit() : CreatureScript("npc_lich_king_spirit") { }
+        npc_lich_king_spirit() : MS::Game::Scripting::Interfaces::CreatureScript("npc_lich_king_spirit") { }
 
         struct npc_lich_king_spiritAI : public ScriptedAI
         {
@@ -1898,10 +1898,10 @@ class npc_lich_king_spirit : public CreatureScript
         }
 };
 
-class npc_strangulate_vehicle : public CreatureScript
+class npc_strangulate_vehicle : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_strangulate_vehicle() : CreatureScript("npc_strangulate_vehicle") { }
+        npc_strangulate_vehicle() : MS::Game::Scripting::Interfaces::CreatureScript("npc_strangulate_vehicle") { }
 
         struct npc_strangulate_vehicleAI : public ScriptedAI
         {
@@ -2015,10 +2015,10 @@ class npc_strangulate_vehicle : public CreatureScript
         }
 };
 
-class npc_terenas_menethil : public CreatureScript
+class npc_terenas_menethil : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_terenas_menethil() : CreatureScript("npc_terenas_menethil") { }
+        npc_terenas_menethil() : MS::Game::Scripting::Interfaces::CreatureScript("npc_terenas_menethil") { }
 
         struct npc_terenas_menethilAI : public ScriptedAI
         {
@@ -2171,10 +2171,10 @@ class npc_terenas_menethil : public CreatureScript
         }
 };
 
-class npc_spirit_warden : public CreatureScript
+class npc_spirit_warden : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_spirit_warden() : CreatureScript("npc_spirit_warden") { }
+        npc_spirit_warden() : MS::Game::Scripting::Interfaces::CreatureScript("npc_spirit_warden") { }
 
         struct npc_spirit_wardenAI : public ScriptedAI
         {
@@ -2236,10 +2236,10 @@ class npc_spirit_warden : public CreatureScript
         }
 };
 
-class npc_spirit_bomb : public CreatureScript
+class npc_spirit_bomb : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_spirit_bomb() : CreatureScript("npc_spirit_bomb") { }
+        npc_spirit_bomb() : MS::Game::Scripting::Interfaces::CreatureScript("npc_spirit_bomb") { }
 
         struct npc_spirit_bombAI : public CreatureAI
         {
@@ -2283,10 +2283,10 @@ class npc_spirit_bomb : public CreatureScript
         }
 };
 
-class npc_broken_frostmourne : public CreatureScript
+class npc_broken_frostmourne : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_broken_frostmourne() : CreatureScript("npc_broken_frostmourne") { }
+        npc_broken_frostmourne() : MS::Game::Scripting::Interfaces::CreatureScript("npc_broken_frostmourne") { }
 
         struct npc_broken_frostmourneAI : public CreatureAI
         {
@@ -2349,10 +2349,10 @@ class npc_broken_frostmourne : public CreatureScript
         }
 };
 
-class spell_the_lich_king_infest : public SpellScriptLoader
+class spell_the_lich_king_infest: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_the_lich_king_infest() :  SpellScriptLoader("spell_the_lich_king_infest") { }
+        spell_the_lich_king_infest() :  MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_the_lich_king_infest") { }
 
         class spell_the_lich_king_infest_AuraScript : public AuraScript
         {
@@ -2389,10 +2389,10 @@ class spell_the_lich_king_infest : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_necrotic_plague : public SpellScriptLoader
+class spell_the_lich_king_necrotic_plague: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_the_lich_king_necrotic_plague() :  SpellScriptLoader("spell_the_lich_king_necrotic_plague") { }
+        spell_the_lich_king_necrotic_plague() :  MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_the_lich_king_necrotic_plague") { }
 
         class spell_the_lich_king_necrotic_plague_AuraScript : public AuraScript
         {
@@ -2437,10 +2437,10 @@ class spell_the_lich_king_necrotic_plague : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_necrotic_plague_jump : public SpellScriptLoader
+class spell_the_lich_king_necrotic_plague_jump: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_the_lich_king_necrotic_plague_jump() :  SpellScriptLoader("spell_the_lich_king_necrotic_plague_jump") { }
+        spell_the_lich_king_necrotic_plague_jump() :  MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_the_lich_king_necrotic_plague_jump") { }
 
         class spell_the_lich_king_necrotic_plague_SpellScript : public SpellScript
         {
@@ -2561,10 +2561,10 @@ class spell_the_lich_king_necrotic_plague_jump : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_shadow_trap_visual : public SpellScriptLoader
+class spell_the_lich_king_shadow_trap_visual: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_the_lich_king_shadow_trap_visual() : SpellScriptLoader("spell_the_lich_king_shadow_trap_visual") { }
+        spell_the_lich_king_shadow_trap_visual() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_the_lich_king_shadow_trap_visual") { }
 
         class spell_the_lich_king_shadow_trap_visual_AuraScript : public AuraScript
         {
@@ -2588,10 +2588,10 @@ class spell_the_lich_king_shadow_trap_visual : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_shadow_trap_periodic : public SpellScriptLoader
+class spell_the_lich_king_shadow_trap_periodic: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_the_lich_king_shadow_trap_periodic() : SpellScriptLoader("spell_the_lich_king_shadow_trap_periodic") { }
+        spell_the_lich_king_shadow_trap_periodic() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_the_lich_king_shadow_trap_periodic") { }
 
         class spell_the_lich_king_shadow_trap_periodic_SpellScript : public SpellScript
         {
@@ -2617,10 +2617,10 @@ class spell_the_lich_king_shadow_trap_periodic : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_quake : public SpellScriptLoader
+class spell_the_lich_king_quake: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_the_lich_king_quake() : SpellScriptLoader("spell_the_lich_king_quake") { }
+        spell_the_lich_king_quake() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_the_lich_king_quake") { }
 
         class spell_the_lich_king_quake_SpellScript : public SpellScript
         {
@@ -2656,10 +2656,10 @@ class spell_the_lich_king_quake : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_ice_burst_target_search : public SpellScriptLoader
+class spell_the_lich_king_ice_burst_target_search: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_the_lich_king_ice_burst_target_search() : SpellScriptLoader("spell_the_lich_king_ice_burst_target_search") { }
+        spell_the_lich_king_ice_burst_target_search() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_the_lich_king_ice_burst_target_search") { }
 
         class spell_the_lich_king_ice_burst_target_search_SpellScript : public SpellScript
         {
@@ -2699,10 +2699,10 @@ class spell_the_lich_king_ice_burst_target_search : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_raging_spirit : public SpellScriptLoader
+class spell_the_lich_king_raging_spirit: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_the_lich_king_raging_spirit() : SpellScriptLoader("spell_the_lich_king_raging_spirit") { }
+        spell_the_lich_king_raging_spirit() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_the_lich_king_raging_spirit") { }
 
         class spell_the_lich_king_raging_spirit_SpellScript : public SpellScript
         {
@@ -2748,10 +2748,10 @@ class ExactDistanceCheck
         float _dist;
 };
 
-class spell_the_lich_king_defile : public SpellScriptLoader
+class spell_the_lich_king_defile: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_the_lich_king_defile() : SpellScriptLoader("spell_the_lich_king_defile") { }
+        spell_the_lich_king_defile() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_the_lich_king_defile") { }
 
         class spell_the_lich_king_defile_SpellScript : public SpellScript
         {
@@ -2785,10 +2785,10 @@ class spell_the_lich_king_defile : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_summon_into_air : public SpellScriptLoader
+class spell_the_lich_king_summon_into_air: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_the_lich_king_summon_into_air() : SpellScriptLoader("spell_the_lich_king_summon_into_air") { }
+        spell_the_lich_king_summon_into_air() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_the_lich_king_summon_into_air") { }
 
         class spell_the_lich_king_summon_into_air_SpellScript : public SpellScript
         {
@@ -2820,10 +2820,10 @@ class spell_the_lich_king_summon_into_air : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_soul_reaper : public SpellScriptLoader
+class spell_the_lich_king_soul_reaper: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_the_lich_king_soul_reaper() :  SpellScriptLoader("spell_the_lich_king_soul_reaper") { }
+        spell_the_lich_king_soul_reaper() :  MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_the_lich_king_soul_reaper") { }
 
         class spell_the_lich_king_soul_reaper_AuraScript : public AuraScript
         {
@@ -2854,10 +2854,10 @@ class spell_the_lich_king_soul_reaper : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_valkyr_target_search : public SpellScriptLoader
+class spell_the_lich_king_valkyr_target_search: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_the_lich_king_valkyr_target_search() : SpellScriptLoader("spell_the_lich_king_valkyr_target_search") { }
+        spell_the_lich_king_valkyr_target_search() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_the_lich_king_valkyr_target_search") { }
 
         class spell_the_lich_king_valkyr_target_search_SpellScript : public SpellScript
         {
@@ -2920,10 +2920,10 @@ class spell_the_lich_king_valkyr_target_search : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_eject_all_passengers : public SpellScriptLoader
+class spell_the_lich_king_eject_all_passengers: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_the_lich_king_eject_all_passengers() : SpellScriptLoader("spell_the_lich_king_eject_all_passengers") { }
+        spell_the_lich_king_eject_all_passengers() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_the_lich_king_eject_all_passengers") { }
 
         class spell_the_lich_king_eject_all_passengers_SpellScript : public SpellScript
         {
@@ -2952,10 +2952,10 @@ class spell_the_lich_king_eject_all_passengers : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_cast_back_to_caster : public SpellScriptLoader
+class spell_the_lich_king_cast_back_to_caster: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_the_lich_king_cast_back_to_caster() :  SpellScriptLoader("spell_the_lich_king_cast_back_to_caster") { }
+        spell_the_lich_king_cast_back_to_caster() :  MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_the_lich_king_cast_back_to_caster") { }
 
         class spell_the_lich_king_cast_back_to_caster_SpellScript : public SpellScript
         {
@@ -2978,10 +2978,10 @@ class spell_the_lich_king_cast_back_to_caster : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_life_siphon : public SpellScriptLoader
+class spell_the_lich_king_life_siphon: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_the_lich_king_life_siphon() : SpellScriptLoader("spell_the_lich_king_life_siphon") { }
+        spell_the_lich_king_life_siphon() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_the_lich_king_life_siphon") { }
 
         class spell_the_lich_king_life_siphon_SpellScript : public SpellScript
         {
@@ -3011,10 +3011,10 @@ class spell_the_lich_king_life_siphon : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_vile_spirits : public SpellScriptLoader
+class spell_the_lich_king_vile_spirits: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_the_lich_king_vile_spirits() : SpellScriptLoader("spell_the_lich_king_vile_spirits") { }
+        spell_the_lich_king_vile_spirits() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_the_lich_king_vile_spirits") { }
 
         class spell_the_lich_king_vile_spirits_AuraScript : public AuraScript
         {
@@ -3046,10 +3046,10 @@ class spell_the_lich_king_vile_spirits : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_vile_spirits_visual : public SpellScriptLoader
+class spell_the_lich_king_vile_spirits_visual: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_the_lich_king_vile_spirits_visual() : SpellScriptLoader("spell_the_lich_king_vile_spirits_visual") { }
+        spell_the_lich_king_vile_spirits_visual() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_the_lich_king_vile_spirits_visual") { }
 
         class spell_the_lich_king_vile_spirits_visual_SpellScript : public SpellScript
         {
@@ -3073,10 +3073,10 @@ class spell_the_lich_king_vile_spirits_visual : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_vile_spirit_move_target_search : public SpellScriptLoader
+class spell_the_lich_king_vile_spirit_move_target_search: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_the_lich_king_vile_spirit_move_target_search() : SpellScriptLoader("spell_the_lich_king_vile_spirit_move_target_search") { }
+        spell_the_lich_king_vile_spirit_move_target_search() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_the_lich_king_vile_spirit_move_target_search") { }
 
         class spell_the_lich_king_vile_spirit_move_target_search_SpellScript : public SpellScript
         {
@@ -3124,10 +3124,10 @@ class spell_the_lich_king_vile_spirit_move_target_search : public SpellScriptLoa
         }
 };
 
-class spell_the_lich_king_vile_spirit_damage_target_search : public SpellScriptLoader
+class spell_the_lich_king_vile_spirit_damage_target_search: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_the_lich_king_vile_spirit_damage_target_search() : SpellScriptLoader("spell_the_lich_king_vile_spirit_damage_target_search") { }
+        spell_the_lich_king_vile_spirit_damage_target_search() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_the_lich_king_vile_spirit_damage_target_search") { }
 
         class spell_the_lich_king_vile_spirit_damage_target_search_SpellScript : public SpellScript
         {
@@ -3167,10 +3167,10 @@ class spell_the_lich_king_vile_spirit_damage_target_search : public SpellScriptL
         }
 };
 
-class spell_the_lich_king_harvest_soul : public SpellScriptLoader
+class spell_the_lich_king_harvest_soul: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_the_lich_king_harvest_soul() : SpellScriptLoader("spell_the_lich_king_harvest_soul") { }
+        spell_the_lich_king_harvest_soul() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_the_lich_king_harvest_soul") { }
 
         class spell_the_lich_king_harvest_soul_AuraScript : public AuraScript
         {
@@ -3200,10 +3200,10 @@ class spell_the_lich_king_harvest_soul : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_lights_favor : public SpellScriptLoader
+class spell_the_lich_king_lights_favor: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_the_lich_king_lights_favor() : SpellScriptLoader("spell_the_lich_king_lights_favor") { }
+        spell_the_lich_king_lights_favor() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_the_lich_king_lights_favor") { }
 
         class spell_the_lich_king_lights_favor_AuraScript : public AuraScript
         {
@@ -3237,10 +3237,10 @@ class spell_the_lich_king_lights_favor : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_soul_rip : public SpellScriptLoader
+class spell_the_lich_king_soul_rip: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_the_lich_king_soul_rip() : SpellScriptLoader("spell_the_lich_king_soul_rip") { }
+        spell_the_lich_king_soul_rip() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_the_lich_king_soul_rip") { }
 
         class spell_the_lich_king_soul_rip_AuraScript : public AuraScript
         {
@@ -3266,10 +3266,10 @@ class spell_the_lich_king_soul_rip : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_restore_soul : public SpellScriptLoader
+class spell_the_lich_king_restore_soul: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_the_lich_king_restore_soul() : SpellScriptLoader("spell_the_lich_king_restore_soul") { }
+        spell_the_lich_king_restore_soul() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_the_lich_king_restore_soul") { }
 
         class spell_the_lich_king_restore_soul_SpellScript : public SpellScript
         {
@@ -3315,10 +3315,10 @@ class spell_the_lich_king_restore_soul : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_in_frostmourne_room : public SpellScriptLoader
+class spell_the_lich_king_in_frostmourne_room: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_the_lich_king_in_frostmourne_room() : SpellScriptLoader("spell_the_lich_king_in_frostmourne_room") { }
+        spell_the_lich_king_in_frostmourne_room() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_the_lich_king_in_frostmourne_room") { }
 
         class spell_the_lich_king_in_frostmourne_room_AuraScript : public AuraScript
         {
@@ -3348,10 +3348,10 @@ class spell_the_lich_king_in_frostmourne_room : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_summon_spirit_bomb : public SpellScriptLoader
+class spell_the_lich_king_summon_spirit_bomb: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_the_lich_king_summon_spirit_bomb() : SpellScriptLoader("spell_the_lich_king_summon_spirit_bomb") { }
+        spell_the_lich_king_summon_spirit_bomb() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_the_lich_king_summon_spirit_bomb") { }
 
         class spell_the_lich_king_summon_spirit_bomb_SpellScript : public SpellScript
         {
@@ -3375,10 +3375,10 @@ class spell_the_lich_king_summon_spirit_bomb : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_trigger_vile_spirit : public SpellScriptLoader
+class spell_the_lich_king_trigger_vile_spirit: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_the_lich_king_trigger_vile_spirit() : SpellScriptLoader("spell_the_lich_king_trigger_vile_spirit") { }
+        spell_the_lich_king_trigger_vile_spirit() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_the_lich_king_trigger_vile_spirit") { }
 
         class spell_the_lich_king_trigger_vile_spirit_SpellScript : public SpellScript
         {
@@ -3405,10 +3405,10 @@ class spell_the_lich_king_trigger_vile_spirit : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_jump : public SpellScriptLoader
+class spell_the_lich_king_jump: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_the_lich_king_jump() : SpellScriptLoader("spell_the_lich_king_jump") { }
+        spell_the_lich_king_jump() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_the_lich_king_jump") { }
 
         class spell_the_lich_king_jump_SpellScript : public SpellScript
         {
@@ -3435,10 +3435,10 @@ class spell_the_lich_king_jump : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_jump_remove_aura : public SpellScriptLoader
+class spell_the_lich_king_jump_remove_aura: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_the_lich_king_jump_remove_aura() : SpellScriptLoader("spell_the_lich_king_jump_remove_aura") { }
+        spell_the_lich_king_jump_remove_aura() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_the_lich_king_jump_remove_aura") { }
 
         class spell_the_lich_king_jump_SpellScript : public SpellScript
         {
@@ -3462,10 +3462,10 @@ class spell_the_lich_king_jump_remove_aura : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_wings_of_the_damned : public SpellScriptLoader
+class spell_the_lich_king_wings_of_the_damned: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_the_lich_king_wings_of_the_damned() : SpellScriptLoader("spell_the_lich_king_wings_of_the_damned") { }
+        spell_the_lich_king_wings_of_the_damned() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_the_lich_king_wings_of_the_damned") { }
 
         class spell_the_lich_king_wings_of_the_damned_AuraScript : public AuraScript
         {
@@ -3489,10 +3489,10 @@ class spell_the_lich_king_wings_of_the_damned : public SpellScriptLoader
         }
 };
 
-class achievement_been_waiting_long_time : public AchievementCriteriaScript
+class achievement_been_waiting_long_time : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_been_waiting_long_time() : AchievementCriteriaScript("achievement_been_waiting_long_time") { }
+        achievement_been_waiting_long_time() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_been_waiting_long_time") { }
 
         bool OnCheck(Player* /*source*/, Unit* target)
         {
@@ -3503,10 +3503,10 @@ class achievement_been_waiting_long_time : public AchievementCriteriaScript
         }
 };
 
-class achievement_neck_deep_in_vile : public AchievementCriteriaScript
+class achievement_neck_deep_in_vile : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_neck_deep_in_vile() : AchievementCriteriaScript("achievement_neck_deep_in_vile") { }
+        achievement_neck_deep_in_vile() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_neck_deep_in_vile") { }
 
         bool OnCheck(Player* /*source*/, Unit* target)
         {

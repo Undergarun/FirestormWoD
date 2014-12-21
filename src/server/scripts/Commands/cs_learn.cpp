@@ -28,10 +28,10 @@ EndScriptData */
 #include "SpellMgr.h"
 #include "SpellInfo.h"
 
-class learn_commandscript : public CommandScript
+class learn_commandscript: public MS::Game::Scripting::Interfaces::CommandScript
 {
 public:
-    learn_commandscript() : CommandScript("learn_commandscript") { }
+    learn_commandscript() : MS::Game::Scripting::Interfaces::CommandScript("learn_commandscript") { }
 
     ChatCommand* GetCommands() const
     {

@@ -57,10 +57,10 @@ enum Yells
     SAY_SUMMON_ENERGY                           = -1608036
 };
 
-class boss_xevozz : public CreatureScript
+class boss_xevozz : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_xevozz() : CreatureScript("boss_xevozz") { }
+    boss_xevozz() : MS::Game::Scripting::Interfaces::CreatureScript("boss_xevozz") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -224,10 +224,10 @@ public:
 
 };
 
-class mob_ethereal_sphere : public CreatureScript
+class mob_ethereal_sphere : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_ethereal_sphere() : CreatureScript("mob_ethereal_sphere") { }
+    mob_ethereal_sphere() : MS::Game::Scripting::Interfaces::CreatureScript("mob_ethereal_sphere") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

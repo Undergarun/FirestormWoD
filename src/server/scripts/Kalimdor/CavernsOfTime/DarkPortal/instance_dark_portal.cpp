@@ -62,10 +62,10 @@ static Wave RiftWaves[]=
     {C_AEONUS, 0}
 };
 
-class instance_dark_portal : public InstanceMapScript
+class instance_dark_portal : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
 public:
-    instance_dark_portal() : InstanceMapScript("instance_dark_portal", 269) { }
+    instance_dark_portal() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_dark_portal", 269) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {

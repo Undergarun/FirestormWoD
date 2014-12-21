@@ -47,10 +47,10 @@ EndContentData */
 #define GOSSIP_REWARD_BLESS       -1000359
 //#define TEXT_BLESSINGS        "<You need higher standing with Cenarion Expedition to recive a blessing.>"
 
-class npcs_ashyen_and_keleth : public CreatureScript
+class npcs_ashyen_and_keleth : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npcs_ashyen_and_keleth() : CreatureScript("npcs_ashyen_and_keleth") { }
+    npcs_ashyen_and_keleth() : MS::Game::Scripting::Interfaces::CreatureScript("npcs_ashyen_and_keleth") { }
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
@@ -145,10 +145,10 @@ enum eCooshhooosh
     FACTION_HOSTILE_CO      = 45
 };
 
-class npc_cooshcoosh : public CreatureScript
+class npc_cooshcoosh : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_cooshcoosh() : CreatureScript("npc_cooshcoosh") { }
+    npc_cooshcoosh() : MS::Game::Scripting::Interfaces::CreatureScript("npc_cooshcoosh") { }
 
     struct npc_cooshcooshAI : public ScriptedAI
     {
@@ -221,10 +221,10 @@ public:
 #define GOSSIP_ITEM_KUR2 "I did not mean to deceive you, elder. The draenei of Telredor thought to approach you in a way that would seem familiar to you."
 #define GOSSIP_ITEM_KUR3 "I will tell them. Farewell, elder."
 
-class npc_elder_kuruti : public CreatureScript
+class npc_elder_kuruti : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_elder_kuruti() : CreatureScript("npc_elder_kuruti") { }
+    npc_elder_kuruti() : MS::Game::Scripting::Interfaces::CreatureScript("npc_elder_kuruti") { }
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
@@ -274,10 +274,10 @@ public:
 /*######
 ## npc_mortog_steamhead
 ######*/
-class npc_mortog_steamhead : public CreatureScript
+class npc_mortog_steamhead : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_mortog_steamhead() : CreatureScript("npc_mortog_steamhead") { }
+    npc_mortog_steamhead() : MS::Game::Scripting::Interfaces::CreatureScript("npc_mortog_steamhead") { }
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
@@ -315,10 +315,10 @@ enum eKayra
     NPC_SLAVEBINDER     = 18042
 };
 
-class npc_kayra_longmane : public CreatureScript
+class npc_kayra_longmane : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_kayra_longmane() : CreatureScript("npc_kayra_longmane") { }
+    npc_kayra_longmane() : MS::Game::Scripting::Interfaces::CreatureScript("npc_kayra_longmane") { }
 
     struct npc_kayra_longmaneAI : public npc_escortAI
     {
@@ -390,10 +390,10 @@ enum eTimothy
     GOSSIP_TEXTID_TIMOTHY_DANIELS1      = 9239
 };
 
-class npc_timothy_daniels : public CreatureScript
+class npc_timothy_daniels : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_timothy_daniels() : CreatureScript("npc_timothy_daniels") { }
+    npc_timothy_daniels() : MS::Game::Scripting::Interfaces::CreatureScript("npc_timothy_daniels") { }
 
     bool OnGossipHello(Player* player, Creature* creature)
     {

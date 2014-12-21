@@ -133,10 +133,10 @@ static Position SpawnLocations[]=
     {960.748f, 382.944f, 208.374f, 0.0f},
 };
 
-class mob_tribuna_controller : public CreatureScript
+class mob_tribuna_controller : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_tribuna_controller() : CreatureScript("mob_tribuna_controller") { }
+    mob_tribuna_controller() : MS::Game::Scripting::Interfaces::CreatureScript("mob_tribuna_controller") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -287,10 +287,10 @@ public:
 
 };
 
-class npc_brann_hos : public CreatureScript
+class npc_brann_hos : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    npc_brann_hos() : CreatureScript("npc_brann_hos") { }
+    npc_brann_hos() : MS::Game::Scripting::Interfaces::CreatureScript("npc_brann_hos") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -861,10 +861,10 @@ public:
 
 };
 
-class mob_dark_matter : public CreatureScript
+class mob_dark_matter : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_dark_matter() : CreatureScript("mob_dark_matter") { }
+    mob_dark_matter() : MS::Game::Scripting::Interfaces::CreatureScript("mob_dark_matter") { }
 
     CreatureAI* GetAI(Creature* pCreature) const
     {
@@ -916,10 +916,10 @@ public:
     };
 };
 
-class mob_searing_gaze : public CreatureScript
+class mob_searing_gaze : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_searing_gaze() : CreatureScript("mob_searing_gaze") { }
+    mob_searing_gaze() : MS::Game::Scripting::Interfaces::CreatureScript("mob_searing_gaze") { }
 
     CreatureAI* GetAI(Creature* pCreature) const
     {
@@ -949,10 +949,10 @@ public:
     };
 };
 
-class achievement_brann_spankin_new : public AchievementCriteriaScript
+class achievement_brann_spankin_new : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_brann_spankin_new() : AchievementCriteriaScript("achievement_brann_spankin_new")
+        achievement_brann_spankin_new() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_brann_spankin_new")
         {
         }
 

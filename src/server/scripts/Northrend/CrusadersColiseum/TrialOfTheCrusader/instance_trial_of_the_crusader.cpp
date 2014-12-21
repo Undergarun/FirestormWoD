@@ -20,10 +20,10 @@
 #include "InstanceScript.h"
 #include "trial_of_the_crusader.h"
 
-class instance_trial_of_the_crusader : public InstanceMapScript
+class instance_trial_of_the_crusader : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
     public:
-        instance_trial_of_the_crusader() : InstanceMapScript("instance_trial_of_the_crusader", 649) { }
+        instance_trial_of_the_crusader() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_trial_of_the_crusader", 649) { }
 
         struct instance_trial_of_the_crusader_InstanceMapScript : public InstanceScript
         {

@@ -49,10 +49,10 @@ enum Yells
 
 #define DATA_VOID_DANCE                         2153
 
-class boss_zuramat : public CreatureScript
+class boss_zuramat : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_zuramat() : CreatureScript("boss_zuramat") { }
+    boss_zuramat() : MS::Game::Scripting::Interfaces::CreatureScript("boss_zuramat") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -202,10 +202,10 @@ public:
 
 };
 
-class achievement_void_dance : public AchievementCriteriaScript
+class achievement_void_dance : public MS::Game::Scripting::Interfaces::AchievementCriteriaScript
 {
     public:
-        achievement_void_dance() : AchievementCriteriaScript("achievement_void_dance")
+        achievement_void_dance() : MS::Game::Scripting::Interfaces::AchievementCriteriaScript("achievement_void_dance")
         {
         }
 

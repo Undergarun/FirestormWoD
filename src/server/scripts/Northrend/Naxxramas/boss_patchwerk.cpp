@@ -51,10 +51,10 @@ enum
     ACHIEV_MAKE_QUICK_WERK_OF_HIM_STARTING_EVENT  = 10286,
 };
 
-class boss_patchwerk : public CreatureScript
+class boss_patchwerk : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_patchwerk() : CreatureScript("boss_patchwerk") { }
+    boss_patchwerk() : MS::Game::Scripting::Interfaces::CreatureScript("boss_patchwerk") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

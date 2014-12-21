@@ -48,10 +48,10 @@ enum Spells
    SPELL_CLEAVE                = 20684   //Chain cleave is most likely named something different and contains a dummy effect
 };
 
-class boss_vaelastrasz : public CreatureScript
+class boss_vaelastrasz : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_vaelastrasz() : CreatureScript("boss_vaelastrasz") { }
+    boss_vaelastrasz() : MS::Game::Scripting::Interfaces::CreatureScript("boss_vaelastrasz") { }
 
     void SendDefaultMenu(Player* player, Creature* creature, uint32 action)
     {

@@ -359,12 +359,12 @@ void OutdoorPvPHP::SetHordeTowersControlled(uint32 count)
     m_HordeTowersControlled = count;
 }
 
-class OutdoorPvP_hellfire_peninsula : public OutdoorPvPScript
+class OutdoorPvP_hellfire_peninsula : public MS::Game::Scripting::Interfaces::OutdoorPvPScript
 {
     public:
 
         OutdoorPvP_hellfire_peninsula()
-            : OutdoorPvPScript("outdoorpvp_hp")
+            : MS::Game::Scripting::Interfaces::OutdoorPvPScript("outdoorpvp_hp")
         {
         }
 

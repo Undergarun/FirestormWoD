@@ -92,10 +92,10 @@ enum RogueSpells
 };
 
 // Killing Spree - 51690
-class spell_rog_killing_spree : public SpellScriptLoader
+class spell_rog_killing_spree: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rog_killing_spree() : SpellScriptLoader("spell_rog_killing_spree") { }
+        spell_rog_killing_spree() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rog_killing_spree") { }
 
         class spell_rog_killing_spree_AuraScript : public AuraScript
         {
@@ -177,10 +177,10 @@ class spell_rog_killing_spree : public SpellScriptLoader
 
 // Called by Vanish - 1856
 // Glyph of Decoy - 56800
-class spell_rog_glyph_of_decoy : public SpellScriptLoader
+class spell_rog_glyph_of_decoy: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rog_glyph_of_decoy() : SpellScriptLoader("spell_rog_glyph_of_decoy") { }
+        spell_rog_glyph_of_decoy() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rog_glyph_of_decoy") { }
 
         class spell_rog_glyph_of_decoy_SpellScript : public SpellScript
         {
@@ -210,10 +210,10 @@ class spell_rog_glyph_of_decoy : public SpellScriptLoader
 };
 
 // Shuriken Toss - 114014
-class spell_rog_shuriken_toss : public SpellScriptLoader
+class spell_rog_shuriken_toss: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rog_shuriken_toss() : SpellScriptLoader("spell_rog_shuriken_toss") { }
+        spell_rog_shuriken_toss() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rog_shuriken_toss") { }
 
         class spell_rog_shuriken_toss_SpellScript : public SpellScript
         {
@@ -240,10 +240,10 @@ class spell_rog_shuriken_toss : public SpellScriptLoader
 };
 
 // Marked for Death - 137619
-class spell_rog_marked_for_death : public SpellScriptLoader
+class spell_rog_marked_for_death: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rog_marked_for_death() : SpellScriptLoader("spell_rog_marked_for_death") { }
+        spell_rog_marked_for_death() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rog_marked_for_death") { }
 
         class spell_rog_marked_for_death_AuraScript : public AuraScript
         {
@@ -292,10 +292,10 @@ class spell_rog_marked_for_death : public SpellScriptLoader
 
 // Called by Ambush - 8676, Garrote - 703 and Cheap Shot - 1833
 // Cloak and Dagger - 138106
-class spell_rog_cloak_and_dagger : public SpellScriptLoader
+class spell_rog_cloak_and_dagger: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rog_cloak_and_dagger() : SpellScriptLoader("spell_rog_cloak_and_dagger") { }
+        spell_rog_cloak_and_dagger() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rog_cloak_and_dagger") { }
 
         class spell_rog_cloak_and_dagger_SpellScript : public SpellScript
         {
@@ -337,10 +337,10 @@ class spell_rog_cloak_and_dagger : public SpellScriptLoader
 };
 
 // Cheat Death - 31230
-class spell_rog_cheat_death : public SpellScriptLoader
+class spell_rog_cheat_death: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rog_cheat_death() : SpellScriptLoader("spell_rog_cheat_death") { }
+        spell_rog_cheat_death() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rog_cheat_death") { }
 
         class spell_rog_cheat_death_AuraScript : public AuraScript
         {
@@ -392,10 +392,10 @@ class spell_rog_cheat_death : public SpellScriptLoader
 };
 
 // Blade Flurry - 13877
-class spell_rog_blade_flurry : public SpellScriptLoader
+class spell_rog_blade_flurry: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rog_blade_flurry() : SpellScriptLoader("spell_rog_blade_flurry") { }
+        spell_rog_blade_flurry() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rog_blade_flurry") { }
 
         class spell_rog_blade_flurry_AuraScript : public AuraScript
         {
@@ -440,10 +440,10 @@ class spell_rog_blade_flurry : public SpellScriptLoader
 };
 
 // Growl - 113613
-class spell_rog_growl : public SpellScriptLoader
+class spell_rog_growl: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rog_growl() : SpellScriptLoader("spell_rog_growl") { }
+        spell_rog_growl() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rog_growl") { }
 
         class spell_rog_growl_SpellScript : public SpellScript
         {
@@ -470,10 +470,10 @@ class spell_rog_growl : public SpellScriptLoader
 };
 
 // Cloak of Shadows - 31224
-class spell_rog_cloak_of_shadows : public SpellScriptLoader
+class spell_rog_cloak_of_shadows: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rog_cloak_of_shadows() : SpellScriptLoader("spell_rog_cloak_of_shadows") { }
+        spell_rog_cloak_of_shadows() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rog_cloak_of_shadows") { }
 
         class spell_rog_cloak_of_shadows_SpellScript : public SpellScript
         {
@@ -515,10 +515,10 @@ class spell_rog_cloak_of_shadows : public SpellScriptLoader
 };
 
 // Combat Readiness - 74001
-class spell_rog_combat_readiness : public SpellScriptLoader
+class spell_rog_combat_readiness: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rog_combat_readiness() : SpellScriptLoader("spell_rog_combat_readiness") { }
+        spell_rog_combat_readiness() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rog_combat_readiness") { }
 
         class spell_rog_combat_readiness_AuraScript : public AuraScript
         {
@@ -566,10 +566,10 @@ class spell_rog_combat_readiness : public SpellScriptLoader
 
 // Called by Kidney Shot - 408 and Cheap Shot - 1833
 // Nerve Strike - 108210
-class spell_rog_nerve_strike : public SpellScriptLoader
+class spell_rog_nerve_strike: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rog_nerve_strike() : SpellScriptLoader("spell_rog_nerve_strike") { }
+        spell_rog_nerve_strike() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rog_nerve_strike") { }
 
         class spell_rog_combat_readiness_SpellScript : public SpellScript
         {
@@ -635,10 +635,10 @@ class spell_rog_nerve_strike : public SpellScriptLoader
 
 // Called by Stealth - 1784
 // Nightstalker - 14062
-class spell_rog_nightstalker : public SpellScriptLoader
+class spell_rog_nightstalker: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rog_nightstalker() : SpellScriptLoader("spell_rog_nightstalker") { }
+        spell_rog_nightstalker() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rog_nightstalker") { }
 
         class spell_rog_nightstalker_SpellScript : public SpellScript
         {
@@ -697,10 +697,10 @@ class spell_rog_nightstalker : public SpellScriptLoader
 
 // Called by Rupture - 1943, Garrote - 703, Hemorrhage (DoT) - 89775 and Crimson Tempest - 121411
 // Sanguinary Vein - 79147
-class spell_rog_sanguinary_vein : public SpellScriptLoader
+class spell_rog_sanguinary_vein: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rog_sanguinary_vein() : SpellScriptLoader("spell_rog_sanguinary_vein") { }
+        spell_rog_sanguinary_vein() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rog_sanguinary_vein") { }
 
         class spell_rog_sanguinary_vein_AuraScript : public AuraScript
         {
@@ -749,10 +749,10 @@ class spell_rog_sanguinary_vein : public SpellScriptLoader
 };
 
 // Hemorrhage - 16511
-class spell_rog_hemorrhage : public SpellScriptLoader
+class spell_rog_hemorrhage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rog_hemorrhage() : SpellScriptLoader("spell_rog_hemorrhage") { }
+        spell_rog_hemorrhage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rog_hemorrhage") { }
 
         class spell_rog_hemorrhage_SpellScript : public SpellScript
         {
@@ -788,10 +788,10 @@ class spell_rog_hemorrhage : public SpellScriptLoader
 };
 
 // Called by Envenom - 32645
-class spell_rog_envenom : public SpellScriptLoader
+class spell_rog_envenom: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_rog_envenom() : SpellScriptLoader("spell_rog_envenom") { }
+    spell_rog_envenom() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rog_envenom") { }
 
     class spell_rog_envenom_SpellScript : public SpellScript
     {
@@ -837,10 +837,10 @@ public:
 
 // Called by Envenom - 32645 and Eviscerate - 2098
 // Cut to the Chase - 51667
-class spell_rog_cut_to_the_chase : public SpellScriptLoader
+class spell_rog_cut_to_the_chase: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rog_cut_to_the_chase() : SpellScriptLoader("spell_rog_cut_to_the_chase") { }
+        spell_rog_cut_to_the_chase() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rog_cut_to_the_chase") { }
 
         class spell_rog_cut_to_the_chase_SpellScript : public SpellScript
         {
@@ -875,10 +875,10 @@ class spell_rog_cut_to_the_chase : public SpellScriptLoader
 
 // Called by Garrote - 703 and Rupture - 1943
 // Venomous Wounds - 79134
-class spell_rog_venomous_wounds : public SpellScriptLoader
+class spell_rog_venomous_wounds: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rog_venomous_wounds() : SpellScriptLoader("spell_rog_venomous_wounds") { }
+        spell_rog_venomous_wounds() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rog_venomous_wounds") { }
 
         class spell_rog_venomous_wounds_AuraScript : public AuraScript
         {
@@ -960,10 +960,10 @@ class spell_rog_venomous_wounds : public SpellScriptLoader
 };
 
 // Redirect - 73981 and Redirect - 110730
-class spell_rog_redirect : public SpellScriptLoader
+class spell_rog_redirect: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rog_redirect() : SpellScriptLoader("spell_rog_redirect") { }
+        spell_rog_redirect() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rog_redirect") { }
 
         class spell_rog_redirect_SpellScript : public SpellScript
         {
@@ -1025,10 +1025,10 @@ enum battleGroundsFlagsSpells
 };
 
 // Shroud of Concealment - 115834
-class spell_rog_shroud_of_concealment : public SpellScriptLoader
+class spell_rog_shroud_of_concealment: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rog_shroud_of_concealment() : SpellScriptLoader("spell_rog_shroud_of_concealment") { }
+        spell_rog_shroud_of_concealment() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rog_shroud_of_concealment") { }
 
         class spell_rog_shroud_of_concealment_SpellScript : public SpellScript
         {
@@ -1099,10 +1099,10 @@ class spell_rog_shroud_of_concealment : public SpellScriptLoader
 };
 
 // Crimson Tempest - 121411
-class spell_rog_crimson_tempest : public SpellScriptLoader
+class spell_rog_crimson_tempest: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rog_crimson_tempest() : SpellScriptLoader("spell_rog_crimson_tempest") { }
+        spell_rog_crimson_tempest() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rog_crimson_tempest") { }
 
         class spell_rog_crimson_tempest_SpellScript : public SpellScript
         {
@@ -1149,10 +1149,10 @@ class spell_rog_crimson_tempest : public SpellScriptLoader
 };
 
 // Slice and Dice - 5171
-class spell_rog_slice_and_dice : public SpellScriptLoader
+class spell_rog_slice_and_dice: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rog_slice_and_dice() : SpellScriptLoader("spell_rog_slice_and_dice") { }
+        spell_rog_slice_and_dice() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rog_slice_and_dice") { }
 
         class spell_rog_slice_and_dice_SpellScript : public SpellScript
         {
@@ -1216,10 +1216,10 @@ class spell_rog_slice_and_dice : public SpellScriptLoader
 
 // Called by Deadly Poison - 2818
 // Deadly Poison : Instant damage - 113780
-class spell_rog_deadly_poison_instant_damage : public SpellScriptLoader
+class spell_rog_deadly_poison_instant_damage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rog_deadly_poison_instant_damage() : SpellScriptLoader("spell_rog_deadly_poison_instant_damage") { }
+        spell_rog_deadly_poison_instant_damage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rog_deadly_poison_instant_damage") { }
 
         class spell_rog_deadly_poison_instant_damage_SpellScript : public SpellScript
         {
@@ -1246,10 +1246,10 @@ class spell_rog_deadly_poison_instant_damage : public SpellScriptLoader
 };
 
 // Shiv - 5938
-class spell_rog_shiv : public SpellScriptLoader
+class spell_rog_shiv: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rog_shiv() : SpellScriptLoader("spell_rog_shiv") { }
+        spell_rog_shiv() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rog_shiv") { }
 
         class spell_rog_shiv_SpellScript : public SpellScript
         {
@@ -1283,10 +1283,10 @@ class spell_rog_shiv : public SpellScriptLoader
 
 // All Poisons
 // Deadly Poison - 2823, Wound Poison - 8679, Mind-numbing Poison - 5761, Leeching Poison - 108211, Paralytic Poison - 108215 or Crippling Poison - 3408
-class spell_rog_poisons : public SpellScriptLoader
+class spell_rog_poisons: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rog_poisons() : SpellScriptLoader("spell_rog_poisons") { }
+        spell_rog_poisons() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rog_poisons") { }
 
         class spell_rog_poisons_SpellScript : public SpellScript
         {
@@ -1341,10 +1341,10 @@ class spell_rog_poisons : public SpellScriptLoader
 };
 
 // Recuperate - 73651
-class spell_rog_recuperate : public SpellScriptLoader
+class spell_rog_recuperate: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rog_recuperate() : SpellScriptLoader("spell_rog_recuperate") { }
+        spell_rog_recuperate() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rog_recuperate") { }
 
         class spell_rog_recuperate_SpellScript : public SpellScript
         {
@@ -1377,10 +1377,10 @@ class spell_rog_recuperate : public SpellScriptLoader
 };
 
 // Preparation - 14185
-class spell_rog_preparation : public SpellScriptLoader
+class spell_rog_preparation: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rog_preparation() : SpellScriptLoader("spell_rog_preparation") { }
+        spell_rog_preparation() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rog_preparation") { }
 
         class spell_rog_preparation_SpellScript : public SpellScript
         {
@@ -1427,10 +1427,10 @@ class spell_rog_preparation : public SpellScriptLoader
         }
 };
 
-class spell_rog_deadly_poison : public SpellScriptLoader
+class spell_rog_deadly_poison: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rog_deadly_poison() : SpellScriptLoader("spell_rog_deadly_poison") { }
+        spell_rog_deadly_poison() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rog_deadly_poison") { }
 
         class spell_rog_deadly_poison_SpellScript : public SpellScript
         {
@@ -1523,10 +1523,10 @@ class spell_rog_deadly_poison : public SpellScriptLoader
 };
 
 // Shadowstep - 36554
-class spell_rog_shadowstep : public SpellScriptLoader
+class spell_rog_shadowstep: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rog_shadowstep() : SpellScriptLoader("spell_rog_shadowstep") { }
+        spell_rog_shadowstep() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rog_shadowstep") { }
 
         class spell_rog_shadowstep_SpellScript : public SpellScript
         {
@@ -1555,10 +1555,10 @@ class spell_rog_shadowstep : public SpellScriptLoader
 };
 
 // Stealth - 1784
-class spell_rog_stealth : public SpellScriptLoader
+class spell_rog_stealth: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_rog_stealth() : SpellScriptLoader("spell_rog_stealth") { }
+        spell_rog_stealth() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rog_stealth") { }
 
         class spell_rog_stealth_AuraScript : public AuraScript
         {
@@ -1596,10 +1596,10 @@ class spell_rog_stealth : public SpellScriptLoader
 };
 
 // Shadow Focus - 108209
-class spell_rog_shadow_focus : public SpellScriptLoader
+class spell_rog_shadow_focus: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_rog_shadow_focus() : SpellScriptLoader("spell_rog_shadow_focus") { }
+    spell_rog_shadow_focus() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rog_shadow_focus") { }
 
     class spell_rog_shadow_focus_AuraScript : public AuraScript
     {
@@ -1633,10 +1633,10 @@ public:
 };
 
 // Burst of Speed - 108212
-class spell_rog_burst_of_speed : public SpellScriptLoader
+class spell_rog_burst_of_speed: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_rog_burst_of_speed() : SpellScriptLoader("spell_rog_burst_of_speed") { }
+    spell_rog_burst_of_speed() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rog_burst_of_speed") { }
 
     class spell_rog_burst_of_speed_SpellScript : public SpellScript
     {
@@ -1662,10 +1662,10 @@ public:
 
 // Call by Kidney Shot 408
 // Internal Bleeding - 154904
-class spell_rog_internal_bleeding : public SpellScriptLoader
+class spell_rog_internal_bleeding: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_rog_internal_bleeding() : SpellScriptLoader("spell_rog_internal_bleeding") { }
+    spell_rog_internal_bleeding() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rog_internal_bleeding") { }
 
     class spell_rog_internal_bleeding_SpellScript : public SpellScript
     {
@@ -1692,10 +1692,10 @@ public:
 };
 
 // Smoke Bomb - 76577
-class spell_rog_smoke_bomb: public SpellScriptLoader
+class spell_rog_smoke_bomb: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_rog_smoke_bomb() : SpellScriptLoader("spell_rog_smoke_bomb") { }
+    spell_rog_smoke_bomb() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rog_smoke_bomb") { }
 
     class spell_rog_smoke_bomb_SpellScript : public SpellScript
     {
@@ -1723,10 +1723,10 @@ public:
 };
 
 // Fan of Knives - 51723
-class spell_rog_fan_of_knives : public SpellScriptLoader
+class spell_rog_fan_of_knives: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_rog_fan_of_knives() : SpellScriptLoader("spell_rog_fan_of_knives") { }
+    spell_rog_fan_of_knives() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rog_fan_of_knives") { }
 
     class spell_rog_fan_of_knives_SpellScript : public SpellScript
     {
@@ -1752,10 +1752,10 @@ public:
 
 // Call by Kidney Shot 408 - Eviscerate 2098 - Recuperate 73651 - Slice and Dice 5171 - Deadly Throw 26679 - Rupture 1943
 // Relentless Strikes - 58423
-class spell_rog_retenless_strikes : public SpellScriptLoader
+class spell_rog_retenless_strikes: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_rog_retenless_strikes() : SpellScriptLoader("spell_rog_retenless_strikes") { }
+    spell_rog_retenless_strikes() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rog_retenless_strikes") { }
 
     class spell_rog_retenless_strikes_SpellScript : public SpellScript
     {
@@ -1794,10 +1794,10 @@ public:
 };
 
 // Relentless Strikes proc - 14181 
-class spell_rog_retenless_strikes_proc : public SpellScriptLoader
+class spell_rog_retenless_strikes_proc: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_rog_retenless_strikes_proc() : SpellScriptLoader("spell_rog_retenless_strikes_proc") { }
+    spell_rog_retenless_strikes_proc() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rog_retenless_strikes_proc") { }
 
     class spell_rog_retenless_strikes_proc_SpellScript : public SpellScript
     {
@@ -1822,10 +1822,10 @@ public:
 };
 
 // Combo Point Delayed - 139569
-class spell_rog_combo_point_delayed : public SpellScriptLoader
+class spell_rog_combo_point_delayed: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
 public:
-    spell_rog_combo_point_delayed() : SpellScriptLoader("spell_rog_combo_point_delayed") { }
+    spell_rog_combo_point_delayed() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_rog_combo_point_delayed") { }
 
     class spell_rog_combo_point_delayed_SpellScript : public SpellScript
     {
@@ -1849,10 +1849,10 @@ public:
     }
 };
 
-class PlayerScript_ruthlessness: public PlayerScript
+class PlayerScript_ruthlessness : public MS::Game::Scripting::Interfaces::PlayerScript
 {
 public:
-    PlayerScript_ruthlessness() :PlayerScript("PlayerScript_ruthlessness") {}
+    PlayerScript_ruthlessness() : MS::Game::Scripting::Interfaces::PlayerScript("PlayerScript_ruthlessness") {}
 
     void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_Value)
     {

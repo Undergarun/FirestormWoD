@@ -61,11 +61,11 @@ enum TorekMisc
     ENTRY_SILVERWING_WARRIOR    = 12897,
 };
 
-class npc_torek : public CreatureScript
+class npc_torek : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
 
-        npc_torek() : CreatureScript("npc_torek")
+        npc_torek() : MS::Game::Scripting::Interfaces::CreatureScript("npc_torek")
         {
         }
 
@@ -194,10 +194,10 @@ Position const RuulSnowhoofSummonsCoord[6] =
     {3503.682373f, -489.393799f, 186.629684f, 4.349232f}
 };
 
-class npc_ruul_snowhoof : public CreatureScript
+class npc_ruul_snowhoof : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_ruul_snowhoof() : CreatureScript("npc_ruul_snowhoof") { }
+        npc_ruul_snowhoof() : MS::Game::Scripting::Interfaces::CreatureScript("npc_ruul_snowhoof") { }
 
         struct npc_ruul_snowhoofAI : public npc_escortAI
         {
@@ -315,10 +315,10 @@ Position const SecondNagaCoord[3] =
 
 Position const VorshaCoord = {3633.056885f, 1172.924072f, -5.388f, 0.0f};
 
-class npc_muglash : public CreatureScript
+class npc_muglash : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_muglash() : CreatureScript("npc_muglash") { }
+        npc_muglash() : MS::Game::Scripting::Interfaces::CreatureScript("npc_muglash") { }
 
         struct npc_muglashAI : public npc_escortAI
         {
@@ -458,10 +458,10 @@ class npc_muglash : public CreatureScript
         }
 };
 
-class go_naga_brazier : public GameObjectScript
+class go_naga_brazier : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
     public:
-        go_naga_brazier() : GameObjectScript("go_naga_brazier") { }
+        go_naga_brazier() : MS::Game::Scripting::Interfaces::GameObjectScript("go_naga_brazier") { }
 
         bool OnGossipHello(Player* /*player*/, GameObject* go)
         {

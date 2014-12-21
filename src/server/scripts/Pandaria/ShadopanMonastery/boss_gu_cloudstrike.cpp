@@ -70,10 +70,10 @@ enum ePhases
     PHASE_THREE = 3
 };
 
-class boss_gu_cloudstrike : public CreatureScript
+class boss_gu_cloudstrike : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_gu_cloudstrike() : CreatureScript("boss_gu_cloudstrike") {}
+        boss_gu_cloudstrike() : MS::Game::Scripting::Interfaces::CreatureScript("boss_gu_cloudstrike") {}
 
         struct boss_gu_cloudstrikeAI : public BossAI
         {
@@ -202,7 +202,7 @@ Position azureSerpentPositions[4] =
     {3736.37f, 2680.89f, 778.60f}
 };
 
-class npc_azure_serpent : public CreatureScript
+class npc_azure_serpent : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
         npc_azure_serpent() :  CreatureScript("npc_azure_serpent") { }
@@ -341,10 +341,10 @@ class npc_azure_serpent : public CreatureScript
         }
 };
 
-class AreaTrigger_at_gu_intro : public AreaTriggerScript
+class AreaTrigger_at_gu_intro : public MS::Game::Scripting::Interfaces::AreaTriggerScript
 {
     public:
-        AreaTrigger_at_gu_intro() : AreaTriggerScript("at_gu_intro") {}
+        AreaTrigger_at_gu_intro() : MS::Game::Scripting::Interfaces::AreaTriggerScript("at_gu_intro") {}
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
         {
@@ -368,10 +368,10 @@ class OnlyGuardianPredicate
         }
 };
 
-class spell_kill_guardians : public SpellScriptLoader
+class spell_kill_guardians: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_kill_guardians() : SpellScriptLoader("spell_kill_guardians") { }
+        spell_kill_guardians() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_kill_guardians") { }
 
         class spell_kill_guardians_SpellScript : public SpellScript
         {
@@ -421,10 +421,10 @@ class spell_kill_guardians : public SpellScriptLoader
         }
 };
 
-class spell_overcharged_soul_damage : public SpellScriptLoader
+class spell_overcharged_soul_damage: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_overcharged_soul_damage() : SpellScriptLoader("spell_overcharged_soul_damage") { }
+        spell_overcharged_soul_damage() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_overcharged_soul_damage") { }
 
         class spell_overcharged_soul_damage_SpellScript : public SpellScript
         {

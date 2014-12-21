@@ -40,10 +40,10 @@ enum Adds
     NPC_OMEGA_STANCE    = 41194, // 77137 77117 
 };
 
-class boss_anraphet : public CreatureScript
+class boss_anraphet : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_anraphet() : CreatureScript("boss_anraphet") {}
+        boss_anraphet() : MS::Game::Scripting::Interfaces::CreatureScript("boss_anraphet") {}
  
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -167,10 +167,10 @@ class boss_anraphet : public CreatureScript
         };
 };
 
-class npc_alpha_beam : public CreatureScript
+class npc_alpha_beam : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_alpha_beam() : CreatureScript("npc_alpha_beam") { }
+        npc_alpha_beam() : MS::Game::Scripting::Interfaces::CreatureScript("npc_alpha_beam") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {

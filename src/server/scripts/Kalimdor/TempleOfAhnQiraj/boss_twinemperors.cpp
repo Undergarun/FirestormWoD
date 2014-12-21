@@ -381,10 +381,10 @@ struct boss_twinemperorsAI : public ScriptedAI
     }
 };
 
-class boss_veknilash : public CreatureScript
+class boss_veknilash : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_veknilash() : CreatureScript("boss_veknilash") { }
+    boss_veknilash() : MS::Game::Scripting::Interfaces::CreatureScript("boss_veknilash") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -467,10 +467,10 @@ public:
 
 };
 
-class boss_veklor : public CreatureScript
+class boss_veklor : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_veklor() : CreatureScript("boss_veklor") { }
+    boss_veklor() : MS::Game::Scripting::Interfaces::CreatureScript("boss_veklor") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

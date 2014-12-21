@@ -56,10 +56,10 @@ DoorData const doorData[] =
     {0,                         0,                      DOOR_TYPE_ROOM,     BOUNDARY_NONE   }, // END
 };
 
-class instance_utgarde_keep : public InstanceMapScript
+class instance_utgarde_keep : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
 public:
-    instance_utgarde_keep() : InstanceMapScript("instance_utgarde_keep", 574) { }
+    instance_utgarde_keep() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_utgarde_keep", 574) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {

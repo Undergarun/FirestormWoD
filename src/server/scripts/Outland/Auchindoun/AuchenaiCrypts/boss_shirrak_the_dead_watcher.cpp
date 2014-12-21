@@ -42,10 +42,10 @@ EndScriptData */
 #define EMOTE_FOCUSES_ON            "focuses on "
 
 // 18371
-class boss_shirrak_the_dead_watcher : public CreatureScript
+class boss_shirrak_the_dead_watcher : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_shirrak_the_dead_watcher() : CreatureScript("boss_shirrak_the_dead_watcher") { }
+    boss_shirrak_the_dead_watcher() : MS::Game::Scripting::Interfaces::CreatureScript("boss_shirrak_the_dead_watcher") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -160,10 +160,10 @@ public:
 
 };
 
-class mob_focus_fire : public CreatureScript
+class mob_focus_fire : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    mob_focus_fire() : CreatureScript("mob_focus_fire") { }
+    mob_focus_fire() : MS::Game::Scripting::Interfaces::CreatureScript("mob_focus_fire") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

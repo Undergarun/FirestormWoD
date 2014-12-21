@@ -69,10 +69,10 @@ const Position starPos[6] =
     {-649.24f, 474.11f, 649.63f, 0.0f},
 };
 
-class boss_asaad : public CreatureScript
+class boss_asaad : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_asaad() : CreatureScript("boss_asaad") { }
+        boss_asaad() : MS::Game::Scripting::Interfaces::CreatureScript("boss_asaad") { }
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -254,10 +254,10 @@ class boss_asaad : public CreatureScript
         };
 };
 
-class npc_unstable_grounding_field : public CreatureScript
+class npc_unstable_grounding_field : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_unstable_grounding_field() : CreatureScript("npc_unstable_grounding_field") { }
+        npc_unstable_grounding_field() : MS::Game::Scripting::Interfaces::CreatureScript("npc_unstable_grounding_field") { }
         
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -280,10 +280,10 @@ class npc_unstable_grounding_field : public CreatureScript
      };
 };
 
-class spell_asaad_supremacy_of_the_storm : public SpellScriptLoader
+class spell_asaad_supremacy_of_the_storm: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_asaad_supremacy_of_the_storm() : SpellScriptLoader("spell_asaad_supremacy_of_the_storm") { }
+        spell_asaad_supremacy_of_the_storm() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_asaad_supremacy_of_the_storm") { }
 
 
         class spell_asaad_supremacy_of_the_storm_SpellScript : public SpellScript

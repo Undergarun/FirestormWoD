@@ -17,10 +17,10 @@ enum eBosses
     BOSS_HAIYAN_THE_UNSTOPPABLE,
 };
 
-class mob_xian_the_weaponmaster_trigger : public CreatureScript
+class mob_xian_the_weaponmaster_trigger : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_xian_the_weaponmaster_trigger() : CreatureScript("mob_xian_the_weaponmaster_trigger") { }
+        mob_xian_the_weaponmaster_trigger() : MS::Game::Scripting::Interfaces::CreatureScript("mob_xian_the_weaponmaster_trigger") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -108,10 +108,10 @@ class mob_xian_the_weaponmaster_trigger : public CreatureScript
         };
 };
 
-class boss_ming_the_cunning : public CreatureScript
+class boss_ming_the_cunning : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_ming_the_cunning() : CreatureScript("boss_ming_the_cunning") { }
+        boss_ming_the_cunning() : MS::Game::Scripting::Interfaces::CreatureScript("boss_ming_the_cunning") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -295,10 +295,10 @@ class boss_ming_the_cunning : public CreatureScript
         };
 };
 
-class mob_whirling_dervish : public CreatureScript
+class mob_whirling_dervish : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_whirling_dervish() : CreatureScript("mob_whirling_dervish") { }
+        mob_whirling_dervish() : MS::Game::Scripting::Interfaces::CreatureScript("mob_whirling_dervish") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -353,10 +353,10 @@ class mob_whirling_dervish : public CreatureScript
         };
 };
 
-class mob_adepts : public CreatureScript
+class mob_adepts : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_adepts() : CreatureScript("mob_adepts") { }
+        mob_adepts() : MS::Game::Scripting::Interfaces::CreatureScript("mob_adepts") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -481,10 +481,10 @@ class mob_adepts : public CreatureScript
         };
 };
 
-class boss_kuai_the_brute : public CreatureScript
+class boss_kuai_the_brute : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_kuai_the_brute() : CreatureScript("boss_kuai_the_brute") { }
+        boss_kuai_the_brute() : MS::Game::Scripting::Interfaces::CreatureScript("boss_kuai_the_brute") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -656,10 +656,10 @@ class boss_kuai_the_brute : public CreatureScript
         };
 };
 
-class mob_mu_shiba : public CreatureScript
+class mob_mu_shiba : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        mob_mu_shiba() : CreatureScript("mob_mu_shiba") { }
+        mob_mu_shiba() : MS::Game::Scripting::Interfaces::CreatureScript("mob_mu_shiba") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -741,10 +741,10 @@ class mob_mu_shiba : public CreatureScript
         };
 };
 
-class boss_haiyan_the_unstoppable : public CreatureScript
+class boss_haiyan_the_unstoppable : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_haiyan_the_unstoppable() : CreatureScript("boss_haiyan_the_unstoppable") { }
+        boss_haiyan_the_unstoppable() : MS::Game::Scripting::Interfaces::CreatureScript("boss_haiyan_the_unstoppable") { }
 
         CreatureAI* GetAI(Creature* creature) const
         {

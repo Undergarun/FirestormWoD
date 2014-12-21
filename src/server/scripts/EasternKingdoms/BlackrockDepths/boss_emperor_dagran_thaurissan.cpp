@@ -32,10 +32,10 @@ enum Spells
     SPELL_AVATAROFFLAME                                    = 15636
 };
 
-class boss_emperor_dagran_thaurissan : public CreatureScript
+class boss_emperor_dagran_thaurissan : public MS::Game::Scripting::Interfaces::CreatureScript
 {
 public:
-    boss_emperor_dagran_thaurissan() : CreatureScript("boss_emperor_dagran_thaurissan") { }
+    boss_emperor_dagran_thaurissan() : MS::Game::Scripting::Interfaces::CreatureScript("boss_emperor_dagran_thaurissan") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {

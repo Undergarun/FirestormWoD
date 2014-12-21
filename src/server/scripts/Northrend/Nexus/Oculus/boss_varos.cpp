@@ -52,10 +52,10 @@ enum Events
     EVENT_ENERGIZE_CORES_VISUAL
 };
 
-class boss_varos : public CreatureScript
+class boss_varos : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_varos() : CreatureScript("boss_varos") { }
+        boss_varos() : MS::Game::Scripting::Interfaces::CreatureScript("boss_varos") { }
 
         struct boss_varosAI : public BossAI
         {
@@ -161,10 +161,10 @@ class boss_varos : public CreatureScript
         }
 };
 
-class npc_azure_ring_captain : public CreatureScript
+class npc_azure_ring_captain : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_azure_ring_captain() : CreatureScript("npc_azure_ring_captain") { }
+        npc_azure_ring_captain() : MS::Game::Scripting::Interfaces::CreatureScript("npc_azure_ring_captain") { }
 
         struct npc_azure_ring_captainAI : public ScriptedAI
         {
@@ -245,10 +245,10 @@ class npc_azure_ring_captain : public CreatureScript
         }
 };
 
-class spell_varos_centrifuge_shield : public SpellScriptLoader
+class spell_varos_centrifuge_shield: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_varos_centrifuge_shield() : SpellScriptLoader("spell_varos_centrifuge_shield") { }
+        spell_varos_centrifuge_shield() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_varos_centrifuge_shield") { }
 
         class spell_varos_centrifuge_shield_AuraScript : public AuraScript
         {
@@ -295,10 +295,10 @@ class spell_varos_centrifuge_shield : public SpellScriptLoader
         }
 };
 
-class spell_varos_energize_core_area_enemy : public SpellScriptLoader
+class spell_varos_energize_core_area_enemy: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_varos_energize_core_area_enemy() : SpellScriptLoader("spell_varos_energize_core_area_enemy") { }
+        spell_varos_energize_core_area_enemy() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_varos_energize_core_area_enemy") { }
 
         class spell_varos_energize_core_area_enemySpellScript : public SpellScript
         {
@@ -342,10 +342,10 @@ class spell_varos_energize_core_area_enemy : public SpellScriptLoader
         }
 };
 
-class spell_varos_energize_core_area_entry : public SpellScriptLoader
+class spell_varos_energize_core_area_entry: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_varos_energize_core_area_entry() : SpellScriptLoader("spell_varos_energize_core_area_entry") { }
+        spell_varos_energize_core_area_entry() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_varos_energize_core_area_entry") { }
 
         class spell_varos_energize_core_area_entrySpellScript : public SpellScript
         {

@@ -38,10 +38,10 @@ enum Events
     EVENT_WIDE_SLASH        = 4
 };
 
-class boss_kurinnaxx : public CreatureScript
+class boss_kurinnaxx : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_kurinnaxx() : CreatureScript("boss_kurinnaxx") { }
+        boss_kurinnaxx() : MS::Game::Scripting::Interfaces::CreatureScript("boss_kurinnaxx") { }
 
         struct boss_kurinnaxxAI : public BossAI
         {

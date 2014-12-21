@@ -65,10 +65,10 @@ enum CatFigurine
     SPELL_SUMMON_GHOST_SABER    = 5968,
 };
 
-class go_cat_figurine : public GameObjectScript
+class go_cat_figurine : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_cat_figurine() : GameObjectScript("go_cat_figurine") { }
+    go_cat_figurine() : MS::Game::Scripting::Interfaces::GameObjectScript("go_cat_figurine") { }
 
     bool OnGossipHello(Player* player, GameObject* /*go*/)
     {
@@ -80,10 +80,10 @@ public:
 /*######
 ## go_crystal_pylons (3x)
 ######*/
-class go_northern_crystal_pylon : public GameObjectScript
+class go_northern_crystal_pylon : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_northern_crystal_pylon() : GameObjectScript("go_northern_crystal_pylon") { }
+    go_northern_crystal_pylon() : MS::Game::Scripting::Interfaces::GameObjectScript("go_northern_crystal_pylon") { }
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
@@ -100,10 +100,10 @@ public:
     }
 };
 
-class go_eastern_crystal_pylon : public GameObjectScript
+class go_eastern_crystal_pylon : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_eastern_crystal_pylon() : GameObjectScript("go_eastern_crystal_pylon") { }
+    go_eastern_crystal_pylon() : MS::Game::Scripting::Interfaces::GameObjectScript("go_eastern_crystal_pylon") { }
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
@@ -120,10 +120,10 @@ public:
     }
 };
 
-class go_western_crystal_pylon : public GameObjectScript
+class go_western_crystal_pylon : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_western_crystal_pylon() : GameObjectScript("go_western_crystal_pylon") { }
+    go_western_crystal_pylon() : MS::Game::Scripting::Interfaces::GameObjectScript("go_western_crystal_pylon") { }
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
@@ -144,10 +144,10 @@ public:
 ## go_barov_journal
 ######*/
 
-class go_barov_journal : public GameObjectScript
+class go_barov_journal : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_barov_journal() : GameObjectScript("go_barov_journal") { }
+    go_barov_journal() : MS::Game::Scripting::Interfaces::GameObjectScript("go_barov_journal") { }
 
     bool OnGossipHello(Player* player, GameObject* /*go*/)
     {
@@ -162,10 +162,10 @@ public:
 ## go_field_repair_bot_74A
 ######*/
 
-class go_field_repair_bot_74A : public GameObjectScript
+class go_field_repair_bot_74A : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_field_repair_bot_74A() : GameObjectScript("go_field_repair_bot_74A") { }
+    go_field_repair_bot_74A() : MS::Game::Scripting::Interfaces::GameObjectScript("go_field_repair_bot_74A") { }
 
     bool OnGossipHello(Player* player, GameObject* /*go*/)
     {
@@ -185,10 +185,10 @@ enum GildedBrazier
     NPC_STILLBLADE  = 17716,
 };
 
-class go_gilded_brazier : public GameObjectScript
+class go_gilded_brazier : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_gilded_brazier() : GameObjectScript("go_gilded_brazier") { }
+    go_gilded_brazier() : MS::Game::Scripting::Interfaces::GameObjectScript("go_gilded_brazier") { }
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
@@ -208,10 +208,10 @@ public:
 ## go_orb_of_command
 ######*/
 
-class go_orb_of_command : public GameObjectScript
+class go_orb_of_command : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_orb_of_command() : GameObjectScript("go_orb_of_command") { }
+    go_orb_of_command() : MS::Game::Scripting::Interfaces::GameObjectScript("go_orb_of_command") { }
 
     bool OnGossipHello(Player* player, GameObject* /*go*/)
     {
@@ -226,10 +226,10 @@ public:
 ## go_tablet_of_madness
 ######*/
 
-class go_tablet_of_madness : public GameObjectScript
+class go_tablet_of_madness : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_tablet_of_madness() : GameObjectScript("go_tablet_of_madness") { }
+    go_tablet_of_madness() : MS::Game::Scripting::Interfaces::GameObjectScript("go_tablet_of_madness") { }
 
     bool OnGossipHello(Player* player, GameObject* /*go*/)
     {
@@ -244,10 +244,10 @@ public:
 ## go_tablet_of_the_seven
 ######*/
 
-class go_tablet_of_the_seven : public GameObjectScript
+class go_tablet_of_the_seven : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_tablet_of_the_seven() : GameObjectScript("go_tablet_of_the_seven") { }
+    go_tablet_of_the_seven() : MS::Game::Scripting::Interfaces::GameObjectScript("go_tablet_of_the_seven") { }
 
     //TODO: use gossip option ("Transcript the Tablet") instead, if Trinity adds support.
     bool OnGossipHello(Player* player, GameObject* go)
@@ -266,10 +266,10 @@ public:
 ## go_jump_a_tron 183146
 ######*/
 
-class go_jump_a_tron : public GameObjectScript
+class go_jump_a_tron : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_jump_a_tron() : GameObjectScript("go_jump_a_tron") { }
+    go_jump_a_tron() : MS::Game::Scripting::Interfaces::GameObjectScript("go_jump_a_tron") { }
 
     bool OnGossipHello(Player* player, GameObject* /*go*/)
     {
@@ -300,10 +300,10 @@ const uint32 NpcPrisonEntry[] =
     20783, 20784, 20785, 20786, 20788, 20789, 20790         //bad guys
 };
 
-class go_ethereum_prison : public GameObjectScript
+class go_ethereum_prison : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_ethereum_prison() : GameObjectScript("go_ethereum_prison") { }
+    go_ethereum_prison() : MS::Game::Scripting::Interfaces::GameObjectScript("go_ethereum_prison") { }
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
@@ -349,10 +349,10 @@ const uint32 NpcStasisEntry[] =
     22825, 20888, 22827, 22826, 22828
 };
 
-class go_ethereum_stasis : public GameObjectScript
+class go_ethereum_stasis : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_ethereum_stasis() : GameObjectScript("go_ethereum_stasis") { }
+    go_ethereum_stasis() : MS::Game::Scripting::Interfaces::GameObjectScript("go_ethereum_stasis") { }
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
@@ -374,10 +374,10 @@ enum ResoniteCask
     NPC_GOGGEROC    = 11920
 };
 
-class go_resonite_cask : public GameObjectScript
+class go_resonite_cask : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_resonite_cask() : GameObjectScript("go_resonite_cask") { }
+    go_resonite_cask() : MS::Game::Scripting::Interfaces::GameObjectScript("go_resonite_cask") { }
 
     bool OnGossipHello(Player* /*player*/, GameObject* go)
     {
@@ -394,10 +394,10 @@ public:
 
 #define NPC_ARIKARA  10882
 
-class go_sacred_fire_of_life : public GameObjectScript
+class go_sacred_fire_of_life : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_sacred_fire_of_life() : GameObjectScript("go_sacred_fire_of_life") { }
+    go_sacred_fire_of_life() : MS::Game::Scripting::Interfaces::GameObjectScript("go_sacred_fire_of_life") { }
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
@@ -422,10 +422,10 @@ enum ShrineOfTheBirds
     GO_SHRINE_FALCON    = 185553
 };
 
-class go_shrine_of_the_birds : public GameObjectScript
+class go_shrine_of_the_birds : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_shrine_of_the_birds() : GameObjectScript("go_shrine_of_the_birds") { }
+    go_shrine_of_the_birds() : MS::Game::Scripting::Interfaces::GameObjectScript("go_shrine_of_the_birds") { }
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
@@ -465,10 +465,10 @@ enum Southfury
     SPELL_SUMMON_RIZZLE         = 39866
 };
 
-class go_southfury_moonstone : public GameObjectScript
+class go_southfury_moonstone : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_southfury_moonstone() : GameObjectScript("go_southfury_moonstone") { }
+    go_southfury_moonstone() : MS::Game::Scripting::Interfaces::GameObjectScript("go_southfury_moonstone") { }
 
     bool OnGossipHello(Player* player, GameObject* /*go*/)
     {
@@ -494,10 +494,10 @@ enum DalaranCrystal
 
 #define GO_TELE_TO_DALARAN_CRYSTAL_FAILED   "This teleport crystal cannot be used until the teleport crystal in Dalaran has been used at least once."
 
-class go_tele_to_dalaran_crystal : public GameObjectScript
+class go_tele_to_dalaran_crystal : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_tele_to_dalaran_crystal() : GameObjectScript("go_tele_to_dalaran_crystal") { }
+    go_tele_to_dalaran_crystal() : MS::Game::Scripting::Interfaces::GameObjectScript("go_tele_to_dalaran_crystal") { }
 
     bool OnGossipHello(Player* player, GameObject* /*go*/)
     {
@@ -514,10 +514,10 @@ public:
 ## go_tele_to_violet_stand
 ######*/
 
-class go_tele_to_violet_stand : public GameObjectScript
+class go_tele_to_violet_stand : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_tele_to_violet_stand() : GameObjectScript("go_tele_to_violet_stand") { }
+    go_tele_to_violet_stand() : MS::Game::Scripting::Interfaces::GameObjectScript("go_tele_to_violet_stand") { }
 
     bool OnGossipHello(Player* player, GameObject* /*go*/)
     {
@@ -544,10 +544,10 @@ enum FelCrystalforge
     SPELL_CREATE_5_FLASK_OF_BEAST   = 40965,
 };
 
-class go_fel_crystalforge : public GameObjectScript
+class go_fel_crystalforge : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_fel_crystalforge() : GameObjectScript("go_fel_crystalforge") { }
+    go_fel_crystalforge() : MS::Game::Scripting::Interfaces::GameObjectScript("go_fel_crystalforge") { }
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
@@ -603,10 +603,10 @@ enum BashirCrystalforge
     SPELL_CREATE_5_FLASK_OF_SORCERER   = 40970,
 };
 
-class go_bashir_crystalforge : public GameObjectScript
+class go_bashir_crystalforge : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_bashir_crystalforge() : GameObjectScript("go_bashir_crystalforge") { }
+    go_bashir_crystalforge() : MS::Game::Scripting::Interfaces::GameObjectScript("go_bashir_crystalforge") { }
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
@@ -667,10 +667,10 @@ enum MatrixPunchograph
     MATRIX_PUNCHOGRAPH_3005_D = 142696,
 };
 
-class go_matrix_punchograph : public GameObjectScript
+class go_matrix_punchograph : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_matrix_punchograph() : GameObjectScript("go_matrix_punchograph") { }
+    go_matrix_punchograph() : MS::Game::Scripting::Interfaces::GameObjectScript("go_matrix_punchograph") { }
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
@@ -720,10 +720,10 @@ enum ScourgeCage
     NPC_SCOURGE_PRISONER = 25610
 };
 
-class go_scourge_cage : public GameObjectScript
+class go_scourge_cage : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_scourge_cage() : GameObjectScript("go_scourge_cage") { }
+    go_scourge_cage() : MS::Game::Scripting::Interfaces::GameObjectScript("go_scourge_cage") { }
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
@@ -748,10 +748,10 @@ enum ArcanePrison
     SPELL_ARCANE_PRISONER_KILL_CREDIT   = 45456
 };
 
-class go_arcane_prison : public GameObjectScript
+class go_arcane_prison : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_arcane_prison() : GameObjectScript("go_arcane_prison") { }
+    go_arcane_prison() : MS::Game::Scripting::Interfaces::GameObjectScript("go_arcane_prison") { }
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
@@ -771,10 +771,10 @@ public:
 
 #define NPC_ZELEMAR  17830
 
-class go_blood_filled_orb : public GameObjectScript
+class go_blood_filled_orb : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_blood_filled_orb() : GameObjectScript("go_blood_filled_orb") { }
+    go_blood_filled_orb() : MS::Game::Scripting::Interfaces::GameObjectScript("go_blood_filled_orb") { }
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
@@ -802,10 +802,10 @@ enum JotunheimCage
     SPELL_SUMMON_BLADE_KNIGHT_TROLL = 56214
 };
 
-class go_jotunheim_cage : public GameObjectScript
+class go_jotunheim_cage : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_jotunheim_cage() : GameObjectScript("go_jotunheim_cage") { }
+    go_jotunheim_cage() : MS::Game::Scripting::Interfaces::GameObjectScript("go_jotunheim_cage") { }
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
@@ -851,10 +851,10 @@ enum TableTheka
     QUEST_SPIDER_GOLD = 2936
 };
 
-class go_table_theka : public GameObjectScript
+class go_table_theka : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_table_theka() : GameObjectScript("go_table_theka") { }
+    go_table_theka() : MS::Game::Scripting::Interfaces::GameObjectScript("go_table_theka") { }
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
@@ -877,10 +877,10 @@ enum InconspicuousLandmark
     ITEM_CUERGOS_KEY                                 = 9275,
 };
 
-class go_inconspicuous_landmark : public GameObjectScript
+class go_inconspicuous_landmark : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_inconspicuous_landmark() : GameObjectScript("go_inconspicuous_landmark") { }
+    go_inconspicuous_landmark() : MS::Game::Scripting::Interfaces::GameObjectScript("go_inconspicuous_landmark") { }
 
     bool OnGossipHello(Player* player, GameObject* /*go*/)
     {
@@ -903,10 +903,10 @@ enum EtherealTeleportPad
     ITEM_TELEPORTER_POWER_PACK          = 28969,
 };
 
-class go_ethereal_teleport_pad : public GameObjectScript
+class go_ethereal_teleport_pad : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_ethereal_teleport_pad() : GameObjectScript("go_ethereal_teleport_pad") { }
+    go_ethereal_teleport_pad() : MS::Game::Scripting::Interfaces::GameObjectScript("go_ethereal_teleport_pad") { }
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
@@ -929,10 +929,10 @@ enum SoulWellData
     SPELL_HEALTH_STONE                  = 23517
 };
 
-class go_soulwell : public GameObjectScript
+class go_soulwell : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
     public:
-        go_soulwell() : GameObjectScript("go_soulwell") { }
+        go_soulwell() : MS::Game::Scripting::Interfaces::GameObjectScript("go_soulwell") { }
 
         struct go_soulwellAI : public GameObjectAI
         {
@@ -1001,10 +1001,10 @@ enum PrisonersOfWyrmskull
     NPC_PRISONER_PALADIN                          = 24090
 };
 
-class go_dragonflayer_cage : public GameObjectScript
+class go_dragonflayer_cage : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_dragonflayer_cage() : GameObjectScript("go_dragonflayer_cage") { }
+    go_dragonflayer_cage() : MS::Game::Scripting::Interfaces::GameObjectScript("go_dragonflayer_cage") { }
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
@@ -1048,10 +1048,10 @@ enum Tadpoles
     NPC_WINTERFIN_TADPOLE                         = 25201
 };
 
-class go_tadpole_cage : public GameObjectScript
+class go_tadpole_cage : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_tadpole_cage() : GameObjectScript("go_tadpole_cage") { }
+    go_tadpole_cage() : MS::Game::Scripting::Interfaces::GameObjectScript("go_tadpole_cage") { }
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
@@ -1089,10 +1089,10 @@ enum AmberpineOuthouse
     GOSSIP_OUTHOUSE_VACANT          = 12779
 };
 
-class go_amberpine_outhouse : public GameObjectScript
+class go_amberpine_outhouse : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_amberpine_outhouse() : GameObjectScript("go_amberpine_outhouse") { }
+    go_amberpine_outhouse() : MS::Game::Scripting::Interfaces::GameObjectScript("go_amberpine_outhouse") { }
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
@@ -1145,10 +1145,10 @@ enum Hives
     NPC_HIVE_AMBUSHER                             = 13301
 };
 
-class go_hive_pod : public GameObjectScript
+class go_hive_pod : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_hive_pod() : GameObjectScript("go_hive_pod") { }
+    go_hive_pod() : MS::Game::Scripting::Interfaces::GameObjectScript("go_hive_pod") { }
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
@@ -1159,10 +1159,10 @@ public:
     }
 };
 
-class go_massive_seaforium_charge : public GameObjectScript
+class go_massive_seaforium_charge : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
     public:
-        go_massive_seaforium_charge() : GameObjectScript("go_massive_seaforium_charge") { }
+        go_massive_seaforium_charge() : MS::Game::Scripting::Interfaces::GameObjectScript("go_massive_seaforium_charge") { }
 
         bool OnGossipHello(Player* /*player*/, GameObject* go)
         {
@@ -1183,10 +1183,10 @@ enum OfKeysAndCages
     SAY_FREE                            = 0,
 };
 
-class go_gjalerbron_cage : public GameObjectScript
+class go_gjalerbron_cage : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
     public:
-        go_gjalerbron_cage() : GameObjectScript("go_gjalerbron_cage") { }
+        go_gjalerbron_cage() : MS::Game::Scripting::Interfaces::GameObjectScript("go_gjalerbron_cage") { }
 
         bool OnGossipHello(Player* player, GameObject* go)
         {
@@ -1212,10 +1212,10 @@ class go_gjalerbron_cage : public GameObjectScript
 ## go_large_gjalerbron_cage
 #####*/
 
-class go_large_gjalerbron_cage : public GameObjectScript
+class go_large_gjalerbron_cage : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
     public:
-        go_large_gjalerbron_cage() : GameObjectScript("go_large_gjalerbron_cage") { }
+        go_large_gjalerbron_cage() : MS::Game::Scripting::Interfaces::GameObjectScript("go_large_gjalerbron_cage") { }
 
         bool OnGossipHello(Player* player, GameObject* go)
         {
@@ -1247,10 +1247,10 @@ enum MissingFriends
    SAY_FREE_0               = 0,
 };
 
-class go_veil_skith_cage : public GameObjectScript
+class go_veil_skith_cage : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
     public:
-       go_veil_skith_cage() : GameObjectScript("go_veil_skith_cage") { }
+       go_veil_skith_cage() : MS::Game::Scripting::Interfaces::GameObjectScript("go_veil_skith_cage") { }
 
        bool OnGossipHello(Player* player, GameObject* go)
        {
@@ -1284,10 +1284,10 @@ enum TheCleansing
    SPELL_RECENT_MEDITATION        = 61720,
 };
 
-class go_frostblade_shrine : public GameObjectScript
+class go_frostblade_shrine : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_frostblade_shrine() : GameObjectScript("go_frostblade_shrine") { }
+    go_frostblade_shrine() : MS::Game::Scripting::Interfaces::GameObjectScript("go_frostblade_shrine") { }
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
@@ -1311,10 +1311,10 @@ enum MidsummerBonfire
     STAMP_OUT_BONFIRE_QUEST_COMPLETE    = 45458,
 };
 
-class go_midsummer_bonfire : public GameObjectScript
+class go_midsummer_bonfire : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
 public:
-    go_midsummer_bonfire() : GameObjectScript("go_midsummer_bonfire") { }
+    go_midsummer_bonfire() : MS::Game::Scripting::Interfaces::GameObjectScript("go_midsummer_bonfire") { }
 
     bool OnGossipSelect(Player* player, GameObject* /*go*/, uint32 /*sender*/, uint32 /*action*/)
     {
@@ -1324,10 +1324,10 @@ public:
     }
 };
 
-class go_seaforium_charge : public GameObjectScript
+class go_seaforium_charge : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
     public:
-        go_seaforium_charge() : GameObjectScript("go_seaforium_charge") { }
+        go_seaforium_charge() : MS::Game::Scripting::Interfaces::GameObjectScript("go_seaforium_charge") { }
 
         bool OnGossipHello(Player* player, GameObject* go)
         {
@@ -1338,10 +1338,10 @@ class go_seaforium_charge : public GameObjectScript
         }
 };
 
-class go_mage_portal_pandaria : public GameObjectScript
+class go_mage_portal_pandaria : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
     public:
-        go_mage_portal_pandaria() : GameObjectScript("go_mage_portal_pandaria") { }
+        go_mage_portal_pandaria() : MS::Game::Scripting::Interfaces::GameObjectScript("go_mage_portal_pandaria") { }
 
         bool OnGossipHello(Player* player, GameObject* go)
         {
@@ -1355,10 +1355,10 @@ class go_mage_portal_pandaria : public GameObjectScript
 };
 
 // Challenge Orb - 211674
-class go_challenge_orb : public GameObjectScript
+class go_challenge_orb : public MS::Game::Scripting::Interfaces::GameObjectScript
 {
     public:
-        go_challenge_orb() : GameObjectScript("go_challenge_orb") { }
+        go_challenge_orb() : MS::Game::Scripting::Interfaces::GameObjectScript("go_challenge_orb") { }
 
         bool OnGossipSelect(Player* p_Player, GameObject* p_GameObject, uint32 p_Sender, uint32 p_Action)
         {

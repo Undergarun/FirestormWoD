@@ -13,10 +13,10 @@ static const DoorData doordata[] =
     {0,         0,              DOOR_TYPE_ROOM,     0}, // EOF
 };
 
-class instance_zulaman : public InstanceMapScript
+class instance_zulaman : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
     public:
-        instance_zulaman() : InstanceMapScript("instance_zulaman", 568){}
+        instance_zulaman() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_zulaman", 568){}
         
         InstanceScript* GetInstanceScript(InstanceMap* map) const
         {

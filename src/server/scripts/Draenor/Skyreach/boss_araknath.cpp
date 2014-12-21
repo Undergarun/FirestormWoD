@@ -4,7 +4,7 @@ namespace MS
 {
     namespace InstanceSkyreach
     {
-        class mob_SkyreachArcanologist : public CreatureScript
+        class mob_SkyreachArcanologist : public Game::Scripting::Interfaces::CreatureScript
         {
         public:
             // Entry: 76376
@@ -98,7 +98,7 @@ namespace MS
             };
         };
 
-        class boss_Araknath : public CreatureScript
+        class boss_Araknath : public Game::Scripting::Interfaces::CreatureScript
         {
         public:
             // Entry: 76141

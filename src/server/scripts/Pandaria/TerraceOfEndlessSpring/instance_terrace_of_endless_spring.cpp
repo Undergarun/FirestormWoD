@@ -22,10 +22,10 @@
 #include "VMapFactory.h"
 #include "terrace_of_endless_spring.h"
 
-class instance_terrace_of_endless_spring : public InstanceMapScript
+class instance_terrace_of_endless_spring : public MS::Game::Scripting::Interfaces::InstanceMapScript
 {
     public:
-        instance_terrace_of_endless_spring() : InstanceMapScript("instance_terrace_of_endless_spring", 996) { }
+        instance_terrace_of_endless_spring() : MS::Game::Scripting::Interfaces::InstanceMapScript("instance_terrace_of_endless_spring", 996) { }
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const
         {

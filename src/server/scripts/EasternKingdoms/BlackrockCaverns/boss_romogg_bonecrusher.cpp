@@ -44,10 +44,10 @@ enum Events
 	EVENT_SKULLCRACKER		= 4,
 };
  
-class boss_romogg_bonecrusher : public CreatureScript
+class boss_romogg_bonecrusher : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        boss_romogg_bonecrusher() : CreatureScript("boss_romogg_bonecrusher") { }
+        boss_romogg_bonecrusher() : MS::Game::Scripting::Interfaces::CreatureScript("boss_romogg_bonecrusher") { }
      
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -183,10 +183,10 @@ class boss_romogg_bonecrusher : public CreatureScript
         };
 };
  
-/*class npc_chains_of_woe : public CreatureScript
+/*class npc_chains_of_woe : public MS::Game::Scripting::Interfaces::CreatureScript
 {
     public:
-        npc_chains_of_woe() : CreatureScript("npc_chains_of_woe") { }
+        npc_chains_of_woe() : MS::Game::Scripting::Interfaces::CreatureScript("npc_chains_of_woe") { }
      
         CreatureAI* GetAI(Creature* pCreature) const
         {
@@ -218,10 +218,10 @@ class boss_romogg_bonecrusher : public CreatureScript
  
 };*/
 
-/*class spell_romoogg_chains_of_woe : public SpellScriptLoader
+/*class spell_romoogg_chains_of_woe: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_romoogg_chains_of_woe : SpellScriptLoader("spell_romoogg_chains_of_woe") { }
+        spell_romoogg_chains_of_woe : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_romoogg_chains_of_woe") { }
 
         class spell_romoogg_chains_of_woe_SpellScript : public SpellScript
         {
@@ -245,10 +245,10 @@ class boss_romogg_bonecrusher : public CreatureScript
         }
 };*/
 
-/*class spell_romoogg_chains_of_woe_tele : public SpellScriptLoader
+/*class spell_romoogg_chains_of_woe_tele: public MS::Game::Scripting::Interfaces::SpellScriptLoader
 {
     public:
-        spell_romoogg_chains_of_woe_tele : SpellScriptLoader("spell_romoogg_chains_of_woe_tele") { }
+        spell_romoogg_chains_of_woe_tele : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_romoogg_chains_of_woe_tele") { }
 
         class spell_romoogg_chains_of_woe_tele_SpellScript : public SpellScript
         {
