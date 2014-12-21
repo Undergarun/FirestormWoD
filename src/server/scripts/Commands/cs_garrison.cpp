@@ -2,6 +2,7 @@
 #include "GameEventMgr.h"
 #include "Chat.h"
 #include "Garrison.h"
+#include "ObjectMgr.h"
 
 /// Garrison commands
 class garrison_commandscript: public MS::Game::Scripting::Interfaces::CommandScript
