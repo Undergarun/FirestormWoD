@@ -321,6 +321,7 @@ namespace MS { namespace Game { namespace Scripting { namespace Interfaces
                 UNUSED(p_Type);
                 UNUSED(p_Lang);
                 UNUSED(p_Message);
+                UNUSED(p_Channel);
             }
 
             /// Both of the below are called on emote opcodes.

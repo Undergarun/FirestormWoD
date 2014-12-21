@@ -24,7 +24,8 @@ namespace MS { namespace Game { namespace Scripting { namespace Interfaces
             virtual void OnAddMember(Guild * p_Guild, Player * p_Player, uint8 & p_Rank)
             {
                 UNUSED(p_Guild);
-                UNUSED(p_Player); 
+                UNUSED(p_Player);
+                UNUSED(p_Rank);
             }
             /// Called when a member is removed from the guild.
             /// @p_Guild        : Guild instance
@@ -144,6 +145,7 @@ namespace MS { namespace Game { namespace Scripting { namespace Interfaces
             {
                 UNUSED(p_Guild);
                 UNUSED(p_EventType);
+                UNUSED(p_TabID);
                 UNUSED(p_PlayerGUID);
                 UNUSED(p_ItemOrMoney);
                 UNUSED(p_ItemStackCount);

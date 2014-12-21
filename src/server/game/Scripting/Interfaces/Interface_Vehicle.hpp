@@ -43,6 +43,7 @@ namespace MS { namespace Game { namespace Scripting { namespace Interfaces
             virtual void OnInstallAccessory(Vehicle * p_Vehicle, Creature * p_Accessory)
             {
                 UNUSED(p_Vehicle);
+                UNUSED(p_Accessory);
             }
 
             /// Called after a passenger is added to a vehicle.
@@ -68,6 +69,8 @@ namespace MS { namespace Game { namespace Scripting { namespace Interfaces
             /// @p_Creature : target creature
             virtual CreatureAI* GetAI(Creature * p_Creature) const
             {
+                UNUSED(p_Creature);
+
                 return nullptr;
             }
 
