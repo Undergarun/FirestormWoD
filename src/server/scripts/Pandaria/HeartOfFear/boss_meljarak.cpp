@@ -601,14 +601,14 @@ public:
 
         void UpdateAI(uint32 const diff)
         {
-            if (instance)
-            {
-                if (instance->IsWipe() && !me->IsInEvadeMode())
-                {
-                    EnterEvadeMode();
-                    return;
-                }
-            }
+            //if (instance)
+            //{
+            //    if (instance->IsWipe() && !me->IsInEvadeMode())
+            //    {
+            //        EnterEvadeMode();
+            //        return;
+            //    }
+            //}
 
             if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                 return;
