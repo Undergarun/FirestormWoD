@@ -704,23 +704,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                     return;
                 break;
             }
-            case 16827: // Claw
-            case 17253: // Bite
-            {
-                if (m_caster->GetOwner())
-                {
-                    damage += int32(m_caster->GetOwner()->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.2544f);
-
-                    // Deals 100% more damage and costs 100% more Focus when your pet has 50 or more Focus.
-                    if (m_caster->GetPower(POWER_FOCUS) + 25 > 50)
-                    {
-                        damage *= 2;
-                        m_caster->EnergizeBySpell(m_caster, m_spellInfo->Id, -25, POWER_FOCUS);
-                    }
-                }
-
-                break;
-            }
             default:
                 break;
             }

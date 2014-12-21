@@ -2475,6 +2475,45 @@ public:
     }
 };
 
+//Claw - 16827 / Bite - 17253
+class spell_hun_claw_bite : public MS::Game::Scripting::Interfaces::SpellScriptLoader
+{
+public:
+    spell_hun_claw_bite() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_claw_bite") { }
+
+    class spell_hun_claw_bite_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_hun_claw_bite_SpellScript);
+
+        void HandleDamage(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* l_Pet = GetCaster())
+                if (Unit* l_Hunter = GetCaster()->GetOwner())
+                {
+                    int32 l_Damage = int32(1.5f * l_Hunter->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.333f);
+
+                    // Deals 100% more damage and costs 100% more Focus when your pet has 50 or more Focus.
+                    if (l_Pet->GetPower(POWER_FOCUS) + 25 >= 50)
+                    {
+                        l_Damage *= 2;
+                        l_Pet->EnergizeBySpell(l_Pet, GetSpellInfo()->Id, -25, POWER_FOCUS);
+                    }
+                    SetHitDamage(l_Damage);
+                }
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_hun_claw_bite_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_hun_claw_bite_SpellScript();
+    }
+};
+
 // Thrill of the Hunt - 109396
 class PlayerScript_thrill_of_the_hunt: public PlayerScript
 {
@@ -2496,6 +2535,7 @@ public:
 
 void AddSC_hunter_spell_scripts()
 {
+    new spell_hun_claw_bite();
     new spell_hun_bombardment();
     new spell_hun_glyph_of_animal_bond();
     new spell_hun_spirit_bond_apply();
