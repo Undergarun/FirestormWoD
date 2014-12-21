@@ -23,7 +23,6 @@
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "upper_blackrock_spire.h"
-#include "AreaTriggerScript.h"
 #include "MoveSplineInit.h"
 #include "Vehicle.h"
 
@@ -833,10 +832,10 @@ class mob_zaela_black_iron_wyrm_rider : public CreatureScript
 };
 
 ///< Burning Bridge - 166721
-class areatrigger_burning_bridge : public MS::AreaTriggerEntityScript
+class areatrigger_burning_bridge : public AreaTriggerEntityScript
 {
     public:
-        areatrigger_burning_bridge() : MS::AreaTriggerEntityScript("areatrigger_burning_bridge") { }
+        areatrigger_burning_bridge() : AreaTriggerEntityScript("areatrigger_burning_bridge") { }
 
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
@@ -854,7 +853,7 @@ class areatrigger_burning_bridge : public MS::AreaTriggerEntityScript
             }
         }
 
-        MS::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new areatrigger_burning_bridge();
         }

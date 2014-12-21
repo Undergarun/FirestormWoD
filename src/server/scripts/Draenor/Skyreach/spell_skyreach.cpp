@@ -1,4 +1,3 @@
-#include "AreaTriggerScript.h"
 #include <forward_list>
 #include "instance_skyreach.h"
 
@@ -80,7 +79,7 @@ namespace MS
     };
 
     // AreaTriggers for spells: 154044
-    class AreaTrigger_LensFlare : public MS::AreaTriggerEntityScript
+    class AreaTrigger_LensFlare : public AreaTriggerEntityScript
     {
         enum class Spells : uint32
         {
@@ -91,12 +90,12 @@ namespace MS
 
     public:
         AreaTrigger_LensFlare()
-            : MS::AreaTriggerEntityScript("at_LensFlare"),
+            : AreaTriggerEntityScript("at_LensFlare"),
             m_Targets()
         {
             }
 
-        MS::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new AreaTrigger_LensFlare();
         }
@@ -159,7 +158,7 @@ namespace MS
     };
 
     // AreaTriggers for spells: 152973
-    class AreaTrigger_ProtectiveBarrier : public MS::AreaTriggerEntityScript
+    class AreaTrigger_ProtectiveBarrier : public AreaTriggerEntityScript
     {
         enum class Spells : uint32
         {
@@ -171,12 +170,12 @@ namespace MS
 
     public:
         AreaTrigger_ProtectiveBarrier()
-            : MS::AreaTriggerEntityScript("at_ProtectiveBarrier"),
+            : AreaTriggerEntityScript("at_ProtectiveBarrier"),
             m_Targets()
         {
         }
 
-        MS::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new AreaTrigger_ProtectiveBarrier();
         }
@@ -234,7 +233,7 @@ namespace MS
     };
 
     // AreaTriggers for spells: 154110
-    class AreaTrigger_Smash : public MS::AreaTriggerEntityScript
+    class AreaTrigger_Smash : public AreaTriggerEntityScript
     {
         enum class Spells : uint32
         {
@@ -245,11 +244,11 @@ namespace MS
 
     public:
         AreaTrigger_Smash()
-            : MS::AreaTriggerEntityScript("at_Smash")
+            : AreaTriggerEntityScript("at_Smash")
         {
         }
 
-        MS::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new AreaTrigger_Smash();
         }
@@ -522,7 +521,7 @@ namespace MS
     };
 
     // AreaTriggers for spells: 159221
-    class AreaTrigger_SolarStorm : public MS::AreaTriggerEntityScript
+    class AreaTrigger_SolarStorm : public AreaTriggerEntityScript
     {
         enum class Spells : uint32
         {
@@ -533,12 +532,12 @@ namespace MS
 
     public:
         AreaTrigger_SolarStorm()
-            : MS::AreaTriggerEntityScript("at_SolarStorm"),
+            : AreaTriggerEntityScript("at_SolarStorm"),
             m_Targets()
         {
         }
 
-        MS::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new AreaTrigger_SolarStorm();
         }
@@ -633,7 +632,7 @@ namespace MS
     };
 
     // AreaTriggers for spells: 156634, 156636
-    class AreaTrigger_FourWinds : public MS::AreaTriggerEntityScript
+    class AreaTrigger_FourWinds : public AreaTriggerEntityScript
     {
         enum class Spells : uint32
         {
@@ -653,7 +652,7 @@ namespace MS
 
     public:
         AreaTrigger_FourWinds()
-            : MS::AreaTriggerEntityScript("at_FourWinds"),
+            : AreaTriggerEntityScript("at_FourWinds"),
             m_targets(),
             m_angle(0),
             m_Last(60000),
@@ -661,7 +660,7 @@ namespace MS
         {
         }
 
-        MS::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new AreaTrigger_FourWinds();
         }
@@ -854,7 +853,7 @@ namespace MS
     };
 
     // AreaTriggers for spells: 153311, 153314
-    class AreaTrigger_WindWall : public MS::AreaTriggerEntityScript
+    class AreaTrigger_WindWall : public AreaTriggerEntityScript
     {
         enum class Spells : uint32
         {
@@ -870,7 +869,7 @@ namespace MS
 
     public:
         AreaTrigger_WindWall()
-            : MS::AreaTriggerEntityScript("at_WindWall"),
+            : AreaTriggerEntityScript("at_WindWall"),
             m_targets(),
             m_angle(0),
             m_Last(60000),
@@ -878,7 +877,7 @@ namespace MS
         {
         }
 
-        MS::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new AreaTrigger_WindWall();
         }
@@ -1044,7 +1043,7 @@ namespace MS
     };
 
     // AreaTriggers for spells: 153535, 153536, 153537, 153538, 153583, 153584, 153585,153586, 153587, 153588
-    class AreaTrigger_spinning_blade : public MS::AreaTriggerEntityScript
+    class AreaTrigger_spinning_blade : public AreaTriggerEntityScript
     {
         enum class Spells : uint32
         {
@@ -1055,11 +1054,11 @@ namespace MS
 
     public:
         AreaTrigger_spinning_blade()
-            : MS::AreaTriggerEntityScript("at_spinning_blade"), m_targets()
+            : AreaTriggerEntityScript("at_spinning_blade"), m_targets()
         {
         }
 
-        MS::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new AreaTrigger_spinning_blade();
         }
@@ -1124,7 +1123,7 @@ namespace MS
     };
 
     // AreaTriggers for spells: 160935
-    class AreaTrigger_solar_zone : public MS::AreaTriggerEntityScript
+    class AreaTrigger_solar_zone : public AreaTriggerEntityScript
     {
         enum class SolarHealSpells : uint32
         {
@@ -1137,12 +1136,12 @@ namespace MS
 
     public:
         AreaTrigger_solar_zone()
-            : MS::AreaTriggerEntityScript("at_solar_zone"),
+            : AreaTriggerEntityScript("at_solar_zone"),
             m_Targets()
         {
         }
 
-        MS::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new AreaTrigger_solar_zone();
         }
@@ -1214,7 +1213,7 @@ namespace MS
     };
 
     // AreaTriggers for spells: 156840
-    class AreaTrigger_storm_zone : public MS::AreaTriggerEntityScript
+    class AreaTrigger_storm_zone : public AreaTriggerEntityScript
     {
         enum class Spells : uint32
         {
@@ -1228,12 +1227,12 @@ namespace MS
 
     public:
         AreaTrigger_storm_zone()
-            : MS::AreaTriggerEntityScript("at_storm_zone"),
+            : AreaTriggerEntityScript("at_storm_zone"),
             m_Targets()
         {
         }
 
-        MS::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new AreaTrigger_storm_zone();
         }
@@ -1293,7 +1292,7 @@ namespace MS
     };
 
     // AreaTriggers for spells: 153905
-    class AreaTrigger_dervish : public MS::AreaTriggerEntityScript
+    class AreaTrigger_dervish : public AreaTriggerEntityScript
     {
         enum class Spells : uint32
         {
@@ -1305,12 +1304,12 @@ namespace MS
 
     public:
         AreaTrigger_dervish()
-            : MS::AreaTriggerEntityScript("at_dervish"),
+            : AreaTriggerEntityScript("at_dervish"),
             m_Targets()
         {
         }
 
-        MS::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new AreaTrigger_dervish();
         }

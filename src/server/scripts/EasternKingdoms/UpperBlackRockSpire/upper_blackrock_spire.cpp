@@ -20,7 +20,6 @@
 #include "ScriptPCH.h"
 #include "upper_blackrock_spire.h"
 #include "Language.h"
-#include "AreaTriggerScript.h"
 #include "MoveSplineInit.h"
 #include "ScriptedEscortAI.h"
 
@@ -1908,10 +1907,10 @@ class mob_emberscale_whelping : public CreatureScript
 };
 
 ///< Rallying Banner - 153799
-class areatrigger_rallying_banner : public MS::AreaTriggerEntityScript
+class areatrigger_rallying_banner : public AreaTriggerEntityScript
 {
     public:
-        areatrigger_rallying_banner() : MS::AreaTriggerEntityScript("areatrigger_rallying_banner") { }
+        areatrigger_rallying_banner() : AreaTriggerEntityScript("areatrigger_rallying_banner") { }
 
         uint32 m_GrowTime;
 
@@ -1955,17 +1954,17 @@ class areatrigger_rallying_banner : public MS::AreaTriggerEntityScript
                 m_GrowTime -= p_Time;
         }
 
-        MS::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new areatrigger_rallying_banner();
         }
 };
 
 ///< Fiery Trail - 157364
-class areatrigger_fiery_trail : public MS::AreaTriggerEntityScript
+class areatrigger_fiery_trail : public AreaTriggerEntityScript
 {
     public:
-        areatrigger_fiery_trail() : MS::AreaTriggerEntityScript("areatrigger_fiery_trail") { }
+        areatrigger_fiery_trail() : AreaTriggerEntityScript("areatrigger_fiery_trail") { }
 
         enum eSpells
         {
@@ -1988,7 +1987,7 @@ class areatrigger_fiery_trail : public MS::AreaTriggerEntityScript
             }
         }
 
-        MS::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new areatrigger_fiery_trail();
         }

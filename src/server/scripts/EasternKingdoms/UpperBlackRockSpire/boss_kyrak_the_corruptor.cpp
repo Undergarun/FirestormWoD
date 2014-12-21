@@ -23,7 +23,6 @@
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "upper_blackrock_spire.h"
-#include "AreaTriggerScript.h"
 
 enum eSpells
 {
@@ -339,10 +338,10 @@ class spell_vilebloom_serum : public SpellScriptLoader
 };
 
 ///< Vileblood Serum - 161210
-class areatrigger_vileblood_serum : public MS::AreaTriggerEntityScript
+class areatrigger_vileblood_serum : public AreaTriggerEntityScript
 {
     public:
-        areatrigger_vileblood_serum() : MS::AreaTriggerEntityScript("areatrigger_vileblood_serum") { }
+        areatrigger_vileblood_serum() : AreaTriggerEntityScript("areatrigger_vileblood_serum") { }
 
         enum eSpells
         {
@@ -365,7 +364,7 @@ class areatrigger_vileblood_serum : public MS::AreaTriggerEntityScript
             }
         }
 
-        MS::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new areatrigger_vileblood_serum();
         }

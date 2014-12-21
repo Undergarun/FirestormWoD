@@ -23,7 +23,6 @@
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "upper_blackrock_spire.h"
-#include "AreaTriggerScript.h"
 
 enum eSpells
 {
@@ -706,10 +705,10 @@ class mob_ragewing_whelp : public CreatureScript
 };
 
 ///< Magma Spit - 155051
-class areatrigger_magma_spit : public MS::AreaTriggerEntityScript
+class areatrigger_magma_spit : public AreaTriggerEntityScript
 {
     public:
-        areatrigger_magma_spit() : MS::AreaTriggerEntityScript("areatrigger_magma_spit") { }
+        areatrigger_magma_spit() : AreaTriggerEntityScript("areatrigger_magma_spit") { }
 
         enum eSpells
         {
@@ -732,7 +731,7 @@ class areatrigger_magma_spit : public MS::AreaTriggerEntityScript
             }
         }
 
-        MS::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new areatrigger_magma_spit();
         }

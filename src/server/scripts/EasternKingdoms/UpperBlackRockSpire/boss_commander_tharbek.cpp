@@ -24,7 +24,6 @@
 #include "SpellScript.h"
 #include "upper_blackrock_spire.h"
 #include "Vehicle.h"
-#include "AreaTriggerScript.h"
 
 enum eSpells
 {
@@ -1063,10 +1062,10 @@ class mob_awbee : public CreatureScript
 };
 
 ///< Noxious Spit - 161827
-class areatrigger_noxious_spit : public MS::AreaTriggerEntityScript
+class areatrigger_noxious_spit : public AreaTriggerEntityScript
 {
     public:
-        areatrigger_noxious_spit() : MS::AreaTriggerEntityScript("areatrigger_noxious_spit") { }
+        areatrigger_noxious_spit() : AreaTriggerEntityScript("areatrigger_noxious_spit") { }
 
         enum Spells
         {
@@ -1091,7 +1090,7 @@ class areatrigger_noxious_spit : public MS::AreaTriggerEntityScript
             }
         }
 
-        MS::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new areatrigger_noxious_spit();
         }
