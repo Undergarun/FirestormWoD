@@ -1658,6 +1658,7 @@ bool SpellInfo::IsAuraExclusiveBySpecificWith(SpellInfo const* spellInfo) const
         case SPELL_SPECIFIC_PRIEST_DIVINE_SPIRIT:
         case SPELL_SPECIFIC_PRIEST_SANCTUM:
         case SPELL_SPECIFIC_CHAKRA:
+        case SPELL_SPECIFIC_EXOTIC_MUNITION:
             return spellSpec1 == spellSpec2;
         case SPELL_SPECIFIC_FOOD:
             return spellSpec2 == SPELL_SPECIFIC_FOOD
@@ -2475,6 +2476,9 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
             // only hunter aspects have this (but not all aspects in hunter family) and Hack fix for Deterrence - Is not an aspect !
             if (SpellFamilyFlags.HasFlag(0x00380000, 0x00440000, 0x00001010) && Id != 67801)
                 return SPELL_SPECIFIC_ASPECT;
+
+            if (Id == 162536 || Id == 162537 || Id == 162539)
+                return SPELL_SPECIFIC_EXOTIC_MUNITION;
 
             break;
         }
