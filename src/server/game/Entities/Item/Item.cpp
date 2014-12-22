@@ -1882,13 +1882,13 @@ float ItemTemplate::GetSocketCost(uint32 ilvl) const
     return socket ? socket->cost : 0.f;
 }
 
-uint32 ItemTemplate::CalculateStatScaling(uint32 index, uint32 ilvl) const
+int32 ItemTemplate::CalculateStatScaling(uint32 index, uint32 ilvl) const
 {
     _ItemStat const& itemStat = ItemStat[index];
     return CalculateStatScaling(itemStat.ScalingValue, itemStat.SocketCostRate, ilvl);
 }
 
-uint32 ItemTemplate::CalculateStatScaling(uint32 scalingValue, float socketCost, uint32 ilvl) const
+int32 ItemTemplate::CalculateStatScaling(int32 scalingValue, float socketCost, uint32 ilvl) const
 {
     return floor((((float)scalingValue * (float)CalculateScalingStatDBCValue(ilvl) * 0.000099999997f) - (GetSocketCost(ilvl) * socketCost)) + 0.5f);
 }
