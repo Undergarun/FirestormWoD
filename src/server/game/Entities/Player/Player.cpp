@@ -1356,6 +1356,25 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
                         count = iProto->GetMaxStackSize();
                 }
 
+                switch(itemId)
+                {
+                    // This switch prevents these items (used next for a quest) to be added to a pandaren player at his creation.
+                    case 73207:
+                    case 73208:
+                    case 73209:
+                    case 73210:
+                    case 73211:
+                    case 73212:
+                    case 73213:
+                    case 76390:
+                    case 76391:
+                    case 76392:
+                    case 76393:
+                        continue;
+                    default:
+                        break;
+                }
+
                 StoreNewItemInBestSlots(itemId, count);
             }
         }
