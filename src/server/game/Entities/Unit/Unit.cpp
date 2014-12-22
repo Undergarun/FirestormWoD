@@ -3040,7 +3040,7 @@ float Unit::GetUnitMissChancePhysical(Unit const* p_Attacker, WeaponAttackType p
     if (p_AttType == WeaponAttackType::RangedAttack)
         l_Chance += GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_RANGED_HIT_CHANCE);
     else
-        l_Chance += GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_MELEE_HIT_CHANCE);
+        l_Chance += -(GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_MELEE_HIT_CHANCE));
 
     return l_Chance;
 }
