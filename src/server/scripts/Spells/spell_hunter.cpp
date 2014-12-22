@@ -135,6 +135,124 @@ enum HunterSpells
     HUNTER_SPELL_BASIC_ATTACK_COST_MODIFIER         = 62762
 };
 
+enum LoneWolfes
+{
+    LoneWolfAura        = 164273,
+
+    ///< Stats auras
+    LoneWolfMastery     = 160198,
+    LoneWolfStamina     = 160199,
+    LoneWolfCritical    = 160200,
+    LoneWolfHaste       = 160203,
+    LoneWolfSpellPower  = 160205,
+    LoneWolfPrimarStats = 160206,
+    LoneWolfVersatility = 172967,
+    LoneWolfMultistrike = 172968
+};
+
+static uint32 const g_BuffSpells[8] =
+{
+    LoneWolfes::LoneWolfMastery,
+    LoneWolfes::LoneWolfStamina,
+    LoneWolfes::LoneWolfCritical,
+    LoneWolfes::LoneWolfHaste,
+    LoneWolfes::LoneWolfSpellPower,
+    LoneWolfes::LoneWolfPrimarStats,
+    LoneWolfes::LoneWolfVersatility,
+    LoneWolfes::LoneWolfMultistrike
+};
+
+///< Lone Wolf - 155228
+class spell_hun_lone_wolf : public SpellScriptLoader
+{
+    public:
+        spell_hun_lone_wolf() : SpellScriptLoader("spell_hun_lone_wolf") { }
+
+        class spell_hun_lone_wolf_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_lone_wolf_AuraScript);
+
+            void OnApply(constAuraEffectPtr, AuraEffectHandleModes)
+            {
+                if (!GetCaster())
+                    return;
+
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    l_Player->learnSpell(LoneWolfes::LoneWolfMastery, false);
+                    l_Player->learnSpell(LoneWolfes::LoneWolfStamina, false);
+                    l_Player->learnSpell(LoneWolfes::LoneWolfCritical, false);
+                    l_Player->learnSpell(LoneWolfes::LoneWolfHaste, false);
+                    l_Player->learnSpell(LoneWolfes::LoneWolfSpellPower, false);
+                    l_Player->learnSpell(LoneWolfes::LoneWolfPrimarStats, false);
+                    l_Player->learnSpell(LoneWolfes::LoneWolfVersatility, false);
+                    l_Player->learnSpell(LoneWolfes::LoneWolfMultistrike, false);
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr, AuraEffectHandleModes)
+            {
+                if (!GetCaster())
+                    return;
+
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    l_Player->removeSpell(LoneWolfes::LoneWolfMastery);
+                    l_Player->removeSpell(LoneWolfes::LoneWolfStamina);
+                    l_Player->removeSpell(LoneWolfes::LoneWolfCritical);
+                    l_Player->removeSpell(LoneWolfes::LoneWolfHaste);
+                    l_Player->removeSpell(LoneWolfes::LoneWolfSpellPower);
+                    l_Player->removeSpell(LoneWolfes::LoneWolfPrimarStats);
+                    l_Player->removeSpell(LoneWolfes::LoneWolfVersatility);
+                    l_Player->removeSpell(LoneWolfes::LoneWolfMultistrike);
+                }
+            }
+
+            void OnUpdate(uint32, AuraEffectPtr p_AurEff)
+            {
+                if (!GetUnitOwner())
+                    return;
+
+                if (Player* l_Player = GetUnitOwner()->ToPlayer())
+                {
+                    if (Pet* l_Pet = l_Player->GetPet())
+                    {
+                        l_Player->RemoveAura(LoneWolfes::LoneWolfAura);
+
+                        p_AurEff->ChangeAmount(0);
+
+                        if (AuraEffectPtr l_AuraEffect = p_AurEff->GetBase()->GetEffect(EFFECT_1))
+                            l_AuraEffect->ChangeAmount(0);
+
+                        for (uint8 l_I = 0; l_I < 8; ++l_I)
+                            l_Player->RemoveAura(g_BuffSpells[l_I]);
+                    }
+                    else
+                    {
+                        l_Player->CastSpell(l_Player, LoneWolfes::LoneWolfAura, true);
+
+                        p_AurEff->ChangeAmount(GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+
+                        if (AuraEffectPtr l_AuraEffect = p_AurEff->GetBase()->GetEffect(EFFECT_1))
+                            l_AuraEffect->ChangeAmount(GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_hun_lone_wolf_AuraScript::OnApply, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_hun_lone_wolf_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+                OnEffectUpdate += AuraEffectUpdateFn(spell_hun_lone_wolf_AuraScript::OnUpdate, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_lone_wolf_AuraScript();
+        }
+};
+
 ///< Kill Shot - 53351
 ///< Kill Shot (overrided) - 157708
 class spell_hun_kill_shot : public SpellScriptLoader
@@ -2561,6 +2679,7 @@ public:
 
 void AddSC_hunter_spell_scripts()
 {
+    new spell_hun_lone_wolf();
     new spell_hun_kill_shot();
     new spell_hun_exotic_munitions();
     new spell_hun_claw_bite();
