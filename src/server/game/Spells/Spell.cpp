@@ -4541,16 +4541,6 @@ void Spell::finish(bool ok)
 
             break;
         }
-        case 53351: // Kill Shot
-        {
-            if (!unitTarget || !unitTarget->isAlive() || unitTarget->GetHealthPct() >= 20.0f || m_caster->HasAura(90967))
-                break;
-
-            m_caster->CastSpell(m_caster, 90967, true); // Effect cooldown marker
-            m_caster->ToPlayer()->RemoveSpellCooldown(m_spellInfo->Id, true);
-
-            break;
-        }
         default:
             break;
     }

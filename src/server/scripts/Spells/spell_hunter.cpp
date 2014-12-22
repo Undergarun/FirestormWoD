@@ -135,6 +135,55 @@ enum HunterSpells
     HUNTER_SPELL_BASIC_ATTACK_COST_MODIFIER         = 62762
 };
 
+///< Kill Shot - 53351
+///< Kill Shot (overrided) - 157708
+class spell_hun_kill_shot : public SpellScriptLoader
+{
+    public:
+        spell_hun_kill_shot() : SpellScriptLoader("spell_hun_kill_shot") { }
+
+        class spell_hun_kill_shot_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_kill_shot_SpellScript);
+
+            enum KillShotSpells
+            {
+                CooldownMarker  = 90967,
+                KillShotHealing = 164851
+            };
+
+            void HandleAfterHit()
+            {
+                if (Player* l_Caster = GetCaster()->ToPlayer())
+                {
+                    if (Unit* l_Target = GetHitUnit())
+                    {
+                        if (l_Target->isAlive())
+                        {
+                            if (l_Caster->HasAura(KillShotSpells::CooldownMarker))
+                                return;
+
+                            l_Caster->CastSpell(l_Caster, KillShotSpells::CooldownMarker, true);
+                            l_Caster->RemoveSpellCooldown(GetSpellInfo()->Id, true);
+                        }
+                        else
+                            l_Caster->CastSpell(l_Caster, KillShotSpells::KillShotHealing, true);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                AfterHit += SpellHitFn(spell_hun_kill_shot_SpellScript::HandleAfterHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_kill_shot_SpellScript();
+        }
+};
+
 ///< Exotic Munitions - 162534
 class spell_hun_exotic_munitions : public SpellScriptLoader
 {
@@ -2413,41 +2462,6 @@ class spell_hun_tame_beast: public SpellScriptLoader
         }
 };
 
-//Kill shot - 53351
-class spell_hun_kill_shot: public SpellScriptLoader
-{
-public:
-    spell_hun_kill_shot() : SpellScriptLoader("spell_hun_kill_shot") { }
-
-    class spell_hun_kill_shot_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_hun_kill_shot_SpellScript);
-
-        void HandleOnHit()
-        {
-            if (Player* l_Player = GetCaster()->ToPlayer())
-                if (Unit* l_Target = GetHitUnit())
-                    if (l_Target->GetHealth() <= uint32(GetHitDamage()))
-                    {
-                        if (l_Player->HasSpellCooldown(GetSpellInfo()->Id))
-                            l_Player->RemoveSpellCooldown(GetSpellInfo()->Id, true);
-                        l_Player->CastSpell(l_Player, HUNTER_SPELL_KILL_SHOT_HEAL, true);
-                    }
-        }
-
-
-        void Register()
-        {
-            OnHit += SpellHitFn(spell_hun_kill_shot_SpellScript::HandleOnHit);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_hun_kill_shot_SpellScript;
-    }
-};
-
 //Bombardment - 35110 
 class spell_hun_bombardment: public SpellScriptLoader
 {
@@ -2547,12 +2561,12 @@ public:
 
 void AddSC_hunter_spell_scripts()
 {
+    new spell_hun_kill_shot();
     new spell_hun_exotic_munitions();
     new spell_hun_claw_bite();
     new spell_hun_bombardment();
     new spell_hun_glyph_of_animal_bond();
     new spell_hun_spirit_bond_apply();
-    new spell_hun_kill_shot();
     new spell_hun_hunters_mark();
     new spell_hun_fireworks();
     new spell_hun_glyph_of_fireworks();
