@@ -246,7 +246,6 @@ namespace MS
             };
         };
 
-        // FIXME: Adds and solar zealot should spawn differently.
         class boss_HighSageViryx : public CreatureScript
         {
         public:
