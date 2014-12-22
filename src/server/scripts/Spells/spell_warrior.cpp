@@ -1415,6 +1415,46 @@ public:
     }
 };
 
+
+enum ShieldChargeSpells
+{
+    SPELL_WARR_SHIELD_CHARGE_MODIFIER = 169667,
+    SPELL_WARR_SHIELD_CHARGE_CHARGE = 178768
+};
+
+// Shield Charge - 156321
+class spell_warr_shield_charge: public SpellScriptLoader
+{
+public:
+    spell_warr_shield_charge() : SpellScriptLoader("spell_warr_shield_charge") { }
+
+    class spell_warr_shield_charge_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warr_shield_charge_SpellScript);
+
+        void HandleOnCast()
+        {
+            Unit* l_Caster = GetCaster();
+            Unit* l_Target = GetExplTargetUnit();
+            if (!l_Target)
+                return;
+
+            l_Caster->CastSpell(l_Target, SPELL_WARR_SHIELD_CHARGE_CHARGE, true);
+            l_Caster->CastSpell(l_Caster, SPELL_WARR_SHIELD_CHARGE_MODIFIER, true);
+        }
+
+        void Register()
+        {
+            OnCast += SpellCastFn(spell_warr_shield_charge_SpellScript::HandleOnCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_warr_shield_charge_SpellScript();
+    }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_slam();
@@ -1451,4 +1491,5 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_anger_management();
     new spell_warr_execute();
     new spell_warr_whirlwind();
+    new spell_warr_shield_charge();
 }
