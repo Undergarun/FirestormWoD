@@ -9743,211 +9743,219 @@ void Player::_ApplyItemModifications(Item const* p_Item, uint8 p_Slot, bool p_Ap
     if (!p_Item->GetAllItemBonuses().size())
         return;
 
-    if (!m_itemScale[p_Slot] && p_Apply)
-        m_itemScale[p_Slot] = GetEquipItemLevelFor(l_Proto, p_Item);
-
-    uint32 ilvl = m_itemScale[p_Slot];
-
-    if (!p_Apply && !p_RescaleToItemLevel)
-        m_itemScale[p_Slot] = 0;
-
-    if (ilvl == p_RescaleToItemLevel)
-        return;
-
-     bool l_ApplyStats = p_RescaleToItemLevel < ilvl && p_RescaleToItemLevel ? !p_Apply : p_Apply;
-
      for (auto& l_ItemBonusList : p_Item->GetAllItemBonuses())
      {
-         std::vector<ItemBonusEntry const*> const* l_BonusList = GetItemBonusesByID(l_ItemBonusList);
-         for (uint32 i = 0; i < l_BonusList->size(); i++)
-         {
+        if (!l_ItemBonusList)
+            continue;
+
+        std::vector<ItemBonusEntry const*> const* l_BonusList = GetItemBonusesByID(l_ItemBonusList);
+        for (uint32 i = 0; i < l_BonusList->size(); i++)
+        {
             ItemBonusEntry const* l_ItemBonus = (*l_BonusList)[i];
 
             if (!l_ItemBonus)
                 continue;
 
-            switch (l_ItemBonus->Type)
+            _ApplyItemModification(p_Item, l_ItemBonus, p_Slot, p_Apply, p_RescaleToItemLevel);
+        }
+     }
+}
+
+void Player::_ApplyItemModification(Item const* p_Item, ItemBonusEntry const* p_ItemBonusEntry, uint8 p_Slot, bool p_Apply, uint32 p_RescaleToItemLevel)
+{
+    if (p_Slot >= INVENTORY_SLOT_BAG_END || !p_Item)
+        return;
+
+    ItemTemplate const* l_Proto = p_Item->GetTemplate();
+    if (!l_Proto)
+        return;
+
+    uint32 ilvl = m_itemScale[p_Slot] ? m_itemScale[p_Slot] : GetEquipItemLevelFor(l_Proto, p_Item);
+
+    if (ilvl == p_RescaleToItemLevel)
+        return;
+
+    switch (p_ItemBonusEntry->Type)
+    {
+        case ITEM_BONUS_ADD_STAT:
+        {
+            bool l_ApplyStats = p_RescaleToItemLevel < ilvl && p_RescaleToItemLevel ? !p_Apply : p_Apply;
+            uint32 l_Stat = p_ItemBonusEntry->Value[0];
+            int32 l_ScalingValue = p_ItemBonusEntry->Value[1];
+            int32 l_StatValue = 0;
+
+            if (!p_RescaleToItemLevel)
+                l_StatValue = l_Proto->CalculateStatScaling(l_ScalingValue, 0.f, ilvl);
+            else
+                l_StatValue = abs(int32(l_Proto->CalculateStatScaling(l_ScalingValue, 0.f, p_RescaleToItemLevel) - l_Proto->CalculateStatScaling(l_ScalingValue, 0.f, ilvl)));
+
+            switch (l_Stat)
             {
-                case ITEM_BONUS_ADD_STAT:
+                case ITEM_MOD_MANA:
+                    HandleStatModifier(UNIT_MOD_MANA, BASE_VALUE, float(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_HEALTH:
+                    HandleStatModifier(UNIT_MOD_HEALTH, BASE_VALUE, float(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_AGILITY:
                 {
-                    uint32 l_Stat = l_ItemBonus->Value[0];
-                    uint32 l_ScalingValue = l_ItemBonus->Value[1];
-                    uint32 l_StatValue = 0;
+                    if (GetPrimaryStat() != STAT_AGILITY && GetSpecializationId(GetActiveSpec()))
+                        break;
 
-                    if (!p_RescaleToItemLevel)
-                        l_ScalingValue = l_Proto->CalculateStatScaling(l_ScalingValue, 0.f, ilvl);
-                    else
-                        l_ScalingValue = abs(int32(l_Proto->CalculateStatScaling(l_ScalingValue, 0.f, p_RescaleToItemLevel) - l_Proto->CalculateStatScaling(l_ScalingValue, 0.f, ilvl)));
+                    HandleStatModifier(UNIT_MOD_STAT_AGILITY, BASE_VALUE, float(l_StatValue), l_ApplyStats);
+                    ApplyStatBuffMod(STAT_AGILITY, float(l_StatValue), l_ApplyStats);
+                    break;
+                }
+                case ITEM_MOD_STRENGTH:
+                {
+                    if (GetPrimaryStat() != STAT_STRENGTH && GetSpecializationId(GetActiveSpec()))
+                        break;
 
-                    switch (l_Stat)
-                    {
-                        case ITEM_MOD_MANA:
-                            HandleStatModifier(UNIT_MOD_MANA, BASE_VALUE, float(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_HEALTH:
-                            HandleStatModifier(UNIT_MOD_HEALTH, BASE_VALUE, float(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_AGILITY:
-                        {
-                            if (GetPrimaryStat() != STAT_AGILITY && GetSpecializationId(GetActiveSpec()))
-                                break;
+                    HandleStatModifier(UNIT_MOD_STAT_STRENGTH, BASE_VALUE, float(l_StatValue), l_ApplyStats);
+                    ApplyStatBuffMod(STAT_STRENGTH, float(l_StatValue), l_ApplyStats);
+                    break;
+                }
+                case ITEM_MOD_INTELLECT:
+                {
+                    if (GetPrimaryStat() != STAT_INTELLECT && GetSpecializationId(GetActiveSpec()))
+                        break;
 
-                            HandleStatModifier(UNIT_MOD_STAT_AGILITY, BASE_VALUE, float(l_StatValue), l_ApplyStats);
-                            ApplyStatBuffMod(STAT_AGILITY, float(l_StatValue), l_ApplyStats);
-                            break;
-                        }
-                        case ITEM_MOD_STRENGTH:
-                        {
-                            if (GetPrimaryStat() != STAT_STRENGTH && GetSpecializationId(GetActiveSpec()))
-                                break;
+                    HandleStatModifier(UNIT_MOD_STAT_INTELLECT, BASE_VALUE, float(l_StatValue), l_ApplyStats);
+                    ApplyStatBuffMod(STAT_INTELLECT, float(l_StatValue), l_ApplyStats);
+                    break;
+                }
+                case ITEM_MOD_SPIRIT:
+                {
+                    if (GetPrimaryStat() != STAT_INTELLECT && GetSpecializationId(GetActiveSpec()))
+                        break;
 
-                            HandleStatModifier(UNIT_MOD_STAT_STRENGTH, BASE_VALUE, float(l_StatValue), l_ApplyStats);
-                            ApplyStatBuffMod(STAT_STRENGTH, float(l_StatValue), l_ApplyStats);
-                            break;
-                        }
-                        case ITEM_MOD_INTELLECT:
-                        {
-                            if (GetPrimaryStat() != STAT_INTELLECT && GetSpecializationId(GetActiveSpec()))
-                                break;
+                    HandleStatModifier(UNIT_MOD_STAT_SPIRIT, BASE_VALUE, float(l_StatValue), l_ApplyStats);
+                    ApplyStatBuffMod(STAT_SPIRIT, float(l_StatValue), l_ApplyStats);
+                    break;
+                }
+                case ITEM_MOD_STAMINA:
+                    HandleStatModifier(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(l_StatValue), l_ApplyStats);
+                    ApplyStatBuffMod(STAT_STAMINA, float(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_DODGE_RATING:
+                    ApplyRatingMod(CR_DODGE, int32(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_PARRY_RATING:
+                    ApplyRatingMod(CR_PARRY, int32(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_BLOCK_RATING:
+                    ApplyRatingMod(CR_BLOCK, int32(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_CRIT_RATING:
+                    ApplyRatingMod(CR_CRIT_MELEE, int32(l_StatValue), l_ApplyStats);
+                    ApplyRatingMod(CR_CRIT_RANGED, int32(l_StatValue), l_ApplyStats);
+                    ApplyRatingMod(CR_CRIT_SPELL, int32(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_RESILIENCE_RATING:
+                    ApplyRatingMod(CR_RESILIENCE_PLAYER_DAMAGE_TAKEN, int32(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_HASTE_RATING:
+                    ApplyRatingMod(CR_HASTE_MELEE, int32(l_StatValue), l_ApplyStats);
+                    ApplyRatingMod(CR_HASTE_RANGED, int32(l_StatValue), l_ApplyStats);
+                    ApplyRatingMod(CR_HASTE_SPELL, int32(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_ATTACK_POWER:
+                    HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, float(l_StatValue), l_ApplyStats);
+                    HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_VERSATILITY_RATING:
+                    ApplyRatingMod(CR_VERSATILITY_DAMAGE_DONE, int32(l_StatValue), l_ApplyStats);
+                    ApplyRatingMod(CR_VERSATILITY_DAMAGE_TAKEN, int32(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_MANA_REGENERATION:
+                    ApplyManaRegenBonus(int32(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_SPELL_POWER:
+                    ApplySpellPowerBonus(int32(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_HEALTH_REGEN:
+                    ApplyHealthRegenBonus(int32(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_MASTERY_RATING:
+                    ApplyRatingMod(CR_MASTERY, int32(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_EXTRA_ARMOR:
+                    HandleStatModifier(UNIT_MOD_ARMOR, BASE_VALUE, float(l_StatValue), l_ApplyStats);
+                    ApplyModUInt32Value(UNIT_FIELD_MOD_BONUS_ARMOR, uint32(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_FIRE_RESISTANCE:
+                    HandleStatModifier(UNIT_MOD_RESISTANCE_FIRE, BASE_VALUE, float(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_FROST_RESISTANCE:
+                    HandleStatModifier(UNIT_MOD_RESISTANCE_FROST, BASE_VALUE, float(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_HOLY_RESISTANCE:
+                    HandleStatModifier(UNIT_MOD_RESISTANCE_HOLY, BASE_VALUE, float(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_SHADOW_RESISTANCE:
+                    HandleStatModifier(UNIT_MOD_RESISTANCE_SHADOW, BASE_VALUE, float(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_NATURE_RESISTANCE:
+                    HandleStatModifier(UNIT_MOD_RESISTANCE_NATURE, BASE_VALUE, float(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_ARCANE_RESISTANCE:
+                    HandleStatModifier(UNIT_MOD_RESISTANCE_ARCANE, BASE_VALUE, float(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_PVP_POWER:
+                    ApplyRatingMod(CR_PVP_POWER, int32(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_MULTISTRIKE_RATING:
+                    ApplyRatingMod(CR_MULTISTRIKE, int32(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_SPEED_RATING:
+                    ApplyRatingMod(CR_SPEED, int32(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_LEECH_RATING:
+                    ApplyRatingMod(CR_LIFESTEAL, int32(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_AVOIDANCE_RATING:
+                    ApplyRatingMod(CR_AVOIDANCE, int32(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_DYNAMIC_STAT_AGI_STR_INT:
+                {
+                    Stats stat = GetPrimaryStat();
+                    HandleStatModifier((UnitMods)stat, BASE_VALUE, float(l_StatValue), l_ApplyStats);
+                    ApplyStatBuffMod(stat, float(l_StatValue), l_ApplyStats);
+                    break;
+                }
+                case ITEM_MOD_DYNAMIC_STAT_AGI_STR:
+                {
+                    Stats stat = GetPrimaryStat();
+                    if (stat != STAT_AGILITY && stat != STAT_STRENGTH)
+                        break;
 
-                            HandleStatModifier(UNIT_MOD_STAT_INTELLECT, BASE_VALUE, float(l_StatValue), l_ApplyStats);
-                            ApplyStatBuffMod(STAT_INTELLECT, float(l_StatValue), l_ApplyStats);
-                            break;
-                        }
-                        case ITEM_MOD_SPIRIT:
-                        {
-                            if (GetPrimaryStat() != STAT_INTELLECT && GetSpecializationId(GetActiveSpec()))
-                                break;
+                    HandleStatModifier((UnitMods)stat, BASE_VALUE, float(l_StatValue), l_ApplyStats);
+                    ApplyStatBuffMod(stat, float(l_StatValue), l_ApplyStats);
+                    break;
+                }
+                case ITEM_MOD_DYNAMIC_STAT_AGI_INT:
+                {
+                    Stats stat = GetPrimaryStat();
+                    if (stat != STAT_AGILITY && stat != STAT_INTELLECT)
+                        break;
 
-                            HandleStatModifier(UNIT_MOD_STAT_SPIRIT, BASE_VALUE, float(l_StatValue), l_ApplyStats);
-                            ApplyStatBuffMod(STAT_SPIRIT, float(l_StatValue), l_ApplyStats);
-                            break;
-                        }
-                        case ITEM_MOD_STAMINA:
-                            HandleStatModifier(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(l_StatValue), l_ApplyStats);
-                            ApplyStatBuffMod(STAT_STAMINA, float(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_DODGE_RATING:
-                            ApplyRatingMod(CR_DODGE, int32(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_PARRY_RATING:
-                            ApplyRatingMod(CR_PARRY, int32(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_BLOCK_RATING:
-                            ApplyRatingMod(CR_BLOCK, int32(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_CRIT_RATING:
-                            ApplyRatingMod(CR_CRIT_MELEE, int32(l_StatValue), l_ApplyStats);
-                            ApplyRatingMod(CR_CRIT_RANGED, int32(l_StatValue), l_ApplyStats);
-                            ApplyRatingMod(CR_CRIT_SPELL, int32(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_RESILIENCE_RATING:
-                            ApplyRatingMod(CR_RESILIENCE_PLAYER_DAMAGE_TAKEN, int32(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_HASTE_RATING:
-                            ApplyRatingMod(CR_HASTE_MELEE, int32(l_StatValue), l_ApplyStats);
-                            ApplyRatingMod(CR_HASTE_RANGED, int32(l_StatValue), l_ApplyStats);
-                            ApplyRatingMod(CR_HASTE_SPELL, int32(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_ATTACK_POWER:
-                            HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, float(l_StatValue), l_ApplyStats);
-                            HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_VERSATILITY_RATING:
-                            ApplyRatingMod(CR_VERSATILITY_DAMAGE_DONE, int32(l_StatValue), l_ApplyStats);
-                            ApplyRatingMod(CR_VERSATILITY_DAMAGE_TAKEN, int32(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_MANA_REGENERATION:
-                            ApplyManaRegenBonus(int32(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_SPELL_POWER:
-                            ApplySpellPowerBonus(int32(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_HEALTH_REGEN:
-                            ApplyHealthRegenBonus(int32(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_MASTERY_RATING:
-                            ApplyRatingMod(CR_MASTERY, int32(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_EXTRA_ARMOR:
-                            HandleStatModifier(UNIT_MOD_ARMOR, BASE_VALUE, float(l_StatValue), l_ApplyStats);
-                            ApplyModUInt32Value(UNIT_FIELD_MOD_BONUS_ARMOR, uint32(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_FIRE_RESISTANCE:
-                            HandleStatModifier(UNIT_MOD_RESISTANCE_FIRE, BASE_VALUE, float(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_FROST_RESISTANCE:
-                            HandleStatModifier(UNIT_MOD_RESISTANCE_FROST, BASE_VALUE, float(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_HOLY_RESISTANCE:
-                            HandleStatModifier(UNIT_MOD_RESISTANCE_HOLY, BASE_VALUE, float(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_SHADOW_RESISTANCE:
-                            HandleStatModifier(UNIT_MOD_RESISTANCE_SHADOW, BASE_VALUE, float(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_NATURE_RESISTANCE:
-                            HandleStatModifier(UNIT_MOD_RESISTANCE_NATURE, BASE_VALUE, float(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_ARCANE_RESISTANCE:
-                            HandleStatModifier(UNIT_MOD_RESISTANCE_ARCANE, BASE_VALUE, float(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_PVP_POWER:
-                            ApplyRatingMod(CR_PVP_POWER, int32(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_MULTISTRIKE_RATING:
-                            ApplyRatingMod(CR_MULTISTRIKE, int32(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_SPEED_RATING:
-                            ApplyRatingMod(CR_SPEED, int32(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_LEECH_RATING:
-                            ApplyRatingMod(CR_LIFESTEAL, int32(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_AVOIDANCE_RATING:
-                            ApplyRatingMod(CR_AVOIDANCE, int32(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_DYNAMIC_STAT_AGI_STR_INT:
-                        {
-                            Stats stat = GetPrimaryStat();
-                            HandleStatModifier((UnitMods)stat, BASE_VALUE, float(l_StatValue), l_ApplyStats);
-                            ApplyStatBuffMod(stat, float(l_StatValue), l_ApplyStats);
-                            break;
-                        }
-                        case ITEM_MOD_DYNAMIC_STAT_AGI_STR:
-                        {
-                            Stats stat = GetPrimaryStat();
-                            if (stat != STAT_AGILITY && stat != STAT_STRENGTH)
-                                break;
+                    HandleStatModifier((UnitMods)stat, BASE_VALUE, float(l_StatValue), l_ApplyStats);
+                    ApplyStatBuffMod(stat, float(l_StatValue), l_ApplyStats);
+                    break;
+                }
+                case ITEM_MOD_DYNAMIC_STAT_STR_INT:
+                {
+                    Stats stat = GetPrimaryStat();
+                    if (stat != STAT_INTELLECT && stat != STAT_STRENGTH)
+                        break;
 
-                            HandleStatModifier((UnitMods)stat, BASE_VALUE, float(l_StatValue), l_ApplyStats);
-                            ApplyStatBuffMod(stat, float(l_StatValue), l_ApplyStats);
-                            break;
-                        }
-                        case ITEM_MOD_DYNAMIC_STAT_AGI_INT:
-                        {
-                            Stats stat = GetPrimaryStat();
-                            if (stat != STAT_AGILITY && stat != STAT_INTELLECT)
-                                break;
-
-                            HandleStatModifier((UnitMods)stat, BASE_VALUE, float(l_StatValue), l_ApplyStats);
-                            ApplyStatBuffMod(stat, float(l_StatValue), l_ApplyStats);
-                            break;
-                        }
-                        case ITEM_MOD_DYNAMIC_STAT_STR_INT:
-                        {
-                            Stats stat = GetPrimaryStat();
-                            if (stat != STAT_INTELLECT && stat != STAT_STRENGTH)
-                                break;
-
-                            HandleStatModifier((UnitMods)stat, BASE_VALUE, float(l_StatValue), l_ApplyStats);
-                            ApplyStatBuffMod(stat, float(l_StatValue), l_ApplyStats);
-                            break;
-                        }
-                    }
+                    HandleStatModifier((UnitMods)stat, BASE_VALUE, float(l_StatValue), l_ApplyStats);
+                    ApplyStatBuffMod(stat, float(l_StatValue), l_ApplyStats);
+                    break;
                 }
             }
-         }
-     }
+        }
+    }
 }
 
 void Player::_ApplyItemBonuses(Item const* item, uint8 slot, bool apply, uint32 rescaleToItemLevel)
@@ -22909,7 +22917,6 @@ void Player::SavePositionInDB(uint32 mapid, float x, float y, float z, float o, 
 void Player::SetUInt32ValueInArray(Tokenizer& tokens, uint16 index, uint32 value)
 {
     char buf[11];
-    snprintf(buf, 11, "%u", value);
 
     if (index >= tokens.size())
         return;
@@ -31055,10 +31062,11 @@ void Player::RescaleItemTo(uint8 slot, uint32 ilvl)
     if(!proto)
         return;
 
-    _ApplyItemBonuses(item, slot, false, proto->ItemLevel);
-    _ApplyItemModifications(item, slot, false, proto->ItemLevel);
-    _ApplyItemBonuses(item, slot, true, ilvl);
+    _ApplyItemModifications(item, slot, true, proto->ItemLevel);
+    _ApplyItemBonuses(item, slot, true, proto->ItemLevel);
+    m_itemScale[slot] = proto->ItemLevel;
     _ApplyItemModifications(item, slot, true, ilvl);
+    _ApplyItemBonuses(item, slot, true, ilvl);
     m_itemScale[slot] = ilvl;
 }
 
