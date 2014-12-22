@@ -92,9 +92,6 @@ enum HunterSpells
     DIRE_BEAST_DUNGEONS                             = 132764,
     HUNTER_SPELL_GLYPH_OF_COLLAPSE                  = 126095,
     HUNTER_SPELL_HUNTERS_MARK                       = 1130,
-    HUNTER_SPELL_GLYPH_OF_MISDIRECTION              = 56829,
-    HUNTER_SPELL_MISDIRECTION                       = 34477,
-    HUNTER_SPELL_MISDIRECTION_PROC                  = 35079,
     HUNTER_SPELL_TRACK_BEASTS                       = 1494,
     HUNTER_SPELL_TRACK_DEMONS                       = 19878,
     HUNTER_SPELL_TRACK_DRAGONKIN                    = 19879,
@@ -2431,6 +2428,13 @@ class spell_hun_misdirection: public SpellScriptLoader
         {
             PrepareAuraScript(spell_hun_misdirection_AuraScript);
 
+            enum MisdirectionSpells
+            {
+                GlyphOfMisdirection = 56829,
+                MisdirectionSpell   = 34477,
+                MisdirectionProc    = 35079
+            };
+
             bool _hasGlyph;
 
             void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -2444,11 +2448,19 @@ class spell_hun_misdirection: public SpellScriptLoader
                 _hasGlyph = false;
 
                 if (Player* _player = GetCaster()->ToPlayer())
+                {
                     if (Unit* target = GetTarget())
+                    {
                         if (Pet* pet = _player->GetPet())
+                        {
                             if (pet->GetGUID() == target->GetGUID())
-                                if (_player->HasAura(HUNTER_SPELL_GLYPH_OF_MISDIRECTION))
+                            {
+                                if (_player->HasAura(MisdirectionSpells::GlyphOfMisdirection))
                                     _hasGlyph = true;
+                            }
+                        }
+                    }
+                }
             }
 
             void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -2464,10 +2476,10 @@ class spell_hun_misdirection: public SpellScriptLoader
 
                         if (_hasGlyph)
                         {
-                            if (_player->HasSpellCooldown(HUNTER_SPELL_MISDIRECTION))
-                                _player->RemoveSpellCooldown(HUNTER_SPELL_MISDIRECTION, true);
-                            if (_player->HasSpellCooldown(HUNTER_SPELL_MISDIRECTION_PROC))
-                                _player->RemoveSpellCooldown(HUNTER_SPELL_MISDIRECTION, true);
+                            if (_player->HasSpellCooldown(MisdirectionSpells::MisdirectionSpell))
+                                _player->RemoveSpellCooldown(MisdirectionSpells::MisdirectionSpell, true);
+                            if (_player->HasSpellCooldown(MisdirectionSpells::MisdirectionProc))
+                                _player->RemoveSpellCooldown(MisdirectionSpells::MisdirectionProc, true);
                         }
                     }
                 }
@@ -2475,8 +2487,8 @@ class spell_hun_misdirection: public SpellScriptLoader
 
             void Register()
             {
-                AfterEffectApply += AuraEffectApplyFn(spell_hun_misdirection_AuraScript::OnApply, EFFECT_2, SPELL_AURA_MOD_SCALE, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_hun_misdirection_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply += AuraEffectApplyFn(spell_hun_misdirection_AuraScript::OnApply, EFFECT_1, SPELL_AURA_MOD_SCALE, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_hun_misdirection_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_MOD_SCALE, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
