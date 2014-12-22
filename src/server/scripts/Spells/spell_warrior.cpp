@@ -1239,15 +1239,15 @@ class spell_warr_glyph_of_gag_order: public SpellScriptLoader
         }
 };
 
-// Shield Barrier - 112048
+// Shield Barrier - 174926
 class spell_warr_shield_barrier: public SpellScriptLoader
 {
     public:
-        spell_warr_shield_barrier() : SpellScriptLoader("spell_warl_shield_barrier") { }
+        spell_warr_shield_barrier() : SpellScriptLoader("spell_warr_shield_barrier") { }
 
-        class spell_warl_shield_barrier_AuraScript : public AuraScript
+        class spell_warr_shield_barrier_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_warl_shield_barrier_AuraScript);
+            PrepareAuraScript(spell_warr_shield_barrier_AuraScript);
 
             void CalculateAmount(constAuraEffectPtr aurEff, int32& amount, bool& /*canBeRecalculated*/)
             {
@@ -1257,13 +1257,13 @@ class spell_warr_shield_barrier: public SpellScriptLoader
 
             void Register()
             {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_shield_barrier_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warr_shield_barrier_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
             }
         };
 
         AuraScript* GetAuraScript() const
         {
-            return new spell_warl_shield_barrier_AuraScript();
+            return new spell_warr_shield_barrier_AuraScript();
         }
 };
 
