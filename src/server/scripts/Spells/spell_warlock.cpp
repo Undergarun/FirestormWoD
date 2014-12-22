@@ -132,7 +132,8 @@ enum WarlockSpells
     WARLOCK_DEMON_AXE_TOSS                  = 89766,
     WARLOCK_LIFE_TAP                        = 1454,
     WARLOCK_GLYPH_OF_LIFE_TAP               = 63320,
-    WARLOCK_SPELL_IMMOLATE_AURA             = 157736
+    WARLOCK_SPELL_IMMOLATE_AURA             = 157736,
+    WARLOCK_GLYPH_OF_DRAIN_LIFE             = 63302
 };
 
 // Called by Grimoire: Imp - 111859, Grimoire: Voidwalker - 111895, Grimoire: Succubus - 111896
@@ -2226,16 +2227,17 @@ class spell_warl_drain_life: public SpellScriptLoader
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    int32 l_Pct = GetSpellInfo()->Effects[EFFECT_1].BasePoints;
+                    int32 l_Heal = CalculatePct(l_Caster->GetMaxHealth(), 1);
+                    int32 l_Pct = 0;
 
                     if (AuraPtr l_EmpoweredDrainLife = l_Caster->GetAura(SPELL_WARL_EMPOWERED_DRAIN_LIFE))
-                        l_Pct += l_EmpoweredDrainLife->GetSpellInfo()->Effects[EFFECT_0].BasePoints * aurEff->GetTickNumber();
+                        l_Pct += l_EmpoweredDrainLife->GetSpellInfo()->Effects[EFFECT_0].BasePoints;
 
                     if (AuraPtr l_HarvestLife = l_Caster->GetAura(SPELL_WARL_HARVEST_LIFE))
-                        l_Pct = l_HarvestLife->GetSpellInfo()->Effects[EFFECT_0].BasePoints;
+                        l_Pct += l_HarvestLife->GetSpellInfo()->Effects[EFFECT_1].BasePoints;
 
-                    int32 l_Bp0 = l_Caster->CountPctFromMaxHealth(l_Pct / GetSpellInfo()->GetDuration());
-                    l_Caster->CastCustomSpell(l_Caster, SPELL_WARL_DRAIN_LIFE_HEAL, &l_Bp0, NULL, NULL, true);
+                    l_Heal += CalculatePct(l_Heal, l_Pct);
+                    l_Caster->CastCustomSpell(l_Caster, SPELL_WARL_DRAIN_LIFE_HEAL, &l_Heal, NULL, NULL, true);
                 }
             }
 
