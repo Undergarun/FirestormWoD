@@ -2028,7 +2028,7 @@ class spell_warl_ember_tap: public SpellScriptLoader
 
                         // ManaCost == 0, wrong way to retrieve cost ?
                         //l_Player->ModifyPower(POWER_BURNING_EMBERS, CalculatePct(GetSpellInfo()->ManaCost, l_SearingFlames->GetSpellInfo()->Effects[EFFECT_1].BasePoints));
-                        l_Player->ModifyPower(POWER_BURNING_EMBERS, 5 * l_Player->GetPowerCoeff(POWER_BURNING_EMBERS));
+                        l_Player->ModifyPower(POWER_BURNING_EMBERS, 5);
                     }
 
                     if (AuraPtr l_GlyphOfEmberTap = l_Player->GetAura(SPELL_WARL_GLYPH_OF_EMBER_TAP))
