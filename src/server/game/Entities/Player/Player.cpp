@@ -9951,7 +9951,7 @@ void Player::_ApplyItemBonuses(Item const* item, uint8 slot, bool apply, uint32 
     if (ilvl == rescaleToItemLevel)
         return;
 
-     bool applyStats = rescaleToItemLevel < ilvl && rescaleToItemLevel ? !apply : apply;
+    bool applyStats = rescaleToItemLevel < ilvl && rescaleToItemLevel ? !apply : apply;
 
     for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
     {
