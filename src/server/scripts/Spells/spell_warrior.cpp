@@ -1353,6 +1353,68 @@ public:
     }
 };
 
+enum WhirlwindSpells
+{
+    SPELL_WARR_WHIRLWIND_OFFHAND = 44949
+};
+
+// Whirlwind - 1680
+class spell_warr_whirlwind: public SpellScriptLoader
+{
+public:
+    spell_warr_whirlwind() : SpellScriptLoader("spell_warr_whirlwind") { }
+
+    class spell_warr_whirlwind_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warr_whirlwind_SpellScript);
+
+        void HandleOnHit()
+        {
+            Player* l_Player = GetCaster()->ToPlayer();
+            Unit* l_Target = GetHitUnit();
+            if (!l_Player || !l_Target)
+                return;
+
+            if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_FURY)
+                l_Player->CastSpell(l_Target, SPELL_WARR_WHIRLWIND_OFFHAND, true);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_warr_whirlwind_SpellScript::HandleOnHit);
+        }
+    };
+
+    class spell_warr_whirlwind_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_warr_whirlwind_AuraScript);
+
+        void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+        {
+            if (Unit* l_Caster = GetCaster())
+                if (Player* l_Player = l_Caster->ToPlayer())
+                    if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
+                        amount = 200;
+        }
+
+        void Register()
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warr_whirlwind_AuraScript::CalculateAmount, EFFECT_1, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
+        }
+
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_warr_whirlwind_SpellScript();
+    }
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_warr_whirlwind_AuraScript();
+    }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_slam();
@@ -1388,4 +1450,5 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_shield_barrier();
     new spell_warr_anger_management();
     new spell_warr_execute();
+    new spell_warr_whirlwind();
 }
