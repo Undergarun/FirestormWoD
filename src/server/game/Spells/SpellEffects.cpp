@@ -571,18 +571,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
         {
             switch (m_spellInfo->Id)
             {
-            case 29722: // Incinerate
-            case 114654:// Incinerate (Fire and Brimstone)
-            {
-                // Incinerate does more dmg (dmg/6) if the target have Immolate debuff.
-                // Check aura state for speed but aura state set not only for Immolate spell
-                if (unitTarget->HasAuraState(AURA_STATE_CONFLAGRATE))
-                {
-                    if (unitTarget->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_WARLOCK, 0x4, 0, 0))
-                        damage += damage / 6;
-                }
-                break;
-            }
             case 87385:// Soulburn : Seed of Corruption (AoE)
             {
                 // Apply corruption to each target
