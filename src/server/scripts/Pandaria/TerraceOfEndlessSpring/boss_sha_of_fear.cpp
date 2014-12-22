@@ -1718,7 +1718,7 @@ class mob_dread_spawn : public CreatureScript
 };
 
 // Breath of Fear - 119414 / 125786
-class spell_breath_of_fear : public SpellScriptLoader
+class spell_breath_of_fear: public SpellScriptLoader
 {
     public:
         spell_breath_of_fear() : SpellScriptLoader("spell_breath_of_fear") { }
@@ -1750,7 +1750,7 @@ class spell_breath_of_fear : public SpellScriptLoader
 };
 
 // Conjure Terror Spawn - 119108
-class spell_conjure_terror_spawn : public SpellScriptLoader
+class spell_conjure_terror_spawn: public SpellScriptLoader
 {
     public:
         spell_conjure_terror_spawn() : SpellScriptLoader("spell_conjure_terror_spawn") { }
@@ -1778,7 +1778,7 @@ class spell_conjure_terror_spawn : public SpellScriptLoader
 };
 
 // Penetrating Bolt - 129075
-class spell_penetrating_bolt : public SpellScriptLoader
+class spell_penetrating_bolt: public SpellScriptLoader
 {
     public:
         spell_penetrating_bolt() : SpellScriptLoader("spell_penetrating_bolt") { }
@@ -1827,7 +1827,7 @@ class spell_penetrating_bolt : public SpellScriptLoader
 };
 
 // Ominous Cackle - 119593
-class spell_ominous_cackle_cast : public SpellScriptLoader
+class spell_ominous_cackle_cast: public SpellScriptLoader
 {
     public:
         spell_ominous_cackle_cast() : SpellScriptLoader("spell_ominous_cackle_cast") { }
@@ -1938,7 +1938,7 @@ class spell_ominous_cackle_cast : public SpellScriptLoader
 };
 
 // Dread Spray - 120047
-class spell_dread_spray : public SpellScriptLoader
+class spell_dread_spray: public SpellScriptLoader
 {
     public:
         spell_dread_spray() : SpellScriptLoader("spell_dread_spray") { }
@@ -1975,7 +1975,7 @@ class spell_dread_spray : public SpellScriptLoader
 };
 
 // Dread Spray (stacks) - 119983
-class spell_dread_spray_stacks : public SpellScriptLoader
+class spell_dread_spray_stacks: public SpellScriptLoader
 {
     public:
         spell_dread_spray_stacks() : SpellScriptLoader("spell_dread_spray_stacks") { }
@@ -2048,7 +2048,7 @@ class spell_dread_spray_stacks : public SpellScriptLoader
 };
 
 // Sha Globe (periodic) - 129189
-class spell_sha_globe_periodic : public SpellScriptLoader
+class spell_sha_globe_periodic: public SpellScriptLoader
 {
     public:
         spell_sha_globe_periodic() : SpellScriptLoader("spell_sha_globe_periodic") { }
@@ -2079,7 +2079,7 @@ class spell_sha_globe_periodic : public SpellScriptLoader
 };
 
 // Death Blossom - 119888
-class spell_death_blossom_periodic : public SpellScriptLoader
+class spell_death_blossom_periodic: public SpellScriptLoader
 {
     public:
         spell_death_blossom_periodic() : SpellScriptLoader("spell_death_blossom_periodic") { }
@@ -2113,7 +2113,7 @@ class spell_death_blossom_periodic : public SpellScriptLoader
 };
 
 // Death Blossom (damage) - 119887
-class spell_death_blossom_damage : public SpellScriptLoader
+class spell_death_blossom_damage: public SpellScriptLoader
 {
     public:
         spell_death_blossom_damage() : SpellScriptLoader("spell_death_blossom_damage") { }
@@ -2154,7 +2154,7 @@ class spell_death_blossom_damage : public SpellScriptLoader
 };
 
 // Submerge - 120455
-class spell_submerge : public SpellScriptLoader
+class spell_submerge: public SpellScriptLoader
 {
     public:
         spell_submerge() : SpellScriptLoader("spell_submerge") { }
@@ -2185,7 +2185,7 @@ class spell_submerge : public SpellScriptLoader
 };
 
 // Emerge - 120458
-class spell_emerge : public SpellScriptLoader
+class spell_emerge: public SpellScriptLoader
 {
     public:
         spell_emerge() : SpellScriptLoader("spell_emerge") { }
@@ -2216,7 +2216,7 @@ class spell_emerge : public SpellScriptLoader
 };
 
 // 120519 - Waterspout
-class spell_sha_waterspout : public SpellScriptLoader
+class spell_sha_waterspout: public SpellScriptLoader
 {
     public:
         spell_sha_waterspout() : SpellScriptLoader("spell_sha_waterspout") { }
@@ -2258,7 +2258,7 @@ class spell_sha_waterspout : public SpellScriptLoader
 };
 
 // 120285 - Transfer Light
-class spell_transfer_light : public SpellScriptLoader
+class spell_transfer_light: public SpellScriptLoader
 {
     public:
         spell_transfer_light() : SpellScriptLoader("spell_transfer_light") { }
@@ -2301,7 +2301,7 @@ class spell_transfer_light : public SpellScriptLoader
 };
 
 // 120672 - Implacable Strike
-class spell_implacable_strike : public SpellScriptLoader
+class spell_implacable_strike: public SpellScriptLoader
 {
     public:
         spell_implacable_strike() : SpellScriptLoader("spell_implacable_strike") { }

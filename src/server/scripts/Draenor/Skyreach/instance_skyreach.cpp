@@ -118,6 +118,8 @@ namespace MS
                         break;
                     case BossEntries::RUKHRAN:
                         m_RukhranGuid = p_Creature->GetGUID();
+                        if (GetBossState(Data::Rukhran) == EncounterState::SPECIAL)
+                            SetData(Data::SkyreachRavenWhispererIsDead, 0);
                         break;
                     case MobEntries::SKYREACH_ARCANALOGIST:
                         m_SkyreachArcanologistGuid = p_Creature->GetGUID();
@@ -127,10 +129,20 @@ namespace MS
                         break;
                     case MobEntries::SKYREACH_SOLAR_CONSTRUCTOR:
                         m_SolarConstructorsGuid.emplace_front(p_Creature->GetGUID());
-                        p_Creature->RemoveAura(RandomSpells::SUBMERGED);
                         p_Creature->DisableEvadeMode();
-                        p_Creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_IMMUNE_TO_PC);
-                        p_Creature->CastSpell(p_Creature, uint32(RandomSpells::ENERGIZE_VISUAL_1));
+                        p_Creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_IMMUNE_TO_PC);
+                        if (GetBossState(Data::Araknath) == EncounterState::NOT_STARTED || GetBossState(Data::Araknath) == EncounterState::TO_BE_DECIDED)
+                        {
+                            p_Creature->CastSpell(p_Creature, uint32(RandomSpells::ENERGIZE_VISUAL_1));
+                            p_Creature->RemoveAura(RandomSpells::SUBMERGED);
+                        }
+                        else
+                        {
+                            p_Creature->AddAura(RandomSpells::SUBMERGED, p_Creature);
+                            p_Creature->SetReactState(ReactStates::REACT_PASSIVE);
+                            p_Creature->getThreatManager().clearReferences();
+                            p_Creature->getThreatManager().resetAllAggro();
+                        }
                         break;
                     case MobEntries::SKYREACH_RAVEN_WHISPERER:
                         m_SkyreachRavenWhispererGuid = p_Creature->GetGUID();
@@ -154,7 +166,9 @@ namespace MS
                         p_Creature->SetReactState(REACT_PASSIVE);
                         break;
                     case MobEntries::PILE_OF_ASHES:
-                        p_Creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        p_Creature->AddUnitState(UNIT_STATE_UNATTACKABLE);
+                        p_Creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                        p_Creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
                         m_PileOfAshesGuid.insert(p_Creature->GetGUID());
                         break;
                     case MobEntries::SOLAR_FLARE:
@@ -182,6 +196,10 @@ namespace MS
                         break;
                     case MobEntries::SunConstructEnergizer:
                         m_SolarConstructorEnergizerGuid = p_Creature->GetGUID();
+                        p_Creature->SetDisableGravity(true);
+                        p_Creature->SetCanFly(true);
+                        p_Creature->SetByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                        p_Creature->SetReactState(REACT_PASSIVE);
                         break;
                     case MobEntries::InteriorFocus:
                         m_InteriorFocusGuid = p_Creature->GetGUID();
@@ -239,10 +257,6 @@ namespace MS
                         case GameObjectEntries::DOOR_RUKHRAN_EXIT:
                         case GameObjectEntries::DOOR_HIGH_SAVE_VIRYX_ENTRANCE:
                             AddDoor(p_Gameobject, true);
-                            break;
-                        case GameObjectEntries::CACHE_OF_ARAKKOAN_TREASURES:
-                            p_Gameobject->SetPhaseMask(0, true);
-                            m_CacheOfArakoanTreasuresGuid = p_Gameobject->GetGUID();
                             break;
                         case GameObjectEntries::DOOR_CHALLENGE_ENTRANCE:
                             m_ChallengeDoorGuid = p_Gameobject->GetGUID();
@@ -302,19 +316,31 @@ namespace MS
                         case EncounterState::DONE:
                             if (instance->IsHeroic())
                                 DoCompleteAchievement(uint32(Achievements::MagnifyEnhance));
+
+                            for (uint64 l_Guid : m_SolarConstructorsGuid)
+                            {
+                                if (Creature* l_Constructor = sObjectAccessor->FindCreature(l_Guid))
+                                {
+                                    l_Constructor->CombatStop();
+                                    l_Constructor->SetReactState(ReactStates::REACT_PASSIVE);
+                                    l_Constructor->getThreatManager().clearReferences();
+                                    l_Constructor->getThreatManager().resetAllAggro();
+                                }
+                            }
+
                             break;
                         }
                         break;
                     case Data::Rukhran:
                         switch (p_State)
                         {
-                        case EncounterState::DONE:
-                            if (GameObject* l_Gob = sObjectAccessor->FindGameObject(m_CacheOfArakoanTreasuresGuid))
-                                l_Gob->SetPhaseMask(1, true);
-                            break;
                         case EncounterState::FAIL:
-                            if (Creature* l_SkyreachRavenWhisperer = sObjectAccessor->FindCreature(m_SkyreachRavenWhispererGuid))
-                                l_SkyreachRavenWhisperer->Respawn();
+                            if (Creature* l_Rukhran = sObjectAccessor->FindCreature(m_RukhranGuid))
+                            {
+                                l_Rukhran->GetMotionMaster()->Clear(true);
+                                SetBossState(Data::Rukhran, EncounterState::SPECIAL);
+                                l_Rukhran->GetMotionMaster()->MovePoint(12, 918.92f, 1913.46f, 215.87f);
+                            }
                             break;
                         }
                         break;
@@ -351,13 +377,21 @@ namespace MS
                     case Data::SkyreachRavenWhispererIsDead:
                         if (Creature* l_Rukhran = sObjectAccessor->FindCreature(m_RukhranGuid))
                         {
-                            l_Rukhran->GetMotionMaster()->Clear(true);
-                            l_Rukhran->GetMotionMaster()->MovePoint(12, 918.92f, 1913.46f, 215.87f);
+                            if (GetBossState(Data::Rukhran) == EncounterState::NOT_STARTED)
+                            {
+                                l_Rukhran->GetMotionMaster()->Clear(true);
+                                l_Rukhran->GetMotionMaster()->MovePoint(12, 918.92f, 1913.46f, 215.87f);
+                                l_Rukhran->DisableEvadeMode();
+                                SetBossState(Data::Rukhran, EncounterState::SPECIAL);
+                            }
+                            else
+                                l_Rukhran->SetOrientation(5.4f);
                         }
                         break;
                     case Data::SkyreachArcanologistIsDead:
                         if (Creature* l_Araknath = sObjectAccessor->FindCreature(m_AraknathGuid))
                         {
+                            SetBossState(Data::Araknath, EncounterState::SPECIAL);
                             l_Araknath->RemoveAura(RandomSpells::SUBMERGED);
                             l_Araknath->SetReactState(REACT_AGGRESSIVE);
                         }

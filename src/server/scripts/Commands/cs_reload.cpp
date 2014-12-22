@@ -40,7 +40,7 @@ EndScriptData */
 #include "ScriptSystem.h"
 #include "GuildMgr.h"
 
-class reload_commandscript : public CommandScript
+class reload_commandscript: public CommandScript
 {
 public:
     reload_commandscript() : CommandScript("reload_commandscript") { }

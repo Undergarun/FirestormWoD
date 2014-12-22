@@ -1,5 +1,4 @@
 #include "instance_bloodmaul.h"
-#include "AreaTriggerScript.h"
 #include <forward_list>
 
 namespace MS
@@ -26,7 +25,7 @@ namespace MS
                 {
                 }
 
-                MS::AreaTriggerEntityScript* GetAI() const
+                AreaTriggerEntityScript* GetAI() const
                 {
                     return new AreaTrigger_SuppresionField();
                 }

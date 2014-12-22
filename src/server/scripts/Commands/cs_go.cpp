@@ -28,7 +28,7 @@ EndScriptData */
 #include "TicketMgr.h"
 #include "Chat.h"
 
-class go_commandscript : public CommandScript
+class go_commandscript: public CommandScript
 {
 public:
     go_commandscript() : CommandScript("go_commandscript") { }

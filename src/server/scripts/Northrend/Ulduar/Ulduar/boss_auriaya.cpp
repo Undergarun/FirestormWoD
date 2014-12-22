@@ -555,7 +555,7 @@ class SanctumSentryCheck
         }
 };
 
-class spell_auriaya_strenght_of_the_pack : public SpellScriptLoader
+class spell_auriaya_strenght_of_the_pack: public SpellScriptLoader
 {
     public:
         spell_auriaya_strenght_of_the_pack() : SpellScriptLoader("spell_auriaya_strenght_of_the_pack") { }
@@ -581,7 +581,7 @@ class spell_auriaya_strenght_of_the_pack : public SpellScriptLoader
         }
 };
 */
-class spell_auriaya_sentinel_blast : public SpellScriptLoader
+class spell_auriaya_sentinel_blast: public SpellScriptLoader
 {
     public:
         spell_auriaya_sentinel_blast() : SpellScriptLoader("spell_auriaya_sentinel_blast") { }

@@ -24,7 +24,6 @@
 #include "SpellScript.h"
 #include "upper_blackrock_spire.h"
 #include "Vehicle.h"
-#include "AreaTriggerScript.h"
 
 enum eSpells
 {
@@ -1063,10 +1062,10 @@ class mob_awbee : public CreatureScript
 };
 
 ///< Noxious Spit - 161827
-class areatrigger_noxious_spit : public MS::AreaTriggerEntityScript
+class areatrigger_noxious_spit : public AreaTriggerEntityScript
 {
     public:
-        areatrigger_noxious_spit() : MS::AreaTriggerEntityScript("areatrigger_noxious_spit") { }
+        areatrigger_noxious_spit() : AreaTriggerEntityScript("areatrigger_noxious_spit") { }
 
         enum Spells
         {
@@ -1078,8 +1077,8 @@ class areatrigger_noxious_spit : public MS::AreaTriggerEntityScript
             std::list<Unit*> l_TargetList;
             float l_Radius = 3.0f;
 
-            JadeCore::NearestAttackableUnitInObjectRangeCheck l_Check(p_AreaTrigger, p_AreaTrigger->GetCaster(), l_Radius);
-            JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+            JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, p_AreaTrigger->GetCaster(), l_Radius);
+            JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
             p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
 
             for (Unit* l_Unit : l_TargetList)
@@ -1091,7 +1090,7 @@ class areatrigger_noxious_spit : public MS::AreaTriggerEntityScript
             }
         }
 
-        MS::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new areatrigger_noxious_spit();
         }

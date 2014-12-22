@@ -23,7 +23,6 @@
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "upper_blackrock_spire.h"
-#include "AreaTriggerScript.h"
 #include "MoveSplineInit.h"
 #include "Vehicle.h"
 
@@ -183,7 +182,11 @@ class boss_warlord_zaela : public CreatureScript
 
                 summons.DespawnAll();
 
-                me->NearTeleportTo(m_JumpPos.m_positionX, m_JumpPos.m_positionY, m_JumpPos.m_positionZ, m_JumpPos.m_orientation);
+                if (m_TharbekIntroDone)
+                {
+                    m_JumpPos = g_SpawnPos;
+                    me->NearTeleportTo(m_JumpPos.m_positionX, m_JumpPos.m_positionY, m_JumpPos.m_positionZ, m_JumpPos.m_orientation);
+                }
 
                 m_Phase = eMisc::PhaseGround;
                 m_BurningBreathCount = 0;
@@ -829,10 +832,10 @@ class mob_zaela_black_iron_wyrm_rider : public CreatureScript
 };
 
 ///< Burning Bridge - 166721
-class areatrigger_burning_bridge : public MS::AreaTriggerEntityScript
+class areatrigger_burning_bridge : public AreaTriggerEntityScript
 {
     public:
-        areatrigger_burning_bridge() : MS::AreaTriggerEntityScript("areatrigger_burning_bridge") { }
+        areatrigger_burning_bridge() : AreaTriggerEntityScript("areatrigger_burning_bridge") { }
 
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
@@ -850,14 +853,14 @@ class areatrigger_burning_bridge : public MS::AreaTriggerEntityScript
             }
         }
 
-        MS::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new areatrigger_burning_bridge();
         }
 };
 
 ///< Burning Breath (triggered) - 166041
-class spell_burning_breath : public SpellScriptLoader
+class spell_burning_breath: public SpellScriptLoader
 {
     public:
         spell_burning_breath() : SpellScriptLoader("spell_burning_breath") { }

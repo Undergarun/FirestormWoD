@@ -783,7 +783,7 @@ class npc_ji_firepaw_killcredit : public CreatureScript
         }
 };
 
-class playerScript_AutoAcceptQuest : public PlayerScript
+class playerScript_AutoAcceptQuest: public PlayerScript
 {
     public:
         playerScript_AutoAcceptQuest() : PlayerScript("playerScript_AutoAcceptQuest") { }

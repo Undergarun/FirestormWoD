@@ -126,6 +126,11 @@ extern uint32 gGarrisonBuildingActivationGameObject[GARRISON_FACTION_COUNT];
 #define GARRISON_CACHE_MIN_CURRENCY             5
 #define GARRISON_CACHE_GENERATE_TICK            (10 * MINUTE)
 
+enum 
+{
+    GARRISON_CREATURE_AI_DATA_BUILDER = 10000
+};
+
 struct GarrisonPlotInstanceInfoLocation
 {
     uint32 SiteLevelID;
@@ -410,7 +415,8 @@ class Garrison
 
         std::map<uint32, uint64>                m_PlotsGob;
         std::map<uint32, uint64>                m_PlotsActivateGob;
-        std::map<uint32, std::vector<uint64>>   m_PlotsBuildingCosmeticGobs;
+        std::map<uint32, std::vector<uint64>>   m_PlotsGameObjects;
+        std::map<uint32, std::vector<uint64>>   m_PlotsCreatures;
 
         uint32 m_Stat_MaxActiveFollower;
 

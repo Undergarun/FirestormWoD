@@ -1077,7 +1077,7 @@ class npc_unstable_sha : public CreatureScript
 };
 
 // 125843, jam spell ? - Dread Shadows
-class spell_dread_shadows_damage : public SpellScriptLoader
+class spell_dread_shadows_damage: public SpellScriptLoader
 {
     public:
         spell_dread_shadows_damage() : SpellScriptLoader("spell_dread_shadows_damage") { }
@@ -1118,7 +1118,7 @@ class DreadShadowsTargetCheck
 };
 
 // 122768 - Dread Shadows
-class spell_dread_shadows_malus : public SpellScriptLoader
+class spell_dread_shadows_malus: public SpellScriptLoader
 {
     public:
         spell_dread_shadows_malus() : SpellScriptLoader("spell_dread_shadows_malus") { }
@@ -1147,7 +1147,7 @@ class spell_dread_shadows_malus : public SpellScriptLoader
 };
 
 // 122789 - Sunbeam
-class spell_sunbeam : public SpellScriptLoader
+class spell_sunbeam: public SpellScriptLoader
 {
     public:
         spell_sunbeam() : SpellScriptLoader("spell_sunbeam") { }
@@ -1229,7 +1229,7 @@ class spell_sunbeam : public SpellScriptLoader
 };
 
 // 122855 - Sun Breath
-class spell_sun_breath : public SpellScriptLoader
+class spell_sun_breath: public SpellScriptLoader
 {
     public:
         spell_sun_breath() : SpellScriptLoader("spell_sun_breath") { }
@@ -1267,7 +1267,7 @@ class spell_sun_breath : public SpellScriptLoader
 };
 
 // 123018 - Terrorize
-class spell_terrorize_player : public SpellScriptLoader
+class spell_terrorize_player: public SpellScriptLoader
 {
     public:
         spell_terrorize_player() : SpellScriptLoader("spell_terrorize_player") { }
@@ -1297,7 +1297,7 @@ class spell_terrorize_player : public SpellScriptLoader
         }
 };
 // 123697 - Instability
-class spell_instability : public SpellScriptLoader
+class spell_instability: public SpellScriptLoader
 {
     public:
         spell_instability() : SpellScriptLoader("spell_instability") { }
@@ -1330,7 +1330,7 @@ class spell_instability : public SpellScriptLoader
 };
 
 // 123716 - Light of the day
-class spell_light_of_the_day : public SpellScriptLoader
+class spell_light_of_the_day: public SpellScriptLoader
 {
     public:
         spell_light_of_the_day() : SpellScriptLoader("spell_light_of_the_day") { }

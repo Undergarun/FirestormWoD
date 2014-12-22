@@ -459,7 +459,7 @@ class npc_bone_spike : public CreatureScript
         }
 };
 
-class spell_marrowgar_coldflame : public SpellScriptLoader
+class spell_marrowgar_coldflame: public SpellScriptLoader
 {
     public:
         spell_marrowgar_coldflame() : SpellScriptLoader("spell_marrowgar_coldflame") { }
@@ -501,7 +501,7 @@ class spell_marrowgar_coldflame : public SpellScriptLoader
         }
 };
 
-class spell_marrowgar_coldflame_bonestorm : public SpellScriptLoader
+class spell_marrowgar_coldflame_bonestorm: public SpellScriptLoader
 {
     public:
         spell_marrowgar_coldflame_bonestorm() : SpellScriptLoader("spell_marrowgar_coldflame_bonestorm") { }
@@ -529,7 +529,7 @@ class spell_marrowgar_coldflame_bonestorm : public SpellScriptLoader
         }
 };
 
-class spell_marrowgar_coldflame_damage : public SpellScriptLoader
+class spell_marrowgar_coldflame_damage: public SpellScriptLoader
 {
     public:
         spell_marrowgar_coldflame_damage() : SpellScriptLoader("spell_marrowgar_coldflame_damage") { }
@@ -559,7 +559,7 @@ class spell_marrowgar_coldflame_damage : public SpellScriptLoader
         }
 };
 
-class spell_marrowgar_bone_spike_graveyard : public SpellScriptLoader
+class spell_marrowgar_bone_spike_graveyard: public SpellScriptLoader
 {
     public:
         spell_marrowgar_bone_spike_graveyard() : SpellScriptLoader("spell_marrowgar_bone_spike_graveyard") { }
@@ -632,7 +632,7 @@ class spell_marrowgar_bone_spike_graveyard : public SpellScriptLoader
         }
 };
 
-class spell_marrowgar_bone_storm : public SpellScriptLoader
+class spell_marrowgar_bone_storm: public SpellScriptLoader
 {
     public:
         spell_marrowgar_bone_storm() : SpellScriptLoader("spell_marrowgar_bone_storm") { }

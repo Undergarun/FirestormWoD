@@ -367,7 +367,7 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
 // 49345 - Call Emerald Drake
 // 49461 - Call Amber Drake
 // 49462 - Call Ruby Drake
-class spell_oculus_call_ruby_emerald_amber_drake : public SpellScriptLoader
+class spell_oculus_call_ruby_emerald_amber_drake: public SpellScriptLoader
 {
     public:
         spell_oculus_call_ruby_emerald_amber_drake() : SpellScriptLoader("spell_oculus_call_ruby_emerald_amber_drake") { }
@@ -409,7 +409,7 @@ class spell_oculus_call_ruby_emerald_amber_drake : public SpellScriptLoader
 // 49427 - Ride Emerald Drake Que
 // 49459 - Ride Amber Drake Que
 // 49463 - Ride Ruby Drake Que
-class spell_oculus_ride_ruby_emerald_amber_drake_que : public SpellScriptLoader
+class spell_oculus_ride_ruby_emerald_amber_drake_que: public SpellScriptLoader
 {
     public:
         spell_oculus_ride_ruby_emerald_amber_drake_que() : SpellScriptLoader("spell_oculus_ride_ruby_emerald_amber_drake_que") { }
@@ -439,7 +439,7 @@ class spell_oculus_ride_ruby_emerald_amber_drake_que : public SpellScriptLoader
 };
 
 // 49838 - Stop Time
-class spell_oculus_stop_time : public SpellScriptLoader
+class spell_oculus_stop_time: public SpellScriptLoader
 {
     public:
         spell_oculus_stop_time() : SpellScriptLoader("spell_oculus_stop_time") { }
@@ -478,7 +478,7 @@ class spell_oculus_stop_time : public SpellScriptLoader
         }
 };
 
-class spell_oculus_touch_the_nightmare : public SpellScriptLoader
+class spell_oculus_touch_the_nightmare: public SpellScriptLoader
 {
     public:
         spell_oculus_touch_the_nightmare() : SpellScriptLoader("spell_oculus_touch_the_nightmare") { }

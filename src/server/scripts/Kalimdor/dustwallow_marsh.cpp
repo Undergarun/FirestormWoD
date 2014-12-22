@@ -168,7 +168,7 @@ enum SpellScripts
     SPELL_ENERGIZED             = 42492,
 };
 
-class spell_ooze_zap : public SpellScriptLoader
+class spell_ooze_zap: public SpellScriptLoader
 {
     public:
         spell_ooze_zap() : SpellScriptLoader("spell_ooze_zap") { }
@@ -215,7 +215,7 @@ class spell_ooze_zap : public SpellScriptLoader
         }
 };
 
-class spell_ooze_zap_channel_end : public SpellScriptLoader
+class spell_ooze_zap_channel_end: public SpellScriptLoader
 {
     public:
         spell_ooze_zap_channel_end() : SpellScriptLoader("spell_ooze_zap_channel_end") { }
@@ -251,7 +251,7 @@ class spell_ooze_zap_channel_end : public SpellScriptLoader
         }
 };
 
-class spell_energize_aoe : public SpellScriptLoader
+class spell_energize_aoe: public SpellScriptLoader
 {
     public:
         spell_energize_aoe() : SpellScriptLoader("spell_energize_aoe") { }

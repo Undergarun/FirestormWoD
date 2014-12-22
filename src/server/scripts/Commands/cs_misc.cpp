@@ -34,7 +34,7 @@
 #include "DisableMgr.h"
 #include <fstream>
 
-class misc_commandscript : public CommandScript
+class misc_commandscript: public CommandScript
 {
     public:
         misc_commandscript() : CommandScript("misc_commandscript") { }

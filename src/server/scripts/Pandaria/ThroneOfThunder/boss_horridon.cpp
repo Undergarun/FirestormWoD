@@ -2207,7 +2207,7 @@ class mob_direhorn_spirit : public CreatureScript
 };
 
 // Control of Horridon - 137433 / 137442 / 137443 / 137444
-class spell_control_of_horridon : public SpellScriptLoader
+class spell_control_of_horridon: public SpellScriptLoader
 {
     public:
         spell_control_of_horridon() : SpellScriptLoader("spell_control_of_horridon") { }
@@ -2238,7 +2238,7 @@ class spell_control_of_horridon : public SpellScriptLoader
 };
 
 // Headache - 137294
-class spell_headache : public SpellScriptLoader
+class spell_headache: public SpellScriptLoader
 {
     public:
         spell_headache() : SpellScriptLoader("spell_headache") { }
@@ -2265,7 +2265,7 @@ class spell_headache : public SpellScriptLoader
 };
 
 // Dire Call - 137458
-class spell_dire_call : public SpellScriptLoader
+class spell_dire_call: public SpellScriptLoader
 {
     public:
         spell_dire_call() : SpellScriptLoader("spell_dire_call") { }
@@ -2296,7 +2296,7 @@ class spell_dire_call : public SpellScriptLoader
 };
 
 // Double Swipe - 136739 / 136740
-class spell_double_swipe : public SpellScriptLoader
+class spell_double_swipe: public SpellScriptLoader
 {
     public:
         spell_double_swipe() : SpellScriptLoader("spell_double_swipe") { }

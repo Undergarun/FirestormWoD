@@ -433,7 +433,7 @@ class npc_perotharn_eye_of_perotharn : public CreatureScript
         };
 };
 
-class spell_perotharn_drain_essence : public SpellScriptLoader
+class spell_perotharn_drain_essence: public SpellScriptLoader
 {
     public:
         spell_perotharn_drain_essence() : SpellScriptLoader("spell_perotharn_drain_essence") { }
@@ -467,7 +467,7 @@ class spell_perotharn_drain_essence : public SpellScriptLoader
         }
 };
 
-class spell_perotharn_drain_essence_dmg : public SpellScriptLoader
+class spell_perotharn_drain_essence_dmg: public SpellScriptLoader
 {
     public:
         spell_perotharn_drain_essence_dmg() : SpellScriptLoader("spell_perotharn_drain_essence_dmg") { }
@@ -493,7 +493,7 @@ class spell_perotharn_drain_essence_dmg : public SpellScriptLoader
         }
 };
 
-class spell_perotharn_punishing_flames_dmg : public SpellScriptLoader
+class spell_perotharn_punishing_flames_dmg: public SpellScriptLoader
 {
     public:
         spell_perotharn_punishing_flames_dmg() : SpellScriptLoader("spell_perotharn_punishing_flames_dmg") { }

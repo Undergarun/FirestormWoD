@@ -479,7 +479,7 @@ class npc_scorch_ground : public CreatureScript
         }
 };
 
-class spell_ignis_slag_pot : public SpellScriptLoader
+class spell_ignis_slag_pot: public SpellScriptLoader
 {
     public:
         spell_ignis_slag_pot() : SpellScriptLoader("spell_ignis_slag_pot") { }

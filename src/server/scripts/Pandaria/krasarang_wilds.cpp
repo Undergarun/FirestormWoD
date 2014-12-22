@@ -470,7 +470,7 @@ class mob_champion_of_chi_ji : public CreatureScript
 };
 
 // Chi Torpedo - 119539
-class spell_chi_torpedo_periodic : public SpellScriptLoader
+class spell_chi_torpedo_periodic: public SpellScriptLoader
 {
     public:
         spell_chi_torpedo_periodic() : SpellScriptLoader("spell_chi_torpedo_periodic") { }

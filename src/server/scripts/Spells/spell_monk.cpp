@@ -124,7 +124,7 @@ enum MonkSpells
 };
 
 // Tiger Eye Brew - 123980 & Mana Tea - 123766
-class PlayerScript_TigereEyeBrew_ManaTea : public PlayerScript
+class PlayerScript_TigereEyeBrew_ManaTea: public PlayerScript
 {
     public:
         PlayerScript_TigereEyeBrew_ManaTea() :PlayerScript("PlayerScript_TigereEyeBrew_ManaTea") {}
@@ -143,7 +143,7 @@ class PlayerScript_TigereEyeBrew_ManaTea : public PlayerScript
 
 // Called by 100780 / 108557 / 115698 / 115687 / 115693 / 115695 - Jab (and overrides)
 // 115636 - Mastery : Combo Breaker
-class spell_monk_combo_breaker : public SpellScriptLoader
+class spell_monk_combo_breaker: public SpellScriptLoader
 {
     public:
         spell_monk_combo_breaker() : SpellScriptLoader("spell_monk_combo_breaker") { }
@@ -185,7 +185,7 @@ class spell_monk_combo_breaker : public SpellScriptLoader
 };
 
 // Ring of Peace (dummy) - 140023
-class spell_monk_ring_of_peace_dummy : public SpellScriptLoader
+class spell_monk_ring_of_peace_dummy: public SpellScriptLoader
 {
     public:
         spell_monk_ring_of_peace_dummy() : SpellScriptLoader("spell_monk_ring_of_peace_dummy") {}
@@ -219,7 +219,7 @@ class spell_monk_ring_of_peace_dummy : public SpellScriptLoader
 };
 
 // Ring of Peace - 116844
-class spell_monk_ring_of_peace : public SpellScriptLoader
+class spell_monk_ring_of_peace: public SpellScriptLoader
 {
     public:
         spell_monk_ring_of_peace() : SpellScriptLoader("spell_monk_ring_of_peace") { }
@@ -260,7 +260,7 @@ class spell_monk_ring_of_peace : public SpellScriptLoader
 };
 
 // Zen Meditation = 115176
-class spell_monk_zen_meditation : public SpellScriptLoader
+class spell_monk_zen_meditation: public SpellScriptLoader
 {
     public:
         spell_monk_zen_meditation() : SpellScriptLoader("spell_monk_zen_meditation") { }
@@ -292,7 +292,7 @@ const uint32 summonsMonk[3] = { 138122, 138121, 138123 }; // Storm, Earth and Fi
 const uint32 visualMorph[3] = { 138080, 138083, 138081 }; // Storm, Earth and Fire
 
 // Storm, Earth and Fire - 138130
-class spell_monk_storm_earth_and_fire_stats : public SpellScriptLoader
+class spell_monk_storm_earth_and_fire_stats: public SpellScriptLoader
 {
     public:
         spell_monk_storm_earth_and_fire_stats() : SpellScriptLoader("spell_monk_storm_earth_and_fire_stats") { }
@@ -380,7 +380,7 @@ class spell_monk_storm_earth_and_fire_stats : public SpellScriptLoader
 };
 
 // Storm, Earth and Fire - 137639
-class spell_monk_storm_earth_and_fire : public SpellScriptLoader
+class spell_monk_storm_earth_and_fire: public SpellScriptLoader
 {
     public:
         spell_monk_storm_earth_and_fire() : SpellScriptLoader("spell_monk_storm_earth_and_fire") { }
@@ -603,7 +603,7 @@ class spell_monk_storm_earth_and_fire : public SpellScriptLoader
 
 // Called by Jab - 100780 / 108557 / 115698 / 115687 / 115693 / 115695
 // Muscle Memory - 139598
-class spell_monk_muscle_memory : public SpellScriptLoader
+class spell_monk_muscle_memory: public SpellScriptLoader
 {
     public:
         spell_monk_muscle_memory() : SpellScriptLoader("spell_monk_muscle_memory") { }
@@ -637,7 +637,7 @@ class spell_monk_muscle_memory : public SpellScriptLoader
 };
 
 // Chi Brew - 115399
-class spell_monk_chi_brew : public SpellScriptLoader
+class spell_monk_chi_brew: public SpellScriptLoader
 {
     public:
         spell_monk_chi_brew() : SpellScriptLoader("spell_monk_chi_brew") { }
@@ -702,7 +702,7 @@ class spell_monk_chi_brew : public SpellScriptLoader
 };
 
 // Fists of Fury (stun effect) - 120086
-class spell_monk_fists_of_fury_stun : public SpellScriptLoader
+class spell_monk_fists_of_fury_stun: public SpellScriptLoader
 {
     public:
         spell_monk_fists_of_fury_stun() : SpellScriptLoader("spell_monk_fists_of_fury_stun") { }
@@ -729,7 +729,7 @@ class spell_monk_fists_of_fury_stun : public SpellScriptLoader
 };
 
 // Chi Wave (healing bolt) - 132464
-class spell_monk_chi_wave_healing_bolt : public SpellScriptLoader
+class spell_monk_chi_wave_healing_bolt: public SpellScriptLoader
 {
     public:
         spell_monk_chi_wave_healing_bolt() : SpellScriptLoader("spell_monk_chi_wave_healing_bolt") { }
@@ -761,7 +761,7 @@ class spell_monk_chi_wave_healing_bolt : public SpellScriptLoader
 };
 
 // Chi Wave (damage) - 132467 and Chi Wave (heal) - 132463
-class spell_monk_chi_wave_bolt : public SpellScriptLoader
+class spell_monk_chi_wave_bolt: public SpellScriptLoader
 {
     public:
         spell_monk_chi_wave_bolt() : SpellScriptLoader("spell_monk_chi_wave_bolt") { }
@@ -873,7 +873,7 @@ class spell_monk_chi_wave_bolt : public SpellScriptLoader
 };
 
 // Chi Wave (talent) - 115098
-class spell_monk_chi_wave : public SpellScriptLoader
+class spell_monk_chi_wave: public SpellScriptLoader
 {
     public:
         spell_monk_chi_wave() : SpellScriptLoader("spell_monk_chi_wave") { }
@@ -927,7 +927,7 @@ class spell_monk_chi_wave : public SpellScriptLoader
 };
 
 // Grapple Weapon - 117368
-class spell_monk_grapple_weapon : public SpellScriptLoader
+class spell_monk_grapple_weapon: public SpellScriptLoader
 {
     public:
         spell_monk_grapple_weapon() : SpellScriptLoader("spell_monk_grapple_weapon") { }
@@ -1005,7 +1005,7 @@ class spell_monk_grapple_weapon : public SpellScriptLoader
 };
 
 // Transcendence : Transfer - 119996
-class spell_monk_transcendence_transfer : public SpellScriptLoader
+class spell_monk_transcendence_transfer: public SpellScriptLoader
 {
     public:
         spell_monk_transcendence_transfer() : SpellScriptLoader("spell_monk_transcendence_transfer") { }
@@ -1061,7 +1061,7 @@ class spell_monk_transcendence_transfer : public SpellScriptLoader
 };
 
 // Serpent's Zeal - 127722
-class spell_monk_serpents_zeal : public SpellScriptLoader
+class spell_monk_serpents_zeal: public SpellScriptLoader
 {
     public:
         spell_monk_serpents_zeal() : SpellScriptLoader("spell_monk_serpents_zeal") { }
@@ -1140,7 +1140,7 @@ class spell_monk_serpents_zeal : public SpellScriptLoader
 };
 
 // Dampen Harm - 122278
-class spell_monk_dampen_harm : public SpellScriptLoader
+class spell_monk_dampen_harm: public SpellScriptLoader
 {
     public:
         spell_monk_dampen_harm() : SpellScriptLoader("spell_monk_dampen_harm") { }
@@ -1191,7 +1191,7 @@ class spell_monk_dampen_harm : public SpellScriptLoader
 
 // Called by Thunder Focus Tea - 116680
 // Item S12 4P - Mistweaver - 124487
-class spell_monk_item_s12_4p_mistweaver : public SpellScriptLoader
+class spell_monk_item_s12_4p_mistweaver: public SpellScriptLoader
 {
     public:
         spell_monk_item_s12_4p_mistweaver() : SpellScriptLoader("spell_monk_item_s12_4p_mistweaver") { }
@@ -1227,7 +1227,7 @@ struct auraData
 };
 
 // Diffuse Magic - 122783
-class spell_monk_diffuse_magic : public SpellScriptLoader
+class spell_monk_diffuse_magic: public SpellScriptLoader
 {
     public:
         spell_monk_diffuse_magic() : SpellScriptLoader("spell_monk_diffuse_magic") { }
@@ -1311,7 +1311,7 @@ class spell_monk_diffuse_magic : public SpellScriptLoader
 };
 
 // Summon Black Ox Statue - 115315
-class spell_monk_black_ox_statue : public SpellScriptLoader
+class spell_monk_black_ox_statue: public SpellScriptLoader
 {
     public:
         spell_monk_black_ox_statue() : SpellScriptLoader("spell_monk_black_ox_statue") { }
@@ -1468,7 +1468,7 @@ class spell_monk_black_ox_statue : public SpellScriptLoader
 };
 
 // Guard - 115295 and Guard - 118604
-class spell_monk_guard : public SpellScriptLoader
+class spell_monk_guard: public SpellScriptLoader
 {
     public:
         spell_monk_guard() : SpellScriptLoader("spell_monk_guard") { }
@@ -1502,7 +1502,7 @@ class spell_monk_guard : public SpellScriptLoader
 };
 
 // Bear Hug - 127361
-class spell_monk_bear_hug : public SpellScriptLoader
+class spell_monk_bear_hug: public SpellScriptLoader
 {
     public:
         spell_monk_bear_hug() : SpellScriptLoader("spell_monk_bear_hug") { }
@@ -1533,7 +1533,7 @@ class spell_monk_bear_hug : public SpellScriptLoader
 };
 
 // Zen Flight - 125883
-class spell_monk_zen_flight_check : public SpellScriptLoader
+class spell_monk_zen_flight_check: public SpellScriptLoader
 {
     public:
         spell_monk_zen_flight_check() : SpellScriptLoader("spell_monk_zen_flight_check") { }
@@ -1574,7 +1574,7 @@ class spell_monk_zen_flight_check : public SpellScriptLoader
 };
 
 // Glyph of Zen Flight - 125893
-class spell_monk_glyph_of_zen_flight : public SpellScriptLoader
+class spell_monk_glyph_of_zen_flight: public SpellScriptLoader
 {
     public:
         spell_monk_glyph_of_zen_flight() : SpellScriptLoader("spell_monk_glyph_of_zen_flight") { }
@@ -1612,7 +1612,7 @@ class spell_monk_glyph_of_zen_flight : public SpellScriptLoader
 // Called by Jab - 100780, Soothing Mist (Energize) - 116335, Spinning Crane Kick (Energize) - 129881
 // Crackling Jade Lightning (Energize) - 123333 and Expel Harm - 115072
 // Power Strikes - 121817
-class spell_monk_power_strikes : public SpellScriptLoader
+class spell_monk_power_strikes: public SpellScriptLoader
 {
     public:
         spell_monk_power_strikes() : SpellScriptLoader("spell_monk_power_strikes") { }
@@ -1647,7 +1647,7 @@ class spell_monk_power_strikes : public SpellScriptLoader
 };
 
 // Crackling Jade Lightning - 117952
-class spell_monk_crackling_jade_lightning : public SpellScriptLoader
+class spell_monk_crackling_jade_lightning: public SpellScriptLoader
 {
     public:
         spell_monk_crackling_jade_lightning() : SpellScriptLoader("spell_monk_crackling_jade_lightning") { }
@@ -1704,7 +1704,7 @@ class spell_monk_crackling_jade_lightning : public SpellScriptLoader
 };
 
 // Touch of Karma - 122470
-class spell_monk_touch_of_karma : public SpellScriptLoader
+class spell_monk_touch_of_karma: public SpellScriptLoader
 {
     public:
         spell_monk_touch_of_karma() : SpellScriptLoader("spell_monk_touch_of_karma") { }
@@ -1755,7 +1755,7 @@ class spell_monk_touch_of_karma : public SpellScriptLoader
 };
 
 // Spinning Fire Blossom - 123408
-class spell_monk_spinning_fire_blossom_damage : public SpellScriptLoader
+class spell_monk_spinning_fire_blossom_damage: public SpellScriptLoader
 {
     public:
         spell_monk_spinning_fire_blossom_damage() : SpellScriptLoader("spell_monk_spinning_fire_blossom_damage") { }
@@ -1805,7 +1805,7 @@ class spell_monk_spinning_fire_blossom_damage : public SpellScriptLoader
 };
 
 // Spinning Fire Blossom - 115073
-class spell_monk_spinning_fire_blossom : public SpellScriptLoader
+class spell_monk_spinning_fire_blossom: public SpellScriptLoader
 {
     public:
         spell_monk_spinning_fire_blossom() : SpellScriptLoader("spell_monk_spinning_fire_blossom") { }
@@ -1866,7 +1866,7 @@ class spell_monk_spinning_fire_blossom : public SpellScriptLoader
 
 // Called by Uplift - 116670 and Uplift - 130316
 // Thunder Focus Tea - 116680
-class spell_monk_thunder_focus_tea : public SpellScriptLoader
+class spell_monk_thunder_focus_tea: public SpellScriptLoader
 {
     public:
         spell_monk_thunder_focus_tea() : SpellScriptLoader("spell_monk_thunder_focus_tea") { }
@@ -1916,7 +1916,7 @@ class spell_monk_thunder_focus_tea : public SpellScriptLoader
 };
 
 // Summon Jade Serpent Statue - 115313
-class spell_monk_jade_serpent_statue : public SpellScriptLoader
+class spell_monk_jade_serpent_statue: public SpellScriptLoader
 {
     public:
         spell_monk_jade_serpent_statue() : SpellScriptLoader("spell_monk_jade_serpent_statue") { }
@@ -1981,7 +1981,7 @@ class spell_monk_jade_serpent_statue : public SpellScriptLoader
 
 // Called by Spinning Crane Kick - 107270
 // Teachings of the Monastery - 116645
-class spell_monk_teachings_of_the_monastery : public SpellScriptLoader
+class spell_monk_teachings_of_the_monastery: public SpellScriptLoader
 {
     public:
         spell_monk_teachings_of_the_monastery() : SpellScriptLoader("spell_monk_teachings_of_the_monastery") { }
@@ -2010,7 +2010,7 @@ class spell_monk_teachings_of_the_monastery : public SpellScriptLoader
 };
 
 // Mana Tea - 115294
-class spell_monk_mana_tea : public SpellScriptLoader
+class spell_monk_mana_tea: public SpellScriptLoader
 {
     public:
         spell_monk_mana_tea() : SpellScriptLoader("spell_monk_mana_tea") { }
@@ -2104,7 +2104,7 @@ class spell_monk_mana_tea : public SpellScriptLoader
 };
 
 // Brewing : Mana Tea - 123766
-class spell_monk_mana_tea_stacks : public SpellScriptLoader
+class spell_monk_mana_tea_stacks: public SpellScriptLoader
 {
     public:
         spell_monk_mana_tea_stacks() : SpellScriptLoader("spell_monk_mana_tea_stacks") { }
@@ -2160,7 +2160,7 @@ class spell_monk_mana_tea_stacks : public SpellScriptLoader
 };
 
 // Enveloping Mist - 124682
-class spell_monk_enveloping_mist : public SpellScriptLoader
+class spell_monk_enveloping_mist: public SpellScriptLoader
 {
     public:
         spell_monk_enveloping_mist() : SpellScriptLoader("spell_monk_enveloping_mist") { }
@@ -2202,7 +2202,7 @@ class spell_monk_enveloping_mist : public SpellScriptLoader
 };
 
 // Surging Mist - 116694
-class spell_monk_surging_mist : public SpellScriptLoader
+class spell_monk_surging_mist: public SpellScriptLoader
 {
     public:
         spell_monk_surging_mist() : SpellScriptLoader("spell_monk_surging_mist") { }
@@ -2244,7 +2244,7 @@ class spell_monk_surging_mist : public SpellScriptLoader
 };
 
 // Renewing Mist (heal) - 115151
-class spell_monk_renewing_mist_hot : public SpellScriptLoader
+class spell_monk_renewing_mist_hot: public SpellScriptLoader
 {
     public:
         spell_monk_renewing_mist_hot() : SpellScriptLoader("spell_monk_renewing_mist_hot") { }
@@ -2273,7 +2273,7 @@ class spell_monk_renewing_mist_hot : public SpellScriptLoader
 };
 
 // Renewing Mist - 119611
-class spell_monk_renewing_mist : public SpellScriptLoader
+class spell_monk_renewing_mist: public SpellScriptLoader
 {
     public:
         spell_monk_renewing_mist() : SpellScriptLoader("spell_monk_renewing_mist") { }
@@ -2454,7 +2454,7 @@ class spell_monk_renewing_mist : public SpellScriptLoader
 };
 
 // Healing Elixirs (aura) - 134563
-class spell_monk_healing_elixirs_aura : public SpellScriptLoader
+class spell_monk_healing_elixirs_aura: public SpellScriptLoader
 {
     public:
         spell_monk_healing_elixirs_aura() : SpellScriptLoader("spell_monk_healing_elixirs_aura") { }
@@ -2501,7 +2501,7 @@ class spell_monk_healing_elixirs_aura : public SpellScriptLoader
 // Called by : Fortifying Brew - 115203, Chi Brew - 115399, Elusive Brew - 115308, Tigereye Brew - 116740
 // Purifying Brew - 119582, Mana Tea - 115294, Thunder Focus Tea - 116680 and Energizing Brew - 115288
 // Healing Elixirs - 122280
-class spell_monk_healing_elixirs : public SpellScriptLoader
+class spell_monk_healing_elixirs: public SpellScriptLoader
 {
     public:
         spell_monk_healing_elixirs() : SpellScriptLoader("spell_monk_healing_elixirs") { }
@@ -2535,7 +2535,7 @@ class spell_monk_healing_elixirs : public SpellScriptLoader
 };
 
 // Zen Sphere - 124081
-class spell_monk_zen_sphere : public SpellScriptLoader
+class spell_monk_zen_sphere: public SpellScriptLoader
 {
     public:
         spell_monk_zen_sphere() : SpellScriptLoader("spell_monk_zen_sphere") { }
@@ -2581,7 +2581,7 @@ enum ChiBurstSpells
 };
 
 // Chi Burst - 123986
-class spell_monk_chi_burst : public SpellScriptLoader
+class spell_monk_chi_burst: public SpellScriptLoader
 {
     public:
         spell_monk_chi_burst() : SpellScriptLoader("spell_monk_chi_burst") { }
@@ -2645,7 +2645,7 @@ class spell_monk_chi_burst : public SpellScriptLoader
 };
 
 // Energizing Brew - 115288
-class spell_monk_energizing_brew : public SpellScriptLoader
+class spell_monk_energizing_brew: public SpellScriptLoader
 {
     public:
         spell_monk_energizing_brew() : SpellScriptLoader("spell_monk_energizing_brew") { }
@@ -2674,7 +2674,7 @@ class spell_monk_energizing_brew : public SpellScriptLoader
 };
 
 // Spear Hand Strike - 116705
-class spell_monk_spear_hand_strike : public SpellScriptLoader
+class spell_monk_spear_hand_strike: public SpellScriptLoader
 {
     public:
         spell_monk_spear_hand_strike() : SpellScriptLoader("spell_monk_spear_hand_strike") { }
@@ -2711,7 +2711,7 @@ class spell_monk_spear_hand_strike : public SpellScriptLoader
 };
 
 // Tigereye Brew - 116740
-class spell_monk_tigereye_brew : public SpellScriptLoader
+class spell_monk_tigereye_brew: public SpellScriptLoader
 {
     public:
         spell_monk_tigereye_brew() : SpellScriptLoader("spell_monk_tigereye_brew") { }
@@ -2770,7 +2770,7 @@ class spell_monk_tigereye_brew : public SpellScriptLoader
 };
 
 // Tiger's Lust - 116841
-class spell_monk_tigers_lust : public SpellScriptLoader
+class spell_monk_tigers_lust: public SpellScriptLoader
 {
     public:
         spell_monk_tigers_lust() : SpellScriptLoader("spell_monk_tigers_lust") { }
@@ -2806,7 +2806,7 @@ class spell_monk_tigers_lust : public SpellScriptLoader
 };
 
 // Flying Serpent Kick - 115057
-class spell_monk_flying_serpent_kick : public SpellScriptLoader
+class spell_monk_flying_serpent_kick: public SpellScriptLoader
 {
     public:
         spell_monk_flying_serpent_kick() : SpellScriptLoader("spell_monk_flying_serpent_kick") { }
@@ -2873,7 +2873,7 @@ class spell_monk_flying_serpent_kick : public SpellScriptLoader
 };
 
 // Chi Torpedo - 115008 or Chi Torpedo (3 charges) - 121828
-class spell_monk_chi_torpedo : public SpellScriptLoader
+class spell_monk_chi_torpedo: public SpellScriptLoader
 {
     public:
         spell_monk_chi_torpedo() : SpellScriptLoader("spell_monk_chi_torpedo") { }
@@ -2919,7 +2919,7 @@ class spell_monk_chi_torpedo : public SpellScriptLoader
 };
 
 // Purifying Brew - 119582
-class spell_monk_purifying_brew : public SpellScriptLoader
+class spell_monk_purifying_brew: public SpellScriptLoader
 {
     public:
         spell_monk_purifying_brew() : SpellScriptLoader("spell_monk_purifying_brew") { }
@@ -2960,7 +2960,7 @@ class spell_monk_purifying_brew : public SpellScriptLoader
 };
 
 // Clash - 122057 and Clash - 126449
-class spell_monk_clash : public SpellScriptLoader
+class spell_monk_clash: public SpellScriptLoader
 {
     public:
         spell_monk_clash() : SpellScriptLoader("spell_monk_clash") { }
@@ -2998,7 +2998,7 @@ class spell_monk_clash : public SpellScriptLoader
 };
 
 // Keg Smash - 121253
-class spell_monk_keg_smash : public SpellScriptLoader
+class spell_monk_keg_smash: public SpellScriptLoader
 {
     public:
         spell_monk_keg_smash() : SpellScriptLoader("spell_monk_keg_smash") { }
@@ -3061,7 +3061,7 @@ class spell_monk_keg_smash : public SpellScriptLoader
 };
 
 // Elusive Brew - 115308
-class spell_monk_elusive_brew : public SpellScriptLoader
+class spell_monk_elusive_brew: public SpellScriptLoader
 {
     public:
         spell_monk_elusive_brew() : SpellScriptLoader("spell_monk_elusive_brew") { }
@@ -3118,7 +3118,7 @@ enum BreathOfFireSpells
 };
 
 // Breath of Fire - 115181
-class spell_monk_breath_of_fire : public SpellScriptLoader
+class spell_monk_breath_of_fire: public SpellScriptLoader
 {
     public:
         spell_monk_breath_of_fire() : SpellScriptLoader("spell_monk_breath_of_fire") { }
@@ -3158,7 +3158,7 @@ class spell_monk_breath_of_fire : public SpellScriptLoader
 };
 
 // Soothing Mist - 115175
-class spell_monk_soothing_mist : public SpellScriptLoader
+class spell_monk_soothing_mist: public SpellScriptLoader
 {
     public:
         spell_monk_soothing_mist() : SpellScriptLoader("spell_monk_soothing_mist") { }
@@ -3302,7 +3302,7 @@ class spell_monk_soothing_mist : public SpellScriptLoader
 };
 
 // Disable - 116095
-class spell_monk_disable : public SpellScriptLoader
+class spell_monk_disable: public SpellScriptLoader
 {
     public:
         spell_monk_disable() : SpellScriptLoader("spell_monk_disable") { }
@@ -3375,7 +3375,7 @@ class spell_monk_disable : public SpellScriptLoader
 };
 
 // Zen Pilgrimage - 126892 and Zen Pilgrimage : Return - 126895
-class spell_monk_zen_pilgrimage : public SpellScriptLoader
+class spell_monk_zen_pilgrimage: public SpellScriptLoader
 {
     public:
         spell_monk_zen_pilgrimage() : SpellScriptLoader("spell_monk_zen_pilgrimage") { }
@@ -3424,7 +3424,7 @@ class spell_monk_zen_pilgrimage : public SpellScriptLoader
 };
 
 // Provoke - 115546
-class spell_monk_provoke : public SpellScriptLoader
+class spell_monk_provoke: public SpellScriptLoader
 {
     public:
         spell_monk_provoke() : SpellScriptLoader("spell_monk_provoke") { }
@@ -3467,7 +3467,7 @@ class spell_monk_provoke : public SpellScriptLoader
 };
 
 // Paralysis - 115078
-class spell_monk_paralysis : public SpellScriptLoader
+class spell_monk_paralysis: public SpellScriptLoader
 {
     public:
         spell_monk_paralysis() : SpellScriptLoader("spell_monk_paralysis") { }
@@ -3524,7 +3524,7 @@ class spell_monk_paralysis : public SpellScriptLoader
 };
 
 // Touch of Death - 115080
-class spell_monk_touch_of_death : public SpellScriptLoader
+class spell_monk_touch_of_death: public SpellScriptLoader
 {
     public:
         spell_monk_touch_of_death() : SpellScriptLoader("spell_monk_touch_of_death") { }
@@ -3578,7 +3578,7 @@ class spell_monk_touch_of_death : public SpellScriptLoader
 };
 
 // Fortifying brew - 115203
-class spell_monk_fortifying_brew : public SpellScriptLoader
+class spell_monk_fortifying_brew: public SpellScriptLoader
 {
     public:
         spell_monk_fortifying_brew() : SpellScriptLoader("spell_monk_fortifying_brew") { }
@@ -3607,7 +3607,7 @@ class spell_monk_fortifying_brew : public SpellScriptLoader
 };
 
 // Legacy of the Emperor - 115921
-class spell_monk_legacy_of_the_emperor : public SpellScriptLoader
+class spell_monk_legacy_of_the_emperor: public SpellScriptLoader
 {
     public:
         spell_monk_legacy_of_the_emperor() : SpellScriptLoader("spell_monk_legacy_of_the_emperor") { }
@@ -3642,7 +3642,7 @@ class spell_monk_legacy_of_the_emperor : public SpellScriptLoader
 };
 
 // Roll - 109132 or Roll (3 charges) - 121827
-class spell_monk_roll : public SpellScriptLoader
+class spell_monk_roll: public SpellScriptLoader
 {
     public:
         spell_monk_roll() : SpellScriptLoader("spell_monk_roll") { }
@@ -3697,7 +3697,7 @@ class spell_monk_roll : public SpellScriptLoader
 };
 
 // Brewing : Tigereye Brew - 123980
-class spell_monk_tigereye_brew_stacks : public SpellScriptLoader
+class spell_monk_tigereye_brew_stacks: public SpellScriptLoader
 {
     public:
         spell_monk_tigereye_brew_stacks() : SpellScriptLoader("spell_monk_tigereye_brew_stacks") { }
@@ -3757,7 +3757,7 @@ enum SpinningCraneKickSpells
 };
 
 // Spinning Crane Kick - 101546
-class spell_monk_spinning_crane_kick : public SpellScriptLoader
+class spell_monk_spinning_crane_kick: public SpellScriptLoader
 {
 public:
     spell_monk_spinning_crane_kick() : SpellScriptLoader("spell_monk_spinning_crane_kick") { }
@@ -3807,7 +3807,7 @@ enum RushingJadeWindSpells
 };
 
 // Rushing Jade Wind - 116847
-class spell_monk_rushing_jade_wind : public SpellScriptLoader
+class spell_monk_rushing_jade_wind: public SpellScriptLoader
 {
 public:
     spell_monk_rushing_jade_wind() : SpellScriptLoader("spell_monk_rushing_jade_wind") { }
@@ -3855,7 +3855,7 @@ enum FistsOfFurySpells
 };
 
 // Fists of Fury - 113656
-class spell_monk_fists_of_fury : public SpellScriptLoader
+class spell_monk_fists_of_fury: public SpellScriptLoader
 {
 public:
     spell_monk_fists_of_fury() : SpellScriptLoader("spell_monk_fists_of_fury") { }
@@ -3897,7 +3897,7 @@ enum JabSpells
     //SPELL_MONK_MANA_MEDITATION            = 121278
 };
 
-class spell_monk_jab : public SpellScriptLoader
+class spell_monk_jab: public SpellScriptLoader
 {
 public:
     spell_monk_jab() : SpellScriptLoader("spell_monk_jab") { }
@@ -3940,7 +3940,7 @@ enum TigerPalmSpells
 };
 
 // Tiger Palm - 100787
-class spell_monk_tiger_palm : public SpellScriptLoader
+class spell_monk_tiger_palm: public SpellScriptLoader
 {
 public:
     spell_monk_tiger_palm() : SpellScriptLoader("spell_monk_tiger_palm") { }
@@ -3994,7 +3994,7 @@ enum BlackoutKickSpells
 };
 
 // Blackout Kick - 100784
-class spell_monk_blackout_kick : public SpellScriptLoader
+class spell_monk_blackout_kick: public SpellScriptLoader
 {
 public:
     spell_monk_blackout_kick() : SpellScriptLoader("spell_monk_blackout_kick") { }
@@ -4088,7 +4088,7 @@ enum ExpelHarmSpells
 };
 
 // Expel Harm - 115072
-class spell_monk_expel_harm : public SpellScriptLoader
+class spell_monk_expel_harm: public SpellScriptLoader
 {
 public:
     spell_monk_expel_harm() : SpellScriptLoader("spell_monk_expel_harm") { }
@@ -4161,7 +4161,7 @@ enum HurricaneStrikeSpells
 };
 
 // Hurricane Strike - 158221
-class spell_monk_hurricane_strike : public SpellScriptLoader
+class spell_monk_hurricane_strike: public SpellScriptLoader
 {
 public:
     spell_monk_hurricane_strike() : SpellScriptLoader("spell_monk_hurricane_strike") { }
@@ -4234,7 +4234,7 @@ enum SerenitySpells
 };
 
 // Serenity - 152173
-class spell_monk_serenity : public PlayerScript
+class spell_monk_serenity: public PlayerScript
 {
 public:
     spell_monk_serenity() :PlayerScript("spell_monk_serenity") {}
@@ -4253,7 +4253,7 @@ public:
 };
 
 // Detox - 115450
-class spell_monk_detox : public SpellScriptLoader
+class spell_monk_detox: public SpellScriptLoader
 {
 public:
     spell_monk_detox() : SpellScriptLoader("spell_monk_detox") { }
@@ -4287,7 +4287,7 @@ public:
 };
 
 // /Rising Sun Kick - 107428
-class spell_monk_rising_sun_kick : public SpellScriptLoader
+class spell_monk_rising_sun_kick: public SpellScriptLoader
 {
 public:
     spell_monk_rising_sun_kick() : SpellScriptLoader("spell_monk_rising_sun_kick") { }
@@ -4331,7 +4331,7 @@ public:
 };
 
 // Stance of the Fierce Tiger - 103985
-class spell_monk_stance_of_tiger : public SpellScriptLoader
+class spell_monk_stance_of_tiger: public SpellScriptLoader
 {
 public:
     spell_monk_stance_of_tiger() : SpellScriptLoader("spell_monk_stance_of_tiger") { }

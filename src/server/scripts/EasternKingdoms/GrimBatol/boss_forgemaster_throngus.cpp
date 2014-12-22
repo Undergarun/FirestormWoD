@@ -248,7 +248,7 @@ class npc_throngus_fire_patch : public CreatureScript
         };
 };
 
-class spell_throngus_pick_weapon : public SpellScriptLoader
+class spell_throngus_pick_weapon: public SpellScriptLoader
 {
     public:
         spell_throngus_pick_weapon() : SpellScriptLoader("spell_throngus_pick_weapon") { }

@@ -1461,7 +1461,7 @@ uint32 Item::GetSellPrice(ItemTemplate const* proto, bool& normalSellPrice)
             inventoryType = INVTYPE_CHEST;
 
         float typeFactor = 0.0f;
-        uint8 wepType = -1;
+        uint8 wepType = 0xFF;
 
         switch (inventoryType)
         {
@@ -1587,7 +1587,7 @@ int32 Item::GetReforgableStat(ItemModType statType) const
 {
     ItemTemplate const* proto = GetTemplate();
     for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
-        if (proto->ItemStat[i].ItemStatType == statType)
+        if (proto->ItemStat[i].ItemStatType == (uint32)statType)
             return proto->ItemStat[i].ItemStatValue;
 
     int32 randomPropId = GetItemRandomPropertyId();
@@ -1606,7 +1606,7 @@ int32 Item::GetReforgableStat(ItemModType statType) const
             {
                 for (uint32 f = 0; f < MAX_ENCHANTMENT_SPELLS; ++f)
                 {
-                    if (enchant->type[f] == ITEM_ENCHANTMENT_TYPE_STAT && enchant->spellid[f] == statType)
+                    if (enchant->type[f] == ITEM_ENCHANTMENT_TYPE_STAT && enchant->spellid[f] == (uint32)statType)
                     {
                         for (int k = 0; k < 5; ++k)
                         {
@@ -1630,7 +1630,7 @@ int32 Item::GetReforgableStat(ItemModType statType) const
             {
                 for (uint32 f = 0; f < MAX_ENCHANTMENT_SPELLS; ++f)
                 {
-                    if (enchant->type[f] == ITEM_ENCHANTMENT_TYPE_STAT && enchant->spellid[f] == statType)
+                    if (enchant->type[f] == ITEM_ENCHANTMENT_TYPE_STAT && enchant->spellid[f] == (uint32)statType)
                     {
                         for (int k = 0; k < MAX_ENCHANTMENT_SPELLS; ++k)
                         {
@@ -1696,8 +1696,6 @@ bool Item::IsStuffItem() const
         default:
             return true;
     }
-
-    return false;
 }
 
 bool Item::CanUpgrade() const
@@ -1814,7 +1812,7 @@ float ItemTemplate::GetScalingDamageValue(uint32 ilvl) const
     return damageEntry ? damageEntry->DPS[Quality == ITEM_QUALITY_HEIRLOOM ? ITEM_QUALITY_RARE : Quality] : 0.f;
 }
 
-uint32 ItemTemplate::GetRandomPointsOffset() const
+int32 ItemTemplate::GetRandomPointsOffset() const
 {
     switch (InventoryType)
     {
@@ -1855,7 +1853,7 @@ uint32 ItemTemplate::GetRandomPointsOffset() const
 
 uint32 ItemTemplate::CalculateScalingStatDBCValue(uint32 ilvl) const
 {
-    uint32 offset = GetRandomPointsOffset();
+    int32 offset = GetRandomPointsOffset();
     if (offset == -1)
         return 0;
 
@@ -1884,13 +1882,13 @@ float ItemTemplate::GetSocketCost(uint32 ilvl) const
     return socket ? socket->cost : 0.f;
 }
 
-uint32 ItemTemplate::CalculateStatScaling(uint32 index, uint32 ilvl) const
+int32 ItemTemplate::CalculateStatScaling(uint32 index, uint32 ilvl) const
 {
     _ItemStat const& itemStat = ItemStat[index];
     return CalculateStatScaling(itemStat.ScalingValue, itemStat.SocketCostRate, ilvl);
 }
 
-uint32 ItemTemplate::CalculateStatScaling(uint32 scalingValue, float socketCost, uint32 ilvl) const
+int32 ItemTemplate::CalculateStatScaling(int32 scalingValue, float socketCost, uint32 ilvl) const
 {
     return floor((((float)scalingValue * (float)CalculateScalingStatDBCValue(ilvl) * 0.000099999997f) - (GetSocketCost(ilvl) * socketCost)) + 0.5f);
 }

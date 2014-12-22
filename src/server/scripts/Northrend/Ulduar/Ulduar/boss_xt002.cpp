@@ -847,7 +847,7 @@ class mob_void_zone : public CreatureScript
         }
 };
 
-class spell_xt002_searing_light_spawn_life_spark : public SpellScriptLoader
+class spell_xt002_searing_light_spawn_life_spark: public SpellScriptLoader
 {
     public:
         spell_xt002_searing_light_spawn_life_spark() : SpellScriptLoader("spell_xt002_searing_light_spawn_life_spark") {}
@@ -885,7 +885,7 @@ class spell_xt002_searing_light_spawn_life_spark : public SpellScriptLoader
         }
 };
 
-class spell_xt002_gravity_bomb_aura : public SpellScriptLoader
+class spell_xt002_gravity_bomb_aura: public SpellScriptLoader
 {
     public:
         spell_xt002_gravity_bomb_aura() : SpellScriptLoader("spell_xt002_gravity_bomb_aura") {}
@@ -956,7 +956,7 @@ class BombTargetSelector : public std::unary_function<Unit *, bool>
         Unit const* _victim;
 };
 
-class spell_xt002_gravity_bomb_aura_target : public SpellScriptLoader
+class spell_xt002_gravity_bomb_aura_target: public SpellScriptLoader
 {
     public:
         spell_xt002_gravity_bomb_aura_target() : SpellScriptLoader("spell_xt002_gravity_bomb_aura_target") {}
@@ -1005,7 +1005,7 @@ class spell_xt002_gravity_bomb_aura_target : public SpellScriptLoader
         }
 };
 
-class spell_xt002_gravity_bomb_damage : public SpellScriptLoader
+class spell_xt002_gravity_bomb_damage: public SpellScriptLoader
 {
     public:
         spell_xt002_gravity_bomb_damage() : SpellScriptLoader("spell_xt002_gravity_bomb_damage") {}
@@ -1037,7 +1037,7 @@ class spell_xt002_gravity_bomb_damage : public SpellScriptLoader
         }
 };
 
-class spell_xt002_heart_overload_periodic : public SpellScriptLoader
+class spell_xt002_heart_overload_periodic: public SpellScriptLoader
 {
     public:
         spell_xt002_heart_overload_periodic() : SpellScriptLoader("spell_xt002_heart_overload_periodic") {}
@@ -1103,7 +1103,7 @@ class spell_xt002_heart_overload_periodic : public SpellScriptLoader
         }
 };
 
-class spell_xt002_tympanic_tantrum : public SpellScriptLoader
+class spell_xt002_tympanic_tantrum: public SpellScriptLoader
 {
     public:
         spell_xt002_tympanic_tantrum() : SpellScriptLoader("spell_xt002_tympanic_tantrum") {}
@@ -1140,7 +1140,7 @@ class spell_xt002_tympanic_tantrum : public SpellScriptLoader
         }
 };
 
-class spell_xt002_submerged : public SpellScriptLoader
+class spell_xt002_submerged: public SpellScriptLoader
 {
     public:
         spell_xt002_submerged() : SpellScriptLoader("spell_xt002_submerged") {}
@@ -1171,7 +1171,7 @@ class spell_xt002_submerged : public SpellScriptLoader
         }
 };
 
-class spell_xt002_stand : public SpellScriptLoader
+class spell_xt002_stand: public SpellScriptLoader
 {
     public:
         spell_xt002_stand() : SpellScriptLoader("spell_xt002_stand") {}

@@ -23,7 +23,6 @@
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "upper_blackrock_spire.h"
-#include "AreaTriggerScript.h"
 
 enum eSpells
 {
@@ -454,6 +453,16 @@ class boss_ragewing_the_untamed : public CreatureScript
                 me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
                 me->GetMotionMaster()->MovePoint(eBossDatas::MaxWaypoints + 1, g_MoveToBridgePos[eBossDatas::MaxWaypoints - 1]);
             }
+
+            bool CanBeTargetedOutOfLOS()
+            {
+                return true;
+            }
+
+            bool CanTargetOutOfLOS()
+            {
+                return true;
+            }
         };
 
         CreatureAI* GetAI(Creature* p_Creature) const
@@ -696,10 +705,10 @@ class mob_ragewing_whelp : public CreatureScript
 };
 
 ///< Magma Spit - 155051
-class areatrigger_magma_spit : public MS::AreaTriggerEntityScript
+class areatrigger_magma_spit : public AreaTriggerEntityScript
 {
     public:
-        areatrigger_magma_spit() : MS::AreaTriggerEntityScript("areatrigger_magma_spit") { }
+        areatrigger_magma_spit() : AreaTriggerEntityScript("areatrigger_magma_spit") { }
 
         enum eSpells
         {
@@ -722,14 +731,14 @@ class areatrigger_magma_spit : public MS::AreaTriggerEntityScript
             }
         }
 
-        MS::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new areatrigger_magma_spit();
         }
 };
 
 ///< Fire Storm (Missile) - 155073
-class spell_fire_storm_missile : public SpellScriptLoader
+class spell_fire_storm_missile: public SpellScriptLoader
 {
     public:
         spell_fire_storm_missile() : SpellScriptLoader("spell_fire_storm_missile") { }

@@ -288,13 +288,24 @@ namespace MS
 
                 void Reset()
                 {
-                    _Reset();
+                    events.Reset();
 
-                    m_WaypointId = 0;
-                    m_CombatStarted = false;
-                    me->SetReactState(REACT_PASSIVE);
-                    me->GetMotionMaster()->MovePoint(m_WaypointId, k_Waypoints[0]);
-                    me->SetControlled(false, UNIT_STATE_ROOT);
+                    if (instance && instance->GetBossState(Data::Rukhran) != EncounterState::SPECIAL
+                        && instance->GetBossState(Data::Rukhran) != EncounterState::FAIL)
+                    {
+                        _Reset();
+
+                        m_CombatStarted = false;
+                        m_WaypointId = 0;
+                        me->SetReactState(REACT_PASSIVE);
+                        me->GetMotionMaster()->MovePoint(m_WaypointId, k_Waypoints[0]);
+                        me->SetControlled(false, UNIT_STATE_ROOT);
+                    }
+                    else if (instance)
+                    {
+                        me->GetMotionMaster()->MovePoint(12, 918.92f, 1913.46f, 215.87f);
+                        instance->SetData(Data::SkyreachRavenWhispererIsDead, 0);
+                    }
 
                     // Cleaning the summons.
                     auto l_Piles = ScriptUtils::SelectNearestCreatureListWithEntry(me, MobEntries::PILE_OF_ASHES, 50.0f);
@@ -309,7 +320,6 @@ namespace MS
                         if (l_SolarFlare->ToCreature())
                             l_SolarFlare->ToCreature()->DespawnOrUnsummon();
                     }
-
                     me->CastStop();
                 }
 
@@ -325,6 +335,7 @@ namespace MS
                             me->SetReactState(REACT_AGGRESSIVE);
                             me->Attack(ScriptUtils::SelectRandomPlayerIncludedTank(me, 40.0f, false), true);
                             m_CombatStarted = true;
+                            me->SetOrientation(5.4f);
                         }
                         else
                         {
@@ -352,7 +363,7 @@ namespace MS
                     _JustReachedHome();
                 }
 
-                void JustDied(Unit* /*killer*/)
+                void JustDied(Unit* p_Killer)
                 {
                     _JustDied();
 
@@ -369,6 +380,8 @@ namespace MS
                         if (l_SolarFlare->ToCreature())
                             l_SolarFlare->ToCreature()->DespawnOrUnsummon();
                     }
+
+                    p_Killer->SummonGameObject(GameObjectEntries::CACHE_OF_ARAKKOAN_TREASURES, 925.22f, 1904.54f, 213.86f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
 
                     if (instance)
                         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);

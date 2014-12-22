@@ -75,7 +75,7 @@ enum Events
     EVENT_CHOGALL_DLG                = 119,
 };
 
-class npc_twilight_portal_shaper: public CreatureScript
+class npc_twilight_portal_shaper : public CreatureScript
 {
 public:
     npc_twilight_portal_shaper() : CreatureScript("npc_twilight_portal_shaper") { }
@@ -152,7 +152,7 @@ public:
     };
 };
 
-class npc_twilight_shifter: public CreatureScript
+class npc_twilight_shifter : public CreatureScript
 {
 public:
     npc_twilight_shifter() : CreatureScript("npc_twilight_shifter") { }
@@ -213,7 +213,7 @@ public:
     };
 };
 
-class npc_twilight_shadow_mender: public CreatureScript
+class npc_twilight_shadow_mender : public CreatureScript
 {
 public:
     npc_twilight_shadow_mender() : CreatureScript("npc_twilight_shadow_mender") { }
@@ -273,7 +273,7 @@ public:
     };
 };
 
-class npc_chogall_dlg: public CreatureScript
+class npc_chogall_dlg : public CreatureScript
 {
 public:
     npc_chogall_dlg() : CreatureScript("npc_chogall_dlg") { }
@@ -402,7 +402,7 @@ public:
     }
 };
 
-class at_bt_halfus: public AreaTriggerScript
+class at_bt_halfus : public AreaTriggerScript
 {
 public:
     at_bt_halfus() : AreaTriggerScript("at_bt_halfus") { }

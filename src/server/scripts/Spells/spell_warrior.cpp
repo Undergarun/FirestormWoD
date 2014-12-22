@@ -81,7 +81,7 @@ enum WarriorSpells
 };
 
 // Slam - 1464
-class spell_warr_slam : public SpellScriptLoader
+class spell_warr_slam: public SpellScriptLoader
 {
     public:
         spell_warr_slam() : SpellScriptLoader("spell_warr_slam") { }
@@ -130,7 +130,7 @@ class spell_warr_slam : public SpellScriptLoader
 };
 
 // Victorious State - 32216
-class spell_warr_victorious_state : public SpellScriptLoader
+class spell_warr_victorious_state: public SpellScriptLoader
 {
     public:
         spell_warr_victorious_state() : SpellScriptLoader("spell_warr_victorious_state") { }
@@ -160,7 +160,7 @@ class spell_warr_victorious_state : public SpellScriptLoader
 
 // Called by Heroic Strike - 78 and Cleave - 845
 // Glyph of Hindering Strikes - 58366
-class spell_warr_glyph_of_hindering_strikes : public SpellScriptLoader
+class spell_warr_glyph_of_hindering_strikes: public SpellScriptLoader
 {
     public:
         spell_warr_glyph_of_hindering_strikes() : SpellScriptLoader("spell_warr_glyph_of_hindering_strikes") { }
@@ -190,7 +190,7 @@ class spell_warr_glyph_of_hindering_strikes : public SpellScriptLoader
 };
 
 // Stampeding Shout - 122294
-class spell_warr_stampeding_shout : public SpellScriptLoader
+class spell_warr_stampeding_shout: public SpellScriptLoader
 {
     public:
         spell_warr_stampeding_shout() : SpellScriptLoader("spell_warr_stampeding_shout") { }
@@ -218,7 +218,7 @@ class spell_warr_stampeding_shout : public SpellScriptLoader
 };
 
 // Shield Block - 2565
-class spell_warr_shield_block : public SpellScriptLoader
+class spell_warr_shield_block: public SpellScriptLoader
 {
     public:
         spell_warr_shield_block() : SpellScriptLoader("spell_warr_shield_block") { }
@@ -246,7 +246,7 @@ class spell_warr_shield_block : public SpellScriptLoader
 };
 
 // Storm Bolt - 107570
-class spell_warr_storm_bolt : public SpellScriptLoader
+class spell_warr_storm_bolt: public SpellScriptLoader
 {
     public:
         spell_warr_storm_bolt() : SpellScriptLoader("spell_warr_storm_bolt") { }
@@ -282,7 +282,7 @@ class spell_warr_storm_bolt : public SpellScriptLoader
 };
 
 // Colossus Smash - 86346
-class spell_warr_colossus_smash : public SpellScriptLoader
+class spell_warr_colossus_smash: public SpellScriptLoader
 {
     public:
         spell_warr_colossus_smash() : SpellScriptLoader("spell_warr_colossus_smash") { }
@@ -319,7 +319,7 @@ class spell_warr_colossus_smash : public SpellScriptLoader
 
 // Called by Raging Blow - 85288
 // Meat Cleaver - 85739
-class spell_warr_meat_cleaver : public SpellScriptLoader
+class spell_warr_meat_cleaver: public SpellScriptLoader
 {
     public:
         spell_warr_meat_cleaver() : SpellScriptLoader("spell_warr_meat_cleaver") { }
@@ -348,7 +348,7 @@ class spell_warr_meat_cleaver : public SpellScriptLoader
 };
 
 // Dragon Roar - 118000
-class spell_warr_dragon_roar : public SpellScriptLoader
+class spell_warr_dragon_roar: public SpellScriptLoader
 {
     public:
         spell_warr_dragon_roar() : SpellScriptLoader("spell_warr_dragon_roar") { }
@@ -377,7 +377,7 @@ class spell_warr_dragon_roar : public SpellScriptLoader
 };
 
 // Staggering Shout - 107566
-class spell_warr_staggering_shout : public SpellScriptLoader
+class spell_warr_staggering_shout: public SpellScriptLoader
 {
     public:
         spell_warr_staggering_shout() : SpellScriptLoader("spell_warr_staggering_shout") { }
@@ -404,7 +404,7 @@ class spell_warr_staggering_shout : public SpellScriptLoader
 };
 
 // Second Wind - 29838
-class spell_warr_second_wind : public SpellScriptLoader
+class spell_warr_second_wind: public SpellScriptLoader
 {
     public:
         spell_warr_second_wind() : SpellScriptLoader("spell_warr_second_wind") { }
@@ -448,7 +448,7 @@ class spell_warr_second_wind : public SpellScriptLoader
 };
 
 // Sudden Death - 52437
-class spell_warr_sudden_death : public SpellScriptLoader
+class spell_warr_sudden_death: public SpellScriptLoader
 {
     public:
         spell_warr_sudden_death() : SpellScriptLoader("spell_warr_sudden_death") { }
@@ -477,7 +477,7 @@ class spell_warr_sudden_death : public SpellScriptLoader
 };
 
 // Berzerker Rage - 18499
-class spell_warr_berzerker_rage : public SpellScriptLoader
+class spell_warr_berzerker_rage: public SpellScriptLoader
 {
     public:
         spell_warr_berzerker_rage() : SpellScriptLoader("spell_warr_berzerker_rage") { }
@@ -510,7 +510,7 @@ class spell_warr_berzerker_rage : public SpellScriptLoader
 };
 
 // Enrage - 12880
-class spell_warr_enrage : public SpellScriptLoader
+class spell_warr_enrage: public SpellScriptLoader
 {
     public:
         spell_warr_enrage() : SpellScriptLoader("spell_warr_enrage") { }
@@ -539,7 +539,7 @@ class spell_warr_enrage : public SpellScriptLoader
 };
 
 // Mocking Banner - 114192
-class spell_warr_mocking_banner : public SpellScriptLoader
+class spell_warr_mocking_banner: public SpellScriptLoader
 {
     public:
         spell_warr_mocking_banner() : SpellScriptLoader("spell_warr_mocking_banner") { }
@@ -587,7 +587,7 @@ class spell_warr_mocking_banner : public SpellScriptLoader
 };
 
 // Raging Blow - 85288
-class spell_warr_raging_blow : public SpellScriptLoader
+class spell_warr_raging_blow: public SpellScriptLoader
 {
     public:
         spell_warr_raging_blow() : SpellScriptLoader("spell_warr_raging_blow") { }
@@ -617,7 +617,7 @@ class spell_warr_raging_blow : public SpellScriptLoader
 
 // Called by Devastate - 20243
 // Sword and Board - 46953
-class spell_warr_sword_and_board : public SpellScriptLoader
+class spell_warr_sword_and_board: public SpellScriptLoader
 {
     public:
         spell_warr_sword_and_board() : SpellScriptLoader("spell_warr_sword_and_board") { }
@@ -655,7 +655,7 @@ class spell_warr_sword_and_board : public SpellScriptLoader
 };
 
 // Mortal strike - 12294
-class spell_warr_mortal_strike : public SpellScriptLoader
+class spell_warr_mortal_strike: public SpellScriptLoader
 {
     public:
         spell_warr_mortal_strike() : SpellScriptLoader("spell_warr_mortal_strike") { }
@@ -694,7 +694,7 @@ class spell_warr_mortal_strike : public SpellScriptLoader
 };
 
 // Rallying cry - 97462
-class spell_warr_rallying_cry : public SpellScriptLoader
+class spell_warr_rallying_cry: public SpellScriptLoader
 {
     public:
         spell_warr_rallying_cry() : SpellScriptLoader("spell_warr_rallying_cry") { }
@@ -746,7 +746,7 @@ enum HeroicLeapSpells
 };
 
 // Heroic leap - 6544
-class spell_warr_heroic_leap : public SpellScriptLoader
+class spell_warr_heroic_leap: public SpellScriptLoader
 {
     public:
         spell_warr_heroic_leap() : SpellScriptLoader("spell_warr_heroic_leap") { }
@@ -809,7 +809,7 @@ class spell_warr_heroic_leap : public SpellScriptLoader
 };
 
 // Heroic Leap (damage) - 52174
-class spell_warr_heroic_leap_damage : public SpellScriptLoader
+class spell_warr_heroic_leap_damage: public SpellScriptLoader
 {
     public:
         spell_warr_heroic_leap_damage() : SpellScriptLoader("spell_warr_heroic_leap_damage") { }
@@ -840,7 +840,7 @@ class spell_warr_heroic_leap_damage : public SpellScriptLoader
 };
 
 // Shockwave - 46968
-class spell_warr_shockwave : public SpellScriptLoader
+class spell_warr_shockwave: public SpellScriptLoader
 {
     public:
         spell_warr_shockwave() : SpellScriptLoader("spell_warr_shockwave") { }
@@ -869,7 +869,7 @@ class spell_warr_shockwave : public SpellScriptLoader
 };
 
 // Bloodthirst - 23881
-class spell_warr_bloodthirst : public SpellScriptLoader
+class spell_warr_bloodthirst: public SpellScriptLoader
 {
     public:
         spell_warr_bloodthirst() : SpellScriptLoader("spell_warr_bloodthirst") { }
@@ -912,7 +912,7 @@ class spell_warr_bloodthirst : public SpellScriptLoader
 };
 
 // Victory Rush - 34428
-class spell_warr_victory_rush : public SpellScriptLoader
+class spell_warr_victory_rush: public SpellScriptLoader
 {
     public:
         spell_warr_victory_rush() : SpellScriptLoader("spell_warr_victory_rush") { }
@@ -955,7 +955,7 @@ class spell_warr_victory_rush : public SpellScriptLoader
 };
 
 // Last Stand - 12975
-class spell_warr_last_stand : public SpellScriptLoader
+class spell_warr_last_stand: public SpellScriptLoader
 {
     public:
         spell_warr_last_stand() : SpellScriptLoader("spell_warr_last_stand") { }
@@ -995,7 +995,7 @@ class spell_warr_last_stand : public SpellScriptLoader
 
 // Called By Thunder Clap - 6343, Mortal Strike - 12294, Bloodthirst - 23881 and Devastate - 20243
 // Deep Wounds - 115767
-class spell_warr_deep_wounds : public SpellScriptLoader
+class spell_warr_deep_wounds: public SpellScriptLoader
 {
     public:
         spell_warr_deep_wounds() : SpellScriptLoader("spell_warr_deep_wounds") { }
@@ -1047,7 +1047,7 @@ enum ChargeSpells
 };
 
 // Charge - 100
-class spell_warr_charge : public SpellScriptLoader
+class spell_warr_charge: public SpellScriptLoader
 {
     public:
         spell_warr_charge() : SpellScriptLoader("spell_warr_charge") { }
@@ -1095,7 +1095,7 @@ class spell_warr_charge : public SpellScriptLoader
 };
 
 // Shield Wall - 871
-class spell_warr_shield_wall : public SpellScriptLoader
+class spell_warr_shield_wall: public SpellScriptLoader
 {
     public:
         spell_warr_shield_wall() : SpellScriptLoader("spell_warr_shield_wall") { }
@@ -1153,7 +1153,7 @@ class spell_warr_shield_wall : public SpellScriptLoader
 };
 
 // Spell Reflection - 23920
-class spell_warr_spell_reflection : public SpellScriptLoader
+class spell_warr_spell_reflection: public SpellScriptLoader
 {
     public:
         spell_warr_spell_reflection() : SpellScriptLoader("spell_warr_spell_reflection") { }
@@ -1205,7 +1205,7 @@ class spell_warr_spell_reflection : public SpellScriptLoader
 };
 
 // Intervene - 3411
-class spell_warr_intervene : public SpellScriptLoader
+class spell_warr_intervene: public SpellScriptLoader
 {
     public:
         spell_warr_intervene() : SpellScriptLoader("spell_warr_intervene") { }
@@ -1236,7 +1236,7 @@ class spell_warr_intervene : public SpellScriptLoader
 };
 
 // Called by Pummel - 6552 or Heroic Throw - 57755
-class spell_warr_glyph_of_gag_order : public SpellScriptLoader
+class spell_warr_glyph_of_gag_order: public SpellScriptLoader
 {
     public:
         spell_warr_glyph_of_gag_order() : SpellScriptLoader("spell_warr_glyph_of_gag_order") { }
@@ -1270,7 +1270,7 @@ class spell_warr_glyph_of_gag_order : public SpellScriptLoader
 };
 
 // Shield Barrier - 112048
-class spell_warr_shield_barrier : public SpellScriptLoader
+class spell_warr_shield_barrier: public SpellScriptLoader
 {
     public:
         spell_warr_shield_barrier() : SpellScriptLoader("spell_warl_shield_barrier") { }
@@ -1320,7 +1320,7 @@ uint32 g_ReducedSpellsId[REDUCED_SPELLS_ID_MAX] =
     118038, // Die by the Sword
 };
 
-class spell_warr_anger_management : public PlayerScript
+class spell_warr_anger_management: public PlayerScript
 {
 public:
     spell_warr_anger_management() : PlayerScript("spell_warr_anger_management") {}
@@ -1351,7 +1351,7 @@ public:
 };
 
 // Execute - 163201
-class spell_warr_execute : public SpellScriptLoader
+class spell_warr_execute: public SpellScriptLoader
 {
 public:
     spell_warr_execute() : SpellScriptLoader("spell_warr_execute") { }

@@ -793,7 +793,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         std::list<Unit*> targetList;
         std::list<Creature*> tempList;
         std::list<Creature*> statueList;
-        Creature* statue;
+        Creature* statue = nullptr;
 
         ToPlayer()->GetPartyMembers(targetList);
 
@@ -1428,26 +1428,7 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
             if (crit)
             {
                 damageInfo->HitInfo |= SPELL_HIT_TYPE_CRIT;
-
-                // Calculate crit bonus
-                uint32 crit_bonus = damage;
-                // Apply crit_damage bonus for melee spells
-                if (Player* modOwner = GetSpellModOwner())
-                    modOwner->ApplySpellMod(spellInfo->Id, SPELLMOD_CRIT_DAMAGE_BONUS, crit_bonus);
-                damage += crit_bonus;
-
-                // Apply SPELL_AURA_MOD_ATTACKER_RANGED_CRIT_DAMAGE or SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_DAMAGE
-                float critPctDamageMod = 0.0f;
-                if (attackType == WeaponAttackType::RangedAttack)
-                    critPctDamageMod += victim->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_RANGED_CRIT_DAMAGE);
-                else
-                    critPctDamageMod += victim->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_DAMAGE);
-
-                // Increase crit damage from SPELL_AURA_MOD_CRIT_DAMAGE_BONUS
-                critPctDamageMod += (GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, spellInfo->GetSchoolMask()) - 1.0f) * 100;
-
-                if (critPctDamageMod != 0)
-                    AddPct(damage, critPctDamageMod);
+                damage = MeleeCriticalDamageBonus(spellInfo, damage, victim, attackType);
             }
 
             // Spell weapon based damage CAN BE crit & blocked at same time
@@ -1625,22 +1606,8 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
         {
             damageInfo->HitInfo        |= HITINFO_CRITICALHIT;
             damageInfo->TargetState     = VICTIMSTATE_HIT;
-
             damageInfo->procEx         |= PROC_EX_CRITICAL_HIT;
-            // Crit bonus calc
-            damageInfo->damage += damageInfo->damage;
-            float mod = 0.0f;
-            // Apply SPELL_AURA_MOD_ATTACKER_RANGED_CRIT_DAMAGE or SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_DAMAGE
-            if (damageInfo->attackType == WeaponAttackType::RangedAttack)
-                mod += damageInfo->target->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_RANGED_CRIT_DAMAGE);
-            else
-                mod += damageInfo->target->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_DAMAGE);
-
-            // Increase crit damage from SPELL_AURA_MOD_CRIT_DAMAGE_BONUS
-            mod += (GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, damageInfo->damageSchoolMask) - 1.0f) * 100;
-
-            if (mod != 0)
-                AddPct(damageInfo->damage, mod);
+            damageInfo->damage          = MeleeCriticalDamageBonus(nullptr, damageInfo->damage, victim, attackType);
             break;
         }
         case MELEE_HIT_PARRY:
@@ -12081,6 +12048,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
 
     // Done fixed damage bonus auras
     int32 DoneAdvertisedBenefit  = SpellBaseDamageBonusDone(spellProto->GetSchoolMask());
+    UNUSED(DoneAdvertisedBenefit);  ///< @TODO
 
     // Check for table values
     float coeff = 0;
@@ -12549,7 +12517,7 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                 {
                     if (!((*i)->IsAffectingSpell(spellProto)))
                         continue;
-                    int32 modChance = 0;
+
                     switch ((*i)->GetMiscValue())
                     {
                             // Shatter
@@ -12767,41 +12735,64 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
     return crit_chance > 0.0f ? crit_chance : 0.0f;
 }
 
-uint32 Unit::SpellCriticalDamageBonus(SpellInfo const* spellProto, uint32 damage, Unit* victim)
+uint32 Unit::MeleeCriticalDamageBonus(SpellInfo const* p_SpellProto, uint32 p_Damage, Unit* p_Victim, WeaponAttackType p_AttackType)
 {
-    // Calculate critical bonus
-    int32 crit_bonus = damage;
-    float crit_mod = 0.0f;
+    int32 l_CritPct = 200; // 200% for all melee damage type...
 
-    crit_bonus += damage; // 200% for all damage type
+    if (GetTypeId() == TYPEID_PLAYER && p_Victim->GetTypeId() == TYPEID_PLAYER && GetMapId() != 1191)
+        l_CritPct = 150; // WoD: ...except for PvP out of Ashran area where is 150%
 
-    crit_mod += (GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, spellProto->GetSchoolMask()) - 1.0f) * 100;
+    if (p_AttackType == WeaponAttackType::RangedAttack)
+        l_CritPct += p_Victim->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_RANGED_CRIT_DAMAGE);
+    else
+        l_CritPct += p_Victim->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_DAMAGE);
 
-    if (crit_bonus != 0)
-        AddPct(crit_bonus, crit_mod);
+    if (p_SpellProto)
+    {
+        l_CritPct += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, p_SpellProto->GetSchoolMask());
 
-    crit_bonus -= damage;
+        // adds additional damage to p_Damage (from talents)
+        if (Player* l_ModOwner = GetSpellModOwner())
+            l_ModOwner->ApplySpellMod(p_SpellProto->Id, SPELLMOD_CRIT_DAMAGE_BONUS, p_Damage);
+    }
 
-    // adds additional damage to crit_bonus (from talents)
-    if (Player* modOwner = GetSpellModOwner())
-        modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_CRIT_DAMAGE_BONUS, crit_bonus);
+    p_Damage = CalculatePct(p_Damage, l_CritPct);
 
-    crit_bonus += damage;
-
-    return crit_bonus;
+    return p_Damage;
 }
 
-uint32 Unit::SpellCriticalHealingBonus(SpellInfo const* /*spellProto*/, uint32 damage, Unit* victim)
+uint32 Unit::SpellCriticalDamageBonus(SpellInfo const* p_SpellProto, uint32 p_Damage, Unit* p_Victim)
 {
-    // Calculate critical bonus
-    int32 crit_bonus = damage;
+    int32 l_CritPct = 200; // 200% for all spell damage type...
 
-    damage += crit_bonus;
+    if (GetTypeId() == TYPEID_PLAYER && p_Victim->GetTypeId() == TYPEID_PLAYER && GetMapId() != 1191)
+        l_CritPct = 150; // WoD: ...except for PvP out of Ashran area where is 150%
 
-    damage = int32(float(damage) * GetTotalAuraMultiplier(SPELL_AURA_MOD_CRITICAL_HEALING_AMOUNT));
+    l_CritPct += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, p_SpellProto->GetSchoolMask());
 
-    return damage;
+    // adds additional damage to p_Damage (from talents)
+    if (Player* l_ModOwner = GetSpellModOwner())
+        l_ModOwner->ApplySpellMod(p_SpellProto->Id, SPELLMOD_CRIT_DAMAGE_BONUS, p_Damage);
+
+    p_Damage = CalculatePct(p_Damage, l_CritPct);
+
+    return p_Damage;
 }
+
+uint32 Unit::SpellCriticalHealingBonus(SpellInfo const* /*p_SpellProto*/, uint32 p_Damage, Unit* p_Victim)
+{
+    int32 l_CritPct = 200; // 200% for all healing type...
+
+    if (GetTypeId() == TYPEID_PLAYER && p_Victim->GetTypeId() == TYPEID_PLAYER && GetMapId() != 1191)
+        l_CritPct = 150; // WoD: ...except for PvP out of Ashran area where is 150%
+
+    l_CritPct += GetTotalAuraModifier(SPELL_AURA_MOD_CRITICAL_HEALING_AMOUNT);
+
+    p_Damage = CalculatePct(p_Damage, l_CritPct);
+
+    return p_Damage;
+}
+
 
 uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const *spellProto, uint32 healamount, uint8 effIndex, DamageEffectType damagetype, uint32 stack /*= 1*/)
 {
@@ -16037,7 +16028,7 @@ uint32 Unit::GetPowerIndexByClass(uint32 powerId, uint32 classId) const
     if (GetTypeId() != TYPEID_PLAYER)
     {
         Powers l_DisplayPower = getPowerType();
-        if (l_DisplayPower == powerId)
+        if (l_DisplayPower == (Powers)powerId)
             l_PowerIndex = 0;
         else if (powerId == Powers::POWER_ALTERNATE_POWER)
             l_PowerIndex = 1;
@@ -16444,8 +16435,10 @@ void CharmInfo::InitPetActionBar()
     // last 3 SpellOrActions are reactions
     for (uint32 i = 0; i < ACTION_BAR_INDEX_END - ACTION_BAR_INDEX_PET_SPELL_END; ++i)
     {
-        if (i != 1)
-            SetActionBar(ACTION_BAR_INDEX_PET_SPELL_END + i, REACT_HELPER - i, ACT_REACTION);
+        if (i == 0)
+            SetActionBar(ACTION_BAR_INDEX_PET_SPELL_END + i, REACT_HELPER, ACT_REACTION);
+        else
+            SetActionBar(ACTION_BAR_INDEX_PET_SPELL_END + i, REACT_AGGRESSIVE - i, ACT_REACTION);
     }
 }
 
@@ -17453,7 +17446,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
 }
 
 bool Unit::IsNoBreakingCC(bool isVictim, Unit* target, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, SpellInfo const* procSpell,
-uint32 damage, uint32 absorb /* = 0 */, SpellInfo const* procAura /* = NULL */, SpellInfo const* spellInfo ) const
+                          uint32 damage, uint32 absorb /* = 0 */, SpellInfo const* procAura /* = NULL */, SpellInfo const* spellInfo ) const
 {
     // Dragon Breath & Living Bomb
     if (spellInfo->Category == 1215 && procSpell &&
@@ -19532,10 +19525,8 @@ AuraPtr Unit::ToggleAura(uint32 spellId, Unit* target)
         target->RemoveAurasDueToSpell(spellId);
         return NULLAURA;
     }
-    else
-        return target->AddAura(spellId, target);
-
-    return NULLAURA;
+    
+    return target->AddAura(spellId, target);
 }
 
 AuraPtr Unit::AddAura(uint32 spellId, Unit* target)
@@ -21723,10 +21714,16 @@ void Unit::SendMovementHover(bool apply)
 
     WorldPacket l_Data;
 
-    if (HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
+    if (apply)
+    {
         l_Data.Initialize(SMSG_SPLINE_MOVE_SET_HOVER, 8);
+        AddUnitMovementFlag(MOVEMENTFLAG_HOVER);
+    }
     else
+    {
         l_Data.Initialize(SMSG_SPLINE_MOVE_UNSET_HOVER, 8);
+        RemoveUnitMovementFlag(MOVEMENTFLAG_HOVER);
+    }
 
     l_Data.appendPackGUID(GetGUID());
     SendMessageToSet(&l_Data, false);

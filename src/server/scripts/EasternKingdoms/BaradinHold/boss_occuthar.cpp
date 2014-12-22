@@ -214,7 +214,7 @@ class npc_occuthar_eye_of_occuthar : public CreatureScript
         };
 };
 
-class spell_occuthar_eye_of_occuthar : public SpellScriptLoader
+class spell_occuthar_eye_of_occuthar: public SpellScriptLoader
 {
     public:
         spell_occuthar_eye_of_occuthar() : SpellScriptLoader("spell_occuthar_eye_of_occuthar") { }

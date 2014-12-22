@@ -214,7 +214,7 @@ class ConflagrationTargetSelector
         }
 };
 
-class spell_saviana_conflagration_init : public SpellScriptLoader
+class spell_saviana_conflagration_init: public SpellScriptLoader
 {
     public:
         spell_saviana_conflagration_init() : SpellScriptLoader("spell_saviana_conflagration_init") { }
@@ -251,7 +251,7 @@ class spell_saviana_conflagration_init : public SpellScriptLoader
         }
 };
 
-class spell_saviana_conflagration_throwback : public SpellScriptLoader
+class spell_saviana_conflagration_throwback: public SpellScriptLoader
 {
     public:
         spell_saviana_conflagration_throwback() : SpellScriptLoader("spell_saviana_conflagration_throwback") { }

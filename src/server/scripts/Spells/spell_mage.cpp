@@ -94,14 +94,16 @@ enum MageSpells
     SPELL_MAGE_OVERPOWERED                       = 155147,
     SPELL_MAGE_ICY_VEINS                         = 12472,
     SPELL_MAGE_THERMAL_VOID                      = 155149,
-    SPELL_MAGE_PYROBLAST_AURA                    = 159517,
+    SPELL_MAGE_HEATING_UP                        = 48108,
     SPELL_MAGE_KINDKING                          = 155148,
-    SPELL_MAGE_COMBUSTION                        = 11129
+    SPELL_MAGE_COMBUSTION                        = 11129,
+    SPELL_MAGE_FROST_BOMB_AURA                   = 112948,
+    SPELL_MAGE_FROST_BOMB_VISUAL                 = 69846
 };
 
 
 // Greater Invisibility (remove timer) - 122293
-class spell_mage_greater_invisibility_removed : public SpellScriptLoader
+class spell_mage_greater_invisibility_removed: public SpellScriptLoader
 {
     public:
         spell_mage_greater_invisibility_removed() : SpellScriptLoader("spell_mage_greater_invisibility_removed") { }
@@ -130,7 +132,7 @@ class spell_mage_greater_invisibility_removed : public SpellScriptLoader
 };
 
 // Greater Invisibility (triggered) - 110960
-class spell_mage_greater_invisibility_triggered : public SpellScriptLoader
+class spell_mage_greater_invisibility_triggered: public SpellScriptLoader
 {
     public:
         spell_mage_greater_invisibility_triggered() : SpellScriptLoader("spell_mage_greater_invisibility_triggered") { }
@@ -166,7 +168,7 @@ class spell_mage_greater_invisibility_triggered : public SpellScriptLoader
 
 // Called by Arcane Blast - 30451
 // Glyph of Slow - 86209
-class spell_mage_glyph_of_slow : public SpellScriptLoader
+class spell_mage_glyph_of_slow: public SpellScriptLoader
 {
     public:
         spell_mage_glyph_of_slow() : SpellScriptLoader("spell_mage_glyph_of_slow") { }
@@ -217,7 +219,7 @@ class spell_mage_glyph_of_slow : public SpellScriptLoader
 };
 
 // Frost Nova (Water Elemental) - 33395
-class spell_mage_pet_frost_nova : public SpellScriptLoader
+class spell_mage_pet_frost_nova: public SpellScriptLoader
 {
     public:
         spell_mage_pet_frost_nova() : SpellScriptLoader("spell_mage_pet_frost_nova") { }
@@ -276,7 +278,7 @@ class spell_mage_pet_frost_nova : public SpellScriptLoader
 
 // Called by Ice Block - 45438
 // Glyph of Ice Block - 115723
-class spell_mage_glyph_of_ice_block : public SpellScriptLoader
+class spell_mage_glyph_of_ice_block: public SpellScriptLoader
 {
     public:
         spell_mage_glyph_of_ice_block() : SpellScriptLoader("spell_mage_glyph_of_ice_block") { }
@@ -313,7 +315,7 @@ class spell_mage_glyph_of_ice_block : public SpellScriptLoader
 };
 
 // Arcane Missiles - 5143
-class spell_mage_arcane_missile : public SpellScriptLoader
+class spell_mage_arcane_missile: public SpellScriptLoader
 {
     public:
         spell_mage_arcane_missile() : SpellScriptLoader("spell_mage_arcane_missile") { }
@@ -371,7 +373,7 @@ class spell_mage_arcane_missile : public SpellScriptLoader
 };
 
 // Cauterize - 86949
-class spell_mage_cauterize : public SpellScriptLoader
+class spell_mage_cauterize: public SpellScriptLoader
 {
     public:
         spell_mage_cauterize() : SpellScriptLoader("spell_mage_cauterize") { }
@@ -462,7 +464,7 @@ class CheckArcaneBarrageImpactPredicate
 };
 
 // Arcane Barrage - 44425
-class spell_mage_arcane_barrage : public SpellScriptLoader
+class spell_mage_arcane_barrage: public SpellScriptLoader
 {
     public:
         spell_mage_arcane_barrage() : SpellScriptLoader("spell_mage_arcane_barrage") { }
@@ -493,7 +495,7 @@ class spell_mage_arcane_barrage : public SpellScriptLoader
 };
 
 // Arcane Explosion - 1449
-class spell_mage_arcane_explosion : public SpellScriptLoader
+class spell_mage_arcane_explosion: public SpellScriptLoader
 {
     public:
         spell_mage_arcane_explosion() : SpellScriptLoader("spell_mage_arcane_explosion") { }
@@ -524,7 +526,7 @@ class spell_mage_arcane_explosion : public SpellScriptLoader
 };
 
 // Frostbolt - 116
-class spell_mage_frostbolt : public SpellScriptLoader
+class spell_mage_frostbolt: public SpellScriptLoader
 {
     public:
         spell_mage_frostbolt() : SpellScriptLoader("spell_mage_frostbolt") { }
@@ -578,43 +580,6 @@ class spell_mage_frostbolt : public SpellScriptLoader
         }
 };
 
-// Frost Bomb - 112948
-class spell_mage_frost_bomb : public SpellScriptLoader
-{
-    public:
-        spell_mage_frost_bomb() : SpellScriptLoader("spell_mage_frost_bomb") { }
-
-        class spell_mage_frost_bomb_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_mage_frost_bomb_AuraScript);
-
-            void AfterRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
-            {
-                AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
-                if (removeMode != AURA_REMOVE_BY_EXPIRE)
-                    return;
-
-                if (Unit* caster = GetCaster())
-                {
-                    caster->CastSpell(GetTarget(), SPELL_MAGE_FROST_BOMB_TRIGGERED, true);
-
-                    if (caster->HasAura(SPELL_MAGE_BRAIN_FREEZE))
-                        caster->CastSpell(caster, SPELL_MAGE_BRAIN_FREEZE_TRIGGERED, true);
-                }
-            }
-
-            void Register()
-            {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_mage_frost_bomb_AuraScript::AfterRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_mage_frost_bomb_AuraScript();
-        }
-};
-
 class CheckNetherImpactPredicate
 {
     public:
@@ -649,7 +614,7 @@ class CheckNetherImpactPredicate
 };
 
 // Nether Tempest - 114923
-class spell_mage_nether_tempest : public SpellScriptLoader
+class spell_mage_nether_tempest: public SpellScriptLoader
 {
     public:
         spell_mage_nether_tempest() : SpellScriptLoader("spell_mage_nether_tempest") { }
@@ -697,7 +662,7 @@ class spell_mage_nether_tempest : public SpellScriptLoader
 };
 
 // Blazing Speed - 108843
-class spell_mage_blazing_speed : public SpellScriptLoader
+class spell_mage_blazing_speed: public SpellScriptLoader
 {
     public:
         spell_mage_blazing_speed() : SpellScriptLoader("spell_mage_blazing_speed") { }
@@ -725,7 +690,7 @@ class spell_mage_blazing_speed : public SpellScriptLoader
 };
 
 // Frostjaw - 102051
-class spell_mage_frostjaw : public SpellScriptLoader
+class spell_mage_frostjaw: public SpellScriptLoader
 {
     public:
         spell_mage_frostjaw() : SpellScriptLoader("spell_mage_frostjaw") { }
@@ -766,7 +731,7 @@ class spell_mage_frostjaw : public SpellScriptLoader
 };
 
 // Combustion - 11129
-class spell_mage_combustion : public SpellScriptLoader
+class spell_mage_combustion: public SpellScriptLoader
 {
     public:
         spell_mage_combustion() : SpellScriptLoader("spell_mage_combustion") { }
@@ -851,7 +816,7 @@ class CheckInfernoBlastImpactPredicate
 };
 
 // Inferno Blast - 108853
-class spell_mage_inferno_blast : public SpellScriptLoader
+class spell_mage_inferno_blast: public SpellScriptLoader
 {
     public:
         spell_mage_inferno_blast() : SpellScriptLoader("spell_mage_inferno_blast") { }
@@ -933,7 +898,7 @@ class spell_mage_inferno_blast : public SpellScriptLoader
 };
 
 // Replenish Mana - 5405
-class spell_mage_replenish_mana : public SpellScriptLoader
+class spell_mage_replenish_mana: public SpellScriptLoader
 {
     public:
         spell_mage_replenish_mana() : SpellScriptLoader("spell_mage_replenish_mana") { }
@@ -961,7 +926,7 @@ class spell_mage_replenish_mana : public SpellScriptLoader
 };
 
 // Evocation - 12051
-class spell_mage_evocation : public SpellScriptLoader
+class spell_mage_evocation: public SpellScriptLoader
 {
     public:
         spell_mage_evocation() : SpellScriptLoader("spell_mage_evocation") { }
@@ -989,7 +954,7 @@ class spell_mage_evocation : public SpellScriptLoader
 };
 
 // Conjure Refreshment - 42955
-class spell_mage_conjure_refreshment : public SpellScriptLoader
+class spell_mage_conjure_refreshment: public SpellScriptLoader
 {
     public:
         spell_mage_conjure_refreshment() : SpellScriptLoader("spell_mage_conjure_refreshment") { }
@@ -1034,7 +999,7 @@ class spell_mage_conjure_refreshment : public SpellScriptLoader
 };
 
 // Time Warp - 80353
-class spell_mage_time_warp : public SpellScriptLoader
+class spell_mage_time_warp: public SpellScriptLoader
 {
     public:
         spell_mage_time_warp() : SpellScriptLoader("spell_mage_time_warp") { }
@@ -1073,7 +1038,7 @@ class spell_mage_time_warp : public SpellScriptLoader
 };
 
 // Alter Time - 127140 (overrided)
-class spell_mage_alter_time_overrided : public SpellScriptLoader
+class spell_mage_alter_time_overrided: public SpellScriptLoader
 {
     public:
         spell_mage_alter_time_overrided() : SpellScriptLoader("spell_mage_alter_time_overrided") { }
@@ -1102,7 +1067,7 @@ class spell_mage_alter_time_overrided : public SpellScriptLoader
 };
 
 // Alter Time - 110909
-class spell_mage_alter_time : public SpellScriptLoader
+class spell_mage_alter_time: public SpellScriptLoader
 {
     public:
         spell_mage_alter_time() : SpellScriptLoader("spell_mage_alter_time") { }
@@ -1147,7 +1112,7 @@ class spell_mage_alter_time : public SpellScriptLoader
 };
 
 // Cold Snap - 11958
-class spell_mage_cold_snap : public SpellScriptLoader
+class spell_mage_cold_snap: public SpellScriptLoader
 {
     public:
         spell_mage_cold_snap() : SpellScriptLoader("spell_mage_cold_snap") { }
@@ -1213,7 +1178,7 @@ class spell_mage_incanters_absorbtion_base_AuraScript : public AuraScript
 };
 
 // Incanter's Absorption
-class spell_mage_incanters_absorbtion_absorb : public SpellScriptLoader
+class spell_mage_incanters_absorbtion_absorb: public SpellScriptLoader
 {
     public:
         spell_mage_incanters_absorbtion_absorb() : SpellScriptLoader("spell_mage_incanters_absorbtion_absorb") { }
@@ -1235,7 +1200,7 @@ class spell_mage_incanters_absorbtion_absorb : public SpellScriptLoader
 };
 
 // Incanter's Absorption
-class spell_mage_incanters_absorbtion_manashield : public SpellScriptLoader
+class spell_mage_incanters_absorbtion_manashield: public SpellScriptLoader
 {
     public:
         spell_mage_incanters_absorbtion_manashield() : SpellScriptLoader("spell_mage_incanters_absorbtion_manashield") { }
@@ -1257,7 +1222,7 @@ class spell_mage_incanters_absorbtion_manashield : public SpellScriptLoader
 };
 
 // Living Bomb - 44457
-class spell_mage_living_bomb : public SpellScriptLoader
+class spell_mage_living_bomb: public SpellScriptLoader
 {
     public:
         spell_mage_living_bomb() : SpellScriptLoader("spell_mage_living_bomb") { }
@@ -1292,7 +1257,7 @@ class spell_mage_living_bomb : public SpellScriptLoader
 };
 
 // Mirror Image - 55342
-class spell_mage_mirror_image_summon : public SpellScriptLoader
+class spell_mage_mirror_image_summon: public SpellScriptLoader
 {
     public:
         spell_mage_mirror_image_summon() : SpellScriptLoader("spell_mage_mirror_image_summon") { }
@@ -1324,7 +1289,7 @@ class spell_mage_mirror_image_summon : public SpellScriptLoader
 };
 
 // Ice Barrier - 11426
-class spell_mage_ice_barrier : public SpellScriptLoader
+class spell_mage_ice_barrier: public SpellScriptLoader
 {
     public:
         spell_mage_ice_barrier() : SpellScriptLoader("spell_mage_ice_barrier") { }
@@ -1353,7 +1318,7 @@ class spell_mage_ice_barrier : public SpellScriptLoader
 
 // Call by Arcane Blast 30451 - Fireball 133 - Frostbolt 116
 // Unstable Magic - 157976
-class spell_mage_unstable_magic : public SpellScriptLoader
+class spell_mage_unstable_magic: public SpellScriptLoader
 {
 public:
     spell_mage_unstable_magic() : SpellScriptLoader("spell_mage_unstable_magic") { }
@@ -1390,7 +1355,7 @@ public:
 };
 
 // Ice Lance - 30455
-class spell_mage_ice_lance : public SpellScriptLoader
+class spell_mage_ice_lance: public SpellScriptLoader
 {
 public:
     spell_mage_ice_lance() : SpellScriptLoader("spell_mage_ice_lance") { }
@@ -1402,9 +1367,20 @@ public:
         void HandleOnHit()
         {
             if (Unit* l_Caster = GetCaster())
+            {
                 if (l_Caster->HasSpell(SPELL_MAGE_THERMAL_VOID))
                     if (AuraPtr l_Aura = l_Caster->GetAura(SPELL_MAGE_ICY_VEINS, l_Caster->GetGUID()))
                         l_Aura->SetDuration(l_Aura->GetDuration() + sSpellMgr->GetSpellInfo(SPELL_MAGE_THERMAL_VOID)->Effects[EFFECT_0].BasePoints * IN_MILLISECONDS);
+
+                if (Unit* l_Target = GetHitUnit())
+                    if (l_Target->HasAura(SPELL_MAGE_FROST_BOMB_AURA) && l_Target->isFrozen())
+                    {
+                        l_Caster->CastSpell(l_Target, SPELL_MAGE_FROST_BOMB_TRIGGERED, true);
+                        l_Caster->CastSpell(l_Target, SPELL_MAGE_FROST_BOMB_VISUAL, true);
+                        l_Target->RemoveAurasDueToSpell(SPELL_MAGE_FROST_BOMB_AURA);
+                    }
+
+            }
         }
 
         void Register()
@@ -1420,7 +1396,7 @@ public:
 };
 
 // Pyroblast - 11366
-class spell_mage_pyroblast : public SpellScriptLoader
+class spell_mage_pyroblast: public SpellScriptLoader
 {
 public:
     spell_mage_pyroblast() : SpellScriptLoader("spell_mage_pyroblast") { }
@@ -1429,16 +1405,16 @@ public:
     {
         PrepareSpellScript(spell_mage_pyroblast_SpellScript);
 
-        void HandleOnHit()
+        void HandleDamage(SpellEffIndex /*effIndex*/)
         {
             if (Unit* l_Caster = GetCaster())
-                if (l_Caster->HasAura(SPELL_MAGE_PYROBLAST_AURA))
-                    SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), GetSpellInfo()->Effects[EFFECT_2].BasePoints));
+                if (AuraPtr l_Aura = l_Caster->GetAura(SPELL_MAGE_HEATING_UP))
+                        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), sSpellMgr->GetSpellInfo(SPELL_MAGE_HEATING_UP)->Effects[EFFECT_2].BasePoints));
         }
 
         void Register()
         {
-            OnHit += SpellHitFn(spell_mage_pyroblast_SpellScript::HandleOnHit);
+            OnEffectHitTarget += SpellEffectFn(spell_mage_pyroblast_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
         }
     };
 
@@ -1449,7 +1425,7 @@ public:
 };
 
 // FrostFire bolt - 44614
-class spell_mage_frostfire_bolt : public SpellScriptLoader
+class spell_mage_frostfire_bolt: public SpellScriptLoader
 {
 public:
     spell_mage_frostfire_bolt() : SpellScriptLoader("spell_mage_frostfire_bolt") { }
@@ -1458,16 +1434,16 @@ public:
     {
         PrepareSpellScript(spell_mage_frostfire_bolt_SpellScript);
 
-        void HandleOnHit()
+        void HandleDamage(SpellEffIndex /*effIndex*/)
         {
             if (Unit* l_Caster = GetCaster())
-                if (l_Caster->HasAura(SPELL_MAGE_BRAIN_FREEZE_TRIGGERED))
-                    SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), sSpellMgr->GetSpellInfo(SPELL_MAGE_BRAIN_FREEZE)->Effects[EFFECT_2].BasePoints));
+                if (AuraPtr l_Aura = l_Caster->GetAura(SPELL_MAGE_BRAIN_FREEZE))
+                        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), sSpellMgr->GetSpellInfo(SPELL_MAGE_BRAIN_FREEZE)->Effects[EFFECT_2].BasePoints));
         }
 
         void Register()
         {
-            OnHit += SpellHitFn(spell_mage_frostfire_bolt_SpellScript::HandleOnHit);
+            OnEffectHitTarget += SpellEffectFn(spell_mage_frostfire_bolt_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
         }
     };
 
@@ -1479,7 +1455,7 @@ public:
 
 // Call by Fireball 133 - FrostFire Bolt 44614 - Pyroblast 11366 - Inferno Blast 108853
 // Kindling - 5405
-class spell_mage_kindling : public SpellScriptLoader
+class spell_mage_kindling: public SpellScriptLoader
 {
 public:
     spell_mage_kindling() : SpellScriptLoader("spell_mage_kindling") { }
@@ -1526,7 +1502,6 @@ void AddSC_mage_spell_scripts()
     new spell_mage_arcane_barrage();
     new spell_mage_arcane_explosion();
     new spell_mage_frostbolt();
-    new spell_mage_frost_bomb();
     new spell_mage_nether_tempest();
     new spell_mage_blazing_speed();
     new spell_mage_frostjaw();

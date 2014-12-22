@@ -148,7 +148,7 @@ class boss_asira_dawnslayer : public CreatureScript
         };   
 };
 
-class spell_asira_dawnslayer_blade_barrier : public SpellScriptLoader
+class spell_asira_dawnslayer_blade_barrier: public SpellScriptLoader
 {
     public:
         spell_asira_dawnslayer_blade_barrier() : SpellScriptLoader("spell_asira_dawnslayer_blade_barrier") { }
@@ -191,7 +191,7 @@ class spell_asira_dawnslayer_blade_barrier : public SpellScriptLoader
         }
 };
 
-class spell_asira_dawnslayer_throw_knife : public SpellScriptLoader
+class spell_asira_dawnslayer_throw_knife: public SpellScriptLoader
 { 
     public:
         spell_asira_dawnslayer_throw_knife() : SpellScriptLoader("spell_asira_dawnslayer_throw_knife") { }
@@ -247,7 +247,7 @@ class spell_asira_dawnslayer_throw_knife : public SpellScriptLoader
         }
 };
 
-class spell_asira_dawnslayer_mark_of_silence : public SpellScriptLoader
+class spell_asira_dawnslayer_mark_of_silence: public SpellScriptLoader
 { 
     public:
         spell_asira_dawnslayer_mark_of_silence() : SpellScriptLoader("spell_asira_dawnslayer_mark_of_silence") { }

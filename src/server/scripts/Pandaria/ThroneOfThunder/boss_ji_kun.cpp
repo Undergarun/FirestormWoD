@@ -1575,7 +1575,7 @@ class mob_nest_guardian : public CreatureScript
 
 
 // Caw - 138923
-class spell_caw : public SpellScriptLoader
+class spell_caw: public SpellScriptLoader
 {
     public:
         spell_caw() : SpellScriptLoader("spell_caw") { }
@@ -1604,7 +1604,7 @@ class spell_caw : public SpellScriptLoader
 };
 
 // Infected Talons - 140094
-class spell_infected_talons : public SpellScriptLoader
+class spell_infected_talons: public SpellScriptLoader
 {
     public:
         spell_infected_talons() : SpellScriptLoader("spell_infected_talons") { }
@@ -1647,7 +1647,7 @@ class spell_infected_talons : public SpellScriptLoader
 };
 
 // Regurgitate - 134385
-class spell_regurgitate : public SpellScriptLoader
+class spell_regurgitate: public SpellScriptLoader
 {
     public:
         spell_regurgitate() : SpellScriptLoader("spell_regurgitate") { }
@@ -1690,7 +1690,7 @@ class spell_regurgitate : public SpellScriptLoader
 };
 
 // 134339 - Daedalian Wings
-class spell_daedalian_wings : public SpellScriptLoader
+class spell_daedalian_wings: public SpellScriptLoader
 {
     public:
         spell_daedalian_wings() : SpellScriptLoader("spell_daedalian_wings") { }
@@ -1735,7 +1735,7 @@ class spell_daedalian_wings : public SpellScriptLoader
 };
 
 // 133755 - Flight
-class spell_flight : public SpellScriptLoader
+class spell_flight: public SpellScriptLoader
 {
     public:
         spell_flight() : SpellScriptLoader("spell_flight") { }
@@ -1792,7 +1792,7 @@ class spell_flight : public SpellScriptLoader
 };
 
 // Screech - 140640
-class spell_screech : public SpellScriptLoader
+class spell_screech: public SpellScriptLoader
 {
     public:
         spell_screech() : SpellScriptLoader("spell_screech") { }

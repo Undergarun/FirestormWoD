@@ -28,7 +28,7 @@ EndScriptData */
 #include "ObjectMgr.h"
 #include "PlayerDump.h"
 
-class character_commandscript : public CommandScript
+class character_commandscript: public CommandScript
 {
 public:
     character_commandscript() : CommandScript("character_commandscript") { }

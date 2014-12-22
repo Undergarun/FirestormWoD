@@ -74,7 +74,7 @@ enum Quest55Data
     NPC_WEAKENED_MORBENT    = 24782,
 };
 
-class spell_q55_sacred_cleansing : public SpellScriptLoader
+class spell_q55_sacred_cleansing: public SpellScriptLoader
 {
     public:
         spell_q55_sacred_cleansing() : SpellScriptLoader("spell_q55_sacred_cleansing") { }
@@ -93,7 +93,7 @@ enum Quest5206Data
     SPELL_CREATE_BONE_DUST = 17270
 };
 
-class spell_q5206_test_fetid_skull : public SpellScriptLoader
+class spell_q5206_test_fetid_skull: public SpellScriptLoader
 {
     public:
         spell_q5206_test_fetid_skull() : SpellScriptLoader("spell_q5206_test_fetid_skull") { }
@@ -145,7 +145,7 @@ enum Quests6124_6129Data
     DESPAWN_TIME        = 30000
 };
 
-class spell_q6124_6129_apply_salve : public SpellScriptLoader
+class spell_q6124_6129_apply_salve: public SpellScriptLoader
 {
     public:
         spell_q6124_6129_apply_salve() : SpellScriptLoader("spell_q6124_6129_apply_salve") { }
@@ -205,7 +205,7 @@ enum Quest10255Data
     NPC_DREADTUSK   = 16992,
 };
 
-class spell_q10255_administer_antidote : public SpellScriptLoader
+class spell_q10255_administer_antidote: public SpellScriptLoader
 {
     public:
         spell_q10255_administer_antidote() : SpellScriptLoader("spell_q10255_administer_antidote") { }
@@ -225,7 +225,7 @@ enum Quest11396_11399Data
 };
 
 // 43874 Scourge Mur'gul Camp: Force Shield Arcane Purple x3
-class spell_q11396_11399_force_shield_arcane_purple_x3 : public SpellScriptLoader
+class spell_q11396_11399_force_shield_arcane_purple_x3: public SpellScriptLoader
 {
     public:
         spell_q11396_11399_force_shield_arcane_purple_x3() : SpellScriptLoader("spell_q11396_11399_force_shield_arcane_purple_x3") { }
@@ -261,7 +261,7 @@ class spell_q11396_11399_force_shield_arcane_purple_x3 : public SpellScriptLoade
 };
 
 // 50133 Scourging Crystal Controller
-class spell_q11396_11399_scourging_crystal_controller : public SpellScriptLoader
+class spell_q11396_11399_scourging_crystal_controller: public SpellScriptLoader
 {
     public:
         spell_q11396_11399_scourging_crystal_controller() : SpellScriptLoader("spell_q11396_11399_scourging_crystal_controller") { }
@@ -299,7 +299,7 @@ class spell_q11396_11399_scourging_crystal_controller : public SpellScriptLoader
 };
 
 // 43882 Scourging Crystal Controller Dummy
-class spell_q11396_11399_scourging_crystal_controller_dummy : public SpellScriptLoader
+class spell_q11396_11399_scourging_crystal_controller_dummy: public SpellScriptLoader
 {
     public:
         spell_q11396_11399_scourging_crystal_controller_dummy() : SpellScriptLoader("spell_q11396_11399_scourging_crystal_controller_dummy") { }
@@ -342,7 +342,7 @@ enum Quest11515Data
     NPC_EMACIATED_FELBLOOD  = 24955
 };
 
-class spell_q11515_fel_siphon_dummy : public SpellScriptLoader
+class spell_q11515_fel_siphon_dummy: public SpellScriptLoader
 {
     public:
         spell_q11515_fel_siphon_dummy() : SpellScriptLoader("spell_q11515_fel_siphon_dummy") { }
@@ -362,7 +362,7 @@ enum Quest11587Data
     SPELL_ARCANE_PRISONER_KILL_CREDIT    = 45456     // Arcane Prisoner Kill Credit
 };
 
-class spell_q11587_arcane_prisoner_rescue : public SpellScriptLoader
+class spell_q11587_arcane_prisoner_rescue: public SpellScriptLoader
 {
     public:
         spell_q11587_arcane_prisoner_rescue() : SpellScriptLoader("spell_q11587_arcane_prisoner_rescue") { }
@@ -420,7 +420,7 @@ enum Quest11730Data
     NPC_55D_COLLECTATRON            = 25793
 };
 
-class spell_q11730_ultrasonic_screwdriver : public SpellScriptLoader
+class spell_q11730_ultrasonic_screwdriver: public SpellScriptLoader
 {
     public:
         spell_q11730_ultrasonic_screwdriver() : SpellScriptLoader("spell_q11730_ultrasonic_screwdriver") { }
@@ -490,7 +490,7 @@ enum Quest12459Data
     NPC_WEAK_DEATHGAZE              = 27807,
 };
 
-class spell_q12459_seeds_of_natures_wrath : public SpellScriptLoader
+class spell_q12459_seeds_of_natures_wrath: public SpellScriptLoader
 {
     public:
         spell_q12459_seeds_of_natures_wrath() : SpellScriptLoader("spell_q12459_seeds_of_natures_wrath") { }
@@ -537,7 +537,7 @@ enum Quest12634Data
     SPELL_SUMMON_ADVENTUROUS_DWARF  = 52070
 };
 
-class spell_q12634_despawn_fruit_tosser : public SpellScriptLoader
+class spell_q12634_despawn_fruit_tosser: public SpellScriptLoader
 {
     public:
         spell_q12634_despawn_fruit_tosser() : SpellScriptLoader("spell_q12634_despawn_fruit_tosser") { }
@@ -581,7 +581,7 @@ class spell_q12634_despawn_fruit_tosser : public SpellScriptLoader
 
 // http://www.wowhead.com/quest=12683 Burning to Help
 // 52308 Take Sputum Sample
-class spell_q12683_take_sputum_sample : public SpellScriptLoader
+class spell_q12683_take_sputum_sample: public SpellScriptLoader
 {
     public:
         spell_q12683_take_sputum_sample() : SpellScriptLoader("spell_q12683_take_sputum_sample") { }
@@ -626,7 +626,7 @@ enum Quest12851Data
     SPELL_ABLAZE            = 54683,
 };
 
-class spell_q12851_going_bearback : public SpellScriptLoader
+class spell_q12851_going_bearback: public SpellScriptLoader
 {
     public:
         spell_q12851_going_bearback() : SpellScriptLoader("spell_q12851_going_bearback") { }
@@ -684,7 +684,7 @@ enum Quest12937Data
     NPC_FALLEN_EARTHEN_DEFENDER         = 30035,
 };
 
-class spell_q12937_relief_for_the_fallen : public SpellScriptLoader
+class spell_q12937_relief_for_the_fallen: public SpellScriptLoader
 {
     public:
         spell_q12937_relief_for_the_fallen() : SpellScriptLoader("spell_q12937_relief_for_the_fallen") { }
@@ -735,7 +735,7 @@ enum Whoarethey
     SPELL_GENERIC_DISGUISE = 32756
 };
 
-class spell_q10041_q10040_who_are_they : public SpellScriptLoader
+class spell_q10041_q10040_who_are_they: public SpellScriptLoader
 {
     public:
         spell_q10041_q10040_who_are_they() : SpellScriptLoader("spell_q10041_q10040_who_are_they") { }
@@ -779,7 +779,7 @@ enum symboloflife
 };
 
 // 8593 Symbol of life dummy
-class spell_symbol_of_life_dummy : public SpellScriptLoader
+class spell_symbol_of_life_dummy: public SpellScriptLoader
 {
     public:
         spell_symbol_of_life_dummy() : SpellScriptLoader("spell_symbol_of_life_dummy") { }
@@ -822,7 +822,7 @@ enum Quest12659Data
     NPC_SCALPS_KC_BUNNY = 28622,
 };
 
-class spell_q12659_ahunaes_knife : public SpellScriptLoader
+class spell_q12659_ahunaes_knife: public SpellScriptLoader
 {
     public:
         spell_q12659_ahunaes_knife() : SpellScriptLoader("spell_q12659_ahunaes_knife") { }
@@ -864,7 +864,7 @@ enum StoppingTheSpread
     SPELL_FLAMES                                 = 39199,
 };
 
-class spell_q9874_liquid_fire : public SpellScriptLoader
+class spell_q9874_liquid_fire: public SpellScriptLoader
 {
     public:
         spell_q9874_liquid_fire() : SpellScriptLoader("spell_q9874_liquid_fire") { }
@@ -907,7 +907,7 @@ enum SalvagingLifesStength
     NPC_SHARD_KILL_CREDIT                        = 29303,
 };
 
-class spell_q12805_lifeblood_dummy : public SpellScriptLoader
+class spell_q12805_lifeblood_dummy: public SpellScriptLoader
 {
     public:
         spell_q12805_lifeblood_dummy() : SpellScriptLoader("spell_q12805_lifeblood_dummy") { }
@@ -1073,7 +1073,7 @@ class spell_q9452_cast_net: public SpellScriptLoader
 #define SAY_2 "The Helm of Hodir!"
 #define NPC_KILLCREDIT 30210 // Hodir's Helm KC Bunny
 
-class spell_q12987_read_pronouncement : public SpellScriptLoader
+class spell_q12987_read_pronouncement: public SpellScriptLoader
 {
     public:
         spell_q12987_read_pronouncement() : SpellScriptLoader("spell_q12987_read_pronouncement") { }
@@ -1114,7 +1114,7 @@ enum LeaveNothingToChance
     SPELL_LOWER_MINE_SHAFT_CREDIT   = 48745,
 };
 
-class spell_q12277_wintergarde_mine_explosion : public SpellScriptLoader
+class spell_q12277_wintergarde_mine_explosion: public SpellScriptLoader
 {
     public:
         spell_q12277_wintergarde_mine_explosion() : SpellScriptLoader("spell_q12277_wintergarde_mine_explosion") { }
@@ -1167,7 +1167,7 @@ enum FocusOnTheBeach
     SPELL_BUNNY_CREDIT_BEAM = 47390,
 };
 
-class spell_q12066_bunny_kill_credit : public SpellScriptLoader
+class spell_q12066_bunny_kill_credit: public SpellScriptLoader
 {
     public:
         spell_q12066_bunny_kill_credit() : SpellScriptLoader("spell_q12066_bunny_kill_credit") { }
@@ -1205,7 +1205,7 @@ enum ACleansingSong
     AREA_WINTERGRASPRIVER           = 4388,
 };
 
-class spell_q12735_song_of_cleansing : public SpellScriptLoader
+class spell_q12735_song_of_cleansing: public SpellScriptLoader
 {
     public:
         spell_q12735_song_of_cleansing() : SpellScriptLoader("spell_q12735_song_of_cleansing") { }
@@ -1250,7 +1250,7 @@ enum DefendingWyrmrestTemple
     SPELL_SUMMON_WYRMREST_DEFENDER = 49207
 };
 
-class spell_q12372_cast_from_gossip_trigger : public SpellScriptLoader
+class spell_q12372_cast_from_gossip_trigger: public SpellScriptLoader
 {
     public:
         spell_q12372_cast_from_gossip_trigger() : SpellScriptLoader("spell_q12372_cast_from_gossip_trigger") { }
@@ -1283,7 +1283,7 @@ enum Quest12372Data
     NPC_WYRMREST_TEMPLE_CREDIT = 27698,
 };
 
-class spell_q12372_destabilize_azure_dragonshrine_dummy : public SpellScriptLoader
+class spell_q12372_destabilize_azure_dragonshrine_dummy: public SpellScriptLoader
 {
     public:
         spell_q12372_destabilize_azure_dragonshrine_dummy() : SpellScriptLoader("spell_q12372_destabilize_azure_dragonshrine_dummy") { }
@@ -1328,7 +1328,7 @@ enum Quest11010_11102_11023Data
 };
 
 // 40113 Knockdown Fel Cannon: The Aggro Check Aura
-class spell_q11010_q11102_q11023_aggro_check_aura : public SpellScriptLoader
+class spell_q11010_q11102_q11023_aggro_check_aura: public SpellScriptLoader
 {
     public:
         spell_q11010_q11102_q11023_aggro_check_aura() : SpellScriptLoader("spell_q11010_q11102_q11023_aggro_check_aura") { }
@@ -1357,7 +1357,7 @@ class spell_q11010_q11102_q11023_aggro_check_aura : public SpellScriptLoader
 };
 
 // 40112 Knockdown Fel Cannon: The Aggro Check
-class spell_q11010_q11102_q11023_aggro_check : public SpellScriptLoader
+class spell_q11010_q11102_q11023_aggro_check: public SpellScriptLoader
 {
     public:
         spell_q11010_q11102_q11023_aggro_check() : SpellScriptLoader("spell_q11010_q11102_q11023_aggro_check") { }
@@ -1387,7 +1387,7 @@ class spell_q11010_q11102_q11023_aggro_check : public SpellScriptLoader
 };
 
 // 40119 Knockdown Fel Cannon: The Aggro Burst
-class spell_q11010_q11102_q11023_aggro_burst : public SpellScriptLoader
+class spell_q11010_q11102_q11023_aggro_burst: public SpellScriptLoader
 {
     public:
         spell_q11010_q11102_q11023_aggro_burst() : SpellScriptLoader("spell_q11010_q11102_q11023_aggro_burst") { }
@@ -1416,7 +1416,7 @@ class spell_q11010_q11102_q11023_aggro_burst : public SpellScriptLoader
 };
 
 // 40056 Knockdown Fel Cannon: Choose Loc
-class spell_q11010_q11102_q11023_choose_loc : public SpellScriptLoader
+class spell_q11010_q11102_q11023_choose_loc: public SpellScriptLoader
 {
     public:
         spell_q11010_q11102_q11023_choose_loc() : SpellScriptLoader("spell_q11010_q11102_q11023_choose_loc") { }
@@ -1454,7 +1454,7 @@ class spell_q11010_q11102_q11023_choose_loc : public SpellScriptLoader
         }
 };
 
-class spell_q11010_q11102_q11023_throw_bomb : public SpellScriptLoader
+class spell_q11010_q11102_q11023_throw_bomb: public SpellScriptLoader
 {
     public:
         spell_q11010_q11102_q11023_throw_bomb() : SpellScriptLoader("spell_q11010_q11102_q11023_throw_bomb") { }
@@ -1486,7 +1486,7 @@ class spell_q11010_q11102_q11023_throw_bomb : public SpellScriptLoader
 
 // http://www.wowhead.com/quest=11008 "Fires Over Skettis"
 // 39844 - Skyguard Blasting Charge
-class spell_q11008_blasting_charge : public SpellScriptLoader
+class spell_q11008_blasting_charge: public SpellScriptLoader
 {
     public:
         spell_q11008_blasting_charge() : SpellScriptLoader("spell_q11008_blasting_charge") { }
@@ -1526,7 +1526,7 @@ enum Quest13291_13292_13239_13261Data
     SPELL_RIDE         = 56687
 };
 
-class spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy : public SpellScriptLoader
+class spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy: public SpellScriptLoader
 {
     public:
         spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy() : SpellScriptLoader("spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy") { }
@@ -1564,7 +1564,7 @@ class spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy : public 
         }
 };
 
-class spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon : public SpellScriptLoader
+class spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon: public SpellScriptLoader
 {
     public:
         spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon() : SpellScriptLoader("spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon") { }
@@ -1596,7 +1596,7 @@ class spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon : public S
 };
 
 // 27421 Rayne's Seed
-class spell_q27421_rayne_seed : public SpellScriptLoader
+class spell_q27421_rayne_seed: public SpellScriptLoader
 {
     public:
         spell_q27421_rayne_seed() : SpellScriptLoader("spell_q27421_rayne_seed") { }
@@ -1677,7 +1677,7 @@ class spell_q12512_resuscitate: public SpellScriptLoader
         };
 };
 
-class spell_q25792_burn_constriction_totem : public SpellScriptLoader
+class spell_q25792_burn_constriction_totem: public SpellScriptLoader
 {
     public:
         spell_q25792_burn_constriction_totem() : SpellScriptLoader("spell_q25792_burn_constriction_totem") { }
@@ -1711,7 +1711,7 @@ class spell_q25792_burn_constriction_totem : public SpellScriptLoader
 };
 
 // 40056 Knockdown Fel Cannon: Choose Loc
-class spell_q28334_darla_box_megaflares : public SpellScriptLoader
+class spell_q28334_darla_box_megaflares: public SpellScriptLoader
 {
     public:
         spell_q28334_darla_box_megaflares() : SpellScriptLoader("spell_q28334_darla_box_megaflares") { }
@@ -1867,7 +1867,7 @@ enum Quest_The_Storm_King
     SPELL_GRABBED               = 55424
 };
 
-class spell_q12919_gymers_grab : public SpellScriptLoader
+class spell_q12919_gymers_grab: public SpellScriptLoader
 {
     public:
         spell_q12919_gymers_grab() : SpellScriptLoader("spell_q12919_gymers_grab") { }
@@ -1909,7 +1909,7 @@ enum Quest_The_Storm_King_Throw
     SPELL_VARGUL_EXPLOSION      = 55569
 };
 
-class spell_q12919_gymers_throw : public SpellScriptLoader
+class spell_q12919_gymers_throw: public SpellScriptLoader
 {
     public:
         spell_q12919_gymers_throw() : SpellScriptLoader("spell_q12919_gymers_throw") { }
@@ -1945,7 +1945,7 @@ class spell_q12919_gymers_throw : public SpellScriptLoader
 Many quest those require spell cast on trainng dummies. Starting quest class level 3
 */
 
-class spell_quests_spell_hit : public SpellScriptLoader
+class spell_quests_spell_hit: public SpellScriptLoader
 {
     public:
         spell_quests_spell_hit() : SpellScriptLoader("spell_quests_spell_hit") { }

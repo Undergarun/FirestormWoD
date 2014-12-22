@@ -87,7 +87,7 @@ enum DeathKnightSpells
 uint32 g_TabDeasesDK[3] = { DK_SPELL_FROST_FEVER, DK_SPELL_BLOOD_PLAGUE, DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA };
 
 // Death and Decay - 43265
-class spell_dk_death_and_decay : public SpellScriptLoader
+class spell_dk_death_and_decay: public SpellScriptLoader
 {
     public:
         spell_dk_death_and_decay() : SpellScriptLoader("spell_dk_death_and_decay") { }
@@ -116,7 +116,7 @@ class spell_dk_death_and_decay : public SpellScriptLoader
 };
 
 // Death Barrier - 115635
-class spell_dk_death_barrier : public SpellScriptLoader
+class spell_dk_death_barrier: public SpellScriptLoader
 {
     public:
         spell_dk_death_barrier() : SpellScriptLoader("spell_dk_death_barrier") { }
@@ -147,7 +147,7 @@ class spell_dk_death_barrier : public SpellScriptLoader
 };
 
 // Plague Strike - 45462
-class spell_dk_plague_strike : public SpellScriptLoader
+class spell_dk_plague_strike: public SpellScriptLoader
 {
     public:
         spell_dk_plague_strike() : SpellScriptLoader("spell_dk_plague_strike") { }
@@ -189,7 +189,7 @@ class spell_dk_plague_strike : public SpellScriptLoader
 
 
 // Gorefiend's Grasp - 108199
-class spell_dk_gorefiends_grasp : public SpellScriptLoader
+class spell_dk_gorefiends_grasp: public SpellScriptLoader
 {
     public:
         spell_dk_gorefiends_grasp() : SpellScriptLoader("spell_dk_gorefiends_grasp") { }
@@ -245,7 +245,7 @@ class spell_dk_gorefiends_grasp : public SpellScriptLoader
 };
 
 // Dark transformation - transform pet spell - 63560
-class spell_dk_dark_transformation_form : public SpellScriptLoader
+class spell_dk_dark_transformation_form: public SpellScriptLoader
 {
     public:
         spell_dk_dark_transformation_form() : SpellScriptLoader("spell_dk_dark_transformation_form") { }
@@ -282,7 +282,7 @@ class spell_dk_dark_transformation_form : public SpellScriptLoader
 };
 
 // Desecrated ground - 118009
-class spell_dk_desecrated_ground : public SpellScriptLoader
+class spell_dk_desecrated_ground: public SpellScriptLoader
 {
     public:
         spell_dk_desecrated_ground() : SpellScriptLoader("spell_dk_desecrated_ground") { }
@@ -312,7 +312,7 @@ class spell_dk_desecrated_ground : public SpellScriptLoader
 };
 
 // Festering Strike - 85948
-class spell_dk_festering_strike : public SpellScriptLoader
+class spell_dk_festering_strike: public SpellScriptLoader
 {
     public:
         spell_dk_festering_strike() : SpellScriptLoader("spell_dk_festering_strike") { }
@@ -369,7 +369,7 @@ class spell_dk_festering_strike : public SpellScriptLoader
 };
 
 // Death Strike heal - 45470
-class spell_dk_death_strike_heal : public SpellScriptLoader
+class spell_dk_death_strike_heal: public SpellScriptLoader
 {
     public:
         spell_dk_death_strike_heal() : SpellScriptLoader("spell_dk_death_strike_heal") { }
@@ -409,7 +409,7 @@ class spell_dk_death_strike_heal : public SpellScriptLoader
 };
 
 // Howling Blast - 49184
-class spell_dk_howling_blast : public SpellScriptLoader
+class spell_dk_howling_blast: public SpellScriptLoader
 {
     public:
         spell_dk_howling_blast() : SpellScriptLoader("spell_dk_howling_blast") { }
@@ -459,7 +459,7 @@ class spell_dk_howling_blast : public SpellScriptLoader
 };
 
 // Conversion - 119975
-class spell_dk_conversion : public SpellScriptLoader
+class spell_dk_conversion: public SpellScriptLoader
 {
 public:
     spell_dk_conversion() : SpellScriptLoader("spell_dk_conversion") { }
@@ -487,7 +487,7 @@ public:
 };
 
 // Remorseless Winter - 115000
-class spell_dk_remorseless_winter : public SpellScriptLoader
+class spell_dk_remorseless_winter: public SpellScriptLoader
 {
     public:
         spell_dk_remorseless_winter() : SpellScriptLoader("spell_dk_remorseless_winter") { }
@@ -518,7 +518,7 @@ class spell_dk_remorseless_winter : public SpellScriptLoader
 };
 
 // Soul Reaper - 130736 (unholy) or 130735 (frost) or 114866 (blood)
-class spell_dk_soul_reaper : public SpellScriptLoader
+class spell_dk_soul_reaper: public SpellScriptLoader
 {
     public:
         spell_dk_soul_reaper() : SpellScriptLoader("spell_dk_soul_reaper") { }
@@ -552,7 +552,7 @@ class spell_dk_soul_reaper : public SpellScriptLoader
 };
 
 // Pillar of Frost - 51271
-class spell_dk_pillar_of_frost : public SpellScriptLoader
+class spell_dk_pillar_of_frost: public SpellScriptLoader
 {
     public:
         spell_dk_pillar_of_frost() : SpellScriptLoader("spell_dk_pillar_of_frost") { }
@@ -587,7 +587,7 @@ class spell_dk_pillar_of_frost : public SpellScriptLoader
 };
 
 // Blood Tap - 45529
-class PlayerScript_Blood_Tap : public PlayerScript
+class PlayerScript_Blood_Tap: public PlayerScript
 {
     public:
         PlayerScript_Blood_Tap() :PlayerScript("PlayerScript_Blood_Tap") {}
@@ -619,7 +619,7 @@ class PlayerScript_Blood_Tap : public PlayerScript
 };
 
 // Blood Tap - 45529
-class spell_dk_blood_tap : public SpellScriptLoader
+class spell_dk_blood_tap: public SpellScriptLoader
 {
     public:
         spell_dk_blood_tap() : SpellScriptLoader("spell_dk_blood_tap") { }
@@ -690,7 +690,7 @@ class spell_dk_blood_tap : public SpellScriptLoader
 };
 
 // Death Siphon - 108196
-class spell_dk_death_siphon : public SpellScriptLoader
+class spell_dk_death_siphon: public SpellScriptLoader
 {
     public:
         spell_dk_death_siphon() : SpellScriptLoader("spell_dk_death_siphon") { }
@@ -724,7 +724,7 @@ class spell_dk_death_siphon : public SpellScriptLoader
 };
 
 // Improved Blood Presence - 50371
-class spell_dk_improved_blood_presence : public SpellScriptLoader
+class spell_dk_improved_blood_presence: public SpellScriptLoader
 {
     public:
         spell_dk_improved_blood_presence() : SpellScriptLoader("spell_dk_improved_blood_presence") { }
@@ -752,7 +752,7 @@ class spell_dk_improved_blood_presence : public SpellScriptLoader
 };
 
 // Unholy Presence - 48265 and Improved Unholy Presence - 50392
-class spell_dk_unholy_presence : public SpellScriptLoader
+class spell_dk_unholy_presence: public SpellScriptLoader
 {
     public:
         spell_dk_unholy_presence() : SpellScriptLoader("spell_dk_unholy_presence") { }
@@ -787,7 +787,7 @@ class spell_dk_unholy_presence : public SpellScriptLoader
 };
 
 // Death Strike - 49998
-class spell_dk_death_strike : public SpellScriptLoader
+class spell_dk_death_strike: public SpellScriptLoader
 {
     public:
         spell_dk_death_strike() : SpellScriptLoader("spell_dk_death_strike") { }
@@ -851,7 +851,7 @@ class spell_dk_death_strike : public SpellScriptLoader
 };
 
 // Purgatory - 116888
-class spell_dk_purgatory : public SpellScriptLoader
+class spell_dk_purgatory: public SpellScriptLoader
 {
     public:
         spell_dk_purgatory() : SpellScriptLoader("spell_dk_purgatory") { }
@@ -883,7 +883,7 @@ class spell_dk_purgatory : public SpellScriptLoader
 };
 
 // Purgatory - 114556
-class spell_dk_purgatory_absorb : public SpellScriptLoader
+class spell_dk_purgatory_absorb: public SpellScriptLoader
 {
     public:
         spell_dk_purgatory_absorb() : SpellScriptLoader("spell_dk_purgatory_absorb") { }
@@ -936,7 +936,7 @@ class spell_dk_purgatory_absorb : public SpellScriptLoader
 };
 
 // Plague Leech - 123693
-class spell_dk_plague_leech : public SpellScriptLoader
+class spell_dk_plague_leech: public SpellScriptLoader
 {
     public:
         spell_dk_plague_leech() : SpellScriptLoader("spell_dk_plague_leech") { }
@@ -1012,7 +1012,7 @@ class spell_dk_plague_leech : public SpellScriptLoader
 };
 
 // Unholy Blight - 115994
-class spell_dk_unholy_blight : public SpellScriptLoader
+class spell_dk_unholy_blight: public SpellScriptLoader
 {
     public:
         spell_dk_unholy_blight() : SpellScriptLoader("spell_dk_unholy_blight") { }
@@ -1047,7 +1047,7 @@ class spell_dk_unholy_blight : public SpellScriptLoader
 
 // Called by Chains of Ice - 45524
 // Chilblains - 50041
-class spell_dk_chilblains : public SpellScriptLoader
+class spell_dk_chilblains: public SpellScriptLoader
 {
     public:
         spell_dk_chilblains() : SpellScriptLoader("spell_dk_chilblains") { }
@@ -1077,7 +1077,7 @@ class spell_dk_chilblains : public SpellScriptLoader
 };
 
 // Outbreak - 77575
-class spell_dk_outbreak : public SpellScriptLoader
+class spell_dk_outbreak: public SpellScriptLoader
 {
     public:
         spell_dk_outbreak() : SpellScriptLoader("spell_dk_outbreak") { }
@@ -1111,7 +1111,7 @@ class spell_dk_outbreak : public SpellScriptLoader
 };
 
 // Raise Dead - 46584
-class spell_dk_raise_dead : public SpellScriptLoader
+class spell_dk_raise_dead: public SpellScriptLoader
 {
     public:
         spell_dk_raise_dead() : SpellScriptLoader("spell_dk_raise_dead") { }
@@ -1144,7 +1144,7 @@ class spell_dk_raise_dead : public SpellScriptLoader
 };
 
 // 50462 - Anti-Magic Shell (on raid member)
-class spell_dk_anti_magic_shell_raid : public SpellScriptLoader
+class spell_dk_anti_magic_shell_raid: public SpellScriptLoader
 {
     public:
         spell_dk_anti_magic_shell_raid() : SpellScriptLoader("spell_dk_anti_magic_shell_raid") { }
@@ -1186,7 +1186,7 @@ class spell_dk_anti_magic_shell_raid : public SpellScriptLoader
 };
 
 // 48707 - Anti-Magic Shell (on self)
-class spell_dk_anti_magic_shell_self : public SpellScriptLoader
+class spell_dk_anti_magic_shell_self: public SpellScriptLoader
 {
     public:
         spell_dk_anti_magic_shell_self() : SpellScriptLoader("spell_dk_anti_magic_shell_self") { }
@@ -1245,7 +1245,7 @@ class spell_dk_anti_magic_shell_self : public SpellScriptLoader
 };
 
 // 50461 - Anti-Magic Zone
-class spell_dk_anti_magic_zone : public SpellScriptLoader
+class spell_dk_anti_magic_zone: public SpellScriptLoader
 {
     public:
         spell_dk_anti_magic_zone() : SpellScriptLoader("spell_dk_anti_magic_zone") { }
@@ -1296,7 +1296,7 @@ class spell_dk_anti_magic_zone : public SpellScriptLoader
 };
 
 // Death Gate - 53822
-class spell_dk_death_gate_teleport : public SpellScriptLoader
+class spell_dk_death_gate_teleport: public SpellScriptLoader
 {
     public:
         spell_dk_death_gate_teleport() : SpellScriptLoader("spell_dk_death_gate_teleport") {}
@@ -1335,7 +1335,7 @@ class spell_dk_death_gate_teleport : public SpellScriptLoader
 };
 
 // Death Gate - 52751
-class spell_dk_death_gate : public SpellScriptLoader
+class spell_dk_death_gate: public SpellScriptLoader
 {
     public:
         spell_dk_death_gate() : SpellScriptLoader("spell_dk_death_gate") {}
@@ -1376,7 +1376,7 @@ class spell_dk_death_gate : public SpellScriptLoader
 };
 
 // Blood Boil - 50842
-class spell_dk_blood_boil : public SpellScriptLoader
+class spell_dk_blood_boil: public SpellScriptLoader
 {
     public:
         spell_dk_blood_boil() : SpellScriptLoader("spell_dk_blood_boil") { }
@@ -1467,7 +1467,7 @@ class spell_dk_blood_boil : public SpellScriptLoader
 };
 
 // Reaping - 56835
-class spell_dk_reaping : public SpellScriptLoader
+class spell_dk_reaping: public SpellScriptLoader
 {
     public:
         spell_dk_reaping() : SpellScriptLoader("spell_dk_reaping") { }
@@ -1498,7 +1498,7 @@ class spell_dk_reaping : public SpellScriptLoader
 };
 
 // Death Grip - 49560
-class spell_dk_death_grip : public SpellScriptLoader
+class spell_dk_death_grip: public SpellScriptLoader
 {
     public:
         spell_dk_death_grip() : SpellScriptLoader("spell_dk_death_grip") { }
@@ -1531,7 +1531,7 @@ class spell_dk_death_grip : public SpellScriptLoader
 };
 
 // Corpse Explosion (Glyph) - 127344
-class spell_dk_corpse_explosion : public SpellScriptLoader
+class spell_dk_corpse_explosion: public SpellScriptLoader
 {
     public:
         spell_dk_corpse_explosion() : SpellScriptLoader("spell_dk_corpse_explosion") { }
@@ -1580,7 +1580,7 @@ class spell_dk_corpse_explosion : public SpellScriptLoader
 };
 
 // Glyph of Corpse Explosion - 59336
-class spell_dk_glyph_of_corpse_explosion : public SpellScriptLoader
+class spell_dk_glyph_of_corpse_explosion: public SpellScriptLoader
 {
     public:
         spell_dk_glyph_of_corpse_explosion() : SpellScriptLoader("spell_dk_glyph_of_corpse_explosion") { }
@@ -1617,7 +1617,7 @@ class spell_dk_glyph_of_corpse_explosion : public SpellScriptLoader
 
 // Glyph of Horn of Winter - 58680
 // Called by Horn of Winter - 57330
-class spell_dk_glyph_of_horn_of_winter : public SpellScriptLoader
+class spell_dk_glyph_of_horn_of_winter: public SpellScriptLoader
 {
     public:
         spell_dk_glyph_of_horn_of_winter() : SpellScriptLoader("spell_dk_glyph_of_horn_of_winter") { }
@@ -1646,7 +1646,7 @@ class spell_dk_glyph_of_horn_of_winter : public SpellScriptLoader
 };
 
 // Icy touch 45477
-class spell_dk_icy_touch : public SpellScriptLoader
+class spell_dk_icy_touch: public SpellScriptLoader
 {
     public:
         spell_dk_icy_touch() : SpellScriptLoader("spell_dk_icy_touch") { }
@@ -1677,7 +1677,7 @@ class spell_dk_icy_touch : public SpellScriptLoader
 
 // Plaguebearer - 161497
 // Called by Death Coil 47541 & Frost Strike 49143
-class spell_dk_plaguebearer : public SpellScriptLoader
+class spell_dk_plaguebearer: public SpellScriptLoader
 {
     public:
         spell_dk_plaguebearer() : SpellScriptLoader("spell_dk_plaguebearer") { }
@@ -1720,7 +1720,7 @@ class spell_dk_plaguebearer : public SpellScriptLoader
 };
 
 // Necrotic Plague - 155159
-class spell_dk_necrotic_plague_aura : public SpellScriptLoader
+class spell_dk_necrotic_plague_aura: public SpellScriptLoader
 {
     public:
         spell_dk_necrotic_plague_aura() : SpellScriptLoader("spell_dk_necrotic_plague_aura") { }
@@ -1763,7 +1763,7 @@ class spell_dk_necrotic_plague_aura : public SpellScriptLoader
 };
 
 // Runic Empowerment - 81229
-class PlayerScript_Runic_Empowerment : public PlayerScript
+class PlayerScript_Runic_Empowerment: public PlayerScript
 {
     public:
         PlayerScript_Runic_Empowerment() :PlayerScript("PlayerScript_Runic_Empowerment") {}
@@ -1808,7 +1808,7 @@ class PlayerScript_Runic_Empowerment : public PlayerScript
 };
 
 // Runic Corruption - 51462
-class PlayerScript_Corrupion_Runic : public PlayerScript
+class PlayerScript_Corrupion_Runic: public PlayerScript
 {
     public:
         PlayerScript_Corrupion_Runic() :PlayerScript("PlayerScript_Corrupion_Runic") {}
@@ -1837,7 +1837,7 @@ class PlayerScript_Corrupion_Runic : public PlayerScript
 };
 
 // Death Pact - 48743
-class spell_dk_death_pact : public SpellScriptLoader
+class spell_dk_death_pact: public SpellScriptLoader
 {
     public:
         spell_dk_death_pact() : SpellScriptLoader("spell_dk_death_pact") { }
@@ -1875,7 +1875,7 @@ class spell_dk_death_pact : public SpellScriptLoader
 };
 
 // Chilblains - 50041
-class spell_dk_chilblains_aura : public SpellScriptLoader
+class spell_dk_chilblains_aura: public SpellScriptLoader
 {
     public:
         spell_dk_chilblains_aura() : SpellScriptLoader("spell_dk_chilblains_aura") { }

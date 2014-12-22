@@ -126,7 +126,7 @@ class npc_world_invisible_trigger : public CreatureScript
 };
 
 // Dark Portal phasing
-class PlayerScript_DarkPortal_Phasing : public PlayerScript
+class PlayerScript_DarkPortal_Phasing: public PlayerScript
 {
     public:
         PlayerScript_DarkPortal_Phasing() : PlayerScript("PlayerScript_DarkPortal_Phasing")

@@ -43,7 +43,7 @@ enum MasterySpells
 };
 
 // Mastery: Echo of Light - 77485
-class spell_mastery_echo_of_light : public SpellScriptLoader
+class spell_mastery_echo_of_light: public SpellScriptLoader
 {
     public:
         spell_mastery_echo_of_light() : SpellScriptLoader("spell_mastery_echo_of_light") { }
@@ -92,7 +92,7 @@ bool IcicleOverstack = false;
 
 // Called by Frostbolt - 116 and Frostfire bolt - 44614
 // Mastery: Icicles - 76613
-class spell_mastery_icicles : public SpellScriptLoader
+class spell_mastery_icicles: public SpellScriptLoader
 {
     public:
         spell_mastery_icicles() : SpellScriptLoader("spell_mastery_icicles") { }
@@ -200,7 +200,7 @@ class spell_mastery_icicles : public SpellScriptLoader
 };
 
 // Ice Lance - 30455
-class spell_mastery_icicles_trigger : public SpellScriptLoader
+class spell_mastery_icicles_trigger: public SpellScriptLoader
 {
     public:
         spell_mastery_icicles_trigger() : SpellScriptLoader("spell_mastery_icicles_trigger") { }
@@ -232,7 +232,7 @@ class spell_mastery_icicles_trigger : public SpellScriptLoader
 };
 
 // Icicles (periodic) - 148023
-class spell_mastery_icicles_periodic : public SpellScriptLoader
+class spell_mastery_icicles_periodic: public SpellScriptLoader
 {
     public:
         spell_mastery_icicles_periodic() : SpellScriptLoader("spell_mastery_icicles_periodic") { }
@@ -284,7 +284,7 @@ class spell_mastery_icicles_periodic : public SpellScriptLoader
 };
 
 // Icicles: 148017, 148018, 148019, 148020, 148021
-class spell_mastery_icicles_hit : public SpellScriptLoader
+class spell_mastery_icicles_hit: public SpellScriptLoader
 {
     public:
         spell_mastery_icicles_hit() : SpellScriptLoader("spell_mastery_icicles_hit") { }
@@ -338,7 +338,7 @@ class spell_mastery_icicles_hit : public SpellScriptLoader
 
 // Called by Power Word : Shield - 17, Power Word : Shield (Divine Insight) - 123258, Spirit Shell - 114908, Angelic Bulwark - 114214 and Divine Aegis - 47753
 // Mastery : Shield Discipline - 77484
-class spell_mastery_shield_discipline : public SpellScriptLoader
+class spell_mastery_shield_discipline: public SpellScriptLoader
 {
     public:
         spell_mastery_shield_discipline() : SpellScriptLoader("spell_mastery_shield_discipline") { }
@@ -373,7 +373,7 @@ class spell_mastery_shield_discipline : public SpellScriptLoader
 
 // Called by 45470 - Death Strike (Heal)
 // 77513 - Mastery : Blood Shield
-class spell_mastery_blood_shield : public SpellScriptLoader
+class spell_mastery_blood_shield: public SpellScriptLoader
 {
     public:
         spell_mastery_blood_shield() : SpellScriptLoader("spell_mastery_blood_shield") { }
@@ -426,7 +426,7 @@ class spell_mastery_blood_shield : public SpellScriptLoader
 
 // Called by 133 - Fireball, 44614 - Frostfire Bolt, 108853 - Inferno Blast, 2948 - Scorch and 11366 - Pyroblast
 // 12846 - Mastery : Ignite
-class spell_mastery_ignite : public SpellScriptLoader
+class spell_mastery_ignite: public SpellScriptLoader
 {
     public:
         spell_mastery_ignite() : SpellScriptLoader("spell_mastery_ignite") { }
@@ -478,7 +478,7 @@ class spell_mastery_ignite : public SpellScriptLoader
 
 // Called by 35395 - Crusader Strike, 53595 - Hammer of the Righteous, 24275 - Hammer of Wrath, 85256 - Templar's Verdict and 53385 - Divine Storm
 // 76672 - Mastery : Hand of Light
-class spell_mastery_hand_of_light : public SpellScriptLoader
+class spell_mastery_hand_of_light: public SpellScriptLoader
 {
     public:
         spell_mastery_hand_of_light() : SpellScriptLoader("spell_mastery_hand_of_light") { }
@@ -520,7 +520,7 @@ class spell_mastery_hand_of_light : public SpellScriptLoader
 
 // Called by 403 - Lightning Bolt, 421 - Chain Lightning, 51505 - Lava Burst and 117014 - Elemental Blast
 // 77222 - Mastery : Elemental Overload
-class spell_mastery_elemental_overload : public SpellScriptLoader
+class spell_mastery_elemental_overload: public SpellScriptLoader
 {
     public:
         spell_mastery_elemental_overload() : SpellScriptLoader("spell_mastery_elemental_overload") { }
