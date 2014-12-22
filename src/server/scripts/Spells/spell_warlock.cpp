@@ -131,7 +131,8 @@ enum WarlockSpells
     WARLOCK_DEMON_SPELL_LOCK                = 19647,
     WARLOCK_DEMON_AXE_TOSS                  = 89766,
     WARLOCK_LIFE_TAP                        = 1454,
-    WARLOCK_GLYPH_OF_LIFE_TAP               = 63320
+    WARLOCK_GLYPH_OF_LIFE_TAP               = 63320,
+    WARLOCK_SPELL_IMMOLATE_AURA             = 157736
 };
 
 // Called by Grimoire: Imp - 111859, Grimoire: Voidwalker - 111895, Grimoire: Succubus - 111896
@@ -2690,8 +2691,39 @@ class spell_warl_unstable_affliction: public SpellScriptLoader
         }
 };
 
+// Soulburn : Immolate - 348
+class spell_warl_immolate : public SpellScriptLoader
+{
+public:
+    spell_warl_immolate() : SpellScriptLoader("spell_warl_immolate") { }
+
+    class spell_warl_immolate_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warl_immolate_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+                if (Unit* l_Target = GetHitUnit())
+                    l_Caster->CastSpell(l_Target, WARLOCK_SPELL_IMMOLATE_AURA, true);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_warl_immolate_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_warl_immolate_SpellScript();
+    }
+};
+
+
 void AddSC_warlock_spell_scripts()
 {
+    new spell_warl_immolate();
     new spell_warl_grimoire_of_service();
     new spell_warl_haunt_dispel();
     new spell_warl_demonic_gateway_charges();
