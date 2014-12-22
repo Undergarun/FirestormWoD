@@ -25,6 +25,7 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "Containers.h"
+#include "GridNotifiersImpl.h"
 
 enum DeathKnightSpells
 {
