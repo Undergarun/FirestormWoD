@@ -72,7 +72,7 @@ namespace MS
             RANJIT = 75964,
             ARAKNATH = 76141,
             RUKHRAN = 76143,
-            HIGH_SAGE_VIRYX = 86241,
+            HIGH_SAGE_VIRYX = 76266,
         };
 
         enum MobEntries

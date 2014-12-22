@@ -2812,3 +2812,18 @@ INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `l
 (79469, 116724, 0.06, 1, 0, 1, 1), /* Oshu'gun Basin */ 
 (79469, 116920, 0.31, 1, 0, 1, 1), /* True Steel Lockbox */ 
 (79469, 118855, 0.06, 1, 0, 1, 1); /* Chyler's Charming Chestguard */
+
+DELETE FROM `gameobject_loot_template` WHERE `entry`=237480;
+
+INSERT INTO `gameobject_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(237480, 118649, -96, 1, 0, 1, 1) /* 6Bottled Windstorm */;
+
+DELETE FROM `gameobject_loot_template` WHERE `entry`=237467;
+
+INSERT INTO `gameobject_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(237467, 118622, -100, 1, 0, 1, 1) /* 6Pristine Plumage */;
+
+DELETE FROM `gameobject_loot_template` WHERE `entry`=237466;
+
+INSERT INTO `gameobject_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(237466, 118621, -100, 1, 0, 1, 1) /* 6Sun Crystal */;

@@ -774,10 +774,15 @@ uint32 SpellMgr::GetSpellIdForDifficulty(uint32 spellId, Unit const* caster) con
     return uint32(difficultyEntry->SpellID[mode]);*/
 }
 
+SpellInfo const* SpellMgr::GetSpellForDifficulty(uint32 p_SpellId, Difficulty p_Difficulty) const
+{
+    return GetSpellInfo(p_SpellId, p_Difficulty);
+}
+
 SpellInfo const* SpellMgr::GetSpellForDifficultyFromSpell(SpellInfo const* spell, Unit const* caster) const
 {
     if (!spell)
-        return NULL;
+        return nullptr;
 
     if (!caster || !caster->GetMap() || !caster->GetMap()->IsDungeon())
         return spell;

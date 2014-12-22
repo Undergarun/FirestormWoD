@@ -1062,82 +1062,86 @@ bool ConditionMgr::addToGossipMenuItems(Condition* cond)
 bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond)
 {
     uint32 conditionEffMask = cond->SourceGroup;
-    SpellInfo* spellInfo = const_cast<SpellInfo*>(sSpellMgr->GetSpellInfo(cond->SourceEntry));
-    ASSERT(spellInfo);
-    std::list<uint32> sharedMasks;
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+
+    for (uint32 l_Difficulty = Difficulty::NONE_DIFFICULTY; l_Difficulty < Difficulty::MAX_DIFFICULTY; l_Difficulty++)
     {
-        // check if effect is already a part of some shared mask
-        bool found = false;
+        SpellInfo* spellInfo = const_cast<SpellInfo*>(sSpellMgr->GetSpellForDifficulty(cond->SourceEntry, static_cast<Difficulty>(l_Difficulty)));
+        ASSERT(spellInfo);
+        std::list<uint32> sharedMasks;
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        {
+            // check if effect is already a part of some shared mask
+            bool found = false;
+            for (std::list<uint32>::iterator itr = sharedMasks.begin(); itr != sharedMasks.end(); ++itr)
+            {
+                if ((1 << i) & *itr)
+                {
+                    found = true;
+                    break;
+                }
+            }
+            if (found)
+                continue;
+
+            // build new shared mask with found effect
+            uint32 sharedMask = (1 << i);
+            ConditionList* cmp = spellInfo->Effects[i].ImplicitTargetConditions;
+            for (uint8 effIndex = i + 1; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
+            {
+                if (spellInfo->Effects[effIndex].ImplicitTargetConditions == cmp)
+                    sharedMask |= 1 << effIndex;
+            }
+            sharedMasks.push_back(sharedMask);
+        }
+
         for (std::list<uint32>::iterator itr = sharedMasks.begin(); itr != sharedMasks.end(); ++itr)
         {
-            if ((1<<i) & *itr)
+            // some effect indexes should have same data
+            if (uint32 commonMask = *itr & conditionEffMask)
             {
-                found = true;
-                break;
-            }
-        }
-        if (found)
-            continue;
-
-        // build new shared mask with found effect
-        uint32 sharedMask = (1<<i);
-        ConditionList* cmp = spellInfo->Effects[i].ImplicitTargetConditions;
-        for (uint8 effIndex = i+1; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
-        {
-            if (spellInfo->Effects[effIndex].ImplicitTargetConditions == cmp)
-                sharedMask |= 1<<effIndex;
-        }
-        sharedMasks.push_back(sharedMask);
-    }
-
-    for (std::list<uint32>::iterator itr = sharedMasks.begin(); itr != sharedMasks.end(); ++itr)
-    {
-        // some effect indexes should have same data
-        if (uint32 commonMask = *itr & conditionEffMask)
-        {
-            uint8 firstEffIndex = 0;
-            for (; firstEffIndex < MAX_SPELL_EFFECTS; ++firstEffIndex)
-                if ((1<<firstEffIndex) & *itr)
+                uint8 firstEffIndex = 0;
+                for (; firstEffIndex < MAX_SPELL_EFFECTS; ++firstEffIndex)
+                if ((1 << firstEffIndex) & *itr)
                     break;
 
-            if (firstEffIndex >= MAX_SPELL_EFFECTS)
-                return false;
-
-            // get shared data
-            ConditionList* sharedList = spellInfo->Effects[firstEffIndex].ImplicitTargetConditions;
-
-            // there's already data entry for that sharedMask
-            if (sharedList)
-            {
-                // we have overlapping masks in db
-                if (conditionEffMask != *itr)
-                {
-                    sLog->outError(LOG_FILTER_SQL, "SourceEntry %u in `condition` table, has incorrect SourceGroup %u (spell effectMask) set - "
-                        "effect masks are overlapping (all SourceGroup values having given bit set must be equal) - ignoring.", cond->SourceEntry, cond->SourceGroup);
+                if (firstEffIndex >= MAX_SPELL_EFFECTS)
                     return false;
-                }
-            }
-            // no data for shared mask, we can create new submask
-            else
-            {
-                // add new list, create new shared mask
-                sharedList = new ConditionList();
-                bool assigned = false;
-                for (uint8 i = firstEffIndex; i < MAX_SPELL_EFFECTS; ++i)
+
+                // get shared data
+                ConditionList* sharedList = spellInfo->Effects[firstEffIndex].ImplicitTargetConditions;
+
+                // there's already data entry for that sharedMask
+                if (sharedList)
                 {
-                    if ((1<<i) & commonMask)
+                    // we have overlapping masks in db
+                    if (conditionEffMask != *itr)
                     {
-                        spellInfo->Effects[i].ImplicitTargetConditions = sharedList;
-                        assigned = true;
+                        sLog->outError(LOG_FILTER_SQL, "SourceEntry %u in `condition` table, has incorrect SourceGroup %u (spell effectMask) set - "
+                            "effect masks are overlapping (all SourceGroup values having given bit set must be equal) - ignoring.", cond->SourceEntry, cond->SourceGroup);
+                        return false;
                     }
                 }
+                // no data for shared mask, we can create new submask
+                else
+                {
+                    // add new list, create new shared mask
+                    sharedList = new ConditionList();
+                    bool assigned = false;
+                    for (uint8 i = firstEffIndex; i < MAX_SPELL_EFFECTS; ++i)
+                    {
+                        if ((1 << i) & commonMask)
+                        {
+                            spellInfo->Effects[i].ImplicitTargetConditions = sharedList;
+                            assigned = true;
+                        }
+                    }
 
-                if (!assigned)
-                    delete sharedList;
+                    if (!assigned)
+                        delete sharedList;
+                }
+                sharedList->push_back(cond);
+                break;
             }
-            sharedList->push_back(cond);
-            break;
         }
     }
     return true;
