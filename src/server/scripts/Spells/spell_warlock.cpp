@@ -735,7 +735,7 @@ class spell_warl_agony: public SpellScriptLoader
             void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
             {
                 if (GetCaster())
-                    amount = GetCaster()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL) * GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier * GetStackAmount();
+                    amount *= GetStackAmount();
             }
 
             void OnTick(constAuraEffectPtr aurEff)
