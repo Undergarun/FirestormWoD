@@ -260,7 +260,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectPlaySceneObject,                          //185 SPELL_EFFECT_PLAY_SCENEOBJECT
     &Spell::EffectPlaySceneObject,                          //186 SPELL_EFFECT_PLAY_SCENEOBJECT_2
     &Spell::EffectRandomizeArchaeologyDigsites,             //187 SPELL_EFFECT_RANDOMIZE_ARCHAEOLOGY_DIGSITES
-    &Spell::EffectSummonMultipleHunterPets,                 //188 SPELL_EFFECT_SUMMON_MULTIPLE_HUNTER_PETS
+    &Spell::EffectStampede,                                 //188 SPELL_EFFECT_STAMPEDE
     &Spell::EffectLootBonus,                                //189 SPELL_EFFECT_LOOT_BONUS              Boss loot bonus ?
     &Spell::EffectNULL,                                     //190 SPELL_EFFECT_190                     internal spell
     &Spell::EffectTeleportToDigsite,                        //191 SPELL_EFFECT_TELEPORT_TO_DIGSITE     Teleport player to an random digsite (Archaeology)
@@ -8198,9 +8198,9 @@ void Spell::EffectDespawnAreaTrigger(SpellEffIndex p_EffIndex)
         l_AreaTrigger->Remove(0);
 }
 
-void Spell::EffectSummonMultipleHunterPets(SpellEffIndex p_EffIndex)
+void Spell::EffectStampede(SpellEffIndex p_EffIndex)
 {
-    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+    if (m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
 
     Player* l_Player = m_caster->ToPlayer();

@@ -3468,6 +3468,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 162546:///< Frozen Ammo (triggered)
                 spellInfo->Speed = 0.0f;
                 break;
+            case 121818:///< Stampede
+                spellInfo->Effects[EFFECT_1].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->Effects[EFFECT_1].TargetB = 0;
+                break;
             case 45470: // Death Strike (no heal bonus in SPELL_DAMAGE_CLASS_NONE)
                 spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MELEE;
                 break;
