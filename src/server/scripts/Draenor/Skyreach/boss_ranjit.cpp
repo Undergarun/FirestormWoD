@@ -7,7 +7,7 @@ namespace MS
         class boss_Ranjit : public CreatureScript
         {
         public:
-            // Entry: 86238
+            // Entry: 75964
             boss_Ranjit()
                 : CreatureScript("boss_Ranjit")
             {

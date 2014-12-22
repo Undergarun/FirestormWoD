@@ -180,8 +180,10 @@ namespace MS
                         p_Creature->setFaction(16);
                         break;
                     case MobEntries::ArakkoaPincerBirdsController:
+                        p_Creature->AddAura(16245, p_Creature); // Freeze anim spell.
                         p_Creature->setFaction(16);
                         p_Creature->SetReactState(REACT_PASSIVE);
+                        p_Creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_IMMUNE_TO_PC);
                         break;
                     case MobEntries::SolarZealot:
                         p_Creature->setFaction(16);
