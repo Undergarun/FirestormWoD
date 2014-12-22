@@ -279,7 +279,7 @@ class OnlyTriggerInFrontPredicate
         Unit* _caster;
 };
 
-class spell_dart : public SpellScriptLoader
+class spell_dart: public SpellScriptLoader
 {
     public:
         spell_dart() : SpellScriptLoader("spell_dart") { }

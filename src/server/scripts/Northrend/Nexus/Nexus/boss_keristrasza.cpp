@@ -229,7 +229,7 @@ public:
 
 };
 
-class spell_intense_cold : public SpellScriptLoader
+class spell_intense_cold: public SpellScriptLoader
 {
     public:
         spell_intense_cold() : SpellScriptLoader("spell_intense_cold") { }

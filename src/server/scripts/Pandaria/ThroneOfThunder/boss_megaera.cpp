@@ -1408,7 +1408,7 @@ class mob_nether_wyrm : public CreatureScript
 };
 
 // Cinders - 139822
-class spell_cinders : public SpellScriptLoader
+class spell_cinders: public SpellScriptLoader
 {
     public:
         spell_cinders() : SpellScriptLoader("spell_cinders") { }
@@ -1457,7 +1457,7 @@ class spell_cinders : public SpellScriptLoader
 };
 
 // Arctic Freeze (aura) - 139843
-class spell_arctic_freeze : public SpellScriptLoader
+class spell_arctic_freeze: public SpellScriptLoader
 {
     public:
         spell_arctic_freeze() : SpellScriptLoader("spell_arctic_freeze") { }
@@ -1494,7 +1494,7 @@ class spell_arctic_freeze : public SpellScriptLoader
 };
 
 // Acid Rain (damage) - 139850
-class spell_acid_rain_damage : public SpellScriptLoader
+class spell_acid_rain_damage: public SpellScriptLoader
 {
     public:
         spell_acid_rain_damage() : SpellScriptLoader("spell_acid_rain_damage") { }
@@ -1528,7 +1528,7 @@ class spell_acid_rain_damage : public SpellScriptLoader
 };
 
 // Diffusion - 139993
-class spell_diffusion : public SpellScriptLoader
+class spell_diffusion: public SpellScriptLoader
 {
     public:
         spell_diffusion() : SpellScriptLoader("spell_diffusion") { }
@@ -1569,7 +1569,7 @@ class spell_diffusion : public SpellScriptLoader
 };
 
 // Nether Tear - 140138
-class spell_nether_tear : public SpellScriptLoader
+class spell_nether_tear: public SpellScriptLoader
 {
     public:
         spell_nether_tear() : SpellScriptLoader("spell_nether_tear") { }
@@ -1630,7 +1630,7 @@ class spell_nether_tear : public SpellScriptLoader
 };
 
 // Rampage (periodic) - 139458
-class spell_rampage_periodic : public SpellScriptLoader
+class spell_rampage_periodic: public SpellScriptLoader
 {
     public:
         spell_rampage_periodic() : SpellScriptLoader("spell_rampage_periodic") { }

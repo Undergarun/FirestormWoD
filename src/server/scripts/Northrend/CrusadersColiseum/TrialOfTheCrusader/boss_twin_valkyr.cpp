@@ -678,7 +678,7 @@ class mob_bullet_controller : public CreatureScript
         }
 };
 
-class spell_powering_up : public SpellScriptLoader
+class spell_powering_up: public SpellScriptLoader
 {
     public:
         spell_powering_up() : SpellScriptLoader("spell_powering_up") { }
@@ -736,7 +736,7 @@ class spell_powering_up : public SpellScriptLoader
         }
 };
 
-class spell_valkyr_essences : public SpellScriptLoader
+class spell_valkyr_essences: public SpellScriptLoader
 {
     public:
         spell_valkyr_essences() : SpellScriptLoader("spell_valkyr_essences") { }
@@ -831,7 +831,7 @@ class spell_valkyr_essences : public SpellScriptLoader
         }
 };
 
-class spell_power_of_the_twins : public SpellScriptLoader
+class spell_power_of_the_twins: public SpellScriptLoader
 {
     public:
         spell_power_of_the_twins() : SpellScriptLoader("spell_power_of_the_twins") { }

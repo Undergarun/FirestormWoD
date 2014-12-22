@@ -379,74 +379,79 @@ public:
 
 class boss_vordraka : public CreatureScript
 {
-public:
-    boss_vordraka() : CreatureScript("boss_vordraka") { }
+    public:
+        boss_vordraka() : CreatureScript("boss_vordraka") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new boss_vordrakaAI(creature);
-    }
-
-    struct boss_vordrakaAI : public ScriptedAI
-    {
-        boss_vordrakaAI(Creature* creature) : ScriptedAI(creature)
-        {}
-
-        EventMap _events;
-
-        enum eEnums
+        CreatureAI* GetAI(Creature* creature) const
         {
-            QUEST_ANCIEN_MAL        = 29798,
-
-            EVENT_DEEP_ATTACK       = 1,
-            EVENT_DEEP_SEA_RUPTURE  = 2,
-
-            SPELL_DEEP_ATTACK       = 117287,
-            SPELL_DEEP_SEA_RUPTURE  = 117456,
-        };
-
-        void Reset()
-        {
-            _events.ScheduleEvent(EVENT_DEEP_ATTACK, 10000);
-            _events.ScheduleEvent(SPELL_DEEP_SEA_RUPTURE, 12500);
+            return new boss_vordrakaAI(creature);
         }
 
-        void JustDied(Unit* attacker)
+        struct boss_vordrakaAI : public ScriptedAI
         {
-            std::list<Player*> playerList;
-            GetPlayerListInGrid(playerList, me, 50.0f);
+            boss_vordrakaAI(Creature* creature) : ScriptedAI(creature) { }
 
-            for (auto player : playerList)
-                if (player->GetQuestStatus(QUEST_ANCIEN_MAL) == QUEST_STATUS_INCOMPLETE)
-                    if (player->isAlive())
-                        player->KilledMonsterCredit(me->GetEntry());
-        }
+            EventMap m_Events;
 
-        void UpdateAI(const uint32 diff)
-        {
-            _events.Update(diff);
-
-            switch (_events.ExecuteEvent())
+            enum eDatas
             {
-                case EVENT_DEEP_ATTACK:
-                {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 25.0f, true))
-                        me->CastSpell(target, SPELL_DEEP_ATTACK, false);
+                QUEST_ANCIEN_MAL        = 29798,
 
-                    _events.ScheduleEvent(EVENT_DEEP_ATTACK, 10000);
-                    break;
-                }
-                case EVENT_DEEP_SEA_RUPTURE:
-                {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 25.0f, true))
-                        me->CastSpell(target, SPELL_DEEP_SEA_RUPTURE, false);
+                EVENT_DEEP_ATTACK       = 1,
+                EVENT_DEEP_SEA_RUPTURE  = 2,
 
-                    _events.ScheduleEvent(EVENT_DEEP_ATTACK, 10000);
-                    break;
-                }
+                SPELL_DEEP_ATTACK       = 117287,
+                SPELL_DEEP_SEA_RUPTURE  = 117456,
+            };
+
+            void Reset()
+            {
+                m_Events.ScheduleEvent(EVENT_DEEP_ATTACK, 10000);
+                m_Events.ScheduleEvent(SPELL_DEEP_SEA_RUPTURE, 12500);
             }
-        }
-    };
+
+            void JustDied(Unit* p_Attacker)
+            {
+                if (p_Attacker->GetTypeId() != TYPEID_PLAYER)
+                    return;
+
+                if (p_Attacker->ToPlayer()->GetQuestStatus(QUEST_ANCIEN_MAL) == QUEST_STATUS_INCOMPLETE)
+                    p_Attacker->ToPlayer()->KilledMonsterCredit(me->GetEntry());
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                m_Events.Update(diff);
+
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case EVENT_DEEP_ATTACK:
+                    {
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM))
+                            me->CastSpell(l_Target, SPELL_DEEP_ATTACK, false);
+
+                        m_Events.ScheduleEvent(EVENT_DEEP_ATTACK, 10000);
+                        break;
+                    }
+                    case EVENT_DEEP_SEA_RUPTURE:
+                    {
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM))
+                            me->CastSpell(l_Target, SPELL_DEEP_SEA_RUPTURE, false);
+
+                        m_Events.ScheduleEvent(EVENT_DEEP_ATTACK, 10000);
+                        break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
 };
 
 class mob_aysa_gunship_crash : public CreatureScript

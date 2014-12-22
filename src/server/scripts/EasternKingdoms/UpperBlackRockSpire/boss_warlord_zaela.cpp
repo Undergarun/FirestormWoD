@@ -23,7 +23,6 @@
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "upper_blackrock_spire.h"
-#include "AreaTriggerScript.h"
 #include "MoveSplineInit.h"
 #include "Vehicle.h"
 
@@ -88,7 +87,8 @@ enum eActions
     ActionTharbekTalk4,
     ActionIronflightCirclePath,
     ActionFightRiders,
-    ActionBurningBreath
+    ActionBurningBreath,
+    ActionInitRiders
 };
 
 enum eMisc
@@ -182,7 +182,11 @@ class boss_warlord_zaela : public CreatureScript
 
                 summons.DespawnAll();
 
-                me->NearTeleportTo(m_JumpPos.m_positionX, m_JumpPos.m_positionY, m_JumpPos.m_positionZ, m_JumpPos.m_orientation);
+                if (m_TharbekIntroDone)
+                {
+                    m_JumpPos = g_SpawnPos;
+                    me->NearTeleportTo(m_JumpPos.m_positionX, m_JumpPos.m_positionY, m_JumpPos.m_positionZ, m_JumpPos.m_orientation);
+                }
 
                 m_Phase = eMisc::PhaseGround;
                 m_BurningBreathCount = 0;
@@ -224,7 +228,7 @@ class boss_warlord_zaela : public CreatureScript
                 if (p_Who->GetTypeId() != TypeID::TYPEID_PLAYER || p_Who->GetDistance(me) > 35.f)
                     return;
 
-                if (!m_TharbekIntroDone)
+                if (!m_TharbekIntroDone && m_Instance != nullptr && m_Instance->GetBossState(eDatas::DATA_COMMANDER_THARBEK) != EncounterState::DONE)
                 {
                     m_TharbekIntroDone = true;
                     Talk(eSays::TalkWave1_01);
@@ -239,6 +243,16 @@ class boss_warlord_zaela : public CreatureScript
                 {
                     Talk(eSays::TalkIntro);
                     m_IntroDone = true;
+
+                    std::list<Creature*> l_Emberscales;
+                    me->GetCreatureListWithEntryInGrid(l_Emberscales, eCreatures::NPC_EMBERSCALE_IRONFLIGHT_2, 250.0f);
+
+                    for (Creature* l_Ironflight : l_Emberscales)
+                    {
+                        if (l_Ironflight->GetAI())
+                            l_Ironflight->AI()->DoAction(eActions::ActionInitRiders);
+                    }
+
                     return;
                 }
             }
@@ -320,7 +334,7 @@ class boss_warlord_zaela : public CreatureScript
                     return;
                 }
 
-                if (me->HealthBelowPctDamaged(m_NextHealthPct, p_Damage))
+                if (m_NextHealthPct > 0.0f && me->HealthBelowPctDamaged(m_NextHealthPct, p_Damage))
                 {
                     m_NextHealthPct = 0.0f;
                     m_Phase = eMisc::PhaseAir;
@@ -369,6 +383,7 @@ class boss_warlord_zaela : public CreatureScript
                         Position l_Pos;
                         l_Target->GetPosition(&l_Pos);
                         me->GetMotionMaster()->MovePoint(0, l_Pos);
+                        return;
                     }
                 }
 
@@ -573,6 +588,7 @@ class mob_zaela_emberscale_ironfight : public CreatureScript
                 m_Instance = p_Creature->GetInstanceScript();
                 m_BossFlight = false;
                 m_BurningBreathCount = 0;
+                m_RiderGuid = 0;
             }
 
             enum Events
@@ -589,6 +605,7 @@ class mob_zaela_emberscale_ironfight : public CreatureScript
             bool m_BossFlight;
 
             uint32 m_BurningBreathCount;
+            uint64 m_RiderGuid;
 
             void Reset()
             {
@@ -600,6 +617,9 @@ class mob_zaela_emberscale_ironfight : public CreatureScript
                 me->SetReactState(ReactStates::REACT_PASSIVE);
 
                 me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+
+                if (Creature* l_Rider = me->FindNearestCreature(eCreatures::NPC_BLACK_IRON_WYRM_RIDER, 10.0f))
+                    m_RiderGuid = l_Rider->GetGUID();
             }
 
             void EnterEvadeMode()
@@ -635,6 +655,21 @@ class mob_zaela_emberscale_ironfight : public CreatureScript
                         me->GetMotionMaster()->Clear();
                         me->GetMotionMaster()->MovePoint(999, g_BurningBreathPos[m_BurningBreathCount]);
                         break;
+                    case eActions::ActionInitRiders:
+                    {
+                        if (Creature* l_Rider = me->FindNearestCreature(eCreatures::NPC_BLACK_IRON_WYRM_RIDER, 10.0f))
+                        {
+                            l_Rider->EnterVehicle(me);
+                            l_Rider->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+                        }
+                        else if (Creature* l_Rider = Creature::GetCreature(*me, m_RiderGuid))
+                        {
+                            l_Rider->EnterVehicle(me);
+                            l_Rider->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+                        }
+
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -679,6 +714,11 @@ class mob_zaela_emberscale_ironfight : public CreatureScript
                             l_Rider->EnterVehicle(me);
                             l_Rider->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
                         }
+                        else if (Creature* l_Rider = Creature::GetCreature(*me, m_RiderGuid))
+                        {
+                            l_Rider->EnterVehicle(me);
+                            l_Rider->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+                        }
 
                         break;
                     }
@@ -713,7 +753,7 @@ class mob_zaela_emberscale_ironfight : public CreatureScript
         }
 };
 
-///< Black Iron Wyrm Rider - 82428
+///< Black Iron Wyrm Rider - 82429
 class mob_zaela_black_iron_wyrm_rider : public CreatureScript
 {
     public:
@@ -792,10 +832,10 @@ class mob_zaela_black_iron_wyrm_rider : public CreatureScript
 };
 
 ///< Burning Bridge - 166721
-class areatrigger_burning_bridge : public MS::AreaTriggerEntityScript
+class areatrigger_burning_bridge : public AreaTriggerEntityScript
 {
     public:
-        areatrigger_burning_bridge() : MS::AreaTriggerEntityScript("areatrigger_burning_bridge") { }
+        areatrigger_burning_bridge() : AreaTriggerEntityScript("areatrigger_burning_bridge") { }
 
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
@@ -813,14 +853,14 @@ class areatrigger_burning_bridge : public MS::AreaTriggerEntityScript
             }
         }
 
-        MS::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new areatrigger_burning_bridge();
         }
 };
 
 ///< Burning Breath (triggered) - 166041
-class spell_burning_breath : public SpellScriptLoader
+class spell_burning_breath: public SpellScriptLoader
 {
     public:
         spell_burning_breath() : SpellScriptLoader("spell_burning_breath") { }

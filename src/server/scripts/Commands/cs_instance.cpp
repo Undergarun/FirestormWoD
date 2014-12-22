@@ -29,7 +29,7 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "MapManager.h"
 
-class instance_commandscript : public CommandScript
+class instance_commandscript: public CommandScript
 {
 public:
     instance_commandscript() : CommandScript("instance_commandscript") { }

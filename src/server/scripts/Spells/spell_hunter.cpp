@@ -133,12 +133,13 @@ enum HunterSpells
     HUNTER_SPELL_THRILL_OF_THE_HUNT_PROC            = 34720,
     HUNTER_SPELL_GLYPH_OF_ANIMAL_BOND               = 24529,
     HUNTER_SPELL_MULTI_SHOT                         = 2643,
-    HUNTER_SPELL_BOMBARDMENT                        = 82921
+    HUNTER_SPELL_BOMBARDMENT                        = 82921,
+    HUNTER_SPELL_BASIC_ATTACK_COST_MODIFIER         = 62762
 };
 
 // Called by Explosive Shot - 53301
 // Hunter's Mark - 1130
-class spell_hun_hunters_mark : public SpellScriptLoader
+class spell_hun_hunters_mark: public SpellScriptLoader
 {
     public:
         spell_hun_hunters_mark() : SpellScriptLoader("spell_hun_hunters_mark") { }
@@ -171,7 +172,7 @@ class spell_hun_hunters_mark : public SpellScriptLoader
 const uint32 fireworksSpells[4] = { 127937, 127936, 127961, 127951 };
 
 // Fireworks - 127933
-class spell_hun_fireworks : public SpellScriptLoader
+class spell_hun_fireworks: public SpellScriptLoader
 {
     public:
         spell_hun_fireworks() : SpellScriptLoader("spell_hun_fireworks") { }
@@ -199,7 +200,7 @@ class spell_hun_fireworks : public SpellScriptLoader
 };
 
 // Glyph of Fireworks - 57903
-class spell_hun_glyph_of_fireworks : public SpellScriptLoader
+class spell_hun_glyph_of_fireworks: public SpellScriptLoader
 {
     public:
         spell_hun_glyph_of_fireworks() : SpellScriptLoader("spell_hun_glyph_of_fireworks") { }
@@ -236,7 +237,7 @@ class spell_hun_glyph_of_fireworks : public SpellScriptLoader
 
 // Called by Aspect of the Pack - 13159, Aspect of the Hawk - 13165 and Aspect of the Cheetah - 5118
 // Glyph of Aspects - 122492
-class spell_hun_glyph_of_aspects : public SpellScriptLoader
+class spell_hun_glyph_of_aspects: public SpellScriptLoader
 {
     public:
         spell_hun_glyph_of_aspects() : SpellScriptLoader("spell_hun_glyph_of_aspects") { }
@@ -282,7 +283,7 @@ class spell_hun_glyph_of_aspects : public SpellScriptLoader
 };
 
 // Glyph of animal bond - 20895
-class spell_hun_glyph_of_animal_bond : public SpellScriptLoader
+class spell_hun_glyph_of_animal_bond: public SpellScriptLoader
 {
 public:
     spell_hun_glyph_of_animal_bond() : SpellScriptLoader("spell_hun_glyph_of_animal_bond") { }
@@ -310,7 +311,7 @@ public:
 };
 
 // Lock and Load - 56453
-class spell_hun_lock_and_load_proc : public SpellScriptLoader
+class spell_hun_lock_and_load_proc: public SpellScriptLoader
 {
     public:
         spell_hun_lock_and_load_proc() : SpellScriptLoader("spell_hun_lock_and_load_proc") { }
@@ -341,7 +342,7 @@ class spell_hun_lock_and_load_proc : public SpellScriptLoader
 };
 
 // Bestial Wrath - 19574 and The Beast Within - 34471
-class spell_hun_bestial_wrath_dispel : public SpellScriptLoader
+class spell_hun_bestial_wrath_dispel: public SpellScriptLoader
 {
     public:
         spell_hun_bestial_wrath_dispel() : SpellScriptLoader("spell_hun_bestial_wrath_dispel") { }
@@ -389,7 +390,7 @@ class spell_hun_bestial_wrath_dispel : public SpellScriptLoader
 
 // Called by Arcane Shot - 3044
 // Item PvP - Hunter S13 2P - 131564
-class spell_hun_item_pvp_s13_2p : public SpellScriptLoader
+class spell_hun_item_pvp_s13_2p: public SpellScriptLoader
 {
     public:
         spell_hun_item_pvp_s13_2p() : SpellScriptLoader("spell_hun_item_pvp_s13_2p") { }
@@ -418,7 +419,7 @@ class spell_hun_item_pvp_s13_2p : public SpellScriptLoader
 };
 
 // Spirit Bond - 118694
-class spell_hun_spirit_bond : public SpellScriptLoader
+class spell_hun_spirit_bond: public SpellScriptLoader
 {
     public:
         spell_hun_spirit_bond() : SpellScriptLoader("spell_hun_spirit_bond") { }
@@ -449,7 +450,7 @@ class spell_hun_spirit_bond : public SpellScriptLoader
 };
 
 // Spirit Bond - 109212
-class spell_hun_spirit_bond_apply : public SpellScriptLoader
+class spell_hun_spirit_bond_apply: public SpellScriptLoader
 {
 public:
     spell_hun_spirit_bond_apply() : SpellScriptLoader("spell_hun_spirit_bond_apply") { }
@@ -478,7 +479,7 @@ public:
 };
 
 // Glyph of Aspect of the Beast - 125042
-class spell_hun_glyph_of_aspect_of_the_beast : public SpellScriptLoader
+class spell_hun_glyph_of_aspect_of_the_beast: public SpellScriptLoader
 {
     public:
         spell_hun_glyph_of_aspect_of_the_beast() : SpellScriptLoader("spell_hun_glyph_of_aspect_of_the_beast") { }
@@ -514,7 +515,7 @@ class spell_hun_glyph_of_aspect_of_the_beast : public SpellScriptLoader
 };
 
 // Glaive Toss (damage) - 120761 and 121414
-class spell_hun_glaive_toss_damage : public SpellScriptLoader
+class spell_hun_glaive_toss_damage: public SpellScriptLoader
 {
     public:
         spell_hun_glaive_toss_damage() : SpellScriptLoader("spell_hun_glaive_toss_damage") { }
@@ -631,7 +632,7 @@ class spell_hun_glaive_toss_damage : public SpellScriptLoader
 };
 
 // Glaive Toss (Missile data) - 120755 and 120756
-class spell_hun_glaive_toss_missile : public SpellScriptLoader
+class spell_hun_glaive_toss_missile: public SpellScriptLoader
 {
     public:
         spell_hun_glaive_toss_missile() : SpellScriptLoader("spell_hun_glaive_toss_missile") { }
@@ -700,7 +701,7 @@ class spell_hun_glaive_toss_missile : public SpellScriptLoader
 };
 
 // Glyph of Fetch - 126746
-class spell_hun_glyph_of_fetch : public SpellScriptLoader
+class spell_hun_glyph_of_fetch: public SpellScriptLoader
 {
     public:
         spell_hun_glyph_of_fetch() : SpellScriptLoader("spell_hun_glyph_of_fetch") { }
@@ -736,7 +737,7 @@ class spell_hun_glyph_of_fetch : public SpellScriptLoader
 };
 
 // Tracking - 118424
-class spell_hun_tracking : public SpellScriptLoader
+class spell_hun_tracking: public SpellScriptLoader
 {
     public:
         spell_hun_tracking() : SpellScriptLoader("spell_hun_tracking") { }
@@ -776,7 +777,7 @@ class spell_hun_tracking : public SpellScriptLoader
 };
 
 // Dash - 113073
-class spell_hun_dash : public SpellScriptLoader
+class spell_hun_dash: public SpellScriptLoader
 {
     public:
         spell_hun_dash() : SpellScriptLoader("spell_hun_dash") { }
@@ -804,7 +805,7 @@ class spell_hun_dash : public SpellScriptLoader
 };
 
 // Dire Beast - 120679
-class spell_hun_dire_beast : public SpellScriptLoader
+class spell_hun_dire_beast: public SpellScriptLoader
 {
     public:
         spell_hun_dire_beast() : SpellScriptLoader("spell_hun_dire_beast") { }
@@ -884,7 +885,7 @@ class spell_hun_dire_beast : public SpellScriptLoader
 };
 
 // A Murder of Crows - 131894
-class spell_hun_a_murder_of_crows : public SpellScriptLoader
+class spell_hun_a_murder_of_crows: public SpellScriptLoader
 {
     public:
         spell_hun_a_murder_of_crows() : SpellScriptLoader("spell_hun_a_murder_of_crows") { }
@@ -927,7 +928,7 @@ class spell_hun_a_murder_of_crows : public SpellScriptLoader
 };
 
 // Focus Fire - 82692
-class spell_hun_focus_fire : public SpellScriptLoader
+class spell_hun_focus_fire: public SpellScriptLoader
 {
     public:
         spell_hun_focus_fire() : SpellScriptLoader("spell_hun_focus_fire") { }
@@ -985,7 +986,7 @@ class spell_hun_focus_fire : public SpellScriptLoader
 };
 
 // Frenzy - 19615
-class spell_hun_frenzy : public SpellScriptLoader
+class spell_hun_frenzy: public SpellScriptLoader
 {
     public:
         spell_hun_frenzy() : SpellScriptLoader("spell_hun_frenzy") { }
@@ -1038,7 +1039,7 @@ class spell_hun_frenzy : public SpellScriptLoader
 };
 
 // Lynx Rush - 120697
-class spell_hun_lynx_rush : public SpellScriptLoader
+class spell_hun_lynx_rush: public SpellScriptLoader
 {
     public:
         spell_hun_lynx_rush() : SpellScriptLoader("spell_hun_lynx_rush") { }
@@ -1183,7 +1184,7 @@ class spell_hun_lynx_rush : public SpellScriptLoader
 };
 
 // Beast Cleave - 118455
-class spell_hun_beast_cleave_proc : public SpellScriptLoader
+class spell_hun_beast_cleave_proc: public SpellScriptLoader
 {
     public:
         spell_hun_beast_cleave_proc() : SpellScriptLoader("spell_hun_beast_cleave_proc") { }
@@ -1230,7 +1231,7 @@ class spell_hun_beast_cleave_proc : public SpellScriptLoader
 
 // Called by Multi Shot - 2643
 // Beast Cleave - 115939
-class spell_hun_beast_cleave : public SpellScriptLoader
+class spell_hun_beast_cleave: public SpellScriptLoader
 {
     public:
         spell_hun_beast_cleave() : SpellScriptLoader("spell_hun_beast_cleave") { }
@@ -1261,7 +1262,7 @@ class spell_hun_beast_cleave : public SpellScriptLoader
 
 // Called by Arcane Shot - 3044
 // Cobra Strikes - 53260
-class spell_hun_cobra_strikes : public SpellScriptLoader
+class spell_hun_cobra_strikes: public SpellScriptLoader
 {
     public:
         spell_hun_cobra_strikes() : SpellScriptLoader("spell_hun_cobra_strikes") { }
@@ -1303,7 +1304,7 @@ class spell_hun_cobra_strikes : public SpellScriptLoader
 };
 
 // Barrage damage - 120361
-class spell_hun_barrage : public SpellScriptLoader
+class spell_hun_barrage: public SpellScriptLoader
 {
     public:
         spell_hun_barrage() : SpellScriptLoader("spell_hun_barrage") { }
@@ -1333,7 +1334,7 @@ class spell_hun_barrage : public SpellScriptLoader
 };
 
 // Binding Shot - 117405
-class spell_hun_binding_shot : public SpellScriptLoader
+class spell_hun_binding_shot: public SpellScriptLoader
 {
     public:
         spell_hun_binding_shot() : SpellScriptLoader("spell_hun_binding_shot") { }
@@ -1399,7 +1400,7 @@ class spell_hun_binding_shot : public SpellScriptLoader
 };
 
 // Binding Shot - 109248
-class spell_hun_binding_shot_zone : public SpellScriptLoader
+class spell_hun_binding_shot_zone: public SpellScriptLoader
 {
     public:
         spell_hun_binding_shot_zone() : SpellScriptLoader("spell_hun_binding_shot_zone") { }
@@ -1431,7 +1432,7 @@ class spell_hun_binding_shot_zone : public SpellScriptLoader
 
 // Called by Serpent Sting - 118253
 // Improved Serpent Sting - 82834
-class spell_hun_improved_serpent_sting : public SpellScriptLoader
+class spell_hun_improved_serpent_sting: public SpellScriptLoader
 {
     public:
         spell_hun_improved_serpent_sting() : SpellScriptLoader("spell_hun_improved_serpent_sting") { }
@@ -1501,7 +1502,7 @@ class spell_hun_improved_serpent_sting : public SpellScriptLoader
 };
 
 // Powershot - 109259
-class spell_hun_powershot : public SpellScriptLoader
+class spell_hun_powershot: public SpellScriptLoader
 {
     public:
         spell_hun_powershot() : SpellScriptLoader("spell_hun_powershot") { }
@@ -1578,7 +1579,7 @@ class spell_hun_powershot : public SpellScriptLoader
 };
 
 // Feign Death - 5384
-class spell_hun_feign_death : public SpellScriptLoader
+class spell_hun_feign_death: public SpellScriptLoader
 {
     public:
         spell_hun_feign_death() : SpellScriptLoader("spell_hun_feign_death") { }
@@ -1619,7 +1620,7 @@ class spell_hun_feign_death : public SpellScriptLoader
 };
 
 // Camouflage - 51755
-class spell_hun_camouflage_visual : public SpellScriptLoader
+class spell_hun_camouflage_visual: public SpellScriptLoader
 {
     public:
         spell_hun_camouflage_visual() : SpellScriptLoader("spell_hun_camouflage_visual") { }
@@ -1651,7 +1652,7 @@ class spell_hun_camouflage_visual : public SpellScriptLoader
 
 // Called by Multi Shot - 2643
 // Serpent Spread - 87935
-class spell_hun_serpent_spread : public SpellScriptLoader
+class spell_hun_serpent_spread: public SpellScriptLoader
 {
     public:
         spell_hun_serpent_spread() : SpellScriptLoader("spell_hun_serpent_spread") { }
@@ -1681,7 +1682,7 @@ class spell_hun_serpent_spread : public SpellScriptLoader
 };
 
 // Ancient Hysteria - 90355
-class spell_hun_ancient_hysteria : public SpellScriptLoader
+class spell_hun_ancient_hysteria: public SpellScriptLoader
 {
     public:
         spell_hun_ancient_hysteria() : SpellScriptLoader("spell_hun_ancient_hysteria") { }
@@ -1734,7 +1735,7 @@ class spell_hun_ancient_hysteria : public SpellScriptLoader
 };
 
 // Kill Command - 34026
-class spell_hun_kill_command : public SpellScriptLoader
+class spell_hun_kill_command: public SpellScriptLoader
 {
     public:
         spell_hun_kill_command() : SpellScriptLoader("spell_hun_kill_command") { }
@@ -1802,7 +1803,7 @@ class spell_hun_kill_command : public SpellScriptLoader
 };
 
 // Cobra Shot - 77767
-class spell_hun_cobra_shot : public SpellScriptLoader
+class spell_hun_cobra_shot: public SpellScriptLoader
 {
     public:
         spell_hun_cobra_shot() : SpellScriptLoader("spell_hun_cobra_shot") { }
@@ -1830,7 +1831,7 @@ class spell_hun_cobra_shot : public SpellScriptLoader
 };
 
 // Steady Shot - 56641
-class spell_hun_steady_shot : public SpellScriptLoader
+class spell_hun_steady_shot: public SpellScriptLoader
 {
     public:
         spell_hun_steady_shot() : SpellScriptLoader("spell_hun_steady_shot") { }
@@ -1862,7 +1863,7 @@ class spell_hun_steady_shot : public SpellScriptLoader
 };
 
 // Chimera Shot - 53209
-class spell_hun_chimera_shot : public SpellScriptLoader
+class spell_hun_chimera_shot: public SpellScriptLoader
 {
     public:
         spell_hun_chimera_shot() : SpellScriptLoader("spell_hun_chimera_shot") { }
@@ -1895,7 +1896,7 @@ class spell_hun_chimera_shot : public SpellScriptLoader
         }
 };
 
-class spell_hun_last_stand_pet : public SpellScriptLoader
+class spell_hun_last_stand_pet: public SpellScriptLoader
 {
     public:
         spell_hun_last_stand_pet() : SpellScriptLoader("spell_hun_last_stand_pet") { }
@@ -1932,7 +1933,7 @@ class spell_hun_last_stand_pet : public SpellScriptLoader
 };
 
 // Master's Call - 53271
-class spell_hun_masters_call : public SpellScriptLoader
+class spell_hun_masters_call: public SpellScriptLoader
 {
     public:
         spell_hun_masters_call() : SpellScriptLoader("spell_hun_masters_call") { }
@@ -1999,7 +2000,7 @@ class spell_hun_masters_call : public SpellScriptLoader
 };
 
 // Scatter Shot - 37506
-class spell_hun_scatter_shot : public SpellScriptLoader
+class spell_hun_scatter_shot: public SpellScriptLoader
 {
     public:
         spell_hun_scatter_shot() : SpellScriptLoader("spell_hun_scatter_shot") { }
@@ -2045,7 +2046,7 @@ enum eSniperTrainingSpells
     SPELL_SNIPER_TRAINING_BUFF_R1   = 64418,
 };
 
-class spell_hun_sniper_training : public SpellScriptLoader
+class spell_hun_sniper_training: public SpellScriptLoader
 {
     public:
         spell_hun_sniper_training() : SpellScriptLoader("spell_hun_sniper_training") { }
@@ -2103,7 +2104,7 @@ class spell_hun_sniper_training : public SpellScriptLoader
         }
 };
 
-class spell_hun_pet_heart_of_the_phoenix : public SpellScriptLoader
+class spell_hun_pet_heart_of_the_phoenix: public SpellScriptLoader
 {
     public:
         spell_hun_pet_heart_of_the_phoenix() : SpellScriptLoader("spell_hun_pet_heart_of_the_phoenix") { }
@@ -2150,7 +2151,7 @@ class spell_hun_pet_heart_of_the_phoenix : public SpellScriptLoader
         }
 };
 
-class spell_hun_pet_carrion_feeder : public SpellScriptLoader
+class spell_hun_pet_carrion_feeder: public SpellScriptLoader
 {
     public:
         spell_hun_pet_carrion_feeder() : SpellScriptLoader("spell_hun_pet_carrion_feeder") { }
@@ -2208,7 +2209,7 @@ class spell_hun_pet_carrion_feeder : public SpellScriptLoader
 };
 
 // Misdirection - 34477
-class spell_hun_misdirection : public SpellScriptLoader
+class spell_hun_misdirection: public SpellScriptLoader
 {
     public:
         spell_hun_misdirection() : SpellScriptLoader("spell_hun_misdirection") { }
@@ -2273,7 +2274,7 @@ class spell_hun_misdirection : public SpellScriptLoader
 };
 
 // Misdirection (proc) - 35079
-class spell_hun_misdirection_proc : public SpellScriptLoader
+class spell_hun_misdirection_proc: public SpellScriptLoader
 {
     public:
         spell_hun_misdirection_proc() : SpellScriptLoader("spell_hun_misdirection_proc") { }
@@ -2301,7 +2302,7 @@ class spell_hun_misdirection_proc : public SpellScriptLoader
 };
 
 // Disengage - 781
-class spell_hun_disengage : public SpellScriptLoader
+class spell_hun_disengage: public SpellScriptLoader
 {
     public:
         spell_hun_disengage() : SpellScriptLoader("spell_hun_disengage") { }
@@ -2352,7 +2353,7 @@ class spell_hun_disengage : public SpellScriptLoader
 };
 
 // Tame Beast - 1515
-class spell_hun_tame_beast : public SpellScriptLoader
+class spell_hun_tame_beast: public SpellScriptLoader
 {
     public:
         spell_hun_tame_beast() : SpellScriptLoader("spell_hun_tame_beast") { }
@@ -2363,41 +2364,38 @@ class spell_hun_tame_beast : public SpellScriptLoader
 
             SpellCastResult CheckCast()
             {
-                if (Player* caster = GetCaster()->ToPlayer())
+                int8 l_ResultId = -1;
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (!GetExplTargetUnit() || GetExplTargetUnit()->GetTypeId() != TYPEID_UNIT)
+                    l_ResultId = PET_TAME_ERROR_INVALID_CREATURE;
+
+                Creature* l_Target = GetExplTargetUnit()->ToCreature();
+
+                // No errors until now, time to do more checks
+                if (l_ResultId == -1)
                 {
-                    if (!GetExplTargetUnit())
-                        return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
-
-                    // If we have a full list we shoulden't be able to create a new one.
-                    if (caster->getSlotForNewPet() == PET_SLOT_FULL_LIST)
-                    {
-                        caster->SendPetTameResult(PET_TAME_ERROR_TOO_MANY_PETS);
-                        return SPELL_FAILED_DONT_REPORT;
-                    }
-
-                    if (Creature* target = GetExplTargetUnit()->ToCreature())
-                    {
-                        if (target->getLevel() > caster->getLevel())
-                            return SPELL_FAILED_HIGHLEVEL;
-
-                        if (!target->GetCreatureTemplate()->isTameable(caster->ToPlayer()->CanTameExoticPets()))
-                            return SPELL_FAILED_BAD_TARGETS;
-
-                        if (caster->GetPetGUID())
-                            return SPELL_FAILED_ALREADY_HAVE_SUMMON;
-
-                        if (caster->GetCharmGUID())
-                            return SPELL_FAILED_ALREADY_HAVE_CHARM;
-                    }
-                    else
-                        return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
-
-                    return SPELL_CAST_OK;
+                    if (l_Player->getSlotForNewPet() == PET_SLOT_FULL_LIST)
+                        l_ResultId = PET_TAME_ERROR_TOO_MANY_PETS;
+                    else if (l_Player->GetPetGUID() || l_Player->GetCharmGUID())
+                        l_ResultId = PET_TAME_ERROR_ANOTHER_SUMMON_ACTIVE;
+                    else if (l_Target->isPet())
+                        l_ResultId = PET_TAME_ERROR_CREATURE_ALREADY_OWNED;
+                    else if (l_Target->getLevel() > l_Player->getLevel())
+                        l_ResultId = PET_TAME_ERROR_TOO_HIGH_LEVEL;
+                    else if ((l_Target->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_EXOTIC) && !l_Player->CanTameExoticPets())
+                        l_ResultId = PET_TAME_ERROR_CANT_CONTROL_EXOTIC;
+                    else if (!l_Target->GetCreatureTemplate()->isTameable(l_Player->CanTameExoticPets()))
+                        l_ResultId = PET_TAME_ERROR_NOT_TAMEABLE;
                 }
-                else
-                    return SPELL_FAILED_DONT_REPORT;
 
-                return SPELL_FAILED_DONT_REPORT;
+                if (l_ResultId >= 0)
+                {
+                    l_Player->SendPetTameResult((PetTameResult) l_ResultId);
+                    return SPELL_FAILED_DONT_REPORT;
+                }
+
+                return SPELL_CAST_OK;
             }
 
             void Register()
@@ -2413,7 +2411,7 @@ class spell_hun_tame_beast : public SpellScriptLoader
 };
 
 //Kill shot - 53351
-class spell_hun_kill_shot : public SpellScriptLoader
+class spell_hun_kill_shot: public SpellScriptLoader
 {
 public:
     spell_hun_kill_shot() : SpellScriptLoader("spell_hun_kill_shot") { }
@@ -2448,7 +2446,7 @@ public:
 };
 
 //Bombardment - 35110 
-class spell_hun_bombardment : public SpellScriptLoader
+class spell_hun_bombardment: public SpellScriptLoader
 {
 public:
     spell_hun_bombardment() : SpellScriptLoader("spell_hun_bombardment") { }
@@ -2478,8 +2476,55 @@ public:
     }
 };
 
+//Claw - 16827 / Bite - 17253
+class spell_hun_claw_bite : public MS::Game::Scripting::Interfaces::SpellScriptLoader
+{
+public:
+    spell_hun_claw_bite() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_claw_bite") { }
+
+    class spell_hun_claw_bite_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_hun_claw_bite_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Pet = GetCaster())
+                if (Unit* l_Hunter = GetCaster()->GetOwner())
+                {
+                    int32 l_Damage = int32(1.5f * l_Hunter->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.333f);
+
+                    // Deals 100% more damage and costs 100% more Focus when your pet has 50 or more Focus.
+                    if (l_Pet->GetPower(POWER_FOCUS) + 25 >= 50)
+                    {
+                        const SpellInfo* l_SpellInfo = sSpellMgr->GetSpellInfo(HUNTER_SPELL_BASIC_ATTACK_COST_MODIFIER);
+                        if (l_SpellInfo)
+                            l_Damage += CalculatePct(l_Damage, l_SpellInfo->Effects[EFFECT_1].BasePoints);
+                        l_Pet->EnergizeBySpell(l_Pet, GetSpellInfo()->Id, -25, POWER_FOCUS);
+                    }
+                    SetHitDamage(l_Damage);
+                }
+        }
+
+        void HandleBeforeHit()
+        {
+            SetHitDamage(1);
+        }
+
+        void Register()
+        {
+            BeforeHit += SpellHitFn(spell_hun_claw_bite_SpellScript::HandleBeforeHit);
+            OnHit += SpellHitFn(spell_hun_claw_bite_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_hun_claw_bite_SpellScript();
+    }
+};
+
 // Thrill of the Hunt - 109396
-class PlayerScript_thrill_of_the_hunt : public PlayerScript
+class PlayerScript_thrill_of_the_hunt: public PlayerScript
 {
 public:
     PlayerScript_thrill_of_the_hunt() :PlayerScript("PlayerScript_thrill_of_the_hunt") {}
@@ -2499,6 +2544,7 @@ public:
 
 void AddSC_hunter_spell_scripts()
 {
+    new spell_hun_claw_bite();
     new spell_hun_bombardment();
     new spell_hun_glyph_of_animal_bond();
     new spell_hun_spirit_bond_apply();

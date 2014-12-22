@@ -518,7 +518,7 @@ class npc_slither : public CreatureScript
         };
 };
 
-class spell_hexlord_unstable_affliction : public SpellScriptLoader
+class spell_hexlord_unstable_affliction: public SpellScriptLoader
 {
     public:
         spell_hexlord_unstable_affliction() : SpellScriptLoader("spell_hexlord_unstable_affliction") { }

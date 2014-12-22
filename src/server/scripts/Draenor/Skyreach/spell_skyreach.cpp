@@ -1,11 +1,10 @@
-#include "AreaTriggerScript.h"
 #include <forward_list>
 #include "instance_skyreach.h"
 
 namespace MS
 {
     // Summon Quills - 159381
-    class spell_Quills : public SpellScriptLoader
+    class spell_Quills: public SpellScriptLoader
     {
     public:
         spell_Quills()
@@ -42,7 +41,7 @@ namespace MS
     };
 
     // Summon Cast Down - 165845
-    class spell_CastDown : public SpellScriptLoader
+    class spell_CastDown: public SpellScriptLoader
     {
     public:
         spell_CastDown()
@@ -80,7 +79,7 @@ namespace MS
     };
 
     // AreaTriggers for spells: 154044
-    class AreaTrigger_LensFlare : public MS::AreaTriggerEntityScript
+    class AreaTrigger_LensFlare : public AreaTriggerEntityScript
     {
         enum class Spells : uint32
         {
@@ -91,12 +90,12 @@ namespace MS
 
     public:
         AreaTrigger_LensFlare()
-            : MS::AreaTriggerEntityScript("at_LensFlare"),
+            : AreaTriggerEntityScript("at_LensFlare"),
             m_Targets()
         {
             }
 
-        MS::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new AreaTrigger_LensFlare();
         }
@@ -159,7 +158,7 @@ namespace MS
     };
 
     // AreaTriggers for spells: 152973
-    class AreaTrigger_ProtectiveBarrier : public MS::AreaTriggerEntityScript
+    class AreaTrigger_ProtectiveBarrier : public AreaTriggerEntityScript
     {
         enum class Spells : uint32
         {
@@ -171,12 +170,12 @@ namespace MS
 
     public:
         AreaTrigger_ProtectiveBarrier()
-            : MS::AreaTriggerEntityScript("at_ProtectiveBarrier"),
+            : AreaTriggerEntityScript("at_ProtectiveBarrier"),
             m_Targets()
         {
         }
 
-        MS::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new AreaTrigger_ProtectiveBarrier();
         }
@@ -234,7 +233,7 @@ namespace MS
     };
 
     // AreaTriggers for spells: 154110
-    class AreaTrigger_Smash : public MS::AreaTriggerEntityScript
+    class AreaTrigger_Smash : public AreaTriggerEntityScript
     {
         enum class Spells : uint32
         {
@@ -245,11 +244,11 @@ namespace MS
 
     public:
         AreaTrigger_Smash()
-            : MS::AreaTriggerEntityScript("at_Smash")
+            : AreaTriggerEntityScript("at_Smash")
         {
         }
 
-        MS::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new AreaTrigger_Smash();
         }
@@ -285,7 +284,7 @@ namespace MS
     };
 
     // Visual Energize - 154177
-    class spell_VisualEnergize2 : public SpellScriptLoader
+    class spell_VisualEnergize2: public SpellScriptLoader
     {
     public:
         spell_VisualEnergize2()
@@ -324,7 +323,7 @@ namespace MS
     };
 
     // Visual Energize - 154159
-    class spell_VisualEnergize : public SpellScriptLoader
+    class spell_VisualEnergize: public SpellScriptLoader
     {
     public:
         spell_VisualEnergize()
@@ -359,7 +358,7 @@ namespace MS
     };
 
     // Flash Bang - 160066
-    class spell_FlashBang : public SpellScriptLoader
+    class spell_FlashBang: public SpellScriptLoader
     {
     public:
         spell_FlashBang()
@@ -398,7 +397,7 @@ namespace MS
     };
 
     // Sunstrike - 153828
-    class spell_Sunstrike : public SpellScriptLoader
+    class spell_Sunstrike: public SpellScriptLoader
     {
     public:
         spell_Sunstrike()
@@ -444,7 +443,7 @@ namespace MS
     };
 
     // Summon Solar Flare - 153827
-    class spell_SummonSolarFlare : public SpellScriptLoader
+    class spell_SummonSolarFlare: public SpellScriptLoader
     {
     public:
         spell_SummonSolarFlare()
@@ -483,7 +482,7 @@ namespace MS
     };
 
     // Energize 154140
-    class spell_Energize : public SpellScriptLoader
+    class spell_Energize: public SpellScriptLoader
     {
     public:
         spell_Energize()
@@ -522,7 +521,7 @@ namespace MS
     };
 
     // AreaTriggers for spells: 159221
-    class AreaTrigger_SolarStorm : public MS::AreaTriggerEntityScript
+    class AreaTrigger_SolarStorm : public AreaTriggerEntityScript
     {
         enum class Spells : uint32
         {
@@ -533,12 +532,12 @@ namespace MS
 
     public:
         AreaTrigger_SolarStorm()
-            : MS::AreaTriggerEntityScript("at_SolarStorm"),
+            : AreaTriggerEntityScript("at_SolarStorm"),
             m_Targets()
         {
         }
 
-        MS::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new AreaTrigger_SolarStorm();
         }
@@ -593,7 +592,7 @@ namespace MS
     };
 
     // Solar storm - 159215
-    class spell_SolarStorm : public SpellScriptLoader
+    class spell_SolarStorm: public SpellScriptLoader
     {
     public:
         spell_SolarStorm()
@@ -633,7 +632,7 @@ namespace MS
     };
 
     // AreaTriggers for spells: 156634, 156636
-    class AreaTrigger_FourWinds : public MS::AreaTriggerEntityScript
+    class AreaTrigger_FourWinds : public AreaTriggerEntityScript
     {
         enum class Spells : uint32
         {
@@ -653,7 +652,7 @@ namespace MS
 
     public:
         AreaTrigger_FourWinds()
-            : MS::AreaTriggerEntityScript("at_FourWinds"),
+            : AreaTriggerEntityScript("at_FourWinds"),
             m_targets(),
             m_angle(0),
             m_Last(60000),
@@ -661,7 +660,7 @@ namespace MS
         {
         }
 
-        MS::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new AreaTrigger_FourWinds();
         }
@@ -786,7 +785,7 @@ namespace MS
     };
 
     // Four wind - 156793
-    class spell_FourWind : public SpellScriptLoader
+    class spell_FourWind: public SpellScriptLoader
     {
     public:
         spell_FourWind()
@@ -854,7 +853,7 @@ namespace MS
     };
 
     // AreaTriggers for spells: 153311, 153314
-    class AreaTrigger_WindWall : public MS::AreaTriggerEntityScript
+    class AreaTrigger_WindWall : public AreaTriggerEntityScript
     {
         enum class Spells : uint32
         {
@@ -870,7 +869,7 @@ namespace MS
 
     public:
         AreaTrigger_WindWall()
-            : MS::AreaTriggerEntityScript("at_WindWall"),
+            : AreaTriggerEntityScript("at_WindWall"),
             m_targets(),
             m_angle(0),
             m_Last(60000),
@@ -878,7 +877,7 @@ namespace MS
         {
         }
 
-        MS::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new AreaTrigger_WindWall();
         }
@@ -996,7 +995,7 @@ namespace MS
     };
 
     // Windwall - 153315
-    class spell_Windwall : public SpellScriptLoader
+    class spell_Windwall: public SpellScriptLoader
     {
     public:
         spell_Windwall()
@@ -1044,7 +1043,7 @@ namespace MS
     };
 
     // AreaTriggers for spells: 153535, 153536, 153537, 153538, 153583, 153584, 153585,153586, 153587, 153588
-    class AreaTrigger_spinning_blade : public MS::AreaTriggerEntityScript
+    class AreaTrigger_spinning_blade : public AreaTriggerEntityScript
     {
         enum class Spells : uint32
         {
@@ -1055,11 +1054,11 @@ namespace MS
 
     public:
         AreaTrigger_spinning_blade()
-            : MS::AreaTriggerEntityScript("at_spinning_blade"), m_targets()
+            : AreaTriggerEntityScript("at_spinning_blade"), m_targets()
         {
         }
 
-        MS::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new AreaTrigger_spinning_blade();
         }
@@ -1124,7 +1123,7 @@ namespace MS
     };
 
     // AreaTriggers for spells: 160935
-    class AreaTrigger_solar_zone : public MS::AreaTriggerEntityScript
+    class AreaTrigger_solar_zone : public AreaTriggerEntityScript
     {
         enum class SolarHealSpells : uint32
         {
@@ -1137,12 +1136,12 @@ namespace MS
 
     public:
         AreaTrigger_solar_zone()
-            : MS::AreaTriggerEntityScript("at_solar_zone"),
+            : AreaTriggerEntityScript("at_solar_zone"),
             m_Targets()
         {
         }
 
-        MS::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new AreaTrigger_solar_zone();
         }
@@ -1214,7 +1213,7 @@ namespace MS
     };
 
     // AreaTriggers for spells: 156840
-    class AreaTrigger_storm_zone : public MS::AreaTriggerEntityScript
+    class AreaTrigger_storm_zone : public AreaTriggerEntityScript
     {
         enum class Spells : uint32
         {
@@ -1228,12 +1227,12 @@ namespace MS
 
     public:
         AreaTrigger_storm_zone()
-            : MS::AreaTriggerEntityScript("at_storm_zone"),
+            : AreaTriggerEntityScript("at_storm_zone"),
             m_Targets()
         {
         }
 
-        MS::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new AreaTrigger_storm_zone();
         }
@@ -1293,7 +1292,7 @@ namespace MS
     };
 
     // AreaTriggers for spells: 153905
-    class AreaTrigger_dervish : public MS::AreaTriggerEntityScript
+    class AreaTrigger_dervish : public AreaTriggerEntityScript
     {
         enum class Spells : uint32
         {
@@ -1305,12 +1304,12 @@ namespace MS
 
     public:
         AreaTrigger_dervish()
-            : MS::AreaTriggerEntityScript("at_dervish"),
+            : AreaTriggerEntityScript("at_dervish"),
             m_Targets()
         {
         }
 
-        MS::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new AreaTrigger_dervish();
         }
@@ -1370,7 +1369,7 @@ namespace MS
     };
 
     // Spinning Blade - 153544
-    class spell_SpinningBlade : public SpellScriptLoader
+    class spell_SpinningBlade: public SpellScriptLoader
     {
     public:
         spell_SpinningBlade()
@@ -1426,7 +1425,7 @@ namespace MS
     };
 
     // Blade Dance - 153581
-    class spell_BladeDance : public SpellScriptLoader
+    class spell_BladeDance: public SpellScriptLoader
     {
     public:
         spell_BladeDance()
@@ -1475,7 +1474,7 @@ namespace MS
     };
 
     // Storm - 156515
-    class spell_Storm : public SpellScriptLoader
+    class spell_Storm: public SpellScriptLoader
     {
     public:
         spell_Storm()

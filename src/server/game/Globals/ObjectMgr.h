@@ -782,8 +782,21 @@ struct ResearchLootEntry
 
 struct GarrisonPlotBuildingContent
 {
+    GarrisonPlotBuildingContent() {}
+    GarrisonPlotBuildingContent(const GarrisonPlotBuildingContent & p_Other)
+    {
+        DB_ID               = p_Other.DB_ID;
+        PlotTypeOrBuilding  = p_Other.PlotTypeOrBuilding;
+        FactionIndex        = p_Other.FactionIndex;
+        CreatureOrGob       = p_Other.CreatureOrGob;
+        X                   = p_Other.X;
+        Y                   = p_Other.Y;
+        Z                   = p_Other.Z;
+        O                   = p_Other.O;
+    }
+
     uint32 DB_ID;
-    uint32 PlotType;
+    int32 PlotTypeOrBuilding;
     uint32 FactionIndex;
     int32 CreatureOrGob;
     float X, Y, Z, O;
@@ -846,7 +859,8 @@ class ObjectMgr
 
         void LoadGarrisonPlotBuildingContent();
         void AddGarrisonPlotBuildingContent(GarrisonPlotBuildingContent & p_Data);
-        std::vector<GarrisonPlotBuildingContent> GetGarrisonPlotBuildingContent(uint32 p_PlotType, uint32 p_FactionIndex);
+        void DeleteGarrisonPlotBuildingContent(GarrisonPlotBuildingContent & p_Data);
+        std::vector<GarrisonPlotBuildingContent> GetGarrisonPlotBuildingContent(int32 p_PlotTypeOrBuilding, uint32 p_FactionIndex);
 
         CreatureTemplate const* GetCreatureTemplate(uint32 entry);
         CreatureTemplateContainer const* GetCreatureTemplates() const { return &_creatureTemplateStore; }
@@ -1018,7 +1032,6 @@ class ObjectMgr
         void LoadQuests();
         void LoadQuestObjectives();
         void LoadQuestObjectiveLocales();
-        void LoadQuestDynamicRewards();
         void LoadQuestRelations()
         {
             sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading GO Start Quest Data...");

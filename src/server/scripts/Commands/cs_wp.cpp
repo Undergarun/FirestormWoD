@@ -27,7 +27,7 @@ EndScriptData */
 #include "WaypointManager.h"
 #include "Chat.h"
 
-class wp_commandscript : public CommandScript
+class wp_commandscript: public CommandScript
 {
 public:
     wp_commandscript() : CommandScript("wp_commandscript") { }

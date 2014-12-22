@@ -20,7 +20,6 @@
 #include "ScriptPCH.h"
 #include "upper_blackrock_spire.h"
 #include "Language.h"
-#include "AreaTriggerScript.h"
 #include "MoveSplineInit.h"
 #include "ScriptedEscortAI.h"
 
@@ -34,7 +33,6 @@ enum eSpells
     SPELL_RIFLE_SHOT                = 153974,
     ///< Sentry Cannon
     SPELL_CANNON_SHOT               = 154178,
-    SPELL_SAFETY_PROTOCOLS          = 154894,
     ///< Ragemaw Worg
     SPELL_BLACKROCK_RABIES          = 154017,
     SPELL_FRANTIC_MAULING           = 154039,
@@ -256,6 +254,8 @@ class mob_black_iron_leadbelcher : public CreatureScript
                 m_Events.Reset();
 
                 m_Canon = false;
+
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
 
             void EnterCombat(Unit* p_Attacker)
@@ -358,13 +358,7 @@ class mob_sentry_cannon : public CreatureScript
 
             void EnterCombat(Unit* p_Attacker)
             {
-                m_Events.ScheduleEvent(EVENT_CANNON_SHOT, 5000);
-            }
-
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage)
-            {
-                if (me->HealthBelowPctDamaged(50, p_Damage) && !me->HasAura(SPELL_SAFETY_PROTOCOLS))
-                    me->CastSpell(me, SPELL_SAFETY_PROTOCOLS, true);
+                m_Events.ScheduleEvent(EVENT_CANNON_SHOT, 2000);
             }
 
             void UpdateAI(const uint32 p_Diff)
@@ -382,7 +376,7 @@ class mob_sentry_cannon : public CreatureScript
                     case EVENT_CANNON_SHOT:
                         if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM))
                             me->CastSpell(l_Target, SPELL_CANNON_SHOT, false);
-                        m_Events.ScheduleEvent(EVENT_CANNON_SHOT, 15000);
+                        m_Events.ScheduleEvent(EVENT_CANNON_SHOT, 5000);
                         break;
                     default:
                         break;
@@ -1575,7 +1569,7 @@ class mob_son_of_the_beast : public CreatureScript
                 switch (m_Events.ExecuteEvent())
                 {
                     case Events::EventFieryCharge:
-                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM))
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_FARTHEST))
                             me->CastSpell(l_Target, Spells::FieryCharge, true);
                         m_Events.ScheduleEvent(Events::EventFieryCharge, 8000);
                         m_Events.ScheduleEvent(Events::EventStopCharge, 600);
@@ -1913,10 +1907,10 @@ class mob_emberscale_whelping : public CreatureScript
 };
 
 ///< Rallying Banner - 153799
-class areatrigger_rallying_banner : public MS::AreaTriggerEntityScript
+class areatrigger_rallying_banner : public AreaTriggerEntityScript
 {
     public:
-        areatrigger_rallying_banner() : MS::AreaTriggerEntityScript("areatrigger_rallying_banner") { }
+        areatrigger_rallying_banner() : AreaTriggerEntityScript("areatrigger_rallying_banner") { }
 
         uint32 m_GrowTime;
 
@@ -1960,17 +1954,17 @@ class areatrigger_rallying_banner : public MS::AreaTriggerEntityScript
                 m_GrowTime -= p_Time;
         }
 
-        MS::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new areatrigger_rallying_banner();
         }
 };
 
 ///< Fiery Trail - 157364
-class areatrigger_fiery_trail : public MS::AreaTriggerEntityScript
+class areatrigger_fiery_trail : public AreaTriggerEntityScript
 {
     public:
-        areatrigger_fiery_trail() : MS::AreaTriggerEntityScript("areatrigger_fiery_trail") { }
+        areatrigger_fiery_trail() : AreaTriggerEntityScript("areatrigger_fiery_trail") { }
 
         enum eSpells
         {
@@ -1993,14 +1987,14 @@ class areatrigger_fiery_trail : public MS::AreaTriggerEntityScript
             }
         }
 
-        MS::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new areatrigger_fiery_trail();
         }
 };
 
 ///< Shrapnel Storm - 153942
-class spell_shrapnel_storm : public SpellScriptLoader
+class spell_shrapnel_storm: public SpellScriptLoader
 {
     public:
         spell_shrapnel_storm() : SpellScriptLoader("spell_shrapnel_storm") { }
@@ -2031,7 +2025,7 @@ class spell_shrapnel_storm : public SpellScriptLoader
 };
 
 ///< Eruption - 155037
-class spell_eruption : public SpellScriptLoader
+class spell_eruption: public SpellScriptLoader
 {
     public:
         spell_eruption() : SpellScriptLoader("spell_eruption") { }
@@ -2076,7 +2070,7 @@ class spell_eruption : public SpellScriptLoader
 };
 
 ///< Class Specific Res - 157175
-class spell_class_specific_res : public SpellScriptLoader
+class spell_class_specific_res: public SpellScriptLoader
 {
     public:
         spell_class_specific_res() : SpellScriptLoader("spell_class_specific_res") { }

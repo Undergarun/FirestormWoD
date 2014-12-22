@@ -488,7 +488,7 @@ class npc_helix_crew : public CreatureScript
         };
 };
 
-class spell_helix_chest_bomb : public SpellScriptLoader
+class spell_helix_chest_bomb: public SpellScriptLoader
 {
     public:
         spell_helix_chest_bomb() : SpellScriptLoader("spell_helix_chest_bomb") { }
@@ -516,7 +516,7 @@ class spell_helix_chest_bomb : public SpellScriptLoader
         }
 };
 
-class spell_helix_force_player_to_ride_oaf : public SpellScriptLoader
+class spell_helix_force_player_to_ride_oaf: public SpellScriptLoader
 {
     public:
         spell_helix_force_player_to_ride_oaf() : SpellScriptLoader("spell_helix_force_player_to_ride_oaf") { }

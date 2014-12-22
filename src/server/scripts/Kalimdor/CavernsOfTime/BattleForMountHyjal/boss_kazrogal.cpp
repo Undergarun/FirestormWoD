@@ -177,7 +177,7 @@ class MarkTargetFilter
         }
 };
 
-class spell_mark_of_kazrogal : public SpellScriptLoader
+class spell_mark_of_kazrogal: public SpellScriptLoader
 {
     public:
         spell_mark_of_kazrogal() : SpellScriptLoader("spell_mark_of_kazrogal") { }

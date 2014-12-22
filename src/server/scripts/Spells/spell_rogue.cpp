@@ -87,11 +87,12 @@ enum RogueSpells
     ROGUE_SPELL_RELTENTLESS_STRIKES_AURA        = 58423,
     ROGUE_SPELL_RELTENTLESS_STRIKES_PROC        = 14181,
     ROGUE_SPELL_COMBO_POINT_DELAYED             = 139569,
-    ROGUE_SPELL_RUTHLESSNESS                    = 14161
+    ROGUE_SPELL_RUTHLESSNESS                    = 14161,
+    ROGUE_SPELL_EVISCERATE_ENVENOM_BONUS_DAMAGE = 37169
 };
 
 // Killing Spree - 51690
-class spell_rog_killing_spree : public SpellScriptLoader
+class spell_rog_killing_spree: public SpellScriptLoader
 {
     public:
         spell_rog_killing_spree() : SpellScriptLoader("spell_rog_killing_spree") { }
@@ -176,7 +177,7 @@ class spell_rog_killing_spree : public SpellScriptLoader
 
 // Called by Vanish - 1856
 // Glyph of Decoy - 56800
-class spell_rog_glyph_of_decoy : public SpellScriptLoader
+class spell_rog_glyph_of_decoy: public SpellScriptLoader
 {
     public:
         spell_rog_glyph_of_decoy() : SpellScriptLoader("spell_rog_glyph_of_decoy") { }
@@ -209,7 +210,7 @@ class spell_rog_glyph_of_decoy : public SpellScriptLoader
 };
 
 // Shuriken Toss - 114014
-class spell_rog_shuriken_toss : public SpellScriptLoader
+class spell_rog_shuriken_toss: public SpellScriptLoader
 {
     public:
         spell_rog_shuriken_toss() : SpellScriptLoader("spell_rog_shuriken_toss") { }
@@ -239,7 +240,7 @@ class spell_rog_shuriken_toss : public SpellScriptLoader
 };
 
 // Marked for Death - 137619
-class spell_rog_marked_for_death : public SpellScriptLoader
+class spell_rog_marked_for_death: public SpellScriptLoader
 {
     public:
         spell_rog_marked_for_death() : SpellScriptLoader("spell_rog_marked_for_death") { }
@@ -291,7 +292,7 @@ class spell_rog_marked_for_death : public SpellScriptLoader
 
 // Called by Ambush - 8676, Garrote - 703 and Cheap Shot - 1833
 // Cloak and Dagger - 138106
-class spell_rog_cloak_and_dagger : public SpellScriptLoader
+class spell_rog_cloak_and_dagger: public SpellScriptLoader
 {
     public:
         spell_rog_cloak_and_dagger() : SpellScriptLoader("spell_rog_cloak_and_dagger") { }
@@ -336,7 +337,7 @@ class spell_rog_cloak_and_dagger : public SpellScriptLoader
 };
 
 // Cheat Death - 31230
-class spell_rog_cheat_death : public SpellScriptLoader
+class spell_rog_cheat_death: public SpellScriptLoader
 {
     public:
         spell_rog_cheat_death() : SpellScriptLoader("spell_rog_cheat_death") { }
@@ -391,7 +392,7 @@ class spell_rog_cheat_death : public SpellScriptLoader
 };
 
 // Blade Flurry - 13877
-class spell_rog_blade_flurry : public SpellScriptLoader
+class spell_rog_blade_flurry: public SpellScriptLoader
 {
     public:
         spell_rog_blade_flurry() : SpellScriptLoader("spell_rog_blade_flurry") { }
@@ -439,7 +440,7 @@ class spell_rog_blade_flurry : public SpellScriptLoader
 };
 
 // Growl - 113613
-class spell_rog_growl : public SpellScriptLoader
+class spell_rog_growl: public SpellScriptLoader
 {
     public:
         spell_rog_growl() : SpellScriptLoader("spell_rog_growl") { }
@@ -469,7 +470,7 @@ class spell_rog_growl : public SpellScriptLoader
 };
 
 // Cloak of Shadows - 31224
-class spell_rog_cloak_of_shadows : public SpellScriptLoader
+class spell_rog_cloak_of_shadows: public SpellScriptLoader
 {
     public:
         spell_rog_cloak_of_shadows() : SpellScriptLoader("spell_rog_cloak_of_shadows") { }
@@ -514,7 +515,7 @@ class spell_rog_cloak_of_shadows : public SpellScriptLoader
 };
 
 // Combat Readiness - 74001
-class spell_rog_combat_readiness : public SpellScriptLoader
+class spell_rog_combat_readiness: public SpellScriptLoader
 {
     public:
         spell_rog_combat_readiness() : SpellScriptLoader("spell_rog_combat_readiness") { }
@@ -565,7 +566,7 @@ class spell_rog_combat_readiness : public SpellScriptLoader
 
 // Called by Kidney Shot - 408 and Cheap Shot - 1833
 // Nerve Strike - 108210
-class spell_rog_nerve_strike : public SpellScriptLoader
+class spell_rog_nerve_strike: public SpellScriptLoader
 {
     public:
         spell_rog_nerve_strike() : SpellScriptLoader("spell_rog_nerve_strike") { }
@@ -634,7 +635,7 @@ class spell_rog_nerve_strike : public SpellScriptLoader
 
 // Called by Stealth - 1784
 // Nightstalker - 14062
-class spell_rog_nightstalker : public SpellScriptLoader
+class spell_rog_nightstalker: public SpellScriptLoader
 {
     public:
         spell_rog_nightstalker() : SpellScriptLoader("spell_rog_nightstalker") { }
@@ -696,7 +697,7 @@ class spell_rog_nightstalker : public SpellScriptLoader
 
 // Called by Rupture - 1943, Garrote - 703, Hemorrhage (DoT) - 89775 and Crimson Tempest - 121411
 // Sanguinary Vein - 79147
-class spell_rog_sanguinary_vein : public SpellScriptLoader
+class spell_rog_sanguinary_vein: public SpellScriptLoader
 {
     public:
         spell_rog_sanguinary_vein() : SpellScriptLoader("spell_rog_sanguinary_vein") { }
@@ -748,7 +749,7 @@ class spell_rog_sanguinary_vein : public SpellScriptLoader
 };
 
 // Hemorrhage - 16511
-class spell_rog_hemorrhage : public SpellScriptLoader
+class spell_rog_hemorrhage: public SpellScriptLoader
 {
     public:
         spell_rog_hemorrhage() : SpellScriptLoader("spell_rog_hemorrhage") { }
@@ -786,9 +787,57 @@ class spell_rog_hemorrhage : public SpellScriptLoader
         }
 };
 
+// Called by Envenom - 32645
+class spell_rog_envenom: public SpellScriptLoader
+{
+public:
+    spell_rog_envenom() : SpellScriptLoader("spell_rog_envenom") { }
+
+    class spell_rog_envenom_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_rog_envenom_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Player* l_Player = GetCaster()->ToPlayer())
+            {
+                uint8 l_ComboPoint = l_Player->GetComboPoints();
+                int32 l_Damage = 0;
+
+                if (l_ComboPoint)
+                {
+                    float l_Ap = l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
+
+                    l_Damage += int32(1.05 * 1 * l_Ap * 0.306 * l_ComboPoint + (l_ComboPoint * GetSpellInfo()->Effects[EFFECT_0].BasePoints));
+
+                    // Eviscerate and Envenom Bonus Damage (item set effect)
+                    if (l_Player->HasAura(ROGUE_SPELL_EVISCERATE_ENVENOM_BONUS_DAMAGE))
+                    {
+                        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(ROGUE_SPELL_EVISCERATE_ENVENOM_BONUS_DAMAGE);
+
+                        l_Damage += l_ComboPoint * l_SpellInfo->Effects[EFFECT_0].BasePoints;
+                    }
+                }
+                SetHitDamage(l_Damage);
+            }
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_rog_envenom_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_rog_envenom_SpellScript();
+    }
+};
+
+
 // Called by Envenom - 32645 and Eviscerate - 2098
 // Cut to the Chase - 51667
-class spell_rog_cut_to_the_chase : public SpellScriptLoader
+class spell_rog_cut_to_the_chase: public SpellScriptLoader
 {
     public:
         spell_rog_cut_to_the_chase() : SpellScriptLoader("spell_rog_cut_to_the_chase") { }
@@ -799,17 +848,14 @@ class spell_rog_cut_to_the_chase : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (!GetHitUnit())
-                    return;
-
-                if (Unit* caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (caster->HasAura(ROGUE_SPELL_CUT_TO_THE_CHASE_AURA))
+                    if (l_Caster->HasAura(ROGUE_SPELL_CUT_TO_THE_CHASE_AURA))
                     {
-                        if (AuraPtr sliceAndDice = caster->GetAura(ROGUE_SPELL_SLICE_AND_DICE, caster->GetGUID()))
+                        if (AuraPtr l_SliceAndDice = l_Caster->GetAura(ROGUE_SPELL_SLICE_AND_DICE, l_Caster->GetGUID()))
                         {
-                            sliceAndDice->SetDuration(36 * IN_MILLISECONDS);
-                            sliceAndDice->SetMaxDuration(36 * IN_MILLISECONDS);
+                            l_SliceAndDice->SetDuration(36 * IN_MILLISECONDS);
+                            l_SliceAndDice->SetMaxDuration(36 * IN_MILLISECONDS);
                         }
                     }
                 }
@@ -829,7 +875,7 @@ class spell_rog_cut_to_the_chase : public SpellScriptLoader
 
 // Called by Garrote - 703 and Rupture - 1943
 // Venomous Wounds - 79134
-class spell_rog_venomous_wounds : public SpellScriptLoader
+class spell_rog_venomous_wounds: public SpellScriptLoader
 {
     public:
         spell_rog_venomous_wounds() : SpellScriptLoader("spell_rog_venomous_wounds") { }
@@ -914,7 +960,7 @@ class spell_rog_venomous_wounds : public SpellScriptLoader
 };
 
 // Redirect - 73981 and Redirect - 110730
-class spell_rog_redirect : public SpellScriptLoader
+class spell_rog_redirect: public SpellScriptLoader
 {
     public:
         spell_rog_redirect() : SpellScriptLoader("spell_rog_redirect") { }
@@ -979,7 +1025,7 @@ enum battleGroundsFlagsSpells
 };
 
 // Shroud of Concealment - 115834
-class spell_rog_shroud_of_concealment : public SpellScriptLoader
+class spell_rog_shroud_of_concealment: public SpellScriptLoader
 {
     public:
         spell_rog_shroud_of_concealment() : SpellScriptLoader("spell_rog_shroud_of_concealment") { }
@@ -1053,7 +1099,7 @@ class spell_rog_shroud_of_concealment : public SpellScriptLoader
 };
 
 // Crimson Tempest - 121411
-class spell_rog_crimson_tempest : public SpellScriptLoader
+class spell_rog_crimson_tempest: public SpellScriptLoader
 {
     public:
         spell_rog_crimson_tempest() : SpellScriptLoader("spell_rog_crimson_tempest") { }
@@ -1064,14 +1110,30 @@ class spell_rog_crimson_tempest : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
-                {
-                    if (Unit* target = GetHitUnit())
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                    if (Unit* l_Target = GetHitUnit())
                     {
-                        int32 damage = int32(GetHitDamage() * 2.4f / 6); // 30% / number_of_ticks
-                        caster->CastCustomSpell(target, ROGUE_SPELL_CRIMSON_TEMPEST_DOT, &damage, NULL, NULL, true);
+                        if (l_Player->GetGUID() == l_Target->GetGUID())
+                            return;
+
+                        uint8 l_ComboPoint = l_Player->GetComboPoints();
+                        int32 l_Damage = 0;
+
+                        if (l_ComboPoint)
+                        {
+                            float l_Ap = l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
+                            SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(ROGUE_SPELL_CRIMSON_TEMPEST_DOT);
+                            int32 l_DamageDot = 0;
+
+                            l_Damage += int32(3 + ((l_Ap * 0.0602f) * l_ComboPoint * 1.5f));
+
+                            if (l_SpellInfo != nullptr)
+                                l_DamageDot += CalculatePct(l_Damage, l_SpellInfo->Effects[EFFECT_0].BasePoints) / 6;
+
+                            l_Player->CastCustomSpell(l_Target, ROGUE_SPELL_CRIMSON_TEMPEST_DOT, &l_DamageDot, NULL, NULL, true);
+                        }
+                        SetHitDamage(l_Damage);
                     }
-                }
             }
 
             void Register()
@@ -1087,7 +1149,7 @@ class spell_rog_crimson_tempest : public SpellScriptLoader
 };
 
 // Slice and Dice - 5171
-class spell_rog_slice_and_dice : public SpellScriptLoader
+class spell_rog_slice_and_dice: public SpellScriptLoader
 {
     public:
         spell_rog_slice_and_dice() : SpellScriptLoader("spell_rog_slice_and_dice") { }
@@ -1154,7 +1216,7 @@ class spell_rog_slice_and_dice : public SpellScriptLoader
 
 // Called by Deadly Poison - 2818
 // Deadly Poison : Instant damage - 113780
-class spell_rog_deadly_poison_instant_damage : public SpellScriptLoader
+class spell_rog_deadly_poison_instant_damage: public SpellScriptLoader
 {
     public:
         spell_rog_deadly_poison_instant_damage() : SpellScriptLoader("spell_rog_deadly_poison_instant_damage") { }
@@ -1184,7 +1246,7 @@ class spell_rog_deadly_poison_instant_damage : public SpellScriptLoader
 };
 
 // Shiv - 5938
-class spell_rog_shiv : public SpellScriptLoader
+class spell_rog_shiv: public SpellScriptLoader
 {
     public:
         spell_rog_shiv() : SpellScriptLoader("spell_rog_shiv") { }
@@ -1221,7 +1283,7 @@ class spell_rog_shiv : public SpellScriptLoader
 
 // All Poisons
 // Deadly Poison - 2823, Wound Poison - 8679, Mind-numbing Poison - 5761, Leeching Poison - 108211, Paralytic Poison - 108215 or Crippling Poison - 3408
-class spell_rog_poisons : public SpellScriptLoader
+class spell_rog_poisons: public SpellScriptLoader
 {
     public:
         spell_rog_poisons() : SpellScriptLoader("spell_rog_poisons") { }
@@ -1279,7 +1341,7 @@ class spell_rog_poisons : public SpellScriptLoader
 };
 
 // Recuperate - 73651
-class spell_rog_recuperate : public SpellScriptLoader
+class spell_rog_recuperate: public SpellScriptLoader
 {
     public:
         spell_rog_recuperate() : SpellScriptLoader("spell_rog_recuperate") { }
@@ -1315,7 +1377,7 @@ class spell_rog_recuperate : public SpellScriptLoader
 };
 
 // Preparation - 14185
-class spell_rog_preparation : public SpellScriptLoader
+class spell_rog_preparation: public SpellScriptLoader
 {
     public:
         spell_rog_preparation() : SpellScriptLoader("spell_rog_preparation") { }
@@ -1365,7 +1427,7 @@ class spell_rog_preparation : public SpellScriptLoader
         }
 };
 
-class spell_rog_deadly_poison : public SpellScriptLoader
+class spell_rog_deadly_poison: public SpellScriptLoader
 {
     public:
         spell_rog_deadly_poison() : SpellScriptLoader("spell_rog_deadly_poison") { }
@@ -1461,7 +1523,7 @@ class spell_rog_deadly_poison : public SpellScriptLoader
 };
 
 // Shadowstep - 36554
-class spell_rog_shadowstep : public SpellScriptLoader
+class spell_rog_shadowstep: public SpellScriptLoader
 {
     public:
         spell_rog_shadowstep() : SpellScriptLoader("spell_rog_shadowstep") { }
@@ -1493,7 +1555,7 @@ class spell_rog_shadowstep : public SpellScriptLoader
 };
 
 // Stealth - 1784
-class spell_rog_stealth : public SpellScriptLoader
+class spell_rog_stealth: public SpellScriptLoader
 {
     public:
         spell_rog_stealth() : SpellScriptLoader("spell_rog_stealth") { }
@@ -1534,7 +1596,7 @@ class spell_rog_stealth : public SpellScriptLoader
 };
 
 // Shadow Focus - 108209
-class spell_rog_shadow_focus : public SpellScriptLoader
+class spell_rog_shadow_focus: public SpellScriptLoader
 {
 public:
     spell_rog_shadow_focus() : SpellScriptLoader("spell_rog_shadow_focus") { }
@@ -1571,7 +1633,7 @@ public:
 };
 
 // Burst of Speed - 108212
-class spell_rog_burst_of_speed : public SpellScriptLoader
+class spell_rog_burst_of_speed: public SpellScriptLoader
 {
 public:
     spell_rog_burst_of_speed() : SpellScriptLoader("spell_rog_burst_of_speed") { }
@@ -1600,7 +1662,7 @@ public:
 
 // Call by Kidney Shot 408
 // Internal Bleeding - 154904
-class spell_rog_internal_bleeding : public SpellScriptLoader
+class spell_rog_internal_bleeding: public SpellScriptLoader
 {
 public:
     spell_rog_internal_bleeding() : SpellScriptLoader("spell_rog_internal_bleeding") { }
@@ -1661,7 +1723,7 @@ public:
 };
 
 // Fan of Knives - 51723
-class spell_rog_fan_of_knives : public SpellScriptLoader
+class spell_rog_fan_of_knives: public SpellScriptLoader
 {
 public:
     spell_rog_fan_of_knives() : SpellScriptLoader("spell_rog_fan_of_knives") { }
@@ -1690,7 +1752,7 @@ public:
 
 // Call by Kidney Shot 408 - Eviscerate 2098 - Recuperate 73651 - Slice and Dice 5171 - Deadly Throw 26679 - Rupture 1943
 // Relentless Strikes - 58423
-class spell_rog_retenless_strikes : public SpellScriptLoader
+class spell_rog_retenless_strikes: public SpellScriptLoader
 {
 public:
     spell_rog_retenless_strikes() : SpellScriptLoader("spell_rog_retenless_strikes") { }
@@ -1732,7 +1794,7 @@ public:
 };
 
 // Relentless Strikes proc - 14181 
-class spell_rog_retenless_strikes_proc : public SpellScriptLoader
+class spell_rog_retenless_strikes_proc: public SpellScriptLoader
 {
 public:
     spell_rog_retenless_strikes_proc() : SpellScriptLoader("spell_rog_retenless_strikes_proc") { }
@@ -1760,7 +1822,7 @@ public:
 };
 
 // Combo Point Delayed - 139569
-class spell_rog_combo_point_delayed : public SpellScriptLoader
+class spell_rog_combo_point_delayed: public SpellScriptLoader
 {
 public:
     spell_rog_combo_point_delayed() : SpellScriptLoader("spell_rog_combo_point_delayed") { }
@@ -1787,10 +1849,10 @@ public:
     }
 };
 
-class PlayerScript_ruthlessness: public PlayerScript
+class PlayerScript_ruthlessness : public PlayerScript
 {
 public:
-    PlayerScript_ruthlessness() :PlayerScript("PlayerScript_ruthlessness") {}
+    PlayerScript_ruthlessness() : PlayerScript("PlayerScript_ruthlessness") {}
 
     void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_Value)
     {
@@ -1809,6 +1871,7 @@ public:
 
 void AddSC_rogue_spell_scripts()
 {
+    new spell_rog_envenom();
     new spell_rog_combo_point_delayed();
     new spell_rog_retenless_strikes_proc();
     new spell_rog_retenless_strikes();

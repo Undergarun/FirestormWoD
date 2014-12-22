@@ -287,7 +287,7 @@ class CheckMunitionExplosionPredicate
         Unit* _caster;
 };
 
-class spell_kiptilak_munitions_explosion : public SpellScriptLoader
+class spell_kiptilak_munitions_explosion: public SpellScriptLoader
 {
     public:
         spell_kiptilak_munitions_explosion() : SpellScriptLoader("spell_kiptilak_munitions_explosion") { }
@@ -315,7 +315,7 @@ class spell_kiptilak_munitions_explosion : public SpellScriptLoader
         }
 };
 
-class spell_kiptilak_sabotage : public SpellScriptLoader
+class spell_kiptilak_sabotage: public SpellScriptLoader
 {
     public:
         spell_kiptilak_sabotage() :  SpellScriptLoader("spell_kiptilak_sabotage") { }

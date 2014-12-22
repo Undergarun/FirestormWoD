@@ -1,0 +1,14 @@
+INSERT INTO `playercreateinfo_spell` VALUES (2, 6, 114585, 'Mastery');
+INSERT INTO `playercreateinfo_spell` VALUES (3, 6, 114585, 'Mastery');
+INSERT INTO `playercreateinfo_spell` VALUES (4, 6, 114585, 'Mastery');
+INSERT INTO `playercreateinfo_spell` VALUES (5, 6, 114585, 'Mastery');
+INSERT INTO `playercreateinfo_spell` VALUES (6, 6, 114585, 'Mastery');
+INSERT INTO `playercreateinfo_spell` VALUES (7, 6, 114585, 'Mastery');
+INSERT INTO `playercreateinfo_spell` VALUES (8, 6, 114585, 'Mastery');
+INSERT INTO `playercreateinfo_spell` VALUES (9, 6, 114585, 'Mastery');
+INSERT INTO `playercreateinfo_spell` VALUES (10, 6, 114585, 'Mastery');
+INSERT INTO `playercreateinfo_spell` VALUES (11, 6, 114585, 'Mastery');
+INSERT INTO `playercreateinfo_spell` VALUES (22, 6, 114585, 'Mastery');
+INSERT INTO `playercreateinfo_spell` VALUES (24, 6, 114585, 'Mastery');
+INSERT INTO `playercreateinfo_spell` VALUES (25, 6, 114585, 'Mastery');
+INSERT INTO `playercreateinfo_spell` VALUES (26, 6, 114585, 'Mastery');

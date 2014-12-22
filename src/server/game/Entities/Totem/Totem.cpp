@@ -86,7 +86,7 @@ void Totem::InitStats(uint32 duration)
             && GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL) != 120218
             && GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL) != 120219)
         {
-            for (int i = SUMMON_SLOT_TOTEM; i < MAX_TOTEM_SLOT; ++i)
+            for (uint32 i = SUMMON_SLOT_TOTEM; i < MAX_TOTEM_SLOT; ++i)
             {
                 if (i != m_Properties->Slot)
                 {
@@ -192,7 +192,7 @@ void Totem::UnSummon(uint32 msTime)
                 }
             }
         }
-        else if (totemicPersistence->GetAmount() == GetEntry())
+        else if (totemicPersistence->GetAmount() == (int32)GetEntry())
             totemicPersistence->SetAmount(50);
     }
 

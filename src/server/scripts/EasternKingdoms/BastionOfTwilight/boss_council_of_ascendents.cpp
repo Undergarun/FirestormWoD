@@ -983,7 +983,7 @@ class boss_arion : public CreatureScript
         };
 };
 
-class boss_terrastra: public CreatureScript
+class boss_terrastra : public CreatureScript
 {
     public:
         boss_terrastra() : CreatureScript("boss_terrastra") { }
@@ -1710,7 +1710,7 @@ class npc_eruption_target : public CreatureScript
         };
 };
 
-class spell_feludius_glaciate : public SpellScriptLoader
+class spell_feludius_glaciate: public SpellScriptLoader
 {
     public:
         spell_feludius_glaciate() : SpellScriptLoader("spell_feludius_glaciate") { }
@@ -1749,7 +1749,7 @@ class spell_feludius_glaciate : public SpellScriptLoader
         }
 };
 
-class spell_ignis_rising_flames : public SpellScriptLoader
+class spell_ignis_rising_flames: public SpellScriptLoader
 {
     public:
         spell_ignis_rising_flames() : SpellScriptLoader("spell_ignis_rising_flames") { }
@@ -1810,7 +1810,7 @@ class spell_ignacious_inferno_rush: public SpellScriptLoader
         }
 };
 
-class spell_arion_lashing_winds : public SpellScriptLoader
+class spell_arion_lashing_winds: public SpellScriptLoader
 {
     public:
         spell_arion_lashing_winds() : SpellScriptLoader("spell_arion_lashing_winds") { }
@@ -1839,7 +1839,7 @@ class spell_arion_lashing_winds : public SpellScriptLoader
         }
 };
 
-class spell_arion_chain_lightning : public SpellScriptLoader
+class spell_arion_chain_lightning: public SpellScriptLoader
 {
     public:
         spell_arion_chain_lightning() : SpellScriptLoader("spell_arion_chain_lightning") { }
@@ -1872,7 +1872,7 @@ class spell_arion_chain_lightning : public SpellScriptLoader
         }
 };
 
-class spell_arion_disperse : public SpellScriptLoader
+class spell_arion_disperse: public SpellScriptLoader
 {
     public:
         spell_arion_disperse() : SpellScriptLoader("spell_arion_disperse") { }
@@ -1903,7 +1903,7 @@ class spell_arion_disperse : public SpellScriptLoader
         }
 };
 
-class spell_terrastra_eruption : public SpellScriptLoader
+class spell_terrastra_eruption: public SpellScriptLoader
 {
     public:
         spell_terrastra_eruption() : SpellScriptLoader("spell_terrastra_eruption") { }
@@ -1932,7 +1932,7 @@ class spell_terrastra_eruption : public SpellScriptLoader
         }
 };
 
-class spell_arion_thundershock : public SpellScriptLoader
+class spell_arion_thundershock: public SpellScriptLoader
 {
     public:
         spell_arion_thundershock() : SpellScriptLoader("spell_arion_thundershock") { }
@@ -1965,7 +1965,7 @@ class spell_arion_thundershock : public SpellScriptLoader
         }
 };
 
-class spell_terrastra_quake : public SpellScriptLoader
+class spell_terrastra_quake: public SpellScriptLoader
 {
     public:
         spell_terrastra_quake() : SpellScriptLoader("spell_terrastra_quake") { }
@@ -1997,7 +1997,7 @@ class spell_terrastra_quake : public SpellScriptLoader
         }
 };
 
-class spell_terrastra_harden_skin : public SpellScriptLoader
+class spell_terrastra_harden_skin: public SpellScriptLoader
 {
     public:
         spell_terrastra_harden_skin() : SpellScriptLoader("spell_terrastra_harden_skin") { }
@@ -2036,7 +2036,7 @@ class spell_terrastra_harden_skin : public SpellScriptLoader
         }
 };
 
-class spell_monstrosity_cryogenic_aura : public SpellScriptLoader
+class spell_monstrosity_cryogenic_aura: public SpellScriptLoader
 {
     public:
         spell_monstrosity_cryogenic_aura() : SpellScriptLoader("spell_monstrosity_cryogenic_aura") { }
@@ -2072,7 +2072,7 @@ class spell_monstrosity_cryogenic_aura : public SpellScriptLoader
         }
 };
 
-class spell_elemental_statis : public SpellScriptLoader
+class spell_elemental_statis: public SpellScriptLoader
 {
     public:
         spell_elemental_statis() : SpellScriptLoader("spell_elemental_statis") { }

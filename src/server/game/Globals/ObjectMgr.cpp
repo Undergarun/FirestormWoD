@@ -48,6 +48,7 @@
 #include "DB2Stores.h"
 #include "Configuration/Config.h"
 #include "VMapFactory.h"
+#include "Garrison.h"
 
 ScriptMapMap sQuestEndScripts;
 ScriptMapMap sQuestStartScripts;
@@ -4602,36 +4603,6 @@ void ObjectMgr::LoadQuests()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu quests definitions in %u ms", (unsigned long)_questTemplates.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
-void ObjectMgr::LoadQuestDynamicRewards()
-{
-    uint32 oldMSTime = getMSTime();
-    QueryResult result = WorldDatabase.Query("SELECT questId, itemId, itemCount FROM quest_dynamic_reward");
-    if (!result)
-    {
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Empty or non-exist quest_dynamic_reward table");
-        return;
-    }
-
-    uint32 count = 0;
-    do
-    {
-        Field* fields = result->Fetch();
-
-        uint32 questId = fields[0].GetUInt32();
-
-        if (_questTemplates.find(questId) == _questTemplates.end())
-            continue;
-
-        count++;
-
-        Quest* quest = _questTemplates[questId];
-        quest->AddDynamicReward(fields[1].GetUInt32(), fields[2].GetUInt32());
-    }
-    while (result->NextRow());
-
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Quest Dynamic Reward in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-}
-
 void ObjectMgr::LoadQuestLocales()
 {
     uint32 oldMSTime = getMSTime();
@@ -5768,11 +5739,36 @@ uint32 ObjectMgr::GetNearestTaxiNode(float x, float y, float z, uint32 mapid, ui
     float dist = 10000;
     uint32 id = 0;
 
+    std::map<uint32, uint32> l_MapOverrides;
+
+    /// Special case for taxi in garrison phased map
+    for (uint32 l_I = 0; l_I < sGarrSiteLevelStore.GetNumRows(); ++l_I)
+    {
+        const GarrSiteLevelEntry * l_Entry = sGarrSiteLevelStore.LookupEntry(l_I);
+        
+        if (l_Entry)
+        {
+            l_MapOverrides[l_Entry->MapID] = GARRISON_BASE_MAP;
+
+            if (l_Entry->MapID == mapid)
+                mapid = GARRISON_BASE_MAP;
+        }
+    }
+
     for (uint32 i = 1; i < sTaxiNodesStore.GetNumRows(); ++i)
     {
         TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(i);
 
-        if (!node || node->map_id != mapid || (!node->MountCreatureID[team == ALLIANCE ? 1 : 0] && node->MountCreatureID[0] != 32981)) // dk flight
+        if (!node)
+            continue;
+
+        if (node->map_id != mapid)
+        {
+            if (l_MapOverrides.find(node->map_id) != l_MapOverrides.end() && l_MapOverrides[node->map_id] != mapid)
+                continue;
+        }
+
+        if (!node->MountCreatureID[team == ALLIANCE ? 1 : 0] && node->MountCreatureID[0] != 32981) // dk flight)
             continue;
 
         uint8  field   = (uint8)((i - 1) / 8);
@@ -6806,7 +6802,7 @@ void ObjectMgr::LoadGarrisonPlotBuildingContent()
 {
     uint32 l_StartTime = getMSTime();
 
-    QueryResult l_Result = WorldDatabase.Query("SELECT id, plot_type, faction_index, creature_or_gob, x, y, z, o FROM garrison_plot_building_content");
+    QueryResult l_Result = WorldDatabase.Query("SELECT id, plot_type_or_building, faction_index, creature_or_gob, x, y, z, o FROM garrison_plot_content");
 
     if (!l_Result)
     {
@@ -6821,14 +6817,14 @@ void ObjectMgr::LoadGarrisonPlotBuildingContent()
         Field * l_Fields = l_Result->Fetch();
 
         GarrisonPlotBuildingContent l_Content;
-        l_Content.DB_ID         = l_Fields[0].GetUInt32();
-        l_Content.PlotType      = l_Fields[1].GetUInt32();
-        l_Content.FactionIndex  = l_Fields[2].GetUInt32();
-        l_Content.CreatureOrGob = l_Fields[3].GetInt32();
-        l_Content.X             = l_Fields[4].GetFloat();
-        l_Content.Y             = l_Fields[5].GetFloat();
-        l_Content.Z             = l_Fields[6].GetFloat();
-        l_Content.O             = l_Fields[7].GetFloat();
+        l_Content.DB_ID                 = l_Fields[0].GetUInt32();
+        l_Content.PlotTypeOrBuilding    = l_Fields[1].GetInt32();
+        l_Content.FactionIndex          = l_Fields[2].GetUInt32();
+        l_Content.CreatureOrGob         = l_Fields[3].GetInt32();
+        l_Content.X                     = l_Fields[4].GetFloat();
+        l_Content.Y                     = l_Fields[5].GetFloat();
+        l_Content.Z                     = l_Fields[6].GetFloat();
+        l_Content.O                     = l_Fields[7].GetFloat();
 
         m_GarrisonPlotBuildingContents.push_back(l_Content);
 
@@ -6839,10 +6835,11 @@ void ObjectMgr::LoadGarrisonPlotBuildingContent()
 }
 void ObjectMgr::AddGarrisonPlotBuildingContent(GarrisonPlotBuildingContent & p_Data)
 {
-    WorldDatabase.PQuery("INSERT INTO garrison_plot_building_content(plot_type, faction_index, creature_or_gob, x, y, z, o) VALUES "
-        "(%u, %u, %d, %f, %f, %f, %f) ", p_Data.PlotType, p_Data.FactionIndex, p_Data.CreatureOrGob, p_Data.X, p_Data.Y, p_Data.Z, p_Data.O);
+    WorldDatabase.PQuery("INSERT INTO garrison_plot_content(plot_type_or_building, faction_index, creature_or_gob, x, y, z, o) VALUES "
+        "(%u, %u, %d, %f, %f, %f, %f) ", p_Data.PlotTypeOrBuilding, p_Data.FactionIndex, p_Data.CreatureOrGob, p_Data.X, p_Data.Y, p_Data.Z, p_Data.O);
 
-    QueryResult l_Result = WorldDatabase.Query("SELECT LAST_INSERT_ID()");
+    QueryResult l_Result = WorldDatabase.PQuery("SELECT id FROM garrison_plot_content WHERE plot_type_or_building=%d AND faction_index=%u AND creature_or_gob=%d AND x=%f AND y=%f AND z=%f AND o=%f", 
+                                                p_Data.PlotTypeOrBuilding, p_Data.FactionIndex, p_Data.CreatureOrGob, p_Data.X, p_Data.Y, p_Data.Z, p_Data.O);
 
     if (!l_Result)
         return;
@@ -6853,13 +6850,26 @@ void ObjectMgr::AddGarrisonPlotBuildingContent(GarrisonPlotBuildingContent & p_D
 
     m_GarrisonPlotBuildingContents.push_back(p_Data);
 }
-std::vector<GarrisonPlotBuildingContent> ObjectMgr::GetGarrisonPlotBuildingContent(uint32 p_PlotType, uint32 p_FactionIndex)
+void ObjectMgr::DeleteGarrisonPlotBuildingContent(GarrisonPlotBuildingContent & p_Data)
+{
+    auto l_It = std::find_if(m_GarrisonPlotBuildingContents.begin(), m_GarrisonPlotBuildingContents.end(), [p_Data](const GarrisonPlotBuildingContent & p_Elem) -> bool
+    {
+        return p_Elem.DB_ID == p_Data.DB_ID;
+    });
+
+    if (l_It != m_GarrisonPlotBuildingContents.end())
+    {
+        WorldDatabase.PQuery("DELETE FROM garrison_plot_content WHERE id=%u", p_Data.DB_ID);
+        m_GarrisonPlotBuildingContents.erase(l_It);
+    }
+}
+std::vector<GarrisonPlotBuildingContent> ObjectMgr::GetGarrisonPlotBuildingContent(int32 p_PlotTypeOrBuilding, uint32 p_FactionIndex)
 {
     std::vector<GarrisonPlotBuildingContent> l_Data;
 
     for (uint32 l_I = 0; l_I < m_GarrisonPlotBuildingContents.size(); ++l_I)
     {
-        if (m_GarrisonPlotBuildingContents[l_I].PlotType == p_PlotType && m_GarrisonPlotBuildingContents[l_I].FactionIndex == p_FactionIndex)
+        if (m_GarrisonPlotBuildingContents[l_I].PlotTypeOrBuilding == p_PlotTypeOrBuilding && m_GarrisonPlotBuildingContents[l_I].FactionIndex == p_FactionIndex)
             l_Data.push_back(m_GarrisonPlotBuildingContents[l_I]);
     }
 

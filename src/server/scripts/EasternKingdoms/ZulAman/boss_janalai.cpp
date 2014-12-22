@@ -509,7 +509,7 @@ class npc_janalai_hatchling : public CreatureScript
         };
 };
 
-class spell_janalai_flame_breath : public SpellScriptLoader
+class spell_janalai_flame_breath: public SpellScriptLoader
 {
     public:
         spell_janalai_flame_breath() : SpellScriptLoader("spell_janalai_flame_breath") { }

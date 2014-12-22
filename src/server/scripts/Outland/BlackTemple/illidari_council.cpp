@@ -891,7 +891,7 @@ public:
 };
 
 // SPELL_REFLECTIVE_SHIELD
-class spell_boss_lady_malande_shield : public SpellScriptLoader
+class spell_boss_lady_malande_shield: public SpellScriptLoader
 {
 public:
     spell_boss_lady_malande_shield() : SpellScriptLoader("spell_boss_lady_malande_shield") { }

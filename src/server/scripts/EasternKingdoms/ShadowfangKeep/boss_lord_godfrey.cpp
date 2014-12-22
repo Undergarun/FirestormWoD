@@ -179,7 +179,7 @@ class npc_godfrey_pistol_barrage : public CreatureScript
 	 };
 };
 
-class spell_godfrey_summon_bloodthirsty_ghouls : public SpellScriptLoader
+class spell_godfrey_summon_bloodthirsty_ghouls: public SpellScriptLoader
 {
     public:
         spell_godfrey_summon_bloodthirsty_ghouls() : SpellScriptLoader("spell_godfrey_summon_bloodthirsty_ghouls") { }

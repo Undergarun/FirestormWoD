@@ -796,7 +796,7 @@ public:
     };
 };
 
-class spell_dust_flail : public SpellScriptLoader
+class spell_dust_flail: public SpellScriptLoader
 {
     public:
         spell_dust_flail() : SpellScriptLoader("spell_dust_flail") { }

@@ -38,7 +38,7 @@ EndScriptData */
 
 #include <fstream>
 
-class debug_commandscript : public CommandScript
+class debug_commandscript: public CommandScript
 {
     public:
         debug_commandscript() : CommandScript("debug_commandscript") { }

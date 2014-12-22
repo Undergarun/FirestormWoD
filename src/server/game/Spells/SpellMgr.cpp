@@ -3464,6 +3464,19 @@ void SpellMgr::LoadSpellCustomAttr()
             case 117962:// Crackling Jade Shock
                 spellInfo->Effects[0].Mechanic = MECHANIC_KNOCKOUT;
                 break;
+            case 154302:// Seal Conduit (first)
+                spellInfo->MaxAffectedTargets = 1;
+                break;
+            case 154900:// Seal Conduit (second)
+                spellInfo->MaxAffectedTargets = 2;
+                break;
+            case 154901:// Seal Conduit (third)
+                spellInfo->MaxAffectedTargets = 3;
+                break;
+            case 157347:// Fiery Charge
+                spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
+                spellInfo->Effects[1].Effect = 0;   ///< Need to be scripted
+                break;
             case 77756: // Lava Surge
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 77762;
                 break;

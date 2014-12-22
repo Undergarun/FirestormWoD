@@ -203,7 +203,7 @@ void BattlegroundAB::AddPlayer(Player* player)
     PlayerScores[player->GetGUID()] = sc;
 }
 
-void BattlegroundAB::RemovePlayer(Player* /*player*/, uint64 /*guid*/, uint32 /*team*/)
+void BattlegroundAB::RemovePlayer(Player* /*player*/, uint64 guid, uint32 /*team*/)
 {
 
 }

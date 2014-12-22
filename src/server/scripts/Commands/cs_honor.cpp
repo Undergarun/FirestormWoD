@@ -26,7 +26,7 @@ EndScriptData */
 #include "ObjectMgr.h"
 #include "Chat.h"
 
-class honor_commandscript : public CommandScript
+class honor_commandscript: public CommandScript
 {
 public:
     honor_commandscript() : CommandScript("honor_commandscript") { }

@@ -436,7 +436,6 @@ public:
     void EffectDestroyItem(SpellEffIndex effIndex);
     void EffectUnlearnTalent(SpellEffIndex effIndex);
     void EffectCreateAreatrigger(SpellEffIndex effIndex);
-    int32 CalculateMonkMeleeAttacks(Unit* caster, float coeff, int32 APmultiplier);
     void EffectResurrectWithAura(SpellEffIndex effIndex);
     void EffectLootBonus(SpellEffIndex p_EffIndex);
     void EffectTeleportToDigsite(SpellEffIndex effIndex);

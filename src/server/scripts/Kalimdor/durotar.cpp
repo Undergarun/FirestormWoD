@@ -112,7 +112,7 @@ enum VoodooSpells
 };
 
 // 17009
-class spell_voodoo : public SpellScriptLoader
+class spell_voodoo: public SpellScriptLoader
 {
     public:
         spell_voodoo() : SpellScriptLoader("spell_voodoo") {}

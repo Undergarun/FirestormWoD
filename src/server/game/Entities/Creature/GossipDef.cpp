@@ -387,7 +387,7 @@ void PlayerMenu::SendQuestGiverStatus(uint32 p_StatusFlags, uint64 p_QuestGiverG
     _session->SendPacket(&data);
 }
 
-void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, uint64 npcGUID, bool activateAccept) const
+void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, uint64 npcGUID) const
 {
     std::string questTitle           = quest->GetTitle();
     std::string questDetails         = quest->GetDetails();
@@ -729,7 +729,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* p_Quest) const
 }
 
 // @TODO: Replace unknow uint32 by missing RewardChoiceItemId/RewardChoiceItemCount tab (5 & 6) in packet
-void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, uint64 npcGUID, bool enableNext) const
+void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, uint64 npcGUID) const
 {
     std::string questTitle = quest->GetTitle();
     std::string questOfferRewardText = quest->GetOfferRewardText();
@@ -760,32 +760,46 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, uint64 npcGUID, b
         RewardChoiceItemCount[i] = 0;
     }
 
-    uint32 dynamicItemRewardCount = 0;
-    if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_DYNAMIC_ITEM_REWARD))
+    uint32 l_DynamicItemRewardCount = 0;
+    if (quest->HasDynamicReward())
     {
-        Player* plr = _session->GetPlayer();
-        uint32 index = 0;
-        for (auto dynamicReward : quest->DynamicRewards)
+        Player* l_Player = _session->GetPlayer();
+        uint32  l_Index  = 0;
+
+        for (QuestPackageItemEntry const* l_DynamicReward : quest->DynamicRewards)
         {
-            ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(dynamicReward.itemID);
-            if (!itemTemplate)
+            ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_DynamicReward->ItemId);
+            if (!l_ItemTemplate)
                 continue;
 
-            // @TODO: Check if we really need to check specialisation id or just player's class
-            // (if player doesn't have choosen spec, he doesn't have reward ??)
-            //if (itemTemplate->HasSpec() && !itemTemplate->HasSpec(plr->GetSpecializationId(plr->GetActiveSpec())))
-            //    continue;
+            switch (l_DynamicReward->Type)
+            {
+                case uint8(PackageItemRewardType::SpecializationReward):
+                    if (!l_ItemTemplate->HasSpec((SpecIndex)l_Player->GetSpecializationId(l_Player->GetActiveSpec())))
+                        continue;
+                    break;
+                case uint8(PackageItemRewardType::ClassReward):
+                    if (!l_ItemTemplate->HasClassSpec(l_Player->getClass()))
+                        continue;
+                    break;
+                case uint8(PackageItemRewardType::DefaultHiddenReward):
+                    continue;
+                case uint8(PackageItemRewardType::NoRequire):
+                    break;
+                // Not implemented PackageItemRewardType
+                default:
+                    sLog->outError(LogFilterType::LOG_FILTER_PLAYER_ITEMS, "Not implemented PackageItemRewardType %u for quest %u", l_DynamicReward->Type, quest->GetQuestId());
+                    continue;
+            }
 
-            if (itemTemplate->HasSpec() && !itemTemplate->HasClassSpec(plr->getClass()))
+            if (l_Index >= QUEST_REWARD_CHOICES_COUNT)
                 continue;
 
-            if (index >= QUEST_REWARD_CHOICES_COUNT)
-                continue;
+            RewardChoiceItemId[l_Index]    = l_DynamicReward->ItemId;
+            RewardChoiceItemCount[l_Index] = l_DynamicReward->Count;
 
-            RewardChoiceItemId[index] = dynamicReward.itemID;
-            RewardChoiceItemCount[index] = dynamicReward.count;
-            index++;
-            dynamicItemRewardCount++;
+            l_Index++;
+            l_DynamicItemRewardCount++;
         }
     }
     else
@@ -796,7 +810,6 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, uint64 npcGUID, b
             RewardChoiceItemCount[i] = quest->RewardChoiceItemCount[i];
         }
     }
-
 
     float QuestXpRate = 1;
     if (_session->GetPlayer()->GetPersonnalXpRate())
@@ -813,8 +826,8 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, uint64 npcGUID, b
     data << uint32(quest->GetFlags2());
     data << uint32(quest->GetSuggestedPlayers());
 
-    if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_DYNAMIC_ITEM_REWARD))
-        data << uint32(dynamicItemRewardCount);
+    if (quest->HasDynamicReward())
+        data << uint32(l_DynamicItemRewardCount);
     else
         data << uint32(quest->GetRewChoiceItemsCount());
 
@@ -924,7 +937,7 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, uint64 npcGUID, 
     uint32 itemCounter = quest->GetQuestObjectiveCountType(QUEST_OBJECTIVE_TYPE_ITEM);
     if (itemCounter && canComplete)
     {
-        SendQuestGiverOfferReward(quest, npcGUID, true);
+        SendQuestGiverOfferReward(quest, npcGUID);
         return;
     }
 

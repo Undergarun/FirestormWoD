@@ -1080,7 +1080,7 @@ public:
     }
 };
 
-class npc_portal_eoe: public CreatureScript
+class npc_portal_eoe : public CreatureScript
 {
 public:
     npc_portal_eoe() : CreatureScript("npc_portal_eoe") { }
@@ -1133,7 +1133,7 @@ public:
     }
 };
 
-class npc_power_spark: public CreatureScript
+class npc_power_spark : public CreatureScript
 {
 public:
     npc_power_spark() : CreatureScript("npc_power_spark") { }
@@ -1665,7 +1665,7 @@ class npc_static_field : public CreatureScript
         }
 };
 
-class spell_malygos_portal_beam : public SpellScriptLoader
+class spell_malygos_portal_beam: public SpellScriptLoader
 {
     public:
         spell_malygos_portal_beam() : SpellScriptLoader("spell_malygos_portal_beam") { }
@@ -1712,7 +1712,7 @@ class spell_malygos_portal_beam : public SpellScriptLoader
         }
 };
 
-class spell_malygos_random_portal : public SpellScriptLoader
+class spell_malygos_random_portal: public SpellScriptLoader
 {
     public:
         spell_malygos_random_portal() : SpellScriptLoader("spell_malygos_random_portal") { }
@@ -1768,7 +1768,7 @@ class IsCreatureVehicleCheck
         bool _isVehicle;
 };
 
-class spell_malygos_arcane_storm : public SpellScriptLoader
+class spell_malygos_arcane_storm: public SpellScriptLoader
 {
     public:
         spell_malygos_arcane_storm() : SpellScriptLoader("spell_malygos_arcane_storm") { }
@@ -1828,7 +1828,7 @@ class spell_malygos_arcane_storm : public SpellScriptLoader
         }
 };
 
-class spell_malygos_vortex_dummy : public SpellScriptLoader
+class spell_malygos_vortex_dummy: public SpellScriptLoader
 {
 public:
     spell_malygos_vortex_dummy() : SpellScriptLoader("spell_malygos_vortex_dummy") { }
@@ -1865,7 +1865,7 @@ public:
     }
 };
 
-class spell_malygos_vortex_visual : public SpellScriptLoader
+class spell_malygos_vortex_visual: public SpellScriptLoader
 {
     public:
         spell_malygos_vortex_visual() : SpellScriptLoader("spell_malygos_vortex_visual") { }
@@ -1944,7 +1944,7 @@ class ExactDistanceCheck
         float _dist;
 };
 
-class spell_arcane_overload : public SpellScriptLoader
+class spell_arcane_overload: public SpellScriptLoader
 {
     public:
         spell_arcane_overload() : SpellScriptLoader("spell_arcane_overload") { }
@@ -1977,7 +1977,7 @@ class spell_arcane_overload : public SpellScriptLoader
         }
 };
 
-class spell_nexus_lord_align_disk_aggro : public SpellScriptLoader
+class spell_nexus_lord_align_disk_aggro: public SpellScriptLoader
 {
     public:
         spell_nexus_lord_align_disk_aggro() : SpellScriptLoader("spell_nexus_lord_align_disk_aggro") { }
@@ -2028,7 +2028,7 @@ class IsPlayerOnHoverDisk
         bool _isOnHoverDisk;
 };
 
-class spell_scion_of_eternity_arcane_barrage : public SpellScriptLoader
+class spell_scion_of_eternity_arcane_barrage: public SpellScriptLoader
 {
     public:
         spell_scion_of_eternity_arcane_barrage() : SpellScriptLoader("spell_scion_of_eternity_arcane_barrage") { }
@@ -2112,7 +2112,7 @@ class spell_scion_of_eternity_arcane_barrage : public SpellScriptLoader
         }
 };
 
-class spell_malygos_destroy_platform_channel : public SpellScriptLoader
+class spell_malygos_destroy_platform_channel: public SpellScriptLoader
 {
     public:
         spell_malygos_destroy_platform_channel() : SpellScriptLoader("spell_malygos_destroy_platform_channel") { }
@@ -2154,7 +2154,7 @@ class spell_malygos_destroy_platform_channel : public SpellScriptLoader
         }
 };
 
-class spell_alexstrasza_bunny_destroy_platform_boom_visual : public SpellScriptLoader
+class spell_alexstrasza_bunny_destroy_platform_boom_visual: public SpellScriptLoader
 {
     public:
         spell_alexstrasza_bunny_destroy_platform_boom_visual() : SpellScriptLoader("spell_alexstrasza_bunny_destroy_platform_boom_visual") { }
@@ -2194,7 +2194,7 @@ class spell_alexstrasza_bunny_destroy_platform_boom_visual : public SpellScriptL
         }
 };
 
-class spell_alexstrasza_bunny_destroy_platform_event : public SpellScriptLoader
+class spell_alexstrasza_bunny_destroy_platform_event: public SpellScriptLoader
 {
     public:
         spell_alexstrasza_bunny_destroy_platform_event() : SpellScriptLoader("spell_alexstrasza_bunny_destroy_platform_event") { }
@@ -2234,7 +2234,7 @@ class spell_alexstrasza_bunny_destroy_platform_event : public SpellScriptLoader
         }
 };
 
-class spell_wyrmrest_skytalon_summon_red_dragon_buddy : public SpellScriptLoader
+class spell_wyrmrest_skytalon_summon_red_dragon_buddy: public SpellScriptLoader
 {
     public:
         spell_wyrmrest_skytalon_summon_red_dragon_buddy() : SpellScriptLoader("spell_wyrmrest_skytalon_summon_red_dragon_buddy") { }
@@ -2270,7 +2270,7 @@ class spell_wyrmrest_skytalon_summon_red_dragon_buddy : public SpellScriptLoader
         }
 };
 
-class spell_wyrmrest_skytalon_ride_red_dragon_buddy_trigger : public SpellScriptLoader
+class spell_wyrmrest_skytalon_ride_red_dragon_buddy_trigger: public SpellScriptLoader
 {
     public:
         spell_wyrmrest_skytalon_ride_red_dragon_buddy_trigger() : SpellScriptLoader("spell_wyrmrest_skytalon_ride_red_dragon_buddy_trigger") { }
@@ -2302,7 +2302,7 @@ class spell_wyrmrest_skytalon_ride_red_dragon_buddy_trigger : public SpellScript
         }
 };
 
-class spell_malygos_surge_of_power_warning_selector_25 : public SpellScriptLoader
+class spell_malygos_surge_of_power_warning_selector_25: public SpellScriptLoader
 {
     public:
         spell_malygos_surge_of_power_warning_selector_25() : SpellScriptLoader("spell_malygos_surge_of_power_warning_selector_25") { }
@@ -2368,7 +2368,7 @@ class spell_malygos_surge_of_power_warning_selector_25 : public SpellScriptLoade
         }
 };
 
-class spell_malygos_surge_of_power_25 : public SpellScriptLoader
+class spell_malygos_surge_of_power_25: public SpellScriptLoader
 {
     public:
         spell_malygos_surge_of_power_25() : SpellScriptLoader("spell_malygos_surge_of_power_25") { }
@@ -2419,7 +2419,7 @@ class spell_malygos_surge_of_power_25 : public SpellScriptLoader
         }
 };
 
-class spell_alexstrasza_gift_beam : public SpellScriptLoader
+class spell_alexstrasza_gift_beam: public SpellScriptLoader
 {
     public:
         spell_alexstrasza_gift_beam() : SpellScriptLoader("spell_alexstrasza_gift_beam") { }
@@ -2466,7 +2466,7 @@ class spell_alexstrasza_gift_beam : public SpellScriptLoader
         }
 };
 
-class spell_alexstrasza_gift_beam_visual : public SpellScriptLoader
+class spell_alexstrasza_gift_beam_visual: public SpellScriptLoader
 {
     public:
         spell_alexstrasza_gift_beam_visual() : SpellScriptLoader("spell_alexstrasza_gift_beam_visual") { }

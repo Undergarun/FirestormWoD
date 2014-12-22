@@ -690,65 +690,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
 
                 break;
             }
-            case 32645: // Envenom
-            {
-                if (Player* player = m_caster->ToPlayer())
-                {
-                    uint8 combo = player->GetComboPoints();
-
-                    float ap = player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
-
-                    if (combo)
-                    {
-                        damage += int32(0.112f * combo * ap + damage * combo);
-
-                        // Eviscerate and Envenom Bonus Damage (item set effect)
-                        if (m_caster->HasAura(37169))
-                            damage += combo * 40;
-                    }
-                }
-
-                break;
-            }
-            case 51723: // Fan of Knives
-            {
-                if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                    break;
-
-                // Fan of Knives - Vile Poisons
-                if (AuraEffectPtr aur = m_caster->GetDummyAuraEffect(SPELLFAMILY_ROGUE, 857, 2))
-                {
-                    if (roll_chance_i(aur->GetAmount()))
-                    {
-                        for (uint8 i = WeaponAttackType::BaseAttack; i < WeaponAttackType::MaxAttack; ++i)
-                            m_caster->ToPlayer()->CastItemCombatSpell(unitTarget, WeaponAttackType(i), PROC_FLAG_TAKEN_DAMAGE, PROC_EX_NORMAL_HIT);
-                    }
-                }
-
-                // Glyph of Sharpened Knives
-                if (m_caster->HasAura(146628))
-                    m_caster->CastSpell(unitTarget, 113746, true);
-
-                break;
-            }
-            case 121411:// Crimson Tempest
-            {
-                if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                {
-                    if (uint32 combo = ((Player*)m_caster)->GetComboPoints())
-                    {
-                        float ap = m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
-
-                        if (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_ROGUE_ASSASSINATION
-                            || m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_ROGUE_COMBAT)
-                            damage += int32(ap * combo * 0.028f);
-                        else if (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_ROGUE_SUBTLETY)
-                            damage += int32(ap * combo * 0.034f);
-                    }
-                }
-
-                break;
-            }
             }
 
             break;
@@ -763,74 +704,16 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                     return;
                 break;
             }
-            case 16827: // Claw
-            case 17253: // Bite
-            {
-                if (m_caster->GetOwner())
-                {
-                    damage += int32(m_caster->GetOwner()->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.2544f);
-
-                    // Deals 100% more damage and costs 100% more Focus when your pet has 50 or more Focus.
-                    if (m_caster->GetPower(POWER_FOCUS) + 25 > 50)
-                    {
-                        damage *= 2;
-                        m_caster->EnergizeBySpell(m_caster, m_spellInfo->Id, -25, POWER_FOCUS);
-                    }
-                }
-
-                break;
-            }
             default:
                 break;
             }
             break;
         }
-        case SPELLFAMILY_MAGE:
-        {
-            switch (m_spellInfo->Id)
-            {
-                // Frost Bomb
-            case 113092:
-            {
-                if (effIndex == 0)
-                    damage += m_caster->SpellBaseDamageBonusDone(m_spellInfo->GetSchoolMask()) * 3.447f;
-                else if (effIndex == 1)
-                    damage += m_caster->SpellBaseDamageBonusDone(m_spellInfo->GetSchoolMask()) * 1.725f;
-                if (unitTarget->GetTypeId() == TYPEID_PLAYER)
-                    damage *= 0.7f;
-            }
-            break;
-            }
-        }
         case SPELLFAMILY_MONK:
         {
             switch (m_spellInfo->Id)
             {
-                // Custom MoP script
-            case 123408:// Spinning Fire Blossom
-                damage = CalculateMonkMeleeAttacks(m_caster, 1.5f, 6);
-                break;
-            case 117418:// Fists of Fury
-            {
-                damage = CalculateMonkMeleeAttacks(m_caster, 7.5f, 14);
 
-                uint32 count = 0;
-                for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
-                    if (ihit->effectMask & (1 << effIndex))
-                        ++count;
-
-                damage /= count;
-
-                break;
-            }
-            case 100780:// Jab
-            case 108557:// Jab (Staff)
-            case 115698:// Jab (Polearm)
-            case 115687:// Jab (Axes)
-            case 115693:// Jab (Maces)
-            case 115695:// Jab (Swords)
-                damage = CalculateMonkMeleeAttacks(m_caster, 1.5f, 14);
-                break;
             case 115080:// Touch of Death
                 if (Unit* caster = GetCaster())
                 {
@@ -842,46 +725,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                         m_caster->DealDamage(unitTarget, damage, NULL, SPELL_DIRECT_DAMAGE, m_spellInfo->GetSchoolMask(), m_spellInfo, false);
                     }
                 }
-
                 return;
-            case 100787:// Tiger Palm
-                damage = CalculateMonkMeleeAttacks(m_caster, 3.0f, 14);
-                m_caster->RemoveAurasDueToSpell(118864); // Combo Breaker
-                break;
-            case 107270:// Spinning Crane Kick
-            case 148187:// Rushing Jade Wind
-                damage = CalculateMonkMeleeAttacks(m_caster, 1.59f, 14);
-                break;
-            case 107428:// Rising Sun Kick
-                damage = CalculateMonkMeleeAttacks(m_caster, 12.816f, 14);
-                m_caster->CastSpell(unitTarget, 130320, true);
-                break;
-            case 100784:// Blackout Kick
-                damage = CalculateMonkMeleeAttacks(m_caster, 7.12f, 14);
-                m_caster->RemoveAurasDueToSpell(116768); // Combo Breaker
-                break;
-            case 124335:// Swift Reflexes
-                if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                {
-                    switch (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()))
-                    {
-                    case SPEC_MONK_BREWMASTER:
-                        damage = CalculateMonkMeleeAttacks(m_caster, 0.3f, 5);
-                        break;
-                    case SPEC_MONK_MISTWEAVER:
-                        damage = CalculateMonkMeleeAttacks(m_caster, 0.3f, 6);
-                        break;
-                    case SPEC_MONK_WINDWALKER:
-                        damage = CalculateMonkMeleeAttacks(m_caster, 0.3f, 6);
-                        break;
-                    default:
-                        break;
-                    }
-                }
-                break;
-            case 121253:// Keg Smash
-                damage = CalculateMonkMeleeAttacks(m_caster, 8.12f, 11);
-                break;
             default:
                 break;
             }
@@ -2200,55 +2044,6 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
                 return;
 
             addhealth += int32(m_owner->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.35f * 0.5f);
-            break;
-        }
-        case 114163:// Eternal Flame
-        case 130551:// Word of Glory
-        {
-            if (!caster || !unitTarget)
-                return;
-
-            if (caster->GetTypeId() != TYPEID_PLAYER)
-                return;
-
-            addhealth += int32(0.49f * m_caster->SpellBaseDamageBonusDone(SpellSchoolMask(m_spellInfo->SchoolMask)));
-
-            int32 holyPower = caster->GetPower(POWER_HOLY_POWER) + 1;
-
-            if (holyPower > 3)
-                holyPower = 3;
-
-            // Divine Purpose
-            if (caster->HasAura(90174))
-                holyPower = 3;
-
-            addhealth *= holyPower;
-
-            // Bastion of Glory : +10% of power per application if target is caster
-            if (unitTarget->GetGUID() == caster->GetGUID() && caster->HasAura(114637))
-            {
-                AuraPtr bastionOfGlory = caster->GetAura(114637);
-                if (!bastionOfGlory)
-                    break;
-
-                AddPct(addhealth, (10 * bastionOfGlory->GetStackAmount()));
-
-                caster->RemoveAurasDueToSpell(114637);
-            }
-
-            addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, effIndex, HEAL);
-
-            break;
-        }
-        case 115072:// Expel Harm
-        case 147489:// Expel Harm with glyph of Targeted Expulsion
-        {
-            if (caster && caster->getClass() == CLASS_MONK && addhealth && (m_spellInfo->Id == 115072 || m_spellInfo->Id == 147489))
-            {
-                addhealth = Spell::CalculateMonkMeleeAttacks(m_caster, 7, 14);
-                addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, effIndex, HEAL);
-            }
-
             break;
         }
         case 121129:// Daybreak
@@ -4097,9 +3892,6 @@ void Spell::EffectTameCreature(SpellEffIndex /*effIndex*/)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (m_caster->GetPetGUID())
-        return;
-
     if (!unitTarget)
         return;
 
@@ -4113,13 +3905,6 @@ void Spell::EffectTameCreature(SpellEffIndex /*effIndex*/)
 
     if (m_caster->getClass() != CLASS_HUNTER)
         return;
-
-    // If we have a full list we shoulden't be able to create a new one.
-    if (m_caster->ToPlayer()->getSlotForNewPet() == PET_SLOT_FULL_LIST)
-    {
-        m_caster->ToPlayer()->SendPetTameResult(PET_TAME_ERROR_TOO_MANY_PETS);
-        return;
-    }
 
     // cast finish successfully
     //SendChannelUpdate(0);
@@ -7937,91 +7722,6 @@ void Spell::EffectCreateAreatrigger(SpellEffIndex effIndex)
     }
 }
 
-int32 Spell::CalculateMonkMeleeAttacks(Unit* caster, float coeff, int32 APmultiplier)
-{
-    float minDamage = 0;
-    float maxDamage = 0;
-    bool dualwield = false;
-    int32 AP = caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
-
-    if (Player* plr = caster->ToPlayer())
-    {
-        Item* mainItem = plr->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-        Item* offItem = plr->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
-
-        dualwield = (mainItem && offItem) ? true : false;
-
-        if (coeff < 0)
-            coeff = 0.0f;
-
-        // Main Hand
-        if (mainItem && !caster->HasAuraType(SPELL_AURA_MOD_DISARM))
-        {
-            minDamage += mainItem->GetTemplate()->DamageMin;
-            maxDamage += mainItem->GetTemplate()->DamageMax;
-
-            minDamage /= float(m_caster->GetAttackTime(WeaponAttackType::BaseAttack) / 1000.0f);
-            maxDamage /= float(m_caster->GetAttackTime(WeaponAttackType::BaseAttack) / 1000.0f);
-        }
-
-        // Off Hand
-        if (offItem && !caster->HasAuraType(SPELL_AURA_MOD_DISARM))
-        {
-            minDamage += offItem->GetTemplate()->DamageMin / 2.0f;
-            maxDamage += offItem->GetTemplate()->DamageMax / 2.0f;
-
-            minDamage /= float(m_caster->GetAttackTime(WeaponAttackType::BaseAttack) / 1000.0f);
-            maxDamage /= float(m_caster->GetAttackTime(WeaponAttackType::BaseAttack) / 1000.0f);
-        }
-
-        // DualWield coefficient
-        if (dualwield)
-        {
-            minDamage *= 0.898882275f;
-            maxDamage *= 0.898882275f;
-        }
-
-        minDamage += float(AP / APmultiplier);
-        maxDamage += float(AP / APmultiplier);
-
-        // Off Hand penalty reapplied if only equiped by an off hand weapon
-        if (offItem && !mainItem)
-        {
-            minDamage /= 2.0f;
-            maxDamage /= 2.0f;
-        }
-    }
-    else
-    {
-        if (caster->GetEntry() != 69792) // Earth Spirit
-            dualwield = true;
-
-        if (dualwield)
-        {
-            minDamage += caster->GetWeaponDamageRange(WeaponAttackType::BaseAttack, MINDAMAGE);
-            minDamage += caster->GetWeaponDamageRange(WeaponAttackType::OffAttack, MINDAMAGE) / 2;
-            maxDamage += caster->GetWeaponDamageRange(WeaponAttackType::BaseAttack, MAXDAMAGE);
-            maxDamage += caster->GetWeaponDamageRange(WeaponAttackType::OffAttack, MAXDAMAGE) / 2;
-
-            minDamage *= 0.898882275f;
-            maxDamage *= 0.898882275f;
-        }
-        else
-        {
-            minDamage += caster->GetWeaponDamageRange(WeaponAttackType::BaseAttack, MINDAMAGE);
-            maxDamage += caster->GetWeaponDamageRange(WeaponAttackType::BaseAttack, MAXDAMAGE);
-        }
-
-        minDamage /= float(m_caster->GetAttackTime(WeaponAttackType::BaseAttack) / 1000.0f);
-        maxDamage /= float(m_caster->GetAttackTime(WeaponAttackType::BaseAttack) / 1000.0f);
-
-        minDamage += float(AP / APmultiplier);
-        maxDamage += float(AP / APmultiplier);
-    }
-
-    return irand(int32(minDamage * coeff), int32(maxDamage * coeff));
-}
-
 void Spell::EffectUnlockGuildVaultTab(SpellEffIndex effIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
@@ -8528,7 +8228,7 @@ void Spell::EffectSummonMultipleHunterPets(SpellEffIndex p_EffIndex)
 
             // Set pet at full health
             l_Pet->SetHealth(l_Pet->GetMaxHealth());
-            l_Pet->SetReactState(REACT_AGGRESSIVE);
+            l_Pet->SetReactState(REACT_HELPER);
             l_Pet->m_Stampeded = true;
 
             l_Pet->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, GetSpellInfo()->Id);

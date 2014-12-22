@@ -356,7 +356,7 @@ void WorldSession::HandleQuestgiverQueryQuestOpcode(WorldPacket& p_RecvData)
             return;
 
         if ( m_Player->GetQuestStatus(l_QuestId) == QUEST_STATUS_COMPLETE)
-            m_Player->PlayerTalkClass->SendQuestGiverOfferReward(quest, object->GetGUID(), true);
+            m_Player->PlayerTalkClass->SendQuestGiverOfferReward(quest, object->GetGUID());
         else if (m_Player->GetQuestStatus(l_QuestId) == QUEST_STATUS_INCOMPLETE)
             m_Player->PlayerTalkClass->SendQuestGiverRequestItems(quest, object->GetGUID(), m_Player->CanCompleteQuest(quest->GetQuestId()), true);
         else
@@ -371,7 +371,7 @@ void WorldSession::HandleQuestgiverQueryQuestOpcode(WorldPacket& p_RecvData)
                 if (m_Player->CanCompleteQuest(l_QuestId))
                     m_Player->CompleteQuest(l_QuestId);
             }
-            m_Player->PlayerTalkClass->SendQuestGiverQuestDetails(quest, object->GetGUID(), true);
+            m_Player->PlayerTalkClass->SendQuestGiverQuestDetails(quest, object->GetGUID());
         }
     }
 }
@@ -413,24 +413,36 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
             if (quest->RewardChoiceItemId[i] == slot)
                 reward = i;
 
-        if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_DYNAMIC_ITEM_REWARD))
+        if (quest->HasDynamicReward())
         {
             uint32 index = 0;
-            for (auto itr : quest->DynamicRewards)
+            for (QuestPackageItemEntry const* l_DynamicReward : quest->DynamicRewards)
             {
-                ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itr.itemID);
-                if (!itemTemplate)
+                ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_DynamicReward->ItemId);
+                if (!l_ItemTemplate)
                     continue;
 
-                // @TODO: Check if we really need to check specialisation id or just player's class
-                // (if player doesn't have choosen spec, he doesn't have reward ??)
-                //if (itemTemplate->HasSpec() && !itemTemplate->HasSpec(plr->GetSpecializationId(plr->GetActiveSpec())))
-                //    continue;
+                switch (l_DynamicReward->Type)
+                {
+                    case uint8(PackageItemRewardType::SpecializationReward):
+                        if (!l_ItemTemplate->HasSpec((SpecIndex)m_Player->GetSpecializationId(m_Player->GetActiveSpec())))
+                            continue;
+                        break;
+                    case uint8(PackageItemRewardType::ClassReward):
+                        if (!l_ItemTemplate->HasClassSpec(m_Player->getClass()))
+                            continue;
+                        break;
+                    case uint8(PackageItemRewardType::DefaultHiddenReward):
+                        continue;
+                    case uint8(PackageItemRewardType::NoRequire):
+                        break;
+                        // Not implemented PackageItemRewardType
+                    default:
+                        sLog->outError(LogFilterType::LOG_FILTER_PLAYER_ITEMS, "Not implemented PackageItemRewardType %u for quest %u", l_DynamicReward->Type, quest->GetQuestId());
+                        continue;
+                }
 
-                if (itemTemplate->HasSpec() && !itemTemplate->HasClassSpec(m_Player->getClass()))
-                    continue;
-
-                if (itr.itemID == slot)
+                if (l_DynamicReward->ItemId == slot)
                 {
                     reward = index;
                     break;
@@ -485,7 +497,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
                                     m_Player->CompleteQuest(nextQuest->GetQuestId());
                             }
 
-                            m_Player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, guid, true);
+                            m_Player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, guid);
                         }
                         if (creatureQGiver)
                         {
@@ -510,7 +522,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
                                 m_Player->CompleteQuest(nextQuest->GetQuestId());
                         }
 
-                        m_Player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, guid, true);
+                        m_Player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, guid);
                     }
 
                     object->ToGameObject()->AI()->QuestReward(m_Player, quest, reward);
@@ -522,7 +534,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
         }
     }
     else
-        m_Player->PlayerTalkClass->SendQuestGiverOfferReward(quest, guid, true);
+        m_Player->PlayerTalkClass->SendQuestGiverOfferReward(quest, guid);
 }
 
 void WorldSession::HandleQuestgiverRequestRewardOpcode(WorldPacket & recvData)
@@ -550,7 +562,7 @@ void WorldSession::HandleQuestgiverRequestRewardOpcode(WorldPacket & recvData)
         return;
 
     if (Quest const* quest = sObjectMgr->GetQuestTemplate(questId))
-        m_Player->PlayerTalkClass->SendQuestGiverOfferReward(quest, guid, true);
+        m_Player->PlayerTalkClass->SendQuestGiverOfferReward(quest, guid);
 }
 
 void WorldSession::HandleQuestLogRemoveQuest(WorldPacket& recvData)
@@ -679,7 +691,7 @@ void WorldSession::HandleQuestgiverCompleteQuest(WorldPacket& recvData)
             if (quest->GetQuestObjectiveCountType(QUEST_OBJECTIVE_TYPE_ITEM))                  // some items required
                 m_Player->PlayerTalkClass->SendQuestGiverRequestItems(quest, l_QuestGiverGUID, m_Player->CanRewardQuest(quest, false), false);
             else                                            // no items required
-                m_Player->PlayerTalkClass->SendQuestGiverOfferReward(quest, l_QuestGiverGUID, !autoCompleteMode);
+                m_Player->PlayerTalkClass->SendQuestGiverOfferReward(quest, l_QuestGiverGUID);
         }
     }
 
@@ -740,7 +752,7 @@ void WorldSession::HandlePushQuestToParty(WorldPacket& recvPacket)
                     continue;
                 }
 
-                player->PlayerTalkClass->SendQuestGiverQuestDetails(quest, m_Player->GetGUID(), true);
+                player->PlayerTalkClass->SendQuestGiverQuestDetails(quest, m_Player->GetGUID());
                 player->SetDivider(m_Player->GetGUID());
             }
         }

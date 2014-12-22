@@ -241,17 +241,6 @@ struct QuestLocale
     StringVector QuestTurnTargetName;
 };
 
-struct QuestDynamicReward
-{
-    QuestDynamicReward(uint32 id, uint32 c)
-    {
-        itemID = id;
-        count = c;
-    }
-    uint32 itemID;
-    uint32 count;
-};
-
 struct QuestObjective
 {
     uint32 ID;
@@ -281,6 +270,7 @@ class Quest
         uint32 XPValue(Player* player) const;
 
         bool HasFlag(uint32 flag) const { return (Flags & flag) != 0; }
+        bool HasFlag2(uint32 flag) const { return (Flags2 & flag) != 0; }
         void SetFlag(uint32 flag) { Flags |= flag; }
 
         bool HasSpecialFlag(uint32 flag) const { return (SpecialFlags & flag) != 0; }
@@ -391,8 +381,7 @@ class Quest
         uint32 GetRewCurrencyCount() const { return m_rewCurrencyCount; }
 
         bool HasDynamicReward() const { return !DynamicRewards.empty(); }
-        void AddDynamicReward(uint32 item, uint32 count) { DynamicRewards.push_back(QuestDynamicReward(item, count)); }
-        std::list<QuestDynamicReward> DynamicRewards;
+        std::list<QuestPackageItemEntry const*> DynamicRewards;
 
         typedef std::vector<int32> PrevQuests;
         PrevQuests prevQuests;

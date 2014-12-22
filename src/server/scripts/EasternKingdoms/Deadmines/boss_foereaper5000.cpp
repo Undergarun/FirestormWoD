@@ -203,7 +203,7 @@ class boss_foereaper5000 : public CreatureScript
         };
 };
 
-class npc_foereaper_targeting_bunny: public CreatureScript
+class npc_foereaper_targeting_bunny : public CreatureScript
 {
     public:
         npc_foereaper_targeting_bunny() : CreatureScript("npc_foereaper_targeting_bunny") { }

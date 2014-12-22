@@ -398,7 +398,7 @@ class npc_vanessa_vancleef_defias_enforcer : public CreatureScript
         };
 };
 
-class spell_vanessa_vancleef_backslash_targeting : public SpellScriptLoader
+class spell_vanessa_vancleef_backslash_targeting: public SpellScriptLoader
 {
     public:
         spell_vanessa_vancleef_backslash_targeting() : SpellScriptLoader("spell_vanessa_vancleef_backslash_targeting") { }

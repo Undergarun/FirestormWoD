@@ -453,7 +453,7 @@ class mob_korthik_warcaller : public CreatureScript
         }
 };
 
-class mob_ancient_breawmaster_spirit: public CreatureScript
+class mob_ancient_breawmaster_spirit : public CreatureScript
 {
     public:
         mob_ancient_breawmaster_spirit() : CreatureScript("mob_ancient_breawmaster_spirit") { }

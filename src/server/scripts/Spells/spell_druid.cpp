@@ -34,7 +34,7 @@ enum YseraGiftSpells
 };
 
 // Ysera's Gift - 145108
-class spell_dru_yseras_gift : public SpellScriptLoader
+class spell_dru_yseras_gift: public SpellScriptLoader
 {
     public:
         spell_dru_yseras_gift() : SpellScriptLoader("spell_dru_yseras_gift") { }
@@ -96,7 +96,7 @@ enum ToothAndClawAbsorbSpells
 };
 
 // Tooth and Claw - 135597
-class spell_dru_tooth_and_claw_absorb : public SpellScriptLoader
+class spell_dru_tooth_and_claw_absorb: public SpellScriptLoader
 {
     public:
         spell_dru_tooth_and_claw_absorb() : SpellScriptLoader("spell_dru_tooth_and_claw_absorb") { }
@@ -130,7 +130,7 @@ enum GenesisSpells
 };
 
 // Genesis - 145518
-class spell_dru_genesis : public SpellScriptLoader
+class spell_dru_genesis: public SpellScriptLoader
 {
     public:
         spell_dru_genesis() : SpellScriptLoader("spell_dru_genesis") { }
@@ -181,7 +181,7 @@ enum GlyphOfTheTreantSpells
 };
 
 // Glyph of the Treant - 125047
-class spell_dru_glyph_of_the_treant : public SpellScriptLoader
+class spell_dru_glyph_of_the_treant: public SpellScriptLoader
 {
     public:
         spell_dru_glyph_of_the_treant() : SpellScriptLoader("spell_dru_glyph_of_the_treant") { }
@@ -222,7 +222,7 @@ enum IncarnationChosenOfElune
 };
 
 // Incarnation : Chosen of Elune - 102560
-class spell_dru_incarnation_chosen_of_elune : public SpellScriptLoader
+class spell_dru_incarnation_chosen_of_elune: public SpellScriptLoader
 {
     public:
         spell_dru_incarnation_chosen_of_elune() : SpellScriptLoader("spell_dru_incarnation_chosen_of_elune") { }
@@ -258,7 +258,7 @@ class spell_dru_incarnation_chosen_of_elune : public SpellScriptLoader
 
 // Called by Incarnation : Chosen of Elune - 102560, Incarnation : Son of Ursoc - 102558 and Incarnation : King of the Jungle - 102543
 // Incarnation - Skins
-class spell_dru_incarnation_skins : public SpellScriptLoader
+class spell_dru_incarnation_skins: public SpellScriptLoader
 {
     public:
         spell_dru_incarnation_skins() : SpellScriptLoader("spell_dru_incarnation_skins") { }
@@ -314,7 +314,7 @@ enum ItemPVPFeral4PBonus
 };
 
 // Item - PvP Feral 4P Bonus - 131537
-class spell_dru_item_pvp_feral_4p : public SpellScriptLoader
+class spell_dru_item_pvp_feral_4p: public SpellScriptLoader
 {
     public:
         spell_dru_item_pvp_feral_4p() : SpellScriptLoader("spell_dru_item_pvp_feral_4p") { }
@@ -369,7 +369,7 @@ class spell_dru_item_pvp_feral_4p : public SpellScriptLoader
 };
 
 // Wild Charge (Moonkin) - 102383
-class spell_dru_wild_charge_moonkin : public SpellScriptLoader
+class spell_dru_wild_charge_moonkin: public SpellScriptLoader
 {
     public:
         spell_dru_wild_charge_moonkin() : SpellScriptLoader("spell_dru_wild_charge_moonkin") { }
@@ -404,7 +404,7 @@ class spell_dru_wild_charge_moonkin : public SpellScriptLoader
 };
 
 // Thrash (bear) - 77758
-class spell_dru_thrash_bear : public SpellScriptLoader
+class spell_dru_thrash_bear: public SpellScriptLoader
 {
     public:
         spell_dru_thrash_bear() : SpellScriptLoader("spell_dru_thrash_bear") { }
@@ -435,7 +435,7 @@ class spell_dru_thrash_bear : public SpellScriptLoader
 };
 
 // Swipe - 106785
-class spell_dru_swipe : public SpellScriptLoader
+class spell_dru_swipe: public SpellScriptLoader
 {
     public:
         spell_dru_swipe() : SpellScriptLoader("spell_dru_swipe") { }
@@ -486,7 +486,7 @@ enum MaulSpells
 };
 
 // Maul - 6807
-class spell_dru_maul : public SpellScriptLoader
+class spell_dru_maul: public SpellScriptLoader
 {
     public:
         spell_dru_maul() : SpellScriptLoader("spell_dru_maul") { }
@@ -540,7 +540,7 @@ enum MoonfireSpells
 };
 
 // Moonfire - 8921
-class spell_dru_moonfire : public SpellScriptLoader
+class spell_dru_moonfire: public SpellScriptLoader
 {
     public:
         spell_dru_moonfire() : SpellScriptLoader("spell_dru_moonfire") { }
@@ -569,7 +569,7 @@ class spell_dru_moonfire : public SpellScriptLoader
 };
 
 // Moonfire - 164812
-class spell_dru_moonfire_damage : public SpellScriptLoader
+class spell_dru_moonfire_damage: public SpellScriptLoader
 {
     public:
         spell_dru_moonfire_damage() : SpellScriptLoader("spell_dru_moonfire_damage") { }
@@ -627,7 +627,7 @@ enum NaturesVigilSpells
 };
 
 // Nature's Vigil - 124974
-class spell_dru_natures_vigil : public SpellScriptLoader
+class spell_dru_natures_vigil: public SpellScriptLoader
 {
     public:
         spell_dru_natures_vigil() : SpellScriptLoader("spell_dru_natures_vigil") { }
@@ -763,7 +763,7 @@ enum UrsolsVortexSpells
 };
 
 // Ursol's Vortex - 102793
-class spell_dru_ursols_vortex : public SpellScriptLoader
+class spell_dru_ursols_vortex: public SpellScriptLoader
 {
 public:
     spell_dru_ursols_vortex() : SpellScriptLoader("spell_dru_ursols_vortex") { }
@@ -825,7 +825,7 @@ public:
 };
 
 // Ursol's Vortex (snare) - 127797
-class spell_dru_ursols_vortex_snare : public SpellScriptLoader
+class spell_dru_ursols_vortex_snare: public SpellScriptLoader
 {
     public:
         spell_dru_ursols_vortex_snare() : SpellScriptLoader("spell_dru_ursols_vortex_snare") { }
@@ -870,7 +870,7 @@ enum SolarBeamSpells
 };
 
 // Solar beam - 78675
-class spell_dru_solar_beam : public SpellScriptLoader
+class spell_dru_solar_beam: public SpellScriptLoader
 {
     public:
         spell_dru_solar_beam() : SpellScriptLoader("spell_dru_solar_beam") { }
@@ -903,7 +903,7 @@ enum DashSpells
 };
 
 // Dash - 1850
-class spell_dru_dash : public SpellScriptLoader
+class spell_dru_dash: public SpellScriptLoader
 {
     public:
         spell_dru_dash() : SpellScriptLoader("spell_dru_dash") { }
@@ -941,7 +941,7 @@ enum SavageDefenseSpells
 };
 
 // Savage Defense - 62606
-class spell_dru_savage_defense : public SpellScriptLoader
+class spell_dru_savage_defense: public SpellScriptLoader
 {
     public:
         spell_dru_savage_defense() : SpellScriptLoader("spell_dru_savage_defense") { }
@@ -977,7 +977,7 @@ enum LifebloomSpells
 
 // Called by Regrowth - 8936 and Healing Touch - 5185
 // Lifebloom - 33763 : Refresh duration
-class spell_dru_lifebloom_refresh : public SpellScriptLoader
+class spell_dru_lifebloom_refresh: public SpellScriptLoader
 {
     public:
         spell_dru_lifebloom_refresh() : SpellScriptLoader("spell_dru_lifebloom_refresh") { }
@@ -1012,7 +1012,7 @@ class spell_dru_lifebloom_refresh : public SpellScriptLoader
 };
 
 // Lifebloom - 33763
-class spell_dru_lifebloom : public SpellScriptLoader
+class spell_dru_lifebloom: public SpellScriptLoader
 {
     public:
         spell_dru_lifebloom() : SpellScriptLoader("spell_dru_lifebloom") { }
@@ -1087,7 +1087,7 @@ enum KillerInstinct
 
 // Called by Cat Form - 768 and Bear Form - 5487
 // Killer Instinct - 108299
-class spell_dru_killer_instinct : public SpellScriptLoader
+class spell_dru_killer_instinct: public SpellScriptLoader
 {
     public:
         spell_dru_killer_instinct() : SpellScriptLoader("spell_dru_killer_instinct") { }
@@ -1122,7 +1122,7 @@ class spell_dru_killer_instinct : public SpellScriptLoader
 };
 
 // Nature's Cure - 88423 and Remove Corruption - 2782
-class spell_dru_natures_cure : public SpellScriptLoader
+class spell_dru_natures_cure: public SpellScriptLoader
 {
     public:
         spell_dru_natures_cure() : SpellScriptLoader("spell_dru_natures_cure") { }
@@ -1171,7 +1171,7 @@ class spell_dru_natures_cure : public SpellScriptLoader
 };
 
 // Cat Form - 768
-class spell_dru_cat_form : public SpellScriptLoader
+class spell_dru_cat_form: public SpellScriptLoader
 {
     public:
         spell_dru_cat_form() : SpellScriptLoader("spell_dru_cat_form") { }
@@ -1204,7 +1204,7 @@ enum SkullBashSpells
 };
 
 // Skull Bash - 106839
-class spell_dru_skull_bash : public SpellScriptLoader
+class spell_dru_skull_bash: public SpellScriptLoader
 {
     public:
         spell_dru_skull_bash() : SpellScriptLoader("spell_dru_skull_bash") { }
@@ -1238,7 +1238,7 @@ enum FaerieSwarmSpells
 };
 
 // Faerie Swarm - 102355
-class spell_dru_faerie_swarm : public SpellScriptLoader
+class spell_dru_faerie_swarm: public SpellScriptLoader
 {
     public:
         spell_dru_faerie_swarm() : SpellScriptLoader("spell_dru_faerie_swarm") { }
@@ -1282,7 +1282,7 @@ enum WildMushroomSpells
 };
 
 // Wild Mushroom (Heal effect with growing) - 102792
-class spell_dru_wild_mushroom_heal : public SpellScriptLoader
+class spell_dru_wild_mushroom_heal: public SpellScriptLoader
 {
     public:
         spell_dru_wild_mushroom_heal() : SpellScriptLoader("spell_dru_wild_mushroom_heal") { }
@@ -1333,7 +1333,7 @@ class spell_dru_wild_mushroom_heal : public SpellScriptLoader
 };
 
 // Wild Mushroom (Growing effect) - 138611
-class spell_dru_wild_mushroom_growing : public SpellScriptLoader
+class spell_dru_wild_mushroom_growing: public SpellScriptLoader
 {
     public:
         spell_dru_wild_mushroom_growing() : SpellScriptLoader("spell_dru_wild_mushroom_growing") { }
@@ -1411,7 +1411,7 @@ class spell_dru_wild_mushroom_growing : public SpellScriptLoader
 };
 
 // Wild Mushroom (Restoration) - 145205
-class spell_dru_wild_mushroom_resto : public SpellScriptLoader
+class spell_dru_wild_mushroom_resto: public SpellScriptLoader
 {
     public:
         spell_dru_wild_mushroom_resto() : SpellScriptLoader("spell_dru_wild_mushroom_resto") { }
@@ -1496,7 +1496,7 @@ class spell_dru_wild_mushroom_resto : public SpellScriptLoader
 };
 
 // Wild Mushroom - 88747
-class spell_dru_wild_mushroom : public SpellScriptLoader
+class spell_dru_wild_mushroom: public SpellScriptLoader
 {
     public:
         spell_dru_wild_mushroom() : SpellScriptLoader("spell_dru_wild_mushroom") { }
@@ -1561,7 +1561,7 @@ class spell_dru_wild_mushroom : public SpellScriptLoader
 };
 
 // Wild Mushroom : Detonate - 88751
-class spell_dru_wild_mushroom_detonate : public SpellScriptLoader
+class spell_dru_wild_mushroom_detonate: public SpellScriptLoader
 {
     public:
         spell_dru_wild_mushroom_detonate() : SpellScriptLoader("spell_dru_wild_mushroom_detonate") { }
@@ -1672,7 +1672,7 @@ class spell_dru_wild_mushroom_detonate : public SpellScriptLoader
 };
 
 // Wild Mushroom : Bloom - 102791
-class spell_dru_wild_mushroom_bloom : public SpellScriptLoader
+class spell_dru_wild_mushroom_bloom: public SpellScriptLoader
 {
     public:
         spell_dru_wild_mushroom_bloom() : SpellScriptLoader("spell_dru_wild_mushroom_bloom") { }
@@ -1793,7 +1793,7 @@ enum CelestialAlignementSpells
 };
 
 // Celestial Alignment - 112071
-class spell_dru_celestial_alignment : public SpellScriptLoader
+class spell_dru_celestial_alignment: public SpellScriptLoader
 {
     public:
         spell_dru_celestial_alignment() : SpellScriptLoader("spell_dru_celestial_alignment") { }
@@ -1864,7 +1864,7 @@ enum StampedingRoarSpells
 };
 
 // Stampeding Roar - 97993, Stampeding Roar (cat) - 77764 and Stampeding Roar(bear) - 77761
-class spell_dru_stampeding_roar : public SpellScriptLoader
+class spell_dru_stampeding_roar: public SpellScriptLoader
 {
     public:
         spell_dru_stampeding_roar() : SpellScriptLoader("spell_dru_stampeding_roar") { }
@@ -1903,7 +1903,7 @@ enum LacerateSpells
 };
 
 // Lacerate - 33745
-class spell_dru_lacerate : public SpellScriptLoader
+class spell_dru_lacerate: public SpellScriptLoader
 {
     public:
         spell_dru_lacerate() : SpellScriptLoader("spell_dru_lacerate") { }
@@ -1933,7 +1933,7 @@ class spell_dru_lacerate : public SpellScriptLoader
 };
 
 // Faerie Fire - 770
-class spell_dru_faerie_fire : public SpellScriptLoader
+class spell_dru_faerie_fire: public SpellScriptLoader
 {
     public:
         spell_dru_faerie_fire() : SpellScriptLoader("spell_dru_faerie_fire") { }
@@ -1963,7 +1963,7 @@ class spell_dru_faerie_fire : public SpellScriptLoader
 };
 
 // Teleport : Moonglade - 18960
-class spell_dru_teleport_moonglade : public SpellScriptLoader
+class spell_dru_teleport_moonglade: public SpellScriptLoader
 {
     public:
         spell_dru_teleport_moonglade() : SpellScriptLoader("spell_dru_teleport_moonglade") { }
@@ -1996,7 +1996,7 @@ enum ActivateCatFormSpells
 };
 
 // Prowl - 5215, Displacer Beast - 102280 and Dash - 1850
-class spell_dru_activate_cat_form : public SpellScriptLoader
+class spell_dru_activate_cat_form: public SpellScriptLoader
 {
     public:
         spell_dru_activate_cat_form() : SpellScriptLoader("spell_dru_activate_cat_form") { }
@@ -2043,7 +2043,7 @@ enum EclipseSpells
 };
 
 // 5176 - Wrath, 2912 - Starfire and 78674 - Starsurge
-class spell_dru_eclipse : public SpellScriptLoader
+class spell_dru_eclipse: public SpellScriptLoader
 {
     public:
         spell_dru_eclipse() : SpellScriptLoader("spell_dru_eclipse") { }
@@ -2223,7 +2223,7 @@ class spell_dru_eclipse : public SpellScriptLoader
         }
 };
 // T10 Restoration 4P - 70691
-class spell_dru_t10_restoration_4p_bonus : public SpellScriptLoader
+class spell_dru_t10_restoration_4p_bonus: public SpellScriptLoader
 {
     public:
         spell_dru_t10_restoration_4p_bonus() : SpellScriptLoader("spell_dru_t10_restoration_4p_bonus") { }
@@ -2285,7 +2285,7 @@ enum StarfallSpells
     SPELL_DRUID_GLYPH_OF_GUIDED_STARS = 146655
 };
 // Starfall (triggered) - 50286
-class spell_dru_starfall_dummy : public SpellScriptLoader
+class spell_dru_starfall_dummy: public SpellScriptLoader
 {
     public:
         spell_dru_starfall_dummy() : SpellScriptLoader("spell_dru_starfall_dummy") { }
@@ -2352,7 +2352,7 @@ enum SavageRoarSpells
 };
 
 // Savage Roar - 52610
-class spell_dru_savage_roar : public SpellScriptLoader
+class spell_dru_savage_roar: public SpellScriptLoader
 {
     public:
         spell_dru_savage_roar() : SpellScriptLoader("spell_dru_savage_roar") { }
@@ -2423,7 +2423,7 @@ enum SurvivalInstinctSpells
 };
 
 // Survival Instincts - 61336
-class spell_dru_survival_instincts : public SpellScriptLoader
+class spell_dru_survival_instincts: public SpellScriptLoader
 {
     public:
         spell_dru_survival_instincts() : SpellScriptLoader("spell_dru_survival_instincts") { }
@@ -2458,7 +2458,7 @@ class spell_dru_survival_instincts : public SpellScriptLoader
 };
 
 // Swiftmend - 18562
-class spell_dru_swiftmend : public SpellScriptLoader
+class spell_dru_swiftmend: public SpellScriptLoader
 {
     public:
         spell_dru_swiftmend() : SpellScriptLoader("spell_dru_swiftmend") { }
@@ -2505,7 +2505,7 @@ enum DruidFormsSpells
 };
 
 // Travel form - 783
-class spell_dru_travel_form : public SpellScriptLoader
+class spell_dru_travel_form: public SpellScriptLoader
 {
 public:
     spell_dru_travel_form() : SpellScriptLoader("spell_dru_travel_form") { }
@@ -2567,7 +2567,7 @@ public:
     }
 };
 
-class spell_dru_travel_form_playerscript : public PlayerScript
+class spell_dru_travel_form_playerscript: public PlayerScript
 {
     public:
         spell_dru_travel_form_playerscript() : PlayerScript("spell_dru_travel_form_playerscript") {}
@@ -2654,7 +2654,7 @@ class spell_dru_travel_form_playerscript : public PlayerScript
 };
 
 // 40121 - Swift Flight Form (Passive)
-class spell_dru_swift_flight_passive : public SpellScriptLoader
+class spell_dru_swift_flight_passive: public SpellScriptLoader
 {
 public:
     spell_dru_swift_flight_passive() : SpellScriptLoader("spell_dru_swift_flight_passive") { }
@@ -2688,7 +2688,7 @@ public:
 };
 
 // 114338 - Glyph of the Stag
-class spell_dru_glyph_of_the_stag : public SpellScriptLoader
+class spell_dru_glyph_of_the_stag: public SpellScriptLoader
 {
 public:
     spell_dru_glyph_of_the_stag() : SpellScriptLoader("spell_dru_glyph_of_the_stag") { }
@@ -2754,7 +2754,7 @@ enum LeaderofthePackSpells
 };
 
 // 17007 - Lead of the Pack
-class spell_dru_leader_of_the_pack : public SpellScriptLoader
+class spell_dru_leader_of_the_pack: public SpellScriptLoader
 {
 public:
     spell_dru_leader_of_the_pack() : SpellScriptLoader("spell_dru_leader_of_the_pack") { }
@@ -2787,7 +2787,7 @@ public:
 };
 
 // 24932 - Lead of the Pack (Critical)
-class spell_dru_leader_of_the_pack_critical : public SpellScriptLoader
+class spell_dru_leader_of_the_pack_critical: public SpellScriptLoader
 {
 public:
     spell_dru_leader_of_the_pack_critical() : SpellScriptLoader("spell_dru_leader_of_the_pack_critical") { }
@@ -2825,7 +2825,7 @@ enum SpellsRake
 };
 
 // Rake - 1822
-class spell_dru_rake : public SpellScriptLoader
+class spell_dru_rake: public SpellScriptLoader
 {
 public:
     spell_dru_rake() : SpellScriptLoader("spell_dru_rake") { }
@@ -2862,7 +2862,7 @@ enum SpellsShred
 };
 
 // Shred - 5221
-class spell_dru_shred : public SpellScriptLoader
+class spell_dru_shred: public SpellScriptLoader
 {
 public:
     spell_dru_shred() : SpellScriptLoader("spell_dru_shred") { }
@@ -2906,7 +2906,7 @@ enum SpellsFerociousBite
 };
 
 // Ferocious Bite - 22568
-class spell_dru_ferocious_bite : public SpellScriptLoader
+class spell_dru_ferocious_bite: public SpellScriptLoader
 {
 public:
     spell_dru_ferocious_bite() : SpellScriptLoader("spell_dru_ferocious_bite") { }
@@ -2957,7 +2957,7 @@ public:
 };
 
 // Frenzied Regeneration - 22842
-class spell_dru_frenzied_regeneration : public SpellScriptLoader
+class spell_dru_frenzied_regeneration: public SpellScriptLoader
 {
 public:
     spell_dru_frenzied_regeneration() : SpellScriptLoader("spell_dru_frenzied_regeneration") { }
@@ -2994,7 +2994,7 @@ public:
 };
 
 // Rip - 1079
-class spell_dru_rip : public SpellScriptLoader
+class spell_dru_rip: public SpellScriptLoader
 {
 public:
     spell_dru_rip() : SpellScriptLoader("spell_dru_rip") { }

@@ -1071,7 +1071,11 @@ enum AttackSwingError
 
 struct auraEffectData
 {
-    auraEffectData(uint8 slot, uint8 effect, uint32 amount, uint32 baseamount) : _slot(slot), _effect(effect), _amount(amount), _baseamount(amount)  {}
+    auraEffectData(uint8 slot, uint8 effect, uint32 amount, uint32 baseamount)
+        : _slot(slot), _effect(effect), _amount(amount), _baseamount(baseamount)
+    {
+    }
+
     uint8 _slot;
     uint8 _effect;
     uint32 _amount;
@@ -1642,7 +1646,7 @@ class Player : public Unit, public GridObject<Player>
         InventoryResult CanUnequipItems(uint32 item, uint32 count) const;
         InventoryResult CanUnequipItem(uint16 src, bool swap) const;
         InventoryResult CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec& dest, Item* pItem, bool swap, bool not_loading = true) const;
-        InventoryResult CanReagentBankItem(uint8 bag, uint8 slot, ItemPosCountVec& dest, Item* pItem, bool swap, bool not_loading = true) const;
+        InventoryResult CanReagentBankItem(uint8 bag, uint8 slot, ItemPosCountVec& dest, Item* pItem, bool swap) const;
         InventoryResult CanUseItem(Item* pItem, bool not_loading = true) const;
         bool HasItemTotemCategory(uint32 TotemCategory) const;
         InventoryResult CanUseItem(ItemTemplate const* pItem) const;
@@ -1825,7 +1829,7 @@ class Player : public Unit, public GridObject<Player>
         bool SatisfyQuestLevel(Quest const* qInfo, bool msg);
         bool SatisfyQuestLog(bool msg);
         bool SatisfyQuestPreviousQuest(Quest const* qInfo, bool msg);
-        bool SatisfyQuestTeam(Quest const* qInfo, bool msg);
+        bool SatisfyQuestTeam(Quest const* qInfo);
         bool SatisfyQuestClass(Quest const* qInfo, bool msg) const;
         bool SatisfyQuestRace(Quest const* qInfo, bool msg);
         bool SatisfyQuestReputation(Quest const* qInfo, bool msg);
@@ -1835,7 +1839,7 @@ class Player : public Unit, public GridObject<Player>
         bool SatisfyQuestExclusiveGroup(Quest const* qInfo, bool msg);
         bool SatisfyQuestNextChain(Quest const* qInfo, bool msg);
         bool SatisfyQuestPrevChain(Quest const* qInfo, bool msg);
-        bool SatisfyQuestDay(Quest const* qInfo, bool msg);
+        bool SatisfyQuestDay(Quest const* qInfo);
         bool SatisfyQuestWeek(Quest const* qInfo, bool msg);
         bool SatisfyQuestMonth(Quest const* qInfo, bool msg);
         bool SatisfyQuestSeasonal(Quest const* qInfo, bool msg);
@@ -1893,7 +1897,7 @@ class Player : public Unit, public GridObject<Player>
         void AreaExploredOrEventHappens(uint32 questId);
         void GroupEventHappens(uint32 questId, WorldObject const* pEventObject);
         void ItemAddedQuestCheck(uint32 entry, uint32 count);
-        void ItemRemovedQuestCheck(uint32 entry, uint32 count);
+        void ItemRemovedQuestCheck(int32 entry, uint32 count);
         void KilledMonster(CreatureTemplate const* cInfo, uint64 guid);
         void KilledMonsterCredit(uint32 entry, uint64 guid = 0);
         void KilledPlayerCredit();
@@ -1971,6 +1975,7 @@ class Player : public Unit, public GridObject<Player>
         void SetBindPoint(uint64 guid);
         void SendTalentWipeConfirm(uint64 guid, bool specializaion);
         void CalcRage(uint32 damage, bool attacker);
+        void CalculateMonkMeleeAttacks(float &p_Low, float &p_High);
         void RegenerateAll();
         void Regenerate(Powers power);
         void RegenerateHealth();
@@ -2301,22 +2306,6 @@ class Player : public Unit, public GridObject<Player>
         int GetGuildIdInvited() { return m_GuildIdInvited; }
         static void RemovePetitionsAndSigns(uint64 guid, uint32 type);
 
-        // Arena Team
-        void SetInArenaTeam(uint32 ArenaTeamId, uint8 slot, uint8 type)
-        {
-            SetArenaTeamInfoField(slot, ARENA_TEAM_ID, ArenaTeamId);
-            SetArenaTeamInfoField(slot, ARENA_TEAM_TYPE, type);
-        }
-        void SetArenaTeamInfoField(uint8 slot, ArenaTeamInfoType type, uint32 value)
-        {
-            //SetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (slot * ARENA_TEAM_END) + type, value);
-            if (type == ARENA_TEAM_PERSONAL_RATING && value > _maxPersonalArenaRate)
-            {
-                _maxPersonalArenaRate = value;
-                UpdateConquestCurrencyCap(CURRENCY_TYPE_CONQUEST_META_ARENA);
-            }
-        }
-
         // Arena
         uint32 GetArenaPersonalRating(uint8 slot) const { ASSERT(slot < MAX_PVP_SLOT); return m_ArenaPersonalRating[slot]; }
         uint32 GetBestRatingOfWeek(uint8 slot) const { ASSERT(slot < MAX_PVP_SLOT); return m_BestRatingOfWeek[slot]; }
@@ -2515,12 +2504,12 @@ class Player : public Unit, public GridObject<Player>
         void SendAutoRepeatCancel(Unit* target);
         void SendExplorationExperience(uint32 Area, uint32 Experience);
 
-        void SendDungeonDifficulty(bool IsInGroup);
-        void SendRaidDifficulty(bool IsInGroup, int32 forcedDifficulty = -1);
+        void SendDungeonDifficulty();
+        void SendRaidDifficulty(int32 forcedDifficulty = -1);
         void ResetInstances(uint8 method, bool isRaid);
         void SendResetInstanceSuccess(uint32 MapId);
         void SendResetInstanceFailed(uint32 reason, uint32 MapId);
-        void SendResetFailedNotify(uint32 mapid);
+        void SendResetFailedNotify();
 
         virtual bool UpdatePosition(float x, float y, float z, float orientation, bool teleport = false);
         bool UpdatePosition(const Position &pos, bool teleport = false) { return UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport); }
@@ -2707,7 +2696,7 @@ class Player : public Unit, public GridObject<Player>
         void SendLoot(uint64 guid, LootType loot_type, bool fetchLoot = false);
         void SendLootRelease(uint64 p_LootGuid);
         void SendNotifyLootItemRemoved(uint8 lootSlot);
-        void SendNotifyLootMoneyRemoved(uint64 gold);
+        void SendNotifyLootMoneyRemoved();
 
         /*********************************************************/
         /***               BATTLEGROUND SYSTEM                 ***/
@@ -3688,7 +3677,7 @@ class Player : public Unit, public GridObject<Player>
         void AddKnownCurrency(uint32 itemId);
 
         int32 CalculateReputationGain(uint32 creatureOrQuestLevel, int32 rep, int32 faction, bool for_quest, bool noQuestBonus = false);
-        void AdjustQuestReqItemCount(Quest const* quest, QuestStatusData& questStatusData);
+        void AdjustQuestReqItemCount(Quest const* quest);
 
         bool IsCanDelayTeleport() const { return m_bCanDelayTeleport; }
         void SetCanDelayTeleport(bool setting) { m_bCanDelayTeleport = setting; }

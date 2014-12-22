@@ -1356,25 +1356,6 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
                         count = iProto->GetMaxStackSize();
                 }
 
-                switch(itemId)
-                {
-                    // Pandaren start weapons, they are given with the first quest
-                    case 73207:
-                    case 73208:
-                    case 73209:
-                    case 73210:
-                    case 73211:
-                    case 73212:
-                    case 73213:
-                    case 76390:
-                    case 76391:
-                    case 76392:
-                    case 76393:
-                        continue;
-                    default:
-                        break;
-                }
-
                 StoreNewItemInBestSlots(itemId, count);
             }
         }
@@ -1502,7 +1483,7 @@ void Player::RewardCurrencyAtKill(Unit* p_Victim)
     {
         for (CurrencyOnKillEntry::const_iterator idx = l_Curr->begin(); idx != l_Curr->end(); ++idx)
         {
-            if (idx->first == (*i)->GetMiscValue())
+            if ((int32)idx->first == (*i)->GetMiscValue())
                 ModifyCurrency(idx->first, idx->second + CalculatePct(idx->second, (*i)->GetAmount()));
         }
     }
@@ -7570,7 +7551,7 @@ bool Player::UpdateCraftSkill(uint32 spellid)
             int skill_gain_chance = SkillGainChance(SkillValue, _spell_idx->second->max_value, (_spell_idx->second->max_value + _spell_idx->second->min_value)/2, _spell_idx->second->min_value);
 
             // Since 4.0.x, we have bonus skill point reward with somes items
-            if (_spell_idx->second && _spell_idx->second->skill_gain >craft_skill_gain && skill_gain_chance == sWorld->getIntConfig(CONFIG_SKILL_CHANCE_ORANGE)*10)
+            if (_spell_idx->second && _spell_idx->second->skill_gain >craft_skill_gain && skill_gain_chance == (int32)(sWorld->getIntConfig(CONFIG_SKILL_CHANCE_ORANGE)*10))
                 craft_skill_gain = _spell_idx->second->skill_gain;
 
             return UpdateSkillPro(_spell_idx->second->skillId, skill_gain_chance, craft_skill_gain);
@@ -8769,8 +8750,7 @@ void Player::_LoadCurrency(PreparedQueryResult result)
 
         uint16 currencyID = fields[0].GetUInt16();
 
-        CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(currencyID);
-        if (!currencyID)
+        if (!sCurrencyTypesStore.LookupEntry(currencyID))
             continue;
 
         PlayerCurrency cur;
@@ -11221,7 +11201,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_LOOTING);
 }
 
-void Player::SendNotifyLootMoneyRemoved(uint64 gold)
+void Player::SendNotifyLootMoneyRemoved()
 {
     WorldPacket l_Data(SMSG_COIN_REMOVED);
     ObjectGuid guid = MAKE_NEW_GUID(GUID_LOPART(GetLootGUID()), 0, HIGHGUID_LOOT);
@@ -14126,7 +14106,7 @@ bool Player::IsItemSupplies(ItemTemplate const *p_BagProto) const
     return false;
 }
 
-InventoryResult Player::CanReagentBankItem(uint8 bag, uint8 slot, ItemPosCountVec &dest, Item* pItem, bool swap, bool not_loading) const
+InventoryResult Player::CanReagentBankItem(uint8 bag, uint8 slot, ItemPosCountVec &dest, Item* pItem, bool swap) const
 {
     if (!pItem)
         return swap ? EQUIP_ERR_CANT_SWAP : EQUIP_ERR_ITEM_NOT_FOUND;
@@ -17254,7 +17234,7 @@ void Player::SendPreparedQuest(uint64 guid)
                 if ((quest->IsAutoComplete() && quest->IsRepeatable() && !quest->IsDailyOrWeekly()) || quest->HasFlag(QUEST_FLAGS_AUTOCOMPLETE))
                     PlayerTalkClass->SendQuestGiverRequestItems(quest, guid, CanCompleteRepeatableQuest(quest), true);
                 else
-                    PlayerTalkClass->SendQuestGiverQuestDetails(quest, guid, true);
+                    PlayerTalkClass->SendQuestGiverQuestDetails(quest, guid);
             }
         }
     }
@@ -17346,7 +17326,7 @@ bool Player::CanSeeStartQuest(Quest const* quest)
     if (!DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, quest->GetQuestId(), this) && SatisfyQuestClass(quest, false) && SatisfyQuestRace(quest, false) &&
         SatisfyQuestSkill(quest, false) && SatisfyQuestExclusiveGroup(quest, false) && SatisfyQuestReputation(quest, false) &&
         SatisfyQuestPreviousQuest(quest, false) && SatisfyQuestNextChain(quest, false) &&
-        SatisfyQuestPrevChain(quest, false) && SatisfyQuestDay(quest, false) && SatisfyQuestWeek(quest, false) &&
+        SatisfyQuestPrevChain(quest, false) && SatisfyQuestDay(quest) && SatisfyQuestWeek(quest, false) &&
         SatisfyQuestMonth(quest, false) && SatisfyQuestSeasonal(quest, false))
     {
         return getLevel() + sWorld->getIntConfig(CONFIG_QUEST_HIGH_LEVEL_HIDE_DIFF) >= quest->GetMinLevel();
@@ -17359,12 +17339,12 @@ bool Player::CanTakeQuest(Quest const* quest, bool msg)
 {
     return !DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, quest->GetQuestId(), this)
         && SatisfyQuestStatus(quest, msg) && SatisfyQuestExclusiveGroup(quest, msg)
-        && SatisfyQuestTeam(quest, msg)
+        && SatisfyQuestTeam(quest)
         && SatisfyQuestClass(quest, msg) && SatisfyQuestRace(quest, msg) && SatisfyQuestLevel(quest, msg)
         && SatisfyQuestSkill(quest, msg) && SatisfyQuestReputation(quest, msg)
         && SatisfyQuestPreviousQuest(quest, msg) && SatisfyQuestTimed(quest, msg)
         && SatisfyQuestNextChain(quest, msg) && SatisfyQuestPrevChain(quest, msg)
-        && SatisfyQuestDay(quest, msg) && SatisfyQuestWeek(quest, msg)
+        && SatisfyQuestDay(quest) && SatisfyQuestWeek(quest, msg)
         && SatisfyQuestMonth(quest, msg) && SatisfyQuestSeasonal(quest, msg)
         && SatisfyQuestConditions(quest, msg);
 }
@@ -17490,7 +17470,7 @@ bool Player::CanRewardQuest(Quest const* p_Quest, bool msg)
         return false;
 
     // daily quest can't be rewarded (25 daily quest already completed)
-    if (!SatisfyQuestDay(p_Quest, true) || !SatisfyQuestWeek(p_Quest, true) || !SatisfyQuestMonth(p_Quest, true) || !SatisfyQuestSeasonal(p_Quest, true))
+    if (!SatisfyQuestDay(p_Quest) || !SatisfyQuestWeek(p_Quest, true) || !SatisfyQuestMonth(p_Quest, true) || !SatisfyQuestSeasonal(p_Quest, true))
         return false;
 
     // rewarded and not repeatable quest (only cheating case, then ignore without message)
@@ -17541,28 +17521,41 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 reward, bool msg)
         memset(RewardChoiceItemId, 0, sizeof(RewardChoiceItemId));
         memset(RewardChoiceItemCount, 0, sizeof(RewardChoiceItemCount));
 
-        if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_DYNAMIC_ITEM_REWARD))
+        if (quest->HasDynamicReward())
         {
             uint32 index = 0;
-            for (auto dynamicReward : quest->DynamicRewards)
+            for (QuestPackageItemEntry const* l_DynamicReward : quest->DynamicRewards)
             {
-                ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(dynamicReward.itemID);
-                if (!itemTemplate)
+                ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_DynamicReward->ItemId);
+                if (!l_ItemTemplate)
                     continue;
 
-                // @TODO: Check if we really need to check specialisation id or just player's class
-                // (if player doesn't have choosen spec, he doesn't have reward ??)
-                //if (itemTemplate->HasSpec() && !itemTemplate->HasSpec(plr->GetSpecializationId(plr->GetActiveSpec())))
-                //    continue;
+                switch (l_DynamicReward->Type)
+                {
+                    case uint8(PackageItemRewardType::SpecializationReward):
+                        if (!l_ItemTemplate->HasSpec((SpecIndex)GetSpecializationId(GetActiveSpec())))
+                            continue;
+                        break;
+                    case uint8(PackageItemRewardType::ClassReward):
+                        if (!l_ItemTemplate->HasClassSpec(getClass()))
+                            continue;
+                        break;
+                    case uint8(PackageItemRewardType::DefaultHiddenReward):
+                        continue;
+                    case uint8(PackageItemRewardType::NoRequire):
+                        break;
+                        // Not implemented PackageItemRewardType
+                    default:
+                        sLog->outError(LogFilterType::LOG_FILTER_PLAYER_ITEMS, "Not implemented PackageItemRewardType %u for quest %u", l_DynamicReward->Type, quest->GetQuestId());
+                        continue;
+                }
 
-                if (itemTemplate->HasSpec() && !itemTemplate->HasClassSpec(getClass()))
-                    continue;
 
                 if (index >= QUEST_REWARD_CHOICES_COUNT)
                     continue;
 
-                RewardChoiceItemId[index] = dynamicReward.itemID;
-                RewardChoiceItemCount[index] = dynamicReward.count;
+                RewardChoiceItemId[index]    = l_DynamicReward->ItemId;
+                RewardChoiceItemCount[index] = l_DynamicReward->Count;
                 index++;
             }
         }
@@ -17643,7 +17636,7 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
     }
 
     GiveQuestSourceItem(quest);
-    AdjustQuestReqItemCount(quest, questStatusData);
+    AdjustQuestReqItemCount(quest);
 
     uint32 qtime = 0;
     if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_TIMED))
@@ -17692,7 +17685,20 @@ void Player::CompleteQuest(uint32 quest_id)
 
         uint16 log_slot = FindQuestSlot(quest_id);
         if (log_slot < MAX_QUEST_LOG_SIZE)
+        {
             SetQuestSlotState(log_slot, QUEST_STATE_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_0_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_1_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_2_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_3_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_4_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_5_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_6_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_7_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_8_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_9_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_10_COMPLETE);
+        }
 
         if (Quest const* qInfo = sObjectMgr->GetQuestTemplate(quest_id))
         {
@@ -17751,12 +17757,15 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         }
     }
 
-    for (uint8 i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
+    if (!quest->HasFlag2(QUEST_FLAGS2_KEEP_ADDITIONAL_ITEMS))
     {
-        if (quest->RequiredSourceItemId[i])
+        for (uint8 i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
         {
-            uint32 count = quest->RequiredSourceItemCount[i];
-            DestroyItemCount(quest->RequiredSourceItemId[i], count ? count : 9999, true);
+            if (quest->RequiredSourceItemId[i])
+            {
+                uint32 count = quest->RequiredSourceItemCount[i];
+                DestroyItemCount(quest->RequiredSourceItemId[i], count ? count : 9999, true);
+            }
         }
     }
 
@@ -17766,28 +17775,40 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     {
         uint32 RewardChoiceItemId[QUEST_REWARD_CHOICES_COUNT] ;
         uint32 RewardChoiceItemCount[QUEST_REWARD_CHOICES_COUNT];
-        if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_DYNAMIC_ITEM_REWARD))
+        if (quest->HasDynamicReward())
         {
             uint32 index = 0;
-            for (auto dynamicReward : quest->DynamicRewards)
+            for (QuestPackageItemEntry const* l_DynamicReward : quest->DynamicRewards)
             {
-                ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(dynamicReward.itemID);
-                if (!itemTemplate)
+                ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_DynamicReward->ItemId);
+                if (!l_ItemTemplate)
                     continue;
 
-                // @TODO: Check if we really need to check specialisation id or just player's class
-                // (if player doesn't have choosen spec, he doesn't have reward ??)
-                //if (itemTemplate->HasSpec() && !itemTemplate->HasSpec(plr->GetSpecializationId(plr->GetActiveSpec())))
-                //    continue;
-
-                if (itemTemplate->HasSpec() && !itemTemplate->HasClassSpec(getClass()))
-                    continue;
+                switch (l_DynamicReward->Type)
+                {
+                    case uint8(PackageItemRewardType::SpecializationReward):
+                        if (!l_ItemTemplate->HasSpec((SpecIndex)GetSpecializationId(GetActiveSpec())))
+                            continue;
+                        break;
+                    case uint8(PackageItemRewardType::ClassReward):
+                        if (!l_ItemTemplate->HasClassSpec(getClass()))
+                            continue;
+                        break;
+                    case uint8(PackageItemRewardType::DefaultHiddenReward):
+                        continue;
+                    case uint8(PackageItemRewardType::NoRequire):
+                        break;
+                        // Not implemented PackageItemRewardType
+                    default:
+                        sLog->outError(LogFilterType::LOG_FILTER_PLAYER_ITEMS, "Not implemented PackageItemRewardType %u for quest %u", l_DynamicReward->Type, quest->GetQuestId());
+                        continue;
+                }
 
                 if (index >= QUEST_REWARD_CHOICES_COUNT)
                     continue;
 
-                RewardChoiceItemId[index] = dynamicReward.itemID;
-                RewardChoiceItemCount[index] = dynamicReward.count;
+                RewardChoiceItemId[index]    = l_DynamicReward->ItemId;
+                RewardChoiceItemCount[index] = l_DynamicReward->Count;
                 index++;
             }
         }
@@ -18156,7 +18177,7 @@ bool Player::SatisfyQuestPreviousQuest(Quest const* qInfo, bool msg)
     return false;
 }
 
-bool Player::SatisfyQuestTeam(Quest const* qInfo, bool msg)
+bool Player::SatisfyQuestTeam(Quest const* qInfo)
 {
     int8 reqteam = qInfo->GetRequiredTeam();
     if (reqteam < 0)
@@ -18326,7 +18347,7 @@ bool Player::SatisfyQuestExclusiveGroup(Quest const* qInfo, bool msg)
 
         // not allow have daily quest if daily quest from exclusive group already recently completed
         Quest const* Nquest = sObjectMgr->GetQuestTemplate(exclude_Id);
-        if (!SatisfyQuestDay(Nquest, false) || !SatisfyQuestWeek(Nquest, false) || !SatisfyQuestSeasonal(Nquest,false))
+        if (!SatisfyQuestDay(Nquest) || !SatisfyQuestWeek(Nquest, false) || !SatisfyQuestSeasonal(Nquest,false))
         {
             if (msg)
                 SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
@@ -18393,7 +18414,7 @@ bool Player::SatisfyQuestPrevChain(Quest const* qInfo, bool msg)
     return true;
 }
 
-bool Player::SatisfyQuestDay(Quest const* qInfo, bool msg)
+bool Player::SatisfyQuestDay(Quest const* qInfo)
 {
     if (!qInfo->IsDaily() && !qInfo->IsDFQuest())
         return true;
@@ -18478,7 +18499,6 @@ bool Player::TakeQuestSourceItem(uint32 questId, bool msg)
     {
         uint32 srcItemId = quest->GetSrcItemId();
         ItemTemplate const* item = sObjectMgr->GetItemTemplate(srcItemId);
-        bool destroyItem = true;
 
         if (srcItemId > 0)
         {
@@ -18501,7 +18521,7 @@ bool Player::TakeQuestSourceItem(uint32 questId, bool msg)
 
             for (QuestObjective l_Objective : quest->QuestObjectives)
             {
-                if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_ITEM && item->StartQuest == questId && srcItemId == l_Objective.ObjectID)
+                if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_ITEM && item->StartQuest == questId && srcItemId == (uint32)l_Objective.ObjectID)
                     destroyItem = false;
             }
 
@@ -18561,8 +18581,6 @@ void Player::SetQuestStatus(uint32 quest_id, QuestStatus status)
         m_QuestStatus[quest_id].Status = status;
         m_QuestStatusSave[quest_id] = true;
     }
-
-    uint32 zone = 0, area = 0;
 
     CheckSpellAreaOnQuestStatusChange(quest_id);
 
@@ -18639,7 +18657,7 @@ uint16 Player::GetReqKillOrCastCurrentCount(uint32 quest_id, int32 entry)
     return 0;
 }
 
-void Player::AdjustQuestReqItemCount(Quest const* quest, QuestStatusData& questStatusData)
+void Player::AdjustQuestReqItemCount(Quest const* quest)
 {
     if (!quest->GetQuestObjectiveCountType(QUEST_OBJECTIVE_TYPE_ITEM))
         return;
@@ -18720,7 +18738,7 @@ void Player::ItemAddedQuestCheck(uint32 entry, uint32 count)
 
         for (QuestObjective l_Objective : qInfo->QuestObjectives)
         {
-            if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_ITEM && l_Objective.ObjectID == entry)
+            if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_ITEM && (uint32)l_Objective.ObjectID == entry)
             {
                 uint32 currentCounter = GetQuestObjectiveCounter(l_Objective.ID);
                 uint32 requiredCounter = uint32(l_Objective.Amount);
@@ -18745,7 +18763,7 @@ void Player::ItemAddedQuestCheck(uint32 entry, uint32 count)
     UpdateForQuestWorldObjects();
 }
 
-void Player::ItemRemovedQuestCheck(uint32 entry, uint32 count)
+void Player::ItemRemovedQuestCheck(int32 entry, uint32 count)
 {
     for (uint8 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
     {
@@ -18827,7 +18845,7 @@ void Player::KilledMonsterCredit(uint32 entry, uint64 guid)
         {
             for (QuestObjective l_Objective : qInfo->QuestObjectives)
             {
-                if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_NPC && l_Objective.ObjectID == real_entry)
+                if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_NPC && l_Objective.ObjectID == (int32)real_entry)
                 {
                     uint32 currentCounter = GetQuestObjectiveCounter(l_Objective.ID);
                     if (currentCounter < uint32(l_Objective.Amount))
@@ -18837,7 +18855,7 @@ void Player::KilledMonsterCredit(uint32 entry, uint64 guid)
                         SendQuestUpdateAddCredit(qInfo, l_Objective, guid, currentCounter, addkillcount);
                     }
 
-                    if (l_Objective.Amount == m_questObjectiveStatus[l_Objective.ID])
+                    if ((uint32)l_Objective.Amount == m_questObjectiveStatus[l_Objective.ID])
                         sScriptMgr->OnObjectiveValidate(this, questid, l_Objective.ID);
 
                     if (CanCompleteQuest(questid))
@@ -18892,6 +18910,7 @@ void Player::KilledPlayerCredit()
 
 void Player::CastedCreatureOrGO(uint32 entry, uint64 guid, uint32 spell_id)
 {
+    UNUSED(entry);  ///@TODO refactor spell quest objective
     QuestObjectiveSatisfy(spell_id, 1, QUEST_OBJECTIVE_TYPE_SPELL /*QUEST_OBJECTIVE_TYPE_NPC_INTERACT*/, guid);
 }
 
@@ -19000,7 +19019,7 @@ void Player::QuestObjectiveSatisfy(uint32 objectId, uint32 amount, uint8 type, u
 
         for (QuestObjective l_Objective : quest->QuestObjectives)
         {
-            if (l_Objective.Type == type && l_Objective.ObjectID == objectId)
+            if (l_Objective.Type == type && (uint32)l_Objective.ObjectID == objectId)
             {
                 uint32 currentCounter   = GetQuestObjectiveCounter(l_Objective.ID);
                 uint32 requiredCounter  = uint32(l_Objective.Amount);
@@ -19049,8 +19068,10 @@ bool Player::HasQuestForItem(uint32 itemid) const
                     continue;
 
             for (QuestObjective l_QuestObjective : qinfo->QuestObjectives)
-                if (itemid == l_QuestObjective.ObjectID && GetQuestObjectiveCounter(l_QuestObjective.ID) < uint32(l_QuestObjective.Amount))
+            {
+                if (itemid == (uint32)l_QuestObjective.ObjectID && GetQuestObjectiveCounter(l_QuestObjective.ID) < uint32(l_QuestObjective.Amount))
                     return true;
+            }
 
             // This part - for ReqSource
             for (uint8 j = 0; j < QUEST_SOURCE_ITEM_IDS_COUNT; ++j)
@@ -20527,7 +20548,7 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
                     else if (IsReagentBankPos(INVENTORY_SLOT_BAG_0, slot))
                     {
                         ItemPosCountVec dest;
-                        err = CanReagentBankItem(INVENTORY_SLOT_BAG_0, slot, dest, item, false, false);
+                        err = CanReagentBankItem(INVENTORY_SLOT_BAG_0, slot, dest, item, false);
                         if (err == EQUIP_ERR_OK)
                             item = BankItem(dest, item, true);
                     }
@@ -21022,7 +21043,7 @@ void Player::_LoadQuestObjectiveStatus(PreparedQueryResult result)
                 SetQuestSlotCounter(i, objective->Index, amount);
                 m_questObjectiveStatus.insert(std::make_pair(objectiveId, amount));
 
-                if (objective->Type == QUEST_OBJECTIVE_TYPE_CRITERIA && objective->Amount == amount)
+                if (objective->Type == QUEST_OBJECTIVE_TYPE_CRITERIA && (uint32)objective->Amount == amount)
                     SetQuestSlotState(i, QUEST_STATE_OBJ_0_COMPLETE << objective->Index);
 
                 break;
@@ -22932,14 +22953,14 @@ void Player::SendExplorationExperience(uint32 Area, uint32 Experience)
     GetSession()->SendPacket(&data);
 }
 
-void Player::SendDungeonDifficulty(bool IsInGroup)
+void Player::SendDungeonDifficulty()
 {
     WorldPacket data(SMSG_SET_DUNGEON_DIFFICULTY, 4);
     data << uint32(GetDungeonDifficulty());
     GetSession()->SendPacket(&data);
 }
 
-void Player::SendRaidDifficulty(bool IsInGroup, int32 forcedDifficulty)
+void Player::SendRaidDifficulty(int32 forcedDifficulty)
 {
     WorldPacket data(SMSG_SET_RAID_DIFFICULTY, 4);
     data << uint32(forcedDifficulty == -1 ? GetRaidDifficulty() : forcedDifficulty);
@@ -22952,7 +22973,7 @@ void Player::SendRaidDifficulty(bool IsInGroup, int32 forcedDifficulty)
     GetSession()->SendPacket(&data2);
 }
 
-void Player::SendResetFailedNotify(uint32 mapid)
+void Player::SendResetFailedNotify()
 {
     WorldPacket data(SMSG_RESET_FAILED_NOTIFY);
     GetSession()->SendPacket(&data);
@@ -23196,20 +23217,12 @@ void Player::StopCastingCharm()
 
 void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std::string& text, uint32 language, const char* addonPrefix /*= NULL*/, const std::string& channel /*= ""*/) const
 {
-    uint32 messageLength = text.length();
     uint32 speakerNameLength = strlen(GetName());
-    uint32 prefixeLength = addonPrefix ? strlen(addonPrefix) : 0;
-    uint32 receiverLength = 0;
-
-    uint32 channelLength = channel.length();
 
     ObjectGuid senderUnkGuid = GetGUID();
     ObjectGuid groupGuid = 0;
     ObjectGuid senderGuid = GetGUID();
-    ObjectGuid guildGuid = const_cast<Player*>(this)->GetGuild() ? const_cast<Player*>(this)->GetGuild()->GetGUID() : 0;
-
-    bool sendRealmID = false;
-    bool bit5264 = false;
+    uint64 guildGuid = const_cast<Player*>(this)->GetGuild() ? const_cast<Player*>(this)->GetGuild()->GetGUID() : 0;
 
     data->Initialize(SMSG_CHAT, 100);
     *data << uint8(msgtype);
@@ -24067,10 +24080,23 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
         return false;
     }
 
+    uint32 l_MapID = GetMapId();
+    /// Special case for taxi in garrison phased map
+    for (uint32 l_I = 0; l_I < sGarrSiteLevelStore.GetNumRows(); ++l_I)
+    {
+        const GarrSiteLevelEntry * l_Entry = sGarrSiteLevelStore.LookupEntry(l_I);
+
+        if (l_Entry && l_Entry->MapID == l_MapID)
+        {
+            l_MapID = GARRISON_BASE_MAP;
+            break;
+        }
+    }
+
     // check node starting pos data set case if provided
     if (node->x != 0.0f || node->y != 0.0f || node->z != 0.0f)
     {
-        if (node->map_id != GetMapId() ||
+        if (node->map_id != l_MapID ||
             (node->x - GetPositionX())*(node->x - GetPositionX())+
             (node->y - GetPositionY())*(node->y - GetPositionY())+
             (node->z - GetPositionZ())*(node->z - GetPositionZ()) >
@@ -24273,7 +24299,6 @@ void Player::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
     ObjectGuid playerGuid = GetGUID();
 
     uint32 counter = 0;
-    time_t curTime = time(NULL);
     uint32 curMsTime = getMSTime();
 
     for (PlayerSpellMap::const_iterator itr = m_spells.begin(); itr != m_spells.end(); ++itr)
@@ -25947,11 +25972,11 @@ void Player::SendInitialPacketsAfterAddToMap()
         if (GetMap()->GetDifficulty() != GetRaidDifficulty())
         {
             StoreRaidMapDifficulty();
-            SendRaidDifficulty(GetGroup() != NULL, GetStoredRaidDifficulty());
+            SendRaidDifficulty(GetStoredRaidDifficulty());
         }
     }
     else if (GetRaidDifficulty() != GetStoredRaidDifficulty())
-        SendRaidDifficulty(GetGroup() != NULL);
+        SendRaidDifficulty();
 
     GetSession()->SendPetBattleJournal();
 
@@ -26114,11 +26139,6 @@ void Player::resetSpells(bool myClassOnly)
             // skip other spell families
             if (spellInfo->SpellFamilyName != family)
                 continue;
-
-            // skip spells with first rank learned as talent (and all talents then also)
-            uint32 first_rank = sSpellMgr->GetFirstSpellInChain(spellInfo->Id);
-            /*if (GetTalentSpellCost(first_rank) > 0)
-                continue;*/
 
             // skip broken spells
             if (!SpellMgr::IsSpellValid(spellInfo, this, false))
@@ -26513,7 +26533,7 @@ bool Player::HasQuestForGO(uint32 GOId) const
             {
                 if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_GO)
                 {
-                    if (GOId == l_Objective.ObjectID && GetQuestObjectiveCounter(l_Objective.ID) < uint32(l_Objective.Amount))
+                    if (GOId == (uint32)l_Objective.ObjectID && GetQuestObjectiveCounter(l_Objective.ID) < uint32(l_Objective.Amount))
                         return true;
                 }
             }
@@ -27789,7 +27809,6 @@ void Player::RemoveRunesBySpell(uint32 spell_id)
 
 void Player::RestoreBaseRune(uint8 index)
 {
-    uint32 spell_id = m_runes.runes[index].spell_id;
     ConvertRune(index, GetBaseRune(index));
     SetRuneConvertSpell(index, 0);
 }
@@ -30767,6 +30786,53 @@ void Player::UpdateBattlePetCombatTeam()
         if (p_BattlePet->Slot >= 0 && p_BattlePet->Slot < (int32)l_UnlockedSlotCount)
             m_BattlePetCombatTeam[p_BattlePet->Slot] = p_BattlePet;
     });
+}
+
+//////////////////////////////////////////////////////////////////////////
+/// Calc Monk Melee Attacks
+enum ExpelHarmSpells
+{
+    SPELL_MONK_STANCE_OF_THE_FIERCE_TIGER = 103985,
+    SPELL_MONK_2H_STAFF_OVERRIDE = 108561,
+    SPELL_MONK_EXPEL_HARM_DAMAGE = 115129,
+    SPELL_MONK_2H_POLEARM_OVERRIDE = 115697,
+    SPELL_MONK_MANA_MEDITATION = 121278
+};
+
+void Player::CalculateMonkMeleeAttacks(float &p_Low, float &p_High)
+{
+    Item* l_MainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+    Item* l_OffItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+
+    float l_MainWeaponMinDamage = 0.0f;
+    float l_MainWeaponMaxDamage = 0.0f;
+    float l_MainWeaponSpeed = 1.0f;
+    float l_OffhandWeaponMinDamage = 0.0f;
+    float l_OffhandWeaponMaxDamage = 0.0f;
+    float l_OffhandWeaponSpeed = 1.0f;
+
+    if (l_MainItem && l_MainItem->GetTemplate()->Class == ITEM_CLASS_WEAPON && !HasAuraType(SPELL_AURA_MOD_DISARM))
+    {
+        l_MainWeaponMinDamage = l_MainItem->GetTemplate()->DamageMin;
+        l_MainWeaponMaxDamage = l_MainItem->GetTemplate()->DamageMax;
+        l_MainWeaponSpeed = float(l_MainItem->GetTemplate()->Delay) / 1000.0f;
+    }
+    if (l_OffItem && l_OffItem->GetTemplate()->Class == ITEM_CLASS_WEAPON && !HasAuraType(SPELL_AURA_MOD_DISARM))
+    {
+        l_OffhandWeaponMinDamage = l_OffItem->GetTemplate()->DamageMin;
+        l_OffhandWeaponMaxDamage = l_OffItem->GetTemplate()->DamageMax;
+        l_OffhandWeaponSpeed = float(l_OffItem->GetTemplate()->Delay) / 1000.0f;
+    }
+
+    float l_Stnc = (HasAura(SPELL_MONK_STANCE_OF_THE_FIERCE_TIGER)) ? 1.2f : 1.0f;
+    float l_Dwm = (HasAura(SPELL_MONK_2H_STAFF_OVERRIDE) || HasAura(SPELL_MONK_2H_POLEARM_OVERRIDE)) ? 1.0f : 0.898882275f;
+    float l_Offm = (HasAura(SPELL_MONK_2H_STAFF_OVERRIDE) || HasAura(SPELL_MONK_2H_POLEARM_OVERRIDE)) ? 0.0f : 1.0f;
+
+    float l_Offlow = (HasSpell(SPELL_MONK_MANA_MEDITATION)) ? l_MainWeaponMinDamage / 2 / l_MainWeaponSpeed : l_OffhandWeaponMinDamage / 2 / l_OffhandWeaponSpeed;
+    float l_Offhigh = (HasSpell(SPELL_MONK_MANA_MEDITATION)) ? l_MainWeaponMaxDamage / 2 / l_MainWeaponSpeed : l_OffhandWeaponMaxDamage / 2 / l_OffhandWeaponSpeed;
+
+    p_Low = l_Stnc * (l_Dwm * (l_MainWeaponMinDamage / l_MainWeaponSpeed + l_Offm * l_Offlow) + GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) / 3.5f - 1);
+    p_High = l_Stnc * (l_Dwm * (l_MainWeaponMaxDamage / l_MainWeaponSpeed + l_Offm * l_Offhigh) + GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) / 3.5f + 1);
 }
 
 //////////////////////////////////////////////////////////////////////////

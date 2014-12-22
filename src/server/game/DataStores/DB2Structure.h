@@ -211,6 +211,23 @@ struct ItemExtendedCostEntry
     //uint32    RequiredAchievement;                                    // 30 only 0
 };
 
+struct QuestPackageItemEntry
+{
+    uint32 ID;                  // 0
+    uint32 ExclusiveGroup;      // 1
+    uint32 ItemId;              // 2
+    uint32 Count;               // 3
+    uint32 Type;                // 4
+};
+
+enum class PackageItemRewardType : uint8
+{
+    SpecializationReward = 0,
+    ClassReward          = 1,
+    DefaultHiddenReward  = 2,
+    NoRequire            = 3
+};
+
 struct MapChallengeModeEntry
 {
     uint32 ID;                  // 0
@@ -468,7 +485,7 @@ struct GarrSiteLevelEntry
     uint32      MapTextureUiTextureKitID;               // 4
     float       TownHallX;                              // 5
     float       TownHallY;                              // 6
-    uint32      Unk4;                                   // 7
+    uint32      CreationMovie;                          // 7
     uint32      Unk5;                                   // 8
     uint32      UpgradeCost;                            // 9
     uint32      UpgradeMoneyCost;                       // 10
