@@ -644,34 +644,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
         {
             switch (m_spellInfo->Id)
             {
-            case 2098:  // Eviscerate
-            {
-                if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                {
-                    if (uint32 combo = ((Player*)m_caster)->GetComboPoints())
-                    {
-                        float ap = m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
-
-                        switch (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()))
-                        {
-                        case SPEC_ROGUE_ASSASSINATION:
-                        case SPEC_ROGUE_COMBAT:
-                            damage += int32(ap * combo * 0.18f);
-                            break;
-                        case SPEC_ROGUE_SUBTLETY:
-                        default:
-                            damage += int32(ap * combo * 0.223f);
-                            break;
-                        }
-
-                        // Eviscerate and Envenom Bonus Damage (item set effect)
-                        if (AuraEffectPtr eviscerateBonus = m_caster->GetAuraEffect(37169, EFFECT_0))
-                            AddPct(damage, eviscerateBonus->GetAmount());
-                    }
-                }
-
-                break;
-            }
             case 26679: // Deadly Throw
             {
                 if (m_caster->GetTypeId() == TYPEID_PLAYER)
