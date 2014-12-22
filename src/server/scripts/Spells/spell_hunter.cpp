@@ -44,7 +44,6 @@ enum HunterSpells
     HUNTER_SPELL_SERPENT_STING                      = 118253,
     HUNTER_SPELL_SERPENT_SPREAD                     = 87935,
     HUNTER_SPELL_CHIMERA_SHOT_HEAL                  = 53353,
-    HUNTER_SPELL_CHIMERA_SHOT                       = 171454,
     HUNTER_SPELL_RAPID_FIRE                         = 3045,
     HUNTER_SPELL_STEADY_SHOT_ENERGIZE               = 77443,
     HUNTER_SPELL_COBRA_SHOT_ENERGIZE                = 91954,
@@ -127,7 +126,6 @@ enum HunterSpells
     HUNTER_SPELL_ASPECT_OF_THE_PACK_SUMMON          = 122490,
     HUNTER_SPELL_FIREWORKS                          = 127933,
     HUNTER_SPELL_KILL_SHOT_HEAL                     = 164851,
-    HUNTER_SPELL_GLYPH_OF_CHIMERA_SHOT              = 119447,
     HUNTER_SPELL_ARCANE_INTENSITY_AURA              = 131564,
     HUNTER_SPELL_THRILL_OF_THE_HUNT                 = 109306,
     HUNTER_SPELL_THRILL_OF_THE_HUNT_PROC            = 34720,
@@ -1862,37 +1860,51 @@ class spell_hun_steady_shot: public SpellScriptLoader
         }
 };
 
-// Chimera Shot - 53209
-class spell_hun_chimera_shot: public SpellScriptLoader
+// Chimaera Shot - 53209
+class spell_hun_chimaera_shot: public SpellScriptLoader
 {
     public:
-        spell_hun_chimera_shot() : SpellScriptLoader("spell_hun_chimera_shot") { }
+        spell_hun_chimaera_shot() : SpellScriptLoader("spell_hun_chimaera_shot") { }
 
-        class spell_hun_chimera_shot_SpellScript : public SpellScript
+        class spell_hun_chimaera_shot_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_hun_chimera_shot_SpellScript);
+            PrepareSpellScript(spell_hun_chimaera_shot_SpellScript);
 
-            void HandleOnHit()
+            enum ChimaeraSpells
+            {
+                SpellChimaeraFrost  = 171454,
+                SpellChimaeraNature = 171457,
+                GlyphOfChimaeraShot = 119447
+            };
+
+            void HandleOnHit(SpellEffIndex)
             {
                 if (Unit* l_Caster = GetCaster())
+                {
                     if (Unit* l_Target = GetHitUnit())
                     {
-                        l_Caster->CastSpell(l_Target, HUNTER_SPELL_CHIMERA_SHOT, true);
+                        ///< 50% chance to deals frost damage or nature damage
+                        if (urand(0, 1))
+                            l_Caster->CastSpell(l_Target, ChimaeraSpells::SpellChimaeraFrost, true);
+                        else
+                            l_Caster->CastSpell(l_Target, ChimaeraSpells::SpellChimaeraNature, true);
 
-                        if (l_Caster->HasAura(HUNTER_SPELL_GLYPH_OF_CHIMERA_SHOT))
-                            l_Caster->SetHealth(l_Caster->GetHealth() + CalculatePct(l_Caster->GetMaxHealth(), sSpellMgr->GetSpellInfo(HUNTER_SPELL_GLYPH_OF_CHIMERA_SHOT)->Effects[EFFECT_0].BasePoints));
+                        SpellInfo const* l_GlyphOfChimaera = sSpellMgr->GetSpellInfo(ChimaeraSpells::GlyphOfChimaeraShot);
+                        if (l_Caster->HasAura(ChimaeraSpells::GlyphOfChimaeraShot) && l_GlyphOfChimaera != nullptr)
+                            l_Caster->HealBySpell(l_Caster, l_GlyphOfChimaera, l_Caster->CountPctFromMaxHealth(l_GlyphOfChimaera->Effects[EFFECT_0].BasePoints));
                     }
+                }
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_hun_chimera_shot_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_hun_chimaera_shot_SpellScript::HandleOnHit, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_hun_chimera_shot_SpellScript();
+            return new spell_hun_chimaera_shot_SpellScript();
         }
 };
 
@@ -2584,7 +2596,7 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_kill_command();
     new spell_hun_cobra_shot();
     new spell_hun_steady_shot();
-    new spell_hun_chimera_shot();
+    new spell_hun_chimaera_shot();
     new spell_hun_last_stand_pet();
     new spell_hun_masters_call();
     new spell_hun_scatter_shot();
