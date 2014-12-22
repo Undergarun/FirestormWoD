@@ -135,6 +135,62 @@ enum HunterSpells
     HUNTER_SPELL_BASIC_ATTACK_COST_MODIFIER         = 62762
 };
 
+///< Exotic Munitions - 162534
+class spell_hun_exotic_munitions : public SpellScriptLoader
+{
+    public:
+        spell_hun_exotic_munitions() : SpellScriptLoader("spell_hun_exotic_munitions") { }
+
+        enum ExoticSpells
+        {
+            IncendiaryAmmo = 162536,
+            PoisonedAmmo   = 162537,
+            FrozenAmmo     = 162539
+        };
+
+        class spell_hun_exotic_munitions_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_exotic_munitions_AuraScript);
+
+            void OnApply(constAuraEffectPtr, AuraEffectHandleModes)
+            {
+                if (!GetCaster())
+                    return;
+
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    l_Player->learnSpell(ExoticSpells::IncendiaryAmmo, false);
+                    l_Player->learnSpell(ExoticSpells::PoisonedAmmo, false);
+                    l_Player->learnSpell(ExoticSpells::FrozenAmmo, false);
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr, AuraEffectHandleModes)
+            {
+                if (!GetCaster())
+                    return;
+
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    l_Player->removeSpell(ExoticSpells::IncendiaryAmmo);
+                    l_Player->removeSpell(ExoticSpells::PoisonedAmmo);
+                    l_Player->removeSpell(ExoticSpells::FrozenAmmo);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_hun_exotic_munitions_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_hun_exotic_munitions_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_exotic_munitions_AuraScript();
+        }
+};
+
 // Called by Explosive Shot - 53301
 // Hunter's Mark - 1130
 class spell_hun_hunters_mark: public SpellScriptLoader
@@ -2491,6 +2547,7 @@ public:
 
 void AddSC_hunter_spell_scripts()
 {
+    new spell_hun_exotic_munitions();
     new spell_hun_claw_bite();
     new spell_hun_bombardment();
     new spell_hun_glyph_of_animal_bond();
