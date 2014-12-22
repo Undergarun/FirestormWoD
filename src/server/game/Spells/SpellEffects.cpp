@@ -567,24 +567,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 break;
             }
         }
-        case SPELLFAMILY_WARLOCK:
-        {
-            switch (m_spellInfo->Id)
-            {
-            case 87385:// Soulburn : Seed of Corruption (AoE)
-            {
-                // Apply corruption to each target
-                if (m_caster->HasAura(86664))
-                    m_caster->AddAura(172, unitTarget);
-
-                break;
-            }
-            default:
-                break;
-            }
-
-            break;
-        }
         case SPELLFAMILY_HUNTER:
         {
             switch (m_spellInfo->Id)
