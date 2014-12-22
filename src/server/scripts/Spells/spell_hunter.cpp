@@ -135,6 +135,49 @@ enum HunterSpells
     HUNTER_SPELL_BASIC_ATTACK_COST_MODIFIER         = 62762
 };
 
+///< Cornered - 53497
+class spell_hun_cornered : public SpellScriptLoader
+{
+    public:
+        spell_hun_cornered() : SpellScriptLoader("spell_hun_cornered") { }
+
+        class spell_hun_cornered_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_cornered_AuraScript);
+
+            void OnUpdate(uint32, AuraEffectPtr p_AurEff)
+            {
+                if (Unit* l_Target = GetUnitOwner())
+                {
+                    if (l_Target->HasAuraState(AuraStateType::AURA_STATE_HEALTHLESS_35_PERCENT))
+                    {
+                        p_AurEff->ChangeAmount(GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+
+                        if (AuraEffectPtr l_AurEff = p_AurEff->GetBase()->GetEffect(EFFECT_1))
+                            l_AurEff->ChangeAmount(GetSpellInfo()->Effects[EFFECT_1].BasePoints);
+                    }
+                    else
+                    {
+                        p_AurEff->ChangeAmount(0);
+
+                        if (AuraEffectPtr l_AurEff = p_AurEff->GetBase()->GetEffect(EFFECT_1))
+                            l_AurEff->ChangeAmount(0);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectUpdate += AuraEffectUpdateFn(spell_hun_cornered_AuraScript::OnUpdate, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_cornered_AuraScript();
+        }
+};
+
 enum LoneWolfes
 {
     LoneWolfAura        = 164273,
@@ -2679,6 +2722,7 @@ public:
 
 void AddSC_hunter_spell_scripts()
 {
+    new spell_hun_cornered();
     new spell_hun_lone_wolf();
     new spell_hun_kill_shot();
     new spell_hun_exotic_munitions();
