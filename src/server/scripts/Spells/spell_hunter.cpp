@@ -2477,10 +2477,10 @@ public:
 };
 
 //Claw - 16827 / Bite - 17253
-class spell_hun_claw_bite : public MS::Game::Scripting::Interfaces::SpellScriptLoader
+class spell_hun_claw_bite : public SpellScriptLoader
 {
 public:
-    spell_hun_claw_bite() : MS::Game::Scripting::Interfaces::SpellScriptLoader("spell_hun_claw_bite") { }
+    spell_hun_claw_bite() : SpellScriptLoader("spell_hun_claw_bite") { }
 
     class spell_hun_claw_bite_SpellScript : public SpellScript
     {
