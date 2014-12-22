@@ -101,7 +101,7 @@ struct TSpellSummary
     uint8 Effects;                                          // set of enum SelectEffect
 } *SpellSummary;
 
-    namespace
+namespace
 {
     typedef std::set<ScriptObject*> ExampleScriptContainer;
     ExampleScriptContainer ExampleScripts;
