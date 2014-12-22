@@ -88,7 +88,8 @@ enum RogueSpells
     ROGUE_SPELL_RELTENTLESS_STRIKES_PROC        = 14181,
     ROGUE_SPELL_COMBO_POINT_DELAYED             = 139569,
     ROGUE_SPELL_RUTHLESSNESS                    = 14161,
-    ROGUE_SPELL_EVISCERATE_ENVENOM_BONUS_DAMAGE = 37169
+    ROGUE_SPELL_EVISCERATE_ENVENOM_BONUS_DAMAGE = 37169,
+    ROGUE_SPELL_DEADLY_THROW_INTERRUPT          = 137576
 };
 
 // Killing Spree - 51690
@@ -1896,6 +1897,48 @@ public:
     }
 };
 
+// Deadly Throw - 26679
+class spell_rog_deadly_throw : public SpellScriptLoader
+{
+public:
+    spell_rog_deadly_throw() : SpellScriptLoader("spell_rog_deadly_throw") { }
+
+    class spell_rog_deadly_throw_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_rog_deadly_throw_SpellScript);
+
+        void HandleDamage(SpellEffIndex /*effIndex*/)
+        {
+            if (Player* l_Player = GetCaster()->ToPlayer())
+            {
+                uint8 l_ComboPoint = l_Player->GetComboPoints();
+                int32 l_Damage = 0;
+
+                if (l_ComboPoint)
+                {
+                    float l_Ap = l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
+
+                    l_Damage += int32((l_Ap * 0.178f) * 1 * l_ComboPoint);
+                }
+                if (l_ComboPoint >= 5)
+                    if (Unit* l_Target = GetHitUnit())
+                        l_Player->CastSpell(l_Target, ROGUE_SPELL_DEADLY_THROW_INTERRUPT, true);
+                SetHitDamage(l_Damage);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_rog_deadly_throw_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_rog_deadly_throw_SpellScript();
+    }
+};
+
 class PlayerScript_ruthlessness : public PlayerScript
 {
 public:
@@ -1918,6 +1961,7 @@ public:
 
 void AddSC_rogue_spell_scripts()
 {
+    new spell_rog_deadly_throw();
     new spell_rog_evicerate();
     new spell_rog_envenom();
     new spell_rog_combo_point_delayed();
