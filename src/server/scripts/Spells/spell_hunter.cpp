@@ -133,7 +133,8 @@ enum HunterSpells
     HUNTER_SPELL_THRILL_OF_THE_HUNT_PROC            = 34720,
     HUNTER_SPELL_GLYPH_OF_ANIMAL_BOND               = 24529,
     HUNTER_SPELL_MULTI_SHOT                         = 2643,
-    HUNTER_SPELL_BOMBARDMENT                        = 82921
+    HUNTER_SPELL_BOMBARDMENT                        = 82921,
+    HUNTER_SPELL_BASIC_ATTACK_COST_MODIFIER         = 62762
 };
 
 // Called by Explosive Shot - 53301
@@ -2485,7 +2486,7 @@ public:
     {
         PrepareSpellScript(spell_hun_claw_bite_SpellScript);
 
-        void HandleDamage(SpellEffIndex /*effIndex*/)
+        void HandleOnHit()
         {
             if (Unit* l_Pet = GetCaster())
                 if (Unit* l_Hunter = GetCaster()->GetOwner())
@@ -2495,16 +2496,24 @@ public:
                     // Deals 100% more damage and costs 100% more Focus when your pet has 50 or more Focus.
                     if (l_Pet->GetPower(POWER_FOCUS) + 25 >= 50)
                     {
-                        l_Damage *= 2;
+                        const SpellInfo* l_SpellInfo = sSpellMgr->GetSpellInfo(HUNTER_SPELL_BASIC_ATTACK_COST_MODIFIER);
+                        if (l_SpellInfo)
+                            l_Damage += CalculatePct(l_Damage, l_SpellInfo->Effects[EFFECT_1].BasePoints);
                         l_Pet->EnergizeBySpell(l_Pet, GetSpellInfo()->Id, -25, POWER_FOCUS);
                     }
                     SetHitDamage(l_Damage);
                 }
         }
 
+        void HandleBeforeHit()
+        {
+            SetHitDamage(1);
+        }
+
         void Register()
         {
-            OnEffectHitTarget += SpellEffectFn(spell_hun_claw_bite_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            BeforeHit += SpellHitFn(spell_hun_claw_bite_SpellScript::HandleBeforeHit);
+            OnHit += SpellHitFn(spell_hun_claw_bite_SpellScript::HandleOnHit);
         }
     };
 
