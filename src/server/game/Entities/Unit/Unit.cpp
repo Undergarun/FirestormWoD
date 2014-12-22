@@ -9866,16 +9866,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
 
             break;
         }
-        case 12950: // Meat Cleaver
-        {
-            if (!procSpell || ! victim || GetTypeId() != TYPEID_PLAYER)
-                return false;
-
-            if (procSpell->Id != 1680 && procSpell->Id != 44949)
-                return false;
-
-            break;
-        }
         case 87195: // Glyph of Mind Blast
         {
             if (!procSpell)
