@@ -1234,7 +1234,9 @@ class spell_dru_skull_bash: public SpellScriptLoader
 
 enum FaerieSwarmSpells
 {
-    SPELL_DRUID_FAERIE_DECREASE_SPEED       = 102354
+    SPELL_DRUID_FAERIE_DECREASE_SPEED       = 102354,
+    SPELL_DRUID_GLYPH_OF_FAE_SILENCE        = 114237,
+    SPELL_DRUID_FAE_SILENCE                 = 114238
 };
 
 // Faerie Swarm - 102355
@@ -1249,9 +1251,20 @@ class spell_dru_faerie_swarm: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (Unit* target = GetHitUnit())
-                        _player->CastSpell(target, SPELL_DRUID_FAERIE_DECREASE_SPEED, true);
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    if (Unit* l_Target = GetHitUnit())
+                    {
+                        l_Player->CastSpell(l_Target, SPELL_DRUID_FAERIE_DECREASE_SPEED, true);
+
+                        // Glyph of Fae Silence
+                        if (l_Player->GetShapeshiftForm() == FORM_BEAR && l_Player->HasAura(SPELL_DRUID_GLYPH_OF_FAE_SILENCE))
+                        {
+                            l_Player->CastSpell(l_Target, SPELL_DRUID_FAE_SILENCE, true);
+                            l_Player->ToPlayer()->AddSpellCooldown(GetSpellInfo()->Id, 0, 15 * IN_MILLISECONDS);
+                        }
+                    }
+                }
             }
 
             void Register()
@@ -1944,10 +1957,20 @@ class spell_dru_faerie_fire: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (_player->GetShapeshiftForm() == FORM_BEAR)
-                        if (_player->HasSpellCooldown(GetSpellInfo()->Id))
-                            _player->RemoveSpellCooldown(GetSpellInfo()->Id, true);
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                    if (l_Player->GetShapeshiftForm() == FORM_BEAR)
+                    {
+                        if (l_Player->HasSpellCooldown(GetSpellInfo()->Id))
+                            l_Player->RemoveSpellCooldown(GetSpellInfo()->Id, true);
+                        
+                        // Glyph of Fae Silence
+                        if (l_Player->HasAura(SPELL_DRUID_GLYPH_OF_FAE_SILENCE))
+                        {
+                            if (Unit* l_Target = GetHitUnit())
+                                l_Player->CastSpell(l_Target, SPELL_DRUID_FAE_SILENCE, true);
+                            l_Player->ToPlayer()->AddSpellCooldown(GetSpellInfo()->Id, 0, 15 * IN_MILLISECONDS);
+                        }
+                    }
             }
 
             void Register()

@@ -619,27 +619,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
 
             break;
         }
-        case SPELLFAMILY_DRUID:
-        {
-            switch (m_spellInfo->Id)
-            {
-            case 770:   // Faerie Fire
-            case 102355:// Faerie Swarm
-                if (m_caster->GetShapeshiftForm() != FORM_BEAR)
-                    return;
-
-                // Glyph of Fae Silence
-                if (m_caster->HasAura(114237) && m_caster->GetTypeId() == TYPEID_PLAYER)
-                {
-                    m_caster->CastSpell(unitTarget, 114238, true);
-                    m_caster->ToPlayer()->AddSpellCooldown(m_spellInfo->Id, 0, 15 * IN_MILLISECONDS);
-                }
-
-                break;
-            default:
-                break;
-            }
-        }
         case SPELLFAMILY_HUNTER:
         {
             switch (m_spellInfo->Id)
