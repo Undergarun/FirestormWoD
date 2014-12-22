@@ -1738,7 +1738,26 @@ class spell_dk_necrotic_plague_aura: public SpellScriptLoader
                         if (AuraPtr l_AuraNecroticPlague = l_Target->GetAura(DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA, l_Caster->GetGUID()))
                             l_AuraNecroticPlague->ModStackAmount(1);
 
-                        if (Unit* l_NewTarget = l_Caster->SelectNearbyTarget(l_Target, 8.0f))
+                        std::list<Unit*> l_TargetList;
+                        JadeCore::AnyUnfriendlyUnitInObjectRangeCheck u_check(l_Caster, l_Caster, 8.0f);
+                        JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> searcher(l_Caster, l_TargetList, u_check);
+                        l_Caster->VisitNearbyObject(8.0f, searcher);
+
+                        l_TargetList.remove_if([this, l_Caster](Unit* p_Unit) -> bool
+                        {
+                            if (p_Unit == nullptr)
+                                return true;
+
+                            if (!l_Caster->IsValidAttackTarget(p_Unit))
+                                return true;
+
+                            return false;
+                        });
+
+                        if (l_TargetList.empty())
+                            return;
+
+                        if (Unit* l_NewTarget = JadeCore::Containers::SelectRandomContainerElement(l_TargetList))
                             l_Caster->CastSpell(l_NewTarget, DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA, true);
                     }
                 }
