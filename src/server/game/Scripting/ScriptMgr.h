@@ -562,6 +562,11 @@ class ScriptMgr
         /// @p_Value  : New value
         void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_Value);
 
+        /// Called when a player kills another player
+        /// @p_Player : Player instance
+        /// @p_Value  : New value
+        void OnModifyHealth(Player * p_Player, int32 p_Value);
+
         /// Called when a player's level changes (right before the level is applied)
         /// @p_Player   : Player instance
         /// @p_OldLevel : Old player Level

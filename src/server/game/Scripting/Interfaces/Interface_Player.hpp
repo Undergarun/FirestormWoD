@@ -174,6 +174,15 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_Value);
         }
 
+        /// Called when a player kills another player
+        /// @p_Player : Player instance
+        /// @p_Value  : New value
+        virtual void OnModifyHealth(Player * p_Player, int32 p_Value)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_Value);
+        }
+
         /// Called when a player's level changes (right before the level is applied)
         /// @p_Player   : Player instance
         /// @p_OldLevel : Old player Level

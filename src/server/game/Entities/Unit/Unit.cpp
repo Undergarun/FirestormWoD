@@ -15948,6 +15948,10 @@ void Unit::SetHealth(uint32 val)
     {
         if (player->GetGroup())
             player->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_CUR_HP);
+
+        // Hook playerScript OnModifyHealth
+        if (GetTypeId() == TYPEID_PLAYER)
+            sScriptMgr->OnModifyHealth(this->ToPlayer(), val);
     }
     else if (Pet* pet = ToCreature()->ToPet())
     {

@@ -1590,6 +1590,14 @@ void ScriptMgr::OnModifyPower(Player * p_Player, Powers p_Power, int32 p_Value)
     FOREACH_SCRIPT(PlayerScript)->OnModifyPower(p_Player, p_Power, p_Value);
 }
 
+/// Called when a player kills another player
+/// @p_Player : Player instance
+/// @p_Value  : New value
+void ScriptMgr::OnModifyHealth(Player * p_Player, int32 p_Value)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnModifyHealth(p_Player, p_Value);
+}
+
 /// Called when a player's level changes (right before the level is applied)
 /// @p_Player   : Player instance
 /// @p_OldLevel : Old player Level
