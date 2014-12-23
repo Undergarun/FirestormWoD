@@ -3463,6 +3463,20 @@ void SpellMgr::LoadSpellCustomAttr()
             case 157174: // Elemental Fusion
                 spellInfo->ProcCharges = 1;
                 break;
+            case 162537:///< Poisoned Ammo
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_PROC_TRIGGER_SPELL;
+                break;
+            case 162543:///< Poisoned Ammo (triggered)
+                spellInfo->Speed = 0.0f;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
+                break;
+            case 162546:///< Frozen Ammo (triggered)
+                spellInfo->Speed = 0.0f;
+                break;
+            case 121818:///< Stampede
+                spellInfo->Effects[EFFECT_1].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->Effects[EFFECT_1].TargetB = 0;
+                break;
             case 45470: // Death Strike (no heal bonus in SPELL_DAMAGE_CLASS_NONE)
                 spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MELEE;
                 break;

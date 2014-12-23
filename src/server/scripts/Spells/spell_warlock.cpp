@@ -131,7 +131,9 @@ enum WarlockSpells
     WARLOCK_DEMON_SPELL_LOCK                = 19647,
     WARLOCK_DEMON_AXE_TOSS                  = 89766,
     WARLOCK_LIFE_TAP                        = 1454,
-    WARLOCK_GLYPH_OF_LIFE_TAP               = 63320
+    WARLOCK_GLYPH_OF_LIFE_TAP               = 63320,
+    WARLOCK_SPELL_IMMOLATE_AURA             = 157736,
+    WARLOCK_GLYPH_OF_DRAIN_LIFE             = 63302
 };
 
 // Called by Grimoire: Imp - 111859, Grimoire: Voidwalker - 111895, Grimoire: Succubus - 111896
@@ -733,7 +735,7 @@ class spell_warl_agony: public SpellScriptLoader
             void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
             {
                 if (GetCaster())
-                    amount = GetCaster()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL) * GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier * GetStackAmount();
+                    amount *= GetStackAmount();
             }
 
             void OnTick(constAuraEffectPtr aurEff)
@@ -2026,7 +2028,7 @@ class spell_warl_ember_tap: public SpellScriptLoader
 
                         // ManaCost == 0, wrong way to retrieve cost ?
                         //l_Player->ModifyPower(POWER_BURNING_EMBERS, CalculatePct(GetSpellInfo()->ManaCost, l_SearingFlames->GetSpellInfo()->Effects[EFFECT_1].BasePoints));
-                        l_Player->ModifyPower(POWER_BURNING_EMBERS, 5 * l_Player->GetPowerCoeff(POWER_BURNING_EMBERS));
+                        l_Player->ModifyPower(POWER_BURNING_EMBERS, 5);
                     }
 
                     if (AuraPtr l_GlyphOfEmberTap = l_Player->GetAura(SPELL_WARL_GLYPH_OF_EMBER_TAP))
@@ -2231,9 +2233,9 @@ class spell_warl_drain_life: public SpellScriptLoader
                         l_Pct += l_EmpoweredDrainLife->GetSpellInfo()->Effects[EFFECT_0].BasePoints * aurEff->GetTickNumber();
 
                     if (AuraPtr l_HarvestLife = l_Caster->GetAura(SPELL_WARL_HARVEST_LIFE))
-                        l_Pct = l_HarvestLife->GetSpellInfo()->Effects[EFFECT_0].BasePoints;
+                        l_Pct += l_HarvestLife->GetSpellInfo()->Effects[EFFECT_1].BasePoints;
 
-                    int32 l_Bp0 = l_Caster->CountPctFromMaxHealth(l_Pct / GetSpellInfo()->GetDuration());
+                    int32 l_Bp0 = l_Caster->CountPctFromMaxHealth(l_Pct) / GetSpellInfo()->GetDuration();
                     l_Caster->CastCustomSpell(l_Caster, SPELL_WARL_DRAIN_LIFE_HEAL, &l_Bp0, NULL, NULL, true);
                 }
             }
@@ -2690,8 +2692,39 @@ class spell_warl_unstable_affliction: public SpellScriptLoader
         }
 };
 
+// Soulburn : Immolate - 348
+class spell_warl_immolate : public SpellScriptLoader
+{
+public:
+    spell_warl_immolate() : SpellScriptLoader("spell_warl_immolate") { }
+
+    class spell_warl_immolate_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warl_immolate_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+                if (Unit* l_Target = GetHitUnit())
+                    l_Caster->CastSpell(l_Target, WARLOCK_SPELL_IMMOLATE_AURA, true);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_warl_immolate_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_warl_immolate_SpellScript();
+    }
+};
+
+
 void AddSC_warlock_spell_scripts()
 {
+    new spell_warl_immolate();
     new spell_warl_grimoire_of_service();
     new spell_warl_haunt_dispel();
     new spell_warl_demonic_gateway_charges();

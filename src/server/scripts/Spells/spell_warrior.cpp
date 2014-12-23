@@ -317,36 +317,6 @@ class spell_warr_colossus_smash: public SpellScriptLoader
         }
 };
 
-// Called by Raging Blow - 85288
-// Meat Cleaver - 85739
-class spell_warr_meat_cleaver: public SpellScriptLoader
-{
-    public:
-        spell_warr_meat_cleaver() : SpellScriptLoader("spell_warr_meat_cleaver") { }
-
-        class spell_warr_meat_cleaver_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warr_meat_cleaver_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Unit* caster = GetCaster())
-                    if (caster->HasAura(WARRIOR_SPELL_MEAT_CLEAVER_PROC))
-                        caster->RemoveAura(WARRIOR_SPELL_MEAT_CLEAVER_PROC);
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_warr_meat_cleaver_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warr_meat_cleaver_SpellScript();
-        }
-};
-
 // Dragon Roar - 118000
 class spell_warr_dragon_roar: public SpellScriptLoader
 {
@@ -1269,15 +1239,15 @@ class spell_warr_glyph_of_gag_order: public SpellScriptLoader
         }
 };
 
-// Shield Barrier - 112048
+// Shield Barrier - 174926
 class spell_warr_shield_barrier: public SpellScriptLoader
 {
     public:
-        spell_warr_shield_barrier() : SpellScriptLoader("spell_warl_shield_barrier") { }
+        spell_warr_shield_barrier() : SpellScriptLoader("spell_warr_shield_barrier") { }
 
-        class spell_warl_shield_barrier_AuraScript : public AuraScript
+        class spell_warr_shield_barrier_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_warl_shield_barrier_AuraScript);
+            PrepareAuraScript(spell_warr_shield_barrier_AuraScript);
 
             void CalculateAmount(constAuraEffectPtr aurEff, int32& amount, bool& /*canBeRecalculated*/)
             {
@@ -1287,13 +1257,13 @@ class spell_warr_shield_barrier: public SpellScriptLoader
 
             void Register()
             {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_shield_barrier_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warr_shield_barrier_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
             }
         };
 
         AuraScript* GetAuraScript() const
         {
-            return new spell_warl_shield_barrier_AuraScript();
+            return new spell_warr_shield_barrier_AuraScript();
         }
 };
 
@@ -1383,6 +1353,108 @@ public:
     }
 };
 
+enum WhirlwindSpells
+{
+    SPELL_WARR_WHIRLWIND_OFFHAND = 44949
+};
+
+// Whirlwind - 1680
+class spell_warr_whirlwind: public SpellScriptLoader
+{
+public:
+    spell_warr_whirlwind() : SpellScriptLoader("spell_warr_whirlwind") { }
+
+    class spell_warr_whirlwind_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warr_whirlwind_SpellScript);
+
+        void HandleOnHit()
+        {
+            Player* l_Player = GetCaster()->ToPlayer();
+            Unit* l_Target = GetHitUnit();
+            if (!l_Player || !l_Target)
+                return;
+
+            if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_FURY)
+                l_Player->CastSpell(l_Target, SPELL_WARR_WHIRLWIND_OFFHAND, true);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_warr_whirlwind_SpellScript::HandleOnHit);
+        }
+    };
+
+    class spell_warr_whirlwind_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_warr_whirlwind_AuraScript);
+
+        void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+        {
+            if (Unit* l_Caster = GetCaster())
+                if (Player* l_Player = l_Caster->ToPlayer())
+                    if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
+                        amount = 200;
+        }
+
+        void Register()
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warr_whirlwind_AuraScript::CalculateAmount, EFFECT_1, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
+        }
+
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_warr_whirlwind_SpellScript();
+    }
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_warr_whirlwind_AuraScript();
+    }
+};
+
+
+enum ShieldChargeSpells
+{
+    SPELL_WARR_SHIELD_CHARGE_MODIFIER = 169667,
+    SPELL_WARR_SHIELD_CHARGE_CHARGE = 178768
+};
+
+// Shield Charge - 156321
+class spell_warr_shield_charge: public SpellScriptLoader
+{
+public:
+    spell_warr_shield_charge() : SpellScriptLoader("spell_warr_shield_charge") { }
+
+    class spell_warr_shield_charge_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warr_shield_charge_SpellScript);
+
+        void HandleOnCast()
+        {
+            Unit* l_Caster = GetCaster();
+            Unit* l_Target = GetExplTargetUnit();
+            if (!l_Target)
+                return;
+
+            l_Caster->CastSpell(l_Target, SPELL_WARR_SHIELD_CHARGE_CHARGE, true);
+            l_Caster->CastSpell(l_Caster, SPELL_WARR_SHIELD_CHARGE_MODIFIER, true);
+        }
+
+        void Register()
+        {
+            OnCast += SpellCastFn(spell_warr_shield_charge_SpellScript::HandleOnCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_warr_shield_charge_SpellScript();
+    }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_slam();
@@ -1392,7 +1464,6 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_shield_block();
     new spell_warr_storm_bolt();
     new spell_warr_colossus_smash();
-    new spell_warr_meat_cleaver();
     new spell_warr_dragon_roar();
     new spell_warr_staggering_shout();
     new spell_warr_second_wind();
@@ -1419,4 +1490,6 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_shield_barrier();
     new spell_warr_anger_management();
     new spell_warr_execute();
+    new spell_warr_whirlwind();
+    new spell_warr_shield_charge();
 }

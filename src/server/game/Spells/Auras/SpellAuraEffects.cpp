@@ -870,36 +870,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                     }
                     break;
                 }
-                case 1079:  // Rip
-                {
-                    m_canBeRecalculated = false;
-
-                    if (caster->GetTypeId() != TYPEID_PLAYER)
-                        break;
-
-                    // Basepoint hotfix
-                    amount *= 10;
-
-                    uint8 cp = caster->ToPlayer()->GetComboPoints();
-                    int32 AP = caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
-
-                    // In feral spec : 0.484 * $AP * cp
-                    if (caster->ToPlayer()->GetSpecializationId(caster->ToPlayer()->GetActiveSpec()) == SPEC_DRUID_FERAL)
-                        amount += int32(cp * AP * 0.484f);
-                    // In other spec : 0.387 * $AP * cp
-                    else
-                        amount += int32(cp * AP * 0.387f);
-
-                    // Idol of Feral Shadows. Cant be handled as SpellMod in SpellAura:Dummy due its dependency from CPs
-                    if (constAuraEffectPtr aurEff = caster->GetAuraEffect(34241, EFFECT_0))
-                        amount += cp * aurEff->GetAmount();
-                    // Idol of Worship. Cant be handled as SpellMod in SpellAura:Dummy due its dependency from CPs
-                    else if (constAuraEffectPtr aurEff = caster->GetAuraEffect(60774, EFFECT_0))
-                        amount += cp * aurEff->GetAmount();
-
-                    amount /= int32(GetBase()->GetMaxDuration() / GetBase()->GetEffect(0)->GetAmplitude());
-                    break;
-                }
                 case 50536: // Unholy Blight
                 {
                     m_canBeRecalculated = false;

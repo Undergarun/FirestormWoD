@@ -3040,7 +3040,7 @@ float Unit::GetUnitMissChancePhysical(Unit const* p_Attacker, WeaponAttackType p
     if (p_AttType == WeaponAttackType::RangedAttack)
         l_Chance += GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_RANGED_HIT_CHANCE);
     else
-        l_Chance += GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_MELEE_HIT_CHANCE);
+        l_Chance += -(GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_MELEE_HIT_CHANCE));
 
     return l_Chance;
 }
@@ -9866,16 +9866,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
 
             break;
         }
-        case 12950: // Meat Cleaver
-        {
-            if (!procSpell || ! victim || GetTypeId() != TYPEID_PLAYER)
-                return false;
-
-            if (procSpell->Id != 1680 && procSpell->Id != 44949)
-                return false;
-
-            break;
-        }
         case 87195: // Glyph of Mind Blast
         {
             if (!procSpell)
@@ -12783,7 +12773,7 @@ uint32 Unit::SpellCriticalHealingBonus(SpellInfo const* /*p_SpellProto*/, uint32
 {
     int32 l_CritPct = 200; // 200% for all healing type...
 
-    if (GetTypeId() == TYPEID_PLAYER && p_Victim->GetTypeId() == TYPEID_PLAYER && GetMapId() != 1191)
+    if (p_Victim && GetTypeId() == TYPEID_PLAYER && p_Victim->GetTypeId() == TYPEID_PLAYER && GetMapId() != 1191)
         l_CritPct = 150; // WoD: ...except for PvP out of Ashran area where is 150%
 
     l_CritPct += GetTotalAuraModifier(SPELL_AURA_MOD_CRITICAL_HEALING_AMOUNT);
@@ -18282,7 +18272,7 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, AuraPtr aura, SpellInfo con
         if (spellProto->EquippedItemClass == ITEM_CLASS_WEAPON)
         {
             Item* item = NULL;
-            if (attType == WeaponAttackType::BaseAttack)
+            if (attType == WeaponAttackType::BaseAttack || attType == WeaponAttackType::RangedAttack)
                 item = player->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
             else if (attType == WeaponAttackType::OffAttack)
                 item = player->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
