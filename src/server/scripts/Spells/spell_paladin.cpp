@@ -123,7 +123,10 @@ enum PaladinSpells
     PALADIN_SPELL_SHIELD_OF_THE_RIGHTEOUS       = 53600,
     PALADIN_SPELL_LIGHT_OF_DAWN                 = 85222,
     PALADIN_SPELL_DIVINE_PURPOSE                = 86172,
-    PALADIN_SPELL_HAMMER_OF_WRATH_POWER         = 141459
+    PALADIN_SPELL_HAMMER_OF_WRATH_POWER         = 141459,
+    PALADIN_SPELL_SAVED_BY_THE_LIGHT            = 157047,
+    PALADIN_SPELL_SAVED_BY_THE_LIGHT_PROC       = 157131,
+    PALADIN_SPELL_SAVED_BY_THE_LIGHT_SHIELD     = 157128
 };
 
 // Glyph of devotion aura - 146955
@@ -1885,6 +1888,31 @@ public:
     }
 };
 
+// Saved By The Light - 157047
+class PlayerScript_saved_by_the_light : public PlayerScript
+{
+public:
+    PlayerScript_saved_by_the_light() :PlayerScript("PlayerScript_saved_by_the_light") {}
+
+    void OnModifyHealth(Player* p_Player, int32 p_Value)
+    {
+        if (((p_Player->HasAura(PALADIN_SPELL_BEACON_OF_FAITH) && p_Player->GetAura(PALADIN_SPELL_BEACON_OF_FAITH)->GetOwner()->ToPlayer() != nullptr && p_Player->GetAura(PALADIN_SPELL_BEACON_OF_FAITH)->GetOwner()->ToPlayer()->HasAura(PALADIN_SPELL_SAVED_BY_THE_LIGHT))
+            || (p_Player->HasAura(PALADIN_SPELL_BEACON_OF_LIGHT) && p_Player->GetAura(PALADIN_SPELL_BEACON_OF_LIGHT)->GetOwner()->ToPlayer() != nullptr && p_Player->GetAura(PALADIN_SPELL_BEACON_OF_LIGHT)->GetOwner()->ToPlayer()->HasAura(PALADIN_SPELL_SAVED_BY_THE_LIGHT))
+            || p_Player->HasAura(PALADIN_SPELL_SAVED_BY_THE_LIGHT)) && p_Player->HasAura(PALADIN_SPELL_SAVED_BY_THE_LIGHT_PROC) == false)
+            if (const SpellInfo* l_SpellInfo = sSpellMgr->GetSpellInfo(PALADIN_SPELL_SAVED_BY_THE_LIGHT))
+            { 
+                // When you or your Beacon of Light target drop below 30 % health
+                if (((p_Value * 100) / p_Player->GetMaxHealth()) < (uint32)l_SpellInfo->Effects[EFFECT_0].BasePoints)
+                {
+                    // instantly grant the injured target a protective shield, absorbing up to 30% of their maximum health
+                    int32 l_Absorb = CalculatePct(p_Player->GetMaxHealth(), l_SpellInfo->Effects[EFFECT_0].BasePoints);
+                    p_Player->CastCustomSpell(p_Player, PALADIN_SPELL_SAVED_BY_THE_LIGHT_SHIELD, &l_Absorb, NULL, NULL, true);
+                    p_Player->CastSpell(p_Player, PALADIN_SPELL_SAVED_BY_THE_LIGHT_PROC, true);
+                }
+            }
+    }
+};
+
 // Call by Templars Verdict 85256 - Divine storm 53385 - Eternal Flame 114163
 // Call by Word of Glory 85673 - Shield of Righteous 53600
 // Call by Light of dawn 85222
@@ -2043,4 +2071,5 @@ void AddSC_paladin_spell_scripts()
 
     // Player Script
     new PlayerScript_empowered_divine_storm();
+    new PlayerScript_saved_by_the_light();
 }
