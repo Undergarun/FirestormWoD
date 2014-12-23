@@ -133,7 +133,8 @@ enum WarlockSpells
     WARLOCK_LIFE_TAP                        = 1454,
     WARLOCK_GLYPH_OF_LIFE_TAP               = 63320,
     WARLOCK_SPELL_IMMOLATE_AURA             = 157736,
-    WARLOCK_GLYPH_OF_DRAIN_LIFE             = 63302
+    WARLOCK_GLYPH_OF_DRAIN_LIFE             = 63302,
+    WARLOCK_GLYPH_OF_DARK_SOUL              = 159665
 };
 
 // Called by Grimoire: Imp - 111859, Grimoire: Voidwalker - 111895, Grimoire: Succubus - 111896
@@ -2721,9 +2722,52 @@ public:
     }
 };
 
+// dark soul - 77801
+class spell_warl_dark_soul : public SpellScriptLoader
+{
+public:
+    spell_warl_dark_soul() : SpellScriptLoader("spell_warl_dark_soul") { }
+
+    class spell_warl_dark_soul_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warl_dark_soul_SpellScript);
+
+        void HandleAfterCast()
+        {
+            if (Player* l_Player = GetCaster()->ToPlayer())
+            {
+                uint32 l_OldCooldown = l_Player->GetSpellCooldownDelay(GetSpellInfo()->Id);
+                uint32 l_NewCooldown = l_OldCooldown - CalculatePct(l_OldCooldown, 50);
+
+                l_Player->RemoveSpellCooldown(GetSpellInfo()->Id, true);
+
+                if (!l_Player->HasAura(WARLOCK_GLYPH_OF_DARK_SOUL))
+                    l_Player->AddSpellCooldown(GetSpellInfo()->Id, 0, l_OldCooldown, true);
+                else                 // Case of GLYPH_OF_DARK_SOUL
+                    l_Player->AddSpellCooldown(GetSpellInfo()->Id, 0, l_NewCooldown, true);
+
+                if (AuraPtr l_DarkSoul = l_Player->GetAura(GetSpellInfo()->Id))
+                    l_DarkSoul->SetDuration(CalculatePct(l_DarkSoul->GetDuration(), 50));
+
+            }
+        }
+
+        void Register()
+        {
+            AfterCast += SpellCastFn(spell_warl_dark_soul_SpellScript::HandleAfterCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_warl_dark_soul_SpellScript();
+    }
+};
+
 
 void AddSC_warlock_spell_scripts()
 {
+    new spell_warl_dark_soul();
     new spell_warl_immolate();
     new spell_warl_grimoire_of_service();
     new spell_warl_haunt_dispel();

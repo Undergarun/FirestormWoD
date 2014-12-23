@@ -1878,7 +1878,8 @@ public:
                     {
                         SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(ROGUE_SPELL_EVISCERATE_ENVENOM_BONUS_DAMAGE);
 
-                        l_Damage += l_ComboPoint * l_SpellInfo->Effects[EFFECT_0].BasePoints;
+                        if (l_SpellInfo != nullptr)
+                            l_Damage += l_ComboPoint * l_SpellInfo->Effects[EFFECT_0].BasePoints;
                     }
                 }
                 SetHitDamage(l_Damage);

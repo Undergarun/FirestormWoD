@@ -219,12 +219,12 @@ public:
                     uint32 l_OldCooldown = l_Player->GetSpellCooldownDelay(GetSpellInfo()->Id);
                     uint32 l_NewCooldown = l_OldCooldown - CalculatePct(l_OldCooldown, sSpellMgr->GetSpellInfo(PALADIN_SPELL_SANCTIFIED_WRATH_TALENT)->Effects[EFFECT_0].BasePoints);
 
-                    l_Player->ToPlayer()->RemoveSpellCooldown(GetSpellInfo()->Id, true);
+                    l_Player->RemoveSpellCooldown(GetSpellInfo()->Id, true);
 
                     if (!l_Player->HasSpell(PALADIN_SPELL_SANCTIFIED_WRATH_TALENT))
-                        l_Player->ToPlayer()->AddSpellCooldown(GetSpellInfo()->Id, 0, l_OldCooldown, true);
+                        l_Player->AddSpellCooldown(GetSpellInfo()->Id, 0, l_OldCooldown, true);
                     else
-                        l_Player->ToPlayer()->AddSpellCooldown(GetSpellInfo()->Id, 0, l_NewCooldown, true);
+                        l_Player->AddSpellCooldown(GetSpellInfo()->Id, 0, l_NewCooldown, true);
                 }
         }
 
