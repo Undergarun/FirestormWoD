@@ -290,12 +290,12 @@ namespace MS
                 {
                     events.Reset();
 
+                    m_CombatStarted = false;
                     if (instance && instance->GetBossState(Data::Rukhran) != EncounterState::SPECIAL
                         && instance->GetBossState(Data::Rukhran) != EncounterState::FAIL)
                     {
                         _Reset();
 
-                        m_CombatStarted = false;
                         m_WaypointId = 0;
                         me->SetReactState(REACT_PASSIVE);
                         me->GetMotionMaster()->MovePoint(m_WaypointId, k_Waypoints[0]);
