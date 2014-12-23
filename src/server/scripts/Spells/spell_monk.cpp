@@ -4014,8 +4014,6 @@ public:
             Player* l_Player = GetCaster()->ToPlayer();
             Unit* l_Target = GetHitUnit();
 
-            sLog->outError(LOG_FILTER_GENERAL, "PASSE");
-
             if (l_Player == nullptr || l_Target == nullptr)
                 return;
 
@@ -4023,7 +4021,6 @@ public:
 
             // Base damage
             int32 l_Damage = GetHitDamage() + int32(frand(5.375f * l_Low, 5.375f * l_High));
-            sLog->outError(LOG_FILTER_GENERAL, "l_Damage = %d", l_Damage);
             SetHitDamage(l_Damage);
 
             // Add additionnal stuff depending on spec
