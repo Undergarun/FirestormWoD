@@ -2025,7 +2025,7 @@ class spell_warl_ember_tap: public SpellScriptLoader
 
                     if (AuraPtr l_SearingFlames = l_Player->GetAura(SPELL_WARL_SEARING_FLAMES))
                     {
-                        healAmount *= 1.5f;
+                        healAmount *= 1 + (l_SearingFlames->GetSpellInfo()->Effects[EFFECT_0].BasePoints / 100.0f);
 
                         // ManaCost == 0, wrong way to retrieve cost ?
                         //l_Player->ModifyPower(POWER_BURNING_EMBERS, CalculatePct(GetSpellInfo()->ManaCost, l_SearingFlames->GetSpellInfo()->Effects[EFFECT_1].BasePoints));
