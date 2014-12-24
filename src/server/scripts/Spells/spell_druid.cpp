@@ -2770,78 +2770,6 @@ public:
     }
 };
 
-enum LeaderofthePackSpells
-{
-    SPELL_DRUID_LEADER_OF_THE_PACK_CRITICAL = 24932,
-    SPELL_DRUID_LEADER_OF_THE_PACK_HEAL     = 68285
-};
-
-// 17007 - Lead of the Pack
-class spell_dru_leader_of_the_pack: public SpellScriptLoader
-{
-public:
-    spell_dru_leader_of_the_pack() : SpellScriptLoader("spell_dru_leader_of_the_pack") { }
-
-    class spell_dru_leader_of_the_pack_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_dru_leader_of_the_pack_AuraScript);
-
-        bool Load()
-        {
-            return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-        }
-
-        void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            if (Unit* target = GetTarget())
-                target->CastSpell(target, SPELL_DRUID_LEADER_OF_THE_PACK_CRITICAL, true);
-        }
-
-        void Register()
-        {
-            OnEffectApply += AuraEffectApplyFn(spell_dru_leader_of_the_pack_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_dru_leader_of_the_pack_AuraScript();
-    }
-};
-
-// 24932 - Lead of the Pack (Critical)
-class spell_dru_leader_of_the_pack_critical: public SpellScriptLoader
-{
-public:
-    spell_dru_leader_of_the_pack_critical() : SpellScriptLoader("spell_dru_leader_of_the_pack_critical") { }
-
-    class spell_dru_leader_of_the_pack_critical_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_dru_leader_of_the_pack_critical_AuraScript);
-
-        bool Load()
-        {
-            return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-        }
-
-        void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            if (Unit* target = GetTarget())
-                target->CastSpell(target, SPELL_DRUID_LEADER_OF_THE_PACK_HEAL, true);
-        }
-
-        void Register()
-        {
-            OnEffectApply += AuraEffectApplyFn(spell_dru_leader_of_the_pack_critical_AuraScript::OnApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_dru_leader_of_the_pack_critical_AuraScript();
-    }
-};
-
 enum SpellsRake
 {
     SPELL_DRU_RAKE_STUNT = 163505
@@ -3030,8 +2958,8 @@ public:
         {
             Unit* l_Caster = GetCaster();
 
-            if (l_Caster && l_Caster->GetTypeId() == TYPEID_PLAYER)
-                p_Amount *= l_Caster->ToPlayer()->GetComboPoints() * 8;
+            if (l_Caster && l_Caster->GetTypeId() == TYPEID_PLAYER && GetEffect(EFFECT_0))
+                p_Amount = (p_Amount * l_Caster->ToPlayer()->GetComboPoints() * 8) / (GetMaxDuration() / GetEffect(EFFECT_0)->GetAmplitude());
         }
 
         void Register()
@@ -3096,8 +3024,6 @@ void AddSC_druid_spell_scripts()
     new spell_dru_travel_form_playerscript();
     new spell_dru_swift_flight_passive();
     new spell_dru_glyph_of_the_stag();
-    new spell_dru_leader_of_the_pack();
-    new spell_dru_leader_of_the_pack_critical();
     new spell_dru_rake();
     new spell_dru_shred();
     new spell_dru_ferocious_bite();

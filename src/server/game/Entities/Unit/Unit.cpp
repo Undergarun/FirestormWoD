@@ -7331,15 +7331,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     // if not found Rip
                     return false;
                 }
-                case 24932: // Leader of the Pack
-                {
-                   if (triggerAmount <= 0)
-                        return false;
-                    basepoints0 = int32(CountPctFromMaxHealth(triggerAmount));
-                    target = this;
-                    triggered_spell_id = 34299;
-                    break;
-                }
                 case 28719: // Healing Touch (Dreamwalker Raiment set)
                 {
                     // mana back
@@ -16933,13 +16924,13 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     }
 
     // Leader of the Pack
-    if (target && GetTypeId() == TYPEID_PLAYER && (procExtra & PROC_EX_CRITICAL_HIT) && HasAura(17007) && (attType == WeaponAttackType::BaseAttack || (procSpell && procSpell->GetSchoolMask() == SPELL_SCHOOL_MASK_NORMAL)))
+    if (GetTypeId() == TYPEID_PLAYER && HasAura(17007) && (procExtra & PROC_EX_CRITICAL_HIT) &&
+        (attType == WeaponAttackType::BaseAttack || (procSpell && procSpell->GetSchoolMask() == SPELL_SCHOOL_MASK_NORMAL)))
     {
-        if (!ToPlayer()->HasSpellCooldown(34299))
+        if (!ToPlayer()->HasSpellCooldown(68285))
         {
-            CastSpell(this, 34299, true); // Heal
-            EnergizeBySpell(this, 68285, CountPctFromMaxMana(8), POWER_MANA);
-            ToPlayer()->AddSpellCooldown(34299, 0, 6 * IN_MILLISECONDS); // 6s ICD
+            CastSpell(this, 68285, true); // Heal himself
+            ToPlayer()->AddSpellCooldown(68285, 0, 6 * IN_MILLISECONDS); // 6s ICD
         }
     }
 

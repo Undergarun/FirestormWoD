@@ -5213,11 +5213,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 56224: // Glyph of Healthstone
                 spellInfo->Effects[0].BasePoints = 0;
                 break;
-            case 34299: // Leader of the pack - healing
-            case 81280: // Blood Burst
-                spellInfo->Effects[0].Effect = SPELL_EFFECT_HEAL_PCT;
-                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
-                break;
             case 90259: // Glyph of Frost Pillar
                 spellInfo->Effects[0].MiscValue = 0;
                 spellInfo->Effects[0].MiscValueB = 0;
