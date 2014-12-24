@@ -1571,6 +1571,8 @@ class spell_rog_stealth: public SpellScriptLoader
                 {
                     l_Caster->CastSpell(l_Caster, 158188, true);
                     l_Caster->CastSpell(l_Caster, 158185, true);
+                    if (l_Caster->HasSpell(ROGUE_SPELL_SHADOW_FOCUS_AURA))
+                        l_Caster->CastSpell(l_Caster, ROGUE_SPELL_SHADOW_FOCUS_COST_PCT, true);
                 }
             }
 
@@ -1580,6 +1582,8 @@ class spell_rog_stealth: public SpellScriptLoader
                 {
                     l_Caster->RemoveAura(158188);
                     l_Caster->RemoveAura(158185);
+                    if (l_Caster->HasAura(ROGUE_SPELL_SHADOW_FOCUS_COST_PCT))
+                        l_Caster->RemoveAura(ROGUE_SPELL_SHADOW_FOCUS_COST_PCT);
                 }
             }
 
@@ -1593,43 +1597,6 @@ class spell_rog_stealth: public SpellScriptLoader
     AuraScript* GetAuraScript() const
     {
         return new spell_rog_stealth_AuraScript();
-    }
-};
-
-// Shadow Focus - 108209
-class spell_rog_shadow_focus: public SpellScriptLoader
-{
-public:
-    spell_rog_shadow_focus() : SpellScriptLoader("spell_rog_shadow_focus") { }
-
-    class spell_rog_shadow_focus_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_rog_shadow_focus_AuraScript);
-
-        void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            if (Unit* l_Caster = GetCaster())
-                if (!l_Caster->HasAura(ROGUE_SPELL_SHADOW_FOCUS_COST_PCT))
-                    l_Caster->CastSpell(l_Caster, ROGUE_SPELL_SHADOW_FOCUS_COST_PCT, true);
-        }
-
-        void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            if (Unit* l_Caster = GetCaster())
-                if (l_Caster->HasAura(ROGUE_SPELL_SHADOW_FOCUS_COST_PCT))
-                    l_Caster->RemoveAura(ROGUE_SPELL_SHADOW_FOCUS_COST_PCT);
-        }
-
-        void Register()
-        {
-            OnEffectApply += AuraEffectApplyFn(spell_rog_shadow_focus_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            OnEffectRemove += AuraEffectRemoveFn(spell_rog_shadow_focus_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_rog_shadow_focus_AuraScript();
     }
 };
 
@@ -1972,7 +1939,6 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_smoke_bomb();
     new spell_rog_internal_bleeding();
     new spell_rog_burst_of_speed();
-    new spell_rog_shadow_focus();
     new spell_rog_killing_spree();
     new spell_rog_glyph_of_decoy();
     new spell_rog_shuriken_toss();
