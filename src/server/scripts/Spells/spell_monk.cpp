@@ -4157,8 +4157,8 @@ enum HurricaneStrikeSpells
     //SPELL_MONK_MANA_MEDITATION            = 121278
 };
 
-// Hurricane Strike - 158221
-class spell_monk_hurricane_strike: public SpellScriptLoader
+// Hurricane Strike - 152175
+class spell_monk_hurricane_strike : public SpellScriptLoader
 {
 public:
     spell_monk_hurricane_strike() : SpellScriptLoader("spell_monk_hurricane_strike") { }
@@ -4169,47 +4169,10 @@ public:
 
         void HandleOnHit()
         {
-            if (!GetCaster())
-                return;
-
-            Player* l_Player = GetCaster()->ToPlayer();
-            if (!l_Player)
-                return;
-
-            Item* mainItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-            Item* offItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
-
-            float l_MainWeaponMinDamage = 0.0f;
-            float l_MainWeaponMaxDamage = 0.0f;
-            float l_MainWeaponSpeed = 1.0f;
-            float l_OffhandWeaponMinDamage = 0.0f;
-            float l_OffhandWeaponMaxDamage = 0.0f;
-            float l_OffhandWeaponSpeed = 1.0f;
-
-            if (mainItem && mainItem->GetTemplate()->Class == ITEM_CLASS_WEAPON)
+            if (Unit* l_Caster = GetCaster())
             {
-                l_MainWeaponMinDamage = mainItem->GetTemplate()->DamageMin;
-                l_MainWeaponMaxDamage = mainItem->GetTemplate()->DamageMax;
-                l_MainWeaponSpeed = float(mainItem->GetTemplate()->Delay) / 1000.0f;
+                l_Caster->CastSpell(l_Caster, 158221, true);
             }
-            if (offItem && offItem->GetTemplate()->Class == ITEM_CLASS_WEAPON)
-            {
-                l_OffhandWeaponMinDamage = offItem->GetTemplate()->DamageMin;
-                l_OffhandWeaponMaxDamage = offItem->GetTemplate()->DamageMax;
-                l_OffhandWeaponSpeed = float(offItem->GetTemplate()->Delay) / 1000.0f;
-            }
-
-            float l_Stnc = (l_Player->HasAura(SPELL_MONK_STANCE_OF_THE_FIERCE_TIGER)) ? 1.2f : 1.0f;
-            float l_Dwm = (l_Player->HasAura(SPELL_MONK_2H_STAFF_OVERRIDE) || l_Player->HasAura(SPELL_MONK_2H_POLEARM_OVERRIDE)) ? 1.0f : 0.857143f;
-            float l_Offm = (l_Player->HasAura(SPELL_MONK_2H_STAFF_OVERRIDE) || l_Player->HasAura(SPELL_MONK_2H_POLEARM_OVERRIDE)) ? 0.0f : 1.0f;
-
-            float l_Offlow = (l_Player->HasSpell(SPELL_MONK_MANA_MEDITATION)) ? l_MainWeaponMinDamage / 2 / l_MainWeaponSpeed : l_OffhandWeaponMinDamage / 2 / l_OffhandWeaponSpeed;
-            float l_Offhigh = (l_Player->HasSpell(SPELL_MONK_MANA_MEDITATION)) ? l_MainWeaponMaxDamage / 2 / l_MainWeaponSpeed : l_OffhandWeaponMaxDamage / 2 / l_OffhandWeaponSpeed;
-
-            float l_Low = l_Stnc * (l_Dwm * (l_MainWeaponMinDamage / l_MainWeaponSpeed + l_Offm * l_Offlow) + l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) / 3.5f - 1);
-            float l_High = l_Stnc * (l_Dwm * (l_MainWeaponMaxDamage / l_MainWeaponSpeed + l_Offm * l_Offhigh) + l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) / 3.5f + 1);
-
-            SetHitDamage(int32(frand(15 * 2 * l_Low, 15 * 2 * l_High) / (GetSpellInfo()->GetDuration() / IN_MILLISECONDS)));
         }
 
         void Register()
@@ -4221,6 +4184,45 @@ public:
     SpellScript* GetSpellScript() const
     {
         return new spell_monk_hurricane_strike_SpellScript();
+    }
+};
+
+// Hurricane Strike - 158221
+class spell_monk_hurricane_strike_damage: public SpellScriptLoader
+{
+public:
+    spell_monk_hurricane_strike_damage() : SpellScriptLoader("spell_monk_hurricane_strike_damage") { }
+
+    class spell_monk_hurricane_strike_damage_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_monk_hurricane_strike_damage_SpellScript);
+
+        void HandleDamage(SpellEffIndex /*effIndex*/)
+        {
+            if (!GetCaster())
+                return;
+
+            float l_Low = 0;
+            float l_High = 0;
+
+            Player* l_Player = GetCaster()->ToPlayer();
+            if (!l_Player)
+                return;
+
+            l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
+
+            SetHitDamage(int32(frand(15 * 2 * l_Low, 15 * 2 * l_High) / (GetSpellInfo()->GetDuration() / IN_MILLISECONDS)));
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_monk_hurricane_strike_damage_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_monk_hurricane_strike_damage_SpellScript();
     }
 };
 
@@ -4435,6 +4437,7 @@ void AddSC_monk_spell_scripts()
     new spell_monk_tiger_palm();
     new spell_monk_blackout_kick();
     new spell_monk_expel_harm();
+    new spell_monk_hurricane_strike_damage();
     new spell_monk_hurricane_strike();
     new spell_monk_serenity();
     new spell_monk_detox();

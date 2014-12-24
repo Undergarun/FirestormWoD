@@ -6231,6 +6231,7 @@ void SpellMgr::LoadSpellCustomAttr()
             // Hurricane Strike (damage)
             case 158221:
                 spellInfo->SetDurationIndex(39); // 2 seconds
+                spellInfo->MaxAffectedTargets = 3;
                 break;
             default:
                 break;
