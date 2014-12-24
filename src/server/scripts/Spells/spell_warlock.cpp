@@ -2017,7 +2017,7 @@ class spell_warl_ember_tap: public SpellScriptLoader
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
                     float Mastery = 3.0f * l_Player->GetFloatValue(PLAYER_FIELD_MASTERY) / 100.0f;
-                    float pct = 0.15f * (1 + Mastery);
+                    float pct = 0.05f * (1 + Mastery);
 
                     int32 healAmount = int32(l_Player->GetMaxHealth() * pct);
                     healAmount = l_Player->SpellHealingBonusDone(l_Player, GetSpellInfo(), healAmount, EFFECT_0, HEAL);
@@ -2025,7 +2025,7 @@ class spell_warl_ember_tap: public SpellScriptLoader
 
                     if (AuraPtr l_SearingFlames = l_Player->GetAura(SPELL_WARL_SEARING_FLAMES))
                     {
-                        healAmount += CalculatePct(l_Player->GetMaxHealth(), l_SearingFlames->GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+                        healAmount *= 1.5f;
 
                         // ManaCost == 0, wrong way to retrieve cost ?
                         //l_Player->ModifyPower(POWER_BURNING_EMBERS, CalculatePct(GetSpellInfo()->ManaCost, l_SearingFlames->GetSpellInfo()->Effects[EFFECT_1].BasePoints));
