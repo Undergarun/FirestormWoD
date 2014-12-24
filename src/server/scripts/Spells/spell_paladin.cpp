@@ -100,6 +100,7 @@ enum PaladinSpells
     PALADIN_SPELL_SANCTIFIED_WRATH_TALENT       = 53376,
     PALADIN_SPELL_SANCTIFIED_WRATH_BONUS        = 114232,
     PALADIN_SPELL_AVENGING_WRATH                = 31884,
+    PALADIN_SPELL_AVENGING_WRATH_HEAL           = 31842,
     PALADIN_SPELL_EXORCISM_ENERGIZE             = 147715,
     PALADIN_SPELL_GLYPH_OF_BURDEN_OF_GUILT      = 54931,
     PALADIN_SPELL_BURDEN_OF_GUILD               = 110300,
@@ -1607,7 +1608,7 @@ class spell_pal_holy_shock: public SpellScriptLoader
 
                         l_Caster->ToPlayer()->RemoveSpellCooldown(PALADIN_SPELL_HOLY_SHOCK_R1, true);
 
-                        if (l_Caster->HasSpell(PALADIN_SPELL_SANCTIFIED_WRATH_TALENT) == false || l_Caster->HasAura(PALADIN_SPELL_AVENGING_WRATH) == false)
+                        if (l_Caster->HasSpell(PALADIN_SPELL_SANCTIFIED_WRATH_TALENT) == false || l_Caster->HasAura(PALADIN_SPELL_AVENGING_WRATH_HEAL) == false)
                             l_Caster->ToPlayer()->AddSpellCooldown(PALADIN_SPELL_HOLY_SHOCK_R1, 0, l_OldCooldown, true);
                         else
                             l_Caster->ToPlayer()->AddSpellCooldown(PALADIN_SPELL_HOLY_SHOCK_R1, 0, l_NewCooldown, true);
