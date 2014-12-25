@@ -2371,7 +2371,8 @@ class spell_dru_starfall_dummy: public SpellScriptLoader
 
 enum SavageRoarSpells
 {
-    SPELL_DRUID_SAVAGE_ROAR = 62071,
+    SPELL_DRUID_SAVAGE_ROAR = 52610,
+    SPELL_DRUID_SAVAGE_ROAR_CAST = 62071
 };
 
 // Savage Roar - 52610
@@ -2405,7 +2406,7 @@ class spell_dru_savage_roar: public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/)
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_DRUID_SAVAGE_ROAR))
+                if (!sSpellMgr->GetSpellInfo(SPELL_DRUID_SAVAGE_ROAR_CAST))
                     return false;
                 return true;
             }
@@ -2413,13 +2414,13 @@ class spell_dru_savage_roar: public SpellScriptLoader
             void AfterApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* target = GetTarget())
-                    target->CastSpell(target, SPELL_DRUID_SAVAGE_ROAR, true, NULL, aurEff, GetCasterGUID());
+                    target->CastSpell(target, SPELL_DRUID_SAVAGE_ROAR_CAST, true, NULL, aurEff, GetCasterGUID());
             }
 
             void AfterRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* target = GetTarget())
-                    target->RemoveAurasDueToSpell(SPELL_DRUID_SAVAGE_ROAR);
+                    target->RemoveAurasDueToSpell(SPELL_DRUID_SAVAGE_ROAR_CAST);
             }
 
             void Register()
@@ -2772,7 +2773,8 @@ public:
 
 enum SpellsRake
 {
-    SPELL_DRU_RAKE_STUNT = 163505
+    SPELL_DRU_RAKE_STUNT = 163505,
+    SPELL_DRU_GLYPH_OF_SAVAGE_ROAR = 127540
 };
 
 // Rake - 1822
@@ -2790,8 +2792,18 @@ public:
             Unit* l_Caster = GetCaster();
 
             if (l_Caster->HasStealthAura())
+            {
                 if (Unit* l_Target = GetHitUnit())
+                {
                     l_Caster->CastSpell(l_Target, SPELL_DRU_RAKE_STUNT, true);
+
+                    if (constAuraEffectPtr l_GlyphOfSavageRoar = l_Caster->GetAuraEffect(SPELL_DRU_GLYPH_OF_SAVAGE_ROAR, EFFECT_0))
+                    {
+                        l_Caster->ToPlayer()->GainSpellComboPoints(l_GlyphOfSavageRoar->GetAmount());
+                        l_Caster->CastSpell(l_Target, SPELL_DRUID_SAVAGE_ROAR, true);
+                    }
+                }
+            }
         }
 
         void Register()
@@ -2826,13 +2838,25 @@ public:
         {
             int32 l_Damage = GetHitDamage();
             Unit* l_Caster = GetCaster();
+            Unit* l_Target = GetHitUnit();
 
             if (l_Caster->HasStealthAura())
-                l_Damage += CalculatePct(l_Damage, sSpellMgr->GetSpellInfo(SPELL_DRUID_PROWL)->Effects[EFFECT_3].BasePoints);
+            {
+                if (sSpellMgr->GetSpellInfo(SPELL_DRUID_PROWL))
+                    l_Damage += CalculatePct(l_Damage, sSpellMgr->GetSpellInfo(SPELL_DRUID_PROWL)->Effects[EFFECT_3].BasePoints);
 
-            if (Unit* l_Target = GetHitUnit())
-                if (l_Target->HasAuraState(AURA_STATE_BLEEDING))
-                    l_Damage += CalculatePct(l_Damage, sSpellMgr->GetSpellInfo(SPELL_DRUID_SWIPE)->Effects[EFFECT_1].BasePoints);
+                if (l_Target)
+                {
+                    if (constAuraEffectPtr l_GlyphOfSavageRoar = l_Caster->GetAuraEffect(SPELL_DRU_GLYPH_OF_SAVAGE_ROAR, EFFECT_0))
+                    {
+                        l_Caster->ToPlayer()->GainSpellComboPoints(l_GlyphOfSavageRoar->GetAmount());
+                        l_Caster->CastSpell(l_Target, SPELL_DRUID_SAVAGE_ROAR, true);
+                    }
+                }
+            }
+
+            if (l_Target && l_Target->HasAuraState(AURA_STATE_BLEEDING) && sSpellMgr->GetSpellInfo(SPELL_DRUID_SWIPE))
+                l_Damage += CalculatePct(l_Damage, sSpellMgr->GetSpellInfo(SPELL_DRUID_SWIPE)->Effects[EFFECT_1].BasePoints);
 
             SetHitDamage(l_Damage);
         }
