@@ -6360,18 +6360,6 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
 
             switch (GetId())
             {
-                case 52610: // Savage Roar
-                case 127538:// Savage Roar (Glyphed)
-                {
-                    if (apply)
-                    {
-                        if (target->GetShapeshiftForm() == FORM_CAT)
-                            target->CastSpell(target, 62071, true, NULL, NULLAURA_EFFECT, GetCasterGUID());
-                    }
-                    else
-                        target->RemoveAurasDueToSpell(62071);
-                    break;
-                }
                 case 61336:                                 // Survival Instincts
                 {
                     if (!(mode & AURA_EFFECT_HANDLE_REAL))

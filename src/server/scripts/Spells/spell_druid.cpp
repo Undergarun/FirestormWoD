@@ -2387,8 +2387,8 @@ class spell_dru_savage_roar: public SpellScriptLoader
 
             SpellCastResult CheckCast()
             {
-                Unit* caster = GetCaster();
-                if (caster->GetShapeshiftForm() != FORM_CAT)
+                Unit* l_Caster = GetCaster();
+                if (l_Caster->GetShapeshiftForm() != FORM_CAT)
                     return SPELL_FAILED_ONLY_SHAPESHIFT;
 
                 return SPELL_CAST_OK;
@@ -2411,16 +2411,16 @@ class spell_dru_savage_roar: public SpellScriptLoader
                 return true;
             }
 
-            void AfterApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            void AfterApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*mode*/)
             {
-                if (Unit* target = GetTarget())
-                    target->CastSpell(target, SPELL_DRUID_SAVAGE_ROAR_CAST, true, NULL, aurEff, GetCasterGUID());
+                if (Unit* l_Target = GetTarget())
+                    l_Target->CastSpell(l_Target, SPELL_DRUID_SAVAGE_ROAR_CAST, true, NULL, p_AurEff, GetCasterGUID());
             }
 
             void AfterRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Unit* target = GetTarget())
-                    target->RemoveAurasDueToSpell(SPELL_DRUID_SAVAGE_ROAR_CAST);
+                if (Unit* l_Target = GetTarget())
+                    l_Target->RemoveAurasDueToSpell(SPELL_DRUID_SAVAGE_ROAR_CAST);
             }
 
             void Register()
