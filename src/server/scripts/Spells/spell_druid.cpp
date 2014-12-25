@@ -3103,6 +3103,44 @@ public:
     }
 };
 
+enum HealingTouchSpells
+{
+    SPELL_DRU_BLOODTALONS_MOD_DAMAGE = 145152,
+    SPELL_DRU_BLOODTALONS_TALENT = 155672
+};
+
+// Healing Touch - 5185
+class spell_dru_healing_touch: public SpellScriptLoader
+{
+public:
+    spell_dru_healing_touch() : SpellScriptLoader("spell_dru_healing_touch") { }
+
+    class spell_dru_healing_touch_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_dru_healing_touch_SpellScript);
+
+        void HandleOnCast()
+        {
+            Unit* l_Caster = GetCaster();
+            if (!l_Caster)
+                return;
+
+            if (l_Caster->HasAura(SPELL_DRU_BLOODTALONS_TALENT))
+                l_Caster->CastSpell(l_Caster, SPELL_DRU_BLOODTALONS_MOD_DAMAGE, true);
+        }
+
+        void Register()
+        {
+            OnCast += SpellCastFn(spell_dru_healing_touch_SpellScript::HandleOnCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_dru_healing_touch_SpellScript();
+    }
+};
+
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_yseras_gift();
@@ -3159,4 +3197,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_rip();
     new spell_dru_dream_of_cenarius();
     new spell_dru_primal_fury();
+    new spell_dru_healing_touch();
 }

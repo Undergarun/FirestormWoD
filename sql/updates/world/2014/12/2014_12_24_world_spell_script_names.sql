@@ -7,3 +7,5 @@ DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_dru_primal_fury';
 INSERT INTO `spell_script_names` VALUES
 (16961, 'spell_dru_primal_fury'),
 (159286, 'spell_dru_primal_fury');
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_dru_healing_touch';
+INSERT INTO `spell_script_names` VALUES (5185, 'spell_dru_healing_touch');
