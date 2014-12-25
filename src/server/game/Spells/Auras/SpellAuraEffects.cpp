@@ -1196,7 +1196,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                 {
                     // Glyph of Prowl, remove the speed malus
                     if (Unit* target = GetBase()->GetUnitOwner())
-                        if (target->HasAura(116186))
+                        if (target->HasAura(157274))
                             amount = 0;
                     break;
                 }
