@@ -3049,6 +3049,60 @@ public:
     }
 };
 
+enum PrimalFurySpells
+{
+    SPELL_DRUID_PRIMAL_FURY_CP_PROC = 16953,
+    SPELL_DRUID_PRIMAL_FURY_RAGE = 16961,
+    SPELL_DRUID_PRIMAL_FURY_RAGE_PROC = 16959,
+    SPELL_DRUID_PRIMAL_FURY_CP = 159286
+};
+
+// Primal Fury - 16961 159286
+class spell_dru_primal_fury: public SpellScriptLoader
+{
+public:
+    spell_dru_primal_fury() : SpellScriptLoader("spell_dru_primal_fury") { }
+
+    class spell_dru_primal_fury_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dru_primal_fury_AuraScript);
+
+        void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+        {
+            PreventDefaultAction();
+
+            Unit* l_Caster = GetCaster();
+            if (!l_Caster)
+                return;
+
+            if (p_EventInfo.GetActor()->GetGUID() != l_Caster->GetGUID())
+                return;
+
+            if (!p_EventInfo.GetDamageInfo()->GetSpellInfo() || !GetSpellInfo())
+                return;
+
+            if (!(p_EventInfo.GetHitMask() & PROC_EX_CRITICAL_HIT))
+                return;
+
+            if (GetSpellInfo()->Id == SPELL_DRUID_PRIMAL_FURY_RAGE && l_Caster->GetShapeshiftForm() == FORM_BEAR)
+                l_Caster->CastSpell(l_Caster, SPELL_DRUID_PRIMAL_FURY_RAGE_PROC, true);
+            else if (GetSpellInfo()->Id == SPELL_DRUID_PRIMAL_FURY_CP && l_Caster->GetShapeshiftForm() == FORM_CAT &&
+                     p_EventInfo.GetDamageInfo()->GetSpellInfo()->HasEffect(SPELL_EFFECT_ADD_COMBO_POINTS))
+                    l_Caster->CastSpell(l_Caster, SPELL_DRUID_PRIMAL_FURY_CP_PROC, true);
+        }
+
+        void Register()
+        {
+            OnEffectProc += AuraEffectProcFn(spell_dru_primal_fury_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_dru_primal_fury_AuraScript();
+    }
+};
+
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_yseras_gift();
@@ -3104,4 +3158,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_frenzied_regeneration();
     new spell_dru_rip();
     new spell_dru_dream_of_cenarius();
+    new spell_dru_primal_fury();
 }

@@ -9547,49 +9547,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
 
             break;
         }
-        case 16961: // Primal Fury
-        {
-            if (GetTypeId() != TYPEID_PLAYER)
-                return false;
-
-            if (GetShapeshiftForm() == FORM_CAT)
-            {
-                if (!procSpell)
-                    return false;
-
-                if (!(procEx & PROC_EX_CRITICAL_HIT))
-                    return false;
-
-                if (!procSpell->HasEffect(SPELL_EFFECT_ADD_COMBO_POINTS) && procSpell->Id != 33876)
-                    return false;
-
-                // Swipe is not a single target spell
-                if (procSpell->Id == 106785)
-                    return false;
-
-                // check for single target spell (TARGET_SINGLE_ENEMY, NO_TARGET)
-                if (!(procSpell->Effects[triggeredByAura->GetEffIndex()].TargetA.GetTarget() == TARGET_UNIT_TARGET_ENEMY) &&
-                    (procSpell->Effects[triggeredByAura->GetEffIndex()].TargetB.GetTarget() == 0))
-                    return false;
-
-                // Add extra CP
-                trigger_spell_id = 16953;
-                target = victim;
-            }
-            else if (GetShapeshiftForm() == FORM_BEAR)
-            {
-                if (!(procEx & PROC_EX_CRITICAL_HIT))
-                    return false;
-
-                // Energize 15 Rage
-                trigger_spell_id = 16959;
-                target = this;
-            }
-            else
-                return false;
-
-            break;
-        }
         case 2823:  // Deadly Poison
         case 3408:  // Crippling Poison
         case 5761:  // Mind-Numbling Poison
