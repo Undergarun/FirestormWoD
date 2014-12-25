@@ -2974,6 +2974,56 @@ public:
     }
 };
 
+enum DreamOfCenariusSpells
+{
+    //SPELL_DRUID_MANGLE = 33917
+    SPELL_DRUID_DREAM_OF_CENARIUS_PROC = 145162
+};
+
+// Dream of Cenarius - 158501
+class spell_dru_dream_of_cenarius: public SpellScriptLoader
+{
+public:
+    spell_dru_dream_of_cenarius() : SpellScriptLoader("spell_dru_dream_of_cenarius") { }
+
+    class spell_dru_dream_of_cenarius_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dru_dream_of_cenarius_AuraScript);
+
+        void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+        {
+            PreventDefaultAction();
+
+            Unit* l_Caster = GetCaster();
+            if (!l_Caster)
+                return;
+
+            if (p_EventInfo.GetActor()->GetGUID() != l_Caster->GetGUID())
+                return;
+
+            if (!p_EventInfo.GetDamageInfo()->GetSpellInfo())
+                return;
+
+            if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != SPELL_DRUID_MANGLE)
+                return;
+
+            if (!(p_EventInfo.GetHitMask() & PROC_EX_CRITICAL_HIT))
+                return;
+
+            l_Caster->CastSpell(l_Caster, SPELL_DRUID_DREAM_OF_CENARIUS_PROC, true);
+        }
+
+        void Register()
+        {
+            OnEffectProc += AuraEffectProcFn(spell_dru_dream_of_cenarius_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_dru_dream_of_cenarius_AuraScript();
+    }
+};
 
 void AddSC_druid_spell_scripts()
 {
@@ -3029,4 +3079,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_ferocious_bite();
     new spell_dru_frenzied_regeneration();
     new spell_dru_rip();
+    new spell_dru_dream_of_cenarius();
 }
