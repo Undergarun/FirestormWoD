@@ -691,16 +691,29 @@ class spell_pri_surge_of_light: public SpellScriptLoader
         {
             PrepareSpellScript(spell_pri_surge_of_light_SpellScript);
 
+            int32 m_Duration = 0;
+
+            void HandleOnPrepare()
+            {
+                if (Unit* l_Caster = GetCaster())
+                    if (AuraPtr l_SurgeOfLight = l_Caster->GetAura(PRIEST_SURGE_OF_LIGHT))
+                        m_Duration = l_SurgeOfLight->GetDuration();
+            }
+
             void HandleOnCast()
             {
-                if (Unit* caster = GetCaster())
-                    if (AuraPtr surgeOfLight = caster->GetAura(PRIEST_SURGE_OF_LIGHT))
-                        if (surgeOfLight->GetStackAmount() > 1)
-                            surgeOfLight->ModStackAmount(-1);
+                if (Unit* l_Caster = GetCaster())
+                    if (AuraPtr l_SurgeOfLight = l_Caster->GetAura(PRIEST_SURGE_OF_LIGHT))
+                    {
+                        l_SurgeOfLight->SetDuration(m_Duration);
+                        if (l_SurgeOfLight->GetStackAmount() > 1)
+                            l_SurgeOfLight->SetStackAmount(1);
+                    }
             }
 
             void Register()
             {
+                OnPrepare += SpellOnPrepareFn(spell_pri_surge_of_light_SpellScript::HandleOnPrepare);
                 OnCast += SpellCastFn(spell_pri_surge_of_light_SpellScript::HandleOnCast);
             }
         };
@@ -721,16 +734,23 @@ class spell_pri_surge_of_light: public SpellScriptLoader
                 if (!procInfo.GetHealInfo() || !procInfo.GetHealInfo()->GetHeal() || !procInfo.GetActor())
                     return;
 
-                if (Player* player = procInfo.GetActor()->ToPlayer())
+                if (Player* l_Player = procInfo.GetActor()->ToPlayer())
                 {
-                    if (player->GetSpecializationId(player->GetActiveSpec()) == SPEC_PRIEST_SHADOW)
+                    if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PRIEST_SHADOW)
                         return;
 
-                    if (Unit* target = procInfo.GetActionTarget())
-                    {
                         if (roll_chance_i(GetSpellInfo()->Effects[EFFECT_0].BasePoints))
-                            player->CastSpell(player, PRIEST_SURGE_OF_LIGHT, true);
-                    }
+                        {
+                            if (AuraPtr l_SurgeOfLight = l_Player->GetAura(PRIEST_SURGE_OF_LIGHT))
+                            {
+                                if (l_SurgeOfLight->GetStackAmount() == 2)
+                                    l_SurgeOfLight->SetDuration(GetSpellInfo()->GetDuration());
+                                else
+                                    l_Player->CastSpell(l_Player, PRIEST_SURGE_OF_LIGHT, true);
+                            }
+                            else
+                                l_Player->CastSpell(l_Player, PRIEST_SURGE_OF_LIGHT, true);
+                        }
                 }
             }
 
