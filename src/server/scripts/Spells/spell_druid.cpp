@@ -2799,7 +2799,8 @@ public:
 
                     if (constAuraEffectPtr l_GlyphOfSavageRoar = l_Caster->GetAuraEffect(SPELL_DRU_GLYPH_OF_SAVAGE_ROAR, EFFECT_0))
                     {
-                        l_Caster->ToPlayer()->GainSpellComboPoints(l_GlyphOfSavageRoar->GetAmount());
+                        if (l_Caster->GetTypeId() == TYPEID_PLAYER)
+                            l_Caster->ToPlayer()->GainSpellComboPoints(l_GlyphOfSavageRoar->GetAmount());
                         l_Caster->CastSpell(l_Target, SPELL_DRUID_SAVAGE_ROAR, true);
                     }
                 }
@@ -2849,7 +2850,8 @@ public:
                 {
                     if (constAuraEffectPtr l_GlyphOfSavageRoar = l_Caster->GetAuraEffect(SPELL_DRU_GLYPH_OF_SAVAGE_ROAR, EFFECT_0))
                     {
-                        l_Caster->ToPlayer()->GainSpellComboPoints(l_GlyphOfSavageRoar->GetAmount());
+                        if (l_Caster->GetTypeId() == TYPEID_PLAYER)
+                            l_Caster->ToPlayer()->GainSpellComboPoints(l_GlyphOfSavageRoar->GetAmount());
                         l_Caster->CastSpell(l_Target, SPELL_DRUID_SAVAGE_ROAR, true);
                     }
                 }
