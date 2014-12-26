@@ -1377,7 +1377,6 @@ public:
                     {
                         l_Caster->CastSpell(l_Target, SPELL_MAGE_FROST_BOMB_TRIGGERED, true);
                         l_Caster->CastSpell(l_Target, SPELL_MAGE_FROST_BOMB_VISUAL, true);
-                        l_Target->RemoveAurasDueToSpell(SPELL_MAGE_FROST_BOMB_AURA);
                     }
 
             }
