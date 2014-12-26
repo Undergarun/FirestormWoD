@@ -2787,28 +2787,35 @@ public:
     {
         PrepareSpellScript(spell_dru_rake_SpellScript);
 
+        bool m_isStealthed = false;
+
+        void HandleOnPrepare()
+        {
+            m_isStealthed = GetCaster()->HasStealthAura();
+        }
+
         void HandleOnHit()
         {
             Unit* l_Caster = GetCaster();
+            Unit* l_Target = GetHitUnit();
 
-            if (l_Caster->HasStealthAura())
+            if (l_Target && m_isStealthed)
             {
-                if (Unit* l_Target = GetHitUnit())
-                {
-                    l_Caster->CastSpell(l_Target, SPELL_DRU_RAKE_STUNT, true);
+                l_Caster->CastSpell(l_Target, SPELL_DRU_RAKE_STUNT, true);
 
-                    if (constAuraEffectPtr l_GlyphOfSavageRoar = l_Caster->GetAuraEffect(SPELL_DRU_GLYPH_OF_SAVAGE_ROAR, EFFECT_0))
-                    {
-                        if (l_Caster->GetTypeId() == TYPEID_PLAYER)
-                            l_Caster->ToPlayer()->GainSpellComboPoints(l_GlyphOfSavageRoar->GetAmount());
-                        l_Caster->CastSpell(l_Target, SPELL_DRUID_SAVAGE_ROAR, true);
-                    }
+                if (constAuraEffectPtr l_GlyphOfSavageRoar = l_Caster->GetAuraEffect(SPELL_DRU_GLYPH_OF_SAVAGE_ROAR, EFFECT_0))
+                {
+                    if (l_Caster->GetTypeId() == TYPEID_PLAYER)
+                        l_Caster->ToPlayer()->GainSpellComboPoints(l_GlyphOfSavageRoar->GetAmount());
+                    l_Caster->CastSpell(l_Target, SPELL_DRUID_SAVAGE_ROAR, true);
                 }
             }
+
         }
 
         void Register()
         {
+            OnPrepare += SpellOnPrepareFn(spell_dru_rake_SpellScript::HandleOnPrepare);
             OnHit += SpellHitFn(spell_dru_rake_SpellScript::HandleOnHit);
         }
     };
@@ -2835,13 +2842,20 @@ public:
     {
         PrepareSpellScript(spell_dru_shred_SpellScript);
 
+        bool m_isStealthed = false;
+
+        void HandleOnPrepare()
+        {
+            m_isStealthed = GetCaster()->HasStealthAura();
+        }
+
         void HandleOnHit()
         {
             int32 l_Damage = GetHitDamage();
             Unit* l_Caster = GetCaster();
             Unit* l_Target = GetHitUnit();
 
-            if (l_Caster->HasStealthAura())
+            if (m_isStealthed)
             {
                 if (sSpellMgr->GetSpellInfo(SPELL_DRUID_PROWL))
                     l_Damage += CalculatePct(l_Damage, sSpellMgr->GetSpellInfo(SPELL_DRUID_PROWL)->Effects[EFFECT_3].BasePoints);
@@ -2865,6 +2879,7 @@ public:
 
         void Register()
         {
+            OnPrepare += SpellOnPrepareFn(spell_dru_shred_SpellScript::HandleOnPrepare);
             OnHit += SpellHitFn(spell_dru_shred_SpellScript::HandleOnHit);
         }
     };
