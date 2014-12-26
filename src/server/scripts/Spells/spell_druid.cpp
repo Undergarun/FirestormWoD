@@ -2791,7 +2791,8 @@ public:
 
         void HandleOnPrepare()
         {
-            m_isStealthed = GetCaster()->HasStealthAura();
+            if (Unit* l_Caster = GetCaster())
+                m_isStealthed = l_Caster->HasStealthAura();
         }
 
         void HandleOnHit()
@@ -2799,22 +2800,22 @@ public:
             Unit* l_Caster = GetCaster();
             Unit* l_Target = GetHitUnit();
 
-            if (l_Target && m_isStealthed)
+            if (l_Target &&  l_Caster && m_isStealthed)
             {
                 l_Caster->CastSpell(l_Target, SPELL_DRU_RAKE_STUNT, true);
 
                 if (constAuraEffectPtr l_GlyphOfSavageRoar = l_Caster->GetAuraEffect(SPELL_DRU_GLYPH_OF_SAVAGE_ROAR, EFFECT_0))
                 {
-                    if (l_Caster->GetTypeId() == TYPEID_PLAYER)
-                    {
-                        uint8 l_ComboPointsBefore = l_Caster->ToPlayer()->GetComboPoints();
-                        l_Caster->ToPlayer()->AddComboPoints(l_GlyphOfSavageRoar->GetAmount(), nullptr);
+                        if (Player* l_Player = l_Caster->ToPlayer())
+                        {
+                            uint8 l_ComboPointsBefore = l_Player->GetComboPoints();
+                            l_Player->AddComboPoints(l_GlyphOfSavageRoar->GetAmount(), nullptr);
 
-                        l_Caster->CastSpell(l_Target, SPELL_DRUID_SAVAGE_ROAR, true);
+                            l_Caster->CastSpell(l_Target, SPELL_DRUID_SAVAGE_ROAR, true);
 
-                        l_Caster->ToPlayer()->ClearComboPoints();
-                        l_Caster->ToPlayer()->AddComboPoints(l_ComboPointsBefore, nullptr);
-                    }
+                            l_Player->ClearComboPoints();
+                            l_Player->AddComboPoints(l_ComboPointsBefore, nullptr);
+                        }
                 }
             }
 
