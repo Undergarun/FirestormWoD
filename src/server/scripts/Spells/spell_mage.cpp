@@ -477,9 +477,14 @@ class spell_mage_arcane_barrage: public SpellScriptLoader
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
                     if (Unit* l_Target = GetHitUnit())
+                    {
                         if (Unit* l_MainTarget = ObjectAccessor::FindUnit(l_Player->GetSelection()))
                             if (l_Target != l_MainTarget)
                                 SetHitDamage(CalculatePct(GetHitDamage(), GetSpellInfo()->Effects[EFFECT_1].BasePoints));
+
+                        if (AuraPtr arcaneCharge = l_Player->GetAura(SPELL_MAGE_ARCANE_CHARGE))
+                            arcaneCharge->DropCharge();
+                    }
             }
 
             void Register()
