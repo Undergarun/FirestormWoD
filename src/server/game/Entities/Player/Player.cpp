@@ -17425,7 +17425,7 @@ bool Player::CanCompleteQuest(uint32 p_QuestID)
 
             for (QuestObjective l_Objective : l_Quest->QuestObjectives)
             {
-                if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_DUMMY)
+                if (l_Objective.Type == QUEST_OBJECTIVE_AREATRIGGER)
                 {
 
                 }
@@ -17526,73 +17526,66 @@ bool Player::CanRewardQuest(Quest const* p_Quest, bool msg)
     return true;
 }
 
-bool Player::CanRewardQuest(Quest const* quest, uint32 reward, bool msg)
+bool Player::CanRewardQuest(Quest const* quest, uint32 p_Reward, bool msg)
 {
     // prevent receive reward with quest items in bank or for not completed quest
     if (!CanRewardQuest(quest, msg))
         return false;
 
-    if (quest->GetRewChoiceItemsCount() > 0 || quest->HasDynamicReward())
+    /// - Quest have dynamic reward, skip legacy choice
+    if (quest->GetQuestPackageID() != 0)
     {
-        uint32 RewardChoiceItemId[QUEST_REWARD_CHOICES_COUNT];
-        uint32 RewardChoiceItemCount[QUEST_REWARD_CHOICES_COUNT];
-
-        memset(RewardChoiceItemId, 0, sizeof(RewardChoiceItemId));
-        memset(RewardChoiceItemCount, 0, sizeof(RewardChoiceItemCount));
-
-        if (quest->HasDynamicReward())
+        /// - Check if the reward is in dynamic reward list, and if player can take it (class/spec)
+        for (QuestPackageItemEntry const* l_DynamicReward : quest->DynamicRewards)
         {
-            uint32 index = 0;
-            for (QuestPackageItemEntry const* l_DynamicReward : quest->DynamicRewards)
+            if (l_DynamicReward->ItemId != p_Reward)
+                continue;
+
+            ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_DynamicReward->ItemId);
+            if (!l_ItemTemplate)
+                return false;
+
+            switch (l_DynamicReward->Type)
             {
-                ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_DynamicReward->ItemId);
-                if (!l_ItemTemplate)
+                case uint8(PackageItemRewardType::SpecializationReward):
+                    if (!l_ItemTemplate->HasSpec((SpecIndex)GetSpecializationId(GetActiveSpec())))
+                        return false;
+                    break;
+                case uint8(PackageItemRewardType::ClassReward):
+                    if (!l_ItemTemplate->HasClassSpec(getClass()))
+                        return false;
+                    break;
+                case uint8(PackageItemRewardType::DefaultHiddenReward):                             ///< Yes, player can cheat to have it instead of his own specific item, but it's useless for him
+                case uint8(PackageItemRewardType::NoRequire):
+                    break;
+                // Not implemented PackageItemRewardType
+                default:
+                    sLog->outError(LogFilterType::LOG_FILTER_PLAYER_ITEMS, "Not implemented PackageItemRewardType %u for quest %u", l_DynamicReward->Type, quest->GetQuestId());
                     continue;
-
-                switch (l_DynamicReward->Type)
-                {
-                    case uint8(PackageItemRewardType::SpecializationReward):
-                        if (!l_ItemTemplate->HasSpec((SpecIndex)GetSpecializationId(GetActiveSpec())))
-                            continue;
-                        break;
-                    case uint8(PackageItemRewardType::ClassReward):
-                        if (!l_ItemTemplate->HasClassSpec(getClass()))
-                            continue;
-                        break;
-                    case uint8(PackageItemRewardType::DefaultHiddenReward):
-                        continue;
-                    case uint8(PackageItemRewardType::NoRequire):
-                        break;
-                        // Not implemented PackageItemRewardType
-                    default:
-                        sLog->outError(LogFilterType::LOG_FILTER_PLAYER_ITEMS, "Not implemented PackageItemRewardType %u for quest %u", l_DynamicReward->Type, quest->GetQuestId());
-                        continue;
-                }
-
-
-                if (index >= QUEST_REWARD_CHOICES_COUNT)
-                    continue;
-
-                RewardChoiceItemId[index]    = l_DynamicReward->ItemId;
-                RewardChoiceItemCount[index] = l_DynamicReward->Count;
-                index++;
             }
-        }
-        else
-        {
-            for (int i = 0; i < QUEST_REWARD_CHOICES_COUNT; i++)
+
+            /// - We have find the reward, check if player can store it
+            ItemPosCountVec l_Dest;
+            InventoryResult l_Result = CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Dest, l_DynamicReward->ItemId, l_DynamicReward->Count);
+            if (l_Result != EQUIP_ERR_OK)
             {
-                RewardChoiceItemId[i] = quest->RewardChoiceItemId[i];
-                RewardChoiceItemCount[i] = quest->RewardChoiceItemCount[i];
+                SendEquipError(l_Result, NULL, NULL, l_DynamicReward->ItemId);
+                return false;
             }
+            return true;
         }
-        if (RewardChoiceItemId[reward])
+        return false;
+    }
+
+    if (quest->GetRewChoiceItemsCount() > 0)
+    {
+        if (quest->RewardChoiceItemId[p_Reward])
         {
             ItemPosCountVec dest;
-            InventoryResult res = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, RewardChoiceItemId[reward], quest->RewardChoiceItemCount[reward]);
+            InventoryResult res = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, quest->RewardChoiceItemId[p_Reward], quest->RewardChoiceItemCount[p_Reward]);
             if (res != EQUIP_ERR_OK)
             {
-                SendEquipError(res, NULL, NULL, RewardChoiceItemId[reward]);
+                SendEquipError(res, NULL, NULL, quest->RewardChoiceItemId[p_Reward]);
                 return false;
             }
         }
@@ -17648,7 +17641,7 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
             || l_Objective.Type == QUEST_OBJECTIVE_TYPE_FACTION_REP
             || l_Objective.Type == QUEST_OBJECTIVE_TYPE_FACTION_REP2
             || l_Objective.Type == QUEST_OBJECTIVE_TYPE_MONEY
-            || l_Objective.Type == QUEST_OBJECTIVE_TYPE_DUMMY)
+            || l_Objective.Type == QUEST_OBJECTIVE_AREATRIGGER)
             continue;
 
         m_questObjectiveStatus.insert(std::make_pair(l_Objective.ID, uint32(0)));
@@ -17731,15 +17724,15 @@ void Player::IncompleteQuest(uint32 quest_id)
     }
 }
 
-void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, bool announce)
+void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestGiver, bool p_Announce)
 {
     //this THING should be here to protect code from quest, which cast on player far teleport as a reward
     //should work fine, cause far teleport will be executed in Player::Update()
     SetCanDelayTeleport(true);
 
-    uint32 quest_id = quest->GetQuestId();
+    uint32 l_QuestId = p_Quest->GetQuestId();
 
-    for (auto l_Objective : quest->QuestObjectives)
+    for (auto l_Objective : p_Quest->QuestObjectives)
     {
         switch (l_Objective.Type)
         {
@@ -17763,102 +17756,96 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         }
     }
 
-    for (uint8 i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
+    for (uint8 l_I = 0; l_I < QUEST_SOURCE_ITEM_IDS_COUNT; ++l_I)
     {
-        if (quest->RequiredSourceItemId[i])
+        if (p_Quest->RequiredSourceItemId[l_I])
         {
-            uint32 count = quest->RequiredSourceItemCount[i];
-            DestroyItemCount(quest->RequiredSourceItemId[i], count ? count : 9999, true);
+            uint32 count = p_Quest->RequiredSourceItemCount[l_I];
+            DestroyItemCount(p_Quest->RequiredSourceItemId[l_I], count ? count : 9999, true);
         }
     }
 
-    RemoveTimedQuest(quest_id);
+    RemoveTimedQuest(l_QuestId);
 
-    if (quest->GetRewChoiceItemsCount() > 0 || quest->HasDynamicReward())
+    /// - Quest have dynamic reward, skip legacy choice
+    if (p_Quest->GetQuestPackageID() != 0)
     {
-        uint32 RewardChoiceItemId[QUEST_REWARD_CHOICES_COUNT] ;
-        uint32 RewardChoiceItemCount[QUEST_REWARD_CHOICES_COUNT];
-        if (quest->HasDynamicReward())
+        /// - Check if the reward is in dynamic reward list, and if player can take it (class/spec)
+        for (QuestPackageItemEntry const* l_DynamicReward : p_Quest->DynamicRewards)
         {
-            uint32 index = 0;
-            for (QuestPackageItemEntry const* l_DynamicReward : quest->DynamicRewards)
-            {
-                ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_DynamicReward->ItemId);
-                if (!l_ItemTemplate)
-                    continue;
+            if (l_DynamicReward->ItemId != p_Reward)
+                continue;
 
-                switch (l_DynamicReward->Type)
+            ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_DynamicReward->ItemId);
+            if (!l_ItemTemplate)
+                break;
+
+            switch (l_DynamicReward->Type)
+            {
+                case uint8(PackageItemRewardType::SpecializationReward):
+                    if (!l_ItemTemplate->HasSpec((SpecIndex)GetSpecializationId(GetActiveSpec())))
+                        continue;
+                    break;
+                case uint8(PackageItemRewardType::ClassReward):
+                    if (!l_ItemTemplate->HasClassSpec(getClass()))
+                        continue;
+                    break;
+                case uint8(PackageItemRewardType::DefaultHiddenReward):                             ///< Yes, player can cheat to have it instead of his own specific item, but it's useless for him
+                case uint8(PackageItemRewardType::NoRequire):
+                    break;
+                default:
+                    continue;
+            }
+
+            ItemPosCountVec l_Dest;
+            if (CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Dest, l_DynamicReward->ItemId, l_DynamicReward->Count) == EQUIP_ERR_OK)
+            {
+                Item* l_Item = StoreNewItem(l_Dest, l_DynamicReward->ItemId, true, Item::GenerateItemRandomPropertyId(l_DynamicReward->ItemId));
+                SendNewItem(l_Item, l_DynamicReward->Count, true, false);
+            }
+            break;
+        }
+    }
+    else
+    {
+        if (p_Quest->GetRewChoiceItemsCount() > 0)
+        {
+            if (uint32 itemId = p_Quest->RewardChoiceItemId[p_Reward])
+            {
+                ItemPosCountVec l_Dest;
+                if (CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Dest, itemId, p_Quest->RewardChoiceItemCount[p_Reward]) == EQUIP_ERR_OK)
                 {
-                    case uint8(PackageItemRewardType::SpecializationReward):
-                        if (!l_ItemTemplate->HasSpec((SpecIndex)GetSpecializationId(GetActiveSpec())))
-                            continue;
-                        break;
-                    case uint8(PackageItemRewardType::ClassReward):
-                        if (!l_ItemTemplate->HasClassSpec(getClass()))
-                            continue;
-                        break;
-                    case uint8(PackageItemRewardType::DefaultHiddenReward):
-                        continue;
-                    case uint8(PackageItemRewardType::NoRequire):
-                        break;
-                        // Not implemented PackageItemRewardType
-                    default:
-                        sLog->outError(LogFilterType::LOG_FILTER_PLAYER_ITEMS, "Not implemented PackageItemRewardType %u for quest %u", l_DynamicReward->Type, quest->GetQuestId());
-                        continue;
+                    Item* l_Item = StoreNewItem(l_Dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId));
+                    SendNewItem(l_Item, p_Quest->RewardChoiceItemCount[p_Reward], true, false);
                 }
-
-                if (index >= QUEST_REWARD_CHOICES_COUNT)
-                    continue;
-
-                RewardChoiceItemId[index]    = l_DynamicReward->ItemId;
-                RewardChoiceItemCount[index] = l_DynamicReward->Count;
-                index++;
-            }
-        }
-        else
-        {
-            for (int i = 0; i < QUEST_REWARD_CHOICES_COUNT; i++)
-            {
-                RewardChoiceItemId[i] = quest->RewardChoiceItemId[i];
-                RewardChoiceItemCount[i] = quest->RewardChoiceItemCount[i];
             }
         }
 
-        if (uint32 itemId = RewardChoiceItemId[reward])
+        if (p_Quest->GetRewItemsCount() > 0)
         {
-            ItemPosCountVec dest;
-            if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, RewardChoiceItemCount[reward]) == EQUIP_ERR_OK)
+            for (uint32 l_I = 0; l_I < p_Quest->GetRewItemsCount(); ++l_I)
             {
-                Item* item = StoreNewItem(dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId));
-                SendNewItem(item, RewardChoiceItemCount[reward], true, false);
-            }
-        }
-    }
-
-    if (quest->GetRewItemsCount() > 0)
-    {
-        for (uint32 i = 0; i < quest->GetRewItemsCount(); ++i)
-        {
-            if (uint32 itemId = quest->RewardItemId[i])
-            {
-                ItemPosCountVec dest;
-                if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, quest->RewardItemIdCount[i]) == EQUIP_ERR_OK)
+                if (uint32 l_ItemId = p_Quest->RewardItemId[l_I])
                 {
-                    Item* item = StoreNewItem(dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId));
-                    SendNewItem(item, quest->RewardItemIdCount[i], true, false);
+                    ItemPosCountVec l_Dest;
+                    if (CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Dest, l_ItemId, p_Quest->RewardItemIdCount[l_I]) == EQUIP_ERR_OK)
+                    {
+                        Item* l_Item = StoreNewItem(l_Dest, l_ItemId, true, Item::GenerateItemRandomPropertyId(l_ItemId));
+                        SendNewItem(l_Item, p_Quest->RewardItemIdCount[l_I], true, false);
+                    }
                 }
             }
         }
     }
 
-    if (quest->GetRewCurrencyCount() > 0)
+    if (p_Quest->GetRewCurrencyCount() > 0)
     {
-        for (uint32 i = 0; i < quest->GetRewCurrencyCount(); ++i)
+        for (uint32 i = 0; i < p_Quest->GetRewCurrencyCount(); ++i)
         {
-            if (uint32 currencyId = quest->RewardCurrencyId[i])
+            if (uint32 currencyId = p_Quest->RewardCurrencyId[i])
             {
                 CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(currencyId);
-                if (uint32 countCurrency = quest->RewardCurrencyCount[i])
+                if (uint32 countCurrency = p_Quest->RewardCurrencyCount[i])
                 {
                     if (currency->Flags & CURRENCY_FLAG_HIGH_PRECISION)
                         countCurrency *= 100;
@@ -17868,14 +17855,14 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         }
     }
 
-    RewardReputation(quest);
-    RewardGuildReputation(quest);
+    RewardReputation(p_Quest);
+    RewardGuildReputation(p_Quest);
 
-    uint16 log_slot = FindQuestSlot(quest_id);
+    uint16 log_slot = FindQuestSlot(l_QuestId);
     if (log_slot < MAX_QUEST_LOG_SIZE)
         SetQuestSlot(log_slot, 0);
 
-    bool rewarded = (m_RewardedQuests.find(quest_id) != m_RewardedQuests.end());
+    bool rewarded = (m_RewardedQuests.find(l_QuestId) != m_RewardedQuests.end());
 
     float QuestXpRate = 1;
     if (GetPersonnalXpRate())
@@ -17884,12 +17871,12 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         QuestXpRate = sWorld->getRate(RATE_XP_QUEST);
 
     // Not give XP in case already completed once repeatable quest
-    uint32 XP = rewarded ? 0 : uint32(quest->XPValue(this) * QuestXpRate);
+    uint32 XP = rewarded ? 0 : uint32(p_Quest->XPValue(this) * QuestXpRate);
 
     // handle SPELL_AURA_MOD_XP_QUEST_PCT auras
     Unit::AuraEffectList const& ModXPPctAuras = GetAuraEffectsByType(SPELL_AURA_MOD_XP_QUEST_PCT);
-    for (Unit::AuraEffectList::const_iterator i = ModXPPctAuras.begin(); i != ModXPPctAuras.end(); ++i)
-        AddPct(XP, (*i)->GetAmount());
+    for (Unit::AuraEffectList::const_iterator l_I = ModXPPctAuras.begin(); l_I != ModXPPctAuras.end(); ++l_I)
+        AddPct(XP, (*l_I)->GetAmount());
 
     //if (GetSession()->IsPremium())
     //    XP *= sWorld->getRate(RATE_XP_QUEST_PREMIUM);
@@ -17898,70 +17885,69 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     if (getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
         GiveXP(XP, NULL);
     else
-        moneyRew = uint32(quest->GetRewMoneyMaxLevel() * sWorld->getRate(RATE_DROP_MONEY));
+        moneyRew = uint32(p_Quest->GetRewMoneyMaxLevel() * sWorld->getRate(RATE_DROP_MONEY));
 
-    moneyRew += quest->GetRewMoney();
+    moneyRew += p_Quest->GetRewMoney();
     ModifyMoney(moneyRew);
 
     if (moneyRew > 0)
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_MONEY_FROM_QUEST_REWARD, uint32(moneyRew));
 
     // honor reward
-    if (uint32 honor = quest->CalculateHonorGain(getLevel()))
+    if (uint32 honor = p_Quest->CalculateHonorGain(getLevel()))
         RewardHonor(NULL, 0, honor);
 
     // title reward
-    if (quest->GetCharTitleId())
+    if (p_Quest->GetCharTitleId())
     {
-        if (CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(quest->GetCharTitleId()))
+        if (CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(p_Quest->GetCharTitleId()))
             SetTitle(titleEntry);
     }
 
-    if (uint32 talents = quest->GetBonusTalents())
+    if (uint32 talents = p_Quest->GetBonusTalents())
     {
         AddQuestRewardedTalentCount(talents);
         InitTalentForLevel();
     }
 
     // Send reward mail
-    if (uint32 mail_template_id = quest->GetRewMailTemplateId())
+    if (uint32 mail_template_id = p_Quest->GetRewMailTemplateId())
     {
         //- TODO: Poor design of mail system
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
-        MailDraft(mail_template_id).SendMailTo(trans, this, questGiver, MAIL_CHECK_MASK_HAS_BODY, quest->GetRewMailDelaySecs());
+        MailDraft(mail_template_id).SendMailTo(trans, this, p_QuestGiver, MAIL_CHECK_MASK_HAS_BODY, p_Quest->GetRewMailDelaySecs());
         CharacterDatabase.CommitTransaction(trans);
     }
 
-    if (quest->IsDaily() || quest->IsDFQuest())
+    if (p_Quest->IsDaily() || p_Quest->IsDFQuest())
     {
-        SetDailyQuestStatus(quest_id);
-        if (quest->IsDaily())
+        SetDailyQuestStatus(l_QuestId);
+        if (p_Quest->IsDaily())
         {
-            UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DAILY_QUEST, quest_id);
-            UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DAILY_QUEST_DAILY, quest_id);
+            UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DAILY_QUEST, l_QuestId);
+            UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DAILY_QUEST_DAILY, l_QuestId);
         }
     }
-    else if (quest->IsWeekly())
-        SetWeeklyQuestStatus(quest_id);
-    else if (quest->IsMonthly())
-        SetMonthlyQuestStatus(quest_id);
-    else if (quest->IsSeasonal())
-        SetSeasonalQuestStatus(quest_id);
+    else if (p_Quest->IsWeekly())
+        SetWeeklyQuestStatus(l_QuestId);
+    else if (p_Quest->IsMonthly())
+        SetMonthlyQuestStatus(l_QuestId);
+    else if (p_Quest->IsSeasonal())
+        SetSeasonalQuestStatus(l_QuestId);
 
-    m_RewardedQuests.insert(quest_id);
-    m_RewardedQuestsSave[quest_id] = true;
+    m_RewardedQuests.insert(l_QuestId);
+    m_RewardedQuestsSave[l_QuestId] = true;
 
     PhaseUpdateData phaseUdateData;
-    phaseUdateData.AddQuestUpdate(quest_id);
+    phaseUdateData.AddQuestUpdate(l_QuestId);
     phaseMgr.NotifyConditionChanged(phaseUdateData);
 
     // Must come after the insert in m_RewardedQuests because of spell_area check
-    RemoveActiveQuest(quest_id);
+    RemoveActiveQuest(l_QuestId);
 
-    phaseUdateData.AddQuestUpdate(quest_id);
+    phaseUdateData.AddQuestUpdate(l_QuestId);
 
     phaseMgr.NotifyConditionChanged(phaseUdateData);
-
 
     // StoreNewItem, mail reward, etc. save data directly to the database
     // to prevent exploitable data desynchronisation we save the quest status to the database too
@@ -17969,21 +17955,21 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     SQLTransaction trans = SQLTransaction(NULL);
     _SaveQuestStatus(trans);
 
-    if (announce)
-        SendQuestReward(quest, XP, questGiver);
+    if (p_Announce)
+        SendQuestReward(p_Quest, XP, p_QuestGiver);
 
     // cast spells after mark quest complete (some spells have quest completed state requirements in spell_area data)
-    if (quest->GetRewSpellCast() > 0)
-        CastSpell(this, quest->GetRewSpellCast(), true);
-    else if (quest->GetRewSpell() > 0)
-        CastSpell(this, quest->GetRewSpell(), true);
+    if (p_Quest->GetRewSpellCast() > 0)
+        CastSpell(this, p_Quest->GetRewSpellCast(), true);
+    else if (p_Quest->GetRewSpell() > 0)
+        CastSpell(this, p_Quest->GetRewSpell(), true);
 
-    sScriptMgr->OnQuestReward(this, quest);
+    sScriptMgr->OnQuestReward(this, p_Quest);
 
-    if (quest->GetZoneOrSort() > 0)
-        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_IN_ZONE, quest->GetZoneOrSort());
+    if (p_Quest->GetZoneOrSort() > 0)
+        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_IN_ZONE, p_Quest->GetZoneOrSort());
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST_COUNT);
-    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST, quest->GetQuestId());
+    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST, p_Quest->GetQuestId());
 
     //lets remove flag for delayed teleports
     SetCanDelayTeleport(false);
@@ -19278,7 +19264,7 @@ void Player::SendQuestUpdateAddCredit(Quest const* p_Quest, const QuestObjective
         case QUEST_OBJECTIVE_TYPE_FACTION_REP2:
         case QUEST_OBJECTIVE_TYPE_MONEY:
         case QUEST_OBJECTIVE_TYPE_PLAYER:
-        case QUEST_OBJECTIVE_TYPE_DUMMY:
+        case QUEST_OBJECTIVE_AREATRIGGER:
         case QUEST_OBJECTIVE_TYPE_PET_BATTLE_TAMER:
         case QUEST_OBJECTIVE_TYPE_PET_BATTLE_ELITE:
         case QUEST_OBJECTIVE_TYPE_PET_BATTLE_PVP:

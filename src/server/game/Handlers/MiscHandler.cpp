@@ -2156,6 +2156,9 @@ void WorldSession::HandleRequestHotfix(WorldPacket& p_RecvPacket)
             case DB2_REPLY_MAP_CHALLENGE_MODE:
                 SendMapChallengeModeDBReply(l_Entry);
                 break;
+            case DB2_REPLY_QUEST_PACKAGE_ITEM:
+                SendQuestPackageItemDB2Reply(l_Entry);
+                break;
             // TODO
             case DB2_REPLY_BATTLE_PET_EFFECT_PROPERTIES:
             case DB2_REPLY_SCENE_SCRIPT:

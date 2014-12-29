@@ -164,7 +164,8 @@ enum DB2Types : uint32
     DB2_REPLY_BATTLE_PET_EFFECT_PROPERTIES  = 0x63B4C4BA,   // Hash of BattlePetEffectProperties.db2
     DB2_REPLY_BROADCAST_TEXT                = 0x021826BB,   // Hash of BroadcastText.db2
     DB2_REPLY_ITEM_EXTENDED_COST            = 0xBB858355,   // Hash of ItemExtendedCost.db2
-    DB2_REPLY_MAP_CHALLENGE_MODE            = 0x383B4C27    // Hash of MapChallengeMode.db2
+    DB2_REPLY_MAP_CHALLENGE_MODE            = 0x383B4C27,   // Hash of MapChallengeMode.db2
+    DB2_REPLY_QUEST_PACKAGE_ITEM            = 0xCC2F84F0,   // Hash of QuestPackageItem.db2
 };
 
 #define VOTE_BUFF           176151
@@ -751,6 +752,7 @@ class WorldSession
         void HandleAutoEquipItemOpcode(WorldPacket& recvPacket);
         void SendItemDb2Reply(uint32 entry);
         void SendMapChallengeModeDBReply(uint32 p_Entry);
+        void SendQuestPackageItemDB2Reply(uint32 p_Entry);
         void SendItemSparseDb2Reply(uint32 entry);
         void SendBroadcastTextDb2Reply(uint32 entry);
         void HandleSellItemOpcode(WorldPacket& recvPacket);

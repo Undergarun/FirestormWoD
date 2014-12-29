@@ -304,7 +304,7 @@ void LoadDB2Stores(const std::string& dataPath)
         if (l_QuestPackageItem == nullptr)
             continue;
 
-        sQuestPackageItemsByGroup[l_QuestPackageItem->ExclusiveGroup].push_back(l_QuestPackageItem);
+        sQuestPackageItemsByGroup[l_QuestPackageItem->PackageID].push_back(l_QuestPackageItem);
     }
 
     // Initialize global taxinodes mask

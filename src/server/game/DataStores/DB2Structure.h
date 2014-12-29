@@ -214,7 +214,7 @@ struct ItemExtendedCostEntry
 struct QuestPackageItemEntry
 {
     uint32 ID;                  // 0
-    uint32 ExclusiveGroup;      // 1
+    uint32 PackageID;           // 1
     uint32 ItemId;              // 2
     uint32 Count;               // 3
     uint32 Type;                // 4

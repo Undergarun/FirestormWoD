@@ -389,152 +389,126 @@ void WorldSession::HandleQuestQueryOpcode(WorldPacket & recvData)
         m_Player->PlayerTalkClass->SendQuestQueryResponse(quest);
 }
 
-void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
+void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& p_RecvData)
 {
-    uint32 questId, reward = 0;
-    uint32 slot = 0;
-    uint64 guid;
+    uint32 l_QuestId;
+    uint32 l_RewardEntry;
+    uint32 l_Slot = 0;
+    uint64 l_Guid;
 
-    recvData.readPackGUID(guid);
-    recvData >> questId >> slot;
+    p_RecvData.readPackGUID(l_Guid);
+    p_RecvData >> l_QuestId >> l_RewardEntry;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_CHOOSE_REWARD npc = %u, quest = %u, reward = %u", uint32(GUID_LOPART(guid)), questId, reward);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_CHOOSE_REWARD npc = %u, quest = %u, reward = %u", uint32(GUID_LOPART(l_Guid)), l_QuestId, l_RewardEntry);
 
-    Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
-    if (!quest)
+    Quest const* l_Quest = sObjectMgr->GetQuestTemplate(l_QuestId);
+    if (!l_Quest)
         return;
 
-    Object* object = m_Player;
+    Object*     l_Object            = m_Player;
+    bool        l_LegacyRewardFound = false;
 
-    if (!quest->HasFlag(QUEST_FLAGS_AUTO_SUBMIT))
+    if (!l_Quest->HasFlag(QUEST_FLAGS_AUTO_SUBMIT))
     {
-        //TODO: Doing something less dirty
-        for (int i = 0; i < QUEST_REWARD_CHOICES_COUNT; i++)
-            if (quest->RewardChoiceItemId[i] == slot)
-                reward = i;
-
-        if (quest->HasDynamicReward())
+        /// - No package id, we use legacy item choice
+        if (l_Quest->GetQuestPackageID() == 0)
         {
-            uint32 index = 0;
-            for (QuestPackageItemEntry const* l_DynamicReward : quest->DynamicRewards)
+            for (int l_I = 0; l_I < QUEST_REWARD_CHOICES_COUNT; l_I++)
             {
-                ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_DynamicReward->ItemId);
-                if (!l_ItemTemplate)
-                    continue;
-
-                switch (l_DynamicReward->Type)
+                if (l_Quest->RewardChoiceItemId[l_I] == l_RewardEntry)
                 {
-                    case uint8(PackageItemRewardType::SpecializationReward):
-                        if (!l_ItemTemplate->HasSpec((SpecIndex)m_Player->GetSpecializationId(m_Player->GetActiveSpec())))
-                            continue;
-                        break;
-                    case uint8(PackageItemRewardType::ClassReward):
-                        if (!l_ItemTemplate->HasClassSpec(m_Player->getClass()))
-                            continue;
-                        break;
-                    case uint8(PackageItemRewardType::DefaultHiddenReward):
-                        continue;
-                    case uint8(PackageItemRewardType::NoRequire):
-                        break;
-                        // Not implemented PackageItemRewardType
-                    default:
-                        sLog->outError(LogFilterType::LOG_FILTER_PLAYER_ITEMS, "Not implemented PackageItemRewardType %u for quest %u", l_DynamicReward->Type, quest->GetQuestId());
-                        continue;
-                }
-
-                if (l_DynamicReward->ItemId == slot)
-                {
-                    reward = index;
+                    l_Slot = l_I;
+                    l_LegacyRewardFound = true;
                     break;
                 }
+            }
 
-                index++;
+            if (!l_LegacyRewardFound)
+            {
+                sLog->outError(LOG_FILTER_NETWORKIO, "Error in CMSG_QUESTGIVER_CHOOSE_REWARD: player %s (guid %d) tried to get invalid reward (%u) (probably packet hacking)", m_Player->GetName(), m_Player->GetGUIDLow(), l_RewardEntry);
+                return;
             }
         }
 
-        if (reward >= QUEST_REWARD_CHOICES_COUNT)
-        {
-            sLog->outError(LOG_FILTER_NETWORKIO, "Error in CMSG_QUESTGIVER_CHOOSE_REWARD: player %s (guid %d) tried to get invalid reward (%u) (probably packet hacking)", m_Player->GetName(), m_Player->GetGUIDLow(), reward);
-            return;
-        }
-        object = ObjectAccessor::GetObjectByTypeMask(*m_Player, guid, TYPEMASK_UNIT|TYPEMASK_GAMEOBJECT);
-        if (!object || !object->hasInvolvedQuest(questId))
+        l_Object = ObjectAccessor::GetObjectByTypeMask(*m_Player, l_Guid, TYPEMASK_UNIT|TYPEMASK_GAMEOBJECT);
+        if (!l_Object || !l_Object->hasInvolvedQuest(l_QuestId))
             return;
 
         // some kind of WPE protection
-        if (!m_Player->CanInteractWithQuestGiver(object))
+        if (!m_Player->CanInteractWithQuestGiver(l_Object))
             return;
-
     }
-    if ((!m_Player->CanSeeStartQuest(quest) &&  m_Player->GetQuestStatus(questId) == QUEST_STATUS_NONE) ||
-        (m_Player->GetQuestStatus(questId) != QUEST_STATUS_COMPLETE && !quest->IsAutoComplete()))
+
+    if ((!m_Player->CanSeeStartQuest(l_Quest) &&  m_Player->GetQuestStatus(l_QuestId) == QUEST_STATUS_NONE)
+        || (m_Player->GetQuestStatus(l_QuestId) != QUEST_STATUS_COMPLETE && !l_Quest->IsAutoComplete()))
     {
         sLog->outError(LOG_FILTER_NETWORKIO, "HACK ALERT: Player %s (guid: %u) is trying to complete quest (id: %u) but he has no right to do it!",
-            m_Player->GetName(), m_Player->GetGUIDLow(), questId);
+            m_Player->GetName(), m_Player->GetGUIDLow(), l_QuestId);
         return;
     }
 
-    if (m_Player->CanRewardQuest(quest, reward, true))
+    if (m_Player->CanRewardQuest(l_Quest, l_LegacyRewardFound ? l_Slot : l_RewardEntry, true))
     {
-        m_Player->RewardQuest(quest, reward, object);
+        m_Player->RewardQuest(l_Quest, l_LegacyRewardFound ? l_Slot : l_RewardEntry, l_Object);
 
-        switch (object->GetTypeId())
+        switch (l_Object->GetTypeId())
         { 
             case TYPEID_UNIT:
             case TYPEID_PLAYER:
-                {
-                    //For AutoSubmition was added plr case there as it almost same exclude AI script cases.
-                    Creature *creatureQGiver = object->ToCreature();
-                    if (!creatureQGiver || !(sScriptMgr->OnQuestReward(m_Player, creatureQGiver, quest, reward)))
-                    {
-                        // Send next quest
-                        if (Quest const* nextQuest = m_Player->GetNextQuest(guid, quest))
-                        {
-                            if (nextQuest->IsAutoAccept() && m_Player->CanAddQuest(nextQuest, true) && m_Player->CanTakeQuest(nextQuest, true))
-                            {
-                                m_Player->AddQuest(nextQuest, object);
-                                if (m_Player->CanCompleteQuest(nextQuest->GetQuestId()))
-                                    m_Player->CompleteQuest(nextQuest->GetQuestId());
-                            }
-
-                            m_Player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, guid, true);
-                        }
-                        if (creatureQGiver)
-                        {
-                            creatureQGiver->AI()->sQuestReward(m_Player, quest, reward);
-
-                            sScriptMgr->OnQuestComplete(m_Player, (object->ToCreature()), quest);
-                            (object->ToCreature())->AI()->sQuestComplete(m_Player, quest);
-                        }
-                    }
-                    break;
-                }
-            case TYPEID_GAMEOBJECT:
-                if (!sScriptMgr->OnQuestReward(m_Player, ((GameObject*)object), quest, reward))
+            {
+                //For AutoSubmition was added plr case there as it almost same exclude AI script cases.
+                Creature *l_CreatureQGiver = l_Object->ToCreature();
+                if (!l_CreatureQGiver || !(sScriptMgr->OnQuestReward(m_Player, l_CreatureQGiver, l_Quest, l_LegacyRewardFound ? l_Slot : l_RewardEntry)))
                 {
                     // Send next quest
-                    if (Quest const* nextQuest = m_Player->GetNextQuest(guid, quest))
+                    if (Quest const* l_NextQuest = m_Player->GetNextQuest(l_Guid, l_Quest))
                     {
-                        if (nextQuest->IsAutoAccept() && m_Player->CanAddQuest(nextQuest, true) && m_Player->CanTakeQuest(nextQuest, true))
+                        if (l_NextQuest->IsAutoAccept() && m_Player->CanAddQuest(l_NextQuest, true) && m_Player->CanTakeQuest(l_NextQuest, true))
                         {
-                            m_Player->AddQuest(nextQuest, object);
-                            if (m_Player->CanCompleteQuest(nextQuest->GetQuestId()))
-                                m_Player->CompleteQuest(nextQuest->GetQuestId());
+                            m_Player->AddQuest(l_NextQuest, l_Object);
+                            if (m_Player->CanCompleteQuest(l_NextQuest->GetQuestId()))
+                                m_Player->CompleteQuest(l_NextQuest->GetQuestId());
                         }
 
-                        m_Player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, guid, true);
+                        m_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_NextQuest, l_Guid, true);
                     }
+                    if (l_CreatureQGiver)
+                    {
+                        l_CreatureQGiver->AI()->sQuestReward(m_Player, l_Quest, l_LegacyRewardFound ? l_Slot : l_RewardEntry);
 
-                    object->ToGameObject()->AI()->QuestReward(m_Player, quest, reward);
+                        sScriptMgr->OnQuestComplete(m_Player, (l_Object->ToCreature()), l_Quest);
+                        (l_Object->ToCreature())->AI()->sQuestComplete(m_Player, l_Quest);
+                    }
                 }
                 break;
+            }
+            case TYPEID_GAMEOBJECT:
+            {
+                if (!sScriptMgr->OnQuestReward(m_Player, ((GameObject*)l_Object), l_Quest, l_LegacyRewardFound ? l_Slot : l_RewardEntry))
+                {
+                    // Send next quest
+                    if (Quest const* l_NextQuest = m_Player->GetNextQuest(l_Guid, l_Quest))
+                    {
+                        if (l_NextQuest->IsAutoAccept() && m_Player->CanAddQuest(l_NextQuest, true) && m_Player->CanTakeQuest(l_NextQuest, true))
+                        {
+                            m_Player->AddQuest(l_NextQuest, l_Object);
+                            if (m_Player->CanCompleteQuest(l_NextQuest->GetQuestId()))
+                                m_Player->CompleteQuest(l_NextQuest->GetQuestId());
+                        }
 
+                        m_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_NextQuest, l_Guid, true);
+                    }
+
+                    l_Object->ToGameObject()->AI()->QuestReward(m_Player, l_Quest, l_LegacyRewardFound ? l_Slot : l_RewardEntry);
+                }
+                break;
+            }
             default:
                 break;
         }
     }
     else
-        m_Player->PlayerTalkClass->SendQuestGiverOfferReward(quest, guid, true);
+        m_Player->PlayerTalkClass->SendQuestGiverOfferReward(l_Quest, l_Guid, true);
 }
 
 void WorldSession::HandleQuestgiverRequestRewardOpcode(WorldPacket & recvData)
@@ -1003,6 +977,30 @@ void WorldSession::HandleQueryQuestCompletionNpcs(WorldPacket& p_RecvData)
 
         for (const uint32 l_NpcItr : l_QuestItr->completionsNpcs)
             l_Data << uint32(l_NpcItr);
+    }
+
+    SendPacket(&l_Data);
+}
+
+void WorldSession::SendQuestPackageItemDB2Reply(uint32 p_Entry)
+{
+    QuestPackageItemEntry const* l_QuestPackageItemHotfix = sQuestPackageItemStore.LookupEntry(p_Entry);
+    if (l_QuestPackageItemHotfix == nullptr)
+        return;
+
+    WorldPacket l_Data(SMSG_DB_REPLY, 56);
+    l_Data << uint32(DB2_REPLY_QUEST_PACKAGE_ITEM);
+    l_Data << int32(p_Entry);
+    l_Data << uint32(time(NULL));
+    l_Data << uint32(sizeof(QuestPackageItemEntry));
+
+    // QuestPackageItem.db2
+    {
+        l_Data << uint32(l_QuestPackageItemHotfix->ID);
+        l_Data << uint32(l_QuestPackageItemHotfix->PackageID);
+        l_Data << uint32(l_QuestPackageItemHotfix->ItemId);
+        l_Data << uint32(l_QuestPackageItemHotfix->Count);
+        l_Data << uint32(l_QuestPackageItemHotfix->Type);
     }
 
     SendPacket(&l_Data);
