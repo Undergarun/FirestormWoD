@@ -4907,6 +4907,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[2].TargetA = TARGET_DEST_TARGET_ENEMY;
                 spellInfo->Effects[2].TargetB = TARGET_UNIT_DEST_AREA_ENEMY;
                 break;
+            case 86273: // Illuminated Healing 
+                spellInfo->Effects[0].BonusMultiplier = 0.0f;
+                break;
             case 853:   // Hammer of Justice
                 spellInfo->OverrideSpellList.push_back(105593); // Replace Hammer of Justice by Fist of Justice
                 break;
