@@ -330,7 +330,6 @@ namespace MS
                     case POINT_MOTION_TYPE:
                         if (p_Id == 12)
                         {
-                            me->SetInCombatWithZone();
                             me->SetControlled(true, UNIT_STATE_ROOT);
                             me->SetReactState(REACT_AGGRESSIVE);
                             me->Attack(ScriptUtils::SelectRandomPlayerIncludedTank(me, 40.0f, false), true);
@@ -415,7 +414,7 @@ namespace MS
 
                 void UpdateAI(const uint32 diff)
                 {
-                    if (!UpdateVictim())
+                    if (!UpdateVictim() || me->getVictim()->GetDistance(me) > 50.0f)
                     {
                         if (m_CombatStarted)
                         {
