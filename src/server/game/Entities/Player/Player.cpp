@@ -25797,7 +25797,9 @@ void Player::ClearComboPoints()
     RemoveAurasByType(SPELL_AURA_RETAIN_COMBO_POINTS);
 
     m_comboPoints = 0;
-    SetPower(POWER_COMBO_POINT, m_comboPoints);
+    int32 l_ComboPoint = GetPower(POWER_COMBO_POINT);
+    if (l_ComboPoint != 0)
+        ModifyPower(POWER_COMBO_POINT, l_ComboPoint * -1);
 
     SendComboPoints();
 }

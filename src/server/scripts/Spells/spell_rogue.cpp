@@ -1919,9 +1919,9 @@ public:
         {
             if (p_Player->HasSpellCooldown(ROGUE_SPELL_ADRENALINE_RUSH))
                 p_Player->ReduceSpellCooldown(ROGUE_SPELL_ADRENALINE_RUSH, sSpellMgr->GetSpellInfo(ROGUE_SPELL_RUTHLESSNESS)->Effects[EFFECT_2].BasePoints * p_Value * -1);
-            else if (p_Player->HasSpellCooldown(ROGUE_SPELL_KILLING_SPREE))
+            if (p_Player->HasSpellCooldown(ROGUE_SPELL_KILLING_SPREE))
                 p_Player->ReduceSpellCooldown(ROGUE_SPELL_KILLING_SPREE, sSpellMgr->GetSpellInfo(ROGUE_SPELL_RUTHLESSNESS)->Effects[EFFECT_2].BasePoints * p_Value * -1);
-            else if (p_Player->HasSpellCooldown(ROGUE_SPELL_SPRINT))
+            if (p_Player->HasSpellCooldown(ROGUE_SPELL_SPRINT))
                 p_Player->ReduceSpellCooldown(ROGUE_SPELL_SPRINT, sSpellMgr->GetSpellInfo(ROGUE_SPELL_RUTHLESSNESS)->Effects[EFFECT_2].BasePoints * p_Value * -1);
         }
     }
