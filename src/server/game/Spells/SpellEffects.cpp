@@ -260,7 +260,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectPlaySceneObject,                          //185 SPELL_EFFECT_PLAY_SCENEOBJECT
     &Spell::EffectPlaySceneObject,                          //186 SPELL_EFFECT_PLAY_SCENEOBJECT_2
     &Spell::EffectRandomizeArchaeologyDigsites,             //187 SPELL_EFFECT_RANDOMIZE_ARCHAEOLOGY_DIGSITES
-    &Spell::EffectSummonMultipleHunterPets,                 //188 SPELL_EFFECT_SUMMON_MULTIPLE_HUNTER_PETS
+    &Spell::EffectStampede,                                 //188 SPELL_EFFECT_STAMPEDE
     &Spell::EffectLootBonus,                                //189 SPELL_EFFECT_LOOT_BONUS              Boss loot bonus ?
     &Spell::EffectNULL,                                     //190 SPELL_EFFECT_190                     internal spell
     &Spell::EffectTeleportToDigsite,                        //191 SPELL_EFFECT_TELEPORT_TO_DIGSITE     Teleport player to an random digsite (Archaeology)
@@ -567,192 +567,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 break;
             }
         }
-        case SPELLFAMILY_WARLOCK:
-        {
-            switch (m_spellInfo->Id)
-            {
-            case 29722: // Incinerate
-            case 114654:// Incinerate (Fire and Brimstone)
-            {
-                // Incinerate does more dmg (dmg/6) if the target have Immolate debuff.
-                // Check aura state for speed but aura state set not only for Immolate spell
-                if (unitTarget->HasAuraState(AURA_STATE_CONFLAGRATE))
-                {
-                    if (unitTarget->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_WARLOCK, 0x4, 0, 0))
-                        damage += damage / 6;
-                }
-                break;
-            }
-            case 87385:// Soulburn : Seed of Corruption (AoE)
-            {
-                // Apply corruption to each target
-                if (m_caster->HasAura(86664))
-                    m_caster->AddAura(172, unitTarget);
-
-                break;
-            }
-            default:
-                break;
-            }
-
-            break;
-        }
-        case SPELLFAMILY_PRIEST:
-        {
-            // Improved Mind Blast (Mind Blast in shadow form bonus)
-            if (m_caster->GetShapeshiftForm() == FORM_SHADOW && (m_spellInfo->SpellFamilyFlags[0] & 0x00002000))
-            {
-                Unit::AuraEffectList const& ImprMindBlast = m_caster->GetAuraEffectsByType(SPELL_AURA_ADD_FLAT_MODIFIER);
-                for (Unit::AuraEffectList::const_iterator i = ImprMindBlast.begin(); i != ImprMindBlast.end(); ++i)
-                {
-                    if ((*i)->GetSpellInfo()->SpellFamilyName == SPELLFAMILY_PRIEST &&
-                        ((*i)->GetSpellInfo()->SpellIconID == 95))
-                    {
-                        int chance = (*i)->GetSpellInfo()->Effects[EFFECT_1].CalcValue(m_caster);
-                        if (roll_chance_i(chance))
-                            // Mind Trauma
-                            m_caster->CastSpell(unitTarget, 48301, true, 0);
-                        break;
-                    }
-                }
-            }
-
-            break;
-        }
-        case SPELLFAMILY_DRUID:
-        {
-            switch (m_spellInfo->Id)
-            {
-            case 770:   // Faerie Fire
-            case 102355:// Faerie Swarm
-                if (m_caster->GetShapeshiftForm() != FORM_BEAR)
-                    return;
-
-                // Glyph of Fae Silence
-                if (m_caster->HasAura(114237) && m_caster->GetTypeId() == TYPEID_PLAYER)
-                {
-                    m_caster->CastSpell(unitTarget, 114238, true);
-                    m_caster->ToPlayer()->AddSpellCooldown(m_spellInfo->Id, 0, 15 * IN_MILLISECONDS);
-                }
-
-                break;
-            default:
-                break;
-            }
-        }
-        case SPELLFAMILY_ROGUE:
-        {
-            switch (m_spellInfo->Id)
-            {
-            case 2098:  // Eviscerate
-            {
-                if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                {
-                    if (uint32 combo = ((Player*)m_caster)->GetComboPoints())
-                    {
-                        float ap = m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
-
-                        switch (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()))
-                        {
-                        case SPEC_ROGUE_ASSASSINATION:
-                        case SPEC_ROGUE_COMBAT:
-                            damage += int32(ap * combo * 0.18f);
-                            break;
-                        case SPEC_ROGUE_SUBTLETY:
-                        default:
-                            damage += int32(ap * combo * 0.223f);
-                            break;
-                        }
-
-                        // Eviscerate and Envenom Bonus Damage (item set effect)
-                        if (AuraEffectPtr eviscerateBonus = m_caster->GetAuraEffect(37169, EFFECT_0))
-                            AddPct(damage, eviscerateBonus->GetAmount());
-                    }
-                }
-
-                break;
-            }
-            case 26679: // Deadly Throw
-            {
-                if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                {
-                    if (uint32 combo = ((Player*)m_caster)->GetComboPoints())
-                    {
-                        float ap = m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
-
-                        if (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_ROGUE_ASSASSINATION
-                            || m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_ROGUE_COMBAT)
-                            damage += int32(ap * combo * 0.12f);
-                        else if (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_ROGUE_SUBTLETY)
-                            damage += int32(ap * combo * 0.149f);
-                    }
-                }
-
-                break;
-            }
-            case 32645: // Envenom
-            {
-                if (Player* player = m_caster->ToPlayer())
-                {
-                    uint8 combo = player->GetComboPoints();
-
-                    float ap = player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
-
-                    if (combo)
-                    {
-                        damage += int32(0.112f * combo * ap + damage * combo);
-
-                        // Eviscerate and Envenom Bonus Damage (item set effect)
-                        if (m_caster->HasAura(37169))
-                            damage += combo * 40;
-                    }
-                }
-
-                break;
-            }
-            case 51723: // Fan of Knives
-            {
-                if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                    break;
-
-                // Fan of Knives - Vile Poisons
-                if (AuraEffectPtr aur = m_caster->GetDummyAuraEffect(SPELLFAMILY_ROGUE, 857, 2))
-                {
-                    if (roll_chance_i(aur->GetAmount()))
-                    {
-                        for (uint8 i = WeaponAttackType::BaseAttack; i < WeaponAttackType::MaxAttack; ++i)
-                            m_caster->ToPlayer()->CastItemCombatSpell(unitTarget, WeaponAttackType(i), PROC_FLAG_TAKEN_DAMAGE, PROC_EX_NORMAL_HIT);
-                    }
-                }
-
-                // Glyph of Sharpened Knives
-                if (m_caster->HasAura(146628))
-                    m_caster->CastSpell(unitTarget, 113746, true);
-
-                break;
-            }
-            case 121411:// Crimson Tempest
-            {
-                if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                {
-                    if (uint32 combo = ((Player*)m_caster)->GetComboPoints())
-                    {
-                        float ap = m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
-
-                        if (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_ROGUE_ASSASSINATION
-                            || m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_ROGUE_COMBAT)
-                            damage += int32(ap * combo * 0.028f);
-                        else if (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_ROGUE_SUBTLETY)
-                            damage += int32(ap * combo * 0.034f);
-                    }
-                }
-
-                break;
-            }
-            }
-
-            break;
-        }
         case SPELLFAMILY_HUNTER:
         {
             switch (m_spellInfo->Id)
@@ -763,44 +577,10 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                     return;
                 break;
             }
-            case 16827: // Claw
-            case 17253: // Bite
-            {
-                if (m_caster->GetOwner())
-                {
-                    damage += int32(m_caster->GetOwner()->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.2544f);
-
-                    // Deals 100% more damage and costs 100% more Focus when your pet has 50 or more Focus.
-                    if (m_caster->GetPower(POWER_FOCUS) + 25 > 50)
-                    {
-                        damage *= 2;
-                        m_caster->EnergizeBySpell(m_caster, m_spellInfo->Id, -25, POWER_FOCUS);
-                    }
-                }
-
-                break;
-            }
             default:
                 break;
             }
             break;
-        }
-        case SPELLFAMILY_MAGE:
-        {
-            switch (m_spellInfo->Id)
-            {
-                // Frost Bomb
-            case 113092:
-            {
-                if (effIndex == 0)
-                    damage += m_caster->SpellBaseDamageBonusDone(m_spellInfo->GetSchoolMask()) * 3.447f;
-                else if (effIndex == 1)
-                    damage += m_caster->SpellBaseDamageBonusDone(m_spellInfo->GetSchoolMask()) * 1.725f;
-                if (unitTarget->GetTypeId() == TYPEID_PLAYER)
-                    damage *= 0.7f;
-            }
-            break;
-            }
         }
         case SPELLFAMILY_MONK:
         {
@@ -8291,9 +8071,9 @@ void Spell::EffectDespawnAreaTrigger(SpellEffIndex p_EffIndex)
         l_AreaTrigger->Remove(0);
 }
 
-void Spell::EffectSummonMultipleHunterPets(SpellEffIndex p_EffIndex)
+void Spell::EffectStampede(SpellEffIndex p_EffIndex)
 {
-    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+    if (m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
 
     Player* l_Player = m_caster->ToPlayer();

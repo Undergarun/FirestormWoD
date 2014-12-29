@@ -170,7 +170,7 @@ enum TickingTimeBomb
 {
     SPELL_TICKING_TIME_BOMB_EXPLODE = 59687
 };
-class spell_ticking_time_bomb : public SpellScriptLoader
+class spell_ticking_time_bomb: public SpellScriptLoader
 {
     public:
         spell_ticking_time_bomb() : SpellScriptLoader("spell_ticking_time_bomb") { }
@@ -208,7 +208,7 @@ enum Fixate
 {
     SPELL_FIXATE_TRIGGER = 40415
 };
-class spell_fixate : public SpellScriptLoader
+class spell_fixate: public SpellScriptLoader
 {
     public:
         spell_fixate() : SpellScriptLoader("spell_fixate") { }

@@ -119,7 +119,7 @@ UnitFlag const unitFlags[UNIT_FLAGS_MAX] =
     { UNIT_FLAG_UNK_31              , "UNIT_FLAG_UNK_31"                }
 };
 
-class npc_commandscript : public CommandScript
+class npc_commandscript: public CommandScript
 {
 public:
     npc_commandscript() : CommandScript("npc_commandscript") { }

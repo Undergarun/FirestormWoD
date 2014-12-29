@@ -467,7 +467,7 @@ class npc_hadronox_nerubian : public CreatureScript
         }
 };
 
-class spell_hadronox_leech_poison : public SpellScriptLoader
+class spell_hadronox_leech_poison: public SpellScriptLoader
 {
     public:
         spell_hadronox_leech_poison() : SpellScriptLoader("spell_hadronox_leech_poison") { }

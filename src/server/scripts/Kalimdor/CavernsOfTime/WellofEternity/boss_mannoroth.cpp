@@ -644,7 +644,7 @@ class npc_mannoroth_doomguard_debilitator : public CreatureScript
         };
 };
 
-class spell_mannoroth_gift_of_sargeras : public SpellScriptLoader
+class spell_mannoroth_gift_of_sargeras: public SpellScriptLoader
 {
     public:
         spell_mannoroth_gift_of_sargeras() : SpellScriptLoader("spell_mannoroth_gift_of_sargeras") { }

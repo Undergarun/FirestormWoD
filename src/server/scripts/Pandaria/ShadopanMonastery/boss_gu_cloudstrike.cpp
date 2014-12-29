@@ -368,7 +368,7 @@ class OnlyGuardianPredicate
         }
 };
 
-class spell_kill_guardians : public SpellScriptLoader
+class spell_kill_guardians: public SpellScriptLoader
 {
     public:
         spell_kill_guardians() : SpellScriptLoader("spell_kill_guardians") { }
@@ -421,7 +421,7 @@ class spell_kill_guardians : public SpellScriptLoader
         }
 };
 
-class spell_overcharged_soul_damage : public SpellScriptLoader
+class spell_overcharged_soul_damage: public SpellScriptLoader
 {
     public:
         spell_overcharged_soul_damage() : SpellScriptLoader("spell_overcharged_soul_damage") { }

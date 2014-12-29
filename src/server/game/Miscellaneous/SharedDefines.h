@@ -22,6 +22,8 @@
 #include "Define.h"
 #include <cassert>
 
+#define UNUSED(x) (void)(x)
+
 #define MAX_CREATURE_BASE_HP 6
 
 enum SpellEffIndex
@@ -1262,7 +1264,7 @@ enum SpellEffects
     SPELL_EFFECT_PLAY_SCENEOBJECT                   = 185,
     SPELL_EFFECT_PLAY_SCENEOBJECT_2                 = 186,
     SPELL_EFFECT_RANDOMIZE_ARCHAEOLOGY_DIGSITES     = 187,
-    SPELL_EFFECT_SUMMON_MULTIPLE_HUNTER_PETS        = 188,
+    SPELL_EFFECT_STAMPEDE                           = 188,
     SPELL_EFFECT_LOOT_BONUS                         = 189,
     SPELL_EFFECT_190                                = 190,
     SPELL_EFFECT_TELEPORT_TO_DIGSITE                = 191,

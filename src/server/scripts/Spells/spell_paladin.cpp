@@ -100,6 +100,7 @@ enum PaladinSpells
     PALADIN_SPELL_SANCTIFIED_WRATH_TALENT       = 53376,
     PALADIN_SPELL_SANCTIFIED_WRATH_BONUS        = 114232,
     PALADIN_SPELL_AVENGING_WRATH                = 31884,
+    PALADIN_SPELL_AVENGING_WRATH_HEAL           = 31842,
     PALADIN_SPELL_EXORCISM_ENERGIZE             = 147715,
     PALADIN_SPELL_GLYPH_OF_BURDEN_OF_GUILT      = 54931,
     PALADIN_SPELL_BURDEN_OF_GUILD               = 110300,
@@ -123,11 +124,14 @@ enum PaladinSpells
     PALADIN_SPELL_SHIELD_OF_THE_RIGHTEOUS       = 53600,
     PALADIN_SPELL_LIGHT_OF_DAWN                 = 85222,
     PALADIN_SPELL_DIVINE_PURPOSE                = 86172,
-    PALADIN_SPELL_HAMMER_OF_WRATH_POWER         = 141459
+    PALADIN_SPELL_HAMMER_OF_WRATH_POWER         = 141459,
+    PALADIN_SPELL_SAVED_BY_THE_LIGHT            = 157047,
+    PALADIN_SPELL_SAVED_BY_THE_LIGHT_PROC       = 157131,
+    PALADIN_SPELL_SAVED_BY_THE_LIGHT_SHIELD     = 157128
 };
 
 // Glyph of devotion aura - 146955
-class spell_pal_glyph_of_devotian_aura : public SpellScriptLoader
+class spell_pal_glyph_of_devotian_aura: public SpellScriptLoader
 {
     public:
         spell_pal_glyph_of_devotian_aura() : SpellScriptLoader("spell_pal_glyph_of_devotian_aura") { }
@@ -162,7 +166,7 @@ class spell_pal_glyph_of_devotian_aura : public SpellScriptLoader
         }
 };
 
-class spell_pal_glyph_of_devotian_trigger_aura : public SpellScriptLoader
+class spell_pal_glyph_of_devotian_trigger_aura: public SpellScriptLoader
 {
     public:
         spell_pal_glyph_of_devotian_trigger_aura() : SpellScriptLoader("spell_pal_glyph_of_devotian_trigger_aura") { }
@@ -200,7 +204,7 @@ class spell_pal_glyph_of_devotian_trigger_aura : public SpellScriptLoader
 };
 
 // Hammer of Wrath - 24275 - 158392 - 157496
-class spell_pal_hammer_of_wrath : public SpellScriptLoader
+class spell_pal_hammer_of_wrath: public SpellScriptLoader
 {
 public:
     spell_pal_hammer_of_wrath() : SpellScriptLoader("spell_pal_hammer_of_wrath") { }
@@ -219,12 +223,12 @@ public:
                     uint32 l_OldCooldown = l_Player->GetSpellCooldownDelay(GetSpellInfo()->Id);
                     uint32 l_NewCooldown = l_OldCooldown - CalculatePct(l_OldCooldown, sSpellMgr->GetSpellInfo(PALADIN_SPELL_SANCTIFIED_WRATH_TALENT)->Effects[EFFECT_0].BasePoints);
 
-                    l_Player->ToPlayer()->RemoveSpellCooldown(GetSpellInfo()->Id, true);
+                    l_Player->RemoveSpellCooldown(GetSpellInfo()->Id, true);
 
-                    if (!l_Player->HasSpell(PALADIN_SPELL_SANCTIFIED_WRATH_TALENT))
-                        l_Player->ToPlayer()->AddSpellCooldown(GetSpellInfo()->Id, 0, l_OldCooldown, true);
+                    if (l_Player->HasSpell(PALADIN_SPELL_SANCTIFIED_WRATH_TALENT) == false || l_Player->HasAura(PALADIN_SPELL_AVENGING_WRATH) == false)
+                        l_Player->AddSpellCooldown(GetSpellInfo()->Id, 0, l_OldCooldown, true);
                     else
-                        l_Player->ToPlayer()->AddSpellCooldown(GetSpellInfo()->Id, 0, l_NewCooldown, true);
+                        l_Player->AddSpellCooldown(GetSpellInfo()->Id, 0, l_NewCooldown, true);
                 }
         }
 
@@ -241,7 +245,7 @@ public:
 };
 
 // Exorcism - 879
-class spell_pal_exorcism_energize : public SpellScriptLoader
+class spell_pal_exorcism_energize: public SpellScriptLoader
 {
     public:
         spell_pal_exorcism_energize() : SpellScriptLoader("spell_pal_exorcism_energize") { }
@@ -272,7 +276,7 @@ class spell_pal_exorcism_energize : public SpellScriptLoader
 
 // Called by Divine Storm - 53385
 // Glyph of Divine Storm - 63220
-class spell_pal_glyph_of_divine_storm : public SpellScriptLoader
+class spell_pal_glyph_of_divine_storm: public SpellScriptLoader
 {
     public:
         spell_pal_glyph_of_divine_storm() : SpellScriptLoader("spell_pal_glyph_of_divine_storm") { }
@@ -301,7 +305,7 @@ class spell_pal_glyph_of_divine_storm : public SpellScriptLoader
 };
 
 // Holy Radiance - 82327
-class spell_pal_daybreak : public SpellScriptLoader
+class spell_pal_daybreak: public SpellScriptLoader
 {
     public:
         spell_pal_daybreak() : SpellScriptLoader("spell_pal_daybreak") { }
@@ -334,7 +338,7 @@ class spell_pal_daybreak : public SpellScriptLoader
 };
 
 // Hand of Purity - 114039
-class spell_pal_hand_of_purity : public SpellScriptLoader
+class spell_pal_hand_of_purity: public SpellScriptLoader
 {
     public:
         spell_pal_hand_of_purity() : SpellScriptLoader("spell_pal_hand_of_purity") { }
@@ -387,7 +391,7 @@ class spell_pal_hand_of_purity : public SpellScriptLoader
 
 // Called by Avenging Wrath - 31884
 // Glyph of Avenging Wrath - 54927
-class spell_pal_glyph_of_avenging_wrath : public SpellScriptLoader
+class spell_pal_glyph_of_avenging_wrath: public SpellScriptLoader
 {
     public:
         spell_pal_glyph_of_avenging_wrath() : SpellScriptLoader("spell_pal_glyph_of_avenging_wrath") { }
@@ -416,7 +420,7 @@ class spell_pal_glyph_of_avenging_wrath : public SpellScriptLoader
 };
 
 // Shield of the Righteous - 53600
-class spell_pal_shield_of_the_righteous : public SpellScriptLoader
+class spell_pal_shield_of_the_righteous: public SpellScriptLoader
 {
     public:
         spell_pal_shield_of_the_righteous() : SpellScriptLoader("spell_pal_shield_of_the_righteous") { }
@@ -452,7 +456,7 @@ class spell_pal_shield_of_the_righteous : public SpellScriptLoader
 
 // Selfless healer - 85804
 // Called by flash of light - 19750
-class spell_pal_selfless_healer : public SpellScriptLoader
+class spell_pal_selfless_healer: public SpellScriptLoader
 {
     public:
         spell_pal_selfless_healer() : SpellScriptLoader("spell_pal_selfless_healer") { }
@@ -492,7 +496,7 @@ class spell_pal_selfless_healer : public SpellScriptLoader
 
 // Called by Flash of Light - 19750 and Divine Light - 82326
 // Tower of Radiance - 85512
-class spell_pal_tower_of_radiance : public SpellScriptLoader
+class spell_pal_tower_of_radiance: public SpellScriptLoader
 {
     public:
         spell_pal_tower_of_radiance() : SpellScriptLoader("spell_pal_tower_of_radiance") { }
@@ -545,7 +549,7 @@ class spell_pal_tower_of_radiance : public SpellScriptLoader
 };
 
 // Sacred shield - 20925 and Sacred Shield (Holy) - 148039
-class spell_pal_sacred_shield : public SpellScriptLoader
+class spell_pal_sacred_shield: public SpellScriptLoader
 {
     public:
         spell_pal_sacred_shield() : SpellScriptLoader("spell_pal_sacred_shield") { }
@@ -574,7 +578,7 @@ class spell_pal_sacred_shield : public SpellScriptLoader
 };
 
 // Sacred shield absorb - 65148
-class spell_pal_sacred_shield_absorb : public SpellScriptLoader
+class spell_pal_sacred_shield_absorb: public SpellScriptLoader
 {
     public:
         spell_pal_sacred_shield_absorb() : SpellScriptLoader("spell_pal_sacred_shield_absorb") { }
@@ -602,7 +606,7 @@ class spell_pal_sacred_shield_absorb : public SpellScriptLoader
 };
 
 // Emancipate - 121783
-class spell_pal_emancipate : public SpellScriptLoader
+class spell_pal_emancipate: public SpellScriptLoader
 {
     public:
         spell_pal_emancipate() : SpellScriptLoader("spell_pal_emancipate") { }
@@ -645,7 +649,7 @@ class spell_pal_emancipate : public SpellScriptLoader
 };
 
 // Exorcism!  - 59578
-class spell_pal_art_of_war : public SpellScriptLoader
+class spell_pal_art_of_war: public SpellScriptLoader
 {
     public:
         spell_pal_art_of_war() : SpellScriptLoader("spell_pal_art_of_war") { }
@@ -680,7 +684,7 @@ class spell_pal_art_of_war : public SpellScriptLoader
 };
 
 // Seal of Insight - 20167
-class spell_pal_seal_of_insight : public SpellScriptLoader
+class spell_pal_seal_of_insight: public SpellScriptLoader
 {
     public:
         spell_pal_seal_of_insight() : SpellScriptLoader("spell_pal_seal_of_insight") { }
@@ -708,7 +712,7 @@ class spell_pal_seal_of_insight : public SpellScriptLoader
 };
 
 // Blinding Light - 115750
-class spell_pal_blinding_light : public SpellScriptLoader
+class spell_pal_blinding_light: public SpellScriptLoader
 {
     public:
         spell_pal_blinding_light() : SpellScriptLoader("spell_pal_blinding_light") { }
@@ -744,7 +748,7 @@ class spell_pal_blinding_light : public SpellScriptLoader
 };
 
 // Hand of Protection - 1022
-class spell_pal_hand_of_protection : public SpellScriptLoader
+class spell_pal_hand_of_protection: public SpellScriptLoader
 {
     public:
         spell_pal_hand_of_protection() : SpellScriptLoader("spell_pal_hand_of_protection") { }
@@ -784,7 +788,7 @@ class spell_pal_hand_of_protection : public SpellScriptLoader
 };
 
 // Cleanse - 4987
-class spell_pal_cleanse : public SpellScriptLoader
+class spell_pal_cleanse: public SpellScriptLoader
 {
     public:
         spell_pal_cleanse() : SpellScriptLoader("spell_pal_cleanse") { }
@@ -839,7 +843,7 @@ class spell_pal_cleanse : public SpellScriptLoader
 };
 
 // Divine Shield - 642 and Divine Shield - 110700
-class spell_pal_divine_shield : public SpellScriptLoader
+class spell_pal_divine_shield: public SpellScriptLoader
 {
     public:
         spell_pal_divine_shield() : SpellScriptLoader("spell_pal_divine_shield") { }
@@ -878,7 +882,7 @@ class spell_pal_divine_shield : public SpellScriptLoader
 };
 
 // Execution Sentence - 114916 and Stay of Execution - 114917
-class spell_pal_execution_sentence_dispel : public SpellScriptLoader
+class spell_pal_execution_sentence_dispel: public SpellScriptLoader
 {
     public:
         spell_pal_execution_sentence_dispel() : SpellScriptLoader("spell_pal_execution_sentence_dispel") { }
@@ -921,7 +925,7 @@ class spell_pal_execution_sentence_dispel : public SpellScriptLoader
 };
 
 // Execution Sentence - 114157
-class spell_pal_execution_sentence : public SpellScriptLoader
+class spell_pal_execution_sentence: public SpellScriptLoader
 {
     public:
         spell_pal_execution_sentence() : SpellScriptLoader("spell_pal_execution_sentence") { }
@@ -959,7 +963,7 @@ class spell_pal_execution_sentence : public SpellScriptLoader
 };
 
 // Light's Hammer (periodic dummy for npc) - 114918
-class spell_pal_lights_hammer : public SpellScriptLoader
+class spell_pal_lights_hammer: public SpellScriptLoader
 {
     public:
         spell_pal_lights_hammer() : SpellScriptLoader("spell_pal_lights_hammer") { }
@@ -994,7 +998,7 @@ class spell_pal_lights_hammer : public SpellScriptLoader
 
 // called by Holy Prism (damage) - 114852 or Holy Prism (heal) - 114871
 // Holy Prism visual for other targets
-class spell_pal_holy_prism_visual : public SpellScriptLoader
+class spell_pal_holy_prism_visual: public SpellScriptLoader
 {
     public:
         spell_pal_holy_prism_visual() : SpellScriptLoader("spell_pal_holy_prism_visual") { }
@@ -1031,7 +1035,7 @@ class spell_pal_holy_prism_visual : public SpellScriptLoader
 
 // called by Holy Prism (visual damage) - 114862 or Holy Prism (visual heal) - 121551
 // Holy Prism (damage) - 114852 or Holy Prism (heal) - 114871
-class spell_pal_holy_prism_effect : public SpellScriptLoader
+class spell_pal_holy_prism_effect: public SpellScriptLoader
 {
     public:
         spell_pal_holy_prism_effect() : SpellScriptLoader("spell_pal_holy_prism_effect") { }
@@ -1069,7 +1073,7 @@ class spell_pal_holy_prism_effect : public SpellScriptLoader
 };
 
 // Holy Prism - 114165
-class spell_pal_holy_prism : public SpellScriptLoader
+class spell_pal_holy_prism: public SpellScriptLoader
 {
     public:
         spell_pal_holy_prism() : SpellScriptLoader("spell_pal_holy_prism") { }
@@ -1111,7 +1115,7 @@ class spell_pal_holy_prism : public SpellScriptLoader
 };
 
 // Consecration - 26573 (periodic dummy)
-class spell_pal_consecration : public SpellScriptLoader
+class spell_pal_consecration: public SpellScriptLoader
 {
     public:
         spell_pal_consecration() : SpellScriptLoader("spell_pal_consecration") { }
@@ -1139,7 +1143,7 @@ class spell_pal_consecration : public SpellScriptLoader
 };
 
 // Consecration - 26573
-class spell_pal_consecration_area : public SpellScriptLoader
+class spell_pal_consecration_area: public SpellScriptLoader
 {
     public:
         spell_pal_consecration_area() : SpellScriptLoader("spell_pal_consecration_area") { }
@@ -1167,7 +1171,7 @@ class spell_pal_consecration_area : public SpellScriptLoader
 };
 
 //  Word of Glory (Heal) - 130551
-class spell_pal_word_of_glory_heal : public SpellScriptLoader
+class spell_pal_word_of_glory_heal: public SpellScriptLoader
 {
 public:
     spell_pal_word_of_glory_heal() : SpellScriptLoader("spell_pal_word_of_glory_heal") { }
@@ -1182,8 +1186,10 @@ public:
                 if (Unit* l_Target = GetHitUnit())
                 {
                     int32 l_Power = l_Caster->GetPower(POWER_HOLY_POWER);
+                    if (l_Power > 2)
+                        l_Power = 2;
 
-                    SetHitHeal(GetHitHeal() / (std::max(1, 3 - l_Power + 1)));
+                    SetHitHeal(GetHitHeal() / (std::max(1, 3 - l_Power)));
 
                     if (l_Target->GetGUID() == l_Caster->GetGUID() && l_Caster->HasAura(PALADIN_SPELL_BASTION_OF_GLORY))
                     {
@@ -1218,7 +1224,7 @@ public:
 };
 
 //  Word of Glory (Damage) - 130552
-class spell_pal_word_of_glory_damage : public SpellScriptLoader
+class spell_pal_word_of_glory_damage: public SpellScriptLoader
 {
 public:
     spell_pal_word_of_glory_damage() : SpellScriptLoader("spell_pal_word_of_glory_damage") { }
@@ -1233,8 +1239,10 @@ public:
                 if (Unit* l_Target = GetHitUnit())
                 {
                     int32 l_Power = l_Player->GetPower(POWER_HOLY_POWER);
-                    
-                    SetHitDamage((l_Player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL) *  GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier) / (3 - l_Power + 1));
+                    if (l_Power > 2)
+                        l_Power = 2;
+
+                    SetHitDamage((l_Player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL) *  GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier) / (std::max(1, 3 - l_Power)));
 
                     if (!l_Player->HasAura(PALADIN_SPELL_DIVINE_PURPOSE_AURA))
                         l_Player->ModifyPower(POWER_HOLY_POWER, -l_Power);
@@ -1254,7 +1262,7 @@ public:
 };
 
 // Word of Glory - 85673 - 136494
-class spell_pal_word_of_glory : public SpellScriptLoader
+class spell_pal_word_of_glory: public SpellScriptLoader
 {
     public:
         spell_pal_word_of_glory() : SpellScriptLoader("spell_pal_word_of_glory") { }
@@ -1282,8 +1290,8 @@ class spell_pal_word_of_glory : public SpellScriptLoader
 
                         int32 l_Power = l_Player->GetPower(POWER_HOLY_POWER);
 
-                        if (l_Power > 3)
-                            l_Power = 3;
+                        if (l_Power > 2)
+                            l_Power = 2;
 
                         if (l_Target->IsFriendlyTo(l_Player))
                             l_Player->CastSpell(l_Target, PALADIN_SPELL_WORD_OF_GLORY_HEAL, true);
@@ -1317,7 +1325,7 @@ class spell_pal_word_of_glory : public SpellScriptLoader
 };
 
 // Judgment - 20271
-class spell_pal_judgment : public SpellScriptLoader
+class spell_pal_judgment: public SpellScriptLoader
 {
     public:
         spell_pal_judgment() : SpellScriptLoader("spell_pal_judgment") { }
@@ -1376,7 +1384,7 @@ class spell_pal_judgment : public SpellScriptLoader
 };
 
 // Ardent Defender - 31850
-class spell_pal_ardent_defender : public SpellScriptLoader
+class spell_pal_ardent_defender: public SpellScriptLoader
 {
     public:
         spell_pal_ardent_defender() : SpellScriptLoader("spell_pal_ardent_defender") { }
@@ -1431,7 +1439,7 @@ class spell_pal_ardent_defender : public SpellScriptLoader
 };
 
 // Blessing of faith - 37877
-class spell_pal_blessing_of_faith : public SpellScriptLoader
+class spell_pal_blessing_of_faith: public SpellScriptLoader
 {
     public:
         spell_pal_blessing_of_faith() : SpellScriptLoader("spell_pal_blessing_of_faith") { }
@@ -1479,7 +1487,7 @@ class spell_pal_blessing_of_faith : public SpellScriptLoader
 };
 
 // Holy Shock (heal) - 25914
-class spell_pal_holy_shock_heal : public SpellScriptLoader
+class spell_pal_holy_shock_heal: public SpellScriptLoader
 {
     public:
         spell_pal_holy_shock_heal() : SpellScriptLoader("spell_pal_holy_shock_heal") { }
@@ -1515,7 +1523,7 @@ class spell_pal_holy_shock_heal : public SpellScriptLoader
 };
 
 // Holy Shock (damage) - 25912
-class spell_pal_holy_shock_damage : public SpellScriptLoader
+class spell_pal_holy_shock_damage: public SpellScriptLoader
 {
     public:
         spell_pal_holy_shock_damage() : SpellScriptLoader("spell_pal_holy_shock_damage") { }
@@ -1559,7 +1567,7 @@ class spell_pal_holy_shock_damage : public SpellScriptLoader
 };
 
 // Holy Shock - 20473
-class spell_pal_holy_shock : public SpellScriptLoader
+class spell_pal_holy_shock: public SpellScriptLoader
 {
     public:
         spell_pal_holy_shock() : SpellScriptLoader("spell_pal_holy_shock") { }
@@ -1600,7 +1608,7 @@ class spell_pal_holy_shock : public SpellScriptLoader
 
                         l_Caster->ToPlayer()->RemoveSpellCooldown(PALADIN_SPELL_HOLY_SHOCK_R1, true);
 
-                        if (!l_Caster->HasSpell(PALADIN_SPELL_SANCTIFIED_WRATH_TALENT))
+                        if (l_Caster->HasSpell(PALADIN_SPELL_SANCTIFIED_WRATH_TALENT) == false || l_Caster->HasAura(PALADIN_SPELL_AVENGING_WRATH_HEAL) == false)
                             l_Caster->ToPlayer()->AddSpellCooldown(PALADIN_SPELL_HOLY_SHOCK_R1, 0, l_OldCooldown, true);
                         else
                             l_Caster->ToPlayer()->AddSpellCooldown(PALADIN_SPELL_HOLY_SHOCK_R1, 0, l_NewCooldown, true);
@@ -1650,7 +1658,7 @@ class spell_pal_holy_shock : public SpellScriptLoader
 };
 
 // Lay on Hands - 633
-class spell_pal_lay_on_hands : public SpellScriptLoader
+class spell_pal_lay_on_hands: public SpellScriptLoader
 {
     public:
         spell_pal_lay_on_hands() : SpellScriptLoader("spell_pal_lay_on_hands") { }
@@ -1690,7 +1698,7 @@ class spell_pal_lay_on_hands : public SpellScriptLoader
 };
 
 // Righteous defense - 31789
-class spell_pal_righteous_defense : public SpellScriptLoader
+class spell_pal_righteous_defense: public SpellScriptLoader
 {
     public:
         spell_pal_righteous_defense() : SpellScriptLoader("spell_pal_righteous_defense") { }
@@ -1729,7 +1737,7 @@ class spell_pal_righteous_defense : public SpellScriptLoader
 };
 
 // Eternal Flame - 114163
-class spell_pal_eternal_flame : public SpellScriptLoader
+class spell_pal_eternal_flame: public SpellScriptLoader
 {
 public:
     spell_pal_eternal_flame() : SpellScriptLoader("spell_pal_eternal_flame") { }
@@ -1737,6 +1745,8 @@ public:
     class spell_pal_eternal_flame_SpellScript : public SpellScript
     {
         PrepareSpellScript(spell_pal_eternal_flame_SpellScript);
+
+        int32 m_PowerUsed = 0;
 
         SpellCastResult CheckCast()
         {
@@ -1747,21 +1757,45 @@ public:
             return SPELL_CAST_OK;
         }
 
-        void HandleOnHit()
+        void HandleBeforeHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                m_PowerUsed = l_Caster->GetPower(POWER_HOLY_POWER);
+                if (m_PowerUsed > 2)
+                    m_PowerUsed = 2;
+            }
+        }
+
+        void HandleHeal(SpellEffIndex /*effIndex*/)
         {
             if (Unit* l_Caster = GetCaster())
                 if (Unit* l_Target = GetHitUnit())
                 {
+                    SetHitHeal(GetHitHeal() / (std::max(1, 3 - m_PowerUsed)));
+
+                    if (l_Target->GetGUID() == l_Caster->GetGUID() && l_Caster->HasAura(PALADIN_SPELL_BASTION_OF_GLORY))
+                    {
+                        if (AuraPtr l_Aura = l_Caster->GetAura(PALADIN_SPELL_BASTION_OF_GLORY))
+                        {
+                            SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(114637);
+
+                            if (l_SpellInfo != nullptr)
+                            {
+                                SetHitHeal(GetHitHeal() + CalculatePct(GetHitHeal(), l_SpellInfo->Effects[EFFECT_0].BasePoints * l_Aura->GetStackAmount()));
+                                l_Caster->RemoveAurasDueToSpell(PALADIN_SPELL_BASTION_OF_GLORY);
+                            }
+                        }
+                    }
                     l_Caster->CastSpell(l_Target, PALADIN_SPELL_ETERNAL_FLAME_PERIODIC_HEAL, true);
-                    if (l_Caster == l_Target)
-                        SetHitHeal(int32(GetHitHeal() + CalculatePct(GetHitHeal(), GetSpellInfo()->Effects[1].BasePoints)));
                 }
         }
 
         void Register()
         {
             OnCheckCast += SpellCheckCastFn(spell_pal_eternal_flame_SpellScript::CheckCast);
-            OnHit += SpellHitFn(spell_pal_eternal_flame_SpellScript::HandleOnHit);
+            BeforeHit += SpellHitFn(spell_pal_eternal_flame_SpellScript::HandleBeforeHit);
+            OnEffectHitTarget += SpellEffectFn(spell_pal_eternal_flame_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
         }
     };
 
@@ -1773,7 +1807,7 @@ public:
 
 
 // Eternal Flame Aura periodic heal- 156322
-class spell_pal_eternal_flame_periodic_heal : public SpellScriptLoader
+class spell_pal_eternal_flame_periodic_heal: public SpellScriptLoader
 {
 public:
     spell_pal_eternal_flame_periodic_heal() : SpellScriptLoader("spell_pal_eternal_flame_periodic_heal") { }
@@ -1784,10 +1818,20 @@ public:
 
         void CalculateAmount(constAuraEffectPtr, int32 & amount, bool &)
         {
-            if (Unit* l_Caster = GetCaster())
-                if (Unit* l_Target = GetAura()->GetOwner()->ToUnit())
-                    if (l_Caster == l_Target)
-                        amount = CalculatePct(l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL) * GetSpellInfo()->Effects[0].BonusMultiplier, sSpellMgr->GetSpellInfo(PALADIN_SPELL_ETERNAL_FLAME)->Effects[1].BasePoints);
+            if (Unit* l_Owner = GetOwner()->ToUnit())
+                if (Unit* l_Caster = GetCaster())
+                {
+                    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(PALADIN_SPELL_ETERNAL_FLAME);
+
+                    int32 l_Heal = 0;
+                    
+                    l_Heal = l_Owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL) * GetSpellInfo()->Effects[0].BonusMultiplier;
+
+                    if (l_Owner->GetGUID() == l_Caster->GetGUID() && l_SpellInfo != nullptr)
+                        AddPct(l_Heal, l_SpellInfo->Effects[1].BasePoints);
+
+                    amount = l_Heal;
+                }
         }
 
         void Register()
@@ -1803,7 +1847,7 @@ public:
 };
 
 // Holy Wrath - 119072
-class spell_pal_holy_wrath : public SpellScriptLoader
+class spell_pal_holy_wrath: public SpellScriptLoader
 {
 public:
     spell_pal_holy_wrath() : SpellScriptLoader("spell_pal_holy_wrath") { }
@@ -1832,7 +1876,7 @@ public:
 };
 
 // Empowered Divine Storm - 174718
-class PlayerScript_empowered_divine_storm : public PlayerScript
+class PlayerScript_empowered_divine_storm: public PlayerScript
 {
 public:
     PlayerScript_empowered_divine_storm() :PlayerScript("PlayerScript_empowered_divine_storm") {}
@@ -1845,11 +1889,36 @@ public:
     }
 };
 
+// Saved By The Light - 157047
+class PlayerScript_saved_by_the_light : public PlayerScript
+{
+public:
+    PlayerScript_saved_by_the_light() :PlayerScript("PlayerScript_saved_by_the_light") {}
+
+    void OnModifyHealth(Player* p_Player, int32 p_Value)
+    {
+        if (((p_Player->HasAura(PALADIN_SPELL_BEACON_OF_FAITH) && p_Player->GetAura(PALADIN_SPELL_BEACON_OF_FAITH)->GetOwner()->ToPlayer() != nullptr && p_Player->GetAura(PALADIN_SPELL_BEACON_OF_FAITH)->GetOwner()->ToPlayer()->HasAura(PALADIN_SPELL_SAVED_BY_THE_LIGHT))
+            || (p_Player->HasAura(PALADIN_SPELL_BEACON_OF_LIGHT) && p_Player->GetAura(PALADIN_SPELL_BEACON_OF_LIGHT)->GetOwner()->ToPlayer() != nullptr && p_Player->GetAura(PALADIN_SPELL_BEACON_OF_LIGHT)->GetOwner()->ToPlayer()->HasAura(PALADIN_SPELL_SAVED_BY_THE_LIGHT))
+            || p_Player->HasAura(PALADIN_SPELL_SAVED_BY_THE_LIGHT)) && p_Player->HasAura(PALADIN_SPELL_SAVED_BY_THE_LIGHT_PROC) == false)
+            if (const SpellInfo* l_SpellInfo = sSpellMgr->GetSpellInfo(PALADIN_SPELL_SAVED_BY_THE_LIGHT))
+            { 
+                // When you or your Beacon of Light target drop below 30 % health
+                if (((p_Value * 100) / p_Player->GetMaxHealth()) < (uint32)l_SpellInfo->Effects[EFFECT_0].BasePoints)
+                {
+                    // instantly grant the injured target a protective shield, absorbing up to 30% of their maximum health
+                    int32 l_Absorb = CalculatePct(p_Player->GetMaxHealth(), l_SpellInfo->Effects[EFFECT_0].BasePoints);
+                    p_Player->CastCustomSpell(p_Player, PALADIN_SPELL_SAVED_BY_THE_LIGHT_SHIELD, &l_Absorb, NULL, NULL, true);
+                    p_Player->CastSpell(p_Player, PALADIN_SPELL_SAVED_BY_THE_LIGHT_PROC, true);
+                }
+            }
+    }
+};
+
 // Call by Templars Verdict 85256 - Divine storm 53385 - Eternal Flame 114163
 // Call by Word of Glory 85673 - Shield of Righteous 53600
 // Call by Light of dawn 85222
 // Divine Purpose - 86172
-class spell_pal_divine_purpose : public SpellScriptLoader
+class spell_pal_divine_purpose: public SpellScriptLoader
 {
 public:
     spell_pal_divine_purpose() : SpellScriptLoader("spell_pal_divine_purpose") { }
@@ -1896,7 +1965,7 @@ public:
 };
 
 // Holy Shield - 152261
-class spell_pal_holy_shield : public SpellScriptLoader
+class spell_pal_holy_shield: public SpellScriptLoader
 {
 public:
     spell_pal_holy_shield() : SpellScriptLoader("spell_pal_holy_shield") { }
@@ -1923,7 +1992,7 @@ public:
 };
 
 // Beacon of Faith - 156910
-class spell_pal_beacon_of_faith : public SpellScriptLoader
+class spell_pal_beacon_of_faith: public SpellScriptLoader
 {
 public:
     spell_pal_beacon_of_faith() : SpellScriptLoader("spell_pal_beacon_of_faith") { }
@@ -2003,4 +2072,5 @@ void AddSC_paladin_spell_scripts()
 
     // Player Script
     new PlayerScript_empowered_divine_storm();
+    new PlayerScript_saved_by_the_light();
 }

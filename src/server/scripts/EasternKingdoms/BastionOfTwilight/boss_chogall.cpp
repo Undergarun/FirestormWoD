@@ -1165,7 +1165,7 @@ class npc_chogall_blood_of_the_old_god : public CreatureScript
         };
 };
 
-class spell_chogall_conversion : public SpellScriptLoader
+class spell_chogall_conversion: public SpellScriptLoader
 {
     public:
         spell_chogall_conversion() : SpellScriptLoader("spell_chogall_conversion") { }
@@ -1196,7 +1196,7 @@ class spell_chogall_conversion : public SpellScriptLoader
         }
 };
 
-class spell_chogall_summon_corrupting_adherent : public SpellScriptLoader
+class spell_chogall_summon_corrupting_adherent: public SpellScriptLoader
 {
     public:
         spell_chogall_summon_corrupting_adherent() : SpellScriptLoader("spell_chogall_summon_corrupting_adherent") { }
@@ -1225,7 +1225,7 @@ class spell_chogall_summon_corrupting_adherent : public SpellScriptLoader
         }
 };
 
-class spell_chogall_fester_blood_script : public SpellScriptLoader
+class spell_chogall_fester_blood_script: public SpellScriptLoader
 {
     public:
         spell_chogall_fester_blood_script() : SpellScriptLoader("spell_chogall_fester_blood_script") { }
@@ -1255,7 +1255,7 @@ class spell_chogall_fester_blood_script : public SpellScriptLoader
         }
 };
 
-class spell_chogall_corruption_accelerated_corruption : public SpellScriptLoader
+class spell_chogall_corruption_accelerated_corruption: public SpellScriptLoader
 {
     public:
         spell_chogall_corruption_accelerated_corruption() : SpellScriptLoader("spell_chogall_corruption_accelerated_corruption") { }
@@ -1284,7 +1284,7 @@ class spell_chogall_corruption_accelerated_corruption : public SpellScriptLoader
         }
 };
 
-class spell_chogall_corruption_sickness_corruption : public SpellScriptLoader
+class spell_chogall_corruption_sickness_corruption: public SpellScriptLoader
 {
     public:
         spell_chogall_corruption_sickness_corruption() : SpellScriptLoader("spell_chogall_corruption_sickness_corruption") { }
@@ -1314,7 +1314,7 @@ class spell_chogall_corruption_sickness_corruption : public SpellScriptLoader
         }
 };
 
-class spell_chogall_corrupting_crash_corruption : public SpellScriptLoader
+class spell_chogall_corrupting_crash_corruption: public SpellScriptLoader
 {
     public:
         spell_chogall_corrupting_crash_corruption() : SpellScriptLoader("spell_chogall_corrupting_crash_corruption") { }
@@ -1343,7 +1343,7 @@ class spell_chogall_corrupting_crash_corruption : public SpellScriptLoader
         }
 };
 
-class spell_chogall_depravity_corruption : public SpellScriptLoader
+class spell_chogall_depravity_corruption: public SpellScriptLoader
 {
     public:
         spell_chogall_depravity_corruption() : SpellScriptLoader("spell_chogall_depravity_corruption") { }
@@ -1372,7 +1372,7 @@ class spell_chogall_depravity_corruption : public SpellScriptLoader
         }
 };
 
-class spell_chogall_sprayed_corruption_corruption : public SpellScriptLoader
+class spell_chogall_sprayed_corruption_corruption: public SpellScriptLoader
 {
     public:
         spell_chogall_sprayed_corruption_corruption() : SpellScriptLoader("spell_chogall_sprayed_corruption_corruption") { }
@@ -1401,7 +1401,7 @@ class spell_chogall_sprayed_corruption_corruption : public SpellScriptLoader
         }
 };
 
-class spell_chogall_spilled_blood_of_the_old_god_corruption : public SpellScriptLoader
+class spell_chogall_spilled_blood_of_the_old_god_corruption: public SpellScriptLoader
 {
     public:
         spell_chogall_spilled_blood_of_the_old_god_corruption() : SpellScriptLoader("spell_chogall_spilled_blood_of_the_old_god_corruption") { }
@@ -1430,7 +1430,7 @@ class spell_chogall_spilled_blood_of_the_old_god_corruption : public SpellScript
         }
 };
 
-class spell_chogall_corruption_of_the_old_god_corruption : public SpellScriptLoader
+class spell_chogall_corruption_of_the_old_god_corruption: public SpellScriptLoader
 {
     public:
         spell_chogall_corruption_of_the_old_god_corruption() : SpellScriptLoader("spell_chogall_corruption_of_the_old_god_corruption") { }
@@ -1473,7 +1473,7 @@ class spell_chogall_corruption_of_the_old_god_corruption : public SpellScriptLoa
         }
 };
 
-class spell_chogall_worshipping : public SpellScriptLoader
+class spell_chogall_worshipping: public SpellScriptLoader
 {
     public:
         spell_chogall_worshipping() : SpellScriptLoader("spell_chogall_worshipping") { }

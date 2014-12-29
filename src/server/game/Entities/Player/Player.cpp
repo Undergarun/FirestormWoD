@@ -1358,7 +1358,7 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
 
                 switch(itemId)
                 {
-                    // Pandaren start weapons, they are given with the first quest
+                    // This switch prevents these items (used next for a quest) to be added to a pandaren player at his creation.
                     case 73207:
                     case 73208:
                     case 73209:
@@ -1502,7 +1502,7 @@ void Player::RewardCurrencyAtKill(Unit* p_Victim)
     {
         for (CurrencyOnKillEntry::const_iterator idx = l_Curr->begin(); idx != l_Curr->end(); ++idx)
         {
-            if (idx->first == (*i)->GetMiscValue())
+            if ((int32)idx->first == (*i)->GetMiscValue())
                 ModifyCurrency(idx->first, idx->second + CalculatePct(idx->second, (*i)->GetAmount()));
         }
     }
@@ -7012,6 +7012,7 @@ void Player::RepopAtGraveyard()
 
             // Since Wod, you are resurected in Dungeon with 100% life.
             ResurrectPlayer(1.0f);
+            SpawnCorpseBones();
         }
         else
             sLog->outAshran("MapEntranceTrigger not found for map %u.", GetMapId());
@@ -7569,7 +7570,7 @@ bool Player::UpdateCraftSkill(uint32 spellid)
             int skill_gain_chance = SkillGainChance(SkillValue, _spell_idx->second->max_value, (_spell_idx->second->max_value + _spell_idx->second->min_value)/2, _spell_idx->second->min_value);
 
             // Since 4.0.x, we have bonus skill point reward with somes items
-            if (_spell_idx->second && _spell_idx->second->skill_gain >craft_skill_gain && skill_gain_chance == sWorld->getIntConfig(CONFIG_SKILL_CHANCE_ORANGE)*10)
+            if (_spell_idx->second && _spell_idx->second->skill_gain >craft_skill_gain && skill_gain_chance == (int32)(sWorld->getIntConfig(CONFIG_SKILL_CHANCE_ORANGE)*10))
                 craft_skill_gain = _spell_idx->second->skill_gain;
 
             return UpdateSkillPro(_spell_idx->second->skillId, skill_gain_chance, craft_skill_gain);
@@ -8768,8 +8769,7 @@ void Player::_LoadCurrency(PreparedQueryResult result)
 
         uint16 currencyID = fields[0].GetUInt16();
 
-        CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(currencyID);
-        if (!currencyID)
+        if (!sCurrencyTypesStore.LookupEntry(currencyID))
             continue;
 
         PlayerCurrency cur;
@@ -9743,211 +9743,219 @@ void Player::_ApplyItemModifications(Item const* p_Item, uint8 p_Slot, bool p_Ap
     if (!p_Item->GetAllItemBonuses().size())
         return;
 
-    if (!m_itemScale[p_Slot] && p_Apply)
-        m_itemScale[p_Slot] = GetEquipItemLevelFor(l_Proto, p_Item);
-
-    uint32 ilvl = m_itemScale[p_Slot];
-
-    if (!p_Apply && !p_RescaleToItemLevel)
-        m_itemScale[p_Slot] = 0;
-
-    if (ilvl == p_RescaleToItemLevel)
-        return;
-
-     bool l_ApplyStats = p_RescaleToItemLevel < ilvl && p_RescaleToItemLevel ? !p_Apply : p_Apply;
-
      for (auto& l_ItemBonusList : p_Item->GetAllItemBonuses())
      {
-         std::vector<ItemBonusEntry const*> const* l_BonusList = GetItemBonusesByID(l_ItemBonusList);
-         for (uint32 i = 0; i < l_BonusList->size(); i++)
-         {
+        if (!l_ItemBonusList)
+            continue;
+
+        std::vector<ItemBonusEntry const*> const* l_BonusList = GetItemBonusesByID(l_ItemBonusList);
+        for (uint32 i = 0; i < l_BonusList->size(); i++)
+        {
             ItemBonusEntry const* l_ItemBonus = (*l_BonusList)[i];
 
             if (!l_ItemBonus)
                 continue;
 
-            switch (l_ItemBonus->Type)
+            _ApplyItemModification(p_Item, l_ItemBonus, p_Slot, p_Apply, p_RescaleToItemLevel);
+        }
+     }
+}
+
+void Player::_ApplyItemModification(Item const* p_Item, ItemBonusEntry const* p_ItemBonusEntry, uint8 p_Slot, bool p_Apply, uint32 p_RescaleToItemLevel)
+{
+    if (p_Slot >= INVENTORY_SLOT_BAG_END || !p_Item)
+        return;
+
+    ItemTemplate const* l_Proto = p_Item->GetTemplate();
+    if (!l_Proto)
+        return;
+
+    uint32 ilvl = m_itemScale[p_Slot] ? m_itemScale[p_Slot] : GetEquipItemLevelFor(l_Proto, p_Item);
+
+    if (ilvl == p_RescaleToItemLevel)
+        return;
+
+    switch (p_ItemBonusEntry->Type)
+    {
+        case ITEM_BONUS_ADD_STAT:
+        {
+            bool l_ApplyStats = p_RescaleToItemLevel < ilvl && p_RescaleToItemLevel ? !p_Apply : p_Apply;
+            uint32 l_Stat = p_ItemBonusEntry->Value[0];
+            int32 l_ScalingValue = p_ItemBonusEntry->Value[1];
+            int32 l_StatValue = 0;
+
+            if (!p_RescaleToItemLevel)
+                l_StatValue = l_Proto->CalculateStatScaling(l_ScalingValue, 0.f, ilvl);
+            else
+                l_StatValue = abs(int32(l_Proto->CalculateStatScaling(l_ScalingValue, 0.f, p_RescaleToItemLevel) - l_Proto->CalculateStatScaling(l_ScalingValue, 0.f, ilvl)));
+
+            switch (l_Stat)
             {
-                case ITEM_BONUS_ADD_STAT:
+                case ITEM_MOD_MANA:
+                    HandleStatModifier(UNIT_MOD_MANA, BASE_VALUE, float(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_HEALTH:
+                    HandleStatModifier(UNIT_MOD_HEALTH, BASE_VALUE, float(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_AGILITY:
                 {
-                    uint32 l_Stat = l_ItemBonus->Value[0];
-                    uint32 l_ScalingValue = l_ItemBonus->Value[1];
-                    uint32 l_StatValue = 0;
+                    if (GetPrimaryStat() != STAT_AGILITY && GetSpecializationId(GetActiveSpec()))
+                        break;
 
-                    if (!p_RescaleToItemLevel)
-                        l_ScalingValue = l_Proto->CalculateStatScaling(l_ScalingValue, 0.f, ilvl);
-                    else
-                        l_ScalingValue = abs(int32(l_Proto->CalculateStatScaling(l_ScalingValue, 0.f, p_RescaleToItemLevel) - l_Proto->CalculateStatScaling(l_ScalingValue, 0.f, ilvl)));
+                    HandleStatModifier(UNIT_MOD_STAT_AGILITY, BASE_VALUE, float(l_StatValue), l_ApplyStats);
+                    ApplyStatBuffMod(STAT_AGILITY, float(l_StatValue), l_ApplyStats);
+                    break;
+                }
+                case ITEM_MOD_STRENGTH:
+                {
+                    if (GetPrimaryStat() != STAT_STRENGTH && GetSpecializationId(GetActiveSpec()))
+                        break;
 
-                    switch (l_Stat)
-                    {
-                        case ITEM_MOD_MANA:
-                            HandleStatModifier(UNIT_MOD_MANA, BASE_VALUE, float(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_HEALTH:
-                            HandleStatModifier(UNIT_MOD_HEALTH, BASE_VALUE, float(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_AGILITY:
-                        {
-                            if (GetPrimaryStat() != STAT_AGILITY && GetSpecializationId(GetActiveSpec()))
-                                break;
+                    HandleStatModifier(UNIT_MOD_STAT_STRENGTH, BASE_VALUE, float(l_StatValue), l_ApplyStats);
+                    ApplyStatBuffMod(STAT_STRENGTH, float(l_StatValue), l_ApplyStats);
+                    break;
+                }
+                case ITEM_MOD_INTELLECT:
+                {
+                    if (GetPrimaryStat() != STAT_INTELLECT && GetSpecializationId(GetActiveSpec()))
+                        break;
 
-                            HandleStatModifier(UNIT_MOD_STAT_AGILITY, BASE_VALUE, float(l_StatValue), l_ApplyStats);
-                            ApplyStatBuffMod(STAT_AGILITY, float(l_StatValue), l_ApplyStats);
-                            break;
-                        }
-                        case ITEM_MOD_STRENGTH:
-                        {
-                            if (GetPrimaryStat() != STAT_STRENGTH && GetSpecializationId(GetActiveSpec()))
-                                break;
+                    HandleStatModifier(UNIT_MOD_STAT_INTELLECT, BASE_VALUE, float(l_StatValue), l_ApplyStats);
+                    ApplyStatBuffMod(STAT_INTELLECT, float(l_StatValue), l_ApplyStats);
+                    break;
+                }
+                case ITEM_MOD_SPIRIT:
+                {
+                    if (GetPrimaryStat() != STAT_INTELLECT && GetSpecializationId(GetActiveSpec()))
+                        break;
 
-                            HandleStatModifier(UNIT_MOD_STAT_STRENGTH, BASE_VALUE, float(l_StatValue), l_ApplyStats);
-                            ApplyStatBuffMod(STAT_STRENGTH, float(l_StatValue), l_ApplyStats);
-                            break;
-                        }
-                        case ITEM_MOD_INTELLECT:
-                        {
-                            if (GetPrimaryStat() != STAT_INTELLECT && GetSpecializationId(GetActiveSpec()))
-                                break;
+                    HandleStatModifier(UNIT_MOD_STAT_SPIRIT, BASE_VALUE, float(l_StatValue), l_ApplyStats);
+                    ApplyStatBuffMod(STAT_SPIRIT, float(l_StatValue), l_ApplyStats);
+                    break;
+                }
+                case ITEM_MOD_STAMINA:
+                    HandleStatModifier(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(l_StatValue), l_ApplyStats);
+                    ApplyStatBuffMod(STAT_STAMINA, float(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_DODGE_RATING:
+                    ApplyRatingMod(CR_DODGE, int32(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_PARRY_RATING:
+                    ApplyRatingMod(CR_PARRY, int32(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_BLOCK_RATING:
+                    ApplyRatingMod(CR_BLOCK, int32(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_CRIT_RATING:
+                    ApplyRatingMod(CR_CRIT_MELEE, int32(l_StatValue), l_ApplyStats);
+                    ApplyRatingMod(CR_CRIT_RANGED, int32(l_StatValue), l_ApplyStats);
+                    ApplyRatingMod(CR_CRIT_SPELL, int32(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_RESILIENCE_RATING:
+                    ApplyRatingMod(CR_RESILIENCE_PLAYER_DAMAGE_TAKEN, int32(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_HASTE_RATING:
+                    ApplyRatingMod(CR_HASTE_MELEE, int32(l_StatValue), l_ApplyStats);
+                    ApplyRatingMod(CR_HASTE_RANGED, int32(l_StatValue), l_ApplyStats);
+                    ApplyRatingMod(CR_HASTE_SPELL, int32(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_ATTACK_POWER:
+                    HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, float(l_StatValue), l_ApplyStats);
+                    HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_VERSATILITY_RATING:
+                    ApplyRatingMod(CR_VERSATILITY_DAMAGE_DONE, int32(l_StatValue), l_ApplyStats);
+                    ApplyRatingMod(CR_VERSATILITY_DAMAGE_TAKEN, int32(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_MANA_REGENERATION:
+                    ApplyManaRegenBonus(int32(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_SPELL_POWER:
+                    ApplySpellPowerBonus(int32(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_HEALTH_REGEN:
+                    ApplyHealthRegenBonus(int32(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_MASTERY_RATING:
+                    ApplyRatingMod(CR_MASTERY, int32(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_EXTRA_ARMOR:
+                    HandleStatModifier(UNIT_MOD_ARMOR, BASE_VALUE, float(l_StatValue), l_ApplyStats);
+                    ApplyModUInt32Value(UNIT_FIELD_MOD_BONUS_ARMOR, uint32(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_FIRE_RESISTANCE:
+                    HandleStatModifier(UNIT_MOD_RESISTANCE_FIRE, BASE_VALUE, float(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_FROST_RESISTANCE:
+                    HandleStatModifier(UNIT_MOD_RESISTANCE_FROST, BASE_VALUE, float(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_HOLY_RESISTANCE:
+                    HandleStatModifier(UNIT_MOD_RESISTANCE_HOLY, BASE_VALUE, float(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_SHADOW_RESISTANCE:
+                    HandleStatModifier(UNIT_MOD_RESISTANCE_SHADOW, BASE_VALUE, float(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_NATURE_RESISTANCE:
+                    HandleStatModifier(UNIT_MOD_RESISTANCE_NATURE, BASE_VALUE, float(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_ARCANE_RESISTANCE:
+                    HandleStatModifier(UNIT_MOD_RESISTANCE_ARCANE, BASE_VALUE, float(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_PVP_POWER:
+                    ApplyRatingMod(CR_PVP_POWER, int32(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_MULTISTRIKE_RATING:
+                    ApplyRatingMod(CR_MULTISTRIKE, int32(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_SPEED_RATING:
+                    ApplyRatingMod(CR_SPEED, int32(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_LEECH_RATING:
+                    ApplyRatingMod(CR_LIFESTEAL, int32(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_AVOIDANCE_RATING:
+                    ApplyRatingMod(CR_AVOIDANCE, int32(l_StatValue), l_ApplyStats);
+                    break;
+                case ITEM_MOD_DYNAMIC_STAT_AGI_STR_INT:
+                {
+                    Stats stat = GetPrimaryStat();
+                    HandleStatModifier((UnitMods)stat, BASE_VALUE, float(l_StatValue), l_ApplyStats);
+                    ApplyStatBuffMod(stat, float(l_StatValue), l_ApplyStats);
+                    break;
+                }
+                case ITEM_MOD_DYNAMIC_STAT_AGI_STR:
+                {
+                    Stats stat = GetPrimaryStat();
+                    if (stat != STAT_AGILITY && stat != STAT_STRENGTH)
+                        break;
 
-                            HandleStatModifier(UNIT_MOD_STAT_INTELLECT, BASE_VALUE, float(l_StatValue), l_ApplyStats);
-                            ApplyStatBuffMod(STAT_INTELLECT, float(l_StatValue), l_ApplyStats);
-                            break;
-                        }
-                        case ITEM_MOD_SPIRIT:
-                        {
-                            if (GetPrimaryStat() != STAT_INTELLECT && GetSpecializationId(GetActiveSpec()))
-                                break;
+                    HandleStatModifier((UnitMods)stat, BASE_VALUE, float(l_StatValue), l_ApplyStats);
+                    ApplyStatBuffMod(stat, float(l_StatValue), l_ApplyStats);
+                    break;
+                }
+                case ITEM_MOD_DYNAMIC_STAT_AGI_INT:
+                {
+                    Stats stat = GetPrimaryStat();
+                    if (stat != STAT_AGILITY && stat != STAT_INTELLECT)
+                        break;
 
-                            HandleStatModifier(UNIT_MOD_STAT_SPIRIT, BASE_VALUE, float(l_StatValue), l_ApplyStats);
-                            ApplyStatBuffMod(STAT_SPIRIT, float(l_StatValue), l_ApplyStats);
-                            break;
-                        }
-                        case ITEM_MOD_STAMINA:
-                            HandleStatModifier(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(l_StatValue), l_ApplyStats);
-                            ApplyStatBuffMod(STAT_STAMINA, float(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_DODGE_RATING:
-                            ApplyRatingMod(CR_DODGE, int32(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_PARRY_RATING:
-                            ApplyRatingMod(CR_PARRY, int32(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_BLOCK_RATING:
-                            ApplyRatingMod(CR_BLOCK, int32(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_CRIT_RATING:
-                            ApplyRatingMod(CR_CRIT_MELEE, int32(l_StatValue), l_ApplyStats);
-                            ApplyRatingMod(CR_CRIT_RANGED, int32(l_StatValue), l_ApplyStats);
-                            ApplyRatingMod(CR_CRIT_SPELL, int32(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_RESILIENCE_RATING:
-                            ApplyRatingMod(CR_RESILIENCE_PLAYER_DAMAGE_TAKEN, int32(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_HASTE_RATING:
-                            ApplyRatingMod(CR_HASTE_MELEE, int32(l_StatValue), l_ApplyStats);
-                            ApplyRatingMod(CR_HASTE_RANGED, int32(l_StatValue), l_ApplyStats);
-                            ApplyRatingMod(CR_HASTE_SPELL, int32(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_ATTACK_POWER:
-                            HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, float(l_StatValue), l_ApplyStats);
-                            HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_VERSATILITY_RATING:
-                            ApplyRatingMod(CR_VERSATILITY_DAMAGE_DONE, int32(l_StatValue), l_ApplyStats);
-                            ApplyRatingMod(CR_VERSATILITY_DAMAGE_TAKEN, int32(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_MANA_REGENERATION:
-                            ApplyManaRegenBonus(int32(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_SPELL_POWER:
-                            ApplySpellPowerBonus(int32(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_HEALTH_REGEN:
-                            ApplyHealthRegenBonus(int32(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_MASTERY_RATING:
-                            ApplyRatingMod(CR_MASTERY, int32(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_EXTRA_ARMOR:
-                            HandleStatModifier(UNIT_MOD_ARMOR, BASE_VALUE, float(l_StatValue), l_ApplyStats);
-                            ApplyModUInt32Value(UNIT_FIELD_MOD_BONUS_ARMOR, uint32(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_FIRE_RESISTANCE:
-                            HandleStatModifier(UNIT_MOD_RESISTANCE_FIRE, BASE_VALUE, float(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_FROST_RESISTANCE:
-                            HandleStatModifier(UNIT_MOD_RESISTANCE_FROST, BASE_VALUE, float(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_HOLY_RESISTANCE:
-                            HandleStatModifier(UNIT_MOD_RESISTANCE_HOLY, BASE_VALUE, float(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_SHADOW_RESISTANCE:
-                            HandleStatModifier(UNIT_MOD_RESISTANCE_SHADOW, BASE_VALUE, float(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_NATURE_RESISTANCE:
-                            HandleStatModifier(UNIT_MOD_RESISTANCE_NATURE, BASE_VALUE, float(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_ARCANE_RESISTANCE:
-                            HandleStatModifier(UNIT_MOD_RESISTANCE_ARCANE, BASE_VALUE, float(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_PVP_POWER:
-                            ApplyRatingMod(CR_PVP_POWER, int32(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_MULTISTRIKE_RATING:
-                            ApplyRatingMod(CR_MULTISTRIKE, int32(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_SPEED_RATING:
-                            ApplyRatingMod(CR_SPEED, int32(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_LEECH_RATING:
-                            ApplyRatingMod(CR_LIFESTEAL, int32(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_AVOIDANCE_RATING:
-                            ApplyRatingMod(CR_AVOIDANCE, int32(l_StatValue), l_ApplyStats);
-                            break;
-                        case ITEM_MOD_DYNAMIC_STAT_AGI_STR_INT:
-                        {
-                            Stats stat = GetPrimaryStat();
-                            HandleStatModifier((UnitMods)stat, BASE_VALUE, float(l_StatValue), l_ApplyStats);
-                            ApplyStatBuffMod(stat, float(l_StatValue), l_ApplyStats);
-                            break;
-                        }
-                        case ITEM_MOD_DYNAMIC_STAT_AGI_STR:
-                        {
-                            Stats stat = GetPrimaryStat();
-                            if (stat != STAT_AGILITY && stat != STAT_STRENGTH)
-                                break;
+                    HandleStatModifier((UnitMods)stat, BASE_VALUE, float(l_StatValue), l_ApplyStats);
+                    ApplyStatBuffMod(stat, float(l_StatValue), l_ApplyStats);
+                    break;
+                }
+                case ITEM_MOD_DYNAMIC_STAT_STR_INT:
+                {
+                    Stats stat = GetPrimaryStat();
+                    if (stat != STAT_INTELLECT && stat != STAT_STRENGTH)
+                        break;
 
-                            HandleStatModifier((UnitMods)stat, BASE_VALUE, float(l_StatValue), l_ApplyStats);
-                            ApplyStatBuffMod(stat, float(l_StatValue), l_ApplyStats);
-                            break;
-                        }
-                        case ITEM_MOD_DYNAMIC_STAT_AGI_INT:
-                        {
-                            Stats stat = GetPrimaryStat();
-                            if (stat != STAT_AGILITY && stat != STAT_INTELLECT)
-                                break;
-
-                            HandleStatModifier((UnitMods)stat, BASE_VALUE, float(l_StatValue), l_ApplyStats);
-                            ApplyStatBuffMod(stat, float(l_StatValue), l_ApplyStats);
-                            break;
-                        }
-                        case ITEM_MOD_DYNAMIC_STAT_STR_INT:
-                        {
-                            Stats stat = GetPrimaryStat();
-                            if (stat != STAT_INTELLECT && stat != STAT_STRENGTH)
-                                break;
-
-                            HandleStatModifier((UnitMods)stat, BASE_VALUE, float(l_StatValue), l_ApplyStats);
-                            ApplyStatBuffMod(stat, float(l_StatValue), l_ApplyStats);
-                            break;
-                        }
-                    }
+                    HandleStatModifier((UnitMods)stat, BASE_VALUE, float(l_StatValue), l_ApplyStats);
+                    ApplyStatBuffMod(stat, float(l_StatValue), l_ApplyStats);
+                    break;
                 }
             }
-         }
-     }
+        }
+    }
 }
 
 void Player::_ApplyItemBonuses(Item const* item, uint8 slot, bool apply, uint32 rescaleToItemLevel)
@@ -9970,7 +9978,7 @@ void Player::_ApplyItemBonuses(Item const* item, uint8 slot, bool apply, uint32 
     if (ilvl == rescaleToItemLevel)
         return;
 
-     bool applyStats = rescaleToItemLevel < ilvl && rescaleToItemLevel ? !apply : apply;
+    bool applyStats = rescaleToItemLevel < ilvl && rescaleToItemLevel ? !apply : apply;
 
     for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
     {
@@ -11220,7 +11228,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_LOOTING);
 }
 
-void Player::SendNotifyLootMoneyRemoved(uint64 gold)
+void Player::SendNotifyLootMoneyRemoved()
 {
     WorldPacket l_Data(SMSG_COIN_REMOVED);
     ObjectGuid guid = MAKE_NEW_GUID(GUID_LOPART(GetLootGUID()), 0, HIGHGUID_LOOT);
@@ -14125,7 +14133,7 @@ bool Player::IsItemSupplies(ItemTemplate const *p_BagProto) const
     return false;
 }
 
-InventoryResult Player::CanReagentBankItem(uint8 bag, uint8 slot, ItemPosCountVec &dest, Item* pItem, bool swap, bool not_loading) const
+InventoryResult Player::CanReagentBankItem(uint8 bag, uint8 slot, ItemPosCountVec &dest, Item* pItem, bool swap) const
 {
     if (!pItem)
         return swap ? EQUIP_ERR_CANT_SWAP : EQUIP_ERR_ITEM_NOT_FOUND;
@@ -17253,7 +17261,7 @@ void Player::SendPreparedQuest(uint64 guid)
                 if ((quest->IsAutoComplete() && quest->IsRepeatable() && !quest->IsDailyOrWeekly()) || quest->HasFlag(QUEST_FLAGS_AUTOCOMPLETE))
                     PlayerTalkClass->SendQuestGiverRequestItems(quest, guid, CanCompleteRepeatableQuest(quest), true);
                 else
-                    PlayerTalkClass->SendQuestGiverQuestDetails(quest, guid, true);
+                    PlayerTalkClass->SendQuestGiverQuestDetails(quest, guid);
             }
         }
     }
@@ -17345,7 +17353,7 @@ bool Player::CanSeeStartQuest(Quest const* quest)
     if (!DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, quest->GetQuestId(), this) && SatisfyQuestClass(quest, false) && SatisfyQuestRace(quest, false) &&
         SatisfyQuestSkill(quest, false) && SatisfyQuestExclusiveGroup(quest, false) && SatisfyQuestReputation(quest, false) &&
         SatisfyQuestPreviousQuest(quest, false) && SatisfyQuestNextChain(quest, false) &&
-        SatisfyQuestPrevChain(quest, false) && SatisfyQuestDay(quest, false) && SatisfyQuestWeek(quest, false) &&
+        SatisfyQuestPrevChain(quest, false) && SatisfyQuestDay(quest) && SatisfyQuestWeek(quest, false) &&
         SatisfyQuestMonth(quest, false) && SatisfyQuestSeasonal(quest, false))
     {
         return getLevel() + sWorld->getIntConfig(CONFIG_QUEST_HIGH_LEVEL_HIDE_DIFF) >= quest->GetMinLevel();
@@ -17358,12 +17366,12 @@ bool Player::CanTakeQuest(Quest const* quest, bool msg)
 {
     return !DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, quest->GetQuestId(), this)
         && SatisfyQuestStatus(quest, msg) && SatisfyQuestExclusiveGroup(quest, msg)
-        && SatisfyQuestTeam(quest, msg)
+        && SatisfyQuestTeam(quest)
         && SatisfyQuestClass(quest, msg) && SatisfyQuestRace(quest, msg) && SatisfyQuestLevel(quest, msg)
         && SatisfyQuestSkill(quest, msg) && SatisfyQuestReputation(quest, msg)
         && SatisfyQuestPreviousQuest(quest, msg) && SatisfyQuestTimed(quest, msg)
         && SatisfyQuestNextChain(quest, msg) && SatisfyQuestPrevChain(quest, msg)
-        && SatisfyQuestDay(quest, msg) && SatisfyQuestWeek(quest, msg)
+        && SatisfyQuestDay(quest) && SatisfyQuestWeek(quest, msg)
         && SatisfyQuestMonth(quest, msg) && SatisfyQuestSeasonal(quest, msg)
         && SatisfyQuestConditions(quest, msg);
 }
@@ -17489,7 +17497,7 @@ bool Player::CanRewardQuest(Quest const* p_Quest, bool msg)
         return false;
 
     // daily quest can't be rewarded (25 daily quest already completed)
-    if (!SatisfyQuestDay(p_Quest, true) || !SatisfyQuestWeek(p_Quest, true) || !SatisfyQuestMonth(p_Quest, true) || !SatisfyQuestSeasonal(p_Quest, true))
+    if (!SatisfyQuestDay(p_Quest) || !SatisfyQuestWeek(p_Quest, true) || !SatisfyQuestMonth(p_Quest, true) || !SatisfyQuestSeasonal(p_Quest, true))
         return false;
 
     // rewarded and not repeatable quest (only cheating case, then ignore without message)
@@ -17648,7 +17656,7 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
     }
 
     GiveQuestSourceItem(quest);
-    AdjustQuestReqItemCount(quest, questStatusData);
+    AdjustQuestReqItemCount(quest);
 
     uint32 qtime = 0;
     if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_TIMED))
@@ -17697,7 +17705,20 @@ void Player::CompleteQuest(uint32 quest_id)
 
         uint16 log_slot = FindQuestSlot(quest_id);
         if (log_slot < MAX_QUEST_LOG_SIZE)
+        {
             SetQuestSlotState(log_slot, QUEST_STATE_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_0_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_1_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_2_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_3_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_4_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_5_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_6_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_7_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_8_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_9_COMPLETE);
+            SetQuestSlotState(log_slot, QUEST_STATE_OBJ_10_COMPLETE);
+        }
 
         if (Quest const* qInfo = sObjectMgr->GetQuestTemplate(quest_id))
         {
@@ -17756,12 +17777,15 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
         }
     }
 
-    for (uint8 l_I = 0; l_I < QUEST_SOURCE_ITEM_IDS_COUNT; ++l_I)
+    if (!p_Quest->HasFlag2(QUEST_FLAGS2_KEEP_ADDITIONAL_ITEMS))
     {
-        if (p_Quest->RequiredSourceItemId[l_I])
+        for (uint8 i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
         {
-            uint32 count = p_Quest->RequiredSourceItemCount[l_I];
-            DestroyItemCount(p_Quest->RequiredSourceItemId[l_I], count ? count : 9999, true);
+            if (p_Quest->RequiredSourceItemId[i])
+            {
+                uint32 count = p_Quest->RequiredSourceItemCount[i];
+                DestroyItemCount(p_Quest->RequiredSourceItemId[i], count ? count : 9999, true);
+            }
         }
     }
 
@@ -18166,7 +18190,7 @@ bool Player::SatisfyQuestPreviousQuest(Quest const* qInfo, bool msg)
     return false;
 }
 
-bool Player::SatisfyQuestTeam(Quest const* qInfo, bool msg)
+bool Player::SatisfyQuestTeam(Quest const* qInfo)
 {
     int8 reqteam = qInfo->GetRequiredTeam();
     if (reqteam < 0)
@@ -18336,7 +18360,7 @@ bool Player::SatisfyQuestExclusiveGroup(Quest const* qInfo, bool msg)
 
         // not allow have daily quest if daily quest from exclusive group already recently completed
         Quest const* Nquest = sObjectMgr->GetQuestTemplate(exclude_Id);
-        if (!SatisfyQuestDay(Nquest, false) || !SatisfyQuestWeek(Nquest, false) || !SatisfyQuestSeasonal(Nquest,false))
+        if (!SatisfyQuestDay(Nquest) || !SatisfyQuestWeek(Nquest, false) || !SatisfyQuestSeasonal(Nquest,false))
         {
             if (msg)
                 SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
@@ -18403,7 +18427,7 @@ bool Player::SatisfyQuestPrevChain(Quest const* qInfo, bool msg)
     return true;
 }
 
-bool Player::SatisfyQuestDay(Quest const* qInfo, bool msg)
+bool Player::SatisfyQuestDay(Quest const* qInfo)
 {
     if (!qInfo->IsDaily() && !qInfo->IsDFQuest())
         return true;
@@ -18488,7 +18512,6 @@ bool Player::TakeQuestSourceItem(uint32 questId, bool msg)
     {
         uint32 srcItemId = quest->GetSrcItemId();
         ItemTemplate const* item = sObjectMgr->GetItemTemplate(srcItemId);
-        bool destroyItem = true;
 
         if (srcItemId > 0)
         {
@@ -18511,7 +18534,7 @@ bool Player::TakeQuestSourceItem(uint32 questId, bool msg)
 
             for (QuestObjective l_Objective : quest->QuestObjectives)
             {
-                if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_ITEM && item->StartQuest == questId && srcItemId == l_Objective.ObjectID)
+                if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_ITEM && item->StartQuest == questId && srcItemId == (uint32)l_Objective.ObjectID)
                     destroyItem = false;
             }
 
@@ -18571,8 +18594,6 @@ void Player::SetQuestStatus(uint32 quest_id, QuestStatus status)
         m_QuestStatus[quest_id].Status = status;
         m_QuestStatusSave[quest_id] = true;
     }
-
-    uint32 zone = 0, area = 0;
 
     CheckSpellAreaOnQuestStatusChange(quest_id);
 
@@ -18649,7 +18670,7 @@ uint16 Player::GetReqKillOrCastCurrentCount(uint32 quest_id, int32 entry)
     return 0;
 }
 
-void Player::AdjustQuestReqItemCount(Quest const* quest, QuestStatusData& questStatusData)
+void Player::AdjustQuestReqItemCount(Quest const* quest)
 {
     if (!quest->GetQuestObjectiveCountType(QUEST_OBJECTIVE_TYPE_ITEM))
         return;
@@ -18730,7 +18751,7 @@ void Player::ItemAddedQuestCheck(uint32 entry, uint32 count)
 
         for (QuestObjective l_Objective : qInfo->QuestObjectives)
         {
-            if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_ITEM && l_Objective.ObjectID == entry)
+            if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_ITEM && (uint32)l_Objective.ObjectID == entry)
             {
                 uint32 currentCounter = GetQuestObjectiveCounter(l_Objective.ID);
                 uint32 requiredCounter = uint32(l_Objective.Amount);
@@ -18755,7 +18776,7 @@ void Player::ItemAddedQuestCheck(uint32 entry, uint32 count)
     UpdateForQuestWorldObjects();
 }
 
-void Player::ItemRemovedQuestCheck(uint32 entry, uint32 count)
+void Player::ItemRemovedQuestCheck(int32 entry, uint32 count)
 {
     for (uint8 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
     {
@@ -18837,7 +18858,7 @@ void Player::KilledMonsterCredit(uint32 entry, uint64 guid)
         {
             for (QuestObjective l_Objective : qInfo->QuestObjectives)
             {
-                if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_NPC && l_Objective.ObjectID == real_entry)
+                if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_NPC && l_Objective.ObjectID == (int32)real_entry)
                 {
                     uint32 currentCounter = GetQuestObjectiveCounter(l_Objective.ID);
                     if (currentCounter < uint32(l_Objective.Amount))
@@ -18847,7 +18868,7 @@ void Player::KilledMonsterCredit(uint32 entry, uint64 guid)
                         SendQuestUpdateAddCredit(qInfo, l_Objective, guid, currentCounter, addkillcount);
                     }
 
-                    if (l_Objective.Amount == m_questObjectiveStatus[l_Objective.ID])
+                    if ((uint32)l_Objective.Amount == m_questObjectiveStatus[l_Objective.ID])
                         sScriptMgr->OnObjectiveValidate(this, questid, l_Objective.ID);
 
                     if (CanCompleteQuest(questid))
@@ -18902,6 +18923,7 @@ void Player::KilledPlayerCredit()
 
 void Player::CastedCreatureOrGO(uint32 entry, uint64 guid, uint32 spell_id)
 {
+    UNUSED(entry);  ///@TODO refactor spell quest objective
     QuestObjectiveSatisfy(spell_id, 1, QUEST_OBJECTIVE_TYPE_SPELL /*QUEST_OBJECTIVE_TYPE_NPC_INTERACT*/, guid);
 }
 
@@ -19010,7 +19032,7 @@ void Player::QuestObjectiveSatisfy(uint32 objectId, uint32 amount, uint8 type, u
 
         for (QuestObjective l_Objective : quest->QuestObjectives)
         {
-            if (l_Objective.Type == type && l_Objective.ObjectID == objectId)
+            if (l_Objective.Type == type && (uint32)l_Objective.ObjectID == objectId)
             {
                 uint32 currentCounter   = GetQuestObjectiveCounter(l_Objective.ID);
                 uint32 requiredCounter  = uint32(l_Objective.Amount);
@@ -19059,8 +19081,10 @@ bool Player::HasQuestForItem(uint32 itemid) const
                     continue;
 
             for (QuestObjective l_QuestObjective : qinfo->QuestObjectives)
-                if (itemid == l_QuestObjective.ObjectID && GetQuestObjectiveCounter(l_QuestObjective.ID) < uint32(l_QuestObjective.Amount))
+            {
+                if (itemid == (uint32)l_QuestObjective.ObjectID && GetQuestObjectiveCounter(l_QuestObjective.ID) < uint32(l_QuestObjective.Amount))
                     return true;
+            }
 
             // This part - for ReqSource
             for (uint8 j = 0; j < QUEST_SOURCE_ITEM_IDS_COUNT; ++j)
@@ -20537,7 +20561,7 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
                     else if (IsReagentBankPos(INVENTORY_SLOT_BAG_0, slot))
                     {
                         ItemPosCountVec dest;
-                        err = CanReagentBankItem(INVENTORY_SLOT_BAG_0, slot, dest, item, false, false);
+                        err = CanReagentBankItem(INVENTORY_SLOT_BAG_0, slot, dest, item, false);
                         if (err == EQUIP_ERR_OK)
                             item = BankItem(dest, item, true);
                     }
@@ -21032,7 +21056,7 @@ void Player::_LoadQuestObjectiveStatus(PreparedQueryResult result)
                 SetQuestSlotCounter(i, objective->Index, amount);
                 m_questObjectiveStatus.insert(std::make_pair(objectiveId, amount));
 
-                if (objective->Type == QUEST_OBJECTIVE_TYPE_CRITERIA && objective->Amount == amount)
+                if (objective->Type == QUEST_OBJECTIVE_TYPE_CRITERIA && (uint32)objective->Amount == amount)
                     SetQuestSlotState(i, QUEST_STATE_OBJ_0_COMPLETE << objective->Index);
 
                 break;
@@ -22879,7 +22903,6 @@ void Player::SavePositionInDB(uint32 mapid, float x, float y, float z, float o, 
 void Player::SetUInt32ValueInArray(Tokenizer& tokens, uint16 index, uint32 value)
 {
     char buf[11];
-    snprintf(buf, 11, "%u", value);
 
     if (index >= tokens.size())
         return;
@@ -22942,14 +22965,14 @@ void Player::SendExplorationExperience(uint32 Area, uint32 Experience)
     GetSession()->SendPacket(&data);
 }
 
-void Player::SendDungeonDifficulty(bool IsInGroup)
+void Player::SendDungeonDifficulty()
 {
     WorldPacket data(SMSG_SET_DUNGEON_DIFFICULTY, 4);
     data << uint32(GetDungeonDifficulty());
     GetSession()->SendPacket(&data);
 }
 
-void Player::SendRaidDifficulty(bool IsInGroup, int32 forcedDifficulty)
+void Player::SendRaidDifficulty(int32 forcedDifficulty)
 {
     WorldPacket data(SMSG_SET_RAID_DIFFICULTY, 4);
     data << uint32(forcedDifficulty == -1 ? GetRaidDifficulty() : forcedDifficulty);
@@ -22962,7 +22985,7 @@ void Player::SendRaidDifficulty(bool IsInGroup, int32 forcedDifficulty)
     GetSession()->SendPacket(&data2);
 }
 
-void Player::SendResetFailedNotify(uint32 mapid)
+void Player::SendResetFailedNotify()
 {
     WorldPacket data(SMSG_RESET_FAILED_NOTIFY);
     GetSession()->SendPacket(&data);
@@ -23206,20 +23229,12 @@ void Player::StopCastingCharm()
 
 void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std::string& text, uint32 language, const char* addonPrefix /*= NULL*/, const std::string& channel /*= ""*/) const
 {
-    uint32 messageLength = text.length();
     uint32 speakerNameLength = strlen(GetName());
-    uint32 prefixeLength = addonPrefix ? strlen(addonPrefix) : 0;
-    uint32 receiverLength = 0;
-
-    uint32 channelLength = channel.length();
 
     ObjectGuid senderUnkGuid = GetGUID();
     ObjectGuid groupGuid = 0;
     ObjectGuid senderGuid = GetGUID();
-    ObjectGuid guildGuid = const_cast<Player*>(this)->GetGuild() ? const_cast<Player*>(this)->GetGuild()->GetGUID() : 0;
-
-    bool sendRealmID = false;
-    bool bit5264 = false;
+    uint64 guildGuid = const_cast<Player*>(this)->GetGuild() ? const_cast<Player*>(this)->GetGuild()->GetGUID() : 0;
 
     data->Initialize(SMSG_CHAT, 100);
     *data << uint8(msgtype);
@@ -24077,10 +24092,23 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
         return false;
     }
 
+    uint32 l_MapID = GetMapId();
+    /// Special case for taxi in garrison phased map
+    for (uint32 l_I = 0; l_I < sGarrSiteLevelStore.GetNumRows(); ++l_I)
+    {
+        const GarrSiteLevelEntry * l_Entry = sGarrSiteLevelStore.LookupEntry(l_I);
+
+        if (l_Entry && l_Entry->MapID == l_MapID)
+        {
+            l_MapID = GARRISON_BASE_MAP;
+            break;
+        }
+    }
+
     // check node starting pos data set case if provided
     if (node->x != 0.0f || node->y != 0.0f || node->z != 0.0f)
     {
-        if (node->map_id != GetMapId() ||
+        if (node->map_id != l_MapID ||
             (node->x - GetPositionX())*(node->x - GetPositionX())+
             (node->y - GetPositionY())*(node->y - GetPositionY())+
             (node->z - GetPositionZ())*(node->z - GetPositionZ()) >
@@ -24283,7 +24311,6 @@ void Player::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
     ObjectGuid playerGuid = GetGUID();
 
     uint32 counter = 0;
-    time_t curTime = time(NULL);
     uint32 curMsTime = getMSTime();
 
     for (PlayerSpellMap::const_iterator itr = m_spells.begin(); itr != m_spells.end(); ++itr)
@@ -25957,11 +25984,11 @@ void Player::SendInitialPacketsAfterAddToMap()
         if (GetMap()->GetDifficulty() != GetRaidDifficulty())
         {
             StoreRaidMapDifficulty();
-            SendRaidDifficulty(GetGroup() != NULL, GetStoredRaidDifficulty());
+            SendRaidDifficulty(GetStoredRaidDifficulty());
         }
     }
     else if (GetRaidDifficulty() != GetStoredRaidDifficulty())
-        SendRaidDifficulty(GetGroup() != NULL);
+        SendRaidDifficulty();
 
     GetSession()->SendPetBattleJournal();
 
@@ -26124,11 +26151,6 @@ void Player::resetSpells(bool myClassOnly)
             // skip other spell families
             if (spellInfo->SpellFamilyName != family)
                 continue;
-
-            // skip spells with first rank learned as talent (and all talents then also)
-            uint32 first_rank = sSpellMgr->GetFirstSpellInChain(spellInfo->Id);
-            /*if (GetTalentSpellCost(first_rank) > 0)
-                continue;*/
 
             // skip broken spells
             if (!SpellMgr::IsSpellValid(spellInfo, this, false))
@@ -26523,7 +26545,7 @@ bool Player::HasQuestForGO(uint32 GOId) const
             {
                 if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_GO)
                 {
-                    if (GOId == l_Objective.ObjectID && GetQuestObjectiveCounter(l_Objective.ID) < uint32(l_Objective.Amount))
+                    if (GOId == (uint32)l_Objective.ObjectID && GetQuestObjectiveCounter(l_Objective.ID) < uint32(l_Objective.Amount))
                         return true;
                 }
             }
@@ -27799,7 +27821,6 @@ void Player::RemoveRunesBySpell(uint32 spell_id)
 
 void Player::RestoreBaseRune(uint8 index)
 {
-    uint32 spell_id = m_runes.runes[index].spell_id;
     ConvertRune(index, GetBaseRune(index));
     SetRuneConvertSpell(index, 0);
 }
@@ -31027,10 +31048,11 @@ void Player::RescaleItemTo(uint8 slot, uint32 ilvl)
     if(!proto)
         return;
 
-    _ApplyItemBonuses(item, slot, false, proto->ItemLevel);
-    _ApplyItemModifications(item, slot, false, proto->ItemLevel);
-    _ApplyItemBonuses(item, slot, true, ilvl);
+    _ApplyItemModifications(item, slot, true, proto->ItemLevel);
+    _ApplyItemBonuses(item, slot, true, proto->ItemLevel);
+    m_itemScale[slot] = proto->ItemLevel;
     _ApplyItemModifications(item, slot, true, ilvl);
+    _ApplyItemBonuses(item, slot, true, ilvl);
     m_itemScale[slot] = ilvl;
 }
 

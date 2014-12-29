@@ -42,8 +42,147 @@ enum MasterySpells
     SPELL_PRIEST_ECHO_OF_LIGHT          = 77489
 };
 
+///< Mastery: Sniper Training - 76659
+class spell_mastery_sniper_training : public SpellScriptLoader
+{
+    public:
+        spell_mastery_sniper_training() : SpellScriptLoader("spell_mastery_sniper_training") { }
+
+        enum Masteries
+        {
+            RecentlyMoved       = 168809,
+            SniperTrainingAura  = 168811
+        };
+
+        class spell_mastery_sniper_training_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mastery_sniper_training_AuraScript);
+
+            void OnUpdate(uint32, AuraEffectPtr)
+            {
+                if (!GetUnitOwner())
+                    return;
+
+                if (Player* l_Player = GetUnitOwner()->ToPlayer())
+                {
+                    if (AuraPtr l_Aura = l_Player->GetAura(Masteries::SniperTrainingAura))
+                    {
+                        if (l_Player->isMoving() && l_Aura->GetDuration() == -1)
+                        {
+                            l_Aura->SetDuration(6000);
+                            l_Aura->SetMaxDuration(6000);
+                        }
+                        else if (!l_Player->isMoving() && l_Aura->GetDuration() != -1 && !l_Player->HasAura(Masteries::RecentlyMoved))
+                            l_Player->CastSpell(l_Player, Masteries::RecentlyMoved, true);
+                    }
+                    else if (!l_Player->isMoving() && !l_Player->HasAura(Masteries::RecentlyMoved))
+                        l_Player->CastSpell(l_Player, Masteries::RecentlyMoved, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectUpdate += AuraEffectUpdateFn(spell_mastery_sniper_training_AuraScript::OnUpdate, EFFECT_2, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_mastery_sniper_training_AuraScript();
+        }
+};
+
+///< Sniper Training: Recently Moved - 168809
+class spell_mastery_recently_moved : public SpellScriptLoader
+{
+    public:
+        spell_mastery_recently_moved() : SpellScriptLoader("spell_mastery_recently_moved") { }
+
+        enum Masteries
+        {
+            SniperTrainingAura = 168811
+        };
+
+        class spell_mastery_recently_moved_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mastery_recently_moved_AuraScript);
+
+            void OnRemove(constAuraEffectPtr, AuraEffectHandleModes)
+            {
+                if (!GetCaster())
+                    return;
+
+                Unit* l_Caster = GetCaster();
+                AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
+                if (l_RemoveMode == AuraRemoveMode::AURA_REMOVE_BY_EXPIRE)
+                {
+                    if (Player* l_Player = l_Caster->ToPlayer())
+                    {
+                        float l_Mastery = l_Player->GetFloatValue(EPlayerFields::PLAYER_FIELD_MASTERY) * 0.5f;
+                        int32 l_BasePoints = l_Mastery;
+
+                        l_Player->CastCustomSpell(l_Player, Masteries::SniperTrainingAura, &l_BasePoints, &l_BasePoints, &l_BasePoints, &l_BasePoints, NULL, NULL, true);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_mastery_recently_moved_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_mastery_recently_moved_AuraScript();
+        }
+};
+
+///< Sniper Training - 168811
+class spell_mastery_sniper_training_aura : public SpellScriptLoader
+{
+    public:
+        spell_mastery_sniper_training_aura() : SpellScriptLoader("spell_mastery_sniper_training_aura") { }
+
+        class spell_mastery_sniper_training_aura_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mastery_sniper_training_aura_AuraScript);
+
+            void OnUpdate(uint32, AuraEffectPtr p_AurEff)
+            {
+                if (!GetUnitOwner())
+                    return;
+
+                if (Player* l_Player = GetUnitOwner()->ToPlayer())
+                {
+                    float l_Mastery = l_Player->GetFloatValue(EPlayerFields::PLAYER_FIELD_MASTERY) * 0.5f;
+                    int32 l_BasePoints = l_Mastery;
+
+                    if (AuraPtr l_Aura = p_AurEff->GetBase())
+                    {
+                        for (uint8 l_I = 0; l_I < 4; ++l_I)
+                        {
+                            if (AuraEffectPtr l_Effect = l_Aura->GetEffect(l_I))
+                                l_Effect->ChangeAmount(l_BasePoints);
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectUpdate += AuraEffectUpdateFn(spell_mastery_sniper_training_aura_AuraScript::OnUpdate, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_mastery_sniper_training_aura_AuraScript();
+        }
+};
+
 // Mastery: Echo of Light - 77485
-class spell_mastery_echo_of_light : public SpellScriptLoader
+class spell_mastery_echo_of_light: public SpellScriptLoader
 {
     public:
         spell_mastery_echo_of_light() : SpellScriptLoader("spell_mastery_echo_of_light") { }
@@ -92,7 +231,7 @@ bool IcicleOverstack = false;
 
 // Called by Frostbolt - 116 and Frostfire bolt - 44614
 // Mastery: Icicles - 76613
-class spell_mastery_icicles : public SpellScriptLoader
+class spell_mastery_icicles: public SpellScriptLoader
 {
     public:
         spell_mastery_icicles() : SpellScriptLoader("spell_mastery_icicles") { }
@@ -200,7 +339,7 @@ class spell_mastery_icicles : public SpellScriptLoader
 };
 
 // Ice Lance - 30455
-class spell_mastery_icicles_trigger : public SpellScriptLoader
+class spell_mastery_icicles_trigger: public SpellScriptLoader
 {
     public:
         spell_mastery_icicles_trigger() : SpellScriptLoader("spell_mastery_icicles_trigger") { }
@@ -232,7 +371,7 @@ class spell_mastery_icicles_trigger : public SpellScriptLoader
 };
 
 // Icicles (periodic) - 148023
-class spell_mastery_icicles_periodic : public SpellScriptLoader
+class spell_mastery_icicles_periodic: public SpellScriptLoader
 {
     public:
         spell_mastery_icicles_periodic() : SpellScriptLoader("spell_mastery_icicles_periodic") { }
@@ -284,7 +423,7 @@ class spell_mastery_icicles_periodic : public SpellScriptLoader
 };
 
 // Icicles: 148017, 148018, 148019, 148020, 148021
-class spell_mastery_icicles_hit : public SpellScriptLoader
+class spell_mastery_icicles_hit: public SpellScriptLoader
 {
     public:
         spell_mastery_icicles_hit() : SpellScriptLoader("spell_mastery_icicles_hit") { }
@@ -338,7 +477,7 @@ class spell_mastery_icicles_hit : public SpellScriptLoader
 
 // Called by Power Word : Shield - 17, Power Word : Shield (Divine Insight) - 123258, Spirit Shell - 114908, Angelic Bulwark - 114214 and Divine Aegis - 47753
 // Mastery : Shield Discipline - 77484
-class spell_mastery_shield_discipline : public SpellScriptLoader
+class spell_mastery_shield_discipline: public SpellScriptLoader
 {
     public:
         spell_mastery_shield_discipline() : SpellScriptLoader("spell_mastery_shield_discipline") { }
@@ -373,7 +512,7 @@ class spell_mastery_shield_discipline : public SpellScriptLoader
 
 // Called by 45470 - Death Strike (Heal)
 // 77513 - Mastery : Blood Shield
-class spell_mastery_blood_shield : public SpellScriptLoader
+class spell_mastery_blood_shield: public SpellScriptLoader
 {
     public:
         spell_mastery_blood_shield() : SpellScriptLoader("spell_mastery_blood_shield") { }
@@ -426,7 +565,7 @@ class spell_mastery_blood_shield : public SpellScriptLoader
 
 // Called by 133 - Fireball, 44614 - Frostfire Bolt, 108853 - Inferno Blast, 2948 - Scorch and 11366 - Pyroblast
 // 12846 - Mastery : Ignite
-class spell_mastery_ignite : public SpellScriptLoader
+class spell_mastery_ignite: public SpellScriptLoader
 {
     public:
         spell_mastery_ignite() : SpellScriptLoader("spell_mastery_ignite") { }
@@ -478,7 +617,7 @@ class spell_mastery_ignite : public SpellScriptLoader
 
 // Called by 35395 - Crusader Strike, 53595 - Hammer of the Righteous, 24275 - Hammer of Wrath, 85256 - Templar's Verdict and 53385 - Divine Storm
 // 76672 - Mastery : Hand of Light
-class spell_mastery_hand_of_light : public SpellScriptLoader
+class spell_mastery_hand_of_light: public SpellScriptLoader
 {
     public:
         spell_mastery_hand_of_light() : SpellScriptLoader("spell_mastery_hand_of_light") { }
@@ -520,7 +659,7 @@ class spell_mastery_hand_of_light : public SpellScriptLoader
 
 // Called by 403 - Lightning Bolt, 421 - Chain Lightning, 51505 - Lava Burst and 117014 - Elemental Blast
 // 77222 - Mastery : Elemental Overload
-class spell_mastery_elemental_overload : public SpellScriptLoader
+class spell_mastery_elemental_overload: public SpellScriptLoader
 {
     public:
         spell_mastery_elemental_overload() : SpellScriptLoader("spell_mastery_elemental_overload") { }
@@ -621,6 +760,9 @@ class spell_mastery_elemental_overload : public SpellScriptLoader
 
 void AddSC_mastery_spell_scripts()
 {
+    new spell_mastery_sniper_training();
+    new spell_mastery_recently_moved();
+    new spell_mastery_sniper_training_aura();
     new spell_mastery_echo_of_light();
     new spell_mastery_icicles();
     new spell_mastery_icicles_trigger();

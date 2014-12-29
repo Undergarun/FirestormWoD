@@ -57,8 +57,8 @@ class npc_GarrisonFord : public CreatureScript
         {
             if (!p_Player->GetGarrison())
                 p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Create me a garrison.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-
-            p_Player->SEND_GOSSIP_MENU(0, p_Creature->GetGUID());
+            
+            p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
 
             return true;
         }
@@ -295,6 +295,47 @@ class npc_VindicatorMaraad : public CreatureScript
             return false;
         }
 
+};
+
+/// Lunarfall Laborer
+class npc_LunarfallLaborer : public CreatureScript
+{
+    public:
+        /// Constructor
+        npc_LunarfallLaborer()
+            : CreatureScript("npc_LunarfallLaborer")
+        {
+
+        }
+
+        CreatureAI* GetAI(Creature * p_Creature) const
+        {
+            return new npc_LunarfallLaborerAI(p_Creature);
+        }
+
+        struct npc_LunarfallLaborerAI : public CreatureAI
+        {
+            /// Constructor
+            npc_LunarfallLaborerAI(Creature * p_Creature)
+                : CreatureAI(p_Creature)
+            {
+
+            }
+
+            void UpdateAI(const uint32 p_Diff) override
+            {
+
+            }
+
+            virtual void SetData(uint32 p_ID, uint32 p_Value) 
+            {
+                if (p_ID == GARRISON_CREATURE_AI_DATA_BUILDER)
+                {
+                    me->SetCurrentEquipmentId(1);
+                    me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_WORK);
+                }
+            }
+        };
 };
 
 void AddSC_Garrison_NPC()

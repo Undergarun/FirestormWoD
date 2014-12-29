@@ -2519,7 +2519,7 @@ class npc_gunship_trigger : public CreatureScript
 /* ----------------------------------- Rampart of Skulls NPCs ----------------------------------- */
 
 /* Kor'kron Primalist  37030*/
-class npc_korkron_primalist: public CreatureScript
+class npc_korkron_primalist : public CreatureScript
 {
     public:
         npc_korkron_primalist() : CreatureScript("npc_korkron_primalist") { }
@@ -2637,7 +2637,7 @@ class npc_korkron_primalist: public CreatureScript
 };
 
 /* Kor'kron Defender  37032*/
-class npc_korkron_defender: public CreatureScript
+class npc_korkron_defender : public CreatureScript
 {
     public:
         npc_korkron_defender() : CreatureScript("npc_korkron_defender") { }
@@ -2750,7 +2750,7 @@ class npc_korkron_defender: public CreatureScript
 };
 
 /* Skybreaker Vindicator  37003*/
-class npc_skybreaker_vindicator: public CreatureScript
+class npc_skybreaker_vindicator : public CreatureScript
 {
     public:
         npc_skybreaker_vindicator() : CreatureScript("npc_skybreaker_vindicator") { }
@@ -2856,7 +2856,7 @@ class npc_skybreaker_vindicator: public CreatureScript
 };
 
 /* Skybreaker Protector  36998*/
-class npc_skybreaker_protector: public CreatureScript
+class npc_skybreaker_protector : public CreatureScript
 {
     public:
         npc_skybreaker_protector() : CreatureScript("npc_skybreaker_protector") { }
@@ -2973,7 +2973,7 @@ class npc_skybreaker_protector: public CreatureScript
 
 
 /* Spire Frostwyrm  37230*/
-class npc_icc_spire_frostwyrm: public CreatureScript
+class npc_icc_spire_frostwyrm : public CreatureScript
 {
     public:
         npc_icc_spire_frostwyrm() : CreatureScript("npc_icc_spire_frostwyrm") { }
@@ -3134,7 +3134,7 @@ class transport_gunship : public TransportScript
 };
 
 /* Remove Rocket Pack - 70713 */
-class spell_icc_remove_rocket_pack : public SpellScriptLoader
+class spell_icc_remove_rocket_pack: public SpellScriptLoader
 {
     public:
         spell_icc_remove_rocket_pack() : SpellScriptLoader("spell_icc_remove_rocket_pack") { }
@@ -3167,7 +3167,7 @@ class spell_icc_remove_rocket_pack : public SpellScriptLoader
 };
 
 /* spell 69471 Heat Drain */
-class spell_gb_heat_drain : public SpellScriptLoader
+class spell_gb_heat_drain: public SpellScriptLoader
 {
     public:
         spell_gb_heat_drain() : SpellScriptLoader("spell_gb_heat_drain") { }
@@ -3200,7 +3200,7 @@ class spell_gb_heat_drain : public SpellScriptLoader
 };
 
 /* spell 69488 Overheat Drain */
-class spell_gb_overheat_drain : public SpellScriptLoader
+class spell_gb_overheat_drain: public SpellScriptLoader
 {
     public:
         spell_gb_overheat_drain() : SpellScriptLoader("spell_gb_overheat_drain") { }
@@ -3230,7 +3230,7 @@ class spell_gb_overheat_drain : public SpellScriptLoader
 };
 
 /* spell 69402 Incinerating Blast */
-class spell_gb_incinerating_blast : public SpellScriptLoader
+class spell_gb_incinerating_blast: public SpellScriptLoader
 {
     public:
         spell_gb_incinerating_blast() : SpellScriptLoader("spell_gb_incinerating_blast") { }
@@ -3262,7 +3262,7 @@ class spell_gb_incinerating_blast : public SpellScriptLoader
 };
 
 /* spell 71335, 70339 Burning Pitch */
-class spell_gb_burning_pitch : public SpellScriptLoader
+class spell_gb_burning_pitch: public SpellScriptLoader
 {
     public:
         spell_gb_burning_pitch() : SpellScriptLoader("spell_gb_burning_pitch") { }
@@ -3311,7 +3311,7 @@ class spell_gb_burning_pitch : public SpellScriptLoader
 };
 
 /* spell 68645 Rocket Pack */
-class spell_rocket_pack : public SpellScriptLoader
+class spell_rocket_pack: public SpellScriptLoader
 {
     public:
         spell_rocket_pack() : SpellScriptLoader("spell_rocket_pack") { }

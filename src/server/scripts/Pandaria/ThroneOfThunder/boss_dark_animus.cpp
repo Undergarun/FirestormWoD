@@ -1164,7 +1164,7 @@ class mob_crimson_wake : public CreatureScript
 };
 
 // Long Ritual Lightning - 137994
-class spell_long_ritual_lightning : public SpellScriptLoader
+class spell_long_ritual_lightning: public SpellScriptLoader
 {
     public:
         spell_long_ritual_lightning() : SpellScriptLoader("spell_long_ritual_lightning") { }
@@ -1203,7 +1203,7 @@ class spell_long_ritual_lightning : public SpellScriptLoader
 };
 
 // Transfusion (AoE) - 138118
-class spell_transfusion_aoe : public SpellScriptLoader
+class spell_transfusion_aoe: public SpellScriptLoader
 {
     public:
         spell_transfusion_aoe() : SpellScriptLoader("spell_transfusion_aoe") { }
@@ -1254,7 +1254,7 @@ class spell_transfusion_aoe : public SpellScriptLoader
 };
 
 // Transfusion (Searcher) - 138378
-class spell_transfusion_searcher : public SpellScriptLoader
+class spell_transfusion_searcher: public SpellScriptLoader
 {
     public:
         spell_transfusion_searcher() : SpellScriptLoader("spell_transfusion_searcher") { }
@@ -1336,7 +1336,7 @@ class spell_transfusion_searcher : public SpellScriptLoader
 };
 
 // Crimson Wake (Slow) - 138482
-class spell_crimson_wake_slow : public SpellScriptLoader
+class spell_crimson_wake_slow: public SpellScriptLoader
 {
     public:
         spell_crimson_wake_slow() : SpellScriptLoader("spell_crimson_wake_slow") {}
@@ -1364,7 +1364,7 @@ class spell_crimson_wake_slow : public SpellScriptLoader
 };
 
 // Crimson Wake (Medium) - 138484
-class spell_crimson_wake_medium : public SpellScriptLoader
+class spell_crimson_wake_medium: public SpellScriptLoader
 {
     public:
         spell_crimson_wake_medium() : SpellScriptLoader("spell_crimson_wake_medium") {}
@@ -1392,7 +1392,7 @@ class spell_crimson_wake_medium : public SpellScriptLoader
 };
 
 // Fixated - 138486
-class spell_fixated : public SpellScriptLoader
+class spell_fixated: public SpellScriptLoader
 {
     public:
         spell_fixated() : SpellScriptLoader("spell_fixated") {}
@@ -1420,7 +1420,7 @@ class spell_fixated : public SpellScriptLoader
 };
 
 // Matter Swap - 138609
-class spell_matter_swap : public SpellScriptLoader
+class spell_matter_swap: public SpellScriptLoader
 {
     public:
         spell_matter_swap() : SpellScriptLoader("spell_matter_swap") { }
@@ -1608,7 +1608,7 @@ class spell_matter_swap : public SpellScriptLoader
 };
 
 // Targeted: Matter Swap - 139919
-class spell_targeted_matter_swap : public SpellScriptLoader
+class spell_targeted_matter_swap: public SpellScriptLoader
 {
     public:
         spell_targeted_matter_swap() : SpellScriptLoader("spell_targeted_matter_swap") { }
@@ -1639,7 +1639,7 @@ class spell_targeted_matter_swap : public SpellScriptLoader
 };
 
 // Anima Ring - 136954
-class spell_anima_ring : public SpellScriptLoader
+class spell_anima_ring: public SpellScriptLoader
 {
     public:
         spell_anima_ring() : SpellScriptLoader("spell_anima_ring") { }
@@ -1696,7 +1696,7 @@ class spell_anima_ring : public SpellScriptLoader
 };
 
 // Activation Sequence - 139537
-class spell_activation_sequence : public SpellScriptLoader
+class spell_activation_sequence: public SpellScriptLoader
 {
     public:
         spell_activation_sequence() : SpellScriptLoader("spell_activation_sequence") {}
@@ -1724,7 +1724,7 @@ class spell_activation_sequence : public SpellScriptLoader
 };
 
 // Siphon Anima - 138644
-class spell_siphon_anima : public SpellScriptLoader
+class spell_siphon_anima: public SpellScriptLoader
 {
     public:
         spell_siphon_anima() : SpellScriptLoader("spell_siphon_anima") { }
@@ -1766,7 +1766,7 @@ class spell_siphon_anima : public SpellScriptLoader
 };
 
 // Touch of the Animus - 138659
-class spell_touch_of_the_animus : public SpellScriptLoader
+class spell_touch_of_the_animus: public SpellScriptLoader
 {
     public:
         spell_touch_of_the_animus() : SpellScriptLoader("spell_touch_of_the_animus") { }
@@ -1796,7 +1796,7 @@ class spell_touch_of_the_animus : public SpellScriptLoader
 };
 
 // Anima Font - 138691
-class spell_anima_font : public SpellScriptLoader
+class spell_anima_font: public SpellScriptLoader
 {
     public:
         spell_anima_font() : SpellScriptLoader("spell_anima_font") { }
@@ -1826,7 +1826,7 @@ class spell_anima_font : public SpellScriptLoader
 };
 
 // Anima Font (Dummy - trigger missile) - 138694
-class spell_anima_font_dummy : public SpellScriptLoader
+class spell_anima_font_dummy: public SpellScriptLoader
 {
     public:
         spell_anima_font_dummy() : SpellScriptLoader("spell_anima_font_dummy") { }
@@ -1866,7 +1866,7 @@ class spell_anima_font_dummy : public SpellScriptLoader
 };
 
 // FULL POWER - 138734
-class spell_full_power : public SpellScriptLoader
+class spell_full_power: public SpellScriptLoader
 {
     public:
         spell_full_power() : SpellScriptLoader("spell_full_power") { }
@@ -1897,7 +1897,7 @@ class spell_full_power : public SpellScriptLoader
 };
 
 // Empower Golem - 138780
-class spell_empower_golem : public SpellScriptLoader
+class spell_empower_golem: public SpellScriptLoader
 {
     public:
         spell_empower_golem() : SpellScriptLoader("spell_empower_golem") { }

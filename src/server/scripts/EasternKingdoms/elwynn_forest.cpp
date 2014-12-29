@@ -245,7 +245,7 @@ public:
 ## spell_quest_fear_no_evil
 ######*/
 
-class spell_quest_fear_no_evil : public SpellScriptLoader
+class spell_quest_fear_no_evil: public SpellScriptLoader
 {
     public:
         spell_quest_fear_no_evil() : SpellScriptLoader("spell_quest_fear_no_evil") { }
@@ -279,7 +279,7 @@ class spell_quest_fear_no_evil : public SpellScriptLoader
 
 #define SPELL_VISUAL_EXTINGUISHER   96028
 
-class spell_quest_extincteur : public SpellScriptLoader
+class spell_quest_extincteur: public SpellScriptLoader
 {
     public:
         spell_quest_extincteur() : SpellScriptLoader("spell_quest_extincteur") { }

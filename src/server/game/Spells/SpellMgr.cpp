@@ -774,10 +774,15 @@ uint32 SpellMgr::GetSpellIdForDifficulty(uint32 spellId, Unit const* caster) con
     return uint32(difficultyEntry->SpellID[mode]);*/
 }
 
+SpellInfo const* SpellMgr::GetSpellForDifficulty(uint32 p_SpellId, Difficulty p_Difficulty) const
+{
+    return GetSpellInfo(p_SpellId, p_Difficulty);
+}
+
 SpellInfo const* SpellMgr::GetSpellForDifficultyFromSpell(SpellInfo const* spell, Unit const* caster) const
 {
     if (!spell)
-        return NULL;
+        return nullptr;
 
     if (!caster || !caster->GetMap() || !caster->GetMap()->IsDungeon())
         return spell;
@@ -3458,6 +3463,20 @@ void SpellMgr::LoadSpellCustomAttr()
             case 157174: // Elemental Fusion
                 spellInfo->ProcCharges = 1;
                 break;
+            case 162537:///< Poisoned Ammo
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_PROC_TRIGGER_SPELL;
+                break;
+            case 162543:///< Poisoned Ammo (triggered)
+                spellInfo->Speed = 0.0f;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
+                break;
+            case 162546:///< Frozen Ammo (triggered)
+                spellInfo->Speed = 0.0f;
+                break;
+            case 121818:///< Stampede
+                spellInfo->Effects[EFFECT_1].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->Effects[EFFECT_1].TargetB = 0;
+                break;
             case 45470: // Death Strike (no heal bonus in SPELL_DAMAGE_CLASS_NONE)
                 spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MELEE;
                 break;
@@ -4384,9 +4403,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 81662: // Will of the Necropolis
                 spellInfo->Effects[0].BasePoints = 25;
                 break;
-            case 127538:// Savage Roar (Glyphed)
-                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(636); // 12s / 0s / 42s
-                break;
             case 146512:// Fortitude - hotfix 5.4.2
                 spellInfo->Effects[0].BasePoints = 2600;
                 break;
@@ -5193,11 +5209,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 56224: // Glyph of Healthstone
                 spellInfo->Effects[0].BasePoints = 0;
-                break;
-            case 34299: // Leader of the pack - healing
-            case 81280: // Blood Burst
-                spellInfo->Effects[0].Effect = SPELL_EFFECT_HEAL_PCT;
-                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 break;
             case 90259: // Glyph of Frost Pillar
                 spellInfo->Effects[0].MiscValue = 0;
@@ -6220,6 +6231,7 @@ void SpellMgr::LoadSpellCustomAttr()
             // Hurricane Strike (damage)
             case 158221:
                 spellInfo->SetDurationIndex(39); // 2 seconds
+                spellInfo->MaxAffectedTargets = 3;
                 break;
             default:
                 break;

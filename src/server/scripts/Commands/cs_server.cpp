@@ -28,7 +28,7 @@ EndScriptData */
 #include "Config.h"
 #include "ObjectAccessor.h"
 
-class server_commandscript : public CommandScript
+class server_commandscript: public CommandScript
 {
 public:
     server_commandscript() : CommandScript("server_commandscript") { }

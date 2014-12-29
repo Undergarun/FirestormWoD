@@ -1512,7 +1512,7 @@ class go_twilight_portal : public GameObjectScript
         }
 };
 
-class spell_halion_meteor_strike_marker : public SpellScriptLoader
+class spell_halion_meteor_strike_marker: public SpellScriptLoader
 {
     public:
         spell_halion_meteor_strike_marker() : SpellScriptLoader("spell_halion_meteor_strike_marker") { }
@@ -1543,7 +1543,7 @@ class spell_halion_meteor_strike_marker : public SpellScriptLoader
         }
 };
 
-class spell_halion_combustion_consumption : public SpellScriptLoader
+class spell_halion_combustion_consumption: public SpellScriptLoader
 {
     public:
         spell_halion_combustion_consumption(char const* scriptName, uint32 spell) : SpellScriptLoader(scriptName), _spellID(spell) { }
@@ -1600,7 +1600,7 @@ class spell_halion_combustion_consumption : public SpellScriptLoader
         uint32 _spellID;
 };
 
-class spell_halion_marks : public SpellScriptLoader
+class spell_halion_marks: public SpellScriptLoader
 {
     public:
         spell_halion_marks(char const* scriptName, uint32 summonSpell, uint32 removeSpell) : SpellScriptLoader(scriptName),
@@ -1661,7 +1661,7 @@ class spell_halion_marks : public SpellScriptLoader
         uint32 _removeSpell;
 };
 
-class spell_halion_damage_aoe_summon : public SpellScriptLoader
+class spell_halion_damage_aoe_summon: public SpellScriptLoader
 {
     public:
         spell_halion_damage_aoe_summon() : SpellScriptLoader("spell_halion_damage_aoe_summon") { }
@@ -1697,7 +1697,7 @@ class spell_halion_damage_aoe_summon : public SpellScriptLoader
         }
 };
 
-class spell_halion_twilight_realm_handlers : public SpellScriptLoader
+class spell_halion_twilight_realm_handlers: public SpellScriptLoader
 {
     public:
         spell_halion_twilight_realm_handlers(const char* scriptName, uint32 beforeHitSpell, bool isApplyHandler) : SpellScriptLoader(scriptName),
@@ -1763,7 +1763,7 @@ class spell_halion_twilight_realm_handlers : public SpellScriptLoader
         bool _isApplyHandler;
 };
 
-class spell_halion_clear_debuffs : public SpellScriptLoader
+class spell_halion_clear_debuffs: public SpellScriptLoader
 {
     public:
         spell_halion_clear_debuffs() : SpellScriptLoader("spell_halion_clear_debuffs") { }
@@ -1814,7 +1814,7 @@ class TwilightCutterSelector
         Unit* _cutterCaster;
 };
 
-class spell_halion_twilight_cutter : public SpellScriptLoader
+class spell_halion_twilight_cutter: public SpellScriptLoader
 {
     public:
         spell_halion_twilight_cutter() : SpellScriptLoader("spell_halion_twilight_cutter") { }
@@ -1854,7 +1854,7 @@ class spell_halion_twilight_cutter : public SpellScriptLoader
         }
 };
 
-class spell_halion_twilight_phasing : public SpellScriptLoader
+class spell_halion_twilight_phasing: public SpellScriptLoader
 {
     public:
         spell_halion_twilight_phasing() : SpellScriptLoader("spell_halion_twilight_phasing") { }
@@ -1902,7 +1902,7 @@ class spell_halion_twilight_phasing : public SpellScriptLoader
         }
 };
 
-class spell_halion_summon_exit_portals : public SpellScriptLoader
+class spell_halion_summon_exit_portals: public SpellScriptLoader
 {
     public:
         spell_halion_summon_exit_portals() : SpellScriptLoader("spell_halion_summon_exit_portals") { }
@@ -1955,7 +1955,7 @@ class ExactDistanceCheck
         float _dist;
 };
 
-class spell_halion_mark_damage_aura : public SpellScriptLoader
+class spell_halion_mark_damage_aura: public SpellScriptLoader
 {
     public:
         spell_halion_mark_damage_aura() : SpellScriptLoader("spell_halion_mark_damage_aura") { }
@@ -1981,7 +1981,7 @@ class spell_halion_mark_damage_aura : public SpellScriptLoader
         }
 };
 
-class spell_halion_mark_damage_aura_heroic : public SpellScriptLoader
+class spell_halion_mark_damage_aura_heroic: public SpellScriptLoader
 {
     public:
         spell_halion_mark_damage_aura_heroic() : SpellScriptLoader("spell_halion_mark_damage_aura_heroic") { }

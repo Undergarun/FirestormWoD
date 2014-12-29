@@ -1425,7 +1425,7 @@ class mob_undying_shadow : public CreatureScript
 };
 
 // Massive Attack - 117921
-class spell_massive_attacks : public SpellScriptLoader
+class spell_massive_attacks: public SpellScriptLoader
 {
     public:
         spell_massive_attacks() : SpellScriptLoader("spell_massive_attacks") { }
@@ -1466,7 +1466,7 @@ class spell_massive_attacks : public SpellScriptLoader
 };
 
 // Volley (1) - 118094, Volley (2) - 118105 and Volley (3) - 118106
-class spell_volley : public SpellScriptLoader
+class spell_volley: public SpellScriptLoader
 {
     public:
         spell_volley() : SpellScriptLoader("spell_volley") { }
@@ -1521,7 +1521,7 @@ class spell_volley : public SpellScriptLoader
 };
 
 // Pinned Down - 118145
-class spell_pinned_down : public SpellScriptLoader
+class spell_pinned_down: public SpellScriptLoader
 {
     public:
         spell_pinned_down() : SpellScriptLoader("spell_pinned_down") { }
@@ -1550,7 +1550,7 @@ class spell_pinned_down : public SpellScriptLoader
 };
 
 // Maddening Shout - 117708
-class spell_maddening_shout : public SpellScriptLoader
+class spell_maddening_shout: public SpellScriptLoader
 {
     public:
         spell_maddening_shout() : SpellScriptLoader("spell_maddening_shout") { }
@@ -1589,7 +1589,7 @@ class spell_maddening_shout : public SpellScriptLoader
 };
 
 // Cowardice - 117756 and Crazed - 117737
-class spell_crazed_cowardice : public SpellScriptLoader
+class spell_crazed_cowardice: public SpellScriptLoader
 {
     public:
         spell_crazed_cowardice() : SpellScriptLoader("spell_crazed_cowardice") { }
@@ -1695,7 +1695,7 @@ class spell_crazed_cowardice : public SpellScriptLoader
 };
 
 // Crazy Thought - 117833
-class spell_crazy_thought : public SpellScriptLoader
+class spell_crazy_thought: public SpellScriptLoader
 {
     public:
         spell_crazy_thought() : SpellScriptLoader("spell_crazy_thought") { }
@@ -1742,7 +1742,7 @@ class spell_crazy_thought : public SpellScriptLoader
 };
 
 // Coalescing Shadow - 117558
-class spell_coalescing_shadow : public SpellScriptLoader
+class spell_coalescing_shadow: public SpellScriptLoader
 {
     public:
         spell_coalescing_shadow() : SpellScriptLoader("spell_coalescing_shadow") { }
@@ -1778,7 +1778,7 @@ class spell_coalescing_shadow : public SpellScriptLoader
 };
 
 // 118162 - Sleight of hand
-class spell_sleight_of_hand : public SpellScriptLoader
+class spell_sleight_of_hand: public SpellScriptLoader
 {
     public:
         spell_sleight_of_hand() : SpellScriptLoader("spell_sleight_of_hand") { }
@@ -1813,7 +1813,7 @@ class spell_sleight_of_hand : public SpellScriptLoader
 };
 
 // 117697 - Shield of Darkness
-class spell_shield_of_darkness : public SpellScriptLoader
+class spell_shield_of_darkness: public SpellScriptLoader
 {
     public:
         spell_shield_of_darkness() : SpellScriptLoader("spell_shield_of_darkness") { }

@@ -416,7 +416,7 @@ class player_overlord_brandAI : public PlayerAI
         uint64 tyrannusGuid;
 };
 
-class spell_tyrannus_overlord_brand : public SpellScriptLoader
+class spell_tyrannus_overlord_brand: public SpellScriptLoader
 {
     public:
         spell_tyrannus_overlord_brand() : SpellScriptLoader("spell_tyrannus_overlord_brand") { }
@@ -462,7 +462,7 @@ class spell_tyrannus_overlord_brand : public SpellScriptLoader
         }
 };
 
-class spell_tyrannus_mark_of_rimefang : public SpellScriptLoader
+class spell_tyrannus_mark_of_rimefang: public SpellScriptLoader
 {
     public:
         spell_tyrannus_mark_of_rimefang() : SpellScriptLoader("spell_tyrannus_mark_of_rimefang") { }

@@ -21,7 +21,6 @@ float GetCurveValue(uint32 CurveParameter, float level)
     float const* scalePoint = 0;
     float lowerPoint= 0;
     float delta = 0;
-    float point = 0;
 
     index = startIndex;
     if ( startIndex < maxIndex )

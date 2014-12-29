@@ -219,7 +219,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleUnused,                                    //160 Unused (4.3.4) old SPELL_AURA_MOD_AOE_AVOIDANCE
     &AuraEffect::HandleNoImmediateEffect,                         //161 SPELL_AURA_MOD_HEALTH_REGEN_IN_COMBAT
     &AuraEffect::HandleNoImmediateEffect,                         //162 SPELL_AURA_POWER_BURN implemented in AuraEffect::PeriodicTick
-    &AuraEffect::HandleNoImmediateEffect,                         //163 SPELL_AURA_MOD_CRIT_DAMAGE_BONUS
+    &AuraEffect::HandleNoImmediateEffect,                         //163 SPELL_AURA_MOD_CRIT_DAMAGE_BONUS implemented in Unit::MeleeCriticalDamageBonus and Unit and Unit::SpellCriticalDamageBonus
     &AuraEffect::HandleUnused,                                    //164 unused (3.2.0), only one test spell
     &AuraEffect::HandleNoImmediateEffect,                         //165 SPELL_AURA_MELEE_ATTACK_POWER_ATTACKER_BONUS implemented in Unit::MeleeDamageBonus
     &AuraEffect::HandleAuraModAttackPowerPercent,                 //166 SPELL_AURA_MOD_ATTACK_POWER_PCT
@@ -259,8 +259,8 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNoImmediateEffect,                         //200 SPELL_AURA_MOD_XP_PCT implemented in Player::RewardPlayerAndGroupAtKill
     &AuraEffect::HandleAuraAllowFlight,                           //201 SPELL_AURA_FLY                             this aura enable flight mode...
     &AuraEffect::HandleNoImmediateEffect,                         //202 SPELL_AURA_CANNOT_BE_DODGED                implemented in Unit::RollPhysicalOutcomeAgainst
-    &AuraEffect::HandleNoImmediateEffect,                         //203 SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_DAMAGE  implemented in Unit::CalculateMeleeDamage and Unit::CalculateSpellDamage
-    &AuraEffect::HandleNoImmediateEffect,                         //204 SPELL_AURA_MOD_ATTACKER_RANGED_CRIT_DAMAGE implemented in Unit::CalculateMeleeDamage and Unit::CalculateSpellDamage
+    &AuraEffect::HandleNoImmediateEffect,                         //203 SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_DAMAGE  implemented in Unit::MeleeCriticalDamageBonus
+    &AuraEffect::HandleNoImmediateEffect,                         //204 SPELL_AURA_MOD_ATTACKER_RANGED_CRIT_DAMAGE implemented in Unit::MeleeCriticalDamageBonus
     &AuraEffect::HandleNULL,                                      //205 SPELL_AURA_MOD_SCHOOL_CRIT_DMG_TAKEN
     &AuraEffect::HandleAuraModIncreaseFlightSpeed,                //206 SPELL_AURA_MOD_INCREASE_VEHICLE_FLIGHT_SPEED
     &AuraEffect::HandleAuraModIncreaseFlightSpeed,                //207 SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED
@@ -870,36 +870,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                     }
                     break;
                 }
-                case 1079:  // Rip
-                {
-                    m_canBeRecalculated = false;
-
-                    if (caster->GetTypeId() != TYPEID_PLAYER)
-                        break;
-
-                    // Basepoint hotfix
-                    amount *= 10;
-
-                    uint8 cp = caster->ToPlayer()->GetComboPoints();
-                    int32 AP = caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
-
-                    // In feral spec : 0.484 * $AP * cp
-                    if (caster->ToPlayer()->GetSpecializationId(caster->ToPlayer()->GetActiveSpec()) == SPEC_DRUID_FERAL)
-                        amount += int32(cp * AP * 0.484f);
-                    // In other spec : 0.387 * $AP * cp
-                    else
-                        amount += int32(cp * AP * 0.387f);
-
-                    // Idol of Feral Shadows. Cant be handled as SpellMod in SpellAura:Dummy due its dependency from CPs
-                    if (constAuraEffectPtr aurEff = caster->GetAuraEffect(34241, EFFECT_0))
-                        amount += cp * aurEff->GetAmount();
-                    // Idol of Worship. Cant be handled as SpellMod in SpellAura:Dummy due its dependency from CPs
-                    else if (constAuraEffectPtr aurEff = caster->GetAuraEffect(60774, EFFECT_0))
-                        amount += cp * aurEff->GetAmount();
-
-                    amount /= int32(GetBase()->GetMaxDuration() / GetBase()->GetEffect(0)->GetAmplitude());
-                    break;
-                }
                 case 50536: // Unholy Blight
                 {
                     m_canBeRecalculated = false;
@@ -1226,7 +1196,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                 {
                     // Glyph of Prowl, remove the speed malus
                     if (Unit* target = GetBase()->GetUnitOwner())
-                        if (target->HasAura(116186))
+                        if (target->HasAura(157274))
                             amount = 0;
                     break;
                 }
@@ -6390,18 +6360,6 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
 
             switch (GetId())
             {
-                case 52610: // Savage Roar
-                case 127538:// Savage Roar (Glyphed)
-                {
-                    if (apply)
-                    {
-                        if (target->GetShapeshiftForm() == FORM_CAT)
-                            target->CastSpell(target, 62071, true, NULL, NULLAURA_EFFECT, GetCasterGUID());
-                    }
-                    else
-                        target->RemoveAurasDueToSpell(62071);
-                    break;
-                }
                 case 61336:                                 // Survival Instincts
                 {
                     if (!(mode & AURA_EFFECT_HANDLE_REAL))

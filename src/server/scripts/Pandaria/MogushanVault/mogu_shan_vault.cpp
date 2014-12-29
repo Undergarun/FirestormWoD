@@ -295,7 +295,7 @@ class mob_cursed_mogu_sculpture : public CreatureScript
 };
 
 // Ghost Essence - 120764
-class spell_ghost_essence : public SpellScriptLoader
+class spell_ghost_essence: public SpellScriptLoader
 {
     public:
         spell_ghost_essence() : SpellScriptLoader("spell_ghost_essence") { }
@@ -612,7 +612,7 @@ class mob_zandalari_skullcharger : public CreatureScript
 };
 
 // 125092 - Petrification
-class spell_mogu_petrification : public SpellScriptLoader
+class spell_mogu_petrification: public SpellScriptLoader
 {
     public:
         spell_mogu_petrification() : SpellScriptLoader("spell_mogu_petrification") { }

@@ -70,7 +70,7 @@ void BattlegroundRL::AddPlayer(Player* player)
     UpdateArenaWorldState();
 }
 
-void BattlegroundRL::RemovePlayer(Player* /*player*/, uint64 /*guid*/, uint32 /*team*/)
+void BattlegroundRL::RemovePlayer(Player* /*player*/, uint64 guid, uint32 /*team*/)
 {
     if (GetStatus() == STATUS_WAIT_LEAVE)
         return;

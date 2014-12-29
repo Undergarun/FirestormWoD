@@ -1160,7 +1160,7 @@ class npc_darkrune_sentinel : public CreatureScript
         }
 };
 
-class spell_razorscale_devouring_flame : public SpellScriptLoader
+class spell_razorscale_devouring_flame: public SpellScriptLoader
 {
     public:
         spell_razorscale_devouring_flame() : SpellScriptLoader("spell_razorscale_devouring_flame") { }
@@ -1193,7 +1193,7 @@ class spell_razorscale_devouring_flame : public SpellScriptLoader
         }
 };
 
-class spell_razorscale_firebolt : public SpellScriptLoader
+class spell_razorscale_firebolt: public SpellScriptLoader
 {
     public:
         spell_razorscale_firebolt() : SpellScriptLoader("spell_razorscale_firebolt") { }
@@ -1220,7 +1220,7 @@ class spell_razorscale_firebolt : public SpellScriptLoader
         }
 };
 
-class spell_razorscale_flame_breath : public SpellScriptLoader
+class spell_razorscale_flame_breath: public SpellScriptLoader
 {
     public:
         spell_razorscale_flame_breath() : SpellScriptLoader("spell_razorscale_flame_breath") { }

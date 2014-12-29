@@ -515,7 +515,7 @@ class boss_krick : public CreatureScript
         }
 };
 
-class spell_krick_explosive_barrage : public SpellScriptLoader
+class spell_krick_explosive_barrage: public SpellScriptLoader
 {
     public:
         spell_krick_explosive_barrage() : SpellScriptLoader("spell_krick_explosive_barrage") { }
@@ -550,7 +550,7 @@ class spell_krick_explosive_barrage : public SpellScriptLoader
         }
 };
 
-class spell_ick_explosive_barrage : public SpellScriptLoader
+class spell_ick_explosive_barrage: public SpellScriptLoader
 {
     public:
         spell_ick_explosive_barrage() : SpellScriptLoader("spell_ick_explosive_barrage") { }
@@ -589,7 +589,7 @@ class spell_ick_explosive_barrage : public SpellScriptLoader
         }
 };
 
-class spell_exploding_orb_hasty_grow : public SpellScriptLoader
+class spell_exploding_orb_hasty_grow: public SpellScriptLoader
 {
     public:
         spell_exploding_orb_hasty_grow() : SpellScriptLoader("spell_exploding_orb_hasty_grow") { }
@@ -624,7 +624,7 @@ class spell_exploding_orb_hasty_grow : public SpellScriptLoader
         }
 };
 
-class spell_krick_pursuit : public SpellScriptLoader
+class spell_krick_pursuit: public SpellScriptLoader
 {
     public:
         spell_krick_pursuit() : SpellScriptLoader("spell_krick_pursuit") { }
@@ -684,7 +684,7 @@ class spell_krick_pursuit : public SpellScriptLoader
         }
 };
 
-class spell_krick_pursuit_confusion : public SpellScriptLoader
+class spell_krick_pursuit_confusion: public SpellScriptLoader
 {
     public:
         spell_krick_pursuit_confusion() : SpellScriptLoader("spell_krick_pursuit_confusion") { }

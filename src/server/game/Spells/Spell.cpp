@@ -3041,7 +3041,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         if (crit)
         {
             procEx |= PROC_EX_CRITICAL_HIT;
-            addhealth = caster->SpellCriticalHealingBonus(m_spellInfo, addhealth, NULL);
+            addhealth = caster->SpellCriticalHealingBonus(m_spellInfo, addhealth, unitTarget);
         }
         else
             procEx |= PROC_EX_NORMAL_HIT;
@@ -4538,16 +4538,6 @@ void Spell::finish(bool ok)
 
             if (m_caster->HasAura(59309)) // Glyph of Resilient Grip
                 m_caster->ToPlayer()->RemoveSpellCooldown(m_spellInfo->Id, true);
-
-            break;
-        }
-        case 53351: // Kill Shot
-        {
-            if (!unitTarget || !unitTarget->isAlive() || unitTarget->GetHealthPct() >= 20.0f || m_caster->HasAura(90967))
-                break;
-
-            m_caster->CastSpell(m_caster, 90967, true); // Effect cooldown marker
-            m_caster->ToPlayer()->RemoveSpellCooldown(m_spellInfo->Id, true);
 
             break;
         }
@@ -6211,10 +6201,12 @@ SpellCastResult Spell::CheckCast(bool strict)
 
             if (!IsTriggered())
             {
-                // Hackfix for Raigonn
-                if (m_caster->GetEntry() != WORLD_TRIGGER && target->GetEntry() != 56895) // Ignore LOS for gameobjects casts (wrongly casted by a trigger)
+                // Ignore LOS for gameobjects casts (wrongly casted by a trigger)
+                if (m_caster->GetEntry() != WORLD_TRIGGER)
+                {
                     if (!(m_spellInfo->AttributesEx2 & SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS) && !m_caster->IsWithinLOSInMap(target))
                         return SPELL_FAILED_LINE_OF_SIGHT;
+                }
 
                 if (m_caster->IsVisionObscured(target, m_spellInfo))
                     return SPELL_FAILED_VISION_OBSCURED; // smoke bomb, camouflage...
@@ -8525,7 +8517,7 @@ void Spell::CallScriptAfterCastHandlers()
 bool Spell::CallScriptCheckInterruptHandlers()
 {
     uint32 l_ScriptExecuteTime = getMSTime();
-    bool l_CanInterrupt = true;
+    bool l_CanInterrupt = false;
 
     for (std::list<SpellScript*>::iterator l_Scritr = m_loadedScripts.begin(); l_Scritr != m_loadedScripts.end(); ++l_Scritr)
     {
@@ -8534,7 +8526,7 @@ bool Spell::CallScriptCheckInterruptHandlers()
         for (; l_HookItr != l_HookItrEnd; ++l_HookItr)
         {
             bool l_TempResult = (*l_HookItr).Call(*l_Scritr);
-            if (l_TempResult == false)
+            if (l_TempResult == true)
                 l_CanInterrupt = l_TempResult;
         }
 

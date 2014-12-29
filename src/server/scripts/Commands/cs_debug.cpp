@@ -38,7 +38,7 @@ EndScriptData */
 
 #include <fstream>
 
-class debug_commandscript : public CommandScript
+class debug_commandscript: public CommandScript
 {
     public:
         debug_commandscript() : CommandScript("debug_commandscript") { }
@@ -2268,7 +2268,9 @@ class debug_commandscript : public CommandScript
             if (!item)
                 return false;
 
+            player->_RemoveAllItemMods();
             item->SetDynamicValue(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS, 0, mod);
+            player->_ApplyAllItemMods();
             handler->SendSysMessage("Item sucesfully modified");
             return true;
         }

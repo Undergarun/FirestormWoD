@@ -639,7 +639,7 @@ class BattlegroundSA : public Battleground
         bool SignaledRoundTwoHalfMin;
         /// for know if second round has been init
         bool InitSecondRound;
-        std::map<uint32/*id*/, uint32/*timer*/> DemoliserRespawnList;
+        std::map<uint32, uint32> DemoliserRespawnList; ///< std::map<ID, Timer>
 
         // Achievement: Not Even a Scratch
         bool _notEvenAScratch[BG_TEAMS_COUNT];

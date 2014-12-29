@@ -247,7 +247,7 @@ class npc_echo_of_baine_baines_totem : public CreatureScript
         };      
 };
 
-class spell_echo_of_baine_pulverize_aoe : public SpellScriptLoader
+class spell_echo_of_baine_pulverize_aoe: public SpellScriptLoader
 {
     public:
         spell_echo_of_baine_pulverize_aoe() : SpellScriptLoader("spell_echo_of_baine_pulverize_aoe") { }

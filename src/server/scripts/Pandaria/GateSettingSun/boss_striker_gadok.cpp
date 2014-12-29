@@ -645,7 +645,7 @@ public:
     }
 };
 
-class spell_gadok_strafing : public SpellScriptLoader
+class spell_gadok_strafing: public SpellScriptLoader
 {
     public:
         spell_gadok_strafing() :  SpellScriptLoader("spell_gadok_strafing") { }
@@ -689,7 +689,7 @@ class spell_gadok_strafing : public SpellScriptLoader
         }
 };
 
-class spell_prey_time : public SpellScriptLoader
+class spell_prey_time: public SpellScriptLoader
 {
     public:
         spell_prey_time() :  SpellScriptLoader("spell_prey_time") { }

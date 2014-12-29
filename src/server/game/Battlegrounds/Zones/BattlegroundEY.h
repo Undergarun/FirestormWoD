@@ -351,6 +351,8 @@ class BattlegroundEY : public Battleground
 
         std::set<uint64> const GetFlagPickersGUID(int32 p_Team) const
         {
+            UNUSED(p_Team); ///< No team specific flag present
+
             std::set<uint64> l_FlagPickers{ m_FlagKeeper };
             return l_FlagPickers;
         }

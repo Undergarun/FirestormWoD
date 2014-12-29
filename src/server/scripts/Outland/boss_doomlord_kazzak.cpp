@@ -175,7 +175,7 @@ class boss_doomlord_kazzak : public CreatureScript
         }
 };
 
-class spell_mark_of_kazzak : public SpellScriptLoader
+class spell_mark_of_kazzak: public SpellScriptLoader
 {
     public:
         spell_mark_of_kazzak() : SpellScriptLoader("spell_mark_of_kazzak") { }

@@ -2577,6 +2577,7 @@ void Guild::BroadcastPacket(WorldPacket* packet) const
 
 void Guild::MassInviteToEvent(WorldSession* p_Session, uint32 p_MinLevel, uint32 p_MaxLevel, uint32 p_MinRank)
 {
+    // Finish me.
     /*uint32 count = 0;
 
     WorldPacket data(SMSG_CALENDAR_FILTER_GUILD);

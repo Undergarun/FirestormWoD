@@ -522,12 +522,12 @@ bool Group::AddMember(Player* player)
                 if (player->GetDungeonDifficulty() != GetDungeonDifficulty())
                 {
                     player->SetDungeonDifficulty(GetDungeonDifficulty());
-                    player->SendDungeonDifficulty(true);
+                    player->SendDungeonDifficulty();
                 }
                 if (player->GetLegacyRaidDifficulty() != GetLegacyRaidDifficulty())
                 {
                     player->SetLegacyRaidDifficulty(GetLegacyRaidDifficulty());
-                    player->SendRaidDifficulty(true);
+                    player->SendRaidDifficulty();
                 }
             }
         }
@@ -2238,7 +2238,7 @@ void Group::SetDungeonDifficulty(Difficulty difficulty)
             continue;
 
         player->SetDungeonDifficulty(difficulty);
-        player->SendDungeonDifficulty(true);
+        player->SendDungeonDifficulty();
     }
 
     SendUpdate();
@@ -2265,7 +2265,7 @@ void Group::SetRaidDifficulty(Difficulty difficulty)
             continue;
 
         player->SetRaidDifficulty(difficulty);
-        player->SendRaidDifficulty(true);
+        player->SendRaidDifficulty();
     }
 
     SendUpdate();
@@ -2291,7 +2291,7 @@ void Group::SetLegacyRaidDifficulty(Difficulty difficulty)
             continue;
 
         player->SetLegacyRaidDifficulty(difficulty);
-        player->SendRaidDifficulty(true);
+        player->SendRaidDifficulty();
     }
 
     SendUpdate();

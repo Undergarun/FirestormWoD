@@ -31,7 +31,7 @@ enum Spells
     SPELL_NEGATIVE_CHARGE           = 39093,
 };
 
-class spell_capacitus_polarity_charge : public SpellScriptLoader
+class spell_capacitus_polarity_charge: public SpellScriptLoader
 {
     public:
         spell_capacitus_polarity_charge() : SpellScriptLoader("spell_capacitus_polarity_charge") { }
@@ -99,7 +99,7 @@ class spell_capacitus_polarity_charge : public SpellScriptLoader
         }
 };
 
-class spell_capacitus_polarity_shift : public SpellScriptLoader
+class spell_capacitus_polarity_shift: public SpellScriptLoader
 {
     public:
         spell_capacitus_polarity_shift() : SpellScriptLoader("spell_capacitus_polarity_shift") { }

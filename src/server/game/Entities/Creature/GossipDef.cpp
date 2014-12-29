@@ -387,7 +387,7 @@ void PlayerMenu::SendQuestGiverStatus(uint32 p_StatusFlags, uint64 p_QuestGiverG
     _session->SendPacket(&data);
 }
 
-void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, uint64 npcGUID, bool activateAccept) const
+void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, uint64 npcGUID) const
 {
     std::string questTitle           = quest->GetTitle();
     std::string questDetails         = quest->GetDetails();
@@ -418,7 +418,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, uint64 npcGUID, 
     ObjectGuid guid2 = npcGUID;
 
     bool hiddenRewardItem = quest->HasFlag(QUEST_FLAGS_HIDDEN_REWARDS);
-    bool l_DisplayPopup   = activateAccept;
+    bool l_DisplayPopup   = false;
     bool l_StartCheat     = false;
     bool l_AutoLaunched   = false;
 
@@ -883,7 +883,7 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, uint64 npcGUID, 
     uint32 itemCounter = quest->GetQuestObjectiveCountType(QUEST_OBJECTIVE_TYPE_ITEM);
     if (itemCounter && canComplete)
     {
-        SendQuestGiverOfferReward(quest, npcGUID, true);
+        SendQuestGiverOfferReward(quest, npcGUID);
         return;
     }
 

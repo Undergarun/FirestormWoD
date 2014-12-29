@@ -777,7 +777,7 @@ class npc_kelthuzad_abomination : public CreatureScript
         }
 };
 
-class spell_kelthuzad_detonate_mana : public SpellScriptLoader
+class spell_kelthuzad_detonate_mana: public SpellScriptLoader
 {
     public:
         spell_kelthuzad_detonate_mana() : SpellScriptLoader("spell_kelthuzad_detonate_mana") { }

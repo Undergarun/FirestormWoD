@@ -476,7 +476,6 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
 void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& min_damage, float& max_damage)
 {
     Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-    Item* offItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
 
     UnitMods unitMod;
 
@@ -1372,7 +1371,7 @@ void Guardian::UpdateArmor()
         AuraEffectList const& l_ModPetStats = m_owner->GetAuraEffectsByType(SPELL_AURA_MOD_PET_STATS);
         for (AuraEffectList::const_iterator l_Iterator = l_ModPetStats.begin(); l_Iterator != l_ModPetStats.end(); ++l_Iterator)
         {
-            if ((*l_Iterator)->GetMiscValue() == INCREASE_ARMOR_PERCENT && (*l_Iterator)->GetMiscValueB() && GetEntry() == (*l_Iterator)->GetMiscValueB())
+            if ((*l_Iterator)->GetMiscValue() == INCREASE_ARMOR_PERCENT && (*l_Iterator)->GetMiscValueB() && (int32)GetEntry() == (*l_Iterator)->GetMiscValueB())
                 l_Amount += float((*l_Iterator)->GetAmount());
         }
 
@@ -1398,7 +1397,7 @@ void Guardian::UpdateMaxHealth()
     AuraEffectList const& l_ModPetStats = m_owner->GetAuraEffectsByType(SPELL_AURA_MOD_PET_STATS);
     for (AuraEffectList::const_iterator l_Iterator = l_ModPetStats.begin(); l_Iterator != l_ModPetStats.end(); ++l_Iterator)
     {
-        if ((*l_Iterator)->GetMiscValue() == INCREASE_HEALTH_PERCENT && (*l_Iterator)->GetMiscValueB() && GetEntry() == (*l_Iterator)->GetMiscValueB())
+        if ((*l_Iterator)->GetMiscValue() == INCREASE_HEALTH_PERCENT && (*l_Iterator)->GetMiscValueB() && (int32)GetEntry() == (*l_Iterator)->GetMiscValueB())
             l_Amount += float((*l_Iterator)->GetAmount());
     }
 

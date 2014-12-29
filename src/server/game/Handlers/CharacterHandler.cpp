@@ -1030,7 +1030,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
     uint32 time1 = getMSTime() - time;
 
     pCurrChar->GetMotionMaster()->Initialize();
-    pCurrChar->SendDungeonDifficulty(false);
+    pCurrChar->SendDungeonDifficulty();
 
     WorldPacket l_Data(SMSG_RESUME_TOKEN, 5);
     l_Data << uint32(0);

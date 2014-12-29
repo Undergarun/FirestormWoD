@@ -16,3 +16,9 @@ INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`) VALUES
 
 UPDATE creature_template SET unit_flags=0 WHERE entry=76292;
 UPDATE creature_template SET unit_flags=unit_flags|512 WHERE entry=82376;
+
+DELETE FROM gameobject WHERE id=234164 AND map=1209;
+UPDATE gameobject_template SET faction=94 WHERE entry=234164;
+
+-- lfg_entrances
+UPDATE lfg_entrances SET position_x=1232.459, position_y=1743.709, position_z=177.169, orientation=0.58 WHERE dungeonId IN (779, 780);

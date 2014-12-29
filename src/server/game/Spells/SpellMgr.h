@@ -628,6 +628,7 @@ class SpellMgr
         uint32 GetSpellDifficultyId(uint32 spellId) const;
         void SetSpellDifficultyId(uint32 spellId, uint32 id);
         uint32 GetSpellIdForDifficulty(uint32 spellId, Unit const* caster) const;
+        SpellInfo const* GetSpellForDifficulty(uint32 p_SpellId, Difficulty p_Difficulty) const;
         SpellInfo const* GetSpellForDifficultyFromSpell(SpellInfo const* spell, Unit const* caster) const;
 
         // Spell Ranks table

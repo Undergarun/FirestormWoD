@@ -170,7 +170,7 @@ public:
 
 };
 
-class spell_heigan_eruption : public SpellScriptLoader
+class spell_heigan_eruption: public SpellScriptLoader
 {
     public:
         spell_heigan_eruption() : SpellScriptLoader("spell_heigan_eruption") { }

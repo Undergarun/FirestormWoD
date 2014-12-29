@@ -1525,7 +1525,7 @@ class mob_general_purpose_bunnyJMF : public CreatureScript
 };
 
 // Cosmetic Lightning Spell - 127732
-class spell_cosmetic_lightning : public SpellScriptLoader
+class spell_cosmetic_lightning: public SpellScriptLoader
 {
     public:
         spell_cosmetic_lightning() : SpellScriptLoader("spell_cosmetic_lightning") { }
@@ -1566,7 +1566,7 @@ class spell_cosmetic_lightning : public SpellScriptLoader
 };
 
 //  Terracotta spawn visual spawn-in - 118165
-class spell_terracota_spawn : public SpellScriptLoader
+class spell_terracota_spawn: public SpellScriptLoader
 {
     public:
         spell_terracota_spawn() : SpellScriptLoader("spell_terracota_spawn") { }
@@ -1594,7 +1594,7 @@ class spell_terracota_spawn : public SpellScriptLoader
 };
 
 // Magnetized (Qin-Xi) - 116818
-class spell_magnetized_qin : public SpellScriptLoader
+class spell_magnetized_qin: public SpellScriptLoader
 {
     public:
         spell_magnetized_qin() : SpellScriptLoader("spell_magnetized_qin") { }
@@ -1622,7 +1622,7 @@ class spell_magnetized_qin : public SpellScriptLoader
 };
 
 // Magnetized (Jan-Xi) - 117195
-class spell_magnetized_jan : public SpellScriptLoader
+class spell_magnetized_jan: public SpellScriptLoader
 {
     public:
         spell_magnetized_jan() : SpellScriptLoader("spell_magnetized_jan") { }
@@ -1650,7 +1650,7 @@ class spell_magnetized_jan : public SpellScriptLoader
 };
 
 // Arc Left - 116968
-class spell_arc_visual : public SpellScriptLoader
+class spell_arc_visual: public SpellScriptLoader
 {
     public:
         spell_arc_visual() : SpellScriptLoader("spell_arc_visual") { }
@@ -1691,7 +1691,7 @@ class spell_arc_visual : public SpellScriptLoader
 };
 
 //  Devastating Arc - 117006
-class spell_devastating_arc : public SpellScriptLoader
+class spell_devastating_arc: public SpellScriptLoader
 {
     public:
         spell_devastating_arc() : SpellScriptLoader("spell_devastating_arc") { }
@@ -1725,7 +1725,7 @@ class spell_devastating_arc : public SpellScriptLoader
 };
 
 // Impeding Thrust - 117485
-class spell_impeding_thrust : public SpellScriptLoader
+class spell_impeding_thrust: public SpellScriptLoader
 {
     public:
         spell_impeding_thrust() : SpellScriptLoader("spell_impeding_thrust") { }
@@ -1757,7 +1757,7 @@ class spell_impeding_thrust : public SpellScriptLoader
 };
 
 // Titan gas - 116803 - triggered by Titan Gas (116779)
-class spell_titan_gas : public SpellScriptLoader
+class spell_titan_gas: public SpellScriptLoader
 {
     public:
         spell_titan_gas() : SpellScriptLoader("spell_titan_gas") { }
@@ -1785,7 +1785,7 @@ class spell_titan_gas : public SpellScriptLoader
 };
 
 // Titan gas - 118327 - triggered by Titan Gas (116779)
-class spell_titan_gas2 : public SpellScriptLoader
+class spell_titan_gas2: public SpellScriptLoader
 {
     public:
         spell_titan_gas2() : SpellScriptLoader("spell_titan_gas2") { }
@@ -1813,7 +1813,7 @@ class spell_titan_gas2 : public SpellScriptLoader
 };
 
 // Energizing smash - 116550
-class spell_energizing_smash : public SpellScriptLoader
+class spell_energizing_smash: public SpellScriptLoader
 {
     public:
         spell_energizing_smash() : SpellScriptLoader("spell_energizing_smash") { }
@@ -1853,7 +1853,7 @@ class spell_energizing_smash : public SpellScriptLoader
 };
 
 // Energizing Smash - Visual - 116556
-class spell_energizing_visual : public SpellScriptLoader
+class spell_energizing_visual: public SpellScriptLoader
 {
     public:
         spell_energizing_visual() : SpellScriptLoader("spell_energizing_visual") { }
@@ -1888,7 +1888,7 @@ class spell_energizing_visual : public SpellScriptLoader
 };
 
 // Energized - 116605
-class spell_energized : public SpellScriptLoader
+class spell_energized: public SpellScriptLoader
 {
     public :
         spell_energized() : SpellScriptLoader("spell_energized") { }

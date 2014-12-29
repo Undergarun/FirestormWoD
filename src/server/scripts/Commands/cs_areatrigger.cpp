@@ -23,7 +23,7 @@
 #include "TicketMgr.h"
 #include "Chat.h"
 
-class at_commandscript : public CommandScript
+class at_commandscript: public CommandScript
 {
     public:
         at_commandscript() : CommandScript("at_commandscript") { }

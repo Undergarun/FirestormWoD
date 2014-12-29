@@ -356,7 +356,7 @@ void WorldSession::HandleQuestgiverQueryQuestOpcode(WorldPacket& p_RecvData)
             return;
 
         if ( m_Player->GetQuestStatus(l_QuestId) == QUEST_STATUS_COMPLETE)
-            m_Player->PlayerTalkClass->SendQuestGiverOfferReward(quest, object->GetGUID(), true);
+            m_Player->PlayerTalkClass->SendQuestGiverOfferReward(quest, object->GetGUID());
         else if (m_Player->GetQuestStatus(l_QuestId) == QUEST_STATUS_INCOMPLETE)
             m_Player->PlayerTalkClass->SendQuestGiverRequestItems(quest, object->GetGUID(), m_Player->CanCompleteQuest(quest->GetQuestId()), true);
         else
@@ -371,7 +371,7 @@ void WorldSession::HandleQuestgiverQueryQuestOpcode(WorldPacket& p_RecvData)
                 if (m_Player->CanCompleteQuest(l_QuestId))
                     m_Player->CompleteQuest(l_QuestId);
             }
-            m_Player->PlayerTalkClass->SendQuestGiverQuestDetails(quest, object->GetGUID(), true);
+            m_Player->PlayerTalkClass->SendQuestGiverQuestDetails(quest, object->GetGUID());
         }
     }
 }
@@ -470,7 +470,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& p_RecvData)
                                 m_Player->CompleteQuest(l_NextQuest->GetQuestId());
                         }
 
-                        m_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_NextQuest, l_Guid, true);
+                        m_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_NextQuest, l_Guid);
                     }
                     if (l_CreatureQGiver)
                     {
@@ -496,7 +496,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& p_RecvData)
                                 m_Player->CompleteQuest(l_NextQuest->GetQuestId());
                         }
 
-                        m_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_NextQuest, l_Guid, true);
+                        m_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_NextQuest, l_Guid);
                     }
 
                     l_Object->ToGameObject()->AI()->QuestReward(m_Player, l_Quest, l_LegacyRewardFound ? l_Slot : l_RewardEntry);
@@ -508,7 +508,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& p_RecvData)
         }
     }
     else
-        m_Player->PlayerTalkClass->SendQuestGiverOfferReward(l_Quest, l_Guid, true);
+        m_Player->PlayerTalkClass->SendQuestGiverOfferReward(l_Quest, l_Guid);
 }
 
 void WorldSession::HandleQuestgiverRequestRewardOpcode(WorldPacket & recvData)
@@ -536,7 +536,7 @@ void WorldSession::HandleQuestgiverRequestRewardOpcode(WorldPacket & recvData)
         return;
 
     if (Quest const* quest = sObjectMgr->GetQuestTemplate(questId))
-        m_Player->PlayerTalkClass->SendQuestGiverOfferReward(quest, guid, true);
+        m_Player->PlayerTalkClass->SendQuestGiverOfferReward(quest, guid);
 }
 
 void WorldSession::HandleQuestLogRemoveQuest(WorldPacket& recvData)
@@ -665,7 +665,7 @@ void WorldSession::HandleQuestgiverCompleteQuest(WorldPacket& recvData)
             if (quest->GetQuestObjectiveCountType(QUEST_OBJECTIVE_TYPE_ITEM))                  // some items required
                 m_Player->PlayerTalkClass->SendQuestGiverRequestItems(quest, l_QuestGiverGUID, m_Player->CanRewardQuest(quest, false), false);
             else                                            // no items required
-                m_Player->PlayerTalkClass->SendQuestGiverOfferReward(quest, l_QuestGiverGUID, !autoCompleteMode);
+                m_Player->PlayerTalkClass->SendQuestGiverOfferReward(quest, l_QuestGiverGUID);
         }
     }
 
@@ -726,7 +726,7 @@ void WorldSession::HandlePushQuestToParty(WorldPacket& recvPacket)
                     continue;
                 }
 
-                player->PlayerTalkClass->SendQuestGiverQuestDetails(quest, m_Player->GetGUID(), true);
+                player->PlayerTalkClass->SendQuestGiverQuestDetails(quest, m_Player->GetGUID());
                 player->SetDivider(m_Player->GetGUID());
             }
         }

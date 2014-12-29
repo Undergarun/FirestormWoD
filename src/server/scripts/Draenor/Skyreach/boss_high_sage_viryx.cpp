@@ -125,9 +125,9 @@ namespace MS
                 mob_SolarZealotAI(Creature* creature) : ScriptedAI(creature),
                 m_Reset(false)
                 {
-                    me->SetSpeed(UnitMoveType::MOVE_WALK, 0.5f);
-                    me->SetSpeed(UnitMoveType::MOVE_RUN, 0.5f);
-                    me->SetSpeed(UnitMoveType::MOVE_FLIGHT, 0.5f);
+                    me->SetSpeed(UnitMoveType::MOVE_WALK, 0.3f);
+                    me->SetSpeed(UnitMoveType::MOVE_RUN, 0.3f);
+                    me->SetSpeed(UnitMoveType::MOVE_FLIGHT, 0.3f);
                 }
 
                 void Reset()
@@ -246,7 +246,6 @@ namespace MS
             };
         };
 
-        // FIXME: Adds and solar zealot should spawn differently.
         class boss_HighSageViryx : public CreatureScript
         {
         public:

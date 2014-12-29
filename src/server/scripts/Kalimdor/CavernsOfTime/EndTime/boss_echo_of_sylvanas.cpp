@@ -422,7 +422,7 @@ class npc_echo_of_sylvanas_risen_ghoul : public CreatureScript
         };
 };
 
-class spell_echo_of_sylvanas_wracking_pain_dmg : public SpellScriptLoader
+class spell_echo_of_sylvanas_wracking_pain_dmg: public SpellScriptLoader
 {
     public:
         spell_echo_of_sylvanas_wracking_pain_dmg() : SpellScriptLoader("spell_echo_of_sylvanas_wracking_pain_dmg") { }
@@ -487,7 +487,7 @@ class spell_echo_of_sylvanas_wracking_pain_dmg : public SpellScriptLoader
         }
 };
 
-class spell_echo_of_sylvanas_death_grip_aoe : public SpellScriptLoader
+class spell_echo_of_sylvanas_death_grip_aoe: public SpellScriptLoader
 {
     public:
         spell_echo_of_sylvanas_death_grip_aoe() : SpellScriptLoader("spell_echo_of_sylvanas_death_grip_aoe") { }
@@ -516,7 +516,7 @@ class spell_echo_of_sylvanas_death_grip_aoe : public SpellScriptLoader
         }
 };
 
-class spell_echo_of_sylvanas_seeping_shadows : public SpellScriptLoader
+class spell_echo_of_sylvanas_seeping_shadows: public SpellScriptLoader
 {
     public:
         spell_echo_of_sylvanas_seeping_shadows() : SpellScriptLoader("spell_echo_of_sylvanas_seeping_shadows") { }

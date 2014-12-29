@@ -10,7 +10,7 @@ enum
     SPELL_GARRISON_HEARTHSTONE = 171253
 };
 
-class PlayerScript_Garrison : public PlayerScript
+class PlayerScript_Garrison: public PlayerScript
 {
     public:
         PlayerScript_Garrison()
@@ -32,16 +32,16 @@ class PlayerScript_Garrison : public PlayerScript
 float gGarrisonHearthStoneTeleportCoord[][4] =
 {
     /// Horde
-    {    0.f,      0.f,      0.f,      0.f   }, ///< Horde Level 1
-    {    0.f,      0.f,      0.f,      0.f   }, ///< Horde Level 2
-    { 5563.7f,  4599.920f, 141.71100f, 0.00f }, ///< Horde Level 3
+    { 5561.15f,  4508.785f, 132.70f,    3.406f   }, ///< Horde Level 1
+    {    0.f,       0.f,      0.f,      0.000f   }, ///< Horde Level 2
+    { 5563.70f,  4599.920f, 141.71100f, 0.000f   }, ///< Horde Level 3
     /// Alliance
-    { 1850.71f,  254.430f,  78.08300f, 1.76f }, ///< Alliance Level 1
-    { 1947.08f,  324.883f,  90.28076f, 0.f   }, ///< Alliance Level 2
-    {    0.f,      0.f,      0.f,      0.f   }, ///< Alliance Level 3
+    { 1850.71f,   254.430f,  78.08300f, 1.76f    }, ///< Alliance Level 1
+    { 1947.08f,   324.883f,  90.28076f, 0.00f    }, ///< Alliance Level 2
+    {    0.f,       0.f,      0.f,      0.00f    }, ///< Alliance Level 3
 };
 
-class spell_garrison_hearthstone : public SpellScriptLoader
+class spell_garrison_hearthstone: public SpellScriptLoader
 {
     public:
         /// Constructor

@@ -265,7 +265,7 @@ class npc_arcurion_frozen_servitor : public CreatureScript
         };   
 };
 
-class spell_arcurion_icy_boulder : public SpellScriptLoader
+class spell_arcurion_icy_boulder: public SpellScriptLoader
 {
     public:
         spell_arcurion_icy_boulder() : SpellScriptLoader("spell_arcurion_icy_boulder") { }

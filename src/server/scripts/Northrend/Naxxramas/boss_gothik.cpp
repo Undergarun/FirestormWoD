@@ -592,7 +592,7 @@ class mob_gothik_minion : public CreatureScript
         }
 };
 
-class spell_gothik_shadow_bolt_volley : public SpellScriptLoader
+class spell_gothik_shadow_bolt_volley: public SpellScriptLoader
 {
     public:
         spell_gothik_shadow_bolt_volley() : SpellScriptLoader("spell_gothik_shadow_bolt_volley") { }

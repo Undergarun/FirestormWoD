@@ -429,7 +429,7 @@ public:
 
 };
 
-class spell_thaddius_pos_neg_charge : public SpellScriptLoader
+class spell_thaddius_pos_neg_charge: public SpellScriptLoader
 {
     public:
         spell_thaddius_pos_neg_charge() : SpellScriptLoader("spell_thaddius_pos_neg_charge") { }
@@ -508,7 +508,7 @@ class spell_thaddius_pos_neg_charge : public SpellScriptLoader
         }
 };
 
-class spell_thaddius_polarity_shift : public SpellScriptLoader
+class spell_thaddius_polarity_shift: public SpellScriptLoader
 {
     public:
         spell_thaddius_polarity_shift() : SpellScriptLoader("spell_thaddius_polarity_shift") { }

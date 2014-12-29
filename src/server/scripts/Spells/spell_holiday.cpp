@@ -38,7 +38,7 @@ enum SpellsPicnic
     SPELL_ROMANTIC_PICNIC_ACHIEV    = 45123, // Romantic Picnic periodic = 5000
 };
 
-class spell_love_is_in_the_air_romantic_picnic : public SpellScriptLoader
+class spell_love_is_in_the_air_romantic_picnic: public SpellScriptLoader
 {
     public:
         spell_love_is_in_the_air_romantic_picnic() : SpellScriptLoader("spell_love_is_in_the_air_romantic_picnic") { }
@@ -124,7 +124,7 @@ enum TrickSpells
     SPELL_TRICK_BUFF                    = 24753
 };
 
-class spell_trick : public SpellScriptLoader
+class spell_trick: public SpellScriptLoader
 {
     public:
         spell_trick() : SpellScriptLoader("spell_trick") {}
@@ -196,7 +196,7 @@ enum TrickOrTreatSpells
     SPELL_UPSET_TUMMY           = 42966
 };
 
-class spell_trick_or_treat : public SpellScriptLoader
+class spell_trick_or_treat: public SpellScriptLoader
 {
     public:
         spell_trick_or_treat() : SpellScriptLoader("spell_trick_or_treat") {}
@@ -234,7 +234,7 @@ class spell_trick_or_treat : public SpellScriptLoader
         }
 };
 
-class spell_tricky_treat : public SpellScriptLoader
+class spell_tricky_treat: public SpellScriptLoader
 {
     public:
         spell_tricky_treat() : SpellScriptLoader("spell_tricky_treat") {}
@@ -280,7 +280,7 @@ enum Mistletoe
     SPELL_CREATE_SNOWFLAKES = 45036
 };
 
-class spell_winter_veil_mistletoe : public SpellScriptLoader
+class spell_winter_veil_mistletoe: public SpellScriptLoader
 {
     public:
         spell_winter_veil_mistletoe() : SpellScriptLoader("spell_winter_veil_mistletoe") { }

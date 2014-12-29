@@ -2562,7 +2562,7 @@ public:
 };
 
 // Keg Placed - 68555
-class spell_keg_placed : public SpellScriptLoader
+class spell_keg_placed: public SpellScriptLoader
 {
     public:
         spell_keg_placed() : SpellScriptLoader("spell_keg_placed") {}
