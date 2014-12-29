@@ -4835,6 +4835,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 spellInfo->Effects[0].TargetB = 0;
                 spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REFLECTED;
+                spellInfo->AttributesEx5 &= ~SPELL_ATTR5_SINGLE_TARGET_SPELL;
                 spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(13);
                 break;
             case 91021: // Find Weakness

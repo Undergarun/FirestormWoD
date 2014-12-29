@@ -98,7 +98,8 @@ enum MageSpells
     SPELL_MAGE_KINDKING                          = 155148,
     SPELL_MAGE_COMBUSTION                        = 11129,
     SPELL_MAGE_FROST_BOMB_AURA                   = 112948,
-    SPELL_MAGE_FROST_BOMB_VISUAL                 = 69846
+    SPELL_MAGE_FROST_BOMB_VISUAL                 = 69846,
+    SPELL_MAGE_RING_OF_FROST_AURA                = 82691
 };
 
 
@@ -1489,8 +1490,78 @@ public:
     }
 };
 
+// Ring of Frost - 136511
+class spell_mage_ring_of_frost : public SpellScriptLoader
+{
+public:
+    spell_mage_ring_of_frost() : SpellScriptLoader("spell_mage_ring_of_frost") { }
+
+    class spell_mage_ring_of_frost_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_mage_ring_of_frost_AuraScript);
+
+        void OnTick(constAuraEffectPtr aurEff)
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                std::list<Creature*> l_TempList;
+                std::list<Creature*> l_FrozenRinglist;
+
+                // Get all of the Frozen Ring in Area
+                l_Caster->GetCreatureListWithEntryInGrid(l_FrozenRinglist, 44199, 500.0f);
+
+                l_TempList = l_FrozenRinglist;
+
+                // Remove other players Frozen Ring
+                for (std::list<Creature*>::iterator i = l_TempList.begin(); i != l_TempList.end(); ++i)
+                {
+                    Unit* l_Owner = (*i)->GetOwner();
+                    if (l_Owner && l_Owner == l_Caster && (*i)->isSummon())
+                        continue;
+
+                    l_FrozenRinglist.remove((*i));
+                }
+
+                // Check all the Frozen Ring of player in case of more than one
+                for (std::list<Creature*>::iterator itr = l_FrozenRinglist.begin(); itr != l_FrozenRinglist.end(); ++itr)
+                {
+                    std::list<Creature*> l_TempListCreature;
+                    std::list<Player*> l_TempListPlayer;
+
+                    // Apply aura on hostile creatures in the grid
+                    (*itr)->GetCreatureListInGrid(l_TempListCreature, 6.50);
+                    for (std::list<Creature*>::iterator i = l_TempListCreature.begin(); i != l_TempListCreature.end(); ++i)
+                    {
+                        if ((*i)->IsFriendlyTo(l_Caster) == false && (*i)->HasAura(SPELL_MAGE_RING_OF_FROST_AURA) == false)
+                            l_Caster->CastSpell((*i), SPELL_MAGE_RING_OF_FROST_AURA, true);
+                    }
+
+                    // Apply aura on hostile players in the grid
+                    (*itr)->GetPlayerListInGrid(l_TempListPlayer, 6.50);
+                    for (std::list<Player*>::iterator i = l_TempListPlayer.begin(); i != l_TempListPlayer.end(); ++i)
+                    {
+                        if ((*i)->IsFriendlyTo(l_Caster) == false && (*i)->HasAura(SPELL_MAGE_RING_OF_FROST_AURA) == false)
+                            l_Caster->CastSpell((*i), SPELL_MAGE_RING_OF_FROST_AURA, true);
+                    }
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_mage_ring_of_frost_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_mage_ring_of_frost_AuraScript();
+    }
+};
+
 void AddSC_mage_spell_scripts()
 {
+    new spell_mage_ring_of_frost();
     new spell_mage_kindling();
     new spell_mage_frostfire_bolt();
     new spell_mage_pyroblast();
