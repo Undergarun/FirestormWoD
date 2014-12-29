@@ -8517,7 +8517,7 @@ void Spell::CallScriptAfterCastHandlers()
 bool Spell::CallScriptCheckInterruptHandlers()
 {
     uint32 l_ScriptExecuteTime = getMSTime();
-    bool l_CanInterrupt = true;
+    bool l_CanInterrupt = false;
 
     for (std::list<SpellScript*>::iterator l_Scritr = m_loadedScripts.begin(); l_Scritr != m_loadedScripts.end(); ++l_Scritr)
     {
@@ -8526,7 +8526,7 @@ bool Spell::CallScriptCheckInterruptHandlers()
         for (; l_HookItr != l_HookItrEnd; ++l_HookItr)
         {
             bool l_TempResult = (*l_HookItr).Call(*l_Scritr);
-            if (l_TempResult == false)
+            if (l_TempResult == true)
                 l_CanInterrupt = l_TempResult;
         }
 
