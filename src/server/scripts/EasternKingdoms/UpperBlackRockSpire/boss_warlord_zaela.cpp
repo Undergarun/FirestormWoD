@@ -187,6 +187,8 @@ class boss_warlord_zaela : public CreatureScript
                     m_JumpPos = g_SpawnPos;
                     me->NearTeleportTo(m_JumpPos.m_positionX, m_JumpPos.m_positionY, m_JumpPos.m_positionZ, m_JumpPos.m_orientation);
                 }
+                else
+                    me->NearTeleportTo(g_SpawnPos.m_positionX, g_SpawnPos.m_positionY, g_SpawnPos.m_positionZ, g_SpawnPos.m_orientation);
 
                 m_Phase = eMisc::PhaseGround;
                 m_BurningBreathCount = 0;
