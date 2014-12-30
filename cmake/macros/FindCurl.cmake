@@ -1,12 +1,12 @@
 # - Try to find the cUrl library.
 # Once done this will define
 #
-#  CURL_ROOT_DIR - Set this variable to the root installation of OpenSSL
+#  CURL_ROOT_DIR - Set this variable to the root installation of cUrl
 #
 # Read-Only variables:
-#  CURL_FOUND - system has the OpenSSL library
-#  CURL_INCLUDE_DIR - the OpenSSL include directory
-#  CURL_LIBRARIES - The libraries needed to use OpenSSL
+#  CURL_FOUND - system has the cUrl library
+#  CURL_INCLUDE_DIR - the cUrl include directory
+#  CURL_LIBRARIES - The libraries needed to use cUrl
 
 # http://curl.haxx.se/
 
