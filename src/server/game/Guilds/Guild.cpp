@@ -1761,12 +1761,14 @@ void Guild::HandleLeaveMember(WorldSession* session)
         SendCommandResult(session, GUILD_QUIT_S, ERR_PLAYER_NO_MORE_IN_GUILD, m_name);
     }
 
+    uint32 l_GuildID = GetId();
+
     if (disband)
         delete this;
     else
         HandleRoster(session);
 
-    sCalendarMgr->RemovePlayerGuildEventsAndSignups(player->GetGUID(), GetId());
+    sCalendarMgr->RemovePlayerGuildEventsAndSignups(player->GetGUID(), l_GuildID);
 }
 
 void Guild::HandleRemoveMember(WorldSession* session, uint64 guid)

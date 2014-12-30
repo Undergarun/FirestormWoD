@@ -1376,10 +1376,10 @@ bool Item::CanTransmogrifyItemWithItem(Item* transmogrified, Item* transmogrifie
                 (proto2->InventoryType == INVTYPE_WEAPON || proto2->InventoryType == INVTYPE_WEAPONMAINHAND ||proto2->InventoryType == INVTYPE_WEAPONOFFHAND)))
                 return false;
         }
-        else if (proto2->Class == ITEM_CLASS_ARMOR && proto2->Class == ITEM_CLASS_ARMOR)
+        else if (proto1->Class == ITEM_CLASS_ARMOR && proto2->Class == ITEM_CLASS_ARMOR)
         {
             if (!((proto1->InventoryType == INVTYPE_CHEST || proto1->InventoryType == INVTYPE_ROBE) &&
-                (proto1->InventoryType == INVTYPE_CHEST || proto1->InventoryType == INVTYPE_ROBE)))
+                (proto2->InventoryType == INVTYPE_CHEST || proto2->InventoryType == INVTYPE_ROBE)))
                 return false;
         }
     }

@@ -115,6 +115,7 @@ class debug_commandscript: public CommandScript
                 { "bgstart",        SEC_ADMINISTRATOR,  false, &HandleDebugBattlegroundStart,      "", NULL },
                 { "criteria",       SEC_ADMINISTRATOR,  false, &HandleDebugCriteriaCommand,        "", NULL },
                 { "moditem",        SEC_ADMINISTRATOR,  false, &HandleDebugModItem,                "", NULL },
+                { "crashtest",      SEC_ADMINISTRATOR,  false, &HandleDebugCrashTest,              "", NULL },
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand commandTable[] =
@@ -2285,6 +2286,16 @@ class debug_commandscript: public CommandScript
             }
 
             l_Battleground->FastStart();
+            return true;
+        }
+
+        static bool HandleDebugCrashTest(ChatHandler* p_Handler, char const* p_Args)
+        {
+            Player* l_CrashPlayer = nullptr;
+            uint64 l_Guid         = GUID_LOPART(l_CrashPlayer->GetPetGUID());
+
+            p_Handler->PSendSysMessage("You've crash the server ! (%u)", l_Guid);
+
             return true;
         }
 };
