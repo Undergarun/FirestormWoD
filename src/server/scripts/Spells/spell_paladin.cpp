@@ -129,7 +129,8 @@ enum PaladinSpells
     PALADIN_SPELL_SAVED_BY_THE_LIGHT_PROC       = 157131,
     PALADIN_SPELL_SAVED_BY_THE_LIGHT_SHIELD     = 157128,
     PALADIN_SPELL_GLYPH_OF_TEMPLAR_VERDICT      = 54926,
-    PALADIN_SPELL_GLYPH_OF_TEMPLAR_VERDICT_PROC = 115668
+    PALADIN_SPELL_GLYPH_OF_TEMPLAR_VERDICT_PROC = 115668,
+    PALADIN_SPELL_GLYPH_OF_DIVINE_SHIELD        = 146956
 };
 
 // Glyph of devotion aura - 146955
@@ -854,10 +855,12 @@ class spell_pal_divine_shield: public SpellScriptLoader
         {
             PrepareSpellScript(spell_pal_divine_shield_SpellScript);
 
+            uint8 m_CoutNegativeAura = 0;
+
             SpellCastResult CheckForbearance()
             {
-                if (Unit* caster = GetCaster())
-                    if (caster->HasAura(SPELL_FORBEARANCE))
+                if (Unit* l_Caster = GetCaster())
+                    if (l_Caster->HasAura(SPELL_FORBEARANCE))
                         return SPELL_FAILED_TARGET_AURASTATE;
 
                 return SPELL_CAST_OK;
@@ -865,14 +868,54 @@ class spell_pal_divine_shield: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (Unit* target = GetHitUnit())
-                        _player->CastSpell(target, SPELL_FORBEARANCE, true);
+                if (Unit* l_Caster = GetCaster())
+                      l_Caster->CastSpell(l_Caster, SPELL_FORBEARANCE, true);
+            }
+
+            void HandleBeforeHit()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(PALADIN_SPELL_GLYPH_OF_DIVINE_SHIELD))
+                    {
+                        Unit::AuraApplicationMap l_AppliedAuras = l_Caster->GetAppliedAuras();
+                        for (Unit::AuraApplicationMap::iterator itr = l_AppliedAuras.begin(); itr != l_AppliedAuras.end(); itr++)
+                        {
+                            AuraApplication const* l_AurApp = itr->second;
+                            constAuraPtr aura = l_AurApp->GetBase();
+                            if (!l_AurApp->IsPositive()
+                                && !aura->IsPassive()
+                                && !aura->IsDeathPersistent())
+                                m_CoutNegativeAura++;
+                        }
+                    }
+
+                }
+            }
+
+            void HandleHeal(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(PALADIN_SPELL_GLYPH_OF_DIVINE_SHIELD))
+                    {
+                        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(PALADIN_SPELL_GLYPH_OF_DIVINE_SHIELD);
+
+                        if (l_SpellInfo)
+                        {
+                            if (m_CoutNegativeAura > l_SpellInfo->Effects[EFFECT_1].BasePoints)
+                                m_CoutNegativeAura = l_SpellInfo->Effects[EFFECT_1].BasePoints;
+                            SetHitHeal((l_Caster->GetMaxHealth() * (m_CoutNegativeAura * l_SpellInfo->Effects[EFFECT_0].BasePoints)) / 100);
+                        }
+                    }
+                }
             }
 
             void Register()
             {
                 OnCheckCast += SpellCheckCastFn(spell_pal_divine_shield_SpellScript::CheckForbearance);
+                BeforeHit += SpellHitFn(spell_pal_divine_shield_SpellScript::HandleBeforeHit);
+                OnEffectHitTarget += SpellEffectFn(spell_pal_divine_shield_SpellScript::HandleHeal, EFFECT_3, SPELL_EFFECT_HEAL_PCT);
                 OnHit += SpellHitFn(spell_pal_divine_shield_SpellScript::HandleOnHit);
             }
         };
