@@ -974,12 +974,10 @@ void Player::UpdateEnergyRegen()
     float pct = 0.0f;
     Unit::AuraEffectList const& ModPowerRegenPCTAuras = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
     for (Unit::AuraEffectList::const_iterator i = ModPowerRegenPCTAuras.begin(); i != ModPowerRegenPCTAuras.end(); ++i)
-    if (Powers((*i)->GetMiscValue()) == POWER_ENERGY)
-        pct += (*i)->GetAmount();
-
-    float haste = 1.f / (1.f + (m_baseRatingValue[CR_HASTE_MELEE] * GetRatingMultiplier(CR_HASTE_MELEE) + pct) / 100.f);
-
-    SetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN, haste);
+    {
+        if (Powers((*i)->GetMiscValue()) == POWER_ENERGY)
+            pct += (*i)->GetAmount();
+    }
 }
 
 void Player::UpdateRuneRegen(RuneType rune)
@@ -1021,11 +1019,10 @@ void Player::UpdateAllRunesRegen()
     float pct = 0.f;
     AuraEffectList const& regenAura = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
     for (AuraEffectList::const_iterator i = regenAura.begin(); i != regenAura.end(); ++i)
+    {
         if ((*i)->GetMiscValue() == POWER_RUNES)
             pct += (*i)->GetAmount();
-
-    float haste = 1.f / (1.f + (m_baseRatingValue[CR_HASTE_MELEE] * GetRatingMultiplier(CR_HASTE_MELEE) + pct) / 100.f);
-    SetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN, haste);
+    }
 }
 
 void Player::_ApplyAllStatBonuses()

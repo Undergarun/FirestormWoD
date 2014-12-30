@@ -5454,7 +5454,10 @@ void AuraEffect::HandleModCastingSpeed(AuraApplication const* aurApp, uint8 mode
     float value = float(GetAmount());
 
     if (target->GetTypeId() == TYPEID_PLAYER)
+    {
         value /= m_spellInfo->GetCastTimeReduction();
+        target->ToPlayer()->UpdateRating(CR_HASTE_SPELL);
+    }
 
     target->ApplyCastTimePercentMod(value, apply);
 }
@@ -5489,12 +5492,7 @@ void AuraEffect::HandleModCombatSpeedPct(AuraApplication const* aurApp, uint8 mo
 
     // Unholy Presence
     if (target->GetTypeId() == TYPEID_PLAYER)
-    {
-        if (m_spellInfo->Id == 48265)
-            target->ToPlayer()->UpdateAllRunesRegen();
-        else if (m_spellInfo->Id == 156989)
-            target->ToPlayer()->UpdateRating(CR_HASTE_MELEE);
-    }
+        target->ToPlayer()->UpdateRating(CR_HASTE_MELEE);
 }
 
 void AuraEffect::HandleModAttackSpeed(AuraApplication const* aurApp, uint8 mode, bool apply) const

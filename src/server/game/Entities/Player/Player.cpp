@@ -3284,11 +3284,8 @@ void Player::Regenerate(Powers power)
 
     float addvalue = 0.0f;
 
-    // Powers now benefit from haste.
-    float rangedHaste = GetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE);
-    float meleeHaste = GetFloatValue(UNIT_FIELD_MOD_HASTE);
-    float spellHaste = GetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED);
-    float HastePct = 1.0f + GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_HASTE_MELEE) * GetRatingMultiplier(CR_HASTE_MELEE) / 100.0f;
+    ///< Powers now benefit from haste.
+    float HastePct = 2.0f - GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN);
 
     switch (power)
     {
@@ -3298,9 +3295,9 @@ void Player::Regenerate(Powers power)
             float ManaIncreaseRate = sWorld->getRate(RATE_POWER_MANA);
 
             if (isInCombat()) // Trinity Updates Mana in intervals of 2s, which is correct
-                addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER) *  ManaIncreaseRate * ((0.001f * m_RegenPowerTimer) + CalculatePct(0.001f, spellHaste));
+                addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER) *  ManaIncreaseRate * ((0.001f * m_RegenPowerTimer) + CalculatePct(0.001f, HastePct));
             else
-                addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER) *  ManaIncreaseRate * ((0.001f * m_RegenPowerTimer) + CalculatePct(0.001f, spellHaste));
+                addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER) *  ManaIncreaseRate * ((0.001f * m_RegenPowerTimer) + CalculatePct(0.001f, HastePct));
             break;
         }
         // Regenerate Rage
@@ -3309,7 +3306,7 @@ void Player::Regenerate(Powers power)
             if (!isInCombat() && !HasAuraType(SPELL_AURA_INTERRUPT_REGEN))
             {
                 float RageDecreaseRate = sWorld->getRate(RATE_POWER_RAGE_LOSS);
-                addvalue += (-25 * RageDecreaseRate / meleeHaste);                // 2.5 rage by tick (= 2 seconds => 1.25 rage/sec)
+                addvalue += (-25 * RageDecreaseRate / HastePct);                // 2.5 rage by tick (= 2 seconds => 1.25 rage/sec)
             }
 
             break;
@@ -3317,7 +3314,7 @@ void Player::Regenerate(Powers power)
         // Regenerate Focus
         case POWER_FOCUS:
         {
-            addvalue += (6.0f + CalculatePct(6.0f, rangedHaste)) * sWorld->getRate(RATE_POWER_FOCUS);
+            addvalue += (6.0f + CalculatePct(6.0f, HastePct)) * sWorld->getRate(RATE_POWER_FOCUS);
             break;
         }
         // Regenerate Energy
@@ -7364,23 +7361,53 @@ void Player::UpdateRating(CombatRating p_CombatRating)
 
     // Apply bonus from SPELL_AURA_MOD_RATING_FROM_STAT
     // stat used stored in miscValueB for this aura
-    AuraEffectList const& modRatingFromStat = GetAuraEffectsByType(SPELL_AURA_MOD_RATING_FROM_STAT);
-    for (AuraEffectList::const_iterator i = modRatingFromStat.begin(); i != modRatingFromStat.end(); ++i)
-        if ((*i)->GetMiscValue() & ( 1 << p_CombatRating))
-            l_Amount += int32(CalculatePct(GetStat(Stats((*i)->GetMiscValueB())), (*i)->GetAmount()));
+    AuraEffectList const& l_ModRatingFromStat = GetAuraEffectsByType(SPELL_AURA_MOD_RATING_FROM_STAT);
+    for (AuraEffectList::const_iterator l_Iter = l_ModRatingFromStat.begin(); l_Iter != l_ModRatingFromStat.end(); ++l_Iter)
+    {
+        if ((*l_Iter)->GetMiscValue() & (1 << p_CombatRating))
+            l_Amount += int32(CalculatePct(GetStat(Stats((*l_Iter)->GetMiscValueB())), (*l_Iter)->GetAmount()));
+    }
 
     if (l_Amount < 0)
         l_Amount = 0;
 
     SetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + p_CombatRating, uint32(l_Amount));
 
-    if (p_CombatRating == CR_HASTE_MELEE || p_CombatRating == CR_HASTE_RANGED || p_CombatRating == CR_HASTE_SPELL)
+    if (p_CombatRating >= CR_HASTE_MELEE && p_CombatRating <= CR_HASTE_SPELL)
     {
-        float l_Haste = 1.f / (1.f + (l_Amount * GetRatingMultiplier(p_CombatRating)) / 100.f);
-        // Update haste percentage for client
-        SetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, l_Haste);
+        float l_HastePct = l_Amount * GetRatingMultiplier(p_CombatRating);
+
+        ///< Way of the Monk
+        if (HasAura(120275))
+            l_HastePct += 40.0f;
+
+        AuraEffectList const& l_HasteAuras = GetAuraEffectsByType(SPELL_AURA_MOD_CASTING_SPEED_NOT_STACK);
+        for (AuraEffectList::const_iterator l_Iter = l_HasteAuras.begin(); l_Iter != l_HasteAuras.end(); ++l_Iter)
+        {
+            if ((*l_Iter)->GetAmount() > 0)
+            {
+                l_HastePct *= (1.0f + (*l_Iter)->GetAmount() / 100.0f);
+                l_HastePct += (*l_Iter)->GetAmount();
+            }
+        }
+
+        AuraEffectList const& l_MeleeSlowAuras = GetAuraEffectsByType(SPELL_AURA_MELEE_SLOW);
+        for (AuraEffectList::const_iterator l_Iter = l_MeleeSlowAuras.begin(); l_Iter != l_MeleeSlowAuras.end(); ++l_Iter)
+        {
+            if ((*l_Iter)->GetAmount() > 0)
+            {
+                l_HastePct *= (1.0f + (*l_Iter)->GetAmount() / 100.0f);
+                l_HastePct += (*l_Iter)->GetAmount();
+            }
+        }
+
+        float l_Haste = 1.0f / (1.0f + l_HastePct / 100.0f);
+
+        ///< Update haste percentage for client
         SetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE, l_Haste);
         SetFloatValue(UNIT_FIELD_MOD_HASTE, l_Haste);
+        SetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, l_Haste);
+        SetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN, l_Haste);
 
         AuraEffectList const& l_AuraList = GetAuraEffectsByType(SPELL_AURA_MOD_COOLDOWN_BY_HASTE);
         for (AuraEffectList::const_iterator iter = l_AuraList.begin(); iter != l_AuraList.end(); iter++)
@@ -7394,29 +7421,10 @@ void Player::UpdateRating(CombatRating p_CombatRating)
         UpdateAllRunesRegen();
     }
 
-    // Custom MoP Script
-    // Way of the Monk - 120275
-    if (HasAura(120275) && GetTypeId() == TYPEID_PLAYER && (p_CombatRating == CR_HASTE_MELEE || p_CombatRating == CR_HASTE_RANGED || p_CombatRating == CR_HASTE_SPELL))
-    {
-        float l_Haste = 1.0f / (1.0f + (l_Amount * GetRatingMultiplier(p_CombatRating) + 40.0f) / 100.0f);
-        // Update melee haste percentage for client
-        SetFloatValue(UNIT_FIELD_MOD_HASTE, l_Haste);
-    }
-    else if (!HasAura(120275) && GetTypeId() == TYPEID_PLAYER && (p_CombatRating == CR_HASTE_MELEE || p_CombatRating == CR_HASTE_RANGED || p_CombatRating == CR_HASTE_SPELL))
-    {
-        float l_Hate = 1 / (1 + (l_Amount * GetRatingMultiplier(p_CombatRating)) / 100);
-        // Update haste percentage for client
-        SetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, l_Hate);
-        SetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE, l_Hate);
-        SetFloatValue(UNIT_FIELD_MOD_HASTE, l_Hate);
-    }
-
-    bool affectStats = CanModifyStats();
+    bool l_AffectStats = CanModifyStats();
 
     switch (p_CombatRating)
     {
-        case CR_DEFENSE_SKILL:
-            break;
         case CR_DODGE:
             UpdateDodgePercentage();
             break;
@@ -7427,28 +7435,22 @@ void Player::UpdateRating(CombatRating p_CombatRating)
             UpdateBlockPercentage();
             break;
         case CR_CRIT_MELEE:
-            if (affectStats)
+            if (l_AffectStats)
             {
                 UpdateCritPercentage(WeaponAttackType::BaseAttack);
                 UpdateCritPercentage(WeaponAttackType::OffAttack);
             }
             break;
         case CR_CRIT_RANGED:
-            if (affectStats)
+            if (l_AffectStats)
                 UpdateCritPercentage(WeaponAttackType::RangedAttack);
             break;
         case CR_CRIT_SPELL:
-            if (affectStats)
+            if (l_AffectStats)
                 UpdateAllSpellCritChances();
             break;
         case CR_SPEED:
             UpdateSpeedPercentage();
-        case CR_RESILIENCE_PLAYER_DAMAGE_TAKEN:
-        case CR_RESILIENCE_CRIT_TAKEN:
-            break;
-        case CR_HASTE_MELEE:                                // Implemented in Player::ApplyRatingMod
-        case CR_HASTE_RANGED:
-        case CR_HASTE_SPELL:
             break;
         case CR_MASTERY:                                    // Implemented in Player::UpdateMasteryPercentage
             UpdateMasteryPercentage();
@@ -7468,6 +7470,13 @@ void Player::UpdateRating(CombatRating p_CombatRating)
             break;
         case CR_AVOIDANCE:
             UpdateAvoidancePercentage();
+            break;
+        case CR_HASTE_MELEE:                                // Implemented in Player::ApplyRatingMod
+        case CR_HASTE_RANGED:
+        case CR_HASTE_SPELL:
+        case CR_RESILIENCE_PLAYER_DAMAGE_TAKEN:
+        case CR_RESILIENCE_CRIT_TAKEN:
+        case CR_DEFENSE_SKILL:
         default:
             break;
     }
