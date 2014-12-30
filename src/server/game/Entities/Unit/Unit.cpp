@@ -9480,8 +9480,8 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
             if (!procSpell)
                 return false;
 
-            // Only for Exorcism and Templar's Verdict
-            if (procSpell->Id != 879 && procSpell->Id != 85256)
+            // Only for Exorcism, Templar's Verdict and Final Verdict
+            if (procSpell->Id != 879 && procSpell->Id != 85256 && procSpell->Id != 157048)
                 return false;
 
             break;

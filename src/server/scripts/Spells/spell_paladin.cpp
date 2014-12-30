@@ -2024,39 +2024,8 @@ public:
     }
 };
 
-// Call By Templar's Verdict - 85256 , Exorcism - 879
-// Glyph of Templar's Verdict - 54926
-class spell_pal_glyph_of_templars_verdict : public SpellScriptLoader
-{
-public:
-    spell_pal_glyph_of_templars_verdict() : SpellScriptLoader("spell_pal_glyph_of_templars_verdict") { }
-
-    class spell_pal_glyph_of_templars_verdict_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_pal_glyph_of_templars_verdict_SpellScript);
-
-        void HandleOnHit()
-        {
-            if (Unit* l_Caster = GetCaster())
-                if (l_Caster->HasAura(PALADIN_SPELL_GLYPH_OF_TEMPLAR_VERDICT))
-                    l_Caster->CastSpell(l_Caster, PALADIN_SPELL_GLYPH_OF_TEMPLAR_VERDICT_PROC, true);
-        }
-
-        void Register()
-        {
-            OnHit += SpellHitFn(spell_pal_glyph_of_templars_verdict_SpellScript::HandleOnHit);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_pal_glyph_of_templars_verdict_SpellScript();
-    }
-};
-
 void AddSC_paladin_spell_scripts()
 {
-    new spell_pal_glyph_of_templars_verdict();
     new spell_pal_word_of_glory_damage();
     new spell_pal_word_of_glory_heal();
     new spell_pal_beacon_of_faith();

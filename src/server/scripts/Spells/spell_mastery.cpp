@@ -615,7 +615,7 @@ class spell_mastery_ignite: public SpellScriptLoader
         }
 };
 
-// Called by 35395 - Crusader Strike, 53595 - Hammer of the Righteous, 24275 - Hammer of Wrath, 85256 - Templar's Verdict and 53385 - Divine Storm
+// Called by 35395 - Crusader Strike, 53595 - Hammer of the Righteous, 24275 - Hammer of Wrath, 85256 - Templar's Verdict, 53385 - Divine Storm, 157048 - Final Verdict
 // 76672 - Mastery : Hand of Light
 class spell_mastery_hand_of_light: public SpellScriptLoader
 {
