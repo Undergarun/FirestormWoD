@@ -1659,6 +1659,7 @@ bool SpellInfo::IsAuraExclusiveBySpecificWith(SpellInfo const* spellInfo) const
         case SPELL_SPECIFIC_PRIEST_SANCTUM:
         case SPELL_SPECIFIC_CHAKRA:
         case SPELL_SPECIFIC_EXOTIC_MUNITION:
+        case SPELL_SPECIFIC_LONE_WOLF_BUFF:
             return spellSpec1 == spellSpec2;
         case SPELL_SPECIFIC_FOOD:
             return spellSpec2 == SPELL_SPECIFIC_FOOD
@@ -2477,8 +2478,22 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
             if (SpellFamilyFlags.HasFlag(0x00380000, 0x00440000, 0x00001010) && Id != 67801)
                 return SPELL_SPECIFIC_ASPECT;
 
-            if (Id == 162536 || Id == 162537 || Id == 162539)
-                return SPELL_SPECIFIC_EXOTIC_MUNITION;
+            switch (Id)
+            {
+                case 162536:///< Incendiary Ammo
+                case 162537:///< Poisoned Ammo
+                case 162539:///< Frozen Ammo
+                    return SPELL_SPECIFIC_EXOTIC_MUNITION;
+                case 160198:///< Grace of the Cat
+                case 160199:///< Fortitude of the Bear
+                case 160200:///< Ferocity of the Raptor
+                case 160203:///< Haste of the Hyena
+                case 160205:///< Wisdom of the Serpent
+                case 160206:///< Power of the Primates
+                case 172967:///< Versatility of the Ravager
+                case 172968:///< Quickness of the Dragonhawk
+                    return SPELL_SPECIFIC_LONE_WOLF_BUFF;
+            }
 
             break;
         }
