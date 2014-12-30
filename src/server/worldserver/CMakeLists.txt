@@ -159,6 +159,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/game/World
   ${CMAKE_SOURCE_DIR}/src/server/authserver/Server
   ${CMAKE_SOURCE_DIR}/src/server/authserver/Realms
+  ${CMAKE_SOURCE_DIR}/src/server/shared/Reporting
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/CommandLine
   ${CMAKE_CURRENT_SOURCE_DIR}/RemoteAccess
