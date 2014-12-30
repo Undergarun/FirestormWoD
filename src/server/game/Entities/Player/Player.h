@@ -2471,8 +2471,10 @@ class Player : public Unit, public GridObject<Player>
         void ApplyHealthRegenBonus(int32 amount, bool apply);
         void UpdateManaRegen();
         void UpdateEnergyRegen();
+        void UpdateFocusRegen();
         void UpdateRuneRegen(RuneType rune);
         void UpdateAllRunesRegen();
+        float GetRegenForPower(Powers p_Power);
 
         bool CanSwitch() const;
         bool IsInWorgenForm() const { return HasAuraType(SPELL_AURA_ALLOW_WORGEN_TRANSFORM); }

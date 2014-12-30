@@ -2419,64 +2419,58 @@ void Spell::EffectEnergize(SpellEffIndex effIndex)
     int level_diff = 0;
     switch (m_spellInfo->Id)
     {
-    case 6572:  // Revenge
-        if (m_caster->GetShapeshiftForm() != FORM_DEFENSIVESTANCE)
-            return;
-        break;
-    case 9512:                                          // Restore Energy
-        level_diff = m_caster->getLevel() - 40;
-        level_multiplier = 2;
-        break;
-    case 24571:                                         // Blood Fury
-        level_diff = m_caster->getLevel() - 60;
-        level_multiplier = 10;
-        break;
-    case 24532:                                         // Burst of Energy
-        level_diff = m_caster->getLevel() - 60;
-        level_multiplier = 4;
-        break;
-    case 63375:                                         // Primal Wisdom
-        damage = int32(CalculatePct(unitTarget->GetCreateMana(), damage));
-        break;
-    case 67490:                                         // Runic Mana Injector (mana gain increased by 25% for engineers - 3.2.0 patch change)
-    {
-        if (Player* player = m_caster->ToPlayer())
-            if (player->HasSkill(SKILL_ENGINEERING))
-                AddPct(damage, 25);
-        break;
-    }
-    case 92601: // Detonate Mana, Tyrande's Favorite Doll
-        if (constAuraEffectPtr aurEff = m_caster->GetAuraEffect(92596, EFFECT_0))
+        case 6572:  // Revenge
+            if (m_caster->GetShapeshiftForm() != FORM_DEFENSIVESTANCE)
+                return;
+            break;
+        case 9512:                                          // Restore Energy
+            level_diff = m_caster->getLevel() - 40;
+            level_multiplier = 2;
+            break;
+        case 24571:                                         // Blood Fury
+            level_diff = m_caster->getLevel() - 60;
+            level_multiplier = 10;
+            break;
+        case 24532:                                         // Burst of Energy
+            level_diff = m_caster->getLevel() - 60;
+            level_multiplier = 4;
+            break;
+        case 63375:                                         // Primal Wisdom
+            damage = int32(CalculatePct(unitTarget->GetCreateMana(), damage));
+            break;
+        case 67490:                                         // Runic Mana Injector (mana gain increased by 25% for engineers - 3.2.0 patch change)
         {
-            damage = aurEff->GetAmount();
-            m_caster->RemoveAurasDueToSpell(92596);
+            if (Player* player = m_caster->ToPlayer())
+                if (player->HasSkill(SKILL_ENGINEERING))
+                    AddPct(damage, 25);
+            break;
         }
-        break;
-    case 99069: // Fires of Heaven, Item - Paladin T12 Holy 2P Bonus
-    case 99007: // Heartfire, Item - Druid T12 Restoration 2P Bonus
-    case 99131: // Divine Fire, Item - Mage T12 2P Bonus
-    case 99189: // Flametide, Item - Shaman T12 Restoration 2P Bonus
-        damage = int32(CalculatePct(unitTarget->GetCreateMana(), damage));
-        break;
-    case 35395: // Crusader Strike
-        if (uint64 targetGUID = m_targets.GetUnitTargetGUID())
-            for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+        case 92601: // Detonate Mana, Tyrande's Favorite Doll
+            if (constAuraEffectPtr aurEff = m_caster->GetAuraEffect(92596, EFFECT_0))
             {
-                if (ihit->targetGUID == targetGUID)
-                {
-                    if (ihit->missCondition != SPELL_MISS_NONE)
-                        return;
-                }
+                damage = aurEff->GetAmount();
+                m_caster->RemoveAurasDueToSpell(92596);
             }
-        break;
-    case 77443:
-    {
-        // Steady Focus increases Focus regen by 3 for Steady Shot
-        damage += m_caster->HasAura(53220) ? 3 : 0;
-        break;
-    }
-    default:
-        break;
+            break;
+        case 99069: // Fires of Heaven, Item - Paladin T12 Holy 2P Bonus
+        case 99007: // Heartfire, Item - Druid T12 Restoration 2P Bonus
+        case 99131: // Divine Fire, Item - Mage T12 2P Bonus
+        case 99189: // Flametide, Item - Shaman T12 Restoration 2P Bonus
+            damage = int32(CalculatePct(unitTarget->GetCreateMana(), damage));
+            break;
+        case 35395: // Crusader Strike
+            if (uint64 targetGUID = m_targets.GetUnitTargetGUID())
+                for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+                {
+                    if (ihit->targetGUID == targetGUID)
+                    {
+                        if (ihit->missCondition != SPELL_MISS_NONE)
+                            return;
+                    }
+                }
+            break;
+        default:
+            break;
     }
 
     if (level_diff > 0)

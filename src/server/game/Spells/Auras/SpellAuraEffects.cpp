@@ -5093,21 +5093,23 @@ void AuraEffect::HandleModPowerRegen(AuraApplication const* aurApp, uint8 mode, 
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
 
-    Unit* target = aurApp->GetTarget();
-
-    if (target->GetTypeId() != TYPEID_PLAYER)
+    if (!aurApp->GetTarget() || aurApp->GetTarget()->GetTypeId() != TYPEID_PLAYER)
         return;
 
+    Player* l_Player = aurApp->GetTarget()->ToPlayer();
     switch (GetMiscValue())
     {
         case POWER_MANA:
-            target->ToPlayer()->UpdateManaRegen();
+            l_Player->UpdateManaRegen();
             break;
         case POWER_RUNES:
-            target->ToPlayer()->UpdateAllRunesRegen();
+            l_Player->UpdateAllRunesRegen();
             break;
         case POWER_ENERGY:
-            target->ToPlayer()->UpdateEnergyRegen();
+            l_Player->UpdateEnergyRegen();
+            break;
+        case POWER_FOCUS:
+            l_Player->UpdateFocusRegen();
             break;
         default:
             // other powers are not immediate effects - implemented in Player::Regenerate, Creature::Regenerate

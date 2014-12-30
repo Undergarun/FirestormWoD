@@ -1143,6 +1143,8 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
     SetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN, 1.0f);
     SetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, 1.0f);
     SetFloatValue(UNIT_FIELD_HOVER_HEIGHT, 1.0f);            // default for players in 3.0.3
+    SetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, 0.0f);
+    SetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, 0.0f);
 
                                                             // -1 is default value
     SetInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, uint32(-1));
@@ -3314,7 +3316,7 @@ void Player::Regenerate(Powers power)
         // Regenerate Focus
         case POWER_FOCUS:
         {
-            addvalue += (6.0f + CalculatePct(6.0f, HastePct)) * sWorld->getRate(RATE_POWER_FOCUS);
+            addvalue += (5.0f + CalculatePct(5.0f, HastePct)) * sWorld->getRate(RATE_POWER_FOCUS);
             break;
         }
         // Regenerate Energy
@@ -4404,6 +4406,8 @@ void Player::InitStatsForLevel(bool reapplyMods)
     SetFloatValue(UNIT_FIELD_MOD_HASTE, 1.0f);
     SetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN, 1.0f);
     SetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, 1.0f);
+    SetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, 0.0f);
+    SetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, 0.0f);
 
     // reset size before reapply auras
     SetObjectScale(1.0f);
@@ -7418,6 +7422,7 @@ void Player::UpdateRating(CombatRating p_CombatRating)
 
         UpdateManaRegen();
         UpdateEnergyRegen();
+        UpdateFocusRegen();
         UpdateAllRunesRegen();
     }
 

@@ -639,7 +639,7 @@ void Creature::Regenerate(Powers power)
         return;
 
     float addvalue = 0.0f;
-    float rangedHaste = (isHunterPet() && GetOwner()) ? GetOwner()->ToPlayer()->GetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE) : 0.0f;
+    float rangedHaste = (isHunterPet() && GetOwner()) ? GetOwner()->ToPlayer()->GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN) : 0.0f;
 
     switch (power)
     {
@@ -858,8 +858,8 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
     SetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED,                     1.0f);
     SetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE,                       1.0f);
     SetFloatValue(UNIT_FIELD_POWER_COST_MULTIPLIER,                 1.0f);
-    SetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER,             1.0f);
-    SetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, 1.0f);
+    SetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER,             0.0f);
+    SetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, 0.0f);
 
     if (l_PetType == HUNTER_PET)
     {

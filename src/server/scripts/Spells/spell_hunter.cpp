@@ -132,6 +132,110 @@ enum HunterSpells
     HUNTER_SPELL_BASIC_ATTACK_COST_MODIFIER         = 62762
 };
 
+///< Steady Focus - 177667
+class spell_hun_steady_focus: public SpellScriptLoader
+{
+    public:
+        spell_hun_steady_focus() : SpellScriptLoader("spell_hun_steady_focus") { }
+
+        class spell_hun_steady_focus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_steady_focus_AuraScript);
+
+            enum SteadyFocusSpells
+            {
+                SteadyShot  = 56641,
+                CobraShot   = 77767,
+                SteadyFocus = 177668
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                if (!GetCaster())
+                    return;
+
+                if (!p_EventInfo.GetDamageInfo()->GetSpellInfo())
+                    return;
+
+                if (p_EventInfo.GetActionTarget() == p_EventInfo.GetActor())
+                    return;
+
+                ProcFlagsExLegacy l_ExFlags = ProcFlagsExLegacy(p_EventInfo.GetHitMask());
+                uint32 l_SpellID = p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id;
+
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    switch (l_Player->GetSpecializationId(l_Player->GetActiveSpec()))
+                    {
+                        ///< Marksmanship
+                        ///< - Steady Shot twice in a row
+                        case SpecIndex::SPEC_HUNTER_MARKSMANSHIP:
+                        {
+                            ///< Not Steady Shot
+                            if (l_SpellID != SteadyFocusSpells::SteadyShot)
+                            {
+                                ///< Shitty procs
+                                if (!(l_ExFlags & (ProcFlagsExLegacy::PROC_EX_INTERNAL_TRIGGERED | ProcFlagsExLegacy::PROC_EX_INTERNAL_CANT_PROC)))
+                                    p_AurEff->GetBase()->SetCharges(0);
+
+                                return;
+                            }
+
+                            DealWithCharges(p_AurEff, l_Player);
+                            break;
+                        }
+                        case SpecIndex::SPEC_NONE:
+                            return;
+                        ///< Beast Mastery and  Survival (Level 81)
+                        ///< - Cobra Shot twice in a row
+                        default:
+                        {
+                            ///< Not Cobra Shot
+                            if (l_SpellID != SteadyFocusSpells::CobraShot)
+                            {
+                                ///< Shitty procs
+                                if (!(l_ExFlags & (ProcFlagsExLegacy::PROC_EX_INTERNAL_TRIGGERED | ProcFlagsExLegacy::PROC_EX_INTERNAL_CANT_PROC)))
+                                    p_AurEff->GetBase()->SetCharges(0);
+
+                                return;
+                            }
+
+                            DealWithCharges(p_AurEff, l_Player);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            void DealWithCharges(constAuraEffectPtr p_AurEff, Player* p_Player)
+            {
+                if (p_AurEff->GetBase()->GetCharges() <= 1)
+                {
+                    p_AurEff->GetBase()->SetCharges(2);
+                    return;
+                }
+
+                p_AurEff->GetBase()->SetCharges(0);
+                p_Player->CastSpell(p_Player, SteadyFocusSpells::SteadyFocus, true);
+
+                if (Pet* l_Pet = p_Player->GetPet())
+                    l_Pet->CastSpell(l_Pet, SteadyFocusSpells::SteadyFocus, true);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_hun_steady_focus_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_steady_focus_AuraScript();
+        }
+};
+
 ///< Cornered - 53497
 class spell_hun_cornered : public SpellScriptLoader
 {
@@ -2734,6 +2838,7 @@ public:
 
 void AddSC_hunter_spell_scripts()
 {
+    new spell_hun_steady_focus();
     new spell_hun_cornered();
     new spell_hun_lone_wolf();
     new spell_hun_kill_shot();
