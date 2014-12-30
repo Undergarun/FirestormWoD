@@ -29079,6 +29079,12 @@ void Player::ActivateSpec(uint8 spec)
         SetGlyph(slot, glyph);
     }
 
+    for (uint8 i = POWER_MANA; i < MAX_POWERS; ++i)
+    {
+        SetPower(Powers(i), 0);
+        SetMaxPower(Powers(i), GetCreatePowers(Powers(i)));
+    }
+
     SetUsedTalentCount(usedTalentPoint);
     InitTalentForLevel();
     InitSpellForLevel();
@@ -29092,12 +29098,6 @@ void Player::ActivateSpec(uint8 spec)
     }
 
     SendActionButtons(1);
-
-    for (uint8 i = POWER_MANA; i < MAX_POWERS; ++i)
-    {
-        SetPower(Powers(i), 0);
-        SetMaxPower(Powers(i), GetCreatePowers(Powers(i)));
-    }
 }
 
 void Player::ResetTimeSync()
