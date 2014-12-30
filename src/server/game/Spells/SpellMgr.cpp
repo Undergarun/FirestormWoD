@@ -4910,6 +4910,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 86273: // Illuminated Healing 
                 spellInfo->Effects[0].BonusMultiplier = 0.0f;
                 break;
+            case 109186: // Surge of light
+                spellInfo->ProcFlags = PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS;
+                break;
             case 853:   // Hammer of Justice
                 spellInfo->OverrideSpellList.push_back(105593); // Replace Hammer of Justice by Fist of Justice
                 break;
