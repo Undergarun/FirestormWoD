@@ -4835,6 +4835,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 spellInfo->Effects[0].TargetB = 0;
                 spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REFLECTED;
+                spellInfo->AttributesEx5 &= ~SPELL_ATTR5_SINGLE_TARGET_SPELL;
                 spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(13);
                 break;
             case 91021: // Find Weakness
@@ -4905,6 +4906,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetB = TARGET_UNIT_DEST_AREA_ENEMY;
                 spellInfo->Effects[2].TargetA = TARGET_DEST_TARGET_ENEMY;
                 spellInfo->Effects[2].TargetB = TARGET_UNIT_DEST_AREA_ENEMY;
+                break;
+            case 86273: // Illuminated Healing 
+                spellInfo->Effects[0].BonusMultiplier = 0.0f;
+                break;
+            case 109186: // Surge of light
+                spellInfo->ProcFlags = PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS;
                 break;
             case 853:   // Hammer of Justice
                 spellInfo->OverrideSpellList.push_back(105593); // Replace Hammer of Justice by Fist of Justice

@@ -744,7 +744,7 @@ class spell_pri_surge_of_light: public SpellScriptLoader
                             if (AuraPtr l_SurgeOfLight = l_Player->GetAura(PRIEST_SURGE_OF_LIGHT))
                             {
                                 if (l_SurgeOfLight->GetStackAmount() == 2)
-                                    l_SurgeOfLight->SetDuration(GetSpellInfo()->GetDuration());
+                                    l_SurgeOfLight->SetDuration(20 * IN_MILLISECONDS);
                                 else
                                     l_Player->CastSpell(l_Player, PRIEST_SURGE_OF_LIGHT, true);
                             }
@@ -1058,11 +1058,28 @@ class spell_pri_chakra_chastise: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                     if (Unit* target = GetHitUnit())
+                    {
+                        // Surge of light
+                        if (l_Player->HasSpell(109186))
+                            if (roll_chance_i(GetSpellInfo()->Effects[EFFECT_0].BasePoints))
+                            {
+                                if (AuraPtr l_SurgeOfLight = l_Player->GetAura(PRIEST_SURGE_OF_LIGHT))
+                                {
+                                    if (l_SurgeOfLight->GetStackAmount() == 2)
+                                        l_SurgeOfLight->SetDuration(20 * IN_MILLISECONDS);
+                                    else
+                                        l_Player->CastSpell(l_Player, PRIEST_SURGE_OF_LIGHT, true);
+                                }
+                                else
+                                    l_Player->CastSpell(l_Player, PRIEST_SURGE_OF_LIGHT, true);
+                            }
+
                         if (roll_chance_i(GetSpellInfo()->Effects[EFFECT_1].BasePoints))
-                            if (_player->HasSpellCooldown(PRIEST_HOLY_WORD_CHASTISE))
-                                _player->RemoveSpellCooldown(PRIEST_HOLY_WORD_CHASTISE, true);
+                            if (l_Player->HasSpellCooldown(PRIEST_HOLY_WORD_CHASTISE))
+                                l_Player->RemoveSpellCooldown(PRIEST_HOLY_WORD_CHASTISE, true);
+                    }
             }
 
             void Register()
