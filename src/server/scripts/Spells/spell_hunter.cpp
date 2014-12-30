@@ -132,6 +132,34 @@ enum HunterSpells
     HUNTER_SPELL_BASIC_ATTACK_COST_MODIFIER         = 62762
 };
 
+///< Thunderstomp - 63900
+class spell_hun_thunderstomp : public SpellScriptLoader
+{
+    public:
+        spell_hun_thunderstomp() : SpellScriptLoader("spell_hun_thunderstomp") { }
+
+        class spell_hun_thunderstomp_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_thunderstomp_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* l_Owner = GetCaster()->GetOwner())
+                    SetHitDamage((int32)CalculatePct(l_Owner->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack), 37.5f));
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_hun_thunderstomp_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_thunderstomp_SpellScript();
+        }
+};
+
 ///< Steady Focus - 177667
 class spell_hun_steady_focus: public SpellScriptLoader
 {
@@ -2838,6 +2866,7 @@ public:
 
 void AddSC_hunter_spell_scripts()
 {
+    new spell_hun_thunderstomp();
     new spell_hun_steady_focus();
     new spell_hun_cornered();
     new spell_hun_lone_wolf();
