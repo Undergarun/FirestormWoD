@@ -186,6 +186,9 @@ uint32 GarrisonFollower::EarnXP(uint32 p_XP)
         }
     }
 
+    if (!l_LevelData)
+        return;
+
     if (Level < GARRISON_MAX_FOLLOWER_LEVEL)
     {
         if ((p_XP + this->XP) >= l_LevelData->RequiredExperience)
@@ -225,7 +228,6 @@ uint32 GarrisonFollower::EarnXP(uint32 p_XP)
     } 
 
     return 0;
-
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -1035,7 +1037,7 @@ void Garrison::StartMission(uint32 p_MissionRecID, std::vector<uint64> p_Followe
         l_It->CurrentMissionID = p_MissionRecID;
     }
 
-    GarrisonMission * l_Mission;
+    GarrisonMission * l_Mission = nullptr;
 
     for (uint32 l_I = 0; l_I < m_Missions.size(); ++l_I)
     {
@@ -1103,7 +1105,7 @@ void Garrison::CompleteMission(uint32 p_MissionRecID)
 
     const GarrMissionEntry * l_MissionTemplate = sGarrMissionStore.LookupEntry(p_MissionRecID);
 
-    GarrisonMission * l_Mission;
+    GarrisonMission * l_Mission = nullptr;
 
     for (uint32 l_I = 0; l_I < m_Missions.size(); ++l_I)
     {
@@ -1113,6 +1115,9 @@ void Garrison::CompleteMission(uint32 p_MissionRecID)
             break;
         }
     }
+
+    if (l_Mission == nullptr)
+        return;
 
     uint32 l_TravelDuration  = GetMissionTravelDuration(p_MissionRecID);
     uint32 l_MissionDuration = GetMissionDuration(p_MissionRecID);
@@ -2529,8 +2534,11 @@ void Garrison::InitDataForLevel()
         }
     }
 
-    if (!l_SiteEntry)
+    if (l_SiteEntry == nullptr)
+    {
         assert(false && "Garrison::InitDataForLevel() not data found");
+        return;
+    }
 
     m_GarrisonLevelID = l_SiteEntry->SiteLevelID;
 
