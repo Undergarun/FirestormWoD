@@ -968,18 +968,18 @@ void Player::UpdateManaRegen()
 
 void Player::UpdateEnergyRegen()
 {
-    if (getPowerType() != POWER_ENERGY)
+    if (getPowerType() != Powers::POWER_ENERGY)
         return;
 
-    float pct = 0.0f;
-    Unit::AuraEffectList const& ModPowerRegenPCTAuras = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
-    for (Unit::AuraEffectList::const_iterator i = ModPowerRegenPCTAuras.begin(); i != ModPowerRegenPCTAuras.end(); ++i)
-    if (Powers((*i)->GetMiscValue()) == POWER_ENERGY)
-        pct += (*i)->GetAmount();
+    SetFloatValue(EUnitFields::UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, GetRegenForPower(Powers::POWER_ENERGY));
+}
 
-    float haste = 1.f / (1.f + (m_baseRatingValue[CR_HASTE_MELEE] * GetRatingMultiplier(CR_HASTE_MELEE) + pct) / 100.f);
+void Player::UpdateFocusRegen()
+{
+    if (getPowerType() != Powers::POWER_FOCUS)
+        return;
 
-    SetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN, haste);
+    SetFloatValue(EUnitFields::UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, GetRegenForPower(Powers::POWER_FOCUS));
 }
 
 void Player::UpdateRuneRegen(RuneType rune)
@@ -1005,6 +1005,9 @@ void Player::UpdateRuneRegen(RuneType rune)
 
 void Player::UpdateAllRunesRegen()
 {
+    if (getClass() != Classes::CLASS_DEATH_KNIGHT)
+        return;
+
     for (uint8 i = 0; i < NUM_RUNE_TYPES; ++i)
     {
         if (uint32 cooldown = GetRuneTypeBaseCooldown(RuneType(i)))
@@ -1018,14 +1021,36 @@ void Player::UpdateAllRunesRegen()
         }
     }
 
-    float pct = 0.f;
-    AuraEffectList const& regenAura = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
-    for (AuraEffectList::const_iterator i = regenAura.begin(); i != regenAura.end(); ++i)
-        if ((*i)->GetMiscValue() == POWER_RUNES)
-            pct += (*i)->GetAmount();
+    SetFloatValue(EUnitFields::UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, GetRegenForPower(Powers::POWER_RUNES));
+}
 
-    float haste = 1.f / (1.f + (m_baseRatingValue[CR_HASTE_MELEE] * GetRatingMultiplier(CR_HASTE_MELEE) + pct) / 100.f);
-    SetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN, haste);
+float Player::GetRegenForPower(Powers p_Power)
+{
+    float l_BaseRegen = 0.0f;
+
+    switch (p_Power)
+    {
+        case Powers::POWER_FOCUS:
+            l_BaseRegen = 5.0f;
+            break;
+        case Powers::POWER_ENERGY:
+        case Powers::POWER_RUNES:
+            l_BaseRegen = 10.0f;
+            break;
+        default:
+            return 0.0f;
+    }
+
+    float l_HastePct = 1.0f;
+
+    Unit::AuraEffectList const& l_ModPowerRegenPCT = GetAuraEffectsByType(AuraType::SPELL_AURA_MOD_POWER_REGEN_PERCENT);
+    for (Unit::AuraEffectList::const_iterator l_Iter = l_ModPowerRegenPCT.begin(); l_Iter != l_ModPowerRegenPCT.end(); ++l_Iter)
+    {
+        if (Powers((*l_Iter)->GetMiscValue()) == p_Power)
+            l_HastePct += (*l_Iter)->GetAmount() / 100.0f;
+    }
+
+    return l_BaseRegen - (l_BaseRegen * l_HastePct);
 }
 
 void Player::_ApplyAllStatBonuses()

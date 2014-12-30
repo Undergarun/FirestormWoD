@@ -3463,6 +3463,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 157174: // Elemental Fusion
                 spellInfo->ProcCharges = 1;
                 break;
+            case 77442: ///< Focus
+                spellInfo->Effects[0].Effect = 0;
+                spellInfo->Effects[0].ApplyAuraName = 0;
+                break;
             case 162537:///< Poisoned Ammo
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_PROC_TRIGGER_SPELL;
                 break;
