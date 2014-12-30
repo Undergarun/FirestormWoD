@@ -108,6 +108,7 @@ set_property(TARGET shared PROPERTY FOLDER "server")
 
 target_link_libraries(shared
   ${ACE_LIBRARY}
+  ${CURL_LIBRARY}
 )
 
 # Generate precompiled header

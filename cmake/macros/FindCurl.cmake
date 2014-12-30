@@ -10,9 +10,11 @@
 
 # http://curl.haxx.se/
 
-SET(_CURL_ROOT_HINTS "C:/LibCurl/")
+SET(_CURL_ROOT_HINTS "${CMAKE_SOURCE_DIR}/dep/curl/")
 
-SET(_CURL_ROOT_PATHS "C:/LibCurl/")
+SET(_CURL_ROOT_PATHS "${CMAKE_SOURCE_DIR}/dep/curl/")
+
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${_CURL_ROOT_HINTS}/lib/ ) 
 
 FIND_PATH(CURL_ROOT_DIR
   NAMES
@@ -32,10 +34,9 @@ FIND_PATH(CURL_INCLUDE_DIR curl/curl.h
 IF(WIN32)
     FIND_LIBRARY(CURL_LIBRARIES
       NAMES
-        libcurl
+        libcurl curl curl_a libcurl_a
       PATHS
-        ${CURL_ROOT_DIR}/lib64
-        ${CURL_ROOT_DIR}/bin
+        ${CURL_ROOT_DIR}/lib
     )
 
     MARK_AS_ADVANCED(CURL_LIBRARIES)

@@ -8,14 +8,16 @@ namespace MS
     namespace Reporting
     {
         ReportWorker::ReportWorker(std::string const&& p_Address)
-            :
-            m_Address(p_Address)
+            : m_Address(p_Address)
         {
         }
 
         ReportWorker::~ReportWorker()
         {
         }
+
+        //////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////
 
         bool ReportWorker::ProcessReporting()
         {

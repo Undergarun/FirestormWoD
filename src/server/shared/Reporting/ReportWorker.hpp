@@ -1,6 +1,7 @@
 #ifndef REPORT_WORKER_HPP
 # define REPORT_WORKER_HPP
 
+# define CURL_STATICLIB
 # include <curl/curl.h>
 
 namespace MS

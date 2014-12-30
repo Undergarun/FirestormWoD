@@ -7,15 +7,12 @@ namespace MS
 {
     namespace Reporting
     {
-        namespace ReportType
+        enum ReportType
         {
-            enum ReportType
-            {
-                CharacterCreation,
-            };
-        }
+            CharacterCreation,
+        };
 
-        template <uint32_t ReportType>
+        template <uint32_t ReportType> 
         class MakeReport
         {
         public:
@@ -26,28 +23,22 @@ namespace MS
             }
         };
 
+        //// Craft a "CharacterCreation" report
+        /// @p_Arg0 : Account ID (expect uint32_t)
+        /// @p_Arg1 : TimeStamp (expect uint32_t)
         template <>
         template <typename... Args>
         static ByteBuffer MakeReport<ReportType::CharacterCreation>::Craft(Args... p_Args)
         {
+            static_assert(sizeof... (p_Args) == 2);
             auto&& l_DeveloppedArgs = std::forward_as_tuple(p_Args...);
 
             ByteBuffer l_Buffer;
-            l_Buffer << std::get<0>(l_DeveloppedArgs); // AccountId.
-            l_Buffer << std::get<1>(l_DeveloppedArgs); // Time.
+            l_Buffer << static_cast<uint32_t>(std::get<0>(l_DeveloppedArgs)); // AccountId.
+            l_Buffer << static_cast<uint32_t>(std::get<1>(l_DeveloppedArgs)); // TimeStamp.
 
             return l_Buffer;
         }
-
-        /*template <int, typename... Args>
-        static ByteBuffer MakeReport<int, Args>(Args... p_Args)
-        {
-            ByteBuffer l_Buffer;
-            l_Buffer << std::get<0>(p_Args); // AccountId.
-            l_Buffer << std::get<1>(p_Args); // Time.
-
-            return l_Buffer;
-        }*/
     }
 }
 

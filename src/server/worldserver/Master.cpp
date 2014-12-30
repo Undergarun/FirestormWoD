@@ -610,7 +610,7 @@ int Master::Run()
 
         // Thread which repeat reporting.
         sLog->outInfo(LOG_FILTER_WORLDSERVER, "REPORTER: Creating worker.");
-        MS::Reporting::ReportWorker l_ReportWorker({ "0.0.0.0" });
+        MS::Reporting::ReportWorker l_ReportWorker(ConfigMgr::GetStringDefault("ReporterAddress", "localhost:3000"));
         while (!World::IsStopped())
         {
             if (!l_ReportWorker.ProcessReporting())

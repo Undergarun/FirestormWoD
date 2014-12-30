@@ -779,8 +779,8 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
             }
 
             {
-                using namespace MS::Reporting;
-                sReporter->Report(MakeReport<ReportType::CharacterCreation>::Craft(GetAccountId(), time(NULL)));
+                using namespace MS;
+                sReporter->Report(Reporting::MakeReport<Reporting::CharacterCreation>::Craft(GetAccountId(), time(NULL)));
             }
 
             Player newChar(this);
