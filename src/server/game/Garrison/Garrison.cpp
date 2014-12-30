@@ -187,7 +187,7 @@ uint32 GarrisonFollower::EarnXP(uint32 p_XP)
     }
 
     if (!l_LevelData)
-        return;
+        return 0;
 
     if (Level < GARRISON_MAX_FOLLOWER_LEVEL)
     {

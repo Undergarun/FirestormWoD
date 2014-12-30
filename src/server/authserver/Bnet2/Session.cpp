@@ -765,7 +765,7 @@ namespace BNet2 {
         }
 
         if (!l_RealmRequested)
-            return;
+            return false;
 
         uint8 l_LockStatus = (l_RealmRequested->allowedSecurityLevel > m_AccountSecurityLevel) ? 1 : 0;
 
