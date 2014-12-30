@@ -12628,9 +12628,19 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                     case 19434: // Aimed Shot
                     case 82928: // Aimed Shot (Master Marksman)
                     case 56641: // Steady Shot
+                    {
                         if (HasAura(34483)) // Careful Aim
-                            if (victim->GetHealthPct() > 80.0f)
+                        {
+                            ///< Increases the critical strike chance of your Steady Shot, Focusing Shot, and Aimed Shot
+                            ///< by 60% on targets who are above 80% health...
+                            ///< ... or while Rapid Fire is active.
+                            if (victim->GetHealthPct() > 80.0f || HasAura(3045))
                                 crit_chance += 75.0f;
+                        }
+
+                        break;
+                    }
+                    default:
                         break;
                 }
             }
