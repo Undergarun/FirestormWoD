@@ -37,7 +37,7 @@ enum PriestSpells
     PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD         = 33202,
     PRIEST_SHADOW_WORD_DEATH                        = 32409,
     PRIEST_LEAP_OF_FAITH                            = 73325,
-    PRIEST_LEAP_OF_FAITH_JUMP                       = 110726,
+    PRIEST_LEAP_OF_FAITH_JUMP                       = 97817,
     PRIEST_SPELL_HALO_HEAL_SHADOW                   = 120696,
     PRIEST_SPELL_HALO_HEAL_HOLY                     = 120692,
 
@@ -1857,9 +1857,9 @@ class spell_pri_leap_of_faith: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* _player = GetCaster())
-                    if (Unit* target = GetHitUnit())
-                        target->CastSpell(_player, PRIEST_LEAP_OF_FAITH_JUMP, true);
+                if (Unit* l_Player = GetCaster())
+                    if (Unit* l_Target = GetHitUnit())
+                        l_Target->CastSpell(l_Player, PRIEST_LEAP_OF_FAITH_JUMP, true);
             }
 
             void Register()

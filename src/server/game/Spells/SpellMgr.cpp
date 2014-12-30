@@ -4721,6 +4721,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 123811:// Pheromones of Zeal
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_DEST_AREA_ENTRY;
                 break;
+            case 97817:// Leap of Faith
+                spellInfo->Effects[0].TargetA = TARGET_DEST_TARGET_FRONT;
+                break;
             case 122706:// Noise Cancelling
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
                 spellInfo->Effects[0].BasePoints = 60;
