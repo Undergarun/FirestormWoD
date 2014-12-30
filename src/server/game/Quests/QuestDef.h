@@ -222,6 +222,16 @@ enum QuestObjectiveType
     QUEST_OBJECTIVE_TYPE_END
 };
 
+enum class QuestRewardItemBonus : uint32
+{
+    UncommunToRare  = 171,
+    UncommunToEpic  = 15,
+    RareToEpic      = 545
+};
+
+const float gQuestRewardBonusRareChanceRange[2] = { 0.f,    10.f };    ///< Range 0-10
+const float gQuestRewardBonusEpicChanceRange[2] = { 10.01f, 20.0f};    ///< Range 10.01-20
+
 struct QuestLocale
 {
     QuestLocale() { }

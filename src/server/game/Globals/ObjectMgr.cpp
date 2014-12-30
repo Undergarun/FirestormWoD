@@ -3095,7 +3095,7 @@ void ObjectMgr::LoadItemSpecsOverride()
             continue;
 
         ItemTemplate& itemTemplate = _itemTemplateStore[specInfo->itemEntry];
-        itemTemplate.AddSpec((SpecIndex)specInfo->itemEntry);
+        itemTemplate.AddSpec((SpecIndex)specInfo->specID);
         l_Count++;
     }
 

@@ -16722,7 +16722,7 @@ void Player::SendItemDurations()
         (*itr)->SendTimeUpdate(this);
 }
 
-void Player::SendDisplayToast(uint32 p_Entry, uint32 p_Count, DisplayToastMethod p_Method, ToastTypes p_Type, bool p_BonusRoll, bool p_Mailed)
+void Player::SendDisplayToast(uint32 p_Entry, uint32 p_Count, DisplayToastMethod p_Method, ToastTypes p_Type, bool p_BonusRoll, bool p_Mailed, std::vector<uint32> const& p_ItemBonus)
 {
     ItemTemplate const* l_ItemTpl = sObjectMgr->GetItemTemplate(p_Entry);
 
@@ -16736,7 +16736,6 @@ void Player::SendDisplayToast(uint32 p_Entry, uint32 p_Count, DisplayToastMethod
 
     l_Data.WriteBit(p_BonusRoll);
     l_Data.WriteBits(p_Type, 2);
-    l_Data.FlushBits();
 
     if (p_Type == TOAST_TYPE_NEW_ITEM)
     {
@@ -16746,13 +16745,29 @@ void Player::SendDisplayToast(uint32 p_Entry, uint32 p_Count, DisplayToastMethod
         l_Data << uint32(p_Entry);
         l_Data << uint32(l_ItemTpl->RandomSuffix);
         l_Data << uint32(l_ItemTpl->RandomProperty);
-        l_Data.WriteBit(false);
-        l_Data.WriteBit(false);
+        l_Data.WriteBit(p_ItemBonus.size() != 0);                         ///< HasBonus
+        l_Data.WriteBit(false);                                           ///< HasContext
         l_Data.FlushBits();
+
+        /// - Context struct
+        {
+            // @TODO
+        }
+
+        /// - Bonus struct
+        if (p_ItemBonus.size() != 0)
+        {
+            l_Data << uint8(0);                                         ///< Unk
+            l_Data << uint32(p_ItemBonus.size());
+            for (auto& l_BonusId : p_ItemBonus)
+                l_Data << uint32(l_BonusId);
+        }
 
         l_Data << uint32(GetLootSpecId());
         l_Data << uint32(0);                        // Unk
     }
+    else
+        l_Data.FlushBits();
 
     if (p_Type == TOAST_TYPE_NEW_CURRENCY)
         l_Data << uint32(p_Entry);
@@ -16760,7 +16775,7 @@ void Player::SendDisplayToast(uint32 p_Entry, uint32 p_Count, DisplayToastMethod
     GetSession()->SendPacket(&l_Data);
 }
 
-void Player::SendNewItem(Item* item, uint32 p_Quantity, bool received, bool created, bool broadcast)
+void Player::SendNewItem(Item* item, uint32 p_Quantity, bool received, bool created, bool broadcast, std::vector<uint32> const& p_ItemBonus)
 {
     if (!item)                                              // prevent crash
         return;
@@ -16773,9 +16788,23 @@ void Player::SendNewItem(Item* item, uint32 p_Quantity, bool received, bool crea
     data << uint32(item->GetEntry());                       ///< Item ID
     data << uint32(item->GetItemSuffixFactor());            ///< Random Properties Seed
     data << uint32(item->GetItemRandomPropertyId());        ///< Random Properties ID
-    data.WriteBit(false);                                   ///< Has Item Bonus
+    data.WriteBit(p_ItemBonus.size() != 0);                 ///< Has Item Bonus
     data.WriteBit(false);                                   ///< Has Modifications
     data.FlushBits();
+
+    // Context
+    {
+    }
+
+    // Item bonus
+    if (p_ItemBonus.size() != 0)
+    {
+        data << uint8(0);                                         ///< Unk
+        data << uint32(p_ItemBonus.size());
+        for (auto& l_BonusId : p_ItemBonus)
+            data << uint32(l_BonusId);
+    }
+
     data << uint32(0);
     data << uint32(p_Quantity);                             ///< Quantity
     data << uint32(GetItemCount(item->GetEntry()));         ///< count of items in inventory
@@ -17825,7 +17854,50 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
             if (CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Dest, l_DynamicReward->ItemId, l_DynamicReward->Count) == EQUIP_ERR_OK)
             {
                 Item* l_Item = StoreNewItem(l_Dest, l_DynamicReward->ItemId, true, Item::GenerateItemRandomPropertyId(l_DynamicReward->ItemId));
-                SendNewItem(l_Item, l_DynamicReward->Count, true, false);
+
+                /// - If quest is WoD quest & item is stuff, there is a chance player get bonus on the item
+                if (l_Item->IsStuffItem())
+                {
+                    AreaTableEntry const* l_AreaTable = GetAreaEntryByAreaID(p_Quest->GetZoneOrSort());
+                    if (l_AreaTable != nullptr)
+                    {
+                        MapEntry const* l_Map = sMapStore.LookupEntry(l_AreaTable->ContinentID);
+                        if (l_Map != nullptr
+                            && l_Map->Expansion() == Expansion::EXPANSION_WARLORDS_OF_DRAENOR)
+                        {
+                            float l_Roll = frand(0.f, 100.f);
+                            //bool  l_SendDisplayToast = false;
+
+                            // If item is uncommon & chance match, add uncommun to rare modifier
+                            if (l_ItemTemplate->Quality == ItemQualities::ITEM_QUALITY_UNCOMMON
+                                && l_Roll > gQuestRewardBonusRareChanceRange[0] && l_Roll < gQuestRewardBonusRareChanceRange[1])
+                            {
+                                l_Item->AddItemBonus((uint32)QuestRewardItemBonus::UncommunToRare);
+                                //l_SendDisplayToast = true;
+                            }
+
+                            if (l_Roll > gQuestRewardBonusEpicChanceRange[0] && l_Roll < gQuestRewardBonusEpicChanceRange[1])
+                            {
+                                if (l_ItemTemplate->Quality == ItemQualities::ITEM_QUALITY_UNCOMMON)
+                                {
+                                    l_Item->AddItemBonus((uint32)QuestRewardItemBonus::UncommunToEpic);
+                                    //l_SendDisplayToast = true;
+                                }
+                                else if (l_ItemTemplate->Quality == ItemQualities::ITEM_QUALITY_RARE)
+                                {
+                                    l_Item->AddItemBonus((uint32)QuestRewardItemBonus::RareToEpic);
+                                    //l_SendDisplayToast = true;
+                                }
+                            }
+
+                            /// - Look like the client automaticaly display the popup without send display toast if bonus is sended in SMSG_PUSH_ITEM_RESULT
+                            //if (l_SendDisplayToast)
+                                //SendDisplayToast(l_ItemTemplate->ItemId, l_DynamicReward->Count, DisplayToastMethod::DISPLAY_TOAST_METHOD_LOOT, TOAST_TYPE_NEW_ITEM, false, false, l_Item->GetAllItemBonuses());
+                        }
+                    }
+                }
+
+                SendNewItem(l_Item, l_DynamicReward->Count, true, false, false, l_Item->GetAllItemBonuses());
             }
             break;
         }
