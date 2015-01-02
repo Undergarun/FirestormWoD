@@ -4446,9 +4446,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[3].BasePoints = 35;
                 break;
             case 165378: // Lethal Shots
-                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_CRIT_PCT;
-                break;
-            case 165380: // Sanctified Light
+            case 165380:// Sanctified Light
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_CRIT_PCT;
                 break;
             case 109306: // Thrill of the Hunt
