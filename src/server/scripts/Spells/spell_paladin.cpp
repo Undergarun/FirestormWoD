@@ -130,7 +130,8 @@ enum PaladinSpells
     PALADIN_SPELL_SAVED_BY_THE_LIGHT_SHIELD     = 157128,
     PALADIN_SPELL_GLYPH_OF_TEMPLAR_VERDICT      = 54926,
     PALADIN_SPELL_GLYPH_OF_TEMPLAR_VERDICT_PROC = 115668,
-    PALADIN_SPELL_GLYPH_OF_DIVINE_SHIELD        = 146956
+    PALADIN_SPELL_GLYPH_OF_DIVINE_SHIELD        = 146956,
+    PALADIN_SPELL_IMPROVED_DAYBREAK             = 157455
 };
 
 // Glyph of devotion aura - 146955
@@ -1558,8 +1559,17 @@ class spell_pal_holy_shock_heal: public SpellScriptLoader
                     {
                         if (l_Caster->HasAura(PALADIN_SPELL_DAYBREAK_PROC))
                         {
-                            int32 l_Heal = GetHitHeal();
-                            l_Target->CastCustomSpell(l_Target, PALADIN_SPELL_DAYBREAK_HEAL, &l_Heal, NULL, NULL, true, NULL, NULLAURA_EFFECT, l_Caster->GetGUID());
+                            int32 l_Heal = 0;
+
+                            SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(PALADIN_SPELL_DAYBREAK_PROC);
+                            SpellInfo const* l_SpellInfoImproved = sSpellMgr->GetSpellInfo(PALADIN_SPELL_IMPROVED_DAYBREAK);
+
+                            if (l_SpellInfo != nullptr)
+                                l_Heal = CalculatePct(GetHitHeal(), l_SpellInfo->Effects[EFFECT_0].BasePoints);
+                            if (l_Caster->HasAura(PALADIN_SPELL_IMPROVED_DAYBREAK) && l_SpellInfoImproved != nullptr)
+                                l_Heal = AddPct(l_Heal, l_SpellInfoImproved->Effects[EFFECT_0].BasePoints);
+
+                            l_Target->CastCustomSpell(l_Target, PALADIN_SPELL_DAYBREAK_HEAL, 0, &l_Heal, NULL, true);
                             l_Caster->RemoveAura(PALADIN_SPELL_DAYBREAK_PROC);
                         }
                     }

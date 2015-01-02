@@ -1919,25 +1919,6 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
             addhealth += int32(m_owner->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.35f * 0.5f);
             break;
         }
-        case 121129:// Daybreak
-        {
-            if (caster && unitTarget && caster->GetGUID() == unitTarget->GetGUID())
-                return;
-
-            uint32 count = 0;
-            for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
-                if (ihit->effectMask & (1 << effIndex))
-                    ++count;
-
-            count--; // Remove main target
-
-            if (count > 0)
-                addhealth /= count;
-
-            addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, effIndex, HEAL);
-
-            break;
-        }
         case 73921: // Healing Rain
         {
             addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, effIndex, HEAL);
