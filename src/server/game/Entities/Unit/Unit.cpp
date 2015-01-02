@@ -6742,12 +6742,16 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     if (!procSpell || !victim || !damage)
                         return false;
 
-                    int32 bp = int32(CalculatePct(damage, triggerAmount) / 6); // damage / tick_number
+                    int32 l_Bp = int32(CalculatePct(damage, triggerAmount) / 6); // damage / tick_number
 
-                    if (AuraEffectPtr bloodbath = victim->GetAuraEffect(113344, EFFECT_0))
-                        bp += bloodbath->GetAmount();
+                    if (AuraEffectPtr l_BloodbathInProgress = victim->GetAuraEffect(113344, EFFECT_0))
+                        l_Bp += l_BloodbathInProgress->GetAmount();
 
-                    CastCustomSpell(victim, 113344, &bp, NULL, NULL, true);
+                    CastSpell(victim, 113344, true); // Periodic Damage
+
+                    if (AuraEffectPtr l_BloodbathActual = victim->GetAuraEffect(113344, EFFECT_0))
+                        l_BloodbathActual->SetAmount(l_Bp);
+
                     CastSpell(victim, 147531, true); // Snare effect
 
                     // Should not be removed
