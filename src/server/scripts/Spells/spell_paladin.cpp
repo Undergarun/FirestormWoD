@@ -1231,10 +1231,10 @@ public:
                 if (Unit* l_Target = GetHitUnit())
                 {
                     int32 l_Power = l_Caster->GetPower(POWER_HOLY_POWER);
-                    if (l_Power > 2)
-                        l_Power = 2;
+                    if (l_Power > 3)
+                        l_Power = 3;
 
-                    SetHitHeal(GetHitHeal() / (std::max(1, 3 - l_Power)));
+                    SetHitHeal(GetHitHeal() / (std::max(1, 3 - l_Power + 1)));
 
                     if (l_Target->GetGUID() == l_Caster->GetGUID() && l_Caster->HasAura(PALADIN_SPELL_BASTION_OF_GLORY))
                     {
@@ -1278,16 +1278,16 @@ public:
     {
         PrepareSpellScript(spell_pal_word_of_glory_damage_SpellScript);
 
-        void HandleOnHit()
+        void HandleDamage(SpellEffIndex /*effIndex*/)
         {
             if (Unit* l_Player = GetCaster())
                 if (Unit* l_Target = GetHitUnit())
                 {
                     int32 l_Power = l_Player->GetPower(POWER_HOLY_POWER);
-                    if (l_Power > 2)
-                        l_Power = 2;
+                    if (l_Power > 3)
+                        l_Power = 3;
 
-                    SetHitDamage((l_Player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL) *  GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier) / (std::max(1, 3 - l_Power)));
+                    SetHitDamage(GetHitDamage() / (std::max(1, 3 - l_Power + 1)));
 
                     if (!l_Player->HasAura(PALADIN_SPELL_DIVINE_PURPOSE_AURA))
                         l_Player->ModifyPower(POWER_HOLY_POWER, -l_Power);
@@ -1296,7 +1296,7 @@ public:
 
         void Register()
         {
-            OnHit += SpellHitFn(spell_pal_word_of_glory_damage_SpellScript::HandleOnHit);
+            OnEffectHitTarget += SpellEffectFn(spell_pal_word_of_glory_damage_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
         }
     };
 
@@ -1316,11 +1316,19 @@ class spell_pal_word_of_glory: public SpellScriptLoader
         {
             PrepareSpellScript(spell_pal_word_of_glory_SpellScript);
 
+            int32 m_HolyPower;
+
             bool Validate()
             {
                 if (!sSpellMgr->GetSpellInfo(PALADIN_SPELL_WORD_OF_GLORY))
                     return false;
                 return true;
+            }
+
+            void HandleOnPrepare()
+            {
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                    m_HolyPower = l_Player->GetPower(POWER_HOLY_POWER);
             }
 
             void HandleOnHit()
@@ -1333,10 +1341,9 @@ class spell_pal_word_of_glory: public SpellScriptLoader
                             if ((l_Target->GetTypeId() != TYPEID_PLAYER && !l_Target->isPet()) || !l_Target->IsFriendlyTo(l_Player))
                                 l_Target = l_Player;
 
-                        int32 l_Power = l_Player->GetPower(POWER_HOLY_POWER);
-
-                        if (l_Power > 2)
-                            l_Power = 2;
+                        // Set HolyPower with value of OnPrepare because some Holy Power are consumed before OnHit and we need it for calculate
+                        // HolyPower are consume after it
+                        l_Player->SetPower(POWER_HOLY_POWER, m_HolyPower);
 
                         if (l_Target->IsFriendlyTo(l_Player))
                             l_Player->CastSpell(l_Target, PALADIN_SPELL_WORD_OF_GLORY_HEAL, true);
@@ -1349,7 +1356,9 @@ class spell_pal_word_of_glory: public SpellScriptLoader
 
                             if (l_Aura)
                             {
-                                l_Aura->GetEffect(0)->ChangeAmount(l_Aura->GetEffect(0)->GetAmount() * (l_Power));
+                                if (m_HolyPower > 3)
+                                    m_HolyPower = 3;
+                                l_Aura->GetEffect(0)->ChangeAmount(l_Aura->GetEffect(0)->GetAmount() * (m_HolyPower));
                                 l_Aura->SetNeedClientUpdateForTargets();
                             }
                         }
@@ -1359,6 +1368,7 @@ class spell_pal_word_of_glory: public SpellScriptLoader
 
             void Register()
             {
+                OnPrepare += SpellOnPrepareFn(spell_pal_word_of_glory_SpellScript::HandleOnPrepare);
                 OnHit += SpellHitFn(spell_pal_word_of_glory_SpellScript::HandleOnHit);
             }
         };
