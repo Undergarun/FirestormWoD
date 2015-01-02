@@ -1316,7 +1316,7 @@ class spell_pal_word_of_glory: public SpellScriptLoader
         {
             PrepareSpellScript(spell_pal_word_of_glory_SpellScript);
 
-            int32 m_HolyPower;
+            int32 m_HolyPower = 0;
 
             bool Validate()
             {
@@ -1325,10 +1325,10 @@ class spell_pal_word_of_glory: public SpellScriptLoader
                 return true;
             }
 
-            void HandleOnPrepare()
+            void HandleOnCast()
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
-                    m_HolyPower = l_Player->GetPower(POWER_HOLY_POWER);
+                if (Unit* l_Caster = GetCaster())
+                    m_HolyPower = l_Caster->GetPower(POWER_HOLY_POWER);
             }
 
             void HandleOnHit()
@@ -1368,7 +1368,7 @@ class spell_pal_word_of_glory: public SpellScriptLoader
 
             void Register()
             {
-                OnPrepare += SpellOnPrepareFn(spell_pal_word_of_glory_SpellScript::HandleOnPrepare);
+                OnCast += SpellCastFn(spell_pal_word_of_glory_SpellScript::HandleOnCast);
                 OnHit += SpellHitFn(spell_pal_word_of_glory_SpellScript::HandleOnHit);
             }
         };
@@ -1792,7 +1792,7 @@ class spell_pal_righteous_defense: public SpellScriptLoader
 };
 
 // Eternal Flame - 114163
-class spell_pal_eternal_flame: public SpellScriptLoader
+class spell_pal_eternal_flame : public SpellScriptLoader
 {
 public:
     spell_pal_eternal_flame() : SpellScriptLoader("spell_pal_eternal_flame") { }
@@ -1806,19 +1806,19 @@ public:
         SpellCastResult CheckCast()
         {
             if (Player* l_Player = GetCaster()->ToPlayer())
-                if (l_Player->GetPower(POWER_HOLY_POWER) < 1)
-                    return SPELL_FAILED_NO_POWER;
+            if (l_Player->GetPower(POWER_HOLY_POWER) < 1)
+                return SPELL_FAILED_NO_POWER;
 
             return SPELL_CAST_OK;
         }
 
-        void HandleBeforeHit()
+        void HandleOnCast()
         {
             if (Unit* l_Caster = GetCaster())
             {
                 m_PowerUsed = l_Caster->GetPower(POWER_HOLY_POWER);
-                if (m_PowerUsed > 2)
-                    m_PowerUsed = 2;
+                if (m_PowerUsed > 3)
+                    m_PowerUsed = 3;
             }
         }
 
@@ -1827,7 +1827,7 @@ public:
             if (Unit* l_Caster = GetCaster())
                 if (Unit* l_Target = GetHitUnit())
                 {
-                    SetHitHeal(GetHitHeal() / (std::max(1, 3 - m_PowerUsed)));
+                    SetHitHeal(GetHitHeal() / (std::max(1, 3 - m_PowerUsed + 1)));
 
                     if (l_Target->GetGUID() == l_Caster->GetGUID() && l_Caster->HasAura(PALADIN_SPELL_BASTION_OF_GLORY))
                     {
@@ -1849,7 +1849,7 @@ public:
         void Register()
         {
             OnCheckCast += SpellCheckCastFn(spell_pal_eternal_flame_SpellScript::CheckCast);
-            BeforeHit += SpellHitFn(spell_pal_eternal_flame_SpellScript::HandleBeforeHit);
+            OnCast += SpellCastFn(spell_pal_eternal_flame_SpellScript::HandleOnCast);
             OnEffectHitTarget += SpellEffectFn(spell_pal_eternal_flame_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
         }
     };
@@ -2089,7 +2089,7 @@ public:
 
         int32 m_HolyPower = 0;
 
-        void HandleOnPrepare()
+        void HandleOnCast()
         {
             if (Player* l_Player = GetCaster()->ToPlayer())
                 m_HolyPower = l_Player->GetPower(POWER_HOLY_POWER);
@@ -2114,7 +2114,7 @@ public:
 
         void Register()
         {
-            OnPrepare += SpellOnPrepareFn(spell_pal_light_of_dawn_SpellScript::HandleOnPrepare);
+            OnCast += SpellCastFn(spell_pal_light_of_dawn_SpellScript::HandleOnCast);
             OnEffectHitTarget += SpellEffectFn(spell_pal_light_of_dawn_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
         }
     };
