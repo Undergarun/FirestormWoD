@@ -2077,8 +2077,57 @@ public:
     }
 };
 
+// Light of Dawn - 85222
+class spell_pal_light_of_dawn : public SpellScriptLoader
+{
+public:
+    spell_pal_light_of_dawn() : SpellScriptLoader("spell_pal_light_of_dawn") { }
+
+    class spell_pal_light_of_dawn_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pal_light_of_dawn_SpellScript);
+
+        int32 m_HolyPower = 0;
+
+        void HandleOnPrepare()
+        {
+            if (Player* l_Player = GetCaster()->ToPlayer())
+                m_HolyPower = l_Player->GetPower(POWER_HOLY_POWER);
+        }
+
+        void HandleHeal(SpellEffIndex /*effIndex*/)
+        {
+            if (Player* l_Player = GetCaster()->ToPlayer())
+            {
+                if (Unit* l_Target = GetHitUnit())
+                {
+                    l_Player->SetPower(POWER_HOLY_POWER, m_HolyPower);
+
+                    if (m_HolyPower > 3)
+                        m_HolyPower = 3;
+                   
+                    SetHitHeal(GetHitHeal() * m_HolyPower);
+                    l_Player->ModifyPower(POWER_HOLY_POWER, -m_HolyPower);
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnPrepare += SpellOnPrepareFn(spell_pal_light_of_dawn_SpellScript::HandleOnPrepare);
+            OnEffectHitTarget += SpellEffectFn(spell_pal_light_of_dawn_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pal_light_of_dawn_SpellScript();
+    }
+};
+
 void AddSC_paladin_spell_scripts()
 {
+    new spell_pal_light_of_dawn();
     new spell_pal_word_of_glory_damage();
     new spell_pal_word_of_glory_heal();
     new spell_pal_beacon_of_faith();
