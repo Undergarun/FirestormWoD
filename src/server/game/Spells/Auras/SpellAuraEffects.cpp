@@ -1325,25 +1325,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 
     }
 
-    // Eternal Flame
-    if (GetId() == 114163 && caster)
-    {
-        amount += int32(0.0585f * caster->SpellBaseDamageBonusDone(SpellSchoolMask(m_spellInfo->SchoolMask)));
-
-        int32 holyPower = caster->GetPower(POWER_HOLY_POWER) + 1;
-
-        if (holyPower > 3)
-            holyPower = 3;
-
-        // Divine Purpose
-        if (caster->HasAura(90174))
-            holyPower = 3;
-
-        amount *= holyPower;
-
-        caster->ModifyPower(POWER_HOLY_POWER, (holyPower > 1) ? (-(holyPower - 1)) : 0);
-    }
-
     if (DoneActualBenefit != 0.0f)
     {
         DoneActualBenefit *= caster->CalculateLevelPenalty(GetSpellInfo());

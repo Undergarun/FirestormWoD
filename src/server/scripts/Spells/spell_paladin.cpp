@@ -1232,10 +1232,10 @@ public:
                 if (Unit* l_Target = GetHitUnit())
                 {
                     int32 l_Power = l_Caster->GetPower(POWER_HOLY_POWER);
-                    if (l_Power > 3)
+                    if (l_Power > 3 || l_Caster->HasAura(PALADIN_SPELL_DIVINE_PURPOSE_AURA))
                         l_Power = 3;
 
-                    SetHitHeal(GetHitHeal() / (std::max(1, 3 - l_Power + 1)));
+                    SetHitHeal((GetHitHeal() / 3) * l_Power);
 
                     if (l_Target->GetGUID() == l_Caster->GetGUID() && l_Caster->HasAura(PALADIN_SPELL_BASTION_OF_GLORY))
                     {
@@ -1250,7 +1250,6 @@ public:
                             }
                         }
                     }
-
 
                     if (!l_Caster->HasAura(PALADIN_SPELL_DIVINE_PURPOSE_AURA))
                         l_Caster->ModifyPower(POWER_HOLY_POWER, -l_Power);
@@ -1285,10 +1284,10 @@ public:
                 if (Unit* l_Target = GetHitUnit())
                 {
                     int32 l_Power = l_Player->GetPower(POWER_HOLY_POWER);
-                    if (l_Power > 3)
+                    if (l_Power > 3 || l_Player->HasAura(PALADIN_SPELL_DIVINE_PURPOSE_AURA))
                         l_Power = 3;
 
-                    SetHitDamage(GetHitDamage() / (std::max(1, 3 - l_Power + 1)));
+                    SetHitDamage((GetHitDamage() / 3) * l_Power);
 
                     if (!l_Player->HasAura(PALADIN_SPELL_DIVINE_PURPOSE_AURA))
                         l_Player->ModifyPower(POWER_HOLY_POWER, -l_Power);
@@ -1357,8 +1356,9 @@ class spell_pal_word_of_glory: public SpellScriptLoader
 
                             if (l_Aura)
                             {
-                                if (m_HolyPower > 3)
+                                if (m_HolyPower > 3 || l_Player->HasAura(PALADIN_SPELL_DIVINE_PURPOSE_AURA))
                                     m_HolyPower = 3;
+
                                 l_Aura->GetEffect(0)->ChangeAmount(l_Aura->GetEffect(0)->GetAmount() * (m_HolyPower));
                                 l_Aura->SetNeedClientUpdateForTargets();
                             }
@@ -1552,7 +1552,7 @@ class spell_pal_holy_shock_heal: public SpellScriptLoader
         {
             PrepareSpellScript(spell_pal_holy_shock_heal_SpellScript);
 
-            void HandleOnHit()
+            void HandleHeal(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* l_Caster = GetCaster())
                     if (Unit* l_Target = GetHitUnit())
@@ -1577,7 +1577,7 @@ class spell_pal_holy_shock_heal: public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_pal_holy_shock_heal_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_pal_holy_shock_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
             }
         };
 
@@ -1816,8 +1816,8 @@ public:
         SpellCastResult CheckCast()
         {
             if (Player* l_Player = GetCaster()->ToPlayer())
-            if (l_Player->GetPower(POWER_HOLY_POWER) < 1)
-                return SPELL_FAILED_NO_POWER;
+                if (l_Player->GetPower(POWER_HOLY_POWER) < 1 && !l_Player->HasAura(PALADIN_SPELL_DIVINE_PURPOSE_AURA))
+                    return SPELL_FAILED_NO_POWER;
 
             return SPELL_CAST_OK;
         }
@@ -1825,11 +1825,7 @@ public:
         void HandleOnCast()
         {
             if (Unit* l_Caster = GetCaster())
-            {
                 m_PowerUsed = l_Caster->GetPower(POWER_HOLY_POWER);
-                if (m_PowerUsed > 3)
-                    m_PowerUsed = 3;
-            }
         }
 
         void HandleHeal(SpellEffIndex /*effIndex*/)
@@ -1837,8 +1833,12 @@ public:
             if (Unit* l_Caster = GetCaster())
                 if (Unit* l_Target = GetHitUnit())
                 {
-                    SetHitHeal(GetHitHeal() / (std::max(1, 3 - m_PowerUsed + 1)));
+                    l_Target->SetPower(POWER_HOLY_POWER, m_PowerUsed);
 
+                    if (m_PowerUsed > 3 || l_Caster->HasAura(PALADIN_SPELL_DIVINE_PURPOSE_AURA))
+                        m_PowerUsed = 3;
+
+                    SetHitHeal((GetHitHeal() / 3) * m_PowerUsed);
                     if (l_Target->GetGUID() == l_Caster->GetGUID() && l_Caster->HasAura(PALADIN_SPELL_BASTION_OF_GLORY))
                     {
                         if (AuraPtr l_Aura = l_Caster->GetAura(PALADIN_SPELL_BASTION_OF_GLORY))
@@ -1852,7 +1852,17 @@ public:
                             }
                         }
                     }
+
                     l_Caster->CastSpell(l_Target, PALADIN_SPELL_ETERNAL_FLAME_PERIODIC_HEAL, true);
+
+                    if (AuraPtr l_PeriodicHeal = l_Caster->GetAura(PALADIN_SPELL_ETERNAL_FLAME_PERIODIC_HEAL))
+                    {
+                        int32 l_Duration = (GetSpellInfo()->Effects[EFFECT_2].BasePoints / 3) * m_PowerUsed;
+                        l_PeriodicHeal->SetDuration(l_Duration * IN_MILLISECONDS);
+                    }
+
+                    if (!l_Caster->HasAura(PALADIN_SPELL_DIVINE_PURPOSE_AURA))
+                        l_Caster->ModifyPower(POWER_HOLY_POWER, -m_PowerUsed);
                 }
         }
 
@@ -1888,9 +1898,7 @@ public:
                 {
                     SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(PALADIN_SPELL_ETERNAL_FLAME);
 
-                    int32 l_Heal = 0;
-                    
-                    l_Heal = l_Owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL) * GetSpellInfo()->Effects[0].BonusMultiplier;
+                    int32 l_Heal = l_Owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL) * GetSpellInfo()->Effects[0].BonusMultiplier;
 
                     if (l_Owner->GetGUID() == l_Caster->GetGUID() && l_SpellInfo != nullptr)
                         AddPct(l_Heal, l_SpellInfo->Effects[1].BasePoints);
