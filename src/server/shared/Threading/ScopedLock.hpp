@@ -1,8 +1,6 @@
 #ifndef SCOPED_LOCK_HPP
 # define SCOPED_LOCK_HPP
 
-# include <mutex>
-
 namespace MS
 {
     namespace Threading

@@ -613,8 +613,7 @@ int Master::Run()
         MS::Reporting::ReportWorker l_ReportWorker(ConfigMgr::GetStringDefault("ReporterAddress", "localhost:3000"));
         while (!World::IsStopped())
         {
-            if (!l_ReportWorker.ProcessReporting())
-                break;
+            l_ReportWorker.ProcessReporting();
         }
     });
 

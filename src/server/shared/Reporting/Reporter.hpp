@@ -25,8 +25,9 @@ namespace MS
             Reporter();
 
             void Report(report_type const& p_Query);
+            void Fallback(report_pointer p_Query);
             bool HasReports() const;
-            report_pointer const&& Next();
+            report_pointer Next();
 
         private:
             std::queue<report_pointer> m_ReportQueue;

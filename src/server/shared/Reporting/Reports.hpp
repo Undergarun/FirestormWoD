@@ -30,10 +30,11 @@ namespace MS
         template <typename... Args>
         static ByteBuffer MakeReport<ReportType::CharacterCreation>::Craft(Args... p_Args)
         {
-            static_assert(sizeof... (p_Args) == 2);
+            static_assert(sizeof... (p_Args) == 2, "The number of arguments is not the one attended. Please give the right number of arguments.");
             auto&& l_DeveloppedArgs = std::forward_as_tuple(p_Args...);
 
             ByteBuffer l_Buffer;
+            l_Buffer << static_cast<uint32_t>(ReportType::CharacterCreation); // Opcode.
             l_Buffer << static_cast<uint32_t>(std::get<0>(l_DeveloppedArgs)); // AccountId.
             l_Buffer << static_cast<uint32_t>(std::get<1>(l_DeveloppedArgs)); // TimeStamp.
 
