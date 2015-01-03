@@ -26060,6 +26060,8 @@ void Player::SendInitialPacketsAfterAddToMap()
     SendAurasForTarget(this);
     SendEnchantmentDurations();                             // must be after add to map
     SendItemDurations();                                    // must be after add to map
+
+    CutOffItemLevel(false);
     RescaleAllItemsIfNeeded(true);
 
     AuraEffectList const& l_ModSpeedAuras = GetAuraEffectsByType(SPELL_AURA_MOD_SPEED_ALWAYS);
@@ -31106,7 +31108,7 @@ Stats Player::GetPrimaryStat() const
 
 uint32 Player::GetEquipItemLevelFor(ItemTemplate const* itemProto, Item const* item) const
 {
-    float ilvl = itemProto->ItemLevel;
+    uint32 ilvl = itemProto->ItemLevel;
 
     if (item)
         ilvl += item->GetItemLevelBonusFromItemBonuses();
@@ -31117,6 +31119,13 @@ uint32 Player::GetEquipItemLevelFor(ItemTemplate const* itemProto, Item const* i
     if (itemProto->PvPScalingLevel)
         if ((GetMap() && GetMap()->IsBattlegroundOrArena()) || IsInPvPCombat())
             ilvl += itemProto->PvPScalingLevel;
+
+    if (uint32 minItemLevel = GetUInt32Value(UNIT_FIELD_MIN_ITEM_LEVEL))
+        if (ilvl < minItemLevel && ilvl > GetUInt32Value(UNIT_FIELD_MIN_ITEM_LEVEL_CUTOFF))
+            ilvl = minItemLevel;
+
+    if (uint32 maxItemLevel = GetUInt32Value(UNIT_FIELD_MAX_ITEM_LEVEL))
+        ilvl = std::min(ilvl, maxItemLevel);
 
     return ilvl;
 }
@@ -31172,6 +31181,43 @@ void Player::RescaleAllItemsIfNeeded(bool p_KeepHPPct /* = false */)
 
         UpdateItemLevel();
     }
+}
+
+void Player::CutOffItemLevel(bool p_RescaleItems)
+{
+    Map* l_Map = GetMap();
+    if (!l_Map)
+        return;
+
+    uint32 l_StartsWith = 0, l_MinLevel = 0, l_MaxLevel = 0;
+
+    if (l_Map->IsBattlegroundOrArena())
+    {
+        l_StartsWith = sWorld->getIntConfig(CONFIG_PVP_ITEM_LEVEL_CUTOFF);
+        l_MinLevel = sWorld->getIntConfig(CONFIG_PVP_ITEM_LEVEL_MIN);
+        l_MaxLevel = sWorld->getIntConfig(CONFIG_PVP_ITEM_LEVEL_MAX);
+    }
+    else if (l_Map->GetDifficulty() == CHALLENGE_MODE_DIFFICULTY && l_Map->IsDungeon())
+    {
+        l_MaxLevel = sWorld->getIntConfig(CONFIG_CHALLENGE_MODE_ITEM_LEVEL_MAX);
+    }
+
+    UpdateItemLevelCutOff(l_StartsWith, l_MinLevel, l_MaxLevel, p_RescaleItems);
+}
+
+bool Player::UpdateItemLevelCutOff(uint32 p_StartsWith, uint32 p_MinLevel, uint32 p_MaxLevel, bool p_RescaleItems)
+{
+    if ((!p_MaxLevel && p_MinLevel > p_MaxLevel) || p_StartsWith > p_MaxLevel)
+        return false;
+
+    SetUInt32Value(UNIT_FIELD_MIN_ITEM_LEVEL_CUTOFF, p_StartsWith);
+    SetUInt32Value(UNIT_FIELD_MIN_ITEM_LEVEL, p_MinLevel);
+    SetUInt32Value(UNIT_FIELD_MAX_ITEM_LEVEL, p_MaxLevel);
+
+    if (p_RescaleItems)
+        RescaleAllItemsIfNeeded(true);
+
+    return true;
 }
 
 void Player::SetInPvPCombat(bool set)
