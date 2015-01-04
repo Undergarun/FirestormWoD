@@ -21765,7 +21765,6 @@ void Player::SaveToDB(bool create /*=false*/)
     CallBackPtr l_CharCreateCallback = nullptr;
     if (create)
     {
-
         l_CharCreateCallback = std::make_shared<Callback>([this](bool p_Success)
         {
             WorldPacket data(SMSG_CREATE_CHAR, 1);
