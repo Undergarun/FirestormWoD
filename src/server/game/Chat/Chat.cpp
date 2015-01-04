@@ -349,11 +349,10 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, co
         SetSentErrorMessage(false);
 
         bool l_CommandResult = false;
+        MS::SignalHandler::EnableThrowExceptionAtFailure();
         try
         {
-            MS::SignalHandler::EnableThrowExceptionAtFailure();
             l_CommandResult = (table[i].Handler)(this, table[i].Name[0] != '\0' ? text : oldtext);
-            MS::SignalHandler::DisableThrowExceptionAtFailure();
         }
         catch (std::exception&)
         {
@@ -362,6 +361,7 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, co
             // Disable the command
             table[i].SecurityLevel = (uint32)SpecificSecurityLevel::DisableByFailure;
         }
+        MS::SignalHandler::DisableThrowExceptionAtFailure();
 
         // table[i].Name == "" is special case: send original command to handler
         if (l_CommandResult)
