@@ -1695,7 +1695,7 @@ class spell_zorlok_exhale_damage : public SpellScriptLoader
                 if (targets.size() > 1)
                 {
                     // Select first target between Zor'lok and the Exhale target.
-                    WorldObject* nearestTarget = 0;
+                    WorldObject* nearestTarget = nullptr;
                     float distance = 1000.0f;
 
                     for (itr = targets.begin(); itr != targets.end(); ++itr)
@@ -1707,7 +1707,8 @@ class spell_zorlok_exhale_damage : public SpellScriptLoader
                         }
                     }
 
-                    if (nearestTarget != currentTarget)
+                    if (nearestTarget != nullptr
+                        && nearestTarget != currentTarget)
                     {
                         // Set Zor'lok's current Exhale target to that nearest player.
                         uint32 targetLowGuid = nearestTarget->GetGUIDLow();
