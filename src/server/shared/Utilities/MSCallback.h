@@ -7,12 +7,13 @@ namespace MS
 {
     namespace Util
     {
-        typedef std::function<void()> FuncCallBack;
+        typedef std::function<void(bool /*p_Sucess*/)>     FuncCallBack;
 
         enum class CallBackState : uint8
         {
             Waiting,
-            Ready
+            Fail,
+            Success
         };
 
         struct Callback
@@ -26,6 +27,8 @@ namespace MS
             FuncCallBack   m_CallBack;
             CallBackState  m_State;
         };
+
+        typedef std::shared_ptr<Callback>                  CallBackPtr;
     }
 }
 

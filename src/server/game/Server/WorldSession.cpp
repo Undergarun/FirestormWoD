@@ -354,6 +354,16 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     else
         m_VoteSyncTimer -= diff;
 
+    /// - Update transactions callback
+    m_TransactionCallbacks->remove_if([](CallBackPtr const& l_Callback)
+    {
+        if (l_Callback->m_State == CallBackState::Waiting)
+            return false;
+
+        l_Callback->m_CallBack(l_Callback->m_State == CallBackState::Success);
+        return true;
+    });
+
     /// Update Timeout timer.
     UpdateTimeOutTime(diff);
 

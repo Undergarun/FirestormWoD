@@ -872,15 +872,6 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
                 newChar.SetTemporaryUnsummonedPetNumber(pet_id);
             }
 
-            std::shared_ptr<MS::Util::Callback> l_CharCreateCallback = std::make_shared<MS::Util::Callback>([this]
-            {
-                WorldPacket data(SMSG_CREATE_CHAR, 1);
-                data << uint8(CHAR_CREATE_SUCCESS);
-                SendPacket(&data);
-            });
-
-            AddTransactionCallback(l_CharCreateCallback);
-
             std::string IP_str = GetRemoteAddress();
             sLog->outInfo(LOG_FILTER_CHARACTER, "Account: %d (IP: %s) Create Character:[%s] (GUID: %u)", GetAccountId(), IP_str.c_str(), createInfo->Name.c_str(), newChar.GetGUIDLow());
             sScriptMgr->OnPlayerCreate(&newChar);
