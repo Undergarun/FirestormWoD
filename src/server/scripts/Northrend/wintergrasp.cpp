@@ -454,7 +454,7 @@ class npc_wg_quest_giver : public CreatureScript
         }
 };
 
-class spell_wintergrasp_force_building : public SpellScriptLoader
+class spell_wintergrasp_force_building: public SpellScriptLoader
 {
     public:
         spell_wintergrasp_force_building() : SpellScriptLoader("spell_wintergrasp_force_building") { }
@@ -491,7 +491,7 @@ class spell_wintergrasp_force_building : public SpellScriptLoader
         }
 };
 
-class spell_wintergrasp_grab_passenger : public SpellScriptLoader
+class spell_wintergrasp_grab_passenger: public SpellScriptLoader
 {
     public:
         spell_wintergrasp_grab_passenger() : SpellScriptLoader("spell_wintergrasp_grab_passenger") { }
@@ -542,7 +542,7 @@ public:
     }
 };
 
-class spell_wintergrasp_defender_teleport : public SpellScriptLoader
+class spell_wintergrasp_defender_teleport: public SpellScriptLoader
 {
 public:
     spell_wintergrasp_defender_teleport() : SpellScriptLoader("spell_wintergrasp_defender_teleport") { }

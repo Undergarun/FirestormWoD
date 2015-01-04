@@ -28,7 +28,7 @@ EndScriptData */
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 
-class ban_commandscript : public CommandScript
+class ban_commandscript: public CommandScript
 {
 public:
     ban_commandscript() : CommandScript("ban_commandscript") { }

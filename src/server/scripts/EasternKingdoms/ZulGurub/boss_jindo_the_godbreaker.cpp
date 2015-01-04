@@ -476,7 +476,7 @@ class npc_jindo_spirit_portal : public CreatureScript
         };
 };
 
-class spell_jindo_shadow_spike_target : public SpellScriptLoader
+class spell_jindo_shadow_spike_target: public SpellScriptLoader
 {
     public:
         spell_jindo_shadow_spike_target() : SpellScriptLoader("spell_jindo_shadow_spike_target") { }
@@ -519,7 +519,7 @@ class SpiritPortalCheck
         uint32 i_entry;
 };
 
-class spell_jindo_summon_spirit_target : public SpellScriptLoader
+class spell_jindo_summon_spirit_target: public SpellScriptLoader
 {
     public:
         spell_jindo_summon_spirit_target() : SpellScriptLoader("spell_jindo_summon_spirit_target") { }
@@ -557,7 +557,7 @@ class spell_jindo_summon_spirit_target : public SpellScriptLoader
         }
 };
 
-class spell_jindo_spirit_warrior_gaze_target : public SpellScriptLoader
+class spell_jindo_spirit_warrior_gaze_target: public SpellScriptLoader
 {
     public:
         spell_jindo_spirit_warrior_gaze_target() : SpellScriptLoader("spell_jindo_spirit_warrior_gaze_target") { }

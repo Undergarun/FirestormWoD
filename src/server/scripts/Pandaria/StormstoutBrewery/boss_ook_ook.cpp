@@ -129,7 +129,7 @@ class npc_barrel : public CreatureScript
         };
 };
 
-class spell_ook_ook_barrel_ride : public SpellScriptLoader
+class spell_ook_ook_barrel_ride: public SpellScriptLoader
 {
     public:
         spell_ook_ook_barrel_ride() :  SpellScriptLoader("spell_ook_ook_barrel_ride") { }
@@ -157,7 +157,7 @@ class spell_ook_ook_barrel_ride : public SpellScriptLoader
         }
 };
 
-class spell_ook_ook_barrel : public SpellScriptLoader
+class spell_ook_ook_barrel: public SpellScriptLoader
 {
     public:
         spell_ook_ook_barrel() :  SpellScriptLoader("spell_ook_ook_barrel") { }

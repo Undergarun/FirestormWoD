@@ -465,7 +465,7 @@ class npc_precious_icc : public CreatureScript
         }
 };
 
-class spell_rotface_ooze_flood : public SpellScriptLoader
+class spell_rotface_ooze_flood: public SpellScriptLoader
 {
     public:
         spell_rotface_ooze_flood() : SpellScriptLoader("spell_rotface_ooze_flood") { }
@@ -515,7 +515,7 @@ class spell_rotface_ooze_flood : public SpellScriptLoader
         }
 };
 
-class spell_rotface_mutated_infection : public SpellScriptLoader
+class spell_rotface_mutated_infection: public SpellScriptLoader
 {
     public:
         spell_rotface_mutated_infection() : SpellScriptLoader("spell_rotface_mutated_infection") { }
@@ -575,7 +575,7 @@ class spell_rotface_mutated_infection : public SpellScriptLoader
         }
 };
 
-class spell_rotface_little_ooze_combine : public SpellScriptLoader
+class spell_rotface_little_ooze_combine: public SpellScriptLoader
 {
     public:
         spell_rotface_little_ooze_combine() : SpellScriptLoader("spell_rotface_little_ooze_combine") { }
@@ -607,7 +607,7 @@ class spell_rotface_little_ooze_combine : public SpellScriptLoader
         }
 };
 
-class spell_rotface_large_ooze_combine : public SpellScriptLoader
+class spell_rotface_large_ooze_combine: public SpellScriptLoader
 {
     public:
         spell_rotface_large_ooze_combine() : SpellScriptLoader("spell_rotface_large_ooze_combine") { }
@@ -667,7 +667,7 @@ class spell_rotface_large_ooze_combine : public SpellScriptLoader
         }
 };
 
-class spell_rotface_large_ooze_buff_combine : public SpellScriptLoader
+class spell_rotface_large_ooze_buff_combine: public SpellScriptLoader
 {
     public:
         spell_rotface_large_ooze_buff_combine() : SpellScriptLoader("spell_rotface_large_ooze_buff_combine") { }
@@ -722,7 +722,7 @@ class spell_rotface_large_ooze_buff_combine : public SpellScriptLoader
         }
 };
 
-class spell_rotface_unstable_ooze_explosion_init : public SpellScriptLoader
+class spell_rotface_unstable_ooze_explosion_init: public SpellScriptLoader
 {
     public:
         spell_rotface_unstable_ooze_explosion_init() : SpellScriptLoader("spell_rotface_unstable_ooze_explosion_init") { }
@@ -762,7 +762,7 @@ class spell_rotface_unstable_ooze_explosion_init : public SpellScriptLoader
         }
 };
 
-class spell_rotface_unstable_ooze_explosion : public SpellScriptLoader
+class spell_rotface_unstable_ooze_explosion: public SpellScriptLoader
 {
     public:
         spell_rotface_unstable_ooze_explosion() : SpellScriptLoader("spell_rotface_unstable_ooze_explosion") { }
@@ -799,7 +799,7 @@ class spell_rotface_unstable_ooze_explosion : public SpellScriptLoader
         }
 };
 
-class spell_rotface_unstable_ooze_explosion_suicide : public SpellScriptLoader
+class spell_rotface_unstable_ooze_explosion_suicide: public SpellScriptLoader
 {
     public:
         spell_rotface_unstable_ooze_explosion_suicide() : SpellScriptLoader("spell_rotface_unstable_ooze_explosion_suicide") { }
@@ -832,7 +832,7 @@ class spell_rotface_unstable_ooze_explosion_suicide : public SpellScriptLoader
         }
 };
 
-class spell_rotface_slime_spray : public SpellScriptLoader
+class spell_rotface_slime_spray: public SpellScriptLoader
 {
     public:
         spell_rotface_slime_spray() : SpellScriptLoader("spell_rotface_slime_spray") { }

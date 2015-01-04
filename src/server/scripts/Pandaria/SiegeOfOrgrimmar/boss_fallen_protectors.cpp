@@ -946,7 +946,7 @@ class mob_embodied_desperation : public CreatureScript
 };
 
 // Calamity - 143491
-class spell_calamity_aoe : public SpellScriptLoader
+class spell_calamity_aoe: public SpellScriptLoader
 {
     public:
         spell_calamity_aoe() : SpellScriptLoader("spell_calamity_aoe") { }

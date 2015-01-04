@@ -7,7 +7,7 @@ namespace MS
         class boss_Ranjit : public CreatureScript
         {
         public:
-            // Entry: 86238
+            // Entry: 75964
             boss_Ranjit()
                 : CreatureScript("boss_Ranjit")
             {
@@ -69,8 +69,19 @@ namespace MS
                     m_TriggerFourWinds[0] = 0;
                     m_TriggerFourWinds[1] = 0;
 
-                    if (instance)
-                        instance->SetBossState(Data::Ranjit, TO_BE_DECIDED);
+                    me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FEAR, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_ROOT, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FREEZE, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_POLYMORPH, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_HORROR, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SAPPED, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SNARE, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
+                    me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
                 }
 
                 void Reset()
@@ -162,9 +173,9 @@ namespace MS
                             events.ScheduleEvent(uint32(Events::LENS_FLARE), 14000);
                         break;
                     case uint32(Events::WINDWALL):
-                        events.ScheduleEvent(uint32(Events::WINDWALL), urand(13000, 14000));
+                        events.ScheduleEvent(uint32(Events::WINDWALL), urand(19000, 26000));
 
-                        if (Unit* l_Unit = InstanceSkyreach::SelectRandomPlayerIncludedTank(me, 40.0f))
+                        if (Unit* l_Unit = ScriptUtils::SelectRandomPlayerIncludedTank(me, 40.0f))
                             me->CastSpell(l_Unit, uint32(Spells::WINDWALL));
 
                         if (m_countWindwalls++ == 2)
@@ -176,11 +187,11 @@ namespace MS
                         break;
                     case uint32(Events::PIERCING_RUSH):
                         events.ScheduleEvent(uint32(Events::PIERCING_RUSH), urand(13000, 16000));
-                        if (Unit* l_Unit = InstanceSkyreach::SelectRandomPlayerExcludedTank(me, 40.0f))
-                            me->CastSpell(l_Unit, uint32(Spells::WINDWALL));
+                        if (Unit* l_Unit = ScriptUtils::SelectRandomPlayerExcludedTank(me, 40.0f))
+                            me->CastSpell(l_Unit, uint32(Spells::PIERCING_RUSH));
                         break;
                     case uint32(Events::LENS_FLARE):
-                        if (Player* l_Plr = InstanceSkyreach::SelectRandomPlayerIncludedTank(me, 80.0f))
+                        if (Player* l_Plr = ScriptUtils::SelectRandomPlayerIncludedTank(me, 80.0f))
                             l_Plr->CastSpell(l_Plr, uint32(Spells::LensFlare), true);
                         break;
                     default:

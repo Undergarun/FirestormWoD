@@ -28,7 +28,6 @@
 #include "ScriptedCreature.h"
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
-#include "AreaTriggerScript.h"
 
 AreaTrigger::AreaTrigger()
     : WorldObject(false),
@@ -234,9 +233,6 @@ void AreaTrigger::Update(uint32 p_Time)
         Remove(p_Time);
         return;
     }
-
-    Unit* l_Caster = GetCaster();
-    float l_Radius = 0.0f;
 
     sScriptMgr->OnUpdateAreaTriggerEntity(this, p_Time);
 

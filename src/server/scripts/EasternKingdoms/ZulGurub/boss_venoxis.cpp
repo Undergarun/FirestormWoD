@@ -434,7 +434,7 @@ class npc_venoxis_venoxis_pool_of_acid_tears : public CreatureScript
         };
 };
 
-class spell_venoxis_toxic_link : public SpellScriptLoader
+class spell_venoxis_toxic_link: public SpellScriptLoader
 {
     public:
         spell_venoxis_toxic_link() : SpellScriptLoader("spell_venoxis_toxic_link") { }
@@ -496,7 +496,7 @@ class spell_venoxis_toxic_link : public SpellScriptLoader
         }
 };
 
-class spell_venoxis_toxic_link_aura : public SpellScriptLoader
+class spell_venoxis_toxic_link_aura: public SpellScriptLoader
 {
     public:
         spell_venoxis_toxic_link_aura() : SpellScriptLoader("spell_venoxis_toxic_link_aura") { }
@@ -566,7 +566,7 @@ class ExactDistanceCheck
         float _dist;
 };
 
-class spell_venoxis_pool_of_acid_tears_dmg : public SpellScriptLoader
+class spell_venoxis_pool_of_acid_tears_dmg: public SpellScriptLoader
 {
     public:
         spell_venoxis_pool_of_acid_tears_dmg() : SpellScriptLoader("spell_venoxis_pool_of_acid_tears_dmg") { }

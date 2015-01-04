@@ -547,7 +547,7 @@ bool OutdoorPvP::HandleDropFlag(Player* player, uint32 id)
     return false;
 }
 
-bool OPvPCapturePoint::HandleGossipOption(Player* /*player*/, uint64 /*guid*/, uint32 /*id*/)
+bool OPvPCapturePoint::HandleGossipOption(Player* /*player*/, uint64 guid, uint32 id)
 {
     return false;
 }
@@ -557,7 +557,7 @@ bool OPvPCapturePoint::CanTalkTo(Player* /*player*/, Creature* /*c*/, GossipMenu
     return false;
 }
 
-bool OPvPCapturePoint::HandleDropFlag(Player* /*player*/, uint32 /*id*/)
+bool OPvPCapturePoint::HandleDropFlag(Player* /*player*/, uint32 id)
 {
     return false;
 }
@@ -689,11 +689,13 @@ void OutdoorPvP::OnGameObjectCreate(GameObject* go)
         cp->m_capturePoint = go;
 }
 
-void OutdoorPvP::OnGameObjectRemove(GameObject* go)
+void OutdoorPvP::OnGameObjectRemove(GameObject* p_Go)
 {
-    if (go->GetGoType() != GAMEOBJECT_TYPE_CONTROL_ZONE)
+    if (p_Go->GetGoType() != GAMEOBJECT_TYPE_CONTROL_ZONE)
         return;
 
-    if (OPvPCapturePoint *cp = GetCapturePoint(go->GetGUID()))
+    if (OPvPCapturePoint *cp = GetCapturePoint(p_Go->GetGUID()))
         cp->m_capturePoint = NULL;
+
+    ZoneScript::OnGameObjectRemove(p_Go);
 }

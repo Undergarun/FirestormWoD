@@ -301,7 +301,7 @@ class boss_valithria_dreamwalker : public CreatureScript
                 _events.Reset();
                 me->SetHealth(_spawnHealth);
                 me->SetReactState(REACT_PASSIVE);
-                me->LoadCreaturesAddon(true);
+                me->LoadCreaturesAddon();
                 // immune to percent heals
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_OBS_MOD_HEALTH, true);
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_HEAL_PCT, true);
@@ -1084,7 +1084,7 @@ class npc_dream_cloud : public CreatureScript
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_CHECK_PLAYER, 1000);
                 me->SetCorpseDelay(0);  // remove corpse immediately
-                me->LoadCreaturesAddon(true);
+                me->LoadCreaturesAddon();
             }
 
             void UpdateAI(uint32 const diff)
@@ -1131,7 +1131,7 @@ class npc_dream_cloud : public CreatureScript
         }
 };
 
-class spell_dreamwalker_mana_void : public SpellScriptLoader
+class spell_dreamwalker_mana_void: public SpellScriptLoader
 {
     public:
         spell_dreamwalker_mana_void() : SpellScriptLoader("spell_dreamwalker_mana_void") { }
@@ -1161,7 +1161,7 @@ class spell_dreamwalker_mana_void : public SpellScriptLoader
         }
 };
 
-class spell_dreamwalker_decay_periodic_timer : public SpellScriptLoader
+class spell_dreamwalker_decay_periodic_timer: public SpellScriptLoader
 {
     public:
         spell_dreamwalker_decay_periodic_timer() : SpellScriptLoader("spell_dreamwalker_decay_periodic_timer") { }
@@ -1199,7 +1199,7 @@ class spell_dreamwalker_decay_periodic_timer : public SpellScriptLoader
         }
 };
 
-class spell_dreamwalker_summoner : public SpellScriptLoader
+class spell_dreamwalker_summoner: public SpellScriptLoader
 {
     public:
         spell_dreamwalker_summoner() : SpellScriptLoader("spell_dreamwalker_summoner") { }
@@ -1248,7 +1248,7 @@ class spell_dreamwalker_summoner : public SpellScriptLoader
         }
 };
 
-class spell_dreamwalker_summon_suppresser : public SpellScriptLoader
+class spell_dreamwalker_summon_suppresser: public SpellScriptLoader
 {
     public:
         spell_dreamwalker_summon_suppresser() : SpellScriptLoader("spell_dreamwalker_summon_suppresser") { }
@@ -1289,7 +1289,7 @@ class spell_dreamwalker_summon_suppresser : public SpellScriptLoader
         }
 };
 
-class spell_dreamwalker_summon_suppresser_effect : public SpellScriptLoader
+class spell_dreamwalker_summon_suppresser_effect: public SpellScriptLoader
 {
     public:
         spell_dreamwalker_summon_suppresser_effect() : SpellScriptLoader("spell_dreamwalker_summon_suppresser_effect") { }
@@ -1326,7 +1326,7 @@ class spell_dreamwalker_summon_suppresser_effect : public SpellScriptLoader
         }
 };
 
-class spell_dreamwalker_summon_dream_portal : public SpellScriptLoader
+class spell_dreamwalker_summon_dream_portal: public SpellScriptLoader
 {
     public:
         spell_dreamwalker_summon_dream_portal() : SpellScriptLoader("spell_dreamwalker_summon_dream_portal") { }
@@ -1357,7 +1357,7 @@ class spell_dreamwalker_summon_dream_portal : public SpellScriptLoader
         }
 };
 
-class spell_dreamwalker_summon_nightmare_portal : public SpellScriptLoader
+class spell_dreamwalker_summon_nightmare_portal: public SpellScriptLoader
 {
     public:
         spell_dreamwalker_summon_nightmare_portal() : SpellScriptLoader("spell_dreamwalker_summon_nightmare_portal") { }
@@ -1388,7 +1388,7 @@ class spell_dreamwalker_summon_nightmare_portal : public SpellScriptLoader
         }
 };
 
-class spell_dreamwalker_nightmare_cloud : public SpellScriptLoader
+class spell_dreamwalker_nightmare_cloud: public SpellScriptLoader
 {
     public:
         spell_dreamwalker_nightmare_cloud() : SpellScriptLoader("spell_dreamwalker_nightmare_cloud") { }
@@ -1423,7 +1423,7 @@ class spell_dreamwalker_nightmare_cloud : public SpellScriptLoader
         }
 };
 
-class spell_dreamwalker_twisted_nightmares : public SpellScriptLoader
+class spell_dreamwalker_twisted_nightmares: public SpellScriptLoader
 {
     public:
         spell_dreamwalker_twisted_nightmares() : SpellScriptLoader("spell_dreamwalker_twisted_nightmares") { }

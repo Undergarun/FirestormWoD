@@ -240,6 +240,9 @@ class boss_sindragosa : public CreatureScript
             {
                 BossAI::JustDied(killer);
                 Talk(SAY_DEATH);
+
+                if (instance)
+                    instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ICE_TOMB_DAMAGE);
             }
 
             void EnterCombat(Unit* victim)
@@ -257,6 +260,9 @@ class boss_sindragosa : public CreatureScript
                 DoCast(me, SPELL_FROST_AURA);
                 DoCast(me, SPELL_PERMAEATING_CHILL);
                 Talk(SAY_AGGRO);
+
+                if (instance)
+                    instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ICE_TOMB_DAMAGE);
             }
 
             void JustReachedHome()
@@ -1097,7 +1103,7 @@ class npc_sindragosa_trash : public CreatureScript
         }
 };
 
-class spell_sindragosa_s_fury : public SpellScriptLoader
+class spell_sindragosa_s_fury: public SpellScriptLoader
 {
     public:
         spell_sindragosa_s_fury() : SpellScriptLoader("spell_sindragosa_s_fury") { }
@@ -1184,7 +1190,7 @@ class UnchainedMagicTargetSelector
         }
 };
 
-class spell_sindragosa_unchained_magic : public SpellScriptLoader
+class spell_sindragosa_unchained_magic: public SpellScriptLoader
 {
     public:
         spell_sindragosa_unchained_magic() : SpellScriptLoader("spell_sindragosa_unchained_magic") { }
@@ -1213,7 +1219,7 @@ class spell_sindragosa_unchained_magic : public SpellScriptLoader
         }
 };
 
-class spell_sindragosa_instability : public SpellScriptLoader
+class spell_sindragosa_instability: public SpellScriptLoader
 {
     public:
         spell_sindragosa_instability() : SpellScriptLoader("spell_sindragosa_instability") { }
@@ -1247,7 +1253,7 @@ class spell_sindragosa_instability : public SpellScriptLoader
         }
 };
 
-class spell_sindragosa_frost_beacon : public SpellScriptLoader
+class spell_sindragosa_frost_beacon: public SpellScriptLoader
 {
     public:
         spell_sindragosa_frost_beacon() : SpellScriptLoader("spell_sindragosa_frost_beacon") { }
@@ -1282,7 +1288,7 @@ class spell_sindragosa_frost_beacon : public SpellScriptLoader
         }
 };
 
-class spell_sindragosa_ice_tomb : public SpellScriptLoader
+class spell_sindragosa_ice_tomb: public SpellScriptLoader
 {
     public:
         spell_sindragosa_ice_tomb() : SpellScriptLoader("spell_sindragosa_ice_tomb_trap") { }
@@ -1347,7 +1353,7 @@ class spell_sindragosa_ice_tomb : public SpellScriptLoader
         }
 };
 
-class spell_sindragosa_icy_grip : public SpellScriptLoader
+class spell_sindragosa_icy_grip: public SpellScriptLoader
 {
     public:
         spell_sindragosa_icy_grip() : SpellScriptLoader("spell_sindragosa_icy_grip") { }
@@ -1411,7 +1417,7 @@ class MysticBuffetTargetFilter
         Unit* _caster;
 };
 
-class spell_sindragosa_mystic_buffet : public SpellScriptLoader
+class spell_sindragosa_mystic_buffet: public SpellScriptLoader
 {
     public:
         spell_sindragosa_mystic_buffet() : SpellScriptLoader("spell_sindragosa_mystic_buffet") { }
@@ -1437,7 +1443,7 @@ class spell_sindragosa_mystic_buffet : public SpellScriptLoader
         }
 };
 
-class spell_rimefang_icy_blast : public SpellScriptLoader
+class spell_rimefang_icy_blast: public SpellScriptLoader
 {
     public:
         spell_rimefang_icy_blast() : SpellScriptLoader("spell_rimefang_icy_blast") { }
@@ -1489,7 +1495,7 @@ class OrderWhelpTargetSelector
         Creature* _owner;
 };
 
-class spell_frostwarden_handler_order_whelp : public SpellScriptLoader
+class spell_frostwarden_handler_order_whelp: public SpellScriptLoader
 {
     public:
         spell_frostwarden_handler_order_whelp() : SpellScriptLoader("spell_frostwarden_handler_order_whelp") { }
@@ -1544,7 +1550,7 @@ class spell_frostwarden_handler_order_whelp : public SpellScriptLoader
         }
 };
 
-class spell_frostwarden_handler_focus_fire : public SpellScriptLoader
+class spell_frostwarden_handler_focus_fire: public SpellScriptLoader
 {
     public:
         spell_frostwarden_handler_focus_fire() : SpellScriptLoader("spell_frostwarden_handler_focus_fire") { }

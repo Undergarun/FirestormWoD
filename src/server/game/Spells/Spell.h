@@ -436,13 +436,14 @@ public:
     void EffectDestroyItem(SpellEffIndex effIndex);
     void EffectUnlearnTalent(SpellEffIndex effIndex);
     void EffectCreateAreatrigger(SpellEffIndex effIndex);
-    int32 CalculateMonkMeleeAttacks(Unit* caster, float coeff, int32 APmultiplier);
     void EffectResurrectWithAura(SpellEffIndex effIndex);
     void EffectLootBonus(SpellEffIndex p_EffIndex);
     void EffectTeleportToDigsite(SpellEffIndex effIndex);
     void EffectPlaySceneObject(SpellEffIndex effIndex);
     void EffectLearnBluePrint(SpellEffIndex p_EffIndex);
     void EffectGarrisonFinalize(SpellEffIndex p_EffIndex);
+    void EffectObtainFollower(SpellEffIndex p_EffIndex);
+    void EffectUpgradeFolloweriLvl(SpellEffIndex p_EffIndex);
     void EffectResurectPetBattles(SpellEffIndex effIndex);
     void EffectUncagePetBattle(SpellEffIndex effIndex);
     void EffectCanPetBattle(SpellEffIndex effIndex);
@@ -451,7 +452,7 @@ public:
     void EffectBecomeUntargettable(SpellEffIndex p_EffIndex);
     void EffectDespawnAreaTrigger(SpellEffIndex p_EffIndex);
     void EffectRandomizeArchaeologyDigsites(SpellEffIndex p_EffIndex);
-    void EffectSummonMultipleHunterPets(SpellEffIndex p_EffIndex);
+    void EffectStampede(SpellEffIndex p_EffIndex);
 
     typedef std::set<AuraPtr> UsedSpellMods;
 

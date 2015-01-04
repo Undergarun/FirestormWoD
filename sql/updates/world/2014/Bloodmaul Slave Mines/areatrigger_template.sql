@@ -1,0 +1,1 @@
+UPDATE areatrigger_template SET ScriptName='AreaTrigger_SuppresionField' where spell_id=151582;

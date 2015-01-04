@@ -94,6 +94,11 @@
 #include <ace/RW_Thread_Mutex.h>
 #include <ace/Thread_Mutex.h>
 
+// To remove later, when VS will support thread_local (c++x11)
+#if PLATFORM == PLATFORM_WINDOWS
+#define thread_local  __declspec(thread)
+#endif
+
 #if PLATFORM == PLATFORM_WINDOWS
 #  include <ace/config-all.h>
 // XP winver - needed to compile with standard leak check in MemoryLeaks.h

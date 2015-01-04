@@ -1389,7 +1389,7 @@ class npc_dark_nucleus : public CreatureScript
         }
 };
 
-class spell_taldaram_glittering_sparks : public SpellScriptLoader
+class spell_taldaram_glittering_sparks: public SpellScriptLoader
 {
     public:
         spell_taldaram_glittering_sparks() : SpellScriptLoader("spell_taldaram_glittering_sparks") { }
@@ -1416,7 +1416,7 @@ class spell_taldaram_glittering_sparks : public SpellScriptLoader
         }
 };
 
-class spell_taldaram_summon_flame_ball : public SpellScriptLoader
+class spell_taldaram_summon_flame_ball: public SpellScriptLoader
 {
     public:
         spell_taldaram_summon_flame_ball() : SpellScriptLoader("spell_taldaram_summon_flame_ball") { }
@@ -1443,7 +1443,7 @@ class spell_taldaram_summon_flame_ball : public SpellScriptLoader
         }
 };
 
-class spell_taldaram_flame_ball_visual : public SpellScriptLoader
+class spell_taldaram_flame_ball_visual: public SpellScriptLoader
 {
     public:
         spell_taldaram_flame_ball_visual() : SpellScriptLoader("spell_taldaram_flame_ball_visual") { }
@@ -1487,7 +1487,7 @@ class spell_taldaram_flame_ball_visual : public SpellScriptLoader
         }
 };
 
-class spell_taldaram_ball_of_inferno_flame : public SpellScriptLoader
+class spell_taldaram_ball_of_inferno_flame: public SpellScriptLoader
 {
     public:
         spell_taldaram_ball_of_inferno_flame() : SpellScriptLoader("spell_taldaram_ball_of_inferno_flame") { }
@@ -1514,7 +1514,7 @@ class spell_taldaram_ball_of_inferno_flame : public SpellScriptLoader
         }
 };
 
-class spell_valanar_kinetic_bomb : public SpellScriptLoader
+class spell_valanar_kinetic_bomb: public SpellScriptLoader
 {
     public:
         spell_valanar_kinetic_bomb() : SpellScriptLoader("spell_valanar_kinetic_bomb") { }
@@ -1574,7 +1574,7 @@ class spell_valanar_kinetic_bomb : public SpellScriptLoader
         }
 };
 
-class spell_valanar_kinetic_bomb_knockback : public SpellScriptLoader
+class spell_valanar_kinetic_bomb_knockback: public SpellScriptLoader
 {
     public:
         spell_valanar_kinetic_bomb_knockback() : SpellScriptLoader("spell_valanar_kinetic_bomb_knockback") { }
@@ -1601,7 +1601,7 @@ class spell_valanar_kinetic_bomb_knockback : public SpellScriptLoader
         }
 };
 
-class spell_valanar_kinetic_bomb_absorb : public SpellScriptLoader
+class spell_valanar_kinetic_bomb_absorb: public SpellScriptLoader
 {
     public:
         spell_valanar_kinetic_bomb_absorb() : SpellScriptLoader("spell_valanar_kinetic_bomb_absorb") { }
@@ -1629,7 +1629,7 @@ class spell_valanar_kinetic_bomb_absorb : public SpellScriptLoader
         }
 };
 
-class spell_blood_council_shadow_prison : public SpellScriptLoader
+class spell_blood_council_shadow_prison: public SpellScriptLoader
 {
     public:
         spell_blood_council_shadow_prison() : SpellScriptLoader("spell_blood_council_shadow_prison") { }
@@ -1656,7 +1656,7 @@ class spell_blood_council_shadow_prison : public SpellScriptLoader
         }
 };
 
-class spell_blood_council_shadow_prison_damage : public SpellScriptLoader
+class spell_blood_council_shadow_prison_damage: public SpellScriptLoader
 {
     public:
         spell_blood_council_shadow_prison_damage() : SpellScriptLoader("spell_blood_council_shadow_prison_damage") { }

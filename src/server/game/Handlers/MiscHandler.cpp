@@ -1210,6 +1210,35 @@ void WorldSession::HandleNextCinematicCamera(WorldPacket& /*recvData*/)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_NEXT_CINEMATIC_CAMERA");
 }
 
+void WorldSession::HandleCompleteMovieOpcode(WorldPacket & p_Packet)
+{
+    if (!m_Player || m_Player->CurrentPlayedMovie == 0)
+        return;
+
+    m_Player->MovieDelayedTeleportMutex.lock();
+
+    auto l_It = std::find_if(m_Player->MovieDelayedTeleports.begin(), m_Player->MovieDelayedTeleports.end(), [this](const Player::MovieDelayedTeleport & p_Elem) -> bool
+    {
+        if (p_Elem.MovieID == m_Player->CurrentPlayedMovie)
+            return true;
+
+        return false;
+    });
+
+    if (l_It != m_Player->MovieDelayedTeleports.end())
+    {
+        Player::MovieDelayedTeleport l_TeleportData = (*l_It);
+        m_Player->MovieDelayedTeleports.erase(l_It);
+
+        if (l_TeleportData.MapID == m_Player->GetMapId())
+            m_Player->NearTeleportTo(l_TeleportData.X, l_TeleportData.Y, l_TeleportData.Z, l_TeleportData.O, false);
+        else
+            m_Player->TeleportTo(l_TeleportData.MapID, l_TeleportData.X, l_TeleportData.Y, l_TeleportData.Z, l_TeleportData.O, false);
+    }
+
+    m_Player->MovieDelayedTeleportMutex.unlock();
+}
+
 void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket& p_Packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_MOVE_TIME_SKIPPED");
@@ -1800,18 +1829,17 @@ void WorldSession::HandleSetDungeonDifficultyOpcode(WorldPacket & recvData)
                     return;
                 }
             }
-            // the difficulty is set even if the instances can't be reset
-            //_player->SendDungeonDifficulty(true);
+
             group->ResetInstances(INSTANCE_RESET_CHANGE_DIFFICULTY, false, m_Player);
             group->SetDungeonDifficulty(Difficulty(mode));
-            m_Player->SendDungeonDifficulty(true);
+            m_Player->SendDungeonDifficulty();
         }
     }
     else
     {
         m_Player->ResetInstances(INSTANCE_RESET_CHANGE_DIFFICULTY, false);
         m_Player->SetDungeonDifficulty(Difficulty(mode));
-        m_Player->SendDungeonDifficulty(false);
+        m_Player->SendDungeonDifficulty();
     }
 }
 
@@ -1870,7 +1898,7 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPacket& p_RecvData)
                 }
             }
             // the difficulty is set even if the instances can't be reset
-            //_player->SendDungeonDifficulty(true);
+            //_player->SendDungeonDifficulty();
             group->ResetInstances(INSTANCE_RESET_CHANGE_DIFFICULTY, true, m_Player);
 
             if (l_IsLegacyDifficulty)
@@ -1878,7 +1906,7 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPacket& p_RecvData)
             else
                 group->SetRaidDifficulty(Difficulty(l_Difficulty));
 
-            m_Player->SendRaidDifficulty(true);
+            m_Player->SendRaidDifficulty();
         }
     }
     else
@@ -1890,7 +1918,7 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPacket& p_RecvData)
         else
             m_Player->SetRaidDifficulty(Difficulty(l_Difficulty));
 
-        m_Player->SendRaidDifficulty(false);
+        m_Player->SendRaidDifficulty();
     }
 }
 
@@ -2126,6 +2154,9 @@ void WorldSession::HandleRequestHotfix(WorldPacket& p_RecvPacket)
                 break;
             case DB2_REPLY_MAP_CHALLENGE_MODE:
                 SendMapChallengeModeDBReply(l_Entry);
+                break;
+            case DB2_REPLY_QUEST_PACKAGE_ITEM:
+                SendQuestPackageItemDB2Reply(l_Entry);
                 break;
             // TODO
             case DB2_REPLY_BATTLE_PET_EFFECT_PROPERTIES:

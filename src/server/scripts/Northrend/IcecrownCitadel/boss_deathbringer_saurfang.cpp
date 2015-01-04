@@ -986,7 +986,7 @@ class npc_saurfang_event : public CreatureScript
         }
 };
 
-class spell_deathbringer_blood_link : public SpellScriptLoader
+class spell_deathbringer_blood_link: public SpellScriptLoader
 {
     public:
         spell_deathbringer_blood_link() : SpellScriptLoader("spell_deathbringer_blood_link") { }
@@ -1022,7 +1022,7 @@ class spell_deathbringer_blood_link : public SpellScriptLoader
         }
 };
 
-class spell_deathbringer_blood_link_aura : public SpellScriptLoader
+class spell_deathbringer_blood_link_aura: public SpellScriptLoader
 {
     public:
         spell_deathbringer_blood_link_aura() : SpellScriptLoader("spell_deathbringer_blood_link_aura") { }
@@ -1058,7 +1058,7 @@ class spell_deathbringer_blood_link_aura : public SpellScriptLoader
         }
 };
 
-class spell_deathbringer_blood_power : public SpellScriptLoader
+class spell_deathbringer_blood_power: public SpellScriptLoader
 {
     public:
         spell_deathbringer_blood_power() : SpellScriptLoader("spell_deathbringer_blood_power") { }
@@ -1107,7 +1107,7 @@ class spell_deathbringer_blood_power : public SpellScriptLoader
         }
 };
 
-class spell_deathbringer_rune_of_blood : public SpellScriptLoader
+class spell_deathbringer_rune_of_blood: public SpellScriptLoader
 {
     public:
         spell_deathbringer_rune_of_blood() : SpellScriptLoader("spell_deathbringer_rune_of_blood") { }
@@ -1142,7 +1142,7 @@ class spell_deathbringer_rune_of_blood : public SpellScriptLoader
         }
 };
 
-class spell_deathbringer_blood_nova : public SpellScriptLoader
+class spell_deathbringer_blood_nova: public SpellScriptLoader
 {
     public:
         spell_deathbringer_blood_nova() : SpellScriptLoader("spell_deathbringer_blood_nova") { }
@@ -1177,7 +1177,7 @@ class spell_deathbringer_blood_nova : public SpellScriptLoader
         }
 };
 
-class spell_deathbringer_blood_nova_targeting : public SpellScriptLoader
+class spell_deathbringer_blood_nova_targeting: public SpellScriptLoader
 {
     public:
         spell_deathbringer_blood_nova_targeting() : SpellScriptLoader("spell_deathbringer_blood_nova_targeting") { }
@@ -1256,7 +1256,7 @@ class spell_deathbringer_blood_nova_targeting : public SpellScriptLoader
         }
 };
 
-class spell_deathbringer_boiling_blood : public SpellScriptLoader
+class spell_deathbringer_boiling_blood: public SpellScriptLoader
 {
     public:
         spell_deathbringer_boiling_blood() : SpellScriptLoader("spell_deathbringer_boiling_blood") { }
@@ -1286,7 +1286,7 @@ class spell_deathbringer_boiling_blood : public SpellScriptLoader
         }
 };
 
-class spell_deathbringer_remove_marks : public SpellScriptLoader
+class spell_deathbringer_remove_marks: public SpellScriptLoader
 {
     public:
         spell_deathbringer_remove_marks() : SpellScriptLoader("spell_deathbringer_remove_marks") { }

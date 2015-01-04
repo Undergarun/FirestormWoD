@@ -2210,7 +2210,7 @@ public:
 };
 
 // 123421 - Vital Strikes
-class spell_vital_strikes : public SpellScriptLoader
+class spell_vital_strikes: public SpellScriptLoader
 {
     public:
         spell_vital_strikes() : SpellScriptLoader("spell_vital_strikes") { }

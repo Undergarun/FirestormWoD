@@ -1,0 +1,1 @@
+UPDATE gameobject_template SET ScriptName = "go_sa_boat" WHERE entry IN(193182, 193183, 193184, 193185);

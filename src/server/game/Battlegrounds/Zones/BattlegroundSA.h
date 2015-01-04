@@ -41,14 +41,8 @@ enum BG_SA_WorldSafeLocs
 
 static const float g_BG_SA_AttackerPosition[2][4] =
 {
-    { 3082.665f, -731.443f, 5.757f, 2.64f  },
-    { 3187.995f, -445.829f, 8.759f, 3.68f  }
-};
-
-static const float g_BG_SA_AttackerEndPosition[2][4] =
-{
-    {1602.45f, -104.00f, 8.87f, 4.03f},
-    {1609.34f, 46.12f, 7.59f, 2.39f}
+    { 2682.936f, -830.368f, 30.0f, 2.895f },
+    { 2577.003f, 980.261f, 30.0f, 0.807f }
 };
 
 enum BG_SA_Status
@@ -645,7 +639,7 @@ class BattlegroundSA : public Battleground
         bool SignaledRoundTwoHalfMin;
         /// for know if second round has been init
         bool InitSecondRound;
-        std::map<uint32/*id*/, uint32/*timer*/> DemoliserRespawnList;
+        std::map<uint32, uint32> DemoliserRespawnList; ///< std::map<ID, Timer>
 
         // Achievement: Not Even a Scratch
         bool _notEvenAScratch[BG_TEAMS_COUNT];

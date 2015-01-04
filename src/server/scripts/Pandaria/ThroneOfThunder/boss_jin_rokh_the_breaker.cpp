@@ -974,7 +974,7 @@ class mob_lightning_pillar_stalker : public CreatureScript
 };
 
 // Static Burst - 137162
-class spell_static_burst : public SpellScriptLoader
+class spell_static_burst: public SpellScriptLoader
 {
     public:
         spell_static_burst() : SpellScriptLoader("spell_static_burst") { }
@@ -1008,7 +1008,7 @@ class spell_static_burst : public SpellScriptLoader
 };
 
 // Static Wound - 138349
-class spell_static_wound : public SpellScriptLoader
+class spell_static_wound: public SpellScriptLoader
 {
     public:
         spell_static_wound() : SpellScriptLoader("spell_static_wound") { }
@@ -1054,7 +1054,7 @@ class spell_static_wound : public SpellScriptLoader
 };
 
 // Static Wound (Damages) - 138389
-class spell_static_wound_damage : public SpellScriptLoader
+class spell_static_wound_damage: public SpellScriptLoader
 {
     public:
         spell_static_wound_damage() : SpellScriptLoader("spell_static_wound_damage") { }
@@ -1088,7 +1088,7 @@ class spell_static_wound_damage : public SpellScriptLoader
 };
 
 // Focused Lightning - 137399
-class spell_focused_lightning : public SpellScriptLoader
+class spell_focused_lightning: public SpellScriptLoader
 {
     public:
         spell_focused_lightning() : SpellScriptLoader("spell_focused_lightning") { }
@@ -1125,7 +1125,7 @@ class spell_focused_lightning : public SpellScriptLoader
 };
 
 // Focused Lightning - 137437
-class spell_focused_lightning_periodic : public SpellScriptLoader
+class spell_focused_lightning_periodic: public SpellScriptLoader
 {
     public:
         spell_focused_lightning_periodic() : SpellScriptLoader("spell_focused_lightning_periodic") { }
@@ -1153,7 +1153,7 @@ class spell_focused_lightning_periodic : public SpellScriptLoader
 };
 
 // Focused Lightning - 137429
-class spell_focused_lightning_damage : public SpellScriptLoader
+class spell_focused_lightning_damage: public SpellScriptLoader
 {
     public:
         spell_focused_lightning_damage() : SpellScriptLoader("spell_focused_lightning_damage") { }
@@ -1184,7 +1184,7 @@ class spell_focused_lightning_damage : public SpellScriptLoader
 };
 
 // Thundering Throw (Eject Player) - 137180
-class spell_thundering_throw_eject : public SpellScriptLoader
+class spell_thundering_throw_eject: public SpellScriptLoader
 {
     public:
         spell_thundering_throw_eject() : SpellScriptLoader("spell_thundering_throw_eject") { }
@@ -1267,7 +1267,7 @@ class spell_thundering_throw_eject : public SpellScriptLoader
 };
 
 // Lightning Storm (Periodic) - 137313
-class spell_lightning_storm_periodic : public SpellScriptLoader
+class spell_lightning_storm_periodic: public SpellScriptLoader
 {
     public:
         spell_lightning_storm_periodic() : SpellScriptLoader("spell_lightning_storm_periodic") { }
@@ -1301,7 +1301,7 @@ class spell_lightning_storm_periodic : public SpellScriptLoader
 };
 
 // Ionization - 138732
-class spell_ionization : public SpellScriptLoader
+class spell_ionization: public SpellScriptLoader
 {
     public:
         spell_ionization() : SpellScriptLoader("spell_ionization") { }
@@ -1375,7 +1375,7 @@ class spell_ionization : public SpellScriptLoader
 // Ionization Conduction - 138743
 // Focused Lightning Conduction - 137530
 // Lightning Fissure Conduction - 138133
-class spell_ionization_conduction : public SpellScriptLoader
+class spell_ionization_conduction: public SpellScriptLoader
 {
     public:
         spell_ionization_conduction() : SpellScriptLoader("spell_ionization_conduction") { }

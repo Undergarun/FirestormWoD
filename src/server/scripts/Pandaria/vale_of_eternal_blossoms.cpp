@@ -354,7 +354,7 @@ class mob_shao_tien_surveyor : public CreatureScript
 };
 
 // Shado Pan Flare - 123193
-class spell_shadow_pan_flare : public SpellScriptLoader
+class spell_shadow_pan_flare: public SpellScriptLoader
 {
     public:
         spell_shadow_pan_flare() : SpellScriptLoader("spell_shadow_pan_flare")

@@ -1028,7 +1028,7 @@ class npc_toasty_fire : public CreatureScript
         };
 };
 
-class spell_biting_cold : public SpellScriptLoader
+class spell_biting_cold: public SpellScriptLoader
 {
     public:
         spell_biting_cold() : SpellScriptLoader("spell_biting_cold") { }
@@ -1084,7 +1084,7 @@ class spell_biting_cold : public SpellScriptLoader
         }
 };
 
-class spell_biting_cold_dot : public SpellScriptLoader
+class spell_biting_cold_dot: public SpellScriptLoader
 {
     public:
         spell_biting_cold_dot() : SpellScriptLoader("spell_biting_cold_dot") { }

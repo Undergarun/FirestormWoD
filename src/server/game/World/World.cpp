@@ -1112,6 +1112,11 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_ARENA_SEASON_IN_PROGRESS]                  = ConfigMgr::GetBoolDefault("Arena.ArenaSeason.InProgress", true);
     m_bool_configs[CONFIG_ARENA_LOG_EXTENDED_INFO]                   = ConfigMgr::GetBoolDefault("ArenaLog.ExtendedInfo", false);
 
+    m_int_configs[CONFIG_PVP_ITEM_LEVEL_CUTOFF]                      = ConfigMgr::GetIntDefault("PvP.Item.Level.Cut.Off", 560);
+    m_int_configs[CONFIG_PVP_ITEM_LEVEL_MIN]                         = ConfigMgr::GetIntDefault("PvP.Item.Level.Min", 650);
+    m_int_configs[CONFIG_PVP_ITEM_LEVEL_MAX]                         = ConfigMgr::GetIntDefault("PvP.Item.Level.Max", 690);
+    m_int_configs[CONFIG_CHALLENGE_MODE_ITEM_LEVEL_MAX]              = ConfigMgr::GetIntDefault("Challenge.Mode.Item.Level.Max", 630);
+
     m_bool_configs[CONFIG_OFFHAND_CHECK_AT_SPELL_UNLEARN]            = ConfigMgr::GetBoolDefault("OffhandCheckAtSpellUnlearn", true);
 
     if (int32 clientCacheId = ConfigMgr::GetIntDefault("ClientCacheVersion", 0))
@@ -1647,9 +1652,6 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Quests...");
     sObjectMgr->LoadQuests();                                    // must be loaded after DBCs, creature_template, item_template, gameobject tables
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "loading Quest Dynamic Reward...");
-    sObjectMgr->LoadQuestDynamicRewards();
-
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Checking Quest Disables");
     DisableMgr::CheckQuestDisables();                           // must be after loading quests
 
@@ -1658,6 +1660,9 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Quest Objective Locales...");
     sObjectMgr->LoadQuestObjectiveLocales();
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Quest Package Item hotfixs ...");
+    sObjectMgr->LoadQuestPackageItemHotfixs();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Quest POI");
     sObjectMgr->LoadQuestPOI();

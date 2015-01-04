@@ -2222,7 +2222,7 @@ class mob_toc_pet_hunter : public CreatureScript
         }
 };
 
-class spell_faction_champion_death_grip : public SpellScriptLoader
+class spell_faction_champion_death_grip: public SpellScriptLoader
 {
     public:
         spell_faction_champion_death_grip() : SpellScriptLoader("spell_faction_champion_death_grip") { }
@@ -2260,7 +2260,7 @@ class spell_faction_champion_death_grip : public SpellScriptLoader
         }
 };
 
-class spell_toc_bloodlust : public SpellScriptLoader
+class spell_toc_bloodlust: public SpellScriptLoader
 {
     public:
         spell_toc_bloodlust() : SpellScriptLoader("spell_toc_bloodlust") { }
@@ -2301,7 +2301,7 @@ class spell_toc_bloodlust : public SpellScriptLoader
         }
 };
 
-class spell_toc_heroism : public SpellScriptLoader
+class spell_toc_heroism: public SpellScriptLoader
 {
     public:
         spell_toc_heroism() : SpellScriptLoader("spell_toc_heroism") { }

@@ -280,7 +280,7 @@ class npc_unstable_grounding_field : public CreatureScript
      };
 };
 
-class spell_asaad_supremacy_of_the_storm : public SpellScriptLoader
+class spell_asaad_supremacy_of_the_storm: public SpellScriptLoader
 {
     public:
         spell_asaad_supremacy_of_the_storm() : SpellScriptLoader("spell_asaad_supremacy_of_the_storm") { }

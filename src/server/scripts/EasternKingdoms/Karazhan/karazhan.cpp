@@ -466,187 +466,204 @@ static float ArcanagosPos[4] = {-11169.75f, -1881.48f, 95.39f, 4.83f};
 
 class npc_image_of_medivh : public CreatureScript
 {
-public:
-    npc_image_of_medivh() : CreatureScript("npc_image_of_medivh") { }
+    public:
+        npc_image_of_medivh() : CreatureScript("npc_image_of_medivh") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_image_of_medivhAI(creature);
-    }
-
-    struct npc_image_of_medivhAI : public ScriptedAI
-    {
-        npc_image_of_medivhAI(Creature* creature) : ScriptedAI(creature)
+        CreatureAI* GetAI(Creature* creature) const
         {
-            instance = creature->GetInstanceScript();
+            return new npc_image_of_medivhAI(creature);
         }
 
-        InstanceScript* instance;
-
-        uint64 ArcanagosGUID;
-
-        uint32 YellTimer;
-        uint32 Step;
-        uint32 FireMedivhTimer;
-        uint32 FireArcanagosTimer;
-
-        bool EventStarted;
-
-        void Reset()
+        struct npc_image_of_medivhAI : public ScriptedAI
         {
-            ArcanagosGUID = 0;
-
-            if (instance && instance->GetData64(DATA_IMAGE_OF_MEDIVH) == 0)
+            npc_image_of_medivhAI(Creature* creature) : ScriptedAI(creature)
             {
-                instance->SetData64(DATA_IMAGE_OF_MEDIVH, me->GetGUID());
-                (*me).GetMotionMaster()->MovePoint(1, MedivPos[0], MedivPos[1], MedivPos[2]);
-                Step = 0;
+                instance = creature->GetInstanceScript();
             }
-            else
+
+            InstanceScript* instance;
+
+            uint64 ArcanagosGUID;
+
+            uint32 YellTimer;
+            uint32 Step;
+            uint32 FireMedivhTimer;
+            uint32 FireArcanagosTimer;
+
+            bool EventStarted;
+
+            void Reset()
             {
-                me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                me->RemoveCorpse();
-            }
-        }
-        void EnterCombat(Unit* /*who*/) {}
+                ArcanagosGUID = 0;
 
-        void MovementInform(uint32 type, uint32 id)
-        {
-            if (type != POINT_MOTION_TYPE)
-                return;
-            if (id == 1)
-            {
-                StartEvent();
-                me->SetOrientation(MedivPos[3]);
-                me->SetOrientation(MedivPos[3]);
-            }
-        }
-
-        void StartEvent()
-        {
-            Step = 1;
-            EventStarted = true;
-            Creature* Arcanagos = me->SummonCreature(MOB_ARCANAGOS, ArcanagosPos[0], ArcanagosPos[1], ArcanagosPos[2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000);
-            if (!Arcanagos)
-                return;
-            ArcanagosGUID = Arcanagos->GetGUID();
-            Arcanagos->SetDisableGravity(true);
-            (*Arcanagos).GetMotionMaster()->MovePoint(0, ArcanagosPos[0], ArcanagosPos[1], ArcanagosPos[2]);
-            Arcanagos->SetOrientation(ArcanagosPos[3]);
-            me->SetOrientation(MedivPos[3]);
-            YellTimer = 10000;
-        }
-
-        uint32 NextStep(uint32 Step)
-        {
-            Unit* arca = Unit::GetUnit(*me, ArcanagosGUID);
-            Map* map = me->GetMap();
-            switch (Step)
-            {
-            case 0: return 9999999;
-            case 1:
-                me->MonsterYell(SAY_DIALOG_MEDIVH_1, LANG_UNIVERSAL, 0);
-                return 10000;
-            case 2:
-                if (arca)
-                    CAST_CRE(arca)->MonsterYell(SAY_DIALOG_ARCANAGOS_2, LANG_UNIVERSAL, 0);
-                return 20000;
-            case 3:
-                me->MonsterYell(SAY_DIALOG_MEDIVH_3, LANG_UNIVERSAL, 0);
-                return 10000;
-            case 4:
-                if (arca)
-                    CAST_CRE(arca)->MonsterYell(SAY_DIALOG_ARCANAGOS_4, LANG_UNIVERSAL, 0);
-                return 20000;
-            case 5:
-                me->MonsterYell(SAY_DIALOG_MEDIVH_5, LANG_UNIVERSAL, 0);
-                return 20000;
-            case 6:
-                if (arca)
-                    CAST_CRE(arca)->MonsterYell(SAY_DIALOG_ARCANAGOS_6, LANG_UNIVERSAL, 0);
-                return 10000;
-            case 7:
-                FireArcanagosTimer = 500;
-                return 5000;
-            case 8:
-                FireMedivhTimer = 500;
-                DoCast(me, SPELL_MANA_SHIELD);
-                return 10000;
-            case 9:
-                me->MonsterTextEmote(EMOTE_DIALOG_MEDIVH_7, 0, false);
-                return 10000;
-            case 10:
-                if (arca)
-                    DoCast(arca, SPELL_CONFLAGRATION_BLAST, false);
-                return 1000;
-            case 11:
-                if (arca)
-                    CAST_CRE(arca)->MonsterYell(SAY_DIALOG_ARCANAGOS_8, LANG_UNIVERSAL, 0);
-                return 5000;
-            case 12:
-                arca->GetMotionMaster()->MovePoint(0, -11010.82f, -1761.18f, 156.47f);
-                arca->setActive(true);
-                arca->InterruptNonMeleeSpells(true);
-                arca->SetSpeed(MOVE_FLIGHT, 2.0f);
-                return 10000;
-            case 13:
-                me->MonsterYell(SAY_DIALOG_MEDIVH_9, LANG_UNIVERSAL, 0);
-                return 10000;
-            case 14:
-                me->SetVisible(false);
-                me->ClearInCombat();
-
-                if (map->IsDungeon())
+                if (instance && instance->GetData64(DATA_IMAGE_OF_MEDIVH) == 0)
                 {
-                    InstanceMap::PlayerList const &PlayerList = map->GetPlayers();
-                    for (InstanceMap::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                    {
-                        if (i->getSource()->isAlive())
-                        {
-                            if (i->getSource()->GetQuestStatus(9645) == QUEST_STATUS_INCOMPLETE)
-                                i->getSource()->CompleteQuest(9645);
-                        }
-                    }
+                    instance->SetData64(DATA_IMAGE_OF_MEDIVH, me->GetGUID());
+                    (*me).GetMotionMaster()->MovePoint(1, MedivPos[0], MedivPos[1], MedivPos[2]);
+                    Step = 0;
                 }
-                return 50000;
-            case 15:
-                arca->DealDamage(arca, arca->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                return 5000;
-            default : return 9999999;
+                else
+                {
+                    me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                    me->RemoveCorpse();
+                }
             }
 
-        }
+            void EnterCombat(Unit* /*who*/) { }
 
-        void UpdateAI(const uint32 diff)
-        {
-
-            if (YellTimer <= diff)
+            void MovementInform(uint32 type, uint32 id)
             {
-                if (EventStarted)
-                    YellTimer = NextStep(Step++);
-            } else YellTimer -= diff;
+                if (type != POINT_MOTION_TYPE)
+                    return;
 
-            if (Step >= 7 && Step <= 12)
+                if (id == 1)
+                {
+                    StartEvent();
+                    me->SetOrientation(MedivPos[3]);
+                    me->SetOrientation(MedivPos[3]);
+                }
+            }
+
+            void StartEvent()
+            {
+                Step = 1;
+                EventStarted = true;
+
+                Creature* Arcanagos = me->SummonCreature(MOB_ARCANAGOS, ArcanagosPos[0], ArcanagosPos[1], ArcanagosPos[2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000);
+                if (!Arcanagos)
+                    return;
+
+                ArcanagosGUID = Arcanagos->GetGUID();
+                Arcanagos->SetDisableGravity(true);
+                Arcanagos->GetMotionMaster()->MovePoint(0, ArcanagosPos[0], ArcanagosPos[1], ArcanagosPos[2]);
+                Arcanagos->SetOrientation(ArcanagosPos[3]);
+                me->SetOrientation(MedivPos[3]);
+                YellTimer = 10000;
+            }
+
+            uint32 NextStep(uint32 Step)
             {
                 Unit* arca = Unit::GetUnit(*me, ArcanagosGUID);
+                Map* map = me->GetMap();
 
-                if (FireArcanagosTimer <= diff)
+                switch (Step)
                 {
-                    if (arca)
-                        arca->CastSpell(me, SPELL_FIRE_BALL, false);
-                    FireArcanagosTimer = 6000;
-                } else FireArcanagosTimer -= diff;
+                    case 0:
+                        return 9999999;
+                    case 1:
+                        me->MonsterYell(SAY_DIALOG_MEDIVH_1, LANG_UNIVERSAL, 0);
+                        return 10000;
+                    case 2:
+                        if (arca)
+                            arca->MonsterYell(SAY_DIALOG_ARCANAGOS_2, LANG_UNIVERSAL, 0);
+                        return 20000;
+                    case 3:
+                        me->MonsterYell(SAY_DIALOG_MEDIVH_3, LANG_UNIVERSAL, 0);
+                        return 10000;
+                    case 4:
+                        if (arca)
+                            arca->MonsterYell(SAY_DIALOG_ARCANAGOS_4, LANG_UNIVERSAL, 0);
+                        return 20000;
+                    case 5:
+                        me->MonsterYell(SAY_DIALOG_MEDIVH_5, LANG_UNIVERSAL, 0);
+                        return 20000;
+                    case 6:
+                        if (arca)
+                            arca->MonsterYell(SAY_DIALOG_ARCANAGOS_6, LANG_UNIVERSAL, 0);
+                        return 10000;
+                    case 7:
+                        FireArcanagosTimer = 500;
+                        return 5000;
+                    case 8:
+                        FireMedivhTimer = 500;
+                        DoCast(me, SPELL_MANA_SHIELD);
+                        return 10000;
+                    case 9:
+                        me->MonsterTextEmote(EMOTE_DIALOG_MEDIVH_7, 0, false);
+                        return 10000;
+                    case 10:
+                        if (arca)
+                            DoCast(arca, SPELL_CONFLAGRATION_BLAST, false);
+                        return 1000;
+                    case 11:
+                        if (arca)
+                            arca->MonsterYell(SAY_DIALOG_ARCANAGOS_8, LANG_UNIVERSAL, 0);
+                        return 5000;
+                    case 12:
+                    {
+                        if (arca)
+                        {
+                            arca->GetMotionMaster()->MovePoint(0, -11010.82f, -1761.18f, 156.47f);
+                            arca->setActive(true);
+                            arca->InterruptNonMeleeSpells(true);
+                            arca->SetSpeed(MOVE_FLIGHT, 2.0f);
+                        }
 
-                if (FireMedivhTimer <= diff)
-                {
-                    if (arca)
-                        DoCast(arca, SPELL_FIRE_BALL);
-                    FireMedivhTimer = 5000;
-                } else FireMedivhTimer -= diff;
+                        return 10000;
+                    }
+                    case 13:
+                        me->MonsterYell(SAY_DIALOG_MEDIVH_9, LANG_UNIVERSAL, 0);
+                        return 10000;
+                    case 14:
+                        me->SetVisible(false);
+                        me->ClearInCombat();
+
+                        if (map && map->IsDungeon())
+                        {
+                            InstanceMap::PlayerList const &PlayerList = map->GetPlayers();
+                            for (InstanceMap::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+                            {
+                                if (i->getSource()->isAlive())
+                                {
+                                    if (i->getSource()->GetQuestStatus(9645) == QUEST_STATUS_INCOMPLETE)
+                                        i->getSource()->CompleteQuest(9645);
+                                }
+                            }
+                        }
+                        return 50000;
+                    case 15:
+                        if (arca)
+                            arca->DealDamage(arca, arca->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                        return 5000;
+                    default:
+                        return 9999999;
+                }
             }
-        }
-    };
 
+            void UpdateAI(const uint32 diff)
+            {
+                if (YellTimer <= diff)
+                {
+                    if (EventStarted)
+                        YellTimer = NextStep(Step++);
+                }
+                else
+                    YellTimer -= diff;
+
+                if (Step >= 7 && Step <= 12)
+                {
+                    Unit* arca = Unit::GetUnit(*me, ArcanagosGUID);
+
+                    if (FireArcanagosTimer <= diff)
+                    {
+                        if (arca)
+                            arca->CastSpell(me, SPELL_FIRE_BALL, false);
+                        FireArcanagosTimer = 6000;
+                    }
+                    else
+                        FireArcanagosTimer -= diff;
+
+                    if (FireMedivhTimer <= diff)
+                    {
+                        if (arca)
+                            DoCast(arca, SPELL_FIRE_BALL);
+                        FireMedivhTimer = 5000;
+                    }
+                    else
+                        FireMedivhTimer -= diff;
+                }
+            }
+        };
 };
 
 void AddSC_karazhan()

@@ -774,10 +774,15 @@ uint32 SpellMgr::GetSpellIdForDifficulty(uint32 spellId, Unit const* caster) con
     return uint32(difficultyEntry->SpellID[mode]);*/
 }
 
+SpellInfo const* SpellMgr::GetSpellForDifficulty(uint32 p_SpellId, Difficulty p_Difficulty) const
+{
+    return GetSpellInfo(p_SpellId, p_Difficulty);
+}
+
 SpellInfo const* SpellMgr::GetSpellForDifficultyFromSpell(SpellInfo const* spell, Unit const* caster) const
 {
     if (!spell)
-        return NULL;
+        return nullptr;
 
     if (!caster || !caster->GetMap() || !caster->GetMap()->IsDungeon())
         return spell;
@@ -3291,6 +3296,16 @@ void SpellMgr::LoadSpellCustomAttr()
 
                 switch (spellInfo->Effects[j].Effect)
                 {
+                    case SPELL_EFFECT_UPGRADE_FOLLOWER_ILVL:
+                        spellInfo->Effects[j].TargetA = TARGET_UNIT_CASTER;
+                        spellInfo->Effects[j].TargetB = TARGET_UNIT_CASTER;
+
+                        if (j == EFFECT_0 && spellInfo->Effects[EFFECT_1].Effect == SPELL_EFFECT_DUMMY)
+                        {
+                            spellInfo->Effects[EFFECT_1].TargetA = TARGET_UNIT_CASTER;
+                            spellInfo->Effects[EFFECT_1].TargetB = TARGET_UNIT_CASTER;
+                        }
+                        break;
                     case SPELL_EFFECT_SCHOOL_DAMAGE:
                     case SPELL_EFFECT_WEAPON_DAMAGE:
                     case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
@@ -3445,8 +3460,45 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 157174: // Elemental Fusion
+                spellInfo->ProcCharges = 1;
+                break;
+            case 77442: ///< Focus
+                spellInfo->Effects[0].Effect = 0;
+                spellInfo->Effects[0].ApplyAuraName = 0;
+                break;
+            case 162537:///< Poisoned Ammo
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_PROC_TRIGGER_SPELL;
+                break;
+            case 162543:///< Poisoned Ammo (triggered)
+                spellInfo->Speed = 0.0f;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
+                break;
+            case 162546:///< Frozen Ammo (triggered)
+                spellInfo->Speed = 0.0f;
+                break;
+            case 121818:///< Stampede
+                spellInfo->Effects[EFFECT_1].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->Effects[EFFECT_1].TargetB = 0;
+                break;
             case 45470: // Death Strike (no heal bonus in SPELL_DAMAGE_CLASS_NONE)
                 spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MELEE;
+                break;
+            case 117962:// Crackling Jade Shock
+                spellInfo->Effects[0].Mechanic = MECHANIC_KNOCKOUT;
+                break;
+            case 154302:// Seal Conduit (first)
+                spellInfo->MaxAffectedTargets = 1;
+                break;
+            case 154900:// Seal Conduit (second)
+                spellInfo->MaxAffectedTargets = 2;
+                break;
+            case 154901:// Seal Conduit (third)
+                spellInfo->MaxAffectedTargets = 3;
+                break;
+            case 157347:// Fiery Charge
+                spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
+                spellInfo->Effects[1].Effect = 0;   ///< Need to be scripted
                 break;
             case 77756: // Lava Surge
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 77762;
@@ -3563,6 +3615,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].Effect = 0;
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_PERIODIC_TRIGGER_SPELL;
                 spellInfo->Effects[0].Amplitude = 1500;
+                break;
+            case 156910: // Beacon of Faith
+                spellInfo->Effects[1].Effect = 0;
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_PERIODIC_TRIGGER_SPELL;
+                spellInfo->Effects[0].Amplitude = 1500;
+                spellInfo->ProcChance = 100;
                 break;
             case 129869:// Strike from the Heavens
                 spellInfo->Effects[0].TriggerSpell = 129639;
@@ -3915,8 +3973,21 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 161288:// Vileblood Serum (DoT)
             case 161833:// Noxious Spit (DoT)
+            case 157420:// Fiery Trail (DoT)
+            case 155057:// Magma Pool (DoT)
+            case 166730:// Burning Bridge (DoT)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
+                break;
+            case 154996:// Engulfing Fire (searcher)
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[0].TargetB = 0;
+                break;
+            case 155721:// Black Iron Cyclone
+                spellInfo->Effects[0].Effect = 0;
+                spellInfo->Effects[0].ApplyAuraName = 0;
+                spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
+                spellInfo->InterruptFlags &= ~SPELL_INTERRUPT_FLAG_MOVEMENT;
                 break;
             case 127731:// Corruption Sha (triggered)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
@@ -4147,6 +4218,12 @@ void SpellMgr::LoadSpellCustomAttr()
             case 156791:// Call Adds
                 spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(6);    ///< 100yards
                 break;
+            case 176544:// Fixate (Skyreach)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[EFFECT_0].TargetB = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[EFFECT_1].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[EFFECT_1].TargetB = TARGET_UNIT_TARGET_ANY;
+                break;
             case 152973:// Protective Barrier (Skyreach)
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
                 break;
@@ -4330,9 +4407,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 81662: // Will of the Necropolis
                 spellInfo->Effects[0].BasePoints = 25;
                 break;
-            case 127538:// Savage Roar (Glyphed)
-                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(636); // 12s / 0s / 42s
-                break;
             case 146512:// Fortitude - hotfix 5.4.2
                 spellInfo->Effects[0].BasePoints = 2600;
                 break;
@@ -4356,7 +4430,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 774:  // Rejuvenation - hotfix 5.4.2 (idk why they have 2 healing effects, so 2 ticks when must be one)
                 spellInfo->Effects[2].Effect = 0;
                 break;
-            case 53490:  // Bullheaded 
+            case 53490:  // Bullheaded
                 spellInfo->ProcChance = 100;
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_PET;
                 break;
@@ -4372,6 +4446,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[3].BasePoints = 35;
                 break;
             case 165378: // Lethal Shots
+            case 165380:// Sanctified Light
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_CRIT_PCT;
                 break;
             case 109306: // Thrill of the Hunt
@@ -4644,6 +4719,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 123811:// Pheromones of Zeal
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_DEST_AREA_ENTRY;
                 break;
+            case 97817:// Leap of Faith
+                spellInfo->Effects[0].TargetA = TARGET_DEST_TARGET_FRONT;
+                break;
             case 122706:// Noise Cancelling
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
                 spellInfo->Effects[0].BasePoints = 60;
@@ -4765,6 +4843,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 spellInfo->Effects[0].TargetB = 0;
                 spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REFLECTED;
+                spellInfo->AttributesEx5 &= ~SPELL_ATTR5_SINGLE_TARGET_SPELL;
                 spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(13);
                 break;
             case 91021: // Find Weakness
@@ -4816,13 +4895,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 2484:  // Earthbind Totem
                 spellInfo->OverrideSpellList.push_back(51485);
                 break;
-            case 6544:  // Heroic Leap
-                spellInfo->Effects[2].Effect = SPELL_EFFECT_APPLY_AURA;
-                spellInfo->Effects[2].ApplyAuraName = SPELL_AURA_DUMMY;
-                spellInfo->Effects[2].TargetA = TARGET_UNIT_CASTER;
-                spellInfo->Effects[2].TargetB = 0;
-                spellInfo->Effects[2].BasePoints = 0;
-                break;
             case 116198:// Enfeeblement Aura
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
                 spellInfo->Effects[0].TargetA = TARGET_DEST_TARGET_ENEMY;
@@ -4842,6 +4914,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetB = TARGET_UNIT_DEST_AREA_ENEMY;
                 spellInfo->Effects[2].TargetA = TARGET_DEST_TARGET_ENEMY;
                 spellInfo->Effects[2].TargetB = TARGET_UNIT_DEST_AREA_ENEMY;
+                break;
+            case 86273: // Illuminated Healing 
+                spellInfo->Effects[0].BonusMultiplier = 0.0f;
+                break;
+            case 109186: // Surge of light
+                spellInfo->ProcFlags = PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS;
                 break;
             case 853:   // Hammer of Justice
                 spellInfo->OverrideSpellList.push_back(105593); // Replace Hammer of Justice by Fist of Justice
@@ -4909,6 +4987,21 @@ void SpellMgr::LoadSpellCustomAttr()
             case 132764:
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 spellInfo->Effects[0].TargetB = 0;
+                break;
+            case 157977: // Unstable Magic FIRE
+                spellInfo->Effects[0].BasePoints = 150;
+                break;
+            case 157978: // Unstable Magic FROST
+                spellInfo->Effects[0].BasePoints = 150;
+                break;
+            case 157979: // Unstable Magic ARCANE
+                spellInfo->Effects[0].BasePoints = 150;
+                break;
+            case 158624: // Feather
+                spellInfo->Effects[0].TargetB = TARGET_UNIT_DEST_AREA_ENTRY;
+                break;
+            case 121536: // Feather
+                spellInfo->Effects[0].TargetB = TARGET_DEST_DEST;
                 break;
             case 19574: // Bestial Wrath
                 spellInfo->Effects[3].Effect = 0;
@@ -5132,11 +5225,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 56224: // Glyph of Healthstone
                 spellInfo->Effects[0].BasePoints = 0;
                 break;
-            case 34299: // Leader of the pack - healing
-            case 81280: // Blood Burst
-                spellInfo->Effects[0].Effect = SPELL_EFFECT_HEAL_PCT;
-                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
-                break;
             case 90259: // Glyph of Frost Pillar
                 spellInfo->Effects[0].MiscValue = 0;
                 spellInfo->Effects[0].MiscValueB = 0;
@@ -5160,6 +5248,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 13165: // Aspect of the Hawk
                 spellInfo->OverrideSpellList.push_back(109260); // Add Aspect of the Iron Hack to override spell list of Aspect of the Hawk
                 spellInfo->Effects[0].BasePoints = 35;
+                break;
+            case 8092: // Mind Blast
+                spellInfo->Effects[1].BasePoints = 0;
+                spellInfo->Effects[3].BasePoints = 1;
                 break;
             case 6346:  // Fear Ward
             case 48108: // Hot Streak
@@ -6124,8 +6216,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 49576:
                 spellInfo->SchoolMask = SPELL_SCHOOL_MASK_SHADOW;
                 spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MAGIC;
-                spellInfo->Mechanic = MECHANIC_NONE;
-                spellInfo->Effects[0].Mechanic = MECHANIC_NONE;
+                spellInfo->Mechanic = MECHANIC_GRIP;
+                spellInfo->Effects[0].Mechanic = MECHANIC_GRIP;
                 break;
             case 114255:// Surge of Light (proc)
                 spellInfo->StackAmount = 2;
@@ -6150,6 +6242,11 @@ void SpellMgr::LoadSpellCustomAttr()
             // Shred
             case 5221:
                 spellInfo->Effects[0].BonusMultiplier = 0.0f;
+                break;
+            // Hurricane Strike (damage)
+            case 158221:
+                spellInfo->SetDurationIndex(39); // 2 seconds
+                spellInfo->MaxAffectedTargets = 3;
                 break;
             default:
                 break;
@@ -6222,6 +6319,8 @@ void SpellMgr::LoadSpellCustomAttr()
                     break;
                 case 106113:
                     spellInfo->ExplicitTargetMask = TARGET_FLAG_UNIT_MASK;
+                    break;
+                default:
                     break;
             }
         }

@@ -538,7 +538,7 @@ enum AreaIds
     AREA_THE_FROZEN_THRONE  = 4859,
 };
 
-class spell_trigger_spell_from_caster : public SpellScriptLoader
+class spell_trigger_spell_from_caster: public SpellScriptLoader
 {
     public:
         spell_trigger_spell_from_caster(char const* scriptName, uint32 triggerId) : SpellScriptLoader(scriptName), _triggerId(triggerId) { }

@@ -60,6 +60,12 @@ enum GarrisonPurchaseBuildingResult
     GARRISON_PURCHASE_BUILDING_NOT_ENOUGH_GOLD          = 47,
 };
 
+enum GarrisonMissionBonusRollResult
+{
+    GARRISON_MISSION_BONUS_ROLL_OK      = 0,
+    GARRISON_MISSION_BONUS_ROLL_ERROR   = 1,
+};
+
 enum GarrisonAbilityEffectType
 {
     GARRISION_ABILITY_EFFECT_UNK_0                                  = 0,    ///< @TODO
@@ -94,6 +100,13 @@ enum GarrisonWorldState
     GARRISON_WORLD_STATE_CACHE_NUM_TOKEN = 9573
 };
 
+enum GarrMechanicType
+{
+    GARRISON_MECHANIC_TYPE_ENVIRONMENT  = 0,
+    GARRISON_MECHANIC_TYPE_RACIAL       = 1,
+    GARRISON_MECHANIC_TYPE_ABILITY      = 2,
+};
+
 extern uint32 gGarrisonInGarrisonAreaID[GARRISON_FACTION_COUNT];
 extern uint32 gGarrisonEmptyPlotGameObject[GARRISON_PLOT_TYPE_MAX * GARRISON_FACTION_COUNT];
 extern uint32 gGarrisonBuildingPlotGameObject[GARRISON_PLOT_TYPE_MAX * GARRISON_FACTION_COUNT];
@@ -109,8 +122,14 @@ extern uint32 gGarrisonBuildingActivationGameObject[GARRISON_FACTION_COUNT];
 #define GARRISON_FOLLOWER_ACTIVATION_COST       2500000
 #define GARRISON_FOLLOWER_ACTIVATION_MAX_STACK  1
 #define GARRISON_CACHE_MAX_CURRENCY             500
+#define GARRISON_CACHE_HEFTY_CURRENCY           200
 #define GARRISON_CACHE_MIN_CURRENCY             5
 #define GARRISON_CACHE_GENERATE_TICK            (10 * MINUTE)
+
+enum 
+{
+    GARRISON_CREATURE_AI_DATA_BUILDER = 10000
+};
 
 struct GarrisonPlotInstanceInfoLocation
 {
@@ -153,15 +172,23 @@ struct GarrisonFollower
     uint32 DB_ID;
     uint32 FollowerID;
     uint32 Quality;
-    uint32 Level;
-    uint32 ItemLevelWeapon;
-    uint32 ItemLevelArmor;
+    int32  Level;
+    int32  ItemLevelWeapon;
+    int32  ItemLevelArmor;
     uint32 XP;
     uint32 CurrentBuildingID;
     uint32 CurrentMissionID;
     uint32 Flags;
 
     std::vector<uint32> Abilities;
+
+    /// Follower can earn XP
+    bool CanXP();
+    /// Earn XP
+    uint32 EarnXP(uint32 p_XP);
+
+    /// Write follower into a packet
+    void Write(ByteBuffer & p_Buffer);
 };
 
 struct GarrisonBuilding
@@ -177,7 +204,35 @@ struct GarrisonBuilding
     bool BuiltNotified;
 };
 
+struct GarrisonMissionReward
+{
+    std::vector<std::pair<uint32, uint32>> RewardCurrencies;
+    std::vector<std::pair<uint32, uint32>> RewardItems;
+    std::vector<std::pair<uint64, uint32>> RewardFollowerXPBonus;
+    uint32 RewardGold;
+    uint32 RewardFollowerXP;
+
+    std::vector<uint64> MissionFollowers;
+
+    uint32 MissionID;
+    bool Rewarded;
+};
+
 class Player;
+
+class GarrisonInstanceScriptBase
+{
+    public:
+        /// When the garrison owner started a quest
+        virtual void OnQuestStarted(Player * p_Owner, const Quest * p_Quest) = 0;
+        /// When the garrison owner reward a quest
+        virtual void OnQuestReward(Player * p_Owner, const Quest * p_Quest) = 0;
+        /// Get phase mask
+        virtual uint32 GetPhaseMask(Player * p_Owner) = 0;
+
+        /// Owner can use the garrison cache ?
+        virtual bool CanUseGarrisonCache(Player * p_Owner) = 0;
+};
 
 class Garrison
 {
@@ -202,10 +257,17 @@ class Garrison
         /// Get garrison cache token count
         uint32 GetGarrisonCacheTokenCount();
 
+        /// Get garrison script
+        GarrisonInstanceScriptBase * GetGarrisonScript();
+
         /// When the garrison owner enter in the garrisson (@See Player::UpdateArea)
         void OnPlayerEnter();
         /// When the garrison owner leave the garrisson (@See Player::UpdateArea)
         void OnPlayerLeave();
+        /// When the garrison owner started a quest
+        void OnQuestStarted(const Quest * p_Quest);
+        /// When the garrison owner reward a quest
+        void OnQuestReward(const Quest * p_Quest);
 
         /// set last used activation gameobject
         void SetLastUsedActivationGameObject(uint64 p_Guid);
@@ -240,6 +302,10 @@ class Garrison
         void StartMissionFailed();
         /// Complete a mission
         void CompleteMission(uint32 p_MissionRecID);
+        /// Do mission bonus roll
+        void DoMissionBonusRoll(uint32 p_MissionRecID);
+        /// Set mission has complete
+        void SetAllInProgressMissionAsComplete();
         /// Get followers on a mission
         std::vector<GarrisonFollower*> GetMissionFollowers(uint32 p_MissionRecID);
         /// Get mission followers abilities effect
@@ -251,7 +317,7 @@ class Garrison
         /// Get the mission duration
         uint32 GetMissionDuration(uint32 p_MissionRecID);
         /// Get mission chest chance
-        uint32 GetMissionChestChance(uint32 p_MissionRecID);
+        uint32 GetMissionSuccessChance(uint32 p_MissionRecID);
         /// Get missions
         std::vector<GarrisonMission> GetMissions();
         /// Get all completed missions
@@ -301,6 +367,13 @@ class Garrison
         /// Get known specializations
         std::vector<int32> GetKnownSpecializations();
 
+    public:
+        /// Replace garrison script
+        void _SetGarrisonScript(GarrisonInstanceScriptBase * p_Script)
+        {
+            m_GarrisonScript = p_Script;
+        }
+
     private:
         /// Init
         void Init();
@@ -342,9 +415,14 @@ class Garrison
 
         std::map<uint32, uint64>                m_PlotsGob;
         std::map<uint32, uint64>                m_PlotsActivateGob;
-        std::map<uint32, std::vector<uint64>>   m_PlotsBuildingCosmeticGobs;
+        std::map<uint32, std::vector<uint64>>   m_PlotsGameObjects;
+        std::map<uint32, std::vector<uint64>>   m_PlotsCreatures;
 
         uint32 m_Stat_MaxActiveFollower;
+
+        GarrisonInstanceScriptBase * m_GarrisonScript;
+
+        GarrisonMissionReward m_PendingMissionReward;
 
 };
 

@@ -211,6 +211,23 @@ struct ItemExtendedCostEntry
     //uint32    RequiredAchievement;                                    // 30 only 0
 };
 
+struct QuestPackageItemEntry
+{
+    uint32 ID;                  // 0
+    uint32 PackageID;           // 1
+    uint32 ItemId;              // 2
+    uint32 Count;               // 3
+    uint32 Type;                // 4
+};
+
+enum class PackageItemRewardType : uint8
+{
+    SpecializationReward = 0,
+    ClassReward          = 1,
+    DefaultHiddenReward  = 2,
+    NoRequire            = 3
+};
+
 struct MapChallengeModeEntry
 {
     uint32 ID;                  // 0
@@ -468,7 +485,7 @@ struct GarrSiteLevelEntry
     uint32      MapTextureUiTextureKitID;               // 4
     float       TownHallX;                              // 5
     float       TownHallY;                              // 6
-    uint32      Unk4;                                   // 7
+    uint32      CreationMovie;                          // 7
     uint32      Unk5;                                   // 8
     uint32      UpgradeCost;                            // 9
     uint32      UpgradeMoneyCost;                       // 10
@@ -513,8 +530,8 @@ struct GarrPlotUICategoryEntry
 struct GarrMissionEntry
 {
     uint32 MissionRecID;                                // 0
-    uint32 RequiredLevel;                               // 1
-    uint32 RequiredItemLevel;                           // 2
+    int32  RequiredLevel;                               // 1
+    int32  RequiredItemLevel;                           // 2
     uint32 GarrMechanicTypeRecID;                       // 3
     uint32 RequiredFollowersCount;                      // 4
     uint32 TravelTime;                                  // 5
@@ -531,6 +548,27 @@ struct GarrMissionEntry
     uint32 Flags;                                       // 16
     uint32 RewardFollowerExperience;                    // 17
     uint32 BaseBronzeChestChance;                       // 18
+};
+
+struct GarrMissionRewardEntry
+{
+    uint32 MissionRewardID;                             // 0
+    uint32 MissionID;                                   // 1
+    uint32 BonusRewardXP;                               // 2
+    uint32 ItemID;                                      // 3
+    uint32 ItemQuantity;                                // 4
+    uint32 RewardCurrencyID;                            // 5
+    uint32 RewardCurrencyAmount;                        // 6
+    uint32 Unk1;                                        // 7
+    uint32 Unk2;                                        // 8
+    uint32 Unk3;                                        // 9
+};
+
+struct GarrMissionXEncouterEntry
+{
+    uint32 ID;                                          // 0
+    uint32 MissionID;                                   // 1
+    uint32 EncounterID;                                 // 2
 };
 
 struct GarrBuildingEntry
@@ -576,9 +614,9 @@ struct GarrFollowerEntry
     uint32 Unk5;                                        // 7
     uint32 Unk6;                                        // 8
     uint32 Unk7;                                        // 9
-    uint32 Level;                                       // 10
-    uint32 ItemLevelWeapon;                             // 11
-    uint32 ItemLevelArmor;                              // 12
+    int32  Level;                                       // 10
+    int32  ItemLevelWeapon;                             // 11
+    int32  ItemLevelArmor;                              // 12
     uint32 Unk8;                                        // 13
     uint32 Unk9;                                        // 14
     char * UnkString1;                                  // 15
@@ -643,17 +681,10 @@ struct GarrMechanicEntry
 struct GarrMechanicTypeEntry
 {
     uint32 ID;                                          // 0
-    uint32 Unk1;                                        // 1
+    uint32 Type;                                        // 1
     char * Environment;                                 // 2
     char * EnvironmentDesc;                             // 3
     uint32 EnvironmentTextureID;                        // 4
-};
-
-struct GarrMissionXEncouterEntry
-{
-    uint32 ID;                                          // 0
-    uint32 MissionID;                                   // 1
-    uint32 EncounterID;                                 // 2
 };
 
 struct GarrEncouterXMechanicEntry

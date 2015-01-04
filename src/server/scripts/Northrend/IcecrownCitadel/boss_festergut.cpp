@@ -347,7 +347,7 @@ class npc_stinky_icc : public CreatureScript
         }
 };
 
-class spell_festergut_pungent_blight : public SpellScriptLoader
+class spell_festergut_pungent_blight: public SpellScriptLoader
 {
     public:
         spell_festergut_pungent_blight() : SpellScriptLoader("spell_festergut_pungent_blight") { }
@@ -383,7 +383,7 @@ class spell_festergut_pungent_blight : public SpellScriptLoader
         }
 };
 
-class spell_festergut_gastric_bloat : public SpellScriptLoader
+class spell_festergut_gastric_bloat: public SpellScriptLoader
 {
     public:
         spell_festergut_gastric_bloat() : SpellScriptLoader("spell_festergut_gastric_bloat") { }
@@ -421,7 +421,7 @@ class spell_festergut_gastric_bloat : public SpellScriptLoader
         }
 };
 
-class spell_festergut_blighted_spores : public SpellScriptLoader
+class spell_festergut_blighted_spores: public SpellScriptLoader
 {
     public:
         spell_festergut_blighted_spores() : SpellScriptLoader("spell_festergut_blighted_spores") { }

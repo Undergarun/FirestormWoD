@@ -77,10 +77,10 @@ namespace MS
             };
         };
 
-        static const Position k_FallPoints[] =
+        static const std::size_t k_NumFallPoints = 13;
+        static const Position k_FallPoints[k_NumFallPoints] =
         {
-            { 1075.627f, 1721.043f, 263.72f },
-            { 1085.533f, 1720.696f, 263.72f },
+            { 1094.775f, 1715.610f, 275.72f },
             { 1094.993f, 1721.900f, 263.72f },
             { 1104.928f, 1724.705f, 263.72f },
             { 1141.754f, 1729.700f, 263.72f },
@@ -110,6 +110,11 @@ namespace MS
                 ForceDemonCreatorToRideMe = 136522,
             };
 
+            enum class Moves : uint32
+            {
+                ArrivedAtDestination = 0xBAB,
+            };
+
             CreatureAI* GetAI(Creature* creature) const
             {
                 return new mob_SolarZealotAI(creature);
@@ -120,9 +125,9 @@ namespace MS
                 mob_SolarZealotAI(Creature* creature) : ScriptedAI(creature),
                 m_Reset(false)
                 {
-                    me->SetSpeed(UnitMoveType::MOVE_WALK, 1.f);
-                    me->SetSpeed(UnitMoveType::MOVE_RUN, 1.f);
-                    me->SetSpeed(UnitMoveType::MOVE_FLIGHT, 1.f);
+                    me->SetSpeed(UnitMoveType::MOVE_WALK, 0.3f);
+                    me->SetSpeed(UnitMoveType::MOVE_RUN, 0.3f);
+                    me->SetSpeed(UnitMoveType::MOVE_FLIGHT, 0.3f);
                 }
 
                 void Reset()
@@ -137,7 +142,7 @@ namespace MS
 
                 void MovementInform(uint32 p_TypeId, uint32 p_PointId)
                 {
-                    if (p_TypeId == POINT_MOTION_TYPE && p_PointId == 0)
+                    if (p_TypeId == POINT_MOTION_TYPE && p_PointId == uint32(Moves::ArrivedAtDestination))
                     {
                         if (me->GetVehicle())
                             me->GetVehicle()->RemoveAllPassengers();
@@ -158,7 +163,7 @@ namespace MS
 
                         int l_ClosestPoint = 0;
                         float l_ClosestDistance = k_FallPoints[0].GetExactDist2d(me);
-                        for (int i = 1; i < 14; i++)
+                        for (int i = 1; i < k_NumFallPoints; i++)
                         {
                             if (k_FallPoints[i].GetExactDist2d(me) < l_ClosestDistance)
                             {
@@ -167,7 +172,7 @@ namespace MS
                             }
                         }
 
-                        me->GetMotionMaster()->MovePoint(0, k_FallPoints[l_ClosestPoint]);
+                        me->GetMotionMaster()->MovePoint(uint32(Moves::ArrivedAtDestination), k_FallPoints[l_ClosestPoint]);
                     }
                 }
 
@@ -241,7 +246,6 @@ namespace MS
             };
         };
 
-        // FIXME: Adds and solar zealot should spawn differently.
         class boss_HighSageViryx : public CreatureScript
         {
         public:
@@ -293,8 +297,19 @@ namespace MS
             {
                 boss_HighSageViryxAI(Creature* creature) : BossAI(creature, Data::HighSageViryx)
                 {
-                    if (instance)
-                        instance->SetBossState(Data::HighSageViryx, TO_BE_DECIDED);
+                    me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FEAR, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_ROOT, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FREEZE, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_POLYMORPH, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_HORROR, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SAPPED, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SNARE, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
+                    me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
                 }
 
                 void Reset()
@@ -323,6 +338,11 @@ namespace MS
                     DoScriptText(int32(Texts::JustDied), me);
                     if (instance)
                         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+
+                    ScriptUtils::ApplyOnEveryPlayer(me, [](Unit* p_Me, Player* p_Plr) {
+                        if (p_Plr)
+                            p_Plr->RemoveAura(uint32(Spells::LensFlare_Dmg));
+                    });
                 }
 
                 void KilledUnit(Unit* /*victim*/)
@@ -361,14 +381,14 @@ namespace MS
                     {
                     case uint32(Events::CastDown):
                         events.ScheduleEvent(uint32(Events::CastDown), 35000);
-                        if (Player* l_Plr = InstanceSkyreach::SelectRandomPlayerExcludedTank(me, 80.0f))
+                        if (Player* l_Plr = ScriptUtils::SelectRandomPlayerExcludedTank(me, 80.0f))
                         {
                             DoScriptText(int32(Texts::SpellCastDown), me);
                             me->CastSpell(l_Plr, uint32(Spells::CastDown));
                         }
                         break;
                     case uint32(Events::LensFlare):
-                        if (Player* l_Plr = InstanceSkyreach::SelectRandomPlayerIncludedTank(me, 80.0f))
+                        if (Player* l_Plr = ScriptUtils::SelectRandomPlayerIncludedTank(me, 80.0f))
                         {
                             l_Plr->CastSpell(l_Plr, uint32(Spells::LensFlare), true);
                             DoScriptText(int32(Texts::SpellLensFlare), me);
@@ -382,7 +402,7 @@ namespace MS
                     case uint32(Events::CallAdds):
                         DoScriptText(int32(Texts::SpellCallAdds), me);
                         me->CastSpell(me, uint32(Spells::CallAdds), false);
-                        events.ScheduleEvent(uint32(Events::CallAdds), 50000);
+                        events.ScheduleEvent(uint32(Events::CallAdds), 60000);
                         break;
                     default:
                         break;

@@ -155,8 +155,8 @@ class GameEventMgr
         typedef std::vector<QuestRelList> GameEventQuestMap;
         typedef std::list<NPCVendorEntry> NPCVendorList;
         typedef std::vector<NPCVendorList> GameEventNPCVendorMap;
-        typedef std::map<uint32 /*quest id*/, GameEventQuestToEventConditionNum> QuestIdToEventConditionMap;
-        typedef std::pair<uint32 /*guid*/, uint32 /*npcflag*/> GuidNPCFlagPair;
+        typedef std::map<uint32, GameEventQuestToEventConditionNum> QuestIdToEventConditionMap; ///< std::map<QuestID, GameEventQuestToEventConditionNum>
+        typedef std::pair<uint32, uint32> GuidNPCFlagPair;                                      ///< std::pair<Guid, NpcFlag>
         typedef std::list<GuidNPCFlagPair> NPCFlagList;
         typedef std::vector<NPCFlagList> GameEventNPCFlagMap;
         typedef std::vector<uint32> GameEventBitmask;

@@ -5005,7 +5005,7 @@ class npc_force_of_nature : public CreatureScript
 };
 
 // Swiftmend - 142423
-class spell_special_swiftmend : public SpellScriptLoader
+class spell_special_swiftmend: public SpellScriptLoader
 {
     public:
         spell_special_swiftmend() : SpellScriptLoader("spell_special_swiftmend") { }

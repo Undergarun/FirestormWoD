@@ -318,7 +318,7 @@ class npc_baltharus_the_warborn_clone : public CreatureScript
         }
 };
 
-class spell_baltharus_enervating_brand_trigger : public SpellScriptLoader
+class spell_baltharus_enervating_brand_trigger: public SpellScriptLoader
 {
     public:
         spell_baltharus_enervating_brand_trigger() : SpellScriptLoader("spell_baltharus_enervating_brand_trigger") { }

@@ -891,12 +891,12 @@ enum Opcodes
         SMSG_GARRISON_LIST_FOLLOWERS_CHEAT_RESULT                       = 0x0000,
         SMSG_GARRISON_UPDATE_FOLLOWER_ACTIVATION_COUNT                  = 0x0D92,   ///< 6.0.3 19116
         SMSG_GARRISON_UPDATE_FOLLOWER                                   = 0x11C1,   ///< 6.0.3 19116
+        SMSG_GARRISON_FOLLOWER_CHANGED_XP                               = 0x1B64,   ///< 6.0.3 19116
+        SMSG_GARRISON_FOLLOWER_CHANGED_ITEM_LEVEL                       = 0x0000,
         SMSG_GARRISON_ADD_MISSION_RESULT                                = 0x0973,   ///< 6.0.3 19116
         SMSG_GARRISON_START_MISSION_RESULT                              = 0x0D01,   ///< 6.0.3 19116
         SMSG_GARRISON_COMPLETE_MISSION_RESULT                           = 0x0D54,   ///< 6.0.3 19116
-        SMSG_GARRISON_MISSION_BONUS_ROLL_RESULT                         = 0x0000,
-        SMSG_GARRISON_FOLLOWER_CHANGED_XP                               = 0x0000,
-        SMSG_GARRISON_FOLLOWER_CHANGED_ITEM_LEVEL                       = 0x0000,
+        SMSG_GARRISON_MISSION_BONUS_ROLL_RESULT                         = 0x0952,   ///< 6.0.3 19116
         SMSG_GARRISON_ASSIGN_FOLLOWER_TO_BUILDING_RESULT                = 0x0000,
         SMSG_GARRISON_REMOVE_FOLLOWER_FROM_BUILDING_RESULT              = 0x0000,
         SMSG_GARRISON_DELETE_RESULT                                     = 0x0000,
@@ -949,7 +949,7 @@ enum Opcodes
     CMSG_GARRISON_ADD_MISSION_CHEAT                         = 0x0000,
     CMSG_GARRISON_START_MISSION                             = 0x1624,   ///< 6.0.3 19116
     CMSG_GARRISON_COMPLETE_MISSION                          = 0x102C,   ///< 6.0.3 19116
-    CMSG_GARRISON_MISSION_BONUS_ROLL                        = 0x0000,
+    CMSG_GARRISON_MISSION_BONUS_ROLL                        = 0x02C2,   ///< 6.0.3 19116
     CMSG_GARRISON_REQUEST_UPGRADEABLE                       = 0x02BD,   ///< 6.0.3 19116
     CMSG_GARRISON_REQUEST_LANDING_PAGE_SHIPMENT_INFO        = 0x0000,
     CMSG_GARRISON_MISSION_NPC_HELLO                         = 0x03D9,   ///< 6.0.3 19116
@@ -1146,9 +1146,10 @@ enum Opcodes
     CMSG_UNLEARN_SKILL                          = 0x0A26,   ///< 6.0.3 19116
     CMSG_EMOTE                                  = 0x0A27,   ///> 6.0.3 19116
     CMSG_SEND_TEXT_EMOTE                        = 0x1901,   ///< 6.0.3 19116
-    CMSG_ALTER_APPEARANCE                       = 0x13E9,   ///< 6.0.3 19166
-    CMSG_SELF_RES                               = 0x1343,   ///< 6.0.3 19166
-    CMSG_READ_ITEM                              = 0x09B9,   ///< 6.0.3 19166
+    CMSG_ALTER_APPEARANCE                       = 0x13E9,   ///< 6.0.3 19116
+    CMSG_SELF_RES                               = 0x1343,   ///< 6.0.3 19116
+    CMSG_READ_ITEM                              = 0x09B9,   ///< 6.0.3 19116
+    CMSG_COMPLETE_MOVIE                         = 0x13D4,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Vehicles
@@ -1178,6 +1179,7 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     CMSG_SET_TAXI_BENCHMARK_MODE                = 0x1332,   ///< 6.0.3 19116
     CMSG_ENABLE_TAXI_NODE                       = 0x00D2,   ///< 6.0.3 19116
+    CMSG_TAXI_HELLO                             = 0x000E,   ///< 6.0.3 19116
     CMSG_ACTIVATE_TAXI                          = 0x0311,   ///< 6.0.3 19116
     CMSG_ACTIVATE_TAXI_EXPRESS                  = 0x1B52,   ///< 6.0.3 19116
 
@@ -1629,7 +1631,6 @@ enum Opcodes
     CMSG_COMMENTATOR_SKIRMISH_QUEUE_COMMAND             = 0x0000,
     CMSG_COMMENTATOR_START_WARGAME                      = 0x0000,
     CMSG_COMPLAIN                                       = 0x0000,
-    CMSG_COMPLETE_MOVIE                                 = 0x0000,
     CMSG_CONNECT_TO_FAILED                              = 0x0000,
     CMSG_DANCE_QUERY                                    = 0x0000,
     CMSG_DEL_VOICE_IGNORE                               = 0x0000,

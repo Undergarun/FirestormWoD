@@ -122,7 +122,7 @@ class mob_lieutenant_krugruk : public CreatureScript
         }
 };
 
-class mob_korgra_the_snake: public CreatureScript
+class mob_korgra_the_snake : public CreatureScript
 {
     public:
         mob_korgra_the_snake() : CreatureScript("mob_korgra_the_snake") { }

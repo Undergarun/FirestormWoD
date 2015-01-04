@@ -183,7 +183,7 @@ public:
 
 };
 
-class spell_krystallus_shatter : public SpellScriptLoader
+class spell_krystallus_shatter: public SpellScriptLoader
 {
     public:
         spell_krystallus_shatter() : SpellScriptLoader("spell_krystallus_shatter") { }
@@ -213,7 +213,7 @@ class spell_krystallus_shatter : public SpellScriptLoader
         }
 };
 
-class spell_krystallus_shatter_effect : public SpellScriptLoader
+class spell_krystallus_shatter_effect: public SpellScriptLoader
 {
     public:
         spell_krystallus_shatter_effect() : SpellScriptLoader("spell_krystallus_shatter_effect") { }

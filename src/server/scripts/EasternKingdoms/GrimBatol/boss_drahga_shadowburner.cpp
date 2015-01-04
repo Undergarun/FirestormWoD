@@ -462,7 +462,7 @@ class npc_seeping_twilight : public CreatureScript
         };
 };
 
-class spell_drahga_supernova : public SpellScriptLoader
+class spell_drahga_supernova: public SpellScriptLoader
 {
     public:
         spell_drahga_supernova() : SpellScriptLoader("spell_drahga_supernova") { }

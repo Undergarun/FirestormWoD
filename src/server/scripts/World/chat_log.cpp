@@ -20,7 +20,7 @@
 #include "Guild.h"
 #include "Group.h"
 
-class ChatLogScript : public PlayerScript
+class ChatLogScript: public PlayerScript
 {
 public:
     ChatLogScript() : PlayerScript("ChatLogScript") { }

@@ -561,7 +561,7 @@ class OrientationCheck
         WorldObject* caster;
 };
 
-class spell_isiset_supernova_dis : public SpellScriptLoader
+class spell_isiset_supernova_dis: public SpellScriptLoader
 {
     public:
         spell_isiset_supernova_dis() : SpellScriptLoader("spell_isiset_supernova_dis") { }
@@ -586,7 +586,7 @@ class spell_isiset_supernova_dis : public SpellScriptLoader
         }
 };
 
-class spell_isiset_supernova_dmg : public SpellScriptLoader
+class spell_isiset_supernova_dmg: public SpellScriptLoader
 {
     public:
         spell_isiset_supernova_dmg() : SpellScriptLoader("spell_isiset_supernova_dmg") { }

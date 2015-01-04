@@ -386,7 +386,7 @@ class npc_kilnara_temple_rat : public CreatureScript
         };
 };
 
-class spell_kilnara_wave_of_agony_target : public SpellScriptLoader
+class spell_kilnara_wave_of_agony_target: public SpellScriptLoader
 {
     public:
         spell_kilnara_wave_of_agony_target() : SpellScriptLoader("spell_kilnara_wave_of_agony_target") { }
@@ -417,7 +417,7 @@ class spell_kilnara_wave_of_agony_target : public SpellScriptLoader
         }
 };
 
-class spell_kilnara_wave_of_agony_start : public SpellScriptLoader
+class spell_kilnara_wave_of_agony_start: public SpellScriptLoader
 {
     public:
         spell_kilnara_wave_of_agony_start() : SpellScriptLoader("spell_kilnara_wave_of_agony_start") { }
@@ -467,7 +467,7 @@ class PrideCheck
         }
 };
 
-class spell_kilnara_rat_lure : public SpellScriptLoader
+class spell_kilnara_rat_lure: public SpellScriptLoader
 {
     public:
         spell_kilnara_rat_lure() : SpellScriptLoader("spell_kilnara_rat_lure") { }

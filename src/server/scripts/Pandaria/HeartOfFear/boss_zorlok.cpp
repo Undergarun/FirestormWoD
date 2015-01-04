@@ -1357,7 +1357,7 @@ class mob_sonic_pulse : public CreatureScript
 };
 
 // Inhale - 122852
-class spell_inhale : public SpellScriptLoader
+class spell_inhale: public SpellScriptLoader
 {
     public:
         spell_inhale() : SpellScriptLoader("spell_inhale") { }
@@ -1385,7 +1385,7 @@ class spell_inhale : public SpellScriptLoader
 };
 
 // Attenuation - 122440
-class spell_attenuation : public SpellScriptLoader
+class spell_attenuation: public SpellScriptLoader
 {
     public:
         spell_attenuation() : SpellScriptLoader("spell_attenuation") { }
@@ -1419,7 +1419,7 @@ class spell_attenuation : public SpellScriptLoader
 };
 
 // Force and Verve (Aura) - 122718
-class spell_force_verve : public SpellScriptLoader
+class spell_force_verve: public SpellScriptLoader
 {
     public:
         spell_force_verve() : SpellScriptLoader("spell_force_verve") { }
@@ -1455,7 +1455,7 @@ class spell_force_verve : public SpellScriptLoader
 };
 
 // Sonic Ring (Aura) - 122336
-class spell_sonic_ring : public SpellScriptLoader
+class spell_sonic_ring: public SpellScriptLoader
 {
     public:
         spell_sonic_ring() : SpellScriptLoader("spell_sonic_ring") { }
@@ -1506,7 +1506,7 @@ class spell_sonic_ring : public SpellScriptLoader
 };
 
 // Sonic Pulse (Aura) - 124673
-class spell_sonic_pulse : public SpellScriptLoader
+class spell_sonic_pulse: public SpellScriptLoader
 {
     public:
         spell_sonic_pulse() : SpellScriptLoader("spell_sonic_pulse") { }
@@ -1578,7 +1578,7 @@ class ExhaleTargetFilter : public std::unary_function<Unit*, bool>
 };
 
 // Exhale: 122761
-class spell_zorlok_exhale : public SpellScriptLoader
+class spell_zorlok_exhale: public SpellScriptLoader
 {
     public:
         spell_zorlok_exhale() : SpellScriptLoader("spell_zorlok_exhale") { }
@@ -1658,7 +1658,7 @@ class spell_zorlok_exhale : public SpellScriptLoader
 };
 
 // Exhale (damage): 122760
-class spell_zorlok_exhale_damage : public SpellScriptLoader
+class spell_zorlok_exhale_damage: public SpellScriptLoader
 {
     public:
         spell_zorlok_exhale_damage() : SpellScriptLoader("spell_zorlok_exhale_damage") { }
@@ -1730,7 +1730,7 @@ class spell_zorlok_exhale_damage : public SpellScriptLoader
 };
 
 // 122740 - Convert
-class spell_convert : public SpellScriptLoader
+class spell_convert: public SpellScriptLoader
 {
     public :
         spell_convert() : SpellScriptLoader("spell_convert") { }

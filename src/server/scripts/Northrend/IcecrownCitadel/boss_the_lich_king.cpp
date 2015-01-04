@@ -2349,7 +2349,7 @@ class npc_broken_frostmourne : public CreatureScript
         }
 };
 
-class spell_the_lich_king_infest : public SpellScriptLoader
+class spell_the_lich_king_infest: public SpellScriptLoader
 {
     public:
         spell_the_lich_king_infest() :  SpellScriptLoader("spell_the_lich_king_infest") { }
@@ -2389,7 +2389,7 @@ class spell_the_lich_king_infest : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_necrotic_plague : public SpellScriptLoader
+class spell_the_lich_king_necrotic_plague: public SpellScriptLoader
 {
     public:
         spell_the_lich_king_necrotic_plague() :  SpellScriptLoader("spell_the_lich_king_necrotic_plague") { }
@@ -2437,7 +2437,7 @@ class spell_the_lich_king_necrotic_plague : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_necrotic_plague_jump : public SpellScriptLoader
+class spell_the_lich_king_necrotic_plague_jump: public SpellScriptLoader
 {
     public:
         spell_the_lich_king_necrotic_plague_jump() :  SpellScriptLoader("spell_the_lich_king_necrotic_plague_jump") { }
@@ -2561,7 +2561,7 @@ class spell_the_lich_king_necrotic_plague_jump : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_shadow_trap_visual : public SpellScriptLoader
+class spell_the_lich_king_shadow_trap_visual: public SpellScriptLoader
 {
     public:
         spell_the_lich_king_shadow_trap_visual() : SpellScriptLoader("spell_the_lich_king_shadow_trap_visual") { }
@@ -2588,7 +2588,7 @@ class spell_the_lich_king_shadow_trap_visual : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_shadow_trap_periodic : public SpellScriptLoader
+class spell_the_lich_king_shadow_trap_periodic: public SpellScriptLoader
 {
     public:
         spell_the_lich_king_shadow_trap_periodic() : SpellScriptLoader("spell_the_lich_king_shadow_trap_periodic") { }
@@ -2617,7 +2617,7 @@ class spell_the_lich_king_shadow_trap_periodic : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_quake : public SpellScriptLoader
+class spell_the_lich_king_quake: public SpellScriptLoader
 {
     public:
         spell_the_lich_king_quake() : SpellScriptLoader("spell_the_lich_king_quake") { }
@@ -2656,7 +2656,7 @@ class spell_the_lich_king_quake : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_ice_burst_target_search : public SpellScriptLoader
+class spell_the_lich_king_ice_burst_target_search: public SpellScriptLoader
 {
     public:
         spell_the_lich_king_ice_burst_target_search() : SpellScriptLoader("spell_the_lich_king_ice_burst_target_search") { }
@@ -2699,7 +2699,7 @@ class spell_the_lich_king_ice_burst_target_search : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_raging_spirit : public SpellScriptLoader
+class spell_the_lich_king_raging_spirit: public SpellScriptLoader
 {
     public:
         spell_the_lich_king_raging_spirit() : SpellScriptLoader("spell_the_lich_king_raging_spirit") { }
@@ -2748,7 +2748,7 @@ class ExactDistanceCheck
         float _dist;
 };
 
-class spell_the_lich_king_defile : public SpellScriptLoader
+class spell_the_lich_king_defile: public SpellScriptLoader
 {
     public:
         spell_the_lich_king_defile() : SpellScriptLoader("spell_the_lich_king_defile") { }
@@ -2785,7 +2785,7 @@ class spell_the_lich_king_defile : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_summon_into_air : public SpellScriptLoader
+class spell_the_lich_king_summon_into_air: public SpellScriptLoader
 {
     public:
         spell_the_lich_king_summon_into_air() : SpellScriptLoader("spell_the_lich_king_summon_into_air") { }
@@ -2820,7 +2820,7 @@ class spell_the_lich_king_summon_into_air : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_soul_reaper : public SpellScriptLoader
+class spell_the_lich_king_soul_reaper: public SpellScriptLoader
 {
     public:
         spell_the_lich_king_soul_reaper() :  SpellScriptLoader("spell_the_lich_king_soul_reaper") { }
@@ -2854,7 +2854,7 @@ class spell_the_lich_king_soul_reaper : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_valkyr_target_search : public SpellScriptLoader
+class spell_the_lich_king_valkyr_target_search: public SpellScriptLoader
 {
     public:
         spell_the_lich_king_valkyr_target_search() : SpellScriptLoader("spell_the_lich_king_valkyr_target_search") { }
@@ -2920,7 +2920,7 @@ class spell_the_lich_king_valkyr_target_search : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_eject_all_passengers : public SpellScriptLoader
+class spell_the_lich_king_eject_all_passengers: public SpellScriptLoader
 {
     public:
         spell_the_lich_king_eject_all_passengers() : SpellScriptLoader("spell_the_lich_king_eject_all_passengers") { }
@@ -2952,7 +2952,7 @@ class spell_the_lich_king_eject_all_passengers : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_cast_back_to_caster : public SpellScriptLoader
+class spell_the_lich_king_cast_back_to_caster: public SpellScriptLoader
 {
     public:
         spell_the_lich_king_cast_back_to_caster() :  SpellScriptLoader("spell_the_lich_king_cast_back_to_caster") { }
@@ -2978,7 +2978,7 @@ class spell_the_lich_king_cast_back_to_caster : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_life_siphon : public SpellScriptLoader
+class spell_the_lich_king_life_siphon: public SpellScriptLoader
 {
     public:
         spell_the_lich_king_life_siphon() : SpellScriptLoader("spell_the_lich_king_life_siphon") { }
@@ -3011,7 +3011,7 @@ class spell_the_lich_king_life_siphon : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_vile_spirits : public SpellScriptLoader
+class spell_the_lich_king_vile_spirits: public SpellScriptLoader
 {
     public:
         spell_the_lich_king_vile_spirits() : SpellScriptLoader("spell_the_lich_king_vile_spirits") { }
@@ -3046,7 +3046,7 @@ class spell_the_lich_king_vile_spirits : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_vile_spirits_visual : public SpellScriptLoader
+class spell_the_lich_king_vile_spirits_visual: public SpellScriptLoader
 {
     public:
         spell_the_lich_king_vile_spirits_visual() : SpellScriptLoader("spell_the_lich_king_vile_spirits_visual") { }
@@ -3073,7 +3073,7 @@ class spell_the_lich_king_vile_spirits_visual : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_vile_spirit_move_target_search : public SpellScriptLoader
+class spell_the_lich_king_vile_spirit_move_target_search: public SpellScriptLoader
 {
     public:
         spell_the_lich_king_vile_spirit_move_target_search() : SpellScriptLoader("spell_the_lich_king_vile_spirit_move_target_search") { }
@@ -3124,7 +3124,7 @@ class spell_the_lich_king_vile_spirit_move_target_search : public SpellScriptLoa
         }
 };
 
-class spell_the_lich_king_vile_spirit_damage_target_search : public SpellScriptLoader
+class spell_the_lich_king_vile_spirit_damage_target_search: public SpellScriptLoader
 {
     public:
         spell_the_lich_king_vile_spirit_damage_target_search() : SpellScriptLoader("spell_the_lich_king_vile_spirit_damage_target_search") { }
@@ -3167,7 +3167,7 @@ class spell_the_lich_king_vile_spirit_damage_target_search : public SpellScriptL
         }
 };
 
-class spell_the_lich_king_harvest_soul : public SpellScriptLoader
+class spell_the_lich_king_harvest_soul: public SpellScriptLoader
 {
     public:
         spell_the_lich_king_harvest_soul() : SpellScriptLoader("spell_the_lich_king_harvest_soul") { }
@@ -3200,7 +3200,7 @@ class spell_the_lich_king_harvest_soul : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_lights_favor : public SpellScriptLoader
+class spell_the_lich_king_lights_favor: public SpellScriptLoader
 {
     public:
         spell_the_lich_king_lights_favor() : SpellScriptLoader("spell_the_lich_king_lights_favor") { }
@@ -3237,7 +3237,7 @@ class spell_the_lich_king_lights_favor : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_soul_rip : public SpellScriptLoader
+class spell_the_lich_king_soul_rip: public SpellScriptLoader
 {
     public:
         spell_the_lich_king_soul_rip() : SpellScriptLoader("spell_the_lich_king_soul_rip") { }
@@ -3266,7 +3266,7 @@ class spell_the_lich_king_soul_rip : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_restore_soul : public SpellScriptLoader
+class spell_the_lich_king_restore_soul: public SpellScriptLoader
 {
     public:
         spell_the_lich_king_restore_soul() : SpellScriptLoader("spell_the_lich_king_restore_soul") { }
@@ -3315,7 +3315,7 @@ class spell_the_lich_king_restore_soul : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_in_frostmourne_room : public SpellScriptLoader
+class spell_the_lich_king_in_frostmourne_room: public SpellScriptLoader
 {
     public:
         spell_the_lich_king_in_frostmourne_room() : SpellScriptLoader("spell_the_lich_king_in_frostmourne_room") { }
@@ -3348,7 +3348,7 @@ class spell_the_lich_king_in_frostmourne_room : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_summon_spirit_bomb : public SpellScriptLoader
+class spell_the_lich_king_summon_spirit_bomb: public SpellScriptLoader
 {
     public:
         spell_the_lich_king_summon_spirit_bomb() : SpellScriptLoader("spell_the_lich_king_summon_spirit_bomb") { }
@@ -3375,7 +3375,7 @@ class spell_the_lich_king_summon_spirit_bomb : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_trigger_vile_spirit : public SpellScriptLoader
+class spell_the_lich_king_trigger_vile_spirit: public SpellScriptLoader
 {
     public:
         spell_the_lich_king_trigger_vile_spirit() : SpellScriptLoader("spell_the_lich_king_trigger_vile_spirit") { }
@@ -3405,7 +3405,7 @@ class spell_the_lich_king_trigger_vile_spirit : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_jump : public SpellScriptLoader
+class spell_the_lich_king_jump: public SpellScriptLoader
 {
     public:
         spell_the_lich_king_jump() : SpellScriptLoader("spell_the_lich_king_jump") { }
@@ -3435,7 +3435,7 @@ class spell_the_lich_king_jump : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_jump_remove_aura : public SpellScriptLoader
+class spell_the_lich_king_jump_remove_aura: public SpellScriptLoader
 {
     public:
         spell_the_lich_king_jump_remove_aura() : SpellScriptLoader("spell_the_lich_king_jump_remove_aura") { }
@@ -3462,7 +3462,7 @@ class spell_the_lich_king_jump_remove_aura : public SpellScriptLoader
         }
 };
 
-class spell_the_lich_king_wings_of_the_damned : public SpellScriptLoader
+class spell_the_lich_king_wings_of_the_damned: public SpellScriptLoader
 {
     public:
         spell_the_lich_king_wings_of_the_damned() : SpellScriptLoader("spell_the_lich_king_wings_of_the_damned") { }

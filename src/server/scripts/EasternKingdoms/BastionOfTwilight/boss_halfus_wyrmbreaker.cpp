@@ -720,7 +720,7 @@ class npc_halfus_dragon : public CreatureScript
         };
 };
 
-class spell_halfus_stone_grip : public SpellScriptLoader
+class spell_halfus_stone_grip: public SpellScriptLoader
 {
     public:                                                      
         spell_halfus_stone_grip() : SpellScriptLoader("spell_halfus_stone_grip") { }
@@ -750,7 +750,7 @@ class spell_halfus_stone_grip : public SpellScriptLoader
         }
 };
 
-class spell_halfus_fireball_barrage : public SpellScriptLoader
+class spell_halfus_fireball_barrage: public SpellScriptLoader
 {
     public:
         spell_halfus_fireball_barrage() : SpellScriptLoader("spell_halfus_fireball_barrage") { }

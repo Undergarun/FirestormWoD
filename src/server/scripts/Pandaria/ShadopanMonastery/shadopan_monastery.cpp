@@ -326,7 +326,7 @@ class npc_shadopan_hatred : public CreatureScript
         }
 };
 
-class spell_shadopan_explosion : public SpellScriptLoader
+class spell_shadopan_explosion: public SpellScriptLoader
 {
     public:
         spell_shadopan_explosion() : SpellScriptLoader("spell_shadopan_explosion") { }
@@ -354,7 +354,7 @@ class spell_shadopan_explosion : public SpellScriptLoader
         }
 };
 
-class spell_shadopan_apparitions : public SpellScriptLoader
+class spell_shadopan_apparitions: public SpellScriptLoader
 {
     public:
         spell_shadopan_apparitions() : SpellScriptLoader("spell_shadopan_apparitions") { }

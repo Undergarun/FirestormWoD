@@ -259,7 +259,7 @@ class boss_garfrost : public CreatureScript
         }
 };
 
-class spell_garfrost_permafrost : public SpellScriptLoader
+class spell_garfrost_permafrost: public SpellScriptLoader
 {
     public:
         spell_garfrost_permafrost() : SpellScriptLoader("spell_garfrost_permafrost") { }

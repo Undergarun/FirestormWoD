@@ -810,7 +810,7 @@ class mob_anubarak_spike : public CreatureScript
         };
 };
 
-class spell_impale : public SpellScriptLoader
+class spell_impale: public SpellScriptLoader
 {
     public:
         spell_impale() : SpellScriptLoader("spell_impale") { }

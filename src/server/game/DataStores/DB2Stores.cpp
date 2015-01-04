@@ -52,6 +52,7 @@ DB2Storage <SpellPowerEntry>                sSpellPowerStore(SpellPowerEntryfmt)
 DB2Storage <SpellTotemsEntry>               sSpellTotemsStore(SpellTotemsEntryfmt);
 DB2Storage <SpellClassOptionsEntry>         sSpellClassOptionsStore(SpellClassOptionsEntryfmt);
 DB2Storage <MapChallengeModeEntry>          sMapChallengeModeStore(MapChallengeModeEntryfmt);
+DB2Storage <QuestPackageItemEntry>          sQuestPackageItemStore(QuestPackageItemEntryfmt);
 
 //////////////////////////////////////////////////////////////////////////
 /// Garrison DB2
@@ -62,6 +63,8 @@ DB2Storage <GarrPlotInstanceEntry>          sGarrPlotInstanceStore(GarrPlotInsta
 DB2Storage <GarrPlotEntry>                  sGarrPlotStore(GarrPlotEntryfmt);
 DB2Storage <GarrPlotUICategoryEntry>        sGarrPlotUICategoryStore(GarrPlotUICategoryEntryfmt);
 DB2Storage <GarrMissionEntry>               sGarrMissionStore(GarrMissionEntryfmt);
+DB2Storage <GarrMissionRewardEntry>         sGarrMissionRewardStore(GarrMissionRewardEntryfmt);
+DB2Storage <GarrMissionXEncouterEntry>      sGarrMissionXEncouterStore(GarrMissionXEncouterEntryfmt);
 DB2Storage <GarrBuildingEntry>              sGarrBuildingStore(GarrBuildingEntryfmt);
 DB2Storage <GarrPlotBuildingEntry>          sGarrPlotBuildingStore(GarrPlotBuildingEntryfmt);
 DB2Storage <GarrFollowerEntry>              sGarrFollowerStore(GarrFollowerEntryfmt);
@@ -71,7 +74,6 @@ DB2Storage <GarrFollowerXAbilityEntry>      sGarrFollowerXAbilityStore(GarrFollo
 DB2Storage <GarrBuildingPlotInstEntry>      sGarrBuildingPlotInstStore(GarrBuildingPlotInstEntryfmt);
 DB2Storage <GarrMechanicTypeEntry>          sGarrMechanicTypeStore(GarrMechanicTypeEntryfmt);
 DB2Storage <GarrMechanicEntry>              sGarrMechanicStore(GarrMechanicEntryfmt);
-DB2Storage <GarrMissionXEncouterEntry>      sGarrMissionXEncouterStore(GarrMissionXEncouterEntryfmt);
 DB2Storage <GarrEncouterXMechanicEntry>     sGarrEncouterXMechanicStore(GarrEncouterXMechanicEntryfmt);
 DB2Storage <GarrFollowerLevelXPEntry>       sGarrFollowerLevelXPStore(GarrFollowerLevelXPEntryfmt);
 DB2Storage <GarrSpecializationEntry>        sGarrSpecializationStore(GarrSpecializationEntryfmt);
@@ -97,6 +99,8 @@ TaxiPathNodesByPath sTaxiPathNodesByPath;
 SpellTotemMap sSpellTotemMap;
 std::map<uint32, std::vector<uint32>> sItemEffectsByItemID;
 std::map<uint32, std::vector<ItemBonusEntry const*>> sItemBonusesByID;
+std::map<uint32, std::vector<QuestPackageItemEntry const*>> sQuestPackageItemsByGroup;
+
 typedef std::list<std::string> StoreProblemList1;
 
 uint32 DB2FilesCount = 0;
@@ -158,7 +162,34 @@ void LoadDB2Stores(const std::string& dataPath)
 
     StoreProblemList1 bad_db2_files;
 
-    LoadDB2(bad_db2_files, sBattlePetSpeciesStore,          db2Path, "BattlePetSpecies.db2");
+    //////////////////////////////////////////////////////////////////////////
+    /// Misc DB2
+    //////////////////////////////////////////////////////////////////////////
+    LoadDB2(bad_db2_files, sAreaPOIStore,                   db2Path, "AreaPOI.db2");
+    LoadDB2(bad_db2_files, sHolidaysStore,                  db2Path, "Holidays.db2");
+    LoadDB2(bad_db2_files, sMapChallengeModeStore,          db2Path, "MapChallengeMode.db2");
+
+    //////////////////////////////////////////////////////////////////////////
+    /// Quest DB2
+    //////////////////////////////////////////////////////////////////////////
+    LoadDB2(bad_db2_files, sQuestPackageItemStore,          db2Path, "QuestPackageItem.db2");
+
+    //////////////////////////////////////////////////////////////////////////
+    /// Scene Script DB2
+    //////////////////////////////////////////////////////////////////////////
+    LoadDB2(bad_db2_files, sSceneScriptStore,               db2Path, "SceneScript.db2");
+    LoadDB2(bad_db2_files, sSceneScriptPackageStore,        db2Path, "SceneScriptPackage.db2");
+
+    //////////////////////////////////////////////////////////////////////////
+    /// Taxi DB2
+    //////////////////////////////////////////////////////////////////////////
+    LoadDB2(bad_db2_files, sTaxiNodesStore,                 db2Path, "TaxiNodes.db2");
+    LoadDB2(bad_db2_files, sTaxiPathStore,                  db2Path, "TaxiPath.db2");
+    LoadDB2(bad_db2_files, sTaxiPathNodeStore,              db2Path, "TaxiPathNode.db2");
+
+    //////////////////////////////////////////////////////////////////////////
+    /// Item DB2
+    //////////////////////////////////////////////////////////////////////////
     LoadDB2(bad_db2_files, sItemStore,                      db2Path, "Item.db2");
     LoadDB2(bad_db2_files, sItemBonusStore,                 db2Path, "ItemBonus.db2");
     LoadDB2(bad_db2_files, sItemCurrencyCostStore,          db2Path, "ItemCurrencyCost.db2");
@@ -168,25 +199,21 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sItemAppearanceStore,            db2Path, "ItemAppearance.db2");
     LoadDB2(bad_db2_files, sItemExtendedCostStore,          db2Path, "ItemExtendedCost.db2");
     LoadDB2(bad_db2_files, sPvpItemStore,                   db2Path, "PvpItem.db2");
-    LoadDB2(bad_db2_files, sSpellReagentsStore,             db2Path, "SpellReagents.db2");
     LoadDB2(bad_db2_files, sItemUpgradeStore,               db2Path, "ItemUpgrade.db2");
     LoadDB2(bad_db2_files, sRulesetItemUpgradeStore,        db2Path, "RulesetItemUpgrade.db2");
-    LoadDB2(bad_db2_files, sSceneScriptStore,               db2Path, "SceneScript.db2");
-    LoadDB2(bad_db2_files, sSceneScriptPackageStore,        db2Path, "SceneScriptPackage.db2");
-    LoadDB2(bad_db2_files, sTaxiNodesStore,                 db2Path, "TaxiNodes.db2");
-    LoadDB2(bad_db2_files, sTaxiPathStore,                  db2Path, "TaxiPath.db2");
-    LoadDB2(bad_db2_files, sTaxiPathNodeStore,              db2Path, "TaxiPathNode.db2");
+
+    //////////////////////////////////////////////////////////////////////////
+    /// Spell DB2
+    //////////////////////////////////////////////////////////////////////////
+    LoadDB2(bad_db2_files, sSpellReagentsStore,             db2Path, "SpellReagents.db2");
     LoadDB2(bad_db2_files, sSpellRuneCostStore,             db2Path, "SpellRuneCost.db2");
     LoadDB2(bad_db2_files, sSpellCastingRequirementsStore,  db2Path, "SpellCastingRequirements.db2");
     LoadDB2(bad_db2_files, sSpellAuraRestrictionsStore,     db2Path, "SpellAuraRestrictions.db2");
-    LoadDB2(bad_db2_files, sAreaPOIStore,                   db2Path, "AreaPOI.db2");
-    LoadDB2(bad_db2_files, sHolidaysStore,                  db2Path, "Holidays.db2");
     LoadDB2(bad_db2_files, sOverrideSpellDataStore,         db2Path, "OverrideSpellData.db2");
     LoadDB2(bad_db2_files, sSpellMiscStore,                 db2Path, "SpellMisc.db2");
     LoadDB2(bad_db2_files, sSpellPowerStore,                db2Path, "SpellPower.db2");
     LoadDB2(bad_db2_files, sSpellTotemsStore,               db2Path, "SpellTotems.db2");
     LoadDB2(bad_db2_files, sSpellClassOptionsStore,         db2Path, "SpellClassOptions.db2");
-    LoadDB2(bad_db2_files, sMapChallengeModeStore,          db2Path, "MapChallengeMode.db2");
 
     //////////////////////////////////////////////////////////////////////////
     /// Garrison DB2
@@ -197,6 +224,8 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sGarrPlotStore,                  db2Path, "GarrPlot.db2");
     LoadDB2(bad_db2_files, sGarrPlotUICategoryStore,        db2Path, "GarrPlotUICategory.db2");
     LoadDB2(bad_db2_files, sGarrMissionStore,               db2Path, "GarrMission.db2");
+    LoadDB2(bad_db2_files, sGarrMissionRewardStore,         db2Path, "GarrMissionReward.db2");
+    LoadDB2(bad_db2_files, sGarrMissionXEncouterStore,      db2Path, "GarrMissionXEncounter.db2");
     LoadDB2(bad_db2_files, sGarrBuildingStore,              db2Path, "GarrBuilding.db2");
     LoadDB2(bad_db2_files, sGarrPlotBuildingStore,          db2Path, "GarrPlotBuilding.db2");
     LoadDB2(bad_db2_files, sGarrFollowerStore,              db2Path, "GarrFollower.db2");
@@ -206,13 +235,12 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sGarrBuildingPlotInstStore,      db2Path, "GarrBuildingPlotInst.db2");
     LoadDB2(bad_db2_files, sGarrMechanicTypeStore,          db2Path, "GarrMechanicType.db2");
     LoadDB2(bad_db2_files, sGarrMechanicStore,              db2Path, "GarrMechanic.db2");
-    LoadDB2(bad_db2_files, sGarrMissionXEncouterStore,      db2Path, "GarrMissionXEncounter.db2");
     LoadDB2(bad_db2_files, sGarrEncouterXMechanicStore,     db2Path, "GarrEncounterXMechanic.db2");
     LoadDB2(bad_db2_files, sGarrFollowerLevelXPStore,       db2Path, "GarrFollowerLevelXP.db2");
     LoadDB2(bad_db2_files, sGarrSpecializationStore,        db2Path, "GarrSpecialization.db2");
 
     //////////////////////////////////////////////////////////////////////////
-    /// Battle pet
+    /// Battle pet DB2
     //////////////////////////////////////////////////////////////////////////
     LoadDB2(bad_db2_files, sBattlePetAbilityStore,          db2Path, "BattlePetAbility.db2");
     LoadDB2(bad_db2_files, sBattlePetAbilityEffectStore,    db2Path, "BattlePetAbilityEffect.db2");
@@ -267,6 +295,16 @@ void LoadDB2Stores(const std::string& dataPath)
         }
 
         sItemBonusesByID[l_Entry->Entry][l_Entry->Index] = l_Entry;
+    }
+
+    /// - Load quest package items
+    for (uint32 l_I = 0; l_I < sQuestPackageItemStore.GetNumRows(); l_I++)
+    {
+        QuestPackageItemEntry const* l_QuestPackageItem = sQuestPackageItemStore.LookupEntry(l_I);
+        if (l_QuestPackageItem == nullptr)
+            continue;
+
+        sQuestPackageItemsByGroup[l_QuestPackageItem->PackageID].push_back(l_QuestPackageItem);
     }
 
     // Initialize global taxinodes mask

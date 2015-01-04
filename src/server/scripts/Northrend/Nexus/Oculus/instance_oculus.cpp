@@ -137,18 +137,6 @@ class instance_oculus : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectRemove(GameObject* go) 
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_DRAGON_CAGE_DOOR:
-                        AddDoor(go, false);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
             void OnUnitDeath(Unit* unit) 
             {
                 Creature* creature = unit->ToCreature();
@@ -165,7 +153,7 @@ class instance_oculus : public InstanceMapScript
                 }
             }
 
-            void FillInitialWorldStates(WorldPacket& data) 
+            void FillInitialWorldStates(ByteBuffer& data)
             {
                 if (GetBossState(DATA_DRAKOS) == DONE && GetBossState(DATA_VAROS) != DONE)
                 {

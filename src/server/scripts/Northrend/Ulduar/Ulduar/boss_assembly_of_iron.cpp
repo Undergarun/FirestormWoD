@@ -543,7 +543,7 @@ class boss_steelbreaker : public CreatureScript
         }
 };
 
-class spell_steelbreaker_static_disruption : public SpellScriptLoader
+class spell_steelbreaker_static_disruption: public SpellScriptLoader
 {
 public:
     spell_steelbreaker_static_disruption() : SpellScriptLoader("spell_steelbreaker_static_disruption") {}
@@ -585,7 +585,7 @@ public:
     }
 };
 
-class spell_steelbreaker_electrical_charge : public SpellScriptLoader
+class spell_steelbreaker_electrical_charge: public SpellScriptLoader
 {
 public:
     spell_steelbreaker_electrical_charge() : SpellScriptLoader("spell_steelbreaker_electrical_charge") {}
@@ -1219,7 +1219,7 @@ class boss_stormcaller_brundir : public CreatureScript
         }
 };
 
-class spell_shield_of_runes : public SpellScriptLoader
+class spell_shield_of_runes: public SpellScriptLoader
 {
     public:
         spell_shield_of_runes() : SpellScriptLoader("spell_shield_of_runes") {}
@@ -1251,7 +1251,7 @@ class spell_shield_of_runes : public SpellScriptLoader
         }
 };
 
-class spell_assembly_meltdown : public SpellScriptLoader
+class spell_assembly_meltdown: public SpellScriptLoader
 {
     public:
         spell_assembly_meltdown() : SpellScriptLoader("spell_assembly_meltdown") {}
@@ -1315,7 +1315,7 @@ struct IsNoAssemblyMember
     }
 };
 
-class spell_supercharge : public SpellScriptLoader
+class spell_supercharge: public SpellScriptLoader
 {
     public:
         spell_supercharge() : SpellScriptLoader("spell_supercharge") {}

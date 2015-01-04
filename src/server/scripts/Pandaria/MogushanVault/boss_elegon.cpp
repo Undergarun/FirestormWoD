@@ -1706,7 +1706,7 @@ class go_celestial_control_console : public GameObjectScript
 };
 
 // Spawn Flash 1 Periodic - 127785
-class spell_spawn_flash_1_periodic : public SpellScriptLoader
+class spell_spawn_flash_1_periodic: public SpellScriptLoader
 {
     public:
         spell_spawn_flash_1_periodic() : SpellScriptLoader("spell_spawn_flash_1_periodic") { }
@@ -1737,7 +1737,7 @@ class spell_spawn_flash_1_periodic : public SpellScriptLoader
 };
 
 // Spawn Flash 2 Periodic - 127783
-class spell_spawn_flash_2_periodic : public SpellScriptLoader
+class spell_spawn_flash_2_periodic: public SpellScriptLoader
 {
     public:
         spell_spawn_flash_2_periodic() : SpellScriptLoader("spell_spawn_flash_2_periodic") { }
@@ -1770,7 +1770,7 @@ class spell_spawn_flash_2_periodic : public SpellScriptLoader
 };
 
 // Spawn Flash 3 Periodic - 127781
-class spell_spawn_flash_3_periodic : public SpellScriptLoader
+class spell_spawn_flash_3_periodic: public SpellScriptLoader
 {
     public:
         spell_spawn_flash_3_periodic() : SpellScriptLoader("spell_spawn_flash_3_periodic") { }
@@ -1799,7 +1799,7 @@ class spell_spawn_flash_3_periodic : public SpellScriptLoader
 };
 
 // Touch of Titans - 117874
-class spell_touch_of_titans : public SpellScriptLoader
+class spell_touch_of_titans: public SpellScriptLoader
 {
     public:
         spell_touch_of_titans() : SpellScriptLoader("spell_touch_of_titans") { }
@@ -1850,7 +1850,7 @@ class spell_touch_of_titans : public SpellScriptLoader
 };
 
 // Radiating Energies - 118313 (outside) or Radiating Energies - 122741 (inside)
-class spell_radiating_energies : public SpellScriptLoader
+class spell_radiating_energies: public SpellScriptLoader
 {
     public:
         spell_radiating_energies() : SpellScriptLoader("spell_radiating_energies") { }
@@ -1888,7 +1888,7 @@ class spell_radiating_energies : public SpellScriptLoader
 };
 
 // Draw Power - 119360 and Draw Power - 124967
-class spell_draw_power : public SpellScriptLoader
+class spell_draw_power: public SpellScriptLoader
 {
     public:
         spell_draw_power() : SpellScriptLoader("spell_draw_power") { }
@@ -1919,7 +1919,7 @@ class spell_draw_power : public SpellScriptLoader
 };
 
 // Core Checker - 118024
-class spell_core_checker : public SpellScriptLoader
+class spell_core_checker: public SpellScriptLoader
 {
     public:
         spell_core_checker() : SpellScriptLoader("spell_core_checker") { }
@@ -1954,7 +1954,7 @@ class spell_core_checker : public SpellScriptLoader
 };
 
 // Grasping Energy Tendrils - 127362
-class spell_grasping_energy_tendrils : public SpellScriptLoader
+class spell_grasping_energy_tendrils: public SpellScriptLoader
 {
     public:
         spell_grasping_energy_tendrils() : SpellScriptLoader("spell_grasping_energy_tendrils") { }
@@ -2007,7 +2007,7 @@ class spell_grasping_energy_tendrils : public SpellScriptLoader
 };
 
 // Destabilizing Energies - 132222
-class spell_destabilizing_energies : public SpellScriptLoader
+class spell_destabilizing_energies: public SpellScriptLoader
 {
     public:
         spell_destabilizing_energies() : SpellScriptLoader("spell_destabilizing_energies") { }
@@ -2040,7 +2040,7 @@ class spell_destabilizing_energies : public SpellScriptLoader
 };
 
 // Total Annihilation - 127911
-class spell_total_annihilation : public SpellScriptLoader
+class spell_total_annihilation: public SpellScriptLoader
 {
     public:
         spell_total_annihilation() : SpellScriptLoader("spell_total_annihilation") { }
@@ -2090,7 +2090,7 @@ class spell_total_annihilation : public SpellScriptLoader
 };
 
 // Unstable Energy - 116994
-class spell_unstable_energy : public SpellScriptLoader
+class spell_unstable_energy: public SpellScriptLoader
 {
     public:
         spell_unstable_energy() : SpellScriptLoader("spell_unstable_energy") { }
