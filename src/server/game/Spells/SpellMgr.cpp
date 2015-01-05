@@ -5246,8 +5246,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].BasePoints = 35;
                 break;
             case 8092: // Mind Blast
-                spellInfo->Effects[1].BasePoints = 0;
-                spellInfo->Effects[3].BasePoints = 1;
+                spellInfo->Effects[1].BasePoints = 1;
+                spellInfo->Effects[3].BasePoints = 0;
                 break;
             case 6346:  // Fear Ward
             case 48108: // Hot Streak
