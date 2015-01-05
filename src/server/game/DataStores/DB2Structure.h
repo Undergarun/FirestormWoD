@@ -38,6 +38,15 @@
 #pragma pack(push, 1)
 #endif
 
+struct CurvePointEntry
+{
+    uint32 ID;                                                      // 0
+    uint32 CurveID;                                                 // 1
+    uint32 Index;                                                   // 2
+    float X;                                                        // 3
+    float Y;                                                        // 4
+};
+
 // Structures used to access raw DB2 data and required packing to portability
 struct ItemEntry
 {

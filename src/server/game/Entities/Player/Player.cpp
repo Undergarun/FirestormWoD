@@ -31121,12 +31121,14 @@ Stats Player::GetPrimaryStat() const
 uint32 Player::GetEquipItemLevelFor(ItemTemplate const* itemProto, Item const* item) const
 {
     uint32 ilvl = itemProto->ItemLevel;
+    
+    if (itemProto->Quality == ITEM_QUALITY_HEIRLOOM)
+        if (ScalingStatDistributionEntry const* ssd = sScalingStatDistributionStore.LookupEntry(itemProto->ScalingStatDistribution))
+            if (uint32 heirloomIlvl = GetHeirloomItemLevel(ssd->CurveProperties, std::max(std::min(ssd->MaxLevel, (uint32)getLevel()), ssd->MinLevel)))
+                ilvl = heirloomIlvl;
 
     if (item)
         ilvl += item->GetItemLevelBonusFromItemBonuses();
-
-    if (itemProto->Quality == ITEM_QUALITY_HEIRLOOM)
-        ilvl = itemProto->GetItemLevelForHeirloom(getLevel());
 
     if (itemProto->PvPScalingLevel)
         if ((GetMap() && GetMap()->IsBattlegroundOrArena()) || IsInPvPCombat())

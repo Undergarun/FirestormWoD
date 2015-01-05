@@ -1958,23 +1958,6 @@ void ItemTemplate::CalculateMinMaxDamageScaling(uint32 ilvl, uint32& minDamage, 
     }
 }
 
-uint32 ItemTemplate::GetItemLevelForHeirloom(uint32 level) const
-{
-    ScalingStatDistributionEntry const* ssdEntry = sScalingStatDistributionStore.LookupEntry(ScalingStatDistribution);
-
-    if (!ssdEntry)
-        return ItemLevel;
-
-    if (level < ssdEntry->MinLevel)
-        level = ssdEntry->MinLevel;
-
-    if (level > ssdEntry->MaxLevel)
-        level = ssdEntry->MaxLevel;
-
-    uint32 ilvl = round(GetCurveValue(ssdEntry->CurveProperties, level));
-    return ilvl ? ilvl : ItemLevel;
-}
-
 bool Item::AddItemBonus(uint32 p_ItemBonusId)
 {
     if (!GetItemBonusesByID(p_ItemBonusId))

@@ -895,7 +895,6 @@ struct ItemTemplate
     uint32 CalculateScalingStatDBCValue(uint32 ilvl) const;
     uint32 CalculateArmorScaling(uint32 ilvl) const;
     void CalculateMinMaxDamageScaling(uint32 ilvl, uint32& minDamage, uint32& maxDamage) const;
-    uint32 GetItemLevelForHeirloom(uint32 level) const;
 };
 
 extern float GetCurveValue(uint32 CurveParameter, float level);

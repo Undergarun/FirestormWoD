@@ -24,6 +24,8 @@
 
 #include <map>
 
+std::map<uint32 /*curveID*/, std::map<uint32/*index*/, CurvePointEntry const*, std::greater<uint32>>> HeirloomCurvePoints;
+DB2Storage<CurvePointEntry>                 sCurvePointStore(CurvePointEntryfmt);
 DB2Storage <ItemEntry>                      sItemStore(Itemfmt);
 DB2Storage <ItemBonusEntry>                 sItemBonusStore(ItemBonusfmt);
 DB2Storage <ItemCurrencyCostEntry>          sItemCurrencyCostStore(ItemCurrencyCostfmt);
@@ -166,6 +168,7 @@ void LoadDB2Stores(const std::string& dataPath)
     /// Misc DB2
     //////////////////////////////////////////////////////////////////////////
     LoadDB2(bad_db2_files, sAreaPOIStore,                   db2Path, "AreaPOI.db2");
+    LoadDB2(bad_db2_files, sCurvePointStore,                db2Path, "CurvePoint.db2");
     LoadDB2(bad_db2_files, sHolidaysStore,                  db2Path, "Holidays.db2");
     LoadDB2(bad_db2_files, sMapChallengeModeStore,          db2Path, "MapChallengeMode.db2");
 
@@ -253,6 +256,16 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sBattlePetSpeciesStore,          db2Path, "BattlePetSpecies.db2");
     LoadDB2(bad_db2_files, sBattlePetSpeciesStateStore,     db2Path, "BattlePetSpeciesState.db2");
     LoadDB2(bad_db2_files, sBattlePetSpeciesXAbilityStore,  db2Path, "BattlePetSpeciesXAbility.db2");
+
+    std::set<uint32> scalingCurves;
+    for (uint32 i = 0; i < sScalingStatDistributionStore.GetNumRows(); ++i)
+        if (ScalingStatDistributionEntry const* ssd = sScalingStatDistributionStore.LookupEntry(i))
+            scalingCurves.insert(ssd->CurveProperties);
+
+    for (uint32 i = 0; i < sCurvePointStore.GetNumRows(); ++i)
+        if (CurvePointEntry const* curvePoint = sCurvePointStore.LookupEntry(i))
+            if (scalingCurves.count(curvePoint->CurveID))
+                HeirloomCurvePoints[curvePoint->CurveID][curvePoint->Index] = curvePoint;
 
     for (uint32 l_Y = 0; l_Y < sItemModifiedAppearanceStore.GetNumRows(); l_Y++)
     {
@@ -425,4 +438,23 @@ std::vector<ItemBonusEntry const*> const* GetItemBonusesByID(uint32 Id)
 {
     std::map<uint32, std::vector<ItemBonusEntry const*>>::const_iterator iter = sItemBonusesByID.find(Id);
     return iter != sItemBonusesByID.end() ? &(iter->second) : nullptr;
+}
+
+uint32 GetHeirloomItemLevel(uint32 curveId, uint32 level)
+{
+    // Assuming linear item level scaling for heirlooms
+    auto itr = HeirloomCurvePoints.find(curveId);
+    if (itr == HeirloomCurvePoints.end())
+        return 0;
+
+    auto it2 = itr->second.begin(); // Highest scaling point
+    if (level >= it2->second->X)
+        return it2->second->Y;
+
+    auto previousItr = it2++;
+    for (; it2 != itr->second.end(); ++it2, ++previousItr)
+        if (level >= it2->second->X)
+            return uint32((previousItr->second->Y - it2->second->Y) / (previousItr->second->X - it2->second->X) * (float(level) - it2->second->X) + it2->second->Y);
+
+    return uint32(previousItr->second->Y);  // Lowest scaling point
 }
