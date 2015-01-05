@@ -87,6 +87,9 @@ class npc_GarrisonFord : public CreatureScript
                 p_Player->CompleteQuest(QUEST_ETABLISH_YOUR_GARRISON_H);
             }
 
+            /// HACK until shadowmoon quest are done : add follower Qiana Moonshadow / Olin Umberhide
+            p_Player->GetGarrison()->AddFollower(34);
+
             return true;
         }
 };
