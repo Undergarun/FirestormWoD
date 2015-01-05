@@ -18,9 +18,9 @@ namespace MS
                 return std::string();
             }
         };
-
-# include "Reports.hxx"
     }
 }
+
+# include "Reports.hxx"
 
 #endif /* !REPORTS_HPP */
