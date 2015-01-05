@@ -2233,18 +2233,24 @@ class spell_hun_steady_shot: public SpellScriptLoader
         {
             PrepareSpellScript(spell_hun_steady_shot_SpellScript);
 
+            void HandleAfterCast()
+            {
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->CastSpell(l_Caster, HUNTER_SPELL_STEADY_SHOT_ENERGIZE, true);
+            }
+
             void HandleOnHit()
             {
-                if (Unit* l_Player = GetCaster())
+                if (Unit* l_Caster = GetCaster())
+                {
                     if (Unit* target = GetHitUnit())
-                    {
-                        l_Player->CastSpell(l_Player, HUNTER_SPELL_STEADY_SHOT_ENERGIZE, true);
                         SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), GetSpellInfo()->Effects[EFFECT_1].BasePoints));
-                    }
+                }
             }
 
             void Register()
             {
+                AfterCast += SpellCastFn(spell_hun_steady_shot_SpellScript::HandleAfterCast);
                 OnHit += SpellHitFn(spell_hun_steady_shot_SpellScript::HandleOnHit);
             }
         };
