@@ -614,6 +614,11 @@ int Master::Run()
         while (!World::IsStopped())
         {
             l_ReportWorker.ProcessReporting();
+#ifdef _MSC_VER
+            Sleep(1);
+#elif 
+            usleep(1);
+#endif
         }
     });
 

@@ -19,12 +19,12 @@ namespace MS
                 return (isalnum(c) || (c == '+') || (c == '/'));
             }
 
-            std::string base64_encode(unsigned char const* bytes_to_encode, unsigned int in_len) {
+            std::string base64_encode(char const* bytes_to_encode, unsigned int in_len) {
                 std::string ret;
                 int i = 0;
                 int j = 0;
-                unsigned char char_array_3[3];
-                unsigned char char_array_4[4];
+                char char_array_3[3];
+                char char_array_4[4];
 
                 while (in_len--) {
                     char_array_3[i++] = *(bytes_to_encode++);
@@ -92,7 +92,7 @@ namespace MS
                 /// If there is a redirection, the request will follow it.
                 curl_easy_setopt(l_Curl, CURLOPT_FOLLOWLOCATION, 1L);
 
-                std::string l_b64 = base64_encode(l_ReportData->contents(), l_Size);
+                std::string l_b64 = base64_encode(l_ReportData->c_str(), l_ReportData->size());
                 curl_easy_setopt(l_Curl, CURLOPT_POSTFIELDS, l_b64.c_str());
                 curl_easy_setopt(l_Curl, CURLOPT_POSTFIELDSIZE, l_b64.size());
 

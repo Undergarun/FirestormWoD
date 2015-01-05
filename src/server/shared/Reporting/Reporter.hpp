@@ -17,7 +17,7 @@ namespace MS
         class Reporter
         {
         public:
-            typedef ByteBuffer report_type;
+            typedef std::string report_type;
             typedef std::unique_ptr<report_type> report_pointer;
         public:
             friend class ACE_Singleton<Reporter, ACE_Thread_Mutex>;

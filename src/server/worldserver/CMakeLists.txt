@@ -169,6 +169,7 @@ include_directories(
   ${MYSQL_INCLUDE_DIR}
   ${OPENSSL_INCLUDE_DIR}
   ${CURL_INCLUDE_DIR}
+  ${EASYJSON_INCLUDE_DIR}
 )
 
 add_executable(worldserver
