@@ -7361,7 +7361,16 @@ void Player::ApplyRatingMod(CombatRating cr, int32 value, bool apply)
 
 void Player::UpdateRating(CombatRating p_CombatRating)
 {
-    int32 l_Amount = m_baseRatingValue[p_CombatRating];
+    ///< Apply pct modifier from SPELL_AURA_INCREASE_RATING_PCT
+    float l_Modifier = 1.0f;
+    AuraEffectList const& l_ModRatingPCT = GetAuraEffectsByType(AuraType::SPELL_AURA_INCREASE_RATING_PCT);
+    for (AuraEffectList::const_iterator l_Iter = l_ModRatingPCT.begin(); l_Iter != l_ModRatingPCT.end(); ++l_Iter)
+    {
+        if ((*l_Iter)->GetMiscValue() & (1 << p_CombatRating))
+            l_Modifier += float((*l_Iter)->GetAmount()) / 100.0f;
+    }
+
+    int32 l_Amount = m_baseRatingValue[p_CombatRating] * l_Modifier;
 
     // Apply bonus from SPELL_AURA_MOD_RATING_FROM_STAT
     // stat used stored in miscValueB for this aura
@@ -10008,6 +10017,9 @@ void Player::_ApplyItemBonuses(Item const* item, uint8 slot, bool apply, uint32 
         {
             statType = proto->ItemStat[i].ItemStatType;
             val = abs(int32(proto->CalculateStatScaling(i, rescaleToItemLevel) - proto->CalculateStatScaling(i, ilvl)));
+
+            if (proto->ItemStat[i].ItemStatValue < 0)
+                val = -val;
         }
 
         if (val == 0)

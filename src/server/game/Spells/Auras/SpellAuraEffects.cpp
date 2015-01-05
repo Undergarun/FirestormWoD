@@ -461,7 +461,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleAuraSetPowerType,                          //402 SPELL_AURA_SET_POWER_TYPE
     &AuraEffect::HandleChangeSpellVisualEffect,                   //403 SPELL_AURA_CHANGE_VISUAL_EFFECT
     &AuraEffect::HandleOverrideAttackPowerBySpellPower,           //404 SPELL_AURA_OVERRIDE_AP_BY_SPELL_POWER_PCT
-    &AuraEffect::HandleIncreaseHasteFromItemsByPct,               //405 SPELL_AURA_INCREASE_HASTE_FROM_ITEMS_BY_PCT
+    &AuraEffect::HandleIncreaseRatingPct,                         //405 SPELL_AURA_INCREASE_RATING_PCT
     &AuraEffect::HandleNULL,                                      //406 SPELL_AURA_406
     &AuraEffect::HandleModFear,                                   //407 SPELL_AURA_MOD_FEAR_2      TODO : Find the difference between 7 & 407
     &AuraEffect::HandleNULL,                                      //408 SPELL_AURA_408
@@ -5664,29 +5664,20 @@ void AuraEffect::HandleOverrideSpellPowerByAttackPower(AuraApplication const* au
     target->SetFloatValue(PLAYER_FIELD_OVERRIDE_SPELL_POWER_BY_APPERCENT, float(GetAmount()));
 }
 
-void AuraEffect::HandleIncreaseHasteFromItemsByPct(AuraApplication const* aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleIncreaseRatingPct(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
 {
-    if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
+    if (!(p_Mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
 
-    Unit* target = aurApp->GetTarget();
-
-    if (!target->ToPlayer())
+    Unit* l_Target = p_AurApp->GetTarget();
+    if (l_Target->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    if (apply)
+    for (uint32 l_Rating = 0; l_Rating < MAX_COMBAT_RATING; ++l_Rating)
     {
-        float HasteRating = target->ToPlayer()->GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_HASTE_MELEE);
-        HasteRating *= (1 + GetAmount() / 100.0f);
-        float haste = 1 / (1 + (HasteRating * target->ToPlayer()->GetRatingMultiplier(CR_HASTE_MELEE)) / 100);
-
-        // Update haste percentage for client
-        target->SetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, haste);
-        target->SetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE, haste);
-        target->SetFloatValue(UNIT_FIELD_MOD_HASTE, haste);
+        if (GetMiscValue() & (1 << l_Rating))
+            l_Target->ToPlayer()->UpdateRating(CombatRating(l_Rating));
     }
-    else
-        target->ToPlayer()->UpdateRating(CR_HASTE_MELEE);
 }
 
 /********************************/
