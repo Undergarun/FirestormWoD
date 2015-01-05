@@ -8,7 +8,7 @@ namespace MS
 {
     namespace Reporting
     {
-        template <std::uint32_t ReportType> 
+        template <uint32_t ReportType> 
         class MakeReport
         {
         public:
