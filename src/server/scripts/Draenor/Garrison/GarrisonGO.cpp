@@ -10,6 +10,7 @@ enum
     SPELL_RELIEVED              = 162410,
     ACHIEVEMENT_STAYING_REGULAR = 8933,
     QUEST_KEEPING_IT_TOGETHER   = 35176,
+    QUEST_WHAT_WE_GOT           = 34824,
 };
 
 /// Garrison cache generic script
@@ -31,6 +32,8 @@ class go_garrison_cache : public GameObjectScript
 
                 if (p_Player->hasQuest(QUEST_KEEPING_IT_TOGETHER) && p_GameObject)
                     p_Player->QuestObjectiveSatisfy(41327, 1, QUEST_OBJECTIVE_TYPE_CRITERIA, p_GameObject->GetGUID());
+                if (p_Player->hasQuest(QUEST_WHAT_WE_GOT) && p_GameObject)
+                    p_Player->QuestObjectiveSatisfy(41325, 2, QUEST_OBJECTIVE_TYPE_CRITERIA, p_GameObject->GetGUID());
             }
 
             return false;
