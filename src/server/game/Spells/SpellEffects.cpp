@@ -2056,10 +2056,6 @@ void Spell::EffectHealPct(SpellEffIndex effIndex)
         if (unitTarget == m_caster)
             return;
         break;
-    case 53353: // Chimera Shot - Heal
-        if (m_caster->HasAura(119447)) // Glyph of Chimera Shot
-            damage += 2;
-        break;
     case 115450: // Detox
         if (!m_caster->HasAura(146954))
             return;

@@ -43,7 +43,6 @@ enum HunterSpells
     HUNTER_SPELL_NARROW_ESCAPE_RETS                 = 128405,
     HUNTER_SPELL_SERPENT_STING                      = 118253,
     HUNTER_SPELL_SERPENT_SPREAD                     = 87935,
-    HUNTER_SPELL_CHIMERA_SHOT_HEAL                  = 53353,
     HUNTER_SPELL_RAPID_FIRE                         = 3045,
     HUNTER_SPELL_STEADY_SHOT_ENERGIZE               = 77443,
     HUNTER_SPELL_COBRA_SHOT_ENERGIZE                = 91954,
@@ -2275,8 +2274,17 @@ class spell_hun_chimaera_shot: public SpellScriptLoader
             {
                 SpellChimaeraFrost  = 171454,
                 SpellChimaeraNature = 171457,
-                GlyphOfChimaeraShot = 119447
+                GlyphOfChimaeraShot = 119447,
+                ChimaeraShotHealing = 53353
             };
+
+            bool m_Healed;
+
+            bool Load()
+            {
+                m_Healed = false;
+                return true;
+            }
 
             void HandleOnHit(SpellEffIndex)
             {
@@ -2291,8 +2299,13 @@ class spell_hun_chimaera_shot: public SpellScriptLoader
                             l_Caster->CastSpell(l_Target, ChimaeraSpells::SpellChimaeraNature, true);
 
                         SpellInfo const* l_GlyphOfChimaera = sSpellMgr->GetSpellInfo(ChimaeraSpells::GlyphOfChimaeraShot);
-                        if (l_Caster->HasAura(ChimaeraSpells::GlyphOfChimaeraShot) && l_GlyphOfChimaera != nullptr)
-                            l_Caster->HealBySpell(l_Caster, l_GlyphOfChimaera, l_Caster->CountPctFromMaxHealth(l_GlyphOfChimaera->Effects[EFFECT_0].BasePoints));
+                        if (l_Caster->HasAura(ChimaeraSpells::GlyphOfChimaeraShot) && l_GlyphOfChimaera != nullptr && !m_Healed)
+                        {
+                            m_Healed = true;
+
+                            int32 l_Value = l_GlyphOfChimaera->Effects[EFFECT_0].BasePoints;
+                            l_Caster->CastCustomSpell(l_Caster, ChimaeraSpells::ChimaeraShotHealing, &l_Value, NULL, NULL, true);
+                        }
                     }
                 }
             }
