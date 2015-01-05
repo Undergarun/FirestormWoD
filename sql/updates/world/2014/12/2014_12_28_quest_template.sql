@@ -1,6 +1,6 @@
 DROP TABLE quest_dynamic_reward;
 
-UPDATE quest_template SET WDBVerified = 19116, SET ExclusiveGroup = 0 WHERE WDBVerified = 1;
+UPDATE quest_template SET WDBVerified = 19116 ,ExclusiveGroup = 0 WHERE WDBVerified = 1;
 ALTER TABLE `quest_template` ADD COLUMN `PackageID` MEDIUMINT(8) UNSIGNED DEFAULT '0' NOT NULL AFTER `MaxLevel`;
 
 UPDATE quest_template SET PackageId = '566' WHERE id = '9280';
