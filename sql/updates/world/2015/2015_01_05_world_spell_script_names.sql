@@ -1,0 +1,1 @@
+INSERT INTO `spell_script_names` VALUES (158392, 'spell_mastery_hand_of_light');
