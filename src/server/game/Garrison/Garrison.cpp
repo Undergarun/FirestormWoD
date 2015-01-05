@@ -316,6 +316,9 @@ void Garrison::Create()
     m_ID = l_Fields[0].GetUInt32();
 
     Init();
+
+    /// At creation, the garrison cache contains 50 token
+    m_CacheLastUsage = time(0) - (50 * GARRISON_CACHE_GENERATE_TICK);
 }
 /// Load
 bool Garrison::Load()
