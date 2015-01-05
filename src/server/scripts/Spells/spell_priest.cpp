@@ -2121,11 +2121,6 @@ class spell_pri_vampiric_touch: public SpellScriptLoader
                 if (GetCaster())
                 {
                     GetCaster()->EnergizeBySpell(GetCaster(), GetSpellInfo()->Id,  GetCaster()->CountPctFromMaxMana(2), POWER_MANA);
-
-                    // From Darkness, Comes Light
-                    if (GetCaster()->HasAura(PRIEST_SURGE_OF_LIGHT_AURA))
-                        if (roll_chance_i(sSpellMgr->GetSpellInfo(PRIEST_SURGE_OF_LIGHT_AURA)->Effects[EFFECT_0].BasePoints)) // 8% Chance
-                            GetCaster()->CastSpell(GetCaster(), PRIEST_SURGE_OF_DARKNESS, true);
                 }
             }
 

@@ -5254,6 +5254,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 162452: // Shadowy Insight
                 spellInfo->ProcChance = 0;
+            case 87160: // Surge of Darkness
+                spellInfo->ProcCharges = 3;
             case 6346:  // Fear Ward
             case 48108: // Hot Streak
             case 57761: // Brain Freeze
