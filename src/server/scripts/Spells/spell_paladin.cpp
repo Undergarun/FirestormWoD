@@ -2121,11 +2121,13 @@ public:
                 {
                     l_Player->SetPower(POWER_HOLY_POWER, m_HolyPower);
 
-                    if (m_HolyPower > 3)
+                    if (m_HolyPower > 3 || l_Player->HasAura(PALADIN_SPELL_DIVINE_PURPOSE_AURA))
                         m_HolyPower = 3;
-                   
+
                     SetHitHeal(GetHitHeal() * m_HolyPower);
-                    l_Player->ModifyPower(POWER_HOLY_POWER, -m_HolyPower);
+
+                    if (!l_Player->HasAura(PALADIN_SPELL_DIVINE_PURPOSE_AURA))
+                        l_Player->ModifyPower(POWER_HOLY_POWER, -m_HolyPower);
                 }
             }
         }
