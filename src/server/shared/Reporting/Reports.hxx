@@ -7,7 +7,7 @@ namespace MS
     {
         enum ReportOpcodes
         {
-            CharacterCreation,
+            CharacterCreation = 0,
         };
 
         /// Craft a 'CharacterCreation' report.
@@ -21,6 +21,7 @@ namespace MS
             auto&& l_DeveloppedArgs = std::forward_as_tuple(p_Args...);
 
             EasyJSon::Node<std::string> l_Node;
+            l_Node["Opcode"] = "0";
             l_Node["AccountId"] = std::to_string(std::get<0>(l_DeveloppedArgs));
             l_Node["TimeStamp"] = std::to_string(std::get<1>(l_DeveloppedArgs));
 
