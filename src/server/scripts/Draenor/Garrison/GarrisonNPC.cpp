@@ -37,8 +37,8 @@ enum
 
 float gGarrisonCreationCoords[][4] =
 {
-    { 1766.761475f,  191.2846830f,  72.115326f, 0.0510594f },   ///< TEAM_ALLIANCE
-    { 5698.020020f, 4512.1635574f, 127.401695f, 2.7822720f }    ///< TEAM_HORDE
+    { 1766.761475f,  191.2846830f,  72.115326f, 0.4649370f },   ///< TEAM_ALLIANCE
+    { 5698.020020f, 4512.1635574f, 127.401695f, 2.8622720f }    ///< TEAM_HORDE
 };
 
 /// Garrison Ford
