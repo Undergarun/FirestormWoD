@@ -9423,6 +9423,7 @@ void Player::UpdateArea(uint32 newArea)
                 if (l_DraenorBaseMap_Area != gGarrisonInGarrisonAreaID[m_Garrison->GetGarrisonFactionIndex()] && GetMapId() == l_GarrisonSiteEntry->MapID)
                 {
                     m_Garrison->OnPlayerLeave();
+                    m_Garrison->_SetGarrisonScript(nullptr);
                     SwitchToPhasedMap(GARRISON_BASE_MAP);
                 }
                 else if (l_DraenorBaseMap_Area == gGarrisonInGarrisonAreaID[m_Garrison->GetGarrisonFactionIndex()] && GetMapId() == GARRISON_BASE_MAP)

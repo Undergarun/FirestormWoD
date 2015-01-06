@@ -2798,6 +2798,9 @@ void Garrison::UpdateFollowers()
 /// Update cache
 void Garrison::UpdateCache()
 {
+    if (!m_Owner->IsInGarrison())
+        return;
+
     GarrisonInstanceScriptBase * l_GarrisonScript = GetGarrisonScript();
 
     /// Update garrison cache
