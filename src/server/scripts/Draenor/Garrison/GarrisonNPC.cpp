@@ -57,6 +57,8 @@ class npc_GarrisonFord : public CreatureScript
         {
             if (!p_Player->GetGarrison())
                 p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Create me a garrison.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+            else
+                p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Delete my garrison.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
             
             p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
 
@@ -66,34 +68,39 @@ class npc_GarrisonFord : public CreatureScript
         /// Called when a player selects a gossip item in the creature's gossip menu.
         bool OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action) override
         {
-            p_Player->CLOSE_GOSSIP_MENU();
-            p_Player->CreateGarrison();
-
-            uint32 l_MovieID = p_Player->GetGarrison()->GetGarrisonSiteLevelEntry()->CreationMovie;
-            uint32 l_MapID   = p_Player->GetGarrison()->GetGarrisonSiteLevelEntry()->MapID;
-            uint32 l_TeamID  = p_Player->GetTeamId();
-
-            p_Player->AddMovieDelayedTeleport(l_MovieID, l_MapID, gGarrisonCreationCoords[l_TeamID][0], gGarrisonCreationCoords[l_TeamID][1], gGarrisonCreationCoords[l_TeamID][2], gGarrisonCreationCoords[l_TeamID][3]);
-            p_Player->SendMovieStart(l_MovieID);
-
-            if (l_TeamID == TEAM_ALLIANCE)
+            if (!p_Player->GetGarrison())
             {
-                p_Player->AddQuest(sObjectMgr->GetQuestTemplate(QUEST_ETABLISH_YOUR_GARRISON_A), p_Creature);
-                p_Player->CompleteQuest(QUEST_ETABLISH_YOUR_GARRISON_A);
-            }
-            else if (l_TeamID == TEAM_HORDE)
-            {
-                p_Player->AddQuest(sObjectMgr->GetQuestTemplate(QUEST_ETABLISH_YOUR_GARRISON_H), p_Creature);
-                p_Player->CompleteQuest(QUEST_ETABLISH_YOUR_GARRISON_H);
-            }
+                p_Player->CLOSE_GOSSIP_MENU();
+                p_Player->CreateGarrison();
 
-            /// HACK until shadowmoon quest are done : add follower Qiana Moonshadow / Olin Umberhide
-            p_Player->GetGarrison()->AddFollower(34);
-            p_Player->GetGarrison()->AddFollower(89);
-            p_Player->GetGarrison()->AddFollower(92);
+                uint32 l_MovieID = p_Player->GetGarrison()->GetGarrisonSiteLevelEntry()->CreationMovie;
+                uint32 l_MapID = p_Player->GetGarrison()->GetGarrisonSiteLevelEntry()->MapID;
+                uint32 l_TeamID = p_Player->GetTeamId();
 
-            /// HACK until quest : add barracks plan
-            p_Player->GetGarrison()->LearnBlueprint(26);
+                p_Player->AddMovieDelayedTeleport(l_MovieID, l_MapID, gGarrisonCreationCoords[l_TeamID][0], gGarrisonCreationCoords[l_TeamID][1], gGarrisonCreationCoords[l_TeamID][2], gGarrisonCreationCoords[l_TeamID][3]);
+                p_Player->SendMovieStart(l_MovieID);
+
+                if (l_TeamID == TEAM_ALLIANCE)
+                {
+                    p_Player->AddQuest(sObjectMgr->GetQuestTemplate(QUEST_ETABLISH_YOUR_GARRISON_A), p_Creature);
+                    p_Player->CompleteQuest(QUEST_ETABLISH_YOUR_GARRISON_A);
+                }
+                else if (l_TeamID == TEAM_HORDE)
+                {
+                    p_Player->AddQuest(sObjectMgr->GetQuestTemplate(QUEST_ETABLISH_YOUR_GARRISON_H), p_Creature);
+                    p_Player->CompleteQuest(QUEST_ETABLISH_YOUR_GARRISON_H);
+                }
+
+                /// HACK until shadowmoon quest are done : add follower Qiana Moonshadow / Olin Umberhide
+                p_Player->GetGarrison()->AddFollower(34);
+                p_Player->GetGarrison()->AddFollower(89);
+                p_Player->GetGarrison()->AddFollower(92);
+
+                /// HACK until quest : add barracks plan
+                p_Player->GetGarrison()->LearnBlueprint(26);
+            }
+            else
+                p_Player->DeleteGarrison();
 
             return true;
         }

@@ -31085,6 +31085,19 @@ bool Player::IsInGarrison()
     return false;
 }
 
+void Player::DeleteGarrison()
+{
+    if (!m_Garrison)
+        return;
+
+    SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
+    m_Garrison->Delete(GetGUID(), l_Transaction);
+    CharacterDatabase.CommitTransaction(l_Transaction);
+
+    delete m_Garrison;
+    m_Garrison = nullptr;
+}
+
 Stats Player::GetPrimaryStat() const
 {
     int8 magicNumber = -1;
