@@ -56,7 +56,7 @@ float gGarrisonBuildingPlotAABBDiminishReturnFactor[GARRISON_PLOT_TYPE_MAX * GAR
     /// Horde
     0,          ///< GARRISON_PLOT_TYPE_SMALL
     0,          ///< GARRISON_PLOT_TYPE_MEDIUM
-    0,          ///< GARRISON_PLOT_TYPE_LARGE
+    24,         ///< GARRISON_PLOT_TYPE_LARGE
     0,          ///< GARRISON_PLOT_TYPE_FARM          same as GARRISON_PLOT_TYPE_MEDIUM
     0,          ///< GARRISON_PLOT_TYPE_MINE          same as GARRISON_PLOT_TYPE_MEDIUM
     0,          ///< GARRISON_PLOT_TYPE_FISHING_HUT   same as GARRISON_PLOT_TYPE_SMALL
@@ -2803,7 +2803,7 @@ void Garrison::UpdatePlot(uint32 p_PlotInstanceID)
             {
                 if (l_IsPlotBuilding && l_Contents[l_I].PlotTypeOrBuilding < 0)
                     continue;
-                else if (!l_IsPlotBuilding && l_Building.Active && -l_Contents[l_I].PlotTypeOrBuilding == l_Building.BuildingID)
+                else if (!l_IsPlotBuilding && l_Building.Active && -l_Contents[l_I].PlotTypeOrBuilding != l_Building.BuildingID)
                     continue;
                 else if (!l_IsPlotBuilding && !l_Building.BuildingID)
                     continue;
