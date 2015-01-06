@@ -47,8 +47,8 @@
 #include "AccountMgr.h"
 #include "ObjectMgr.h"
 
-std::atomic<uint32_t> gReceivedBytes = 0;
-std::atomic<uint32_t> gSentBytes = 0;
+uint32_t gReceivedBytes = 0;
+uint32_t gSentBytes = 0;
 
 #if defined(__GNUC__)
 #pragma pack(1)

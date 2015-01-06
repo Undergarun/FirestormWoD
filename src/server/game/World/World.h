@@ -44,7 +44,7 @@ class Player;
 class WorldSocket;
 class SystemMgr;
 
-extern std::atomic<uint32> gOnlineGameMaster;
+extern uint32 gOnlineGameMaster;
 
 // ServerMessages.dbc
 enum ServerMessageType
