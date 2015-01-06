@@ -573,156 +573,19 @@ void Garrison::Delete(uint64 p_PlayerGUID, SQLTransaction p_Transation)
 /// Update the garrison
 void Garrison::Update()
 {
-    GarrisonInstanceScriptBase * l_GarrisonScript = GetGarrisonScript();
-
-    /// Update building in construction
-    for (uint32 l_I = 0; l_I < m_Buildings.size(); ++l_I)
-    {
-        GarrisonBuilding * l_Building = &m_Buildings[l_I];
-
-        if (!l_Building->Active && !l_Building->BuiltNotified && time(0) > l_Building->TimeBuiltEnd)
-        {
-            l_Building->BuiltNotified = true;
-
-            /// Nothing more needed, client auto deduce notification
-            UpdatePlot(l_Building->PlotInstanceID);
-        }
-    }
-
-    /// Update follower activation cost
-    if (m_NumFollowerActivation < GARRISON_FOLLOWER_ACTIVATION_MAX_STACK && (time(0) - m_NumFollowerActivationRegenTimestamp) > DAY)
-    {
-        m_NumFollowerActivation++;
-        m_NumFollowerActivationRegenTimestamp = time(0);
-
-        WorldPacket l_Data(SMSG_GARRISON_UPDATE_FOLLOWER_ACTIVATION_COUNT, 4);
-        l_Data << uint32(GetNumFollowerActivationsRemaining());
-
-        m_Owner->SendDirectMessage(&l_Data);
-    }
-
-    /// Update garrison cache
-    if (m_CacheGameObjectGUID && HashMapHolder<GameObject>::Find(m_CacheGameObjectGUID) == nullptr)
-        m_CacheGameObjectGUID = 0;
-
-    uint32 l_NumRessourceGenerated = std::min((uint32)((time(0) - m_CacheLastUsage) / GARRISON_CACHE_GENERATE_TICK), (uint32)GARRISON_CACHE_MAX_CURRENCY);
-
-    if (l_NumRessourceGenerated != m_CacheLastTokenAmount || ((l_NumRessourceGenerated == m_CacheLastTokenAmount) && !m_CacheGameObjectGUID))
-    {
-        m_CacheLastTokenAmount = l_NumRessourceGenerated;
-        m_Owner->SendUpdateWorldState(GARRISON_WORLD_STATE_CACHE_NUM_TOKEN, l_NumRessourceGenerated);
-
-        if (l_NumRessourceGenerated >= GARRISON_CACHE_MIN_CURRENCY && l_GarrisonScript && l_GarrisonScript->CanUseGarrisonCache(m_Owner))
-        {
-            /// Get display ID
-            uint32 l_DisplayIDOffset    = l_NumRessourceGenerated == GARRISON_CACHE_MAX_CURRENCY ? 2 : ((l_NumRessourceGenerated > GARRISON_CACHE_HEFTY_CURRENCY) ? 1 : 0);
-            uint32 l_DisplayID          = gGarrisonCacheGameObjectID[(GetGarrisonFactionIndex() * 3) + l_DisplayIDOffset];
-
-            /// Destroy old cache if exist
-            GameObject * l_Cache = HashMapHolder<GameObject>::Find(m_CacheGameObjectGUID);
-
-            if (l_Cache)
-            {
-                l_Cache->DestroyForNearbyPlayers();
-                l_Cache->AddObjectToRemoveList();
-            }
-
-            m_CacheGameObjectGUID = 0;
-
-            /// Create new one
-            if (m_Owner->IsInGarrison())
-            {
-                /// Extract new location
-                GarrisonCacheInfoLocation & l_Location = gGarrisonCacheInfoLocation[(GetGarrisonFactionIndex() * GARRISON_MAX_LEVEL) + (m_GarrisonLevel - 1)];
-                l_Cache = m_Owner->SummonGameObject(l_DisplayID, l_Location.X, l_Location.Y, l_Location.Z, l_Location.O, 0, 0, 0, 0, 0);
-
-                if (l_Cache)
-                    m_CacheGameObjectGUID = l_Cache->GetGUID();
-            }
-
-        }
-    }
-
-    if (m_CacheGameObjectGUID &&
-        ((l_NumRessourceGenerated < GARRISON_CACHE_MIN_CURRENCY) || (l_GarrisonScript && !l_GarrisonScript->CanUseGarrisonCache(m_Owner))))
-    {
-        GameObject * l_Cache = HashMapHolder<GameObject>::Find(m_CacheGameObjectGUID);
-
-        if (l_Cache)
-        {
-            l_Cache->DestroyForNearbyPlayers();
-            l_Cache->AddObjectToRemoveList();
-        }
-
-        m_CacheGameObjectGUID = 0;
-    }
-
-    /// Do ramdom mission distribution
-    if ((time(0) - m_MissionDistributionLastUpdate) > GARRISON_MISSION_DISTRIB_INTERVAL)
-    {
-        /// Random, no detail about how blizzard do
-        uint32 l_MaxMissionCount = ceil(m_Followers.size() * 2.5);
-        uint32 l_CurrentAvailableMission = 0;
-
-        std::for_each(m_Missions.begin(), m_Missions.end(), [&l_CurrentAvailableMission](const GarrisonMission & p_Mission) -> void
-        {
-            if (p_Mission.State == GARRISON_MISSION_AVAILABLE && (p_Mission.OfferTime + p_Mission.OfferMaxDuration) > time(0))
-                l_CurrentAvailableMission++;
-        });
-
-        if (l_CurrentAvailableMission < l_MaxMissionCount)
-        {
-            uint32 l_MaxFollowerLevel = 90;
-            uint32 l_MaxFollowerItemLevel = 600;
-
-            std::for_each(m_Followers.begin(), m_Followers.end(), [&l_MaxFollowerLevel, &l_MaxFollowerItemLevel](const GarrisonFollower & p_Follower) -> void
-            {
-                l_MaxFollowerLevel      = std::max(l_MaxFollowerLevel, (uint32)p_Follower.Level);
-                l_MaxFollowerItemLevel  = std::max(l_MaxFollowerItemLevel, (uint32)((p_Follower.ItemLevelArmor + p_Follower.ItemLevelWeapon) / 2));
-            });
-
-            std::vector<const GarrMissionEntry*> l_Candidates;
-
-            for (uint32 l_I = 0; l_I < sGarrMissionStore.GetNumRows(); ++l_I)
-            {
-                const GarrMissionEntry * l_Entry = sGarrMissionStore.LookupEntry(l_I);
-
-                if (!l_Entry)
-                    continue;
-
-                if (HaveMission(l_Entry->MissionRecID))
-                    continue;
-
-                if (l_Entry->RequiredFollowersCount > m_Followers.size())
-                    continue;
-
-                /// Max Level cap : 2
-                if (l_Entry->RequiredLevel > (int32)(l_MaxFollowerLevel + 2))
-                    continue;
-
-                if (l_Entry->RequiredItemLevel > (int32)l_MaxFollowerItemLevel)
-                    continue;
-
-                l_Candidates.push_back(l_Entry);
-            }
-
-            uint32 l_ShuffleCount = std::rand() % 20;
-
-            for (uint32 l_I = 0; l_I < l_ShuffleCount; ++l_I)
-                std::random_shuffle(l_Candidates.begin(), l_Candidates.end());
-
-            int32 l_MissionToAddCount = (int32)l_MaxMissionCount - (int32)l_CurrentAvailableMission;
-
-            if (l_MissionToAddCount > 0)
-            {
-                for (int32 l_I = 0; l_I < l_MissionToAddCount, l_I < l_Candidates.size(); ++l_I)
-                    AddMission(l_Candidates[l_I]->MissionRecID);
-            }
-        }
-
-        m_MissionDistributionLastUpdate = time(0);
-    }
+    /// Update buildings
+    UpdateBuildings();
+    /// Update followers
+    UpdateFollowers();
+    /// Update cache
+    UpdateCache();
+    /// Update mission distribution
+    UpdateMissionDistribution();
 }
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
 /// Get garrison cache token count
 uint32 Garrison::GetGarrisonCacheTokenCount()
 {
@@ -2895,4 +2758,170 @@ void Garrison::UpdateStats()
     }
 
     m_Stat_MaxActiveFollower = l_BonusMaxActiveFollower + GARRISON_DEFAULT_MAX_ACTIVE_FOLLOW;
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+/// Update building
+void Garrison::UpdateBuildings()
+{
+    /// Update building in construction
+    for (uint32 l_I = 0; l_I < m_Buildings.size(); ++l_I)
+    {
+        GarrisonBuilding * l_Building = &m_Buildings[l_I];
+
+        if (!l_Building->Active && !l_Building->BuiltNotified && time(0) > l_Building->TimeBuiltEnd)
+        {
+            l_Building->BuiltNotified = true;
+
+            /// Nothing more needed, client auto deduce notification
+            UpdatePlot(l_Building->PlotInstanceID);
+        }
+    }
+}
+/// Update followers
+void Garrison::UpdateFollowers()
+{
+    /// Update follower activation count
+    if (m_NumFollowerActivation < GARRISON_FOLLOWER_ACTIVATION_MAX_STACK && (time(0) - m_NumFollowerActivationRegenTimestamp) > DAY)
+    {
+        m_NumFollowerActivation++;
+        m_NumFollowerActivationRegenTimestamp = time(0);
+
+        WorldPacket l_Data(SMSG_GARRISON_UPDATE_FOLLOWER_ACTIVATION_COUNT, 4);
+        l_Data << uint32(GetNumFollowerActivationsRemaining());
+
+        m_Owner->SendDirectMessage(&l_Data);
+    }
+}
+/// Update cache
+void Garrison::UpdateCache()
+{
+    GarrisonInstanceScriptBase * l_GarrisonScript = GetGarrisonScript();
+
+    /// Update garrison cache
+    if (m_CacheGameObjectGUID && HashMapHolder<GameObject>::Find(m_CacheGameObjectGUID) == nullptr)
+        m_CacheGameObjectGUID = 0;
+
+    uint32 l_NumRessourceGenerated = std::min((uint32)((time(0) - m_CacheLastUsage) / GARRISON_CACHE_GENERATE_TICK), (uint32)GARRISON_CACHE_MAX_CURRENCY);
+
+    if (l_NumRessourceGenerated != m_CacheLastTokenAmount || ((l_NumRessourceGenerated == m_CacheLastTokenAmount) && !m_CacheGameObjectGUID))
+    {
+        m_CacheLastTokenAmount = l_NumRessourceGenerated;
+        m_Owner->SendUpdateWorldState(GARRISON_WORLD_STATE_CACHE_NUM_TOKEN, l_NumRessourceGenerated);
+
+        if (l_NumRessourceGenerated >= GARRISON_CACHE_MIN_CURRENCY && l_GarrisonScript && l_GarrisonScript->CanUseGarrisonCache(m_Owner))
+        {
+            /// Get display ID
+            uint32 l_DisplayIDOffset = l_NumRessourceGenerated == GARRISON_CACHE_MAX_CURRENCY ? 2 : ((l_NumRessourceGenerated > GARRISON_CACHE_HEFTY_CURRENCY) ? 1 : 0);
+            uint32 l_DisplayID = gGarrisonCacheGameObjectID[(GetGarrisonFactionIndex() * 3) + l_DisplayIDOffset];
+
+            /// Destroy old cache if exist
+            GameObject * l_Cache = HashMapHolder<GameObject>::Find(m_CacheGameObjectGUID);
+
+            if (l_Cache)
+            {
+                l_Cache->DestroyForNearbyPlayers();
+                l_Cache->AddObjectToRemoveList();
+            }
+
+            m_CacheGameObjectGUID = 0;
+
+            /// Create new one
+            if (m_Owner->IsInGarrison())
+            {
+                /// Extract new location
+                GarrisonCacheInfoLocation & l_Location = gGarrisonCacheInfoLocation[(GetGarrisonFactionIndex() * GARRISON_MAX_LEVEL) + (m_GarrisonLevel - 1)];
+                l_Cache = m_Owner->SummonGameObject(l_DisplayID, l_Location.X, l_Location.Y, l_Location.Z, l_Location.O, 0, 0, 0, 0, 0);
+
+                if (l_Cache)
+                    m_CacheGameObjectGUID = l_Cache->GetGUID();
+            }
+
+        }
+    }
+
+    if (m_CacheGameObjectGUID &&
+        ((l_NumRessourceGenerated < GARRISON_CACHE_MIN_CURRENCY) || (l_GarrisonScript && !l_GarrisonScript->CanUseGarrisonCache(m_Owner))))
+    {
+        GameObject * l_Cache = HashMapHolder<GameObject>::Find(m_CacheGameObjectGUID);
+
+        if (l_Cache)
+        {
+            l_Cache->DestroyForNearbyPlayers();
+            l_Cache->AddObjectToRemoveList();
+        }
+
+        m_CacheGameObjectGUID = 0;
+    }
+}
+/// Update mission distribution
+void Garrison::UpdateMissionDistribution()
+{
+    /// Do ramdom mission distribution
+    if ((time(0) - m_MissionDistributionLastUpdate) > GARRISON_MISSION_DISTRIB_INTERVAL)
+    {
+        /// Random, no detail about how blizzard do
+        uint32 l_MaxMissionCount = ceil(m_Followers.size() * 2.5);
+        uint32 l_CurrentAvailableMission = 0;
+
+        std::for_each(m_Missions.begin(), m_Missions.end(), [&l_CurrentAvailableMission](const GarrisonMission & p_Mission) -> void
+        {
+            if (p_Mission.State == GARRISON_MISSION_AVAILABLE && (p_Mission.OfferTime + p_Mission.OfferMaxDuration) > time(0))
+                l_CurrentAvailableMission++;
+        });
+
+        if (l_CurrentAvailableMission < l_MaxMissionCount)
+        {
+            uint32 l_MaxFollowerLevel = 90;
+            uint32 l_MaxFollowerItemLevel = 600;
+
+            std::for_each(m_Followers.begin(), m_Followers.end(), [&l_MaxFollowerLevel, &l_MaxFollowerItemLevel](const GarrisonFollower & p_Follower) -> void
+            {
+                l_MaxFollowerLevel = std::max(l_MaxFollowerLevel, (uint32)p_Follower.Level);
+                l_MaxFollowerItemLevel = std::max(l_MaxFollowerItemLevel, (uint32)((p_Follower.ItemLevelArmor + p_Follower.ItemLevelWeapon) / 2));
+            });
+
+            std::vector<const GarrMissionEntry*> l_Candidates;
+
+            for (uint32 l_I = 0; l_I < sGarrMissionStore.GetNumRows(); ++l_I)
+            {
+                const GarrMissionEntry * l_Entry = sGarrMissionStore.LookupEntry(l_I);
+
+                if (!l_Entry)
+                    continue;
+
+                if (HaveMission(l_Entry->MissionRecID))
+                    continue;
+
+                if (l_Entry->RequiredFollowersCount > m_Followers.size())
+                    continue;
+
+                /// Max Level cap : 2
+                if (l_Entry->RequiredLevel > (int32)(l_MaxFollowerLevel + 2))
+                    continue;
+
+                if (l_Entry->RequiredItemLevel > (int32)l_MaxFollowerItemLevel)
+                    continue;
+
+                l_Candidates.push_back(l_Entry);
+            }
+
+            uint32 l_ShuffleCount = std::rand() % 20;
+
+            for (uint32 l_I = 0; l_I < l_ShuffleCount; ++l_I)
+                std::random_shuffle(l_Candidates.begin(), l_Candidates.end());
+
+            int32 l_MissionToAddCount = (int32)l_MaxMissionCount - (int32)l_CurrentAvailableMission;
+
+            if (l_MissionToAddCount > 0)
+            {
+                for (int32 l_I = 0; l_I < l_MissionToAddCount, l_I < l_Candidates.size(); ++l_I)
+                    AddMission(l_Candidates[l_I]->MissionRecID);
+            }
+        }
+
+        m_MissionDistributionLastUpdate = time(0);
+    }
 }

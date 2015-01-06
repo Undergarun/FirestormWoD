@@ -392,6 +392,15 @@ class Garrison
         /// Update garrison stats
         void UpdateStats();
 
+        /// Update buildings
+        void UpdateBuildings();
+        /// Update followers
+        void UpdateFollowers();
+        /// Update cache
+        void UpdateCache();
+        /// Update mission distribution
+        void UpdateMissionDistribution();
+
     private:
         Player *    m_Owner;            ///< Garrison owner
         uint32      m_ID;               ///< Garrison DB ID
