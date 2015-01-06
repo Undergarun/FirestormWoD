@@ -1831,23 +1831,6 @@ class spell_warl_drain_soul: public SpellScriptLoader
     public:
         spell_warl_drain_soul() : SpellScriptLoader("spell_warl_drain_soul") { }
 
-        class spell_warl_drain_soul_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warl_drain_soul_SpellScript);
-
-            void HandleOnHit()
-            {
-                Unit* l_Caster = GetCaster();
-                if (AuraPtr l_ImprovedDrainSoul = l_Caster->GetAura(SPELL_WARL_IMPROVED_DRAIN_SOUL))
-                    SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_ImprovedDrainSoul->GetSpellInfo()->Effects[EFFECT_0].BasePoints));
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_warl_drain_soul_SpellScript::HandleOnHit);
-            }
-        };
-
         class spell_warl_drain_soul_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_warl_drain_soul_AuraScript);
@@ -1863,16 +1846,29 @@ class spell_warl_drain_soul: public SpellScriptLoader
                                 l_Caster->ModifyPower(POWER_SOUL_SHARDS, 1 * l_Caster->GetPowerCoeff(POWER_SOUL_SHARDS));
             }
 
+            void HandleEffectPeriodicUpdate(AuraEffectPtr p_AurEff)
+            {
+                std::list<Unit*> l_TargetList;
+                p_AurEff->GetTargetList(l_TargetList);
+
+                if (Unit* l_Caster = GetCaster())
+                    if (l_Caster->getLevel() >= 92 && l_Caster->HasSpell(SPELL_WARL_IMPROVED_DRAIN_SOUL))
+                    {
+                        for (auto itr : l_TargetList)
+                            if (itr != nullptr && itr->GetHealthPct() < 20)
+                            {
+                                if (SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_WARL_IMPROVED_DRAIN_SOUL))
+                                    p_AurEff->SetAmount(p_AurEff->GetAmount() + CalculatePct(p_AurEff->GetAmount(), l_SpellInfo->Effects[EFFECT_0].BasePoints));
+                            }
+                    }
+            }
+
             void Register()
             {
+                OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_warl_drain_soul_AuraScript::HandleEffectPeriodicUpdate, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
                 OnEffectRemove += AuraEffectApplyFn(spell_warl_drain_soul_AuraScript::HandleRemove, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warl_drain_soul_SpellScript();
-        }
 
         AuraScript* GetAuraScript() const
         {
