@@ -101,8 +101,9 @@ class npc_GarrisonFord : public CreatureScript
             }
             else
             {
-                if (p_Player->GetCurrency(GARRISON_CURRENCY_ID))
+                if (p_Player->GetCurrency(GARRISON_CURRENCY_ID, false))
                     p_Player->ModifyCurrency(GARRISON_CURRENCY_ID, -p_Player->GetCurrency(GARRISON_CURRENCY_ID, false));
+
                 p_Player->DeleteGarrison();
             }
 
