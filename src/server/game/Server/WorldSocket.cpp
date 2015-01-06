@@ -47,6 +47,9 @@
 #include "AccountMgr.h"
 #include "ObjectMgr.h"
 
+uint32_t gReceivedBytes = 0;
+uint32_t gSentBytes = 0;
+
 #if defined(__GNUC__)
 #pragma pack(1)
 #else
@@ -169,6 +172,8 @@ int WorldSocket::SendPacket(WorldPacket const& pct)
 
     WorldPacket const* pkt = &pct;
     const_cast<WorldPacket*>(pkt)->FlushBits();
+
+    gSentBytes += pkt->size() + 3;
 
    // TODO : Find the compress flag
    // Empty buffer used in case packet should be compressed
@@ -777,6 +782,8 @@ int WorldSocket::schedule_wakeup_output (GuardType& g)
 int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
 {
     ACE_ASSERT (new_pct);
+
+    gReceivedBytes += new_pct->size() + 2;
 
     // manage memory ;)
     ACE_Auto_Ptr<WorldPacket> aptr(new_pct);

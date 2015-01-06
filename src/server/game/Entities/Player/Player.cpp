@@ -988,10 +988,16 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
 
     for (size_t l_CurrentPetSlot = 0; l_CurrentPetSlot < MAX_PETBATTLE_SLOTS; ++l_CurrentPetSlot)
         m_BattlePetCombatTeam[l_CurrentPetSlot] = BattlePet::Ptr();
+
+    if (GetSession()->GetSecurity() > SEC_PLAYER)
+        gOnlineGameMaster++;
 }
 
 Player::~Player()
 {
+    if (GetSession()->GetSecurity() > SEC_PLAYER)
+        gOnlineGameMaster--;
+
     if (m_Garrison)
         delete m_Garrison;
 
