@@ -158,6 +158,9 @@ class garrison_commandscript: public CommandScript
 
             l_TargetPlayer->DeleteGarrison();
 
+            if (l_TargetPlayer->GetCurrency(GARRISON_CURRENCY_ID))
+                l_TargetPlayer->ModifyCurrency(GARRISON_CURRENCY_ID, -p_Player->GetCurrency(GARRISON_CURRENCY_ID, false));
+
             return true;
         }
 

@@ -100,7 +100,11 @@ class npc_GarrisonFord : public CreatureScript
                 p_Player->GetGarrison()->LearnBlueprint(26);
             }
             else
+            {
+                if (p_Player->GetCurrency(GARRISON_CURRENCY_ID))
+                    p_Player->ModifyCurrency(GARRISON_CURRENCY_ID, -p_Player->GetCurrency(GARRISON_CURRENCY_ID, false));
                 p_Player->DeleteGarrison();
+            }
 
             return true;
         }
