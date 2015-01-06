@@ -324,11 +324,6 @@ class ByteBuffer
             _wbitpos = 8;
         }
 
-        void ResetBitReading()
-        {
-            _rbitpos = 8;
-        }
-
         void WriteBitInOrder(ObjectGuid guid, uint8 order[8])
         {
             for (uint8 i = 0; i < 8; ++i)

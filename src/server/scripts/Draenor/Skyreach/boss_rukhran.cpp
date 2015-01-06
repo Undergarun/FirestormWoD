@@ -414,7 +414,7 @@ namespace MS
 
                 void UpdateAI(const uint32 diff)
                 {
-                    if (!UpdateVictim() || me->getVictim()->GetDistance(me) > 50.0f)
+                    if (!UpdateVictim() || (me->getVictim() && me->getVictim()->GetDistance(me) > 50.0f))
                     {
                         if (m_CombatStarted)
                         {

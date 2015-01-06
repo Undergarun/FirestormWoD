@@ -57,6 +57,7 @@ class garrison_commandscript: public CommandScript
                 { "mission" ,  SEC_GAMEMASTER,  true,   NULL, "", missionCommandTable   },
                 { "info",      SEC_GAMEMASTER,  true,   &HandleGarrisonInfo,   "", NULL },
                 { "create",    SEC_GAMEMASTER,  true,   &HandleGarrisonCreate, "", NULL },
+                { "delete",    SEC_GAMEMASTER,  true,   &HandleGarrisonDelete, "", NULL },
                 { NULL,        0,               false,  NULL, "", NULL }
             };
 
@@ -133,6 +134,29 @@ class garrison_commandscript: public CommandScript
 
             /// HACK until quest : add barracks plan
             l_TargetPlayer->GetGarrison()->LearnBlueprint(26);
+
+            return true;
+        }
+
+        static bool HandleGarrisonDelete(ChatHandler * p_Handler, char const* p_Args)
+        {
+            Player * l_TargetPlayer = p_Handler->getSelectedPlayer();
+
+            if (!l_TargetPlayer)
+            {
+                p_Handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            if (!l_TargetPlayer->GetGarrison())
+            {
+                p_Handler->PSendSysMessage("Player doesnt have a garrison");
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            l_TargetPlayer->DeleteGarrison();
 
             return true;
         }
