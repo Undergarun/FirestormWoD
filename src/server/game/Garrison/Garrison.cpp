@@ -329,18 +329,12 @@ void Garrison::Create()
     m_MissionDistributionLastUpdate = 0;
 }
 /// Load
-bool Garrison::Load()
+bool Garrison::Load(PreparedQueryResult p_GarrisonResult, PreparedQueryResult p_BuildingsResult, PreparedQueryResult p_FollowersResult, PreparedQueryResult p_MissionsResult)
 {
-    PreparedStatement * l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GARRISON);
 
-    uint32 l_Index = 0;
-    l_Stmt->setUInt32(0, m_Owner->GetGUIDLow());
-
-    PreparedQueryResult l_Result = CharacterDatabase.Query(l_Stmt);
-
-    if (l_Result)
+    if (p_GarrisonResult)
     {
-        Field * l_Fields = l_Result->Fetch();
+        Field * l_Fields = p_GarrisonResult->Fetch();
 
         m_ID            = l_Fields[0].GetUInt32();
         m_GarrisonLevel = l_Fields[1].GetUInt32();
@@ -365,16 +359,11 @@ bool Garrison::Load()
         m_NumFollowerActivationRegenTimestamp  = l_Fields[5].GetUInt32();
         m_CacheLastUsage                       = l_Fields[6].GetUInt32();
 
-        l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GARRISON_BUILDING);
-        l_Stmt->setUInt32(0, m_ID);
-
-        l_Result = CharacterDatabase.Query(l_Stmt);
-
-        if (l_Result)
+        if (p_BuildingsResult)
         {
             do
             {
-                l_Fields = l_Result->Fetch();
+                l_Fields = p_BuildingsResult->Fetch();
 
                 GarrisonBuilding l_Building;
                 l_Building.DB_ID            = l_Fields[0].GetUInt32();
@@ -389,19 +378,14 @@ bool Garrison::Load()
                     l_Building.BuiltNotified = true;    ///< Auto notify by info packet
 
                 m_Buildings.push_back(l_Building);
-            } while (l_Result->NextRow());
+            } while (p_BuildingsResult->NextRow());
         }
 
-        l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GARRISON_MISSION);
-        l_Stmt->setUInt32(0, m_ID);
-
-        l_Result = CharacterDatabase.Query(l_Stmt);
-
-        if (l_Result)
+        if (p_MissionsResult)
         {
             do
             {
-                l_Fields = l_Result->Fetch();
+                l_Fields = p_MissionsResult->Fetch();
 
                 GarrisonMission l_Mission;
                 l_Mission.DB_ID             = l_Fields[0].GetUInt32();
@@ -420,19 +404,14 @@ bool Garrison::Load()
                     CharacterDatabase.AsyncQuery(l_Stmt);
                 }
 
-            } while (l_Result->NextRow());
+            } while (p_MissionsResult->NextRow());
         }
 
-        l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GARRISON_FOLLOWER);
-        l_Stmt->setUInt32(0, m_ID);
-
-        l_Result = CharacterDatabase.Query(l_Stmt);
-
-        if (l_Result)
+        if (p_FollowersResult)
         {
             do
             {
-                l_Fields = l_Result->Fetch();
+                l_Fields = p_FollowersResult->Fetch();
 
                 GarrisonFollower l_Follower;
                 l_Follower.DB_ID             = l_Fields[0].GetUInt32();
@@ -456,7 +435,7 @@ bool Garrison::Load()
                 l_Follower.Flags = l_Fields[10].GetUInt32();
 
                 m_Followers.push_back(l_Follower);
-            } while (l_Result->NextRow());
+            } while (p_FollowersResult->NextRow());
         }
 
         Init();
@@ -736,7 +715,7 @@ void Garrison::Update()
 
             if (l_MissionToAddCount > 0)
             {
-                for (int32 l_I = 0; l_I < l_MissionToAddCount; ++l_I)
+                for (int32 l_I = 0; l_I < l_MissionToAddCount, l_I < l_Candidates.size(); ++l_I)
                     AddMission(l_Candidates[l_I]->MissionRecID);
             }
         }
