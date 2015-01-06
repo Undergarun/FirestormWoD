@@ -92,6 +92,9 @@ class npc_GarrisonFord : public CreatureScript
             p_Player->GetGarrison()->AddFollower(89);
             p_Player->GetGarrison()->AddFollower(92);
 
+            /// HACK until quest : add barracks plan
+            p_Player->GetGarrison()->LearnBlueprint(26);
+
             return true;
         }
 };
