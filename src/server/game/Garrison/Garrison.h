@@ -125,6 +125,7 @@ extern uint32 gGarrisonBuildingActivationGameObject[GARRISON_FACTION_COUNT];
 #define GARRISON_CACHE_HEFTY_CURRENCY           200
 #define GARRISON_CACHE_MIN_CURRENCY             5
 #define GARRISON_CACHE_GENERATE_TICK            (10 * MINUTE)
+#define GARRISON_MISSION_DISTRIB_INTERVAL       (10 * MINUTE)
 
 enum 
 {
@@ -400,6 +401,7 @@ class Garrison
         uint32      m_NumFollowerActivation;
         uint32      m_NumFollowerActivationRegenTimestamp;
         uint32      m_CacheLastUsage;
+        uint32      m_MissionDistributionLastUpdate;
 
         uint64      m_LastUsedActivationGameObject;
         uint64      m_CacheGameObjectGUID;

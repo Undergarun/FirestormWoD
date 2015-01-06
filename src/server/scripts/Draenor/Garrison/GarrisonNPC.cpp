@@ -37,8 +37,8 @@ enum
 
 float gGarrisonCreationCoords[][4] =
 {
-    { 1766.761475f,  191.2846830f,  72.115326f, 0.0510594f },   ///< TEAM_ALLIANCE
-    { 5698.020020f, 4512.1635574f, 127.401695f, 2.7822720f }    ///< TEAM_HORDE
+    { 1766.761475f,  191.2846830f,  72.115326f, 0.4649370f },   ///< TEAM_ALLIANCE
+    { 5698.020020f, 4512.1635574f, 127.401695f, 2.8622720f }    ///< TEAM_HORDE
 };
 
 /// Garrison Ford
@@ -86,6 +86,14 @@ class npc_GarrisonFord : public CreatureScript
                 p_Player->AddQuest(sObjectMgr->GetQuestTemplate(QUEST_ETABLISH_YOUR_GARRISON_H), p_Creature);
                 p_Player->CompleteQuest(QUEST_ETABLISH_YOUR_GARRISON_H);
             }
+
+            /// HACK until shadowmoon quest are done : add follower Qiana Moonshadow / Olin Umberhide
+            p_Player->GetGarrison()->AddFollower(34);
+            p_Player->GetGarrison()->AddFollower(89);
+            p_Player->GetGarrison()->AddFollower(92);
+
+            /// HACK until quest : add barracks plan
+            p_Player->GetGarrison()->LearnBlueprint(26);
 
             return true;
         }
@@ -327,11 +335,52 @@ class npc_LunarfallLaborer : public CreatureScript
 
             }
 
-            virtual void SetData(uint32 p_ID, uint32 p_Value) 
+            void SetData(uint32 p_ID, uint32 p_Value) override
             {
                 if (p_ID == GARRISON_CREATURE_AI_DATA_BUILDER)
                 {
-                    me->SetCurrentEquipmentId(1);
+                    me->LoadEquipment(1, true);
+                    me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_WORK);
+                }
+            }
+        };
+};
+
+/// Frostwall Peon
+class npc_FrostwallPeon : public CreatureScript
+{
+    public:
+        /// Constructor
+        npc_FrostwallPeon()
+            : CreatureScript("npc_FrostwallPeon")
+        {
+
+        }
+
+        CreatureAI* GetAI(Creature * p_Creature) const
+        {
+            return new npc_FrostwallPeonAI(p_Creature);
+        }
+
+        struct npc_FrostwallPeonAI : public CreatureAI
+        {
+            /// Constructor
+            npc_FrostwallPeonAI(Creature * p_Creature)
+                : CreatureAI(p_Creature)
+            {
+
+            }
+
+            void UpdateAI(const uint32 p_Diff) override
+            {
+
+            }
+
+            void SetData(uint32 p_ID, uint32 p_Value) override
+            {
+                if (p_ID == GARRISON_CREATURE_AI_DATA_BUILDER)
+                {
+                    me->LoadEquipment(1, true);
                     me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_WORK);
                 }
             }
@@ -346,4 +395,6 @@ void AddSC_Garrison_NPC()
     new npc_ShellyHamby;
     new npc_BarosAlexsom;
     new npc_VindicatorMaraad;
+    new npc_LunarfallLaborer;
+    new npc_FrostwallPeon;
 }

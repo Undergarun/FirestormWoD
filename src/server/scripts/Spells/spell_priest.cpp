@@ -2121,11 +2121,6 @@ class spell_pri_vampiric_touch: public SpellScriptLoader
                 if (GetCaster())
                 {
                     GetCaster()->EnergizeBySpell(GetCaster(), GetSpellInfo()->Id,  GetCaster()->CountPctFromMaxMana(2), POWER_MANA);
-
-                    // From Darkness, Comes Light
-                    if (GetCaster()->HasAura(PRIEST_SURGE_OF_LIGHT_AURA))
-                        if (roll_chance_i(sSpellMgr->GetSpellInfo(PRIEST_SURGE_OF_LIGHT_AURA)->Effects[EFFECT_0].BasePoints)) // 8% Chance
-                            GetCaster()->CastSpell(GetCaster(), PRIEST_SURGE_OF_DARKNESS, true);
                 }
             }
 
@@ -2636,8 +2631,12 @@ public:
     void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_Value)
     {
         if (p_Player->getClass() == CLASS_PRIEST && p_Player->GetSpecializationId(p_Player->GetActiveSpec()) == SPEC_PRIEST_SHADOW && p_Power == POWER_SHADOW_ORB)
-            if (p_Value > 0 && p_Player->HasAura(PRIEST_SPELL_INSANITY_AURA) && roll_chance_i(sSpellMgr->GetSpellInfo(PRIEST_SPELL_INSANITY_AURA)->Effects[EFFECT_0].BasePoints))
+            if (p_Value < 0 && p_Player->HasAura(PRIEST_SPELL_INSANITY_AURA))
+            {
                 p_Player->CastSpell(p_Player, PRIEST_SPELL_INSANITY, true);
+                if (AuraPtr l_Insanity = p_Player->GetAura(PRIEST_SPELL_INSANITY))
+                    l_Insanity->SetDuration(l_Insanity->GetMaxDuration() * (p_Value * -1));
+            }
     }
 };
 

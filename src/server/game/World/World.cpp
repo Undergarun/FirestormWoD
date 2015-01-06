@@ -1400,6 +1400,7 @@ void World::SetInitialWorldSettings()
 
     ///- Initialize the random number generator
     srand((unsigned int)time(NULL));
+    std::srand((unsigned int)time(NULL));
 
     ///- Initialize config settings
     LoadConfigSettings();

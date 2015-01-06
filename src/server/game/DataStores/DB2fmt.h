@@ -18,6 +18,7 @@
 #ifndef TRINITY_DB2SFRM_H
 #define TRINITY_DB2SFRM_H
 
+char const CurvePointEntryfmt[] = "niiff";
 const char Itemfmt[] = "niiiiiiii";
 const char ItemBonusfmt[] = "diiiii";
 const char ItemCurrencyCostfmt[] = "xn";

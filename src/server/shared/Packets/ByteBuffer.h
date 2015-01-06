@@ -309,6 +309,11 @@ class ByteBuffer
             append((uint8 *)&value, sizeof(value));
         }
 
+        void ResetBitReading()
+        {
+            _rbitpos = 8;
+        }
+
         void FlushBits()
         {
             if (_wbitpos == 8)
