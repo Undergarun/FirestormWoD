@@ -645,8 +645,7 @@ void Garrison::Update()
             if (l_Cache)
             {
                 l_Cache->DestroyForNearbyPlayers();
-                l_Cache->CleanupsBeforeDelete();
-                delete l_Cache;
+                l_Cache->AddObjectToRemoveList();
             }
 
             m_CacheGameObjectGUID = 0;
@@ -673,8 +672,7 @@ void Garrison::Update()
         if (l_Cache)
         {
             l_Cache->DestroyForNearbyPlayers();
-            l_Cache->CleanupsBeforeDelete();
-            delete l_Cache;
+            l_Cache->AddObjectToRemoveList();
         }
 
         m_CacheGameObjectGUID = 0;
@@ -802,8 +800,7 @@ void Garrison::OnPlayerLeave()
         if (l_Cache)
         {
             l_Cache->DestroyForNearbyPlayers();
-            l_Cache->CleanupsBeforeDelete();
-            delete l_Cache;
+            l_Cache->AddObjectToRemoveList();
         }
 
         m_CacheGameObjectGUID = 0;
@@ -2622,8 +2619,7 @@ void Garrison::UninitPlots()
         if (l_Gob)
         {
             l_Gob->DestroyForNearbyPlayers();
-            l_Gob->CleanupsBeforeDelete();
-            delete l_Gob;
+            l_Gob->AddObjectToRemoveList();
         }
     }
 
@@ -2636,8 +2632,7 @@ void Garrison::UninitPlots()
         if (l_Gob)
         {
             l_Gob->DestroyForNearbyPlayers();
-            l_Gob->CleanupsBeforeDelete();
-            delete l_Gob;
+            l_Gob->AddObjectToRemoveList();
         }
     }
 
@@ -2652,8 +2647,7 @@ void Garrison::UninitPlots()
             if (l_Gob)
             {
                 l_Gob->DestroyForNearbyPlayers();
-                l_Gob->CleanupsBeforeDelete();
-                delete l_Gob;
+                l_Gob->AddObjectToRemoveList();
             }
         }
     }
@@ -2669,8 +2663,7 @@ void Garrison::UninitPlots()
             if (l_Crea)
             {
                 l_Crea->DestroyForNearbyPlayers();
-                l_Crea->CleanupsBeforeDelete();
-                delete l_Crea;
+                l_Crea->AddObjectToRemoveList();
             }
         }
     }
@@ -2697,8 +2690,7 @@ void Garrison::UpdatePlot(uint32 p_PlotInstanceID)
         if (l_Gob)
         {
             l_Gob->DestroyForNearbyPlayers();
-            l_Gob->CleanupsBeforeDelete();
-            delete l_Gob;
+            l_Gob->AddObjectToRemoveList();
         }
 
         m_PlotsGob[p_PlotInstanceID] = 0;
@@ -2751,8 +2743,7 @@ void Garrison::UpdatePlot(uint32 p_PlotInstanceID)
                     if (l_Crea)
                     {
                         l_Crea->DestroyForNearbyPlayers();
-                        l_Crea->CleanupsBeforeDelete();
-                        delete l_Crea;
+                        l_Crea->AddObjectToRemoveList();
                     }
                 }
 
@@ -2765,8 +2756,7 @@ void Garrison::UpdatePlot(uint32 p_PlotInstanceID)
                     if (l_Gob)
                     {
                         l_Gob->DestroyForNearbyPlayers();
-                        l_Gob->CleanupsBeforeDelete();
-                        delete l_Gob;
+                        l_Gob->AddObjectToRemoveList();
                     }
                 }
 
@@ -2842,8 +2832,7 @@ void Garrison::UpdatePlot(uint32 p_PlotInstanceID)
                 if (l_Gob)
                 {
                     l_Gob->DestroyForNearbyPlayers();
-                    l_Gob->CleanupsBeforeDelete();
-                    delete l_Gob;
+                    l_Gob->AddObjectToRemoveList();
                 }
             }
 
