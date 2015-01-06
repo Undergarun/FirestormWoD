@@ -125,7 +125,7 @@ extern uint32 gGarrisonBuildingActivationGameObject[GARRISON_FACTION_COUNT];
 #define GARRISON_CACHE_HEFTY_CURRENCY           200
 #define GARRISON_CACHE_MIN_CURRENCY             5
 #define GARRISON_CACHE_GENERATE_TICK            (10 * MINUTE)
-#define GARRISON_MISSION_DISTRIB_INTERVAL       (1 * MINUTE)
+#define GARRISON_MISSION_DISTRIB_INTERVAL       (10 * MINUTE)
 
 enum 
 {

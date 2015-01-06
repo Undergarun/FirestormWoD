@@ -319,7 +319,7 @@ void Garrison::Create()
     Init();
 
     /// At creation, the garrison cache contains 50 token
-    m_CacheLastUsage = time(0) - (50 * GARRISON_CACHE_GENERATE_TICK);
+    m_CacheLastUsage = time(0) - (200 * GARRISON_CACHE_GENERATE_TICK);
 
     /// Force mission distribution update
     m_MissionDistributionLastUpdate = 0;
