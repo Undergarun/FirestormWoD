@@ -128,6 +128,8 @@ class garrison_commandscript: public CommandScript
 
             /// HACK until shadowmoon quest are done : add follower Qiana Moonshadow / Olin Umberhide
             l_TargetPlayer->GetGarrison()->AddFollower(34);
+            l_TargetPlayer->GetGarrison()->AddFollower(89);
+            l_TargetPlayer->GetGarrison()->AddFollower(92);
 
             return true;
         }
