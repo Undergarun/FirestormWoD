@@ -6425,6 +6425,22 @@ void ObjectMgr::SetHighestGuids()
     result = CharacterDatabase.Query("SELECT MAX(itemId) from character_void_storage");
     if (result)
         _voidItemId = (*result)[0].GetUInt64()+1;
+
+    result = CharacterDatabase.Query("SELECT MAX(id) from character_garrison");
+    if (result)
+        m_GarrisonID = (*result)[0].GetUInt32() + 1;
+
+    result = CharacterDatabase.Query("SELECT MAX(id) from character_garrison_building");
+    if (result)
+        m_GarrisonBuildingID = (*result)[0].GetUInt32() + 1;
+
+    result = CharacterDatabase.Query("SELECT MAX(id) from character_garrison_follower");
+    if (result)
+        m_GarrisonFollowerID = (*result)[0].GetUInt32() + 1;
+
+    result = CharacterDatabase.Query("SELECT MAX(id) from character_garrison_mission");
+    if (result)
+        m_GarrisonMissionID = (*result)[0].GetUInt32() + 1;
 }
 
 uint32 ObjectMgr::GenerateAuctionID()
