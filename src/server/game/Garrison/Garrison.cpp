@@ -2797,16 +2797,29 @@ void Garrison::UpdatePlot(uint32 p_PlotInstanceID)
                 l_NonRotatedPosition = l_Mat * G3D::Vector3(l_PlotInfo.X, l_PlotInfo.Y, l_PlotInfo.Z);
             }
 
-            std::vector<GarrisonPlotBuildingContent> l_Contents = sObjectMgr->GetGarrisonPlotBuildingContent(GetPlotType(p_PlotInstanceID), GetGarrisonFactionIndex());
+            std::vector<GarrisonPlotBuildingContent> l_Contents;
+            
+            
+            if (l_IsPlotBuilding)
+                l_Contents = sObjectMgr->GetGarrisonPlotBuildingContent(GetPlotType(p_PlotInstanceID), GetGarrisonFactionIndex());
+            else if (l_Building.Active && l_Building.BuildingID)
+                l_Contents = sObjectMgr->GetGarrisonPlotBuildingContent(-(int32)l_Building.BuildingID, GetGarrisonFactionIndex());
 
             for (uint32 l_I = 0; l_I < l_Contents.size(); ++l_I)
             {
                 if (l_IsPlotBuilding && l_Contents[l_I].PlotTypeOrBuilding < 0)
                     continue;
-                else if (!l_IsPlotBuilding && l_Building.Active && -l_Contents[l_I].PlotTypeOrBuilding != l_Building.BuildingID)
-                    continue;
-                else if (!l_IsPlotBuilding && !l_Building.BuildingID)
-                    continue;
+
+                if (!l_IsPlotBuilding)
+                {
+                    if (!l_Building.BuildingID)
+                        continue;
+
+                    int32 l_NegPlotTypeOrBuilding = -l_Contents[l_I].PlotTypeOrBuilding;
+
+                    if (l_Building.Active && l_NegPlotTypeOrBuilding != l_Building.BuildingID)
+                        continue;
+                }
 
                 G3D::Vector3 l_Position = G3D::Vector3(l_Contents[l_I].X, l_Contents[l_I].Y, 0);
 
