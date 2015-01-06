@@ -224,6 +224,18 @@ void WorldSession::HandleGarrisonPurchaseBuildingOpcode(WorldPacket & p_RecvData
     p_RecvData >> l_PlotInstanceID;
     p_RecvData >> l_BuildingID;
 
+    bool l_CanBuild = false;
+    switch (l_BuildingID)
+    {
+        case 26:    /// Barracks Lvl 1
+            l_CanBuild = true;
+            break;
+
+        default:
+            l_CanBuild = false;
+            break;
+    }
+
     Creature* l_Unit = GetPlayer()->GetNPCIfCanInteractWithFlag2(l_NpcGUID, UNIT_NPC_FLAG2_GARRISON_ARCHITECT);
 
     if (!l_Unit)
@@ -251,6 +263,9 @@ void WorldSession::HandleGarrisonPurchaseBuildingOpcode(WorldPacket & p_RecvData
 
     if (!l_Result)
         l_Result = l_Garrison->CanPurchaseBuilding(l_BuildingID);
+
+    if (!l_CanBuild)
+        l_Result = GARRISON_PURCHASE_BUILDING_INVALID_BUILDING_ID;
 
     WorldPacket l_PlaceResult(SMSG_GARRISON_PLACE_BUILDING_RESULT, 26);
     l_PlaceResult << uint32(l_Result);
