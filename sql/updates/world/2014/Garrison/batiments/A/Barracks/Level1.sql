@@ -3,6 +3,6 @@ REPLACE INTO creature_template (entry, `name`, `subname`, `IconName`, `RacialLea
 INSERT INTO creature_template_addon (entry, `bytes2`, `emote`) VALUES(77379, 1, 461) ON DUPLICATE KEY UPDATE `entry` = VALUES(`entry`), `bytes2` = VALUES(`bytes2`), `emote` = VALUES(`emote`);
 INSERT INTO creature_model_info (`modelid`, `bounding_radius`, `combat_reach`, `gender`) VALUES(53844, 0.3366, 1.65, 0) ON DUPLICATE KEY UPDATE `modelid` = VALUES(`modelid`), `bounding_radius` = VALUES(`bounding_radius`), `combat_reach` = VALUES(`combat_reach`), `gender` = VALUES(`gender`);
 
-DELETE FROM garrison_plot_content WHERE plot_type_or_building=-26;
-insert into `garrison_plot_content` (`id`, `plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('39','-26','1','77379','15.745','-4.09704','0.858383','-0.449646');
-insert into `garrison_plot_content` (`id`, `plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('40','-26','1','-236219','15.745','-4.09704','0.358383','3.01185');
+DELETE FROM garrison_plot_content WHERE plot_type_or_building=-26 AND faction_index = 1;
+insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-26','1','77379','15.745','-4.09704','0.858383','-0.449646');
+insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-26','1','-236219','15.745','-4.09704','0.358383','3.01185');
