@@ -33,6 +33,7 @@
 #include <ace/Guard_T.h>
 #include <ace/Unbounded_Queue.h>
 #include <ace/Message_Block.h>
+#include <atomic>
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 #pragma once
@@ -40,6 +41,9 @@
 
 #include "Common.h"
 #include "AuthCrypt.h"
+
+extern std::atomic<uint32_t> gReceivedBytes;
+extern std::atomic<uint32_t> gSentBytes;
 
 class ACE_Message_Block;
 class WorldPacket;

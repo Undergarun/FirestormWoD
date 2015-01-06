@@ -78,6 +78,7 @@ LogsDir = ""
 #    LoginDatabaseInfo
 #    WorldDatabaseInfo
 #    CharacterDatabaseInfo
+#    MonitoringDatabaseInfo
 #        Description: Database connection settings for the world server.
 #        Example:     "hostname;port;username;password;database"
 #                     ".;somenumber;username;password;database" - (Use named pipes on Windows
@@ -89,14 +90,16 @@ LogsDir = ""
 #                     "127.0.0.1;3306;trinity;trinity;world"      - (WorldDatabaseInfo)
 #                     "127.0.0.1;3306;trinity;trinity;characters" - (CharacterDatabaseInfo)
 
-LoginDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;auth"
-WorldDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;world"
-CharacterDatabaseInfo = "127.0.0.1;3306;trinity;trinity;characters"
+LoginDatabaseInfo      = "127.0.0.1;3306;trinity;trinity;auth"
+WorldDatabaseInfo      = "127.0.0.1;3306;trinity;trinity;world"
+CharacterDatabaseInfo  = "127.0.0.1;3306;trinity;trinity;characters"
+MonitoringDatabaseInfo = "127.0.0.1;3306;trinity;trinity;monitoring_realmname"
 
 #
 #    LoginDatabase.WorkerThreads
 #    WorldDatabase.WorkerThreads
 #    CharacterDatabase.WorkerThreads
+#    MonitoringDatabaseInfo.WorkerThreads
 #        Description: The amount of worker threads spawned to handle asynchronous (delayed) MySQL
 #                     statements. Each worker thread is mirrored with its own connection to the
 #                     MySQL server and their own thread on the MySQL server.
@@ -104,22 +107,25 @@ CharacterDatabaseInfo = "127.0.0.1;3306;trinity;trinity;characters"
 #                     1 - (WorldDatabase.WorkerThreads)
 #                     1 - (CharacterDatabase.WorkerThreads)
 
-LoginDatabase.WorkerThreads     = 2
-WorldDatabase.WorkerThreads     = 1
-CharacterDatabase.WorkerThreads = 4
+LoginDatabase.WorkerThreads          = 2
+WorldDatabase.WorkerThreads          = 1
+CharacterDatabase.WorkerThreads      = 4
+MonitoringDatabaseInfo.WorkerThreads = 1
 
 #
 #    LoginDatabase.SynchThreads
 #    WorldDatabase.SynchThreads
 #    CharacterDatabase.SynchThreads
+#    MonitoringDatabase.SynchThreads
 #        Description: The amount of MySQL connections spawned to handle.
 #        Default:     1 - (LoginDatabase.WorkerThreads)
 #                     1 - (WorldDatabase.WorkerThreads)
 #                     2 - (CharacterDatabase.WorkerThreads)
 
-LoginDatabase.SynchThreads     = 4
-WorldDatabase.SynchThreads     = 1
-CharacterDatabase.SynchThreads = 8
+LoginDatabase.SynchThreads      = 4
+WorldDatabase.SynchThreads      = 1
+CharacterDatabase.SynchThreads  = 8
+MonitoringDatabase.SynchThreads = 1
 
 #
 #    MaxPingTime
