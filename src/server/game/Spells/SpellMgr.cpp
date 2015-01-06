@@ -6251,6 +6251,11 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->SetDurationIndex(39); // 2 seconds
                 spellInfo->MaxAffectedTargets = 3;
                 break;
+            // Chi Brew, SPELL_ATTR4_TRIGGERED bypass charge check and players can usebug (the check is only doing client-side)
+            // Maybe SPELL_ATTR4_TRIGGERED don't bypass charge ?
+            case 115399:
+                spellInfo->AttributesEx4 &= ~SPELL_ATTR4_TRIGGERED;
+                break;
             default:
                 break;
         }
