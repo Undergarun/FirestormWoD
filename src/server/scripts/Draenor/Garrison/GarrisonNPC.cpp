@@ -332,11 +332,52 @@ class npc_LunarfallLaborer : public CreatureScript
 
             }
 
-            virtual void SetData(uint32 p_ID, uint32 p_Value) 
+            void SetData(uint32 p_ID, uint32 p_Value) override
             {
                 if (p_ID == GARRISON_CREATURE_AI_DATA_BUILDER)
                 {
-                    me->SetCurrentEquipmentId(1);
+                    me->LoadEquipment(1, true);
+                    me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_WORK);
+                }
+            }
+        };
+};
+
+/// Frostwall Peon
+class npc_FrostwallPeon : public CreatureScript
+{
+    public:
+        /// Constructor
+        npc_FrostwallPeon()
+            : CreatureScript("npc_FrostwallPeon")
+        {
+
+        }
+
+        CreatureAI* GetAI(Creature * p_Creature) const
+        {
+            return new npc_FrostwallPeonAI(p_Creature);
+        }
+
+        struct npc_FrostwallPeonAI : public CreatureAI
+        {
+            /// Constructor
+            npc_FrostwallPeonAI(Creature * p_Creature)
+                : CreatureAI(p_Creature)
+            {
+
+            }
+
+            void UpdateAI(const uint32 p_Diff) override
+            {
+
+            }
+
+            void SetData(uint32 p_ID, uint32 p_Value) override
+            {
+                if (p_ID == GARRISON_CREATURE_AI_DATA_BUILDER)
+                {
+                    me->LoadEquipment(1, true);
                     me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_WORK);
                 }
             }
@@ -351,4 +392,6 @@ void AddSC_Garrison_NPC()
     new npc_ShellyHamby;
     new npc_BarosAlexsom;
     new npc_VindicatorMaraad;
+    new npc_LunarfallLaborer;
+    new npc_FrostwallPeon;
 }

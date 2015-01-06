@@ -3,7 +3,7 @@
 #include "DatabaseEnv.h"
 #include "ObjectMgr.h"
 #include "ObjectAccessor.h"
-#include "UnitAI.h"
+#include "CreatureAI.h"
 
 uint32 gGarrisonInGarrisonAreaID[GARRISON_FACTION_COUNT] =
 {
@@ -2826,8 +2826,8 @@ void Garrison::UpdatePlot(uint32 p_PlotInstanceID)
 
                     m_PlotsCreatures[p_PlotInstanceID].push_back(l_Creature->GetGUID());
 
-                    if (l_Creature->GetAI())
-                        l_Creature->GetAI()->SetData(GARRISON_CREATURE_AI_DATA_BUILDER, 1);
+                    if (l_Creature->AI())
+                        l_Creature->AI()->SetData(GARRISON_CREATURE_AI_DATA_BUILDER, 1);
                 }
                 else
                 {
