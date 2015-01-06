@@ -99,7 +99,7 @@ MonitoringDatabaseInfo = "127.0.0.1;3306;trinity;trinity;monitoring_realmname"
 #    LoginDatabase.WorkerThreads
 #    WorldDatabase.WorkerThreads
 #    CharacterDatabase.WorkerThreads
-#    MonitoringDatabaseInfo.WorkerThreads
+#    MonitoringDatabase.WorkerThreads
 #        Description: The amount of worker threads spawned to handle asynchronous (delayed) MySQL
 #                     statements. Each worker thread is mirrored with its own connection to the
 #                     MySQL server and their own thread on the MySQL server.
@@ -110,7 +110,7 @@ MonitoringDatabaseInfo = "127.0.0.1;3306;trinity;trinity;monitoring_realmname"
 LoginDatabase.WorkerThreads          = 2
 WorldDatabase.WorkerThreads          = 1
 CharacterDatabase.WorkerThreads      = 4
-MonitoringDatabaseInfo.WorkerThreads = 1
+MonitoringDatabase.WorkerThreads = 1
 
 #
 #    LoginDatabase.SynchThreads
