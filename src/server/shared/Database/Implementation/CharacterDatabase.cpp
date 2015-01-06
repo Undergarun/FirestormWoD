@@ -658,7 +658,7 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     /// Garrison
     //////////////////////////////////////////////////////////////////////////
     PREPARE_STATEMENT(CHAR_INS_GARRISON,        "INSERT INTO character_garrison(id, character_guid, level, blue_recipes, specializations, num_follower_activation, num_follower_activation_regen_timestamp, cache_last_usage) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(CHAR_SEL_GARRISON,        "SELECT id, level, blue_recipes, specializations, num_follower_activation, num_follower_activation_regen_timestamp, cache_last_usage FROM character_garrison WHERE character_guid = (SELECT b.id FROM character_garrison b WHERE b.character_guid=?)", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_SEL_GARRISON,        "SELECT id, level, blue_recipes, specializations, num_follower_activation, num_follower_activation_regen_timestamp, cache_last_usage FROM character_garrison WHERE character_guid = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_UPD_GARRISON,        "UPDATE character_garrison SET level = ?, blue_recipes = ?, specializations = ?, num_follower_activation = ?, num_follower_activation_regen_timestamp = ?, cache_last_usage = ? WHERE id = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_DEL_GARRISON,        "DELETE FROM character_garrison WHERE character_guid = ?", CONNECTION_ASYNC);
 
