@@ -6225,6 +6225,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 114255:// Surge of Light (proc)
                 spellInfo->StackAmount = 2;
                 break;
+            case 129197: // Insanity
+                spellInfo->Effects[EFFECT_0].BonusMultiplier = 0.60;
+                break;
             case 1543:  // Flare
                 spellInfo->Effects[0].TriggerSpell = 109772;
                 spellInfo->ProcChance = 100;

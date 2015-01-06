@@ -1274,6 +1274,9 @@ class spell_pri_devouring_plague: public SpellScriptLoader
                     {
                         if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PRIEST_SHADOW)
                         {
+                            if (l_Player->HasAura(PRIEST_SURGE_OF_DARKNESS_AURA))
+                                if (roll_chance_i(sSpellMgr->GetSpellInfo(PRIEST_SURGE_OF_DARKNESS_AURA)->Effects[EFFECT_0].BasePoints))
+                                    l_Player->CastSpell(l_Player, PRIEST_SURGE_OF_DARKNESS, true);
                             // Shadow Orb visual
                             if (l_Player->HasAura(PRIEST_SHADOW_ORB_AURA))
                                 l_Player->RemoveAura(PRIEST_SHADOW_ORB_AURA);
@@ -1328,6 +1331,10 @@ public:
                     l_TickDamage *= aurEff2->GetAmount();
 
                 l_Caster->CastCustomSpell(l_Caster, PRIEST_DEVOURING_PLAGUE_HEAL, &l_TickDamage, NULL, NULL, true);
+
+                if (l_Caster->HasAura(PRIEST_SURGE_OF_DARKNESS_AURA))
+                    if (roll_chance_i(sSpellMgr->GetSpellInfo(PRIEST_SURGE_OF_DARKNESS_AURA)->Effects[EFFECT_0].BasePoints))
+                        l_Caster->CastSpell(l_Caster, PRIEST_SURGE_OF_DARKNESS, true);
             }
         }
 
@@ -1393,6 +1400,15 @@ class spell_pri_mind_spike: public SpellScriptLoader
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
+                    SetHitDamage(l_Player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY) * GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier);
+
+                    if (l_Player->HasAura(PRIEST_SURGE_OF_DARKNESS))
+                    {
+                        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(PRIEST_SURGE_OF_DARKNESS);
+                        if (l_SpellInfo)
+                            SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_SpellInfo->Effects[EFFECT_3].BasePoints));
+                    }
+
                     if (Unit* l_Target = GetHitUnit())
                     {
                         if (l_Player->HasAura(PRIEST_SPELL_SHADOW_INSIGHT))
@@ -1412,6 +1428,7 @@ class spell_pri_mind_spike: public SpellScriptLoader
                     }
                 }
             }
+
 
             void Register()
             {
@@ -2118,9 +2135,13 @@ class spell_pri_vampiric_touch: public SpellScriptLoader
 
             void OnTick(constAuraEffectPtr aurEff)
             {
-                if (GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    GetCaster()->EnergizeBySpell(GetCaster(), GetSpellInfo()->Id,  GetCaster()->CountPctFromMaxMana(2), POWER_MANA);
+                    l_Caster->EnergizeBySpell(GetCaster(), GetSpellInfo()->Id, l_Caster->CountPctFromMaxMana(2), POWER_MANA);
+
+                    if (l_Caster->HasAura(PRIEST_SURGE_OF_DARKNESS_AURA))
+                        if (roll_chance_i(sSpellMgr->GetSpellInfo(PRIEST_SURGE_OF_DARKNESS_AURA)->Effects[EFFECT_0].BasePoints))
+                            l_Caster->CastSpell(l_Caster, PRIEST_SURGE_OF_DARKNESS, true);
                 }
             }
 
@@ -2530,37 +2551,6 @@ public:
     }
 };
 
-// Call by Vampiric Touch 34914 - Devouring Plague 2944
-// Surge of Darkness - 162448
-class spell_pri_surge_of_darkness: public SpellScriptLoader
-{
-public:
-    spell_pri_surge_of_darkness() : SpellScriptLoader("spell_pri_surge_of_darkness") {}
-
-    class spell_pri_surge_of_darkness_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_pri_surge_of_darkness_SpellScript);
-
-        void HandleOnHit()
-        {
-            if (Unit* l_Caster = GetCaster())
-                if (l_Caster->HasAura(PRIEST_SURGE_OF_DARKNESS_AURA))
-                    if (roll_chance_i(sSpellMgr->GetSpellInfo(PRIEST_SURGE_OF_DARKNESS_AURA)->Effects[EFFECT_0].BasePoints))
-                        l_Caster->CastSpell(l_Caster, PRIEST_SURGE_OF_DARKNESS, true);
-        }
-
-        void Register()
-        {
-            OnHit += SpellHitFn(spell_pri_surge_of_darkness_SpellScript::HandleOnHit);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_pri_surge_of_darkness_SpellScript();
-    }
-};
-
 // Angelic Feather - 121536
 class spell_pri_angelic_feather: public SpellScriptLoader
 {
@@ -2646,7 +2636,6 @@ void AddSC_priest_spell_scripts()
     new spell_pri_shadow_word_pain();
     new spell_pri_angelic_feather();
     new spell_pri_spirit_shell();
-    new spell_pri_surge_of_darkness();
     new spell_pri_clarity_of_power();
     new spell_pri_prayer_of_mending();
     new spell_pri_archangel();
