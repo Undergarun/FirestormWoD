@@ -244,7 +244,7 @@ class Garrison
         /// Create the garrison
         void Create();
         /// Load
-        bool Load();
+        bool Load(PreparedQueryResult p_GarrisonResult, PreparedQueryResult p_BuildingsResult, PreparedQueryResult p_FollowersResult, PreparedQueryResult p_MissionsResult);
         /// Save this garrison to DB
         void Save();
         /// Delete garrison
