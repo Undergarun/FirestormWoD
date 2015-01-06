@@ -30099,11 +30099,11 @@ void Player::HandleStoreGoldCallback(PreparedQueryResult result)
     // Load des golds
     if (result)
     {
-        uint32 goldCount = 0;
+        uint64 goldCount = 0;
         do
         {
             Field* fieldGold    = result->Fetch();
-            uint32 gold         = (fieldGold[0].GetUInt32()) * GOLD;
+            uint64 gold         = (fieldGold[0].GetUInt32()) * GOLD;
             uint32 transaction  = fieldGold[1].GetUInt32();
 
             if ((GetMoney() + gold) > MAX_MONEY_AMOUNT)
@@ -30122,14 +30122,14 @@ void Player::HandleStoreGoldCallback(PreparedQueryResult result)
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_BOUTIQUE_GOLD_LOG);
             stmt->setInt32(0, transaction);
             stmt->setInt32(1, GetGUIDLow());
-            stmt->setInt32(2, gold);
+            stmt->setInt64(2, gold);
             CharacterDatabase.Execute(stmt);
 
         }
         while(result->NextRow());
 
         if (goldCount)
-            GetSession()->SendNotification("%d pieces d'or vous ont ete ajoutee suite a votre commande sur la boutique", (goldCount/1000));             // Translate me
+            GetSession()->SendNotification("%d pieces d'or vous ont ete ajoutee suite a votre commande sur la boutique", (goldCount/GOLD));             // Translate me
     }
 }
 
