@@ -134,7 +134,8 @@ enum WarlockSpells
     WARLOCK_GLYPH_OF_LIFE_TAP               = 63320,
     WARLOCK_SPELL_IMMOLATE_AURA             = 157736,
     WARLOCK_GLYPH_OF_DRAIN_LIFE             = 63302,
-    WARLOCK_GLYPH_OF_DARK_SOUL              = 159665
+    WARLOCK_GLYPH_OF_DARK_SOUL              = 159665,
+    WARLOCK_SPELL_SYPHON_LIFE               = 63106
 };
 
 // Called by Grimoire: Imp - 111859, Grimoire: Voidwalker - 111895, Grimoire: Succubus - 111896
@@ -2701,9 +2702,13 @@ public:
 
         void HandleOnHit()
         {
-            if (Unit* l_Caster = GetCaster())
+            if (Player* l_Player = GetCaster()->ToPlayer())
+            {
+                if (l_Player->HasAura(WARLOCK_GLYPH_OF_SIPHON_LIFE) && l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARLOCK_DESTRUCTION)
+                    l_Player->CastSpell(l_Player, WARLOCK_SPELL_SYPHON_LIFE, true);
                 if (Unit* l_Target = GetHitUnit())
-                    l_Caster->CastSpell(l_Target, WARLOCK_SPELL_IMMOLATE_AURA, true);
+                    l_Player->CastSpell(l_Target, WARLOCK_SPELL_IMMOLATE_AURA, true);
+            }
         }
 
         void Register()
@@ -2715,6 +2720,97 @@ public:
     SpellScript* GetSpellScript() const
     {
         return new spell_warl_immolate_SpellScript();
+    }
+};
+
+// Call by Soulburn : Immolate (Periodic damage) - 157736
+// Corruption (Periodic Damage) - 146739
+// Siphon Life
+class spell_warl_siphon_life : public SpellScriptLoader
+{
+public:
+    spell_warl_siphon_life() : SpellScriptLoader("spell_warl_siphon_life") { }
+
+    class spell_warl_siphon_life_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_warl_siphon_life_AuraScript);
+
+        void OnTick(constAuraEffectPtr /*aurEff*/)
+        {
+            if (Player* l_Player = GetCaster()->ToPlayer())
+            {
+                if (l_Player->HasAura(WARLOCK_GLYPH_OF_SIPHON_LIFE))
+                    l_Player->CastSpell(l_Player, WARLOCK_SPELL_SYPHON_LIFE, true);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_siphon_life_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_warl_siphon_life_AuraScript();
+    }
+};
+
+// Siphon Life - 63106 
+class spell_warl_siphon_life_heal : public SpellScriptLoader
+{
+public:
+    spell_warl_siphon_life_heal() : SpellScriptLoader("spell_warl_siphon_life_heal") { }
+
+    class spell_warl_siphon_life_heal_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warl_siphon_life_heal_SpellScript);
+
+        void HandleOnHit()
+        {
+            SetHitHeal(GetHitHeal() / 100);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_warl_siphon_life_heal_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_warl_siphon_life_heal_SpellScript();
+    }
+};
+
+// Corruption - 172
+class spell_warl_corruption : public SpellScriptLoader
+{
+public:
+    spell_warl_corruption() : SpellScriptLoader("spell_warl_corruption") { }
+
+    class spell_warl_corruption_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warl_corruption_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Player* l_Player = GetCaster()->ToPlayer())
+            {
+                if (l_Player->HasAura(WARLOCK_GLYPH_OF_SIPHON_LIFE) && l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_WARLOCK_DESTRUCTION)
+                    l_Player->CastSpell(l_Player, WARLOCK_SPELL_SYPHON_LIFE, true);
+            }
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_warl_corruption_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_warl_corruption_SpellScript();
     }
 };
 
@@ -2763,6 +2859,9 @@ public:
 
 void AddSC_warlock_spell_scripts()
 {
+    new spell_warl_siphon_life();
+    new spell_warl_corruption();
+    new spell_warl_siphon_life_heal();
     new spell_warl_dark_soul();
     new spell_warl_immolate();
     new spell_warl_grimoire_of_service();

@@ -2213,9 +2213,13 @@ class spell_monk_surging_mist: public SpellScriptLoader
 
             void HandleAfterCast()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (Unit* target = GetExplTargetUnit())
-                        _player->CastSpell(target, SPELL_MONK_SURGING_MIST_HEAL, true);
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    if (Unit* l_Target = GetExplTargetUnit())
+                        l_Player->CastSpell(l_Target, SPELL_MONK_SURGING_MIST_HEAL, true);
+                    if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER)
+                        l_Player->ModifyPower(POWER_CHI, 1);
+                }
             }
 
             void HandleOnPrepare()

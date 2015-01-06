@@ -5062,9 +5062,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_DUMMY;
                 spellInfo->Mechanic = 0;
                 break;
+            case 116694:// Surging Mists
+                spellInfo->PreventionType = SPELL_PREVENTION_TYPE_SILENCE;
+                spellInfo->Effects[EFFECT_1].BasePoints = 0;
+                break;
             case 20066: // Repentence
             case 115175:// Soothing Mists
-            case 116694:// Surging Mists
             case 117952:// Crackling Jade Lightning
                 spellInfo->PreventionType = SPELL_PREVENTION_TYPE_SILENCE;
                 break;
@@ -6222,11 +6225,11 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Mechanic = MECHANIC_GRIP;
                 spellInfo->Effects[0].Mechanic = MECHANIC_GRIP;
                 break;
-            case 114255:// Surge of Light (proc)
+            case 114255: // Surge of Light (proc)
                 spellInfo->StackAmount = 2;
                 break;
             case 129197: // Insanity
-                spellInfo->Effects[EFFECT_0].BonusMultiplier = 0.60;
+                spellInfo->Effects[EFFECT_0].BonusMultiplier = 0.60f;
                 break;
             case 1543:  // Flare
                 spellInfo->Effects[0].TriggerSpell = 109772;
