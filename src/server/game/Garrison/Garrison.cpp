@@ -2804,18 +2804,36 @@ void Garrison::UpdateCache()
     if (m_CacheGameObjectGUID && HashMapHolder<GameObject>::Find(m_CacheGameObjectGUID) == nullptr)
         m_CacheGameObjectGUID = 0;
 
+    if (!l_GarrisonScript || !l_GarrisonScript->CanUseGarrisonCache(m_Owner))
+    {
+        if (m_CacheGameObjectGUID != 0)
+        {
+            GameObject * l_Cache = HashMapHolder<GameObject>::Find(m_CacheGameObjectGUID);
+
+            if (l_Cache)
+            {
+                l_Cache->DestroyForNearbyPlayers();
+                l_Cache->AddObjectToRemoveList();
+            }
+
+            m_CacheGameObjectGUID = 0;
+        }
+
+        return;
+    }
+
     uint32 l_NumRessourceGenerated = std::min((uint32)((time(0) - m_CacheLastUsage) / GARRISON_CACHE_GENERATE_TICK), (uint32)GARRISON_CACHE_MAX_CURRENCY);
 
-    if (l_NumRessourceGenerated != m_CacheLastTokenAmount || ((l_NumRessourceGenerated == m_CacheLastTokenAmount) && !m_CacheGameObjectGUID))
+    if (!m_CacheGameObjectGUID)
     {
         m_CacheLastTokenAmount = l_NumRessourceGenerated;
         m_Owner->SendUpdateWorldState(GARRISON_WORLD_STATE_CACHE_NUM_TOKEN, l_NumRessourceGenerated);
 
-        if (l_NumRessourceGenerated >= GARRISON_CACHE_MIN_CURRENCY && l_GarrisonScript && l_GarrisonScript->CanUseGarrisonCache(m_Owner))
+        if (l_NumRessourceGenerated >= GARRISON_CACHE_MIN_CURRENCY)
         {
             /// Get display ID
-            uint32 l_DisplayIDOffset = l_NumRessourceGenerated == GARRISON_CACHE_MAX_CURRENCY ? 2 : ((l_NumRessourceGenerated > GARRISON_CACHE_HEFTY_CURRENCY) ? 1 : 0);
-            uint32 l_DisplayID = gGarrisonCacheGameObjectID[(GetGarrisonFactionIndex() * 3) + l_DisplayIDOffset];
+            uint32 l_DisplayIDOffset    = l_NumRessourceGenerated == GARRISON_CACHE_MAX_CURRENCY ? 2 : ((l_NumRessourceGenerated > GARRISON_CACHE_HEFTY_CURRENCY) ? 1 : 0);
+            uint32 l_DisplayID          = gGarrisonCacheGameObjectID[(GetGarrisonFactionIndex() * 3) + l_DisplayIDOffset];
 
             /// Destroy old cache if exist
             GameObject * l_Cache = HashMapHolder<GameObject>::Find(m_CacheGameObjectGUID);
@@ -2841,9 +2859,8 @@ void Garrison::UpdateCache()
 
         }
     }
-
-    if (m_CacheGameObjectGUID &&
-        ((l_NumRessourceGenerated < GARRISON_CACHE_MIN_CURRENCY) || (l_GarrisonScript && !l_GarrisonScript->CanUseGarrisonCache(m_Owner))))
+    
+    if (m_CacheGameObjectGUID && l_NumRessourceGenerated < GARRISON_CACHE_MIN_CURRENCY)
     {
         GameObject * l_Cache = HashMapHolder<GameObject>::Find(m_CacheGameObjectGUID);
 
