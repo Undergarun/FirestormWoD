@@ -327,6 +327,21 @@ void Garrison::Create()
 
     /// Force mission distribution update
     m_MissionDistributionLastUpdate = 0;
+    
+    std::vector<uint32> l_FollowerQuests = sObjectMgr->FollowerQuests;
+
+    /// Quest non rewarded followers
+    for (uint32 l_QuestID : l_FollowerQuests)
+    {
+        if (m_Owner->GetQuestStatus(l_QuestID) == QUEST_STATUS_REWARDED)
+        {
+            const Quest         * l_QuestTemplate   = sObjectMgr->GetQuestTemplate(l_QuestID);
+            const SpellInfo     * l_SpellInfo       = sSpellMgr->GetSpellInfo(l_QuestTemplate->GetRewSpellCast());
+
+            if (GetFollower(l_SpellInfo->Effects[EFFECT_0].MiscValue).FollowerID == 0)
+                AddFollower(l_SpellInfo->Effects[EFFECT_0].MiscValue);
+        }
+    }
 }
 /// Load
 bool Garrison::Load(PreparedQueryResult p_GarrisonResult, PreparedQueryResult p_BuildingsResult, PreparedQueryResult p_FollowersResult, PreparedQueryResult p_MissionsResult)
@@ -439,6 +454,21 @@ bool Garrison::Load(PreparedQueryResult p_GarrisonResult, PreparedQueryResult p_
         }
 
         Init();
+
+        std::vector<uint32> l_FollowerQuests = sObjectMgr->FollowerQuests;
+
+        /// Quest non rewarded followers
+        for (uint32 l_QuestID : l_FollowerQuests)
+        {
+            if (m_Owner->GetQuestStatus(l_QuestID) == QUEST_STATUS_REWARDED)
+            {
+                const Quest         * l_QuestTemplate = sObjectMgr->GetQuestTemplate(l_QuestID);
+                const SpellInfo     * l_SpellInfo = sSpellMgr->GetSpellInfo(l_QuestTemplate->GetRewSpellCast());
+
+                if (GetFollower(l_SpellInfo->Effects[EFFECT_0].MiscValue).FollowerID == 0)
+                    AddFollower(l_SpellInfo->Effects[EFFECT_0].MiscValue);
+            }
+        }
 
         /// Force mission distribution update
         m_MissionDistributionLastUpdate = 0;
@@ -1042,7 +1072,7 @@ void Garrison::CompleteMission(uint32 p_MissionRecID)
     bool l_CanComplete = true;
     bool l_Succeeded   = roll_chance_i(l_ChestChance);  ///< Seems to be MissionChance
 
-    l_Mission->State = l_Succeeded ? GARRISON_MISSION_COMPLETE_SUCCESS : (GarrisonMissionState)4;
+    l_Mission->State = l_Succeeded ? GARRISON_MISSION_COMPLETE_SUCCESS : GARRISON_MISSION_COMPLETE_FAILED;
 
     WorldPacket l_Result(SMSG_GARRISON_COMPLETE_MISSION_RESULT, 100);
 
@@ -2899,8 +2929,8 @@ void Garrison::UpdateMissionDistribution()
 
             std::for_each(m_Followers.begin(), m_Followers.end(), [&l_MaxFollowerLevel, &l_MaxFollowerItemLevel](const GarrisonFollower & p_Follower) -> void
             {
-                l_MaxFollowerLevel = std::max(l_MaxFollowerLevel, (uint32)p_Follower.Level);
-                l_MaxFollowerItemLevel = std::max(l_MaxFollowerItemLevel, (uint32)((p_Follower.ItemLevelArmor + p_Follower.ItemLevelWeapon) / 2));
+                l_MaxFollowerLevel      = std::max(l_MaxFollowerLevel, (uint32)p_Follower.Level);
+                l_MaxFollowerItemLevel  = std::max(l_MaxFollowerItemLevel, (uint32)((p_Follower.ItemLevelArmor + p_Follower.ItemLevelWeapon) / 2));
             });
 
             std::vector<const GarrMissionEntry*> l_Candidates;
@@ -2937,7 +2967,9 @@ void Garrison::UpdateMissionDistribution()
 
             if (l_MissionToAddCount > 0)
             {
-                for (int32 l_I = 0; l_I < l_MissionToAddCount, l_I < l_Candidates.size(); ++l_I)
+                l_MissionToAddCount = std::min(l_MissionToAddCount, (int32)l_Candidates.size());
+
+                for (int32 l_I = 0; l_I < l_MissionToAddCount; ++l_I)
                     AddMission(l_Candidates[l_I]->MissionRecID);
             }
         }

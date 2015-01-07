@@ -1928,6 +1928,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading AreaTrigger move templates...");
     sObjectMgr->LoadAreaTriggerMoveTemplates();
 
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading FollowerQuests...");
+    sObjectMgr->LoadFollowerQuests();
+
     ///- Initialize game time and timers
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Initialize game time and timers");
     m_gameTime = time(NULL);

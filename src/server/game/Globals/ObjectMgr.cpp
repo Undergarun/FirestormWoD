@@ -10143,6 +10143,29 @@ void ObjectMgr::LoadQuestPackageItemHotfixs()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Quest Package Item hotfixs in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
 }
+void ObjectMgr::LoadFollowerQuests()
+{
+    const ObjectMgr::QuestMap & l_QuestTemplates = GetQuestTemplates();
+    for (ObjectMgr::QuestMap::const_iterator l_It = l_QuestTemplates.begin(); l_It != l_QuestTemplates.end(); ++l_It)
+    {
+        Quest * l_Quest = l_It->second;
+
+        uint32 l_SpellID = l_Quest->RewardSpellCast;
+
+        if (!l_SpellID)
+            continue;
+
+        const SpellInfo * l_Info = sSpellMgr->GetSpellInfo(l_SpellID);
+
+        if (!l_Info)
+            continue;
+
+        if (l_Info->Effects[EFFECT_0].Effect != SPELL_EFFECT_OBTAIN_FOLLOWER)
+            continue;
+
+        FollowerQuests.push_back(l_Quest->Id);
+    }
+}
 
 QuestObjectiveLocale const* ObjectMgr::GetQuestObjectiveLocale(uint32 objectiveId) const
 {

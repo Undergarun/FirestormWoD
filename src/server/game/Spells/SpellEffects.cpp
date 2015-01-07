@@ -7852,7 +7852,7 @@ void Spell::EffectObtainFollower(SpellEffIndex p_EffIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (!m_CastItem || !unitTarget || !unitTarget->IsInWorld())
+    if (!unitTarget || !unitTarget->IsInWorld())
         return;
 
     Player* l_Player = unitTarget->ToPlayer();
@@ -7865,8 +7865,11 @@ void Spell::EffectObtainFollower(SpellEffIndex p_EffIndex)
 
     if (l_Player->GetGarrison()->AddFollower(m_spellInfo->Effects[p_EffIndex].MiscValue))
     {
-        uint32 l_DestroyCount = 1;
-        l_Player->DestroyItemCount(m_CastItem, l_DestroyCount, true);
+        if (m_CastItem)
+        {
+            uint32 l_DestroyCount = 1;
+            l_Player->DestroyItemCount(m_CastItem, l_DestroyCount, true);
+        }
     }
     else
         SendCastResult(SPELL_FAILED_FOLLOWER_KNOWN);
