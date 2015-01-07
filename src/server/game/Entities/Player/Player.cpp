@@ -9431,6 +9431,9 @@ void Player::UpdateArea(uint32 newArea)
                     m_Garrison->OnPlayerLeave();
                     m_Garrison->_SetGarrisonScript(nullptr);
                     SwitchToPhasedMap(GARRISON_BASE_MAP);
+
+                    phaseMgr.Update();
+                    phaseMgr.ForceMapShiftUpdate();
                 }
                 else if (l_DraenorBaseMap_Area == gGarrisonInGarrisonAreaID[m_Garrison->GetGarrisonFactionIndex()] && GetMapId() == GARRISON_BASE_MAP)
                 {
@@ -9441,6 +9444,9 @@ void Player::UpdateArea(uint32 newArea)
                     m_Garrison->OnPlayerEnter();
 
                     std::swap(l_DungeonDiff, m_dungeonDifficulty);
+
+                    phaseMgr.Update();
+                    phaseMgr.ForceMapShiftUpdate();
                 }
             }
         }
@@ -26138,13 +26144,13 @@ void Player::SendInitialPacketsAfterAddToMap()
     SendToyBox();
 
     /// Force map shift update
-    if (GetMapId() == GARRISON_BASE_MAP && m_Garrison)
+    if ((GetMapId() == GARRISON_BASE_MAP && m_Garrison) || IsInGarrison())
     {
         phaseMgr.Update();
         phaseMgr.ForceMapShiftUpdate();
     }
 
-    if (m_Garrison && GetMapId() == m_Garrison->GetGarrisonSiteLevelEntry()->MapID)
+    if (IsInGarrison())
         m_Garrison->OnPlayerEnter();
 }
 

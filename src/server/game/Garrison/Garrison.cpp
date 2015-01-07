@@ -485,13 +485,13 @@ bool Garrison::Load(PreparedQueryResult p_GarrisonResult, PreparedQueryResult p_
 
         if (l_CurrentAvailableMission > l_MaxMissionCount)
         {
-            std::remove_if(m_Missions.begin(), m_Missions.end(), [](const GarrisonMission & p_Mission) -> bool
+            m_Missions.erase(std::remove_if(m_Missions.begin(), m_Missions.end(), [](const GarrisonMission & p_Mission) -> bool
             {
                 if (p_Mission.State == GARRISON_MISSION_AVAILABLE && (p_Mission.OfferTime + p_Mission.OfferMaxDuration) > time(0))
                     return true;
 
                 return false;
-            });
+            }));
         }
 
         /// Unstuck follower
@@ -2525,7 +2525,7 @@ void Garrison::InitDataForLevel()
 /// Init Game objects
 void Garrison::InitPlots()
 {
-    if (m_Owner->GetMapId() != GetGarrisonSiteLevelEntry()->MapID)
+    if (!m_Owner->IsInGarrison())
         return;
 
     for (uint32 l_I = 0; l_I < m_Plots.size(); ++l_I)
