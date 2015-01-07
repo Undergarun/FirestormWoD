@@ -448,7 +448,33 @@ bool Garrison::Load(PreparedQueryResult p_GarrisonResult, PreparedQueryResult p_
 
                 l_Follower.Flags = l_Fields[10].GetUInt32();
 
+                /// Corrupted DB
+                if (l_Follower.Level == 0)
+                {
+                    const GarrFollowerEntry * l_Entry = sGarrFollowerStore.LookupEntry(l_Follower.FollowerID);
+
+                    if (l_Entry)
+                    {
+                        l_Follower.Level            = l_Entry->Level;
+                        l_Follower.XP               = 0;
+                        l_Follower.Quality          = l_Entry->Quality;
+                        l_Follower.ItemLevelArmor   = l_Entry->ItemLevelArmor;
+                        l_Follower.ItemLevelWeapon  = l_Entry->ItemLevelWeapon;
+
+                        l_Follower.Abilities.clear();
+
+                        for (uint32 l_I = 0; l_I < sGarrFollowerXAbilityStore.GetNumRows(); ++l_I)
+                        {
+                            const GarrFollowerXAbilityEntry * l_Entry = sGarrFollowerXAbilityStore.LookupEntry(l_I);
+
+                            if (l_Entry && l_Entry->FollowerID == l_Follower.FollowerID && sGarrAbilityStore.LookupEntry(l_Entry->AbilityID) && l_Entry->FactionIndex == GetGarrisonFactionIndex())
+                                l_Follower.Abilities.push_back(l_Entry->AbilityID);
+                        }
+                    }
+                }
+
                 m_Followers.push_back(l_Follower);
+
             } while (p_FollowersResult->NextRow());
         }
 
