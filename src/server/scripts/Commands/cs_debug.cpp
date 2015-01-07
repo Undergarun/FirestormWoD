@@ -116,6 +116,7 @@ class debug_commandscript: public CommandScript
                 { "criteria",       SEC_ADMINISTRATOR,  false, &HandleDebugCriteriaCommand,        "", NULL },
                 { "moditem",        SEC_ADMINISTRATOR,  false, &HandleDebugModItem,                "", NULL },
                 { "crashtest",      SEC_ADMINISTRATOR,  false, &HandleDebugCrashTest,              "", NULL },
+                { "bgaward",        SEC_ADMINISTRATOR,  false, &HandleDebugBgAward,                "", NULL },
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand commandTable[] =
@@ -2281,7 +2282,7 @@ class debug_commandscript: public CommandScript
             Battleground* l_Battleground = p_Handler->GetSession()->GetPlayer()->GetBattleground();
             if (l_Battleground == nullptr)
             {
-                p_Handler->PSendSysMessage("You're not in battleground !");
+                p_Handler->PSendSysMessage("You're not in a battleground !");
                 return false;
             }
 
@@ -2296,6 +2297,29 @@ class debug_commandscript: public CommandScript
 
             p_Handler->PSendSysMessage("You've crash the server ! (%u)", l_Guid);
 
+            return true;
+        }
+
+        static bool HandleDebugBgAward(ChatHandler* p_Handler, char const* p_Args)
+        {
+            Battleground* l_Battleground = p_Handler->GetSession()->GetPlayer()->GetBattleground();
+            Player* l_Player = p_Handler->GetSession()->GetPlayer();
+
+            char* arg1 = strtok((char*)p_Args, " ");
+            char* arg2 = strtok(NULL, " ");
+
+            if (!arg1 || !arg2)
+                return false;
+
+            int32 l_Team = atoi(arg1) == 1 ? HORDE : ALLIANCE;
+            int32 l_Points = atoi(arg2);
+            if (!l_Battleground)
+            {
+                p_Handler->PSendSysMessage("You're not in a battleground !");
+                return false;
+            }
+
+            l_Battleground->AwardTeams(l_Points, 3, l_Team); 
             return true;
         }
 };

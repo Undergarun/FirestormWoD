@@ -745,6 +745,7 @@ void BattlegroundWS::EndBattleground(uint32 winner)
     RewardHonorToTeam(GetBonusHonorFromKill(m_HonorEndKills), ALLIANCE);
     RewardHonorToTeam(GetBonusHonorFromKill(m_HonorEndKills), HORDE);
 
+    AwardTeams(GetTeamScore(GetOtherTeam(winner)), BG_WS_MAX_TEAM_SCORE, GetOtherTeam(winner));
     Battleground::EndBattleground(winner);
 }
 

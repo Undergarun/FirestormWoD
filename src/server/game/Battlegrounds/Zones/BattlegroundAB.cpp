@@ -616,7 +616,8 @@ void BattlegroundAB::EndBattleground(uint32 winner)
     //complete map_end rewards (even if no team wins)
     RewardHonorToTeam(GetBonusHonorFromKill(1), HORDE);
     RewardHonorToTeam(GetBonusHonorFromKill(1), ALLIANCE);
-
+    
+    AwardTeams(m_TeamScores[GetOtherTeam(winner) == HORDE], BG_AB_MAX_TEAM_SCORE, GetOtherTeam(winner));
     Battleground::EndBattleground(winner);
 }
 
