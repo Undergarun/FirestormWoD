@@ -1076,12 +1076,20 @@ struct MailTemplateEntry
     char*   content;                                        // 2        m_body_lang
 };
 
+enum MapFlags : uint32
+{
+    MAP_FLAG_CAN_CHANGE_DIFFICULTY  = 0x00000001,
+    MAP_FLAG_DEV                    = 0x00000002,
+    MAP_FLAG_OVERRIDE_FAR_CLIP      = 0x00010000,
+    MAP_FLAG_CAN_GET_GARRISON_INFO  = 0x04000000
+};
+
 struct MapEntry
 {
     uint32  MapID;                                          // 0        m_ID
     //char*     direcotry;                                  // 1        m_Directory
-    uint32  instanceType;                                   // 2        m_InstanceType
-    //uint32    flags;                                      // 3        m_Flags
+    uint32  instanceType;                                   // 2        m_InstanceType => 0 none, 1 party, 2 raid, 3 pvp, 4 arena, 5 scenario
+    uint32  Flags;                                          // 3        m_Flags
     //int     unk_602;                                      // 4
     //uint32    MapType;                                    // 5        m_MapType 4 Garison, 3 Transport 2/1 unk usage
     char*   MapNameLang;                                    // 6        m_MapName_lang
