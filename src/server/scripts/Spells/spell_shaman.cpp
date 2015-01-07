@@ -123,7 +123,8 @@ enum ShamanSpells
     SPELL_SHA_ELEMENTAL_BLAST_AGILITY_BONUS = 173186,
     SPELL_SHA_ELEMENTAL_BLAST_SPIRIT_BONUS  = 173187,
     SPELL_SHA_ELEMENTAL_FUSION              = 152257,
-    SPELL_SHA_ELEMENTAL_FUSION_PROC         = 157174
+    SPELL_SHA_ELEMENTAL_FUSION_PROC         = 157174,
+    SPELL_SHA_IMPROVED_LIGHTNING_SHIELD     = 157774
 };
 
 // Totemic Projection - 108287
@@ -1921,8 +1922,17 @@ class spell_sha_lava_burst: public SpellScriptLoader
 
             void HitTarget(SpellEffIndex)
             {
-                if (GetCaster()->HasAura(SPELL_SHA_ELEMENTAL_FUSION))
-                    GetCaster()->CastSpell(GetCaster(), SPELL_SHA_ELEMENTAL_FUSION_PROC, true);
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(SPELL_SHA_ELEMENTAL_FUSION))
+                        l_Caster->CastSpell(l_Caster, SPELL_SHA_ELEMENTAL_FUSION_PROC, true);
+                    if (l_Caster->HasSpell(SPELL_SHA_IMPROVED_LIGHTNING_SHIELD) && l_Caster->HasSpell(SPELL_SHA_FULMINATION))
+                    {
+                        AuraPtr l_LightningShield = l_Caster->GetAura(SPELL_SHA_LIGHTNING_SHIELD_AURA);
+                        if (l_LightningShield != nullptr)
+                            l_LightningShield->SetCharges(l_LightningShield->GetCharges() + 1);
+                    }
+                }
             }
 
             void Register()
