@@ -210,6 +210,7 @@ void WorldSession::HandleGuildSetMemberNoteOpcode(WorldPacket& p_Packet)
 
     std::string l_Note = "";
 
+    p_Packet.readPackGUID(l_NoteeGUID);
     l_NoteLenght    = p_Packet.ReadBits(8);
     l_IsPublic      = p_Packet.ReadBit();
 

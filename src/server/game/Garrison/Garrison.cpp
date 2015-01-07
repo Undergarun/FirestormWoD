@@ -1072,7 +1072,7 @@ void Garrison::CompleteMission(uint32 p_MissionRecID)
     bool l_CanComplete = true;
     bool l_Succeeded   = roll_chance_i(l_ChestChance);  ///< Seems to be MissionChance
 
-    l_Mission->State = l_Succeeded ? GARRISON_MISSION_COMPLETE_SUCCESS : (GarrisonMissionState)4;
+    l_Mission->State = l_Succeeded ? GARRISON_MISSION_COMPLETE_SUCCESS : GARRISON_MISSION_COMPLETE_FAILED;
 
     WorldPacket l_Result(SMSG_GARRISON_COMPLETE_MISSION_RESULT, 100);
 
