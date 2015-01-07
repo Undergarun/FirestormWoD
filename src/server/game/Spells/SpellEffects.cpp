@@ -2125,7 +2125,7 @@ void Spell::EffectHealthLeech(SpellEffIndex effIndex)
     }
 }
 
-void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype)
+void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype, bool vellum)
 {
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
@@ -2160,7 +2160,7 @@ void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype)
         break;
     }
 
-    uint32 num_to_add = damage;
+    uint32 num_to_add = vellum ? 1 : damage;
 
     if (num_to_add < 1)
         num_to_add = 1;
@@ -3560,7 +3560,7 @@ void Spell::EffectEnchantItemPerm(SpellEffIndex effIndex)
         p_caster->DestroyItemCount(itemTarget, count, true);
         unitTarget = p_caster;
         // and add a scroll
-        DoCreateItem(effIndex, m_spellInfo->Effects[effIndex].ItemType);
+        DoCreateItem(effIndex, m_spellInfo->Effects[effIndex].ItemType, true);
         itemTarget = NULL;
         m_targets.SetItemTarget(NULL);
     }

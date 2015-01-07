@@ -527,7 +527,7 @@ public:
     void setTriggerCastFlags(TriggerCastFlags p_Flags) { _triggeredCastFlags = p_Flags; }
     TriggerCastFlags getTriggerCastFlags() const { return _triggeredCastFlags; }
 
-    void DoCreateItem(uint32 i, uint32 itemtype);
+    void DoCreateItem(uint32 i, uint32 itemtype, bool vellum = false);
 
     bool CheckEffectTarget(Unit const* target, uint32 eff) const;
     bool CanAutoCast(Unit* target);
