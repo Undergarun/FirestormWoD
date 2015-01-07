@@ -2737,10 +2737,10 @@ public:
 
         void OnTick(constAuraEffectPtr /*aurEff*/)
         {
-            if (Player* l_Player = GetCaster()->ToPlayer())
+            if (Unit* l_Caster = GetCaster())
             {
-                if (l_Player->HasAura(WARLOCK_GLYPH_OF_SIPHON_LIFE))
-                    l_Player->CastSpell(l_Player, WARLOCK_SPELL_SYPHON_LIFE, true);
+                if (l_Caster->HasAura(WARLOCK_GLYPH_OF_SIPHON_LIFE))
+                    l_Caster->CastSpell(l_Caster, WARLOCK_SPELL_SYPHON_LIFE, true);
             }
         }
 
