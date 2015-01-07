@@ -118,7 +118,7 @@ enum WarlockSpells
     WARLOCK_GLYPH_OF_SOUL_SWAP              = 56226,
     WARLOCK_SOUL_HARVEST                    = 101976,
     WARLOCK_FEAR                            = 5782,
-    WARLOCK_CORRUPTION                      = 172,
+    WARLOCK_SPELL_CORRUPTION                = 172,
     WARLOCK_SOULSHATTER                     = 32835,
     WARLOCK_HAND_OF_GULDAN_DAMAGE           = 86040,
     WARLOCK_HELLFIRE_DAMAGE                 = 5857,
@@ -1151,7 +1151,7 @@ class spell_warl_soul_link: public SpellScriptLoader
         }
 };
 
-// Called by Shadowflame - 47960
+// Called by Hand of Gul'dan - 47960, 
 // Molten Core - 122351
 class spell_warl_molten_core_dot: public SpellScriptLoader
 {
@@ -1164,10 +1164,13 @@ class spell_warl_molten_core_dot: public SpellScriptLoader
 
             void OnTick(constAuraEffectPtr aurEff)
             {
-                if (Unit* caster = GetCaster())
-                    if (caster->HasAura(WARLOCK_MOLTEN_CORE_AURA))
-                        if (roll_chance_i(aurEff->GetBaseAmount()))
-                            caster->CastSpell(caster, WARLOCK_MOLTEN_CORE, true);
+                if (Unit* l_Caster = GetCaster())
+                    if (l_Caster->HasAura(WARLOCK_MOLTEN_CORE_AURA))
+                    {
+                        const SpellInfo* l_SpellInfo = sSpellMgr->GetSpellInfo(WARLOCK_MOLTEN_CORE_AURA);
+                        if (l_SpellInfo != nullptr && roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
+                            l_Caster->CastSpell(l_Caster, WARLOCK_MOLTEN_CORE, true);
+                    }
             }
 
             void Register()
@@ -1195,12 +1198,14 @@ class spell_warl_decimate: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (Unit* target = GetHitUnit())
-                        if (_player->HasAura(WARLOCK_DECIMATE_AURA))
-                            if (target->GetHealthPct() < GetSpellInfo()->Effects[EFFECT_0].BasePoints)
-                                _player->CastSpell(_player, WARLOCK_MOLTEN_CORE, true);
+                    if (Unit* l_Target = GetHitUnit())
+                    {
+                        const SpellInfo* l_SpellInfo = sSpellMgr->GetSpellInfo(WARLOCK_MOLTEN_CORE_AURA);
+                        if (l_Caster->HasAura(WARLOCK_MOLTEN_CORE_AURA) && l_SpellInfo != nullptr && l_Target->GetHealthPct() < l_SpellInfo->Effects[EFFECT_1].BasePoints)
+                            l_Caster->CastSpell(l_Caster, WARLOCK_MOLTEN_CORE, true);
+                    }
                 }
             }
 
@@ -2863,7 +2868,7 @@ public:
                     else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARLOCK_AFFLICTION)
                         l_Player->CastSpell(l_Target, WARLOCK_AGONY, true);
                     else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
-                        l_Player->CastSpell(l_Target, WARLOCK_CORRUPTION, true);
+                        l_Player->CastSpell(l_Target, WARLOCK_SPELL_CORRUPTION, true);
                 }
             }
         }
