@@ -346,7 +346,6 @@ void Garrison::Create()
 /// Load
 bool Garrison::Load(PreparedQueryResult p_GarrisonResult, PreparedQueryResult p_BuildingsResult, PreparedQueryResult p_FollowersResult, PreparedQueryResult p_MissionsResult)
 {
-
     if (p_GarrisonResult)
     {
         Field * l_Fields = p_GarrisonResult->Fetch();
@@ -472,6 +471,45 @@ bool Garrison::Load(PreparedQueryResult p_GarrisonResult, PreparedQueryResult p_
 
         /// Force mission distribution update
         m_MissionDistributionLastUpdate = 0;
+
+        /// Fix bug in mission distribution TEMP CODE
+        uint32 l_MaxMissionCount            = ceil(m_Followers.size() * 2.5);
+        uint32 l_CurrentAvailableMission    = 0;
+
+        std::for_each(m_Missions.begin(), m_Missions.end(), [&l_CurrentAvailableMission](const GarrisonMission & p_Mission) -> void
+        {
+            if (p_Mission.State == GARRISON_MISSION_AVAILABLE && (p_Mission.OfferTime + p_Mission.OfferMaxDuration) > time(0))
+                l_CurrentAvailableMission++;
+        });
+
+        if (l_CurrentAvailableMission > l_MaxMissionCount)
+        {
+            std::remove_if(m_Missions.begin(), m_Missions.end(), [](const GarrisonMission & p_Mission) -> bool
+            {
+                if (p_Mission.State == GARRISON_MISSION_AVAILABLE && (p_Mission.OfferTime + p_Mission.OfferMaxDuration) > time(0))
+                    return true;
+
+                return false;
+            });
+        }
+
+        /// Unstuck follower
+        std::for_each(m_Followers.begin(), m_Followers.end(), [this](GarrisonFollower & p_Follower)
+        {
+            if (p_Follower.CurrentMissionID != 0)
+            {
+                auto l_It = std::find_if(m_Missions.begin(), m_Missions.end(), [p_Follower](const GarrisonMission & p_Mission) -> bool
+                {
+                    if (p_Mission.MissionID == p_Follower.CurrentMissionID)
+                        return true;
+
+                    return false;
+                });
+
+                if (l_It == m_Missions.end())
+                    p_Follower.CurrentMissionID = 0;
+            }
+        });
 
         return true;
     }
