@@ -327,6 +327,21 @@ void Garrison::Create()
 
     /// Force mission distribution update
     m_MissionDistributionLastUpdate = 0;
+    
+    std::vector<uint32> l_FollowerQuests = sObjectMgr->FollowerQuests;
+
+    /// Quest non rewarded followers
+    for (uint32 l_QuestID : l_FollowerQuests)
+    {
+        if (m_Owner->GetQuestStatus(l_QuestID) == QUEST_STATUS_REWARDED)
+        {
+            const Quest         * l_QuestTemplate   = sObjectMgr->GetQuestTemplate(l_QuestID);
+            const SpellInfo     * l_SpellInfo       = sSpellMgr->GetSpellInfo(l_QuestTemplate->GetRewSpellCast());
+
+            if (GetFollower(l_SpellInfo->Effects[EFFECT_0].MiscValue).FollowerID == 0)
+                AddFollower(l_SpellInfo->Effects[EFFECT_0].MiscValue);
+        }
+    }
 }
 /// Load
 bool Garrison::Load(PreparedQueryResult p_GarrisonResult, PreparedQueryResult p_BuildingsResult, PreparedQueryResult p_FollowersResult, PreparedQueryResult p_MissionsResult)
@@ -439,6 +454,21 @@ bool Garrison::Load(PreparedQueryResult p_GarrisonResult, PreparedQueryResult p_
         }
 
         Init();
+
+        std::vector<uint32> l_FollowerQuests = sObjectMgr->FollowerQuests;
+
+        /// Quest non rewarded followers
+        for (uint32 l_QuestID : l_FollowerQuests)
+        {
+            if (m_Owner->GetQuestStatus(l_QuestID) == QUEST_STATUS_REWARDED)
+            {
+                const Quest         * l_QuestTemplate = sObjectMgr->GetQuestTemplate(l_QuestID);
+                const SpellInfo     * l_SpellInfo = sSpellMgr->GetSpellInfo(l_QuestTemplate->GetRewSpellCast());
+
+                if (GetFollower(l_SpellInfo->Effects[EFFECT_0].MiscValue).FollowerID == 0)
+                    AddFollower(l_SpellInfo->Effects[EFFECT_0].MiscValue);
+            }
+        }
 
         /// Force mission distribution update
         m_MissionDistributionLastUpdate = 0;

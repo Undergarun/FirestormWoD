@@ -1048,7 +1048,8 @@ class ObjectMgr
             sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature End Quest Data...");
             LoadCreatureInvolvedRelations();
         }
-
+        void LoadFollowerQuests();
+        std::vector<uint32> FollowerQuests;
 
         void LoadGameobjectQuestRelations();
         void LoadGameobjectInvolvedRelations();
