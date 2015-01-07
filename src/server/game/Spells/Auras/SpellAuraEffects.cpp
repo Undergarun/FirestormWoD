@@ -761,7 +761,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                     if (GetSpellInfo()->Id == 116849)
                     {
                         // +1100% from sp bonus
-                        DoneActualBenefit += caster->SpellBaseDamageBonusDone(m_spellInfo->GetSchoolMask()) * 11.0f;
+                        DoneActualBenefit += caster->SpellBaseDamageBonusDone(m_spellInfo->GetSchoolMask()) * 34.341f;
                     }
                     break;
                 case SPELLFAMILY_MAGE:
