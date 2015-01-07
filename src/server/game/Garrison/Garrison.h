@@ -233,6 +233,9 @@ class GarrisonInstanceScriptBase
 
         /// Owner can use the garrison cache ?
         virtual bool CanUseGarrisonCache(Player * p_Owner) = 0;
+
+        /// Get terrain swaps
+        virtual void GetTerrainSwaps(std::set<uint32> & p_TerrainSwaps) = 0;
 };
 
 class Garrison

@@ -16,6 +16,12 @@ enum
     GARRISON_PHASE_BASE             = 0x0001,
 };
 
+/// TerrainSwap : See WorldMapArea.dbc
+enum
+{
+    TERRAIN_SWAP_GARRISON_FF_HORDE_TIER_1 = 980
+};
+
 class instance_Garrison_H1 : public InstanceMapScript
 {
     public:
@@ -32,7 +38,8 @@ class instance_Garrison_H1 : public InstanceMapScript
             instance_Garrison_H1MapScript(Map* p_Map)
                 : InstanceScript(p_Map)
             {
-
+                SetBossNumber(1);
+                SetBossState(1, IN_PROGRESS);
             }
             /// Destructor
             ~instance_Garrison_H1MapScript()
@@ -74,6 +81,12 @@ class instance_Garrison_H1 : public InstanceMapScript
                     return true;
 
                 return false;
+            }
+
+            /// Get terrain swaps
+            virtual void GetTerrainSwaps(std::set<uint32> & p_TerrainSwaps) override
+            {
+                p_TerrainSwaps.emplace(TERRAIN_SWAP_GARRISON_FF_HORDE_TIER_1);
             }
 
             void OnCreatureCreate(Creature * p_Creature)

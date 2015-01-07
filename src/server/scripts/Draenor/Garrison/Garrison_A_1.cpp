@@ -18,6 +18,12 @@ enum
     GARRISON_KEEPING_IT_TOGETHER    = 0x0004,
 };
 
+/// TerrainSwap : See WorldMapArea.dbc
+enum
+{
+    TERRAIN_SWAP_GARRISON_SMV_ALLIANCE_TIER_1 = 973
+};
+
 class instance_Garrison_A1 : public InstanceMapScript
 {
     public:
@@ -34,7 +40,8 @@ class instance_Garrison_A1 : public InstanceMapScript
             instance_Garrison_A1MapScript(Map* p_Map)
                 : InstanceScript(p_Map)
             {
-
+                //SetBossNumber(1);
+                //SetBossState(1, IN_PROGRESS);
             }
             /// Destructor
             ~instance_Garrison_A1MapScript()
@@ -80,6 +87,12 @@ class instance_Garrison_A1 : public InstanceMapScript
                     return true;
 
                 return false;
+            }
+
+            /// Get terrain swaps
+            virtual void GetTerrainSwaps(std::set<uint32> & p_TerrainSwaps) override
+            {
+                p_TerrainSwaps.emplace(TERRAIN_SWAP_GARRISON_SMV_ALLIANCE_TIER_1);
             }
 
             void OnCreatureCreate(Creature * p_Creature) override
