@@ -2317,17 +2317,7 @@ class spell_warl_life_tap: public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                 {
                     int32 amount = int32(caster->GetMaxHealth() * GetSpellInfo()->Effects[EFFECT_0].BasePoints / 100);
-
-                    if (caster->HasAura(WARLOCK_GLYPH_OF_LIFE_TAP))
-                    {
-                        if (AuraEffectPtr lifeTap = caster->GetAuraEffect(WARLOCK_LIFE_TAP, EFFECT_2))
-                            lifeTap->SetAmount(lifeTap->GetAmount() + amount);
-                    }
-                    else
-                    {
-                        caster->SetHealth(caster->GetHealth() - amount);
-                        caster->EnergizeBySpell(caster, WARLOCK_LIFE_TAP, amount, POWER_MANA);
-                    }
+                    caster->EnergizeBySpell(caster, WARLOCK_LIFE_TAP, amount, POWER_MANA);
                 }
             }
 
@@ -2341,6 +2331,28 @@ class spell_warl_life_tap: public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_warl_life_tap_SpellScript();
+        }
+
+        class spell_warl_life_tap_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_life_tap_AuraScript);
+
+            void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& p_Amount, bool& /*canBeRecalculated*/)
+            {
+                if (Unit* l_Caster = GetCaster())
+                    if (l_Caster->HasAura(WARLOCK_GLYPH_OF_LIFE_TAP))
+                        p_Amount = l_Caster->CountPctFromMaxHealth(p_Amount);
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_life_tap_AuraScript::CalculateAmount, EFFECT_2, SPELL_AURA_SCHOOL_HEAL_ABSORB);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_life_tap_AuraScript();
         }
 };
 
