@@ -1260,21 +1260,7 @@ void Garrison::CompleteMission(uint32 p_MissionRecID)
             m_Followers[l_I].CurrentMissionID = 0;
 
             WorldPacket l_Update(SMSG_GARRISON_UPDATE_FOLLOWER, 500);
-            l_Update << uint64(m_Followers[l_I].DB_ID);
-            l_Update << uint32(m_Followers[l_I].FollowerID);
-            l_Update << uint32(m_Followers[l_I].Quality);
-            l_Update << uint32(m_Followers[l_I].Level);
-            l_Update << uint32(m_Followers[l_I].ItemLevelWeapon);
-            l_Update << uint32(m_Followers[l_I].ItemLevelArmor);
-            l_Update << uint32(m_Followers[l_I].XP);
-            l_Update << uint32(m_Followers[l_I].CurrentBuildingID);
-            l_Update << uint32(m_Followers[l_I].CurrentMissionID);
-
-            l_Update << uint32(m_Followers[l_I].Abilities.size());
-            l_Update << uint32(m_Followers[l_I].Flags);
-
-            for (uint32 l_Y = 0; l_Y < m_Followers[l_I].Abilities.size(); ++l_Y)
-                l_Update << int32(m_Followers[l_I].Abilities[l_Y]);
+            m_Followers[l_I].Write(l_Update);
 
             m_Owner->SendDirectMessage(&l_Update);
         }
