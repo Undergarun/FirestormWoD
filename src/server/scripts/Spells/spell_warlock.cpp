@@ -118,6 +118,7 @@ enum WarlockSpells
     WARLOCK_GLYPH_OF_SOUL_SWAP              = 56226,
     WARLOCK_SOUL_HARVEST                    = 101976,
     WARLOCK_FEAR                            = 5782,
+    WARLOCK_CORRUPTION                      = 172,
     WARLOCK_SOULSHATTER                     = 32835,
     WARLOCK_HAND_OF_GULDAN_DAMAGE           = 86040,
     WARLOCK_HELLFIRE_DAMAGE                 = 5857,
@@ -2841,9 +2842,48 @@ public:
     }
 };
 
+// Cataclysm - 152108
+class spell_warl_cataclysm : public SpellScriptLoader
+{
+public:
+    spell_warl_cataclysm() : SpellScriptLoader("spell_warl_cataclysm") { }
+
+    class spell_warl_cataclysm_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warl_cataclysm_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Player* l_Player = GetCaster()->ToPlayer())
+            {
+                if (Unit* l_Target = GetHitUnit())
+                {
+                    if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARLOCK_DESTRUCTION)
+                        l_Player->CastSpell(l_Target, WARLOCK_IMMOLATE, true);
+                    else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARLOCK_AFFLICTION)
+                        l_Player->CastSpell(l_Target, WARLOCK_AGONY, true);
+                    else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
+                        l_Player->CastSpell(l_Target, WARLOCK_CORRUPTION, true);
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_warl_cataclysm_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_warl_cataclysm_SpellScript();
+    }
+};
+
 
 void AddSC_warlock_spell_scripts()
 {
+    new spell_warl_cataclysm();
     new spell_warl_siphon_life();
     new spell_warl_corruption();
     new spell_warl_siphon_life_heal();
