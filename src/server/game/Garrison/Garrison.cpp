@@ -2599,7 +2599,7 @@ void Garrison::UninitPlots()
 /// Update plot game object
 void Garrison::UpdatePlot(uint32 p_PlotInstanceID)
 {
-    if (m_Owner->GetMapId() != GetGarrisonSiteLevelEntry()->MapID)
+    if (!m_Owner->IsInGarrison())
         return;
 
     GarrisonPlotInstanceInfoLocation    l_PlotInfo = GetPlot(p_PlotInstanceID);
@@ -2734,16 +2734,20 @@ void Garrison::UpdatePlot(uint32 p_PlotInstanceID)
                 {
                     Creature * l_Creature = m_Owner->SummonCreature(l_Contents[l_I].CreatureOrGob, l_Position.x, l_Position.y, l_Position.z, l_Contents[l_I].O + l_PlotInfo.O, TEMPSUMMON_MANUAL_DESPAWN);
 
-                    m_PlotsCreatures[p_PlotInstanceID].push_back(l_Creature->GetGUID());
+                    if (l_Creature)
+                    {
+                        m_PlotsCreatures[p_PlotInstanceID].push_back(l_Creature->GetGUID());
 
-                    if (l_Creature->AI())
-                        l_Creature->AI()->SetData(GARRISON_CREATURE_AI_DATA_BUILDER, 1);
+                        if (l_Creature->AI())
+                            l_Creature->AI()->SetData(GARRISON_CREATURE_AI_DATA_BUILDER, 1);
+                    }
                 }
                 else
                 {
                     GameObject * l_Cosmetic = m_Owner->SummonGameObject(-l_Contents[l_I].CreatureOrGob, l_Position.x, l_Position.y, l_Position.z, l_Contents[l_I].O, 0, 0, 0, 0, 0);
 
-                    m_PlotsGameObjects[p_PlotInstanceID].push_back(l_Cosmetic->GetGUID());
+                    if (l_Cosmetic)
+                        m_PlotsGameObjects[p_PlotInstanceID].push_back(l_Cosmetic->GetGUID());
                 }
             }
 
