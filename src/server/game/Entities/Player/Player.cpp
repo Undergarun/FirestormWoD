@@ -9434,8 +9434,13 @@ void Player::UpdateArea(uint32 newArea)
                 }
                 else if (l_DraenorBaseMap_Area == gGarrisonInGarrisonAreaID[m_Garrison->GetGarrisonFactionIndex()] && GetMapId() == GARRISON_BASE_MAP)
                 {
+                    Difficulty l_DungeonDiff = REGULAR_5_DIFFICULTY;
+                    std::swap(l_DungeonDiff, m_dungeonDifficulty);
+
                     SwitchToPhasedMap(l_GarrisonSiteEntry->MapID);
                     m_Garrison->OnPlayerEnter();
+
+                    std::swap(l_DungeonDiff, m_dungeonDifficulty);
                 }
             }
         }
