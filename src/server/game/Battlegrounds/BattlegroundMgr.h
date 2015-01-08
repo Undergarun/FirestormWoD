@@ -110,7 +110,7 @@ namespace MS
                 m_Battlegrounds[p_Bg->GetBracketId()][bgTypeId].push_back(std::make_pair(InstanceID, p_Bg));
             }
 
-            void RemoveBattleground(uint32 instanceID, BattlegroundTypeId bgTypeId)
+            void RemoveBattleground(uint32 instanceID, BattlegroundType::Type bgTypeId)
             {
                 auto l_Brackets = m_InstanceId2Brackets.find(instanceID);
                 if (l_Brackets == std::end(m_InstanceId2Brackets))

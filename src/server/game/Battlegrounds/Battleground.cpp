@@ -214,7 +214,7 @@ Battleground::~Battleground()
     for (uint32 i = 0; i < size; ++i)
         DelObject(i);
 
-    sBattlegroundMgr->RemoveBattleground(GetInstanceID(), GetTypeID());
+    sBattlegroundMgr->RemoveBattleground(GetInstanceID(), MS::Battlegrounds::GetSchedulerType(GetTypeID()));
     // unload map
     if (m_Map)
     {

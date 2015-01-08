@@ -121,8 +121,6 @@ namespace MS
 
                     l_GroupQueue->m_Players[p_Leader->GetGUID()] = &l_PlayerQueue;
                 }
-
-                m_QueuedGroups[l_BracketId][l_Index].emplace_back(l_GroupQueue);
             }
 
             /// Add the GroupQueueInfo in the groups to match.
