@@ -17630,7 +17630,10 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 p_Reward, bool msg)
             {
                 case uint8(PackageItemRewardType::SpecializationReward):
                     if (!l_ItemTemplate->HasSpec((SpecIndex)GetSpecializationId(GetActiveSpec())))
+                    {
+                        GetSession()->SendNotification(LANG_NO_SPE_FOR_DYNAMIC_REWARD);
                         return false;
+                    }
                     break;
                 case uint8(PackageItemRewardType::ClassReward):
                     if (!l_ItemTemplate->HasClassSpec(getClass()))
