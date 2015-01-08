@@ -1838,7 +1838,7 @@ void WorldSession::HandleItemRefund(WorldPacket& recvData)
 void WorldSession::HandleItemTextQuery(WorldPacket& p_RecvData)
 {
     uint64 l_ItemGuid = 0;
-    p_RecvData >> l_ItemGuid;
+    p_RecvData.readPackGUID(l_ItemGuid);
 
     WorldPacket l_Data(SMSG_QUERY_ITEM_TEXT_RESPONSE, 14);
 
