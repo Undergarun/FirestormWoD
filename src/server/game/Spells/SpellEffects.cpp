@@ -7743,7 +7743,7 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
         
     std::list<ItemTemplate const*> l_LootTable;
     std::vector<uint32> l_Items;
-    l_LootTemplate->FillAutoAssignationLoot(l_LootTable);
+    l_LootTemplate->FillAutoAssignationLoot(l_LootTable, l_Player);
 
     float l_DropChance = l_IsBGReward ? 100 : sWorld->getFloatConfig(CONFIG_LFR_DROP_CHANCE) + l_Player->GetBonusRollFails();
     uint32 l_SpecID = l_Player->GetLootSpecId() ? l_Player->GetLootSpecId() : l_Player->GetSpecializationId(l_Player->GetActiveSpec());
@@ -7752,7 +7752,6 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
     {
         for (ItemTemplate const* l_Template : l_LootTable)
         {
-            printf("%i - %i", l_Template->ItemId, (int)l_Player->CanUseItem(l_Template));
             if (l_Player->CanUseItem(l_Template) == EQUIP_ERR_OK)
                 l_Items.push_back(l_Template->ItemId);
         }
@@ -7768,7 +7767,7 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
 
     l_Player->RemoveAurasByType(SPELL_AURA_TRIGGER_BONUS_LOOT);
     
-    if (l_Items.empty())
+    if (l_Items.empty() && !l_IsBGReward)
     {
         int64 l_GoldAmount = urand(50 * GOLD, 100 * GOLD);
         l_Player->IncreaseBonusRollFails();
@@ -7791,7 +7790,7 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
             l_Player->SendDisplayToast(l_Items[0], 1, DISPLAY_TOAST_METHOD_LOOT, TOAST_TYPE_NEW_ITEM, false, false);
             l_Player->ResetBonusRollFails();
         }
-        else
+        else if (!l_IsBGReward)
         {
             int64 l_GoldAmount = urand(50 * GOLD, 100 * GOLD);
             l_Player->IncreaseBonusRollFails();

@@ -1574,6 +1574,7 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Items...");                           ///< must be after LoadRandomEnchantmentsTable and LoadPageTexts
     sObjectMgr->LoadItemTemplates();
+    sObjectMgr->LoadItemTemplateCorrections();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Item set names...");                  ///< must be after LoadItemPrototypes
     sObjectMgr->LoadItemTemplateAddon();

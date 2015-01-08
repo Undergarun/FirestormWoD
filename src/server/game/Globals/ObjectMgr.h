@@ -1117,6 +1117,7 @@ class ObjectMgr
         void LoadGameObjectLocales();
         void LoadGameobjects();
         void LoadItemTemplates();
+        void LoadItemTemplateCorrections();
         void LoadItemTemplateAddon();
         void LoadItemScriptNames();
         void LoadItemLocales();
