@@ -507,7 +507,7 @@ bool Garrison::Load(PreparedQueryResult p_GarrisonResult, PreparedQueryResult p_
                     return false;
                 });
 
-                if (l_It == m_Missions.end())
+                if (l_It == m_Missions.end() || (*l_It).State == GARRISON_MISSION_AVAILABLE)
                     p_Follower.CurrentMissionID = 0;
             }
 
