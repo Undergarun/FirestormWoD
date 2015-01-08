@@ -193,17 +193,6 @@ namespace MS
             }
         }
 
-
-        bool BattlegroundScheduler::GetPlayerGroupInfoData(uint64 p_Guid, GroupQueueInfo& p_GroupInfo) const
-        {
-            auto l_Itr = m_QueuedPlayers.find(p_Guid);
-            if (l_Itr == m_QueuedPlayers.end())
-                return false;
-
-            p_GroupInfo = *l_Itr->second.GroupInfo;
-            return true;
-        }
-
         //////////////////////////////////////////////////////////////////////////
         /// Internal system methods for handling the wishes of the groups.
         //////////////////////////////////////////////////////////////////////////
@@ -212,7 +201,7 @@ namespace MS
 
         void BattlegroundScheduler::RemoveGroupFromQueues(GroupQueueInfo* p_Group)
         {
-            m_QueuedGroups[p_Group->m_BracketId][p_Group->m_BgTypeId].remove(p_Group);
+            m_QueuedGroups[p_Group->m_BracketId][p_Group->GetTeam()].remove(p_Group);
 
             for (auto const& l_Itr : p_Group->m_Players)
                 m_QueuedPlayers.erase(l_Itr.first);

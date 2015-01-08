@@ -156,6 +156,16 @@ namespace MS
                 && l_Itr->second.GroupInfo->m_RemoveInviteTime == p_RemoveTime);
         }
 
+        bool BattlegroundInvitationsMgr::GetPlayerGroupInfoData(uint64 p_Guid, GroupQueueInfo& p_GroupInfo) const
+        {
+            auto l_Itr = m_InvitedPlayers.find(p_Guid);
+            if (l_Itr == m_InvitedPlayers.end())
+                return false;
+
+            p_GroupInfo = *l_Itr->second.GroupInfo;
+            return true;
+        }
+
         void BattlegroundInvitationsMgr::UpdateEvents(uint32 diff)
         {
             m_Events.Update(diff);

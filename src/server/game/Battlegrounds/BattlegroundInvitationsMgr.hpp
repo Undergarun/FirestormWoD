@@ -49,6 +49,11 @@ namespace MS
             /// If the GroupQueueInfo is then empty, we remove it too.
             /// @p_Guid : The player.
             void RemovePlayer(uint64 p_Guid, bool p_DecreaseInvitedCount);
+
+            /// Retreive the GroupQueueInfo structure from the invited list.
+            /// @p_Guid : Guid of the player.
+            /// @p_GroupInfo : The group structure to fill.
+            bool GetPlayerGroupInfoData(uint64 p_Guid, GroupQueueInfo& p_GroupInfo) const;
         
         private:
             uint32 m_WaitTimes[BG_TEAMS_COUNT][Brackets::Count][COUNT_OF_PLAYERS_TO_AVERAGE_WAIT_TIME];

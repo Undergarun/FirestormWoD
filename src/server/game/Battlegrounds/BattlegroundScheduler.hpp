@@ -50,8 +50,6 @@ namespace MS
 
             void RemovePlayer(uint64 p_Guid);
 
-            bool GetPlayerGroupInfoData(uint64 p_Guid, GroupQueueInfo& p_GroupInfo) const;
-
             //////////////////////////////////////////////////////////////////////////
             /// Scheduling part.
             //////////////////////////////////////////////////////////////////////////

@@ -318,7 +318,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& p_Packet)
     if (l_QueueSlotID == 3)
         l_QueueSlotID = 0;
 
-    if (!m_Player->InBattlegroundQueue())
+    if (!sBattlegroundMgr->GetInvitationsMgr().IsOwningPlayer(m_Player->GetGUID()))
     {
         sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BattlegroundHandler: Invalid CMSG_BATTLEFIELD_PORT received from player (Name: %s, GUID: %u), he is not in bg_queue.", m_Player->GetName(), m_Player->GetGUIDLow());
         return;
@@ -338,12 +338,12 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& p_Packet)
         return;
     }
 
-    MS::Battlegrounds::BattlegroundScheduler& l_Scheduler = sBattlegroundMgr->GetScheduler();
+    MS::Battlegrounds::BattlegroundInvitationsMgr& l_InvitationsMgr = sBattlegroundMgr->GetInvitationsMgr();
 
     /// We must use temporary variable, because GroupQueueInfo pointer can be deleted in BattlegroundQueue::RemovePlayer() function
     GroupQueueInfo l_GroupQueueInfo;
 
-    if (!l_Scheduler.GetPlayerGroupInfoData(m_Player->GetGUID(), l_GroupQueueInfo))
+    if (!l_InvitationsMgr.GetPlayerGroupInfoData(m_Player->GetGUID(), l_GroupQueueInfo))
     {
         sLog->outError(LOG_FILTER_NETWORKIO, "BattlegroundHandler: itrplayerstatus not found.");
         return;
@@ -527,7 +527,7 @@ void WorldSession::HandleBattlefieldStatusOpcode(WorldPacket& /*recvData*/)
 
         GroupQueueInfo l_GroupQueueInfo;
 
-        if (!l_Scheduler.GetPlayerGroupInfoData(m_Player->GetGUID(), l_GroupQueueInfo))
+        if (!l_InvitationsMgr.GetPlayerGroupInfoData(m_Player->GetGUID(), l_GroupQueueInfo))
             continue;
 
         if (l_GroupQueueInfo.m_IsInvitedToBGInstanceGUID)
