@@ -37,6 +37,8 @@
 #include "ScriptMgr.h"
 #include "ChatLink.h"
 #include "Guild.h"
+#include "Threading.h"
+#include "MSSignalHandler.h"
 
 bool ChatHandler::load_command_table = true;
 
@@ -125,6 +127,10 @@ const char *ChatHandler::GetTrinityString(int32 entry) const
 
 bool ChatHandler::isAvailable(ChatCommand const& cmd) const
 {
+    // Command have been disable because it make crash
+    if (cmd.SecurityLevel == (uint32)SpecificSecurityLevel::DisableByFailure)
+        return false;
+
     // check security level only for simple  command (without child commands)
     return m_session->GetSecurity() >= AccountTypes(cmd.SecurityLevel);
 }
@@ -341,8 +347,24 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, co
             continue;
 
         SetSentErrorMessage(false);
+
+        bool l_CommandResult = false;
+        MS::SignalHandler::EnableThrowExceptionAtFailure();
+        try
+        {
+            l_CommandResult = (table[i].Handler)(this, table[i].Name[0] != '\0' ? text : oldtext);
+        }
+        catch (std::exception&)
+        {
+            l_CommandResult = false;
+
+            // Disable the command
+            table[i].SecurityLevel = (uint32)SpecificSecurityLevel::DisableByFailure;
+        }
+        MS::SignalHandler::DisableThrowExceptionAtFailure();
+
         // table[i].Name == "" is special case: send original command to handler
-        if ((table[i].Handler)(this, table[i].Name[0] != '\0' ? text : oldtext))
+        if (l_CommandResult)
         {
             if (!AccountMgr::IsPlayerAccount(table[i].SecurityLevel))
             {

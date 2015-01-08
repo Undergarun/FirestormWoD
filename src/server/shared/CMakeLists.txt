@@ -15,7 +15,7 @@ endif()
 
 file(GLOB_RECURSE sources_Configuration Configuration/*.cpp Configuration/*.h)
 file(GLOB_RECURSE sources_Cryptography Cryptography/*.cpp Cryptography/*.h)
-file(GLOB_RECURSE sources_Database Database/*.cpp Database/*.h)
+file(GLOB_RECURSE sources_Database Database/*.cpp Database/*.h Database/*.hpp)
 file(GLOB_RECURSE sources_DataStores DataStores/*.cpp DataStores/*.h)
 file(GLOB_RECURSE sources_Dynamic Dynamic/*.cpp Dynamic/*.h)
 file(GLOB_RECURSE sources_Logging Logging/*.cpp Logging/*.h)

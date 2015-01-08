@@ -198,7 +198,7 @@ class boss_earthrager_ptah : public CreatureScript
         };
 };
 
-class npc_ptah_dustbone_horror: public CreatureScript
+class npc_ptah_dustbone_horror : public CreatureScript
 {
     public:
         npc_ptah_dustbone_horror() : CreatureScript("npc_ptah_dustbone_horror") { }

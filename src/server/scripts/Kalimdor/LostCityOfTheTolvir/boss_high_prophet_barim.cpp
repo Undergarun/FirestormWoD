@@ -939,7 +939,7 @@ public:
     };
 };
 
-class spell_repentance_pull_player : public SpellScriptLoader
+class spell_repentance_pull_player: public SpellScriptLoader
 {
     public:
         spell_repentance_pull_player() : SpellScriptLoader("spell_repentance_pull_player") { }
@@ -983,7 +983,7 @@ class spell_repentance_pull_player : public SpellScriptLoader
         }
 };
 
-class spell_repentance_trigger_clone_spell : public SpellScriptLoader
+class spell_repentance_trigger_clone_spell: public SpellScriptLoader
 {
     public:
         spell_repentance_trigger_clone_spell() : SpellScriptLoader("spell_repentance_trigger_clone_spell") { }
@@ -1016,7 +1016,7 @@ class spell_repentance_trigger_clone_spell : public SpellScriptLoader
         }
 };
 
-class spell_copy_melee_weapon : public SpellScriptLoader
+class spell_copy_melee_weapon: public SpellScriptLoader
 {
     public:
         spell_copy_melee_weapon() : SpellScriptLoader("spell_copy_melee_weapon") { }
@@ -1077,7 +1077,7 @@ class spell_copy_melee_weapon : public SpellScriptLoader
         }
 };
 
-class spell_repentance_player_kneel : public SpellScriptLoader
+class spell_repentance_player_kneel: public SpellScriptLoader
 {
     public:
         spell_repentance_player_kneel() : SpellScriptLoader("spell_repentance_player_kneel") { }
@@ -1103,7 +1103,7 @@ class spell_repentance_player_kneel : public SpellScriptLoader
         }
 };
 
-class spell_repentance_player_summon_mirror : public SpellScriptLoader
+class spell_repentance_player_summon_mirror: public SpellScriptLoader
 {
     public:
         spell_repentance_player_summon_mirror() : SpellScriptLoader("spell_repentance_player_summon_mirror") { }

@@ -168,18 +168,6 @@ class instance_ruby_sanctum : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectRemove(GameObject* go)
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_FIRE_FIELD:
-                        AddDoor(go, false);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
             void OnUnitDeath(Unit* unit)
             {
                 Creature* creature = unit->ToCreature();
@@ -326,7 +314,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                 return saveStream.str();
             }
 
-            void FillInitialWorldStates(WorldPacket& data)
+            void FillInitialWorldStates(ByteBuffer& data)
             {
                 data << uint32(WORLDSTATE_CORPOREALITY_MATERIAL) << uint32(50);
                 data << uint32(WORLDSTATE_CORPOREALITY_TWILIGHT) << uint32(50);

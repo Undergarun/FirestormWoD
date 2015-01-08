@@ -27,7 +27,7 @@
 #include "SpellAuras.h"
 
 
-class vip_commandscript : public CommandScript
+class vip_commandscript: public CommandScript
 {
 public:
     vip_commandscript() : CommandScript("vip_commandscript") { }

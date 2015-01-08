@@ -38,7 +38,7 @@ EndScriptData */
 
 #include <fstream>
 
-class debug_commandscript : public CommandScript
+class debug_commandscript: public CommandScript
 {
     public:
         debug_commandscript() : CommandScript("debug_commandscript") { }
@@ -115,6 +115,7 @@ class debug_commandscript : public CommandScript
                 { "bgstart",        SEC_ADMINISTRATOR,  false, &HandleDebugBattlegroundStart,      "", NULL },
                 { "criteria",       SEC_ADMINISTRATOR,  false, &HandleDebugCriteriaCommand,        "", NULL },
                 { "moditem",        SEC_ADMINISTRATOR,  false, &HandleDebugModItem,                "", NULL },
+                { "crashtest",      SEC_ADMINISTRATOR,  false, &HandleDebugCrashTest,              "", NULL },
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand commandTable[] =
@@ -2268,7 +2269,9 @@ class debug_commandscript : public CommandScript
             if (!item)
                 return false;
 
+            player->_RemoveAllItemMods();
             item->SetDynamicValue(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS, 0, mod);
+            player->_ApplyAllItemMods();
             handler->SendSysMessage("Item sucesfully modified");
             return true;
         }
@@ -2283,6 +2286,16 @@ class debug_commandscript : public CommandScript
             }
 
             l_Battleground->FastStart();
+            return true;
+        }
+
+        static bool HandleDebugCrashTest(ChatHandler* p_Handler, char const* p_Args)
+        {
+            Player* l_CrashPlayer = nullptr;
+            uint64 l_Guid         = GUID_LOPART(l_CrashPlayer->GetPetGUID());
+
+            p_Handler->PSendSysMessage("You've crash the server ! (%u)", l_Guid);
+
             return true;
         }
 };

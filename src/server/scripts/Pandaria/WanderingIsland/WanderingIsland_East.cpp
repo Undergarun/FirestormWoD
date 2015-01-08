@@ -783,7 +783,7 @@ class npc_ji_firepaw_killcredit : public CreatureScript
         }
 };
 
-class playerScript_AutoAcceptQuest : public PlayerScript
+class playerScript_AutoAcceptQuest: public PlayerScript
 {
     public:
         playerScript_AutoAcceptQuest() : PlayerScript("playerScript_AutoAcceptQuest") { }
@@ -801,7 +801,7 @@ class playerScript_AutoAcceptQuest : public PlayerScript
 void AddSC_WanderingIsland_East()
 {
     new AreaTrigger_at_bassin_curse();
-    new vehicle_balance_pole();
+//    new vehicle_balance_pole();
     new mob_tushui_monk();
     new spell_rock_jump();
     new mob_shu_water_spirit();

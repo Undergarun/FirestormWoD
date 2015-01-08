@@ -18,6 +18,7 @@
 #ifndef TRINITY_DB2SFRM_H
 #define TRINITY_DB2SFRM_H
 
+char const CurvePointEntryfmt[] = "niiff";
 const char Itemfmt[] = "niiiiiiii";
 const char ItemBonusfmt[] = "diiiii";
 const char ItemCurrencyCostfmt[] = "xn";
@@ -46,6 +47,7 @@ const char SpellPowerEntryfmt[] = "nixiiiixxxffif";
 const char SpellTotemsEntryfmt[] = "niiii";
 const char SpellClassOptionsEntryfmt[] = "dxiiiii";
 const char MapChallengeModeEntryfmt[] = "nixxxiiixx";
+const char QuestPackageItemEntryfmt[] = "niiii";
 
 //////////////////////////////////////////////////////////////////////////
 /// Garrison DB2
@@ -56,6 +58,8 @@ const char GarrPlotInstanceEntryfmt[] = "nis";
 const char GarrPlotEntryfmt[] = "niiiiiiii";
 const char GarrPlotUICategoryEntryfmt[] = "nsi";
 const char GarrMissionEntryfmt[] = "niiiiiiiisssiiiiiii";
+const char GarrMissionRewardEntryfmt[] = "niiiiiiiii";
+const char GarrMissionXEncouterEntryfmt[] = "nii";
 const char GarrBuildingEntryfmt[] = "niiiiissssiiiiiiiiiiiiii";
 const char GarrPlotBuildingEntryfmt[] = "nii";
 const char GarrFollowerEntryfmt[] = "niiiiiiiiiiiiiissiiii";
@@ -65,7 +69,6 @@ const char GarrFollowerXAbilityEntryfmt[] = "niii";
 const char GarrBuildingPlotInstEntryfmt[] = "niiiii";
 const char GarrMechanicTypeEntryfmt[] = "nissi";
 const char GarrMechanicEntryfmt[] = "nif";
-const char GarrMissionXEncouterEntryfmt[] = "nii";
 const char GarrEncouterXMechanicEntryfmt[] = "nii";
 const char GarrFollowerLevelXPEntryfmt[] = "nii";
 const char GarrSpecializationEntryfmt[] = "niiiifiss";

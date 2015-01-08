@@ -28,7 +28,7 @@ EndScriptData */
 #include "Chat.h"
 #include "Group.h"
 
-class tele_commandscript : public CommandScript
+class tele_commandscript: public CommandScript
 {
 public:
     tele_commandscript() : CommandScript("tele_commandscript") { }

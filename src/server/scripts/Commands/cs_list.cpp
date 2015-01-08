@@ -29,7 +29,7 @@ EndScriptData */
 #include "ObjectMgr.h"
 #include <iostream>
 
-class list_commandscript : public CommandScript
+class list_commandscript: public CommandScript
 {
 public:
     list_commandscript() : CommandScript("list_commandscript") { }

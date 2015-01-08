@@ -2873,7 +2873,7 @@ class mob_ritual_guard : public CreatureScript
 };
 
 // Water Bolt - 139231
-class spell_water_bolt : public SpellScriptLoader
+class spell_water_bolt: public SpellScriptLoader
 {
     public:
         spell_water_bolt() : SpellScriptLoader("spell_water_bolt") { }
@@ -2913,7 +2913,7 @@ class spell_water_bolt : public SpellScriptLoader
 };
 
 // Storm Weapon - 139218
-class spell_storm_weapon : public SpellScriptLoader
+class spell_storm_weapon: public SpellScriptLoader
 {
     public:
         spell_storm_weapon() : SpellScriptLoader("spell_storm_weapon") { }
@@ -2956,7 +2956,7 @@ class spell_storm_weapon : public SpellScriptLoader
 };
 
 // Focused Lightning (AoE) - 139209
-class spell_focused_lightning_aoe : public SpellScriptLoader
+class spell_focused_lightning_aoe: public SpellScriptLoader
 {
     public:
         spell_focused_lightning_aoe() : SpellScriptLoader("spell_focused_lightning_aoe") { }
@@ -2987,7 +2987,7 @@ class spell_focused_lightning_aoe : public SpellScriptLoader
 };
 
 // Spirit Light - 139461
-class spell_spirit_light : public SpellScriptLoader
+class spell_spirit_light: public SpellScriptLoader
 {
     public:
         spell_spirit_light() : SpellScriptLoader("spell_spirit_light") { }
@@ -3021,7 +3021,7 @@ class spell_spirit_light : public SpellScriptLoader
 };
 
 // Glacial Freeze (damage & stun) - 138687
-class spell_glacial_freeze : public SpellScriptLoader
+class spell_glacial_freeze: public SpellScriptLoader
 {
     public:
         spell_glacial_freeze() : SpellScriptLoader("spell_glacial_freeze") { }
@@ -3049,7 +3049,7 @@ class spell_glacial_freeze : public SpellScriptLoader
 };
 
 // Eruption - 138652
-class spell_eruption : public SpellScriptLoader
+class spell_eruption: public SpellScriptLoader
 {
     public:
         spell_eruption() : SpellScriptLoader("spell_eruption") { }
@@ -3080,7 +3080,7 @@ class spell_eruption : public SpellScriptLoader
 };
 
 // Fiery Core - 138610
-class spell_fiery_core : public SpellScriptLoader
+class spell_fiery_core: public SpellScriptLoader
 {
     public:
         spell_fiery_core() : SpellScriptLoader("spell_fiery_core") { }
@@ -3114,7 +3114,7 @@ class spell_fiery_core : public SpellScriptLoader
 };
 
 // Judgement of the Loa - 139223
-class spell_judgement_of_the_loa : public SpellScriptLoader
+class spell_judgement_of_the_loa: public SpellScriptLoader
 {
     public:
         spell_judgement_of_the_loa() : SpellScriptLoader("spell_judgement_of_the_loa") { }
@@ -3151,7 +3151,7 @@ class spell_judgement_of_the_loa : public SpellScriptLoader
 };
 
 // Waterspout (triggered) - 140814
-class spell_waterspout : public SpellScriptLoader
+class spell_waterspout: public SpellScriptLoader
 {
     public:
         spell_waterspout() : SpellScriptLoader("spell_waterspout") { }
@@ -3185,7 +3185,7 @@ class spell_waterspout : public SpellScriptLoader
 };
 
 // Drain the Weak - 135103
-class spell_drain_the_weak : public SpellScriptLoader
+class spell_drain_the_weak: public SpellScriptLoader
 {
     public:
         spell_drain_the_weak() : SpellScriptLoader("spell_drain_the_weak") { }
@@ -3231,7 +3231,7 @@ class spell_drain_the_weak : public SpellScriptLoader
 };
 
 // Drain the Weak (damage) - 135101
-class spell_drain_the_weak_damage : public SpellScriptLoader
+class spell_drain_the_weak_damage: public SpellScriptLoader
 {
     public:
         spell_drain_the_weak_damage() : SpellScriptLoader("spell_drain_the_weak_damage") { }
@@ -3276,7 +3276,7 @@ class SonicCallTargetSelector
 };
 
 // Sonic Call - 140600
-class spell_sonic_call : public SpellScriptLoader
+class spell_sonic_call: public SpellScriptLoader
 {
     public:
         spell_sonic_call() : SpellScriptLoader("spell_sonic_call") { }
@@ -3338,7 +3338,7 @@ class SiphonLifeTargetSelector
 };
 
 // Siphon Life - 140630
-class spell_siphon_life : public SpellScriptLoader
+class spell_siphon_life: public SpellScriptLoader
 {
     public:
         spell_siphon_life() : SpellScriptLoader("spell_siphon_life") { }
@@ -3368,7 +3368,7 @@ class spell_siphon_life : public SpellScriptLoader
 };
 
 // Luciferase - 134470
-class spell_luciferase : public SpellScriptLoader
+class spell_luciferase: public SpellScriptLoader
 {
     public:
         spell_luciferase() : SpellScriptLoader("spell_luciferase") { }
@@ -3399,7 +3399,7 @@ class spell_luciferase : public SpellScriptLoader
 };
 
 // Fixated - 140306
-class spell_fixated : public SpellScriptLoader
+class spell_fixated: public SpellScriptLoader
 {
     public:
         spell_fixated() : SpellScriptLoader("spell_fixated") { }
@@ -3430,7 +3430,7 @@ class spell_fixated : public SpellScriptLoader
 };
 
 // Devoured - 134415
-class spell_devoured : public SpellScriptLoader
+class spell_devoured: public SpellScriptLoader
 {
     public:
         spell_devoured() : SpellScriptLoader("spell_devoured") { }

@@ -1135,7 +1135,7 @@ class npc_sinestra_twilight_drake : public CreatureScript{
         };
 };
 
-class spell_sinestra_wrack : public SpellScriptLoader
+class spell_sinestra_wrack: public SpellScriptLoader
 {
     public:
         spell_sinestra_wrack() : SpellScriptLoader("spell_sinestra_wrack") { }
@@ -1188,7 +1188,7 @@ class spell_sinestra_wrack : public SpellScriptLoader
         }
 };
 
-class spell_sinestra_twilight_extinction : public SpellScriptLoader
+class spell_sinestra_twilight_extinction: public SpellScriptLoader
 {
     public:
         spell_sinestra_twilight_extinction() : SpellScriptLoader("spell_sinestra_twilight_extinction") { }
@@ -1217,7 +1217,7 @@ class spell_sinestra_twilight_extinction : public SpellScriptLoader
         }
 };
 
-class spell_sinestra_indomitable : public SpellScriptLoader
+class spell_sinestra_indomitable: public SpellScriptLoader
 {
     public:
         spell_sinestra_indomitable() : SpellScriptLoader("spell_sinestra_indomitable") { }
@@ -1260,7 +1260,7 @@ class spell_sinestra_indomitable : public SpellScriptLoader
         }
 };
 
-class spell_sinestra_indomitable_aura : public SpellScriptLoader
+class spell_sinestra_indomitable_aura: public SpellScriptLoader
 {
     public:
         spell_sinestra_indomitable_aura() : SpellScriptLoader("spell_sinestra_indomitable_aura") { }
@@ -1298,7 +1298,7 @@ class spell_sinestra_indomitable_aura : public SpellScriptLoader
         }
 };
 
-class spell_sinestra_mana_barrier : public SpellScriptLoader
+class spell_sinestra_mana_barrier: public SpellScriptLoader
 {
     public:
         spell_sinestra_mana_barrier() : SpellScriptLoader("spell_sinestra_mana_barrier") { }
@@ -1333,7 +1333,7 @@ class spell_sinestra_mana_barrier : public SpellScriptLoader
         }
 };
 
-class spell_sinestra_pyrrhic_focus : public SpellScriptLoader
+class spell_sinestra_pyrrhic_focus: public SpellScriptLoader
 {
     public:
         spell_sinestra_pyrrhic_focus() : SpellScriptLoader("spell_sinestra_pyrrhic_focus") { }
@@ -1367,7 +1367,7 @@ class spell_sinestra_pyrrhic_focus : public SpellScriptLoader
         }
 };
 
-class spell_sinestra_twilight_slicer : public SpellScriptLoader
+class spell_sinestra_twilight_slicer: public SpellScriptLoader
 {
     public:
         spell_sinestra_twilight_slicer() : SpellScriptLoader("spell_sinestra_twilight_slicer") { }
@@ -1405,7 +1405,7 @@ class spell_sinestra_twilight_slicer : public SpellScriptLoader
         }
 };
 
-class spell_sinestra_twilight_essence : public SpellScriptLoader
+class spell_sinestra_twilight_essence: public SpellScriptLoader
 {
     public:
         spell_sinestra_twilight_essence() : SpellScriptLoader("spell_sinestra_twilight_essence") { }

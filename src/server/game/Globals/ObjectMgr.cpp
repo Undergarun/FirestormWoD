@@ -48,6 +48,7 @@
 #include "DB2Stores.h"
 #include "Configuration/Config.h"
 #include "VMapFactory.h"
+#include "Garrison.h"
 
 ScriptMapMap sQuestEndScripts;
 ScriptMapMap sQuestStartScripts;
@@ -526,12 +527,13 @@ void ObjectMgr::LoadCreatureTemplates()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creature definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
+
 void ObjectMgr::LoadCreatureTemplatesDifficulties()
 {
     uint32 l_OldMSTime = getMSTime();
 
     //                                                  0           1          2
-    QueryResult l_Result = WorldDatabase.Query("SELECT entry, difficulty, difficulty_entry FROM creature_template_difficulty");
+    QueryResult l_Result = WorldDatabase.Query("SELECT entry, CONVERT(difficulty, UNSIGNED), difficulty_entry FROM creature_template_difficulty");
 
     if (!l_Result)
     {
@@ -546,10 +548,10 @@ void ObjectMgr::LoadCreatureTemplatesDifficulties()
         Field * l_Fields = l_Result->Fetch();
 
         uint32 l_Entry = l_Fields[l_Index++].GetUInt32();
-        uint32 l_DifficultyIndex = l_Fields[l_Index++].GetUInt32();
-        uint32 l_DifficultyEntry = l_Fields[l_Index++].GetUInt32() - 1;
+        uint32 l_DifficultyIndex = l_Fields[l_Index++].GetUInt32() - 2;
+        uint32 l_DifficultyEntry = l_Fields[l_Index++].GetUInt32();
 
-        if (l_DifficultyIndex > MAX_DIFFICULTY)
+        if (l_DifficultyIndex >= MAX_DIFFICULTY)
             continue;
 
         CreatureTemplate& l_CreatureTemplate = _creatureTemplateStore[l_Entry];
@@ -3021,28 +3023,39 @@ void ObjectMgr::LoadItemSpecs()
     uint32 l_Count = 0;
     uint32 l_OldMSTime = getMSTime();
 
+    /// ===================== HACK ALERT, THIS IS BAD ================================================ ///
+    /// - The process must be done with the character level, so we can't do it at loading ...          ///
+    /// - For now, we use 100 as placeholder, we will change that in somes day/month/year, who know ?  ///
+    /// ===================== HACK ALERT, THIS IS BAD ===============================================  ///
+
+    const uint32 l_CharacterLevel = 100;
+
     for (ItemTemplateContainer::iterator l_Itr = _itemTemplateStore.begin(); l_Itr != _itemTemplateStore.end(); ++l_Itr)
     {
         ItemTemplate& l_ItemTemplate = l_Itr->second;
         if (l_ItemTemplate.HasSpec())
             continue;
 
-        uint32 l_TempStat = 26;
+        uint32                     l_TempStat  = 28;
+        bool                       l_Find      = false;
+        std::vector<uint32>        l_ItemStats = ItemSpecialization::GetItemSpecStats(const_cast<ItemTemplate*>(&l_ItemTemplate));
+        std::vector<int32> const&  l_KeyOrders = sItemSpecStore.GetKeyOrders();
 
-        for (uint32 l_Idx = 0; l_Idx < sItemSpecStore.GetNumRows(); l_Idx++)
+        for (std::vector<int32>::const_reverse_iterator l_Itr = l_KeyOrders.rbegin(); l_Itr != l_KeyOrders.rend(); l_Itr++)
         {
+            int32 l_Idx = (*l_Itr);
             ItemSpecEntry const* l_ItemSpec = sItemSpecStore.LookupEntry(l_Idx);
             if (!l_ItemSpec)
                 continue;
 
-            if (l_ItemTemplate.RequiredLevel >= l_ItemSpec->MinLevel && l_ItemTemplate.RequiredLevel <= l_ItemSpec->MaxLevel)
+            if (l_CharacterLevel >= l_ItemSpec->MinLevel && l_ItemTemplate.RequiredLevel <= l_CharacterLevel)
             {
                 if (l_ItemSpec->ItemType == ItemSpecialization::GetItemType(&l_ItemTemplate))
                 {
-                    std::list<uint32> l_ItemStats = ItemSpecialization::GetItemSpecStats(const_cast<ItemTemplate*>(&l_ItemTemplate));
+                    l_Find = true;
                     if (ItemSpecialization::HasItemSpecStat(l_ItemSpec->PrimaryStat, l_ItemStats))
                     {
-                        if (l_ItemSpec->SecondaryStat == 26)
+                        if (l_ItemSpec->SecondaryStat == 28)
                         {
                             if (l_TempStat != l_ItemSpec->PrimaryStat)
                             {
@@ -3050,14 +3063,16 @@ void ObjectMgr::LoadItemSpecs()
                                 ++l_Count;
                             }
                         }
-                    }
-                    else if (ItemSpecialization::HasItemSpecStat(l_ItemSpec->SecondaryStat, l_ItemStats))
-                    {
-                        l_ItemTemplate.AddSpec((SpecIndex)l_ItemSpec->SpecializationID);
-                        ++l_Count;
-                        l_TempStat = l_ItemSpec->PrimaryStat;
+                        else if (ItemSpecialization::HasItemSpecStat(l_ItemSpec->SecondaryStat, l_ItemStats))
+                        {
+                            l_ItemTemplate.AddSpec((SpecIndex)l_ItemSpec->SpecializationID);
+                            ++l_Count;
+                            l_TempStat = l_ItemSpec->PrimaryStat;
+                        }
                     }
                 }
+                else if (l_Find)
+                    break;
             }
         }
     }
@@ -3080,7 +3095,7 @@ void ObjectMgr::LoadItemSpecsOverride()
             continue;
 
         ItemTemplate& itemTemplate = _itemTemplateStore[specInfo->itemEntry];
-        itemTemplate.AddSpec((SpecIndex)specInfo->itemEntry);
+        itemTemplate.AddSpec((SpecIndex)specInfo->specID);
         l_Count++;
     }
 
@@ -4004,7 +4019,7 @@ void ObjectMgr::LoadQuests()
     mExclusiveQuestGroups.clear();
 
     QueryResult result = WorldDatabase.Query("SELECT "
-        "Id, Method, Level, MinLevel, MaxLevel, ZoneOrSort, Type, SuggestedPlayers, LimitTime, RequiredTeam, RequiredClasses, RequiredRaces, RequiredSkillId, RequiredSkillPoints, "
+        "Id, Method, Level, MinLevel, MaxLevel, PackageID, ZoneOrSort, Type, SuggestedPlayers, LimitTime, RequiredTeam, RequiredClasses, RequiredRaces, RequiredSkillId, RequiredSkillPoints, "
         "RequiredMinRepFaction, RequiredMaxRepFaction, RequiredMinRepValue, RequiredMaxRepValue, "
         "PrevQuestId, NextQuestId, ExclusiveGroup, NextQuestIdChain, RewardXPId, RewardMoney, RewardMoneyMaxLevel, RewardSpell, RewardSpellCast, RewardHonor, RewardHonorMultiplier, "
         "RewardMailTemplateId, RewardMailDelay, SourceItemId, SourceSpellId, Flags, Flags2, SpecialFlags, MinimapTargetMark, RewardTitleId, RewardTalents, RewardArenaPoints, "
@@ -4586,36 +4601,6 @@ void ObjectMgr::LoadQuests()
     }
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu quests definitions in %u ms", (unsigned long)_questTemplates.size(), GetMSTimeDiffToNow(oldMSTime));
-}
-
-void ObjectMgr::LoadQuestDynamicRewards()
-{
-    uint32 oldMSTime = getMSTime();
-    QueryResult result = WorldDatabase.Query("SELECT questId, itemId, itemCount FROM quest_dynamic_reward");
-    if (!result)
-    {
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Empty or non-exist quest_dynamic_reward table");
-        return;
-    }
-
-    uint32 count = 0;
-    do
-    {
-        Field* fields = result->Fetch();
-
-        uint32 questId = fields[0].GetUInt32();
-
-        if (_questTemplates.find(questId) == _questTemplates.end())
-            continue;
-
-        count++;
-
-        Quest* quest = _questTemplates[questId];
-        quest->AddDynamicReward(fields[1].GetUInt32(), fields[2].GetUInt32());
-    }
-    while (result->NextRow());
-
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Quest Dynamic Reward in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadQuestLocales()
@@ -5754,11 +5739,36 @@ uint32 ObjectMgr::GetNearestTaxiNode(float x, float y, float z, uint32 mapid, ui
     float dist = 10000;
     uint32 id = 0;
 
+    std::map<uint32, uint32> l_MapOverrides;
+
+    /// Special case for taxi in garrison phased map
+    for (uint32 l_I = 0; l_I < sGarrSiteLevelStore.GetNumRows(); ++l_I)
+    {
+        const GarrSiteLevelEntry * l_Entry = sGarrSiteLevelStore.LookupEntry(l_I);
+        
+        if (l_Entry)
+        {
+            l_MapOverrides[l_Entry->MapID] = GARRISON_BASE_MAP;
+
+            if (l_Entry->MapID == mapid)
+                mapid = GARRISON_BASE_MAP;
+        }
+    }
+
     for (uint32 i = 1; i < sTaxiNodesStore.GetNumRows(); ++i)
     {
         TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(i);
 
-        if (!node || node->map_id != mapid || (!node->MountCreatureID[team == ALLIANCE ? 1 : 0] && node->MountCreatureID[0] != 32981)) // dk flight
+        if (!node)
+            continue;
+
+        if (node->map_id != mapid)
+        {
+            if (l_MapOverrides.find(node->map_id) != l_MapOverrides.end() && l_MapOverrides[node->map_id] != mapid)
+                continue;
+        }
+
+        if (!node->MountCreatureID[team == ALLIANCE ? 1 : 0] && node->MountCreatureID[0] != 32981) // dk flight)
             continue;
 
         uint8  field   = (uint8)((i - 1) / 8);
@@ -6415,6 +6425,22 @@ void ObjectMgr::SetHighestGuids()
     result = CharacterDatabase.Query("SELECT MAX(itemId) from character_void_storage");
     if (result)
         _voidItemId = (*result)[0].GetUInt64()+1;
+
+    result = CharacterDatabase.Query("SELECT MAX(id) from character_garrison");
+    if (result)
+        m_GarrisonID = (*result)[0].GetUInt32() + 1;
+
+    result = CharacterDatabase.Query("SELECT MAX(id) from character_garrison_building");
+    if (result)
+        m_GarrisonBuildingID = (*result)[0].GetUInt32() + 1;
+
+    result = CharacterDatabase.Query("SELECT MAX(id) from character_garrison_follower");
+    if (result)
+        m_GarrisonFollowerID = (*result)[0].GetUInt32() + 1;
+
+    result = CharacterDatabase.Query("SELECT MAX(id) from character_garrison_mission");
+    if (result)
+        m_GarrisonMissionID = (*result)[0].GetUInt32() + 1;
 }
 
 uint32 ObjectMgr::GenerateAuctionID()
@@ -6792,7 +6818,7 @@ void ObjectMgr::LoadGarrisonPlotBuildingContent()
 {
     uint32 l_StartTime = getMSTime();
 
-    QueryResult l_Result = WorldDatabase.Query("SELECT id, plot_type, faction_index, creature_or_gob, x, y, z, o FROM garrison_plot_building_content");
+    QueryResult l_Result = WorldDatabase.Query("SELECT id, plot_type_or_building, faction_index, creature_or_gob, x, y, z, o FROM garrison_plot_content");
 
     if (!l_Result)
     {
@@ -6807,14 +6833,14 @@ void ObjectMgr::LoadGarrisonPlotBuildingContent()
         Field * l_Fields = l_Result->Fetch();
 
         GarrisonPlotBuildingContent l_Content;
-        l_Content.DB_ID         = l_Fields[0].GetUInt32();
-        l_Content.PlotType      = l_Fields[1].GetUInt32();
-        l_Content.FactionIndex  = l_Fields[2].GetUInt32();
-        l_Content.CreatureOrGob = l_Fields[3].GetInt32();
-        l_Content.X             = l_Fields[4].GetFloat();
-        l_Content.Y             = l_Fields[5].GetFloat();
-        l_Content.Z             = l_Fields[6].GetFloat();
-        l_Content.O             = l_Fields[7].GetFloat();
+        l_Content.DB_ID                 = l_Fields[0].GetUInt32();
+        l_Content.PlotTypeOrBuilding    = l_Fields[1].GetInt32();
+        l_Content.FactionIndex          = l_Fields[2].GetUInt32();
+        l_Content.CreatureOrGob         = l_Fields[3].GetInt32();
+        l_Content.X                     = l_Fields[4].GetFloat();
+        l_Content.Y                     = l_Fields[5].GetFloat();
+        l_Content.Z                     = l_Fields[6].GetFloat();
+        l_Content.O                     = l_Fields[7].GetFloat();
 
         m_GarrisonPlotBuildingContents.push_back(l_Content);
 
@@ -6825,10 +6851,11 @@ void ObjectMgr::LoadGarrisonPlotBuildingContent()
 }
 void ObjectMgr::AddGarrisonPlotBuildingContent(GarrisonPlotBuildingContent & p_Data)
 {
-    WorldDatabase.PQuery("INSERT INTO garrison_plot_building_content(plot_type, faction_index, creature_or_gob, x, y, z, o) VALUES "
-        "(%u, %u, %d, %f, %f, %f, %f) ", p_Data.PlotType, p_Data.FactionIndex, p_Data.CreatureOrGob, p_Data.X, p_Data.Y, p_Data.Z, p_Data.O);
+    WorldDatabase.PQuery("INSERT INTO garrison_plot_content(plot_type_or_building, faction_index, creature_or_gob, x, y, z, o) VALUES "
+        "(%d, %u, %d, %f, %f, %f, %f) ", p_Data.PlotTypeOrBuilding, p_Data.FactionIndex, p_Data.CreatureOrGob, p_Data.X, p_Data.Y, p_Data.Z, p_Data.O);
 
-    QueryResult l_Result = WorldDatabase.Query("SELECT LAST_INSERT_ID()");
+    QueryResult l_Result = WorldDatabase.PQuery("SELECT id FROM garrison_plot_content WHERE plot_type_or_building=%d AND faction_index=%u AND creature_or_gob=%d AND x=%f AND y=%f AND z=%f AND o=%f", 
+                                                p_Data.PlotTypeOrBuilding, p_Data.FactionIndex, p_Data.CreatureOrGob, p_Data.X, p_Data.Y, p_Data.Z, p_Data.O);
 
     if (!l_Result)
         return;
@@ -6839,13 +6866,26 @@ void ObjectMgr::AddGarrisonPlotBuildingContent(GarrisonPlotBuildingContent & p_D
 
     m_GarrisonPlotBuildingContents.push_back(p_Data);
 }
-std::vector<GarrisonPlotBuildingContent> ObjectMgr::GetGarrisonPlotBuildingContent(uint32 p_PlotType, uint32 p_FactionIndex)
+void ObjectMgr::DeleteGarrisonPlotBuildingContent(GarrisonPlotBuildingContent & p_Data)
+{
+    auto l_It = std::find_if(m_GarrisonPlotBuildingContents.begin(), m_GarrisonPlotBuildingContents.end(), [p_Data](const GarrisonPlotBuildingContent & p_Elem) -> bool
+    {
+        return p_Elem.DB_ID == p_Data.DB_ID;
+    });
+
+    if (l_It != m_GarrisonPlotBuildingContents.end())
+    {
+        WorldDatabase.PQuery("DELETE FROM garrison_plot_content WHERE id=%u", p_Data.DB_ID);
+        m_GarrisonPlotBuildingContents.erase(l_It);
+    }
+}
+std::vector<GarrisonPlotBuildingContent> ObjectMgr::GetGarrisonPlotBuildingContent(int32 p_PlotTypeOrBuilding, uint32 p_FactionIndex)
 {
     std::vector<GarrisonPlotBuildingContent> l_Data;
 
     for (uint32 l_I = 0; l_I < m_GarrisonPlotBuildingContents.size(); ++l_I)
     {
-        if (m_GarrisonPlotBuildingContents[l_I].PlotType == p_PlotType && m_GarrisonPlotBuildingContents[l_I].FactionIndex == p_FactionIndex)
+        if (m_GarrisonPlotBuildingContents[l_I].PlotTypeOrBuilding == p_PlotTypeOrBuilding && m_GarrisonPlotBuildingContents[l_I].FactionIndex == p_FactionIndex)
             l_Data.push_back(m_GarrisonPlotBuildingContents[l_I]);
     }
 
@@ -10070,6 +10110,61 @@ void ObjectMgr::LoadQuestObjectiveLocales()
     } while (l_Result->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Quest Objective visual effects in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+}
+
+void ObjectMgr::LoadQuestPackageItemHotfixs()
+{
+    uint32 l_OldMSTime = getMSTime();
+
+    QueryResult l_Result = WorldDatabase.Query("SELECT `Id`, `PackageID`, `ItemId`, `Count`, `Type` FROM quest_package_item_hotfix");
+    if (!l_Result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 Quest Package Item hotfix. DB table `quest_package_item_hotfix` is empty.");
+        return;
+    }
+
+    uint32 l_Count = 0;
+    do
+    {
+        Field * l_Fields = l_Result->Fetch();
+
+        QuestPackageItemEntry* l_QuestPackageItemHotfix = new QuestPackageItemEntry();
+        l_QuestPackageItemHotfix->ID        = l_Fields[0].GetUInt32();
+        l_QuestPackageItemHotfix->PackageID = l_Fields[1].GetUInt32();
+        l_QuestPackageItemHotfix->ItemId    = l_Fields[2].GetUInt32();
+        l_QuestPackageItemHotfix->Count     = l_Fields[3].GetUInt32();
+        l_QuestPackageItemHotfix->Type      = l_Fields[4].GetUInt8();
+
+        sQuestPackageItemStore.AddEntry(l_QuestPackageItemHotfix->ID, l_QuestPackageItemHotfix);
+
+        l_Count++;
+
+    } while (l_Result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Quest Package Item hotfixs in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+}
+void ObjectMgr::LoadFollowerQuests()
+{
+    const ObjectMgr::QuestMap & l_QuestTemplates = GetQuestTemplates();
+    for (ObjectMgr::QuestMap::const_iterator l_It = l_QuestTemplates.begin(); l_It != l_QuestTemplates.end(); ++l_It)
+    {
+        Quest * l_Quest = l_It->second;
+
+        uint32 l_SpellID = l_Quest->RewardSpellCast;
+
+        if (!l_SpellID)
+            continue;
+
+        const SpellInfo * l_Info = sSpellMgr->GetSpellInfo(l_SpellID);
+
+        if (!l_Info)
+            continue;
+
+        if (l_Info->Effects[EFFECT_0].Effect != SPELL_EFFECT_OBTAIN_FOLLOWER)
+            continue;
+
+        FollowerQuests.push_back(l_Quest->Id);
+    }
 }
 
 QuestObjectiveLocale const* ObjectMgr::GetQuestObjectiveLocale(uint32 objectiveId) const

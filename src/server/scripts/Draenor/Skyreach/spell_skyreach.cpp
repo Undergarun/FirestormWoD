@@ -1,11 +1,10 @@
-#include "AreaTriggerScript.h"
 #include <forward_list>
 #include "instance_skyreach.h"
 
 namespace MS
 {
     // Summon Quills - 159381
-    class spell_Quills : public SpellScriptLoader
+    class spell_Quills: public SpellScriptLoader
     {
     public:
         spell_Quills()
@@ -42,7 +41,7 @@ namespace MS
     };
 
     // Summon Cast Down - 165845
-    class spell_CastDown : public SpellScriptLoader
+    class spell_CastDown: public SpellScriptLoader
     {
     public:
         spell_CastDown()
@@ -80,7 +79,7 @@ namespace MS
     };
 
     // AreaTriggers for spells: 154044
-    class AreaTrigger_LensFlare : public MS::AreaTriggerEntityScript
+    class AreaTrigger_LensFlare : public AreaTriggerEntityScript
     {
         enum class Spells : uint32
         {
@@ -91,34 +90,30 @@ namespace MS
 
     public:
         AreaTrigger_LensFlare()
-            : MS::AreaTriggerEntityScript("at_LensFlare"),
+            : AreaTriggerEntityScript("at_LensFlare"),
             m_Targets()
         {
             }
 
-        MS::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new AreaTrigger_LensFlare();
         }
 
         void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
-            // If We are on the last tick.
-            if (p_AreaTrigger->GetDuration() < 100)
+            for (auto l_Guid : m_Targets)
             {
-                for (auto l_Guid : m_Targets)
-                {
-                    Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
-                    if (l_Target && l_Target->HasAura(uint32(Spells::LensFlare_Dmg)))
-                        l_Target->RemoveAura(uint32(Spells::LensFlare_Dmg));
-                }
+                Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
+                if (l_Target && l_Target->HasAura(uint32(Spells::LensFlare_Dmg)))
+                    l_Target->RemoveAura(uint32(Spells::LensFlare_Dmg));
             }
         }
 
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
             std::list<Unit*> l_TargetList;
-            float l_Radius = 4.0f;
+            float l_Radius = 3.5f;
 
             JadeCore::NearestAttackableUnitInObjectRangeCheck l_Check(p_AreaTrigger, p_AreaTrigger->GetCaster(), l_Radius);
             JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
@@ -163,7 +158,7 @@ namespace MS
     };
 
     // AreaTriggers for spells: 152973
-    class AreaTrigger_ProtectiveBarrier : public MS::AreaTriggerEntityScript
+    class AreaTrigger_ProtectiveBarrier : public AreaTriggerEntityScript
     {
         enum class Spells : uint32
         {
@@ -175,27 +170,23 @@ namespace MS
 
     public:
         AreaTrigger_ProtectiveBarrier()
-            : MS::AreaTriggerEntityScript("at_ProtectiveBarrier"),
+            : AreaTriggerEntityScript("at_ProtectiveBarrier"),
             m_Targets()
         {
         }
 
-        MS::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new AreaTrigger_ProtectiveBarrier();
         }
 
         void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
-            // If We are on the last tick.
-            if (p_AreaTrigger->GetDuration() < 100)
+            for (auto l_Guid : m_Targets)
             {
-                for (auto l_Guid : m_Targets)
-                {
-                    Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
-                    if (l_Target && l_Target->HasAura(uint32(Spells::ProtectiveBarrier)))
-                        l_Target->RemoveAura(uint32(Spells::ProtectiveBarrier));
-                }
+                Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
+                if (l_Target && l_Target->HasAura(uint32(Spells::ProtectiveBarrier)))
+                    l_Target->RemoveAura(uint32(Spells::ProtectiveBarrier));
             }
         }
 
@@ -242,7 +233,7 @@ namespace MS
     };
 
     // AreaTriggers for spells: 154110
-    class AreaTrigger_Smash : public MS::AreaTriggerEntityScript
+    class AreaTrigger_Smash : public AreaTriggerEntityScript
     {
         enum class Spells : uint32
         {
@@ -253,11 +244,11 @@ namespace MS
 
     public:
         AreaTrigger_Smash()
-            : MS::AreaTriggerEntityScript("at_Smash")
+            : AreaTriggerEntityScript("at_Smash")
         {
         }
 
-        MS::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new AreaTrigger_Smash();
         }
@@ -283,7 +274,7 @@ namespace MS
 
             for (auto l_Target : l_TargetList)
             {
-                if (l_Target && l_Target->GetExactDist2d(p_AreaTrigger) < k_Radius && DistanceFromLine(*p_AreaTrigger, l_Pos, *l_Target) < k_RadiusFromLine)
+                if (l_Target && p_AreaTrigger->GetCaster()->isInFront(l_Target) && l_Target->GetExactDist2d(p_AreaTrigger) < k_Radius && DistanceFromLine(*p_AreaTrigger, l_Pos, *l_Target) < k_RadiusFromLine)
                 {
                     if (p_AreaTrigger->GetCaster())
                         p_AreaTrigger->GetCaster()->CastSpell(l_Target, uint32(Spells::SMASH_DMG), true);
@@ -293,7 +284,7 @@ namespace MS
     };
 
     // Visual Energize - 154177
-    class spell_VisualEnergize2 : public SpellScriptLoader
+    class spell_VisualEnergize2: public SpellScriptLoader
     {
     public:
         spell_VisualEnergize2()
@@ -332,7 +323,7 @@ namespace MS
     };
 
     // Visual Energize - 154159
-    class spell_VisualEnergize : public SpellScriptLoader
+    class spell_VisualEnergize: public SpellScriptLoader
     {
     public:
         spell_VisualEnergize()
@@ -367,7 +358,7 @@ namespace MS
     };
 
     // Flash Bang - 160066
-    class spell_FlashBang : public SpellScriptLoader
+    class spell_FlashBang: public SpellScriptLoader
     {
     public:
         spell_FlashBang()
@@ -406,7 +397,7 @@ namespace MS
     };
 
     // Sunstrike - 153828
-    class spell_Sunstrike : public SpellScriptLoader
+    class spell_Sunstrike: public SpellScriptLoader
     {
     public:
         spell_Sunstrike()
@@ -452,7 +443,7 @@ namespace MS
     };
 
     // Summon Solar Flare - 153827
-    class spell_SummonSolarFlare : public SpellScriptLoader
+    class spell_SummonSolarFlare: public SpellScriptLoader
     {
     public:
         spell_SummonSolarFlare()
@@ -491,7 +482,7 @@ namespace MS
     };
 
     // Energize 154140
-    class spell_Energize : public SpellScriptLoader
+    class spell_Energize: public SpellScriptLoader
     {
     public:
         spell_Energize()
@@ -530,7 +521,7 @@ namespace MS
     };
 
     // AreaTriggers for spells: 159221
-    class AreaTrigger_SolarStorm : public MS::AreaTriggerEntityScript
+    class AreaTrigger_SolarStorm : public AreaTriggerEntityScript
     {
         enum class Spells : uint32
         {
@@ -541,27 +532,23 @@ namespace MS
 
     public:
         AreaTrigger_SolarStorm()
-            : MS::AreaTriggerEntityScript("at_SolarStorm"),
+            : AreaTriggerEntityScript("at_SolarStorm"),
             m_Targets()
         {
         }
 
-        MS::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new AreaTrigger_SolarStorm();
         }
 
         void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
-            // If We are on the last tick.
-            if (p_AreaTrigger->GetDuration() < 100)
+            for (auto l_Guid : m_Targets)
             {
-                for (auto l_Guid : m_Targets)
-                {
-                    Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
-                    if (l_Target && l_Target->HasAura(uint32(Spells::SOLAR_STORM_DMG)))
-                        l_Target->RemoveAura(uint32(Spells::SOLAR_STORM_DMG));
-                }
+                Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
+                if (l_Target && l_Target->HasAura(uint32(Spells::SOLAR_STORM_DMG)))
+                    l_Target->RemoveAura(uint32(Spells::SOLAR_STORM_DMG));
             }
         }
 
@@ -605,7 +592,7 @@ namespace MS
     };
 
     // Solar storm - 159215
-    class spell_SolarStorm : public SpellScriptLoader
+    class spell_SolarStorm: public SpellScriptLoader
     {
     public:
         spell_SolarStorm()
@@ -645,7 +632,7 @@ namespace MS
     };
 
     // AreaTriggers for spells: 156634, 156636
-    class AreaTrigger_FourWinds : public MS::AreaTriggerEntityScript
+    class AreaTrigger_FourWinds : public AreaTriggerEntityScript
     {
         enum class Spells : uint32
         {
@@ -665,7 +652,7 @@ namespace MS
 
     public:
         AreaTrigger_FourWinds()
-            : MS::AreaTriggerEntityScript("at_FourWinds"),
+            : AreaTriggerEntityScript("at_FourWinds"),
             m_targets(),
             m_angle(0),
             m_Last(60000),
@@ -673,7 +660,7 @@ namespace MS
         {
         }
 
-        MS::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new AreaTrigger_FourWinds();
         }
@@ -707,16 +694,12 @@ namespace MS
 
         void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
-            // If We are on the last tick.
-            if (p_AreaTrigger->GetDuration() < 100)
+            for (auto l_Guid : m_targets)
             {
-                for (auto l_Guid : m_targets)
+                Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
+                if (l_Target && l_Target->HasAura(uint32(Spells::FOUR_WINDS_DMG)))
                 {
-                    Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
-                    if (l_Target && l_Target->HasAura(uint32(Spells::FOUR_WINDS_DMG)))
-                    {
-                        l_Target->RemoveAura(uint32(Spells::FOUR_WINDS_DMG));
-                    }
+                    l_Target->RemoveAura(uint32(Spells::FOUR_WINDS_DMG));
                 }
             }
         }
@@ -734,7 +717,7 @@ namespace MS
                 0.014f,
                 0.014f
             };
-            static const float k_dist = 25.0f;
+            static const float k_dist = 45.0f;
 
             // Update targets.
             std::list<Unit*> l_TargetList;
@@ -802,7 +785,7 @@ namespace MS
     };
 
     // Four wind - 156793
-    class spell_FourWind : public SpellScriptLoader
+    class spell_FourWind: public SpellScriptLoader
     {
     public:
         spell_FourWind()
@@ -839,7 +822,7 @@ namespace MS
                 };
                 if (GetCaster())
                 {
-                    std::list<Unit*> l_Target = InstanceSkyreach::SelectNearestCreatureListWithEntry(GetCaster(), InstanceSkyreach::MobEntries::ArakkoaPincerBirdsController, 40.0f);
+                    std::list<Unit*> l_Target = ScriptUtils::SelectNearestCreatureListWithEntry(GetCaster(), InstanceSkyreach::MobEntries::ArakkoaPincerBirdsController, 40.0f);
                     if (l_Target.empty())
                         return;
 
@@ -870,7 +853,7 @@ namespace MS
     };
 
     // AreaTriggers for spells: 153311, 153314
-    class AreaTrigger_WindWall : public MS::AreaTriggerEntityScript
+    class AreaTrigger_WindWall : public AreaTriggerEntityScript
     {
         enum class Spells : uint32
         {
@@ -886,7 +869,7 @@ namespace MS
 
     public:
         AreaTrigger_WindWall()
-            : MS::AreaTriggerEntityScript("at_WindWall"),
+            : AreaTriggerEntityScript("at_WindWall"),
             m_targets(),
             m_angle(0),
             m_Last(60000),
@@ -894,7 +877,7 @@ namespace MS
         {
         }
 
-        MS::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new AreaTrigger_WindWall();
         }
@@ -916,16 +899,12 @@ namespace MS
 
         void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
-            // If We are on the last tick.
-            if (p_AreaTrigger->GetDuration() < 100)
+            for (auto l_Guid : m_targets)
             {
-                for (auto l_Guid : m_targets)
+                Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
+                if (l_Target && l_Target->HasAura(uint32(Spells::WINDWALL_DMG)))
                 {
-                    Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
-                    if (l_Target && l_Target->HasAura(uint32(Spells::WINDWALL_DMG)))
-                    {
-                        l_Target->RemoveAura(uint32(Spells::WINDWALL_DMG));
-                    }
+                    l_Target->RemoveAura(uint32(Spells::WINDWALL_DMG));
                 }
             }
         }
@@ -1016,7 +995,7 @@ namespace MS
     };
 
     // Windwall - 153315
-    class spell_Windwall : public SpellScriptLoader
+    class spell_Windwall: public SpellScriptLoader
     {
     public:
         spell_Windwall()
@@ -1040,7 +1019,7 @@ namespace MS
                 if (GetCaster())
                 {
                     Unit* l_Target = nullptr;
-                    if (l_Target = InstanceSkyreach::SelectRandomPlayerIncludedTank(GetCaster(), 30.0f))
+                    if (l_Target = ScriptUtils::SelectRandomPlayerIncludedTank(GetCaster(), 30.0f))
                     {
                         uint32 l_Random = urand(0, 1);
                         if (l_Random == 0)
@@ -1064,7 +1043,7 @@ namespace MS
     };
 
     // AreaTriggers for spells: 153535, 153536, 153537, 153538, 153583, 153584, 153585,153586, 153587, 153588
-    class AreaTrigger_spinning_blade : public MS::AreaTriggerEntityScript
+    class AreaTrigger_spinning_blade : public AreaTriggerEntityScript
     {
         enum class Spells : uint32
         {
@@ -1075,27 +1054,23 @@ namespace MS
 
     public:
         AreaTrigger_spinning_blade()
-            : MS::AreaTriggerEntityScript("at_spinning_blade"), m_targets()
+            : AreaTriggerEntityScript("at_spinning_blade"), m_targets()
         {
         }
 
-        MS::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new AreaTrigger_spinning_blade();
         }
 
         void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
-            // If We are on the last tick.
-            if (p_AreaTrigger->GetDuration() < 100)
+            for (auto l_Guid : m_targets)
             {
-                for (auto l_Guid : m_targets)
+                Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
+                if (l_Target && l_Target->HasAura(uint32(Spells::SPINNING_BLADE_DMG)))
                 {
-                    Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
-                    if (l_Target && l_Target->HasAura(uint32(Spells::SPINNING_BLADE_DMG)))
-                    {
-                        l_Target->RemoveAura(uint32(Spells::SPINNING_BLADE_DMG));
-                    }
+                    l_Target->RemoveAura(uint32(Spells::SPINNING_BLADE_DMG));
                 }
             }
         }
@@ -1148,7 +1123,7 @@ namespace MS
     };
 
     // AreaTriggers for spells: 160935
-    class AreaTrigger_solar_zone : public MS::AreaTriggerEntityScript
+    class AreaTrigger_solar_zone : public AreaTriggerEntityScript
     {
         enum class SolarHealSpells : uint32
         {
@@ -1161,30 +1136,26 @@ namespace MS
 
     public:
         AreaTrigger_solar_zone()
-            : MS::AreaTriggerEntityScript("at_solar_zone"),
+            : AreaTriggerEntityScript("at_solar_zone"),
             m_Targets()
         {
         }
 
-        MS::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new AreaTrigger_solar_zone();
         }
 
         void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
-            // If We are on the last tick.
-            if (p_AreaTrigger->GetDuration() < 100)
+            for (auto l_Guid : m_Targets)
             {
-                for (auto l_Guid : m_Targets)
-                {
-                    Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
-                    if (l_Target && l_Target->HasAura(uint32(SolarHealSpells::SOLAR_ZONE_HEAL)))
-                        l_Target->RemoveAura(uint32(SolarHealSpells::SOLAR_ZONE_HEAL));
+                Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
+                if (l_Target && l_Target->HasAura(uint32(SolarHealSpells::SOLAR_ZONE_HEAL)))
+                    l_Target->RemoveAura(uint32(SolarHealSpells::SOLAR_ZONE_HEAL));
 
-                    if (l_Target && l_Target->HasAura(uint32(SolarHealSpells::SOLAR_ZONE_DMG)))
-                        l_Target->RemoveAura(uint32(SolarHealSpells::SOLAR_ZONE_DMG));
-                }
+                if (l_Target && l_Target->HasAura(uint32(SolarHealSpells::SOLAR_ZONE_DMG)))
+                    l_Target->RemoveAura(uint32(SolarHealSpells::SOLAR_ZONE_DMG));
             }
         }
 
@@ -1242,7 +1213,7 @@ namespace MS
     };
 
     // AreaTriggers for spells: 156840
-    class AreaTrigger_storm_zone : public MS::AreaTriggerEntityScript
+    class AreaTrigger_storm_zone : public AreaTriggerEntityScript
     {
         enum class Spells : uint32
         {
@@ -1256,27 +1227,23 @@ namespace MS
 
     public:
         AreaTrigger_storm_zone()
-            : MS::AreaTriggerEntityScript("at_storm_zone"),
+            : AreaTriggerEntityScript("at_storm_zone"),
             m_Targets()
         {
         }
 
-        MS::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new AreaTrigger_storm_zone();
         }
 
         void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
-            // If We are on the last tick.
-            if (p_AreaTrigger->GetDuration() < 100)
+            for (auto l_Guid : m_Targets)
             {
-                for (auto l_Guid : m_Targets)
-                {
-                    Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
-                    if (l_Target && l_Target->HasAura(uint32(Spells::STORM_DMG)))
-                        l_Target->RemoveAura(uint32(Spells::STORM_DMG));
-                }
+                Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
+                if (l_Target && l_Target->HasAura(uint32(Spells::STORM_DMG)))
+                    l_Target->RemoveAura(uint32(Spells::STORM_DMG));
             }
         }
 
@@ -1325,7 +1292,7 @@ namespace MS
     };
 
     // AreaTriggers for spells: 153905
-    class AreaTrigger_dervish : public MS::AreaTriggerEntityScript
+    class AreaTrigger_dervish : public AreaTriggerEntityScript
     {
         enum class Spells : uint32
         {
@@ -1337,27 +1304,23 @@ namespace MS
 
     public:
         AreaTrigger_dervish()
-            : MS::AreaTriggerEntityScript("at_dervish"),
+            : AreaTriggerEntityScript("at_dervish"),
             m_Targets()
         {
         }
 
-        MS::AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const
         {
             return new AreaTrigger_dervish();
         }
 
         void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
-            // If We are on the last tick.
-            if (p_AreaTrigger->GetDuration() < 100)
+            for (auto l_Guid : m_Targets)
             {
-                for (auto l_Guid : m_Targets)
-                {
-                    Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
-                    if (l_Target && l_Target->HasAura(uint32(Spells::DERVISH_DMG)))
-                        l_Target->RemoveAura(uint32(Spells::DERVISH_DMG));
-                }
+                Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
+                if (l_Target && l_Target->HasAura(uint32(Spells::DERVISH_DMG)))
+                    l_Target->RemoveAura(uint32(Spells::DERVISH_DMG));
             }
         }
 
@@ -1406,7 +1369,7 @@ namespace MS
     };
 
     // Spinning Blade - 153544
-    class spell_SpinningBlade : public SpellScriptLoader
+    class spell_SpinningBlade: public SpellScriptLoader
     {
     public:
         spell_SpinningBlade()
@@ -1462,7 +1425,7 @@ namespace MS
     };
 
     // Blade Dance - 153581
-    class spell_BladeDance : public SpellScriptLoader
+    class spell_BladeDance: public SpellScriptLoader
     {
     public:
         spell_BladeDance()
@@ -1511,7 +1474,7 @@ namespace MS
     };
 
     // Storm - 156515
-    class spell_Storm : public SpellScriptLoader
+    class spell_Storm: public SpellScriptLoader
     {
     public:
         spell_Storm()

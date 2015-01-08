@@ -497,7 +497,7 @@ class mob_solarium_priest : public CreatureScript
         }
 };
 
-class spell_astromancer_wrath_of_the_astromancer : public SpellScriptLoader
+class spell_astromancer_wrath_of_the_astromancer: public SpellScriptLoader
 {
     public:
         spell_astromancer_wrath_of_the_astromancer() : SpellScriptLoader("spell_astromancer_wrath_of_the_astromancer") { }

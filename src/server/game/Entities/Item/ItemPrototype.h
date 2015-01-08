@@ -888,13 +888,13 @@ struct ItemTemplate
     bool IsWeapon() const { return Class == ITEM_CLASS_WEAPON; }
 
     float GetScalingDamageValue(uint32 ilvl) const;
-    uint32 GetRandomPointsOffset() const;
+    int32 GetRandomPointsOffset() const;
     float GetSocketCost(uint32 ilvl) const;
-    uint32 CalculateStatScaling(uint32 index, uint32 ilvl) const;
+    int32 CalculateStatScaling(uint32 index, uint32 ilvl) const;
+    int32 CalculateStatScaling(int32 scalingValue, float socketCost, uint32 ilvl) const;
     uint32 CalculateScalingStatDBCValue(uint32 ilvl) const;
     uint32 CalculateArmorScaling(uint32 ilvl) const;
     void CalculateMinMaxDamageScaling(uint32 ilvl, uint32& minDamage, uint32& maxDamage) const;
-    uint32 GetItemLevelForHeirloom(uint32 level) const;
 };
 
 extern float GetCurveValue(uint32 CurveParameter, float level);
@@ -906,143 +906,166 @@ extern float GetCurveValue(uint32 CurveParameter, float level);
 // Last update : 6.0.1 18179 internal client
 namespace ItemSpecialization
 {
-    const static uint8  ITEM_SUBCLASS_EX_COUNT = 6;
-    const static uint32 s_ItemSubClassSpec[ITEM_SUBCLASS_WEAPON_WAND] = { 0x0007, 0x0008, 0x0010, 0x000f, 0x000b, 0x000c, 0x0013, 0x0009, 0x000a, 0x001a, 0x0012, 0x001a, 0x001a, 0x000e, 0x001a, 0x000d, 0x0014, 0x001a, 0x0011 };
-    const static uint32 s_ItemSubClassSpecEx[ITEM_SUBCLASS_EX_COUNT] = { 0x0016, 0x0017, 0x0017, 0x0017, 0x0017, 0x0017 };
+    const static uint32 s_ItemSubClassSpec[20] = { 0x0007, 0x0008, 0x0010, 0x000f, 0x000b, 0x000c, 0x0013, 0x0009, 0x000a, 0x001a, 0x0012, 0x001a, 0x001a, 0x000e, 0x001a, 0x000d, 0x0014, 0x001a, 0x0011, 0x0015 };
 
+    /// - IDA STYLE
+    /// - Last update : 6.0.3 19116
     static uint32 GetItemType(const ItemTemplate* p_ItemTemplate)
     {
-        uint32 l_ItemType = 0;
+        uint32 l_ItemType       = 0;
+        uint32 l_InternalClass  = p_ItemTemplate->Class - 2;
+        uint32 l_SubClass       = p_ItemTemplate->SubClass;
+        uint32 l_InventoryType  = p_ItemTemplate->InventoryType;
 
-        if (p_ItemTemplate->Class == ITEM_CLASS_WEAPON)
-            l_ItemType = 5;
-        else if (p_ItemTemplate->Class == ITEM_CLASS_ARMOR)
+        if (l_InternalClass)
         {
-            switch (p_ItemTemplate->SubClass)
+            if (l_InternalClass != 2)
             {
-                case ITEM_SUBCLASS_ARMOR_SHIELD:
-                case ITEM_SUBCLASS_ARMOR_LIBRAM:
-                case ITEM_SUBCLASS_ARMOR_IDOL:
-                case ITEM_SUBCLASS_ARMOR_TOTEM:
-                case ITEM_SUBCLASS_ARMOR_SIGIL:
-                case ITEM_SUBCLASS_ARMOR_RELIC:
-                    l_ItemType = 6;
-                    break;
-                case ITEM_SUBCLASS_ARMOR_CLOTH:
-                    l_ItemType = p_ItemTemplate->InventoryType != INVTYPE_CLOAK;
-                    break;
-                case ITEM_SUBCLASS_ARMOR_LEATHER:
-                    l_ItemType = 2;
-                    break;
-                case ITEM_SUBCLASS_ARMOR_MAIL:
-                    l_ItemType = 3;
-                    break;
-                case ITEM_SUBCLASS_ARMOR_PLATE:
-                    l_ItemType = 4;
-                    break;
-                default:
-                    l_ItemType = 0;
+                l_ItemType = 0;
+                return l_ItemType;
             }
+
+            if (l_SubClass != 1)
+            {
+                if (l_SubClass == 2)
+                {
+                    l_ItemType = 2;
+                    return l_ItemType;
+                }
+
+                if (l_SubClass == 3 || l_SubClass == 4)
+                {
+                    l_ItemType = l_SubClass;
+                    return l_ItemType;
+                }
+
+                if (l_SubClass <= 5 || l_SubClass > 11)
+                {
+                    l_ItemType = 0;
+                    return l_ItemType;
+                }
+
+                l_ItemType = 6;
+                return l_ItemType;
+            }
+
+            if (l_InventoryType == 16)
+            {
+                l_ItemType = 0;
+            }
+            else
+            {
+                l_ItemType = 1;
+            }
+        }
+        else
+        {
+            l_ItemType = 5;
         }
         return l_ItemType;
     }
 
-    static int32 GetItemSpecStat(int32 p_Stat)
+    static std::vector<int32> GetItemSpecStat(int32 p_Stat)
     {
-        int32 l_ItemSpecStat = -1;
+        std::vector<int32> l_ItemSpecStat;
         switch (p_Stat)
         {
             case ITEM_MOD_CRIT_MELEE_RATING:
             case ITEM_MOD_CRIT_RANGED_RATING:
             case ITEM_MOD_CRIT_SPELL_RATING:
             case ITEM_MOD_CRIT_RATING:
-                l_ItemSpecStat = 24;
+                l_ItemSpecStat.push_back(24);
                 break;
             case ITEM_MOD_HASTE_MELEE_RATING:
             case ITEM_MOD_HASTE_RANGED_RATING:
             case ITEM_MOD_HASTE_SPELL_RATING:
             case ITEM_MOD_HASTE_RATING:
-                l_ItemSpecStat = 25;
+                l_ItemSpecStat.push_back(25);
                 break;
             case ITEM_MOD_AGILITY:
-                l_ItemSpecStat = 1;
+                l_ItemSpecStat.push_back(1);
                 break;
             case ITEM_MOD_STRENGTH:
-                l_ItemSpecStat = 2;
+                l_ItemSpecStat.push_back(2);
                 break;
             case ITEM_MOD_INTELLECT:
-                l_ItemSpecStat = 0;
+                l_ItemSpecStat.push_back(0);
                 break;
             case ITEM_MOD_SPIRIT:
-                l_ItemSpecStat = 3;
+                l_ItemSpecStat.push_back(3);
                 break;
             case ITEM_MOD_DODGE_RATING:
-                l_ItemSpecStat = 5;
+                l_ItemSpecStat.push_back(5);
                 break;
             case ITEM_MOD_PARRY_RATING:
-                l_ItemSpecStat = 6;
+                l_ItemSpecStat.push_back(6);
                 break;
             case ITEM_MOD_HIT_RATING:
-                l_ItemSpecStat = 4;
+                l_ItemSpecStat.push_back(4);
                 break;
-            default:
-                l_ItemSpecStat = -1;
+            case ITEM_MOD_EXTRA_ARMOR:
+                l_ItemSpecStat.push_back(26);
+                break;
+            case ITEM_MOD_DYNAMIC_STAT_AGI_STR_INT:
+                l_ItemSpecStat = std::vector<int32> {0, 1, 2};
+                break;
+            case ITEM_MOD_DYNAMIC_STAT_AGI_STR:
+                l_ItemSpecStat = std::vector<int32> {1, 2};
+                break;
+            case ITEM_MOD_DYNAMIC_STAT_AGI_INT:
+                l_ItemSpecStat = std::vector<int32> {0, 1};
+                break;
+            case ITEM_MOD_DYNAMIC_STAT_STR_INT:
+                l_ItemSpecStat = std::vector<int32> {0, 2};
                 break;
         }
 
         return l_ItemSpecStat;
     }
 
-    // @todo : since work on Scaling GetItemSpecStats and HasItemSpecStat have Unused function Warning
-    static std::list<uint32> GetItemSpecStats(const ItemTemplate* p_ItemTemplate)
+    static std::vector<uint32> GetItemSpecStats(const ItemTemplate* p_ItemTemplate)
     {
-        std::list<uint32> l_ItemSpecStats;
+        std::vector<uint32> l_ItemSpecStats;
+
+        /// - ITEM_CLASS_CONSUMABLE & ITEM_CLASS_CONTAINER doesn't have stat anymore
+        if (p_ItemTemplate->Class < ITEM_CLASS_WEAPON)
+            return l_ItemSpecStats;
+
+        uint32 l_InternalClass = p_ItemTemplate->Class - 2;
+        uint32 l_SubClass      = p_ItemTemplate->SubClass;
+        uint32 l_InventoryType = p_ItemTemplate->InventoryType;
+
+        if (l_InternalClass == 2 && l_SubClass == 1 && l_InventoryType == 16)
+            l_ItemSpecStats.push_back(27);
+
+        if (p_ItemTemplate->Class == ITEM_CLASS_WEAPON && p_ItemTemplate->SubClass < 20)
+            l_ItemSpecStats.push_back(s_ItemSubClassSpec[p_ItemTemplate->SubClass]);
+
+        if (GetItemType(p_ItemTemplate) == 6)
+        {
+            if (l_SubClass == 6)
+                l_ItemSpecStats.push_back(22);
+            else if (l_SubClass > 6 && l_SubClass <= 11)
+                l_ItemSpecStats.push_back(23);
+        }
 
         // Item stat
         for (uint32 l_Idx = 0; l_Idx < MAX_ITEM_PROTO_STATS; l_Idx++)
         {
-            if (p_ItemTemplate->ItemStat[l_Idx].ItemStatValue != 0)
+            if (p_ItemTemplate->ItemStat[l_Idx].ItemStatValue != -1)
             {
-                int32 l_ItemSpecStat = GetItemSpecStat(p_ItemTemplate->ItemStat[l_Idx].ItemStatType);
-                if (l_ItemSpecStat != -1)
+                std::vector<int32> l_SpecStats = GetItemSpecStat(p_ItemTemplate->ItemStat[l_Idx].ItemStatType);
+                for (auto& l_ItemSpecStat : l_SpecStats)
                     l_ItemSpecStats.push_back(l_ItemSpecStat);
-            }
-        }
-
-        // Scaling stat
-        //if (const ScalingStatDistributionEntry* l_ScalingStatDistribution = sScalingStatDistributionStore.LookupEntry(p_ItemTemplate->ScalingStatDistribution))
-        //{
-        //    for (uint32 l_Idx = 0; l_Idx < MAX_ITEM_PROTO_STATS; l_Idx++)
-        //    {
-        //        if (l_ScalingStatDistribution->StatMod[l_Idx] != -1)
-        //        {
-        //            int32 l_ItemSpecStat = GetItemSpecStat(l_ScalingStatDistribution->StatMod[l_Idx]);
-        //            if (l_ItemSpecStat != -1)
-        //                l_ItemSpecStats.push_back(l_ItemSpecStat);
-        //        }
-        //    }
-        //}
-
-        if (p_ItemTemplate->Class == ITEM_CLASS_WEAPON)
-        {
-            if (p_ItemTemplate->SubClass < ITEM_SUBCLASS_WEAPON_WAND)
-            {
-                l_ItemSpecStats.push_back(s_ItemSubClassSpec[p_ItemTemplate->SubClass]);
-                if (GetItemType(p_ItemTemplate) == 6)
-                {
-                    uint32 l_UnknowIndex = p_ItemTemplate->SubClass - 6;
-                    if (l_UnknowIndex <= 5)
-                        l_ItemSpecStats.push_back(s_ItemSubClassSpecEx[l_UnknowIndex]);
-                }
             }
         }
 
         return l_ItemSpecStats;
     }
 
-    static bool HasItemSpecStat(uint32 p_ItemSpecStat, std::list<uint32>& p_ItemStats)
+    static bool HasItemSpecStat(uint32 p_ItemSpecStat, std::vector<uint32>& p_ItemStats)
     {
-        for (uint32 l_ItemSpecStat : p_ItemStats)
+        for (uint32& l_ItemSpecStat : p_ItemStats)
         {
             if (l_ItemSpecStat == p_ItemSpecStat)
                 return true;

@@ -28,7 +28,7 @@ EndScriptData */
 #include "SpellMgr.h"
 #include "SpellInfo.h"
 
-class learn_commandscript : public CommandScript
+class learn_commandscript: public CommandScript
 {
 public:
     learn_commandscript() : CommandScript("learn_commandscript") { }

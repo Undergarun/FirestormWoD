@@ -79,6 +79,7 @@ bool InstanceScript::IsEncounterInProgress() const
 void InstanceScript::OnPlayerEnter(Player* p_Player)
 {
     SendScenarioState(ScenarioData(m_ScenarioID, m_ScenarioStep), p_Player);
+    UpdateCriteriasAfterLoading();
 }
 
 void InstanceScript::LoadMinionData(const MinionData* data)
@@ -226,6 +227,26 @@ void InstanceScript::AddDoor(GameObject* door, bool add)
         UpdateDoorState(door);
 }
 
+void InstanceScript::OnGameObjectRemove(GameObject* p_Go)
+{
+    /// - If gameobject is door, remove it from DoorInfoMap
+    {
+        DoorInfoMap::iterator l_Lower = doors.lower_bound(p_Go->GetEntry());
+        DoorInfoMap::iterator l_Upper = doors.upper_bound(p_Go->GetEntry());
+
+        if (l_Lower != l_Upper)
+        {
+            for (DoorInfoMap::iterator l_Iterator = l_Lower; l_Iterator != l_Upper; ++l_Iterator)
+            {
+                DoorInfo const& l_DoorInfo = l_Iterator->second;
+                l_DoorInfo.bossInfo->door[l_DoorInfo.type].erase(p_Go);
+            }
+        }
+    }
+
+    ZoneScript::OnGameObjectRemove(p_Go);
+}
+
 void InstanceScript::AddMinion(Creature* minion, bool add)
 {
     MinionInfoMap::iterator itr = minions.find(minion->GetEntry());
@@ -248,7 +269,10 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
         if (bossInfo->state == TO_BE_DECIDED) // loading
         {
             bossInfo->state = state;
-            //sLog->outError(LOG_FILTER_GENERAL, "Inialize boss %u state as %u.", id, (uint32)state);
+
+            if (state == DONE)
+                SendScenarioProgressUpdate(CriteriaProgressData(l_BossScenario->m_ScenarioID, 1, m_InstanceGuid, time(NULL), m_BeginningTime, 0));
+
             return false;
         }
         else
@@ -279,19 +303,22 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
             UpdateMinionState(*i, state);
 
         ///< End of challenge
-        if (id == (bosses.size() - 1) && instance->IsChallengeMode() && m_ChallengeStarted && m_ConditionCompleted)
+        if (id == (bosses.size() - 1) && state == DONE)
         {
-            m_ChallengeStarted = false;
+            if (instance->IsChallengeMode() && m_ChallengeStarted && m_ConditionCompleted)
+            {
+                m_ChallengeStarted = false;
 
-            SendChallengeNewPlayerRecord();
-            SendChallengeModeComplete(RewardChallengers());
-            SendChallengeStopElapsedTimer(1);
+                SendChallengeNewPlayerRecord();
+                SendChallengeModeComplete(RewardChallengers());
+                SendChallengeStopElapsedTimer(1);
+
+                SaveChallengeDatasIfNeeded();
+
+                DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_CHALLENGE_DUNGEON, instance->GetId(), m_MedalType);
+            }
 
             SendScenarioState(ScenarioData(m_ScenarioID, ++m_ScenarioStep));
-
-            SaveChallengeDatasIfNeeded();
-
-            DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_CHALLENGE_DUNGEON, instance->GetId(), m_MedalType);
         }
 
         return true;
@@ -674,6 +701,18 @@ void InstanceScript::BuildCriteriaProgressPacket(WorldPacket* p_Data, CriteriaPr
 
     p_Data->WriteBits(p_CriteriaProgress.m_Flags, 4);
     p_Data->FlushBits();
+}
+
+void InstanceScript::UpdateCriteriasAfterLoading()
+{
+    for (uint8 l_I = 0; l_I < bosses.size(); ++l_I)
+    {
+        BossInfo* bossInfo = &bosses[l_I];
+        BossScenarios* l_BossScenario = &m_BossesScenarios[l_I];
+
+        if (bossInfo->state == DONE)
+            SendScenarioProgressUpdate(CriteriaProgressData(l_BossScenario->m_ScenarioID, 1, m_InstanceGuid, time(NULL), m_BeginningTime, 0));
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -31,6 +31,7 @@
 #include "Timer.h"
 #include "WorldRunnable.h"
 #include "OutdoorPvPMgr.h"
+#include "MSSignalHandler.h"
 
 #define WORLD_SLEEP_CONST 25
 
@@ -42,6 +43,9 @@ extern int m_ServiceStatus;
 /// Heartbeat for the World
 void WorldRunnable::run()
 {
+    /// - Register signal handler for current thread
+    signal(SIGSEGV, &MS::SignalHandler::OnSignalReceive);
+
     uint32 realCurrTime = 0;
     uint32 realPrevTime = getMSTime();
 

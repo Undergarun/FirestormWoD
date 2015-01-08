@@ -153,7 +153,7 @@ class boss_nalak : public CreatureScript
 };
 
 // Lightning Tether (periodic triggered) - 136350
-class spell_lightning_tether : public SpellScriptLoader
+class spell_lightning_tether: public SpellScriptLoader
 {
     public:
         spell_lightning_tether() : SpellScriptLoader("spell_lightning_tether") { }

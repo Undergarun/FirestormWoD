@@ -112,7 +112,7 @@ struct ScriptedAI : public CreatureAI
     void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spell*/) {}
 
     //Called at waypoint reached or PointMovement end
-    void MovementInform(uint32 /*type*/, uint32 /*id*/) {}
+    void MovementInform(uint32 /*type*/, uint32 id) {}
 
     // Called when AI is temporarily replaced or put back when possess is applied or removed
     void OnPossess(bool /*apply*/) {}

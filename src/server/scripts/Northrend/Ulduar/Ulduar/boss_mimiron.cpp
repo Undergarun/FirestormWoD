@@ -1214,7 +1214,7 @@ class npc_proximity_mine : public CreatureScript
         }
 };
 
-class spell_proximity_mines : public SpellScriptLoader // Spell 63027
+class spell_proximity_mines: public SpellScriptLoader // Spell 63027
 {
     public:
         spell_proximity_mines() : SpellScriptLoader("spell_proximity_mines") {}
@@ -1624,7 +1624,7 @@ class npc_rocket_strike : public CreatureScript
         }
 };
 
-class spell_rapid_burst : public SpellScriptLoader
+class spell_rapid_burst: public SpellScriptLoader
 {
     public:
         spell_rapid_burst() : SpellScriptLoader("spell_rapid_burst") {}
@@ -2331,7 +2331,7 @@ class npc_frost_bomb : public CreatureScript
         }
 };
 
-class spell_frost_bomb : public SpellScriptLoader
+class spell_frost_bomb: public SpellScriptLoader
 {
     public:
         spell_frost_bomb() : SpellScriptLoader("spell_frost_bomb") {}

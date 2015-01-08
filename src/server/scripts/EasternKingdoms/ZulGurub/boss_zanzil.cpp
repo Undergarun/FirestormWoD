@@ -258,7 +258,7 @@ class npc_zanzil_berserker : public CreatureScript
         };
 };
 
-class spell_zanzil_pursuit : public SpellScriptLoader
+class spell_zanzil_pursuit: public SpellScriptLoader
 {
     public:
         spell_zanzil_pursuit() : SpellScriptLoader("spell_zanzil_pursuit") { }
@@ -293,7 +293,7 @@ class spell_zanzil_pursuit : public SpellScriptLoader
         }
 };
 
-class spell_zanzil_fire : public SpellScriptLoader
+class spell_zanzil_fire: public SpellScriptLoader
 {
     public:
         spell_zanzil_fire() : SpellScriptLoader("spell_zanzil_fire") { }
@@ -341,7 +341,7 @@ class spell_zanzil_fire : public SpellScriptLoader
         }
 };
 
-class spell_frostburn_formula : public SpellScriptLoader
+class spell_frostburn_formula: public SpellScriptLoader
 {
     public:
         spell_frostburn_formula() : SpellScriptLoader("spell_frostburn_formula") { }

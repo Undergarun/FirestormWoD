@@ -509,7 +509,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
 // helper for shortened code
 typedef boss_blood_queen_lana_thel::boss_blood_queen_lana_thelAI LanaThelAI;
 
-class spell_blood_queen_vampiric_bite : public SpellScriptLoader
+class spell_blood_queen_vampiric_bite: public SpellScriptLoader
 {
     public:
         spell_blood_queen_vampiric_bite() : SpellScriptLoader("spell_blood_queen_vampiric_bite") { }
@@ -593,7 +593,7 @@ class spell_blood_queen_vampiric_bite : public SpellScriptLoader
         }
 };
 
-class spell_blood_queen_frenzied_bloodthirst : public SpellScriptLoader
+class spell_blood_queen_frenzied_bloodthirst: public SpellScriptLoader
 {
     public:
         spell_blood_queen_frenzied_bloodthirst() : SpellScriptLoader("spell_blood_queen_frenzied_bloodthirst") { }
@@ -652,7 +652,7 @@ class BloodboltHitCheck
         LanaThelAI* _ai;
 };
 
-class spell_blood_queen_bloodbolt : public SpellScriptLoader
+class spell_blood_queen_bloodbolt: public SpellScriptLoader
 {
     public:
         spell_blood_queen_bloodbolt() : SpellScriptLoader("spell_blood_queen_bloodbolt") { }
@@ -702,7 +702,7 @@ class spell_blood_queen_bloodbolt : public SpellScriptLoader
         }
 };
 
-class spell_blood_queen_pact_of_the_darkfallen : public SpellScriptLoader
+class spell_blood_queen_pact_of_the_darkfallen: public SpellScriptLoader
 {
     public:
         spell_blood_queen_pact_of_the_darkfallen() : SpellScriptLoader("spell_blood_queen_pact_of_the_darkfallen") { }
@@ -750,7 +750,7 @@ class spell_blood_queen_pact_of_the_darkfallen : public SpellScriptLoader
         }
 };
 
-class spell_blood_queen_pact_of_the_darkfallen_dmg : public SpellScriptLoader
+class spell_blood_queen_pact_of_the_darkfallen_dmg: public SpellScriptLoader
 {
     public:
         spell_blood_queen_pact_of_the_darkfallen_dmg() : SpellScriptLoader("spell_blood_queen_pact_of_the_darkfallen_dmg") { }
@@ -788,7 +788,7 @@ class spell_blood_queen_pact_of_the_darkfallen_dmg : public SpellScriptLoader
         }
 };
 
-class spell_blood_queen_pact_of_the_darkfallen_dmg_target : public SpellScriptLoader
+class spell_blood_queen_pact_of_the_darkfallen_dmg_target: public SpellScriptLoader
 {
     public:
         spell_blood_queen_pact_of_the_darkfallen_dmg_target() : SpellScriptLoader("spell_blood_queen_pact_of_the_darkfallen_dmg_target") { }

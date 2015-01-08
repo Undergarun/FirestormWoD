@@ -18,7 +18,7 @@
 #include "Chat.h"
 #include "AnticheatMgr.h"
 
-class anticheat_commandscript : public CommandScript
+class anticheat_commandscript: public CommandScript
 {
 public:
     anticheat_commandscript() : CommandScript("anticheat_commandscript") { }

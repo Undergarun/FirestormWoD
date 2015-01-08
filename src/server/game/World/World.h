@@ -35,6 +35,7 @@
 #include <map>
 #include <set>
 #include <list>
+#include <atomic>
 
 class Object;
 class WorldPacket;
@@ -42,6 +43,8 @@ class WorldSession;
 class Player;
 class WorldSocket;
 class SystemMgr;
+
+extern uint32 gOnlineGameMaster;
 
 // ServerMessages.dbc
 enum ServerMessageType
@@ -91,6 +94,8 @@ enum WorldTimers
     WUPDATE_GUILDSAVE,
     WUPDATE_REALM_STATS,
     WUPDATE_TRANSFERT,
+    WUPDATE_MONITORING_STATS,
+    WUPDATE_MONITORING_HEARTBEAT,
     WUPDATE_COUNT
 };
 
@@ -388,6 +393,10 @@ enum WorldIntConfigs
     CONFIG_ANTISPAM_MAIL_TIMER,
     CONFIG_ANTISPAM_MAIL_COUNT,
     CONFIG_AUTO_SERVER_RESTART_HOUR,
+    CONFIG_PVP_ITEM_LEVEL_CUTOFF,
+    CONFIG_PVP_ITEM_LEVEL_MIN,
+    CONFIG_PVP_ITEM_LEVEL_MAX,
+    CONFIG_CHALLENGE_MODE_ITEM_LEVEL_MAX,
     INT_CONFIG_VALUE_COUNT
 };
 

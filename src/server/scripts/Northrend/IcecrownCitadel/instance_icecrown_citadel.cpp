@@ -165,7 +165,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 isPrepared = false;
             }
 
-            void FillInitialWorldStates(WorldPacket& data)
+            void FillInitialWorldStates(ByteBuffer& data)
             {
                 data << uint32(WORLDSTATE_SHOW_TIMER)         << uint32(BloodQuickeningState == IN_PROGRESS);
                 data << uint32(WORLDSTATE_EXECUTION_TIME)     << uint32(BloodQuickeningMinutes);
@@ -499,10 +499,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case GO_LADY_DEATHWHISPER_ELEVATOR:
                         LadyDeathwisperElevatorGUID = go->GetGUID();
                         if (GetBossState(DATA_LADY_DEATHWHISPER) == DONE)
-                        {
-                            go->SetUInt32Value(GAMEOBJECT_FIELD_LEVEL, 0);
-                            go->SetGoState(GO_STATE_READY);
-                        }
+                            go->SetTransportState(GO_STATE_TRANSPORT_ACTIVE);
                         break;
                     case GO_SAURFANG_S_DOOR:
                         DeathbringerSaurfangDoorGUID = go->GetGUID();
@@ -610,40 +607,6 @@ class instance_icecrown_citadel : public InstanceMapScript
                         PillarsUnchainedGUID = go->GetGUID();
                         if (GetBossState(DATA_THE_LICH_KING) == DONE)
                             go->SetRespawnTime(7 * DAY);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void OnGameObjectRemove(GameObject* go)
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_DOODAD_ICECROWN_ICEWALL02:
-                    case GO_ICEWALL:
-                    case GO_LORD_MARROWGAR_S_ENTRANCE:
-                    case GO_ORATORY_OF_THE_DAMNED_ENTRANCE:
-                    case GO_SAURFANG_S_DOOR:
-                    case GO_ORANGE_PLAGUE_MONSTER_ENTRANCE:
-                    case GO_GREEN_PLAGUE_MONSTER_ENTRANCE:
-                    case GO_SCIENTIST_ENTRANCE:
-                    case GO_CRIMSON_HALL_DOOR:
-                    case GO_BLOOD_ELF_COUNCIL_DOOR:
-                    case GO_BLOOD_ELF_COUNCIL_DOOR_RIGHT:
-                    case GO_DOODAD_ICECROWN_BLOODPRINCE_DOOR_01:
-                    case GO_DOODAD_ICECROWN_GRATE_01:
-                    case GO_GREEN_DRAGON_BOSS_ENTRANCE:
-                    case GO_GREEN_DRAGON_BOSS_EXIT:
-                    case GO_DOODAD_ICECROWN_ROOSTPORTCULLIS_01:
-                    case GO_DOODAD_ICECROWN_ROOSTPORTCULLIS_02:
-                    case GO_DOODAD_ICECROWN_ROOSTPORTCULLIS_03:
-                    case GO_DOODAD_ICECROWN_ROOSTPORTCULLIS_04:
-                    case GO_SINDRAGOSA_ENTRANCE_DOOR:
-                    case GO_SINDRAGOSA_SHORTCUT_ENTRANCE_DOOR:
-                    case GO_SINDRAGOSA_SHORTCUT_EXIT_DOOR:
-                    case GO_ICE_WALL:
-                        AddDoor(go, false);
                         break;
                     default:
                         break;
@@ -772,10 +735,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         if (state == DONE)
                         {
                             if (GameObject* elevator = instance->GetGameObject(LadyDeathwisperElevatorGUID))
-                            {
-                                elevator->SetUInt32Value(GAMEOBJECT_FIELD_LEVEL, 0);
-                                elevator->SetGoState(GO_STATE_READY);
-                            }
+                                elevator->SetTransportState(GO_STATE_TRANSPORT_ACTIVE);
                         }
                         break;
                     case DATA_DEATHBRINGER_SAURFANG:

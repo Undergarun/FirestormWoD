@@ -21,6 +21,17 @@ set(scripts_STAT_SRCS
   Draenor/Skyreach/boss_rukhran.cpp
   Draenor/Skyreach/boss_high_sage_viryx.cpp
   Draenor/Garrison/GarrisonGO.cpp
+  Draenor/BloodmaulSlagMines/instance_bloodmaul.h
+  Draenor/BloodmaulSlagMines/instance_bloodmaul.cpp
+  Draenor/BloodmaulSlagMines/mob_bloodmaul.cpp
+  Draenor/BloodmaulSlagMines/spell_bloodmaul.cpp
+  Draenor/BloodmaulSlagMines/areatrigger_bloodmaul.cpp
+  Draenor/BloodmaulSlagMines/boss_slave_watcher_crushto.cpp
+  Draenor/Garrison/GarrisonNPC.cpp
+  Draenor/Garrison/GarrisonQuest.cpp
+  Draenor/Garrison/Garrison_A_1.cpp
+  Draenor/Garrison/Garrison_H_1.cpp
+  Draenor/Garrison/Garrison.cpp
 )
 
 message("  -> Prepared: Draenor")

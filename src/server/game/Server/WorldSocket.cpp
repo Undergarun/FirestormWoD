@@ -47,6 +47,9 @@
 #include "AccountMgr.h"
 #include "ObjectMgr.h"
 
+uint32_t gReceivedBytes = 0;
+uint32_t gSentBytes = 0;
+
 #if defined(__GNUC__)
 #pragma pack(1)
 #else
@@ -170,31 +173,35 @@ int WorldSocket::SendPacket(WorldPacket const& pct)
     WorldPacket const* pkt = &pct;
     const_cast<WorldPacket*>(pkt)->FlushBits();
 
-    // TODO : Find the compress flag
-    // Empty buffer used in case packet should be compressed
-    /*WorldPacket buff;
-    if (m_Session && pkt->size() > 0x400)
-    {
-    buff.Compress(m_Session->GetCompressionStream(), pkt);
-    pkt = &buff;
-    }*/
+    gSentBytes += pkt->size() + 3;
+
+   // TODO : Find the compress flag
+   // Empty buffer used in case packet should be compressed
+   /*WorldPacket buff;
+   if (m_Session && pkt->size() > 0x400)
+   {
+   buff.Compress(m_Session->GetCompressionStream(), pkt);
+   pkt = &buff;
+   }*/
 
     if (pkt->GetOpcode() != SMSG_MONSTER_MOVE)
         sLog->outInfo(LOG_FILTER_OPCODES, "S->C: %s", GetOpcodeNameForLogging(pkt->GetOpcode(), WOW_SERVER_TO_CLIENT).c_str());
 
-    switch (pct.GetOpcode())
-    {
-        case SMSG_MONSTER_MOVE:
-        case SMSG_THREAT_CLEAR:
-        case SMSG_THREAT_REMOVE:
-        case SMSG_THREAT_UPDATE:
-        case SMSG_HIGHEST_THREAT_UPDATE:
-        case SMSG_ATTACKER_STATE_UPDATE:
-            break;
+#   ifdef WIN32
+        switch (pct.GetOpcode())
+        {
+            case SMSG_MONSTER_MOVE:
+            case SMSG_THREAT_CLEAR:
+            case SMSG_THREAT_REMOVE:
+            case SMSG_THREAT_UPDATE:
+            case SMSG_HIGHEST_THREAT_UPDATE:
+            case SMSG_ATTACKER_STATE_UPDATE:
+                break;
 
-        default:
-            printf("Send packet %s\n", GetOpcodeNameForLogging(pkt->GetOpcode(), WOW_SERVER_TO_CLIENT).c_str());
-    }
+            default:
+                printf("Send packet %s\n", GetOpcodeNameForLogging(pkt->GetOpcode(), WOW_SERVER_TO_CLIENT).c_str());
+        }
+#   endif
 
     sScriptMgr->OnPacketSend(this, *pkt);
 
@@ -508,9 +515,10 @@ int WorldSocket::handle_input_header (void)
         header.cmd = value & 0x1FFF;
         header.size = ((value & ~(uint32)0x1FFF) >> 13);
 
-        std::string opcodeName = GetOpcodeNameForLogging((Opcodes)header.cmd, WOW_CLIENT_TO_SERVER);
-
-        printf("Receive opcode %s 0x%08.8X size : %u \n", opcodeName.c_str(), header.cmd, header.size);
+#       ifdef WIN32
+            std::string opcodeName = GetOpcodeNameForLogging((Opcodes)header.cmd, WOW_CLIENT_TO_SERVER);
+            printf("Receive opcode %s 0x%08.8X size : %u \n", opcodeName.c_str(), header.cmd, header.size);
+#       endif
 
         if (header.size > 10236)
         {
@@ -774,6 +782,8 @@ int WorldSocket::schedule_wakeup_output (GuardType& g)
 int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
 {
     ACE_ASSERT (new_pct);
+
+    gReceivedBytes += new_pct->size() + 2;
 
     // manage memory ;)
     ACE_Auto_Ptr<WorldPacket> aptr(new_pct);

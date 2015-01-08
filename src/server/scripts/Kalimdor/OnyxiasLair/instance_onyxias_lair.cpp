@@ -104,13 +104,15 @@ public:
             }
         }
 
-        void OnGameObjectRemove(GameObject* go)
+        void OnGameObjectRemove(GameObject* p_Go)
         {
-            if ((go->GetGOInfo()->displayId == 4392 || go->GetGOInfo()->displayId == 4472) && go->GetGOInfo()->trap.spellId == 17731)
+            if ((p_Go->GetGOInfo()->displayId == 4392 || p_Go->GetGOInfo()->displayId == 4472) && p_Go->GetGOInfo()->trap.spellId == 17731)
             {
-                FloorEruptionGUID[0].erase(go->GetGUID());
+                FloorEruptionGUID[0].erase(p_Go->GetGUID());
                 return;
             }
+
+            InstanceScript::OnGameObjectRemove(p_Go);
         }
 
         void FloorEruption(uint64 floorEruptedGUID)

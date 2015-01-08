@@ -28,7 +28,7 @@ EndScriptData */
 #include "DisableMgr.h"
 #include "OutdoorPvP.h"
 
-class disable_commandscript : public CommandScript
+class disable_commandscript: public CommandScript
 {
 public:
     disable_commandscript() : CommandScript("disable_commandscript") { }

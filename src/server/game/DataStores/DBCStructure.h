@@ -1642,8 +1642,8 @@ struct SpellScalingEntry
     int32   CastTimeMax;                                    // 2        m_CastTimeMax
     int32   CastTimeMaxLevel;                               // 3        m_CastTimeMaxLevel
     int32   ScalingClass;                                   // 4        m_Class                 index * 100 + charLevel - 1 => gtSpellScaling.dbc
-    float   CoefBase;                                       // 5        m_NerfFactor
-    uint32  CoefLevelBase;                                  // 6        m_NerfMaxLevel
+    float   NerfFactor;                                       // 5        m_NerfFactor
+    uint32  NerfMaxLevel;                                  // 6        m_NerfMaxLevel
     uint32  MaxScalingLevel;                                // 7        m_MaxScalingLevel
     uint32  ScalesFromItemLevel;                            // 8        m_ScalesFromItemLevel
 };

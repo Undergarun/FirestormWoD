@@ -1025,6 +1025,22 @@ namespace JadeCore
             float i_range;
     };
 
+    class AnyAreatriggerInObjectRangeCheck
+    {
+        public:
+            AnyAreatriggerInObjectRangeCheck(WorldObject const* p_Object, float p_Range) : m_Object(p_Object), m_Range(p_Range) {}
+            bool operator()(AreaTrigger* p_AreaTrigger)
+            {
+                if (m_Object->IsWithinDistInMap(p_AreaTrigger, m_Range))
+                    return true;
+
+                return false;
+            }
+        private:
+            WorldObject const* m_Object;
+            float m_Range;
+    };
+
     // Success at unit in range, range update for next check (this can be use with UnitLastSearcher to find nearest unit)
     class NearestAttackableUnitInObjectRangeCheck
     {

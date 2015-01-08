@@ -826,7 +826,7 @@ class mob_slime_pool : public CreatureScript
         }
 };
 
-class spell_gormok_fire_bomb : public SpellScriptLoader
+class spell_gormok_fire_bomb: public SpellScriptLoader
 {
     public:
         spell_gormok_fire_bomb() : SpellScriptLoader("spell_gormok_fire_bomb") {}

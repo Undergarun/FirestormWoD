@@ -168,7 +168,7 @@ public:
     }
 };
 
-class spell_taran_zhu_hate : public SpellScriptLoader
+class spell_taran_zhu_hate: public SpellScriptLoader
 {
     public:
         spell_taran_zhu_hate() : SpellScriptLoader("spell_taran_zhu_hate") { }
@@ -200,7 +200,7 @@ class spell_taran_zhu_hate : public SpellScriptLoader
         }
 };
 
-class spell_taran_zhu_meditation : public SpellScriptLoader
+class spell_taran_zhu_meditation: public SpellScriptLoader
 {
     public:
         spell_taran_zhu_meditation() : SpellScriptLoader("spell_taran_zhu_meditation") { }
@@ -232,7 +232,7 @@ class spell_taran_zhu_meditation : public SpellScriptLoader
         }
 };
 
-class spell_taran_zhu_grip_of_hate : public SpellScriptLoader
+class spell_taran_zhu_grip_of_hate: public SpellScriptLoader
 {
     public:
         spell_taran_zhu_grip_of_hate() : SpellScriptLoader("spell_taran_zhu_grip_of_hate") { }

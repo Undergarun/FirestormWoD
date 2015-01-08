@@ -418,7 +418,7 @@ public:
 
 };
 
-class spell_four_horsemen_mark : public SpellScriptLoader
+class spell_four_horsemen_mark: public SpellScriptLoader
 {
     public:
         spell_four_horsemen_mark() : SpellScriptLoader("spell_four_horsemen_mark") { }

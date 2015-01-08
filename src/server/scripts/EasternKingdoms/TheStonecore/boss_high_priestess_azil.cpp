@@ -247,7 +247,7 @@ class npc_gravity_well : public CreatureScript
         };
 };
 
-class spell_high_priestess_azil_gravity_well_script : public SpellScriptLoader
+class spell_high_priestess_azil_gravity_well_script: public SpellScriptLoader
 {
     public:
         spell_high_priestess_azil_gravity_well_script() : SpellScriptLoader("spell_high_priestess_azil_gravity_well_script") { }

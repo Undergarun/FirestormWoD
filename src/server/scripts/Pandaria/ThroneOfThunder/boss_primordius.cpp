@@ -700,7 +700,7 @@ class mob_viscous_horror : public CreatureScript
 };
 
 /// Congeal Blood - 136051
-class spell_congeal_blood : public SpellScriptLoader
+class spell_congeal_blood: public SpellScriptLoader
 {
     public:
         spell_congeal_blood() : SpellScriptLoader("spell_congeal_blood") { }
@@ -733,7 +733,7 @@ class spell_congeal_blood : public SpellScriptLoader
 };
 
 /// Evolution - 139144
-class spell_primordius_evolution : public SpellScriptLoader
+class spell_primordius_evolution: public SpellScriptLoader
 {
     public:
         spell_primordius_evolution() : SpellScriptLoader("spell_primordius_evolution") { }

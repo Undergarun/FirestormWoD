@@ -250,7 +250,7 @@ class boss_eregos : public CreatureScript
         }
 };
 
-class spell_eregos_planar_shift : public SpellScriptLoader
+class spell_eregos_planar_shift: public SpellScriptLoader
 {
     public:
         spell_eregos_planar_shift() : SpellScriptLoader("spell_eregos_planar_shift") { }

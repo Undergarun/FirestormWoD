@@ -552,7 +552,7 @@ class npc_focused_eyebeam : public CreatureScript
         }
 };
 
-class spell_ulduar_rubble_summon : public SpellScriptLoader
+class spell_ulduar_rubble_summon: public SpellScriptLoader
 {
     public:
         spell_ulduar_rubble_summon() : SpellScriptLoader("spell_ulduar_rubble_summon") { }
@@ -606,7 +606,7 @@ class StoneGripTargetSelector : public std::unary_function<Unit*, bool>
         Unit const* _victim;
 };
 
-class spell_ulduar_stone_grip_cast_target : public SpellScriptLoader
+class spell_ulduar_stone_grip_cast_target: public SpellScriptLoader
 {
     public:
         spell_ulduar_stone_grip_cast_target() : SpellScriptLoader("spell_ulduar_stone_grip_cast_target") { }
@@ -663,7 +663,7 @@ class spell_ulduar_stone_grip_cast_target : public SpellScriptLoader
         }
 };
 
-class spell_ulduar_cancel_stone_grip : public SpellScriptLoader
+class spell_ulduar_cancel_stone_grip: public SpellScriptLoader
 {
     public:
         spell_ulduar_cancel_stone_grip() : SpellScriptLoader("spell_ulduar_cancel_stone_grip") { }
@@ -703,7 +703,7 @@ class spell_ulduar_cancel_stone_grip : public SpellScriptLoader
         }
 };
 
-class spell_ulduar_squeezed_lifeless : public SpellScriptLoader
+class spell_ulduar_squeezed_lifeless: public SpellScriptLoader
 {
     public:
         spell_ulduar_squeezed_lifeless() : SpellScriptLoader("spell_ulduar_squeezed_lifeless") { }
@@ -741,7 +741,7 @@ class spell_ulduar_squeezed_lifeless : public SpellScriptLoader
         }
 };
 
-class spell_ulduar_stone_grip_absorb : public SpellScriptLoader
+class spell_ulduar_stone_grip_absorb: public SpellScriptLoader
 {
     public:
         spell_ulduar_stone_grip_absorb() : SpellScriptLoader("spell_ulduar_stone_grip_absorb") { }
@@ -797,7 +797,7 @@ class spell_ulduar_stone_grip_absorb : public SpellScriptLoader
         }
 };
 
-class spell_ulduar_stone_grip : public SpellScriptLoader
+class spell_ulduar_stone_grip: public SpellScriptLoader
 {
     public:
         spell_ulduar_stone_grip() : SpellScriptLoader("spell_ulduar_stone_grip") { }
@@ -855,7 +855,7 @@ class spell_ulduar_stone_grip : public SpellScriptLoader
         }
 };
 
-class spell_kologarn_stone_shout : public SpellScriptLoader
+class spell_kologarn_stone_shout: public SpellScriptLoader
 {
     public:
         spell_kologarn_stone_shout() : SpellScriptLoader("spell_kologarn_stone_shout") { }
@@ -881,7 +881,7 @@ class spell_kologarn_stone_shout : public SpellScriptLoader
         }
 };
 
-class spell_kologarn_summon_focused_eyebeam : public SpellScriptLoader
+class spell_kologarn_summon_focused_eyebeam: public SpellScriptLoader
 {
     public:
         spell_kologarn_summon_focused_eyebeam() : SpellScriptLoader("spell_kologarn_summon_focused_eyebeam") { }

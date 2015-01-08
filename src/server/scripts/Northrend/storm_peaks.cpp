@@ -763,7 +763,7 @@ enum CloseRift
     SPELL_DESPAWN_RIFT          = 61665
 };
 
-class spell_close_rift : public SpellScriptLoader
+class spell_close_rift: public SpellScriptLoader
 {
     public:
         spell_close_rift() : SpellScriptLoader("spell_close_rift") { }

@@ -270,7 +270,7 @@ class npc_akilzon_amani_kidnapper : public CreatureScript
         };
 };
 
-class spell_akilzon_electrical_storm : public SpellScriptLoader
+class spell_akilzon_electrical_storm: public SpellScriptLoader
 {
     public:
         spell_akilzon_electrical_storm() :  SpellScriptLoader("spell_akilzon_electrical_storm") { }
@@ -331,7 +331,7 @@ class ElectricalSafeCheck
         }
 };
 
-class spell_akilzon_electrical_storm_dmg : public SpellScriptLoader
+class spell_akilzon_electrical_storm_dmg: public SpellScriptLoader
 {
     public:
         spell_akilzon_electrical_storm_dmg() : SpellScriptLoader("spell_akilzon_electrical_storm_dmg") { }

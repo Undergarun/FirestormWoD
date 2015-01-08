@@ -626,22 +626,22 @@ public:
         {
             switch (waypointId)
             {
-            case 11:
-                me->SummonCreature(56274, 845.89f, 4372.62f, 223.98f, 4.78f, TEMPSUMMON_CORPSE_DESPAWN, 0, playerGuid); // TODO : set template
-                break;
-            case 12:
-                me->SetFacingTo(0.0f);
-                SetEscortPaused(true);
-                break;
-            case 17:
-                me->SetFacingTo(4.537860f);
-                me->DespawnOrUnsummon(1000);
+//             case 11:
+//                 me->SummonCreature(56274, 845.89f, 4372.62f, 223.98f, 4.78f, TEMPSUMMON_CORPSE_DESPAWN, 0, playerGuid); // TODO : set template
+//                 break;
+                case 12:
+                    me->SetFacingTo(0.0f);
+                    SetEscortPaused(true);
+                    break;
+                case 17:
+                    me->SetFacingTo(4.537860f);
+                    me->DespawnOrUnsummon(1000);
 
-                if (Player* owner = ObjectAccessor::GetPlayer(*me, playerGuid))
-                    owner->AddAura(59074, owner);
-                break;
-            default:
-                break;
+                    if (Player* owner = ObjectAccessor::GetPlayer(*me, playerGuid))
+                        owner->AddAura(59074, owner);
+                    break;
+                default:
+                    break;
             }
         }
 

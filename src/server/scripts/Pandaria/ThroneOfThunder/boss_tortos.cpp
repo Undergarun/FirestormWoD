@@ -562,7 +562,7 @@ class mob_humming_crystal : public CreatureScript
 };
 
 // Quake Stomp - 134920
-class spell_quake_stomp : public SpellScriptLoader
+class spell_quake_stomp: public SpellScriptLoader
 {
     public:
         spell_quake_stomp() : SpellScriptLoader("spell_quake_stomp") { }
@@ -593,7 +593,7 @@ class spell_quake_stomp : public SpellScriptLoader
 };
 
 // Rockfall - 134364 / 140431
-class spell_rockfall : public SpellScriptLoader
+class spell_rockfall: public SpellScriptLoader
 {
     public:
         spell_rockfall() : SpellScriptLoader("spell_rockfall") { }
@@ -633,7 +633,7 @@ class spell_rockfall : public SpellScriptLoader
 };
 
 // Rockfall (damage) - 134539
-class spell_rockfall_damage : public SpellScriptLoader
+class spell_rockfall_damage: public SpellScriptLoader
 {
     public:
         spell_rockfall_damage() : SpellScriptLoader("spell_rockfall_damage") { }
@@ -661,7 +661,7 @@ class spell_rockfall_damage : public SpellScriptLoader
 };
 
 // Rockfall (large damage) - 134476
-class spell_rockfall_large_damage : public SpellScriptLoader
+class spell_rockfall_large_damage: public SpellScriptLoader
 {
     public:
         spell_rockfall_large_damage() : SpellScriptLoader("spell_rockfall_large_damage") { }
@@ -691,7 +691,7 @@ class spell_rockfall_large_damage : public SpellScriptLoader
 };
 
 // Call of Tortos - 136294
-class spell_call_of_tortos : public SpellScriptLoader
+class spell_call_of_tortos: public SpellScriptLoader
 {
     public:
         spell_call_of_tortos() : SpellScriptLoader("spell_call_of_tortos") { }
@@ -719,7 +719,7 @@ class spell_call_of_tortos : public SpellScriptLoader
 };
 
 // Shell Block (triggered) - 140054
-class spell_shell_block : public SpellScriptLoader
+class spell_shell_block: public SpellScriptLoader
 {
     public:
         spell_shell_block() : SpellScriptLoader("spell_shell_block") { }
@@ -754,7 +754,7 @@ class spell_shell_block : public SpellScriptLoader
 };
 
 // Kick Shell - 134031
-class spell_kick_shell : public SpellScriptLoader
+class spell_kick_shell: public SpellScriptLoader
 {
     public:
         spell_kick_shell() : SpellScriptLoader("spell_kick_shell") { }
@@ -803,7 +803,7 @@ class spell_kick_shell : public SpellScriptLoader
 };
 
 // Shell Concussion - 134091 / 136431
-class spell_shell_concussion : public SpellScriptLoader
+class spell_shell_concussion: public SpellScriptLoader
 {
     public:
         spell_shell_concussion() : SpellScriptLoader("spell_shell_concussion") { }
@@ -833,7 +833,7 @@ class spell_shell_concussion : public SpellScriptLoader
 };
 
 // Crystal Shell (damage absorb) - 137633
-class spell_crystal_shell_damage_absorption : public SpellScriptLoader
+class spell_crystal_shell_damage_absorption: public SpellScriptLoader
 {
     public:
         spell_crystal_shell_damage_absorption() : SpellScriptLoader("spell_crystal_shell_damage_absorption") { }
@@ -868,7 +868,7 @@ class spell_crystal_shell_damage_absorption : public SpellScriptLoader
 };
 
 // Crystal Shell (heal absorb) - 137648 
-class spell_crystal_shell_heal_absorption : public SpellScriptLoader
+class spell_crystal_shell_heal_absorption: public SpellScriptLoader
 {
     public:
         spell_crystal_shell_heal_absorption() : SpellScriptLoader("spell_crystal_shell_heal_absorption") { }

@@ -365,9 +365,9 @@ bool Guild::BankTab::LoadFromDB(Field* fields)
 
 bool Guild::BankTab::LoadItemFromDB(Field* fields)
 {
-    uint8 slotId = fields[15].GetUInt8();
-    uint32 itemGuid = fields[16].GetUInt32();
-    uint32 itemEntry = fields[17].GetUInt32();
+    uint8 slotId = fields[16].GetUInt8();
+    uint32 itemGuid = fields[17].GetUInt32();
+    uint32 itemEntry = fields[18].GetUInt32();
     if (slotId >= GUILD_BANK_MAX_SLOTS)
     {
         sLog->outError(LOG_FILTER_GUILD, "Invalid slot for item (GUID: %u, id: %u) in guild bank, skipped.", itemGuid, itemEntry);
@@ -1761,12 +1761,14 @@ void Guild::HandleLeaveMember(WorldSession* session)
         SendCommandResult(session, GUILD_QUIT_S, ERR_PLAYER_NO_MORE_IN_GUILD, m_name);
     }
 
+    uint32 l_GuildID = GetId();
+
     if (disband)
         delete this;
     else
         HandleRoster(session);
 
-    sCalendarMgr->RemovePlayerGuildEventsAndSignups(player->GetGUID(), GetId());
+    sCalendarMgr->RemovePlayerGuildEventsAndSignups(player->GetGUID(), l_GuildID);
 }
 
 void Guild::HandleRemoveMember(WorldSession* session, uint64 guid)
@@ -2454,11 +2456,11 @@ bool Guild::LoadBankTabFromDB(Field* fields)
 
 bool Guild::LoadBankItemFromDB(Field* fields)
 {
-    uint8 tabId = fields[14].GetUInt8();
+    uint8 tabId = fields[15].GetUInt8();
     if (tabId >= GetPurchasedTabsSize())
     {
         sLog->outError(LOG_FILTER_GUILD, "Invalid tab for item (GUID: %u, id: #%u) in guild bank, skipped.",
-            fields[16].GetUInt32(), fields[17].GetUInt32());
+            fields[17].GetUInt32(), fields[18].GetUInt32());
         return false;
     }
     return m_bankTabs[tabId]->LoadItemFromDB(fields);
@@ -2577,6 +2579,7 @@ void Guild::BroadcastPacket(WorldPacket* packet) const
 
 void Guild::MassInviteToEvent(WorldSession* p_Session, uint32 p_MinLevel, uint32 p_MaxLevel, uint32 p_MinRank)
 {
+    // Finish me.
     /*uint32 count = 0;
 
     WorldPacket data(SMSG_CALENDAR_FILTER_GUILD);

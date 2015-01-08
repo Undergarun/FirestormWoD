@@ -185,7 +185,7 @@ class npc_valden_mystery_toxin : public CreatureScript
      };
 };
 
-class spell_valden_toxic_coagulant : public SpellScriptLoader
+class spell_valden_toxic_coagulant: public SpellScriptLoader
 {
     public:
         spell_valden_toxic_coagulant() : SpellScriptLoader("spell_valden_toxic_coagulant") { }

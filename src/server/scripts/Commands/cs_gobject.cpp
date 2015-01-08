@@ -22,7 +22,7 @@
 #include "MapManager.h"
 #include "Chat.h"
 
-class gobject_commandscript : public CommandScript
+class gobject_commandscript: public CommandScript
 {
     public:
         gobject_commandscript() : CommandScript("gobject_commandscript") { }

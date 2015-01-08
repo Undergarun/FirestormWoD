@@ -29,7 +29,7 @@ EndScriptData */
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 
-class lookup_commandscript : public CommandScript
+class lookup_commandscript: public CommandScript
 {
 public:
     lookup_commandscript() : CommandScript("lookup_commandscript") { }

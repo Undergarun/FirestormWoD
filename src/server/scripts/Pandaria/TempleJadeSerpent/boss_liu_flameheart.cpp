@@ -401,7 +401,7 @@ class boss_yu_lon : public CreatureScript
         };
 };
 
-class mob_trigger_liu_flameheart: public CreatureScript
+class mob_trigger_liu_flameheart : public CreatureScript
 {
     public:
         mob_trigger_liu_flameheart() : CreatureScript("mob_trigger_liu_flameheart") { }
@@ -438,7 +438,7 @@ class mob_trigger_liu_flameheart: public CreatureScript
         };
 };
 
-class mob_minion_of_doubt: public CreatureScript
+class mob_minion_of_doubt : public CreatureScript
 {
     public:
         mob_minion_of_doubt() : CreatureScript("mob_minion_of_doubt") { }
@@ -490,7 +490,7 @@ class mob_minion_of_doubt: public CreatureScript
         };
 };
 
-class mob_lesser_sha: public CreatureScript
+class mob_lesser_sha : public CreatureScript
 {
     public:
         mob_lesser_sha() : CreatureScript("mob_lesser_sha") { }

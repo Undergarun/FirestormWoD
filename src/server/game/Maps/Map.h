@@ -260,10 +260,16 @@ class Map : public GridRefManager<NGridType>
 
         float GetVisibilityRange() const
         {
-            // HackFix : Terrasse of endless spring
-            if (GetId() == 996)
-                return 300.0f;
-            return m_VisibleDistance;
+            ///< Hack fixes...
+            switch (GetId())
+            {
+                case 996:   ///< Terrace of Endless springs
+                    return 300.0f;
+                case 1358:  ///< Upper Blackrock Spire
+                    return 400.0f;
+                default:
+                    return m_VisibleDistance;
+            }
         }
 
         //function for setting up visibility distance for maps on per-type/per-Id basis
@@ -484,6 +490,9 @@ class Map : public GridRefManager<NGridType>
         void DeleteRespawnTimes();
 
         static void DeleteRespawnTimesInDB(uint16 mapId, uint32 instanceId);
+
+        void AddGameObjectTransport(GameObject* p_Transport) { _transportsGameObject.insert(p_Transport); }
+        void DeleteGameObjectTransport(GameObject* p_Transport) { _transportsGameObject.erase(p_Transport); }
 
         void SendInitTransports(Player* player);
         void SendRemoveTransports(Player* player);

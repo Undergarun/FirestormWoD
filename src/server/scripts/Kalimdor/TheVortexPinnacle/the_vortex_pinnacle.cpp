@@ -1128,7 +1128,7 @@ class npc_wild_vortex : public CreatureScript
      };
 };
 
-class spell_minister_of_air_lightning_lash : public SpellScriptLoader
+class spell_minister_of_air_lightning_lash: public SpellScriptLoader
 {
     public:
         spell_minister_of_air_lightning_lash() : SpellScriptLoader("spell_minister_of_air_lightning_lash") { }
@@ -1159,7 +1159,7 @@ class spell_minister_of_air_lightning_lash : public SpellScriptLoader
         }
 };
 
-class spell_howling_gale_howling_gale : public SpellScriptLoader
+class spell_howling_gale_howling_gale: public SpellScriptLoader
 {
     public:
         spell_howling_gale_howling_gale() : SpellScriptLoader("spell_howling_gale_howling_gale") { }

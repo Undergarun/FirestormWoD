@@ -152,6 +152,12 @@ void GameObject::AddToWorld()
         if (m_model)
             GetMap()->InsertGameObjectModel(*m_model);
 
+        if (GetGoType() == GAMEOBJECT_TYPE_TRANSPORT)
+        {
+            GetMap()->AddGameObjectTransport(this);
+            SendTransportToOutOfRangePlayers();
+        }
+
         EnableCollision(toggledState);
         WorldObject::AddToWorld();
     }
@@ -169,6 +175,9 @@ void GameObject::RemoveFromWorld()
         if (m_model)
             if (GetMap()->ContainsGameObjectModel(*m_model))
                 GetMap()->RemoveGameObjectModel(*m_model);
+
+        GetMap()->DeleteGameObjectTransport(this);
+
         WorldObject::RemoveFromWorld();
         sObjectAccessor->RemoveObject(this);
     }
@@ -244,6 +253,9 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
     SetGoArtKit(artKit);
     SetGoHealth(p_GoHealth);
 
+    LastUsedScriptID = GetGOInfo()->ScriptId;
+    AIM_Initialize();
+
     switch (goinfo->type)
     {
             // @todo On port intactNumHits is removed
@@ -283,11 +295,10 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
             if (goinfo->transport.Timeto10thfloor > 0)
                 m_goValue->Transport.StopFrames->push_back(goinfo->transport.Timeto10thfloor);
 
-            if (!goinfo->transport.startOpen)
-                SetGoState(GO_STATE_TRANSPORT_ACTIVE);
-            /// When startOpen is egal to one, the transport muse be activate with a script, state stopped at spawn.
+            if (goinfo->transport.startOpen && sScriptMgr->OnGameObjectElevatorCheck(this))
+                SetTransportState(GO_STATE_TRANSPORT_STOPPED, goinfo->transport.startOpen - 1);
             else
-                SetGoState(GO_STATE_TRANSPORT_STOPPED);     ///< Do not use SetTransportState here, we need clean PathProgress
+                SetGoState(GO_STATE_TRANSPORT_ACTIVE);
 
             SetGoAnimProgress(0xFF);
             break;
@@ -311,8 +322,6 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
             SetGoAnimProgress(animprogress);
             break;
     }
-    LastUsedScriptID = GetGOInfo()->ScriptId;
-    AIM_Initialize();
 
     return true;
 }
@@ -395,7 +404,7 @@ void GameObject::Update(uint32 diff)
                     }
                 }*/
 
-                if (!m_goValue->Transport.StopFrames->empty())
+                if (!m_goValue->Transport.StopFrames->empty() && sScriptMgr->OnGameObjectElevatorCheck(this))
                 {
                     uint32 visualStateBefore = (m_goValue->Transport.StateUpdateTimer / 20000) & 1;
                     m_goValue->Transport.StateUpdateTimer += diff;
@@ -2125,7 +2134,10 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
 void GameObject::SetLootState(LootState state, Unit* unit)
 {
     m_lootState = state;
-    AI()->OnStateChanged(state, unit);
+
+    if (AI() != nullptr)
+        AI()->OnLootStateChanged(state, unit);
+
     sScriptMgr->OnGameObjectLootStateChanged(this, state, unit);
     if (m_model)
     {
@@ -2142,6 +2154,10 @@ void GameObject::SetLootState(LootState state, Unit* unit)
 void GameObject::SetGoState(GOState state)
 {
     SetByteValue(GAMEOBJECT_BYTES_1, 0, state);
+
+    if (AI() != nullptr)
+        AI()->OnStateChanged(state);
+
     sScriptMgr->OnGameObjectStateChanged(this, state);
     if (m_model)
     {
@@ -2307,7 +2323,7 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
                 }
 
                 fieldBuffer << uint16(dynFlags);
-                fieldBuffer << uint16(pathProgress);
+                fieldBuffer << int16(pathProgress);
             }
             else if (index == GAMEOBJECT_FIELD_FLAGS)
             {
@@ -2324,6 +2340,21 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
                     fieldBuffer << uint32(m_goValue->Transport.PathProgress);
                 else
                     fieldBuffer << m_uint32Values[index];
+            }
+            else if (index == GAMEOBJECT_BYTES_1)
+            {
+                uint32 bytes1 = m_uint32Values[index];
+                if (isStoppableTransport
+                    && GetGoState() == GO_STATE_TRANSPORT_ACTIVE
+                    && sScriptMgr->OnGameObjectElevatorCheck(this))
+                {
+                    if ((m_goValue->Transport.StateUpdateTimer / 20000) & 1)
+                    {
+                        bytes1 &= 0xFFFFFF00;
+                        bytes1 |= GO_STATE_TRANSPORT_STOPPED;
+                    }
+                }
+                fieldBuffer << bytes1;
             }
             else
                 fieldBuffer << m_uint32Values[index]; // other cases

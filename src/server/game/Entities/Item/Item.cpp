@@ -1372,14 +1372,16 @@ bool Item::CanTransmogrifyItemWithItem(Item* transmogrified, Item* transmogrifie
     {
         if (proto1->Class == ITEM_CLASS_WEAPON && proto2->Class == ITEM_CLASS_WEAPON)
         {
-            if (!((proto1->InventoryType == INVTYPE_WEAPON || proto1->InventoryType == INVTYPE_WEAPONMAINHAND || proto1->InventoryType == INVTYPE_WEAPONOFFHAND) &&
-                (proto2->InventoryType == INVTYPE_WEAPON || proto2->InventoryType == INVTYPE_WEAPONMAINHAND ||proto2->InventoryType == INVTYPE_WEAPONOFFHAND)))
+            if (!((proto1->InventoryType == INVTYPE_WEAPON || proto1->InventoryType == INVTYPE_WEAPONMAINHAND ||
+                proto1->InventoryType == INVTYPE_WEAPONOFFHAND || proto1->InventoryType == INVTYPE_RANGED || proto1->InventoryType == INVTYPE_RANGEDRIGHT) &&
+                (proto2->InventoryType == INVTYPE_WEAPON || proto2->InventoryType == INVTYPE_WEAPONMAINHAND ||
+                proto2->InventoryType == INVTYPE_WEAPONOFFHAND || proto2->InventoryType == INVTYPE_RANGED || proto2->InventoryType == INVTYPE_RANGEDRIGHT)))
                 return false;
         }
-        else if (proto2->Class == ITEM_CLASS_ARMOR && proto2->Class == ITEM_CLASS_ARMOR)
+        else if (proto1->Class == ITEM_CLASS_ARMOR && proto2->Class == ITEM_CLASS_ARMOR)
         {
             if (!((proto1->InventoryType == INVTYPE_CHEST || proto1->InventoryType == INVTYPE_ROBE) &&
-                (proto1->InventoryType == INVTYPE_CHEST || proto1->InventoryType == INVTYPE_ROBE)))
+                (proto2->InventoryType == INVTYPE_CHEST || proto2->InventoryType == INVTYPE_ROBE)))
                 return false;
         }
     }
@@ -1461,7 +1463,7 @@ uint32 Item::GetSellPrice(ItemTemplate const* proto, bool& normalSellPrice)
             inventoryType = INVTYPE_CHEST;
 
         float typeFactor = 0.0f;
-        uint8 wepType = -1;
+        uint8 wepType = 0xFF;
 
         switch (inventoryType)
         {
@@ -1587,7 +1589,7 @@ int32 Item::GetReforgableStat(ItemModType statType) const
 {
     ItemTemplate const* proto = GetTemplate();
     for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
-        if (proto->ItemStat[i].ItemStatType == statType)
+        if (proto->ItemStat[i].ItemStatType == (uint32)statType)
             return proto->ItemStat[i].ItemStatValue;
 
     int32 randomPropId = GetItemRandomPropertyId();
@@ -1606,7 +1608,7 @@ int32 Item::GetReforgableStat(ItemModType statType) const
             {
                 for (uint32 f = 0; f < MAX_ENCHANTMENT_SPELLS; ++f)
                 {
-                    if (enchant->type[f] == ITEM_ENCHANTMENT_TYPE_STAT && enchant->spellid[f] == statType)
+                    if (enchant->type[f] == ITEM_ENCHANTMENT_TYPE_STAT && enchant->spellid[f] == (uint32)statType)
                     {
                         for (int k = 0; k < 5; ++k)
                         {
@@ -1630,7 +1632,7 @@ int32 Item::GetReforgableStat(ItemModType statType) const
             {
                 for (uint32 f = 0; f < MAX_ENCHANTMENT_SPELLS; ++f)
                 {
-                    if (enchant->type[f] == ITEM_ENCHANTMENT_TYPE_STAT && enchant->spellid[f] == statType)
+                    if (enchant->type[f] == ITEM_ENCHANTMENT_TYPE_STAT && enchant->spellid[f] == (uint32)statType)
                     {
                         for (int k = 0; k < MAX_ENCHANTMENT_SPELLS; ++k)
                         {
@@ -1696,8 +1698,6 @@ bool Item::IsStuffItem() const
         default:
             return true;
     }
-
-    return false;
 }
 
 bool Item::CanUpgrade() const
@@ -1814,7 +1814,7 @@ float ItemTemplate::GetScalingDamageValue(uint32 ilvl) const
     return damageEntry ? damageEntry->DPS[Quality == ITEM_QUALITY_HEIRLOOM ? ITEM_QUALITY_RARE : Quality] : 0.f;
 }
 
-uint32 ItemTemplate::GetRandomPointsOffset() const
+int32 ItemTemplate::GetRandomPointsOffset() const
 {
     switch (InventoryType)
     {
@@ -1855,7 +1855,7 @@ uint32 ItemTemplate::GetRandomPointsOffset() const
 
 uint32 ItemTemplate::CalculateScalingStatDBCValue(uint32 ilvl) const
 {
-    uint32 offset = GetRandomPointsOffset();
+    int32 offset = GetRandomPointsOffset();
     if (offset == -1)
         return 0;
 
@@ -1884,10 +1884,15 @@ float ItemTemplate::GetSocketCost(uint32 ilvl) const
     return socket ? socket->cost : 0.f;
 }
 
-uint32 ItemTemplate::CalculateStatScaling(uint32 index, uint32 ilvl) const
+int32 ItemTemplate::CalculateStatScaling(uint32 index, uint32 ilvl) const
 {
     _ItemStat const& itemStat = ItemStat[index];
-    return floor((((float)itemStat.ScalingValue * (float)CalculateScalingStatDBCValue(ilvl) * 0.000099999997f) - (GetSocketCost(ilvl) * itemStat.SocketCostRate)) + 0.5f);
+    return CalculateStatScaling(itemStat.ScalingValue, itemStat.SocketCostRate, ilvl);
+}
+
+int32 ItemTemplate::CalculateStatScaling(int32 scalingValue, float socketCost, uint32 ilvl) const
+{
+    return floor((((float)scalingValue * (float)CalculateScalingStatDBCValue(ilvl) * 0.000099999997f) - (GetSocketCost(ilvl) * socketCost)) + 0.5f);
 }
 
 uint32 ItemTemplate::CalculateArmorScaling(uint32 ilvl) const
@@ -1953,23 +1958,6 @@ void ItemTemplate::CalculateMinMaxDamageScaling(uint32 ilvl, uint32& minDamage, 
     }
 }
 
-uint32 ItemTemplate::GetItemLevelForHeirloom(uint32 level) const
-{
-    ScalingStatDistributionEntry const* ssdEntry = sScalingStatDistributionStore.LookupEntry(ScalingStatDistribution);
-
-    if (!ssdEntry)
-        return ItemLevel;
-
-    if (level < ssdEntry->MinLevel)
-        level = ssdEntry->MinLevel;
-
-    if (level > ssdEntry->MaxLevel)
-        level = ssdEntry->MaxLevel;
-
-    uint32 ilvl = round(GetCurveValue(ssdEntry->CurveProperties, level));
-    return ilvl ? ilvl : ItemLevel;
-}
-
 bool Item::AddItemBonus(uint32 p_ItemBonusId)
 {
     if (!GetItemBonusesByID(p_ItemBonusId))
@@ -1987,7 +1975,7 @@ void Item::AddItemBonuses(std::vector<uint32> const& p_ItemBonuses)
     if (!p_ItemBonuses.size())
         return;
 
-    for (int i = 0; i < p_ItemBonuses.size(); i++)
+    for (uint32 i = 0; i < p_ItemBonuses.size(); i++)
         AddItemBonus(p_ItemBonuses[i]);
 }
 
@@ -2005,7 +1993,7 @@ bool Item::RemoveItemBonus(uint32 p_ItemBonusId)
     std::vector<uint32> const& l_BonusList = GetAllItemBonuses();
     for (uint32 i = 0; i < l_BonusList.size(); i++)
     {
-        if (l_BonusList[i] == p_ItemBonusId)
+        if (l_BonusList[i] == p_ItemBonusId && p_ItemBonusId)
         {
             SetDynamicValue(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS, i, 0);
             return true;
@@ -2019,7 +2007,8 @@ void Item::RemoveAllItemBonuses()
 {
     std::vector<uint32> const& l_BonusList = GetAllItemBonuses();
     for (auto& l_Bonus : l_BonusList)
-        RemoveItemBonus(l_Bonus);
+        if (l_Bonus)
+            RemoveItemBonus(l_Bonus);
 }
 
 std::vector<uint32> const& Item::GetAllItemBonuses() const
@@ -2032,6 +2021,9 @@ uint32 Item::GetItemLevelBonusFromItemBonuses() const
     uint32 itemLevel = 0;
     for (auto l_Bonus : GetAllItemBonuses())
     {
+        if (!l_Bonus)
+            continue;
+
         std::vector<ItemBonusEntry const*> const* l_ItemBonus = GetItemBonusesByID(l_Bonus);
         if (!l_ItemBonus)
             continue;

@@ -359,7 +359,7 @@ class mob_sha_of_anger_bunny : public CreatureScript
         }
 };
 
-class spell_sha_of_anger_aggressive_behaviour : public SpellScriptLoader
+class spell_sha_of_anger_aggressive_behaviour: public SpellScriptLoader
 {
     public:
         spell_sha_of_anger_aggressive_behaviour() : SpellScriptLoader("spell_sha_of_anger_aggressive_behaviour") { }
@@ -414,7 +414,7 @@ class spell_sha_of_anger_aggressive_behaviour : public SpellScriptLoader
 };
 
 // Overcome by Anger - 129356
- class spell_sha_of_anger_overcome_by_anger : public SpellScriptLoader
+ class spell_sha_of_anger_overcome_by_anger: public SpellScriptLoader
  {
     public:
         spell_sha_of_anger_overcome_by_anger() : SpellScriptLoader("spell_sha_of_anger_overcome_by_anger") { }

@@ -203,7 +203,7 @@ class npc_silverlaine_worgen_spirit : public CreatureScript
          };
 };
 
-class spell_silverlaine_summon_worgen_spirit : public SpellScriptLoader
+class spell_silverlaine_summon_worgen_spirit: public SpellScriptLoader
 {
     public:
         spell_silverlaine_summon_worgen_spirit() : SpellScriptLoader("spell_silverlaine_summon_worgen_spirit") { }

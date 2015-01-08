@@ -1249,7 +1249,7 @@ class npc_faction_boss : public CreatureScript
 };
 
 // Blade Twister - 178795
-class spell_blade_twister : public SpellScriptLoader
+class spell_blade_twister: public SpellScriptLoader
 {
     public:
         spell_blade_twister() : SpellScriptLoader("spell_blade_twister") { }

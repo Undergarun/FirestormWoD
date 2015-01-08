@@ -66,7 +66,7 @@ void HomeMovementGenerator<Creature>::Finalize(Creature& owner)
     if (arrived)
     {
         owner.SetWalk(true);
-        owner.LoadCreaturesAddon(true);
+        owner.LoadCreaturesAddon();
         owner.AI()->JustReachedHome();
     }
 }

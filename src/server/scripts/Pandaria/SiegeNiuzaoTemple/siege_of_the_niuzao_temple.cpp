@@ -164,7 +164,7 @@ class mob_sikthik_amber_weaver : public CreatureScript
         }
 };
 
-class spell_resin_weaving : public SpellScriptLoader
+class spell_resin_weaving: public SpellScriptLoader
 {
     public:
         spell_resin_weaving() : SpellScriptLoader("spell_resin_weaving") { }

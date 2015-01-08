@@ -230,7 +230,7 @@ class instance_ulduar : public InstanceMapScript
                 memset(KeeperGUIDs, 0, sizeof(KeeperGUIDs));
             }
 
-            void FillInitialWorldStates(WorldPacket& packet)
+            void FillInitialWorldStates(ByteBuffer& packet)
             {
                 packet << uint32(WORLD_STATE_ALGALON_TIMER_ENABLED) << uint32(_algalonTimer && _algalonTimer <= 60);
                 packet << uint32(WORLD_STATE_ALGALON_DESPAWN_TIMER) << uint32(std::min<uint32>(_algalonTimer, 60));
@@ -648,24 +648,6 @@ class instance_ulduar : public InstanceMapScript
                     case GO_GIFT_OF_THE_OBSERVER_10:
                     case GO_GIFT_OF_THE_OBSERVER_25:
                         GiftOfTheObserverGUID = gameObject->GetGUID();
-                        break;
-                }
-            }
-
-            void OnGameObjectRemove(GameObject* gameObject)
-            {
-                switch (gameObject->GetEntry())
-                {
-                    case GO_LEVIATHAN_DOOR:
-                    case GO_XT_002_DOOR:
-                    case GO_DOODAD_UL_SIGILDOOR_03:
-                    case GO_DOODAD_UL_UNIVERSEFLOOR_01:
-                    case GO_DOODAD_UL_UNIVERSEFLOOR_02:
-                    case GO_DOODAD_UL_UNIVERSEGLOBE01:
-                    case GO_DOODAD_UL_ULDUAR_TRAPDOOR_03:
-                        AddDoor(gameObject, false);
-                        break;
-                    default:
                         break;
                 }
             }

@@ -2,6 +2,7 @@
 #include "DelayExecutor.h"
 #include "Map.h"
 #include "DatabaseEnv.h"
+#include "MSSignalHandler.h"
 
 #include <ace/Guard_T.h>
 #include <ace/Method_Request.h>
@@ -51,6 +52,9 @@ class MapUpdateRequest : public ACE_Method_Request
 
         virtual int call()
         {
+            /// - Register signal handler for current thread
+            signal(SIGSEGV, &MS::SignalHandler::OnSignalReceive);
+
             m_map.Update (m_diff);
             m_updater.update_finished();
             return 0;

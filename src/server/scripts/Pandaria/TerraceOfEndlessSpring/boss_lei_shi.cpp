@@ -750,7 +750,7 @@ class mob_lei_shi_hidden : public CreatureScript
 };
 
 // Get Away! - 123461
-class spell_get_away : public SpellScriptLoader
+class spell_get_away: public SpellScriptLoader
 {
     public:
         spell_get_away() : SpellScriptLoader("spell_get_away") { }
@@ -780,7 +780,7 @@ class spell_get_away : public SpellScriptLoader
 };
 
 // Get Away! - 123467
-class spell_get_away_damage : public SpellScriptLoader
+class spell_get_away_damage: public SpellScriptLoader
 {
     public:
         spell_get_away_damage() : SpellScriptLoader("spell_get_away_damage") { }
@@ -810,7 +810,7 @@ class spell_get_away_damage : public SpellScriptLoader
 };
 
 // Hide - 123244
-class spell_hide : public SpellScriptLoader
+class spell_hide: public SpellScriptLoader
 {
     public:
         spell_hide() : SpellScriptLoader("spell_hide") { }
@@ -862,7 +862,7 @@ class spell_hide : public SpellScriptLoader
 };
 
 // Hide (stacks) - 123233
-class spell_hide_stacks : public SpellScriptLoader
+class spell_hide_stacks: public SpellScriptLoader
 {
     public:
         spell_hide_stacks() : SpellScriptLoader("spell_hide_stacks") { }
@@ -892,7 +892,7 @@ class spell_hide_stacks : public SpellScriptLoader
 };
 
 // Scary Fog (DoT) - 123705
-class spell_scary_fog_dot : public SpellScriptLoader
+class spell_scary_fog_dot: public SpellScriptLoader
 {
     public:
         spell_scary_fog_dot() : SpellScriptLoader("spell_scary_fog_dot") { }
@@ -960,7 +960,7 @@ class spell_scary_fog_dot : public SpellScriptLoader
 };
 
 // Scary Fog (stacks) - 123712
-class spell_scary_fog_stacks : public SpellScriptLoader
+class spell_scary_fog_stacks: public SpellScriptLoader
 {
     public:
         spell_scary_fog_stacks() : SpellScriptLoader("spell_scary_fog_stacks") { }

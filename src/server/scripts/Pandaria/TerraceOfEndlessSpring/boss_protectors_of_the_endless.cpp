@@ -1607,7 +1607,7 @@ class mob_minion_of_fear_controller : public CreatureScript
 };
 
 // Defiled Ground (damage) - 117988
-class spell_defiled_ground_damage : public SpellScriptLoader
+class spell_defiled_ground_damage: public SpellScriptLoader
 {
     public:
         spell_defiled_ground_damage() : SpellScriptLoader("spell_defiled_ground_damage") { }
@@ -1642,7 +1642,7 @@ class spell_defiled_ground_damage : public SpellScriptLoader
 };
 
 // Expelled Corruption (triggered) - 117955
-class spell_expelled_corruption : public SpellScriptLoader
+class spell_expelled_corruption: public SpellScriptLoader
 {
     public:
         spell_expelled_corruption() : SpellScriptLoader("spell_expelled_corruption") { }
@@ -1678,7 +1678,7 @@ class spell_expelled_corruption : public SpellScriptLoader
 };
 
 // Lightning Storm - 118064, 118040, 118053, 118054, 118055, 118077
-class spell_lightning_storm_aura : public SpellScriptLoader
+class spell_lightning_storm_aura: public SpellScriptLoader
 {
     public:
         spell_lightning_storm_aura() : SpellScriptLoader("spell_lightning_storm_aura") { }
@@ -1741,7 +1741,7 @@ class spell_lightning_storm_aura : public SpellScriptLoader
 };
 
 // Lightning Storm (damage) - 118004, 118005, 118007, 118008
-class spell_lightning_storm_damage : public SpellScriptLoader
+class spell_lightning_storm_damage: public SpellScriptLoader
 {
     public:
         spell_lightning_storm_damage() : SpellScriptLoader("spell_lightning_storm_damage") { }
@@ -1801,7 +1801,7 @@ class spell_lightning_storm_damage : public SpellScriptLoader
 };
 
 // Lightning Prison - 111850
-class spell_lightning_prison : public SpellScriptLoader
+class spell_lightning_prison: public SpellScriptLoader
 {
     public:
         spell_lightning_prison() : SpellScriptLoader("spell_lightning_prison") { }
@@ -1828,7 +1828,7 @@ class spell_lightning_prison : public SpellScriptLoader
 };
 
 // Corrupted Essence - 118191
-class spell_corrupted_essence : public SpellScriptLoader
+class spell_corrupted_essence: public SpellScriptLoader
 {
     public:
         spell_corrupted_essence() : SpellScriptLoader("spell_corrupted_essence") { }
@@ -1908,7 +1908,7 @@ class spell_corrupted_essence : public SpellScriptLoader
 };
 
 // Superior Corrupted Essence - 117905
-class spell_superior_corrupted_essence : public SpellScriptLoader
+class spell_superior_corrupted_essence: public SpellScriptLoader
 {
     public:
         spell_superior_corrupted_essence() : SpellScriptLoader("spell_superior_corrupted_essence") { }
@@ -1945,7 +1945,7 @@ class spell_superior_corrupted_essence : public SpellScriptLoader
 };
 
 // Cleansing Waters - 117283
-class spell_cleansing_waters_regen : public SpellScriptLoader
+class spell_cleansing_waters_regen: public SpellScriptLoader
 {
     public:
         spell_cleansing_waters_regen() : SpellScriptLoader("spell_cleansing_waters_regen") { }

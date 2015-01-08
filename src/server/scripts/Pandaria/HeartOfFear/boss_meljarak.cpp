@@ -601,14 +601,14 @@ public:
 
         void UpdateAI(uint32 const diff)
         {
-            if (instance)
-            {
-                if (instance->IsWipe() && !me->IsInEvadeMode())
-                {
-                    EnterEvadeMode();
-                    return;
-                }
-            }
+            //if (instance)
+            //{
+            //    if (instance->IsWipe() && !me->IsInEvadeMode())
+            //    {
+            //        EnterEvadeMode();
+            //        return;
+            //    }
+            //}
 
             if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                 return;
@@ -765,7 +765,7 @@ public:
 };
 
 // Korthik Elite Blademaster: 62402 - handled in boss script, script here only used for life sharing
-class npc_korthik_elite_blademaster: public CreatureScript
+class npc_korthik_elite_blademaster : public CreatureScript
 {
 public:
     npc_korthik_elite_blademaster() : CreatureScript("npc_korthik_elite_blademaster") { }
@@ -901,7 +901,7 @@ struct NonAlreadyAmberPrisoner : public std::unary_function<Unit*, bool>
 };
 
 // Srathik Amber Trapper: 62405.
-class npc_srathik_amber_trapper: public CreatureScript 
+class npc_srathik_amber_trapper : public CreatureScript 
 {
 public:
     npc_srathik_amber_trapper() : CreatureScript("npc_srathik_amber_trapper") { }
@@ -1062,7 +1062,7 @@ public:
 };
 
 // Zarthik Battle Mender: 62408.
-class npc_zarthik_battle_mender: public CreatureScript 
+class npc_zarthik_battle_mender : public CreatureScript 
 {
 public:
     npc_zarthik_battle_mender() : CreatureScript("npc_zarthik_battle_mender") { }
@@ -1431,7 +1431,7 @@ public:
 };
 
 // Corrosive Resin: 122064.
-class spell_meljarak_corrosive_resin : public SpellScriptLoader
+class spell_meljarak_corrosive_resin: public SpellScriptLoader
 {
     public:
         spell_meljarak_corrosive_resin() : SpellScriptLoader("spell_meljarak_corrosive_resin") { }
@@ -1477,7 +1477,7 @@ class spell_meljarak_corrosive_resin : public SpellScriptLoader
 };
 
 // mending - 122147
-class spell_mending : public SpellScriptLoader
+class spell_mending: public SpellScriptLoader
 {
 public:
     spell_mending() : SpellScriptLoader("spell_mending") { }
@@ -1537,7 +1537,7 @@ public:
 };
 
 // 121897 - Whirling Blade - Flying Sword
-class spell_whirling_blade_sword : public SpellScriptLoader
+class spell_whirling_blade_sword: public SpellScriptLoader
 {
 public:
     spell_whirling_blade_sword() : SpellScriptLoader("spell_whirling_blade_sword") { }
@@ -1579,7 +1579,7 @@ public:
 };
 
 // 121898 - Wirling Blade - Damages
-class spell_whirling_blade_damages : public SpellScriptLoader
+class spell_whirling_blade_damages: public SpellScriptLoader
 {
 public:
     spell_whirling_blade_damages() : SpellScriptLoader("spell_whirling_blade_damages") { }

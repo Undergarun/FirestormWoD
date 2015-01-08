@@ -79,7 +79,8 @@ enum eActions
     ACTION_ZAELA_TALK_4,
     ACTION_THARBEK_TALK_4,
     ACTION_ACTIVATE_SPELLS,
-    ACTION_ACTIVATE_CUSTOM_RESET
+    ACTION_ACTIVATE_CUSTOM_RESET,
+    ACTION_AWBEE
 };
 
 enum eMoves
@@ -177,7 +178,7 @@ Position const g_IronbarbSecondFlyPos   = { 135.4544f, -420.9265f, 123.8489f, 1.
 Position const g_IronbarbThirdFlyPos    = { 177.4848f, -408.3633f, 116.7175f, 6.123974f };
 Position const g_IronbarbLastFlyPos     = { 188.2879f, -420.0663f, 110.8817f, 3.145754f };
 
-// Commander Tharbek - 79912
+///< Commander Tharbek - 79912
 class boss_commander_tharbek : public CreatureScript
 {
     public:
@@ -219,6 +220,8 @@ class boss_commander_tharbek : public CreatureScript
 
             uint64 m_IronbarbSkyreaverGuid;
 
+            bool m_Awbee;
+
             void Reset()
             {
                 me->ReenableEvadeMode();
@@ -242,6 +245,8 @@ class boss_commander_tharbek : public CreatureScript
                         l_Skyreaver->GetMotionMaster()->MoveTargetedHome();
                     }
                 }
+
+                m_Awbee = false;
             }
 
             void KilledUnit(Unit* p_Who)
@@ -328,6 +333,14 @@ class boss_commander_tharbek : public CreatureScript
             {
                 if (!me->HasAura(SPELL_IRON_RAGE) && me->HealthBelowPctDamaged(50, p_Damage))
                     me->CastSpell(me, SPELL_IRON_RAGE, true);
+
+                if (!m_Awbee && me->HealthBelowPctDamaged(60, p_Damage) && m_Instance != nullptr)
+                {
+                    m_Awbee = true;
+
+                    if (Creature* l_Awbee = Creature::GetCreature(*me, m_Instance->GetData64(eCreatures::NPC_AWBEE)))
+                        l_Awbee->AI()->DoAction(eActions::ACTION_AWBEE);
+                }
             }
 
             void UpdateAI(const uint32 p_Diff)
@@ -702,7 +715,7 @@ class boss_commander_tharbek : public CreatureScript
         }
 };
 
-// Ironbarb Skyreaver - 80098
+///< Ironbarb Skyreaver - 80098
 class mob_ironbarb_skyreaver : public CreatureScript
 {
     public:
@@ -812,7 +825,7 @@ class mob_ironbarb_skyreaver : public CreatureScript
 
             void DamageTaken(Unit* p_Attacker, uint32& p_Damage)
             {
-                if (!m_BossOut && me->HealthBelowPctDamaged(25, p_Damage))
+                if (!m_BossOut && me->HealthBelowPctDamaged(50, p_Damage))
                 {
                     m_BossOut = true;
                     m_Vehicle->RemoveAllPassengers();
@@ -828,7 +841,7 @@ class mob_ironbarb_skyreaver : public CreatureScript
 
             void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo)
             {
-                if (p_SpellInfo->Id == SPELL_NOXIUS_SPIT_SEARCHER)
+                if (p_SpellInfo->Id == SPELL_NOXIUS_SPIT_SEARCHER && p_Target != nullptr)
                     me->CastSpell(p_Target, SPELL_NOXIUS_SPIT_MISSILE, true);
             }
 
@@ -936,7 +949,7 @@ class mob_ironbarb_skyreaver : public CreatureScript
         }
 };
 
-// Imbued Iron Axe Stalker - 80307
+///< Imbued Iron Axe Stalker - 80307
 class mob_imbued_iron_axe_stalker : public CreatureScript
 {
     public:
@@ -952,8 +965,7 @@ class mob_imbued_iron_axe_stalker : public CreatureScript
 
                 me->SetReactState(REACT_PASSIVE);
 
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_TAXI_FLIGHT | UNIT_FLAG_UNK_28);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
 
                 me->GetMotionMaster()->Clear();
                 me->GetMotionMaster()->MoveRandom(10.f);
@@ -966,9 +978,129 @@ class mob_imbued_iron_axe_stalker : public CreatureScript
         }
 };
 
+///< Awbee - 86533
+class mob_awbee : public CreatureScript
+{
+    public:
+        mob_awbee() : CreatureScript("mob_awbee") { }
+
+        struct mob_awbeeAI : public ScriptedAI
+        {
+            mob_awbeeAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            {
+                m_Instance = p_Creature->GetInstanceScript();
+            }
+
+            enum Spells
+            {
+                SpellArcaneBreath = 177767
+            };
+
+            enum Events
+            {
+                EventArcaneBreath = 1
+            };
+
+            enum Talks
+            {
+                TalkAggro
+            };
+
+            EventMap m_Events;
+            InstanceScript* m_Instance;
+
+            void Reset()
+            {
+                m_Events.Reset();
+
+                me->SetReactState(REACT_PASSIVE);
+
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NON_ATTACKABLE);
+            }
+
+            void DoAction(int32 const p_Action)
+            {
+                if (p_Action == eActions::ACTION_AWBEE && m_Instance != nullptr)
+                {
+                    Talk(Talks::TalkAggro);
+                    me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
+                    m_Events.ScheduleEvent(Events::EventArcaneBreath, 5000);
+
+                    if (Creature* l_Tharbek = Creature::GetCreature(*me, m_Instance->GetData64(eCreatures::NPC_COMMANDER_THARBEK)))
+                        AttackStart(l_Tharbek);
+                }
+            }
+
+            void UpdateAI(uint32 const p_Diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case Events::EventArcaneBreath:
+                        me->CastSpell(me, Spells::SpellArcaneBreath, false);
+                        m_Events.ScheduleEvent(Events::EventArcaneBreath, 15000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_awbeeAI(p_Creature);
+        }
+};
+
+///< Noxious Spit - 161827
+class areatrigger_noxious_spit : public AreaTriggerEntityScript
+{
+    public:
+        areatrigger_noxious_spit() : AreaTriggerEntityScript("areatrigger_noxious_spit") { }
+
+        enum Spells
+        {
+            SpellNoxiousSpitDot = 161833
+        };
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            std::list<Unit*> l_TargetList;
+            float l_Radius = 3.0f;
+
+            JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, p_AreaTrigger->GetCaster(), l_Radius);
+            JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+            p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+            for (Unit* l_Unit : l_TargetList)
+            {
+                if (l_Unit->GetDistance(p_AreaTrigger) > l_Radius)
+                    continue;
+
+                p_AreaTrigger->GetCaster()->CastSpell(l_Unit, Spells::SpellNoxiousSpitDot, true);
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const
+        {
+            return new areatrigger_noxious_spit();
+        }
+};
+
 void AddSC_boss_commander_tharbek()
 {
     new boss_commander_tharbek();
     new mob_ironbarb_skyreaver();
     new mob_imbued_iron_axe_stalker();
+    new mob_awbee();
+    new areatrigger_noxious_spit();
 }

@@ -417,7 +417,7 @@ class npc_salyin_warmonger : public CreatureScript
 };
 
 // Impaling Pull - 121754
-class spell_impaling_pull : public SpellScriptLoader
+class spell_impaling_pull: public SpellScriptLoader
 {
     public:
         spell_impaling_pull() : SpellScriptLoader("spell_impaling_pull") { }

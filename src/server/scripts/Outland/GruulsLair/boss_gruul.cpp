@@ -255,7 +255,7 @@ public:
 
 };
 
-class spell_gruul_shatter : public SpellScriptLoader
+class spell_gruul_shatter: public SpellScriptLoader
 {
     public:
         spell_gruul_shatter() : SpellScriptLoader("spell_gruul_shatter") { }
@@ -294,7 +294,7 @@ class spell_gruul_shatter : public SpellScriptLoader
         }
 };
 
-class spell_gruul_shatter_effect : public SpellScriptLoader
+class spell_gruul_shatter_effect: public SpellScriptLoader
 {
     public:
         spell_gruul_shatter_effect() : SpellScriptLoader("spell_gruul_shatter_effect") { }

@@ -324,7 +324,7 @@ class npc_viscous_fluid : public CreatureScript
         }
 };
 
-class spell_rimok_saboteur_bombard : public SpellScriptLoader
+class spell_rimok_saboteur_bombard: public SpellScriptLoader
 {
     public:
         spell_rimok_saboteur_bombard() :  SpellScriptLoader("spell_rimok_saboteur_bombard") { }

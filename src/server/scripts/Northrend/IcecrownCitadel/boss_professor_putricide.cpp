@@ -821,7 +821,7 @@ class npc_gas_cloud : public CreatureScript
         }
 };
 
-class spell_putricide_gaseous_bloat : public SpellScriptLoader
+class spell_putricide_gaseous_bloat: public SpellScriptLoader
 {
     public:
         spell_putricide_gaseous_bloat() : SpellScriptLoader("spell_putricide_gaseous_bloat") { }
@@ -872,7 +872,7 @@ class DebuffProtectionTargetSelector
         Creature* _owner;
 };
 
-class spell_putricide_ooze_channel : public SpellScriptLoader
+class spell_putricide_ooze_channel: public SpellScriptLoader
 {
     public:
         spell_putricide_ooze_channel() : SpellScriptLoader("spell_putricide_ooze_channel") { }
@@ -961,7 +961,7 @@ class ExactDistanceCheck
         float _dist;
 };
 
-class spell_putricide_slime_puddle : public SpellScriptLoader
+class spell_putricide_slime_puddle: public SpellScriptLoader
 {
     public:
         spell_putricide_slime_puddle() : SpellScriptLoader("spell_putricide_slime_puddle") { }
@@ -989,7 +989,7 @@ class spell_putricide_slime_puddle : public SpellScriptLoader
 };
 
 // this is here only because on retail you dont actually enter HEROIC mode for ICC
-class spell_putricide_slime_puddle_aura : public SpellScriptLoader
+class spell_putricide_slime_puddle_aura: public SpellScriptLoader
 {
     public:
         spell_putricide_slime_puddle_aura() : SpellScriptLoader("spell_putricide_slime_puddle_aura") { }
@@ -1016,7 +1016,7 @@ class spell_putricide_slime_puddle_aura : public SpellScriptLoader
         }
 };
 
-class spell_putricide_unstable_experiment : public SpellScriptLoader
+class spell_putricide_unstable_experiment: public SpellScriptLoader
 {
     public:
         spell_putricide_unstable_experiment() : SpellScriptLoader("spell_putricide_unstable_experiment") { }
@@ -1060,7 +1060,7 @@ class spell_putricide_unstable_experiment : public SpellScriptLoader
         }
 };
 
-class spell_putricide_ooze_eruption_searcher : public SpellScriptLoader
+class spell_putricide_ooze_eruption_searcher: public SpellScriptLoader
 {
     public:
         spell_putricide_ooze_eruption_searcher() : SpellScriptLoader("spell_putricide_ooze_eruption_searcher") { }
@@ -1091,7 +1091,7 @@ class spell_putricide_ooze_eruption_searcher : public SpellScriptLoader
         }
 };
 
-class spell_putricide_choking_gas_bomb : public SpellScriptLoader
+class spell_putricide_choking_gas_bomb: public SpellScriptLoader
 {
     public:
         spell_putricide_choking_gas_bomb() : SpellScriptLoader("spell_putricide_choking_gas_bomb") { }
@@ -1125,7 +1125,7 @@ class spell_putricide_choking_gas_bomb : public SpellScriptLoader
         }
 };
 
-class spell_putricide_unbound_plague : public SpellScriptLoader
+class spell_putricide_unbound_plague: public SpellScriptLoader
 {
     public:
         spell_putricide_unbound_plague() : SpellScriptLoader("spell_putricide_unbound_plague") { }
@@ -1198,7 +1198,7 @@ class spell_putricide_unbound_plague : public SpellScriptLoader
         }
 };
 
-class spell_putricide_eat_ooze : public SpellScriptLoader
+class spell_putricide_eat_ooze: public SpellScriptLoader
 {
     public:
         spell_putricide_eat_ooze() : SpellScriptLoader("spell_putricide_eat_ooze") { }
@@ -1250,7 +1250,7 @@ class spell_putricide_eat_ooze : public SpellScriptLoader
         }
 };
 
-class spell_putricide_mutated_plague : public SpellScriptLoader
+class spell_putricide_mutated_plague: public SpellScriptLoader
 {
     public:
         spell_putricide_mutated_plague() : SpellScriptLoader("spell_putricide_mutated_plague") { }
@@ -1300,7 +1300,7 @@ class spell_putricide_mutated_plague : public SpellScriptLoader
         }
 };
 
-class spell_putricide_mutation_init : public SpellScriptLoader
+class spell_putricide_mutation_init: public SpellScriptLoader
 {
     public:
         spell_putricide_mutation_init() : SpellScriptLoader("spell_putricide_mutation_init") { }
@@ -1389,7 +1389,7 @@ class spell_putricide_mutation_init : public SpellScriptLoader
         }
 };
 
-class spell_putricide_mutated_transformation_dismiss : public SpellScriptLoader
+class spell_putricide_mutated_transformation_dismiss: public SpellScriptLoader
 {
     public:
         spell_putricide_mutated_transformation_dismiss() : SpellScriptLoader("spell_putricide_mutated_transformation_dismiss") { }
@@ -1416,7 +1416,7 @@ class spell_putricide_mutated_transformation_dismiss : public SpellScriptLoader
         }
 };
 
-class spell_putricide_mutated_transformation : public SpellScriptLoader
+class spell_putricide_mutated_transformation: public SpellScriptLoader
 {
     public:
         spell_putricide_mutated_transformation() : SpellScriptLoader("spell_putricide_mutated_transformation") { }
@@ -1478,7 +1478,7 @@ class spell_putricide_mutated_transformation : public SpellScriptLoader
         }
 };
 
-class spell_putricide_mutated_transformation_dmg : public SpellScriptLoader
+class spell_putricide_mutated_transformation_dmg: public SpellScriptLoader
 {
     public:
         spell_putricide_mutated_transformation_dmg() : SpellScriptLoader("spell_putricide_mutated_transformation_dmg") { }
@@ -1505,7 +1505,7 @@ class spell_putricide_mutated_transformation_dmg : public SpellScriptLoader
         }
 };
 
-class spell_putricide_regurgitated_ooze : public SpellScriptLoader
+class spell_putricide_regurgitated_ooze: public SpellScriptLoader
 {
     public:
         spell_putricide_regurgitated_ooze() : SpellScriptLoader("spell_putricide_regurgitated_ooze") { }
@@ -1534,7 +1534,7 @@ class spell_putricide_regurgitated_ooze : public SpellScriptLoader
 };
 
 // Removes aura with id stored in effect value
-class spell_putricide_clear_aura_effect_value : public SpellScriptLoader
+class spell_putricide_clear_aura_effect_value: public SpellScriptLoader
 {
     public:
         spell_putricide_clear_aura_effect_value() : SpellScriptLoader("spell_putricide_clear_aura_effect_value") { }
@@ -1563,7 +1563,7 @@ class spell_putricide_clear_aura_effect_value : public SpellScriptLoader
 };
 
 // Stinky and Precious spell, it's here because its used for both (Festergut and Rotface "pets")
-class spell_stinky_precious_decimate : public SpellScriptLoader
+class spell_stinky_precious_decimate: public SpellScriptLoader
 {
     public:
         spell_stinky_precious_decimate() : SpellScriptLoader("spell_stinky_precious_decimate") { }
@@ -1612,7 +1612,7 @@ class ChokingGasTargetFilter
         Unit* _caster;
 };
 
-class spell_putricide_choking_gas_damage : public SpellScriptLoader
+class spell_putricide_choking_gas_damage: public SpellScriptLoader
 {
     public:
         spell_putricide_choking_gas_damage() : SpellScriptLoader("spell_putricide_choking_gas_damage") { }
@@ -1639,7 +1639,7 @@ class spell_putricide_choking_gas_damage : public SpellScriptLoader
         }
 };
 
-class spell_putricide_choking_gas_explosion_damage : public SpellScriptLoader
+class spell_putricide_choking_gas_explosion_damage: public SpellScriptLoader
 {
     public:
         spell_putricide_choking_gas_explosion_damage() : SpellScriptLoader("spell_putricide_choking_gas_explosion_damage") { }
