@@ -228,6 +228,7 @@ class GarrisonInstanceScriptBase
         virtual void OnQuestStarted(Player * p_Owner, const Quest * p_Quest) = 0;
         /// When the garrison owner reward a quest
         virtual void OnQuestReward(Player * p_Owner, const Quest * p_Quest) = 0;
+
         /// Get phase mask
         virtual uint32 GetPhaseMask(Player * p_Owner) = 0;
 
@@ -236,6 +237,12 @@ class GarrisonInstanceScriptBase
 
         /// Get terrain swaps
         virtual void GetTerrainSwaps(std::set<uint32> & p_TerrainSwaps) = 0;
+
+        /// When a mission start
+        virtual void OnMissionStart(uint32 p_MissionID, std::vector<uint32> p_Followers) = 0;
+        /// When a construction start
+        virtual void OnPurchaseBuilding(uint32 p_BuildingID) = 0;
+
 };
 
 class Garrison
@@ -273,7 +280,7 @@ class Garrison
         /// When the garrison owner reward a quest
         void OnQuestReward(const Quest * p_Quest);
 
-        /// set last used activation gameobject
+        /// set last used activation game object
         void SetLastUsedActivationGameObject(uint64 p_Guid);
 
         /// Get GarrSiteLevelEntry for current garrison
