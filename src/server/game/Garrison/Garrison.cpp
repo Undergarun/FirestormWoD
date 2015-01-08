@@ -1027,6 +1027,7 @@ void Garrison::StartMission(uint32 p_MissionRecID, std::vector<uint64> p_Followe
 
     m_Owner->ModifyCurrency(GARRISON_CURRENCY_ID, -(int32)l_MissionTemplate->GarrisonCurrencyStartCost);
 
+    std::vector<uint32> l_FollowersIDs;
     for (uint32 l_I = 0; l_I < p_Followers.size(); ++l_I)
     {
         std::vector<GarrisonFollower>::iterator l_It = std::find_if(m_Followers.begin(), m_Followers.end(), [this, p_Followers, l_I](const GarrisonFollower p_Follower) -> bool
@@ -1038,6 +1039,7 @@ void Garrison::StartMission(uint32 p_MissionRecID, std::vector<uint64> p_Followe
         });
 
         l_It->CurrentMissionID = p_MissionRecID;
+        l_FollowersIDs.push_back(l_It->FollowerID);
     }
 
     GarrisonMission * l_Mission = nullptr;
@@ -1078,6 +1080,9 @@ void Garrison::StartMission(uint32 p_MissionRecID, std::vector<uint64> p_Followe
             l_Result << uint64(p_Followers[l_I]);
 
         m_Owner->SendDirectMessage(&l_Result);
+
+        if (GetGarrisonScript())
+            GetGarrisonScript()->OnMissionStart(p_MissionRecID, l_FollowersIDs);
     }
 }
 /// Send mission start failed packet
@@ -2272,7 +2277,10 @@ GarrisonBuilding Garrison::PurchaseBuilding(uint32 p_BuildingRecID, uint32 p_Plo
     m_Buildings.push_back(l_Building);
 
     UpdatePlot(p_PlotInstanceID);
-    
+
+    if (GetGarrisonScript())
+        GetGarrisonScript()->OnPurchaseBuilding(p_BuildingRecID);
+
     return l_Building;
 }
 /// Get building

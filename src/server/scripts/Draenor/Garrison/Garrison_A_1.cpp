@@ -40,8 +40,7 @@ class instance_Garrison_A1 : public InstanceMapScript
             instance_Garrison_A1MapScript(Map* p_Map)
                 : InstanceScript(p_Map)
             {
-                //SetBossNumber(1);
-                //SetBossState(1, IN_PROGRESS);
+
             }
             /// Destructor
             ~instance_Garrison_A1MapScript()
@@ -55,6 +54,9 @@ class instance_Garrison_A1 : public InstanceMapScript
                 }
             }
 
+            //////////////////////////////////////////////////////////////////////////
+            //////////////////////////////////////////////////////////////////////////
+
             /// When the garrison owner started a quest
             virtual void OnQuestStarted(Player * p_Owner, const Quest * p_Quest) override
             {
@@ -65,6 +67,10 @@ class instance_Garrison_A1 : public InstanceMapScript
             {
 
             }
+
+            //////////////////////////////////////////////////////////////////////////
+            //////////////////////////////////////////////////////////////////////////
+
             /// Get phase mask
             virtual uint32 GetPhaseMask(Player * p_Owner) override
             {
@@ -79,6 +85,9 @@ class instance_Garrison_A1 : public InstanceMapScript
                 return l_PhaseMask;
             }
 
+            //////////////////////////////////////////////////////////////////////////
+            //////////////////////////////////////////////////////////////////////////
+
             /// Owner can use the garrison cache ?
             virtual bool CanUseGarrisonCache(Player * p_Owner) override
             {
@@ -89,23 +98,46 @@ class instance_Garrison_A1 : public InstanceMapScript
                 return false;
             }
 
+            //////////////////////////////////////////////////////////////////////////
+            //////////////////////////////////////////////////////////////////////////
+
             /// Get terrain swaps
             virtual void GetTerrainSwaps(std::set<uint32> & p_TerrainSwaps) override
             {
                 p_TerrainSwaps.emplace(TERRAIN_SWAP_GARRISON_SMV_ALLIANCE_TIER_1);
             }
 
-            void OnCreatureCreate(Creature * p_Creature) override
+            //////////////////////////////////////////////////////////////////////////
+            //////////////////////////////////////////////////////////////////////////
+
+            /// When a mission start
+            virtual void OnMissionStart(uint32 p_MissionID, std::vector<uint32> p_Followers) override
             {
 
             }
-            void OnGameObjectCreate(GameObject * p_Gameobject) override
+            /// When a construction start
+            virtual void OnPurchaseBuilding(uint32 p_BuildingID) override
             {
 
             }
+
+            //////////////////////////////////////////////////////////////////////////
+            //////////////////////////////////////////////////////////////////////////
+
+            virtual void OnCreatureCreate(Creature * p_Creature) override
+            {
+
+            }
+            virtual void OnGameObjectCreate(GameObject * p_Gameobject) override
+            {
+
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            //////////////////////////////////////////////////////////////////////////
 
             /// Called when a player successfully enters the instance.
-            void OnPlayerEnter(Player* p_Player) override
+            virtual void OnPlayerEnter(Player* p_Player) override
             {
                 if (!p_Player->IsInWorld())
                     return;
@@ -119,7 +151,10 @@ class instance_Garrison_A1 : public InstanceMapScript
                 m_Players.emplace(p_Player->GetGUID());
             }
 
-            void Update(uint32 p_Diff)
+            //////////////////////////////////////////////////////////////////////////
+            //////////////////////////////////////////////////////////////////////////
+
+            virtual void Update(uint32 p_Diff) override
             {
 
             }

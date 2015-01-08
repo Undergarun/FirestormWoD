@@ -2953,6 +2953,33 @@ void ObjectMgr::LoadItemTemplates()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item templates from Item-sparse.db2 and %u from database in %u ms", sparseCount, dbCount, GetMSTimeDiffToNow(oldMSTime));
 }
 
+void ObjectMgr::LoadItemTemplateCorrections()
+{
+    for (ItemTemplateContainer::const_iterator l_Iter = _itemTemplateStore.begin(); l_Iter != _itemTemplateStore.end(); l_Iter++)
+    {
+        ItemTemplate& l_ItemTemplate = const_cast<ItemTemplate&>(l_Iter->second);
+
+        switch (l_ItemTemplate.ItemId)
+        {
+            // Prevent people opening strongboxed they cant use & abuse some other stuff
+            case 120354: //Gold Strongbox A
+            case 120355: //Silver Strongbox A
+            case 120356: //Bronze Strongbox A
+            case 120353: //Steel Strongbox A
+                l_ItemTemplate.Flags2 |= ITEM_FLAGS_EXTRA_ALLIANCE_ONLY;
+                l_ItemTemplate.RequiredLevel = 100;
+                break;
+            case 111598: //Gold Strongbox H
+            case 111599: //Silver strongbox H
+            case 111600: //Bronze Strongbox H
+            case 119330: //Steel StrongBox H
+                l_ItemTemplate.Flags2 |= ITEM_FLAGS_EXTRA_HORDE_ONLY;
+                l_ItemTemplate.RequiredLevel = 100;
+                break;
+        } 
+    }
+}
+
 void ObjectMgr::LoadItemTemplateAddon()
 {
     uint32 oldMSTime = getMSTime();

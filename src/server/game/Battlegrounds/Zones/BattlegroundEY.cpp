@@ -358,7 +358,8 @@ void BattlegroundEY::EndBattleground(uint32 winner)
     //complete map reward
     RewardHonorToTeam(GetBonusHonorFromKill(1), ALLIANCE);
     RewardHonorToTeam(GetBonusHonorFromKill(1), HORDE);
-
+    
+    AwardTeams(GetTeamScore(GetOtherTeam(winner)), BG_EY_MAX_TEAM_SCORE, GetOtherTeam(winner));
     Battleground::EndBattleground(winner);
 }
 

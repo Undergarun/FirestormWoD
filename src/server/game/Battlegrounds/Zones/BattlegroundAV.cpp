@@ -474,6 +474,7 @@ void BattlegroundAV::EndBattleground(uint32 winner)
     }
 
     //TODO add enterevademode for all attacking creatures
+    AwardTeams(BG_AV_SCORE_INITIAL_POINTS - m_TeamScores[(GetOtherTeam(winner) == HORDE)], BG_AV_SCORE_INITIAL_POINTS, GetOtherTeam(winner));
     Battleground::EndBattleground(winner);
 }
 
