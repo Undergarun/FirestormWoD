@@ -58,6 +58,8 @@
 #include "BattlefieldMgr.h"
 #include "TicketMgr.h"
 
+#include "BattlegroundPacketFactory.hpp"
+
 void WorldSession::HandleRepopRequestOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_REPOP_REQUEST Message");
@@ -2054,7 +2056,7 @@ void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPacket& p_Packet)
         return;
 
     if (l_Battleground)
-        sBattlegroundMgr->SendAreaSpiritHealerQueryOpcode(m_Player, l_Battleground, l_Healer);
+        MS::Battlegrounds::PacketFactory::AreaSpiritHealerQuery(m_Player, l_Battleground, l_Healer);
 
     if (Battlefield * l_Battlefield = sBattlefieldMgr->GetBattlefieldToZoneId(m_Player->GetZoneId()))
         l_Battlefield->SendAreaSpiritHealerQueryOpcode(m_Player,l_Healer);

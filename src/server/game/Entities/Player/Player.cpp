@@ -817,7 +817,7 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
 
     for (uint8 j = 0; j < PLAYER_MAX_BATTLEGROUND_QUEUES; ++j)
     {
-        m_bgBattlegroundQueueID[j].bgQueueTypeId = BATTLEGROUND_QUEUE_NONE;
+        m_bgBattlegroundQueueID[j].BgType = MS::Battlegrounds::BattlegroundType::None;
         m_bgBattlegroundQueueID[j].invitedToInstance = 0;
     }
 
@@ -12069,7 +12069,7 @@ void Player::SendBGWeekendWorldStates()
         BattlemasterListEntry const* bl = sBattlemasterListStore.LookupEntry(i);
         if (bl && bl->HolidayWorldState)
         {
-            if (BattlegroundMgr::IsBGWeekend((BattlegroundTypeId)bl->ID))
+            if (MS::Battlegrounds::BattlegroundMgr::IsBGWeekend((BattlegroundTypeId)bl->ID))
                 SendUpdateWorldState(bl->HolidayWorldState, 1);
             else
                 SendUpdateWorldState(bl->HolidayWorldState, 0);
@@ -19725,13 +19725,13 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     {
         Battleground* currentBg = NULL;
         if (m_bgData.bgInstanceID)                                                //saved in Battleground
-            currentBg = sBattlegroundMgr->GetBattleground(m_bgData.bgInstanceID, BATTLEGROUND_TYPE_NONE);
+            currentBg = sBattlegroundMgr->GetBattleground(m_bgData.bgInstanceID, MS::Battlegrounds::BattlegroundType::None);
 
         bool player_at_bg = currentBg && currentBg->IsPlayerInBattleground(GetGUID());
 
         if (player_at_bg && currentBg->GetStatus() != STATUS_WAIT_LEAVE)
         {
-            BattlegroundQueueTypeId bgQueueTypeId = sBattlegroundMgr->BGQueueTypeId(currentBg->GetTypeID(), currentBg->GetArenaType(), currentBg->IsSkirmish());
+            MS::Battlegrounds::BattlegroundType::Type bgQueueTypeId = MS::Battlegrounds::GetTypeFromId(currentBg->GetTypeID(), currentBg->GetArenaType(), currentBg->IsSkirmish());
             AddBattlegroundQueueId(bgQueueTypeId);
 
             m_bgData.bgTypeID = currentBg->GetTypeID();
@@ -26455,7 +26455,7 @@ Battleground* Player::GetBattleground() const
     if (GetBattlegroundId() == 0)
         return NULL;
 
-    return sBattlegroundMgr->GetBattleground(GetBattlegroundId(), m_bgData.bgTypeID);
+    return sBattlegroundMgr->GetBattleground(GetBattlegroundId(), MS::Battlegrounds::GetSchedulerType(m_bgData.bgTypeID));
 }
 
 bool Player::InArena() const
@@ -26479,7 +26479,7 @@ bool Player::InRatedBattleGround() const
 bool Player::GetBGAccessByLevel(BattlegroundTypeId bgTypeId) const
 {
     // get a template bg instead of running one
-    Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(bgTypeId);
+    Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(MS::Battlegrounds::GetSchedulerType(bgTypeId));
     if (!bg)
         return false;
 

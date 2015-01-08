@@ -1207,7 +1207,7 @@ struct PvPDifficultyEntry
     uint32  maxLevel;                                       // 4        m_MaxLevel
 
     // helpers
-    BattlegroundBracketId GetBracketId() const { return BattlegroundBracketId(bracketId); }
+    uint32 GetBracketId() const { return bracketId; }
 };
 
 struct QuestSortEntry

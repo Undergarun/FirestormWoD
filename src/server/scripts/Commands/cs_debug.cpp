@@ -38,6 +38,8 @@ EndScriptData */
 
 #include <fstream>
 
+#include "BattlegroundPacketFactory.hpp"
+
 class debug_commandscript: public CommandScript
 {
     public:
@@ -363,7 +365,7 @@ class debug_commandscript: public CommandScript
             uint32 matchmakerRating = 0;
 
             //check existance
-            Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(BATTLEGROUND_RATED_10_VS_10);
+            Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(MS::Battlegrounds::BattlegroundType::RatedBg10v10);
             if (!bg)
             {
                 sLog->outError(LOG_FILTER_NETWORKIO, "Battleground: template bg (10 vs 10) not found");
@@ -374,9 +376,9 @@ class debug_commandscript: public CommandScript
                 return false;
 
             BattlegroundTypeId bgTypeId = bg->GetTypeID();
-            BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(bgTypeId, 0);
+            MS::Battlegrounds::BattlegroundType::Type bgQueueTypeId = MS::Battlegrounds::GetTypeFromId(bgTypeId, 0);
 
-            PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bg->GetMapId(), handler->GetSession()->GetPlayer()->getLevel());
+            MS::Battlegrounds::Bracket const* bracketEntry = MS::Battlegrounds::Brackets::FindForLevel(handler->GetSession()->GetPlayer()->getLevel());
             if (!bracketEntry)
                 return false;
 
@@ -414,7 +416,8 @@ class debug_commandscript: public CommandScript
             if (matchmakerRating <= 0)
                 matchmakerRating = 1;
 
-            BattlegroundQueue &bgQueue = sBattlegroundMgr->GetBattlegroundQueue(bgQueueTypeId);
+            MS::Battlegrounds::BattlegroundScheduler& l_Scheduler = sBattlegroundMgr->GetScheduler();
+            MS::Battlegrounds::BattlegroundInvitationsMgr& l_InvitationsMgr = sBattlegroundMgr->GetInvitationsMgr();
 
             uint32 avgTime = 0;
             GroupQueueInfo* ginfo;
@@ -424,8 +427,8 @@ class debug_commandscript: public CommandScript
             {
                 sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: leader %s queued");
 
-                ginfo = bgQueue.AddGroup(handler->GetSession()->GetPlayer(), grp, bgTypeId, bracketEntry, 0, true, true, personalRating, matchmakerRating);
-                avgTime = bgQueue.GetAverageQueueWaitTime(ginfo, bracketEntry->GetBracketId());
+                ginfo = l_Scheduler.AddGroup(handler->GetSession()->GetPlayer(), grp, bgQueueTypeId, bracketEntry, 0, true, true, personalRating, matchmakerRating, false);
+                avgTime = l_InvitationsMgr.GetAverageQueueWaitTime(ginfo, bracketEntry->m_Id);
             }
 
             for (GroupReference* itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
@@ -437,7 +440,7 @@ class debug_commandscript: public CommandScript
                 if (err)
                 {
                     WorldPacket data;
-                    sBattlegroundMgr->BuildStatusFailedPacket(&data, bg, handler->GetSession()->GetPlayer(), 0, err);
+                    MS::Battlegrounds::PacketFactory::StatusFailed(&data, bg, handler->GetSession()->GetPlayer(), 0, err);
                     member->GetSession()->SendPacket(&data);
                     continue;
                 }
@@ -446,16 +449,16 @@ class debug_commandscript: public CommandScript
                 uint32 queueSlot = member->AddBattlegroundQueueId(bgQueueTypeId);
 
                 // add joined time data
-                member->AddBattlegroundQueueJoinTime(bgTypeId, ginfo->JoinTime);
+                member->AddBattlegroundQueueJoinTime(bgTypeId, ginfo->m_JoinTime);
 
                 WorldPacket data; // send status packet (in queue)
-                sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, bg, member, queueSlot, STATUS_WAIT_QUEUE, avgTime, ginfo->JoinTime, ginfo->ArenaType);
+                MS::Battlegrounds::PacketFactory::Status(&data, bg, member, queueSlot, STATUS_WAIT_QUEUE, avgTime, ginfo->m_JoinTime, ginfo->m_ArenaType, false);
                 member->GetSession()->SendPacket(&data);
 
                 sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: player joined queue for rated battleground as group bg queue type %u bg type %u: GUID %u, NAME %s", bgQueueTypeId, bgTypeId, member->GetGUIDLow(), member->GetName());
             }
 
-            sBattlegroundMgr->ScheduleQueueUpdate(matchmakerRating, 0, bgQueueTypeId, bgTypeId, bracketEntry->GetBracketId());
+            //sBattlegroundMgr->ScheduleQueueUpdate(matchmakerRating, 0, bgQueueTypeId, bgTypeId, bracketEntry->GetBracketId());
 
             return true;
         }

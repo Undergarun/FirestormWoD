@@ -285,7 +285,7 @@ void BattlegroundKT::Reset()
     for (uint32 i = 0; i < MAX_ORBS; ++i)
         m_OrbKeepers[i] = 0;
 
-    bool isBGWeekend = BattlegroundMgr::IsBGWeekend(GetTypeID());
+    bool isBGWeekend = MS::Battlegrounds::BattlegroundMgr::IsBGWeekend(GetTypeID());
     m_ReputationCapture = (isBGWeekend) ? 45 : 35;
     m_HonorWinKills = (isBGWeekend) ? 3 : 1;
     m_HonorEndKills = (isBGWeekend) ? 4 : 2;

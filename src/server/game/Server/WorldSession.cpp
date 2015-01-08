@@ -641,10 +641,10 @@ void WorldSession::LogoutPlayer(bool Save)
 
         for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
         {
-            if (BattlegroundQueueTypeId bgQueueTypeId = m_Player->GetBattlegroundQueueTypeId(i))
+            if (MS::Battlegrounds::BattlegroundType::Type bgQueueTypeId = m_Player->GetBattlegroundQueueTypeId(i))
             {
                 m_Player->RemoveBattlegroundQueueId(bgQueueTypeId);
-                sBattlegroundMgr->m_BattlegroundQueues[ bgQueueTypeId ].RemovePlayer(m_Player->GetGUID(), true);
+                sBattlegroundMgr->RemovePlayer(m_Player->GetGUID(), true);
             }
         }
 

@@ -3888,4 +3888,11 @@
     <field type="int" name="field0" />
     <field type="int" name="field1" />
   </QuestV2>
+  <PvpDifficulty build="0">
+    <field type="int" name="id" />
+    <field type="int" name="mapid" />
+    <field type="int" name="brackedtId" />
+    <field type="int" name="minLevel" />
+    <field type="int" name="newField" />
+  </PvpDifficulty>
 </DBFilesClient>

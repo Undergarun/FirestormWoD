@@ -38,6 +38,8 @@
 #include "SpellInfo.h"
 #include "Guild.h"
 
+#include "BattlegroundPacketFactory.hpp"
+
 enum StableResultCode
 {
     STABLE_ERR_MONEY        = 0x01,                         // "you don't have enough money"
@@ -378,7 +380,7 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
         if (bg)
         {
             bg->AddPlayerToResurrectQueue(unit->GetGUID(), m_Player->GetGUID());
-            sBattlegroundMgr->SendAreaSpiritHealerQueryOpcode(m_Player, bg, unit->GetGUID());
+            MS::Battlegrounds::PacketFactory::AreaSpiritHealerQuery(m_Player, bg, unit->GetGUID());
             return;
         }
     }

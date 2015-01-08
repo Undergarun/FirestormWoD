@@ -1956,6 +1956,10 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Starting Map System");
     sMapMgr->Initialize();
 
+    ///- Initialize Battlegrounds
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Starting Battleground System");
+    sBattlegroundMgr->CreateInitialBattlegrounds();
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Starting Game Event system...");
     uint32 nextGameEvent = sGameEventMgr->StartSystem();
     m_timers[WUPDATE_EVENTS].SetInterval(nextGameEvent);    //depend on next event
@@ -1971,9 +1975,6 @@ void World::SetInitialWorldSettings()
 
     sTicketMgr->Initialize();
 
-    ///- Initialize Battlegrounds
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Starting Battleground System");
-    sBattlegroundMgr->CreateInitialBattlegrounds();
     //sBattlegroundMgr->InitAutomaticArenaPointDistribution();
 
     ///- Initialize outdoor pvp
