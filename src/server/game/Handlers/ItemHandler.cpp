@@ -688,7 +688,6 @@ void WorldSession::HandleSellItemOpcode(WorldPacket& p_RecvPacket)
                 }
 
                 uint32 l_Money = l_PlayerItemTemplate->SellPrice * l_Amount;
-
                 m_Player->ModifyMoney(l_Money);
                 m_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_MONEY_FROM_VENDORS, l_Money);
             }
