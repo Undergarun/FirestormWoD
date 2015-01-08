@@ -15379,17 +15379,6 @@ int32 Unit::ModSpellDuration(SpellInfo const* spellProto, Unit const* target, in
                 }
                 break;
             }
-            case SPELLFAMILY_WARLOCK:
-            {
-                if (spellProto->Id == 6262)
-                {
-                    // Glyph of Healthstone
-                    if (AuraEffectPtr aurEff = GetAuraEffect(56224, 1))
-                        duration += aurEff->GetAmount();
-                }
-
-                break;
-            }
         }
     }
     return std::max(duration, 0);
