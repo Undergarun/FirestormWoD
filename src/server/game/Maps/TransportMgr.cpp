@@ -64,12 +64,13 @@ void TransportMgr::LoadTransportTemplates()
         Field* fields = result->Fetch();
         uint32 entry = fields[0].GetUInt32();
         GameObjectTemplate const* goInfo = sObjectMgr->GetGameObjectTemplate(entry);
-        if (goInfo->moTransport.taxiPathId >= sTaxiPathNodesByPath.size())
+        if (goInfo->moTransport.taxiPathID >= sTaxiPathNodesByPath.size())
         {
-            sLog->outError(LOG_FILTER_SQL, "Transport %u (name: %s) has an invalid path specified in `gameobject_template`.`data0` (%u) field, skipped.", entry, goInfo->name.c_str(), goInfo->moTransport.taxiPathId);
+            sLog->outError(LOG_FILTER_SQL, "Transport %u (name: %s) has an invalid path specified in `gameobject_template`.`data0` (%u) field, skipped.", entry, goInfo->name.c_str(), goInfo->moTransport.taxiPathID);
             continue;
         }
 
+        // @todo REMOVE ME ?
         // Hackfix, but new transport system crash only with this entry, idk why ... It's depholm Alliance Gunship
         if (entry == 204018)
             continue;
@@ -91,7 +92,7 @@ void TransportMgr::LoadTransportTemplates()
 
 void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTemplate* transport)
 {
-    uint32 pathId = goInfo->moTransport.taxiPathId;
+    uint32 pathId = goInfo->moTransport.taxiPathID;
     TaxiPathNodeList const& path = sTaxiPathNodesByPath[pathId];
     std::vector<KeyFrame>& keyFrames = transport->keyFrames;
     Movement::PointsArray splinePath;

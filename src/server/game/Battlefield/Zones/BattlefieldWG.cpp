@@ -1007,10 +1007,10 @@ void BattlefieldWG::ProcessEvent(WorldObject *obj, uint32 eventId)
     {
         if (go->GetEntry() == (*itr)->m_Build->GetEntry())
         {
-            if ((*itr)->m_Build->GetGOInfo()->building.damagedEvent == eventId)
+            if ((*itr)->m_Build->GetGOInfo()->building.DamagedEvent == eventId)
                 (*itr)->Damaged();
 
-            if ((*itr)->m_Build->GetGOInfo()->building.destroyedEvent == eventId)
+            if ((*itr)->m_Build->GetGOInfo()->building.DestroyedEvent == eventId)
                 (*itr)->Destroyed();
 
             break;
