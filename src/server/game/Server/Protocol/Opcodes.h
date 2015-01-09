@@ -1089,7 +1089,7 @@ enum Opcodes
     CMSG_PETITION_QUERY                         = 0x048B,   ///< 6.0.3 19116
     CMSG_QUERY_GUILD_INFO                       = 0x0930,   ///< 6.0.3 19116
     CMSG_PAGE_TEXT_QUERY                        = 0x0BBB,   ///< 6.0.3 19116
-    CMSG_ITEM_TEXT_QUERY                        = 0x0000,
+    CMSG_ITEM_TEXT_QUERY                        = 0x11D9,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Interaction

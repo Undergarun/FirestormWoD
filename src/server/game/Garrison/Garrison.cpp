@@ -448,31 +448,6 @@ bool Garrison::Load(PreparedQueryResult p_GarrisonResult, PreparedQueryResult p_
 
                 l_Follower.Flags = l_Fields[10].GetUInt32();
 
-                /// Corrupted DB
-                if (l_Follower.Level == 0)
-                {
-                    const GarrFollowerEntry * l_Entry = sGarrFollowerStore.LookupEntry(l_Follower.FollowerID);
-
-                    if (l_Entry)
-                    {
-                        l_Follower.Level            = l_Entry->Level;
-                        l_Follower.XP               = 0;
-                        l_Follower.Quality          = l_Entry->Quality;
-                        l_Follower.ItemLevelArmor   = l_Entry->ItemLevelArmor;
-                        l_Follower.ItemLevelWeapon  = l_Entry->ItemLevelWeapon;
-
-                        l_Follower.Abilities.clear();
-
-                        for (uint32 l_I = 0; l_I < sGarrFollowerXAbilityStore.GetNumRows(); ++l_I)
-                        {
-                            const GarrFollowerXAbilityEntry * l_Entry = sGarrFollowerXAbilityStore.LookupEntry(l_I);
-
-                            if (l_Entry && l_Entry->FollowerID == l_Follower.FollowerID && sGarrAbilityStore.LookupEntry(l_Entry->AbilityID) && l_Entry->FactionIndex == GetGarrisonFactionIndex())
-                                l_Follower.Abilities.push_back(l_Entry->AbilityID);
-                        }
-                    }
-                }
-
                 m_Followers.push_back(l_Follower);
 
             } while (p_FollowersResult->NextRow());
@@ -510,13 +485,13 @@ bool Garrison::Load(PreparedQueryResult p_GarrisonResult, PreparedQueryResult p_
 
         if (l_CurrentAvailableMission > l_MaxMissionCount)
         {
-            std::remove_if(m_Missions.begin(), m_Missions.end(), [](const GarrisonMission & p_Mission) -> bool
+            m_Missions.erase(std::remove_if(m_Missions.begin(), m_Missions.end(), [](const GarrisonMission & p_Mission) -> bool
             {
                 if (p_Mission.State == GARRISON_MISSION_AVAILABLE && (p_Mission.OfferTime + p_Mission.OfferMaxDuration) > time(0))
                     return true;
 
                 return false;
-            });
+            }));
         }
 
         /// Unstuck follower
@@ -532,8 +507,33 @@ bool Garrison::Load(PreparedQueryResult p_GarrisonResult, PreparedQueryResult p_
                     return false;
                 });
 
-                if (l_It == m_Missions.end())
+                if (l_It == m_Missions.end() || (*l_It).State == GARRISON_MISSION_AVAILABLE)
                     p_Follower.CurrentMissionID = 0;
+            }
+
+            /// Corrupted DB
+            if (p_Follower.Level == 0)
+            {
+                const GarrFollowerEntry * l_Entry = sGarrFollowerStore.LookupEntry(p_Follower.FollowerID);
+
+                if (l_Entry)
+                {
+                    p_Follower.Level            = l_Entry->Level;
+                    p_Follower.XP               = 0;
+                    p_Follower.Quality          = l_Entry->Quality;
+                    p_Follower.ItemLevelArmor   = l_Entry->ItemLevelArmor;
+                    p_Follower.ItemLevelWeapon  = l_Entry->ItemLevelWeapon;
+
+                    p_Follower.Abilities.clear();
+
+                    for (uint32 l_I = 0; l_I < sGarrFollowerXAbilityStore.GetNumRows(); ++l_I)
+                    {
+                        const GarrFollowerXAbilityEntry * l_Entry = sGarrFollowerXAbilityStore.LookupEntry(l_I);
+
+                        if (l_Entry && l_Entry->FollowerID == p_Follower.FollowerID && sGarrAbilityStore.LookupEntry(l_Entry->AbilityID) && l_Entry->FactionIndex == GetGarrisonFactionIndex())
+                            p_Follower.Abilities.push_back(l_Entry->AbilityID);
+                    }
+                }
             }
         });
 
@@ -1027,6 +1027,7 @@ void Garrison::StartMission(uint32 p_MissionRecID, std::vector<uint64> p_Followe
 
     m_Owner->ModifyCurrency(GARRISON_CURRENCY_ID, -(int32)l_MissionTemplate->GarrisonCurrencyStartCost);
 
+    std::vector<uint32> l_FollowersIDs;
     for (uint32 l_I = 0; l_I < p_Followers.size(); ++l_I)
     {
         std::vector<GarrisonFollower>::iterator l_It = std::find_if(m_Followers.begin(), m_Followers.end(), [this, p_Followers, l_I](const GarrisonFollower p_Follower) -> bool
@@ -1038,6 +1039,7 @@ void Garrison::StartMission(uint32 p_MissionRecID, std::vector<uint64> p_Followe
         });
 
         l_It->CurrentMissionID = p_MissionRecID;
+        l_FollowersIDs.push_back(l_It->FollowerID);
     }
 
     GarrisonMission * l_Mission = nullptr;
@@ -1078,6 +1080,9 @@ void Garrison::StartMission(uint32 p_MissionRecID, std::vector<uint64> p_Followe
             l_Result << uint64(p_Followers[l_I]);
 
         m_Owner->SendDirectMessage(&l_Result);
+
+        if (GetGarrisonScript())
+            GetGarrisonScript()->OnMissionStart(p_MissionRecID, l_FollowersIDs);
     }
 }
 /// Send mission start failed packet
@@ -2272,7 +2277,10 @@ GarrisonBuilding Garrison::PurchaseBuilding(uint32 p_BuildingRecID, uint32 p_Plo
     m_Buildings.push_back(l_Building);
 
     UpdatePlot(p_PlotInstanceID);
-    
+
+    if (GetGarrisonScript())
+        GetGarrisonScript()->OnPurchaseBuilding(p_BuildingRecID);
+
     return l_Building;
 }
 /// Get building
@@ -2525,7 +2533,7 @@ void Garrison::InitDataForLevel()
 /// Init Game objects
 void Garrison::InitPlots()
 {
-    if (m_Owner->GetMapId() != GetGarrisonSiteLevelEntry()->MapID)
+    if (!m_Owner->IsInGarrison())
         return;
 
     for (uint32 l_I = 0; l_I < m_Plots.size(); ++l_I)
@@ -2599,7 +2607,7 @@ void Garrison::UninitPlots()
 /// Update plot game object
 void Garrison::UpdatePlot(uint32 p_PlotInstanceID)
 {
-    if (m_Owner->GetMapId() != GetGarrisonSiteLevelEntry()->MapID)
+    if (!m_Owner->IsInGarrison())
         return;
 
     GarrisonPlotInstanceInfoLocation    l_PlotInfo = GetPlot(p_PlotInstanceID);
@@ -2734,16 +2742,20 @@ void Garrison::UpdatePlot(uint32 p_PlotInstanceID)
                 {
                     Creature * l_Creature = m_Owner->SummonCreature(l_Contents[l_I].CreatureOrGob, l_Position.x, l_Position.y, l_Position.z, l_Contents[l_I].O + l_PlotInfo.O, TEMPSUMMON_MANUAL_DESPAWN);
 
-                    m_PlotsCreatures[p_PlotInstanceID].push_back(l_Creature->GetGUID());
+                    if (l_Creature)
+                    {
+                        m_PlotsCreatures[p_PlotInstanceID].push_back(l_Creature->GetGUID());
 
-                    if (l_Creature->AI())
-                        l_Creature->AI()->SetData(GARRISON_CREATURE_AI_DATA_BUILDER, 1);
+                        if (l_Creature->AI())
+                            l_Creature->AI()->SetData(GARRISON_CREATURE_AI_DATA_BUILDER, 1);
+                    }
                 }
                 else
                 {
                     GameObject * l_Cosmetic = m_Owner->SummonGameObject(-l_Contents[l_I].CreatureOrGob, l_Position.x, l_Position.y, l_Position.z, l_Contents[l_I].O, 0, 0, 0, 0, 0);
 
-                    m_PlotsGameObjects[p_PlotInstanceID].push_back(l_Cosmetic->GetGUID());
+                    if (l_Cosmetic)
+                        m_PlotsGameObjects[p_PlotInstanceID].push_back(l_Cosmetic->GetGUID());
                 }
             }
 

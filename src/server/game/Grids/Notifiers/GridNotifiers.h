@@ -694,10 +694,10 @@ namespace JadeCore
                 if (go->GetGOInfo()->type != GAMEOBJECT_TYPE_SPELL_FOCUS)
                     return false;
 
-                if (go->GetGOInfo()->spellFocus.focusId != i_focusId)
+                if (go->GetGOInfo()->spellFocus.spellFocusType != i_focusId)
                     return false;
 
-                float dist = (float)((go->GetGOInfo()->spellFocus.dist)/2);
+                float dist = (float)((go->GetGOInfo()->spellFocus.radius)/2);
 
                 return go->IsWithinDistInMap(i_unit, dist);
             }

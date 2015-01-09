@@ -118,6 +118,7 @@ enum WarlockSpells
     WARLOCK_GLYPH_OF_SOUL_SWAP              = 56226,
     WARLOCK_SOUL_HARVEST                    = 101976,
     WARLOCK_FEAR                            = 5782,
+    WARLOCK_SPELL_CORRUPTION                = 172,
     WARLOCK_SOULSHATTER                     = 32835,
     WARLOCK_HAND_OF_GULDAN_DAMAGE           = 86040,
     WARLOCK_HELLFIRE_DAMAGE                 = 5857,
@@ -1133,22 +1134,7 @@ class spell_warl_soul_link: public SpellScriptLoader
                     if (Unit* target = GetHitUnit())
                     {
                         if (!target->HasAura(WARLOCK_SOUL_LINK_DUMMY_AURA))
-                        {
-                            uint32 health = target->CountPctFromMaxHealth(GetSpellInfo()->Effects[EFFECT_0].BasePoints);
-
-                            if (target->GetHealth() > health)
-                                target->SetHealth(health);
-                            target->SetMaxHealth(health);
-
                             caster->CastSpell(caster, WARLOCK_SOUL_LINK_DUMMY_AURA, true);
-                        }
-                        else
-                        {
-                            target->SetMaxHealth(target->GetMaxHealth() * 2);
-                            target->SetHealth(target->GetHealth() * 2);
-                            caster->RemoveAura(WARLOCK_SOUL_LINK_DUMMY_AURA);
-                            target->RemoveAura(WARLOCK_SOUL_LINK_DUMMY_AURA);
-                        }
                     }
                 }
             }
@@ -1165,7 +1151,7 @@ class spell_warl_soul_link: public SpellScriptLoader
         }
 };
 
-// Called by Shadowflame - 47960
+// Called by Hand of Gul'dan - 47960, 
 // Molten Core - 122351
 class spell_warl_molten_core_dot: public SpellScriptLoader
 {
@@ -1178,10 +1164,13 @@ class spell_warl_molten_core_dot: public SpellScriptLoader
 
             void OnTick(constAuraEffectPtr aurEff)
             {
-                if (Unit* caster = GetCaster())
-                    if (caster->HasAura(WARLOCK_MOLTEN_CORE_AURA))
-                        if (roll_chance_i(aurEff->GetBaseAmount()))
-                            caster->CastSpell(caster, WARLOCK_MOLTEN_CORE, true);
+                if (Unit* l_Caster = GetCaster())
+                    if (l_Caster->HasAura(WARLOCK_MOLTEN_CORE_AURA))
+                    {
+                        const SpellInfo* l_SpellInfo = sSpellMgr->GetSpellInfo(WARLOCK_MOLTEN_CORE_AURA);
+                        if (l_SpellInfo != nullptr && roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
+                            l_Caster->CastSpell(l_Caster, WARLOCK_MOLTEN_CORE, true);
+                    }
             }
 
             void Register()
@@ -1209,12 +1198,14 @@ class spell_warl_decimate: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (Unit* target = GetHitUnit())
-                        if (_player->HasAura(WARLOCK_DECIMATE_AURA))
-                            if (target->GetHealthPct() < GetSpellInfo()->Effects[EFFECT_0].BasePoints)
-                                _player->CastSpell(_player, WARLOCK_MOLTEN_CORE, true);
+                    if (Unit* l_Target = GetHitUnit())
+                    {
+                        const SpellInfo* l_SpellInfo = sSpellMgr->GetSpellInfo(WARLOCK_MOLTEN_CORE_AURA);
+                        if (l_Caster->HasAura(WARLOCK_MOLTEN_CORE_AURA) && l_SpellInfo != nullptr && l_Target->GetHealthPct() < l_SpellInfo->Effects[EFFECT_1].BasePoints)
+                            l_Caster->CastSpell(l_Caster, WARLOCK_MOLTEN_CORE, true);
+                    }
                 }
             }
 
@@ -2326,17 +2317,7 @@ class spell_warl_life_tap: public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                 {
                     int32 amount = int32(caster->GetMaxHealth() * GetSpellInfo()->Effects[EFFECT_0].BasePoints / 100);
-
-                    if (caster->HasAura(WARLOCK_GLYPH_OF_LIFE_TAP))
-                    {
-                        if (AuraEffectPtr lifeTap = caster->GetAuraEffect(WARLOCK_LIFE_TAP, EFFECT_2))
-                            lifeTap->SetAmount(lifeTap->GetAmount() + amount);
-                    }
-                    else
-                    {
-                        caster->SetHealth(caster->GetHealth() - amount);
-                        caster->EnergizeBySpell(caster, WARLOCK_LIFE_TAP, amount, POWER_MANA);
-                    }
+                    caster->EnergizeBySpell(caster, WARLOCK_LIFE_TAP, amount, POWER_MANA);
                 }
             }
 
@@ -2350,6 +2331,28 @@ class spell_warl_life_tap: public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_warl_life_tap_SpellScript();
+        }
+
+        class spell_warl_life_tap_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_life_tap_AuraScript);
+
+            void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& p_Amount, bool& /*canBeRecalculated*/)
+            {
+                if (Unit* l_Caster = GetCaster())
+                    if (l_Caster->HasAura(WARLOCK_GLYPH_OF_LIFE_TAP))
+                        p_Amount = l_Caster->CountPctFromMaxHealth(p_Amount);
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_life_tap_AuraScript::CalculateAmount, EFFECT_2, SPELL_AURA_SCHOOL_HEAL_ABSORB);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_life_tap_AuraScript();
         }
 };
 
@@ -2856,9 +2859,48 @@ public:
     }
 };
 
+// Cataclysm - 152108
+class spell_warl_cataclysm : public SpellScriptLoader
+{
+public:
+    spell_warl_cataclysm() : SpellScriptLoader("spell_warl_cataclysm") { }
+
+    class spell_warl_cataclysm_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warl_cataclysm_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Player* l_Player = GetCaster()->ToPlayer())
+            {
+                if (Unit* l_Target = GetHitUnit())
+                {
+                    if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARLOCK_DESTRUCTION)
+                        l_Player->CastSpell(l_Target, WARLOCK_IMMOLATE, true);
+                    else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARLOCK_AFFLICTION)
+                        l_Player->CastSpell(l_Target, WARLOCK_AGONY, true);
+                    else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
+                        l_Player->CastSpell(l_Target, WARLOCK_SPELL_CORRUPTION, true);
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_warl_cataclysm_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_warl_cataclysm_SpellScript();
+    }
+};
+
 
 void AddSC_warlock_spell_scripts()
 {
+    new spell_warl_cataclysm();
     new spell_warl_siphon_life();
     new spell_warl_corruption();
     new spell_warl_siphon_life_heal();

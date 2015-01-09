@@ -2956,10 +2956,22 @@ void InstanceMap::SendResetWarnings(uint32 timeLeft) const
 
 void InstanceMap::SetResetSchedule(bool on)
 {
+    bool l_IsGarrisonMap = false;
+    for (uint32 l_I = 0; l_I < sGarrSiteLevelStore.GetNumRows(); ++l_I)
+    {
+        const GarrSiteLevelEntry * l_Entry = sGarrSiteLevelStore.LookupEntry(l_I);
+
+        if (l_Entry && l_Entry->MapID == GetId())
+        {
+            l_IsGarrisonMap = true;
+            break;
+        }
+    }
+
     // only for normal instances
     // the reset time is only scheduled when there are no payers inside
     // it is assumed that the reset time will rarely (if ever) change while the reset is scheduled
-    if (IsDungeon() && !HavePlayers() && !IsRaidOrHeroicDungeon())
+    if (IsDungeon() && !HavePlayers() && !IsRaidOrHeroicDungeon() && !l_IsGarrisonMap)
     {
         if (InstanceSave* save = sInstanceSaveMgr->GetInstanceSave(GetInstanceId()))
             sInstanceSaveMgr->ScheduleReset(on, save->GetResetTime(), InstanceSaveManager::InstResetEvent(0, GetId(), Difficulty(GetSpawnMode()), GetInstanceId()));

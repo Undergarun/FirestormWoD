@@ -831,14 +831,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
 
             LoginDatabase.CommitTransaction(trans);
 
-            QueryResult result2 = CharacterDatabase.PQuery("SELECT id FROM character_pet ORDER BY id DESC LIMIT 1");
-            uint32 pet_id = 1;
-            if (result2)
-            {
-                Field* fields = result2->Fetch();
-                pet_id = fields[0].GetUInt32();
-                pet_id += 1;
-            }
+            uint32 pet_id = sObjectMgr->GeneratePetNumber();
 
             if (createInfo->Class == CLASS_HUNTER)
             {

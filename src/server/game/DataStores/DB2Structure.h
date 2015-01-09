@@ -82,7 +82,7 @@ struct ItemSparseEntry
     uint32     Quality;                                      // 1
     uint32     Flags;                                        // 2
     uint32     Flags2;                                       // 3
-    uint32     Unk540_1;                                     // 4 unk flag
+    uint32     Flags3;                                       // 4 NYI
     float      Unk430_1;                                     // 5
     float      Unk430_2;                                     // 6
     uint32     BuyCount;                                     // 7
@@ -157,6 +157,146 @@ struct ItemEffectEntry
     uint32 SpellCategoryCooldown;                           // 8
 };
 
+// unused
+struct PlayerConditionEntry
+{
+    uint32 ID;                                              // 1
+    uint32 Flags;                                           // 2
+    uint32 MinLevel;                                        // 3
+    uint32 MaxLevel;                                        // 4
+    uint32 RaceMask;                                        // 5
+    uint32 ClassMask;                                       // 6
+    uint32 Gender;                                          // 7
+    uint32 NativeGender;                                    // 8
+    uint32 SkillID1;                                        // 9
+    uint32 SkillID2;                                        // 10
+    uint32 SkillID3;                                        // 11
+    uint32 SkillID4;                                        // 12
+    uint32 MinSkill1;                                       // 13
+    uint32 MinSkill2;                                       // 14
+    uint32 MinSkill3;                                       // 15
+    uint32 MinSkill4;                                       // 16
+    uint32 MaxSkill1;                                       // 17
+    uint32 MaxSkill2;                                       // 18
+    uint32 MaxSkill3;                                       // 19
+    uint32 MaxSkill4;                                       // 20
+    uint32 SkillLogic;                                      // 21
+    uint32 LanguageID;                                      // 22
+    uint32 MinLanguage;                                     // 23
+    uint32 MaxLanguage;                                     // 24
+    uint32 MinFactionID1;                                   // 25
+    uint32 MinFactionID2;                                   // 26
+    uint32 MinFactionID3;                                   // 27
+    uint32 MaxFactionID;                                    // 28
+    uint32 MinReputation1;                                  // 29
+    uint32 MinReputation2;                                  // 30
+    uint32 MinReputation3;                                  // 31
+    uint32 MaxReputation;                                   // 32
+    uint32 ReputationLogic;                                 // 33
+    uint32 MinPVPRank;                                      // 34
+    uint32 MaxPVPRank;                                      // 35
+    uint32 PvpMedal;                                        // 36
+    uint32 PrevQuestLogic;                                  // 37
+    uint32 PrevQuestID1;                                    // 38
+    uint32 PrevQuestID2;                                    // 39
+    uint32 PrevQuestID3;                                    // 40
+    uint32 PrevQuestID4;                                    // 41
+    uint32 CurrQuestLogic;                                  // 42
+    uint32 CurrQuestID1;                                    // 43
+    uint32 CurrQuestID2;                                    // 44
+    uint32 CurrQuestID3;                                    // 45
+    uint32 CurrQuestID4;                                    // 46
+    uint32 CurrentCompletedQuestLogic;                      // 47
+    uint32 CurrentCompletedQuestID1;                        // 48
+    uint32 CurrentCompletedQuestID2;                        // 49
+    uint32 CurrentCompletedQuestID3;                        // 50
+    uint32 CurrentCompletedQuestID4;                        // 51
+    uint32 SpellLogic;                                      // 52
+    uint32 SpellID1;                                        // 53
+    uint32 SpellID2;                                        // 54
+    uint32 SpellID3;                                        // 55
+    uint32 SpellID4;                                        // 56
+    uint32 ItemLogic;                                       // 57
+    uint32 ItemID1;                                         // 58
+    uint32 ItemID2;                                         // 59
+    uint32 ItemID3;                                         // 60
+    uint32 ItemID4;                                         // 61
+    uint32 ItemCount1;                                      // 62
+    uint32 ItemCount2;                                      // 63
+    uint32 ItemCount3;                                      // 64
+    uint32 ItemCount4;                                      // 65
+    uint32 ItemFlags;                                       // 66
+    uint32 Explored1;                                       // 67
+    uint32 Explored2;                                       // 68
+    uint32 Time1;                                           // 69
+    uint32 Time2;                                           // 70
+    uint32 AuraSpellLogic;                                  // 71
+    uint32 AuraSpellID1;                                    // 72
+    uint32 AuraSpellID2;                                    // 73
+    uint32 AuraSpellID3;                                    // 74
+    uint32 AuraSpellID4;                                    // 75
+    uint32 WorldStateExpressionID;                          // 76
+    uint32 WeatherID;                                       // 77
+    uint32 PartyStatus;                                     // 78
+    uint32 LifetimeMaxPVPRank;                              // 79
+    uint32 AchievementLogic;                                // 80
+    uint32 Achievement1;                                    // 81
+    uint32 Achievement2;                                    // 82
+    uint32 Achievement3;                                    // 83
+    uint32 Achievement4;                                    // 84
+    uint32 LfgLogic;                                        // 85
+    uint32 LfgStatus1;                                      // 86
+    uint32 LfgStatus2;                                      // 87
+    uint32 LfgStatus3;                                      // 88
+    uint32 LfgStatus4;                                      // 89
+    uint32 LfgCompare1;                                     // 90
+    uint32 LfgCompare2;                                     // 91
+    uint32 LfgCompare3;                                     // 92
+    uint32 LfgCompare4;                                     // 93
+    uint32 LfgValue1;                                       // 94
+    uint32 LfgValue2;                                       // 95
+    uint32 LfgValue3;                                       // 96
+    uint32 LfgValue4;                                       // 97
+    uint32 AreaLogic;                                       // 98
+    uint32 AreaID1;                                         // 99
+    uint32 AreaID2;                                         // 100
+    uint32 AreaID3;                                         // 101
+    uint32 AreaID4;                                         // 102
+    uint32 CurrencyLogic;                                   // 103
+    uint32 CurrencyID1;                                     // 104
+    uint32 CurrencyID2;                                     // 105
+    uint32 CurrencyID3;                                     // 106
+    uint32 CurrencyID4;                                     // 107
+    uint32 CurrencyCount1;                                  // 108
+    uint32 CurrencyCount2;                                  // 109
+    uint32 CurrencyCount3;                                  // 110
+    uint32 CurrencyCount4;                                  // 111
+    uint32 QuestKillID;                                     // 112
+    uint32 QuestKillLogic;                                  // 113
+    uint32 QuestKillMonster1;                               // 114
+    uint32 QuestKillMonster2;                               // 115
+    uint32 QuestKillMonster3;                               // 116
+    uint32 QuestKillMonster4;                               // 117
+    uint32 MinExpansionLevel;                               // 118
+    uint32 MaxExpansionLevel;                               // 119
+    uint32 MinExpansionTier;                                // 120
+    uint32 MaxExpansionTier;                                // 121
+    uint32 MinGuildLevel;                                   // 122
+    uint32 MaxGuildLevel;                                   // 123
+    uint32 PhaseUseFlags;                                   // 124
+    uint32 PhaseID;                                         // 125
+    uint32 PhaseGroupID;                                    // 126
+    uint32 MinAvgItemLevel;                                 // 127
+    uint32 MaxAvgItemLevel;                                 // 128
+    uint32 MinAvgEquippedItemLevel;                         // 129
+    uint32 MaxAvgEquippedItemLevel;                         // 130
+    uint32 ChrSpecializationIndex;                          // 131
+    uint32 ChrSpecializationRole;                           // 132
+    char*  FailureDescriptionLang;                          // 133
+    uint32 PowerType;                                       // 134
+    uint32 PowerTypeComp;                                   // 135
+    uint32 PowerTypeValue;                                  // 136
+};
 struct PvpItemEntry
 {
     uint32 itemId;
@@ -203,21 +343,20 @@ struct RulesetItemUpgradeEntry
 
 struct ItemExtendedCostEntry
 {
-    uint32      ID;                                                       // 0 extended-cost entry id
-    //uint32    reqhonorpoints;                                                             // 1 required honor points, only 0
-    //uint32    reqarenapoints;                                                            // 2 required arena points, only 0
-    uint32      RequiredArenaSlot;                                       // 3 arena slot restrictions (min slot value)
+    uint32      ID;                                                     // 0 extended-cost entry id
+    //uint32    reqhonorpoints;                                         // 1 required honor points, only 0
+    //uint32    reqarenapoints;                                         // 2 required arena points, only 0
+    uint32      RequiredArenaSlot;                                      // 3 arena slot restrictions (min slot value)
     uint32      RequiredItem[MAX_ITEM_EXT_COST_ITEMS];                  // 4-8 required item id
     uint32      RequiredItemCount[MAX_ITEM_EXT_COST_ITEMS];             // 9-13 required count of 1st item
     uint32      RequiredPersonalArenaRating;                            // 14 required personal arena rating
-    //uint32    ItemPurchaseGroup;                                                         // 15, only 0
+    //uint32    ItemPurchaseGroup;                                      // 15, only 0
     uint32      RequiredCurrency[MAX_ITEM_EXT_COST_CURRENCIES];         // 16-20 required curency id
     uint32      RequiredCurrencyCount[MAX_ITEM_EXT_COST_CURRENCIES];    // 21-25 required curency count
     //uint32    RequiredFactionId;                                      // 26
     //uint32    RequiredFactionStanding;                                // 27
     //uint32    RequirementFlags;                                       // 28
     //uint32    RequiredGuildLevel;                                     // 29 removed in 6.X
-    //uint32    RequiredAchievement;                                    // 30 only 0
 };
 
 struct QuestPackageItemEntry
@@ -295,7 +434,6 @@ struct SpellReagent
 
 typedef std::map<uint32, SpellReagent> SpellReagentMap;
 
-// @author Selenium: 5.4 valid
 struct TaxiPathNodeEntry
 {
     //uint32    ID;                                         // 0        m_ID
@@ -311,7 +449,6 @@ struct TaxiPathNodeEntry
     uint32    departureEventID;                             // 10       m_departureEventID
 };
 
-// @author Selenium: 5.4 valid
 struct SpellRuneCostEntry
 {
     uint32  ID;                                             // 0
@@ -322,8 +459,7 @@ struct SpellRuneCostEntry
     bool NoRunicPowerGain() const { return runePowerGain == 0; }
 };
 
-// SpellCastingRequirements.dbc
-// @author Selenium: 5.4 valid
+// SpellCastingRequirements.db2
 struct SpellCastingRequirementsEntry
 {
     //uint32    Id;                                         // 0      m_ID
@@ -335,35 +471,35 @@ struct SpellCastingRequirementsEntry
     uint32    RequiresSpellFocus;                           // 6      m_requiresSpellFocus
 };
 
-// SpellAuraRestrictions.dbc/
+// SpellAuraRestrictions.db2
 struct SpellAuraRestrictionsEntry
 {
-    //uint32    Id;                                         // 0       m_ID
-    uint32    CasterAuraState;                              // 1       Flag
-    uint32    TargetAuraState;                              // 2       Flag
-    uint32    CasterAuraStateNot;                           // 3       m_excludeCasterAuraState
-    uint32    TargetAuraStateNot;                           // 4       m_excludeTargetAuraState
-    uint32    casterAuraSpell;                              // 5       m_casterAuraSpell
-    uint32    targetAuraSpell;                              // 6       m_targetAuraSpell
-    uint32    excludeCasterAuraSpell;                       // 7      m_excludeCasterAuraSpell
-    uint32    excludeTargetAuraSpell;                       // 8      m_excludeTargetAuraSpell
+    //uint32    Id;                                         // 0 m_ID
+    uint32    CasterAuraState;                              // 1 Flag
+    uint32    TargetAuraState;                              // 2 Flag
+    uint32    CasterAuraStateNot;                           // 3 m_excludeCasterAuraState
+    uint32    TargetAuraStateNot;                           // 4 m_excludeTargetAuraState
+    uint32    casterAuraSpell;                              // 5 m_casterAuraSpell
+    uint32    targetAuraSpell;                              // 6 m_targetAuraSpell
+    uint32    excludeCasterAuraSpell;                       // 7 m_excludeCasterAuraSpell
+    uint32    excludeTargetAuraSpell;                       // 8 m_excludeTargetAuraSpell
 };
 
 struct AreaPOIEntry
 {
     uint32 id;                                              // 0
-    //uint32 unk;                                           // 1
+    //uint32 unk;                                           // 1 m_Importance
     //uint32 unk;                                           // 2
     //uint32 unk;                                           // 3
-    uint32 mapId;                                           // 4
-    uint32 zoneId;                                          // 5
+    uint32 mapId;                                           // 4 m_ContinentID
+    uint32 zoneId;                                          // 5 m_AreaID
     //uint32 unk;                                           // 6
-    float x;                                                // 7
-    float y;                                                // 8
-    //uint32 unk;                                           // 9
-    //char* name;                                           // 10
-    uint32 worldState;                                      // 11
-    //uint32 unk;                                           // 12
+    float x;                                                // 7 m_Pos
+    float y;                                                // 8 m_Pos
+    //char* m_NameLang;                                     // 9 m_NameLang
+    //char* m_DescriptionLang;                              // 10 m_DescriptionLang
+    uint32 worldState;                                      // 11 m_WorldStateID
+    //uint32 unk;                                           // 12 m_PlayerConditionID @todo
     //uint32 unk                                            // 13
     //uint32 unk;                                           // 14
 };
@@ -372,7 +508,6 @@ struct AreaPOIEntry
 #define MAX_HOLIDAY_DATES 16
 #define MAX_HOLIDAY_FLAGS 10
 
-// @author Selenium: 5.4 valid
 struct HolidaysEntry
 {
     uint32 Id;                                              // 0        m_ID
@@ -391,7 +526,6 @@ struct HolidaysEntry
 
 #define MAX_OVERRIDE_SPELL 10
 
-// @author Selenium: 5.4 valid
 struct OverrideSpellDataEntry
 {
     uint32      id;                                         // 0
@@ -450,7 +584,6 @@ struct SpellPowerEntry
 #define MAX_SPELL_TOTEMS            2
 
 // SpellTotems.dbc
-// @author Selenium: 5.4 valid
 struct SpellTotemsEntry
 {
     uint32    Id;                                           // 0  m_ID
@@ -473,7 +606,6 @@ struct SpellTotem
 typedef std::map<uint32, SpellTotem> SpellTotemMap;
 
 // SpellClassOptions.dbc
-// @author Selenium: 5.4 valid
 struct SpellClassOptionsEntry
 {
     //uint32    Id;                                         // 0       m_ID

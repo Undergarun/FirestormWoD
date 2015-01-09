@@ -378,7 +378,7 @@ void WorldSession::DoLootRelease(uint64 lguid)
             {                                               // The fishing hole used once more
                 go->AddUse();                               // if the max usage is reached, will be despawned in next tick
 
-                if (go->GetUseCount() >= urand(go->GetGOInfo()->fishinghole.minSuccessOpens, go->GetGOInfo()->fishinghole.maxSuccessOpens))
+                if (go->GetUseCount() >= urand(go->GetGOInfo()->fishinghole.minRestock, go->GetGOInfo()->fishinghole.maxRestock))
                     go->SetLootState(GO_JUST_DEACTIVATED);
                 else
                     go->SetLootState(GO_READY);

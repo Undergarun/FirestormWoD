@@ -133,6 +133,9 @@ void WorldSession::HandleRequestGarrisonUpgradeableOpcode(WorldPacket & p_RecvDa
 }
 void WorldSession::HandleRequestLandingPageShipmentInfoOpcode(WorldPacket & p_RecvData)
 {
+    if (!m_Player)
+        return;
+
     Garrison * l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)
@@ -141,6 +144,9 @@ void WorldSession::HandleRequestLandingPageShipmentInfoOpcode(WorldPacket & p_Re
 }
 void WorldSession::HandleGarrisonMissionNPCHelloOpcode(WorldPacket & p_RecvData)
 {
+    if (!m_Player)
+        return;
+
     Garrison * l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)
@@ -162,6 +168,9 @@ void WorldSession::HandleGarrisonMissionNPCHelloOpcode(WorldPacket & p_RecvData)
 }
 void WorldSession::HandleGarrisonRequestBuildingsOpcode(WorldPacket & p_RecvData)
 {
+    if (!m_Player)
+        return;
+
     Garrison * l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)
@@ -210,6 +219,9 @@ void WorldSession::HandleGarrisonRequestBuildingsOpcode(WorldPacket & p_RecvData
 }
 void WorldSession::HandleGarrisonPurchaseBuildingOpcode(WorldPacket & p_RecvData)
 {
+    if (!m_Player)
+        return;
+
     Garrison * l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)
@@ -300,6 +312,9 @@ void WorldSession::HandleGarrisonPurchaseBuildingOpcode(WorldPacket & p_RecvData
 }
 void WorldSession::HandleGarrisonCancelConstructionOpcode(WorldPacket & p_RecvData)
 {
+    if (!m_Player)
+        return;
+
     Garrison * l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)
@@ -324,6 +339,9 @@ void WorldSession::HandleGarrisonCancelConstructionOpcode(WorldPacket & p_RecvDa
 }
 void WorldSession::HandleGarrisonStartMissionOpcode(WorldPacket & p_RecvData)
 {
+    if (!m_Player)
+        return;
+
     Garrison * l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)
@@ -359,6 +377,9 @@ void WorldSession::HandleGarrisonStartMissionOpcode(WorldPacket & p_RecvData)
 }
 void WorldSession::HandleGarrisonCompleteMissionOpcode(WorldPacket & p_RecvData)
 {
+    if (!m_Player)
+        return;
+
     Garrison * l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)
@@ -382,6 +403,9 @@ void WorldSession::HandleGarrisonCompleteMissionOpcode(WorldPacket & p_RecvData)
 }
 void WorldSession::HandleGarrisonMissionBonusRollOpcode(WorldPacket & p_RecvData)
 {
+    if (!m_Player)
+        return;
+
     Garrison * l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)
@@ -405,6 +429,9 @@ void WorldSession::HandleGarrisonMissionBonusRollOpcode(WorldPacket & p_RecvData
 }
 void WorldSession::HandleGarrisonChangeFollowerActivationStateOpcode(WorldPacket & p_RecvData)
 {
+    if (!m_Player)
+        return;
+
     Garrison * l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)
