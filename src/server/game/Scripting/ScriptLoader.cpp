@@ -809,6 +809,7 @@ void AddSC_Garrison_Quest();
 void AddSC_Garrison_A1();
 void AddSC_Garrison_H1();
 void AddSC_Garrison();
+void AddSC_item_strongboxes();
 
 /* Skyreach Dungeon */
 void AddSC_instance_Skyreach();
@@ -1693,6 +1694,7 @@ void AddDraenorScripts()
     AddSC_spell_Bloodmaul();
     AddSC_areatrigger_Bloodmaul();
     AddSC_boss_SlaveWatcherCrushto();
+    AddSC_item_strongboxes();
 #endif
 }
 
