@@ -129,7 +129,8 @@ extern uint32 gGarrisonBuildingActivationGameObject[GARRISON_FACTION_COUNT];
 
 enum 
 {
-    GARRISON_CREATURE_AI_DATA_BUILDER = 10000
+    GARRISON_CREATURE_AI_DATA_BUILDER       = 10000,
+    GARRISON_CREATURE_AI_DATA_PEON_WORKING  = 10001
 };
 
 struct GarrisonPlotInstanceInfoLocation
@@ -221,6 +222,13 @@ struct GarrisonMissionReward
 
 class Player;
 
+enum GarrisonInstanceData
+{
+    GARRISON_INSTANCE_DATA_PEON_ENABLED = 99,
+    GARRISON_INSTANCE_DATA_THREE_FIRST  = 100,
+    GARRISON_INSTANCE_DATA_THREE_END    = 110,
+};
+
 class GarrisonInstanceScriptBase
 {
     public:
@@ -228,6 +236,8 @@ class GarrisonInstanceScriptBase
         virtual void OnQuestStarted(Player * p_Owner, const Quest * p_Quest) = 0;
         /// When the garrison owner reward a quest
         virtual void OnQuestReward(Player * p_Owner, const Quest * p_Quest) = 0;
+        /// When the garrison owner abandon a quest
+        virtual void OnQuestAbandon(Player * p_Owner, const Quest * p_Quest) = 0;
 
         /// Get phase mask
         virtual uint32 GetPhaseMask(Player * p_Owner) = 0;
@@ -279,6 +289,8 @@ class Garrison
         void OnQuestStarted(const Quest * p_Quest);
         /// When the garrison owner reward a quest
         void OnQuestReward(const Quest * p_Quest);
+        /// When the garrison owner abandon a quest
+        void OnQuestAbandon(const Quest * p_Quest);
 
         /// set last used activation game object
         void SetLastUsedActivationGameObject(uint64 p_Guid);

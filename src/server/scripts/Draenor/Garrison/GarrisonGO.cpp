@@ -8,9 +8,13 @@
 enum
 {
     SPELL_RELIEVED              = 162410,
+
     ACHIEVEMENT_STAYING_REGULAR = 8933,
+
     QUEST_KEEPING_IT_TOGETHER   = 35176,
     QUEST_WHAT_WE_GOT           = 34824,
+
+    NPC_LADY_SENA               = 80223
 };
 
 /// Garrison cache generic script
@@ -30,10 +34,20 @@ class go_garrison_cache : public GameObjectScript
             {
                 p_Player->GetGarrison()->RewardGarrisonCache();
 
-                if (p_Player->hasQuest(QUEST_KEEPING_IT_TOGETHER) && p_GameObject)
+                /// Alliance
+                if (p_Player->HasQuest(QUEST_KEEPING_IT_TOGETHER) && p_GameObject)
                     p_Player->QuestObjectiveSatisfy(41327, 1, QUEST_OBJECTIVE_TYPE_CRITERIA, p_GameObject->GetGUID());
-                if (p_Player->hasQuest(QUEST_WHAT_WE_GOT) && p_GameObject)
+
+                /// Horde
+                if (p_Player->HasQuest(QUEST_WHAT_WE_GOT) && p_GameObject)
+                {
                     p_Player->QuestObjectiveSatisfy(41325, 2, QUEST_OBJECTIVE_TYPE_CRITERIA, p_GameObject->GetGUID());
+
+                    Creature * l_Creature = p_Player->FindNearestCreature(NPC_LADY_SENA, 15);
+
+                    if (l_Creature)
+                        l_Creature->AI()->Talk(0);
+                }
             }
 
             return false;

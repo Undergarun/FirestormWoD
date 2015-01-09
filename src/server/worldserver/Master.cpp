@@ -226,88 +226,88 @@ public:
     }
 };
 
-class GmChatLogToDBRunnable : public ACE_Based::Runnable
-{
-public:
-
-    void run ()
-    {
-        while (!World::IsStopped())
-        {
-            GmChat * ChatLog;
-            while(!GmChatLogQueue.empty())
-            {
-                GmChatLogQueue.next(ChatLog);
-                CharacterDatabase.EscapeString(ChatLog->accountName[0]);
-                CharacterDatabase.EscapeString(ChatLog->accountName[1]);
-                CharacterDatabase.EscapeString(ChatLog->characterName[0]);
-                CharacterDatabase.EscapeString(ChatLog->characterName[1]);
-                CharacterDatabase.EscapeString(ChatLog->message);
-                //No sql injections. Strings are escaped.
-
-                //au cas ou on a pas les infos...
-                if (ChatLog->accountName[0] == "" && ChatLog->accountID[0] != 0)
-                {
-                    QueryResult result = LoginDatabase.PQuery("SELECT username FROM account WHERE id = %u", ChatLog->accountID[0]);
-                    if (result)
-                    {
-                        Field *fields = result->Fetch();
-                        ChatLog->accountName[0] = fields[0].GetString();
-                        CharacterDatabase.EscapeString(ChatLog->accountName[0]);
-                    }
-                }
-
-                if (ChatLog->accountName[1] == "" && ChatLog->accountID[1] != 0)
-                {
-                    QueryResult result = LoginDatabase.PQuery("SELECT username FROM account WHERE id = %u", ChatLog->accountID[1]);
-                    if (result)
-                    {
-                        Field *fields = result->Fetch();
-                        ChatLog->accountName[1] = fields[0].GetString();
-                        CharacterDatabase.EscapeString(ChatLog->accountName[1]);
-                    }
-                }
-
-                if (ChatLog->characterName[0] == "" && ChatLog->characterID[0] != 0)
-                {
-                    QueryResult result = CharacterDatabase.PQuery("SELECT name FROM character WHERE guid = %u", ChatLog->characterID[0]);
-                    if (result)
-                    {
-                        Field *fields = result->Fetch();
-                        ChatLog->characterName[0] = fields[0].GetString();
-                        CharacterDatabase.EscapeString(ChatLog->characterName[0]);
-                    }
-                }
-
-                if (ChatLog->characterName[1] == "" && ChatLog->characterID[1] != 0)
-                {
-                    QueryResult result = CharacterDatabase.PQuery("SELECT name FROM character WHERE guid = %u", ChatLog->characterID[1]);
-                    if (result)
-                    {
-                        Field *fields = result->Fetch();
-                        ChatLog->characterName[1] = fields[0].GetString();
-                        CharacterDatabase.EscapeString(ChatLog->characterName[1]);
-                    }
-                }
-
-                CharacterDatabase.PExecute( "INSERT INTO log_gm_chat(`type`, `date`, "
-                    "`from_account_id`, `from_account_name`, `from_character_id`, `from_character_name`,"
-                    "`to_account_id`, `to_account_name`, `to_character_id`, `to_character_name`,"
-                    "`message`)"
-                    "VALUES(%u, NOW(),"
-                    "%u,'%s',%u,'%s',"
-                    "%u,'%s',%u,'%s',"
-                    "'%s')",
-                    ChatLog->type,
-                    ChatLog->accountID[0], ChatLog->accountName[0].c_str(), ChatLog->characterID[0], ChatLog->characterName[0].c_str(),
-                    ChatLog->accountID[1], ChatLog->accountName[1].c_str(), ChatLog->characterID[1], ChatLog->characterName[1].c_str(),
-                    ChatLog->message.c_str());
-                delete ChatLog;
-            }
-            ACE_Based::Thread::Sleep(1000);
-        }
-    }
-};
+// class GmChatLogToDBRunnable : public ACE_Based::Runnable
+// {
+// public:
+// 
+//     void run ()
+//     {
+//         while (!World::IsStopped())
+//         {
+//             GmChat * ChatLog;
+//             while(!GmChatLogQueue.empty())
+//             {
+//                 GmChatLogQueue.next(ChatLog);
+//                 CharacterDatabase.EscapeString(ChatLog->accountName[0]);
+//                 CharacterDatabase.EscapeString(ChatLog->accountName[1]);
+//                 CharacterDatabase.EscapeString(ChatLog->characterName[0]);
+//                 CharacterDatabase.EscapeString(ChatLog->characterName[1]);
+//                 CharacterDatabase.EscapeString(ChatLog->message);
+//                 //No sql injections. Strings are escaped.
+// 
+//                 //au cas ou on a pas les infos...
+//                 if (ChatLog->accountName[0] == "" && ChatLog->accountID[0] != 0)
+//                 {
+//                     QueryResult result = LoginDatabase.PQuery("SELECT username FROM account WHERE id = %u", ChatLog->accountID[0]);
+//                     if (result)
+//                     {
+//                         Field *fields = result->Fetch();
+//                         ChatLog->accountName[0] = fields[0].GetString();
+//                         CharacterDatabase.EscapeString(ChatLog->accountName[0]);
+//                     }
+//                 }
+// 
+//                 if (ChatLog->accountName[1] == "" && ChatLog->accountID[1] != 0)
+//                 {
+//                     QueryResult result = LoginDatabase.PQuery("SELECT username FROM account WHERE id = %u", ChatLog->accountID[1]);
+//                     if (result)
+//                     {
+//                         Field *fields = result->Fetch();
+//                         ChatLog->accountName[1] = fields[0].GetString();
+//                         CharacterDatabase.EscapeString(ChatLog->accountName[1]);
+//                     }
+//                 }
+// 
+//                 if (ChatLog->characterName[0] == "" && ChatLog->characterID[0] != 0)
+//                 {
+//                     QueryResult result = CharacterDatabase.PQuery("SELECT name FROM character WHERE guid = %u", ChatLog->characterID[0]);
+//                     if (result)
+//                     {
+//                         Field *fields = result->Fetch();
+//                         ChatLog->characterName[0] = fields[0].GetString();
+//                         CharacterDatabase.EscapeString(ChatLog->characterName[0]);
+//                     }
+//                 }
+// 
+//                 if (ChatLog->characterName[1] == "" && ChatLog->characterID[1] != 0)
+//                 {
+//                     QueryResult result = CharacterDatabase.PQuery("SELECT name FROM character WHERE guid = %u", ChatLog->characterID[1]);
+//                     if (result)
+//                     {
+//                         Field *fields = result->Fetch();
+//                         ChatLog->characterName[1] = fields[0].GetString();
+//                         CharacterDatabase.EscapeString(ChatLog->characterName[1]);
+//                     }
+//                 }
+// 
+//                 CharacterDatabase.PExecute( "INSERT INTO log_gm_chat(`type`, `date`, "
+//                     "`from_account_id`, `from_account_name`, `from_character_id`, `from_character_name`,"
+//                     "`to_account_id`, `to_account_name`, `to_character_id`, `to_character_name`,"
+//                     "`message`)"
+//                     "VALUES(%u, NOW(),"
+//                     "%u,'%s',%u,'%s',"
+//                     "%u,'%s',%u,'%s',"
+//                     "'%s')",
+//                     ChatLog->type,
+//                     ChatLog->accountID[0], ChatLog->accountName[0].c_str(), ChatLog->characterID[0], ChatLog->characterName[0].c_str(),
+//                     ChatLog->accountID[1], ChatLog->accountName[1].c_str(), ChatLog->characterID[1], ChatLog->characterName[1].c_str(),
+//                     ChatLog->message.c_str());
+//                 delete ChatLog;
+//             }
+//             ACE_Based::Thread::Sleep(1000);
+//         }
+//     }
+// };
 
 class ArenaLogToDBRunnable : public ACE_Based::Runnable
 {
@@ -619,7 +619,7 @@ int Master::Run()
 
     ACE_Based::Thread rar_thread(new RARunnable);
     ACE_Based::Thread gmLogToDB_thread(new GmLogToDBRunnable);
-    ACE_Based::Thread gmChatLogToDB_thread(new GmChatLogToDBRunnable);
+//    ACE_Based::Thread gmChatLogToDB_thread(new GmChatLogToDBRunnable);
     ACE_Based::Thread arenaLogToDB_thread(new ArenaLogToDBRunnable);
     //ACE_Based::Thread CharactersTransfertRunnable_thread(new CharactersTransfertRunnable);
 

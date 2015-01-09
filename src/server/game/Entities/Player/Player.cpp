@@ -18748,6 +18748,9 @@ void Player::RemoveActiveQuest(uint32 quest_id)
         phaseUdateData.AddQuestUpdate(quest_id);
 
         phaseMgr.NotifyConditionChanged(phaseUdateData);
+
+        if (m_Garrison)
+            m_Garrison->OnQuestAbandon(l_Quest);
         return;
     }
 }
@@ -19228,7 +19231,7 @@ bool Player::HasQuestForItem(uint32 itemid) const
     }
     return false;
 }
-bool Player::hasQuest(uint32 p_QuestID) const
+bool Player::HasQuest(uint32 p_QuestID) const
 {
     for (uint8 l_I = 0; l_I < MAX_QUEST_LOG_SIZE; ++l_I)
     {

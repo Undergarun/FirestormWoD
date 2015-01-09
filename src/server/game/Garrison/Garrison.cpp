@@ -773,6 +773,19 @@ void Garrison::OnQuestReward(const Quest * p_Quest)
         m_Owner->SetPhaseMask(l_GarrisonScript->GetPhaseMask(m_Owner), true);
     }
 }
+/// When the garrison owner abandon a quest
+void Garrison::OnQuestAbandon(const Quest * p_Quest)
+{
+    GarrisonInstanceScriptBase * l_GarrisonScript = GetGarrisonScript();
+
+    if (l_GarrisonScript)
+    {
+        /// Broadcast event
+        l_GarrisonScript->OnQuestAbandon(m_Owner, p_Quest);
+        /// Update phasing
+        m_Owner->SetPhaseMask(l_GarrisonScript->GetPhaseMask(m_Owner), true);
+    }
+}
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
