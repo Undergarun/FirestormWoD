@@ -55,7 +55,7 @@ void WorldSession::HandleQueryGuildInfoOpcode(WorldPacket& p_Packet)
         {
             l_Guild->HandleQuery(this);
 
-            if (m_Player && m_Player->IsInWorld())
+            if (m_Player && m_Player->IsInWorld() && l_Guild->IsMember(m_Player->GetGUID()))
                 l_Guild->SendBankList(this, 0, false, true);
 
             return;
