@@ -1684,10 +1684,6 @@ void LootTemplate::FillAutoAssignationLoot(std::list<const ItemTemplate*>& p_Ite
 {
     for (LootStoreItemList::const_iterator l_Ia = Entries.begin(); l_Ia != Entries.end(); ++l_Ia)
     {
-        if (p_Player && l_Ia->conditions.size())
-            if (!sConditionMgr->IsObjectMeetToConditions(p_Player, l_Ia->conditions))
-                continue;
-
         if (l_Ia->type == LOOT_ITEM_TYPE_ITEM)
         {
             if (l_Ia->mincountOrRef > 0)
