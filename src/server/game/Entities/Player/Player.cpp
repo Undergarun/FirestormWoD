@@ -10959,7 +10959,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
                 loot->clear();
 
                 Group* group = GetGroup();
-                bool groupRules = (group && go->GetGOInfo()->type == GAMEOBJECT_TYPE_CHEST && go->GetGOInfo()->chest.groupLootRules);
+                bool groupRules = (group && go->GetGOInfo()->type == GAMEOBJECT_TYPE_CHEST && go->GetGOInfo()->chest.usegrouplootrules);
 
                 // check current RR player and get next if necessary
                 if (groupRules)
@@ -10975,7 +10975,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
             if (loot_type == LOOT_FISHING)
                 go->getFishLoot(loot, this);
 
-            if (go->GetGOInfo()->type == GAMEOBJECT_TYPE_CHEST && go->GetGOInfo()->chest.groupLootRules)
+            if (go->GetGOInfo()->type == GAMEOBJECT_TYPE_CHEST && go->GetGOInfo()->chest.usegrouplootrules)
             {
                 if (Group* group = GetGroup())
                 {
@@ -17630,7 +17630,10 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 p_Reward, bool msg)
             {
                 case uint8(PackageItemRewardType::SpecializationReward):
                     if (!l_ItemTemplate->HasSpec((SpecIndex)GetSpecializationId(GetActiveSpec())))
+                    {
+                        GetSession()->SendNotification(LANG_NO_SPE_FOR_DYNAMIC_REWARD);
                         return false;
+                    }
                     break;
                 case uint8(PackageItemRewardType::ClassReward):
                     if (!l_ItemTemplate->HasClassSpec(getClass()))
@@ -26144,11 +26147,11 @@ void Player::SendInitialPacketsAfterAddToMap()
     SendToyBox();
 
     /// Force map shift update
-    if ((GetMapId() == GARRISON_BASE_MAP && m_Garrison) || IsInGarrison())
-    {
-        phaseMgr.Update();
-        phaseMgr.ForceMapShiftUpdate();
-    }
+//     if ((GetMapId() == GARRISON_BASE_MAP && m_Garrison) || IsInGarrison())
+//     {
+//         phaseMgr.Update();
+//         phaseMgr.ForceMapShiftUpdate();
+//     }
 
     if (IsInGarrison())
         m_Garrison->OnPlayerEnter();

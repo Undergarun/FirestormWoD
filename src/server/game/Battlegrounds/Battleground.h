@@ -169,6 +169,22 @@ enum class FlagIcon : uint8
     Alliance  = 2               ///< "AllianceFlag"
 };
 
+enum BattlegroundAward
+{
+    AWARD_GOLD,
+    AWARD_SILVER,
+    AWARD_BRONZE,
+    AWARD_NONE
+};
+
+enum PvPAwardSpells
+{
+    PVP_AWARD_SPELL_GOLDEN_STRONBOX     = 155306,
+    PVP_AWARD_SPELL_SILVER_STRONGBOX    = 177453,
+    PVP_AWARD_SPELL_BRONZE_STRONGBOX    = 155307,
+    PVP_AWARD_SPELL_SKIRMISH_WIN        = 177346,
+};
+
 struct BattlegroundPlayer
 {
     time_t  OfflineRemoveTime;                              // for tracking and removing offline players from queue after 5 minutes
@@ -663,7 +679,10 @@ class Battleground
 
         /// - Debug only
         void FastStart() { m_StartDelayTime = 0; }
-
+        
+        void AwardTeams(uint32 p_PointsCount, uint32 p_MaxCount, uint32 p_Looser);
+        void AwardTeamsWithRewards(BattlegroundAward p_LooserAward, uint32 p_LooserTeam);
+        static uint32 GetSpellIdForAward(BattlegroundAward p_Award);
     protected:
         void BuildArenaOpponentSpecializations(WorldPacket* data, uint32 team);
 
@@ -849,5 +868,6 @@ inline void FillInitialWorldState(ByteBuffer& data, uint32& count, WorldStatePai
         ++count;
     }
 }
+
 #endif
 

@@ -90,7 +90,7 @@ bool Transport::Create(uint32 guidlow, uint32 entry, uint32 mapid, float x, floa
     SetEntry(goinfo->entry);
     SetDisplayId(goinfo->displayId);
     SetGoState(GO_STATE_READY);
-    _pendingStop = goinfo->moTransport.canBeStopped != 0;
+    _pendingStop = goinfo->moTransport.allowstopping != 0;
     SetGoType(GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT);
     SetGoAnimProgress(animprogress);
     SetName(goinfo->name);
@@ -160,7 +160,7 @@ void Transport::Update(uint32 diff)
         SetMoving(true);
 
         // Enable movement
-        if (GetGOInfo()->moTransport.canBeStopped)
+        if (GetGOInfo()->moTransport.allowstopping)
             SetGoState(GO_STATE_ACTIVE);
 
         // Departure event
@@ -362,7 +362,7 @@ void Transport::UnloadStaticPassengers()
 
 void Transport::EnableMovement(bool enabled)
 {
-    if (!GetGOInfo()->moTransport.canBeStopped)
+    if (!GetGOInfo()->moTransport.allowstopping)
         return;
 
     _pendingStop = !enabled;

@@ -1,0 +1,2 @@
+DELETE FROM trinity_string WHERE entry = 14062;
+insert into `trinity_string` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`, `content_loc9`, `content_loc10`) values('14062','You must have chosen a specialization to get this reward.',NULL,'Vous devez avoir choisi une spécialisation afin d\'obtenir cette récompense.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
