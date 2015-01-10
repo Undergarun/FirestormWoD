@@ -7787,7 +7787,7 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
         if (roll_chance_i(l_DropChance))
         {
             l_Player->AddItem(l_Items[0], 1);
-            l_Player->SendDisplayToast(l_Items[0], 1, DISPLAY_TOAST_METHOD_LOOT, TOAST_TYPE_NEW_ITEM, false, false);
+            l_Player->SendDisplayToast(l_Items[0], 1, l_IsBGReward ? DISPLAY_TOAST_METHOD_PVP_FACTION_LOOT_TOAST : DISPLAY_TOAST_METHOD_LOOT, TOAST_TYPE_NEW_ITEM, false, false);
 
             if (!l_IsBGReward)
                 l_Player->ResetBonusRollFails();

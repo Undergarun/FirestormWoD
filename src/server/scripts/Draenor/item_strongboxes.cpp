@@ -90,7 +90,7 @@ public:
         if (roll_chance_i(l_ItemChance))
         {
             p_Player->AddItem(l_Items[0], 1);
-            p_Player->SendDisplayToast(l_Items[0], 1, DISPLAY_TOAST_METHOD_PVP_FACTION_LOOT_TOAST, TOAST_TYPE_NEW_ITEM, false, false);
+            p_Player->SendDisplayToast(l_Items[0], 1, DISPLAY_TOAST_METHOD_LOOT, TOAST_TYPE_NEW_ITEM, false, false);
         }
         else
         {
@@ -98,13 +98,13 @@ public:
             {
                 int64 l_GoldAmount = urand(l_MinMoney * GOLD , (l_MinMoney + 10) * GOLD) * sWorld->getRate(RATE_DROP_MONEY);
                 p_Player->ModifyMoney(l_GoldAmount);
-                p_Player->SendDisplayToast(0, l_GoldAmount, DISPLAY_TOAST_METHOD_PVP_FACTION_LOOT_TOAST, TOAST_TYPE_MONEY, false, false);
+                p_Player->SendDisplayToast(0, l_GoldAmount, DISPLAY_TOAST_METHOD_CURRENCY_OR_GOLD, TOAST_TYPE_MONEY, false, false);
             }
             else
             {
                 int32 l_HonorAmount = urand(l_MinHonor, l_MinHonor + 50) * CURRENCY_PRECISION;
                 p_Player->ModifyCurrency(CURRENCY_TYPE_HONOR_POINTS, l_HonorAmount);
-                p_Player->SendDisplayToast(CURRENCY_TYPE_HONOR_POINTS, l_HonorAmount  / CURRENCY_PRECISION, DISPLAY_TOAST_METHOD_PVP_FACTION_LOOT_TOAST, TOAST_TYPE_NEW_CURRENCY, false, false);
+                p_Player->SendDisplayToast(CURRENCY_TYPE_HONOR_POINTS, l_HonorAmount  / CURRENCY_PRECISION, DISPLAY_TOAST_METHOD_CURRENCY_OR_GOLD, TOAST_TYPE_NEW_CURRENCY, false, false);
             }
         }
         return true;
