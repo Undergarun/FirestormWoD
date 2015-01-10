@@ -455,6 +455,33 @@ bool Garrison::Load(PreparedQueryResult p_GarrisonResult, PreparedQueryResult p_
 
         Init();
 
+        m_Missions.erase(std::remove_if(m_Missions.begin(), m_Missions.end(), [this](const GarrisonMission & p_Mission) -> bool
+        {
+            if (p_Mission.State != GARRISON_MISSION_IN_PROGRESS)
+                return false;
+
+            uint32 l_FollowerCount = std::count_if(m_Followers.begin(), m_Followers.end(), [p_Mission](const GarrisonFollower & p_Follower) -> bool
+            {
+                if (p_Follower.CurrentMissionID == p_Mission.MissionID)
+                    return true;
+
+                return false;
+            });
+
+            if (l_FollowerCount == 0)
+                return true;
+
+            const GarrMissionEntry * l_MissionTemplate = sGarrMissionStore.LookupEntry(p_Mission.MissionID);
+
+            if (!l_MissionTemplate)
+                return true;
+
+            if (l_MissionTemplate->RequiredFollowersCount != l_FollowerCount)
+                return true;
+
+            return false;
+        }));
+
         std::vector<uint32> l_FollowerQuests = sObjectMgr->FollowerQuests;
 
         /// Quest non rewarded followers
