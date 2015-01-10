@@ -9410,7 +9410,7 @@ void Player::UpdateArea(uint32 newArea)
         sOutdoorPvPMgr->HandlePlayerEnterArea(this, newArea);
 
         /// Garrison phasing specific code
-        if (m_Garrison && (GetMapId() == GARRISON_BASE_MAP || GetMapId() == GetGarrison()->GetGarrisonSiteLevelEntry()->MapID))
+        if (m_Garrison && m_Garrison->GetGarrisonSiteLevelEntry() && (GetMapId() == GARRISON_BASE_MAP || GetMapId() == m_Garrison->GetGarrisonSiteLevelEntry()->MapID))
         {
             Map * l_Map = sMapMgr->FindBaseNonInstanceMap(GARRISON_BASE_MAP);
 
@@ -31095,9 +31095,10 @@ void Player::CreateGarrison()
     m_Garrison = new Garrison(this);
     m_Garrison->Create();
 }
+
 bool Player::IsInGarrison()
 {
-    if (!m_Garrison)
+    if (!m_Garrison || !m_Garrison->GetGarrisonSiteLevelEntry())
         return false;
 
     if (GetMapId() == m_Garrison->GetGarrisonSiteLevelEntry()->MapID)

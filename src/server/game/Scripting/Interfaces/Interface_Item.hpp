@@ -54,6 +54,17 @@ class ItemScript : public ScriptObjectImpl<true>
 
             return false;
         }
+        
+        /// Called when a player open the item
+        /// @p_Player : The Player who has used this item
+        /// @p_Item   : Used Item instance
+        virtual bool OnOpen(Player * p_Player, Item * p_Item)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_Item);
+
+            return false;
+        }
 
         /// Called when the item expires (is destroyed).
         /// @p_Player       : Item destroyer player instance
