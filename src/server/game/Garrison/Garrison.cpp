@@ -3010,6 +3010,9 @@ void Garrison::UpdateMissionDistribution()
                 if (l_Entry->RequiredFollowersCount > m_Followers.size())
                     continue;
 
+                if (l_Entry->Duration <= 10)
+                    continue;
+
                 /// Max Level cap : 2
                 if (l_Entry->RequiredLevel > (int32)(l_MaxFollowerLevel + 2))
                     continue;
