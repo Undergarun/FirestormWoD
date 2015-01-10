@@ -16,6 +16,24 @@ namespace MS
                 if (p_Group->m_BracketId != p_BracketId)
                     return false;
 
+                if (p_Group->m_IsSkirmish)
+                {
+                    if (p_Group->m_ArenaType == ArenaType::Arena2v2 && p_BattlegroundMask & BattlegroundMasks::ArenaSkirmish2v2)
+                        return true;
+                    if (p_Group->m_ArenaType == ArenaType::Arena3v3 && p_BattlegroundMask & BattlegroundMasks::ArenaSkirmish3v3)
+                        return true;
+                }
+
+                if (p_Group->m_IsRatedBG)
+                {
+                    if (p_Group->m_ArenaType == ArenaType::Arena2v2 && p_BattlegroundMask & BattlegroundMasks::Arena2v2)
+                        return true;
+                    if (p_Group->m_ArenaType == ArenaType::Arena3v3 && p_BattlegroundMask & BattlegroundMasks::Arena3v3)
+                        return true;
+                    if (p_Group->m_ArenaType == ArenaType::Arena5v5 && p_BattlegroundMask & BattlegroundMasks::Arena5v5)
+                        return true;
+                }
+
                 return (p_Group->m_WantedBGs & p_BattlegroundMask) != 0;
             }
 
@@ -62,7 +80,7 @@ namespace MS
             sBattlegroundMgr->GetInvitationsMgr().InviteGroupToBG(p_Group, p_BG, 0);
         }
 
-        GroupQueueInfo* BattlegroundScheduler::AddGroup(Player* p_Leader, Group* p_Group, BattlegroundType::Type p_BgTypeId, MS::Battlegrounds::Bracket const*  p_BracketEntry, uint8 p_ArenaType, bool p_IsRatedBG, bool p_IsPremade, uint32 p_ArenaRating, uint32 p_MatchmakerRating, bool p_IsSkirmish)
+        GroupQueueInfo* BattlegroundScheduler::AddGroup(Player* p_Leader, Group* p_Group, BattlegroundType::Type p_BgTypeId, uint32 p_BlackWishes[2], MS::Battlegrounds::Bracket const*  p_BracketEntry, uint8 p_ArenaType, bool p_IsRatedBG, bool p_IsPremade, uint32 p_ArenaRating, uint32 p_MatchmakerRating, bool p_IsSkirmish)
         {
             Bracket::Id l_BracketId = p_BracketEntry->m_Id;
 
@@ -82,7 +100,34 @@ namespace MS
             l_GroupQueue->m_OpponentsMatchmakerRating = 0;
             l_GroupQueue->m_Group = p_Group;
             l_GroupQueue->m_BracketId = l_BracketId;
-            l_GroupQueue->m_WantedBGs = BattlegroundMasks::All;
+
+            /// We specify the wishes of the group.
+            switch (p_BgTypeId)
+            {
+            case BattlegroundType::RandomBattleground:
+                l_GroupQueue->m_WantedBGs = BattlegroundMasks::All;
+                break;
+            case BattlegroundType::AllArenas:
+                l_GroupQueue->m_WantedBGs = BattlegroundMasks::AllArenas;
+                break;
+            default:
+                l_GroupQueue->m_WantedBGs = 1 << p_BgTypeId;
+                break;
+            }
+
+            /// Handling black wishes.
+            if (p_BlackWishes)
+            {
+                for (std::size_t i = 0; i < 2; i++)
+                {
+                    BattlegroundType::Type l_Type = Maps::FindAssociatedType(p_BlackWishes[i]);
+                    if (l_Type == BattlegroundType::None)
+                        continue;
+
+                    if (l_GroupQueue->m_WantedBGs & (1 << l_Type))
+                        l_GroupQueue->m_WantedBGs &= ~(1 << l_Type);
+                }
+            }
 
             l_GroupQueue->m_Players.clear();
 
@@ -281,17 +326,32 @@ namespace MS
 
                     for (std::size_t i = 0; i < BattlegroundType::Max * 2; i += 2)
                     {
-                        /// We get the battleground template.
-                        Battleground* l_Template = sBattlegroundMgr->GetBattlegroundTemplate(static_cast<BattlegroundType::Type>(i));
-                        if (!l_Template)
+                        /// We check if the group is eligible for the arena.
+                        if (!IsEligibleForBattleground(l_Group, 1 << (i / 2), p_BracketId))
                             continue;
 
-                        /// We check if the group is eligible for the battleground.
-                        if (!IsEligibleForBattleground(l_Group, 1 << i, p_BracketId) || p_PotientialBGs[i + l_Team] + l_Group->m_Players.size() > l_Template->GetMaxPlayers())
-                            continue;
+                        if (BattlegroundType::IsCasualBattleground(static_cast<BattlegroundType::Type>(i / 2)))
+                        {
+                            /// We get the battleground template.
+                            Battleground* l_Template = sBattlegroundMgr->GetBattlegroundTemplate(static_cast<BattlegroundType::Type>(i / 2));
+                            if (!l_Template)
+                                continue;
 
-                        p_PotientialBGs[i + l_Team] += l_Group->m_Players.size();
-                        p_PotentialGroups[i + l_Team].emplace_back(l_Group);
+                            /// We check if the number of players doesn't exceed the max number of players in the battleground.
+                            if (p_PotientialBGs[i + l_Team] + l_Group->m_Players.size() > l_Template->GetMaxPlayers())
+                                continue;
+
+                            p_PotientialBGs[i + l_Team] += l_Group->m_Players.size();
+                            p_PotentialGroups[i + l_Team].emplace_back(l_Group);
+                        }
+                        else if (BattlegroundType::IsArena(static_cast<BattlegroundType::Type>(i / 2)))
+                        {
+                            /// We don't make any differences between factions so we merge them.
+                            p_PotientialBGs[i + TEAM_ALLIANCE] += l_Group->m_Players.size();
+                            p_PotentialGroups[i + TEAM_ALLIANCE].emplace_back(l_Group);
+                            p_PotientialBGs[i + TEAM_HORDE] += l_Group->m_Players.size();
+                            p_PotentialGroups[i + TEAM_HORDE].emplace_back(l_Group);
+                        }
                     }
                 }
             }
@@ -385,28 +445,52 @@ namespace MS
                     /// TODO: Make special cases for arenas and rated bg.
                     for (std::size_t i = 0; i < BattlegroundType::Max; i++)
                     {
-                        std::size_t l_BGType = l_Occurences[i].second;
-
-                        /// We get the battleground template.
-                        Battleground* l_Template = sBattlegroundMgr->GetBattlegroundTemplate(static_cast<BattlegroundType::Type>(l_BGType));
-                        if (!l_Template)
-                            continue;
+                        BattlegroundType::Type l_BGType = static_cast<BattlegroundType::Type>(l_Occurences[i].second);
 
                         /// If testing flag is on, we take the first one.
-                        if (sBattlegroundMgr->isTesting() && (!l_PotentialGroups[TEAM_ALLIANCE].empty() || !l_PotentialGroups[TEAM_HORDE].empty()))
+                        if (sBattlegroundMgr->isTesting() && (!l_PotentialGroups[l_BGType * 2 + TEAM_ALLIANCE].empty() || !l_PotentialGroups[l_BGType * 2 + TEAM_HORDE].empty()))
                         {
                             l_BestType = l_BGType;
                             break;
                         }
 
-                        /// We check if the battleground can start.
-                        if (l_NumPlayersByBGTypes[l_BGType * 2 + TEAM_ALLIANCE] < l_Template->GetMinPlayers() || l_NumPlayersByBGTypes[l_BGType * 2 + TEAM_HORDE] < l_Template->GetMinPlayers())
-                            continue;
-
-                        /// If the actual ratio in the battleground is good enough and we are not making too much instances of this battleground, we choose it.
-                        float l_Ratio = std::abs(1 - l_NumPlayersByBGTypes[l_BGType * 2 + TEAM_ALLIANCE] / l_NumPlayersByBGTypes[l_BGType * 2 + TEAM_HORDE]);
-                        if (l_Ratio < 0.15f && l_Occurences[i].first < (1.0f / BattlegroundType::NumBattlegrounds) + 0.05f)
+                        if (BattlegroundType::IsCasualBattleground(l_BGType))
                         {
+                            /// We get the battleground template.
+                            Battleground* l_Template = sBattlegroundMgr->GetBattlegroundTemplate(l_BGType);
+                            if (!l_Template)
+                                continue;
+
+                            /// We check if the battleground can start.
+                            if (l_NumPlayersByBGTypes[l_BGType * 2 + TEAM_ALLIANCE] < l_Template->GetMinPlayers() || l_NumPlayersByBGTypes[l_BGType * 2 + TEAM_HORDE] < l_Template->GetMinPlayers())
+                                continue;
+
+                            /// If the actual ratio in the battleground is good enough and we are not making too much instances of this battleground, we choose it.
+                            float l_Ratio = std::abs(1 - l_NumPlayersByBGTypes[l_BGType * 2 + TEAM_ALLIANCE] / l_NumPlayersByBGTypes[l_BGType * 2 + TEAM_HORDE]);
+                            if (l_Ratio < 0.15f && l_Occurences[i].first < (1.0f / BattlegroundType::NumBattlegrounds) + 0.05f)
+                            {
+                                l_BestType = l_BGType;
+                                break;
+                            }
+                        }
+                        /// If we are not caring about factions so we start.
+                        else if (BattlegroundType::IsArena(l_BGType))
+                        {
+                            /// We check if the number of players for each arena type is filled.
+                            switch (BattlegroundType::GetArenaType(l_BGType))
+                            {
+                            case ArenaType::Arena2v2:
+                                if (l_NumPlayersByBGTypes[l_BGType * 2 + TEAM_ALLIANCE] < 2)
+                                    continue;
+                            case ArenaType::Arena3v3:
+                                if (l_NumPlayersByBGTypes[l_BGType * 2 + TEAM_ALLIANCE] < 3)
+                                    continue;
+                            case ArenaType::Arena5v5:
+                                if (l_NumPlayersByBGTypes[l_BGType * 2 + TEAM_ALLIANCE] < 5)
+                                    continue;
+                                break;
+                            }
+
                             l_BestType = l_BGType;
                             break;
                         }
@@ -415,35 +499,61 @@ namespace MS
                     if (l_BestType >= 0)
                     {
                         /// We check this because of the testing flag.
-                        if (l_PotentialGroups[TEAM_ALLIANCE].empty() && l_PotentialGroups[TEAM_HORDE].empty())
+                        if (l_PotentialGroups[l_BestType * 2 + TEAM_ALLIANCE].empty() && l_PotentialGroups[l_BestType * 2 + TEAM_HORDE].empty())
                             continue;
 
-                        /// We get the battleground template.
-                        Battleground* l_Template = sBattlegroundMgr->GetBattlegroundTemplate(static_cast<BattlegroundType::Type>(l_BestType));
-                        if (!l_Template)
-                            continue;
+                        BattlegroundType::Type l_DecidedBg = static_cast<BattlegroundType::Type>(l_BestType);
 
-                        /// Create the new battleground.
-                        Battleground* l_Bg = sBattlegroundMgr->CreateNewBattleground(static_cast<BattlegroundType::Type>(l_BestType), Brackets::RetreiveFromId(l_BracketId), 0, false);
-
-                        auto& l_TotalOccurences = m_TotalOccurences[l_BracketId];
-
-                        /// Update stats.
-                        l_TotalOccurences++;
-                        m_BattlegroundOccurences[l_BracketId][l_BestType].first = (m_BattlegroundOccurences[l_BracketId][l_BestType].first * (l_TotalOccurences - 1) + 1) / l_TotalOccurences;
-
-                        for (std::size_t i = 0; i < BattlegroundType::Max; i++)
+                        if (BattlegroundType::IsCasualBattleground(l_DecidedBg))
                         {
-                            if (i == l_BestType)
+                            /// We get the battleground template.
+                            Battleground* l_Template = sBattlegroundMgr->GetBattlegroundTemplate(l_DecidedBg);
+                            if (!l_Template)
                                 continue;
 
-                            m_BattlegroundOccurences[l_BracketId][i].first = (m_BattlegroundOccurences[l_BracketId][i].first * (l_TotalOccurences - 1)) / l_TotalOccurences;
-                        }
+                            /// Create the new battleground.
+                            Battleground* l_Bg = sBattlegroundMgr->CreateNewBattleground(l_DecidedBg, Brackets::RetreiveFromId(l_BracketId), 0, false);
 
-                        /// Add groups to the battleground and remove them from waiting groups list.
-                        for (std::size_t i = l_BestType + TEAM_ALLIANCE; i <= l_BestType + TEAM_HORDE; i++)
+                            auto& l_TotalOccurences = m_TotalOccurences[l_BracketId];
+
+                            /// Update stats.
+                            l_TotalOccurences++;
+                            m_BattlegroundOccurences[l_BracketId][l_DecidedBg].first = (m_BattlegroundOccurences[l_BracketId][l_DecidedBg].first * (l_TotalOccurences - 1) + 1) / l_TotalOccurences;
+
+                            for (std::size_t i = 0; i < BattlegroundType::Max; i++)
+                            {
+                                if (i == l_DecidedBg)
+                                    continue;
+
+                                m_BattlegroundOccurences[l_BracketId][i].first = (m_BattlegroundOccurences[l_BracketId][i].first * (l_TotalOccurences - 1)) / l_TotalOccurences;
+                            }
+
+                            /// Add groups to the battleground and remove them from waiting groups list.
+                            for (std::size_t i = TEAM_ALLIANCE; i <= TEAM_HORDE; i++)
+                            {
+                                for (GroupQueueInfo* l_Group : l_PotentialGroups[l_DecidedBg * 2 + i])
+                                {
+                                    AddToBG(l_Group, l_Bg);
+                                    RemoveGroupFromQueues(l_Group);
+                                }
+                            }
+                        }
+                        else if (BattlegroundType::IsArena(static_cast<BattlegroundType::Type>(l_BestType)))
                         {
-                            for (GroupQueueInfo* l_Group : l_PotentialGroups[i])
+                            /// Players can't decide on which kind of arenas there are playing, so it's a basic random.
+                            BattlegroundType::Type l_ArenaBg = static_cast<BattlegroundType::Type>(urand(BattlegroundType::TigersPeaks, BattlegroundType::TheRingOfValor));
+
+                            /// We get the battleground template.
+                            Battleground* l_Template = sBattlegroundMgr->GetBattlegroundTemplate(l_ArenaBg);
+                            if (!l_Template)
+                                continue;
+
+                            /// Create the new battleground.
+                            Battleground* l_Bg = sBattlegroundMgr->CreateNewBattleground(l_ArenaBg, Brackets::RetreiveFromId(l_BracketId), BattlegroundType::GetArenaType(l_DecidedBg), BattlegroundType::IsSkirmish(l_DecidedBg));
+
+                            /// Add groups to the battleground and remove them from waiting groups list.
+                            /// There is only one kind of faction in Arena so we don't take care of the potential groups in horde side.
+                            for (GroupQueueInfo* l_Group : l_PotentialGroups[l_DecidedBg * 2])
                             {
                                 AddToBG(l_Group, l_Bg);
                                 RemoveGroupFromQueues(l_Group);

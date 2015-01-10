@@ -9,6 +9,7 @@ namespace MS
     {
         namespace BattlegroundMasks
         {
+            /// The orders should be the same as in BattlegroundType::Type enum.
             enum
             {
                 AlteracValley = 0x1,
@@ -22,12 +23,16 @@ namespace MS
                 KotmoguTemple = 0x100,
                 SilvershardMines = 0x200,
                 DeepwindGorge = 0x400,
+                AllBattlegrounds = 0x7FF,
                 /// Arenas.
                 Arena2v2 = 0x800,
                 Arena3v3 = 0x1000,
                 Arena5v5 = 0x2000,
+                AllArenas = Arena2v2 | Arena3v3 | Arena5v5,
+                /// Skirmish Arenas.
                 ArenaSkirmish2v2 = 0x4000,
                 ArenaSkirmish3v3 = 0x8000,
+                AllSkirmishArenas = ArenaSkirmish2v2 | ArenaSkirmish3v3,
                 All = 0xFFFF
             };
         }
@@ -43,7 +48,7 @@ namespace MS
             /// Methods.
 
             /// Feed the system with a new group.
-            GroupQueueInfo* AddGroup(Player* p_Leader, Group* p_Group, BattlegroundType::Type p_BgTypeId, MS::Battlegrounds::Bracket const*  p_BracketEntry, uint8 p_ArenaType, bool p_IsRatedBG, bool p_IsPremade, uint32 p_ArenaRating, uint32 p_MatchmakerRating, bool p_IsSkirmish);
+            GroupQueueInfo* AddGroup(Player* p_Leader, Group* p_Group, BattlegroundType::Type p_BgTypeId, uint32 p_BlackWishes[2], MS::Battlegrounds::Bracket const*  p_BracketEntry, uint8 p_ArenaType, bool p_IsRatedBG, bool p_IsPremade, uint32 p_ArenaRating, uint32 p_MatchmakerRating, bool p_IsSkirmish);
 
             /// Add to BG is called when group finally accepted the invitation.
             void AddToBG(GroupQueueInfo* p_Group, Battleground* p_BG);

@@ -57,7 +57,6 @@ namespace MS
                     /// Set invited player counters.
                     p_Bg->IncreaseInvitedCount(p_GroupInfo->m_Team);
 
-
                     l_Player->SetInviteForBattlegroundQueueType(p_GroupInfo->m_BgTypeId, p_GroupInfo->m_IsInvitedToBGInstanceGUID);
 
                     /// Create remind invite news.
@@ -68,14 +67,17 @@ namespace MS
                     BGQueueRemoveEvent* l_RemoveEvent = new BGQueueRemoveEvent(l_Player->GetGUID(), p_GroupInfo->m_IsInvitedToBGInstanceGUID, l_BGTypeId, l_BgQueueTypeId, p_GroupInfo->m_RemoveInviteTime);
                     m_Events.AddEvent(l_RemoveEvent, m_Events.CalculateTime(INVITE_ACCEPT_WAIT_TIME));
 
-                    uint32 l_QueueSlot = l_Player->GetBattlegroundQueueIndex(p_GroupInfo->m_BgTypeId == BattlegroundType::RandomBattleground ? BattlegroundType::RandomBattleground : l_BgQueueTypeId);
+                    uint32 l_QueueSlot = l_Player->GetBattlegroundQueueIndex(p_GroupInfo->m_BgTypeId == BattlegroundType::RandomBattleground ? BattlegroundType::RandomBattleground : p_GroupInfo->m_BgTypeId);
 
                     sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: invited player %s (%u) to BG instance %u queueindex %u bgtype %u, I can't help it if they don't press the enter battle button.",
                         l_Player->GetName(), l_Player->GetGUIDLow(), p_Bg->GetInstanceID(), l_QueueSlot, p_Bg->GetTypeID());
 
                     /// Send status packet.
                     WorldPacket data;
-                    MS::Battlegrounds::PacketFactory::Status(&data, p_Bg, l_Player, l_QueueSlot, STATUS_WAIT_JOIN, INVITE_ACCEPT_WAIT_TIME, l_Player->GetBattlegroundQueueJoinTime(l_BGTypeId), p_GroupInfo->m_ArenaType, p_GroupInfo->m_IsSkirmish);
+                    if (BattlegroundType::IsArena(l_BgQueueTypeId))
+                        MS::Battlegrounds::PacketFactory::Status(&data, p_Bg, l_Player, l_QueueSlot, STATUS_WAIT_JOIN, INVITE_ACCEPT_WAIT_TIME, l_Player->GetBattlegroundQueueJoinTime(BATTLEGROUND_AA), p_GroupInfo->m_ArenaType, p_GroupInfo->m_IsSkirmish);
+                    else
+                        MS::Battlegrounds::PacketFactory::Status(&data, p_Bg, l_Player, l_QueueSlot, STATUS_WAIT_JOIN, INVITE_ACCEPT_WAIT_TIME, l_Player->GetBattlegroundQueueJoinTime(l_BGTypeId), p_GroupInfo->m_ArenaType, p_GroupInfo->m_IsSkirmish);
                     l_Player->GetSession()->SendPacket(&data);
                 }
 
@@ -173,14 +175,13 @@ namespace MS
 
         void BattlegroundInvitationsMgr::RemovePlayer(uint64 p_Guid, bool p_DecreaseInvitedCount)
         {
-            int32 l_BracketId = -1;                                     // signed for proper for-loop finish
-
             /// Remove player from map, if he's there.
             auto l_Itr = m_InvitedPlayers.find(p_Guid);
             if (l_Itr == m_InvitedPlayers.end())
                 return;
 
             GroupQueueInfo* l_Group = l_Itr->second.GroupInfo;
+            int32 l_BracketId = l_Group->m_BracketId;
 
             //player can't be in queue without group, but just in case
             if (l_BracketId == -1)
@@ -229,12 +230,10 @@ namespace MS
             }
 
             // remove group queue info if needed
-            /*if (l_Group->m_Players.empty())
+            if (l_Group->m_Players.empty())
             {
-                m_QueuedGroups[l_BracketId][l_Index].erase(group_itr);
                 delete l_Group;
-            }*/
-
+            }
             // if group wasn't empty, so it wasn't deleted, and player have left a rated
             // queue -> everyone from the group should leave too
             // don't remove recursively if already invited to bg!
@@ -275,7 +274,7 @@ namespace MS
                 return true;
 
             BattlegroundType::Type bgQueueTypeId = GetTypeFromId(l_Bg->GetTypeID(), l_Bg->GetArenaType(), l_Bg->IsSkirmish());
-            uint32 l_QueueSlot = l_Player->GetBattlegroundQueueIndex(bgQueueTypeId);
+            uint32 l_QueueSlot = l_Player->GetBattlegroundQueueIndex(GetSchedulerType(l_Bg->GetTypeID()));
             if (l_QueueSlot < PLAYER_MAX_BATTLEGROUND_QUEUES)         // player is in queue or in battleground
             {
                 // Check if the player is invited to this battleground.
@@ -283,8 +282,13 @@ namespace MS
                 if (l_InvitationsMgr.IsPlayerInvited(m_PlayerGuid, m_BgInstanceGUID, m_RemoveTime))
                 {
                     WorldPacket l_Data;
-                    //we must send remaining time in queue
-                    PacketFactory::Status(&l_Data, l_Bg, l_Player, l_QueueSlot, STATUS_WAIT_JOIN, INVITE_ACCEPT_WAIT_TIME - INVITATION_REMIND_TIME, l_Player->GetBattlegroundQueueJoinTime(m_BgTypeId), m_ArenaType, false);
+
+                    /// We must send remaining time in queue.
+                    if (BattlegroundType::IsArena(bgQueueTypeId))
+                        PacketFactory::Status(&l_Data, l_Bg, l_Player, l_QueueSlot, STATUS_WAIT_JOIN, INVITE_ACCEPT_WAIT_TIME - INVITATION_REMIND_TIME, l_Player->GetBattlegroundQueueJoinTime(BATTLEGROUND_AA), m_ArenaType, false);
+                    else
+                        PacketFactory::Status(&l_Data, l_Bg, l_Player, l_QueueSlot, STATUS_WAIT_JOIN, INVITE_ACCEPT_WAIT_TIME - INVITATION_REMIND_TIME, l_Player->GetBattlegroundQueueJoinTime(m_BgTypeId), m_ArenaType, false);
+                    
                     l_Player->GetSession()->SendPacket(&l_Data);
                 }
             }

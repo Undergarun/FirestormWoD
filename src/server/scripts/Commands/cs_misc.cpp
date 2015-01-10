@@ -230,7 +230,7 @@ class misc_commandscript: public CommandScript
             MS::Battlegrounds::BattlegroundScheduler& l_Scheduler = sBattlegroundMgr->GetScheduler();
             MS::Battlegrounds::BattlegroundInvitationsMgr& l_InvitationsMgr = sBattlegroundMgr->GetInvitationsMgr();
 
-            GroupQueueInfo* l_GInfo = l_Scheduler.AddGroup(l_FirstLeader, l_FirstGroup, MS::Battlegrounds::BattlegroundType::AllArenas, l_BracketEntry, l_ArenaType, false, false, 0, 0, true);
+            GroupQueueInfo* l_GInfo = l_Scheduler.AddGroup(l_FirstLeader, l_FirstGroup, MS::Battlegrounds::BattlegroundType::AllArenas, nullptr, l_BracketEntry, l_ArenaType, false, false, 0, 0, true);
             uint32 l_AverageTime = l_InvitationsMgr.GetAverageQueueWaitTime(l_GInfo, l_BracketEntry->m_Id);
 
             for (GroupReference* l_Itr = l_FirstGroup->GetFirstMember(); l_Itr != NULL; l_Itr = l_Itr->next())
@@ -249,7 +249,7 @@ class misc_commandscript: public CommandScript
                 l_Member->GetSession()->SendPacket(&l_Data);
             }
 
-            l_GInfo = l_Scheduler.AddGroup(l_SecondLeader, l_SecondGroup, MS::Battlegrounds::BattlegroundType::AllArenas, l_BracketEntry, l_ArenaType, false, false, 0, 0, false);
+            l_GInfo = l_Scheduler.AddGroup(l_SecondLeader, l_SecondGroup, MS::Battlegrounds::BattlegroundType::AllArenas, nullptr, l_BracketEntry, l_ArenaType, false, false, 0, 0, false);
             l_AverageTime = l_InvitationsMgr.GetAverageQueueWaitTime(l_GInfo, l_BracketEntry->m_Id);
 
             for (GroupReference* l_Itr = l_SecondGroup->GetFirstMember(); l_Itr != NULL; l_Itr = l_Itr->next())

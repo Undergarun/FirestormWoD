@@ -106,20 +106,12 @@ namespace MS
                      m_Battlegrounds[l_BracketId][i].clear();
                  }
              }
- 
-             // destroy template battlegrounds that listed only in queues (other already terminated)
-             for (std::size_t l_BgType = BattlegroundType::Begin; l_BgType < BattlegroundType::End; l_BgType++)
-             {
-                 // ~Battleground call unregistering BG from queue
-                 while (!BGFreeSlotQueue[l_BgType].empty())
-                     delete BGFreeSlotQueue[l_BgType].front();
-             }
         }
 
         Battleground* BattlegroundMgr::GetBattlegroundTemplate(BattlegroundType::Type p_BgType) const
         {
             /// We check if the type is in the range of instanciable battlegrounds.
-            if (p_BgType < BattlegroundType::Total)
+            if (p_BgType < BattlegroundType::Total && !BattlegroundType::IsArena(p_BgType))
                 return m_BattlegroundTemplates[p_BgType];
             return nullptr;
         }
@@ -133,21 +125,21 @@ namespace MS
                 {
                     auto& l_Battlegrounds = m_Battlegrounds[l_BracketId][i];
                     auto& l_Clients = m_ClientBattlegroundIds[i];
+                    auto& l_I2B = m_InstanceId2Brackets;
 
                     /// Update every battleground.
                     for (auto const& l_Pair : l_Battlegrounds)
                         l_Pair.second->Update(p_Diff);
 
                     /// Delete every battleground which asked to be deleted.
-                    l_Battlegrounds.remove_if([&l_Clients, i](std::pair<uint32, Battleground*> const& p_Pair)
+                    l_Battlegrounds.remove_if([&l_Clients, i, &l_I2B](std::pair<uint32, Battleground*> const& p_Pair)
                     {
                         Battleground* l_Bg = p_Pair.second;
                         if (l_Bg->ToBeDeleted())
                         {
+                            l_I2B.erase(l_Bg->GetInstanceID());
                             if (!l_Clients[l_Bg->GetBracketId()].empty())
                                 l_Clients[l_Bg->GetBracketId()].erase(l_Bg->GetClientInstanceID());
-
-                            delete l_Bg;
                             return true;
                         }
 
@@ -195,9 +187,6 @@ namespace MS
             if (!l_TemplateBg)
                 return nullptr;
 
-            if (l_TemplateBg->isArena())
-                return GetBattleground(p_InstanceId, p_BgType);
-
             /// We get the bracket id of this instance id.
             auto l_InstanceId2Bracket = m_InstanceId2Brackets.find(p_InstanceId);
             if (l_InstanceId2Bracket == std::end(m_InstanceId2Brackets))
@@ -207,7 +196,7 @@ namespace MS
             auto& l_Battlegrounds = m_Battlegrounds[l_InstanceId2Bracket->second][p_BgType];
             auto l_Results = std::find_if(std::begin(l_Battlegrounds), std::end(l_Battlegrounds), [p_InstanceId](std::pair<uint32, Battleground*> const& p_Bg)
             {
-                return p_Bg.second->GetClientInstanceID() == p_InstanceId;
+                return p_Bg.first == p_InstanceId;
             });
 
             if (l_Results != std::end(l_Battlegrounds))
@@ -488,6 +477,13 @@ namespace MS
                 l_Data.LevelMin = l_Fields[3].GetUInt8();
                 l_Data.LevelMax = l_Fields[4].GetUInt8();
 
+                if (l_Data.MinPlayersPerTeam == 0)
+                {
+                    sLog->outError(LOG_FILTER_SQL, "Table `battleground_template` for id %u has bad values for MinPlayersPerTeam (%u)",
+                        l_Data.bgTypeId, l_Data.MinPlayersPerTeam, l_Data.MaxPlayersPerTeam);
+                    assert(false);
+                }
+
                 // check values from DB
                 if (l_Data.MaxPlayersPerTeam == 0 || l_Data.MinPlayersPerTeam > l_Data.MaxPlayersPerTeam)
                 {
@@ -630,28 +626,6 @@ namespace MS
                 }
             }
         }
-
-        /*void BattlegroundMgr::ScheduleQueueUpdate(uint32 arenaMatchmakerRating, uint8 arenaType, BattlegroundQueueTypeId bgQueueTypeId, BattlegroundTypeId bgTypeId, Bracket::Id bracket_id)
-        {
-            //This method must be atomic, TODO add mutex
-            //we will use only 1 number created of bgTypeId and bracket_id
-            QueueSchedulerItem* schedule_id = new QueueSchedulerItem(arenaMatchmakerRating, arenaType, bgQueueTypeId, bgTypeId, bracket_id);
-            bool found = false;
-            for (uint8 i = 0; i < m_QueueUpdateScheduler.size(); i++)
-            {
-                if (m_QueueUpdateScheduler[i]->_arenaMMRating == arenaMatchmakerRating
-                    && m_QueueUpdateScheduler[i]->_arenaType == arenaType
-                    && m_QueueUpdateScheduler[i]->_bgQueueTypeId == bgQueueTypeId
-                    && m_QueueUpdateScheduler[i]->_bgTypeId == bgTypeId
-                    && m_QueueUpdateScheduler[i]->_bracket_id == bracket_id)
-                {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found)
-                m_QueueUpdateScheduler.push_back(schedule_id);
-        }*/
 
         uint32 BattlegroundMgr::GetMaxRatingDifference() const
         {

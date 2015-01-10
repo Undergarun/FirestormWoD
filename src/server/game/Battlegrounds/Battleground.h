@@ -62,8 +62,14 @@ namespace MS
                 KotmoguTemple,
                 SilvershardMines,
                 DeepwindGorge,
-                NumBattlegrounds = DeepwindGorge,
                 /// Arenas.
+                Arena2v2,
+                Arena3v3,
+                Arena5v5,
+                ArenaSkirmish2v2,
+                ArenaSkirmish3v3,
+                /// Rated battlegrounds.
+                RatedBg10v10,
                 TigersPeaks,
                 TolvironArena,
                 BladeEdgeArena,
@@ -73,23 +79,65 @@ namespace MS
                 TheRingOfValor,
                 /// End iterators.
                 End,
-                Max = End,
-                /// Arena types.
-                None = End,
-                Arena2v2,
-                Arena3v3,
-                Arena5v5,
-                ArenaSkirmish2v2,
-                ArenaSkirmish3v3,
-                /// Non instanciable.
+                RatedBg15v15,
+                RatedBg25v25,
                 RandomBattleground,
                 AllArenas,
                 Ctf3,
-                RatedBg10v10,
-                RatedBg15v15,
-                RatedBg25v25,
-                Total
+                /// Arena types.
+                /// Non instanciable.
+                Total,
+                None = End,
+                Max = End,
+                EndArena = ArenaSkirmish3v3,
+                BeginArena = Arena2v2,
+                NumBattlegrounds = Arena2v2,
             };
+
+            /// Check if the BattlegroundType given is a casual battleground.
+            /// @p_Type : The type of the battleground.
+            static bool IsCasualBattleground(Type p_Type)
+            {
+                return p_Type < BattlegroundType::NumBattlegrounds;
+            }
+
+            /// Check if the BattlegroundType given is an arena.
+            /// @p_Type : The type of the battleground.
+            static bool IsArena(Type p_Type)
+            {
+                return p_Type >= BeginArena && p_Type <= EndArena;
+            }
+            
+            /// Return the ArenaType of the battleground.
+            /// @p_Type : The type of the battleground.
+            static ArenaType GetArenaType(Type p_Type)
+            {
+                switch (p_Type)
+                {
+                case BattlegroundType::Arena2v2:
+                case BattlegroundType::ArenaSkirmish2v2:
+                    return ArenaType::Arena2v2;
+                case BattlegroundType::Arena3v3:
+                case BattlegroundType::ArenaSkirmish3v3:
+                    return ArenaType::Arena3v3;
+                case BattlegroundType::Arena5v5:
+                default:
+                    return ArenaType::Arena5v5;
+                }
+            }
+
+            /// Return true if the arena type is skirmish.
+            static bool IsSkirmish(Type p_Type)
+            {
+                switch (p_Type)
+                {
+                case BattlegroundType::ArenaSkirmish2v2:
+                case BattlegroundType::ArenaSkirmish3v3:
+                    return true;
+                default:
+                    return false;
+                }
+            }
         }
 
         struct Bracket
@@ -100,28 +148,59 @@ namespace MS
             uint32 m_MaxLevel;
         };
 
-        static const Bracket k_Brackets[] =
+        /// We don't want this variables to be accessible outside of the file.
+        namespace
         {
-            /// Normals.
-            { 0, 0, 9 },
-            { 1, 15, 19 },
-            { 2, 10, 19 },
-            { 3, 25, 29 },
-            { 4, 20, 29 },
-            { 5, 35, 39 },
-            { 6, 30, 39 },
-            { 7, 45, 49 },
-            { 8, 40, 49 },
-            { 9, 55, 59 },
-            { 10, 50, 59 },
-            { 11, 60, 69 },
-            { 12, 70, 79 },
-            { 13, 80, 89 },
-            { 14, 90, 90 },
-            { 15, 90, 99 },
-            { 16, 100, 100 },
-            { 17, 150, 150 }
-        };
+            static std::map<uint32, BattlegroundType::Type> k_MapIdToBattlegroundType =
+            {
+                { 489, BattlegroundType::Warsong },
+                { 529, BattlegroundType::ArathiBassin },
+                { 566, BattlegroundType::EyeOfTheStorm },
+                { 30, BattlegroundType::AlteracValley },
+                { 761, BattlegroundType::BattleForGilneas },
+                { 726, BattlegroundType::TwinPeaks },
+                { 727, BattlegroundType::SilvershardMines },
+                { 998, BattlegroundType::KotmoguTemple },
+                { 1105, BattlegroundType::DeepwindGorge },
+                { 607, BattlegroundType::StrandOfTheAncients },
+                { 628, BattlegroundType::IsleOfConquest }
+            };
+
+            static const Bracket k_Brackets[] =
+            {
+                /// Normals.
+                { 0, 0, 9 },
+                { 1, 15, 19 },
+                { 2, 10, 19 },
+                { 3, 25, 29 },
+                { 4, 20, 29 },
+                { 5, 35, 39 },
+                { 6, 30, 39 },
+                { 7, 45, 49 },
+                { 8, 40, 49 },
+                { 9, 55, 59 },
+                { 10, 50, 59 },
+                { 11, 60, 69 },
+                { 12, 70, 79 },
+                { 13, 80, 89 },
+                { 14, 90, 90 },
+                { 15, 90, 99 },
+                { 16, 100, 100 },
+                { 17, 150, 150 }
+            };
+        }
+
+        namespace Maps
+        {
+            static BattlegroundType::Type FindAssociatedType(uint32 p_MapId)
+            {
+                auto l_Itr = k_MapIdToBattlegroundType.find(p_MapId);
+                if (l_Itr != std::end(k_MapIdToBattlegroundType))
+                    return l_Itr->second;
+
+                return BattlegroundType::None;
+            }
+        }
 
         namespace Brackets
         {
@@ -808,9 +887,6 @@ class Battleground
         void SetMaxPlayersPerTeam(uint32 MaxPlayers) { m_MaxPlayersPerTeam = MaxPlayers; }
         void SetMinPlayersPerTeam(uint32 MinPlayers) { m_MinPlayersPerTeam = MinPlayers; }
 
-        void AddToBGFreeSlotQueue();                        //this queue will be useful when more battlegrounds instances will be available
-        void RemoveFromBGFreeSlotQueue();                   //this method could delete whole BG instance, if another free is available
-
         void DecreaseInvitedCount(uint32 team)      { (team == ALLIANCE) ? --m_InvitedAlliance : --m_InvitedHorde; }
         void IncreaseInvitedCount(uint32 team)      { (team == ALLIANCE) ? ++m_InvitedAlliance : ++m_InvitedHorde; }
 
@@ -820,7 +896,6 @@ class Battleground
 
         uint32 GetInvitedCount(uint32 team) const   { return (team == ALLIANCE) ? m_InvitedAlliance : m_InvitedHorde; }
         bool HasFreeSlots() const;
-        uint32 GetFreeSlotsForTeam(uint32 Team) const;
 
         bool isArena() const        { return m_IsArena; }
         bool isBattleground() const { return !m_IsArena; }
