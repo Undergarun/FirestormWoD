@@ -455,6 +455,9 @@ bool Garrison::Load(PreparedQueryResult p_GarrisonResult, PreparedQueryResult p_
 
         Init();
 
+        if (!GetGarrisonSiteLevelEntry())
+            return false;
+
         /// @TODO find crash
         ///m_Missions.erase(std::remove_if(m_Missions.begin(), m_Missions.end(), [this](const GarrisonMission & p_Mission) -> bool
         ///{

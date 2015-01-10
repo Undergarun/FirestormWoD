@@ -173,7 +173,7 @@ void WorldSession::HandleGarrisonRequestBuildingsOpcode(WorldPacket & p_RecvData
 
     Garrison * l_Garrison = m_Player->GetGarrison();
 
-    if (!l_Garrison)
+    if (!l_Garrison || !l_Garrison->GetGarrisonSiteLevelEntry())
         return;
 
     std::vector<GarrisonBuilding> l_Buildings = l_Garrison->GetBuildings();
