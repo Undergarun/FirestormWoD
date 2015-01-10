@@ -19,7 +19,6 @@
 */
 
 #include "ScriptPCH.h"
-#include "config.h"
 
 class item_strongbox : public ItemScript
 {
