@@ -55,7 +55,7 @@ class ItemScript : public ScriptObjectImpl<true>
             return false;
         }
         
-        /// Called when a player opnes the item
+        /// Called when a player open the item
         /// @p_Player : The Player who has used this item
         /// @p_Item   : Used Item instance
         virtual bool OnOpen(Player * p_Player, Item * p_Item)
