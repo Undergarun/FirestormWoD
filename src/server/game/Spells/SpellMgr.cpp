@@ -3460,6 +3460,9 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 157154:// High tide fix temp !!!
+                spellInfo->Effects[0].BasePoints = 0;
+                break;
             case 157174: // Elemental Fusion
                 spellInfo->ProcCharges = 1;
                 break;
