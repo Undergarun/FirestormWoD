@@ -125,6 +125,7 @@ extern uint32 gGarrisonBuildingActivationGameObject[GARRISON_FACTION_COUNT];
 #define GARRISON_CACHE_HEFTY_CURRENCY           200
 #define GARRISON_CACHE_MIN_CURRENCY             5
 #define GARRISON_CACHE_GENERATE_TICK            (10 * MINUTE)
+#define GARRISON_MISSION_DISTRIB_INTERVAL       (10 * MINUTE)
 
 enum 
 {
@@ -227,11 +228,21 @@ class GarrisonInstanceScriptBase
         virtual void OnQuestStarted(Player * p_Owner, const Quest * p_Quest) = 0;
         /// When the garrison owner reward a quest
         virtual void OnQuestReward(Player * p_Owner, const Quest * p_Quest) = 0;
+
         /// Get phase mask
         virtual uint32 GetPhaseMask(Player * p_Owner) = 0;
 
         /// Owner can use the garrison cache ?
         virtual bool CanUseGarrisonCache(Player * p_Owner) = 0;
+
+        /// Get terrain swaps
+        virtual void GetTerrainSwaps(std::set<uint32> & p_TerrainSwaps) = 0;
+
+        /// When a mission start
+        virtual void OnMissionStart(uint32 p_MissionID, std::vector<uint32> p_Followers) = 0;
+        /// When a construction start
+        virtual void OnPurchaseBuilding(uint32 p_BuildingID) = 0;
+
 };
 
 class Garrison
@@ -243,7 +254,7 @@ class Garrison
         /// Create the garrison
         void Create();
         /// Load
-        bool Load();
+        bool Load(PreparedQueryResult p_GarrisonResult, PreparedQueryResult p_BuildingsResult, PreparedQueryResult p_FollowersResult, PreparedQueryResult p_MissionsResult);
         /// Save this garrison to DB
         void Save();
         /// Delete garrison
@@ -269,7 +280,7 @@ class Garrison
         /// When the garrison owner reward a quest
         void OnQuestReward(const Quest * p_Quest);
 
-        /// set last used activation gameobject
+        /// set last used activation game object
         void SetLastUsedActivationGameObject(uint64 p_Guid);
 
         /// Get GarrSiteLevelEntry for current garrison
@@ -391,6 +402,15 @@ class Garrison
         /// Update garrison stats
         void UpdateStats();
 
+        /// Update buildings
+        void UpdateBuildings();
+        /// Update followers
+        void UpdateFollowers();
+        /// Update cache
+        void UpdateCache();
+        /// Update mission distribution
+        void UpdateMissionDistribution();
+
     private:
         Player *    m_Owner;            ///< Garrison owner
         uint32      m_ID;               ///< Garrison DB ID
@@ -400,6 +420,7 @@ class Garrison
         uint32      m_NumFollowerActivation;
         uint32      m_NumFollowerActivationRegenTimestamp;
         uint32      m_CacheLastUsage;
+        uint32      m_MissionDistributionLastUpdate;
 
         uint64      m_LastUsedActivationGameObject;
         uint64      m_CacheGameObjectGUID;

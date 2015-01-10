@@ -3460,6 +3460,9 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 157154:// High tide fix temp !!!
+                spellInfo->Effects[0].BasePoints = 0;
+                break;
             case 157174: // Elemental Fusion
                 spellInfo->ProcCharges = 1;
                 break;
@@ -4445,10 +4448,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 48181: // Haunt - hotfix 5.4.2
                 spellInfo->Effects[3].BasePoints = 35;
                 break;
-            case 165378: // Lethal Shots
-            case 165380:// Sanctified Light
-                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_CRIT_PCT;
-                break;
             case 109306: // Thrill of the Hunt
                 spellInfo->ProcChance = 0;
                 break;
@@ -5066,9 +5065,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_DUMMY;
                 spellInfo->Mechanic = 0;
                 break;
+            case 116694:// Surging Mists
+                spellInfo->PreventionType = SPELL_PREVENTION_TYPE_SILENCE;
+                spellInfo->Effects[EFFECT_1].BasePoints = 0;
+                break;
             case 20066: // Repentence
             case 115175:// Soothing Mists
-            case 116694:// Surging Mists
             case 117952:// Crackling Jade Lightning
                 spellInfo->PreventionType = SPELL_PREVENTION_TYPE_SILENCE;
                 break;
@@ -5249,10 +5251,17 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->OverrideSpellList.push_back(109260); // Add Aspect of the Iron Hack to override spell list of Aspect of the Hawk
                 spellInfo->Effects[0].BasePoints = 35;
                 break;
+            case 162532: // Glyph of Mind Harvest
+                spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
             case 8092: // Mind Blast
-                spellInfo->Effects[1].BasePoints = 0;
-                spellInfo->Effects[3].BasePoints = 1;
+                spellInfo->Effects[1].BasePoints = 1;
+                spellInfo->Effects[2].Effect = SPELL_EFFECT_DUMMY;
+                spellInfo->Effects[3].BasePoints = 0;
                 break;
+            case 162452: // Shadowy Insight
+                spellInfo->ProcChance = 0;
+            case 87160: // Surge of Darkness
+                spellInfo->ProcCharges = 3;
             case 6346:  // Fear Ward
             case 48108: // Hot Streak
             case 57761: // Brain Freeze
@@ -6219,8 +6228,11 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Mechanic = MECHANIC_GRIP;
                 spellInfo->Effects[0].Mechanic = MECHANIC_GRIP;
                 break;
-            case 114255:// Surge of Light (proc)
+            case 114255: // Surge of Light (proc)
                 spellInfo->StackAmount = 2;
+                break;
+            case 129197: // Insanity
+                spellInfo->Effects[EFFECT_0].BonusMultiplier = 0.60f;
                 break;
             case 1543:  // Flare
                 spellInfo->Effects[0].TriggerSpell = 109772;
@@ -6247,6 +6259,11 @@ void SpellMgr::LoadSpellCustomAttr()
             case 158221:
                 spellInfo->SetDurationIndex(39); // 2 seconds
                 spellInfo->MaxAffectedTargets = 3;
+                break;
+            // Chi Brew, SPELL_ATTR4_TRIGGERED bypass charge check and players can usebug (the check is only doing client-side)
+            // Maybe SPELL_ATTR4_TRIGGERED don't bypass charge ?
+            case 115399:
+                spellInfo->AttributesEx4 &= ~SPELL_ATTR4_TRIGGERED;
                 break;
             default:
                 break;

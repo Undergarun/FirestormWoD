@@ -85,6 +85,8 @@
 #include "PlayerDump.h"
 #include "TransportMgr.h"
 
+uint32 gOnlineGameMaster = 0;
+
 ACE_Atomic_Op<ACE_Thread_Mutex, bool> World::m_stopEvent = false;
 uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
 ACE_Atomic_Op<ACE_Thread_Mutex, uint32> World::m_worldLoopCounter = 0;
@@ -1334,6 +1336,12 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_PDUMP_NO_PATHS] = ConfigMgr::GetBoolDefault("PlayerDump.DisallowPaths", true);
     m_bool_configs[CONFIG_PDUMP_NO_OVERWRITE] = ConfigMgr::GetBoolDefault("PlayerDump.DisallowOverwrite", true);
 
+    m_timers[WUPDATE_MONITORING_STATS].SetInterval(1 * MINUTE * IN_MILLISECONDS);
+    m_timers[WUPDATE_MONITORING_STATS].Reset();
+    
+    m_timers[WUPDATE_MONITORING_HEARTBEAT].SetInterval(30 * IN_MILLISECONDS);
+    m_timers[WUPDATE_MONITORING_HEARTBEAT].Reset();
+
     // call ScriptMgr if we're reloading the configuration
     m_bool_configs[CONFIG_WINTERGRASP_ENABLE] = ConfigMgr::GetBoolDefault("Wintergrasp.Enable", false);
     m_int_configs[CONFIG_WINTERGRASP_PLR_MAX] = ConfigMgr::GetIntDefault("Wintergrasp.PlayerMax", 100);
@@ -1400,6 +1408,7 @@ void World::SetInitialWorldSettings()
 
     ///- Initialize the random number generator
     srand((unsigned int)time(NULL));
+    std::srand((unsigned int)time(NULL));
 
     ///- Initialize config settings
     LoadConfigSettings();
@@ -1573,6 +1582,7 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Items...");                           ///< must be after LoadRandomEnchantmentsTable and LoadPageTexts
     sObjectMgr->LoadItemTemplates();
+    sObjectMgr->LoadItemTemplateCorrections();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Item set names...");                  ///< must be after LoadItemPrototypes
     sObjectMgr->LoadItemTemplateAddon();
@@ -1918,6 +1928,9 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading AreaTrigger move templates...");
     sObjectMgr->LoadAreaTriggerMoveTemplates();
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading FollowerQuests...");
+    sObjectMgr->LoadFollowerQuests();
 
     ///- Initialize game time and timers
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Initialize game time and timers");
@@ -2523,6 +2536,32 @@ void World::Update(uint32 diff)
     {
         m_timers[WUPDATE_BLACKMARKET].Reset();
         sBlackMarketMgr->Update();
+    }
+
+    if (m_timers[WUPDATE_MONITORING_STATS].Passed())
+    {
+        m_timers[WUPDATE_MONITORING_STATS].Reset();
+ 
+        PreparedStatement* l_Stmt = MonitoringDatabase.GetPreparedStatement(MONITORING_INS_STATS);
+ 
+        l_Stmt->setUInt32(0, GetPlayerCount());
+        l_Stmt->setUInt32(1, gOnlineGameMaster);
+        l_Stmt->setUInt32(2, GetUptime());
+        l_Stmt->setUInt32(3, GetUpdateTime());
+        l_Stmt->setUInt32(4, gSentBytes);
+        l_Stmt->setUInt32(5, gReceivedBytes);
+ 
+        MonitoringDatabase.Execute(l_Stmt);
+ 
+        gSentBytes = 0;
+        gReceivedBytes = 0;
+    }
+
+    if (m_timers[WUPDATE_MONITORING_HEARTBEAT].Passed())
+    {
+        m_timers[WUPDATE_MONITORING_HEARTBEAT].Reset();
+ 
+        MonitoringDatabase.Execute(MonitoringDatabase.GetPreparedStatement(MONITORING_UPD_LAST_UPDATE));
     }
 
     // update the instance reset times

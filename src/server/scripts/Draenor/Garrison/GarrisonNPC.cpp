@@ -35,10 +35,10 @@ enum
     ITEM_SHELLY_HAMBY_REPORT                        = 112730,
 };
 
-float gGarrisonCreationCoords[][4] =
+extern float gGarrisonCreationCoords[][4] =
 {
-    { 1766.761475f,  191.2846830f,  72.115326f, 0.0510594f },   ///< TEAM_ALLIANCE
-    { 5698.020020f, 4512.1635574f, 127.401695f, 2.7822720f }    ///< TEAM_HORDE
+    { 1766.761475f,  191.2846830f,  72.115326f, 0.4649370f },   ///< TEAM_ALLIANCE
+    { 5698.020020f, 4512.1635574f, 127.401695f, 2.8622720f }    ///< TEAM_HORDE
 };
 
 /// Garrison Ford
@@ -57,6 +57,8 @@ class npc_GarrisonFord : public CreatureScript
         {
             if (!p_Player->GetGarrison())
                 p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Create me a garrison.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+            else
+                p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Delete my garrison.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
             
             p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
 
@@ -66,25 +68,43 @@ class npc_GarrisonFord : public CreatureScript
         /// Called when a player selects a gossip item in the creature's gossip menu.
         bool OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action) override
         {
-            p_Player->CLOSE_GOSSIP_MENU();
-            p_Player->CreateGarrison();
-
-            uint32 l_MovieID = p_Player->GetGarrison()->GetGarrisonSiteLevelEntry()->CreationMovie;
-            uint32 l_MapID   = p_Player->GetGarrison()->GetGarrisonSiteLevelEntry()->MapID;
-            uint32 l_TeamID  = p_Player->GetTeamId();
-
-            p_Player->AddMovieDelayedTeleport(l_MovieID, l_MapID, gGarrisonCreationCoords[l_TeamID][0], gGarrisonCreationCoords[l_TeamID][1], gGarrisonCreationCoords[l_TeamID][2], gGarrisonCreationCoords[l_TeamID][3]);
-            p_Player->SendMovieStart(l_MovieID);
-
-            if (l_TeamID == TEAM_ALLIANCE)
+            if (!p_Player->GetGarrison())
             {
-                p_Player->AddQuest(sObjectMgr->GetQuestTemplate(QUEST_ETABLISH_YOUR_GARRISON_A), p_Creature);
-                p_Player->CompleteQuest(QUEST_ETABLISH_YOUR_GARRISON_A);
+                p_Player->CLOSE_GOSSIP_MENU();
+                p_Player->CreateGarrison();
+
+                uint32 l_MovieID = p_Player->GetGarrison()->GetGarrisonSiteLevelEntry()->CreationMovie;
+                uint32 l_MapID = p_Player->GetGarrison()->GetGarrisonSiteLevelEntry()->MapID;
+                uint32 l_TeamID = p_Player->GetTeamId();
+
+                p_Player->AddMovieDelayedTeleport(l_MovieID, l_MapID, gGarrisonCreationCoords[l_TeamID][0], gGarrisonCreationCoords[l_TeamID][1], gGarrisonCreationCoords[l_TeamID][2], gGarrisonCreationCoords[l_TeamID][3]);
+                p_Player->SendMovieStart(l_MovieID);
+
+                if (l_TeamID == TEAM_ALLIANCE)
+                {
+                    p_Player->AddQuest(sObjectMgr->GetQuestTemplate(QUEST_ETABLISH_YOUR_GARRISON_A), p_Creature);
+                    p_Player->CompleteQuest(QUEST_ETABLISH_YOUR_GARRISON_A);
+                }
+                else if (l_TeamID == TEAM_HORDE)
+                {
+                    p_Player->AddQuest(sObjectMgr->GetQuestTemplate(QUEST_ETABLISH_YOUR_GARRISON_H), p_Creature);
+                    p_Player->CompleteQuest(QUEST_ETABLISH_YOUR_GARRISON_H);
+                }
+
+                /// HACK until shadowmoon quest are done : add follower Qiana Moonshadow / Olin Umberhide
+                p_Player->GetGarrison()->AddFollower(34);
+                p_Player->GetGarrison()->AddFollower(89);
+                p_Player->GetGarrison()->AddFollower(92);
+
+                /// HACK until quest : add barracks plan
+                p_Player->GetGarrison()->LearnBlueprint(26);
             }
-            else if (l_TeamID == TEAM_HORDE)
+            else
             {
-                p_Player->AddQuest(sObjectMgr->GetQuestTemplate(QUEST_ETABLISH_YOUR_GARRISON_H), p_Creature);
-                p_Player->CompleteQuest(QUEST_ETABLISH_YOUR_GARRISON_H);
+                if (p_Player->GetCurrency(GARRISON_CURRENCY_ID, false))
+                    p_Player->ModifyCurrency(GARRISON_CURRENCY_ID, -(int32)p_Player->GetCurrency(GARRISON_CURRENCY_ID, false));
+
+                p_Player->DeleteGarrison();
             }
 
             return true;
@@ -327,11 +347,52 @@ class npc_LunarfallLaborer : public CreatureScript
 
             }
 
-            virtual void SetData(uint32 p_ID, uint32 p_Value) 
+            void SetData(uint32 p_ID, uint32 p_Value) override
             {
                 if (p_ID == GARRISON_CREATURE_AI_DATA_BUILDER)
                 {
-                    me->SetCurrentEquipmentId(1);
+                    me->LoadEquipment(1, true);
+                    me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_WORK);
+                }
+            }
+        };
+};
+
+/// Frostwall Peon
+class npc_FrostwallPeon : public CreatureScript
+{
+    public:
+        /// Constructor
+        npc_FrostwallPeon()
+            : CreatureScript("npc_FrostwallPeon")
+        {
+
+        }
+
+        CreatureAI* GetAI(Creature * p_Creature) const
+        {
+            return new npc_FrostwallPeonAI(p_Creature);
+        }
+
+        struct npc_FrostwallPeonAI : public CreatureAI
+        {
+            /// Constructor
+            npc_FrostwallPeonAI(Creature * p_Creature)
+                : CreatureAI(p_Creature)
+            {
+
+            }
+
+            void UpdateAI(const uint32 p_Diff) override
+            {
+
+            }
+
+            void SetData(uint32 p_ID, uint32 p_Value) override
+            {
+                if (p_ID == GARRISON_CREATURE_AI_DATA_BUILDER)
+                {
+                    me->LoadEquipment(1, true);
                     me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_WORK);
                 }
             }
@@ -346,4 +407,6 @@ void AddSC_Garrison_NPC()
     new npc_ShellyHamby;
     new npc_BarosAlexsom;
     new npc_VindicatorMaraad;
+    new npc_LunarfallLaborer;
+    new npc_FrostwallPeon;
 }

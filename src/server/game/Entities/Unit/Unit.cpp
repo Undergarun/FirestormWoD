@@ -11345,7 +11345,7 @@ int32 Unit::DealHeal(Unit* victim, uint32 addhealth, SpellInfo const* spellProto
         float Mastery = unit->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.22f;
         float scaling = spellProto->GetGiftOfTheSerpentScaling(this);
 
-        if (roll_chance_f(Mastery * scaling))
+        if (roll_chance_f(Mastery * scaling) && unit->CountAreaTrigger(119031) < 10)
         {
             std::list<Unit*> targetList;
 

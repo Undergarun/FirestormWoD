@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS `garrison_plot_content`;
 CREATE TABLE `garrison_plot_content` (
  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
  `plot_type_or_building` int(10) signed NOT NULL DEFAULT '0',
@@ -8,5 +9,4 @@ CREATE TABLE `garrison_plot_content` (
  `z` float NOT NULL DEFAULT '0',
  `o` float NOT NULL DEFAULT '0',
  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1
-
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;

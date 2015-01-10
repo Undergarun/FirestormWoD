@@ -1372,8 +1372,10 @@ bool Item::CanTransmogrifyItemWithItem(Item* transmogrified, Item* transmogrifie
     {
         if (proto1->Class == ITEM_CLASS_WEAPON && proto2->Class == ITEM_CLASS_WEAPON)
         {
-            if (!((proto1->InventoryType == INVTYPE_WEAPON || proto1->InventoryType == INVTYPE_WEAPONMAINHAND || proto1->InventoryType == INVTYPE_WEAPONOFFHAND) &&
-                (proto2->InventoryType == INVTYPE_WEAPON || proto2->InventoryType == INVTYPE_WEAPONMAINHAND ||proto2->InventoryType == INVTYPE_WEAPONOFFHAND)))
+            if (!((proto1->InventoryType == INVTYPE_WEAPON || proto1->InventoryType == INVTYPE_WEAPONMAINHAND ||
+                proto1->InventoryType == INVTYPE_WEAPONOFFHAND || proto1->InventoryType == INVTYPE_RANGED || proto1->InventoryType == INVTYPE_RANGEDRIGHT) &&
+                (proto2->InventoryType == INVTYPE_WEAPON || proto2->InventoryType == INVTYPE_WEAPONMAINHAND ||
+                proto2->InventoryType == INVTYPE_WEAPONOFFHAND || proto2->InventoryType == INVTYPE_RANGED || proto2->InventoryType == INVTYPE_RANGEDRIGHT)))
                 return false;
         }
         else if (proto1->Class == ITEM_CLASS_ARMOR && proto2->Class == ITEM_CLASS_ARMOR)
@@ -1954,23 +1956,6 @@ void ItemTemplate::CalculateMinMaxDamageScaling(uint32 ilvl, uint32& minDamage, 
         maxDamage = floor(weaponMaxDamageCalc + 0.5f);
         minDamage = floor(((1.f - (StatScalingFactor * 0.5f)) * weaponMinDamageCalc) + 0.5f);
     }
-}
-
-uint32 ItemTemplate::GetItemLevelForHeirloom(uint32 level) const
-{
-    ScalingStatDistributionEntry const* ssdEntry = sScalingStatDistributionStore.LookupEntry(ScalingStatDistribution);
-
-    if (!ssdEntry)
-        return ItemLevel;
-
-    if (level < ssdEntry->MinLevel)
-        level = ssdEntry->MinLevel;
-
-    if (level > ssdEntry->MaxLevel)
-        level = ssdEntry->MaxLevel;
-
-    uint32 ilvl = round(GetCurveValue(ssdEntry->CurveProperties, level));
-    return ilvl ? ilvl : ItemLevel;
 }
 
 bool Item::AddItemBonus(uint32 p_ItemBonusId)

@@ -3,7 +3,7 @@
 #include "DatabaseEnv.h"
 #include "ObjectMgr.h"
 #include "ObjectAccessor.h"
-#include "UnitAI.h"
+#include "CreatureAI.h"
 
 uint32 gGarrisonInGarrisonAreaID[GARRISON_FACTION_COUNT] =
 {
@@ -56,7 +56,7 @@ float gGarrisonBuildingPlotAABBDiminishReturnFactor[GARRISON_PLOT_TYPE_MAX * GAR
     /// Horde
     0,          ///< GARRISON_PLOT_TYPE_SMALL
     0,          ///< GARRISON_PLOT_TYPE_MEDIUM
-    0,          ///< GARRISON_PLOT_TYPE_LARGE
+    24,         ///< GARRISON_PLOT_TYPE_LARGE
     0,          ///< GARRISON_PLOT_TYPE_FARM          same as GARRISON_PLOT_TYPE_MEDIUM
     0,          ///< GARRISON_PLOT_TYPE_MINE          same as GARRISON_PLOT_TYPE_MEDIUM
     0,          ///< GARRISON_PLOT_TYPE_FISHING_HUT   same as GARRISON_PLOT_TYPE_SMALL
@@ -267,6 +267,7 @@ Garrison::Garrison(Player * p_Owner)
     m_NumFollowerActivation                = 1;
     m_NumFollowerActivationRegenTimestamp  = time(0);
     m_CacheLastUsage                       = time(0);
+    m_MissionDistributionLastUpdate        = time(0);
 
     m_CacheGameObjectGUID = 0;
 
@@ -293,43 +294,61 @@ Garrison::Garrison(Player * p_Owner)
 /// Create the garrison
 void Garrison::Create()
 {
+    /// At creation, the garrison cache contains 50 token
+    m_CacheLastUsage = time(0) - (200 * GARRISON_CACHE_GENERATE_TICK);
+
+    std::ostringstream l_KnownBluePrintsStr;
+
+    for (uint32 l_I = 0; l_I < m_KnownBlueprints.size(); ++l_I)
+        l_KnownBluePrintsStr << m_KnownBlueprints[l_I] << ' ';
+
+    std::ostringstream l_KnownSpecializationsStr;
+
+    for (uint32 l_I = 0; l_I < m_KnownSpecializations.size(); ++l_I)
+        l_KnownSpecializationsStr << m_KnownSpecializations[l_I] << ' ';
+
     PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GARRISON);
 
+    m_ID = sObjectMgr->GetNewGarrisonID();
+
     uint32 l_Index = 0;
+    l_Stmt->setUInt32(l_Index++, m_ID);
     l_Stmt->setUInt32(l_Index++, m_Owner->GetGUIDLow());
     l_Stmt->setUInt32(l_Index++, m_GarrisonLevel);
+    l_Stmt->setString(l_Index++, l_KnownBluePrintsStr.str());
+    l_Stmt->setString(l_Index++, l_KnownSpecializationsStr.str());
+    l_Stmt->setUInt32(l_Index++, m_NumFollowerActivation);
+    l_Stmt->setUInt32(l_Index++, m_NumFollowerActivationRegenTimestamp);
+    l_Stmt->setUInt32(l_Index++, m_CacheLastUsage);
 
-    CharacterDatabase.Query(l_Stmt);
-
-    l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GARRISON_DB_ID);
-
-    l_Index = 0;
-    l_Stmt->setUInt32(l_Index++, m_Owner->GetGUIDLow());
-
-    PreparedQueryResult l_Result = CharacterDatabase.Query(l_Stmt);
-
-    if (!l_Result)
-        assert(false && "Garrison::Create() failed to retrieve created garrison ID");
-
-    Field * l_Fields = l_Result->Fetch();
-    
-    m_ID = l_Fields[0].GetUInt32();
+    CharacterDatabase.AsyncQuery(l_Stmt);
 
     Init();
+
+    /// Force mission distribution update
+    m_MissionDistributionLastUpdate = 0;
+    
+    std::vector<uint32> l_FollowerQuests = sObjectMgr->FollowerQuests;
+
+    /// Quest non rewarded followers
+    for (uint32 l_QuestID : l_FollowerQuests)
+    {
+        if (m_Owner->GetQuestStatus(l_QuestID) == QUEST_STATUS_REWARDED)
+        {
+            const Quest         * l_QuestTemplate   = sObjectMgr->GetQuestTemplate(l_QuestID);
+            const SpellInfo     * l_SpellInfo       = sSpellMgr->GetSpellInfo(l_QuestTemplate->GetRewSpellCast());
+
+            if (GetFollower(l_SpellInfo->Effects[EFFECT_0].MiscValue).FollowerID == 0)
+                AddFollower(l_SpellInfo->Effects[EFFECT_0].MiscValue);
+        }
+    }
 }
 /// Load
-bool Garrison::Load()
+bool Garrison::Load(PreparedQueryResult p_GarrisonResult, PreparedQueryResult p_BuildingsResult, PreparedQueryResult p_FollowersResult, PreparedQueryResult p_MissionsResult)
 {
-    PreparedStatement * l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GARRISON);
-
-    uint32 l_Index = 0;
-    l_Stmt->setUInt32(0, m_Owner->GetGUIDLow());
-
-    PreparedQueryResult l_Result = CharacterDatabase.Query(l_Stmt);
-
-    if (l_Result)
+    if (p_GarrisonResult)
     {
-        Field * l_Fields = l_Result->Fetch();
+        Field * l_Fields = p_GarrisonResult->Fetch();
 
         m_ID            = l_Fields[0].GetUInt32();
         m_GarrisonLevel = l_Fields[1].GetUInt32();
@@ -354,16 +373,11 @@ bool Garrison::Load()
         m_NumFollowerActivationRegenTimestamp  = l_Fields[5].GetUInt32();
         m_CacheLastUsage                       = l_Fields[6].GetUInt32();
 
-        l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GARRISON_BUILDING);
-        l_Stmt->setUInt32(0, m_ID);
-
-        l_Result = CharacterDatabase.Query(l_Stmt);
-
-        if (l_Result)
+        if (p_BuildingsResult)
         {
             do
             {
-                l_Fields = l_Result->Fetch();
+                l_Fields = p_BuildingsResult->Fetch();
 
                 GarrisonBuilding l_Building;
                 l_Building.DB_ID            = l_Fields[0].GetUInt32();
@@ -378,19 +392,14 @@ bool Garrison::Load()
                     l_Building.BuiltNotified = true;    ///< Auto notify by info packet
 
                 m_Buildings.push_back(l_Building);
-            } while (l_Result->NextRow());
+            } while (p_BuildingsResult->NextRow());
         }
 
-        l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GARRISON_MISSION);
-        l_Stmt->setUInt32(0, m_ID);
-
-        l_Result = CharacterDatabase.Query(l_Stmt);
-
-        if (l_Result)
+        if (p_MissionsResult)
         {
             do
             {
-                l_Fields = l_Result->Fetch();
+                l_Fields = p_MissionsResult->Fetch();
 
                 GarrisonMission l_Mission;
                 l_Mission.DB_ID             = l_Fields[0].GetUInt32();
@@ -409,19 +418,14 @@ bool Garrison::Load()
                     CharacterDatabase.AsyncQuery(l_Stmt);
                 }
 
-            } while (l_Result->NextRow());
+            } while (p_MissionsResult->NextRow());
         }
 
-        l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GARRISON_FOLLOWER);
-        l_Stmt->setUInt32(0, m_ID);
-
-        l_Result = CharacterDatabase.Query(l_Stmt);
-
-        if (l_Result)
+        if (p_FollowersResult)
         {
             do
             {
-                l_Fields = l_Result->Fetch();
+                l_Fields = p_FollowersResult->Fetch();
 
                 GarrisonFollower l_Follower;
                 l_Follower.DB_ID             = l_Fields[0].GetUInt32();
@@ -445,10 +449,121 @@ bool Garrison::Load()
                 l_Follower.Flags = l_Fields[10].GetUInt32();
 
                 m_Followers.push_back(l_Follower);
-            } while (l_Result->NextRow());
+
+            } while (p_FollowersResult->NextRow());
         }
 
         Init();
+
+        /// @TODO find crash
+        ///m_Missions.erase(std::remove_if(m_Missions.begin(), m_Missions.end(), [this](const GarrisonMission & p_Mission) -> bool
+        ///{
+        ///    if (p_Mission.State != GARRISON_MISSION_IN_PROGRESS)
+        ///        return false;
+        ///
+        ///    uint32 l_FollowerCount = std::count_if(m_Followers.begin(), m_Followers.end(), [p_Mission](const GarrisonFollower & p_Follower) -> bool
+        ///    {
+        ///        if (p_Follower.CurrentMissionID == p_Mission.MissionID)
+        ///            return true;
+        ///
+        ///        return false;
+        ///    });
+        ///
+        ///    if (l_FollowerCount == 0)
+        ///        return true;
+        ///
+        ///    const GarrMissionEntry * l_MissionTemplate = sGarrMissionStore.LookupEntry(p_Mission.MissionID);
+        ///
+        ///    if (!l_MissionTemplate)
+        ///        return true;
+        ///
+        ///    if (l_MissionTemplate->RequiredFollowersCount != l_FollowerCount)
+        ///        return true;
+        ///
+        ///    return false;
+        ///}));
+
+        std::vector<uint32> l_FollowerQuests = sObjectMgr->FollowerQuests;
+
+        /// Quest non rewarded followers
+        for (uint32 l_QuestID : l_FollowerQuests)
+        {
+            if (m_Owner->GetQuestStatus(l_QuestID) == QUEST_STATUS_REWARDED)
+            {
+                const Quest         * l_QuestTemplate = sObjectMgr->GetQuestTemplate(l_QuestID);
+                const SpellInfo     * l_SpellInfo = sSpellMgr->GetSpellInfo(l_QuestTemplate->GetRewSpellCast());
+
+                if (GetFollower(l_SpellInfo->Effects[EFFECT_0].MiscValue).FollowerID == 0)
+                    AddFollower(l_SpellInfo->Effects[EFFECT_0].MiscValue);
+            }
+        }
+
+        /// Force mission distribution update
+        m_MissionDistributionLastUpdate = 0;
+
+        /// Fix bug in mission distribution TEMP CODE
+        uint32 l_MaxMissionCount            = ceil(m_Followers.size() * 2.5);
+        uint32 l_CurrentAvailableMission    = 0;
+
+        std::for_each(m_Missions.begin(), m_Missions.end(), [&l_CurrentAvailableMission](const GarrisonMission & p_Mission) -> void
+        {
+            if (p_Mission.State == GARRISON_MISSION_AVAILABLE && (p_Mission.OfferTime + p_Mission.OfferMaxDuration) > time(0))
+                l_CurrentAvailableMission++;
+        });
+
+        if (l_CurrentAvailableMission > l_MaxMissionCount)
+        {
+            m_Missions.erase(std::remove_if(m_Missions.begin(), m_Missions.end(), [](const GarrisonMission & p_Mission) -> bool
+            {
+                if (p_Mission.State == GARRISON_MISSION_AVAILABLE && (p_Mission.OfferTime + p_Mission.OfferMaxDuration) > time(0))
+                    return true;
+
+                return false;
+            }));
+        }
+
+        /// Unstuck follower
+        std::for_each(m_Followers.begin(), m_Followers.end(), [this](GarrisonFollower & p_Follower)
+        {
+            if (p_Follower.CurrentMissionID != 0)
+            {
+                auto l_It = std::find_if(m_Missions.begin(), m_Missions.end(), [p_Follower](const GarrisonMission & p_Mission) -> bool
+                {
+                    if (p_Mission.MissionID == p_Follower.CurrentMissionID)
+                        return true;
+
+                    return false;
+                });
+
+                if (l_It == m_Missions.end() || (*l_It).State == GARRISON_MISSION_AVAILABLE)
+                    p_Follower.CurrentMissionID = 0;
+            }
+
+            /// Corrupted DB
+            if (p_Follower.Level == 0)
+            {
+                const GarrFollowerEntry * l_Entry = sGarrFollowerStore.LookupEntry(p_Follower.FollowerID);
+
+                if (l_Entry)
+                {
+                    p_Follower.Level            = l_Entry->Level;
+                    p_Follower.XP               = 0;
+                    p_Follower.Quality          = l_Entry->Quality;
+                    p_Follower.ItemLevelArmor   = l_Entry->ItemLevelArmor;
+                    p_Follower.ItemLevelWeapon  = l_Entry->ItemLevelWeapon;
+
+                    p_Follower.Abilities.clear();
+
+                    for (uint32 l_I = 0; l_I < sGarrFollowerXAbilityStore.GetNumRows(); ++l_I)
+                    {
+                        const GarrFollowerXAbilityEntry * l_Entry = sGarrFollowerXAbilityStore.LookupEntry(l_I);
+
+                        if (l_Entry && l_Entry->FollowerID == p_Follower.FollowerID && sGarrAbilityStore.LookupEntry(l_Entry->AbilityID) && l_Entry->FactionIndex == GetGarrisonFactionIndex())
+                            p_Follower.Abilities.push_back(l_Entry->AbilityID);
+                    }
+                }
+            }
+        });
 
         return true;
     }
@@ -580,92 +695,19 @@ void Garrison::Delete(uint64 p_PlayerGUID, SQLTransaction p_Transation)
 /// Update the garrison
 void Garrison::Update()
 {
-    GarrisonInstanceScriptBase * l_GarrisonScript = GetGarrisonScript();
-
-    /// Update building in construction
-    for (uint32 l_I = 0; l_I < m_Buildings.size(); ++l_I)
-    {
-        GarrisonBuilding * l_Building = &m_Buildings[l_I];
-
-        if (!l_Building->Active && !l_Building->BuiltNotified && time(0) > l_Building->TimeBuiltEnd)
-        {
-            l_Building->BuiltNotified = true;
-
-            /// Nothing more needed, client auto deduce notification
-            UpdatePlot(l_Building->PlotInstanceID);
-        }
-    }
-
-    /// Update follower activation cost
-    if (m_NumFollowerActivation < GARRISON_FOLLOWER_ACTIVATION_MAX_STACK && (time(0) - m_NumFollowerActivationRegenTimestamp) > DAY)
-    {
-        m_NumFollowerActivation++;
-        m_NumFollowerActivationRegenTimestamp = time(0);
-
-        WorldPacket l_Data(SMSG_GARRISON_UPDATE_FOLLOWER_ACTIVATION_COUNT, 4);
-        l_Data << uint32(GetNumFollowerActivationsRemaining());
-
-        m_Owner->SendDirectMessage(&l_Data);
-    }
-
-    /// Update garrison cache
-    if (m_CacheGameObjectGUID && HashMapHolder<GameObject>::Find(m_CacheGameObjectGUID) == nullptr)
-        m_CacheGameObjectGUID = 0;
-
-    uint32 l_NumRessourceGenerated = std::min((uint32)((time(0) - m_CacheLastUsage) / GARRISON_CACHE_GENERATE_TICK), (uint32)GARRISON_CACHE_MAX_CURRENCY);
-
-    if (l_NumRessourceGenerated != m_CacheLastTokenAmount || ((l_NumRessourceGenerated == m_CacheLastTokenAmount) && !m_CacheGameObjectGUID))
-    {
-        m_CacheLastTokenAmount = l_NumRessourceGenerated;
-        m_Owner->SendUpdateWorldState(GARRISON_WORLD_STATE_CACHE_NUM_TOKEN, l_NumRessourceGenerated);
-
-        if (l_NumRessourceGenerated >= GARRISON_CACHE_MIN_CURRENCY && l_GarrisonScript && l_GarrisonScript->CanUseGarrisonCache(m_Owner))
-        {
-            /// Get display ID
-            uint32 l_DisplayIDOffset    = l_NumRessourceGenerated == GARRISON_CACHE_MAX_CURRENCY ? 2 : ((l_NumRessourceGenerated > GARRISON_CACHE_HEFTY_CURRENCY) ? 1 : 0);
-            uint32 l_DisplayID          = gGarrisonCacheGameObjectID[(GetGarrisonFactionIndex() * 3) + l_DisplayIDOffset];
-
-            /// Destroy old cache if exist
-            GameObject * l_Cache = HashMapHolder<GameObject>::Find(m_CacheGameObjectGUID);
-
-            if (l_Cache)
-            {
-                l_Cache->DestroyForNearbyPlayers();
-                l_Cache->CleanupsBeforeDelete();
-                delete l_Cache;
-            }
-
-            m_CacheGameObjectGUID = 0;
-
-            /// Create new one
-            if (m_Owner->IsInGarrison())
-            {
-                /// Extract new location
-                GarrisonCacheInfoLocation & l_Location = gGarrisonCacheInfoLocation[(GetGarrisonFactionIndex() * GARRISON_MAX_LEVEL) + (m_GarrisonLevel - 1)];
-                l_Cache = m_Owner->SummonGameObject(l_DisplayID, l_Location.X, l_Location.Y, l_Location.Z, l_Location.O, 0, 0, 0, 0, 0);
-
-                if (l_Cache)
-                    m_CacheGameObjectGUID = l_Cache->GetGUID();
-            }
-
-        }
-    }
-
-    if (m_CacheGameObjectGUID &&
-        ((l_NumRessourceGenerated < GARRISON_CACHE_MIN_CURRENCY) || (l_GarrisonScript && !l_GarrisonScript->CanUseGarrisonCache(m_Owner))))
-    {
-        GameObject * l_Cache = HashMapHolder<GameObject>::Find(m_CacheGameObjectGUID);
-
-        if (l_Cache)
-        {
-            l_Cache->DestroyForNearbyPlayers();
-            l_Cache->CleanupsBeforeDelete();
-            delete l_Cache;
-        }
-
-        m_CacheGameObjectGUID = 0;
-    }
+    /// Update buildings
+    UpdateBuildings();
+    /// Update followers
+    UpdateFollowers();
+    /// Update cache
+    UpdateCache();
+    /// Update mission distribution
+    UpdateMissionDistribution();
 }
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
 /// Get garrison cache token count
 uint32 Garrison::GetGarrisonCacheTokenCount()
 {
@@ -722,8 +764,7 @@ void Garrison::OnPlayerLeave()
         if (l_Cache)
         {
             l_Cache->DestroyForNearbyPlayers();
-            l_Cache->CleanupsBeforeDelete();
-            delete l_Cache;
+            l_Cache->AddObjectToRemoveList();
         }
 
         m_CacheGameObjectGUID = 0;
@@ -899,7 +940,7 @@ bool Garrison::AddMission(uint32 p_MissionRecID)
         return false;
 
     GarrisonMission l_Mission;
-
+    l_Mission.DB_ID             = sObjectMgr->GetNewGarrisonMissionID();
     l_Mission.MissionID         = p_MissionRecID;
     l_Mission.OfferTime         = time(0);
     l_Mission.OfferMaxDuration  = l_MissionEntry->OfferTime;
@@ -909,25 +950,15 @@ bool Garrison::AddMission(uint32 p_MissionRecID)
     PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GARRISON_MISSION);
 
     uint32 l_Index = 0;
+    l_Stmt->setUInt32(l_Index++, l_Mission.DB_ID);
     l_Stmt->setUInt32(l_Index++, m_ID);
-    l_Stmt->setUInt32(l_Index++, p_MissionRecID);
+    l_Stmt->setUInt32(l_Index++, l_Mission.MissionID);
+    l_Stmt->setUInt32(l_Index++, l_Mission.OfferTime);
+    l_Stmt->setUInt32(l_Index++, l_Mission.OfferMaxDuration);
+    l_Stmt->setUInt32(l_Index++, l_Mission.StartTime);
+    l_Stmt->setUInt32(l_Index++, l_Mission.State);
 
-    CharacterDatabase.Query(l_Stmt);
-
-    l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GARRISON_MISSION_DB_ID);
-
-    l_Index = 0;
-    l_Stmt->setUInt32(l_Index++, m_ID);
-    l_Stmt->setUInt32(l_Index++, p_MissionRecID);
-
-    PreparedQueryResult l_Result = CharacterDatabase.Query(l_Stmt);
-
-    if (!l_Result)
-        assert(false && "Garrison::AddMission() failed to retrieve created garrison mission ID");
-
-    Field * l_Fields = l_Result->Fetch();
-
-    l_Mission.DB_ID = l_Fields[0].GetUInt32();
+    CharacterDatabase.AsyncQuery(l_Stmt);
 
     m_Missions.push_back(l_Mission);
 
@@ -1024,6 +1055,7 @@ void Garrison::StartMission(uint32 p_MissionRecID, std::vector<uint64> p_Followe
 
     m_Owner->ModifyCurrency(GARRISON_CURRENCY_ID, -(int32)l_MissionTemplate->GarrisonCurrencyStartCost);
 
+    std::vector<uint32> l_FollowersIDs;
     for (uint32 l_I = 0; l_I < p_Followers.size(); ++l_I)
     {
         std::vector<GarrisonFollower>::iterator l_It = std::find_if(m_Followers.begin(), m_Followers.end(), [this, p_Followers, l_I](const GarrisonFollower p_Follower) -> bool
@@ -1035,6 +1067,7 @@ void Garrison::StartMission(uint32 p_MissionRecID, std::vector<uint64> p_Followe
         });
 
         l_It->CurrentMissionID = p_MissionRecID;
+        l_FollowersIDs.push_back(l_It->FollowerID);
     }
 
     GarrisonMission * l_Mission = nullptr;
@@ -1075,6 +1108,9 @@ void Garrison::StartMission(uint32 p_MissionRecID, std::vector<uint64> p_Followe
             l_Result << uint64(p_Followers[l_I]);
 
         m_Owner->SendDirectMessage(&l_Result);
+
+        if (GetGarrisonScript())
+            GetGarrisonScript()->OnMissionStart(p_MissionRecID, l_FollowersIDs);
     }
 }
 /// Send mission start failed packet
@@ -1284,32 +1320,33 @@ void Garrison::CompleteMission(uint32 p_MissionRecID)
                 m_PendingMissionReward.RewardFollowerXP += l_RewardEntry->BonusRewardXP;
         }
 
-        l_BonusXP = (l_XPModifier - 1.0f) * m_PendingMissionReward.RewardFollowerXP;
-        m_PendingMissionReward.RewardFollowerXP += l_BonusXP;
-
-        for (uint32 l_FollowerIt = 0; l_FollowerIt < l_MissionFollowers.size(); ++l_FollowerIt)
-        {
-            float l_SecondXPModifier = 1.0f;
-
-            /// Personnal XP Bonus
-            for (uint32 l_AbilityIt = 0; l_AbilityIt < l_MissionFollowers[l_FollowerIt]->Abilities.size(); l_AbilityIt++)
-            {
-                uint32 l_CurrentAbilityID = l_MissionFollowers[l_FollowerIt]->Abilities[l_AbilityIt];
-
-                for (uint32 l_EffectIt = 0; l_EffectIt < sGarrAbilityEffectStore.GetNumRows(); l_EffectIt++)
-                {
-                    const GarrAbilityEffectEntry * l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_EffectIt);
-
-                    if (!l_AbilityEffectEntry || l_AbilityEffectEntry->AbilityID != l_CurrentAbilityID)
-                        continue;
-
-                    if (l_AbilityEffectEntry->EffectType == GARRISION_ABILITY_EFFECT_MOD_XP_GAIN && l_AbilityEffectEntry->TargetMask == GARRISON_ABILITY_EFFECT_TARGET_MASK_SELF)
-                        l_SecondXPModifier = (l_AbilityEffectEntry->Amount - 1.0) + l_SecondXPModifier;
-                }
-            }
-
-            m_PendingMissionReward.RewardFollowerXPBonus.push_back(std::make_pair(l_MissionFollowers[l_FollowerIt]->DB_ID, (l_BonusXP + m_PendingMissionReward.RewardFollowerXP) * l_SecondXPModifier));
-        }
+        /// @TODO fix this
+        ///l_BonusXP = (l_XPModifier - 1.0f) * m_PendingMissionReward.RewardFollowerXP;
+        ///m_PendingMissionReward.RewardFollowerXP += l_BonusXP;
+        ///
+        ///for (uint32 l_FollowerIt = 0; l_FollowerIt < l_MissionFollowers.size(); ++l_FollowerIt)
+        ///{
+        ///    float l_SecondXPModifier = 1.0f;
+        ///
+        ///    /// Personnal XP Bonus
+        ///    for (uint32 l_AbilityIt = 0; l_AbilityIt < l_MissionFollowers[l_FollowerIt]->Abilities.size(); l_AbilityIt++)
+        ///    {
+        ///        uint32 l_CurrentAbilityID = l_MissionFollowers[l_FollowerIt]->Abilities[l_AbilityIt];
+        ///
+        ///        for (uint32 l_EffectIt = 0; l_EffectIt < sGarrAbilityEffectStore.GetNumRows(); l_EffectIt++)
+        ///        {
+        ///            const GarrAbilityEffectEntry * l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_EffectIt);
+        ///
+        ///            if (!l_AbilityEffectEntry || l_AbilityEffectEntry->AbilityID != l_CurrentAbilityID)
+        ///                continue;
+        ///
+        ///            if (l_AbilityEffectEntry->EffectType == GARRISION_ABILITY_EFFECT_MOD_XP_GAIN && l_AbilityEffectEntry->TargetMask == GARRISON_ABILITY_EFFECT_TARGET_MASK_SELF)
+        ///                l_SecondXPModifier = (l_AbilityEffectEntry->Amount - 1.0) + l_SecondXPModifier;
+        ///        }
+        ///    }
+        ///
+        ///    m_PendingMissionReward.RewardFollowerXPBonus.push_back(std::make_pair(l_MissionFollowers[l_FollowerIt]->DB_ID, (l_BonusXP + m_PendingMissionReward.RewardFollowerXP) * l_SecondXPModifier));
+        ///}
     }
 
     /// Unasign follower to the mission
@@ -1320,21 +1357,7 @@ void Garrison::CompleteMission(uint32 p_MissionRecID)
             m_Followers[l_I].CurrentMissionID = 0;
 
             WorldPacket l_Update(SMSG_GARRISON_UPDATE_FOLLOWER, 500);
-            l_Update << uint64(m_Followers[l_I].DB_ID);
-            l_Update << uint32(m_Followers[l_I].FollowerID);
-            l_Update << uint32(m_Followers[l_I].Quality);
-            l_Update << uint32(m_Followers[l_I].Level);
-            l_Update << uint32(m_Followers[l_I].ItemLevelWeapon);
-            l_Update << uint32(m_Followers[l_I].ItemLevelArmor);
-            l_Update << uint32(m_Followers[l_I].XP);
-            l_Update << uint32(m_Followers[l_I].CurrentBuildingID);
-            l_Update << uint32(m_Followers[l_I].CurrentMissionID);
-
-            l_Update << uint32(m_Followers[l_I].Abilities.size());
-            l_Update << uint32(m_Followers[l_I].Flags);
-
-            for (uint32 l_Y = 0; l_Y < m_Followers[l_I].Abilities.size(); ++l_Y)
-                l_Update << int32(m_Followers[l_I].Abilities[l_Y]);
+            m_Followers[l_I].Write(l_Update);
 
             m_Owner->SendDirectMessage(&l_Update);
         }
@@ -2036,6 +2059,7 @@ bool Garrison::AddFollower(uint32 p_FollowerID)
         return false;
 
     GarrisonFollower l_Follower;
+    l_Follower.DB_ID                = sObjectMgr->GetNewGarrisonFollowerID();
     l_Follower.FollowerID           = p_FollowerID;
     l_Follower.Level                = l_Entry->Level;
     l_Follower.XP                   = 0;
@@ -2044,7 +2068,8 @@ bool Garrison::AddFollower(uint32 p_FollowerID)
     l_Follower.ItemLevelWeapon      = l_Entry->ItemLevelWeapon;
     l_Follower.CurrentBuildingID    = 0;
     l_Follower.CurrentMissionID     = 0;
-    
+    l_Follower.Flags                = 0;
+
     for (uint32 l_I = 0; l_I < sGarrFollowerXAbilityStore.GetNumRows(); ++l_I)
     {
         const GarrFollowerXAbilityEntry * l_Entry = sGarrFollowerXAbilityStore.LookupEntry(l_I);
@@ -2053,48 +2078,33 @@ bool Garrison::AddFollower(uint32 p_FollowerID)
             l_Follower.Abilities.push_back(l_Entry->AbilityID);
     }
 
+    std::ostringstream l_Abilities;
+
+    for (uint32 l_Y = 0; l_Y < l_Follower.Abilities.size(); ++l_Y)
+        l_Abilities << l_Follower.Abilities[l_Y] << ' ';
+
     PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GARRISON_FOLLOWER);
-    
+
     uint32 l_Index = 0;
+    l_Stmt->setUInt32(l_Index++, l_Follower.DB_ID);
     l_Stmt->setUInt32(l_Index++, m_ID);
-    l_Stmt->setUInt32(l_Index++, p_FollowerID);
+    l_Stmt->setUInt32(l_Index++, l_Follower.FollowerID);
+    l_Stmt->setUInt32(l_Index++, l_Follower.Level);
+    l_Stmt->setUInt32(l_Index++, l_Follower.XP);
+    l_Stmt->setUInt32(l_Index++, l_Follower.Quality);
+    l_Stmt->setUInt32(l_Index++, l_Follower.ItemLevelArmor);
+    l_Stmt->setUInt32(l_Index++, l_Follower.ItemLevelWeapon);
+    l_Stmt->setUInt32(l_Index++, l_Follower.CurrentMissionID);
+    l_Stmt->setUInt32(l_Index++, l_Follower.CurrentBuildingID);
+    l_Stmt->setString(l_Index++, l_Abilities.str());
+    l_Stmt->setUInt32(l_Index++, l_Follower.Flags);
 
-    CharacterDatabase.Query(l_Stmt);
-
-    l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GARRISON_FOLLOWER_DB_ID);
-
-    l_Index = 0;
-    l_Stmt->setUInt32(l_Index++, m_ID);
-    l_Stmt->setUInt32(l_Index++, p_FollowerID);
-
-    PreparedQueryResult l_Result = CharacterDatabase.Query(l_Stmt);
-
-    if (!l_Result)
-        assert(false && "Garrison::AddFollower() failed to retrieve created garrison follower ID");
-
-    Field * l_Fields = l_Result->Fetch();
-
-    l_Follower.DB_ID = l_Fields[0].GetUInt32();
+    CharacterDatabase.AsyncQuery(l_Stmt);
 
     m_Followers.push_back(l_Follower);
 
     WorldPacket l_AddFollowerResult(SMSG_GARRISON_ADD_FOLLOWER_RESULT, 64);
-    l_AddFollowerResult << uint32(GARRISON_PURCHASE_BUILDING_OK);
-    l_AddFollowerResult << uint64(l_Follower.DB_ID);
-    l_AddFollowerResult << uint32(l_Follower.FollowerID);
-    l_AddFollowerResult << uint32(l_Follower.Quality);
-    l_AddFollowerResult << uint32(l_Follower.Level);
-    l_AddFollowerResult << uint32(l_Follower.ItemLevelWeapon);
-    l_AddFollowerResult << uint32(l_Follower.ItemLevelArmor);
-    l_AddFollowerResult << uint32(l_Follower.XP);
-    l_AddFollowerResult << uint32(l_Follower.CurrentBuildingID);
-    l_AddFollowerResult << uint32(l_Follower.CurrentMissionID);
-
-    l_AddFollowerResult << uint32(l_Follower.Abilities.size());
-    l_AddFollowerResult << uint32(0);       ///< Unk
-
-    for (uint32 l_Y = 0; l_Y < l_Follower.Abilities.size(); ++l_Y)
-        l_AddFollowerResult << int32(l_Follower.Abilities[l_Y]);
+    l_Follower.Write(l_AddFollowerResult);
 
     m_Owner->SendDirectMessage(&l_AddFollowerResult);
 
@@ -2266,6 +2276,7 @@ GarrisonBuilding Garrison::PurchaseBuilding(uint32 p_BuildingRecID, uint32 p_Plo
         m_Owner->SendDirectMessage(&l_PlotRemoved);
     }
 
+    l_Building.DB_ID            = sObjectMgr->GetNewGarrisonBuildingID();
     l_Building.BuildingID       = p_BuildingRecID;
     l_Building.PlotInstanceID   = p_PlotInstanceID;
     l_Building.TimeBuiltStart   = time(0);
@@ -2280,32 +2291,24 @@ GarrisonBuilding Garrison::PurchaseBuilding(uint32 p_BuildingRecID, uint32 p_Plo
     PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GARRISON_BUILDING);
 
     uint32 l_Index = 0;
+    l_Stmt->setUInt32(l_Index++, l_Building.DB_ID);
     l_Stmt->setUInt32(l_Index++, m_ID);
-    l_Stmt->setUInt32(l_Index++, p_PlotInstanceID);
-    l_Stmt->setUInt32(l_Index++, p_BuildingRecID);
+    l_Stmt->setUInt32(l_Index++, l_Building.PlotInstanceID);
+    l_Stmt->setUInt32(l_Index++, l_Building.BuildingID);
+    l_Stmt->setUInt32(l_Index++, l_Building.SpecID);
+    l_Stmt->setUInt32(l_Index++, l_Building.TimeBuiltStart);
+    l_Stmt->setUInt32(l_Index++, l_Building.TimeBuiltEnd);
+    l_Stmt->setBool(l_Index++, l_Building.Active);
 
-    CharacterDatabase.Query(l_Stmt);
-
-    l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GARRISON_BUILDING_DB_ID);
-
-    l_Index = 0;
-    l_Stmt->setUInt32(l_Index++, m_ID);
-    l_Stmt->setUInt32(l_Index++, p_PlotInstanceID);
-    l_Stmt->setUInt32(l_Index++, p_BuildingRecID);
-
-    PreparedQueryResult l_Result = CharacterDatabase.Query(l_Stmt);
-
-    if (!l_Result)
-        assert(false && "Garrison::PurchaseBuilding() failed to retrieve created garrison building ID");
-
-    Field * l_Fields = l_Result->Fetch();
-
-    l_Building.DB_ID = l_Fields[0].GetUInt32();
+    CharacterDatabase.AsyncQuery(l_Stmt);
 
     m_Buildings.push_back(l_Building);
 
     UpdatePlot(p_PlotInstanceID);
-    
+
+    if (GetGarrisonScript())
+        GetGarrisonScript()->OnPurchaseBuilding(p_BuildingRecID);
+
     return l_Building;
 }
 /// Get building
@@ -2560,7 +2563,7 @@ void Garrison::InitDataForLevel()
 /// Init Game objects
 void Garrison::InitPlots()
 {
-    if (m_Owner->GetMapId() != GetGarrisonSiteLevelEntry()->MapID)
+    if (!m_Owner->IsInGarrison())
         return;
 
     for (uint32 l_I = 0; l_I < m_Plots.size(); ++l_I)
@@ -2576,8 +2579,7 @@ void Garrison::UninitPlots()
         if (l_Gob)
         {
             l_Gob->DestroyForNearbyPlayers();
-            l_Gob->CleanupsBeforeDelete();
-            delete l_Gob;
+            l_Gob->AddObjectToRemoveList();
         }
     }
 
@@ -2590,8 +2592,7 @@ void Garrison::UninitPlots()
         if (l_Gob)
         {
             l_Gob->DestroyForNearbyPlayers();
-            l_Gob->CleanupsBeforeDelete();
-            delete l_Gob;
+            l_Gob->AddObjectToRemoveList();
         }
     }
 
@@ -2606,8 +2607,7 @@ void Garrison::UninitPlots()
             if (l_Gob)
             {
                 l_Gob->DestroyForNearbyPlayers();
-                l_Gob->CleanupsBeforeDelete();
-                delete l_Gob;
+                l_Gob->AddObjectToRemoveList();
             }
         }
     }
@@ -2623,8 +2623,7 @@ void Garrison::UninitPlots()
             if (l_Crea)
             {
                 l_Crea->DestroyForNearbyPlayers();
-                l_Crea->CleanupsBeforeDelete();
-                delete l_Crea;
+                l_Crea->AddObjectToRemoveList();
             }
         }
     }
@@ -2638,7 +2637,7 @@ void Garrison::UninitPlots()
 /// Update plot game object
 void Garrison::UpdatePlot(uint32 p_PlotInstanceID)
 {
-    if (m_Owner->GetMapId() != GetGarrisonSiteLevelEntry()->MapID)
+    if (!m_Owner->IsInGarrison())
         return;
 
     GarrisonPlotInstanceInfoLocation    l_PlotInfo = GetPlot(p_PlotInstanceID);
@@ -2651,8 +2650,7 @@ void Garrison::UpdatePlot(uint32 p_PlotInstanceID)
         if (l_Gob)
         {
             l_Gob->DestroyForNearbyPlayers();
-            l_Gob->CleanupsBeforeDelete();
-            delete l_Gob;
+            l_Gob->AddObjectToRemoveList();
         }
 
         m_PlotsGob[p_PlotInstanceID] = 0;
@@ -2705,8 +2703,7 @@ void Garrison::UpdatePlot(uint32 p_PlotInstanceID)
                     if (l_Crea)
                     {
                         l_Crea->DestroyForNearbyPlayers();
-                        l_Crea->CleanupsBeforeDelete();
-                        delete l_Crea;
+                        l_Crea->AddObjectToRemoveList();
                     }
                 }
 
@@ -2719,8 +2716,7 @@ void Garrison::UpdatePlot(uint32 p_PlotInstanceID)
                     if (l_Gob)
                     {
                         l_Gob->DestroyForNearbyPlayers();
-                        l_Gob->CleanupsBeforeDelete();
-                        delete l_Gob;
+                        l_Gob->AddObjectToRemoveList();
                     }
                 }
 
@@ -2736,16 +2732,29 @@ void Garrison::UpdatePlot(uint32 p_PlotInstanceID)
                 l_NonRotatedPosition = l_Mat * G3D::Vector3(l_PlotInfo.X, l_PlotInfo.Y, l_PlotInfo.Z);
             }
 
-            std::vector<GarrisonPlotBuildingContent> l_Contents = sObjectMgr->GetGarrisonPlotBuildingContent(GetPlotType(p_PlotInstanceID), GetGarrisonFactionIndex());
+            std::vector<GarrisonPlotBuildingContent> l_Contents;
+            
+            
+            if (l_IsPlotBuilding)
+                l_Contents = sObjectMgr->GetGarrisonPlotBuildingContent(GetPlotType(p_PlotInstanceID), GetGarrisonFactionIndex());
+            else if (l_Building.Active && l_Building.BuildingID)
+                l_Contents = sObjectMgr->GetGarrisonPlotBuildingContent(-(int32)l_Building.BuildingID, GetGarrisonFactionIndex());
 
             for (uint32 l_I = 0; l_I < l_Contents.size(); ++l_I)
             {
                 if (l_IsPlotBuilding && l_Contents[l_I].PlotTypeOrBuilding < 0)
                     continue;
-                else if (!l_IsPlotBuilding && l_Building.Active && -l_Contents[l_I].PlotTypeOrBuilding == l_Building.BuildingID)
-                    continue;
-                else if (!l_IsPlotBuilding && !l_Building.BuildingID)
-                    continue;
+
+                if (!l_IsPlotBuilding)
+                {
+                    if (!l_Building.BuildingID)
+                        continue;
+
+                    int32 l_NegPlotTypeOrBuilding = -l_Contents[l_I].PlotTypeOrBuilding;
+
+                    if (l_Building.Active && l_NegPlotTypeOrBuilding != l_Building.BuildingID)
+                        continue;
+                }
 
                 G3D::Vector3 l_Position = G3D::Vector3(l_Contents[l_I].X, l_Contents[l_I].Y, 0);
 
@@ -2763,16 +2772,20 @@ void Garrison::UpdatePlot(uint32 p_PlotInstanceID)
                 {
                     Creature * l_Creature = m_Owner->SummonCreature(l_Contents[l_I].CreatureOrGob, l_Position.x, l_Position.y, l_Position.z, l_Contents[l_I].O + l_PlotInfo.O, TEMPSUMMON_MANUAL_DESPAWN);
 
-                    m_PlotsCreatures[p_PlotInstanceID].push_back(l_Creature->GetGUID());
+                    if (l_Creature)
+                    {
+                        m_PlotsCreatures[p_PlotInstanceID].push_back(l_Creature->GetGUID());
 
-                    if (l_Creature->GetAI())
-                        l_Creature->GetAI()->SetData(GARRISON_CREATURE_AI_DATA_BUILDER, 1);
+                        if (l_Creature->AI())
+                            l_Creature->AI()->SetData(GARRISON_CREATURE_AI_DATA_BUILDER, 1);
+                    }
                 }
                 else
                 {
                     GameObject * l_Cosmetic = m_Owner->SummonGameObject(-l_Contents[l_I].CreatureOrGob, l_Position.x, l_Position.y, l_Position.z, l_Contents[l_I].O, 0, 0, 0, 0, 0);
 
-                    m_PlotsGameObjects[p_PlotInstanceID].push_back(l_Cosmetic->GetGUID());
+                    if (l_Cosmetic)
+                        m_PlotsGameObjects[p_PlotInstanceID].push_back(l_Cosmetic->GetGUID());
                 }
             }
 
@@ -2783,8 +2796,7 @@ void Garrison::UpdatePlot(uint32 p_PlotInstanceID)
                 if (l_Gob)
                 {
                     l_Gob->DestroyForNearbyPlayers();
-                    l_Gob->CleanupsBeforeDelete();
-                    delete l_Gob;
+                    l_Gob->AddObjectToRemoveList();
                 }
             }
 
@@ -2868,4 +2880,195 @@ void Garrison::UpdateStats()
     }
 
     m_Stat_MaxActiveFollower = l_BonusMaxActiveFollower + GARRISON_DEFAULT_MAX_ACTIVE_FOLLOW;
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+/// Update building
+void Garrison::UpdateBuildings()
+{
+    /// Update building in construction
+    for (uint32 l_I = 0; l_I < m_Buildings.size(); ++l_I)
+    {
+        GarrisonBuilding * l_Building = &m_Buildings[l_I];
+
+        if (!l_Building->Active && !l_Building->BuiltNotified && time(0) > l_Building->TimeBuiltEnd)
+        {
+            l_Building->BuiltNotified = true;
+
+            /// Nothing more needed, client auto deduce notification
+            UpdatePlot(l_Building->PlotInstanceID);
+        }
+    }
+}
+/// Update followers
+void Garrison::UpdateFollowers()
+{
+    /// Update follower activation count
+    if (m_NumFollowerActivation < GARRISON_FOLLOWER_ACTIVATION_MAX_STACK && (time(0) - m_NumFollowerActivationRegenTimestamp) > DAY)
+    {
+        m_NumFollowerActivation++;
+        m_NumFollowerActivationRegenTimestamp = time(0);
+
+        WorldPacket l_Data(SMSG_GARRISON_UPDATE_FOLLOWER_ACTIVATION_COUNT, 4);
+        l_Data << uint32(GetNumFollowerActivationsRemaining());
+
+        m_Owner->SendDirectMessage(&l_Data);
+    }
+}
+/// Update cache
+void Garrison::UpdateCache()
+{
+    if (!m_Owner->IsInGarrison())
+        return;
+
+    GarrisonInstanceScriptBase * l_GarrisonScript = GetGarrisonScript();
+
+    /// Update garrison cache
+    if (m_CacheGameObjectGUID && HashMapHolder<GameObject>::Find(m_CacheGameObjectGUID) == nullptr)
+        m_CacheGameObjectGUID = 0;
+
+    if (!l_GarrisonScript || !l_GarrisonScript->CanUseGarrisonCache(m_Owner))
+    {
+        if (m_CacheGameObjectGUID != 0)
+        {
+            GameObject * l_Cache = HashMapHolder<GameObject>::Find(m_CacheGameObjectGUID);
+
+            if (l_Cache)
+            {
+                l_Cache->DestroyForNearbyPlayers();
+                l_Cache->AddObjectToRemoveList();
+            }
+
+            m_CacheGameObjectGUID = 0;
+        }
+
+        return;
+    }
+
+    uint32 l_NumRessourceGenerated = std::min((uint32)((time(0) - m_CacheLastUsage) / GARRISON_CACHE_GENERATE_TICK), (uint32)GARRISON_CACHE_MAX_CURRENCY);
+
+    if (!m_CacheGameObjectGUID)
+    {
+        m_CacheLastTokenAmount = l_NumRessourceGenerated;
+        m_Owner->SendUpdateWorldState(GARRISON_WORLD_STATE_CACHE_NUM_TOKEN, l_NumRessourceGenerated);
+
+        if (l_NumRessourceGenerated >= GARRISON_CACHE_MIN_CURRENCY)
+        {
+            /// Get display ID
+            uint32 l_DisplayIDOffset    = l_NumRessourceGenerated == GARRISON_CACHE_MAX_CURRENCY ? 2 : ((l_NumRessourceGenerated > GARRISON_CACHE_HEFTY_CURRENCY) ? 1 : 0);
+            uint32 l_DisplayID          = gGarrisonCacheGameObjectID[(GetGarrisonFactionIndex() * 3) + l_DisplayIDOffset];
+
+            /// Destroy old cache if exist
+            GameObject * l_Cache = HashMapHolder<GameObject>::Find(m_CacheGameObjectGUID);
+
+            if (l_Cache)
+            {
+                l_Cache->DestroyForNearbyPlayers();
+                l_Cache->AddObjectToRemoveList();
+            }
+
+            m_CacheGameObjectGUID = 0;
+
+            /// Create new one
+            if (m_Owner->IsInGarrison())
+            {
+                /// Extract new location
+                GarrisonCacheInfoLocation & l_Location = gGarrisonCacheInfoLocation[(GetGarrisonFactionIndex() * GARRISON_MAX_LEVEL) + (m_GarrisonLevel - 1)];
+                l_Cache = m_Owner->SummonGameObject(l_DisplayID, l_Location.X, l_Location.Y, l_Location.Z, l_Location.O, 0, 0, 0, 0, 0);
+
+                if (l_Cache)
+                    m_CacheGameObjectGUID = l_Cache->GetGUID();
+            }
+
+        }
+    }
+    
+    if (m_CacheGameObjectGUID && l_NumRessourceGenerated < GARRISON_CACHE_MIN_CURRENCY)
+    {
+        GameObject * l_Cache = HashMapHolder<GameObject>::Find(m_CacheGameObjectGUID);
+
+        if (l_Cache)
+        {
+            l_Cache->DestroyForNearbyPlayers();
+            l_Cache->AddObjectToRemoveList();
+        }
+
+        m_CacheGameObjectGUID = 0;
+    }
+}
+/// Update mission distribution
+void Garrison::UpdateMissionDistribution()
+{
+    /// Do ramdom mission distribution
+    if ((time(0) - m_MissionDistributionLastUpdate) > GARRISON_MISSION_DISTRIB_INTERVAL)
+    {
+        /// Random, no detail about how blizzard do
+        uint32 l_MaxMissionCount = ceil(m_Followers.size() * 2.5);
+        uint32 l_CurrentAvailableMission = 0;
+
+        std::for_each(m_Missions.begin(), m_Missions.end(), [&l_CurrentAvailableMission](const GarrisonMission & p_Mission) -> void
+        {
+            if (p_Mission.State == GARRISON_MISSION_AVAILABLE && (p_Mission.OfferTime + p_Mission.OfferMaxDuration) > time(0))
+                l_CurrentAvailableMission++;
+        });
+
+        if (l_CurrentAvailableMission < l_MaxMissionCount)
+        {
+            uint32 l_MaxFollowerLevel = 90;
+            uint32 l_MaxFollowerItemLevel = 600;
+
+            std::for_each(m_Followers.begin(), m_Followers.end(), [&l_MaxFollowerLevel, &l_MaxFollowerItemLevel](const GarrisonFollower & p_Follower) -> void
+            {
+                l_MaxFollowerLevel      = std::max(l_MaxFollowerLevel, (uint32)p_Follower.Level);
+                l_MaxFollowerItemLevel  = std::max(l_MaxFollowerItemLevel, (uint32)((p_Follower.ItemLevelArmor + p_Follower.ItemLevelWeapon) / 2));
+            });
+
+            std::vector<const GarrMissionEntry*> l_Candidates;
+
+            for (uint32 l_I = 0; l_I < sGarrMissionStore.GetNumRows(); ++l_I)
+            {
+                const GarrMissionEntry * l_Entry = sGarrMissionStore.LookupEntry(l_I);
+
+                if (!l_Entry)
+                    continue;
+
+                if (HaveMission(l_Entry->MissionRecID))
+                    continue;
+
+                if (l_Entry->RequiredFollowersCount > m_Followers.size())
+                    continue;
+
+                if (l_Entry->Duration <= 10)
+                    continue;
+
+                /// Max Level cap : 2
+                if (l_Entry->RequiredLevel > (int32)(l_MaxFollowerLevel + 2))
+                    continue;
+
+                if (l_Entry->RequiredItemLevel > (int32)l_MaxFollowerItemLevel)
+                    continue;
+
+                l_Candidates.push_back(l_Entry);
+            }
+
+            uint32 l_ShuffleCount = std::rand() % 20;
+
+            for (uint32 l_I = 0; l_I < l_ShuffleCount; ++l_I)
+                std::random_shuffle(l_Candidates.begin(), l_Candidates.end());
+
+            int32 l_MissionToAddCount = (int32)l_MaxMissionCount - (int32)l_CurrentAvailableMission;
+
+            if (l_MissionToAddCount > 0)
+            {
+                l_MissionToAddCount = std::min(l_MissionToAddCount, (int32)l_Candidates.size());
+
+                for (int32 l_I = 0; l_I < l_MissionToAddCount; ++l_I)
+                    AddMission(l_Candidates[l_I]->MissionRecID);
+            }
+        }
+
+        m_MissionDistributionLastUpdate = time(0);
+    }
 }

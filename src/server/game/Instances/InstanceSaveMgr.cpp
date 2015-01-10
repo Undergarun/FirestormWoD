@@ -100,6 +100,22 @@ InstanceSave* InstanceSaveManager::AddInstanceSave(uint32 mapId, uint32 instance
         else
         {
             resetTime = time(NULL) + 2 * HOUR;
+
+            bool l_IsGarrisonMap = false;
+            for (uint32 l_I = 0; l_I < sGarrSiteLevelStore.GetNumRows(); ++l_I)
+            {
+                const GarrSiteLevelEntry * l_Entry = sGarrSiteLevelStore.LookupEntry(l_I);
+
+                if (l_Entry && l_Entry->MapID == mapId)
+                {
+                    l_IsGarrisonMap = true;
+                    break;
+                }
+            }
+
+            if (l_IsGarrisonMap)
+                resetTime = time(NULL) + 24 * HOUR;
+
             // normally this will be removed soon after in InstanceMap::Add, prevent error
             ScheduleReset(true, resetTime, InstResetEvent(0, mapId, difficulty, instanceId));
         }
@@ -305,6 +321,23 @@ void InstanceSaveManager::LoadResetTimes()
             {
                 uint32 mapid = fields[1].GetUInt16();
                 uint32 difficulty = fields[2].GetUInt8();
+
+                bool l_IsGarrisonMap = false;
+                for (uint32 l_I = 0; l_I < sGarrSiteLevelStore.GetNumRows(); ++l_I)
+                {
+                    const GarrSiteLevelEntry * l_Entry = sGarrSiteLevelStore.LookupEntry(l_I);
+
+                    if (l_Entry && l_Entry->MapID == mapid)
+                    {
+                        l_IsGarrisonMap = true;
+                        break;
+                    }
+                }
+
+                if (l_IsGarrisonMap)
+                {
+                    resettime = time(NULL) + 24 * HOUR;
+                }
 
                 instResetTime[instanceId] = ResetTimeMapDiffType(MAKE_PAIR32(mapid, difficulty), resettime);
                 mapDiffResetInstances.insert(ResetTimeMapDiffInstances::value_type(MAKE_PAIR32(mapid, difficulty), instanceId));

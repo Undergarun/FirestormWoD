@@ -116,5 +116,6 @@ typedef Path<TaxiPathNodePtr, TaxiPathNodeEntry const> TaxiPathNodeList;
 typedef std::vector<TaxiPathNodeList> TaxiPathNodesByPath;
 
 extern TaxiPathNodesByPath                       sTaxiPathNodesByPath;
+uint32 GetHeirloomItemLevel(uint32 curveId, uint32 level);
 
 #endif

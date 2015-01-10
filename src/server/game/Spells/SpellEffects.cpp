@@ -2056,10 +2056,6 @@ void Spell::EffectHealPct(SpellEffIndex effIndex)
         if (unitTarget == m_caster)
             return;
         break;
-    case 53353: // Chimera Shot - Heal
-        if (m_caster->HasAura(119447)) // Glyph of Chimera Shot
-            damage += 2;
-        break;
     case 115450: // Detox
         if (!m_caster->HasAura(146954))
             return;
@@ -2129,7 +2125,7 @@ void Spell::EffectHealthLeech(SpellEffIndex effIndex)
     }
 }
 
-void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype)
+void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype, bool vellum)
 {
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
@@ -2164,7 +2160,7 @@ void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype)
         break;
     }
 
-    uint32 num_to_add = damage;
+    uint32 num_to_add = vellum ? 1 : damage;
 
     if (num_to_add < 1)
         num_to_add = 1;
@@ -2585,17 +2581,17 @@ void Spell::SendLoot(uint64 guid, LootType loottype)
 
         case GAMEOBJECT_TYPE_SPELL_FOCUS:
             // triggering linked GO
-            if (uint32 trapEntry = gameObjTarget->GetGOInfo()->spellFocus.linkedTrapId)
+            if (uint32 trapEntry = gameObjTarget->GetGOInfo()->spellFocus.linkedTrap)
                 gameObjTarget->TriggeringLinkedGameObject(trapEntry, m_caster);
             return;
 
         case GAMEOBJECT_TYPE_CHEST:
             // TODO: possible must be moved to loot release (in different from linked triggering)
-            if (gameObjTarget->GetGOInfo()->chest.eventId)
-                player->GetMap()->ScriptsStart(sEventScripts, gameObjTarget->GetGOInfo()->chest.eventId, player, gameObjTarget);
+            if (gameObjTarget->GetGOInfo()->chest.triggeredEvent)
+                player->GetMap()->ScriptsStart(sEventScripts, gameObjTarget->GetGOInfo()->chest.triggeredEvent, player, gameObjTarget);
 
             // triggering linked GO
-            if (uint32 trapEntry = gameObjTarget->GetGOInfo()->chest.linkedTrapId)
+            if (uint32 trapEntry = gameObjTarget->GetGOInfo()->chest.linkedTrap)
                 gameObjTarget->TriggeringLinkedGameObject(trapEntry, m_caster);
 
             // Don't return, let loots been taken
@@ -2631,7 +2627,7 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
 
         // Arathi Basin banner opening. // TODO: Verify correctness of this check
         if ((goInfo->type == GAMEOBJECT_TYPE_BUTTON && goInfo->button.noDamageImmune) ||
-            (goInfo->type == GAMEOBJECT_TYPE_GOOBER && goInfo->goober.losOK) ||
+            (goInfo->type == GAMEOBJECT_TYPE_GOOBER && goInfo->goober.requireLOS) ||
             (goInfo->type == GAMEOBJECT_TYPE_CAPTURE_POINT))
         {
             //CanUseBattlegroundObject() already called in CheckCast()
@@ -3564,7 +3560,7 @@ void Spell::EffectEnchantItemPerm(SpellEffIndex effIndex)
         p_caster->DestroyItemCount(itemTarget, count, true);
         unitTarget = p_caster;
         // and add a scroll
-        DoCreateItem(effIndex, m_spellInfo->Effects[effIndex].ItemType);
+        DoCreateItem(effIndex, m_spellInfo->Effects[effIndex].ItemType, true);
         itemTarget = NULL;
         m_targets.SetItemTarget(NULL);
     }
@@ -7723,21 +7719,44 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
         }
     }
 
-    if (!l_Caster || !l_Caster->ToCreature())
-        return;
+    bool l_IsBGReward = false;
 
-    LootTemplate const* l_LootTemplate = LootTemplates_Creature.GetLootFor(l_Caster->ToCreature()->GetCreatureTemplate()->lootid);
+    if (!l_Caster)
+    {
+        if (Map* l_Map = GetCaster()->GetMap())
+        {
+            if (l_Map->IsBattlegroundOrArena())
+            {
+                l_IsBGReward = true;
+                l_Caster = GetCaster();
+            }
+        }
+    }
+    
+    if (!l_IsBGReward && (!l_Caster || !l_Caster->ToCreature()))
+        return;
+        
+    LootStore& l_LootStore = l_IsBGReward ? LootTemplates_Spell : LootTemplates_Creature;
+    LootTemplate const* l_LootTemplate = l_LootStore.GetLootFor(l_IsBGReward ? GetSpellInfo()->Id : l_Caster->ToCreature()->GetCreatureTemplate()->lootid);
     if (l_LootTemplate == nullptr)
         return;
-
+        
     std::list<ItemTemplate const*> l_LootTable;
     std::vector<uint32> l_Items;
-    l_LootTemplate->FillAutoAssignationLoot(l_LootTable);
+    l_LootTemplate->FillAutoAssignationLoot(l_LootTable, l_Player);
 
-    float l_DropChance = sWorld->getFloatConfig(CONFIG_LFR_DROP_CHANCE) + l_Player->GetBonusRollFails();
+    float l_DropChance = l_IsBGReward ? 100 : sWorld->getFloatConfig(CONFIG_LFR_DROP_CHANCE) + l_Player->GetBonusRollFails();
     uint32 l_SpecID = l_Player->GetLootSpecId() ? l_Player->GetLootSpecId() : l_Player->GetSpecializationId(l_Player->GetActiveSpec());
 
-    for (ItemTemplate const* l_Template : l_LootTable)
+    if (l_IsBGReward)
+    {
+        for (ItemTemplate const* l_Template : l_LootTable)
+        {
+            if (l_Player->CanUseItem(l_Template) == EQUIP_ERR_OK)
+                l_Items.push_back(l_Template->ItemId);
+        }
+    }
+    else for (ItemTemplate const* l_Template : l_LootTable)
     {
         for (SpecIndex l_ItemSpecID : l_Template->specs)
         {
@@ -7747,8 +7766,8 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
     }
 
     l_Player->RemoveAurasByType(SPELL_AURA_TRIGGER_BONUS_LOOT);
-
-    if (l_Items.empty())
+    
+    if (l_Items.empty() && !l_IsBGReward)
     {
         int64 l_GoldAmount = urand(50 * GOLD, 100 * GOLD);
         l_Player->IncreaseBonusRollFails();
@@ -7768,10 +7787,12 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
         if (roll_chance_i(l_DropChance))
         {
             l_Player->AddItem(l_Items[0], 1);
-            l_Player->SendDisplayToast(l_Items[0], 1, DISPLAY_TOAST_METHOD_LOOT, TOAST_TYPE_NEW_ITEM, false, false);
-            l_Player->ResetBonusRollFails();
+            l_Player->SendDisplayToast(l_Items[0], 1, l_IsBGReward ? DISPLAY_TOAST_METHOD_PVP_FACTION_LOOT_TOAST : DISPLAY_TOAST_METHOD_LOOT, TOAST_TYPE_NEW_ITEM, false, false);
+
+            if (!l_IsBGReward)
+                l_Player->ResetBonusRollFails();
         }
-        else
+        else if (!l_IsBGReward)
         {
             int64 l_GoldAmount = urand(50 * GOLD, 100 * GOLD);
             l_Player->IncreaseBonusRollFails();
@@ -7856,7 +7877,7 @@ void Spell::EffectObtainFollower(SpellEffIndex p_EffIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (!m_CastItem || !unitTarget || !unitTarget->IsInWorld())
+    if (!unitTarget || !unitTarget->IsInWorld())
         return;
 
     Player* l_Player = unitTarget->ToPlayer();
@@ -7869,8 +7890,11 @@ void Spell::EffectObtainFollower(SpellEffIndex p_EffIndex)
 
     if (l_Player->GetGarrison()->AddFollower(m_spellInfo->Effects[p_EffIndex].MiscValue))
     {
-        uint32 l_DestroyCount = 1;
-        l_Player->DestroyItemCount(m_CastItem, l_DestroyCount, true);
+        if (m_CastItem)
+        {
+            uint32 l_DestroyCount = 1;
+            l_Player->DestroyItemCount(m_CastItem, l_DestroyCount, true);
+        }
     }
     else
         SendCastResult(SPELL_FAILED_FOLLOWER_KNOWN);

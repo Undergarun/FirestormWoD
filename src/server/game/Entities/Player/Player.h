@@ -76,9 +76,9 @@ typedef std::deque<Mail*> PlayerMails;
 /// 6.0.3 19116
 enum ToastTypes
 {
-    TOAST_TYPE_NONE         = 0,
+    TOAST_TYPE_MONEY        = 0,
     TOAST_TYPE_NEW_CURRENCY = 1,
-    TOAST_TYPE_MONEY        = 2,
+    TOAST_TYPE_UNK1         = 2,
     TOAST_TYPE_NEW_ITEM     = 3,
 };
 /// 6.0.3 19116
@@ -87,7 +87,7 @@ enum DisplayToastMethod
     DISPLAY_TOAST_METHOD_UNK1                               = 0x0,
     DISPLAY_TOAST_METHOD_LOOT                               = 0x1,
     DISPLAY_TOAST_METHOD_PET_BATTLE_LOOT                    = 0x2,
-    DISPLAY_TOAST_METHOD_UNK2                               = 0x3,
+    DISPLAY_TOAST_METHOD_CURRENCY_OR_GOLD                   = 0x3,
     DISPLAY_TOAST_METHOD_GARRISON_MISSION_BONUS_ROLL_LOOT_1 = 0x4,
     DISPLAY_TOAST_METHOD_LOOT_TOAST_UPGRADE_1               = 0x5,
     DISPLAY_TOAST_METHOD_LOOT_TOAST_UPGRADE_2               = 0x6,
@@ -942,6 +942,10 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_QUEST_OBJECTIVE_STATUS  = 44,
     PLAYER_LOGIN_QUERY_LOAD_CHARGES_COOLDOWNS       = 45,
     PLAYER_LOGIN_QUERY_LOAD_COMPLETED_CHALLENGES    = 46,
+    PLAYER_LOGIN_QUERY_GARRISON                     = 47,
+    PLAYER_LOGIN_QUERY_GARRISON_MISSIONS            = 48,
+    PLAYER_LOGIN_QUERY_GARRISON_FOLLOWERS           = 49,
+    PLAYER_LOGIN_QUERY_GARRISON_BUILDINGS           = 50,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -1496,6 +1500,7 @@ class Player : public Unit, public GridObject<Player>
         Garrison * GetGarrison();
         void CreateGarrison();
         bool IsInGarrison();
+        void DeleteGarrison();
 
         uint32 GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 newfacialhair, BarberShopStyleEntry const* newSkin=NULL);
 

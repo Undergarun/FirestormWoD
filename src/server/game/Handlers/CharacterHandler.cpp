@@ -254,6 +254,22 @@ bool LoginQueryHolder::Initialize()
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_COMPLETED_CHALLENGES, l_Statement);
 
+    l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GARRISON);
+    l_Statement->setUInt32(0, l_LowGuid);
+    l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_GARRISON, l_Statement);
+
+    l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GARRISON_FOLLOWER);
+    l_Statement->setUInt32(0, l_LowGuid);
+    l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_GARRISON_FOLLOWERS, l_Statement);
+
+    l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GARRISON_MISSION);
+    l_Statement->setUInt32(0, l_LowGuid);
+    l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_GARRISON_MISSIONS, l_Statement);
+
+    l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GARRISON_BUILDING);
+    l_Statement->setUInt32(0, l_LowGuid);
+    l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_GARRISON_BUILDINGS, l_Statement);
+
     return l_Result;
 }
 
@@ -815,14 +831,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
 
             LoginDatabase.CommitTransaction(trans);
 
-            QueryResult result2 = CharacterDatabase.PQuery("SELECT id FROM character_pet ORDER BY id DESC LIMIT 1");
-            uint32 pet_id = 1;
-            if (result2)
-            {
-                Field* fields = result2->Fetch();
-                pet_id = fields[0].GetUInt32();
-                pet_id += 1;
-            }
+            uint32 pet_id = sObjectMgr->GeneratePetNumber();
 
             if (createInfo->Class == CLASS_HUNTER)
             {

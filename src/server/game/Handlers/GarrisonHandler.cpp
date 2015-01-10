@@ -133,6 +133,9 @@ void WorldSession::HandleRequestGarrisonUpgradeableOpcode(WorldPacket & p_RecvDa
 }
 void WorldSession::HandleRequestLandingPageShipmentInfoOpcode(WorldPacket & p_RecvData)
 {
+    if (!m_Player)
+        return;
+
     Garrison * l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)
@@ -141,6 +144,9 @@ void WorldSession::HandleRequestLandingPageShipmentInfoOpcode(WorldPacket & p_Re
 }
 void WorldSession::HandleGarrisonMissionNPCHelloOpcode(WorldPacket & p_RecvData)
 {
+    if (!m_Player)
+        return;
+
     Garrison * l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)
@@ -162,6 +168,9 @@ void WorldSession::HandleGarrisonMissionNPCHelloOpcode(WorldPacket & p_RecvData)
 }
 void WorldSession::HandleGarrisonRequestBuildingsOpcode(WorldPacket & p_RecvData)
 {
+    if (!m_Player)
+        return;
+
     Garrison * l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)
@@ -210,6 +219,9 @@ void WorldSession::HandleGarrisonRequestBuildingsOpcode(WorldPacket & p_RecvData
 }
 void WorldSession::HandleGarrisonPurchaseBuildingOpcode(WorldPacket & p_RecvData)
 {
+    if (!m_Player)
+        return;
+
     Garrison * l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)
@@ -223,6 +235,18 @@ void WorldSession::HandleGarrisonPurchaseBuildingOpcode(WorldPacket & p_RecvData
     p_RecvData.readPackGUID(l_NpcGUID);
     p_RecvData >> l_PlotInstanceID;
     p_RecvData >> l_BuildingID;
+
+    bool l_CanBuild = false;
+    switch (l_BuildingID)
+    {
+        case 26:    /// Barracks Lvl 1
+            l_CanBuild = true;
+            break;
+
+        default:
+            l_CanBuild = false;
+            break;
+    }
 
     Creature* l_Unit = GetPlayer()->GetNPCIfCanInteractWithFlag2(l_NpcGUID, UNIT_NPC_FLAG2_GARRISON_ARCHITECT);
 
@@ -251,6 +275,9 @@ void WorldSession::HandleGarrisonPurchaseBuildingOpcode(WorldPacket & p_RecvData
 
     if (!l_Result)
         l_Result = l_Garrison->CanPurchaseBuilding(l_BuildingID);
+
+    if (!l_CanBuild)
+        l_Result = GARRISON_PURCHASE_BUILDING_INVALID_BUILDING_ID;
 
     WorldPacket l_PlaceResult(SMSG_GARRISON_PLACE_BUILDING_RESULT, 26);
     l_PlaceResult << uint32(l_Result);
@@ -285,6 +312,9 @@ void WorldSession::HandleGarrisonPurchaseBuildingOpcode(WorldPacket & p_RecvData
 }
 void WorldSession::HandleGarrisonCancelConstructionOpcode(WorldPacket & p_RecvData)
 {
+    if (!m_Player)
+        return;
+
     Garrison * l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)
@@ -309,6 +339,9 @@ void WorldSession::HandleGarrisonCancelConstructionOpcode(WorldPacket & p_RecvDa
 }
 void WorldSession::HandleGarrisonStartMissionOpcode(WorldPacket & p_RecvData)
 {
+    if (!m_Player)
+        return;
+
     Garrison * l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)
@@ -344,6 +377,9 @@ void WorldSession::HandleGarrisonStartMissionOpcode(WorldPacket & p_RecvData)
 }
 void WorldSession::HandleGarrisonCompleteMissionOpcode(WorldPacket & p_RecvData)
 {
+    if (!m_Player)
+        return;
+
     Garrison * l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)
@@ -367,6 +403,9 @@ void WorldSession::HandleGarrisonCompleteMissionOpcode(WorldPacket & p_RecvData)
 }
 void WorldSession::HandleGarrisonMissionBonusRollOpcode(WorldPacket & p_RecvData)
 {
+    if (!m_Player)
+        return;
+
     Garrison * l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)
@@ -390,6 +429,9 @@ void WorldSession::HandleGarrisonMissionBonusRollOpcode(WorldPacket & p_RecvData
 }
 void WorldSession::HandleGarrisonChangeFollowerActivationStateOpcode(WorldPacket & p_RecvData)
 {
+    if (!m_Player)
+        return;
+
     Garrison * l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)

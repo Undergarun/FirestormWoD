@@ -988,10 +988,16 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
 
     for (size_t l_CurrentPetSlot = 0; l_CurrentPetSlot < MAX_PETBATTLE_SLOTS; ++l_CurrentPetSlot)
         m_BattlePetCombatTeam[l_CurrentPetSlot] = BattlePet::Ptr();
+
+    if (GetSession()->GetSecurity() > SEC_PLAYER)
+        gOnlineGameMaster++;
 }
 
 Player::~Player()
 {
+    if (GetSession()->GetSecurity() > SEC_PLAYER)
+        gOnlineGameMaster--;
+
     if (m_Garrison)
         delete m_Garrison;
 
@@ -7361,7 +7367,16 @@ void Player::ApplyRatingMod(CombatRating cr, int32 value, bool apply)
 
 void Player::UpdateRating(CombatRating p_CombatRating)
 {
-    int32 l_Amount = m_baseRatingValue[p_CombatRating];
+    ///< Apply pct modifier from SPELL_AURA_INCREASE_RATING_PCT
+    float l_Modifier = 1.0f;
+    AuraEffectList const& l_ModRatingPCT = GetAuraEffectsByType(AuraType::SPELL_AURA_INCREASE_RATING_PCT);
+    for (AuraEffectList::const_iterator l_Iter = l_ModRatingPCT.begin(); l_Iter != l_ModRatingPCT.end(); ++l_Iter)
+    {
+        if ((*l_Iter)->GetMiscValue() & (1 << p_CombatRating))
+            l_Modifier += float((*l_Iter)->GetAmount()) / 100.0f;
+    }
+
+    int32 l_Amount = m_baseRatingValue[p_CombatRating] * l_Modifier;
 
     // Apply bonus from SPELL_AURA_MOD_RATING_FROM_STAT
     // stat used stored in miscValueB for this aura
@@ -9414,12 +9429,24 @@ void Player::UpdateArea(uint32 newArea)
                 if (l_DraenorBaseMap_Area != gGarrisonInGarrisonAreaID[m_Garrison->GetGarrisonFactionIndex()] && GetMapId() == l_GarrisonSiteEntry->MapID)
                 {
                     m_Garrison->OnPlayerLeave();
+                    m_Garrison->_SetGarrisonScript(nullptr);
                     SwitchToPhasedMap(GARRISON_BASE_MAP);
+
+                    phaseMgr.Update();
+                    phaseMgr.ForceMapShiftUpdate();
                 }
                 else if (l_DraenorBaseMap_Area == gGarrisonInGarrisonAreaID[m_Garrison->GetGarrisonFactionIndex()] && GetMapId() == GARRISON_BASE_MAP)
                 {
+                    Difficulty l_DungeonDiff = REGULAR_5_DIFFICULTY;
+                    std::swap(l_DungeonDiff, m_dungeonDifficulty);
+
                     SwitchToPhasedMap(l_GarrisonSiteEntry->MapID);
                     m_Garrison->OnPlayerEnter();
+
+                    std::swap(l_DungeonDiff, m_dungeonDifficulty);
+
+                    phaseMgr.Update();
+                    phaseMgr.ForceMapShiftUpdate();
                 }
             }
         }
@@ -10008,6 +10035,9 @@ void Player::_ApplyItemBonuses(Item const* item, uint8 slot, bool apply, uint32 
         {
             statType = proto->ItemStat[i].ItemStatType;
             val = abs(int32(proto->CalculateStatScaling(i, rescaleToItemLevel) - proto->CalculateStatScaling(i, ilvl)));
+
+            if (proto->ItemStat[i].ItemStatValue < 0)
+                val = -val;
         }
 
         if (val == 0)
@@ -10929,7 +10959,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
                 loot->clear();
 
                 Group* group = GetGroup();
-                bool groupRules = (group && go->GetGOInfo()->type == GAMEOBJECT_TYPE_CHEST && go->GetGOInfo()->chest.groupLootRules);
+                bool groupRules = (group && go->GetGOInfo()->type == GAMEOBJECT_TYPE_CHEST && go->GetGOInfo()->chest.usegrouplootrules);
 
                 // check current RR player and get next if necessary
                 if (groupRules)
@@ -10945,7 +10975,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
             if (loot_type == LOOT_FISHING)
                 go->getFishLoot(loot, this);
 
-            if (go->GetGOInfo()->type == GAMEOBJECT_TYPE_CHEST && go->GetGOInfo()->chest.groupLootRules)
+            if (go->GetGOInfo()->type == GAMEOBJECT_TYPE_CHEST && go->GetGOInfo()->chest.usegrouplootrules)
             {
                 if (Group* group = GetGroup())
                 {
@@ -17600,7 +17630,10 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 p_Reward, bool msg)
             {
                 case uint8(PackageItemRewardType::SpecializationReward):
                     if (!l_ItemTemplate->HasSpec((SpecIndex)GetSpecializationId(GetActiveSpec())))
+                    {
+                        GetSession()->SendNotification(LANG_NO_SPE_FOR_DYNAMIC_REWARD);
                         return false;
+                    }
                     break;
                 case uint8(PackageItemRewardType::ClassReward):
                     if (!l_ItemTemplate->HasClassSpec(getClass()))
@@ -20356,7 +20389,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
 
     Garrison * l_Garrison = new Garrison(this);
 
-    if (l_Garrison->Load())
+    if (l_Garrison->Load(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_GARRISON), holder->GetPreparedResult(PLAYER_LOGIN_QUERY_GARRISON_BUILDINGS), holder->GetPreparedResult(PLAYER_LOGIN_QUERY_GARRISON_FOLLOWERS), holder->GetPreparedResult(PLAYER_LOGIN_QUERY_GARRISON_MISSIONS)))
         m_Garrison = l_Garrison;
     else
         delete l_Garrison;
@@ -26114,13 +26147,13 @@ void Player::SendInitialPacketsAfterAddToMap()
     SendToyBox();
 
     /// Force map shift update
-    if (GetMapId() == GARRISON_BASE_MAP && m_Garrison)
-    {
-        phaseMgr.Update();
-        phaseMgr.ForceMapShiftUpdate();
-    }
+//     if ((GetMapId() == GARRISON_BASE_MAP && m_Garrison) || IsInGarrison())
+//     {
+//         phaseMgr.Update();
+//         phaseMgr.ForceMapShiftUpdate();
+//     }
 
-    if (m_Garrison && GetMapId() == m_Garrison->GetGarrisonSiteLevelEntry()->MapID)
+    if (IsInGarrison())
         m_Garrison->OnPlayerEnter();
 }
 
@@ -30087,11 +30120,11 @@ void Player::HandleStoreGoldCallback(PreparedQueryResult result)
     // Load des golds
     if (result)
     {
-        uint32 goldCount = 0;
+        uint64 goldCount = 0;
         do
         {
             Field* fieldGold    = result->Fetch();
-            uint32 gold         = (fieldGold[0].GetUInt32()) * GOLD;
+            uint64 gold         = (fieldGold[0].GetUInt32()) * GOLD;
             uint32 transaction  = fieldGold[1].GetUInt32();
 
             if ((GetMoney() + gold) > MAX_MONEY_AMOUNT)
@@ -30110,14 +30143,14 @@ void Player::HandleStoreGoldCallback(PreparedQueryResult result)
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_BOUTIQUE_GOLD_LOG);
             stmt->setInt32(0, transaction);
             stmt->setInt32(1, GetGUIDLow());
-            stmt->setInt32(2, gold);
+            stmt->setInt64(2, gold);
             CharacterDatabase.Execute(stmt);
 
         }
         while(result->NextRow());
 
         if (goldCount)
-            GetSession()->SendNotification("%d pieces d'or vous ont ete ajoutee suite a votre commande sur la boutique", (goldCount/1000));             // Translate me
+            GetSession()->SendNotification("%d pieces d'or vous ont ete ajoutee suite a votre commande sur la boutique", (goldCount/GOLD));             // Translate me
     }
 }
 
@@ -31074,6 +31107,19 @@ bool Player::IsInGarrison()
     return false;
 }
 
+void Player::DeleteGarrison()
+{
+    if (!m_Garrison)
+        return;
+
+    SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
+    m_Garrison->Delete(GetGUID(), l_Transaction);
+    CharacterDatabase.CommitTransaction(l_Transaction);
+
+    delete m_Garrison;
+    m_Garrison = nullptr;
+}
+
 Stats Player::GetPrimaryStat() const
 {
     int8 magicNumber = -1;
@@ -31110,12 +31156,14 @@ Stats Player::GetPrimaryStat() const
 uint32 Player::GetEquipItemLevelFor(ItemTemplate const* itemProto, Item const* item) const
 {
     uint32 ilvl = itemProto->ItemLevel;
+    
+    if (itemProto->Quality == ITEM_QUALITY_HEIRLOOM)
+        if (ScalingStatDistributionEntry const* ssd = sScalingStatDistributionStore.LookupEntry(itemProto->ScalingStatDistribution))
+            if (uint32 heirloomIlvl = GetHeirloomItemLevel(ssd->CurveProperties, std::max(std::min(ssd->MaxLevel, (uint32)getLevel()), ssd->MinLevel)))
+                ilvl = heirloomIlvl;
 
     if (item)
         ilvl += item->GetItemLevelBonusFromItemBonuses();
-
-    if (itemProto->Quality == ITEM_QUALITY_HEIRLOOM)
-        ilvl = itemProto->GetItemLevelForHeirloom(getLevel());
 
     if (itemProto->PvPScalingLevel)
         if ((GetMap() && GetMap()->IsBattlegroundOrArena()) || IsInPvPCombat())

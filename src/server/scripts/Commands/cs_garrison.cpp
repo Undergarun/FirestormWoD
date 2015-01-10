@@ -4,6 +4,14 @@
 #include "Garrison.h"
 #include "ObjectMgr.h"
 
+extern float gGarrisonCreationCoords[][4];
+
+enum
+{
+    QUEST_ETABLISH_YOUR_GARRISON_A = 34586,
+    QUEST_ETABLISH_YOUR_GARRISON_H = 34378,
+};
+
 /// Garrison commands
 class garrison_commandscript: public CommandScript
 {
@@ -47,7 +55,9 @@ class garrison_commandscript: public CommandScript
                 { "plot",      SEC_GAMEMASTER,  true,   NULL, "", plotCommandTable      },
                 { "follower",  SEC_GAMEMASTER,  true,   NULL, "", followerCommandTable  },
                 { "mission" ,  SEC_GAMEMASTER,  true,   NULL, "", missionCommandTable   },
-                { "info",      SEC_GAMEMASTER,  true,   &HandleGarrisonInfo, "", NULL },
+                { "info",      SEC_GAMEMASTER,  true,   &HandleGarrisonInfo,   "", NULL },
+                { "create",    SEC_GAMEMASTER,  true,   &HandleGarrisonCreate, "", NULL },
+                { "delete",    SEC_GAMEMASTER,  true,   &HandleGarrisonDelete, "", NULL },
                 { NULL,        0,               false,  NULL, "", NULL }
             };
 
@@ -75,6 +85,81 @@ class garrison_commandscript: public CommandScript
             p_Handler->PSendSysMessage("Garrison info");
             p_Handler->PSendSysMessage("Level : %u SiteLevelID : %u MapID : %u FactionID : %u", l_Entry->Level, l_Entry->SiteID, l_Entry->MapID, (uint32)l_TargetPlayer->GetGarrison()->GetGarrisonFactionIndex());
             p_Handler->PSendSysMessage("Cache Resource : %u", l_TargetPlayer->GetGarrison()->GetGarrisonCacheTokenCount());
+
+            return true;
+        }
+
+        static bool HandleGarrisonCreate(ChatHandler * p_Handler, char const* p_Args)
+        {
+            Player * l_TargetPlayer = p_Handler->getSelectedPlayer();
+
+            if (!l_TargetPlayer)
+            {
+                p_Handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            if (l_TargetPlayer->GetGarrison())
+            {
+                p_Handler->PSendSysMessage("Player already have a garrison");
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            l_TargetPlayer->CreateGarrison();
+
+            uint32 l_MovieID = l_TargetPlayer->GetGarrison()->GetGarrisonSiteLevelEntry()->CreationMovie;
+            uint32 l_MapID   = l_TargetPlayer->GetGarrison()->GetGarrisonSiteLevelEntry()->MapID;
+            uint32 l_TeamID  = l_TargetPlayer->GetTeamId();
+
+            l_TargetPlayer->AddMovieDelayedTeleport(l_MovieID, l_MapID, gGarrisonCreationCoords[l_TeamID][0], gGarrisonCreationCoords[l_TeamID][1], gGarrisonCreationCoords[l_TeamID][2], gGarrisonCreationCoords[l_TeamID][3]);
+            l_TargetPlayer->SendMovieStart(l_MovieID);
+
+            if (l_TeamID == TEAM_ALLIANCE)
+            {
+                l_TargetPlayer->AddQuest(sObjectMgr->GetQuestTemplate(QUEST_ETABLISH_YOUR_GARRISON_A), l_TargetPlayer);
+                l_TargetPlayer->CompleteQuest(QUEST_ETABLISH_YOUR_GARRISON_A);
+            }
+            else if (l_TeamID == TEAM_HORDE)
+            {
+                l_TargetPlayer->AddQuest(sObjectMgr->GetQuestTemplate(QUEST_ETABLISH_YOUR_GARRISON_H), l_TargetPlayer);
+                l_TargetPlayer->CompleteQuest(QUEST_ETABLISH_YOUR_GARRISON_H);
+            }
+
+            /// HACK until shadowmoon quest are done : add follower Qiana Moonshadow / Olin Umberhide
+            l_TargetPlayer->GetGarrison()->AddFollower(34);
+            l_TargetPlayer->GetGarrison()->AddFollower(89);
+            l_TargetPlayer->GetGarrison()->AddFollower(92);
+
+            /// HACK until quest : add barracks plan
+            l_TargetPlayer->GetGarrison()->LearnBlueprint(26);
+
+            return true;
+        }
+
+        static bool HandleGarrisonDelete(ChatHandler * p_Handler, char const* p_Args)
+        {
+            Player * l_TargetPlayer = p_Handler->getSelectedPlayer();
+
+            if (!l_TargetPlayer)
+            {
+                p_Handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            if (!l_TargetPlayer->GetGarrison())
+            {
+                p_Handler->PSendSysMessage("Player doesnt have a garrison");
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            l_TargetPlayer->DeleteGarrison();
+
+            if (l_TargetPlayer->GetCurrency(GARRISON_CURRENCY_ID, false))
+                l_TargetPlayer->ModifyCurrency(GARRISON_CURRENCY_ID, -(int32)l_TargetPlayer->GetCurrency(GARRISON_CURRENCY_ID, false));
 
             return true;
         }

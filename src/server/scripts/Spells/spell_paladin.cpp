@@ -2004,7 +2004,7 @@ public:
         {
             if (Player* l_Player = GetCaster()->ToPlayer())
             {
-                if (l_Player->getLevel() >= 75)
+                if (l_Player->getLevel() >= 75 && l_Player->HasSpell(PALADIN_SPELL_DIVINE_PURPOSE))
                 {
                     if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PALADIN_RETRIBUTION && roll_chance_i(sSpellMgr->GetSpellInfo(PALADIN_SPELL_DIVINE_PURPOSE)->Effects[EFFECT_0].BasePoints))
                     {
@@ -2121,11 +2121,13 @@ public:
                 {
                     l_Player->SetPower(POWER_HOLY_POWER, m_HolyPower);
 
-                    if (m_HolyPower > 3)
+                    if (m_HolyPower > 3 || l_Player->HasAura(PALADIN_SPELL_DIVINE_PURPOSE_AURA))
                         m_HolyPower = 3;
-                   
+
                     SetHitHeal(GetHitHeal() * m_HolyPower);
-                    l_Player->ModifyPower(POWER_HOLY_POWER, -m_HolyPower);
+
+                    if (!l_Player->HasAura(PALADIN_SPELL_DIVINE_PURPOSE_AURA))
+                        l_Player->ModifyPower(POWER_HOLY_POWER, -m_HolyPower);
                 }
             }
         }

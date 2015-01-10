@@ -689,7 +689,6 @@ struct GlyphPropertiesEntry
     uint32  GlyphExclusiveCategoryID;                       // 4        m_GlyphExclusiveCategoryID
 };
 
-// @author Selenium: 5.4 valid
 struct GlyphSlotEntry
 {
     uint32  Id;                                             // 0        m_ID
@@ -1076,12 +1075,20 @@ struct MailTemplateEntry
     char*   content;                                        // 2        m_body_lang
 };
 
+enum MapFlags : uint32
+{
+    MAP_FLAG_CAN_CHANGE_DIFFICULTY  = 0x00000001,
+    MAP_FLAG_DEV                    = 0x00000002,
+    MAP_FLAG_OVERRIDE_FAR_CLIP      = 0x00010000,
+    MAP_FLAG_CAN_GET_GARRISON_INFO  = 0x04000000
+};
+
 struct MapEntry
 {
     uint32  MapID;                                          // 0        m_ID
     //char*     direcotry;                                  // 1        m_Directory
-    uint32  instanceType;                                   // 2        m_InstanceType
-    //uint32    flags;                                      // 3        m_Flags
+    uint32  instanceType;                                   // 2        m_InstanceType => 0 none, 1 party, 2 raid, 3 pvp, 4 arena, 5 scenario
+    uint32  Flags;                                          // 3        m_Flags
     //int     unk_602;                                      // 4
     //uint32    MapType;                                    // 5        m_MapType 4 Garison, 3 Transport 2/1 unk usage
     char*   MapNameLang;                                    // 6        m_MapName_lang
@@ -1905,6 +1912,18 @@ struct WMOAreaTableEntry
     //uint32    m_UwAmbience;                               // 14       m_UwAmbience
 };
 
+// unused
+struct WorldEffectEntry
+{
+    int ID;                                                 //
+    int TargetType;                                         //
+    int TargetAsset;                                        //
+    int QuestFeedbackEffectID;                              //
+    int PlayerConditionID;                                  //
+    int CombatConditionID;                                  //
+    int WhenToDisplay;                                      // 
+};
+
 struct WorldMapAreaEntry
 {
     //uint32    m_ID;                                       // 0        m_ID
@@ -2381,7 +2400,6 @@ struct VectorArray
 typedef std::map<uint32, VectorArray> NameGenVectorArraysMap;
 
 // Structures not used for casting to loaded DBC data and not required then packing
-// @author Selenium: 5.4 valid
 struct MapDifficulty
 {
     MapDifficulty() : resetTime(0), maxPlayers(0), hasErrorMessage(false) {}

@@ -111,7 +111,7 @@ void PhaseMgr::Recalculate()
         }
     }
 
-    if (player->GetGarrison() && player->GetMapId() == GARRISON_BASE_MAP)
+    if (player->GetGarrison() && (player->GetMapId() == GARRISON_BASE_MAP || player->IsInGarrison()))
         _UpdateFlags |= PHASE_UPDATE_FLAG_CLIENTSIDE_CHANGED;
 }
 
@@ -281,8 +281,13 @@ void PhaseData::SendPhaseshiftToPlayer()
             l_TerrainSwaps.insert((*l_IT)->terrainswapmap);
     }
 
-    if (player->GetGarrison() && player->GetMapId() == GARRISON_BASE_MAP)
+    if (player->GetGarrison() && (player->GetMapId() == GARRISON_BASE_MAP || player->IsInGarrison()))
+    {
         l_InactiveTerrainSwap.insert(player->GetGarrison()->GetGarrisonSiteLevelEntry()->MapID);
+
+        if (player->GetGarrison()->GetGarrisonScript())
+            player->GetGarrison()->GetGarrisonScript()->GetTerrainSwaps(l_TerrainSwaps);
+    }
 
     player->GetSession()->SendSetPhaseShift(l_PhaseIDs, l_TerrainSwaps, l_InactiveTerrainSwap);
 }

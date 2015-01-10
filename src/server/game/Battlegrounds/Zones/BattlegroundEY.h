@@ -228,7 +228,7 @@ enum EYBattlegroundObjectTypes
 enum BG_EY_Score
 {
     BG_EY_WARNING_NEAR_VICTORY_SCORE    = 1400,
-    BG_EY_MAX_TEAM_SCORE                = 1600
+    BG_EY_MAX_TEAM_SCORE                = 1500
 };
 
 enum BG_EY_FlagState

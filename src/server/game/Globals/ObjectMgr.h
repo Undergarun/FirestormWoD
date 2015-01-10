@@ -1048,7 +1048,8 @@ class ObjectMgr
             sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature End Quest Data...");
             LoadCreatureInvolvedRelations();
         }
-
+        void LoadFollowerQuests();
+        std::vector<uint32> FollowerQuests;
 
         void LoadGameobjectQuestRelations();
         void LoadGameobjectInvolvedRelations();
@@ -1117,6 +1118,7 @@ class ObjectMgr
         void LoadGameObjectLocales();
         void LoadGameobjects();
         void LoadItemTemplates();
+        void LoadItemTemplateCorrections();
         void LoadItemTemplateAddon();
         void LoadItemScriptNames();
         void LoadItemLocales();
@@ -1587,6 +1589,23 @@ class ObjectMgr
         bool QuestObjectiveExists(uint32 objectiveId) const;
         uint32 GetQuestObjectiveQuestId(uint32 objectiveId) const;
 
+        uint32 GetNewGarrisonID()
+        {
+            return m_GarrisonID++;
+        }
+        uint32 GetNewGarrisonBuildingID()
+        {
+            return m_GarrisonBuildingID++;
+        }
+        uint32 GetNewGarrisonFollowerID()
+        {
+            return m_GarrisonFollowerID++;
+        }
+        uint32 GetNewGarrisonMissionID()
+        {
+            return m_GarrisonMissionID++;
+        }
+
     private:
         // first free id for selected id type
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _auctionId;
@@ -1607,6 +1626,10 @@ class ObjectMgr
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiCorpseGuid;
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiAreaTriggerGuid;
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiMoTransGuid;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_GarrisonID;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_GarrisonBuildingID;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_GarrisonFollowerID;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_GarrisonMissionID;
 
         QuestMap _questTemplates;
         QuestObjectiveLookupMap m_questObjectiveLookup;

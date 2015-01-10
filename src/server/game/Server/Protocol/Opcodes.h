@@ -1089,7 +1089,7 @@ enum Opcodes
     CMSG_PETITION_QUERY                         = 0x048B,   ///< 6.0.3 19116
     CMSG_QUERY_GUILD_INFO                       = 0x0930,   ///< 6.0.3 19116
     CMSG_PAGE_TEXT_QUERY                        = 0x0BBB,   ///< 6.0.3 19116
-    CMSG_ITEM_TEXT_QUERY                        = 0x0000,
+    CMSG_ITEM_TEXT_QUERY                        = 0x11D9,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Interaction
@@ -1227,7 +1227,7 @@ enum Opcodes
     CMSG_CHAT_MESSAGE_AFK                       = 0x1BDC,   ///< 6.0.3 19116
     CMSG_CHAT_MESSAGE_DND                       = 0x0AAB,   ///< 6.0.3 19116
     CMSG_CHAT_MESSAGE_GUILD                     = 0x0B1B,   ///< 6.0.3 19116
-    CMSG_CHAT_MESSAGE_RAID                      = 0x8008,   ///<
+    CMSG_CHAT_MESSAGE_RAID                      = 0x0B33,   ///< 6.0.3 19116
     CMSG_CHAT_MESSAGE_WHISPER                   = 0x1829,   ///< 6.0.3 19116
     CMSG_CHAT_MESSAGE_CHANNEL                   = 0x0913,   ///< 6.0.3 19116
 

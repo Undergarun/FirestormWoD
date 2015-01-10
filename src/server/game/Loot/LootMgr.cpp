@@ -1680,7 +1680,7 @@ void LootTemplate::LootGroup::Process(Loot& loot, uint16 lootMode) const
     }
 }
 
-void LootTemplate::FillAutoAssignationLoot(std::list<const ItemTemplate*>& p_ItemList) const
+void LootTemplate::FillAutoAssignationLoot(std::list<const ItemTemplate*>& p_ItemList, Player* p_Player /*= nullpltr*/) const
 {
     for (LootStoreItemList::const_iterator l_Ia = Entries.begin(); l_Ia != Entries.end(); ++l_Ia)
     {
