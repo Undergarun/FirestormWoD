@@ -331,6 +331,11 @@ class ScriptMgr
         /// @p_SpellCastTargets : Item spell action targets
         bool OnItemUse(Player * p_Player, Item * p_Item, const SpellCastTargets & p_SpellCastTargets);
 
+        /// Called when a player opnes the item
+        /// @p_Player : The Player who has used this item
+        /// @p_Item   : Used Item instance
+        bool OnItemOpen(Player* p_Player, Item * p_Item);
+
         /// Called when the item expires (is destroyed).
         /// @p_Player       : Item destroyer player instance
         /// @p_ItemTemplate : Destroyed item template

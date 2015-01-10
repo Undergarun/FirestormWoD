@@ -1051,6 +1051,18 @@ bool ScriptMgr::OnItemUse(Player * p_Player, Item * p_Item, const SpellCastTarge
     return tmpscript->OnUse(p_Player, p_Item, p_SpellCastTargets);
 }
 
+/// Called when a player opnes the item
+/// @p_Player : The Player who has used this item
+/// @p_Item   : Used Item instance
+bool ScriptMgr::OnItemOpen(Player* p_Player, Item * p_Item)
+{
+    ASSERT(p_Player);
+    ASSERT(p_Item);
+    
+    GET_SCRIPT_RET(ItemScript, p_Item->GetScriptId(), tmpscript, false);
+    return tmpscript->OnOpen(p_Player, p_Item);
+}
+
 /// Called when the item expires (is destroyed).
 /// @p_Player       : Item destroyer player instance
 /// @p_ItemTemplate : Destroyed item template
