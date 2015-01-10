@@ -31062,6 +31062,7 @@ void Player::CreateGarrison()
     m_Garrison = new Garrison(this);
     m_Garrison->Create();
 }
+
 bool Player::IsInGarrison()
 {
     if (!m_Garrison)

@@ -2517,6 +2517,7 @@ void Garrison::Init()
     InitPlots();
     UpdateStats();
 }
+
 /// Init data for level
 void Garrison::InitDataForLevel()
 {
@@ -2536,6 +2537,7 @@ void Garrison::InitDataForLevel()
 
     if (l_SiteEntry == nullptr)
     {
+        sLog->outAshran("Garrison::InitDataForLevel() not data found");
         assert(false && "Garrison::InitDataForLevel() not data found");
         return;
     }
