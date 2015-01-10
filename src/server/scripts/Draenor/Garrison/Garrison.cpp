@@ -88,7 +88,7 @@ class spell_garrison_hearthstone: public SpellScriptLoader
             {
                 Player  * l_Player = GetCaster()->ToPlayer();
 
-                if (l_Player && l_Player->GetGarrison())
+                if (l_Player && l_Player->GetGarrison() && l_Player->GetGarrison()->GetGarrisonSiteLevelEntry())
                 {
                     Garrison * l_Garrison = l_Player->GetGarrison();
 
