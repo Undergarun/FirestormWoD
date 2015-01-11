@@ -284,10 +284,6 @@ Item::Item()
 
 Item::~Item()
 {
-    // WARNING : THAT CHECK MAY CAUSE LAGS !
-    if (Player * plr = GetOwner())
-        if (plr->RemoveItemByDelete(this))
-            sLog->outAshran("Item %u on player guid %u is in destructor, and pointer is still referenced in player's data ...", GetEntry(), plr->GetGUIDLow());
 }
 
 bool Item::Create(uint32 guidlow, uint32 itemid, Player const* owner)
