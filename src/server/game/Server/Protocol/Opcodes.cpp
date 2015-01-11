@@ -265,6 +265,8 @@ void InitOpcodes()
         DEFINE_OPCODE_HANDLER(SMSG_CREATE_CHAR,                                     STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_CHAR_DELETE,                                     STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_SET_PLAYER_DECLINED_NAMES_RESULT,                STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_CHAR_FACTION_CHANGE,                             STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+
 
         /// Account data
         DEFINE_OPCODE_HANDLER(SMSG_ACCOUNT_DATA_TIMES,                              STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
@@ -1061,6 +1063,8 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_SPLIT_ITEM,                                      STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleSplitItemOpcode            );
     DEFINE_OPCODE_HANDLER(CMSG_SET_PLAYER_DECLINED_NAMES,                       STATUS_AUTHED,      PROCESS_THREADUNSAFE,   &WorldSession::HandleSetPlayerDeclinedNames     );
     DEFINE_OPCODE_HANDLER(CMSG_MOUNT_SET_FAVORITE,                              STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::Handle_NULL                      );
+    DEFINE_OPCODE_HANDLER(CMSG_CHAR_RACE_OR_FACTION_CHANGE,                     STATUS_AUTHED,      PROCESS_THREADUNSAFE,   &WorldSession::HandleCharRaceOrFactionChange   );
+
 
     //////////////////////////////////////////////////////////////////////////
     /// Bank
@@ -1661,7 +1665,6 @@ void InitOpcodes()
     //DEFINE_OPCODE_HANDLER(CMSG_CANCEL_TEMP_ENCHANTMENT,                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleCancelTempEnchantmentOpcode);
     //DEFINE_OPCODE_HANDLER(CMSG_CHANGEPLAYER_DIFFICULTY,                 STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(CMSG_CHAR_CUSTOMIZE,                          STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleCharCustomize             );
-    //DEFINE_OPCODE_HANDLER(CMSG_CHAR_FACTION_OR_RACE_CHANGE,             STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleCharFactionOrRaceChange   );
     //DEFINE_OPCODE_HANDLER(CMSG_CHAR_RENAME,                             STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleCharRenameOpcode          );
     //DEFINE_OPCODE_HANDLER(CMSG_CHAT_FILTERED,                           STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(CMSG_CHAT_IGNORED,                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChatIgnoredOpcode         );
@@ -2017,7 +2020,6 @@ void InitOpcodes()
     //DEFINE_OPCODE_HANDLER(SMSG_CAMERA_SHAKE,                            STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_CHARACTER_LOGIN_FAILED,                  STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_CHAR_CUSTOMIZE,                          STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
-    //DEFINE_OPCODE_HANDLER(SMSG_CHAR_FACTION_OR_RACE_CHANGE,             STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_CHAR_RENAME,                             STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_CLEAR_BOSS_EMOTES,                       STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     //DEFINE_OPCODE_HANDLER(SMSG_COMBAT_EVENT_FAILED,                     STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
