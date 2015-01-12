@@ -18,12 +18,6 @@ enum
     GARRISON_KEEPING_IT_TOGETHER    = 0x0004,
 };
 
-/// TerrainSwap : See WorldMapArea.dbc
-enum
-{
-    TERRAIN_SWAP_GARRISON_SMV_ALLIANCE_TIER_1 = 973
-};
-
 class instance_Garrison_A1 : public InstanceMapScript
 {
     public:
@@ -67,6 +61,11 @@ class instance_Garrison_A1 : public InstanceMapScript
             {
 
             }
+            /// When the garrison owner abandon a quest
+            virtual void OnQuestAbandon(Player * p_Owner, const Quest * p_Quest) override
+            {
+
+            }
 
             //////////////////////////////////////////////////////////////////////////
             //////////////////////////////////////////////////////////////////////////
@@ -79,7 +78,7 @@ class instance_Garrison_A1 : public InstanceMapScript
                 if (p_Owner->GetQuestStatus(QUEST_ETABLISH_YOUR_GARRISON_A) == QUEST_STATUS_REWARDED)
                     l_PhaseMask |= GARRISON_PHASE_COMPAGNION;
 
-                if (p_Owner->GetQuestStatus(QUEST_KEEPING_IT_TOGETHER) == QUEST_STATUS_INCOMPLETE)
+                if (p_Owner->HasQuest(QUEST_KEEPING_IT_TOGETHER))
                     l_PhaseMask |= GARRISON_KEEPING_IT_TOGETHER;
 
                 return l_PhaseMask;
@@ -92,19 +91,10 @@ class instance_Garrison_A1 : public InstanceMapScript
             virtual bool CanUseGarrisonCache(Player * p_Owner) override
             {
                 if (p_Owner->GetQuestStatus(QUEST_KEEPING_IT_TOGETHER) == QUEST_STATUS_REWARDED
-                    || p_Owner->GetQuestStatus(QUEST_KEEPING_IT_TOGETHER) == QUEST_STATUS_INCOMPLETE)
+                    || p_Owner->HasQuest(QUEST_KEEPING_IT_TOGETHER))
                     return true;
 
                 return false;
-            }
-
-            //////////////////////////////////////////////////////////////////////////
-            //////////////////////////////////////////////////////////////////////////
-
-            /// Get terrain swaps
-            virtual void GetTerrainSwaps(std::set<uint32> & p_TerrainSwaps) override
-            {
-                p_TerrainSwaps.emplace(TERRAIN_SWAP_GARRISON_SMV_ALLIANCE_TIER_1);
             }
 
             //////////////////////////////////////////////////////////////////////////
@@ -159,7 +149,20 @@ class instance_Garrison_A1 : public InstanceMapScript
 
             }
 
+            //////////////////////////////////////////////////////////////////////////
+            //////////////////////////////////////////////////////////////////////////
+
+            virtual uint32 GetData(uint32 p_ID)
+            {
+                return m_Data32[p_ID];
+            }
+            virtual void SetData(uint32 p_ID, uint32 p_Value)
+            {
+                m_Data32[p_ID] = p_Value;
+            }
+
             std::set<uint64> m_Players;
+            std::map<uint32, uint32> m_Data32;
         };
 
         InstanceScript * GetInstanceScript(InstanceMap* p_Map) const

@@ -1792,10 +1792,10 @@ void WorldSession::HandleCharCustomize(WorldPacket& p_RecvData)
 
     p_RecvData >> l_CharacterGender;                                        ///< uint8
     p_RecvData >> l_CharacterSkin;                                          ///< uint8
-    p_RecvData >> l_CharacterFace;                                          ///< uint8
-    p_RecvData >> l_CharacterHairStyle;                                     ///< uint8
     p_RecvData >> l_CharacterHairColor;                                     ///< uint8
+    p_RecvData >> l_CharacterHairStyle;                                     ///< uint8
     p_RecvData >> l_CharacterFacialHair;                                    ///< uint8
+    p_RecvData >> l_CharacterFace;                                          ///< uint8
 
     l_NameLen = p_RecvData.ReadBits(6);
     l_NewName = p_RecvData.ReadString(l_NameLen);
@@ -1806,7 +1806,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& p_RecvData)
 
     if (!l_Result)
     {
-        WorldPacket l_Data(SMSG_CHAR_CUSTOMIZE, 1);
+        WorldPacket l_Data(SMSG_CHAR_CUSTOMIZE_RESULT, 1);
         l_Data << uint8(CHAR_CREATE_ERROR);
         l_Data.appendPackGUID(l_PlayerGuid);
 
@@ -1819,7 +1819,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& p_RecvData)
 
     if (!(l_AtLoginFlag & AT_LOGIN_CUSTOMIZE))
     {
-        WorldPacket l_Data(SMSG_CHAR_CUSTOMIZE, 1);
+        WorldPacket l_Data(SMSG_CHAR_CUSTOMIZE_RESULT, 1);
         l_Data << uint8(CHAR_CREATE_ERROR);
         l_Data.appendPackGUID(l_PlayerGuid);
 
@@ -1830,7 +1830,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& p_RecvData)
     // prevent character rename to invalid name
     if (!normalizePlayerName(l_NewName))
     {
-        WorldPacket l_Data(SMSG_CHAR_CUSTOMIZE, 1);
+        WorldPacket l_Data(SMSG_CHAR_CUSTOMIZE_RESULT, 1);
         l_Data << uint8(CHAR_NAME_NO_NAME);
         l_Data.appendPackGUID(l_PlayerGuid);
 
@@ -1841,7 +1841,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& p_RecvData)
     uint8 l_Res = ObjectMgr::CheckPlayerName(l_NewName, true);
     if (l_Res != CHAR_NAME_SUCCESS)
     {
-        WorldPacket l_Data(SMSG_CHAR_CUSTOMIZE, 1);
+        WorldPacket l_Data(SMSG_CHAR_CUSTOMIZE_RESULT, 1);
         l_Data << uint8(l_Res);
         l_Data.appendPackGUID(l_PlayerGuid);
 
@@ -1852,7 +1852,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& p_RecvData)
     // check name limitations
     if (AccountMgr::IsPlayerAccount(GetSecurity()) && sObjectMgr->IsReservedName(l_NewName))
     {
-        WorldPacket l_Data(SMSG_CHAR_CUSTOMIZE, 1);
+        WorldPacket l_Data(SMSG_CHAR_CUSTOMIZE_RESULT, 1);
         l_Data << uint8(CHAR_NAME_RESERVED);
         l_Data.appendPackGUID(l_PlayerGuid);
 
@@ -1865,7 +1865,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& p_RecvData)
     {
         if (l_NewGuid != l_PlayerGuid)
         {
-            WorldPacket l_Data(SMSG_CHAR_CUSTOMIZE, 1);
+            WorldPacket l_Data(SMSG_CHAR_CUSTOMIZE_RESULT, 1);
             l_Data << uint8(CHAR_CREATE_NAME_IN_USE);
             l_Data.appendPackGUID(l_PlayerGuid);
 
@@ -1902,9 +1902,16 @@ void WorldSession::HandleCharCustomize(WorldPacket& p_RecvData)
 
     sWorld->UpdateCharacterNameData(GUID_LOPART(l_PlayerGuid), l_NewName, l_CharacterGender);
 
-    WorldPacket l_Data(SMSG_CHAR_CUSTOMIZE, 17);
-    l_Data << uint8(RESPONSE_SUCCESS);
+    WorldPacket l_Data(SMSG_CHAR_CUSTOMIZE);
     l_Data.appendPackGUID(l_PlayerGuid);
+    l_Data.WriteBits(l_NewName.size(), 6);
+    l_Data << uint8(l_CharacterGender);
+    l_Data << uint8(l_CharacterSkin);
+    l_Data << uint8(l_CharacterHairColor);
+    l_Data << uint8(l_CharacterHairStyle);
+    l_Data << uint8(l_CharacterFacialHair);
+    l_Data << uint8(l_CharacterFace);
+    l_Data.WriteString(l_NewName);
 
     SendPacket(&l_Data);
 }
@@ -2091,7 +2098,7 @@ void WorldSession::HandleCharRaceOrFactionChange(WorldPacket& p_Packet)
         p_Packet >> l_FacialHairStyleID;
 
     if (l_HasFaceID)
-        p_Packet >> l_HasFaceID;
+        p_Packet >> l_FaceID;
 
     uint32 l_LowGuid = GUID_LOPART(l_Guid);
 

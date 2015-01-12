@@ -943,7 +943,7 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     m_InCinematic               = false;
     m_CinematicClientStartTime  = 0;
 
-    m_BattlePetSummon = NULL;
+    m_BattlePetSummon = 0;
 
     m_ignoreMovementCount = 0;
 
@@ -18686,6 +18686,9 @@ void Player::RemoveActiveQuest(uint32 quest_id)
         phaseUdateData.AddQuestUpdate(quest_id);
 
         phaseMgr.NotifyConditionChanged(phaseUdateData);
+
+        if (m_Garrison)
+            m_Garrison->OnQuestAbandon(l_Quest);
         return;
     }
 }
@@ -19166,7 +19169,7 @@ bool Player::HasQuestForItem(uint32 itemid) const
     }
     return false;
 }
-bool Player::hasQuest(uint32 p_QuestID) const
+bool Player::HasQuest(uint32 p_QuestID) const
 {
     for (uint8 l_I = 0; l_I < MAX_QUEST_LOG_SIZE; ++l_I)
     {
@@ -26082,11 +26085,11 @@ void Player::SendInitialPacketsAfterAddToMap()
     SendToyBox();
 
     /// Force map shift update
-//     if ((GetMapId() == GARRISON_BASE_MAP && m_Garrison) || IsInGarrison())
-//     {
-//         phaseMgr.Update();
-//         phaseMgr.ForceMapShiftUpdate();
-//     }
+    if ((GetMapId() == GARRISON_BASE_MAP && m_Garrison) || IsInGarrison())
+    {
+        phaseMgr.Update();
+        phaseMgr.ForceMapShiftUpdate();
+    }
 
     if (IsInGarrison())
         m_Garrison->OnPlayerEnter();
