@@ -26565,6 +26565,10 @@ bool Player::IsSpellFitByClassAndRace(uint32 spell_id) const
 
     for (SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
     {
+        // Hackfix, Gift of the Naaru for Monks (121093) doesn't have a racemask for only Draenei
+        if (spell_id == 121093 && racemask != 1024)
+            continue;
+
         // skip wrong race skills
         if (_spell_idx->second->racemask && (_spell_idx->second->racemask & racemask) == 0)
             continue;
