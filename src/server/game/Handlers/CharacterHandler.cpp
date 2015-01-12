@@ -1543,33 +1543,16 @@ void WorldSession::HandleCharRenameOpcode(WorldPacket& p_RecvData)
     _charRenameCallback.SetFutureResult(CharacterDatabase.AsyncQuery(stmt));
 }
 
-void WorldSession::BuildCharacterRename(WorldPacket* pkt, ObjectGuid guid, uint8 result, std::string name)
+void WorldSession::BuildCharacterRename(WorldPacket* p_Packet, ObjectGuid p_Guid, uint8 p_Result, std::string p_Name)
 {
-    pkt->WriteBit(guid != 0);
+    *p_Packet << uint8(p_Result);
+    p_Packet->WriteBit(p_Guid != 0);
+    p_Packet->WriteBits(p_Name.size(), 6);
 
-    if (guid)
-    {
-        uint8 bitsOrder[8] = {3, 4, 7, 2, 6, 5, 1, 0};
-        pkt->WriteBitInOrder(guid, bitsOrder);
-    }
+    if (p_Guid != 0)
+        p_Packet->appendPackGUID(p_Guid);
 
-    pkt->WriteBit(name.empty());
-
-    if (!name.empty())
-        pkt->WriteBits(name.size(), 6);
-
-    pkt->FlushBits();
-
-    if (!name.empty())
-        pkt->WriteString(name);
-
-    if (guid)
-    {
-        uint8 bytesOrder[8] = {0, 1, 7, 3, 5, 6, 4, 2};
-        pkt->WriteBytesSeq(guid, bytesOrder);
-    }
-
-    *pkt << uint8(result);
+    p_Packet->WriteString(p_Name);
 }
 
 void WorldSession::HandleChangePlayerNameOpcodeCallBack(PreparedQueryResult result, std::string newName)

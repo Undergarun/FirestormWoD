@@ -217,7 +217,7 @@ enum Opcodes
         SMSG_CHAR_DELETE                            = 0x0BC4,   ///< 6.0.3 19116
         SMSG_SET_PLAYER_DECLINED_NAMES_RESULT       = 0x13E2,   ///< 6.0.3 19116
         SMSG_CHAR_FACTION_CHANGE                    = 0x1743,   ///< 6.0.3 19116
-
+        SMSG_CHAR_RENAME                            = 0x0D89,   ///< 6.0.3 19116
 
         /// Account data
         SMSG_ACCOUNT_DATA_TIMES                     = 0x0120,   ///< 6.0.3 19116
@@ -1799,7 +1799,6 @@ enum Opcodes
     SMSG_BATTLEPET_JOURNAL                              = 0x0000,
     SMSG_CAMERA_SHAKE                                   = 0x0000,
     SMSG_CHARACTER_LOGIN_FAILED                         = 0x0000,
-    SMSG_CHAR_RENAME                                    = 0x0000,
     SMSG_CLEAR_BOSS_EMOTES                              = 0x0000,
     SMSG_COMBAT_EVENT_FAILED                            = 0x0000,
     SMSG_COMMENTATOR_MAP_INFO                           = 0x0000,
