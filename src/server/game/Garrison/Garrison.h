@@ -126,6 +126,7 @@ extern float gGarrisonBuildingPlotAABBDiminishReturnFactor[GARRISON_PLOT_TYPE_MA
 extern uint32 gGarrisonBuildingActivationGameObject[GARRISON_FACTION_COUNT];
 
 #define GARRISON_MAX_LEVEL                      3
+#define GARRISON_MAX_FOLLOWER_PER_MISSION       3
 #define GARRISON_BASE_MAP                       1116
 #define GARRISON_PLOT_INSTANCE_COUNT            40
 #define GARRISON_CURRENCY_ID                    824
@@ -334,7 +335,7 @@ class Garrison
         /// Start mission
         void StartMission(uint32 p_MissionRecID, std::vector<uint64> p_Followers);
         /// Send mission start failed packet
-        void StartMissionFailed();
+        void StartMissionFailed(uint32 p_MissionRecID, std::vector<uint64> p_Followers);
         /// Complete a mission
         void CompleteMission(uint32 p_MissionRecID);
         /// Do mission bonus roll
