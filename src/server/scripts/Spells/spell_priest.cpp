@@ -1396,34 +1396,38 @@ class spell_pri_mind_spike: public SpellScriptLoader
         {
             PrepareSpellScript(spell_pri_mind_spike_SpellScript);
 
-            void HandleOnHit()
+            void HandleDamage(SpellEffIndex /*effIndex*/)
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    SetHitDamage(l_Player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY) * GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier);
-
-                    if (l_Player->HasAura(PRIEST_SURGE_OF_DARKNESS))
+                    if (l_Caster->HasAura(PRIEST_SURGE_OF_DARKNESS))
                     {
                         SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(PRIEST_SURGE_OF_DARKNESS);
                         if (l_SpellInfo)
                             SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_SpellInfo->Effects[EFFECT_3].BasePoints));
                     }
+                }
+            }
 
+            void HandleOnHit()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
                     if (Unit* l_Target = GetHitUnit())
                     {
-                        if (l_Player->HasAura(PRIEST_SPELL_SHADOW_INSIGHT))
+                        if (l_Caster->HasAura(PRIEST_SPELL_SHADOW_INSIGHT))
                             if (roll_chance_i(sSpellMgr->GetSpellInfo(PRIEST_SPELL_SHADOW_INSIGHT)->Effects[EFFECT_3].BasePoints))
-                                l_Player->CastSpell(l_Player, PRIEST_SPELL_SHADOW_INSIGHT_PROC, true);
+                                l_Caster->CastSpell(l_Caster, PRIEST_SPELL_SHADOW_INSIGHT_PROC, true);
                         // Surge of Darkness - Your next Mind Spike will not consume your damage-over-time effects ...
-                        if (!l_Player->HasAura(PRIEST_SURGE_OF_DARKNESS))
+                        if (!l_Caster->HasAura(PRIEST_SURGE_OF_DARKNESS))
                         {
                             // Mind Spike remove all DoT on the target's
-                            if (l_Target->HasAura(PRIEST_SHADOW_WORD_PAIN, l_Player->GetGUID()))
-                                l_Target->RemoveAura(PRIEST_SHADOW_WORD_PAIN, l_Player->GetGUID());
-                            if (l_Target->HasAura(PRIEST_DEVOURING_PLAGUE, l_Player->GetGUID()))
-                                l_Target->RemoveAura(PRIEST_DEVOURING_PLAGUE, l_Player->GetGUID());
-                            if (l_Target->HasAura(PRIEST_VAMPIRIC_TOUCH, l_Player->GetGUID()))
-                                l_Target->RemoveAura(PRIEST_VAMPIRIC_TOUCH, l_Player->GetGUID());
+                            if (l_Target->HasAura(PRIEST_SHADOW_WORD_PAIN, l_Caster->GetGUID()))
+                                l_Target->RemoveAura(PRIEST_SHADOW_WORD_PAIN, l_Caster->GetGUID());
+                            if (l_Target->HasAura(PRIEST_DEVOURING_PLAGUE, l_Caster->GetGUID()))
+                                l_Target->RemoveAura(PRIEST_DEVOURING_PLAGUE, l_Caster->GetGUID());
+                            if (l_Target->HasAura(PRIEST_VAMPIRIC_TOUCH, l_Caster->GetGUID()))
+                                l_Target->RemoveAura(PRIEST_VAMPIRIC_TOUCH, l_Caster->GetGUID());
                         }
                     }
                 }
@@ -1432,6 +1436,7 @@ class spell_pri_mind_spike: public SpellScriptLoader
 
             void Register()
             {
+                OnEffectHitTarget += SpellEffectFn(spell_pri_mind_spike_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
                 OnHit += SpellHitFn(spell_pri_mind_spike_SpellScript::HandleOnHit);
             }
         };

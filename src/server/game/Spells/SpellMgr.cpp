@@ -4413,10 +4413,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 146512:// Fortitude - hotfix 5.4.2
                 spellInfo->Effects[0].BasePoints = 2600;
                 break;
-            case 15473: // Shadowform - hotfix 5.4.2
-                spellInfo->Effects[6].BasePoints = 100;
-                spellInfo->SchoolMask = SPELL_SCHOOL_MASK_SHADOW;
-                break;
             case 91107: // Unholy Might
                 spellInfo->Effects[0].BasePoints = 35;
                 spellInfo->OverrideSpellList.push_back(109260); // Add Aspect of the Iron Hack to override spell list of Aspect of the Hawk
