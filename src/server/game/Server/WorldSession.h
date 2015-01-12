@@ -483,7 +483,7 @@ class WorldSession
         void HandleLoadScreenOpcode(WorldPacket& recvPacket);
         void HandleCharEnum(PreparedQueryResult result);
         void HandlePlayerLogin(LoginQueryHolder * holder, PreparedQueryResult accountResult);
-        void HandleCharFactionOrRaceChange(WorldPacket& recvData);
+        void HandleCharRaceOrFactionChange(WorldPacket& recvData);
         void HandleRandomizeCharNameOpcode(WorldPacket& recvData);
         void HandleReorderCharacters(WorldPacket& recvData);
         void HandleSuspendToken(WorldPacket& recvData);

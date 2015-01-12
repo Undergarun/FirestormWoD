@@ -19,7 +19,6 @@
 */
 
 #include "ScriptPCH.h"
-#include "config.h"
 
 class item_strongbox : public ItemScript
 {
@@ -80,7 +79,7 @@ public:
         }
         
         // Remove self first because of invetory space
-        p_Player->RemoveItemByDelete(p_Item);
+        p_Player->DestroyItemCount(p_Item->GetEntry(), 1, true);
         
         if (l_Items.empty())
             return true;

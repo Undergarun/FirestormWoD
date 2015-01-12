@@ -216,6 +216,8 @@ enum Opcodes
         SMSG_CREATE_CHAR                            = 0x0107,   ///< 6.0.3 19116
         SMSG_CHAR_DELETE                            = 0x0BC4,   ///< 6.0.3 19116
         SMSG_SET_PLAYER_DECLINED_NAMES_RESULT       = 0x13E2,   ///< 6.0.3 19116
+        SMSG_CHAR_FACTION_CHANGE                    = 0x1743,   ///< 6.0.3 19116
+
 
         /// Account data
         SMSG_ACCOUNT_DATA_TIMES                     = 0x0120,   ///< 6.0.3 19116
@@ -1014,6 +1016,7 @@ enum Opcodes
     CMSG_MOUNT_SET_FAVORITE                     = 0x090E,   ///< 6.0.3 19116
     CMSG_CHAR_RENAME                            = 0x038B,   ///< 6.0.3 19116
     CMSG_CHAR_CUSTOMIZE                         = 0x072A,   ///< 6.0.3 19116
+    CMSG_CHAR_RACE_OR_FACTION_CHANGE            = 0x08B7,   ///< 6.0.6 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Bank
@@ -1619,7 +1622,6 @@ enum Opcodes
     CMSG_BOT_DETECTED2                                  = 0x0000,
     CMSG_CANCEL_TEMP_ENCHANTMENT                        = 0x0000,
     CMSG_CHANGEPLAYER_DIFFICULTY                        = 0x0000,
-    CMSG_CHAR_FACTION_OR_RACE_CHANGE                    = 0x0000,
     CMSG_CHAT_FILTERED                                  = 0x0000,
     CMSG_CHAT_IGNORED                                   = 0x0000,
     CMSG_COMMENTATOR_ENABLE                             = 0x0000,
@@ -1797,7 +1799,6 @@ enum Opcodes
     SMSG_BATTLEPET_JOURNAL                              = 0x0000,
     SMSG_CAMERA_SHAKE                                   = 0x0000,
     SMSG_CHARACTER_LOGIN_FAILED                         = 0x0000,
-    SMSG_CHAR_FACTION_OR_RACE_CHANGE                    = 0x0000,
     SMSG_CHAR_RENAME                                    = 0x0000,
     SMSG_CLEAR_BOSS_EMOTES                              = 0x0000,
     SMSG_COMBAT_EVENT_FAILED                            = 0x0000,

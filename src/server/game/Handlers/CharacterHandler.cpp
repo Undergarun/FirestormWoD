@@ -2059,97 +2059,114 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& p_RecvData)
     SendPacket(&l_Data);
 }
 
-void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
+void WorldSession::HandleCharRaceOrFactionChange(WorldPacket& p_Packet)
 {
-    // TODO: Move queries to prepared statements
-    ObjectGuid guid;
-    std::string newname;
-    bool unk, hasSkin, hasFace, hasHairStyle, hasHairColor, hasFacialHair;
-    uint8 gender, race;
-    uint8 skin = 0;
-    uint8 face = 0;
-    uint8 hairStyle = 0;
-    uint8 hairColor = 0;
-    uint8 facialHair = 0;
-    uint32 nameLen = 0;
+    bool l_FactionChange;
+    bool l_HasSkinID;
+    bool l_HasHairColor;
+    bool l_HasHairStyleID;
+    bool l_HasFacialHairStyleID;
+    bool l_HasFaceID;
 
-    recvData >> gender;
-    recvData >> race;
-    unk = recvData.ReadBit();
-    hasFace = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    nameLen = recvData.ReadBits(6);
-    hasHairStyle = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    hasHairColor = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    hasFacialHair = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    hasSkin = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
+    uint8  l_SexID;
+    uint8  l_RaceID;
+    uint8  l_SkinID;
+    uint8  l_HairColor;
+    uint8  l_HairStyleID;
+    uint8  l_FacialHairStyleID;
+    uint8  l_FaceID;
 
-    recvData.FlushBits();
+    uint64      l_Guid;
+    std::string l_Name;
+    size_t      l_NameSize;
 
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[7]);
-    newname = recvData.ReadString(nameLen);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[1]);
+    l_FactionChange        = p_Packet.ReadBit();
+    l_NameSize             = p_Packet.ReadBits(6);
+    l_HasSkinID            = p_Packet.ReadBit();
+    l_HasHairColor         = p_Packet.ReadBit();
+    l_HasHairStyleID       = p_Packet.ReadBit();
+    l_HasFacialHairStyleID = p_Packet.ReadBit();
+    l_HasFaceID            = p_Packet.ReadBit();
 
-    if (hasHairStyle)
-        recvData >> hairStyle;
-    if (hasHairColor)
-        recvData >> hairColor;
-    if (hasFace)
-        recvData >> face;
-    if (hasSkin)
-        recvData >> skin;
-    if (hasFacialHair)
-        recvData >> facialHair;
+    p_Packet.readPackGUID(l_Guid);
 
-    uint32 lowGuid = GUID_LOPART(guid);
+    p_Packet >> l_SexID;
+    p_Packet >> l_RaceID;
+
+    l_Name = p_Packet.ReadString(l_NameSize);
+
+    if (l_HasSkinID)
+        p_Packet >> l_SkinID;
+
+    if (l_HasHairColor)
+        p_Packet >> l_HairColor;
+
+    if (l_HasHairStyleID)
+        p_Packet >> l_HairStyleID;
+
+    if (l_HasFacialHairStyleID)
+        p_Packet >> l_FacialHairStyleID;
+
+    if (l_HasFaceID)
+        p_Packet >> l_HasFaceID;
+
+    uint32 l_LowGuid = GUID_LOPART(l_Guid);
 
     // get the players old (at this moment current) race
-    CharacterNameData const* nameData = sWorld->GetCharacterNameData(lowGuid);
-    if (!nameData)
+    CharacterNameData const* l_NameData = sWorld->GetCharacterNameData(l_LowGuid);
+    if (!l_NameData)
     {
-        WorldPacket data(SMSG_CHAR_FACTION_OR_RACE_CHANGE, 1);
-        data << uint8(CHAR_CREATE_ERROR);
-        data << uint64(guid);
-        SendPacket(&data);
+        WorldPacket l_Data(SMSG_CHAR_FACTION_CHANGE, 1);
+        l_Data.appendPackGUID(l_Guid);
+        l_Data << uint8(CHAR_CREATE_ERROR);
+        SendPacket(&l_Data);
         return;
     }
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_CLASS_LVL_AT_LOGIN);
-    stmt->setUInt32(0, lowGuid);
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
+    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_CLASS_LVL_AT_LOGIN);
+    l_Statement->setUInt32(0, l_LowGuid);
+    PreparedQueryResult l_QueryResult = CharacterDatabase.Query(l_Statement);
 
-    if (!result)
+    if (!l_QueryResult)
     {
-        WorldPacket data(SMSG_CHAR_FACTION_OR_RACE_CHANGE, 1);
-        data << uint8(CHAR_CREATE_ERROR);
-        data << uint64(guid);
-        SendPacket(&data);
+        WorldPacket l_Data(SMSG_CHAR_FACTION_CHANGE, 1);
+        l_Data.appendPackGUID(l_Guid);
+        l_Data << uint8(CHAR_CREATE_ERROR);
+        SendPacket(&l_Data);
         return;
     }
 
-    Field* fields = result->Fetch();
-    uint8  oldRace          = fields[0].GetUInt8();
-    uint32 playerClass      = uint32(fields[1].GetUInt8());
-    uint32 level            = uint32(fields[2].GetUInt8());
-    uint32 at_loginFlags    = fields[3].GetUInt16();
-    char const* knownTitlesStr = fields[4].GetCString();
+    Field* l_Fields         = l_QueryResult->Fetch();
+
+    uint8  l_OldRace        = l_Fields[0].GetUInt8();
+    uint32 l_PlayerClass    = uint32(l_Fields[1].GetUInt8());
+    uint32 l_Level          = uint32(l_Fields[2].GetUInt8());
+    uint32 l_AtLoginFlag    = l_Fields[3].GetUInt16();
+    auto   l_KnownTitlesStr = l_Fields[4].GetCString();
+    uint32 l_PlayerBytes    = l_Fields[5].GetUInt32();
+    uint32 l_PlayerBytes2   = l_Fields[6].GetUInt32();
+
+    /// - If client doesn't send value, get the old from database & use it
+    {
+        if (!l_HasSkinID)
+            l_SkinID = l_PlayerBytes & 0xFF;
+
+        if (!l_HasFaceID)
+            l_FaceID = (l_PlayerBytes >> 8) & 0xFF;
+
+        if (!l_HasHairStyleID)
+            l_HairStyleID = (l_PlayerBytes >> 16) & 0xFF;
+
+        if (!l_HasHairColor)
+            l_HairColor = (l_PlayerBytes >> 24) & 0xFF;
+
+        if (!l_HasFacialHairStyleID)
+            l_FacialHairStyleID = l_PlayerBytes & 0xFF;
+    }
 
     // Search each faction is targeted
-    BattlegroundTeamId oldTeam = BG_TEAM_ALLIANCE;
-    switch (oldRace)
+    BattlegroundTeamId l_OldTeam = BG_TEAM_ALLIANCE;
+    switch (l_OldRace)
     {
         case RACE_ORC:
         case RACE_GOBLIN:
@@ -2158,15 +2175,15 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
         case RACE_TROLL:
         case RACE_BLOODELF:
         case RACE_PANDAREN_HORDE:
-            oldTeam = BG_TEAM_HORDE;
+            l_OldTeam = BG_TEAM_HORDE;
             break;
         default:
             break;
     }
 
     // Search each faction is targeted
-    BattlegroundTeamId team = BG_TEAM_ALLIANCE;
-    switch (race)
+    BattlegroundTeamId l_Team = BG_TEAM_ALLIANCE;
+    switch (l_RaceID)
     {
         case RACE_ORC:
         case RACE_GOBLIN:
@@ -2175,511 +2192,519 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
         case RACE_TROLL:
         case RACE_BLOODELF:
         case RACE_PANDAREN_HORDE:
-            team = BG_TEAM_HORDE;
+            l_Team = BG_TEAM_HORDE;
             break;
         default:
             break;
     }
 
-    uint32 used_loginFlag = at_loginFlags;
+    uint32 l_UsedLoginFlag = l_AtLoginFlag;
 
     // We need to correct race when it's pandaren
     // Because client always send neutral ID
-    if (race == RACE_PANDAREN_NEUTRAL)
+    if (l_RaceID == RACE_PANDAREN_NEUTRAL)
     {
-        if (at_loginFlags & AT_LOGIN_CHANGE_RACE)
-            team = oldTeam;
+        if (l_AtLoginFlag & AT_LOGIN_CHANGE_RACE)
+            l_Team = l_OldTeam;
         else
-            team = oldTeam == BG_TEAM_ALLIANCE ? BG_TEAM_HORDE : BG_TEAM_ALLIANCE;
+            l_Team = l_OldTeam == BG_TEAM_ALLIANCE ? BG_TEAM_HORDE : BG_TEAM_ALLIANCE;
     }
 
-    if (race == RACE_PANDAREN_NEUTRAL)
+    if (l_RaceID == RACE_PANDAREN_NEUTRAL)
     {
-        if (oldTeam == team)
-            race = oldTeam == BG_TEAM_ALLIANCE ? RACE_PANDAREN_ALLI : RACE_PANDAREN_HORDE;
+        if (l_OldTeam == l_Team)
+            l_RaceID = l_OldTeam == BG_TEAM_ALLIANCE ? RACE_PANDAREN_ALLI : RACE_PANDAREN_HORDE;
         else
-            race = oldTeam == BG_TEAM_ALLIANCE ? RACE_PANDAREN_HORDE : RACE_PANDAREN_ALLI;
+            l_RaceID = l_OldTeam == BG_TEAM_ALLIANCE ? RACE_PANDAREN_HORDE : RACE_PANDAREN_ALLI;
     }
 
     // Not really necessary because changing race does not include faction change
     // But faction change can include race change
-    if (oldTeam != team)
-        used_loginFlag = AT_LOGIN_CHANGE_FACTION;
+    if (l_OldTeam != l_Team)
+        l_UsedLoginFlag = AT_LOGIN_CHANGE_FACTION;
 
-    if (!sObjectMgr->GetPlayerInfo(race, playerClass))
+    if (!sObjectMgr->GetPlayerInfo(l_RaceID, l_PlayerClass))
     {
-        WorldPacket data(SMSG_CHAR_FACTION_OR_RACE_CHANGE, 1);
-        data << uint8(CHAR_CREATE_ERROR);
-        data << uint64(guid);
-        SendPacket(&data);
+        WorldPacket l_Data(SMSG_CHAR_FACTION_CHANGE, 1);
+        l_Data.appendPackGUID(l_Guid);
+        l_Data << uint8(CHAR_CREATE_ERROR);
+        SendPacket(&l_Data);
         return;
     }
 
-    if (!(at_loginFlags & used_loginFlag))
+    if (!(l_AtLoginFlag & l_UsedLoginFlag))
     {
-        WorldPacket data(SMSG_CHAR_FACTION_OR_RACE_CHANGE, 1);
-        data << uint8(CHAR_CREATE_ERROR);
-        data << uint64(guid);
-        SendPacket(&data);
+        WorldPacket l_Data(SMSG_CHAR_FACTION_CHANGE, 1);
+        l_Data.appendPackGUID(l_Guid);
+        l_Data << uint8(CHAR_CREATE_ERROR);
+        SendPacket(&l_Data);
         return;
     }
 
     if (AccountMgr::IsPlayerAccount(GetSecurity()))
     {
-        uint32 raceMaskDisabled = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_DISABLED_RACEMASK);
-        if ((1 << (race - 1)) & raceMaskDisabled)
+        uint32 l_RaceMaskDisabled = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_DISABLED_RACEMASK);
+        if ((1 << (l_RaceID - 1)) & l_RaceMaskDisabled)
         {
-            WorldPacket data(SMSG_CHAR_FACTION_OR_RACE_CHANGE, 1);
-            data << uint8(CHAR_CREATE_ERROR);
-            data << uint64(guid);
-            SendPacket(&data);
+            WorldPacket l_Data(SMSG_CHAR_FACTION_CHANGE, 1);
+            l_Data.appendPackGUID(l_Guid);
+            l_Data << uint8(CHAR_CREATE_ERROR);
+            SendPacket(&l_Data);
             return;
         }
     }
 
     // prevent character rename to invalid name
-    if (!normalizePlayerName(newname))
+    if (!normalizePlayerName(l_Name))
     {
-        WorldPacket data(SMSG_CHAR_FACTION_OR_RACE_CHANGE, 1);
-        data << uint8(CHAR_NAME_NO_NAME);
-        data << uint64(guid);
-        SendPacket(&data);
+        WorldPacket l_Data(SMSG_CHAR_FACTION_CHANGE, 1);
+        l_Data.appendPackGUID(l_Guid);
+        l_Data << uint8(CHAR_NAME_NO_NAME);
+        SendPacket(&l_Data);
         return;
     }
 
-    uint8 res = ObjectMgr::CheckPlayerName(newname, true);
-    if (res != CHAR_NAME_SUCCESS)
+    uint8 l_Result = ObjectMgr::CheckPlayerName(l_Name, true);
+    if (l_Result != CHAR_NAME_SUCCESS)
     {
-        WorldPacket data(SMSG_CHAR_FACTION_OR_RACE_CHANGE, 1);
-        data << uint8(res);
-        data << uint64(guid);
-        SendPacket(&data);
+        WorldPacket l_Data(SMSG_CHAR_FACTION_CHANGE, 1);
+        l_Data.appendPackGUID(l_Guid);
+        l_Data << uint8(l_Result);
+        SendPacket(&l_Data);
         return;
     }
 
     // check name limitations
-    if (AccountMgr::IsPlayerAccount(GetSecurity()) && sObjectMgr->IsReservedName(newname))
+    if (AccountMgr::IsPlayerAccount(GetSecurity()) && sObjectMgr->IsReservedName(l_Name))
     {
-        WorldPacket data(SMSG_CHAR_FACTION_OR_RACE_CHANGE, 1);
-        data << uint8(CHAR_NAME_RESERVED);
-        data << uint64(guid);
-        SendPacket(&data);
+        WorldPacket l_Data(SMSG_CHAR_FACTION_CHANGE, 1);
+        l_Data.appendPackGUID(l_Guid);
+        l_Data << uint8(CHAR_NAME_RESERVED);
+        SendPacket(&l_Data);
         return;
     }
 
     // character with this name already exist
-    if (uint64 newguid = sWorld->GetCharacterGuidByName(newname))
+    if (uint64 l_NewGuid = sWorld->GetCharacterGuidByName(l_Name))
     {
-        if (newguid != guid)
+        if (l_NewGuid != l_Guid)
         {
-            WorldPacket data(SMSG_CHAR_FACTION_OR_RACE_CHANGE, 1);
-            data << uint8(CHAR_CREATE_NAME_IN_USE);
-            data << uint64(guid);
-            SendPacket(&data);
+            WorldPacket l_Data(SMSG_CHAR_FACTION_CHANGE, 1);
+            l_Data.appendPackGUID(l_Guid);
+            l_Data << uint8(CHAR_CREATE_NAME_IN_USE);
+            SendPacket(&l_Data);
             return;
         }
     }
 
-    CharacterDatabase.EscapeString(newname);
-    Player::Customize(guid, gender, skin, face, hairStyle, hairColor, facialHair);
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabase.EscapeString(l_Name);
+    Player::Customize(l_Guid, l_SexID, l_SkinID, l_FaceID, l_HairStyleID, l_HairColor, l_FacialHairStyleID);
+    SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
 
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_FACTION_OR_RACE);
-    stmt->setString(0, newname);
-    stmt->setUInt8 (1, race);
-    stmt->setUInt16(2, used_loginFlag);
-    stmt->setUInt32(3, lowGuid);
-    trans->Append(stmt);
+    l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_FACTION_OR_RACE);
+    l_Statement->setString(0, l_Name);
+    l_Statement->setUInt8 (1, l_RaceID);
+    l_Statement->setUInt16(2, l_UsedLoginFlag);
+    l_Statement->setUInt32(3, l_LowGuid);
+    l_Transaction->Append(l_Statement);
 
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_FACTION_OR_RACE_LOG);
-    stmt->setUInt32(0, lowGuid);
-    stmt->setUInt32(1, GetAccountId());
-    stmt->setUInt8 (2, oldRace);
-    stmt->setUInt8 (3, race);
-    trans->Append(stmt);
+    l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_FACTION_OR_RACE_LOG);
+    l_Statement->setUInt32(0, l_LowGuid);
+    l_Statement->setUInt32(1, GetAccountId());
+    l_Statement->setUInt8 (2, l_OldRace);
+    l_Statement->setUInt8 (3, l_RaceID);
+    l_Transaction->Append(l_Statement);
 
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_DECLINED_NAME);
-    stmt->setUInt32(0, lowGuid);
-    trans->Append(stmt);
+    l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_DECLINED_NAME);
+    l_Statement->setUInt32(0, l_LowGuid);
+    l_Transaction->Append(l_Statement);
 
     // CHECK PTR
-    if (nameData)
+    if (l_NameData)
     {
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_NAME_LOG);
-        stmt->setUInt32(0, lowGuid);
-        stmt->setString(1, nameData->m_name);
-        stmt->setString(2, newname);
-        trans->Append(stmt);
+        l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_NAME_LOG);
+        l_Statement->setUInt32(0, l_LowGuid);
+        l_Statement->setString(1, l_NameData->m_name);
+        l_Statement->setString(2, l_Name);
+        l_Transaction->Append(l_Statement);
     }
 
-
-    sWorld->UpdateCharacterNameData(GUID_LOPART(guid), newname, gender, race);
+    sWorld->UpdateCharacterNameData(GUID_LOPART(l_Guid), l_Name, l_SexID, l_RaceID);
 
     // Switch Languages
     // delete all languages first
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SKILL_LANGUAGES);
-    stmt->setUInt32(0, lowGuid);
-    trans->Append(stmt);
+    l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SKILL_LANGUAGES);
+    l_Statement->setUInt32(0, l_LowGuid);
+    l_Transaction->Append(l_Statement);
 
     // Now add them back
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_SKILL_LANGUAGE);
-    stmt->setUInt32(0, lowGuid);
+    l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_SKILL_LANGUAGE);
+    l_Statement->setUInt32(0, l_LowGuid);
 
     // Faction specific languages
-    if (team == BG_TEAM_HORDE)
-        stmt->setUInt16(1, 109);
+    if (l_Team == BG_TEAM_HORDE)
+        l_Statement->setUInt16(1, 109);
     else
-        stmt->setUInt16(1, 98);
+        l_Statement->setUInt16(1, 98);
 
-    trans->Append(stmt);
+    l_Transaction->Append(l_Statement);
 
     // Race specific languages
-
-    if (race != RACE_ORC && race != RACE_HUMAN)
+    if (l_RaceID != RACE_ORC && l_RaceID != RACE_HUMAN)
     {
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_SKILL_LANGUAGE);
-        stmt->setUInt32(0, lowGuid);
+        l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_SKILL_LANGUAGE);
+        l_Statement->setUInt32(0, l_LowGuid);
 
-        switch (race)
+        switch (l_RaceID)
         {
             case RACE_DWARF:
-                stmt->setUInt16(1, 111);
+                l_Statement->setUInt16(1, 111);
                 break;
             case RACE_DRAENEI:
-                stmt->setUInt16(1, 759);
+                l_Statement->setUInt16(1, 759);
                 break;
             case RACE_GNOME:
-                stmt->setUInt16(1, 313);
+                l_Statement->setUInt16(1, 313);
                 break;
             case RACE_NIGHTELF:
-                stmt->setUInt16(1, 113);
+                l_Statement->setUInt16(1, 113);
                 break;
             case RACE_WORGEN:
-                stmt->setUInt16(1, 791);
+                l_Statement->setUInt16(1, 791);
                 break;
             case RACE_UNDEAD_PLAYER:
-                stmt->setUInt16(1, 673);
+                l_Statement->setUInt16(1, 673);
                 break;
             case RACE_TAUREN:
-                stmt->setUInt16(1, 115);
+                l_Statement->setUInt16(1, 115);
                 break;
             case RACE_TROLL:
-                stmt->setUInt16(1, 315);
+                l_Statement->setUInt16(1, 315);
                 break;
             case RACE_BLOODELF:
-                stmt->setUInt16(1, 137);
+                l_Statement->setUInt16(1, 137);
                 break;
             case RACE_GOBLIN:
-                stmt->setUInt16(1, 792);
+                l_Statement->setUInt16(1, 792);
                 break;
             case RACE_PANDAREN_ALLI:
-                stmt->setUInt16(1, 906);
+                l_Statement->setUInt16(1, 906);
                 break;
             case RACE_PANDAREN_HORDE:
-                stmt->setUInt16(1, 907);
+                l_Statement->setUInt16(1, 907);
                 break;
             case RACE_PANDAREN_NEUTRAL:
-                stmt->setUInt16(1, 905);
+                l_Statement->setUInt16(1, 905);
                 break;
         }
 
-        trans->Append(stmt);
+        l_Transaction->Append(l_Statement);
     }
 
-    if (oldTeam != team)
+    if (l_OldTeam != l_Team)
     {
         // Delete all Flypaths
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_TAXI_PATH);
-        stmt->setUInt32(0, lowGuid);
-        trans->Append(stmt);
+        PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_TAXI_PATH);
+        l_Statement->setUInt32(0, l_LowGuid);
+        l_Transaction->Append(l_Statement);
 
-        if (level > 7)
+        if (l_Level > 7)
         {
             // Update Taxi path
             // this doesn't seem to be 100% blizzlike... but it can't really be helped.
-            std::ostringstream taximaskstream;
-            uint32 numFullTaximasks = level / 7;
-            if (numFullTaximasks > 11)
-                numFullTaximasks = 11;
-            if (team == BG_TEAM_ALLIANCE)
+            std::ostringstream l_TaxiMaskStream;
+            uint32 l_NumFullTaxiMasks = l_Level / 7;
+            if (l_NumFullTaxiMasks > 11)
+                l_NumFullTaxiMasks = 11;
+            if (l_Team == BG_TEAM_ALLIANCE)
             {
-                if (playerClass != CLASS_DEATH_KNIGHT)
+                if (l_PlayerClass != CLASS_DEATH_KNIGHT)
                 {
-                    for (uint8 i = 0; i < numFullTaximasks; ++i)
-                        taximaskstream << uint32(sAllianceTaxiNodesMask[i]) << ' ';
+                    for (uint8 l_I = 0; l_I < l_NumFullTaxiMasks; ++l_I)
+                        l_TaxiMaskStream << uint32(sAllianceTaxiNodesMask[l_I]) << ' ';
                 }
                 else
                 {
-                    for (uint8 i = 0; i < numFullTaximasks; ++i)
-                        taximaskstream << uint32(sAllianceTaxiNodesMask[i] | sDeathKnightTaxiNodesMask[i]) << ' ';
+                    for (uint8 l_I = 0; l_I < l_NumFullTaxiMasks; ++l_I)
+                        l_TaxiMaskStream << uint32(sAllianceTaxiNodesMask[l_I] | sDeathKnightTaxiNodesMask[l_I]) << ' ';
                 }
             }
             else
             {
-                if (playerClass != CLASS_DEATH_KNIGHT)
+                if (l_PlayerClass != CLASS_DEATH_KNIGHT)
                 {
-                    for (uint8 i = 0; i < numFullTaximasks; ++i)
-                        taximaskstream << uint32(sHordeTaxiNodesMask[i]) << ' ';
+                    for (uint8 l_I = 0; l_I < l_NumFullTaxiMasks; ++l_I)
+                        l_TaxiMaskStream << uint32(sHordeTaxiNodesMask[l_I]) << ' ';
                 }
                 else
                 {
-                    for (uint8 i = 0; i < numFullTaximasks; ++i)
-                        taximaskstream << uint32(sHordeTaxiNodesMask[i] | sDeathKnightTaxiNodesMask[i]) << ' ';
+                    for (uint8 l_I = 0; l_I < l_NumFullTaxiMasks; ++l_I)
+                        l_TaxiMaskStream << uint32(sHordeTaxiNodesMask[l_I] | sDeathKnightTaxiNodesMask[l_I]) << ' ';
                 }
             }
 
-            uint32 numEmptyTaximasks = 11 - numFullTaximasks;
-            for (uint8 i = 0; i < numEmptyTaximasks; ++i)
-                taximaskstream << "0 ";
-            taximaskstream << '0';
-            std::string taximask = taximaskstream.str();
+            uint32 l_NumEmptyTaximasks = 11 - l_NumFullTaxiMasks;
+            for (uint8 l_I = 0; l_I < l_NumEmptyTaximasks; ++l_I)
+                l_TaxiMaskStream << "0 ";
+            l_TaxiMaskStream << '0';
+            std::string l_TaxiMask = l_TaxiMaskStream.str();
 
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_TAXIMASK);
-            stmt->setString(0, taximask);
-            stmt->setUInt32(1, lowGuid);
-            trans->Append(stmt);
+            stmt->setString(0, l_TaxiMask);
+            stmt->setUInt32(1, l_LowGuid);
+            l_Transaction->Append(stmt);
         }
 
         // Delete all current quests
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_QUESTSTATUS);
-        stmt->setUInt32(0, GUID_LOPART(guid));
-        trans->Append(stmt);
+        l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_QUESTSTATUS);
+        l_Statement->setUInt32(0, GUID_LOPART(l_Guid));
+        l_Transaction->Append(l_Statement);
 
         // Delete record of the faction old completed quests
         {
-            std::ostringstream quests;
-            ObjectMgr::QuestMap const& qTemplates = sObjectMgr->GetQuestTemplates();
-            for (ObjectMgr::QuestMap::const_iterator iter = qTemplates.begin(); iter != qTemplates.end(); ++iter)
+            std::ostringstream l_Quests;
+            ObjectMgr::QuestMap const& l_QuestTemplates = sObjectMgr->GetQuestTemplates();
+            for (ObjectMgr::QuestMap::const_iterator iter = l_QuestTemplates.begin(); iter != l_QuestTemplates.end(); ++iter)
             {
-                Quest *qinfo = iter->second;
-                uint32 requiredRaces = qinfo->GetRequiredRaces();
-                if (team == BG_TEAM_ALLIANCE)
+                Quest *l_Quest = iter->second;
+                uint32 l_RequiredRaces = l_Quest->GetRequiredRaces();
+                if (l_Team == BG_TEAM_ALLIANCE)
                 {
-                    if (requiredRaces & RACEMASK_ALLIANCE)
+                    if (l_RequiredRaces & RACEMASK_ALLIANCE)
                     {
-                        quests << uint32(qinfo->GetQuestId());
-                        quests << ',';
+                        l_Quests << uint32(l_Quest->GetQuestId());
+                        l_Quests << ',';
                     }
                 }
                 else // if (team == BG_TEAM_HORDE)
                 {
-                    if (requiredRaces & RACEMASK_HORDE)
+                    if (l_RequiredRaces & RACEMASK_HORDE)
                     {
-                        quests << uint32(qinfo->GetQuestId());
-                        quests << ',';
+                        l_Quests << uint32(l_Quest->GetQuestId());
+                        l_Quests << ',';
                     }
                 }
             }
 
-            std::string questsStr = quests.str();
-            questsStr = questsStr.substr(0, questsStr.length() - 1);
+            std::string l_QuestsString = l_Quests.str();
+            l_QuestsString = l_QuestsString.substr(0, l_QuestsString.length() - 1);
 
-            if (!questsStr.empty())
-                trans->PAppend("DELETE FROM `character_queststatus_rewarded` WHERE guid='%u' AND quest IN (%s)", lowGuid, questsStr.c_str());
+            if (!l_QuestsString.empty())
+                l_Transaction->PAppend("DELETE FROM `character_queststatus_rewarded` WHERE guid='%u' AND quest IN (%s)", l_LowGuid, l_QuestsString.c_str());
         }
 
         if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GUILD))
         {
             // Reset guild
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUILD_MEMBER);
+            PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUILD_MEMBER);
 
-            stmt->setUInt32(0, lowGuid);
+            l_Statement->setUInt32(0, l_LowGuid);
 
-            PreparedQueryResult result = CharacterDatabase.Query(stmt);
-            if (result)
-                if (Guild* guild = sGuildMgr->GetGuildById((result->Fetch()[0]).GetUInt32()))
-                    guild->DeleteMember(MAKE_NEW_GUID(lowGuid, 0, HIGHGUID_PLAYER), false, false, true);
+            PreparedQueryResult l_QueryResult = CharacterDatabase.Query(l_Statement);
+            if (l_QueryResult)
+                if (Guild* l_Guild = sGuildMgr->GetGuildById((l_QueryResult->Fetch()[0]).GetUInt32()))
+                    l_Guild->DeleteMember(MAKE_NEW_GUID(l_LowGuid, 0, HIGHGUID_PLAYER), false, false, true);
         }
 
         if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_ADD_FRIEND))
         {
             // Delete Friend List
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SOCIAL_BY_ACCOUNT_ID);
-            stmt->setUInt32(0, GetAccountId());
-            trans->Append(stmt);
+            l_Statement->setUInt32(0, GetAccountId());
+            PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SOCIAL_BY_ACCOUNT_ID);
+            l_Transaction->Append(l_Statement);
 
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SOCIAL_BY_FRIEND);
-            stmt->setUInt32(0, lowGuid);
-            trans->Append(stmt);
+            l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SOCIAL_BY_FRIEND);
+            l_Statement->setUInt32(0, l_LowGuid);
+            l_Transaction->Append(l_Statement);
         }
 
         // Reset homebind and position
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_HOMEBIND);
-        stmt->setUInt32(0, lowGuid);
-        trans->Append(stmt);
+        l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_HOMEBIND);
+        l_Statement->setUInt32(0, l_LowGuid);
+        l_Transaction->Append(l_Statement);
 
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PLAYER_HOMEBIND);
-        stmt->setUInt32(0, lowGuid);
-        if (team == BG_TEAM_ALLIANCE)
+        l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_PLAYER_HOMEBIND);
+        l_Statement->setUInt32(0, l_LowGuid);
+        if (l_Team == BG_TEAM_ALLIANCE)
         {
-            stmt->setUInt16(1, 0);
-            stmt->setUInt16(2, 1519);
-            stmt->setFloat (3, -8866.19f);
-            stmt->setFloat (4, 671.16f);
-            stmt->setFloat (5, 97.9034f);
-            Player::SavePositionInDB(0, -8866.19f, 671.16f, 97.9034f, 0.0f, 1519, lowGuid);
+            l_Statement->setUInt16(1, 0);
+            l_Statement->setUInt16(2, 1519);
+            l_Statement->setFloat (3, -8866.19f);
+            l_Statement->setFloat (4, 671.16f);
+            l_Statement->setFloat (5, 97.9034f);
+            Player::SavePositionInDB(0, -8866.19f, 671.16f, 97.9034f, 0.0f, 1519, l_LowGuid);
         }
         else
         {
-            stmt->setUInt16(1, 1);
-            stmt->setUInt16(2, 1637);
-            stmt->setFloat (3, 1633.33f);
-            stmt->setFloat (4, -4439.11f);
-            stmt->setFloat (5, 17.05f);
-            Player::SavePositionInDB(1, 1633.33f, -4439.11f, 17.05f, 0.0f, 1637, lowGuid);
+            l_Statement->setUInt16(1, 1);
+            l_Statement->setUInt16(2, 1637);
+            l_Statement->setFloat (3, 1633.33f);
+            l_Statement->setFloat (4, -4439.11f);
+            l_Statement->setFloat (5, 17.05f);
+            Player::SavePositionInDB(1, 1633.33f, -4439.11f, 17.05f, 0.0f, 1637, l_LowGuid);
         }
 
-        trans->Append(stmt);
+        l_Transaction->Append(l_Statement);
 
         // Achievement conversion
-        for (std::map<uint32, uint32>::const_iterator it = sObjectMgr->FactionChange_Achievements.begin(); it != sObjectMgr->FactionChange_Achievements.end(); ++it)
+        for (std::map<uint32, uint32>::const_iterator l_Iterator = sObjectMgr->FactionChange_Achievements.begin(); l_Iterator != sObjectMgr->FactionChange_Achievements.end(); ++l_Iterator)
         {
-            uint32 achiev_alliance = it->first;
-            uint32 achiev_horde = it->second;
+            uint32 l_AchievementAlliance = l_Iterator->first;
+            uint32 l_AchievementHorde = l_Iterator->second;
 
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT_BY_ACHIEVEMENT);
-            stmt->setUInt16(0, uint16(team == BG_TEAM_ALLIANCE ? achiev_alliance : achiev_horde));
-            stmt->setUInt32(1, lowGuid);
-            trans->Append(stmt);
+            PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT_BY_ACHIEVEMENT);
+            l_Statement->setUInt16(0, uint16(l_Team == BG_TEAM_ALLIANCE ? l_AchievementAlliance : l_AchievementHorde));
+            l_Statement->setUInt32(1, l_LowGuid);
+            l_Transaction->Append(l_Statement);
 
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_ACHIEVEMENT);
-            stmt->setUInt16(0, uint16(team == BG_TEAM_ALLIANCE ? achiev_alliance : achiev_horde));
-            stmt->setUInt16(1, uint16(team == BG_TEAM_ALLIANCE ? achiev_horde : achiev_alliance));
-            stmt->setUInt32(2, lowGuid);
-            trans->Append(stmt);
+            l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_ACHIEVEMENT);
+            l_Statement->setUInt16(0, uint16(l_Team == BG_TEAM_ALLIANCE ? l_AchievementAlliance : l_AchievementHorde));
+            l_Statement->setUInt16(1, uint16(l_Team == BG_TEAM_ALLIANCE ? l_AchievementHorde : l_AchievementAlliance));
+            l_Statement->setUInt32(2, l_LowGuid);
+            l_Transaction->Append(l_Statement);
         }
 
         // Item conversion
-        for (std::map<uint32, uint32>::const_iterator it = sObjectMgr->FactionChange_Items.begin(); it != sObjectMgr->FactionChange_Items.end(); ++it)
+        for (std::map<uint32, uint32>::const_iterator l_Iterator = sObjectMgr->FactionChange_Items.begin(); l_Iterator != sObjectMgr->FactionChange_Items.end(); ++l_Iterator)
         {
-            uint32 item_alliance = it->first;
-            uint32 item_horde = it->second;
+            uint32 l_ItemAlliance = l_Iterator->first;
+            uint32 l_ItemHorde = l_Iterator->second;
 
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_INVENTORY_FACTION_CHANGE);
-            stmt->setUInt32(0, (team == BG_TEAM_ALLIANCE ? item_alliance : item_horde));
-            stmt->setUInt32(1, (team == BG_TEAM_ALLIANCE ? item_horde : item_alliance));
-            stmt->setUInt32(2, guid);
-            trans->Append(stmt);
+            PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_INVENTORY_FACTION_CHANGE);
+            l_Statement->setUInt32(0, (l_Team == BG_TEAM_ALLIANCE ? l_ItemAlliance : l_ItemHorde));
+            l_Statement->setUInt32(1, (l_Team == BG_TEAM_ALLIANCE ? l_ItemHorde : l_ItemAlliance));
+            l_Statement->setUInt32(2, l_LowGuid);
+            l_Transaction->Append(l_Statement);
         }
 
         // Spell conversion
-        for (std::map<uint32, uint32>::const_iterator it = sObjectMgr->FactionChange_Spells.begin(); it != sObjectMgr->FactionChange_Spells.end(); ++it)
+        for (std::map<uint32, uint32>::const_iterator l_Iterator = sObjectMgr->FactionChange_Spells.begin(); l_Iterator != sObjectMgr->FactionChange_Spells.end(); ++l_Iterator)
         {
-            uint32 spell_alliance = it->first;
-            uint32 spell_horde = it->second;
+            uint32 l_SpellAlliance = l_Iterator->first;
+            uint32 l_SpellHorde = l_Iterator->second;
 
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SPELL_BY_SPELL);
-            stmt->setUInt32(0, (team == BG_TEAM_ALLIANCE ? spell_alliance : spell_horde));
-            stmt->setUInt32(1, lowGuid);
-            trans->Append(stmt);
+            PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SPELL_BY_SPELL);
+            l_Statement->setUInt32(0, (l_Team == BG_TEAM_ALLIANCE ? l_SpellAlliance : l_SpellHorde));
+            l_Statement->setUInt32(1, l_LowGuid);
+            l_Transaction->Append(l_Statement);
 
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_SPELL_FACTION_CHANGE);
-            stmt->setUInt32(0, (team == BG_TEAM_ALLIANCE ? spell_alliance : spell_horde));
-            stmt->setUInt32(1, (team == BG_TEAM_ALLIANCE ? spell_horde : spell_alliance));
-            stmt->setUInt32(2, lowGuid);
-            trans->Append(stmt);
+            l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_SPELL_FACTION_CHANGE);
+            l_Statement->setUInt32(0, (l_Team == BG_TEAM_ALLIANCE ? l_SpellAlliance : l_SpellHorde));
+            l_Statement->setUInt32(1, (l_Team == BG_TEAM_ALLIANCE ? l_SpellHorde : l_SpellAlliance));
+            l_Statement->setUInt32(2, l_LowGuid);
+            l_Transaction->Append(l_Statement);
         }
 
         // Reputation conversion
-        for (std::map<uint32, uint32>::const_iterator it = sObjectMgr->FactionChange_Reputation.begin(); it != sObjectMgr->FactionChange_Reputation.end(); ++it)
+        for (std::map<uint32, uint32>::const_iterator l_Iterator = sObjectMgr->FactionChange_Reputation.begin(); l_Iterator != sObjectMgr->FactionChange_Reputation.end(); ++l_Iterator)
         {
-            uint32 reputation_alliance = it->first;
-            uint32 reputation_horde = it->second;
+            uint32 reputation_alliance = l_Iterator->first;
+            uint32 reputation_horde = l_Iterator->second;
 
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_REP_BY_FACTION);
-            stmt->setUInt32(0, uint16(team == BG_TEAM_ALLIANCE ? reputation_alliance : reputation_horde));
-            stmt->setUInt32(1, lowGuid);
-            trans->Append(stmt);
+            PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_REP_BY_FACTION);
+            l_Statement->setUInt32(0, uint16(l_Team == BG_TEAM_ALLIANCE ? reputation_alliance : reputation_horde));
+            l_Statement->setUInt32(1, l_LowGuid);
+            l_Transaction->Append(l_Statement);
 
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_REP_FACTION_CHANGE);
-            stmt->setUInt16(0, uint16(team == BG_TEAM_ALLIANCE ? reputation_alliance : reputation_horde));
-            stmt->setUInt16(1, uint16(team == BG_TEAM_ALLIANCE ? reputation_horde : reputation_alliance));
-            stmt->setUInt32(2, lowGuid);
-            trans->Append(stmt);
+            l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_REP_FACTION_CHANGE);
+            l_Statement->setUInt16(0, uint16(l_Team == BG_TEAM_ALLIANCE ? reputation_alliance : reputation_horde));
+            l_Statement->setUInt16(1, uint16(l_Team == BG_TEAM_ALLIANCE ? reputation_horde : reputation_alliance));
+            l_Statement->setUInt32(2, l_LowGuid);
+            l_Transaction->Append(l_Statement);
         }
 
         // Title conversion
-        if (knownTitlesStr)
+        if (l_KnownTitlesStr)
         {
-            const uint32 ktcount = KNOWN_TITLES_SIZE * 2;
-            uint32 knownTitles[ktcount];
-            Tokenizer tokens(knownTitlesStr, ' ', ktcount);
+            const uint32 l_KnowTitleCount = KNOWN_TITLES_SIZE * 2;
+            uint32 l_KnownTitles[l_KnowTitleCount];
+            Tokenizer l_Tokens(l_KnownTitlesStr, ' ', l_KnowTitleCount);
 
-            if (tokens.size() != ktcount)
+            if (l_Tokens.size() != l_KnowTitleCount)
                 return;
 
-            for (uint32 index = 0; index < ktcount; ++index)
-                knownTitles[index] = atol(tokens[index]);
+            for (uint32 l_Index = 0; l_Index < l_KnowTitleCount; ++l_Index)
+                l_KnownTitles[l_Index] = atol(l_Tokens[l_Index]);
 
-            for (std::map<uint32, uint32>::const_iterator it = sObjectMgr->FactionChange_Titles.begin(); it != sObjectMgr->FactionChange_Titles.end(); ++it)
+            for (std::map<uint32, uint32>::const_iterator l_Iterator = sObjectMgr->FactionChange_Titles.begin(); l_Iterator != sObjectMgr->FactionChange_Titles.end(); ++l_Iterator)
             {
-                uint32 title_alliance = it->first;
-                uint32 title_horde = it->second;
+                uint32 l_TitleAlliance = l_Iterator->first;
+                uint32 l_TitleHorde    = l_Iterator->second;
 
-                CharTitlesEntry const* atitleInfo = sCharTitlesStore.LookupEntry(title_alliance);
-                CharTitlesEntry const* htitleInfo = sCharTitlesStore.LookupEntry(title_horde);
+                CharTitlesEntry const* l_AllianceTitle = sCharTitlesStore.LookupEntry(l_TitleAlliance);
+                CharTitlesEntry const* l_HordeTitle    = sCharTitlesStore.LookupEntry(l_TitleHorde);
+
                 // new team
-                if (team == BG_TEAM_ALLIANCE)
+                if (l_Team == BG_TEAM_ALLIANCE)
                 {
-                    uint32 bitIndex = htitleInfo->MaskID;
-                    uint32 index = bitIndex / 32;
-                    uint32 old_flag = 1 << (bitIndex % 32);
-                    uint32 new_flag = 1 << (atitleInfo->MaskID % 32);
-                    if (knownTitles[index] & old_flag)
+                    uint32 l_BitIndex = l_HordeTitle->MaskID;
+                    uint32 l_Index = l_BitIndex / 32;
+                    uint32 l_OldFlag = 1 << (l_BitIndex % 32);
+                    uint32 l_NewFlag = 1 << (l_AllianceTitle->MaskID % 32);
+
+                    if (l_KnownTitles[l_Index] & l_OldFlag)
                     {
-                        knownTitles[index] &= ~old_flag;
+                        l_KnownTitles[l_Index] &= ~l_OldFlag;
                         // use index of the new title
-                        knownTitles[atitleInfo->MaskID / 32] |= new_flag;
+                        l_KnownTitles[l_AllianceTitle->MaskID / 32] |= l_NewFlag;
                     }
                 }
                 else
                 {
-                    uint32 bitIndex = atitleInfo->MaskID;
-                    uint32 index = bitIndex / 32;
-                    uint32 old_flag = 1 << (bitIndex % 32);
-                    uint32 new_flag = 1 << (htitleInfo->MaskID % 32);
-                    if (knownTitles[index] & old_flag)
+                    uint32 l_BitIndex = l_AllianceTitle->MaskID;
+                    uint32 l_Index = l_BitIndex / 32;
+                    uint32 l_OldFlag = 1 << (l_BitIndex % 32);
+                    uint32 l_NewFlag = 1 << (l_HordeTitle->MaskID % 32);
+
+                    if (l_KnownTitles[l_Index] & l_OldFlag)
                     {
-                        knownTitles[index] &= ~old_flag;
+                        l_KnownTitles[l_Index] &= ~l_OldFlag;
                         // use index of the new title
-                        knownTitles[htitleInfo->MaskID / 32] |= new_flag;
+                        l_KnownTitles[l_HordeTitle->MaskID / 32] |= l_NewFlag;
                     }
                 }
 
-                std::ostringstream ss;
-                for (uint32 index = 0; index < ktcount; ++index)
-                    ss << knownTitles[index] << ' ';
+                std::ostringstream l_OstreamString;
+                for (uint32 l_Index = 0; l_Index < l_KnowTitleCount; ++l_Index)
+                    l_OstreamString << l_KnownTitles[l_Index] << ' ';
 
-                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_TITLES_FACTION_CHANGE);
-                stmt->setString(0, ss.str().c_str());
-                stmt->setUInt32(1, lowGuid);
-                trans->Append(stmt);
+                PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_TITLES_FACTION_CHANGE);
+                l_Statement->setString(0, l_OstreamString.str().c_str());
+                l_Statement->setUInt32(1, l_LowGuid);
+                l_Transaction->Append(l_Statement);
 
                 // unset any currently chosen title
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_RES_CHAR_TITLES_FACTION_CHANGE);
-                stmt->setUInt32(0, lowGuid);
-                trans->Append(stmt);
+                l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_RES_CHAR_TITLES_FACTION_CHANGE);
+                l_Statement->setUInt32(0, l_LowGuid);
+                l_Transaction->Append(l_Statement);
             }
         }
     }
 
-    CharacterDatabase.CommitTransaction(trans);
+    CharacterDatabase.CommitTransaction(l_Transaction);
 
-    std::string IP_str = GetRemoteAddress();
-    sLog->outDebug(LOG_FILTER_UNITS, "Account: %d (IP: %s), Character guid: %u Change Race/Faction to: %s", GetAccountId(), IP_str.c_str(), lowGuid, newname.c_str());
+    std::string l_IPString = GetRemoteAddress();
 
-    WorldPacket data(SMSG_CHAR_FACTION_OR_RACE_CHANGE, 1 + 8 + (newname.size() + 1) + 1 + 1 + 1 + 1 + 1 + 1 + 1);
-    data << uint8(RESPONSE_SUCCESS);
-    data << uint64(guid);
-    data << newname;
-    data << uint8(gender);
-    data << uint8(skin);
-    data << uint8(hairColor);
-    data << uint8(hairStyle);
-    data << uint8(facialHair);
-    data << uint8(face);
-    data << uint8(race);
-    SendPacket(&data);
+    WorldPacket l_Data(SMSG_CHAR_FACTION_CHANGE, 1 + 8 + (l_Name.size() + 1) + 1 + 1 + 1 + 1 + 1 + 1 + 1);
+    l_Data << uint8(RESPONSE_SUCCESS);      ///< Result
+    l_Data.appendPackGUID(l_Guid);          ///< Guid
+    l_Data.WriteBit(true);                  ///< l_HasDisplayInfo
+    l_Data.FlushBits();
+
+    /// - HasDisplayInfo block
+    {
+        l_Data.WriteBits(l_NameSize, 6);
+        l_Data << uint8(l_SexID);
+        l_Data << uint8(l_SkinID);
+        l_Data << uint8(l_HairColor);
+        l_Data << uint8(l_HairStyleID);
+        l_Data << uint8(l_FacialHairStyleID);
+        l_Data << uint8(l_FaceID);
+        l_Data << uint8(l_RaceID);
+        l_Data.WriteString(l_Name);
+    }
+
+    SendPacket(&l_Data);
 }
 
 void WorldSession::HandleRandomizeCharNameOpcode(WorldPacket& recvData)

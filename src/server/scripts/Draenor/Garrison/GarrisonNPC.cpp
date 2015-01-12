@@ -73,9 +73,9 @@ class npc_GarrisonFord : public CreatureScript
                 p_Player->CLOSE_GOSSIP_MENU();
                 p_Player->CreateGarrison();
 
-                uint32 l_MovieID = p_Player->GetGarrison()->GetGarrisonSiteLevelEntry()->CreationMovie;
-                uint32 l_MapID = p_Player->GetGarrison()->GetGarrisonSiteLevelEntry()->MapID;
-                uint32 l_TeamID = p_Player->GetTeamId();
+                uint32 l_MovieID    = p_Player->GetGarrison()->GetGarrisonSiteLevelEntry()->CreationMovie;
+                uint32 l_MapID      = p_Player->GetGarrison()->GetGarrisonSiteLevelEntry()->MapID;
+                uint32 l_TeamID     = p_Player->GetTeamId();
 
                 p_Player->AddMovieDelayedTeleport(l_MovieID, l_MapID, gGarrisonCreationCoords[l_TeamID][0], gGarrisonCreationCoords[l_TeamID][1], gGarrisonCreationCoords[l_TeamID][2], gGarrisonCreationCoords[l_TeamID][3]);
                 p_Player->SendMovieStart(l_MovieID);
