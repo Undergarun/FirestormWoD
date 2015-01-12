@@ -1833,28 +1833,35 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
     }
 }
 
-void Unit::HandleEmoteCommand(uint32 anim_id)
+void Unit::HandleEmoteCommand(uint32 emoteId)
 {
-    if (GetUInt32Value(UNIT_FIELD_EMOTE_STATE) == 483)
+    EmotesEntry const* emoteInfo = sEmotesStore.LookupEntry(emoteId);
+    if (!emoteInfo)
     {
-        SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0x0);
-        return;
-    }
-    else if (anim_id == 483)
-    {
-        SetUInt32Value(UNIT_FIELD_EMOTE_STATE, anim_id);
+        SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
         return;
     }
 
-    // Hack fix for clear emote at moving
-    if (Player* plr = ToPlayer())
-        plr->SetLastPlayedEmote(anim_id);
+    if (!isAlive())
+        return;
 
-    WorldPacket data(SMSG_EMOTE);
-    data.appendPackGUID(GetGUID());     ///< Guid
-    data << uint32(anim_id);            ///< Emote
-
-    SendMessageToSet(&data, true);
+    switch (emoteInfo->EmoteType)
+    {
+        case 0:
+        {
+            WorldPacket l_Data(SMSG_EMOTE, 4 + 8);
+            l_Data.appendPackGUID(GetGUID());
+            l_Data << uint32(emoteId);
+            SendMessageToSet(&l_Data, true);
+            break;
+        }
+        case 1:
+        case 2:
+            SetUInt32Value(UNIT_FIELD_EMOTE_STATE, emoteId);
+            break;
+        default:
+            break;
+    }
 }
 
 bool Unit::IsDamageReducedByArmor(SpellSchoolMask schoolMask, SpellInfo const* spellInfo, uint8 effIndex)
