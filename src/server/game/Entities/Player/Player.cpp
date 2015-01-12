@@ -943,7 +943,7 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     m_InCinematic               = false;
     m_CinematicClientStartTime  = 0;
 
-    m_BattlePetSummon = NULL;
+    m_BattlePetSummon = 0;
 
     m_ignoreMovementCount = 0;
 
