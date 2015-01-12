@@ -2928,7 +2928,6 @@ public:
             Unit* l_Target = GetHitUnit();
             int32 l_Damage = GetHitDamage();
 
-
             if (l_Caster->GetTypeId() == TYPEID_PLAYER)
                 l_Damage = (l_Damage / 5) * l_Caster->ToPlayer()->GetComboPoints();
 
