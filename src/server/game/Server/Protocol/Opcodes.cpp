@@ -934,7 +934,7 @@ void InitOpcodes()
         DEFINE_OPCODE_HANDLER(SMSG_GARRISON_LEARN_BLUEPRINT_RESULT,                           STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_GARRISON_BLUEPRINT_AND_SPECIALIZATION_DATA,                STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_GARRISON_GET_BUILDINGS_DATA,                               STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
-        DEFINE_OPCODE_HANDLER(SMSG_GARRISON_REMOTE_INFO,                                      STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_GARRISON_REMOTE_INFO,                                      STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_GARRISON_BUILDING_ACTIVATED,                               STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_GARRISON_UPGRADE_RESULT,                                   STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_GARRISON_ADD_FOLLOWER_RESULT,                              STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);

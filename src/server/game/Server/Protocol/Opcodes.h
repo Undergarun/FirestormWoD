@@ -885,7 +885,7 @@ enum Opcodes
         SMSG_GARRISON_LEARN_BLUEPRINT_RESULT                            = 0x000B,   ///< 6.0.3 19116
         SMSG_GARRISON_BLUEPRINT_AND_SPECIALIZATION_DATA                 = 0x0964,   ///< 6.0.3 19116
         SMSG_GARRISON_GET_BUILDINGS_DATA                                = 0x0543,   ///< 6.0.3 19116
-        SMSG_GARRISON_REMOTE_INFO                                       = 0x0000,
+        SMSG_GARRISON_REMOTE_INFO                                       = 0x0151,   ///< 6.0.3 19116
         SMSG_GARRISON_BUILDING_ACTIVATED                                = 0x1974,   ///< 6.0.3 19116
         SMSG_GARRISON_UPGRADE_RESULT                                    = 0x0000,
         SMSG_GARRISON_ADD_FOLLOWER_RESULT                               = 0x0544,   ///< 6.0.3 19116

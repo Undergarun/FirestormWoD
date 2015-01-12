@@ -26082,11 +26082,11 @@ void Player::SendInitialPacketsAfterAddToMap()
     SendToyBox();
 
     /// Force map shift update
-//     if ((GetMapId() == GARRISON_BASE_MAP && m_Garrison) || IsInGarrison())
-//     {
-//         phaseMgr.Update();
-//         phaseMgr.ForceMapShiftUpdate();
-//     }
+    if ((GetMapId() == GARRISON_BASE_MAP && m_Garrison) || IsInGarrison())
+    {
+        phaseMgr.Update();
+        phaseMgr.ForceMapShiftUpdate();
+    }
 
     if (IsInGarrison())
         m_Garrison->OnPlayerEnter();
