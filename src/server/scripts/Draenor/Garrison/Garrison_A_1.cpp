@@ -18,12 +18,6 @@ enum
     GARRISON_KEEPING_IT_TOGETHER    = 0x0004,
 };
 
-/// TerrainSwap : See WorldMapArea.dbc
-enum
-{
-    TERRAIN_SWAP_GARRISON_SMV_ALLIANCE_TIER_1 = 973
-};
-
 class instance_Garrison_A1 : public InstanceMapScript
 {
     public:
@@ -96,15 +90,6 @@ class instance_Garrison_A1 : public InstanceMapScript
                     return true;
 
                 return false;
-            }
-
-            //////////////////////////////////////////////////////////////////////////
-            //////////////////////////////////////////////////////////////////////////
-
-            /// Get terrain swaps
-            virtual void GetTerrainSwaps(std::set<uint32> & p_TerrainSwaps) override
-            {
-                p_TerrainSwaps.emplace(TERRAIN_SWAP_GARRISON_SMV_ALLIANCE_TIER_1);
             }
 
             //////////////////////////////////////////////////////////////////////////

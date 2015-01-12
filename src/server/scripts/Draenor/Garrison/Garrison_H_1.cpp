@@ -95,15 +95,6 @@ class instance_Garrison_H1 : public InstanceMapScript
             //////////////////////////////////////////////////////////////////////////
             //////////////////////////////////////////////////////////////////////////
 
-            /// Get terrain swaps
-            virtual void GetTerrainSwaps(std::set<uint32> & p_TerrainSwaps) override
-            {
-                p_TerrainSwaps.emplace(TERRAIN_SWAP_GARRISON_FF_HORDE_TIER_1);
-            }
-
-            //////////////////////////////////////////////////////////////////////////
-            //////////////////////////////////////////////////////////////////////////
-
             /// When a mission start
             virtual void OnMissionStart(uint32 p_MissionID, std::vector<uint32> p_Followers) override
             {

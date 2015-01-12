@@ -285,8 +285,8 @@ void PhaseData::SendPhaseshiftToPlayer()
     {
         l_InactiveTerrainSwap.insert(player->GetGarrison()->GetGarrisonSiteLevelEntry()->MapID);
 
-        if (player->GetGarrison()->GetGarrisonScript())
-            player->GetGarrison()->GetGarrisonScript()->GetTerrainSwaps(l_TerrainSwaps);
+        if (player->GetGarrison()->GetTerrainSwaps())
+            player->GetGarrison()->GetTerrainSwaps(l_TerrainSwaps);
     }
 
     player->GetSession()->SendSetPhaseShift(l_PhaseIDs, l_TerrainSwaps, l_InactiveTerrainSwap);

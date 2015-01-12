@@ -720,6 +720,51 @@ uint32 Garrison::GetGarrisonCacheTokenCount()
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+/// Get terrain swaps
+void Garrison::GetTerrainSwaps(std::set<uint32> & p_TerrainSwaps)
+{
+    if (!GetGarrisonSiteLevelEntry())
+        return;
+
+    if (GetGarrisonFactionIndex() == GARRISON_FACTION_HORDE)
+    {
+        switch (GetGarrisonSiteLevelEntry()->Level)
+        {
+            case 1:
+                p_TerrainSwaps.emplace(TERRAIN_SWAP_GARRISON_SMV_ALLIANCE_TIER_1);
+                break;
+
+            case 2:
+                p_TerrainSwaps.emplace(TERRAIN_SWAP_GARRISON_SMV_ALLIANCE_TIER_2);
+                break;
+
+            case 3:
+                p_TerrainSwaps.emplace(TERRAIN_SWAP_GARRISON_SMV_ALLIANCE_TIER_3);
+                break;
+        }
+    }
+    else
+    {
+        switch (GetGarrisonSiteLevelEntry()->Level)
+        {
+            case 1:
+                p_TerrainSwaps.emplace(TERRAIN_SWAP_GARRISON_FF_HORDE_TIER_1);
+                break;
+
+            case 2:
+                p_TerrainSwaps.emplace(TERRAIN_SWAP_GARRISON_FF_HORDE_TIER_2);
+                break;
+
+            case 3:
+                p_TerrainSwaps.emplace(TERRAIN_SWAP_GARRISON_FF_HORDE_TIER_3);
+                break;
+        }
+    }
+}
+
 /// Get garrison script
 GarrisonInstanceScriptBase * Garrison::GetGarrisonScript()
 {
