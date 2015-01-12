@@ -2928,8 +2928,9 @@ public:
             Unit* l_Target = GetHitUnit();
             int32 l_Damage = GetHitDamage();
 
+
             if (l_Caster->GetTypeId() == TYPEID_PLAYER)
-                l_Damage *= l_Caster->ToPlayer()->GetComboPoints() / 5;
+                l_Damage = (l_Damage / 5) * l_Caster->ToPlayer()->GetComboPoints();
 
             // converts each extra point of energy ( up to 25 energy ) into additional damage
             int32 l_EnergyConsumed = -l_Caster->ModifyPower(POWER_ENERGY, -GetSpellInfo()->Effects[EFFECT_1].BasePoints);
