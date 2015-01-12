@@ -184,6 +184,7 @@ enum Opcodes
         SMSG_CROSSED_INEBRIATION_THRESHOLD          = 0x0103,   ///< 6.0.3 19116
         SMSG_CLIENT_CONTROL_UPDATE                  = 0x080E,   ///< 6.0.3 19116
         SMSG_AREA_TRIGGER_NO_CORPSE                 = 0x0D3F,   ///< 6.0.3 19116
+        SMSG_CHAR_CUSTOMIZE                         = 0x0BAA,   ///< 6.0.3 19116
 
         /// Control Alert
         SMSG_LOSS_OF_CONTROL_AURA_UPDATE            = 0x0305,   ///< 6.0.3 19116
@@ -1011,6 +1012,8 @@ enum Opcodes
     CMSG_SPLIT_ITEM                             = 0x0795,   ///< 6.0.3 19116
     CMSG_SET_PLAYER_DECLINED_NAMES              = 0x018B,   ///< 6.0.3 19116
     CMSG_MOUNT_SET_FAVORITE                     = 0x090E,   ///< 6.0.3 19116
+    CMSG_CHAR_RENAME                            = 0x038B,   ///< 6.0.3 19116
+    CMSG_CHAR_CUSTOMIZE                         = 0x072A,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Bank
@@ -1616,9 +1619,7 @@ enum Opcodes
     CMSG_BOT_DETECTED2                                  = 0x0000,
     CMSG_CANCEL_TEMP_ENCHANTMENT                        = 0x0000,
     CMSG_CHANGEPLAYER_DIFFICULTY                        = 0x0000,
-    CMSG_CHAR_CUSTOMIZE                                 = 0x0000,
     CMSG_CHAR_FACTION_OR_RACE_CHANGE                    = 0x0000,
-    CMSG_CHAR_RENAME                                    = 0x0000,
     CMSG_CHAT_FILTERED                                  = 0x0000,
     CMSG_CHAT_IGNORED                                   = 0x0000,
     CMSG_COMMENTATOR_ENABLE                             = 0x0000,
@@ -1796,7 +1797,6 @@ enum Opcodes
     SMSG_BATTLEPET_JOURNAL                              = 0x0000,
     SMSG_CAMERA_SHAKE                                   = 0x0000,
     SMSG_CHARACTER_LOGIN_FAILED                         = 0x0000,
-    SMSG_CHAR_CUSTOMIZE                                 = 0x0000,
     SMSG_CHAR_FACTION_OR_RACE_CHANGE                    = 0x0000,
     SMSG_CHAR_RENAME                                    = 0x0000,
     SMSG_CLEAR_BOSS_EMOTES                              = 0x0000,
