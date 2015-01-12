@@ -458,32 +458,44 @@ bool Garrison::Load(PreparedQueryResult p_GarrisonResult, PreparedQueryResult p_
         if (!GetGarrisonSiteLevelEntry())
             return false;
 
-        m_Missions.erase(std::remove_if(m_Missions.begin(), m_Missions.end(), [this](const GarrisonMission & p_Mission) -> bool
+        std::vector<uint64> l_MissionToRemove;
+        for (uint32 l_I = 0; l_I < m_Missions.size(); ++l_I)
         {
-            if (p_Mission.State != GARRISON_MISSION_IN_PROGRESS)
-                return false;
+            GarrisonMission & l_Mission = m_Missions[l_I];
 
-            uint32 l_FollowerCount = std::count_if(m_Followers.begin(), m_Followers.end(), [p_Mission](const GarrisonFollower & p_Follower) -> bool
+            if (l_Mission.State != GARRISON_MISSION_IN_PROGRESS)
+                continue;
+
+            uint32 l_FollowerCount = std::count_if(m_Followers.begin(), m_Followers.end(), [l_Mission](const GarrisonFollower & p_Follower) -> bool
             {
-                if (p_Follower.CurrentMissionID == p_Mission.MissionID)
+                if (p_Follower.CurrentMissionID == l_Mission.MissionID)
                     return true;
 
                 return false;
             });
 
             if (l_FollowerCount == 0)
-                return true;
+            {
+                l_MissionToRemove.push_back(l_Mission.DB_ID);
+                continue;
+            }
 
-            const GarrMissionEntry * l_MissionTemplate = sGarrMissionStore.LookupEntry(p_Mission.MissionID);
+            const GarrMissionEntry * l_MissionTemplate = sGarrMissionStore.LookupEntry(l_Mission.MissionID);
 
-            if (!l_MissionTemplate)
-                return true;
+            if (!l_MissionTemplate || l_MissionTemplate->RequiredFollowersCount != l_FollowerCount)
+                l_MissionToRemove.push_back(l_Mission.DB_ID);
+        }
 
-            if (l_MissionTemplate->RequiredFollowersCount != l_FollowerCount)
-                return true;
+        for (uint64 l_MissionBD_ID : l_MissionToRemove)
+        {
+            auto l_It = std::find_if(m_Missions.begin(), m_Missions.end(), [l_MissionBD_ID](const GarrisonMission & p_Mission)
+            {
+                return p_Mission.DB_ID == l_MissionBD_ID;
+            });
 
-            return false;
-        }), m_Missions.end());
+            if (l_It != m_Missions.end())
+                m_Missions.erase(l_It);
+        }
 
         std::vector<uint32> l_FollowerQuests = sObjectMgr->FollowerQuests;
 
