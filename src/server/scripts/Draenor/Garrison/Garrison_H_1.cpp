@@ -86,6 +86,8 @@ class instance_Garrison_H1 : public InstanceMapScript
             /// Owner can use the garrison cache ?
             virtual bool CanUseGarrisonCache(Player * p_Owner) override
             {
+			/// temp fix
+			return true;
                 if (p_Owner->GetQuestStatus(QUEST_WHAT_WE_GOT) == QUEST_STATUS_REWARDED
                     || p_Owner->HasQuest(QUEST_WHAT_WE_GOT))
                     return true;
