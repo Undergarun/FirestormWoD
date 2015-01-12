@@ -5,5 +5,5 @@ DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_dru_wild_mushroom_b
 DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_dru_wild_mushroom_detonate';
 DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_dru_wild_mushroom';
 INSERT INTO `spell_script_names` VALUES
-    (152108, 'spell_warl_cataclysm'),
-    (152108, 'spell_warl_cataclysm');
+    (88747, 'spell_dru_wild_mushroom'),
+    (145205, 'spell_dru_wild_mushroom');
