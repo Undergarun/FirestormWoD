@@ -1707,7 +1707,8 @@ class spell_zorlok_exhale_damage: public SpellScriptLoader
                         }
                     }
 
-                    if (nearestTarget != nullptr && nearestTarget != currentTarget)
+                    if (nearestTarget != nullptr
+                        && nearestTarget != currentTarget)
                     {
                         // Set Zor'lok's current Exhale target to that nearest player.
                         uint32 targetLowGuid = nearestTarget->GetGUIDLow();

@@ -297,6 +297,7 @@ struct PlayerConditionEntry
     uint32 PowerTypeComp;                                   // 135
     uint32 PowerTypeValue;                                  // 136
 };
+
 struct PvpItemEntry
 {
     uint32 itemId;
@@ -1001,6 +1002,21 @@ struct BattlePetSpeciesXAbilityEntry
     uint32 abilityId; // BattlePetAbility.dbc
     uint32 level;
     uint32 tier;
+};
+
+/// Mount.db2
+struct MountEntry
+{
+    uint32 Id;
+    uint32 Category;
+    uint32 CreatureDisplayID;
+    uint32 Flags;
+    char*  Name;
+    char*  Description;
+    char*  Icon;
+    int32  Unknow;
+    uint32 SpellID;
+    uint32 UnknowEntry;
 };
 
 // GCC has alternative #pragma pack(N) syntax and old gcc version does not support pack(push, N), also any gcc version does not support it at some platform

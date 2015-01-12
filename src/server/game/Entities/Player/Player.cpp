@@ -9410,7 +9410,7 @@ void Player::UpdateArea(uint32 newArea)
         sOutdoorPvPMgr->HandlePlayerEnterArea(this, newArea);
 
         /// Garrison phasing specific code
-        if (m_Garrison && (GetMapId() == GARRISON_BASE_MAP || GetMapId() == GetGarrison()->GetGarrisonSiteLevelEntry()->MapID))
+        if (m_Garrison && m_Garrison->GetGarrisonSiteLevelEntry() && (GetMapId() == GARRISON_BASE_MAP || GetMapId() == m_Garrison->GetGarrisonSiteLevelEntry()->MapID))
         {
             Map * l_Map = sMapMgr->FindBaseNonInstanceMap(GARRISON_BASE_MAP);
 
@@ -12663,71 +12663,6 @@ Item* Player::GetItemByGuid(uint64 guid) const
                         return pItem;
 
     return NULL;
-}
-
-bool Player::RemoveItemByDelete(Item* item)
-{
-    for (uint8 i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; ++i)
-    {
-        if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
-        {
-            if (pItem == item)
-            {
-                RemoveItem(INVENTORY_SLOT_BAG_0, i, false);
-                return true;
-            }
-        }
-    }
-
-    for (int i = BANK_SLOT_ITEM_START; i < REAGENT_BANK_SLOT_BAG_END; ++i)
-    {
-        if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
-        {
-            if (pItem == item)
-            {
-                RemoveItem(INVENTORY_SLOT_BAG_0, i, false);
-                return true;
-            }
-        }
-    }
-
-    for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
-    {
-        if (Bag* pBag = GetBagByPos(i))
-        {
-            for (uint32 j = 0; j < pBag->GetBagSize(); ++j)
-            {
-                if (Item* pItem = pBag->GetItemByPos(j))
-                {
-                    if (pItem == item)
-                    {
-                        pBag->RemoveItem(j, false);
-                        return true;
-                    }
-                }
-            }
-        }
-    }
-
-    for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
-    {
-        if (Bag* pBag = GetBagByPos(i))
-        {
-            for (uint32 j = 0; j < pBag->GetBagSize(); ++j)
-            {
-                if (Item* pItem = pBag->GetItemByPos(j))
-                {
-                    if (pItem == item)
-                    {
-                        pBag->RemoveItem(j, false);
-                        return true;
-                    }
-                }
-            }
-        }
-    }
-
-    return false;
 }
 
 Item* Player::GetItemByPos(uint16 pos) const
@@ -17630,7 +17565,10 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 p_Reward, bool msg)
             {
                 case uint8(PackageItemRewardType::SpecializationReward):
                     if (!l_ItemTemplate->HasSpec((SpecIndex)GetSpecializationId(GetActiveSpec())))
+                    {
+                        GetSession()->SendNotification(LANG_NO_SPE_FOR_DYNAMIC_REWARD);
                         return false;
+                    }
                     break;
                 case uint8(PackageItemRewardType::ClassReward):
                     if (!l_ItemTemplate->HasClassSpec(getClass()))
@@ -31095,9 +31033,10 @@ void Player::CreateGarrison()
     m_Garrison = new Garrison(this);
     m_Garrison->Create();
 }
+
 bool Player::IsInGarrison()
 {
-    if (!m_Garrison)
+    if (!m_Garrison || !m_Garrison->GetGarrisonSiteLevelEntry())
         return false;
 
     if (GetMapId() == m_Garrison->GetGarrisonSiteLevelEntry()->MapID)

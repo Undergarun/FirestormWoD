@@ -3494,85 +3494,89 @@ void AuraEffect::HandleAuraModSkillValue(AuraApplication const* aurApp, uint8 mo
 /***       MOVEMENT       ***/
 /****************************/
 
-void AuraEffect::HandleAuraMounted(AuraApplication const* aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleAuraMounted(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
 {
-    if (!(mode & AURA_EFFECT_HANDLE_SEND_FOR_CLIENT_MASK))
+    if (!(p_Mode & AURA_EFFECT_HANDLE_SEND_FOR_CLIENT_MASK))
         return;
 
-    Unit* target = aurApp->GetTarget();
+    Unit* l_Target = p_AurApp->GetTarget();
 
-    if (apply)
+    if (p_Apply)
     {
-        uint32 creatureEntry = GetMiscValue();
-        uint32 displayId = 0;
-        uint32 vehicleId = 0;
+        uint32 l_CreatureEntry = GetMiscValue();
+        uint32 l_DisplayId = 0;
+        uint32 l_VehicleId = 0;
 
         // Festive Holiday Mount
-        if (target->HasAura(62061))
+        if (l_Target->HasAura(62061))
         {
             if (GetBase()->HasEffectType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED))
-                creatureEntry = 24906;
+                l_CreatureEntry = 24906;
             else
-                creatureEntry = 15665;
+                l_CreatureEntry = 15665;
         }
 
-        if (CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate(creatureEntry))
+        if (CreatureTemplate const* l_CreatureTemplate = sObjectMgr->GetCreatureTemplate(l_CreatureEntry))
         {
-            uint32 team = 0;
-            if (target->GetTypeId() == TYPEID_PLAYER)
-                team = target->ToPlayer()->GetTeam();
+            uint32 l_Team = 0;
+            if (l_Target->GetTypeId() == TYPEID_PLAYER)
+                l_Team = l_Target->ToPlayer()->GetTeam();
 
-            displayId = ObjectMgr::ChooseDisplayId(team, ci);
-            sObjectMgr->GetCreatureModelRandomGender(&displayId);
+            l_DisplayId = ObjectMgr::ChooseDisplayId(l_Team, l_CreatureTemplate);
+            sObjectMgr->GetCreatureModelRandomGender(&l_DisplayId);
 
-            vehicleId = ci->VehicleId;
+            l_VehicleId = l_CreatureTemplate->VehicleId;
 
             //some spell has one aura of mount and one of vehicle
-            for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                if (GetSpellInfo()->Effects[i].Effect == SPELL_EFFECT_SUMMON
-                    && GetSpellInfo()->Effects[i].MiscValue == GetMiscValue())
-                    displayId = 0;
+            for (uint32 l_I = 0; l_I < MAX_SPELL_EFFECTS; ++l_I)
+                if (GetSpellInfo()->Effects[l_I].Effect == SPELL_EFFECT_SUMMON
+                    && GetSpellInfo()->Effects[l_I].MiscValue == GetMiscValue())
+                    l_DisplayId = 0;
         }
 
         // Glyph of the Mounted King
-        if (GetSpellInfo()->SpellFamilyName == SPELLFAMILY_PALADIN && target->HasAura(57958))
-            target->CastSpell(target, 20217, true);
+        if (GetSpellInfo()->SpellFamilyName == SPELLFAMILY_PALADIN && l_Target->HasAura(57958))
+            l_Target->CastSpell(l_Target, 20217, true);
 
         if (GetBase()->GetId() == 87840)
         {
-            displayId = target->getGender() == GENDER_FEMALE ? 29423 : 29422;
-            if (target->GetTypeId() == TYPEID_PLAYER)
-                target->ToPlayer()->SwitchToWorgenForm();
-            target->SetDisplayId(displayId);
+            l_DisplayId = l_Target->getGender() == GENDER_FEMALE ? 29423 : 29422;
+            if (l_Target->GetTypeId() == TYPEID_PLAYER)
+                l_Target->ToPlayer()->SwitchToWorgenForm();
+            l_Target->SetDisplayId(l_DisplayId);
         }
 
-        target->Mount(displayId, vehicleId, GetMiscValue());
-        target->RemoveFlagsAuras();
+        auto l_MountEntry = sMountStore.LookupEntry(GetId());
+        if (l_MountEntry != nullptr)
+            l_DisplayId = l_MountEntry->CreatureDisplayID;
+
+        l_Target->Mount(l_DisplayId, l_VehicleId, GetMiscValue());
+        l_Target->RemoveFlagsAuras();
 
         // cast speed aura
         if (MountCapabilityEntry const* mountCapability = sMountCapabilityStore.LookupEntry(GetAmount()))
-            target->CastSpell(target, mountCapability->SpeedModSpell, true);
+            l_Target->CastSpell(l_Target, mountCapability->SpeedModSpell, true);
     }
     else
     {
         if (GetBase()->GetId() == 87840)
-            target->DeMorph();
+            l_Target->DeMorph();
 
-        target->Dismount();
+        l_Target->Dismount();
         //some mounts like Headless Horseman's Mount or broom stick are skill based spell
         // need to remove ALL arura related to mounts, this will stop client crash with broom stick
         // and never endless flying after using Headless Horseman's Mount
-        if (mode & AURA_EFFECT_HANDLE_REAL)
+        if (p_Mode & AURA_EFFECT_HANDLE_REAL)
         {
-            target->RemoveAurasByType(SPELL_AURA_MOUNTED);
+            l_Target->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
             // remove speed aura
             if (MountCapabilityEntry const* mountCapability = sMountCapabilityStore.LookupEntry(GetAmount()))
-                target->RemoveAurasDueToSpell(mountCapability->SpeedModSpell, target->GetGUID());
+                l_Target->RemoveAurasDueToSpell(mountCapability->SpeedModSpell, l_Target->GetGUID());
         }
     }
 
-    target->UpdateSpeed(MOVE_RUN, true);
+    l_Target->UpdateSpeed(MOVE_RUN, true);
 }
 
 void AuraEffect::HandleAuraAllowFlight(AuraApplication const* aurApp, uint8 mode, bool apply) const

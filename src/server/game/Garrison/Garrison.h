@@ -95,16 +95,28 @@ enum GarrisonAbilityEffectTargetMask
     GARRISON_ABILITY_EFFECT_TARGET_MASK_PARTY = 1 << 1,
 };
 
-enum GarrisonWorldState
-{
-    GARRISON_WORLD_STATE_CACHE_NUM_TOKEN = 9573
-};
-
 enum GarrMechanicType
 {
     GARRISON_MECHANIC_TYPE_ENVIRONMENT  = 0,
     GARRISON_MECHANIC_TYPE_RACIAL       = 1,
     GARRISON_MECHANIC_TYPE_ABILITY      = 2,
+};
+
+/// WorldState : See WorldState.dbc
+enum GarrisonWorldState
+{
+    GARRISON_WORLD_STATE_CACHE_NUM_TOKEN = 9573
+};
+
+/// TerrainSwap : See WorldMapArea.dbc
+enum
+{
+    TERRAIN_SWAP_GARRISON_FF_HORDE_TIER_1     = 980,
+    TERRAIN_SWAP_GARRISON_FF_HORDE_TIER_2     = 990,
+    TERRAIN_SWAP_GARRISON_FF_HORDE_TIER_3     = 981,
+    TERRAIN_SWAP_GARRISON_SMV_ALLIANCE_TIER_1 = 973,
+    TERRAIN_SWAP_GARRISON_SMV_ALLIANCE_TIER_2 = 991,
+    TERRAIN_SWAP_GARRISON_SMV_ALLIANCE_TIER_3 = 974,
 };
 
 extern uint32 gGarrisonInGarrisonAreaID[GARRISON_FACTION_COUNT];
@@ -245,9 +257,6 @@ class GarrisonInstanceScriptBase
         /// Owner can use the garrison cache ?
         virtual bool CanUseGarrisonCache(Player * p_Owner) = 0;
 
-        /// Get terrain swaps
-        virtual void GetTerrainSwaps(std::set<uint32> & p_TerrainSwaps) = 0;
-
         /// When a mission start
         virtual void OnMissionStart(uint32 p_MissionID, std::vector<uint32> p_Followers) = 0;
         /// When a construction start
@@ -277,6 +286,9 @@ class Garrison
         void RewardGarrisonCache();
         /// Get garrison cache token count
         uint32 GetGarrisonCacheTokenCount();
+
+        /// Get terrain swaps
+        void GetTerrainSwaps(std::set<uint32> & p_TerrainSwaps);
 
         /// Get garrison script
         GarrisonInstanceScriptBase * GetGarrisonScript();

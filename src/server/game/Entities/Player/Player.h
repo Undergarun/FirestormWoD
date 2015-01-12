@@ -76,9 +76,9 @@ typedef std::deque<Mail*> PlayerMails;
 /// 6.0.3 19116
 enum ToastTypes
 {
-    TOAST_TYPE_NONE         = 0,
+    TOAST_TYPE_MONEY        = 0,
     TOAST_TYPE_NEW_CURRENCY = 1,
-    TOAST_TYPE_MONEY        = 2,
+    TOAST_TYPE_UNK1         = 2,
     TOAST_TYPE_NEW_ITEM     = 3,
 };
 /// 6.0.3 19116
@@ -87,7 +87,7 @@ enum DisplayToastMethod
     DISPLAY_TOAST_METHOD_UNK1                               = 0x0,
     DISPLAY_TOAST_METHOD_LOOT                               = 0x1,
     DISPLAY_TOAST_METHOD_PET_BATTLE_LOOT                    = 0x2,
-    DISPLAY_TOAST_METHOD_UNK2                               = 0x3,
+    DISPLAY_TOAST_METHOD_CURRENCY_OR_GOLD                   = 0x3,
     DISPLAY_TOAST_METHOD_GARRISON_MISSION_BONUS_ROLL_LOOT_1 = 0x4,
     DISPLAY_TOAST_METHOD_LOOT_TOAST_UPGRADE_1               = 0x5,
     DISPLAY_TOAST_METHOD_LOOT_TOAST_UPGRADE_2               = 0x6,
@@ -1720,7 +1720,6 @@ class Player : public Unit, public GridObject<Player>
         }
         Item* BankItem(uint16 pos, Item* pItem, bool update);
         void RemoveItem(uint8 bag, uint8 slot, bool update);
-        bool RemoveItemByDelete(Item* item);
         void MoveItemFromInventory(uint8 bag, uint8 slot, bool update);
                                                             // in trade, auction, guild bank, mail....
         void MoveItemToInventory(ItemPosCountVec const& dest, Item* pItem, bool update, bool in_characterInventoryDB = false);

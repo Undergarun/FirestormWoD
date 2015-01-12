@@ -55,6 +55,7 @@ DB2Storage <SpellTotemsEntry>               sSpellTotemsStore(SpellTotemsEntryfm
 DB2Storage <SpellClassOptionsEntry>         sSpellClassOptionsStore(SpellClassOptionsEntryfmt);
 DB2Storage <MapChallengeModeEntry>          sMapChallengeModeStore(MapChallengeModeEntryfmt);
 DB2Storage <QuestPackageItemEntry>          sQuestPackageItemStore(QuestPackageItemEntryfmt);
+DB2Storage <MountEntry>                     sMountStore(MountEntryfmt);
 
 //////////////////////////////////////////////////////////////////////////
 /// Garrison DB2
@@ -171,6 +172,7 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sCurvePointStore,                db2Path, "CurvePoint.db2");
     LoadDB2(bad_db2_files, sHolidaysStore,                  db2Path, "Holidays.db2");
     LoadDB2(bad_db2_files, sMapChallengeModeStore,          db2Path, "MapChallengeMode.db2");
+    LoadDB2(bad_db2_files, sMountStore,                     db2Path, "Mount.db2");
 
     //////////////////////////////////////////////////////////////////////////
     /// Quest DB2

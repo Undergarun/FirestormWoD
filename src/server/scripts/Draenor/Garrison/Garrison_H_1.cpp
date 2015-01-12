@@ -17,12 +17,6 @@ enum
     GARRISON_PHASE_WHAT_WE_GOT      = 0x0002,
 };
 
-/// TerrainSwap : See WorldMapArea.dbc
-enum
-{
-    TERRAIN_SWAP_GARRISON_FF_HORDE_TIER_1 = 980
-};
-
 class instance_Garrison_H1 : public InstanceMapScript
 {
     public:
@@ -97,15 +91,6 @@ class instance_Garrison_H1 : public InstanceMapScript
                     return true;
 
                 return false;
-            }
-
-            //////////////////////////////////////////////////////////////////////////
-            //////////////////////////////////////////////////////////////////////////
-
-            /// Get terrain swaps
-            virtual void GetTerrainSwaps(std::set<uint32> & p_TerrainSwaps) override
-            {
-                p_TerrainSwaps.emplace(TERRAIN_SWAP_GARRISON_FF_HORDE_TIER_1);
             }
 
             //////////////////////////////////////////////////////////////////////////
