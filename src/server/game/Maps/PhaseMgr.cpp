@@ -284,9 +284,7 @@ void PhaseData::SendPhaseshiftToPlayer()
     if (player->GetGarrison() && player->GetGarrison()->GetGarrisonSiteLevelEntry() && (player->GetMapId() == GARRISON_BASE_MAP || player->IsInGarrison()))
     {
         l_InactiveTerrainSwap.insert(player->GetGarrison()->GetGarrisonSiteLevelEntry()->MapID);
-
-        if (player->GetGarrison()->GetTerrainSwaps())
-            player->GetGarrison()->GetTerrainSwaps(l_TerrainSwaps);
+        player->GetGarrison()->GetTerrainSwaps(l_TerrainSwaps);
     }
 
     player->GetSession()->SendSetPhaseShift(l_PhaseIDs, l_TerrainSwaps, l_InactiveTerrainSwap);

@@ -16,12 +16,6 @@ enum
     GARRISON_PHASE_BASE             = 0x0001,
 };
 
-/// TerrainSwap : See WorldMapArea.dbc
-enum
-{
-    TERRAIN_SWAP_GARRISON_FF_HORDE_TIER_1 = 980
-};
-
 class instance_Garrison_H1 : public InstanceMapScript
 {
     public:
