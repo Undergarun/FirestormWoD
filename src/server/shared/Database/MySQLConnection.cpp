@@ -67,8 +67,10 @@ MySQLConnection::~MySQLConnection()
         free((void *)m_queries[itr->first].first);
 
     mysql_close(m_Mysql);
-    delete m_Mysql;
-      m_Mysql = NULL;
+    m_Mysql = nullptr;
+
+    if (m_Mysql)
+        delete m_Mysql;
 }
 
 void MySQLConnection::Close()
