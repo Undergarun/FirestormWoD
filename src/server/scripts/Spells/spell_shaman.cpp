@@ -1959,8 +1959,41 @@ class spell_sha_lava_burst: public SpellScriptLoader
         }
 };
 
+// Unleash Elements - 73680
+class spell_sha_unleash_elements : public SpellScriptLoader
+{
+public:
+    spell_sha_unleash_elements() : SpellScriptLoader("spell_sha_unleash_elements") { }
+
+    class spell_sha_unleash_elements_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_sha_unleash_elements_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (l_Caster->HasAura(SPELL_SHA_UNLEASHED_FURY_TALENT))
+                    l_Caster->CastSpell(l_Caster, SPELL_SHA_UNLEASHED_FURY_FLAMETONGUE, true);
+            }
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_sha_unleash_elements_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_sha_unleash_elements_SpellScript();
+    }
+};
+
+
 void AddSC_shaman_spell_scripts()
 {
+    new spell_sha_unleash_elements();
     new spell_sha_totemic_projection();
     new spell_sha_hex();
     new spell_sha_water_ascendant();
