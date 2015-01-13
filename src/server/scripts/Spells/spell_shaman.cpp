@@ -1627,7 +1627,19 @@ class spell_sha_molten_earth: public SpellScriptLoader
                 if (eventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_SHA_MOLTEN_EARTH_DAMAGE)
                     return;
 
-                GetCaster()->AddAura(SPELL_SHA_MOLTEN_EARTH_PERIODICAL, eventInfo.GetDamageInfo()->GetVictim());
+                Unit *l_Caster = GetCaster();
+                Unit *l_Target = eventInfo.GetDamageInfo()->GetVictim();
+
+                if (l_Caster == nullptr || l_Target == nullptr)
+                    return;
+
+                if (l_Target->HasAura(SPELL_SHA_MOLTEN_EARTH_PERIODICAL))
+                {
+                    if (AuraPtr l_PeriodicAura = l_Target->GetAura(SPELL_SHA_MOLTEN_EARTH_PERIODICAL))
+                        l_PeriodicAura->SetDuration(l_PeriodicAura->GetMaxDuration());
+                }
+                else
+                    l_Caster->AddAura(SPELL_SHA_MOLTEN_EARTH_PERIODICAL, l_Target);
             }
 
             void Register()
