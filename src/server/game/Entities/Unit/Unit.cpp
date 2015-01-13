@@ -1393,6 +1393,10 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
     if (!victim || !victim->isAlive())
         return;
 
+    // WoD: Tanks now take 25% additional damage while engaged in PvP combat.
+    if (GetTypeId() == TYPEID_PLAYER && victim->GetTypeId() == TYPEID_PLAYER && victim->ToPlayer()->IsActiveSpecTankSpec())
+        damage += CalculatePct(damage, 25.0f);
+
     // WoD: Apply factor on damages depending on creature level and expansion
     if ((GetTypeId() == TYPEID_PLAYER || IsPetGuardianStuff()) && victim->GetTypeId() == TYPEID_UNIT)
         damage *= CalculateDamageDealtFactor(this, victim->ToCreature());
@@ -1558,6 +1562,10 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
     // Add melee damage bonus
     damage = MeleeDamageBonusDone(damageInfo->target, damage, damageInfo->attackType);
     damage = damageInfo->target->MeleeDamageBonusTaken(this, damage, damageInfo->attackType);
+
+    // WoD: Tanks now take 25% additional damage while engaged in PvP combat.
+    if (GetTypeId() == TYPEID_PLAYER && victim->GetTypeId() == TYPEID_PLAYER && victim->ToPlayer()->IsActiveSpecTankSpec())
+        damage += CalculatePct(damage, 25.0f);
 
     // WoD: Apply factor on damages depending on creature level and expansion
     if ((GetTypeId() == TYPEID_PLAYER || IsPetGuardianStuff()) && victim->GetTypeId() == TYPEID_UNIT)

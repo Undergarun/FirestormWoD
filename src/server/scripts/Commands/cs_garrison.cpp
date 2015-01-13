@@ -98,6 +98,7 @@ class garrison_commandscript: public CommandScript
 
         static bool HandleGarrisonCreate(ChatHandler * p_Handler, char const* p_Args)
         {
+            /*
             Player * l_TargetPlayer = p_Handler->getSelectedPlayer();
 
             if (!l_TargetPlayer)
@@ -141,7 +142,7 @@ class garrison_commandscript: public CommandScript
 
             /// HACK until quest : add barracks plan
             l_TargetPlayer->GetGarrison()->LearnBlueprint(26);
-
+            */
             return true;
         }
 
