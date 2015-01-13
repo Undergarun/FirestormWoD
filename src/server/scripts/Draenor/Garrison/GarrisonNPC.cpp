@@ -752,7 +752,7 @@ void AddSC_Garrison_NPC()
     new npc_BarosAlexsom;
     new npc_VindicatorMaraad;
     new npc_LunarfallLaborer;
-    //new npc_FrostwallPeon("npc_FrostwallPeon_Dynamic");
-    //new npc_FrostwallPeon("npc_FrostwallPeon");
+    new npc_FrostwallPeon("npc_FrostwallPeon_Dynamic");
+    new npc_FrostwallPeon("npc_FrostwallPeon");
     new npc_Skaggit;
 }
