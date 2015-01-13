@@ -492,7 +492,14 @@ bool Garrison::Load(PreparedQueryResult p_GarrisonResult, PreparedQueryResult p_
             });
 
             if (l_It != m_Missions.end())
+            {
+                PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GARRISON_MISSION);
+                l_Stmt->setUInt32(0, l_MissionBD_ID);
+
+                CharacterDatabase.AsyncQuery(l_Stmt);
+
                 m_Missions.erase(l_It);
+            }
         }
 
         l_MissionToRemove.clear();
@@ -539,7 +546,14 @@ bool Garrison::Load(PreparedQueryResult p_GarrisonResult, PreparedQueryResult p_
             });
 
             if (l_It != m_Missions.end())
+            {
+                PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GARRISON_MISSION);
+                l_Stmt->setUInt32(0, l_MissionBD_ID);
+
+                CharacterDatabase.AsyncQuery(l_Stmt);
+
                 m_Missions.erase(l_It);
+            }
         }
 
         std::vector<uint32> l_FollowerQuests = sObjectMgr->FollowerQuests;
