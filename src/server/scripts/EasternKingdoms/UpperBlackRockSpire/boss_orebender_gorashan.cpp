@@ -223,7 +223,7 @@ class boss_orebender_gorashan : public CreatureScript
                 {
                     case ACTION_CLOSE_POWER_CONDUIT:
                     {
-                        if (m_Active = CanActivate())
+                        if ((m_Active = CanActivate()))
                         {
                             me->SetReactState(REACT_AGGRESSIVE);
                             m_Events.CancelEvent(EVENT_THUNDER_CACOPHONY);

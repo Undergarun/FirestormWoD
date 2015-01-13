@@ -431,7 +431,7 @@ class spell_kilnara_wave_of_agony_start: public SpellScriptLoader
                 if (!GetUnitOwner())
                     return;
 
-                if (pStart = GetUnitOwner()->FindNearestCreature(NPC_WAVE_OF_AGONY, 300.0f))
+                if ((pStart = GetUnitOwner()->FindNearestCreature(NPC_WAVE_OF_AGONY, 300.0f)))
                 {
                     pStart->CastSpell(GetUnitOwner(), SPELL_WAVE_OF_AGONY_TRAJ, true);
                     pStart->DespawnOrUnsummon(500);

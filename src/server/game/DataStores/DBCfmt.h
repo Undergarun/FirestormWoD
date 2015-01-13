@@ -119,6 +119,7 @@ const char NameGenfmt[]                       = "dsii";
 const char PowerDisplayfmt[]                  = "nisbbb";
 const char PvPDifficultyfmt[]                 = "diiii";
 const char QuestSortEntryfmt[]                = "nx";
+char const QuestV2fmt[]                       = "ni";
 const char QuestXPfmt[]                       = "niiiiiiiiii";
 const char QuestFactionRewardfmt[]            = "niiiiiiiiii";
 const char QuestPOIPointfmt[]                 = "niii";

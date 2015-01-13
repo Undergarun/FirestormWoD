@@ -184,6 +184,8 @@ enum Opcodes
         SMSG_CROSSED_INEBRIATION_THRESHOLD          = 0x0103,   ///< 6.0.3 19116
         SMSG_CLIENT_CONTROL_UPDATE                  = 0x080E,   ///< 6.0.3 19116
         SMSG_AREA_TRIGGER_NO_CORPSE                 = 0x0D3F,   ///< 6.0.3 19116
+        SMSG_CHAR_CUSTOMIZE_RESULT                  = 0x0BAA,   ///< 6.0.3 19116
+        SMSG_CHAR_CUSTOMIZE                         = 0x1932,   ///< 6.0.3 19116
 
         /// Control Alert
         SMSG_LOSS_OF_CONTROL_AURA_UPDATE            = 0x0305,   ///< 6.0.3 19116
@@ -215,8 +217,8 @@ enum Opcodes
         SMSG_CREATE_CHAR                            = 0x0107,   ///< 6.0.3 19116
         SMSG_CHAR_DELETE                            = 0x0BC4,   ///< 6.0.3 19116
         SMSG_SET_PLAYER_DECLINED_NAMES_RESULT       = 0x13E2,   ///< 6.0.3 19116
-        SMSG_CHAR_FACTION_CHANGE                    = 0x1743,   ///< 6.0.3 19116
-
+        SMSG_CHAR_FACTION_CHANGE                    = 0x0810,   ///< 6.0.3 19116
+        SMSG_CHAR_RENAME                            = 0x0D89,   ///< 6.0.3 19116
 
         /// Account data
         SMSG_ACCOUNT_DATA_TIMES                     = 0x0120,   ///< 6.0.3 19116
@@ -816,15 +818,14 @@ enum Opcodes
         SMSG_QUEST_PUSH_RESULT                      = 0x1797,   ///< 6.0.3 19116
         SMSG_QUEST_POIQUERY_RESPONSE                = 0x1715,   ///< 6.0.3 19116
         SMSG_QUEST_LOG_FULL                         = 0x17E4,   ///< 6.0.3 19116
-        SMSG_SET_QUEST_COMPLETED_BIT                = 0x0000,
-        SMSG_CLEAR_QUEST_COMPLETED_BITS             = 0x0000,
-        SMSG_CLEAR_QUEST_COMPLETED_BIT              = 0x0000,
-        SMSG_DAILY_QUESTS_RESET                     = 0x0000,
+        SMSG_SET_QUEST_COMPLETED_BIT                = 0x15D3,   ///< 6.0.3 19116
+        SMSG_CLEAR_QUEST_COMPLETED_BITS             = 0x1D47,   ///< 6.0.3 19116
+        SMSG_CLEAR_QUEST_COMPLETED_BIT              = 0x1563,   ///< 6.0.3 19116
         SMSG_IS_QUEST_COMPLETE_RESPONSE             = 0x17E1,   ///< 6.0.3 19116
         SMSG_QUEST_FORCE_REMOVED                    = 0x1D13,   ///< 6.0.3 19116
         SMSG_QUEST_CONFIRM_ACCEPT                   = 0x15B2,   ///< 6.0.3 19116
         SMSG_QUEST_COMPLETION_NPCRESPONSE           = 0x1591,   ///< 6.0.3 19116
-        SMSG_RESET_DAILY_QUEST                      = 0x1514,   ///< 6.0.3 19116
+        SMSG_DAILY_QUESTS_RESET                     = 0x1514,   ///< 6.0.3 19116
 
         /// Quest giver
         SMSG_QUEST_GIVER_STATUS_MULTIPLE            = 0x17C6,   ///< 6.0.3 19116
@@ -885,7 +886,7 @@ enum Opcodes
         SMSG_GARRISON_LEARN_BLUEPRINT_RESULT                            = 0x000B,   ///< 6.0.3 19116
         SMSG_GARRISON_BLUEPRINT_AND_SPECIALIZATION_DATA                 = 0x0964,   ///< 6.0.3 19116
         SMSG_GARRISON_GET_BUILDINGS_DATA                                = 0x0543,   ///< 6.0.3 19116
-        SMSG_GARRISON_REMOTE_INFO                                       = 0x0000,
+        SMSG_GARRISON_REMOTE_INFO                                       = 0x0151,   ///< 6.0.3 19116
         SMSG_GARRISON_BUILDING_ACTIVATED                                = 0x1974,   ///< 6.0.3 19116
         SMSG_GARRISON_UPGRADE_RESULT                                    = 0x0000,
         SMSG_GARRISON_ADD_FOLLOWER_RESULT                               = 0x0544,   ///< 6.0.3 19116
@@ -1013,8 +1014,9 @@ enum Opcodes
     CMSG_SPLIT_ITEM                             = 0x0795,   ///< 6.0.3 19116
     CMSG_SET_PLAYER_DECLINED_NAMES              = 0x018B,   ///< 6.0.3 19116
     CMSG_MOUNT_SET_FAVORITE                     = 0x090E,   ///< 6.0.3 19116
-    CMSG_CHAR_RACE_OR_FACTION_CHANGE            = 0x08B7,   ///< 6.0.6 19116
-
+    CMSG_CHAR_RENAME                            = 0x038B,   ///< 6.0.3 19116
+    CMSG_CHAR_CUSTOMIZE                         = 0x072A,   ///< 6.0.3 19116
+    CMSG_CHAR_RACE_OR_FACTION_CHANGE            = 0x1209,   ///< 6.0.6 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Bank
@@ -1620,8 +1622,6 @@ enum Opcodes
     CMSG_BOT_DETECTED2                                  = 0x0000,
     CMSG_CANCEL_TEMP_ENCHANTMENT                        = 0x0000,
     CMSG_CHANGEPLAYER_DIFFICULTY                        = 0x0000,
-    CMSG_CHAR_CUSTOMIZE                                 = 0x0000,
-    CMSG_CHAR_RENAME                                    = 0x0000,
     CMSG_CHAT_FILTERED                                  = 0x0000,
     CMSG_CHAT_IGNORED                                   = 0x0000,
     CMSG_COMMENTATOR_ENABLE                             = 0x0000,
@@ -1669,7 +1669,6 @@ enum Opcodes
     CMSG_PLAY_DANCE                                     = 0x0000,
     CMSG_PVP_LOG_DATA                                   = 0x0000,
     CMSG_QUERY_BATTLEFIELD_STATE                        = 0x0000,
-    CMSG_QUERY_QUESTS_COMPLETED                         = 0x0000,
     CMSG_QUERY_TIME                                     = 0x0000,
     CMSG_QUEST_NPC_QUERY                                = 0x0000,
     CMSG_RANDOMIZE_CHAR_NAME                            = 0x0000,
@@ -1799,8 +1798,6 @@ enum Opcodes
     SMSG_BATTLEPET_JOURNAL                              = 0x0000,
     SMSG_CAMERA_SHAKE                                   = 0x0000,
     SMSG_CHARACTER_LOGIN_FAILED                         = 0x0000,
-    SMSG_CHAR_CUSTOMIZE                                 = 0x0000,
-    SMSG_CHAR_RENAME                                    = 0x0000,
     SMSG_CLEAR_BOSS_EMOTES                              = 0x0000,
     SMSG_COMBAT_EVENT_FAILED                            = 0x0000,
     SMSG_COMMENTATOR_MAP_INFO                           = 0x0000,

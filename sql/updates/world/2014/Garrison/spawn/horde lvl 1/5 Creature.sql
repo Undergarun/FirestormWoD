@@ -29,31 +29,31 @@ INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`) VALUES
 INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(79407, 1152, 5575.775, 4563.67, 136.2915, 0.4948707, 268435455, 65535, 0, 8193, 0, 32768, 2048, 0, 0);
 INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`) VALUES(LAST_INSERT_ID(), 0, 0, 257, 0);
 
-INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(79605, 1152, 5619.701, 4501.643, 119.2701, 3.281239, 268435455, 65535, 0, 0, 12, 0, 4196352, 0, 0);
+INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(78467, 1152, 5619.701, 4501.643, 119.2701, 3.281239, 268435455, 65535, 0, 0, 12, 0, 4196352, 0, 0);
 INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES(LAST_INSERT_ID(), 0, 0, 1, 461, "");
 
-INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(79605, 1152, 5628.176, 4511.491, 119.2701, 2.539454, 268435455, 65535, 0, 0, 12, 0, 4196352, 0, 0);
+INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(78467, 1152, 5628.176, 4511.491, 119.2701, 2.539454, 268435455, 65535, 0, 0, 12, 0, 4196352, 0, 0);
 INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES(LAST_INSERT_ID(), 0, 0, 1, 461, "");
 
-INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(79605, 1152, 5451.739, 4561.205, 136.8927, 0, 268435455, 65535, 0, 0, 12, 0, 4196352, 0, 0);
+INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(78467, 1152, 5451.739, 4561.205, 136.8927, 0, 268435455, 65535, 0, 0, 12, 0, 4196352, 0, 0);
 INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`) VALUES(LAST_INSERT_ID(), 0, 0, 1, 0);
 
-INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(79605, 1152, 5610.055, 4511.7, 119.2701, 5.698502, 268435455, 65535, 0, 0, 12, 0, 4196352, 0, 0);
+INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(78467, 1152, 5610.055, 4511.7, 119.2701, 5.698502, 268435455, 65535, 0, 0, 12, 0, 4196352, 0, 0);
 INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES(LAST_INSERT_ID(), 0, 0, 1, 461, "");
 
-INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(79605, 1152, 5575.958, 4520.161, 129.8321, 0, 268435455, 65535, 0, 0, 12, 0, 4196352, 0, 0);
+INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(78467, 1152, 5575.958, 4520.161, 129.8321, 0, 268435455, 65535, 0, 0, 12, 0, 4196352, 0, 0);
 INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`) VALUES(LAST_INSERT_ID(), 0, 0, 1, 0);
 
-INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(79605, 1152, 5616.347, 4499.729, 119.2897, 0.8203033, 268435455, 65535, 0, 0, 12, 0, 4196352, 0, 0);
+INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(78467, 1152, 5616.347, 4499.729, 119.2897, 0.8203033, 268435455, 65535, 0, 0, 12, 0, 4196352, 0, 0);
 INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES(LAST_INSERT_ID(), 0, 0, 1, 461, "");
 
-INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(79605, 1152, 5609.888, 4622.185, 138.782, 0, 268435455, 65535, 0, 0, 12, 0, 4196352, 0, 0);
+INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(78467, 1152, 5609.888, 4622.185, 138.782, 0, 268435455, 65535, 0, 0, 12, 0, 4196352, 0, 0);
 INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`) VALUES(LAST_INSERT_ID(), 0, 0, 1, 0);
 
-INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(79605, 1152, 5672.573, 4493.233, 132.4595, 0, 268435455, 65535, 1, 0, 12, 0, 4196352, 0, 0);
+INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(78467, 1152, 5672.573, 4493.233, 132.4595, 0, 268435455, 65535, 1, 0, 12, 0, 4196352, 0, 0);
 INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`) VALUES(LAST_INSERT_ID(), 0, 0, 1, 0);
 
-INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(79605, 1152, 5672.45, 4660.176, 144.7147, 4.386503, 268435455, 65535, 0, 0, 12, 0, 4196352, 0, 0);
+INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(78467, 1152, 5672.45, 4660.176, 144.7147, 4.386503, 268435455, 65535, 0, 0, 12, 0, 4196352, 0, 0);
 INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`) VALUES(LAST_INSERT_ID(), 0, 0, 1, 0);
 
 INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(79619, 1152, 5629.45, 4470.877, 130.2909, 3.599282, 268435455, 65535, 1, 129, 0, 512, 2048, 0, 0);
@@ -133,9 +133,6 @@ INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`) VALUES
 
 INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(80288, 1152, 5690.156, 4640.971, 144.5703, 0.790056, 268435455, 65535, 0, 0, 12, 0, 4196352, 0, 0);
 INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`) VALUES(LAST_INSERT_ID(), 0, 0, 1, 0);
-
-INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(80288, 1152, 5622.472, 4609.431, 138.2091, 2.868197, 268435455, 65535, 0, 0, 12, 0, 4196352, 0, 0);
-INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES(LAST_INSERT_ID(), 0, 0, 1, 0, "162907");
 
 INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(80288, 1152, 5665.734, 4503.601, 127.1125, 2.611642, 268435455, 65535, 0, 0, 12, 0, 4196352, 0, 0);
 INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`) VALUES(LAST_INSERT_ID(), 0, 0, 1, 0);
@@ -257,22 +254,119 @@ INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`) VALUES
 INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(88649, 1152, 5640.502, 4525.942, 119.0687, 0.9510462, 268435455, 65535, 1, 0, 0, 33536, 2048, 0, 0);
 INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`) VALUES(LAST_INSERT_ID(), 0, 0, 1, 0);
 
+INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(74808, 1152, 5637.56, 4529.658, 119.0323, 0.4498974, 268435455, 65535, 0, 3, 0, 32768, 2048, 0, 0) ON DUPLICATE KEY UPDATE `id` = VALUES(`id`), `map` = VALUES(`map`), `position_x` = VALUES(`position_x`), `position_y` = VALUES(`position_y`), `position_z` = VALUES(`position_z`), `orientation` = VALUES(`orientation`), `spawnMask` = VALUES(`spawnMask`), `phaseMask` = VALUES(`phaseMask`), `equipment_id` = VALUES(`equipment_id`), `npcflag` = VALUES(`npcflag`), `npcflag2` = VALUES(`npcflag2`), `unit_flags` = VALUES(`unit_flags`), `unit_flags2` = VALUES(`unit_flags2`), `unit_flags3` = VALUES(`unit_flags3`), `WorldEffectID` = VALUES(`WorldEffectID`);
+INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`) VALUES(LAST_INSERT_ID(), 0, 0, 1, 0) ON DUPLICATE KEY UPDATE `guid` = VALUES(`guid`), `mount` = VALUES(`mount`), `bytes1` = VALUES(`bytes1`), `bytes2` = VALUES(`bytes2`), `emote` = VALUES(`emote`);
+
+INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(80223, 1152, 5567.66, 4495.443, 131.8301, 1.143126, 268435455, 65535, 0, 1, 0, 512, 2048, 0, 0) ON DUPLICATE KEY UPDATE `id` = VALUES(`id`), `map` = VALUES(`map`), `position_x` = VALUES(`position_x`), `position_y` = VALUES(`position_y`), `position_z` = VALUES(`position_z`), `orientation` = VALUES(`orientation`), `spawnMask` = VALUES(`spawnMask`), `phaseMask` = VALUES(`phaseMask`), `equipment_id` = VALUES(`equipment_id`), `npcflag` = VALUES(`npcflag`), `npcflag2` = VALUES(`npcflag2`), `unit_flags` = VALUES(`unit_flags`), `unit_flags2` = VALUES(`unit_flags2`), `unit_flags3` = VALUES(`unit_flags3`), `WorldEffectID` = VALUES(`WorldEffectID`);
+INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`) VALUES(LAST_INSERT_ID(), 0, 0, 1, 0) ON DUPLICATE KEY UPDATE `guid` = VALUES(`guid`), `mount` = VALUES(`mount`), `bytes1` = VALUES(`bytes1`), `bytes2` = VALUES(`bytes2`), `emote` = VALUES(`emote`);
+
+INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(80222, 1152, 5566.491, 4496.757, 132.1714, 0.1848756, 268435455, 65535, 0, 0, 0, 512, 2048, 0, 0) ON DUPLICATE KEY UPDATE `id` = VALUES(`id`), `map` = VALUES(`map`), `position_x` = VALUES(`position_x`), `position_y` = VALUES(`position_y`), `position_z` = VALUES(`position_z`), `orientation` = VALUES(`orientation`), `spawnMask` = VALUES(`spawnMask`), `phaseMask` = VALUES(`phaseMask`), `equipment_id` = VALUES(`equipment_id`), `npcflag` = VALUES(`npcflag`), `npcflag2` = VALUES(`npcflag2`), `unit_flags` = VALUES(`unit_flags`), `unit_flags2` = VALUES(`unit_flags2`), `unit_flags3` = VALUES(`unit_flags3`), `WorldEffectID` = VALUES(`WorldEffectID`);
+INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`) VALUES(LAST_INSERT_ID(), 0, 0, 1, 483) ON DUPLICATE KEY UPDATE `guid` = VALUES(`guid`), `mount` = VALUES(`mount`), `bytes1` = VALUES(`bytes1`), `bytes2` = VALUES(`bytes2`), `emote` = VALUES(`emote`);
+
+INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(80225, 1152, 5576.162, 4597.182, 136.6708, 1.394035, 268435455, 65535, 0, 3, 12, 512, 2048, 0, 0) ON DUPLICATE KEY UPDATE `id` = VALUES(`id`), `map` = VALUES(`map`), `position_x` = VALUES(`position_x`), `position_y` = VALUES(`position_y`), `position_z` = VALUES(`position_z`), `orientation` = VALUES(`orientation`), `spawnMask` = VALUES(`spawnMask`), `phaseMask` = VALUES(`phaseMask`), `equipment_id` = VALUES(`equipment_id`), `npcflag` = VALUES(`npcflag`), `npcflag2` = VALUES(`npcflag2`), `unit_flags` = VALUES(`unit_flags`), `unit_flags2` = VALUES(`unit_flags2`), `unit_flags3` = VALUES(`unit_flags3`), `WorldEffectID` = VALUES(`WorldEffectID`);
+INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`) VALUES(LAST_INSERT_ID(), 0, 0, 1, 483) ON DUPLICATE KEY UPDATE `guid` = VALUES(`guid`), `mount` = VALUES(`mount`), `bytes1` = VALUES(`bytes1`), `bytes2` = VALUES(`bytes2`), `emote` = VALUES(`emote`);
+
+---------------------------------------------------------
+-- Movable peons
+---------------------------------------------------------
+INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(79605, 1152, 5574.6655, 4595.129, 136.6, 1.262363, 268435455, 65535, 0, 0, 12, 0, 4196352, 0, 0);
+INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES(LAST_INSERT_ID(), 0, 0, 1, 0, "162907");
+
+INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(79605, 1152, 5577.647461, 4600.67, 136.6, 1.07, 268435455, 65535, 0, 0, 12, 0, 4196352, 0, 0);
+INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES(LAST_INSERT_ID(), 0, 0, 1, 0, "162907");
+
+INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(79605, 1152,5568.46773, 4597.722, 136.5873, 1.026729, 268435455, 65535, 0, 0, 12, 0, 4196352, 0, 0);
+INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES(LAST_INSERT_ID(), 0, 0, 1, 0, "162907");
+
+INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(79605, 1152, 5566.86, 4600.39, 136.5873, 0.390559, 268435455, 65535, 0, 0, 12, 0, 4196352, 0, 0);
+INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES(LAST_INSERT_ID(), 0, 0, 1, 0, "162907");
+
+INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(79605, 1152, 5571.142090, 4608.910645, 136.7, 5.4288, 268435455, 65535, 0, 0, 12, 0, 4196352, 0, 0);
+INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES(LAST_INSERT_ID(), 0, 0, 1, 0, "162907");
+
 ---------------------------------------------------------
 -- Creature EXP
 ---------------------------------------------------------
-UPDATE creature_template SET `exp`=5 WHERE entry IN(76872,76928,77908,77908,78320,78466,78487,79407,79605,79605,79605,79605,79605,79605,79605,79605,79605,79619,79740,79774,79781,79781,79781,79781,79781,79781,79781,79781,79781,79781,79781,79781,79916,79925,79925,79925,79925,79925,79925,80151,80288,80288,80288,80288,80288,80288,80299,80299,80299,80299,80432,80436,80436,80436,80436,80436,80437,80437,80437,80437,80437,80438,80438,80438,80438,80438,80438,80440,80440,80440,80440,80440,80440,80440,80440,80600,80772,81166,81688,83482,84967,85882,86470,88649);
+UPDATE creature_template SET `exp`=5 WHERE entry IN(76872,76928,77908,77908,78320,78466,78487,79407,79605,79619,79740,79774,79781,79781,79781,79781,79781,79781,79781,79781,74808,80223,80222,79781,79781,79781,79781,79916,79925,79925,79925,79925,79925,79925,80151,80288,80288,80288,80288,80288,80288,80299,80299,80299,80299,80432,80436,80436,80436,80436,80436,80437,80437,80437,80437,80437,80438,80438,80438,80438,80438,80438,80440,80440,80440,80440,80440,80440,80440,80440,80600,80772,81166,81688,83482,84967,85882,86470,88649);
 
 ---------------------------------------------------------
--- Builders
+-- Builders & peon
 ---------------------------------------------------------
 REPLACE INTO creature_equip_template (entry, `id`, `itemEntry1`, `itemEntry2`, `itemEntry3`) VALUES(78467, 1, 5956, 0, 0);
+REPLACE INTO creature_equip_template (entry, `id`, `itemEntry1`, `itemEntry2`, `itemEntry3`) VALUES(79605, 1, 5956, 0, 0);
 UPDATE creature_template_addon SET auras="" WHERE entry=78467;
-UPDATE creature_template SET ScriptName="npc_FrostwallPeon" WHERE entry=78467;
+UPDATE creature_template SET ScriptName="npc_FrostwallPeon_Dynamic" WHERE entry = 79605;
+UPDATE creature_template SET ScriptName="npc_FrostwallPeon" WHERE entry = 78467;
+
+---------------------------------------------------------
+-- Fix vendors flags
+---------------------------------------------------------
+UPDATE `creature_template` SET `npcflag`=`npcflag`|128 WHERE `entry`=84967;
+UPDATE `creature_template` SET `npcflag`=`npcflag`|128 WHERE `entry`=80772;
+UPDATE `creature_template` SET `npcflag`=`npcflag`|128 WHERE `entry`=80151;
+UPDATE `creature_template` SET `npcflag`=`npcflag`|128 WHERE `entry`=79619;
+UPDATE `creature_template` SET `npcflag`=`npcflag`|128 WHERE `entry`=76928;
+UPDATE `creature_template` SET `npcflag`=`npcflag`|128 WHERE `entry`=76872;
+
+---------------------------------------------------------
+-- Npc Gossips & script
+---------------------------------------------------------
+REPLACE INTO creature_text (entry, `groupid`, `id`, `text`, `type`, `language`, `probability`) VALUES(80223, 0, 0, "Be sure to check back for more resources later, commander. The peons will keep putting them in this chest while you are away.", 12, 0, 100);
+
+REPLACE INTO creature_text (entry, `groupid`, `id`, `text`, `type`, `language`, `probability`) VALUES(79605, 0, 0, "Just a quick nap...", 12, 0, 100);
+REPLACE INTO creature_text (entry, `groupid`, `id`, `text`, `type`, `language`, `probability`) VALUES(79605, 1, 0, "Mmm... sleep...", 12, 0, 100);
+REPLACE INTO creature_text (entry, `groupid`, `id`, `text`, `type`, `language`, `probability`) VALUES(79605, 2, 0, "I need a break!", 12, 0, 100);
+REPLACE INTO creature_text (entry, `groupid`, `id`, `text`, `type`, `language`, `probability`) VALUES(79605, 3, 0, "So tired!", 12, 0, 100);
+
+UPDATE creature_template SET ScriptName="npc_Skaggit", gossip_menu_id = 16475 WHERE entry=80225;																																																							    	-- Skaggit
+INSERT INTO npc_text (`ID`, `text0_0`, `lang0`, `prob0`, `WDBVerified`) VALUES(82234, "Commander, your pack of peons awaits your orders.", 0, 100, 19342) ON DUPLICATE KEY UPDATE `ID` = VALUES(`ID`), `text0_0` = VALUES(`text0_0`), `lang0` = VALUES(`lang0`), `prob0` = VALUES(`prob0`), `WDBVerified` = VALUES(`WDBVerified`);	-- Skaggit
+REPLACE INTO gossip_menu (entry, `text_id`) VALUES(16475, 82234);																																																																	-- Skaggit
+REPLACE INTO gossip_menu_option (menu_id, id, `option_icon`, `option_text`, `option_id`, `box_coded`, `box_money`, `box_text`, `npc_option_npcflag`) VALUES(16475, 0, 0, "Get the peons back to work.", 1, 0, 0, "", 1);					                                                                                        -- Skaggit
+REPLACE INTO creature_text (entry, `groupid`, `id`, `text`, `type`, `language`, `probability`) VALUES(80225, 0, 0, "You got it. One fully armed and operational army of motivated peons coming right up.", 12, 0, 100);																												-- Skaggit
+
+---------------------------------------------------------
+-- Quest lines
+---------------------------------------------------------
+UPDATE quest_template SET PrevQuestId = 34378 WHERE Id = 34824; -- What We Got
+UPDATE quest_template SET PrevQuestId = 34378 WHERE Id = 34822; -- What We Need
+UPDATE quest_template SET PrevQuestId = 34378 WHERE Id = 34823; -- The Ogron Live?
+
+---------------------------------------------------------
+-- Random movement
+---------------------------------------------------------
+UPDATE creature SET MovementType=1, spawndist=40 WHERE id=80438 and map=1152;
+UPDATE creature SET MovementType=1, spawndist=40 WHERE id=80437 and map=1152;
+UPDATE creature SET MovementType=1, spawndist=40 WHERE id=77908 and map=1152;
+
+---------------------------------------------------------
+-- Waypoints
+---------------------------------------------------------
+DELETE FROM `waypoint_data` WHERE id = 600002;
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600002','1','5572.93','4602','136.588','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600002','2','5582','4595.09','136.588','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600002','3','5585.28','4581.66','136.588','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600002','4','5583.89','4570.9','136.41','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600002','5','5590.7','4562.31','134.832','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600002','6','5594.77','4551.32','131.346','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600002','7','5593.53','4532.98','126.377','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600002','8','5584.97','4522.66','127.592','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600002','9','5578.92','4512.67','129.937','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600002','10','5579.59','4501.19','130.335','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600002','11','5569.26','4499.12','131.527','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600002','12','5575.18','4504.79','130.527','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600002','13','5581.95','4512.16','129.65','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600002','14','5591.56','4525.58','126.445','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600002','15','5598.4','4535.27','126.164','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600002','16','5597.77','4551.89','131.505','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600002','17','5592.84','4564.72','135.132','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600002','18','5586.92','4572.37','136.454','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600002','19','5589.12','4583.25','136.587','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600002','20','5584.22','4598.71','136.587','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600002','21','5573.03','4602.06','136.587','0','0','0','0','100','0');
 
 ---------------------------------------------------------
 -- Vendor
 ---------------------------------------------------------
-UPDATE `creature_template` SET `npcflag`=`npcflag`|128 WHERE `entry`=84967;
 DELETE FROM `npc_vendor` WHERE `entry` = 84967 AND `type` = 1;
 INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`) VALUES
 (84967, 0, 20815, 0, 0, 0, 1), 
@@ -289,13 +383,11 @@ INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `Exte
 (84967, 0, 113264, 0, 0, 5502, 1), 
 (84967, 0, 115524, 0, 0, 5499, 1), 
 (84967, 0, 118472, 0, 0, 5503, 1);
-UPDATE `creature_template` SET `npcflag`=`npcflag`|128 WHERE `entry`=80772;
 DELETE FROM `npc_vendor` WHERE `entry` = 80772 AND `type` = 1;
 INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`) VALUES
 (80772, 0, 63388, 0, 0, 0, 1), 
 (80772, 0, 64670, 0, 0, 0, 1), 
 (80772, 0, 79249, 0, 0, 0, 1);
-UPDATE `creature_template` SET `npcflag`=`npcflag`|128 WHERE `entry`=80151;
 DELETE FROM `npc_vendor` WHERE `entry` = 80151 AND `type` = 1;
 INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`) VALUES
 (80151, 0, 115351, 0, 0, 0, 1), 
@@ -308,7 +400,6 @@ INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `Exte
 (80151, 0, 120347, 0, 0, 5488, 1), 
 (80151, 0, 120348, 0, 0, 5488, 1), 
 (80151, 0, 120349, 0, 0, 5488, 1);
-UPDATE `creature_template` SET `npcflag`=`npcflag`|128 WHERE `entry`=79619;
 DELETE FROM `npc_vendor` WHERE `entry` = 79619 AND `type` = 1;
 INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`) VALUES
 (79619, 0, 116186, 0, 0, 0, 1), 
@@ -360,7 +451,6 @@ INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `Exte
 (79619, 0, 116248, 0, 0, 0, 1), 
 (79619, 0, 116431, 0, 0, 0, 1), 
 (79619, 0, 118215, 0, 0, 0, 1);
-UPDATE `creature_template` SET `npcflag`=`npcflag`|128 WHERE `entry`=76928;
 DELETE FROM `npc_vendor` WHERE `entry` = 76928 AND `type` = 1;
 INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`) VALUES
 (76928, 0, 117, 0, 0, 0, 1), 
@@ -403,7 +493,6 @@ INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `Exte
 (76928, 0, 81920, 0, 0, 0, 1), 
 (76928, 0, 81923, 0, 0, 0, 1), 
 (76928, 0, 81924, 0, 0, 0, 1);
-UPDATE `creature_template` SET `npcflag`=`npcflag`|128 WHERE `entry`=76872;
 DELETE FROM `npc_vendor` WHERE `entry` = 76872 AND `type` = 1;
 INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`) VALUES
 (76872, 0, 159, 0, 0, 0, 1), 

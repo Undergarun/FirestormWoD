@@ -1318,7 +1318,7 @@ class spell_pal_word_of_glory: public SpellScriptLoader
 
             int32 m_HolyPower = 0;
 
-            bool Validate()
+            bool Validate(SpellInfo const* /*spellEntry*/)
             {
                 if (!sSpellMgr->GetSpellInfo(PALADIN_SPELL_WORD_OF_GLORY))
                     return false;
@@ -1390,7 +1390,7 @@ class spell_pal_judgment: public SpellScriptLoader
         {
             PrepareSpellScript(spell_pal_judgment_SpellScript);
 
-            bool Validate()
+            bool Validate(SpellInfo const* /*spellEntry*/)
             {
                 if (!sSpellMgr->GetSpellInfo(PALADIN_SPELL_JUDGMENT))
                     return false;
