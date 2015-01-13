@@ -649,7 +649,7 @@ class spell_sha_frozen_power: public SpellScriptLoader
         {
             PrepareSpellScript(spell_sha_frozen_power_SpellScript);
 
-            bool Validate(SpellEntry const * spellEntry)
+            bool Validate(SpellInfo const* /*spellEntry*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SHA_FROST_SHOCK))
                     return false;
@@ -1060,7 +1060,7 @@ class spell_sha_healing_rain: public SpellScriptLoader
                     {
                         // Casting a second healing rain after prolonging the previous one using conductivity
                         // will replace the old healing rain with base amount of duration (in other words, you will not have 2 healing rains).
-                        if (DynamicObject* dynObj = caster->GetDynObject(SPELL_SHA_HEALING_RAIN))
+                        if (caster->GetDynObject(SPELL_SHA_HEALING_RAIN))
                             caster->RemoveDynObject(SPELL_SHA_HEALING_RAIN);
 
                         caster->CastSpell(loc->GetPositionX(), loc->GetPositionY(), loc->GetPositionZ(), SPELL_SHA_HEALING_RAIN, true);

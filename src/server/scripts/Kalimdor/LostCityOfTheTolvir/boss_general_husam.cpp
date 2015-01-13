@@ -301,7 +301,7 @@ public:
                 StartCountDown();
         }
 
-        void SpellHitTarget(Unit* target, const SpellInfo* spell, uint32 /*hitCount*/)
+        void SpellHitTarget(Unit* target, SpellInfo const* spell)
         {
             if (spell->Id == 83112)
             {

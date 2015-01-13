@@ -202,7 +202,6 @@ public:
         {
             for (uint8 i = 0; i < 4; ++i)
             {
-                Creature* Temp = NULL;
                 if (AddGUID[i])
                 {
                     Creature* temp = Creature::GetCreature((*me), AddGUID[i]);

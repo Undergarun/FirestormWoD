@@ -355,7 +355,6 @@ class boss_daakara : public CreatureScript
             }
 
         private:
-            uint64 ClawTargetGUID;
             bool bEnrage;
             uint8 phase;
             bool bAchieve;
@@ -392,7 +391,7 @@ class npc_daakara_vortex : public CreatureScript
             {
             }
             
-            void SetGUID(uint64 guid, uint32 data)
+            void SetGUID(uint64 guid, int32 data)
             {
                 victimGUID = guid;
             }

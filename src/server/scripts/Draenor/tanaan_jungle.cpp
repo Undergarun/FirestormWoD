@@ -51,7 +51,7 @@ class npc_archmage_khadgar : public CreatureScript
             return true;
         }
 
-        bool OnQuestReward(Player* p_Player, Creature* p_Creature, Quest* const p_Quest)
+        bool OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option)
         {
             if (p_Quest->GetQuestId() == 34393)
             {

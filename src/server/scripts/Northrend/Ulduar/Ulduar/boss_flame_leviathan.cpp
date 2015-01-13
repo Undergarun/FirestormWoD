@@ -730,11 +730,8 @@ class boss_flame_leviathan_overload_device : public CreatureScript
             {
             }
 
-            void OnSpellClick(Unit* /*clicker*/, bool& result)
+            void OnSpellClick(Unit* /*clicker*/)
             {
-                if (!result)
-                    return;
-
                 if (me->GetVehicle())
                 {
                     me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);

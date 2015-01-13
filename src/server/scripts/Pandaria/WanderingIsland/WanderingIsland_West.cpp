@@ -77,7 +77,7 @@ public:
             l_TalkRefill = 30000;
         }
 
-        void DoAction (uint8 action)
+        void DoAction(int32 const action)
         {
             switch (action)
             {
