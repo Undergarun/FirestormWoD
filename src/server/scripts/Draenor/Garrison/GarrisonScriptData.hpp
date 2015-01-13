@@ -81,14 +81,14 @@ namespace MS { namespace Garrison {
     };
 
     /// Garrison creation coords
-    float gGarrisonCreationCoords[][4] =
+    static float gGarrisonCreationCoords[][4] =
     {
         { 1766.761475f,  191.2846830f,  72.115326f, 0.4649370f },   ///< TEAM_ALLIANCE
         { 5698.020020f, 4512.1635574f, 127.401695f, 2.8622720f }    ///< TEAM_HORDE
     };
 
     /// Garrison hearthstone teleport coords
-    float gGarrisonHearthStoneTeleportCoord[][4] =
+    static float gGarrisonHearthStoneTeleportCoord[][4] =
     {
         /// Horde
         { 5561.15f,  4508.785f, 132.70f,    3.406f   }, ///< Horde Level 1
