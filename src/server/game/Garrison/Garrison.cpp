@@ -1324,8 +1324,8 @@ void Garrison::CompleteMission(uint32 p_MissionRecID)
 
     uint32 l_ChestChance = GetMissionSuccessChance(p_MissionRecID);
 
-    bool l_CanComplete = true;
     bool l_Succeeded   = roll_chance_i(l_ChestChance);  ///< Seems to be MissionChance
+    bool l_CanComplete = true;
 
     l_Mission->State = l_Succeeded ? GARRISON_MISSION_COMPLETE_SUCCESS : GARRISON_MISSION_COMPLETE_FAILED;
 

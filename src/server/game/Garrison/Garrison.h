@@ -19,7 +19,7 @@ enum GarrisonMissionState
     GARRISON_MISSION_AVAILABLE              = 0,
     GARRISON_MISSION_IN_PROGRESS            = 1,
     GARRISON_MISSION_COMPLETE_SUCCESS       = 2,
-    GARRISON_MISSION_COMPLETE_FAILED        = 3,
+    GARRISON_MISSION_COMPLETE_FAILED        = 5,
 };
 
 enum GarrisonMissionFlag
