@@ -42,6 +42,7 @@
 #include "PhaseMgr.h"
 #include "CUFProfiles.h"
 #include "CinematicPathMgr.h"
+#include "BitSet.hpp"
 
 // for template
 #include "SpellMgr.h"
@@ -607,6 +608,9 @@ typedef std::set<uint32> RewardedQuestSet;
 
 //               quest,  keep
 typedef std::map<uint32, bool> QuestStatusSaveMap;
+
+// Size (in bytes) of client completed quests bit map
+#define QUESTS_COMPLETED_BITS_SIZE 2500
 
 enum QuestSlotOffsets
 {
@@ -3668,6 +3672,8 @@ class Player : public Unit, public GridObject<Player>
 
         typedef std::set<uint32> DailyQuestList;
         DailyQuestList m_dailyQuestStorage;
+
+        MS::Utilities::BitSet m_CompletedQuestBits;
 
     private:
         // internal common parts for CanStore/StoreItem functions

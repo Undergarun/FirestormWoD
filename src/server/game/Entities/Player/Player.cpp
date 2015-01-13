@@ -922,6 +922,8 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
 
     isDebugAreaTriggers = false;
 
+    m_CompletedQuestBits.SetSize(QUESTS_COMPLETED_BITS_SIZE);
+
     m_WeeklyQuestChanged = false;
 
     m_MonthlyQuestChanged = false;
@@ -18049,6 +18051,18 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST_COUNT);
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST, p_Quest->GetQuestId());
 
+    if (uint32 l_QuestBit = GetQuestUniqueBitFlag(l_QuestId))
+    {
+        m_CompletedQuestBits.SetBit(l_QuestBit - 1);
+
+        WorldPacket l_Packet(SMSG_SET_QUEST_COMPLETED_BIT, 8);
+
+        l_Packet << int32(l_QuestBit);
+        l_Packet << int32(l_QuestId);
+
+        SendDirectMessage(&l_Packet);
+    }
+
     //lets remove flag for delayed teleports
     SetCanDelayTeleport(false);
 }
@@ -18693,18 +18707,30 @@ void Player::RemoveActiveQuest(uint32 quest_id)
     }
 }
 
-void Player::RemoveRewardedQuest(uint32 quest_id)
+void Player::RemoveRewardedQuest(uint32 p_QuestId)
 {
-    RewardedQuestSet::iterator rewItr = m_RewardedQuests.find(quest_id);
+    RewardedQuestSet::iterator rewItr = m_RewardedQuests.find(p_QuestId);
     if (rewItr != m_RewardedQuests.end())
     {
         m_RewardedQuests.erase(rewItr);
-        m_RewardedQuestsSave[quest_id] = false;
+        m_RewardedQuestsSave[p_QuestId] = false;
 
         PhaseUpdateData phaseUdateData;
-        phaseUdateData.AddQuestUpdate(quest_id);
+        phaseUdateData.AddQuestUpdate(p_QuestId);
 
         phaseMgr.NotifyConditionChanged(phaseUdateData);
+
+        if (uint32 l_QuestBit = GetQuestUniqueBitFlag(p_QuestId))
+        {
+            m_CompletedQuestBits.UnsetBit(l_QuestBit - 1);
+
+            WorldPacket l_Packet(SMSG_CLEAR_QUEST_COMPLETED_BIT, 8);
+
+            l_Packet << int32(l_QuestBit);
+            l_Packet << int32(p_QuestId);
+
+            SendDirectMessage(&l_Packet);
+        }
     }
 }
 
@@ -21147,6 +21173,14 @@ void Player::_LoadQuestStatusRewarded(PreparedQueryResult result)
                         SetTitle(titleEntry);
                 }
 
+                /// Skip loading special quests - they are also added to rewarded quests but only once and remain there forever
+                /// instead add them separately from load daily/weekly/monthly/seasonal
+                if (!quest->IsDailyOrWeekly() && !quest->IsMonthly() && !quest->IsSeasonal())
+                {
+                    if (uint32 l_QuestBit = GetQuestUniqueBitFlag(quest_id))
+                        m_CompletedQuestBits.SetBit(l_QuestBit  - 1);
+                }
+
                 if (uint32 talents = quest->GetBonusTalents())
                     AddQuestRewardedTalentCount(talents);
             }
@@ -21194,6 +21228,9 @@ void Player::_LoadDailyQuestStatus(PreparedQueryResult result)
             if (++quest_daily_idx < DynamicFields::Count)
                 SetDynamicValue(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS, quest_daily_idx++, quest_id);
 
+            if (uint32 questBit = GetQuestUniqueBitFlag(quest_id))
+                m_CompletedQuestBits.SetBit(questBit - 1);
+
             sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Daily quest (%u) cooldown for player (GUID: %u)", quest_id, GetGUIDLow());
         }
         while (result->NextRow());
@@ -21217,6 +21254,10 @@ void Player::_LoadWeeklyQuestStatus(PreparedQueryResult result)
                 continue;
 
             m_weeklyquests.insert(quest_id);
+
+            if (uint32 questBit = GetQuestUniqueBitFlag(quest_id))
+                m_CompletedQuestBits.SetBit(questBit - 1);
+
             sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Weekly quest {%u} cooldown for player (GUID: %u)", quest_id, GetGUIDLow());
         }
         while (result->NextRow());
@@ -21241,6 +21282,10 @@ void Player::_LoadSeasonalQuestStatus(PreparedQueryResult result)
                 continue;
 
             m_seasonalquests[event_id].insert(quest_id);
+
+            if (uint32 questBit = GetQuestUniqueBitFlag(quest_id))
+                m_CompletedQuestBits.SetBit(questBit - 1);
+
             sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Seasonal quest {%u} cooldown for player (GUID: %u)", quest_id, GetGUIDLow());
         }
         while (result->NextRow());
@@ -21264,6 +21309,10 @@ void Player::_LoadMonthlyQuestStatus(PreparedQueryResult result)
                 continue;
 
             m_monthlyquests.insert(quest_id);
+
+            if (uint32 questBit = GetQuestUniqueBitFlag(quest_id))
+                m_CompletedQuestBits.SetBit(questBit - 1);
+
             sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Monthly quest {%u} cooldown for player (GUID: %u)", quest_id, GetGUIDLow());
         }
         while (result->NextRow());
@@ -25940,14 +25989,12 @@ void Player::SendInitialPacketsBeforeAddToMap()
     GetSession()->SendPacket(&l_Data);
 
     l_Data.Initialize(SMSG_INITIAL_SETUP, 2062);
-    l_Data << uint32(2500);                                       ///< Completed Quest count
+    l_Data << uint32(QUESTS_COMPLETED_BITS_SIZE);                 ///< Completed Quest bit count
     l_Data << uint8(sWorld->getIntConfig(CONFIG_EXPANSION));      ///< Server Expansion Level
     l_Data << uint8(0);                                           ///< Server Expansion Tier
     l_Data << uint32(1135753200);                                 ///< Server Region ID
     l_Data << uint32(0);                                          ///< Raid origin
-
-    for (int l_I = 0; l_I < 2500; ++l_I)
-        l_Data << uint8(0);                                       ///< Quest completed bit
+    m_CompletedQuestBits.AppendToByteBuffer(&l_Data);
 
     GetSession()->SendPacket(&l_Data);
 
@@ -26456,14 +26503,38 @@ void Player::ResetDailyQuestStatus()
 {
     m_dailyQuestStorage.clear();
 
+    std::vector<uint32> l_Dailies = GetDynamicValues(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS);
+    if (!l_Dailies.empty())
+    {
+        std::vector<uint32> l_QuestBits;
+        for (uint32 questId : l_Dailies)
+        {
+            if (uint32 questBit = GetQuestUniqueBitFlag(questId))
+                l_QuestBits.push_back(questBit);
+        }
+
+        if (!l_QuestBits.empty())
+        {
+            WorldPacket l_Packet(SMSG_CLEAR_QUEST_COMPLETED_BITS, 8);
+
+            l_Packet << uint32(l_QuestBits.size());
+
+            for (uint32 l_QBit : l_QuestBits)
+                l_Packet << uint32(l_QBit);
+
+            SendDirectMessage(&l_Packet);
+        }
+    }
+
+    ClearDynamicValue(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS);
     m_DFQuests.clear(); // Dungeon Finder Quests.
 
     // DB data deleted in caller
     m_DailyQuestChanged = false;
     m_lastDailyQuestTime = 0;
 
-    WorldPacket data(SMSG_RESET_DAILY_QUEST);
-    data << uint32(0);      // unk
+    WorldPacket data(SMSG_DAILY_QUESTS_RESET);
+    data << uint32(l_Dailies.size());
     GetSession()->SendPacket(&data);
 }
 
@@ -26472,6 +26543,25 @@ void Player::ResetWeeklyQuestStatus()
     if (m_weeklyquests.empty())
         return;
 
+    std::vector<uint32> l_QuestBits;
+    for (uint32 questId : m_weeklyquests)
+    {
+        if (uint32 questBit = GetQuestUniqueBitFlag(questId))
+            l_QuestBits.push_back(questBit);
+    }
+
+    if (!l_QuestBits.empty())
+    {
+        WorldPacket l_Packet(SMSG_CLEAR_QUEST_COMPLETED_BITS, 8);
+
+        l_Packet << uint32(l_QuestBits.size());
+
+        for (uint32 l_QBit : l_QuestBits)
+            l_Packet << uint32(l_QBit);
+
+        SendDirectMessage(&l_Packet);
+    }
+
     m_weeklyquests.clear();
     // DB data deleted in caller
     m_WeeklyQuestChanged = false;
@@ -26479,10 +26569,33 @@ void Player::ResetWeeklyQuestStatus()
 
 void Player::ResetSeasonalQuestStatus(uint16 event_id)
 {
-    if (m_seasonalquests.empty() || m_seasonalquests[event_id].empty())
+    auto eventItr = m_seasonalquests.find(event_id);
+    if (eventItr == m_seasonalquests.end())
         return;
 
-    m_seasonalquests.erase(event_id);
+    if (eventItr->second.empty())
+        return;
+
+    std::vector<uint32> l_QuestBits;
+    for (uint32 questId : eventItr->second)
+    {
+        if (uint32 questBit = GetQuestUniqueBitFlag(questId))
+            l_QuestBits.push_back(questBit);
+    }
+
+    if (!l_QuestBits.empty())
+    {
+        WorldPacket l_Packet(SMSG_CLEAR_QUEST_COMPLETED_BITS, 8);
+
+        l_Packet << uint32(l_QuestBits.size());
+
+        for (uint32 l_QBit : l_QuestBits)
+            l_Packet << uint32(l_QBit);
+
+        SendDirectMessage(&l_Packet);
+    }
+
+    m_seasonalquests.erase(eventItr);
     // DB data deleted in caller
     m_SeasonalQuestChanged = false;
 }
@@ -26491,6 +26604,25 @@ void Player::ResetMonthlyQuestStatus()
 {
     if (m_monthlyquests.empty())
         return;
+
+    std::vector<uint32> l_QuestBits;
+    for (uint32 questId : m_monthlyquests)
+    {
+        if (uint32 questBit = GetQuestUniqueBitFlag(questId))
+            l_QuestBits.push_back(questBit);
+    }
+
+    if (!l_QuestBits.empty())
+    {
+        WorldPacket l_Packet(SMSG_CLEAR_QUEST_COMPLETED_BITS, 8);
+
+        l_Packet << uint32(l_QuestBits.size());
+
+        for (uint32 l_QBit : l_QuestBits)
+            l_Packet << uint32(l_QBit);
+
+        SendDirectMessage(&l_Packet);
+    }
 
     m_monthlyquests.clear();
     // DB data deleted in caller

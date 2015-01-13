@@ -818,15 +818,14 @@ enum Opcodes
         SMSG_QUEST_PUSH_RESULT                      = 0x1797,   ///< 6.0.3 19116
         SMSG_QUEST_POIQUERY_RESPONSE                = 0x1715,   ///< 6.0.3 19116
         SMSG_QUEST_LOG_FULL                         = 0x17E4,   ///< 6.0.3 19116
-        SMSG_SET_QUEST_COMPLETED_BIT                = 0x0000,
-        SMSG_CLEAR_QUEST_COMPLETED_BITS             = 0x0000,
-        SMSG_CLEAR_QUEST_COMPLETED_BIT              = 0x0000,
-        SMSG_DAILY_QUESTS_RESET                     = 0x0000,
+        SMSG_SET_QUEST_COMPLETED_BIT                = 0x15D3,   ///< 6.0.3 19116
+        SMSG_CLEAR_QUEST_COMPLETED_BITS             = 0x1D47,   ///< 6.0.3 19116
+        SMSG_CLEAR_QUEST_COMPLETED_BIT              = 0x1563,   ///< 6.0.3 19116
         SMSG_IS_QUEST_COMPLETE_RESPONSE             = 0x17E1,   ///< 6.0.3 19116
         SMSG_QUEST_FORCE_REMOVED                    = 0x1D13,   ///< 6.0.3 19116
         SMSG_QUEST_CONFIRM_ACCEPT                   = 0x15B2,   ///< 6.0.3 19116
         SMSG_QUEST_COMPLETION_NPCRESPONSE           = 0x1591,   ///< 6.0.3 19116
-        SMSG_RESET_DAILY_QUEST                      = 0x1514,   ///< 6.0.3 19116
+        SMSG_DAILY_QUESTS_RESET                     = 0x1514,   ///< 6.0.3 19116
 
         /// Quest giver
         SMSG_QUEST_GIVER_STATUS_MULTIPLE            = 0x17C6,   ///< 6.0.3 19116
@@ -1670,7 +1669,6 @@ enum Opcodes
     CMSG_PLAY_DANCE                                     = 0x0000,
     CMSG_PVP_LOG_DATA                                   = 0x0000,
     CMSG_QUERY_BATTLEFIELD_STATE                        = 0x0000,
-    CMSG_QUERY_QUESTS_COMPLETED                         = 0x0000,
     CMSG_QUERY_TIME                                     = 0x0000,
     CMSG_QUEST_NPC_QUERY                                = 0x0000,
     CMSG_RANDOMIZE_CHAR_NAME                            = 0x0000,
