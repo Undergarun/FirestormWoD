@@ -595,7 +595,7 @@ class npc_FrostwallPeon : public CreatureScript
                                     
                                         do 
                                         {
-                                            l_ThreeID  = urand(0, 7);
+                                            l_ThreeID  = rand() % 7;
                                         } while (me->GetInstanceScript()->GetData(GARRISON_INSTANCE_DATA_THREE_FIRST + l_ThreeID) >= 2);
 
                                         me->SetWalk(true);
@@ -629,7 +629,7 @@ class npc_FrostwallPeon : public CreatureScript
 
                                         do
                                         {
-                                            l_ThreeID = urand(0, 7);
+                                            l_ThreeID = rand() % 7;
                                         } while (me->GetInstanceScript()->GetData(GARRISON_INSTANCE_DATA_THREE_FIRST + l_ThreeID) >= 2 || l_ThreeID == m_ThreeID);
 
                                         me->SetWalk(true);
