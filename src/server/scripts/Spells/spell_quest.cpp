@@ -1898,7 +1898,7 @@ class spell_q12919_gymers_grab: public SpellScriptLoader
             }
         };
 
-        SpellScript* GetSpellScript()
+        SpellScript* GetSpellScript() const
         {
             return new spell_q12919_gymers_grab_SpellScript();
         }
@@ -1935,7 +1935,7 @@ class spell_q12919_gymers_throw: public SpellScriptLoader
             }
         };
 
-        SpellScript* GetSpellScript()
+        SpellScript* GetSpellScript() const
         {
             return new spell_q12919_gymers_throw_SpellScript();
         }
@@ -1989,7 +1989,7 @@ class spell_q13595_bottle_of_wildfire: public SpellScriptLoader
             {
                 if (GetCaster())
                     if (Player* caster = GetCaster()->ToPlayer())
-                        if (Creature* target = GetClosestCreatureWithEntry(caster, BATHRAN_S_CORPSE, 5.0f))
+                        if (GetClosestCreatureWithEntry(caster, BATHRAN_S_CORPSE, 5.0f))
                             caster->KilledMonsterCredit(BATHRAN_S_CORPSE, 0);
             }
 

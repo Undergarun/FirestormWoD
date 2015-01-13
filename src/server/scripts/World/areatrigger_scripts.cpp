@@ -794,7 +794,7 @@ public:
         }
     }
 
-    void OnRemove(AreaTrigger* p_AreaTrigger)
+    void OnRemove(AreaTrigger* p_AreaTrigger, uint32(p_time))
     {
         Unit* l_Caster = p_AreaTrigger->GetCaster();
         if (l_Caster && l_Caster->HasAura(116014))
@@ -875,7 +875,7 @@ public:
         }
     }
 
-    void OnRemove(AreaTrigger* p_AreaTrigger)
+    void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
     {
         std::list<Player*> playerList;
         p_AreaTrigger->GetPlayerListInGrid(playerList, 200.0f);
@@ -923,7 +923,7 @@ public:
         }
     }
 
-    void OnRemove(AreaTrigger* p_AreaTrigger)
+    void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
     {
         std::list<Player*> playerList;
         p_AreaTrigger->GetPlayerListInGrid(playerList, 100.0f);
@@ -1188,7 +1188,7 @@ public:
         }
     }
 
-    void OnRemove(AreaTrigger* p_AreaTrigger, uint32(p_time))
+    void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
     {
         std::list<Player*> playerList;
         p_AreaTrigger->GetPlayerListInGrid(playerList, 100.0f);
@@ -1214,9 +1214,9 @@ public:
         return new AreaTrigger_zen_sphere_1();
     }
 
-    void OnRemove(AreaTrigger* p_AreaTrigger, uint32(p_time))
+    void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
     {
-        if (int32(p_AreaTrigger->GetDuration()) - int32(p_time) > 0 || p_AreaTrigger->GetDuration() == 0)
+        if (int32(p_AreaTrigger->GetDuration()) - int32(p_Time) > 0 || p_AreaTrigger->GetDuration() == 0)
             return;
 
         if (!p_AreaTrigger->GetCaster())
@@ -1239,9 +1239,9 @@ public:
         return new AreaTrigger_zen_sphere_2();
     }
 
-    void OnRemove(AreaTrigger* p_AreaTrigger, uint32(p_time))
+    void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
     {
-        if (int32(p_AreaTrigger->GetDuration()) - int32(p_time) > 0 || p_AreaTrigger->GetDuration() == 0)
+        if (int32(p_AreaTrigger->GetDuration()) - int32(p_Time) > 0 || p_AreaTrigger->GetDuration() == 0)
             return;
 
         if (!p_AreaTrigger->GetCaster())

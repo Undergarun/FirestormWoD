@@ -39,7 +39,7 @@ enum
     ITEM_SHELLY_HAMBY_REPORT                        = 112730,
 };
 
-extern float gGarrisonCreationCoords[][4] =
+float gGarrisonCreationCoords[][4] =
 {
     { 1766.761475f,  191.2846830f,  72.115326f, 0.4649370f },   ///< TEAM_ALLIANCE
     { 5698.020020f, 4512.1635574f, 127.401695f, 2.8622720f }    ///< TEAM_HORDE

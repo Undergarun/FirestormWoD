@@ -275,8 +275,6 @@ class garrison_commandscript: public CommandScript
                 p_Handler->SetSentErrorMessage(true);
             }
 
-            const GarrBuildingEntry * l_Entry = sGarrBuildingStore.LookupEntry(l_Building.BuildingID);
-
             int32 l_ElemEntry = atoi(p_Args);
             float l_X = l_Player->GetPositionX();
             float l_Y = l_Player->GetPositionY();

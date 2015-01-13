@@ -196,6 +196,8 @@ public:
                             HandleGameObject(snowdriftEntranceGuid,  true);
                             break;
                         }
+                        default:
+                            break;
                     }
                     break;
                 }
@@ -230,6 +232,8 @@ public:
                             HandleGameObject(snowdriftExitGuid,     true);
                             HandleGameObject(shaEntranceGuid,       true);
                             break;
+                        default:
+                            break;
                     }
                     break;
                 }
@@ -247,6 +251,8 @@ public:
                         case DONE:
                             HandleGameObject(shaEntranceGuid,   true);
                             HandleGameObject(shaExitGuid,       true);
+                            break;
+                        default:
                             break;
                     }
                     break;

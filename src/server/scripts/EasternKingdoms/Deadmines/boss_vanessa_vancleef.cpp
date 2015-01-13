@@ -380,7 +380,7 @@ class npc_vanessa_vancleef_defias_enforcer : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
                 
-                if (uint32 eventId = events.ExecuteEvent())
+                //if (uint32 eventId = events.ExecuteEvent())
                 {
                     /*switch (eventId)
                     {
