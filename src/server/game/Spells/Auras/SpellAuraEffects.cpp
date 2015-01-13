@@ -3904,10 +3904,6 @@ void AuraEffect::HandleAuraModRoot(AuraApplication const* p_AurApp, uint8 p_Mode
     if (l_Target == nullptr)
         return;
 
-    // Earthgrab totem - Immunity
-    if (p_Apply && l_Target->HasAura(116946))
-        return;
-
     if (p_Apply)
     {
         switch (m_spellInfo->Id)
