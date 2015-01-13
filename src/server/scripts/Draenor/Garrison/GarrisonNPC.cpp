@@ -502,8 +502,11 @@ class npc_FrostwallPeon : public CreatureScript
                         if (    (me->GetWaypointPath() == PeonData::MOVE_PATH_FROSTWALL_A && p_ID == PeonData::MOVE_PATH_FROSTWALL_A_POINT_NEAR_HOME && m_Phase == PeonData::PHASE_BACK_TO_HOME)
                             ||  (me->GetWaypointPath() == PeonData::MOVE_PATH_FROSTWALL_B && p_ID == PeonData::MOVE_PATH_FROSTWALL_B_POINT_NEAR_HOME && m_Phase == PeonData::PHASE_BACK_TO_HOME))
                         {
-                            m_BackToSpawnPos = true;
-                            me->GetMotionMaster()->MovePoint(PeonData::MOVE_POINT_ID_HOME_POSITION, m_SpawnX, m_SpawnY, m_SpawnZ);
+                            m_DelayedOperations.push([this]() -> void
+                            {
+                                m_BackToSpawnPos = true;
+                                me->GetMotionMaster()->MovePoint(PeonData::MOVE_POINT_ID_HOME_POSITION, m_SpawnX, m_SpawnY, m_SpawnZ);
+                            });
                         }
                         else if (me->GetWaypointPath() == PeonData::MOVE_PATH_WOOD_CUTTING_A)
                         {
@@ -511,13 +514,16 @@ class npc_FrostwallPeon : public CreatureScript
                                 me->RemoveAura(PeonData::SPELL_GARRISON_ORC_MALE_CARRYNG_LUMBER);
                             else if (p_ID == PeonData::MOVE_PATH_WOOD_CUTTING_A_END)
                             {
-                                me->LoadPath(0);
-                                me->StopMoving();
-                                me->GetMotionMaster()->MoveIdle();
+                                m_DelayedOperations.push([this]() -> void
+                                {
+                                    me->LoadPath(0);
+                                    me->StopMoving();
+                                    me->GetMotionMaster()->MoveIdle();
 
-                                m_WoodCuttingCycleCount = 0;
-                                SetData(GARRISON_CREATURE_AI_DATA_PEON_WORKING, PeonData::PHASE_WOODCUTTING_DISENGAGE);
-                                m_WoodCuttingRemainingTime = 200;
+                                    m_WoodCuttingCycleCount = 0;
+                                    SetData(GARRISON_CREATURE_AI_DATA_PEON_WORKING, PeonData::PHASE_WOODCUTTING_DISENGAGE);
+                                    m_WoodCuttingRemainingTime = 200;
+                                });
                             }
                         }
                     }
@@ -525,20 +531,29 @@ class npc_FrostwallPeon : public CreatureScript
                     {
                         if (p_ID == PeonData::MOVE_POINT_ID_HOME_POSITION)
                         {
-                            me->SetFacingTo(m_SpawnO);
-                            me->AddAura(SPELL_COMESTIC_SLEEP, me);
+                            m_DelayedOperations.push([this]() -> void
+                            {
+                                me->SetFacingTo(m_SpawnO);
+                                me->AddAura(SPELL_COMESTIC_SLEEP, me);
+                            });
                         }
                         else if (p_ID >= PeonData::MOVE_POINT_ID_THREE_FIRST && p_ID <= PeonData::MOVE_POINT_ID_THREE_END)
                         {
-                            me->SetFacingTo(PeonData::FrostWallTreePos[p_ID - PeonData::MOVE_POINT_ID_THREE_FIRST][3]);
-                            me->LoadEquipment(1, true);
-                            me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_WORK);
+                            m_DelayedOperations.push([this, p_ID]() -> void
+                            {
+                                me->SetFacingTo(PeonData::FrostWallTreePos[p_ID - PeonData::MOVE_POINT_ID_THREE_FIRST][3]);
+                                me->LoadEquipment(1, true);
+                                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_WORK);
+                            });
                         }
                         else if (p_ID == PeonData::MOVE_POINT_ID_WOODCUTTING_DEPOSIT_A)
                         {
-                            me->LoadPath(PeonData::MOVE_PATH_WOOD_CUTTING_A);
-                            me->SetDefaultMovementType(WAYPOINT_MOTION_TYPE);
-                            me->GetMotionMaster()->Initialize();
+                            m_DelayedOperations.push([this]() -> void
+                            {
+                                me->LoadPath(PeonData::MOVE_PATH_WOOD_CUTTING_A);
+                                me->SetDefaultMovementType(WAYPOINT_MOTION_TYPE);
+                                me->GetMotionMaster()->Initialize();
+                            });
                         }
                     }
                 }
@@ -553,6 +568,12 @@ class npc_FrostwallPeon : public CreatureScript
                 }
                 else if (m_IsDynamicScript)
                 {
+                    while (!m_DelayedOperations.empty())
+                    {
+                        m_DelayedOperations.front()();
+                        m_DelayedOperations.pop();
+                    }
+
                     if (p_ID == GARRISON_CREATURE_AI_DATA_PEON_WORKING)
                     {
                         if (p_Value == 0)
@@ -654,6 +675,8 @@ class npc_FrostwallPeon : public CreatureScript
             bool m_BackToSpawnPos;
             bool m_IsDynamicScript;
             bool m_Initialised;
+
+            std::queue<std::function<void()>> m_DelayedOperations;
         };
 };
 
