@@ -568,7 +568,7 @@ bool Garrison::Load(PreparedQueryResult p_GarrisonResult, PreparedQueryResult p_
         m_MissionDistributionLastUpdate = 0;
 
         /// Fix bug in mission distribution TEMP CODE
-        uint32 l_MaxMissionCount            = ceil(m_Followers.size() * 2.5);
+        uint32 l_MaxMissionCount            = ceil(m_Followers.size() * GARRISON_MISSION_DISTRIB_FOLLOWER_COEFF);
         uint32 l_CurrentAvailableMission    = 0;
 
         std::for_each(m_Missions.begin(), m_Missions.end(), [&l_CurrentAvailableMission](const GarrisonMission & p_Mission) -> void
@@ -3163,7 +3163,7 @@ void Garrison::UpdateMissionDistribution()
     if ((time(0) - m_MissionDistributionLastUpdate) > GARRISON_MISSION_DISTRIB_INTERVAL)
     {
         /// Random, no detail about how blizzard do
-        uint32 l_MaxMissionCount = ceil(m_Followers.size() * 2.5);
+        uint32 l_MaxMissionCount = ceil(m_Followers.size() * GARRISON_MISSION_DISTRIB_FOLLOWER_COEFF);
         uint32 l_CurrentAvailableMission = 0;
 
         std::for_each(m_Missions.begin(), m_Missions.end(), [&l_CurrentAvailableMission](const GarrisonMission & p_Mission) -> void
