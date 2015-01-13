@@ -19,7 +19,7 @@ enum GarrisonMissionState
     GARRISON_MISSION_AVAILABLE              = 0,
     GARRISON_MISSION_IN_PROGRESS            = 1,
     GARRISON_MISSION_COMPLETE_SUCCESS       = 2,
-    GARRISON_MISSION_COMPLETE_FAILED        = 3,
+    GARRISON_MISSION_COMPLETE_FAILED        = 5,
 };
 
 enum GarrisonMissionFlag
@@ -95,16 +95,28 @@ enum GarrisonAbilityEffectTargetMask
     GARRISON_ABILITY_EFFECT_TARGET_MASK_PARTY = 1 << 1,
 };
 
-enum GarrisonWorldState
-{
-    GARRISON_WORLD_STATE_CACHE_NUM_TOKEN = 9573
-};
-
 enum GarrMechanicType
 {
     GARRISON_MECHANIC_TYPE_ENVIRONMENT  = 0,
     GARRISON_MECHANIC_TYPE_RACIAL       = 1,
     GARRISON_MECHANIC_TYPE_ABILITY      = 2,
+};
+
+/// WorldState : See WorldState.dbc
+enum GarrisonWorldState
+{
+    GARRISON_WORLD_STATE_CACHE_NUM_TOKEN = 9573
+};
+
+/// TerrainSwap : See WorldMapArea.dbc
+enum
+{
+    TERRAIN_SWAP_GARRISON_FF_HORDE_TIER_1     = 980,
+    TERRAIN_SWAP_GARRISON_FF_HORDE_TIER_2     = 990,
+    TERRAIN_SWAP_GARRISON_FF_HORDE_TIER_3     = 981,
+    TERRAIN_SWAP_GARRISON_SMV_ALLIANCE_TIER_1 = 973,
+    TERRAIN_SWAP_GARRISON_SMV_ALLIANCE_TIER_2 = 991,
+    TERRAIN_SWAP_GARRISON_SMV_ALLIANCE_TIER_3 = 974,
 };
 
 extern uint32 gGarrisonInGarrisonAreaID[GARRISON_FACTION_COUNT];
@@ -114,6 +126,7 @@ extern float gGarrisonBuildingPlotAABBDiminishReturnFactor[GARRISON_PLOT_TYPE_MA
 extern uint32 gGarrisonBuildingActivationGameObject[GARRISON_FACTION_COUNT];
 
 #define GARRISON_MAX_LEVEL                      3
+#define GARRISON_MAX_FOLLOWER_PER_MISSION       3
 #define GARRISON_BASE_MAP                       1116
 #define GARRISON_PLOT_INSTANCE_COUNT            40
 #define GARRISON_CURRENCY_ID                    824
@@ -125,11 +138,13 @@ extern uint32 gGarrisonBuildingActivationGameObject[GARRISON_FACTION_COUNT];
 #define GARRISON_CACHE_HEFTY_CURRENCY           200
 #define GARRISON_CACHE_MIN_CURRENCY             5
 #define GARRISON_CACHE_GENERATE_TICK            (10 * MINUTE)
-#define GARRISON_MISSION_DISTRIB_INTERVAL       (10 * MINUTE)
+#define GARRISON_MISSION_DISTRIB_INTERVAL       (25 * MINUTE)
+#define GARRISON_MISSION_DISTRIB_FOLLOWER_COEFF 1.5
 
 enum 
 {
-    GARRISON_CREATURE_AI_DATA_BUILDER = 10000
+    GARRISON_CREATURE_AI_DATA_BUILDER       = 10000,
+    GARRISON_CREATURE_AI_DATA_PEON_WORKING  = 10001
 };
 
 struct GarrisonPlotInstanceInfoLocation
@@ -221,6 +236,13 @@ struct GarrisonMissionReward
 
 class Player;
 
+enum GarrisonInstanceData
+{
+    GARRISON_INSTANCE_DATA_PEON_ENABLED = 99,
+    GARRISON_INSTANCE_DATA_THREE_FIRST  = 100,
+    GARRISON_INSTANCE_DATA_THREE_END    = 110,
+};
+
 class GarrisonInstanceScriptBase
 {
     public:
@@ -228,15 +250,14 @@ class GarrisonInstanceScriptBase
         virtual void OnQuestStarted(Player * p_Owner, const Quest * p_Quest) = 0;
         /// When the garrison owner reward a quest
         virtual void OnQuestReward(Player * p_Owner, const Quest * p_Quest) = 0;
+        /// When the garrison owner abandon a quest
+        virtual void OnQuestAbandon(Player * p_Owner, const Quest * p_Quest) = 0;
 
         /// Get phase mask
         virtual uint32 GetPhaseMask(Player * p_Owner) = 0;
 
         /// Owner can use the garrison cache ?
         virtual bool CanUseGarrisonCache(Player * p_Owner) = 0;
-
-        /// Get terrain swaps
-        virtual void GetTerrainSwaps(std::set<uint32> & p_TerrainSwaps) = 0;
 
         /// When a mission start
         virtual void OnMissionStart(uint32 p_MissionID, std::vector<uint32> p_Followers) = 0;
@@ -268,6 +289,9 @@ class Garrison
         /// Get garrison cache token count
         uint32 GetGarrisonCacheTokenCount();
 
+        /// Get terrain swaps
+        void GetTerrainSwaps(std::set<uint32> & p_TerrainSwaps);
+
         /// Get garrison script
         GarrisonInstanceScriptBase * GetGarrisonScript();
 
@@ -279,6 +303,8 @@ class Garrison
         void OnQuestStarted(const Quest * p_Quest);
         /// When the garrison owner reward a quest
         void OnQuestReward(const Quest * p_Quest);
+        /// When the garrison owner abandon a quest
+        void OnQuestAbandon(const Quest * p_Quest);
 
         /// set last used activation game object
         void SetLastUsedActivationGameObject(uint64 p_Guid);
@@ -310,7 +336,7 @@ class Garrison
         /// Start mission
         void StartMission(uint32 p_MissionRecID, std::vector<uint64> p_Followers);
         /// Send mission start failed packet
-        void StartMissionFailed();
+        void StartMissionFailed(uint32 p_MissionRecID, std::vector<uint64> p_Followers);
         /// Complete a mission
         void CompleteMission(uint32 p_MissionRecID);
         /// Do mission bonus roll

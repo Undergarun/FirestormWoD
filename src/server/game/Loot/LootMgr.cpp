@@ -1680,7 +1680,7 @@ void LootTemplate::LootGroup::Process(Loot& loot, uint16 lootMode) const
     }
 }
 
-void LootTemplate::FillAutoAssignationLoot(std::list<const ItemTemplate*>& p_ItemList, Player* p_Player /*= nullpltr*/) const
+void LootTemplate::FillAutoAssignationLoot(std::list<const ItemTemplate*>& p_ItemList, Player* p_Player /*= nullpltr*/, bool p_IsBGReward /*= false*/) const
 {
     for (LootStoreItemList::const_iterator l_Ia = Entries.begin(); l_Ia != Entries.end(); ++l_Ia)
     {
@@ -1690,7 +1690,7 @@ void LootTemplate::FillAutoAssignationLoot(std::list<const ItemTemplate*>& p_Ite
             {
                 if (ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_Ia->itemid))
                 {
-                    if (!l_ItemTemplate->HasSpec())
+                    if (!l_ItemTemplate->HasSpec() && !p_IsBGReward)
                         continue;
 
                     p_ItemList.push_back(l_ItemTemplate);

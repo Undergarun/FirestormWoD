@@ -931,22 +931,6 @@ void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPacket& /*recvPacket
     SendPacket(&data);
 }
 
-void WorldSession::HandleQueryQuestsCompleted(WorldPacket& /*recvData*/)
-{
-    size_t rew_count = m_Player->GetRewardedQuestCount();
-
-    const RewardedQuestSet &rewQuests = m_Player->getRewardedQuests();
-    for (RewardedQuestSet::const_iterator itr = rewQuests.begin(); itr != rewQuests.end(); ++itr)
-    {
-        WorldPacket data(SMSG_IS_QUEST_COMPLETE_RESPONSE, 5);
-        data << uint32(*itr);
-        data.WriteBit(1);
-        data.FlushBits();
-        SendPacket(&data);
-    }
-
-}
-
 void WorldSession::HandleQueryQuestCompletionNpcs(WorldPacket& p_RecvData)
 {
     uint32 l_QuestIDCount;

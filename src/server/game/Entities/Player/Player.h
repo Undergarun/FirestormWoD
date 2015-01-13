@@ -42,6 +42,7 @@
 #include "PhaseMgr.h"
 #include "CUFProfiles.h"
 #include "CinematicPathMgr.h"
+#include "BitSet.hpp"
 
 // for template
 #include "SpellMgr.h"
@@ -68,6 +69,7 @@ class PhaseMgr;
 class SceneObject;
 
 typedef std::deque<Mail*> PlayerMails;
+typedef std::set<uint32> DailyLootsCooldowns;
 
 #define PLAYER_MAX_SKILLS           128
 #define DEFAULT_MAX_PRIMARY_TRADE_SKILL 2
@@ -608,6 +610,9 @@ typedef std::set<uint32> RewardedQuestSet;
 //               quest,  keep
 typedef std::map<uint32, bool> QuestStatusSaveMap;
 
+// Size (in bytes) of client completed quests bit map
+#define QUESTS_COMPLETED_BITS_SIZE 2500
+
 enum QuestSlotOffsets
 {
     QUEST_ID_OFFSET     = 0,
@@ -946,6 +951,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_GARRISON_MISSIONS            = 48,
     PLAYER_LOGIN_QUERY_GARRISON_FOLLOWERS           = 49,
     PLAYER_LOGIN_QUERY_GARRISON_BUILDINGS           = 50,
+    PLAYER_LOGIN_QUERY_DAILY_LOOT_COOLDOWNS         = 51,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -1508,8 +1514,8 @@ class Player : public Unit, public GridObject<Player>
 
         PlayerTaxi m_taxi;
         void InitTaxiNodesForLevel() { m_taxi.InitTaxiNodesForLevel(getRace(), getClass(), getLevel()); }
-        bool ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc = NULL, uint32 spellid = 0);
-        bool ActivateTaxiPathTo(uint32 taxi_path_id, uint32 spellid = 0);
+        bool ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc = NULL, uint32 spellid = 0, bool p_Triggered = false);
+        bool ActivateTaxiPathTo(uint32 taxi_path_id, uint32 spellid = 0, bool p_Triggered = false);
         void CleanupAfterTaxiFlight();
         void ContinueTaxiFlight();
                                                             // mount_id can be used in scripting calls
@@ -1913,7 +1919,7 @@ class Player : public Unit, public GridObject<Player>
         void ReputationChangedQuestCheck(FactionEntry const* factionEntry);
         bool HasQuestForItem(uint32 itemid) const;
         bool HasQuestForGO(uint32 GOId) const;
-        bool hasQuest(uint32 p_QuestID) const;
+        bool HasQuest(uint32 p_QuestID) const;
         void UpdateForQuestWorldObjects();
         bool CanShareQuest(uint32 quest_id) const;
         void QuestObjectiveSatisfy(uint32 objectId, uint32 amount, uint8 type = 0u, uint64 guid = 0u);
@@ -3358,6 +3364,12 @@ class Player : public Unit, public GridObject<Player>
             MovieDelayedTeleportMutex.unlock();
         }
 
+        DailyLootsCooldowns m_DailyLootsCooldowns;
+        void _LoadDailyLootsCooldowns(PreparedQueryResult&& p_Result);
+        void ResetDailyLoots();
+        bool CanLoot(uint32 p_Entry) const { return m_DailyLootsCooldowns.find(p_Entry) == m_DailyLootsCooldowns.end(); }
+        void AddDailyLootCooldown(uint32 p_Entry);
+
     protected:
         void OnEnterPvPCombat();
         void OnLeavePvPCombat();
@@ -3668,6 +3680,8 @@ class Player : public Unit, public GridObject<Player>
 
         typedef std::set<uint32> DailyQuestList;
         DailyQuestList m_dailyQuestStorage;
+
+        MS::Utilities::BitSet m_CompletedQuestBits;
 
     private:
         // internal common parts for CanStore/StoreItem functions

@@ -154,7 +154,7 @@ public:
             me->SetReactState(REACT_PASSIVE);
         }
 
-        void EnterCombat()
+        void EnterCombat(Unit* /*enemy*/)
         {
             return;
         }
@@ -850,7 +850,7 @@ public:
 
                         if(timer == 25 && !lifeiGUID)
                         {
-                            if (lifei = me->SummonCreature(54856, 1130.162231f, 3435.905518f, 105.496597f, 0.0f,TEMPSUMMON_MANUAL_DESPAWN))
+                            if ((lifei = me->SummonCreature(54856, 1130.162231f, 3435.905518f, 105.496597f, 0.0f,TEMPSUMMON_MANUAL_DESPAWN)))
                             {
                                 lifeiGUID = lifei->GetGUID();
                                 lifei->MonsterSay("The way of the Tushui... enlightenment through patience and mediation... the principled life", LANG_UNIVERSAL, 0);
@@ -1551,7 +1551,7 @@ class npc_merchant_lorvo : public CreatureScript
                 hasSaid1 = false;
             }
 
-            void DoAction (uint8 action)
+            void DoAction (int32 const action)
             {
                 switch (action)
                 {
@@ -1607,7 +1607,7 @@ class mob_ji_firepaw : public CreatureScript
                 hasSaid1 = false;
             }
 
-            void DoAction (uint8 action)
+            void DoAction (int32 const action)
             {
                 switch (action)
                 {
@@ -1661,7 +1661,7 @@ class mob_huojin_monk : public CreatureScript
                 hasSaid1 = false;
             }
 
-            void DoAction (uint8 action)
+            void DoAction (int32 const action)
             {
                 if (action == ACTION_TALK)
                 {
@@ -1711,7 +1711,7 @@ class mob_chia_hui_autumnleaf : public CreatureScript
                 hasSaid1 = false;
             }
 
-            void DoAction (uint8 action)
+            void DoAction (int32 const action)
             {
                 switch (action)
                 {
@@ -1765,7 +1765,7 @@ class mob_brewer_lin : public CreatureScript
                 hasSaid1 = false;
             }
 
-            void DoAction (uint8 action)
+            void DoAction(int32 const action)
             {
                 switch (action)
                 {

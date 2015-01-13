@@ -458,33 +458,96 @@ bool Garrison::Load(PreparedQueryResult p_GarrisonResult, PreparedQueryResult p_
         if (!GetGarrisonSiteLevelEntry())
             return false;
 
-        /// @TODO find crash
-        ///m_Missions.erase(std::remove_if(m_Missions.begin(), m_Missions.end(), [this](const GarrisonMission & p_Mission) -> bool
-        ///{
-        ///    if (p_Mission.State != GARRISON_MISSION_IN_PROGRESS)
-        ///        return false;
-        ///
-        ///    uint32 l_FollowerCount = std::count_if(m_Followers.begin(), m_Followers.end(), [p_Mission](const GarrisonFollower & p_Follower) -> bool
-        ///    {
-        ///        if (p_Follower.CurrentMissionID == p_Mission.MissionID)
-        ///            return true;
-        ///
-        ///        return false;
-        ///    });
-        ///
-        ///    if (l_FollowerCount == 0)
-        ///        return true;
-        ///
-        ///    const GarrMissionEntry * l_MissionTemplate = sGarrMissionStore.LookupEntry(p_Mission.MissionID);
-        ///
-        ///    if (!l_MissionTemplate)
-        ///        return true;
-        ///
-        ///    if (l_MissionTemplate->RequiredFollowersCount != l_FollowerCount)
-        ///        return true;
-        ///
-        ///    return false;
-        ///}));
+        /// Remove doubloon mission
+        std::map<uint32, uint32> l_MissionToRemoveCount;
+        for (uint32 l_I = 0; l_I < m_Missions.size(); ++l_I)
+        {
+            GarrisonMission & l_Mission = m_Missions[l_I];
+
+            uint32 l_Count = std::count_if(m_Missions.begin(), m_Missions.end(), [l_Mission](const GarrisonMission & p_Mission)
+            {
+                return p_Mission.MissionID == l_Mission.MissionID;
+            });
+
+            l_MissionToRemoveCount[l_Mission.MissionID] = l_Count - 1;
+        }
+
+        std::vector<uint64> l_MissionToRemove;
+        for (uint32 l_I = 0; l_I < m_Missions.size(); ++l_I)
+        {
+            GarrisonMission & l_Mission = m_Missions[l_I];
+
+            if (l_MissionToRemoveCount[l_Mission.MissionID] > 0)
+            {
+                l_MissionToRemove.push_back(l_Mission.DB_ID);
+                l_MissionToRemoveCount[l_Mission.MissionID]--;
+            }
+        }
+
+        for (uint64 l_MissionBD_ID : l_MissionToRemove)
+        {
+            auto l_It = std::find_if(m_Missions.begin(), m_Missions.end(), [l_MissionBD_ID](const GarrisonMission & p_Mission)
+            {
+                return p_Mission.DB_ID == l_MissionBD_ID;
+            });
+
+            if (l_It != m_Missions.end())
+            {
+                PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GARRISON_MISSION);
+                l_Stmt->setUInt32(0, l_MissionBD_ID);
+
+                CharacterDatabase.AsyncQuery(l_Stmt);
+
+                m_Missions.erase(l_It);
+            }
+        }
+
+        l_MissionToRemove.clear();
+
+        for (uint32 l_I = 0; l_I < m_Missions.size(); ++l_I)
+        {
+            GarrisonMission & l_Mission = m_Missions[l_I];
+
+            if (l_Mission.State != GARRISON_MISSION_IN_PROGRESS)
+                continue;
+
+            uint32 l_FollowerCount = std::count_if(m_Followers.begin(), m_Followers.end(), [l_Mission](const GarrisonFollower & p_Follower) -> bool
+            {
+                if (p_Follower.CurrentMissionID == l_Mission.MissionID)
+                    return true;
+
+                return false;
+            });
+
+            if (l_FollowerCount == 0)
+            {
+                l_MissionToRemove.push_back(l_Mission.DB_ID);
+                continue;
+            }
+
+            const GarrMissionEntry * l_MissionTemplate = sGarrMissionStore.LookupEntry(l_Mission.MissionID);
+
+            if (!l_MissionTemplate || l_MissionTemplate->RequiredFollowersCount != l_FollowerCount)
+                l_MissionToRemove.push_back(l_Mission.DB_ID);
+        }
+
+        for (uint64 l_MissionBD_ID : l_MissionToRemove)
+        {
+            auto l_It = std::find_if(m_Missions.begin(), m_Missions.end(), [l_MissionBD_ID](const GarrisonMission & p_Mission)
+            {
+                return p_Mission.DB_ID == l_MissionBD_ID;
+            });
+
+            if (l_It != m_Missions.end())
+            {
+                PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GARRISON_MISSION);
+                l_Stmt->setUInt32(0, l_MissionBD_ID);
+
+                CharacterDatabase.AsyncQuery(l_Stmt);
+
+                m_Missions.erase(l_It);
+            }
+        }
 
         std::vector<uint32> l_FollowerQuests = sObjectMgr->FollowerQuests;
 
@@ -505,7 +568,7 @@ bool Garrison::Load(PreparedQueryResult p_GarrisonResult, PreparedQueryResult p_
         m_MissionDistributionLastUpdate = 0;
 
         /// Fix bug in mission distribution TEMP CODE
-        uint32 l_MaxMissionCount            = ceil(m_Followers.size() * 2.5);
+        uint32 l_MaxMissionCount            = ceil(m_Followers.size() * GARRISON_MISSION_DISTRIB_FOLLOWER_COEFF);
         uint32 l_CurrentAvailableMission    = 0;
 
         std::for_each(m_Missions.begin(), m_Missions.end(), [&l_CurrentAvailableMission](const GarrisonMission & p_Mission) -> void
@@ -522,7 +585,7 @@ bool Garrison::Load(PreparedQueryResult p_GarrisonResult, PreparedQueryResult p_
                     return true;
 
                 return false;
-            }));
+            }), m_Missions.end());
         }
 
         /// Unstuck follower
@@ -720,6 +783,51 @@ uint32 Garrison::GetGarrisonCacheTokenCount()
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
+/// Get terrain swaps
+void Garrison::GetTerrainSwaps(std::set<uint32> & p_TerrainSwaps)
+{
+    if (!GetGarrisonSiteLevelEntry())
+        return;
+
+    if (GetGarrisonFactionIndex() == GARRISON_FACTION_HORDE)
+    {
+        switch (GetGarrisonSiteLevelEntry()->Level)
+        {
+            case 1:
+                p_TerrainSwaps.emplace(TERRAIN_SWAP_GARRISON_FF_HORDE_TIER_1);
+                break;
+
+            case 2:
+                p_TerrainSwaps.emplace(TERRAIN_SWAP_GARRISON_FF_HORDE_TIER_2);
+                break;
+
+            case 3:
+                p_TerrainSwaps.emplace(TERRAIN_SWAP_GARRISON_FF_HORDE_TIER_3);
+                break;
+        }
+    }
+    else
+    {
+        switch (GetGarrisonSiteLevelEntry()->Level)
+        {
+            case 1:
+                p_TerrainSwaps.emplace(TERRAIN_SWAP_GARRISON_SMV_ALLIANCE_TIER_1);
+                break;
+
+            case 2:
+                p_TerrainSwaps.emplace(TERRAIN_SWAP_GARRISON_SMV_ALLIANCE_TIER_2);
+                break;
+
+            case 3:
+                p_TerrainSwaps.emplace(TERRAIN_SWAP_GARRISON_SMV_ALLIANCE_TIER_3);
+                break;
+        }
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
 /// Get garrison script
 GarrisonInstanceScriptBase * Garrison::GetGarrisonScript()
 {
@@ -800,6 +908,19 @@ void Garrison::OnQuestReward(const Quest * p_Quest)
     {
         /// Broadcast event
         l_GarrisonScript->OnQuestReward(m_Owner, p_Quest);
+        /// Update phasing
+        m_Owner->SetPhaseMask(l_GarrisonScript->GetPhaseMask(m_Owner), true);
+    }
+}
+/// When the garrison owner abandon a quest
+void Garrison::OnQuestAbandon(const Quest * p_Quest)
+{
+    GarrisonInstanceScriptBase * l_GarrisonScript = GetGarrisonScript();
+
+    if (l_GarrisonScript)
+    {
+        /// Broadcast event
+        l_GarrisonScript->OnQuestAbandon(m_Owner, p_Quest);
         /// Update phasing
         m_Owner->SetPhaseMask(l_GarrisonScript->GetPhaseMask(m_Owner), true);
     }
@@ -933,7 +1054,12 @@ bool Garrison::AddMission(uint32 p_MissionRecID)
     if (!l_MissionEntry)
         return false;
 
-    if (HaveMission(p_MissionRecID))
+    uint32 l_Count = std::count_if(m_Missions.begin(), m_Missions.end(), [p_MissionRecID](const GarrisonMission & p_Mission)
+    {
+        return p_Mission.MissionID == p_MissionRecID;
+    });
+
+    if (l_Count)
         return false;
 
     if (l_MissionEntry->RequiredLevel > (int32)m_Owner->getLevel())
@@ -1000,7 +1126,7 @@ void Garrison::StartMission(uint32 p_MissionRecID, std::vector<uint64> p_Followe
 {
     if (!HaveMission(p_MissionRecID))
     {
-        StartMissionFailed();
+        StartMissionFailed(p_MissionRecID, p_Followers);
         return;
     }
 
@@ -1011,13 +1137,13 @@ void Garrison::StartMission(uint32 p_MissionRecID, std::vector<uint64> p_Followe
 
     if (!m_Owner->HasCurrency(GARRISON_CURRENCY_ID, l_MissionTemplate->GarrisonCurrencyStartCost))
     {
-        StartMissionFailed();
+        StartMissionFailed(p_MissionRecID, p_Followers);
         return;
     }
 
     if (p_Followers.size() < l_MissionTemplate->RequiredFollowersCount)
     {
-        StartMissionFailed();
+        StartMissionFailed(p_MissionRecID, p_Followers);
         return;
     }
 
@@ -1033,13 +1159,13 @@ void Garrison::StartMission(uint32 p_MissionRecID, std::vector<uint64> p_Followe
 
         if (l_It == m_Followers.end())
         {
-            StartMissionFailed();
+            StartMissionFailed(p_MissionRecID, p_Followers);
             return;
         }
 
         if (l_It->CurrentBuildingID != 0 || l_It->CurrentMissionID != 0)
         {
-            StartMissionFailed();
+            StartMissionFailed(p_MissionRecID, p_Followers);
             return;
         }
 
@@ -1051,7 +1177,7 @@ void Garrison::StartMission(uint32 p_MissionRecID, std::vector<uint64> p_Followe
 
         if ((int32)l_FollowerItemLevel < l_MissionTemplate->RequiredItemLevel)
         {
-            StartMissionFailed();
+            StartMissionFailed(p_MissionRecID, p_Followers);
             return;
         }
     }
@@ -1117,22 +1243,51 @@ void Garrison::StartMission(uint32 p_MissionRecID, std::vector<uint64> p_Followe
     }
 }
 /// Send mission start failed packet
-void Garrison::StartMissionFailed()
+void Garrison::StartMissionFailed(uint32 p_MissionRecID, std::vector<uint64> p_Followers)
 {
     WorldPacket l_Data(SMSG_GARRISON_START_MISSION_RESULT, 200);
     l_Data << uint32(1);    ///< Result (0 = OK, 1 = failed)
 
-    /// Mission details
-    l_Data << uint64(0);
-    l_Data << uint32(0);
-    l_Data << uint32(0);
-    l_Data << uint32(0);
-    l_Data << uint32(0);
-    l_Data << uint32(0);
-    l_Data << uint32(0);
-    l_Data << uint32(0);
+    const GarrMissionEntry * l_MissionTemplate = sGarrMissionStore.LookupEntry(p_MissionRecID);
+    GarrisonMission * l_Mission = nullptr;
 
-    l_Data << uint32(0);    ///< Follower count
+    for (uint32 l_I = 0; l_I < m_Missions.size(); ++l_I)
+    {
+        if (m_Missions[l_I].MissionID == p_MissionRecID)
+        {
+            l_Mission = &m_Missions[l_I];
+            break;
+        }
+    }
+
+    if (l_Mission)
+    {
+        l_Data << uint64(l_Mission->DB_ID);
+        l_Data << uint32(l_Mission->MissionID);
+        l_Data << uint32(l_Mission->OfferTime);
+        l_Data << uint32(l_Mission->OfferMaxDuration);
+        l_Data << uint32(l_Mission->StartTime);
+        l_Data << uint32(0);
+        l_Data << uint32(l_MissionTemplate->Duration);
+        l_Data << uint32(l_Mission->State);
+
+        l_Data << uint32(p_Followers.size());
+    }
+    else
+    {
+        /// Mission details
+        l_Data << uint64(0);
+        l_Data << uint32(0);
+        l_Data << uint32(0);
+        l_Data << uint32(0);
+        l_Data << uint32(0);
+        l_Data << uint32(0);
+        l_Data << uint32(0);
+        l_Data << uint32(0);
+    }
+
+    for (uint32 l_I = 0; l_I < p_Followers.size(); ++l_I)
+        l_Data << uint64(p_Followers[l_I]);
 
     m_Owner->SendDirectMessage(&l_Data);
 }
@@ -1169,8 +1324,8 @@ void Garrison::CompleteMission(uint32 p_MissionRecID)
 
     uint32 l_ChestChance = GetMissionSuccessChance(p_MissionRecID);
 
-    bool l_CanComplete = true;
     bool l_Succeeded   = roll_chance_i(l_ChestChance);  ///< Seems to be MissionChance
+    bool l_CanComplete = true;
 
     l_Mission->State = l_Succeeded ? GARRISON_MISSION_COMPLETE_SUCCESS : GARRISON_MISSION_COMPLETE_FAILED;
 
@@ -3008,7 +3163,7 @@ void Garrison::UpdateMissionDistribution()
     if ((time(0) - m_MissionDistributionLastUpdate) > GARRISON_MISSION_DISTRIB_INTERVAL)
     {
         /// Random, no detail about how blizzard do
-        uint32 l_MaxMissionCount = ceil(m_Followers.size() * 2.5);
+        uint32 l_MaxMissionCount = ceil(m_Followers.size() * GARRISON_MISSION_DISTRIB_FOLLOWER_COEFF);
         uint32 l_CurrentAvailableMission = 0;
 
         std::for_each(m_Missions.begin(), m_Missions.end(), [&l_CurrentAvailableMission](const GarrisonMission & p_Mission) -> void
@@ -3037,13 +3192,21 @@ void Garrison::UpdateMissionDistribution()
                 if (!l_Entry)
                     continue;
 
-                if (HaveMission(l_Entry->MissionRecID))
+                uint32 l_Count = std::count_if(m_Missions.begin(), m_Missions.end(), [l_I](const GarrisonMission & p_Mission)
+                {
+                    return p_Mission.MissionID == l_I;
+                });
+
+                if (l_Count)
                     continue;
 
                 if (l_Entry->RequiredFollowersCount > m_Followers.size())
                     continue;
 
                 if (l_Entry->Duration <= 10)
+                    continue;
+
+                if (l_Entry->RequiredFollowersCount > GARRISON_MAX_FOLLOWER_PER_MISSION)
                     continue;
 
                 /// Max Level cap : 2

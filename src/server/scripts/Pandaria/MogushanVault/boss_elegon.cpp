@@ -1678,11 +1678,11 @@ class go_celestial_control_console : public GameObjectScript
     public:
         go_celestial_control_console() : GameObjectScript("go_celestial_control_console") { }
 
-        void OnGameObjectStateChanged(GameObject* go, uint32 state)
+        void OnGameObjectStateChanged(const GameObject* go, uint32 state)
         {
             std::list<Player*> playerList;
             playerList.clear();
-            GetPlayerListInGrid(playerList, go, 10.0f);
+            GetPlayerListInGrid(playerList, (GameObject*)go, 10.0f);
 
             if (!playerList.empty())
             {

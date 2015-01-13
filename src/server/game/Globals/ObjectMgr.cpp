@@ -2966,6 +2966,7 @@ void ObjectMgr::LoadItemTemplateCorrections()
             case 120355: //Silver Strongbox A
             case 120356: //Bronze Strongbox A
             case 120353: //Steel Strongbox A
+            case 118065: ///< Gleaming Ashmaul Strongbox (A)
                 l_ItemTemplate.Flags2 |= ITEM_FLAGS_EXTRA_ALLIANCE_ONLY;
                 l_ItemTemplate.RequiredLevel = 100;
                 break;
@@ -2973,6 +2974,7 @@ void ObjectMgr::LoadItemTemplateCorrections()
             case 111599: //Silver strongbox H
             case 111600: //Bronze Strongbox H
             case 119330: //Steel StrongBox H
+            case 120151: ///< Gleaming Ashmaul Strongbox (H)
                 l_ItemTemplate.Flags2 |= ITEM_FLAGS_EXTRA_HORDE_ONLY;
                 l_ItemTemplate.RequiredLevel = 100;
                 break;

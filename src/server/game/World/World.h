@@ -551,6 +551,7 @@ enum WorldStates
     WS_BG_DAILY_RESET_TIME      = 20003,                     // Next daily BG reset time
     WS_MONTHLY_QUEST_RESET_TIME = 20004,                     // Next monthly reset time
     WS_AUTO_SERVER_RESTART_TIME = 20005,                     // Next server restart time
+    WS_DAILY_LOOT_RESET_TIME    = 20006                      // Next daily loot reset time
 };
 
 // DB scripting commands
@@ -889,6 +890,7 @@ class World
         uint32 GetRecordDiff(RecordDiffType recordDiff) { return m_recordDiff[recordDiff]; }
 
         void ResetCurrencyWeekCap();
+        void ResetDailyLoots();
 
         std::map<Object*, bool> deleteUnits;
         bool isDelete(Object* obj)
@@ -909,6 +911,7 @@ class World
         void InitRandomBGResetTime();
         void InitServerAutoRestartTime();
         void InitCurrencyResetTime();
+        void InitDailyLootResetTime();
         void ResetDailyQuests();
         void ResetWeeklyQuests();
         void ResetMonthlyQuests();
@@ -978,6 +981,7 @@ class World
         time_t m_NextMonthlyQuestReset;
         time_t m_NextRandomBGReset;
         time_t m_NextCurrencyReset;
+        time_t m_NextDailyLootReset;
         time_t m_NextServerRestart;
 
         //Player Queue

@@ -1345,7 +1345,7 @@ class mob_feed_pool : public CreatureScript
                 m_Events.ScheduleEvent(EVENT_FEEDPOOL_CHECK_PLAYERS, 500);
             }
 
-            void DoAction(const uint32 p_Action)
+            void DoAction(int32 const p_Action)
             {
                 switch (p_Action)
                 {
