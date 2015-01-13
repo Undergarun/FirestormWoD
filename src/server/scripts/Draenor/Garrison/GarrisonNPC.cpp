@@ -467,6 +467,12 @@ class npc_FrostwallPeon : public CreatureScript
                         m_Initialised = true;
                     }
 
+                    while (!m_DelayedOperations.empty())
+                    {
+                        m_DelayedOperations.front()();
+                        m_DelayedOperations.pop();
+                    }
+
                     switch (m_Phase)
                     {
                         case PeonData::PHASE_WOODCUTTING:
@@ -568,12 +574,6 @@ class npc_FrostwallPeon : public CreatureScript
                 }
                 else if (m_IsDynamicScript)
                 {
-                    while (!m_DelayedOperations.empty())
-                    {
-                        m_DelayedOperations.front()();
-                        m_DelayedOperations.pop();
-                    }
-
                     if (p_ID == GARRISON_CREATURE_AI_DATA_PEON_WORKING)
                     {
                         if (p_Value == 0)
