@@ -5,6 +5,8 @@
 #include "Spell.h"
 #include "Garrison.h"
 
+#include <random>
+
 enum 
 {
     SPELL_LEFT_ROPE                                 = 164400,
@@ -441,6 +443,7 @@ class npc_FrostwallPeon : public CreatureScript
                 m_LastTalkTimer         = time(0) - (m_TalkInterval / 2);
                 m_WoodCuttingCycleCount = 0;
                 m_Initialised           = false;
+                m_ThreeID               = -1;
 
                 if (m_IsDynamicScript && me->GetInstanceScript()->GetData(GARRISON_INSTANCE_DATA_PEON_ENABLED))
                     SetData(GARRISON_CREATURE_AI_DATA_PEON_WORKING, PeonData::PHASE_WOODCUTTING);
@@ -526,7 +529,7 @@ class npc_FrostwallPeon : public CreatureScript
                                     me->StopMoving();
                                     me->GetMotionMaster()->MoveIdle();
 
-                                    m_WoodCuttingCycleCount = 0;
+                                    m_WoodCuttingCycleCount = -1;
                                     SetData(GARRISON_CREATURE_AI_DATA_PEON_WORKING, PeonData::PHASE_WOODCUTTING_DISENGAGE);
                                     m_WoodCuttingRemainingTime = 200;
                                 });
@@ -591,15 +594,10 @@ class npc_FrostwallPeon : public CreatureScript
                             {
                                 case PeonData::PHASE_WOODCUTTING:
                                     {
-                                        uint32 l_ThreeID;
-                                    
-                                        do 
-                                        {
-                                            l_ThreeID  = rand() % 7;
-                                        } while (me->GetInstanceScript()->GetData(GARRISON_INSTANCE_DATA_THREE_FIRST + l_ThreeID) >= 2);
+                                        uint32 l_ThreeID = SelectRandomTree();
 
                                         me->SetWalk(true);
-                                        me->GetInstanceScript()->SetData(GARRISON_INSTANCE_DATA_THREE_FIRST + l_ThreeID, me->GetInstanceScript()->GetData(GARRISON_INSTANCE_DATA_THREE_FIRST) + 1);
+                                        me->GetInstanceScript()->SetData(GARRISON_INSTANCE_DATA_THREE_FIRST + l_ThreeID, 1);
                                         me->GetMotionMaster()->MovePoint(PeonData::MOVE_POINT_ID_THREE_FIRST + l_ThreeID,   PeonData::FrostWallTreePos[l_ThreeID][0],
                                                                                                                             PeonData::FrostWallTreePos[l_ThreeID][1],
                                                                                                                             PeonData::FrostWallTreePos[l_ThreeID][2]);
@@ -613,27 +611,24 @@ class npc_FrostwallPeon : public CreatureScript
                                     {
                                         me->LoadEquipment(0, true);
                                         me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_ONESHOT_NONE);
-                                        me->GetInstanceScript()->SetData(GARRISON_INSTANCE_DATA_THREE_FIRST + m_ThreeID, me->GetInstanceScript()->GetData(GARRISON_INSTANCE_DATA_THREE_FIRST) - 1);
+                                        me->GetInstanceScript()->SetData(GARRISON_INSTANCE_DATA_THREE_FIRST + m_ThreeID, 0);
                                         me->SetFacingTo(me->GetOrientation() + M_PI);
 
                                         m_WoodCuttingRemainingTime = PeonData::WOODCUTTING_DISENGAGE_TIME;
 
                                         if (m_WoodCuttingCycleCount >= PeonData::WOODCUTTING_MAX_CYLE_COUNT)
                                             m_WoodCuttingRemainingTime += urand(0, 1500);
+
+                                        m_ThreeID = -1;
                                     }
                                     break;
 
                                 case PeonData::PHASE_WOODCUTTING_REENGAGE:
                                     {
-                                        uint32 l_ThreeID;
-
-                                        do
-                                        {
-                                            l_ThreeID = rand() % 7;
-                                        } while (me->GetInstanceScript()->GetData(GARRISON_INSTANCE_DATA_THREE_FIRST + l_ThreeID) >= 2 || l_ThreeID == m_ThreeID);
+                                        uint32 l_ThreeID = SelectRandomTree();
 
                                         me->SetWalk(true);
-                                        me->GetInstanceScript()->SetData(GARRISON_INSTANCE_DATA_THREE_FIRST + l_ThreeID, me->GetInstanceScript()->GetData(GARRISON_INSTANCE_DATA_THREE_FIRST) + 1);
+                                        me->GetInstanceScript()->SetData(GARRISON_INSTANCE_DATA_THREE_FIRST + l_ThreeID, 1);
                                         me->GetMotionMaster()->MovePoint(PeonData::MOVE_POINT_ID_THREE_FIRST + l_ThreeID,   PeonData::FrostWallTreePos[l_ThreeID][0],
                                                                                                                             PeonData::FrostWallTreePos[l_ThreeID][1],
                                                                                                                             PeonData::FrostWallTreePos[l_ThreeID][2]);
@@ -663,10 +658,34 @@ class npc_FrostwallPeon : public CreatureScript
                 }
             }
 
+            uint32 SelectRandomTree()
+            {
+                std::vector<uint32> l_Candidates;
+
+                for (uint32 l_I = 0; l_I < 7; l_I++)
+                {
+                    if (l_I == m_ThreeID)
+                        continue;
+
+                    if (me->GetInstanceScript()->GetData(GARRISON_INSTANCE_DATA_THREE_FIRST + l_I))
+                        continue;
+
+                    l_Candidates.push_back(l_I);
+                }
+
+                if (!l_Candidates.size())
+                    return urand(0, 7);
+
+                auto l_Seed = std::chrono::system_clock::now().time_since_epoch().count();
+                std::shuffle(l_Candidates.begin(), l_Candidates.end(), std::default_random_engine(l_Seed));
+
+                return l_Candidates[0];
+            }
+
             uint32 m_LastTalkTimer;
             uint32 m_TalkInterval;
             uint32 m_Phase;
-            uint32 m_ThreeID;
+            int32 m_ThreeID;
 
             int32 m_WoodCuttingRemainingTime;
             int32 m_WoodCuttingCycleCount;
