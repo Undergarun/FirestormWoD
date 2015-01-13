@@ -1990,9 +1990,42 @@ public:
     }
 };
 
+// Call by Chain Heal - 1064, Riptide - 61295
+// Tidal Waves - 51564
+class spell_sha_tidal_waves : public SpellScriptLoader
+{
+public:
+    spell_sha_tidal_waves() : SpellScriptLoader("spell_sha_tidal_waves") { }
+
+    class spell_sha_tidal_waves_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_sha_tidal_waves_SpellScript);
+
+        void HandleAfterCast()
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (l_Caster->HasAura(SPELL_SHA_TIDAL_WAVES))
+                    l_Caster->CastSpell(l_Caster, SPELL_SHA_TIDAL_WAVES_PROC, true);
+            }
+        }
+
+        void Register()
+        {
+            AfterCast += SpellCastFn(spell_sha_tidal_waves_SpellScript::HandleAfterCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_sha_tidal_waves_SpellScript();
+    }
+};
+
 
 void AddSC_shaman_spell_scripts()
 {
+    new spell_sha_tidal_waves();
     new spell_sha_unleash_elements();
     new spell_sha_totemic_projection();
     new spell_sha_hex();
