@@ -68,6 +68,7 @@ class PhaseMgr;
 class SceneObject;
 
 typedef std::deque<Mail*> PlayerMails;
+typedef std::set<uint32> DailyLootsCooldowns;
 
 #define PLAYER_MAX_SKILLS           128
 #define DEFAULT_MAX_PRIMARY_TRADE_SKILL 2
@@ -946,6 +947,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_GARRISON_MISSIONS            = 48,
     PLAYER_LOGIN_QUERY_GARRISON_FOLLOWERS           = 49,
     PLAYER_LOGIN_QUERY_GARRISON_BUILDINGS           = 50,
+    PLAYER_LOGIN_QUERY_DAILY_LOOT_COOLDOWNS         = 51,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -1508,8 +1510,8 @@ class Player : public Unit, public GridObject<Player>
 
         PlayerTaxi m_taxi;
         void InitTaxiNodesForLevel() { m_taxi.InitTaxiNodesForLevel(getRace(), getClass(), getLevel()); }
-        bool ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc = NULL, uint32 spellid = 0);
-        bool ActivateTaxiPathTo(uint32 taxi_path_id, uint32 spellid = 0);
+        bool ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc = NULL, uint32 spellid = 0, bool p_Triggered = false);
+        bool ActivateTaxiPathTo(uint32 taxi_path_id, uint32 spellid = 0, bool p_Triggered = false);
         void CleanupAfterTaxiFlight();
         void ContinueTaxiFlight();
                                                             // mount_id can be used in scripting calls
@@ -3357,6 +3359,12 @@ class Player : public Unit, public GridObject<Player>
             MovieDelayedTeleports.push_back(l_Data);
             MovieDelayedTeleportMutex.unlock();
         }
+
+        DailyLootsCooldowns m_DailyLootsCooldowns;
+        void _LoadDailyLootsCooldowns(PreparedQueryResult&& p_Result);
+        void ResetDailyLoots();
+        bool CanLoot(uint32 p_Entry) const { return m_DailyLootsCooldowns.find(p_Entry) == m_DailyLootsCooldowns.end(); }
+        void AddDailyLootCooldown(uint32 p_Entry);
 
     protected:
         void OnEnterPvPCombat();

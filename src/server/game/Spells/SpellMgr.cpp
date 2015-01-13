@@ -3463,7 +3463,12 @@ void SpellMgr::LoadSpellCustomAttr()
             case 157154:// High tide fix temp !!!
                 spellInfo->Effects[0].BasePoints = 0;
                 break;
-            case 157174: // Elemental Fusion
+            case 178531:///< Alliance Reward (but for Horde)
+                spellInfo->Effects[0].TargetA = TARGET_SRC_CASTER;
+                spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ALLY;
+                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(27);  ///< 50y
+                break;
+            case 157174:// Elemental Fusion
                 spellInfo->ProcCharges = 1;
                 break;
             case 77442: ///< Focus

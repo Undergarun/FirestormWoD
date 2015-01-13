@@ -671,6 +671,9 @@ enum CharacterDatabaseStatements
     CHAR_DEL_GUILD_CHALLENGE,
     //////////////////////////////////////////////////////////////////////////
 
+    CHAR_SEL_DAILY_LOOT_COOLDOWNS,
+    CHAR_INS_DAILY_LOOT_COOLDOWNS,
+
     MAX_CHARACTERDATABASE_STATEMENTS
 };
 

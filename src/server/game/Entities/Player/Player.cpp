@@ -7028,6 +7028,13 @@ void Player::RepopAtGraveyard()
     {
         if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetZoneId()))
             l_ClosestGrave = bf->GetClosestGraveYard(this);
+        /// These checks are here to avoid old Outdoor scripts without GetClosestGraveyard function
+        else if (sOutdoorPvPMgr->GetOutdoorPvPToZoneId(GetZoneId()) != nullptr &&
+            sOutdoorPvPMgr->GetOutdoorPvPToZoneId(GetZoneId())->GetClosestGraveyard(this) != nullptr)
+        {
+            if (OutdoorPvP* l_OutdoorPvP = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(GetZoneId()))
+                l_ClosestGrave = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(GetZoneId())->GetClosestGraveyard(this);
+        }
         else
             l_ClosestGrave = sObjectMgr->GetClosestGraveYard(GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId(), GetTeam());
     }
@@ -9136,7 +9143,7 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
             packet << uint32(0);                        // Flags
 
             packet.WriteBit(weekCap != 0);
-            packet.WriteBit(itr->second.seasonTotal);
+            packet.WriteBit(itr->second.seasonTotal / precision);
             packet.WriteBit(0);                         // SuppressChatLog
             packet.FlushBits();
 
@@ -9144,7 +9151,7 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
                 packet << uint32(newWeekCount / precision);
 
             if (itr->second.seasonTotal)
-                packet << uint32(itr->second.seasonTotal);
+                packet << uint32(itr->second.seasonTotal / precision);
 
             GetSession()->SendPacket(&packet);
         }
@@ -20189,6 +20196,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     _LoadSpellCooldowns(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADSPELLCOOLDOWNS));
     _LoadChargesCooldowns(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_CHARGES_COOLDOWNS));
     _LoadCompletedChallenges(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_COMPLETED_CHALLENGES));
+    _LoadDailyLootsCooldowns(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_DAILY_LOOT_COOLDOWNS));
 
     // Spell code allow apply any auras to dead character in load time in aura/spell/item loading
     // Do now before stats re-calculation cleanup for ghost state unexpected auras
@@ -24079,7 +24087,7 @@ void Player::SetRestBonus (float rest_bonus_new)
     SetUInt32Value(PLAYER_FIELD_REST_STATE_BONUS_POOL, uint32(m_rest_bonus));
 }
 
-bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc /*= NULL*/, uint32 spellid /*= 0*/)
+bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc /*= NULL*/, uint32 spellid /*= 0*/, bool p_Triggered /*= false*/)
 {
     if (nodes.size() < 2)
         return false;
@@ -24160,7 +24168,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     }
 
     // check node starting pos data set case if provided
-    if (node->x != 0.0f || node->y != 0.0f || node->z != 0.0f)
+    if ((node->x != 0.0f || node->y != 0.0f || node->z != 0.0f) && !p_Triggered)
     {
         if (node->map_id != l_MapID ||
             (node->x - GetPositionX())*(node->x - GetPositionX())+
@@ -24278,7 +24286,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     return true;
 }
 
-bool Player::ActivateTaxiPathTo(uint32 taxi_path_id, uint32 spellid /*= 0*/)
+bool Player::ActivateTaxiPathTo(uint32 taxi_path_id, uint32 spellid /*= 0*/, bool p_Triggered /*= false*/)
 {
     TaxiPathEntry const* entry = sTaxiPathStore.LookupEntry(taxi_path_id);
     if (!entry)
@@ -24290,7 +24298,7 @@ bool Player::ActivateTaxiPathTo(uint32 taxi_path_id, uint32 spellid /*= 0*/)
     nodes[0] = entry->from;
     nodes[1] = entry->to;
 
-    return ActivateTaxiPathTo(nodes, NULL, spellid);
+    return ActivateTaxiPathTo(nodes, NULL, spellid, p_Triggered);
 }
 
 void Player::CleanupAfterTaxiFlight()
@@ -26078,8 +26086,6 @@ void Player::SendInitialPacketsAfterAddToMap()
 
     WorldPacket l_NullPacket;
     GetSession()->HandleLfgGetStatus(l_NullPacket);
-
-    SendToyBox();
 
     /// Force map shift update
 //     if ((GetMapId() == GARRISON_BASE_MAP && m_Garrison) || IsInGarrison())
@@ -31617,3 +31623,36 @@ CompletedChallenge* Player::GetCompletedChallenge(uint32 p_MapID)
     return &m_CompletedChallenges[p_MapID];
 }
 //////////////////////////////////////////////////////////////////////////
+
+void Player::_LoadDailyLootsCooldowns(PreparedQueryResult&& p_Result)
+{
+    if (!p_Result)
+        return;
+
+    do
+    {
+        CompletedChallenge l_Challenge;
+
+        Field* l_Field = p_Result->Fetch();
+        uint32 l_ID = l_Field[0].GetUInt32();
+
+        if (!m_DailyLootsCooldowns.count(l_ID))
+            m_DailyLootsCooldowns.insert(l_ID);
+    }
+    while (p_Result->NextRow());
+}
+
+void Player::ResetDailyLoots()
+{
+    m_DailyLootsCooldowns.clear();
+}
+
+void Player::AddDailyLootCooldown(uint32 p_Entry)
+{
+    if (!m_DailyLootsCooldowns.count(p_Entry))
+        m_DailyLootsCooldowns.insert(p_Entry);
+
+    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_DAILY_LOOT_COOLDOWNS);
+    l_Statement->setUInt32(0, GetGUIDLow());
+    CharacterDatabase.Execute(l_Statement);
+}
