@@ -7772,6 +7772,12 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
     else
         damage = uint32(target->CountPctFromMaxHealth(damage));
 
+    // WoD: Apply factor on damages depending on creature level and expansion
+    if ((caster->GetTypeId() == TYPEID_PLAYER || caster->IsPetGuardianStuff()) && target->GetTypeId() == TYPEID_UNIT)
+        damage *= caster->CalculateDamageDealtFactor(caster, target->ToCreature());
+    else if (caster->GetTypeId() == TYPEID_UNIT && (target->GetTypeId() == TYPEID_PLAYER || target->IsPetGuardianStuff()))
+        damage *= caster->CalculateDamageTakenFactor(target, caster->ToCreature());
+
     if (!(m_spellInfo->AttributesEx4 & SPELL_ATTR4_FIXED_DAMAGE))
         if (m_spellInfo->Effects[m_effIndex].IsTargetingArea() || isAreaAura)
         {
