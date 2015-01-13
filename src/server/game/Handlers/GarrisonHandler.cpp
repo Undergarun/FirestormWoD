@@ -21,7 +21,7 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
 
     Garrison * l_Garrison = m_Player->GetGarrison();
 
-    if (!l_Garrison)
+    if (!l_Garrison || !l_Garrison->GetGarrisonSiteLevelEntry())
         return;
     
     std::vector<GarrisonPlotInstanceInfoLocation>   l_Plots             = l_Garrison->GetPlots();
@@ -29,6 +29,24 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
     std::vector<GarrisonMission>                    l_Missions          = l_Garrison->GetMissions();
     std::vector<GarrisonBuilding>                   l_Buildings         = l_Garrison->GetBuildings();
     std::vector<GarrisonFollower>                   l_Followers         = l_Garrison->GetFollowers();
+
+    if (!m_Player->IsInGarrison())
+    {
+        WorldPacket l_Data(SMSG_GARRISON_REMOTE_INFO, 200);
+
+        l_Data << uint32(1);                                                        ///< @TODO Site Count
+
+        l_Data << int32(l_Garrison->GetGarrisonSiteLevelEntry()->SiteLevelID);      ///< Site Level ID
+        l_Data << uint32(l_Buildings.size());                                       ///< Buildings
+
+        for (uint32 l_I = 0; l_I < l_Buildings.size(); ++l_I)
+        {
+            l_Data << uint32(l_Buildings[l_I].PlotInstanceID);                      ///< Garr Plot Instance ID
+            l_Data << uint32(l_Buildings[l_I].BuildingID);                          ///< Garr Building ID
+        }
+
+        SendPacket(&l_Data);
+    }
 
     WorldPacket l_Infos(SMSG_GET_GARRISON_INFO_RESULT, 200);
 
@@ -173,7 +191,7 @@ void WorldSession::HandleGarrisonRequestBuildingsOpcode(WorldPacket & p_RecvData
 
     Garrison * l_Garrison = m_Player->GetGarrison();
 
-    if (!l_Garrison)
+    if (!l_Garrison || !l_Garrison->GetGarrisonSiteLevelEntry())
         return;
 
     std::vector<GarrisonBuilding> l_Buildings = l_Garrison->GetBuildings();

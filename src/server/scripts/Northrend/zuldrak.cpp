@@ -1494,7 +1494,7 @@ class npc_storm_cloud : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature)
+        CreatureAI* GetAI(Creature* creature) const
         {
             return new npc_storm_cloudAI(creature);
         }

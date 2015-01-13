@@ -943,7 +943,7 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     m_InCinematic               = false;
     m_CinematicClientStartTime  = 0;
 
-    m_BattlePetSummon = NULL;
+    m_BattlePetSummon = 0;
 
     m_ignoreMovementCount = 0;
 
@@ -9410,7 +9410,7 @@ void Player::UpdateArea(uint32 newArea)
         sOutdoorPvPMgr->HandlePlayerEnterArea(this, newArea);
 
         /// Garrison phasing specific code
-        if (m_Garrison && (GetMapId() == GARRISON_BASE_MAP || GetMapId() == GetGarrison()->GetGarrisonSiteLevelEntry()->MapID))
+        if (m_Garrison && m_Garrison->GetGarrisonSiteLevelEntry() && (GetMapId() == GARRISON_BASE_MAP || GetMapId() == m_Garrison->GetGarrisonSiteLevelEntry()->MapID))
         {
             Map * l_Map = sMapMgr->FindBaseNonInstanceMap(GARRISON_BASE_MAP);
 
@@ -12663,71 +12663,6 @@ Item* Player::GetItemByGuid(uint64 guid) const
                         return pItem;
 
     return NULL;
-}
-
-bool Player::RemoveItemByDelete(Item* item)
-{
-    for (uint8 i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; ++i)
-    {
-        if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
-        {
-            if (pItem == item)
-            {
-                RemoveItem(INVENTORY_SLOT_BAG_0, i, false);
-                return true;
-            }
-        }
-    }
-
-    for (int i = BANK_SLOT_ITEM_START; i < REAGENT_BANK_SLOT_BAG_END; ++i)
-    {
-        if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
-        {
-            if (pItem == item)
-            {
-                RemoveItem(INVENTORY_SLOT_BAG_0, i, false);
-                return true;
-            }
-        }
-    }
-
-    for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
-    {
-        if (Bag* pBag = GetBagByPos(i))
-        {
-            for (uint32 j = 0; j < pBag->GetBagSize(); ++j)
-            {
-                if (Item* pItem = pBag->GetItemByPos(j))
-                {
-                    if (pItem == item)
-                    {
-                        pBag->RemoveItem(j, false);
-                        return true;
-                    }
-                }
-            }
-        }
-    }
-
-    for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
-    {
-        if (Bag* pBag = GetBagByPos(i))
-        {
-            for (uint32 j = 0; j < pBag->GetBagSize(); ++j)
-            {
-                if (Item* pItem = pBag->GetItemByPos(j))
-                {
-                    if (pItem == item)
-                    {
-                        pBag->RemoveItem(j, false);
-                        return true;
-                    }
-                }
-            }
-        }
-    }
-
-    return false;
 }
 
 Item* Player::GetItemByPos(uint16 pos) const
@@ -18751,6 +18686,9 @@ void Player::RemoveActiveQuest(uint32 quest_id)
         phaseUdateData.AddQuestUpdate(quest_id);
 
         phaseMgr.NotifyConditionChanged(phaseUdateData);
+
+        if (m_Garrison)
+            m_Garrison->OnQuestAbandon(l_Quest);
         return;
     }
 }
@@ -19231,7 +19169,7 @@ bool Player::HasQuestForItem(uint32 itemid) const
     }
     return false;
 }
-bool Player::hasQuest(uint32 p_QuestID) const
+bool Player::HasQuest(uint32 p_QuestID) const
 {
     for (uint8 l_I = 0; l_I < MAX_QUEST_LOG_SIZE; ++l_I)
     {
@@ -26147,11 +26085,11 @@ void Player::SendInitialPacketsAfterAddToMap()
     SendToyBox();
 
     /// Force map shift update
-//     if ((GetMapId() == GARRISON_BASE_MAP && m_Garrison) || IsInGarrison())
-//     {
-//         phaseMgr.Update();
-//         phaseMgr.ForceMapShiftUpdate();
-//     }
+    if ((GetMapId() == GARRISON_BASE_MAP && m_Garrison) || IsInGarrison())
+    {
+        phaseMgr.Update();
+        phaseMgr.ForceMapShiftUpdate();
+    }
 
     if (IsInGarrison())
         m_Garrison->OnPlayerEnter();
@@ -26627,6 +26565,10 @@ bool Player::IsSpellFitByClassAndRace(uint32 spell_id) const
 
     for (SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
     {
+        // Hackfix, Gift of the Naaru for Monks (121093) doesn't have a racemask for only Draenei
+        if (spell_id == 121093 && racemask != 1024)
+            continue;
+
         // skip wrong race skills
         if (_spell_idx->second->racemask && (_spell_idx->second->racemask & racemask) == 0)
             continue;
@@ -31095,9 +31037,10 @@ void Player::CreateGarrison()
     m_Garrison = new Garrison(this);
     m_Garrison->Create();
 }
+
 bool Player::IsInGarrison()
 {
-    if (!m_Garrison)
+    if (!m_Garrison || !m_Garrison->GetGarrisonSiteLevelEntry())
         return false;
 
     if (GetMapId() == m_Garrison->GetGarrisonSiteLevelEntry()->MapID)

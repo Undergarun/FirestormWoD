@@ -82,6 +82,13 @@ class garrison_commandscript: public CommandScript
 
             const GarrSiteLevelEntry * l_Entry = l_TargetPlayer->GetGarrison()->GetGarrisonSiteLevelEntry();
 
+            if (!l_Entry)
+            {
+                p_Handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
             p_Handler->PSendSysMessage("Garrison info");
             p_Handler->PSendSysMessage("Level : %u SiteLevelID : %u MapID : %u FactionID : %u", l_Entry->Level, l_Entry->SiteID, l_Entry->MapID, (uint32)l_TargetPlayer->GetGarrison()->GetGarrisonFactionIndex());
             p_Handler->PSendSysMessage("Cache Resource : %u", l_TargetPlayer->GetGarrison()->GetGarrisonCacheTokenCount());
@@ -267,8 +274,6 @@ class garrison_commandscript: public CommandScript
                 p_Handler->SendSysMessage("Building not found");
                 p_Handler->SetSentErrorMessage(true);
             }
-
-            const GarrBuildingEntry * l_Entry = sGarrBuildingStore.LookupEntry(l_Building.BuildingID);
 
             int32 l_ElemEntry = atoi(p_Args);
             float l_X = l_Player->GetPositionX();

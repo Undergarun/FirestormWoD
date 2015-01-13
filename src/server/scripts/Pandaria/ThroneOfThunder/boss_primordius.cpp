@@ -183,7 +183,7 @@ class boss_primordius : public CreatureScript
                 me->GetMotionMaster()->MoveTargetedHome();
                 me->ReenableEvadeMode();
 
-                for (uint8 l_Index = 0; l_Index <= 10; l_Index++)
+                for (uint8 l_Index = 0; l_Index < 10; l_Index++)
                 {
                     if (GameObject* l_Vat = m_Instance->instance->GetGameObject(m_Instance->GetData64(gobEntries[l_Index])))
                         l_Vat->SetGoState(GO_STATE_READY);

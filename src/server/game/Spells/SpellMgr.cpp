@@ -3460,6 +3460,9 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 157154:// High tide fix temp !!!
+                spellInfo->Effects[0].BasePoints = 0;
+                break;
             case 157174: // Elemental Fusion
                 spellInfo->ProcCharges = 1;
                 break;
@@ -4409,10 +4412,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 146512:// Fortitude - hotfix 5.4.2
                 spellInfo->Effects[0].BasePoints = 2600;
-                break;
-            case 15473: // Shadowform - hotfix 5.4.2
-                spellInfo->Effects[6].BasePoints = 100;
-                spellInfo->SchoolMask = SPELL_SCHOOL_MASK_SHADOW;
                 break;
             case 91107: // Unholy Might
                 spellInfo->Effects[0].BasePoints = 35;

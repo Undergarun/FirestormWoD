@@ -1019,7 +1019,7 @@ namespace MS
                 if (GetCaster())
                 {
                     Unit* l_Target = nullptr;
-                    if (l_Target = ScriptUtils::SelectRandomPlayerIncludedTank(GetCaster(), 30.0f))
+                    if ((l_Target = ScriptUtils::SelectRandomPlayerIncludedTank(GetCaster(), 30.0f)))
                     {
                         uint32 l_Random = urand(0, 1);
                         if (l_Random == 0)

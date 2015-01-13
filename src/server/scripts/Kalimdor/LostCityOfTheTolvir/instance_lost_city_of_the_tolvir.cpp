@@ -131,7 +131,7 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type) const
+            uint64 GetData64(uint32 type)
             {
                 switch (type)
                 {
@@ -146,7 +146,7 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                 return 0;
             }
 
-            uint32 GetData(uint32 type) const
+            uint32 GetData(uint32 type)
             {
                 return Encounter[type];
             }

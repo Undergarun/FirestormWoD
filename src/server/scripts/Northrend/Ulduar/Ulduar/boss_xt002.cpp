@@ -525,7 +525,6 @@ class mob_xt002_heart : public CreatureScript
 
             private:
                 InstanceScript* instance;
-                uint32 damageTaken;
         };
 
         CreatureAI* GetAI(Creature* creature) const

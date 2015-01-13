@@ -978,16 +978,16 @@ class npc_temple_adept : public CreatureScript
                         events.ScheduleEvent(EVENT_DESPERATE_SPEED, urand(20000, 30000));
                         break;
                     case EVENT_GREATER_HEAL:
-                        if (_target = me->FindNearestCreature(NPC_EXECUTOR_OF_THE_CALIPH, 30.0f))
+                        if ((_target = me->FindNearestCreature(NPC_EXECUTOR_OF_THE_CALIPH, 30.0f)))
                             if (_target->GetHealthPct() < 50)
                                 DoCast(_target, SPELL_GREATER_HEAL);
-                        else if (_target = me->FindNearestCreature(NPC_MINISTER_OF_AIR, 30.0f))
+                        else if ((_target = me->FindNearestCreature(NPC_MINISTER_OF_AIR, 30.0f)))
                             if (_target->GetHealthPct() < 50)
                                 DoCast(_target, SPELL_GREATER_HEAL);
-                        else if (_target = me->FindNearestCreature(NPC_SERVANT_OF_ASAAD, 30.0f))
+                        else if ((_target = me->FindNearestCreature(NPC_SERVANT_OF_ASAAD, 30.0f)))
                             if (_target->GetHealthPct() < 50)
                                 DoCast(_target, SPELL_GREATER_HEAL);
-                        else if (_target = me->FindNearestCreature(NPC_TEMPEST_ADEPT, 30.0f))
+                        else if ((_target = me->FindNearestCreature(NPC_TEMPEST_ADEPT, 30.0f)))
                             if (_target->GetHealthPct() < 50)
                                 DoCast(_target, SPELL_GREATER_HEAL);
                         events.ScheduleEvent(EVENT_GREATER_HEAL, urand(5000, 6000));

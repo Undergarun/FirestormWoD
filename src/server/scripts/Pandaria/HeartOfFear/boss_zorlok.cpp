@@ -171,15 +171,15 @@ float tabCenter[3] = {-2274.8f, 259.187f, 406.5f};
 
 float rangeAttenuation1[2][2] =
 {
-    -2256.0f, -2208.0f,
-      190.0f,   240.0f
+    {-2256.0f, -2208.0f},
+      {190.0f,   240.0f}
 };
 
 float rangeAttenuation2[2][2] =
 {
     // Coords to redone
-    -2297.0f, -2250.0f,
-      237.0f,   280.0f
+    {-2297.0f, -2250.0f},
+      {237.0f,   280.0f}
 };
 
 // Zorlok - 62980
@@ -1340,7 +1340,7 @@ class mob_sonic_pulse : public CreatureScript
                 return reachPoint;
             }
 
-            void MovementInform(uint8 point, uint8 type)
+            void MovementInform(uint32 point, uint32 type)
             {
                 if (type != POINT_MOTION_TYPE)
                     return;
@@ -1707,7 +1707,8 @@ class spell_zorlok_exhale_damage: public SpellScriptLoader
                         }
                     }
 
-                    if (nearestTarget != nullptr && nearestTarget != currentTarget)
+                    if (nearestTarget != nullptr
+                        && nearestTarget != currentTarget)
                     {
                         // Set Zor'lok's current Exhale target to that nearest player.
                         uint32 targetLowGuid = nearestTarget->GetGUIDLow();

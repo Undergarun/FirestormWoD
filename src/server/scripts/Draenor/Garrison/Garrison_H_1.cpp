@@ -14,12 +14,7 @@ enum
 enum
 {
     GARRISON_PHASE_BASE             = 0x0001,
-};
-
-/// TerrainSwap : See WorldMapArea.dbc
-enum
-{
-    TERRAIN_SWAP_GARRISON_FF_HORDE_TIER_1 = 980
+    GARRISON_PHASE_WHAT_WE_GOT      = 0x0002,
 };
 
 class instance_Garrison_H1 : public InstanceMapScript
@@ -65,6 +60,11 @@ class instance_Garrison_H1 : public InstanceMapScript
             {
 
             }
+            /// When the garrison owner abandon a quest
+            virtual void OnQuestAbandon(Player * p_Owner, const Quest * p_Quest) override
+            {
+
+            }
 
             //////////////////////////////////////////////////////////////////////////
             //////////////////////////////////////////////////////////////////////////
@@ -73,6 +73,9 @@ class instance_Garrison_H1 : public InstanceMapScript
             virtual uint32 GetPhaseMask(Player * p_Owner) override
             {
                 uint32 l_PhaseMask = GARRISON_PHASE_BASE;
+
+//                 if (p_Owner->HasQuest(QUEST_WHAT_WE_GOT) != QUEST_STATUS_REWARDED)
+//                     l_PhaseMask |= QUEST_WHAT_WE_GOT;
 
                 return l_PhaseMask;
             }
@@ -83,22 +86,13 @@ class instance_Garrison_H1 : public InstanceMapScript
             /// Owner can use the garrison cache ?
             virtual bool CanUseGarrisonCache(Player * p_Owner) override
             {
-                /// Temp hack
-                return true;
+			/// temp fix
+			return true;
                 if (p_Owner->GetQuestStatus(QUEST_WHAT_WE_GOT) == QUEST_STATUS_REWARDED
-                    || p_Owner->GetQuestStatus(QUEST_WHAT_WE_GOT) == QUEST_STATUS_INCOMPLETE)
+                    || p_Owner->HasQuest(QUEST_WHAT_WE_GOT))
                     return true;
 
                 return false;
-            }
-
-            //////////////////////////////////////////////////////////////////////////
-            //////////////////////////////////////////////////////////////////////////
-
-            /// Get terrain swaps
-            virtual void GetTerrainSwaps(std::set<uint32> & p_TerrainSwaps) override
-            {
-                p_TerrainSwaps.emplace(TERRAIN_SWAP_GARRISON_FF_HORDE_TIER_1);
             }
 
             //////////////////////////////////////////////////////////////////////////
@@ -120,7 +114,6 @@ class instance_Garrison_H1 : public InstanceMapScript
 
             virtual void OnCreatureCreate(Creature * p_Creature) override
             {
-
             }
             virtual void OnGameObjectCreate(GameObject * p_Gameobject) override
             {
@@ -143,6 +136,10 @@ class instance_Garrison_H1 : public InstanceMapScript
 
                 p_Player->GetGarrison()->_SetGarrisonScript(this);
                 m_Players.emplace(p_Player->GetGUID());
+
+                SetData(GARRISON_INSTANCE_DATA_PEON_ENABLED, 0);
+                if (p_Player->GetQuestStatus(QUEST_WHAT_WE_GOT) == QUEST_STATUS_REWARDED || p_Player->GetQuestObjectiveCounter(273085) == 1)
+                    SetData(GARRISON_INSTANCE_DATA_PEON_ENABLED, 1);
             }
 
             //////////////////////////////////////////////////////////////////////////
@@ -153,7 +150,20 @@ class instance_Garrison_H1 : public InstanceMapScript
 
             }
 
+            //////////////////////////////////////////////////////////////////////////
+            //////////////////////////////////////////////////////////////////////////
+
+            virtual uint32 GetData(uint32 p_ID)
+            {
+                return m_Data32[p_ID];
+            }
+            virtual void SetData(uint32 p_ID, uint32 p_Value)
+            {
+                m_Data32[p_ID] = p_Value;
+            }
+
             std::set<uint64> m_Players;
+            std::map<uint32, uint32> m_Data32;
         };
 
         InstanceScript * GetInstanceScript(InstanceMap* p_Map) const

@@ -593,7 +593,7 @@ namespace MS
                             events.ScheduleEvent(uint32(Events::SuppresionField), urand(16000, 18000));
                             break;
                         case uint32(Events::Subjugate):
-                            if (Player* l_Plr = ScriptUtils::SelectRandomPlayerIncludedTank(me, 40.0f))
+                            if (ScriptUtils::SelectRandomPlayerIncludedTank(me, 40.0f))
                                 me->CastSpell(me->getVictim(), uint32(Spells::Subjugate));
                             events.ScheduleEvent(uint32(Events::Subjugate), urand(21000, 24000));
                             break;

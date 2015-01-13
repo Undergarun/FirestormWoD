@@ -646,7 +646,7 @@ class spell_monk_chi_brew: public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_chi_brew_SpellScript);
 
-            bool Validate()
+            bool Validate(SpellInfo const* /*spellEntry*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_MONK_CHI_BREW))
                     return false;
@@ -2724,7 +2724,7 @@ class spell_monk_tigereye_brew: public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_tigereye_brew_SpellScript);
 
-            bool Validate()
+            bool Validate(SpellInfo const* /*spellEntry*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_MONK_TIGEREYE_BREW))
                     return false;
@@ -2783,7 +2783,7 @@ class spell_monk_tigers_lust: public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_tigers_lust_SpellScript);
 
-            bool Validate()
+            bool Validate(SpellInfo const* /*spellEntry*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_MONK_FLYING_SERPENT_KICK_NEW))
                     return false;

@@ -880,6 +880,8 @@ class npc_mole_machine_trigger : public CreatureScript
                                 case SPELL_SUMMON_IRON_DWARVES_2:
                                     me->CastSpell(me, SPELL_SUMMON_IRON_VRYKUL, false);
                                     break;
+                                default:
+                                    break;
                             }
                             break;
                         }

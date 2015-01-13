@@ -218,7 +218,7 @@ class boss_erudax : public CreatureScript
                     {
                     case EVENT_SHADOW_GALE:
                         Talk(SAY_GALE);
-                        if (ShadowGaleTrigger = me->SummonCreature(NPC_SHADOW_GALE_STALKER, shadowgalePos[urand(0, 2)]))
+                        if ((ShadowGaleTrigger = me->SummonCreature(NPC_SHADOW_GALE_STALKER, shadowgalePos[urand(0, 2)])))
                             ShadowGaleTrigger->CastSpell(ShadowGaleTrigger, SPELL_SHADOW_GALE_SPEED_TRIGGER, false);
                         //132 error
                         //DoCast(me, SPELL_SHADOW_GALE);

@@ -331,6 +331,8 @@ namespace MS
                             }
 
                             break;
+                        default:
+                            break;
                         }
                         break;
                     case Data::Rukhran:
@@ -344,6 +346,8 @@ namespace MS
                                 l_Rukhran->GetMotionMaster()->MovePoint(12, 918.92f, 1913.46f, 215.87f);
                             }
                             break;
+                            default:
+                                break;
                         }
                         break;
                     case Data::HighSageViryx:
@@ -363,12 +367,11 @@ namespace MS
                             if (instance->IsHeroic() && !m_HasFailedMonomaniaAchievement)
                                 DoCompleteAchievement(uint32(Achievements::Monomania));
                             break;
+                            default:
+                                break;
                         }
-                        break;
-                    default:
-                        break;
                     }
-
+                    
                     return true;
                 }
 

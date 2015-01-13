@@ -1401,9 +1401,9 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
 
     // Apply Versatility damage bonus done/taken
     if (GetTypeId() == TYPEID_PLAYER)
-        damage += CalculatePct(damage, ToPlayer()->GetFloatValue(PLAYER_FIELD_VERSATILITY));
+        damage += CalculatePct(damage, ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE));
     if (victim->GetTypeId() == TYPEID_PLAYER)
-        damage -= CalculatePct(damage, victim->ToPlayer()->GetFloatValue(PLAYER_FIELD_VERSATILITY_BONUS) / 2);
+        damage -= CalculatePct(damage, victim->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN));
 
     SpellSchoolMask damageSchoolMask = SpellSchoolMask(damageInfo->schoolMask);
 
@@ -1567,9 +1567,9 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
 
     // Apply Versatility damage bonus done/taken
     if (GetTypeId() == TYPEID_PLAYER)
-        damage += CalculatePct(damage, ToPlayer()->GetFloatValue(PLAYER_FIELD_VERSATILITY));
+        damage += CalculatePct(damage, ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE));
     if (victim->GetTypeId() == TYPEID_PLAYER)
-        damage -= CalculatePct(damage, victim->ToPlayer()->GetFloatValue(PLAYER_FIELD_VERSATILITY_BONUS) / 2);
+        damage -= CalculatePct(damage, victim->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN));
 
     // Calculate armor reduction
     if (IsDamageReducedByArmor((SpellSchoolMask)(damageInfo->damageSchoolMask)))
@@ -2227,7 +2227,7 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
 
     // Apply Versatility absorb bonus
     if (this->GetTypeId() == TYPEID_PLAYER)
-        dmgInfo.AbsorbDamage(CalculatePct(dmgInfo.GetDamage(), this->ToPlayer()->GetFloatValue(PLAYER_FIELD_VERSATILITY)));
+        dmgInfo.AbsorbDamage(CalculatePct(dmgInfo.GetDamage(), ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE)));
 
     *resist = dmgInfo.GetResist();
     *absorb = dmgInfo.GetAbsorb();
@@ -11345,7 +11345,7 @@ int32 Unit::DealHeal(Unit* victim, uint32 addhealth, SpellInfo const* spellProto
         float Mastery = unit->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.22f;
         float scaling = spellProto->GetGiftOfTheSerpentScaling(this);
 
-        if (roll_chance_f(Mastery * scaling))
+        if (roll_chance_f(Mastery * scaling) && unit->CountAreaTrigger(119031) < 10)
         {
             std::list<Unit*> targetList;
 
@@ -13044,7 +13044,7 @@ int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask)
                 AdvertisedBenefit += int32(CalculatePct(GetTotalAttackPowerValue(WeaponAttackType::BaseAttack), (*i)->GetAmount()));
 
         // Apply Versatility healing bonus
-        AdvertisedBenefit += AddPct(AdvertisedBenefit, ToPlayer()->GetFloatValue(PLAYER_FIELD_VERSATILITY) / 100);
+        AdvertisedBenefit += AddPct(AdvertisedBenefit, ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE));
     }
     return AdvertisedBenefit;
 }
@@ -15377,17 +15377,6 @@ int32 Unit::ModSpellDuration(SpellInfo const* spellProto, Unit const* target, in
                     if (AuraEffectPtr aurEff = GetAuraEffect(57862, 0))
                         duration += aurEff->GetAmount() * MINUTE * IN_MILLISECONDS;
                 }
-                break;
-            }
-            case SPELLFAMILY_WARLOCK:
-            {
-                if (spellProto->Id == 6262)
-                {
-                    // Glyph of Healthstone
-                    if (AuraEffectPtr aurEff = GetAuraEffect(56224, 1))
-                        duration += aurEff->GetAmount();
-                }
-
                 break;
             }
         }
