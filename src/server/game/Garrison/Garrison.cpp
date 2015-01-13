@@ -508,13 +508,6 @@ bool Garrison::Load(PreparedQueryResult p_GarrisonResult, PreparedQueryResult p_
         {
             GarrisonMission & l_Mission = m_Missions[l_I];
 
-            uint32 l_Count = std::count_if(m_Missions.begin(), m_Missions.end(), [l_Mission](const GarrisonMission & p_Mission)
-            {
-                return p_Mission.MissionID == l_Mission.MissionID;
-            });
-
-            if (l_Count)
-
             if (l_Mission.State != GARRISON_MISSION_IN_PROGRESS)
                 continue;
 
