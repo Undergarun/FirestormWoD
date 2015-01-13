@@ -4,46 +4,9 @@
 #include "GameObjectAI.h"
 #include "Spell.h"
 #include "Garrison.h"
+#include "GarrisonScriptData.hpp"
 
 #include <random>
-
-enum 
-{
-    SPELL_LEFT_ROPE                                 = 164400,
-    SPELL_RIGHT_ROPE                                = 164422,
-    SPELL_COMESTIC_SLEEP                            = 162907,
-
-    NPC_GARRISON_ALLIANCE_CART                      = 81627,
-    NPC_GARRISON_ALLIANCE_HORSE                     = 81633,
-
-    QUEST_ETABLISH_YOUR_GARRISON_A                  = 34586,
-    QUEST_ETABLISH_YOUR_GARRISON_H                  = 34378,
-    QUEST_KEEPING_IT_TOGETHER                       = 35176,
-    QUEST_SHIP_SALVAGE                              = 35166,
-    QUEST_PALE_MOONLIGHT                            = 35174,
-    QUEST_WHAT_WE_GOT                               = 34824,
-
-    NPC_ASSISTANT_BRIGHTSTONE_TEXT_1                = 85492,
-    NPC_ASSISTANT_BRIGHTSTONE_TEXT_2                = 85490,
-    NPC_ASSISTANT_BRIGHTSTONE_TEXT_3                = 85493,
-    NPC_ASSISTANT_BRIGHTSTONE_TEXT_QUEST            = 83682,
-    NPC_SHELLY_HAMBY_TEXT_QUEST                     = 83505,
-    NPC_BAROS_ETABLISH_YOUR_GARRISON_CHAT           = 0,
-    NPC_BAROS_KEEPING_IT_TOGETHER_START_CHAT        = 1,
-    NPC_BAROS_KEEPING_IT_TOGETHER_END_CHAT          = 2,
-    NPC_BAROS_SHIP_SALVAGE_START_CHAT               = 3,
-    NPC_BAROS_SHIP_SALVAGE_END_CHAT                 = 4,
-    NPC_VINDICATOR_MARAAD_PALE_MOONLIGHT_START_CHAT = 0,
-    NPC_VINDICATOR_MARAAD_PALE_MOONLIGHT_END_CHAT   = 1,
-
-    ITEM_SHELLY_HAMBY_REPORT                        = 112730,
-};
-
-float gGarrisonCreationCoords[][4] =
-{
-    { 1766.761475f,  191.2846830f,  72.115326f, 0.4649370f },   ///< TEAM_ALLIANCE
-    { 5698.020020f, 4512.1635574f, 127.401695f, 2.8622720f }    ///< TEAM_HORDE
-};
 
 /// Garrison Ford
 class npc_GarrisonFord : public CreatureScript
@@ -81,18 +44,21 @@ class npc_GarrisonFord : public CreatureScript
                 uint32 l_MapID      = p_Player->GetGarrison()->GetGarrisonSiteLevelEntry()->MapID;
                 uint32 l_TeamID     = p_Player->GetTeamId();
 
-                p_Player->AddMovieDelayedTeleport(l_MovieID, l_MapID, gGarrisonCreationCoords[l_TeamID][0], gGarrisonCreationCoords[l_TeamID][1], gGarrisonCreationCoords[l_TeamID][2], gGarrisonCreationCoords[l_TeamID][3]);
+                p_Player->AddMovieDelayedTeleport(l_MovieID, l_MapID,   MS::Garrison::gGarrisonCreationCoords[l_TeamID][0],
+                                                                        MS::Garrison::gGarrisonCreationCoords[l_TeamID][1],
+                                                                        MS::Garrison::gGarrisonCreationCoords[l_TeamID][2],
+                                                                        MS::Garrison::gGarrisonCreationCoords[l_TeamID][3]);
                 p_Player->SendMovieStart(l_MovieID);
 
                 if (l_TeamID == TEAM_ALLIANCE)
                 {
-                    p_Player->AddQuest(sObjectMgr->GetQuestTemplate(QUEST_ETABLISH_YOUR_GARRISON_A), p_Creature);
-                    p_Player->CompleteQuest(QUEST_ETABLISH_YOUR_GARRISON_A);
+                    p_Player->AddQuest(sObjectMgr->GetQuestTemplate(MS::Garrison::Quests::QUEST_ETABLISH_YOUR_GARRISON_A), p_Creature);
+                    p_Player->CompleteQuest(MS::Garrison::Quests::QUEST_ETABLISH_YOUR_GARRISON_A);
                 }
                 else if (l_TeamID == TEAM_HORDE)
                 {
-                    p_Player->AddQuest(sObjectMgr->GetQuestTemplate(QUEST_ETABLISH_YOUR_GARRISON_H), p_Creature);
-                    p_Player->CompleteQuest(QUEST_ETABLISH_YOUR_GARRISON_H);
+                    p_Player->AddQuest(sObjectMgr->GetQuestTemplate(MS::Garrison::Quests::QUEST_ETABLISH_YOUR_GARRISON_H), p_Creature);
+                    p_Player->CompleteQuest(MS::Garrison::Quests::QUEST_ETABLISH_YOUR_GARRISON_H);
                 }
 
                 /// HACK until shadowmoon quest are done : add follower Qiana Moonshadow / Olin Umberhide
@@ -148,23 +114,23 @@ class npc_GarrisonCartRope : public CreatureScript
 
             void UpdateAI(const uint32 p_Diff) override
             {
-                if (me->GetEntry() == NPC_GARRISON_ALLIANCE_CART && !HasRope)
+                if (me->GetEntry() == MS::Garrison::NPCs::NPC_GARRISON_ALLIANCE_CART && !HasRope)
                 {
-                    Creature * l_Horse = me->FindNearestCreature(NPC_GARRISON_ALLIANCE_HORSE, 2.5f);
+                    Creature * l_Horse = me->FindNearestCreature(MS::Garrison::NPCs::NPC_GARRISON_ALLIANCE_HORSE, 2.5f);
 
                     if (l_Horse)
                     {
-                        me->CastSpell(l_Horse, SPELL_LEFT_ROPE, TRIGGERED_FULL_MASK);
+                        me->CastSpell(l_Horse, MS::Garrison::Spells::SPELL_LEFT_ROPE, TRIGGERED_FULL_MASK);
                         HasRope = true;
                     }
                 }
-                else if (me->GetEntry() == NPC_GARRISON_ALLIANCE_HORSE && !HasRope)
+                else if (me->GetEntry() == MS::Garrison::NPCs::NPC_GARRISON_ALLIANCE_HORSE && !HasRope)
                 {
-                    Creature * l_Cart = me->FindNearestCreature(NPC_GARRISON_ALLIANCE_CART, 4.0f);
+                    Creature * l_Cart = me->FindNearestCreature(MS::Garrison::NPCs::NPC_GARRISON_ALLIANCE_CART, 4.0f);
 
-                    if (l_Cart && l_Cart->GetEntry() == NPC_GARRISON_ALLIANCE_CART)
+                    if (l_Cart && l_Cart->GetEntry() == MS::Garrison::NPCs::NPC_GARRISON_ALLIANCE_CART)
                     {
-                        me->CastSpell(l_Cart, SPELL_RIGHT_ROPE, TRIGGERED_FULL_MASK);
+                        me->CastSpell(l_Cart, MS::Garrison::Spells::SPELL_RIGHT_ROPE, TRIGGERED_FULL_MASK);
                         HasRope = true;
                     }
                 }
@@ -188,14 +154,14 @@ class npc_AssistantBrightstone : public CreatureScript
         /// Called when a player opens a gossip dialog with the creature.
         bool OnGossipHello(Player * p_Player, Creature * p_Creature) override
         {
-            if (p_Player->HasQuest(QUEST_KEEPING_IT_TOGETHER) && p_Player->GetQuestObjectiveCounter(273535) != 1)
+            if (p_Player->HasQuest(MS::Garrison::Quests::QUEST_KEEPING_IT_TOGETHER) && p_Player->GetQuestObjectiveCounter(273535) != 1)
             {
                 p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Time to get back to work.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-                p_Player->SEND_GOSSIP_MENU(NPC_ASSISTANT_BRIGHTSTONE_TEXT_QUEST, p_Creature->GetGUID());
+                p_Player->SEND_GOSSIP_MENU(MS::Garrison::NPCTexts::NPC_TEXT_ASSISTANT_BRIGHTSTONE_TEXT_QUEST, p_Creature->GetGUID());
             }
             else
             {
-                p_Player->SEND_GOSSIP_MENU(RAND(NPC_ASSISTANT_BRIGHTSTONE_TEXT_1, NPC_ASSISTANT_BRIGHTSTONE_TEXT_2, NPC_ASSISTANT_BRIGHTSTONE_TEXT_3), p_Creature->GetGUID());
+                p_Player->SEND_GOSSIP_MENU(RAND(MS::Garrison::NPCTexts::NPC_TEXT_ASSISTANT_BRIGHTSTONE_TEXT_1, MS::Garrison::NPCTexts::NPC_TEXT_ASSISTANT_BRIGHTSTONE_TEXT_2, MS::Garrison::NPCTexts::NPC_TEXT_ASSISTANT_BRIGHTSTONE_TEXT_3), p_Creature->GetGUID());
             }
 
             return true;
@@ -204,14 +170,14 @@ class npc_AssistantBrightstone : public CreatureScript
         /// Called when a player selects a gossip item in the creature's gossip menu.
         bool OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action) override
         {
-            if (p_Player->HasQuest(QUEST_KEEPING_IT_TOGETHER) && p_Player->GetQuestObjectiveCounter(273535) != 1)
+            if (p_Player->HasQuest(MS::Garrison::Quests::QUEST_KEEPING_IT_TOGETHER) && p_Player->GetQuestObjectiveCounter(273535) != 1)
             {
                 p_Player->QuestObjectiveSatisfy(84455, 1, QUEST_OBJECTIVE_TYPE_NPC, p_Creature->GetGUID());
 
                 // @TODO move peon arround
 
                 p_Player->CLOSE_GOSSIP_MENU();
-                p_Player->SEND_GOSSIP_MENU(NPC_ASSISTANT_BRIGHTSTONE_TEXT_QUEST, p_Creature->GetGUID());
+                p_Player->SEND_GOSSIP_MENU(MS::Garrison::NPCTexts::NPC_TEXT_ASSISTANT_BRIGHTSTONE_TEXT_QUEST, p_Creature->GetGUID());
             }
 
             return true;
@@ -233,10 +199,10 @@ class npc_ShellyHamby : public CreatureScript
         /// Called when a player opens a gossip dialog with the creature.
         bool OnGossipHello(Player * p_Player, Creature * p_Creature) override
         {
-            if (!p_Player->HasItemCount(ITEM_SHELLY_HAMBY_REPORT, 1))
+            if (!p_Player->HasItemCount(MS::Garrison::Items::ITEM_SHELLY_HAMBY_REPORT, 1))
                 p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Gather Shelly's report.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
-            p_Player->SEND_GOSSIP_MENU(NPC_SHELLY_HAMBY_TEXT_QUEST, p_Creature->GetGUID());
+            p_Player->SEND_GOSSIP_MENU(MS::Garrison::NPCTexts::NPC_TEXT_SHELLY_HAMBY_TEXT_QUEST, p_Creature->GetGUID());
 
             return true;
         }
@@ -247,8 +213,8 @@ class npc_ShellyHamby : public CreatureScript
             p_Player->CLOSE_GOSSIP_MENU();
             p_Creature->AI()->Talk(0);
 
-            if (!p_Player->HasItemCount(ITEM_SHELLY_HAMBY_REPORT, 1))
-                p_Player->AddItem(ITEM_SHELLY_HAMBY_REPORT, 1);
+            if (!p_Player->HasItemCount(MS::Garrison::Items::ITEM_SHELLY_HAMBY_REPORT, 1))
+                p_Player->AddItem(MS::Garrison::Items::ITEM_SHELLY_HAMBY_REPORT, 1);
 
             return true;
         }
@@ -269,22 +235,22 @@ class npc_BarosAlexsom : public CreatureScript
         /// Called when a player accepts a quest from the creature.
         virtual bool OnQuestAccept(Player * p_Player, Creature * p_Creature, const Quest * p_Quest) override
         {
-            if (p_Quest && p_Quest->GetQuestId() == QUEST_KEEPING_IT_TOGETHER)
-                p_Creature->AI()->Talk(NPC_BAROS_KEEPING_IT_TOGETHER_START_CHAT);
-            else if (p_Quest && p_Quest->GetQuestId() == QUEST_SHIP_SALVAGE)
-                p_Creature->AI()->Talk(NPC_BAROS_SHIP_SALVAGE_START_CHAT);
+            if (p_Quest && p_Quest->GetQuestId() == MS::Garrison::Quests::QUEST_KEEPING_IT_TOGETHER)
+                p_Creature->AI()->Talk(MS::Garrison::CreatureTexts::CREATURE_TEXT_BAROS_KEEPING_IT_TOGETHER_START_CHAT);
+            else if (p_Quest && p_Quest->GetQuestId() == MS::Garrison::Quests::QUEST_SHIP_SALVAGE)
+                p_Creature->AI()->Talk(MS::Garrison::CreatureTexts::CREATURE_TEXT_BAROS_SHIP_SALVAGE_START_CHAT);
 
             return false;
         }
         /// Called when a player completes a quest with the creature.
         virtual bool OnQuestComplete(Player * p_Player, Creature * p_Creature, const Quest * p_Quest) override
         {
-            if (p_Quest && p_Quest->GetQuestId() == QUEST_ETABLISH_YOUR_GARRISON_A)
-                p_Creature->AI()->Talk(NPC_BAROS_ETABLISH_YOUR_GARRISON_CHAT);
-            else if (p_Quest && p_Quest->GetQuestId() == QUEST_KEEPING_IT_TOGETHER)
-                p_Creature->AI()->Talk(NPC_BAROS_KEEPING_IT_TOGETHER_END_CHAT);
-            else if (p_Quest && p_Quest->GetQuestId() == QUEST_SHIP_SALVAGE)
-                p_Creature->AI()->Talk(NPC_BAROS_SHIP_SALVAGE_END_CHAT);
+            if (p_Quest && p_Quest->GetQuestId() == MS::Garrison::Quests::QUEST_ETABLISH_YOUR_GARRISON_A)
+                p_Creature->AI()->Talk(MS::Garrison::CreatureTexts::CREATURE_TEXT_BAROS_ETABLISH_YOUR_GARRISON_CHAT);
+            else if (p_Quest && p_Quest->GetQuestId() == MS::Garrison::Quests::QUEST_KEEPING_IT_TOGETHER)
+                p_Creature->AI()->Talk(MS::Garrison::CreatureTexts::CREATURE_TEXT_BAROS_KEEPING_IT_TOGETHER_END_CHAT);
+            else if (p_Quest && p_Quest->GetQuestId() == MS::Garrison::Quests::QUEST_SHIP_SALVAGE)
+                p_Creature->AI()->Talk(MS::Garrison::CreatureTexts::CREATURE_TEXT_BAROS_SHIP_SALVAGE_END_CHAT);
 
             return false;
         }
@@ -305,16 +271,16 @@ class npc_VindicatorMaraad : public CreatureScript
         /// Called when a player accepts a quest from the creature.
         virtual bool OnQuestAccept(Player * p_Player, Creature * p_Creature, const Quest * p_Quest) override
         {
-            if (p_Quest && p_Quest->GetQuestId() == QUEST_PALE_MOONLIGHT)
-                p_Creature->AI()->Talk(NPC_VINDICATOR_MARAAD_PALE_MOONLIGHT_START_CHAT);
+            if (p_Quest && p_Quest->GetQuestId() == MS::Garrison::Quests::QUEST_PALE_MOONLIGHT)
+                p_Creature->AI()->Talk(MS::Garrison::CreatureTexts::CREATURE_TEXT_VINDICATOR_MARAAD_PALE_MOONLIGHT_START_CHAT);
 
             return false;
         }
         /// Called when a player completes a quest with the creature.
         virtual bool OnQuestComplete(Player * p_Player, Creature * p_Creature, const Quest * p_Quest) override
         {
-            if (p_Quest && p_Quest->GetQuestId() == QUEST_PALE_MOONLIGHT)
-                p_Creature->AI()->Talk(NPC_VINDICATOR_MARAAD_PALE_MOONLIGHT_END_CHAT);
+            if (p_Quest && p_Quest->GetQuestId() == MS::Garrison::Quests::QUEST_PALE_MOONLIGHT)
+                p_Creature->AI()->Talk(MS::Garrison::CreatureTexts::CREATURE_TEXT_VINDICATOR_MARAAD_PALE_MOONLIGHT_END_CHAT);
 
             return false;
         }
@@ -390,7 +356,6 @@ namespace PeonData {
 
         WOODCUTTING_MAX_CYLE_COUNT  = 1,//4
 
-        SPELL_GARRISON_ORC_MALE_CARRYNG_LUMBER = 161329
     };
 
     float FrostWallTreePos[][4] = {
@@ -445,13 +410,13 @@ class npc_FrostwallPeon : public CreatureScript
                 m_Initialised           = false;
                 m_ThreeID               = -1;
 
-                if (m_IsDynamicScript && me->GetInstanceScript()->GetData(GARRISON_INSTANCE_DATA_PEON_ENABLED))
+                if (m_IsDynamicScript && me->GetInstanceScript()->GetData(MS::Garrison::InstanceDataIDs::GARRISON_INSTANCE_DATA_PEON_ENABLED))
                     SetData(GARRISON_CREATURE_AI_DATA_PEON_WORKING, PeonData::PHASE_WOODCUTTING);
             }
 
             void UpdateAI(const uint32 p_Diff) override
             {
-                if (m_IsDynamicScript && me->HasAura(SPELL_COMESTIC_SLEEP))
+                if (m_IsDynamicScript && me->HasAura(MS::Garrison::Spells::SPELL_COMESTIC_SLEEP))
                 {
                     if ((time(0) - m_LastTalkTimer) > m_TalkInterval)
                     {
@@ -464,7 +429,7 @@ class npc_FrostwallPeon : public CreatureScript
                 {
                     if (!m_Initialised)
                     {
-                        if (me->GetInstanceScript() && me->GetInstanceScript()->GetData(GARRISON_INSTANCE_DATA_PEON_ENABLED))
+                        if (me->GetInstanceScript() && me->GetInstanceScript()->GetData(MS::Garrison::InstanceDataIDs::GARRISON_INSTANCE_DATA_PEON_ENABLED))
                             SetData(GARRISON_CREATURE_AI_DATA_PEON_WORKING, PeonData::PHASE_WOODCUTTING);
 
                         m_Initialised = true;
@@ -520,7 +485,7 @@ class npc_FrostwallPeon : public CreatureScript
                         else if (me->GetWaypointPath() == PeonData::MOVE_PATH_WOOD_CUTTING_A)
                         {
                             if (p_ID == PeonData::MOVE_PATH_WOOD_CUTTING_A_MID)
-                                me->RemoveAura(PeonData::SPELL_GARRISON_ORC_MALE_CARRYNG_LUMBER);
+                                me->RemoveAura(MS::Garrison::Spells::SPELL_GARRISON_ORC_MALE_CARRYNG_LUMBER);
                             else if (p_ID == PeonData::MOVE_PATH_WOOD_CUTTING_A_END)
                             {
                                 m_DelayedOperations.push([this]() -> void
@@ -543,7 +508,7 @@ class npc_FrostwallPeon : public CreatureScript
                             m_DelayedOperations.push([this]() -> void
                             {
                                 me->SetFacingTo(m_SpawnO);
-                                me->AddAura(SPELL_COMESTIC_SLEEP, me);
+                                me->AddAura(MS::Garrison::Spells::SPELL_COMESTIC_SLEEP, me);
                             });
                         }
                         else if (p_ID >= PeonData::MOVE_POINT_ID_THREE_FIRST && p_ID <= PeonData::MOVE_POINT_ID_THREE_END)
@@ -586,7 +551,7 @@ class npc_FrostwallPeon : public CreatureScript
                         }
                         else
                         {
-                            me->RemoveAura(SPELL_COMESTIC_SLEEP);
+                            me->RemoveAura(MS::Garrison::Spells::SPELL_COMESTIC_SLEEP);
                             m_Phase = p_Value;
                             m_Initialised = true;
 
@@ -597,7 +562,7 @@ class npc_FrostwallPeon : public CreatureScript
                                         uint32 l_ThreeID = SelectRandomTree();
 
                                         me->SetWalk(true);
-                                        me->GetInstanceScript()->SetData(GARRISON_INSTANCE_DATA_THREE_FIRST + l_ThreeID, 1);
+                                        me->GetInstanceScript()->SetData(MS::Garrison::InstanceDataIDs::GARRISON_INSTANCE_DATA_THREE_FIRST + l_ThreeID, 1);
                                         me->GetMotionMaster()->MovePoint(PeonData::MOVE_POINT_ID_THREE_FIRST + l_ThreeID,   PeonData::FrostWallTreePos[l_ThreeID][0],
                                                                                                                             PeonData::FrostWallTreePos[l_ThreeID][1],
                                                                                                                             PeonData::FrostWallTreePos[l_ThreeID][2]);
@@ -611,7 +576,7 @@ class npc_FrostwallPeon : public CreatureScript
                                     {
                                         me->LoadEquipment(0, true);
                                         me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_ONESHOT_NONE);
-                                        me->GetInstanceScript()->SetData(GARRISON_INSTANCE_DATA_THREE_FIRST + m_ThreeID, 0);
+                                        me->GetInstanceScript()->SetData(MS::Garrison::InstanceDataIDs::GARRISON_INSTANCE_DATA_THREE_FIRST + m_ThreeID, 0);
                                         me->SetFacingTo(me->GetOrientation() + M_PI);
 
                                         m_WoodCuttingRemainingTime = PeonData::WOODCUTTING_DISENGAGE_TIME;
@@ -628,7 +593,7 @@ class npc_FrostwallPeon : public CreatureScript
                                         uint32 l_ThreeID = SelectRandomTree();
 
                                         me->SetWalk(true);
-                                        me->GetInstanceScript()->SetData(GARRISON_INSTANCE_DATA_THREE_FIRST + l_ThreeID, 1);
+                                        me->GetInstanceScript()->SetData(MS::Garrison::InstanceDataIDs::GARRISON_INSTANCE_DATA_THREE_FIRST + l_ThreeID, 1);
                                         me->GetMotionMaster()->MovePoint(PeonData::MOVE_POINT_ID_THREE_FIRST + l_ThreeID,   PeonData::FrostWallTreePos[l_ThreeID][0],
                                                                                                                             PeonData::FrostWallTreePos[l_ThreeID][1],
                                                                                                                             PeonData::FrostWallTreePos[l_ThreeID][2]);
@@ -643,7 +608,7 @@ class npc_FrostwallPeon : public CreatureScript
                                 case PeonData::PHASE_WOODCUTTING_DEPOSIT:
                                     {
                                         me->SetWalk(true);
-                                        me->AddAura(PeonData::SPELL_GARRISON_ORC_MALE_CARRYNG_LUMBER, me);
+                                        me->AddAura(MS::Garrison::Spells::SPELL_GARRISON_ORC_MALE_CARRYNG_LUMBER, me);
                                         me->GetMotionMaster()->MovePoint(PeonData::MOVE_POINT_ID_WOODCUTTING_DEPOSIT_A, PeonData::FrostWallWoodCuttingA[0],
                                                                                                                         PeonData::FrostWallWoodCuttingA[1],
                                                                                                                         PeonData::FrostWallWoodCuttingA[2]);
@@ -667,7 +632,7 @@ class npc_FrostwallPeon : public CreatureScript
                     if (l_I == m_ThreeID)
                         continue;
 
-                    if (me->GetInstanceScript()->GetData(GARRISON_INSTANCE_DATA_THREE_FIRST + l_I))
+                    if (me->GetInstanceScript()->GetData(MS::Garrison::InstanceDataIDs::GARRISON_INSTANCE_DATA_THREE_FIRST + l_I))
                         continue;
 
                     l_Candidates.push_back(l_I);
@@ -716,7 +681,7 @@ class npc_Skaggit : public CreatureScript
             p_Player->CLOSE_GOSSIP_MENU();
             p_Creature->AI()->Talk(0);
 
-            if (p_Player->HasQuest(QUEST_WHAT_WE_GOT) && p_Player->GetQuestObjectiveCounter(273085) != 1)
+            if (p_Player->HasQuest(MS::Garrison::Quests::QUEST_WHAT_WE_GOT) && p_Player->GetQuestObjectiveCounter(273085) != 1)
             {
                 p_Player->QuestObjectiveSatisfy(80225, 1, QUEST_OBJECTIVE_TYPE_NPC, p_Creature->GetGUID());
 

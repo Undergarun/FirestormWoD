@@ -4,12 +4,7 @@
 #include "GameObjectAI.h"
 #include "Spell.h"
 #include "Garrison.h"
-
-enum
-{
-    QUEST_ETABLISH_YOUR_GARRISON_H  = 34378,
-    QUEST_WHAT_WE_GOT               = 34824,
-};
+#include "GarrisonScriptData.hpp"
 
 enum
 {
@@ -74,9 +69,6 @@ class instance_Garrison_H1 : public InstanceMapScript
             {
                 uint32 l_PhaseMask = GARRISON_PHASE_BASE;
 
-//                 if (p_Owner->HasQuest(QUEST_WHAT_WE_GOT) != QUEST_STATUS_REWARDED)
-//                     l_PhaseMask |= QUEST_WHAT_WE_GOT;
-
                 return l_PhaseMask;
             }
 
@@ -86,8 +78,8 @@ class instance_Garrison_H1 : public InstanceMapScript
             /// Owner can use the garrison cache ?
             virtual bool CanUseGarrisonCache(Player * p_Owner) override
             {
-                if (p_Owner->GetQuestStatus(QUEST_WHAT_WE_GOT) == QUEST_STATUS_REWARDED
-                    || p_Owner->HasQuest(QUEST_WHAT_WE_GOT))
+                if (p_Owner->GetQuestStatus(MS::Garrison::Quests::QUEST_WHAT_WE_GOT) == QUEST_STATUS_REWARDED
+                    || p_Owner->HasQuest(MS::Garrison::Quests::QUEST_WHAT_WE_GOT))
                     return true;
 
                 return false;
@@ -135,9 +127,9 @@ class instance_Garrison_H1 : public InstanceMapScript
                 p_Player->GetGarrison()->_SetGarrisonScript(this);
                 m_Players.emplace(p_Player->GetGUID());
 
-                SetData(GARRISON_INSTANCE_DATA_PEON_ENABLED, 0);
-                if (p_Player->GetQuestStatus(QUEST_WHAT_WE_GOT) == QUEST_STATUS_REWARDED || p_Player->GetQuestObjectiveCounter(273085) == 1)
-                    SetData(GARRISON_INSTANCE_DATA_PEON_ENABLED, 1);
+                SetData(MS::Garrison::InstanceDataIDs::GARRISON_INSTANCE_DATA_PEON_ENABLED, 0);
+                if (p_Player->GetQuestStatus(MS::Garrison::Quests::QUEST_WHAT_WE_GOT) == QUEST_STATUS_REWARDED || p_Player->GetQuestObjectiveCounter(273085) == 1)
+                    SetData(MS::Garrison::InstanceDataIDs::GARRISON_INSTANCE_DATA_PEON_ENABLED, 1);
             }
 
             //////////////////////////////////////////////////////////////////////////

@@ -4,11 +4,7 @@
 #include "GameObjectAI.h"
 #include "Spell.h"
 #include "Garrison.h"
-
-enum
-{
-    SPELL_GARRISON_HEARTHSTONE = 171253
-};
+#include "GarrisonScriptData.hpp"
 
 class PlayerScript_Garrison: public PlayerScript
 {
@@ -26,19 +22,6 @@ class PlayerScript_Garrison: public PlayerScript
                 p_Player->GetGarrison()->OnQuestReward(p_Quest);
         }
 
-};
-
-/// Garrison hearthstone teleport coords
-float gGarrisonHearthStoneTeleportCoord[][4] =
-{
-    /// Horde
-    { 5561.15f,  4508.785f, 132.70f,    3.406f   }, ///< Horde Level 1
-    {    0.f,       0.f,      0.f,      0.000f   }, ///< Horde Level 2
-    { 5563.70f,  4599.920f, 141.71100f, 0.000f   }, ///< Horde Level 3
-    /// Alliance
-    { 1850.71f,   254.430f,  78.08300f, 1.76f    }, ///< Alliance Level 1
-    { 1947.08f,   324.883f,  90.28076f, 0.00f    }, ///< Alliance Level 2
-    {    0.f,       0.f,      0.f,      0.00f    }, ///< Alliance Level 3
 };
 
 class spell_garrison_hearthstone: public SpellScriptLoader
@@ -60,7 +43,7 @@ class spell_garrison_hearthstone: public SpellScriptLoader
             /// use for: dbc/template data presence/correctness checks
             bool Validate(SpellInfo const* p_SpellEntry) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_GARRISON_HEARTHSTONE))
+                if (!sSpellMgr->GetSpellInfo(MS::Garrison::Spells::SPELL_GARRISON_HEARTHSTONE))
                     return false;
 
                 return true;
@@ -94,10 +77,10 @@ class spell_garrison_hearthstone: public SpellScriptLoader
 
                     uint32 l_Index = (l_Garrison->GetGarrisonFactionIndex() * GARRISON_MAX_LEVEL) + (l_Garrison->GetGarrisonSiteLevelEntry()->Level - 1);
 
-                    float l_X = gGarrisonHearthStoneTeleportCoord[l_Index][0];
-                    float l_Y = gGarrisonHearthStoneTeleportCoord[l_Index][1];
-                    float l_Z = gGarrisonHearthStoneTeleportCoord[l_Index][2];
-                    float l_O = gGarrisonHearthStoneTeleportCoord[l_Index][3];
+                    float l_X = MS::Garrison::gGarrisonHearthStoneTeleportCoord[l_Index][0];
+                    float l_Y = MS::Garrison::gGarrisonHearthStoneTeleportCoord[l_Index][1];
+                    float l_Z = MS::Garrison::gGarrisonHearthStoneTeleportCoord[l_Index][2];
+                    float l_O = MS::Garrison::gGarrisonHearthStoneTeleportCoord[l_Index][3];
 
                     l_Player->TeleportTo(l_Garrison->GetGarrisonSiteLevelEntry()->MapID, l_X, l_Y, l_Z, l_O);
                 }

@@ -3,14 +3,7 @@
 #include "Chat.h"
 #include "Garrison.h"
 #include "ObjectMgr.h"
-
-extern float gGarrisonCreationCoords[][4];
-
-enum
-{
-    QUEST_ETABLISH_YOUR_GARRISON_A = 34586,
-    QUEST_ETABLISH_YOUR_GARRISON_H = 34378,
-};
+#include "../Draenor/Garrison/GarrisonScriptData.hpp"
 
 /// Garrison commands
 class garrison_commandscript: public CommandScript
@@ -98,7 +91,6 @@ class garrison_commandscript: public CommandScript
 
         static bool HandleGarrisonCreate(ChatHandler * p_Handler, char const* p_Args)
         {
-            /*
             Player * l_TargetPlayer = p_Handler->getSelectedPlayer();
 
             if (!l_TargetPlayer)
@@ -121,18 +113,22 @@ class garrison_commandscript: public CommandScript
             uint32 l_MapID   = l_TargetPlayer->GetGarrison()->GetGarrisonSiteLevelEntry()->MapID;
             uint32 l_TeamID  = l_TargetPlayer->GetTeamId();
 
-            l_TargetPlayer->AddMovieDelayedTeleport(l_MovieID, l_MapID, gGarrisonCreationCoords[l_TeamID][0], gGarrisonCreationCoords[l_TeamID][1], gGarrisonCreationCoords[l_TeamID][2], gGarrisonCreationCoords[l_TeamID][3]);
+            l_TargetPlayer->AddMovieDelayedTeleport(l_MovieID, l_MapID, MS::Garrison::gGarrisonCreationCoords[l_TeamID][0], 
+                                                                        MS::Garrison::gGarrisonCreationCoords[l_TeamID][1], 
+                                                                        MS::Garrison::gGarrisonCreationCoords[l_TeamID][2], 
+                                                                        MS::Garrison::gGarrisonCreationCoords[l_TeamID][3]);
+
             l_TargetPlayer->SendMovieStart(l_MovieID);
 
             if (l_TeamID == TEAM_ALLIANCE)
             {
-                l_TargetPlayer->AddQuest(sObjectMgr->GetQuestTemplate(QUEST_ETABLISH_YOUR_GARRISON_A), l_TargetPlayer);
-                l_TargetPlayer->CompleteQuest(QUEST_ETABLISH_YOUR_GARRISON_A);
+                l_TargetPlayer->AddQuest(sObjectMgr->GetQuestTemplate(MS::Garrison::Quests::QUEST_ETABLISH_YOUR_GARRISON_A), l_TargetPlayer);
+                l_TargetPlayer->CompleteQuest(MS::Garrison::Quests::QUEST_ETABLISH_YOUR_GARRISON_A);
             }
             else if (l_TeamID == TEAM_HORDE)
             {
-                l_TargetPlayer->AddQuest(sObjectMgr->GetQuestTemplate(QUEST_ETABLISH_YOUR_GARRISON_H), l_TargetPlayer);
-                l_TargetPlayer->CompleteQuest(QUEST_ETABLISH_YOUR_GARRISON_H);
+                l_TargetPlayer->AddQuest(sObjectMgr->GetQuestTemplate(MS::Garrison::Quests::QUEST_ETABLISH_YOUR_GARRISON_H), l_TargetPlayer);
+                l_TargetPlayer->CompleteQuest(MS::Garrison::Quests::QUEST_ETABLISH_YOUR_GARRISON_H);
             }
 
             /// HACK until shadowmoon quest are done : add follower Qiana Moonshadow / Olin Umberhide
@@ -142,7 +138,7 @@ class garrison_commandscript: public CommandScript
 
             /// HACK until quest : add barracks plan
             l_TargetPlayer->GetGarrison()->LearnBlueprint(26);
-            */
+
             return true;
         }
 

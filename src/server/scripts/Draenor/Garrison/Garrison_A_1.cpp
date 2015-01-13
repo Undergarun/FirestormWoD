@@ -4,12 +4,7 @@
 #include "GameObjectAI.h"
 #include "Spell.h"
 #include "Garrison.h"
-
-enum
-{
-    QUEST_ETABLISH_YOUR_GARRISON_A  = 34586,
-    QUEST_KEEPING_IT_TOGETHER       = 35176,
-};
+#include "GarrisonScriptData.hpp"
 
 enum
 {
@@ -75,10 +70,10 @@ class instance_Garrison_A1 : public InstanceMapScript
             {
                 uint32 l_PhaseMask = GARRISON_PHASE_BASE;
 
-                if (p_Owner->GetQuestStatus(QUEST_ETABLISH_YOUR_GARRISON_A) == QUEST_STATUS_REWARDED)
+                if (p_Owner->GetQuestStatus(MS::Garrison::Quests::QUEST_ETABLISH_YOUR_GARRISON_A) == QUEST_STATUS_REWARDED)
                     l_PhaseMask |= GARRISON_PHASE_COMPAGNION;
 
-                if (p_Owner->HasQuest(QUEST_KEEPING_IT_TOGETHER))
+                if (p_Owner->HasQuest(MS::Garrison::Quests::QUEST_KEEPING_IT_TOGETHER))
                     l_PhaseMask |= GARRISON_KEEPING_IT_TOGETHER;
 
                 return l_PhaseMask;
@@ -90,8 +85,8 @@ class instance_Garrison_A1 : public InstanceMapScript
             /// Owner can use the garrison cache ?
             virtual bool CanUseGarrisonCache(Player * p_Owner) override
             {
-                if (p_Owner->GetQuestStatus(QUEST_KEEPING_IT_TOGETHER) == QUEST_STATUS_REWARDED
-                    || p_Owner->HasQuest(QUEST_KEEPING_IT_TOGETHER))
+                if (p_Owner->GetQuestStatus(MS::Garrison::Quests::QUEST_KEEPING_IT_TOGETHER) == QUEST_STATUS_REWARDED
+                    || p_Owner->HasQuest(MS::Garrison::Quests::QUEST_KEEPING_IT_TOGETHER))
                     return true;
 
                 return false;

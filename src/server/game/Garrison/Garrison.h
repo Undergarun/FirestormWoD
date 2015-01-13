@@ -236,13 +236,6 @@ struct GarrisonMissionReward
 
 class Player;
 
-enum GarrisonInstanceData
-{
-    GARRISON_INSTANCE_DATA_PEON_ENABLED = 99,
-    GARRISON_INSTANCE_DATA_THREE_FIRST  = 100,
-    GARRISON_INSTANCE_DATA_THREE_END    = 110,
-};
-
 class GarrisonInstanceScriptBase
 {
     public:

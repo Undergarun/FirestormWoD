@@ -33,6 +33,7 @@ set(scripts_STAT_SRCS
   Draenor/Garrison/Garrison_A_1.cpp
   Draenor/Garrison/Garrison_H_1.cpp
   Draenor/Garrison/Garrison.cpp
+  Draenor/Garrison/GarrisonScriptData.hpp
 )
 
 message("  -> Prepared: Draenor")
