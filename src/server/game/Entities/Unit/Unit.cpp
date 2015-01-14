@@ -2637,8 +2637,8 @@ bool Unit::isBlockCritical()
 {
     if (roll_chance_i(GetTotalAuraModifier(SPELL_AURA_MOD_BLOCK_CRIT_CHANCE)))
     {
-        // Critical Blocks enrage the warrior
-        if (HasAura(76857))
+        // Critical Blocks (spe Protection) enrage the warrior
+        if (ToPlayer() != nullptr && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_PROTECTION)
             CastSpell(this, 12880, true);
         return true;
     }
@@ -4920,7 +4920,7 @@ int32 Unit::GetTotalAuraModifier(AuraType auratype) const
 
     // Fix Mastery : Critical Block - Increase critical block chance
     if (HasAura(76857) && auratype == SPELL_AURA_MOD_BLOCK_CRIT_CHANCE)
-        modifier += int32(GetFloatValue(PLAYER_FIELD_MASTERY) * 2.2f);
+        modifier += int32(GetFloatValue(PLAYER_FIELD_MASTERY) * 1.5f);
 
     return modifier;
 }
