@@ -1321,7 +1321,7 @@ class spell_dru_wild_mushroom: public SpellScriptLoader
                     l_Mushroomlist.remove((*i));
                 }
 
-                if (l_Mushroomlist.size() >= GetSpellInfo()->Effects[p_EffIndex].BasePoints)
+                if ((int32)l_Mushroomlist.size() >= GetSpellInfo()->Effects[p_EffIndex].BasePoints)
                 {
                     // 1 mushrooms max
                     if (GetSpellInfo()->Id == SPELL_DRUID_WILD_MUSHROOM_RESTORATION)
@@ -1337,7 +1337,7 @@ class spell_dru_wild_mushroom: public SpellScriptLoader
                     }
                     else if (GetSpellInfo()->Id == SPELL_DRUID_WILD_MUSHROOM_BALANCE) // 3 mushrooms max
                     {
-                        if (l_Mushroomlist.size() >= GetSpellInfo()->Effects[p_EffIndex].BasePoints)
+                        if ((int32)l_Mushroomlist.size() >= GetSpellInfo()->Effects[p_EffIndex].BasePoints)
                             l_Mushroomlist.back()->ToTempSummon()->UnSummon();
                     }
                 }

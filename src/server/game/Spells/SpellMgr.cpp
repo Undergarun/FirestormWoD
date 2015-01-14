@@ -3858,6 +3858,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ALLY;
                 spellInfo->Effects[1].TargetB = 0;
                 break;
+            case 53390:
+                spellInfo->Effects[0].BasePoints = -20;
+                spellInfo->Effects[1].BasePoints = 30;
+                break;
             case 15286: // Vampiric Embrace
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
