@@ -77,7 +77,8 @@ enum WarriorSpells
     WARRIOR_SPELL_SPELL_REFLECTION_HORDE        = 146122,
     WARRIOR_SPELL_SPELL_REFLECTION_ALLIANCE     = 147923,
     WARRIOR_SPELL_INTERVENE_TRIGGERED           = 34784,
-    WARRIOR_SPELL_GAG_ORDER_SILENCE             = 18498
+    WARRIOR_SPELL_GAG_ORDER_SILENCE             = 18498,
+    WARRIOR_SPELL_WILD_STRIKE                   = 100130
 };
 
 // Slam - 1464
@@ -857,14 +858,18 @@ class spell_warr_bloodthirst: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
                     if (GetHitDamage())
                     {
-                        caster->CastSpell(caster, WARRIOR_SPELL_BLOODTHIRST_HEAL, true);
+                        l_Caster->CastSpell(l_Caster, WARRIOR_SPELL_BLOODTHIRST_HEAL, true);
 
-                        if (caster->HasAura(WARRIOR_SPELL_BLOODSURGE) && roll_chance_i(GetSpellInfo()->Effects[EFFECT_0].BasePoints))
-                            caster->CastSpell(caster, WARRIOR_SPELL_BLOODSURGE_PROC, true);
+                        const SpellInfo *l_SpellInfo = sSpellMgr->GetSpellInfo(WARRIOR_SPELL_BLOODSURGE);
+
+                        if (l_SpellInfo != nullptr && l_Caster->HasSpell(WARRIOR_SPELL_WILD_STRIKE) && roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
+                            l_Caster->CastSpell(l_Caster, WARRIOR_SPELL_BLOODSURGE_PROC, true);
+                        if (l_SpellInfo != nullptr && l_Caster->HasAura(WARRIOR_SPELL_BLOODSURGE) && roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
+                            l_Caster->CastSpell(l_Caster, WARRIOR_SPELL_BLOODSURGE_PROC, true);
                     }
                 }
             }
