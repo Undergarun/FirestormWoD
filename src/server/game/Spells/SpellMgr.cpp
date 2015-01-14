@@ -5356,6 +5356,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_MOD_HEALING_DONE_PERCENT;
                 spellInfo->Effects[1].BasePoints = 30;
                 break;
+            case 126060:// Desperate Measures
+                spellInfo->Effects[0].BasePoints = 0;
             case 124273:// Heavy Stagger
             case 124274:// Moderate Stagger
             case 124275:// Light Stagger
