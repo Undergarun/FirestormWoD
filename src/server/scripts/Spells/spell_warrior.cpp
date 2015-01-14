@@ -78,7 +78,8 @@ enum WarriorSpells
     WARRIOR_SPELL_SPELL_REFLECTION_ALLIANCE     = 147923,
     WARRIOR_SPELL_INTERVENE_TRIGGERED           = 34784,
     WARRIOR_SPELL_GAG_ORDER_SILENCE             = 18498,
-    WARRIOR_SPELL_WILD_STRIKE                   = 100130
+    WARRIOR_SPELL_WILD_STRIKE                   = 100130,
+    WARRIOR_SPELL_DOUBLE_TIME_MARKER            = 124184
 };
 
 // Slam - 1464
@@ -1031,11 +1032,21 @@ class spell_warr_charge: public SpellScriptLoader
     {
         PrepareSpellScript(spell_warr_charge_SpellScript)
 
+        bool m_HasAuraDoubleTimeMarker = false;
+
+        void HandleOnCast()
+        {
+            if (Unit* l_Caster = GetCaster())
+                if (l_Caster->HasAura(WARRIOR_SPELL_DOUBLE_TIME_MARKER))
+                    m_HasAuraDoubleTimeMarker = true;
+        }
+
         void HandleCharge(SpellEffIndex /*effIndex*/)
         {
             Unit* l_Caster = GetCaster();
             Unit* l_Target = GetHitUnit();
-            if (!l_Target)
+            
+            if (l_Target == nullptr || l_Caster == nullptr)
                 return;
 
             l_Caster->CastSpell(l_Target, l_Caster->HasAura(SPELL_WARR_WARBRINGER) ? SPELL_WARR_WARBRINGER_STUN : SPELL_WARR_CHARGE_ROOT, true);
@@ -1045,7 +1056,7 @@ class spell_warr_charge: public SpellScriptLoader
         {
             Unit* l_Caster = GetCaster();
 
-            if (!l_Caster->HasSpell(SPELL_WARR_DOUBLE_TIME))
+            if (l_Caster != nullptr && !m_HasAuraDoubleTimeMarker)
             {
                 int32 l_RageGain = GetEffectValue() / l_Caster->GetPowerCoeff(POWER_RAGE);
 
@@ -1058,6 +1069,7 @@ class spell_warr_charge: public SpellScriptLoader
 
         void Register()
         {
+            OnCast += SpellCastFn(spell_warr_charge_SpellScript::HandleOnCast);
             OnEffectHitTarget += SpellEffectFn(spell_warr_charge_SpellScript::HandleCharge, EFFECT_0, SPELL_EFFECT_CHARGE);
             OnEffectHitTarget += SpellEffectFn(spell_warr_charge_SpellScript::HandleRageGain, EFFECT_1, SPELL_EFFECT_DUMMY);
         }
