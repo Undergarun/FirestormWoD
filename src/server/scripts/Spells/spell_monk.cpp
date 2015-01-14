@@ -94,7 +94,7 @@ enum MonkSpells
     SPELL_MONK_BEAR_HUG                         = 127361,
     ITEM_MONK_T14_TANK_4P                       = 123159,
     MONK_NPC_BLACK_OX_STATUE                    = 61146,
-    SPELL_MONK_GUARD                            = 118604,
+    SPELL_MONK_GUARD                            = 115295,
     SPELL_MONK_ITEM_2_S12_MISTWEAVER            = 131561,
     SPELL_MONK_ITEM_4_S12_MISTWEAVER            = 124487,
     SPELL_MONK_ZEN_FOCUS                        = 124488,
@@ -4083,9 +4083,9 @@ enum ExpelHarmSpells
 {
     //SPELL_MONK_STANCE_OF_THE_FIERCE_TIGER = 103985,
     //SPELL_MONK_2H_STAFF_OVERRIDE          = 108561,
-    SPELL_MONK_EXPEL_HARM_DAMAGE          = 115129
     //SPELL_MONK_2H_POLEARM_OVERRIDE        = 115697,
     //SPELL_MONK_MANA_MEDITATION            = 121278
+    SPELL_MONK_EXPEL_HARM_DAMAGE            = 115129
 };
 
 // Expel Harm - 115072
@@ -4098,7 +4098,7 @@ public:
     {
         PrepareSpellScript(spell_monk_expel_harm_SpellScript);
 
-        void HandleOnHit()
+        void HandleHeal(SpellEffIndex /*effIndex*/)
         {
             if (!GetCaster())
                 return;
@@ -4115,6 +4115,11 @@ public:
             l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
 
             int32 l_Heal = GetHitHeal() + int32(frand(7.5f * l_Low, 7.5f * l_High));
+
+            SpellInfo const* l_SpellInfoGuard = sSpellMgr->GetSpellInfo(SPELL_MONK_GUARD);
+            if (l_Target->GetGUID() == l_Player->GetGUID() && l_Player->HasAura(SPELL_MONK_GUARD) && l_SpellInfoGuard != nullptr)
+                l_Heal += CalculatePct(l_Heal, l_SpellInfoGuard->Effects[EFFECT_1].BasePoints);
+            
             SetHitHeal(l_Heal);
 
             float l_Radius = 10.0f;
@@ -4142,7 +4147,7 @@ public:
 
         void Register()
         {
-            OnHit += SpellHitFn(spell_monk_expel_harm_SpellScript::HandleOnHit);
+            OnEffectHitTarget += SpellEffectFn(spell_monk_expel_harm_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
         }
     };
 
