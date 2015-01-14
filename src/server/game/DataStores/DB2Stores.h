@@ -55,7 +55,8 @@ extern DB2Storage <SpellClassOptionsEntry>          sSpellClassOptionsStore;
 extern DB2Storage <MapChallengeModeEntry>           sMapChallengeModeStore;
 extern DB2Storage <QuestPackageItemEntry>           sQuestPackageItemStore;
 extern DB2Storage <MountEntry>                      sMountStore;
-
+extern DB2Storage <PlayerConditionEntry>            sPlayerConditionStore;
+extern DB2Storage <VignetteEntry>                   sVignetteStore;
 
 //////////////////////////////////////////////////////////////////////////
 /// Garrison DB2

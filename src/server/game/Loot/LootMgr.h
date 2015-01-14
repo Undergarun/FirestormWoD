@@ -333,9 +333,12 @@ struct Loot
     uint8 unlootedCount;
     uint64 roundRobinPlayer;                                // GUID of the player having the Round-Robin ownership for the loot. If 0, round robin owner has released.
     LootType loot_type;                                     // required for achievement system
+    uint64 source;                                          ///< Source guid of loot (gameobject, creature) 
 
     Loot(uint32 _gold = 0) : alreadyAskedForRoll(false), maxLinkedSlot(0), additionalLinkedGold(0), gold(_gold), unlootedCount(0), loot_type(LOOT_CORPSE) {}
     ~Loot() { clear(); }
+
+    void SetSource(uint64 p_Source) { source = p_Source; }
 
     // if loot becomes invalid this reference is used to inform the listener
     void addLootValidatorRef(LootValidatorRef* pLootValidatorRef)

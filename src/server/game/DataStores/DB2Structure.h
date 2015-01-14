@@ -157,147 +157,6 @@ struct ItemEffectEntry
     uint32 SpellCategoryCooldown;                           // 8
 };
 
-// unused
-struct PlayerConditionEntry
-{
-    uint32 ID;                                              // 1
-    uint32 Flags;                                           // 2
-    uint32 MinLevel;                                        // 3
-    uint32 MaxLevel;                                        // 4
-    uint32 RaceMask;                                        // 5
-    uint32 ClassMask;                                       // 6
-    uint32 Gender;                                          // 7
-    uint32 NativeGender;                                    // 8
-    uint32 SkillID1;                                        // 9
-    uint32 SkillID2;                                        // 10
-    uint32 SkillID3;                                        // 11
-    uint32 SkillID4;                                        // 12
-    uint32 MinSkill1;                                       // 13
-    uint32 MinSkill2;                                       // 14
-    uint32 MinSkill3;                                       // 15
-    uint32 MinSkill4;                                       // 16
-    uint32 MaxSkill1;                                       // 17
-    uint32 MaxSkill2;                                       // 18
-    uint32 MaxSkill3;                                       // 19
-    uint32 MaxSkill4;                                       // 20
-    uint32 SkillLogic;                                      // 21
-    uint32 LanguageID;                                      // 22
-    uint32 MinLanguage;                                     // 23
-    uint32 MaxLanguage;                                     // 24
-    uint32 MinFactionID1;                                   // 25
-    uint32 MinFactionID2;                                   // 26
-    uint32 MinFactionID3;                                   // 27
-    uint32 MaxFactionID;                                    // 28
-    uint32 MinReputation1;                                  // 29
-    uint32 MinReputation2;                                  // 30
-    uint32 MinReputation3;                                  // 31
-    uint32 MaxReputation;                                   // 32
-    uint32 ReputationLogic;                                 // 33
-    uint32 MinPVPRank;                                      // 34
-    uint32 MaxPVPRank;                                      // 35
-    uint32 PvpMedal;                                        // 36
-    uint32 PrevQuestLogic;                                  // 37
-    uint32 PrevQuestID1;                                    // 38
-    uint32 PrevQuestID2;                                    // 39
-    uint32 PrevQuestID3;                                    // 40
-    uint32 PrevQuestID4;                                    // 41
-    uint32 CurrQuestLogic;                                  // 42
-    uint32 CurrQuestID1;                                    // 43
-    uint32 CurrQuestID2;                                    // 44
-    uint32 CurrQuestID3;                                    // 45
-    uint32 CurrQuestID4;                                    // 46
-    uint32 CurrentCompletedQuestLogic;                      // 47
-    uint32 CurrentCompletedQuestID1;                        // 48
-    uint32 CurrentCompletedQuestID2;                        // 49
-    uint32 CurrentCompletedQuestID3;                        // 50
-    uint32 CurrentCompletedQuestID4;                        // 51
-    uint32 SpellLogic;                                      // 52
-    uint32 SpellID1;                                        // 53
-    uint32 SpellID2;                                        // 54
-    uint32 SpellID3;                                        // 55
-    uint32 SpellID4;                                        // 56
-    uint32 ItemLogic;                                       // 57
-    uint32 ItemID1;                                         // 58
-    uint32 ItemID2;                                         // 59
-    uint32 ItemID3;                                         // 60
-    uint32 ItemID4;                                         // 61
-    uint32 ItemCount1;                                      // 62
-    uint32 ItemCount2;                                      // 63
-    uint32 ItemCount3;                                      // 64
-    uint32 ItemCount4;                                      // 65
-    uint32 ItemFlags;                                       // 66
-    uint32 Explored1;                                       // 67
-    uint32 Explored2;                                       // 68
-    uint32 Time1;                                           // 69
-    uint32 Time2;                                           // 70
-    uint32 AuraSpellLogic;                                  // 71
-    uint32 AuraSpellID1;                                    // 72
-    uint32 AuraSpellID2;                                    // 73
-    uint32 AuraSpellID3;                                    // 74
-    uint32 AuraSpellID4;                                    // 75
-    uint32 WorldStateExpressionID;                          // 76
-    uint32 WeatherID;                                       // 77
-    uint32 PartyStatus;                                     // 78
-    uint32 LifetimeMaxPVPRank;                              // 79
-    uint32 AchievementLogic;                                // 80
-    uint32 Achievement1;                                    // 81
-    uint32 Achievement2;                                    // 82
-    uint32 Achievement3;                                    // 83
-    uint32 Achievement4;                                    // 84
-    uint32 LfgLogic;                                        // 85
-    uint32 LfgStatus1;                                      // 86
-    uint32 LfgStatus2;                                      // 87
-    uint32 LfgStatus3;                                      // 88
-    uint32 LfgStatus4;                                      // 89
-    uint32 LfgCompare1;                                     // 90
-    uint32 LfgCompare2;                                     // 91
-    uint32 LfgCompare3;                                     // 92
-    uint32 LfgCompare4;                                     // 93
-    uint32 LfgValue1;                                       // 94
-    uint32 LfgValue2;                                       // 95
-    uint32 LfgValue3;                                       // 96
-    uint32 LfgValue4;                                       // 97
-    uint32 AreaLogic;                                       // 98
-    uint32 AreaID1;                                         // 99
-    uint32 AreaID2;                                         // 100
-    uint32 AreaID3;                                         // 101
-    uint32 AreaID4;                                         // 102
-    uint32 CurrencyLogic;                                   // 103
-    uint32 CurrencyID1;                                     // 104
-    uint32 CurrencyID2;                                     // 105
-    uint32 CurrencyID3;                                     // 106
-    uint32 CurrencyID4;                                     // 107
-    uint32 CurrencyCount1;                                  // 108
-    uint32 CurrencyCount2;                                  // 109
-    uint32 CurrencyCount3;                                  // 110
-    uint32 CurrencyCount4;                                  // 111
-    uint32 QuestKillID;                                     // 112
-    uint32 QuestKillLogic;                                  // 113
-    uint32 QuestKillMonster1;                               // 114
-    uint32 QuestKillMonster2;                               // 115
-    uint32 QuestKillMonster3;                               // 116
-    uint32 QuestKillMonster4;                               // 117
-    uint32 MinExpansionLevel;                               // 118
-    uint32 MaxExpansionLevel;                               // 119
-    uint32 MinExpansionTier;                                // 120
-    uint32 MaxExpansionTier;                                // 121
-    uint32 MinGuildLevel;                                   // 122
-    uint32 MaxGuildLevel;                                   // 123
-    uint32 PhaseUseFlags;                                   // 124
-    uint32 PhaseID;                                         // 125
-    uint32 PhaseGroupID;                                    // 126
-    uint32 MinAvgItemLevel;                                 // 127
-    uint32 MaxAvgItemLevel;                                 // 128
-    uint32 MinAvgEquippedItemLevel;                         // 129
-    uint32 MaxAvgEquippedItemLevel;                         // 130
-    uint32 ChrSpecializationIndex;                          // 131
-    uint32 ChrSpecializationRole;                           // 132
-    char*  FailureDescriptionLang;                          // 133
-    uint32 PowerType;                                       // 134
-    uint32 PowerTypeComp;                                   // 135
-    uint32 PowerTypeValue;                                  // 136
-};
-
 struct PvpItemEntry
 {
     uint32 itemId;
@@ -1020,7 +879,7 @@ struct MountEntry
 };
 
 /// PlayerCondition.db2
-struct PlayerCondition
+struct PlayerConditionEntry
 {
     uint32 ID;
     uint32 Flags;
@@ -1098,6 +957,26 @@ struct PlayerCondition
     uint32 PowerType;
     uint32 PowerTypeComp;
     uint32 PowerTypeValue;
+};
+
+/// Flags of PrevQuestLogic (PlayerConditionEntry) 
+namespace PrevQuestLogicFlags
+{
+    enum 
+    {
+        TrackingQuest = 0x10000
+    };
+}
+
+/// Vignette.db2
+struct VignetteEntry
+{
+    uint32 Id;
+    char*  Name;
+    uint32 QuestFeedbackEffectId;
+    uint32 Flags;
+    float  X;
+    float  Y;
 };
 
 // GCC has alternative #pragma pack(N) syntax and old gcc version does not support pack(push, N), also any gcc version does not support it at some platform

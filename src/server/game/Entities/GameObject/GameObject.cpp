@@ -247,6 +247,8 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
 
     SetDisplayId(goinfo->displayId);
 
+    loot.SetSource(GetGUID());
+
     // GAMEOBJECT_BYTES_1, index at 0, 1, 2 and 3
     SetGoType(GameobjectTypes(goinfo->type));
     SetGoState(go_state);
@@ -2254,6 +2256,12 @@ void GameObject::SetLootRecipient(Unit* unit)
 
 bool GameObject::IsLootAllowedFor(Player const* player) const
 {
+    /// If creature is quest tracked and player have the quest, player isn't allowed to loot
+    auto   l_TrackingQuestId = GetGOInfo()->GetTrackingQuestId();
+    uint32 l_QuestBit = GetQuestUniqueBitFlag(l_TrackingQuestId);
+    if (l_TrackingQuestId && player->GetCompletedQuests().GetBit(l_QuestBit))
+        return false;
+
     if (!m_lootRecipient && !m_lootRecipientGroup)
         return true;
 
@@ -2329,7 +2337,7 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
             {
                 uint32 flags = m_uint32Values[GAMEOBJECT_FIELD_FLAGS];
                 if (GetGoType() == GAMEOBJECT_TYPE_CHEST)
-                    if (GetGOInfo()->chest.usegrouplootrules && !IsLootAllowedFor(target))
+                    if ((GetGOInfo()->chest.usegrouplootrules || GetGOInfo()->GetTrackingQuestId()) && !IsLootAllowedFor(target))
                         flags |= GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE;
 
                 fieldBuffer << flags;

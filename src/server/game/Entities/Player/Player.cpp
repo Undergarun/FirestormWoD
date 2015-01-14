@@ -10947,6 +10947,15 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
             return;
         }
 
+        /// If gameobject is quest tracked and player already have it, player can't loot (cheat ?)
+        auto   l_TrackingQuest = go->GetGOInfo()->GetTrackingQuestId();
+        uint32 l_QuestBit      = GetQuestUniqueBitFlag(l_TrackingQuest);
+        if (l_TrackingQuest && m_CompletedQuestBits.GetBit(l_QuestBit - 1))
+        {
+            SendLootRelease(guid);
+            return;
+        }
+
         loot = &go->loot;
 
         if (go->getLootState() == GO_READY)
@@ -11112,6 +11121,16 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
         }
 
         if (loot_type == LOOT_PICKPOCKETING && IsFriendlyTo(creature))
+        {
+            SendLootRelease(guid);
+            return;
+        }
+
+        /// If creature is quest tracked and player already have it, player can't loot (cheat ?)
+        auto l_TrackingQuest = creature->GetCreatureTemplate()->TrackingQuestID;
+        uint32 l_QuestBit    = GetQuestUniqueBitFlag(l_TrackingQuest);
+
+        if (l_TrackingQuest && m_CompletedQuestBits.GetBit(l_QuestBit - 1))
         {
             SendLootRelease(guid);
             return;
@@ -20377,6 +20396,12 @@ bool Player::isAllowedToLoot(const Creature* creature)
     if (HasPendingBind())
         return false;
 
+    /// If creature is quest tracked and player have the quest, player isn't allowed to loot
+    auto l_TrackingQuestId = creature->GetCreatureTemplate()->TrackingQuestID;
+    uint32 l_QuestBit = GetQuestUniqueBitFlag(l_TrackingQuestId);
+    if (l_TrackingQuestId && m_CompletedQuestBits.GetBit(l_QuestBit - 1))
+        return false;
+
     const Loot* loot = &creature->loot;
     if (loot->isLooted()) // nothing to loot or everything looted.
         return false;
@@ -28222,15 +28247,59 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, uint8 linkedLootSlot)
                     guild->GetNewsLog().AddNewEvent(GUILD_NEWS_ITEM_LOOTED, time(NULL), GetGUID(), 0, item->itemid);*/
 
         SendNewItem(newitem, uint32(item->count), false, false, true);
+
+        /// Add bonus to item if needed
         newitem->AddItemBonuses(item->itemBonuses);
 
+        /// Handle achievement criteria related to loot
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, item->itemid, item->count);
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE, loot->loot_type, item->count);
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM, item->itemid, item->count);
+
+        /// Complete the tracking quest if needed
+        AddTrackingQuestIfNeeded(loot->source);
     }
     else
         SendEquipError(msg, NULL, NULL, item->itemid);
 }
+
+void Player::AddTrackingQuestIfNeeded(uint64 p_SourceGuid)
+{
+    uint32 l_TrackingQuest = 0;
+
+    /// If source is a creature
+    if (IS_UNIT_GUID(p_SourceGuid))
+    {
+        Creature* l_CreatureSource = sObjectAccessor->FindCreature(p_SourceGuid);
+        if (l_CreatureSource == nullptr)
+            return;
+
+        l_TrackingQuest = l_CreatureSource->GetCreatureTemplate()->TrackingQuestID;
+    }
+
+    /// If source is a gameobject
+    if (IS_GAMEOBJECT_GUID(p_SourceGuid))
+    {
+        GameObject* l_GameObjectSource = sObjectAccessor->FindGameObject(p_SourceGuid);
+        if (l_GameObjectSource == nullptr)
+            return;
+
+        l_TrackingQuest = l_GameObjectSource->GetGOInfo()->GetTrackingQuestId();
+    }
+
+    /// @TODO: Item can have tracking quest ?
+
+    if (l_TrackingQuest == 0)
+        return;
+
+    auto l_Quest = sObjectMgr->GetQuestTemplate(l_TrackingQuest);
+    if (l_Quest == nullptr)
+        return;
+
+    SetQuestStatus(l_Quest->GetQuestId(), QUEST_STATUS_COMPLETE);
+    RewardQuest(l_Quest, 0, nullptr);
+}
+
 
 uint32 Player::CalculateTalentsPoints() const
 {

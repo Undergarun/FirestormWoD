@@ -264,7 +264,8 @@ bool SpellClickInfo::IsFitToRequirements(Unit const* clicker, Unit const* clicke
 ObjectMgr::ObjectMgr(): _auctionId(1), _equipmentSetGuid(1),
     _itemTextId(1), _mailId(1), _hiPetNumber(1), _voidItemId(1), _hiCharGuid(1),
     _hiCreatureGuid(1), _hiPetGuid(1), _hiVehicleGuid(1), _hiItemGuid(1),
-    _hiGoGuid(1), _hiDoGuid(1), _hiCorpseGuid(1), _hiAreaTriggerGuid(1), _hiMoTransGuid(1), _skipUpdateCount(1)
+    _hiGoGuid(1), _hiDoGuid(1), _hiCorpseGuid(1), _hiAreaTriggerGuid(1), _hiMoTransGuid(1), _skipUpdateCount(1),
+    m_HiVignetteGuid(1)
 {}
 
 ObjectMgr::~ObjectMgr()
@@ -414,8 +415,8 @@ void ObjectMgr::LoadCreatureTemplates()
                                              "spell1, spell2, spell3, spell4, spell5, spell6, spell7, spell8, PetSpellDataId, VehicleId, mingold, maxgold, AIName, MovementType, "
     //                                           66             67          68         69           70           71         72            73           74          75         76          77
                                              "InhabitType, HoverHeight, Health_mod, Mana_mod, Mana_mod_extra, Armor_mod, RacialLeader, questItem1, questItem2, questItem3, questItem4, questItem5, "
-    //                                            78           79         80               81               82           83
-                                             "questItem6, movementId, RegenHealth, mechanic_immune_mask, flags_extra, ScriptName "
+    //                                            78           79         80               81               82               83              84
+                                             "questItem6, movementId, TrackingQuestID,  RegenHealth, mechanic_immune_mask, flags_extra, ScriptName "
                                              "FROM creature_template;");
 
     if (!result)
@@ -511,6 +512,7 @@ void ObjectMgr::LoadCreatureTemplates()
             creatureTemplate.questItems[i] = fields[index++].GetUInt32();
 
         creatureTemplate.movementId         = fields[index++].GetUInt32();
+        creatureTemplate.TrackingQuestID    = fields[index++].GetUInt32();
         creatureTemplate.RegenHealth        = fields[index++].GetBool();
         creatureTemplate.MechanicImmuneMask = fields[index++].GetUInt32();
         creatureTemplate.flags_extra        = fields[index++].GetUInt32();

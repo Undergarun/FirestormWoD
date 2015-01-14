@@ -1593,17 +1593,25 @@ class ObjectMgr
         {
             return m_GarrisonID++;
         }
+
         uint32 GetNewGarrisonBuildingID()
         {
             return m_GarrisonBuildingID++;
         }
+
         uint32 GetNewGarrisonFollowerID()
         {
             return m_GarrisonFollowerID++;
         }
+
         uint32 GetNewGarrisonMissionID()
         {
             return m_GarrisonMissionID++;
+        }
+
+        uint32 GenerateNewVignetteGUID()
+        {
+            return m_HiVignetteGuid++;
         }
 
     private:
@@ -1630,6 +1638,7 @@ class ObjectMgr
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_GarrisonBuildingID;
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_GarrisonFollowerID;
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_GarrisonMissionID;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_HiVignetteGuid;
 
         QuestMap _questTemplates;
         QuestObjectiveLookupMap m_questObjectiveLookup;

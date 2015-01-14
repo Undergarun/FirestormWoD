@@ -183,6 +183,7 @@ struct CreatureTemplate
     bool    RacialLeader;
     uint32  questItems[MAX_CREATURE_QUEST_ITEMS];
     uint32  movementId;
+    uint32  TrackingQuestID;
     bool    RegenHealth;
     uint32  MechanicImmuneMask;
     uint32  flags_extra;

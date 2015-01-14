@@ -184,8 +184,7 @@ enum Opcodes
         SMSG_CROSSED_INEBRIATION_THRESHOLD          = 0x0103,   ///< 6.0.3 19116
         SMSG_CLIENT_CONTROL_UPDATE                  = 0x080E,   ///< 6.0.3 19116
         SMSG_AREA_TRIGGER_NO_CORPSE                 = 0x0D3F,   ///< 6.0.3 19116
-        SMSG_CHAR_CUSTOMIZE_RESULT                  = 0x0BAA,   ///< 6.0.3 19116
-        SMSG_CHAR_CUSTOMIZE                         = 0x1932,   ///< 6.0.3 19116
+        SMSG_VIGNETTE_UPDATE                        = 0x09AC,   ///< 6.0.3 19116
 
         /// Control Alert
         SMSG_LOSS_OF_CONTROL_AURA_UPDATE            = 0x0305,   ///< 6.0.3 19116
@@ -219,6 +218,8 @@ enum Opcodes
         SMSG_SET_PLAYER_DECLINED_NAMES_RESULT       = 0x13E2,   ///< 6.0.3 19116
         SMSG_CHAR_FACTION_CHANGE                    = 0x0810,   ///< 6.0.3 19116
         SMSG_CHAR_RENAME                            = 0x0D89,   ///< 6.0.3 19116
+        SMSG_CHAR_CUSTOMIZE_RESULT                  = 0x0BAA,   ///< 6.0.3 19116
+        SMSG_CHAR_CUSTOMIZE                         = 0x1932,   ///< 6.0.3 19116
 
         /// Account data
         SMSG_ACCOUNT_DATA_TIMES                     = 0x0120,   ///< 6.0.3 19116

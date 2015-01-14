@@ -25,6 +25,7 @@
 #include "Object.h"
 #include "LootMgr.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
 
 class GameObjectAI;
 class Transport;
@@ -773,6 +774,45 @@ struct GameObjectTemplate
             case GAMEOBJECT_TYPE_GOOBER:      return goober.cooldown;
             default: return 0;
         }
+    }
+
+    uint32 GetTrackingQuestId() const
+    {
+        uint32 l_PlayerConditionID = 0;
+        switch (type)
+        {
+            case GAMEOBJECT_TYPE_CHEST:
+                l_PlayerConditionID = chest.conditionID1;
+                break;
+            case GAMEOBJECT_TYPE_GOOBER:
+                l_PlayerConditionID = goober.conditionID1;
+                break;
+            /// Maybe somes others gameobject types can have tracking quest
+            default:
+                break;
+        }
+
+        if (!l_PlayerConditionID)
+            return 0;
+
+        auto l_PlayerCondition = sPlayerConditionStore.LookupEntry(l_PlayerConditionID);
+        if (l_PlayerCondition == nullptr || !(l_PlayerCondition->PrevQuestLogic & PrevQuestLogicFlags::TrackingQuest))
+            return 0;
+
+        return l_PlayerCondition->PrevQuestID[0];
+    }
+
+    uint32 GetVignetteId() const
+    {
+        switch (type)
+        {
+            case GAMEOBJECT_TYPE_CHEST:
+                return chest.SpawnVignette;
+            case GAMEOBJECT_TYPE_GOOBER:
+                return goober.SpawnVignette;
+        }
+
+        return 0;
     }
 };
 

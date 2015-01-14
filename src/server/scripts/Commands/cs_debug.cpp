@@ -41,7 +41,10 @@ EndScriptData */
 class debug_commandscript: public CommandScript
 {
     public:
-        debug_commandscript() : CommandScript("debug_commandscript") { }
+
+        debug_commandscript() : CommandScript("debug_commandscript")
+        {
+        }
 
         ChatCommand* GetCommands() const
         {
@@ -117,6 +120,8 @@ class debug_commandscript: public CommandScript
                 { "moditem",        SEC_ADMINISTRATOR,  false, &HandleDebugModItem,                "", NULL },
                 { "crashtest",      SEC_ADMINISTRATOR,  false, &HandleDebugCrashTest,              "", NULL },
                 { "bgaward",        SEC_ADMINISTRATOR,  false, &HandleDebugBgAward,                "", NULL },
+                { "vignette",       SEC_ADMINISTRATOR,  false, &HandleDebugVignette,               "", NULL },
+
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand commandTable[] =
@@ -2316,6 +2321,53 @@ class debug_commandscript: public CommandScript
             }
 
             l_Battleground->AwardTeams(l_Points, 3, l_Team); 
+            return true;
+        }
+
+        static bool HandleDebugVignette(ChatHandler* p_Handler, char const* p_Args)
+        {
+            char* l_VignetteIDStr = strtok((char*)p_Args, " ");
+            if (!l_VignetteIDStr)
+                return false;
+
+            Unit* l_SelectedUnit = p_Handler->GetSession()->GetPlayer()->GetSelectedUnit();
+            if (!l_SelectedUnit)
+                return false;
+
+            uint32 l_VignetteID = atoi(l_VignetteIDStr);
+            uint64 l_VignetteGUID = MAKE_NEW_GUID(l_SelectedUnit->GetGUIDLow(), l_VignetteID, HIGHGUID_VIGNETTE);
+
+
+            WorldPacket l_Data(SMSG_VIGNETTE_UPDATE);
+            l_Data.WriteBit(true);                                 ///< ForceUpdate
+            l_Data << uint32(0);                                   ///< RemovedCount
+            
+            //for ()
+            //    l_Data.appendPackGUID(IDs);
+
+            l_Data << uint32(1);                                   ///< Added count
+
+            for ()
+                l_Data.appendPackGUID(l_VignetteGUID);
+
+            l_Data << uint32(1);
+            {
+                l_Data << float(l_SelectedUnit->GetPositionX());
+                l_Data << float(l_SelectedUnit->GetPositionY());
+                l_Data << float(l_SelectedUnit->GetPositionZ());
+                l_Data.appendPackGUID(l_VignetteGUID);
+                l_Data << uint32(l_VignetteID);
+                l_Data << uint32(0);                               ///< unk
+            }
+
+            l_Data << uint32(0);                                   ///< UpdateCount
+            {
+            }
+
+            l_Data << uint32(0);                                   ///< UpdateDataCount 
+
+            p_Handler->GetSession()->SendPacket(&l_Data);
+
             return true;
         }
 };
