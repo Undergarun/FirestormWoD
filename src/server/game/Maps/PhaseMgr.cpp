@@ -19,7 +19,7 @@
 #include "Chat.h"
 #include "ObjectMgr.h"
 #include "ConditionMgr.h"
-#include "Garrison.h"
+#include "GarrisonMgr.hpp"
 
 //////////////////////////////////////////////////////////////////
 // Updating

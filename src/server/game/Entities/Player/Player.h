@@ -1437,7 +1437,11 @@ enum BattlegroundTimerTypes
     CHALLENGE_TIMER
 };
 
-class Garrison;
+namespace MS { namespace Garrison 
+{
+    class GarrisonMgr;
+}   ///< namespace Garrison
+}   ///< namespace MS
 
 class Player : public Unit, public GridObject<Player>
 {
@@ -1503,7 +1507,7 @@ class Player : public Unit, public GridObject<Player>
         std::string afkMsg;
         std::string dndMsg;
 
-        Garrison * GetGarrison();
+        MS::Garrison::GarrisonMgr * GetGarrison();
         void CreateGarrison();
         bool IsInGarrison();
         void DeleteGarrison();
@@ -3768,7 +3772,7 @@ class Player : public Unit, public GridObject<Player>
         //////////////////////////////////////////////////////////////////////////
         /// Garrison
         //////////////////////////////////////////////////////////////////////////
-        Garrison * m_Garrison;
+        MS::Garrison::GarrisonMgr * m_Garrison;
         IntervalTimer m_GarrisonUpdateTimer;
 
         //////////////////////////////////////////////////////////////////////////

@@ -82,7 +82,7 @@
 #include "TicketMgr.h"
 #include "UpdateFieldFlags.h"
 #include "SceneObject.h"
-#include "Garrison.h"
+#include "GarrisonMgr.hpp"
 #include "PetBattle.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
@@ -6436,7 +6436,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
-            Garrison::Delete(playerguid, trans);
+            MS::Garrison::GarrisonMgr::Delete(playerguid, trans);
 
             CharacterDatabase.CommitTransaction(trans);
             break;
@@ -9435,7 +9435,7 @@ void Player::UpdateArea(uint32 newArea)
 
                 const GarrSiteLevelEntry * l_GarrisonSiteEntry = m_Garrison->GetGarrisonSiteLevelEntry();
 
-                if (l_DraenorBaseMap_Area != gGarrisonInGarrisonAreaID[m_Garrison->GetGarrisonFactionIndex()] && GetMapId() == l_GarrisonSiteEntry->MapID)
+                if (l_DraenorBaseMap_Area != MS::Garrison::gGarrisonInGarrisonAreaID[m_Garrison->GetGarrisonFactionIndex()] && GetMapId() == l_GarrisonSiteEntry->MapID)
                 {
                     m_Garrison->OnPlayerLeave();
                     m_Garrison->_SetGarrisonScript(nullptr);
@@ -9444,7 +9444,7 @@ void Player::UpdateArea(uint32 newArea)
                     phaseMgr.Update();
                     phaseMgr.ForceMapShiftUpdate();
                 }
-                else if (l_DraenorBaseMap_Area == gGarrisonInGarrisonAreaID[m_Garrison->GetGarrisonFactionIndex()] && GetMapId() == GARRISON_BASE_MAP)
+                else if (l_DraenorBaseMap_Area == MS::Garrison::gGarrisonInGarrisonAreaID[m_Garrison->GetGarrisonFactionIndex()] && GetMapId() == GARRISON_BASE_MAP)
                 {
                     Difficulty l_DungeonDiff = REGULAR_5_DIFFICULTY;
                     std::swap(l_DungeonDiff, m_dungeonDifficulty);
@@ -18053,6 +18053,9 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
 
     sScriptMgr->OnQuestReward(this, p_Quest);
 
+    if (m_Garrison && IsInGarrison())
+        m_Garrison->OnQuestReward(p_Quest);
+
     if (p_Quest->GetZoneOrSort() > 0)
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_IN_ZONE, p_Quest->GetZoneOrSort());
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST_COUNT);
@@ -20359,7 +20362,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
 
     _LoadToyBox(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_TOYS));
 
-    Garrison * l_Garrison = new Garrison(this);
+    MS::Garrison::GarrisonMgr * l_Garrison = new MS::Garrison::GarrisonMgr(this);
 
     if (l_Garrison->Load(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_GARRISON), holder->GetPreparedResult(PLAYER_LOGIN_QUERY_GARRISON_BUILDINGS), holder->GetPreparedResult(PLAYER_LOGIN_QUERY_GARRISON_FOLLOWERS), holder->GetPreparedResult(PLAYER_LOGIN_QUERY_GARRISON_MISSIONS)))
         m_Garrison = l_Garrison;
@@ -31162,7 +31165,7 @@ uint32 Player::GetFreeReagentBankSlot() const
     return REAGENT_BANK_SLOT_BAG_END;
 }
 
-Garrison * Player::GetGarrison()
+MS::Garrison::GarrisonMgr * Player::GetGarrison()
 {
     return m_Garrison;
 }
@@ -31172,7 +31175,7 @@ void Player::CreateGarrison()
     if (m_Garrison)
         return;
 
-    m_Garrison = new Garrison(this);
+    m_Garrison = new MS::Garrison::GarrisonMgr(this);
     m_Garrison->Create();
 }
 

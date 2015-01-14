@@ -1,7 +1,7 @@
 #include "ScriptMgr.h"
 #include "GameEventMgr.h"
 #include "Chat.h"
-#include "Garrison.h"
+#include "GarrisonMgr.hpp"
 #include "ObjectMgr.h"
 #include "../Draenor/Garrison/GarrisonScriptData.hpp"
 
@@ -220,7 +220,7 @@ class garrison_commandscript: public CommandScript
                 return false;
             }
 
-            GarrisonPlotInstanceInfoLocation l_Info = l_TargetPlayer->GetGarrison()->GetPlot(l_TargetPlayer->GetPositionX(), l_TargetPlayer->GetPositionY(), l_TargetPlayer->GetPositionZ());
+            MS::Garrison::GarrisonPlotInstanceInfoLocation l_Info = l_TargetPlayer->GetGarrison()->GetPlot(l_TargetPlayer->GetPositionX(), l_TargetPlayer->GetPositionY(), l_TargetPlayer->GetPositionZ());
 
             if (!l_Info.PlotInstanceID)
             {
@@ -232,13 +232,13 @@ class garrison_commandscript: public CommandScript
             p_Handler->PSendSysMessage("Plot instance id %u type %u", l_Info.PlotInstanceID, l_TargetPlayer->GetGarrison()->GetPlotType(l_Info.PlotInstanceID));
             p_Handler->PSendSysMessage("Position %f %f %f %f", l_Info.X, l_Info.Y, l_Info.Z, l_Info.O);
 
-            GarrisonBuilding l_Building = l_TargetPlayer->GetGarrison()->GetBuilding(l_Info.PlotInstanceID);
+            MS::Garrison::GarrisonBuilding l_Building = l_TargetPlayer->GetGarrison()->GetBuilding(l_Info.PlotInstanceID);
 
             if (l_Building.BuildingID)
             {
                 const GarrBuildingEntry * l_Entry = sGarrBuildingStore.LookupEntry(l_Building.BuildingID);
 
-                p_Handler->PSendSysMessage("Building : %u - %s", l_Entry->BuildingID, l_TargetPlayer->GetGarrison()->GetGarrisonFactionIndex() == GARRISON_FACTION_ALLIANCE ? l_Entry->NameA : l_Entry->NameH);
+                p_Handler->PSendSysMessage("Building : %u - %s", l_Entry->BuildingID, l_TargetPlayer->GetGarrison()->GetGarrisonFactionIndex() == MS::Garrison::GARRISON_FACTION_ALLIANCE ? l_Entry->NameA : l_Entry->NameH);
                 p_Handler->PSendSysMessage("Active %u Level %u", l_Building.Active, l_Entry->BuildingLevel);
             }
 
@@ -255,7 +255,7 @@ class garrison_commandscript: public CommandScript
                 return false;
             }
 
-            GarrisonPlotInstanceInfoLocation l_Info = l_Player->GetGarrison()->GetPlot(l_Player->GetPositionX(), l_Player->GetPositionY(), l_Player->GetPositionZ());
+            MS::Garrison::GarrisonPlotInstanceInfoLocation l_Info = l_Player->GetGarrison()->GetPlot(l_Player->GetPositionX(), l_Player->GetPositionY(), l_Player->GetPositionZ());
 
             if (!l_Info.PlotInstanceID)
             {
@@ -264,7 +264,7 @@ class garrison_commandscript: public CommandScript
                 return false;
             }
 
-            GarrisonBuilding l_Building = l_Player->GetGarrison()->GetBuilding(l_Info.PlotInstanceID);
+            MS::Garrison::GarrisonBuilding l_Building = l_Player->GetGarrison()->GetBuilding(l_Info.PlotInstanceID);
 
             if (!l_Building.BuildingID)
             {
@@ -357,7 +357,7 @@ class garrison_commandscript: public CommandScript
                 return false;
             }
 
-            GarrisonPlotInstanceInfoLocation l_Info = l_Player->GetGarrison()->GetPlot(l_Player->GetPositionX(), l_Player->GetPositionY(), l_Player->GetPositionZ());
+            MS::Garrison::GarrisonPlotInstanceInfoLocation l_Info = l_Player->GetGarrison()->GetPlot(l_Player->GetPositionX(), l_Player->GetPositionY(), l_Player->GetPositionZ());
 
             if (!l_Info.PlotInstanceID)
             {

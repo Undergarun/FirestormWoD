@@ -67,7 +67,7 @@
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "ArchaeologyMgr.h"
-#include "Garrison.h"
+#include "GarrisonMgr.hpp"
 #include "PetBattle.h"
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =

@@ -5,12 +5,11 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "GameObjectAI.h"
-#include "Spell.h"
-#include "GarrisonMgr.hpp"
+#ifndef GARRISON_QUEST_HPP_GARRISON
+#define GARRISON_QUEST_HPP_GARRISON
+
+#include "GarrisonScriptData.hpp"
+#include "GarrisonMgr.h"
 
 namespace MS { namespace Garrison 
 {
@@ -18,7 +17,4 @@ namespace MS { namespace Garrison
 }   ///< namespace Garrison
 }   ///< namespace MS
 
-void AddSC_Garrison_Quest()
-{
-
-}
+#endif  ///< GARRISON_QUEST_HPP_GARRISON

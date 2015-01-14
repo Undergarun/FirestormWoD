@@ -1,9 +1,26 @@
-/// Copyright Ashran 2014-2015
-
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2014-2015 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 #ifndef GARRISON_SCRIPT_DATA_HPP_GARRISON
 #define GARRISON_SCRIPT_DATA_HPP_GARRISON
 
-namespace MS { namespace Garrison {
+namespace MS { namespace Garrison 
+{
+
+    /// Garrison map ids
+    enum MapIDs
+    {
+        MAP_GARRISON_HORDE_LEVEL_1      = 1152,
+        MAP_GARRISON_HORDE_LEVEL_2      = 1330,
+        MAP_GARRISON_HORDE_LEVEL_3      = 1153,
+        MAP_GARRISON_ALLIANCE_LEVEL_1   = 1158,
+        MAP_GARRISON_ALLIANCE_LEVEL_2   = 1331,
+        MAP_GARRISON_ALLIANCE_LEVEL_3   = 1159
+    };
 
     /// Instance data common IDs
     enum InstanceDataIDs
