@@ -6097,10 +6097,6 @@ SpellCastResult Spell::CheckCast(bool strict)
     // not for triggered spells (needed by execute)
     if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CASTER_AURASTATE))
     {
-        // Custom MoP Script
-        // 76856 - Mastery : Unshackled Fury - Hack Fix fake check cast
-        if (m_spellInfo->Id == 76856 && m_caster->ToPlayer() && m_caster->ToPlayer()->getLevel() > 80)
-            return SPELL_CAST_OK;
         if (m_spellInfo->CasterAuraState && !m_caster->HasAuraState(AuraStateType(m_spellInfo->CasterAuraState), m_spellInfo, m_caster))
             return SPELL_FAILED_CASTER_AURASTATE;
         if (m_spellInfo->CasterAuraStateNot && m_caster->HasAuraState(AuraStateType(m_spellInfo->CasterAuraStateNot), m_spellInfo, m_caster))

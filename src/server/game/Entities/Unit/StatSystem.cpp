@@ -760,7 +760,7 @@ void Player::UpdateBlockPercentage()
         // Custom MoP Script
         // 76857 - Mastery : Critical Block - Block Percentage
         if (GetTypeId() == TYPEID_PLAYER && HasAura(76857))
-            value += GetFloatValue(PLAYER_FIELD_MASTERY) / 2.0f;
+            value += GetFloatValue(PLAYER_FIELD_MASTERY) * 0.5f;
 
         if (value < 0.0f)
             value = 0.0f;

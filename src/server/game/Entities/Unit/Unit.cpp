@@ -13292,10 +13292,6 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
     if (pdamage > 0 && GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_PALADIN_RETRIBUTION && HasAura(53503) && ToPlayer()->IsTwoHandUsed() && attType == WeaponAttackType::BaseAttack)
         AddPct(DoneTotalMod, 25);
 
-    // 76856 - Mastery : Unshackled Fury
-    if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_FURY && HasAura(76856) && HasAura(13046) && attType == WeaponAttackType::BaseAttack)
-        AddPct(DoneTotalMod, 11);
-
     // Apply Power PvP damage bonus
     if (pdamage > 0 && GetTypeId() == TYPEID_PLAYER && (victim->GetTypeId() == TYPEID_PLAYER || (victim->GetTypeId() == TYPEID_UNIT && victim->isPet() && victim->GetOwner() && victim->GetOwner()->ToPlayer())))
     {
@@ -13380,7 +13376,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
     {
         if (HasAura(76856) && HasAuraState(AURA_STATE_ENRAGE))
         {
-            float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 1.4f;
+            float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 1.375f;
             AddPct(DoneTotalMod, Mastery);
         }
     }
