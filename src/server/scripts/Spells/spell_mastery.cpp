@@ -39,7 +39,8 @@ enum MasterySpells
     SPELL_MAGE_MASTERY_ICICLES          = 76613,
     SPELL_MAGE_ICICLE_DAMAGE            = 148022,
     SPELL_MAGE_ICICLE_PERIODIC_TRIGGER  = 148023,
-    SPELL_PRIEST_ECHO_OF_LIGHT          = 77489
+    SPELL_PRIEST_ECHO_OF_LIGHT          = 77489,
+    SPELL_WARRIOR_WEAPONS_MASTER        = 76838
 };
 
 ///< Mastery: Sniper Training - 76659
@@ -758,8 +759,45 @@ class spell_mastery_elemental_overload: public SpellScriptLoader
         }
 };
 
+// Call by Mortal Strike - 12294, Colossus Smash - 86346, Execute - 5308
+// Mastery: Weapons Master - 76338
+class spell_mastery_weapons_master : public SpellScriptLoader
+{
+public:
+    spell_mastery_weapons_master() : SpellScriptLoader("spell_mastery_weapons_master") { }
+
+    class spell_mastery_weapons_master_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_mastery_weapons_master_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (l_Caster->HasAura(SPELL_WARRIOR_WEAPONS_MASTER))
+                {
+                    float l_MasteryValue = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 3.5f;
+
+                    SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_MasteryValue));
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_mastery_weapons_master_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_mastery_weapons_master_SpellScript();
+    }
+};
+
 void AddSC_mastery_spell_scripts()
 {
+    new spell_mastery_weapons_master();
     new spell_mastery_sniper_training();
     new spell_mastery_recently_moved();
     new spell_mastery_sniper_training_aura();
