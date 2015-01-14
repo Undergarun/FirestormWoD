@@ -16769,12 +16769,6 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                     if (procFlag & PROC_FLAG_DONE_PERIODIC)
                         l_TakenProcFlag |= PROC_FLAG_TAKEN_PERIODIC;
 
-                    if (procFlag & PROC_FLAG_DONE_MAINHAND_ATTACK)
-                        l_TakenProcFlag |= PROC_FLAG_TAKEN_MAINHAND_ATTACK;
-
-                    if (procFlag & PROC_FLAG_DONE_OFFHAND_ATTACK)
-                        l_TakenProcFlag |= PROC_FLAG_TAKEN_OFFHAND_ATTACK;
-
                     // Spell Heal
                     if (procSpell && procSpell->IsPositive())
                     {
