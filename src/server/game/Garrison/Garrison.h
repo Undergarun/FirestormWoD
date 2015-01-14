@@ -19,7 +19,7 @@ enum GarrisonMissionState
     GARRISON_MISSION_AVAILABLE              = 0,
     GARRISON_MISSION_IN_PROGRESS            = 1,
     GARRISON_MISSION_COMPLETE_SUCCESS       = 2,
-    GARRISON_MISSION_COMPLETE_FAILED        = 3,
+    GARRISON_MISSION_COMPLETE_FAILED        = 5,
 };
 
 enum GarrisonMissionFlag
@@ -138,7 +138,8 @@ extern uint32 gGarrisonBuildingActivationGameObject[GARRISON_FACTION_COUNT];
 #define GARRISON_CACHE_HEFTY_CURRENCY           200
 #define GARRISON_CACHE_MIN_CURRENCY             5
 #define GARRISON_CACHE_GENERATE_TICK            (10 * MINUTE)
-#define GARRISON_MISSION_DISTRIB_INTERVAL       (10 * MINUTE)
+#define GARRISON_MISSION_DISTRIB_INTERVAL       (25 * MINUTE)
+#define GARRISON_MISSION_DISTRIB_FOLLOWER_COEFF 1.5
 
 enum 
 {

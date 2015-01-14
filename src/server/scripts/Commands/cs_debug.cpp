@@ -183,9 +183,6 @@ class debug_commandscript: public CommandScript
                 return false;
             }
 
-            char* l_StrIndex = strtok((char*)p_Args, " ");
-            uint32 l_Index = uint32(atoi(l_StrIndex));
-
             char* l_StrID = strtok(NULL, " ");
             uint32 l_ID = l_StrID ? uint32(atoi(l_StrID)) : 0;
 
@@ -424,7 +421,7 @@ class debug_commandscript: public CommandScript
             err = grp->CanJoinBattlegroundQueue(bg, bgQueueTypeId, 2);
             if (!err)
             {
-                sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: leader %s queued");
+                sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: leader %s queued", handler->GetSession()->GetPlayer()->GetName());
 
                 ginfo = bgQueue.AddGroup(handler->GetSession()->GetPlayer(), grp, bgTypeId, bracketEntry, 0, true, true, personalRating, matchmakerRating);
                 avgTime = bgQueue.GetAverageQueueWaitTime(ginfo, bracketEntry->GetBracketId());
@@ -2295,7 +2292,7 @@ class debug_commandscript: public CommandScript
             Player* l_CrashPlayer = nullptr;
             uint64 l_Guid         = GUID_LOPART(l_CrashPlayer->GetPetGUID());
 
-            p_Handler->PSendSysMessage("You've crash the server ! (%u)", l_Guid);
+            p_Handler->PSendSysMessage("You've crash the server ! (%lu)", l_Guid);
 
             return true;
         }
@@ -2303,7 +2300,6 @@ class debug_commandscript: public CommandScript
         static bool HandleDebugBgAward(ChatHandler* p_Handler, char const* p_Args)
         {
             Battleground* l_Battleground = p_Handler->GetSession()->GetPlayer()->GetBattleground();
-            Player* l_Player = p_Handler->GetSession()->GetPlayer();
 
             char* arg1 = strtok((char*)p_Args, " ");
             char* arg2 = strtok(NULL, " ");

@@ -3463,7 +3463,12 @@ void SpellMgr::LoadSpellCustomAttr()
             case 157154:// High tide fix temp !!!
                 spellInfo->Effects[0].BasePoints = 0;
                 break;
-            case 157174: // Elemental Fusion
+            case 178531:///< Alliance Reward (but for Horde)
+                spellInfo->Effects[0].TargetA = TARGET_SRC_CASTER;
+                spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ALLY;
+                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(27);  ///< 50y
+                break;
+            case 157174:// Elemental Fusion
                 spellInfo->ProcCharges = 1;
                 break;
             case 77442: ///< Focus
@@ -3852,6 +3857,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 32546: // Binding Heal
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ALLY;
                 spellInfo->Effects[1].TargetB = 0;
+                break;
+            case 53390:
+                spellInfo->Effects[0].BasePoints = -20;
+                spellInfo->Effects[1].BasePoints = 30;
                 break;
             case 15286: // Vampiric Embrace
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
@@ -4412,10 +4421,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 146512:// Fortitude - hotfix 5.4.2
                 spellInfo->Effects[0].BasePoints = 2600;
-                break;
-            case 15473: // Shadowform - hotfix 5.4.2
-                spellInfo->Effects[6].BasePoints = 100;
-                spellInfo->SchoolMask = SPELL_SCHOOL_MASK_SHADOW;
                 break;
             case 91107: // Unholy Might
                 spellInfo->Effects[0].BasePoints = 35;

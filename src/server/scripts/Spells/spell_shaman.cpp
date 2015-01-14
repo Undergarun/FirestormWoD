@@ -649,7 +649,7 @@ class spell_sha_frozen_power: public SpellScriptLoader
         {
             PrepareSpellScript(spell_sha_frozen_power_SpellScript);
 
-            bool Validate(SpellEntry const * spellEntry)
+            bool Validate(SpellInfo const* /*spellEntry*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SHA_FROST_SHOCK))
                     return false;
@@ -1060,7 +1060,7 @@ class spell_sha_healing_rain: public SpellScriptLoader
                     {
                         // Casting a second healing rain after prolonging the previous one using conductivity
                         // will replace the old healing rain with base amount of duration (in other words, you will not have 2 healing rains).
-                        if (DynamicObject* dynObj = caster->GetDynObject(SPELL_SHA_HEALING_RAIN))
+                        if (caster->GetDynObject(SPELL_SHA_HEALING_RAIN))
                             caster->RemoveDynObject(SPELL_SHA_HEALING_RAIN);
 
                         caster->CastSpell(loc->GetPositionX(), loc->GetPositionY(), loc->GetPositionZ(), SPELL_SHA_HEALING_RAIN, true);
@@ -1627,7 +1627,19 @@ class spell_sha_molten_earth: public SpellScriptLoader
                 if (eventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_SHA_MOLTEN_EARTH_DAMAGE)
                     return;
 
-                GetCaster()->AddAura(SPELL_SHA_MOLTEN_EARTH_PERIODICAL, eventInfo.GetDamageInfo()->GetVictim());
+                Unit *l_Caster = GetCaster();
+                Unit *l_Target = eventInfo.GetDamageInfo()->GetVictim();
+
+                if (l_Caster == nullptr || l_Target == nullptr)
+                    return;
+
+                if (l_Target->HasAura(SPELL_SHA_MOLTEN_EARTH_PERIODICAL))
+                {
+                    if (AuraPtr l_PeriodicAura = l_Target->GetAura(SPELL_SHA_MOLTEN_EARTH_PERIODICAL))
+                        l_PeriodicAura->SetDuration(l_PeriodicAura->GetMaxDuration());
+                }
+                else
+                    l_Caster->AddAura(SPELL_SHA_MOLTEN_EARTH_PERIODICAL, l_Target);
             }
 
             void Register()
@@ -1947,8 +1959,74 @@ class spell_sha_lava_burst: public SpellScriptLoader
         }
 };
 
+// Unleash Elements - 73680
+class spell_sha_unleash_elements : public SpellScriptLoader
+{
+public:
+    spell_sha_unleash_elements() : SpellScriptLoader("spell_sha_unleash_elements") { }
+
+    class spell_sha_unleash_elements_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_sha_unleash_elements_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (l_Caster->HasAura(SPELL_SHA_UNLEASHED_FURY_TALENT))
+                    l_Caster->CastSpell(l_Caster, SPELL_SHA_UNLEASHED_FURY_FLAMETONGUE, true);
+            }
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_sha_unleash_elements_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_sha_unleash_elements_SpellScript();
+    }
+};
+
+// Call by Chain Heal - 1064, Riptide - 61295
+// Tidal Waves - 51564
+class spell_sha_tidal_waves : public SpellScriptLoader
+{
+public:
+    spell_sha_tidal_waves() : SpellScriptLoader("spell_sha_tidal_waves") { }
+
+    class spell_sha_tidal_waves_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_sha_tidal_waves_SpellScript);
+
+        void HandleAfterCast()
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (l_Caster->HasAura(SPELL_SHA_TIDAL_WAVES))
+                    l_Caster->CastSpell(l_Caster, SPELL_SHA_TIDAL_WAVES_PROC, true);
+            }
+        }
+
+        void Register()
+        {
+            AfterCast += SpellCastFn(spell_sha_tidal_waves_SpellScript::HandleAfterCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_sha_tidal_waves_SpellScript();
+    }
+};
+
+
 void AddSC_shaman_spell_scripts()
 {
+    new spell_sha_tidal_waves();
+    new spell_sha_unleash_elements();
     new spell_sha_totemic_projection();
     new spell_sha_hex();
     new spell_sha_water_ascendant();

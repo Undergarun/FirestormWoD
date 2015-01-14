@@ -7725,7 +7725,7 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
     {
         if (Map* l_Map = GetCaster()->GetMap())
         {
-            if (l_Map->IsBattlegroundOrArena())
+            if (l_Map->IsBattlegroundOrArena() || l_Map->GetId() == 1191)   ///< Ashran
             {
                 l_IsBGReward = true;
                 l_Caster = GetCaster();
@@ -7743,7 +7743,7 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
         
     std::list<ItemTemplate const*> l_LootTable;
     std::vector<uint32> l_Items;
-    l_LootTemplate->FillAutoAssignationLoot(l_LootTable, l_Player);
+    l_LootTemplate->FillAutoAssignationLoot(l_LootTable, l_Player, l_IsBGReward);
 
     float l_DropChance = l_IsBGReward ? 100 : sWorld->getFloatConfig(CONFIG_LFR_DROP_CHANCE) + l_Player->GetBonusRollFails();
     uint32 l_SpecID = l_Player->GetLootSpecId() ? l_Player->GetLootSpecId() : l_Player->GetSpecializationId(l_Player->GetActiveSpec());
@@ -7784,7 +7784,7 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
     {
         std::random_shuffle(l_Items.begin(), l_Items.end());
 
-        if (roll_chance_i(l_DropChance))
+        if (roll_chance_i(l_DropChance) && !l_Items.empty())
         {
             l_Player->AddItem(l_Items[0], 1);
             l_Player->SendDisplayToast(l_Items[0], 1, l_IsBGReward ? DISPLAY_TOAST_METHOD_PVP_FACTION_LOOT_TOAST : DISPLAY_TOAST_METHOD_LOOT, TOAST_TYPE_NEW_ITEM, false, false);

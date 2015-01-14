@@ -1407,7 +1407,7 @@ class npc_elder_anli : public CreatureScript
             return true;
         }
 
-        bool OnQuestReward(Player* player, Creature* creature, Quest* const quest)
+        bool OnQuestReward(Player* player, Creature* creature, const Quest* quest, uint32 /*p_Option*/)
         {
             switch (quest->GetQuestId())
             {

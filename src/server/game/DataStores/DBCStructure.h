@@ -1229,6 +1229,12 @@ struct QuestXPEntry
     uint32  Exp[10];                                        // 1 -9     m_Difficulty
 };
 
+struct QuestV2Entry
+{
+    uint32      ID;                                         // 0
+    uint32      UniqueBitFlag;                              // 1
+};
+
 struct QuestFactionRewEntry
 {
     uint32  id;                                             // 0        m_ID

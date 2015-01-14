@@ -378,7 +378,6 @@ void StartFlyShip(Transport* ship)
 
 void RelocateTransport(Transport* transport)
 {
-    Map* map = transport->GetMap();
     InstanceScript* _instance = transport->GetInstanceScript();
 
     if (!transport || !_instance)
@@ -437,7 +436,7 @@ void StopFlyShip(Transport* ship)
     if (lPlayers.isEmpty())
         return;
 
-    /*for (Map::PlayerList::const_iterator itr = lPlayers.begin(); itr != lPlayers.end(); ++itr)
+    for (Map::PlayerList::const_iterator itr = lPlayers.begin(); itr != lPlayers.end(); ++itr)
     {
         if (Player* player = itr->getSource())
         {
@@ -996,7 +995,7 @@ class npc_muradin_gunship : public CreatureScript
                 if (type != POINT_MOTION_TYPE)
                     return;
 
-                if (pointId = 1)
+                if ((pointId = 1))
                     me->DespawnOrUnsummon(1000);
             }
 
@@ -2202,7 +2201,7 @@ class npc_saurfang_gunship : public CreatureScript
                 if (type != POINT_MOTION_TYPE)
                     return;
 
-                if (pointId = 1)
+                if ((pointId = 1))
                     me->DespawnOrUnsummon(1000);
             }
 

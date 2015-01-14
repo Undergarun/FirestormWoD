@@ -1079,7 +1079,7 @@ class boss_elder_stonebark : public CreatureScript
                     Talk(SAY_STONEBARK_AGGRO);
             }
 
-            void DamageTaken(Unit* who, uint32& damage, SpellInfo const* spellProto)
+            void DamageTaken(Unit* who, uint32& damage)
             {
                 if (who == me)
                     return;

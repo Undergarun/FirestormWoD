@@ -143,7 +143,6 @@ class garrison_commandscript: public CommandScript
             /// HACK until quest : add barracks plan
             l_TargetPlayer->GetGarrison()->LearnBlueprint(26);
             */
-
             return true;
         }
 
@@ -276,8 +275,6 @@ class garrison_commandscript: public CommandScript
                 p_Handler->SendSysMessage("Building not found");
                 p_Handler->SetSentErrorMessage(true);
             }
-
-            const GarrBuildingEntry * l_Entry = sGarrBuildingStore.LookupEntry(l_Building.BuildingID);
 
             int32 l_ElemEntry = atoi(p_Args);
             float l_X = l_Player->GetPositionX();

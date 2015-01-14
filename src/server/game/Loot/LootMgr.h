@@ -256,7 +256,7 @@ class LootTemplate
         // Rolls for every item in the template and adds the rolled items the the loot
         void Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId = 0) const;
         void CopyConditions(std::list<Condition*>  conditions);
-        void FillAutoAssignationLoot(std::list<const ItemTemplate*>& p_ItemList, Player* p_Player = nullptr) const;
+        void FillAutoAssignationLoot(std::list<const ItemTemplate*>& p_ItemList, Player* p_Player = nullptr, bool p_IsBGReward = false) const;
 
         // True if template includes at least 1 quest drop entry
         bool HasQuestDrop(LootTemplateMap const& store, uint8 groupId = 0) const;

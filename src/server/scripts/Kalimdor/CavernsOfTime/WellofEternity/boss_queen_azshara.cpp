@@ -268,7 +268,6 @@ class boss_queen_azshara : public CreatureScript
             }
         private:
             EventMap events;
-            uint8 phase;
             uint64 addsGUIDs[6];
             uint8 addsCount;
         };

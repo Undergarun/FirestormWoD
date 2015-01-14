@@ -1019,6 +1019,87 @@ struct MountEntry
     uint32 UnknowEntry;
 };
 
+/// PlayerCondition.db2
+struct PlayerCondition
+{
+    uint32 ID;
+    uint32 Flags;
+    uint32 MinLevel;
+    uint32 MaxLevel;
+    uint32 RaceMask;
+    uint32 ClassMask;
+    uint32 Gender;
+    uint32 NativeGender;
+    uint32 SkillID[4];
+    uint32 MinSkill[4];
+    uint32 MaxSkill[4];
+    uint32 SkillLogic;
+    uint32 LanguageID;
+    uint32 MinLanguage;
+    uint32 MaxLanguage;
+    uint32 MinFactionID[3];
+    uint32 MaxFactionID;
+    uint32 MinReputation[3];
+    uint32 MaxReputation;
+    uint32 ReputationLogic;
+    uint32 MinPVPRank;
+    uint32 MaxPVPRank;
+    uint32 PvpMedal;
+    uint32 PrevQuestLogic;
+    uint32 PrevQuestID[4];
+    uint32 CurrQuestLogic;
+    uint32 CurrQuestID[4];
+    uint32 CurrentCompletedQuestLogic;
+    uint32 CurrentCompletedQuestID[4];
+    uint32 SpellLogic;
+    uint32 SpellID[4];
+    uint32 ItemLogic;
+    uint32 ItemID[4];
+    uint32 ItemCount[4];
+    uint32 ItemFlags;
+    uint32 Explored[2];
+    uint32 Time[2];
+    uint32 AuraSpellLogic;
+    uint32 AuraSpellID[4];
+    uint32 WorldStateExpressionID;
+    uint32 WeatherID;
+    uint32 PartyStatus;
+    uint32 LifetimeMaxPVPRank;
+    uint32 AchievementLogic;
+    uint32 Achievement[4];
+    uint32 LfgLogic;
+    uint32 LfgStatus[4];
+    uint32 LfgCompare[4];
+    uint32 LfgValue[4];
+    uint32 AreaLogic;
+    uint32 AreaID[4];
+    uint32 CurrencyLogic;
+    uint32 CurrencyID[4];
+    uint32 CurrencyCount[4];
+    uint32 QuestKillID;
+    uint32 QuestKillLogic;
+    uint32 QuestKillMonster[4];
+    uint32 MinExpansionLevel;
+    uint32 MaxExpansionLevel;
+    uint32 MinExpansionTier;
+    uint32 MaxExpansionTier;
+    uint32 MinGuildLevel;
+    uint32 MaxGuildLevel;
+    uint32 PhaseUseFlags;
+    uint32 PhaseID;
+    uint32 PhaseGroupID;
+    uint32 MinAvgItemLevel;
+    uint32 MaxAvgItemLevel;
+    uint32 MinAvgEquippedItemLevel;
+    uint32 MaxAvgEquippedItemLevel;
+    uint32 ChrSpecializationIndex;
+    uint32 ChrSpecializationRole;
+    char*  FailureDescriptionLang;
+    uint32 PowerType;
+    uint32 PowerTypeComp;
+    uint32 PowerTypeValue;
+};
+
 // GCC has alternative #pragma pack(N) syntax and old gcc version does not support pack(push, N), also any gcc version does not support it at some platform
 #if defined(__GNUC__)
 #pragma pack()
