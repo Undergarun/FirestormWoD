@@ -54,6 +54,8 @@ namespace MS { namespace Garrison { namespace Sites
         if (!p_Player->IsInWorld())
             return;
 
+        p_Player->GetMap()->SetObjectVisibility(400.0f);
+
         InstanceScript::OnPlayerEnter(p_Player);
 
         m_Players.emplace(p_Player->GetGUID());
