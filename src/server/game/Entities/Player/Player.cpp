@@ -10951,8 +10951,9 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
         }
 
         /// If gameobject is quest tracked and player already have it, player can't loot (cheat ?)
-        auto   l_TrackingQuest = go->GetGOInfo()->GetTrackingQuestId();
-        uint32 l_QuestBit      = GetQuestUniqueBitFlag(l_TrackingQuest);
+        auto l_TrackingQuest = go->GetGOInfo()->GetTrackingQuestId();
+        auto l_QuestBit      = GetQuestUniqueBitFlag(l_TrackingQuest);
+
         if (l_TrackingQuest && m_CompletedQuestBits.GetBit(l_QuestBit - 1))
         {
             SendLootRelease(guid);
@@ -28278,7 +28279,7 @@ void Player::AddTrackingQuestIfNeeded(uint64 p_SourceGuid)
     /// If source is a creature
     if (IS_UNIT_GUID(p_SourceGuid))
     {
-        Creature* l_CreatureSource = sObjectAccessor->FindCreature(p_SourceGuid);
+        Creature const* l_CreatureSource = sObjectAccessor->FindCreature(p_SourceGuid);
         if (l_CreatureSource == nullptr)
             return;
 
@@ -28288,7 +28289,7 @@ void Player::AddTrackingQuestIfNeeded(uint64 p_SourceGuid)
     /// If source is a gameobject
     if (IS_GAMEOBJECT_GUID(p_SourceGuid))
     {
-        GameObject* l_GameObjectSource = sObjectAccessor->FindGameObject(p_SourceGuid);
+        GameObject const* l_GameObjectSource = sObjectAccessor->FindGameObject(p_SourceGuid);
         if (l_GameObjectSource == nullptr)
             return;
 
@@ -28296,6 +28297,7 @@ void Player::AddTrackingQuestIfNeeded(uint64 p_SourceGuid)
     }
 
     /// @TODO: Item can have tracking quest ?
+    /// If someone as more informations, please tell me :D
 
     if (l_TrackingQuest == 0)
         return;

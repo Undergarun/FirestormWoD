@@ -30,7 +30,7 @@ class Creature;
 
 namespace Vignette
 {
-    typedef std::map<uint64, Vignette::Entity*> VignetteContainer;
+    using VignetteContainer = std::map<uint64, Vignette::Entity*>;
 
     class Manager
     {

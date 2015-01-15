@@ -127,6 +127,10 @@ namespace Vignette
             * @param p_MapID : ID of the map where the vignette are, refer to Map.dbc
             */
             Entity(VignetteEntry const* p_VignetteEntry, uint32 const p_MapId);
+
+            /*
+            * Vignette Entity destructor
+            */
             ~Entity();
 
             /**

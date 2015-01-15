@@ -1841,10 +1841,10 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
     }
 }
 
-void Unit::HandleEmoteCommand(uint32 emoteId)
+void Unit::HandleEmoteCommand(uint32 p_EmoteId)
 {
-    EmotesEntry const* emoteInfo = sEmotesStore.LookupEntry(emoteId);
-    if (!emoteInfo)
+    EmotesEntry const* l_EmoteInfo = sEmotesStore.LookupEntry(p_EmoteId);
+    if (!l_EmoteInfo)
     {
         SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
         return;
@@ -1853,19 +1853,19 @@ void Unit::HandleEmoteCommand(uint32 emoteId)
     if (!isAlive())
         return;
 
-    switch (emoteInfo->EmoteType)
+    switch (l_EmoteInfo->EmoteType)
     {
-        case 0:
+        case EmoteTypes::OneStep
         {
             WorldPacket l_Data(SMSG_EMOTE, 4 + 8);
             l_Data.appendPackGUID(GetGUID());
-            l_Data << uint32(emoteId);
+            l_Data << uint32(p_EmoteId);
             SendMessageToSet(&l_Data, true);
             break;
         }
-        case 1:
-        case 2:
-            SetUInt32Value(UNIT_FIELD_EMOTE_STATE, emoteId);
+        case EmoteTypes::EmoteLoop:
+        case EmoteTypes::StateLoop:
+            SetUInt32Value(UNIT_FIELD_EMOTE_STATE, p_EmoteId);
             break;
         default:
             break;

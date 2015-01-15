@@ -2254,21 +2254,22 @@ void GameObject::SetLootRecipient(Unit* unit)
         m_lootRecipientGroup = group->GetLowGUID();
 }
 
-bool GameObject::IsLootAllowedFor(Player const* player) const
+bool GameObject::IsLootAllowedFor(Player const* p_Player) const
 {
     /// If creature is quest tracked and player have the quest, player isn't allowed to loot
-    auto   l_TrackingQuestId = GetGOInfo()->GetTrackingQuestId();
-    uint32 l_QuestBit = GetQuestUniqueBitFlag(l_TrackingQuestId);
-    if (l_TrackingQuestId && player->GetCompletedQuests().GetBit(l_QuestBit))
+    auto l_TrackingQuestId = GetGOInfo()->GetTrackingQuestId();
+    auto l_QuestBit = GetQuestUniqueBitFlag(l_TrackingQuestId);
+
+    if (l_TrackingQuestId && p_Player->GetCompletedQuests().GetBit(l_QuestBit - 1))
         return false;
 
     if (!m_lootRecipient && !m_lootRecipientGroup)
         return true;
 
-    if (player->GetGUID() == m_lootRecipient)
+    if (p_Player->GetGUID() == m_lootRecipient)
         return true;
 
-    Group const* playerGroup = player->GetGroup();
+    Group const* playerGroup = p_Player->GetGroup();
     if (!playerGroup || playerGroup != GetLootRecipientGroup()) // if we dont have a group we arent the recipient
         return false;                                           // if go doesnt have group bound it means it was solo killed by someone else
 

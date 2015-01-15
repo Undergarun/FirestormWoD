@@ -30,6 +30,9 @@ namespace Vignette
     Manager::~Manager()
     {
         m_Owner = nullptr;
+
+        for (auto l_Iterator : m_Vignettes)
+            delete l_Iterator.second;
     }
 
     void Manager::AddVignette(Vignette::Entity* p_Vignette)
@@ -40,19 +43,17 @@ namespace Vignette
 
     void Manager::DestroyAndRemoveVignettes(std::function<bool(Vignette::Entity* const)> p_Lamba)
     {
-        std::set<uint64> l_MatchVignette;
-        for (auto l_Iterator : m_Vignettes)
+        for (auto l_Iterator = m_Vignettes.begin(); l_Iterator != m_Vignettes.end();)
         {
-            if (p_Lamba(l_Iterator.second))
-                l_MatchVignette.insert(l_Iterator.first);
-        }
+            if (p_Lamba(l_Iterator->second))
+            {
+                delete l_Iterator->second;
+                m_RemovedVignette.insert(l_Iterator->first);
+                l_Iterator = m_Vignettes.erase(l_Iterator);
+                continue;
+            }
 
-        for (auto l_Iterator : l_MatchVignette)
-        {
-            auto l_Vignette = m_Vignettes[l_Iterator];
-            m_Vignettes.erase(l_Iterator);
-            m_RemovedVignette.insert(l_Iterator);
-            delete l_Vignette;
+            ++l_Iterator;
         }
     }
 
@@ -71,17 +72,17 @@ namespace Vignette
         for (auto l_VignetteGuid : m_AddedVignette)
             l_Data.appendPackGUID(l_VignetteGuid);
 
-        uint32 l_AddedVignetteSize    = 0;
-        size_t l_AddedVignetteSizePos = l_Data.wpos();
+        uint32 l_AddedVignetteCount    = 0;
+        size_t l_AddedVignetteCountPos = l_Data.wpos();
 
-        l_Data << uint32(l_AddedVignetteSize);
+        l_Data << uint32(l_AddedVignetteCount);
         for (auto l_VignetteGuid : m_AddedVignette)
         {
             auto l_FindResult = m_Vignettes.find(l_VignetteGuid);
             if (l_FindResult == m_Vignettes.end())
                 continue;
 
-            l_AddedVignetteSize++;
+            l_AddedVignetteCount++;
 
             auto l_Vignette = l_FindResult->second;
 
@@ -93,24 +94,24 @@ namespace Vignette
             l_Data << uint32(0);                                    ///< Zone restricted (Vignette with flag 0x40)
         }
 
-        l_Data.put<uint32>(l_AddedVignetteSizePos, l_AddedVignetteSize);
+        l_Data.put<uint32>(l_AddedVignetteCountPos, l_AddedVignetteCount);
         m_AddedVignette.clear();
 
         l_Data << uint32(m_UpdatedVignette.size());
         for (auto l_VignetteGuid : m_UpdatedVignette)
             l_Data.appendPackGUID(l_VignetteGuid);
 
-        uint32 l_UpdatedVignetteSize    = 0;
-        size_t l_UpdatedVignetteSizePos = l_Data.wpos();
+        uint32 l_UpdatedVignetteCount    = 0;
+        size_t l_UpdatedVignetteCountPos = l_Data.wpos();
 
-        l_Data << uint32(l_UpdatedVignetteSize);
+        l_Data << uint32(l_UpdatedVignetteCount);
         for (auto l_VignetteGuid : m_UpdatedVignette)
         {
             auto l_FindResult = m_Vignettes.find(l_VignetteGuid);
             if (l_FindResult == m_Vignettes.end())
                 continue;
 
-            l_UpdatedVignetteSize++;
+            l_UpdatedVignetteCount++;
 
             auto l_Vignette = l_FindResult->second;
 
@@ -122,7 +123,7 @@ namespace Vignette
             l_Data << uint32(0);                                    ///< Zone restricted (Vignette with flag 0x40)
         }
 
-        l_Data.put<uint32>(l_UpdatedVignetteSizePos, l_UpdatedVignetteSize);
+        l_Data.put<uint32>(l_UpdatedVignetteCountPos, l_UpdatedVignetteCount);
         m_UpdatedVignette.clear();
 
         m_Owner->GetSession()->SendPacket(&l_Data);

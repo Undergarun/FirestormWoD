@@ -1,5 +1,5 @@
-ALTER TABLE `world`.`creature_template` ADD COLUMN `TrackingQuestID` INT(10) UNSIGNED DEFAULT '0' NOT NULL AFTER `movementId`;
-ALTER TABLE `world`.`creature_template` ADD COLUMN `VignetteID` INT(10) UNSIGNED DEFAULT '0' NOT NULL AFTER `TrackingQuestID`;
+ALTER TABLE `creature_template` ADD COLUMN `TrackingQuestID` INT(10) UNSIGNED DEFAULT '0' NOT NULL AFTER `movementId`;
+ALTER TABLE `creature_template` ADD COLUMN `VignetteID` INT(10) UNSIGNED DEFAULT '0' NOT NULL AFTER `TrackingQuestID`;
 
 INSERT INTO creature_template (`entry`, `TrackingQuestID`) VALUES(71665, 32918) ON DUPLICATE KEY UPDATE `entry` = VALUES(`entry`), `TrackingQuestID` = VALUES(`TrackingQuestID`);
 INSERT INTO creature_template (`entry`, `TrackingQuestID`) VALUES(71721, 32941) ON DUPLICATE KEY UPDATE `entry` = VALUES(`entry`), `TrackingQuestID` = VALUES(`TrackingQuestID`);
