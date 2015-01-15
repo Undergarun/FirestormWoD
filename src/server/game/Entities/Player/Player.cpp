@@ -5177,11 +5177,6 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LEARN_SPELL, spellId);
     }
 
-    // Custom MoP Script
-    // 76856 - Mastery : Unshackled Fury - Hack Fix Pig
-    if (spellInfo->Id == 76856)
-        CastSpell(this, spellInfo->Id, true);
-
     // return true (for send learn packet) only if spell active (in case ranked spells) and not replace old spell
     return active && !disabled && !superceded_old;
 }
