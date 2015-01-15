@@ -258,6 +258,7 @@ void WorldSession::HandleGarrisonPurchaseBuildingOpcode(WorldPacket & p_RecvData
     switch (l_BuildingID)
     {
         case 26:    /// Barracks Lvl 1
+        case 51:    /// Storehouse lvl 1
             l_CanBuild = true;
             break;
 
