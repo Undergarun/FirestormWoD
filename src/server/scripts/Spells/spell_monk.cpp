@@ -94,7 +94,7 @@ enum MonkSpells
     SPELL_MONK_BEAR_HUG                         = 127361,
     ITEM_MONK_T14_TANK_4P                       = 123159,
     MONK_NPC_BLACK_OX_STATUE                    = 61146,
-    SPELL_MONK_GUARD                            = 118604,
+    SPELL_MONK_GUARD                            = 115295,
     SPELL_MONK_ITEM_2_S12_MISTWEAVER            = 131561,
     SPELL_MONK_ITEM_4_S12_MISTWEAVER            = 124487,
     SPELL_MONK_ZEN_FOCUS                        = 124488,
@@ -1378,93 +1378,6 @@ class spell_monk_black_ox_statue: public SpellScriptLoader
             return new spell_monk_black_ox_statue_SpellScript();
         }
 
-        class spell_monk_black_ox_statue_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_monk_black_ox_statue_AuraScript);
-
-            uint32 damageDealed;
-
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                damageDealed = 0;
-            }
-
-            void SetData(uint32 type, uint32 data)
-            {
-                if (!GetCaster())
-                    return;
-
-                if (Player* _plr = GetCaster()->ToPlayer())
-                {
-                    uint32 value = _plr->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 16;
-
-                    damageDealed += data;
-
-                    if (damageDealed >= value)
-                    {
-                        damageDealed = 0;
-
-                        std::list<Creature*> tempList;
-                        std::list<Creature*> statueList;
-                        Creature* statue;
-
-                        _plr->GetCreatureListWithEntryInGrid(tempList, MONK_NPC_BLACK_OX_STATUE, 100.0f);
-                        _plr->GetCreatureListWithEntryInGrid(statueList, MONK_NPC_BLACK_OX_STATUE, 100.0f);
-
-                        // Remove other players jade statue
-                        for (std::list<Creature*>::iterator i = tempList.begin(); i != tempList.end(); ++i)
-                        {
-                            Unit* owner = (*i)->GetOwner();
-                            if (owner && owner->GetGUID() == _plr->GetGUID() && (*i)->isSummon())
-                                continue;
-
-                            statueList.remove((*i));
-                        }
-
-                        if (!statueList.empty() && statueList.size() == 1)
-                        {
-                            for (auto itr : statueList)
-                                statue = itr;
-
-                            if (statue && (statue->isPet() || statue->isGuardian()))
-                            {
-                                if (statue->GetOwner() && statue->GetOwner()->GetGUID() == _plr->GetGUID())
-                                {
-                                    std::list<Unit*> targets;
-                                    std::list<Unit*> tempTargets;
-
-                                    _plr->GetPartyMembers(tempTargets);
-
-                                    for (auto itr : tempTargets)
-                                    {
-                                        if (itr->GetGUID() == statue->GetGUID() ||
-                                            itr->GetGUID() == _plr->GetGUID())
-                                            continue;
-
-                                        targets.push_back(itr);
-                                    }
-
-                                    JadeCore::Containers::RandomResizeList(targets, 1);
-
-                                    for (auto itr : targets)
-                                        statue->CastSpell(itr, SPELL_MONK_GUARD, true);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                AfterEffectApply += AuraEffectApplyFn(spell_monk_black_ox_statue_AuraScript::OnApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_monk_black_ox_statue_AuraScript();
-        }
 };
 
 // Guard - 115295 and Guard - 118604
@@ -4083,9 +3996,9 @@ enum ExpelHarmSpells
 {
     //SPELL_MONK_STANCE_OF_THE_FIERCE_TIGER = 103985,
     //SPELL_MONK_2H_STAFF_OVERRIDE          = 108561,
-    SPELL_MONK_EXPEL_HARM_DAMAGE          = 115129
     //SPELL_MONK_2H_POLEARM_OVERRIDE        = 115697,
     //SPELL_MONK_MANA_MEDITATION            = 121278
+    SPELL_MONK_EXPEL_HARM_DAMAGE            = 115129
 };
 
 // Expel Harm - 115072
@@ -4098,7 +4011,7 @@ public:
     {
         PrepareSpellScript(spell_monk_expel_harm_SpellScript);
 
-        void HandleOnHit()
+        void HandleHeal(SpellEffIndex /*effIndex*/)
         {
             if (!GetCaster())
                 return;
@@ -4115,6 +4028,11 @@ public:
             l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
 
             int32 l_Heal = GetHitHeal() + int32(frand(7.5f * l_Low, 7.5f * l_High));
+
+            SpellInfo const* l_SpellInfoGuard = sSpellMgr->GetSpellInfo(SPELL_MONK_GUARD);
+            if (l_Target->GetGUID() == l_Player->GetGUID() && l_Player->HasAura(SPELL_MONK_GUARD) && l_SpellInfoGuard != nullptr)
+                l_Heal += CalculatePct(l_Heal, l_SpellInfoGuard->Effects[EFFECT_1].BasePoints);
+            
             SetHitHeal(l_Heal);
 
             float l_Radius = 10.0f;
@@ -4142,7 +4060,7 @@ public:
 
         void Register()
         {
-            OnHit += SpellHitFn(spell_monk_expel_harm_SpellScript::HandleOnHit);
+            OnEffectHitTarget += SpellEffectFn(spell_monk_expel_harm_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
         }
     };
 

@@ -3904,10 +3904,6 @@ void AuraEffect::HandleAuraModRoot(AuraApplication const* p_AurApp, uint8 p_Mode
     if (l_Target == nullptr)
         return;
 
-    // Earthgrab totem - Immunity
-    if (p_Apply && l_Target->HasAura(116946))
-        return;
-
     if (p_Apply)
     {
         switch (m_spellInfo->Id)
@@ -7775,6 +7771,12 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
     }
     else
         damage = uint32(target->CountPctFromMaxHealth(damage));
+
+    // WoD: Apply factor on damages depending on creature level and expansion
+    if ((caster->GetTypeId() == TYPEID_PLAYER || caster->IsPetGuardianStuff()) && target->GetTypeId() == TYPEID_UNIT)
+        damage *= caster->CalculateDamageDealtFactor(caster, target->ToCreature());
+    else if (caster->GetTypeId() == TYPEID_UNIT && (target->GetTypeId() == TYPEID_PLAYER || target->IsPetGuardianStuff()))
+        damage *= caster->CalculateDamageTakenFactor(target, caster->ToCreature());
 
     if (!(m_spellInfo->AttributesEx4 & SPELL_ATTR4_FIXED_DAMAGE))
         if (m_spellInfo->Effects[m_effIndex].IsTargetingArea() || isAreaAura)
