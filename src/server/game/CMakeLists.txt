@@ -52,6 +52,7 @@ file(GLOB_RECURSE sources_Tickets Tickets/*.cpp Tickets/*.h)
 file(GLOB_RECURSE sources_Warden Warden/*.cpp Warden/*.h)
 file(GLOB_RECURSE sources_Weather Weather/*.cpp Weather/*.h)
 file(GLOB_RECURSE sources_PetBattle PetBattle/*.cpp PetBattle/*.h)
+file(GLOB_RECURSE sources_Vignette Vignette/*.cpp Vignette/*.h Vignette/*.hpp)
 file(GLOB_RECURSE sources_World World/*.cpp World/*.h)
 file(GLOB_RECURSE sources_shared_ptrs SharedPtrs/*.h)
 file(GLOB_RECURSE sources_Cinematic Cinematic/*.h Cinematic/*.cpp)
@@ -109,6 +110,7 @@ set(game_STAT_SRCS
   ${sources_Tickets}
   ${sources_Warden}
   ${sources_Weather}
+  ${sources_Vignette}
   ${sources_World}
   ${sources_Cinematic}
   ${sources_PetBattle}
@@ -257,6 +259,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/Warden/Modules
   ${CMAKE_CURRENT_SOURCE_DIR}/Weather
   ${CMAKE_CURRENT_SOURCE_DIR}/PetBattle
+  ${CMAKE_CURRENT_SOURCE_DIR}/Vignette
   ${CMAKE_CURRENT_SOURCE_DIR}/World
   ${CMAKE_CURRENT_SOURCE_DIR}/SharedPtrs
   ${CMAKE_SOURCE_DIR}/src/server/scripts/PrecompiledHeaders

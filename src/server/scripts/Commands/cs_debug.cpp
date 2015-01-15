@@ -2347,7 +2347,7 @@ class debug_commandscript: public CommandScript
 
             l_Data << uint32(1);                                   ///< Added count
 
-            for ()
+//            for ()
                 l_Data.appendPackGUID(l_VignetteGUID);
 
             l_Data << uint32(1);

@@ -16,3 +16,34 @@
 * You should have received a copy of the GNU General Public License along
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
+
+#include "Vignette.hpp"
+#include "ObjectMgr.h"
+
+namespace Vignette
+{
+    Entity::Entity(VignetteEntry const* p_VignetteEntry, uint32 const p_MapId) 
+        : m_Map(p_MapId), m_VignetteEntry(p_VignetteEntry)
+    {
+        m_Guid             = 0;
+        m_NeedClientUpdate = false;
+    }
+
+    Entity::~Entity()
+    {
+    }
+
+    void Entity::Create(Type p_Type, G3D::Vector3 p_Position, uint64 p_SourceGuid)
+    {
+        m_Guid       = sObjectMgr->GenerateNewVignetteGUID();
+        m_Type       = p_Type;
+        m_Position   = p_Position;
+        m_SourceGuid = p_SourceGuid;
+    }
+
+    void Entity::UpdatePosition(G3D::Vector3 p_NewPosition)
+    {
+        m_Position         = p_NewPosition;
+        m_NeedClientUpdate = true;
+    }
+}

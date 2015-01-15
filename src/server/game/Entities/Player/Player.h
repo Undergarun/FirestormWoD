@@ -42,6 +42,7 @@
 #include "PhaseMgr.h"
 #include "CUFProfiles.h"
 #include "CinematicPathMgr.h"
+#include "VignetteMgr.hpp"
 #include "BitSet.hpp"
 
 // for template
@@ -3341,6 +3342,15 @@ class Player : public Unit, public GridObject<Player>
         CompletedChallengesMap m_CompletedChallenges;
         //////////////////////////////////////////////////////////////////////////
 
+        //////////////////////////////////////////////////////////////////////////
+        /// Vignette
+        //////////////////////////////////////////////////////////////////////////
+
+        Vignette::Manager const& GetVignetteMgr() { return m_VignetteMgr; }
+
+        /////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////
+
         struct MovieDelayedTeleport
         {
             uint32 MovieID;
@@ -3827,6 +3837,11 @@ class Player : public Unit, public GridObject<Player>
 
         uint32 m_PvPCombatTimer;
         bool m_pvpCombat;
+
+        //////////////////////////////////////////////////////////////////////////
+        /// Vignette
+        //////////////////////////////////////////////////////////////////////////
+        Vignette::Manager m_VignetteMgr;
 };
 
 void AddItemsSetItem(Player*player, Item* item);

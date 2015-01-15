@@ -415,8 +415,8 @@ void ObjectMgr::LoadCreatureTemplates()
                                              "spell1, spell2, spell3, spell4, spell5, spell6, spell7, spell8, PetSpellDataId, VehicleId, mingold, maxgold, AIName, MovementType, "
     //                                           66             67          68         69           70           71         72            73           74          75         76          77
                                              "InhabitType, HoverHeight, Health_mod, Mana_mod, Mana_mod_extra, Armor_mod, RacialLeader, questItem1, questItem2, questItem3, questItem4, questItem5, "
-    //                                            78           79         80               81               82               83              84
-                                             "questItem6, movementId, TrackingQuestID,  RegenHealth, mechanic_immune_mask, flags_extra, ScriptName "
+    //                                            78           79         80          81               82               83              84            85
+                                             "questItem6, movementId, VignetteID, TrackingQuestID,  RegenHealth, mechanic_immune_mask, flags_extra, ScriptName "
                                              "FROM creature_template;");
 
     if (!result)
@@ -513,6 +513,8 @@ void ObjectMgr::LoadCreatureTemplates()
 
         creatureTemplate.movementId         = fields[index++].GetUInt32();
         creatureTemplate.TrackingQuestID    = fields[index++].GetUInt32();
+        creatureTemplate.VignetteID         = fields[index++].GetUInt32();
+
         creatureTemplate.RegenHealth        = fields[index++].GetBool();
         creatureTemplate.MechanicImmuneMask = fields[index++].GetUInt32();
         creatureTemplate.flags_extra        = fields[index++].GetUInt32();
