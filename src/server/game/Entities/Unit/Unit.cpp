@@ -1855,7 +1855,7 @@ void Unit::HandleEmoteCommand(uint32 p_EmoteId)
 
     switch (l_EmoteInfo->EmoteType)
     {
-        case EmoteTypes::OneStep
+        case EmoteTypes::OneStep:
         {
             WorldPacket l_Data(SMSG_EMOTE, 4 + 8);
             l_Data.appendPackGUID(GetGUID());

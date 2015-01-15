@@ -35,10 +35,15 @@ namespace Vignette
             delete l_Iterator.second;
     }
 
-    void Manager::AddVignette(Vignette::Entity* p_Vignette)
+    Vignette::Entity* Manager::CreateAndAddVignette(VignetteEntry const* p_VignetteEntry, uint32 const p_MapId, Vignette::Type const p_VignetteType, G3D::Vector3 const p_Position, uint64 const p_SourceGuid)
     {
-        m_Vignettes.insert(std::make_pair(p_Vignette->GetGuid(), p_Vignette));
-        m_AddedVignette.insert(p_Vignette->GetGuid());
+        Vignette::Entity* l_Vignette = new Vignette::Entity(p_VignetteEntry, p_MapId);
+        l_Vignette->Create(p_VignetteType, p_Position, p_SourceGuid);
+
+        m_Vignettes.insert(std::make_pair(l_Vignette->GetGuid(), l_Vignette));
+        m_AddedVignette.insert(l_Vignette->GetGuid());
+
+        return l_Vignette;
     }
 
     void Manager::DestroyAndRemoveVignettes(std::function<bool(Vignette::Entity* const)> p_Lamba)

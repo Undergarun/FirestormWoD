@@ -36,14 +36,26 @@ namespace Vignette
     {
         public:
 
+            /**
+            * Constructor of the vignette manager
+            * @param p_Player : Owner of the manager
+            */
             Manager(Player const* p_Player);
+
+            /**
+            * Destructor of the vignette manager
+            */
             ~Manager();
 
             /**
-            * Add the vignette
-            * @param Vignette pointer, the vignette to added
+            * Create the vignette and add it to the manager
+            * @param p_VignetteEntry : the db2 entry of the vignette to create
+            * @param p_MapId : The map id where the vignette is
+            * @param p_VignetteType : Type of the vignette, @see Vignette::Type
+            * @param p_Position : Position of the vignette
+            * @param p_SourceGuid : Source of the vignette if any (can be gameobject or creature), the vignette will follow the position of the source
             */
-            void AddVignette(Vignette::Entity* p_Vignette);
+            Vignette::Entity* CreateAndAddVignette(VignetteEntry const* p_VignetteEntry, uint32 const p_MapId, Vignette::Type const p_VignetteType, G3D::Vector3 const p_Position, uint64 const p_SourceGuid = 0);
 
             /**
             * Remove the vignettes of the manager and destroy them
@@ -55,11 +67,6 @@ namespace Vignette
             * Update the vignette manager, send vignette update to client if needed
             */
             void Update();
-
-            /**
-            * Send to the client creation, update & remove of vignette
-            */
-            void SendVignetteUpdateToClient();
 
             /**
             * Call by Player::UpdateVisibilityOf
@@ -78,6 +85,11 @@ namespace Vignette
             inline void OnWorldObjectDisappear(T const* p_Target);
 
         private:
+
+            /**
+            * Send to the client creation, update & remove of vignette
+            */
+            void SendVignetteUpdateToClient();
 
             Player const*                m_Owner;                      ///< Player for who we handle the vignettes
             VignetteContainer            m_Vignettes;                  ///< Contains all the vignette the player can see

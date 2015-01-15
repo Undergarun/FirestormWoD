@@ -119,27 +119,9 @@ namespace Vignette
     /// Entity is the class which represent the vignette
     class Entity
     {
+        friend class Manager;
+
         public:
-
-            /**
-            * Vignette Entity constructor
-            * @param p_VignetteEntry : VignetteEntry, refer to Vignette.db2
-            * @param p_MapID : ID of the map where the vignette are, refer to Map.dbc
-            */
-            Entity(VignetteEntry const* p_VignetteEntry, uint32 const p_MapId);
-
-            /*
-            * Vignette Entity destructor
-            */
-            ~Entity();
-
-            /**
-            * Create the vignette
-            * @param p_Type : Type of the vignette, @see enum Vignette::Type
-            * @param p_Position: World position of the vignette
-            * @param p_SourceGuid: Guid of the source (can be gameobject or creature), optional
-            */
-            void Create(Type p_Type, G3D::Vector3 p_Position, uint64 p_SourceGuid = 0);
 
             /**
             * Update the position of the vignette
@@ -190,6 +172,27 @@ namespace Vignette
 
         private:
 
+
+            /**
+            * Vignette Entity constructor
+            * @param p_VignetteEntry : VignetteEntry, refer to Vignette.db2
+            * @param p_MapID : ID of the map where the vignette are, refer to Map.dbc
+            */
+            Entity(VignetteEntry const* p_VignetteEntry, uint32 const p_MapId);
+
+            /*
+            * Vignette Entity destructor
+            */
+            ~Entity();
+
+            /**
+            * Create the vignette
+            * @param p_Type : Type of the vignette, @see enum Vignette::Type
+            * @param p_Position: World position of the vignette
+            * @param p_SourceGuid: Guid of the source (can be gameobject or creature)
+            */
+            void Create(Type p_Type, G3D::Vector3 p_Position, uint64 p_SourceGuid);
+
             uint64               m_Guid;                    ///< Guid of the current vignette (GUID_TYPE_VIGNETTE)
             uint64               m_SourceGuid;              ///< Guid of the source if any (can be gameobject or creature)
             uint32 const         m_Map;                     ///< Map Id of the current vignette (we only send vignette which are on the same map the player is)
@@ -199,7 +202,7 @@ namespace Vignette
 
         protected:
 
-            bool                m_NeedClientUpdate;
+            bool                m_NeedClientUpdate;         ///< If true, the vignette need to be updated client-side
     };
 }
 #endif

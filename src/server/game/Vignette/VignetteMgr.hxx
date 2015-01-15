@@ -19,10 +19,7 @@ inline void Manager::OnWorldObjectAppear(T const* p_Target)
         l_Type = GetTrackingVignetteTypeFromWorldObject(p_Target);
     }
 
-    Vignette::Entity* l_Vignette = new Vignette::Entity(l_VignetteEntry, p_Target->GetMapId());
-    l_Vignette->Create(l_Type, G3D::Vector3(p_Target->GetPositionX(), p_Target->GetPositionY(), p_Target->GetPositionZ()), p_Target->GetGUID());
-
-    AddVignette(l_Vignette);
+    CreateAndAddVignette(l_VignetteEntry, p_Target->GetMapId(), l_Type, G3D::Vector3(p_Target->GetPositionX(), p_Target->GetPositionY(), p_Target->GetPositionZ()), p_Target->GetGUID());
 }
 
 template <class T>
