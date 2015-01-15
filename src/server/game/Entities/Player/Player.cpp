@@ -84,6 +84,7 @@
 #include "SceneObject.h"
 #include "Garrison.h"
 #include "PetBattle.h"
+#include "Vignette.hpp"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -25733,7 +25734,7 @@ void Player::UpdateVisibilityOf(WorldObject* target)
 
             target->DestroyForPlayer(this);
             m_clientGUIDs.erase(target->GetGUID());
-            m_VignetteMgr.OnWorldObjectDisappear(target));
+            m_VignetteMgr.OnWorldObjectDisappear(target);
 
             #ifdef TRINITY_DEBUG
                 sLog->outDebug(LOG_FILTER_MAPS, "Object %u (Type: %u) out of range for player %u. Distance = %f", target->GetGUIDLow(), target->GetTypeId(), GetGUIDLow(), GetDistance(target));
@@ -25809,10 +25810,6 @@ void Player::SendInitialVisiblePackets(Unit* target)
         if (target->HasUnitState(UNIT_STATE_MELEE_ATTACKING) && target->getVictim())
             target->SendMeleeAttackStart(target->getVictim());
     }
-
-    if (target->GetTypeId() == TYPEID_UNIT)
-    {
-    }
 }
 
 template<class T>
@@ -25826,6 +25823,7 @@ void Player::UpdateVisibilityOf(T* target, UpdateData& data, std::set<Unit*>& vi
 
             target->BuildOutOfRangeUpdateBlock(&data);
             m_clientGUIDs.erase(target->GetGUID());
+            m_VignetteMgr.OnWorldObjectDisappear(target);
 
             #ifdef TRINITY_DEBUG
                 sLog->outDebug(LOG_FILTER_MAPS, "Object %u (Type: %u, Entry: %u) is out of range for player %u. Distance = %f", target->GetGUIDLow(), target->GetTypeId(), target->GetEntry(), GetGUIDLow(), GetDistance(target));
@@ -25838,6 +25836,7 @@ void Player::UpdateVisibilityOf(T* target, UpdateData& data, std::set<Unit*>& vi
         {
             target->BuildCreateUpdateBlockForPlayer(&data, this);
             UpdateVisibilityOf_helper(m_clientGUIDs, target, visibleNow);
+            m_VignetteMgr.OnWorldObjectAppear(target);
 
             #ifdef TRINITY_DEBUG
                 sLog->outDebug(LOG_FILTER_MAPS, "Object %u (Type: %u, Entry: %u) is visible now for player %u. Distance = %f", target->GetGUIDLow(), target->GetTypeId(), target->GetEntry(), GetGUIDLow(), GetDistance(target));

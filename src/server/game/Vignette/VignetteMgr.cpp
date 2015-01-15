@@ -89,7 +89,8 @@ namespace Vignette
             l_Data << float(l_Vignette->GetPosition().y);
             l_Data << float(l_Vignette->GetPosition().z);
             l_Data.appendPackGUID(l_Vignette->GetGuid());
-            l_Data << uint32(0);                            ///< Unk
+            l_Data << uint32(l_Vignette->GetVignetteEntry()->Id);
+            l_Data << uint32(0);                                    ///< Zone restricted (Vignette with flag 0x40)
         }
 
         l_Data.put<uint32>(l_AddedVignetteSizePos, l_AddedVignetteSize);
@@ -109,7 +110,7 @@ namespace Vignette
             if (l_FindResult == m_Vignettes.end())
                 continue;
 
-            l_AddedVignetteSize++;
+            l_UpdatedVignetteSize++;
 
             auto l_Vignette = l_FindResult->second;
 
@@ -117,7 +118,8 @@ namespace Vignette
             l_Data << float(l_Vignette->GetPosition().y);
             l_Data << float(l_Vignette->GetPosition().z);
             l_Data.appendPackGUID(l_Vignette->GetGuid());
-            l_Data << uint32(0);                            ///< Unk
+            l_Data << uint32(l_Vignette->GetVignetteEntry()->Id);
+            l_Data << uint32(0);                                    ///< Zone restricted (Vignette with flag 0x40)
         }
 
         l_Data.put<uint32>(l_UpdatedVignetteSizePos, l_UpdatedVignetteSize);
@@ -151,55 +153,4 @@ namespace Vignette
         if (!m_AddedVignette.empty() || !m_UpdatedVignette.empty() || !m_RemovedVignette.empty())
             SendVignetteUpdateToClient();
     }
-
-    template<class T>
-    inline void Manager::OnWorldObjectAppear(T const* p_Target)
-    {
-        uint32 l_VignetteID = GetVignetteEntryFromWorldObject(p_Target);
-
-        if (l_VignetteID == 0)
-            return;
-
-        VignetteEntry const* l_VignetteEntry = sVignetteStore.LookupEntry(l_VignetteID);
-        if (l_VignetteEntry == nullptr)
-            return;
-
-        auto l_Type          = GetDefaultVignetteTypeFromWorldObject(p_Target);
-        auto l_TrackingQuest = GetTrackingQuestIdFromWorldObject(p_Target);
-
-        if (l_TrackingQuest)
-        {
-            if (m_Owner->GetCompletedQuests().GetBit(GetQuestUniqueBitFlag(l_TrackingQuest) - 1))
-                return;
-
-            l_Type = GetTrackingVignetteTypeFromWorldObject(p_Target);
-        }
-
-        Vignette::Entity* l_Vignette = new Vignette::Entity(l_VignetteEntry, p_Target->GetMapId());
-        l_Vignette->Create(l_Type, G3D::Vector3(p_Target->GetPositionX(), p_Target->GetPositionY(), p_Target->GetPositionZ()), p_Target->GetGUID());
-
-        AddVignette(l_Vignette);
-    }
-
-    template <class T>
-    inline void Manager::OnWorldObjectDisappear(T const* p_Target)
-    {
-        auto l_VignetteEntry = GetVignetteEntryFromWorldObject(p_Target);
-        if (l_VignetteEntry == nullptr)
-            return;
-
-        DestroyAndRemoveVignettes([l_VignetteID, p_Target](Vignette::Entity const* p_Vignette) -> bool
-        {
-            if (p_Vignette->GeSourceGuid() == p_Target->GetGUID()
-                && p_Vignette->GetVignetteType() != Vignette::Type::SourceScript)
-                return true;
-
-            return false;
-        });
-    }
-
-    /*template void Manager::OnWorldObjectAppear(Creature*);
-    template void Manager::OnWorldObjectAppear(GameObject*);
-    template void Manager::OnWorldObjectDisappear(Creature*);
-    template void Manager::OnWorldObjectDisappear(GameObject*);*/
 }

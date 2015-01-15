@@ -512,8 +512,8 @@ void ObjectMgr::LoadCreatureTemplates()
             creatureTemplate.questItems[i] = fields[index++].GetUInt32();
 
         creatureTemplate.movementId         = fields[index++].GetUInt32();
-        creatureTemplate.TrackingQuestID    = fields[index++].GetUInt32();
         creatureTemplate.VignetteID         = fields[index++].GetUInt32();
+        creatureTemplate.TrackingQuestID    = fields[index++].GetUInt32();
 
         creatureTemplate.RegenHealth        = fields[index++].GetBool();
         creatureTemplate.MechanicImmuneMask = fields[index++].GetUInt32();
@@ -943,6 +943,12 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
     {
         sLog->outError(LOG_FILTER_SQL, "Table `creature_template` lists creature (Entry: %u) with disallowed `flags_extra` %u, removing incorrect flag.", cInfo->Entry, badFlags);
         const_cast<CreatureTemplate*>(cInfo)->flags_extra &= CREATURE_FLAG_EXTRA_DB_ALLOWED;
+    }
+
+    if (cInfo->VignetteID && !sVignetteStore.LookupEntry(cInfo->VignetteID))
+    {
+        sLog->outError(LOG_FILTER_SQL, "Creature(Entry: %u) has a non - existing vignette id (%u)", cInfo->VignetteID);
+        const_cast<CreatureTemplate*>(cInfo)->VignetteID = 0;
     }
 
     const_cast<CreatureTemplate*>(cInfo)->dmg_multiplier *= Creature::_GetDamageMod(cInfo->rank);

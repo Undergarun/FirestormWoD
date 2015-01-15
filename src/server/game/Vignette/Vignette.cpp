@@ -25,6 +25,9 @@ namespace Vignette
     Entity::Entity(VignetteEntry const* p_VignetteEntry, uint32 const p_MapId) 
         : m_Map(p_MapId), m_VignetteEntry(p_VignetteEntry)
     {
+
+        ASSERT(p_VignetteEntry != nullptr);
+
         m_Guid             = 0;
         m_NeedClientUpdate = false;
     }
@@ -35,7 +38,7 @@ namespace Vignette
 
     void Entity::Create(Type p_Type, G3D::Vector3 p_Position, uint64 p_SourceGuid)
     {
-        m_Guid       = sObjectMgr->GenerateNewVignetteGUID();
+        m_Guid       = MAKE_NEW_GUID(sObjectMgr->GenerateNewVignetteGUID(), m_VignetteEntry->Id, HIGHGUID_VIGNETTE);
         m_Type       = p_Type;
         m_Position   = p_Position;
         m_SourceGuid = p_SourceGuid;
