@@ -41,4 +41,4 @@ inline void Manager::OnWorldObjectDisappear(T const* p_Target)
         return false;
     });
 }
-#endif VIGNETTE_HXX
+#endif //< VIGNETTE_HXX
