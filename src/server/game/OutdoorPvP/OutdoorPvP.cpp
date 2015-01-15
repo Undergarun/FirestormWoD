@@ -717,7 +717,7 @@ void OutdoorPvP::OnGameObjectRemove(GameObject* p_Go)
 
 WorldSafeLocsEntry const* OutdoorPvP::GetClosestGraveyard(Player* p_Player)
 {
-    OutdoorGraveyard* l_ClotestGraveyard = nullptr;
+    OutdoorGraveyard* l_ClosestGraveyard = nullptr;
     float l_MaxDist = 1000000.0f;
 
     for (uint8 l_I = 0; l_I < m_GraveyardList.size(); l_I++)
@@ -730,14 +730,14 @@ WorldSafeLocsEntry const* OutdoorPvP::GetClosestGraveyard(Player* p_Player)
             float l_Dist = m_GraveyardList[l_I]->GetDistance(p_Player);
             if (l_Dist < l_MaxDist || l_MaxDist < 0)
             {
-                l_ClotestGraveyard = m_GraveyardList[l_I];
+                l_ClosestGraveyard = m_GraveyardList[l_I];
                 l_MaxDist = l_Dist;
             }
         }
     }
 
-    if (l_ClotestGraveyard)
-        return sWorldSafeLocsStore.LookupEntry(l_ClotestGraveyard->GetGraveyardId());
+    if (l_ClosestGraveyard)
+        return sWorldSafeLocsStore.LookupEntry(l_ClosestGraveyard->GetGraveyardId());
 
     return nullptr;
 }
@@ -874,20 +874,20 @@ void OutdoorGraveyard::GiveControlTo(TeamId p_Team)
 
 void OutdoorGraveyard::RelocateDeadPlayers()
 {
-    WorldSafeLocsEntry const* l_ClotestGrave = nullptr;
+    WorldSafeLocsEntry const* l_ClosestGrave = nullptr;
     for (GuidSet::const_iterator l_Iter = m_ResurrectQueue.begin(); l_Iter != m_ResurrectQueue.end(); ++l_Iter)
     {
         Player* l_Player = sObjectAccessor->FindPlayer(*l_Iter);
         if (!l_Player)
             continue;
 
-        if (l_ClotestGrave)
-            l_Player->TeleportTo(l_Player->GetMapId(), l_ClotestGrave->x, l_ClotestGrave->y, l_ClotestGrave->z, l_Player->GetOrientation());
+        if (l_ClosestGrave)
+            l_Player->TeleportTo(l_Player->GetMapId(), l_ClosestGrave->x, l_ClosestGrave->y, l_ClosestGrave->z, l_Player->GetOrientation());
         else
         {
-            l_ClotestGrave = m_OutdoorPvP->GetClosestGraveyard(l_Player);
-            if (l_ClotestGrave)
-                l_Player->TeleportTo(l_Player->GetMapId(), l_ClotestGrave->x, l_ClotestGrave->y, l_ClotestGrave->z, l_Player->GetOrientation());
+            l_ClosestGrave = m_OutdoorPvP->GetClosestGraveyard(l_Player);
+            if (l_ClosestGrave)
+                l_Player->TeleportTo(l_Player->GetMapId(), l_ClosestGrave->x, l_ClosestGrave->y, l_ClosestGrave->z, l_Player->GetOrientation());
         }
     }
 }
