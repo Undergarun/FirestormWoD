@@ -613,6 +613,22 @@ namespace MS { namespace Garrison
 
         /// Enable AI Client collision manager
         m_Owner->SetFlag(UNIT_FIELD_NPC_FLAGS + 1, UNIT_NPC_FLAG2_AI_OBSTACLE);
+
+        for (std::map<uint32, uint64>::iterator l_It = m_PlotsActivateGob.begin(); l_It != m_PlotsActivateGob.end(); ++l_It)
+        {
+            GameObject * l_Gob = HashMapHolder<GameObject>::Find(l_It->second);
+
+            if (l_Gob)
+            {
+                WorldPacket l_Data(SMSG_GAME_OBJECT_ACTIVATE_ANIM_KIT, 16 + 4 + 1);
+                l_Data.appendPackGUID(l_It->second);                    ///< Object GUID
+                l_Data << uint32(1696);                                 ///< Anim Kit ID
+                l_Data.WriteBit(true);                                  ///< Maintain
+                l_Data.FlushBits();
+
+                m_Owner->GetMap()->SendToPlayers(&l_Data);
+            }
+        }
     }
     /// When the garrison owner leave the garrisson (@See Player::UpdateArea)
     void GarrisonMgr::OnPlayerLeave()
@@ -2558,6 +2574,7 @@ namespace MS { namespace Garrison
 
             if (l_Gob)
             {
+                m_Owner->SendObjectDeSpawnAnim(m_PlotsGob[p_PlotInstanceID]);
                 l_Gob->DestroyForNearbyPlayers();
                 l_Gob->AddObjectToRemoveList();
             }
@@ -2611,6 +2628,20 @@ namespace MS { namespace Garrison
 
                         if (l_Crea)
                         {
+                            l_Crea->SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DISABLE_CLIENT_SIDE);
+                            l_Crea->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_UNK1);
+
+                            UpdateData l_UpdateData(m_Owner->GetMapId());
+                            WorldPacket l_UpdatePacket;
+
+                            l_Crea->BuildValuesUpdateBlockForPlayer(&l_UpdateData, m_Owner);
+                                
+                            if (l_UpdateData.HasData())
+                            {
+                                if (l_UpdateData.BuildPacket(&l_UpdatePacket))
+                                    m_Owner->SendDirectMessage(&l_UpdatePacket);
+                            }
+
                             l_Crea->DestroyForNearbyPlayers();
                             l_Crea->AddObjectToRemoveList();
                         }
@@ -2624,6 +2655,7 @@ namespace MS { namespace Garrison
 
                         if (l_Gob)
                         {
+                            m_Owner->SendObjectDeSpawnAnim(m_PlotsGameObjects[p_PlotInstanceID][l_I]);
                             l_Gob->DestroyForNearbyPlayers();
                             l_Gob->AddObjectToRemoveList();
                         }
@@ -2704,6 +2736,7 @@ namespace MS { namespace Garrison
 
                     if (l_Gob)
                     {
+                        m_Owner->SendObjectDeSpawnAnim(m_PlotsActivateGob[p_PlotInstanceID]);
                         l_Gob->DestroyForNearbyPlayers();
                         l_Gob->AddObjectToRemoveList();
                     }
@@ -2744,7 +2777,17 @@ namespace MS { namespace Garrison
                     GameObject * l_ActivationGob = m_Owner->SummonGameObject(gGarrisonBuildingActivationGameObject[GetGarrisonFactionIndex()], l_FinalPosition.x, l_FinalPosition.y, l_FinalPosition.z, l_PlotInfo.O, 0, 0, 0, 0, 0, 0, 0, l_AnimProgress, l_Health);
                 
                     if (l_ActivationGob)
+                    {
                         m_PlotsActivateGob[p_PlotInstanceID] = l_ActivationGob->GetGUID();
+
+                        WorldPacket l_Data(SMSG_GAME_OBJECT_ACTIVATE_ANIM_KIT, 16 + 4 + 1);
+                        l_Data.appendPackGUID(l_ActivationGob->GetGUID());      ///< Object GUID
+                        l_Data << uint32(1696);                                 ///< Anim Kit ID
+                        l_Data.WriteBit(true);                                  ///< Maintain
+                        l_Data.FlushBits();
+
+                        m_Owner->GetMap()->SendToPlayers(&l_Data);
+                    }
                 }
             }
         }
