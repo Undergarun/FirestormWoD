@@ -17,11 +17,11 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef VIGNETTEMGR_H
-#define VIGNETTEMGR_H
-
-#include "Common.h"
-#include "Vignette.hpp"
+#ifndef VIGNETTE_MGR_HPP
+# define VIGNETTE_MGR_HPP
+  
+# include "Common.h"
+# include "Vignette.hpp"
 
 class Player;
 class WorldObject;
@@ -66,49 +66,16 @@ namespace Vignette
             * Hook to handle vignettes linked to WorldObjects
             * @param p_Target: The worldobject who appear
             */
-            template<class T> inline void OnWorldObjectAppear(T const* p_Target)
-            {
-                VignetteEntry const* l_VignetteEntry = GetVignetteEntryFromWorldObject(p_Target);
-                if (l_VignetteEntry == nullptr)
-                    return;
-
-                auto l_Type = GetDefaultVignetteTypeFromWorldObject(p_Target);
-                auto l_TrackingQuest = GetTrackingQuestIdFromWorldObject(p_Target);
-
-                if (l_TrackingQuest)
-                {
-                    if (m_Owner->GetCompletedQuests().GetBit(GetQuestUniqueBitFlag(l_TrackingQuest) - 1))
-                        return;
-
-                    l_Type = GetTrackingVignetteTypeFromWorldObject(p_Target);
-                }
-
-                Vignette::Entity* l_Vignette = new Vignette::Entity(l_VignetteEntry, p_Target->GetMapId());
-                l_Vignette->Create(l_Type, G3D::Vector3(p_Target->GetPositionX(), p_Target->GetPositionY(), p_Target->GetPositionZ()), p_Target->GetGUID());
-
-                AddVignette(l_Vignette);
-            }
+            template<class T>
+            inline void OnWorldObjectAppear(T const* p_Target);
 
             /**
             * Call by Player::UpdateVisibilityOf
             * Hook to handle vignettes linked to WorldObjects
             * @param p_Target: The worldobject who disappear
             */
-            template<class T> inline void OnWorldObjectDisappear(T const* p_Target)
-            {
-                auto l_VignetteEntry = GetVignetteEntryFromWorldObject(p_Target);
-                if (l_VignetteEntry == nullptr)
-                    return;
-
-                DestroyAndRemoveVignettes([p_Target](Vignette::Entity const* p_Vignette) -> bool
-                {
-                    if (p_Vignette->GeSourceGuid() == p_Target->GetGUID()
-                        && p_Vignette->GetVignetteType() != Vignette::Type::SourceScript)
-                        return true;
-
-                    return false;
-                });
-            }
+            template<class T>
+            inline void OnWorldObjectDisappear(T const* p_Target);
 
         private:
 
@@ -118,6 +85,7 @@ namespace Vignette
             std::set<uint64>             m_AddedVignette;              ///< Contains all the added vignettes to send to client at the next SMSG_VIGNETTE_UPDATE
             std::set<uint64>             m_UpdatedVignette;            ///< Contains all the updated vignettes to send to client at the next SMSG_VIGNETTE_UPDATE
     };
-};
+# include "VignetteMgr.hxx"
+}
 
-#endif
+#endif ///< VIGNETTE_MGR_HPP
