@@ -17,11 +17,11 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef VIGNETTEMGR_H
-#define VIGNETTEMGR_H
-
-#include "Common.h"
-#include "Vignette.hpp"
+#ifndef VIGNETTE_MGR_HPP
+# define VIGNETTE_MGR_HPP
+  
+# include "Common.h"
+# include "Vignette.hpp"
 
 class Player;
 class WorldObject;
@@ -66,14 +66,16 @@ namespace Vignette
             * Hook to handle vignettes linked to WorldObjects
             * @param p_Target: The worldobject who appear
             */
-            template<class T> inline void OnWorldObjectAppear(T const* p_Target);
+            template<class T>
+            inline void OnWorldObjectAppear(T const* p_Target);
 
             /**
             * Call by Player::UpdateVisibilityOf
             * Hook to handle vignettes linked to WorldObjects
             * @param p_Target: The worldobject who disappear
             */
-            template<class T> inline void OnWorldObjectDisappear(T const* p_Target);
+            template<class T>
+            inline void OnWorldObjectDisappear(T const* p_Target);
 
         private:
 
@@ -83,6 +85,7 @@ namespace Vignette
             std::set<uint64>             m_AddedVignette;              ///< Contains all the added vignettes to send to client at the next SMSG_VIGNETTE_UPDATE
             std::set<uint64>             m_UpdatedVignette;            ///< Contains all the updated vignettes to send to client at the next SMSG_VIGNETTE_UPDATE
     };
-};
+# include "VignetteMgr.hxx"
+}
 
-#endif
+#endif ///< VIGNETTE_MGR_HPP
