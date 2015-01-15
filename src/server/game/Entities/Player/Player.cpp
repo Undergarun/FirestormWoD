@@ -3041,7 +3041,7 @@ void Player::SwitchToPhasedMap(uint32 p_MapID)
         GetSession()->SendPacket(&l_Data);
     }
 
-    GetMap()->AddPlayerToMap(this);
+    GetMap()->AddPlayerToMap(this, true);
 
     // Update zone immediately, otherwise leave channel will cause crash in mtmap
     uint32 l_NewZone, l_NewArea;

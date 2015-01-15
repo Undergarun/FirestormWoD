@@ -445,7 +445,7 @@ void Map::LoadGrid(float x, float y)
     EnsureGridLoaded(Cell(x, y));
 }
 
-bool Map::AddPlayerToMap(Player* player)
+bool Map::AddPlayerToMap(Player* player, bool p_Switched /*= false*/)
 {
     CellCoord cellCoord = JadeCore::ComputeCellCoord(player->GetPositionX(), player->GetPositionY());
     if (!cellCoord.IsCoordValid())
@@ -463,7 +463,7 @@ bool Map::AddPlayerToMap(Player* player)
     player->SetMap(this);
     player->AddToWorld();
 
-    SendInitSelf(player);
+    SendInitSelf(player, p_Switched);
     SendInitTransports(player);
 
     player->m_clientGUIDs.clear();
@@ -2275,36 +2275,39 @@ void Map::UpdateObjectsVisibilityFor(Player* player, Cell cell, CellCoord cellpa
     notifier.SendToSelf();
 }
 
-void Map::SendInitSelf(Player* player)
+void Map::SendInitSelf(Player* p_Player, bool p_Switched)
 {
-    sLog->outInfo(LOG_FILTER_MAPS, "Creating player data for himself %u", player->GetGUIDLow());
-
-    UpdateData data(player->GetMapId());
+    UpdateData l_Data(p_Player->GetMapId());
 
     // attach to player data current transport data
-    if (Transport* transport = player->GetTransport())
-    {
-        transport->BuildCreateUpdateBlockForPlayer(&data, player);
-    }
+    if (Transport* l_Transport = p_Player->GetTransport())
+        l_Transport->BuildCreateUpdateBlockForPlayer(&l_Data, p_Player);
 
     // build data for self presence in world at own client (one time for map)
-    player->BuildCreateUpdateBlockForPlayer(&data, player);
+    if (!p_Switched)
+        p_Player->BuildCreateUpdateBlockForPlayer(&l_Data, p_Player);
+    else ///< Blizzard doesn't send create when switch to phased map (garrisson, ashran...)
+    {
+        p_Player->ForceValuesUpdateAtIndex(OBJECT_FIELD_ENTRY_ID);
+        p_Player->ForceValuesUpdateAtIndex(UNIT_FIELD_DISPLAY_ID);
+        p_Player->ForceValuesUpdateAtIndex(UNIT_FIELD_LEVEL);
+
+        p_Player->BuildValuesUpdateBlockForPlayer(&l_Data, p_Player);
+    }
 
     // build other passengers at transport also (they always visible and marked as visible and will not send at visibility update at add to map
-    if (Transport* transport = player->GetTransport())
+    if (Transport* l_Transport = p_Player->GetTransport())
     {
-        for (std::set<WorldObject*>::const_iterator itr = transport->GetPassengers().begin(); itr != transport->GetPassengers().end(); ++itr)
+        for (std::set<WorldObject*>::const_iterator l_Iter = l_Transport->GetPassengers().begin(); l_Iter != l_Transport->GetPassengers().end(); ++l_Iter)
         {
-            if (player != (*itr) && player->HaveAtClient(*itr))
-            {
-                (*itr)->BuildCreateUpdateBlockForPlayer(&data, player);
-            }
+            if (p_Player != (*l_Iter) && p_Player->HaveAtClient(*l_Iter))
+                (*l_Iter)->BuildCreateUpdateBlockForPlayer(&l_Data, p_Player);
         }
     }
 
-    WorldPacket packet;
-    if (data.BuildPacket(&packet))
-        player->GetSession()->SendPacket(&packet);
+    WorldPacket l_Packet;
+    if (l_Data.BuildPacket(&l_Packet))
+        p_Player->GetSession()->SendPacket(&l_Packet);
 }
 
 /// Hack to send out transports
@@ -2679,7 +2682,7 @@ bool InstanceMap::CanEnter(Player* player)
 /*
     Do map specific checks and add the player to the map if successful.
 */
-bool InstanceMap::AddPlayerToMap(Player* player)
+bool InstanceMap::AddPlayerToMap(Player* player, bool p_Switched /*= false*/)
 {
     // TODO: Not sure about checking player level: already done in HandleAreaTriggerOpcode
     // GMs still can teleport player in instance.
@@ -2794,7 +2797,7 @@ bool InstanceMap::AddPlayerToMap(Player* player)
         i_data->BeforePlayerEnter(player);
 
     // this will acquire the same mutex so it cannot be in the previous block
-    Map::AddPlayerToMap(player);
+    Map::AddPlayerToMap(player, p_Switched);
 
     if (i_data)
         i_data->OnPlayerEnter(player);
@@ -3067,7 +3070,7 @@ bool BattlegroundMap::CanEnter(Player* player)
     return Map::CanEnter(player);
 }
 
-bool BattlegroundMap::AddPlayerToMap(Player* player)
+bool BattlegroundMap::AddPlayerToMap(Player* player, bool p_Switched /*= false*/)
 {
     {
         TRINITY_GUARD(ACE_Thread_Mutex, Lock);

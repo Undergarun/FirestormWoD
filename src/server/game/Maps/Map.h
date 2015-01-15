@@ -250,7 +250,7 @@ class Map : public GridRefManager<NGridType>
             return false;
         }
 
-        virtual bool AddPlayerToMap(Player*);
+        virtual bool AddPlayerToMap(Player*, bool p_Switched = false);
         virtual void RemovePlayerFromMap(Player*, bool);
         template<class T> bool AddToMap(T *);
         template<class T> void RemoveFromMap(T *, bool);
@@ -504,7 +504,7 @@ class Map : public GridRefManager<NGridType>
 
         void SetTimer(uint32 t) { i_gridExpiry = t < MIN_GRID_DELAY ? MIN_GRID_DELAY : t; }
 
-        void SendInitSelf(Player* player);
+        void SendInitSelf(Player* player, bool p_Switched);
 
         bool CreatureCellRelocation(Creature* creature, Cell new_cell);
         bool GameObjectCellRelocation(GameObject* go, Cell new_cell);
@@ -655,7 +655,7 @@ class InstanceMap : public Map
     public:
         InstanceMap(uint32 id, time_t, uint32 InstanceId, uint8 SpawnMode, Map* _parent);
         ~InstanceMap();
-        bool AddPlayerToMap(Player*);
+        bool AddPlayerToMap(Player*, bool p_Switched = false);
         void RemovePlayerFromMap(Player*, bool);
         void Update(const uint32);
         void CreateInstanceData(bool load);
@@ -685,7 +685,7 @@ class BattlegroundMap : public Map
         BattlegroundMap(uint32 id, time_t, uint32 InstanceId, Map* _parent, uint8 spawnMode);
         ~BattlegroundMap();
 
-        bool AddPlayerToMap(Player*);
+        bool AddPlayerToMap(Player*, bool p_Switched = false);
         void RemovePlayerFromMap(Player*, bool);
         bool CanEnter(Player* player);
         void SetUnload();
