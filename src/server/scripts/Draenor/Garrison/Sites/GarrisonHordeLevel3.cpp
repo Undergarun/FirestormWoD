@@ -6,6 +6,16 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 #include "GarrisonHordeLevel3.hpp"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
+#include "GameObjectAI.h"
+#include "Spell.h"
+
+enum
+{
+    GARRISON_PHASE_BASE = 0x0001,
+};
 
 namespace MS { namespace Garrison { namespace Sites
 {
@@ -23,13 +33,126 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_Map : Target map
     InstanceScript * InstanceMapScript_GarrisonHordeLevel3::GetInstanceScript(InstanceMap * p_Map) const
     {
-        return nullptr;// new InstanceScript_GarrisonHordeLevel3(p_Map);
+        return new InstanceScript_GarrisonHordeLevel3(p_Map);
     }
 
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    /// @p_Map : Target map
+    InstanceScript_GarrisonHordeLevel3::InstanceScript_GarrisonHordeLevel3(Map* p_Map)
+        : GarrisonSiteBase(p_Map)
+    {
+
+    }
+    /// Destructor
+    InstanceScript_GarrisonHordeLevel3::~InstanceScript_GarrisonHordeLevel3()
+    {
+
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// When a creature is created
+    /// @p_Creature : Created creature instance
+    void InstanceScript_GarrisonHordeLevel3::OnCreatureCreate(Creature * p_Creature)
+    {
+
+    }
+    /// When a game object is created
+    /// @p_Gameobject : Created game object instance
+    void InstanceScript_GarrisonHordeLevel3::OnGameObjectCreate(GameObject * p_Gameobject)
+    {
+
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// When instance script is updated
+    /// @p_Diff : Time since last update
+    void InstanceScript_GarrisonHordeLevel3::Update(uint32 p_Diff)
+    {
+
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// When the owner enter in the garrison
+    /// @p_Owner : Owner instance
+    void InstanceScript_GarrisonHordeLevel3::OnOwnerEnter(Player * p_Owner)
+    {
+
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// When the garrison owner started a quest
+    /// @p_Owner : Garrison owner
+    /// @p_Quest : Started quest
+    void InstanceScript_GarrisonHordeLevel3::OnQuestStarted(Player * p_Owner, const Quest * p_Quest)
+    {
+
+    }
+    /// When the garrison owner reward a quest
+    /// @p_Owner : Garrison owner
+    /// @p_Quest : Rewarded quest
+    void InstanceScript_GarrisonHordeLevel3::OnQuestReward(Player * p_Owner, const Quest * p_Quest)
+    {
+
+    }
+    /// When the garrison owner abandon a quest
+    /// @p_Owner : Garrison owner
+    /// @p_Quest : Abandoned quest
+    void InstanceScript_GarrisonHordeLevel3::OnQuestAbandon(Player * p_Owner, const Quest * p_Quest)
+    {
+
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Get phase mask
+    /// @p_Owner : Garrison owner
+    uint32 InstanceScript_GarrisonHordeLevel3::GetPhaseMask(Player * p_Owner)
+    {
+        uint32 l_PhaseMask = GARRISON_PHASE_BASE;
+
+        return l_PhaseMask;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Owner can use the garrison cache ?
+    /// @p_Owner : Garrison owner
+    bool InstanceScript_GarrisonHordeLevel3::CanUseGarrisonCache(Player * p_Owner)
+    {
+        return true;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// When a mission start
+    /// @p_MissionID : Started mission ID
+    /// @p_Followers : Followers on the mission
+    void InstanceScript_GarrisonHordeLevel3::OnMissionStart(uint32 p_MissionID, std::vector<uint32> p_Followers)
+    {
+
+    }
+    /// When a construction start
+    /// @p_BuildingID : Purchased building ID
+    void InstanceScript_GarrisonHordeLevel3::OnPurchaseBuilding(uint32 p_BuildingID)
+    {
+
+    }
 
 }   ///< namespace Sites
 }   ///< namespace Garrison

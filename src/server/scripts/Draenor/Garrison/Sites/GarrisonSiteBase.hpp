@@ -5,8 +5,8 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef GARRISON_HORDE_LEVEL_3_HPP_GARRISON
-#define GARRISON_HORDE_LEVEL_3_HPP_GARRISON
+#ifndef GARRISON_SITE_BASE_HPP_GARRISON
+#define GARRISON_SITE_BASE_HPP_GARRISON
 
 #include "../GarrisonScriptData.hpp"
 #include "GarrisonMgr.hpp"
@@ -52,4 +52,4 @@ namespace MS { namespace Garrison { namespace Sites
 }   ///< namespace Garrison
 }   ///< namespace MS
 
-#endif  ///< GARRISON_HORDE_LEVEL_3_HPP_GARRISON
+#endif  ///< GARRISON_SITE_BASE_HPP_GARRISON

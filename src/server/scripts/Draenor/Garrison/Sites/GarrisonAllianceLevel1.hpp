@@ -85,11 +85,6 @@ namespace MS { namespace Garrison { namespace Sites
             /// @p_BuildingID : Purchased building ID
             virtual void OnPurchaseBuilding(uint32 p_BuildingID) override;
 
-        private:
-            uint64                      m_OwnerGUID;    ///< Garrison owner GUID
-            std::set<uint64>            m_Players;      ///< Players in garrison
-            std::map<uint32, uint32>    m_Data32;       ///< Instance Data
-
     };
 
 }   ///< namespace Sites
