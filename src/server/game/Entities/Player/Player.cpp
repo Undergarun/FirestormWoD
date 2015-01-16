@@ -3041,7 +3041,7 @@ void Player::SwitchToPhasedMap(uint32 p_MapID)
         GetSession()->SendPacket(&l_Data);
     }
 
-    GetMap()->AddPlayerToMap(this);
+    GetMap()->AddPlayerToMap(this, true);
 
     // Update zone immediately, otherwise leave channel will cause crash in mtmap
     uint32 l_NewZone, l_NewArea;
@@ -5176,11 +5176,6 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
 
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LEARN_SPELL, spellId);
     }
-
-    // Custom MoP Script
-    // 76856 - Mastery : Unshackled Fury - Hack Fix Pig
-    if (spellInfo->Id == 76856)
-        CastSpell(this, spellInfo->Id, true);
 
     // return true (for send learn packet) only if spell active (in case ranked spells) and not replace old spell
     return active && !disabled && !superceded_old;
@@ -30204,13 +30199,13 @@ void Player::HandleStoreGoldCallback(PreparedQueryResult result)
         do
         {
             Field* fieldGold    = result->Fetch();
-            uint64 gold         = (fieldGold[0].GetUInt32()) * GOLD;
+            uint64 gold         = uint64(fieldGold[0].GetUInt32()) * GOLD;
             uint32 transaction  = fieldGold[1].GetUInt32();
 
             if ((GetMoney() + gold) > MAX_MONEY_AMOUNT)
             {
-                GetSession()->SendNotification("Vous avez commande des pieces d'ors a la boutique, mais vous disposez deja de la limite imposee par WoW");  // Translate me
-                GetSession()->SendNotification("Vos pieces d'or seront ajoutee lors d'une futur re-connexion.");                                            // Translate me
+                GetSession()->SendNotification(LANG_GOLD_ERROR1);
+                GetSession()->SendNotification(LANG_GOLD_ERROR2);
                 break;
             }
             goldCount+= gold;
@@ -30230,7 +30225,7 @@ void Player::HandleStoreGoldCallback(PreparedQueryResult result)
         while(result->NextRow());
 
         if (goldCount)
-            GetSession()->SendNotification("%d pieces d'or vous ont ete ajoutee suite a votre commande sur la boutique", (goldCount/GOLD));             // Translate me
+            GetSession()->SendNotification(LANG_GOLD_CONFIRM, (goldCount/GOLD));
     }
 }
 
