@@ -2301,6 +2301,9 @@ namespace MS { namespace Garrison
         m_Owner->SendDirectMessage(&l_Packet);
 
         UpdateStats();
+
+        if (GetGarrisonScript())
+            GetGarrisonScript()->OnBuildingActivated(m_Owner, l_Building->BuildingID);
     }
     /// Activate building
     void GarrisonMgr::ActivateBuilding()

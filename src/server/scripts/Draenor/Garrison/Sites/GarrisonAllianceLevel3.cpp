@@ -148,6 +148,13 @@ namespace MS { namespace Garrison { namespace Sites
     {
 
     }
+    /// When a building is activated
+    /// @p_Owner      : Garrison owner
+    /// @p_BuildingID : Purchased building ID
+    void InstanceScript_GarrisonAllianceLevel3::OnBuildingActivated(Player * p_Owner, uint32 p_BuildingID)
+    {
+
+    }
 
 }   ///< namespace Sites
 }   ///< namespace Garrison

@@ -55,6 +55,10 @@ namespace MS { namespace Garrison { namespace Interfaces
             /// @p_Owner      : Garrison owner
             /// @p_BuildingID : Purchased building ID
             virtual void OnPurchaseBuilding(Player * p_Owner, uint32 p_BuildingID) = 0;
+            /// When a building is activated
+            /// @p_Owner      : Garrison owner
+            /// @p_BuildingID : Purchased building ID
+            virtual void OnBuildingActivated(Player * p_Owner, uint32 p_BuildingID) = 0;
 
     };
 

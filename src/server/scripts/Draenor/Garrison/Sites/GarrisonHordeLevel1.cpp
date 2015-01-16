@@ -150,6 +150,10 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_BuildingID : Purchased building ID
     void InstanceScript_GarrisonHordeLevel1::OnPurchaseBuilding(Player * p_Owner, uint32 p_BuildingID)
     {
+    /// When a building is activated
+    /// @p_Owner      : Garrison owner
+    /// @p_BuildingID : Purchased building ID
+    void InstanceScript_GarrisonHordeLevel1::OnBuildingActivated(Player * p_Owner, uint32 p_BuildingID)
 
     }
 
