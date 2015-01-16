@@ -144,6 +144,14 @@ namespace MS { namespace Garrison { namespace Sites
     {
 
     }
+    /// When a construction start, compute build time
+    /// @p_Owner      : Garrison owner
+    /// @p_BuildingID : Purchased building ID
+    /// @p_BaseTime   : Default build time
+    uint32 InstanceScript_GarrisonAllianceLevel1::OnPrePurchaseBuilding(Player * p_Owner, uint32 p_BuildingID, uint32 p_BaseTime)
+    {
+
+    }
     /// When a construction start
     /// @p_Owner      : Garrison owner
     /// @p_BuildingID : Purchased building ID

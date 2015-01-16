@@ -75,6 +75,11 @@ namespace MS { namespace Garrison { namespace Sites
             /// @p_MissionID : Started mission ID
             /// @p_Followers : Followers on the mission
             virtual void OnMissionStart(Player * p_Owner, uint32 p_MissionID, std::vector<uint32> p_Followers) override;
+            /// When a construction start, compute build time
+            /// @p_Owner      : Garrison owner
+            /// @p_BuildingID : Purchased building ID
+            /// @p_BaseTime   : Default build time
+            virtual uint32 OnPrePurchaseBuilding(Player * p_Owner, uint32 p_BuildingID, uint32 p_BaseTime) override;
             /// When a construction start
             /// @p_Owner      : Garrison owner
             /// @p_BuildingID : Purchased building ID

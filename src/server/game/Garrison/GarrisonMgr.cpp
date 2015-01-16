@@ -2201,11 +2201,16 @@ namespace MS { namespace Garrison
             m_Owner->SendDirectMessage(&l_PlotRemoved);
         }
 
+        uint32 l_BuildingTime = l_BuildingEntry->BuildTime;
+
+        if (GetGarrisonScript())
+            l_BuildingTime = GetGarrisonScript()->OnPrePurchaseBuilding(m_Owner, p_BuildingRecID, l_BuildingTime);
+
         l_Building.DB_ID            = sObjectMgr->GetNewGarrisonBuildingID();
         l_Building.BuildingID       = p_BuildingRecID;
         l_Building.PlotInstanceID   = p_PlotInstanceID;
         l_Building.TimeBuiltStart   = time(0);
-        l_Building.TimeBuiltEnd     = time(0) + l_BuildingEntry->BuildTime;           ///< 5/5/1905 18:45:05
+        l_Building.TimeBuiltEnd     = time(0) + l_BuildingTime;           ///< 5/5/1905 18:45:05
         l_Building.SpecID           = 0;
         l_Building.Active           = false;
         l_Building.BuiltNotified    = false;
