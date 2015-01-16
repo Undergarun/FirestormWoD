@@ -1835,6 +1835,14 @@ void ScriptMgr::OnPlayerChangeShapeshift(Player * p_Player, ShapeshiftForm p_For
     FOREACH_SCRIPT(PlayerScript)->OnChangeShapeshift(p_Player, p_Form);
 }
 
+/// Called when a player loot an item
+/// @p_Player : Player instance
+/// @p_Item   : New looted item instance
+void ScriptMgr::OnPlayerItemLooted(Player* p_Player, Item * p_Item)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnItemLooted(p_Player, p_Item);
+}
+
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
