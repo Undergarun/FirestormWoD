@@ -98,14 +98,23 @@ namespace MS { namespace Garrison
 
 void AddSC_Garrison_NPC()
 {
+    /// Generic
     new MS::Garrison::npc_GarrisonFord;
+
+    /// Alliance
     new MS::Garrison::npc_GarrisonCartRope;
     new MS::Garrison::npc_AssistantBrightstone;
     new MS::Garrison::npc_ShellyHamby;
     new MS::Garrison::npc_BarosAlexsom;
     new MS::Garrison::npc_VindicatorMaraad;
     new MS::Garrison::npc_LunarfallLaborer;
+
+    /// Horde
     new MS::Garrison::npc_FrostwallPeon("npc_FrostwallPeon_Dynamic");
     new MS::Garrison::npc_FrostwallPeon("npc_FrostwallPeon");
     new MS::Garrison::npc_Skaggit;
+    new MS::Garrison::npc_LadySena;
+    new MS::Garrison::npc_SergeantGrimjaw;
+    new MS::Garrison::npc_SeniorPeonII;
+    new MS::Garrison::npc_Gazlowe;
 }

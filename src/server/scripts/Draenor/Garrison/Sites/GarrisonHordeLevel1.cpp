@@ -14,7 +14,8 @@
 
 enum
 {
-    GARRISON_PHASE_BASE             = 0x0001,
+    GARRISON_PHASE_BASE                 = 0x0001,
+    GARRISON_PHASE_BUILD_YOUR_BARRACKS  = 0x0002,
 };
 
 namespace MS { namespace Garrison { namespace Sites
@@ -72,7 +73,33 @@ namespace MS { namespace Garrison { namespace Sites
     void InstanceScript_GarrisonHordeLevel1::OnOwnerEnter(Player * p_Owner)
     {
         if (p_Owner->GetQuestStatus(Quests::QUEST_WHAT_WE_GOT) == QUEST_STATUS_REWARDED || p_Owner->GetQuestObjectiveCounter(273085) == 1)
+        {
             SetData(InstanceDataIDs::GARRISON_INSTANCE_DATA_PEON_ENABLED, 1);
+
+            if (!m_CreaturesPerEntry[NPCs::NPC_FROSTWALL_PEON_DYNAMIC].empty())
+            {
+                for (uint64 l_DynamicPeon : m_CreaturesPerEntry[NPCs::NPC_FROSTWALL_PEON_DYNAMIC])
+                {
+                    Creature * l_Creature = HashMapHolder<Creature>::Find(*(m_CreaturesPerEntry[NPCs::NPC_FROSTWALL_PEON_DYNAMIC].begin()));
+
+                    if (l_Creature && l_Creature->AI())
+                        l_Creature->AI()->SetData(GARRISON_CREATURE_AI_DATA_PEON_WORKING, HordePeonData::PHASE_WOODCUTTING);
+                }
+            }
+        }
+
+        if ((p_Owner->GetQuestStatus(Quests::QUEST_WHAT_WE_GOT) == QUEST_STATUS_INCOMPLETE || p_Owner->GetQuestObjectiveCounter(275373) == 1) && !m_CreaturesPerEntry[NPCs::NPC_SENIOR_PEON_II].empty())
+        {
+            Creature * l_Creature = HashMapHolder<Creature>::Find(*(m_CreaturesPerEntry[NPCs::NPC_SENIOR_PEON_II].begin()));
+
+            if (l_Creature && l_Creature->GetDistance2d(5593, 4476) > 2)
+            {
+                l_Creature->SetWalk(false);
+                l_Creature->LoadPath(Waypoints::MOVE_PATH_SENIOR_PEON_II);
+                l_Creature->SetDefaultMovementType(WAYPOINT_MOTION_TYPE);
+                l_Creature->GetMotionMaster()->Initialize();
+            }
+        }
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -97,7 +124,34 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_Quest : Abandoned quest
     void InstanceScript_GarrisonHordeLevel1::OnQuestAbandon(Player * p_Owner, const Quest * p_Quest)
     {
+        if (p_Quest && p_Quest->GetQuestId() == Quests::QUEST_WHAT_WE_GOT)
+        {
+            if (!m_CreaturesPerEntry[NPCs::NPC_SENIOR_PEON_II].empty())
+            {
+                Creature * l_Creature = HashMapHolder<Creature>::Find(*(m_CreaturesPerEntry[NPCs::NPC_SENIOR_PEON_II].begin()));
 
+                if (l_Creature && l_Creature->GetDistance2d(5593, 4476) < 2)
+                {
+                    l_Creature->SetWalk(false);
+                    l_Creature->LoadPath(Waypoints::MOVE_PATH_SENIOR_PEON_II_BACK);
+                    l_Creature->SetDefaultMovementType(WAYPOINT_MOTION_TYPE);
+                    l_Creature->GetMotionMaster()->Initialize();
+                }
+            }
+
+            SetData(InstanceDataIDs::GARRISON_INSTANCE_DATA_PEON_ENABLED, 0);
+
+            if (!m_CreaturesPerEntry[NPCs::NPC_FROSTWALL_PEON_DYNAMIC].empty())
+            {
+                for (uint64 l_DynamicPeon : m_CreaturesPerEntry[NPCs::NPC_FROSTWALL_PEON_DYNAMIC])
+                {
+                    Creature * l_Creature = HashMapHolder<Creature>::Find(*(m_CreaturesPerEntry[NPCs::NPC_FROSTWALL_PEON_DYNAMIC].begin()));
+
+                    if (l_Creature && l_Creature->AI())
+                        l_Creature->AI()->SetData(GARRISON_CREATURE_AI_DATA_PEON_WORKING, HordePeonData::PHASE_BACK_TO_HOME);
+                }
+            }
+        }
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -109,6 +163,9 @@ namespace MS { namespace Garrison { namespace Sites
     {
         uint32 l_PhaseMask = GARRISON_PHASE_BASE;
 
+        if (p_Owner->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS))
+            l_PhaseMask |= GARRISON_PHASE_BUILD_YOUR_BARRACKS;
+
         return l_PhaseMask;
     }
 
@@ -119,8 +176,8 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_Owner : Garrison owner
     bool InstanceScript_GarrisonHordeLevel1::CanUseGarrisonCache(Player * p_Owner)
     {
-        if (p_Owner->GetQuestStatus(MS::Garrison::Quests::QUEST_WHAT_WE_GOT) == QUEST_STATUS_REWARDED
-            || p_Owner->HasQuest(MS::Garrison::Quests::QUEST_WHAT_WE_GOT))
+        if (p_Owner->GetQuestStatus(Quests::QUEST_WHAT_WE_GOT) == QUEST_STATUS_REWARDED
+            || p_Owner->HasQuest(Quests::QUEST_WHAT_WE_GOT))
             return true;
 
         return false;
@@ -143,18 +200,50 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_BaseTime   : Default build time
     uint32 InstanceScript_GarrisonHordeLevel1::OnPrePurchaseBuilding(Player * p_Owner, uint32 p_BuildingID, uint32 p_BaseTime)
     {
+        /// Barracks
+        if (p_BuildingID == 26 && p_Owner->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS))
+        {
+            return 2;   ///< 2 second, unk retail value
+        }
 
+        return p_BaseTime;
     }
     /// When a construction start
     /// @p_Owner      : Garrison owner
     /// @p_BuildingID : Purchased building ID
     void InstanceScript_GarrisonHordeLevel1::OnPurchaseBuilding(Player * p_Owner, uint32 p_BuildingID)
     {
+        /// Barracks
+        if (p_BuildingID == 26 && p_Owner->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS))
+        {
+            p_Owner->QuestObjectiveSatisfy(36167, 1, QUEST_OBJECTIVE_TYPE_CRITERIA, p_Owner->GetGUID());
+
+            if (!m_CreaturesPerEntry[NPCs::NPC_GASLOWE].empty())
+            {
+                Creature * l_Creature = HashMapHolder<Creature>::Find(*(m_CreaturesPerEntry[NPCs::NPC_GASLOWE].begin()));
+
+                if (l_Creature && l_Creature->AI())
+                {
+                    l_Creature->AI()->Talk(0);
+
+                    l_Creature->SetWalk(false);
+                    l_Creature->GetMotionMaster()->MovePoint(MovePointIDs::MOVE_POINT_GAZLOWE_BARRACK_A, 5590.83f, 4481.74f, 129.92f);
+
+                    p_Owner->QuestObjectiveSatisfy(78466, 1, QUEST_OBJECTIVE_TYPE_NPC, p_Owner->GetGUID());
+                }
+            }
+        }
+    }
     /// When a building is activated
     /// @p_Owner      : Garrison owner
     /// @p_BuildingID : Purchased building ID
     void InstanceScript_GarrisonHordeLevel1::OnBuildingActivated(Player * p_Owner, uint32 p_BuildingID)
-
+    {
+        /// Barracks
+        if (p_BuildingID == 26 && p_Owner->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS))
+        {
+            p_Owner->QuestObjectiveSatisfy(35753, 1, QUEST_OBJECTIVE_TYPE_CRITERIA, p_Owner->GetGUID());
+        }
     }
 
 }   ///< namespace Sites

@@ -186,6 +186,107 @@ namespace MS { namespace Garrison
 
     };
 
+    /// Lady sena
+    class npc_LadySena : public CreatureScript
+    {
+        public:
+            /// Constructor
+            npc_LadySena();
+
+            /// Called when a player opens a gossip dialog with the creature.
+            /// @p_Player   : Source player instance
+            /// @p_Creature : Target creature instance
+            virtual bool OnGossipHello(Player * p_Player, Creature * p_Creature) override;
+
+    };
+
+    /// Sergeant Grimjaw
+    class npc_SergeantGrimjaw : public CreatureScript
+    {
+        public:
+            /// Constructor
+            npc_SergeantGrimjaw();
+
+            /// Called when a player opens a gossip dialog with the creature.
+            /// @p_Player   : Source player instance
+            /// @p_Creature : Target creature instance
+            virtual bool OnGossipHello(Player * p_Player, Creature * p_Creature) override;
+
+    };
+
+    /// Senior Peon II
+    class npc_SeniorPeonII : public CreatureScript
+    {
+        public:
+            /// Constructor
+            npc_SeniorPeonII();
+
+            /// Called when a player opens a gossip dialog with the creature.
+            /// @p_Player   : Source player instance
+            /// @p_Creature : Target creature instance
+            virtual bool OnGossipHello(Player * p_Player, Creature * p_Creature) override;
+            /// Called when a player selects a gossip item in the creature's gossip menu.
+            /// @p_Player   : Source player instance
+            /// @p_Creature : Target creature instance
+            /// @p_Sender   : Sender menu
+            /// @p_Action   : Action
+            virtual bool OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action) override;
+
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            CreatureAI * GetAI(Creature * p_Creature) const;
+
+            /// Creature AI
+            struct npc_SeniorPeonIIAI : public CreatureAI
+            {
+                /// Constructor
+                npc_SeniorPeonIIAI(Creature * p_Creature);
+
+                /// Called at waypoint reached or point movement finished
+                /// @p_Type : Movement Type
+                /// @p_ID   : Misc ID
+                virtual void MovementInform(uint32 p_Type, uint32 p_ID) override;
+
+                /// On AI Update
+                /// @p_Diff : Time since last update
+                virtual void UpdateAI(const uint32 p_Diff) override;
+
+                std::queue<std::function<void()>> m_DelayedOperations;  ///< Delayed operations
+            };
+
+    };
+
+    /// Garlowe
+    class npc_Gazlowe : public CreatureScript
+    {
+        public:
+            /// Constructor
+            npc_Gazlowe();
+
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            CreatureAI * GetAI(Creature * p_Creature) const;
+
+            /// Creature AI
+            struct npc_GazloweAI : public CreatureAI
+            {
+                /// Constructor
+                npc_GazloweAI(Creature * p_Creature);
+
+                /// Called at waypoint reached or point movement finished
+                /// @p_Type : Movement Type
+                /// @p_ID   : Misc ID
+                virtual void MovementInform(uint32 p_Type, uint32 p_ID) override;
+
+                /// On AI Update
+                /// @p_Diff : Time since last update
+                virtual void UpdateAI(const uint32 p_Diff) override;
+
+                std::queue<std::function<void()>> m_DelayedOperations;  ///< Delayed operations
+            };
+
+    };
+
     /// Frostwall Peon
     class npc_FrostwallPeon : public CreatureScript
     {
