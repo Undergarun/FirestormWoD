@@ -63,15 +63,15 @@ namespace MS { namespace Garrison
                                                                     MS::Garrison::gGarrisonCreationCoords[l_TeamID][3]);
             p_Player->SendMovieStart(l_MovieID);
 
-            if (l_TeamID == TEAM_ALLIANCE)
+            if (l_TeamID == TEAM_ALLIANCE && p_Player->GetQuestStatus(Quests::QUEST_ETABLISH_YOUR_GARRISON_A) != QUEST_STATUS_REWARDED)
             {
                 p_Player->AddQuest(sObjectMgr->GetQuestTemplate(Quests::QUEST_ETABLISH_YOUR_GARRISON_A), p_Creature);
                 p_Player->CompleteQuest(MS::Garrison::Quests::QUEST_ETABLISH_YOUR_GARRISON_A);
             }
-            else if (l_TeamID == TEAM_HORDE)
+            else if (l_TeamID == TEAM_HORDE && p_Player->GetQuestStatus(Quests::QUEST_ETABLISH_YOUR_GARRISON_H) != QUEST_STATUS_REWARDED)
             {
                 p_Player->AddQuest(sObjectMgr->GetQuestTemplate(Quests::QUEST_ETABLISH_YOUR_GARRISON_H), p_Creature);
-                p_Player->CompleteQuest(MS::Garrison::Quests::QUEST_ETABLISH_YOUR_GARRISON_H);
+                p_Player->CompleteQuest(Quests::QUEST_ETABLISH_YOUR_GARRISON_H);
             }
 
             /// HACK until shadowmoon quest are done : add follower Qiana Moonshadow / Olin Umberhide
