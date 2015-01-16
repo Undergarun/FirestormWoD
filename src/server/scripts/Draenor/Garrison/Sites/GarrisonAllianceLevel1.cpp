@@ -137,15 +137,17 @@ namespace MS { namespace Garrison { namespace Sites
     //////////////////////////////////////////////////////////////////////////
 
     /// When a mission start
+    /// @p_Owner     : Garrison owner
     /// @p_MissionID : Started mission ID
     /// @p_Followers : Followers on the mission
-    void InstanceScript_GarrisonAllianceLevel1::OnMissionStart(uint32 p_MissionID, std::vector<uint32> p_Followers)
+    void InstanceScript_GarrisonAllianceLevel1::OnMissionStart(Player * p_Owner, uint32 p_MissionID, std::vector<uint32> p_Followers)
     {
 
     }
     /// When a construction start
+    /// @p_Owner      : Garrison owner
     /// @p_BuildingID : Purchased building ID
-    void InstanceScript_GarrisonAllianceLevel1::OnPurchaseBuilding(uint32 p_BuildingID)
+    void InstanceScript_GarrisonAllianceLevel1::OnPurchaseBuilding(Player * p_Owner, uint32 p_BuildingID)
     {
 
     }

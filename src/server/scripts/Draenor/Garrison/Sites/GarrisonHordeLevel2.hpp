@@ -71,12 +71,14 @@ namespace MS { namespace Garrison { namespace Sites
             virtual bool CanUseGarrisonCache(Player * p_Owner) override;
 
             /// When a mission start
+            /// @p_Owner     : Garrison owner
             /// @p_MissionID : Started mission ID
             /// @p_Followers : Followers on the mission
-            virtual void OnMissionStart(uint32 p_MissionID, std::vector<uint32> p_Followers) override;
+            virtual void OnMissionStart(Player * p_Owner, uint32 p_MissionID, std::vector<uint32> p_Followers) override;
             /// When a construction start
+            /// @p_Owner      : Garrison owner
             /// @p_BuildingID : Purchased building ID
-            virtual void OnPurchaseBuilding(uint32 p_BuildingID) override;
+            virtual void OnPurchaseBuilding(Player * p_Owner, uint32 p_BuildingID) override;
 
     };
 

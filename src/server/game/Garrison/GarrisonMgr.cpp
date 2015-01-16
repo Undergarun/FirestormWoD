@@ -1006,7 +1006,7 @@ namespace MS { namespace Garrison
             m_Owner->SendDirectMessage(&l_Result);
 
             if (GetGarrisonScript())
-                GetGarrisonScript()->OnMissionStart(p_MissionRecID, l_FollowersIDs);
+                GetGarrisonScript()->OnMissionStart(m_Owner, p_MissionRecID, l_FollowersIDs);
         }
     }
     /// Send mission start failed packet
@@ -2232,7 +2232,7 @@ namespace MS { namespace Garrison
         UpdatePlot(p_PlotInstanceID);
 
         if (GetGarrisonScript())
-            GetGarrisonScript()->OnPurchaseBuilding(p_BuildingRecID);
+            GetGarrisonScript()->OnPurchaseBuilding(m_Owner, p_BuildingRecID);
 
         return l_Building;
     }

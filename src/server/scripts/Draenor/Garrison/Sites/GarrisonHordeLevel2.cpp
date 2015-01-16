@@ -125,15 +125,17 @@ namespace MS { namespace Garrison { namespace Sites
     //////////////////////////////////////////////////////////////////////////
 
     /// When a mission start
+    /// @p_Owner     : Garrison owner
     /// @p_MissionID : Started mission ID
     /// @p_Followers : Followers on the mission
-    void InstanceScript_GarrisonHordeLevel2::OnMissionStart(uint32 p_MissionID, std::vector<uint32> p_Followers)
+    void InstanceScript_GarrisonHordeLevel2::OnMissionStart(Player * p_Owner, uint32 p_MissionID, std::vector<uint32> p_Followers)
     {
 
     }
     /// When a construction start
+    /// @p_Owner      : Garrison owner
     /// @p_BuildingID : Purchased building ID
-    void InstanceScript_GarrisonHordeLevel2::OnPurchaseBuilding(uint32 p_BuildingID)
+    void InstanceScript_GarrisonHordeLevel2::OnPurchaseBuilding(Player * p_Owner, uint32 p_BuildingID)
     {
 
     }
