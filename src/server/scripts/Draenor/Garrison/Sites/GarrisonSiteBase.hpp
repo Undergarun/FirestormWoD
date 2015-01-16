@@ -12,6 +12,9 @@
 #include "GarrisonMgr.hpp"
 #include "ScriptMgr.h"
 
+#include <map>
+#include <vector>
+
 namespace MS { namespace Garrison { namespace Sites
 {
     /// Garrison site base script
@@ -23,6 +26,13 @@ namespace MS { namespace Garrison { namespace Sites
             GarrisonSiteBase(Map* p_Map);
             /// Destructor
             virtual ~GarrisonSiteBase();
+
+            /// When a creature is created
+            /// @p_Creature : Created creature instance
+            void OnCreatureCreate(Creature * p_Creature) override;
+            /// When a game object is created
+            /// @p_Gameobject : Created game object instance
+            void OnGameObjectCreate(GameObject * p_Gameobject) override;
 
             /// Get UInt32 value by ID
             /// @p_ID : Value ID
@@ -45,6 +55,9 @@ namespace MS { namespace Garrison { namespace Sites
             uint64                      m_OwnerGUID;    ///< Garrison owner GUID
             std::set<uint64>            m_Players;      ///< Players in garrison
             std::map<uint32, uint32>    m_Data32;       ///< Instance Data
+
+            std::map<uint32, std::set<uint64>> m_CreaturesPerEntry;
+            std::map<uint32, std::set<uint64>> m_GameObjectsPerEntry;
 
     };
 

@@ -30,6 +30,44 @@ namespace MS { namespace Garrison { namespace Sites
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
+    /// When a creature is created
+    /// @p_Creature : Created creature instance
+    void GarrisonSiteBase::OnCreatureCreate(Creature * p_Creature)
+    {
+        if (!p_Creature)
+            return;
+
+        uint32 l_CreatureEntry = p_Creature->GetEntry();
+
+        if (m_CreaturesPerEntry.find(l_CreatureEntry) == m_CreaturesPerEntry.end())
+            m_CreaturesPerEntry[l_CreatureEntry] = std::set<uint64>();
+
+        std::set<uint64> * l_GUIDs = &m_CreaturesPerEntry[l_CreatureEntry];
+
+        if (std::find(l_GUIDs->begin(), l_GUIDs->end(), p_Creature->GetGUID()) == l_GUIDs->end())
+            l_GUIDs->emplace(p_Creature->GetGUID());
+    }
+    /// When a game object is created
+    /// @p_Gameobject : Created game object instance
+    void GarrisonSiteBase::OnGameObjectCreate(GameObject * p_Gameobject)
+    {
+        if (!p_Gameobject)
+            return;
+
+        uint32 l_GameObjectEntry = p_Gameobject->GetEntry();
+
+        if (m_GameObjectsPerEntry.find(l_GameObjectEntry) == m_GameObjectsPerEntry.end())
+            m_GameObjectsPerEntry[l_GameObjectEntry] = std::set<uint64>();
+
+        std::set<uint64> * l_GUIDs = &m_GameObjectsPerEntry[l_GameObjectEntry];
+
+        if (std::find(l_GUIDs->begin(), l_GUIDs->end(), p_Gameobject->GetGUID()) == l_GUIDs->end())
+            l_GUIDs->emplace(p_Gameobject->GetGUID());
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
     /// Get UInt32 value by ID
     /// @p_ID : Value ID
     uint32 GarrisonSiteBase::GetData(uint32 p_ID)

@@ -37,13 +37,6 @@ namespace MS { namespace Garrison { namespace Sites
             /// Destructor
             ~InstanceScript_GarrisonHordeLevel1();
 
-            /// When a creature is created
-            /// @p_Creature : Created creature instance
-            virtual void OnCreatureCreate(Creature * p_Creature) override;
-            /// When a game object is created
-            /// @p_Gameobject : Created game object instance
-            virtual void OnGameObjectCreate(GameObject * p_Gameobject) override;
-
             /// When instance script is updated
             /// @p_Diff : Time since last update
             virtual void Update(uint32 p_Diff) override;

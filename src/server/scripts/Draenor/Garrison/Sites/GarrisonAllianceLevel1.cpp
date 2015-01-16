@@ -59,22 +59,6 @@ namespace MS { namespace Garrison { namespace Sites
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
-    /// When a creature is created
-    /// @p_Creature : Created creature instance
-    void InstanceScript_GarrisonAllianceLevel1::OnCreatureCreate(Creature * p_Creature)
-    {
-
-    }
-    /// When a game object is created
-    /// @p_Gameobject : Created game object instance
-    void InstanceScript_GarrisonAllianceLevel1::OnGameObjectCreate(GameObject * p_Gameobject)
-    {
-
-    }
-
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
     /// When instance script is updated
     /// @p_Diff : Time since last update
     void InstanceScript_GarrisonAllianceLevel1::Update(uint32 p_Diff)
