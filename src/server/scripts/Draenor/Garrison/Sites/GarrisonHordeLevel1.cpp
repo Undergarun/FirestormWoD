@@ -92,7 +92,7 @@ namespace MS { namespace Garrison { namespace Sites
         {
             Creature * l_Creature = HashMapHolder<Creature>::Find(*(m_CreaturesPerEntry[NPCs::NPC_SENIOR_PEON_II].begin()));
 
-            if (l_Creature && l_Creature->GetDistance2d(5593, 4476) > 2)
+            if (l_Creature && l_Creature->GetDistance2d(5593.f, 4476.f) > 2)
             {
                 l_Creature->SetWalk(false);
                 l_Creature->LoadPath(Waypoints::MOVE_PATH_SENIOR_PEON_II);
@@ -130,7 +130,7 @@ namespace MS { namespace Garrison { namespace Sites
             {
                 Creature * l_Creature = HashMapHolder<Creature>::Find(*(m_CreaturesPerEntry[NPCs::NPC_SENIOR_PEON_II].begin()));
 
-                if (l_Creature && l_Creature->GetDistance2d(5593, 4476) < 2)
+                if (l_Creature && l_Creature->GetDistance2d(5593.f, 4476.f) < 2)
                 {
                     l_Creature->SetWalk(false);
                     l_Creature->LoadPath(Waypoints::MOVE_PATH_SENIOR_PEON_II_BACK);
@@ -200,11 +200,9 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_BaseTime   : Default build time
     uint32 InstanceScript_GarrisonHordeLevel1::OnPrePurchaseBuilding(Player * p_Owner, uint32 p_BuildingID, uint32 p_BaseTime)
     {
-        /// Barracks
-        if (p_BuildingID == 26 && p_Owner->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS))
-        {
+        /// Build your Barracks quest
+        if (p_BuildingID == Buildings::BUILDING_BARRACK && p_Owner->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS))
             return 2;   ///< 2 second, unk retail value
-        }
 
         return p_BaseTime;
     }
@@ -213,8 +211,8 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_BuildingID : Purchased building ID
     void InstanceScript_GarrisonHordeLevel1::OnPurchaseBuilding(Player * p_Owner, uint32 p_BuildingID)
     {
-        /// Barracks
-        if (p_BuildingID == 26 && p_Owner->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS))
+        /// Build your Barracks quest
+        if (p_BuildingID == Buildings::BUILDING_BARRACK && p_Owner->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS))
         {
             p_Owner->QuestObjectiveSatisfy(36167, 1, QUEST_OBJECTIVE_TYPE_CRITERIA, p_Owner->GetGUID());
 
@@ -229,7 +227,7 @@ namespace MS { namespace Garrison { namespace Sites
                     l_Creature->SetWalk(false);
                     l_Creature->GetMotionMaster()->MovePoint(MovePointIDs::MOVE_POINT_GAZLOWE_BARRACK_A, 5590.83f, 4481.74f, 129.92f);
 
-                    p_Owner->QuestObjectiveSatisfy(78466, 1, QUEST_OBJECTIVE_TYPE_NPC, p_Owner->GetGUID());
+                    p_Owner->QuestObjectiveSatisfy(NPCs::NPC_GASLOWE, 1, QUEST_OBJECTIVE_TYPE_NPC, p_Owner->GetGUID());
                 }
             }
         }
@@ -239,8 +237,8 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_BuildingID : Purchased building ID
     void InstanceScript_GarrisonHordeLevel1::OnBuildingActivated(Player * p_Owner, uint32 p_BuildingID)
     {
-        /// Barracks
-        if (p_BuildingID == 26 && p_Owner->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS))
+        /// Build your Barracks quest
+        if (p_BuildingID == Buildings::BUILDING_BARRACK && p_Owner->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS))
         {
             p_Owner->QuestObjectiveSatisfy(35753, 1, QUEST_OBJECTIVE_TYPE_CRITERIA, p_Owner->GetGUID());
         }

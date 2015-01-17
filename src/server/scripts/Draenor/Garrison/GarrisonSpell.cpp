@@ -68,7 +68,7 @@ namespace MS { namespace Garrison
 
         if (l_Player && l_Player->GetGarrison() && l_Player->GetGarrison()->GetGarrisonSiteLevelEntry())
         {
-            GarrisonMgr * l_Garrison = l_Player->GetGarrison();
+            Manager * l_Garrison = l_Player->GetGarrison();
 
             uint32 l_Index = (l_Garrison->GetGarrisonFactionIndex() * GARRISON_MAX_LEVEL) + (l_Garrison->GetGarrisonSiteLevelEntry()->Level - 1);
 

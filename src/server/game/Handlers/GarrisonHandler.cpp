@@ -19,7 +19,7 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
     if (!m_Player)
         return;
 
-    MS::Garrison::GarrisonMgr * l_Garrison = m_Player->GetGarrison();
+    MS::Garrison::Manager * l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison || !l_Garrison->GetGarrisonSiteLevelEntry())
         return;
@@ -136,7 +136,7 @@ void WorldSession::HandleRequestGarrisonUpgradeableOpcode(WorldPacket & p_RecvDa
     if (!m_Player)
         return;
 
-    MS::Garrison::GarrisonMgr * l_Garrison = m_Player->GetGarrison();
+    MS::Garrison::Manager * l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)
         return;
@@ -154,7 +154,7 @@ void WorldSession::HandleRequestLandingPageShipmentInfoOpcode(WorldPacket & p_Re
     if (!m_Player)
         return;
 
-    MS::Garrison::GarrisonMgr * l_Garrison = m_Player->GetGarrison();
+    MS::Garrison::Manager * l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)
         return;
@@ -165,7 +165,7 @@ void WorldSession::HandleGarrisonMissionNPCHelloOpcode(WorldPacket & p_RecvData)
     if (!m_Player)
         return;
 
-    MS::Garrison::GarrisonMgr * l_Garrison = m_Player->GetGarrison();
+    MS::Garrison::Manager * l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)
         return;
@@ -189,7 +189,7 @@ void WorldSession::HandleGarrisonRequestBuildingsOpcode(WorldPacket & p_RecvData
     if (!m_Player)
         return;
 
-    MS::Garrison::GarrisonMgr * l_Garrison = m_Player->GetGarrison();
+    MS::Garrison::Manager * l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison || !l_Garrison->GetGarrisonSiteLevelEntry())
         return;
@@ -240,7 +240,7 @@ void WorldSession::HandleGarrisonPurchaseBuildingOpcode(WorldPacket & p_RecvData
     if (!m_Player)
         return;
 
-    MS::Garrison::GarrisonMgr * l_Garrison = m_Player->GetGarrison();
+    MS::Garrison::Manager * l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)
         return;
@@ -334,7 +334,7 @@ void WorldSession::HandleGarrisonCancelConstructionOpcode(WorldPacket & p_RecvDa
     if (!m_Player)
         return;
 
-    MS::Garrison::GarrisonMgr * l_Garrison = m_Player->GetGarrison();
+    MS::Garrison::Manager * l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)
         return;
@@ -361,7 +361,7 @@ void WorldSession::HandleGarrisonStartMissionOpcode(WorldPacket & p_RecvData)
     if (!m_Player)
         return;
 
-    MS::Garrison::GarrisonMgr * l_Garrison = m_Player->GetGarrison();
+    MS::Garrison::Manager * l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)
         return;
@@ -399,7 +399,7 @@ void WorldSession::HandleGarrisonCompleteMissionOpcode(WorldPacket & p_RecvData)
     if (!m_Player)
         return;
 
-    MS::Garrison::GarrisonMgr * l_Garrison = m_Player->GetGarrison();
+    MS::Garrison::Manager * l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)
         return;
@@ -425,7 +425,7 @@ void WorldSession::HandleGarrisonMissionBonusRollOpcode(WorldPacket & p_RecvData
     if (!m_Player)
         return;
 
-    MS::Garrison::GarrisonMgr * l_Garrison = m_Player->GetGarrison();
+    MS::Garrison::Manager * l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)
         return;
@@ -451,7 +451,7 @@ void WorldSession::HandleGarrisonChangeFollowerActivationStateOpcode(WorldPacket
     if (!m_Player)
         return;
 
-    MS::Garrison::GarrisonMgr * l_Garrison = m_Player->GetGarrison();
+    MS::Garrison::Manager * l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)
         return;
@@ -470,7 +470,7 @@ void WorldSession::HandleGarrisonChangeFollowerActivationStateOpcode(WorldPacket
 
 void WorldSession::SendGarrisonOpenArchitect(uint64 p_CreatureGUID)
 {
-    MS::Garrison::GarrisonMgr * l_Garrison = m_Player->GetGarrison();
+    MS::Garrison::Manager * l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)
         return;
@@ -483,7 +483,7 @@ void WorldSession::SendGarrisonOpenArchitect(uint64 p_CreatureGUID)
 }
 void WorldSession::SendGarrisonOpenMissionNpc(uint64 p_CreatureGUID)
 {
-    MS::Garrison::GarrisonMgr * l_Garrison = m_Player->GetGarrison();
+    MS::Garrison::Manager * l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)
         return;

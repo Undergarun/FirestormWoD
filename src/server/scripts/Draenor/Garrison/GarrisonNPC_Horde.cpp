@@ -39,7 +39,7 @@ namespace MS { namespace Garrison
 
         if (p_Player->HasQuest(Quests::QUEST_WHAT_WE_GOT) && p_Player->GetQuestObjectiveCounter(273085) != 1)
         {
-            p_Player->QuestObjectiveSatisfy(80225, 1, QUEST_OBJECTIVE_TYPE_NPC, p_Creature->GetGUID());
+            p_Player->QuestObjectiveSatisfy(NPCs::NPC_SKAGGIT, 1, QUEST_OBJECTIVE_TYPE_NPC, p_Creature->GetGUID());
 
             std::list<Creature*>    l_CreaturesList;
             std::vector<Creature*>  l_Creatures;
@@ -148,7 +148,7 @@ namespace MS { namespace Garrison
     {
         if (p_Player->HasQuest(Quests::QUEST_WHAT_WE_GOT) && p_Player->GetQuestObjectiveCounter(275373) != 1)
         {
-            p_Player->QuestObjectiveSatisfy(86775, 1, QUEST_OBJECTIVE_TYPE_NPC, p_Creature->GetGUID());
+            p_Player->QuestObjectiveSatisfy(NPCs::NPC_SENIOR_PEON_II, 1, QUEST_OBJECTIVE_TYPE_NPC, p_Creature->GetGUID());
             p_Player->CLOSE_GOSSIP_MENU();
 
             p_Creature->AI()->Talk(CreatureTexts::CREATURE_TEXT_SENIOR_PEON_II_WHAT_WE_GOT);
