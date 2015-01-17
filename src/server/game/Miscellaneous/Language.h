@@ -1258,9 +1258,34 @@ enum TrinityStrings
     LANG_SUMMON_BLACK_IRON_DREADWEAVER      = 14059,
     LANG_SUMMON_BLACK_IRON_VETERAN          = 14060,
     LANG_ENGULFING_FIRE_RAGEWING            = 14061,
-    LANG_NO_SPE_FOR_DYNAMIC_REWARD          = 14062
+    LANG_NO_SPE_FOR_DYNAMIC_REWARD          = 14062,
 
-    // NOT RESERVED IDS                   14062-1999999999
+    /// Ashran
+    LangDisplaySlainCounter                 = 14063,
+    LangKorlokIsAwakening                   = 14064,
+    LangSendKorlokTheOgreKingEvent          = 14065,
+    LangAshranReserved1,
+    LangAshranReserved2,
+    LangAshranReserved3,
+    LangAshranReserved4,
+    LangAshranReserved5,
+    LangAshranReserved6,
+    LangAshranReserved7,
+    LangAshranReserved8,
+    LangAshranReserved9,
+    LangAshranReserved10,
+    LangAshranReserved11,
+    LangAshranReserved12,
+    LangAshranReserved13,
+    LangAshranReserved14,
+    LangAshranReserved15,
+    LangAshranReserved16,
+    LangAshranReserved17,
+    LangAshranReserved18,
+    LangAshranReserved19,
+    LangAshranReserved20
+
+    // NOT RESERVED IDS                   14086-1999999999
     // `db_script_string` table index     2000000000-2000009999 (MIN_DB_SCRIPT_STRING_ID-MAX_DB_SCRIPT_STRING_ID)
     // For other tables maybe             2000010000-2147483647 (max index)
 };

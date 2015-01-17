@@ -138,13 +138,13 @@ struct LootStoreItem
     uint16  lootmode;
     uint8   group       :7;
     bool    needs_quest :1;                                 // quest drop (negative ChanceOrQuestChance in DB)
-    uint8   maxcount    :8;                                 // max drop count for the item (mincountOrRef positive) or Ref multiplicator (mincountOrRef negative)
+    uint32   maxcount;                                      // max drop count for the item (mincountOrRef positive) or Ref multiplicator (mincountOrRef negative)
     std::vector<uint32> itemBonuses;                        // item bonuses >= WoD
     std::list<Condition*>  conditions;                               // additional loot condition
 
     // Constructor, converting ChanceOrQuestChance -> (chance, needs_quest)
     // displayid is filled in IsValid() which must be called after
-    LootStoreItem(uint32 _itemid, uint8 _type, float _chanceOrQuestChance, uint16 _lootmode, uint8 _group, int32 _mincountOrRef, uint8 _maxcount, std::vector<uint32> _itemBonuses)
+    LootStoreItem(uint32 _itemid, uint8 _type, float _chanceOrQuestChance, uint16 _lootmode, uint8 _group, int32 _mincountOrRef, uint32 _maxcount, std::vector<uint32> _itemBonuses)
         : itemid(_itemid), type(_type), chance(fabs(_chanceOrQuestChance)), mincountOrRef(_mincountOrRef), lootmode(_lootmode),
         group(_group), needs_quest(_chanceOrQuestChance < 0), maxcount(_maxcount), itemBonuses(_itemBonuses)
          {}
@@ -165,7 +165,7 @@ struct LootItem
     std::list<Condition*> conditions;                       // additional loot condition
     std::vector<uint32> itemBonuses;
     AllowedLooterSet allowedGUIDs;
-    uint8   count             : 8;
+    uint32   count;
     bool    currency          : 1;
     bool    is_looted         : 1;
     bool    is_blocked        : 1;
@@ -408,6 +408,7 @@ struct Loot
 
     void generateMoneyLoot(uint32 minAmount, uint32 maxAmount);
     bool FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bool personal, bool noEmptyError = false, uint16 lootMode = LOOT_MODE_DEFAULT);
+    void FillCurrencyLoot(Player* player);
 
     // Inserts the item into the loot (called by LootTemplate processors)
     void AddItem(LootStoreItem const & item);
@@ -419,10 +420,9 @@ struct Loot
 
     private:
         void FillNotNormalLootFor(Player* player, bool presentAtLooting);
-        QuestItemList* FillCurrencyLoot(Player* player);
-        QuestItemList* FillFFALoot(Player* player);
-        QuestItemList* FillQuestLoot(Player* player);
-        QuestItemList* FillNonQuestNonFFAConditionalLoot(Player* player, bool presentAtLooting);
+        void FillFFALoot(Player* player);
+        void FillQuestLoot(Player* player);
+        void FillNonQuestNonFFAConditionalLoot(Player* player, bool presentAtLooting);
 
         std::set<uint64> PlayersLooting;
         QuestItemMap PlayerCurrencies;

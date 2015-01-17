@@ -83,6 +83,7 @@ enum ToastTypes
     TOAST_TYPE_UNK1         = 2,
     TOAST_TYPE_NEW_ITEM     = 3,
 };
+
 /// 6.0.3 19116
 enum DisplayToastMethod
 {

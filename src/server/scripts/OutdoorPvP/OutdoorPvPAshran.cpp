@@ -1,21 +1,10 @@
-/*
- * Copyright (C) 2012-2014 JadeCore <http://www.pandashan.com/>
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2015 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "OutdoorPvPAshran.h"
 #include "ScriptPCH.h"
@@ -588,6 +577,8 @@ OutdoorPvPAshran::OutdoorPvPAshran()
     m_IsInitialized         = false;
     m_WillBeReset           = false;
 
+    m_PlayerCurrencyLoots.clear();
+
     m_Guid = MAKE_NEW_GUID(m_WorldPvPAreaId, 0, HighGuid::HIGHGUID_TYPE_BATTLEGROUND);
     m_Guid |= eAshranDatas::BattlefieldWorldPvP;
 
@@ -606,6 +597,12 @@ OutdoorPvPAshran::OutdoorPvPAshran()
 
     for (uint8 l_Iter = 0; l_Iter < eBattleType::MaxBattleType; ++l_Iter)
         m_GenericMoPGuids[l_Iter] = 0;
+
+    for (uint8 l_Index = 0; l_Index < eAshranEvents::MaxEvents; ++l_Index)
+    {
+        m_AshranEvents[l_Index] = 0;
+        m_AshranEventsWarned[l_Index] = false;
+    }
 
     AddCreature(eSpecialSpawns::AllianceFactionBoss, g_FactionBossesSpawn[0], 5 * TimeConstants::MINUTE);
     AddCreature(eSpecialSpawns::HordeFactionBoss, g_FactionBossesSpawn[3], 5 * TimeConstants::MINUTE);
@@ -655,6 +652,20 @@ bool OutdoorPvPAshran::SetupOutdoorPvP()
     {
         AddCreature(eSpecialSpawns::AllianceBaseSpiritHealer + l_TeamID, g_BasesSpiritHealers[l_TeamID]);
         AddAreaTrigger(g_HallowedGroundEntries[l_TeamID], 1, eAshranDatas::AshranHallowedGroundID, g_HallowedGroundPos[l_TeamID], 0, sMapMgr->CreateBaseMap(eAshranDatas::AshranMapID));
+    }
+
+    /// Initialize timers for events
+    /// Must calculate an equal interval between each events - Should be 6min between each
+    uint32 l_Timer = 0;
+    uint32 l_TimerInterval = eAshranDatas::AshranEventTimer * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS / eAshranEvents::MaxEvents;
+    for (uint8 l_Index = 0; l_Index < eAshranEvents::MaxEvents; ++l_Index)
+    {
+        if (l_Index > eAshranEvents::EventKorlokTheOgreKing)    ///< Just Kor'lok yet
+            break;
+
+        l_Timer += l_TimerInterval;
+        ///m_AshranEvents[l_Index] = l_Timer;
+        m_AshranEvents[l_Index] = 30 * IN_MILLISECONDS; ///< For tests
     }
 
     return true;
@@ -712,6 +723,9 @@ void OutdoorPvPAshran::HandlePlayerLeaveMap(Player* p_Player, uint32 p_MapID)
     p_Player->GetSession()->SendBfLeaveMessage(m_Guid);
 
     p_Player->RemoveAura(eAshranSpells::SpellLootable);
+
+    if (m_PlayerCurrencyLoots.find(p_Player->GetGUID()) != m_PlayerCurrencyLoots.end())
+        m_PlayerCurrencyLoots.erase(p_Player->GetGUID());
 }
 
 void OutdoorPvPAshran::HandlePlayerEnterArea(Player* p_Player, uint32 p_AreaID)
@@ -752,12 +766,81 @@ void OutdoorPvPAshran::HandlePlayerLeaveArea(Player* p_Player, uint32 p_AreaID)
         p_Player->RemoveAura(eAshranSpells::SpellStandFast);
 }
 
+void OutdoorPvPAshran::HandlePlayerResurrects(Player* p_Player, uint32 p_ZoneID)
+{
+    if (m_PlayerCurrencyLoots.find(p_Player->GetGUID()) == m_PlayerCurrencyLoots.end())
+        return;
+
+    m_PlayerCurrencyLoots.erase(p_Player->GetGUID());
+}
+
 void OutdoorPvPAshran::HandlePlayerKilled(Player* p_Player)
 {
-    // Drop half of artifact fragments at player death
-    // Even if he's killed by a creature
+    /// If the player dies they will lose half of all their current Artifact Fragments
+    /// @TODO: With enemy players able to loot the lost Fragments from their corpses.
     if (uint32 l_ArtifactCount = p_Player->GetCurrency(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT, false))
-        p_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT, -int32(l_ArtifactCount / 2));
+    {
+        l_ArtifactCount /= 2;
+        p_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT, -int32(l_ArtifactCount));
+        m_PlayerCurrencyLoots.insert(std::make_pair(p_Player->GetGUID(), l_ArtifactCount / CURRENCY_PRECISION));
+    }
+
+    /// Players can be looted by other players
+    p_Player->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_SKINNABLE);
+}
+
+void OutdoorPvPAshran::HandleKill(Player* p_Killer, Unit* p_Killed)
+{
+    std::string l_Str = p_Killer->GetSession()->GetTrinityString(TrinityStrings::LangDisplaySlainCounter);
+    if (p_Killed->GetTypeId() == TypeID::TYPEID_PLAYER)
+        p_Killed->SendItemBonusDebug(eAshranDatas::KillCountForPlayer, l_Str);
+    else if (IsFactionGuard(p_Killed))  ///< Only for Road of Glory
+        p_Killed->SendItemBonusDebug(eAshranDatas::KillCountForFactionGuard, l_Str);
+}
+
+bool OutdoorPvPAshran::IsFactionGuard(Unit* p_Unit) const
+{
+    switch (p_Unit->GetEntry())
+    {
+        case eCreatures::StormshieldVanguard:
+        case eCreatures::StormshieldKnight:
+        case eCreatures::StormshieldSentinel:
+        case eCreatures::StormshieldFootman:
+        case eCreatures::StormshieldPriest:
+        case eCreatures::GrandMarshalTremblade:
+        case eCreatures::RylaiCrestfall:
+        case eCreatures::WarspearBloodGuard:
+        case eCreatures::WarspearRaptorRider:
+        case eCreatures::WarspearHeadhunter:
+        case eCreatures::WarspearGrunt:
+        case eCreatures::WarspearPriest:
+        case eCreatures::HighWarlordVolrath:
+        case eCreatures::JeronEmberfall:
+            return true;
+        default:
+            break;
+    }
+
+    return false;
+}
+
+void OutdoorPvPAshran::FillCustomPvPLoots(Player* p_Looter, Loot& p_Loot, uint64 p_Container)
+{
+    if (m_PlayerCurrencyLoots.find(p_Container) == m_PlayerCurrencyLoots.end())
+        return;
+
+    uint32 l_ArtifactCount = m_PlayerCurrencyLoots[p_Container];
+    LootStoreItem l_StoreItem = LootStoreItem(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT,  ///< ItemID (or CurrencyID)
+                                              LootItemType::LOOT_ITEM_TYPE_CURRENCY,            ///< LootType
+                                              100.0f,                                           ///< Chance or quest chance
+                                              LootModes::LOOT_MODE_DEFAULT,                     ///< LootMode
+                                              LootModes::LOOT_MODE_DEFAULT,                     ///< Group
+                                              l_ArtifactCount,                                  ///< MinCount (or Ref)
+                                              l_ArtifactCount,                                  ///< MaxCount
+                                              std::vector<uint32>());                           ///< ItemBonuses
+
+    p_Loot.items.push_back(LootItem(l_StoreItem));
+    p_Loot.FillCurrencyLoot(p_Looter);
 }
 
 bool OutdoorPvPAshran::Update(uint32 p_Diff)
@@ -803,6 +886,7 @@ bool OutdoorPvPAshran::Update(uint32 p_Diff)
     ScheduleNextBattle(p_Diff);
     ScheduleEndOfBattle(p_Diff);
     ScheduleInitPoints(p_Diff);
+    ScheduleEventsUpdate(p_Diff);
 
     return OutdoorPvP::Update(p_Diff);
 }
@@ -936,6 +1020,90 @@ void OutdoorPvPAshran::ScheduleInitPoints(uint32 p_Diff)
     }
     else
         m_InitPointsTimer -= p_Diff;
+}
+
+void OutdoorPvPAshran::ScheduleEventsUpdate(uint32 p_Diff)
+{
+    uint32 l_TimeForWarn = eAshranDatas::AshranEventWarning * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS;
+    for (uint8 l_Index = 0; l_Index < eAshranEvents::MaxEvents; ++l_Index)
+    {
+        if (!m_AshranEvents[l_Index])   ///< Events are rescheduled only at their end
+            continue;
+
+        if (m_AshranEvents[l_Index] <= p_Diff)
+        {
+            m_AshranEvents[l_Index] = 0;
+            m_AshranEventsWarned[l_Index] = false;
+            StartEvent(l_Index);
+        }
+        else
+            m_AshranEvents[l_Index] -= p_Diff;
+
+
+        if (m_AshranEvents[l_Index] <= l_TimeForWarn && !m_AshranEventsWarned[l_Index])
+        {
+            m_AshranEventsWarned[l_Index] = true;
+            SendEventWarningToPlayers(g_EventWarnTexts[l_Index]);
+        }
+    }
+}
+
+void OutdoorPvPAshran::StartEvent(uint8 p_EventID)
+{
+    if (p_EventID >= eAshranEvents::MaxEvents)  ///< Shouldn't happens
+        return;
+
+    switch (p_EventID)
+    {
+        case eAshranEvents::EventKorlokTheOgreKing:
+        {
+            SendEventWarningToPlayers(TrinityStrings::LangKorlokIsAwakening);
+            AddCreature(eSpecialSpawns::NeutralKorlokTheOgreKing, g_Korlok, 5 * TimeConstants::MINUTE);
+            AddCreature(eSpecialSpawns::OgreAllianceChampion, g_AllianceChapion, 5 * TimeConstants::MINUTE);
+            AddCreature(eSpecialSpawns::OgreHordeChapion, g_HordeChampion, 5 * TimeConstants::MINUTE);
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+void OutdoorPvPAshran::EndEvent(uint8 p_EventID)
+{
+    if (p_EventID >= eAshranEvents::MaxEvents)  ///< Shouldn't happens
+        return;
+
+    m_AshranEvents[p_EventID] = eAshranDatas::AshranEventTimer * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS;
+
+    switch (p_EventID)
+    {
+        case eAshranEvents::EventKorlokTheOgreKing:
+        {
+            DelCreature(eSpecialSpawns::NeutralKorlokTheOgreKing);
+            DelCreature(eSpecialSpawns::OgreAllianceChampion);
+            DelCreature(eSpecialSpawns::OgreHordeChapion);
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+void OutdoorPvPAshran::SendEventWarningToPlayers(uint32 p_LangID)
+{
+    for (uint8 l_I = 0; l_I < BG_TEAMS_COUNT; ++l_I)
+    {
+        for (uint64 l_Guid : m_PlayersInWar[l_I])
+        {
+            if (Player* l_Player = sObjectAccessor->FindPlayer(l_Guid))
+            {
+                std::string l_Text = l_Player->GetSession()->GetTrinityString(p_LangID);
+                WorldPacket l_Data;
+                l_Player->BuildPlayerChat(&l_Data, CHAT_MSG_TEXT_EMOTE, l_Text.c_str(), LANG_UNIVERSAL);
+                l_Player->GetSession()->SendPacket(&l_Data);
+            }
+        }
+    }
 }
 
 void OutdoorPvPAshran::FillInitialWorldStates(ByteBuffer& p_Data)
@@ -2146,6 +2314,309 @@ class npc_ashran_spirit_healer : public CreatureScript
         }
 };
 
+/// Kor'lok <The Ogre King> - 80858
+class npc_ashran_korlok : public CreatureScript
+{
+    public:
+        npc_ashran_korlok() : CreatureScript("npc_ashran_korlok") { }
+
+        struct npc_ashran_korlokAI : public ScriptedAI
+        {
+            npc_ashran_korlokAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            {
+                m_OutdoorPvP = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(p_Creature->GetZoneId());
+                m_BaseHP = me->GetMaxHealth();
+                m_IsAwake = false;
+            }
+
+            enum eSpells
+            {
+                SpellBoomingShoot   = 177150,
+                SpellBoonOfKorlok   = 177164,
+                SpellCrushingLeap   = 164819,
+                SpellCurseOfKorlok  = 165192,
+                SpellMASSIVEKick    = 177157,
+                SpellOgreicLanding  = 165096
+            };
+
+            enum eTalk
+            {
+                TalkAwake,
+                TalkRecruitedByAlliance,
+                TalkRecruitedByHorde,
+                TalkSlay,
+                TalkDeath
+            };
+
+            enum eEvents
+            {
+            };
+
+            enum eActions
+            {
+                ActionHordeRecruit,
+                ActionAllianceRecruit
+            };
+
+            EventMap m_Events;
+            OutdoorPvP* m_OutdoorPvP;
+
+            bool m_IsAwake;
+
+            bool m_FirstVictim;
+            uint32 m_BaseHP;
+
+            void Reset()
+            {
+                if (!m_IsAwake)
+                    Talk(eTalk::TalkAwake);
+
+                m_Events.Reset();
+
+                m_FirstVictim = true;
+                m_IsAwake = true;
+            }
+
+            void EnterCombat(Unit* p_Attacker)
+            {
+            }
+
+            void KilledUnit(Unit* p_Who)
+            {
+                if (p_Who->GetTypeId() == TypeID::TYPEID_PLAYER)
+                    Talk(eTalk::TalkSlay);
+            }
+
+            void JustDied(Unit* p_Killer)
+            {
+                Talk(eTalk::TalkDeath);
+            }
+
+            void DoAction(int32 const p_Action)
+            {
+                switch (p_Action)
+                {
+                    case eActions::ActionAllianceRecruit:
+                    case eActions::ActionHordeRecruit:
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void SpellHit(Unit* p_Target, SpellInfo const* p_SpellInfo)
+            {
+            }
+
+            void UpdateAI(uint32 const p_Diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                /*switch (m_Events.ExecuteEvent())
+                {
+                    default:
+                        break;
+                }*/
+
+                DoMeleeAttackIfReady();
+            }
+
+            void OnHostileReferenceAdded(Unit* p_Ennemy)
+            {
+                if (p_Ennemy->GetTypeId() != TypeID::TYPEID_PLAYER)
+                    return;
+
+                if (m_FirstVictim)
+                {
+                    m_FirstVictim = false;
+                    return;
+                }
+
+                float l_HealthPct = me->GetHealthPct();
+                uint32 l_AddedValue = m_BaseHP / 2;
+
+                me->SetMaxHealth(me->GetMaxHealth() + l_AddedValue);
+                me->SetHealth(CalculatePct(me->GetMaxHealth(), l_HealthPct));
+            }
+
+            void OnHostileReferenceRemoved(Unit* p_Ennemy)
+            {
+                if (p_Ennemy->GetTypeId() != TypeID::TYPEID_PLAYER)
+                    return;
+
+                float l_HealthPct = me->GetHealthPct();
+                uint32 l_AddedValue = m_BaseHP / 2;
+
+                if ((me->GetMaxHealth() - l_AddedValue) < m_BaseHP)
+                {
+                    me->SetMaxHealth(m_BaseHP);
+                    me->SetHealth(CalculatePct(m_BaseHP, l_HealthPct));
+                    return;
+                }
+
+                me->SetMaxHealth(me->GetMaxHealth() - l_AddedValue);
+                me->SetHealth(CalculatePct(me->GetMaxHealth(), l_HealthPct));
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_ashran_korlokAI(p_Creature);
+        }
+};
+
+/// Muk'Mar Raz <Horde Champion> - 81725
+/// Gaul Dun Firok <Alliance Champion> - 81726
+class npc_ashran_faction_champions : public CreatureScript
+{
+    public:
+        npc_ashran_faction_champions() : CreatureScript("npc_ashran_faction_champions") { }
+
+        struct npc_ashran_faction_championsAI : public ScriptedAI
+        {
+            npc_ashran_faction_championsAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            {
+                m_OutdoorPvP = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(p_Creature->GetZoneId());
+                m_BaseHP = me->GetMaxHealth();
+            }
+
+            enum eSpells
+            {
+                SpellBoomingShoot   = 177150,
+                SpellCrushingLeap   = 164819,
+                SpellMASSIVEKick    = 177157,
+                SpellEnrage         = 164811
+            };
+
+            enum eEvents
+            {
+            };
+
+            enum eActions
+            {
+                ActionHordeRecruit,
+                ActionAllianceRecruit
+            };
+
+            EventMap m_Events;
+            OutdoorPvP* m_OutdoorPvP;
+
+            bool m_FirstVictim;
+            uint32 m_BaseHP;
+
+            void Reset()
+            {
+                m_Events.Reset();
+
+                m_FirstVictim = true;
+            }
+
+            void EnterCombat(Unit* p_Attacker)
+            {
+            }
+
+            void JustDied(Unit* p_Killer)
+            {
+                Creature* l_Korlok = sObjectAccessor->FindCreature(m_OutdoorPvP->GetCreature(eSpecialSpawns::NeutralKorlokTheOgreKing));
+                if (l_Korlok == nullptr || !l_Korlok->IsAIEnabled)    ///< Shouldn't happens
+                    return;
+
+                if (p_Killer->GetTypeId() == TypeID::TYPEID_PLAYER)
+                {
+                    if (p_Killer->ToPlayer()->GetTeamId() == TeamId::TEAM_ALLIANCE)
+                        l_Korlok->AI()->DoAction(eActions::ActionAllianceRecruit);
+                    else
+                        l_Korlok->AI()->DoAction(eActions::ActionHordeRecruit);
+                }
+                else if (p_Killer->GetOwner() && p_Killer->GetOwner()->GetTypeId() == TypeID::TYPEID_PLAYER)
+                {
+                    if (Player* l_Owner = p_Killer->GetOwner()->ToPlayer())
+                    {
+                        if (l_Owner->ToPlayer()->GetTeamId() == TeamId::TEAM_ALLIANCE)
+                            l_Korlok->AI()->DoAction(eActions::ActionAllianceRecruit);
+                        else
+                            l_Korlok->AI()->DoAction(eActions::ActionHordeRecruit);
+                    }
+                }
+            }
+
+            void DoAction(int32 const p_Action)
+            {
+            }
+
+            void SpellHit(Unit* p_Target, SpellInfo const* p_SpellInfo)
+            {
+            }
+
+            void UpdateAI(uint32 const p_Diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                /*switch (m_Events.ExecuteEvent())
+                {
+                    default:
+                        break;
+                }*/
+
+                DoMeleeAttackIfReady();
+            }
+
+            void OnHostileReferenceAdded(Unit* p_Ennemy)
+            {
+                if (p_Ennemy->GetTypeId() != TypeID::TYPEID_PLAYER)
+                    return;
+
+                if (m_FirstVictim)
+                {
+                    m_FirstVictim = false;
+                    return;
+                }
+
+                float l_HealthPct = me->GetHealthPct();
+                uint32 l_AddedValue = m_BaseHP / 2;
+
+                me->SetMaxHealth(me->GetMaxHealth() + l_AddedValue);
+                me->SetHealth(CalculatePct(me->GetMaxHealth(), l_HealthPct));
+            }
+
+            void OnHostileReferenceRemoved(Unit* p_Ennemy)
+            {
+                if (p_Ennemy->GetTypeId() != TypeID::TYPEID_PLAYER)
+                    return;
+
+                float l_HealthPct = me->GetHealthPct();
+                uint32 l_AddedValue = m_BaseHP / 2;
+
+                if ((me->GetMaxHealth() - l_AddedValue) < m_BaseHP)
+                {
+                    me->SetMaxHealth(m_BaseHP);
+                    me->SetHealth(CalculatePct(m_BaseHP, l_HealthPct));
+                    return;
+                }
+
+                me->SetMaxHealth(me->GetMaxHealth() - l_AddedValue);
+                me->SetHealth(CalculatePct(me->GetMaxHealth(), l_HealthPct));
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_ashran_faction_championsAI(p_Creature);
+        }
+};
+
 /// Blade Twister - 178795
 class spell_blade_twister: public SpellScriptLoader
 {
@@ -2320,6 +2791,8 @@ void AddSC_OutdoorPvPAshran()
     new npc_rylai_crestfall();
     new npc_ashran_flight_masters();
     new npc_ashran_spirit_healer();
+    new npc_ashran_korlok();
+    new npc_ashran_faction_champions();
 
     new spell_blade_twister();
     new spell_emberfall_living_bomb();

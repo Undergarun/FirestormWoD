@@ -1,21 +1,10 @@
-/*
- * Copyright (C) 2012-2014 JadeCore <http://www.pandashan.com/>
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2015 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "OutdoorPvP.h"
 #include "OutdoorPvPMgr.h"
@@ -31,12 +20,11 @@
 #include "MapManager.h"
 
 #ifndef OUTDOOR_PVP_ASHRAN_H
-#define OUTDOOR_PVP_ASHRAN_H
-
-typedef std::map<uint64, uint32> PlayerTimerMap;
+ #define OUTDOOR_PVP_ASHRAN_H
 
 enum eAshranDatas
 {
+    /// Maps, Zones, Areas IDs
     AshranZoneID                = 6941,
     AshranMapID                 = 1191,
     AshranNeutralMapID          = 1116,
@@ -45,37 +33,56 @@ enum eAshranDatas
     AshranHordeBase             = 7099,
     AshranAllianceBase          = 7100,
     AshranPvPAreaID             = 24,
-    BattlefieldWorldPvP         = 0x20000,
-    PlayerMinLevel              = 100,
-    AshranTimeForInvite         = 20,
-    AshranTimeForBattle         = 25,
-
-    AshranHallowedGroundH       = 7782,
-    AshranHallowedGroundA       = 7781,
-    AshranHallowedGroundID      = 42989,
-
-    AshranGenericMobTypeID      = 68553,
-
     EmberfallTowerAreaID        = 7080,
     VolrathsAdvanceAreaID       = 7476,
     ArchmageOverwatchAreaID     = 7479,
     TrembladesVanguardAreaID    = 7478,
     KingsRestAreaID             = 7439,
 
+    /// Timers
+    AshranTimeForInvite         = 20,
+    AshranTimeForBattle         = 25,
+    AshranEventTimer            = 30,   ///< In minutes
+    AshranEventWarning          = 3,    ///< In minutes
+
+    /// Generic data
+    BattlefieldWorldPvP         = 0x20000,
+    AshranHallowedGroundH       = 7782,
+    AshranHallowedGroundA       = 7781,
+    AshranHallowedGroundID      = 42989,
+
+    /// Misc
+    PlayerMinLevel              = 100,
+    AshranGenericMobTypeID      = 68553,
     TaxiPathBaseHordeToAlliance = 4665,
-    TaxiPathBaseAllianceToHorde = 4666
+    TaxiPathBaseAllianceToHorde = 4666,
+    KillCountForPlayer          = 5,
+    KillCountForFactionGuard    = 1
 };
 
 enum eAshranSpells
 {
-    SpellLootable       = 161733,
-    SpellHoldYourGround = 173534,   ///< +30% damage, healing and health
-    SpellTowerDefense   = 173541,   ///< +20% damage, healing and health
-    SpellStandFast      = 173549,   ///< +10% damage, healing and health
-    SpellHallowedGround = 171496,
-    SpellAllianceReward = 178531,   ///< Trigger horde strongbox (120151)
-    SpellHordeReward    = 178533,   ///< Trigger alliance strongbox (118065)
-    SpellSpiritHeal     = 22011
+    /// Zone buffs
+    SpellLootable                   = 161733,
+    SpellHoldYourGround             = 173534,   ///< +30% damage, healing and health
+    SpellTowerDefense               = 173541,   ///< +20% damage, healing and health
+    SpellStandFast                  = 173549,   ///< +10% damage, healing and health
+    SpellHallowedGround             = 171496,
+
+    /// Rewarding spells
+    SpellAllianceReward             = 178531,   ///< Trigger horde strongbox (120151)
+    SpellHordeReward                = 178533,   ///< Trigger alliance strongbox (118065)
+
+    /// Misc
+    SpellSpiritHeal                 = 22011,
+    SpellAncientArtifact            = 168506,   ///< Buff granted when interact with Ancient Artifact object
+
+    /// Events
+    SpellEventCollectEmpoweredOre   = 178019,
+    SpellEventRisenSpirits          = 178020,
+    SpellEventOgreFires             = 178021,
+    SpellEventStadiumRacing         = 178022,   ///< Seems to proc every ~35m38s
+    SpellEventKorlokTheOgreKing     = 178380
 };
 
 enum eWorldStates
@@ -157,6 +164,16 @@ enum eWorldStates
     WorldStateOgreKingThroneStatus         = 9113  ///< 0 - Neutral, 1 - Horde
 };
 
+enum eAshranEvents
+{
+    EventKorlokTheOgreKing,
+    EventCollectEmpoweredOre,
+    EventRisenSpirits,
+    EventOgreFires,
+    EventStadiumRacing,
+    MaxEvents
+};
+
 enum eControlStatus
 {
     ControlNeutral,
@@ -170,6 +187,7 @@ enum eCreatures
     AshranHerald            = 84113,
     BladeTwisterTrigger     = 89320,
     SLGGenericMoPLargeAoI   = 68553,
+    KorlokTheOgreKing       = 80858,
 
     /// Alliance
     StormshieldVanguard     = 83717,
@@ -182,6 +200,7 @@ enum eCreatures
     TinaKelatara            = 87617,    ///< Alliance <Flight Master>
     RylaiCrestfall          = 88224,    ///< Alliance Guardian
     AllianceSpiritGuide     = 80723,
+    GaulDunFirok            = 81726,    ///< Gaul Dun Firok <Alliance Champion>
 
     /// Horde
     WarspearBloodGuard      = 83699,
@@ -193,18 +212,20 @@ enum eCreatures
     JeronEmberfall          = 88178,    ///< Horde Guardian
     WarspearWyvern          = 87687,    ///< Horde taxi
     ShevanManille           = 87672,    ///< Horde <Flight Master>
-    HordeSpiritGuide        = 80724
+    HordeSpiritGuide        = 80724,
+    MukmarRaz               = 81725     ///< Muk'Mar Raz <Horde Champion>
 };
 
 enum eGameObjects
 {
-    GraveyardBannerHorde      = 233518,
-    GraveyardBannerAlliance   = 233517,
-    GraveyardControlBanner    = 231201,
-    CapturePointBanner        = 230876,
-    BonfireWithSmokeLarge1    = 233531,
-    Smallfire1                = 233534,
-    FXFireMediumLowSlow       = 233535
+    GraveyardBannerHorde    = 233518,
+    GraveyardBannerAlliance = 233517,
+    GraveyardControlBanner  = 231201,
+    CapturePointBanner      = 230876,
+    BonfireWithSmokeLarge1  = 233531,
+    Smallfire1              = 233534,
+    FXFireMediumLowSlow     = 233535,
+    AncientArtifact         = 203232
 };
 
 enum eAshranActions
@@ -392,7 +413,12 @@ enum eSpecialSpawns
     /// Three are dynamics
     EmberfallTowerSpiritHealer,
     ArchmageOverwatchSpiritHealer,
-    MarketplaceGraveyardSpiritHealer
+    MarketplaceGraveyardSpiritHealer,
+
+    /// Throne of the Ogre King
+    NeutralKorlokTheOgreKing,
+    OgreAllianceChampion,
+    OgreHordeChapion
 };
 
 const creature_type g_MarketplaceGraveyardSpirits[BG_TEAMS_COUNT] =
@@ -818,6 +844,19 @@ uint32 const g_MiddleBattlesEntries[eBattleType::MaxBattleType] =
     eWorldStates::WorldStateArchmageOverwatchBattle
 };
 
+uint32 const g_EventWarnTexts[eAshranEvents::MaxEvents] =
+{
+    TrinityStrings::LangSendKorlokTheOgreKingEvent,
+    TrinityStrings::LangAshranReserved1,
+    TrinityStrings::LangAshranReserved2,
+    TrinityStrings::LangAshranReserved3,
+    TrinityStrings::LangAshranReserved4
+};
+
+const creature_type g_Korlok            = { eCreatures::KorlokTheOgreKing, Team::TEAM_NONE, eAshranDatas::AshranMapID, 4533.17f, -4446.13f, 28.3867f, 1.56182f };
+const creature_type g_AllianceChapion   = { eCreatures::GaulDunFirok,      Team::ALLIANCE,  eAshranDatas::AshranMapID, 4510.53f, -4384.28f, 20.6805f, 5.79889f };
+const creature_type g_HordeChampion     = { eCreatures::MukmarRaz,         Team::HORDE,     eAshranDatas::AshranMapID, 4553.26f, -4382.69f, 20.6805f, 3.38924f };
+
 class OutdoorPvPAshran;
 
 class OutdoorGraveyardAshran : public OutdoorGraveyard
@@ -883,6 +922,10 @@ class OPvPCapturePoint_Graveyard : public OPvPCapturePoint
 
 class OutdoorPvPAshran : public OutdoorPvP
 {
+    using PlayerTimerMap = std::map<uint64, uint32>;
+    using PlayerCurrencyLoot = std::map<uint64, uint32>;
+    using AshranEventsMap = std::map<uint32, uint32>;
+
     public:
         OutdoorPvPAshran();
 
@@ -892,13 +935,24 @@ class OutdoorPvPAshran : public OutdoorPvP
         void HandlePlayerLeaveMap(Player* p_Player, uint32 p_MapID);
         void HandlePlayerEnterArea(Player* p_Player, uint32 p_AreaID);
         void HandlePlayerLeaveArea(Player* p_Player, uint32 p_AreaID);
+        void HandlePlayerResurrects(Player* p_Player, uint32 p_ZoneID);
 
         void HandlePlayerKilled(Player* p_Player);
+        void HandleKill(Player* p_Killer, Unit* p_Killed);
+
+        bool IsFactionGuard(Unit* p_Unit) const;
+
+        void FillCustomPvPLoots(Player* p_Looter, Loot& p_Loot, uint64 p_Container);
 
         bool Update(uint32 p_Diff);
         void ScheduleNextBattle(uint32 p_Diff);
         void ScheduleEndOfBattle(uint32 p_Diff);
         void ScheduleInitPoints(uint32 p_Diff);
+        void ScheduleEventsUpdate(uint32 p_Diff);
+
+        void StartEvent(uint8 p_EventID);
+        void EndEvent(uint8 p_EventID);
+        void SendEventWarningToPlayers(uint32 p_LangID);
 
         void FillInitialWorldStates(ByteBuffer& p_Data);
         void SendRemoveWorldStates(Player* p_Player);
@@ -945,9 +999,13 @@ class OutdoorPvPAshran : public OutdoorPvP
         GuidSet m_PlayersInWar[BG_TEAMS_COUNT];
         PlayerTimerMap m_InvitedPlayers[BG_TEAMS_COUNT];
         PlayerTimerMap m_PlayersWillBeKick[BG_TEAMS_COUNT];
+        PlayerCurrencyLoot m_PlayerCurrencyLoots;
 
         uint32 m_EnnemiesKilled[BG_TEAMS_COUNT];
         uint32 m_EnnemiesKilledMax[BG_TEAMS_COUNT];
+
+        uint32 m_AshranEvents[eAshranEvents::MaxEvents];
+        bool m_AshranEventsWarned[eAshranEvents::MaxEvents];
 
         uint32 m_CurrentBattleState;
         uint32 m_NextBattleTimer;

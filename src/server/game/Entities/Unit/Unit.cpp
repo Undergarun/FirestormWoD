@@ -16729,7 +16729,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
 
                     uint32 l_DoneProcFlag = procFlag & MULTISTRIKE_DONE_HIT_PROC_FLAG_MASK;
                     uint32 l_TakenProcFlag = PROC_FLAG_TAKEN_DAMAGE;
-                    uint32 l_ExFlag = PROC_EX_INTERNAL_TRIGGERED | PROC_EX_INTERNAL_MULTISTRIKE | (l_IsCrit) ? PROC_EX_CRITICAL_HIT : PROC_EX_NORMAL_HIT;
+                    uint32 l_ExFlag = PROC_EX_INTERNAL_TRIGGERED | PROC_EX_INTERNAL_MULTISTRIKE | ((l_IsCrit) ? PROC_EX_CRITICAL_HIT : PROC_EX_NORMAL_HIT);
 
                     if (procFlag & PROC_FLAG_DONE_MELEE_AUTO_ATTACK)
                         l_TakenProcFlag |= PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK;
@@ -17559,6 +17559,24 @@ void Unit::SendPetAIReaction(uint64 p_Guid)
 }
 
 ///----------End of Pet responses methods----------
+
+void Unit::SendItemBonusDebug(uint32 p_Quantity, std::string p_Text, Player* p_Target /*= nullptr*/)
+{
+    WorldPacket l_Data(Opcodes::SMSG_ITEM_BONUS_DEBUG);
+
+    l_Data.appendPackGUID(GetGUID());
+    l_Data << int32(p_Quantity);
+    l_Data << int32(0);
+
+    l_Data.WriteBits(p_Text.size(), 12);
+    l_Data.FlushBits();
+    l_Data.WriteString(p_Text);
+
+    if (p_Target != nullptr)
+        p_Target->GetSession()->SendPacket(&l_Data);
+    else
+        SendMessageToSetInRange(&l_Data, GetVisibilityRange(), false);
+}
 
 void Unit::StopMoving()
 {
