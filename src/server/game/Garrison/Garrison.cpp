@@ -915,6 +915,7 @@ void Garrison::OnQuestReward(const Quest * p_Quest)
 /// When the garrison owner abandon a quest
 void Garrison::OnQuestAbandon(const Quest * p_Quest)
 {
+    return;
     GarrisonInstanceScriptBase * l_GarrisonScript = GetGarrisonScript();
 
     if (l_GarrisonScript)
