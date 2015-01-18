@@ -2408,12 +2408,17 @@ typedef std::map<uint32, VectorArray> NameGenVectorArraysMap;
 // Structures not used for casting to loaded DBC data and not required then packing
 struct MapDifficulty
 {
-    MapDifficulty() : resetTime(0), maxPlayers(0), hasErrorMessage(false) {}
-    MapDifficulty(uint32 _resetTime, uint32 _maxPlayers, bool _hasErrorMessage) : resetTime(_resetTime), maxPlayers(_maxPlayers), hasErrorMessage(_hasErrorMessage) {}
+    MapDifficulty() : ResetTime(0), MaxPlayers(0), HasErrorMessage(false), ItemBonusTreeDifficulty(0)
+    {}
 
-    uint32 resetTime;
-    uint32 maxPlayers;
-    bool hasErrorMessage;
+    MapDifficulty(uint32 p_ResetTime, uint32 p_MaxPlayers, uint32 p_ItemBonusTreeDifficulty, bool p_HasErrorMessage)
+        : ResetTime(p_ResetTime), MaxPlayers(p_MaxPlayers), ItemBonusTreeDifficulty(p_ItemBonusTreeDifficulty), HasErrorMessage(p_HasErrorMessage)
+    {}
+
+    uint32 ResetTime;
+    uint32 MaxPlayers;
+    uint32 ItemBonusTreeDifficulty;
+    bool   HasErrorMessage;
 };
 
 struct TalentSpellPos

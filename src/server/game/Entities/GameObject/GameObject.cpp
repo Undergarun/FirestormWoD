@@ -256,6 +256,9 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
     LastUsedScriptID = GetGOInfo()->ScriptId;
     AIM_Initialize();
 
+    auto l_MapDifficulty     = map->GetMapDifficulty();
+    loot.ItemBonusDifficulty = l_MapDifficulty->ItemBonusTreeDifficulty ? l_MapDifficulty->ItemBonusTreeDifficulty : map->GetDifficulty();
+
     switch (goinfo->type)
     {
             // @todo On port intactNumHits is removed
