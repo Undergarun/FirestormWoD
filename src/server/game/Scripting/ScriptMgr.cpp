@@ -470,27 +470,48 @@ bool ScriptMgr::OnAreaTrigger(Player * p_Player, const AreaTriggerEntry * p_Trig
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
+
+/// Assign script to Areatrigger
+void ScriptMgr::InitScriptEntity(AreaTrigger* p_AreaTrigger)
+{
+    ASSERT(p_AreaTrigger);
+
+    // On creation, we look for instantiating a new script, locally to the AreaTrigger.
+    if (p_AreaTrigger->GetScript())
+        return;
+
+    AreaTriggerEntityScript* l_AreaTriggerScript = ScriptRegistry<AreaTriggerEntityScript>::GetScriptById(p_AreaTrigger->GetMainTemplate()->m_ScriptId);
+    if (l_AreaTriggerScript == nullptr)
+        return;
+
+    p_AreaTrigger->SetScript(l_AreaTriggerScript->GetAI());
+}
 /// Proc when AreaTrigger is created.
 /// @p_AreaTrigger : AreaTrigger instance
 void ScriptMgr::OnCreateAreaTriggerEntity(AreaTrigger * p_AreaTrigger)
 {
     ASSERT(p_AreaTrigger);
-
-    // On creation, we look for instantiating a new script, locally to the AreaTrigger.
-    if (!p_AreaTrigger->GetScript())
-    {
-        AreaTriggerEntityScript* l_AreaTriggerScript = ScriptRegistry<AreaTriggerEntityScript>::GetScriptById(p_AreaTrigger->GetMainTemplate()->m_ScriptId);
-        if (l_AreaTriggerScript == nullptr)
-            return;
-
-        p_AreaTrigger->SetScript(l_AreaTriggerScript->GetAI());
-    }
-
-    // This checks is usefull if you run out of memory.
-    if (!p_AreaTrigger->GetScript())
+    
+    AreaTriggerEntityScript* l_Script = p_AreaTrigger->GetScript();
+    if (!l_Script)
         return;
 
-    p_AreaTrigger->GetScript()->OnCreate(p_AreaTrigger);
+    l_Script->OnCreate(p_AreaTrigger);
+}
+/// Procs before creation to specify position and linear destination of the areatrigger
+/// @p_AreaTrigger: Areatrigger Instance
+/// @p_Caster: Caster because he the Areatrigger is not spawned so caster is not defined
+/// @p_SourcePosition: Spawn location of the Areatrigger
+/// @p_DestinationPostion: Linear destination of the Areatrigger
+void ScriptMgr::OnSetCreatePositionEntity(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition)
+{
+    ASSERT(p_AreaTrigger);
+
+    AreaTriggerEntityScript* l_Script = p_AreaTrigger->GetScript();
+    if (!l_Script)
+        return;
+
+    l_Script->OnSetCreatePosition(p_AreaTrigger, p_Caster, p_SourcePosition, p_DestinationPosition);
 }
 /// Proc when AreaTrigger is updated.
 /// @p_AreaTrigger : AreaTrigger instance

@@ -7465,21 +7465,21 @@ void Spell::EffectCreateAreatrigger(SpellEffIndex effIndex)
     else
         destTarget->GetPosition(&l_Source);
     l_Dest = l_Source;
-
+    
     // trigger entry/miscvalue relation is currently unknown, for now use MiscValue as trigger entry
     uint32 l_MiscValue = GetSpellInfo()->Effects[effIndex].MiscValue;
 
     switch (l_MiscValue)
     {
-    case 719:  // Anima Ring
-        m_caster->GetPosition(&l_Dest);
-        break;
-    case 1315: // Chi Burst
-    case 1316: // Chi Burst
-        m_caster->MovePosition(l_Dest, m_spellInfo->GetMaxRange(true, m_caster, this), 0.0f);
-        break;
-    default:
-        break;
+        case 719:  // Anima Ring
+            m_caster->GetPosition(&l_Dest);
+            break;
+        case 1315: // Chi Burst
+        case 1316: // Chi Burst
+            m_caster->MovePosition(l_Dest, m_spellInfo->GetMaxRange(true, m_caster, this), 0.0f);
+            break;
+        default:
+            break;
     }
 
     AreaTrigger* l_AreaTrigger = new AreaTrigger;

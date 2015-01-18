@@ -3460,6 +3460,13 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 149959: // Earth Shatter
+            case 149968:
+            case 149969:
+            case 149970:
+                spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
+                spellInfo->ExplicitTargetMask = spellInfo->_GetExplicitTargetMask();
+                break;
             case 157154:// High tide fix temp !!!
                 spellInfo->Effects[0].BasePoints = 0;
                 break;

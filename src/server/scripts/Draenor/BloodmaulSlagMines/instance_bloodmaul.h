@@ -17,6 +17,7 @@ namespace MS
             enum class BossIds : uint32 
             {
                 SlaveWatcherCrushto,
+                ForgemasterGogduh
             };
 
             enum class MobEntries : uint32

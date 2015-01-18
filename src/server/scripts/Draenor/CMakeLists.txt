@@ -28,6 +28,7 @@ set(scripts_STAT_SRCS
   Draenor/BloodmaulSlagMines/spell_bloodmaul.cpp
   Draenor/BloodmaulSlagMines/areatrigger_bloodmaul.cpp
   Draenor/BloodmaulSlagMines/boss_slave_watcher_crushto.cpp
+  Draenor/BloodmaulSlagMines/boss_forgemaster_gogduh.cpp
   Draenor/Garrison/GarrisonNPC.cpp
   Draenor/Garrison/GarrisonQuest.cpp
   Draenor/Garrison/Garrison_A_1.cpp
