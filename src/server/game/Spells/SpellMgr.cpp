@@ -5358,6 +5358,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 126060:// Desperate Measures
                 spellInfo->Effects[0].BasePoints = 0;
+                break;
             case 124273:// Heavy Stagger
             case 124274:// Moderate Stagger
             case 124275:// Light Stagger

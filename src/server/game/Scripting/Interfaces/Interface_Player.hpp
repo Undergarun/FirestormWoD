@@ -456,6 +456,15 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_Form);
         }
 
+        /// Called when a player loot an item
+        /// @p_Player : Player instance
+        /// @p_Item   : New looted item instance
+        virtual void OnItemLooted(Player* p_Player, Item * p_Item)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_Item);
+        }
+
 };
 
 #endif  ///< SCRIPTING_INTERFACES_PLAYER
