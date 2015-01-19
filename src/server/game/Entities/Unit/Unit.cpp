@@ -13059,7 +13059,7 @@ int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask)
                 AdvertisedBenefit += int32(CalculatePct(GetTotalAttackPowerValue(WeaponAttackType::BaseAttack), (*i)->GetAmount()));
 
         // Apply Versatility healing bonus
-        AdvertisedBenefit += AddPct(AdvertisedBenefit, ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
+        AdvertisedBenefit += CalculatePct(AdvertisedBenefit, ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
     }
     return AdvertisedBenefit;
 }
