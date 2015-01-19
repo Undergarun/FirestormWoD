@@ -3898,10 +3898,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 139485:// Dark Winds
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(285); // 1s
                 break;
-            case 134735:// Battle Fatigue : Hardcoded Basepoint for Season 13
-                spellInfo->Effects[0].BasePoints = -30;
-                spellInfo->Effects[1].BasePoints = -30;
-                break;
             case 103965:// Metamorphosis (override auras)
                 spellInfo->Effects[2].SpellClassMask[0] = 64;
                 spellInfo->Effects[7].SpellClassMask[1] = 0x400;
