@@ -4234,11 +4234,14 @@ public:
             l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
 
             if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_WINDWALKER)
-                l_Player->CastSpell(l_Target, 130320, true);
+                l_Player->CastSpell(l_Target, 115804, true);
+            if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_MONK_BREWMASTER)
+                l_Player->CastSpell(l_Player, 130320, true);
 
             SetHitDamage(int32(frand(8.0f * l_Low, 8.0f * l_High)));
 
         }
+
         void Register()
         {
             OnEffectHitTarget += SpellEffectFn(spell_monk_rising_sun_kick_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
