@@ -301,8 +301,8 @@ void MapManager::Update(uint32 diff)
     
     while (!m_DelayedOperation.empty())
     {
-        if (m_DelayedOperation.front())
-            m_DelayedOperation.front()();
+        if (m_DelayedOperation.front().first)
+            m_DelayedOperation.front().first(m_DelayedOperation.front().second);
 
         m_DelayedOperation.pop();
     }
