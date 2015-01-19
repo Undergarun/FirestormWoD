@@ -1,3 +1,4 @@
+DELETE FROM garrison_plot_content WHERE plot_type_or_building=2 AND faction_index = 1;
 insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('2','1','81653','18.0988','-9.14608','3.48514','1.56106');
 insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('2','1','81653','16.3807','6.3052','2.65208','1.51001');
 insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('2','1','81653','11.9359','0.875547','2.44718','2.59779');

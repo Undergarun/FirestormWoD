@@ -385,7 +385,7 @@ DELETE FROM spell_script_names WHERE spell_id = 161384;
 INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES ('161384','spell_learning_blueprint');
 
 UPDATE quest_template SET PrevQuestId = 34461 WHERE Id = 34861; -- We Need An Army
-UPDATE quest_template SET PrevQuestId = 34461 WHERE Id = 34462; -- We Need An Army
+UPDATE quest_template SET PrevQuestId = 34461 WHERE Id = 34462; -- Winds of Change
 
 ---------------------------------------------------------
 -- Random movement
