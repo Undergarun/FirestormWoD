@@ -2993,12 +2993,12 @@ uint32 InstanceMap::GetMaxPlayers() const
 {
     if (MapDifficulty const* mapDiff = GetMapDifficulty())
     {
-        if (mapDiff->maxPlayers || IsRegularDifficulty())    // Normal case (expect that regular difficulty always have correct maxplayers)
-            return mapDiff->maxPlayers;
+        if (mapDiff->MaxPlayers || IsRegularDifficulty())    // Normal case (expect that regular difficulty always have correct maxplayers)
+            return mapDiff->MaxPlayers;
         else                                                // DBC have 0 maxplayers for heroic instances with expansion < 2
         {                                                   // The heroic entry exists, so we don't have to check anything, simply return normal max players
             MapDifficulty const* normalDiff = GetMapDifficultyData(GetId(), REGULAR_5_DIFFICULTY);
-            return normalDiff ? normalDiff->maxPlayers : 0;
+            return normalDiff ? normalDiff->MaxPlayers : 0;
         }
     }
     else                                                    // I'd rather ASSERT(false);
@@ -3028,7 +3028,7 @@ uint32 InstanceMap::GetMaxPlayers() const
 uint32 InstanceMap::GetMaxResetDelay() const
 {
     MapDifficulty const* mapDiff = GetMapDifficulty();
-    return mapDiff ? mapDiff->resetTime : 0;
+    return mapDiff ? mapDiff->ResetTime : 0;
 }
 
 /* ******* Battleground Instance Maps ******* */

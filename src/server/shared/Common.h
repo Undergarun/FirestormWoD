@@ -71,6 +71,7 @@
 #include <errno.h>
 #include <signal.h>
 #include <assert.h>
+#include <random>
 
 #if PLATFORM == PLATFORM_WINDOWS
 #define STRCASECMP stricmp
