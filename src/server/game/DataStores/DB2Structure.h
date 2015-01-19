@@ -72,7 +72,7 @@ struct ItemBonusEntry
 
 struct ItemBonusTreeNodeEntry
 {
-    uint32 ID;                                              // 0
+    //uint32 ID;                                            // 0
     uint32 Category;                                        // 1
     uint32 Difficulty;                                      // 2
     uint32 LinkedCategory;                                  // 3
@@ -81,7 +81,7 @@ struct ItemBonusTreeNodeEntry
 
 struct ItemXBonusTreeEntry
 {
-    uint32 ID;                                               // 0
+    //uint32 ID;                                             // 0
     uint32 ItemId;                                           // 1
     uint32 ItemBonusTreeCategory;                            // 2
 };
