@@ -262,16 +262,16 @@ namespace MS
                         switch ((Events)events.ExecuteEvent())
                         {
                             case Events::CastSpell:
-                                me->CastSpell(me, uint32(urand(0, 1) ? Spells::DancingFlames : Spells::Scorch), false);
+                                me->CastSpell(me, uint32(urand(0, 1) ? Spells::DancingFlames : Spells::DancingFlames), false);
                                 events.ScheduleEvent((uint32)Events::CastSpell, 12000);
                             default:
                                 return;
                         }
-
-                        me->CastSpell(me->getVictim(), (uint32)Spells::Scorch, true);
-
+                        
                         if (me->HasUnitState(UNIT_STATE_CASTING) || me->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
                             return;
+
+                        me->CastSpell(me->getVictim(), (uint32)Spells::Scorch, true);
 
                         DoMeleeAttackIfReady();
                     }
@@ -498,6 +498,56 @@ namespace MS
                     int32 m_DeathTimer;
                 };
             };
+
+            class spell_dancing_flames: public SpellScriptLoader
+            {
+                public:
+                    spell_dancing_flames() : SpellScriptLoader("spell_dancing_flames") { }
+
+                    enum Spells
+                    {
+                        DancingFlames = 149975
+                    };
+
+                    class spell_dancing_flames_AuraScript : public AuraScript
+                    {
+                        PrepareAuraScript(spell_dancing_flames_AuraScript);
+                        
+                        void HandleApplyEffect(constAuraEffectPtr aurEff, AuraEffectHandleModes mode)
+                        {
+                            m_Dispelled = false;
+                        }
+
+                        void HandleDispel(DispelInfo* dispelInfo)
+                        {
+                            m_Dispelled = true;
+                        }
+
+                        void HandleRemoveEffect(constAuraEffectPtr aurEff, AuraEffectHandleModes mode)
+                        {
+                            if (m_Dispelled)
+                                return;
+                            printf("dispelled\n");
+                            if (Unit* l_Caster = GetCaster())
+                                l_Caster->CastSpell(l_Caster, (uint32)Spells::DancingFlames, true);
+                        }
+
+                        bool m_Dispelled;
+
+                        void Register()
+                        {
+                            OnEffectApply += AuraEffectApplyFn(spell_dancing_flames_AuraScript::HandleRemoveEffect, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+                            OnDispel += AuraDispelFn(spell_dancing_flames_AuraScript::HandleDispel);
+                            OnEffectRemove += AuraEffectRemoveFn(spell_dancing_flames_AuraScript::HandleRemoveEffect, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+                            
+                        }
+                    };
+
+                    AuraScript* GetAuraScript() const
+                    {
+                        return new spell_dancing_flames_AuraScript();
+                    }
+            };
         }
     }
 }
@@ -511,4 +561,5 @@ void AddSC_boss_forgemaster_gogduh()
     new MS::Instances::Bloodmaul::spell_shatter_earth();
     new MS::Instances::Bloodmaul::areatrigger_shatter_earth();
     new MS::Instances::Bloodmaul::npc_shatter_earth();
+    new MS::Instances::Bloodmaul::spell_dancing_flames();
 }
