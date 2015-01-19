@@ -2486,7 +2486,7 @@ public:
 
 enum SpellsFerociousBite
 {
-    SPELL_DRUID_RAKE = 1822,
+    SPELL_DRUID_RAKE_TRIGGERED = 155722,
     SPELL_DRUID_GLYPH_OF_FEROCIOUS_BITE = 67598,
     SPELL_DRUID_GLYPH_OF_FEROCIOUS_BITE_HEAL = 101024
 };
@@ -2526,7 +2526,7 @@ public:
 
             // if target is under 25% of life, also reset rake duration
             if (l_Target && l_Target->GetHealthPct() <= 25.0f)
-                if (AuraPtr l_Rake = l_Target->GetAura(SPELL_DRUID_RAKE))
+                if (AuraPtr l_Rake = l_Target->GetAura(SPELL_DRUID_RAKE_TRIGGERED))
                     l_Rake->RefreshDuration();
         }
 
