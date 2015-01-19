@@ -231,7 +231,7 @@ namespace MS { namespace Garrison
         233250      ///< Alliance
     };
 
-    static const GarrisonPlotInstanceInfoLocation gGarrisonPlotInstanceInfoLocation[GARRISON_PLOT_INSTANCE_COUNT] =
+    const GarrisonPlotInstanceInfoLocation gGarrisonPlotInstanceInfoLocation[GARRISON_PLOT_INSTANCE_COUNT] =
     {
         /// SiteLevelID PlotInstanceID      X            Y            Z           O
         /// Alliance Level 1
@@ -283,7 +283,7 @@ namespace MS { namespace Garrison
     };
 
     /// Cache game object position for each faction / level
-    static const GarrisonCacheInfoLocation gGarrisonCacheInfoLocation[GARRISON_FACTION_COUNT * GARRISON_MAX_LEVEL] =
+    const GarrisonCacheInfoLocation gGarrisonCacheInfoLocation[GARRISON_FACTION_COUNT * GARRISON_MAX_LEVEL] =
     {
         /// SiteLevelID         X           Y          Z         O
         /// Horde Level 1
@@ -301,7 +301,7 @@ namespace MS { namespace Garrison
     };
 
     /// Cache game object entry for each faction / state
-    static const uint32 gGarrisonCacheGameObjectID[GARRISON_FACTION_COUNT * 3] =
+    const uint32 gGarrisonCacheGameObjectID[GARRISON_FACTION_COUNT * 3] =
     {
         /// Horde
         237191,         ///< Normal
