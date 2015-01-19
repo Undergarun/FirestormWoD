@@ -3550,6 +3550,24 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* p_AurApp, uint8 p_Mode
         if (l_MountEntry != nullptr)
             l_DisplayId = l_MountEntry->CreatureDisplayID;
 
+        /// Hackfix for somes mount unavailable on retail (data aren't)
+        /// But we need it because we sell it on the shop
+        switch (GetId())
+        {
+            case 171630:                ///< Armored Razorback
+                l_DisplayId = 61484;
+                break;
+            case 171619:                ///< Tundra Icehoof
+                l_DisplayId = 53307;
+                break;
+            case 171826:
+                l_DisplayId = 59746;    ///< Mudback Riverbeast
+                break;
+            case 171837:
+                l_DisplayId = 59536;    ///< Warsong Direfang
+                break;
+        }
+
         l_Target->Mount(l_DisplayId, l_VehicleId, GetMiscValue());
         l_Target->RemoveFlagsAuras();
 

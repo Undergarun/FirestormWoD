@@ -1841,28 +1841,35 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
     }
 }
 
-void Unit::HandleEmoteCommand(uint32 anim_id)
+void Unit::HandleEmoteCommand(uint32 emoteId)
 {
-    if (GetUInt32Value(UNIT_FIELD_EMOTE_STATE) == 483)
+    EmotesEntry const* emoteInfo = sEmotesStore.LookupEntry(emoteId);
+    if (!emoteInfo)
     {
-        SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0x0);
-        return;
-    }
-    else if (anim_id == 483)
-    {
-        SetUInt32Value(UNIT_FIELD_EMOTE_STATE, anim_id);
+        SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
         return;
     }
 
-    // Hack fix for clear emote at moving
-    if (Player* plr = ToPlayer())
-        plr->SetLastPlayedEmote(anim_id);
+    if (!isAlive())
+        return;
 
-    WorldPacket data(SMSG_EMOTE);
-    data.appendPackGUID(GetGUID());     ///< Guid
-    data << uint32(anim_id);            ///< Emote
-
-    SendMessageToSet(&data, true);
+    switch (emoteInfo->EmoteType)
+    {
+        case 0:
+        {
+            WorldPacket l_Data(SMSG_EMOTE, 4 + 8);
+            l_Data.appendPackGUID(GetGUID());
+            l_Data << uint32(emoteId);
+            SendMessageToSet(&l_Data, true);
+            break;
+        }
+        case 1:
+        case 2:
+            SetUInt32Value(UNIT_FIELD_EMOTE_STATE, emoteId);
+            break;
+        default:
+            break;
+    }
 }
 
 bool Unit::IsDamageReducedByArmor(SpellSchoolMask schoolMask, SpellInfo const* spellInfo, uint8 effIndex)
@@ -2637,8 +2644,8 @@ bool Unit::isBlockCritical()
 {
     if (roll_chance_i(GetTotalAuraModifier(SPELL_AURA_MOD_BLOCK_CRIT_CHANCE)))
     {
-        // Critical Blocks enrage the warrior
-        if (HasAura(76857))
+        // Critical Blocks (spe Protection) enrage the warrior
+        if (ToPlayer() != nullptr && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_PROTECTION)
             CastSpell(this, 12880, true);
         return true;
     }
@@ -4920,7 +4927,7 @@ int32 Unit::GetTotalAuraModifier(AuraType auratype) const
 
     // Fix Mastery : Critical Block - Increase critical block chance
     if (HasAura(76857) && auratype == SPELL_AURA_MOD_BLOCK_CRIT_CHANCE)
-        modifier += int32(GetFloatValue(PLAYER_FIELD_MASTERY) * 2.2f);
+        modifier += int32(GetFloatValue(PLAYER_FIELD_MASTERY) * 1.5f);
 
     return modifier;
 }
@@ -13292,10 +13299,6 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
     if (pdamage > 0 && GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_PALADIN_RETRIBUTION && HasAura(53503) && ToPlayer()->IsTwoHandUsed() && attType == WeaponAttackType::BaseAttack)
         AddPct(DoneTotalMod, 25);
 
-    // 76856 - Mastery : Unshackled Fury
-    if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_FURY && HasAura(76856) && HasAura(13046) && attType == WeaponAttackType::BaseAttack)
-        AddPct(DoneTotalMod, 11);
-
     // Apply Power PvP damage bonus
     if (pdamage > 0 && GetTypeId() == TYPEID_PLAYER && (victim->GetTypeId() == TYPEID_PLAYER || (victim->GetTypeId() == TYPEID_UNIT && victim->isPet() && victim->GetOwner() && victim->GetOwner()->ToPlayer())))
     {
@@ -13380,7 +13383,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
     {
         if (HasAura(76856) && HasAuraState(AURA_STATE_ENRAGE))
         {
-            float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 1.4f;
+            float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 1.375f;
             AddPct(DoneTotalMod, Mastery);
         }
     }
@@ -13417,19 +13420,6 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
 
             if (roll_chance_f(Mastery))
                 CastSpell(victim, 86392, true);
-        }
-    }
-
-    // Custom MoP Script
-    // 76838 - Mastery : Strikes of Opportunity
-    if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && (!spellProto || (spellProto && spellProto->Id != 76858)))
-    {
-        if (HasAura(76838))
-        {
-            float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 2.2f;
-
-            if (roll_chance_f(Mastery))
-                CastSpell(victim, 76858, true);
         }
     }
 

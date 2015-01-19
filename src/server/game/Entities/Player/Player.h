@@ -3371,7 +3371,7 @@ class Player : public Unit, public GridObject<Player>
         DailyLootsCooldowns m_DailyLootsCooldowns;
         void _LoadDailyLootsCooldowns(PreparedQueryResult&& p_Result);
         void ResetDailyLoots();
-        bool CanLoot(uint32 p_Entry) const { return m_DailyLootsCooldowns.find(p_Entry) == m_DailyLootsCooldowns.end(); }
+        bool CanHaveDailyLootForItem(uint32 p_Entry) const { return m_DailyLootsCooldowns.find(p_Entry) == m_DailyLootsCooldowns.end(); }
         void AddDailyLootCooldown(uint32 p_Entry);
 
     protected:

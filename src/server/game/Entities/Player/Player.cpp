@@ -3041,7 +3041,7 @@ void Player::SwitchToPhasedMap(uint32 p_MapID)
         GetSession()->SendPacket(&l_Data);
     }
 
-    GetMap()->AddPlayerToMap(this);
+    GetMap()->AddPlayerToMap(this, true);
 
     // Update zone immediately, otherwise leave channel will cause crash in mtmap
     uint32 l_NewZone, l_NewArea;
@@ -5176,11 +5176,6 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
 
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LEARN_SPELL, spellId);
     }
-
-    // Custom MoP Script
-    // 76856 - Mastery : Unshackled Fury - Hack Fix Pig
-    if (spellInfo->Id == 76856)
-        CastSpell(this, spellInfo->Id, true);
 
     // return true (for send learn packet) only if spell active (in case ranked spells) and not replace old spell
     return active && !disabled && !superceded_old;
@@ -10911,7 +10906,7 @@ void Player::RemovedInsignia(Player* looterPlr)
 
     // We store the level of our player in the gold field
     // We retrieve this information at Player::SendLoot()
-    bones->loot.gold = getLevel();
+    bones->loot.Gold = getLevel();
     bones->lootRecipient = looterPlr;
     looterPlr->SendLoot(bones->GetGUID(), LOOT_INSIGNIA);
 }
@@ -11065,7 +11060,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
                     break;
                 default:
                     loot->generateMoneyLoot(item->GetTemplate()->MinMoneyLoot, item->GetTemplate()->MaxMoneyLoot);
-                    loot->FillLoot(item->GetEntry(), LootTemplates_Item, this, true, loot->gold != 0);
+                    loot->FillLoot(item->GetEntry(), LootTemplates_Item, this, true, loot->Gold != 0);
                     break;
             }
         }
@@ -11085,14 +11080,14 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
         if (!bones->lootForBody)
         {
             bones->lootForBody = true;
-            uint32 pLevel = bones->loot.gold;
+            uint32 pLevel = bones->loot.Gold;
             bones->loot.clear();
             if (Battleground* bg = GetBattleground())
                 if (bg->GetTypeID(true) == BATTLEGROUND_AV)
                     loot->FillLoot(1, LootTemplates_Creature, this, true);
             // It may need a better formula
             // Now it works like this: lvl10: ~6copper, lvl70: ~9silver
-            bones->loot.gold = uint32(urand(50, 150) * 0.016f * pow(float(pLevel)/5.76f, 2.5f) * sWorld->getRate(RATE_DROP_MONEY));
+            bones->loot.Gold = uint32(urand(50, 150) * 0.016f * pow(float(pLevel)/5.76f, 2.5f) * sWorld->getRate(RATE_DROP_MONEY));
         }
 
         if (bones->lootRecipient != this)
@@ -11118,7 +11113,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
         }
 
         loot = &creature->loot;
-        loot->linkedLoot.clear();
+        loot->LinkedLoot.clear();
 
         if (loot_type == LOOT_PICKPOCKETING)
         {
@@ -11133,7 +11128,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
                 // Generate extra money for pick pocket loot
                 const uint32 a = urand(0, creature->getLevel()/2);
                 const uint32 b = urand(0, getLevel()/2);
-                loot->gold = uint32(10 * (a + b) * sWorld->getRate(RATE_DROP_MONEY));
+                loot->Gold = uint32(10 * (a + b) * sWorld->getRate(RATE_DROP_MONEY));
                 permission = OWNER_PERMISSION;
             }
         }
@@ -11155,8 +11150,8 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
                 cell.Visit(p, cSearcher, *(GetMap()), *this,  25.0f);
             }
 
-            uint32 maxSlot = loot->items.size() + loot->quest_items.size();
-            loot->additionalLinkedGold = 0;
+            uint32 maxSlot = loot->Items.size() + loot->QuestItems.size();
+            loot->AdditionalLinkedGold = 0;
             for (auto itr : linkedLootCreature)
             {
                 // the player whose group may loot the corpse
@@ -11246,10 +11241,10 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
                     if (perm != NONE_PERMISSION)
                     {
                         linkedLoot->AddLooter(GetGUID());
-                        loot->additionalLinkedGold += linkedLoot->gold;
+                        loot->AdditionalLinkedGold += linkedLoot->Gold;
                     }
 
-                    for (uint32 i = 0; i < linkedLoot->items.size(); i++)
+                    for (uint32 i = 0; i < linkedLoot->Items.size(); i++)
                         loot->addLinkedLoot(maxSlot++, itr->GetGUID(), i, perm);
                 }
             }
@@ -11267,7 +11262,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
     }
 
     // need know merged fishing/corpse loot type for achievements
-    loot->loot_type = loot_type;
+    loot->Type = loot_type;
 
     WorldPacket data(SMSG_LOOT_RESPONSE);
     data << LootView(*loot, this, loot_type, guid, permission);
@@ -20398,7 +20393,7 @@ bool Player::isAllowedToLoot(const Creature* creature)
         case MASTER_LOOT:
             // may only loot if the player is the loot roundrobin player
             // or if there are free/quest/conditional item for the player
-            if (loot->roundRobinPlayer == 0 || loot->roundRobinPlayer == GetGUID())
+            if (loot->RoundRobinPlayer == 0 || loot->RoundRobinPlayer == GetGUID())
                 return true;
 
             return loot->hasItemFor(this);
@@ -20407,7 +20402,7 @@ bool Player::isAllowedToLoot(const Creature* creature)
             // may only loot if the player is the loot roundrobin player
             // or item over threshold (so roll(s) can be launched)
             // or if there are free/quest/conditional item for the player
-            if (loot->roundRobinPlayer == 0 || loot->roundRobinPlayer == GetGUID())
+            if (loot->RoundRobinPlayer == 0 || loot->RoundRobinPlayer == GetGUID())
                 return true;
 
             if (loot->hasOverThresholdItem())
@@ -21748,7 +21743,7 @@ bool Player::Satisfy(AccessRequirement const* ar, uint32 target_map, bool report
             {
                 if (missingQuest && !ar->questFailedText.empty())
                     ChatHandler(GetSession()).PSendSysMessage("%s", ar->questFailedText.c_str());
-                else if (mapDiff->hasErrorMessage) // if (missingAchievement) covered by this case
+                else if (mapDiff->HasErrorMessage) // if (missingAchievement) covered by this case
                     SendTransferAborted(target_map, TRANSFER_ABORT_DIFFICULTY, target_difficulty);
             }
             return false;
@@ -28176,7 +28171,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, uint8 linkedLootSlot)
 
         SendNotifyLootItemRemoved(lootSlot);
         currency->is_looted = true;
-        --loot->unlootedCount;
+        --loot->UnlootedCount;
         return;
     }
 
@@ -28217,7 +28212,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, uint8 linkedLootSlot)
         if (!item->freeforall)
             item->is_looted = true;
 
-        --loot->unlootedCount;
+        --loot->UnlootedCount;
 
         /*if (const ItemTemplate* proto = sObjectMgr->GetItemTemplate(item->itemid))
             if (proto->Quality > ITEM_QUALITY_EPIC || (proto->Quality == ITEM_QUALITY_EPIC && proto->ItemLevel >= MinNewsItemLevel[sWorld->getIntConfig(CONFIG_EXPANSION)]))
@@ -28228,7 +28223,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, uint8 linkedLootSlot)
         newitem->AddItemBonuses(item->itemBonuses);
 
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, item->itemid, item->count);
-        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE, loot->loot_type, item->count);
+        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE, loot->Type, item->count);
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM, item->itemid, item->count);
 
         sScriptMgr->OnPlayerItemLooted(this, newitem);
@@ -30209,13 +30204,13 @@ void Player::HandleStoreGoldCallback(PreparedQueryResult result)
         do
         {
             Field* fieldGold    = result->Fetch();
-            uint64 gold         = (fieldGold[0].GetUInt32()) * GOLD;
+            uint64 gold         = uint64(fieldGold[0].GetUInt32()) * GOLD;
             uint32 transaction  = fieldGold[1].GetUInt32();
 
             if ((GetMoney() + gold) > MAX_MONEY_AMOUNT)
             {
-                GetSession()->SendNotification("Vous avez commande des pieces d'ors a la boutique, mais vous disposez deja de la limite imposee par WoW");  // Translate me
-                GetSession()->SendNotification("Vos pieces d'or seront ajoutee lors d'une futur re-connexion.");                                            // Translate me
+                GetSession()->SendNotification(LANG_GOLD_ERROR1);
+                GetSession()->SendNotification(LANG_GOLD_ERROR2);
                 break;
             }
             goldCount+= gold;
@@ -30235,7 +30230,7 @@ void Player::HandleStoreGoldCallback(PreparedQueryResult result)
         while(result->NextRow());
 
         if (goldCount)
-            GetSession()->SendNotification("%d pieces d'or vous ont ete ajoutee suite a votre commande sur la boutique", (goldCount/GOLD));             // Translate me
+            GetSession()->SendNotification(LANG_GOLD_CONFIRM, (goldCount/GOLD));
     }
 }
 

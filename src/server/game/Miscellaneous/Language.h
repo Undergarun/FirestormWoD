@@ -1006,6 +1006,12 @@ enum TrinityStrings
     LANG_COMMAND_TICKETPENDING          = 2027,
     LANG_COMMAND_TICKETRESET            = 2028,
 
+    // Gold strings
+    LANG_GOLD_ERROR1                    = 3000,
+    LANG_GOLD_ERROR2                    = 3001,
+    LANG_GOLD_CONFIRM                   = 3002,
+
+
     // Trinity strings                    5000-9999
     LANG_COMMAND_FREEZE                 = 5000,
     LANG_COMMAND_FREEZE_ERROR           = 5001,
