@@ -1000,19 +1000,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 
                     break;
                 }
-                case 90361: // Spirit Mend
-                {
-                    if (!caster->GetOwner())
-                        break;
-
-                    Player* m_owner = caster->GetOwner()->ToPlayer();
-                    if (!m_owner)
-                        break;
-
-                    amount += int32(m_owner->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.35f * 0.335f);
-
-                    break;
-                }
                 default:
                     break;
             }

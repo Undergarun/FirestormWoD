@@ -1904,21 +1904,6 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
             addhealth = m_caster->CountPctFromMaxHealth(4);
             break;
         }
-        case 90361: // Spirit Mend
-        {
-            if (!unitTarget || !caster)
-                return;
-
-            if (!caster->GetOwner())
-                return;
-
-            Player* m_owner = caster->GetOwner()->ToPlayer();
-            if (!m_owner)
-                return;
-
-            addhealth += int32(m_owner->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.35f * 0.5f);
-            break;
-        }
         case 73921: // Healing Rain
         {
             addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, effIndex, HEAL);
