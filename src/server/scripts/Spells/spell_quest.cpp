@@ -2406,8 +2406,53 @@ class spell_q30136_silken_rope: public SpellScriptLoader
         }
 };
 
+class spell_q31049_fae_spirit : public SpellScriptLoader
+{
+public:
+    spell_q31049_fae_spirit() : SpellScriptLoader("spell_q31049_fae_spirit") { }
+
+    class spell_q31049_fae_spirit_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_q31049_fae_spirit_SpellScript);
+
+        SpellCastResult CheckCast()
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (l_Caster->GetTypeId() != TYPEID_UNIT && l_Caster->GetEntry() != 62522)
+                    return SPELL_FAILED_BAD_TARGETS;
+            }
+            return SPELL_CAST_OK;
+        }
+
+        void CorrectTarget(std::list<WorldObject*>& targets)
+        {
+            std::list<WorldObject*> tempTargets = targets;
+            for (auto itr : tempTargets)
+            {
+                if (itr->GetTypeId() != TYPEID_UNIT)
+                    targets.remove(itr);
+                if (itr->GetEntry() != 62522 && itr->GetEntry() != 62753)
+                    targets.remove(itr);
+            }
+        }
+
+        void Register()
+        {
+            OnCheckCast += SpellCheckCastFn(spell_q31049_fae_spirit_SpellScript::CheckCast);
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_q31049_fae_spirit_SpellScript::CorrectTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_q31049_fae_spirit_SpellScript();
+    }
+};
+
 void AddSC_quest_spell_scripts()
 {
+    new spell_q31049_fae_spirit();
     new spell_q55_sacred_cleansing();
     new spell_q5206_test_fetid_skull();
     new spell_q6124_6129_apply_salve();
