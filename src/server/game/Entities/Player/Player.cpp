@@ -5966,6 +5966,7 @@ void Player::SetSpecializationId(uint8 spec, uint32 id, bool loading)
         _talentMgr->SpecInfo[spec].SpecializationId = id;
 }
 
+
 uint32 Player::GetRoleForGroup(uint32 specializationId)
 {
     if (!specializationId)
@@ -29326,8 +29327,30 @@ void Player::ActivateSpec(uint8 spec)
         if (uint32 oldglyph = GetGlyph(GetActiveSpec(), slot))
             if (GlyphPropertiesEntry const* old_gp = sGlyphPropertiesStore.LookupEntry(oldglyph))
                 RemoveAurasDueToSpell(old_gp->SpellId);
+ 
+    float l_HPPct = GetHealthPct();
+
+    for (uint8 l_I = 0; l_I < INVENTORY_SLOT_BAG_END; ++l_I)
+    {
+        if (Item* l_Item = m_items[l_I])
+        {
+            _ApplyItemMods(l_Item, l_I, false);
+            RemoveItemsSetItem(this, l_Item->GetTemplate());
+        }
+    }
 
     SetActiveSpec(spec);
+    
+    for (uint8 l_I = 0; l_I < INVENTORY_SLOT_BAG_END; ++l_I)
+    {
+        if (Item* l_Item = m_items[l_I])
+        {
+            _ApplyItemMods(l_Item, l_I, true);
+            AddItemsSetItem(this, l_Item);
+        }
+    }
+        
+    SetHealth(GetMaxHealth() * l_HPPct / 100.f);
 
     uint32 usedTalentPoint = 0;
     for (auto itr : *GetTalentMap(GetActiveSpec()))
