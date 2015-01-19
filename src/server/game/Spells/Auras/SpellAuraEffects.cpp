@@ -1013,19 +1013,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 
                     break;
                 }
-                // Recuperate
-                case 73651:
-                {
-                    int32 heal_pct = amount * 1000;
-
-                    // Improved Recuperate
-                    if (constAuraEffectPtr aurEff = caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_ROGUE, 4819, 0))
-                        heal_pct += aurEff->GetAmount();
-
-                    amount = CalculatePct(caster->GetMaxHealth(), 0.001 * heal_pct);
-
-                    break;
-                }
                 default:
                     break;
             }
