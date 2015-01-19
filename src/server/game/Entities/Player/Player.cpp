@@ -6436,7 +6436,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
-            MS::Garrison::GarrisonMgr::Delete(playerguid, trans);
+            MS::Garrison::Manager::DeleteFromDB(playerguid, trans);
 
             CharacterDatabase.CommitTransaction(trans);
             break;
@@ -20362,7 +20362,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
 
     _LoadToyBox(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_TOYS));
 
-    MS::Garrison::GarrisonMgr * l_Garrison = new MS::Garrison::GarrisonMgr(this);
+    MS::Garrison::Manager * l_Garrison = new MS::Garrison::Manager(this);
 
     if (l_Garrison->Load(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_GARRISON), holder->GetPreparedResult(PLAYER_LOGIN_QUERY_GARRISON_BUILDINGS), holder->GetPreparedResult(PLAYER_LOGIN_QUERY_GARRISON_FOLLOWERS), holder->GetPreparedResult(PLAYER_LOGIN_QUERY_GARRISON_MISSIONS)))
         m_Garrison = l_Garrison;
@@ -31167,7 +31167,7 @@ uint32 Player::GetFreeReagentBankSlot() const
     return REAGENT_BANK_SLOT_BAG_END;
 }
 
-MS::Garrison::GarrisonMgr * Player::GetGarrison()
+MS::Garrison::Manager * Player::GetGarrison()
 {
     return m_Garrison;
 }
@@ -31177,7 +31177,7 @@ void Player::CreateGarrison()
     if (m_Garrison)
         return;
 
-    m_Garrison = new MS::Garrison::GarrisonMgr(this);
+    m_Garrison = new MS::Garrison::Manager(this);
     m_Garrison->Create();
 }
 
@@ -31198,7 +31198,7 @@ void Player::DeleteGarrison()
         return;
 
     SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
-    m_Garrison->Delete(GetGUID(), l_Transaction);
+    m_Garrison->DeleteFromDB(GetGUID(), l_Transaction);
     CharacterDatabase.CommitTransaction(l_Transaction);
 
     delete m_Garrison;

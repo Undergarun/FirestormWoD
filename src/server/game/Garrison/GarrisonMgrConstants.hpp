@@ -17,7 +17,7 @@
 #define GARRISON_CURRENCY_ID                    824
 #define GARRISON_MAX_FOLLOWER_LEVEL             100
 #define GARRISON_DEFAULT_MAX_ACTIVE_FOLLOW      20
-#define GARRISON_FOLLOWER_ACTIVATION_COST       2500000
+#define GARRISON_FOLLOWER_ACTIVATION_COST       (250 * GOLD)
 #define GARRISON_FOLLOWER_ACTIVATION_MAX_STACK  1
 #define GARRISON_CACHE_MAX_CURRENCY             500
 #define GARRISON_CACHE_HEFTY_CURRENCY           200
@@ -40,14 +40,14 @@ namespace MS { namespace Garrison
         GARRISON_MISSION_AVAILABLE              = 0,
         GARRISON_MISSION_IN_PROGRESS            = 1,
         GARRISON_MISSION_COMPLETE_SUCCESS       = 2,
-        GARRISON_MISSION_COMPLETE_FAILED        = 5,
+        GARRISON_MISSION_COMPLETE_FAILED        = 5
     };
 
     enum GarrisonMissionFlag
     {
         GARRISON_MISSION_FLAG_RARE          = 0x01,
         GARRISON_MISSION_FLAG_UNK_2         = 0x02,
-        GARRISON_MISSION_FLAG_EXHAUSTING    = 0x04,
+        GARRISON_MISSION_FLAG_EXHAUSTING    = 0x04
     };
 
     enum GarrisonLearnBluePrintResult
@@ -66,7 +66,7 @@ namespace MS { namespace Garrison
         GARRISON_PLOT_TYPE_MINE             = 4,
         GARRISON_PLOT_TYPE_FISHING_HUT      = 5,
         GARRISON_PLOT_TYPE_PET_MENAGERIE    = 6,
-        GARRISON_PLOT_TYPE_MAX              = 7,
+        GARRISON_PLOT_TYPE_MAX              = 7
     };
 
     enum GarrisonPurchaseBuildingResult
@@ -78,13 +78,13 @@ namespace MS { namespace Garrison
         GARRISON_PURCHASE_BUILDING_INVALID_PLOT_BUILDING    = 16,
         GARRISON_PURCHASE_BUILDING_REQUIRE_BLUE_PRINT       = 22,
         GARRISON_PURCHASE_BUILDING_NOT_ENOUGH_CURRENCY      = 46,
-        GARRISON_PURCHASE_BUILDING_NOT_ENOUGH_GOLD          = 47,
+        GARRISON_PURCHASE_BUILDING_NOT_ENOUGH_GOLD          = 47
     };
 
     enum GarrisonMissionBonusRollResult
     {
         GARRISON_MISSION_BONUS_ROLL_OK      = 0,
-        GARRISON_MISSION_BONUS_ROLL_ERROR   = 1,
+        GARRISON_MISSION_BONUS_ROLL_ERROR   = 1
     };
 
     enum GarrisonAbilityEffectType
@@ -106,21 +106,21 @@ namespace MS { namespace Garrison
         GARRISION_ABILITY_EFFECT_MOD_SILVER_TREASURE_DROP               = 14,   ///< @TODO
         GARRISION_ABILITY_EFFECT_MOD_GOLD_TREASURE_DROP                 = 15,   ///< @TODO
         GARRISION_ABILITY_EFFECT_MOD_CHEST_DROP_RATE                    = 16,   ///< @TODO
-        GARRISION_ABILITY_EFFECT_MOD_MISSION_DURATION                   = 17,   ///< Proc every time
+        GARRISION_ABILITY_EFFECT_MOD_MISSION_DURATION                   = 17    ///< Proc every time
     };
 
     enum GarrisonAbilityEffectTargetMask
     {
         GARRISON_ABILITY_EFFECT_TARGET_MASK_UNK   = 0 << 0,
         GARRISON_ABILITY_EFFECT_TARGET_MASK_SELF  = 1 << 0,
-        GARRISON_ABILITY_EFFECT_TARGET_MASK_PARTY = 1 << 1,
+        GARRISON_ABILITY_EFFECT_TARGET_MASK_PARTY = 1 << 1
     };
 
     enum GarrMechanicType
     {
         GARRISON_MECHANIC_TYPE_ENVIRONMENT  = 0,
         GARRISON_MECHANIC_TYPE_RACIAL       = 1,
-        GARRISON_MECHANIC_TYPE_ABILITY      = 2,
+        GARRISON_MECHANIC_TYPE_ABILITY      = 2
     };
 
     /// WorldState : See WorldState.dbc
@@ -144,7 +144,7 @@ namespace MS { namespace Garrison
         TERRAIN_SWAP_GARRISON_FF_HORDE_TIER_3     = 981,
         TERRAIN_SWAP_GARRISON_SMV_ALLIANCE_TIER_1 = 973,
         TERRAIN_SWAP_GARRISON_SMV_ALLIANCE_TIER_2 = 991,
-        TERRAIN_SWAP_GARRISON_SMV_ALLIANCE_TIER_3 = 974,
+        TERRAIN_SWAP_GARRISON_SMV_ALLIANCE_TIER_3 = 974
     };
 
     enum 
@@ -156,16 +156,16 @@ namespace MS { namespace Garrison
     enum GarrisonFollowerFlags
     {
         GARRISON_FOLLOWER_FLAG_EXHAUSTED    = 0x2,
-        GARRISON_FOLLOWER_FLAG_INACTIVE     = 0x4,
+        GARRISON_FOLLOWER_FLAG_INACTIVE     = 0x4
     };
 
-    static uint32 gGarrisonInGarrisonAreaID[GARRISON_FACTION_COUNT] =
+    static const uint32 gGarrisonInGarrisonAreaID[GARRISON_FACTION_COUNT] =
     {
         7004,   ///< Horde
         7078,   ///< Alliance
     };
 
-    static uint32 gGarrisonEmptyPlotGameObject[GARRISON_PLOT_TYPE_MAX * GARRISON_FACTION_COUNT] =
+    static const uint32 gGarrisonEmptyPlotGameObject[GARRISON_PLOT_TYPE_MAX * GARRISON_FACTION_COUNT] =
     {
         /// Horde
         233083,     ///< GARRISON_PLOT_TYPE_SMALL
@@ -182,10 +182,10 @@ namespace MS { namespace Garrison
         232286,     ///< GARRISON_PLOT_TYPE_FARM
         233485,     ///< GARRISON_PLOT_TYPE_MINE
         237223,     ///< GARRISON_PLOT_TYPE_FISHING_HUT
-        0,          ///< GARRISON_PLOT_TYPE_PET_MENAGERIE
+        0           ///< GARRISON_PLOT_TYPE_PET_MENAGERIE
     };
 
-    static uint32 gGarrisonBuildingPlotGameObject[GARRISON_PLOT_TYPE_MAX * GARRISON_FACTION_COUNT] =
+    static const uint32 gGarrisonBuildingPlotGameObject[GARRISON_PLOT_TYPE_MAX * GARRISON_FACTION_COUNT] =
     {
         /// Horde
         233958,     ///< GARRISON_PLOT_TYPE_SMALL
@@ -202,10 +202,10 @@ namespace MS { namespace Garrison
         232409,     ///< GARRISON_PLOT_TYPE_FARM          same as GARRISON_PLOT_TYPE_MEDIUM
         232409,     ///< GARRISON_PLOT_TYPE_MINE          same as GARRISON_PLOT_TYPE_MEDIUM
         233957,     ///< GARRISON_PLOT_TYPE_FISHING_HUT   same as GARRISON_PLOT_TYPE_SMALL
-        233957,     ///< GARRISON_PLOT_TYPE_PET_MENAGERIE same as GARRISON_PLOT_TYPE_SMALL
+        233957      ///< GARRISON_PLOT_TYPE_PET_MENAGERIE same as GARRISON_PLOT_TYPE_SMALL
     };
 
-    static float gGarrisonBuildingPlotAABBDiminishReturnFactor[GARRISON_PLOT_TYPE_MAX * GARRISON_FACTION_COUNT] =
+    static const float gGarrisonBuildingPlotAABBDiminishReturnFactor[GARRISON_PLOT_TYPE_MAX * GARRISON_FACTION_COUNT] =
     {
         /// Horde
         0,          ///< GARRISON_PLOT_TYPE_SMALL
@@ -222,16 +222,16 @@ namespace MS { namespace Garrison
         16,         ///< GARRISON_PLOT_TYPE_FARM          same as GARRISON_PLOT_TYPE_MEDIUM
         16,         ///< GARRISON_PLOT_TYPE_MINE          same as GARRISON_PLOT_TYPE_MEDIUM
         10,         ///< GARRISON_PLOT_TYPE_FISHING_HUT   same as GARRISON_PLOT_TYPE_SMALL
-        10,         ///< GARRISON_PLOT_TYPE_PET_MENAGERIE same as GARRISON_PLOT_TYPE_SMALL
+        10          ///< GARRISON_PLOT_TYPE_PET_MENAGERIE same as GARRISON_PLOT_TYPE_SMALL
     };
 
-    static uint32 gGarrisonBuildingActivationGameObject[GARRISON_FACTION_COUNT] =
+    static const uint32 gGarrisonBuildingActivationGameObject[GARRISON_FACTION_COUNT] =
     {
         233248,     ///< Horde
         233250      ///< Alliance
     };
 
-    static GarrisonPlotInstanceInfoLocation gGarrisonPlotInstanceInfoLocation[GARRISON_PLOT_INSTANCE_COUNT] = 
+    static const GarrisonPlotInstanceInfoLocation gGarrisonPlotInstanceInfoLocation[GARRISON_PLOT_INSTANCE_COUNT] =
     {
         /// SiteLevelID PlotInstanceID      X            Y            Z           O
         /// Alliance Level 1
@@ -282,7 +282,8 @@ namespace MS { namespace Garrison
         {     259,          81,         5626.042f,   4660.6960f,   142.45800f,  -1.9024090f  }
     };
 
-    static GarrisonCacheInfoLocation gGarrisonCacheInfoLocation[GARRISON_FACTION_COUNT * GARRISON_MAX_LEVEL] =
+    /// Cache game object position for each faction / level
+    static const GarrisonCacheInfoLocation gGarrisonCacheInfoLocation[GARRISON_FACTION_COUNT * GARRISON_MAX_LEVEL] =
     {
         /// SiteLevelID         X           Y          Z         O
         /// Horde Level 1
@@ -296,10 +297,11 @@ namespace MS { namespace Garrison
         /// Alliance Level 2
         {     444,             0.f,        0.f,       0.f,      0.f        },
         /// Alliance Level 3
-        {       6,             0.f,        0.f,       0.f,      0.f        },
+        {       6,             0.f,        0.f,       0.f,      0.f        }
     };
 
-    static uint32 gGarrisonCacheGameObjectID[GARRISON_FACTION_COUNT * 3] =
+    /// Cache game object entry for each faction / state
+    static const uint32 gGarrisonCacheGameObjectID[GARRISON_FACTION_COUNT * 3] =
     {
         /// Horde
         237191,         ///< Normal
@@ -308,7 +310,7 @@ namespace MS { namespace Garrison
         /// Alliance
         236916,         ///< Normal
         237723,         ///< Hefty
-        237724,         ///< Full
+        237724          ///< Full
     };
 
 }   ///< namespace Garrison

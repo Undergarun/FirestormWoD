@@ -18,14 +18,12 @@ namespace MS { namespace Garrison
         float O;
     };
 
-
     struct GarrisonCacheInfoLocation
     {
         uint32 SiteLevelID;
         float X, Y, Z;
         float O;
     };
-
 
     struct GarrisonMissionReward
     {

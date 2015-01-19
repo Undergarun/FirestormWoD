@@ -27,7 +27,7 @@ namespace MS { namespace Garrison
     {
         GARRISON_INSTANCE_DATA_PEON_ENABLED = 99,
         GARRISON_INSTANCE_DATA_THREE_FIRST  = 100,
-        GARRISON_INSTANCE_DATA_THREE_END    = 110,
+        GARRISON_INSTANCE_DATA_THREE_END    = 110
     };
 
     /// Garrison common spells
@@ -38,7 +38,7 @@ namespace MS { namespace Garrison
         SPELL_LEFT_ROPE                        = 164400,
         SPELL_RIGHT_ROPE                       = 164422,
         SPELL_COMESTIC_SLEEP                   = 162907,
-        SPELL_GARRISON_ORC_MALE_CARRYNG_LUMBER = 161329,
+        SPELL_GARRISON_ORC_MALE_CARRYNG_LUMBER = 161329
     };
 
     /// Garrison Quests
@@ -53,7 +53,7 @@ namespace MS { namespace Garrison
         /// Horde
         QUEST_ETABLISH_YOUR_GARRISON_H  = 34378,
         QUEST_WHAT_WE_GOT               = 34824,
-        QUEST_BUILD_YOUR_BARRACKS       = 34461,
+        QUEST_BUILD_YOUR_BARRACKS       = 34461
     };
 
     /// Garrison achievement related
@@ -71,6 +71,8 @@ namespace MS { namespace Garrison
         NPC_SENIOR_PEON_II                              = 86775,
         NPC_FROSTWALL_PEON_DYNAMIC                      = 79605,
         NPC_GASLOWE                                     = 78466,
+        NPC_ASSISTANT_BRIGHTSTONE                       = 84455,
+        NPC_SKAGGIT                                     = 80225
     };
 
     /// NPC texts id
@@ -83,7 +85,7 @@ namespace MS { namespace Garrison
         NPC_TEXT_SHELLY_HAMBY_TEXT_QUEST             = 83505,
         NPC_TEXT_LADY_SENA                           = 82232,
         NPC_TEXT_SERGENT_GRIMJAW                     = 84128,
-        NPC_TEXT_SENIOR_PEON_II                      = 88704,
+        NPC_TEXT_SENIOR_PEON_II                      = 88704
     };
 
     /// Creature text index
@@ -96,14 +98,14 @@ namespace MS { namespace Garrison
         CREATURE_TEXT_BAROS_SHIP_SALVAGE_END_CHAT                 = 4,
         CREATURE_TEXT_VINDICATOR_MARAAD_PALE_MOONLIGHT_START_CHAT = 0,
         CREATURE_TEXT_VINDICATOR_MARAAD_PALE_MOONLIGHT_END_CHAT   = 1,
-        CREATURE_TEXT_SENIOR_PEON_II_WHAT_WE_GOT                  = 0,
+        CREATURE_TEXT_SENIOR_PEON_II_WHAT_WE_GOT                  = 0
     };
 
     /// Items
     enum Items
     {
         ITEM_SHELLY_HAMBY_REPORT                = 112730,
-        ITEM_GARRISON_BLUEPRINT_BARRACKS_LEVEL1 = 111956,
+        ITEM_GARRISON_BLUEPRINT_BARRACKS_LEVEL1 = 111956
     };
 
     /// Waypoints
@@ -125,15 +127,21 @@ namespace MS { namespace Garrison
         MOVE_POINT_GAZLOWE_BARRACK_A = 0
     };
 
+    /// Buildings IDs
+    enum Buildings
+    {
+        BUILDING_BARRACK = 26
+    };
+
     /// Garrison creation coords
-    static float gGarrisonCreationCoords[][4] =
+    static const float gGarrisonCreationCoords[][4] =
     {
         { 1766.761475f,  191.2846830f,  72.115326f, 0.4649370f },   ///< TEAM_ALLIANCE
         { 5698.020020f, 4512.1635574f, 127.401695f, 2.8622720f }    ///< TEAM_HORDE
     };
 
     /// Garrison hearthstone teleport coords
-    static float gGarrisonHearthStoneTeleportCoord[][4] =
+    static const float gGarrisonHearthStoneTeleportCoord[][4] =
     {
         /// Horde
         { 5561.15f,  4508.785f, 132.70f,    3.406f   }, ///< Horde Level 1
@@ -142,7 +150,7 @@ namespace MS { namespace Garrison
         /// Alliance
         { 1850.71f,   254.430f,  78.08300f, 1.76f    }, ///< Alliance Level 1
         { 1947.08f,   324.883f,  90.28076f, 0.00f    }, ///< Alliance Level 2
-        {    0.f,       0.f,      0.f,      0.00f    }, ///< Alliance Level 3
+        {    0.f,       0.f,      0.f,      0.00f    }  ///< Alliance Level 3
     };
 
     namespace HordePeonData 
@@ -171,11 +179,10 @@ namespace MS { namespace Garrison
             WOODCUTTING_TIME            = 30 * IN_MILLISECONDS,
             WOODCUTTING_DISENGAGE_TIME  =  2 * IN_MILLISECONDS,
 
-            WOODCUTTING_MAX_CYLE_COUNT  = 1,//4
-
+            WOODCUTTING_MAX_CYLE_COUNT  = 1    /// Unk retail value range 1 := 4
         };
 
-        static float FrostWallTreePos[][4] =
+        static const float FrostWallTreePos[][4] =
         {
             { 5543.7100f, 4600.020f, 142.000f, 2.8211f },
             { 5558.2724f, 4608.380f, 138.500f, 1.8433f },
@@ -187,7 +194,7 @@ namespace MS { namespace Garrison
             { 5561.4848f, 4616.658f, 139.720f, 2.8347f }
         };
 
-        static float FrostWallWoodCuttingA[3] =
+        static const float FrostWallWoodCuttingA[3] =
         {
             5572.927f, 4602.003f, 136.58f
         };

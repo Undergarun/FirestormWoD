@@ -16,6 +16,7 @@
 
 #include "Interfaces/Interface_GarrisonSite.hpp"
 
+/// This macro enabled compilation of debug code in Dev env
 #ifdef _MSC_VER
     #define GARRISON_CHEST_FORMULA_DEBUG 1
 #endif
@@ -23,11 +24,11 @@
 namespace MS { namespace Garrison 
 {
     /// Garrison manager class
-    class GarrisonMgr
+    class Manager
     {
         public:
             /// Constructor
-            GarrisonMgr(Player * p_Owner);
+            Manager(Player * p_Owner);
 
             /// Create the garrison
             void Create();
@@ -36,7 +37,7 @@ namespace MS { namespace Garrison
             /// Save this garrison to DB
             void Save();
             /// Delete garrison
-            static void Delete(uint64 p_PlayerGUID, SQLTransaction p_Transation);
+            static void DeleteFromDB(uint64 p_PlayerGUID, SQLTransaction p_Transation);
 
             /// Update the garrison
             void Update();
