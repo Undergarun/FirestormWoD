@@ -48,7 +48,7 @@
 #include "DB2Stores.h"
 #include "Configuration/Config.h"
 #include "VMapFactory.h"
-#include "Garrison.h"
+#include "GarrisonMgr.hpp"
 
 ScriptMapMap sQuestEndScripts;
 ScriptMapMap sQuestStartScripts;

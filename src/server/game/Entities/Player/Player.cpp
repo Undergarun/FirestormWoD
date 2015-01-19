@@ -82,7 +82,7 @@
 #include "TicketMgr.h"
 #include "UpdateFieldFlags.h"
 #include "SceneObject.h"
-#include "Garrison.h"
+#include "GarrisonMgr.hpp"
 #include "PetBattle.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
@@ -4744,7 +4744,7 @@ bool Player::AddTalent(uint32 spellId, uint8 spec, bool learning)
     return false;
 }
 
-bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading /*= false*/)
+bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading /*= false*/, bool p_IsMountFavorite)
 {
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
@@ -4946,6 +4946,7 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
         newspell->active    = active;
         newspell->dependent = dependent;
         newspell->disabled  = disabled;
+        newspell->IsMountFavorite = p_IsMountFavorite;
 
         // replace spells in action bars and spellbook to bigger rank if only one spell rank must be accessible
         if (newspell->active && !newspell->disabled && !spellInfo->IsStackableWithRanks() && spellInfo->IsRanked() != 0)
@@ -6431,7 +6432,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
-            Garrison::Delete(playerguid, trans);
+            MS::Garrison::Manager::DeleteFromDB(playerguid, trans);
 
             CharacterDatabase.CommitTransaction(trans);
             break;
@@ -9430,7 +9431,7 @@ void Player::UpdateArea(uint32 newArea)
 
                 const GarrSiteLevelEntry * l_GarrisonSiteEntry = m_Garrison->GetGarrisonSiteLevelEntry();
 
-                if (l_DraenorBaseMap_Area != gGarrisonInGarrisonAreaID[m_Garrison->GetGarrisonFactionIndex()] && GetMapId() == l_GarrisonSiteEntry->MapID)
+                if (l_DraenorBaseMap_Area != MS::Garrison::gGarrisonInGarrisonAreaID[m_Garrison->GetGarrisonFactionIndex()] && GetMapId() == l_GarrisonSiteEntry->MapID)
                 {
                     m_Garrison->OnPlayerLeave();
                     m_Garrison->_SetGarrisonScript(nullptr);
@@ -9439,7 +9440,7 @@ void Player::UpdateArea(uint32 newArea)
                     phaseMgr.Update();
                     phaseMgr.ForceMapShiftUpdate();
                 }
-                else if (l_DraenorBaseMap_Area == gGarrisonInGarrisonAreaID[m_Garrison->GetGarrisonFactionIndex()] && GetMapId() == GARRISON_BASE_MAP)
+                else if (l_DraenorBaseMap_Area == MS::Garrison::gGarrisonInGarrisonAreaID[m_Garrison->GetGarrisonFactionIndex()] && GetMapId() == GARRISON_BASE_MAP)
                 {
                     Difficulty l_DungeonDiff = REGULAR_5_DIFFICULTY;
                     std::swap(l_DungeonDiff, m_dungeonDifficulty);
@@ -18048,6 +18049,9 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
 
     sScriptMgr->OnQuestReward(this, p_Quest);
 
+    if (m_Garrison && IsInGarrison())
+        m_Garrison->OnQuestReward(p_Quest);
+
     if (p_Quest->GetZoneOrSort() > 0)
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_IN_ZONE, p_Quest->GetZoneOrSort());
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST_COUNT);
@@ -20141,7 +20145,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
 
             }
 
-            addSpell((*accountResult)[0].GetUInt32(), (*accountResult)[1].GetBool(), false, false, (*accountResult)[2].GetBool(), true);
+            addSpell((*accountResult)[0].GetUInt32(), (*accountResult)[1].GetBool(), false, false, (*accountResult)[2].GetBool(), true, (*accountResult)[3].GetBool());
         }
         while (accountResult->NextRow());
     }
@@ -20354,7 +20358,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
 
     _LoadToyBox(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_TOYS));
 
-    Garrison * l_Garrison = new Garrison(this);
+    MS::Garrison::Manager * l_Garrison = new MS::Garrison::Manager(this);
 
     if (l_Garrison->Load(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_GARRISON), holder->GetPreparedResult(PLAYER_LOGIN_QUERY_GARRISON_BUILDINGS), holder->GetPreparedResult(PLAYER_LOGIN_QUERY_GARRISON_FOLLOWERS), holder->GetPreparedResult(PLAYER_LOGIN_QUERY_GARRISON_MISSIONS)))
         m_Garrison = l_Garrison;
@@ -21346,7 +21350,7 @@ void Player::_LoadSpells(PreparedQueryResult result)
 
             }
 
-            addSpell(fields[0].GetUInt32(), fields[1].GetBool(), false, false, fields[2].GetBool(), true);
+            addSpell(fields[0].GetUInt32(), fields[1].GetBool(), false, false, fields[2].GetBool(), true, fields[3].GetBool());
         }
         while (result->NextRow());
     }
@@ -22838,6 +22842,7 @@ void Player::_SaveSpells(SQLTransaction& charTrans, SQLTransaction& accountTrans
                     stmt->setUInt32(1, itr->first);
                     stmt->setBool(2, itr->second->active);
                     stmt->setBool(3, itr->second->disabled);
+                    stmt->setBool(4, itr->second->IsMountFavorite);
                     accountTrans->Append(stmt);
                 }
                 else
@@ -22847,6 +22852,7 @@ void Player::_SaveSpells(SQLTransaction& charTrans, SQLTransaction& accountTrans
                     stmt->setUInt32(1, itr->first);
                     stmt->setBool(2, itr->second->active);
                     stmt->setBool(3, itr->second->disabled);
+                    stmt->setBool(4, itr->second->IsMountFavorite);
                     charTrans->Append(stmt);
                 }
             }
@@ -26141,6 +26147,37 @@ void Player::SendInitialPacketsAfterAddToMap()
 
     if (IsInGarrison())
         m_Garrison->OnPlayerEnter();
+
+    std::map<uint32, bool> l_MountSpells;
+    for (PlayerSpellMap::iterator l_It = m_spells.begin(); l_It != m_spells.end(); l_It++)
+    {
+        if (!l_It->second)
+            continue;
+
+        if (const SpellInfo * spell = sSpellMgr->GetSpellInfo(l_It->first))
+        {
+            if (spell->IsAbilityOfSkillType(SKILL_MOUNT) || spell->AttributesEx10 & SPELL_ATTR10_MOUNT_CHARACTER)
+            {
+                l_MountSpells[l_It->first] = l_It->second->IsMountFavorite;
+            }
+        }
+    }
+
+     WorldPacket l_Data(SMSG_ACCOUNT_MOUNT_UPDATE);
+     l_Data.WriteBit(true);                      ///< Is full update
+     l_Data.FlushBits();
+     l_Data << uint32(l_MountSpells.size());
+     l_Data << uint32(l_MountSpells.size());
+ 
+     for (auto l_Pair : l_MountSpells)
+         l_Data << uint32(l_Pair.first);
+ 
+     for (auto l_Pair : l_MountSpells)
+         l_Data.WriteBit(l_Pair.second);
+ 
+     l_Data.FlushBits();
+ 
+     SendDirectMessage(&l_Data);
 }
 
 void Player::SendUpdateToOutOfRangeGroupMembers()
@@ -28222,6 +28259,8 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, uint8 linkedLootSlot)
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, item->itemid, item->count);
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE, loot->Type, item->count);
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM, item->itemid, item->count);
+
+        sScriptMgr->OnPlayerItemLooted(this, newitem);
     }
     else
         SendEquipError(msg, NULL, NULL, item->itemid);
@@ -29328,6 +29367,27 @@ uint32 Player::GetReputation(uint32 factionentry)
 std::string Player::GetGuildName()
 {
     return GetGuildId() ? sGuildMgr->GetGuildById(GetGuildId())->GetName() : "";
+}
+
+void Player::MountSetFavorite(uint32 p_SpellID, bool p_IsFavorite)
+{
+    if (m_spells.find(p_SpellID) == m_spells.end())
+        return;
+
+    m_spells[p_SpellID]->IsMountFavorite = p_IsFavorite;
+    m_spells[p_SpellID]->state = PLAYERSPELL_CHANGED;
+
+    WorldPacket l_Data(SMSG_ACCOUNT_MOUNT_UPDATE);
+    l_Data.WriteBit(false); ///< Is full update
+    l_Data.FlushBits();
+    l_Data << uint32(1);    ///< One update
+    l_Data << uint32(1);    ///< One update
+
+    l_Data << uint32(p_SpellID);
+    l_Data.WriteBit(p_IsFavorite);
+    l_Data.FlushBits();
+
+    SendDirectMessage(&l_Data);
 }
 
 void Player::SendDuelCountdown(uint32 p_Coutdown)
@@ -31157,7 +31217,7 @@ uint32 Player::GetFreeReagentBankSlot() const
     return REAGENT_BANK_SLOT_BAG_END;
 }
 
-Garrison * Player::GetGarrison()
+MS::Garrison::Manager * Player::GetGarrison()
 {
     return m_Garrison;
 }
@@ -31167,7 +31227,7 @@ void Player::CreateGarrison()
     if (m_Garrison)
         return;
 
-    m_Garrison = new Garrison(this);
+    m_Garrison = new MS::Garrison::Manager(this);
     m_Garrison->Create();
 }
 
@@ -31188,7 +31248,7 @@ void Player::DeleteGarrison()
         return;
 
     SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
-    m_Garrison->Delete(GetGUID(), l_Transaction);
+    m_Garrison->DeleteFromDB(GetGUID(), l_Transaction);
     CharacterDatabase.CommitTransaction(l_Transaction);
 
     delete m_Garrison;

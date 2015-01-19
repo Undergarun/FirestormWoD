@@ -2394,3 +2394,17 @@ void WorldSession::HandleSaveCUFProfiles(WorldPacket& p_RecvPacket)
 
     CharacterDatabase.CommitTransaction(l_Transaction);
 }
+
+void WorldSession::HandleMountSetFavoriteOpcode(WorldPacket & p_Packet)
+{
+    uint32  l_MountSpellID = 0;
+    bool    l_IsFavorite   = false;
+
+    p_Packet >> l_MountSpellID;
+    l_IsFavorite = p_Packet.ReadBit();
+
+    if (!m_Player)
+        return;
+
+    m_Player->MountSetFavorite(l_MountSpellID, l_IsFavorite);
+}
