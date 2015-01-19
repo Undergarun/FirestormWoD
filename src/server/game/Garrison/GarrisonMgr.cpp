@@ -36,6 +36,11 @@ namespace MS { namespace Garrison
             case GARRISON_FACTION_HORDE:
                 m_GarrisonSiteID = 71;
                 break;
+
+            default:
+                ASSERT(false);
+                break;
+
         }
     }
 
@@ -382,6 +387,10 @@ namespace MS { namespace Garrison
                 }
             });
 
+            /// Garrison ability
+            if (!m_Owner->HasSpell(GARRISON_SPELL_GARR_ABILITY))
+                m_Owner->learnSpell(GARRISON_SPELL_GARR_ABILITY, false);
+
             return true;
         }
 
@@ -520,6 +529,8 @@ namespace MS { namespace Garrison
         UpdateCache();
         /// Update mission distribution
         UpdateMissionDistribution();
+        /// Update garrison ability
+        UpdateGarrisonAbility();
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -1369,8 +1380,6 @@ namespace MS { namespace Garrison
 
         for (auto l_Item : m_PendingMissionReward.RewardItems)
             m_Owner->AddItem(l_Item.first, l_Item.second);
-
-        const GarrMissionEntry * l_MissionTemplate = sGarrMissionStore.LookupEntry(p_MissionRecID);
 
         std::vector<GarrisonFollower*> l_MissionFollowers;
 
@@ -2918,7 +2927,7 @@ namespace MS { namespace Garrison
             {
                 /// Get display ID
                 uint32 l_DisplayIDOffset    = l_NumRessourceGenerated == GARRISON_CACHE_MAX_CURRENCY ? 2 : ((l_NumRessourceGenerated > GARRISON_CACHE_HEFTY_CURRENCY) ? 1 : 0);
-                uint32 l_DisplayID          = gGarrisonCacheGameObjectID[(GetGarrisonFactionIndex() * 3) + l_DisplayIDOffset];
+                const uint32 & l_DisplayID  = gGarrisonCacheGameObjectID[(GetGarrisonFactionIndex() * GARRISON_MAX_LEVEL) + l_DisplayIDOffset];
 
                 /// Destroy old cache if exist
                 GameObject * l_Cache = HashMapHolder<GameObject>::Find(m_CacheGameObjectGUID);
@@ -2935,7 +2944,7 @@ namespace MS { namespace Garrison
                 if (m_Owner->IsInGarrison())
                 {
                     /// Extract new location
-                    GarrisonCacheInfoLocation & l_Location = gGarrisonCacheInfoLocation[(GetGarrisonFactionIndex() * GARRISON_MAX_LEVEL) + (m_GarrisonLevel - 1)];
+                    const GarrisonCacheInfoLocation & l_Location = gGarrisonCacheInfoLocation[(GetGarrisonFactionIndex() * GARRISON_MAX_LEVEL) + (m_GarrisonLevel - 1)];
                     l_Cache = m_Owner->SummonGameObject(l_DisplayID, l_Location.X, l_Location.Y, l_Location.Z, l_Location.O, 0, 0, 0, 0, 0);
 
                     if (l_Cache)
@@ -3039,6 +3048,33 @@ namespace MS { namespace Garrison
 
             m_MissionDistributionLastUpdate = time(0);
         }
+    }
+    /// Update garrison ability
+    void GarrisonMgr::UpdateGarrisonAbility()
+    {
+        if (!m_Owner->IsInWorld())
+            return;
+
+        uint32 l_AbilityOverrideSpellID = 0;
+
+        switch (GetGarrisonFactionIndex())
+        {
+            case GARRISON_FACTION_ALLIANCE:
+                l_AbilityOverrideSpellID = GARRISON_SPELL_GARR_ABILITY_ALLIANCE_BASE;
+                break;
+
+            case GARRISON_FACTION_HORDE:
+                l_AbilityOverrideSpellID = GARRISON_SPELL_GARR_ABILITY_HORDE_BASE;
+                break;
+
+            default:
+                ASSERT(false);
+                break;
+
+        }
+
+        if (!m_Owner->HasAura(l_AbilityOverrideSpellID))
+            m_Owner->AddAura(l_AbilityOverrideSpellID, m_Owner);
     }
 
 }   ///< namespace Garrison

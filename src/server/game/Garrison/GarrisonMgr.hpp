@@ -193,6 +193,8 @@ namespace MS { namespace Garrison
             void UpdateCache();
             /// Update mission distribution
             void UpdateMissionDistribution();
+            /// Update garrison ability
+            void UpdateGarrisonAbility();
 
         private:
             Player *    m_Owner;            ///< Garrison owner

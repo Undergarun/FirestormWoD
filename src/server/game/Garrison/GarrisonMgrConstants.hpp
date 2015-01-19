@@ -129,6 +129,13 @@ namespace MS { namespace Garrison
         GARRISON_WORLD_STATE_CACHE_NUM_TOKEN = 9573
     };
 
+    enum GarrisonAbilitySpells
+    {
+        GARRISON_SPELL_GARR_ABILITY                 = 161691,
+        GARRISON_SPELL_GARR_ABILITY_HORDE_BASE      = 161693,
+        GARRISON_SPELL_GARR_ABILITY_ALLIANCE_BASE   = 161694,
+    };
+
     /// TerrainSwap : See WorldMapArea.dbc
     enum
     {
