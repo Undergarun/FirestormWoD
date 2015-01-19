@@ -149,11 +149,11 @@ class MapManager
 
         MapUpdater * GetMapUpdater() { return &m_updater; }
 
-        void AddDelayedOperation(std::function<void()> const&& p_Function)
+        void AddCriticalOperation(std::function<void()> const&& p_Function)
         {
-            m_DelayedOperationLock.acquire();
-            m_DelayedOperation.push(std::function<void()>(p_Function));
-            m_DelayedOperationLock.release();
+            m_CriticalOperationLock.acquire();
+            m_CriticalOperation.push(std::function<void()>(p_Function));
+            m_CriticalOperationLock.release();
         }
 
     private:
@@ -187,8 +187,8 @@ class MapManager
         MapUpdater m_updater;
         bool m_mapDiffLimit;
 
-        std::queue<std::function<void()>> m_DelayedOperation;
-        ACE_Thread_Mutex m_DelayedOperationLock;
+        std::queue<std::function<void()>> m_CriticalOperation;
+        ACE_Thread_Mutex m_CriticalOperationLock;
 };
 #define sMapMgr ACE_Singleton<MapManager, ACE_Thread_Mutex>::instance()
 #endif

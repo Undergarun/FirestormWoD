@@ -9435,7 +9435,7 @@ void Player::UpdateArea(uint32 newArea)
 
                 if (l_DraenorBaseMap_Area != MS::Garrison::gGarrisonInGarrisonAreaID[m_Garrison->GetGarrisonFactionIndex()] && GetMapId() == l_GarrisonSiteEntry->MapID)
                 {
-                    sMapMgr->AddDelayedOperation([l_Guid]() -> void
+                    sMapMgr->AddCriticalOperation([l_Guid]() -> void
                     {
                         Player * l_Player = sObjectAccessor->FindPlayer(l_Guid);
 
@@ -9445,7 +9445,7 @@ void Player::UpdateArea(uint32 newArea)
                 }
                 else if (l_DraenorBaseMap_Area == MS::Garrison::gGarrisonInGarrisonAreaID[m_Garrison->GetGarrisonFactionIndex()] && GetMapId() == GARRISON_BASE_MAP)
                 {
-                    sMapMgr->AddDelayedOperation([l_Guid]() -> void
+                    sMapMgr->AddCriticalOperation([l_Guid]() -> void
                     {
                         Player * l_Player = sObjectAccessor->FindPlayer(l_Guid);
 
