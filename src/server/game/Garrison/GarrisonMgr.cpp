@@ -98,6 +98,10 @@ namespace MS { namespace Garrison
                     AddFollower(l_SpellInfo->Effects[EFFECT_0].MiscValue);
             }
         }
+
+        /// Garrison ability
+        if (!m_Owner->HasSpell(GARRISON_SPELL_GARR_ABILITY))
+            m_Owner->learnSpell(GARRISON_SPELL_GARR_ABILITY, false);
     }
     /// Load
     bool Manager::Load(PreparedQueryResult p_GarrisonResult, PreparedQueryResult p_BuildingsResult, PreparedQueryResult p_FollowersResult, PreparedQueryResult p_MissionsResult)
@@ -3050,7 +3054,7 @@ namespace MS { namespace Garrison
         }
     }
     /// Update garrison ability
-    void GarrisonMgr::UpdateGarrisonAbility()
+    void Manager::UpdateGarrisonAbility()
     {
         if (!m_Owner->IsInWorld())
             return;
@@ -3073,8 +3077,16 @@ namespace MS { namespace Garrison
 
         }
 
-        if (!m_Owner->HasAura(l_AbilityOverrideSpellID))
-            m_Owner->AddAura(l_AbilityOverrideSpellID, m_Owner);
+        if (m_Owner->IsInGarrison() || m_Owner->GetMapId() == GARRISON_BASE_MAP)
+        {
+            if (!m_Owner->HasAura(l_AbilityOverrideSpellID))
+                m_Owner->AddAura(l_AbilityOverrideSpellID, m_Owner);
+        }
+        else
+        {
+            if (m_Owner->HasAura(l_AbilityOverrideSpellID))
+                m_Owner->RemoveAura(l_AbilityOverrideSpellID);
+        }
     }
 
 }   ///< namespace Garrison
