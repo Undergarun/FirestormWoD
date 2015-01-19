@@ -2937,7 +2937,7 @@ namespace MS { namespace Garrison
             {
                 /// Get display ID
                 uint32 l_DisplayIDOffset    = l_NumRessourceGenerated == GARRISON_CACHE_MAX_CURRENCY ? 2 : ((l_NumRessourceGenerated > GARRISON_CACHE_HEFTY_CURRENCY) ? 1 : 0);
-                uint32 l_DisplayID  = gGarrisonCacheGameObjectID[(GetGarrisonFactionIndex() * GARRISON_MAX_LEVEL) + l_DisplayIDOffset];
+                const uint32 & l_DisplayID  = gGarrisonCacheGameObjectID[(GetGarrisonFactionIndex() * GARRISON_MAX_LEVEL) + l_DisplayIDOffset];
 
                 /// Destroy old cache if exist
                 GameObject * l_Cache = HashMapHolder<GameObject>::Find(m_CacheGameObjectGUID);
@@ -2954,7 +2954,7 @@ namespace MS { namespace Garrison
                 if (m_Owner->IsInGarrison())
                 {
                     /// Extract new location
-                    GarrisonCacheInfoLocation l_Location = gGarrisonCacheInfoLocation[(GetGarrisonFactionIndex() * GARRISON_MAX_LEVEL) + (m_GarrisonLevel - 1)];
+                    const GarrisonCacheInfoLocation & l_Location = gGarrisonCacheInfoLocation[(GetGarrisonFactionIndex() * GARRISON_MAX_LEVEL) + (m_GarrisonLevel - 1)];
                     l_Cache = m_Owner->SummonGameObject(l_DisplayID, l_Location.X, l_Location.Y, l_Location.Z, l_Location.O, 0, 0, 0, 0, 0);
 
                     if (l_Cache)
