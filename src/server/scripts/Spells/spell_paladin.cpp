@@ -131,7 +131,9 @@ enum PaladinSpells
     PALADIN_SPELL_GLYPH_OF_TEMPLAR_VERDICT      = 54926,
     PALADIN_SPELL_GLYPH_OF_TEMPLAR_VERDICT_PROC = 115668,
     PALADIN_SPELL_GLYPH_OF_DIVINE_SHIELD        = 146956,
-    PALADIN_SPELL_IMPROVED_DAYBREAK             = 157455
+    PALADIN_SPELL_IMPROVED_DAYBREAK             = 157455,
+    PALADIN_SPELL_FLASH_OF_LIGHT                = 19750,
+    PALADIN_SPELL_HOLY_LIGHT                    = 13952
 };
 
 // Glyph of devotion aura - 146955
@@ -2145,8 +2147,49 @@ public:
     }
 };
 
+// Enhanced Holy Shock - 157478
+class spell_pal_enhanced_holy_shock : public SpellScriptLoader
+{
+public:
+    spell_pal_enhanced_holy_shock() : SpellScriptLoader("spell_pal_enhanced_holy_shock") { }
+
+    class spell_pal_enhanced_holy_shock_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pal_enhanced_holy_shock_AuraScript);
+
+        void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+        {
+            PreventDefaultAction();
+
+            Unit* l_Caster = GetCaster();
+            if (!l_Caster)
+                return;
+
+            if (p_EventInfo.GetActor()->GetGUID() != l_Caster->GetGUID())
+                return;
+
+            if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != PALADIN_SPELL_FLASH_OF_LIGHT && p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != PALADIN_SPELL_HOLY_LIGHT)
+                return;
+
+            l_Caster->CastSpell(l_Caster, PALADIN_ENHANCED_HOLY_SHOCK_PROC, true);
+        }
+
+        void Register()
+        {
+            OnEffectProc += AuraEffectProcFn(spell_pal_enhanced_holy_shock_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_pal_enhanced_holy_shock_AuraScript();
+    }
+};
+
+
 void AddSC_paladin_spell_scripts()
 {
+    new spell_pal_enhanced_holy_shock();
     new spell_pal_light_of_dawn();
     new spell_pal_word_of_glory_damage();
     new spell_pal_word_of_glory_heal();
