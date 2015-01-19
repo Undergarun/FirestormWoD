@@ -149,10 +149,10 @@ class MapManager
 
         MapUpdater * GetMapUpdater() { return &m_updater; }
 
-        void AddDelayedOperation(std::function<void()> & p_Function)
+        void AddDelayedOperation(std::function<void()> const&& p_Function)
         {
             m_DelayedOperationLock.acquire();
-            m_DelayedOperation.push(p_Function);
+            m_DelayedOperation.push(std::function<void()>(p_Function));
             m_DelayedOperationLock.release();
         }
 
