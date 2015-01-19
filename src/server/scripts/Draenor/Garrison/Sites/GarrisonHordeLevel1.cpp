@@ -88,7 +88,7 @@ namespace MS { namespace Garrison { namespace Sites
             }
         }
 
-        if ((p_Owner->GetQuestStatus(Quests::QUEST_WHAT_WE_GOT) == QUEST_STATUS_INCOMPLETE || p_Owner->GetQuestObjectiveCounter(275373) == 1) && !m_CreaturesPerEntry[NPCs::NPC_SENIOR_PEON_II].empty())
+        if (p_Owner->GetQuestObjectiveCounter(275373) == 1 && !m_CreaturesPerEntry[NPCs::NPC_SENIOR_PEON_II].empty())
         {
             Creature * l_Creature = HashMapHolder<Creature>::Find(*(m_CreaturesPerEntry[NPCs::NPC_SENIOR_PEON_II].begin()));
 
