@@ -296,8 +296,6 @@ void MapManager::Update(uint32 diff)
         iter->second->DelayedUpdate(uint32(i_timer.GetCurrent()));
 
     sObjectAccessor->Update(uint32(i_timer.GetCurrent()));
-
-    m_CriticalOperationLock.acquire();
     
     while (!m_CriticalOperation.empty())
     {
@@ -306,8 +304,6 @@ void MapManager::Update(uint32 diff)
 
         m_CriticalOperation.pop();
     }
-
-    m_CriticalOperationLock.release();
 
     i_timer.SetCurrent(0);
 }

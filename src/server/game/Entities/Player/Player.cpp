@@ -2957,6 +2957,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     return true;
 }
 
+/// MUST be call with "sMapMgr::AddCriticalOperation"
 void Player::SwitchToPhasedMap(uint32 p_MapID)
 {
     MapEntry const* l_MapEntry = sMapStore.LookupEntry(p_MapID);
