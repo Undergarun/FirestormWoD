@@ -9431,31 +9431,65 @@ void Player::UpdateArea(uint32 newArea)
 
                 const GarrSiteLevelEntry * l_GarrisonSiteEntry = m_Garrison->GetGarrisonSiteLevelEntry();
 
+                uint64 l_Guid = GetGUID();
+
                 if (l_DraenorBaseMap_Area != MS::Garrison::gGarrisonInGarrisonAreaID[m_Garrison->GetGarrisonFactionIndex()] && GetMapId() == l_GarrisonSiteEntry->MapID)
                 {
-                    m_Garrison->OnPlayerLeave();
-                    m_Garrison->_SetGarrisonScript(nullptr);
-                    SwitchToPhasedMap(GARRISON_BASE_MAP);
+                    sMapMgr->AddDelayedOperation([l_Guid]() -> void
+                    {
+                        Player * l_Player = sObjectAccessor->FindPlayer(l_Guid);
 
-                    phaseMgr.Update();
-                    phaseMgr.ForceMapShiftUpdate();
+                        if (l_Player)
+                            l_Player->_GarrisonSetOut();
+                    });
                 }
                 else if (l_DraenorBaseMap_Area == MS::Garrison::gGarrisonInGarrisonAreaID[m_Garrison->GetGarrisonFactionIndex()] && GetMapId() == GARRISON_BASE_MAP)
                 {
-                    Difficulty l_DungeonDiff = REGULAR_5_DIFFICULTY;
-                    std::swap(l_DungeonDiff, m_dungeonDifficulty);
+                    sMapMgr->AddDelayedOperation([l_Guid]() -> void
+                    {
+                        Player * l_Player = sObjectAccessor->FindPlayer(l_Guid);
 
-                    SwitchToPhasedMap(l_GarrisonSiteEntry->MapID);
-                    m_Garrison->OnPlayerEnter();
-
-                    std::swap(l_DungeonDiff, m_dungeonDifficulty);
-
-                    phaseMgr.Update();
-                    phaseMgr.ForceMapShiftUpdate();
+                        if (l_Player)
+                            l_Player->_GarrisonSetIn();
+                    });
                 }
             }
         }
     }
+}
+
+void Player::_GarrisonSetIn()
+{
+    if (!m_Garrison)
+        return;
+
+    const GarrSiteLevelEntry * l_GarrisonSiteEntry = m_Garrison->GetGarrisonSiteLevelEntry();
+
+    if (!l_GarrisonSiteEntry)
+        return;
+
+    Difficulty l_DungeonDiff = REGULAR_5_DIFFICULTY;
+    std::swap(l_DungeonDiff, m_dungeonDifficulty);
+
+    SwitchToPhasedMap(l_GarrisonSiteEntry->MapID);
+    m_Garrison->OnPlayerEnter();
+
+    std::swap(l_DungeonDiff, m_dungeonDifficulty);
+
+    phaseMgr.Update();
+    phaseMgr.ForceMapShiftUpdate();
+}
+void Player::_GarrisonSetOut()
+{
+    if (!m_Garrison)
+        return;
+
+    m_Garrison->OnPlayerLeave();
+    m_Garrison->_SetGarrisonScript(nullptr);
+    SwitchToPhasedMap(GARRISON_BASE_MAP);
+
+    phaseMgr.Update();
+    phaseMgr.ForceMapShiftUpdate();
 }
 
 void Player::UpdateZone(uint32 newZone, uint32 newArea)

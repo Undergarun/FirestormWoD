@@ -297,6 +297,18 @@ void MapManager::Update(uint32 diff)
 
     sObjectAccessor->Update(uint32(i_timer.GetCurrent()));
 
+    m_DelayedOperationLock.acquire();
+    
+    while (!m_DelayedOperation.empty())
+    {
+        if (m_DelayedOperation.front())
+            m_DelayedOperation.front()();
+
+        m_DelayedOperation.pop();
+    }
+
+    m_DelayedOperationLock.release();
+
     i_timer.SetCurrent(0);
 }
 

@@ -3377,6 +3377,9 @@ class Player : public Unit, public GridObject<Player>
         bool CanHaveDailyLootForItem(uint32 p_Entry) const { return m_DailyLootsCooldowns.find(p_Entry) == m_DailyLootsCooldowns.end(); }
         void AddDailyLootCooldown(uint32 p_Entry);
 
+        void _GarrisonSetIn();
+        void _GarrisonSetOut();
+
     protected:
         void OnEnterPvPCombat();
         void OnLeavePvPCombat();
