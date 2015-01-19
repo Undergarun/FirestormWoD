@@ -102,6 +102,9 @@ namespace MS { namespace Garrison
         /// Garrison ability
         if (!m_Owner->HasSpell(GARRISON_SPELL_GARR_ABILITY))
             m_Owner->learnSpell(GARRISON_SPELL_GARR_ABILITY, false);
+
+        /// Storehouse learning
+        LearnBlueprint(51);
     }
     /// Load
     bool Manager::Load(PreparedQueryResult p_GarrisonResult, PreparedQueryResult p_BuildingsResult, PreparedQueryResult p_FollowersResult, PreparedQueryResult p_MissionsResult)
@@ -394,6 +397,9 @@ namespace MS { namespace Garrison
             /// Garrison ability
             if (!m_Owner->HasSpell(GARRISON_SPELL_GARR_ABILITY))
                 m_Owner->learnSpell(GARRISON_SPELL_GARR_ABILITY, false);
+
+            /// Storehouse learning
+            LearnBlueprint(51);
 
             return true;
         }
