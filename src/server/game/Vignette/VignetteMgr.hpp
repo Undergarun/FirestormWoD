@@ -23,10 +23,10 @@
 # include "Common.h"
 # include "Vignette.hpp"
 
-class Player;
 class WorldObject;
 class GameObject;
 class Creature;
+class Player;
 
 namespace Vignette
 {
@@ -97,7 +97,6 @@ namespace Vignette
             std::set<uint64>             m_AddedVignette;              ///< Contains all the added vignettes to send to client at the next SMSG_VIGNETTE_UPDATE
             std::set<uint64>             m_UpdatedVignette;            ///< Contains all the updated vignettes to send to client at the next SMSG_VIGNETTE_UPDATE
     };
-# include "VignetteMgr.hxx"
 }
 
 #endif ///< VIGNETTE_MGR_HPP
