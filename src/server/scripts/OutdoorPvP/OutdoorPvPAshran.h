@@ -28,7 +28,6 @@
 #include "World.h"
 #include "ObjectMgr.h"
 #include "Language.h"
-#include "MapManager.h"
 
 #ifndef OUTDOOR_PVP_ASHRAN_H
 #define OUTDOOR_PVP_ASHRAN_H
