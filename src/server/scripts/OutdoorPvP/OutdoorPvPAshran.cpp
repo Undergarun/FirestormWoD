@@ -722,9 +722,12 @@ void OutdoorPvPAshran::HandlePlayerEnterArea(Player* p_Player, uint32 p_AreaID)
 
     if (p_AreaID == eAshranDatas::AshranPreAreaHorde || p_AreaID == eAshranDatas::AshranPreAreaAlliance)
     {
-        sMapMgr->AddCriticalOperation([p_Player]() -> void
+        uint64 l_Guid = p_Player->GetGUID();
+
+        sMapMgr->AddCriticalOperation([l_Guid]() -> void
         {
-            p_Player->SwitchToPhasedMap(eAshranDatas::AshranNeutralMapID);
+            if (Player* l_Player = sObjectAccessor->FindPlayer(l_Guid))
+                l_Player->SwitchToPhasedMap(eAshranDatas::AshranNeutralMapID);
         });
     }
 
@@ -749,9 +752,12 @@ void OutdoorPvPAshran::HandlePlayerLeaveArea(Player* p_Player, uint32 p_AreaID)
 
     if (p_AreaID == eAshranDatas::AshranPreAreaHorde || p_AreaID == eAshranDatas::AshranPreAreaAlliance)
     {
-        sMapMgr->AddCriticalOperation([p_Player]() -> void
+        uint64 l_Guid = p_Player->GetGUID();
+
+        sMapMgr->AddCriticalOperation([l_Guid]() -> void
         {
-            p_Player->SwitchToPhasedMap(eAshranDatas::AshranMapID);
+            if (Player* l_Player = sObjectAccessor->FindPlayer(l_Guid))
+                l_Player->SwitchToPhasedMap(eAshranDatas::AshranMapID);
         });
     }
 
