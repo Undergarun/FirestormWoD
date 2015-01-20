@@ -2425,7 +2425,7 @@ public:
         {
             if (Unit* l_Caster = GetCaster())
             {
-                if (l_Caster->GetTypeId() != TYPEID_UNIT && l_Caster->GetEntry() != 62522)
+                if (l_Caster->GetTypeId() != TYPEID_UNIT && l_Caster->GetEntry() != NPC_DARKWOODS_FAERIE)
                     return SPELL_FAILED_BAD_TARGETS;
             }
             return SPELL_CAST_OK;
