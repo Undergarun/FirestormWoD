@@ -4134,16 +4134,6 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
             AddPct(totalDamagePercentMod, bonusPct);
             break;
         }
-        case 55050: // Heart Strike
-        {
-            float bonusPct = m_spellInfo->Effects[EFFECT_2].CalcValue(m_caster) * unitTarget->GetDiseasesByCaster(m_caster->GetGUID());
-            // Death Knight T8 Melee 4P Bonus
-            if (constAuraEffectPtr aurEff = m_caster->GetAuraEffect(64736, EFFECT_0))
-                AddPct(bonusPct, aurEff->GetAmount());
-
-            AddPct(totalDamagePercentMod, bonusPct);
-            break;
-        }
         default:
             break;
         }
