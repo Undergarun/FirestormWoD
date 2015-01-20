@@ -494,7 +494,7 @@ void OPvPCapturePoint_Graveyard::UpdateTowerState()
 bool OPvPCapturePoint_Graveyard::HandlePlayerEnter(Player* p_Player)
 {
     if (p_Player == nullptr)
-        return;
+        return false;
 
     if (OPvPCapturePoint::HandlePlayerEnter(p_Player))
     {
