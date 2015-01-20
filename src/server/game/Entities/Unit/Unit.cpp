@@ -16711,71 +16711,68 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetSession()->PlayerLoading())
         return;
 
-    // Multistrike...
-    if (!(procExtra & PROC_EX_INTERNAL_MULTISTRIKE) && !(procFlag & PROC_FLAG_KILL) &&
-        damage && target && GetTypeId() == TYPEID_PLAYER)
+    if (!(procExtra & PROC_EX_INTERNAL_MULTISTRIKE) && !(procFlag & PROC_FLAG_KILL))
     {
-        // ...grants your spells, abilities, and auto-attacks...
-        if (procFlag & MULTISTRIKE_DONE_HIT_PROC_FLAG_MASK)
+        if (damage && procSpell && target)
         {
-            // ...the chance to activate up to two extra times (depending if PvE or PvP) at X% of normal effectiveness
-            uint8 l_ProcTimes = (target->GetTypeId() == TYPEID_PLAYER) ? 1 : 2;
-            for (uint8 l_Idx = 0; l_Idx < l_ProcTimes; l_Idx++)
+            if (GetTypeId() == TYPEID_PLAYER && roll_chance_f(GetFloatValue(PLAYER_FIELD_MULTISTRIKE)))
             {
-                if (roll_chance_f(GetFloatValue(PLAYER_FIELD_MULTISTRIKE)))
+                if (procSpell && procFlag & (PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS | PROC_FLAG_DONE_SPELL_RANGED_DMG_CLASS | PROC_FLAG_DONE_MAINHAND_ATTACK | PROC_FLAG_DONE_OFFHAND_ATTACK | PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS | PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG | PROC_FLAG_DONE_PERIODIC))
                 {
-                    bool l_IsCrit = !(procExtra & PROC_EX_CRITICAL_HIT) && procSpell && roll_chance_f(GetUnitSpellCriticalChance(target, procSpell, procSpell->GetSchoolMask()));
+                    bool crit = !(procExtra & PROC_EX_CRITICAL_HIT) && roll_chance_f(GetUnitSpellCriticalChance(target, procSpell, procSpell->GetSchoolMask()));
+                    uint32 multistrikeDamage = damage;
 
-                    if (l_IsCrit && procSpell)
-                        damage = SpellCriticalDamageBonus(procSpell, damage, target);
-
-                    uint32 l_MultistrikeDamage = damage * GetFloatValue(PLAYER_FIELD_MULTISTRIKE_EFFECT);
+                    if (crit)
+                        multistrikeDamage = SpellCriticalDamageBonus(procSpell, damage, target);
 
                     if (procExtra & PROC_EX_CRITICAL_HIT)
-                        l_IsCrit = true;
+                        crit = true;
 
-                    uint32 l_DoneProcFlag = procFlag & MULTISTRIKE_DONE_HIT_PROC_FLAG_MASK;
-                    uint32 l_TakenProcFlag = PROC_FLAG_TAKEN_DAMAGE;
-                    uint32 l_ExFlag = PROC_EX_INTERNAL_TRIGGERED | PROC_EX_INTERNAL_MULTISTRIKE | (l_IsCrit) ? PROC_EX_CRITICAL_HIT : PROC_EX_NORMAL_HIT;
+                    uint32 doneProcFlag = procFlag & (PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS | PROC_FLAG_DONE_SPELL_RANGED_DMG_CLASS | PROC_FLAG_DONE_MAINHAND_ATTACK | PROC_FLAG_DONE_OFFHAND_ATTACK | PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS | PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG | PROC_FLAG_DONE_PERIODIC);
+                    uint32 takenProcFlag = PROC_FLAG_TAKEN_DAMAGE;
+                    uint32 exFlag = PROC_EX_INTERNAL_TRIGGERED | PROC_EX_INTERNAL_MULTISTRIKE;
 
-                    if (procFlag & PROC_FLAG_DONE_MELEE_AUTO_ATTACK)
-                        l_TakenProcFlag |= PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK;
-
-                    if (procFlag & PROC_FLAG_DONE_RANGED_AUTO_ATTACK)
-                        l_TakenProcFlag |= PROC_FLAG_TAKEN_RANGED_AUTO_ATTACK;
+                    if (crit)
+                        exFlag |= PROC_EX_CRITICAL_HIT;
+                    else
+                        exFlag |= PROC_EX_NORMAL_HIT;
 
                     if (procFlag & PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS)
-                        l_TakenProcFlag |= PROC_FLAG_TAKEN_SPELL_MELEE_DMG_CLASS;
+                        takenProcFlag |= PROC_FLAG_TAKEN_SPELL_MELEE_DMG_CLASS;
 
                     if (procFlag & PROC_FLAG_DONE_SPELL_RANGED_DMG_CLASS)
-                        l_TakenProcFlag |= PROC_FLAG_TAKEN_SPELL_RANGED_DMG_CLASS;
+                        takenProcFlag |= PROC_FLAG_TAKEN_SPELL_RANGED_DMG_CLASS;
 
                     if (procFlag & PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS)
-                        l_TakenProcFlag |= PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_POS;
+                        takenProcFlag |= PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_POS;
 
                     if (procFlag & PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG)
-                        l_TakenProcFlag |= PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG;
+                        takenProcFlag |= PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG;
 
                     if (procFlag & PROC_FLAG_DONE_PERIODIC)
-                        l_TakenProcFlag |= PROC_FLAG_TAKEN_PERIODIC;
+                        takenProcFlag |= PROC_FLAG_TAKEN_PERIODIC;
 
-                    // Spell Heal
-                    if (procSpell && procSpell->IsPositive())
+
+                    multistrikeDamage = multistrikeDamage * GetFloatValue(PLAYER_FIELD_MULTISTRIKE_EFFECT);
+
+                    // Heal
+                    if (procSpell->IsPositive())
                     {
-                        HealBySpell(target, procSpell, l_MultistrikeDamage, l_IsCrit, true);
-                        ProcDamageAndSpell(target, l_DoneProcFlag, l_TakenProcFlag, l_ExFlag, l_MultistrikeDamage, 0, attType, procSpell);
+                        HealBySpell(target, procSpell, multistrikeDamage, crit, true);
+                        ProcDamageAndSpell(target, doneProcFlag, takenProcFlag, exFlag, multistrikeDamage, 0, attType, procSpell);
                     }
-                    else if (procSpell) // Spell Damage
+                    // Damage
+                    else
                     {
                         if (target->GetHealth() > damage)
                         {
                             SpellNonMeleeDamage damageInfo(this, target, procSpell->Id, procSpell->SchoolMask);
 
-                            if (l_IsCrit)
+                            if (crit)
                                 damageInfo.HitInfo |= SPELL_HIT_TYPE_CRIT;
 
                             damageInfo.HitInfo |= SPELL_HIT_TYPE_MULTISTRIKE;
-                            damageInfo.damage = l_MultistrikeDamage;
+                            damageInfo.damage = multistrikeDamage;
 
                             CalcAbsorbResist(target, procSpell->GetSchoolMask(), procFlag & PROC_FLAG_DONE_PERIODIC ? DOT : SPELL_DIRECT_DAMAGE, damage, &damageInfo.absorb, &damageInfo.resist, procSpell);
                             DealDamageMods(damageInfo.target, damageInfo.damage, &damageInfo.absorb);
@@ -16784,7 +16781,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                             if (ownerAuraEffect)
                             {
                                 int32 overkill = damageInfo.damage - target->GetHealth() > 0 ? damageInfo.damage - target->GetHealth() : 0;
-                                SpellPeriodicAuraLogInfo pInfo(ownerAuraEffect, damageInfo.damage, overkill, damageInfo.absorb, damageInfo.resist, 0.0f, l_IsCrit, true);
+                                SpellPeriodicAuraLogInfo pInfo(ownerAuraEffect, damageInfo.damage, overkill, damageInfo.absorb, damageInfo.resist, 0.0f, crit, true);
                                 target->SendPeriodicAuraLog(&pInfo);
                             }
                             else
@@ -16792,28 +16789,12 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
 
                             if (target->isDead())
                             {
-                                l_DoneProcFlag |= PROC_FLAG_KILL;
-                                l_TakenProcFlag |= (PROC_FLAG_KILLED | PROC_FLAG_DEATH);
+                                doneProcFlag |= PROC_FLAG_KILL;
+                                takenProcFlag |= (PROC_FLAG_KILLED | PROC_FLAG_DEATH);
                             }
 
-                            ProcDamageAndSpell(target, l_DoneProcFlag, l_TakenProcFlag, l_ExFlag, damageInfo.damage, damageInfo.absorb, attType, procSpell, procAura);
+                            ProcDamageAndSpell(target, doneProcFlag, takenProcFlag, exFlag, damageInfo.damage, damageInfo.absorb, attType, procSpell, procAura);
                         }
-                    }
-                    else // Auto Attack
-                    {
-                        CalcDamageInfo damageInfo;
-                        CalculateMeleeDamage(target, 0, &damageInfo, attType);
-
-                        if (l_IsCrit)
-                            damageInfo.HitInfo |= SPELL_HIT_TYPE_CRIT;
-
-                        damageInfo.HitInfo |= SPELL_HIT_TYPE_MULTISTRIKE;
-                        damageInfo.damage = l_MultistrikeDamage;
-
-                        DealDamageMods(target, damageInfo.damage, &damageInfo.absorb);
-                        DealMeleeDamage(&damageInfo, true);
-
-                        ProcDamageAndSpell(damageInfo.target, damageInfo.procAttacker, damageInfo.procVictim, damageInfo.procEx, damageInfo.damage, damageInfo.attackType);
                     }
                 }
             }
