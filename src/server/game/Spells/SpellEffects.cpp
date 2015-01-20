@@ -4137,17 +4137,6 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
 
             break;
         }
-        case 49020: // Obliterate
-        case 66198: // Obliterate Off-Hand
-        {
-            // 12.5% more damage per disease
-            float bonusPct = m_spellInfo->Effects[EFFECT_2].CalcValue(m_caster) * unitTarget->GetDiseasesByCaster(m_caster->GetGUID(), false) / 2.0f;
-            // Death Knight T8 Melee 4P Bonus
-            if (constAuraEffectPtr aurEff = m_caster->GetAuraEffect(64736, EFFECT_0))
-                AddPct(bonusPct, aurEff->GetAmount());
-            AddPct(totalDamagePercentMod, bonusPct);
-            break;
-        }
         case 55050: // Heart Strike
         {
             float bonusPct = m_spellInfo->Effects[EFFECT_2].CalcValue(m_caster) * unitTarget->GetDiseasesByCaster(m_caster->GetGUID());
