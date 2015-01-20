@@ -86,8 +86,8 @@ namespace MS { namespace Garrison
         }
         else
         {
-            if (p_Player->GetCurrency(GARRISON_CURRENCY_ID, false))
-                p_Player->ModifyCurrency(GARRISON_CURRENCY_ID, -(int32)p_Player->GetCurrency(GARRISON_CURRENCY_ID, false));
+            if (p_Player->GetCurrency(MS::Garrison::Globals::CurrencyID, false))
+                p_Player->ModifyCurrency(MS::Garrison::Globals::CurrencyID, -(int32)p_Player->GetCurrency(MS::Garrison::Globals::CurrencyID, false));
 
             p_Player->DeleteGarrison();
         }

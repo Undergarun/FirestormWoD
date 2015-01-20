@@ -29,14 +29,15 @@ namespace MS { namespace Garrison
         /// Select Garrison site ID
         switch (GetGarrisonFactionIndex())
         {
-            case GARRISON_FACTION_ALLIANCE:
+            case Factions::Alliance:
                 m_GarrisonSiteID = 2;
                 break;
 
-            case GARRISON_FACTION_HORDE:
+            case Factions::Horde:
                 m_GarrisonSiteID = 71;
                 break;
 
+            case Factions::Max:
             default:
                 ASSERT(false);
                 break;
@@ -51,7 +52,7 @@ namespace MS { namespace Garrison
     void Manager::Create()
     {
         /// At creation, the garrison cache contains 50 token
-        m_CacheLastUsage = time(0) - (200 * GARRISON_CACHE_GENERATE_TICK);
+        m_CacheLastUsage = time(0) - (200 * Globals::CacheTokenGenerateTime);
 
         std::ostringstream l_KnownBluePrintsStr;
 
@@ -143,7 +144,7 @@ namespace MS { namespace Garrison
                     l_Fields = p_BuildingsResult->Fetch();
 
                     GarrisonBuilding l_Building;
-                    l_Building.DB_ID            = l_Fields[0].GetUInt32();
+                    l_Building.DatabaseID       = l_Fields[0].GetUInt32();
                     l_Building.PlotInstanceID   = l_Fields[1].GetUInt32();
                     l_Building.BuildingID       = l_Fields[2].GetUInt32();
                     l_Building.SpecID           = l_Fields[3].GetUInt32();
@@ -165,19 +166,19 @@ namespace MS { namespace Garrison
                     l_Fields = p_MissionsResult->Fetch();
 
                     GarrisonMission l_Mission;
-                    l_Mission.DB_ID             = l_Fields[0].GetUInt32();
+                    l_Mission.DatabaseID        = l_Fields[0].GetUInt32();
                     l_Mission.MissionID         = l_Fields[1].GetUInt32();
                     l_Mission.OfferTime         = l_Fields[2].GetUInt32();
                     l_Mission.OfferMaxDuration  = l_Fields[3].GetUInt32();
                     l_Mission.StartTime         = l_Fields[4].GetUInt32();
-                    l_Mission.State             = (GarrisonMissionState)l_Fields[5].GetUInt32();
+                    l_Mission.State             = (MissionStates::Type)l_Fields[5].GetUInt32();
 
-                    if ((l_Mission.OfferTime + l_Mission.OfferMaxDuration) > time(0) || l_Mission.State == GARRISON_MISSION_IN_PROGRESS || l_Mission.State == GARRISON_MISSION_COMPLETE_SUCCESS)
+                    if ((l_Mission.OfferTime + l_Mission.OfferMaxDuration) > time(0) || l_Mission.State == MissionStates::InProgress || l_Mission.State == MissionStates::CompleteSuccess)
                         m_Missions.push_back(l_Mission);
                     else
                     {
                         PreparedStatement * l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GARRISON_MISSION);
-                        l_Stmt->setUInt32(0, l_Mission.DB_ID);
+                        l_Stmt->setUInt32(0, l_Mission.DatabaseID);
                         CharacterDatabase.AsyncQuery(l_Stmt);
                     }
 
@@ -191,7 +192,7 @@ namespace MS { namespace Garrison
                     l_Fields = p_FollowersResult->Fetch();
 
                     GarrisonFollower l_Follower;
-                    l_Follower.DB_ID             = l_Fields[0].GetUInt32();
+                    l_Follower.DatabaseID             = l_Fields[0].GetUInt32();
                     l_Follower.FollowerID        = l_Fields[1].GetUInt32();
                     l_Follower.Level             = l_Fields[2].GetUInt32();
                     l_Follower.XP                = l_Fields[3].GetUInt32();
@@ -242,7 +243,7 @@ namespace MS { namespace Garrison
 
                 if (l_MissionToRemoveCount[l_Mission.MissionID] > 0)
                 {
-                    l_MissionToRemove.push_back(l_Mission.DB_ID);
+                    l_MissionToRemove.push_back(l_Mission.DatabaseID);
                     l_MissionToRemoveCount[l_Mission.MissionID]--;
                 }
             }
@@ -251,7 +252,7 @@ namespace MS { namespace Garrison
             {
                 auto l_It = std::find_if(m_Missions.begin(), m_Missions.end(), [l_MissionBD_ID](const GarrisonMission & p_Mission)
                 {
-                    return p_Mission.DB_ID == l_MissionBD_ID;
+                    return p_Mission.DatabaseID == l_MissionBD_ID;
                 });
 
                 if (l_It != m_Missions.end())
@@ -271,7 +272,7 @@ namespace MS { namespace Garrison
             {
                 GarrisonMission & l_Mission = m_Missions[l_I];
 
-                if (l_Mission.State != GARRISON_MISSION_IN_PROGRESS)
+                if (l_Mission.State != MissionStates::InProgress)
                     continue;
 
                 uint32 l_FollowerCount = std::count_if(m_Followers.begin(), m_Followers.end(), [l_Mission](const GarrisonFollower & p_Follower) -> bool
@@ -284,21 +285,21 @@ namespace MS { namespace Garrison
 
                 if (l_FollowerCount == 0)
                 {
-                    l_MissionToRemove.push_back(l_Mission.DB_ID);
+                    l_MissionToRemove.push_back(l_Mission.DatabaseID);
                     continue;
                 }
 
                 const GarrMissionEntry * l_MissionTemplate = sGarrMissionStore.LookupEntry(l_Mission.MissionID);
 
                 if (!l_MissionTemplate || l_MissionTemplate->RequiredFollowersCount != l_FollowerCount)
-                    l_MissionToRemove.push_back(l_Mission.DB_ID);
+                    l_MissionToRemove.push_back(l_Mission.DatabaseID);
             }
 
             for (uint64 l_MissionBD_ID : l_MissionToRemove)
             {
                 auto l_It = std::find_if(m_Missions.begin(), m_Missions.end(), [l_MissionBD_ID](const GarrisonMission & p_Mission)
                 {
-                    return p_Mission.DB_ID == l_MissionBD_ID;
+                    return p_Mission.DatabaseID == l_MissionBD_ID;
                 });
 
                 if (l_It != m_Missions.end())
@@ -336,7 +337,7 @@ namespace MS { namespace Garrison
 
             std::for_each(m_Missions.begin(), m_Missions.end(), [&l_CurrentAvailableMission](const GarrisonMission & p_Mission) -> void
             {
-                if (p_Mission.State == GARRISON_MISSION_AVAILABLE && (p_Mission.OfferTime + p_Mission.OfferMaxDuration) > time(0))
+                if (p_Mission.State == MissionStates::Available && (p_Mission.OfferTime + p_Mission.OfferMaxDuration) > time(0))
                     l_CurrentAvailableMission++;
             });
 
@@ -344,7 +345,7 @@ namespace MS { namespace Garrison
             {
                 m_Missions.erase(std::remove_if(m_Missions.begin(), m_Missions.end(), [](const GarrisonMission & p_Mission) -> bool
                 {
-                    if (p_Mission.State == GARRISON_MISSION_AVAILABLE && (p_Mission.OfferTime + p_Mission.OfferMaxDuration) > time(0))
+                    if (p_Mission.State == MissionStates::Available && (p_Mission.OfferTime + p_Mission.OfferMaxDuration) > time(0))
                         return true;
 
                     return false;
@@ -364,7 +365,7 @@ namespace MS { namespace Garrison
                         return false;
                     });
 
-                    if (l_It == m_Missions.end() || (*l_It).State == GARRISON_MISSION_AVAILABLE)
+                    if (l_It == m_Missions.end() || (*l_It).State == MissionStates::Available)
                         p_Follower.CurrentMissionID = 0;
                 }
 
@@ -444,7 +445,7 @@ namespace MS { namespace Garrison
             l_Stmt->setUInt32(l_Index++, m_Buildings[l_I].TimeBuiltEnd);
             l_Stmt->setBool(l_Index++, m_Buildings[l_I].Active);
 
-            l_Stmt->setUInt32(l_Index++, m_Buildings[l_I].DB_ID);
+            l_Stmt->setUInt32(l_Index++, m_Buildings[l_I].DatabaseID);
             l_Stmt->setUInt32(l_Index++, m_ID);
 
             CharacterDatabase.AsyncQuery(l_Stmt);
@@ -452,7 +453,7 @@ namespace MS { namespace Garrison
 
         for (uint32 l_I = 0; l_I < m_Missions.size(); ++l_I)
         {
-            if ((m_Missions[l_I].OfferTime + m_Missions[l_I].OfferMaxDuration) > time(0) || m_Missions[l_I].State == GARRISON_MISSION_IN_PROGRESS || m_Missions[l_I].State == GARRISON_MISSION_COMPLETE_SUCCESS)
+            if ((m_Missions[l_I].OfferTime + m_Missions[l_I].OfferMaxDuration) > time(0) || m_Missions[l_I].State == MissionStates::InProgress || m_Missions[l_I].State == MissionStates::CompleteSuccess)
             {
                 PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GARRISON_MISSION);
 
@@ -463,7 +464,7 @@ namespace MS { namespace Garrison
                 l_Stmt->setUInt32(l_Index++, m_Missions[l_I].StartTime);
                 l_Stmt->setUInt32(l_Index++, m_Missions[l_I].State);
 
-                l_Stmt->setUInt32(l_Index++, m_Missions[l_I].DB_ID);
+                l_Stmt->setUInt32(l_Index++, m_Missions[l_I].DatabaseID);
                 l_Stmt->setUInt32(l_Index++, m_ID);
 
                 CharacterDatabase.AsyncQuery(l_Stmt);
@@ -471,7 +472,7 @@ namespace MS { namespace Garrison
             else
             {
                 PreparedStatement * l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GARRISON_MISSION);
-                l_Stmt->setUInt32(0, m_Missions[l_I].DB_ID);
+                l_Stmt->setUInt32(0, m_Missions[l_I].DatabaseID);
                 CharacterDatabase.AsyncQuery(l_Stmt);
             }
         }
@@ -497,7 +498,7 @@ namespace MS { namespace Garrison
             l_Stmt->setString(l_Index++, l_Abilities.str());
             l_Stmt->setUInt32(l_Index++, m_Followers[l_I].Flags);
 
-            l_Stmt->setUInt32(l_Index++, m_Followers[l_I].DB_ID);
+            l_Stmt->setUInt32(l_Index++, m_Followers[l_I].DatabaseID);
             l_Stmt->setUInt32(l_Index++, m_ID);
 
             CharacterDatabase.AsyncQuery(l_Stmt);
@@ -561,7 +562,7 @@ namespace MS { namespace Garrison
         if (!GetGarrisonSiteLevelEntry())
             return;
 
-        if (GetGarrisonFactionIndex() == GARRISON_FACTION_HORDE)
+        if (GetGarrisonFactionIndex() == Factions::Horde)
         {
             switch (GetGarrisonSiteLevelEntry()->Level)
             {
@@ -612,8 +613,8 @@ namespace MS { namespace Garrison
     /// Reward garrison cache content
     void Manager::RewardGarrisonCache()
     {
-        m_Owner->SendDisplayToast(GARRISON_CURRENCY_ID, m_CacheLastTokenAmount, DISPLAY_TOAST_METHOD_GARRISON_CACHE, TOAST_TYPE_NEW_CURRENCY, false, false);
-        m_Owner->ModifyCurrency(GARRISON_CURRENCY_ID, m_CacheLastTokenAmount);
+        m_Owner->SendDisplayToast(Globals::CurrencyID, m_CacheLastTokenAmount, DISPLAY_TOAST_METHOD_GARRISON_CACHE, TOAST_TYPE_NEW_CURRENCY, false, false);
+        m_Owner->ModifyCurrency(Globals::CurrencyID, m_CacheLastTokenAmount);
 
         m_CacheLastTokenAmount  = 0;
         m_CacheLastUsage        = time(0);
@@ -732,20 +733,20 @@ namespace MS { namespace Garrison
         return sGarrSiteLevelStore.LookupEntry(m_GarrisonLevelID);
     }
     /// Get Garrison Faction Index
-    GarrisonFactionIndex Manager::GetGarrisonFactionIndex()
+    Factions::Type Manager::GetGarrisonFactionIndex()
     {
         assert(m_Owner);
 
         switch (m_Owner->GetTeam())
         {
             case ALLIANCE:
-                return GARRISON_FACTION_ALLIANCE;
+                return Factions::Alliance;
 
             case HORDE:
-                return GARRISON_FACTION_HORDE;
+                return Factions::Horde;
         }
 
-        return GARRISON_FACTION_HORDE;
+        return Factions::Horde;
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -857,17 +858,17 @@ namespace MS { namespace Garrison
             return false;
 
         GarrisonMission l_Mission;
-        l_Mission.DB_ID             = sObjectMgr->GetNewGarrisonMissionID();
+        l_Mission.DatabaseID        = sObjectMgr->GetNewGarrisonMissionID();
         l_Mission.MissionID         = p_MissionRecID;
         l_Mission.OfferTime         = time(0);
         l_Mission.OfferMaxDuration  = l_MissionEntry->OfferTime;
-        l_Mission.State             = GARRISON_MISSION_AVAILABLE;
+        l_Mission.State             = MissionStates::Available;
         l_Mission.StartTime         = 0;
 
         PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GARRISON_MISSION);
 
         uint32 l_Index = 0;
-        l_Stmt->setUInt32(l_Index++, l_Mission.DB_ID);
+        l_Stmt->setUInt32(l_Index++, l_Mission.DatabaseID);
         l_Stmt->setUInt32(l_Index++, m_ID);
         l_Stmt->setUInt32(l_Index++, l_Mission.MissionID);
         l_Stmt->setUInt32(l_Index++, l_Mission.OfferTime);
@@ -880,8 +881,8 @@ namespace MS { namespace Garrison
         m_Missions.push_back(l_Mission);
 
         WorldPacket l_AddMissionResult(SMSG_GARRISON_ADD_MISSION_RESULT, 40);
-        l_AddMissionResult << uint32(GARRISON_PURCHASE_BUILDING_OK);
-        l_AddMissionResult << uint64(l_Mission.DB_ID);
+        l_AddMissionResult << uint32(PurchaseBuildingResults::Ok);
+        l_AddMissionResult << uint64(l_Mission.DatabaseID);
         l_AddMissionResult << uint32(l_Mission.MissionID);
         l_AddMissionResult << uint32(l_Mission.OfferTime);
         l_AddMissionResult << uint32(l_Mission.OfferMaxDuration);
@@ -901,8 +902,8 @@ namespace MS { namespace Garrison
         {
             if (m_Missions[l_I].MissionID == p_MissionRecID)
             {
-                if (m_Missions[l_I].State < GARRISON_MISSION_COMPLETE_SUCCESS
-                    && !((m_Missions[l_I].OfferTime + m_Missions[l_I].OfferMaxDuration) < time(0) && m_Missions[l_I].State == GARRISON_MISSION_AVAILABLE))
+                if (m_Missions[l_I].State < MissionStates::CompleteSuccess
+                    && !((m_Missions[l_I].OfferTime + m_Missions[l_I].OfferMaxDuration) < time(0) && m_Missions[l_I].State == MissionStates::Available))
                     return true;
             }
         }
@@ -923,7 +924,7 @@ namespace MS { namespace Garrison
 
         const GarrMissionEntry * l_MissionTemplate = sGarrMissionStore.LookupEntry(p_MissionRecID);
 
-        if (!m_Owner->HasCurrency(GARRISON_CURRENCY_ID, l_MissionTemplate->GarrisonCurrencyStartCost))
+        if (!m_Owner->HasCurrency(Globals::CurrencyID, l_MissionTemplate->GarrisonCurrencyStartCost))
         {
             StartMissionFailed(p_MissionRecID, p_Followers);
             return;
@@ -939,7 +940,7 @@ namespace MS { namespace Garrison
         {
             std::vector<GarrisonFollower>::iterator l_It = std::find_if(m_Followers.begin(), m_Followers.end(), [this, p_Followers, l_I](const GarrisonFollower p_Follower) -> bool
             {
-                if (p_Follower.DB_ID == p_Followers[l_I])
+                if (p_Follower.DatabaseID == p_Followers[l_I])
                     return true;
 
                 return false;
@@ -970,14 +971,14 @@ namespace MS { namespace Garrison
             }
         }
 
-        m_Owner->ModifyCurrency(GARRISON_CURRENCY_ID, -(int32)l_MissionTemplate->GarrisonCurrencyStartCost);
+        m_Owner->ModifyCurrency(Globals::CurrencyID, -(int32)l_MissionTemplate->GarrisonCurrencyStartCost);
 
         std::vector<uint32> l_FollowersIDs;
         for (uint32 l_I = 0; l_I < p_Followers.size(); ++l_I)
         {
             std::vector<GarrisonFollower>::iterator l_It = std::find_if(m_Followers.begin(), m_Followers.end(), [this, p_Followers, l_I](const GarrisonFollower p_Follower) -> bool
             {
-                if (p_Follower.DB_ID == p_Followers[l_I])
+                if (p_Follower.DatabaseID == p_Followers[l_I])
                     return true;
 
                 return false;
@@ -1000,7 +1001,7 @@ namespace MS { namespace Garrison
 
         if (l_Mission)
         {
-            l_Mission->State        = GARRISON_MISSION_IN_PROGRESS;
+            l_Mission->State        = MissionStates::InProgress;
             l_Mission->StartTime    = time(0);
             l_Mission->OfferTime    = time(0);
 
@@ -1010,7 +1011,7 @@ namespace MS { namespace Garrison
             WorldPacket l_Result(SMSG_GARRISON_START_MISSION_RESULT, 200);
             l_Result << uint32(0);    ///< Result (0 = OK, 1 = failed)
 
-            l_Result << uint64(l_Mission->DB_ID);
+            l_Result << uint64(l_Mission->DatabaseID);
             l_Result << uint32(l_Mission->MissionID);
             l_Result << uint32(l_Mission->OfferTime);
             l_Result << uint32(l_Mission->OfferMaxDuration);
@@ -1050,7 +1051,7 @@ namespace MS { namespace Garrison
 
         if (l_Mission)
         {
-            l_Data << uint64(l_Mission->DB_ID);
+            l_Data << uint64(l_Mission->DatabaseID);
             l_Data << uint32(l_Mission->MissionID);
             l_Data << uint32(l_Mission->OfferTime);
             l_Data << uint32(l_Mission->OfferMaxDuration);
@@ -1115,13 +1116,13 @@ namespace MS { namespace Garrison
         bool l_Succeeded   = roll_chance_i(l_ChestChance);  ///< Seems to be MissionChance
         bool l_CanComplete = true;
 
-        l_Mission->State = l_Succeeded ? GARRISON_MISSION_COMPLETE_SUCCESS : GARRISON_MISSION_COMPLETE_FAILED;
+        l_Mission->State = l_Succeeded ? MissionStates::CompleteSuccess : MissionStates::CompleteFailed;
 
         WorldPacket l_Result(SMSG_GARRISON_COMPLETE_MISSION_RESULT, 100);
 
         l_Result << uint32(!l_CanComplete);
 
-        l_Result << uint64(l_Mission->DB_ID);
+        l_Result << uint64(l_Mission->DatabaseID);
         l_Result << uint32(l_Mission->MissionID);
         l_Result << uint32(l_Mission->OfferTime);
         l_Result << uint32(l_Mission->OfferMaxDuration);
@@ -1136,7 +1137,7 @@ namespace MS { namespace Garrison
 
         m_Owner->SendDirectMessage(&l_Result);
 
-        std::vector<uint32> l_PartyXPModifiersEffect = GetMissionFollowersAbilitiesEffects(p_MissionRecID, GARRISION_ABILITY_EFFECT_MOD_XP_GAIN, GARRISON_ABILITY_EFFECT_TARGET_MASK_UNK | GARRISON_ABILITY_EFFECT_TARGET_MASK_PARTY);
+        std::vector<uint32> l_PartyXPModifiersEffect = GetMissionFollowersAbilitiesEffects(p_MissionRecID, AbilityEffectTypes::ModXpGain, AbilityEffectTargetMasks::Unk | AbilityEffectTargetMasks::Party);
         std::vector<uint32> l_PassiveEffects         = GetBuildingsPassiveAbilityEffects();
 
         /// Global XP Bonus modifier
@@ -1158,7 +1159,7 @@ namespace MS { namespace Garrison
             if (!l_AbilityEffectEntry)
                 continue;
 
-            if (l_AbilityEffectEntry->EffectType == GARRISION_ABILITY_EFFECT_MOD_XP_GAIN && (l_AbilityEffectEntry->TargetMask == GARRISON_ABILITY_EFFECT_TARGET_MASK_PARTY || l_AbilityEffectEntry->TargetMask == GARRISON_ABILITY_EFFECT_TARGET_MASK_UNK))
+            if (l_AbilityEffectEntry->EffectType == AbilityEffectTypes::ModXpGain && (l_AbilityEffectEntry->TargetMask == AbilityEffectTargetMasks::Party || l_AbilityEffectEntry->TargetMask == AbilityEffectTargetMasks::Unk))
                 l_XPModifier = (l_AbilityEffectEntry->Amount - 1.0) + l_XPModifier;
         }
         /// ------------------------------------------
@@ -1190,7 +1191,7 @@ namespace MS { namespace Garrison
                     if (!l_AbilityEffectEntry || l_AbilityEffectEntry->AbilityID != l_CurrentAbilityID)
                         continue;
 
-                    if (l_AbilityEffectEntry->EffectType == GARRISION_ABILITY_EFFECT_MOD_XP_GAIN && l_AbilityEffectEntry->TargetMask == GARRISON_ABILITY_EFFECT_TARGET_MASK_SELF)
+                    if (l_AbilityEffectEntry->EffectType == AbilityEffectTypes::ModXpGain && l_AbilityEffectEntry->TargetMask == AbilityEffectTargetMasks::Self)
                         l_SecondXPModifier = (l_AbilityEffectEntry->Amount - 1.0) + l_SecondXPModifier;
                 }
             }
@@ -1220,7 +1221,7 @@ namespace MS { namespace Garrison
         {
             for (uint32 l_I = 0; l_I < l_MissionFollowers.size(); ++l_I)
             {
-                m_PendingMissionReward.MissionFollowers.push_back(l_MissionFollowers[l_I]->DB_ID);
+                m_PendingMissionReward.MissionFollowers.push_back(l_MissionFollowers[l_I]->DatabaseID);
             }
 
             for (uint32 l_I = 0; l_I < sGarrMissionRewardStore.GetNumRows(); ++l_I)
@@ -1240,9 +1241,9 @@ namespace MS { namespace Garrison
                 {
                     uint32 l_Amount = l_RewardEntry->RewardCurrencyAmount;
 
-                    if (l_RewardEntry->RewardCurrencyID == GARRISON_CURRENCY_ID)
+                    if (l_RewardEntry->RewardCurrencyID == Globals::CurrencyID)
                     {
-                        std::vector<uint32> l_PartyCurrencyModifiersEffect = GetMissionFollowersAbilitiesEffects(p_MissionRecID, GARRISION_ABILITY_EFFECT_MOD_GARR_CURRENCY_DROP, GARRISON_ABILITY_EFFECT_TARGET_MASK_UNK | GARRISON_ABILITY_EFFECT_TARGET_MASK_PARTY);
+                        std::vector<uint32> l_PartyCurrencyModifiersEffect = GetMissionFollowersAbilitiesEffects(p_MissionRecID, AbilityEffectTypes::ModGarrCurrencyDrop, AbilityEffectTargetMasks::Unk | AbilityEffectTargetMasks::Party);
 
                         /// Global currency Bonus modifier
                         float l_Modifier = 1.0f;
@@ -1314,7 +1315,7 @@ namespace MS { namespace Garrison
     {
         auto l_It = std::find_if(m_Missions.begin(), m_Missions.end(), [p_MissionRecID](const GarrisonMission & p_Mission) -> bool
         {
-            if (p_Mission.State == GARRISON_MISSION_COMPLETE_FAILED || p_Mission.State == GARRISON_MISSION_COMPLETE_SUCCESS)
+            if (p_Mission.State == MissionStates::CompleteFailed || p_Mission.State == MissionStates::CompleteSuccess)
             {
                 if (p_Mission.MissionID == p_MissionRecID)
                     return true;
@@ -1328,7 +1329,7 @@ namespace MS { namespace Garrison
         if (l_It != m_Missions.end())
             l_Mission = reinterpret_cast<GarrisonMission*>(&(*l_It));
 
-        if (m_PendingMissionReward.MissionID != p_MissionRecID || m_PendingMissionReward.Rewarded == true || !l_Mission || (l_Mission && l_Mission->State == GARRISON_MISSION_COMPLETE_FAILED))
+        if (m_PendingMissionReward.MissionID != p_MissionRecID || m_PendingMissionReward.Rewarded == true || !l_Mission || (l_Mission && l_Mission->State == MissionStates::CompleteFailed))
         {
             m_PendingMissionReward.Rewarded = true;
 
@@ -1336,7 +1337,7 @@ namespace MS { namespace Garrison
 
             if (l_Mission)
             {
-                l_Packet << uint64(l_Mission->DB_ID);
+                l_Packet << uint64(l_Mission->DatabaseID);
                 l_Packet << uint32(l_Mission->MissionID);
                 l_Packet << uint32(l_Mission->OfferTime);
                 l_Packet << uint32(l_Mission->OfferMaxDuration);
@@ -1358,7 +1359,7 @@ namespace MS { namespace Garrison
             }
 
             l_Packet << uint32(p_MissionRecID);
-            l_Packet << uint32(GARRISON_MISSION_BONUS_ROLL_ERROR);
+            l_Packet << uint32(MissionBonusRollResults::Error);
 
             m_Owner->SendDirectMessage(&l_Packet);
 
@@ -1367,7 +1368,7 @@ namespace MS { namespace Garrison
 
         WorldPacket l_Packet(SMSG_GARRISON_MISSION_BONUS_ROLL_RESULT, 100);
 
-        l_Packet << uint64(l_Mission->DB_ID);
+        l_Packet << uint64(l_Mission->DatabaseID);
         l_Packet << uint32(l_Mission->MissionID);
         l_Packet << uint32(l_Mission->OfferTime);
         l_Packet << uint32(l_Mission->OfferMaxDuration);
@@ -1377,7 +1378,7 @@ namespace MS { namespace Garrison
         l_Packet << uint32(l_Mission->State);
 
         l_Packet << uint32(p_MissionRecID);
-        l_Packet << uint32(GARRISON_MISSION_BONUS_ROLL_OK);
+        l_Packet << uint32(MissionBonusRollResults::Ok);
 
         m_Owner->SendDirectMessage(&l_Packet);
 
@@ -1395,7 +1396,7 @@ namespace MS { namespace Garrison
 
         std::for_each(m_Followers.begin(), m_Followers.end(), [this, &l_MissionFollowers](const GarrisonFollower & p_Follower) -> void
         {
-            if (std::find(m_PendingMissionReward.MissionFollowers.begin(), m_PendingMissionReward.MissionFollowers.end(), p_Follower.DB_ID) != m_PendingMissionReward.MissionFollowers.end())
+            if (std::find(m_PendingMissionReward.MissionFollowers.begin(), m_PendingMissionReward.MissionFollowers.end(), p_Follower.DatabaseID) != m_PendingMissionReward.MissionFollowers.end())
                 l_MissionFollowers.push_back(const_cast<GarrisonFollower*>(&p_Follower));
         });
 
@@ -1411,7 +1412,7 @@ namespace MS { namespace Garrison
 
             std::for_each(m_PendingMissionReward.RewardFollowerXPBonus.begin(), m_PendingMissionReward.RewardFollowerXPBonus.end(), [p_Follower, &l_AddedXP](const std::pair<uint64, uint32> & p_Values)
             {
-                if (p_Values.first == p_Follower->DB_ID)
+                if (p_Values.first == p_Follower->DatabaseID)
                     l_AddedXP += p_Values.second;
             });
 
@@ -1431,7 +1432,7 @@ namespace MS { namespace Garrison
     {
         for (uint32 l_I = 0; l_I < m_Missions.size(); ++l_I)
         {
-            if (m_Missions[l_I].State == GARRISON_MISSION_IN_PROGRESS)
+            if (m_Missions[l_I].State == MissionStates::InProgress)
                 m_Missions[l_I].StartTime = time(0) - (GetMissionTravelDuration(m_Missions[l_I].MissionID) + GetMissionDuration(m_Missions[l_I].MissionID));
         }
 
@@ -1478,7 +1479,7 @@ namespace MS { namespace Garrison
         return l_AbilitiesEffects;
     }
     /// Get mission followers abilities effect
-    std::vector<uint32> Manager::GetMissionFollowersAbilitiesEffects(uint32 p_MissionRecID, GarrisonAbilityEffectType p_Type, uint32 p_TargetMask)
+    std::vector<uint32> Manager::GetMissionFollowersAbilitiesEffects(uint32 p_MissionRecID, AbilityEffectTypes::Type p_Type, uint32 p_TargetMask)
     {
         std::vector<GarrisonFollower*> l_MissionFollowers = GetMissionFollowers(p_MissionRecID);
         std::vector<uint32>            l_AbilitiesEffects;
@@ -1521,7 +1522,7 @@ namespace MS { namespace Garrison
             if (!l_AbilityEffectEntry)
                 continue;
 
-            if (l_AbilityEffectEntry->EffectType == GARRISION_ABILITY_EFFECT_MOD_TRAVEL_TIME)
+            if (l_AbilityEffectEntry->EffectType == AbilityEffectTypes::ModTravelTime)
                 l_MissionTravelTime = l_MissionTravelTime * l_AbilityEffectEntry->Amount;
         }
 
@@ -1532,7 +1533,7 @@ namespace MS { namespace Garrison
             if (!l_AbilityEffectEntry)
                 continue;
 
-            if (l_AbilityEffectEntry->EffectType == GARRISION_ABILITY_EFFECT_MOD_TRAVEL_TIME)
+            if (l_AbilityEffectEntry->EffectType == AbilityEffectTypes::ModTravelTime)
                 l_MissionTravelTime = l_MissionTravelTime * l_AbilityEffectEntry->Amount;
         }
 
@@ -1552,7 +1553,7 @@ namespace MS { namespace Garrison
             if (!l_AbilityEffectEntry)
                 continue;
 
-            if (l_AbilityEffectEntry->EffectType == GARRISION_ABILITY_EFFECT_MOD_MISSION_DURATION)
+            if (l_AbilityEffectEntry->EffectType == AbilityEffectTypes::ModMissionDuration)
                 l_MissionDuration = l_MissionDuration * l_AbilityEffectEntry->Amount;
         }
 
@@ -1593,7 +1594,7 @@ namespace MS { namespace Garrison
         {
             double l_FollowerBias = (l_MissionFollowers[l_Y]->Level - l_MissionTemplate->RequiredLevel) * 0.33333334;
 
-            if (l_MissionTemplate->RequiredLevel == GARRISON_MAX_FOLLOWER_LEVEL)
+            if (l_MissionTemplate->RequiredLevel == Globals::MaxFollowerLevel)
             {
                 if (l_MissionTemplate->RequiredItemLevel > 0)
                 {
@@ -1607,7 +1608,7 @@ namespace MS { namespace Garrison
             else if (l_FollowerBias > 1.0)
                 l_FollowerBias = 1.0;
 
-            l_FollowersBiasMap[l_MissionFollowers[l_Y]->DB_ID] = l_FollowerBias;
+            l_FollowersBiasMap[l_MissionFollowers[l_Y]->DatabaseID] = l_FollowerBias;
 
             #ifdef GARRISON_CHEST_FORMULA_DEBUG
                 printf("Follower %u bias %Lf\n", l_MissionFollowers[l_Y]->FollowerID, l_FollowerBias);
@@ -1625,7 +1626,7 @@ namespace MS { namespace Garrison
             const GarrMechanicEntry     * l_MechanicEntry       = sGarrMechanicStore.LookupEntry(l_EncoutersMechanics[l_I].second);
             const GarrMechanicTypeEntry * l_MechanicTypeEntry   = sGarrMechanicTypeStore.LookupEntry(l_MechanicEntry->MechanicTypeID);
 
-            if (l_MechanicTypeEntry && l_MechanicTypeEntry->Type != GARRISON_MECHANIC_TYPE_ABILITY)
+            if (l_MechanicTypeEntry && l_MechanicTypeEntry->Type != MechanicTypes::Ability)
             {
                 l_V8 = l_V60;
             }
@@ -1647,10 +1648,10 @@ namespace MS { namespace Garrison
         {
             double l_Seil = 0;
 
-            if (l_FollowersBiasMap[l_MissionFollowers[l_Y]->DB_ID] >= 0.0)
-                l_Seil = (l_FloatC - l_Float8) * l_FollowersBiasMap[l_MissionFollowers[l_Y]->DB_ID] + l_Float8;
+            if (l_FollowersBiasMap[l_MissionFollowers[l_Y]->DatabaseID] >= 0.0)
+                l_Seil = (l_FloatC - l_Float8) * l_FollowersBiasMap[l_MissionFollowers[l_Y]->DatabaseID] + l_Float8;
             else
-                l_Seil = (l_FollowersBiasMap[l_MissionFollowers[l_Y]->DB_ID] + 1.0) * l_Float8;
+                l_Seil = (l_FollowersBiasMap[l_MissionFollowers[l_Y]->DatabaseID] + 1.0) * l_Float8;
 
             l_V8 = (l_Seil * l_V11) + l_CurrentAdditionalWinChance;
             l_CurrentAdditionalWinChance = (l_Seil * l_V11) + l_CurrentAdditionalWinChance;
@@ -1671,7 +1672,7 @@ namespace MS { namespace Garrison
             const GarrMechanicEntry     * l_MechanicEntry       = sGarrMechanicStore.LookupEntry(l_EncoutersMechanics[l_I].second);
             const GarrMechanicTypeEntry * l_MechanicTypeEntry   = sGarrMechanicTypeStore.LookupEntry(l_MechanicEntry->MechanicTypeID);
 
-            if (l_MechanicTypeEntry->Type == GARRISON_MECHANIC_TYPE_ABILITY)
+            if (l_MechanicTypeEntry->Type == MechanicTypes::Ability)
             {
                 double l_Unk1 = l_MechanicEntry->Unk2;
                 double l_Unk2 = l_MechanicEntry->Unk2;
@@ -1698,10 +1699,10 @@ namespace MS { namespace Garrison
                                     {
                                         float l_Seil = 0;
 
-                                        if (l_FollowersBiasMap[l_MissionFollowers[l_Y]->DB_ID] >= 0.0)
-                                            l_Seil = (l_AbilityEffectEntry->ModMax - l_AbilityEffectEntry->ModMin) * l_FollowersBiasMap[l_MissionFollowers[l_Y]->DB_ID] + l_AbilityEffectEntry->ModMin;
+                                        if (l_FollowersBiasMap[l_MissionFollowers[l_Y]->DatabaseID] >= 0.0)
+                                            l_Seil = (l_AbilityEffectEntry->ModMax - l_AbilityEffectEntry->ModMin) * l_FollowersBiasMap[l_MissionFollowers[l_Y]->DatabaseID] + l_AbilityEffectEntry->ModMin;
                                         else
-                                            l_Seil = (l_FollowersBiasMap[l_MissionFollowers[l_Y]->DB_ID] + 1.0) * l_AbilityEffectEntry->ModMin;
+                                            l_Seil = (l_FollowersBiasMap[l_MissionFollowers[l_Y]->DatabaseID] + 1.0) * l_AbilityEffectEntry->ModMin;
 
                                         l_Unk1 = l_MechanicEntry->Unk2;
 
@@ -1740,7 +1741,7 @@ namespace MS { namespace Garrison
             const GarrMechanicEntry     * l_MechanicEntry       = sGarrMechanicStore.LookupEntry(l_EncoutersMechanics[l_I].second);
             const GarrMechanicTypeEntry * l_MechanicTypeEntry   = sGarrMechanicTypeStore.LookupEntry(l_MechanicEntry->MechanicTypeID);
 
-            if (l_MechanicTypeEntry->Type == GARRISON_MECHANIC_TYPE_RACIAL)
+            if (l_MechanicTypeEntry->Type == MechanicTypes::Racial)
             {
                 for (uint32 l_Y = 0; l_Y < l_MissionFollowers.size(); ++l_Y)
                 {
@@ -1759,10 +1760,10 @@ namespace MS { namespace Garrison
                             {
                                 double l_Seil = 0;
 
-                                if (l_FollowersBiasMap[l_MissionFollowers[l_Y]->DB_ID] >= 0.0)
-                                    l_Seil = (l_AbilityEffectEntry->ModMax - l_AbilityEffectEntry->ModMin) * l_FollowersBiasMap[l_MissionFollowers[l_Y]->DB_ID] + l_AbilityEffectEntry->ModMin;
+                                if (l_FollowersBiasMap[l_MissionFollowers[l_Y]->DatabaseID] >= 0.0)
+                                    l_Seil = (l_AbilityEffectEntry->ModMax - l_AbilityEffectEntry->ModMin) * l_FollowersBiasMap[l_MissionFollowers[l_Y]->DatabaseID] + l_AbilityEffectEntry->ModMin;
                                 else
-                                    l_Seil = (l_FollowersBiasMap[l_MissionFollowers[l_Y]->DB_ID] + 1.0) * l_AbilityEffectEntry->ModMin;
+                                    l_Seil = (l_FollowersBiasMap[l_MissionFollowers[l_Y]->DatabaseID] + 1.0) * l_AbilityEffectEntry->ModMin;
 
                                 l_CurrentAdditionalWinChance = (l_Seil * l_V62) + l_CurrentAdditionalWinChance;
 
@@ -1799,10 +1800,10 @@ namespace MS { namespace Garrison
                     {
                         double l_Seil = 0;
 
-                        if (l_FollowersBiasMap[l_MissionFollowers[l_Y]->DB_ID] >= 0.0)
-                            l_Seil = (l_AbilityEffectEntry->ModMax - l_AbilityEffectEntry->ModMin) * l_FollowersBiasMap[l_MissionFollowers[l_Y]->DB_ID] + l_AbilityEffectEntry->ModMin;
+                        if (l_FollowersBiasMap[l_MissionFollowers[l_Y]->DatabaseID] >= 0.0)
+                            l_Seil = (l_AbilityEffectEntry->ModMax - l_AbilityEffectEntry->ModMin) * l_FollowersBiasMap[l_MissionFollowers[l_Y]->DatabaseID] + l_AbilityEffectEntry->ModMin;
                         else
-                            l_Seil = (l_FollowersBiasMap[l_MissionFollowers[l_Y]->DB_ID] + 1.0) * l_AbilityEffectEntry->ModMin;
+                            l_Seil = (l_FollowersBiasMap[l_MissionFollowers[l_Y]->DatabaseID] + 1.0) * l_AbilityEffectEntry->ModMin;
 
                         l_CurrentAdditionalWinChance = (l_Seil * l_V62) + l_CurrentAdditionalWinChance;
 
@@ -1841,17 +1842,17 @@ namespace MS { namespace Garrison
                     switch (l_AbilityEffectEntry->EffectType)
                     {
                         /// Proc if MissionFollowerCount == 1
-                        case GARRISION_ABILITY_EFFECT_MOD_WIN_RATE_SOLO:
+                        case AbilityEffectTypes::ModWinRateSolo:
                             l_Proc = l_MissionFollowers.size() == 1;
                             break;
 
                         /// Proc every time, no condition
-                        case GARRISION_ABILITY_EFFECT_MOD_WIN_RATE:
+                        case AbilityEffectTypes::ModWinRate:
                             l_Proc = true;
                             break;
 
                         /// Proc if Find(MissionFollowers[Class], MiscValueA) != NULL
-                        case GARRISION_ABILITY_EFFECT_MOD_WIN_RATE_CLASS:
+                        case AbilityEffectTypes::ModWinRateClass:
                             for (uint32 l_W = 0; l_W < l_MissionFollowers.size(); ++l_W)
                             {
                                 if (l_W != l_Y)
@@ -1868,36 +1869,36 @@ namespace MS { namespace Garrison
                             break;
 
                         /// Proc if Duration > (3600 * MiscValueB)
-                        case GARRISION_ABILITY_EFFECT_MOD_WIN_RATE_DURATION_MORE:
+                        case AbilityEffectTypes::ModWinRateDurationMore:
                             l_Proc = l_MissionDuration > (3600 * l_AbilityEffectEntry->MiscValueB);
                             break;
 
                         /// Proc if Duration < (3600 * MiscValueB)
-                        case GARRISION_ABILITY_EFFECT_MOD_WIN_RATE_DURATION_LESS:
+                        case AbilityEffectTypes::ModWinRateDurationLess:
                             l_Proc = l_MissionDuration < (3600 * l_AbilityEffectEntry->MiscValueB);
                             break;
 
                         /// Proc if TravelDuration > (3600 * MiscValueB)
-                        case GARRISION_ABILITY_EFFECT_MOD_WIN_RATE_TRAVEL_DURATION_MORE:
+                        case AbilityEffectTypes::ModWinRateTravelDurationMore:
                             l_Proc = l_MissionTravelTime > (3600 * l_AbilityEffectEntry->MiscValueB);
                             break;
 
                         /// Proc if TravelDuration < (3600 * MiscValueB)
-                        case GARRISION_ABILITY_EFFECT_MOD_WIN_RATE_TRAVEL_DURATION_LESS:
+                        case AbilityEffectTypes::ModWinRateTravelDurationLess:
                             l_Proc = l_MissionTravelTime < (3600 * l_AbilityEffectEntry->MiscValueB);
                             break;
 
-                        case GARRISION_ABILITY_EFFECT_UNK_0:
-                        case GARRISION_ABILITY_EFFECT_MOD_TRAVEL_TIME:
-                        case GARRISION_ABILITY_EFFECT_MOD_XP_GAIN:
-                        case GARRISION_ABILITY_EFFECT_MOD_GARR_CURRENCY_DROP:
-                        case GARRISION_ABILITY_EFFECT_UNK_11:
-                        case GARRISION_ABILITY_EFFECT_MOD_DUMMY_PRODUCTION:
-                        case GARRISION_ABILITY_EFFECT_MOD_BRONZE_TREASURE_DROP:
-                        case GARRISION_ABILITY_EFFECT_MOD_SILVER_TREASURE_DROP:
-                        case GARRISION_ABILITY_EFFECT_MOD_GOLD_TREASURE_DROP:
-                        case GARRISION_ABILITY_EFFECT_MOD_CHEST_DROP_RATE:
-                        case GARRISION_ABILITY_EFFECT_MOD_MISSION_DURATION:
+                        case AbilityEffectTypes::ModUnk0:
+                        case AbilityEffectTypes::ModTravelTime:
+                        case AbilityEffectTypes::ModXpGain:
+                        case AbilityEffectTypes::ModGarrCurrencyDrop:
+                        case AbilityEffectTypes::ModUnk11:
+                        case AbilityEffectTypes::ModDummyProduction:
+                        case AbilityEffectTypes::ModBronzeTreasureDrop:
+                        case AbilityEffectTypes::ModSilverTreasureDrop:
+                        case AbilityEffectTypes::ModGoldTreasureDrop:
+                        case AbilityEffectTypes::ModChestDropRate:
+                        case AbilityEffectTypes::ModMissionDuration:
                             break;
 
                         default:
@@ -1910,10 +1911,10 @@ namespace MS { namespace Garrison
 
                     double l_Seil = 0.0;
 
-                    if (l_FollowersBiasMap[l_MissionFollowers[l_Y]->DB_ID] >= 0.0)
-                        l_Seil = (l_AbilityEffectEntry->ModMax - l_AbilityEffectEntry->ModMin) * l_FollowersBiasMap[l_MissionFollowers[l_Y]->DB_ID] + l_AbilityEffectEntry->ModMin;
+                    if (l_FollowersBiasMap[l_MissionFollowers[l_Y]->DatabaseID] >= 0.0)
+                        l_Seil = (l_AbilityEffectEntry->ModMax - l_AbilityEffectEntry->ModMin) * l_FollowersBiasMap[l_MissionFollowers[l_Y]->DatabaseID] + l_AbilityEffectEntry->ModMin;
                     else
-                        l_Seil = (l_FollowersBiasMap[l_MissionFollowers[l_Y]->DB_ID] + 1.0) * l_AbilityEffectEntry->ModMin;
+                        l_Seil = (l_FollowersBiasMap[l_MissionFollowers[l_Y]->DatabaseID] + 1.0) * l_AbilityEffectEntry->ModMin;
 
                     l_CurrentAdditionalWinChance = (l_Seil * l_V62) + l_CurrentAdditionalWinChance;
 
@@ -1937,7 +1938,7 @@ namespace MS { namespace Garrison
             if (!l_AbilityEffectEntry)
                 continue;
 
-            if (l_AbilityEffectEntry->EffectType == GARRISION_ABILITY_EFFECT_MOD_WIN_RATE)
+            if (l_AbilityEffectEntry->EffectType == AbilityEffectTypes::ModWinRate)
             {
                 l_CurrentAdditionalWinChance = (l_AbilityEffectEntry->ModMin * l_V62) + l_CurrentAdditionalWinChance;
 
@@ -1969,8 +1970,8 @@ namespace MS { namespace Garrison
 
         for (uint32 l_I = 0; l_I < m_Missions.size(); ++l_I)
         {
-            if (m_Missions[l_I].State < GARRISON_MISSION_COMPLETE_SUCCESS
-                && !((m_Missions[l_I].OfferTime + m_Missions[l_I].OfferMaxDuration) < time(0) && m_Missions[l_I].State == GARRISON_MISSION_AVAILABLE))
+            if (m_Missions[l_I].State < MissionStates::CompleteSuccess
+                && !((m_Missions[l_I].OfferTime + m_Missions[l_I].OfferMaxDuration) < time(0) && m_Missions[l_I].State == MissionStates::Available))
                 l_Result.push_back(m_Missions[l_I]);
         }
 
@@ -1982,7 +1983,7 @@ namespace MS { namespace Garrison
         std::vector<GarrisonMission> l_Result;
 
         for (uint32 l_I = 0; l_I < m_Missions.size(); ++l_I)
-            if (m_Missions[l_I].State >= GARRISON_MISSION_COMPLETE_SUCCESS)
+            if (m_Missions[l_I].State >= MissionStates::CompleteSuccess)
                 l_Result.push_back(m_Missions[l_I]);
 
         return l_Result;
@@ -2003,7 +2004,7 @@ namespace MS { namespace Garrison
             return false;
 
         GarrisonFollower l_Follower;
-        l_Follower.DB_ID                = sObjectMgr->GetNewGarrisonFollowerID();
+        l_Follower.DatabaseID                = sObjectMgr->GetNewGarrisonFollowerID();
         l_Follower.FollowerID           = p_FollowerID;
         l_Follower.Level                = l_Entry->Level;
         l_Follower.XP                   = 0;
@@ -2030,7 +2031,7 @@ namespace MS { namespace Garrison
         PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GARRISON_FOLLOWER);
 
         uint32 l_Index = 0;
-        l_Stmt->setUInt32(l_Index++, l_Follower.DB_ID);
+        l_Stmt->setUInt32(l_Index++, l_Follower.DatabaseID);
         l_Stmt->setUInt32(l_Index++, m_ID);
         l_Stmt->setUInt32(l_Index++, l_Follower.FollowerID);
         l_Stmt->setUInt32(l_Index++, l_Follower.Level);
@@ -2061,17 +2062,17 @@ namespace MS { namespace Garrison
 
         if (p_Active)
         {
-            if (!m_Owner->HasEnoughMoney((uint64)GARRISON_FOLLOWER_ACTIVATION_COST))
+            if (!m_Owner->HasEnoughMoney((uint64)Globals::FollowerActivationCost))
                 return;
 
             if (GetNumFollowerActivationsRemaining() < 1)
                 return;
 
-            auto l_It = std::find_if(m_Followers.begin(), m_Followers.end(), [p_FollowerDBID](const GarrisonFollower & p_Follower) { return p_Follower.DB_ID == p_FollowerDBID; });
+            auto l_It = std::find_if(m_Followers.begin(), m_Followers.end(), [p_FollowerDBID](const GarrisonFollower & p_Follower) { return p_Follower.DatabaseID == p_FollowerDBID; });
 
             if (l_It != m_Followers.end())
             {
-                m_Owner->ModifyMoney(-GARRISON_FOLLOWER_ACTIVATION_COST);
+                m_Owner->ModifyMoney(-Globals::FollowerActivationCost);
 
                 m_NumFollowerActivation--;
                 m_NumFollowerActivationRegenTimestamp = time(0);
@@ -2087,14 +2088,14 @@ namespace MS { namespace Garrison
         }
         else
         {
-            if (!m_Owner->HasEnoughMoney((uint64)GARRISON_FOLLOWER_ACTIVATION_COST))
+            if (!m_Owner->HasEnoughMoney((uint64)Globals::FollowerActivationCost))
                 return;
 
-            auto l_It = std::find_if(m_Followers.begin(), m_Followers.end(), [p_FollowerDBID](const GarrisonFollower & p_Follower) { return p_Follower.DB_ID == p_FollowerDBID; });
+            auto l_It = std::find_if(m_Followers.begin(), m_Followers.end(), [p_FollowerDBID](const GarrisonFollower & p_Follower) { return p_Follower.DatabaseID == p_FollowerDBID; });
 
             if (l_It != m_Followers.end())
             {
-                m_Owner->ModifyMoney(-GARRISON_FOLLOWER_ACTIVATION_COST);
+                m_Owner->ModifyMoney(-Globals::FollowerActivationCost);
 
                 l_It->Flags |= GARRISON_FOLLOWER_FLAG_INACTIVE;
                 l_Follower = &(*l_It);
@@ -2177,20 +2178,20 @@ namespace MS { namespace Garrison
         return false;
     }
     /// Player fill all condition
-    GarrisonPurchaseBuildingResult Manager::CanPurchaseBuilding(uint32 p_BuildingRecID)
+    PurchaseBuildingResults::Type Manager::CanPurchaseBuilding(uint32 p_BuildingRecID)
     {
         const GarrBuildingEntry * l_BuildingEntry = sGarrBuildingStore.LookupEntry(p_BuildingRecID);
 
         if (!l_BuildingEntry)
-            return GARRISON_PURCHASE_BUILDING_INVALID_BUILDING_ID;
+            return PurchaseBuildingResults::InvalidBuildingID;
 
         if (l_BuildingEntry->BuildCostCurrencyID != 0)
         {
             if (!m_Owner->HasCurrency(l_BuildingEntry->BuildCostCurrencyID, l_BuildingEntry->BuildCostCurrencyAmount))
-                return GARRISON_PURCHASE_BUILDING_NOT_ENOUGH_CURRENCY;
+                return PurchaseBuildingResults::NotEnoughCurrency;
         }
 
-        return GARRISON_PURCHASE_BUILDING_OK;
+        return PurchaseBuildingResults::Ok;
     }
     /// PurchaseBuilding
     GarrisonBuilding Manager::PurchaseBuilding(uint32 p_BuildingRecID, uint32 p_PlotInstanceID, bool p_Triggered)
@@ -2225,7 +2226,7 @@ namespace MS { namespace Garrison
         if (GetGarrisonScript())
             l_BuildingTime = GetGarrisonScript()->OnPrePurchaseBuilding(m_Owner, p_BuildingRecID, l_BuildingTime);
 
-        l_Building.DB_ID            = sObjectMgr->GetNewGarrisonBuildingID();
+        l_Building.DatabaseID            = sObjectMgr->GetNewGarrisonBuildingID();
         l_Building.BuildingID       = p_BuildingRecID;
         l_Building.PlotInstanceID   = p_PlotInstanceID;
         l_Building.TimeBuiltStart   = time(0);
@@ -2240,7 +2241,7 @@ namespace MS { namespace Garrison
         PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GARRISON_BUILDING);
 
         uint32 l_Index = 0;
-        l_Stmt->setUInt32(l_Index++, l_Building.DB_ID);
+        l_Stmt->setUInt32(l_Index++, l_Building.DatabaseID);
         l_Stmt->setUInt32(l_Index++, m_ID);
         l_Stmt->setUInt32(l_Index++, l_Building.PlotInstanceID);
         l_Stmt->setUInt32(l_Index++, l_Building.BuildingID);
@@ -2373,7 +2374,7 @@ namespace MS { namespace Garrison
             return;
 
         PreparedStatement * l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GARRISON_BUILDING);
-        l_Stmt->setUInt32(0, GetBuilding(p_PlotInstanceID).DB_ID);
+        l_Stmt->setUInt32(0, GetBuilding(p_PlotInstanceID).DatabaseID);
         CharacterDatabase.AsyncQuery(l_Stmt);
 
         for (std::vector<GarrisonBuilding>::iterator l_It = m_Buildings.begin(); l_It != m_Buildings.end(); ++l_It)
@@ -2400,7 +2401,7 @@ namespace MS { namespace Garrison
         m_Owner->SendDirectMessage(&l_PlotPlacedPacket);
 
         WorldPacket l_BuildingRemovedPacket(SMSG_GARRISON_BUILDING_REMOVED, 12);
-        l_BuildingRemovedPacket << uint32(GARRISON_PURCHASE_BUILDING_OK);
+        l_BuildingRemovedPacket << uint32(PurchaseBuildingResults::Ok);
         l_BuildingRemovedPacket << uint32(p_PlotInstanceID);
         l_BuildingRemovedPacket << uint32(l_BuildingID);
 
@@ -2418,7 +2419,7 @@ namespace MS { namespace Garrison
     /// Learn blue print
     bool Manager::LearnBlueprint(uint32 p_BuildingRecID)
     {
-        GarrisonLearnBluePrintResult l_ResultCode;
+        LearnBluePrintResults::Type l_ResultCode;
 
         if (std::find(m_KnownBlueprints.begin(), m_KnownBlueprints.end(), p_BuildingRecID) == m_KnownBlueprints.end())
         {
@@ -2427,16 +2428,16 @@ namespace MS { namespace Garrison
             if (l_BuildingEntry)
             {
                 m_KnownBlueprints.push_back(p_BuildingRecID);
-                l_ResultCode = GARRISON_LEARN_BLUEPRINT_LEARNED;
+                l_ResultCode = LearnBluePrintResults::Learned;
             }
             else
             {
-                l_ResultCode = GARRISON_LEARN_BLUEPRINT_UNABLE_TO_LEARN;
+                l_ResultCode = LearnBluePrintResults::UnableToLearn;
             }
         }
         else
         {
-            l_ResultCode = GARRISON_LEARN_BLUEPRINT_KNOWN;
+            l_ResultCode = LearnBluePrintResults::Known;
         }
 
         WorldPacket l_Result(SMSG_GARRISON_LEARN_BLUEPRINT_RESULT, 8);
@@ -2502,7 +2503,7 @@ namespace MS { namespace Garrison
         /// Find all plots for garrison level
         m_Plots.clear();
 
-        for (uint32 l_I = 0; l_I < GARRISON_PLOT_INSTANCE_COUNT; ++l_I)
+        for (uint32 l_I = 0; l_I < Globals::PlotInstanceCount; ++l_I)
         {
             if (gGarrisonPlotInstanceInfoLocation[l_I].SiteLevelID == m_GarrisonLevelID)
                 m_Plots.push_back(gGarrisonPlotInstanceInfoLocation[l_I]);
@@ -2615,13 +2616,13 @@ namespace MS { namespace Garrison
 
         if (PlotIsFree(p_PlotInstanceID))
         {
-            l_GobEntry = gGarrisonEmptyPlotGameObject[GetPlotType(p_PlotInstanceID) + (GetGarrisonFactionIndex() * GARRISON_PLOT_TYPE_MAX)];
+            l_GobEntry = gGarrisonEmptyPlotGameObject[GetPlotType(p_PlotInstanceID) + (GetGarrisonFactionIndex() * PlotTypes::Max)];
         }
         else
         {
             if (!l_Building.Active)
             {
-                l_GobEntry = gGarrisonBuildingPlotGameObject[GetPlotType(p_PlotInstanceID) + (GetGarrisonFactionIndex() * GARRISON_PLOT_TYPE_MAX)];
+                l_GobEntry = gGarrisonBuildingPlotGameObject[GetPlotType(p_PlotInstanceID) + (GetGarrisonFactionIndex() * PlotTypes::Max)];
 
                 if (time(0) > l_Building.TimeBuiltEnd)
                     l_SpanwActivateGob  = true;
@@ -2789,7 +2790,7 @@ namespace MS { namespace Garrison
                         float l_XAxisSize = fabs(l_GobDispInfo->maxX - l_GobDispInfo->minX) * l_Gob->GetFloatValue(OBJECT_FIELD_SCALE);
 
                         /// We use a "diminish return" on box size for big plots
-                        l_NonRotatedPosition.x += l_XAxisSize * (gGarrisonBuildingPlotAABBDiminishReturnFactor[GetPlotType(p_PlotInstanceID) + (GetGarrisonFactionIndex() * GARRISON_PLOT_TYPE_MAX)] / l_XAxisSize);
+                        l_NonRotatedPosition.x += l_XAxisSize * (gGarrisonBuildingPlotAABBDiminishReturnFactor[GetPlotType(p_PlotInstanceID) + (GetGarrisonFactionIndex() * PlotTypes::Max)] / l_XAxisSize);
                     }
 
                     l_Mat = G3D::Matrix3::identity();
@@ -2858,7 +2859,7 @@ namespace MS { namespace Garrison
             }
         }
 
-        m_Stat_MaxActiveFollower = l_BonusMaxActiveFollower + GARRISON_DEFAULT_MAX_ACTIVE_FOLLOW;
+        m_Stat_MaxActiveFollower = l_BonusMaxActiveFollower + Globals::MaxActiveFollower;
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -2885,7 +2886,7 @@ namespace MS { namespace Garrison
     void Manager::UpdateFollowers()
     {
         /// Update follower activation count
-        if (m_NumFollowerActivation < GARRISON_FOLLOWER_ACTIVATION_MAX_STACK && (time(0) - m_NumFollowerActivationRegenTimestamp) > DAY)
+        if (m_NumFollowerActivation < Globals::FollowerActivationMaxStack && (time(0) - m_NumFollowerActivationRegenTimestamp) > DAY)
         {
             m_NumFollowerActivation++;
             m_NumFollowerActivationRegenTimestamp = time(0);
@@ -2926,18 +2927,18 @@ namespace MS { namespace Garrison
             return;
         }
 
-        uint32 l_NumRessourceGenerated = std::min((uint32)((time(0) - m_CacheLastUsage) / GARRISON_CACHE_GENERATE_TICK), (uint32)GARRISON_CACHE_MAX_CURRENCY);
+        uint32 l_NumRessourceGenerated = std::min((uint32)((time(0) - m_CacheLastUsage) / Globals::CacheTokenGenerateTime), (uint32)Globals::CacheMaxToken);
 
         if (!m_CacheGameObjectGUID)
         {
             m_CacheLastTokenAmount = l_NumRessourceGenerated;
-            m_Owner->SendUpdateWorldState(GARRISON_WORLD_STATE_CACHE_NUM_TOKEN, l_NumRessourceGenerated);
+            m_Owner->SendUpdateWorldState(WorldStates::CacheNumToken, l_NumRessourceGenerated);
 
-            if (l_NumRessourceGenerated >= GARRISON_CACHE_MIN_CURRENCY)
+            if (l_NumRessourceGenerated >= Globals::CacheMinToken)
             {
                 /// Get display ID
-                uint32 l_DisplayIDOffset    = l_NumRessourceGenerated == GARRISON_CACHE_MAX_CURRENCY ? 2 : ((l_NumRessourceGenerated > GARRISON_CACHE_HEFTY_CURRENCY) ? 1 : 0);
-                const uint32 & l_DisplayID  = gGarrisonCacheGameObjectID[(GetGarrisonFactionIndex() * GARRISON_MAX_LEVEL) + l_DisplayIDOffset];
+                uint32 l_DisplayIDOffset    = l_NumRessourceGenerated == Globals::CacheMaxToken ? 2 : ((l_NumRessourceGenerated > Globals::CacheHeftyToken) ? 1 : 0);
+                const uint32 & l_DisplayID  = gGarrisonCacheGameObjectID[(GetGarrisonFactionIndex() * Globals::MaxLevel) + l_DisplayIDOffset];
 
                 /// Destroy old cache if exist
                 GameObject * l_Cache = HashMapHolder<GameObject>::Find(m_CacheGameObjectGUID);
@@ -2954,7 +2955,7 @@ namespace MS { namespace Garrison
                 if (m_Owner->IsInGarrison())
                 {
                     /// Extract new location
-                    const GarrisonCacheInfoLocation & l_Location = gGarrisonCacheInfoLocation[(GetGarrisonFactionIndex() * GARRISON_MAX_LEVEL) + (m_GarrisonLevel - 1)];
+                    const GarrisonCacheInfoLocation & l_Location = gGarrisonCacheInfoLocation[(GetGarrisonFactionIndex() * Globals::MaxLevel) + (m_GarrisonLevel - 1)];
                     l_Cache = m_Owner->SummonGameObject(l_DisplayID, l_Location.X, l_Location.Y, l_Location.Z, l_Location.O, 0, 0, 0, 0, 0);
 
                     if (l_Cache)
@@ -2964,7 +2965,7 @@ namespace MS { namespace Garrison
             }
         }
     
-        if (m_CacheGameObjectGUID && l_NumRessourceGenerated < GARRISON_CACHE_MIN_CURRENCY)
+        if (m_CacheGameObjectGUID && l_NumRessourceGenerated < Globals::CacheMinToken)
         {
             GameObject * l_Cache = HashMapHolder<GameObject>::Find(m_CacheGameObjectGUID);
 
@@ -2981,7 +2982,7 @@ namespace MS { namespace Garrison
     void Manager::UpdateMissionDistribution()
     {
         /// Do ramdom mission distribution
-        if ((time(0) - m_MissionDistributionLastUpdate) > GARRISON_MISSION_DISTRIB_INTERVAL)
+        if ((time(0) - m_MissionDistributionLastUpdate) > Globals::MissionDistributionInterval)
         {
             /// Random, no detail about how blizzard do
             uint32 l_MaxMissionCount = ceil(m_Followers.size() * GARRISON_MISSION_DISTRIB_FOLLOWER_COEFF);
@@ -2989,7 +2990,7 @@ namespace MS { namespace Garrison
 
             std::for_each(m_Missions.begin(), m_Missions.end(), [&l_CurrentAvailableMission](const GarrisonMission & p_Mission) -> void
             {
-                if (p_Mission.State == GARRISON_MISSION_AVAILABLE && (p_Mission.OfferTime + p_Mission.OfferMaxDuration) > time(0))
+                if (p_Mission.State == MissionStates::Available && (p_Mission.OfferTime + p_Mission.OfferMaxDuration) > time(0))
                     l_CurrentAvailableMission++;
             });
 
@@ -3027,7 +3028,7 @@ namespace MS { namespace Garrison
                     if (l_Entry->Duration <= 10)
                         continue;
 
-                    if (l_Entry->RequiredFollowersCount > GARRISON_MAX_FOLLOWER_PER_MISSION)
+                    if (l_Entry->RequiredFollowersCount > Globals::MaxFollowerPerMission)
                         continue;
 
                     /// Max Level cap : 2
@@ -3069,21 +3070,22 @@ namespace MS { namespace Garrison
 
         switch (GetGarrisonFactionIndex())
         {
-            case GARRISON_FACTION_ALLIANCE:
+            case Factions::Alliance:
                 l_AbilityOverrideSpellID = GARRISON_SPELL_GARR_ABILITY_ALLIANCE_BASE;
                 break;
 
-            case GARRISON_FACTION_HORDE:
+            case Factions::Horde:
                 l_AbilityOverrideSpellID = GARRISON_SPELL_GARR_ABILITY_HORDE_BASE;
                 break;
 
+            case Factions::Max:
             default:
                 ASSERT(false);
                 break;
 
         }
 
-        if (m_Owner->IsInGarrison() || m_Owner->GetMapId() == GARRISON_BASE_MAP)
+        if (m_Owner->IsInGarrison() || m_Owner->GetMapId() == Globals::BaseMap)
         {
             if (!m_Owner->HasAura(l_AbilityOverrideSpellID))
                 m_Owner->AddAura(l_AbilityOverrideSpellID, m_Owner);

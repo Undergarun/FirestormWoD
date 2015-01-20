@@ -70,7 +70,7 @@ namespace MS { namespace Garrison
             /// Get GarrSiteLevelEntry for current garrison
             const GarrSiteLevelEntry * GetGarrisonSiteLevelEntry();
             /// Get Garrison Faction Index
-            GarrisonFactionIndex GetGarrisonFactionIndex();
+            Factions::Type GetGarrisonFactionIndex();
 
             /// Get plots for level
             std::vector<GarrisonPlotInstanceInfoLocation> GetPlots();
@@ -106,7 +106,7 @@ namespace MS { namespace Garrison
             /// Get mission followers abilities effect
             std::vector<uint32> GetMissionFollowersAbilitiesEffects(uint32 p_MissionRecID);
             /// Get mission followers abilities effect
-            std::vector<uint32> GetMissionFollowersAbilitiesEffects(uint32 p_MissionRecID, GarrisonAbilityEffectType p_Type, uint32 p_TargetMask);
+            std::vector<uint32> GetMissionFollowersAbilitiesEffects(uint32 p_MissionRecID, AbilityEffectTypes::Type p_Type, uint32 p_TargetMask);
             /// Get the mission travel time
             uint32 GetMissionTravelDuration(uint32 p_MissionRecID);
             /// Get the mission duration
@@ -134,7 +134,7 @@ namespace MS { namespace Garrison
             /// Can build building X at slot instance Y
             bool IsBuildingPlotInstanceValid(uint32 p_BuildingRecID, uint32 p_PlotInstanceID);
             /// Player fill all condition
-            GarrisonPurchaseBuildingResult CanPurchaseBuilding(uint32 p_BuildingRecID);
+            PurchaseBuildingResults::Type CanPurchaseBuilding(uint32 p_BuildingRecID);
             /// PurchaseBuilding
             GarrisonBuilding PurchaseBuilding(uint32 p_BuildingRecID, uint32 p_PlotInstanceID, bool p_Triggered = false);
             /// Get building
