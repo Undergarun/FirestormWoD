@@ -19,6 +19,7 @@
 
 #include "OutdoorPvPAshran.h"
 #include "ScriptPCH.h"
+#include "MapManager.h"
 
 OutdoorGraveyardAshran::OutdoorGraveyardAshran(OutdoorPvPAshran* p_OutdoorPvP) : OutdoorGraveyard(p_OutdoorPvP)
 {
@@ -720,7 +721,12 @@ void OutdoorPvPAshran::HandlePlayerEnterArea(Player* p_Player, uint32 p_AreaID)
         return;
 
     if (p_AreaID == eAshranDatas::AshranPreAreaHorde || p_AreaID == eAshranDatas::AshranPreAreaAlliance)
-        p_Player->SwitchToPhasedMap(eAshranDatas::AshranNeutralMapID);
+    {
+        sMapMgr->AddCriticalOperation([p_Player]() -> void
+        {
+            p_Player->SwitchToPhasedMap(eAshranDatas::AshranNeutralMapID);
+        });
+    }
 
     /// +30% damage, healing and health for players in their faction bases
     if ((p_AreaID == eAshranDatas::AshranHordeBase && p_Player->GetTeamId() == TeamId::TEAM_HORDE) ||
@@ -742,7 +748,12 @@ void OutdoorPvPAshran::HandlePlayerLeaveArea(Player* p_Player, uint32 p_AreaID)
         return;
 
     if (p_AreaID == eAshranDatas::AshranPreAreaHorde || p_AreaID == eAshranDatas::AshranPreAreaAlliance)
-        p_Player->SwitchToPhasedMap(eAshranDatas::AshranMapID);
+    {
+        sMapMgr->AddCriticalOperation([p_Player]() -> void
+        {
+            p_Player->SwitchToPhasedMap(eAshranDatas::AshranMapID);
+        });
+    }
 
     if (p_AreaID == eAshranDatas::AshranHordeBase || p_AreaID == eAshranDatas::AshranAllianceBase)
         p_Player->RemoveAura(eAshranSpells::SpellHoldYourGround);
