@@ -197,8 +197,23 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
     }
 
     //////////////////////////////////////////////////////////////////////////
+    
+    bool l_IsGarrisonItem = false;
+    
+    if (sSpellMgr->GetSpellInfo(l_SpellID))
+    {
+        switch (sSpellMgr->GetSpellInfo(l_SpellID)->Effects[EFFECT_0].Effect)
+        {
+            case SPELL_EFFECT_UPGRADE_FOLLOWER_ILVL:
+                l_IsGarrisonItem = true;
+                break;
 
-    if (l_Misc >= MAX_GLYPH_SLOT_INDEX)
+            default:
+                break;
+        }
+    }
+
+    if (!l_IsGarrisonItem && l_Misc >= MAX_GLYPH_SLOT_INDEX)
     {
         pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
         return;
@@ -343,63 +358,66 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& p_Packet)
     /// Locked item
     uint32 l_LockID = l_ItemTemplate->LockID;
 
-    if (l_LockID)
+    if (!sScriptMgr->OnItemOpen(m_Player, l_Item))
     {
-        const LockEntry * l_LockInfo = sLockStore.LookupEntry(l_LockID);
-
-        if (!l_LockInfo)
+        if (l_LockID)
         {
-            m_Player->SendEquipError(EQUIP_ERR_ITEM_LOCKED, l_Item, NULL);
-            sLog->outError(LOG_FILTER_NETWORKIO, "WORLD::OpenItem: item [guid = %u] has an unknown lockId: %u!", l_Item->GetGUIDLow(), l_LockID);
+            const LockEntry * l_LockInfo = sLockStore.LookupEntry(l_LockID);
 
-            return;
+            if (!l_LockInfo)
+            {
+                m_Player->SendEquipError(EQUIP_ERR_ITEM_LOCKED, l_Item, NULL);
+                sLog->outError(LOG_FILTER_NETWORKIO, "WORLD::OpenItem: item [guid = %u] has an unknown lockId: %u!", l_Item->GetGUIDLow(), l_LockID);
+
+                return;
+            }
+
+            /// Was not unlocked yet
+            if (l_Item->IsLocked())
+            {
+                m_Player->SendEquipError(EQUIP_ERR_ITEM_LOCKED, l_Item, NULL);
+
+                return;
+            }
         }
 
-        /// Was not unlocked yet
-        if (l_Item->IsLocked())
+        /// Wrapped?
+        if (l_Item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_WRAPPED))
         {
-            m_Player->SendEquipError(EQUIP_ERR_ITEM_LOCKED, l_Item, NULL);
+            PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_GIFT_BY_ITEM);
 
-            return;
-        }
-    }
+            l_Stmt->setUInt32(0, l_Item->GetGUIDLow());
 
-    /// Wrapped?
-    if (l_Item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_WRAPPED))
-    {
-        PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_GIFT_BY_ITEM);
+            PreparedQueryResult l_Result = CharacterDatabase.Query(l_Stmt);
 
-        l_Stmt->setUInt32(0, l_Item->GetGUIDLow());
+            if (l_Result)
+            {
+                Field* l_Fields = l_Result->Fetch();
+                uint32 l_Entry = l_Fields[0].GetUInt32();
+                uint32 l_Flags = l_Fields[1].GetUInt32();
 
-        PreparedQueryResult l_Result = CharacterDatabase.Query(l_Stmt);
+                l_Item->SetGuidValue(ITEM_FIELD_GIFT_CREATOR, 0);
+                l_Item->SetEntry(l_Entry);
+                l_Item->SetUInt32Value(ITEM_FIELD_DYNAMIC_FLAGS, l_Flags);
+                l_Item->SetState(ITEM_CHANGED, m_Player);
+            }
+            else
+            {
+                sLog->outError(LOG_FILTER_NETWORKIO, "Wrapped item %u don't have record in character_gifts table and will deleted", l_Item->GetGUIDLow());
+                m_Player->DestroyItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
 
-        if (l_Result)
-        {
-            Field* l_Fields = l_Result->Fetch();
-            uint32 l_Entry = l_Fields[0].GetUInt32();
-            uint32 l_Flags = l_Fields[1].GetUInt32();
+                return;
+            }
 
-            l_Item->SetGuidValue(ITEM_FIELD_GIFT_CREATOR, 0);
-            l_Item->SetEntry(l_Entry);
-            l_Item->SetUInt32Value(ITEM_FIELD_DYNAMIC_FLAGS, l_Flags);
-            l_Item->SetState(ITEM_CHANGED, m_Player);
+            l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GIFT);
+
+            l_Stmt->setUInt32(0, l_Item->GetGUIDLow());
+
+            CharacterDatabase.Execute(l_Stmt);
         }
         else
-        {
-            sLog->outError(LOG_FILTER_NETWORKIO, "Wrapped item %u don't have record in character_gifts table and will deleted", l_Item->GetGUIDLow());
-            m_Player->DestroyItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
-
-            return;
-        }
-
-        l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GIFT);
-
-        l_Stmt->setUInt32(0, l_Item->GetGUIDLow());
-
-        CharacterDatabase.Execute(l_Stmt);
+            m_Player->SendLoot(l_Item->GetGUID(), LOOT_CORPSE);
     }
-    else
-        m_Player->SendLoot(l_Item->GetGUID(), LOOT_CORPSE);
 }
 
 void WorldSession::HandleGameObjectUseOpcode(WorldPacket& recvData)
@@ -624,16 +642,28 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
     }
 
     if (caster->GetTypeId() == TYPEID_PLAYER &&
-        !caster->ToPlayer()->HasActiveSpell(l_SpellID) &&
-         l_SpellID != 101603 && // Hack for Throw Totem, Echo of Baine
-         l_SpellID != 1843 && !spellInfo->IsRaidMarker() && !IS_GAMEOBJECT_GUID(l_TargetGUID)) // Hack for disarm. Client sends the spell instead of gameobjectuse.
+        !caster->ToPlayer()->HasActiveSpell(l_SpellID) && !spellInfo->HasEffect(SPELL_EFFECT_LOOT_BONUS) &&
+        l_SpellID != 101603 && // Hack for Throw Totem, Echo of Baine
+        l_SpellID != 1843 && !spellInfo->IsRaidMarker()) // Hack for disarm. Client sends the spell instead of gameobjectuse.
     {
-        // not have spell in spellbook
-        // cheater? kick? ban?
-        if (!spellInfo->IsAbilityOfSkillType(SKILL_ARCHAEOLOGY) && !spellInfo->IsCustomArchaeologySpell() && !spellInfo->HasEffect(SPELL_EFFECT_LOOT_BONUS))
+        // GameObject Use
+        if (IS_GAMEOBJECT_GUID(l_TargetGUID))
         {
-            p_RecvPacket.rfinish(); // prevent spam at ignore packet
-            return;
+            if (!spellInfo->HasEffect(SPELL_EFFECT_OPEN_LOCK))
+            {
+                p_RecvPacket.rfinish(); // prevent spam at ignore packet
+                return;
+            }
+        }
+        else
+        {
+            // not have spell in spellbook
+            // cheater? kick? ban?
+            if (!spellInfo->IsAbilityOfSkillType(SKILL_ARCHAEOLOGY) && !spellInfo->IsCustomArchaeologySpell())
+            {
+                p_RecvPacket.rfinish(); // prevent spam at ignore packet
+                return;
+            }
         }
     }
 

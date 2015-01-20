@@ -213,14 +213,24 @@ enum QuestObjectiveType
     QUEST_OBJECTIVE_TYPE_FACTION_REP2     = 7,
     QUEST_OBJECTIVE_TYPE_MONEY            = 8,
     QUEST_OBJECTIVE_TYPE_PLAYER           = 9,
-    QUEST_OBJECTIVE_TYPE_DUMMY            = 10,
+    QUEST_OBJECTIVE_AREATRIGGER           = 10,     ///< @TODO
     QUEST_OBJECTIVE_TYPE_PET_BATTLE_TAMER = 11,
     QUEST_OBJECTIVE_TYPE_PET_BATTLE_ELITE = 12,
     QUEST_OBJECTIVE_TYPE_PET_BATTLE_PVP   = 13,
-    QUEST_OBJECTIVE_TYPE_PET_BATTLE_UNK1  = 14,
+    QUEST_OBJECTIVE_TYPE_CRITERIA         = 14,
     QUEST_OBJECTIVE_TYPE_PET_BATTLE_UNK2  = 15,
     QUEST_OBJECTIVE_TYPE_END
 };
+
+enum class QuestRewardItemBonus : uint32
+{
+    UncommunToRare  = 171,
+    UncommunToEpic  = 15,
+    RareToEpic      = 545
+};
+
+const float gQuestRewardBonusRareChanceRange[2] = { 0.f,    10.f };    ///< Range 0-10
+const float gQuestRewardBonusEpicChanceRange[2] = { 10.01f, 20.0f};    ///< Range 10.01-20
 
 struct QuestLocale
 {
@@ -239,17 +249,6 @@ struct QuestLocale
     StringVector QuestGiverTargetName;
     StringVector QuestTurnTextWindow;
     StringVector QuestTurnTargetName;
-};
-
-struct QuestDynamicReward
-{
-    QuestDynamicReward(uint32 id, uint32 c)
-    {
-        itemID = id;
-        count = c;
-    }
-    uint32 itemID;
-    uint32 count;
 };
 
 struct QuestObjective
@@ -281,6 +280,7 @@ class Quest
         uint32 XPValue(Player* player) const;
 
         bool HasFlag(uint32 flag) const { return (Flags & flag) != 0; }
+        bool HasFlag2(uint32 flag) const { return (Flags2 & flag) != 0; }
         void SetFlag(uint32 flag) { Flags |= flag; }
 
         bool HasSpecialFlag(uint32 flag) const { return (SpecialFlags & flag) != 0; }
@@ -289,6 +289,7 @@ class Quest
         // table data accessors:
         uint32 GetQuestId() const { return Id; }
         uint32 GetQuestMethod() const { return Method; }
+        uint32 GetQuestPackageID() const { return PackageID; }
         int32  GetZoneOrSort() const { return ZoneOrSort; }
         uint32 GetMinLevel() const { return MinLevel; }
         uint32 GetMaxLevel() const { return MaxLevel; }
@@ -391,8 +392,7 @@ class Quest
         uint32 GetRewCurrencyCount() const { return m_rewCurrencyCount; }
 
         bool HasDynamicReward() const { return !DynamicRewards.empty(); }
-        void AddDynamicReward(uint32 item, uint32 count) { DynamicRewards.push_back(QuestDynamicReward(item, count)); }
-        std::list<QuestDynamicReward> DynamicRewards;
+        std::list<QuestPackageItemEntry const*> DynamicRewards;
 
         typedef std::vector<int32> PrevQuests;
         PrevQuests prevQuests;
@@ -409,6 +409,7 @@ class Quest
  
         uint8 GetQuestObjectiveCount() const { return QuestObjectives.size(); }
         uint8 GetQuestObjectiveCountType(uint8 type) const;
+        uint32 GetQuestObjectiveId(uint32 p_QuestId, uint8 p_ObjIndex) const;
 
         // cached data
     private:
@@ -444,7 +445,7 @@ class Quest
         int32  RewardArenaPoints;
         int32  PrevQuestId;
         int32  NextQuestId;
-        int32  ExclusiveGroup;
+        uint32 PackageID;
         uint32 NextQuestIdChain;
         uint32 RewardXPId;
         uint32 SourceItemId;
@@ -472,7 +473,6 @@ class Quest
         uint32 EmoteOnComplete;
         uint32 StartScript;
         uint32 CompleteScript;
-        // new in 4.x
         uint32 MinimapTargetMark;
         uint32 RewardSkillId;
         uint32 RewardSkillPoints;
@@ -486,7 +486,8 @@ class Quest
         uint32 SoundAccept;
         uint32 SoundTurnIn;
 
-        uint32 SpecialFlags; // custom flags, not sniffed/WDB
+        uint32 SpecialFlags;        ///< custom flags, not sniffed/WDB
+        int32  ExclusiveGroup;      ///< custom value, not sniffed/WDB
 };
 
 struct QuestStatusData

@@ -1006,6 +1006,12 @@ enum TrinityStrings
     LANG_COMMAND_TICKETPENDING          = 2027,
     LANG_COMMAND_TICKETRESET            = 2028,
 
+    // Gold strings
+    LANG_GOLD_ERROR1                    = 3000,
+    LANG_GOLD_ERROR2                    = 3001,
+    LANG_GOLD_CONFIRM                   = 3002,
+
+
     // Trinity strings                    5000-9999
     LANG_COMMAND_FREEZE                 = 5000,
     LANG_COMMAND_FREEZE_ERROR           = 5001,
@@ -1251,8 +1257,10 @@ enum TrinityStrings
     LANG_DISRUPT_RUNE_CONDUIT               = 14058,
     LANG_SUMMON_BLACK_IRON_DREADWEAVER      = 14059,
     LANG_SUMMON_BLACK_IRON_VETERAN          = 14060,
+    LANG_ENGULFING_FIRE_RAGEWING            = 14061,
+    LANG_NO_SPE_FOR_DYNAMIC_REWARD          = 14062
 
-    // NOT RESERVED IDS                   14061-1999999999
+    // NOT RESERVED IDS                   14062-1999999999
     // `db_script_string` table index     2000000000-2000009999 (MIN_DB_SCRIPT_STRING_ID-MAX_DB_SCRIPT_STRING_ID)
     // For other tables maybe             2000010000-2147483647 (max index)
 };

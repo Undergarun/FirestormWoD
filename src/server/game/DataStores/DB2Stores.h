@@ -26,6 +26,9 @@
 #include <list>
 
 extern DB2Storage <ItemEntry>                       sItemStore;
+extern DB2Storage <ItemBonusEntry>                  sItemStoreEntry;
+extern DB2Storage <ItemBonusTreeNodeEntry>          sItemBonusTreeNodeStore;
+extern DB2Storage <ItemXBonusTreeEntry>             sItemXBonusTreeStore;
 extern DB2Storage <ItemCurrencyCostEntry>           sItemCurrencyCostStore;
 extern DB2Storage <ItemExtendedCostEntry>           sItemExtendedCostStore;
 extern DB2Storage <ItemSparseEntry>                 sItemSparseStore;
@@ -51,6 +54,10 @@ extern DB2Storage <SpellMiscEntry>                  sSpellMiscStore;
 extern DB2Storage <SpellPowerEntry>                 sSpellPowerStore;
 extern DB2Storage <SpellTotemsEntry>                sSpellTotemsStore;
 extern DB2Storage <SpellClassOptionsEntry>          sSpellClassOptionsStore;
+extern DB2Storage <MapChallengeModeEntry>           sMapChallengeModeStore;
+extern DB2Storage <QuestPackageItemEntry>           sQuestPackageItemStore;
+extern DB2Storage <MountEntry>                      sMountStore;
+
 
 //////////////////////////////////////////////////////////////////////////
 /// Garrison DB2
@@ -61,6 +68,8 @@ extern DB2Storage <GarrPlotInstanceEntry>           sGarrPlotInstanceStore;
 extern DB2Storage <GarrPlotEntry>                   sGarrPlotStore;
 extern DB2Storage <GarrPlotUICategoryEntry>         sGarrPlotUICategoryStore;
 extern DB2Storage <GarrMissionEntry>                sGarrMissionStore;
+extern DB2Storage <GarrMissionRewardEntry>          sGarrMissionRewardStore;
+extern DB2Storage <GarrMissionXEncouterEntry>       sGarrMissionXEncouterStore;
 extern DB2Storage <GarrBuildingEntry>               sGarrBuildingStore;
 extern DB2Storage <GarrPlotBuildingEntry>           sGarrPlotBuildingStore;
 extern DB2Storage <GarrFollowerEntry>               sGarrFollowerStore;
@@ -70,9 +79,9 @@ extern DB2Storage <GarrFollowerXAbilityEntry>       sGarrFollowerXAbilityStore;
 extern DB2Storage <GarrBuildingPlotInstEntry>       sGarrBuildingPlotInstStore;
 extern DB2Storage <GarrMechanicTypeEntry>           sGarrMechanicTypeStore;
 extern DB2Storage <GarrMechanicEntry>               sGarrMechanicStore;
-extern DB2Storage <GarrMissionXEncouterEntry>       sGarrMissionXEncouterStore;
 extern DB2Storage <GarrEncouterXMechanicEntry>      sGarrEncouterXMechanicStore;
 extern DB2Storage <GarrFollowerLevelXPEntry>        sGarrFollowerLevelXPStore;
+extern DB2Storage <GarrSpecializationEntry>         sGarrSpecializationStore;
 
 //////////////////////////////////////////////////////////////////////////
 /// Battle pet
@@ -93,7 +102,11 @@ SpellReagentsEntry const* GetSpellReagentEntry(uint32 spellId, uint8 reagent);
 SpellTotemsEntry const* GetSpellTotemEntry(uint32 spellId, uint8 totem);
 
 extern std::map<uint32, std::vector<uint32>> sItemEffectsByItemID;
+extern std::map<uint32, std::vector<ItemBonusEntry const*>> sItemBonusesByID;
+extern std::map<uint32, std::vector<ItemXBonusTreeEntry const*>> sItemBonusTreeByID;
+extern std::map<uint32, std::vector<QuestPackageItemEntry const*>> sQuestPackageItemsByGroup;
 
+std::vector<ItemBonusEntry const*> const* GetItemBonusesByID(uint32 Id);
 void LoadDB2Stores(const std::string& dataPath);
 
 struct TaxiPathNodePtr
@@ -108,5 +121,6 @@ typedef Path<TaxiPathNodePtr, TaxiPathNodeEntry const> TaxiPathNodeList;
 typedef std::vector<TaxiPathNodeList> TaxiPathNodesByPath;
 
 extern TaxiPathNodesByPath                       sTaxiPathNodesByPath;
+uint32 GetHeirloomItemLevel(uint32 curveId, uint32 level);
 
 #endif

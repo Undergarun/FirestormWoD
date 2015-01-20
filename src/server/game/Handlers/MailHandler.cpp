@@ -687,7 +687,7 @@ void WorldSession::HandleGetMailList(WorldPacket& p_Packet)
         l_MailsBuffer.FlushBits();
 
         if ((*itr)->messageType == MAIL_NORMAL)
-            l_MailsBuffer.appendPackGUID((*itr)->sender);
+            l_MailsBuffer.appendPackGUID(MAKE_NEW_GUID((*itr)->sender, 0, HIGHGUID_PLAYER));
 
         if ((*itr)->messageType == MAIL_CREATURE || (*itr)->messageType == MAIL_GAMEOBJECT || (*itr)->messageType == MAIL_AUCTION)
             l_MailsBuffer << uint32((*itr)->sender);                   // creature/gameobject entry, auction id
@@ -802,7 +802,8 @@ void WorldSession::HandleQueryNextMailTime(WorldPacket & /*recvData*/)
             if (l_SentSenders.count(l_Mail->sender))
                 continue;
 
-            l_Data.appendPackGUID(l_Mail->messageType == MAIL_NORMAL ? l_Mail->sender : 0);  // player guid
+            uint64 l_Guid = MAKE_NEW_GUID(l_Mail->sender, 0, HIGHGUID_PLAYER);
+            l_Data.appendPackGUID(l_Mail->messageType == MAIL_NORMAL ? l_Guid : 0);  // player guid
 
             if (l_Mail->messageType == MAIL_NORMAL)
             {

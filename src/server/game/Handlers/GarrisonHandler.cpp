@@ -12,26 +12,47 @@
 #include "NPCHandler.h"
 #include "Pet.h"
 #include "MapManager.h"
-#include "Garrison.h"
+#include "GarrisonMgr.hpp"
 
 void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
 {
-    Garrison * l_Garrison = m_Player->GetGarrison();
+    if (!m_Player)
+        return;
 
-    if (!l_Garrison)
+    MS::Garrison::Manager * l_Garrison = m_Player->GetGarrison();
+
+    if (!l_Garrison || !l_Garrison->GetGarrisonSiteLevelEntry())
         return;
     
-    std::vector<GarrisonPlotInstanceInfoLocation>   l_Plots             = l_Garrison->GetPlots();
-    std::vector<GarrisonMission>                    l_CompletedMission  = l_Garrison->GetCompletedMissions();
-    std::vector<GarrisonMission>                    l_Missions          = l_Garrison->GetMissions();
-    std::vector<GarrisonBuilding>                   l_Buildings         = l_Garrison->GetBuildings();
-    std::vector<GarrisonFollower>                   l_Followers         = l_Garrison->GetFollowers();
+    std::vector<MS::Garrison::GarrisonPlotInstanceInfoLocation>   l_Plots             = l_Garrison->GetPlots();
+    std::vector<MS::Garrison::GarrisonMission>                    l_CompletedMission  = l_Garrison->GetCompletedMissions();
+    std::vector<MS::Garrison::GarrisonMission>                    l_Missions          = l_Garrison->GetMissions();
+    std::vector<MS::Garrison::GarrisonBuilding>                   l_Buildings         = l_Garrison->GetBuildings();
+    std::vector<MS::Garrison::GarrisonFollower>                   l_Followers         = l_Garrison->GetFollowers();
+
+    if (!m_Player->IsInGarrison())
+    {
+        WorldPacket l_Data(SMSG_GARRISON_REMOTE_INFO, 200);
+
+        l_Data << uint32(1);                                                        ///< @TODO Site Count
+
+        l_Data << int32(l_Garrison->GetGarrisonSiteLevelEntry()->SiteLevelID);      ///< Site Level ID
+        l_Data << uint32(l_Buildings.size());                                       ///< Buildings
+
+        for (uint32 l_I = 0; l_I < l_Buildings.size(); ++l_I)
+        {
+            l_Data << uint32(l_Buildings[l_I].PlotInstanceID);                      ///< Garr Plot Instance ID
+            l_Data << uint32(l_Buildings[l_I].BuildingID);                          ///< Garr Building ID
+        }
+
+        SendPacket(&l_Data);
+    }
 
     WorldPacket l_Infos(SMSG_GET_GARRISON_INFO_RESULT, 200);
 
     l_Infos << int32(l_Garrison->GetGarrisonSiteLevelEntry()->SiteID);          ///< Site ID
     l_Infos << int32(l_Garrison->GetGarrisonSiteLevelEntry()->SiteLevelID);     ///< Site Level ID
-    l_Infos << int32(1);                                                        ///< Unk
+    l_Infos << int32(l_Garrison->GetGarrisonFactionIndex());                    ///< Faction Index
     
     l_Infos << uint32(l_Buildings.size());
     l_Infos << uint32(l_Plots.size());
@@ -39,7 +60,7 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
     l_Infos << uint32(l_Missions.size());
     l_Infos << uint32(l_CompletedMission.size());
 
-    l_Infos << int32(l_Garrison->GetGarrisonFactionIndex());                    ///< Faction Index
+    l_Infos << int32(l_Garrison->GetNumFollowerActivationsRemaining());
 
     for (uint32 l_I = 0; l_I < l_Buildings.size(); ++l_I)
     {
@@ -65,21 +86,7 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
 
     for (uint32 l_I = 0; l_I < l_Followers.size(); ++l_I)
     {
-        l_Infos << uint64(l_Followers[l_I].DB_ID);
-        l_Infos << uint32(l_Followers[l_I].FollowerID);
-        l_Infos << uint32(l_Followers[l_I].Quality);
-        l_Infos << uint32(l_Followers[l_I].Level);
-        l_Infos << uint32(l_Followers[l_I].ItemLevelWeapon);
-        l_Infos << uint32(l_Followers[l_I].ItemLevelArmor);
-        l_Infos << uint32(l_Followers[l_I].XP);
-        l_Infos << uint32(l_Followers[l_I].CurrentBuildingID);
-        l_Infos << uint32(l_Followers[l_I].CurrentMissionID);
-
-        l_Infos << uint32(l_Followers[l_I].Abilities.size());
-        l_Infos << uint32(0);       ///< Unk
-
-        for (uint32 l_Y = 0; l_Y < l_Followers[l_I].Abilities.size(); ++l_Y)
-            l_Infos << int32(l_Followers[l_I].Abilities[l_Y]);
+        l_Followers[l_I].Write(l_Infos);
     }
 
     for (uint32 l_I = 0; l_I < l_Missions.size(); ++l_I)
@@ -87,7 +94,7 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
         uint32 l_TravelDuration     = 0;
         uint32 l_MissionDuration    = 0;
 
-        if (l_Missions[l_I].State == GARRISON_MISSION_IN_PROGRESS && sGarrMissionStore.LookupEntry(l_Missions[l_I].MissionID))
+        if (l_Missions[l_I].State == MS::Garrison::GARRISON_MISSION_IN_PROGRESS && sGarrMissionStore.LookupEntry(l_Missions[l_I].MissionID))
         {
             l_TravelDuration    = l_Garrison->GetMissionTravelDuration(l_Missions[l_I].MissionID);
             l_MissionDuration   = l_Garrison->GetMissionDuration(l_Missions[l_I].MissionID);
@@ -108,8 +115,8 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
 
     SendPacket(&l_Infos);
 
-    std::vector<int32> l_KnownBlueprints = l_Garrison->GetKnownBlueprints();
-    std::vector<int32> l_KnownSpecializations = l_Garrison->GetKnownSpecializations();
+    std::vector<int32> l_KnownBlueprints        = l_Garrison->GetKnownBlueprints();
+    std::vector<int32> l_KnownSpecializations   = l_Garrison->GetKnownSpecializations();
 
     WorldPacket l_Data(SMSG_GARRISON_BLUEPRINT_AND_SPECIALIZATION_DATA, 200);
 
@@ -126,7 +133,10 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
 }
 void WorldSession::HandleRequestGarrisonUpgradeableOpcode(WorldPacket & p_RecvData)
 {
-    Garrison * l_Garrison = m_Player->GetGarrison();
+    if (!m_Player)
+        return;
+
+    MS::Garrison::Manager * l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)
         return;
@@ -141,7 +151,10 @@ void WorldSession::HandleRequestGarrisonUpgradeableOpcode(WorldPacket & p_RecvDa
 }
 void WorldSession::HandleRequestLandingPageShipmentInfoOpcode(WorldPacket & p_RecvData)
 {
-    Garrison * l_Garrison = m_Player->GetGarrison();
+    if (!m_Player)
+        return;
+
+    MS::Garrison::Manager * l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)
         return;
@@ -149,7 +162,10 @@ void WorldSession::HandleRequestLandingPageShipmentInfoOpcode(WorldPacket & p_Re
 }
 void WorldSession::HandleGarrisonMissionNPCHelloOpcode(WorldPacket & p_RecvData)
 {
-    Garrison * l_Garrison = m_Player->GetGarrison();
+    if (!m_Player)
+        return;
+
+    MS::Garrison::Manager * l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)
         return;
@@ -170,19 +186,22 @@ void WorldSession::HandleGarrisonMissionNPCHelloOpcode(WorldPacket & p_RecvData)
 }
 void WorldSession::HandleGarrisonRequestBuildingsOpcode(WorldPacket & p_RecvData)
 {
-    Garrison * l_Garrison = m_Player->GetGarrison();
-
-    if (!l_Garrison)
+    if (!m_Player)
         return;
 
-    std::vector<GarrisonBuilding> l_Buildings = l_Garrison->GetBuildings();
+    MS::Garrison::Manager * l_Garrison = m_Player->GetGarrison();
+
+    if (!l_Garrison || !l_Garrison->GetGarrisonSiteLevelEntry())
+        return;
+
+    std::vector<MS::Garrison::GarrisonBuilding> l_Buildings = l_Garrison->GetBuildings();
 
     WorldPacket l_Data(SMSG_GARRISON_GET_BUILDINGS_DATA, 200);
     l_Data << uint32(l_Buildings.size());
 
     for (uint32 l_I = 0; l_I < l_Buildings.size(); ++l_I)
     {
-        GarrisonPlotInstanceInfoLocation l_PlotLocation = l_Garrison->GetPlot(l_Buildings[l_I].PlotInstanceID);
+        MS::Garrison::GarrisonPlotInstanceInfoLocation l_PlotLocation = l_Garrison->GetPlot(l_Buildings[l_I].PlotInstanceID);
         uint32 l_SiteLevelPlotInstanceID = 0;
         uint32 l_BuildingPlotInstanceID  = 0;
 
@@ -218,7 +237,10 @@ void WorldSession::HandleGarrisonRequestBuildingsOpcode(WorldPacket & p_RecvData
 }
 void WorldSession::HandleGarrisonPurchaseBuildingOpcode(WorldPacket & p_RecvData)
 {
-    Garrison * l_Garrison = m_Player->GetGarrison();
+    if (!m_Player)
+        return;
+
+    MS::Garrison::Manager * l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)
         return;
@@ -232,6 +254,19 @@ void WorldSession::HandleGarrisonPurchaseBuildingOpcode(WorldPacket & p_RecvData
     p_RecvData >> l_PlotInstanceID;
     p_RecvData >> l_BuildingID;
 
+    bool l_CanBuild = false;
+    switch (l_BuildingID)
+    {
+        case 26:    /// Barracks Lvl 1
+        case 51:    /// Storehouse lvl 1
+            l_CanBuild = true;
+            break;
+
+        default:
+            l_CanBuild = false;
+            break;
+    }
+
     Creature* l_Unit = GetPlayer()->GetNPCIfCanInteractWithFlag2(l_NpcGUID, UNIT_NPC_FLAG2_GARRISON_ARCHITECT);
 
     if (!l_Unit)
@@ -240,32 +275,35 @@ void WorldSession::HandleGarrisonPurchaseBuildingOpcode(WorldPacket & p_RecvData
         return;
     }
 
-    GarrisonPurchaseBuildingResult l_Result = GARRISON_PURCHASE_BUILDING_OK;
+    MS::Garrison::GarrisonPurchaseBuildingResult l_Result = MS::Garrison::GARRISON_PURCHASE_BUILDING_OK;
 
     if (!sGarrBuildingStore.LookupEntry(l_BuildingID))
-        l_Result = GARRISON_PURCHASE_BUILDING_INVALID_BUILDING_ID;
+        l_Result = MS::Garrison::GARRISON_PURCHASE_BUILDING_INVALID_BUILDING_ID;
 
     if (!l_Result && !sGarrPlotInstanceStore.LookupEntry(l_PlotInstanceID))
-        l_Result = GARRISON_PURCHASE_BUILDING_INVALID_PLOT;
+        l_Result = MS::Garrison::GARRISON_PURCHASE_BUILDING_INVALID_PLOT;
 
     if (!l_Result && !l_Garrison->KnownBlueprint(l_BuildingID))
-        l_Result = GARRISON_PURCHASE_BUILDING_REQUIRE_BLUE_PRINT;
+        l_Result = MS::Garrison::GARRISON_PURCHASE_BUILDING_REQUIRE_BLUE_PRINT;
 
     if (!l_Result && l_Garrison->GetBuilding(l_BuildingID).BuildingID != 0)
-        l_Result = GARRISON_PURCHASE_BUILDING_BUILDING_EXIST;
+        l_Result = MS::Garrison::GARRISON_PURCHASE_BUILDING_BUILDING_EXIST;
 
     if (!l_Result && !l_Garrison->IsBuildingPlotInstanceValid(l_BuildingID, l_PlotInstanceID))
-        l_Result = GARRISON_PURCHASE_BUILDING_INVALID_PLOT_BUILDING;
+        l_Result = MS::Garrison::GARRISON_PURCHASE_BUILDING_INVALID_PLOT_BUILDING;
 
     if (!l_Result)
         l_Result = l_Garrison->CanPurchaseBuilding(l_BuildingID);
 
+    if (!l_CanBuild)
+        l_Result = MS::Garrison::GARRISON_PURCHASE_BUILDING_INVALID_BUILDING_ID;
+
     WorldPacket l_PlaceResult(SMSG_GARRISON_PLACE_BUILDING_RESULT, 26);
     l_PlaceResult << uint32(l_Result);
 
-    if (l_Result == GARRISON_PURCHASE_BUILDING_OK)
+    if (l_Result == MS::Garrison::GARRISON_PURCHASE_BUILDING_OK)
     {
-        GarrisonBuilding l_Building = l_Garrison->PurchaseBuilding(l_BuildingID, l_PlotInstanceID);
+        MS::Garrison::GarrisonBuilding l_Building = l_Garrison->PurchaseBuilding(l_BuildingID, l_PlotInstanceID);
 
         l_PlaceResult << uint32(l_PlotInstanceID);
         l_PlaceResult << uint32(l_BuildingID);
@@ -293,7 +331,10 @@ void WorldSession::HandleGarrisonPurchaseBuildingOpcode(WorldPacket & p_RecvData
 }
 void WorldSession::HandleGarrisonCancelConstructionOpcode(WorldPacket & p_RecvData)
 {
-    Garrison * l_Garrison = m_Player->GetGarrison();
+    if (!m_Player)
+        return;
+
+    MS::Garrison::Manager * l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)
         return;
@@ -317,7 +358,10 @@ void WorldSession::HandleGarrisonCancelConstructionOpcode(WorldPacket & p_RecvDa
 }
 void WorldSession::HandleGarrisonStartMissionOpcode(WorldPacket & p_RecvData)
 {
-    Garrison * l_Garrison = m_Player->GetGarrison();
+    if (!m_Player)
+        return;
+
+    MS::Garrison::Manager * l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)
         return;
@@ -352,7 +396,10 @@ void WorldSession::HandleGarrisonStartMissionOpcode(WorldPacket & p_RecvData)
 }
 void WorldSession::HandleGarrisonCompleteMissionOpcode(WorldPacket & p_RecvData)
 {
-    Garrison * l_Garrison = m_Player->GetGarrison();
+    if (!m_Player)
+        return;
+
+    MS::Garrison::Manager * l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)
         return;
@@ -373,13 +420,57 @@ void WorldSession::HandleGarrisonCompleteMissionOpcode(WorldPacket & p_RecvData)
     
     l_Garrison->CompleteMission(l_MissionID);
 }
+void WorldSession::HandleGarrisonMissionBonusRollOpcode(WorldPacket & p_RecvData)
+{
+    if (!m_Player)
+        return;
+
+    MS::Garrison::Manager * l_Garrison = m_Player->GetGarrison();
+
+    if (!l_Garrison)
+        return;
+
+    uint64 l_NpcGUID    = 0;
+    uint32 l_MissionID  = 0;
+
+    p_RecvData.readPackGUID(l_NpcGUID);
+    p_RecvData >> l_MissionID;
+
+    Creature * l_Unit = GetPlayer()->GetNPCIfCanInteractWithFlag2(l_NpcGUID, UNIT_NPC_FLAG2_GARRISON_MISSION_NPC);
+
+    if (!l_Unit)
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleGarrisonMissionBonusRollOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(l_NpcGUID)));
+        return;
+    }
+
+    l_Garrison->DoMissionBonusRoll(l_MissionID);
+}
+void WorldSession::HandleGarrisonChangeFollowerActivationStateOpcode(WorldPacket & p_RecvData)
+{
+    if (!m_Player)
+        return;
+
+    MS::Garrison::Manager * l_Garrison = m_Player->GetGarrison();
+
+    if (!l_Garrison)
+        return;
+
+    uint64  l_FollowerDBID  = 0;
+    bool    l_Desactivate   = false;
+
+    p_RecvData >> l_FollowerDBID;
+    l_Desactivate = p_RecvData.ReadBit();
+
+    l_Garrison->ChangeFollowerActivationState(l_FollowerDBID, !l_Desactivate);
+}
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
 void WorldSession::SendGarrisonOpenArchitect(uint64 p_CreatureGUID)
 {
-    Garrison * l_Garrison = m_Player->GetGarrison();
+    MS::Garrison::Manager * l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)
         return;
@@ -392,7 +483,7 @@ void WorldSession::SendGarrisonOpenArchitect(uint64 p_CreatureGUID)
 }
 void WorldSession::SendGarrisonOpenMissionNpc(uint64 p_CreatureGUID)
 {
-    Garrison * l_Garrison = m_Player->GetGarrison();
+    MS::Garrison::Manager * l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)
         return;

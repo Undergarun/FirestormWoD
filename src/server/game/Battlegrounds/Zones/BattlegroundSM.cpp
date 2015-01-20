@@ -1250,6 +1250,7 @@ void BattlegroundSM::UpdateTeamScore(uint32 p_Team)
 
 void BattlegroundSM::EndBattleground(uint32 p_Winner)
 {
+    AwardTeams(GetTeamScore(GetOtherTeam(p_Winner)), BG_SM_MAX_TEAM_SCORE, GetOtherTeam(p_Winner));
     Battleground::EndBattleground(p_Winner);
 
     if (Creature* l_MineCart = GetBGCreature(NPC_SM_MINE_CART_1))
@@ -1365,7 +1366,7 @@ void BattlegroundSM::UpdatePlayerScore(Player* p_Player, uint32 p_Type, uint32 p
     }
 }
 
-void BattlegroundSM::FillInitialWorldStates(WorldPacket& p_Data)
+void BattlegroundSM::FillInitialWorldStates(ByteBuffer& p_Data)
 {
     p_Data << uint32(SM_MINE_CARTS_DISPLAY) << uint32(DISPLAY_WORLDSTATE);
     p_Data << uint32(SM_ALLIANCE_RESOURCES) << uint32(m_TeamScores[TEAM_HORDE]);

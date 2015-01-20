@@ -121,7 +121,7 @@ enum CreatureFlagsExtra
 struct CreatureTemplate
 {
     uint32  Entry;
-    uint32  DifficultyEntry[MAX_DIFFICULTY - 1];
+    uint32  DifficultyEntry[MAX_DIFFICULTY];
     uint32  KillCredit[MAX_KILL_CREDIT];
     uint32  Modelid1;
     uint32  Modelid2;
@@ -476,7 +476,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         void DisappearAndDie();
 
         bool Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint32 vehId, uint32 team, float x, float y, float z, float ang, const CreatureData* data = NULL);
-        bool LoadCreaturesAddon(bool reload = false);
+        bool LoadCreaturesAddon();
         void SelectLevel(const CreatureTemplate* cinfo);
         void LoadEquipment(int8 p_ID = 1, bool p_Force = false);
 
@@ -502,6 +502,8 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         {
             if (isTotem() || isTrigger() || GetCreatureType() == CREATURE_TYPE_CRITTER || isSpiritService())
                 SetReactState(REACT_PASSIVE);
+            else if (isPet())
+                SetReactState(REACT_HELPER);
             else
                 SetReactState(REACT_AGGRESSIVE);
             /*else if (isCivilian())

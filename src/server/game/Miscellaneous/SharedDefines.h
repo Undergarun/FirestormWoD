@@ -22,6 +22,8 @@
 #include "Define.h"
 #include <cassert>
 
+#define UNUSED(x) (void)(x)
+
 #define MAX_CREATURE_BASE_HP 6
 
 enum SpellEffIndex
@@ -1262,7 +1264,7 @@ enum SpellEffects
     SPELL_EFFECT_PLAY_SCENEOBJECT                   = 185,
     SPELL_EFFECT_PLAY_SCENEOBJECT_2                 = 186,
     SPELL_EFFECT_RANDOMIZE_ARCHAEOLOGY_DIGSITES     = 187,
-    SPELL_EFFECT_SUMMON_MULTIPLE_HUNTER_PETS        = 188,
+    SPELL_EFFECT_STAMPEDE                           = 188,
     SPELL_EFFECT_LOOT_BONUS                         = 189,
     SPELL_EFFECT_190                                = 190,
     SPELL_EFFECT_TELEPORT_TO_DIGSITE                = 191,
@@ -1294,7 +1296,7 @@ enum SpellEffects
     SPELL_EFFECT_217                                = 217,
     SPELL_EFFECT_218                                = 218,
     SPELL_EFFECT_219                                = 219,
-    SPELL_EFFECT_220                                = 220,
+    SPELL_EFFECT_OBTAIN_FOLLOWER                    = 220,
     SPELL_EFFECT_221                                = 221,
     SPELL_EFFECT_222                                = 222,
     SPELL_EFFECT_223                                = 223,
@@ -1304,7 +1306,7 @@ enum SpellEffects
     SPELL_EFFECT_227                                = 227,
     SPELL_EFFECT_228                                = 228,
     SPELL_EFFECT_229                                = 229,
-    SPELL_EFFECT_230                                = 230,
+    SPELL_EFFECT_UPGRADE_FOLLOWER_ILVL              = 230,
     SPELL_EFFECT_231                                = 231,
     SPELL_EFFECT_232                                = 232,
     SPELL_EFFECT_233                                = 233,
@@ -1819,7 +1821,7 @@ enum AuraStateType
     AURA_STATE_ENRAGE                       = 17,           // C   |
     AURA_STATE_BLEEDING                     = 18,           //    T|
     AURA_STATE_UNKNOWN19                    = 19,           //     |
-    //AURA_STATE_UNKNOWN20                  = 20,           //  c  | only (45317 Suicide)
+    AURA_STATE_PVP_RAID_PREPARE             = 20,           //  c  |
     //AURA_STATE_UNKNOWN21                  = 21,           //     | not used
     AURA_STATE_UNKNOWN22                    = 22,           // C  t| varius spells (63884, 50240)
     AURA_STATE_HEALTH_ABOVE_75_PERCENT      = 23            // C   |
@@ -2153,12 +2155,13 @@ enum GameobjectTypes
     GAMEOBJECT_TYPE_CLIENT_CREATURE        = 40,
     GAMEOBJECT_TYPE_CLIENT_ITEM            = 41,
     GAMEOBJECT_TYPE_CAPTURE_POINT          = 42,
-    GAMEOBJECT_TYPE_TROPHY                 = 43,
-    GAMEOBJECT_TYPE_PHASEABLE_MO           = 44,
-    GAMEOBJECT_TYPE_SHIPMENT               = 45,
+    GAMEOBJECT_TYPE_PHASEABLE_MO           = 43,
+    GAMEOBJECT_TYPE_GARRISON_MONUMENT      = 44,
+    GAMEOBJECT_TYPE_GARRISON_SHIPMENT      = 45,
+    GAMEOBJECT_TYPE_GARRISON_MONUMENT_PLAQUE = 46
 };
 
-#define MAX_GAMEOBJECT_TYPE                  46             // sending to client this or greater value can crash client.
+#define MAX_GAMEOBJECT_TYPE                  47             // sending to client this or greater value can crash client.
 #define MAX_GAMEOBJECT_DATA                  33             // Max number of uint32 vars in gameobject_template data field
 
 enum GameObjectFlags
@@ -4631,7 +4634,7 @@ enum BattlegroundTypeId
     // 441 = "Icecrown Citadel"
     // 443 = "The Ruby Sanctum"
     BATTLEGROUND_EYR                = 656,  // Rated Eye of the Storm
-    BATTLEGROUND_KT                 = 699,  // Valley of Power
+    BATTLEGROUND_KT                 = 699,  // Kotmogu Temple
     BATTLEGROUND_CTF3               = 706,  // CTF3 not implemented on MoP
     BATTLEGROUND_SM                 = 708,  // Silvershard Mine
     BATTLEGROUND_TV                 = 719,  // Tol'viron Arena

@@ -495,6 +495,16 @@ struct Position
         return l_Pos;
     }
 
+    Position operator*(float p_Rhs) const
+    {
+        Position l_Pos;
+        l_Pos.m_positionX = m_positionX * p_Rhs;
+        l_Pos.m_positionY = m_positionY * p_Rhs;
+        l_Pos.m_positionZ = m_positionZ * p_Rhs;
+
+        return l_Pos;
+    }
+
     Position operator/(float p_Rhs) const
     {
         Position l_Pos;

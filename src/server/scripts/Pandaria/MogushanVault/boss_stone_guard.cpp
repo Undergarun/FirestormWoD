@@ -1247,7 +1247,7 @@ class mob_tiling_creature : public CreatureScript
 };
 
 // Petrification - 115852 / 116006 / 116036 / 116057
-class spell_petrification : public SpellScriptLoader
+class spell_petrification: public SpellScriptLoader
 {
     public:
         spell_petrification() : SpellScriptLoader("spell_petrification") { }
@@ -1308,7 +1308,7 @@ class spell_petrification : public SpellScriptLoader
 };
 
 // Jasper Chains - 130395
-class spell_jasper_chains : public SpellScriptLoader
+class spell_jasper_chains: public SpellScriptLoader
 {
     public:
         spell_jasper_chains() : SpellScriptLoader("spell_jasper_chains") { }
@@ -1374,7 +1374,7 @@ class spell_jasper_chains : public SpellScriptLoader
 };
 
 // Jasper Chains (damage) - 130404
-class spell_jasper_chains_damage : public SpellScriptLoader
+class spell_jasper_chains_damage: public SpellScriptLoader
 {
     public:
         spell_jasper_chains_damage() : SpellScriptLoader("spell_jasper_chains_damage") { }

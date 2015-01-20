@@ -250,7 +250,7 @@ class Map : public GridRefManager<NGridType>
             return false;
         }
 
-        virtual bool AddPlayerToMap(Player*);
+        virtual bool AddPlayerToMap(Player*, bool p_Switched = false);
         virtual void RemovePlayerFromMap(Player*, bool);
         template<class T> bool AddToMap(T *);
         template<class T> void RemoveFromMap(T *, bool);
@@ -260,10 +260,16 @@ class Map : public GridRefManager<NGridType>
 
         float GetVisibilityRange() const
         {
-            // HackFix : Terrasse of endless spring
-            if (GetId() == 996)
-                return 300.0f;
-            return m_VisibleDistance;
+            ///< Hack fixes...
+            switch (GetId())
+            {
+                case 996:   ///< Terrace of Endless springs
+                    return 300.0f;
+                case 1358:  ///< Upper Blackrock Spire
+                    return 400.0f;
+                default:
+                    return m_VisibleDistance;
+            }
         }
 
         //function for setting up visibility distance for maps on per-type/per-Id basis
@@ -370,13 +376,15 @@ class Map : public GridRefManager<NGridType>
         bool IsDungeon() const { return i_mapEntry && i_mapEntry->IsDungeon(); }
         bool IsNonRaidDungeon() const { return i_mapEntry && i_mapEntry->IsNonRaidDungeon(); }
         bool IsRaid() const { return i_mapEntry && i_mapEntry->IsRaid(); }
-        bool IsRaidOrHeroicDungeon() const { return IsRaid() || (i_spawnMode == LEGACY_MAN25_DIFFICULTY || i_spawnMode == LEGACY_MAN25_DIFFICULTY || i_spawnMode == LEGACY_MAN10_DIFFICULTY || i_spawnMode == HEROIC_DIFFICULTY || i_spawnMode == MAN40_DIFFICULTY || i_spawnMode == HEROIC_DIFFICULTY); }
-        bool IsHeroic() const { return (i_spawnMode == LEGACY_MAN25_HEROIC_DIFFICULTY || i_spawnMode == LEGACY_MAN10_HEROIC_DIFFICULTY || i_spawnMode == HEROIC_DIFFICULTY); }
+        bool IsRaidOrHeroicDungeon() const { return IsRaid() || IsHeroic(); }
+        bool IsHeroic() const { return (i_spawnMode == HEROIC_5_DIFFICULTY || i_spawnMode == LEGACY_MAN25_HEROIC_DIFFICULTY || i_spawnMode == LEGACY_MAN10_HEROIC_DIFFICULTY || i_spawnMode == HEROIC_DIFFICULTY); }
         bool IsLFR() const { return i_spawnMode == RAID_TOOL_DIFFICULTY; }
         bool Is25ManRaid() const { return IsRaid() && (i_spawnMode == LEGACY_MAN25_DIFFICULTY || i_spawnMode == LEGACY_MAN25_HEROIC_DIFFICULTY); }   // since 25man difficulties are 1 and 3, we can check them like that
         bool IsBattleground() const { return i_mapEntry && i_mapEntry->IsBattleground(); }
         bool IsBattleArena() const { return i_mapEntry && i_mapEntry->IsBattleArena(); }
         bool IsBattlegroundOrArena() const { return i_mapEntry && i_mapEntry->IsBattlegroundOrArena(); }
+        bool IsChallengeMode() const { return i_spawnMode == CHALLENGE_MODE_DIFFICULTY; }
+
         uint32 Expansion() const { return i_mapEntry ? i_mapEntry->Expansion() : 0; }
 
         bool GetEntrancePos(int32 &mapid, float &x, float &y)
@@ -483,6 +491,9 @@ class Map : public GridRefManager<NGridType>
 
         static void DeleteRespawnTimesInDB(uint16 mapId, uint32 instanceId);
 
+        void AddGameObjectTransport(GameObject* p_Transport) { _transportsGameObject.insert(p_Transport); }
+        void DeleteGameObjectTransport(GameObject* p_Transport) { _transportsGameObject.erase(p_Transport); }
+
         void SendInitTransports(Player* player);
         void SendRemoveTransports(Player* player);
     private:
@@ -493,7 +504,7 @@ class Map : public GridRefManager<NGridType>
 
         void SetTimer(uint32 t) { i_gridExpiry = t < MIN_GRID_DELAY ? MIN_GRID_DELAY : t; }
 
-        void SendInitSelf(Player* player);
+        void SendInitSelf(Player* player, bool p_Switched);
 
         bool CreatureCellRelocation(Creature* creature, Cell new_cell);
         bool GameObjectCellRelocation(GameObject* go, Cell new_cell);
@@ -644,7 +655,7 @@ class InstanceMap : public Map
     public:
         InstanceMap(uint32 id, time_t, uint32 InstanceId, uint8 SpawnMode, Map* _parent);
         ~InstanceMap();
-        bool AddPlayerToMap(Player*);
+        bool AddPlayerToMap(Player*, bool p_Switched = false);
         void RemovePlayerFromMap(Player*, bool);
         void Update(const uint32);
         void CreateInstanceData(bool load);
@@ -674,7 +685,7 @@ class BattlegroundMap : public Map
         BattlegroundMap(uint32 id, time_t, uint32 InstanceId, Map* _parent, uint8 spawnMode);
         ~BattlegroundMap();
 
-        bool AddPlayerToMap(Player*);
+        bool AddPlayerToMap(Player*, bool p_Switched = false);
         void RemovePlayerFromMap(Player*, bool);
         bool CanEnter(Player* player);
         void SetUnload();

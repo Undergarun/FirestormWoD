@@ -606,7 +606,7 @@ class RitualTargetCheck
         Unit* caster;
 };
 
-class spell_paralyze_pinnacle : public SpellScriptLoader
+class spell_paralyze_pinnacle: public SpellScriptLoader
 {
     public:
         spell_paralyze_pinnacle() : SpellScriptLoader("spell_paralyze_pinnacle") { }

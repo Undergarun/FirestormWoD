@@ -139,13 +139,14 @@ struct LootStoreItem
     uint8   group       :7;
     bool    needs_quest :1;                                 // quest drop (negative ChanceOrQuestChance in DB)
     uint8   maxcount    :8;                                 // max drop count for the item (mincountOrRef positive) or Ref multiplicator (mincountOrRef negative)
+    std::vector<uint32> itemBonuses;                        // item bonuses >= WoD
     std::list<Condition*>  conditions;                               // additional loot condition
 
     // Constructor, converting ChanceOrQuestChance -> (chance, needs_quest)
     // displayid is filled in IsValid() which must be called after
-    LootStoreItem(uint32 _itemid, uint8 _type, float _chanceOrQuestChance, uint16 _lootmode, uint8 _group, int32 _mincountOrRef, uint8 _maxcount)
+    LootStoreItem(uint32 _itemid, uint8 _type, float _chanceOrQuestChance, uint16 _lootmode, uint8 _group, int32 _mincountOrRef, uint8 _maxcount, std::vector<uint32> _itemBonuses)
         : itemid(_itemid), type(_type), chance(fabs(_chanceOrQuestChance)), mincountOrRef(_mincountOrRef), lootmode(_lootmode),
-        group(_group), needs_quest(_chanceOrQuestChance < 0), maxcount(_maxcount)
+        group(_group), needs_quest(_chanceOrQuestChance < 0), maxcount(_maxcount), itemBonuses(_itemBonuses)
          {}
 
     bool Roll(bool rate) const;                             // Checks if the entry takes it's chance (at loot generation)
@@ -162,6 +163,7 @@ struct LootItem
     uint32  randomSuffix;
     int32   randomPropertyId;
     std::list<Condition*> conditions;                       // additional loot condition
+    std::vector<uint32> itemBonuses;
     AllowedLooterSet allowedGUIDs;
     uint8   count             : 8;
     bool    currency          : 1;
@@ -175,7 +177,7 @@ struct LootItem
 
     // Constructor, copies most fields from LootStoreItem, generates random count and random suffixes/properties
     // Should be called for non-reference LootStoreItem entries only (mincountOrRef > 0)
-    explicit LootItem(LootStoreItem const& li);
+    explicit LootItem(LootStoreItem const& p_LootItem, uint32 p_ItemBonusDifficulty);
 
     // Basic checks for player/item compatibility - if false no chance to see the item in the loot
     bool AllowedForPlayer(Player const* player) const;
@@ -254,7 +256,7 @@ class LootTemplate
         // Rolls for every item in the template and adds the rolled items the the loot
         void Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId = 0) const;
         void CopyConditions(std::list<Condition*>  conditions);
-        void FillAutoAssignationLoot(std::list<const ItemTemplate*>& p_ItemList) const;
+        void FillAutoAssignationLoot(std::list<const ItemTemplate*>& p_ItemList, Player* p_Player = nullptr, bool p_IsBGReward = false) const;
 
         // True if template includes at least 1 quest drop entry
         bool HasQuestDrop(LootTemplateMap const& store, uint8 groupId = 0) const;
@@ -320,19 +322,22 @@ struct Loot
     QuestItemMap const& GetPlayerFFAItems() const { return PlayerFFAItems; }
     QuestItemMap const& GetPlayerNonQuestNonFFAConditionalItems() const { return PlayerNonQuestNonFFAConditionalItems; }
 
-    bool alreadyAskedForRoll;
+    std::map<uint32, LinkedLootInfo> LinkedLoot;
+    std::vector<LootItem>            Items;
+    std::vector<LootItem>            QuestItems;
 
-    uint32 maxLinkedSlot;
-    uint32 additionalLinkedGold;
-    std::map<uint32, LinkedLootInfo> linkedLoot;
-    std::vector<LootItem> items;
-    std::vector<LootItem> quest_items;
-    uint32 gold;
-    uint8 unlootedCount;
-    uint64 roundRobinPlayer;                                // GUID of the player having the Round-Robin ownership for the loot. If 0, round robin owner has released.
-    LootType loot_type;                                     // required for achievement system
+    LootType Type;                                           ///< required for achievement system
 
-    Loot(uint32 _gold = 0) : alreadyAskedForRoll(false), maxLinkedSlot(0), additionalLinkedGold(0), gold(_gold), unlootedCount(0), loot_type(LOOT_CORPSE) {}
+    uint64 RoundRobinPlayer;                                 ///< GUID of the player having the Round-Robin ownership for the loot. If 0, round robin owner has released.
+    uint32 MaxLinkedSlot;
+    uint32 AdditionalLinkedGold;
+    uint32 Gold;
+    uint32 ItemBonusDifficulty;                              ///< Used to find item bonus to apply in dungeon / raid
+
+    uint8 UnlootedCount;
+    bool  alreadyAskedForRoll;
+
+    Loot(uint32 _gold = 0) : alreadyAskedForRoll(false), MaxLinkedSlot(0), AdditionalLinkedGold(0), Gold(_gold), UnlootedCount(0), Type(LOOT_CORPSE), ItemBonusDifficulty(0) {}
     ~Loot() { clear(); }
 
     // if loot becomes invalid this reference is used to inform the listener
@@ -361,28 +366,28 @@ struct Loot
         PlayerNonQuestNonFFAConditionalItems.clear();
 
         PlayersLooting.clear();
-        items.clear();
-        quest_items.clear();
-        gold = 0;
-        unlootedCount = 0;
-        roundRobinPlayer = 0;
-        additionalLinkedGold = 0;
+        Items.clear();
+        QuestItems.clear();
+        Gold = 0;
+        UnlootedCount = 0;
+        RoundRobinPlayer = 0;
+        AdditionalLinkedGold = 0;
         i_LootValidatorRefManager.clearReferences();
     }
 
     void addLinkedLoot(uint32 slot, uint64 linkedCreature, uint32 linkedSlot, PermissionTypes perm)
     {
-        linkedLoot[slot].creatureGUID = linkedCreature;
-        linkedLoot[slot].slot = linkedSlot;
-        linkedLoot[slot].permission = perm;
+        LinkedLoot[slot].creatureGUID = linkedCreature;
+        LinkedLoot[slot].slot = linkedSlot;
+        LinkedLoot[slot].permission = perm;
 
-        if (maxLinkedSlot < slot)
-            maxLinkedSlot = slot;
+        if (MaxLinkedSlot < slot)
+            MaxLinkedSlot = slot;
     }
 
     bool isLinkedLoot(uint32 slot)
     {
-        if (linkedLoot.find(slot) != linkedLoot.end())
+        if (LinkedLoot.find(slot) != LinkedLoot.end())
             return true;
 
         return false;
@@ -391,11 +396,11 @@ struct Loot
     // Must used only AFTER isLinkedLoot check
     LinkedLootInfo& getLinkedLoot(uint32 slot)
     {
-        return linkedLoot[slot];
+        return LinkedLoot[slot];
     }
 
-    bool empty() const { return items.empty() && gold == 0; }
-    bool isLooted() const { return gold == 0 && unlootedCount == 0; }
+    bool empty() const { return Items.empty() && Gold == 0; }
+    bool isLooted() const { return Gold == 0 && UnlootedCount == 0; }
 
     void NotifyItemRemoved(uint8 lootIndex);
     void NotifyQuestItemRemoved(uint8 questIndex);

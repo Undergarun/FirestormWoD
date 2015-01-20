@@ -1756,7 +1756,7 @@ class npc_thorim_combat_trigger : public CreatureScript
         }
 };
 
-class spell_stormhammer_targeting : public SpellScriptLoader
+class spell_stormhammer_targeting: public SpellScriptLoader
 {
     public:
         spell_stormhammer_targeting() : SpellScriptLoader("spell_stormhammer_targeting") {}
@@ -1802,7 +1802,7 @@ class spell_stormhammer_targeting : public SpellScriptLoader
         }
 };
 
-class spell_thorim_charge_orb_targeting : public SpellScriptLoader
+class spell_thorim_charge_orb_targeting: public SpellScriptLoader
 {
     public:
         spell_thorim_charge_orb_targeting() : SpellScriptLoader("spell_thorim_charge_orb_targeting") {}
@@ -1847,7 +1847,7 @@ class spell_thorim_charge_orb_targeting : public SpellScriptLoader
         }
 };
 
-class spell_thorim_berserk : public SpellScriptLoader
+class spell_thorim_berserk: public SpellScriptLoader
 {
     public:
         spell_thorim_berserk() : SpellScriptLoader("spell_thorim_berserk") {}
@@ -1890,7 +1890,7 @@ class LightingReleaseTargetFilter
         Unit* _caster;
 };
 
-class spell_thorim_lightning_release : public SpellScriptLoader
+class spell_thorim_lightning_release: public SpellScriptLoader
 {
     public:
         spell_thorim_lightning_release() : SpellScriptLoader("spell_thorim_lightning_release") { }
@@ -1918,7 +1918,7 @@ class spell_thorim_lightning_release : public SpellScriptLoader
         }
 };
 
-class spell_thorim_lightning_destruction : public SpellScriptLoader
+class spell_thorim_lightning_destruction: public SpellScriptLoader
 {
     public:
         spell_thorim_lightning_destruction() : SpellScriptLoader("spell_thorim_lightning_destruction") {}
@@ -1945,7 +1945,7 @@ class spell_thorim_lightning_destruction : public SpellScriptLoader
         }
 };
 
-class spell_thorim_runic_fortification : public SpellScriptLoader
+class spell_thorim_runic_fortification: public SpellScriptLoader
 {
     public:
         spell_thorim_runic_fortification() : SpellScriptLoader("spell_thorim_runic_fortification") { }

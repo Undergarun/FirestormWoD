@@ -54,6 +54,10 @@ void WorldSession::HandleQueryGuildInfoOpcode(WorldPacket& p_Packet)
         if (l_Guild->IsMember(l_PlayerGuid))
         {
             l_Guild->HandleQuery(this);
+
+            if (m_Player && m_Player->IsInWorld() && l_Guild->IsMember(m_Player->GetGUID()))
+                l_Guild->SendBankList(this, 0, false, true);
+
             return;
         }
     }
@@ -210,6 +214,7 @@ void WorldSession::HandleGuildSetMemberNoteOpcode(WorldPacket& p_Packet)
 
     std::string l_Note = "";
 
+    p_Packet.readPackGUID(l_NoteeGUID);
     l_NoteLenght    = p_Packet.ReadBits(8);
     l_IsPublic      = p_Packet.ReadBit();
 

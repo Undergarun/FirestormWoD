@@ -435,7 +435,7 @@ class npc_ascended_waterlasher : public CreatureScript
         };
 };
 
-class npc_ascended_windwalker: public CreatureScript
+class npc_ascended_windwalker : public CreatureScript
 {
     public:
 
@@ -489,7 +489,7 @@ class npc_ascended_windwalker: public CreatureScript
         };
 };
 
-class npc_azureborne_guardian: public CreatureScript
+class npc_azureborne_guardian : public CreatureScript
 {
     public:
 
@@ -549,7 +549,7 @@ class npc_azureborne_guardian: public CreatureScript
         };
 };
 
-class npc_azureborne_seer: public CreatureScript
+class npc_azureborne_seer : public CreatureScript
 {
     public:
 
@@ -616,7 +616,7 @@ class npc_azureborne_seer: public CreatureScript
         };
 };
 
-class npc_azureborne_warlord: public CreatureScript
+class npc_azureborne_warlord : public CreatureScript
 {
     public:
 
@@ -675,7 +675,7 @@ class npc_azureborne_warlord: public CreatureScript
         };
 };
 
-class npc_crimsonborne_guardian: public CreatureScript
+class npc_crimsonborne_guardian : public CreatureScript
 {
     public:
 
@@ -730,7 +730,7 @@ class npc_crimsonborne_guardian: public CreatureScript
         };
 };
 
-class npc_crimsonborne_seer: public CreatureScript
+class npc_crimsonborne_seer : public CreatureScript
 {
     public:
 
@@ -790,7 +790,7 @@ class npc_crimsonborne_seer: public CreatureScript
         };
 };
 
-class npc_crimsonborne_warlord: public CreatureScript
+class npc_crimsonborne_warlord : public CreatureScript
 {
     public:
 
@@ -849,7 +849,7 @@ class npc_crimsonborne_warlord: public CreatureScript
         };
 };
 
-class npc_enslaved_burning_ember: public CreatureScript
+class npc_enslaved_burning_ember : public CreatureScript
 {
     public:
 
@@ -904,7 +904,7 @@ class npc_enslaved_burning_ember: public CreatureScript
         };
 };
 
-class npc_enslaved_rock_elemental: public CreatureScript
+class npc_enslaved_rock_elemental : public CreatureScript
 {
     public:
 
@@ -958,7 +958,7 @@ class npc_enslaved_rock_elemental: public CreatureScript
         };
 };
 
-class npc_enslaved_gronn_brute: public CreatureScript
+class npc_enslaved_gronn_brute : public CreatureScript
 {
     public:
 
@@ -1870,7 +1870,7 @@ class npc_crimsonborne_warlord_empowering_flames : public CreatureScript
         };
 };
 
-class spell_twilight_enforcer_meat_grinder : public SpellScriptLoader
+class spell_twilight_enforcer_meat_grinder: public SpellScriptLoader
 {
     public:
         spell_twilight_enforcer_meat_grinder() : SpellScriptLoader("spell_twilight_enforcer_meat_grinder") { }
@@ -1899,7 +1899,7 @@ class spell_twilight_enforcer_meat_grinder : public SpellScriptLoader
         }
 };
 
-class spell_twilight_shadow_weaver_shadow_weave : public SpellScriptLoader
+class spell_twilight_shadow_weaver_shadow_weave: public SpellScriptLoader
 {
     public:
         spell_twilight_shadow_weaver_shadow_weave() : SpellScriptLoader("spell_twilight_shadow_weaver_shadow_weave") { }

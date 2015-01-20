@@ -176,8 +176,8 @@ enum BG_DG_CartState
 
 enum BG_DG_Scores
 {
-    BG_DG_NEAR_VICTORY_POINTS   = 1400,
-    BG_DG_MAX_VICTORY_POINTS    = 1600
+    BG_DG_NEAR_VICTORY_POINTS   = 1200,
+    BG_DG_MAX_VICTORY_POINTS    = 1500
 };
 
 enum BG_DG_Nodes
@@ -304,7 +304,7 @@ class BattlegroundDG : public Battleground
         void EndBattleground(uint32 winner);
         void StartingEventOpenDoors();
         void StartingEventCloseDoors();
-        void FillInitialWorldStates(WorldPacket& data);
+        void FillInitialWorldStates(ByteBuffer& data);
         void PostUpdateImpl(uint32 diff);
         void HandleAreaTrigger(Player* player, uint32 trigger);
         bool CanSeeSpellClick(Player const* player, Unit const* clicked);
@@ -318,12 +318,24 @@ class BattlegroundDG : public Battleground
 
     private:
         uint8 GetFlagState(uint32 team)             { return _flagState[GetTeamIndexByTeamId(team)]; };
-        uint64 GetFlagPickerGUID(int32 team) const
+
+        uint64 GetFlagPickerGUID(int32 p_Team) const
         {
-            if (team == TEAM_ALLIANCE || team == TEAM_HORDE)
-                return m_FlagKeepers[team];
-            return 0;
-        };
+            if (p_Team != TEAM_ALLIANCE && p_Team != TEAM_HORDE)
+                return 0;
+
+            return m_FlagKeepers[p_Team];
+        }
+
+        std::set<uint64> const GetFlagPickersGUID(int32 p_Team) const
+        {
+            if (p_Team != TEAM_ALLIANCE && p_Team != TEAM_HORDE)
+                return std::set<uint64>();
+
+            std::set<uint64> l_FlagPickers { m_FlagKeepers[p_Team] };
+            return l_FlagPickers;
+        }
+
         void SetAllianceCartPicker(uint64 guid)     { m_FlagKeepers[TEAM_ALLIANCE] = guid; };
         void SetHordeFlagPicker(uint64 guid)        { m_FlagKeepers[TEAM_HORDE] = guid; };
         bool IsAllianceFlagPickedup() const         { return m_FlagKeepers[TEAM_ALLIANCE] != 0; };

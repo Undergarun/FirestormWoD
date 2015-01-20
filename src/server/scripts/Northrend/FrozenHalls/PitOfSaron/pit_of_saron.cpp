@@ -205,7 +205,7 @@ class mob_geist_ambusher : public CreatureScript
         }
 };
 
-class spell_trash_mob_glacial_strike : public SpellScriptLoader
+class spell_trash_mob_glacial_strike: public SpellScriptLoader
 {
     public:
         spell_trash_mob_glacial_strike() : SpellScriptLoader("spell_trash_mob_glacial_strike") { }

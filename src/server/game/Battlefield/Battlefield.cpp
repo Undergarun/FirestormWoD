@@ -680,16 +680,13 @@ void Battlefield::RemovePlayerFromResurrectQueue(uint64 playerGuid)
     }
 }
 
-void Battlefield::SendAreaSpiritHealerQueryOpcode(Player * p_Player, const uint64 & p_Guid)
+void Battlefield::SendAreaSpiritHealerQueryOpcode(Player* p_Player, uint64 const& p_Guid)
 {
     ASSERT(p_Player && p_Player->GetSession());
 
-    uint32 l_Time = m_LastResurectTimer;  ///< resurrect every 30 seconds
-
     WorldPacket l_Data(SMSG_AREA_SPIRIT_HEALER_TIME, 12);
-    l_Data.append(p_Guid);
-    l_Data << uint32(l_Time);
-
+    l_Data.appendPackGUID(p_Guid);
+    l_Data << uint32(m_LastResurectTimer);
     p_Player->GetSession()->SendPacket(&l_Data);
 }
 

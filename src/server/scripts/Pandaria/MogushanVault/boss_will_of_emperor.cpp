@@ -171,32 +171,32 @@ enum eTalk
 // Starting positions for adds
 float tabAlcoves[26][4] =
 {
-    3810.64f, 1550.48f, 428.737f, 6.27265f,
-    3811.0f,  1550.39f, 367.725f, 6.2521f,
-    3811.62f, 1536.66f, 398.334f, 0.749377f,
-    3811.95f, 1536.81f, 428.738f, 0.172334f,
-    3811.99f, 1536.68f, 367.726f, 0.22558f,
-    3812.12f, 1550.07f, 398.25f,  0.00872824f,
-    3812.12f, 1564.02f, 428.738f, 5.77924f,
-    3812.33f, 1564.24f, 367.726f, 6.03922f,
-    3812.83f, 1563.62f, 367.643f, 5.77969f,
-    3813.13f, 1563.47f, 398.252f, 5.77872f,
-    3813.35f, 1537.36f, 367.643f, 0.150286f,
-    3831.79f, 1602.73f, 398.912f, 5.41683f,
-    3832.32f, 1498.53f, 368.308f, 0.842962f,
-    3850.7f,  1613.53f, 368.308f, 5.07364f,
-    3851.34f, 1486.52f, 368.308f, 1.23063f,
-    3873.93f, 1615.6f,  429.237f, 4.68575f,
-    3874.22f, 1484.84f, 429.236f, 1.57923f,
-    3874.31f, 1483.42f, 368.308f, 1.55837f,
-    3874.32f, 1618.01f, 368.308f, 4.71767f,
-    3874.55f, 1483.5f,  398.912f, 1.59109f,
-    3874.61f, 1617.9f,  398.912f, 4.75497f,
-    3894.75f, 1485.93f, 368.308f, 1.48814f,
-    3895.03f, 1483.62f, 398.912f, 1.48814f,
-    3895.25f, 1485.82f, 368.226f, 1.56936f,
-    3895.53f, 1617.47f, 398.912f, 4.8269f,
-    3895.62f, 1485.9f,  398.829f, 1.56936f
+    {3810.64f, 1550.48f, 428.737f, 6.27265f},
+    {3811.0f,  1550.39f, 367.725f, 6.2521f},
+    {3811.62f, 1536.66f, 398.334f, 0.749377f},
+    {3811.95f, 1536.81f, 428.738f, 0.172334f},
+    {3811.99f, 1536.68f, 367.726f, 0.22558f},
+    {3812.12f, 1550.07f, 398.25f,  0.00872824f},
+    {3812.12f, 1564.02f, 428.738f, 5.77924f},
+    {3812.33f, 1564.24f, 367.726f, 6.03922f},
+    {3812.83f, 1563.62f, 367.643f, 5.77969f},
+    {3813.13f, 1563.47f, 398.252f, 5.77872f},
+    {3813.35f, 1537.36f, 367.643f, 0.150286f},
+    {3831.79f, 1602.73f, 398.912f, 5.41683f},
+    {3832.32f, 1498.53f, 368.308f, 0.842962f},
+    {3850.7f,  1613.53f, 368.308f, 5.07364f},
+    {3851.34f, 1486.52f, 368.308f, 1.23063f},
+    {3873.93f, 1615.6f,  429.237f, 4.68575f},
+    {3874.22f, 1484.84f, 429.236f, 1.57923f},
+    {3874.31f, 1483.42f, 368.308f, 1.55837f},
+    {3874.32f, 1618.01f, 368.308f, 4.71767f},
+    {3874.55f, 1483.5f,  398.912f, 1.59109f},
+    {3874.61f, 1617.9f,  398.912f, 4.75497f},
+    {3894.75f, 1485.93f, 368.308f, 1.48814f},
+    {3895.03f, 1483.62f, 398.912f, 1.48814f},
+    {3895.25f, 1485.82f, 368.226f, 1.56936f},
+    {3895.53f, 1617.47f, 398.912f, 4.8269f},
+    {3895.62f, 1485.9f,  398.829f, 1.56936f}
 };
 
 #define NB_ALCOVES 26
@@ -697,7 +697,7 @@ class boss_jin_qin_xi : public CreatureScript
                             // angle corrections
                             angle = angle < 0.0f ? 0.0f : (angle > 6.28f ? 6.28f : angle);
                             // Stomp or arc
-                            if (comboArc = urand(0, 1))
+                            if ((comboArc = urand(0, 1)))
                             {
                                 // Emote for arc attack
                                 me->HandleEmoteCommand(EMOTE_ONESHOT_ATTACK2HLOOSE);
@@ -1204,7 +1204,7 @@ class mob_woe_add_generic : public CreatureScript
                                         for (auto ply : playerList)
                                             me->getThreatManager().addThreat(ply, 150.0f);
                                     
-                                        if (target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                                        if ((target = SelectTarget(SELECT_TARGET_TOPAGGRO)))
                                         {
                                             targetGuid = target->GetGUID();
                                             AttackStart(target);
@@ -1525,7 +1525,7 @@ class mob_general_purpose_bunnyJMF : public CreatureScript
 };
 
 // Cosmetic Lightning Spell - 127732
-class spell_cosmetic_lightning : public SpellScriptLoader
+class spell_cosmetic_lightning: public SpellScriptLoader
 {
     public:
         spell_cosmetic_lightning() : SpellScriptLoader("spell_cosmetic_lightning") { }
@@ -1566,7 +1566,7 @@ class spell_cosmetic_lightning : public SpellScriptLoader
 };
 
 //  Terracotta spawn visual spawn-in - 118165
-class spell_terracota_spawn : public SpellScriptLoader
+class spell_terracota_spawn: public SpellScriptLoader
 {
     public:
         spell_terracota_spawn() : SpellScriptLoader("spell_terracota_spawn") { }
@@ -1594,7 +1594,7 @@ class spell_terracota_spawn : public SpellScriptLoader
 };
 
 // Magnetized (Qin-Xi) - 116818
-class spell_magnetized_qin : public SpellScriptLoader
+class spell_magnetized_qin: public SpellScriptLoader
 {
     public:
         spell_magnetized_qin() : SpellScriptLoader("spell_magnetized_qin") { }
@@ -1622,7 +1622,7 @@ class spell_magnetized_qin : public SpellScriptLoader
 };
 
 // Magnetized (Jan-Xi) - 117195
-class spell_magnetized_jan : public SpellScriptLoader
+class spell_magnetized_jan: public SpellScriptLoader
 {
     public:
         spell_magnetized_jan() : SpellScriptLoader("spell_magnetized_jan") { }
@@ -1650,7 +1650,7 @@ class spell_magnetized_jan : public SpellScriptLoader
 };
 
 // Arc Left - 116968
-class spell_arc_visual : public SpellScriptLoader
+class spell_arc_visual: public SpellScriptLoader
 {
     public:
         spell_arc_visual() : SpellScriptLoader("spell_arc_visual") { }
@@ -1691,7 +1691,7 @@ class spell_arc_visual : public SpellScriptLoader
 };
 
 //  Devastating Arc - 117006
-class spell_devastating_arc : public SpellScriptLoader
+class spell_devastating_arc: public SpellScriptLoader
 {
     public:
         spell_devastating_arc() : SpellScriptLoader("spell_devastating_arc") { }
@@ -1725,7 +1725,7 @@ class spell_devastating_arc : public SpellScriptLoader
 };
 
 // Impeding Thrust - 117485
-class spell_impeding_thrust : public SpellScriptLoader
+class spell_impeding_thrust: public SpellScriptLoader
 {
     public:
         spell_impeding_thrust() : SpellScriptLoader("spell_impeding_thrust") { }
@@ -1757,7 +1757,7 @@ class spell_impeding_thrust : public SpellScriptLoader
 };
 
 // Titan gas - 116803 - triggered by Titan Gas (116779)
-class spell_titan_gas : public SpellScriptLoader
+class spell_titan_gas: public SpellScriptLoader
 {
     public:
         spell_titan_gas() : SpellScriptLoader("spell_titan_gas") { }
@@ -1785,7 +1785,7 @@ class spell_titan_gas : public SpellScriptLoader
 };
 
 // Titan gas - 118327 - triggered by Titan Gas (116779)
-class spell_titan_gas2 : public SpellScriptLoader
+class spell_titan_gas2: public SpellScriptLoader
 {
     public:
         spell_titan_gas2() : SpellScriptLoader("spell_titan_gas2") { }
@@ -1813,7 +1813,7 @@ class spell_titan_gas2 : public SpellScriptLoader
 };
 
 // Energizing smash - 116550
-class spell_energizing_smash : public SpellScriptLoader
+class spell_energizing_smash: public SpellScriptLoader
 {
     public:
         spell_energizing_smash() : SpellScriptLoader("spell_energizing_smash") { }
@@ -1853,7 +1853,7 @@ class spell_energizing_smash : public SpellScriptLoader
 };
 
 // Energizing Smash - Visual - 116556
-class spell_energizing_visual : public SpellScriptLoader
+class spell_energizing_visual: public SpellScriptLoader
 {
     public:
         spell_energizing_visual() : SpellScriptLoader("spell_energizing_visual") { }
@@ -1888,7 +1888,7 @@ class spell_energizing_visual : public SpellScriptLoader
 };
 
 // Energized - 116605
-class spell_energized : public SpellScriptLoader
+class spell_energized: public SpellScriptLoader
 {
     public :
         spell_energized() : SpellScriptLoader("spell_energized") { }

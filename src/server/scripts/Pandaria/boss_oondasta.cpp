@@ -169,7 +169,7 @@ class TankCheck : public std::unary_function<Unit*, bool>
 };
 
 // Alpha Male - Tank Threat Multiplier 138390.
-class spell_alpha_male_threat : public SpellScriptLoader
+class spell_alpha_male_threat: public SpellScriptLoader
 {
     public:
         spell_alpha_male_threat() : SpellScriptLoader("spell_alpha_male_threat") { }

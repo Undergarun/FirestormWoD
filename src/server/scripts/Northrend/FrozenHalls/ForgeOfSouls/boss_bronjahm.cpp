@@ -271,7 +271,7 @@ class mob_corrupted_soul_fragment : public CreatureScript
         }
 };
 
-class spell_bronjahm_magic_bane : public SpellScriptLoader
+class spell_bronjahm_magic_bane: public SpellScriptLoader
 {
     public:
         spell_bronjahm_magic_bane() :  SpellScriptLoader("spell_bronjahm_magic_bane") { }
@@ -305,7 +305,7 @@ class spell_bronjahm_magic_bane : public SpellScriptLoader
         }
 };
 
-class spell_bronjahm_consume_soul : public SpellScriptLoader
+class spell_bronjahm_consume_soul: public SpellScriptLoader
 {
     public:
         spell_bronjahm_consume_soul() :  SpellScriptLoader("spell_bronjahm_consume_soul") { }
@@ -332,7 +332,7 @@ class spell_bronjahm_consume_soul : public SpellScriptLoader
         }
 };
 
-class spell_bronjahm_soulstorm_channel : public SpellScriptLoader
+class spell_bronjahm_soulstorm_channel: public SpellScriptLoader
 {
     public:
         spell_bronjahm_soulstorm_channel() : SpellScriptLoader("spell_bronjahm_soulstorm_channel") { }
@@ -360,7 +360,7 @@ class spell_bronjahm_soulstorm_channel : public SpellScriptLoader
         }
 };
 
-class spell_bronjahm_soulstorm_visual : public SpellScriptLoader
+class spell_bronjahm_soulstorm_visual: public SpellScriptLoader
 {
     public:
         spell_bronjahm_soulstorm_visual() : SpellScriptLoader("spell_bronjahm_soulstorm_visual") { }
@@ -406,7 +406,7 @@ class DistanceCheck
         Unit* caster;
 };
 
-class spell_bronjahm_soulstorm_targeting : public SpellScriptLoader
+class spell_bronjahm_soulstorm_targeting: public SpellScriptLoader
 {
     public:
         spell_bronjahm_soulstorm_targeting() : SpellScriptLoader("spell_bronjahm_soulstorm_targeting") { }

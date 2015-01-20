@@ -38,7 +38,7 @@ EndScriptData */
 
 #include <fstream>
 
-class debug_commandscript : public CommandScript
+class debug_commandscript: public CommandScript
 {
     public:
         debug_commandscript() : CommandScript("debug_commandscript") { }
@@ -112,6 +112,11 @@ class debug_commandscript : public CommandScript
                 { "scaleitem",      SEC_ADMINISTRATOR,  true,  &HandleDebugScaleItem,              "", NULL },
                 { "toy",            SEC_ADMINISTRATOR,  false, &HandleDebugToyCommand,             "", NULL },
                 { "charge",         SEC_ADMINISTRATOR,  false, &HandleDebugClearSpellCharges,      "", NULL },
+                { "bgstart",        SEC_ADMINISTRATOR,  false, &HandleDebugBattlegroundStart,      "", NULL },
+                { "criteria",       SEC_ADMINISTRATOR,  false, &HandleDebugCriteriaCommand,        "", NULL },
+                { "moditem",        SEC_ADMINISTRATOR,  false, &HandleDebugModItem,                "", NULL },
+                { "crashtest",      SEC_ADMINISTRATOR,  false, &HandleDebugCrashTest,              "", NULL },
+                { "bgaward",        SEC_ADMINISTRATOR,  false, &HandleDebugBgAward,                "", NULL },
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand commandTable[] =
@@ -121,6 +126,28 @@ class debug_commandscript : public CommandScript
                 { NULL,             SEC_PLAYER,         false, NULL,                  "",              NULL }
             };
             return commandTable;
+        }
+
+        static bool HandleDebugCriteriaCommand(ChatHandler* p_Handler, char const* p_Args)
+        {
+            if (!*p_Args)
+            {
+                p_Handler->SendSysMessage(LANG_BAD_VALUE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            char* l_StrType = strtok((char*)p_Args, " ");
+            uint32 l_Type = uint32(atoi(l_StrType));
+
+            char* l_StrMisc1 = strtok(NULL, " ");
+            uint32 l_Misc1 = l_StrMisc1 ? uint32(atoi(l_StrMisc1)) : 0;
+
+            char* l_StrMisc2 = strtok(NULL, " ");
+            uint32 l_Misc2 = l_StrMisc2 ? uint32(atoi(l_StrMisc2)) : 0;
+
+            p_Handler->GetSession()->GetPlayer()->UpdateAchievementCriteria(AchievementCriteriaTypes(l_Type), l_Misc1, l_Misc2);
+            return true;
         }
 
         static bool HandleDebugClearSpellCharges(ChatHandler* handler, char const* args)
@@ -155,9 +182,6 @@ class debug_commandscript : public CommandScript
                 p_Handler->SetSentErrorMessage(true);
                 return false;
             }
-
-            char* l_StrIndex = strtok((char*)p_Args, " ");
-            uint32 l_Index = uint32(atoi(l_StrIndex));
 
             char* l_StrID = strtok(NULL, " ");
             uint32 l_ID = l_StrID ? uint32(atoi(l_StrID)) : 0;
@@ -373,6 +397,8 @@ class debug_commandscript : public CommandScript
                 {
                     personalRating += groupMember->GetArenaPersonalRating(SLOT_RBG);
                     matchmakerRating += groupMember->GetArenaMatchMakerRating(SLOT_RBG);
+
+                    ++playerDivider;
                 }
             }
 
@@ -392,12 +418,12 @@ class debug_commandscript : public CommandScript
             uint32 avgTime = 0;
             GroupQueueInfo* ginfo;
 
-            err = grp->CanJoinBattlegroundQueue(bg, bgQueueTypeId, 10);
+            err = grp->CanJoinBattlegroundQueue(bg, bgQueueTypeId, 2);
             if (!err)
             {
-                sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: leader %s queued");
+                sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: leader %s queued", handler->GetSession()->GetPlayer()->GetName());
 
-                ginfo = bgQueue.AddGroup(handler->GetSession()->GetPlayer(), grp, bgTypeId, bracketEntry, 0, false, false, personalRating, matchmakerRating);
+                ginfo = bgQueue.AddGroup(handler->GetSession()->GetPlayer(), grp, bgTypeId, bracketEntry, 0, true, true, personalRating, matchmakerRating);
                 avgTime = bgQueue.GetAverageQueueWaitTime(ginfo, bracketEntry->GetBracketId());
             }
 
@@ -450,7 +476,7 @@ class debug_commandscript : public CommandScript
 
             Position pos;
             pos.m_positionX = float(atoi(param));
-            
+
             param = strtok(NULL, " ");
             if (!param)
                 return false;
@@ -469,7 +495,8 @@ class debug_commandscript : public CommandScript
 
             float force = float(atoi(param));
 
-            handler->GetSession()->GetPlayer()->SendApplyMovementForce(handler->GetSession()->GetPlayer()->GetGUID(), apply, pos, force);
+            uint64 l_FakeGuid = MAKE_NEW_GUID(sObjectMgr->GenerateLowGuid(HIGHGUID_AREATRIGGER), 6452, HIGHGUID_AREATRIGGER);
+            handler->GetSession()->GetPlayer()->SendApplyMovementForce(l_FakeGuid, apply, pos, force);
 
             return true;
         }
@@ -1682,13 +1709,14 @@ class debug_commandscript : public CommandScript
 
             std::set<uint32> terrainswap;
             std::set<uint32> phaseId;
+            std::set<uint32> inactiveTerrainSwap;
 
             terrainswap.insert((uint32)atoi(t));
 
             if (p)
                 phaseId.insert((uint32)atoi(p));
 
-            handler->GetSession()->SendSetPhaseShift(phaseId, terrainswap);
+            handler->GetSession()->SendSetPhaseShift(phaseId, terrainswap, inactiveTerrainSwap);
             return true;
         }
 
@@ -2217,6 +2245,77 @@ class debug_commandscript : public CommandScript
            for (int i = 0; i < 10; i++)
             if (proto->ItemStat[i].ItemStatType != -1)
                 handler->PSendSysMessage("Stat(%i): %i", proto->ItemStat[i].ItemStatType, proto->CalculateStatScaling(i, ilvl));
+            return true;
+        }
+
+        static bool HandleDebugModItem(ChatHandler* handler, char const* args)
+        {
+            Player* player = handler->GetSession()->GetPlayer();
+            char* arg1 = strtok((char*)args, " ");
+            char* arg2 = strtok(NULL, " ");
+
+            if (!arg1)
+                return false;
+
+            if (!arg2)
+                return false;
+
+            int8 slot = atoi(arg1);
+            uint32 mod = atoi(arg2);
+            Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot);
+
+            if (!item)
+                return false;
+
+            player->_RemoveAllItemMods();
+            item->SetDynamicValue(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS, 0, mod);
+            player->_ApplyAllItemMods();
+            handler->SendSysMessage("Item sucesfully modified");
+            return true;
+        }
+
+        static bool HandleDebugBattlegroundStart(ChatHandler* p_Handler, char const* p_Args)
+        {
+            Battleground* l_Battleground = p_Handler->GetSession()->GetPlayer()->GetBattleground();
+            if (l_Battleground == nullptr)
+            {
+                p_Handler->PSendSysMessage("You're not in a battleground !");
+                return false;
+            }
+
+            l_Battleground->FastStart();
+            return true;
+        }
+
+        static bool HandleDebugCrashTest(ChatHandler* p_Handler, char const* p_Args)
+        {
+            Player* l_CrashPlayer = nullptr;
+            uint64 l_Guid         = GUID_LOPART(l_CrashPlayer->GetPetGUID());
+
+            p_Handler->PSendSysMessage("You've crash the server ! (%lu)", l_Guid);
+
+            return true;
+        }
+
+        static bool HandleDebugBgAward(ChatHandler* p_Handler, char const* p_Args)
+        {
+            Battleground* l_Battleground = p_Handler->GetSession()->GetPlayer()->GetBattleground();
+
+            char* arg1 = strtok((char*)p_Args, " ");
+            char* arg2 = strtok(NULL, " ");
+
+            if (!arg1 || !arg2)
+                return false;
+
+            int32 l_Team = atoi(arg1) == 1 ? HORDE : ALLIANCE;
+            int32 l_Points = atoi(arg2);
+            if (!l_Battleground)
+            {
+                p_Handler->PSendSysMessage("You're not in a battleground !");
+                return false;
+            }
+
+            l_Battleground->AwardTeams(l_Points, 3, l_Team); 
             return true;
         }
 };

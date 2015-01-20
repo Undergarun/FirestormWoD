@@ -263,7 +263,7 @@ public:
 };
 
 /*#####
-## go_jump_a_tron
+## go_jump_a_tron 183146
 ######*/
 
 class go_jump_a_tron : public GameObjectScript
@@ -1354,6 +1354,33 @@ class go_mage_portal_pandaria : public GameObjectScript
         }
 };
 
+// Challenge Orb - 211674
+class go_challenge_orb : public GameObjectScript
+{
+    public:
+        go_challenge_orb() : GameObjectScript("go_challenge_orb") { }
+
+        bool OnGossipSelect(Player* p_Player, GameObject* p_GameObject, uint32 p_Sender, uint32 p_Action)
+        {
+            if (InstanceScript* l_Instance = p_GameObject->GetInstanceScript())
+            {
+                ///< Check difficulty or if Challenge is already started
+                if (!l_Instance->instance->IsChallengeMode() || l_Instance->IsChallengeModeStarted())
+                {
+                    p_Player->PlayerTalkClass->SendCloseGossip();
+                    return false;
+                }
+
+                p_GameObject->SetGoState(GO_STATE_ACTIVE);
+                p_GameObject->SetUInt32Value(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NODESPAWN);
+                l_Instance->SetChallengeModeStarted();
+                p_Player->PlayerTalkClass->SendCloseGossip();
+            }
+
+            return true;
+        }
+};
+
 void AddSC_go_scripts()
 {
     new go_cat_figurine;
@@ -1398,4 +1425,5 @@ void AddSC_go_scripts()
     new go_midsummer_bonfire;
     new go_seaforium_charge;
     new go_mage_portal_pandaria;
+    new go_challenge_orb();
 }

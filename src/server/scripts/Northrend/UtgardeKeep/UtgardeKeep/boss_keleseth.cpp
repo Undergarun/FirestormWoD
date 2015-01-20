@@ -339,7 +339,7 @@ public:
     };
 };
 
-class spell_frost_tomb : public SpellScriptLoader
+class spell_frost_tomb: public SpellScriptLoader
 {
     public:
         spell_frost_tomb() : SpellScriptLoader("spell_frost_tomb") {}

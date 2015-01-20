@@ -28,7 +28,7 @@ EndScriptData */
 #include "AccountMgr.h"
 #include "World.h"
 
-class gm_commandscript : public CommandScript
+class gm_commandscript: public CommandScript
 {
 public:
     gm_commandscript() : CommandScript("gm_commandscript") { }

@@ -19,7 +19,7 @@
 #include "Chat.h"
 #include "ObjectMgr.h"
 #include "ConditionMgr.h"
-
+#include "GarrisonMgr.hpp"
 
 //////////////////////////////////////////////////////////////////
 // Updating
@@ -43,7 +43,10 @@ void PhaseMgr::Update()
 
     _UpdateFlags = 0;
 }
-
+void PhaseMgr::ForceMapShiftUpdate()
+{
+    phaseData.SendPhaseshiftToPlayer();
+}
 void PhaseMgr::RemoveUpdateFlag(PhaseUpdateFlag updateFlag)
 {
     _UpdateFlags &= ~updateFlag;
@@ -89,7 +92,9 @@ void PhaseMgr::Recalculate()
 
     PhaseDefinitionStore::const_iterator itr = _PhaseDefinitionStore->find(player->GetZoneId());
     if (itr != _PhaseDefinitionStore->end())
+    {
         for (PhaseDefinitionContainer::const_iterator phase = itr->second.begin(); phase != itr->second.end(); ++phase)
+        {
             if (CheckDefinition(&(*phase)))
             {
                 phaseData.AddPhaseDefinition(&(*phase));
@@ -103,6 +108,11 @@ void PhaseMgr::Recalculate()
                 if (phase->IsLastDefinition())
                     break;
             }
+        }
+    }
+
+    if (player->GetGarrison() && (player->GetMapId() == GARRISON_BASE_MAP || player->IsInGarrison()))
+        _UpdateFlags |= PHASE_UPDATE_FLAG_CLIENTSIDE_CHANGED;
 }
 
 inline bool PhaseMgr::CheckDefinition(PhaseDefinition const* phaseDefinition)
@@ -248,29 +258,38 @@ void PhaseData::SendPhaseMaskToPlayer()
 void PhaseData::SendPhaseshiftToPlayer()
 {
     // Client side update
-    std::set<uint32> phaseIds;
-    std::set<uint32> terrainswaps;
+    std::set<uint32> l_PhaseIDs;
+    std::set<uint32> l_TerrainSwaps;
+    std::set<uint32> l_InactiveTerrainSwap;
 
-    for (PhaseInfoContainer::const_iterator itr = spellPhaseInfo.begin(); itr != spellPhaseInfo.end(); ++itr)
+    for (PhaseInfoContainer::const_iterator l_IT = spellPhaseInfo.begin(); l_IT != spellPhaseInfo.end(); ++l_IT)
     {
-        if (itr->second.terrainswapmap)
-            terrainswaps.insert(itr->second.terrainswapmap);
+        if (l_IT->second.terrainswapmap)
+            l_TerrainSwaps.insert(l_IT->second.terrainswapmap);
 
-        if (itr->second.phaseId)
-            phaseIds.insert(itr->second.phaseId);
+        if (l_IT->second.phaseId)
+            l_PhaseIDs.insert(l_IT->second.phaseId);
     }
 
     // Phase Definitions
-    for (std::list<PhaseDefinition const*>::const_iterator itr = activePhaseDefinitions.begin(); itr != activePhaseDefinitions.end(); ++itr)
+    for (std::list<PhaseDefinition const*>::const_iterator l_IT = activePhaseDefinitions.begin(); l_IT != activePhaseDefinitions.end(); ++l_IT)
     {
-        if ((*itr)->phaseId)
-            phaseIds.insert((*itr)->phaseId);
+        if ((*l_IT)->phaseId)
+            l_PhaseIDs.insert((*l_IT)->phaseId);
 
-        if ((*itr)->terrainswapmap)
-            terrainswaps.insert((*itr)->terrainswapmap);
+        if ((*l_IT)->terrainswapmap)
+            l_TerrainSwaps.insert((*l_IT)->terrainswapmap);
     }
 
-    player->GetSession()->SendSetPhaseShift(phaseIds, terrainswaps);
+    if (player->GetGarrison() && player->GetGarrison()->GetGarrisonSiteLevelEntry() && (player->GetMapId() == GARRISON_BASE_MAP || player->IsInGarrison()))
+    {
+        if (!player->IsInGarrison())
+            l_InactiveTerrainSwap.insert(player->GetGarrison()->GetGarrisonSiteLevelEntry()->MapID);
+
+        player->GetGarrison()->GetTerrainSwaps(l_TerrainSwaps);
+    }
+
+    player->GetSession()->SendSetPhaseShift(l_PhaseIDs, l_TerrainSwaps, l_InactiveTerrainSwap);
 }
 
 void PhaseData::AddPhaseDefinition(PhaseDefinition const* phaseDefinition)

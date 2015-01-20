@@ -226,7 +226,7 @@ class BattlegroundSM : public Battleground
         void UpdateTeamScore(uint32 p_Team);
         void EndBattleground(uint32 p_Winner);
         void UpdatePlayerScore(Player* p_Player, uint32 p_Type, uint32 p_Value, bool p_AddHonor = true);
-        void FillInitialWorldStates(WorldPacket& p_Data);
+        void FillInitialWorldStates(ByteBuffer& p_Data);
         void EventPlayerClickedOnFlag(Player* p_Player, Unit* p_Target);
 
         /* Battleground Events */

@@ -204,7 +204,7 @@ public:
 
     bool OnGossipHello(Player* /*player*/, GameObject* go)
     {
-        if(InstanceScript* instance = go->GetInstanceScript())
+        if(go->GetInstanceScript())
         {
             Map::PlayerList const &PlayerList = go->GetMap()->GetPlayers();
 

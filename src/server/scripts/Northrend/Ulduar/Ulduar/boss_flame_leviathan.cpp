@@ -730,11 +730,8 @@ class boss_flame_leviathan_overload_device : public CreatureScript
             {
             }
 
-            void OnSpellClick(Unit* /*clicker*/, bool& result)
+            void OnSpellClick(Unit* /*clicker*/)
             {
-                if (!result)
-                    return;
-
                 if (me->GetVehicle())
                 {
                     me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
@@ -1534,7 +1531,7 @@ class achievement_orbit_uary : public AchievementCriteriaScript
         }
 };
 
-class spell_load_into_catapult : public SpellScriptLoader
+class spell_load_into_catapult: public SpellScriptLoader
 {
     enum Spells
     {
@@ -1579,7 +1576,7 @@ class spell_load_into_catapult : public SpellScriptLoader
         }
 };
 
-class spell_auto_repair : public SpellScriptLoader
+class spell_auto_repair: public SpellScriptLoader
 {
     enum Spells
     {
@@ -1645,7 +1642,7 @@ class spell_auto_repair : public SpellScriptLoader
         }
 };
 
-class spell_systems_shutdown : public SpellScriptLoader
+class spell_systems_shutdown: public SpellScriptLoader
 {
     public:
         spell_systems_shutdown() : SpellScriptLoader("spell_systems_shutdown") { }
@@ -1731,7 +1728,7 @@ class FlameLeviathanPursuedTargetSelector
         Unit const* _me;
 };
 
-class spell_pursue : public SpellScriptLoader
+class spell_pursue: public SpellScriptLoader
 {
     public:
         spell_pursue() : SpellScriptLoader("spell_pursue") {}
@@ -1803,7 +1800,7 @@ class spell_pursue : public SpellScriptLoader
         }
 };
 
-class spell_vehicle_throw_passenger : public SpellScriptLoader
+class spell_vehicle_throw_passenger: public SpellScriptLoader
 {
     public:
         spell_vehicle_throw_passenger() : SpellScriptLoader("spell_vehicle_throw_passenger") {}

@@ -243,7 +243,7 @@ struct ChrClassesEntry
 struct ChrRacesEntry
 {
     uint32  RaceID;                                         // 0        m_ID
-    //uint32    m_Flags;                                    // 1        m_Flags
+    uint32  Flags;                                          // 1        m_Flags
     uint32  FactionID;                                      // 2        m_FactionID
     //uint32    m_ExplorationSoundID;                       // 3        m_ExplorationSoundID
     uint32  model_m;                                        // 4        m_MaleDisplayId
@@ -334,7 +334,7 @@ struct CreatureDisplayInfoEntry
     uint32  Displayid;                                      // 0        m_ID
     uint32  ModelId;                                        // 1        m_ModelID
     //uint32    m_sounID;                                   // 2        m_SoundID
-    //uint32    m_extendedDisplayInfoID;                    // 3        m_ExtendedDisplayInfoID
+    uint32  ExtendedDisplayInfoID;                          // 3        m_ExtendedDisplayInfoID
     float   scale;                                          // 4        m_CreatureModelScale
     //uint32    m_creatureModelAlpha;                       // 5        m_CreatureModelAlpha
     //char*     m_textureName;                              // 6-8      m_TextureVariation[3]
@@ -350,6 +350,22 @@ struct CreatureDisplayInfoEntry
     //uint32    m_Flags;                                    // 18       m_Flags
     //int32     m_Gender;                                   // 19       m_Gender
     //uint32    m_StateSpellVisualKitID;                    // 20       m_StateSpellVisualKitID
+};
+
+struct CreatureDisplayInfoExtraEntry
+{
+    //uint32    ID;                                         // 0
+    uint32      DisplayRaceID;                              // 1
+    //uint32    DisplaySexID;                               // 2
+    //uint32    SkinID;                                     // 3
+    //uint32    FaceID;                                     // 4
+    //uint32    HairStyleID;                                // 5
+    //uint32    HairColorID;                                // 6
+    //uint32    FacialHairID;                               // 7
+    //uint32    NPCItemDisplay[11];                         // 8-18
+    //uint32    Flags;                                      // 19
+    //uint32    FileDataID;                                 // 20
+    //uint32    Unk;                                        // 21
 };
 
 struct CreatureFamilyEntry
@@ -370,7 +386,7 @@ struct CreatureFamilyEntry
 struct CreatureModelDataEntry
 {
     uint32  Id;                                             // 0        m_ID
-    //uint32    m_Flags;                                    // 1        m_Flags
+    uint32  Flags;                                          // 1        m_Flags
     //uint32    m_FileDataID;                               // 2        m_FileDataID
     //uint32    m_SizeClass;                                // 3        m_SizeClass
     //float     m_ModelScale;                               // 4        m_ModelScale
@@ -673,7 +689,6 @@ struct GlyphPropertiesEntry
     uint32  GlyphExclusiveCategoryID;                       // 4        m_GlyphExclusiveCategoryID
 };
 
-// @author Selenium: 5.4 valid
 struct GlyphSlotEntry
 {
     uint32  Id;                                             // 0        m_ID
@@ -1060,12 +1075,20 @@ struct MailTemplateEntry
     char*   content;                                        // 2        m_body_lang
 };
 
+enum MapFlags : uint32
+{
+    MAP_FLAG_CAN_CHANGE_DIFFICULTY  = 0x00000001,
+    MAP_FLAG_DEV                    = 0x00000002,
+    MAP_FLAG_OVERRIDE_FAR_CLIP      = 0x00010000,
+    MAP_FLAG_CAN_GET_GARRISON_INFO  = 0x04000000
+};
+
 struct MapEntry
 {
     uint32  MapID;                                          // 0        m_ID
     //char*     direcotry;                                  // 1        m_Directory
-    uint32  instanceType;                                   // 2        m_InstanceType
-    //uint32    flags;                                      // 3        m_Flags
+    uint32  instanceType;                                   // 2        m_InstanceType => 0 none, 1 party, 2 raid, 3 pvp, 4 arena, 5 scenario
+    uint32  Flags;                                          // 3        m_Flags
     //int     unk_602;                                      // 4
     //uint32    MapType;                                    // 5        m_MapType 4 Garison, 3 Transport 2/1 unk usage
     char*   MapNameLang;                                    // 6        m_MapName_lang
@@ -1120,11 +1143,11 @@ struct MapDifficultyEntry
     //uint32    Id;                                         // 0        m_ID
     uint32  MapId;                                          // 1        m_MapID
     uint32  Difficulty;                                     // 2        m_DifficultyID          (for arenas: arena slot)
-    char*   areaTriggerText;                                // 3        m_message_lang          (text showed when transfer to map failed)
-    uint32  resetTime;                                      // 4        m_raidDuration          in secs, 0 if no fixed reset time
-    uint32  maxPlayers;                                     // 5        m_maxPlayers            some heroic versions have 0 when expected same amount as in normal version
+    char*   AreaTriggerText;                                // 3        m_message_lang          (text showed when transfer to map failed)
+    uint32  ResetTime;                                      // 4        m_raidDuration          in secs, 0 if no fixed reset time
+    uint32  MaxPlayers;                                     // 5        m_maxPlayers            some heroic versions have 0 when expected same amount as in normal version
     //uint32    LockID;                                     // 6        m_LockID
-    //uint32    Unk_601_18612;                              // 7        Unk_601_18612           m_message_lang for WOD
+    uint32  ItemBonusTreeDifficulty;                        // 7
 };
 
 struct MinorTalentEntry
@@ -1172,6 +1195,16 @@ struct NameGenEntry
     uint32  gender;                                         // 3        m_Sex
 };
 
+struct PowerDisplayEntry
+{
+    uint32 ID;                                              // 0
+    uint32 ActualType;                                      // 1
+    char*  GlobalStringBaseTag;                             // 2
+    uint8  Red;                                             // 3
+    uint8  Green;                                           // 4
+    uint8  Blue;                                            // 5
+};
+
 struct PvPDifficultyEntry
 {
     //uint32    id;                                         // 0        m_ID
@@ -1194,6 +1227,12 @@ struct QuestXPEntry
 {
     uint32  id;                                             // 0        m_ID
     uint32  Exp[10];                                        // 1 -9     m_Difficulty
+};
+
+struct QuestV2Entry
+{
+    uint32      ID;                                         // 0
+    uint32      UniqueBitFlag;                              // 1
 };
 
 struct QuestFactionRewEntry
@@ -1579,14 +1618,11 @@ struct SpellShapeshiftFormEntry
     uint32  ID;                                             // 0        m_ID
     //uint32    m_BonusActionBar;                           // 1        m_BonusActionBar
     //char*     m_NameLang;                                 // 2        m_NameLang
-    uint32  m_Flags;                                          // 3      m_Flags
+    uint32  m_Flags;                                          // 3        m_Flags
     int32   creatureType;                                   // 4        m_CreatureType
     //uint32    m_AttackIconID;                             // 5        m_AttackIconID
     uint32  attackSpeed;                                    // 6        m_CombatRoundTime
-    uint32  modelID_A;                                      // 7        m_CreatureDisplayID
-    uint32  modelID_H;                                      // 8        m_CreatureDisplayID
-    //uint32    m_CreatureDisplayID;                        // 9        m_CreatureDisplayID
-    //uint32    m_CreatureDisplayID;                        // 10       m_CreatureDisplayID
+    uint32  m_CreatureDisplayID[4];                         // 7-10     m_CreatureDisplayID (0 - Alliance, 1 - Horde)
     uint32  stanceSpell[MAX_SHAPESHIFT_SPELLS];             // 11-18    m_PresetSpellID
     //uint32    m_MountTypeID;                              // 19       m_MountTypeID
     //uint32    m_ExitSoundEntriesID;                       // 20       m_ExitSoundEntriesID
@@ -1620,8 +1656,8 @@ struct SpellScalingEntry
     int32   CastTimeMax;                                    // 2        m_CastTimeMax
     int32   CastTimeMaxLevel;                               // 3        m_CastTimeMaxLevel
     int32   ScalingClass;                                   // 4        m_Class                 index * 100 + charLevel - 1 => gtSpellScaling.dbc
-    float   CoefBase;                                       // 5        m_NerfFactor
-    uint32  CoefLevelBase;                                  // 6        m_NerfMaxLevel
+    float   NerfFactor;                                       // 5        m_NerfFactor
+    uint32  NerfMaxLevel;                                  // 6        m_NerfMaxLevel
     uint32  MaxScalingLevel;                                // 7        m_MaxScalingLevel
     uint32  ScalesFromItemLevel;                            // 8        m_ScalesFromItemLevel
 };
@@ -1882,6 +1918,18 @@ struct WMOAreaTableEntry
     //uint32    m_UwAmbience;                               // 14       m_UwAmbience
 };
 
+// unused
+struct WorldEffectEntry
+{
+    int ID;                                                 //
+    int TargetType;                                         //
+    int TargetAsset;                                        //
+    int QuestFeedbackEffectID;                              //
+    int PlayerConditionID;                                  //
+    int CombatConditionID;                                  //
+    int WhenToDisplay;                                      // 
+};
+
 struct WorldMapAreaEntry
 {
     //uint32    m_ID;                                       // 0        m_ID
@@ -1933,6 +1981,17 @@ struct World_PVP_AreaEntry
 
 struct WorldSafeLocsEntry
 {
+    WorldSafeLocsEntry()
+        : ID(0),
+        map_id(0),
+        x(0),
+        y(0),
+        z(0),
+        o(0)
+    {
+
+    }
+
     uint32    ID;                                           // 0
     uint32    map_id;                                       // 1
     float     x;                                            // 2
@@ -2347,15 +2406,19 @@ struct VectorArray
 typedef std::map<uint32, VectorArray> NameGenVectorArraysMap;
 
 // Structures not used for casting to loaded DBC data and not required then packing
-// @author Selenium: 5.4 valid
 struct MapDifficulty
 {
-    MapDifficulty() : resetTime(0), maxPlayers(0), hasErrorMessage(false) {}
-    MapDifficulty(uint32 _resetTime, uint32 _maxPlayers, bool _hasErrorMessage) : resetTime(_resetTime), maxPlayers(_maxPlayers), hasErrorMessage(_hasErrorMessage) {}
+    MapDifficulty() : ResetTime(0), MaxPlayers(0), HasErrorMessage(false), ItemBonusTreeDifficulty(0)
+    {}
 
-    uint32 resetTime;
-    uint32 maxPlayers;
-    bool hasErrorMessage;
+    MapDifficulty(uint32 p_ResetTime, uint32 p_MaxPlayers, uint32 p_ItemBonusTreeDifficulty, bool p_HasErrorMessage)
+        : ResetTime(p_ResetTime), MaxPlayers(p_MaxPlayers), ItemBonusTreeDifficulty(p_ItemBonusTreeDifficulty), HasErrorMessage(p_HasErrorMessage)
+    {}
+
+    uint32 ResetTime;
+    uint32 MaxPlayers;
+    uint32 ItemBonusTreeDifficulty;
+    bool   HasErrorMessage;
 };
 
 struct TalentSpellPos

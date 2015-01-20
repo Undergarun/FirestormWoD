@@ -501,7 +501,6 @@ void JadeCore::UnitListSearcher<Check>::Visit(CreatureMapType &m)
 }
 
 // Creature searchers
-
 template<class Check>
 void JadeCore::CreatureSearcher<Check>::Visit(CreatureMapType &m)
 {

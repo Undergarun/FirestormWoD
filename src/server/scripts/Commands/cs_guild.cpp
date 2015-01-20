@@ -28,7 +28,7 @@ EndScriptData */
 #include "GuildMgr.h"
 #include "ObjectAccessor.h"
 
-class guild_commandscript : public CommandScript
+class guild_commandscript: public CommandScript
 {
     public:
         guild_commandscript() : CommandScript("guild_commandscript") { }

@@ -243,7 +243,7 @@ class AuraEffect : public std::enable_shared_from_this<AuraEffect>
         void HandleAuraModResistenceOfStatPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModExpertise(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleOverrideSpellPowerByAttackPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleIncreaseHasteFromItemsByPct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleIncreaseRatingPct(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const;
         void HandleModManaRegenByHaste(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModPetStats(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModMaxPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -305,6 +305,7 @@ class AuraEffect : public std::enable_shared_from_this<AuraEffect>
         void HandleArenaPreparation(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleNoReagentUseAura(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraRetainComboPoints(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAuraSetPowerType(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const;
         //  others
         void HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleChannelDeathItem(AuraApplication const* aurApp, uint8 mode, bool apply) const;

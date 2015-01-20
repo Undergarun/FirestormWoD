@@ -565,11 +565,18 @@ void MotionMaster::Mutate(MovementGenerator *m, MovementSlot slot)
 {
     if (MovementGenerator *curr = Impl[slot])
     {
-        Impl[slot] = NULL; // in case a new one is generated in this slot during directdelete
+        // in case a new one is generated in this slot during directdelete
+        Impl[slot] = nullptr;
+
         if (_top == slot && (_cleanFlag & MMCF_UPDATE))
             DelayedDelete(curr);
         else
+        {
+            _cleanFlag |= MMCF_DELETE;
             DirectDelete(curr);
+            _cleanFlag &= ~MMCF_DELETE;
+
+        }
     }
     else if (_top < slot)
     {
@@ -635,6 +642,10 @@ void MotionMaster::propagateSpeedChange()
 MovementGeneratorType MotionMaster::GetCurrentMovementGeneratorType() const
 {
    if (empty())
+       return IDLE_MOTION_TYPE;
+
+   // May be we must save the MovementGenerator in finalize state and return it instead of return default type
+   if (_cleanFlag & MMCF_DELETE)
        return IDLE_MOTION_TYPE;
 
    return top()->GetMovementGeneratorType();

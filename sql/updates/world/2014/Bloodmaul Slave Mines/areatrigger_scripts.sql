@@ -1,0 +1,1 @@
+INSERT INTO areatrigger_scripts VALUES ('9725', 'at_SpawnSlagna');

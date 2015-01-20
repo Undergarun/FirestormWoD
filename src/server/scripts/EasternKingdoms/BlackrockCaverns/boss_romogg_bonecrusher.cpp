@@ -218,7 +218,7 @@ class boss_romogg_bonecrusher : public CreatureScript
  
 };*/
 
-/*class spell_romoogg_chains_of_woe : public SpellScriptLoader
+/*class spell_romoogg_chains_of_woe: public SpellScriptLoader
 {
     public:
         spell_romoogg_chains_of_woe : SpellScriptLoader("spell_romoogg_chains_of_woe") { }
@@ -245,7 +245,7 @@ class boss_romogg_bonecrusher : public CreatureScript
         }
 };*/
 
-/*class spell_romoogg_chains_of_woe_tele : public SpellScriptLoader
+/*class spell_romoogg_chains_of_woe_tele: public SpellScriptLoader
 {
     public:
         spell_romoogg_chains_of_woe_tele : SpellScriptLoader("spell_romoogg_chains_of_woe_tele") { }

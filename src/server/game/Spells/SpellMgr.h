@@ -178,6 +178,11 @@ enum ProcFlags
                                                  | PROC_FLAG_TAKEN_PERIODIC | PROC_FLAG_TAKEN_DAMAGE,
 
     REQ_SPELL_PHASE_PROC_FLAG_MASK             = SPELL_PROC_FLAG_MASK & DONE_HIT_PROC_FLAG_MASK,
+
+    MULTISTRIKE_DONE_HIT_PROC_FLAG_MASK        = PROC_FLAG_DONE_MELEE_AUTO_ATTACK | PROC_FLAG_DONE_RANGED_AUTO_ATTACK
+                                                 | PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS | PROC_FLAG_DONE_SPELL_RANGED_DMG_CLASS
+                                                 | PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS | PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG
+                                                 | PROC_FLAG_DONE_PERIODIC | PROC_FLAG_DONE_MAINHAND_ATTACK | PROC_FLAG_DONE_OFFHAND_ATTACK,
 };
 
 #define MELEE_BASED_TRIGGER_MASK (PROC_FLAG_DONE_MELEE_AUTO_ATTACK      | \
@@ -628,6 +633,7 @@ class SpellMgr
         uint32 GetSpellDifficultyId(uint32 spellId) const;
         void SetSpellDifficultyId(uint32 spellId, uint32 id);
         uint32 GetSpellIdForDifficulty(uint32 spellId, Unit const* caster) const;
+        SpellInfo const* GetSpellForDifficulty(uint32 p_SpellId, Difficulty p_Difficulty) const;
         SpellInfo const* GetSpellForDifficultyFromSpell(SpellInfo const* spell, Unit const* caster) const;
 
         // Spell Ranks table

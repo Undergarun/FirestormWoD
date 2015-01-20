@@ -1,4 +1,5 @@
 #include "instance_skyreach.h"
+#include "ObjectAccessor.h"
 
 namespace MS
 {
@@ -11,15 +12,25 @@ namespace MS
 
         static const DoorData k_DoorData[] =
         {
-            { DOOR_RANJIT_ENTRANCE,     Data::Ranjit,   DOOR_TYPE_ROOM,     BOUNDARY_NONE },
-            { DOOR_RANJIT_EXIT,         Data::Ranjit,   DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
-            { DOOR_ARAKNATH_ENTRANCE_1, Data::Araknath, DOOR_TYPE_ROOM,     BOUNDARY_NONE },
-            { DOOR_ARAKNATH_ENTRANCE_2, Data::Araknath, DOOR_TYPE_ROOM,     BOUNDARY_NONE },
-            { DOOR_ARAKNATH_EXIT_1,     Data::Araknath, DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
-            { DOOR_ARAKNATH_EXIT_2,     Data::Araknath, DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
-            { DOOR_RUKHRAN_ENTRANCE,    Data::Rukhran,  DOOR_TYPE_ROOM,     BOUNDARY_NONE },
-            { DOOR_RUKHRAN_EXIT,        Data::Rukhran,  DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
-            { 0,                        0,              DOOR_TYPE_ROOM,     0 }  // EOF
+            { DOOR_RANJIT_ENTRANCE,             Data::Ranjit,           DOOR_TYPE_ROOM,     BOUNDARY_NONE },
+            { DOOR_RANJIT_EXIT,                 Data::Ranjit,           DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
+            { DOOR_ARAKNATH_ENTRANCE_1,         Data::Araknath,         DOOR_TYPE_ROOM,     BOUNDARY_NONE },
+            { DOOR_ARAKNATH_ENTRANCE_2,         Data::Araknath,         DOOR_TYPE_ROOM,     BOUNDARY_NONE },
+            { DOOR_ARAKNATH_EXIT_1,             Data::Araknath,         DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
+            { DOOR_ARAKNATH_EXIT_2,             Data::Araknath,         DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
+            { DOOR_RUKHRAN_ENTRANCE,            Data::Rukhran,          DOOR_TYPE_ROOM,     BOUNDARY_NONE },
+            { DOOR_RUKHRAN_EXIT,                Data::Rukhran,          DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
+            { DOOR_HIGH_SAVE_VIRYX_ENTRANCE,    Data::HighSageViryx,    DOOR_TYPE_ROOM,     BOUNDARY_NONE },
+            { 0,                                0,                      DOOR_TYPE_ROOM,     0 }  // EOF
+        };
+
+        static const BossScenarios k_ScenarioData[] =
+        {
+            { Data::Ranjit,         ScenarioDatas::RanjitCriteriaId },
+            { Data::Araknath,       ScenarioDatas::AraknathCriteriaId },
+            { Data::Rukhran,        ScenarioDatas::RukhranCriteriaId },
+            { Data::HighSageViryx,  ScenarioDatas::ViryxCriteriaId },
+            { 0,                    0 }, // EOF
         };
 
         class instance_Skyreach : public InstanceMapScript
@@ -50,6 +61,18 @@ namespace MS
 
                 // Wind maze zone.
                 std::map<uint64, uint32> m_PlayerGuidToBlockId;
+                std::vector<uint64> m_WindMazeBlockGuids;
+
+                // High Sage Viryx.
+                std::vector<uint64> m_MagnifyingGlassFocusGuids;
+                uint64 m_ReshadOutroGuid;
+
+                // Achievements.
+                std::map<uint64, uint32> m_ReadyForRaidingIVAchievements;
+                bool m_HasFailedMonomaniaAchievement;
+
+                // Scenario handling.
+                uint32 m_CreatureKilled;
 
                 instance_SkyreachInstanceMapScript(Map* p_Map) 
                     : InstanceScript(p_Map),
@@ -67,10 +90,21 @@ namespace MS
                     m_SolarFlaresGuid(),
                     m_CacheOfArakoanTreasuresGuid(0),
                     m_SolarConstructorEnergizerGuid(0),
-                    m_PlayerGuidToBlockId()
+                    m_PlayerGuidToBlockId(),
+                    m_WindMazeBlockGuids(),
+                    m_MagnifyingGlassFocusGuids(),
+                    m_ReshadOutroGuid(0),
+                    m_HasFailedMonomaniaAchievement(false),
+                    m_CreatureKilled(0)
                 {
                     SetBossNumber(MaxEncounter::Number);
-                    LoadDoorData(k_DoorData);
+                    LoadDoorData(k_DoorData); 
+                    LoadScenariosInfos(k_ScenarioData, p_Map->IsChallengeMode() ? ScenarioDatas::ChallengeScenarioId : ScenarioDatas::ScenarioId);
+
+                    for (uint32 i = Blocks::FirstStair; i <= Blocks::SecondStair; i++)
+                        m_WindMazeBlockGuids.push_back(MAKE_NEW_GUID(sObjectMgr->GenerateLowGuid(HIGHGUID_AREATRIGGER), 6452, HIGHGUID_AREATRIGGER));
+
+                    instance->SetObjectVisibility(1000.f);
                 }
 
                 void OnCreatureCreate(Creature* p_Creature)
@@ -84,21 +118,45 @@ namespace MS
                         break;
                     case BossEntries::RUKHRAN:
                         m_RukhranGuid = p_Creature->GetGUID();
+                        if (GetBossState(Data::Rukhran) == EncounterState::SPECIAL)
+                            SetData(Data::SkyreachRavenWhispererIsDead, 0);
                         break;
                     case MobEntries::SKYREACH_ARCANALOGIST:
                         m_SkyreachArcanologistGuid = p_Creature->GetGUID();
                         break;
+                    case MobEntries::SkyreachDefenseConstruct:
+                        p_Creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_6);
+                        break;
                     case MobEntries::SKYREACH_SOLAR_CONSTRUCTOR:
                         m_SolarConstructorsGuid.emplace_front(p_Creature->GetGUID());
-                        p_Creature->RemoveAura(RandomSpells::SUBMERGED);
                         p_Creature->DisableEvadeMode();
-                        p_Creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_IMMUNE_TO_PC);
-                        p_Creature->CastSpell(p_Creature, uint32(RandomSpells::ENERGIZE_VISUAL_1));
+                        p_Creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_IMMUNE_TO_PC);
+                        if (GetBossState(Data::Araknath) == EncounterState::NOT_STARTED || GetBossState(Data::Araknath) == EncounterState::TO_BE_DECIDED)
+                        {
+                            p_Creature->CastSpell(p_Creature, uint32(RandomSpells::ENERGIZE_VISUAL_1));
+                            p_Creature->RemoveAura(RandomSpells::SUBMERGED);
+                        }
+                        else
+                        {
+                            p_Creature->AddAura(RandomSpells::SUBMERGED, p_Creature);
+                            p_Creature->SetReactState(ReactStates::REACT_PASSIVE);
+                            p_Creature->getThreatManager().clearReferences();
+                            p_Creature->getThreatManager().resetAllAggro();
+                        }
                         break;
                     case MobEntries::SKYREACH_RAVEN_WHISPERER:
                         m_SkyreachRavenWhispererGuid = p_Creature->GetGUID();
                         break;
-                    case MobEntries::YOUNG_KALIRI:
+                    case MobEntries::YoungKaliri:
+                        p_Creature->SetDisableGravity(true);
+                        p_Creature->SetCanFly(true);
+                        p_Creature->SetByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                        p_Creature->SetReactState(REACT_PASSIVE);
+                        p_Creature->setFaction(16);
+                        p_Creature->DisableEvadeMode();
+                        p_Creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE);
+                        break;
+                    case MobEntries::Arakkoa:
                     case MobEntries::Kaliri:
                     case MobEntries::Kaliri2:
                         // Setting fly.
@@ -108,6 +166,9 @@ namespace MS
                         p_Creature->SetReactState(REACT_PASSIVE);
                         break;
                     case MobEntries::PILE_OF_ASHES:
+                        p_Creature->AddUnitState(UNIT_STATE_UNATTACKABLE);
+                        p_Creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                        p_Creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
                         m_PileOfAshesGuid.insert(p_Creature->GetGUID());
                         break;
                     case MobEntries::SOLAR_FLARE:
@@ -119,8 +180,18 @@ namespace MS
                         p_Creature->setFaction(16);
                         break;
                     case MobEntries::ArakkoaPincerBirdsController:
+                        p_Creature->AddAura(16245, p_Creature); // Freeze anim spell.
                         p_Creature->setFaction(16);
                         p_Creature->SetReactState(REACT_PASSIVE);
+                        p_Creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_IMMUNE_TO_PC);
+                        break;
+                    case MobEntries::SolarZealot:
+                        p_Creature->setFaction(16);
+                        p_Creature->SetDisableGravity(true);
+                        p_Creature->SetCanFly(true);
+                        p_Creature->SetByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                        p_Creature->SetReactState(REACT_PASSIVE);
+                        p_Creature->DisableEvadeMode();
                         break;
                     case MobEntries::DreadRavenHatchling:
                         p_Creature->setFaction(16);
@@ -139,6 +210,36 @@ namespace MS
                         p_Creature->SetByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                         p_Creature->SetReactState(REACT_PASSIVE);
                         break;
+                    case MobEntries::AraokkoaMagnifyingConstructA:
+                        m_MagnifyingGlassFocusGuids.push_back(p_Creature->GetGUID());
+                        p_Creature->setFaction(16);
+                        p_Creature->SetDisableGravity(true);
+                        p_Creature->SetCanFly(true);
+                        p_Creature->SetByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                        p_Creature->SetReactState(REACT_PASSIVE);
+                        p_Creature->DisableEvadeMode();
+                        break;
+                    case MobEntries::ArakkoaMagnifyingGlassFocus:
+                        p_Creature->SetDisplayId(17519);
+                        p_Creature->SetReactState(REACT_PASSIVE);
+                        p_Creature->SetCanFly(false);
+                        p_Creature->DisableEvadeMode();
+                        p_Creature->SetDisableGravity(false);
+                        break;
+                    case MobEntries::ReshadOutro:
+                        m_ReshadOutroGuid = p_Creature->GetGUID();
+                        p_Creature->SetDisableGravity(true);
+                        p_Creature->SetCanFly(true);
+                        p_Creature->SetByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+
+                        if (InstanceScript::GetBossState(Data::HighSageViryx) == EncounterState::DONE)
+                        {
+                            p_Creature->SetVisible(true);
+                            p_Creature->GetMotionMaster()->MovePoint(0, 1128.81f, 1814.251f, 262.171f);
+                        }
+                        else
+                            p_Creature->SetVisible(false);
+                        break;
                     default:
                         break;
                     }
@@ -148,23 +249,38 @@ namespace MS
                 {
                     switch (p_Gameobject->GetEntry())
                     {
-                    case GameObjectEntries::DOOR_RANJIT_ENTRANCE:
-                    case GameObjectEntries::DOOR_RANJIT_EXIT:
-                    case GameObjectEntries::DOOR_ARAKNATH_ENTRANCE_1:
-                    case GameObjectEntries::DOOR_ARAKNATH_ENTRANCE_2:
-                    case GameObjectEntries::DOOR_ARAKNATH_EXIT_1:
-                    case GameObjectEntries::DOOR_ARAKNATH_EXIT_2:
-                    case GameObjectEntries::DOOR_RUKHRAN_ENTRANCE:
-                    case GameObjectEntries::DOOR_RUKHRAN_EXIT:
-                        AddDoor(p_Gameobject, true);
-                        break;
-                    case GameObjectEntries::CACHE_OF_ARAKKOAN_TREASURES:
-                        p_Gameobject->SetPhaseMask(0, true);
-                        m_CacheOfArakoanTreasuresGuid = p_Gameobject->GetGUID();
-                        break;
-                    default:
-                        break;
+                        case GameObjectEntries::DOOR_RANJIT_ENTRANCE:
+                        case GameObjectEntries::DOOR_RANJIT_EXIT:
+                        case GameObjectEntries::DOOR_ARAKNATH_ENTRANCE_1:
+                        case GameObjectEntries::DOOR_ARAKNATH_ENTRANCE_2:
+                        case GameObjectEntries::DOOR_ARAKNATH_EXIT_1:
+                        case GameObjectEntries::DOOR_ARAKNATH_EXIT_2:
+                        case GameObjectEntries::DOOR_RUKHRAN_ENTRANCE:
+                        case GameObjectEntries::DOOR_RUKHRAN_EXIT:
+                        case GameObjectEntries::DOOR_HIGH_SAVE_VIRYX_ENTRANCE:
+                            AddDoor(p_Gameobject, true);
+                            break;
+                        case GameObjectEntries::DOOR_CHALLENGE_ENTRANCE:
+                            m_ChallengeDoorGuid = p_Gameobject->GetGUID();
+                            break;
+                        default:
+                            break;
                     }
+                }
+
+                void OnCreatureKilled(Creature* p_Creature, Player* p_Player)
+                {
+                    if (!instance->IsChallengeMode() || !IsChallengeModeStarted() || m_CreatureKilled >= ScenarioDatas::MaxEnnemiesToKill)
+                        return;
+
+                    if (p_Creature == nullptr)
+                        return;
+
+                    if (!p_Creature->isElite() || p_Creature->IsDungeonBoss())
+                        return;
+
+                    ++m_CreatureKilled;
+                    SendScenarioProgressUpdate(CriteriaProgressData(ScenarioDatas::EnnemiesCriteriaId, m_CreatureKilled, m_InstanceGuid, time(NULL), m_BeginningTime, 0));
                 }
 
                 bool SetBossState(uint32 p_ID, EncounterState p_State)
@@ -175,35 +291,87 @@ namespace MS
                     switch (p_ID)
                     {
                     case Data::Ranjit:
+                        // Achievement handling.
+                        if (p_State == EncounterState::DONE && instance->IsHeroic())
+                        {
+                            AchievementEntry const* l_AE = sAchievementStore.LookupEntry(uint32(Achievements::ReadyForRaidingIV));
+                            if (!l_AE)
+                                break;
+
+                            for (auto l_Guid : m_ReadyForRaidingIVAchievements)
+                            {
+                                if (Player* l_Plr = sObjectAccessor->FindPlayer(l_Guid.first))
+                                {
+                                    if (l_Guid.second == 0)
+                                        l_Plr->CompletedAchievement(l_AE);
+                                }
+                            }
+                        }
                         break;
                     case Data::Araknath:
                         switch (p_State)
                         {
-                        case FAIL:
+                        case EncounterState::FAIL:
                             if (Creature* l_SkyreachArcanologist = sObjectAccessor->FindCreature(m_SkyreachArcanologistGuid))
                                 l_SkyreachArcanologist->Respawn();
+                            break;
+                        case EncounterState::DONE:
+                            if (instance->IsHeroic())
+                                DoCompleteAchievement(uint32(Achievements::MagnifyEnhance));
+
+                            for (uint64 l_Guid : m_SolarConstructorsGuid)
+                            {
+                                if (Creature* l_Constructor = sObjectAccessor->FindCreature(l_Guid))
+                                {
+                                    l_Constructor->CombatStop();
+                                    l_Constructor->SetReactState(ReactStates::REACT_PASSIVE);
+                                    l_Constructor->getThreatManager().clearReferences();
+                                    l_Constructor->getThreatManager().resetAllAggro();
+                                }
+                            }
+
+                            break;
+                        default:
                             break;
                         }
                         break;
                     case Data::Rukhran:
                         switch (p_State)
                         {
-                        case DONE:
-                            if (GameObject* l_Gob = sObjectAccessor->FindGameObject(m_CacheOfArakoanTreasuresGuid))
-                                l_Gob->SetPhaseMask(1, true);
+                        case EncounterState::FAIL:
+                            if (Creature* l_Rukhran = sObjectAccessor->FindCreature(m_RukhranGuid))
+                            {
+                                l_Rukhran->GetMotionMaster()->Clear(true);
+                                SetBossState(Data::Rukhran, EncounterState::SPECIAL);
+                                l_Rukhran->GetMotionMaster()->MovePoint(12, 918.92f, 1913.46f, 215.87f);
+                            }
                             break;
-                        case FAIL:
-                            if (Creature* l_SkyreachRavenWhisperer = sObjectAccessor->FindCreature(m_SkyreachRavenWhispererGuid))
-                                l_SkyreachRavenWhisperer->Respawn();
-                            break;
+                            default:
+                                break;
                         }
                         break;
-                    case Data::SkyreachArcanologist:
-                        break;
-                    default:
-                        break;
-                    }
+                    case Data::HighSageViryx:
+                        switch (p_State)
+                        {
+                        case EncounterState::DONE:
+                            if (Creature* l_Reshad = sObjectAccessor->FindCreature(m_ReshadOutroGuid))
+                            {
+                                l_Reshad->SetVisible(true);
+                                l_Reshad->GetMotionMaster()->MovePoint(0, 1128.81f, 1814.251f, 262.171f);
+                            }
+                            if (instance->IsHeroic())
+                                DoCompleteAchievement(uint32(Achievements::HeroicSkyreach));
+                            else
+                                DoCompleteAchievement(uint32(Achievements::Skyreach));
 
+                            if (instance->IsHeroic() && !m_HasFailedMonomaniaAchievement)
+                                DoCompleteAchievement(uint32(Achievements::Monomania));
+                            break;
+                            default:
+                                break;
+                        }
+                    }
+                    
                     return true;
                 }
 
@@ -214,13 +382,21 @@ namespace MS
                     case Data::SkyreachRavenWhispererIsDead:
                         if (Creature* l_Rukhran = sObjectAccessor->FindCreature(m_RukhranGuid))
                         {
-                            l_Rukhran->GetMotionMaster()->Clear(true);
-                            l_Rukhran->GetMotionMaster()->MovePoint(12, 918.92f, 1913.46f, 215.87f);
+                            if (GetBossState(Data::Rukhran) == EncounterState::NOT_STARTED)
+                            {
+                                l_Rukhran->GetMotionMaster()->Clear(true);
+                                l_Rukhran->GetMotionMaster()->MovePoint(12, 918.92f, 1913.46f, 215.87f);
+                                l_Rukhran->DisableEvadeMode();
+                                SetBossState(Data::Rukhran, EncounterState::SPECIAL);
+                            }
+                            else
+                                l_Rukhran->SetOrientation(5.4f);
                         }
                         break;
                     case Data::SkyreachArcanologistIsDead:
                         if (Creature* l_Araknath = sObjectAccessor->FindCreature(m_AraknathGuid))
                         {
+                            SetBossState(Data::Araknath, EncounterState::SPECIAL);
                             l_Araknath->RemoveAura(RandomSpells::SUBMERGED);
                             l_Araknath->SetReactState(REACT_AGGRESSIVE);
                         }
@@ -240,6 +416,9 @@ namespace MS
                             l_SolarConstructorEnergizer->CastStop();
                         break;
                     case Data::SkyreachArcanologistReset:
+                        if (GetBossState(Data::Araknath) == EncounterState::DONE)
+                            break;
+
                         if (Creature* l_Araknath = sObjectAccessor->FindCreature(m_AraknathGuid))
                         {
                             l_Araknath->getThreatManager().resetAllAggro();
@@ -266,6 +445,9 @@ namespace MS
                     case Data::AraknathSolarConstructorActivation:
                         if (p_Data)
                         {
+                            if (m_SolarConstructorsGuid.empty())
+                                break;
+
                             auto l_RandUnit = m_SolarConstructorsGuid.begin();
                             std::advance(l_RandUnit, urand(0, m_SolarConstructorsGuid.size() - 1));
                             m_SelectedSolarConstructorGuid = *l_RandUnit;
@@ -300,28 +482,23 @@ namespace MS
 
                             m_SelectedSolarConstructorGuid = 0;
                         }
+                    case Data::StartingLensFlare:
+                    {
+                        if (m_MagnifyingGlassFocusGuids.empty())
+                            break;
+
+                        auto l_Itr = m_MagnifyingGlassFocusGuids.begin();
+                        std::advance(l_Itr, m_MagnifyingGlassFocusGuids.size() - 1);
+
+                        if (Creature* l_Creature = sObjectAccessor->FindCreature(*l_Itr))
+                            l_Creature->CastSpell(l_Creature, uint32(RandomSpells::LensFlare), true);
+
+                    } break;
+                    case Data::MonomaniaAchievementFail:
+                        m_HasFailedMonomaniaAchievement = true;
+                        break;
                     default:
                         break;
-                    }
-                }
-
-                uint32 GetData(uint32 p_Type)
-                {
-                    switch (p_Type)
-                    {
-                    default:
-                        break;
-                    }
-
-                    return 0;
-                }
-
-                uint64 GetData64(uint32 p_Type)
-                {
-                    switch (p_Type)
-                    {
-                    default:
-                        return 0;
                     }
                 }
 
@@ -343,7 +520,8 @@ namespace MS
 
                         if (Unit* l_SolarFlareDying = sObjectAccessor->FindCreature(p_Data))
                         {
-                            auto l_Piles = InstanceSkyreach::SelectNearestCreatureListWithEntry(l_SolarFlareDying, MobEntries::PILE_OF_ASHES, 5.0f);
+                            uint32 l_SolarFlaresFormed = 0;
+                            auto l_Piles = ScriptUtils::SelectNearestCreatureListWithEntry(l_SolarFlareDying, MobEntries::PILE_OF_ASHES, 5.0f);
                             for (auto l_Pile : l_Piles)
                             {
                                 if (m_PileOfAshesGuid.find(l_Pile->GetGUID()) == m_PileOfAshesGuid.end())
@@ -358,8 +536,12 @@ namespace MS
                                     TempSummon* l_Summon = l_Pile->SummonCreature(MobEntries::SOLAR_FLARE, l_Pos);
                                     m_SolarFlaresGuid.insert(l_Summon->GetGUID());
                                     l_Pile->ToCreature()->DespawnOrUnsummon(500);
+                                    ++l_SolarFlaresFormed;
                                 }
                             }
+
+                            if (l_SolarFlaresFormed >= 3)
+                                DoCompleteAchievement(uint32(Achievements::ISawSolis));
 
                             // We summon a new pile of ashes.
                             l_SolarFlareDying->CastSpell(l_SolarFlareDying, uint32(Spells::DORMANT), true);
@@ -376,6 +558,11 @@ namespace MS
                                 l_SolarFlareDying->ToCreature()->DespawnOrUnsummon(500);
                         }
                         break;
+                    case Data::PlayerIsHittedByRanjitSpells:
+                        if (!instance->IsHeroic())
+                            break;
+                        ++m_ReadyForRaidingIVAchievements[p_Data];
+                        break;
                     }
                 }
 
@@ -384,12 +571,19 @@ namespace MS
                     if (!p_Player->IsInWorld())
                         return;
 
+                    InstanceScript::OnPlayerEnter(p_Player);
+
+                    m_ReadyForRaidingIVAchievements[p_Player->GetGUID()] = 0;
                     m_PlayerGuidToBlockId[p_Player->GetGUID()] = 0;
                     m_CanUpdate = true;
                 }
 
                 void Update(uint32 p_Diff)
                 {
+                    ScheduleBeginningTimeUpdate(p_Diff);
+                    ScheduleChallengeStartup(p_Diff);
+                    ScheduleChallengeTimeUpdate(p_Diff);
+
                     if (!m_CanUpdate)
                         return;
 
@@ -409,11 +603,11 @@ namespace MS
                             if (IsPointInBlock(Blocks::ConvexHull, *l_Plr))
                             {
                                 bool l_IsInBlock = false;
-                                for (uint32 i = Blocks::FirstStair; i <= Blocks::SecondStair; i++)
+                                uint32 i = Blocks::FirstStair;
+                                for (; i <= Blocks::SecondStair; i++)
                                 {
                                     if (IsPointInBlock(i, *l_Plr))
                                     {
-                                        m_PlayerGuidToBlockId[l_Plr->GetGUID()] = i;
                                         l_IsInBlock = true;
                                         break;
                                     }
@@ -422,28 +616,44 @@ namespace MS
                                 // If the player is in one of the blocks and if it doesn't have the Wind aura, add it.
                                 if (l_IsInBlock)
                                 {
-                                    Position l_ForceDir = CalculateForceVectorFromBlockId(m_PlayerGuidToBlockId[l_Plr->GetGUID()]);
+                                    float l_Magnitude = 1;
+                                    Position l_ForceDir = CalculateForceVectorFromBlockId(i, l_Magnitude);
                                     if (!l_Plr->HasAura(RandomSpells::Wind))
                                     {
                                         l_Plr->AddAura(RandomSpells::Wind, l_Plr);
                                         // Apply force.
+                                        l_Plr->SendApplyMovementForce(m_WindMazeBlockGuids[i], true, l_ForceDir, l_Magnitude);
                                     }
-                                    else
+                                    else if (i != m_PlayerGuidToBlockId[l_Plr->GetGUID()])
                                     {
                                         // Remove old force.
                                         // Add new force.
+                                        if (l_Plr->HasMovementForce(m_WindMazeBlockGuids[m_PlayerGuidToBlockId[l_Plr->GetGUID()]]))
+                                            l_Plr->SendApplyMovementForce(m_WindMazeBlockGuids[m_PlayerGuidToBlockId[l_Plr->GetGUID()]], false, l_ForceDir, l_Magnitude);
+                                        l_Plr->SendApplyMovementForce(m_WindMazeBlockGuids[i], true, l_ForceDir, l_Magnitude);
                                     }
+
+                                    m_PlayerGuidToBlockId[l_Plr->GetGUID()] = i;
                                 }
                                 // Otherwise remove it if it has the Wind aura.
                                 else if (l_Plr->HasAura(RandomSpells::Wind))
+                                {
+                                    if (l_Plr->HasMovementForce(m_WindMazeBlockGuids[m_PlayerGuidToBlockId[l_Plr->GetGUID()]]))
+                                        l_Plr->SendApplyMovementForce(m_WindMazeBlockGuids[m_PlayerGuidToBlockId[l_Plr->GetGUID()]], false, Position(), 1.0f);
                                     l_Plr->RemoveAura(RandomSpells::Wind);
+                                }
                             }
                             // If player is out of the WindMaze zone and has the aura, remove it.
                             else if (l_Plr->HasAura(RandomSpells::Wind))
+                            {
+                                if (l_Plr->HasMovementForce(m_WindMazeBlockGuids[m_PlayerGuidToBlockId[l_Plr->GetGUID()]]))
+                                    l_Plr->SendApplyMovementForce(m_WindMazeBlockGuids[m_PlayerGuidToBlockId[l_Plr->GetGUID()]], false, Position(), 1.0f);
                                 l_Plr->RemoveAura(RandomSpells::Wind);
+                            }
                         }
                     }
 
+                    // Beam light intersection handler.
                     if (m_SelectedSolarConstructorGuid)
                     {
                         if (instance)

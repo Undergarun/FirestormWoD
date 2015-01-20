@@ -14,6 +14,218 @@ namespace MS
 {
     namespace InstanceSkyreach
     {
+        class npc_GossipIntroOutro : public CreatureScript
+        {
+        public:
+            npc_GossipIntroOutro() : CreatureScript("npc_GossipIntroOutro")
+            {
+            }
+
+            enum class Gossip : uint32
+            {
+                Teleport = 1,
+            };
+
+            bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+            {
+                player->PlayerTalkClass->ClearMenus();
+                switch (action)
+                {
+                case uint32(Gossip::Teleport):
+                    // Meeting stone of Skyreach.
+                    player->TeleportTo(1116, 57.110f, 2527.114f, 79.4f, 0.35f);
+                    break;
+                }
+                return true;
+            }
+        };
+
+        class mob_GrandDefenseConstruct : public CreatureScript
+        {
+        public:
+            // Entry: 76145
+            mob_GrandDefenseConstruct()
+                : CreatureScript("mob_GrandDefenseConstruct")
+            {
+            }
+
+            enum class Spells : uint32
+            {
+                Smash = 152998,
+                Burn = 153001,
+            };
+
+            enum class Events : uint32
+            {
+                Smash = 1,
+                Burn = 2,
+            };
+
+            CreatureAI* GetAI(Creature* creature) const
+            {
+                return new mob_GrandDefenseConstructAI(creature);
+            }
+
+            struct mob_GrandDefenseConstructAI : public ScriptedAI
+            {
+                mob_GrandDefenseConstructAI(Creature* creature) : ScriptedAI(creature),
+                    m_Instance(creature->GetInstanceScript()),
+                    m_events()
+                {
+                }
+
+                void Reset()
+                {
+                    m_events.Reset();
+                }
+
+                void EnterCombat(Unit* who)
+                {
+                    m_events.ScheduleEvent(uint32(Events::Smash), urand(5000, 7000));
+                    m_events.ScheduleEvent(uint32(Events::Burn), urand(10000, 12000));
+                }
+
+                void JustDied(Unit*)
+                {
+                    // Monomania Achievement.
+                    if (IsHeroic() && m_Instance)
+                        m_Instance->SetData(Data::MonomaniaAchievementFail, 0);
+                }
+
+                void UpdateAI(const uint32 diff)
+                {
+                    if (!UpdateVictim())
+                        return;
+
+                    m_events.Update(diff);
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
+
+                    switch (m_events.ExecuteEvent())
+                    {
+                    case uint32(Events::Smash):
+                        m_events.ScheduleEvent(uint32(Events::Smash), 16000);
+                        me->CastSpell(me->getVictim(), uint32(Spells::Smash));
+                        break;
+                    case uint32(Events::Burn):
+                        m_events.ScheduleEvent(uint32(Events::Burn), 18000);
+                        me->CastSpell(me->getVictim(), uint32(Spells::Burn));
+                        break;
+                    default:
+                        break;
+                    }
+
+                    DoMeleeAttackIfReady();
+                }
+
+                InstanceScript* m_Instance;
+                EventMap m_events;
+            };
+        };
+
+        class mob_YoungKaliri : public CreatureScript
+        {
+        public:
+            // Entry: 76121
+            mob_YoungKaliri()
+                : CreatureScript("mob_YoungKaliri")
+            {
+            }
+
+            enum class Spells : uint32
+            {
+                Pierce = 153563,
+            };
+
+            enum class Events : uint32
+            {
+                Pierce = 1,
+            };
+
+            CreatureAI* GetAI(Creature* creature) const
+            {
+                return new mob_YoungKaliriAI(creature);
+            }
+
+            struct mob_YoungKaliriAI : public ScriptedAI
+            {
+                mob_YoungKaliriAI(Creature* creature) : ScriptedAI(creature),
+                    m_Instance(creature->GetInstanceScript()),
+                    m_events(),
+                    m_Pos(),
+                    m_Home(),
+                    m_TargetGuid(0)
+                {
+                    me->GetPosition(&m_Pos);
+                    me->GetPosition(&m_Home);
+                    me->SetSpeed(MOVE_FLIGHT, 5.f);
+                    m_Pos.m_positionX += 13.0f * cos(me->GetOrientation());
+                    m_Pos.m_positionY += 13.0f * sin(me->GetOrientation());
+                }
+
+                void Reset()
+                {
+                    m_events.Reset();
+                    m_events.ScheduleEvent(uint32(Events::Pierce), 500);
+                }
+
+                void EnterCombat(Unit* who)
+                {
+                }
+
+                void MovementInform(uint32 p_TypeId, uint32 p_PointId)
+                {
+                    switch (p_PointId)
+                    {
+                    case 0:
+                        me->SetSpeed(MOVE_FLIGHT, 1.f);
+                        me->GetMotionMaster()->MoveBackward(1, m_Home.GetPositionX(), m_Home.GetPositionY(), m_Home.GetPositionZ(), 0.5f);
+                        if (Player* l_Plr = sObjectAccessor->GetPlayer(*me, m_TargetGuid))
+                            me->CastSpell(l_Plr, uint32(Spells::Pierce));
+                        m_TargetGuid = 0;
+                        break;
+                    case 1:
+                        me->SetSpeed(MOVE_FLIGHT, 5.f);
+                        me->SetOrientation(m_Home.GetOrientation());
+                        m_events.ScheduleEvent(uint32(Events::Pierce), 500);
+                        break;
+                    }
+                }
+
+                void UpdateAI(const uint32 diff)
+                {
+                    m_events.Update(diff);
+
+                    switch (m_events.ExecuteEvent())
+                    {
+                    case uint32(Events::Pierce):
+                        if (Player* l_Plr = ScriptUtils::SelectNearestPlayer(me, 15.0f))
+                        {
+                            if (me->isInFront(l_Plr, M_PI / 6))
+                            {
+                                m_TargetGuid = l_Plr->GetGUID();
+                                me->GetMotionMaster()->MovePoint(0, m_Pos);
+                            }
+                            else
+                                m_events.ScheduleEvent(uint32(Events::Pierce), 500);
+                        }
+                        else
+                            m_events.ScheduleEvent(uint32(Events::Pierce), 500);
+                        break;
+                    default:
+                        break;
+                    }
+                }
+
+                InstanceScript* m_Instance;
+                EventMap m_events;
+                Position m_Pos;
+                Position m_Home;
+                uint64 m_TargetGuid;
+            };
+        };
+
         class mob_RadiantSupernova : public CreatureScript
         {
         public:
@@ -78,7 +290,7 @@ namespace MS
                     case uint32(Events::SolarDetonation):
                         m_events.ScheduleEvent(uint32(Events::SolarDetonation), urand(5000, 7000));
 
-                        InstanceSkyreach::ApplyOnEveryPlayer(me, [](Unit* p_Me, Player* p_Plr) {
+                        ScriptUtils::ApplyOnEveryPlayer(me, [](Unit* p_Me, Player* p_Plr) {
                             p_Me->CastSpell(p_Plr, uint32(Spells::SolarDetonation));
                         });
                         break;
@@ -251,13 +463,16 @@ namespace MS
                     case uint32(Events::Empower):
                         m_events.ScheduleEvent(uint32(Events::Empower), urand(6000, 8000));
 
-                        if (Unit* l_Friend = InstanceSkyreach::SelectNearestFriendExcluededMe(me, 10.0f))
-                            me->CastSpell(l_Friend, uint32(Spells::Empower));
+                        if (Unit* l_Friend = ScriptUtils::SelectNearestFriendExcluededMe(me, 10.0f))
+                        {
+                            if (l_Friend->GetEntry() != me->GetEntry())
+                                me->CastSpell(l_Friend, uint32(Spells::Empower));
+                        }
                         break;
                     case uint32(Events::SolarPulse):
                         m_events.ScheduleEvent(uint32(Events::SolarPulse), urand(2000, 3000));
 
-                        if (Unit* l_Plr = InstanceSkyreach::SelectRandomPlayerIncludedTank(me, 20.0f))
+                        if (Unit* l_Plr = ScriptUtils::SelectRandomPlayerIncludedTank(me, 20.0f))
                             me->CastSpell(l_Plr, uint32(Spells::SolarPulse));
                         break;
                     default:
@@ -312,7 +527,7 @@ namespace MS
                 {
                     if (p_Spell->Id == uint32(Spells::EXCITED))
                     {
-                        if (Player* l_Plr = InstanceSkyreach::SelectRandomPlayerIncludedTank(me, 50.0f, false))
+                        if (Player* l_Plr = ScriptUtils::SelectRandomPlayerIncludedTank(me, 50.0f, false))
                         {
                             me->AddThreat(l_Plr, 10000.0f);
                             me->Attack(l_Plr, true);
@@ -402,7 +617,7 @@ namespace MS
                         me->CastSpell(me->getVictim(), uint32(Spells::FIXATED), true);
                         me->getThreatManager().resetAllAggro();
 
-                        if (Player* l_Plr = InstanceSkyreach::SelectRandomPlayerIncludedTank(me, 30.0f))
+                        if (Player* l_Plr = ScriptUtils::SelectRandomPlayerIncludedTank(me, 30.0f))
                         {
                             me->getThreatManager().addThreat(l_Plr, 1000.0f);
                             me->Attack(l_Plr, true);
@@ -489,7 +704,7 @@ namespace MS
                     case uint32(Events::PIERCING_RUSH):
                         m_events.ScheduleEvent(uint32(Events::PIERCING_RUSH), urand(2500, 5000));
 
-                        if (Player* l_Plr = InstanceSkyreach::SelectRandomPlayerIncludedTank(me, 20.0f))
+                        if (Player* l_Plr = ScriptUtils::SelectRandomPlayerIncludedTank(me, 20.0f))
                             me->CastSpell(l_Plr, uint32(Spells::PIERCING_RUSH));
                         break;
                     default:
@@ -638,7 +853,7 @@ namespace MS
                         me->CastSpell(me, uint32(Spells::CRAFT_SUN_TRINCKET));
                         break;
                     case uint32(Events::FLASH_HEAL):
-                        m_events.ScheduleEvent(uint32(Events::FLASH_HEAL), urand(2500, 4500));
+                        m_events.ScheduleEvent(uint32(Events::FLASH_HEAL), urand(5000, 8000));
                         me->CastSpell(me, uint32(Spells::FLASH_HEAL));
                         break;
                     default:
@@ -880,7 +1095,7 @@ namespace MS
                         break;
                     case uint32(Events::EMPOWER):
                         m_events.ScheduleEvent(uint32(Events::EMPOWER), urand(5000, 7000));
-                        if (Unit* l_Unit = InstanceSkyreach::SelectNearestFriendExcluededMe(me, 30.0f))
+                        if (Unit* l_Unit = ScriptUtils::SelectNearestFriendExcluededMe(me, 30.0f))
                             me->CastSpell(l_Unit, uint32(Spells::EMPOWER));
                         break;
                     default:
@@ -961,19 +1176,19 @@ namespace MS
 
                         if (urand(0, 1) == 0)
                         {
-                            if (Player* l_plr = InstanceSkyreach::SelectFarEnoughPlayerIncludedTank(me, 5.0f))
+                            if (Player* l_plr = ScriptUtils::SelectFarEnoughPlayerIncludedTank(me, 5.0f))
                                 me->CastSpell(l_plr, uint32(Spells::THROW_CHAKRAM_YELLOW));
                         }
                         else
                         {
-                            if (Player* l_plr = InstanceSkyreach::SelectFarEnoughPlayerIncludedTank(me, 5.0f))
+                            if (Player* l_plr = ScriptUtils::SelectFarEnoughPlayerIncludedTank(me, 5.0f))
                                 me->CastSpell(l_plr, uint32(Spells::THROW_CHAKRAM_WHITE));
                         }
                         me->CastSpell(me->getVictim(), uint32(Spells::THROW_CHAKRAM_2)); // Always launched with the two others.
                         break;
                     case uint32(Events::SPINNING_BLADE):
                         m_events.ScheduleEvent(uint32(Events::SPINNING_BLADE), urand(8000, 10000));
-                        if (Player* l_plr = InstanceSkyreach::SelectRandomPlayerIncludedTank(me, 45.0f))
+                        if (Player* l_plr = ScriptUtils::SelectRandomPlayerIncludedTank(me, 45.0f))
                             me->CastSpell(l_plr, uint32(Spells::SPINNING_BLADE));
                         break;
                     case uint32(Events::BLADE_DANCE):
@@ -1055,12 +1270,12 @@ namespace MS
                     {
                     case uint32(Events::SOLAR_ZONE):
                         m_events.ScheduleEvent(uint32(Events::SOLAR_ZONE), urand(14500, 17000));
-                        if (Unit* l_Unit = InstanceSkyreach::SelectNearestFriendExcluededMe(me, 30.0f))
+                        if (Unit* l_Unit = ScriptUtils::SelectNearestFriendExcluededMe(me, 30.0f))
                             me->CastSpell(l_Unit, uint32(Spells::SOLAR_ZONE));
                         break;
                     case uint32(Events::SOLAR_HEAL):
                         m_events.ScheduleEvent(uint32(Events::SOLAR_HEAL), urand(5500, 7000));
-                        if (Unit* l_Unit = InstanceSkyreach::SelectNearestFriendExcluededMe(me, 30.0f))
+                        if (Unit* l_Unit = ScriptUtils::SelectNearestFriendExcluededMe(me, 30.0f))
                             me->CastSpell(l_Unit, uint32(Spells::SOLAR_HEAL));
                         break;
                     case uint32(Events::FLASH_HEAL):
@@ -1371,19 +1586,19 @@ namespace MS
 
                         if (urand(0, 1) == 0)
                         {
-                            if (Player* l_plr = InstanceSkyreach::SelectFarEnoughPlayerIncludedTank(me, 5.0f))
+                            if (Player* l_plr = ScriptUtils::SelectFarEnoughPlayerIncludedTank(me, 5.0f))
                                 me->CastSpell(l_plr, uint32(Spells::THROW_CHAKRAM_YELLOW));
                         }
                         else
                         {
-                            if (Player* l_plr = InstanceSkyreach::SelectFarEnoughPlayerIncludedTank(me, 5.0f))
+                            if (Player* l_plr = ScriptUtils::SelectFarEnoughPlayerIncludedTank(me, 5.0f))
                                 me->CastSpell(l_plr, uint32(Spells::THROW_CHAKRAM_WHITE));
                         }
                         me->CastSpell(me->getVictim(), uint32(Spells::THROW_CHAKRAM_2)); // Always launched with the two others.
                         break;
                     case uint32(Events::SPINNING_BLADE):
                         m_events.ScheduleEvent(uint32(Events::SPINNING_BLADE), urand(8000, 10000));
-                        if (Player* l_plr = InstanceSkyreach::SelectRandomPlayerIncludedTank(me, 45.0f))
+                        if (Player* l_plr = ScriptUtils::SelectRandomPlayerIncludedTank(me, 45.0f))
                             me->CastSpell(l_plr, uint32(Spells::SPINNING_BLADE));
                         break;
                     default:
@@ -1467,7 +1682,7 @@ namespace MS
                         break;
                     case uint32(Events::SOLAR_DETONATION):
                         m_events.ScheduleEvent(uint32(Events::SOLAR_DETONATION), urand(10000, 14000));
-                        if (Player* l_plr = InstanceSkyreach::SelectRandomPlayerIncludedTank(me, 45.0f))
+                        if (Player* l_plr = ScriptUtils::SelectRandomPlayerIncludedTank(me, 45.0f))
                         {
                             me->CastSpell(l_plr, uint32(Spells::SOLAR_DETONATION));
                             l_plr->MonsterWhisper(int32(Texts::SOLAR_DETONATION), l_plr->GetGUID(), true);
@@ -1484,7 +1699,6 @@ namespace MS
                 EventMap m_events;
             };
         };
-
     }
 }
 
@@ -1509,4 +1723,7 @@ void AddSC_mob_instance_skyreach()
     new MS::InstanceSkyreach::mob_SolarMagnifier();
     new MS::InstanceSkyreach::mob_DefenseConstruct();
     new MS::InstanceSkyreach::mob_RadiantSupernova();
+    new MS::InstanceSkyreach::mob_YoungKaliri();
+    new MS::InstanceSkyreach::mob_GrandDefenseConstruct();
+    new MS::InstanceSkyreach::npc_GossipIntroOutro();
 }

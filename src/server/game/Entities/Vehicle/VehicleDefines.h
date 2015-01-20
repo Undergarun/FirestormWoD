@@ -87,7 +87,7 @@ enum VehicleFlags
     VEHICLE_FLAG_UNK17                           = 0x02000000,
     VEHICLE_FLAG_UNK18                           = 0x04000000,
     VEHICLE_FLAG_UNK19                           = 0x08000000,
-    VEHICLE_FLAG_UNK20                           = 0x10000000,            // Vehicle not dismissed after eject passenger?
+    VEHICLE_FLAG_BATTLEFIELD_ICON                = 0x10000000,
     VEHICLE_FLAG_UNK21                           = 0x20000000,
     VEHICLE_FLAG_UNK22                           = 0x40000000,
     VEHICLE_FLAG_UNK23                           = 0x80000000,

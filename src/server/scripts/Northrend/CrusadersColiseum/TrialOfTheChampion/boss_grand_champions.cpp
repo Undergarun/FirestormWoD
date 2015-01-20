@@ -1144,7 +1144,7 @@ enum vehicleSpells
     SPELL_THROW_VISUAL = 45827,
 };
 
-class spell_toc5_ride_mount : public SpellScriptLoader
+class spell_toc5_ride_mount: public SpellScriptLoader
 {
     public:
         spell_toc5_ride_mount() : SpellScriptLoader("spell_toc5_ride_mount") {}
@@ -1226,7 +1226,7 @@ class player_hex_mendingAI : public PlayerAI
         uint64 casterGUID;
 };
 
-class spell_toc5_hex_mending : public SpellScriptLoader
+class spell_toc5_hex_mending: public SpellScriptLoader
 {
     public:
         spell_toc5_hex_mending() : SpellScriptLoader("spell_toc5_hex_mending") { }

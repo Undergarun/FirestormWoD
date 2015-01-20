@@ -150,7 +150,8 @@ class Channel
     };
 
     typedef     ACE_Based::LockedMap<uint64, PlayerInfo> PlayerList;
-    PlayerList  players;
+    PlayerList  m_Players;
+    ACE_Thread_Mutex m_Lock;
     typedef     std::set<uint64> BannedList;
     BannedList  banned;
     bool        m_announce;
@@ -206,7 +207,7 @@ class Channel
         void SendToAllButOne(WorldPacket* data, uint64 who);
         void SendToOne(WorldPacket* data, uint64 who);
 
-        bool IsOn(uint64 who) const { return players.find(who) != players.end(); }
+        bool IsOn(uint64 who) const { return m_Players.find(who) != m_Players.end(); }
         bool IsBanned(uint64 guid) const { return banned.find(guid) != banned.end(); }
 
         bool IsWorld() const;
@@ -216,8 +217,8 @@ class Channel
 
         uint8 GetPlayerFlags(uint64 p) const
         {
-            PlayerList::const_iterator p_itr = players.find(p);
-            if (p_itr == players.end())
+            PlayerList::const_iterator p_itr = m_Players.find(p);
+            if (p_itr == m_Players.end())
                 return 0;
 
             return p_itr->second.flags;
@@ -225,10 +226,10 @@ class Channel
 
         void SetModerator(uint64 p, bool set)
         {
-            if (players[p].IsModerator() != set)
+            if (m_Players[p].IsModerator() != set)
             {
                 uint8 oldFlag = GetPlayerFlags(p);
-                players[p].SetModerator(set);
+                m_Players[p].SetModerator(set);
 
                 WorldPacket data;
                 MakeModeChange(&data, p, oldFlag);
@@ -238,10 +239,10 @@ class Channel
 
         void SetMute(uint64 p, bool set)
         {
-            if (players[p].IsMuted() != set)
+            if (m_Players[p].IsMuted() != set)
             {
                 uint8 oldFlag = GetPlayerFlags(p);
-                players[p].SetMuted(set);
+                m_Players[p].SetMuted(set);
 
                 WorldPacket data;
                 MakeModeChange(&data, p, oldFlag);
@@ -260,7 +261,7 @@ class Channel
         std::string GetPassword() const { return m_password; }
         void SetPassword(const std::string& npassword) { m_password = npassword; }
         void SetAnnounce(bool nannounce) { m_announce = nannounce; }
-        uint32 GetNumPlayers() const { return players.size(); }
+        uint32 GetNumPlayers() const { return m_Players.size(); }
         uint8 GetFlags() const { return m_flags; }
         bool HasFlag(uint8 flag) const { return m_flags & flag; }
 

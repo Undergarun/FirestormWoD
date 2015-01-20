@@ -288,6 +288,7 @@ class boss_admiral_ripsnarl : public CreatureScript
         };
 };
 
+// 47626
 class npc_admiral_ripsnarl_vapor : public CreatureScript
 {
     public:
@@ -371,7 +372,7 @@ class npc_admiral_ripsnarl_vapor : public CreatureScript
         };
 };
 
-class spell_admiral_ripsnarl_coalesce : public SpellScriptLoader
+class spell_admiral_ripsnarl_coalesce: public SpellScriptLoader
 {
     public:
         spell_admiral_ripsnarl_coalesce() : SpellScriptLoader("spell_admiral_ripsnarl_coalesce") { }

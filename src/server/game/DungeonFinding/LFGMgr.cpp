@@ -2773,13 +2773,13 @@ void LFGMgr::AutomaticLootAssignation(Creature* p_Creature, Group* p_Group)
                 continue;
 
             l_Member->AddItem(l_DefaultRewardItem->ItemId, 1);
-            l_Member->SendDisplayToast(l_DefaultRewardItem->ItemId, 1, TOAST_TYPE_NEW_ITEM, false, false);
+            l_Member->SendDisplayToast(l_DefaultRewardItem->ItemId, 1, DISPLAY_TOAST_METHOD_LOOT, TOAST_TYPE_NEW_ITEM, false, false);
             continue;
         }
 
         std::random_shuffle(l_Items.begin(), l_Items.end());
         l_Member->AddItem(l_Items[0], 1);
-        l_Member->SendDisplayToast(l_Items[0], 1, TOAST_TYPE_NEW_ITEM, false, false);
+        l_Member->SendDisplayToast(l_Items[0], 1, DISPLAY_TOAST_METHOD_LOOT, TOAST_TYPE_NEW_ITEM, false, false);
     }
 }
 

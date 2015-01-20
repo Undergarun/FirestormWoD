@@ -28,7 +28,7 @@ EndScriptData */
 #include "ObjectMgr.h"
 #include "TicketMgr.h"
 
-class ticket_commandscript : public CommandScript
+class ticket_commandscript: public CommandScript
 {
 public:
     ticket_commandscript() : CommandScript("ticket_commandscript") { }

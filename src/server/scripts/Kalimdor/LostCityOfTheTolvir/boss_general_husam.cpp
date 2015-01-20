@@ -301,7 +301,7 @@ public:
                 StartCountDown();
         }
 
-        void SpellHitTarget(Unit* target, const SpellInfo* spell, uint32 /*hitCount*/)
+        void SpellHitTarget(Unit* target, SpellInfo const* spell)
         {
             if (spell->Id == 83112)
             {
@@ -506,7 +506,7 @@ public:
     };
 };
 
-class spell_bad_intentions : public SpellScriptLoader
+class spell_bad_intentions: public SpellScriptLoader
 {
     public:
         spell_bad_intentions() : SpellScriptLoader("spell_bad_intentions") { }
@@ -538,7 +538,7 @@ class spell_bad_intentions : public SpellScriptLoader
         }
 };
 
-class spell_hurl : public SpellScriptLoader
+class spell_hurl: public SpellScriptLoader
 {
     public:
         spell_hurl() : SpellScriptLoader("spell_hurl") { }

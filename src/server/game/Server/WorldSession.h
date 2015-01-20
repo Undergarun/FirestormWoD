@@ -158,12 +158,14 @@ enum CharterTypes
 
 enum DB2Types : uint32
 {
-    DB2_REPLY_SPARSE                          = 0x919BE54E,           // hash of item-sparse.db2
-    DB2_REPLY_ITEM                            = 0x50238EC2,           // hash of item.db2
-    DB2_REPLY_SCENE_SCRIPT                    = 0xD4B163CC,           // hash of ScreneScript.db2
-    DB2_REPLY_BATTLE_PET_EFFECT_PROPERTIES    = 0x63B4C4BA,           // hash of BattlePetEffectProperties.db2
-    DB2_REPLY_BROADCAST_TEXT                  = 0x021826BB,           // hash of BroadcastText.db2
-    DB2_REPLY_ITEM_EXTENDED_COST              = 0xBB858355,           // hash of ItemExtendedCost.db2
+    DB2_REPLY_SPARSE                        = 0x919BE54E,   // Hash of item-sparse.db2
+    DB2_REPLY_ITEM                          = 0x50238EC2,   // Hash of item.db2
+    DB2_REPLY_SCENE_SCRIPT                  = 0xD4B163CC,   // Hash of ScreneScript.db2
+    DB2_REPLY_BATTLE_PET_EFFECT_PROPERTIES  = 0x63B4C4BA,   // Hash of BattlePetEffectProperties.db2
+    DB2_REPLY_BROADCAST_TEXT                = 0x021826BB,   // Hash of BroadcastText.db2
+    DB2_REPLY_ITEM_EXTENDED_COST            = 0xBB858355,   // Hash of ItemExtendedCost.db2
+    DB2_REPLY_MAP_CHALLENGE_MODE            = 0x383B4C27,   // Hash of MapChallengeMode.db2
+    DB2_REPLY_QUEST_PACKAGE_ITEM            = 0xCC2F84F0,   // Hash of QuestPackageItem.db2
 };
 
 #define VOTE_BUFF           176151
@@ -276,7 +278,7 @@ class WorldSession
         void SendNotification(uint32 string_id, ...);
         void SendPetNameInvalid(uint32 error, const std::string& name, DeclinedName *declinedName);
         void SendPartyResult(PartyCommand p_Command, const std::string& p_Name, PartyResult p_Result, uint32 p_ResultData = 0, uint64 p_ResultGuid = 0);
-        void SendSetPhaseShift(std::set<uint32> const& phaseIds, std::set<uint32> const& terrainswaps);
+        void SendSetPhaseShift(const std::set<uint32> & p_PhaseIds, const std::set<uint32> & p_TerrainSwaps, const std::set<uint32> & p_InactiveTerrainSwap);
         void SendQueryTimeResponse();
         void HandleLearnPetSpecialization(WorldPacket& data);
 
@@ -481,7 +483,7 @@ class WorldSession
         void HandleLoadScreenOpcode(WorldPacket& recvPacket);
         void HandleCharEnum(PreparedQueryResult result);
         void HandlePlayerLogin(LoginQueryHolder * holder, PreparedQueryResult accountResult);
-        void HandleCharFactionOrRaceChange(WorldPacket& recvData);
+        void HandleCharRaceOrFactionChange(WorldPacket& recvData);
         void HandleRandomizeCharNameOpcode(WorldPacket& recvData);
         void HandleReorderCharacters(WorldPacket& recvData);
         void HandleSuspendToken(WorldPacket& recvData);
@@ -749,6 +751,8 @@ class WorldSession
         void HandleDestroyItemOpcode(WorldPacket& recvPacket);
         void HandleAutoEquipItemOpcode(WorldPacket& recvPacket);
         void SendItemDb2Reply(uint32 entry);
+        void SendMapChallengeModeDBReply(uint32 p_Entry);
+        void SendQuestPackageItemDB2Reply(uint32 p_Entry);
         void SendItemSparseDb2Reply(uint32 entry);
         void SendBroadcastTextDb2Reply(uint32 entry);
         void HandleSellItemOpcode(WorldPacket& recvPacket);
@@ -840,6 +844,7 @@ class WorldSession
 
         void HandleCompleteCinematic(WorldPacket& recvPacket);
         void HandleNextCinematicCamera(WorldPacket& recvPacket);
+        void HandleCompleteMovieOpcode(WorldPacket & p_Packet);
 
         void HandlePageTextQueryOpcode(WorldPacket& recvPacket);
 
@@ -862,6 +867,7 @@ class WorldSession
         void HandleChangePlayerNameOpcodeCallBack(PreparedQueryResult result, std::string newName);
         void HandleSetPlayerDeclinedNames(WorldPacket& recvData);
         void SendPlayerDeclinedNamesResult(uint64 guid, uint32 result);
+        void HandleMountSetFavoriteOpcode(WorldPacket & p_Packet);
 
         void HandleTotemDestroyed(WorldPacket& recvData);
         void HandleDismissCritter(WorldPacket& recvData);
@@ -869,13 +875,12 @@ class WorldSession
         //Battleground
         void HandleBattlemasterHelloOpcode(WorldPacket& recvData);
         void HandleBattlemasterJoinOpcode(WorldPacket& recvData);
-        void HandleBattlegroundPlayerPositionsOpcode(WorldPacket& recvData);
         void HandlePVPLogDataOpcode(WorldPacket& recvData);
         void HandleBattleFieldPortOpcode(WorldPacket& recvData);
         void HandleBattlefieldListOpcode(WorldPacket& recvData);
         void HandleLeaveBattlefieldOpcode(WorldPacket& recvData);
         void HandleBattlemasterJoinArena(WorldPacket& recvData);
-        void HandleBattlemasterJoinArenaSkrimish(WorldPacket& p_RecvData);
+        void HandleBattlemasterJoinArenaSkirmish(WorldPacket& p_RecvData);
         void HandleBattlemasterJoinRated(WorldPacket& recvData);
         void HandleBattleFieldRequestScoreData(WorldPacket & p_Packet);
         void HandleWargameQueryOpcode(WorldPacket& p_RecvData);
@@ -1031,7 +1036,6 @@ class WorldSession
         void HandleEquipmentSetUse(WorldPacket& recvData);
         void HandleWorldStateUITimerUpdate(WorldPacket& recvData);
         void HandleUndeleteCharacter(WorldPacket& recvData);
-        void HandleQueryQuestsCompleted(WorldPacket& recvData);
         void HandleQueryQuestCompletionNpcs(WorldPacket& RecvData);
         void HandleQuestPOIQuery(WorldPacket& recvData);
         void HandleEjectPassenger(WorldPacket& data);
@@ -1065,6 +1069,8 @@ class WorldSession
         void HandleGarrisonCancelConstructionOpcode(WorldPacket & p_RecvData);
         void HandleGarrisonStartMissionOpcode(WorldPacket & p_RecvData);
         void HandleGarrisonCompleteMissionOpcode(WorldPacket & p_RecvData);
+        void HandleGarrisonMissionBonusRollOpcode(WorldPacket & p_RecvData);
+        void HandleGarrisonChangeFollowerActivationStateOpcode(WorldPacket & p_RecvData);
 
         void SendGarrisonOpenArchitect(uint64 p_CreatureGUID);
         void SendGarrisonOpenMissionNpc(uint64 p_CreatureGUID);
@@ -1099,6 +1105,13 @@ class WorldSession
         void HandleAddNewToyToBoxOpcode(WorldPacket& p_RecvData);
         void HandleSetFavoriteToyOpcode(WorldPacket& p_RecvData);
         void HandleUseToyOpcode(WorldPacket& p_RecvData);
+
+        //////////////////////////////////////////////////////////////////////////
+        /// Challenges
+        //////////////////////////////////////////////////////////////////////////
+        void HandleGetChallengeModeRewards(WorldPacket& p_RecvData);
+        void HandleChallengeModeRequestLeaders(WorldPacket& p_RecvData);
+        void HandleChallengeModeRequestMapStats(WorldPacket& p_RecvData);
 
     private:
         void InitializeQueryCallbackParameters();

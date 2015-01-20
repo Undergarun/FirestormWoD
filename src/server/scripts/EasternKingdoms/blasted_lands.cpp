@@ -30,6 +30,7 @@ EndContentData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "MapManager.h"
 
 /*######
 ## npc_deathly_usher
@@ -40,6 +41,8 @@ EndContentData */
 #define SPELL_TELEPORT_SINGLE           12885
 #define SPELL_TELEPORT_SINGLE_IN_GROUP  13142
 #define SPELL_TELEPORT_GROUP            27686
+
+#define QUEST_START_DRAENOR             36881
 
 class npc_deathly_usher : public CreatureScript
 {
@@ -124,7 +127,7 @@ class npc_world_invisible_trigger : public CreatureScript
 };
 
 // Dark Portal phasing
-class PlayerScript_DarkPortal_Phasing : public PlayerScript
+class PlayerScript_DarkPortal_Phasing: public PlayerScript
 {
     public:
         PlayerScript_DarkPortal_Phasing() : PlayerScript("PlayerScript_DarkPortal_Phasing")
@@ -152,10 +155,15 @@ class PlayerScript_DarkPortal_Phasing : public PlayerScript
                 {
                     m_AlreadyInSwitchMapState = true;
 
-                    if (p_NewZoneID == BLASTER_LANDS_ZONE_ID)
-                        p_Player->SwitchToPhasedMap(BLASTED_LANDS_DRAENOR_PHASE);
-                    else
-                        p_Player->SwitchToPhasedMap(EASTERN_KINGDOM_MAP_ID);
+                    uint64 l_PlayerGuid = p_Player->GetGUID();
+
+                    sMapMgr->AddCriticalOperation([l_PlayerGuid, p_NewZoneID]() -> void
+                    {
+                        Player * l_Player = sObjectAccessor->FindPlayer(l_PlayerGuid);
+
+                        if (l_Player)
+                            l_Player->SwitchToPhasedMap(p_NewZoneID == BLASTER_LANDS_ZONE_ID ? BLASTED_LANDS_DRAENOR_PHASE : EASTERN_KINGDOM_MAP_ID);
+                    });
 
                     m_AlreadyInSwitchMapState = false;
                 }
@@ -163,10 +171,31 @@ class PlayerScript_DarkPortal_Phasing : public PlayerScript
         }
 };
 
+// Archmage Khadgar - 76643
+class npc_archmage_khadgar_gossip : public CreatureScript
+{
+    public:
+        npc_archmage_khadgar_gossip() : CreatureScript("npc_archmage_khadgar_gossip")
+        {
+        }
+
+        bool OnGossipHello(Player* p_Player, Creature* p_Creature)
+        {
+            if (p_Player->GetQuestStatus(QUEST_START_DRAENOR) == QUEST_STATUS_INCOMPLETE)
+            {
+                p_Player->AddMovieDelayedTeleport(199, 1265, 4066.7370f, -2381.9917f, 94.858f, 2.90f);
+                p_Player->SendMovieStart(199);
+                p_Player->KilledMonsterCredit(78419);
+            }
+            return true;
+        }
+};
+
 void AddSC_blasted_lands()
 {
     new npc_deathly_usher();
     new npc_world_invisible_trigger();
+//    new npc_archmage_khadgar_gossip();
 
     /// Player script
     new PlayerScript_DarkPortal_Phasing();

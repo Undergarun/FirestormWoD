@@ -460,10 +460,10 @@ enum AuraType
     SPELL_AURA_399                                          = 399,  // 5.0.5 unk aura
     SPELL_AURA_MOD_SKILL_VALUE                              = 400,  // SPELL_AURA_MOD_SKILL_VALUE
     SPELL_AURA_401                                          = 401,  // 5.0.5 Cart Control Capture Point Unit (East / North / South)
-    SPELL_AURA_402                                          = 402,  // 5.0.5 unk aura
+    SPELL_AURA_SET_POWER_TYPE                               = 402,  // SPELL_AURA_SET_POWER_TYPE
     SPELL_AURA_CHANGE_VISUAL_EFFECT                         = 403,  // SPELL_AURA_CHANGE_VISUAL_EFFECT
     SPELL_AURA_OVERRIDE_AP_BY_SPELL_POWER_PCT               = 404,  // Sets attack power equal to % of spellpower, discarding all other bonuses (from gear and buffs)
-    SPELL_AURA_INCREASE_HASTE_FROM_ITEMS_BY_PCT             = 405,  // SPELL_AURA_INCREASE_STATS_FROM_ITEMS_BY_PCT
+    SPELL_AURA_INCREASE_RATING_PCT                          = 405,  // SPELL_AURA_INCREASE_RATING_PCT
     SPELL_AURA_406                                          = 406,  // 5.0.5 unk aura
     SPELL_AURA_MOD_FEAR_2                                   = 407,  // SPELL_AURA_MOD_FEAR_2
     SPELL_AURA_408                                          = 408,  // 5.0.5 unk aura
@@ -532,11 +532,11 @@ enum AuraType
     SPELL_AURA_MOD_VERSATILITY_PCT                          = 471,  // 6.0.X SPELL_AURA_MOD_VERSATILITY_PCT
     SPELL_AURA_472                                          = 472,  // 6.0.X
     SPELL_AURA_473                                          = 473,  // 6.0.X
-    SPELL_AURA_474                                          = 474,  // 6.0.X
-    SPELL_AURA_475                                          = 475,  // 6.0.X
+    SPELL_AURA_474                                          = 474,  // 6.0.X Upgrade (170733) used on bonus loot item in quest
+    SPELL_AURA_475                                          = 475,  // 6.0.X used for garr ability check comments http://fr.wowhead.com/spell=169606#english-comments
     SPELL_AURA_MOD_CURRENCY_GAIN_PCT                        = 476,  // 6.0.X SPELL_AURA_MOD_CURRENCY_GAIN_PCT
-    SPELL_AURA_477                                          = 477,  // 6.0.X
-    SPELL_AURA_478                                          = 478,  // 6.0.X
+    SPELL_AURA_477                                          = 477,  // 6.0.X Draenor Scaling aura (used in beta test)
+    SPELL_AURA_478                                          = 478,  // 6.0.X Gladiator stance (new warrior stance in WoD)
     TOTAL_AURAS                                             = 479   // 6.0.2
 };
 

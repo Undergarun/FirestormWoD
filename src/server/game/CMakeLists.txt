@@ -42,7 +42,7 @@ file(GLOB_RECURSE sources_OutdoorPvP OutdoorPvP/*.cpp OutdoorPvP/*.h)
 file(GLOB_RECURSE sources_Pools Pools/*.cpp Pools/*.h)
 file(GLOB_RECURSE sources_Quests Quests/*.cpp Quests/*.h)
 file(GLOB_RECURSE sources_Reputation Reputation/*.cpp Reputation/*.h)
-file(GLOB_RECURSE sources_Scripting Scripting/*.cpp Scripting/*.h)
+file(GLOB_RECURSE sources_Scripting Scripting/*.cpp Scripting/*.h Scripting/*.hpp)
 file(GLOB_RECURSE sources_Server Server/*.cpp Server/*.h)
 file(GLOB_RECURSE sources_Skills Skills/*.cpp Skills/*.h)
 file(GLOB_RECURSE sources_Spells Spells/*.cpp Spells/*.h)
@@ -55,7 +55,7 @@ file(GLOB_RECURSE sources_PetBattle PetBattle/*.cpp PetBattle/*.h)
 file(GLOB_RECURSE sources_World World/*.cpp World/*.h)
 file(GLOB_RECURSE sources_shared_ptrs SharedPtrs/*.h)
 file(GLOB_RECURSE sources_Cinematic Cinematic/*.h Cinematic/*.cpp)
-file(GLOB_RECURSE sources_Garrison Garrison/*.h Garrison/*.cpp)
+file(GLOB_RECURSE sources_Garrison Garrison/*.hpp Garrison/*.cpp)
 
 # Create game-libary
 

@@ -1396,6 +1396,25 @@ float const g_BaseEnemyDodgeChance[STATS_CHANCE_SIZE] =
     0.0f
 };
 
+enum LossOfControlType
+{
+    TypeNone            = 0,
+    TypePossess         = 1,
+    TypeConfuse         = 2,
+    TypeCharm           = 3,
+    TypeFear            = 4,
+    TypeStun            = 5,
+    TypePacify          = 6,
+    TypeRoot            = 7,
+    TypeSilence         = 8,
+    TypePacifySilence   = 9,
+    TypeDisarm          = 10,
+    TypeSchoolInterrupt = 11,
+    TypeStunMechanic    = 12,
+    TypeFearMechanic    = 13,
+    TypeSilenceHarmful  = 14
+};
+
 class Unit : public WorldObject
 {
     public:
@@ -1483,7 +1502,8 @@ class Unit : public WorldObject
         void CombatStopWithPets(bool includingCast = false);
         void StopAttackFaction(uint32 faction_id);
         void GetAttackableUnitListInRange(std::list<Unit*> &list, float fMaxSearchRange) const;
-        Unit* SelectNearbyTarget(Unit* exclude = NULL, float dist = NOMINAL_MELEE_RANGE, uint32 p_ExludeAuraID = 0, bool p_ExcludeVictim = true) const;
+        void GetAreatriggerListInRange(std::list<AreaTrigger*>& p_List, float p_Range) const;
+        Unit* SelectNearbyTarget(Unit* exclude = NULL, float dist = NOMINAL_MELEE_RANGE, uint32 p_ExludeAuraID = 0, bool p_ExcludeVictim = true, bool p_Alive = true) const;
         Unit* SelectNearbyAlly(Unit* exclude = NULL, float dist = NOMINAL_MELEE_RANGE) const;
         void SendMeleeAttackStop(Unit* victim = NULL);
         void SendMeleeAttackStart(Unit* victim);
@@ -1671,8 +1691,8 @@ class Unit : public WorldObject
 
         void ApplyResilience(const Unit* victim, int32 * damage) const;
 
-        float CalculateDamageDealtFactor(Player* player, Creature* target);
-        float CalculateDamageTakenFactor(Player* player, Creature* target);
+        float CalculateDamageDealtFactor(Unit* p_Unit, Creature* p_Creature);
+        float CalculateDamageTakenFactor(Unit* p_Unit, Creature* p_Creature);
 
         float MeleeSpellMissChance(const Unit* p_Victim, SpellInfo const* p_Spell, WeaponAttackType p_AttType) const;
         float MagicSpellMissChance(const Unit* p_Victim, SpellInfo const* p_Spell) const;
@@ -1884,6 +1904,7 @@ class Unit : public WorldObject
         }
         bool isCharmedOwnedByPlayerOrPlayer() const { return IS_PLAYER_GUID(GetCharmerOrOwnerOrOwnGUID()); }
 
+        bool IsWarlockPet() const;
         Player* GetSpellModOwner() const;
 
         Unit* GetOwner() const;
@@ -2127,12 +2148,7 @@ class Unit : public WorldObject
         {
             return p_Form == FORM_AQUA || p_Form == FORM_STAG || p_Form == FORM_FLIGHT || p_Form == FORM_FLIGHT_EPIC;
         }
-        inline bool IsInDisallowedMountForm() const
-        {
-            ShapeshiftForm form = GetShapeshiftForm();
-            return form != FORM_NONE && form != FORM_BATTLESTANCE && form != FORM_BERSERKERSTANCE && form != FORM_GLADIATORSTANCE && form != FORM_DEFENSIVESTANCE &&
-                form != FORM_SHADOW && form != FORM_STEALTH && form != FORM_UNDEAD && form != FORM_WISE_SERPENT && form != FORM_STURDY_OX && form != FORM_FIERCE_TIGER && form != FORM_MOONKIN;
-        }
+        bool IsInDisallowedMountForm() const;
 
         float m_modMeleeHitChance;
         float m_modRangedHitChance;
@@ -2209,9 +2225,9 @@ class Unit : public WorldObject
         void AddInterruptMask(uint32 mask) { m_interruptMask |= mask; }
         void UpdateInterruptMask();
 
-        uint32 GetDisplayId() { return GetUInt32Value(UNIT_FIELD_DISPLAY_ID); }
+        uint32 GetDisplayId() const { return GetUInt32Value(UNIT_FIELD_DISPLAY_ID); }
         void SetDisplayId(uint32 modelId);
-        uint32 GetNativeDisplayId() { return GetUInt32Value(UNIT_FIELD_NATIVE_DISPLAY_ID); }
+        uint32 GetNativeDisplayId() const { return GetUInt32Value(UNIT_FIELD_NATIVE_DISPLAY_ID); }
         void RestoreDisplayId();
         void SetNativeDisplayId(uint32 modelId) { SetUInt32Value(UNIT_FIELD_NATIVE_DISPLAY_ID, modelId); }
         void setTransForm(uint32 spellid) { m_transform = spellid;}
@@ -2269,8 +2285,9 @@ class Unit : public WorldObject
         bool   isBlockCritical();
         bool   IsSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType = WeaponAttackType::BaseAttack) const;
         float  GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType = WeaponAttackType::BaseAttack) const;
-        uint32 SpellCriticalDamageBonus(SpellInfo const* spellProto, uint32 damage, Unit* victim);
-        uint32 SpellCriticalHealingBonus(SpellInfo const* spellProto, uint32 damage, Unit* victim);
+        uint32 MeleeCriticalDamageBonus(SpellInfo const* p_SpellProto, uint32 p_Damage, Unit* p_Victim, WeaponAttackType p_AttackType);
+        uint32 SpellCriticalDamageBonus(SpellInfo const* p_SpellProto, uint32 p_Damage, Unit* p_Victim);
+        uint32 SpellCriticalHealingBonus(SpellInfo const* p_SpellProto, uint32 p_Damage, Unit* p_Victim);
 
         void SetContestedPvP(Player* attackedPlayer = NULL);
 
@@ -2346,6 +2363,7 @@ class Unit : public WorldObject
         uint16 GetExtraUnitMovementFlags() const { return m_movementInfo.flags2; }
         void SetExtraUnitMovementFlags(uint16 f) { m_movementInfo.flags2 = f; }
         bool IsSplineEnabled() const;
+        bool IsSplineFinished() const;
 
         void WriteMovementUpdate(WorldPacket &data) const;
 
@@ -2359,7 +2377,12 @@ class Unit : public WorldObject
         }
 
         void SetControlled(bool apply, UnitState state);
-        void SendLossOfControl(AuraApplication const* aurApp, Mechanics mechanic, SpellEffIndex index);
+
+        /// Control Alert
+        void SendLossOfControlAuraUpdate(AuraApplication const* p_AurApp, Mechanics p_Mechanic, SpellEffIndex p_EffIndex, LossOfControlType p_Type);
+        void SendClearLossOfControl();
+        void SendAddLossOfControl(AuraApplication const* p_AurApp, Mechanics p_Mechanic, LossOfControlType p_Type);
+        void SendRemoveLossOfControl(AuraApplication const* p_AurApp, LossOfControlType p_Type);
 
         ///----------Pet responses methods-----------------
         void SendPetCastFail(uint32 spellid, SpellCastResult msg);

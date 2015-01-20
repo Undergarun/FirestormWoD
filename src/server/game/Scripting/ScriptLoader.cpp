@@ -58,6 +58,7 @@ void AddSC_disable_commandscript();
 void AddSC_event_commandscript();
 void AddSC_gm_commandscript();
 void AddSC_go_commandscript();
+void AddSC_at_commandscript();
 void AddSC_gobject_commandscript();
 void AddSC_guild_commandscript();
 void AddSC_honor_commandscript();
@@ -731,8 +732,8 @@ void AddSC_boss_gu_cloudstrike();
 void AddSC_boss_master_snowdrift();
 void AddSC_boss_sha_of_violence();
 void AddSC_boss_taran_zhu();
-void AddSC_instance_siege_of_the_niuzoa_temple();   // Siege of the Niuzoa Temple
-void AddSC_siege_of_the_niuzoa_temple();
+void AddSC_instance_siege_of_the_niuzao_temple();   // Siege of the niuzao Temple
+void AddSC_siege_of_the_niuzao_temple();
 void AddSC_boss_jinbak();
 void AddSC_instance_mogu_shan_vault();              // Mogu'Shan Vault
 void AddSC_mogu_shan_vault();
@@ -802,6 +803,18 @@ void AddSC_timeless_isle();
 
 // Draenor
 void AddSC_tanaan_jungle();
+void AddSC_Garrison_GO();
+void AddSC_Garrison_NPC();
+void AddSC_Garrison_Quest();
+void AddSC_Garrison_A1();
+void AddSC_Garrison_A2();
+void AddSC_Garrison_A3();
+void AddSC_Garrison_H1();
+void AddSC_Garrison_H2();
+void AddSC_Garrison_H3();
+void AddSC_Garrison();
+void AddSC_item_strongboxes();
+
 /* Skyreach Dungeon */
 void AddSC_instance_Skyreach();
 void AddSC_mob_instance_skyreach();
@@ -809,9 +822,19 @@ void AddSC_spell_instance_skyreach();
 void AddSC_boss_ranjit();
 void AddSC_boss_Araknath();
 void AddSC_boss_Rukhran();
+void AddSC_boss_HighSaveViryx();
+
+/* Bloodmaul Slag Mines */
+void AddSC_instance_Bloodmaul();
+void AddSC_mob_Bloodmaul();
+void AddSC_spell_Bloodmaul();
+void AddSC_areatrigger_Bloodmaul();
+void AddSC_boss_SlaveWatcherCrushto();
 
 // battlegrounds
+void AddSC_BattlegroundAVcripts();
 void AddSC_BattlegroundDGScripts();
+void AddSC_BattlegroundSAScripts();
 
 // outdoor pvp
 void AddSC_outdoorpvp_hp();
@@ -884,6 +907,7 @@ void AddCommandScripts()
     AddSC_event_commandscript();
     AddSC_gm_commandscript();
     AddSC_go_commandscript();
+    AddSC_at_commandscript();
     AddSC_gobject_commandscript();
     AddSC_guild_commandscript();
     AddSC_honor_commandscript();
@@ -1579,8 +1603,8 @@ void AddPandarieScripts()
     AddSC_boss_master_snowdrift();
     AddSC_boss_sha_of_violence();
     AddSC_boss_taran_zhu();
-    AddSC_instance_siege_of_the_niuzoa_temple();    // Siege of the Niuzoa Temple
-    AddSC_siege_of_the_niuzoa_temple();
+    AddSC_instance_siege_of_the_niuzao_temple();    // Siege of the niuzao Temple
+    AddSC_siege_of_the_niuzao_temple();
     AddSC_boss_jinbak();
     AddSC_instance_mogu_shan_vault();               // Mogu'Shan Vault
     AddSC_mogu_shan_vault();
@@ -1654,6 +1678,16 @@ void AddDraenorScripts()
 {
 #ifdef SCRIPTS
     AddSC_tanaan_jungle();
+    AddSC_Garrison_GO();
+    AddSC_Garrison_NPC();
+    AddSC_Garrison_Quest();
+    AddSC_Garrison_A1();
+    AddSC_Garrison_A2();
+    AddSC_Garrison_A3();
+    AddSC_Garrison_H1();
+    AddSC_Garrison_H2();
+    AddSC_Garrison_H3();
+    AddSC_Garrison();
     /* Instance Skyreach*/
     AddSC_instance_Skyreach();
     AddSC_mob_instance_skyreach();
@@ -1661,6 +1695,14 @@ void AddDraenorScripts()
     AddSC_boss_ranjit();
     AddSC_boss_Araknath();
     AddSC_boss_Rukhran();
+    AddSC_boss_HighSaveViryx();
+    /* Instance Bloodmaul Slag Mines */
+    AddSC_instance_Bloodmaul();
+    AddSC_mob_Bloodmaul();
+    AddSC_spell_Bloodmaul();
+    AddSC_areatrigger_Bloodmaul();
+    AddSC_boss_SlaveWatcherCrushto();
+    AddSC_item_strongboxes();
 #endif
 }
 
@@ -1679,7 +1721,9 @@ void AddOutdoorPvPScripts()
 void AddBattlegroundScripts()
 {
 #ifdef SCRIPTS
+    AddSC_BattlegroundAVcripts();
     AddSC_BattlegroundDGScripts();
+    AddSC_BattlegroundSAScripts();
 #endif
 }
 

@@ -57,6 +57,8 @@
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "TicketMgr.h"
+#include "OutdoorPvP.h"
+#include "OutdoorPvPMgr.h"
 
 void WorldSession::HandleRepopRequestOpcode(WorldPacket& recvData)
 {
@@ -178,97 +180,113 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleWhoOpcode(WorldPacket& p_RecvData)
 {
-    time_t now = time(NULL);
-    if (now - timeLastWhoCommand < 5)
+    time_t l_Now = time(NULL);
+    if (l_Now - timeLastWhoCommand < 5)
         return;
     else
-        timeLastWhoCommand = now;
+        timeLastWhoCommand = l_Now;
 
     uint32 l_MatchCount = 0;
 
-    uint32 l_LevelMin, l_LevelMax, l_ZonesCount, l_StringCount;
-    int32 l_RaceMask, l_ClassMask;
-    uint32 l_ZoneIDs[10];                                   // 10 is client limit
+    /// -  data
+    uint32 l_MinLevel;
+    uint32 l_MaxLevel;
+    uint32 l_AreasCount;
+    uint32 l_WordsCount;
+    int32  l_RaceFilter;
+    int32  l_ClassFilter;
+    uint32 l_ZoneIDs[15];
 
-    bool l_Unk1, l_Unk2, l_Bit725, l_Bit740;
-    uint8 l_PlayerLen = 0, l_GuildLen = 0;
-    uint8 l_UnkLen2, l_UnkLen3;
-    std::string l_PlayerName, l_GuildName;
+    /// - Bool
+    bool   l_Unk1;
+    bool   l_Unk2;
+    bool   l_Bit725;
+    bool   l_HasWhoRequestServerInfo;
 
-    l_ZonesCount = p_RecvData.ReadBits(4);                  // zones count, client limit = 10 (2.0.10)
-    if (l_ZonesCount > 10)                                  // can't be received from real client or broken packet
-        return;
+    /// - Player name & realm name
+    uint8       l_NameLen;
+    std::string l_Name;
+    uint8       l_VirtualRealmNameLen;
+    std::string l_VirtualRealmName;
 
-    p_RecvData.FlushBits();
+    /// - Guild name & realm name
+    uint8        l_GuildLen;
+    std::string  l_Guild;
+    uint8        l_GuildVirtualRealmNameLen;
+    std::string  l_GuildVirtualRealmName;
 
-    p_RecvData >> l_LevelMin;                               // maximal player level, default 0
-    p_RecvData >> l_LevelMax;                               // minimal player level, default 123 (MAX_LEVEL)
-    p_RecvData >> l_RaceMask;                               // race mask, default -1
-    p_RecvData >> l_ClassMask;                              // class mask, default -1
 
-    l_PlayerLen = p_RecvData.ReadBits(6);
-    l_UnkLen2 = p_RecvData.ReadBits(8) << 1;
-    l_UnkLen2 += p_RecvData.ReadBit();
-    l_GuildLen = p_RecvData.ReadBits(7);
-    l_UnkLen3 = p_RecvData.ReadBits(8) << 1;
-    l_UnkLen3 += p_RecvData.ReadBit();
+    l_AreasCount               = p_RecvData.ReadBits(4);                    ///< area count, client limit = 10 (2.0.10)
 
-    l_StringCount = p_RecvData.ReadBits(3);
-    if (l_StringCount > 4)                                  // can't be received from real client or broken packet
-        return;
+    p_RecvData                 >> l_MinLevel;                               ///< maximal player level, default 0
+    p_RecvData                 >> l_MaxLevel;                               ///< minimal player level, default 123 (MAX_LEVEL)
+    p_RecvData                 >> l_RaceFilter;                             ///< race mask, default -1
+    p_RecvData                 >> l_ClassFilter;                            ///< class mask, default -1
 
-    l_Unk1 = p_RecvData.ReadBit();
-    l_Unk2 = p_RecvData.ReadBit();
-    l_Bit725 = p_RecvData.ReadBit();
-    l_Bit740 = p_RecvData.ReadBit();
+    l_NameLen                  = p_RecvData.ReadBits(6);                    ///< player name size
+    l_VirtualRealmNameLen      = p_RecvData.ReadBits(9);                    ///< player realm size
+    l_GuildLen                 = p_RecvData.ReadBits(7);                    ///< guild name size
+    l_GuildVirtualRealmNameLen = p_RecvData.ReadBits(9);                    ///< guild realm
+    l_WordsCount               = p_RecvData.ReadBits(3);                    ///< Words count
 
-    p_RecvData.FlushBits();
+    l_Unk1                     = p_RecvData.ReadBit();
+    l_Unk2                     = p_RecvData.ReadBit();
+    l_Bit725                   = p_RecvData.ReadBit();
+    l_HasWhoRequestServerInfo  = p_RecvData.ReadBit();                      ///< HasWhoRequestServerInfo
 
-    if (l_PlayerLen > 0)
-        l_PlayerName = p_RecvData.ReadString(l_PlayerLen);  // player name, case sensitive...
+    p_RecvData.ResetBitReading();
 
-    if (l_UnkLen2 > 0)
-        std::string l_UnkStr2 = p_RecvData.ReadString(l_UnkLen2);
-
-    if (l_GuildLen > 0)
-        l_GuildName = p_RecvData.ReadString(l_GuildLen);    // guild name, case sensitive ...
-
-    if (l_UnkLen3 > 0)
-        std::string l_UnkStr3 = p_RecvData.ReadString(l_UnkLen3);
-
-    std::vector<uint8> l_UnkLens(l_StringCount, 0);
-    std::wstring l_UnkStrings[4];                           // 4 is client limit
-    for (uint8 l_Iter = 0; l_Iter < l_StringCount; ++l_Iter)
+    /// - Read player & guilds strings
     {
-        l_UnkLens[l_Iter] = p_RecvData.ReadBits(7);
-        p_RecvData.FlushBits();
+        if (l_NameLen > 0)
+            l_Name = p_RecvData.ReadString(l_NameLen);
 
-        if (l_UnkLens[l_Iter] > 0)
+        if (l_VirtualRealmNameLen > 0)
+            l_VirtualRealmName = p_RecvData.ReadString(l_VirtualRealmNameLen);
+
+        if (l_GuildLen > 0)
+            l_Guild = p_RecvData.ReadString(l_GuildLen);
+
+        if (l_GuildVirtualRealmNameLen > 0)
+            l_GuildVirtualRealmName = p_RecvData.ReadString(l_GuildVirtualRealmNameLen);
+    }
+
+    std::vector<uint8>        l_WordsLens(l_WordsCount, 0);
+    std::vector<std::wstring> l_Words(l_WordsCount);
+
+    /// - Fill Words
+    for (uint8 l_WordCounter = 0; l_WordCounter < l_WordsCount; ++l_WordCounter)
+    {
+        l_WordsLens[l_WordCounter] = p_RecvData.ReadBits(7);
+        p_RecvData.ResetBitReading();
+
+        if (l_WordsLens[l_WordCounter] > 0)
         {
-            std::string l_Temp = p_RecvData.ReadString(l_UnkLens[l_Iter]); // user entered string, it used as universal search pattern(guild+player name)?
-            if (!Utf8toWStr(l_Temp, l_UnkStrings[l_Iter]))
+            std::string l_Temp = p_RecvData.ReadString(l_WordsLens[l_WordCounter]); // user entered string, it used as universal search pattern(guild+player name)?
+            if (!Utf8toWStr(l_Temp, l_Words[l_WordCounter]))
                 continue;
 
-            wstrToLower(l_UnkStrings[l_Iter]);
-            sLog->outDebug(LOG_FILTER_NETWORKIO, "String %u: %s", l_Iter, l_Temp.c_str());
+            wstrToLower(l_Words[l_WordCounter]);
+            sLog->outDebug(LOG_FILTER_NETWORKIO, "String %u: %s", l_WordCounter, l_Temp.c_str());
         }
     }
 
-    if (l_Bit740)
+    if (l_HasWhoRequestServerInfo)
     {
-        uint32 l_Unks[3];
-        p_RecvData >> l_Unks[0] >> l_Unks[1] >> l_Unks[2];
+        int32  FactionGroup;
+        int32  Locale;
+        uint32 RequesterVirtualRealmAddress;
+
+        p_RecvData >> FactionGroup >> Locale >> RequesterVirtualRealmAddress;
     }
 
-    for (uint8 l_Iter = 0; l_Iter < l_ZonesCount; ++l_Iter)
-        p_RecvData >> l_ZoneIDs[l_Iter];
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Minlvl %u, maxlvl %u, name %s, guild %s, racemask %u, classmask %u, zones %u, strings %u", l_LevelMin, l_LevelMax, l_PlayerName.c_str(), l_GuildName.c_str(), l_RaceMask, l_ClassMask, l_ZonesCount, l_StringCount);
+    for (uint8 l_WordCounter = 0; l_WordCounter < l_AreasCount; ++l_WordCounter)
+        p_RecvData >> l_ZoneIDs[l_WordCounter];
 
     std::wstring l_WQueryerPlayerName;
     std::wstring l_WQueryerPlayerGuildName;
 
-    if (!(Utf8toWStr(l_PlayerName, l_WQueryerPlayerName) && Utf8toWStr(l_GuildName, l_WQueryerPlayerGuildName)))
+    if (!(Utf8toWStr(l_Name, l_WQueryerPlayerName) && Utf8toWStr(l_Guild, l_WQueryerPlayerGuildName)))
         return;
 
     wstrToLower(l_WQueryerPlayerName);
@@ -276,8 +294,8 @@ void WorldSession::HandleWhoOpcode(WorldPacket& p_RecvData)
 
     /// Client send in case not set max level value 100 but Trinity supports 255 max level,
     /// update it to show GMs with characters after 100 level
-    if (l_LevelMax >= MAX_LEVEL)
-        l_LevelMax = STRONG_MAX_LEVEL;
+    if (l_MaxLevel >= MAX_LEVEL)
+        l_MaxLevel = STRONG_MAX_LEVEL;
 
     uint32 l_QueryerPlayerTeam = m_Player->GetTeam();
     uint32 l_Security = GetSecurity();
@@ -319,19 +337,19 @@ void WorldSession::HandleWhoOpcode(WorldPacket& p_RecvData)
         uint8   l_PlayerSex     = l_It->second->getGender();
 
         /// Check if target's level is in level range
-        if (l_PlayerLevel < l_LevelMin || l_PlayerLevel > l_LevelMax)
+        if (l_PlayerLevel < l_MinLevel || l_PlayerLevel > l_MaxLevel)
             continue;
 
         /// Check if class matches classmask
-        if (!(l_ClassMask & (1 << l_PlayerClass)))
+        if (!(l_ClassFilter & (1 << l_PlayerClass)))
             continue;
 
         // check if race matches racemask
-        if (!(l_RaceMask & (1 << l_PlayerRace)))
+        if (!(l_RaceFilter & (1 << l_PlayerRace)))
             continue;
 
         bool l_ZoneShow = true;
-        for (uint32 i = 0; i < l_ZonesCount; ++i)
+        for (uint32 i = 0; i < l_AreasCount; ++i)
         {
             if (l_ZoneIDs[i] == l_AreaID)
             {
@@ -372,13 +390,13 @@ void WorldSession::HandleWhoOpcode(WorldPacket& p_RecvData)
             aname = areaEntry->AreaNameLang[GetSessionDbcLocale()];
 
         bool s_show = true;
-        for (uint32 i = 0; i < l_StringCount; ++i)
+        for (uint32 i = 0; i < l_WordsCount; ++i)
         {
-            if (!l_UnkStrings[i].empty())
+            if (!l_Words[i].empty())
             {
-                if (l_WGuildName.find(l_UnkStrings[i]) != std::wstring::npos ||
-                    l_WPlayerName.find(l_UnkStrings[i]) != std::wstring::npos ||
-                    Utf8FitTo(aname, l_UnkStrings[i]))
+                if (l_WGuildName.find(l_Words[i]) != std::wstring::npos ||
+                    l_WPlayerName.find(l_Words[i]) != std::wstring::npos ||
+                    Utf8FitTo(aname, l_Words[i]))
                 {
                     s_show = true;
                     break;
@@ -1210,6 +1228,35 @@ void WorldSession::HandleNextCinematicCamera(WorldPacket& /*recvData*/)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_NEXT_CINEMATIC_CAMERA");
 }
 
+void WorldSession::HandleCompleteMovieOpcode(WorldPacket & p_Packet)
+{
+    if (!m_Player || m_Player->CurrentPlayedMovie == 0)
+        return;
+
+    m_Player->MovieDelayedTeleportMutex.lock();
+
+    auto l_It = std::find_if(m_Player->MovieDelayedTeleports.begin(), m_Player->MovieDelayedTeleports.end(), [this](const Player::MovieDelayedTeleport & p_Elem) -> bool
+    {
+        if (p_Elem.MovieID == m_Player->CurrentPlayedMovie)
+            return true;
+
+        return false;
+    });
+
+    if (l_It != m_Player->MovieDelayedTeleports.end())
+    {
+        Player::MovieDelayedTeleport l_TeleportData = (*l_It);
+        m_Player->MovieDelayedTeleports.erase(l_It);
+
+        if (l_TeleportData.MapID == m_Player->GetMapId())
+            m_Player->NearTeleportTo(l_TeleportData.X, l_TeleportData.Y, l_TeleportData.Z, l_TeleportData.O, false);
+        else
+            m_Player->TeleportTo(l_TeleportData.MapID, l_TeleportData.X, l_TeleportData.Y, l_TeleportData.Z, l_TeleportData.O, false);
+    }
+
+    m_Player->MovieDelayedTeleportMutex.unlock();
+}
+
 void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket& p_Packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_MOVE_TIME_SKIPPED");
@@ -1431,9 +1478,29 @@ void WorldSession::HandleInspectOpcode(WorldPacket& p_RecvData)
     for (auto l_Talent : *l_Player->GetTalentMap(l_Player->GetActiveSpec()))
     {
         SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_Talent.first);
-        if (l_SpellInfo && l_SpellInfo->talentId)
+        if (l_SpellInfo && !l_SpellInfo->m_TalentIDs.empty())
         {
-            l_Data << uint16(l_SpellInfo->talentId);
+            uint32 l_SpecID = l_Player->GetSpecializationId(l_Player->GetActiveSpec());
+            uint16 l_Talent = 0;
+
+            for (uint32 l_TalentID : l_SpellInfo->m_TalentIDs)
+            {
+                if (TalentEntry const* l_TalentEntry = sTalentStore.LookupEntry(l_TalentID))
+                {
+                    if (l_TalentEntry->SpecID == l_SpecID)
+                    {
+                        l_Talent = l_TalentID;
+                        break;
+                    }
+
+                    l_Talent = l_TalentID;
+                }
+            }
+
+            if (!l_Talent)
+                continue;
+
+            l_Data << uint16(l_Talent);
             ++l_TalentCount;
         }
     }
@@ -1780,18 +1847,17 @@ void WorldSession::HandleSetDungeonDifficultyOpcode(WorldPacket & recvData)
                     return;
                 }
             }
-            // the difficulty is set even if the instances can't be reset
-            //_player->SendDungeonDifficulty(true);
+
             group->ResetInstances(INSTANCE_RESET_CHANGE_DIFFICULTY, false, m_Player);
             group->SetDungeonDifficulty(Difficulty(mode));
-            m_Player->SendDungeonDifficulty(true);
+            m_Player->SendDungeonDifficulty();
         }
     }
     else
     {
         m_Player->ResetInstances(INSTANCE_RESET_CHANGE_DIFFICULTY, false);
         m_Player->SetDungeonDifficulty(Difficulty(mode));
-        m_Player->SendDungeonDifficulty(false);
+        m_Player->SendDungeonDifficulty();
     }
 }
 
@@ -1850,7 +1916,7 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPacket& p_RecvData)
                 }
             }
             // the difficulty is set even if the instances can't be reset
-            //_player->SendDungeonDifficulty(true);
+            //_player->SendDungeonDifficulty();
             group->ResetInstances(INSTANCE_RESET_CHANGE_DIFFICULTY, true, m_Player);
 
             if (l_IsLegacyDifficulty)
@@ -1858,7 +1924,7 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPacket& p_RecvData)
             else
                 group->SetRaidDifficulty(Difficulty(l_Difficulty));
 
-            m_Player->SendRaidDifficulty(true);
+            m_Player->SendRaidDifficulty();
         }
     }
     else
@@ -1870,7 +1936,7 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPacket& p_RecvData)
         else
             m_Player->SetRaidDifficulty(Difficulty(l_Difficulty));
 
-        m_Player->SendRaidDifficulty(false);
+        m_Player->SendRaidDifficulty();
     }
 }
 
@@ -1947,57 +2013,51 @@ void WorldSession::HandleUndeleteCharacter(WorldPacket& /*p_RecvData*/)
     SendAccountDataTimes(GLOBAL_CACHE_MASK);
 }
 
-void WorldSession::SendSetPhaseShift(std::set<uint32> const& phaseIds, std::set<uint32> const& terrainswaps)
+void WorldSession::SendSetPhaseShift(const std::set<uint32> & p_PhaseIds, const std::set<uint32> & p_TerrainSwaps, const std::set<uint32> & p_InactiveTerrainSwap)
 {
     ObjectGuid guid = m_Player->GetGUID();
     uint32 unkValue = 0;
     uint32 inactiveSwapsCount = 0;
 
-    WorldPacket data(SMSG_SET_PHASE_SHIFT, 1 + 8 + 4 + 4 + 4 + 4 + 2 * phaseIds.size() + 4 + terrainswaps.size() * 2);
-    data.appendPackGUID(m_Player->GetGUID());
+    WorldPacket l_ShiftPacket(SMSG_SET_PHASE_SHIFT, 500);
+    l_ShiftPacket.appendPackGUID(m_Player->GetGUID());
     // 0x8 or 0x10 is related to areatrigger, if we send flags 0x00 areatrigger doesn't work in some case
-    data << uint32(0x18); // flags, 0x18 most of time on retail sniff
-    data << uint32(phaseIds.size() * 2);        // Phase.dbc ids
-    data.appendPackGUID(0);
+    l_ShiftPacket << uint32(0x18);                          ///< flags, 0x18 most of time on retail sniff
+    l_ShiftPacket << uint32(p_PhaseIds.size());             ///< Phase.dbc ids
+    l_ShiftPacket.appendPackGUID(0);
     // Active terrain swaps, may switch with inactive terrain
 
-    for (std::set<uint32>::const_iterator itr = phaseIds.begin(); itr != phaseIds.end(); ++itr)
+    for (std::set<uint32>::const_iterator l_It = p_PhaseIds.begin(); l_It != p_PhaseIds.end(); ++l_It)
     {
-        data << uint16(1);
-        data << uint16(*itr); // Most of phase id on retail sniff have 0x8000 mask
+        l_ShiftPacket << uint16(1);
+        l_ShiftPacket << uint16(*l_It); // Most of phase id on retail sniff have 0x8000 mask
     }
 
-    // Inactive terrain swaps, may switch with active terrain
-    data << inactiveSwapsCount;
-    //for (uint8 i = 0; i < inactiveSwapsCount; ++i)
-    //data << uint16(0);
+    /// Inactive terrain swaps, may switch with active terrain
+    l_ShiftPacket << uint32(p_InactiveTerrainSwap.size() * 2);
+    for (std::set<uint32>::const_iterator l_It = p_InactiveTerrainSwap.begin(); l_It != p_InactiveTerrainSwap.end(); ++l_It)
+        l_ShiftPacket << uint16(*l_It);
 
     // WorldMapAreaId ?
-    data << unkValue;
+    l_ShiftPacket << unkValue;
     //for (uint32 i = 0; i < unkValue; i++)
         //data << uint16(0);
 
-    data << uint32(terrainswaps.size() * 2);
+    /// Active terrain swaps
+    l_ShiftPacket << uint32(p_TerrainSwaps.size() * 2);
+    for (std::set<uint32>::const_iterator l_It = p_TerrainSwaps.begin(); l_It != p_TerrainSwaps.end(); ++l_It)
+        l_ShiftPacket << uint16(*l_It);
 
-    for (std::set<uint32>::const_iterator itr = terrainswaps.begin(); itr != terrainswaps.end(); ++itr)
-        data << uint16(*itr);
-
-    SendPacket(&data);
+    SendPacket(&l_ShiftPacket);
 }
 
 // Battlefield and Battleground
 void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPacket& p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AREA_SPIRIT_HEALER_QUERY");
-
-    Battleground* l_Battleground = m_Player->GetBattleground();
-
     uint64 l_Healer = 0;
-
     p_Packet.readPackGUID(l_Healer);
 
-    Creature * l_Unit = GetPlayer()->GetMap()->GetCreature(l_Healer);
-
+    Creature * l_Unit = m_Player->GetMap()->GetCreature(l_Healer);
     if (!l_Unit)
         return;
 
@@ -2005,24 +2065,20 @@ void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPacket& p_Packet)
     if (!l_Unit->isSpiritService())
         return;
 
-    if (l_Battleground)
+    if (Battleground* l_Battleground = m_Player->GetBattleground())
         sBattlegroundMgr->SendAreaSpiritHealerQueryOpcode(m_Player, l_Battleground, l_Healer);
-
-    if (Battlefield * l_Battlefield = sBattlefieldMgr->GetBattlefieldToZoneId(m_Player->GetZoneId()))
-        l_Battlefield->SendAreaSpiritHealerQueryOpcode(m_Player,l_Healer);
+    else if (Battlefield * l_Battlefield = sBattlefieldMgr->GetBattlefieldToZoneId(m_Player->GetZoneId()))
+        l_Battlefield->SendAreaSpiritHealerQueryOpcode(m_Player, l_Healer);
+    else if (OutdoorPvP* l_OutdoorPvP = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(m_Player->GetZoneId()))
+        l_OutdoorPvP->SendAreaSpiritHealerQueryOpcode(m_Player, l_Healer);
 }
 
 void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPacket& p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AREA_SPIRIT_HEALER_QUEUE");
-
-    Battleground* l_Battleground = m_Player->GetBattleground();
     uint64 l_Healer = 0;
-
     p_Packet.readPackGUID(l_Healer);
 
-    Creature* l_Unit = GetPlayer()->GetMap()->GetCreature(l_Healer);
-
+    Creature* l_Unit = m_Player->GetMap()->GetCreature(l_Healer);
     if (!l_Unit)
         return;
 
@@ -2030,11 +2086,12 @@ void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPacket& p_Packet)
     if (!l_Unit->isSpiritService())
         return;
 
-    if (l_Battleground)
+    if (Battleground* l_Battleground = m_Player->GetBattleground())
         l_Battleground->AddPlayerToResurrectQueue(l_Healer, m_Player->GetGUID());
-
-    if (Battlefield * l_Battlefield = sBattlefieldMgr->GetBattlefieldToZoneId(m_Player->GetZoneId()))
+    else if (Battlefield * l_Battlefield = sBattlefieldMgr->GetBattlefieldToZoneId(m_Player->GetZoneId()))
         l_Battlefield->AddPlayerToResurrectQueue(l_Healer, m_Player->GetGUID());
+    else if (OutdoorPvP* l_OutdoorPvP = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(m_Player->GetZoneId()))
+        l_OutdoorPvP->AddPlayerToResurrectQueue(l_Healer, m_Player->GetGUID());
 }
 
 void WorldSession::HandleHearthAndResurrect(WorldPacket& /*recvData*/)
@@ -2098,20 +2155,22 @@ void WorldSession::HandleRequestHotfix(WorldPacket& p_RecvPacket)
             case DB2_REPLY_ITEM:
                 SendItemDb2Reply(l_Entry);
                 break;
-
             case DB2_REPLY_SPARSE:
                 SendItemSparseDb2Reply(l_Entry);
                 break;
-
             case DB2_REPLY_BROADCAST_TEXT:
                 SendBroadcastTextDb2Reply(l_Entry);
                 break;
-
+            case DB2_REPLY_MAP_CHALLENGE_MODE:
+                SendMapChallengeModeDBReply(l_Entry);
+                break;
+            case DB2_REPLY_QUEST_PACKAGE_ITEM:
+                SendQuestPackageItemDB2Reply(l_Entry);
+                break;
             // TODO
             case DB2_REPLY_BATTLE_PET_EFFECT_PROPERTIES:
             case DB2_REPLY_SCENE_SCRIPT:
                 break;
-
             default:
                 break;
         }
@@ -2334,4 +2393,18 @@ void WorldSession::HandleSaveCUFProfiles(WorldPacket& p_RecvPacket)
     }
 
     CharacterDatabase.CommitTransaction(l_Transaction);
+}
+
+void WorldSession::HandleMountSetFavoriteOpcode(WorldPacket & p_Packet)
+{
+    uint32  l_MountSpellID = 0;
+    bool    l_IsFavorite   = false;
+
+    p_Packet >> l_MountSpellID;
+    l_IsFavorite = p_Packet.ReadBit();
+
+    if (!m_Player)
+        return;
+
+    m_Player->MountSetFavorite(l_MountSpellID, l_IsFavorite);
 }

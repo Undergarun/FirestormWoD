@@ -220,9 +220,6 @@ class boss_durumu : public CreatureScript
                         break;
                     case EVENT_COLORBLIND_PHASE:
                     {
-                        uint8 l_TargetCounter = 0;
-                        uint8 l_SummonCounter = 0;
-
                         float l_Angle = 0.0f;
 
                         m_Phase = PHASE_COLORBLIND_PHASE;
@@ -683,9 +680,9 @@ class mob_second_phase_eye : public CreatureScript
                 // Awesome part...
                 // This part of the script is here to verify if one of the invisble adds is targeted by a cone.
                 // If so, an action is called, which makes them visible and attackable.
-                if (me->GetEntry() == NPC_YELLOW_EYE && me->HasAura(SPELL_BRIGHT_LIGHT_MAIN) ||
-                    me->GetEntry() == NPC_BLUE_EYE && me->HasAura(SPELL_BLUE_RAYS_MAIN) ||
-                    me->GetEntry() == NPC_RED_EYE && me->HasAura(SPELL_INFRARED_LIGHT_MAIN))
+                if ((me->GetEntry() == NPC_YELLOW_EYE && me->HasAura(SPELL_BRIGHT_LIGHT_MAIN)) ||
+                    (me->GetEntry() == NPC_BLUE_EYE && me->HasAura(SPELL_BLUE_RAYS_MAIN)) ||
+                    (me->GetEntry() == NPC_RED_EYE && me->HasAura(SPELL_INFRARED_LIGHT_MAIN)))
                 {
                     switch (me->GetEntry())
                     {
@@ -931,7 +928,7 @@ class mob_second_phase_eye : public CreatureScript
 };
 
 // Arterial Cut (aura) - 133768
-class spell_arterial_cut : public SpellScriptLoader
+class spell_arterial_cut: public SpellScriptLoader
 {
     public:
         spell_arterial_cut() : SpellScriptLoader("spell_arterial_cut") { }
@@ -965,7 +962,7 @@ class spell_arterial_cut : public SpellScriptLoader
 };
 
 // Lingering Gaze - 138467
-class spell_lingering_gaze_main : public SpellScriptLoader
+class spell_lingering_gaze_main: public SpellScriptLoader
 {
     public:
         spell_lingering_gaze_main() : SpellScriptLoader("spell_lingering_gaze_main") { }
@@ -1009,7 +1006,7 @@ class spell_lingering_gaze_main : public SpellScriptLoader
 };
 
 // Life drain (main) - 133795
-class spell_life_drain_main : public SpellScriptLoader
+class spell_life_drain_main: public SpellScriptLoader
 {
     public:
         spell_life_drain_main() : SpellScriptLoader("spell_life_drain_main") { }
@@ -1046,7 +1043,7 @@ class spell_life_drain_main : public SpellScriptLoader
 };
 
 // Life drain (aura) - 133796
-class spell_life_drain_dummy : public SpellScriptLoader
+class spell_life_drain_dummy: public SpellScriptLoader
 {
     public:
         spell_life_drain_dummy() : SpellScriptLoader("spell_life_drain_dummy") { }
@@ -1082,7 +1079,7 @@ class spell_life_drain_dummy : public SpellScriptLoader
 };
 
 // Life drain (aura) - 133796
-class spell_colorblind_phase_link_visual : public SpellScriptLoader
+class spell_colorblind_phase_link_visual: public SpellScriptLoader
 {
     public:
         spell_colorblind_phase_link_visual() : SpellScriptLoader("spell_colorblind_phase_link_visual") { }

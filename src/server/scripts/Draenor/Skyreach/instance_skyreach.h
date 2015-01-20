@@ -1,8 +1,9 @@
 #ifndef SKYREACH_INSTANCE_H
 # define SKYREACH_INSTANCE_H
 
-#include "ScriptPCH.h"
-#include "ScriptMgr.h"
+# include "ScriptPCH.h"
+# include "ScriptMgr.h"
+# include "ScriptUtils.h" 
 
 namespace MS
 {
@@ -48,33 +49,37 @@ namespace MS
             ENERGIZE_VISUAL_3 = 154177,
             DespawnAreaTriggers = 115905,
             Wind = 170818,
+            LensFlare = 154034,
         };
 
         enum GameObjectEntries
         {
-            DOOR_RANJIT_ENTRANCE        = 234311,
-            DOOR_RANJIT_EXIT            = 234310,
-            DOOR_ARAKNATH_ENTRANCE_1    = 234314,
-            DOOR_ARAKNATH_ENTRANCE_2    = 234315,
-            DOOR_ARAKNATH_EXIT_1        = 234312,
-            DOOR_ARAKNATH_EXIT_2        = 234313,
+            DOOR_RANJIT_ENTRANCE = 234311,
+            DOOR_RANJIT_EXIT = 234310,
+            DOOR_ARAKNATH_ENTRANCE_1 = 234314,
+            DOOR_ARAKNATH_ENTRANCE_2 = 234315,
+            DOOR_ARAKNATH_EXIT_1 = 234312,
+            DOOR_ARAKNATH_EXIT_2 = 234313,
             CACHE_OF_ARAKKOAN_TREASURES = 234164,
-            DOOR_RUKHRAN_EXIT           = 234316,
-            DOOR_RUKHRAN_ENTRANCE       = 229038,
+            DOOR_RUKHRAN_ENTRANCE = 229038,
+            DOOR_RUKHRAN_EXIT = 234316,
+            DOOR_HIGH_SAVE_VIRYX_ENTRANCE= 235994,
+            DOOR_CHALLENGE_ENTRANCE = 239409,
         };
 
         enum BossEntries
         {
-            RANJIT = 86238,
+            RANJIT = 75964,
             ARAKNATH = 76141,
             RUKHRAN = 76143,
+            HIGH_SAGE_VIRYX = 76266,
         };
 
         enum MobEntries
         {
             SKYREACH_ARCANALOGIST = 76376,
             SKYREACH_SOLAR_CONSTRUCTOR = 76142,
-            YOUNG_KALIRI = 76121,
+            YoungKaliri = 76121,
             SKYREACH_RAVEN_WHISPERER = 76154,
             SOLAR_FLARE = 76227,
             PILE_OF_ASHES = 79505,
@@ -82,11 +87,17 @@ namespace MS
             AirFamiliar = 76102,
             Kaliri = 81080,
             Kaliri2 = 81081,
+            Arakkoa = 81088,
             SunConstructEnergizer = 76367,
             InteriorFocus = 77543,
             DreadRavenHatchling = 76253,
             RadiantSupernova = 79463,
             GrandDefenseConstruct = 76145,
+            SolarZealot = 76267,
+            AraokkoaMagnifyingConstructA = 76285,
+            ArakkoaMagnifyingGlassFocus = 76083,
+            ReshadOutro = 84782,
+            SkyreachDefenseConstruct = 76292,
         };
 
         enum Data
@@ -94,13 +105,47 @@ namespace MS
             Ranjit,
             Araknath,
             Rukhran,
+            HighSageViryx,
             SkyreachArcanologist,
             SkyreachArcanologistIsDead,
             SkyreachArcanologistReset,
             AraknathSolarConstructorActivation,
             SkyreachRavenWhispererIsDead,
             SolarFlareDying,
+            StartingLensFlare,
+            PlayerIsHittedByRanjitSpells,
+            MonomaniaAchievementFail,
         };
+
+        enum class Achievements : uint32
+        {
+            HeroicSkyreach = 8844,
+            HeroicSkyreachGuildRun = 9372,
+            ISawSolis = 9035,
+            MagnifyEnhance = 9034,
+            Monomania = 9036,
+            ReadyForRaidingIV = 9033,
+            Skyreach = 8843,
+            SkyreachChallenger = 8871,
+            SkyreachBronze = 8872,
+            SkyreachGold = 8874,
+            SkyreachSilver = 8873,
+        };
+
+        namespace ScenarioDatas
+        {
+            enum ScenarioDatas
+            {
+                MaxEnnemiesToKill = 46,
+                ScenarioId = 689,
+                ChallengeScenarioId = 423,
+                EnnemiesCriteriaId = 26796,
+                RanjitCriteriaId = 24709,
+                AraknathCriteriaId = 24451,
+                RukhranCriteriaId = 24452,
+                ViryxCriteriaId = 24453
+            };
+        }
 
         static const Position k_WindMazeVertices[47] =
         {
@@ -193,7 +238,7 @@ namespace MS
             // Inner blocks.
             { 22, 25, 27, 28 }, // 13
             { 21, 22, 28, 29 }, // 14
-            { 21, 29, 30, 18 }, // 15
+            { 18, 21, 29, 30 }, // 15
             { 17, 18, 30, 31 }, // 16
             { 14, 17, 31, 32 }, // 17
             { 13, 14, 32, 33 }, // 18
@@ -201,42 +246,53 @@ namespace MS
             { 9, 10, 34, 35 },  // 20
             { 6, 9, 35, 36 },   // 21
             { 5, 6, 36, 37 },   // 22
-            { 39, 5, 37, 39},   // 23
-            { 40, 38, 42, 41},  // 24
+            { 39, 5, 37, 38 },   // 23
+            { 41, 40, 38, 42 },  // 24
             // Center block.
             { 42, 38, 37, 36, 35, 34, 33, 32, 31, 30, 29, 28, 27, 26}, // 25
             // Second stair.
-            { 44, 41, 42, 43},  // 26
+            { 43, 44, 41, 42 },  // 26
             // Convex hull.
             { 0, 46, 45, 43, 44, 1 } // 27
         };
 
-        static Position CalculateForceVectorFromBlockId(uint32 p_BlockId)
+        static Position CalculateForceVectorFromBlockId(uint32 p_BlockId, float& p_Magnitude)
         {
             assert(p_BlockId != Blocks::ConvexHull);
 
             Position l_ForceDir;
+            p_Magnitude = 3;
             // Special case because of a lot of vertices.
-            if (Blocks::Center)
+            if (Blocks::Center == p_BlockId)
             {
-                l_ForceDir = k_WindMazeVertices[26] - k_WindMazeVertices[36];
+                l_ForceDir = k_WindMazeVertices[26] - k_WindMazeVertices[38];
+                l_ForceDir.m_positionZ = 0;
                 normalizeXY(l_ForceDir);
+                p_Magnitude = 11;
+                l_ForceDir.m_positionX *= p_Magnitude;
+                l_ForceDir.m_positionY *= p_Magnitude;
                 return l_ForceDir;
             }
 
             // Special case because of a lot of vertices.
-            if (Blocks::Intermediate)
+            if (Blocks::Intermediate == p_BlockId)
             {
                 l_ForceDir = k_WindMazeVertices[24] - k_WindMazeVertices[22];
+                l_ForceDir.m_positionZ = 0;
                 normalizeXY(l_ForceDir);
+                l_ForceDir.m_positionX *= p_Magnitude;
+                l_ForceDir.m_positionY *= p_Magnitude;
                 return l_ForceDir;
             }
 
             std::vector<uint32> l_BlockIndices = k_WindMazeIndices[p_BlockId];
             assert(l_BlockIndices.size() == 4);
 
-            l_ForceDir = ((k_WindMazeVertices[3] - k_WindMazeVertices[0]) + (k_WindMazeVertices[2] - k_WindMazeVertices[1])) / 2.f;
+            l_ForceDir = ((k_WindMazeVertices[l_BlockIndices[3]] - k_WindMazeVertices[l_BlockIndices[0]]) + (k_WindMazeVertices[l_BlockIndices[2]] - k_WindMazeVertices[l_BlockIndices[1]])) / 2.f;
+            l_ForceDir.m_positionZ = 0;
             normalizeXY(l_ForceDir);
+            l_ForceDir.m_positionX *= p_Magnitude;
+            l_ForceDir.m_positionY *= p_Magnitude;
             return l_ForceDir;
         }
 
@@ -270,224 +326,6 @@ namespace MS
             }
 
             return true;
-        }
-
-        static GameObject* SelectNearestGameObjectWithEntry(Unit* p_Me, uint32 p_Entry, float p_Range = 0.0f)
-        {
-            std::list<GameObject*> l_TargetList;
-
-            JadeCore::NearestGameObjectEntryInObjectRangeCheck l_Check(*p_Me, p_Entry, p_Range);
-            JadeCore::GameObjectListSearcher<JadeCore::NearestGameObjectEntryInObjectRangeCheck> l_Searcher(p_Me, l_TargetList, l_Check);
-            p_Me->VisitNearbyObject(p_Range, l_Searcher);
-
-            for (GameObject* l_Gob : l_TargetList)
-                return l_Gob;
-
-            return nullptr;
-        }
-
-        static Creature* SelectNearestCreatureWithEntry(Unit* p_Me, uint32 p_Entry, float p_Range = 0.0f)
-        {
-            std::list<Unit*> l_TargetList;
-            float l_Radius = p_Range;
-
-            JadeCore::AnyUnitInObjectRangeCheck l_Check(p_Me, l_Radius);
-            JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck> l_Searcher(p_Me, l_TargetList, l_Check);
-            p_Me->VisitNearbyObject(l_Radius, l_Searcher);
-
-            std::list<Unit*> l_Results;
-
-            for (Unit* l_Unit : l_TargetList)
-            {
-                if (l_Unit->GetTypeId() == TYPEID_UNIT && l_Unit->GetEntry() == p_Entry)
-                    return static_cast<Creature*>(l_Unit);
-            }
-
-            return nullptr;
-        }
-
-        static Unit* SelectRandomCreatureWithEntry(Unit* p_Me, uint32 p_Entry, float p_Range = 0.0f)
-        {
-            std::list<Unit*> l_TargetList;
-            float l_Radius = p_Range;
-
-            JadeCore::AnyUnitInObjectRangeCheck l_Check(p_Me, l_Radius);
-            JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck> l_Searcher(p_Me, l_TargetList, l_Check);
-            p_Me->VisitNearbyObject(l_Radius, l_Searcher);
-
-            std::list<Unit*> l_Results;
-            uint32 l_Size = 0;
-            for (Unit* l_Unit : l_TargetList)
-            {
-                if (l_Unit->GetEntry() == p_Entry)
-                {
-                    l_Results.emplace_back(l_Unit);
-                    l_Size++;
-                }
-            }
-
-            auto l_RandUnit = l_Results.begin();
-            std::advance(l_RandUnit, urand(0, l_Size - 1));
-
-            return *l_RandUnit;
-        }
-
-        static std::list<Unit*> SelectNearestCreatureListWithEntry(Unit* p_Me, uint32 p_Entry, float p_Range = 0.0f)
-        {
-            std::list<Unit*> l_TargetList;
-            float l_Radius = p_Range;
-
-            JadeCore::AnyUnitInObjectRangeCheck l_Check(p_Me, l_Radius);
-            JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck> l_Searcher(p_Me, l_TargetList, l_Check);
-            p_Me->VisitNearbyObject(l_Radius, l_Searcher);
-
-            std::list<Unit*> l_Results;
-
-            for (Unit* l_Unit : l_TargetList)
-            {
-                if (l_Unit->GetEntry() == p_Entry)
-                    l_Results.emplace_back(l_Unit);
-            }
-
-            return l_Results;
-        }
-
-        static Unit* SelectNearestFriendExcluededMe(Unit* p_Me, float p_Range = 0.0f, bool p_CheckLoS = true)
-        {
-            std::list<Unit*> l_TargetList;
-            float l_Radius = p_Range;
-
-            JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(p_Me, p_Me, l_Radius);
-            JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(p_Me, l_TargetList, l_Check);
-            p_Me->VisitNearbyObject(l_Radius, l_Searcher);
-
-            for (Unit* l_Unit : l_TargetList)
-            {
-                if (l_Unit && (p_Me->IsWithinLOSInMap(l_Unit) || !p_CheckLoS) &&
-                    p_Me->IsWithinDistInMap(l_Unit, p_Range) && l_Unit->isAlive() && l_Unit->GetGUID() != p_Me->GetGUID())
-                {
-                    return l_Unit;
-                }
-            }
-
-            return nullptr;
-        }
-
-        static Player* SelectNearestPlayer(Unit* p_me, float p_range = 0.0f, bool p_checkLoS = true)
-        {
-            Map* map = p_me->GetMap();
-            if (!map->IsDungeon())
-                return nullptr;
-
-            Map::PlayerList const &PlayerList = map->GetPlayers();
-            if (PlayerList.isEmpty())
-                return nullptr;
-
-            std::list<Player*> temp;
-            for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-            {
-                if ((p_me->IsWithinLOSInMap(i->getSource()) || !p_checkLoS) && p_me->getVictim() != i->getSource() &&
-                    p_me->GetExactDist2d(i->getSource()) < p_range && i->getSource()->isAlive())
-                    temp.push_back(i->getSource());
-            }
-
-            if (!temp.empty())
-                return temp.front();
-
-            return nullptr;
-        }
-
-        static void ApplyOnEveryPlayer(Unit* p_Me, std::function<void(Unit*, Player*)> p_Function)
-        {
-            Map* map = p_Me->GetMap();
-            if (!map->IsDungeon())
-                return;
-
-            Map::PlayerList const &PlayerList = map->GetPlayers();
-            if (PlayerList.isEmpty())
-                return;
-
-            std::list<Player*> temp;
-            for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                p_Function(p_Me, i->getSource());
-        }
-
-        static Player* SelectRandomPlayerExcludedTank(Unit* p_me, float p_range = 0.0f, bool p_checkLoS = true)
-        {
-            Map* map = p_me->GetMap();
-            if (!map->IsDungeon())
-                return nullptr;
-
-            Map::PlayerList const &PlayerList = map->GetPlayers();
-            if (PlayerList.isEmpty())
-                return nullptr;
-
-            std::list<Player*> temp;
-            for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-            {
-                if ((p_me->IsWithinLOSInMap(i->getSource()) || !p_checkLoS) && p_me->getVictim() != i->getSource() &&
-                    p_me->IsWithinDistInMap(i->getSource(), p_range) && i->getSource()->isAlive())
-                    temp.push_back(i->getSource());
-            }
-
-            if (!temp.empty())
-            {
-                std::list<Player*>::const_iterator j = temp.begin();
-                advance(j, rand() % temp.size());
-                return (*j);
-            }
-            return nullptr;
-        }
-
-
-        static Player* SelectFarEnoughPlayerIncludedTank(Unit* p_me, float p_range = 0.0f, bool p_checkLoS = true)
-        {
-            Map* map = p_me->GetMap();
-            if (!map->IsDungeon())
-                return nullptr;
-
-            Map::PlayerList const &PlayerList = map->GetPlayers();
-            if (PlayerList.isEmpty())
-                return nullptr;
-
-            std::list<Player*> temp;
-            for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-            {
-                if ((p_me->IsWithinLOSInMap(i->getSource()) || !p_checkLoS)
-                    && !p_me->IsWithinDistInMap(i->getSource(), p_range)
-                    && i->getSource()->isAlive())
-                    return i->getSource();
-            }
-
-            return nullptr;
-        }
-
-        static Player* SelectRandomPlayerIncludedTank(Unit* p_me, float p_range = 0.0f, bool p_checkLoS = true)
-        {
-            Map* map = p_me->GetMap();
-            if (!map->IsDungeon())
-                return nullptr;
-
-            Map::PlayerList const &PlayerList = map->GetPlayers();
-            if (PlayerList.isEmpty())
-                return nullptr;
-
-            std::list<Player*> temp;
-            for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-            {
-                if ((p_me->IsWithinLOSInMap(i->getSource()) || !p_checkLoS)
-                    && p_me->IsWithinDistInMap(i->getSource(), p_range)
-                    && i->getSource()->isAlive())
-                    temp.push_back(i->getSource());
-            }
-
-            if (!temp.empty())
-            {
-                std::list<Player*>::const_iterator j = temp.begin();
-                advance(j, rand() % temp.size());
-                return (*j);
-            }
-            return nullptr;
         }
     }
 }

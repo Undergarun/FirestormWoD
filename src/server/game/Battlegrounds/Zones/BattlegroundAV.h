@@ -1578,6 +1578,8 @@ class BattlegroundAV : public Battleground
         bool IsBothMinesControlledByTeam(uint32 team) const;
         bool IsAllTowersControlledAndCaptainAlive(uint32 team) const;
 
+        uint32 GetTeamQuestStatus(uint8 p_Team, uint8 p_Index) const { return m_Team_QuestStatus[p_Team][p_Index]; }
+
     private:
         virtual void PostUpdateImpl(uint32 diff);
 

@@ -958,24 +958,30 @@ class boss_protector_kaolan : public CreatureScript
             InstanceScript* pInstance;
             EventMap events;
 
+            enum LootMode
+            {
+                NormalModeLoot  = 1,
+                HardModeLoot    = 2
+            };
+
             bool firstSpecialEnabled;
             bool secondSpecialEnabled;
             bool isInWipeState;
             bool introDone;
 			
-			void Reset()
-			{
+            void Reset()
+            {
                 if (!pInstance || pInstance->GetBossState(DATA_PROTECTORS) == NOT_STARTED)
                     return;
 
                 SetEquipmentSlots(false, KAOLAN_MH_ITEM, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
                 me->CastSpell(me, SPELL_SHA_MASK, true);
 
-				_Reset();
+                _Reset();
 				
-				events.Reset();
+                events.Reset();
 				
-				summons.DespawnAll();
+                summons.DespawnAll();
 
                 firstSpecialEnabled = false;
                 secondSpecialEnabled = false;
@@ -985,7 +991,7 @@ class boss_protector_kaolan : public CreatureScript
 
                 events.ScheduleEvent(EVENT_TOUCH_OF_SHA, 12000);
 				
-				if (pInstance)
+                if (pInstance)
                 {
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TOUCH_OF_SHA);
@@ -999,22 +1005,31 @@ class boss_protector_kaolan : public CreatureScript
 
                     RespawnProtectors(pInstance, me);
                 }
-			}
+            }
 			
-			void JustReachedHome()
+            void JustReachedHome()
             {
                 _JustReachedHome();
                 Reset();
             }
 
-            void DamageTaken(Unit* attacker, uint32& /*damage*/)
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage)
             {
                 if (pInstance)
+                {
                     if (pInstance->GetBossState(DATA_PROTECTORS) != IN_PROGRESS)
-                        EnterCombat(attacker);
+                        EnterCombat(p_Attacker);
+                }
+
+                /// Handle here elite loots, Kaolan needs to be the last killed
+                if (p_Damage > me->GetHealth() && ProtectorsAlive(pInstance, me) <= 1)  ///< Kaolan is the last !
+                {
+                    me->RemoveLootMode(LootMode::NormalModeLoot);
+                    me->AddLootMode(LootMode::HardModeLoot);
+                }
             }
 
-			void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* attacker)
             {
                 if (pInstance)
                 {
@@ -1032,7 +1047,7 @@ class boss_protector_kaolan : public CreatureScript
                 ProtectorsWipe(pInstance);
             }
 
-			void JustSummoned(Creature* summon)
+            void JustSummoned(Creature* summon)
             {
                 summons.Summon(summon);
             }
@@ -1051,13 +1066,13 @@ class boss_protector_kaolan : public CreatureScript
                 }
             }
 			
-			void KilledUnit(Unit* who)
+            void KilledUnit(Unit* who)
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
                     Talk(TALK_KAOLAN_SLAY);
             }
 			
-			void JustDied(Unit* killer)
+            void JustDied(Unit* killer)
             {
                 Talk(TALK_KAOLAN_DEATH);
 
@@ -1201,22 +1216,22 @@ class boss_protector_kaolan : public CreatureScript
             {
                 switch (type)
                 {
-                case TYPE_SET_WIPE:
+                    case TYPE_SET_WIPE:
                     {
                         isInWipeState = true;
                         break;
                     }
-                case TYPE_UNSET_WIPE:
+                    case TYPE_UNSET_WIPE:
                     {
                         isInWipeState = false;
                         break;
                     }
-                default:
-                    break;
+                    default:
+                        break;
                 }
             }
 
-			void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 diff)
             {
                 if (pInstance)
                 {
@@ -1287,10 +1302,10 @@ class boss_protector_kaolan : public CreatureScript
                     }
                     default:
                         break;
-				}
+                }
 
                 DoMeleeAttackIfReady();
-			}
+            }
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1607,7 +1622,7 @@ class mob_minion_of_fear_controller : public CreatureScript
 };
 
 // Defiled Ground (damage) - 117988
-class spell_defiled_ground_damage : public SpellScriptLoader
+class spell_defiled_ground_damage: public SpellScriptLoader
 {
     public:
         spell_defiled_ground_damage() : SpellScriptLoader("spell_defiled_ground_damage") { }
@@ -1642,7 +1657,7 @@ class spell_defiled_ground_damage : public SpellScriptLoader
 };
 
 // Expelled Corruption (triggered) - 117955
-class spell_expelled_corruption : public SpellScriptLoader
+class spell_expelled_corruption: public SpellScriptLoader
 {
     public:
         spell_expelled_corruption() : SpellScriptLoader("spell_expelled_corruption") { }
@@ -1678,7 +1693,7 @@ class spell_expelled_corruption : public SpellScriptLoader
 };
 
 // Lightning Storm - 118064, 118040, 118053, 118054, 118055, 118077
-class spell_lightning_storm_aura : public SpellScriptLoader
+class spell_lightning_storm_aura: public SpellScriptLoader
 {
     public:
         spell_lightning_storm_aura() : SpellScriptLoader("spell_lightning_storm_aura") { }
@@ -1741,7 +1756,7 @@ class spell_lightning_storm_aura : public SpellScriptLoader
 };
 
 // Lightning Storm (damage) - 118004, 118005, 118007, 118008
-class spell_lightning_storm_damage : public SpellScriptLoader
+class spell_lightning_storm_damage: public SpellScriptLoader
 {
     public:
         spell_lightning_storm_damage() : SpellScriptLoader("spell_lightning_storm_damage") { }
@@ -1801,7 +1816,7 @@ class spell_lightning_storm_damage : public SpellScriptLoader
 };
 
 // Lightning Prison - 111850
-class spell_lightning_prison : public SpellScriptLoader
+class spell_lightning_prison: public SpellScriptLoader
 {
     public:
         spell_lightning_prison() : SpellScriptLoader("spell_lightning_prison") { }
@@ -1828,7 +1843,7 @@ class spell_lightning_prison : public SpellScriptLoader
 };
 
 // Corrupted Essence - 118191
-class spell_corrupted_essence : public SpellScriptLoader
+class spell_corrupted_essence: public SpellScriptLoader
 {
     public:
         spell_corrupted_essence() : SpellScriptLoader("spell_corrupted_essence") { }
@@ -1908,7 +1923,7 @@ class spell_corrupted_essence : public SpellScriptLoader
 };
 
 // Superior Corrupted Essence - 117905
-class spell_superior_corrupted_essence : public SpellScriptLoader
+class spell_superior_corrupted_essence: public SpellScriptLoader
 {
     public:
         spell_superior_corrupted_essence() : SpellScriptLoader("spell_superior_corrupted_essence") { }
@@ -1945,7 +1960,7 @@ class spell_superior_corrupted_essence : public SpellScriptLoader
 };
 
 // Cleansing Waters - 117283
-class spell_cleansing_waters_regen : public SpellScriptLoader
+class spell_cleansing_waters_regen: public SpellScriptLoader
 {
     public:
         spell_cleansing_waters_regen() : SpellScriptLoader("spell_cleansing_waters_regen") { }

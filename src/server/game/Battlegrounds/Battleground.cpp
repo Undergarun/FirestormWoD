@@ -36,6 +36,7 @@
 #include "Util.h"
 #include "Guild.h"
 #include "GuildMgr.h"
+#include "GroupMgr.h"
 
 namespace JadeCore
 {
@@ -133,7 +134,6 @@ Battleground::Battleground()
     m_ResetStatTimer    = 0;
     m_ValidStartPositionTimer = 0;
     m_Events            = 0;
-    m_IsRated           = false;
     m_IsRatedBg         = false;
     m_BuffChange        = false;
     m_IsRandom          = false;
@@ -226,6 +226,32 @@ Battleground::~Battleground()
 
     for (BattlegroundScoreMap::const_iterator itr = PlayerScores.begin(); itr != PlayerScores.end(); ++itr)
         delete itr->second;
+}
+void Battleground::InitGUID()
+{
+    BattlegroundQueueType l_QueueType = BattlegroundQueueType::Battleground;
+
+    if (isArena())
+    {
+        if (IsSkirmish())
+            l_QueueType = BattlegroundQueueType::ArenaSkirmish;
+        else
+            l_QueueType = BattlegroundQueueType::Arena;
+    }
+
+    /// - Missing
+    //if (isWorldPvP())
+    //    l_QueueType = BattlegroundQueueType::WorldPvP;
+
+    /// - Missing
+    //if (isWarGame())
+    //    l_QueueType = BattlegroundQueueType::WarGame;
+
+    if ((!isArena() && sBattlegroundMgr->isTesting())
+        || (isArena() && sBattlegroundMgr->isArenaTesting()))
+        l_QueueType = BattlegroundQueueType::Cheat;
+
+    m_Guid = MAKE_NEW_GUID((m_TypeID & 0xFFFF) | (uint8(l_QueueType) & 0xF) << 16 , 0, 0x01F1);
 }
 
 void Battleground::Update(uint32 diff)
@@ -531,9 +557,9 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                 {
                     // BG Status packet
                     WorldPacket status;
-                    BattlegroundQueueTypeId bgQueueTypeId = sBattlegroundMgr->BGQueueTypeId(m_TypeID, GetArenaType());
+                    BattlegroundQueueTypeId bgQueueTypeId = sBattlegroundMgr->BGQueueTypeId(m_TypeID, GetArenaType(), IsSkirmish());
                     uint32 queueSlot = player->GetBattlegroundQueueIndex(bgQueueTypeId);
-                    sBattlegroundMgr->BuildBattlegroundStatusPacket(&status, this, player, queueSlot, STATUS_IN_PROGRESS, player->GetBattlegroundQueueJoinTime(BATTLEGROUND_AA), GetElapsedTime(), GetArenaType());
+                    sBattlegroundMgr->BuildBattlegroundStatusPacket(&status, this, player, queueSlot, STATUS_IN_PROGRESS, player->GetBattlegroundQueueJoinTime(BATTLEGROUND_AA), GetElapsedTime(), GetArenaType(), IsSkirmish());
                     player->GetSession()->SendPacket(&status);
 
                     player->RemoveAurasDueToSpell(SPELL_ARENA_PREPARATION);
@@ -566,6 +592,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
             {
                 if (Player* player = ObjectAccessor::FindPlayer(itr->first))
                 {
+                    player->ModifyAuraState(AURA_STATE_PVP_RAID_PREPARE, false);
                     player->RemoveAurasDueToSpell(SPELL_PREPARATION);
                     player->ResetAllPowers();
                 }
@@ -788,7 +815,7 @@ void Battleground::EndBattleground(uint32 winner)
     }
 
     // arena rating calculation
-    if (isArena() && isRated())
+    if (isArena() && !IsSkirmish())
     {
         uint8 slot = Arena::GetSlotByType(GetArenaType());
 
@@ -829,7 +856,7 @@ void Battleground::EndBattleground(uint32 winner)
         if (itr->second.OfflineRemoveTime)
         {
             //if rated arena match - make member lost!
-            if (isArena() && isRated() && winner_team && loser_team && winner_team != loser_team && GetWinner() != 3)
+            if (isArena() && !IsSkirmish() && winner_team && loser_team && winner_team != loser_team && GetWinner() != 3)
             {
                 if (team == winner)
                     winner_team->OfflineMemberLost(itr->first, loser_matchmaker_rating, Arena::GetSlotByType(GetArenaType()), winner_matchmaker_change);
@@ -848,7 +875,7 @@ void Battleground::EndBattleground(uint32 winner)
             player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
 
         // Last standing - Rated 5v5 arena & be solely alive player
-        if (team == winner && isArena() && isRated() && GetArenaType() == ArenaType::Arena5v5 && aliveWinners == 1 && player->isAlive())
+        if (team == winner && isArena() && !IsSkirmish() && GetArenaType() == ArenaType::Arena5v5 && aliveWinners == 1 && player->isAlive())
             player->CastSpell(player, SPELL_THE_LAST_STANDING, true);
 
         if (!player->isAlive())
@@ -864,7 +891,7 @@ void Battleground::EndBattleground(uint32 winner)
         }
 
         // per player calculation, achievements
-        if (isArena() && isRated() && winner_team && loser_team && winner_team != loser_team && GetWinner() != 3)
+        if (isArena() && !IsSkirmish() && winner_team && loser_team && winner_team != loser_team && GetWinner() != 3)
         {
             uint8 slot = Arena::GetSlotByType(GetArenaType());
             if (team == winner)
@@ -948,7 +975,7 @@ void Battleground::EndBattleground(uint32 winner)
                     if (Guild* guild = sGuildMgr->GetGuildById(guildId))
                     {
                         guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1, 0, 0, NULL, player);
-                        if (isArena() && isRated() && winner_team && loser_team && winner_team != loser_team)
+                        if (isArena() && !IsSkirmish() && winner_team && loser_team && winner_team != loser_team)
                             guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, std::max<uint32>(winner_team->GetRating(Arena::GetSlotByType(GetArenaType())), 1), 0, 0, NULL, player);
                     }
             }
@@ -967,9 +994,9 @@ void Battleground::EndBattleground(uint32 winner)
         sBattlegroundMgr->BuildPvpLogDataPacket(&data, this);
         player->GetSession()->SendPacket(&data);
 
-        BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(GetTypeID(), GetArenaType());
+        BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(GetTypeID(), GetArenaType(), IsSkirmish());
         if (isArena())
-            sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, this, player, player->GetBattlegroundQueueIndex(bgQueueTypeId), STATUS_IN_PROGRESS, player->GetBattlegroundQueueJoinTime(BATTLEGROUND_AA), GetElapsedTime(), GetArenaType());
+            sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, this, player, player->GetBattlegroundQueueIndex(bgQueueTypeId), STATUS_IN_PROGRESS, player->GetBattlegroundQueueJoinTime(BATTLEGROUND_AA), GetElapsedTime(), GetArenaType(), IsSkirmish());
         else
             sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, this, player, player->GetBattlegroundQueueIndex(bgQueueTypeId), STATUS_IN_PROGRESS, player->GetBattlegroundQueueJoinTime(GetTypeID()), GetElapsedTime(), GetArenaType());
         player->GetSession()->SendPacket(&data);
@@ -983,7 +1010,7 @@ void Battleground::EndBattleground(uint32 winner)
 uint32 Battleground::GetBonusHonorFromKill(uint32 kills) const
 {
     //variable kills means how many honorable kills you scored (so we need kills * honor_for_one_kill)
-    uint32 maxLevel = std::min(GetMaxLevel(), 90U);
+    uint32 maxLevel = std::min(GetMaxLevel(), 100U);
     return JadeCore::Honor::hk_honor_at_level(maxLevel, float(kills));
 }
 
@@ -1028,12 +1055,14 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
             player->ResurrectPlayer(1.0f);
             player->SpawnCorpseBones();
         }
+
+        player->ActivateSpec(player->GetBGLastActiveSpec());
     }
 
     RemovePlayer(player, guid, team);                           // BG subclass specific code
 
     BattlegroundTypeId bgTypeId = GetTypeID();
-    BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(GetTypeID(), GetArenaType());
+    BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(GetTypeID(), GetArenaType(), IsSkirmish());
 
     if (participant) // if the player was a match participant, remove auras, calc rating, update queue
     {
@@ -1058,7 +1087,7 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
                 player->ResummonPetTemporaryUnSummonedIfAny();
                 player->SummonLastSummonedBattlePet();
 
-                if (isRated() && GetStatus() == STATUS_IN_PROGRESS)
+                if (!IsSkirmish() && GetStatus() == STATUS_IN_PROGRESS)
                 {
                     //left a rated match while the encounter was in progress, consider as loser
                     Group* winner_group = GetBgRaid(GetOtherTeam(team));
@@ -1084,7 +1113,7 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
             if (SendPacket)
             {
                 WorldPacket data;
-                sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, this, player, player->GetBattlegroundQueueIndex(bgQueueTypeId), STATUS_NONE, player->GetBattlegroundQueueJoinTime(bgTypeId), 0, 0);
+                sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, this, player, player->GetBattlegroundQueueIndex(bgQueueTypeId), STATUS_NONE, player->GetBattlegroundQueueJoinTime(bgTypeId), 0, 0, IsSkirmish());
                 player->GetSession()->SendPacket(&data);
             }
 
@@ -1094,7 +1123,7 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
         else
         // removing offline participant
         {
-            if (isRated() && GetStatus() == STATUS_IN_PROGRESS)
+            if (!IsSkirmish() && GetStatus() == STATUS_IN_PROGRESS)
             {
                 //left a rated match while the encounter was in progress, consider as loser
                 Group* others_group = GetBgRaid(GetOtherTeam(team));
@@ -1156,7 +1185,6 @@ void Battleground::Reset()
     SetRemainingTime(0);
     SetLastResurrectTime(0);
     SetArenaType(0);
-    SetRated(false);
 
     m_Events = 0;
 
@@ -1188,8 +1216,6 @@ void Battleground::StartBattleground()
     // This must be done here, because we need to have already invited some players when first BG::Update() method is executed
     // and it doesn't matter if we call StartBattleground() more times, because m_Battlegrounds is a map and instance id never changes
     sBattlegroundMgr->AddBattleground(GetInstanceID(), GetTypeID(), this);
-    //if (m_IsRated)
-    //    sLog->outArena("Arena match type: %u for Team1Id: %u - Team2Id: %u started.", m_ArenaType, m_ArenaTeamIds[BG_TEAM_ALLIANCE], m_ArenaTeamIds[BG_TEAM_HORDE]);
 }
 
 void Battleground::BuildArenaOpponentSpecializations(WorldPacket* p_Packet, uint32 p_Team)
@@ -1238,13 +1264,13 @@ void Battleground::AddPlayer(Player* player)
     SendPacketToTeam(team, &data, player, false);
 
     // BG Status packet
-    BattlegroundQueueTypeId bgQueueTypeId = sBattlegroundMgr->BGQueueTypeId(m_TypeID, GetArenaType());
+    BattlegroundQueueTypeId bgQueueTypeId = sBattlegroundMgr->BGQueueTypeId(m_TypeID, GetArenaType(), IsSkirmish());
     uint32 queueSlot = player->GetBattlegroundQueueIndex(bgQueueTypeId);
 
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
         if (isArena())
-            sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, this, player, queueSlot, STATUS_IN_PROGRESS, player->GetBattlegroundQueueJoinTime(BATTLEGROUND_AA), GetElapsedTime(), GetArenaType());
+            sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, this, player, queueSlot, STATUS_IN_PROGRESS, player->GetBattlegroundQueueJoinTime(BATTLEGROUND_AA), GetElapsedTime(), GetArenaType(), IsSkirmish());
         else
             sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, this, player, queueSlot, STATUS_IN_PROGRESS, player->GetBattlegroundQueueJoinTime(m_TypeID), GetElapsedTime(), GetArenaType());
         player->GetSession()->SendPacket(&data);
@@ -1316,6 +1342,8 @@ void Battleground::AddPlayer(Player* player)
     {
         if (GetStatus() == STATUS_WAIT_JOIN)                 // not started yet
         {
+            player->SaveBGLastSpecialization();
+            player->ModifyAuraState(AURA_STATE_PVP_RAID_PREPARE, true);
             player->CastSpell(player, SPELL_PREPARATION, true);   // reduces all mana cost of spells.
             SendCountdownTimer();
         }
@@ -1355,6 +1383,9 @@ void Battleground::AddOrSetPlayerToCorrectBgGroup(Player* player, uint32 team)
         group = new Group;
         SetBgRaid(team, group);
         group->Create(player);
+        group->SetLootMethod(LootMethod::FREE_FOR_ALL);
+
+        sGroupMgr->AddGroup(group);
     }
     else                                            // raid already exist
     {
@@ -1398,6 +1429,9 @@ void Battleground::EventPlayerLoggedIn(Player* player)
 // This method should be called when player logs out from running battleground
 void Battleground::EventPlayerLoggedOut(Player* player)
 {
+    if (player == nullptr)
+        return;
+
     uint64 guid = player->GetGUID();
     if (!IsPlayerInBattleground(guid))  // Check if this player really is in battleground (might be a GM who teleported inside)
         return;
@@ -1852,7 +1886,7 @@ void Battleground::SendCountdownTimer()
 
     for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
         if (Player* player = ObjectAccessor::FindPlayer(itr->first))
-            player->SendBattlegroundTimer(countdownSec, GetMaxCountdownTimer());
+            player->SendStartTimer(countdownSec, GetMaxCountdownTimer(), PVP_TIMER);
 }
 
 void Battleground::EndNow()
@@ -1972,14 +2006,14 @@ void Battleground::PlayerAddedToBGCheckIfBGIsRunning(Player* player)
         return;
 
     WorldPacket data;
-    BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(GetTypeID(), GetArenaType());
+    BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(GetTypeID(), GetArenaType(), IsSkirmish());
 
     BlockMovement(player);
 
     sBattlegroundMgr->BuildPvpLogDataPacket(&data, this);
     player->GetSession()->SendPacket(&data);
 
-    sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, this, player, player->GetBattlegroundQueueIndex(bgQueueTypeId), STATUS_IN_PROGRESS, player->GetBattlegroundQueueJoinTime(GetTypeID()), GetElapsedTime(), GetArenaType());
+    sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, this, player, player->GetBattlegroundQueueIndex(bgQueueTypeId), STATUS_IN_PROGRESS, player->GetBattlegroundQueueJoinTime(GetTypeID()), GetElapsedTime(), GetArenaType(), IsSkirmish());
     player->GetSession()->SendPacket(&data);
 }
 
@@ -2082,35 +2116,52 @@ void Battleground::RewardXPAtKill(Player* killer, Player* victim)
 
 void Battleground::SendFlagsPositions()
 {
-    uint32 l_Count = 0;
     std::list<Player*> l_Players;
 
-    if (Player* plr = ObjectAccessor::FindPlayer(GetFlagPickerGUID(TEAM_ALLIANCE)))
+    // Alliance
+    std::set<uint64> l_AllianceFlagPickers = GetFlagPickersGUID(TEAM_ALLIANCE);
+    std::for_each(l_AllianceFlagPickers.begin(), l_AllianceFlagPickers.end(), [&l_Players](uint64 p_PickerGuid)
     {
-        l_Players.push_back(plr);
-        ++l_Count;
-    }
+        Player* l_Player = ObjectAccessor::FindPlayer(p_PickerGuid);
+        if (l_Player != nullptr)
+            l_Players.push_back(l_Player);
+    });
 
-    if (Player* plr = ObjectAccessor::FindPlayer(GetFlagPickerGUID(TEAM_HORDE)))
+    std::set<uint64> l_HordeFlagPickers = GetFlagPickersGUID(TEAM_HORDE);
+    std::for_each(l_HordeFlagPickers.begin(), l_HordeFlagPickers.end(), [&l_Players](uint64 p_PickerGuid)
     {
-        l_Players.push_back(plr);
-        ++l_Count;
-    }
-
-    if (!l_Count)
-        return;
+        Player* l_Player = ObjectAccessor::FindPlayer(p_PickerGuid);
+        if (l_Player != nullptr)
+            l_Players.push_back(l_Player);
+    });
 
     WorldPacket l_Data(SMSG_BATTLEGROUND_PLAYER_POSITIONS);
 
-    l_Data << uint32(l_Count);
+    l_Data << uint32(l_Players.size());
+
+    uint8 l_ArenaSlot = 1;  ///< Used to show UI frame of who is flag picker (1 - 5)
 
     for (auto l_Itr : l_Players)
     {
         l_Data.appendPackGUID(l_Itr->GetGUID());
         l_Data << float(l_Itr->GetPositionX());
         l_Data << float(l_Itr->GetPositionY());
-        l_Data << uint8(l_Itr->GetTeamId() == TEAM_ALLIANCE ? FLAG_ICON_ALLIANCE : FLAG_ICON_HORDE);
-        l_Data << uint8(l_Itr->GetBGTeam());
+
+        FlagIcon l_FlagIcon = FlagIcon::None;
+        switch (GetTypeID())
+        {
+            /// - In Kotmogu Temple, each faction have theirs own flags, they didn't steal the other faction flag
+            case BattlegroundTypeId::BATTLEGROUND_KT:
+                l_FlagIcon = l_Itr->GetTeamId() == TeamId::TEAM_HORDE ? FlagIcon::Horde : FlagIcon::Alliance;
+                break;
+            /// - In all others bg with flags, each faction must steal the flag
+            default:
+                l_FlagIcon = l_Itr->GetTeamId() == TeamId::TEAM_HORDE ? FlagIcon::Alliance : FlagIcon::Horde;
+                break;
+        }
+
+        l_Data << uint8(l_FlagIcon);
+        l_Data << uint8(l_ArenaSlot++);
     }
 
     SendPacketToAll(&l_Data);
@@ -2182,3 +2233,46 @@ void Battleground::AddCrowdChoseYouEffect()
 
     m_CrowdChosed = true;
 }
+
+void Battleground::AwardTeams(uint32 p_PointsCount, uint32 p_MaxCount, uint32 p_Looser)
+{
+    float l_Factor = (float)p_PointsCount / (float)p_MaxCount;
+    BattlegroundAward l_LooserAward = AWARD_NONE;
+ 
+    if (l_Factor >= 0.666f)
+        l_LooserAward = AWARD_SILVER;
+    else if (l_Factor >= 0.333f)
+        l_LooserAward = AWARD_BRONZE;
+
+    AwardTeamsWithRewards(l_LooserAward, p_Looser);
+}
+
+void Battleground::AwardTeamsWithRewards(BattlegroundAward p_LooserAward, uint32 p_LooserTeam)
+{
+    uint32 l_WinnerTeam = GetOtherTeam(p_LooserTeam);
+
+    if (isBattleground() && !IsRatedBG())
+    {
+        CastSpellOnTeam(PVP_AWARD_SPELL_GOLDEN_STRONBOX, l_WinnerTeam);
+        CastSpellOnTeam(GetSpellIdForAward(p_LooserAward), p_LooserTeam);
+    }
+    else if (IsSkirmish())
+    {
+        CastSpellOnTeam(PVP_AWARD_SPELL_SKIRMISH_WIN, l_WinnerTeam);
+    }
+}
+uint32 Battleground::GetSpellIdForAward(BattlegroundAward p_Award)
+{
+    switch (p_Award)
+    {
+        case AWARD_GOLD:
+            return PVP_AWARD_SPELL_GOLDEN_STRONBOX;
+        case AWARD_SILVER:
+            return PVP_AWARD_SPELL_SILVER_STRONGBOX;
+        case AWARD_BRONZE:
+            return PVP_AWARD_SPELL_BRONZE_STRONGBOX;
+        default:
+            return 0;
+    }
+}
+

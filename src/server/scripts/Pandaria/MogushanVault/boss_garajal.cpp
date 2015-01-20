@@ -777,7 +777,7 @@ class mob_spirit_totem_intro : public CreatureScript
 };
 
 // Soul Back - 120715
-class spell_soul_back : public SpellScriptLoader
+class spell_soul_back: public SpellScriptLoader
 {
     public:
         spell_soul_back() : SpellScriptLoader("spell_soul_back") { }
@@ -814,7 +814,7 @@ class spell_soul_back : public SpellScriptLoader
 };
 
 // Final Destination - 118469
-class spell_final_destination : public SpellScriptLoader
+class spell_final_destination: public SpellScriptLoader
 {
     public:
         spell_final_destination() : SpellScriptLoader("spell_final_destination") { }
@@ -853,7 +853,7 @@ class spell_final_destination : public SpellScriptLoader
 };
 
 // Voodoo Doll - 122151
-class spell_voodoo_doll : public SpellScriptLoader
+class spell_voodoo_doll: public SpellScriptLoader
 {
     public:
         spell_voodoo_doll() : SpellScriptLoader("spell_voodoo_doll") { }

@@ -28,7 +28,7 @@ EndScriptData */
 #include "Config.h"
 #include "ObjectAccessor.h"
 
-class server_commandscript : public CommandScript
+class server_commandscript: public CommandScript
 {
 public:
     server_commandscript() : CommandScript("server_commandscript") { }
@@ -104,8 +104,6 @@ public:
 
     static bool HandleServerInfoCommand(ChatHandler* handler, char const* /*args*/)
     {
-        uint32 playersNum           = sWorld->GetPlayerCount();
-        uint32 maxPlayersNum        = sWorld->GetMaxPlayerCount();
         uint32 activeClientsNum     = sWorld->GetActiveSessionCount();
         uint32 queuedClientsNum     = sWorld->GetQueuedSessionCount();
         uint32 maxActiveClientsNum  = sWorld->GetMaxActiveSessionCount();

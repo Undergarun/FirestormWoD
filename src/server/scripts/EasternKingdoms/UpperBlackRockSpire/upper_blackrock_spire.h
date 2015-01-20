@@ -18,7 +18,7 @@
 */
 
 #ifndef UPPER_BLACKROCK_SPIRE_H
-#define UPPER_BLACKROCK_SPIRE_H
+# define UPPER_BLACKROCK_SPIRE_H
 
 enum eDatas
 {
@@ -35,9 +35,10 @@ enum eDatas
 
 enum eCreatures
 {
-    // Trashs mobs
+    ///< Trashs mobs
     NPC_RUNE_GLOW               = 76396,
     NPC_BLACK_IRON_GRUNT        = 76179,
+    NPC_RALLYING_BANNER         = 76222,
     NPC_BLACK_IRON_LEADBELCHER  = 76157,
     NPC_SENTRY_CANNON           = 76314,
     NPC_RAGEMAW_WORG            = 76181,
@@ -53,25 +54,49 @@ enum eCreatures
     NPC_BLACK_IRON_ELITE        = 77037,
     NPC_BLACK_IRON_SIEGEBREAKER = 77033,
     NPC_BLACK_IRON_BERSERKER    = 76176,
+    NPC_BLACK_IRON_GROUNDSHAKER = 76599,
+    NPC_BLACK_IRON_DRAKE_KEEPER = 76935,
+    NPC_EMBERSCALE_ADOLESCENT   = 76696,
+    NPC_EMBERSCALE_WHELPLING    = 76694,
+    NPC_EMBERSCALE_IRONFLIGHT   = 77180,
+    NPC_BLACK_IRON_WYRMCALLER   = 80649,
+    NPC_WINDFURY_TOTEM          = 80703,
+    NPC_BLACK_IRON_FLAME_REAVER = 80678,
+    NPC_BLACK_IRON_RAGEGUARD    = 82418,
+    NPC_EMBERSCALE_WHELPING     = 76694,
 
-    // Orebender Gor'Ashan
+    ///< Orebender Gor'Ashan
     NPC_OREBENDER_GORASHAN      = 76413,
     NPC_BLACK_IRON_APPRENTICE   = 76773,
     NPC_RUNE_OF_POWER           = 76417,
     NPC_LIGHTNING_FIELD         = 76464,
 
-    // Kyrak The Corruptor
+    ///< Kyrak The Corruptor
     NPC_KYRAK_THE_CORRUPTOR     = 76021,
     NPC_DRAKONID_MONSTROSITY_2  = 82556,
 
-    // Commander Tharbek
+    ///< Commander Tharbek
     NPC_COMMANDER_THARBEK       = 79912,
     NPC_IRONBARB_SKYREAVER      = 80098,
     NPC_VILEMAW_HATCHLING       = 77096,
     NPC_IMBUED_IRON_AXE_STALKER = 80307,
+    NPC_AWBEE                   = 86533,
 
-    // Warlord Zaela
-    NPC_WARLORD_ZAELA           = 77120
+    ///< Ragewing the Untamed
+    NPC_RAGEWING_THE_UNTAMED    = 76585,
+    NPC_RAGEWING_WHELP          = 76801,
+    NPC_FIRE_STORM_STALKER      = 76885,
+    NPC_ENGULFING_FIRE_R_TO_L   = 76813,
+    NPC_ENGULFING_FIRE_L_TO_R   = 76837,
+
+    ///< Warlord Zaela
+    NPC_WARLORD_ZAELA           = 77120,
+    NPC_EMBERSCALE_IRONFLIGHT_2 = 82428,
+    NPC_BLACK_IRON_WYRM_RIDER   = 82429,
+
+    ///< Leeroy Jenkins
+    NPC_LEEROY_JENKINS          = 77075,
+    NPC_SON_OF_THE_BEAST        = 77927
 };
 
 enum eGameObjects
@@ -86,36 +111,47 @@ enum eGameObjects
     GOB_KYRAK_EXIT_02           = 225944,
 
     GOB_THARBEK_SPAWN_DOOR      = 175185,
-    GOB_THARBEK_EXIT            = 164726
+    GOB_THARBEK_EXIT            = 164726,
+    GOB_THARBEK_EXIT_SECOND     = 175186,
+    GOB_CHALLENGE_START_DOOR    = 211989,
+    GOB_RAGEWING_ENTRANCE       = 232998,
+    GOB_RAGEWING_EXIT           = 232999,
+
+    GOB_WHELP_CAGE              = 227011
 };
 
 enum eScenarioDatas
 {
-    SCENARIO_UBRS_ID        = 731,
+    ///< Normal/Heroic Mode
+    ///< ScenarioID
+    SCENARIO_UBRS_ID        = 744,
+    ///< Step 1
     SCENARIO_UBRS_RUNES     = 24309,
-    SCENARIO_UBRS_TRANS_1   = 26276,
-    SCENARIO_UBRS_TRANS_2   = 26275,
-    SCENARIO_UBRS_TRANS_3   = 26277,
-    SCENARIO_UBRS_TRANS_4   = 26278,
-    SCENARIO_UBRS_TRANS_5   = 26274,
-    SCENARIO_UBRS_TRANS_6   = 12183,
-    SCENARIO_UBRS_TRANS_7   = 23005,
-    SCENARIO_UBRS_TRANS_8   = 26280,
-    SCENARIO_UBRS_TRANS_9   = 26279,
-    SCENARIO_UBRS_TRANS_10  = 26284,
-    SCENARIO_UBRS_TRANS_11  = 26269,
-    SCENARIO_UBRS_TRANS_12  = 26272,
-    SCENARIO_UBRS_TRANS_13  = 26273,
-    SCENARIO_UBRS_TRANS_14  = 26271,
-    SCENARIO_UBRS_TRANS_15  = 26270,
-    SCENARIO_UBRS_BOSS_1    = 24322,
-    SCENARIO_UBRS_BOSS_2    = 24433,
-    SCENARIO_UBRS_BOSS_3    = 24619
+    ///< Step 2 : Bosses
+    SCENARIO_UBRS_GORASHAN  = 24322,
+    SCENARIO_UBRS_KYRAK     = 24433,
+    SCENARIO_UBRS_THARBEK   = 24619,
+    SCENARIO_UBRS_RAGEWING  = 24624,
+    SCENARIO_UBRS_ZAELA     = 24981,
+    ///< Challenge Mode
+    ///< ScenarioID
+    SCENARIO_UBRS_CHALLENGE = 432,
+    SCENARIO_UBRS_KILLS     = 65,
+    SCENARIO_UBRS_ENNEMIES  = 26275
 };
 
 enum eAchievements
 {
-    ACHIEV_MAGNETS_HOW_DO_THEY_WORK = 9045
+    AchievementMagnetsHowDoTheyWork = 9045,
+    AchievementLeeeeeeeeeeeeeeeeroy = 9058,
+    AchievementDragonmawDragonfall  = 9057,
+    AchievementBridgeOverFire       = 9056
+};
+
+enum eWorldStates
+{
+    WorldStateChickenTimer  = 9524,
+    WorldStateEnableChicken = 9523
 };
 
 #endif

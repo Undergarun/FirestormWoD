@@ -146,35 +146,37 @@ enum SpellEffectImplicitTargetTypes
 // Spell clasification
 enum SpellSpecificType
 {
-    SPELL_SPECIFIC_NORMAL                        = 0,
-    SPELL_SPECIFIC_SEAL                          = 1,
-    SPELL_SPECIFIC_BLESSING                      = 2,
-    SPELL_SPECIFIC_AURA                          = 3,
-    SPELL_SPECIFIC_STING                         = 4,
-    SPELL_SPECIFIC_CURSE                         = 5,
-    SPELL_SPECIFIC_ASPECT                        = 6,
-    SPELL_SPECIFIC_TRACKER                       = 7,
-    SPELL_SPECIFIC_WARLOCK_ARMOR                 = 8,
-    SPELL_SPECIFIC_MAGE_ARMOR                    = 9,
-    SPELL_SPECIFIC_ELEMENTAL_SHIELD              = 10,
-    SPELL_SPECIFIC_MAGE_POLYMORPH                = 11,
-    SPELL_SPECIFIC_JUDGEMENT                     = 13,
-    SPELL_SPECIFIC_PRIEST_SANCTUM                = 14,
-    SPELL_SPECIFIC_WARLOCK_CORRUPTION            = 17,
-    SPELL_SPECIFIC_WELL_FED                      = 18,
-    SPELL_SPECIFIC_FOOD                          = 19,
-    SPELL_SPECIFIC_DRINK                         = 20,
-    SPELL_SPECIFIC_FOOD_AND_DRINK                = 21,
-    SPELL_SPECIFIC_PRESENCE                      = 22,
-    SPELL_SPECIFIC_CHARM                         = 23,
-    SPELL_SPECIFIC_SCROLL                        = 24,
-    SPELL_SPECIFIC_MAGE_ARCANE_BRILLANCE         = 25,
-    SPELL_SPECIFIC_WARRIOR_ENRAGE                = 26,
-    SPELL_SPECIFIC_PRIEST_DIVINE_SPIRIT          = 27,
-    SPELL_SPECIFIC_HAND                          = 28,
-    SPELL_SPECIFIC_PHASE                         = 29,
-    SPELL_SPECIFIC_BANE                          = 30,
-    SPELL_SPECIFIC_CHAKRA                        = 31,
+    SPELL_SPECIFIC_NORMAL                   = 0,
+    SPELL_SPECIFIC_SEAL                     = 1,
+    SPELL_SPECIFIC_BLESSING                 = 2,
+    SPELL_SPECIFIC_AURA                     = 3,
+    SPELL_SPECIFIC_STING                    = 4,
+    SPELL_SPECIFIC_CURSE                    = 5,
+    SPELL_SPECIFIC_ASPECT                   = 6,
+    SPELL_SPECIFIC_TRACKER                  = 7,
+    SPELL_SPECIFIC_WARLOCK_ARMOR            = 8,
+    SPELL_SPECIFIC_MAGE_ARMOR               = 9,
+    SPELL_SPECIFIC_ELEMENTAL_SHIELD         = 10,
+    SPELL_SPECIFIC_MAGE_POLYMORPH           = 11,
+    SPELL_SPECIFIC_JUDGEMENT                = 13,
+    SPELL_SPECIFIC_PRIEST_SANCTUM           = 14,
+    SPELL_SPECIFIC_WARLOCK_CORRUPTION       = 17,
+    SPELL_SPECIFIC_WELL_FED                 = 18,
+    SPELL_SPECIFIC_FOOD                     = 19,
+    SPELL_SPECIFIC_DRINK                    = 20,
+    SPELL_SPECIFIC_FOOD_AND_DRINK           = 21,
+    SPELL_SPECIFIC_PRESENCE                 = 22,
+    SPELL_SPECIFIC_CHARM                    = 23,
+    SPELL_SPECIFIC_SCROLL                   = 24,
+    SPELL_SPECIFIC_MAGE_ARCANE_BRILLANCE    = 25,
+    SPELL_SPECIFIC_WARRIOR_ENRAGE           = 26,
+    SPELL_SPECIFIC_PRIEST_DIVINE_SPIRIT     = 27,
+    SPELL_SPECIFIC_HAND                     = 28,
+    SPELL_SPECIFIC_PHASE                    = 29,
+    SPELL_SPECIFIC_BANE                     = 30,
+    SPELL_SPECIFIC_CHAKRA                   = 31,
+    SPELL_SPECIFIC_EXOTIC_MUNITION          = 32,
+    SPELL_SPECIFIC_LONE_WOLF_BUFF           = 33
 };
 
 enum SpellCustomAttributes
@@ -415,8 +417,8 @@ public:
     int32  CastTimeMax;
     int32  CastTimeMaxLevel;
     int32  ScalingClass;
-    float  CoefBase;
-    int32  CoefLevelBase;
+    float  NerfFactor;
+    int32  NerfMaxLevel;
     SpellEffectInfo Effects[MAX_SPELL_EFFECTS];
     uint32 ExplicitTargetMask;
     SpellChainNode const* ChainEntry;
@@ -428,7 +430,7 @@ public:
     std::list<uint32> OverrideSpellList;
 
     // TalentInfo
-    uint32 talentId;
+    std::list<uint32> m_TalentIDs;
 
     // Difficulty
     uint32 DifficultyID;
@@ -584,7 +586,6 @@ public:
     bool IsNeedToCheckSchoolImmune() const;
     bool IsRemoveLossControlEffects() const;
     bool DoesIgnoreGlobalCooldown(Unit* caster) const;
-    int32 GetCustomCoefficientForStormlash() const;
 
     // helpers for breaking by damage spells
     bool IsBreakingCamouflage() const;

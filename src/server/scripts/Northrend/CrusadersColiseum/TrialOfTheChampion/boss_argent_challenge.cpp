@@ -108,7 +108,7 @@ class OrientationCheck : public std::unary_function<Unit*, bool>
         Unit* caster;
 };
 
-class spell_eadric_radiance : public SpellScriptLoader
+class spell_eadric_radiance: public SpellScriptLoader
 {
     public:
         spell_eadric_radiance() : SpellScriptLoader("spell_eadric_radiance") { }
@@ -134,7 +134,7 @@ class spell_eadric_radiance : public SpellScriptLoader
         }
 };
 
-class spell_eadric_hammer_of_righteous : public SpellScriptLoader
+class spell_eadric_hammer_of_righteous: public SpellScriptLoader
 {
     public:
         spell_eadric_hammer_of_righteous() : SpellScriptLoader("spell_eadric_hammer_of_righteous") {}
@@ -324,7 +324,7 @@ public:
     }
 };
 
-class spell_paletress_shield : public SpellScriptLoader
+class spell_paletress_shield: public SpellScriptLoader
 {
     public:
         spell_paletress_shield() : SpellScriptLoader("spell_paletress_shield") { }
@@ -629,6 +629,7 @@ public:
     }
 };
 
+// 35305
 class npc_argent_monk : public CreatureScript
 {
 public:

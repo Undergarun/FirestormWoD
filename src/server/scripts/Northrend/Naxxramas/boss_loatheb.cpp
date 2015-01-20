@@ -158,7 +158,7 @@ class achievement_spore_loser : public AchievementCriteriaScript
 
 typedef boss_loatheb::boss_loathebAI LoathebAI;
 
-class spell_loatheb_necrotic_aura_warning : public SpellScriptLoader
+class spell_loatheb_necrotic_aura_warning: public SpellScriptLoader
 {
     public:
         spell_loatheb_necrotic_aura_warning() : SpellScriptLoader("spell_loatheb_necrotic_aura_warning") { }

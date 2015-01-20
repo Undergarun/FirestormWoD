@@ -31,7 +31,7 @@ namespace JadeCore
         {
             float honor = multiplier * level * 1.55f;
             sScriptMgr->OnHonorCalculation(honor, level, multiplier);
-            return honor * 2.4; // http://www.wowwiki.com/Honorable_kill#Honorable_kills 1 old points = 0.024 new points
+            return honor;
         }
 
         inline uint32 hk_honor_at_level(uint8 level, float multiplier = 1.0f)

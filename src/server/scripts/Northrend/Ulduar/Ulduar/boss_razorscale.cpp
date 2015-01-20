@@ -880,6 +880,8 @@ class npc_mole_machine_trigger : public CreatureScript
                                 case SPELL_SUMMON_IRON_DWARVES_2:
                                     me->CastSpell(me, SPELL_SUMMON_IRON_VRYKUL, false);
                                     break;
+                                default:
+                                    break;
                             }
                             break;
                         }
@@ -1160,7 +1162,7 @@ class npc_darkrune_sentinel : public CreatureScript
         }
 };
 
-class spell_razorscale_devouring_flame : public SpellScriptLoader
+class spell_razorscale_devouring_flame: public SpellScriptLoader
 {
     public:
         spell_razorscale_devouring_flame() : SpellScriptLoader("spell_razorscale_devouring_flame") { }
@@ -1193,7 +1195,7 @@ class spell_razorscale_devouring_flame : public SpellScriptLoader
         }
 };
 
-class spell_razorscale_firebolt : public SpellScriptLoader
+class spell_razorscale_firebolt: public SpellScriptLoader
 {
     public:
         spell_razorscale_firebolt() : SpellScriptLoader("spell_razorscale_firebolt") { }
@@ -1220,7 +1222,7 @@ class spell_razorscale_firebolt : public SpellScriptLoader
         }
 };
 
-class spell_razorscale_flame_breath : public SpellScriptLoader
+class spell_razorscale_flame_breath: public SpellScriptLoader
 {
     public:
         spell_razorscale_flame_breath() : SpellScriptLoader("spell_razorscale_flame_breath") { }

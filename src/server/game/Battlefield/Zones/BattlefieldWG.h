@@ -1274,6 +1274,12 @@ struct BfWGGameObjectBuilding
 
     void Init(GameObject* go, uint32 type, uint32 worldstate, uint32 nameid)
     {
+        if (go == nullptr)
+        {
+            ASSERT(false);
+            return;
+        }
+
         // GameObject associated to object
         m_Build = go;
 

@@ -100,14 +100,14 @@ enum Says
     WHISPER_DRAKES_LOWHEALTH          = 4
 };
 
-class npc_verdisa_beglaristrasz_eternos : public CreatureScript
+class npc_verdisa_belgaristrasz_eternos : public CreatureScript
 {
     public:
-        npc_verdisa_beglaristrasz_eternos() : CreatureScript("npc_verdisa_beglaristrasz_eternos") { }
+        npc_verdisa_belgaristrasz_eternos() : CreatureScript("npc_verdisa_belgaristrasz_eternos") { }
 
-        struct npc_verdisa_beglaristrasz_eternosAI : public ScriptedAI
+        struct npc_verdisa_belgaristrasz_eternosAI : public ScriptedAI
         {
-            npc_verdisa_beglaristrasz_eternosAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_verdisa_belgaristrasz_eternosAI(Creature* creature) : ScriptedAI(creature) { }
 
             void StoreEssence(Player* player, uint32 itemId)
             {
@@ -187,7 +187,7 @@ class npc_verdisa_beglaristrasz_eternos : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const 
         {
-            return new npc_verdisa_beglaristrasz_eternosAI(creature);
+            return new npc_verdisa_belgaristrasz_eternosAI(creature);
         }
 };
 
@@ -367,7 +367,7 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
 // 49345 - Call Emerald Drake
 // 49461 - Call Amber Drake
 // 49462 - Call Ruby Drake
-class spell_oculus_call_ruby_emerald_amber_drake : public SpellScriptLoader
+class spell_oculus_call_ruby_emerald_amber_drake: public SpellScriptLoader
 {
     public:
         spell_oculus_call_ruby_emerald_amber_drake() : SpellScriptLoader("spell_oculus_call_ruby_emerald_amber_drake") { }
@@ -409,7 +409,7 @@ class spell_oculus_call_ruby_emerald_amber_drake : public SpellScriptLoader
 // 49427 - Ride Emerald Drake Que
 // 49459 - Ride Amber Drake Que
 // 49463 - Ride Ruby Drake Que
-class spell_oculus_ride_ruby_emerald_amber_drake_que : public SpellScriptLoader
+class spell_oculus_ride_ruby_emerald_amber_drake_que: public SpellScriptLoader
 {
     public:
         spell_oculus_ride_ruby_emerald_amber_drake_que() : SpellScriptLoader("spell_oculus_ride_ruby_emerald_amber_drake_que") { }
@@ -439,7 +439,7 @@ class spell_oculus_ride_ruby_emerald_amber_drake_que : public SpellScriptLoader
 };
 
 // 49838 - Stop Time
-class spell_oculus_stop_time : public SpellScriptLoader
+class spell_oculus_stop_time: public SpellScriptLoader
 {
     public:
         spell_oculus_stop_time() : SpellScriptLoader("spell_oculus_stop_time") { }
@@ -478,7 +478,7 @@ class spell_oculus_stop_time : public SpellScriptLoader
         }
 };
 
-class spell_oculus_touch_the_nightmare : public SpellScriptLoader
+class spell_oculus_touch_the_nightmare: public SpellScriptLoader
 {
     public:
         spell_oculus_touch_the_nightmare() : SpellScriptLoader("spell_oculus_touch_the_nightmare") { }
@@ -536,7 +536,7 @@ class spell_oculus_dream_funnel: public SpellScriptLoader
 
 void AddSC_oculus()
 {
-    new npc_verdisa_beglaristrasz_eternos();
+    new npc_verdisa_belgaristrasz_eternos();
     new npc_image_belgaristrasz();
     new npc_ruby_emerald_amber_drake();
     new spell_oculus_call_ruby_emerald_amber_drake();

@@ -268,7 +268,6 @@ class boss_queen_azshara : public CreatureScript
             }
         private:
             EventMap events;
-            uint8 phase;
             uint64 addsGUIDs[6];
             uint8 addsCount;
         };
@@ -439,7 +438,7 @@ class npc_queen_azshara_hammer_of_divinity : public CreatureScript
         };
 };
 
-class spell_queen_azshara_coldflame : public SpellScriptLoader
+class spell_queen_azshara_coldflame: public SpellScriptLoader
 {
     public:
         spell_queen_azshara_coldflame() : SpellScriptLoader("spell_queen_azshara_coldflame") { }
@@ -487,7 +486,7 @@ class spell_queen_azshara_coldflame : public SpellScriptLoader
         }
 };
 
-class spell_queen_azshara_arcane_bomb : public SpellScriptLoader
+class spell_queen_azshara_arcane_bomb: public SpellScriptLoader
 {
     public:
         spell_queen_azshara_arcane_bomb() : SpellScriptLoader("spell_queen_azshara_arcane_bomb") { }

@@ -309,7 +309,6 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid
             {
                 case REACT_PASSIVE:                         //passive
                     pet->AttackStop();
-
                 case REACT_DEFENSIVE:                       //recovery
                 case REACT_HELPER:
                     if (pet->GetTypeId() == TYPEID_UNIT)
@@ -511,8 +510,8 @@ void WorldSession::HandlePetSetAction(WorldPacket & p_RecvPacket)
     uint32 l_Index;
 
     p_RecvPacket.readPackGUID(l_PetGUID);
-    l_Action = p_RecvPacket.read<uint32>();
-    l_Index  = p_RecvPacket.read<uint32>();
+    p_RecvPacket >> l_Index;
+    p_RecvPacket >> l_Action;
 
     Unit* l_Pet = ObjectAccessor::GetUnit(*m_Player, l_PetGUID);
     if (!l_Pet || l_Pet != m_Player->GetFirstControlled())

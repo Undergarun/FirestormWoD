@@ -281,11 +281,42 @@ void BattlegroundEY::UpdatePointStatuses()
                     if (m_PointState[point] == EY_POINT_UNDER_CONTROL && player->GetBGTeam() != m_PointOwnedByTeam[point])
                         this->EventTeamLostPoint(player, point);
                 }
-                // hack fix for Fel Reaver Ruins
-                if (point == FEL_REAVER && m_PointOwnedByTeam[point] == player->GetBGTeam())
+
+                if (point == EYBattlegroundPoints::FEL_REAVER && m_PointOwnedByTeam[point] == player->GetBGTeam())
+                {
                     if (m_FlagState && GetFlagPickerGUID() == player->GetGUID())
-                        if (player->GetDistance2d(2044,1730) < 2)
+                    {
+                        if (player->GetDistance2d(2044, 1730) < 2)
                             EventPlayerCapturedFlag(player, BG_EY_OBJECT_FLAG_FEL_REAVER);
+                    }
+                }
+
+                if (point == EYBattlegroundPoints::BLOOD_ELF && m_PointOwnedByTeam[point] == player->GetBGTeam())
+                {
+                    if (m_FlagState && GetFlagPickerGUID() == player->GetGUID())
+                    {
+                        if (player->GetDistance2d(2048, 1393) < 2)
+                            EventPlayerCapturedFlag(player, BG_EY_OBJECT_FLAG_BLOOD_ELF);
+                    }
+                }
+
+                if (point == EYBattlegroundPoints::MAGE_TOWER && m_PointOwnedByTeam[point] == player->GetBGTeam())
+                {
+                    if (m_FlagState && GetFlagPickerGUID() == player->GetGUID())
+                    {
+                        if (player->GetDistance2d(2284, 1731) < 2)
+                            EventPlayerCapturedFlag(player, BG_EY_OBJECT_FLAG_BLOOD_ELF);
+                    }
+                }
+
+                if (point == EYBattlegroundPoints::DRAENEI_RUINS && m_PointOwnedByTeam[point] == player->GetBGTeam())
+                {
+                    if (m_FlagState && GetFlagPickerGUID() == player->GetGUID())
+                    {
+                        if (player->GetDistance2d(2286, 1402) < 2)
+                            EventPlayerCapturedFlag(player, BG_EY_OBJECT_FLAG_BLOOD_ELF);
+                    }
+                }
             }
         }
     }
@@ -327,7 +358,8 @@ void BattlegroundEY::EndBattleground(uint32 winner)
     //complete map reward
     RewardHonorToTeam(GetBonusHonorFromKill(1), ALLIANCE);
     RewardHonorToTeam(GetBonusHonorFromKill(1), HORDE);
-
+    
+    AwardTeams(GetTeamScore(GetOtherTeam(winner)), BG_EY_MAX_TEAM_SCORE, GetOtherTeam(winner));
     Battleground::EndBattleground(winner);
 }
 
@@ -890,10 +922,16 @@ void BattlegroundEY::FillInitialWorldStates(ByteBuffer& data)
 
     data << uint32(NETHERSTORM_FLAG)                << uint32(m_FlagState == BG_EY_FLAG_STATE_ON_BASE);
 
-    data << uint32(0xad2) << uint32(0x1);
-    data << uint32(0xad1) << uint32(0x1);
-    data << uint32(0xabe) << uint32(GetTeamScore(HORDE));
-    data << uint32(0xabd) << uint32(GetTeamScore(ALLIANCE));
+    data << uint32(EY_ACTIVATE_HORDE_RESOURCES)     << uint32(true);
+
+    data << uint32(EY_ACTIVATE_ALLIANCE_RESOURCES)  << uint32(true);
+
+    data << uint32(EY_MAX_RESOURCES)                << uint32(BG_EY_MAX_TEAM_SCORE);
+
+    data << uint32(EY_HORDE_RESOURCES)             << uint32(GetTeamScore(HORDE));
+
+    data << uint32(EY_ALLIANCE_RESOURCES)          << uint32(GetTeamScore(ALLIANCE));
+
     data << uint32(0xa05) << uint32(0x8e);
     data << uint32(0xaa0) << uint32(0x0);
     data << uint32(0xa9f) << uint32(0x0);

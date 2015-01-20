@@ -36,6 +36,22 @@ struct ItemSetEffect
     SpellInfo const* spells[8];
 };
 
+#define MAX_ITEM_BONUS 5
+
+enum ItemBonusType
+{
+    ITEM_BONUS_MODIFY_ITEM_LEVEL    = 1,
+    ITEM_BONUS_ADD_STAT             = 2,
+    ITEM_BONUS_OVERRIDE_QUALITY     = 3,
+    ITEM_BONUS_MODIFY_SELLPRICE     = 4,
+    ITEM_BONUS_ITEM_SUFFIX          = 5,
+    ITEM_BONUS_ADD_SOCKET           = 6,
+    ITEM_BONUS_MODIFY_DIFFICULTY    = 7,
+    ITEM_BONUS_MODIFY_REQ_LEVEL     = 8,
+    ITEM_BONUS_UNK2                 = 9,
+    ITEM_BONUS_UNK3                 = 10
+};
+
 enum InventoryResult
 {
     EQUIP_ERR_OK                                           = 0,
@@ -211,6 +227,36 @@ enum ItemUpdateState
     ITEM_REMOVED               = 3
 };
 
+namespace ItemBonus
+{
+    enum Stats : uint32
+    {
+        Avoidance = 40,
+        Leech     = 41,
+        Speed     = 42
+    };
+
+    namespace Chances
+    {
+        enum
+        {
+            Stats           = 10,
+            Warforged       = 10,
+            PrismaticSocket = 10
+        };
+    }
+
+    namespace HeroicOrRaid
+    {
+        enum
+        {
+            Warforged       = 499,
+            PrismaticSocket = 523
+        };
+    }
+}
+
+
 #define MAX_ITEM_SPELLS 5
 
 bool ItemCanGoIntoBag(ItemTemplate const* proto, ItemTemplate const* pBagProto);
@@ -300,6 +346,16 @@ class Item : public Object
         void SetItemRandomProperties(int32 randomPropId);
         void UpdateItemSuffixFactor();
         static int32 GenerateItemRandomPropertyId(uint32 item_id);
+
+
+        /**
+        * Generate item bonus from item id & current difficulty
+        * @param p_ItemId : Item id of the item which we wanna generate bonus
+        * @param p_MapDifficulty: Information about the current difficulty we are to determine the right bonus to apply
+        * @param p_ItemBonus: Vector of bonus to fill
+        */
+        static void GenerateItemBonus(uint32 p_ItemId, uint32 p_ItemBonusDifficulty, std::vector<uint32>& p_ItemBonus);
+
         void SetEnchantment(EnchantmentSlot slot, uint32 id, uint32 duration, uint32 charges);
         void SetEnchantmentDuration(EnchantmentSlot slot, uint32 duration, Player* owner);
         void SetEnchantmentCharges(EnchantmentSlot slot, uint32 charges);
@@ -313,7 +369,7 @@ class Item : public Object
         {
             m_text = text;
 
-            // Fix somes MySQL shits ...
+            // Fixes some MySQL shit ...
             if (m_text.size() < 2)
                 m_text = "";
 
@@ -404,6 +460,14 @@ class Item : public Object
         bool IsStuffItem() const;
         bool CanUpgrade() const;
         bool IsLegendaryCloak() const;
+
+        bool AddItemBonus(uint32 p_ItemBonusId);
+        void AddItemBonuses(std::vector<uint32> const& p_ItemBonuses);
+        bool HasItemBonus(uint32 p_ItemBonusId) const;
+        bool RemoveItemBonus(uint32 p_ItemBonusId);
+        void RemoveAllItemBonuses();
+        uint32 GetItemLevelBonusFromItemBonuses() const;
+        std::vector<uint32> const& GetAllItemBonuses() const;
 
     private:
         std::string m_text;

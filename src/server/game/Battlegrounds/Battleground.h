@@ -105,6 +105,7 @@ enum BattlegroundSpells
     SPELL_HONORABLE_DEFENDER_25Y    = 68652,                // +50% honor when standing at a capture point that you control, 25yards radius (added in 3.2)
     SPELL_HONORABLE_DEFENDER_60Y    = 66157,                // +50% honor when standing at a capture point that you control, 60yards radius (added in 3.2), probably for 40+ player battlegrounds
     SPELL_THE_LAST_STANDING         = 26549,                // Arena achievement related
+    SPELL_PET_SUMMONED              = 6962,
 };
 
 enum BattlegroundTimeIntervals
@@ -161,10 +162,28 @@ enum BattlegroundStatus
     STATUS_WAIT_LEAVE   = 4                                 // means some faction has won BG and it is ending
 };
 
-enum FlagIcon
+/// - See CGBattlefieldInfo::s_flagTokens
+enum class FlagIcon : uint8
 {
-    FLAG_ICON_HORDE     = 1,
-    FLAG_ICON_ALLIANCE  = 2,
+    None      = 0,              ///< ""
+    Horde     = 1,              ///< "HordeFlag"
+    Alliance  = 2               ///< "AllianceFlag"
+};
+
+enum BattlegroundAward
+{
+    AWARD_GOLD,
+    AWARD_SILVER,
+    AWARD_BRONZE,
+    AWARD_NONE
+};
+
+enum PvPAwardSpells
+{
+    PVP_AWARD_SPELL_GOLDEN_STRONBOX     = 155306,
+    PVP_AWARD_SPELL_SILVER_STRONGBOX    = 177453,
+    PVP_AWARD_SPELL_BRONZE_STRONGBOX    = 155307,
+    PVP_AWARD_SPELL_SKIRMISH_WIN        = 177346,
 };
 
 struct BattlegroundPlayer
@@ -424,7 +443,7 @@ class Battleground
         // Set methods:
         void SetName(char const* Name)      { m_Name = Name; }
         void SetTypeID(BattlegroundTypeId TypeID) { m_TypeID = TypeID; }
-        void InitGUID() {m_Guid = MAKE_NEW_GUID(m_TypeID, 0, 0x01F1); }
+        void InitGUID();
         void SetRandomTypeID(BattlegroundTypeId TypeID) { m_RandomTypeID = TypeID; }
         //here we can count minlevel and maxlevel for players
         void SetBracket(PvPDifficultyEntry const* bracketEntry);
@@ -437,7 +456,6 @@ class Battleground
         void SetMaxPlayers(uint32 MaxPlayers) { m_MaxPlayers = MaxPlayers; }
         void SetMinPlayers(uint32 MinPlayers) { m_MinPlayers = MinPlayers; }
         void SetLevelRange(uint32 min, uint32 max) { m_LevelMin = min; m_LevelMax = max; }
-        void SetRated(bool state)           { m_IsRated = state; }
         void SetArenaType(uint8 type)       { m_ArenaType = type; }
         void SetArenaorBGType(bool _isArena) { m_IsArena = _isArena; }
         void SetWinner(uint8 winner)        { m_Winner = winner; }
@@ -461,15 +479,16 @@ class Battleground
         void DecreaseInvitedCount(uint32 team)      { (team == ALLIANCE) ? --m_InvitedAlliance : --m_InvitedHorde; }
         void IncreaseInvitedCount(uint32 team)      { (team == ALLIANCE) ? ++m_InvitedAlliance : ++m_InvitedHorde; }
 
-        void SetRandom(bool isRandom) { m_IsRandom = isRandom; }
-        void SetRatedBG(bool isRatedBg) { m_IsRatedBg = isRatedBg; }
+        void SetRandom(bool isRandom)       { m_IsRandom = isRandom; }
+        void SetRatedBG(bool isRatedBg)     { m_IsRatedBg = isRatedBg; }
+        void SetSkirmish(bool p_IsSkirmish) { m_IsSkirmish = p_IsSkirmish; }
+
         uint32 GetInvitedCount(uint32 team) const   { return (team == ALLIANCE) ? m_InvitedAlliance : m_InvitedHorde; }
         bool HasFreeSlots() const;
         uint32 GetFreeSlotsForTeam(uint32 Team) const;
 
         bool isArena() const        { return m_IsArena; }
         bool isBattleground() const { return !m_IsArena; }
-        bool isRated() const        { return m_IsRated; }
 
         typedef std::map<uint64, BattlegroundPlayer> BattlegroundPlayerMap;
         BattlegroundPlayerMap const& GetPlayers() const { return m_Players; }
@@ -657,8 +676,14 @@ class Battleground
         void RewardXPAtKill(Player* killer, Player* victim);
         bool CanAwardArenaPoints() const { return m_LevelMin >= BG_AWARD_ARENA_POINTS_MIN_LEVEL; }
 
-        virtual uint64 GetFlagPickerGUID(int32 /*team*/ = -1) const { return 0; }
+        virtual std::set<uint64> const GetFlagPickersGUID(int32 /*team*/ = -1) const { return std::set<uint64>(); }
 
+        /// - Debug only
+        void FastStart() { m_StartDelayTime = 0; }
+        
+        void AwardTeams(uint32 p_PointsCount, uint32 p_MaxCount, uint32 p_Looser);
+        void AwardTeamsWithRewards(BattlegroundAward p_LooserAward, uint32 p_LooserTeam);
+        static uint32 GetSpellIdForAward(BattlegroundAward p_Award);
     protected:
         void BuildArenaOpponentSpecializations(WorldPacket* data, uint32 team);
 
@@ -681,7 +706,12 @@ class Battleground
         // Scorekeeping
         BattlegroundScoreMap PlayerScores;                // Player scores
         // must be implemented in BG subclass
-        virtual void RemovePlayer(Player* /*player*/, uint64 /*guid*/, uint32 /*team*/) {}
+        virtual void RemovePlayer(Player* player, uint64 guid, uint32 team) 
+        {
+            UNUSED(player);
+            UNUSED(guid);
+            UNUSED(team);
+        }
 
         // Player lists, those need to be accessible by inherited classes
         BattlegroundPlayerMap  m_Players;
@@ -720,7 +750,6 @@ class Battleground
         bool   m_IsSkirmish;
         uint8  m_Winner;                                    // 0=alliance, 1=horde, 2=none
         int32  m_StartDelayTime;
-        bool   m_IsRated;                                   // is this battle rated?
         bool   m_PrematureCountDown;
         uint32 m_PrematureCountDownTimer;
         char const* m_Name;
@@ -840,5 +869,6 @@ inline void FillInitialWorldState(ByteBuffer& data, uint32& count, WorldStatePai
         ++count;
     }
 }
+
 #endif
 

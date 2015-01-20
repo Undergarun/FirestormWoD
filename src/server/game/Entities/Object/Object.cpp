@@ -228,6 +228,8 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     //else if (GetTypeId() == TYPEID_PLAYER && target != this)
         //valCount = PLAYER_END_NOT_SELF;
 
+    /// /!\ @TODO private player field are actually broadcasted /!\ FIX IT
+
     switch (GetGUIDHigh())
     {
         case HIGHGUID_PLAYER:
@@ -327,6 +329,8 @@ void Object::DestroyForPlayer(Player* p_Target, bool p_OnDeath) const
 {
     ASSERT(p_Target);
 
+    /// @TODO Find about new OutOfRange system flags
+
     /// SMSG_DESTROY_OBJECT doesn't exist anymore, now blizz use OUT_OF_RANGE block
     /// in SMSG_UPDATE_OBJECT to destroy an WorldObject
     WorldPacket l_Data(SMSG_UPDATE_OBJECT, 40);
@@ -343,10 +347,8 @@ void Object::DestroyForPlayer(Player* p_Target, bool p_OnDeath) const
 
 void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
 {
-    const Player        * l_Player          = ToPlayer();
     const Unit          * l_Unit            = ToUnit();
     const GameObject    * l_GameObject      = ToGameObject();
-    const DynamicObject * l_DynamicObject   = ToDynObject();
     const AreaTrigger   * l_AreaTrigger     = ToAreaTrigger();
 
     uint32 l_FrameCount = l_GameObject && l_GameObject->GetGoType() == GAMEOBJECT_TYPE_TRANSPORT ? l_GameObject->GetGOValue()->Transport.StopFrames->size() : 0;
@@ -638,7 +640,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
     {
         uint32 l_TransportTime = getMSTime();
 
-        if (l_GameObject && l_GameObject->IsTransport())
+        if (l_GameObject && l_GameObject->ToTransport())
             l_TransportTime = l_GameObject->GetGOValue()->Transport.PathProgress;
 
         *p_Data << uint32(l_TransportTime);                                 ///< Transport time
@@ -788,7 +790,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
             AreaTriggerMoveTemplate l_MoveTemplate = sObjectMgr->GetAreaTriggerMoveTemplate(l_MainTemplate->m_MoveCurveID);
             if (l_MoveTemplate.m_path_size != 0)
             {
-                *p_Data << uint32(l_AreaTrigger->GetDuration());                                          ///< Time To Target
+                *p_Data << uint32(l_MoveTemplate.m_duration > 0 ? l_MoveTemplate.m_duration : l_AreaTrigger->GetDuration());  ///< Time To Target
                 *p_Data << uint32(l_ElapsedMS);                                             ///< Elapsed Time For Movement
                 *p_Data << uint32(l_MoveTemplate.m_path_size);                             ///< Path node count
                 for (uint32 l_I = 0; l_I < l_MoveTemplate.m_path_size; l_I++)
@@ -1539,7 +1541,7 @@ void Object::AddDynamicValue(uint16 index, uint32 value)
     }
 }
 
-void Object::RemoveDynamicValue(uint16 index, uint32 /*value*/)
+void Object::RemoveDynamicValue(uint16 index, uint32 value)
 {
     ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false));
     /// TODO: Research if this is actually needed
@@ -1853,6 +1855,18 @@ bool WorldObject::IsWithinLOSInMap(const WorldObject* obj) const
     if (GetTypeId() == TYPEID_UNIT)
         if (GetEntry() == 36980 || GetEntry() == 38320 || GetEntry() == 38321 || GetEntry() == 38322)
             return true;
+
+    if (obj->ToCreature() && obj->ToCreature()->IsAIEnabled)
+    {
+        if (obj->ToCreature()->AI()->CanBeTargetedOutOfLOS())
+            return true;
+    }
+
+    if (ToCreature() && ToCreature()->IsAIEnabled)
+    {
+        if (ToCreature()->AI()->CanTargetOutOfLOS())
+            return true;
+    }
 
     return IsWithinLOS(ox, oy, oz);
 }
@@ -2649,22 +2663,13 @@ void WorldObject::MonsterWhisper(int32 textId, uint64 receiver, bool IsBossWhisp
 
 void WorldObject::BuildMonsterChat(WorldPacket* data, uint8 msgtype, char const* text, uint32 language, char const* name, uint64 targetGuid) const
 {
-    uint32 messageLength = text ? strlen(text) : 0;
     uint32 speakerNameLength = name ? strlen(name) : 0;
-    uint32 prefixeLength = 0;
-    Unit* target = ObjectAccessor::FindUnit(targetGuid);
-    uint32 receiverLength = target ? strlen(target->GetName()) : 0;
-    uint32 channelLength = 0;
     std::string channel = ""; // no channel
 
     ObjectGuid senderGuid = GetGUID();
     ObjectGuid groupGuid = 0;
     ObjectGuid receiverGuid = targetGuid;
     ObjectGuid guildGuid = 0;
-
-    bool unkBit = false;
-    bool bit5256 = false;
-    bool bit5264 = false;
 
     data->Initialize(SMSG_CHAT, 200);
     *data << uint8(msgtype);
@@ -3156,12 +3161,12 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     return pet;
 }
 
-void Player::SendBattlegroundTimer(uint32 p_TimeRemaining, uint32 p_TotalTime)
+void Player::SendStartTimer(uint32 p_Time, uint32 p_MaxTime, uint8 p_Type)
 {
     WorldPacket l_Data(SMSG_START_TIMER, 12);
-    l_Data << uint32(p_TimeRemaining);
-    l_Data << uint32(p_TotalTime);
-    l_Data << uint32(PVP_TIMER);
+    l_Data << uint32(p_Time);
+    l_Data << uint32(p_MaxTime);
+    l_Data << uint32(p_Type);
     SendDirectMessage(&l_Data);
 }
 
@@ -3269,6 +3274,7 @@ GameObject* WorldObject::FindNearestGameObjectOfType(GameobjectTypes type, float
 
 Player* WorldObject::FindNearestPlayer(float range, bool alive)
 {
+    /// @TODO fix alive player search
     Player* player = NULL;
     JadeCore::AnyPlayerInObjectRangeCheck check(this, range);
     JadeCore::PlayerSearcher<JadeCore::AnyPlayerInObjectRangeCheck> searcher(this, player, check);

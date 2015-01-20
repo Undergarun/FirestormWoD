@@ -2,7 +2,7 @@
 #include "ScriptMgr.h"
 #include "Config.h"
 
-class duel_reset : public PlayerScript
+class duel_reset: public PlayerScript
 {
     public:
         duel_reset() : PlayerScript("duel_reset") {}

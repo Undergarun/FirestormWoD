@@ -235,7 +235,7 @@ public:
             return true;
         }
 
-        void DamageTaken(Unit* attacker, uint32 /*damage*/)
+        void DamageTaken(Unit* attacker, uint32& damage)
         {
             if (!fightInProgress)
                 if (CheckTrash())
@@ -751,7 +751,7 @@ class spell_garalon_furious_swipe: public SpellScriptLoader
         {
             PrepareSpellScript(spell_garalon_furious_swipeSpellScript);
 
-            bool Validate(SpellEntry const * spellEntry)
+            bool Validate(SpellInfo const * spellEntry)
             {
                 if (!sSpellStore.LookupEntry(spellEntry->Id))
                     return false;
@@ -794,7 +794,7 @@ class spell_garalon_pheromones_forcecast: public SpellScriptLoader
         {
             PrepareSpellScript(spell_garalon_pheromones_forcecastSpellScript);
 
-            bool Validate(SpellEntry const * spellEntry)
+            bool Validate(SpellInfo const * spellEntry)
             {
                 if (!sSpellStore.LookupEntry(spellEntry->Id))
                     return false;
@@ -856,7 +856,7 @@ class spell_garalon_mend_leg: public SpellScriptLoader
         {
             PrepareSpellScript(spell_garalon_mend_legSpellScript);
 
-            bool Validate(SpellEntry const * spellEntry)
+            bool Validate(SpellInfo const * spellEntry)
             {
                 if (!sSpellStore.LookupEntry(spellEntry->Id))
                     return false;
@@ -927,7 +927,7 @@ class spell_garalon_crush_trigger: public SpellScriptLoader
         {
             PrepareSpellScript(spell_garalon_crush_triggerSpellScript);
 
-            bool Validate(SpellEntry const * spellEntry)
+            bool Validate(SpellInfo const * spellEntry)
             {
                 if (!sSpellStore.LookupEntry(spellEntry->Id))
                     return false;
@@ -986,7 +986,7 @@ class spell_garalon_pheromones_taunt: public SpellScriptLoader
         {
             PrepareSpellScript(spell_garalon_pheromones_tauntSpellScript);
 
-            bool Validate(SpellEntry const * spellEntry)
+            bool Validate(SpellInfo const* spellEntry)
             {
                 if (!sSpellStore.LookupEntry(spellEntry->Id))
                     return false;
@@ -1022,7 +1022,7 @@ class spell_garalon_pheromones_taunt: public SpellScriptLoader
 };
 
 // Broken Leg: 122786.
-class spell_garalon_broken_leg : public SpellScriptLoader
+class spell_garalon_broken_leg: public SpellScriptLoader
 {
     public:
         spell_garalon_broken_leg() : SpellScriptLoader("spell_garalon_broken_leg") { }
@@ -1031,7 +1031,7 @@ class spell_garalon_broken_leg : public SpellScriptLoader
         {
             PrepareSpellScript(spell_garalon_broken_leg_SpellScript);
 
-            bool Validate(SpellEntry const * spellEntry)
+            bool Validate(SpellInfo const * spellEntry)
             {
                 if (!sSpellStore.LookupEntry(spellEntry->Id))
                     return false;
@@ -1068,7 +1068,7 @@ class spell_garalon_broken_leg : public SpellScriptLoader
 };
 
 // Damaged: 123818
-class spell_garalon_damaged : public SpellScriptLoader
+class spell_garalon_damaged: public SpellScriptLoader
 {
     public:
         spell_garalon_damaged() : SpellScriptLoader("spell_garalon_damaged") { }
@@ -1077,7 +1077,7 @@ class spell_garalon_damaged : public SpellScriptLoader
         {
             PrepareSpellScript(spell_garalon_damaged_SpellScript);
 
-            bool Validate(SpellEntry const * spellEntry)
+            bool Validate(SpellInfo const * spellEntry)
             {
                 if (!sSpellStore.LookupEntry(spellEntry->Id))
                     return false;
@@ -1111,7 +1111,7 @@ class spell_garalon_damaged : public SpellScriptLoader
 };
 
 // Pheromones summon 128573
-class spell_garalon_pheromones_summon : public SpellScriptLoader
+class spell_garalon_pheromones_summon: public SpellScriptLoader
 {
     public:
         spell_garalon_pheromones_summon() : SpellScriptLoader("spell_garalon_pheromones_summon") { }
@@ -1120,7 +1120,7 @@ class spell_garalon_pheromones_summon : public SpellScriptLoader
         {
             PrepareSpellScript(spell_garalon_pheromones_summon_SpellScript);
 
-            bool Validate(SpellEntry const * spellEntry)
+            bool Validate(SpellInfo const * spellEntry)
             {
                 if (!sSpellStore.LookupEntry(spellEntry->Id))
                     return false;
@@ -1162,7 +1162,7 @@ class spell_garalon_pheromones_summon : public SpellScriptLoader
 };
 
 // Pheromone Trail Dmg 123120
-class spell_garalon_pheromones_trail_dmg : public SpellScriptLoader
+class spell_garalon_pheromones_trail_dmg: public SpellScriptLoader
 {
 public:
     spell_garalon_pheromones_trail_dmg() : SpellScriptLoader("spell_garalon_pheromones_trail_dmg") { }
@@ -1171,7 +1171,7 @@ public:
     {
         PrepareSpellScript(spell_garalon_pheromones_trail_dmg_SpellScript);
 
-        bool Validate(SpellEntry const * spellEntry)
+        bool Validate(SpellInfo const * spellEntry)
         {
             if (!sSpellStore.LookupEntry(spellEntry->Id))
                 return false;
@@ -1207,7 +1207,7 @@ public:
 };
 
 // Pheromones Switch 123100
-class spell_garalon_pheromones_switch : public SpellScriptLoader
+class spell_garalon_pheromones_switch: public SpellScriptLoader
 {
 public:
     spell_garalon_pheromones_switch() : SpellScriptLoader("spell_garalon_pheromones_switch") { }
@@ -1216,7 +1216,7 @@ public:
     {
         PrepareSpellScript(spell_garalon_pheromones_switch_SpellScript);
 
-        bool Validate(SpellEntry const * spellEntry)
+        bool Validate(SpellInfo const * spellEntry)
         {
             if (!sSpellStore.LookupEntry(spellEntry->Id))
                 return false;
@@ -1260,7 +1260,7 @@ public:
 };
 
 // 128596, 128599, 128600, 128601 - Weak Points Cosmetic
-class spell_garalon_weak_points_cosmetic : public SpellScriptLoader
+class spell_garalon_weak_points_cosmetic: public SpellScriptLoader
 {
     public:
         spell_garalon_weak_points_cosmetic() : SpellScriptLoader("spell_garalon_weak_points_cosmetic") { }
@@ -1290,7 +1290,7 @@ class spell_garalon_weak_points_cosmetic : public SpellScriptLoader
 };
 
 // 123081 - Pungency
-class spell_garalon_pungency : public SpellScriptLoader
+class spell_garalon_pungency: public SpellScriptLoader
 {
     public:
         spell_garalon_pungency() : SpellScriptLoader("spell_garalon_pungency") { }

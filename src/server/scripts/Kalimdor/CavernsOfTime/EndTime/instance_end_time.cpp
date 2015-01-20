@@ -233,7 +233,7 @@ class instance_end_time : public InstanceMapScript
 			    return true;
             }
 
-            void FillInitialWorldStates(WorldPacket& data)
+            void FillInitialWorldStates(ByteBuffer& data)
             {
                 data << uint32(WORLDSTATE_SHOW_FRAGMENTS) << uint32(jaina_event == IN_PROGRESS);
                 data << uint32(WORLDSTATE_FRAGMENTS_COLLECTED) << uint32(uiFragmentsCollected);

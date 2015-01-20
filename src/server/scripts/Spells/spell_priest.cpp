@@ -37,7 +37,7 @@ enum PriestSpells
     PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD         = 33202,
     PRIEST_SHADOW_WORD_DEATH                        = 32409,
     PRIEST_LEAP_OF_FAITH                            = 73325,
-    PRIEST_LEAP_OF_FAITH_JUMP                       = 110726,
+    PRIEST_LEAP_OF_FAITH_JUMP                       = 97817,
     PRIEST_SPELL_HALO_HEAL_SHADOW                   = 120696,
     PRIEST_SPELL_HALO_HEAL_HOLY                     = 120692,
 
@@ -128,11 +128,17 @@ enum PriestSpells
     PRIEST_SPELL_SPIRIT_SHELL_AURA                  = 109964,
     PRIEST_SPELL_SPIRIT_SHELL_PROC                  = 114908,
     PRIEST_SPELL_HALO_AREA_DAMAGE                   = 120644,
-    PRIEST_SPELL_HALO_AREA_HEAL                     = 120517
+    PRIEST_SPELL_HALO_AREA_HEAL                     = 120517,
+    PRIEST_SPELL_INSANITY_AURA                      = 139139,
+    PRIEST_SPELL_INSANITY                           = 132573,
+    PRIEST_SPELL_SHADOW_INSIGHT                     = 162452,
+    PRIEST_SPELL_SHADOW_INSIGHT_PROC                = 124430,
+    PRIEST_GLYPH_OF_POWER_WORD_SHIELD               = 55672,
+    PRIEST_GLYPH_OF_POWER_WORD_SHIELD_PROC          = 56160
 };
 
 // Shadow Orb - 77487 & Glyph od Shadow ravens - 57985
-class PlayerScript_Shadow_Orb : public PlayerScript
+class PlayerScript_Shadow_Orb: public PlayerScript
 {
     public:
         PlayerScript_Shadow_Orb() :PlayerScript("PlayerScript_Shadow_Orb") {}
@@ -157,7 +163,7 @@ class PlayerScript_Shadow_Orb : public PlayerScript
 };
 
 // Confession (Glyph) - 126123
-class spell_pri_confession : public SpellScriptLoader
+class spell_pri_confession: public SpellScriptLoader
 {
     public:
         spell_pri_confession() : SpellScriptLoader("spell_pri_confession") { }
@@ -198,7 +204,7 @@ class spell_pri_confession : public SpellScriptLoader
 };
 
 // Glyph of Confession - 126152
-class spell_pri_glyph_of_confession : public SpellScriptLoader
+class spell_pri_glyph_of_confession: public SpellScriptLoader
 {
     public:
         spell_pri_glyph_of_confession() : SpellScriptLoader("spell_pri_glyph_of_confession") { }
@@ -234,7 +240,7 @@ class spell_pri_glyph_of_confession : public SpellScriptLoader
 };
 
 // Shadow Word: Death (overrided by Glyph) - 129176
-class spell_pri_shadow_word_death : public SpellScriptLoader
+class spell_pri_shadow_word_death: public SpellScriptLoader
 {
     public:
         spell_pri_shadow_word_death() : SpellScriptLoader("spell_pri_shadow_word_death") { }
@@ -278,7 +284,7 @@ class spell_pri_shadow_word_death : public SpellScriptLoader
 };
 
 // Holy Nova (heal) - 23455
-class spell_pri_holy_nova_heal : public SpellScriptLoader
+class spell_pri_holy_nova_heal: public SpellScriptLoader
 {
     public:
         spell_pri_holy_nova_heal() : SpellScriptLoader("spell_pri_holy_nova_heal") { }
@@ -308,7 +314,7 @@ class spell_pri_holy_nova_heal : public SpellScriptLoader
 };
 
 // Holy Nova - 132157
-class spell_pri_holy_nova : public SpellScriptLoader
+class spell_pri_holy_nova: public SpellScriptLoader
 {
     public:
         spell_pri_holy_nova() : SpellScriptLoader("spell_pri_holy_nova") { }
@@ -336,7 +342,7 @@ class spell_pri_holy_nova : public SpellScriptLoader
 };
 
 // Glyph of Holy Nova - 125045
-class spell_pri_glyph_of_holy_nova : public SpellScriptLoader
+class spell_pri_glyph_of_holy_nova: public SpellScriptLoader
 {
     public:
         spell_pri_glyph_of_holy_nova() : SpellScriptLoader("spell_pri_glyph_of_holy_nova") { }
@@ -378,7 +384,7 @@ class spell_pri_glyph_of_holy_nova : public SpellScriptLoader
 };
 
 // Spectral Guise Charges - 119030
-class spell_pri_spectral_guise_charges : public SpellScriptLoader
+class spell_pri_spectral_guise_charges: public SpellScriptLoader
 {
     public:
         spell_pri_spectral_guise_charges() : SpellScriptLoader("spell_pri_spectral_guise_charges") { }
@@ -428,7 +434,7 @@ class spell_pri_spectral_guise_charges : public SpellScriptLoader
 };
 
 // Spirit of Redemption (Shapeshift) - 27827
-class spell_pri_spirit_of_redemption_form : public SpellScriptLoader
+class spell_pri_spirit_of_redemption_form: public SpellScriptLoader
 {
     public:
         spell_pri_spirit_of_redemption_form() : SpellScriptLoader("spell_pri_spirit_of_redemption_form") { }
@@ -461,7 +467,7 @@ class spell_pri_spirit_of_redemption_form : public SpellScriptLoader
 };
 
 // Spirit of Redemption - 20711
-class spell_pri_spirit_of_redemption : public SpellScriptLoader
+class spell_pri_spirit_of_redemption: public SpellScriptLoader
 {
     public:
         spell_pri_spirit_of_redemption() : SpellScriptLoader("spell_pri_spirit_of_redemption") { }
@@ -509,7 +515,7 @@ class spell_pri_spirit_of_redemption : public SpellScriptLoader
 
 // Called by Prayer of Mending - 33076
 // Item : S12 4P bonus - Heal
-class spell_pri_item_s12_4p_heal : public SpellScriptLoader
+class spell_pri_item_s12_4p_heal: public SpellScriptLoader
 {
     public:
         spell_pri_item_s12_4p_heal() : SpellScriptLoader("spell_pri_item_s12_4p_heal") { }
@@ -538,40 +544,9 @@ class spell_pri_item_s12_4p_heal : public SpellScriptLoader
         }
 };
 
-// Called by Power Word : Shield - 17
-// Item : S12 2P bonus - Heal
-class spell_pri_item_s12_2p_heal : public SpellScriptLoader
-{
-    public:
-        spell_pri_item_s12_2p_heal() : SpellScriptLoader("spell_pri_item_s12_2p_heal") { }
-
-        class spell_pri_item_s12_2p_heal_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pri_item_s12_2p_heal_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (Unit* target = GetHitUnit())
-                        if (_player->HasAura(PRIEST_SPELL_2P_S12_HEAL))
-                            target->CastSpell(target, PRIEST_SPELL_SOUL_OF_DIAMOND, true);
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_pri_item_s12_2p_heal_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_pri_item_s12_2p_heal_SpellScript();
-        }
-};
-
 // Called by Dispersion - 47585
 // Item : S12 2P bonus - Shadow
-class spell_pri_item_s12_2p_shadow : public SpellScriptLoader
+class spell_pri_item_s12_2p_shadow: public SpellScriptLoader
 {
     public:
         spell_pri_item_s12_2p_shadow() : SpellScriptLoader("spell_pri_item_s12_2p_shadow") { }
@@ -600,7 +575,7 @@ class spell_pri_item_s12_2p_shadow : public SpellScriptLoader
 };
 
 // Divine Insight - 124430
-class spell_pri_divine_insight_shadow : public SpellScriptLoader
+class spell_pri_divine_insight_shadow: public SpellScriptLoader
 {
     public:
         spell_pri_divine_insight_shadow() : SpellScriptLoader("spell_pri_divine_insight_shadow") { }
@@ -629,7 +604,7 @@ class spell_pri_divine_insight_shadow : public SpellScriptLoader
 };
 
 // Power Word - Solace - 129250
-class spell_pri_power_word_solace : public SpellScriptLoader
+class spell_pri_power_word_solace: public SpellScriptLoader
 {
     public:
         spell_pri_power_word_solace() : SpellScriptLoader("spell_pri_power_word_solace") { }
@@ -660,7 +635,7 @@ class spell_pri_power_word_solace : public SpellScriptLoader
 };
 
 // Shadowfiend - 34433 or Mindbender - 123040
-class spell_pri_shadowfiend : public SpellScriptLoader
+class spell_pri_shadowfiend: public SpellScriptLoader
 {
     public:
         spell_pri_shadowfiend() : SpellScriptLoader("spell_pri_shadowfiend") { }
@@ -707,7 +682,7 @@ class spell_pri_shadowfiend : public SpellScriptLoader
 
 // Surge of Light (Discipline, Holy) - 109186 
 // Surge of Light - 114255
-class spell_pri_surge_of_light : public SpellScriptLoader
+class spell_pri_surge_of_light: public SpellScriptLoader
 {
     public:
         spell_pri_surge_of_light() : SpellScriptLoader("spell_pri_surge_of_light") { }
@@ -716,16 +691,29 @@ class spell_pri_surge_of_light : public SpellScriptLoader
         {
             PrepareSpellScript(spell_pri_surge_of_light_SpellScript);
 
+            int32 m_Duration = 0;
+
+            void HandleOnPrepare()
+            {
+                if (Unit* l_Caster = GetCaster())
+                    if (AuraPtr l_SurgeOfLight = l_Caster->GetAura(PRIEST_SURGE_OF_LIGHT))
+                        m_Duration = l_SurgeOfLight->GetDuration();
+            }
+
             void HandleOnCast()
             {
-                if (Unit* caster = GetCaster())
-                    if (AuraPtr surgeOfLight = caster->GetAura(PRIEST_SURGE_OF_LIGHT))
-                        if (surgeOfLight->GetStackAmount() > 1)
-                            surgeOfLight->ModStackAmount(-1);
+                if (Unit* l_Caster = GetCaster())
+                    if (AuraPtr l_SurgeOfLight = l_Caster->GetAura(PRIEST_SURGE_OF_LIGHT))
+                    {
+                        l_SurgeOfLight->SetDuration(m_Duration);
+                        if (l_SurgeOfLight->GetStackAmount() > 1)
+                            l_SurgeOfLight->SetStackAmount(1);
+                    }
             }
 
             void Register()
             {
+                OnPrepare += SpellOnPrepareFn(spell_pri_surge_of_light_SpellScript::HandleOnPrepare);
                 OnCast += SpellCastFn(spell_pri_surge_of_light_SpellScript::HandleOnCast);
             }
         };
@@ -746,16 +734,23 @@ class spell_pri_surge_of_light : public SpellScriptLoader
                 if (!procInfo.GetHealInfo() || !procInfo.GetHealInfo()->GetHeal() || !procInfo.GetActor())
                     return;
 
-                if (Player* player = procInfo.GetActor()->ToPlayer())
+                if (Player* l_Player = procInfo.GetActor()->ToPlayer())
                 {
-                    if (player->GetSpecializationId(player->GetActiveSpec()) == SPEC_PRIEST_SHADOW)
+                    if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PRIEST_SHADOW)
                         return;
 
-                    if (Unit* target = procInfo.GetActionTarget())
-                    {
                         if (roll_chance_i(GetSpellInfo()->Effects[EFFECT_0].BasePoints))
-                            player->CastSpell(player, PRIEST_SURGE_OF_LIGHT, true);
-                    }
+                        {
+                            if (AuraPtr l_SurgeOfLight = l_Player->GetAura(PRIEST_SURGE_OF_LIGHT))
+                            {
+                                if (l_SurgeOfLight->GetStackAmount() == 2)
+                                    l_SurgeOfLight->SetDuration(20 * IN_MILLISECONDS);
+                                else
+                                    l_Player->CastSpell(l_Player, PRIEST_SURGE_OF_LIGHT, true);
+                            }
+                            else
+                                l_Player->CastSpell(l_Player, PRIEST_SURGE_OF_LIGHT, true);
+                        }
                 }
             }
 
@@ -773,7 +768,7 @@ class spell_pri_surge_of_light : public SpellScriptLoader
 
 // Called by Leap of Faith - 73325 and Power Word : Shield - 17
 // Body and Soul - 64129
-class spell_pri_body_and_soul : public SpellScriptLoader
+class spell_pri_body_and_soul: public SpellScriptLoader
 {
     public:
         spell_pri_body_and_soul() : SpellScriptLoader("spell_pri_body_and_soul") { }
@@ -803,7 +798,7 @@ class spell_pri_body_and_soul : public SpellScriptLoader
 };
 
 // Prayer of Mending (Divine Insight) - 123259
-class spell_pri_prayer_of_mending_divine_insight : public SpellScriptLoader
+class spell_pri_prayer_of_mending_divine_insight: public SpellScriptLoader
 {
     public:
         spell_pri_prayer_of_mending_divine_insight() : SpellScriptLoader("spell_pri_prayer_of_mending_divine_insight") { }
@@ -885,7 +880,7 @@ class spell_pri_prayer_of_mending_divine_insight : public SpellScriptLoader
 
 // Called by Greater Heal - 2060 and Prayer of Healing - 596
 // Divine Insight (Holy) - 109175
-class spell_pri_divine_insight_holy : public SpellScriptLoader
+class spell_pri_divine_insight_holy: public SpellScriptLoader
 {
     public:
         spell_pri_divine_insight_holy() : SpellScriptLoader("spell_pri_divine_insight_holy") { }
@@ -917,7 +912,7 @@ class spell_pri_divine_insight_holy : public SpellScriptLoader
 
 // Called by Power Word: Shield (Divine Insight) - 123258 and Power Word: Shield - 17
 // Divine Insight (Discipline) - 123266
-class spell_pri_divine_insight_discipline : public SpellScriptLoader
+class spell_pri_divine_insight_discipline: public SpellScriptLoader
 {
     public:
         spell_pri_divine_insight_discipline() : SpellScriptLoader("spell_pri_divine_insight_discipline") { }
@@ -928,28 +923,9 @@ class spell_pri_divine_insight_discipline : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (GetSpellInfo()->Id == PRIEST_SPELL_POWER_WORD_SHIELD)
-                    {
-                        if (Unit* target = GetHitUnit())
-                        {
-                            if (target->HasAura(PRIEST_SPELL_POWER_WORD_SHIELD_OVERRIDED))
-                                target->RemoveAura(PRIEST_SPELL_POWER_WORD_SHIELD_OVERRIDED);
-                        }
-                    }
-                    else
-                    {
-                        if (_player->HasAura(PRIEST_SPELL_DIVINE_INSIGHT_DISCIPLINE))
-                            _player->RemoveAura(PRIEST_SPELL_DIVINE_INSIGHT_DISCIPLINE);
-
-                        if (Unit* target = GetHitUnit())
-                        {
-                            if (target->HasAura(PRIEST_SPELL_POWER_WORD_SHIELD))
-                                target->RemoveAura(PRIEST_SPELL_POWER_WORD_SHIELD);
-                        }
-                    }
-                }
+                if (Unit* l_Caster = GetCaster())
+                    if (l_Caster->HasAura(PRIEST_SPELL_DIVINE_INSIGHT_DISCIPLINE))
+                        l_Caster->RemoveAura(PRIEST_SPELL_DIVINE_INSIGHT_DISCIPLINE);
             }
 
             void Register()
@@ -962,39 +938,10 @@ class spell_pri_divine_insight_discipline : public SpellScriptLoader
         {
             return new spell_pri_divine_insight_discipline_SpellScript();
         }
-
-        class spell_pri_divine_insight_discipline_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_pri_divine_insight_discipline_AuraScript);
-
-            void Trigger(AuraEffectPtr p_AurEff, DamageInfo & p_DmgInfo, uint32 & p_AbsorbAmount)
-            {
-                Unit* l_Target = GetTarget();
-                if (p_DmgInfo.GetAttacker() == l_Target
-                    || (p_DmgInfo.GetSpellInfo() &&  p_DmgInfo.GetSpellInfo()->Id == GetSpellInfo()->Id))
-                    return;
-
-                if (AuraEffectPtr l_ReflectiveShield = l_Target->GetAuraEffect(PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD, EFFECT_0))
-                {
-                    int32 l_BasePoint = CalculatePct(p_AbsorbAmount, l_ReflectiveShield->GetAmount());
-                    l_Target->CastCustomSpell(p_DmgInfo.GetAttacker(), PRIEST_SPELL_REFLECTIVE_SHIELD_DAMAGE, &l_BasePoint, NULL, NULL, true);
-                }
-            }
-
-            void Register()
-            {
-                AfterEffectAbsorb += AuraEffectAbsorbFn(spell_pri_divine_insight_discipline_AuraScript::Trigger, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_pri_divine_insight_discipline_AuraScript();
-        }
 };
 
 // Holy Word : Sanctuary - 88685
-class spell_pri_holy_word_sanctuary : public SpellScriptLoader
+class spell_pri_holy_word_sanctuary: public SpellScriptLoader
 {
     public:
         spell_pri_holy_word_sanctuary() : SpellScriptLoader("spell_pri_holy_word_sanctuary") { }
@@ -1026,7 +973,7 @@ class spell_pri_holy_word_sanctuary : public SpellScriptLoader
 };
 
 // Power Word: Shield - 17
-class spell_pri_power_word_shield : public SpellScriptLoader
+class spell_pri_power_word_shield: public SpellScriptLoader
 {
     public:
         spell_pri_power_word_shield() : SpellScriptLoader("spell_pri_power_word_shield") { }
@@ -1034,6 +981,8 @@ class spell_pri_power_word_shield : public SpellScriptLoader
         class spell_pri_power_word_shield_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_pri_power_word_shield_AuraScript);
+
+            std::map<uint64, uint32> m_DmgByAttackerList;
 
             void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& p_Amount, bool& /*canBeRecalculated*/)
             {
@@ -1044,9 +993,49 @@ class spell_pri_power_word_shield : public SpellScriptLoader
                 p_Amount = ((l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 5) + GetSpellInfo()->Effects[EFFECT_0].BasePoints) * 1;
             }
 
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*mode*/) // Case of PRIEST_GLYPH_OF_REFLECTIVE_SHIELD
+            {
+                if (Unit* l_Owner = GetUnitOwner())
+                    if (Unit* l_Target = GetTarget())
+                        if (l_Owner == l_Target && l_Owner->HasAura(PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD))
+                            for (std::map<uint64, uint32>::iterator it = m_DmgByAttackerList.begin(); it != m_DmgByAttackerList.end(); ++it)
+                            {
+                                if ((*it).first == l_Target->GetGUID())
+                                    return;
+                                int32 l_Damage = CalculatePct((*it).second, sSpellMgr->GetSpellInfo(PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD)->Effects[EFFECT_0].BasePoints);
+                                l_Owner->CastCustomSpell(l_Target->GetUnit(*l_Target, (*it).first), PRIEST_SPELL_REFLECTIVE_SHIELD_DAMAGE, &l_Damage, NULL, NULL, true);
+                            }
+            }
+
+            void OnAbsorb(AuraEffectPtr p_AurEff, DamageInfo & p_DmgInfo, uint32 & p_AbsorbAmount)
+            {
+                if (Unit* l_Owner = GetUnitOwner())
+                {
+                    if (Unit* l_Target = GetTarget())
+                    {
+                        if (Unit* l_Attacker = p_DmgInfo.GetAttacker())
+                            if (l_Owner == l_Target && l_Owner->HasAura(PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD)) // Case of PRIEST_GLYPH_OF_REFLECTIVE_SHIELD
+                            {
+                                if (m_DmgByAttackerList.find(l_Attacker->GetGUID()) != m_DmgByAttackerList.end())
+                                    m_DmgByAttackerList.find(l_Attacker->GetGUID())->second += p_DmgInfo.GetDamage();
+                                else
+                                    m_DmgByAttackerList[l_Attacker->GetGUID()] = p_DmgInfo.GetDamage();
+                            }
+
+                        if (l_Owner->HasAura(PRIEST_GLYPH_OF_POWER_WORD_SHIELD)) // Case of PRIEST_GLYPH_OF_POWER_WORD_SHIELD
+                        {
+                            int32 l_Heal = CalculatePct(p_DmgInfo.GetDamage(), sSpellMgr->GetSpellInfo(PRIEST_GLYPH_OF_POWER_WORD_SHIELD)->Effects[EFFECT_0].BasePoints);
+                            l_Owner->CastCustomSpell(l_Target, PRIEST_GLYPH_OF_POWER_WORD_SHIELD_PROC, &l_Heal, NULL, NULL, true, NULL, p_AurEff);
+                        }
+                    }
+                }
+            }
+
             void Register()
             {
+                OnEffectAbsorb += AuraEffectAbsorbFn(spell_pri_power_word_shield_AuraScript::OnAbsorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_power_word_shield_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+                OnEffectRemove += AuraEffectRemoveFn(spell_pri_power_word_shield_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -1058,7 +1047,7 @@ class spell_pri_power_word_shield : public SpellScriptLoader
 
 // Called by Smite - 585
 // Chakra : Chastise - 81209
-class spell_pri_chakra_chastise : public SpellScriptLoader
+class spell_pri_chakra_chastise: public SpellScriptLoader
 {
     public:
         spell_pri_chakra_chastise() : SpellScriptLoader("spell_pri_chakra_chastise") { }
@@ -1069,11 +1058,28 @@ class spell_pri_chakra_chastise : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                     if (Unit* target = GetHitUnit())
+                    {
+                        // Surge of light
+                        if (l_Player->HasSpell(109186))
+                            if (roll_chance_i(GetSpellInfo()->Effects[EFFECT_0].BasePoints))
+                            {
+                                if (AuraPtr l_SurgeOfLight = l_Player->GetAura(PRIEST_SURGE_OF_LIGHT))
+                                {
+                                    if (l_SurgeOfLight->GetStackAmount() == 2)
+                                        l_SurgeOfLight->SetDuration(20 * IN_MILLISECONDS);
+                                    else
+                                        l_Player->CastSpell(l_Player, PRIEST_SURGE_OF_LIGHT, true);
+                                }
+                                else
+                                    l_Player->CastSpell(l_Player, PRIEST_SURGE_OF_LIGHT, true);
+                            }
+
                         if (roll_chance_i(GetSpellInfo()->Effects[EFFECT_1].BasePoints))
-                            if (_player->HasSpellCooldown(PRIEST_HOLY_WORD_CHASTISE))
-                                _player->RemoveSpellCooldown(PRIEST_HOLY_WORD_CHASTISE, true);
+                            if (l_Player->HasSpellCooldown(PRIEST_HOLY_WORD_CHASTISE))
+                                l_Player->RemoveSpellCooldown(PRIEST_HOLY_WORD_CHASTISE, true);
+                    }
             }
 
             void Register()
@@ -1089,7 +1095,7 @@ class spell_pri_chakra_chastise : public SpellScriptLoader
 };
 
 // Lightwell Renew - 60123
-class spell_pri_lightwell_renew : public SpellScriptLoader
+class spell_pri_lightwell_renew: public SpellScriptLoader
 {
     public:
         spell_pri_lightwell_renew() : SpellScriptLoader("spell_pri_lightwell_renew") { }
@@ -1132,7 +1138,7 @@ class spell_pri_lightwell_renew : public SpellScriptLoader
 
 // Called by Smite - 585, Holy Fire - 14914 and Penance - 47666
 // Atonement - 81749
-class spell_pri_atonement : public SpellScriptLoader
+class spell_pri_atonement: public SpellScriptLoader
 {
     public:
         spell_pri_atonement() : SpellScriptLoader("spell_pri_atonement") { }
@@ -1153,11 +1159,10 @@ class spell_pri_atonement : public SpellScriptLoader
                             std::list<Unit*> groupList;
 
                             _player->GetPartyMembers(groupList);
-                            for (auto itr : groupList) // Get players at valid distance
-                            {
-                                if (_player->GetDistance(itr->GetPositionX(), itr->GetPositionY(), itr->GetPositionZ()) > GetSpellInfo()->Effects[EFFECT_1].BasePoints)
-                                    groupList.remove(itr);
-                            }
+                            groupList.remove_if([this, _player](Unit* p_Unit) {
+                                return _player->GetDistance(p_Unit->GetPositionX(), p_Unit->GetPositionY(), p_Unit->GetPositionZ()) > GetSpellInfo()->Effects[EFFECT_1].BasePoints;
+                            });
+
                             if (groupList.size() > 1)
                             {
                                 groupList.sort(JadeCore::HealthPctOrderPred());
@@ -1193,7 +1198,7 @@ enum Purify_Spell
 };
 
 // Purify - 527
-class spell_pri_purify : public SpellScriptLoader
+class spell_pri_purify: public SpellScriptLoader
 {
     public:
         spell_pri_purify() : SpellScriptLoader("spell_pri_purify") { }
@@ -1244,7 +1249,7 @@ class spell_pri_purify : public SpellScriptLoader
 };
 
 // Devouring Plague - 2944
-class spell_pri_devouring_plague : public SpellScriptLoader
+class spell_pri_devouring_plague: public SpellScriptLoader
 {
     public:
         spell_pri_devouring_plague() : SpellScriptLoader("spell_pri_devouring_plague") { }
@@ -1269,6 +1274,9 @@ class spell_pri_devouring_plague : public SpellScriptLoader
                     {
                         if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PRIEST_SHADOW)
                         {
+                            if (l_Player->HasAura(PRIEST_SURGE_OF_DARKNESS_AURA))
+                                if (roll_chance_i(sSpellMgr->GetSpellInfo(PRIEST_SURGE_OF_DARKNESS_AURA)->Effects[EFFECT_0].BasePoints))
+                                    l_Player->CastSpell(l_Player, PRIEST_SURGE_OF_DARKNESS, true);
                             // Shadow Orb visual
                             if (l_Player->HasAura(PRIEST_SHADOW_ORB_AURA))
                                 l_Player->RemoveAura(PRIEST_SHADOW_ORB_AURA);
@@ -1298,7 +1306,7 @@ class spell_pri_devouring_plague : public SpellScriptLoader
 };
 
 // Devouring Plague Periodic Damage - 158831
-class spell_pri_devouring_plague_aura : public SpellScriptLoader
+class spell_pri_devouring_plague_aura: public SpellScriptLoader
 {
 public:
     spell_pri_devouring_plague_aura() : SpellScriptLoader("spell_pri_devouring_plague_aura") { }
@@ -1323,6 +1331,10 @@ public:
                     l_TickDamage *= aurEff2->GetAmount();
 
                 l_Caster->CastCustomSpell(l_Caster, PRIEST_DEVOURING_PLAGUE_HEAL, &l_TickDamage, NULL, NULL, true);
+
+                if (l_Caster->HasAura(PRIEST_SURGE_OF_DARKNESS_AURA))
+                    if (roll_chance_i(sSpellMgr->GetSpellInfo(PRIEST_SURGE_OF_DARKNESS_AURA)->Effects[EFFECT_0].BasePoints))
+                        l_Caster->CastSpell(l_Caster, PRIEST_SURGE_OF_DARKNESS, true);
             }
         }
 
@@ -1341,7 +1353,7 @@ public:
 
 // Called by Fade - 586
 // Phantasm - 108942
-class spell_pri_phantasm : public SpellScriptLoader
+class spell_pri_phantasm: public SpellScriptLoader
 {
     public:
         spell_pri_phantasm() : SpellScriptLoader("spell_pri_phantasm") { }
@@ -1375,7 +1387,7 @@ class spell_pri_phantasm : public SpellScriptLoader
 };
 
 // Mind Spike - 73510
-class spell_pri_mind_spike : public SpellScriptLoader
+class spell_pri_mind_spike: public SpellScriptLoader
 {
     public:
         spell_pri_mind_spike() : SpellScriptLoader("spell_pri_mind_spike") { }
@@ -1384,29 +1396,47 @@ class spell_pri_mind_spike : public SpellScriptLoader
         {
             PrepareSpellScript(spell_pri_mind_spike_SpellScript);
 
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(PRIEST_SURGE_OF_DARKNESS))
+                    {
+                        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(PRIEST_SURGE_OF_DARKNESS);
+                        if (l_SpellInfo)
+                            SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_SpellInfo->Effects[EFFECT_3].BasePoints));
+                    }
+                }
+            }
+
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
+                        if (l_Caster->HasAura(PRIEST_SPELL_SHADOW_INSIGHT))
+                            if (roll_chance_i(sSpellMgr->GetSpellInfo(PRIEST_SPELL_SHADOW_INSIGHT)->Effects[EFFECT_3].BasePoints))
+                                l_Caster->CastSpell(l_Caster, PRIEST_SPELL_SHADOW_INSIGHT_PROC, true);
                         // Surge of Darkness - Your next Mind Spike will not consume your damage-over-time effects ...
-                        if (!_player->HasAura(PRIEST_SURGE_OF_DARKNESS))
+                        if (!l_Caster->HasAura(PRIEST_SURGE_OF_DARKNESS))
                         {
                             // Mind Spike remove all DoT on the target's
-                            if (target->HasAura(PRIEST_SHADOW_WORD_PAIN, _player->GetGUID()))
-                                target->RemoveAura(PRIEST_SHADOW_WORD_PAIN, _player->GetGUID());
-                            if (target->HasAura(PRIEST_DEVOURING_PLAGUE, _player->GetGUID()))
-                                target->RemoveAura(PRIEST_DEVOURING_PLAGUE, _player->GetGUID());
-                            if (target->HasAura(PRIEST_VAMPIRIC_TOUCH, _player->GetGUID()))
-                                target->RemoveAura(PRIEST_VAMPIRIC_TOUCH, _player->GetGUID());
+                            if (l_Target->HasAura(PRIEST_SHADOW_WORD_PAIN, l_Caster->GetGUID()))
+                                l_Target->RemoveAura(PRIEST_SHADOW_WORD_PAIN, l_Caster->GetGUID());
+                            if (l_Target->HasAura(PRIEST_DEVOURING_PLAGUE, l_Caster->GetGUID()))
+                                l_Target->RemoveAura(PRIEST_DEVOURING_PLAGUE, l_Caster->GetGUID());
+                            if (l_Target->HasAura(PRIEST_VAMPIRIC_TOUCH, l_Caster->GetGUID()))
+                                l_Target->RemoveAura(PRIEST_VAMPIRIC_TOUCH, l_Caster->GetGUID());
                         }
                     }
                 }
             }
 
+
             void Register()
             {
+                OnEffectHitTarget += SpellEffectFn(spell_pri_mind_spike_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
                 OnHit += SpellHitFn(spell_pri_mind_spike_SpellScript::HandleOnHit);
             }
         };
@@ -1419,7 +1449,7 @@ class spell_pri_mind_spike : public SpellScriptLoader
 
 // Called by Holy Fire - 14914, Smite - 585 and Penance - 47666
 // Evangelism - 81662
-class spell_pri_evangelism : public SpellScriptLoader
+class spell_pri_evangelism: public SpellScriptLoader
 {
     public:
         spell_pri_evangelism() : SpellScriptLoader("spell_pri_evangelism") { }
@@ -1449,7 +1479,7 @@ class spell_pri_evangelism : public SpellScriptLoader
 };
 
 // Cascade - 127630 (damage trigger) or Cascade - 120786 (heal trigger)
-class spell_pri_cascade_second : public SpellScriptLoader
+class spell_pri_cascade_second: public SpellScriptLoader
 {
     public:
         spell_pri_cascade_second() : SpellScriptLoader("spell_pri_cascade_second") { }
@@ -1585,7 +1615,7 @@ class spell_pri_cascade_second : public SpellScriptLoader
 };
 
 // Cascade - 120785 (holy damage) or Cascade - 127628 (shadow damage) or Cascade - 127627 (shadow missile) or Cascade - 121146 (holy missile)
-class spell_pri_cascade_trigger : public SpellScriptLoader
+class spell_pri_cascade_trigger: public SpellScriptLoader
 {
     public:
         spell_pri_cascade_trigger() : SpellScriptLoader("spell_pri_cascade_trigger") { }
@@ -1625,7 +1655,7 @@ class spell_pri_cascade_trigger : public SpellScriptLoader
 };
 
 // Cascade (shadow) - 127632 and Cascade - 121135
-class spell_pri_cascade_first : public SpellScriptLoader
+class spell_pri_cascade_first: public SpellScriptLoader
 {
     public:
         spell_pri_cascade_first() : SpellScriptLoader("spell_pri_cascade_first") { }
@@ -1701,7 +1731,7 @@ class spell_pri_cascade_first : public SpellScriptLoader
 };
 
 // Halo - 120692 : Heal
-class spell_pri_halo_heal : public SpellScriptLoader
+class spell_pri_halo_heal: public SpellScriptLoader
 {
     public:
         spell_pri_halo_heal() : SpellScriptLoader("spell_pri_halo_heal") { }
@@ -1743,7 +1773,7 @@ enum Halo_Spell
 };
 
 // Halo Damage (shadow) - 120696
-class spell_pri_halo_damage : public SpellScriptLoader
+class spell_pri_halo_damage: public SpellScriptLoader
 {
     public:
         spell_pri_halo_damage() : SpellScriptLoader("spell_pri_halo_damage") { }
@@ -1781,7 +1811,7 @@ class spell_pri_halo_damage : public SpellScriptLoader
 
 // Halo - 120644 (damage)
 // Halo - 120517 (heal)
-class spell_pri_halo : public SpellScriptLoader
+class spell_pri_halo: public SpellScriptLoader
 {
 public:
     spell_pri_halo() : SpellScriptLoader("spell_pri_halo") { }
@@ -1838,7 +1868,7 @@ SpellScript* GetSpellScript() const
 };
 
 // Leap of Faith - 73325
-class spell_pri_leap_of_faith : public SpellScriptLoader
+class spell_pri_leap_of_faith: public SpellScriptLoader
 {
     public:
         spell_pri_leap_of_faith() : SpellScriptLoader("spell_pri_leap_of_faith") { }
@@ -1849,9 +1879,9 @@ class spell_pri_leap_of_faith : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* _player = GetCaster())
-                    if (Unit* target = GetHitUnit())
-                        target->CastSpell(_player, PRIEST_LEAP_OF_FAITH_JUMP, true);
+                if (Unit* l_Player = GetCaster())
+                    if (Unit* l_Target = GetHitUnit())
+                        l_Target->CastSpell(l_Player, PRIEST_LEAP_OF_FAITH_JUMP, true);
             }
 
             void Register()
@@ -1872,7 +1902,7 @@ enum PsychicHorror_Spell
 };
 
 // Psychic Horror - 64044
-class spell_pri_psychic_horror : public SpellScriptLoader
+class spell_pri_psychic_horror: public SpellScriptLoader
 {
     public:
         spell_pri_psychic_horror() : SpellScriptLoader("spell_pri_psychic_horror") { }
@@ -1883,24 +1913,26 @@ class spell_pri_psychic_horror : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
-                        if (caster->ToPlayer() && caster->ToPlayer()->GetSpecializationId(caster->ToPlayer()->GetActiveSpec()) == SPEC_PRIEST_SHADOW)
+                        if (l_Caster->ToPlayer() && l_Caster->ToPlayer()->GetSpecializationId(l_Caster->ToPlayer()->GetActiveSpec()) == SPEC_PRIEST_SHADOW)
                         {
-                            int32 currentPower = caster->GetPower(POWER_SHADOW_ORB);
-                            caster->ModifyPower(POWER_SHADOW_ORB, -currentPower);
+                            int32 l_CurrentPowerUsed = l_Caster->GetPower(POWER_SHADOW_ORB);
+                            if (l_CurrentPowerUsed > 3) // Maximum 3 Shadow Orb can be consumed
+                                l_CurrentPowerUsed = 3;
+                            l_Caster->ModifyPower(POWER_SHADOW_ORB, -l_CurrentPowerUsed);
 
                             // +1s per Shadow Orb consumed
-                            if (AuraPtr psychicHorror = target->GetAura(PRIEST_SPELL_PSYCHIC_HORROR))
+                            if (AuraPtr l_PsychicHorror = l_Target->GetAura(PRIEST_SPELL_PSYCHIC_HORROR))
                             {
-                                int32 maxDuration = psychicHorror->GetMaxDuration();
-                                int32 newDuration = maxDuration + GetSpellInfo()->Effects[EFFECT_0].BasePoints + currentPower * IN_MILLISECONDS;
-                                psychicHorror->SetDuration(newDuration);
+                                int32 l_MaxDuration = l_PsychicHorror->GetMaxDuration();
+                                int32 l_NewDuration = l_MaxDuration + GetSpellInfo()->Effects[EFFECT_0].BasePoints + l_CurrentPowerUsed * IN_MILLISECONDS;
+                                l_PsychicHorror->SetDuration(l_NewDuration);
 
-                                if (newDuration > maxDuration)
-                                    psychicHorror->SetMaxDuration(newDuration);
+                                if (l_NewDuration > l_MaxDuration)
+                                    l_PsychicHorror->SetMaxDuration(l_NewDuration);
                             }
                         }
                     }
@@ -1920,7 +1952,7 @@ class spell_pri_psychic_horror : public SpellScriptLoader
 };
 
 // Guardian Spirit - 47788
-class spell_pri_guardian_spirit : public SpellScriptLoader
+class spell_pri_guardian_spirit: public SpellScriptLoader
 {
     public:
         spell_pri_guardian_spirit() : SpellScriptLoader("spell_pri_guardian_spirit") { }
@@ -1977,7 +2009,7 @@ class spell_pri_guardian_spirit : public SpellScriptLoader
 };
 
 // Penance - 47540
-class spell_pri_penance : public SpellScriptLoader
+class spell_pri_penance: public SpellScriptLoader
 {
     public:
         spell_pri_penance() : SpellScriptLoader("spell_pri_penance") { }
@@ -2061,7 +2093,7 @@ enum Prayer_Of_Mending_Spell
 };
 
 // Prayer of Mending Heal
-class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
+class spell_pri_prayer_of_mending_heal: public SpellScriptLoader
 {
     public:
         spell_pri_prayer_of_mending_heal() : SpellScriptLoader("spell_pri_prayer_of_mending_heal") { }
@@ -2097,7 +2129,7 @@ class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
 };
 
 // Vampiric Touch - 34914
-class spell_pri_vampiric_touch : public SpellScriptLoader
+class spell_pri_vampiric_touch: public SpellScriptLoader
 {
     public:
         spell_pri_vampiric_touch() : SpellScriptLoader("spell_pri_vampiric_touch") { }
@@ -2108,14 +2140,13 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
 
             void OnTick(constAuraEffectPtr aurEff)
             {
-                if (GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    GetCaster()->EnergizeBySpell(GetCaster(), GetSpellInfo()->Id, GetCaster()->CountPctFromMaxMana(2), POWER_MANA);
+                    l_Caster->EnergizeBySpell(GetCaster(), GetSpellInfo()->Id, l_Caster->CountPctFromMaxMana(2), POWER_MANA);
 
-                    // From Darkness, Comes Light
-                    if (GetCaster()->HasAura(PRIEST_SURGE_OF_LIGHT_AURA))
-                        if (roll_chance_i(sSpellMgr->GetSpellInfo(PRIEST_SURGE_OF_LIGHT_AURA)->Effects[EFFECT_0].BasePoints)) // 8% Chance
-                            GetCaster()->CastSpell(GetCaster(), PRIEST_SURGE_OF_DARKNESS, true);
+                    if (l_Caster->HasAura(PRIEST_SURGE_OF_DARKNESS_AURA))
+                        if (roll_chance_i(sSpellMgr->GetSpellInfo(PRIEST_SURGE_OF_DARKNESS_AURA)->Effects[EFFECT_0].BasePoints))
+                            l_Caster->CastSpell(l_Caster, PRIEST_SURGE_OF_DARKNESS, true);
                 }
             }
 
@@ -2142,7 +2173,7 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
 
 // Called by Renew - 139
 // Rapid Renew - 95649
-class spell_pri_renew : public SpellScriptLoader
+class spell_pri_renew: public SpellScriptLoader
 {
     public:
         spell_pri_renew() : SpellScriptLoader("spell_pri_renew") { }
@@ -2180,7 +2211,7 @@ class spell_pri_renew : public SpellScriptLoader
 };
 
 // Levitate - 1706
-class spell_pri_levitate : public SpellScriptLoader
+class spell_pri_levitate: public SpellScriptLoader
 {
     public:
         spell_pri_levitate() : SpellScriptLoader("spell_pri_levitate") { }
@@ -2210,7 +2241,7 @@ class spell_pri_levitate : public SpellScriptLoader
 
 // Call by Flah Heal 2061 - Heal 2060 - Prayer of healing 596
 // Spirit Shell - 109964
-class spell_pri_spirit_shell : public SpellScriptLoader
+class spell_pri_spirit_shell: public SpellScriptLoader
 {
 public:
     spell_pri_spirit_shell() : SpellScriptLoader("spell_pri_spirit_shell") { }
@@ -2243,7 +2274,7 @@ public:
 };
 
 // Flash heal - 2061
-class spell_pri_flash_heal : public SpellScriptLoader
+class spell_pri_flash_heal: public SpellScriptLoader
 {
 public:
     spell_pri_flash_heal() : SpellScriptLoader("spell_pri_flash_heal") { }
@@ -2272,7 +2303,7 @@ public:
 };
 
 // Clarity of will - 152118
-class spell_pri_clarity_of_will : public SpellScriptLoader
+class spell_pri_clarity_of_will: public SpellScriptLoader
 {
 public:
     spell_pri_clarity_of_will() : SpellScriptLoader("spell_pri_clarity_of_will") { }
@@ -2301,7 +2332,7 @@ public:
 };
 
 // Void Tendrils - 108920
-class spell_pri_void_tendrils : public SpellScriptLoader
+class spell_pri_void_tendrils: public SpellScriptLoader
 {
     public:
         spell_pri_void_tendrils() : SpellScriptLoader("spell_pri_void_tendrils") { }
@@ -2346,8 +2377,65 @@ class spell_pri_void_tendrils : public SpellScriptLoader
         }
 };
 
+//Power word : Barrier Update - 145645
+class spell_pri_word_barrier_update: public SpellScriptLoader
+{
+public:
+    spell_pri_word_barrier_update() : SpellScriptLoader("spell_pri_word_barrier_update") { }
+
+    class spell_pri_word_barrier_update_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pri_word_barrier_update_AuraScript);
+
+        void OnTick(constAuraEffectPtr aurEff)
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                AreaTrigger* l_Area = l_Caster->GetAreaTrigger(62618);
+
+                if (!l_Area)
+                    return;
+
+                std::list<Unit*> l_BindedList;
+
+                CellCoord l_Pos(JadeCore::ComputeCellCoord(l_Area->GetPositionX(), l_Area->GetPositionY()));
+                Cell l_Cell(l_Pos);
+                l_Cell.SetNoCreate();
+
+                JadeCore::AnyUnitInObjectRangeCheck l_Check(l_Area, 10.0f);
+                JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck> l_Searcher(l_Area, l_BindedList, l_Check);
+
+                TypeContainerVisitor<JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck>, WorldTypeMapContainer > world_unit_searcher(l_Searcher);
+                TypeContainerVisitor<JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck>, GridTypeMapContainer >  grid_unit_searcher(l_Searcher);
+
+                l_Cell.Visit(l_Pos, world_unit_searcher, *l_Area->GetMap(), *l_Area, 10.0f);
+                l_Cell.Visit(l_Pos, grid_unit_searcher, *l_Area->GetMap(), *l_Area, 10.0f);
+
+                for (auto itr : l_BindedList)
+                {
+                    Unit* l_Target = itr->ToUnit();
+                    if (!l_Target)
+                        continue;
+
+                    if (!l_Target->HasAura(81782))
+                        l_Caster->CastSpell(l_Target, 81782, true);
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_pri_word_barrier_update_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_pri_word_barrier_update_AuraScript();
+    }
+};
 //Power word : Barrier - 62618
-class spell_pri_power_word_barrier : public SpellScriptLoader
+class spell_pri_power_word_barrier: public SpellScriptLoader
 {
 public:
     spell_pri_power_word_barrier() : SpellScriptLoader("spell_pri_power_word_barrier") { }
@@ -2358,9 +2446,9 @@ public:
 
         void HandleOnHit()
         {
-            if (Unit* l_Caster = GetCaster())
-                if (AreaTrigger* l_Area = l_Caster->GetAreaTrigger(PRIEST_POWER_WORD_BARRIER_AREA_TRIGGER))
-                    l_Caster->CastSpell(l_Area->GetPositionX(), l_Area->GetPositionY(), l_Area->GetPositionZ(), 145645, true);
+                if (Unit* l_Caster = GetCaster())
+                    if (AreaTrigger* l_Area = l_Caster->GetAreaTrigger(GetSpellInfo()->Id))
+                        l_Caster->CastSpell(l_Area->GetPositionX(), l_Area->GetPositionY(), l_Area->GetPositionZ(), 145645, true);
         }
 
         void Register()
@@ -2376,7 +2464,7 @@ public:
 };
 
 // Archangel - 81700
-class spell_pri_archangel : public SpellScriptLoader
+class spell_pri_archangel: public SpellScriptLoader
 {
 public:
     spell_pri_archangel() : SpellScriptLoader("spell_pri_archangel") { }
@@ -2408,7 +2496,7 @@ public:
 };
 
 // Prayer of Mending - 33076
-class spell_pri_prayer_of_mending : public SpellScriptLoader
+class spell_pri_prayer_of_mending: public SpellScriptLoader
 {
 public:
     spell_pri_prayer_of_mending() : SpellScriptLoader("spell_pri_prayer_of_mending") {}
@@ -2438,7 +2526,7 @@ public:
 
 // Call by Mind Spike 73510 - Mind Sear 48045 - Shadow Word: Death 32379
 // Clarity of Power - 155246
-class spell_pri_clarity_of_power : public SpellScriptLoader
+class spell_pri_clarity_of_power: public SpellScriptLoader
 {
 public:
     spell_pri_clarity_of_power() : SpellScriptLoader("spell_pri_clarity_of_power") {}
@@ -2468,39 +2556,8 @@ public:
     }
 };
 
-// Call by Vampiric Touch 34914 - Devouring Plague 2944
-// Surge of Darkness - 162448
-class spell_pri_surge_of_darkness : public SpellScriptLoader
-{
-public:
-    spell_pri_surge_of_darkness() : SpellScriptLoader("spell_pri_surge_of_darkness") {}
-
-    class spell_pri_surge_of_darkness_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_pri_surge_of_darkness_SpellScript);
-
-        void HandleOnHit()
-        {
-            if (Unit* l_Caster = GetCaster())
-                if (l_Caster->HasAura(PRIEST_SURGE_OF_DARKNESS_AURA))
-                    if (roll_chance_i(sSpellMgr->GetSpellInfo(PRIEST_SURGE_OF_DARKNESS_AURA)->Effects[EFFECT_0].BasePoints))
-                        l_Caster->CastSpell(l_Caster, PRIEST_SURGE_OF_DARKNESS, true);
-        }
-
-        void Register()
-        {
-            OnHit += SpellHitFn(spell_pri_surge_of_darkness_SpellScript::HandleOnHit);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_pri_surge_of_darkness_SpellScript();
-    }
-};
-
 // Angelic Feather - 121536
-class spell_pri_angelic_feather : public SpellScriptLoader
+class spell_pri_angelic_feather: public SpellScriptLoader
 {
 public:
     spell_pri_angelic_feather() : SpellScriptLoader("spell_pri_angelic_feather") {}
@@ -2509,16 +2566,16 @@ public:
     {
         PrepareSpellScript(spell_pri_angelic_feather_SpellScript);
 
-        void HandleOnHit()
+        void HandleOnCast()
         {
-            if (Unit* l_Caster = GetCaster())
-                if (Unit *l_Target = GetHitUnit())
-                    l_Caster->CastSpell(l_Target, 158624, true);
+            if (Unit *l_Caster = GetCaster())
+                if (WorldLocation* l_Dest = const_cast<WorldLocation*>(GetExplTargetDest()))
+                    l_Caster->CastSpell(l_Dest->GetPositionX(), l_Dest->GetPositionY(), l_Dest->GetPositionZ(), 158624, true);
         }
 
         void Register()
         {
-            OnHit += SpellHitFn(spell_pri_angelic_feather_SpellScript::HandleOnHit);
+            OnCast += SpellCastFn(spell_pri_angelic_feather_SpellScript::HandleOnCast);
         }
     };
 
@@ -2528,12 +2585,62 @@ public:
     }
 };
 
+// Shadow Word: Pain - 589
+class spell_pri_shadow_word_pain: public SpellScriptLoader
+{
+public:
+    spell_pri_shadow_word_pain() : SpellScriptLoader("spell_pri_shadow_word_pain") { }
+
+    class spell_pri_shadow_word_pain_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pri_shadow_word_pain_AuraScript);
+
+        void OnTick(constAuraEffectPtr aurEff)
+        {
+            if (Unit *l_Caster = GetCaster())
+            {
+                if (l_Caster->HasAura(PRIEST_SPELL_SHADOW_INSIGHT))
+                    if (roll_chance_i(sSpellMgr->GetSpellInfo(PRIEST_SPELL_SHADOW_INSIGHT)->Effects[EFFECT_3].BasePoints))
+                        l_Caster->CastSpell(l_Caster, PRIEST_SPELL_SHADOW_INSIGHT_PROC, true);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_pri_shadow_word_pain_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_pri_shadow_word_pain_AuraScript();
+    }
+};
+
+// Insanity - 132573
+class PlayerScript_insanity: public PlayerScript
+{
+public:
+    PlayerScript_insanity() :PlayerScript("PlayerScript_insanity") {}
+
+    void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_Value)
+    {
+        if (p_Player->getClass() == CLASS_PRIEST && p_Player->GetSpecializationId(p_Player->GetActiveSpec()) == SPEC_PRIEST_SHADOW && p_Power == POWER_SHADOW_ORB)
+            if (p_Value < 0 && p_Player->HasAura(PRIEST_SPELL_INSANITY_AURA))
+            {
+                p_Player->CastSpell(p_Player, PRIEST_SPELL_INSANITY, true);
+                if (AuraPtr l_Insanity = p_Player->GetAura(PRIEST_SPELL_INSANITY))
+                    l_Insanity->SetDuration(l_Insanity->GetMaxDuration() * (p_Value * -1));
+            }
+    }
+};
 
 void AddSC_priest_spell_scripts()
 {
+    new spell_pri_word_barrier_update();
+    new spell_pri_shadow_word_pain();
     new spell_pri_angelic_feather();
     new spell_pri_spirit_shell();
-    new spell_pri_surge_of_darkness();
     new spell_pri_clarity_of_power();
     new spell_pri_prayer_of_mending();
     new spell_pri_archangel();
@@ -2551,7 +2658,6 @@ void AddSC_priest_spell_scripts()
     new spell_pri_spirit_of_redemption_form();
     new spell_pri_spirit_of_redemption();
     new spell_pri_item_s12_4p_heal();
-    new spell_pri_item_s12_2p_heal();
     new spell_pri_item_s12_2p_shadow();
     new spell_pri_divine_insight_shadow();
     new spell_pri_power_word_solace();
@@ -2590,4 +2696,5 @@ void AddSC_priest_spell_scripts()
 
     // Player Script
     new PlayerScript_Shadow_Orb();
+    new PlayerScript_insanity();
 }

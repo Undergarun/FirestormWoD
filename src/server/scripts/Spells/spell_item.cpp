@@ -28,7 +28,7 @@
 #include "SkillDiscovery.h"
 
 // Generic script for handling item dummy effects which trigger another spell.
-class spell_item_trigger_spell : public SpellScriptLoader
+class spell_item_trigger_spell: public SpellScriptLoader
 {
     private:
         uint32 _triggeredSpellId;
@@ -82,7 +82,7 @@ enum DeviateFishSpells
     SPELL_HEALTHY_SPIRIT    = 8068,
 };
 
-class spell_item_deviate_fish : public SpellScriptLoader
+class spell_item_deviate_fish: public SpellScriptLoader
 {
     public:
         spell_item_deviate_fish() : SpellScriptLoader("spell_item_deviate_fish") { }
@@ -132,7 +132,7 @@ enum FlaskOfTheNorthSpells
     SPELL_FLASK_OF_THE_NORTH_STR = 67018,
 };
 
-class spell_item_flask_of_the_north : public SpellScriptLoader
+class spell_item_flask_of_the_north: public SpellScriptLoader
 {
     public:
         spell_item_flask_of_the_north() : SpellScriptLoader("spell_item_flask_of_the_north") { }
@@ -201,7 +201,7 @@ enum GnomishDeathRay
     SPELL_GNOMISH_DEATH_RAY_TARGET = 13279,
 };
 
-class spell_item_gnomish_death_ray : public SpellScriptLoader
+class spell_item_gnomish_death_ray: public SpellScriptLoader
 {
     public:
         spell_item_gnomish_death_ray() : SpellScriptLoader("spell_item_gnomish_death_ray") { }
@@ -252,7 +252,7 @@ enum MakeAWish
     SPELL_MR_PINCHYS_GIFT           = 33064,
 };
 
-class spell_item_make_a_wish : public SpellScriptLoader
+class spell_item_make_a_wish: public SpellScriptLoader
 {
     public:
         spell_item_make_a_wish() : SpellScriptLoader("spell_item_make_a_wish") { }
@@ -301,7 +301,7 @@ class spell_item_make_a_wish : public SpellScriptLoader
 
 // http://www.wowhead.com/item=32686 Mingo's Fortune Giblets
 // 40802 Mingo's Fortune Generator
-class spell_item_mingos_fortune_generator : public SpellScriptLoader
+class spell_item_mingos_fortune_generator: public SpellScriptLoader
 {
     public:
         spell_item_mingos_fortune_generator() : SpellScriptLoader("spell_item_mingos_fortune_generator") { }
@@ -364,7 +364,7 @@ enum NetOMaticSpells
     SPELL_NET_O_MATIC_TRIGGERED3 = 13099,
 };
 
-class spell_item_net_o_matic : public SpellScriptLoader
+class spell_item_net_o_matic: public SpellScriptLoader
 {
     public:
         spell_item_net_o_matic() : SpellScriptLoader("spell_item_net_o_matic") { }
@@ -416,7 +416,7 @@ enum NoggenfoggerElixirSpells
     SPELL_NOGGENFOGGER_ELIXIR_TRIGGERED3 = 16591,
 };
 
-class spell_item_noggenfogger_elixir : public SpellScriptLoader
+class spell_item_noggenfogger_elixir: public SpellScriptLoader
 {
     public:
         spell_item_noggenfogger_elixir() : SpellScriptLoader("spell_item_noggenfogger_elixir") { }
@@ -472,7 +472,7 @@ enum SavoryDeviateDelight
     SPELL_YAAARRRR_FEMALE   = 8222,
 };
 
-class spell_item_savory_deviate_delight : public SpellScriptLoader
+class spell_item_savory_deviate_delight: public SpellScriptLoader
 {
     public:
         spell_item_savory_deviate_delight() : SpellScriptLoader("spell_item_savory_deviate_delight") { }
@@ -532,7 +532,7 @@ enum SixDemonBagSpells
     SPELL_ENVELOPING_WINDS          = 25189,
 };
 
-class spell_item_six_demon_bag : public SpellScriptLoader
+class spell_item_six_demon_bag: public SpellScriptLoader
 {
     public:
         spell_item_six_demon_bag() : SpellScriptLoader("spell_item_six_demon_bag") { }
@@ -600,7 +600,7 @@ enum UnderbellyElixirSpells
     SPELL_UNDERBELLY_ELIXIR_TRIGGERED3 = 59843,
 };
 
-class spell_item_underbelly_elixir : public SpellScriptLoader
+class spell_item_underbelly_elixir: public SpellScriptLoader
 {
     public:
         spell_item_underbelly_elixir() : SpellScriptLoader("spell_item_underbelly_elixir") { }
@@ -651,7 +651,7 @@ enum eShadowmourneVisuals
     SPELL_SHADOWMOURNE_CHAOS_BANE_BUFF  = 73422,
 };
 
-class spell_item_shadowmourne : public SpellScriptLoader
+class spell_item_shadowmourne: public SpellScriptLoader
 {
 public:
     spell_item_shadowmourne() : SpellScriptLoader("spell_item_shadowmourne") { }
@@ -715,7 +715,7 @@ enum AirRifleSpells
     SPELL_AIR_RIFLE_SHOOT_SELF  = 65577,
 };
 
-class spell_item_red_rider_air_rifle : public SpellScriptLoader
+class spell_item_red_rider_air_rifle: public SpellScriptLoader
 {
     public:
         spell_item_red_rider_air_rifle() : SpellScriptLoader("spell_item_red_rider_air_rifle") { }
@@ -780,7 +780,7 @@ enum CreateHeartCandy
     ITEM_HEART_CANDY_8 = 21820,
 };
 
-class spell_item_create_heart_candy : public SpellScriptLoader
+class spell_item_create_heart_candy: public SpellScriptLoader
 {
     public:
         spell_item_create_heart_candy() : SpellScriptLoader("spell_item_create_heart_candy") { }
@@ -812,7 +812,7 @@ class spell_item_create_heart_candy : public SpellScriptLoader
 };
 
 // Item 45912 spell 64323
-class spell_item_book_of_glyph_mastery : public SpellScriptLoader
+class spell_item_book_of_glyph_mastery: public SpellScriptLoader
 {
     public:
         spell_item_book_of_glyph_mastery() : SpellScriptLoader("spell_item_book_of_glyph_mastery") {}
@@ -855,7 +855,7 @@ enum GiftOfTheHarvester
     MAX_GHOULS  = 5,
 };
 
-class spell_item_gift_of_the_harvester : public SpellScriptLoader
+class spell_item_gift_of_the_harvester: public SpellScriptLoader
 {
     public:
         spell_item_gift_of_the_harvester() : SpellScriptLoader("spell_item_gift_of_the_harvester") {}
@@ -896,7 +896,7 @@ enum Sinkholes
     NPC_NORTHWEST_SINKHOLE  = 25666,
 };
 
-class spell_item_map_of_the_geyser_fields : public SpellScriptLoader
+class spell_item_map_of_the_geyser_fields: public SpellScriptLoader
 {
     public:
         spell_item_map_of_the_geyser_fields() : SpellScriptLoader("spell_item_map_of_the_geyser_fields") {}
@@ -936,7 +936,7 @@ enum VanquishedClutchesSpells
     SPELL_CORRUPTOR     = 64984,
 };
 
-class spell_item_vanquished_clutches : public SpellScriptLoader
+class spell_item_vanquished_clutches: public SpellScriptLoader
 {
     public:
         spell_item_vanquished_clutches() : SpellScriptLoader("spell_item_vanquished_clutches") { }
@@ -981,7 +981,7 @@ enum MagicEater
     SPELL_WELL_FED_5                             = 57291,
 };
 
-class spell_magic_eater_food : public SpellScriptLoader
+class spell_magic_eater_food: public SpellScriptLoader
 {
     public:
         spell_magic_eater_food() : SpellScriptLoader("spell_magic_eater_food") {}
@@ -1029,7 +1029,7 @@ class spell_magic_eater_food : public SpellScriptLoader
         }
 };
 
-class spell_item_shimmering_vessel : public SpellScriptLoader
+class spell_item_shimmering_vessel: public SpellScriptLoader
 {
     public:
         spell_item_shimmering_vessel() : SpellScriptLoader("spell_item_shimmering_vessel") { }
@@ -1063,7 +1063,7 @@ enum PurifyHelboarMeat
     ITEM_PURIFIED_HELBOAR_MEAT              = 23248,
 };
 
-class spell_item_purify_helboar_meat : public SpellScriptLoader
+class spell_item_purify_helboar_meat: public SpellScriptLoader
 {
     public:
         spell_item_purify_helboar_meat() : SpellScriptLoader("spell_item_purify_helboar_meat") { }
@@ -1111,7 +1111,7 @@ enum CrystalPrison
     OBJECT_IMPRISONED_DOOMGUARD     = 179644,
 };
 
-class spell_item_crystal_prison_dummy_dnd : public SpellScriptLoader
+class spell_item_crystal_prison_dummy_dnd: public SpellScriptLoader
 {
     public:
         spell_item_crystal_prison_dummy_dnd() : SpellScriptLoader("spell_item_crystal_prison_dummy_dnd") { }
@@ -1158,7 +1158,7 @@ enum ReindeerTransformation
     SPELL_REINDEER_60                           = 25858,
 };
 
-class spell_item_reindeer_transformation : public SpellScriptLoader
+class spell_item_reindeer_transformation: public SpellScriptLoader
 {
     public:
         spell_item_reindeer_transformation() : SpellScriptLoader("spell_item_reindeer_transformation") { }
@@ -1223,7 +1223,7 @@ enum NighInvulnerability
     SPELL_COMPLETE_VULNERABILITY                = 30457,
 };
 
-class spell_item_nigh_invulnerability : public SpellScriptLoader
+class spell_item_nigh_invulnerability: public SpellScriptLoader
 {
     public:
         spell_item_nigh_invulnerability() : SpellScriptLoader("spell_item_nigh_invulnerability") { }
@@ -1269,7 +1269,7 @@ enum Poultryzer
     SPELL_POULTRYIZER_BACKFIRE   = 30504,
 };
 
-class spell_item_poultryizer : public SpellScriptLoader
+class spell_item_poultryizer: public SpellScriptLoader
 {
     public:
         spell_item_poultryizer() : SpellScriptLoader("spell_item_poultryizer") { }
@@ -1309,7 +1309,7 @@ enum SocretharsStone
     SPELL_SOCRETHAR_FROM_SEAT   = 35744,
 };
 
-class spell_item_socrethars_stone : public SpellScriptLoader
+class spell_item_socrethars_stone: public SpellScriptLoader
 {
     public:
         spell_item_socrethars_stone() : SpellScriptLoader("spell_item_socrethars_stone") { }
@@ -1364,7 +1364,7 @@ enum DemonBroiledSurprise
     NPC_ABYSSAL_FLAMEBRINGER                = 19973,
 };
 
-class spell_item_demon_broiled_surprise : public SpellScriptLoader
+class spell_item_demon_broiled_surprise: public SpellScriptLoader
 {
     public:
         spell_item_demon_broiled_surprise() : SpellScriptLoader("spell_item_demon_broiled_surprise") { }
@@ -1421,7 +1421,7 @@ enum CompleteRaptorCapture
     SPELL_RAPTOR_CAPTURE_CREDIT     = 42337,
 };
 
-class spell_item_complete_raptor_capture : public SpellScriptLoader
+class spell_item_complete_raptor_capture: public SpellScriptLoader
 {
     public:
         spell_item_complete_raptor_capture() : SpellScriptLoader("spell_item_complete_raptor_capture") { }
@@ -1467,7 +1467,7 @@ enum ImpaleLeviroth
     SPELL_LEVIROTH_SELF_IMPALE  = 49882,
 };
 
-class spell_item_impale_leviroth : public SpellScriptLoader
+class spell_item_impale_leviroth: public SpellScriptLoader
 {
     public:
         spell_item_impale_leviroth() : SpellScriptLoader("spell_item_impale_leviroth") { }
@@ -1512,7 +1512,7 @@ enum BrewfestMountTransformation
     SPELL_BREWFEST_MOUNT_TRANSFORM_REVERSE      = 52845,
 };
 
-class spell_item_brewfest_mount_transformation : public SpellScriptLoader
+class spell_item_brewfest_mount_transformation: public SpellScriptLoader
 {
     public:
         spell_item_brewfest_mount_transformation() : SpellScriptLoader("spell_item_brewfest_mount_transformation") { }
@@ -1575,7 +1575,7 @@ enum NitroBoots
     SPELL_NITRO_BOOTS_BACKFIRE      = 46014,
 };
 
-class spell_item_nitro_boots : public SpellScriptLoader
+class spell_item_nitro_boots: public SpellScriptLoader
 {
     public:
         spell_item_nitro_boots() : SpellScriptLoader("spell_item_nitro_boots") { }
@@ -1622,7 +1622,7 @@ enum TeachLanguage
     SPELL_LEARN_GOBLIN_BINARY       = 50246,
 };
 
-class spell_item_teach_language : public SpellScriptLoader
+class spell_item_teach_language: public SpellScriptLoader
 {
     public:
         spell_item_teach_language() : SpellScriptLoader("spell_item_teach_language") { }
@@ -1668,7 +1668,7 @@ enum RocketBoots
     SPELL_ROCKET_BOOTS_PROC      = 30452,
 };
 
-class spell_item_rocket_boots : public SpellScriptLoader
+class spell_item_rocket_boots: public SpellScriptLoader
 {
     public:
         spell_item_rocket_boots() : SpellScriptLoader("spell_item_rocket_boots") { }
@@ -1728,7 +1728,7 @@ enum PygmyOil
     SPELL_PYGMY_OIL_SMALLER_AURA    = 53805,
 };
 
-class spell_item_pygmy_oil : public SpellScriptLoader
+class spell_item_pygmy_oil: public SpellScriptLoader
 {
     public:
         spell_item_pygmy_oil() : SpellScriptLoader("spell_item_pygmy_oil") { }
@@ -1774,7 +1774,7 @@ class spell_item_pygmy_oil : public SpellScriptLoader
         }
 };
 
-class spell_item_unusual_compass : public SpellScriptLoader
+class spell_item_unusual_compass: public SpellScriptLoader
 {
     public:
         spell_item_unusual_compass() : SpellScriptLoader("spell_item_unusual_compass") { }
@@ -1810,7 +1810,7 @@ enum ChickenCover
     QUEST_FLOWN_THE_COOP            = 12532,
 };
 
-class spell_item_chicken_cover : public SpellScriptLoader
+class spell_item_chicken_cover: public SpellScriptLoader
 {
     public:
         spell_item_chicken_cover() : SpellScriptLoader("spell_item_chicken_cover") { }
@@ -1860,10 +1860,9 @@ enum Refocus
 {
     SPELL_AIMED_SHOT    = 19434,
     SPELL_MULTISHOT     = 2643,
-    SPELL_VOLLEY        = 42243,
 };
 
-class spell_item_refocus : public SpellScriptLoader
+class spell_item_refocus: public SpellScriptLoader
 {
     public:
         spell_item_refocus() : SpellScriptLoader("spell_item_refocus") { }
@@ -1884,9 +1883,6 @@ class spell_item_refocus : public SpellScriptLoader
 
                 if (caster->HasSpellCooldown(SPELL_MULTISHOT))
                     caster->RemoveSpellCooldown(SPELL_MULTISHOT, true);
-
-                if (caster->HasSpellCooldown(SPELL_VOLLEY))
-                    caster->RemoveSpellCooldown(SPELL_VOLLEY, true);
             }
 
             void Register()
@@ -1901,7 +1897,7 @@ class spell_item_refocus : public SpellScriptLoader
         }
 };
 
-class spell_item_muisek_vessel : public SpellScriptLoader
+class spell_item_muisek_vessel: public SpellScriptLoader
 {
     public:
         spell_item_muisek_vessel() : SpellScriptLoader("spell_item_muisek_vessel") { }
@@ -1934,7 +1930,7 @@ enum GreatmothersSoulcather
     SPELL_FORCE_CAST_SUMMON_GNOME_SOUL = 46486,
 };
 
-class spell_item_greatmothers_soulcatcher : public SpellScriptLoader
+class spell_item_greatmothers_soulcatcher: public SpellScriptLoader
 {
 public:
     spell_item_greatmothers_soulcatcher() : SpellScriptLoader("spell_item_greatmothers_soulcatcher") { }
@@ -1962,7 +1958,7 @@ public:
 };
 
 // Enohar Explosive Arrows - 78838
-class spell_item_enohar_explosive_arrows : public SpellScriptLoader
+class spell_item_enohar_explosive_arrows: public SpellScriptLoader
 {
     public:
         spell_item_enohar_explosive_arrows() : SpellScriptLoader("spell_item_enohar_explosive_arrows") { }
@@ -1997,7 +1993,7 @@ enum HolyThurible
     NPC_WITHDRAWN_SOUL           = 45166,
 };
 
-class spell_item_holy_thurible : public SpellScriptLoader
+class spell_item_holy_thurible: public SpellScriptLoader
 {
     public:
         spell_item_holy_thurible() : SpellScriptLoader("spell_item_holy_thurible") { }
@@ -2041,7 +2037,7 @@ enum bandage
     NPC_WOUNDED_DEFENDER      = 38805,
 };
 
-class spell_item_bandage_q24944 : public SpellScriptLoader
+class spell_item_bandage_q24944: public SpellScriptLoader
 {
     public:
         spell_item_bandage_q24944() : SpellScriptLoader("spell_item_bandage_q24944") { }
@@ -2075,7 +2071,7 @@ class spell_item_bandage_q24944 : public SpellScriptLoader
         }
 };
 
-class spell_item_gen_alchemy_mop : public SpellScriptLoader
+class spell_item_gen_alchemy_mop: public SpellScriptLoader
 {
     public:
         spell_item_gen_alchemy_mop() : SpellScriptLoader("spell_item_gen_alchemy_mop") { }
@@ -2112,7 +2108,7 @@ class spell_item_gen_alchemy_mop : public SpellScriptLoader
         }
 };
 
-class spell_alchemist_rejuvenation : public SpellScriptLoader
+class spell_alchemist_rejuvenation: public SpellScriptLoader
 {
     public:
         spell_alchemist_rejuvenation() : SpellScriptLoader("spell_alchemist_rejuvenation") { }
@@ -2196,7 +2192,7 @@ class spell_alchemist_rejuvenation : public SpellScriptLoader
 
 #define SPELL_AMBER_PRISON 127266
 
-class spell_item_amber_prison : public SpellScriptLoader
+class spell_item_amber_prison: public SpellScriptLoader
 {
     public:
         spell_item_amber_prison() : SpellScriptLoader("spell_item_amber_prison") { }
@@ -2242,7 +2238,7 @@ class spell_item_amber_prison : public SpellScriptLoader
         }
 };
 
-class spell_item_first_aid : public SpellScriptLoader
+class spell_item_first_aid: public SpellScriptLoader
 {
     public:
         spell_item_first_aid() : SpellScriptLoader("spell_item_first_aid") { }
@@ -2284,7 +2280,7 @@ class spell_item_first_aid : public SpellScriptLoader
         }
 };
 
-class spell_item_imputting_the_final_code : public SpellScriptLoader
+class spell_item_imputting_the_final_code: public SpellScriptLoader
 {
     public:
         spell_item_imputting_the_final_code() : SpellScriptLoader("spell_item_imputting_the_final_code") { }
@@ -2318,7 +2314,7 @@ class spell_item_imputting_the_final_code : public SpellScriptLoader
         }
 };
 
-class spell_item_pot_of_fire : public SpellScriptLoader
+class spell_item_pot_of_fire: public SpellScriptLoader
 {
     public:
         spell_item_pot_of_fire() : SpellScriptLoader("spell_item_pot_of_fire") { }
@@ -2382,7 +2378,7 @@ class spell_item_pot_of_fire : public SpellScriptLoader
         }
 };
 
-class spell_item_dit_da_jow : public SpellScriptLoader
+class spell_item_dit_da_jow: public SpellScriptLoader
 {
     public:
         spell_item_dit_da_jow() : SpellScriptLoader("spell_item_dit_da_jow") { }
@@ -2424,7 +2420,7 @@ class spell_item_dit_da_jow : public SpellScriptLoader
         }
 };
 
-class spell_item_zuluhed_chains : public SpellScriptLoader
+class spell_item_zuluhed_chains: public SpellScriptLoader
 {
     public:
         spell_item_zuluhed_chains() : SpellScriptLoader("spell_item_zuluhed_chains") { }
@@ -2458,7 +2454,7 @@ class spell_item_zuluhed_chains : public SpellScriptLoader
         }
 };
 
-class spell_item_yak_s_milk : public SpellScriptLoader
+class spell_item_yak_s_milk: public SpellScriptLoader
 {
     public:
         spell_item_yak_s_milk() : SpellScriptLoader("spell_item_yak_s_milk") { }
@@ -2500,7 +2496,7 @@ class spell_item_yak_s_milk : public SpellScriptLoader
         }
 };
 
-class spell_item_throw_mantra : public SpellScriptLoader
+class spell_item_throw_mantra: public SpellScriptLoader
 {
     public:
         spell_item_throw_mantra() : SpellScriptLoader("spell_item_throw_mantra") { }
