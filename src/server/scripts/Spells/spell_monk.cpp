@@ -2274,7 +2274,7 @@ class spell_monk_renewing_mist: public SpellScriptLoader
                 update = 0;
                 spreadCount = 1;
 
-                if (!sSpellMgr->GetSpellInfo(119611))
+                if (!sSpellMgr->GetSpellInfo(SPELL_MONK_RENEWING_MIST_HOT))
                     return false;
                 return true;
             }
@@ -4290,8 +4290,42 @@ public:
     }
 };
 
+// Uplift - 116670
+class spell_monk_uplift : public SpellScriptLoader
+{
+public:
+    spell_monk_uplift() : SpellScriptLoader("spell_monk_uplift") { }
+
+    class spell_monk_uplift_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_monk_uplift_SpellScript);
+
+        void CorrectTarget(std::list<WorldObject*>& p_Targets)
+        {
+            std::list<WorldObject*> l_TempTargets = p_Targets;
+            for (auto itr : l_TempTargets)
+            {
+                if (itr->ToUnit() == nullptr || !itr->ToUnit()->HasAura(SPELL_MONK_RENEWING_MIST_HOT))
+                    p_Targets.remove(itr);
+            }
+        }
+
+        void Register()
+        {
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_uplift_SpellScript::CorrectTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_uplift_SpellScript::CorrectTarget, EFFECT_1, TARGET_UNIT_SRC_AREA_ALLY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_monk_uplift_SpellScript();
+    }
+};
+
 void AddSC_monk_spell_scripts()
 {
+    new spell_monk_uplift();
     new spell_monk_rising_sun_kick();
     new spell_monk_stance_of_tiger();
     new spell_monk_combo_breaker();
