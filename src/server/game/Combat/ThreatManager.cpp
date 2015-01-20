@@ -563,7 +563,10 @@ void ThreatManager::processThreatEvent(ThreatRefStatusChangeEvent* threatRefStat
                 iThreatOfflineContainer.remove(hostilRef);
 
             if (iOwner->GetTypeId() == TYPEID_UNIT && iOwner->IsAIEnabled)
-                iOwner->ToCreature()->AI()->OnHostileReferenceRemoved(sObjectAccessor->FindUnit(hostilRef->getUnitGuid()));
+            {
+                if (Unit* l_Ref = sObjectAccessor->FindUnit(hostilRef->getUnitGuid()))
+                    iOwner->ToCreature()->AI()->OnHostileReferenceRemoved(l_Ref);
+            }
             break;
     }
 }

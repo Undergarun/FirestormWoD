@@ -1526,6 +1526,8 @@ class npc_faction_boss : public CreatureScript
                 me->RemoveAura(eSpells::SpellEnableUnitFrame);
 
                 m_FirstVictim = true;
+
+                me->SetHealth(m_BaseHP);
             }
 
             void EnterCombat(Unit* p_Attacker)
