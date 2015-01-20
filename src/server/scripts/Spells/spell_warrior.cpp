@@ -1256,7 +1256,7 @@ class spell_warr_glyph_of_gag_order: public SpellScriptLoader
         }
 };
 
-// Shield Barrier - 174926
+// Shield Barrier 174926 - Shield Barrier 112048
 class spell_warr_shield_barrier: public SpellScriptLoader
 {
     public:
@@ -1266,10 +1266,10 @@ class spell_warr_shield_barrier: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warr_shield_barrier_AuraScript);
 
-            void CalculateAmount(constAuraEffectPtr aurEff, int32& amount, bool& /*canBeRecalculated*/)
+            void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32& p_Amount, bool& /*canBeRecalculated*/)
             {
                 if (Unit* l_Caster = GetCaster())
-                    amount = l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 1.125;
+                    p_Amount = l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 1.125;
             }
 
             void Register()
@@ -1471,6 +1471,7 @@ public:
         return new spell_warr_shield_charge_SpellScript();
     }
 };
+
 
 void AddSC_warrior_spell_scripts()
 {
