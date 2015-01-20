@@ -1269,7 +1269,17 @@ class spell_warr_shield_barrier: public SpellScriptLoader
             void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32& p_Amount, bool& /*canBeRecalculated*/)
             {
                 if (Unit* l_Caster = GetCaster())
+                {
+                    int8 l_RagetoUse = l_Caster->GetPower(POWER_RAGE) / l_Caster->GetPowerCoeff(POWER_RAGE);
+
+                    if (l_RagetoUse > 40)
+                        l_RagetoUse = 40;
+
                     p_Amount = l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 1.125;
+                    p_Amount += (p_Amount / 20) * l_RagetoUse;
+
+                    l_Caster->ModifyPower(POWER_RAGE, -l_RagetoUse * l_Caster->GetPowerCoeff(POWER_RAGE));
+                }
             }
 
             void Register()
