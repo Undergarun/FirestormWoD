@@ -2838,12 +2838,13 @@ void ObjectMgr::LoadItemTemplates()
             itemTemplate.MaxCount                  = fields[26].GetInt32();
             itemTemplate.Stackable                 = fields[27].GetInt32();
             itemTemplate.ContainerSlots            = uint32(fields[28].GetUInt8());
+
             for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
             {
                 itemTemplate.ItemStat[i].ItemStatType  = uint32(fields[29 + i * 4 + 0].GetUInt32());
                 itemTemplate.ItemStat[i].ItemStatValue = int32(fields[29 + i * 4 + 1].GetInt32());
                 itemTemplate.ItemStat[i].ScalingValue  = fields[29 + i * 4 + 2].GetInt32();
-                itemTemplate.ItemStat[i].SocketCostRate  = fields[29 + i * 4 + 3].GetInt32();
+                itemTemplate.ItemStat[i].SocketCostRate = fields[29 + i * 4 + 3].GetInt32();
             }
 
             itemTemplate.ScalingStatDistribution = uint32(fields[69].GetUInt16());
