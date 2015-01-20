@@ -30327,6 +30327,7 @@ void Player::HandleStoreGoldCallback(PreparedQueryResult result)
                 GetSession()->SendNotification(LANG_GOLD_ERROR2);
                 break;
             }
+
             goldCount+= gold;
             ModifyMoney(gold);
 
@@ -30339,7 +30340,6 @@ void Player::HandleStoreGoldCallback(PreparedQueryResult result)
             stmt->setInt32(1, GetGUIDLow());
             stmt->setInt64(2, gold);
             CharacterDatabase.Execute(stmt);
-
         }
         while(result->NextRow());
 
