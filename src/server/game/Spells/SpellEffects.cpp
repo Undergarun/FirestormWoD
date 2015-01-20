@@ -4127,14 +4127,11 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
     {
         switch (m_spellInfo->Id)
         {
-        case 45902: // Blood Strike
+        case 52374: // Blood Strike
         {
-            float bonusPct = m_spellInfo->Effects[EFFECT_3].BasePoints * unitTarget->GetDiseasesByCaster(m_caster->GetGUID()) / 10.0f;
-            // Death Knight T8 Melee 4P Bonus
-            if (constAuraEffectPtr aurEff = m_caster->GetAuraEffect(64736, EFFECT_0))
-                AddPct(bonusPct, aurEff->GetAmount());
+            float bonusPct = ((m_spellInfo->Effects[EFFECT_0].BasePoints * m_spellInfo->Effects[EFFECT_1].BasePoints) / 100) * unitTarget->GetDiseasesByCaster(m_caster->GetGUID());
+            
             AddPct(totalDamagePercentMod, bonusPct);
-
             break;
         }
         case 55050: // Heart Strike
