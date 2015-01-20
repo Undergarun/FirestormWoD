@@ -120,7 +120,9 @@ enum MonkSpells
     SPELL_MONK_RING_OF_PEACE_SILENCE            = 137460,
     SPELL_MONK_COMBO_BREAKER_AURA               = 137384,
     SPELL_MONK_COMBO_BREAKER_TIGER_PALM         = 118864,
-    SPELL_MONK_COMBO_BREAKER_BLACKOUT_KICK      = 116768
+    SPELL_MONK_COMBO_BREAKER_BLACKOUT_KICK      = 116768,
+    SPELL_MONK_MORTEL_WOUNDS                    = 115804,
+    SPELL_MONK_RISING_SUN_KICK_DOT              = 130320
 };
 
 // Tiger Eye Brew - 123980 & Mana Tea - 123766
@@ -4234,12 +4236,11 @@ public:
             l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
 
             if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_WINDWALKER)
-                l_Player->CastSpell(l_Target, 115804, true);
+                l_Player->CastSpell(l_Target, SPELL_MONK_MORTEL_WOUNDS, true);
             if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_MONK_BREWMASTER)
-                l_Player->CastSpell(l_Player, 130320, true);
+                l_Player->CastSpell(l_Player, SPELL_MONK_RISING_SUN_KICK_DOT, true);
 
             SetHitDamage(int32(frand(8.0f * l_Low, 8.0f * l_High)));
-
         }
 
         void Register()

@@ -2165,7 +2165,7 @@ public:
             if (!l_Caster)
                 return;
 
-            if (p_EventInfo.GetActor()->GetGUID() != l_Caster->GetGUID())
+            if (p_EventInfo.GetActor()->GetGUID() != l_Caster->GetGUID() || p_EventInfo.GetDamageInfo()->GetSpellInfo() == nullptr)
                 return;
 
             if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != PALADIN_SPELL_FLASH_OF_LIGHT && p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != PALADIN_SPELL_HOLY_LIGHT)
