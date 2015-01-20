@@ -18743,8 +18743,9 @@ void Player::RemoveActiveQuest(uint32 quest_id)
 
         phaseMgr.NotifyConditionChanged(phaseUdateData);
 
-        if (m_Garrison)
+        if (m_Garrison && IsInGarrison())
             m_Garrison->OnQuestAbandon(l_Quest);
+
         return;
     }
 }
