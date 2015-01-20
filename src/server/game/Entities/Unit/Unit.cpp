@@ -12799,6 +12799,13 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const *spellProto, ui
         DoneTotal += CalculatePct(healamount, PvPPower);
     }
 
+    // 77484 - Mastery : Shield Discipline
+    if (GetTypeId() == TYPEID_PLAYER && spellProto && healamount != 0 && HasAura(77484))
+    {
+        float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 0.75f;
+        DoneTotal += CalculatePct(healamount, Mastery);
+    }
+
     // Done fixed damage bonus auras
     int32 DoneAdvertisedBenefit = SpellBaseHealingBonusDone(spellProto->GetSchoolMask());
 
