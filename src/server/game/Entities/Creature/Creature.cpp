@@ -786,7 +786,6 @@ bool Creature::AIM_Initialize(CreatureAI* ai)
     // make sure nothing can change the AI during AI update
     if (m_AI_locked)
     {
-        sLog->outAshran("AIM_Initialize: failed to init, locked.");
         return false;
     }
 

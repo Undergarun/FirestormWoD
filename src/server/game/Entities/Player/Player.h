@@ -2348,10 +2348,7 @@ class Player : public Unit, public GridObject<Player>
         void SetArenaPersonalRating(uint8 slot, uint32 value)
         {
             if (slot >= MAX_PVP_SLOT)
-            {
-                sLog->outAshran("ARENA SLOT OVERFLOW!!");
                 return;
-            }
 
             if (value > 3500)
             {
@@ -2369,10 +2366,7 @@ class Player : public Unit, public GridObject<Player>
         void SetArenaMatchMakerRating(uint8 slot, uint32 value)
         {
             if (slot >= MAX_PVP_SLOT)
-            {
-                sLog->outAshran("ARENA SLOT OVERFLOW!!");
                 return;
-            }
 
             if (value > 3500)
             {
@@ -2385,37 +2379,29 @@ class Player : public Unit, public GridObject<Player>
         void IncrementWeekGames(uint8 slot)
         {
             if (slot >= MAX_PVP_SLOT)
-            {
-                sLog->outAshran("ARENA SLOT OVERFLOW!!");
                 return;
-            }
+
             ++m_WeekGames[slot];
         }
         void IncrementWeekWins(uint8 slot)
         {
             if (slot >= MAX_PVP_SLOT)
-            {
-                sLog->outAshran("ARENA SLOT OVERFLOW!!");
                 return;
-            }
+
             ++m_WeekWins[slot];
         }
         void IncrementSeasonGames(uint8 slot)
         {
             if (slot >= MAX_PVP_SLOT)
-            {
-                sLog->outAshran("ARENA SLOT OVERFLOW!!");
                 return;
-            }
+
             ++m_SeasonGames[slot];
         }
         void IncrementSeasonWins(uint8 slot)
         {
             if (slot >= MAX_PVP_SLOT)
-            {
-                sLog->outAshran("ARENA SLOT OVERFLOW!!");
                 return;
-            }
+
             ++m_SeasonWins[slot];
         }
         void FinishWeek();
