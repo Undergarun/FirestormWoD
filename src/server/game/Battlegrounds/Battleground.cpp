@@ -1102,7 +1102,7 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
                         player->SetArenaPersonalRating(slot, player->GetArenaPersonalRating(slot) + mod);
 
                         // Update matchmaker rating
-                        player->SetArenaMatchMakerRating(slot, player->GetArenaMatchMakerRating(slot) -12);
+                        player->SetArenaMatchMakerRating(slot, player->GetArenaMatchMakerRating(slot) - 12);
 
                         // Update personal played stats
                         player->IncrementWeekGames(slot);
@@ -1123,7 +1123,7 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
         else
         // removing offline participant
         {
-            if (!IsSkirmish() && GetStatus() == STATUS_IN_PROGRESS)
+            if (!IsSkirmish() && isArena() && GetStatus() == STATUS_IN_PROGRESS)
             {
                 //left a rated match while the encounter was in progress, consider as loser
                 Group* others_group = GetBgRaid(GetOtherTeam(team));

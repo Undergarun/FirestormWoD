@@ -84,6 +84,7 @@
 #include "WildBattlePet.h"
 #include "PlayerDump.h"
 #include "TransportMgr.h"
+#include "BattlepayMgr.h"
 
 uint32 gOnlineGameMaster = 0;
 
@@ -2086,6 +2087,8 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading map challenge mode hotfixes...");
     sObjectMgr->LoadMapChallengeModeHotfixes();
+
+    sBattlepayMgr->LoadFromDatabase();
 
     uint32 startupDuration = GetMSTimeDiffToNow(startupBegin);
 

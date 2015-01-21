@@ -1113,6 +1113,11 @@ class WorldSession
         void HandleChallengeModeRequestLeaders(WorldPacket& p_RecvData);
         void HandleChallengeModeRequestMapStats(WorldPacket& p_RecvData);
 
+        //////////////////////////////////////////////////////////////////////////
+        /// Battlepay
+        //////////////////////////////////////////////////////////////////////////
+        void HandleBattlepayGetProductListQuery(WorldPacket& p_RecvData);
+
     private:
         void InitializeQueryCallbackParameters();
         void ProcessQueryCallbacks();
