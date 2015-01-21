@@ -2705,7 +2705,9 @@ namespace MS { namespace Garrison
             if (l_Gob)
             {
                 m_PlotsGob[p_PlotInstanceID] = l_Gob->GetGUID();
-
+                l_Gob->SetUInt32Value(GAMEOBJECT_FIELD_FLAGS, 32);
+                l_Gob->SetUInt32Value(GAMEOBJECT_FIELD_FACTION_TEMPLATE, 0);
+                l_Gob->SetUInt32Value(GAMEOBJECT_BYTES_1, 4278199809);
                 if (m_PlotsGameObjects[p_PlotInstanceID].size() != 0 || m_PlotsCreatures[p_PlotInstanceID].size() != 0)
                 {
                     for (uint32 l_I = 0; l_I < m_PlotsCreatures[p_PlotInstanceID].size(); ++l_I)

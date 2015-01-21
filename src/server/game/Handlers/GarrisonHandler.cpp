@@ -263,7 +263,7 @@ void WorldSession::HandleGarrisonPurchaseBuildingOpcode(WorldPacket & p_RecvData
             break;
 
         default:
-            l_CanBuild = false;
+            l_CanBuild = m_Player->isGameMaster();
             break;
     }
 
