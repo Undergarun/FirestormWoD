@@ -55,7 +55,7 @@ file(GLOB_RECURSE sources_PetBattle PetBattle/*.cpp PetBattle/*.h)
 file(GLOB_RECURSE sources_World World/*.cpp World/*.h)
 file(GLOB_RECURSE sources_shared_ptrs SharedPtrs/*.h)
 file(GLOB_RECURSE sources_Cinematic Cinematic/*.h Cinematic/*.cpp)
-file(GLOB_RECURSE sources_Garrison Garrison/*.h Garrison/*.cpp)
+file(GLOB_RECURSE sources_Garrison Garrison/*.hpp Garrison/*.cpp)
 
 # Create game-libary
 

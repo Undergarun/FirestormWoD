@@ -1321,7 +1321,7 @@ class spell_dru_wild_mushroom: public SpellScriptLoader
                     l_Mushroomlist.remove((*i));
                 }
 
-                if (l_Mushroomlist.size() >= GetSpellInfo()->Effects[p_EffIndex].BasePoints)
+                if (static_cast<int32>(l_Mushroomlist.size()) >= GetSpellInfo()->Effects[p_EffIndex].BasePoints)
                 {
                     // 1 mushrooms max
                     if (GetSpellInfo()->Id == SPELL_DRUID_WILD_MUSHROOM_RESTORATION)
@@ -1337,7 +1337,7 @@ class spell_dru_wild_mushroom: public SpellScriptLoader
                     }
                     else if (GetSpellInfo()->Id == SPELL_DRUID_WILD_MUSHROOM_BALANCE) // 3 mushrooms max
                     {
-                        if (l_Mushroomlist.size() >= GetSpellInfo()->Effects[p_EffIndex].BasePoints)
+                        if (static_cast<int32>(l_Mushroomlist.size()) >= GetSpellInfo()->Effects[p_EffIndex].BasePoints)
                             l_Mushroomlist.back()->ToTempSummon()->UnSummon();
                     }
                 }
@@ -2486,7 +2486,7 @@ public:
 
 enum SpellsFerociousBite
 {
-    SPELL_DRUID_RAKE = 1822,
+    SPELL_DRUID_RAKE_TRIGGERED = 155722,
     SPELL_DRUID_GLYPH_OF_FEROCIOUS_BITE = 67598,
     SPELL_DRUID_GLYPH_OF_FEROCIOUS_BITE_HEAL = 101024
 };
@@ -2526,7 +2526,7 @@ public:
 
             // if target is under 25% of life, also reset rake duration
             if (l_Target && l_Target->GetHealthPct() <= 25.0f)
-                if (AuraPtr l_Rake = l_Target->GetAura(SPELL_DRUID_RAKE))
+                if (AuraPtr l_Rake = l_Target->GetAura(SPELL_DRUID_RAKE_TRIGGERED))
                     l_Rake->RefreshDuration();
         }
 

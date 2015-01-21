@@ -27,7 +27,7 @@
 #include "UpdateMask.h"
 #include "Path.h"
 #include "WaypointMovementGenerator.h"
-#include "Garrison.h"
+#include "GarrisonMgr.hpp"
 
 void WorldSession::HandleTaxiNodeStatusQueryOpcode(WorldPacket& recvData)
 {

@@ -21,7 +21,6 @@ set(scripts_STAT_SRCS
   Draenor/Skyreach/boss_araknath.cpp
   Draenor/Skyreach/boss_rukhran.cpp
   Draenor/Skyreach/boss_high_sage_viryx.cpp
-  Draenor/Garrison/GarrisonGO.cpp
   Draenor/BloodmaulSlagMines/instance_bloodmaul.h
   Draenor/BloodmaulSlagMines/instance_bloodmaul.cpp
   Draenor/BloodmaulSlagMines/mob_bloodmaul.cpp
@@ -30,10 +29,30 @@ set(scripts_STAT_SRCS
   Draenor/BloodmaulSlagMines/boss_slave_watcher_crushto.cpp
   Draenor/BloodmaulSlagMines/boss_forgemaster_gogduh.cpp
   Draenor/Garrison/GarrisonNPC.cpp
+  Draenor/Garrison/GarrisonNPC_Horde.cpp
+  Draenor/Garrison/GarrisonNPC_Alliance.cpp
   Draenor/Garrison/GarrisonQuest.cpp
-  Draenor/Garrison/Garrison_A_1.cpp
-  Draenor/Garrison/Garrison_H_1.cpp
-  Draenor/Garrison/Garrison.cpp
+  Draenor/Garrison/GarrisonSpell.cpp
+  Draenor/Garrison/GarrisonGO.cpp
+  Draenor/Garrison/GarrisonScriptData.hpp
+  Draenor/Garrison/GarrisonNPC.hpp
+  Draenor/Garrison/GarrisonQuest.hpp
+  Draenor/Garrison/GarrisonSpell.hpp
+  Draenor/Garrison/GarrisonGO.hpp
+  Draenor/Garrison/Sites/GarrisonAllianceLevel1.cpp
+  Draenor/Garrison/Sites/GarrisonAllianceLevel1.hpp
+  Draenor/Garrison/Sites/GarrisonAllianceLevel2.cpp
+  Draenor/Garrison/Sites/GarrisonAllianceLevel2.hpp
+  Draenor/Garrison/Sites/GarrisonAllianceLevel3.cpp
+  Draenor/Garrison/Sites/GarrisonAllianceLevel3.hpp
+  Draenor/Garrison/Sites/GarrisonHordeLevel1.hpp
+  Draenor/Garrison/Sites/GarrisonHordeLevel1.cpp
+  Draenor/Garrison/Sites/GarrisonHordeLevel2.hpp
+  Draenor/Garrison/Sites/GarrisonHordeLevel2.cpp
+  Draenor/Garrison/Sites/GarrisonHordeLevel3.hpp
+  Draenor/Garrison/Sites/GarrisonHordeLevel3.cpp
+  Draenor/Garrison/Sites/GarrisonSiteBase.hpp
+  Draenor/Garrison/Sites/GarrisonSiteBase.cpp
 )
 
 message("  -> Prepared: Draenor")

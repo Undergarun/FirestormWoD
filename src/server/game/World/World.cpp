@@ -120,6 +120,7 @@ World::World()
     m_NextDailyQuestReset = 0;
     m_NextWeeklyQuestReset = 0;
     m_NextCurrencyReset = 0;
+    m_NextDailyLootReset = 0;
 
     m_defaultDbcLocale = LOCALE_enUS;
     m_availableDbcLocaleMask = 0;
@@ -2032,6 +2033,10 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Calculate next currency reset time...");
     InitCurrencyResetTime();
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Calculate next daily loot reset time...");
+    InitDailyLootResetTime();
+
     InitServerAutoRestartTime();
 
     LoadCharacterNameData();
@@ -2235,10 +2240,10 @@ void World::Update(uint32 diff)
 
     /// Handle weekly quests reset time
     if (m_gameTime > m_NextWeeklyQuestReset)
-        {
-            ResetWeeklyQuests();
-            sGuildMgr->ResetReputationCaps();
-        }
+    {
+        ResetWeeklyQuests();
+        sGuildMgr->ResetReputationCaps();
+    }
 
     /// Handle monthly quests reset time
     if (m_gameTime > m_NextMonthlyQuestReset)
@@ -2250,6 +2255,9 @@ void World::Update(uint32 diff)
 
     if (m_gameTime > m_NextCurrencyReset)
         ResetCurrencyWeekCap();
+
+    if (m_gameTime >= m_NextDailyLootReset)
+        ResetDailyLoots();
 
     if (m_gameTime > m_NextServerRestart)
         AutoRestartServer();
@@ -3330,6 +3338,20 @@ void World::InitCurrencyResetTime()
     sLog->outAshran("World::InitCurrencyResetTime: m_NextCurrencyReset %u, nextResetDay : %u", m_NextCurrencyReset, nextResetDay);
 }
 
+void World::InitDailyLootResetTime()
+{
+    uint32 l_NextResetDay = sWorld->getWorldState(WS_DAILY_LOOT_RESET_TIME);
+    if (!l_NextResetDay)
+    {
+        uint32 l_CurrentDay = (time(NULL) + 3600) / 86400;
+        l_NextResetDay = l_CurrentDay + 1;
+        sWorld->setWorldState(WS_DAILY_LOOT_RESET_TIME, l_NextResetDay);
+    }
+
+    m_NextDailyLootReset = l_NextResetDay * 86400 + 5 * 3600;
+    sLog->outAshran("World::InitDailyLootResetTime: m_NextDailyLootReset %u, nextResetDay : %u", m_NextDailyLootReset, l_NextResetDay);
+}
+
 void World::InitServerAutoRestartTime()
 {
     time_t serverRestartTime = uint64(sWorld->getWorldState(WS_AUTO_SERVER_RESTART_TIME));
@@ -3391,6 +3413,23 @@ void World::ResetCurrencyWeekCap()
     sWorld->setWorldState(WS_CURRENCY_RESET_TIME, getWorldState(WS_CURRENCY_RESET_TIME) + 7);
 
     sLog->outAshran("World::ResetCurrencyWeekCap()");
+}
+
+void World::ResetDailyLoots()
+{
+    /// Must clean this table every day
+    CharacterDatabase.Execute("DELETE FROM `character_daily_loot_cooldown`");
+
+    for (SessionMap::const_iterator l_Iter = m_sessions.begin(); l_Iter != m_sessions.end(); ++l_Iter)
+    {
+        if (l_Iter->second->GetPlayer())
+            l_Iter->second->GetPlayer()->ResetDailyLoots();
+    }
+
+    m_NextDailyLootReset = time_t(m_NextDailyLootReset + DAY);
+    sWorld->setWorldState(WS_DAILY_LOOT_RESET_TIME, getWorldState(WS_DAILY_LOOT_RESET_TIME) + 1);
+
+    sLog->outAshran("World::ResetDailyLoots");
 }
 
 void World::LoadDBAllowedSecurityLevel()

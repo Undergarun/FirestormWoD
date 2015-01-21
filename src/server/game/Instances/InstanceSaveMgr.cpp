@@ -410,11 +410,11 @@ void InstanceSaveManager::LoadResetTimes()
         uint32 mapid = PAIR32_LOPART(map_diff_pair);
         Difficulty difficulty = Difficulty(PAIR32_HIPART(map_diff_pair));
         MapDifficulty const* mapDiff = &itr->second;
-        if (!mapDiff->resetTime)
+        if (!mapDiff->ResetTime)
             continue;
 
         // the reset_delay must be at least one day
-        uint32 period = uint32(((mapDiff->resetTime * sWorld->getRate(RATE_INSTANCE_RESET_TIME))/DAY) * DAY);
+        uint32 period = uint32(((mapDiff->ResetTime * sWorld->getRate(RATE_INSTANCE_RESET_TIME))/DAY) * DAY);
         if (period < DAY)
             period = DAY;
 
@@ -598,7 +598,7 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, b
     if (!warn)
     {
         MapDifficulty const* mapDiff = GetMapDifficultyData(mapid, difficulty);
-        if (!mapDiff || !mapDiff->resetTime)
+        if (!mapDiff || !mapDiff->ResetTime)
         {
             sLog->outError(LOG_FILTER_GENERAL, "InstanceSaveManager::ResetOrWarnAll: not valid difficulty or no reset delay for map %d", mapid);
             return;
@@ -621,7 +621,7 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, b
         // calculate the next reset time
         uint32 diff = sWorld->getIntConfig(CONFIG_INSTANCE_RESET_TIME_HOUR) * HOUR;
 
-        uint32 period = uint32(((mapDiff->resetTime * sWorld->getRate(RATE_INSTANCE_RESET_TIME))/DAY) * DAY);
+        uint32 period = uint32(((mapDiff->ResetTime * sWorld->getRate(RATE_INSTANCE_RESET_TIME))/DAY) * DAY);
         if (period < DAY)
             period = DAY;
 

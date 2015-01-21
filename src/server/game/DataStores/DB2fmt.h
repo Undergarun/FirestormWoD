@@ -21,6 +21,8 @@
 char const CurvePointEntryfmt[] = "niiff";
 const char Itemfmt[] = "niiiiiiii";
 const char ItemBonusfmt[] = "diiiii";
+const char ItemBonusTreeNodefmt[] = "diiii";
+const char ItemXBonusTreefmt[] = "dii";
 const char ItemCurrencyCostfmt[] = "xn";
 const char ItemSparsefmt[] = "niiiiffiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiffffffffffiiifisssssiiiiiiiiiiiiiiiiiiifiiifiii";
 const char ItemEffectFmt[] = "niiiiiiii";

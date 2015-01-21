@@ -30,6 +30,7 @@ EndContentData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "MapManager.h"
 
 /*######
 ## npc_deathly_usher
@@ -154,10 +155,15 @@ class PlayerScript_DarkPortal_Phasing: public PlayerScript
                 {
                     m_AlreadyInSwitchMapState = true;
 
-                    if (p_NewZoneID == BLASTER_LANDS_ZONE_ID)
-                        p_Player->SwitchToPhasedMap(BLASTED_LANDS_DRAENOR_PHASE);
-                    else
-                        p_Player->SwitchToPhasedMap(EASTERN_KINGDOM_MAP_ID);
+                    uint64 l_PlayerGuid = p_Player->GetGUID();
+
+                    sMapMgr->AddCriticalOperation([l_PlayerGuid, p_NewZoneID]() -> void
+                    {
+                        Player * l_Player = sObjectAccessor->FindPlayer(l_PlayerGuid);
+
+                        if (l_Player)
+                            l_Player->SwitchToPhasedMap(p_NewZoneID == BLASTER_LANDS_ZONE_ID ? BLASTED_LANDS_DRAENOR_PHASE : EASTERN_KINGDOM_MAP_ID);
+                    });
 
                     m_AlreadyInSwitchMapState = false;
                 }

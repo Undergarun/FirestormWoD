@@ -27,6 +27,8 @@
 
 extern DB2Storage <ItemEntry>                       sItemStore;
 extern DB2Storage <ItemBonusEntry>                  sItemStoreEntry;
+extern DB2Storage <ItemBonusTreeNodeEntry>          sItemBonusTreeNodeStore;
+extern DB2Storage <ItemXBonusTreeEntry>             sItemXBonusTreeStore;
 extern DB2Storage <ItemCurrencyCostEntry>           sItemCurrencyCostStore;
 extern DB2Storage <ItemExtendedCostEntry>           sItemExtendedCostStore;
 extern DB2Storage <ItemSparseEntry>                 sItemSparseStore;
@@ -101,6 +103,7 @@ SpellTotemsEntry const* GetSpellTotemEntry(uint32 spellId, uint8 totem);
 
 extern std::map<uint32, std::vector<uint32>> sItemEffectsByItemID;
 extern std::map<uint32, std::vector<ItemBonusEntry const*>> sItemBonusesByID;
+extern std::map<uint32, std::vector<ItemXBonusTreeEntry const*>> sItemBonusTreeByID;
 extern std::map<uint32, std::vector<QuestPackageItemEntry const*>> sQuestPackageItemsByGroup;
 
 std::vector<ItemBonusEntry const*> const* GetItemBonusesByID(uint32 Id);

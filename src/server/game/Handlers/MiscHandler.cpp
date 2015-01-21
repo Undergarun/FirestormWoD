@@ -57,6 +57,8 @@
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "TicketMgr.h"
+#include "OutdoorPvP.h"
+#include "OutdoorPvPMgr.h"
 
 void WorldSession::HandleRepopRequestOpcode(WorldPacket& recvData)
 {
@@ -2052,16 +2054,10 @@ void WorldSession::SendSetPhaseShift(const std::set<uint32> & p_PhaseIds, const 
 // Battlefield and Battleground
 void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPacket& p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AREA_SPIRIT_HEALER_QUERY");
-
-    Battleground* l_Battleground = m_Player->GetBattleground();
-
     uint64 l_Healer = 0;
-
     p_Packet.readPackGUID(l_Healer);
 
-    Creature * l_Unit = GetPlayer()->GetMap()->GetCreature(l_Healer);
-
+    Creature * l_Unit = m_Player->GetMap()->GetCreature(l_Healer);
     if (!l_Unit)
         return;
 
@@ -2069,24 +2065,20 @@ void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPacket& p_Packet)
     if (!l_Unit->isSpiritService())
         return;
 
-    if (l_Battleground)
+    if (Battleground* l_Battleground = m_Player->GetBattleground())
         sBattlegroundMgr->SendAreaSpiritHealerQueryOpcode(m_Player, l_Battleground, l_Healer);
-
-    if (Battlefield * l_Battlefield = sBattlefieldMgr->GetBattlefieldToZoneId(m_Player->GetZoneId()))
-        l_Battlefield->SendAreaSpiritHealerQueryOpcode(m_Player,l_Healer);
+    else if (Battlefield * l_Battlefield = sBattlefieldMgr->GetBattlefieldToZoneId(m_Player->GetZoneId()))
+        l_Battlefield->SendAreaSpiritHealerQueryOpcode(m_Player, l_Healer);
+    else if (OutdoorPvP* l_OutdoorPvP = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(m_Player->GetZoneId()))
+        l_OutdoorPvP->SendAreaSpiritHealerQueryOpcode(m_Player, l_Healer);
 }
 
 void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPacket& p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AREA_SPIRIT_HEALER_QUEUE");
-
-    Battleground* l_Battleground = m_Player->GetBattleground();
     uint64 l_Healer = 0;
-
     p_Packet.readPackGUID(l_Healer);
 
-    Creature* l_Unit = GetPlayer()->GetMap()->GetCreature(l_Healer);
-
+    Creature* l_Unit = m_Player->GetMap()->GetCreature(l_Healer);
     if (!l_Unit)
         return;
 
@@ -2094,11 +2086,12 @@ void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPacket& p_Packet)
     if (!l_Unit->isSpiritService())
         return;
 
-    if (l_Battleground)
+    if (Battleground* l_Battleground = m_Player->GetBattleground())
         l_Battleground->AddPlayerToResurrectQueue(l_Healer, m_Player->GetGUID());
-
-    if (Battlefield * l_Battlefield = sBattlefieldMgr->GetBattlefieldToZoneId(m_Player->GetZoneId()))
+    else if (Battlefield * l_Battlefield = sBattlefieldMgr->GetBattlefieldToZoneId(m_Player->GetZoneId()))
         l_Battlefield->AddPlayerToResurrectQueue(l_Healer, m_Player->GetGUID());
+    else if (OutdoorPvP* l_OutdoorPvP = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(m_Player->GetZoneId()))
+        l_OutdoorPvP->AddPlayerToResurrectQueue(l_Healer, m_Player->GetGUID());
 }
 
 void WorldSession::HandleHearthAndResurrect(WorldPacket& /*recvData*/)
@@ -2400,4 +2393,18 @@ void WorldSession::HandleSaveCUFProfiles(WorldPacket& p_RecvPacket)
     }
 
     CharacterDatabase.CommitTransaction(l_Transaction);
+}
+
+void WorldSession::HandleMountSetFavoriteOpcode(WorldPacket & p_Packet)
+{
+    uint32  l_MountSpellID = 0;
+    bool    l_IsFavorite   = false;
+
+    p_Packet >> l_MountSpellID;
+    l_IsFavorite = p_Packet.ReadBit();
+
+    if (!m_Player)
+        return;
+
+    m_Player->MountSetFavorite(l_MountSpellID, l_IsFavorite);
 }

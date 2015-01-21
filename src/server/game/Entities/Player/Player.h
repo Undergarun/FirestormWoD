@@ -42,6 +42,7 @@
 #include "PhaseMgr.h"
 #include "CUFProfiles.h"
 #include "CinematicPathMgr.h"
+#include "BitSet.hpp"
 
 // for template
 #include "SpellMgr.h"
@@ -68,6 +69,7 @@ class PhaseMgr;
 class SceneObject;
 
 typedef std::deque<Mail*> PlayerMails;
+typedef std::set<uint32> DailyLootsCooldowns;
 
 #define PLAYER_MAX_SKILLS           128
 #define DEFAULT_MAX_PRIMARY_TRADE_SKILL 2
@@ -139,6 +141,7 @@ struct PlayerSpell
     bool active            : 1;                             // show in spellbook
     bool dependent         : 1;                             // learned as result another spell learn, skill grow, quest reward, etc
     bool disabled          : 1;                             // first rank has been learned in result talent learn but currently talent unlearned, save max learned ranks
+    bool IsMountFavorite   : 1;                             // Is flagged as favorite mount spell
 };
 
 struct PlayerTalent
@@ -608,6 +611,9 @@ typedef std::set<uint32> RewardedQuestSet;
 //               quest,  keep
 typedef std::map<uint32, bool> QuestStatusSaveMap;
 
+// Size (in bytes) of client completed quests bit map
+#define QUESTS_COMPLETED_BITS_SIZE 2500
+
 enum QuestSlotOffsets
 {
     QUEST_ID_OFFSET     = 0,
@@ -946,6 +952,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_GARRISON_MISSIONS            = 48,
     PLAYER_LOGIN_QUERY_GARRISON_FOLLOWERS           = 49,
     PLAYER_LOGIN_QUERY_GARRISON_BUILDINGS           = 50,
+    PLAYER_LOGIN_QUERY_DAILY_LOOT_COOLDOWNS         = 51,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -1431,7 +1438,11 @@ enum BattlegroundTimerTypes
     CHALLENGE_TIMER
 };
 
-class Garrison;
+namespace MS { namespace Garrison 
+{
+    class Manager;
+}   ///< namespace Garrison
+}   ///< namespace MS
 
 class Player : public Unit, public GridObject<Player>
 {
@@ -1497,7 +1508,7 @@ class Player : public Unit, public GridObject<Player>
         std::string afkMsg;
         std::string dndMsg;
 
-        Garrison * GetGarrison();
+        MS::Garrison::Manager * GetGarrison();
         void CreateGarrison();
         bool IsInGarrison();
         void DeleteGarrison();
@@ -1508,8 +1519,8 @@ class Player : public Unit, public GridObject<Player>
 
         PlayerTaxi m_taxi;
         void InitTaxiNodesForLevel() { m_taxi.InitTaxiNodesForLevel(getRace(), getClass(), getLevel()); }
-        bool ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc = NULL, uint32 spellid = 0);
-        bool ActivateTaxiPathTo(uint32 taxi_path_id, uint32 spellid = 0);
+        bool ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc = NULL, uint32 spellid = 0, bool p_Triggered = false);
+        bool ActivateTaxiPathTo(uint32 taxi_path_id, uint32 spellid = 0, bool p_Triggered = false);
         void CleanupAfterTaxiFlight();
         void ContinueTaxiFlight();
                                                             // mount_id can be used in scripting calls
@@ -2081,7 +2092,7 @@ class Player : public Unit, public GridObject<Player>
         bool IsNeedCastPassiveSpellAtLearn(SpellInfo const* spellInfo) const;
 
         void SendProficiency(ItemClass itemClass, uint32 itemSubclassMask);
-        bool addSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading = false);
+        bool addSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading = false, bool p_IsMountFavorite = false);
         void learnSpell(uint32 spell_id, bool dependent);
         void removeSpell(uint32 spell_id, bool disabled = false, bool learn_low_rank = true);
         void resetSpells(bool myClassOnly = false);
@@ -2094,6 +2105,8 @@ class Player : public Unit, public GridObject<Player>
         void SetReputation(uint32 factionentry, uint32 value);
         uint32 GetReputation(uint32 factionentry);
         std::string GetGuildName();
+
+        void MountSetFavorite(uint32 p_SpellID, bool p_IsFavorite);
 
         // Talents
         uint32 GetFreeTalentPoints() const { return _talentMgr->FreeTalentPoints; }
@@ -3358,6 +3371,15 @@ class Player : public Unit, public GridObject<Player>
             MovieDelayedTeleportMutex.unlock();
         }
 
+        DailyLootsCooldowns m_DailyLootsCooldowns;
+        void _LoadDailyLootsCooldowns(PreparedQueryResult&& p_Result);
+        void ResetDailyLoots();
+        bool CanHaveDailyLootForItem(uint32 p_Entry) const { return m_DailyLootsCooldowns.find(p_Entry) == m_DailyLootsCooldowns.end(); }
+        void AddDailyLootCooldown(uint32 p_Entry);
+
+        void _GarrisonSetIn();
+        void _GarrisonSetOut();
+
     protected:
         void OnEnterPvPCombat();
         void OnLeavePvPCombat();
@@ -3669,6 +3691,8 @@ class Player : public Unit, public GridObject<Player>
         typedef std::set<uint32> DailyQuestList;
         DailyQuestList m_dailyQuestStorage;
 
+        MS::Utilities::BitSet m_CompletedQuestBits;
+
     private:
         // internal common parts for CanStore/StoreItem functions
         InventoryResult CanStoreItem_InSpecificSlot(uint8 bag, uint8 slot, ItemPosCountVec& dest, ItemTemplate const* pProto, uint32& count, bool swap, Item* pSrcItem) const;
@@ -3754,7 +3778,7 @@ class Player : public Unit, public GridObject<Player>
         //////////////////////////////////////////////////////////////////////////
         /// Garrison
         //////////////////////////////////////////////////////////////////////////
-        Garrison * m_Garrison;
+        MS::Garrison::Manager * m_Garrison;
         IntervalTimer m_GarrisonUpdateTimer;
 
         //////////////////////////////////////////////////////////////////////////

@@ -85,8 +85,11 @@ class Creature;
 class Unit;
 struct GossipMenuItems;
 class OutdoorPvP;
+class OutdoorGraveyard;
 
 typedef std::set<Player*> PlayerSet;
+typedef std::vector<OutdoorGraveyard*> GraveyardVector;
+typedef std::set<uint64> GuidSet;
 
 class OPvPCapturePoint
 {
@@ -171,7 +174,7 @@ class OPvPCapturePoint
     protected:
 
         // active players in the area of the objective, 0 - alliance, 1 - horde
-        PlayerSet m_activePlayers[2];
+        GuidSet m_activePlayers[2];
 
         // total shift needed to capture the objective
         float m_maxValue;
@@ -268,6 +271,13 @@ class OutdoorPvP : public ZoneScript
 
         virtual void HandleBFMGREntryInviteResponse(bool p_Accepted, Player* p_Player) { }
 
+        virtual WorldSafeLocsEntry const* GetClosestGraveyard(Player* p_Player);
+
+        void SendAreaSpiritHealerQueryOpcode(Player* p_Player, uint64 const& p_Guid);
+        void AddPlayerToResurrectQueue(uint64 p_SpiritGuid, uint64 p_PlayerGuid);
+        OutdoorGraveyard* GetGraveyardById(uint32 p_ID);
+        void SetGraveyardNumber(uint32 p_Count) { m_GraveyardList.resize(p_Count); }
+
     protected:
 
         // the map of the objectives belonging to this outdoorpvp
@@ -283,6 +293,10 @@ class OutdoorPvP : public ZoneScript
         std::map<uint64, uint32> m_CreatureTypes;
 
         bool m_sendUpdate;
+
+        /// Graveyard variables
+        GraveyardVector m_GraveyardList;    ///< Vector which contain the different Graveyards of the battle
+        uint32 m_LastResurectTimer;         ///< Timer for resurrect players every 30s
 
         // world state stuff
         virtual void SendRemoveWorldStates(Player* /*player*/) {}
@@ -332,6 +346,66 @@ class OutdoorPvP : public ZoneScript
         }
         bool AddCreature(uint32 p_Type, uint32 p_Entry, uint32 p_Team, uint32 p_MapID, float p_X, float p_Y, float p_Z, float p_O, uint32 p_SpawnTime = 0);
         bool DelCreature(uint32 p_Type);
+};
+
+class OutdoorGraveyard
+{
+    public:
+        OutdoorGraveyard(OutdoorPvP* p_OutdoorPvP);
+
+        /// Method to changing who controls the graveyard
+        void GiveControlTo(TeamId p_Team);
+        TeamId GetControlTeamId() { return m_ControlTeam; }
+
+        /// Find the nearest graveyard to a player
+        float GetDistance(Player* p_Player) const;
+
+        /// Initialize the graveyard
+        void Initialize(TeamId p_Team, uint32 p_Graveyard);
+
+        /// Set spirit service for the graveyard
+        void SetSpirit(Creature* p_Spirit, TeamId p_Team);
+
+        /// Add a player to the graveyard
+        void AddPlayer(uint64 p_Guid);
+
+        /// Remove a player from the graveyard
+        void RemovePlayer(uint64 p_Guid);
+
+        /// Resurrect players
+        void Resurrect();
+
+        /// Move players waiting to that graveyard on the nearest one
+        void RelocateDeadPlayers();
+
+        /// Check if this graveyard has a spirit guide
+        bool HasNpc(uint64 p_Guid)
+        {
+            if (!m_SpiritGuide[0] && !m_SpiritGuide[1])
+                return false;
+
+            if (!sObjectAccessor->FindUnit(m_SpiritGuide[0]) &&
+                !sObjectAccessor->FindUnit(m_SpiritGuide[1]))
+                return false;
+
+            return (m_SpiritGuide[0] == p_Guid || m_SpiritGuide[1] == p_Guid);
+        }
+
+        /// Check if a player is in this graveyard's resurrect queue
+        bool HasPlayer(uint64 p_Guid)
+        {
+            return m_ResurrectQueue.find(p_Guid) != m_ResurrectQueue.end();
+        }
+
+        /// Get the graveyard's ID.
+        uint32 GetGraveyardId() { return m_GraveyardId; }
+
+    protected:
+        TeamId m_ControlTeam;
+        uint32 m_GraveyardId;
+        uint64 m_SpiritGuide[2];
+        GuidSet m_ResurrectQueue;
+        OutdoorPvP* m_OutdoorPvP;
 };
 
 #endif /*OUTDOOR_PVP_H_*/
