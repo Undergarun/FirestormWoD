@@ -589,18 +589,17 @@ class spell_mastery_ignite: public SpellScriptLoader
                             const SpellInfo *l_SpellInfo = sSpellMgr->GetSpellInfo(MASTERY_SPELL_IGNITE_AURA);
                             if (l_ProcSpellId != MASTERY_SPELL_IGNITE_AURA && l_SpellInfo != nullptr)
                             {
-                                float value = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.5f;
+                                float l_Value = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.5f;
 
                                 int32 l_Bp = GetHitDamage();
 
                                 if (l_Bp)
                                 {
-                                    l_Bp = int32((l_Bp / 100) * value);
+                                    l_Bp = int32(CalculatePct(l_Bp, l_Value) / (l_SpellInfo->GetMaxDuration() / l_SpellInfo->Effects[EFFECT_0].Amplitude));
                                     
-                                    if (constAuraEffectPtr l_Ignite = l_Target->GetAuraEffect(MASTERY_SPELL_IGNITE_AURA, EFFECT_0, l_Caster->GetGUID()))
-                                        l_Bp += int32(l_Ignite->GetAmount() * (l_Ignite->GetTotalTicks() - l_Ignite->GetTickNumber()));
+                                    if (l_Target->HasAura(MASTERY_SPELL_IGNITE_AURA, l_Caster->GetGUID()))
+                                        l_Bp += l_Target->GetRemainingPeriodicAmount(l_Caster->GetGUID(), MASTERY_SPELL_IGNITE_AURA, SPELL_AURA_PERIODIC_DAMAGE);
 
-                                    l_Bp = int32(l_Bp / (l_SpellInfo->GetMaxDuration() / l_SpellInfo->Effects[0].Amplitude));
                                     l_Caster->CastCustomSpell(l_Target, MASTERY_SPELL_IGNITE_AURA, &l_Bp, NULL, NULL, true);
                                 }
                             }

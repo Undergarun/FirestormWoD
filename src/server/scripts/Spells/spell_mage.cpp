@@ -848,24 +848,29 @@ class spell_mage_inferno_blast: public SpellScriptLoader
 
                         targetList.remove_if(CheckInfernoBlastImpactPredicate(_player, target));
 
-                        if (targetList.size() > 2)
-                            JadeCore::Containers::RandomResizeList(targetList, 2);
+                        if (targetList.size() > (uint32)GetSpellInfo()->Effects[EFFECT_1].BasePoints)
+                            JadeCore::Containers::RandomResizeList(targetList, GetSpellInfo()->Effects[EFFECT_1].BasePoints);
 
                         for (auto itr : targetList)
                         {
                             // 1 : Ignite
                             if (target->HasAura(SPELL_MAGE_IGNITE, _player->GetGUID()))
                             {
-                                float value = _player->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.5f / 100.0f;
+                                float value = _player->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.5f;
 
                                 int32 igniteBp = 0;
 
-                                if (itr->HasAura(SPELL_MAGE_IGNITE, _player->GetGUID()))
-                                    igniteBp += itr->GetRemainingPeriodicAmount(_player->GetGUID(), SPELL_MAGE_IGNITE, SPELL_AURA_PERIODIC_DAMAGE);
+                                const SpellInfo *l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_IGNITE);
 
-                                igniteBp += int32(GetHitDamage() * value / 2);
+                                if (l_SpellInfo != nullptr)
+                                {
+                                    if (itr->HasAura(SPELL_MAGE_IGNITE, _player->GetGUID()))
+                                        igniteBp += itr->GetRemainingPeriodicAmount(_player->GetGUID(), SPELL_MAGE_IGNITE, SPELL_AURA_PERIODIC_DAMAGE);
 
-                                _player->CastCustomSpell(itr, SPELL_MAGE_IGNITE, &igniteBp, NULL, NULL, true);
+                                    igniteBp += int32((CalculatePct(GetHitDamage(), value)) / (l_SpellInfo->GetMaxDuration() / l_SpellInfo->Effects[EFFECT_0].Amplitude));
+
+                                    _player->CastCustomSpell(itr, SPELL_MAGE_IGNITE, &igniteBp, NULL, NULL, true);
+                                }
                             }
 
                             // 2 : Pyroblast
