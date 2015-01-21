@@ -7813,7 +7813,7 @@ void Spell::EffectLearnBluePrint(SpellEffIndex p_EffIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (!m_CastItem || !unitTarget || !unitTarget->IsInWorld())
+    if (!unitTarget || !unitTarget->IsInWorld())
         return;
 
     Player* l_Player = unitTarget->ToPlayer();
@@ -7826,10 +7826,13 @@ void Spell::EffectLearnBluePrint(SpellEffIndex p_EffIndex)
 
     if (l_Player->GetGarrison()->LearnBlueprint(m_spellInfo->Effects[p_EffIndex].MiscValue))
     {
-        uint32 l_DestroyCount = 1;
-        l_Player->DestroyItemCount(m_CastItem, l_DestroyCount, true);
+        if (m_CastItem)
+        {
+            uint32 l_DestroyCount = 1;
+            l_Player->DestroyItemCount(m_CastItem, l_DestroyCount, true);
 
-        m_CastItem = nullptr;
+            m_CastItem = nullptr;
+        }
     }
     else
         SendCastResult(SPELL_FAILED_BLUEPRINT_KNOWN);
