@@ -176,6 +176,7 @@ DBCStorage <PowerDisplayEntry>           sPowerDisplayStore(PowerDisplayfmt);
 DBCStorage <PvPDifficultyEntry>          sPvPDifficultyStore(PvPDifficultyfmt);
 
 DBCStorage <QuestSortEntry>              sQuestSortStore(QuestSortEntryfmt);
+DBCStorage <QuestV2Entry>                sQuestV2Store(QuestV2fmt);
 DBCStorage <QuestXPEntry>                sQuestXPStore(QuestXPfmt);
 DBCStorage <QuestFactionRewEntry>        sQuestFactionRewardStore(QuestFactionRewardfmt);
 DBCStorage <RandomPropertiesPointsEntry> sRandomPropertiesPointsStore(RandomPropertiesPointsfmt);
@@ -455,13 +456,23 @@ void LoadDBCStores(const std::string& dataPath)
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sMailTemplateStore,           dbcPath, "MailTemplate.dbc");                                                 // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sMapStore,                    dbcPath, "Map.dbc");                                                          // 17399
-    LoadDBC(availableDbcLocales, bad_dbc_files, sMapDifficultyStore,          dbcPath, "MapDifficulty.dbc");                                                // 17399
-    // Fill data
-    sMapDifficultyMap[MAKE_PAIR32(0, 0)] = MapDifficulty(0, 0, false);                                                                                      // Map 0 is missingg from MapDifficulty.dbc use this till its ported to sql
-    for (uint32 i = 0; i < sMapDifficultyStore.GetNumRows(); ++i)
-        if (MapDifficultyEntry const* entry = sMapDifficultyStore.LookupEntry(i))
-            sMapDifficultyMap[MAKE_PAIR32(entry->MapId, entry->Difficulty)] = MapDifficulty(entry->resetTime, entry->maxPlayers, entry->areaTriggerText[0] > 0);
-    sMapDifficultyStore.Clear();
+    LoadDBC(availableDbcLocales, bad_dbc_files, sMapDifficultyStore, dbcPath, "MapDifficulty.dbc");                                                         // 17399
+
+    /// Fill data
+    {
+        sMapDifficultyMap[MAKE_PAIR32(0, 0)] = MapDifficulty(0, 0, 0, false);                                                                               // Map 0 is missingg from MapDifficulty.dbc use this till its ported to sql
+
+        for (uint32 i = 0; i < sMapDifficultyStore.GetNumRows(); ++i)
+        {
+            if (MapDifficultyEntry const* l_MapDiffculty = sMapDifficultyStore.LookupEntry(i))
+            {
+                sMapDifficultyMap[MAKE_PAIR32(l_MapDiffculty->MapId, l_MapDiffculty->Difficulty)] = MapDifficulty(l_MapDiffculty->ResetTime,
+                    l_MapDiffculty->MaxPlayers, l_MapDiffculty->ItemBonusTreeDifficulty, l_MapDiffculty->AreaTriggerText[0] > 0);
+            }
+        }
+
+        sMapDifficultyStore.Clear();
+    }
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sMinorTalentStore,            dbcPath, "MinorTalent.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sMountCapabilityStore,        dbcPath, "MountCapability.dbc");                                              // 17399
@@ -486,6 +497,7 @@ void LoadDBCStores(const std::string& dataPath)
         }
     }
 
+    LoadDBC(availableDbcLocales, bad_dbc_files, sQuestV2Store,                dbcPath, "QuestV2.dbc");                                                      // 19342
     LoadDBC(availableDbcLocales, bad_dbc_files, sQuestXPStore,                dbcPath, "QuestXP.dbc");                                                      // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sQuestFactionRewardStore,     dbcPath, "QuestFactionReward.dbc");                                           // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sQuestSortStore,              dbcPath, "QuestSort.dbc");                                                    // 17399
@@ -1204,4 +1216,13 @@ uint32 ScalingStatValuesEntry::GetDPSAndDamageMultiplier(uint32 subClass, bool i
         return dpsMod[2];
     }
     return 0;
+}
+
+uint32 GetQuestUniqueBitFlag(uint32 questId)
+{
+    QuestV2Entry const* v2 = sQuestV2Store.LookupEntry(questId);
+    if (!v2)
+        return 0;
+
+    return v2->UniqueBitFlag;
 }

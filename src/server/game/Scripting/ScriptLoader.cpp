@@ -807,7 +807,11 @@ void AddSC_Garrison_GO();
 void AddSC_Garrison_NPC();
 void AddSC_Garrison_Quest();
 void AddSC_Garrison_A1();
+void AddSC_Garrison_A2();
+void AddSC_Garrison_A3();
 void AddSC_Garrison_H1();
+void AddSC_Garrison_H2();
+void AddSC_Garrison_H3();
 void AddSC_Garrison();
 void AddSC_item_strongboxes();
 
@@ -1679,7 +1683,11 @@ void AddDraenorScripts()
     AddSC_Garrison_NPC();
     AddSC_Garrison_Quest();
     AddSC_Garrison_A1();
+    AddSC_Garrison_A2();
+    AddSC_Garrison_A3();
     AddSC_Garrison_H1();
+    AddSC_Garrison_H2();
+    AddSC_Garrison_H3();
     AddSC_Garrison();
     /* Instance Skyreach*/
     AddSC_instance_Skyreach();

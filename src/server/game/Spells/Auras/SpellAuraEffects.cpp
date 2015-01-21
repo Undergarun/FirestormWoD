@@ -1000,32 +1000,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 
                     break;
                 }
-                case 90361: // Spirit Mend
-                {
-                    if (!caster->GetOwner())
-                        break;
-
-                    Player* m_owner = caster->GetOwner()->ToPlayer();
-                    if (!m_owner)
-                        break;
-
-                    amount += int32(m_owner->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.35f * 0.335f);
-
-                    break;
-                }
-                // Recuperate
-                case 73651:
-                {
-                    int32 heal_pct = amount * 1000;
-
-                    // Improved Recuperate
-                    if (constAuraEffectPtr aurEff = caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_ROGUE, 4819, 0))
-                        heal_pct += aurEff->GetAmount();
-
-                    amount = CalculatePct(caster->GetMaxHealth(), 0.001 * heal_pct);
-
-                    break;
-                }
                 default:
                     break;
             }
@@ -3550,6 +3524,24 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* p_AurApp, uint8 p_Mode
         if (l_MountEntry != nullptr)
             l_DisplayId = l_MountEntry->CreatureDisplayID;
 
+        /// Hackfix for somes mount unavailable on retail (data aren't)
+        /// But we need it because we sell it on the shop
+        switch (GetId())
+        {
+            case 171630:                ///< Armored Razorback
+                l_DisplayId = 61484;
+                break;
+            case 171619:                ///< Tundra Icehoof
+                l_DisplayId = 53307;
+                break;
+            case 171826:
+                l_DisplayId = 59746;    ///< Mudback Riverbeast
+                break;
+            case 171837:
+                l_DisplayId = 59536;    ///< Warsong Direfang
+                break;
+        }
+
         l_Target->Mount(l_DisplayId, l_VehicleId, GetMiscValue());
         l_Target->RemoveFlagsAuras();
 
@@ -3902,10 +3894,6 @@ void AuraEffect::HandleAuraModRoot(AuraApplication const* p_AurApp, uint8 p_Mode
 
     Unit* l_Target = p_AurApp->GetTarget();
     if (l_Target == nullptr)
-        return;
-
-    // Earthgrab totem - Immunity
-    if (p_Apply && l_Target->HasAura(116946))
         return;
 
     if (p_Apply)
@@ -7775,6 +7763,12 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
     }
     else
         damage = uint32(target->CountPctFromMaxHealth(damage));
+
+    // WoD: Apply factor on damages depending on creature level and expansion
+    if ((caster->GetTypeId() == TYPEID_PLAYER || caster->IsPetGuardianStuff()) && target->GetTypeId() == TYPEID_UNIT)
+        damage *= caster->CalculateDamageDealtFactor(caster, target->ToCreature());
+    else if (caster->GetTypeId() == TYPEID_UNIT && (target->GetTypeId() == TYPEID_PLAYER || target->IsPetGuardianStuff()))
+        damage *= caster->CalculateDamageTakenFactor(target, caster->ToCreature());
 
     if (!(m_spellInfo->AttributesEx4 & SPELL_ATTR4_FIXED_DAMAGE))
         if (m_spellInfo->Effects[m_effIndex].IsTargetingArea() || isAreaAura)

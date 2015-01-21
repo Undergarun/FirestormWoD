@@ -410,6 +410,10 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     float attPowerMod = GetModifierValue(unitMod, TOTAL_VALUE);
     float attPowerMultiplier = GetModifierValue(unitMod, TOTAL_PCT) - 1.0f;
 
+    // 76857 - Mastery : Critical Block - Attack Percentage
+    if (GetTypeId() == TYPEID_PLAYER && HasAura(76857))
+        attPowerMultiplier += GetFloatValue(PLAYER_FIELD_MASTERY) / 100;
+
     //add dynamic flat mods
     if (!ranged && HasAuraType(SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR))
     {
@@ -757,10 +761,9 @@ void Player::UpdateBlockPercentage()
         if (GetTypeId() == TYPEID_PLAYER && HasAura(76671))
             value += GetFloatValue(PLAYER_FIELD_MASTERY);
 
-        // Custom MoP Script
         // 76857 - Mastery : Critical Block - Block Percentage
         if (GetTypeId() == TYPEID_PLAYER && HasAura(76857))
-            value += GetFloatValue(PLAYER_FIELD_MASTERY) / 2.0f;
+            value += GetFloatValue(PLAYER_FIELD_MASTERY) * 0.5f;
 
         if (value < 0.0f)
             value = 0.0f;

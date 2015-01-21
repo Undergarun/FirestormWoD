@@ -19,6 +19,12 @@
 
 #include "OutdoorPvPAshran.h"
 #include "ScriptPCH.h"
+#include "MapManager.h"
+
+OutdoorGraveyardAshran::OutdoorGraveyardAshran(OutdoorPvPAshran* p_OutdoorPvP) : OutdoorGraveyard(p_OutdoorPvP)
+{
+    m_OutdoorPvP = p_OutdoorPvP;
+}
 
 OPvPCapturePoint_Middle::OPvPCapturePoint_Middle(OutdoorPvP* p_Outdoor, eBattleType p_Type, uint8 p_Faction)
     : OPvPCapturePoint(p_Outdoor), m_BattleType(p_Type), m_BattleFaction(p_Faction)
@@ -126,6 +132,11 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eBattleType p_BattleID, uint8 p
 
                 if (GameObject* l_Flag = sObjectAccessor->FindGameObject(m_capturePointGUID))
                     l_Flag->SetByteValue(GAMEOBJECT_BYTES_1, 2, eFlagStates::FlagNeutral);
+
+                DelCreature(eSpecialSpawns::EmberfallTowerSpiritHealer);
+
+                if (OutdoorGraveyard* l_Graveyard = m_PvP->GetGraveyardById(5))
+                    l_Graveyard->GiveControlTo(TeamId::TEAM_NEUTRAL);
             }
             else
             {
@@ -142,7 +153,7 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eBattleType p_BattleID, uint8 p
                 for (uint8 l_Count = 0; l_Count < eSpawns::EmberfallTowerCreaturesCount; ++l_Count)
                 {
                     DelCreature(l_Count);
-                    AddCreature(l_Count, g_EmberfallTowerSpawns[p_Faction == eControlStatus::ControlAlliance ? TEAM_ALLIANCE : TEAM_HORDE][l_Count]);
+                    AddCreature(l_Count, g_EmberfallTowerSpawns[p_Faction == eControlStatus::ControlAlliance ? TEAM_ALLIANCE : TEAM_HORDE][l_Count], 2 * TimeConstants::MINUTE);
                 }
 
                 // Spawn fires
@@ -156,7 +167,16 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eBattleType p_BattleID, uint8 p
 
                 DelCreature(eSpecialSpawns::HordeTowerGuardian);
                 if (roll_chance_i(25) && p_Faction == eControlStatus::ControlHorde)
-                    AddCreature(eSpecialSpawns::HordeTowerGuardian, g_FactionGuardians[TeamId::TEAM_HORDE]);
+                    AddCreature(eSpecialSpawns::HordeTowerGuardian, g_FactionGuardians[TeamId::TEAM_HORDE], 60 * TimeConstants::MINUTE);  ///< Set respawn time at 1 hour to prevent multiple kills
+
+                if (OutdoorGraveyard* l_Graveyard = m_PvP->GetGraveyardById(5))
+                    l_Graveyard->GiveControlTo(p_Faction == eControlStatus::ControlHorde ? TeamId::TEAM_HORDE : TeamId::TEAM_ALLIANCE);
+
+                DelCreature(eSpecialSpawns::EmberfallTowerSpiritHealer);
+                if (p_Faction == eControlStatus::ControlHorde)
+                    AddCreature(eSpecialSpawns::EmberfallTowerSpiritHealer, g_EmberfallTowerSpiritHealer[TeamId::TEAM_HORDE]);
+                else
+                    AddCreature(eSpecialSpawns::EmberfallTowerSpiritHealer, g_EmberfallTowerSpiritHealer[TeamId::TEAM_ALLIANCE]);
             }
 
             break;
@@ -193,7 +213,7 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eBattleType p_BattleID, uint8 p
                 for (uint8 l_Count = eSpawns::EmberfallTowerSpawnsIDs; l_Count < l_CreatureMaxIndex; ++l_Count)
                 {
                     DelCreature(l_Count);
-                    AddCreature(l_Count, g_VolrathsAdvanceSpawns[p_Faction == eControlStatus::ControlAlliance ? TEAM_ALLIANCE : TEAM_HORDE][l_Count - eSpawns::EmberfallTowerSpawnsIDs]);
+                    AddCreature(l_Count, g_VolrathsAdvanceSpawns[p_Faction == eControlStatus::ControlAlliance ? TEAM_ALLIANCE : TEAM_HORDE][l_Count - eSpawns::EmberfallTowerSpawnsIDs], 2 * TimeConstants::MINUTE);
                 }
 
                 // Spawn fires
@@ -245,7 +265,7 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eBattleType p_BattleID, uint8 p
                 for (uint8 l_Count = eSpawns::VolrathsAdvanceSpawnsIDs; l_Count < l_CreatureMaxIndex; ++l_Count)
                 {
                     DelCreature(l_Count);
-                    AddCreature(l_Count, g_CrossroadSpawns[p_Faction == eControlStatus::ControlAlliance ? TEAM_ALLIANCE : TEAM_HORDE][l_Count - eSpawns::VolrathsAdvanceSpawnsIDs]);
+                    AddCreature(l_Count, g_CrossroadSpawns[p_Faction == eControlStatus::ControlAlliance ? TEAM_ALLIANCE : TEAM_HORDE][l_Count - eSpawns::VolrathsAdvanceSpawnsIDs], 2 * TimeConstants::MINUTE);
                 }
 
                 // Spawn flags
@@ -291,7 +311,7 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eBattleType p_BattleID, uint8 p
                 for (uint8 l_Count = eSpawns::TheCrossroadsSpawnsIDs; l_Count < l_CreatureMaxIndex; ++l_Count)
                 {
                     DelCreature(l_Count);
-                    AddCreature(l_Count, g_TrembladesVanguardSpawns[p_Faction == eControlStatus::ControlAlliance ? TEAM_ALLIANCE : TEAM_HORDE][l_Count - eSpawns::TheCrossroadsSpawnsIDs]);
+                    AddCreature(l_Count, g_TrembladesVanguardSpawns[p_Faction == eControlStatus::ControlAlliance ? TEAM_ALLIANCE : TEAM_HORDE][l_Count - eSpawns::TheCrossroadsSpawnsIDs], 2 * TimeConstants::MINUTE);
                 }
 
                 // Spawn fires
@@ -325,6 +345,11 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eBattleType p_BattleID, uint8 p
 
                 if (GameObject* l_Flag = sObjectAccessor->FindGameObject(m_capturePointGUID))
                     l_Flag->SetByteValue(GAMEOBJECT_BYTES_1, 2, eFlagStates::FlagNeutral);
+
+                DelCreature(eSpecialSpawns::ArchmageOverwatchSpiritHealer);
+
+                if (OutdoorGraveyard* l_Graveyard = m_PvP->GetGraveyardById(4))
+                    l_Graveyard->GiveControlTo(TeamId::TEAM_NEUTRAL);
             }
             else
             {
@@ -334,7 +359,7 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eBattleType p_BattleID, uint8 p
                 if (l_IsInitialized)
                 {
                     ((OutdoorPvPAshran*)m_PvP)->SetNextBattleTimer(eAshranDatas::AshranTimeForBattle);
-                    ((OutdoorPvPAshran*)m_PvP)->SetBattleState(p_Faction == eControlStatus::ControlAlliance ? eBattleType::TrembladesVanguard : eWorldStates::WorldStateGrandMarshalTrembladeBattle);
+                    ((OutdoorPvPAshran*)m_PvP)->SetBattleState(p_Faction == eControlStatus::ControlAlliance ? eWorldStates::WorldStateTrembladesVanguardBattle : eWorldStates::WorldStateGrandMarshalTrembladeBattle);
                 }
 
                 // Despawn fighting guards
@@ -346,7 +371,7 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eBattleType p_BattleID, uint8 p
                 for (uint8 l_Count = eSpawns::TrembladesVanguardSpawnsIDs; l_Count < l_CreatureMaxIndex; ++l_Count)
                 {
                     DelCreature(l_Count);
-                    AddCreature(l_Count, g_ArchmageOverwatchSpawns[p_Faction == eControlStatus::ControlAlliance ? TEAM_ALLIANCE : TEAM_HORDE][l_Count - eSpawns::TrembladesVanguardSpawnsIDs]);
+                    AddCreature(l_Count, g_ArchmageOverwatchSpawns[p_Faction == eControlStatus::ControlAlliance ? TEAM_ALLIANCE : TEAM_HORDE][l_Count - eSpawns::TrembladesVanguardSpawnsIDs], 2 * TimeConstants::MINUTE);
                 }
 
                 uint8 l_FireIndex = eSpawns::TrembladesVanguardSpawnsIDs + eSpawns::ArchmageOverwatchCreaturesCount;
@@ -361,7 +386,16 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eBattleType p_BattleID, uint8 p
 
                 DelCreature(eSpecialSpawns::AllianceTowerGuardian);
                 if (roll_chance_i(25) && p_Faction == eControlStatus::ControlAlliance)
-                    AddCreature(eSpecialSpawns::AllianceTowerGuardian, g_FactionGuardians[TeamId::TEAM_ALLIANCE]);
+                    AddCreature(eSpecialSpawns::AllianceTowerGuardian, g_FactionGuardians[TeamId::TEAM_ALLIANCE], 60 * TimeConstants::MINUTE);  ///< Set respawn time at 1 hour to prevent multiple kills
+
+                if (OutdoorGraveyard* l_Graveyard = m_PvP->GetGraveyardById(4))
+                    l_Graveyard->GiveControlTo(p_Faction == eControlStatus::ControlHorde ? TeamId::TEAM_HORDE : TeamId::TEAM_ALLIANCE);
+
+                DelCreature(eSpecialSpawns::ArchmageOverwatchSpiritHealer);
+                if (p_Faction == eControlStatus::ControlHorde)
+                    AddCreature(eSpecialSpawns::ArchmageOverwatchSpiritHealer, g_ArchmageOverwatchSpiritHealer[TeamId::TEAM_HORDE]);
+                else
+                    AddCreature(eSpecialSpawns::ArchmageOverwatchSpiritHealer, g_ArchmageOverwatchSpiritHealer[TeamId::TEAM_ALLIANCE]);
             }
 
             break;
@@ -459,6 +493,9 @@ void OPvPCapturePoint_Graveyard::UpdateTowerState()
 
 bool OPvPCapturePoint_Graveyard::HandlePlayerEnter(Player* p_Player)
 {
+    if (p_Player == nullptr)
+        return false;
+
     if (OPvPCapturePoint::HandlePlayerEnter(p_Player))
     {
         p_Player->SendUpdateWorldState(eWorldStates::WorldStateEnableGraveyardProgressBar, eWorldStates::WorldStateEnabled);
@@ -473,6 +510,9 @@ bool OPvPCapturePoint_Graveyard::HandlePlayerEnter(Player* p_Player)
 
 void OPvPCapturePoint_Graveyard::HandlePlayerLeave(Player* p_Player)
 {
+    if (p_Player == nullptr)
+        return;
+
     p_Player->SendUpdateWorldState(eWorldStates::WorldStateEnableGraveyardProgressBar, eWorldStates::WorldStateDisabled);
     OPvPCapturePoint::HandlePlayerLeave(p_Player);
 }
@@ -485,12 +525,33 @@ void OPvPCapturePoint_Graveyard::SpawnFactionFlags(uint8 p_Faction)
         {
             case eControlStatus::ControlAlliance:
                 AddObject(l_Index, g_GraveyardBanner_A[l_Index]);
+
+                if (OutdoorGraveyard* l_Graveyard = m_PvP->GetGraveyardById(2))
+                    l_Graveyard->GiveControlTo(TeamId::TEAM_ALLIANCE);
+                if (OutdoorGraveyard* l_Graveyard = m_PvP->GetGraveyardById(3))
+                    l_Graveyard->GiveControlTo(TeamId::TEAM_NEUTRAL);
+
+                AddCreature(eSpecialSpawns::MarketplaceGraveyardSpiritHealer, g_MarketplaceGraveyardSpirits[TeamId::TEAM_ALLIANCE]);
                 break;
             case eControlStatus::ControlHorde:
                 AddObject(l_Index, g_GraveyardBanner_H[l_Index]);
+
+                if (OutdoorGraveyard* l_Graveyard = m_PvP->GetGraveyardById(2))
+                    l_Graveyard->GiveControlTo(TeamId::TEAM_NEUTRAL);
+                if (OutdoorGraveyard* l_Graveyard = m_PvP->GetGraveyardById(3))
+                    l_Graveyard->GiveControlTo(TeamId::TEAM_HORDE);
+
+                AddCreature(eSpecialSpawns::MarketplaceGraveyardSpiritHealer, g_MarketplaceGraveyardSpirits[TeamId::TEAM_HORDE]);
                 break;
             case eControlStatus::ControlNeutral:
                 DelObject(l_Index);
+
+                if (OutdoorGraveyard* l_Graveyard = m_PvP->GetGraveyardById(2))
+                    l_Graveyard->GiveControlTo(TeamId::TEAM_NEUTRAL);
+                if (OutdoorGraveyard* l_Graveyard = m_PvP->GetGraveyardById(3))
+                    l_Graveyard->GiveControlTo(TeamId::TEAM_NEUTRAL);
+
+                DelCreature(eSpecialSpawns::MarketplaceGraveyardSpiritHealer);
                 break;
             default:
                 break;
@@ -553,16 +614,13 @@ OutdoorPvPAshran::OutdoorPvPAshran()
     for (uint8 l_Iter = 0; l_Iter < eBattleType::MaxBattleType; ++l_Iter)
         m_GenericMoPGuids[l_Iter] = 0;
 
-    AddCreature(eSpecialSpawns::AllianceFactionBoss, g_FactionBossesSpawn[0]);
-    AddCreature(eSpecialSpawns::HordeFactionBoss, g_FactionBossesSpawn[3]);
+    AddCreature(eSpecialSpawns::AllianceFactionBoss, g_FactionBossesSpawn[0], 5 * TimeConstants::MINUTE);
+    AddCreature(eSpecialSpawns::HordeFactionBoss, g_FactionBossesSpawn[3], 5 * TimeConstants::MINUTE);
 }
 
 bool OutdoorPvPAshran::SetupOutdoorPvP()
 {
     RegisterZone(eAshranDatas::AshranZoneID);
-
-    for (uint8 l_TeamID = TeamId::TEAM_ALLIANCE; l_TeamID <= TeamId::TEAM_HORDE; ++l_TeamID)
-        AddAreaTrigger(g_HallowedGroundEntries[l_TeamID], 1, eAshranDatas::AshranHallowedGroundID, g_HallowedGroundPos[l_TeamID], 0, sMapMgr->CreateBaseMap(eAshranDatas::AshranMapID));
 
     for (uint8 l_BattleIndex = eBattleType::EmberfallTower; l_BattleIndex < eBattleType::MaxBattleType; ++l_BattleIndex)
     {
@@ -590,6 +648,21 @@ bool OutdoorPvPAshran::SetupOutdoorPvP()
     */
     m_GraveYard = new OPvPCapturePoint_Graveyard(this);
     AddCapturePoint(m_GraveYard);
+
+    SetGraveyardNumber(eGraveyards::TotalGraveyards);
+    for (uint8 l_I = 0; l_I < eGraveyards::TotalGraveyards; ++l_I)
+    {
+        OutdoorGraveyardAshran* l_Graveyard = new OutdoorGraveyardAshran(this);
+        l_Graveyard->Initialize(g_AshranGraveyards[l_I].m_StartTeam, g_AshranGraveyards[l_I].m_ID);
+        m_GraveyardList[l_I] = l_Graveyard;
+    }
+
+    /// Summon Hallowed ground and Spirit healers
+    for (uint8 l_TeamID = TeamId::TEAM_ALLIANCE; l_TeamID <= TeamId::TEAM_HORDE; ++l_TeamID)
+    {
+        AddCreature(eSpecialSpawns::AllianceBaseSpiritHealer + l_TeamID, g_BasesSpiritHealers[l_TeamID]);
+        AddAreaTrigger(g_HallowedGroundEntries[l_TeamID], 1, eAshranDatas::AshranHallowedGroundID, g_HallowedGroundPos[l_TeamID], 0, sMapMgr->CreateBaseMap(eAshranDatas::AshranMapID));
+    }
 
     return true;
 }
@@ -632,7 +705,7 @@ void OutdoorPvPAshran::HandlePlayerEnterMap(Player* p_Player, uint32 p_MapID)
 
 void OutdoorPvPAshran::HandlePlayerLeaveMap(Player* p_Player, uint32 p_MapID)
 {
-    if (p_MapID != eAshranDatas::AshranMapID)
+    if (p_MapID != eAshranDatas::AshranMapID || p_Player == nullptr)
         return;
 
     if (p_Player->GetTeamId() < 2)
@@ -650,11 +723,22 @@ void OutdoorPvPAshran::HandlePlayerLeaveMap(Player* p_Player, uint32 p_MapID)
 
 void OutdoorPvPAshran::HandlePlayerEnterArea(Player* p_Player, uint32 p_AreaID)
 {
+    if (p_Player == nullptr)
+        return;
+
     if (p_Player->GetMapId() != eAshranDatas::AshranNeutralMapID && p_Player->GetMapId() != eAshranDatas::AshranMapID)
         return;
 
     if (p_AreaID == eAshranDatas::AshranPreAreaHorde || p_AreaID == eAshranDatas::AshranPreAreaAlliance)
-        p_Player->SwitchToPhasedMap(eAshranDatas::AshranNeutralMapID);
+    {
+        uint64 l_Guid = p_Player->GetGUID();
+
+        sMapMgr->AddCriticalOperation([l_Guid]() -> void
+        {
+            if (Player* l_Player = sObjectAccessor->FindPlayer(l_Guid))
+                l_Player->SwitchToPhasedMap(eAshranDatas::AshranNeutralMapID);
+        });
+    }
 
     /// +30% damage, healing and health for players in their faction bases
     if ((p_AreaID == eAshranDatas::AshranHordeBase && p_Player->GetTeamId() == TeamId::TEAM_HORDE) ||
@@ -672,11 +756,22 @@ void OutdoorPvPAshran::HandlePlayerEnterArea(Player* p_Player, uint32 p_AreaID)
 
 void OutdoorPvPAshran::HandlePlayerLeaveArea(Player* p_Player, uint32 p_AreaID)
 {
+    if (p_Player == nullptr)
+        return;
+
     if (p_Player->GetMapId() != eAshranDatas::AshranNeutralMapID && p_Player->GetMapId() != eAshranDatas::AshranMapID)
         return;
 
     if (p_AreaID == eAshranDatas::AshranPreAreaHorde || p_AreaID == eAshranDatas::AshranPreAreaAlliance)
-        p_Player->SwitchToPhasedMap(eAshranDatas::AshranMapID);
+    {
+        uint64 l_Guid = p_Player->GetGUID();
+
+        sMapMgr->AddCriticalOperation([l_Guid]() -> void
+        {
+            if (Player* l_Player = sObjectAccessor->FindPlayer(l_Guid))
+                l_Player->SwitchToPhasedMap(eAshranDatas::AshranMapID);
+        });
+    }
 
     if (p_AreaID == eAshranDatas::AshranHordeBase || p_AreaID == eAshranDatas::AshranAllianceBase)
         p_Player->RemoveAura(eAshranSpells::SpellHoldYourGround);
@@ -688,6 +783,9 @@ void OutdoorPvPAshran::HandlePlayerLeaveArea(Player* p_Player, uint32 p_AreaID)
 
 void OutdoorPvPAshran::HandlePlayerKilled(Player* p_Player)
 {
+    if (p_Player == nullptr)
+        return;
+
     // Drop half of artifact fragments at player death
     // Even if he's killed by a creature
     if (uint32 l_ArtifactCount = p_Player->GetCurrency(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT, false))
@@ -993,6 +1091,8 @@ void OutdoorPvPAshran::HandleBFMGREntryInviteResponse(bool p_Accepted, Player* p
     {
         m_PlayersInWar[p_Player->GetTeamId()].insert(p_Player->GetGUID());
         m_InvitedPlayers[p_Player->GetTeamId()].erase(p_Player->GetGUID());
+
+        p_Player->GetSession()->SendBfEntered(m_Guid);
     }
     else
     {
@@ -1011,17 +1111,22 @@ void OutdoorPvPAshran::OnCreatureCreate(Creature* p_Creature)
             m_HeraldGuid = p_Creature->GetGUID();
             break;
         case eCreatures::HighWarlordVolrath:
-        {
             m_HighWarlordVolrath = p_Creature->GetGUID();
             AddCreature(eCreatures::SLGGenericMoPLargeAoI + TeamId::TEAM_HORDE, eCreatures::SLGGenericMoPLargeAoI, Team::TEAM_NONE, eAshranDatas::AshranMapID, p_Creature->m_positionX, p_Creature->m_positionY, p_Creature->m_positionZ, M_PI);
             m_FactionGenericMoP[TeamId::TEAM_HORDE] = m_Creatures[eCreatures::SLGGenericMoPLargeAoI + TeamId::TEAM_HORDE];
             break;
-        }
         case eCreatures::GrandMarshalTremblade:
-        {
             m_GrandMasrhalTremblade = p_Creature->GetGUID();
             AddCreature(eCreatures::SLGGenericMoPLargeAoI + TeamId::TEAM_ALLIANCE, eCreatures::SLGGenericMoPLargeAoI, Team::TEAM_NONE, eAshranDatas::AshranMapID, p_Creature->m_positionX, p_Creature->m_positionY, p_Creature->m_positionZ, M_PI);
             m_FactionGenericMoP[TeamId::TEAM_ALLIANCE] = m_Creatures[eCreatures::SLGGenericMoPLargeAoI + TeamId::TEAM_ALLIANCE];
+            break;
+        case eCreatures::AllianceSpiritGuide:
+        case eCreatures::HordeSpiritGuide:
+        {
+            TeamId l_TeamID = p_Creature->GetEntry() == eCreatures::HordeSpiritGuide ? TeamId::TEAM_HORDE : TeamId::TEAM_ALLIANCE;
+            uint8 l_GraveyardID = GetSpiritGraveyardID(p_Creature->GetAreaId(), l_TeamID);
+            if (m_GraveyardList[l_GraveyardID] != nullptr)
+                m_GraveyardList[l_GraveyardID]->SetSpirit(p_Creature, l_TeamID);
             break;
         }
         default:
@@ -1040,6 +1145,13 @@ void OutdoorPvPAshran::ResetControlPoints()
         return;
 
     m_IsInitialized = false;
+
+    /// Despawn flight masters and gryphons/wyverns
+    for (uint8 l_I = 0; l_I < eSpecialSpawns::MaxTaxiToBases; ++l_I)
+    {
+        DelCreature(eSpecialSpawns::AllianceTaxiToBase1 + l_I);
+        DelCreature(eSpecialSpawns::HordeTaxiToBase1 + l_I);
+    }
 
     for (uint8 l_BattleIndex = eBattleType::EmberfallTower; l_BattleIndex < eBattleType::MaxBattleType; ++l_BattleIndex)
     {
@@ -1093,25 +1205,25 @@ void OutdoorPvPAshran::SetBattleState(uint32 p_NewState)
         {
             case eWorldStates::WorldStateEmberfallTowerBattle:
                 DelCreature(eSpecialSpawns::HordeFactionBoss);
-                AddCreature(eSpecialSpawns::HordeFactionBoss, g_FactionBossesSpawn[5]);
+                AddCreature(eSpecialSpawns::HordeFactionBoss, g_FactionBossesSpawn[5], 5 * TimeConstants::MINUTE);
                 break;
             case eWorldStates::WorldStateVolrathsAdvanceBattle:
                 DelCreature(eSpecialSpawns::HordeFactionBoss);
-                AddCreature(eSpecialSpawns::HordeFactionBoss, g_FactionBossesSpawn[4]);
+                AddCreature(eSpecialSpawns::HordeFactionBoss, g_FactionBossesSpawn[4], 5 * TimeConstants::MINUTE);
                 break;
             case eWorldStates::WorldStateTheCrossroadsBattle:
                 DelCreature(eSpecialSpawns::AllianceFactionBoss);
                 DelCreature(eSpecialSpawns::HordeFactionBoss);
-                AddCreature(eSpecialSpawns::AllianceFactionBoss, g_FactionBossesSpawn[0]);
-                AddCreature(eSpecialSpawns::HordeFactionBoss, g_FactionBossesSpawn[3]);
+                AddCreature(eSpecialSpawns::AllianceFactionBoss, g_FactionBossesSpawn[0], 5 * TimeConstants::MINUTE);
+                AddCreature(eSpecialSpawns::HordeFactionBoss, g_FactionBossesSpawn[3], 5 * TimeConstants::MINUTE);
                 break;
             case eWorldStates::WorldStateTrembladesVanguardBattle:
                 DelCreature(eSpecialSpawns::AllianceFactionBoss);
-                AddCreature(eSpecialSpawns::AllianceFactionBoss, g_FactionBossesSpawn[1]);
+                AddCreature(eSpecialSpawns::AllianceFactionBoss, g_FactionBossesSpawn[1], 5 * TimeConstants::MINUTE);
                 break;
             case eWorldStates::WorldStateArchmageOverwatchBattle:
                 DelCreature(eSpecialSpawns::AllianceFactionBoss);
-                AddCreature(eSpecialSpawns::AllianceFactionBoss, g_FactionBossesSpawn[2]);
+                AddCreature(eSpecialSpawns::AllianceFactionBoss, g_FactionBossesSpawn[2], 5 * TimeConstants::MINUTE);
                 break;
             default:
                 break;
@@ -1178,7 +1290,93 @@ void OutdoorPvPAshran::HandleFactionBossDeath(uint8 p_Faction)
     m_WillBeReset = true;   ///< Must do that before changing state
     SetBattleState(eWorldStates::WorldStateTheCrossroadsBattle);
 
-    // Summon fly master
+    for (uint8 l_I = 0; l_I < eSpecialSpawns::MaxTaxiToBases; ++l_I)
+    {
+        DelCreature(eSpecialSpawns::AllianceTaxiToBase1 + l_I);
+        DelCreature(eSpecialSpawns::HordeTaxiToBase1 + l_I);
+
+        if (p_Faction == TeamId::TEAM_ALLIANCE)
+            AddCreature(eSpecialSpawns::AllianceTaxiToBase1 + l_I, g_FactionTaxisToBase[p_Faction][l_I], 5 * TimeConstants::MINUTE);
+        else if (p_Faction == TeamId::TEAM_HORDE)
+            AddCreature(eSpecialSpawns::HordeTaxiToBase1 + l_I, g_FactionTaxisToBase[p_Faction][l_I], 5 * TimeConstants::MINUTE);
+        else
+            return; ///< Nothing to do here
+    }
+}
+
+WorldSafeLocsEntry const* OutdoorPvPAshran::GetClosestGraveyard(Player* p_Player)
+{
+    WorldSafeLocsEntry const* l_Graveyard = nullptr;
+
+    float l_PosX = p_Player->GetPositionX();
+    float l_PosY = p_Player->GetPositionY();
+    float l_MinDist = 1000000.0f;
+
+    uint8 l_TeamID = p_Player->GetTeamId();
+    for (uint8 l_I = 0; l_I < eGraveyards::MaxGraveyards; ++l_I)
+    {
+        /// Check owner of Marketplace Graveyard
+        if (g_GraveyardIDs[l_TeamID][l_I] == eGraveyards::AllianceCenter || g_GraveyardIDs[l_TeamID][l_I] == eGraveyards::HordeCenter)
+        {
+            if (m_GraveYard != nullptr)
+            {
+                uint8 l_State = m_GraveYard->GetGraveyardState();
+                if (l_State == eControlStatus::ControlNeutral || (l_State == eControlStatus::ControlAlliance && l_TeamID != TeamId::TEAM_ALLIANCE) ||
+                    (l_State == eControlStatus::ControlHorde && l_TeamID != TeamId::TEAM_HORDE))
+                    continue;
+            }
+        }
+        /// Check status of Archmage Overwatch and Emberfall Tower
+        else if (g_GraveyardIDs[l_TeamID][l_I] == eGraveyards::TowerAlliance || g_GraveyardIDs[l_TeamID][l_I] == eGraveyards::TowerHorde)
+        {
+            if (OPvPCapturePoint_Middle* l_CapturePoint = m_ControlPoints[eBattleType::ArchmageOverwatch])
+            {
+                uint32 l_State = l_CapturePoint->GetBattleFaction();
+                if (l_State == eControlStatus::ControlNeutral || (l_State == eControlStatus::ControlAlliance && l_TeamID != TeamId::TEAM_ALLIANCE) ||
+                    (l_State == eControlStatus::ControlHorde && l_TeamID != TeamId::TEAM_HORDE))
+                    continue;
+            }
+        }
+
+        /// No other checks needed, other graveyards are main bases
+        if (WorldSafeLocsEntry const* l_SafeLoc = sWorldSafeLocsStore.LookupEntry(g_GraveyardIDs[l_TeamID][l_I]))
+        {
+            float l_Dist = ((l_SafeLoc->x - l_PosX) * (l_SafeLoc->x - l_PosX)) + ((l_SafeLoc->y - l_PosY) * (l_SafeLoc->y - l_PosY));
+            if (l_MinDist > l_Dist)
+            {
+                l_MinDist = l_Dist;
+                l_Graveyard = l_SafeLoc;
+            }
+        }
+    }
+
+    return l_Graveyard;
+}
+
+uint8 OutdoorPvPAshran::GetSpiritGraveyardID(uint32 p_AreaID, TeamId p_Team) const
+{
+    switch (p_AreaID)
+    {
+        case eAshranDatas::AshranAllianceBase:
+            return 0;
+        case eAshranDatas::AshranHordeBase:
+            return 1;
+        case eAshranDatas::KingsRestAreaID:
+        {
+            if (p_Team == TeamId::TEAM_ALLIANCE)
+                return 2;
+            else
+                return 3;
+        }
+        case eAshranDatas::ArchmageOverwatchAreaID:
+            return 4;
+        case eAshranDatas::EmberfallTowerAreaID:
+            return 5;
+        default:
+            break;
+    }
+
+    return 0;
 }
 
 class OutdoorPvP_Ashran : public OutdoorPvPScript
@@ -1304,6 +1502,7 @@ class npc_faction_boss : public CreatureScript
             npc_faction_bossAI(Creature* p_Creature) : ScriptedAI(p_Creature)
             {
                 m_ZoneScript = sOutdoorPvPMgr->GetZoneScript(p_Creature->GetZoneId());
+                m_BaseHP = me->GetMaxHealth();
             }
 
             enum eSpells
@@ -1332,12 +1531,18 @@ class npc_faction_boss : public CreatureScript
             EventMap m_Events;
             ZoneScript* m_ZoneScript;
 
+            bool m_FirstVictim;
+            uint32 m_BaseHP;
+
             void Reset()
             {
                 m_Events.Reset();
 
                 me->RemoveAura(eSpells::SpellEnableUnitFrame);
-                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISARMED);
+
+                m_FirstVictim = true;
+
+                me->SetHealth(m_BaseHP);
             }
 
             void EnterCombat(Unit* p_Attacker)
@@ -1364,7 +1569,7 @@ class npc_faction_boss : public CreatureScript
                 if (Creature* l_GenericMoP = sObjectAccessor->FindCreature(l_GenericGuid))
                     l_GenericMoP->AI()->DoAction(me->GetEntry() == eCreatures::GrandMarshalTremblade ? eAshranActions::AnnounceHordeKillBoss : eAshranActions::AnnounceAllianceKillBoss);
 
-                ((OutdoorPvPAshran*)m_ZoneScript)->HandleFactionBossDeath(me->GetEntry() == eCreatures::GrandMarshalTremblade ? TeamId::TEAM_ALLIANCE : TeamId::TEAM_HORDE);
+                ((OutdoorPvPAshran*)m_ZoneScript)->HandleFactionBossDeath(me->GetEntry() == eCreatures::GrandMarshalTremblade ? TeamId::TEAM_HORDE : TeamId::TEAM_ALLIANCE);
 
                 /// Upon successfully defeating the enemy leader, those present receive 50 Honor and 250 Conquest
                 std::list<Player*> l_PlayerList;
@@ -1383,9 +1588,16 @@ class npc_faction_boss : public CreatureScript
 
                 for (Player* l_Player : l_PlayerList)
                 {
-                    l_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_CONQUEST_POINTS, 250);
-                    l_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_HONOR_POINTS, 50);
+                    /// Must do a * 100 because of currency precision
+                    l_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_CONQUEST_POINTS, 250 * 100);
+                    l_Player->RewardHonor(l_Player, 1, 50 * 100);
                 }
+
+                /// Trigger strongboxes loot for near players
+                if (me->GetEntry() == eCreatures::GrandMarshalTremblade)
+                    p_Killer->CastSpell(p_Killer, eAshranSpells::SpellAllianceReward, true);
+                else
+                    p_Killer->CastSpell(p_Killer, eAshranSpells::SpellHordeReward, true);
             }
 
             void DoAction(int32 const p_Action)
@@ -1437,6 +1649,43 @@ class npc_faction_boss : public CreatureScript
                 }
 
                 DoMeleeAttackIfReady();
+            }
+
+            void OnHostileReferenceAdded(Unit* p_Ennemy)
+            {
+                if (p_Ennemy->GetTypeId() != TypeID::TYPEID_PLAYER)
+                    return;
+
+                if (m_FirstVictim)
+                {
+                    m_FirstVictim = false;
+                    return;
+                }
+
+                float l_HealthPct = me->GetHealthPct();
+                uint32 l_AddedValue = m_BaseHP / 2;
+
+                me->SetMaxHealth(me->GetMaxHealth() + l_AddedValue);
+                me->SetHealth(CalculatePct(me->GetMaxHealth(), l_HealthPct));
+            }
+
+            void OnHostileReferenceRemoved(Unit* p_Ennemy)
+            {
+                if (p_Ennemy->GetTypeId() != TypeID::TYPEID_PLAYER)
+                    return;
+
+                float l_HealthPct = me->GetHealthPct();
+                uint32 l_AddedValue = m_BaseHP / 2;
+
+                if ((me->GetMaxHealth() - l_AddedValue) < m_BaseHP)
+                {
+                    me->SetMaxHealth(m_BaseHP);
+                    me->SetHealth(CalculatePct(m_BaseHP, l_HealthPct));
+                    return;
+                }
+
+                me->SetMaxHealth(me->GetMaxHealth() - l_AddedValue);
+                me->SetHealth(CalculatePct(me->GetMaxHealth(), l_HealthPct));
             }
         };
 
@@ -1500,7 +1749,7 @@ class npc_jeron_emberfall : public CreatureScript
             {
                 m_Events.Reset();
 
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISARMED);
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISARMED);
             }
 
             void EnterCombat(Unit* p_Attacker)
@@ -1859,6 +2108,78 @@ class npc_rylai_crestfall : public CreatureScript
         }
 };
 
+/// Shevan Manille <Flight Master> - 87672
+/// Tina Kelatara <Flight Master> - 87617
+class npc_ashran_flight_masters : public CreatureScript
+{
+    public:
+        npc_ashran_flight_masters() : CreatureScript("npc_ashran_flight_masters") { }
+
+        bool OnGossipSelect(Player* p_Player, Creature*, uint32, uint32)
+        {
+            if (p_Player == nullptr || !p_Player->IsInWorld())
+                return true;
+
+            if (p_Player->GetTeamId() == TeamId::TEAM_ALLIANCE)
+                p_Player->ActivateTaxiPathTo(eAshranDatas::TaxiPathBaseHordeToAlliance, 0, true);
+            else
+                p_Player->ActivateTaxiPathTo(eAshranDatas::TaxiPathBaseAllianceToHorde, 0, true);
+
+            return false;
+        }
+
+        struct npc_ashran_flight_mastersAI : public ScriptedAI
+        {
+            npc_ashran_flight_mastersAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void Reset()
+            {
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_ATTACKABLE_1 | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_ashran_flight_mastersAI(p_Creature);
+        }
+};
+
+/// Alliance Spirit Guide - 80723
+/// Horde Spirit Guide - 80724
+class npc_ashran_spirit_healer : public CreatureScript
+{
+    public:
+        npc_ashran_spirit_healer() : CreatureScript("npc_ashran_spirit_healer") { }
+
+        struct npc_ashran_spirit_healerAI : public ScriptedAI
+        {
+            npc_ashran_spirit_healerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void Reset()
+            {
+                me->setDeathState(DeathState::DEAD);
+                me->SetGuidValue(EUnitFields::UNIT_FIELD_CHANNEL_OBJECT, me->GetGUID());
+                me->SetUInt32Value(EUnitFields::UNIT_FIELD_CHANNEL_SPELL, eAshranSpells::SpellSpiritHeal);
+                me->SetFloatValue(EUnitFields::UNIT_FIELD_MOD_CASTING_SPEED, 1.0f);
+                me->SetFloatValue(EUnitFields::UNIT_FIELD_MOD_SPELL_HASTE, 1.0f);
+                DoCast(me, eAshranSpells::SpellSpiritHeal);
+            }
+
+            void JustRespawned() { }
+
+            void UpdateAI(uint32 const)
+            {
+                if (!me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    DoCast(me, eAshranSpells::SpellSpiritHeal);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_ashran_spirit_healerAI(p_Creature);
+        }
+};
+
 /// Blade Twister - 178795
 class spell_blade_twister: public SpellScriptLoader
 {
@@ -1955,6 +2276,73 @@ class spell_emberfall_living_bomb: public SpellScriptLoader
         }
 };
 
+/// Alliance Reward - 178531
+/// Horde Reward - 178533
+class spell_ashran_faction_rewards : public SpellScriptLoader
+{
+    public:
+        spell_ashran_faction_rewards() : SpellScriptLoader("spell_ashran_faction_rewards") { }
+
+        class spell_ashran_faction_rewards_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_ashran_faction_rewards_SpellScript);
+
+            enum Items
+            {
+                StrongboxHorde      = 120151,
+                StrongboxAlliance   = 118065
+            };
+
+            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.empty())
+                    return;
+
+                p_Targets.remove_if([this](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr || p_Object->GetTypeId() != TypeID::TYPEID_PLAYER)
+                        return true;
+
+                    Player* l_Player = p_Object->ToPlayer();
+                    if (l_Player == nullptr)
+                        return true;
+
+                    /// Only one strongbox per day
+                    if (!l_Player->CanHaveDailyLootForItem(Items::StrongboxAlliance) ||
+                        !l_Player->CanHaveDailyLootForItem(Items::StrongboxHorde))
+                        return true;
+
+                    return false;
+                });
+            }
+
+            void HandleOnHit()
+            {
+                if (GetHitUnit() == nullptr)
+                    return;
+
+                if (Player* l_Player = GetHitUnit()->ToPlayer())
+                {
+                    if (GetSpellInfo()->Id == eAshranSpells::SpellAllianceReward)
+                        l_Player->AddDailyLootCooldown(Items::StrongboxHorde);
+                    else
+                        l_Player->AddDailyLootCooldown(Items::StrongboxAlliance);
+                }
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ashran_faction_rewards_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+                OnHit += SpellHitFn(spell_ashran_faction_rewards_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_ashran_faction_rewards_SpellScript();
+        }
+};
+
 void AddSC_OutdoorPvPAshran()
 {
     new OutdoorPvP_Ashran();
@@ -1964,7 +2352,10 @@ void AddSC_OutdoorPvPAshran()
     new npc_faction_boss();
     new npc_jeron_emberfall();
     new npc_rylai_crestfall();
+    new npc_ashran_flight_masters();
+    new npc_ashran_spirit_healer();
 
     new spell_blade_twister();
     new spell_emberfall_living_bomb();
+    new spell_ashran_faction_rewards();
 }

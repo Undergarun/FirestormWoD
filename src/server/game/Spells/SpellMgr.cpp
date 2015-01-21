@@ -3470,7 +3470,12 @@ void SpellMgr::LoadSpellCustomAttr()
             case 157154:// High tide fix temp !!!
                 spellInfo->Effects[0].BasePoints = 0;
                 break;
-            case 157174: // Elemental Fusion
+            case 178531:///< Alliance Reward (but for Horde)
+                spellInfo->Effects[0].TargetA = TARGET_SRC_CASTER;
+                spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ALLY;
+                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(27);  ///< 50y
+                break;
+            case 157174:// Elemental Fusion
                 spellInfo->ProcCharges = 1;
                 break;
             case 77442: ///< Focus
@@ -3702,6 +3707,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[2].Effect = 0;
                 spellInfo->Effects[3].Effect = 0;
                 break;
+            case 59052:// Freezing Fog
+                spellInfo->ProcChance = 45;
+                break;
             case 136654:// Rending Charge
                 spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(153); // 60 yards
                 break;
@@ -3860,6 +3868,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ALLY;
                 spellInfo->Effects[1].TargetB = 0;
                 break;
+            case 53390: // Tidal Waves
+                spellInfo->Effects[0].BasePoints = -20;
+                spellInfo->Effects[1].BasePoints = 30;
+                break;
             case 15286: // Vampiric Embrace
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
@@ -3895,10 +3907,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 81782: // Power Word: Barrier (buff)
             case 139485:// Dark Winds
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(285); // 1s
-                break;
-            case 134735:// Battle Fatigue : Hardcoded Basepoint for Season 13
-                spellInfo->Effects[0].BasePoints = -30;
-                spellInfo->Effects[1].BasePoints = -30;
                 break;
             case 103965:// Metamorphosis (override auras)
                 spellInfo->Effects[2].SpellClassMask[0] = 64;
@@ -5353,6 +5361,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 115295:// Guard
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_MOD_HEALING_DONE_PERCENT;
                 spellInfo->Effects[1].BasePoints = 30;
+                break;
+            case 126060:// Desperate Measures
+                spellInfo->Effects[0].BasePoints = 0;
                 break;
             case 124273:// Heavy Stagger
             case 124274:// Moderate Stagger

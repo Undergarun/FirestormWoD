@@ -67,7 +67,7 @@
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "ArchaeologyMgr.h"
-#include "Garrison.h"
+#include "GarrisonMgr.hpp"
 #include "PetBattle.h"
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
@@ -1902,21 +1902,6 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
         case 86961: // Cleansing Waters
         {
             addhealth = m_caster->CountPctFromMaxHealth(4);
-            break;
-        }
-        case 90361: // Spirit Mend
-        {
-            if (!unitTarget || !caster)
-                return;
-
-            if (!caster->GetOwner())
-                return;
-
-            Player* m_owner = caster->GetOwner()->ToPlayer();
-            if (!m_owner)
-                return;
-
-            addhealth += int32(m_owner->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.35f * 0.5f);
             break;
         }
         case 73921: // Healing Rain
@@ -4142,34 +4127,10 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
     {
         switch (m_spellInfo->Id)
         {
-        case 45902: // Blood Strike
+        case 52374: // Blood Strike
         {
-            float bonusPct = m_spellInfo->Effects[EFFECT_3].BasePoints * unitTarget->GetDiseasesByCaster(m_caster->GetGUID()) / 10.0f;
-            // Death Knight T8 Melee 4P Bonus
-            if (constAuraEffectPtr aurEff = m_caster->GetAuraEffect(64736, EFFECT_0))
-                AddPct(bonusPct, aurEff->GetAmount());
-            AddPct(totalDamagePercentMod, bonusPct);
-
-            break;
-        }
-        case 49020: // Obliterate
-        case 66198: // Obliterate Off-Hand
-        {
-            // 12.5% more damage per disease
-            float bonusPct = m_spellInfo->Effects[EFFECT_2].CalcValue(m_caster) * unitTarget->GetDiseasesByCaster(m_caster->GetGUID(), false) / 2.0f;
-            // Death Knight T8 Melee 4P Bonus
-            if (constAuraEffectPtr aurEff = m_caster->GetAuraEffect(64736, EFFECT_0))
-                AddPct(bonusPct, aurEff->GetAmount());
-            AddPct(totalDamagePercentMod, bonusPct);
-            break;
-        }
-        case 55050: // Heart Strike
-        {
-            float bonusPct = m_spellInfo->Effects[EFFECT_2].CalcValue(m_caster) * unitTarget->GetDiseasesByCaster(m_caster->GetGUID());
-            // Death Knight T8 Melee 4P Bonus
-            if (constAuraEffectPtr aurEff = m_caster->GetAuraEffect(64736, EFFECT_0))
-                AddPct(bonusPct, aurEff->GetAmount());
-
+            float bonusPct = ((m_spellInfo->Effects[EFFECT_0].BasePoints * m_spellInfo->Effects[EFFECT_1].BasePoints) / 100) * unitTarget->GetDiseasesByCaster(m_caster->GetGUID());
+            
             AddPct(totalDamagePercentMod, bonusPct);
             break;
         }
@@ -7725,7 +7686,7 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
     {
         if (Map* l_Map = GetCaster()->GetMap())
         {
-            if (l_Map->IsBattlegroundOrArena())
+            if (l_Map->IsBattlegroundOrArena() || l_Map->GetId() == 1191)   ///< Ashran
             {
                 l_IsBGReward = true;
                 l_Caster = GetCaster();
@@ -7743,7 +7704,7 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
         
     std::list<ItemTemplate const*> l_LootTable;
     std::vector<uint32> l_Items;
-    l_LootTemplate->FillAutoAssignationLoot(l_LootTable, l_Player);
+    l_LootTemplate->FillAutoAssignationLoot(l_LootTable, l_Player, l_IsBGReward);
 
     float l_DropChance = l_IsBGReward ? 100 : sWorld->getFloatConfig(CONFIG_LFR_DROP_CHANCE) + l_Player->GetBonusRollFails();
     uint32 l_SpecID = l_Player->GetLootSpecId() ? l_Player->GetLootSpecId() : l_Player->GetSpecializationId(l_Player->GetActiveSpec());
@@ -7784,7 +7745,7 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
     {
         std::random_shuffle(l_Items.begin(), l_Items.end());
 
-        if (roll_chance_i(l_DropChance))
+        if (roll_chance_i(l_DropChance) && !l_Items.empty())
         {
             l_Player->AddItem(l_Items[0], 1);
             l_Player->SendDisplayToast(l_Items[0], 1, l_IsBGReward ? DISPLAY_TOAST_METHOD_PVP_FACTION_LOOT_TOAST : DISPLAY_TOAST_METHOD_LOOT, TOAST_TYPE_NEW_ITEM, false, false);

@@ -867,6 +867,7 @@ class WorldSession
         void HandleChangePlayerNameOpcodeCallBack(PreparedQueryResult result, std::string newName);
         void HandleSetPlayerDeclinedNames(WorldPacket& recvData);
         void SendPlayerDeclinedNamesResult(uint64 guid, uint32 result);
+        void HandleMountSetFavoriteOpcode(WorldPacket & p_Packet);
 
         void HandleTotemDestroyed(WorldPacket& recvData);
         void HandleDismissCritter(WorldPacket& recvData);
@@ -1035,7 +1036,6 @@ class WorldSession
         void HandleEquipmentSetUse(WorldPacket& recvData);
         void HandleWorldStateUITimerUpdate(WorldPacket& recvData);
         void HandleUndeleteCharacter(WorldPacket& recvData);
-        void HandleQueryQuestsCompleted(WorldPacket& recvData);
         void HandleQueryQuestCompletionNpcs(WorldPacket& RecvData);
         void HandleQuestPOIQuery(WorldPacket& recvData);
         void HandleEjectPassenger(WorldPacket& data);

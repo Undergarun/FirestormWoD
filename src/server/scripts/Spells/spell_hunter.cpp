@@ -2833,6 +2833,60 @@ class spell_hun_claw_bite : public SpellScriptLoader
         }
 };
 
+// Spirit Mend - 90361
+class spell_hun_spirit_mend : public SpellScriptLoader
+{
+public:
+    spell_hun_spirit_mend() : SpellScriptLoader("spell_hun_spirit_mend") { }
+
+    class spell_hun_spirit_mend_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_hun_spirit_mend_AuraScript);
+
+        void CalculateAmount(constAuraEffectPtr l_AuraEffect, int32& l_Amount, bool& /*canBeRecalculated*/)
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (l_AuraEffect->GetAmplitude() && GetMaxDuration())
+                    l_Amount = int32(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.35f * 0.5f) / (GetMaxDuration() / l_AuraEffect->GetAmplitude());
+            }
+        }
+
+        void Register()
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_spirit_mend_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_PERIODIC_HEAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_hun_spirit_mend_AuraScript();
+    }
+
+    class spell_hun_spirit_mend_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_hun_spirit_mend_SpellScript);
+
+        void HandleHeal(SpellEffIndex)
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                SetHitHeal(int32(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.35f * 0.75f));
+            }
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_hun_spirit_mend_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_hun_spirit_mend_SpellScript();
+    }
+};
+
 // Thrill of the Hunt - 109396
 class PlayerScript_thrill_of_the_hunt: public PlayerScript
 {
@@ -2854,6 +2908,7 @@ class PlayerScript_thrill_of_the_hunt: public PlayerScript
 
 void AddSC_hunter_spell_scripts()
 {
+    new spell_hun_spirit_mend();
     new spell_hun_thunderstomp();
     new spell_hun_steady_focus();
     new spell_hun_cornered();
