@@ -14,7 +14,7 @@ namespace MS { namespace Garrison
     /// Constructor
     GarrisonFollower::GarrisonFollower()
     {
-        DB_ID               = 0;
+        DatabaseID          = 0;
         FollowerID          = 0;
         Quality             = 0;
         Level               = 0;
@@ -32,9 +32,9 @@ namespace MS { namespace Garrison
     /// Follower can earn XP
     bool GarrisonFollower::CanXP()
     {
-        if (Level < GARRISON_MAX_FOLLOWER_LEVEL)
+        if (Level < Globals::MaxFollowerLevel)
             return true;
-        else if (Level == GARRISON_MAX_FOLLOWER_LEVEL && Quality < ITEM_QUALITY_EPIC)
+        else if (Level == Globals::MaxFollowerLevel && Quality < ITEM_QUALITY_EPIC)
             return true;
 
         return false;
@@ -59,7 +59,7 @@ namespace MS { namespace Garrison
         if (!l_LevelData)
             return 0;
 
-        if (Level < GARRISON_MAX_FOLLOWER_LEVEL)
+        if (Level < Globals::MaxFollowerLevel)
         {
             if ((p_XP + this->XP) >= l_LevelData->RequiredExperience)
             {
@@ -75,7 +75,7 @@ namespace MS { namespace Garrison
                 return p_XP;
             }
         }
-        else if (this->Level == GARRISON_MAX_FOLLOWER_LEVEL && this->Quality < ITEM_QUALITY_EPIC)
+        else if (this->Level == Globals::MaxFollowerLevel && this->Quality < ITEM_QUALITY_EPIC)
         {
             /// These values are not present in DBC
             ///  60 000 XP for ITEM_QUALITY_UNCOMMON -> ITEM_QUALITY_RARE
@@ -106,7 +106,7 @@ namespace MS { namespace Garrison
     /// Write follower into a packet
     void GarrisonFollower::Write(ByteBuffer & p_Buffer)
     {
-        p_Buffer << uint64(this->DB_ID);
+        p_Buffer << uint64(this->DatabaseID);
         p_Buffer << uint32(this->FollowerID);
         p_Buffer << uint32(this->Quality);
         p_Buffer << uint32(this->Level);

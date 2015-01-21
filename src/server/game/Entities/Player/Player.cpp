@@ -9417,12 +9417,12 @@ void Player::UpdateArea(uint32 newArea)
         sOutdoorPvPMgr->HandlePlayerEnterArea(this, newArea);
 
         /// Garrison phasing specific code
-        if (m_Garrison && m_Garrison->GetGarrisonSiteLevelEntry() && (GetMapId() == GARRISON_BASE_MAP || GetMapId() == m_Garrison->GetGarrisonSiteLevelEntry()->MapID))
+        if (m_Garrison && m_Garrison->GetGarrisonSiteLevelEntry() && (GetMapId() == MS::Garrison::Globals::BaseMap || GetMapId() == m_Garrison->GetGarrisonSiteLevelEntry()->MapID))
         {
-            Map * l_Map = sMapMgr->FindBaseNonInstanceMap(GARRISON_BASE_MAP);
+            Map * l_Map = sMapMgr->FindBaseNonInstanceMap(MS::Garrison::Globals::BaseMap);
 
             if (!l_Map)
-                l_Map = sMapMgr->CreateBaseMap(GARRISON_BASE_MAP);
+                l_Map = sMapMgr->CreateBaseMap(MS::Garrison::Globals::BaseMap);
 
             if (l_Map)
             {
@@ -9445,7 +9445,7 @@ void Player::UpdateArea(uint32 newArea)
                             l_Player->_GarrisonSetOut();
                     });
                 }
-                else if (l_DraenorBaseMap_Area == MS::Garrison::gGarrisonInGarrisonAreaID[m_Garrison->GetGarrisonFactionIndex()] && GetMapId() == GARRISON_BASE_MAP)
+                else if (l_DraenorBaseMap_Area == MS::Garrison::gGarrisonInGarrisonAreaID[m_Garrison->GetGarrisonFactionIndex()] && GetMapId() == MS::Garrison::Globals::BaseMap)
                 {
                     sMapMgr->AddCriticalOperation([l_Guid]() -> void
                     {
@@ -9488,7 +9488,8 @@ void Player::_GarrisonSetOut()
 
     m_Garrison->OnPlayerLeave();
     m_Garrison->_SetGarrisonScript(nullptr);
-    SwitchToPhasedMap(GARRISON_BASE_MAP);
+
+    SwitchToPhasedMap(MS::Garrison::Globals::BaseMap);
 
     phaseMgr.Update();
     phaseMgr.ForceMapShiftUpdate();
@@ -24252,7 +24253,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
 
         if (l_Entry && l_Entry->MapID == l_MapID)
         {
-            l_MapID = GARRISON_BASE_MAP;
+            l_MapID = MS::Garrison::Globals::BaseMap;
             break;
         }
     }
@@ -26176,7 +26177,7 @@ void Player::SendInitialPacketsAfterAddToMap()
     GetSession()->HandleLfgGetStatus(l_NullPacket);
 
     /// Force map shift update
-    if ((GetMapId() == GARRISON_BASE_MAP && m_Garrison) || IsInGarrison())
+    if ((GetMapId() == MS::Garrison::Globals::BaseMap && m_Garrison) || IsInGarrison())
     {
         phaseMgr.Update();
         phaseMgr.ForceMapShiftUpdate();
