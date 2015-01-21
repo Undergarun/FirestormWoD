@@ -86,6 +86,7 @@ enum MageSpells
     SPELL_MAGE_ARCANE_BLAST                      = 30451,
     SPELL_MAGE_FIREBALL                          = 133,
     SPELL_MAGE_FROSTBOLT                         = 116,
+    SPELL_MAE_FROSTFIRE_BOLT                     = 44614,
     SPELL_MAGE_UNSTABLE_MAGIC                    = 157976,
     SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE_FIRE        = 157977,
     SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE_FROST       = 157978,
@@ -99,7 +100,10 @@ enum MageSpells
     SPELL_MAGE_COMBUSTION                        = 11129,
     SPELL_MAGE_FROST_BOMB_AURA                   = 112948,
     SPELL_MAGE_FROST_BOMB_VISUAL                 = 69846,
-    SPELL_MAGE_RING_OF_FROST_AURA                = 82691
+    SPELL_MAGE_RING_OF_FROST_AURA                = 82691,
+    SPELL_MAGE_IMPROVED_SCORCH                   = 157632,
+    SPELL_MAGE_IMPROVED_SCORCH_AURA              = 157633,
+    SPELL_MAGE_ENHANCED_PYROTECHNICS_PROC        = 157644
 };
 
 
@@ -1564,8 +1568,86 @@ public:
     }
 };
 
+// Scorch - 2948
+class spell_mage_scorch: public SpellScriptLoader
+{
+public:
+    spell_mage_scorch() : SpellScriptLoader("spell_mage_scorch") { }
+
+    class spell_mage_scorch_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_mage_scorch_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (l_Caster->HasAura(SPELL_MAGE_IMPROVED_SCORCH) && l_Caster->getLevel() >= 92)
+                    l_Caster->CastSpell(l_Caster, SPELL_MAGE_IMPROVED_SCORCH_AURA, true);
+            }
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_mage_scorch_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_mage_scorch_SpellScript();
+    }
+};
+
+// Enhanced Pyrotechnics - 157642
+class spell_mage_enhanced_pyrotechnics : public SpellScriptLoader
+{
+public:
+    spell_mage_enhanced_pyrotechnics() : SpellScriptLoader("spell_mage_enhanced_pyrotechnics") { }
+
+    class spell_mage_enhanced_pyrotechnics_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_mage_enhanced_pyrotechnics_AuraScript);
+
+        void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+        {
+            PreventDefaultAction();
+
+            Unit* l_Caster = GetCaster();
+            if (!l_Caster)
+                return;
+
+            if (p_EventInfo.GetActor()->GetGUID() != l_Caster->GetGUID())
+                return;
+
+            if (!p_EventInfo.GetDamageInfo()->GetSpellInfo())
+                return;
+
+            if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != SPELL_MAGE_FIREBALL && p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != SPELL_MAE_FROSTFIRE_BOLT)
+                return;
+
+            if (!(p_EventInfo.GetHitMask() & PROC_EX_CRITICAL_HIT))
+                return;
+
+            l_Caster->CastSpell(l_Caster, SPELL_MAGE_ENHANCED_PYROTECHNICS_PROC, true);
+        }
+
+        void Register()
+        {
+            OnEffectProc += AuraEffectProcFn(spell_mage_enhanced_pyrotechnics_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_mage_enhanced_pyrotechnics_AuraScript();
+    }
+};
+
 void AddSC_mage_spell_scripts()
 {
+    new spell_mage_enhanced_pyrotechnics();
+    new spell_mage_scorch();
     new spell_mage_ring_of_frost();
     new spell_mage_kindling();
     new spell_mage_frostfire_bolt();
