@@ -77,7 +77,6 @@ namespace MS
                     void JustDied(Unit* /*killer*/)
                     {
                         DespawnAllSummons();
-                        _JustDied();
                     }
 
                     void KilledUnit(Unit* /*victim*/)
@@ -148,6 +147,92 @@ namespace MS
                     }
 
                     std::list<uint64> m_SpawnedCreatures;
+                };
+            };
+
+            class boss_magmolatus : public CreatureScript
+            {
+            public:
+                boss_magmolatus() : CreatureScript("boss_magmolatus")
+                {
+                }
+
+                enum class Spells
+                {
+                    WitheringFlames = 150032,
+                    MoltenImpact    = 150045
+                };
+
+                enum class Events
+                {
+                    CastFlames  = 1,
+                    CastImpact  = 2
+                };
+
+                CreatureAI* GetAI(Creature* creature) const
+                {
+                    return new boss_AI(creature);
+                }
+
+                struct boss_AI : public BossAI
+                {
+                    boss_AI(Creature* p_Creature) : BossAI(p_Creature, uint32(BossIds::ForgemasterGogduh))
+                    {
+                        if (instance)
+                            instance->SetBossState(uint32(BossIds::ForgemasterGogduh), EncounterState::TO_BE_DECIDED);
+                    }
+
+                    void Reset()
+                    {
+                        _Reset();
+                    }
+
+                    void JustReachedHome()
+                    {
+                        _JustReachedHome();
+                    }
+
+                    void JustDied(Unit* /*killer*/)
+                    {
+                        _JustDied();
+                    }
+
+                    void EnterCombat(Unit* who)
+                    {
+                        if (instance)
+                            instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+
+                        events.ScheduleEvent((uint32)Events::CastFlames, 5000);
+                    }
+
+                    void UpdateAI(const uint32 diff)
+                    {
+                        if (!UpdateVictim())
+                            return;
+
+                        if (me->HasUnitState(UNIT_STATE_CASTING) || me->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
+                            return;
+                            
+                        events.Update(diff);
+
+                        switch ((Events)events.ExecuteEvent())
+                        {
+                            case Events::CastFlames:
+                                DoCast(me, (uint32)Spells::WitheringFlames, false);
+                                events.ScheduleEvent(uint32(urand(0, 1) ? Events::CastFlames : Events::CastImpact), 5000);
+                                break;
+                            case Events::CastImpact:
+                                if (Unit* l_Target = me->SelectNearbyTarget(nullptr, VISIBLE_RANGE))
+                                    me->CastSpell(l_Target->GetPositionX(), l_Target->GetPositionY(), l_Target->GetPositionZ(), (uint32)Spells::MoltenImpact, false);
+                                events.ScheduleEvent(uint32(urand(0, 1) ? Events::CastFlames : Events::CastImpact), 5000);
+                                break;
+                            default:
+                                break;
+                        }
+
+                        DoMeleeAttackIfReady();
+                    }
+
                 };
             };
 
@@ -229,7 +314,8 @@ namespace MS
 
                 enum class Events
                 {
-                    CastSpell   = 1
+                    CastSpell   = 1,
+                    CastScorch  = 2
                 };
 
                 CreatureAI* GetAI(Creature* creature) const
@@ -247,6 +333,7 @@ namespace MS
                     {
                         events.Reset();
                         events.ScheduleEvent((uint32)Events::CastSpell, 12000);
+                        events.ScheduleEvent((uint32)Events::CastScorch, 3000);
                     }
 
                     void UpdateAI(const uint32 diff)
@@ -256,26 +343,61 @@ namespace MS
 
                         events.Update(diff);
                         
-                        if (me->HasUnitState(UNIT_STATE_CASTING) || me->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
-                            return;
-
                         switch ((Events)events.ExecuteEvent())
                         {
                             case Events::CastSpell:
-                                me->CastSpell(me, uint32(urand(0, 1) ? Spells::DancingFlames : Spells::DancingFlames), false);
+                            {
+                                me->InterruptNonMeleeSpells(false);
+                                me->CastSpell(me, uint32(urand(0, 1) ? Spells::DancingFlames : Spells::Firestorm), false);
                                 events.ScheduleEvent((uint32)Events::CastSpell, 12000);
+                                break;
+                            }
+                            case Events::CastScorch:
+                            {
+                                if (me->HasUnitState(UNIT_STATE_CASTING) || me->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
+                                break;
+
+                                me->CastSpell(me->getVictim(), (uint32)Spells::Scorch, false);
+                                events.ScheduleEvent((uint32)Events::CastScorch, 3000);
+                            }
                             default:
-                                return;
+                                break;
                         }
                         
-                        if (me->HasUnitState(UNIT_STATE_CASTING) || me->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
-                            return;
-
-                        me->CastSpell(me->getVictim(), (uint32)Spells::Scorch, true);
-
                         DoMeleeAttackIfReady();
                     }
 
+                };
+            };
+
+            class npc_calamity_firestorm : public CreatureScript
+            {
+            public:
+                npc_calamity_firestorm() : CreatureScript("npc_calamity_firestorm")
+                {
+                }
+
+                enum Spells
+                {
+                    Firestorm = 144463
+                };
+
+                CreatureAI* GetAI(Creature* creature) const
+                {
+                    return new npc_calamity_firestormAI(creature);
+                }
+
+                struct npc_calamity_firestormAI : public ScriptedAI
+                {
+                    npc_calamity_firestormAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+                    {
+                    }
+
+                    void Reset()
+                    {
+                        me->DespawnOrUnsummon(12000);
+                        me->CastSpell(me, (uint32)Spells::Firestorm, true);
+                    }
                 };
             };
 
@@ -527,7 +649,7 @@ namespace MS
                         {
                             if (m_Dispelled)
                                 return;
-                            printf("dispelled\n");
+
                             if (Unit* l_Caster = GetCaster())
                                 l_Caster->CastSpell(l_Caster, (uint32)Spells::DancingFlames, true);
                         }
@@ -536,7 +658,7 @@ namespace MS
 
                         void Register()
                         {
-                            OnEffectApply += AuraEffectApplyFn(spell_dancing_flames_AuraScript::HandleRemoveEffect, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+                            OnEffectApply += AuraEffectApplyFn(spell_dancing_flames_AuraScript::HandleApplyEffect, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
                             OnDispel += AuraDispelFn(spell_dancing_flames_AuraScript::HandleDispel);
                             OnEffectRemove += AuraEffectRemoveFn(spell_dancing_flames_AuraScript::HandleRemoveEffect, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
                             
@@ -548,6 +670,68 @@ namespace MS
                         return new spell_dancing_flames_AuraScript();
                     }
             };
+
+            class spell_withering_flames: public SpellScriptLoader
+            {
+                public:
+                    spell_withering_flames() : SpellScriptLoader("spell_withering_flames") { }
+ 
+                    enum Spells
+                    {
+                        ChokingAshes = 150034
+                    };
+
+                    class spell_withering_flames_AuraScript : public AuraScript
+                    {
+                        PrepareAuraScript(spell_withering_flames_AuraScript)
+
+                        void OnPeriodic(constAuraEffectPtr aurEff)
+                        {
+                            Unit* l_Caster = GetCaster();
+                            if (!l_Caster)
+                                return;
+
+                            if (Unit* l_Target = l_Caster->SelectNearbyTarget(GetOwner()->ToUnit(), VISIBLE_RANGE, (uint32)Spells::ChokingAshes))
+                                l_Caster->CastSpell(l_Target, (uint32)Spells::ChokingAshes, true);
+                        }
+ 
+                        void Register()
+                        {
+                            OnEffectPeriodic += AuraEffectPeriodicFn(spell_withering_flames_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+                        }
+                    };
+ 
+                    AuraScript* GetAuraScript() const
+                    {
+                        return new spell_withering_flames_AuraScript();
+                    }
+            };
+
+            class spell_molten_impact: public SpellScriptLoader
+            {
+                public:
+                    spell_molten_impact() : SpellScriptLoader("spell_molten_impact") { }
+
+                    class spell_molten_impact_SpellScript : public SpellScript
+                    {
+                        PrepareSpellScript(spell_molten_impact_SpellScript);
+
+                        void HandleScript(SpellEffIndex effIndex)
+                        {
+                            SetHitDamage((30.f - std::max((float)GetHitDest()->GetExactDist(GetHitUnit()), 30.f)) / 30.f * GetHitDamage());
+                        }
+
+                        void Register()
+                        {
+                            OnEffectHitTarget += SpellEffectFn(spell_molten_impact_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                        }
+                    };
+
+                    SpellScript* GetSpellScript() const
+                    {
+                        return new spell_molten_impact_SpellScript();
+                    }
+            };
         }
     }
 }
@@ -556,10 +740,13 @@ void AddSC_boss_forgemaster_gogduh()
 {
     new MS::Instances::Bloodmaul::boss_forgemaster_gogduh();
     new MS::Instances::Bloodmaul::npc_ruination();
+    new MS::Instances::Bloodmaul::npc_calamity_firestorm();
     new MS::Instances::Bloodmaul::npc_calamity();
     new MS::Instances::Bloodmaul::spell_rough_smash();
     new MS::Instances::Bloodmaul::spell_shatter_earth();
     new MS::Instances::Bloodmaul::areatrigger_shatter_earth();
     new MS::Instances::Bloodmaul::npc_shatter_earth();
     new MS::Instances::Bloodmaul::spell_dancing_flames();
+    new MS::Instances::Bloodmaul::spell_withering_flames();
+    new MS::Instances::Bloodmaul::spell_molten_impact();
 }
