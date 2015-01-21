@@ -31909,5 +31909,6 @@ void Player::AddDailyLootCooldown(uint32 p_Entry)
 
     PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_DAILY_LOOT_COOLDOWNS);
     l_Statement->setUInt32(0, GetGUIDLow());
+    l_Statement->setUInt32(1, p_Entry);
     CharacterDatabase.Execute(l_Statement);
 }
