@@ -1644,8 +1644,58 @@ public:
     }
 };
 
+
+// Call by Blast Wave 157981 - Supernova 157980 - Ice Nova 157997
+class spell_mage_novas_talent : public SpellScriptLoader
+{
+public:
+    spell_mage_novas_talent() : SpellScriptLoader("spell_mage_novas_talent") { }
+
+    class spell_mage_novas_talent_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_mage_novas_talent_SpellScript);
+
+        int64 m_MainTarget;
+
+        void HandleOnCast()
+        {
+            m_MainTarget = 0;
+
+            if (GetExplTargetUnit() != nullptr)
+                m_MainTarget = GetExplTargetUnit()->GetGUID();
+        }
+
+        void HandleDamage(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (Unit* l_Target = GetHitUnit())
+                {
+                    if (m_MainTarget)
+                        if (l_Target->GetGUID() == m_MainTarget && !l_Target->IsFriendlyTo(l_Caster))
+                        {
+                            SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), GetSpellInfo()->Effects[EFFECT_0].BasePoints));
+                        }
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnCast += SpellCastFn(spell_mage_novas_talent_SpellScript::HandleOnCast);
+            OnEffectHitTarget += SpellEffectFn(spell_mage_novas_talent_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_mage_novas_talent_SpellScript();
+    }
+};
+
 void AddSC_mage_spell_scripts()
 {
+    new spell_mage_novas_talent();
     new spell_mage_enhanced_pyrotechnics();
     new spell_mage_scorch();
     new spell_mage_ring_of_frost();
