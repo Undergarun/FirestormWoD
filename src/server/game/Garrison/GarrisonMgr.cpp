@@ -1448,7 +1448,27 @@ namespace MS { namespace Garrison
             m_Owner->ModifyCurrency(l_Currency.first, l_Currency.second);
 
         for (auto l_Item : m_PendingMissionReward.RewardItems)
-            m_Owner->AddItem(l_Item.first, l_Item.second);
+        {
+            const ItemTemplate * l_ItemTemplate = sObjectMgr->GetItemTemplate(l_Item.first);
+
+            if (!l_ItemTemplate)
+                continue;
+
+            bool l_IsContractItem = false;
+            if (l_ItemTemplate->Spells[0].SpellId)
+            {
+                const SpellInfo * l_SpellInfo = sSpellMgr->GetSpellInfo(l_ItemTemplate->Spells[0].SpellId);
+
+                if (l_SpellInfo && l_SpellInfo->Effects[0].Effect == SPELL_EFFECT_OBTAIN_FOLLOWER)
+                {
+                    l_IsContractItem = true;
+                    m_Owner->CastSpell(m_Owner, l_SpellInfo, TRIGGERED_FULL_MASK);
+                }
+            }
+
+            if (!l_IsContractItem)
+                m_Owner->AddItem(l_Item.first, l_Item.second);
+        }
 
         std::vector<GarrisonFollower*> l_MissionFollowers;
 

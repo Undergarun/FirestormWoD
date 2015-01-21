@@ -9486,6 +9486,7 @@ void Player::_GarrisonSetOut()
 
     m_Garrison->OnPlayerLeave();
     m_Garrison->_SetGarrisonScript(nullptr);
+
     SwitchToPhasedMap(MS::Garrison::Globals::BaseMap);
 
     phaseMgr.Update();
