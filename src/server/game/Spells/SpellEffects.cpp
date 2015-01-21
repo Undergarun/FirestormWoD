@@ -7867,8 +7867,19 @@ void Spell::EffectLearnBluePrint(SpellEffIndex p_EffIndex)
     {
         if (m_CastItem)
         {
-            uint32 l_DestroyCount = 1;
-            l_Player->DestroyItemCount(m_CastItem, l_DestroyCount, true);
+            uint64 l_PlayerGUID = m_CastItem->GetOwnerGUID();
+            uint64 l_ItemGUID   = m_CastItem->GetGUID();
+
+            l_Player->AddCriticalOperation([l_PlayerGUID, l_ItemGUID]() -> void
+            {
+                if (Player * l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID))
+                {
+                    uint32 l_DestroyCount = 1;
+
+                    if (Item * l_Item = l_Player->GetItemByGuid(l_ItemGUID))
+                        l_Player->DestroyItemCount(l_Item, l_DestroyCount, true);
+                }
+            });
 
             m_CastItem = nullptr;
         }
@@ -7897,8 +7908,19 @@ void Spell::EffectObtainFollower(SpellEffIndex p_EffIndex)
     {
         if (m_CastItem)
         {
-            uint32 l_DestroyCount = 1;
-            l_Player->DestroyItemCount(m_CastItem, l_DestroyCount, true);
+            uint64 l_PlayerGUID = m_CastItem->GetOwnerGUID();
+            uint64 l_ItemGUID   = m_CastItem->GetGUID();
+
+            l_Player->AddCriticalOperation([l_PlayerGUID, l_ItemGUID]() -> void
+            {
+                if (Player * l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID))
+                {
+                    uint32 l_DestroyCount = 1;
+
+                    if (Item * l_Item = l_Player->GetItemByGuid(l_ItemGUID))
+                        l_Player->DestroyItemCount(l_Item, l_DestroyCount, true);
+                }
+            });
 
             m_CastItem = nullptr;
         }
