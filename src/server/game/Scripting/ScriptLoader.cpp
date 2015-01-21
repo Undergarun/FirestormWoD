@@ -803,6 +803,7 @@ void AddSC_timeless_isle();
 
 // Draenor
 void AddSC_tanaan_jungle();
+void AddSC_gorgrond();
 void AddSC_Garrison_GO();
 void AddSC_Garrison_NPC();
 void AddSC_Garrison_Quest();
@@ -1678,6 +1679,7 @@ void AddDraenorScripts()
 {
 #ifdef SCRIPTS
     AddSC_tanaan_jungle();
+    AddSC_gorgrond();
     AddSC_Garrison_GO();
     AddSC_Garrison_NPC();
     AddSC_Garrison_Quest();

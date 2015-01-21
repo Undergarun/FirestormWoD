@@ -21534,7 +21534,7 @@ bool CharmInfo::IsReturning()
     return m_isReturning;
 }
 
-void Unit::SetInFront(Unit const* target)
+void Unit::SetInFront(WorldObject const* target)
 {
     if (!HasUnitState(UNIT_STATE_CANNOT_TURN))
         SetOrientation(GetAngle(target));
@@ -21653,15 +21653,19 @@ void Unit::SendMovementHover(bool apply)
     SendMessageToSet(&l_Data, false);
 }
 
-void Unit::FocusTarget(Spell const* focusSpell, uint64 target)
+void Unit::FocusTarget(Spell const* p_FocusSpell, WorldObject* p_Target)
 {
     // already focused
     if (_focusSpell)
         return;
-    _focusSpell = focusSpell;
-    SetGuidValue(UNIT_FIELD_TARGET, target);
-    if (focusSpell->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_DONT_TURN_DURING_CAST)
+
+    _focusSpell = p_FocusSpell;
+    SetGuidValue(UNIT_FIELD_TARGET, p_Target->GetGUID());
+    if (p_FocusSpell->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_DONT_TURN_DURING_CAST)
         AddUnitState(UNIT_STATE_ROTATING);
+
+    // Set server side orientation if needed (needs to be after attribute check)
+    SetInFront(p_Target);
 }
 
 void Unit::ReleaseFocus(Spell const* focusSpell)
@@ -21669,11 +21673,13 @@ void Unit::ReleaseFocus(Spell const* focusSpell)
     // focused to something else
     if (focusSpell != _focusSpell)
         return;
-    _focusSpell = NULL;
+
+    _focusSpell = nullptr;
     if (Unit* victim = getVictim())
         SetGuidValue(UNIT_FIELD_TARGET, victim->GetGUID());
     else
         SetGuidValue(UNIT_FIELD_TARGET, 0);
+
     if (focusSpell->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_DONT_TURN_DURING_CAST)
         ClearUnitState(UNIT_STATE_ROTATING);
 }
