@@ -487,14 +487,14 @@ class spell_mastery_shield_discipline: public SpellScriptLoader
         {
             PrepareAuraScript(spell_mastery_shield_discipline_AuraScript);
 
-            void CalculateAmount(constAuraEffectPtr , int32 & amount, bool & )
+            void CalculateAmount(constAuraEffectPtr , int32 & p_Amount, bool & )
             {
                 if (Unit* caster = GetCaster())
                 {
                     if (caster->HasAura(MASTERY_SPELL_DISCIPLINE_SHIELD) && caster->getLevel() >= 80)
                     {
-                        float Mastery = 1 + (caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.5f / 100.0f);
-                        amount = int32(amount * Mastery);
+                        float l_Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.625f;
+                        p_Amount += CalculatePct(p_Amount, l_Mastery);
                     }
                 }
             }

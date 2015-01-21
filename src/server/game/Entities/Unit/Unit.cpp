@@ -12799,6 +12799,13 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const *spellProto, ui
         DoneTotal += CalculatePct(healamount, PvPPower);
     }
 
+    // 77484 - Mastery : Shield Discipline
+    if (GetTypeId() == TYPEID_PLAYER && spellProto && healamount != 0 && HasAura(77484))
+    {
+        float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 0.75f;
+        DoneTotal += CalculatePct(healamount, Mastery);
+    }
+
     // Done fixed damage bonus auras
     int32 DoneAdvertisedBenefit = SpellBaseHealingBonusDone(spellProto->GetSchoolMask());
 
@@ -16736,7 +16743,12 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
 
                     uint32 l_DoneProcFlag = procFlag & MULTISTRIKE_DONE_HIT_PROC_FLAG_MASK;
                     uint32 l_TakenProcFlag = PROC_FLAG_TAKEN_DAMAGE;
-                    uint32 l_ExFlag = PROC_EX_INTERNAL_TRIGGERED | PROC_EX_INTERNAL_MULTISTRIKE | (l_IsCrit) ? PROC_EX_CRITICAL_HIT : PROC_EX_NORMAL_HIT;
+                    uint32 l_ExFlag = PROC_EX_INTERNAL_TRIGGERED | PROC_EX_INTERNAL_MULTISTRIKE;
+
+                    if (l_IsCrit)
+                        l_ExFlag |= PROC_EX_CRITICAL_HIT;
+                    else
+                        l_ExFlag |= PROC_EX_NORMAL_HIT;
 
                     if (procFlag & PROC_FLAG_DONE_MELEE_AUTO_ATTACK)
                         l_TakenProcFlag |= PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK;

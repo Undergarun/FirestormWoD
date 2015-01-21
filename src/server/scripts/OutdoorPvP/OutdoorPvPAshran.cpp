@@ -493,6 +493,9 @@ void OPvPCapturePoint_Graveyard::UpdateTowerState()
 
 bool OPvPCapturePoint_Graveyard::HandlePlayerEnter(Player* p_Player)
 {
+    if (p_Player == nullptr)
+        return false;
+
     if (OPvPCapturePoint::HandlePlayerEnter(p_Player))
     {
         p_Player->SendUpdateWorldState(eWorldStates::WorldStateEnableGraveyardProgressBar, eWorldStates::WorldStateEnabled);
@@ -507,6 +510,9 @@ bool OPvPCapturePoint_Graveyard::HandlePlayerEnter(Player* p_Player)
 
 void OPvPCapturePoint_Graveyard::HandlePlayerLeave(Player* p_Player)
 {
+    if (p_Player == nullptr)
+        return;
+
     p_Player->SendUpdateWorldState(eWorldStates::WorldStateEnableGraveyardProgressBar, eWorldStates::WorldStateDisabled);
     OPvPCapturePoint::HandlePlayerLeave(p_Player);
 }
@@ -699,7 +705,7 @@ void OutdoorPvPAshran::HandlePlayerEnterMap(Player* p_Player, uint32 p_MapID)
 
 void OutdoorPvPAshran::HandlePlayerLeaveMap(Player* p_Player, uint32 p_MapID)
 {
-    if (p_MapID != eAshranDatas::AshranMapID)
+    if (p_MapID != eAshranDatas::AshranMapID || p_Player == nullptr)
         return;
 
     if (p_Player->GetTeamId() < 2)
@@ -717,6 +723,9 @@ void OutdoorPvPAshran::HandlePlayerLeaveMap(Player* p_Player, uint32 p_MapID)
 
 void OutdoorPvPAshran::HandlePlayerEnterArea(Player* p_Player, uint32 p_AreaID)
 {
+    if (p_Player == nullptr)
+        return;
+
     if (p_Player->GetMapId() != eAshranDatas::AshranNeutralMapID && p_Player->GetMapId() != eAshranDatas::AshranMapID)
         return;
 
@@ -747,6 +756,9 @@ void OutdoorPvPAshran::HandlePlayerEnterArea(Player* p_Player, uint32 p_AreaID)
 
 void OutdoorPvPAshran::HandlePlayerLeaveArea(Player* p_Player, uint32 p_AreaID)
 {
+    if (p_Player == nullptr)
+        return;
+
     if (p_Player->GetMapId() != eAshranDatas::AshranNeutralMapID && p_Player->GetMapId() != eAshranDatas::AshranMapID)
         return;
 
@@ -771,6 +783,9 @@ void OutdoorPvPAshran::HandlePlayerLeaveArea(Player* p_Player, uint32 p_AreaID)
 
 void OutdoorPvPAshran::HandlePlayerKilled(Player* p_Player)
 {
+    if (p_Player == nullptr)
+        return;
+
     // Drop half of artifact fragments at player death
     // Even if he's killed by a creature
     if (uint32 l_ArtifactCount = p_Player->GetCurrency(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT, false))
