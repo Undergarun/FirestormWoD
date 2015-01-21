@@ -103,7 +103,8 @@ enum MageSpells
     SPELL_MAGE_RING_OF_FROST_AURA                = 82691,
     SPELL_MAGE_IMPROVED_SCORCH                   = 157632,
     SPELL_MAGE_IMPROVED_SCORCH_AURA              = 157633,
-    SPELL_MAGE_ENHANCED_PYROTECHNICS_PROC        = 157644
+    SPELL_MAGE_ENHANCED_PYROTECHNICS_PROC        = 157644,
+    SPELL_MAGE_ENHANCED_ARCANE_BLAST             = 157595
 };
 
 
@@ -1693,8 +1694,48 @@ public:
     }
 };
 
+// Arcane Blast - 30451
+class spell_mage_arcane_blast : public SpellScriptLoader
+{
+public:
+    spell_mage_arcane_blast() : SpellScriptLoader("spell_mage_arcane_blast") { }
+
+    class spell_mage_arcane_blast_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_mage_arcane_blast_SpellScript);
+
+        void HandleOnPrepare()
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (l_Caster->HasAura(SPELL_MAGE_ENHANCED_ARCANE_BLAST) && l_Caster->getLevel() >= 92)
+                {
+                    const SpellInfo *l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_ENHANCED_ARCANE_BLAST);
+
+                    if (l_SpellInfo == nullptr)
+                        return;
+
+                    if (AuraPtr l_ArcaneCharge = l_Caster->GetAura(SPELL_MAGE_ARCANE_CHARGE))
+                        l_ArcaneCharge->GetEffect(4)->SetAmount(l_SpellInfo->Effects[EFFECT_0].BasePoints * l_ArcaneCharge->GetCharges() * -1);
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnPrepare += SpellOnPrepareFn(spell_mage_arcane_blast_SpellScript::HandleOnPrepare);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_mage_arcane_blast_SpellScript();
+    }
+};
+
 void AddSC_mage_spell_scripts()
 {
+    new spell_mage_arcane_blast();
     new spell_mage_novas_talent();
     new spell_mage_enhanced_pyrotechnics();
     new spell_mage_scorch();

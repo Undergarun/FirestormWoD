@@ -6,3 +6,5 @@ DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_mage_novas_talent';
 INSERT INTO `spell_script_names` VALUES (157981, 'spell_mage_novas_talent');
 INSERT INTO `spell_script_names` VALUES (157980, 'spell_mage_novas_talent');
 INSERT INTO `spell_script_names` VALUES (157997, 'spell_mage_novas_talent');
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_mage_arcane_blast';
+INSERT INTO `spell_script_names` VALUES (30451, 'spell_mage_arcane_blast');
