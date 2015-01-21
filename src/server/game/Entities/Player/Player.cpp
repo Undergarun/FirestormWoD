@@ -2334,6 +2334,18 @@ void Player::Update(uint32 p_time)
 
         m_GarrisonUpdateTimer.Reset();
     }
+
+    m_CriticalOperationLock.acquire();
+
+    while (!m_CriticalOperation.empty())
+    {
+        if (m_CriticalOperation.front())
+            m_CriticalOperation.front()();
+
+        m_CriticalOperation.pop();
+    }
+
+    m_CriticalOperationLock.release();
 }
 
 void Player::setDeathState(DeathState s)

@@ -1454,6 +1454,8 @@ namespace MS { namespace Garrison
             if (!l_ItemTemplate)
                 continue;
 
+            /// Check if the rewarded item is an follower contract, because make server crash on Player::SendNewItem,
+            /// the spell is auto casted by the player, and the spell delete the caster item itself.
             bool l_IsContractItem = false;
             if (l_ItemTemplate->Spells[0].SpellId)
             {

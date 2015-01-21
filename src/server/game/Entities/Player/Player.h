@@ -3380,6 +3380,13 @@ class Player : public Unit, public GridObject<Player>
         void _GarrisonSetIn();
         void _GarrisonSetOut();
 
+        void AddCriticalOperation(std::function<void()> const&& p_Function)
+        {
+            m_CriticalOperationLock.acquire();
+            m_CriticalOperation.push(std::function<void()>(p_Function));
+            m_CriticalOperationLock.release();
+        }
+
     protected:
         void OnEnterPvPCombat();
         void OnLeavePvPCombat();
@@ -3692,6 +3699,9 @@ class Player : public Unit, public GridObject<Player>
         DailyQuestList m_dailyQuestStorage;
 
         MS::Utilities::BitSet m_CompletedQuestBits;
+
+        std::queue<std::function<void()>> m_CriticalOperation;
+        ACE_Thread_Mutex m_CriticalOperationLock;
 
     private:
         // internal common parts for CanStore/StoreItem functions
