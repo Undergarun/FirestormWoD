@@ -3255,6 +3255,8 @@ void Player::RegenerateAll()
         Regenerate(POWER_RAGE);
         if (getClass() == CLASS_DEATH_KNIGHT)
             Regenerate(POWER_RUNIC_POWER);
+        if (getClass() == CLASS_DRUID && GetSpecializationId(GetActiveSpec()) == SPEC_DRUID_BALANCE)
+            Regenerate(POWER_ECLIPSE);
 
         m_regenTimerCount -= 2000;
     }
@@ -3364,8 +3366,8 @@ void Player::Regenerate(Powers power)
             if (!isInCombat())
                 addvalue += -1.0f; // remove 1 each 10 sec
             break;
-        case POWER_RUNES:
-        case POWER_HEALTH:
+        case POWER_ECLIPSE:
+            SetPower(POWER_ECLIPSE, GetPower(POWER_ECLIPSE) - 5);
             break;
         // Regenerate Chi
         case POWER_CHI:

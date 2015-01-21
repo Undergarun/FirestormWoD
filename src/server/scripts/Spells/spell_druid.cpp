@@ -1492,18 +1492,25 @@ public:
             (p_Player->GetShapeshiftForm() != FORM_MOONKIN && p_Player->GetShapeshiftForm() != FORM_NONE))
             return;
 
+        p_Player->SetPower(POWER_ECLIPSE, 100);
+
         if (!p_Player->IsEclipseCyclesActive())
             p_Player->SetEclipseCyclesState(true);
     }
 
-    void OnUpdate(Player* p_Player, uint32 p_Diff)
+    void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_Value)
     {
-        if (!p_Player || p_Player->getClass() != CLASS_DRUID)
+        if (!p_Player || p_Player->getClass() != CLASS_DRUID || p_Power != POWER_ECLIPSE)
             return;
 
         if (p_Player->GetSpecializationId(p_Player->GetActiveSpec()) != SPEC_DRUID_BALANCE ||
             (p_Player->GetShapeshiftForm() != FORM_MOONKIN && p_Player->GetShapeshiftForm() != FORM_NONE))
             return;
+
+        if (p_Value < 0)
+            return;
+
+        sLog->outError(LOG_FILTER_GENERAL, ">>> OnModifyPower value %i", p_Value);
 
         if (p_Player->IsEclipseCyclesActive() && !p_Player->isInCombat())
         {
@@ -1517,6 +1524,7 @@ public:
         if (!p_Player->IsEclipseCyclesActive())
             return;
 
+        /*
         p_Player->GetEclipseTimer().Update(p_Diff);
 
         uint32 l_Power = uint32((p_Player->GetEclipseTimer().GetCurrent() / IN_MILLISECONDS) * p_Player->GetMaxPower(POWER_ECLIPSE) / ECLIPSE_FULL_CYCLE_DURATION);
@@ -1526,35 +1534,36 @@ public:
         if (p_Player->GetEclipseTimer().Passed())
             p_Player->GetEclipseTimer().Reset();
 
+        */
         /// Remove previous if any you're not supposed to
-        if ((p_Player->GetEclipseTimer().GetCurrent() / IN_MILLISECONDS) < 10)
-        {
-            if (p_Player->HasAura(SPELL_DRUID_ECLIPSE_SOLAR_PEAK))
-                p_Player->RemoveAurasDueToSpell(SPELL_DRUID_ECLIPSE_SOLAR_PEAK);
-        }
-        else if ((p_Player->GetEclipseTimer().GetCurrent() / IN_MILLISECONDS) > 20)
+        /*if (p_Value < 25)
         {
             if (p_Player->HasAura(SPELL_DRUID_ECLIPSE_LUNAR_PEAK))
                 p_Player->RemoveAurasDueToSpell(SPELL_DRUID_ECLIPSE_LUNAR_PEAK);
         }
+        else if (p_Value < 75)
+        {
+            if (p_Player->HasAura(SPELL_DRUID_ECLIPSE_SOLAR_PEAK))
+                p_Player->RemoveAurasDueToSpell(SPELL_DRUID_ECLIPSE_SOLAR_PEAK);
+        }*/
 
         /// In eclipse state at (+/-)90 power
-        if ((p_Player->GetEclipseTimer().GetCurrent() / IN_MILLISECONDS) >= 9 && (p_Player->GetEclipseTimer().GetCurrent() / IN_MILLISECONDS) < 20 && p_Player->GetLastEclipseState() != ECLIPSE_LUNAR)
-        {
-            p_Player->SetLastEclipseState(ECLIPSE_LUNAR);
-            p_Player->CastSpell(p_Player, SPELL_DRUID_ECLIPSE_VISUAL_LUNAR, true);
-        }
-        else if ((p_Player->GetEclipseTimer().GetCurrent() / IN_MILLISECONDS) >= 29 && p_Player->GetLastEclipseState() != ECLIPSE_SOLAR)
+        if (p_Value <= 27.5f && p_Player->GetLastEclipseState() != ECLIPSE_SOLAR)
         {
             p_Player->SetLastEclipseState(ECLIPSE_SOLAR);
             p_Player->CastSpell(p_Player, SPELL_DRUID_ECLIPSE_VISUAL_SOLAR, true);
         }
+        else if (p_Value <= 77.5f && p_Value > 50 && p_Player->GetLastEclipseState() != ECLIPSE_LUNAR)
+        {
+            p_Player->SetLastEclipseState(ECLIPSE_LUNAR);
+            p_Player->CastSpell(p_Player, SPELL_DRUID_ECLIPSE_VISUAL_LUNAR, true);
+        }
 
         /// Eclipse spell bonus casted at (+/-)100 power
-        if ((p_Player->GetEclipseTimer().GetCurrent() / IN_MILLISECONDS) >= 10 && (p_Player->GetEclipseTimer().GetCurrent() / IN_MILLISECONDS) < 20  && !p_Player->HasAura(SPELL_DRUID_ECLIPSE_LUNAR_PEAK))
-            p_Player->CastSpell(p_Player, SPELL_DRUID_ECLIPSE_LUNAR_PEAK, true);
-        else if ((p_Player->GetEclipseTimer().GetCurrent() / IN_MILLISECONDS) >= 30 && !p_Player->HasAura(SPELL_DRUID_ECLIPSE_SOLAR_PEAK))
+        if (p_Value <= 25 && !p_Player->HasAura(SPELL_DRUID_ECLIPSE_SOLAR_PEAK))
             p_Player->CastSpell(p_Player, SPELL_DRUID_ECLIPSE_SOLAR_PEAK, true);
+        else if (p_Value <= 75 && p_Value > 50 && !p_Player->HasAura(SPELL_DRUID_ECLIPSE_LUNAR_PEAK))
+            p_Player->CastSpell(p_Player, SPELL_DRUID_ECLIPSE_LUNAR_PEAK, true);
     }
 };
 

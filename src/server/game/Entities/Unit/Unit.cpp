@@ -14376,10 +14376,6 @@ int32 Unit::ModifyPower(Powers power, int32 dVal)
     if (dVal == 0 && power != POWER_ENERGY) // The client will always regen energy if we don't send him the actual value
         return 0;
 
-    // Hook playerScript OnModifyPower
-    if (GetTypeId() == TYPEID_PLAYER)
-        sScriptMgr->OnModifyPower(this->ToPlayer(), power, dVal);
-
     int32 curPower = GetPower(power);
 
     int32 val = dVal + curPower;
@@ -16060,6 +16056,10 @@ void Unit::SetPower(Powers p_PowerType, int32 p_PowerValue, bool p_Regen)
 
         SendMessageToSet(&l_Data, GetTypeId() == TYPEID_PLAYER ? true : false);
     }
+
+    // Hook playerScript OnModifyPower
+    if (GetTypeId() == TYPEID_PLAYER)
+        sScriptMgr->OnModifyPower(ToPlayer(), p_PowerType, p_PowerValue);
 
     /// Custom MoP Script
     /// Pursuit of Justice - 26023
