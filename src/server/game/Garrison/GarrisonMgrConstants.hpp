@@ -170,6 +170,15 @@ namespace MS { namespace Garrison
         };
     }
 
+    namespace BaseQuests
+    {
+        enum
+        {
+            FoundedGarrisonH = 36793,
+            FoundedGarrisonA = 36797
+        };
+    }
+
     enum GarrisonAbilitySpells
     {
         GARRISON_SPELL_GARR_ABILITY                 = 161691,

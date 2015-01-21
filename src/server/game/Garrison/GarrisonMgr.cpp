@@ -104,6 +104,32 @@ namespace MS { namespace Garrison
         if (!m_Owner->HasSpell(GARRISON_SPELL_GARR_ABILITY))
             m_Owner->learnSpell(GARRISON_SPELL_GARR_ABILITY, false);
 
+        uint32 l_QuestEntry = 0;
+        /// Select Garrison site ID
+        switch (GetGarrisonFactionIndex())
+        {
+            case Factions::Alliance:
+                l_QuestEntry = BaseQuests::FoundedGarrisonA;
+                break;
+
+            case Factions::Horde:
+                l_QuestEntry = BaseQuests::FoundedGarrisonH;
+                break;
+
+            case Factions::Max:
+            default:
+                ASSERT(false);
+                break;
+
+        }
+
+        /// Minimap icons are completed quest, reason => BLIZZARD !!!!!!!!!!!!!!
+        if (const Quest * l_Quest = sObjectMgr->GetQuestTemplate(l_QuestEntry) && m_Owner->GetQuestStatus(l_QuestEntry) != QUEST_STATUS_REWARDED)
+        {
+            m_Owner->AddQuest(l_Quest, m_Owner);
+            m_Owner->CompleteQuest(l_QuestEntry);
+        }
+
         /// Storehouse learning
         LearnBlueprint(51);
     }
@@ -398,6 +424,32 @@ namespace MS { namespace Garrison
             /// Garrison ability
             if (!m_Owner->HasSpell(GARRISON_SPELL_GARR_ABILITY))
                 m_Owner->learnSpell(GARRISON_SPELL_GARR_ABILITY, false);
+
+            uint32 l_QuestEntry = 0;
+            /// Select Garrison site ID
+            switch (GetGarrisonFactionIndex())
+            {
+                case Factions::Alliance:
+                    l_QuestEntry = BaseQuests::FoundedGarrisonA;
+                    break;
+
+                case Factions::Horde:
+                    l_QuestEntry = BaseQuests::FoundedGarrisonH;
+                    break;
+
+                case Factions::Max:
+                default:
+                    ASSERT(false);
+                    break;
+
+            }
+
+            /// Minimap icons are completed quest, reason => BLIZZARD !!!!!!!!!!!!!!
+            if (const Quest * l_Quest = sObjectMgr->GetQuestTemplate(l_QuestEntry) && m_Owner->GetQuestStatus(l_QuestEntry) != QUEST_STATUS_REWARDED)
+            {
+                m_Owner->AddQuest(l_Quest, m_Owner);
+                m_Owner->CompleteQuest(l_QuestEntry);
+            }
 
             /// Storehouse learning
             LearnBlueprint(51);
