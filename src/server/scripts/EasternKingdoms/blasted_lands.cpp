@@ -146,26 +146,33 @@ class PlayerScript_DarkPortal_Phasing: public PlayerScript
 
         void OnUpdateZone(Player* p_Player, uint32 p_NewZoneID, uint32 p_OldZoneID, uint32 p_NewAreaID)
         {
-            if (m_AlreadyInSwitchMapState)
-                return;
-
             if (p_Player->GetMapId() == BLASTED_LANDS_DRAENOR_PHASE || p_Player->GetMapId() == EASTERN_KINGDOM_MAP_ID)
             {
                 if (p_NewZoneID != p_OldZoneID && (p_NewZoneID == BLASTER_LANDS_ZONE_ID || p_OldZoneID == BLASTER_LANDS_ZONE_ID))
                 {
-                    m_AlreadyInSwitchMapState = true;
-
                     uint64 l_PlayerGuid = p_Player->GetGUID();
 
-                    sMapMgr->AddCriticalOperation([l_PlayerGuid, p_NewZoneID]() -> void
+                    if (p_NewZoneID == BLASTER_LANDS_ZONE_ID && p_Player->GetMapId() == EASTERN_KINGDOM_MAP_ID)
                     {
-                        Player * l_Player = sObjectAccessor->FindPlayer(l_PlayerGuid);
+                        sMapMgr->AddCriticalOperation([l_PlayerGuid, p_NewZoneID]() -> void
+                        {
+                            Player * l_Player = sObjectAccessor->FindPlayer(l_PlayerGuid);
 
-                        if (l_Player)
-                            l_Player->SwitchToPhasedMap(p_NewZoneID == BLASTER_LANDS_ZONE_ID ? BLASTED_LANDS_DRAENOR_PHASE : EASTERN_KINGDOM_MAP_ID);
-                    });
+                            if (l_Player)
+                                l_Player->SwitchToPhasedMap(BLASTED_LANDS_DRAENOR_PHASE);
+                        });
+                    }
 
-                    m_AlreadyInSwitchMapState = false;
+                    if (p_NewZoneID != BLASTER_LANDS_ZONE_ID && p_Player->GetMapId() == BLASTER_LANDS_ZONE_ID)
+                    {
+                        sMapMgr->AddCriticalOperation([l_PlayerGuid, p_NewZoneID]() -> void
+                        {
+                            Player * l_Player = sObjectAccessor->FindPlayer(l_PlayerGuid);
+
+                            if (l_Player)
+                                l_Player->SwitchToPhasedMap(EASTERN_KINGDOM_MAP_ID);
+                        });
+                    }
                 }
             }
         }
