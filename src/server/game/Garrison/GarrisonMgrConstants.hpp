@@ -203,7 +203,8 @@ namespace MS { namespace Garrison
         {
             Builder         = 10000,
             PeonWorking     = 10001,
-            BuildingID      = 10002
+            BuildingID      = 10002,
+            PlotInstanceID  = 10003
         };
     }
 

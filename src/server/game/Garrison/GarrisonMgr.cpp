@@ -2830,7 +2830,10 @@ namespace MS { namespace Garrison
                                 if (l_Contents[l_I].PlotTypeOrBuilding > 0)
                                     l_Creature->AI()->SetData(CreatureAIDataIDs::Builder, 1);
                                 else
-                                    l_Creature->AI()->SetData(CreatureAIDataIDs::BuildingID, -l_Contents[l_I].PlotTypeOrBuilding);
+                                {
+                                    l_Creature->AI()->SetData(CreatureAIDataIDs::BuildingID,    -l_Contents[l_I].PlotTypeOrBuilding);
+                                    l_Creature->AI()->SetData(CreatureAIDataIDs::PlotInstanceID, p_PlotInstanceID);
+                                }
                             }
                         }
                     }
