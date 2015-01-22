@@ -197,11 +197,15 @@ namespace MS { namespace Garrison
         TERRAIN_SWAP_GARRISON_SMV_ALLIANCE_TIER_3 = 974
     };
 
-    enum 
+    namespace CreatureAIDataIDs
     {
-        GARRISON_CREATURE_AI_DATA_BUILDER       = 10000,
-        GARRISON_CREATURE_AI_DATA_PEON_WORKING  = 10001
-    };
+        enum
+        {
+            Builder         = 10000,
+            PeonWorking     = 10001,
+            BuildingID      = 10002
+        };
+    }
 
     enum GarrisonFollowerFlags
     {

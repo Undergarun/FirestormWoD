@@ -2826,7 +2826,12 @@ namespace MS { namespace Garrison
                             m_PlotsCreatures[p_PlotInstanceID].push_back(l_Creature->GetGUID());
 
                             if (l_Creature->AI())
-                                l_Creature->AI()->SetData(GARRISON_CREATURE_AI_DATA_BUILDER, 1);
+                            {
+                                if (l_Contents[l_I].PlotTypeOrBuilding > 0)
+                                    l_Creature->AI()->SetData(CreatureAIDataIDs::Builder, 1);
+                                else
+                                    l_Creature->AI()->SetData(CreatureAIDataIDs::BuildingID, -l_Contents[l_I].PlotTypeOrBuilding);
+                            }
                         }
                     }
                     else
