@@ -2831,7 +2831,7 @@ namespace MS { namespace Garrison
                     }
                     else
                     {
-                        GameObject * l_Cosmetic = m_Owner->SummonGameObject(-l_Contents[l_I].CreatureOrGob, l_Position.x, l_Position.y, l_Position.z, l_Contents[l_I].O, 0, 0, 0, 0, 0);
+                        GameObject * l_Cosmetic = m_Owner->SummonGameObject(-l_Contents[l_I].CreatureOrGob, l_Position.x, l_Position.y, l_Position.z, l_Contents[l_I].O + l_PlotInfo.O, 0, 0, 0, 0, 0);
 
                         if (l_Cosmetic)
                             m_PlotsGameObjects[p_PlotInstanceID].push_back(l_Cosmetic->GetGUID());
@@ -3018,7 +3018,7 @@ namespace MS { namespace Garrison
             {
                 /// Get display ID
                 uint32 l_DisplayIDOffset    = l_NumRessourceGenerated == Globals::CacheMaxToken ? 2 : ((l_NumRessourceGenerated > Globals::CacheHeftyToken) ? 1 : 0);
-                const uint32 & l_DisplayID  = gGarrisonCacheGameObjectID[(GetGarrisonFactionIndex() * Globals::MaxLevel) + l_DisplayIDOffset];
+                const uint32 & l_DisplayID  = gGarrisonCacheGameObjectID[(GetGarrisonFactionIndex() * 3) + l_DisplayIDOffset];
 
                 /// Destroy old cache if exist
                 GameObject * l_Cache = HashMapHolder<GameObject>::Find(m_CacheGameObjectGUID);
