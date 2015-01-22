@@ -300,7 +300,7 @@ class garrison_commandscript: public CommandScript
             l_NewData.X                     = l_ElementPosition.x;
             l_NewData.Y                     = l_ElementPosition.y;
             l_NewData.Z                     = l_ElementPosition.z;
-            l_NewData.O                     = Position::NormalizeOrientation(l_Info.O - l_O);
+            l_NewData.O                     = Position::NormalizeOrientation((2 * M_PI) -Position::NormalizeOrientation(l_Info.O - l_O));
 
             sObjectMgr->AddGarrisonPlotBuildingContent(l_NewData);
 
@@ -328,7 +328,7 @@ class garrison_commandscript: public CommandScript
                 l_Position.z = l_ElementPosition.z + l_Info.Z;
 
                 p_Handler->PSendSysMessage("Spawn coord %f %f %f %f", l_X, l_Y, l_Z, l_O);
-                p_Handler->PSendSysMessage("Trans coord %f %f %f %f", l_Position.x, l_Position.y, l_Position.z, (l_O - l_Info.O) + l_Info.O);
+                p_Handler->PSendSysMessage("Trans coord %f %f %f %f", l_Position.x, l_Position.y, l_Position.z, Position::NormalizeOrientation(l_Info.O - l_O) + l_Info.O);
             }
 
             l_Player->GetGarrison()->OnPlayerEnter();
