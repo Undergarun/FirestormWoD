@@ -300,7 +300,7 @@ class garrison_commandscript: public CommandScript
             l_NewData.X                     = l_ElementPosition.x;
             l_NewData.Y                     = l_ElementPosition.y;
             l_NewData.Z                     = l_ElementPosition.z;
-            l_NewData.O                     = (l_Info.O - l_O);
+            l_NewData.O                     = Position::NormalizeOrientation(l_Info.O - l_O);
 
             sObjectMgr->AddGarrisonPlotBuildingContent(l_NewData);
 
