@@ -1656,7 +1656,7 @@ public:
     {
         PrepareSpellScript(spell_mage_novas_talent_SpellScript);
 
-        int64 m_MainTarget;
+        uint64 m_MainTarget;
 
         void HandleOnCast()
         {
@@ -1672,11 +1672,10 @@ public:
             {
                 if (Unit* l_Target = GetHitUnit())
                 {
-                    if (m_MainTarget)
-                        if (l_Target->GetGUID() == m_MainTarget && !l_Target->IsFriendlyTo(l_Caster))
-                        {
-                            SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), GetSpellInfo()->Effects[EFFECT_0].BasePoints));
-                        }
+                    if (l_Target->GetGUID() == m_MainTarget && !l_Target->IsFriendlyTo(l_Caster))
+                    {
+                        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), GetSpellInfo()->Effects[EFFECT_0].BasePoints));
+                    }
                 }
             }
         }
@@ -1716,7 +1715,10 @@ public:
                         return;
 
                     if (AuraPtr l_ArcaneCharge = l_Caster->GetAura(SPELL_MAGE_ARCANE_CHARGE))
-                        l_ArcaneCharge->GetEffect(4)->SetAmount(l_SpellInfo->Effects[EFFECT_0].BasePoints * l_ArcaneCharge->GetCharges() * -1);
+                    {
+                        if (AuraEffectPtr l_EffectCastSpeed = l_ArcaneCharge->GetEffect(4))
+                            l_EffectCastSpeed->SetAmount(l_SpellInfo->Effects[EFFECT_0].BasePoints * l_ArcaneCharge->GetCharges() * -1);
+                    }
                 }
             }
         }

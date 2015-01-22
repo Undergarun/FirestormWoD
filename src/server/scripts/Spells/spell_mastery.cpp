@@ -584,10 +584,8 @@ class spell_mastery_ignite: public SpellScriptLoader
                     {
                         if (l_Caster->GetTypeId() == TYPEID_PLAYER && l_Caster->HasAura(MASTERY_SPELL_IGNITE) && l_Caster->getLevel() >= 80)
                         {
-                            uint32 l_ProcSpellId = GetSpellInfo()->Id ? GetSpellInfo()->Id : 0;
-
                             const SpellInfo *l_SpellInfo = sSpellMgr->GetSpellInfo(MASTERY_SPELL_IGNITE_AURA);
-                            if (l_ProcSpellId != MASTERY_SPELL_IGNITE_AURA && l_SpellInfo != nullptr)
+                            if (GetSpellInfo()->Id != MASTERY_SPELL_IGNITE_AURA && l_SpellInfo != nullptr)
                             {
                                 float l_Value = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.5f;
 
@@ -595,7 +593,10 @@ class spell_mastery_ignite: public SpellScriptLoader
 
                                 if (l_Bp)
                                 {
-                                    l_Bp = int32(CalculatePct(l_Bp, l_Value) / (l_SpellInfo->GetMaxDuration() / l_SpellInfo->Effects[EFFECT_0].Amplitude));
+                                    l_Bp = int32(CalculatePct(l_Bp, l_Value));
+
+                                    if (l_SpellInfo->Effects[EFFECT_0].Amplitude > 0)
+                                        l_Bp = l_Bp / (l_SpellInfo->GetMaxDuration() / l_SpellInfo->Effects[EFFECT_0].Amplitude);
                                     
                                     if (l_Target->HasAura(MASTERY_SPELL_IGNITE_AURA, l_Caster->GetGUID()))
                                         l_Bp += l_Target->GetRemainingPeriodicAmount(l_Caster->GetGUID(), MASTERY_SPELL_IGNITE_AURA, SPELL_AURA_PERIODIC_DAMAGE);
