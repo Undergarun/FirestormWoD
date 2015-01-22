@@ -169,4 +169,33 @@ namespace Battlepay
         /// @TODO: Move that to config file
         return true;
     }
+
+    void Manager::WriteDisplayInfo(uint32 p_DisplayInfoID, WorldPacket& p_Packet)
+    {
+        if (m_DisplayInfos.find(p_DisplayInfoID) == m_DisplayInfos.end())
+            return;
+
+        DisplayInfo const& l_Display = m_DisplayInfos.at(p_DisplayInfoID);
+
+        p_Packet.FlushBits();
+        p_Packet.WriteBit(l_Display.CreatureDisplayInfoID != 0);
+        p_Packet.WriteBit(l_Display.FileDataID != 0);
+        p_Packet.WriteBits(l_Display.Name1.size(), 10);
+        p_Packet.WriteBits(l_Display.Name2.size(), 10);
+        p_Packet.WriteBits(l_Display.Name3.size(), 13);
+        p_Packet.WriteBit(l_Display.Flags != 0);
+
+        if (l_Display.CreatureDisplayInfoID != 0)
+            p_Packet << uint32(l_Display.CreatureDisplayInfoID);
+
+        if (l_Display.FileDataID != 0)
+            p_Packet << uint32(l_Display.FileDataID);
+
+        p_Packet.WriteString(l_Display.Name1);
+        p_Packet.WriteString(l_Display.Name2);
+        p_Packet.WriteString(l_Display.Name3);
+
+        if (l_Display.Flags != 0)
+            p_Packet << uint32(l_Display.Flags);
+    }
 }

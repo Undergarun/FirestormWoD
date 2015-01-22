@@ -1117,6 +1117,8 @@ class WorldSession
         /// Battlepay
         //////////////////////////////////////////////////////////////////////////
         void HandleBattlepayGetProductListQuery(WorldPacket& p_RecvData);
+        void HandleBattlepayGetPurchaseList(WorldPacket& p_RecvData);
+        void HandleBattlePayStartPurchase(WorldPacket& p_RecvData);
 
     private:
         void InitializeQueryCallbackParameters();

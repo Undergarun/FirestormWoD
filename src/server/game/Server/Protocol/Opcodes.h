@@ -505,7 +505,10 @@ enum Opcodes
 
         /// Battlepay
         SMSG_BATTLE_PAY_GET_PRODUCT_LIST_RESPONSE               = 0x12A4, ///< 6.0.3 19116
-
+        SMSG_BATTLE_PAY_GET_PURCHASE_LIST_RESPONSE              = 0x168A, ///< 6.0.6 19116
+        SMSG_BATTLE_PAY_GET_DISTRIBUTION_LIST_RESPONSE          = 0x0F2A, ///< 6.0.3 19116
+        SMSG_BATTLE_PAY_START_PURCHASE_RESPONSE                 = 0x0BA3, ///< 6.0.3 19116
+        SMSG_BATTLE_PAY_PURCHASE_UPDATE                         = 0x092F, ///< 6.0.3 19116
 
     #pragma endregion
 
@@ -1488,7 +1491,9 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Battle pay
     //////////////////////////////////////////////////////////////////////////
-    CMSG_BATTLE_PAY_GET_PURCHASE_LIST              = 0x120C,    ///< 6.0.3 19116 (unused)
+    CMSG_BATTLE_PAY_GET_PURCHASE_LIST              = 0x120C,    ///< 6.0.3 19116
+    CMSG_BATTLE_PAY_GET_PRODUCT_LIST_QUERY         = 0x1389,    ///< 6.0.3 19116
+    CMSG_BATTLE_PAY_START_PURCHASE                 = 0x011E,    ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// LFG
@@ -1604,11 +1609,6 @@ enum Opcodes
     CMSG_BLACK_MARKET_OPEN                         = 0x1B39,    ///< 6.0.3 19116
     CMSG_BLACK_MARKET_REQUEST_ITEMS                = 0x0B21,    ///< 6.0.3 19116
     CMSG_BLACK_MARKET_PLACE_BID                    = 0x13C2,    ///< 6.0.3 19116
-
-    //////////////////////////////////////////////////////////////////////////
-    /// Battlepay
-    //////////////////////////////////////////////////////////////////////////
-    CMSG_BATTLE_PAY_GET_PRODUCT_LIST_QUERY         = 0x1389,    ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////

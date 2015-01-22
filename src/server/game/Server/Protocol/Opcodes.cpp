@@ -552,6 +552,14 @@ void InitOpcodes()
         DEFINE_OPCODE_HANDLER(SMSG_BLACK_MARKET_REQUEST_ITEMS_RESULT,                   STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_BLACK_MARKET_BID_ON_ITEM_RESULT,                     STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_BLACK_MARKET_WON,                                    STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+
+        // Battlepay
+        DEFINE_OPCODE_HANDLER(SMSG_BATTLE_PAY_GET_PRODUCT_LIST_RESPONSE,                STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_BATTLE_PAY_GET_PURCHASE_LIST_RESPONSE,               STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_BATTLE_PAY_GET_DISTRIBUTION_LIST_RESPONSE,           STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_BATTLE_PAY_START_PURCHASE_RESPONSE,                  STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_BATTLE_PAY_PURCHASE_UPDATE,                          STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -1532,7 +1540,9 @@ void InitOpcodes()
     //////////////////////////////////////////////////////////////////////////
     /// Battle pay
     //////////////////////////////////////////////////////////////////////////
-    DEFINE_OPCODE_HANDLER(CMSG_BATTLE_PAY_GET_PURCHASE_LIST,                    STATUS_UNHANDLED,   PROCESS_INPLACE,        &WorldSession::Handle_NULL                      );
+    DEFINE_OPCODE_HANDLER(CMSG_BATTLE_PAY_GET_PURCHASE_LIST,                    STATUS_LOGGEDIN,   PROCESS_INPLACE,         &WorldSession::HandleBattlepayGetPurchaseList    );
+    DEFINE_OPCODE_HANDLER(CMSG_BATTLE_PAY_GET_PRODUCT_LIST_QUERY,               STATUS_LOGGEDIN,   PROCESS_THREADUNSAFE,    &WorldSession::HandleBattlepayGetProductListQuery);
+    DEFINE_OPCODE_HANDLER(CMSG_BATTLE_PAY_START_PURCHASE,                       STATUS_LOGGEDIN,   PROCESS_INPLACE,         &WorldSession::HandleBattlePayStartPurchase      );
 
     //////////////////////////////////////////////////////////////////////////
     /// LFG
@@ -1648,11 +1658,6 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_BLACK_MARKET_OPEN,                               STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE, &WorldSession::HandleBlackMarketHello            );
     DEFINE_OPCODE_HANDLER(CMSG_BLACK_MARKET_REQUEST_ITEMS,                      STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE, &WorldSession::HandleBlackMarketRequestItems     );
     DEFINE_OPCODE_HANDLER(CMSG_BLACK_MARKET_PLACE_BID,                          STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE, &WorldSession::HandleBlackMarketBid              );
-
-    //////////////////////////////////////////////////////////////////////////
-    /// Battlepay
-    //////////////////////////////////////////////////////////////////////////
-    DEFINE_OPCODE_HANDLER(CMSG_BATTLE_PAY_GET_PRODUCT_LIST_QUERY,               STATUS_LOGGEDIN,   PROCESS_THREADUNSAFE, &WorldSession::HandleBattlepayGetProductListQuery );
 
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
