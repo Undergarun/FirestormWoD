@@ -281,9 +281,6 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
     _lastLiquid = NULL;
     _isWalkingBeforeCharm = false;
 
-    // Don't send packet in constructor, it may cause crashes
-    SetEclipsePower(0, false); // Not sure of 0
-
     // Area Skip Update
     _skipCount = 0;
     _skipDiff = 0;
@@ -7286,18 +7283,15 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
 
                     ToPlayer()->AddSpellCooldown(46832, 0, 6 * IN_MILLISECONDS);
 
-                    if (GetEclipsePower() <= 0)
-                        SetEclipsePower(GetEclipsePower() - 20);
-                    else
-                        SetEclipsePower(GetEclipsePower() + 20);
+                    ModifyPower(Powers::POWER_ECLIPSE, 20);
 
-                    if (GetEclipsePower() == 100)
+                    if (GetPower(Powers::POWER_ECLIPSE) == 100)
                     {
                         CastSpell(this, 48517, true, 0); // Cast Lunar Eclipse
                         CastSpell(this, 16886, true); // Cast Nature's Grace
                         CastSpell(this, 81070, true); // Cast Eclipse - Give 35% of POWER_MANA
                     }
-                    else if (GetEclipsePower() == -100)
+                    else if (GetPower(Powers::POWER_ECLIPSE) == 0)
                     {
                         CastSpell(this, 48518, true, 0); // Cast Lunar Eclipse
                         CastSpell(this, 16886, true); // Cast Nature's Grace
@@ -14389,9 +14383,9 @@ int32 Unit::ModifyPower(Powers power, int32 dVal)
     int32 curPower = GetPower(power);
 
     int32 val = dVal + curPower;
-    if (val <= GetMinPower(power))
+    if (val <= 0)
     {
-        SetPower(power, GetMinPower(power));
+        SetPower(power, 0);
         return -curPower;
     }
 
@@ -16006,22 +16000,25 @@ int32 Unit::GetPowerCoeff(Powers p_PowerType) const
 {
     switch (p_PowerType)
     {
-    case POWER_MANA:
-    case POWER_ECLIPSE:
-    case POWER_HOLY_POWER:
-    case POWER_CHI:
-    case POWER_ENERGY:
-    case POWER_FOCUS:
-    case POWER_SHADOW_ORB:
-    case POWER_DEMONIC_FURY:
-        return 1;
-    case POWER_RAGE:
-    case POWER_RUNIC_POWER:
-    case POWER_BURNING_EMBERS:
-        return 10;
-    case POWER_SOUL_SHARDS:
-        return 100;
+        case POWER_MANA:
+        case POWER_ECLIPSE:
+        case POWER_HOLY_POWER:
+        case POWER_CHI:
+        case POWER_ENERGY:
+        case POWER_FOCUS:
+        case POWER_SHADOW_ORB:
+        case POWER_DEMONIC_FURY:
+            return 1;
+        case POWER_RAGE:
+        case POWER_RUNIC_POWER:
+        case POWER_BURNING_EMBERS:
+            return 10;
+        case POWER_SOUL_SHARDS:
+            return 100;
+        default:
+            break;
     }
+
     return 1;
 }
 
@@ -16161,7 +16158,7 @@ int32 Unit::GetCreatePowers(Powers power) const
         case POWER_SOUL_SHARDS:
             return (GetTypeId() == TYPEID_PLAYER && ToPlayer()->getClass() == CLASS_WARLOCK && (ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_WARLOCK_AFFLICTION) ? 400 : 0);
         case POWER_ECLIPSE:
-            return (GetTypeId() == TYPEID_PLAYER && ToPlayer()->getClass() == CLASS_DRUID && (ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_DRUID_BALANCE) ? 100 : 0); // Should be -100 to 100 this needs the power to be int32 instead of uint32
+            return (GetTypeId() == TYPEID_PLAYER && ToPlayer()->getClass() == CLASS_DRUID && (ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_DRUID_BALANCE) ? 100 : 0);
         case POWER_HOLY_POWER:
             return (GetTypeId() == TYPEID_PLAYER && ToPlayer()->getClass() == CLASS_PALADIN ? 3 : 0);
         case POWER_HEALTH:
@@ -21785,29 +21782,6 @@ bool Unit::IsSplineEnabled() const
 bool Unit::IsSplineFinished() const
 {
     return movespline->Finalized();
-}
-
-void Unit::SetEclipsePower(uint32 p_Power, bool p_Send)
-{
-    if (p_Power > 100)
-        p_Power = 100;
-
-    m_EclipsePower = p_Power;
-
-    if (p_Send)
-    {
-        int l_PowerCount = 1;
-
-        WorldPacket l_Data(SMSG_POWER_UPDATE, 2 + 16 + 4 + 4 + 1);
-
-        l_Data.appendPackGUID(GetGUID());
-        l_Data << uint32(l_PowerCount);
-
-        l_Data << int32(m_EclipsePower);
-        l_Data << uint8(POWER_ECLIPSE);
-
-        SendMessageToSet(&l_Data, GetTypeId() == TYPEID_PLAYER ? true : false);
-    }
 }
 
 /* In the next functions, we keep 1 minute of last damage */
