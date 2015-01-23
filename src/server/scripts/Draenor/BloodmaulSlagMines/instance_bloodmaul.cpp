@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2015 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "instance_bloodmaul.h"
 
 namespace MS
@@ -8,12 +16,15 @@ namespace MS
         {
             enum MaxEncounter
             {
-                Number = 4,
+                Number = 4
             };
 
             static const DoorData k_DoorData[] =
             {
-                { 0, 0, DOOR_TYPE_ROOM, 0 }  // EOF
+                { GameObjects::RoltallBridge,       BossIds::BossForgemasterGogduh, DoorType::DOOR_TYPE_PASSAGE, BoundaryType::BOUNDARY_NONE },
+                { GameObjects::RoltallEntranceWall, BossIds::BossRoltall,           DoorType::DOOR_TYPE_ROOM,    BoundaryType::BOUNDARY_NONE },
+                { GameObjects::RoltallExitWall,     BossIds::BossRoltall,           DoorType::DOOR_TYPE_PASSAGE, BoundaryType::BOUNDARY_NONE },
+                { 0,                                0,                              DoorType::DOOR_TYPE_ROOM,    0                           }  // EOF
             };
 
             class instance_Bloodmaul : public InstanceMapScript
@@ -40,6 +51,9 @@ namespace MS
                     // Slagna.
                     uint64 m_Slagna;
 
+                    /// Gug'rokk
+                    uint64 m_GugrokkGuid;
+
                     instance_BloodmaulInstanceMapScript(Map* p_Map)
                         : InstanceScript(p_Map),
                         m_BeginningTime(0),
@@ -50,7 +64,8 @@ namespace MS
                         m_OgreMageDeads(0),
                         m_NearestWarderGuids(),
                         m_slaveWatcherCrushtoGuid(0),
-                        m_Slagna(0)
+                        m_Slagna(0),
+                        m_GugrokkGuid(0)
                     {
                         SetBossNumber(MaxEncounter::Number);
                         LoadDoorData(k_DoorData);
@@ -61,49 +76,58 @@ namespace MS
                     {
                         switch (p_Creature->GetEntry())
                         {
-                        case uint32(BossEntries::SlaveWatcherCrushto):
-                            m_slaveWatcherCrushtoGuid = p_Creature->GetGUID();
-                            break;
-                        case uint32(MobEntries::MinesBat):
-                            p_Creature->SetDisableGravity(true);
-                            p_Creature->SetCanFly(true);
-                            p_Creature->SetByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
-                            break;
-                        case uint32(MobEntries::NeutralMinerSpawn):
-                            p_Creature->setFaction(2102);
-                            p_Creature->SetReactState(ReactStates::REACT_PASSIVE);
-                            m_NeutralMinerSpawnGuids.emplace_back(p_Creature->GetGUID());
-                            break;
-                        case uint32(MobEntries::EarthCrushStalker):
-                            p_Creature->setFaction(2102);
-                            p_Creature->SetReactState(ReactStates::REACT_PASSIVE);
-                            break; 
-                        case uint32(MobEntries::BloodmaulWarder):
-                        {
-                            static const Position k_CrushtoPosition = { 2038.51f, -361.126f, 223.f };
+                            case uint32(MobEntries::SlaveWatcherCrushto):
+                                m_slaveWatcherCrushtoGuid = p_Creature->GetGUID();
+                                break;
+                            case uint32(MobEntries::MinesBat):
+                                p_Creature->SetDisableGravity(true);
+                                p_Creature->SetCanFly(true);
+                                p_Creature->SetByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                                break;
+                            case uint32(MobEntries::NeutralMinerSpawn):
+                                p_Creature->setFaction(2102);
+                                p_Creature->SetReactState(ReactStates::REACT_PASSIVE);
+                                m_NeutralMinerSpawnGuids.emplace_back(p_Creature->GetGUID());
+                                break;
+                            case uint32(MobEntries::EarthCrushStalker):
+                                p_Creature->setFaction(2102);
+                                p_Creature->SetReactState(ReactStates::REACT_PASSIVE);
+                                break;
+                            case uint32(MobEntries::BloodmaulWarder):
+                            {
+                                static const Position k_CrushtoPosition = { 2038.51f, -361.126f, 223.f };
 
-                            if (k_CrushtoPosition.GetExactDist2d(p_Creature) < 50.0f)
-                                m_NearestWarderGuids.emplace_back(p_Creature->GetGUID());
-                        } break;
-                        case uint32(MobEntries::Slagna):
-                            m_Slagna = p_Creature->GetGUID();
-                            break;
-                        case uint32(MobEntries::MoltenEarthElemental):
-                            if (Unit* l_Unit = ScriptUtils::SelectNearestCreatureWithEntry(p_Creature, uint32(MobEntries::BloodmaulWarder), 50.0f))
-                                p_Creature->Attack(l_Unit, false);
-                            break;
-                        default:
-                            break;
+                                if (k_CrushtoPosition.GetExactDist2d(p_Creature) < 50.0f)
+                                    m_NearestWarderGuids.emplace_back(p_Creature->GetGUID());
+                                break;
+                            }
+                            case uint32(MobEntries::Slagna):
+                                m_Slagna = p_Creature->GetGUID();
+                                break;
+                            case uint32(MobEntries::MoltenEarthElemental):
+                                if (Unit* l_Unit = ScriptUtils::SelectNearestCreatureWithEntry(p_Creature, uint32(MobEntries::BloodmaulWarder), 50.0f))
+                                    p_Creature->Attack(l_Unit, false);
+                                break;
+                            case uint32(MobEntries::Gugrokk):
+                                m_GugrokkGuid = p_Creature->GetGUID();
+                                break;
+                            default:
+                                break;
                         }
                     }
 
-                    void OnGameObjectCreate(GameObject* p_Gameobject)
+                    void OnGameObjectCreate(GameObject* p_GameObject)
                     {
-                        /*switch (p_Gameobject->GetEntry())
+                        switch (p_GameObject->GetEntry())
                         {
-                        default:
-                            break;
-                        }*/
+                            case GameObjects::RoltallBridge:
+                            case GameObjects::RoltallEntranceWall:
+                            case GameObjects::RoltallExitWall:
+                                AddDoor(p_GameObject, true);
+                                break;
+                            default:
+                                break;
+                        }
                     }
 
                     void OnCreatureKilled(Creature* p_Creature, Player* p_Player)
@@ -167,31 +191,36 @@ namespace MS
 
                         switch (p_ID)
                         {
-                        case uint32(BossIds::SlaveWatcherCrushto):
-                            if (p_State == EncounterState::NOT_STARTED)
+                            case BossIds::BossSlaveWatcherCrushto:
                             {
-                                for (auto l_Guid : m_CapturedMinerGuids)
+                                if (p_State == EncounterState::NOT_STARTED)
                                 {
-                                    if (Creature* l_CapturedMiner = sObjectAccessor->FindCreature(l_Guid))
-                                        l_CapturedMiner->DespawnOrUnsummon();
-                                }
-                                m_CapturedMinerGuids.clear();
-                                m_OgreMageDeads = 0;
-                            }
-                            else if (p_State == EncounterState::DONE)
-                            {
-                                for (auto l_Guid : m_CapturedMinerGuids)
-                                {
-                                    if (Creature* l_CapturedMiner = sObjectAccessor->FindCreature(l_Guid))
+                                    for (uint64 l_Guid : m_CapturedMinerGuids)
                                     {
-                                        if (l_CapturedMiner->AI())
-                                            l_CapturedMiner->AI()->Talk(uint32(Talks::CapturedMinerReleased));
-                                        l_CapturedMiner->CombatStop();
-                                        l_CapturedMiner->SetReactState(ReactStates::REACT_PASSIVE);
+                                        if (Creature* l_CapturedMiner = sObjectAccessor->FindCreature(l_Guid))
+                                            l_CapturedMiner->DespawnOrUnsummon();
+                                    }
+
+                                    m_CapturedMinerGuids.clear();
+                                    m_OgreMageDeads = 0;
+                                }
+                                else if (p_State == EncounterState::DONE)
+                                {
+                                    for (uint64 l_Guid : m_CapturedMinerGuids)
+                                    {
+                                        if (Creature* l_CapturedMiner = sObjectAccessor->FindCreature(l_Guid))
+                                        {
+                                            if (l_CapturedMiner->AI())
+                                                l_CapturedMiner->AI()->Talk(uint32(Talks::CapturedMinerReleased));
+                                            l_CapturedMiner->CombatStop();
+                                            l_CapturedMiner->SetReactState(ReactStates::REACT_PASSIVE);
+                                        }
                                     }
                                 }
+                                break;
                             }
-                            break;
+                            default:
+                                break;
                         }
 
                         return true;
@@ -244,6 +273,19 @@ namespace MS
                             }
                             break;
                         }
+                    }
+
+                    uint64 GetData64(uint32 p_Type)
+                    {
+                        switch (p_Type)
+                        {
+                            case uint32(MobEntries::Gugrokk):
+                                return m_GugrokkGuid;
+                            default:
+                                break;
+                        }
+
+                        return 0;
                     }
 
                     void OnPlayerEnter(Player* p_Player)

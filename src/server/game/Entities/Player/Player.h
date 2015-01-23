@@ -2887,7 +2887,7 @@ class Player : public Unit, public GridObject<Player>
 
         bool SetHover(bool enable);
 
-        void SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Direction, float p_Magnitude = 0.0f);
+        void SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Direction, float p_Magnitude = 0.0f, uint8 p_Type = 0);
         void RemoveAllMovementForces();
         bool HasMovementForce(uint64 p_Source);
 
