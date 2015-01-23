@@ -136,6 +136,9 @@ namespace MS { namespace Garrison
         /// Storehouse learning
         LearnBlueprint(Buildings::Storehouse__Storehouse_Level1);
         LearnBlueprint(Buildings::Barracks__Barracks_Level1);
+
+        if (time(nullptr) >= 1422273600)
+            LearnBlueprint(Buildings::DwarvenBunker__WarMill_Level1);
     }
     /// Load
     bool Manager::Load(PreparedQueryResult p_GarrisonResult, PreparedQueryResult p_BuildingsResult, PreparedQueryResult p_FollowersResult, PreparedQueryResult p_MissionsResult)
@@ -461,6 +464,9 @@ namespace MS { namespace Garrison
             /// Storehouse learning
             LearnBlueprint(Buildings::Barracks__Barracks_Level1);
             LearnBlueprint(Buildings::Storehouse__Storehouse_Level1);
+
+            if (time(nullptr) >= 1422273600)
+                LearnBlueprint(Buildings::DwarvenBunker__WarMill_Level1);
 
             return true;
         }

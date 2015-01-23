@@ -257,9 +257,13 @@ void WorldSession::HandleGarrisonPurchaseBuildingOpcode(WorldPacket & p_RecvData
     bool l_CanBuild = false;
     switch (l_BuildingID)
     {
-        case 26:    /// Barracks Lvl 1
-        case 51:    /// Storehouse lvl 1
+        case MS::Garrison::Buildings::Barracks__Barracks_Level1:
+        case MS::Garrison::Buildings::Storehouse__Storehouse_Level1:
             l_CanBuild = true;
+            break;
+
+        case MS::Garrison::Buildings::DwarvenBunker__WarMill_Level1:
+            l_CanBuild = time(nullptr) >= 1422273600;
             break;
 
         default:
