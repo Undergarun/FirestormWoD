@@ -202,7 +202,7 @@ void AddSC_blasted_lands()
 {
     new npc_deathly_usher();
     new npc_world_invisible_trigger();
-//    new npc_archmage_khadgar_gossip();
+    new npc_archmage_khadgar_gossip();
 
     /// Player script
     new PlayerScript_DarkPortal_Phasing();
