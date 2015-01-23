@@ -210,12 +210,9 @@ namespace MS { namespace Garrison
                 Stairs1     = 101,
                 Stairs2     = 102,
                 Stairs3     = 103,
-                Stairs4Mid  = 104,
-                Stairs5     = 105,
-                Stairs6     = 106,
-                Stairs7     = 107,
-                Anvil       = 108,
-                Canon       = 109
+                Stairs4     = 104,
+                Anvil       = 105,
+                Canon       = 106
             };
         }
 
@@ -224,7 +221,7 @@ namespace MS { namespace Garrison
             enum
             {
                 Nothing     = 50 * IN_MILLISECONDS,
-                Stairs4Mid  = 40 * IN_MILLISECONDS,
+                Stairs4     = 40 * IN_MILLISECONDS,
                 Anvil       = 30 * IN_MILLISECONDS,
                 Canon       = 30 * IN_MILLISECONDS
             };
@@ -236,10 +233,10 @@ namespace MS { namespace Garrison
             MovePointIDs::Stairs1,
             MovePointIDs::Stairs2,
             MovePointIDs::Stairs3,
-            MovePointIDs::Stairs4Mid,
-            MovePointIDs::Stairs5,
-            MovePointIDs::Stairs6,
-            MovePointIDs::Stairs7,
+            MovePointIDs::Stairs4,
+            MovePointIDs::Stairs3,
+            MovePointIDs::Stairs2,
+            MovePointIDs::Stairs1,
             MovePointIDs::Anvil,
             MovePointIDs::Canon,
             MovePointIDs::Anvil,
@@ -255,16 +252,13 @@ namespace MS { namespace Garrison
             {  -5.2637f,  7.8586f, 0.4547f, 2.5800f },   ///< MovePointIDs::Stairs1
             {  -7.5862f,  9.2789f, 1.7972f, 2.9489f },   ///< MovePointIDs::Stairs2
             { -10.3781f,  8.7117f, 3.1357f, 3.7304f },   ///< MovePointIDs::Stairs3
-            { -13.3514f,  9.4382f, 3.2421f, 2.2028f },   ///< MovePointIDs::Stairs4Mid
-            { -10.3781f,  8.7117f, 3.1357f, 3.7304f },   ///< MovePointIDs::Stairs5
-            {  -7.5862f,  9.2789f, 1.7972f, 2.9489f },   ///< MovePointIDs::Stairs6
-            {  -5.2637f,  7.8586f, 0.4547f, 2.5800f },   ///< MovePointIDs::Stairs7
+            { -13.3514f,  9.4382f, 3.2421f, 2.2028f },   ///< MovePointIDs::Stairs4
             {  -0.5560f, -9.9787f, 0.3217f, 4.9244f },   ///< MovePointIDs::Anvil
             {  -8.5564f, -9.4336f, 0.3063f, 4.3707f },   ///< MovePointIDs::Canon
         };
     }
 
-    /// Grun'lek
+    /// Gussof Forgefire
     class npc_GussofForgefire : public CreatureScript
     {
         public:
@@ -280,6 +274,100 @@ namespace MS { namespace Garrison
             {
                 /// Constructor
                 npc_GussofForgefireAI(Creature * p_Creature);
+
+                /// Do next sequence element
+                void DoNextSequenceAction();
+
+                uint8 m_SequencePosition;
+            };
+
+    };
+
+    namespace KristenStoneforge
+    {
+        namespace MovePointIDs
+        {
+            enum Type
+            {
+                Table       = 100,
+                Stairs1     = 101,
+                Stairs2     = 102,
+                Stairs3     = 103,
+                Stairs4     = 104,
+                Chest       = 105,
+                UpTable     = 106,
+                CanonBalls  = 107,
+            };
+        }
+
+        namespace DestPointDuration
+        {
+            enum
+            {
+                Table       = 10 * IN_MILLISECONDS,
+                Chest       = 10 * IN_MILLISECONDS,
+                UpTable     = 20 * IN_MILLISECONDS,
+                CanonBalls  =  5 * IN_MILLISECONDS
+            };
+        }
+
+        static uint8 Sequence[] =
+        {
+            MovePointIDs::Table,
+            MovePointIDs::Stairs1,
+            MovePointIDs::Stairs2,
+            MovePointIDs::Stairs3,
+            MovePointIDs::Stairs4,
+            MovePointIDs::Chest,
+            MovePointIDs::UpTable,
+            MovePointIDs::Chest,
+            MovePointIDs::Stairs4,
+            MovePointIDs::Stairs3,
+            MovePointIDs::Stairs2,
+            MovePointIDs::Stairs1,
+            MovePointIDs::Table,
+            MovePointIDs::Stairs1,
+            MovePointIDs::Stairs2,
+            MovePointIDs::Stairs3,
+            MovePointIDs::Stairs4,
+            MovePointIDs::UpTable,
+            MovePointIDs::Stairs4,
+            MovePointIDs::Stairs3,
+            MovePointIDs::Stairs2,
+            MovePointIDs::Stairs1,
+            MovePointIDs::Table,
+            MovePointIDs::CanonBalls,
+        };
+
+        static float MovePointLoc[][4] =
+        {
+            {  -7.0744f,  0.6789f, 0.3219f, 2.8745f },   ///< MovePointIDs::Table
+            {  -4.2971f,  7.9247f, 0.3240f, 2.2305f },   ///< MovePointIDs::Stairs1
+            {  -6.6770f, 10.7132f, 1.8032f, 2.5906f },   ///< MovePointIDs::Stairs2
+            {  -9.1449f, 10.8494f, 1.8467f, 3.6941f },   ///< MovePointIDs::Stairs3
+            { -11.2239f,  9.5250f, 3.1786f, 3.9061f },   ///< MovePointIDs::Stairs4
+            { -16.2015f, -2.1603f, 3.2165f, 3.5134f },   ///< MovePointIDs::Chest
+            { -16.5532f,  2.0093f, 3.2329f, 2.9236f },   ///< MovePointIDs::UpTable
+            {   1.6793f,  7.7725f, 0.3264f, 0.0019f },   ///< MovePointIDs::CanonBalls
+        };
+    }
+
+    /// Grun'lek
+    class npc_KristenStoneforge : public CreatureScript
+    {
+        public:
+            /// Constructor
+            npc_KristenStoneforge();
+
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            CreatureAI * GetAI(Creature * p_Creature) const;
+
+            /// Creature AI
+            struct npc_KristenStoneforgAI : public GarrisonNPCAI
+            {
+                /// Constructor
+                npc_KristenStoneforgAI(Creature * p_Creature);
 
                 /// Do next sequence element
                 void DoNextSequenceAction();

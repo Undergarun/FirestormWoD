@@ -351,15 +351,18 @@ namespace MS { namespace Garrison
         m_OnPointReached[GussofForgefire::MovePointIDs::Stairs2] = [this]() -> void { m_DelayedOperations.push([this]() -> void { DoNextSequenceAction(); }); };
         m_OnPointReached[GussofForgefire::MovePointIDs::Stairs3] = [this]() -> void { m_DelayedOperations.push([this]() -> void { DoNextSequenceAction(); }); };
 
-        m_OnPointReached[GussofForgefire::MovePointIDs::Stairs4Mid] = [this]() -> void
+        m_OnPointReached[GussofForgefire::MovePointIDs::Stairs4] = [this]() -> void
         {
-            AddTimedDelayedOperation(GussofForgefire::DestPointDuration::Stairs4Mid, [this]() -> void { DoNextSequenceAction(); });
-            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(GussofForgefire::MovePointLoc[GussofForgefire::MovePointIDs::Stairs4Mid - GussofForgefire::MovePointIDs::Nothing][3]); });
-        };
+            AddTimedDelayedOperation(GussofForgefire::DestPointDuration::Stairs4, [this]() -> void { DoNextSequenceAction(); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(GussofForgefire::MovePointLoc[GussofForgefire::MovePointIDs::Stairs4 - GussofForgefire::MovePointIDs::Nothing][3]); });
 
-        m_OnPointReached[GussofForgefire::MovePointIDs::Stairs5] = [this]() -> void { m_DelayedOperations.push([this]() -> void { DoNextSequenceAction(); }); };
-        m_OnPointReached[GussofForgefire::MovePointIDs::Stairs6] = [this]() -> void { m_DelayedOperations.push([this]() -> void { DoNextSequenceAction(); }); };
-        m_OnPointReached[GussofForgefire::MovePointIDs::Stairs7] = [this]() -> void { m_DelayedOperations.push([this]() -> void { DoNextSequenceAction(); }); };
+            AddTimedDelayedOperation(0 * IN_MILLISECONDS,                         [this]() -> void { me->HandleEmoteCommand(EMOTE_STATE_USE_STANDING_NO_SHEATHE); });
+            AddTimedDelayedOperation(GussofForgefire::DestPointDuration::Stairs4, [this]() -> void
+            {
+                me->HandleEmoteCommand(0);
+                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
+            });
+        };
 
         m_OnPointReached[GussofForgefire::MovePointIDs::Anvil] = [this]() -> void
         {
@@ -412,6 +415,111 @@ namespace MS { namespace Garrison
             MoveBuildingRelative(GussofForgefire::Sequence[m_SequencePosition],   GussofForgefire::MovePointLoc[l_LocationID][0],
                                                                                   GussofForgefire::MovePointLoc[l_LocationID][1], 
                                                                                   GussofForgefire::MovePointLoc[l_LocationID][2]);
+
+            m_SequencePosition++;
+        });
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    npc_KristenStoneforge::npc_KristenStoneforge()
+        : CreatureScript("npc_KristenStoneforge_Garr")
+    {
+
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Called when a CreatureAI object is needed for the creature.
+    /// @p_Creature : Target creature instance
+    CreatureAI * npc_KristenStoneforge::GetAI(Creature * p_Creature) const
+    {
+        return new npc_KristenStoneforgAI(p_Creature);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    npc_KristenStoneforge::npc_KristenStoneforgAI::npc_KristenStoneforgAI(Creature * p_Creature)
+        : GarrisonNPCAI(p_Creature), m_SequencePosition(0xFF)
+    {
+        SetAIObstacleManagerEnabled(true);
+
+        m_OnPointReached[KristenStoneforge::MovePointIDs::Table] = [this]() -> void
+        {
+            AddTimedDelayedOperation(KristenStoneforge::DestPointDuration::Table, [this]() -> void { DoNextSequenceAction(); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(KristenStoneforge::MovePointLoc[KristenStoneforge::MovePointIDs::Table - KristenStoneforge::MovePointIDs::Table][3]); });
+
+            AddTimedDelayedOperation(0 * IN_MILLISECONDS,                         [this]() -> void { me->HandleEmoteCommand(EMOTE_STATE_READ_AND_TALK);    });
+            AddTimedDelayedOperation(KristenStoneforge::DestPointDuration::Table, [this]() -> void
+            {
+                me->HandleEmoteCommand(0);
+                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
+            });
+        };
+
+        m_OnPointReached[KristenStoneforge::MovePointIDs::Stairs1] = [this]() -> void { m_DelayedOperations.push([this]() -> void { DoNextSequenceAction(); }); };
+        m_OnPointReached[KristenStoneforge::MovePointIDs::Stairs2] = [this]() -> void { m_DelayedOperations.push([this]() -> void { DoNextSequenceAction(); }); };
+        m_OnPointReached[KristenStoneforge::MovePointIDs::Stairs3] = [this]() -> void { m_DelayedOperations.push([this]() -> void { DoNextSequenceAction(); }); };
+        m_OnPointReached[KristenStoneforge::MovePointIDs::Stairs4] = [this]() -> void { m_DelayedOperations.push([this]() -> void { DoNextSequenceAction(); }); };
+
+        m_OnPointReached[KristenStoneforge::MovePointIDs::Chest] = [this]() -> void
+        {
+            AddTimedDelayedOperation(KristenStoneforge::DestPointDuration::Chest, [this]() -> void { DoNextSequenceAction(); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(KristenStoneforge::MovePointLoc[KristenStoneforge::MovePointIDs::Chest - KristenStoneforge::MovePointIDs::Table][3]); });
+
+            AddTimedDelayedOperation(0 * IN_MILLISECONDS,                         [this]() -> void { me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 8); });
+            AddTimedDelayedOperation(KristenStoneforge::DestPointDuration::Chest, [this]() -> void { me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0); });
+        };
+
+        m_OnPointReached[KristenStoneforge::MovePointIDs::UpTable] = [this]() -> void
+        {
+            AddTimedDelayedOperation(KristenStoneforge::DestPointDuration::UpTable, [this]() -> void { DoNextSequenceAction(); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(KristenStoneforge::MovePointLoc[KristenStoneforge::MovePointIDs::UpTable - KristenStoneforge::MovePointIDs::Table][3]); });
+
+            AddTimedDelayedOperation(0 * IN_MILLISECONDS,                           [this]() -> void { me->HandleEmoteCommand(EMOTE_STATE_READ_AND_TALK);    });
+            AddTimedDelayedOperation(KristenStoneforge::DestPointDuration::UpTable, [this]() -> void
+            {
+                me->HandleEmoteCommand(0);
+                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
+            });
+        };
+
+        m_OnPointReached[KristenStoneforge::MovePointIDs::CanonBalls] = [this]() -> void
+        {
+            AddTimedDelayedOperation(KristenStoneforge::DestPointDuration::CanonBalls, [this]() -> void { DoNextSequenceAction(); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(KristenStoneforge::MovePointLoc[KristenStoneforge::MovePointIDs::CanonBalls - KristenStoneforge::MovePointIDs::Table][3]); });
+
+            AddTimedDelayedOperation(0 * IN_MILLISECONDS,                              [this]() -> void { me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 8); });
+            AddTimedDelayedOperation(KristenStoneforge::DestPointDuration::CanonBalls, [this]() -> void { me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0); });
+        };
+
+        DoNextSequenceAction();
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Do next sequence element
+    void npc_KristenStoneforge::npc_KristenStoneforgAI::DoNextSequenceAction()
+    {
+        if (m_SequencePosition >= sizeof(KristenStoneforge::Sequence))
+            m_SequencePosition = 0;
+
+        m_DelayedOperations.push([this]() -> void
+        {
+            me->SetWalk(true);
+
+            uint32 l_LocationID = KristenStoneforge::Sequence[m_SequencePosition] - KristenStoneforge::MovePointIDs::Table;
+            MoveBuildingRelative(KristenStoneforge::Sequence[m_SequencePosition],   KristenStoneforge::MovePointLoc[l_LocationID][0],
+                                                                                    KristenStoneforge::MovePointLoc[l_LocationID][1], 
+                                                                                    KristenStoneforge::MovePointLoc[l_LocationID][2]);
 
             m_SequencePosition++;
         });
