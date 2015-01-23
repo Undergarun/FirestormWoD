@@ -200,6 +200,98 @@ namespace MS { namespace Garrison
 
     };
 
+    namespace GussofForgefire
+    {
+        namespace MovePointIDs
+        {
+            enum Type
+            {
+                Nothing     = 100,
+                Stairs1     = 101,
+                Stairs2     = 102,
+                Stairs3     = 103,
+                Stairs4Mid  = 104,
+                Stairs5     = 105,
+                Stairs6     = 106,
+                Stairs7     = 107,
+                Anvil       = 108,
+                Canon       = 109
+            };
+        }
+
+        namespace DestPointDuration
+        {
+            enum
+            {
+                Nothing     = 50 * IN_MILLISECONDS,
+                Stairs4Mid  = 40 * IN_MILLISECONDS,
+                Anvil       = 30 * IN_MILLISECONDS,
+                Canon       = 30 * IN_MILLISECONDS
+            };
+        }
+
+        static uint8 Sequence[] =
+        {
+            MovePointIDs::Nothing,
+            MovePointIDs::Stairs1,
+            MovePointIDs::Stairs2,
+            MovePointIDs::Stairs3,
+            MovePointIDs::Stairs4Mid,
+            MovePointIDs::Stairs5,
+            MovePointIDs::Stairs6,
+            MovePointIDs::Stairs7,
+            MovePointIDs::Anvil,
+            MovePointIDs::Canon,
+            MovePointIDs::Anvil,
+            MovePointIDs::Canon,
+            MovePointIDs::Nothing,
+            MovePointIDs::Canon,
+            MovePointIDs::Anvil,
+        };
+
+        static float MovePointLoc[][4] =
+        {
+            {  -6.5769f, -5.7238f, 0.3151f, 0.9118f },   ///< MovePointIDs::Nothing
+            {  -5.2637f,  7.8586f, 0.4547f, 2.5800f },   ///< MovePointIDs::Stairs1
+            {  -7.5862f,  9.2789f, 1.7972f, 2.9489f },   ///< MovePointIDs::Stairs2
+            { -10.3781f,  8.7117f, 3.1357f, 3.7304f },   ///< MovePointIDs::Stairs3
+            { -13.3514f,  9.4382f, 3.2421f, 2.2028f },   ///< MovePointIDs::Stairs4Mid
+            { -10.3781f,  8.7117f, 3.1357f, 3.7304f },   ///< MovePointIDs::Stairs5
+            {  -7.5862f,  9.2789f, 1.7972f, 2.9489f },   ///< MovePointIDs::Stairs6
+            {  -5.2637f,  7.8586f, 0.4547f, 2.5800f },   ///< MovePointIDs::Stairs7
+            {  -0.5560f, -9.9787f, 0.3217f, 4.9244f },   ///< MovePointIDs::Anvil
+            {  -8.5564f, -9.4336f, 0.3063f, 4.3707f },   ///< MovePointIDs::Canon
+        };
+    }
+
+    /// Grun'lek
+    class npc_GussofForgefire : public CreatureScript
+    {
+        public:
+            /// Constructor
+            npc_GussofForgefire();
+
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            CreatureAI * GetAI(Creature * p_Creature) const;
+
+            /// Creature AI
+            struct npc_GussofForgefireAI : public GarrisonNPCAI
+            {
+                /// Constructor
+                npc_GussofForgefireAI(Creature * p_Creature);
+
+                /// Do next sequence element
+                void DoNextSequenceAction();
+
+                uint8 m_SequencePosition;
+            };
+
+    };
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
     /// Garrison shelly hamby
     class npc_Skaggit : public CreatureScript
     {

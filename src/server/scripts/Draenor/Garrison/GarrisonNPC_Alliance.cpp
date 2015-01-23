@@ -309,5 +309,113 @@ namespace MS { namespace Garrison
         }
     }
 
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    npc_GussofForgefire::npc_GussofForgefire()
+        : CreatureScript("npc_GussofForgefire_Garr")
+    {
+
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Called when a CreatureAI object is needed for the creature.
+    /// @p_Creature : Target creature instance
+    CreatureAI * npc_GussofForgefire::GetAI(Creature * p_Creature) const
+    {
+        return new npc_GussofForgefireAI(p_Creature);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    npc_GussofForgefire::npc_GussofForgefireAI::npc_GussofForgefireAI(Creature * p_Creature)
+        : GarrisonNPCAI(p_Creature), m_SequencePosition(0xFF)
+    {
+        SetAIObstacleManagerEnabled(true);
+
+        m_OnPointReached[GussofForgefire::MovePointIDs::Nothing] = [this]() -> void
+        {
+            AddTimedDelayedOperation(GussofForgefire::DestPointDuration::Nothing, [this]() -> void { DoNextSequenceAction(); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(GussofForgefire::MovePointLoc[GussofForgefire::MovePointIDs::Nothing - GussofForgefire::MovePointIDs::Nothing][3]); });
+        };
+
+        m_OnPointReached[GussofForgefire::MovePointIDs::Stairs1] = [this]() -> void { m_DelayedOperations.push([this]() -> void { DoNextSequenceAction(); }); };
+        m_OnPointReached[GussofForgefire::MovePointIDs::Stairs2] = [this]() -> void { m_DelayedOperations.push([this]() -> void { DoNextSequenceAction(); }); };
+        m_OnPointReached[GussofForgefire::MovePointIDs::Stairs3] = [this]() -> void { m_DelayedOperations.push([this]() -> void { DoNextSequenceAction(); }); };
+
+        m_OnPointReached[GussofForgefire::MovePointIDs::Stairs4Mid] = [this]() -> void
+        {
+            AddTimedDelayedOperation(GussofForgefire::DestPointDuration::Stairs4Mid, [this]() -> void { DoNextSequenceAction(); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(GussofForgefire::MovePointLoc[GussofForgefire::MovePointIDs::Stairs4Mid - GussofForgefire::MovePointIDs::Nothing][3]); });
+        };
+
+        m_OnPointReached[GussofForgefire::MovePointIDs::Stairs5] = [this]() -> void { m_DelayedOperations.push([this]() -> void { DoNextSequenceAction(); }); };
+        m_OnPointReached[GussofForgefire::MovePointIDs::Stairs6] = [this]() -> void { m_DelayedOperations.push([this]() -> void { DoNextSequenceAction(); }); };
+        m_OnPointReached[GussofForgefire::MovePointIDs::Stairs7] = [this]() -> void { m_DelayedOperations.push([this]() -> void { DoNextSequenceAction(); }); };
+
+        m_OnPointReached[GussofForgefire::MovePointIDs::Anvil] = [this]() -> void
+        {
+            AddTimedDelayedOperation(GussofForgefire::DestPointDuration::Anvil, [this]() -> void { DoNextSequenceAction(); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(GussofForgefire::MovePointLoc[GussofForgefire::MovePointIDs::Anvil - GussofForgefire::MovePointIDs::Nothing][3]); });
+
+            AddTimedDelayedOperation(0 * IN_MILLISECONDS,                       [this]() -> void
+            {
+                me->LoadEquipment(1, true);
+                me->HandleEmoteCommand(EMOTE_STATE_WORK_CHOPWOOD_GARR);
+            });
+            AddTimedDelayedOperation(GussofForgefire::DestPointDuration::Anvil, [this]() -> void
+            {
+                me->LoadEquipment(0, true);
+                me->HandleEmoteCommand(0);
+                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
+            });
+        };
+
+        m_OnPointReached[GussofForgefire::MovePointIDs::Canon] = [this]() -> void
+        {
+            AddTimedDelayedOperation(GussofForgefire::DestPointDuration::Canon, [this]() -> void { DoNextSequenceAction(); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(GussofForgefire::MovePointLoc[GussofForgefire::MovePointIDs::Canon - GussofForgefire::MovePointIDs::Nothing][3]); });
+
+            AddTimedDelayedOperation(0 * IN_MILLISECONDS,                       [this]() -> void { me->HandleEmoteCommand(EMOTE_STATE_USE_STANDING_NO_SHEATHE); });
+            AddTimedDelayedOperation(GussofForgefire::DestPointDuration::Canon, [this]() -> void
+            {
+                me->HandleEmoteCommand(0);
+                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
+            });
+        };
+
+        DoNextSequenceAction();
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Do next sequence element
+    void npc_GussofForgefire::npc_GussofForgefireAI::DoNextSequenceAction()
+    {
+        if (m_SequencePosition >= sizeof(GussofForgefire::Sequence))
+            m_SequencePosition = 0;
+
+        m_DelayedOperations.push([this]() -> void
+        {
+            me->SetWalk(true);
+
+            uint32 l_LocationID = GussofForgefire::Sequence[m_SequencePosition] - GussofForgefire::MovePointIDs::Nothing;
+            MoveBuildingRelative(GussofForgefire::Sequence[m_SequencePosition],   GussofForgefire::MovePointLoc[l_LocationID][0],
+                                                                                  GussofForgefire::MovePointLoc[l_LocationID][1], 
+                                                                                  GussofForgefire::MovePointLoc[l_LocationID][2]);
+
+            m_SequencePosition++;
+        });
+    }
+
 }   ///< namespace Garrison
 }   ///< namespace MS
