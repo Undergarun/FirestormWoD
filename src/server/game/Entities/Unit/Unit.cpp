@@ -14379,9 +14379,9 @@ int32 Unit::ModifyPower(Powers power, int32 dVal)
     int32 curPower = GetPower(power);
 
     int32 val = dVal + curPower;
-    if (val <= 0)
+    if (val <= GetMinPower(power))
     {
-        SetPower(power, 0);
+        SetPower(power, GetMinPower(power));
         return -curPower;
     }
 
@@ -15997,7 +15997,6 @@ int32 Unit::GetPowerCoeff(Powers p_PowerType) const
     switch (p_PowerType)
     {
         case POWER_MANA:
-        case POWER_ECLIPSE:
         case POWER_HOLY_POWER:
         case POWER_CHI:
         case POWER_ENERGY:
@@ -16010,6 +16009,7 @@ int32 Unit::GetPowerCoeff(Powers p_PowerType) const
         case POWER_BURNING_EMBERS:
             return 10;
         case POWER_SOUL_SHARDS:
+        case POWER_ECLIPSE: ///< Max is 100, but can be up to 10.000 in SMSG_UPDATE_OBJECT
             return 100;
         default:
             break;
@@ -16026,6 +16026,10 @@ void Unit::SetPower(Powers p_PowerType, int32 p_PowerValue, bool p_Regen)
         return;
 
     int32 l_MaxPower = int32(GetMaxPower(p_PowerType));
+
+    /// Custom case for EclipsePower, cannot be set in GetMaxPower
+    if (p_PowerType == Powers::POWER_ECLIPSE)
+        l_MaxPower *= GetPowerCoeff(Powers::POWER_ECLIPSE);
 
     if (l_MaxPower < p_PowerValue)
         p_PowerValue = l_MaxPower;

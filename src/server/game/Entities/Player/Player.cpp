@@ -757,6 +757,7 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     m_soulShardsRegenTimerCount = 0;
     m_burningEmbersRegenTimerCount = 0;
     m_focusRegenTimerCount = 0;
+    m_EclipseRegenTimer = 0;
     m_weaponChangeTimer = 0;
 
     m_zoneUpdateId = 0;
@@ -3197,49 +3198,81 @@ void Player::RegenerateAll()
 {
     m_regenTimerCount += m_RegenPowerTimer;
 
-    if (getClass() == CLASS_PALADIN)
-        m_holyPowerRegenTimerCount += m_RegenPowerTimer;
+    Classes l_Class = (Classes)getClass();
+    switch (l_Class)
+    {
+        case Classes::CLASS_PALADIN:
+            m_holyPowerRegenTimerCount += m_RegenPowerTimer;
+            break;
+        case Classes::CLASS_MONK:
+            m_chiPowerRegenTimerCount += m_RegenPowerTimer;
+            break;
+        case Classes::CLASS_HUNTER:
+            m_focusRegenTimerCount += m_RegenPowerTimer;
+            break;
+        case Classes::CLASS_DRUID:
+            m_EclipseRegenTimer += m_RegenPowerTimer;
+            break;
+        case Classes::CLASS_WARLOCK:
+        {
+            switch (GetSpecializationId(GetActiveSpec()))
+            {
+                case SpecIndex::SPEC_WARLOCK_DEMONOLOGY:
+                    m_demonicFuryPowerRegenTimerCount += m_RegenPowerTimer;
+                    break;
+                case SpecIndex::SPEC_WARLOCK_DESTRUCTION:
+                    m_burningEmbersRegenTimerCount += m_RegenPowerTimer;
+                    break;
+                case SpecIndex::SPEC_WARLOCK_AFFLICTION:
+                    m_soulShardsRegenTimerCount += m_RegenPowerTimer;
+                    break;
+                default:
+                    break;
+            }
 
-    if (getClass() == CLASS_MONK)
-        m_chiPowerRegenTimerCount += m_RegenPowerTimer;
+            break;
+        }
+        case Classes::CLASS_DEATH_KNIGHT:   ///< Runes act as cooldowns, and they don't need to send any data
+        {
+            for (uint8 l_I = 0; l_I < MAX_RUNES; l_I += 2)
+            {
+                uint8 l_RuneToRegen = l_I;
+                uint32 l_Cooldown = GetRuneCooldown(l_I);
+                uint32 l_SecondRuneCooldown = GetRuneCooldown(l_I + 1);
+                // Regenerate second rune of the same type only after first rune is off the cooldown
+                if (l_SecondRuneCooldown && (l_Cooldown > l_SecondRuneCooldown || !l_Cooldown))
+                {
+                    l_RuneToRegen = l_I + 1;
+                    l_Cooldown = l_SecondRuneCooldown;
+                }
 
-    if (getClass() == CLASS_HUNTER)
-        m_focusRegenTimerCount += m_RegenPowerTimer;
+                if (l_Cooldown)
+                    SetRuneCooldown(l_RuneToRegen, (l_Cooldown > m_RegenPowerTimer) ? l_Cooldown - m_RegenPowerTimer : 0);
+            }
 
-    if (getClass() == CLASS_WARLOCK && GetSpecializationId(GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
-        m_demonicFuryPowerRegenTimerCount += m_RegenPowerTimer;
-    else if (getClass() == CLASS_WARLOCK && GetSpecializationId(GetActiveSpec()) == SPEC_WARLOCK_DESTRUCTION)
-        m_burningEmbersRegenTimerCount += m_RegenPowerTimer;
-    else if (getClass() == CLASS_WARLOCK && GetSpecializationId(GetActiveSpec()) == SPEC_WARLOCK_AFFLICTION)
-        m_soulShardsRegenTimerCount += m_RegenPowerTimer;
+            break;
+        }
+        default:
+            break;
+    }
 
     Regenerate(POWER_MANA);
     Regenerate(POWER_ENERGY);
 
-    // Runes act as cooldowns, and they don't need to send any data
-    if (getClass() == CLASS_DEATH_KNIGHT)
+    if (m_focusRegenTimerCount >= 1000)
     {
-        for (uint8 i = 0; i < MAX_RUNES; i += 2)
-        {
-            uint8 runeToRegen = i;
-            uint32 cd = GetRuneCooldown(i);
-            uint32 secondRuneCd = GetRuneCooldown(i + 1);
-            // Regenerate second rune of the same type only after first rune is off the cooldown
-            if (secondRuneCd && (cd > secondRuneCd || !cd))
-            {
-                runeToRegen = i + 1;
-                cd = secondRuneCd;
-            }
+        if (l_Class == CLASS_HUNTER)
+            Regenerate(POWER_FOCUS);
 
-            if (cd)
-                SetRuneCooldown(runeToRegen, (cd > m_RegenPowerTimer) ? cd - m_RegenPowerTimer : 0);
-        }
+        m_focusRegenTimerCount -= 1000;
     }
 
-    if (m_focusRegenTimerCount >= 1000 && getClass() == CLASS_HUNTER)
+    if (m_EclipseRegenTimer >= 1000)
     {
-        Regenerate(POWER_FOCUS);
-        m_focusRegenTimerCount -= 1000;
+        if (l_Class == CLASS_DRUID && GetSpecializationId(GetActiveSpec()) == SPEC_DRUID_BALANCE)
+            Regenerate(POWER_ECLIPSE);
+
+        m_EclipseRegenTimer -= 1000;
     }
 
     if (m_regenTimerCount >= 2000)
@@ -3253,39 +3286,38 @@ void Player::RegenerateAll()
         }
 
         Regenerate(POWER_RAGE);
-        if (getClass() == CLASS_DEATH_KNIGHT)
+
+        if (l_Class == CLASS_DEATH_KNIGHT)
             Regenerate(POWER_RUNIC_POWER);
-        if (getClass() == CLASS_DRUID && GetSpecializationId(GetActiveSpec()) == SPEC_DRUID_BALANCE)
-            Regenerate(POWER_ECLIPSE);
 
         m_regenTimerCount -= 2000;
     }
 
-    if (m_burningEmbersRegenTimerCount >= 2000 && getClass() == CLASS_WARLOCK && GetSpecializationId(GetActiveSpec()) == SPEC_WARLOCK_DESTRUCTION)
+    if (m_burningEmbersRegenTimerCount >= 2000 && l_Class == CLASS_WARLOCK && GetSpecializationId(GetActiveSpec()) == SPEC_WARLOCK_DESTRUCTION)
     {
         Regenerate(POWER_BURNING_EMBERS);
         m_burningEmbersRegenTimerCount -= 2000;
     }
 
-    if (m_holyPowerRegenTimerCount >= 10000 && getClass() == CLASS_PALADIN)
+    if (m_holyPowerRegenTimerCount >= 10000 && l_Class == CLASS_PALADIN)
     {
         Regenerate(POWER_HOLY_POWER);
         m_holyPowerRegenTimerCount -= 10000;
     }
 
-    if (m_chiPowerRegenTimerCount >= 10000 && getClass() == CLASS_MONK)
+    if (m_chiPowerRegenTimerCount >= 10000 && l_Class == CLASS_MONK)
     {
         Regenerate(POWER_CHI);
         m_chiPowerRegenTimerCount -= 10000;
     }
 
-    if (m_demonicFuryPowerRegenTimerCount >= 100 && getClass() == CLASS_WARLOCK && (ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY))
+    if (m_demonicFuryPowerRegenTimerCount >= 100 && l_Class == CLASS_WARLOCK && (ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY))
     {
         Regenerate(POWER_DEMONIC_FURY);
         m_demonicFuryPowerRegenTimerCount -= 100;
     }
 
-    if (m_soulShardsRegenTimerCount >= 20000 && getClass() == CLASS_WARLOCK && (ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_WARLOCK_AFFLICTION))
+    if (m_soulShardsRegenTimerCount >= 20000 && l_Class == CLASS_WARLOCK && (ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_WARLOCK_AFFLICTION))
     {
         Regenerate(POWER_SOUL_SHARDS);
         m_soulShardsRegenTimerCount -= 20000;
@@ -3367,8 +3399,25 @@ void Player::Regenerate(Powers power)
                 addvalue += -1.0f; // remove 1 each 10 sec
             break;
         case POWER_ECLIPSE:
-            SetPower(POWER_ECLIPSE, GetPower(POWER_ECLIPSE) - 5);
+        {
+            maxValue = GetMaxPower(Powers::POWER_ECLIPSE) * GetPowerCoeff(Powers::POWER_ECLIPSE);   ///< Must change here
+            if (!isInCombat())
+            {
+                if (GetPower(Powers::POWER_ECLIPSE) >= 10 * GetPowerCoeff(Powers::POWER_ECLIPSE))
+                    addvalue += -10.0f * GetPowerCoeff(Powers::POWER_ECLIPSE); ///< -1000 per sec
+                else
+                    addvalue += -GetPower(Powers::POWER_ECLIPSE);
+            }
+            else if (IsEclipseCyclesActive())
+            {
+                if (GetLastEclipseState() == eclipseState::ECLIPSE_SOLAR || GetLastEclipseState() == eclipseState::ECLIPSE_NONE)
+                    addvalue += 10.0f * GetPowerCoeff(Powers::POWER_ECLIPSE); ///< +1000 per sec
+                else
+                    addvalue += -10.0f * GetPowerCoeff(Powers::POWER_ECLIPSE); ///< -1000 per sec
+            }
+
             break;
+        }
         // Regenerate Chi
         case POWER_CHI:
             if (!isInCombat())
