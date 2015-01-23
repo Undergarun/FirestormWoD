@@ -136,9 +136,6 @@ class garrison_commandscript: public CommandScript
             l_TargetPlayer->GetGarrison()->AddFollower(89);
             l_TargetPlayer->GetGarrison()->AddFollower(92);
 
-            /// HACK until quest : add barracks plan
-            l_TargetPlayer->GetGarrison()->LearnBlueprint(26);
-
             return true;
         }
 

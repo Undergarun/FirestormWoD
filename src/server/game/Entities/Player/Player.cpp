@@ -17892,9 +17892,9 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
 
                             if (GetGarrison())
                             {
-                                bool l_Level1 = GetGarrison()->HasActiveBuilding(MS::Garrison::Buildings::WarMill1);
-                                bool l_Level2 = GetGarrison()->HasActiveBuilding(MS::Garrison::Buildings::WarMill2);
-                                bool l_Level3 = GetGarrison()->HasActiveBuilding(MS::Garrison::Buildings::WarMill3);
+                                bool l_Level1 = GetGarrison()->HasActiveBuilding(MS::Garrison::Buildings::DwarvenBunker__WarMill_Level1);
+                                bool l_Level2 = GetGarrison()->HasActiveBuilding(MS::Garrison::Buildings::DwarvenBunker__WarMill_Level2);
+                                bool l_Level3 = GetGarrison()->HasActiveBuilding(MS::Garrison::Buildings::DwarvenBunker__WarMill_Level3);
 
                                 if (l_Level1 || l_Level2 || l_Level3)
                                     l_Coeef *= 2.0f;
