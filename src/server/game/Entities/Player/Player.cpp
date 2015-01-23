@@ -84,6 +84,9 @@
 #include "SceneObject.h"
 #include "GarrisonMgr.hpp"
 #include "PetBattle.h"
+#include "MSCallback.h"
+
+using namespace MS::Util;
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -22200,7 +22203,20 @@ void Player::SaveToDB(bool create /*=false*/)
     if (m_session->isLogingOut() || !sWorld->getBoolConfig(CONFIG_STATS_SAVE_ONLY_ON_LOGOUT))
         _SaveStats(trans);
 
-    CharacterDatabase.CommitTransaction(trans);
+    CallBackPtr l_CharCreateCallback = nullptr;
+    if (create)
+    {
+        l_CharCreateCallback = std::make_shared<Callback>([this](bool p_Success)
+        {
+            WorldPacket data(SMSG_CREATE_CHAR, 1);
+            data << uint8(p_Success ? CHAR_CREATE_SUCCESS : CHAR_CREATE_ERROR);
+            m_session->SendPacket(&data);
+        });
+
+        m_session->AddTransactionCallback(l_CharCreateCallback);
+    }
+
+    CharacterDatabase.CommitTransaction(trans, l_CharCreateCallback);
     LoginDatabase.CommitTransaction(accountTrans);
 
     // we save the data here to prevent spamming

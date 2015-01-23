@@ -118,6 +118,8 @@ timeLastChangeSubGroupCommand(0), m_TimeLastSellItemOpcode(0), m_uiAntispamMailS
 
     InitializeQueryCallbackParameters();
 
+    m_TransactionCallbacks = std::make_unique<TransactionCallbacks>();
+
     _compressionStream = new z_stream();
     _compressionStream->zalloc = (alloc_func)NULL;
     _compressionStream->zfree = (free_func)NULL;
@@ -351,6 +353,16 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     }
     else
         m_VoteSyncTimer -= diff;
+
+    /// - Update transactions callback
+    m_TransactionCallbacks->remove_if([](CallBackPtr const& l_Callback)
+    {
+        if (l_Callback->m_State == CallBackState::Waiting)
+            return false;
+
+        l_Callback->m_CallBack(l_Callback->m_State == CallBackState::Success);
+        return true;
+    });
 
     /// Update Timeout timer.
     UpdateTimeOutTime(diff);
