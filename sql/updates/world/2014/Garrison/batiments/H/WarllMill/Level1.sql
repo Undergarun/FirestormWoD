@@ -11,7 +11,7 @@ INSERT INTO creature_model_info (`modelid`, `bounding_radius`, `combat_reach`, `
 
 REPLACE INTO creature_template (entry, `name`, `subname`, `IconName`, `RacialLeader`, `family`, `type`, `modelid1`, `modelid2`, `modelid3`, `modelid4`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `unit_flags`, `unit_flags2`, `Health_mod`, `Mana_mod`, `Armor_mod`, `rank`, `KillCredit1`, `KillCredit2`, `movementId`, `scale`, `minlevel`, `maxlevel`, `faction`, `baseattacktime`, `rangeattacktime`, `unit_class`, `resistance1`, `resistance2`, `resistance3`, `resistance4`, `resistance5`, `resistance6`, `speed_walk`, `speed_run`, `spell1`, `spell2`, `spell3`, `spell4`, `spell5`, `spell6`, `spell7`, `spell8`, `WDBVerified`) VALUES(79815, "Grun'lek", "Quartermaster", "", 0, 0, 7, 56563, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4096, 0, 1, 1, 1, 0, 0, 0, 0, 1, 90, 90, 1734, 2000, 2000, 1, 0, 0, 0, 0, 0, 0, 1, 1.142857, 0, 0, 0, 0, 0, 0, 0, 0, 19342);
 INSERT INTO creature_model_info (`modelid`, `bounding_radius`, `combat_reach`, `gender`) VALUES(56563, 0.372, 1.5, 0) ON DUPLICATE KEY UPDATE `modelid` = VALUES(`modelid`), `bounding_radius` = VALUES(`bounding_radius`), `combat_reach` = VALUES(`combat_reach`), `gender` = VALUES(`gender`);
-UPDATE creature_template SET ScriptName="npc_GrunLek_Garr", npcFlag=3 WHERE entry = 79815;
+UPDATE creature_template SET ScriptName="npc_GrunLek_Garr" WHERE entry = 79815;
 
 DELETE FROM creature_questrelation WHERE id=79815;
 INSERT INTO `creature_questrelation`(`id`,`quest`) VALUES ( '79815','37043');
@@ -31,11 +31,11 @@ insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `
 insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-8','0','79781','7.75683','-0.602743','1.62177','5.6014');
 
 REPLACE INTO gossip_menu (entry, `text_id`) VALUES(17014, 87551);
-
 REPLACE INTO gossip_menu_option (menu_id, id, `option_icon`, `option_text`, `option_id`, `box_coded`, `box_money`, `box_text`, `npc_option_npcflag`) VALUES(17014, 1, 0, "Let me browse your goods.", 1, 0, 0, "", 1);
 INSERT INTO npc_text (`ID`, `text0_0`, `lang0`, `prob0`, `WDBVerified`) VALUES(87551, "What am I needed for?", 0, 100, 19342) ON DUPLICATE KEY UPDATE `ID` = VALUES(`ID`), `text0_0` = VALUES(`text0_0`), `lang0` = VALUES(`lang0`), `prob0` = VALUES(`prob0`), `WDBVerified` = VALUES(`WDBVerified`);
 
-UPDATE `creature_template` SET `npcflag`=`npcflag`|128 WHERE `entry`=79815;
+UPDATE `creature_template` SET `npcflag`=`npcflag`|4227, gossip_menu_id = 17014 WHERE `entry`=79815;
+
 DELETE FROM `npc_vendor` WHERE `entry` = 79815 AND `type` = 1;
 INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`) VALUES
 (79815, 0, 113789, 0, 0, 5287, 1), 
@@ -73,3 +73,12 @@ INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `Exte
 (79815, 0, 118370, 0, 0, 5289, 1), 
 (79815, 0, 118371, 0, 0, 5285, 1), 
 (79815, 0, 118400, 0, 0, 5289, 1);
+
+DELETE FROM quest_poi  WHERE QuestID=37043;
+DELETE FROM quest_poi_points  WHERE questId=37043;
+INSERT INTO quest_poi (`QuestID`, `BlobIndex`, `ObjectiveIndex`, `MapID`, `WorldMapAreaId`, `Floor`, `Priority`, `Flags`, `WorldEffectID`, `PlayerConditionID`, `Unk`) VALUES(37043, 0, -1, 1116, 980, 0, 0, 0, 0, 0, 953669) ON DUPLICATE KEY UPDATE `QuestID` = VALUES(`QuestID`), `BlobIndex` = VALUES(`BlobIndex`), `ObjectiveIndex` = VALUES(`ObjectiveIndex`), `MapID` = VALUES(`MapID`), `WorldMapAreaId` = VALUES(`WorldMapAreaId`), `Floor` = VALUES(`Floor`), `Priority` = VALUES(`Priority`), `Flags` = VALUES(`Flags`), `WorldEffectID` = VALUES(`WorldEffectID`), `PlayerConditionID` = VALUES(`PlayerConditionID`), `Unk` = VALUES(`Unk`);
+INSERT INTO quest_poi_points (`questId`, `id`, `idx`, `x`, `y`) VALUES(37043, 0, 0, 5642, 4533) ON DUPLICATE KEY UPDATE `questId` = VALUES(`questId`), `id` = VALUES(`id`), `idx` = VALUES(`idx`), `x` = VALUES(`x`), `y` = VALUES(`y`);
+INSERT INTO quest_poi (`QuestID`, `BlobIndex`, `ObjectiveIndex`, `MapID`, `WorldMapAreaId`, `Floor`, `Priority`, `Flags`, `WorldEffectID`, `PlayerConditionID`, `Unk`) VALUES(37043, 1, -1, 1116, 981, 0, 0, 0, 0, 0, 953669) ON DUPLICATE KEY UPDATE `QuestID` = VALUES(`QuestID`), `BlobIndex` = VALUES(`BlobIndex`), `ObjectiveIndex` = VALUES(`ObjectiveIndex`), `MapID` = VALUES(`MapID`), `WorldMapAreaId` = VALUES(`WorldMapAreaId`), `Floor` = VALUES(`Floor`), `Priority` = VALUES(`Priority`), `Flags` = VALUES(`Flags`), `WorldEffectID` = VALUES(`WorldEffectID`), `PlayerConditionID` = VALUES(`PlayerConditionID`), `Unk` = VALUES(`Unk`);
+INSERT INTO quest_poi_points (`questId`, `id`, `idx`, `x`, `y`) VALUES(37043, 1, 0, 5642, 4533) ON DUPLICATE KEY UPDATE `questId` = VALUES(`questId`), `id` = VALUES(`id`), `idx` = VALUES(`idx`), `x` = VALUES(`x`), `y` = VALUES(`y`);
+INSERT INTO quest_poi (`QuestID`, `BlobIndex`, `ObjectiveIndex`, `MapID`, `WorldMapAreaId`, `Floor`, `Priority`, `Flags`, `WorldEffectID`, `PlayerConditionID`, `Unk`) VALUES(37043, 2, -1, 1116, 990, 0, 0, 0, 0, 0, 953669) ON DUPLICATE KEY UPDATE `QuestID` = VALUES(`QuestID`), `BlobIndex` = VALUES(`BlobIndex`), `ObjectiveIndex` = VALUES(`ObjectiveIndex`), `MapID` = VALUES(`MapID`), `WorldMapAreaId` = VALUES(`WorldMapAreaId`), `Floor` = VALUES(`Floor`), `Priority` = VALUES(`Priority`), `Flags` = VALUES(`Flags`), `WorldEffectID` = VALUES(`WorldEffectID`), `PlayerConditionID` = VALUES(`PlayerConditionID`), `Unk` = VALUES(`Unk`);
+INSERT INTO quest_poi_points (`questId`, `id`, `idx`, `x`, `y`) VALUES(37043, 2, 0, 5642, 4533) ON DUPLICATE KEY UPDATE `questId` = VALUES(`questId`), `id` = VALUES(`id`), `idx` = VALUES(`idx`), `x` = VALUES(`x`), `y` = VALUES(`y`);

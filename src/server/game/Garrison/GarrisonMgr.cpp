@@ -2487,6 +2487,17 @@ namespace MS { namespace Garrison
 
         m_Owner->SendDirectMessage(&l_BuildingRemovedPacket);
     }
+    /// Has active building
+    bool Manager::HasActiveBuilding(uint32 p_BuildingID)
+    {
+        for (std::vector<GarrisonBuilding>::iterator l_It = m_Buildings.begin(); l_It != m_Buildings.end(); ++l_It)
+        {
+            if (l_It->BuildingID == l_BuildingID && l_It->Active)
+                return true;
+        }
+
+        return false;
+    }
 
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////

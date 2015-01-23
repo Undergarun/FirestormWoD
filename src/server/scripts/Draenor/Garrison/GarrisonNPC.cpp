@@ -192,7 +192,7 @@ void AddSC_Garrison_NPC()
     new MS::Garrison::npc_BarosAlexsom;
     new MS::Garrison::npc_VindicatorMaraad;
     new MS::Garrison::npc_LunarfallLaborer;
-    //new MS::Garrison::npc_GussofForgefire;
+    new MS::Garrison::npc_GussofForgefire;
     new MS::Garrison::npc_KristenStoneforge;
 
     /// Horde
