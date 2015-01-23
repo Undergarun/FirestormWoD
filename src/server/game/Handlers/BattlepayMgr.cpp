@@ -120,7 +120,7 @@ namespace Battlepay
             if (m_Products.find(l_ProductID) == m_Products.end())
                 continue;
 
-            if (m_DisplayInfos.find(l_ProductItem.DisplayInfoID) == m_DisplayInfos.end())
+            if (l_ProductItem.DisplayInfoID != 0 && m_DisplayInfos.find(l_ProductItem.DisplayInfoID) == m_DisplayInfos.end())
                 continue;
 
             if (sItemStore.LookupEntry(l_ProductItem.ItemID) == nullptr)

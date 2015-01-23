@@ -166,7 +166,7 @@ namespace Battlepay
 
             uint64 GenerateNewPurchaseID()
             {
-                return m_PurchaseIDCount++;
+                return uint64(0x1E77800000000000 | m_PurchaseIDCount++);
             }
 
             uint64 GetPurchaseID(uint64 p_PlayerGUID) const

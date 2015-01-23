@@ -148,6 +148,21 @@ void WorldSession::HandleBattlePayStartPurchase(WorldPacket& p_RecvData)
     l_Data << uint32(l_ClientToken);    ///< Client Token
     SendPacket(&l_Data);
 
+    /// Client need statut 2 first ...
+    l_Data.Initialize(SMSG_BATTLE_PAY_PURCHASE_UPDATE);
+    l_Data << uint32(1);               ///< Purchase counter
+
+    /// BattlePayPurchase foreach
+    {
+        l_Data << uint64(l_PurchaseID);
+        l_Data << uint32(2);               ///< Need to reverse status (2 : Search wallets in database, 3 : ready)
+        l_Data << uint32(0);               ///< Result code, same as SMSG_BATTLE_PAY_START_PURCHASE_RESPONSE Result value ?
+        l_Data << uint32(l_ProductID);     ///< Product ID
+        l_Data.WriteBits(0, 8);
+    }
+
+    SendPacket(&l_Data);
+
     std::string l_WalletName = "Ashran Points";
 
     l_Data.Initialize(SMSG_BATTLE_PAY_PURCHASE_UPDATE);
