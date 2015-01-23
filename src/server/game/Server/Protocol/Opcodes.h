@@ -509,6 +509,7 @@ enum Opcodes
         SMSG_BATTLE_PAY_GET_DISTRIBUTION_LIST_RESPONSE          = 0x0F2A, ///< 6.0.3 19116
         SMSG_BATTLE_PAY_START_PURCHASE_RESPONSE                 = 0x0BA3, ///< 6.0.3 19116
         SMSG_BATTLE_PAY_PURCHASE_UPDATE                         = 0x092F, ///< 6.0.3 19116
+        SMSG_BATTLE_PAY_CONFIRM_PURCHASE                        = 0x0938, ///< 6.0.3 19116
 
     #pragma endregion
 
@@ -1494,6 +1495,7 @@ enum Opcodes
     CMSG_BATTLE_PAY_GET_PURCHASE_LIST              = 0x120C,    ///< 6.0.3 19116
     CMSG_BATTLE_PAY_GET_PRODUCT_LIST_QUERY         = 0x1389,    ///< 6.0.3 19116
     CMSG_BATTLE_PAY_START_PURCHASE                 = 0x011E,    ///< 6.0.3 19116
+    CMSG_BATTLE_PAY_CONFIRM_PURCHASE_RESPONSE      = 0x012E,    ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// LFG

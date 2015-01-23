@@ -11,14 +11,11 @@
 #include "WorldSession.h"
 #include "WorldPacket.h"
 #include "BattlepayMgr.h"
+#include "BattlepayPacketFactory.h"
 
 void WorldSession::HandleBattlepayGetPurchaseList(WorldPacket& p_RecvData)
 {
-    WorldPacket l_Data(SMSG_BATTLE_PAY_GET_PURCHASE_LIST_RESPONSE);
-    l_Data << uint32(0);    ///< Result
-    l_Data << uint32(0);    ///< Purchase count
-
-    SendPacket(&l_Data);
+    Battlepay::PacketFactory::SendPurchaseList(this);
 }
 
 void WorldSession::HandleBattlepayGetProductListQuery(WorldPacket& p_RecvData)
@@ -26,96 +23,12 @@ void WorldSession::HandleBattlepayGetProductListQuery(WorldPacket& p_RecvData)
     if (!sBattlepayMgr->IsAvailable())
         return;
 
-    WorldPacket l_Data(SMSG_BATTLE_PAY_GET_DISTRIBUTION_LIST_RESPONSE);
-    l_Data << uint32(0);    ///< Result
-    l_Data << uint32(0);    ///< Count
-    SendPacket(&l_Data);
-
-    l_Data.Initialize(SMSG_BATTLE_PAY_GET_PRODUCT_LIST_RESPONSE);
-    l_Data << uint32(0);                                                    ///< Result
-    l_Data << uint32(sBattlepayMgr->GetShopCurrency());                     ///< CurrencyID
-
-    l_Data << uint32(sBattlepayMgr->GetProducts().size());
-    l_Data << uint32(sBattlepayMgr->GetProductGroups().size());
-    l_Data << uint32(sBattlepayMgr->GetShopEntries().size());
-
-    for (auto& l_Iterator : sBattlepayMgr->GetProducts())
-    {
-        Battlepay::Product const& l_Product = l_Iterator.second;
-
-        l_Data << uint32(l_Product.ProductID);
-        l_Data << uint64(l_Product.NormalPriceFixedPoint);
-        l_Data << uint64(l_Product.CurrentPriceFixedPoint);
-        l_Data << uint32(l_Product.Items.size());
-        l_Data << uint8(l_Product.Type);
-        l_Data << uint32(l_Product.Flags);
-
-        for (auto& l_ItemProduct : l_Product.Items)
-        {
-            l_Data << uint32(l_ItemProduct.ID);
-            l_Data << uint32(l_ItemProduct.ItemID);
-            l_Data << uint32(l_ItemProduct.Quantity);
-
-            l_Data.FlushBits();
-
-            l_Data.WriteBit(l_ItemProduct.DisplayInfoID != 0);
-            l_Data.WriteBit(l_ItemProduct.HasPet);
-            l_Data.WriteBit(l_ItemProduct.PetResult != 0);
-
-            if (l_ItemProduct.PetResult != 0)
-                l_Data.WriteBits(l_ItemProduct.PetResult, 4);
-
-            if (l_ItemProduct.DisplayInfoID != 0)
-                sBattlepayMgr->WriteDisplayInfo(l_ItemProduct.DisplayInfoID, l_Data);
-        }
-
-        l_Data.FlushBits();
-        l_Data.WriteBits(l_Product.ChoiceType, 2);
-        l_Data.WriteBit(l_Product.DisplayInfoID != 0);
-
-        if (l_Product.DisplayInfoID != 0)
-            sBattlepayMgr->WriteDisplayInfo(l_Product.DisplayInfoID, l_Data);
-    }
-
-    for (auto& l_ProductGroup : sBattlepayMgr->GetProductGroups())
-    {
-        l_Data << uint32(l_ProductGroup.GroupID);
-        l_Data << uint32(l_ProductGroup.IconFileDataID);
-        l_Data << uint8(l_ProductGroup.DisplayType);
-        l_Data << int32(l_ProductGroup.Ordering);
-
-        l_Data.FlushBits();
-
-        l_Data.WriteBits(l_ProductGroup.Name.size(), 8);
-        l_Data.WriteString(l_ProductGroup.Name);
-    }
-
-    for (auto& l_ShopEntry : sBattlepayMgr->GetShopEntries())
-    {
-        l_Data << uint32(l_ShopEntry.EntryID);
-        l_Data << uint32(l_ShopEntry.GroupID);
-        l_Data << uint32(l_ShopEntry.ProductID);
-        l_Data << int32(l_ShopEntry.Ordering);
-        l_Data << uint32(l_ShopEntry.Flags);
-        l_Data << uint8(l_ShopEntry.BannerType);
-
-        l_Data.FlushBits();
-        l_Data.WriteBit(l_ShopEntry.DisplayInfoID != 0);
-
-        if (l_ShopEntry.DisplayInfoID != 0)
-            sBattlepayMgr->WriteDisplayInfo(l_ShopEntry.DisplayInfoID, l_Data);
-    }
-
-    SendPacket(&l_Data);
+    Battlepay::PacketFactory::SendDistributionList(this);
+    Battlepay::PacketFactory::SendProductList(this);
 }
 
 void WorldSession::HandleBattlePayStartPurchase(WorldPacket& p_RecvData)
 {
-    /// Atm, we can't buy at char login
-    Player* l_Player = GetPlayer();
-    if (!l_Player)
-        return;
-
     uint64 l_TargetCharacter;
     uint32 l_ProductID;
     uint32 l_ClientToken;
@@ -124,59 +37,88 @@ void WorldSession::HandleBattlePayStartPurchase(WorldPacket& p_RecvData)
     p_RecvData >> l_ProductID;
     p_RecvData.readPackGUID(l_TargetCharacter);
 
-    /// Can't happen without client modifications, cheater?
-    if (l_Player->GetGUID() != l_TargetCharacter)
-        return;
+    /// Create new purchase for the actual transaction
+    Battlepay::Purchase l_Purchase;
+    l_Purchase.ProductID       = l_ProductID;
+    l_Purchase.ClientToken     = l_ClientToken;
+    l_Purchase.TargetCharacter = l_TargetCharacter;
+    l_Purchase.Status          = Battlepay::PacketFactory::UpdateStatus::Loading;
 
-    /// Can't happen without client modifications, cheater?
-    if (!sBattlepayMgr->ProductExist(l_ProductID))
+    /// @TODO: Handle price, already have it ...etc and generate a error code (result) if needed
+    auto l_CharacterNameData = sWorld->GetCharacterNameData(GUID_LOPART(l_TargetCharacter));
+
+    /// The TargetCharacter guid sended by the client doesn't exist
+    if (l_CharacterNameData == nullptr)
+    {
+        Battlepay::PacketFactory::SendStartPurchaseResponse(this, l_Purchase, Battlepay::PacketFactory::Error::Denied);
         return;
+    }
+
+    /// The TargetCharacter guid sended by the client isn't owned by the current account
+    if (l_CharacterNameData->m_AccountId != GetAccountId())
+    {
+        Battlepay::PacketFactory::SendStartPurchaseResponse(this, l_Purchase, Battlepay::PacketFactory::Error::Denied);
+        return;
+    }
+
+    /// The ProductID sended by the client doesn't refer to any existing product
+    if (!sBattlepayMgr->ProductExist(l_ProductID))
+    {
+        Battlepay::PacketFactory::SendStartPurchaseResponse(this, l_Purchase, Battlepay::PacketFactory::Error::Denied);
+        return;
+    }
 
     Battlepay::Product const& l_Product = sBattlepayMgr->GetProduct(l_ProductID);
-    /// @TODO: Handle price, already have it ...etc and generate a error code (result) if needed
 
-    /// Create new purchase ID
-    uint64 l_PurchaseID = sBattlepayMgr->GenerateNewPurchaseID();
+    /// Purchase can be done, let's generate purchase ID & Server Token
+    l_Purchase.PurchaseID      = sBattlepayMgr->GenerateNewPurchaseID();
+    l_Purchase.ServerToken     = urand(0, 0xFFFFFFF);
+    l_Purchase.CurrentPrice    = l_Product.CurrentPriceFixedPoint;
+    l_Purchase.Status          = Battlepay::PacketFactory::UpdateStatus::Ready;
 
-    /// Register purchase ID
-    /// @TODO: the purchasse ID must be valid only fews minutes
-    sBattlepayMgr->RegisterStartPurchaseID(l_Player->GetGUID(), l_PurchaseID);
+    /// Store the purchase and link it to the current account, we will need it later
+    sBattlepayMgr->RegisterStartPurchase(GetAccountId(), l_Purchase);
 
-    WorldPacket l_Data(SMSG_BATTLE_PAY_START_PURCHASE_RESPONSE);
-    l_Data << uint64(l_PurchaseID);     ///< Purchase ID
-    l_Data << uint32(0);                ///< Result, need to bruteforce the enum to get all values
-    l_Data << uint32(l_ClientToken);    ///< Client Token
-    SendPacket(&l_Data);
+    /// Send neccesary packets to client to show the confirmation window
+    Battlepay::PacketFactory::SendStartPurchaseResponse(this, l_Purchase, Battlepay::PacketFactory::Error::OtherOK);
+    Battlepay::PacketFactory::SendPurchaseUpdate(this, l_Purchase, Battlepay::PacketFactory::Error::OtherOK);
+    Battlepay::PacketFactory::SendConfirmPurchase(this, l_Purchase);
+}
 
-    /// Client need statut 2 first ...
-    l_Data.Initialize(SMSG_BATTLE_PAY_PURCHASE_UPDATE);
-    l_Data << uint32(1);               ///< Purchase counter
+void WorldSession::HandleBattlePayConfirmPurchase(WorldPacket& p_RecvData)
+{
+    uint32 l_ServerToken;
+    uint64 l_ClientCurrentPriceFixedPoint;
+    bool   l_ConfirmPurchase;
 
-    /// BattlePayPurchase foreach
+    l_ConfirmPurchase = p_RecvData.ReadBit();
+    p_RecvData.ResetBitReading();
+
+    p_RecvData >> l_ServerToken;
+    p_RecvData >> l_ClientCurrentPriceFixedPoint;
+
+    Battlepay::Purchase const* l_Purchase = sBattlepayMgr->GetPurchase(GetAccountId());
+    /// We can't handle that case because we havn't purchase data
+    /// Anyway, the client is cheater if it send payConfirm opcode without starting purchase
+    if (l_Purchase == nullptr)
+        return;
+
+    if (l_Purchase->ServerToken != l_ServerToken)
     {
-        l_Data << uint64(l_PurchaseID);
-        l_Data << uint32(2);               ///< Need to reverse status (2 : Search wallets in database, 3 : ready)
-        l_Data << uint32(0);               ///< Result code, same as SMSG_BATTLE_PAY_START_PURCHASE_RESPONSE Result value ?
-        l_Data << uint32(l_ProductID);     ///< Product ID
-        l_Data.WriteBits(0, 8);
+        Battlepay::PacketFactory::SendPurchaseUpdate(this, *l_Purchase, Battlepay::PacketFactory::Error::Denied);
+        return;
     }
 
-    SendPacket(&l_Data);
-
-    std::string l_WalletName = "Ashran Points";
-
-    l_Data.Initialize(SMSG_BATTLE_PAY_PURCHASE_UPDATE);
-    l_Data << uint32(1);               ///< Purchase counter
-
-    /// BattlePayPurchase foreach
+    if (l_ConfirmPurchase == false)
     {
-        l_Data << uint64(l_PurchaseID);
-        l_Data << uint32(3);               ///< Need to reverse status (2 : Search wallets in database, 3 : ready)
-        l_Data << uint32(0);               ///< Result code, same as SMSG_BATTLE_PAY_START_PURCHASE_RESPONSE Result value ?
-        l_Data << uint32(l_ProductID);     ///< Product ID
-        l_Data.WriteBits(l_WalletName.size(), 8);
-        l_Data.WriteString(l_WalletName);
+        Battlepay::PacketFactory::SendPurchaseUpdate(this, *l_Purchase, Battlepay::PacketFactory::Error::OtherCancelByUser);
+        return;
     }
 
-    SendPacket(&l_Data);
+    if (l_Purchase->CurrentPrice != l_ClientCurrentPriceFixedPoint)
+    {
+        Battlepay::PacketFactory::SendPurchaseUpdate(this, *l_Purchase, Battlepay::PacketFactory::Error::InsufficientBalance);
+        return;
+    }
+
 }

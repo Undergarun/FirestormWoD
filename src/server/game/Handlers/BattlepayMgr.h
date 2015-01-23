@@ -37,15 +37,15 @@ namespace Battlepay
     /// Last update : 6.0.3 19116
     enum Error
     {
-        InvalidPaymentMethod,
-        PaymentFailed,
-        WrongCurrency,
-        BattlepayDisabled,
-        InsufficientBalance,
-        Other,
-        AlreadyOwned,
-        ParentalControlsNoPurchase,
-        Denied
+        InvalidPaymentMethod       = 25,
+        PaymentFailed              = 2,
+        WrongCurrency              = 12,
+        BattlepayDisabled          = 13,
+        InsufficientBalance        = 28,
+        Other                      = 0,
+        //AlreadyOwned             = 0,     ///< This error is client-side only, can't be sended by the server
+        ParentalControlsNoPurchase = 34,
+        Denied                     = 1
     };
 
     struct ProductGroup
@@ -100,7 +100,21 @@ namespace Battlepay
         uint32          DisplayInfoID;
     };
 
-    using Purchases = std::map<uint64, std::pair<uint64, uint32>>;
+    struct Purchase
+    {
+        Purchase()
+        {
+            memset(this, 0, sizeof(Purchase));
+        }
+
+        uint64 PurchaseID;
+        uint32 ClientToken;
+        uint32 ServerToken;
+        uint32 ProductID;
+        uint64 CurrentPrice;
+        uint64 TargetCharacter;
+        uint8  Status;
+    };
 
     class Manager
     {
@@ -108,6 +122,7 @@ namespace Battlepay
 
             Manager()
             {
+                m_WalletName = "Ashran points";     ///< @TODO: Take it from server conf
                 m_PurchaseIDCount = 0;
             }
 
@@ -127,13 +142,6 @@ namespace Battlepay
             * Return if the battlepay is available for player or not
             */
             bool IsAvailable() const;
-
-            /*
-            * Write display info into packet bytebuffer
-            * @param p_DisplayInfoID: Id of the display info to write
-            * @param p_Packet: The packet where we write display info data
-            */
-            void WriteDisplayInfo(uint32 p_DisplayInfoID, WorldPacket& p_Packet);
 
             std::vector<ProductGroup> const& GetProductGroups() const { return m_ProductGroups; }
             std::vector<ShopEntry> const& GetShopEntries() const { return m_ShopEntries; }
@@ -159,23 +167,25 @@ namespace Battlepay
                 return &m_DisplayInfos.at(p_Id);
             }
 
-            void RegisterStartPurchaseID(uint64 p_PlayerGuid, uint64 p_PurchaseID)
+            void RegisterStartPurchase(uint32 p_AccountId, Battlepay::Purchase p_Purchase)
             {
-                m_ActualTransactions[p_PlayerGuid] = std::make_pair(p_PurchaseID, time(nullptr));
+                m_ActualTransactions[p_AccountId] = p_Purchase;
             }
 
             uint64 GenerateNewPurchaseID()
             {
-                return uint64(0x1E77800000000000 | m_PurchaseIDCount++);
+                return uint64(0x1E77800000000000 | ++m_PurchaseIDCount);
             }
 
-            uint64 GetPurchaseID(uint64 p_PlayerGUID) const
+            Battlepay::Purchase const* GetPurchase(uint64 p_PlayerGUID) const
             {
                 if (m_ActualTransactions.find(p_PlayerGUID) == m_ActualTransactions.end())
-                    return 0;
+                    return nullptr;
 
-                return m_ActualTransactions.at(p_PlayerGUID).first;
+                return &m_ActualTransactions.at(p_PlayerGUID);
             }
+
+            std::string const& GetDefaultWalletName() const { return m_WalletName; }
 
             /// @TODO: Bruteforce to make proper server enum
             uint32 ConvertServerErrorToClientError(uint32 p_ServerError)
@@ -235,9 +245,10 @@ namespace Battlepay
             std::vector<ShopEntry>        m_ShopEntries;
             std::map<uint32, Product>     m_Products;
             std::map<uint32, DisplayInfo> m_DisplayInfos;
+            std::map<uint32, Purchase>    m_ActualTransactions;
 
-            uint64    m_PurchaseIDCount;
-            Purchases m_ActualTransactions;
+            uint64       m_PurchaseIDCount;
+            std::string  m_WalletName;
 
     };
 }
