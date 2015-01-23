@@ -22204,14 +22204,14 @@ void Player::SaveToDB(bool create /*=false*/)
     MS::Utilities::CallBackPtr l_CharCreateCallback = nullptr;
     if (create)
     {
-        l_CharCreateCallback = std::make_shared<MS::Utilities::Callback>([this](bool p_Success)
+        l_CharCreateCallback = std::make_shared<MS::Utilities::Callback>([this](bool p_Success) -> void
         {
             WorldPacket data(SMSG_CREATE_CHAR, 1);
             data << uint8(p_Success ? CHAR_CREATE_SUCCESS : CHAR_CREATE_ERROR);
             m_session->SendPacket(&data);
         });
 
-        m_session->AddTransactionCallback(l_CharCreateCallback);
+        m_session->AddQueryCallback(l_CharCreateCallback);
     }
 
     CharacterDatabase.CommitTransaction(trans, l_CharCreateCallback);

@@ -470,9 +470,15 @@ class WorldSession
         //////////////////////////////////////////////////////////////////////////
         /// New callback system
         //////////////////////////////////////////////////////////////////////////
-        void AddTransactionCallback(std::shared_ptr<MS::Utilities::Callback> p_Callback)
+        void AddQueryCallback(std::shared_ptr<MS::Utilities::Callback> p_Callback, bool p_Lock = true)
         {
-            m_TransactionCallbacks->push_front(p_Callback);
+            if (p_Lock)
+                m_QueryCallbackLock.lock();
+
+            m_QueryCallbacks->push_front(p_Callback);
+
+            if (p_Lock)
+                m_QueryCallbackLock.unlock();
         }
 
     public:                                                 // opcodes handlers
@@ -1148,10 +1154,11 @@ class WorldSession
         QueryResultHolderFuture m_CharacterLoginCallback;
 
         //////////////////////////////////////////////////////////////////////////
-        /// New callback system
+        /// New query callback system
         //////////////////////////////////////////////////////////////////////////
-        typedef std::forward_list<std::shared_ptr<MS::Utilities::Callback>> TransactionCallbacks;
-        std::unique_ptr<TransactionCallbacks> m_TransactionCallbacks;
+        typedef std::forward_list<std::shared_ptr<MS::Utilities::Callback>> QueryCallbacks;
+        std::unique_ptr<QueryCallbacks> m_QueryCallbacks;
+        std::mutex m_QueryCallbackLock;
 
     private:
         // private trade methods
