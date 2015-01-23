@@ -99,7 +99,7 @@ namespace Battlepay
         } 
         while (l_Result->NextRow());
 
-        l_Result = WorldDatabase.PQuery("SELECT ID, ProductID, ItemID, Quantity, DisplayID, HasPet, PetResult FROM battlepay_product_item");
+        l_Result = WorldDatabase.PQuery("SELECT ID, ProductID, ItemID, Quantity, DisplayID, PetResult FROM battlepay_product_item");
         if (!l_Result)
             return;
 
@@ -112,8 +112,8 @@ namespace Battlepay
             l_ProductItem.ItemID        = l_Fields[2].GetUInt32();
             l_ProductItem.Quantity      = l_Fields[3].GetUInt32();
             l_ProductItem.DisplayInfoID = l_Fields[4].GetUInt32();
-            l_ProductItem.HasPet        = l_Fields[5].GetBool();
-            l_ProductItem.PetResult     = l_Fields[6].GetUInt8();
+            //l_ProductItem.HasPet        = l_Fields[5].GetBool();
+            l_ProductItem.PetResult     = l_Fields[5].GetUInt8();
 
             uint32 l_ProductID = l_Fields[1].GetUInt32();
 
@@ -157,6 +157,7 @@ namespace Battlepay
         while (l_Result->NextRow());
     }
 
+    /// @TODO
     ShopCurrency Manager::GetShopCurrency() const
     {
         /// Krw is the battle coins on retail
@@ -164,9 +165,16 @@ namespace Battlepay
         return ShopCurrency::Krw;
     }
 
+    /// @TODO
     bool Manager::IsAvailable() const
     {
         /// @TODO: Move that to config file
         return true;
+    }
+
+    /// @TODO
+    bool Manager::AlreadyHasProductItem(uint32 p_AccountID, const Battlepay::ProductItem& p_ProductItem) const
+    {
+        return false;
     }
 }

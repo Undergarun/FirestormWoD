@@ -27,8 +27,8 @@ namespace Battlepay
                 Battlepay::Product const& l_Product = l_Iterator.second;
 
                 l_Data << uint32(l_Product.ProductID);
-                l_Data << uint64(l_Product.NormalPriceFixedPoint);
-                l_Data << uint64(l_Product.CurrentPriceFixedPoint);
+                l_Data << uint64(l_Product.NormalPriceFixedPoint * g_CurrencyPrecision);
+                l_Data << uint64(l_Product.CurrentPriceFixedPoint * g_CurrencyPrecision);
                 l_Data << uint32(l_Product.Items.size());
                 l_Data << uint8(l_Product.Type);
                 l_Data << uint32(l_Product.Flags);
@@ -42,7 +42,7 @@ namespace Battlepay
                     l_Data.FlushBits();
 
                     l_Data.WriteBit(l_ItemProduct.DisplayInfoID != 0);
-                    l_Data.WriteBit(l_ItemProduct.HasPet);
+                    l_Data.WriteBit(sBattlepayMgr->AlreadyHasProductItem(p_Session->GetAccountId(), l_ItemProduct));
                     l_Data.WriteBit(l_ItemProduct.PetResult != 0);
 
                     if (l_ItemProduct.PetResult != 0)

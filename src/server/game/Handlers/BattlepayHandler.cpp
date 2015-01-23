@@ -120,5 +120,4 @@ void WorldSession::HandleBattlePayConfirmPurchase(WorldPacket& p_RecvData)
         Battlepay::PacketFactory::SendPurchaseUpdate(this, *l_Purchase, Battlepay::PacketFactory::Error::InsufficientBalance);
         return;
     }
-
 }

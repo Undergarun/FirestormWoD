@@ -16,6 +16,8 @@ namespace Battlepay
 {
     namespace PacketFactory
     {
+        const float g_CurrencyPrecision = 1000.0f;
+
         /// Client error enum
         /// See Blizzard_StoreUISecure.lua
         /// Last update : 6.0.3 19116

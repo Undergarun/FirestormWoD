@@ -187,37 +187,7 @@ namespace Battlepay
 
             std::string const& GetDefaultWalletName() const { return m_WalletName; }
 
-            /// @TODO: Bruteforce to make proper server enum
-            uint32 ConvertServerErrorToClientError(uint32 p_ServerError)
-            {
-                if (p_ServerError <= 14)
-                {
-                    if (p_ServerError >= 13)
-                        return 3;
-                    int v1 = p_ServerError - 1;
-                    if (!v1)
-                        return 8;
-                    int v2 = v1 - 1;
-                    if (!v2)
-                        return 1;
-                    if (v2 == 10)
-                        return 2;
-                    return 5;
-                }
-
-                if (p_ServerError != 25)
-                {
-                    if (p_ServerError > 27)
-                    {
-                        if (p_ServerError <= 29)
-                            return 4;
-                        if (p_ServerError == 34)
-                            return 7;
-                    }
-                    return 5;
-                }
-                return 0;
-            }
+            bool AlreadyHasProductItem(uint32 p_AccountID, const Battlepay::ProductItem& p_ProductItem) const;
 
         private:
 
