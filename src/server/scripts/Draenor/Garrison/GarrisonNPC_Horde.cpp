@@ -290,6 +290,100 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
 
     /// Constructor
+    npc_GrunLek::npc_GrunLek()
+        : CreatureScript("npc_GrunLek_Garr")
+    {
+
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Called when a CreatureAI object is needed for the creature.
+    /// @p_Creature : Target creature instance
+    CreatureAI * npc_GrunLek::GetAI(Creature * p_Creature) const
+    {
+        return new npc_GrunLekAI(p_Creature);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    npc_GrunLek::npc_GrunLekAI::npc_GrunLekAI(Creature * p_Creature)
+        : GarrisonNPCAI(p_Creature), m_SequencePosition(0xFF)
+    {
+        SetAIObstacleManagerEnabled(true);
+
+        m_OnPointReached[GrunLek::MovePointIDs::Out] = [this]() -> void
+        {
+            AddTimedDelayedOperation(GrunLek::DestPointDuration::Out, [this]() -> void { DoNextSequenceAction(); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(GrunLek::MovePointLoc[GrunLek::MovePointIDs::Out - GrunLek::MovePointIDs::Out][3]); });
+        };
+
+        m_OnPointReached[GrunLek::MovePointIDs::Carpet] = [this]() -> void
+        {
+            AddTimedDelayedOperation(GrunLek::DestPointDuration::Carpet, [this]() -> void { DoNextSequenceAction(); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(GrunLek::MovePointLoc[GrunLek::MovePointIDs::Carpet - GrunLek::MovePointIDs::Out][3]); });
+
+            AddTimedDelayedOperation(0 * IN_MILLISECONDS, [this]() -> void { me->HandleEmoteCommand(EMOTE_ONESHOT_TALK); });
+            AddTimedDelayedOperation(3 * IN_MILLISECONDS, [this]() -> void { me->HandleEmoteCommand(EMOTE_ONESHOT_TALK); });
+        };
+
+        m_OnPointReached[GrunLek::MovePointIDs::Chest] = [this]() -> void
+        {
+            AddTimedDelayedOperation(GrunLek::DestPointDuration::Chest, [this]() -> void { DoNextSequenceAction(); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(GrunLek::MovePointLoc[GrunLek::MovePointIDs::Chest - GrunLek::MovePointIDs::Out][3]); });
+
+            AddTimedDelayedOperation(0 * IN_MILLISECONDS, [this]() -> void { me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 8); });
+            AddTimedDelayedOperation(5 * IN_MILLISECONDS, [this]() -> void { me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0); });
+        };
+
+        m_OnPointReached[GrunLek::MovePointIDs::Table] = [this]() -> void
+        {
+            AddTimedDelayedOperation(GrunLek::DestPointDuration::Table, [this]() -> void { DoNextSequenceAction(); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(GrunLek::MovePointLoc[GrunLek::MovePointIDs::Table - GrunLek::MovePointIDs::Out][3]); });
+
+            AddTimedDelayedOperation(1  * IN_MILLISECONDS, [this]() -> void { me->HandleEmoteCommand(EMOTE_STATE_READ_AND_TALK);    });
+            AddTimedDelayedOperation(9  * IN_MILLISECONDS, [this]() -> void 
+            {
+                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
+                me->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
+            });
+            AddTimedDelayedOperation(11 * IN_MILLISECONDS, [this]() -> void { me->HandleEmoteCommand(EMOTE_STATE_READ_AND_TALK);    });
+            AddTimedDelayedOperation(19 * IN_MILLISECONDS, [this]() -> void { me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);        });
+        };
+
+        DoNextSequenceAction();
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Do next sequence element
+    void npc_GrunLek::npc_GrunLekAI::DoNextSequenceAction()
+    {
+        if (m_SequencePosition >= sizeof(GrunLek::Sequence))
+            m_SequencePosition = 0;
+
+        m_DelayedOperations.push([this]() -> void
+        {
+            me->SetWalk(true);
+
+            uint32 l_LocationID = GrunLek::Sequence[m_SequencePosition] - GrunLek::MovePointIDs::Out;
+            MoveBuildingRelative(GrunLek::Sequence[m_SequencePosition],   GrunLek::MovePointLoc[l_LocationID][0],
+                                                                          GrunLek::MovePointLoc[l_LocationID][1], 
+                                                                          GrunLek::MovePointLoc[l_LocationID][2]);
+
+            m_SequencePosition++;
+        });
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
     /// @p_ScriptName : Script name
     npc_FrostwallPeon::npc_FrostwallPeon(const std::string & p_ScriptName)
         : CreatureScript(p_ScriptName.c_str())

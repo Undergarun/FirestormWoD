@@ -201,4 +201,5 @@ void AddSC_Garrison_NPC()
     new MS::Garrison::npc_SergeantGrimjaw;
     new MS::Garrison::npc_SeniorPeonII;
     new MS::Garrison::npc_Gazlowe;
+    new MS::Garrison::npc_GrunLek;
 }
