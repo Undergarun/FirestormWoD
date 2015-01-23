@@ -13,7 +13,7 @@ namespace MS { namespace Garrison
     /// Garrison building
     struct GarrisonBuilding
     {
-        uint32 DB_ID;           ///< Building DB ID
+        uint32 DatabaseID;      ///< Building DB ID
         uint32 PlotInstanceID;  ///< Plot instance ID
         uint32 BuildingID;      ///< Building ID (GarrBuilding.db2)
         uint32 SpecID;          ///< Building spec ID

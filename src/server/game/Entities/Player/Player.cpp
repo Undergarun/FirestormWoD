@@ -2334,6 +2334,18 @@ void Player::Update(uint32 p_time)
 
         m_GarrisonUpdateTimer.Reset();
     }
+
+    m_CriticalOperationLock.acquire();
+
+    while (!m_CriticalOperation.empty())
+    {
+        if (m_CriticalOperation.front())
+            m_CriticalOperation.front()();
+
+        m_CriticalOperation.pop();
+    }
+
+    m_CriticalOperationLock.release();
 }
 
 void Player::setDeathState(DeathState s)
@@ -9417,12 +9429,12 @@ void Player::UpdateArea(uint32 newArea)
         sOutdoorPvPMgr->HandlePlayerEnterArea(this, newArea);
 
         /// Garrison phasing specific code
-        if (m_Garrison && m_Garrison->GetGarrisonSiteLevelEntry() && (GetMapId() == GARRISON_BASE_MAP || GetMapId() == m_Garrison->GetGarrisonSiteLevelEntry()->MapID))
+        if (m_Garrison && m_Garrison->GetGarrisonSiteLevelEntry() && (GetMapId() == MS::Garrison::Globals::BaseMap || GetMapId() == m_Garrison->GetGarrisonSiteLevelEntry()->MapID))
         {
-            Map * l_Map = sMapMgr->FindBaseNonInstanceMap(GARRISON_BASE_MAP);
+            Map * l_Map = sMapMgr->FindBaseNonInstanceMap(MS::Garrison::Globals::BaseMap);
 
             if (!l_Map)
-                l_Map = sMapMgr->CreateBaseMap(GARRISON_BASE_MAP);
+                l_Map = sMapMgr->CreateBaseMap(MS::Garrison::Globals::BaseMap);
 
             if (l_Map)
             {
@@ -9445,7 +9457,7 @@ void Player::UpdateArea(uint32 newArea)
                             l_Player->_GarrisonSetOut();
                     });
                 }
-                else if (l_DraenorBaseMap_Area == MS::Garrison::gGarrisonInGarrisonAreaID[m_Garrison->GetGarrisonFactionIndex()] && GetMapId() == GARRISON_BASE_MAP)
+                else if (l_DraenorBaseMap_Area == MS::Garrison::gGarrisonInGarrisonAreaID[m_Garrison->GetGarrisonFactionIndex()] && GetMapId() == MS::Garrison::Globals::BaseMap)
                 {
                     sMapMgr->AddCriticalOperation([l_Guid]() -> void
                     {
@@ -9488,7 +9500,8 @@ void Player::_GarrisonSetOut()
 
     m_Garrison->OnPlayerLeave();
     m_Garrison->_SetGarrisonScript(nullptr);
-    SwitchToPhasedMap(GARRISON_BASE_MAP);
+
+    SwitchToPhasedMap(MS::Garrison::Globals::BaseMap);
 
     phaseMgr.Update();
     phaseMgr.ForceMapShiftUpdate();
@@ -14575,8 +14588,6 @@ Item* Player::_StoreItem(uint16 pos, Item* pItem, uint32 count, bool clone, bool
                 RemoveTradeableItem(pItem);
                 pItem->SetState(ITEM_REMOVED, this);
             }
-            else
-                sLog->outAshran("Player::_StoreItem, pItem == pItem2");
         }
 
         AddEnchantmentDurations(pItem2);
@@ -15357,8 +15368,6 @@ void Player::SplitItem(uint16 src, uint16 dst, uint32 count)
         return;
     }
 
-     sLog->outAshran("Player::SplitItem[%u] srcbag : %u destbag : %u pSrcItem %u count %u", GetGUIDLow(), src, dst, pSrcItem ? pSrcItem->GetEntry() : 0, count);
-
     if (pSrcItem->m_lootGenerated)                           // prevent split looting item (item
     {
         //best error message found for attempting to split while looting
@@ -15470,8 +15479,6 @@ void Player::SwapItem(uint16 src, uint16 dst)
     Item* pSrcItem = GetItemByPos(srcbag, srcslot);
     Item* pDstItem = GetItemByPos(dstbag, dstslot);
 
-    sLog->outAshran("Player::SwapItem[%u] srcbag : %u destbag : %u pSrcItem %u pDstItem %u", GetGUIDLow(), src, dst, pSrcItem ? pSrcItem->GetEntry() : 0, pDstItem ? pDstItem->GetEntry() : 0);
-
     if (!pSrcItem)
         return;
 
@@ -15569,7 +15576,6 @@ void Player::SwapItem(uint16 src, uint16 dst)
                 SendEquipError(msg, pSrcItem, NULL);
                 return;
             }
-            sLog->outAshran("Player::SwapItem srcbag : %u destbag : %u pSrcItem %u pDstItem %u case 1", src, dst, pSrcItem ? pSrcItem->GetEntry() : 0, pDstItem ? pDstItem->GetEntry() : 0);
             RemoveItem(srcbag, srcslot, true);
             StoreItem(dest, pSrcItem, true);
             if (IsBankPos(src))
@@ -15585,7 +15591,6 @@ void Player::SwapItem(uint16 src, uint16 dst)
                 return;
             }
 
-            sLog->outAshran("Player::SwapItem srcbag : %u destbag : %u pSrcItem %u pDstItem %u case 2", src, dst, pSrcItem ? pSrcItem->GetEntry() : 0, pDstItem ? pDstItem->GetEntry() : 0);
             RemoveItem(srcbag, srcslot, true);
             BankItem(dest, pSrcItem, true);
             ItemRemovedQuestCheck(pSrcItem->GetEntry(), pSrcItem->GetCount());
@@ -15600,7 +15605,6 @@ void Player::SwapItem(uint16 src, uint16 dst)
                 return;
             }
 
-            sLog->outAshran("Player::SwapItem srcbag : %u destbag : %u pSrcItem %u pDstItem %u case 2", src, dst, pSrcItem ? pSrcItem->GetEntry() : 0, pDstItem ? pDstItem->GetEntry() : 0);
             RemoveItem(srcbag, srcslot, true);
             BankItem(dest, pSrcItem, true);
             ItemRemovedQuestCheck(pSrcItem->GetEntry(), pSrcItem->GetCount());
@@ -15620,7 +15624,6 @@ void Player::SwapItem(uint16 src, uint16 dst)
                 SendEquipError(msg, pSrcItem, NULL);
                 return;
             }
-            sLog->outAshran("Player::SwapItem srcbag : %u destbag : %u pSrcItem %u pDstItem %u case 3", src, dst, pSrcItem ? pSrcItem->GetEntry() : 0, pDstItem ? pDstItem->GetEntry() : 0);
             RemoveItem(srcbag, srcslot, true);
             EquipItem(dest, pSrcItem, true);
             AutoUnequipOffhandIfNeed();
@@ -15740,7 +15743,6 @@ void Player::SwapItem(uint16 src, uint16 dst)
         {
             if (pSrcItem->GetCount() + pDstItem->GetCount() <= pSrcItem->GetTemplate()->GetMaxStackSize())
             {
-                sLog->outAshran("Player::SwapItem srcbag : %u destbag : %u pSrcItem %u pDstItem %u case 4", src, dst, pSrcItem ? pSrcItem->GetEntry() : 0, pDstItem ? pDstItem->GetEntry() : 0);
                 RemoveItem(srcbag, srcslot, true);
 
                 if (IsInventoryPos(dst))
@@ -15757,7 +15759,6 @@ void Player::SwapItem(uint16 src, uint16 dst)
             }
             else
             {
-                sLog->outAshran("Player::SwapItem srcbag : %u destbag : %u pSrcItem %u pDstItem %u case 5", src, dst, pSrcItem ? pSrcItem->GetEntry() : 0, pDstItem ? pDstItem->GetEntry() : 0);
                 pSrcItem->SetCount(pSrcItem->GetCount() + pDstItem->GetCount() - pSrcItem->GetTemplate()->GetMaxStackSize());
                 pDstItem->SetCount(pSrcItem->GetTemplate()->GetMaxStackSize());
                 pSrcItem->SetState(ITEM_CHANGED, this);
@@ -15892,8 +15893,6 @@ void Player::SwapItem(uint16 src, uint16 dst)
             }
         }
     }
-
-    sLog->outAshran("Player::SwapItem srcbag : %u destbag : %u pSrcItem %u pDstItem %u case 7", src, dst, pSrcItem ? pSrcItem->GetEntry() : 0, pDstItem ? pDstItem->GetEntry() : 0);
 
     // now do moves, remove...
     RemoveItem(dstbag, dstslot, false);
@@ -24252,7 +24251,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
 
         if (l_Entry && l_Entry->MapID == l_MapID)
         {
-            l_MapID = GARRISON_BASE_MAP;
+            l_MapID = MS::Garrison::Globals::BaseMap;
             break;
         }
     }
@@ -25409,10 +25408,7 @@ bool Player::EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot)
         uint32 _cur_gem = curcount[Condition->Color[i] - 1];
 
         if ((Condition->CompareColor[i] - 1) > 3)
-        {
-            sLog->outAshran("curcount out of bound ! %u", Condition->CompareColor[i] - 1);
             continue;
-        }
 
         // if have <CompareColor> use them as count, else use <value> from Condition
         uint32 _cmp_gem = Condition->CompareColor[i] ? curcount[Condition->CompareColor[i] - 1]: Condition->Value[i];
@@ -26176,7 +26172,7 @@ void Player::SendInitialPacketsAfterAddToMap()
     GetSession()->HandleLfgGetStatus(l_NullPacket);
 
     /// Force map shift update
-    if ((GetMapId() == GARRISON_BASE_MAP && m_Garrison) || IsInGarrison())
+    if ((GetMapId() == MS::Garrison::Globals::BaseMap && m_Garrison) || IsInGarrison())
     {
         phaseMgr.Update();
         phaseMgr.ForceMapShiftUpdate();
@@ -28699,10 +28695,7 @@ bool Player::LearnTalent(uint32 talentId)
             continue;
 
         if (tInfo->TierID == talentInfo->TierID && HasSpell(tInfo->SpellID))
-        {
-            sLog->outAshran("[Cheat] Player GUID %u try to learn talent %u, but he has already spell %u", GetGUIDLow(), talentInfo->SpellID, tInfo->SpellID);
             return false;
-        }
     }
 
     // learn! (other talent ranks will unlearned at learning)
@@ -31908,5 +31901,6 @@ void Player::AddDailyLootCooldown(uint32 p_Entry)
 
     PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_DAILY_LOOT_COOLDOWNS);
     l_Statement->setUInt32(0, GetGUIDLow());
+    l_Statement->setUInt32(1, p_Entry);
     CharacterDatabase.Execute(l_Statement);
 }

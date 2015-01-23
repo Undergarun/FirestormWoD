@@ -70,7 +70,7 @@ namespace MS { namespace Garrison
         {
             Manager * l_Garrison = l_Player->GetGarrison();
 
-            uint32 l_Index = (l_Garrison->GetGarrisonFactionIndex() * GARRISON_MAX_LEVEL) + (l_Garrison->GetGarrisonSiteLevelEntry()->Level - 1);
+            uint32 l_Index = (l_Garrison->GetGarrisonFactionIndex() * MS::Garrison::Globals::MaxLevel) + (l_Garrison->GetGarrisonSiteLevelEntry()->Level - 1);
 
             float l_X = gGarrisonHearthStoneTeleportCoord[l_Index][0];
             float l_Y = gGarrisonHearthStoneTeleportCoord[l_Index][1];

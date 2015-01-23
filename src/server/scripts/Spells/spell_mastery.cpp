@@ -32,7 +32,7 @@ enum MasterySpells
     MASTERY_SPELL_LAVA_BURST            = 77451,
     MASTERY_SPELL_ELEMENTAL_BLAST       = 120588,
     MASTERY_SPELL_HAND_OF_LIGHT         = 96172,
-    MASTERY_SPELL_IGNITE                = 12654,
+    MASTERY_SPELL_IGNITE_AURA           = 12654,
     MASTERY_SPELL_BLOOD_SHIELD          = 77535,
     MASTERY_SPELL_DISCIPLINE_SHIELD     = 77484,
     SPELL_DK_SCENT_OF_BLOOD             = 50421,
@@ -40,7 +40,8 @@ enum MasterySpells
     SPELL_MAGE_ICICLE_DAMAGE            = 148022,
     SPELL_MAGE_ICICLE_PERIODIC_TRIGGER  = 148023,
     SPELL_PRIEST_ECHO_OF_LIGHT          = 77489,
-    SPELL_WARRIOR_WEAPONS_MASTER        = 76838
+    SPELL_WARRIOR_WEAPONS_MASTER        = 76838,
+    MASTERY_SPELL_IGNITE                = 12846
 };
 
 ///< Mastery: Sniper Training - 76659
@@ -577,27 +578,31 @@ class spell_mastery_ignite: public SpellScriptLoader
 
             void HandleAfterHit()
             {
-                if (Unit* caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
-                        if (caster->GetTypeId() == TYPEID_PLAYER && caster->HasAura(12846) && caster->getLevel() >= 80)
+                        if (l_Caster->GetTypeId() == TYPEID_PLAYER && l_Caster->HasAura(MASTERY_SPELL_IGNITE) && l_Caster->getLevel() >= 80)
                         {
-                            uint32 procSpellId = GetSpellInfo()->Id ? GetSpellInfo()->Id : 0;
-                            if (procSpellId != MASTERY_SPELL_IGNITE)
+                            const SpellInfo *l_SpellInfo = sSpellMgr->GetSpellInfo(MASTERY_SPELL_IGNITE_AURA);
+                            if (GetSpellInfo()->Id != MASTERY_SPELL_IGNITE_AURA && l_SpellInfo != nullptr)
                             {
-                                float value = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.5f / 100.0f;
+                                float l_Value = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.5f;
 
-                                int32 bp = GetHitDamage();
-                                bp = int32(bp * value / 2);
+                                int32 l_Bp = GetHitDamage();
 
-                                if (target->HasAura(MASTERY_SPELL_IGNITE, caster->GetGUID()))
+                                if (l_Bp)
                                 {
-                                    bp += target->GetRemainingPeriodicAmount(caster->GetGUID(), MASTERY_SPELL_IGNITE, SPELL_AURA_PERIODIC_DAMAGE);
-                                    bp = int32(bp * 0.66f);
-                                }
+                                    l_Bp = int32(CalculatePct(l_Bp, l_Value));
 
-                                caster->CastCustomSpell(target, MASTERY_SPELL_IGNITE, &bp, NULL, NULL, true);
+                                    if (l_SpellInfo->Effects[EFFECT_0].Amplitude > 0)
+                                        l_Bp = l_Bp / (l_SpellInfo->GetMaxDuration() / l_SpellInfo->Effects[EFFECT_0].Amplitude);
+                                    
+                                    if (l_Target->HasAura(MASTERY_SPELL_IGNITE_AURA, l_Caster->GetGUID()))
+                                        l_Bp += l_Target->GetRemainingPeriodicAmount(l_Caster->GetGUID(), MASTERY_SPELL_IGNITE_AURA, SPELL_AURA_PERIODIC_DAMAGE);
+
+                                    l_Caster->CastCustomSpell(l_Target, MASTERY_SPELL_IGNITE_AURA, &l_Bp, NULL, NULL, true);
+                                }
                             }
                         }
                     }
