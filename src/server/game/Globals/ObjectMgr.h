@@ -782,8 +782,21 @@ struct ResearchLootEntry
 
 struct GarrisonPlotBuildingContent
 {
+    GarrisonPlotBuildingContent() {}
+    GarrisonPlotBuildingContent(const GarrisonPlotBuildingContent & p_Other)
+    {
+        DB_ID               = p_Other.DB_ID;
+        PlotTypeOrBuilding  = p_Other.PlotTypeOrBuilding;
+        FactionIndex        = p_Other.FactionIndex;
+        CreatureOrGob       = p_Other.CreatureOrGob;
+        X                   = p_Other.X;
+        Y                   = p_Other.Y;
+        Z                   = p_Other.Z;
+        O                   = p_Other.O;
+    }
+
     uint32 DB_ID;
-    uint32 PlotType;
+    int32 PlotTypeOrBuilding;
     uint32 FactionIndex;
     int32 CreatureOrGob;
     float X, Y, Z, O;
@@ -818,6 +831,8 @@ class ObjectMgr
 
         typedef UNORDERED_MAP<uint32, Quest*> QuestMap;
 
+        typedef std::vector<uint32> QuestPackageItemHotfixs;
+
         typedef UNORDERED_MAP<uint32, AreaTriggerStruct> AreaTriggerContainer;
 
         typedef UNORDERED_MAP<uint32, uint32> AreaTriggerScriptContainer;
@@ -846,7 +861,8 @@ class ObjectMgr
 
         void LoadGarrisonPlotBuildingContent();
         void AddGarrisonPlotBuildingContent(GarrisonPlotBuildingContent & p_Data);
-        std::vector<GarrisonPlotBuildingContent> GetGarrisonPlotBuildingContent(uint32 p_PlotType, uint32 p_FactionIndex);
+        void DeleteGarrisonPlotBuildingContent(GarrisonPlotBuildingContent & p_Data);
+        std::vector<GarrisonPlotBuildingContent> GetGarrisonPlotBuildingContent(int32 p_PlotTypeOrBuilding, uint32 p_FactionIndex);
 
         CreatureTemplate const* GetCreatureTemplate(uint32 entry);
         CreatureTemplateContainer const* GetCreatureTemplates() const { return &_creatureTemplateStore; }
@@ -1018,7 +1034,9 @@ class ObjectMgr
         void LoadQuests();
         void LoadQuestObjectives();
         void LoadQuestObjectiveLocales();
-        void LoadQuestDynamicRewards();
+
+        void LoadQuestPackageItemHotfixs();
+
         void LoadQuestRelations()
         {
             sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading GO Start Quest Data...");
@@ -1030,10 +1048,14 @@ class ObjectMgr
             sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature End Quest Data...");
             LoadCreatureInvolvedRelations();
         }
+        void LoadFollowerQuests();
+        std::vector<uint32> FollowerQuests;
+
         void LoadGameobjectQuestRelations();
         void LoadGameobjectInvolvedRelations();
         void LoadCreatureQuestRelations();
         void LoadCreatureInvolvedRelations();
+
 
         QuestRelations* GetGOQuestRelationMap()
         {
@@ -1096,6 +1118,7 @@ class ObjectMgr
         void LoadGameObjectLocales();
         void LoadGameobjects();
         void LoadItemTemplates();
+        void LoadItemTemplateCorrections();
         void LoadItemTemplateAddon();
         void LoadItemScriptNames();
         void LoadItemLocales();
@@ -1566,6 +1589,23 @@ class ObjectMgr
         bool QuestObjectiveExists(uint32 objectiveId) const;
         uint32 GetQuestObjectiveQuestId(uint32 objectiveId) const;
 
+        uint32 GetNewGarrisonID()
+        {
+            return m_GarrisonID++;
+        }
+        uint32 GetNewGarrisonBuildingID()
+        {
+            return m_GarrisonBuildingID++;
+        }
+        uint32 GetNewGarrisonFollowerID()
+        {
+            return m_GarrisonFollowerID++;
+        }
+        uint32 GetNewGarrisonMissionID()
+        {
+            return m_GarrisonMissionID++;
+        }
+
     private:
         // first free id for selected id type
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _auctionId;
@@ -1586,9 +1626,14 @@ class ObjectMgr
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiCorpseGuid;
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiAreaTriggerGuid;
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiMoTransGuid;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_GarrisonID;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_GarrisonBuildingID;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_GarrisonFollowerID;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_GarrisonMissionID;
 
         QuestMap _questTemplates;
         QuestObjectiveLookupMap m_questObjectiveLookup;
+        QuestPackageItemHotfixs m_QuestPackageItemHotfixs;
 
         typedef UNORDERED_MAP<uint32, GossipText> GossipTextContainer;
         typedef UNORDERED_MAP<uint32, uint32> QuestAreaTriggerContainer;

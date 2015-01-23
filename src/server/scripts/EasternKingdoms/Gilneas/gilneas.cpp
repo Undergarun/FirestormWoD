@@ -378,7 +378,7 @@ public:
                 me->AddThreat(who, 1.0f);
                 me->AI()->AttackStart(who);
             }
-            else if (me->HealthBelowPct(AI_MIN_HP) && who->GetEntry() == NPC_GILNEAS_CITY_GUARD || who->GetEntry() == NPC_PRINCE_LIAM_GREYMANE)
+            else if (me->HealthBelowPct(AI_MIN_HP) && (who->GetEntry() == NPC_GILNEAS_CITY_GUARD || who->GetEntry() == NPC_PRINCE_LIAM_GREYMANE))
             {
                 me->AI()->AttackStart(who);
                 if (me->GetHealthPct() <= AI_MIN_HP)
@@ -787,7 +787,7 @@ public:
                 me->AddThreat(who, 1.0f);
                 me->AI()->AttackStart(who);
             }
-            else if (me->HealthBelowPct(AI_MIN_HP) && who->GetEntry() == NPC_GILNEAN_ROYAL_GUARD || who->GetEntry() == NPC_SERGEANT_CLEESE || who->GetEntry() == NPC_MYRIAM_SPELLWALKER)
+            else if (me->HealthBelowPct(AI_MIN_HP) && (who->GetEntry() == NPC_GILNEAN_ROYAL_GUARD || who->GetEntry() == NPC_SERGEANT_CLEESE || who->GetEntry() == NPC_MYRIAM_SPELLWALKER))
                 damage = 0;
         }
 
@@ -1162,7 +1162,7 @@ public:
                     switch (urand(0, 2)) // Perform one of 3 random attacks
                     {
                         case 0: // Do Left Hook
-                            if (me->GetOrientation() > 2.0f && me->GetOrientation() < 3.0f || me->GetOrientation() > 5.0f && me->GetOrientation() < 6.0f) 
+                            if ((me->GetOrientation() > 2.0f && me->GetOrientation() < 3.0f) || (me->GetOrientation() > 5.0f && me->GetOrientation() < 6.0f))
                                 // If Orientation is outside of these ranges, there is a possibility the knockback could knock worgens off the platform
                                 // After which, Crowley would chase
                             {
@@ -1831,7 +1831,7 @@ public:
         {
             if (tPlayerCheck <= diff)
             {
-                if (Player* player = me->SelectNearestPlayer(10.0f)) // We should only talk when player is close
+                if (me->SelectNearestPlayer(10.0f)) // We should only talk when player is close
                 {
                     Talk = true;
                 }
@@ -2562,7 +2562,7 @@ public:
 };
 
 // Keg Placed - 68555
-class spell_keg_placed : public SpellScriptLoader
+class spell_keg_placed: public SpellScriptLoader
 {
     public:
         spell_keg_placed() : SpellScriptLoader("spell_keg_placed") {}
@@ -2704,7 +2704,7 @@ public:
             if (!CrowleySpawn)
             {
                 DoCast(SPELL_SUMMON_CROWLEY);
-                if (Creature* crowley = me->FindNearestCreature(NPC_DARIUS_CROWLEY, 5, true))
+                if (me->FindNearestCreature(NPC_DARIUS_CROWLEY, 5, true))
                 {
                     CrowleySpawn = true;
                 }

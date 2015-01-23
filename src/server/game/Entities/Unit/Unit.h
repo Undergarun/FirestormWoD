@@ -1502,7 +1502,8 @@ class Unit : public WorldObject
         void CombatStopWithPets(bool includingCast = false);
         void StopAttackFaction(uint32 faction_id);
         void GetAttackableUnitListInRange(std::list<Unit*> &list, float fMaxSearchRange) const;
-        Unit* SelectNearbyTarget(Unit* exclude = NULL, float dist = NOMINAL_MELEE_RANGE, uint32 p_ExludeAuraID = 0, bool p_ExcludeVictim = true) const;
+        void GetAreatriggerListInRange(std::list<AreaTrigger*>& p_List, float p_Range) const;
+        Unit* SelectNearbyTarget(Unit* exclude = NULL, float dist = NOMINAL_MELEE_RANGE, uint32 p_ExludeAuraID = 0, bool p_ExcludeVictim = true, bool p_Alive = true) const;
         Unit* SelectNearbyAlly(Unit* exclude = NULL, float dist = NOMINAL_MELEE_RANGE) const;
         void SendMeleeAttackStop(Unit* victim = NULL);
         void SendMeleeAttackStart(Unit* victim);
@@ -1690,8 +1691,8 @@ class Unit : public WorldObject
 
         void ApplyResilience(const Unit* victim, int32 * damage) const;
 
-        float CalculateDamageDealtFactor(Player* player, Creature* target);
-        float CalculateDamageTakenFactor(Player* player, Creature* target);
+        float CalculateDamageDealtFactor(Unit* p_Unit, Creature* p_Creature);
+        float CalculateDamageTakenFactor(Unit* p_Unit, Creature* p_Creature);
 
         float MeleeSpellMissChance(const Unit* p_Victim, SpellInfo const* p_Spell, WeaponAttackType p_AttType) const;
         float MagicSpellMissChance(const Unit* p_Victim, SpellInfo const* p_Spell) const;
@@ -2284,8 +2285,9 @@ class Unit : public WorldObject
         bool   isBlockCritical();
         bool   IsSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType = WeaponAttackType::BaseAttack) const;
         float  GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType = WeaponAttackType::BaseAttack) const;
-        uint32 SpellCriticalDamageBonus(SpellInfo const* spellProto, uint32 damage, Unit* victim);
-        uint32 SpellCriticalHealingBonus(SpellInfo const* spellProto, uint32 damage, Unit* victim);
+        uint32 MeleeCriticalDamageBonus(SpellInfo const* p_SpellProto, uint32 p_Damage, Unit* p_Victim, WeaponAttackType p_AttackType);
+        uint32 SpellCriticalDamageBonus(SpellInfo const* p_SpellProto, uint32 p_Damage, Unit* p_Victim);
+        uint32 SpellCriticalHealingBonus(SpellInfo const* p_SpellProto, uint32 p_Damage, Unit* p_Victim);
 
         void SetContestedPvP(Player* attackedPlayer = NULL);
 
@@ -2361,6 +2363,7 @@ class Unit : public WorldObject
         uint16 GetExtraUnitMovementFlags() const { return m_movementInfo.flags2; }
         void SetExtraUnitMovementFlags(uint16 f) { m_movementInfo.flags2 = f; }
         bool IsSplineEnabled() const;
+        bool IsSplineFinished() const;
 
         void WriteMovementUpdate(WorldPacket &data) const;
 

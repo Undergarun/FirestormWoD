@@ -133,8 +133,8 @@ class UnitAI
         explicit UnitAI(Unit* unit) : me(unit) {}
         virtual ~UnitAI() {}
 
-        virtual bool CanAIAttack(Unit const* /*target*/) const { return true; }
-        virtual void AttackStart(Unit* /*target*/);
+        virtual bool CanAIAttack(Unit const* target) const { return true; }
+        virtual void AttackStart(Unit* target);
         virtual void UpdateAI(uint32 const diff) = 0;
 
         virtual void InitializeAI() { if (!me->isDead()) Reset(); }
@@ -145,12 +145,30 @@ class UnitAI
         virtual void OnCharmed(bool apply) = 0;
 
         // Pass parameters between AI
-        virtual void DoAction(int32 const /*param*/) {}
-        virtual uint32 GetData(uint32 /*id = 0*/) { return 0; }
-        virtual void SetData(uint32 /*id*/, uint32 /*value*/) {}
-        virtual void SetGUID(uint64 /*guid*/, int32 /*id*/ = 0) {}
-        virtual uint64 GetGUID(int32 /*id*/ = 0) { return 0; }
-        virtual void SetDestTarget(WorldLocation const* dest) {}
+        virtual void DoAction(int32 const p_Param) 
+        {
+            UNUSED(p_Param);
+        }
+        virtual uint32 GetData(uint32 id = 0) 
+        {
+            UNUSED(id);
+            return 0; 
+        }
+        virtual void SetData(uint32 id, uint32 value) 
+        {
+            UNUSED(id);
+            UNUSED(value);
+        }
+        virtual void SetGUID(uint64 guid, int32 id = 0)
+        {
+            UNUSED(guid);
+            UNUSED(id);
+        }
+        virtual uint64 GetGUID(int32 id = 0) { return 0; }
+        virtual void SetDestTarget(WorldLocation const* dest) 
+        {
+            UNUSED(dest);
+        }
 
         Unit* SelectTarget(SelectAggroTarget targetType, uint32 position = 0, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
         // Select the targets satisfying the predicate.

@@ -151,11 +151,11 @@ enum Difficulty
     EVENT_0_DIFFICULTY              = 18,                   // difficulty_entry_18
     EVENT_1_DIFFICULTY              = 19,                   // difficulty_entry_19
     EVENT_SCENARIO                  = 20,                   // difficulty_entry_20
+    MAX_DIFFICULTY,
 };
 
 #define MAX_DUNGEON_DIFFICULTY     HEROIC_DIFFICULTY+1
 #define MAX_RAID_DIFFICULTY        MAN40_DIFFICULTY+1
-#define MAX_DIFFICULTY             EVENT_SCENARIO+1         // difficulty_entry_21
 
 enum SpawnMask
 {

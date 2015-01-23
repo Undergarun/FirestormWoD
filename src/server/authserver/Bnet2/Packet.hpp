@@ -83,7 +83,7 @@ namespace BNet2 {
 
                 return (T)l_Value;
             }
-            /// Read specified num of bits
+            /// Write specified num of bits
             template<typename T> void WriteBits(T p_Value, uint32_t p_Bits)
             {
                 uint32_t l_BitsToWrite = 0;

@@ -493,7 +493,7 @@ class mob_mistress_of_pain : public CreatureScript
         }
 };
 
-class spell_mistress_kiss : public SpellScriptLoader
+class spell_mistress_kiss: public SpellScriptLoader
 {
     public:
         spell_mistress_kiss() : SpellScriptLoader("spell_mistress_kiss") { }
@@ -536,7 +536,7 @@ class spell_mistress_kiss : public SpellScriptLoader
         }
 };
 
-class spell_mistress_kiss_area : public SpellScriptLoader
+class spell_mistress_kiss_area: public SpellScriptLoader
 {
     public:
         spell_mistress_kiss_area() : SpellScriptLoader("spell_mistress_kiss_area") {}

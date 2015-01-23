@@ -250,7 +250,7 @@ class Map : public GridRefManager<NGridType>
             return false;
         }
 
-        virtual bool AddPlayerToMap(Player*);
+        virtual bool AddPlayerToMap(Player*, bool p_Switched = false);
         virtual void RemovePlayerFromMap(Player*, bool);
         template<class T> bool AddToMap(T *);
         template<class T> void RemoveFromMap(T *, bool);
@@ -260,10 +260,16 @@ class Map : public GridRefManager<NGridType>
 
         float GetVisibilityRange() const
         {
-            // HackFix : Terrasse of endless spring
-            if (GetId() == 996)
-                return 300.0f;
-            return m_VisibleDistance;
+            ///< Hack fixes...
+            switch (GetId())
+            {
+                case 996:   ///< Terrace of Endless springs
+                    return 300.0f;
+                case 1358:  ///< Upper Blackrock Spire
+                    return 400.0f;
+                default:
+                    return m_VisibleDistance;
+            }
         }
 
         //function for setting up visibility distance for maps on per-type/per-Id basis
@@ -485,6 +491,9 @@ class Map : public GridRefManager<NGridType>
 
         static void DeleteRespawnTimesInDB(uint16 mapId, uint32 instanceId);
 
+        void AddGameObjectTransport(GameObject* p_Transport) { _transportsGameObject.insert(p_Transport); }
+        void DeleteGameObjectTransport(GameObject* p_Transport) { _transportsGameObject.erase(p_Transport); }
+
         void SendInitTransports(Player* player);
         void SendRemoveTransports(Player* player);
     private:
@@ -495,7 +504,7 @@ class Map : public GridRefManager<NGridType>
 
         void SetTimer(uint32 t) { i_gridExpiry = t < MIN_GRID_DELAY ? MIN_GRID_DELAY : t; }
 
-        void SendInitSelf(Player* player);
+        void SendInitSelf(Player* player, bool p_Switched);
 
         bool CreatureCellRelocation(Creature* creature, Cell new_cell);
         bool GameObjectCellRelocation(GameObject* go, Cell new_cell);
@@ -646,7 +655,7 @@ class InstanceMap : public Map
     public:
         InstanceMap(uint32 id, time_t, uint32 InstanceId, uint8 SpawnMode, Map* _parent);
         ~InstanceMap();
-        bool AddPlayerToMap(Player*);
+        bool AddPlayerToMap(Player*, bool p_Switched = false);
         void RemovePlayerFromMap(Player*, bool);
         void Update(const uint32);
         void CreateInstanceData(bool load);
@@ -676,7 +685,7 @@ class BattlegroundMap : public Map
         BattlegroundMap(uint32 id, time_t, uint32 InstanceId, Map* _parent, uint8 spawnMode);
         ~BattlegroundMap();
 
-        bool AddPlayerToMap(Player*);
+        bool AddPlayerToMap(Player*, bool p_Switched = false);
         void RemovePlayerFromMap(Player*, bool);
         bool CanEnter(Player* player);
         void SetUnload();

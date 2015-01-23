@@ -456,6 +456,11 @@ class npc_raigonn_weak_spot : public CreatureScript
                             if (Raigonn->AI())
                                 Raigonn->AI()->DoAction(ACTION_WEAK_SPOT_DEAD);
             }
+
+            bool CanBeTargetedOutOfLOS()
+            {
+                return true;
+            }
         };
 
         CreatureAI* GetAI(Creature* creature) const

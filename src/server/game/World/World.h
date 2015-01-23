@@ -35,6 +35,7 @@
 #include <map>
 #include <set>
 #include <list>
+#include <atomic>
 
 class Object;
 class WorldPacket;
@@ -42,6 +43,8 @@ class WorldSession;
 class Player;
 class WorldSocket;
 class SystemMgr;
+
+extern uint32 gOnlineGameMaster;
 
 // ServerMessages.dbc
 enum ServerMessageType
@@ -91,6 +94,8 @@ enum WorldTimers
     WUPDATE_GUILDSAVE,
     WUPDATE_REALM_STATS,
     WUPDATE_TRANSFERT,
+    WUPDATE_MONITORING_STATS,
+    WUPDATE_MONITORING_HEARTBEAT,
     WUPDATE_COUNT
 };
 
@@ -388,6 +393,10 @@ enum WorldIntConfigs
     CONFIG_ANTISPAM_MAIL_TIMER,
     CONFIG_ANTISPAM_MAIL_COUNT,
     CONFIG_AUTO_SERVER_RESTART_HOUR,
+    CONFIG_PVP_ITEM_LEVEL_CUTOFF,
+    CONFIG_PVP_ITEM_LEVEL_MIN,
+    CONFIG_PVP_ITEM_LEVEL_MAX,
+    CONFIG_CHALLENGE_MODE_ITEM_LEVEL_MAX,
     INT_CONFIG_VALUE_COUNT
 };
 
@@ -542,6 +551,7 @@ enum WorldStates
     WS_BG_DAILY_RESET_TIME      = 20003,                     // Next daily BG reset time
     WS_MONTHLY_QUEST_RESET_TIME = 20004,                     // Next monthly reset time
     WS_AUTO_SERVER_RESTART_TIME = 20005,                     // Next server restart time
+    WS_DAILY_LOOT_RESET_TIME    = 20006                      // Next daily loot reset time
 };
 
 // DB scripting commands
@@ -880,6 +890,7 @@ class World
         uint32 GetRecordDiff(RecordDiffType recordDiff) { return m_recordDiff[recordDiff]; }
 
         void ResetCurrencyWeekCap();
+        void ResetDailyLoots();
 
         std::map<Object*, bool> deleteUnits;
         bool isDelete(Object* obj)
@@ -900,6 +911,7 @@ class World
         void InitRandomBGResetTime();
         void InitServerAutoRestartTime();
         void InitCurrencyResetTime();
+        void InitDailyLootResetTime();
         void ResetDailyQuests();
         void ResetWeeklyQuests();
         void ResetMonthlyQuests();
@@ -969,6 +981,7 @@ class World
         time_t m_NextMonthlyQuestReset;
         time_t m_NextRandomBGReset;
         time_t m_NextCurrencyReset;
+        time_t m_NextDailyLootReset;
         time_t m_NextServerRestart;
 
         //Player Queue

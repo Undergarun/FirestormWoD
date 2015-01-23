@@ -966,7 +966,7 @@ class go_celestial_planetarium_access : public GameObjectScript
             bool GossipHello(Player* player)
             {
                 bool hasKey = true;
-                if (LockEntry const* lock = sLockStore.LookupEntry(go->GetGOInfo()->goober.lockId))
+                if (LockEntry const* lock = sLockStore.LookupEntry(go->GetGOInfo()->goober.open))
                 {
                     hasKey = false;
                     for (uint32 i = 0; i < MAX_LOCK_CASE; ++i)
@@ -1031,7 +1031,7 @@ class go_celestial_planetarium_access : public GameObjectScript
         }
 };
 
-class spell_algalon_phase_punch : public SpellScriptLoader
+class spell_algalon_phase_punch: public SpellScriptLoader
 {
     public:
         spell_algalon_phase_punch() : SpellScriptLoader("spell_algalon_phase_punch") { }
@@ -1085,7 +1085,7 @@ class NotVictimFilter
         Unit* _victim;
 };
 
-class spell_algalon_arcane_barrage : public SpellScriptLoader
+class spell_algalon_arcane_barrage: public SpellScriptLoader
 {
     public:
         spell_algalon_arcane_barrage() : SpellScriptLoader("spell_algalon_arcane_barrage") { }
@@ -1120,7 +1120,7 @@ class ActiveConstellationFilter
         }
 };
 
-class spell_algalon_trigger_3_adds : public SpellScriptLoader
+class spell_algalon_trigger_3_adds: public SpellScriptLoader
 {
     public:
         spell_algalon_trigger_3_adds() : SpellScriptLoader("spell_algalon_trigger_3_adds") { }
@@ -1156,7 +1156,7 @@ class spell_algalon_trigger_3_adds : public SpellScriptLoader
         }
 };
 
-class spell_algalon_collapse : public SpellScriptLoader
+class spell_algalon_collapse: public SpellScriptLoader
 {
     public:
         spell_algalon_collapse() : SpellScriptLoader("spell_algalon_collapse") { }
@@ -1183,7 +1183,7 @@ class spell_algalon_collapse : public SpellScriptLoader
         }
 };
 
-class spell_algalon_big_bang : public SpellScriptLoader
+class spell_algalon_big_bang: public SpellScriptLoader
 {
     public:
         spell_algalon_big_bang() : SpellScriptLoader("spell_algalon_big_bang") { }
@@ -1224,7 +1224,7 @@ class spell_algalon_big_bang : public SpellScriptLoader
         }
 };
 
-class spell_algalon_remove_phase : public SpellScriptLoader
+class spell_algalon_remove_phase: public SpellScriptLoader
 {
     public:
         spell_algalon_remove_phase() : SpellScriptLoader("spell_algalon_remove_phase") { }
@@ -1251,7 +1251,7 @@ class spell_algalon_remove_phase : public SpellScriptLoader
         }
 };
 
-class spell_algalon_cosmic_smash : public SpellScriptLoader
+class spell_algalon_cosmic_smash: public SpellScriptLoader
 {
     public:
         spell_algalon_cosmic_smash() : SpellScriptLoader("spell_algalon_cosmic_smash") { }
@@ -1279,7 +1279,7 @@ class spell_algalon_cosmic_smash : public SpellScriptLoader
         }
 };
 
-class spell_algalon_cosmic_smash_damage : public SpellScriptLoader
+class spell_algalon_cosmic_smash_damage: public SpellScriptLoader
 {
     public:
         spell_algalon_cosmic_smash_damage() : SpellScriptLoader("spell_algalon_cosmic_smash_damage") { }
@@ -1310,7 +1310,7 @@ class spell_algalon_cosmic_smash_damage : public SpellScriptLoader
         }
 };
 
-class spell_algalon_supermassive_fail : public SpellScriptLoader
+class spell_algalon_supermassive_fail: public SpellScriptLoader
 {
     public:
         spell_algalon_supermassive_fail() : SpellScriptLoader("spell_algalon_supermassive_fail") { }

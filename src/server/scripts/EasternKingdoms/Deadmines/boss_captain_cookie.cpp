@@ -339,7 +339,7 @@ class npc_captain_cookie_bad_food : public CreatureScript
         };
 };
 
-class spell_captain_cookie_setiated : public SpellScriptLoader
+class spell_captain_cookie_setiated: public SpellScriptLoader
 {
     public:
         spell_captain_cookie_setiated() : SpellScriptLoader("spell_captain_cookie_setiated") { }
@@ -370,7 +370,7 @@ class spell_captain_cookie_setiated : public SpellScriptLoader
         }
 };
 
-class spell_captain_cookie_nauseated : public SpellScriptLoader
+class spell_captain_cookie_nauseated: public SpellScriptLoader
 {
     public:
         spell_captain_cookie_nauseated() : SpellScriptLoader("spell_captain_cookie_nauseated") { }
@@ -401,7 +401,7 @@ class spell_captain_cookie_nauseated : public SpellScriptLoader
         }
 };
 
-class spell_captain_cookie_throw_food_targeting : public SpellScriptLoader
+class spell_captain_cookie_throw_food_targeting: public SpellScriptLoader
 {
     public:
         spell_captain_cookie_throw_food_targeting() : SpellScriptLoader("spell_captain_cookie_throw_food_targeting") { }

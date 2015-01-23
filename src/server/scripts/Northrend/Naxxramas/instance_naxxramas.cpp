@@ -243,17 +243,17 @@ public:
             AddDoor(go, true);
         }
 
-        void OnGameObjectRemove(GameObject* go)
+        void OnGameObjectRemove(GameObject* p_Go)
         {
-            if (go->GetGOInfo()->displayId == 6785 || go->GetGOInfo()->displayId == 1287)
+            if (p_Go->GetGOInfo()->displayId == 6785 || p_Go->GetGOInfo()->displayId == 1287)
             {
-                uint32 section = GetEruptionSection(go->GetPositionX(), go->GetPositionY());
+                uint32 section = GetEruptionSection(p_Go->GetPositionX(), p_Go->GetPositionY());
 
-                heiganEruptionGUID[section].erase(go->GetGUID());
+                heiganEruptionGUID[section].erase(p_Go->GetGUID());
                 return;
             }
 
-            switch (go->GetEntry())
+            switch (p_Go->GetEntry())
             {
                 case GO_BIRTH:
                     if (sapphironGUID)
@@ -267,7 +267,7 @@ public:
                     break;
             }
 
-            AddDoor(go, false);
+            InstanceScript::OnGameObjectRemove(p_Go);
         }
 
         void OnUnitDeath(Unit* unit)

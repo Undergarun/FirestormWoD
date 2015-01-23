@@ -211,7 +211,7 @@ class boss_alizabal : public CreatureScript
         };
 };
 
-class spell_alizabal_seething_hate : public SpellScriptLoader
+class spell_alizabal_seething_hate: public SpellScriptLoader
 {
     public:
         spell_alizabal_seething_hate() : SpellScriptLoader("spell_alizabal_seething_hate") { }
@@ -240,7 +240,7 @@ class spell_alizabal_seething_hate : public SpellScriptLoader
         }
 };
 
-class spell_alizabal_blade_dance : public SpellScriptLoader
+class spell_alizabal_blade_dance: public SpellScriptLoader
 {
     public:
         spell_alizabal_blade_dance() : SpellScriptLoader("spell_alizabal_blade_dance") { }
@@ -270,7 +270,7 @@ class spell_alizabal_blade_dance : public SpellScriptLoader
         }
 };
 
-class spell_alizabal_blade_dance_dmg : public SpellScriptLoader
+class spell_alizabal_blade_dance_dmg: public SpellScriptLoader
 {
     public:
         spell_alizabal_blade_dance_dmg() : SpellScriptLoader("spell_alizabal_blade_dance_dmg") { }

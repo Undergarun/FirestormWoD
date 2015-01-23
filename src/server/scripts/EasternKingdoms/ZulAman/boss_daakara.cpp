@@ -355,7 +355,6 @@ class boss_daakara : public CreatureScript
             }
 
         private:
-            uint64 ClawTargetGUID;
             bool bEnrage;
             uint8 phase;
             bool bAchieve;
@@ -392,7 +391,7 @@ class npc_daakara_vortex : public CreatureScript
             {
             }
             
-            void SetGUID(uint64 guid, uint32 data)
+            void SetGUID(uint64 guid, int32 data)
             {
                 victimGUID = guid;
             }
@@ -513,7 +512,7 @@ class npc_daakara_amani_lynx : public CreatureScript
         };
 };
 
-class spell_daakara_claw_rage_charge : public SpellScriptLoader
+class spell_daakara_claw_rage_charge: public SpellScriptLoader
 {
     public:
         spell_daakara_claw_rage_charge() : SpellScriptLoader("spell_daakara_claw_rage_charge") { }
@@ -544,7 +543,7 @@ class spell_daakara_claw_rage_charge : public SpellScriptLoader
         }
 };
 
-class spell_daakara_sweeping_winds : public SpellScriptLoader
+class spell_daakara_sweeping_winds: public SpellScriptLoader
 {
     public:
         spell_daakara_sweeping_winds() : SpellScriptLoader("spell_daakara_sweeping_winds") { }

@@ -79,7 +79,7 @@ namespace MS
                     {
                     case uint32(Events::SOLAR_DETONATION):
                         m_events.ScheduleEvent(uint32(Events::SOLAR_DETONATION), urand(6500, 7500));
-                        if (Player* l_Plr = InstanceSkyreach::SelectRandomPlayerIncludedTank(me, 15.0f))
+                        if (Player* l_Plr = ScriptUtils::SelectRandomPlayerIncludedTank(me, 15.0f))
                             me->CastSpell(l_Plr, uint32(Spells::SOLAR_DETONATION));
                         break;
                     case uint32(Events::SOLAR_STORM):
@@ -135,13 +135,33 @@ namespace MS
 
             struct boss_AraknathAI : public BossAI
             {
-                boss_AraknathAI(Creature* creature) : BossAI(creature, Data::Araknath)
+                boss_AraknathAI(Creature* creature) : BossAI(creature, Data::Araknath),
+                m_Initialized(false),
+                m_InitializationTimer(0)
                 {
+                    me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FEAR, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_ROOT, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FREEZE, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_POLYMORPH, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_HORROR, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SAPPED, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SNARE, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
+                    me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
                 }
 
                 void Reset()
                 {
-                    _Reset();
+                    if (!me->isAlive())
+                        return;
+
+                    me->ResetLootMode();
+                    events.Reset();
+                    summons.DespawnAll();
 
                     me->RemoveAllAuras();
                     me->CombatStop();
@@ -149,6 +169,9 @@ namespace MS
                     me->SetReactState(REACT_PASSIVE);
 
                     events.ScheduleEvent(uint32(Events::Reset), 100);
+
+                    // We need time so that all the mobs are spawned.
+                    m_InitializationTimer = 500;
                 }
 
                 void JustDied(Unit* /*p_Killer*/)
@@ -185,6 +208,16 @@ namespace MS
 
                 void UpdateAI(const uint32 diff)
                 {
+                    if (!m_Initialized && m_InitializationTimer <= 0)
+                    {
+                        m_Initialized = true;
+
+                        if (instance->GetBossState(Data::Araknath) == EncounterState::SPECIAL || instance->GetBossState(Data::Araknath) == EncounterState::IN_PROGRESS)
+                            instance->SetData(Data::SkyreachArcanologistIsDead, 0);
+                    }
+                    else
+                        m_InitializationTimer -= diff;
+
                     if (!UpdateVictim())
                         return;
 
@@ -195,10 +228,10 @@ namespace MS
 
                     switch (events.ExecuteEvent())
                     {
-                    case uint32(Events::Reset):
+                    /*case uint32(Events::Reset):
                         if (instance)
                             instance->SetData(Data::AraknathSolarConstructorActivation, false);
-                        break;
+                        break;*/
                     case uint32(Events::MELEE):
                         events.ScheduleEvent(uint32(Events::MELEE), 2000);
                         me->CastSpell(me->getVictim(), uint32(Spells::MELEE));
@@ -230,6 +263,9 @@ namespace MS
                         break;
                     }
                 }
+
+                bool m_Initialized;
+                int32 m_InitializationTimer;
             };
         };
     }

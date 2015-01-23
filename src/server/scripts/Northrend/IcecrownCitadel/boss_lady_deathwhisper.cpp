@@ -975,7 +975,7 @@ class npc_darnavan : public CreatureScript
         }
 };
 
-class spell_deathwhisper_mana_barrier : public SpellScriptLoader
+class spell_deathwhisper_mana_barrier: public SpellScriptLoader
 {
     public:
         spell_deathwhisper_mana_barrier() : SpellScriptLoader("spell_deathwhisper_mana_barrier") { }
@@ -1007,7 +1007,7 @@ class spell_deathwhisper_mana_barrier : public SpellScriptLoader
         }
 };
 
-class spell_cultist_dark_martyrdom : public SpellScriptLoader
+class spell_cultist_dark_martyrdom: public SpellScriptLoader
 {
     public:
         spell_cultist_dark_martyrdom() : SpellScriptLoader("spell_cultist_dark_martyrdom") { }

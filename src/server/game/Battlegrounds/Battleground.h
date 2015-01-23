@@ -105,6 +105,7 @@ enum BattlegroundSpells
     SPELL_HONORABLE_DEFENDER_25Y    = 68652,                // +50% honor when standing at a capture point that you control, 25yards radius (added in 3.2)
     SPELL_HONORABLE_DEFENDER_60Y    = 66157,                // +50% honor when standing at a capture point that you control, 60yards radius (added in 3.2), probably for 40+ player battlegrounds
     SPELL_THE_LAST_STANDING         = 26549,                // Arena achievement related
+    SPELL_PET_SUMMONED              = 6962,
 };
 
 enum BattlegroundTimeIntervals
@@ -167,6 +168,22 @@ enum class FlagIcon : uint8
     None      = 0,              ///< ""
     Horde     = 1,              ///< "HordeFlag"
     Alliance  = 2               ///< "AllianceFlag"
+};
+
+enum BattlegroundAward
+{
+    AWARD_GOLD,
+    AWARD_SILVER,
+    AWARD_BRONZE,
+    AWARD_NONE
+};
+
+enum PvPAwardSpells
+{
+    PVP_AWARD_SPELL_GOLDEN_STRONBOX     = 155306,
+    PVP_AWARD_SPELL_SILVER_STRONGBOX    = 177453,
+    PVP_AWARD_SPELL_BRONZE_STRONGBOX    = 155307,
+    PVP_AWARD_SPELL_SKIRMISH_WIN        = 177346,
 };
 
 struct BattlegroundPlayer
@@ -663,7 +680,10 @@ class Battleground
 
         /// - Debug only
         void FastStart() { m_StartDelayTime = 0; }
-
+        
+        void AwardTeams(uint32 p_PointsCount, uint32 p_MaxCount, uint32 p_Looser);
+        void AwardTeamsWithRewards(BattlegroundAward p_LooserAward, uint32 p_LooserTeam);
+        static uint32 GetSpellIdForAward(BattlegroundAward p_Award);
     protected:
         void BuildArenaOpponentSpecializations(WorldPacket* data, uint32 team);
 
@@ -686,7 +706,12 @@ class Battleground
         // Scorekeeping
         BattlegroundScoreMap PlayerScores;                // Player scores
         // must be implemented in BG subclass
-        virtual void RemovePlayer(Player* /*player*/, uint64 /*guid*/, uint32 /*team*/) {}
+        virtual void RemovePlayer(Player* player, uint64 guid, uint32 team) 
+        {
+            UNUSED(player);
+            UNUSED(guid);
+            UNUSED(team);
+        }
 
         // Player lists, those need to be accessible by inherited classes
         BattlegroundPlayerMap  m_Players;
@@ -844,5 +869,6 @@ inline void FillInitialWorldState(ByteBuffer& data, uint32& count, WorldStatePai
         ++count;
     }
 }
+
 #endif
 

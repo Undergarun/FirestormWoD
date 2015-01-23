@@ -120,7 +120,7 @@ class boss_eregos : public CreatureScript
                     _amberVoid = false;
             }
 
-            uint32 GetData(uint32 type) const
+            uint32 GetData(uint32 type)
             {
                switch (type)
                {
@@ -250,7 +250,7 @@ class boss_eregos : public CreatureScript
         }
 };
 
-class spell_eregos_planar_shift : public SpellScriptLoader
+class spell_eregos_planar_shift: public SpellScriptLoader
 {
     public:
         spell_eregos_planar_shift() : SpellScriptLoader("spell_eregos_planar_shift") { }

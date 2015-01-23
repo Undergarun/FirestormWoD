@@ -288,7 +288,7 @@ public:
     }
 };
 
-class spell_elder_nadox_guardian : public SpellScriptLoader
+class spell_elder_nadox_guardian: public SpellScriptLoader
 {
 public:
     spell_elder_nadox_guardian() : SpellScriptLoader("spell_elder_nadox_guardian") { }

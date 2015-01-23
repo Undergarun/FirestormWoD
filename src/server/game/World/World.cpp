@@ -85,6 +85,8 @@
 #include "PlayerDump.h"
 #include "TransportMgr.h"
 
+uint32 gOnlineGameMaster = 0;
+
 ACE_Atomic_Op<ACE_Thread_Mutex, bool> World::m_stopEvent = false;
 uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
 ACE_Atomic_Op<ACE_Thread_Mutex, uint32> World::m_worldLoopCounter = 0;
@@ -118,6 +120,7 @@ World::World()
     m_NextDailyQuestReset = 0;
     m_NextWeeklyQuestReset = 0;
     m_NextCurrencyReset = 0;
+    m_NextDailyLootReset = 0;
 
     m_defaultDbcLocale = LOCALE_enUS;
     m_availableDbcLocaleMask = 0;
@@ -1112,6 +1115,11 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_ARENA_SEASON_IN_PROGRESS]                  = ConfigMgr::GetBoolDefault("Arena.ArenaSeason.InProgress", true);
     m_bool_configs[CONFIG_ARENA_LOG_EXTENDED_INFO]                   = ConfigMgr::GetBoolDefault("ArenaLog.ExtendedInfo", false);
 
+    m_int_configs[CONFIG_PVP_ITEM_LEVEL_CUTOFF]                      = ConfigMgr::GetIntDefault("PvP.Item.Level.Cut.Off", 560);
+    m_int_configs[CONFIG_PVP_ITEM_LEVEL_MIN]                         = ConfigMgr::GetIntDefault("PvP.Item.Level.Min", 650);
+    m_int_configs[CONFIG_PVP_ITEM_LEVEL_MAX]                         = ConfigMgr::GetIntDefault("PvP.Item.Level.Max", 690);
+    m_int_configs[CONFIG_CHALLENGE_MODE_ITEM_LEVEL_MAX]              = ConfigMgr::GetIntDefault("Challenge.Mode.Item.Level.Max", 630);
+
     m_bool_configs[CONFIG_OFFHAND_CHECK_AT_SPELL_UNLEARN]            = ConfigMgr::GetBoolDefault("OffhandCheckAtSpellUnlearn", true);
 
     if (int32 clientCacheId = ConfigMgr::GetIntDefault("ClientCacheVersion", 0))
@@ -1329,6 +1337,12 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_PDUMP_NO_PATHS] = ConfigMgr::GetBoolDefault("PlayerDump.DisallowPaths", true);
     m_bool_configs[CONFIG_PDUMP_NO_OVERWRITE] = ConfigMgr::GetBoolDefault("PlayerDump.DisallowOverwrite", true);
 
+    m_timers[WUPDATE_MONITORING_STATS].SetInterval(1 * MINUTE * IN_MILLISECONDS);
+    m_timers[WUPDATE_MONITORING_STATS].Reset();
+    
+    m_timers[WUPDATE_MONITORING_HEARTBEAT].SetInterval(30 * IN_MILLISECONDS);
+    m_timers[WUPDATE_MONITORING_HEARTBEAT].Reset();
+
     // call ScriptMgr if we're reloading the configuration
     m_bool_configs[CONFIG_WINTERGRASP_ENABLE] = ConfigMgr::GetBoolDefault("Wintergrasp.Enable", false);
     m_int_configs[CONFIG_WINTERGRASP_PLR_MAX] = ConfigMgr::GetIntDefault("Wintergrasp.PlayerMax", 100);
@@ -1395,6 +1409,7 @@ void World::SetInitialWorldSettings()
 
     ///- Initialize the random number generator
     srand((unsigned int)time(NULL));
+    std::srand((unsigned int)time(NULL));
 
     ///- Initialize config settings
     LoadConfigSettings();
@@ -1568,6 +1583,7 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Items...");                           ///< must be after LoadRandomEnchantmentsTable and LoadPageTexts
     sObjectMgr->LoadItemTemplates();
+    sObjectMgr->LoadItemTemplateCorrections();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Item set names...");                  ///< must be after LoadItemPrototypes
     sObjectMgr->LoadItemTemplateAddon();
@@ -1647,9 +1663,6 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Quests...");
     sObjectMgr->LoadQuests();                                    // must be loaded after DBCs, creature_template, item_template, gameobject tables
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "loading Quest Dynamic Reward...");
-    sObjectMgr->LoadQuestDynamicRewards();
-
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Checking Quest Disables");
     DisableMgr::CheckQuestDisables();                           // must be after loading quests
 
@@ -1658,6 +1671,9 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Quest Objective Locales...");
     sObjectMgr->LoadQuestObjectiveLocales();
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Quest Package Item hotfixs ...");
+    sObjectMgr->LoadQuestPackageItemHotfixs();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Quest POI");
     sObjectMgr->LoadQuestPOI();
@@ -1914,6 +1930,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading AreaTrigger move templates...");
     sObjectMgr->LoadAreaTriggerMoveTemplates();
 
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading FollowerQuests...");
+    sObjectMgr->LoadFollowerQuests();
+
     ///- Initialize game time and timers
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Initialize game time and timers");
     m_gameTime = time(NULL);
@@ -2014,6 +2033,10 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Calculate next currency reset time...");
     InitCurrencyResetTime();
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Calculate next daily loot reset time...");
+    InitDailyLootResetTime();
+
     InitServerAutoRestartTime();
 
     LoadCharacterNameData();
@@ -2217,10 +2240,10 @@ void World::Update(uint32 diff)
 
     /// Handle weekly quests reset time
     if (m_gameTime > m_NextWeeklyQuestReset)
-        {
-            ResetWeeklyQuests();
-            sGuildMgr->ResetReputationCaps();
-        }
+    {
+        ResetWeeklyQuests();
+        sGuildMgr->ResetReputationCaps();
+    }
 
     /// Handle monthly quests reset time
     if (m_gameTime > m_NextMonthlyQuestReset)
@@ -2232,6 +2255,9 @@ void World::Update(uint32 diff)
 
     if (m_gameTime > m_NextCurrencyReset)
         ResetCurrencyWeekCap();
+
+    if (m_gameTime >= m_NextDailyLootReset)
+        ResetDailyLoots();
 
     if (m_gameTime > m_NextServerRestart)
         AutoRestartServer();
@@ -2518,6 +2544,32 @@ void World::Update(uint32 diff)
     {
         m_timers[WUPDATE_BLACKMARKET].Reset();
         sBlackMarketMgr->Update();
+    }
+
+    if (m_timers[WUPDATE_MONITORING_STATS].Passed())
+    {
+        m_timers[WUPDATE_MONITORING_STATS].Reset();
+ 
+        PreparedStatement* l_Stmt = MonitoringDatabase.GetPreparedStatement(MONITORING_INS_STATS);
+ 
+        l_Stmt->setUInt32(0, GetPlayerCount());
+        l_Stmt->setUInt32(1, gOnlineGameMaster);
+        l_Stmt->setUInt32(2, GetUptime());
+        l_Stmt->setUInt32(3, GetUpdateTime());
+        l_Stmt->setUInt32(4, gSentBytes);
+        l_Stmt->setUInt32(5, gReceivedBytes);
+ 
+        MonitoringDatabase.Execute(l_Stmt);
+ 
+        gSentBytes = 0;
+        gReceivedBytes = 0;
+    }
+
+    if (m_timers[WUPDATE_MONITORING_HEARTBEAT].Passed())
+    {
+        m_timers[WUPDATE_MONITORING_HEARTBEAT].Reset();
+ 
+        MonitoringDatabase.Execute(MonitoringDatabase.GetPreparedStatement(MONITORING_UPD_LAST_UPDATE));
     }
 
     // update the instance reset times
@@ -3286,6 +3338,20 @@ void World::InitCurrencyResetTime()
     sLog->outAshran("World::InitCurrencyResetTime: m_NextCurrencyReset %u, nextResetDay : %u", m_NextCurrencyReset, nextResetDay);
 }
 
+void World::InitDailyLootResetTime()
+{
+    uint32 l_NextResetDay = sWorld->getWorldState(WS_DAILY_LOOT_RESET_TIME);
+    if (!l_NextResetDay)
+    {
+        uint32 l_CurrentDay = (time(NULL) + 3600) / 86400;
+        l_NextResetDay = l_CurrentDay + 1;
+        sWorld->setWorldState(WS_DAILY_LOOT_RESET_TIME, l_NextResetDay);
+    }
+
+    m_NextDailyLootReset = l_NextResetDay * 86400 + 5 * 3600;
+    sLog->outAshran("World::InitDailyLootResetTime: m_NextDailyLootReset %u, nextResetDay : %u", m_NextDailyLootReset, l_NextResetDay);
+}
+
 void World::InitServerAutoRestartTime()
 {
     time_t serverRestartTime = uint64(sWorld->getWorldState(WS_AUTO_SERVER_RESTART_TIME));
@@ -3347,6 +3413,23 @@ void World::ResetCurrencyWeekCap()
     sWorld->setWorldState(WS_CURRENCY_RESET_TIME, getWorldState(WS_CURRENCY_RESET_TIME) + 7);
 
     sLog->outAshran("World::ResetCurrencyWeekCap()");
+}
+
+void World::ResetDailyLoots()
+{
+    /// Must clean this table every day
+    CharacterDatabase.Execute("DELETE FROM `character_daily_loot_cooldown`");
+
+    for (SessionMap::const_iterator l_Iter = m_sessions.begin(); l_Iter != m_sessions.end(); ++l_Iter)
+    {
+        if (l_Iter->second->GetPlayer())
+            l_Iter->second->GetPlayer()->ResetDailyLoots();
+    }
+
+    m_NextDailyLootReset = time_t(m_NextDailyLootReset + DAY);
+    sWorld->setWorldState(WS_DAILY_LOOT_RESET_TIME, getWorldState(WS_DAILY_LOOT_RESET_TIME) + 1);
+
+    sLog->outAshran("World::ResetDailyLoots");
 }
 
 void World::LoadDBAllowedSecurityLevel()

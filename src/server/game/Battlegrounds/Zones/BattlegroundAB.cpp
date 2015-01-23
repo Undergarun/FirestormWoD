@@ -203,7 +203,7 @@ void BattlegroundAB::AddPlayer(Player* player)
     PlayerScores[player->GetGUID()] = sc;
 }
 
-void BattlegroundAB::RemovePlayer(Player* /*player*/, uint64 /*guid*/, uint32 /*team*/)
+void BattlegroundAB::RemovePlayer(Player* /*player*/, uint64 guid, uint32 /*team*/)
 {
 
 }
@@ -284,7 +284,7 @@ void BattlegroundAB::_ChangeBanner(uint8 node, uint8 type, uint8 teamIndex, bool
 
     // Update the worldstate
     m_BannerWorldState[node] = l_WorldStateValue;
-    UpdateWorldState(l_Banner->GetGOInfo()->capturePoint.WorldState, (uint8)l_WorldStateValue);
+    UpdateWorldState(l_Banner->GetGOInfo()->capturePoint.worldState1, (uint8)l_WorldStateValue);
 }
 
 int32 BattlegroundAB::_GetNodeNameId(uint8 node)
@@ -339,7 +339,7 @@ void BattlegroundAB::FillInitialWorldStates(ByteBuffer& data)
         if (l_Banner == nullptr)
             continue;
 
-        data << uint32(l_Banner->GetGOInfo()->capturePoint.WorldState) << uint32(m_BannerWorldState[obj]);
+        data << uint32(l_Banner->GetGOInfo()->capturePoint.worldState1) << uint32(m_BannerWorldState[obj]);
     }
 
     // other unknown
@@ -616,7 +616,8 @@ void BattlegroundAB::EndBattleground(uint32 winner)
     //complete map_end rewards (even if no team wins)
     RewardHonorToTeam(GetBonusHonorFromKill(1), HORDE);
     RewardHonorToTeam(GetBonusHonorFromKill(1), ALLIANCE);
-
+    
+    AwardTeams(m_TeamScores[GetOtherTeam(winner) == HORDE], BG_AB_MAX_TEAM_SCORE, GetOtherTeam(winner));
     Battleground::EndBattleground(winner);
 }
 

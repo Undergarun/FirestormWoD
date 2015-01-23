@@ -487,7 +487,7 @@ class mob_set_thik_tempest : public CreatureScript
 
                 while (uint32 id = events.ExecuteEvent())
                 {
-                    if (id = EVENT_WIND_SLASH)
+                    if ((id = EVENT_WIND_SLASH))
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
                             me->CastSpell(target, SPELL_WIND_SLASH, true);
@@ -2210,7 +2210,7 @@ public:
 };
 
 // 123421 - Vital Strikes
-class spell_vital_strikes : public SpellScriptLoader
+class spell_vital_strikes: public SpellScriptLoader
 {
     public:
         spell_vital_strikes() : SpellScriptLoader("spell_vital_strikes") { }

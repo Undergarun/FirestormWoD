@@ -3041,7 +3041,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         if (crit)
         {
             procEx |= PROC_EX_CRITICAL_HIT;
-            addhealth = caster->SpellCriticalHealingBonus(m_spellInfo, addhealth, NULL);
+            addhealth = caster->SpellCriticalHealingBonus(m_spellInfo, addhealth, unitTarget);
         }
         else
             procEx |= PROC_EX_NORMAL_HIT;
@@ -3256,14 +3256,14 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
         // Ring of Frost
         if (m_spellInfo->Id == 82691)
         {
-            m_diminishLevel = unit->GetDiminishing(DIMINISHING_DEEP_FREEZE);
+            m_diminishLevel = unit->GetDiminishing(DIMINISHING_RING_OF_FROST);
             if (unit->GetCharmerOrOwnerPlayerOrPlayerItself())
                 unit->IncrDiminishing(DIMINISHING_RING_OF_FROST);
         }
         // Deep Freze
         else if (m_spellInfo->Id == 44572)
         {
-            m_diminishLevel = unit->GetDiminishing(DIMINISHING_RING_OF_FROST);
+            m_diminishLevel = unit->GetDiminishing(DIMINISHING_DEEP_FREEZE);
             if (unit->GetCharmerOrOwnerPlayerOrPlayerItself())
                 unit->IncrDiminishing(DIMINISHING_DEEP_FREEZE);
         }
@@ -3772,13 +3772,13 @@ void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggere
 
 bool Spell::CheckInterrupt()
 {
-    if (!CallScriptCheckInterruptHandlers())
-        return false;
+    if (CallScriptCheckInterruptHandlers())
+        return true;
 
     if (!(_triggeredCastFlags & TRIGGERED_IGNORE_AURA_INTERRUPT_FLAGS) && m_spellInfo->IsBreakingStealth(m_caster) && (!m_caster->HasAuraType(SPELL_AURA_MOD_CAMOUFLAGE) || m_spellInfo->IsBreakingCamouflage()))
         return true;
 
-    return true;
+    return false;
 }
 
 void Spell::cancel()
@@ -4538,16 +4538,6 @@ void Spell::finish(bool ok)
 
             if (m_caster->HasAura(59309)) // Glyph of Resilient Grip
                 m_caster->ToPlayer()->RemoveSpellCooldown(m_spellInfo->Id, true);
-
-            break;
-        }
-        case 53351: // Kill Shot
-        {
-            if (!unitTarget || !unitTarget->isAlive() || unitTarget->GetHealthPct() >= 20.0f || m_caster->HasAura(90967))
-                break;
-
-            m_caster->CastSpell(m_caster, 90967, true); // Effect cooldown marker
-            m_caster->ToPlayer()->RemoveSpellCooldown(m_spellInfo->Id, true);
 
             break;
         }
@@ -6025,7 +6015,7 @@ SpellCastResult Spell::CheckCast(bool strict)
         if (categories && categories->ChargesCategory != 0)
         {
             auto const category = sSpellCategoryStores.LookupEntry(categories->ChargesCategory);
-            if (category && !player->CanUseCharge(m_spellInfo->Id))
+            if (category && category->MaxCharges != 0 && !player->CanUseCharge(m_spellInfo->Id))
                 return m_triggeredByAuraSpell ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_NOT_READY;
         }
     }
@@ -6107,10 +6097,6 @@ SpellCastResult Spell::CheckCast(bool strict)
     // not for triggered spells (needed by execute)
     if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CASTER_AURASTATE))
     {
-        // Custom MoP Script
-        // 76856 - Mastery : Unshackled Fury - Hack Fix fake check cast
-        if (m_spellInfo->Id == 76856 && m_caster->ToPlayer() && m_caster->ToPlayer()->getLevel() > 80)
-            return SPELL_CAST_OK;
         if (m_spellInfo->CasterAuraState && !m_caster->HasAuraState(AuraStateType(m_spellInfo->CasterAuraState), m_spellInfo, m_caster))
             return SPELL_FAILED_CASTER_AURASTATE;
         if (m_spellInfo->CasterAuraStateNot && m_caster->HasAuraState(AuraStateType(m_spellInfo->CasterAuraStateNot), m_spellInfo, m_caster))
@@ -6211,10 +6197,12 @@ SpellCastResult Spell::CheckCast(bool strict)
 
             if (!IsTriggered())
             {
-                // Hackfix for Raigonn
-                if (m_caster->GetEntry() != WORLD_TRIGGER && target->GetEntry() != 56895) // Ignore LOS for gameobjects casts (wrongly casted by a trigger)
+                // Ignore LOS for gameobjects casts (wrongly casted by a trigger)
+                if (m_caster->GetEntry() != WORLD_TRIGGER)
+                {
                     if (!(m_spellInfo->AttributesEx2 & SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS) && !m_caster->IsWithinLOSInMap(target))
                         return SPELL_FAILED_LINE_OF_SIGHT;
+                }
 
                 if (m_caster->IsVisionObscured(target, m_spellInfo))
                     return SPELL_FAILED_VISION_OBSCURED; // smoke bomb, camouflage...
@@ -8525,7 +8513,7 @@ void Spell::CallScriptAfterCastHandlers()
 bool Spell::CallScriptCheckInterruptHandlers()
 {
     uint32 l_ScriptExecuteTime = getMSTime();
-    bool l_CanInterrupt = true;
+    bool l_CanInterrupt = false;
 
     for (std::list<SpellScript*>::iterator l_Scritr = m_loadedScripts.begin(); l_Scritr != m_loadedScripts.end(); ++l_Scritr)
     {
@@ -8534,7 +8522,7 @@ bool Spell::CallScriptCheckInterruptHandlers()
         for (; l_HookItr != l_HookItrEnd; ++l_HookItr)
         {
             bool l_TempResult = (*l_HookItr).Call(*l_Scritr);
-            if (l_TempResult == false)
+            if (l_TempResult == true)
                 l_CanInterrupt = l_TempResult;
         }
 

@@ -528,7 +528,7 @@ class npc_echo_of_tyrande_pool_of_moonlight : public CreatureScript
         };
 };
 
-class spell_echo_of_tyrande_tears_of_elune_script : public SpellScriptLoader
+class spell_echo_of_tyrande_tears_of_elune_script: public SpellScriptLoader
 {
     public:
         spell_echo_of_tyrande_tears_of_elune_script() : SpellScriptLoader("spell_echo_of_tyrande_tears_of_elune_script") { }

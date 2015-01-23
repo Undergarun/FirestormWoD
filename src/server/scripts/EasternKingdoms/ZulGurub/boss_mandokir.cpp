@@ -329,7 +329,7 @@ class npc_mandokir_ohgan : public CreatureScript
         };
 };
 
-class spell_mandokir_bloodletting : public SpellScriptLoader
+class spell_mandokir_bloodletting: public SpellScriptLoader
 {
     public:
         spell_mandokir_bloodletting() : SpellScriptLoader("spell_mandokir_bloodletting") { }

@@ -91,7 +91,7 @@ enum StrengthenAncientsMisc
     FACTION_WALKER_ENEMY    = 14
 };
 
-class spell_q12096_q12092_dummy : public SpellScriptLoader // Strengthen the Ancients: On Interact Dummy to Woodlands Walker
+class spell_q12096_q12092_dummy: public SpellScriptLoader // Strengthen the Ancients: On Interact Dummy to Woodlands Walker
 {
 public:
     spell_q12096_q12092_dummy() : SpellScriptLoader("spell_q12096_q12092_dummy") { }
@@ -138,7 +138,7 @@ public:
     }
 };
 
-class spell_q12096_q12092_bark : public SpellScriptLoader // Bark of the Walkers
+class spell_q12096_q12092_bark: public SpellScriptLoader // Bark of the Walkers
 {
 public:
     spell_q12096_q12092_bark() : SpellScriptLoader("spell_q12096_q12092_bark") { }

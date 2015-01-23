@@ -668,7 +668,7 @@ enum MiscLifewarden
     SPELL_WILD_GROWTH = 52948,
 };
 
-class spell_q12620_the_lifewarden_wrath : public SpellScriptLoader
+class spell_q12620_the_lifewarden_wrath: public SpellScriptLoader
 {
 public:
     spell_q12620_the_lifewarden_wrath() : SpellScriptLoader("spell_q12620_the_lifewarden_wrath") { }
@@ -756,7 +756,7 @@ enum KickWhatKick
     SAY_DROSTAN_REPLY_MISS = 0,
 };
 
-class spell_q12589_shoot_rjr : public SpellScriptLoader
+class spell_q12589_shoot_rjr: public SpellScriptLoader
 {
 public:
     spell_q12589_shoot_rjr() : SpellScriptLoader("spell_q12589_shoot_rjr") { }

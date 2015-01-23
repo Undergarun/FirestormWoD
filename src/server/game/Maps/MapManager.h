@@ -149,6 +149,13 @@ class MapManager
 
         MapUpdater * GetMapUpdater() { return &m_updater; }
 
+        void AddCriticalOperation(std::function<void()> const&& p_Function)
+        {
+            m_CriticalOperationLock.acquire();
+            m_CriticalOperation.push(std::function<void()>(p_Function));
+            m_CriticalOperationLock.release();
+        }
+
     private:
         typedef UNORDERED_MAP<uint32, Map*> MapMapType;
         typedef std::vector<bool> InstanceIds;
@@ -179,6 +186,9 @@ class MapManager
         uint32 _nextInstanceId;
         MapUpdater m_updater;
         bool m_mapDiffLimit;
+
+        std::queue<std::function<void()>> m_CriticalOperation;
+        ACE_Thread_Mutex m_CriticalOperationLock;
 };
 #define sMapMgr ACE_Singleton<MapManager, ACE_Thread_Mutex>::instance()
 #endif

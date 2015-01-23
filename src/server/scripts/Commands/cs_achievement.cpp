@@ -25,7 +25,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "Chat.h"
 
-class achievement_commandscript : public CommandScript
+class achievement_commandscript: public CommandScript
 {
 public:
     achievement_commandscript() : CommandScript("achievement_commandscript") { }

@@ -43,8 +43,6 @@ enum HunterSpells
     HUNTER_SPELL_NARROW_ESCAPE_RETS                 = 128405,
     HUNTER_SPELL_SERPENT_STING                      = 118253,
     HUNTER_SPELL_SERPENT_SPREAD                     = 87935,
-    HUNTER_SPELL_CHIMERA_SHOT_HEAL                  = 53353,
-    HUNTER_SPELL_CHIMERA_SHOT                       = 171454,
     HUNTER_SPELL_RAPID_FIRE                         = 3045,
     HUNTER_SPELL_STEADY_SHOT_ENERGIZE               = 77443,
     HUNTER_SPELL_COBRA_SHOT_ENERGIZE                = 91954,
@@ -93,9 +91,6 @@ enum HunterSpells
     DIRE_BEAST_DUNGEONS                             = 132764,
     HUNTER_SPELL_GLYPH_OF_COLLAPSE                  = 126095,
     HUNTER_SPELL_HUNTERS_MARK                       = 1130,
-    HUNTER_SPELL_GLYPH_OF_MISDIRECTION              = 56829,
-    HUNTER_SPELL_MISDIRECTION                       = 34477,
-    HUNTER_SPELL_MISDIRECTION_PROC                  = 35079,
     HUNTER_SPELL_TRACK_BEASTS                       = 1494,
     HUNTER_SPELL_TRACK_DEMONS                       = 19878,
     HUNTER_SPELL_TRACK_DRAGONKIN                    = 19879,
@@ -127,18 +122,416 @@ enum HunterSpells
     HUNTER_SPELL_ASPECT_OF_THE_PACK_SUMMON          = 122490,
     HUNTER_SPELL_FIREWORKS                          = 127933,
     HUNTER_SPELL_KILL_SHOT_HEAL                     = 164851,
-    HUNTER_SPELL_GLYPH_OF_CHIMERA_SHOT              = 119447,
     HUNTER_SPELL_ARCANE_INTENSITY_AURA              = 131564,
     HUNTER_SPELL_THRILL_OF_THE_HUNT                 = 109306,
     HUNTER_SPELL_THRILL_OF_THE_HUNT_PROC            = 34720,
     HUNTER_SPELL_GLYPH_OF_ANIMAL_BOND               = 24529,
     HUNTER_SPELL_MULTI_SHOT                         = 2643,
-    HUNTER_SPELL_BOMBARDMENT                        = 82921
+    HUNTER_SPELL_BOMBARDMENT                        = 82921,
+    HUNTER_SPELL_BASIC_ATTACK_COST_MODIFIER         = 62762
+};
+
+///< Thunderstomp - 63900
+class spell_hun_thunderstomp : public SpellScriptLoader
+{
+    public:
+        spell_hun_thunderstomp() : SpellScriptLoader("spell_hun_thunderstomp") { }
+
+        class spell_hun_thunderstomp_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_thunderstomp_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* l_Owner = GetCaster()->GetOwner())
+                    SetHitDamage((int32)CalculatePct(l_Owner->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack), 37.5f));
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_hun_thunderstomp_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_thunderstomp_SpellScript();
+        }
+};
+
+///< Steady Focus - 177667
+class spell_hun_steady_focus: public SpellScriptLoader
+{
+    public:
+        spell_hun_steady_focus() : SpellScriptLoader("spell_hun_steady_focus") { }
+
+        class spell_hun_steady_focus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_steady_focus_AuraScript);
+
+            enum SteadyFocusSpells
+            {
+                SteadyShot  = 56641,
+                CobraShot   = 77767,
+                SteadyFocus = 177668
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                if (!GetCaster())
+                    return;
+
+                if (!p_EventInfo.GetDamageInfo()->GetSpellInfo())
+                    return;
+
+                if (p_EventInfo.GetActionTarget() == p_EventInfo.GetActor())
+                    return;
+
+                ProcFlagsExLegacy l_ExFlags = ProcFlagsExLegacy(p_EventInfo.GetHitMask());
+                uint32 l_SpellID = p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id;
+
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    switch (l_Player->GetSpecializationId(l_Player->GetActiveSpec()))
+                    {
+                        ///< Marksmanship
+                        ///< - Steady Shot twice in a row
+                        case SpecIndex::SPEC_HUNTER_MARKSMANSHIP:
+                        {
+                            ///< Not Steady Shot
+                            if (l_SpellID != SteadyFocusSpells::SteadyShot)
+                            {
+                                ///< Shitty procs
+                                if (!(l_ExFlags & (ProcFlagsExLegacy::PROC_EX_INTERNAL_TRIGGERED | ProcFlagsExLegacy::PROC_EX_INTERNAL_CANT_PROC)))
+                                    p_AurEff->GetBase()->SetCharges(0);
+
+                                return;
+                            }
+
+                            DealWithCharges(p_AurEff, l_Player);
+                            break;
+                        }
+                        case SpecIndex::SPEC_NONE:
+                            return;
+                        ///< Beast Mastery and  Survival (Level 81)
+                        ///< - Cobra Shot twice in a row
+                        default:
+                        {
+                            ///< Not Cobra Shot
+                            if (l_SpellID != SteadyFocusSpells::CobraShot)
+                            {
+                                ///< Shitty procs
+                                if (!(l_ExFlags & (ProcFlagsExLegacy::PROC_EX_INTERNAL_TRIGGERED | ProcFlagsExLegacy::PROC_EX_INTERNAL_CANT_PROC)))
+                                    p_AurEff->GetBase()->SetCharges(0);
+
+                                return;
+                            }
+
+                            DealWithCharges(p_AurEff, l_Player);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            void DealWithCharges(constAuraEffectPtr p_AurEff, Player* p_Player)
+            {
+                if (p_AurEff->GetBase()->GetCharges() <= 1)
+                {
+                    p_AurEff->GetBase()->SetCharges(2);
+                    return;
+                }
+
+                p_AurEff->GetBase()->SetCharges(0);
+                p_Player->CastSpell(p_Player, SteadyFocusSpells::SteadyFocus, true);
+
+                if (Pet* l_Pet = p_Player->GetPet())
+                    l_Pet->CastSpell(l_Pet, SteadyFocusSpells::SteadyFocus, true);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_hun_steady_focus_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_steady_focus_AuraScript();
+        }
+};
+
+///< Cornered - 53497
+class spell_hun_cornered : public SpellScriptLoader
+{
+    public:
+        spell_hun_cornered() : SpellScriptLoader("spell_hun_cornered") { }
+
+        class spell_hun_cornered_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_cornered_AuraScript);
+
+            void OnUpdate(uint32, AuraEffectPtr p_AurEff)
+            {
+                if (Unit* l_Target = GetUnitOwner())
+                {
+                    if (l_Target->HasAuraState(AuraStateType::AURA_STATE_HEALTHLESS_35_PERCENT))
+                    {
+                        p_AurEff->ChangeAmount(GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+
+                        if (AuraEffectPtr l_AurEff = p_AurEff->GetBase()->GetEffect(EFFECT_1))
+                            l_AurEff->ChangeAmount(GetSpellInfo()->Effects[EFFECT_1].BasePoints);
+                    }
+                    else
+                    {
+                        p_AurEff->ChangeAmount(0);
+
+                        if (AuraEffectPtr l_AurEff = p_AurEff->GetBase()->GetEffect(EFFECT_1))
+                            l_AurEff->ChangeAmount(0);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectUpdate += AuraEffectUpdateFn(spell_hun_cornered_AuraScript::OnUpdate, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_cornered_AuraScript();
+        }
+};
+
+enum LoneWolfes
+{
+    LoneWolfAura        = 164273,
+
+    ///< Stats auras
+    LoneWolfMastery     = 160198,
+    LoneWolfStamina     = 160199,
+    LoneWolfCritical    = 160200,
+    LoneWolfHaste       = 160203,
+    LoneWolfSpellPower  = 160205,
+    LoneWolfPrimarStats = 160206,
+    LoneWolfVersatility = 172967,
+    LoneWolfMultistrike = 172968
+};
+
+static uint32 const g_BuffSpells[8] =
+{
+    LoneWolfes::LoneWolfMastery,
+    LoneWolfes::LoneWolfStamina,
+    LoneWolfes::LoneWolfCritical,
+    LoneWolfes::LoneWolfHaste,
+    LoneWolfes::LoneWolfSpellPower,
+    LoneWolfes::LoneWolfPrimarStats,
+    LoneWolfes::LoneWolfVersatility,
+    LoneWolfes::LoneWolfMultistrike
+};
+
+///< Lone Wolf - 155228
+class spell_hun_lone_wolf : public SpellScriptLoader
+{
+    public:
+        spell_hun_lone_wolf() : SpellScriptLoader("spell_hun_lone_wolf") { }
+
+        class spell_hun_lone_wolf_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_lone_wolf_AuraScript);
+
+            void OnApply(constAuraEffectPtr, AuraEffectHandleModes)
+            {
+                if (!GetCaster())
+                    return;
+
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    l_Player->learnSpell(LoneWolfes::LoneWolfMastery, false);
+                    l_Player->learnSpell(LoneWolfes::LoneWolfStamina, false);
+                    l_Player->learnSpell(LoneWolfes::LoneWolfCritical, false);
+                    l_Player->learnSpell(LoneWolfes::LoneWolfHaste, false);
+                    l_Player->learnSpell(LoneWolfes::LoneWolfSpellPower, false);
+                    l_Player->learnSpell(LoneWolfes::LoneWolfPrimarStats, false);
+                    l_Player->learnSpell(LoneWolfes::LoneWolfVersatility, false);
+                    l_Player->learnSpell(LoneWolfes::LoneWolfMultistrike, false);
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr, AuraEffectHandleModes)
+            {
+                if (!GetCaster())
+                    return;
+
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    l_Player->removeSpell(LoneWolfes::LoneWolfMastery);
+                    l_Player->removeSpell(LoneWolfes::LoneWolfStamina);
+                    l_Player->removeSpell(LoneWolfes::LoneWolfCritical);
+                    l_Player->removeSpell(LoneWolfes::LoneWolfHaste);
+                    l_Player->removeSpell(LoneWolfes::LoneWolfSpellPower);
+                    l_Player->removeSpell(LoneWolfes::LoneWolfPrimarStats);
+                    l_Player->removeSpell(LoneWolfes::LoneWolfVersatility);
+                    l_Player->removeSpell(LoneWolfes::LoneWolfMultistrike);
+                }
+            }
+
+            void OnUpdate(uint32, AuraEffectPtr p_AurEff)
+            {
+                if (!GetUnitOwner())
+                    return;
+
+                if (Player* l_Player = GetUnitOwner()->ToPlayer())
+                {
+                    if (Pet* l_Pet = l_Player->GetPet())
+                    {
+                        l_Player->RemoveAura(LoneWolfes::LoneWolfAura);
+
+                        p_AurEff->ChangeAmount(0);
+
+                        if (AuraEffectPtr l_AuraEffect = p_AurEff->GetBase()->GetEffect(EFFECT_1))
+                            l_AuraEffect->ChangeAmount(0);
+
+                        for (uint8 l_I = 0; l_I < 8; ++l_I)
+                            l_Player->RemoveAura(g_BuffSpells[l_I]);
+                    }
+                    else
+                    {
+                        l_Player->CastSpell(l_Player, LoneWolfes::LoneWolfAura, true);
+
+                        p_AurEff->ChangeAmount(GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+
+                        if (AuraEffectPtr l_AuraEffect = p_AurEff->GetBase()->GetEffect(EFFECT_1))
+                            l_AuraEffect->ChangeAmount(GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_hun_lone_wolf_AuraScript::OnApply, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_hun_lone_wolf_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+                OnEffectUpdate += AuraEffectUpdateFn(spell_hun_lone_wolf_AuraScript::OnUpdate, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_lone_wolf_AuraScript();
+        }
+};
+
+///< Kill Shot - 53351
+///< Kill Shot (overrided) - 157708
+class spell_hun_kill_shot : public SpellScriptLoader
+{
+    public:
+        spell_hun_kill_shot() : SpellScriptLoader("spell_hun_kill_shot") { }
+
+        class spell_hun_kill_shot_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_kill_shot_SpellScript);
+
+            enum KillShotSpells
+            {
+                CooldownMarker  = 90967,
+                KillShotHealing = 164851
+            };
+
+            void HandleAfterHit()
+            {
+                if (Player* l_Caster = GetCaster()->ToPlayer())
+                {
+                    if (Unit* l_Target = GetHitUnit())
+                    {
+                        if (l_Target->isAlive())
+                        {
+                            if (l_Caster->HasAura(KillShotSpells::CooldownMarker))
+                                return;
+
+                            l_Caster->CastSpell(l_Caster, KillShotSpells::CooldownMarker, true);
+                            l_Caster->RemoveSpellCooldown(GetSpellInfo()->Id, true);
+                        }
+                        else
+                            l_Caster->CastSpell(l_Caster, KillShotSpells::KillShotHealing, true);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                AfterHit += SpellHitFn(spell_hun_kill_shot_SpellScript::HandleAfterHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_kill_shot_SpellScript();
+        }
+};
+
+///< Exotic Munitions - 162534
+class spell_hun_exotic_munitions : public SpellScriptLoader
+{
+    public:
+        spell_hun_exotic_munitions() : SpellScriptLoader("spell_hun_exotic_munitions") { }
+
+        enum ExoticSpells
+        {
+            IncendiaryAmmo = 162536,
+            PoisonedAmmo   = 162537,
+            FrozenAmmo     = 162539
+        };
+
+        class spell_hun_exotic_munitions_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_exotic_munitions_AuraScript);
+
+            void OnApply(constAuraEffectPtr, AuraEffectHandleModes)
+            {
+                if (!GetCaster())
+                    return;
+
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    l_Player->learnSpell(ExoticSpells::IncendiaryAmmo, false);
+                    l_Player->learnSpell(ExoticSpells::PoisonedAmmo, false);
+                    l_Player->learnSpell(ExoticSpells::FrozenAmmo, false);
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr, AuraEffectHandleModes)
+            {
+                if (!GetCaster())
+                    return;
+
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    l_Player->removeSpell(ExoticSpells::IncendiaryAmmo);
+                    l_Player->removeSpell(ExoticSpells::PoisonedAmmo);
+                    l_Player->removeSpell(ExoticSpells::FrozenAmmo);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_hun_exotic_munitions_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_hun_exotic_munitions_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_exotic_munitions_AuraScript();
+        }
 };
 
 // Called by Explosive Shot - 53301
 // Hunter's Mark - 1130
-class spell_hun_hunters_mark : public SpellScriptLoader
+class spell_hun_hunters_mark: public SpellScriptLoader
 {
     public:
         spell_hun_hunters_mark() : SpellScriptLoader("spell_hun_hunters_mark") { }
@@ -171,7 +564,7 @@ class spell_hun_hunters_mark : public SpellScriptLoader
 const uint32 fireworksSpells[4] = { 127937, 127936, 127961, 127951 };
 
 // Fireworks - 127933
-class spell_hun_fireworks : public SpellScriptLoader
+class spell_hun_fireworks: public SpellScriptLoader
 {
     public:
         spell_hun_fireworks() : SpellScriptLoader("spell_hun_fireworks") { }
@@ -199,7 +592,7 @@ class spell_hun_fireworks : public SpellScriptLoader
 };
 
 // Glyph of Fireworks - 57903
-class spell_hun_glyph_of_fireworks : public SpellScriptLoader
+class spell_hun_glyph_of_fireworks: public SpellScriptLoader
 {
     public:
         spell_hun_glyph_of_fireworks() : SpellScriptLoader("spell_hun_glyph_of_fireworks") { }
@@ -236,7 +629,7 @@ class spell_hun_glyph_of_fireworks : public SpellScriptLoader
 
 // Called by Aspect of the Pack - 13159, Aspect of the Hawk - 13165 and Aspect of the Cheetah - 5118
 // Glyph of Aspects - 122492
-class spell_hun_glyph_of_aspects : public SpellScriptLoader
+class spell_hun_glyph_of_aspects: public SpellScriptLoader
 {
     public:
         spell_hun_glyph_of_aspects() : SpellScriptLoader("spell_hun_glyph_of_aspects") { }
@@ -282,7 +675,7 @@ class spell_hun_glyph_of_aspects : public SpellScriptLoader
 };
 
 // Glyph of animal bond - 20895
-class spell_hun_glyph_of_animal_bond : public SpellScriptLoader
+class spell_hun_glyph_of_animal_bond: public SpellScriptLoader
 {
 public:
     spell_hun_glyph_of_animal_bond() : SpellScriptLoader("spell_hun_glyph_of_animal_bond") { }
@@ -310,7 +703,7 @@ public:
 };
 
 // Lock and Load - 56453
-class spell_hun_lock_and_load_proc : public SpellScriptLoader
+class spell_hun_lock_and_load_proc: public SpellScriptLoader
 {
     public:
         spell_hun_lock_and_load_proc() : SpellScriptLoader("spell_hun_lock_and_load_proc") { }
@@ -341,7 +734,7 @@ class spell_hun_lock_and_load_proc : public SpellScriptLoader
 };
 
 // Bestial Wrath - 19574 and The Beast Within - 34471
-class spell_hun_bestial_wrath_dispel : public SpellScriptLoader
+class spell_hun_bestial_wrath_dispel: public SpellScriptLoader
 {
     public:
         spell_hun_bestial_wrath_dispel() : SpellScriptLoader("spell_hun_bestial_wrath_dispel") { }
@@ -389,7 +782,7 @@ class spell_hun_bestial_wrath_dispel : public SpellScriptLoader
 
 // Called by Arcane Shot - 3044
 // Item PvP - Hunter S13 2P - 131564
-class spell_hun_item_pvp_s13_2p : public SpellScriptLoader
+class spell_hun_item_pvp_s13_2p: public SpellScriptLoader
 {
     public:
         spell_hun_item_pvp_s13_2p() : SpellScriptLoader("spell_hun_item_pvp_s13_2p") { }
@@ -418,7 +811,7 @@ class spell_hun_item_pvp_s13_2p : public SpellScriptLoader
 };
 
 // Spirit Bond - 118694
-class spell_hun_spirit_bond : public SpellScriptLoader
+class spell_hun_spirit_bond: public SpellScriptLoader
 {
     public:
         spell_hun_spirit_bond() : SpellScriptLoader("spell_hun_spirit_bond") { }
@@ -449,7 +842,7 @@ class spell_hun_spirit_bond : public SpellScriptLoader
 };
 
 // Spirit Bond - 109212
-class spell_hun_spirit_bond_apply : public SpellScriptLoader
+class spell_hun_spirit_bond_apply: public SpellScriptLoader
 {
 public:
     spell_hun_spirit_bond_apply() : SpellScriptLoader("spell_hun_spirit_bond_apply") { }
@@ -478,7 +871,7 @@ public:
 };
 
 // Glyph of Aspect of the Beast - 125042
-class spell_hun_glyph_of_aspect_of_the_beast : public SpellScriptLoader
+class spell_hun_glyph_of_aspect_of_the_beast: public SpellScriptLoader
 {
     public:
         spell_hun_glyph_of_aspect_of_the_beast() : SpellScriptLoader("spell_hun_glyph_of_aspect_of_the_beast") { }
@@ -514,7 +907,7 @@ class spell_hun_glyph_of_aspect_of_the_beast : public SpellScriptLoader
 };
 
 // Glaive Toss (damage) - 120761 and 121414
-class spell_hun_glaive_toss_damage : public SpellScriptLoader
+class spell_hun_glaive_toss_damage: public SpellScriptLoader
 {
     public:
         spell_hun_glaive_toss_damage() : SpellScriptLoader("spell_hun_glaive_toss_damage") { }
@@ -631,7 +1024,7 @@ class spell_hun_glaive_toss_damage : public SpellScriptLoader
 };
 
 // Glaive Toss (Missile data) - 120755 and 120756
-class spell_hun_glaive_toss_missile : public SpellScriptLoader
+class spell_hun_glaive_toss_missile: public SpellScriptLoader
 {
     public:
         spell_hun_glaive_toss_missile() : SpellScriptLoader("spell_hun_glaive_toss_missile") { }
@@ -700,7 +1093,7 @@ class spell_hun_glaive_toss_missile : public SpellScriptLoader
 };
 
 // Glyph of Fetch - 126746
-class spell_hun_glyph_of_fetch : public SpellScriptLoader
+class spell_hun_glyph_of_fetch: public SpellScriptLoader
 {
     public:
         spell_hun_glyph_of_fetch() : SpellScriptLoader("spell_hun_glyph_of_fetch") { }
@@ -736,7 +1129,7 @@ class spell_hun_glyph_of_fetch : public SpellScriptLoader
 };
 
 // Tracking - 118424
-class spell_hun_tracking : public SpellScriptLoader
+class spell_hun_tracking: public SpellScriptLoader
 {
     public:
         spell_hun_tracking() : SpellScriptLoader("spell_hun_tracking") { }
@@ -776,7 +1169,7 @@ class spell_hun_tracking : public SpellScriptLoader
 };
 
 // Dash - 113073
-class spell_hun_dash : public SpellScriptLoader
+class spell_hun_dash: public SpellScriptLoader
 {
     public:
         spell_hun_dash() : SpellScriptLoader("spell_hun_dash") { }
@@ -804,7 +1197,7 @@ class spell_hun_dash : public SpellScriptLoader
 };
 
 // Dire Beast - 120679
-class spell_hun_dire_beast : public SpellScriptLoader
+class spell_hun_dire_beast: public SpellScriptLoader
 {
     public:
         spell_hun_dire_beast() : SpellScriptLoader("spell_hun_dire_beast") { }
@@ -884,7 +1277,7 @@ class spell_hun_dire_beast : public SpellScriptLoader
 };
 
 // A Murder of Crows - 131894
-class spell_hun_a_murder_of_crows : public SpellScriptLoader
+class spell_hun_a_murder_of_crows: public SpellScriptLoader
 {
     public:
         spell_hun_a_murder_of_crows() : SpellScriptLoader("spell_hun_a_murder_of_crows") { }
@@ -927,7 +1320,7 @@ class spell_hun_a_murder_of_crows : public SpellScriptLoader
 };
 
 // Focus Fire - 82692
-class spell_hun_focus_fire : public SpellScriptLoader
+class spell_hun_focus_fire: public SpellScriptLoader
 {
     public:
         spell_hun_focus_fire() : SpellScriptLoader("spell_hun_focus_fire") { }
@@ -985,7 +1378,7 @@ class spell_hun_focus_fire : public SpellScriptLoader
 };
 
 // Frenzy - 19615
-class spell_hun_frenzy : public SpellScriptLoader
+class spell_hun_frenzy: public SpellScriptLoader
 {
     public:
         spell_hun_frenzy() : SpellScriptLoader("spell_hun_frenzy") { }
@@ -1038,7 +1431,7 @@ class spell_hun_frenzy : public SpellScriptLoader
 };
 
 // Lynx Rush - 120697
-class spell_hun_lynx_rush : public SpellScriptLoader
+class spell_hun_lynx_rush: public SpellScriptLoader
 {
     public:
         spell_hun_lynx_rush() : SpellScriptLoader("spell_hun_lynx_rush") { }
@@ -1183,7 +1576,7 @@ class spell_hun_lynx_rush : public SpellScriptLoader
 };
 
 // Beast Cleave - 118455
-class spell_hun_beast_cleave_proc : public SpellScriptLoader
+class spell_hun_beast_cleave_proc: public SpellScriptLoader
 {
     public:
         spell_hun_beast_cleave_proc() : SpellScriptLoader("spell_hun_beast_cleave_proc") { }
@@ -1230,7 +1623,7 @@ class spell_hun_beast_cleave_proc : public SpellScriptLoader
 
 // Called by Multi Shot - 2643
 // Beast Cleave - 115939
-class spell_hun_beast_cleave : public SpellScriptLoader
+class spell_hun_beast_cleave: public SpellScriptLoader
 {
     public:
         spell_hun_beast_cleave() : SpellScriptLoader("spell_hun_beast_cleave") { }
@@ -1261,7 +1654,7 @@ class spell_hun_beast_cleave : public SpellScriptLoader
 
 // Called by Arcane Shot - 3044
 // Cobra Strikes - 53260
-class spell_hun_cobra_strikes : public SpellScriptLoader
+class spell_hun_cobra_strikes: public SpellScriptLoader
 {
     public:
         spell_hun_cobra_strikes() : SpellScriptLoader("spell_hun_cobra_strikes") { }
@@ -1303,7 +1696,7 @@ class spell_hun_cobra_strikes : public SpellScriptLoader
 };
 
 // Barrage damage - 120361
-class spell_hun_barrage : public SpellScriptLoader
+class spell_hun_barrage: public SpellScriptLoader
 {
     public:
         spell_hun_barrage() : SpellScriptLoader("spell_hun_barrage") { }
@@ -1333,7 +1726,7 @@ class spell_hun_barrage : public SpellScriptLoader
 };
 
 // Binding Shot - 117405
-class spell_hun_binding_shot : public SpellScriptLoader
+class spell_hun_binding_shot: public SpellScriptLoader
 {
     public:
         spell_hun_binding_shot() : SpellScriptLoader("spell_hun_binding_shot") { }
@@ -1399,7 +1792,7 @@ class spell_hun_binding_shot : public SpellScriptLoader
 };
 
 // Binding Shot - 109248
-class spell_hun_binding_shot_zone : public SpellScriptLoader
+class spell_hun_binding_shot_zone: public SpellScriptLoader
 {
     public:
         spell_hun_binding_shot_zone() : SpellScriptLoader("spell_hun_binding_shot_zone") { }
@@ -1431,7 +1824,7 @@ class spell_hun_binding_shot_zone : public SpellScriptLoader
 
 // Called by Serpent Sting - 118253
 // Improved Serpent Sting - 82834
-class spell_hun_improved_serpent_sting : public SpellScriptLoader
+class spell_hun_improved_serpent_sting: public SpellScriptLoader
 {
     public:
         spell_hun_improved_serpent_sting() : SpellScriptLoader("spell_hun_improved_serpent_sting") { }
@@ -1501,7 +1894,7 @@ class spell_hun_improved_serpent_sting : public SpellScriptLoader
 };
 
 // Powershot - 109259
-class spell_hun_powershot : public SpellScriptLoader
+class spell_hun_powershot: public SpellScriptLoader
 {
     public:
         spell_hun_powershot() : SpellScriptLoader("spell_hun_powershot") { }
@@ -1578,7 +1971,7 @@ class spell_hun_powershot : public SpellScriptLoader
 };
 
 // Feign Death - 5384
-class spell_hun_feign_death : public SpellScriptLoader
+class spell_hun_feign_death: public SpellScriptLoader
 {
     public:
         spell_hun_feign_death() : SpellScriptLoader("spell_hun_feign_death") { }
@@ -1619,7 +2012,7 @@ class spell_hun_feign_death : public SpellScriptLoader
 };
 
 // Camouflage - 51755
-class spell_hun_camouflage_visual : public SpellScriptLoader
+class spell_hun_camouflage_visual: public SpellScriptLoader
 {
     public:
         spell_hun_camouflage_visual() : SpellScriptLoader("spell_hun_camouflage_visual") { }
@@ -1651,7 +2044,7 @@ class spell_hun_camouflage_visual : public SpellScriptLoader
 
 // Called by Multi Shot - 2643
 // Serpent Spread - 87935
-class spell_hun_serpent_spread : public SpellScriptLoader
+class spell_hun_serpent_spread: public SpellScriptLoader
 {
     public:
         spell_hun_serpent_spread() : SpellScriptLoader("spell_hun_serpent_spread") { }
@@ -1681,7 +2074,7 @@ class spell_hun_serpent_spread : public SpellScriptLoader
 };
 
 // Ancient Hysteria - 90355
-class spell_hun_ancient_hysteria : public SpellScriptLoader
+class spell_hun_ancient_hysteria: public SpellScriptLoader
 {
     public:
         spell_hun_ancient_hysteria() : SpellScriptLoader("spell_hun_ancient_hysteria") { }
@@ -1734,7 +2127,7 @@ class spell_hun_ancient_hysteria : public SpellScriptLoader
 };
 
 // Kill Command - 34026
-class spell_hun_kill_command : public SpellScriptLoader
+class spell_hun_kill_command: public SpellScriptLoader
 {
     public:
         spell_hun_kill_command() : SpellScriptLoader("spell_hun_kill_command") { }
@@ -1802,7 +2195,7 @@ class spell_hun_kill_command : public SpellScriptLoader
 };
 
 // Cobra Shot - 77767
-class spell_hun_cobra_shot : public SpellScriptLoader
+class spell_hun_cobra_shot: public SpellScriptLoader
 {
     public:
         spell_hun_cobra_shot() : SpellScriptLoader("spell_hun_cobra_shot") { }
@@ -1830,7 +2223,7 @@ class spell_hun_cobra_shot : public SpellScriptLoader
 };
 
 // Steady Shot - 56641
-class spell_hun_steady_shot : public SpellScriptLoader
+class spell_hun_steady_shot: public SpellScriptLoader
 {
     public:
         spell_hun_steady_shot() : SpellScriptLoader("spell_hun_steady_shot") { }
@@ -1839,18 +2232,24 @@ class spell_hun_steady_shot : public SpellScriptLoader
         {
             PrepareSpellScript(spell_hun_steady_shot_SpellScript);
 
+            void HandleAfterCast()
+            {
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->CastSpell(l_Caster, HUNTER_SPELL_STEADY_SHOT_ENERGIZE, true);
+            }
+
             void HandleOnHit()
             {
-                if (Unit* l_Player = GetCaster())
+                if (Unit* l_Caster = GetCaster())
+                {
                     if (Unit* target = GetHitUnit())
-                    {
-                        l_Player->CastSpell(l_Player, HUNTER_SPELL_STEADY_SHOT_ENERGIZE, true);
                         SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), GetSpellInfo()->Effects[EFFECT_1].BasePoints));
-                    }
+                }
             }
 
             void Register()
             {
+                AfterCast += SpellCastFn(spell_hun_steady_shot_SpellScript::HandleAfterCast);
                 OnHit += SpellHitFn(spell_hun_steady_shot_SpellScript::HandleOnHit);
             }
         };
@@ -1861,41 +2260,69 @@ class spell_hun_steady_shot : public SpellScriptLoader
         }
 };
 
-// Chimera Shot - 53209
-class spell_hun_chimera_shot : public SpellScriptLoader
+// Chimaera Shot - 53209
+class spell_hun_chimaera_shot: public SpellScriptLoader
 {
     public:
-        spell_hun_chimera_shot() : SpellScriptLoader("spell_hun_chimera_shot") { }
+        spell_hun_chimaera_shot() : SpellScriptLoader("spell_hun_chimaera_shot") { }
 
-        class spell_hun_chimera_shot_SpellScript : public SpellScript
+        class spell_hun_chimaera_shot_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_hun_chimera_shot_SpellScript);
+            PrepareSpellScript(spell_hun_chimaera_shot_SpellScript);
 
-            void HandleOnHit()
+            enum ChimaeraSpells
+            {
+                SpellChimaeraFrost  = 171454,
+                SpellChimaeraNature = 171457,
+                GlyphOfChimaeraShot = 119447,
+                ChimaeraShotHealing = 53353
+            };
+
+            bool m_Healed;
+
+            bool Load()
+            {
+                m_Healed = false;
+                return true;
+            }
+
+            void HandleOnHit(SpellEffIndex)
             {
                 if (Unit* l_Caster = GetCaster())
+                {
                     if (Unit* l_Target = GetHitUnit())
                     {
-                        l_Caster->CastSpell(l_Target, HUNTER_SPELL_CHIMERA_SHOT, true);
+                        ///< 50% chance to deals frost damage or nature damage
+                        if (urand(0, 1))
+                            l_Caster->CastSpell(l_Target, ChimaeraSpells::SpellChimaeraFrost, true);
+                        else
+                            l_Caster->CastSpell(l_Target, ChimaeraSpells::SpellChimaeraNature, true);
 
-                        if (l_Caster->HasAura(HUNTER_SPELL_GLYPH_OF_CHIMERA_SHOT))
-                            l_Caster->SetHealth(l_Caster->GetHealth() + CalculatePct(l_Caster->GetMaxHealth(), sSpellMgr->GetSpellInfo(HUNTER_SPELL_GLYPH_OF_CHIMERA_SHOT)->Effects[EFFECT_0].BasePoints));
+                        SpellInfo const* l_GlyphOfChimaera = sSpellMgr->GetSpellInfo(ChimaeraSpells::GlyphOfChimaeraShot);
+                        if (l_Caster->HasAura(ChimaeraSpells::GlyphOfChimaeraShot) && l_GlyphOfChimaera != nullptr && !m_Healed)
+                        {
+                            m_Healed = true;
+
+                            int32 l_Value = l_GlyphOfChimaera->Effects[EFFECT_0].BasePoints;
+                            l_Caster->CastCustomSpell(l_Caster, ChimaeraSpells::ChimaeraShotHealing, &l_Value, NULL, NULL, true);
+                        }
                     }
+                }
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_hun_chimera_shot_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_hun_chimaera_shot_SpellScript::HandleOnHit, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_hun_chimera_shot_SpellScript();
+            return new spell_hun_chimaera_shot_SpellScript();
         }
 };
 
-class spell_hun_last_stand_pet : public SpellScriptLoader
+class spell_hun_last_stand_pet: public SpellScriptLoader
 {
     public:
         spell_hun_last_stand_pet() : SpellScriptLoader("spell_hun_last_stand_pet") { }
@@ -1932,7 +2359,7 @@ class spell_hun_last_stand_pet : public SpellScriptLoader
 };
 
 // Master's Call - 53271
-class spell_hun_masters_call : public SpellScriptLoader
+class spell_hun_masters_call: public SpellScriptLoader
 {
     public:
         spell_hun_masters_call() : SpellScriptLoader("spell_hun_masters_call") { }
@@ -1999,7 +2426,7 @@ class spell_hun_masters_call : public SpellScriptLoader
 };
 
 // Scatter Shot - 37506
-class spell_hun_scatter_shot : public SpellScriptLoader
+class spell_hun_scatter_shot: public SpellScriptLoader
 {
     public:
         spell_hun_scatter_shot() : SpellScriptLoader("spell_hun_scatter_shot") { }
@@ -2038,72 +2465,7 @@ class spell_hun_scatter_shot : public SpellScriptLoader
         }
 };
 
-// 53302, 53303, 53304 Sniper Training
-enum eSniperTrainingSpells
-{
-    SPELL_SNIPER_TRAINING_R1        = 53302,
-    SPELL_SNIPER_TRAINING_BUFF_R1   = 64418,
-};
-
-class spell_hun_sniper_training : public SpellScriptLoader
-{
-    public:
-        spell_hun_sniper_training() : SpellScriptLoader("spell_hun_sniper_training") { }
-
-        class spell_hun_sniper_training_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_hun_sniper_training_AuraScript);
-
-            bool Validate(SpellInfo const* /*entry*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SNIPER_TRAINING_R1) || !sSpellMgr->GetSpellInfo(SPELL_SNIPER_TRAINING_BUFF_R1))
-                    return false;
-                return true;
-            }
-
-            void HandlePeriodic(constAuraEffectPtr aurEff)
-            {
-                PreventDefaultAction();
-                if (aurEff->GetAmount() <= 0)
-                {
-                    Unit* caster = GetCaster();
-                    uint32 spellId = SPELL_SNIPER_TRAINING_BUFF_R1 + GetId() - SPELL_SNIPER_TRAINING_R1;
-                    if (Unit* target = GetTarget())
-                        if (!target->HasAura(spellId))
-                        {
-                            SpellInfo const* triggeredSpellInfo = sSpellMgr->GetSpellInfo(spellId);
-                            Unit* triggerCaster = triggeredSpellInfo->NeedsToBeTriggeredByCaster() ? caster : target;
-                            triggerCaster->CastSpell(target, triggeredSpellInfo, true, 0, aurEff);
-                        }
-                }
-            }
-
-            void HandleUpdatePeriodic(AuraEffectPtr aurEff)
-            {
-                if (Player* playerTarget = GetUnitOwner()->ToPlayer())
-                {
-                    int32 baseAmount = aurEff->GetBaseAmount();
-                    int32 amount = playerTarget->isMoving() ?
-                    playerTarget->CalculateSpellDamage(playerTarget, GetSpellInfo(), aurEff->GetEffIndex(), &baseAmount) :
-                    aurEff->GetAmount() - 1;
-                    aurEff->SetAmount(amount);
-                }
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_sniper_training_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-                OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_hun_sniper_training_AuraScript::HandleUpdatePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_hun_sniper_training_AuraScript();
-        }
-};
-
-class spell_hun_pet_heart_of_the_phoenix : public SpellScriptLoader
+class spell_hun_pet_heart_of_the_phoenix: public SpellScriptLoader
 {
     public:
         spell_hun_pet_heart_of_the_phoenix() : SpellScriptLoader("spell_hun_pet_heart_of_the_phoenix") { }
@@ -2150,7 +2512,7 @@ class spell_hun_pet_heart_of_the_phoenix : public SpellScriptLoader
         }
 };
 
-class spell_hun_pet_carrion_feeder : public SpellScriptLoader
+class spell_hun_pet_carrion_feeder: public SpellScriptLoader
 {
     public:
         spell_hun_pet_carrion_feeder() : SpellScriptLoader("spell_hun_pet_carrion_feeder") { }
@@ -2208,7 +2570,7 @@ class spell_hun_pet_carrion_feeder : public SpellScriptLoader
 };
 
 // Misdirection - 34477
-class spell_hun_misdirection : public SpellScriptLoader
+class spell_hun_misdirection: public SpellScriptLoader
 {
     public:
         spell_hun_misdirection() : SpellScriptLoader("spell_hun_misdirection") { }
@@ -2216,6 +2578,13 @@ class spell_hun_misdirection : public SpellScriptLoader
         class spell_hun_misdirection_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_hun_misdirection_AuraScript);
+
+            enum MisdirectionSpells
+            {
+                GlyphOfMisdirection = 56829,
+                MisdirectionSpell   = 34477,
+                MisdirectionProc    = 35079
+            };
 
             bool _hasGlyph;
 
@@ -2230,11 +2599,19 @@ class spell_hun_misdirection : public SpellScriptLoader
                 _hasGlyph = false;
 
                 if (Player* _player = GetCaster()->ToPlayer())
+                {
                     if (Unit* target = GetTarget())
+                    {
                         if (Pet* pet = _player->GetPet())
+                        {
                             if (pet->GetGUID() == target->GetGUID())
-                                if (_player->HasAura(HUNTER_SPELL_GLYPH_OF_MISDIRECTION))
+                            {
+                                if (_player->HasAura(MisdirectionSpells::GlyphOfMisdirection))
                                     _hasGlyph = true;
+                            }
+                        }
+                    }
+                }
             }
 
             void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -2250,10 +2627,10 @@ class spell_hun_misdirection : public SpellScriptLoader
 
                         if (_hasGlyph)
                         {
-                            if (_player->HasSpellCooldown(HUNTER_SPELL_MISDIRECTION))
-                                _player->RemoveSpellCooldown(HUNTER_SPELL_MISDIRECTION, true);
-                            if (_player->HasSpellCooldown(HUNTER_SPELL_MISDIRECTION_PROC))
-                                _player->RemoveSpellCooldown(HUNTER_SPELL_MISDIRECTION, true);
+                            if (_player->HasSpellCooldown(MisdirectionSpells::MisdirectionSpell))
+                                _player->RemoveSpellCooldown(MisdirectionSpells::MisdirectionSpell, true);
+                            if (_player->HasSpellCooldown(MisdirectionSpells::MisdirectionProc))
+                                _player->RemoveSpellCooldown(MisdirectionSpells::MisdirectionProc, true);
                         }
                     }
                 }
@@ -2261,8 +2638,8 @@ class spell_hun_misdirection : public SpellScriptLoader
 
             void Register()
             {
-                AfterEffectApply += AuraEffectApplyFn(spell_hun_misdirection_AuraScript::OnApply, EFFECT_2, SPELL_AURA_MOD_SCALE, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_hun_misdirection_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply += AuraEffectApplyFn(spell_hun_misdirection_AuraScript::OnApply, EFFECT_1, SPELL_AURA_MOD_SCALE, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_hun_misdirection_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_MOD_SCALE, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -2273,7 +2650,7 @@ class spell_hun_misdirection : public SpellScriptLoader
 };
 
 // Misdirection (proc) - 35079
-class spell_hun_misdirection_proc : public SpellScriptLoader
+class spell_hun_misdirection_proc: public SpellScriptLoader
 {
     public:
         spell_hun_misdirection_proc() : SpellScriptLoader("spell_hun_misdirection_proc") { }
@@ -2301,7 +2678,7 @@ class spell_hun_misdirection_proc : public SpellScriptLoader
 };
 
 // Disengage - 781
-class spell_hun_disengage : public SpellScriptLoader
+class spell_hun_disengage: public SpellScriptLoader
 {
     public:
         spell_hun_disengage() : SpellScriptLoader("spell_hun_disengage") { }
@@ -2352,7 +2729,7 @@ class spell_hun_disengage : public SpellScriptLoader
 };
 
 // Tame Beast - 1515
-class spell_hun_tame_beast : public SpellScriptLoader
+class spell_hun_tame_beast: public SpellScriptLoader
 {
     public:
         spell_hun_tame_beast() : SpellScriptLoader("spell_hun_tame_beast") { }
@@ -2363,41 +2740,38 @@ class spell_hun_tame_beast : public SpellScriptLoader
 
             SpellCastResult CheckCast()
             {
-                if (Player* caster = GetCaster()->ToPlayer())
+                int8 l_ResultId = -1;
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (!GetExplTargetUnit() || GetExplTargetUnit()->GetTypeId() != TYPEID_UNIT)
+                    l_ResultId = PET_TAME_ERROR_INVALID_CREATURE;
+
+                Creature* l_Target = GetExplTargetUnit()->ToCreature();
+
+                // No errors until now, time to do more checks
+                if (l_ResultId == -1)
                 {
-                    if (!GetExplTargetUnit())
-                        return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
-
-                    // If we have a full list we shoulden't be able to create a new one.
-                    if (caster->getSlotForNewPet() == PET_SLOT_FULL_LIST)
-                    {
-                        caster->SendPetTameResult(PET_TAME_ERROR_TOO_MANY_PETS);
-                        return SPELL_FAILED_DONT_REPORT;
-                    }
-
-                    if (Creature* target = GetExplTargetUnit()->ToCreature())
-                    {
-                        if (target->getLevel() > caster->getLevel())
-                            return SPELL_FAILED_HIGHLEVEL;
-
-                        if (!target->GetCreatureTemplate()->isTameable(caster->ToPlayer()->CanTameExoticPets()))
-                            return SPELL_FAILED_BAD_TARGETS;
-
-                        if (caster->GetPetGUID())
-                            return SPELL_FAILED_ALREADY_HAVE_SUMMON;
-
-                        if (caster->GetCharmGUID())
-                            return SPELL_FAILED_ALREADY_HAVE_CHARM;
-                    }
-                    else
-                        return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
-
-                    return SPELL_CAST_OK;
+                    if (l_Player->getSlotForNewPet() == PET_SLOT_FULL_LIST)
+                        l_ResultId = PET_TAME_ERROR_TOO_MANY_PETS;
+                    else if (l_Player->GetPetGUID() || l_Player->GetCharmGUID())
+                        l_ResultId = PET_TAME_ERROR_ANOTHER_SUMMON_ACTIVE;
+                    else if (l_Target->isPet())
+                        l_ResultId = PET_TAME_ERROR_CREATURE_ALREADY_OWNED;
+                    else if (l_Target->getLevel() > l_Player->getLevel())
+                        l_ResultId = PET_TAME_ERROR_TOO_HIGH_LEVEL;
+                    else if ((l_Target->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_EXOTIC) && !l_Player->CanTameExoticPets())
+                        l_ResultId = PET_TAME_ERROR_CANT_CONTROL_EXOTIC;
+                    else if (!l_Target->GetCreatureTemplate()->isTameable(l_Player->CanTameExoticPets()))
+                        l_ResultId = PET_TAME_ERROR_NOT_TAMEABLE;
                 }
-                else
-                    return SPELL_FAILED_DONT_REPORT;
 
-                return SPELL_FAILED_DONT_REPORT;
+                if (l_ResultId >= 0)
+                {
+                    l_Player->SendPetTameResult((PetTameResult) l_ResultId);
+                    return SPELL_FAILED_DONT_REPORT;
+                }
+
+                return SPELL_CAST_OK;
             }
 
             void Register()
@@ -2412,97 +2786,138 @@ class spell_hun_tame_beast : public SpellScriptLoader
         }
 };
 
-//Kill shot - 53351
-class spell_hun_kill_shot : public SpellScriptLoader
+// Claw - 16827 / Bite - 17253
+class spell_hun_claw_bite : public SpellScriptLoader
 {
-public:
-    spell_hun_kill_shot() : SpellScriptLoader("spell_hun_kill_shot") { }
+    public:
+        spell_hun_claw_bite() : SpellScriptLoader("spell_hun_claw_bite") { }
 
-    class spell_hun_kill_shot_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_hun_kill_shot_SpellScript);
-
-        void HandleOnHit()
+        class spell_hun_claw_bite_SpellScript : public SpellScript
         {
-            if (Player* l_Player = GetCaster()->ToPlayer())
-                if (Unit* l_Target = GetHitUnit())
-                    if (l_Target->GetHealth() <= uint32(GetHitDamage()))
+            PrepareSpellScript(spell_hun_claw_bite_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* l_Pet = GetCaster())
+                    if (Unit* l_Hunter = GetCaster()->GetOwner())
                     {
-                        if (l_Player->HasSpellCooldown(GetSpellInfo()->Id))
-                            l_Player->RemoveSpellCooldown(GetSpellInfo()->Id, true);
-                        l_Player->CastSpell(l_Player, HUNTER_SPELL_KILL_SHOT_HEAL, true);
+                        int32 l_Damage = int32(1.5f * l_Hunter->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.333f);
+
+                        // Deals 100% more damage and costs 100% more Focus when your pet has 50 or more Focus.
+                        if (l_Pet->GetPower(POWER_FOCUS) + 25 >= 50)
+                        {
+                            const SpellInfo* l_SpellInfo = sSpellMgr->GetSpellInfo(HUNTER_SPELL_BASIC_ATTACK_COST_MODIFIER);
+                            if (l_SpellInfo)
+                                l_Damage += CalculatePct(l_Damage, l_SpellInfo->Effects[EFFECT_1].BasePoints);
+                            l_Pet->EnergizeBySpell(l_Pet, GetSpellInfo()->Id, -25, POWER_FOCUS);
+                        }
+                        SetHitDamage(l_Damage);
                     }
-        }
+            }
 
+            void HandleBeforeHit()
+            {
+                SetHitDamage(1);
+            }
 
-        void Register()
+            void Register()
+            {
+                BeforeHit += SpellHitFn(spell_hun_claw_bite_SpellScript::HandleBeforeHit);
+                OnHit += SpellHitFn(spell_hun_claw_bite_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnHit += SpellHitFn(spell_hun_kill_shot_SpellScript::HandleOnHit);
+            return new spell_hun_claw_bite_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_hun_kill_shot_SpellScript;
-    }
 };
 
-//Bombardment - 35110 
-class spell_hun_bombardment : public SpellScriptLoader
+// Spirit Mend - 90361
+class spell_hun_spirit_mend : public SpellScriptLoader
 {
 public:
-    spell_hun_bombardment() : SpellScriptLoader("spell_hun_bombardment") { }
+    spell_hun_spirit_mend() : SpellScriptLoader("spell_hun_spirit_mend") { }
 
-    class spell_hun_bombardment_AuraScript : public AuraScript
+    class spell_hun_spirit_mend_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_hun_bombardment_AuraScript);
+        PrepareAuraScript(spell_hun_spirit_mend_AuraScript);
 
-        void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& p_EventInfo)
+        void CalculateAmount(constAuraEffectPtr l_AuraEffect, int32& l_Amount, bool& /*canBeRecalculated*/)
         {
-            PreventDefaultAction();
-            
             if (Unit* l_Caster = GetCaster())
-                if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id == HUNTER_SPELL_MULTI_SHOT)
-                    l_Caster->CastSpell(l_Caster, HUNTER_SPELL_BOMBARDMENT, true);
+            {
+                if (l_AuraEffect->GetAmplitude() && GetMaxDuration())
+                    l_Amount = int32(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.35f * 0.5f) / (GetMaxDuration() / l_AuraEffect->GetAmplitude());
+            }
         }
 
         void Register()
         {
-            OnEffectProc += AuraEffectProcFn(spell_hun_bombardment_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_spirit_mend_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_PERIODIC_HEAL);
         }
     };
 
     AuraScript* GetAuraScript() const
     {
-        return new spell_hun_bombardment_AuraScript();
+        return new spell_hun_spirit_mend_AuraScript();
+    }
+
+    class spell_hun_spirit_mend_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_hun_spirit_mend_SpellScript);
+
+        void HandleHeal(SpellEffIndex)
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                SetHitHeal(int32(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.35f * 0.75f));
+            }
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_hun_spirit_mend_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_hun_spirit_mend_SpellScript();
     }
 };
 
 // Thrill of the Hunt - 109396
-class PlayerScript_thrill_of_the_hunt : public PlayerScript
+class PlayerScript_thrill_of_the_hunt: public PlayerScript
 {
-public:
-    PlayerScript_thrill_of_the_hunt() :PlayerScript("PlayerScript_thrill_of_the_hunt") {}
+    public:
+        PlayerScript_thrill_of_the_hunt() :PlayerScript("PlayerScript_thrill_of_the_hunt") {}
 
-    void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_Value)
-    {
-        if (p_Player->getClass() == CLASS_HUNTER && p_Power == POWER_FOCUS && p_Player->HasAura(HUNTER_SPELL_THRILL_OF_THE_HUNT) && p_Value < 0)
+        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_Value)
         {
-            for (int8 i = 0; i < ((p_Value / 10) * -1); ++i)
+            if (p_Player->getClass() == CLASS_HUNTER && p_Power == POWER_FOCUS && p_Player->HasAura(HUNTER_SPELL_THRILL_OF_THE_HUNT) && p_Value < 0)
             {
-                if (roll_chance_i(sSpellMgr->GetSpellInfo(HUNTER_SPELL_THRILL_OF_THE_HUNT)->Effects[EFFECT_0].BasePoints))
-                    p_Player->CastSpell(p_Player, HUNTER_SPELL_THRILL_OF_THE_HUNT_PROC, true);
+                for (int8 i = 0; i < ((p_Value / 10) * -1); ++i)
+                {
+                    if (roll_chance_i(sSpellMgr->GetSpellInfo(HUNTER_SPELL_THRILL_OF_THE_HUNT)->Effects[EFFECT_0].BasePoints))
+                        p_Player->CastSpell(p_Player, HUNTER_SPELL_THRILL_OF_THE_HUNT_PROC, true);
+                }
             }
         }
-    }
 };
 
 void AddSC_hunter_spell_scripts()
 {
-    new spell_hun_bombardment();
+    new spell_hun_spirit_mend();
+    new spell_hun_thunderstomp();
+    new spell_hun_steady_focus();
+    new spell_hun_cornered();
+    new spell_hun_lone_wolf();
+    new spell_hun_kill_shot();
+    new spell_hun_exotic_munitions();
+    new spell_hun_claw_bite();
     new spell_hun_glyph_of_animal_bond();
     new spell_hun_spirit_bond_apply();
-    new spell_hun_kill_shot();
     new spell_hun_hunters_mark();
     new spell_hun_fireworks();
     new spell_hun_glyph_of_fireworks();
@@ -2538,11 +2953,10 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_kill_command();
     new spell_hun_cobra_shot();
     new spell_hun_steady_shot();
-    new spell_hun_chimera_shot();
+    new spell_hun_chimaera_shot();
     new spell_hun_last_stand_pet();
     new spell_hun_masters_call();
     new spell_hun_scatter_shot();
-    new spell_hun_sniper_training();
     new spell_hun_pet_heart_of_the_phoenix();
     new spell_hun_pet_carrion_feeder();
     new spell_hun_misdirection();

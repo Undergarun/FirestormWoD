@@ -3335,8 +3335,6 @@ class npc_rate_xp_modifier : public CreatureScript
 
         bool OnGossipHello(Player *pPlayer, Creature *pCreature)
         {
-            uint32 maxRates = sWorld->getRate(RATE_XP_KILL);
-
             for (uint32 i = 1; i < sWorld->getRate(RATE_XP_KILL); ++i)
             {
                 std::ostringstream gossipText;
@@ -3357,7 +3355,7 @@ class npc_rate_xp_modifier : public CreatureScript
 
         bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
         {
-            if (uiAction < 0 || uiAction >= sWorld->getRate(RATE_XP_KILL))
+            if (uiAction >= sWorld->getRate(RATE_XP_KILL))
             {
                 pPlayer->PlayerTalkClass->SendCloseGossip();
                 return true;
@@ -5005,7 +5003,7 @@ class npc_force_of_nature : public CreatureScript
 };
 
 // Swiftmend - 142423
-class spell_special_swiftmend : public SpellScriptLoader
+class spell_special_swiftmend: public SpellScriptLoader
 {
     public:
         spell_special_swiftmend() : SpellScriptLoader("spell_special_swiftmend") { }

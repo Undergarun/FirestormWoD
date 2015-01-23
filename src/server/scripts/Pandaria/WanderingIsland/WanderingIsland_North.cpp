@@ -154,7 +154,7 @@ public:
             me->SetReactState(REACT_PASSIVE);
         }
 
-        void EnterCombat()
+        void EnterCombat(Unit* /*enemy*/)
         {
             return;
         }
@@ -351,6 +351,7 @@ public:
                 {
                     player->KilledMonsterCredit(me->GetEntry(), 0);
                     me->CombatStop();
+                    player->CombatStop(true);
                     me->setFaction(35);
                     me->SetFullHealth();
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -365,19 +366,15 @@ public:
             }
         }
 
-        void DoAction(const int32 action)
+        void DoAction(const int32 p_Action)
         {
-            switch (action)
+            if (p_Action == ACTION_TALK)
             {
-            case ACTION_TALK:
                 if (hasSaidIntro == false)
                 {
                     Talk(0);
                     hasSaidIntro = true;
                 }
-                break;
-            default:
-                break;
             }
         }
 
@@ -853,7 +850,7 @@ public:
 
                         if(timer == 25 && !lifeiGUID)
                         {
-                            if (lifei = me->SummonCreature(54856, 1130.162231f, 3435.905518f, 105.496597f, 0.0f,TEMPSUMMON_MANUAL_DESPAWN))
+                            if ((lifei = me->SummonCreature(54856, 1130.162231f, 3435.905518f, 105.496597f, 0.0f,TEMPSUMMON_MANUAL_DESPAWN)))
                             {
                                 lifeiGUID = lifei->GetGUID();
                                 lifei->MonsterSay("The way of the Tushui... enlightenment through patience and mediation... the principled life", LANG_UNIVERSAL, 0);
@@ -1554,7 +1551,7 @@ class npc_merchant_lorvo : public CreatureScript
                 hasSaid1 = false;
             }
 
-            void DoAction (uint8 action)
+            void DoAction (int32 const action)
             {
                 switch (action)
                 {
@@ -1610,7 +1607,7 @@ class mob_ji_firepaw : public CreatureScript
                 hasSaid1 = false;
             }
 
-            void DoAction (uint8 action)
+            void DoAction (int32 const action)
             {
                 switch (action)
                 {
@@ -1664,30 +1661,26 @@ class mob_huojin_monk : public CreatureScript
                 hasSaid1 = false;
             }
 
-            void DoAction (uint8 action)
+            void DoAction (int32 const action)
             {
-                switch (action)
+                if (action == ACTION_TALK)
                 {
-                case ACTION_TALK:
                     if (!hasSaid1)
                     {
                         Talk(0);
                         hasSaid1 = true;
                     }
-                    break;
                 }
             }
 
             void UpdateAI(const uint32 diff)
             {
-                std::list<Player*> playerList;
-                GetPlayerListInGrid(playerList, me, 10.0f);
-                for (auto player: playerList)
+                std::list<Player*> l_PlayerList;
+                GetPlayerListInGrid(l_PlayerList, me, 10.0f);
+                for (Player* l_Player : l_PlayerList)
                 {
-                    if (player->GetQuestStatus(29420) == QUEST_STATUS_COMPLETE)
-                    {
+                    if (l_Player->GetQuestStatus(29420) == QUEST_STATUS_COMPLETE)
                         DoAction(ACTION_TALK);
-                    }
                 }
 
                 DoMeleeAttackIfReady();
@@ -1718,7 +1711,7 @@ class mob_chia_hui_autumnleaf : public CreatureScript
                 hasSaid1 = false;
             }
 
-            void DoAction (uint8 action)
+            void DoAction (int32 const action)
             {
                 switch (action)
                 {
@@ -1772,7 +1765,7 @@ class mob_brewer_lin : public CreatureScript
                 hasSaid1 = false;
             }
 
-            void DoAction (uint8 action)
+            void DoAction(int32 const action)
             {
                 switch (action)
                 {

@@ -36,7 +36,6 @@ at_area_52_entrance
 EndContentData */
 
 #include "ScriptPCH.h"
-#include "AreaTriggerScript.h"
 
 /*######
 ## at_coilfang_waterfall
@@ -610,15 +609,15 @@ class AreaTrigger_at_mason_s_folly : public AreaTriggerScript
         }
 };
 
-class AreaTrigger_ice_trap : public MS::AreaTriggerEntityScript
+class AreaTrigger_ice_trap : public AreaTriggerEntityScript
 {
 public:
     AreaTrigger_ice_trap()
-        : MS::AreaTriggerEntityScript("at_ice_trap")
+        : AreaTriggerEntityScript("at_ice_trap")
     {
     }
 
-    MS::AreaTriggerEntityScript* GetAI() const
+    AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_ice_trap();
     }
@@ -644,15 +643,15 @@ public:
     }
 };
 
-class AreaTrigger_power_word_barrier : public MS::AreaTriggerEntityScript
+class AreaTrigger_power_word_barrier : public AreaTriggerEntityScript
 {
 public:
     AreaTrigger_power_word_barrier()
-        : MS::AreaTriggerEntityScript("at_power_word_barrier")
+        : AreaTriggerEntityScript("at_power_word_barrier")
     {
     }
 
-    MS::AreaTriggerEntityScript* GetAI() const
+    AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_power_word_barrier();
     }
@@ -671,15 +670,15 @@ public:
     }
 };
 
-class AreaTrigger_ursol_vortex : public MS::AreaTriggerEntityScript
+class AreaTrigger_ursol_vortex : public AreaTriggerEntityScript
 {
 public:
     AreaTrigger_ursol_vortex()
-        : MS::AreaTriggerEntityScript("at_ursol_vortex")
+        : AreaTriggerEntityScript("at_ursol_vortex")
     {
     }
 
-    MS::AreaTriggerEntityScript* GetAI() const
+    AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_ursol_vortex();
     }
@@ -701,15 +700,15 @@ public:
     }
 };
 
-class AreaTrigger_healing_sphere : public MS::AreaTriggerEntityScript
+class AreaTrigger_healing_sphere : public AreaTriggerEntityScript
 {
 public:
     AreaTrigger_healing_sphere()
-        : MS::AreaTriggerEntityScript("at_healing_sphere")
+        : AreaTriggerEntityScript("at_healing_sphere")
     {
     }
 
-    MS::AreaTriggerEntityScript* GetAI() const
+    AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_healing_sphere();
     }
@@ -736,15 +735,15 @@ public:
     }
 };
 
-class AreaTrigger_cancel_barrier : public MS::AreaTriggerEntityScript
+class AreaTrigger_cancel_barrier : public AreaTriggerEntityScript
 {
 public:
     AreaTrigger_cancel_barrier()
-        : MS::AreaTriggerEntityScript("at_cancel_barrier")
+        : AreaTriggerEntityScript("at_cancel_barrier")
     {
     }
 
-    MS::AreaTriggerEntityScript* GetAI() const
+    AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_cancel_barrier();
     }
@@ -764,15 +763,15 @@ public:
     }
 };
 
-class AreaTrigger_rune_of_power : public MS::AreaTriggerEntityScript
+class AreaTrigger_rune_of_power : public AreaTriggerEntityScript
 {
 public:
     AreaTrigger_rune_of_power()
-        : MS::AreaTriggerEntityScript("at_rune_of_power")
+        : AreaTriggerEntityScript("at_rune_of_power")
     {
     }
 
-    MS::AreaTriggerEntityScript* GetAI() const
+    AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_rune_of_power();
     }
@@ -795,7 +794,7 @@ public:
         }
     }
 
-    void OnRemove(AreaTrigger* p_AreaTrigger)
+    void OnRemove(AreaTrigger* p_AreaTrigger, uint32(p_time))
     {
         Unit* l_Caster = p_AreaTrigger->GetCaster();
         if (l_Caster && l_Caster->HasAura(116014))
@@ -803,15 +802,15 @@ public:
     }
 };
 
-class AreaTrigger_amethyst_pool : public MS::AreaTriggerEntityScript
+class AreaTrigger_amethyst_pool : public AreaTriggerEntityScript
 {
 public:
     AreaTrigger_amethyst_pool()
-        : MS::AreaTriggerEntityScript("at_amethyst_pool")
+        : AreaTriggerEntityScript("at_amethyst_pool")
     {
     }
 
-    MS::AreaTriggerEntityScript* GetAI() const
+    AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_amethyst_pool();
     }
@@ -840,15 +839,15 @@ public:
     }
 };
 
-class AreaTrigger_cancelling_noise_area_trigger : public MS::AreaTriggerEntityScript
+class AreaTrigger_cancelling_noise_area_trigger : public AreaTriggerEntityScript
 {
 public:
     AreaTrigger_cancelling_noise_area_trigger()
-        : MS::AreaTriggerEntityScript("at_cancelling_noise_area_trigger")
+        : AreaTriggerEntityScript("at_cancelling_noise_area_trigger")
     {
     }
 
-    MS::AreaTriggerEntityScript* GetAI() const
+    AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_cancelling_noise_area_trigger();
     }
@@ -876,7 +875,7 @@ public:
         }
     }
 
-    void OnRemove(AreaTrigger* p_AreaTrigger)
+    void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
     {
         std::list<Player*> playerList;
         p_AreaTrigger->GetPlayerListInGrid(playerList, 200.0f);
@@ -887,15 +886,15 @@ public:
     }
 };
 
-class AreaTrigger_get_away : public MS::AreaTriggerEntityScript
+class AreaTrigger_get_away : public AreaTriggerEntityScript
 {
 public:
     AreaTrigger_get_away()
-        : MS::AreaTriggerEntityScript("at_get_away")
+        : AreaTriggerEntityScript("at_get_away")
     {
     }
 
-    MS::AreaTriggerEntityScript* GetAI() const
+    AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_get_away();
     }
@@ -924,7 +923,7 @@ public:
         }
     }
 
-    void OnRemove(AreaTrigger* p_AreaTrigger)
+    void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
     {
         std::list<Player*> playerList;
         p_AreaTrigger->GetPlayerListInGrid(playerList, 100.0f);
@@ -937,15 +936,15 @@ public:
     }
 };
 
-class AreaTrigger_draw_power : public MS::AreaTriggerEntityScript
+class AreaTrigger_draw_power : public AreaTriggerEntityScript
 {
 public:
     AreaTrigger_draw_power()
-        : MS::AreaTriggerEntityScript("at_draw_power")
+        : AreaTriggerEntityScript("at_draw_power")
     {
     }
 
-    MS::AreaTriggerEntityScript* GetAI() const
+    AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_draw_power();
     }
@@ -973,15 +972,15 @@ public:
     }
 };
 
-class AreaTrigger_healing_sphere_2 : public MS::AreaTriggerEntityScript
+class AreaTrigger_healing_sphere_2 : public AreaTriggerEntityScript
 {
 public:
     AreaTrigger_healing_sphere_2()
-        : MS::AreaTriggerEntityScript("at_healing_sphere_2")
+        : AreaTriggerEntityScript("at_healing_sphere_2")
     {
     }
 
-    MS::AreaTriggerEntityScript* GetAI() const
+    AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_healing_sphere_2();
     }
@@ -1011,15 +1010,15 @@ public:
     }
 };
 
-class AreaTrigger_gift_of_the_serpent : public MS::AreaTriggerEntityScript
+class AreaTrigger_gift_of_the_serpent : public AreaTriggerEntityScript
 {
 public:
     AreaTrigger_gift_of_the_serpent()
-        : MS::AreaTriggerEntityScript("at_gift_of_the_serpent")
+        : AreaTriggerEntityScript("at_gift_of_the_serpent")
     {
     }
 
-    MS::AreaTriggerEntityScript* GetAI() const
+    AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_gift_of_the_serpent();
     }
@@ -1046,15 +1045,15 @@ public:
     }
 };
 
-class AreaTrigger_chi_sphere_afterlife : public MS::AreaTriggerEntityScript
+class AreaTrigger_chi_sphere_afterlife : public AreaTriggerEntityScript
 {
 public:
     AreaTrigger_chi_sphere_afterlife()
-        : MS::AreaTriggerEntityScript("at_chi_sphere_afterlife")
+        : AreaTriggerEntityScript("at_chi_sphere_afterlife")
     {
     }
 
-    MS::AreaTriggerEntityScript* GetAI() const
+    AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_chi_sphere_afterlife();
     }
@@ -1084,15 +1083,15 @@ public:
     }
 };
 
-class AreaTrigger_angelic_feather : public MS::AreaTriggerEntityScript
+class AreaTrigger_angelic_feather : public AreaTriggerEntityScript
 {
 public:
     AreaTrigger_angelic_feather()
-        : MS::AreaTriggerEntityScript("at_angelic_feather")
+        : AreaTriggerEntityScript("at_angelic_feather")
     {
     }
 
-    MS::AreaTriggerEntityScript* GetAI() const
+    AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_angelic_feather();
     }
@@ -1119,15 +1118,15 @@ public:
     }
 };
 
-class AreaTrigger_gift_of_the_ox : public MS::AreaTriggerEntityScript
+class AreaTrigger_gift_of_the_ox : public AreaTriggerEntityScript
 {
 public:
     AreaTrigger_gift_of_the_ox()
-        : MS::AreaTriggerEntityScript("at_gift_of_the_ox")
+        : AreaTriggerEntityScript("at_gift_of_the_ox")
     {
     }
 
-    MS::AreaTriggerEntityScript* GetAI() const
+    AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_gift_of_the_ox();
     }
@@ -1154,15 +1153,15 @@ public:
     }
 };
 
-class AreaTrigger_down_draft : public MS::AreaTriggerEntityScript
+class AreaTrigger_down_draft : public AreaTriggerEntityScript
 {
 public:
     AreaTrigger_down_draft()
-        : MS::AreaTriggerEntityScript("at_down_draft")
+        : AreaTriggerEntityScript("at_down_draft")
     {
     }
 
-    MS::AreaTriggerEntityScript* GetAI() const
+    AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_down_draft();
     }
@@ -1189,7 +1188,7 @@ public:
         }
     }
 
-    void OnRemove(AreaTrigger* p_AreaTrigger, uint32(p_time))
+    void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
     {
         std::list<Player*> playerList;
         p_AreaTrigger->GetPlayerListInGrid(playerList, 100.0f);
@@ -1202,22 +1201,22 @@ public:
     }
 };
 
-class AreaTrigger_zen_sphere_1 : public MS::AreaTriggerEntityScript
+class AreaTrigger_zen_sphere_1 : public AreaTriggerEntityScript
 {
 public:
     AreaTrigger_zen_sphere_1()
-        : MS::AreaTriggerEntityScript("at_zen_sphere_1")
+        : AreaTriggerEntityScript("at_zen_sphere_1")
     {
     }
 
-    MS::AreaTriggerEntityScript* GetAI() const
+    AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_zen_sphere_1();
     }
 
-    void OnRemove(AreaTrigger* p_AreaTrigger, uint32(p_time))
+    void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
     {
-        if (int32(p_AreaTrigger->GetDuration()) - int32(p_time) > 0 || p_AreaTrigger->GetDuration() == 0)
+        if (int32(p_AreaTrigger->GetDuration()) - int32(p_Time) > 0 || p_AreaTrigger->GetDuration() == 0)
             return;
 
         if (!p_AreaTrigger->GetCaster())
@@ -1227,22 +1226,22 @@ public:
     }
 };
 
-class AreaTrigger_zen_sphere_2 : public MS::AreaTriggerEntityScript
+class AreaTrigger_zen_sphere_2 : public AreaTriggerEntityScript
 {
 public:
     AreaTrigger_zen_sphere_2()
-        : MS::AreaTriggerEntityScript("at_zen_sphere_2")
+        : AreaTriggerEntityScript("at_zen_sphere_2")
     {
     }
 
-    MS::AreaTriggerEntityScript* GetAI() const
+    AreaTriggerEntityScript* GetAI() const
     {
         return new AreaTrigger_zen_sphere_2();
     }
 
-    void OnRemove(AreaTrigger* p_AreaTrigger, uint32(p_time))
+    void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
     {
-        if (int32(p_AreaTrigger->GetDuration()) - int32(p_time) > 0 || p_AreaTrigger->GetDuration() == 0)
+        if (int32(p_AreaTrigger->GetDuration()) - int32(p_Time) > 0 || p_AreaTrigger->GetDuration() == 0)
             return;
 
         if (!p_AreaTrigger->GetCaster())
@@ -1252,76 +1251,10 @@ public:
     }
 };
 
-class AreaTrigger_vileblood_serum : public MS::AreaTriggerEntityScript
-{
-public:
-    AreaTrigger_vileblood_serum()
-        : MS::AreaTriggerEntityScript("at_vileblood_serum")
-    {
-    }
-
-    MS::AreaTriggerEntityScript* GetAI() const
-    {
-        return new AreaTrigger_vileblood_serum();
-    }
-
-    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
-    {
-        std::list<Unit*> l_TargetList;
-        float l_Radius = 2.0f;
-
-        JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, p_AreaTrigger->GetCaster(), l_Radius);
-        JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
-        p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
-
-        for (Unit* l_Unit : l_TargetList)
-        {
-            if (l_Unit->GetDistance(p_AreaTrigger) <= l_Radius)
-                l_Unit->CastSpell(l_Unit, 161288, true);
-        }
-    }
-};
-
-class AreaTrigger_noxious_spit : public MS::AreaTriggerEntityScript
-{
-public:
-    AreaTrigger_noxious_spit()
-        : MS::AreaTriggerEntityScript("at_noxious_spit")
-    {
-    }
-
-    MS::AreaTriggerEntityScript* GetAI() const
-    {
-        return new AreaTrigger_noxious_spit();
-    }
-
-    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
-    {
-        std::list<Unit*> l_TargetList;
-        float l_Radius = 2.0f;
-
-        JadeCore::NearestAttackableUnitInObjectRangeCheck l_Check(p_AreaTrigger, p_AreaTrigger->GetCaster(), l_Radius);
-        JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
-        p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
-
-        for (Unit* l_Unit : l_TargetList)
-        {
-            if (l_Unit->GetExactDist2d(p_AreaTrigger) > l_Radius)
-                continue;
-
-            p_AreaTrigger->GetCaster()->CastSpell(l_Unit, 136962, true);
-            p_AreaTrigger->SetDuration(0);
-            return;
-        }
-    }
-};
-
 void AddSC_areatrigger_scripts()
 {
     new AreaTrigger_zen_sphere_2();
     new AreaTrigger_zen_sphere_1();
-    new AreaTrigger_noxious_spit();
-    new AreaTrigger_vileblood_serum();
     new AreaTrigger_down_draft();
     new AreaTrigger_gift_of_the_ox();
     new AreaTrigger_angelic_feather();

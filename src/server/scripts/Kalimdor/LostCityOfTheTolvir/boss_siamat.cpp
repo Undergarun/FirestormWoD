@@ -500,7 +500,7 @@ public:
     };
 };
 
-class spell_wailing_winds : public SpellScriptLoader
+class spell_wailing_winds: public SpellScriptLoader
 {
     public:
         spell_wailing_winds() : SpellScriptLoader("spell_wailing_winds") { }
@@ -549,7 +549,7 @@ class spell_wailing_winds : public SpellScriptLoader
         }
 };
 
-class spell_gathered_storms : public SpellScriptLoader
+class spell_gathered_storms: public SpellScriptLoader
 {
     public:
         spell_gathered_storms() : SpellScriptLoader("spell_gathered_storms") { }

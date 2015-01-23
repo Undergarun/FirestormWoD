@@ -38,7 +38,7 @@ EndScriptData */
 
 #include <fstream>
 
-class debug_commandscript : public CommandScript
+class debug_commandscript: public CommandScript
 {
     public:
         debug_commandscript() : CommandScript("debug_commandscript") { }
@@ -115,6 +115,8 @@ class debug_commandscript : public CommandScript
                 { "bgstart",        SEC_ADMINISTRATOR,  false, &HandleDebugBattlegroundStart,      "", NULL },
                 { "criteria",       SEC_ADMINISTRATOR,  false, &HandleDebugCriteriaCommand,        "", NULL },
                 { "moditem",        SEC_ADMINISTRATOR,  false, &HandleDebugModItem,                "", NULL },
+                { "crashtest",      SEC_ADMINISTRATOR,  false, &HandleDebugCrashTest,              "", NULL },
+                { "bgaward",        SEC_ADMINISTRATOR,  false, &HandleDebugBgAward,                "", NULL },
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand commandTable[] =
@@ -180,9 +182,6 @@ class debug_commandscript : public CommandScript
                 p_Handler->SetSentErrorMessage(true);
                 return false;
             }
-
-            char* l_StrIndex = strtok((char*)p_Args, " ");
-            uint32 l_Index = uint32(atoi(l_StrIndex));
 
             char* l_StrID = strtok(NULL, " ");
             uint32 l_ID = l_StrID ? uint32(atoi(l_StrID)) : 0;
@@ -422,7 +421,7 @@ class debug_commandscript : public CommandScript
             err = grp->CanJoinBattlegroundQueue(bg, bgQueueTypeId, 2);
             if (!err)
             {
-                sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: leader %s queued");
+                sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: leader %s queued", handler->GetSession()->GetPlayer()->GetName());
 
                 ginfo = bgQueue.AddGroup(handler->GetSession()->GetPlayer(), grp, bgTypeId, bracketEntry, 0, true, true, personalRating, matchmakerRating);
                 avgTime = bgQueue.GetAverageQueueWaitTime(ginfo, bracketEntry->GetBracketId());
@@ -2268,7 +2267,9 @@ class debug_commandscript : public CommandScript
             if (!item)
                 return false;
 
+            player->_RemoveAllItemMods();
             item->SetDynamicValue(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS, 0, mod);
+            player->_ApplyAllItemMods();
             handler->SendSysMessage("Item sucesfully modified");
             return true;
         }
@@ -2278,11 +2279,43 @@ class debug_commandscript : public CommandScript
             Battleground* l_Battleground = p_Handler->GetSession()->GetPlayer()->GetBattleground();
             if (l_Battleground == nullptr)
             {
-                p_Handler->PSendSysMessage("You're not in battleground !");
+                p_Handler->PSendSysMessage("You're not in a battleground !");
                 return false;
             }
 
             l_Battleground->FastStart();
+            return true;
+        }
+
+        static bool HandleDebugCrashTest(ChatHandler* p_Handler, char const* p_Args)
+        {
+            Player* l_CrashPlayer = nullptr;
+            uint64 l_Guid         = GUID_LOPART(l_CrashPlayer->GetPetGUID());
+
+            p_Handler->PSendSysMessage("You've crash the server ! (%lu)", l_Guid);
+
+            return true;
+        }
+
+        static bool HandleDebugBgAward(ChatHandler* p_Handler, char const* p_Args)
+        {
+            Battleground* l_Battleground = p_Handler->GetSession()->GetPlayer()->GetBattleground();
+
+            char* arg1 = strtok((char*)p_Args, " ");
+            char* arg2 = strtok(NULL, " ");
+
+            if (!arg1 || !arg2)
+                return false;
+
+            int32 l_Team = atoi(arg1) == 1 ? HORDE : ALLIANCE;
+            int32 l_Points = atoi(arg2);
+            if (!l_Battleground)
+            {
+                p_Handler->PSendSysMessage("You're not in a battleground !");
+                return false;
+            }
+
+            l_Battleground->AwardTeams(l_Points, 3, l_Team); 
             return true;
         }
 };

@@ -183,7 +183,7 @@ class boss_primordius : public CreatureScript
                 me->GetMotionMaster()->MoveTargetedHome();
                 me->ReenableEvadeMode();
 
-                for (uint8 l_Index = 0; l_Index <= 10; l_Index++)
+                for (uint8 l_Index = 0; l_Index < 10; l_Index++)
                 {
                     if (GameObject* l_Vat = m_Instance->instance->GetGameObject(m_Instance->GetData64(gobEntries[l_Index])))
                         l_Vat->SetGoState(GO_STATE_READY);
@@ -700,7 +700,7 @@ class mob_viscous_horror : public CreatureScript
 };
 
 /// Congeal Blood - 136051
-class spell_congeal_blood : public SpellScriptLoader
+class spell_congeal_blood: public SpellScriptLoader
 {
     public:
         spell_congeal_blood() : SpellScriptLoader("spell_congeal_blood") { }
@@ -733,7 +733,7 @@ class spell_congeal_blood : public SpellScriptLoader
 };
 
 /// Evolution - 139144
-class spell_primordius_evolution : public SpellScriptLoader
+class spell_primordius_evolution: public SpellScriptLoader
 {
     public:
         spell_primordius_evolution() : SpellScriptLoader("spell_primordius_evolution") { }

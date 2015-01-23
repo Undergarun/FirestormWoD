@@ -2066,7 +2066,7 @@ class npc_arthas_teleport_visual : public CreatureScript
         }
 };
 
-class spell_icc_stoneform : public SpellScriptLoader
+class spell_icc_stoneform: public SpellScriptLoader
 {
     public:
         spell_icc_stoneform() : SpellScriptLoader("spell_icc_stoneform") { }
@@ -2108,7 +2108,7 @@ class spell_icc_stoneform : public SpellScriptLoader
         }
 };
 
-class spell_icc_sprit_alarm : public SpellScriptLoader
+class spell_icc_sprit_alarm: public SpellScriptLoader
 {
     public:
         spell_icc_sprit_alarm() : SpellScriptLoader("spell_icc_sprit_alarm") { }
@@ -2140,7 +2140,7 @@ class spell_icc_sprit_alarm : public SpellScriptLoader
                 }
 
                 if (GameObject* trap = GetCaster()->FindNearestGameObject(trapId, 5.0f))
-                    trap->SetRespawnTime(trap->GetGOInfo()->trap.autoCloseTime);
+                    trap->SetRespawnTime(trap->GetGOInfo()->trap.autoClose);
 
                 std::list<Creature*> wards;
                 GetCaster()->GetCreatureListWithEntryInGrid(wards, NPC_DEATHBOUND_WARD, 150.0f);
@@ -2193,7 +2193,7 @@ class DeathPlagueTargetSelector
         Unit* _caster;
 };
 
-class spell_frost_giant_death_plague : public SpellScriptLoader
+class spell_frost_giant_death_plague: public SpellScriptLoader
 {
     public:
         spell_frost_giant_death_plague() : SpellScriptLoader("spell_frost_giant_death_plague") { }
@@ -2255,7 +2255,7 @@ class spell_frost_giant_death_plague : public SpellScriptLoader
         }
 };
 
-class spell_icc_harvest_blight_specimen : public SpellScriptLoader
+class spell_icc_harvest_blight_specimen: public SpellScriptLoader
 {
     public:
         spell_icc_harvest_blight_specimen() : SpellScriptLoader("spell_icc_harvest_blight_specimen") { }
@@ -2299,7 +2299,7 @@ class AliveCheck
         }
 };
 
-class spell_svalna_revive_champion : public SpellScriptLoader
+class spell_svalna_revive_champion: public SpellScriptLoader
 {
     public:
         spell_svalna_revive_champion() : SpellScriptLoader("spell_svalna_revive_champion") { }
@@ -2342,7 +2342,7 @@ class spell_svalna_revive_champion : public SpellScriptLoader
         }
 };
 
-class spell_svalna_remove_spear : public SpellScriptLoader
+class spell_svalna_remove_spear: public SpellScriptLoader
 {
     public:
         spell_svalna_remove_spear() : SpellScriptLoader("spell_svalna_remove_spear") { }
@@ -2374,7 +2374,7 @@ class spell_svalna_remove_spear : public SpellScriptLoader
         }
 };
 
-class spell_icc_soul_missile : public SpellScriptLoader
+class spell_icc_soul_missile: public SpellScriptLoader
 {
     public:
         spell_icc_soul_missile() : SpellScriptLoader("spell_icc_soul_missile") { }

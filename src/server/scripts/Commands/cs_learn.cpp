@@ -28,7 +28,7 @@ EndScriptData */
 #include "SpellMgr.h"
 #include "SpellInfo.h"
 
-class learn_commandscript : public CommandScript
+class learn_commandscript: public CommandScript
 {
 public:
     learn_commandscript() : CommandScript("learn_commandscript") { }
@@ -113,7 +113,7 @@ public:
         else
             targetPlayer->learnSpell(spell, false);
 
-        uint32 firstSpell = sSpellMgr->GetFirstSpellInChain(spell);
+        //uint32 firstSpell = sSpellMgr->GetFirstSpellInChain(spell);
         /*if (GetTalentSpellCost(firstSpell))
             targetPlayer->SendTalentsInfoData(false);*/
 
@@ -175,7 +175,7 @@ public:
                 continue;
 
             // skip spells with first rank learned as talent (and all talents then also)
-            uint32 firstRank = sSpellMgr->GetFirstSpellInChain(spellInfo->Id);
+            //uint32 firstRank = sSpellMgr->GetFirstSpellInChain(spellInfo->Id);
             /*if (GetTalentSpellCost(firstRank) > 0)
                 continue;*/
 

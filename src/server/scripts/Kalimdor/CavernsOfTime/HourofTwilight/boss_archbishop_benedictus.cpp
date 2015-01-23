@@ -321,7 +321,7 @@ class npc_archbishop_benedictus_purifying_light : public CreatureScript
         };   
 };
 
-class spell_archbishop_benedictus_purifying_light_targeting : public SpellScriptLoader
+class spell_archbishop_benedictus_purifying_light_targeting: public SpellScriptLoader
 {
     public:
         spell_archbishop_benedictus_purifying_light_targeting() : SpellScriptLoader("spell_archbishop_benedictus_purifying_light_targeting") { }
@@ -351,7 +351,7 @@ class spell_archbishop_benedictus_purifying_light_targeting : public SpellScript
         }
 };
 
-class spell_archbishop_benedictus_righteous_snear_aoe : public SpellScriptLoader
+class spell_archbishop_benedictus_righteous_snear_aoe: public SpellScriptLoader
 {
     public:
         spell_archbishop_benedictus_righteous_snear_aoe() : SpellScriptLoader("spell_archbishop_benedictus_righteous_snear_aoe") { }

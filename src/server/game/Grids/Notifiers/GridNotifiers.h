@@ -694,10 +694,10 @@ namespace JadeCore
                 if (go->GetGOInfo()->type != GAMEOBJECT_TYPE_SPELL_FOCUS)
                     return false;
 
-                if (go->GetGOInfo()->spellFocus.focusId != i_focusId)
+                if (go->GetGOInfo()->spellFocus.spellFocusType != i_focusId)
                     return false;
 
-                float dist = (float)((go->GetGOInfo()->spellFocus.dist)/2);
+                float dist = (float)((go->GetGOInfo()->spellFocus.radius)/2);
 
                 return go->IsWithinDistInMap(i_unit, dist);
             }
@@ -1023,6 +1023,22 @@ namespace JadeCore
         private:
             WorldObject const* i_obj;
             float i_range;
+    };
+
+    class AnyAreatriggerInObjectRangeCheck
+    {
+        public:
+            AnyAreatriggerInObjectRangeCheck(WorldObject const* p_Object, float p_Range) : m_Object(p_Object), m_Range(p_Range) {}
+            bool operator()(AreaTrigger* p_AreaTrigger)
+            {
+                if (m_Object->IsWithinDistInMap(p_AreaTrigger, m_Range))
+                    return true;
+
+                return false;
+            }
+        private:
+            WorldObject const* m_Object;
+            float m_Range;
     };
 
     // Success at unit in range, range update for next check (this can be use with UnitLastSearcher to find nearest unit)

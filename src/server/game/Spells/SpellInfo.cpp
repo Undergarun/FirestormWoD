@@ -519,8 +519,8 @@ int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit c
 
             if (_spellInfo->CastTimeMax > 0 && _spellInfo->CastTimeMaxLevel > l_Level)
                 l_Multiplier *= float(_spellInfo->CastTimeMin + (l_Level - 1) * (_spellInfo->CastTimeMax - _spellInfo->CastTimeMin) / (_spellInfo->CastTimeMaxLevel - 1)) / float(_spellInfo->CastTimeMax);
-            if (_spellInfo->CoefLevelBase > l_Level)
-                l_Multiplier *= (1.0f - _spellInfo->CoefBase) * (float)(l_Level - 1) / (float)(_spellInfo->CoefLevelBase - 1) + _spellInfo->CoefBase;
+            if (_spellInfo->NerfMaxLevel > l_Level)
+                l_Multiplier *= (1.0f - _spellInfo->NerfFactor) * (float)(l_Level - 1) / (float)(_spellInfo->NerfMaxLevel - 1) + _spellInfo->NerfFactor;
 
             float l_PreciseBasePoints = ScalingMultiplier * l_Multiplier;
             if (DeltaScalingMultiplier)
@@ -1003,8 +1003,8 @@ SpellInfo::SpellInfo(SpellEntry const* p_SpellEntry, uint32 p_Difficulty)
     CastTimeMax = _scaling ?_scaling->CastTimeMax : 0;
     CastTimeMaxLevel = _scaling ? _scaling->CastTimeMaxLevel : 0;
     ScalingClass = _scaling ? _scaling->ScalingClass : 0;
-    CoefBase = _scaling ? _scaling->CoefBase : 0;
-    CoefLevelBase = _scaling ? _scaling->CoefLevelBase : 0;
+    NerfFactor = _scaling ? _scaling->NerfFactor : 0;
+    NerfMaxLevel = _scaling ? _scaling->NerfMaxLevel : 0;
 
     // SpellAuraOptionsEntry
     SpellAuraOptionsEntry const* _options = GetSpellAuraOptions();
@@ -1658,6 +1658,8 @@ bool SpellInfo::IsAuraExclusiveBySpecificWith(SpellInfo const* spellInfo) const
         case SPELL_SPECIFIC_PRIEST_DIVINE_SPIRIT:
         case SPELL_SPECIFIC_PRIEST_SANCTUM:
         case SPELL_SPECIFIC_CHAKRA:
+        case SPELL_SPECIFIC_EXOTIC_MUNITION:
+        case SPELL_SPECIFIC_LONE_WOLF_BUFF:
             return spellSpec1 == spellSpec2;
         case SPELL_SPECIFIC_FOOD:
             return spellSpec2 == SPELL_SPECIFIC_FOOD
@@ -1879,7 +1881,7 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
             if (!mapEntry)
                 return SPELL_FAILED_INCORRECT_AREA;
 
-            return zone_id == 4197 || (mapEntry->IsBattleground() && player && player->InBattleground()) ? SPELL_CAST_OK : SPELL_FAILED_REQUIRES_AREA;
+            return map_id == 1191 || zone_id == 4197 || (mapEntry->IsBattleground() && player && player->InBattleground()) ? SPELL_CAST_OK : SPELL_FAILED_REQUIRES_AREA;
         }
         case 44521:                                         // Preparation
         {
@@ -2475,6 +2477,23 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
             // only hunter aspects have this (but not all aspects in hunter family) and Hack fix for Deterrence - Is not an aspect !
             if (SpellFamilyFlags.HasFlag(0x00380000, 0x00440000, 0x00001010) && Id != 67801)
                 return SPELL_SPECIFIC_ASPECT;
+
+            switch (Id)
+            {
+                case 162536:///< Incendiary Ammo
+                case 162537:///< Poisoned Ammo
+                case 162539:///< Frozen Ammo
+                    return SPELL_SPECIFIC_EXOTIC_MUNITION;
+                case 160198:///< Grace of the Cat
+                case 160199:///< Fortitude of the Bear
+                case 160200:///< Ferocity of the Raptor
+                case 160203:///< Haste of the Hyena
+                case 160205:///< Wisdom of the Serpent
+                case 160206:///< Power of the Primates
+                case 172967:///< Versatility of the Ravager
+                case 172968:///< Quickness of the Dragonhawk
+                    return SPELL_SPECIFIC_LONE_WOLF_BUFF;
+            }
 
             break;
         }
@@ -3875,7 +3894,8 @@ bool SpellInfo::IsCanBeStolen() const
         case 22812: // Barkskin
         case 24275: // Hammer of Wrath
         case 31935: // Avenger's Shield
-        case 53563: // Beaconf of the Light
+        case 53563: // Beacon of the Light
+        case 156910: // Beacon of the Faith
             return false;
         default:
             break;
@@ -4177,25 +4197,6 @@ bool SpellInfo::IsRemoveLossControlEffects() const
     }
 
     return false;
-}
-
-int32 SpellInfo::GetCustomCoefficientForStormlash() const
-{
-    switch (Id)
-    {
-        case 403:   // Lightning Bolt
-        case 1120:  // Drain Soul
-        case 45284: // Lightning Bolt (Mastery)
-        case 51505: // Lava Burst
-        case 77451: // Lava Burst (Mastery)
-            return 200;
-        case 1752:  // Sinister Strike
-            return 50;
-        default:
-            break;
-    }
-
-    return 0;
 }
 
 bool SpellInfo::DoesIgnoreGlobalCooldown(Unit* caster) const

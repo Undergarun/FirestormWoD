@@ -26,7 +26,7 @@ EndScriptData */
 #include "ObjectMgr.h"
 #include "Chat.h"
 
-class quest_commandscript : public CommandScript
+class quest_commandscript: public CommandScript
 {
 public:
     quest_commandscript() : CommandScript("quest_commandscript") { }
@@ -232,6 +232,10 @@ public:
             else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_MONEY)
             {
                 l_Player->ModifyMoney(l_Objective.Amount);
+            }
+            else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_CRITERIA)
+            {
+                l_Player->QuestObjectiveSatisfy(l_Objective.ObjectID, l_Objective.Amount, l_Objective.Type);
             }
         }
 

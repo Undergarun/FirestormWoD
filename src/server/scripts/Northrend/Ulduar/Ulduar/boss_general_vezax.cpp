@@ -243,7 +243,7 @@ class boss_general_vezax : public CreatureScript
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_AURA_OF_DESPAIR);
             }
 
-            uint32 GetData(uint32 type) const
+            uint32 GetData(uint32 type)
             {
                 switch (type)
                 {
@@ -434,7 +434,7 @@ class npc_saronite_vapors : public CreatureScript
         }
 };
 
-class spell_aura_of_despair_aura : public SpellScriptLoader // Spell 62692
+class spell_aura_of_despair_aura: public SpellScriptLoader // Spell 62692
 {
     public:
         spell_aura_of_despair_aura() : SpellScriptLoader("spell_aura_of_despair_aura") { }
@@ -490,7 +490,7 @@ class spell_aura_of_despair_aura : public SpellScriptLoader // Spell 62692
         }
 };
 
-class spell_mark_of_the_faceless : public SpellScriptLoader
+class spell_mark_of_the_faceless: public SpellScriptLoader
 {
     public:
         spell_mark_of_the_faceless() : SpellScriptLoader("spell_mark_of_the_faceless") {}
@@ -524,7 +524,7 @@ class spell_mark_of_the_faceless : public SpellScriptLoader
         }
 };
 
-class spell_mark_of_the_faceless_drain : public SpellScriptLoader // 63278
+class spell_mark_of_the_faceless_drain: public SpellScriptLoader // 63278
 {
     public:
         spell_mark_of_the_faceless_drain() : SpellScriptLoader("spell_mark_of_the_faceless_drain") {}
@@ -550,7 +550,7 @@ class spell_mark_of_the_faceless_drain : public SpellScriptLoader // 63278
         }
 };
 
-class spell_saronite_vapors : public SpellScriptLoader // Spell 63323
+class spell_saronite_vapors: public SpellScriptLoader // Spell 63323
 {
     public:
         spell_saronite_vapors() : SpellScriptLoader("spell_saronite_vapors") {}

@@ -1115,7 +1115,7 @@ class mob_amber_scalpel : public CreatureScript
 };
 
 // 121995 - Amber Scalpel - Summoning Living Amber
-class spell_amber_scalpel : public SpellScriptLoader
+class spell_amber_scalpel: public SpellScriptLoader
 {
     public:
         spell_amber_scalpel() : SpellScriptLoader("spell_amber_scalpel")  { }
@@ -1150,7 +1150,7 @@ class spell_amber_scalpel : public SpellScriptLoader
 };
 
 // 122395 - Struggle for Control
-class spell_struggle_for_control : public SpellScriptLoader
+class spell_struggle_for_control: public SpellScriptLoader
 {
     public:
         spell_struggle_for_control() : SpellScriptLoader("spell_struggle_for_control") { }
@@ -1179,7 +1179,7 @@ class spell_struggle_for_control : public SpellScriptLoader
 };
 
 // 123156 - Consume Amber
-class spell_consume_amber : public SpellScriptLoader
+class spell_consume_amber: public SpellScriptLoader
 {
     public:
         spell_consume_amber() : SpellScriptLoader("spell_consume_amber") { }
@@ -1248,7 +1248,7 @@ class spell_break_free : SpellScriptLoader
 };
 
 // 122415 - Grab
-class spell_grab : public SpellScriptLoader
+class spell_grab: public SpellScriptLoader
 {
     public:
         spell_grab() : SpellScriptLoader("spell_grab") { }
@@ -1277,7 +1277,7 @@ class spell_grab : public SpellScriptLoader
 };
 
 // 122413 - Fling
-class spell_fling : public SpellScriptLoader
+class spell_fling: public SpellScriptLoader
 {
     public:
         spell_fling() : SpellScriptLoader("spell_fling") { }
@@ -1334,7 +1334,7 @@ class spell_fling : public SpellScriptLoader
 };
 
 // 122420 - Fling, victim thrown
-class spell_fling_thrown : public SpellScriptLoader
+class spell_fling_thrown: public SpellScriptLoader
 {
     public:
         spell_fling_thrown() : SpellScriptLoader("spell_fling_thrown") { }
@@ -1362,7 +1362,7 @@ class spell_fling_thrown : public SpellScriptLoader
 };
 
 // 122547 - Draw Power
-class spell_unsok_draw_power : public SpellScriptLoader
+class spell_unsok_draw_power: public SpellScriptLoader
 {
 public:
     spell_unsok_draw_power() : SpellScriptLoader("spell_unsok_draw_power") { }
@@ -1390,7 +1390,7 @@ public:
 };
 
 // 123014 - Volatile amber
-class spell_volatile_amber : public SpellScriptLoader
+class spell_volatile_amber: public SpellScriptLoader
 {
 public:
     spell_volatile_amber() : SpellScriptLoader("spell_volatile_amber") { }

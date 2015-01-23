@@ -723,7 +723,7 @@ class mob_peril : public CreatureScript
         };
 };
 
-class mob_nodding_tiger: public CreatureScript
+class mob_nodding_tiger : public CreatureScript
 {
     public:
         mob_nodding_tiger() : CreatureScript("mob_nodding_tiger") { }
@@ -767,7 +767,7 @@ class mob_nodding_tiger: public CreatureScript
         };
 };
 
-class mob_golden_beetle: public CreatureScript
+class mob_golden_beetle : public CreatureScript
 {
     public:
         mob_golden_beetle() : CreatureScript("mob_golden_beetle") { }
@@ -821,7 +821,7 @@ class mob_golden_beetle: public CreatureScript
         };
 };
 
-class mob_jiang_xiang: public CreatureScript
+class mob_jiang_xiang : public CreatureScript
 {
     public:
         mob_jiang_xiang() : CreatureScript("mob_jiang_xiang") { }
@@ -870,7 +870,7 @@ class mob_jiang_xiang: public CreatureScript
         };
 };
 
-class mob_songbird_queen: public CreatureScript
+class mob_songbird_queen : public CreatureScript
 {
     public:
         mob_songbird_queen() : CreatureScript("mob_songbird_queen") { }
@@ -914,7 +914,7 @@ class mob_songbird_queen: public CreatureScript
         };
 };
 
-class mob_talking_fish: public CreatureScript
+class mob_talking_fish : public CreatureScript
 {
     public:
         mob_talking_fish() : CreatureScript("mob_talking_fish") { }

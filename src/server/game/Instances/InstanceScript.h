@@ -261,6 +261,8 @@ class InstanceScript : public ZoneScript
         // Returns completed encounters mask for packets
         uint32 GetCompletedEncounterMask() const { return completedEncounters; }
 
+        virtual void OnGameObjectRemove(GameObject* p_Go);
+
         struct CriteriaProgressData
         {
             CriteriaProgressData(uint32 p_ID, uint64 p_Quantity, uint64 p_Guid, uint32 p_Date, uint32 p_StartTime, uint8 p_Flags)
@@ -387,6 +389,7 @@ class InstanceScript : public ZoneScript
         void SendScenarioState(ScenarioData p_Data, Player* p_Player = nullptr);
         void SendScenarioProgressUpdate(CriteriaProgressData p_Data, Player* p_Player = nullptr);
         void BuildCriteriaProgressPacket(WorldPacket* p_Data, CriteriaProgressData p_CriteriaProgress);
+        void UpdateCriteriasAfterLoading();
 
         //////////////////////////////////////////////////////////////////////////
         /// ChallengesMode

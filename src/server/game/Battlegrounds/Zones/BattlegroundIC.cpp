@@ -58,8 +58,6 @@ BattlegroundIC::BattlegroundIC()
 
 BattlegroundIC::~BattlegroundIC()
 {
-    delete gunshipHorde;
-    delete gunshipAlliance;
 }
 
 void BattlegroundIC::HandlePlayerResurrect(Player* player)
@@ -309,7 +307,7 @@ void BattlegroundIC::AddPlayer(Player* player)
         player->CastSpell(player, SPELL_OIL_REFINERY, true);
 }
 
-void BattlegroundIC::RemovePlayer(Player* player, uint64 /*guid*/, uint32 /*team*/)
+void BattlegroundIC::RemovePlayer(Player* player, uint64 guid, uint32 /*team*/)
 {
     if (player)
     {
@@ -469,7 +467,8 @@ void BattlegroundIC::HandleKillPlayer(Player* player, Player* killer)
 void BattlegroundIC::EndBattleground(uint32 winner)
 {
     SendMessage2ToAll(LANG_BG_IC_TEAM_WINS, CHAT_MSG_BG_SYSTEM_NEUTRAL, NULL, (winner == ALLIANCE ? LANG_BG_IC_ALLIANCE : LANG_BG_IC_HORDE));
-
+    
+    AwardTeams(MAX_REINFORCEMENTS - factionReinforcements[GetOtherTeam(winner) == HORDE], MAX_REINFORCEMENTS, GetOtherTeam(winner));
     Battleground::EndBattleground(winner);
 }
 

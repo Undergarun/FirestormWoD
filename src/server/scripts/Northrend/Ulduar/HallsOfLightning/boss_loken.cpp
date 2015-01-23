@@ -184,7 +184,7 @@ public:
 
 };
 
-class spell_loken_pulsing_shockwave : public SpellScriptLoader
+class spell_loken_pulsing_shockwave: public SpellScriptLoader
 {
     public:
         spell_loken_pulsing_shockwave() : SpellScriptLoader("spell_loken_pulsing_shockwave") { }

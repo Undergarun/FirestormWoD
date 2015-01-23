@@ -112,6 +112,10 @@ class CreatureAI : public UnitAI
         // Called when the killer is rewarded with currencies
         virtual void CurrenciesRewarder(bool& result) { }
 
+        // Called when check LOS
+        virtual bool CanBeTargetedOutOfLOS() { return false; }
+        virtual bool CanTargetOutOfLOS() { return false; }
+
         // Called when the creature summon successfully other creature
         virtual void JustSummoned(Creature* /*summon*/) {}
         virtual void IsSummonedBy(Unit* /*summoner*/) {}
@@ -134,7 +138,7 @@ class CreatureAI : public UnitAI
         virtual void JustRespawned() { Reset(); }
 
         // Called at waypoint reached or point movement finished
-        virtual void MovementInform(uint32 /*type*/, uint32 /*id*/) {}
+        virtual void MovementInform(uint32 /*type*/, uint32 id) {}
 
         void OnCharmed(bool apply);
 
@@ -161,6 +165,12 @@ class CreatureAI : public UnitAI
 
         // Called at any threat added from any attacker (before threat apply)
         virtual void OnAddThreat(Unit* /*victim*/, float& /*fThreat*/, SpellSchoolMask /*schoolMask*/, SpellInfo const* /*threatSpell*/) {}
+
+        /// Called when an hostile reference is added to the threat list
+        virtual void OnHostileReferenceAdded(Unit* p_Ennemy) { }
+
+        /// Called when an hostile reference is removed from the threat list
+        virtual void OnHostileReferenceRemoved(Unit* p_Ennemy) { }
 
         /// == Triggered Actions Requested ==================
 

@@ -2242,7 +2242,7 @@ class mob_shadowed_lua_spirit : public CreatureScript
 };
 
 // Reckless Charge (rolling) - 137117
-class spell_reckless_charge_rolling : public SpellScriptLoader
+class spell_reckless_charge_rolling: public SpellScriptLoader
 {
     public:
         spell_reckless_charge_rolling() : SpellScriptLoader("spell_reckless_charge_rolling") { }
@@ -2332,7 +2332,7 @@ class spell_reckless_charge_rolling : public SpellScriptLoader
 };
 
 // Reckless Charge (movement) - 137131
-class spell_reckless_charge_movement : public SpellScriptLoader
+class spell_reckless_charge_movement: public SpellScriptLoader
 {
     public:
         spell_reckless_charge_movement() : SpellScriptLoader("spell_reckless_charge_movement") { }
@@ -2373,7 +2373,7 @@ class spell_reckless_charge_movement : public SpellScriptLoader
 };
 
 // Frigid Assault (Stun) - 136904
-class spell_frigid_assault : public SpellScriptLoader
+class spell_frigid_assault: public SpellScriptLoader
 {
     public:
         spell_frigid_assault() : SpellScriptLoader("spell_frigid_assault") { }
@@ -2427,7 +2427,7 @@ class spell_frigid_assault : public SpellScriptLoader
 };
 
 // Lingering Presence - 136467
-class spell_lingering_presence : public SpellScriptLoader
+class spell_lingering_presence: public SpellScriptLoader
 {
     public:
         spell_lingering_presence() : SpellScriptLoader("spell_lingering_presence") { }
@@ -2466,7 +2466,7 @@ class spell_lingering_presence : public SpellScriptLoader
 };
 
 // Biting Cold - 136917
-class spell_biting_cold_malakk : public SpellScriptLoader
+class spell_biting_cold_malakk: public SpellScriptLoader
 {
     public:
         spell_biting_cold_malakk() : SpellScriptLoader("spell_biting_cold_malakk") { }
@@ -2496,7 +2496,7 @@ class spell_biting_cold_malakk : public SpellScriptLoader
 };
 
 // Frostbite - 136990
-class spell_frosbite_malakk : public SpellScriptLoader
+class spell_frosbite_malakk: public SpellScriptLoader
 {
     public:
         spell_frosbite_malakk() : SpellScriptLoader("spell_frosbite_malakk") { }
@@ -2526,7 +2526,7 @@ class spell_frosbite_malakk : public SpellScriptLoader
 };
 
 // Frostbite (aura) - 136922
-class spell_frosbite_malakk_aura : public SpellScriptLoader
+class spell_frosbite_malakk_aura: public SpellScriptLoader
 {
     public:
         spell_frosbite_malakk_aura() : SpellScriptLoader("spell_frosbite_malakk_aura") { }
@@ -2549,7 +2549,7 @@ class spell_frosbite_malakk_aura : public SpellScriptLoader
                             target->GetPlayerListInGrid(playerList, 4.0f);
                             uint8 size = playerList.size();
 
-                            if (pInstance = target->GetInstanceScript())
+                            if ((pInstance = target->GetInstanceScript()))
                             {
                                 if (!pInstance->instance->IsHeroic())
                                 {
@@ -2575,7 +2575,7 @@ class spell_frosbite_malakk_aura : public SpellScriptLoader
                     std::list<Player*> playerList;
                     target->GetPlayerListInGrid(playerList, 4.0f);
 
-                    if (pInstance = target->GetInstanceScript())
+                    if ((pInstance = target->GetInstanceScript()))
                     {
                         if (pInstance->instance->IsHeroic())
                         {
@@ -2611,7 +2611,7 @@ class spell_frosbite_malakk_aura : public SpellScriptLoader
 };
 
 // Overload (aura) - 137149 / Discharge - 137166
-class spell_overload_discharge_kazra_jin : public SpellScriptLoader
+class spell_overload_discharge_kazra_jin: public SpellScriptLoader
 {
     public:
         spell_overload_discharge_kazra_jin() : SpellScriptLoader("spell_overload_discharge_kazra_jin") { }
@@ -2646,7 +2646,7 @@ class spell_overload_discharge_kazra_jin : public SpellScriptLoader
 };
 
 // Ensnared - 136878
-class spell_ensnared : public SpellScriptLoader
+class spell_ensnared: public SpellScriptLoader
 {
     public:
         spell_ensnared() : SpellScriptLoader("spell_ensnared") { }
@@ -2690,7 +2690,7 @@ class spell_ensnared : public SpellScriptLoader
 };
 
 // SandStorm - 136895
-class spell_sandstorm : public SpellScriptLoader
+class spell_sandstorm: public SpellScriptLoader
 {
     public:
         spell_sandstorm() : SpellScriptLoader("spell_sandstorm") { }
@@ -2735,7 +2735,7 @@ class spell_sandstorm : public SpellScriptLoader
 };
 
 // Dark Power - 136507
-class spell_dark_power : public SpellScriptLoader
+class spell_dark_power: public SpellScriptLoader
 {
     public:
         spell_dark_power() : SpellScriptLoader("spell_dark_power") { }
@@ -2768,7 +2768,7 @@ class spell_dark_power : public SpellScriptLoader
 };
 
 // Soul Fragment - 137641
-class spell_soul_fragment : public SpellScriptLoader
+class spell_soul_fragment: public SpellScriptLoader
 {
     public:
         spell_soul_fragment() : SpellScriptLoader("spell_soul_fragment") { }
@@ -2783,7 +2783,7 @@ class spell_soul_fragment : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-                    if (instance = caster->GetInstanceScript())
+                    if ((instance = caster->GetInstanceScript()))
                         if (Creature* garaJal = instance->instance->GetCreature(instance->GetData64(NPC_GARA_JAL_SOUL)))
                             if (garaJal->GetAI())
                                 caster->setFaction(CAST_AI(npc_gara_jal_s_soul::npc_gara_jal_s_soulAI, garaJal->AI())->targetFaction);
@@ -2803,7 +2803,7 @@ class spell_soul_fragment : public SpellScriptLoader
 };
 
 // Soul Fragment (switch) - 137643
-class spell_soul_fragment_switch : public SpellScriptLoader
+class spell_soul_fragment_switch: public SpellScriptLoader
 {
     public:
         spell_soul_fragment_switch() :  SpellScriptLoader("spell_soul_fragment_switch") { }
@@ -2843,7 +2843,7 @@ class spell_soul_fragment_switch : public SpellScriptLoader
 };
 
 // Twisted Fate (first)- 137943
-class spell_first_twisted_fate : public SpellScriptLoader
+class spell_first_twisted_fate: public SpellScriptLoader
 {
     public:
         spell_first_twisted_fate() :  SpellScriptLoader("spell_first_twisted_fate") { }
@@ -2879,7 +2879,7 @@ class spell_first_twisted_fate : public SpellScriptLoader
 };
 
 // Twisted Fate (second) - 137964
-class spell_second_twisted_fate : public SpellScriptLoader
+class spell_second_twisted_fate: public SpellScriptLoader
 {
     public:
         spell_second_twisted_fate() :  SpellScriptLoader("spell_second_twisted_fate") { }
@@ -2915,7 +2915,7 @@ class spell_second_twisted_fate : public SpellScriptLoader
 };
 
 // Twisted Fate (damage) - 137972
-class spell_twisted_fate_damage : public SpellScriptLoader
+class spell_twisted_fate_damage: public SpellScriptLoader
 {
     public:
         spell_twisted_fate_damage() :  SpellScriptLoader("spell_twisted_fate_damage") { }

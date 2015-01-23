@@ -35,7 +35,7 @@
 #include "LFGMgr.h"
 #include "Player.h"
 
-class spell_gen_absorb0_hitlimit1 : public SpellScriptLoader
+class spell_gen_absorb0_hitlimit1: public SpellScriptLoader
 {
     public:
         spell_gen_absorb0_hitlimit1() : SpellScriptLoader("spell_gen_absorb0_hitlimit1") { }
@@ -71,7 +71,7 @@ class spell_gen_absorb0_hitlimit1 : public SpellScriptLoader
 };
 
 // 41337 Aura of Anger
-class spell_gen_aura_of_anger : public SpellScriptLoader
+class spell_gen_aura_of_anger: public SpellScriptLoader
 {
     public:
         spell_gen_aura_of_anger() : SpellScriptLoader("spell_gen_aura_of_anger") { }
@@ -99,7 +99,7 @@ class spell_gen_aura_of_anger : public SpellScriptLoader
         }
 };
 
-class spell_gen_av_drekthar_presence : public SpellScriptLoader
+class spell_gen_av_drekthar_presence: public SpellScriptLoader
 {
     public:
         spell_gen_av_drekthar_presence() : SpellScriptLoader("spell_gen_av_drekthar_presence") { }
@@ -143,7 +143,7 @@ class spell_gen_av_drekthar_presence : public SpellScriptLoader
 };
 
 // 46394 Brutallus Burn
-class spell_gen_burn_brutallus : public SpellScriptLoader
+class spell_gen_burn_brutallus: public SpellScriptLoader
 {
     public:
         spell_gen_burn_brutallus() : SpellScriptLoader("spell_gen_burn_brutallus") { }
@@ -175,7 +175,7 @@ enum CannibalizeSpells
     SPELL_CANNIBALIZE_TRIGGERED = 20578,
 };
 
-class spell_gen_cannibalize : public SpellScriptLoader
+class spell_gen_cannibalize: public SpellScriptLoader
 {
     public:
         spell_gen_cannibalize() : SpellScriptLoader("spell_gen_cannibalize") { }
@@ -231,7 +231,7 @@ enum ParachuteSpells
     SPELL_PARACHUTE_BUFF    = 44795,
 };
 
-class spell_gen_parachute : public SpellScriptLoader
+class spell_gen_parachute: public SpellScriptLoader
 {
     public:
         spell_gen_parachute() : SpellScriptLoader("spell_gen_parachute") { }
@@ -276,7 +276,7 @@ enum NPCEntries
     NPC_IMP         = 416,
 };
 
-class spell_gen_pet_summoned : public SpellScriptLoader
+class spell_gen_pet_summoned: public SpellScriptLoader
 {
     public:
         spell_gen_pet_summoned() : SpellScriptLoader("spell_gen_pet_summoned") { }
@@ -336,7 +336,7 @@ class spell_gen_pet_summoned : public SpellScriptLoader
         }
 };
 
-class spell_gen_remove_flight_auras : public SpellScriptLoader
+class spell_gen_remove_flight_auras: public SpellScriptLoader
 {
     public:
         spell_gen_remove_flight_auras() : SpellScriptLoader("spell_gen_remove_flight_auras") {}
@@ -373,7 +373,7 @@ enum LeechingSwarmSpells
     SPELL_LEECHING_SWARM_HEAL   = 66125,
 };
 
-class spell_gen_leeching_swarm : public SpellScriptLoader
+class spell_gen_leeching_swarm: public SpellScriptLoader
 {
     public:
         spell_gen_leeching_swarm() : SpellScriptLoader("spell_gen_leeching_swarm") { }
@@ -430,7 +430,7 @@ enum EluneCandle
     SPELL_ELUNE_CANDLE_NORMAL      = 26636,
 };
 
-class spell_gen_elune_candle : public SpellScriptLoader
+class spell_gen_elune_candle: public SpellScriptLoader
 {
     public:
         spell_gen_elune_candle() : SpellScriptLoader("spell_gen_elune_candle") {}
@@ -485,7 +485,7 @@ class spell_gen_elune_candle : public SpellScriptLoader
         }
 };
 
-class spell_creature_permanent_feign_death : public SpellScriptLoader
+class spell_creature_permanent_feign_death: public SpellScriptLoader
 {
     public:
         spell_creature_permanent_feign_death() : SpellScriptLoader("spell_creature_permanent_feign_death") { }
@@ -522,7 +522,7 @@ enum PvPTrinketTriggeredSpells
     SPELL_WILL_OF_THE_FORSAKEN_COOLDOWN_TRIGGER_WOTF    = 72757,
 };
 
-class spell_pvp_trinket_wotf_shared_cd : public SpellScriptLoader
+class spell_pvp_trinket_wotf_shared_cd: public SpellScriptLoader
 {
     public:
         spell_pvp_trinket_wotf_shared_cd() : SpellScriptLoader("spell_pvp_trinket_wotf_shared_cd") {}
@@ -568,7 +568,7 @@ enum AnimalBloodPoolSpell
     SPELL_SPAWN_BLOOD_POOL  = 63471,
 };
 
-class spell_gen_animal_blood : public SpellScriptLoader
+class spell_gen_animal_blood: public SpellScriptLoader
 {
     public:
         spell_gen_animal_blood() : SpellScriptLoader("spell_gen_animal_blood") { }
@@ -617,7 +617,7 @@ enum DivineStormSpell
 };
 
 // 70769 Divine Storm!
-class spell_gen_divine_storm_cd_reset : public SpellScriptLoader
+class spell_gen_divine_storm_cd_reset: public SpellScriptLoader
 {
     public:
         spell_gen_divine_storm_cd_reset() : SpellScriptLoader("spell_gen_divine_storm_cd_reset") {}
@@ -657,7 +657,7 @@ class spell_gen_divine_storm_cd_reset : public SpellScriptLoader
         }
 };
 
-class spell_gen_gunship_portal : public SpellScriptLoader
+class spell_gen_gunship_portal: public SpellScriptLoader
 {
     public:
         spell_gen_gunship_portal() : SpellScriptLoader("spell_gen_gunship_portal") { }
@@ -696,7 +696,7 @@ enum parachuteIC
     SPELL_PARACHUTE_IC = 66657,
 };
 
-class spell_gen_parachute_ic : public SpellScriptLoader
+class spell_gen_parachute_ic: public SpellScriptLoader
 {
     public:
         spell_gen_parachute_ic() : SpellScriptLoader("spell_gen_parachute_ic") { }
@@ -724,7 +724,7 @@ class spell_gen_parachute_ic : public SpellScriptLoader
         }
 };
 
-class spell_gen_dungeon_credit : public SpellScriptLoader
+class spell_gen_dungeon_credit: public SpellScriptLoader
 {
     public:
         spell_gen_dungeon_credit() : SpellScriptLoader("spell_gen_dungeon_credit") { }
@@ -765,7 +765,7 @@ class spell_gen_dungeon_credit : public SpellScriptLoader
         }
 };
 
-class spell_gen_profession_research : public SpellScriptLoader
+class spell_gen_profession_research: public SpellScriptLoader
 {
     public:
         spell_gen_profession_research() : SpellScriptLoader("spell_gen_profession_research") {}
@@ -802,7 +802,7 @@ class spell_gen_profession_research : public SpellScriptLoader
         }
 };
 
-class spell_generic_clone : public SpellScriptLoader
+class spell_generic_clone: public SpellScriptLoader
 {
     public:
         spell_generic_clone() : SpellScriptLoader("spell_generic_clone") { }
@@ -843,7 +843,7 @@ enum CloneWeaponSpells
     SPELL_COPY_RANGED_AURA       = 57594
 };
 
-class spell_generic_clone_weapon : public SpellScriptLoader
+class spell_generic_clone_weapon: public SpellScriptLoader
 {
     public:
         spell_generic_clone_weapon() : SpellScriptLoader("spell_generic_clone_weapon") { }
@@ -877,7 +877,7 @@ class spell_generic_clone_weapon : public SpellScriptLoader
                 }
 };
 
-class spell_gen_clone_weapon_aura : public SpellScriptLoader
+class spell_gen_clone_weapon_aura: public SpellScriptLoader
 {
     public:
         spell_gen_clone_weapon_aura() : SpellScriptLoader("spell_gen_clone_weapon_aura") { }
@@ -1001,7 +1001,7 @@ enum SeaforiumSpells
     SPELL_PLANT_CHARGES_CREDIT_ACHIEVEMENT = 60937,
 };
 
-class spell_gen_seaforium_blast : public SpellScriptLoader
+class spell_gen_seaforium_blast: public SpellScriptLoader
 {
     public:
         spell_gen_seaforium_blast() : SpellScriptLoader("spell_gen_seaforium_blast") {}
@@ -1049,7 +1049,7 @@ enum FriendOrFowl
     SPELL_TURKEY_VENGEANCE  = 25285,
 };
 
-class spell_gen_turkey_marker : public SpellScriptLoader
+class spell_gen_turkey_marker: public SpellScriptLoader
 {
     public:
         spell_gen_turkey_marker() : SpellScriptLoader("spell_gen_turkey_marker") { }
@@ -1101,7 +1101,7 @@ enum MagicRoosterSpells
     SPELL_MAGIC_ROOSTER_TAUREN_MALE     = 66124,
 };
 
-class spell_gen_magic_rooster : public SpellScriptLoader
+class spell_gen_magic_rooster: public SpellScriptLoader
 {
     public:
         spell_gen_magic_rooster() : SpellScriptLoader("spell_gen_magic_rooster") { }
@@ -1149,7 +1149,7 @@ class spell_gen_magic_rooster : public SpellScriptLoader
         }
 };
 
-class spell_gen_allow_cast_from_item_only : public SpellScriptLoader
+class spell_gen_allow_cast_from_item_only: public SpellScriptLoader
 {
     public:
         spell_gen_allow_cast_from_item_only() : SpellScriptLoader("spell_gen_allow_cast_from_item_only") { }
@@ -1182,7 +1182,7 @@ enum Launch
     SPELL_LAUNCH_NO_FALLING_DAMAGE = 66251
 };
 
-class spell_gen_launch : public SpellScriptLoader
+class spell_gen_launch: public SpellScriptLoader
 {
     public:
         spell_gen_launch() : SpellScriptLoader("spell_gen_launch") {}
@@ -1234,7 +1234,7 @@ enum VehicleScaling
     SPELL_GEAR_SCALING      = 66668,
 };
 
-class spell_gen_vehicle_scaling : public SpellScriptLoader
+class spell_gen_vehicle_scaling: public SpellScriptLoader
 {
     public:
         spell_gen_vehicle_scaling() : SpellScriptLoader("spell_gen_vehicle_scaling") { }
@@ -1312,7 +1312,7 @@ class spell_gen_vehicle_scaling : public SpellScriptLoader
         }
 };
 
-class spell_gen_oracle_wolvar_reputation : public SpellScriptLoader
+class spell_gen_oracle_wolvar_reputation: public SpellScriptLoader
 {
     public:
         spell_gen_oracle_wolvar_reputation() : SpellScriptLoader("spell_gen_oracle_wolvar_reputation") { }
@@ -1357,7 +1357,7 @@ class spell_gen_oracle_wolvar_reputation : public SpellScriptLoader
         }
 };
 
-class spell_gen_luck_of_the_draw : public SpellScriptLoader
+class spell_gen_luck_of_the_draw: public SpellScriptLoader
 {
     public:
         spell_gen_luck_of_the_draw() : SpellScriptLoader("spell_gen_luck_of_the_draw") { }
@@ -1425,7 +1425,7 @@ enum DummyTrigger
     SPELL_PERSISTANT_SHIELD                 = 26467,
 };
 
-class spell_gen_dummy_trigger : public SpellScriptLoader
+class spell_gen_dummy_trigger: public SpellScriptLoader
 {
     public:
         spell_gen_dummy_trigger() : SpellScriptLoader("spell_gen_dummy_trigger") { }
@@ -1464,7 +1464,7 @@ class spell_gen_dummy_trigger : public SpellScriptLoader
 
 };
 
-class spell_gen_spirit_healer_res : public SpellScriptLoader
+class spell_gen_spirit_healer_res: public SpellScriptLoader
 {
     public:
         spell_gen_spirit_healer_res(): SpellScriptLoader("spell_gen_spirit_healer_res") { }
@@ -1511,7 +1511,7 @@ enum TransporterBackfires
     SPELL_TRANSPORTER_MALFUNCTION_MISS          = 36902,
 };
 
-class spell_gen_gadgetzan_transporter_backfire : public SpellScriptLoader
+class spell_gen_gadgetzan_transporter_backfire: public SpellScriptLoader
 {
     public:
         spell_gen_gadgetzan_transporter_backfire() : SpellScriptLoader("spell_gen_gadgetzan_transporter_backfire") { }
@@ -1558,7 +1558,7 @@ enum GnomishTransporter
     SPELL_TRANSPORTER_FAILURE                   = 23446,
 };
 
-class spell_gen_gnomish_transporter : public SpellScriptLoader
+class spell_gen_gnomish_transporter: public SpellScriptLoader
 {
     public:
         spell_gen_gnomish_transporter() : SpellScriptLoader("spell_gen_gnomish_transporter") { }
@@ -1603,7 +1603,7 @@ enum DalaranDisguiseSpells
     SPELL_SILVER_COVENANT_DISGUISE_MALE    = 70972,
 };
 
-class spell_gen_dalaran_disguise : public SpellScriptLoader
+class spell_gen_dalaran_disguise: public SpellScriptLoader
 {
     public:
         spell_gen_dalaran_disguise(const char* name) : SpellScriptLoader(name) {}
@@ -1884,6 +1884,8 @@ class spell_gen_mounted_charge: public SpellScriptLoader
                             }
                             break;
                         }
+                    default:
+                        break;
                 }
             }
 
@@ -1939,7 +1941,7 @@ enum DefendVisuals
     SPELL_VISUAL_SHIELD_3 = 63132,
 };
 
-class spell_gen_defend : public SpellScriptLoader
+class spell_gen_defend: public SpellScriptLoader
 {
     public:
         spell_gen_defend() : SpellScriptLoader("spell_gen_defend") { }
@@ -2024,7 +2026,7 @@ enum MountedDuelSpells
     SPELL_MOUNTED_DUEL        = 62875,
 };
 
-class spell_gen_tournament_duel : public SpellScriptLoader
+class spell_gen_tournament_duel: public SpellScriptLoader
 {
     public:
         spell_gen_tournament_duel() : SpellScriptLoader("spell_gen_tournament_duel") { }
@@ -2076,7 +2078,7 @@ enum TournamentMountsSpells
     SPELL_LANCE_EQUIPPED = 62853,
 };
 
-class spell_gen_summon_tournament_mount : public SpellScriptLoader
+class spell_gen_summon_tournament_mount: public SpellScriptLoader
 {
     public:
         spell_gen_summon_tournament_mount() : SpellScriptLoader("spell_gen_summon_tournament_mount") { }
@@ -2213,7 +2215,7 @@ enum TournamentQuestsAchievements
     QUEST_A_VALIANT_OF_SILVERMOON      = 13696,
 };
 
-class spell_gen_on_tournament_mount : public SpellScriptLoader
+class spell_gen_on_tournament_mount: public SpellScriptLoader
 {
     public:
         spell_gen_on_tournament_mount() : SpellScriptLoader("spell_gen_on_tournament_mount") { }
@@ -2371,7 +2373,7 @@ class spell_gen_on_tournament_mount : public SpellScriptLoader
         }
 };
 
-class spell_gen_tournament_pennant : public SpellScriptLoader
+class spell_gen_tournament_pennant: public SpellScriptLoader
 {
     public:
         spell_gen_tournament_pennant() : SpellScriptLoader("spell_gen_tournament_pennant") { }
@@ -2409,7 +2411,7 @@ enum ChaosBlast
     SPELL_CHAOS_BLAST   = 37675,
 };
 
-class spell_gen_chaos_blast : public SpellScriptLoader
+class spell_gen_chaos_blast: public SpellScriptLoader
 {
     public:
         spell_gen_chaos_blast() : SpellScriptLoader("spell_gen_chaos_blast") { }
@@ -2445,7 +2447,7 @@ class spell_gen_chaos_blast : public SpellScriptLoader
 
 };
 
-class spell_gen_wg_water : public SpellScriptLoader
+class spell_gen_wg_water: public SpellScriptLoader
 {
     public:
         spell_gen_wg_water() : SpellScriptLoader("spell_gen_wg_water") {}
@@ -2473,7 +2475,7 @@ class spell_gen_wg_water : public SpellScriptLoader
         }
 };
 
-class spell_gen_count_pct_from_max_hp : public SpellScriptLoader
+class spell_gen_count_pct_from_max_hp: public SpellScriptLoader
 {
     public:
         spell_gen_count_pct_from_max_hp(char const* name, int32 damagePct = 0) : SpellScriptLoader(name), _damagePct(damagePct) { }
@@ -2511,7 +2513,7 @@ class spell_gen_count_pct_from_max_hp : public SpellScriptLoader
         int32 _damagePct;
 };
 
-class spell_gen_despawn_self : public SpellScriptLoader
+class spell_gen_despawn_self: public SpellScriptLoader
 {
 public:
     spell_gen_despawn_self() : SpellScriptLoader("spell_gen_despawn_self") { }
@@ -2543,7 +2545,7 @@ public:
     }
 };
 
-class spell_gen_touch_the_nightmare : public SpellScriptLoader
+class spell_gen_touch_the_nightmare: public SpellScriptLoader
 {
 public:
     spell_gen_touch_the_nightmare() : SpellScriptLoader("spell_gen_touch_the_nightmare") { }
@@ -2605,7 +2607,7 @@ enum GenericBandage
     SPELL_RECENTLY_BANDAGED = 11196,
 };
 
-class spell_gen_bandage : public SpellScriptLoader
+class spell_gen_bandage: public SpellScriptLoader
 {
     public:
         spell_gen_bandage() : SpellScriptLoader("spell_gen_bandage") { }
@@ -2659,7 +2661,7 @@ enum GenericLifebloom
     SPELL_FACTION_CHAMPIONS_DRU_LIFEBLOOM_FINAL_HEAL    = 66094,
 };
 
-class spell_gen_lifebloom : public SpellScriptLoader
+class spell_gen_lifebloom: public SpellScriptLoader
 {
     public:
         spell_gen_lifebloom(const char* name, uint32 spellId) : SpellScriptLoader(name), _spellId(spellId) { }
@@ -2712,7 +2714,7 @@ enum SummonElemental
     SPELL_SUMMON_EARTH_ELEMENTAL = 19704
 };
 
-class spell_gen_summon_elemental : public SpellScriptLoader
+class spell_gen_summon_elemental: public SpellScriptLoader
 {
     public:
         spell_gen_summon_elemental(const char* name, uint32 spellId) : SpellScriptLoader(name), _spellId(spellId) { }
@@ -2825,7 +2827,7 @@ enum Mounts
     SPELL_X53_TOURING_ROCKET_310        = 76154,
 };
 
-class spell_gen_mount : public SpellScriptLoader
+class spell_gen_mount: public SpellScriptLoader
 {
     public:
         spell_gen_mount(const char* name, uint32 mount0 = 0, uint32 mount60 = 0, uint32 mount100 = 0, uint32 mount150 = 0, uint32 mount280 = 0, uint32 mount310 = 0) : SpellScriptLoader(name),
@@ -2961,7 +2963,7 @@ enum FoamSword
     SPELL_ON_GUARD = 62972,
 };
 
-class spell_gen_upper_deck_create_foam_sword : public SpellScriptLoader
+class spell_gen_upper_deck_create_foam_sword: public SpellScriptLoader
 {
 public:
     spell_gen_upper_deck_create_foam_sword() : SpellScriptLoader("spell_gen_upper_deck_create_foam_sword") { }
@@ -2998,7 +3000,7 @@ public:
     }
 };
 
-class spell_gen_bonked : public SpellScriptLoader
+class spell_gen_bonked: public SpellScriptLoader
 {
 public:
     spell_gen_bonked() : SpellScriptLoader("spell_gen_bonked") { }
@@ -3039,7 +3041,7 @@ public:
 };
 
 // TP to Stormwind (17334) or Orgrimmar (17609)
-class spell_gen_tp_storm_orgri : public SpellScriptLoader
+class spell_gen_tp_storm_orgri: public SpellScriptLoader
 {
     public:
         spell_gen_tp_storm_orgri() : SpellScriptLoader("spell_gen_tp_storm_orgri") { }
@@ -3081,7 +3083,7 @@ class spell_gen_tp_storm_orgri : public SpellScriptLoader
 };
 
 // Gift of the Naaru - 59548 or 59547 or 59545 or 59544 or 59543 or 59542 or 121093 or 28880
-class spell_gen_gift_of_the_naaru : public SpellScriptLoader
+class spell_gen_gift_of_the_naaru: public SpellScriptLoader
 {
     public:
         spell_gen_gift_of_the_naaru() : SpellScriptLoader("spell_gen_gift_of_the_naaru") { }
@@ -3117,7 +3119,7 @@ enum RunningWildMountIds
     SPELL_ALTERED_FORM          = 97709,
 };
 
-class spell_gen_running_wild : public SpellScriptLoader
+class spell_gen_running_wild: public SpellScriptLoader
 {
     public:
         spell_gen_running_wild() : SpellScriptLoader("spell_gen_running_wild") { }
@@ -3188,7 +3190,7 @@ class spell_gen_running_wild : public SpellScriptLoader
         }
 };
 
-class spell_gen_two_forms : public SpellScriptLoader
+class spell_gen_two_forms: public SpellScriptLoader
 {
     public:
         spell_gen_two_forms() : SpellScriptLoader("spell_gen_two_forms") { }
@@ -3238,7 +3240,7 @@ class spell_gen_two_forms : public SpellScriptLoader
         }
 };
 
-class spell_gen_darkflight : public SpellScriptLoader
+class spell_gen_darkflight: public SpellScriptLoader
 {
     public:
         spell_gen_darkflight() : SpellScriptLoader("spell_gen_darkflight") { }
@@ -3265,7 +3267,7 @@ class spell_gen_darkflight : public SpellScriptLoader
 };
 
 // Blood Fury - 20572 or Blood Fury - 33702
-class spell_gen_blood_fury : public SpellScriptLoader
+class spell_gen_blood_fury: public SpellScriptLoader
 {
     public:
         spell_gen_blood_fury() : SpellScriptLoader("spell_gen_blood_fury") { }
@@ -3298,7 +3300,7 @@ class spell_gen_blood_fury : public SpellScriptLoader
 #define GOBELING_GUMBO_BURP 42755
 
 // Gobelin Gumbo - 42760
-class spell_gen_gobelin_gumbo : public SpellScriptLoader
+class spell_gen_gobelin_gumbo: public SpellScriptLoader
 {
     public:
         spell_gen_gobelin_gumbo() : SpellScriptLoader("spell_gen_gobelin_gumbo") { }
@@ -3358,7 +3360,7 @@ enum magePolymorphForms
 };
 
 // TODO: move out of here and rename - not a mage spell
-class spell_mage_polymorph_cast_visual : public SpellScriptLoader
+class spell_mage_polymorph_cast_visual: public SpellScriptLoader
 {
     public:
         spell_mage_polymorph_cast_visual() : SpellScriptLoader("spell_mage_polymorph_visual") { }
@@ -3409,7 +3411,7 @@ const uint32 spell_mage_polymorph_cast_visual::spell_mage_polymorph_cast_visual_
 };
 
 // Hardened Shell - 129787
-class spell_gen_hardened_shell : public SpellScriptLoader
+class spell_gen_hardened_shell: public SpellScriptLoader
 {
     public:
         spell_gen_hardened_shell() : SpellScriptLoader("spell_gen_hardened_shell") { }
@@ -3445,7 +3447,7 @@ class spell_gen_hardened_shell : public SpellScriptLoader
         }
 };
 
-class spell_gen_ds_flush_knockback : public SpellScriptLoader
+class spell_gen_ds_flush_knockback: public SpellScriptLoader
 {
     public:
         spell_gen_ds_flush_knockback() : SpellScriptLoader("spell_gen_ds_flush_knockback") {}
@@ -3486,7 +3488,7 @@ class spell_gen_ds_flush_knockback : public SpellScriptLoader
 };
 
 // Orb of Power - 121164 / 121175 / 121176 / 121177
-class spell_gen_orb_of_power : public SpellScriptLoader
+class spell_gen_orb_of_power: public SpellScriptLoader
 {
     public:
         spell_gen_orb_of_power() : SpellScriptLoader("spell_gen_orb_of_power") { }
@@ -3539,7 +3541,7 @@ class spell_gen_orb_of_power : public SpellScriptLoader
 };
 
 // Whispers of Insanity - 176151, custom script, that buff is used to reward player vote
-class spell_vote_buff : public SpellScriptLoader
+class spell_vote_buff: public SpellScriptLoader
 {
 public:
     spell_vote_buff() : SpellScriptLoader("spell_vote_buff") { }

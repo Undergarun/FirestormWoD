@@ -27,7 +27,7 @@ EndScriptData */
 #include "Chat.h"
 #include <stdlib.h>
 
-class modify_commandscript : public CommandScript
+class modify_commandscript: public CommandScript
 {
 public:
     modify_commandscript() : CommandScript("modify_commandscript") { }

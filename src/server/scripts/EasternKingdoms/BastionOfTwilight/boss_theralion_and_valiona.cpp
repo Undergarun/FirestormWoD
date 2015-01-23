@@ -1258,7 +1258,7 @@ class npc_dazzling_destruction_stalker : public CreatureScript
                 //DoCast(me, SPELL_DAZZLING_DESTRUCTION_STALKER_VISUAL);
             }
 
-            void SpellHit(Unit* caster, SpellEntry const* spell)
+            void SpellHit(Unit* caster, SpellInfo const* spell)
             {
                 if (spell->Id == SPELL_DAZZLING_DESTRUCTION_DMG ||
                     spell->Id == SPELL_DAZZLING_DESTRUCTION_DMG_25 ||
@@ -1298,7 +1298,7 @@ class npc_theralion_flight_target_stalker : public CreatureScript
         };
 };
 
-class spell_valiona_blackout : public SpellScriptLoader
+class spell_valiona_blackout: public SpellScriptLoader
 {
     public:
         spell_valiona_blackout() : SpellScriptLoader("spell_valiona_blackout") { }
@@ -1328,7 +1328,7 @@ class spell_valiona_blackout : public SpellScriptLoader
         }
 };
 
-class spell_valiona_twilight_meteorite : public SpellScriptLoader
+class spell_valiona_twilight_meteorite: public SpellScriptLoader
 {
     public:
         spell_valiona_twilight_meteorite() : SpellScriptLoader("spell_valiona_twilight_meteorite") { }
@@ -1357,7 +1357,7 @@ class spell_valiona_twilight_meteorite : public SpellScriptLoader
         }
 };
 
-class spell_valiona_twilight_flame_dmg_1 : public SpellScriptLoader
+class spell_valiona_twilight_flame_dmg_1: public SpellScriptLoader
 {
     public:
         spell_valiona_twilight_flame_dmg_1() : SpellScriptLoader("spell_valiona_twilight_flame_dmg_1") { }
@@ -1392,7 +1392,7 @@ class spell_valiona_twilight_flame_dmg_1 : public SpellScriptLoader
         }
 };
 
-class spell_valiona_twilight_flame_dmg_2 : public SpellScriptLoader
+class spell_valiona_twilight_flame_dmg_2: public SpellScriptLoader
 {
     public:
         spell_valiona_twilight_flame_dmg_2() : SpellScriptLoader("spell_valiona_twilight_flame_dmg_2") { }
@@ -1431,7 +1431,7 @@ class spell_valiona_twilight_flame_dmg_2 : public SpellScriptLoader
         }
 };
 
-class spell_theralion_dazzling_destruction : public SpellScriptLoader
+class spell_theralion_dazzling_destruction: public SpellScriptLoader
 {
     public:
         spell_theralion_dazzling_destruction() : SpellScriptLoader("spell_theralion_dazzling_destruction") { }
@@ -1462,7 +1462,7 @@ class spell_theralion_dazzling_destruction : public SpellScriptLoader
         }
 };
 
-class spell_theralion_dazzling_destruction_dmg : public SpellScriptLoader
+class spell_theralion_dazzling_destruction_dmg: public SpellScriptLoader
 {
     public:
         spell_theralion_dazzling_destruction_dmg() : SpellScriptLoader("spell_theralion_dazzling_destruction_dmg") { }
@@ -1496,7 +1496,7 @@ class spell_theralion_dazzling_destruction_dmg : public SpellScriptLoader
         }
 };
 
-class spell_valiona_devouring_flames_dmg : public SpellScriptLoader
+class spell_valiona_devouring_flames_dmg: public SpellScriptLoader
 {
     public:
         spell_valiona_devouring_flames_dmg() : SpellScriptLoader("spell_valiona_devouring_flames_dmg") { }
@@ -1530,7 +1530,7 @@ class spell_valiona_devouring_flames_dmg : public SpellScriptLoader
         }
 };
 
-class spell_twilight_shift_stack : public SpellScriptLoader
+class spell_twilight_shift_stack: public SpellScriptLoader
 {
     public:
         spell_twilight_shift_stack() : SpellScriptLoader("spell_twilight_shift_stack") { }
@@ -1571,7 +1571,7 @@ class spell_twilight_shift_stack : public SpellScriptLoader
         }
 };
 
-class spell_shifting_reality : public SpellScriptLoader
+class spell_shifting_reality: public SpellScriptLoader
 {
     public:
         spell_shifting_reality() : SpellScriptLoader("spell_shifting_reality") { }

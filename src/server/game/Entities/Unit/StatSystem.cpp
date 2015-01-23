@@ -338,22 +338,32 @@ void Player::UpdateMaxHealth()
     SetMaxHealth((uint32)value);
 }
 
-void Player::UpdateMaxPower(Powers power)
+void Player::UpdateMaxPower(Powers p_Power)
 {
-    UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + power);
+    UnitMods l_UnitMod = UnitMods(UNIT_MOD_POWER_START + p_Power);
 
-    float value = GetModifierValue(unitMod, BASE_VALUE) + GetCreatePowers(power);
-    value *= GetModifierValue(unitMod, BASE_PCT);
-    value += GetModifierValue(unitMod, TOTAL_VALUE);
-    value *= GetModifierValue(unitMod, TOTAL_PCT);
+    float l_Value       = GetModifierValue(l_UnitMod, BASE_VALUE);
+    float l_CreatePower = GetCreatePowers(p_Power);
+
+    float l_Mod = 1.0f;
+
+    if (p_Power == Powers::POWER_MANA)
+        AddPct(l_Mod, GetTotalAuraModifier(AuraType::SPELL_AURA_MODIFY_MANA_POOL_PCT));
+
+    l_CreatePower *= l_Mod;
+    l_Value       += l_CreatePower;
+
+    l_Value *= GetModifierValue(l_UnitMod, BASE_PCT);
+    l_Value += GetModifierValue(l_UnitMod, TOTAL_VALUE);
+    l_Value *= GetModifierValue(l_UnitMod, TOTAL_PCT);
 
     AuraEffectList const& mModMaxPower = GetAuraEffectsByType(SPELL_AURA_MOD_MAX_POWER);
     for (AuraEffectList::const_iterator i = mModMaxPower.begin(); i != mModMaxPower.end(); ++i)
-        if (power == (*i)->GetMiscValue())
-            value += float((*i)->GetAmount());
+        if (p_Power == (*i)->GetMiscValue())
+            l_Value += float((*i)->GetAmount());
 
-    value = floor(value + 0.5f);
-    SetMaxPower(power, uint32(value));
+        l_Value = floor(l_Value + 0.5f);
+    SetMaxPower(p_Power, uint32(l_Value));
 }
 
 void Player::UpdateItemLevel()
@@ -399,6 +409,10 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     float base_attPower = GetModifierValue(unitMod, BASE_VALUE) * GetModifierValue(unitMod, BASE_PCT);
     float attPowerMod = GetModifierValue(unitMod, TOTAL_VALUE);
     float attPowerMultiplier = GetModifierValue(unitMod, TOTAL_PCT) - 1.0f;
+
+    // 76857 - Mastery : Critical Block - Attack Percentage
+    if (GetTypeId() == TYPEID_PLAYER && HasAura(76857))
+        attPowerMultiplier += GetFloatValue(PLAYER_FIELD_MASTERY) / 100;
 
     //add dynamic flat mods
     if (!ranged && HasAuraType(SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR))
@@ -466,7 +480,6 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
 void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& min_damage, float& max_damage)
 {
     Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-    Item* offItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
 
     UnitMods unitMod;
 
@@ -748,10 +761,9 @@ void Player::UpdateBlockPercentage()
         if (GetTypeId() == TYPEID_PLAYER && HasAura(76671))
             value += GetFloatValue(PLAYER_FIELD_MASTERY);
 
-        // Custom MoP Script
         // 76857 - Mastery : Critical Block - Block Percentage
         if (GetTypeId() == TYPEID_PLAYER && HasAura(76857))
-            value += GetFloatValue(PLAYER_FIELD_MASTERY) / 2.0f;
+            value += GetFloatValue(PLAYER_FIELD_MASTERY) * 0.5f;
 
         if (value < 0.0f)
             value = 0.0f;
@@ -887,12 +899,12 @@ void Player::UpdateLeechPercentage()
 
 void Player::UpdateVersatilityPercentage()
 {
-    float valueDone = GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT);
-    float valueTaken = GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT);
-    valueDone += GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE);
-    valueTaken += GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN);
+    float valueBonus = GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT);
+
+    float valueDone = GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE);
+
     SetFloatValue(PLAYER_FIELD_VERSATILITY, valueDone);
-    SetFloatValue(PLAYER_FIELD_VERSATILITY_BONUS, valueTaken);
+    SetFloatValue(PLAYER_FIELD_VERSATILITY_BONUS, valueBonus);
 }
 
 void Player::UpdateAvoidancePercentage()
@@ -959,18 +971,18 @@ void Player::UpdateManaRegen()
 
 void Player::UpdateEnergyRegen()
 {
-    if (getPowerType() != POWER_ENERGY)
+    if (getPowerType() != Powers::POWER_ENERGY)
         return;
 
-    float pct = 0.0f;
-    Unit::AuraEffectList const& ModPowerRegenPCTAuras = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
-    for (Unit::AuraEffectList::const_iterator i = ModPowerRegenPCTAuras.begin(); i != ModPowerRegenPCTAuras.end(); ++i)
-    if (Powers((*i)->GetMiscValue()) == POWER_ENERGY)
-        pct += (*i)->GetAmount();
+    SetFloatValue(EUnitFields::UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, GetRegenForPower(Powers::POWER_ENERGY));
+}
 
-    float haste = 1.f / (1.f + (m_baseRatingValue[CR_HASTE_MELEE] * GetRatingMultiplier(CR_HASTE_MELEE) + pct) / 100.f);
+void Player::UpdateFocusRegen()
+{
+    if (getPowerType() != Powers::POWER_FOCUS)
+        return;
 
-    SetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN, haste);
+    SetFloatValue(EUnitFields::UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, GetRegenForPower(Powers::POWER_FOCUS));
 }
 
 void Player::UpdateRuneRegen(RuneType rune)
@@ -996,6 +1008,9 @@ void Player::UpdateRuneRegen(RuneType rune)
 
 void Player::UpdateAllRunesRegen()
 {
+    if (getClass() != Classes::CLASS_DEATH_KNIGHT)
+        return;
+
     for (uint8 i = 0; i < NUM_RUNE_TYPES; ++i)
     {
         if (uint32 cooldown = GetRuneTypeBaseCooldown(RuneType(i)))
@@ -1009,14 +1024,36 @@ void Player::UpdateAllRunesRegen()
         }
     }
 
-    float pct = 0.f;
-    AuraEffectList const& regenAura = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
-    for (AuraEffectList::const_iterator i = regenAura.begin(); i != regenAura.end(); ++i)
-        if ((*i)->GetMiscValue() == POWER_RUNES)
-            pct += (*i)->GetAmount();
+    SetFloatValue(EUnitFields::UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, GetRegenForPower(Powers::POWER_RUNES));
+}
 
-    float haste = 1.f / (1.f + (m_baseRatingValue[CR_HASTE_MELEE] * GetRatingMultiplier(CR_HASTE_MELEE) + pct) / 100.f);
-    SetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN, haste);
+float Player::GetRegenForPower(Powers p_Power)
+{
+    float l_BaseRegen = 0.0f;
+
+    switch (p_Power)
+    {
+        case Powers::POWER_FOCUS:
+            l_BaseRegen = 5.0f;
+            break;
+        case Powers::POWER_ENERGY:
+        case Powers::POWER_RUNES:
+            l_BaseRegen = 10.0f;
+            break;
+        default:
+            return 0.0f;
+    }
+
+    float l_HastePct = 1.0f;
+
+    Unit::AuraEffectList const& l_ModPowerRegenPCT = GetAuraEffectsByType(AuraType::SPELL_AURA_MOD_POWER_REGEN_PERCENT);
+    for (Unit::AuraEffectList::const_iterator l_Iter = l_ModPowerRegenPCT.begin(); l_Iter != l_ModPowerRegenPCT.end(); ++l_Iter)
+    {
+        if (Powers((*l_Iter)->GetMiscValue()) == p_Power)
+            l_HastePct += (*l_Iter)->GetAmount() / 100.0f;
+    }
+
+    return l_BaseRegen - (l_BaseRegen * l_HastePct);
 }
 
 void Player::_ApplyAllStatBonuses()
@@ -1362,7 +1399,7 @@ void Guardian::UpdateArmor()
         AuraEffectList const& l_ModPetStats = m_owner->GetAuraEffectsByType(SPELL_AURA_MOD_PET_STATS);
         for (AuraEffectList::const_iterator l_Iterator = l_ModPetStats.begin(); l_Iterator != l_ModPetStats.end(); ++l_Iterator)
         {
-            if ((*l_Iterator)->GetMiscValue() == INCREASE_ARMOR_PERCENT && (*l_Iterator)->GetMiscValueB() && GetEntry() == (*l_Iterator)->GetMiscValueB())
+            if ((*l_Iterator)->GetMiscValue() == INCREASE_ARMOR_PERCENT && (*l_Iterator)->GetMiscValueB() && (int32)GetEntry() == (*l_Iterator)->GetMiscValueB())
                 l_Amount += float((*l_Iterator)->GetAmount());
         }
 
@@ -1388,7 +1425,7 @@ void Guardian::UpdateMaxHealth()
     AuraEffectList const& l_ModPetStats = m_owner->GetAuraEffectsByType(SPELL_AURA_MOD_PET_STATS);
     for (AuraEffectList::const_iterator l_Iterator = l_ModPetStats.begin(); l_Iterator != l_ModPetStats.end(); ++l_Iterator)
     {
-        if ((*l_Iterator)->GetMiscValue() == INCREASE_HEALTH_PERCENT && (*l_Iterator)->GetMiscValueB() && GetEntry() == (*l_Iterator)->GetMiscValueB())
+        if ((*l_Iterator)->GetMiscValue() == INCREASE_HEALTH_PERCENT && (*l_Iterator)->GetMiscValueB() && (int32)GetEntry() == (*l_Iterator)->GetMiscValueB())
             l_Amount += float((*l_Iterator)->GetAmount());
     }
 

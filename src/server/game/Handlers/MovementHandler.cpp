@@ -164,7 +164,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
         Difficulty diff = GetPlayer()->GetDifficulty(mEntry->IsRaid());
         if (MapDifficulty const* mapDiff = GetMapDifficultyData(mEntry->MapID, diff))
         {
-            if (mapDiff->resetTime)
+            if (mapDiff->ResetTime)
             {
                 if (time_t timeReset = sInstanceSaveMgr->GetResetTimeFor(mEntry->MapID, diff))
                 {
@@ -403,9 +403,18 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& p_Packet)
 
     sScriptMgr->OnPlayerUpdateMovement(l_PlayerMover);
 
-    // Hack Fix, clean emotes when moving
-    if (l_PlayerMover && l_PlayerMover->GetLastPlayedEmote())
-        l_PlayerMover->HandleEmoteCommand(0);
+    // Remove emote on movements
+    if (l_PlayerMover && l_MovementInfo.HasMovementFlag(MOVEMENTFLAG_MASK_MOVING))
+    {
+        if (uint32 l_EmoteId = l_PlayerMover->GetUInt32Value(UNIT_FIELD_EMOTE_STATE))
+        {
+            if (EmotesEntry const* emoteInfo = sEmotesStore.LookupEntry(l_EmoteId))
+            {
+                if (emoteInfo->EmoteType != 1)
+                    l_PlayerMover->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
+            }
+        }
+    }
 
     //if (plrMover)
     //    sAnticheatMgr->StartHackDetection(plrMover, movementInfo, opcode);

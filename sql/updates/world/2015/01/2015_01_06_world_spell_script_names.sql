@@ -1,0 +1,10 @@
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_pri_surge_of_darkness';
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_warl_drain_soul';
+INSERT INTO `spell_script_names` VALUES (103103, 'spell_warl_drain_soul');
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_warl_siphon_life_heal';
+INSERT INTO `spell_script_names` VALUES (63106, 'spell_warl_siphon_life_heal');
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_warl_siphon_life';
+INSERT INTO `spell_script_names` VALUES (157736, 'spell_warl_siphon_life');
+INSERT INTO `spell_script_names` VALUES (146739, 'spell_warl_siphon_life');
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_warl_corruption';
+INSERT INTO `spell_script_names` VALUES (172, 'spell_warl_corruption');

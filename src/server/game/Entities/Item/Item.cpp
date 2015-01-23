@@ -284,10 +284,6 @@ Item::Item()
 
 Item::~Item()
 {
-    // WARNING : THAT CHECK MAY CAUSE LAGS !
-    if (Player * plr = GetOwner())
-        if (plr->RemoveItemByDelete(this))
-            sLog->outAshran("Item %u on player guid %u is in destructor, and pointer is still referenced in player's data ...", GetEntry(), plr->GetGUIDLow());
 }
 
 bool Item::Create(uint32 guidlow, uint32 itemid, Player const* owner)
@@ -596,6 +592,94 @@ Player* Item::GetOwner()const
 uint32 Item::GetSkill() const
 {
     return GetTemplate()->GetSkill();
+}
+
+void Item::GenerateItemBonus(uint32 p_ItemId, uint32 p_ItemBonusDifficulty, std::vector<uint32>& p_ItemBonus)
+{
+    /// Item bonus per item are store in ItemXBonusTree.db2
+    if (sItemBonusTreeByID.find(p_ItemId) == sItemBonusTreeByID.end())
+        return;
+
+    /// Step one : search for generic bonus we can find in DB2 (90, 92, 94, 95, 97, heroic)
+    auto& l_ItemBonusTree = sItemBonusTreeByID[p_ItemId];
+    std::for_each(l_ItemBonusTree.begin(), l_ItemBonusTree.end(), [&p_ItemBonusDifficulty, &p_ItemBonus](ItemXBonusTreeEntry const* p_ItemXBonusTree) -> void
+    {
+        /// Lookup for the right bonus
+        for (uint32 l_Index = 0; l_Index < sItemBonusTreeNodeStore.GetNumRows(); l_Index++)
+        {
+            auto l_ItemBonusTreeNode = sItemBonusTreeNodeStore.LookupEntry(l_Index);
+            if (l_ItemBonusTreeNode == nullptr)
+                continue;
+
+            if (l_ItemBonusTreeNode->Category != p_ItemXBonusTree->ItemBonusTreeCategory)
+                continue;
+
+            if (l_ItemBonusTreeNode->Difficulty != p_ItemBonusDifficulty)
+                continue;
+
+            auto l_BonusId = l_ItemBonusTreeNode->ItemBonusEntry;
+
+            /// If no bonusId, we must use LinkedCategory to try to find it ...
+            /// ItemBonusTreeNode.db2 havn't full data (6.0.3 19116), in somes case we can't find the item bonus
+            /// Maybe we can have full data by bruteforcing on retail ?
+            if (l_BonusId == 0)
+            {
+                for (uint32 l_LinkedIndex = 0; l_LinkedIndex < sItemBonusTreeNodeStore.GetNumRows(); l_LinkedIndex++)
+                {
+                    auto l_LinkedItemBonusTreeNode = sItemBonusTreeNodeStore.LookupEntry(l_LinkedIndex);
+                    if (l_LinkedItemBonusTreeNode == nullptr)
+                        continue;
+
+                    if (l_LinkedItemBonusTreeNode->Category != l_ItemBonusTreeNode->LinkedCategory)
+                        continue;
+
+                    l_BonusId = l_LinkedItemBonusTreeNode->ItemBonusEntry;
+                    break;
+                }
+            }
+
+            if (l_BonusId != 0)
+                p_ItemBonus.push_back(l_BonusId);
+        }
+    });
+
+    /// Step two : Roll for stats bonus (Avoidance, Leech & Speed)
+    /// Atm, i can't find percentage chance to have stats but it's same pretty low (~ 10%)
+    /// Item can have only on stat bonus, and it's only in dungeon/raid
+    if (p_ItemBonusDifficulty != 0)             ///< Only in dungeon & raid
+    {
+        /// @TODO: Add Indestructible for raid, need more informations about normal, heroic, mythic & lfr ...
+        std::vector<uint32> l_StatsBonus =
+        {
+            ItemBonus::Stats::Avoidance,
+            ItemBonus::Stats::Speed,
+            ItemBonus::Stats::Leech
+        };
+
+        if (roll_chance_f(ItemBonus::Chances::Stats))
+        { 
+            /// Could be a good thing to improve performance to declare one random generator somewhere and always use the same instead of declare it new one for each std::shuffle call
+            /// Note for developers : std::random_shuffle is c based and will be removed soon (c++x14), so it's a good tips to always use std::shuffle instead 
+            std::random_device l_RandomDevice;
+            std::mt19937 l_RandomGenerator(l_RandomDevice());
+            std::shuffle(l_StatsBonus.begin(), l_StatsBonus.end(), l_RandomGenerator);
+
+            p_ItemBonus.push_back(*l_StatsBonus.begin());
+        }
+    }
+
+    /// Step tree : Roll for Warforged & Prismatic Socket
+    /// That roll happen only in heroic dungeons & raid
+    /// Exaclty like stats, we don't know the chance to have that kind of bonus ...
+    /// @TODO: Handle raid case, need more informations about normal, heroic, mythic & lfr ...
+    if (p_ItemBonusDifficulty == Difficulty::HEROIC_5_DIFFICULTY)
+    {
+        if (roll_chance_f(ItemBonus::Chances::Warforged))
+            p_ItemBonus.push_back(ItemBonus::HeroicOrRaid::Warforged);
+
+        if (roll_chance_f(ItemBonus::Chances::PrismaticSocket))
+            p_ItemBonus.push_back(ItemBonus::HeroicOrRaid::PrismaticSocket);
+    }
 }
 
 int32 Item::GenerateItemRandomPropertyId(uint32 item_id)
@@ -1372,14 +1456,16 @@ bool Item::CanTransmogrifyItemWithItem(Item* transmogrified, Item* transmogrifie
     {
         if (proto1->Class == ITEM_CLASS_WEAPON && proto2->Class == ITEM_CLASS_WEAPON)
         {
-            if (!((proto1->InventoryType == INVTYPE_WEAPON || proto1->InventoryType == INVTYPE_WEAPONMAINHAND || proto1->InventoryType == INVTYPE_WEAPONOFFHAND) &&
-                (proto2->InventoryType == INVTYPE_WEAPON || proto2->InventoryType == INVTYPE_WEAPONMAINHAND ||proto2->InventoryType == INVTYPE_WEAPONOFFHAND)))
+            if (!((proto1->InventoryType == INVTYPE_WEAPON || proto1->InventoryType == INVTYPE_WEAPONMAINHAND ||
+                proto1->InventoryType == INVTYPE_WEAPONOFFHAND || proto1->InventoryType == INVTYPE_RANGED || proto1->InventoryType == INVTYPE_RANGEDRIGHT) &&
+                (proto2->InventoryType == INVTYPE_WEAPON || proto2->InventoryType == INVTYPE_WEAPONMAINHAND ||
+                proto2->InventoryType == INVTYPE_WEAPONOFFHAND || proto2->InventoryType == INVTYPE_RANGED || proto2->InventoryType == INVTYPE_RANGEDRIGHT)))
                 return false;
         }
-        else if (proto2->Class == ITEM_CLASS_ARMOR && proto2->Class == ITEM_CLASS_ARMOR)
+        else if (proto1->Class == ITEM_CLASS_ARMOR && proto2->Class == ITEM_CLASS_ARMOR)
         {
             if (!((proto1->InventoryType == INVTYPE_CHEST || proto1->InventoryType == INVTYPE_ROBE) &&
-                (proto1->InventoryType == INVTYPE_CHEST || proto1->InventoryType == INVTYPE_ROBE)))
+                (proto2->InventoryType == INVTYPE_CHEST || proto2->InventoryType == INVTYPE_ROBE)))
                 return false;
         }
     }
@@ -1461,7 +1547,7 @@ uint32 Item::GetSellPrice(ItemTemplate const* proto, bool& normalSellPrice)
             inventoryType = INVTYPE_CHEST;
 
         float typeFactor = 0.0f;
-        uint8 wepType = -1;
+        uint8 wepType = 0xFF;
 
         switch (inventoryType)
         {
@@ -1587,7 +1673,7 @@ int32 Item::GetReforgableStat(ItemModType statType) const
 {
     ItemTemplate const* proto = GetTemplate();
     for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
-        if (proto->ItemStat[i].ItemStatType == statType)
+        if (proto->ItemStat[i].ItemStatType == (uint32)statType)
             return proto->ItemStat[i].ItemStatValue;
 
     int32 randomPropId = GetItemRandomPropertyId();
@@ -1606,7 +1692,7 @@ int32 Item::GetReforgableStat(ItemModType statType) const
             {
                 for (uint32 f = 0; f < MAX_ENCHANTMENT_SPELLS; ++f)
                 {
-                    if (enchant->type[f] == ITEM_ENCHANTMENT_TYPE_STAT && enchant->spellid[f] == statType)
+                    if (enchant->type[f] == ITEM_ENCHANTMENT_TYPE_STAT && enchant->spellid[f] == (uint32)statType)
                     {
                         for (int k = 0; k < 5; ++k)
                         {
@@ -1630,7 +1716,7 @@ int32 Item::GetReforgableStat(ItemModType statType) const
             {
                 for (uint32 f = 0; f < MAX_ENCHANTMENT_SPELLS; ++f)
                 {
-                    if (enchant->type[f] == ITEM_ENCHANTMENT_TYPE_STAT && enchant->spellid[f] == statType)
+                    if (enchant->type[f] == ITEM_ENCHANTMENT_TYPE_STAT && enchant->spellid[f] == (uint32)statType)
                     {
                         for (int k = 0; k < MAX_ENCHANTMENT_SPELLS; ++k)
                         {
@@ -1696,8 +1782,6 @@ bool Item::IsStuffItem() const
         default:
             return true;
     }
-
-    return false;
 }
 
 bool Item::CanUpgrade() const
@@ -1814,7 +1898,7 @@ float ItemTemplate::GetScalingDamageValue(uint32 ilvl) const
     return damageEntry ? damageEntry->DPS[Quality == ITEM_QUALITY_HEIRLOOM ? ITEM_QUALITY_RARE : Quality] : 0.f;
 }
 
-uint32 ItemTemplate::GetRandomPointsOffset() const
+int32 ItemTemplate::GetRandomPointsOffset() const
 {
     switch (InventoryType)
     {
@@ -1855,7 +1939,7 @@ uint32 ItemTemplate::GetRandomPointsOffset() const
 
 uint32 ItemTemplate::CalculateScalingStatDBCValue(uint32 ilvl) const
 {
-    uint32 offset = GetRandomPointsOffset();
+    int32 offset = GetRandomPointsOffset();
     if (offset == -1)
         return 0;
 
@@ -1884,10 +1968,15 @@ float ItemTemplate::GetSocketCost(uint32 ilvl) const
     return socket ? socket->cost : 0.f;
 }
 
-uint32 ItemTemplate::CalculateStatScaling(uint32 index, uint32 ilvl) const
+int32 ItemTemplate::CalculateStatScaling(uint32 index, uint32 ilvl) const
 {
     _ItemStat const& itemStat = ItemStat[index];
-    return floor((((float)itemStat.ScalingValue * (float)CalculateScalingStatDBCValue(ilvl) * 0.000099999997f) - (GetSocketCost(ilvl) * itemStat.SocketCostRate)) + 0.5f);
+    return CalculateStatScaling(itemStat.ScalingValue, itemStat.SocketCostRate, ilvl);
+}
+
+int32 ItemTemplate::CalculateStatScaling(int32 scalingValue, float socketCost, uint32 ilvl) const
+{
+    return floor((((float)scalingValue * (float)CalculateScalingStatDBCValue(ilvl) * 0.000099999997f) - (GetSocketCost(ilvl) * socketCost)) + 0.5f);
 }
 
 uint32 ItemTemplate::CalculateArmorScaling(uint32 ilvl) const
@@ -1953,23 +2042,6 @@ void ItemTemplate::CalculateMinMaxDamageScaling(uint32 ilvl, uint32& minDamage, 
     }
 }
 
-uint32 ItemTemplate::GetItemLevelForHeirloom(uint32 level) const
-{
-    ScalingStatDistributionEntry const* ssdEntry = sScalingStatDistributionStore.LookupEntry(ScalingStatDistribution);
-
-    if (!ssdEntry)
-        return ItemLevel;
-
-    if (level < ssdEntry->MinLevel)
-        level = ssdEntry->MinLevel;
-
-    if (level > ssdEntry->MaxLevel)
-        level = ssdEntry->MaxLevel;
-
-    uint32 ilvl = round(GetCurveValue(ssdEntry->CurveProperties, level));
-    return ilvl ? ilvl : ItemLevel;
-}
-
 bool Item::AddItemBonus(uint32 p_ItemBonusId)
 {
     if (!GetItemBonusesByID(p_ItemBonusId))
@@ -1987,7 +2059,7 @@ void Item::AddItemBonuses(std::vector<uint32> const& p_ItemBonuses)
     if (!p_ItemBonuses.size())
         return;
 
-    for (int i = 0; i < p_ItemBonuses.size(); i++)
+    for (uint32 i = 0; i < p_ItemBonuses.size(); i++)
         AddItemBonus(p_ItemBonuses[i]);
 }
 
@@ -2005,7 +2077,7 @@ bool Item::RemoveItemBonus(uint32 p_ItemBonusId)
     std::vector<uint32> const& l_BonusList = GetAllItemBonuses();
     for (uint32 i = 0; i < l_BonusList.size(); i++)
     {
-        if (l_BonusList[i] == p_ItemBonusId)
+        if (l_BonusList[i] == p_ItemBonusId && p_ItemBonusId)
         {
             SetDynamicValue(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS, i, 0);
             return true;
@@ -2019,7 +2091,8 @@ void Item::RemoveAllItemBonuses()
 {
     std::vector<uint32> const& l_BonusList = GetAllItemBonuses();
     for (auto& l_Bonus : l_BonusList)
-        RemoveItemBonus(l_Bonus);
+        if (l_Bonus)
+            RemoveItemBonus(l_Bonus);
 }
 
 std::vector<uint32> const& Item::GetAllItemBonuses() const
@@ -2032,6 +2105,9 @@ uint32 Item::GetItemLevelBonusFromItemBonuses() const
     uint32 itemLevel = 0;
     for (auto l_Bonus : GetAllItemBonuses())
     {
+        if (!l_Bonus)
+            continue;
+
         std::vector<ItemBonusEntry const*> const* l_ItemBonus = GetItemBonusesByID(l_Bonus);
         if (!l_ItemBonus)
             continue;

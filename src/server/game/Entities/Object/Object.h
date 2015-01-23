@@ -495,6 +495,16 @@ struct Position
         return l_Pos;
     }
 
+    Position operator*(float p_Rhs) const
+    {
+        Position l_Pos;
+        l_Pos.m_positionX = m_positionX * p_Rhs;
+        l_Pos.m_positionY = m_positionY * p_Rhs;
+        l_Pos.m_positionZ = m_positionZ * p_Rhs;
+
+        return l_Pos;
+    }
+
     Position operator/(float p_Rhs) const
     {
         Position l_Pos;
@@ -618,7 +628,7 @@ static float dotProductXY(Position const& p_Pos1, Position const& p_Pos2)
     return p_Pos1.m_positionX * p_Pos2.m_positionX + p_Pos1.m_positionY * p_Pos2.m_positionY;
 }
 
-static Position& normalizeXY(Position& p_Pos)  // @todo  unused function (Clang warning)
+static Position& normalizeXY(Position& p_Pos)
 {
     float l_Norme = std::sqrt(dotProductXY(p_Pos, p_Pos));
     p_Pos.m_positionX /= l_Norme;
@@ -627,7 +637,7 @@ static Position& normalizeXY(Position& p_Pos)  // @todo  unused function (Clang 
     return p_Pos;
 }
 
-static float DistanceFromLine(Position const& p_PointLine1, Position const& p_PointLine2, Position const& p_Point3) // @todo unused function (Clang warning)
+static float DistanceFromLine(Position const& p_PointLine1, Position const& p_PointLine2, Position const& p_Point3)
 {
     float l_x1 = p_PointLine1.GetPositionX();
     float l_x2 = p_PointLine2.GetPositionX();

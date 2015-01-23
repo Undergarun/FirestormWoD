@@ -1079,7 +1079,7 @@ class boss_elder_stonebark : public CreatureScript
                     Talk(SAY_STONEBARK_AGGRO);
             }
 
-            void DamageTaken(Unit* who, uint32& damage, SpellInfo const* spellProto)
+            void DamageTaken(Unit* who, uint32& damage)
             {
                 if (who == me)
                     return;
@@ -1986,7 +1986,7 @@ class IsNoAllyOfNature
         }
 };
 
-class spell_essence_targeting_ironbranch : public SpellScriptLoader
+class spell_essence_targeting_ironbranch: public SpellScriptLoader
 {
     public:
         spell_essence_targeting_ironbranch() : SpellScriptLoader("spell_elder_ironbranch_essence_targeting") {}
@@ -2012,7 +2012,7 @@ class spell_essence_targeting_ironbranch : public SpellScriptLoader
         }
 };
 
-class spell_essence_targeting_brightleaf : public SpellScriptLoader
+class spell_essence_targeting_brightleaf: public SpellScriptLoader
 {
     public:
         spell_essence_targeting_brightleaf() : SpellScriptLoader("spell_elder_brightleaf_essence_targeting") {}
@@ -2040,7 +2040,7 @@ class spell_essence_targeting_brightleaf : public SpellScriptLoader
 };
 
 
-class spell_aggregation_pheromones_targeting : public SpellScriptLoader
+class spell_aggregation_pheromones_targeting: public SpellScriptLoader
 {
     public:
         spell_aggregation_pheromones_targeting() : SpellScriptLoader("spell_aggregation_pheromones_targeting") {}
@@ -2071,7 +2071,7 @@ class spell_aggregation_pheromones_targeting : public SpellScriptLoader
 };
 
 // temporary to trigger spell on proper target
-class spell_elder_brightleaf_unstable_sun_beam : public SpellScriptLoader
+class spell_elder_brightleaf_unstable_sun_beam: public SpellScriptLoader
 {
     public:
         spell_elder_brightleaf_unstable_sun_beam() : SpellScriptLoader("spell_elder_brightleaf_unstable_sun_beam") {}
@@ -2105,7 +2105,7 @@ class spell_elder_brightleaf_unstable_sun_beam : public SpellScriptLoader
         }
 };
 
-class spell_freya_attuned_to_nature_dose_reduction : public SpellScriptLoader
+class spell_freya_attuned_to_nature_dose_reduction: public SpellScriptLoader
 {
     public:
         spell_freya_attuned_to_nature_dose_reduction() : SpellScriptLoader("spell_freya_attuned_to_nature_dose_reduction")
@@ -2154,7 +2154,7 @@ class spell_freya_attuned_to_nature_dose_reduction : public SpellScriptLoader
         }
 };
 
-class spell_freya_iron_roots : public SpellScriptLoader
+class spell_freya_iron_roots: public SpellScriptLoader
 {
     public:
         spell_freya_iron_roots() : SpellScriptLoader("spell_freya_iron_roots")
