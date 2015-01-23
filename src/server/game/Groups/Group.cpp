@@ -1283,7 +1283,6 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
 
 void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
 {
-    sLog->outAshran("Group::NeedBeforeGreed: lootedObject[entry: %u, type: %u]", lootedObject->GetEntry(), lootedObject->GetTypeId());
     ItemTemplate const* item;
     uint8 itemSlot = 0;
     for (std::vector<LootItem>::iterator i = loot->Items.begin(); i != loot->Items.end(); ++i, ++itemSlot)

@@ -972,6 +972,11 @@ class spell_pri_holy_word_sanctuary: public SpellScriptLoader
         }
 };
 
+enum MasterySpells
+{
+    MASTERY_SPELL_DISCIPLINE_SHIELD = 77484
+};
+
 // Power Word: Shield - 17
 class spell_pri_power_word_shield: public SpellScriptLoader
 {
@@ -991,6 +996,12 @@ class spell_pri_power_word_shield: public SpellScriptLoader
                     return;
 
                 p_Amount = ((l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 5) + GetSpellInfo()->Effects[EFFECT_0].BasePoints) * 1;
+
+                if (l_Caster->HasAura(MASTERY_SPELL_DISCIPLINE_SHIELD) && l_Caster->getLevel() >= 80)
+                {
+                    float l_Mastery = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.625f;
+                    p_Amount += CalculatePct(p_Amount, l_Mastery);
+                }
             }
 
             void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*mode*/) // Case of PRIEST_GLYPH_OF_REFLECTIVE_SHIELD
