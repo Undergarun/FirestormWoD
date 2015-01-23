@@ -1,11 +1,11 @@
-#ifndef _MILLENIUMSTUDIO_CALLBACK_H
-#define _MILLENIUMSTUDIO_CALLBACK_H
+#ifndef _MILLENIUMSTUDIO_CALLBACK_HPP
+#define _MILLENIUMSTUDIO_CALLBACK_HPP
 
 #include "Common.h"
 
 namespace MS
 {
-    namespace Util
+    namespace Utilities
     {
         typedef std::function<void(bool /*p_Sucess*/)>     FuncCallBack;
 

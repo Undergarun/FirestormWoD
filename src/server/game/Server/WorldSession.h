@@ -27,7 +27,7 @@
 #include "WorldPacket.h"
 #include "Cryptography/BigNumber.h"
 #include "Opcodes.h"
-#include "MSCallback.h"
+#include "MSCallback.hpp"
 
 class Creature;
 class GameObject;
@@ -470,7 +470,7 @@ class WorldSession
         //////////////////////////////////////////////////////////////////////////
         /// New callback system
         //////////////////////////////////////////////////////////////////////////
-        void AddTransactionCallback(std::shared_ptr<MS::Util::Callback> p_Callback)
+        void AddTransactionCallback(std::shared_ptr<MS::Utilities::Callback> p_Callback)
         {
             m_TransactionCallbacks->push_front(p_Callback);
         }
@@ -1150,7 +1150,7 @@ class WorldSession
         //////////////////////////////////////////////////////////////////////////
         /// New callback system
         //////////////////////////////////////////////////////////////////////////
-        typedef std::forward_list<std::shared_ptr<MS::Util::Callback>> TransactionCallbacks;
+        typedef std::forward_list<std::shared_ptr<MS::Utilities::Callback>> TransactionCallbacks;
         std::unique_ptr<TransactionCallbacks> m_TransactionCallbacks;
 
     private:

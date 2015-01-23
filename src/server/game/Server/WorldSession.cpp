@@ -355,12 +355,12 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
         m_VoteSyncTimer -= diff;
 
     /// - Update transactions callback
-    m_TransactionCallbacks->remove_if([](CallBackPtr const& l_Callback)
+    m_TransactionCallbacks->remove_if([](MS::Utilities::CallBackPtr const& l_Callback)
     {
-        if (l_Callback->m_State == CallBackState::Waiting)
+        if (l_Callback->m_State == MS::Utilities::CallBackState::Waiting)
             return false;
 
-        l_Callback->m_CallBack(l_Callback->m_State == CallBackState::Success);
+        l_Callback->m_CallBack(l_Callback->m_State == MS::Utilities::CallBackState::Success);
         return true;
     });
 

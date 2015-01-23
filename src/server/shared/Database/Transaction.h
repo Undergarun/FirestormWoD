@@ -19,7 +19,7 @@
 #define _TRANSACTION_H
 
 #include "SQLOperation.h"
-#include "MSCallback.h"
+#include "MSCallback.hpp"
 
 //- Forward declare (don't include header to prevent circular includes)
 class PreparedStatement;
@@ -58,14 +58,14 @@ class TransactionTask : public SQLOperation
     friend class DatabaseWorker;
 
     public:
-        TransactionTask(SQLTransaction trans, MS::Util::CallBackPtr p_Callback) : m_trans(trans), m_Callback(p_Callback) {} ;
+        TransactionTask(SQLTransaction trans, MS::Utilities::CallBackPtr p_Callback) : m_trans(trans), m_Callback(p_Callback) {};
         ~TransactionTask(){};
 
     protected:
         bool Execute();
 
-        SQLTransaction           m_trans;
-        MS::Util::CallBackPtr    m_Callback;
+        SQLTransaction                m_trans;
+        MS::Utilities::CallBackPtr    m_Callback;
 };
 
 #endif

@@ -88,7 +88,7 @@ bool TransactionTask::Execute()
     }
 
     if (m_Callback != nullptr)
-        m_Callback->m_State = l_ExecuteResult ? CallBackState::Success : CallBackState::Fail;
+        m_Callback->m_State = l_ExecuteResult ? MS::Utilities::CallBackState::Success : MS::Utilities::CallBackState::Fail;
 
     // Clean up now.
     m_trans->Cleanup();

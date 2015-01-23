@@ -84,9 +84,7 @@
 #include "SceneObject.h"
 #include "GarrisonMgr.hpp"
 #include "PetBattle.h"
-#include "MSCallback.h"
-
-using namespace MS::Util;
+#include "MSCallback.hpp"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -22203,10 +22201,10 @@ void Player::SaveToDB(bool create /*=false*/)
     if (m_session->isLogingOut() || !sWorld->getBoolConfig(CONFIG_STATS_SAVE_ONLY_ON_LOGOUT))
         _SaveStats(trans);
 
-    CallBackPtr l_CharCreateCallback = nullptr;
+    MS::Utilities::CallBackPtr l_CharCreateCallback = nullptr;
     if (create)
     {
-        l_CharCreateCallback = std::make_shared<Callback>([this](bool p_Success)
+        l_CharCreateCallback = std::make_shared<MS::Utilities::Callback>([this](bool p_Success)
         {
             WorldPacket data(SMSG_CREATE_CHAR, 1);
             data << uint8(p_Success ? CHAR_CREATE_SUCCESS : CHAR_CREATE_ERROR);

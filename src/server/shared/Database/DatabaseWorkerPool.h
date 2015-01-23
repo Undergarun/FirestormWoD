@@ -30,7 +30,7 @@
 #include "QueryResult.h"
 #include "QueryHolder.h"
 #include "AdhocStatement.h"
-#include "MSCallback.h"
+#include "MSCallback.hpp"
 
 class PingOperation : public SQLOperation
 {
@@ -361,7 +361,7 @@ class DatabaseWorkerPool
 
         //! Enqueues a collection of one-way SQL operations (can be both adhoc and prepared). The order in which these operations
         //! were appended to the transaction will be respected during execution.
-        void CommitTransaction(SQLTransaction transaction, MS::Util::CallBackPtr p_Callback = nullptr)
+        void CommitTransaction(SQLTransaction transaction, MS::Utilities::CallBackPtr p_Callback = nullptr)
         {
             #ifdef TRINITY_DEBUG
             //! Only analyze transaction weaknesses in Debug mode.
