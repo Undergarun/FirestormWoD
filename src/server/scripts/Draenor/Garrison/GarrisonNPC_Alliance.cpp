@@ -302,7 +302,7 @@ namespace MS { namespace Garrison
     /// @p_Value : Value
     void npc_LunarfallLaborer::npc_LunarfallLaborerAI::SetData(uint32 p_ID, uint32 p_Value)
     {
-        if (p_ID == GARRISON_CREATURE_AI_DATA_BUILDER)
+        if (p_ID == CreatureAIDataIDs::Builder)
         {
             me->LoadEquipment(1, true);
             me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_WORK);

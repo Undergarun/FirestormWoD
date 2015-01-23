@@ -55,7 +55,7 @@ namespace MS { namespace Garrison
                 if (l_Creature->GetScriptName() != "npc_FrostwallPeon_Dynamic" || !l_Creature->AI())
                     continue;
 
-                l_Creature->AI()->SetData(GARRISON_CREATURE_AI_DATA_PEON_WORKING, HordePeonData::PHASE_WOODCUTTING);
+                l_Creature->AI()->SetData(CreatureAIDataIDs::PeonWorking, HordePeonData::PHASE_WOODCUTTING);
             }
         }
 
@@ -421,7 +421,7 @@ namespace MS { namespace Garrison
         m_ThreeID               = -1;
 
         if (m_IsDynamicScript && me->GetInstanceScript()->GetData(MS::Garrison::InstanceDataIDs::GARRISON_INSTANCE_DATA_PEON_ENABLED))
-            SetData(GARRISON_CREATURE_AI_DATA_PEON_WORKING, HordePeonData::PHASE_WOODCUTTING);
+            SetData(CreatureAIDataIDs::PeonWorking, HordePeonData::PHASE_WOODCUTTING);
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -451,7 +451,7 @@ namespace MS { namespace Garrison
                                 me->GetMotionMaster()->MoveIdle();
 
                                 m_WoodCuttingCycleCount = -1;
-                                SetData(GARRISON_CREATURE_AI_DATA_PEON_WORKING, HordePeonData::PHASE_WOODCUTTING_DISENGAGE);
+                                SetData(CreatureAIDataIDs::PeonWorking, HordePeonData::PHASE_WOODCUTTING_DISENGAGE);
                                 m_WoodCuttingRemainingTime = 200;
                             });
                         }
@@ -524,7 +524,7 @@ namespace MS { namespace Garrison
             if (!m_Initialised)
             {
                 if (me->GetInstanceScript() && me->GetInstanceScript()->GetData(InstanceDataIDs::GARRISON_INSTANCE_DATA_PEON_ENABLED))
-                    SetData(GARRISON_CREATURE_AI_DATA_PEON_WORKING, HordePeonData::PHASE_WOODCUTTING);
+                    SetData(CreatureAIDataIDs::PeonWorking, HordePeonData::PHASE_WOODCUTTING);
 
                 m_Initialised = true;
             }
@@ -541,16 +541,16 @@ namespace MS { namespace Garrison
                     m_WoodCuttingRemainingTime -= p_Diff;
 
                     if (m_WoodCuttingRemainingTime < 0)
-                        SetData(GARRISON_CREATURE_AI_DATA_PEON_WORKING, HordePeonData::PHASE_WOODCUTTING_DISENGAGE);
+                        SetData(CreatureAIDataIDs::PeonWorking, HordePeonData::PHASE_WOODCUTTING_DISENGAGE);
                     break;
 
                 case HordePeonData::PHASE_WOODCUTTING_DISENGAGE:
                     m_WoodCuttingRemainingTime -= p_Diff;
 
                     if (m_WoodCuttingRemainingTime < 0 && m_WoodCuttingCycleCount < HordePeonData::WOODCUTTING_MAX_CYLE_COUNT)
-                        SetData(GARRISON_CREATURE_AI_DATA_PEON_WORKING, HordePeonData::PHASE_WOODCUTTING_REENGAGE);
+                        SetData(CreatureAIDataIDs::PeonWorking, HordePeonData::PHASE_WOODCUTTING_REENGAGE);
                     else if (m_WoodCuttingRemainingTime < 0)
-                        SetData(GARRISON_CREATURE_AI_DATA_PEON_WORKING, HordePeonData::PHASE_WOODCUTTING_DEPOSIT);
+                        SetData(CreatureAIDataIDs::PeonWorking, HordePeonData::PHASE_WOODCUTTING_DEPOSIT);
 
                     break;
 
@@ -564,14 +564,14 @@ namespace MS { namespace Garrison
     /// @p_Value : Value
     void npc_FrostwallPeon::npc_FrostwallPeonAI::SetData(uint32 p_ID, uint32 p_Value)
     {
-        if (p_ID == GARRISON_CREATURE_AI_DATA_BUILDER)
+        if (p_ID == CreatureAIDataIDs::Builder)
         {
             me->LoadEquipment(1, true);
             me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_WORK);
         }
         else if (m_IsDynamicScript)
         {
-            if (p_ID == GARRISON_CREATURE_AI_DATA_PEON_WORKING)
+            if (p_ID == CreatureAIDataIDs::PeonWorking)
             {
                 if (p_Value == HordePeonData::PHASE_BACK_TO_HOME && !me->HasAura(Spells::SPELL_COMESTIC_SLEEP))
                 {

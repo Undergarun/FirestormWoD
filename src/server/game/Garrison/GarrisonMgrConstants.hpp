@@ -208,6 +208,18 @@ namespace MS { namespace Garrison
         };
     }
 
+    namespace Buildings
+    {
+        enum
+        {
+
+            Barrack1 = 26,
+            WarMill1 = 8,
+            WarMill2 = 9,
+            WarMill3 = 10,
+        };
+    }
+
     enum GarrisonFollowerFlags
     {
         GARRISON_FOLLOWER_FLAG_EXHAUSTED    = 0x2,
