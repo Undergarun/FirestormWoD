@@ -161,10 +161,6 @@ namespace MS { namespace Garrison
             p_Player->GetGarrison()->AddFollower(34);
             p_Player->GetGarrison()->AddFollower(89);
             p_Player->GetGarrison()->AddFollower(92);
-
-            /// HACK until quest : add barracks plan
-            /// @Morgoporc Dont worry, this code will disappear
-            p_Player->GetGarrison()->LearnBlueprint(26);
         }
         else
         {

@@ -212,11 +212,15 @@ namespace MS { namespace Garrison
     {
         enum
         {
-
-            Barrack1 = 26,
-            WarMill1 = 8,
-            WarMill2 = 9,
-            WarMill3 = 10,
+            DwarvenBunker__WarMill_Level1   = 8,
+            DwarvenBunker__WarMill_Level2   = 9,
+            DwarvenBunker__WarMill_Level3   = 10,
+            Barracks__Barracks_Level1       = 26,
+            Barracks__Barracks_Level2       = 27,
+            Barracks__Barracks_Level3       = 28,
+            Storehouse__Storehouse_Level1   = 51,
+            Storehouse__Storehouse_Level2   = 142,
+            Storehouse__Storehouse_Level3   = 143,
         };
     }
 

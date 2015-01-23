@@ -134,7 +134,8 @@ namespace MS { namespace Garrison
         }
 
         /// Storehouse learning
-        LearnBlueprint(51);
+        LearnBlueprint(Buildings::Storehouse__Storehouse_Level1);
+        LearnBlueprint(Buildings::Barracks__Barracks_Level1);
     }
     /// Load
     bool Manager::Load(PreparedQueryResult p_GarrisonResult, PreparedQueryResult p_BuildingsResult, PreparedQueryResult p_FollowersResult, PreparedQueryResult p_MissionsResult)
@@ -221,7 +222,7 @@ namespace MS { namespace Garrison
                     l_Fields = p_FollowersResult->Fetch();
 
                     GarrisonFollower l_Follower;
-                    l_Follower.DatabaseID             = l_Fields[0].GetUInt32();
+                    l_Follower.DatabaseID        = l_Fields[0].GetUInt32();
                     l_Follower.FollowerID        = l_Fields[1].GetUInt32();
                     l_Follower.Level             = l_Fields[2].GetUInt32();
                     l_Follower.XP                = l_Fields[3].GetUInt32();
@@ -458,7 +459,8 @@ namespace MS { namespace Garrison
             }
 
             /// Storehouse learning
-            LearnBlueprint(51);
+            LearnBlueprint(Buildings::Barracks__Barracks_Level1);
+            LearnBlueprint(Buildings::Storehouse__Storehouse_Level1);
 
             return true;
         }
@@ -2492,7 +2494,7 @@ namespace MS { namespace Garrison
     {
         for (std::vector<GarrisonBuilding>::iterator l_It = m_Buildings.begin(); l_It != m_Buildings.end(); ++l_It)
         {
-            if (l_It->BuildingID == l_BuildingID && l_It->Active)
+            if (l_It->BuildingID == p_BuildingID && l_It->Active)
                 return true;
         }
 
