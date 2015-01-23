@@ -15450,6 +15450,10 @@ void Player::SwapItem(uint16 src, uint16 dst)
     Item* pSrcItem = GetItemByPos(srcbag, srcslot);
     Item* pDstItem = GetItemByPos(dstbag, dstslot);
 
+    /// If we want to swap the same item it is useless.
+    if (pSrcItem == pDstItem)
+        return;
+
     sLog->outAshran("Player::SwapItem[%u] srcbag : %u destbag : %u pSrcItem %u pDstItem %u", GetGUIDLow(), src, dst, pSrcItem ? pSrcItem->GetEntry() : 0, pDstItem ? pDstItem->GetEntry() : 0);
 
     if (!pSrcItem)
@@ -31513,3 +31517,69 @@ CompletedChallenge* Player::GetCompletedChallenge(uint32 p_MapID)
     return &m_CompletedChallenges[p_MapID];
 }
 //////////////////////////////////////////////////////////////////////////
+
+void Player::ApplyOnBagsItems(std::function<bool(Player*, Item*, uint8, uint8)>&& p_Function)
+{
+    for (uint32 l_I = INVENTORY_SLOT_ITEM_START; l_I < INVENTORY_SLOT_ITEM_END; l_I++)
+    {
+        if (Item* l_Item = GetItemByPos(INVENTORY_SLOT_BAG_0, l_I))
+        {
+            if (!p_Function(this, l_Item, INVENTORY_SLOT_BAG_0, l_I))
+                return;
+        }
+    }
+
+    for (uint32 l_I = INVENTORY_SLOT_BAG_START; l_I < INVENTORY_SLOT_BAG_END; ++l_I)
+    {
+        if (Bag* l_Bag = (Bag*)GetItemByPos(INVENTORY_SLOT_BAG_0, l_I))
+        {
+            for (uint32 l_J = 0; l_J < l_Bag->GetBagSize(); ++l_J)
+            {
+                if (Item* l_Item = GetItemByPos(l_I, l_J))
+                {
+                    if (!p_Function(this, l_Item, l_I, l_J))
+                        return;
+                }
+            }
+        }
+    }
+}
+
+void Player::ApplyOnBankItems(std::function<bool(Player*, Item*, uint8, uint8)>&& p_Function)
+{
+    for (uint32 l_I = BANK_SLOT_ITEM_START; l_I < BANK_SLOT_ITEM_END; l_I++)
+    {
+        if (Item* l_Item = GetItemByPos(INVENTORY_SLOT_BAG_0, l_I))
+        {
+            if (!p_Function(this, l_Item, INVENTORY_SLOT_BAG_0, l_I))
+                return;
+        }
+    }
+
+    for (uint32 l_I = BANK_SLOT_BAG_START; l_I < BANK_SLOT_BAG_END; ++l_I)
+    {
+        if (Bag* l_Bag = (Bag*)GetItemByPos(INVENTORY_SLOT_BAG_0, l_I))
+        {
+            for (uint32 l_J = 0; l_J < l_Bag->GetBagSize(); ++l_J)
+            {
+                if (Item* l_Item = GetItemByPos(l_I, l_J))
+                {
+                    if (!p_Function(this, l_Item, l_I, l_J))
+                        return;
+                }
+            }
+        }
+    }
+}
+
+void Player::ApplyOnReagentBankItems(std::function<bool(Player*, Item*, uint8, uint8)>&& p_Function)
+{
+    for (uint32 l_I = REAGENT_BANK_SLOT_BAG_START; l_I < REAGENT_BANK_SLOT_BAG_END; ++l_I)
+    {
+        if (Item* l_Item = GetItemByPos(INVENTORY_SLOT_BAG_0, l_I))
+        {
+            if (!p_Function(this, l_Item, INVENTORY_SLOT_BAG_0, l_I))
+                return;
+        }
+    }
+}

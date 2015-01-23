@@ -1663,6 +1663,21 @@ class Player : public Unit, public GridObject<Player>
         void AutoStoreLoot(uint32 loot_id, LootStore const& store, bool broadcast = false) { AutoStoreLoot(NULL_BAG, NULL_SLOT, loot_id, store, broadcast); }
         void StoreLootItem(uint8 lootSlot, Loot* loot, uint8 linkedLootSlot = 255);
 
+        /// Apply a function on every item found in the bags.
+        /// @p_Function : A function that takes the owner of the items, the item to process, the slot bag of the item and the slot of the item.
+        /// If p_Function returns false, then it will stop apply.
+        void ApplyOnBagsItems(std::function<bool(Player*, Item*, uint8, uint8)>&& p_Function);
+
+        /// Apply a function on every item found in the bank.
+        /// @p_Function : A function that takes the owner of the items, the item to process, the slot bag of the item and the slot of the item.
+        /// If p_Function returns false, then it will stop apply.
+        void ApplyOnBankItems(std::function<bool(Player*, Item*, uint8, uint8)>&& p_Function);
+
+        /// Apply a function on every item found in the reagent bank.
+        /// @p_Function : A function that takes the owner of the items, the item to process, the slot bag of the item and the slot of the item.
+        /// If p_Function returns false, then it will stop apply.
+        void ApplyOnReagentBankItems(std::function<bool(Player*, Item*, uint8, uint8)>&& p_Function);
+
         InventoryResult CanTakeMoreSimilarItems(uint32 entry, uint32 count, Item* pItem, uint32* no_space_count = NULL) const;
         InventoryResult CanStoreItem(uint8 bag, uint8 slot, ItemPosCountVec& dest, uint32 entry, uint32 count, Item* pItem = NULL, bool swap = false, uint32* no_space_count = NULL) const;
 
