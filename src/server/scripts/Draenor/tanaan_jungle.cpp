@@ -744,11 +744,15 @@ class spell_tanaan_inferno : public SpellScriptLoader
 
                 std::list<Creature*> l_CreatureList;
                 l_Caster->GetCreatureListWithEntryInGrid(l_CreatureList, 300004, 20.0f);
-                Quest const* l_Quest = sObjectMgr->GetQuestTemplate(QUEST_BLAZE_OF_GLORY);
-                const QuestObjective* l_Objective = l_Quest->GetQuestObjective(l_Quest->GetQuestObjectiveId(QUEST_BLAZE_OF_GLORY, 0));
 
-                if (!l_CreatureList.empty())
-                    l_Caster->ToPlayer()->QuestObjectiveSatisfy(l_Objective->ObjectID, 1);
+                if (const Quest* l_Quest = sObjectMgr->GetQuestTemplate(QUEST_BLAZE_OF_GLORY))
+                {
+                    if (const QuestObjective* l_Objective = l_Quest->GetQuestObjective(l_Quest->GetQuestObjectiveId(QUEST_BLAZE_OF_GLORY, 0)))
+                    {
+                        if (!l_CreatureList.empty())
+                            l_Caster->ToPlayer()->QuestObjectiveSatisfy(l_Objective->ObjectID, 1);
+                    }
+                }
             }
 
             void Register()
