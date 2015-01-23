@@ -88,6 +88,7 @@
 #include <algorithm>
 #include <forward_list>
 
+#include <mutex>
 #include "Threading/LockedQueue.h"
 #include "Threading/Threading.h"
 

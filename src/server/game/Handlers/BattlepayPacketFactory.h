@@ -16,7 +16,7 @@ namespace Battlepay
 {
     namespace PacketFactory
     {
-        const float g_CurrencyPrecision = 1000.0f;
+        const float g_CurrencyPrecision = 10000.0f;
 
         /// Client error enum
         /// See Blizzard_StoreUISecure.lua

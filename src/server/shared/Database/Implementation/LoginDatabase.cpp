@@ -115,4 +115,7 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(LOGIN_INS_PETBATTLE, "INSERT INTO account_battlepet(" PETBATTLE_FIELDS ") VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", CONNECTION_BOTH);
 #undef PETBATTLE_FIELDS
 #undef PETBATTLE_FULL_FIELDS
+
+    /// Battlepay
+    PREPARE_STATEMENT(LOGIN_SEL_BATTLEPAY_POINTS, "SELECT points FROM account_battlepay WHERE accountId = ?", CONNECTION_ASYNC);
 }

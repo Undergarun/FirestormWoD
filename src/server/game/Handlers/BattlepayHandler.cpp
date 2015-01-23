@@ -97,6 +97,8 @@ void WorldSession::HandleBattlePayConfirmPurchase(WorldPacket& p_RecvData)
     p_RecvData >> l_ServerToken;
     p_RecvData >> l_ClientCurrentPriceFixedPoint;
 
+    l_ClientCurrentPriceFixedPoint /= Battlepay::PacketFactory::g_CurrencyPrecision;
+
     Battlepay::Purchase const* l_Purchase = sBattlepayMgr->GetPurchase(GetAccountId());
     /// We can't handle that case because we havn't purchase data
     /// Anyway, the client is cheater if it send payConfirm opcode without starting purchase
@@ -120,4 +122,36 @@ void WorldSession::HandleBattlePayConfirmPurchase(WorldPacket& p_RecvData)
         Battlepay::PacketFactory::SendPurchaseUpdate(this, *l_Purchase, Battlepay::PacketFactory::Error::InsufficientBalance);
         return;
     }
+
+    PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BATTLEPAY_POINTS);
+    l_Statement->setUInt32(0, GetAccountId());
+
+    auto l_FuturResult = LoginDatabase.AsyncQuery(l_Statement);
+    AddPrepareStatementCallback(std::make_pair([this, l_Purchase](PreparedQueryResult p_Result) -> void
+    {
+        if (!p_Result)
+        {
+            Battlepay::PacketFactory::SendPurchaseUpdate(this, *l_Purchase, Battlepay::PacketFactory::Error::InsufficientBalance);
+            return;
+        }
+
+        Field* l_Fields = p_Result->Fetch();
+        if (l_Fields[0].GetInt32() < l_Purchase->CurrentPrice)
+        {
+            Battlepay::PacketFactory::SendPurchaseUpdate(this, *l_Purchase, Battlepay::PacketFactory::Error::InsufficientBalance);
+            return;
+        }
+
+        Battlepay::Product const& l_Product = sBattlepayMgr->GetProduct(l_Purchase->ProductID);
+        for (Battlepay::ProductItem const& l_ItemProduct : l_Product.Items)
+        {
+            if (Player* l_Player = GetPlayer())
+                l_Player->AddItem(l_ItemProduct.ItemID, l_ItemProduct.Quantity);
+        }
+
+        Battlepay::PacketFactory::SendPurchaseUpdate(this, *l_Purchase, Battlepay::PacketFactory::Error::OtherCancelByUser);
+        /// There is a other opcode to show delivery item
+
+        /// @TODO: Remove points ...
+    }, l_FuturResult));
 }

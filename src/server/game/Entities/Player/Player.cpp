@@ -22211,7 +22211,7 @@ void Player::SaveToDB(bool create /*=false*/)
             m_session->SendPacket(&data);
         });
 
-        m_session->AddQueryCallback(l_CharCreateCallback);
+        m_session->AddTransactionCallback(l_CharCreateCallback);
     }
 
     CharacterDatabase.CommitTransaction(trans, l_CharCreateCallback);

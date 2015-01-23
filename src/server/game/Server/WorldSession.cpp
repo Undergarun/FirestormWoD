@@ -118,7 +118,8 @@ timeLastChangeSubGroupCommand(0), m_TimeLastSellItemOpcode(0), m_uiAntispamMailS
 
     InitializeQueryCallbackParameters();
 
-    m_QueryCallbacks = std::make_unique<QueryCallbacks>();
+    m_TransactionCallbacks       = std::make_unique<TransactionCallbacks>();
+    m_PreparedStatementCallbacks = std::make_unique<PreparedStatementCallbacks>();
 
     _compressionStream = new z_stream();
     _compressionStream->zalloc = (alloc_func)NULL;
@@ -354,19 +355,47 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     else
         m_VoteSyncTimer -= diff;
 
-    m_QueryCallbackLock.lock();
-
     /// - Update transactions callback
-    m_QueryCallbacks->remove_if([](MS::Utilities::CallBackPtr const& l_Callback)
+    if (!m_TransactionCallbacks->empty())
     {
-        if (l_Callback->m_State == MS::Utilities::CallBackState::Waiting)
+        m_TransactionCallbackLock.lock();
+        m_TransactionCallbacks->remove_if([](MS::Utilities::CallBackPtr const& l_Callback) -> bool
+        {
+            if (l_Callback->m_State == MS::Utilities::CallBackState::Waiting)
+                return false;
+
+            l_Callback->m_CallBack(l_Callback->m_State == MS::Utilities::CallBackState::Success);
+            return true;
+        });
+        m_TransactionCallbackLock.unlock();
+    }
+
+    /// - Update prepared statements callback
+    if (!m_PreparedStatementCallbacks->empty())
+    {
+        m_PreparedStatementCallbackLock.lock();
+        m_PreparedStatementCallbacks->remove_if([](PrepareStatementCallback const& p_Callback) -> bool
+        {
+            /// If the query result is avaiable ...
+            if (p_Callback.second.ready())
+            {
+                /// Then get it
+                PreparedQueryResult l_Result;
+                p_Callback.second.get(l_Result);
+
+                /// Give the result to the callback, and execute it
+                p_Callback.first(l_Result);
+
+                /// Delete the callback from the forward list
+                return true;
+            }
+
+            /// We havn't the query result yet, we keep the callback and wait for the result!
             return false;
+        });
 
-        l_Callback->m_CallBack(l_Callback->m_State == MS::Utilities::CallBackState::Success);
-        return true;
-    });
-
-    m_QueryCallbackLock.unlock();
+        m_PreparedStatementCallbackLock.unlock();
+    }
 
 
     /// Update Timeout timer.
