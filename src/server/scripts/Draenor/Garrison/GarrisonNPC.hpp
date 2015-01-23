@@ -10,9 +10,39 @@
 
 #include "GarrisonScriptData.hpp"
 #include "GarrisonMgr.hpp"
+#include <map>
+
+#include "ScriptedCosmeticAI.hpp"
 
 namespace MS { namespace Garrison 
 {
+    class GarrisonNPCAI : public AI::CosmeticAI
+    {
+        public:
+            /// Constructor
+            GarrisonNPCAI(Creature * p_Creature);
+
+            /// Set to relative position from building
+            /// @p_X : Relative X
+            /// @p_Y : Relative Y
+            /// @p_Z : Relative Z
+            void MoveBuildingRelative(uint32 p_PointID, float p_X, float p_Y, float p_Z);
+            /// Set facing to relative angle from the building
+            /// @p_O : Relative angle
+            void SetFacingBuildingRelative(float p_O);
+
+        public:
+            /// Set UInt32 value
+            /// @p_ID    : Value ID
+            /// @p_Value : Value
+            virtual void SetData(uint32 p_ID, uint32 p_Value) override;
+
+        protected:
+            const GarrisonPlotInstanceInfoLocation * m_PlotInstanceLocation;
+            G3D::Vector3 m_NonRotatedPlotPosition;
+
+    };
+
     /// Garrison Ford
     class npc_GarrisonFord : public CreatureScript
     {

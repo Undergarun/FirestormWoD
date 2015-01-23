@@ -18,6 +18,88 @@
 namespace MS { namespace Garrison 
 {
     /// Constructor
+    GarrisonNPCAI::GarrisonNPCAI(Creature * p_Creature)
+        : MS::AI::CosmeticAI(p_Creature), m_PlotInstanceLocation(nullptr)
+    {
+
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Set to relative position from building
+    /// @p_X : Relative X
+    /// @p_Y : Relative Y
+    /// @p_Z : Relative Z
+    void GarrisonNPCAI::MoveBuildingRelative(uint32 p_PointID, float p_X, float p_Y, float p_Z)
+    {
+        if (!m_PlotInstanceLocation)
+            return;
+
+        G3D::Vector3 l_Position = G3D::Vector3(p_X, p_Y, 0);
+
+        G3D::Matrix3 l_Mat = G3D::Matrix3::identity();
+        l_Mat = l_Mat.fromAxisAngle(G3D::Vector3(0, 0, 1), m_PlotInstanceLocation->O);
+
+        l_Position.x += m_NonRotatedPlotPosition.x;
+        l_Position.y += m_NonRotatedPlotPosition.y;
+
+        l_Position = l_Mat * l_Position;
+
+        l_Position.z = p_Z + m_PlotInstanceLocation->Z;
+
+        me->GetMotionMaster()->MovePoint(p_PointID, l_Position.x, l_Position.y, l_Position.z);
+    }
+    /// Set facing to relative angle from the building
+    /// @p_O : Relative angle
+    void GarrisonNPCAI::SetFacingBuildingRelative(float p_O)
+    {
+        float l_Angle = p_O;
+
+        if (m_PlotInstanceLocation)
+            l_Angle += m_PlotInstanceLocation->O;
+
+        me->SetFacingTo(Position::NormalizeOrientation(l_Angle));
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Set UInt32 value
+    /// @p_ID    : Value ID
+    /// @p_Value : Value
+    void GarrisonNPCAI::SetData(uint32 p_ID, uint32 p_Value)
+    {
+        if (p_ID == CreatureAIDataIDs::PlotInstanceID)
+        {
+            m_PlotInstanceLocation = nullptr;
+
+            for (uint32 l_I = 0; l_I < Globals::PlotInstanceCount; ++l_I)
+            {
+                if (gGarrisonPlotInstanceInfoLocation[l_I].PlotInstanceID == (p_Value & 0x0000FFFF) && gGarrisonPlotInstanceInfoLocation[l_I].SiteLevelID == ((p_Value >> 16) & 0x0000FFFF))
+                {
+                    m_PlotInstanceLocation = &gGarrisonPlotInstanceInfoLocation[l_I];
+                    break;
+                }
+            }
+
+            if (m_PlotInstanceLocation)
+            {
+                G3D::Matrix3 l_Mat = G3D::Matrix3::identity();
+                l_Mat = l_Mat.fromAxisAngle(G3D::Vector3(0, 0, 1), -m_PlotInstanceLocation->O);
+
+                /// transform plot coord
+                m_NonRotatedPlotPosition = l_Mat * G3D::Vector3(m_PlotInstanceLocation->X, m_PlotInstanceLocation->Y, m_PlotInstanceLocation->Z);
+            }
+        }
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
     npc_GarrisonFord::npc_GarrisonFord()
         : CreatureScript("npc_GarrisonFord")
     {
