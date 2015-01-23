@@ -202,4 +202,6 @@ void AddSC_Garrison_NPC()
     new MS::Garrison::npc_SeniorPeonII;
     new MS::Garrison::npc_Gazlowe;
     new MS::Garrison::npc_GrunLek;
+    new MS::Garrison::npc_FrostWallGrunt;
+    new MS::Garrison::npc_FrostWallSmith;
 }
