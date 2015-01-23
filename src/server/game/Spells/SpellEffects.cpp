@@ -4127,34 +4127,10 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
     {
         switch (m_spellInfo->Id)
         {
-        case 45902: // Blood Strike
+        case 52374: // Blood Strike
         {
-            float bonusPct = m_spellInfo->Effects[EFFECT_3].BasePoints * unitTarget->GetDiseasesByCaster(m_caster->GetGUID()) / 10.0f;
-            // Death Knight T8 Melee 4P Bonus
-            if (constAuraEffectPtr aurEff = m_caster->GetAuraEffect(64736, EFFECT_0))
-                AddPct(bonusPct, aurEff->GetAmount());
-            AddPct(totalDamagePercentMod, bonusPct);
-
-            break;
-        }
-        case 49020: // Obliterate
-        case 66198: // Obliterate Off-Hand
-        {
-            // 12.5% more damage per disease
-            float bonusPct = m_spellInfo->Effects[EFFECT_2].CalcValue(m_caster) * unitTarget->GetDiseasesByCaster(m_caster->GetGUID(), false) / 2.0f;
-            // Death Knight T8 Melee 4P Bonus
-            if (constAuraEffectPtr aurEff = m_caster->GetAuraEffect(64736, EFFECT_0))
-                AddPct(bonusPct, aurEff->GetAmount());
-            AddPct(totalDamagePercentMod, bonusPct);
-            break;
-        }
-        case 55050: // Heart Strike
-        {
-            float bonusPct = m_spellInfo->Effects[EFFECT_2].CalcValue(m_caster) * unitTarget->GetDiseasesByCaster(m_caster->GetGUID());
-            // Death Knight T8 Melee 4P Bonus
-            if (constAuraEffectPtr aurEff = m_caster->GetAuraEffect(64736, EFFECT_0))
-                AddPct(bonusPct, aurEff->GetAmount());
-
+            float bonusPct = ((m_spellInfo->Effects[EFFECT_0].BasePoints * m_spellInfo->Effects[EFFECT_1].BasePoints) / 100) * unitTarget->GetDiseasesByCaster(m_caster->GetGUID());
+            
             AddPct(totalDamagePercentMod, bonusPct);
             break;
         }
@@ -7837,7 +7813,7 @@ void Spell::EffectLearnBluePrint(SpellEffIndex p_EffIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (!m_CastItem || !unitTarget || !unitTarget->IsInWorld())
+    if (!unitTarget || !unitTarget->IsInWorld())
         return;
 
     Player* l_Player = unitTarget->ToPlayer();
@@ -7850,8 +7826,24 @@ void Spell::EffectLearnBluePrint(SpellEffIndex p_EffIndex)
 
     if (l_Player->GetGarrison()->LearnBlueprint(m_spellInfo->Effects[p_EffIndex].MiscValue))
     {
-        uint32 l_DestroyCount = 1;
-        l_Player->DestroyItemCount(m_CastItem, l_DestroyCount, true);
+        if (m_CastItem)
+        {
+            uint64 l_PlayerGUID = m_CastItem->GetOwnerGUID();
+            uint64 l_ItemGUID   = m_CastItem->GetGUID();
+
+            l_Player->AddCriticalOperation([l_PlayerGUID, l_ItemGUID]() -> void
+            {
+                if (Player * l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID))
+                {
+                    uint32 l_DestroyCount = 1;
+
+                    if (Item * l_Item = l_Player->GetItemByGuid(l_ItemGUID))
+                        l_Player->DestroyItemCount(l_Item, l_DestroyCount, true);
+                }
+            });
+
+            m_CastItem = nullptr;
+        }
     }
     else
         SendCastResult(SPELL_FAILED_BLUEPRINT_KNOWN);
@@ -7877,8 +7869,21 @@ void Spell::EffectObtainFollower(SpellEffIndex p_EffIndex)
     {
         if (m_CastItem)
         {
-            uint32 l_DestroyCount = 1;
-            l_Player->DestroyItemCount(m_CastItem, l_DestroyCount, true);
+            uint64 l_PlayerGUID = m_CastItem->GetOwnerGUID();
+            uint64 l_ItemGUID   = m_CastItem->GetGUID();
+
+            l_Player->AddCriticalOperation([l_PlayerGUID, l_ItemGUID]() -> void
+            {
+                if (Player * l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID))
+                {
+                    uint32 l_DestroyCount = 1;
+
+                    if (Item * l_Item = l_Player->GetItemByGuid(l_ItemGUID))
+                        l_Player->DestroyItemCount(l_Item, l_DestroyCount, true);
+                }
+            });
+
+            m_CastItem = nullptr;
         }
     }
     else

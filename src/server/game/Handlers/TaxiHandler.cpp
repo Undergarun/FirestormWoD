@@ -249,7 +249,7 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& p_RecvPacket)
 
         if (l_Entry && l_Entry->MapID == l_PlayerMapID)
         {
-            l_PlayerMapID = GARRISON_BASE_MAP;
+            l_PlayerMapID = MS::Garrison::Globals::BaseMap;
             break;
         }
     }

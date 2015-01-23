@@ -511,6 +511,14 @@ class spell_pal_tower_of_radiance: public SpellScriptLoader
         {
             PrepareSpellScript(spell_pal_tower_of_radiance_SpellScript);
 
+            int32 m_TotalManaBeforeCast = 0;
+
+            void HandleBeforeCast()
+            {
+                if (Unit* l_Caster = GetCaster())
+                    m_TotalManaBeforeCast = l_Caster->GetPower(POWER_MANA);
+            }
+
             void HandleOnHit()
             {
                 if (Unit* l_Caster = GetCaster())
@@ -532,10 +540,13 @@ class spell_pal_tower_of_radiance: public SpellScriptLoader
                     {
                         if (l_Target->HasAura(PALADIN_SPELL_BEACON_OF_LIGHT, l_Caster->GetGUID()) || l_Target->HasAura(PALADIN_SPELL_BEACON_OF_FAITH, l_Caster->GetGUID()))
                         {
-                            if (GetSpellInfo()->Id == 19750)
-                                l_Caster->EnergizeBySpell(l_Caster, PALADIN_SPELL_TOWER_OF_RADIANCE_ENERGIZE, CalculatePct(l_Caster->CountPctFromMaxMana(20), sSpellMgr->GetSpellInfo(PALADIN_SPELL_TOWER_OF_RADIANCE_ENERGIZE)->Effects[EFFECT_0].BasePoints), POWER_MANA);
-                            else
-                                l_Caster->EnergizeBySpell(l_Caster, PALADIN_SPELL_TOWER_OF_RADIANCE_ENERGIZE, CalculatePct(l_Caster->CountPctFromMaxMana(10), sSpellMgr->GetSpellInfo(PALADIN_SPELL_TOWER_OF_RADIANCE_ENERGIZE)->Effects[EFFECT_0].BasePoints), POWER_MANA);
+                            if (m_TotalManaBeforeCast && m_TotalManaBeforeCast > l_Caster->GetPower(POWER_MANA))
+                            {
+                                if (GetSpellInfo()->Id == PALADIN_SPELL_FLASH_OF_LIGHT)
+                                    l_Caster->EnergizeBySpell(l_Caster, PALADIN_SPELL_TOWER_OF_RADIANCE_ENERGIZE, CalculatePct(m_TotalManaBeforeCast - l_Caster->GetPower(POWER_MANA), sSpellMgr->GetSpellInfo(PALADIN_SPELL_TOWER_OF_RADIANCE_ENERGIZE)->Effects[EFFECT_0].BasePoints), POWER_MANA);
+                                else
+                                    l_Caster->EnergizeBySpell(l_Caster, PALADIN_SPELL_TOWER_OF_RADIANCE_ENERGIZE, CalculatePct(m_TotalManaBeforeCast - l_Caster->GetPower(POWER_MANA), sSpellMgr->GetSpellInfo(PALADIN_SPELL_TOWER_OF_RADIANCE_ENERGIZE)->Effects[EFFECT_0].BasePoints), POWER_MANA);
+                            }
                         }
                     }
                 }
@@ -543,6 +554,7 @@ class spell_pal_tower_of_radiance: public SpellScriptLoader
 
             void Register()
             {
+                BeforeCast += SpellCastFn(spell_pal_tower_of_radiance_SpellScript::HandleBeforeCast);
                 OnHit += SpellHitFn(spell_pal_tower_of_radiance_SpellScript::HandleOnHit);
                 AfterCast += SpellCastFn(spell_pal_tower_of_radiance_SpellScript::HandleAfterCast);
             }

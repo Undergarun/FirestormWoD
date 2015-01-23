@@ -15,12 +15,12 @@ namespace MS { namespace Garrison
     /// Garrison mission
     struct GarrisonMission
     {
-        uint32 DB_ID;               ///< Mission DB ID
+        uint32 DatabaseID;          ///< Mission DB ID
         uint32 MissionID;           ///< Mission ID (GarrMission.db2)
         uint32 OfferTime;           ///< Offer time
         uint32 OfferMaxDuration;    ///< Offer max duration
         uint32 StartTime;           ///< Start time
-        GarrisonMissionState State; ///< Mission state
+        MissionStates::Type State; ///< Mission state
     };
 
 }   ///< namespace Garrison

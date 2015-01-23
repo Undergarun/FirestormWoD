@@ -86,6 +86,7 @@ enum MageSpells
     SPELL_MAGE_ARCANE_BLAST                      = 30451,
     SPELL_MAGE_FIREBALL                          = 133,
     SPELL_MAGE_FROSTBOLT                         = 116,
+    SPELL_MAE_FROSTFIRE_BOLT                     = 44614,
     SPELL_MAGE_UNSTABLE_MAGIC                    = 157976,
     SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE_FIRE        = 157977,
     SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE_FROST       = 157978,
@@ -99,7 +100,11 @@ enum MageSpells
     SPELL_MAGE_COMBUSTION                        = 11129,
     SPELL_MAGE_FROST_BOMB_AURA                   = 112948,
     SPELL_MAGE_FROST_BOMB_VISUAL                 = 69846,
-    SPELL_MAGE_RING_OF_FROST_AURA                = 82691
+    SPELL_MAGE_RING_OF_FROST_AURA                = 82691,
+    SPELL_MAGE_IMPROVED_SCORCH                   = 157632,
+    SPELL_MAGE_IMPROVED_SCORCH_AURA              = 157633,
+    SPELL_MAGE_ENHANCED_PYROTECHNICS_PROC        = 157644,
+    SPELL_MAGE_ENHANCED_ARCANE_BLAST             = 157595
 };
 
 
@@ -848,24 +853,29 @@ class spell_mage_inferno_blast: public SpellScriptLoader
 
                         targetList.remove_if(CheckInfernoBlastImpactPredicate(_player, target));
 
-                        if (targetList.size() > 2)
-                            JadeCore::Containers::RandomResizeList(targetList, 2);
+                        if (targetList.size() > (uint32)GetSpellInfo()->Effects[EFFECT_1].BasePoints)
+                            JadeCore::Containers::RandomResizeList(targetList, GetSpellInfo()->Effects[EFFECT_1].BasePoints);
 
                         for (auto itr : targetList)
                         {
                             // 1 : Ignite
                             if (target->HasAura(SPELL_MAGE_IGNITE, _player->GetGUID()))
                             {
-                                float value = _player->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.5f / 100.0f;
+                                float value = _player->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.5f;
 
                                 int32 igniteBp = 0;
 
-                                if (itr->HasAura(SPELL_MAGE_IGNITE, _player->GetGUID()))
-                                    igniteBp += itr->GetRemainingPeriodicAmount(_player->GetGUID(), SPELL_MAGE_IGNITE, SPELL_AURA_PERIODIC_DAMAGE);
+                                const SpellInfo *l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_IGNITE);
 
-                                igniteBp += int32(GetHitDamage() * value / 2);
+                                if (l_SpellInfo != nullptr)
+                                {
+                                    if (itr->HasAura(SPELL_MAGE_IGNITE, _player->GetGUID()))
+                                        igniteBp += itr->GetRemainingPeriodicAmount(_player->GetGUID(), SPELL_MAGE_IGNITE, SPELL_AURA_PERIODIC_DAMAGE);
 
-                                _player->CastCustomSpell(itr, SPELL_MAGE_IGNITE, &igniteBp, NULL, NULL, true);
+                                    igniteBp += int32((CalculatePct(GetHitDamage(), value)) / (l_SpellInfo->GetMaxDuration() / l_SpellInfo->Effects[EFFECT_0].Amplitude));
+
+                                    _player->CastCustomSpell(itr, SPELL_MAGE_IGNITE, &igniteBp, NULL, NULL, true);
+                                }
                             }
 
                             // 2 : Pyroblast
@@ -1559,8 +1569,178 @@ public:
     }
 };
 
+// Scorch - 2948
+class spell_mage_scorch: public SpellScriptLoader
+{
+public:
+    spell_mage_scorch() : SpellScriptLoader("spell_mage_scorch") { }
+
+    class spell_mage_scorch_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_mage_scorch_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (l_Caster->HasAura(SPELL_MAGE_IMPROVED_SCORCH) && l_Caster->getLevel() >= 92)
+                    l_Caster->CastSpell(l_Caster, SPELL_MAGE_IMPROVED_SCORCH_AURA, true);
+            }
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_mage_scorch_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_mage_scorch_SpellScript();
+    }
+};
+
+// Enhanced Pyrotechnics - 157642
+class spell_mage_enhanced_pyrotechnics : public SpellScriptLoader
+{
+public:
+    spell_mage_enhanced_pyrotechnics() : SpellScriptLoader("spell_mage_enhanced_pyrotechnics") { }
+
+    class spell_mage_enhanced_pyrotechnics_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_mage_enhanced_pyrotechnics_AuraScript);
+
+        void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+        {
+            PreventDefaultAction();
+
+            Unit* l_Caster = GetCaster();
+            if (!l_Caster)
+                return;
+
+            if (p_EventInfo.GetActor()->GetGUID() != l_Caster->GetGUID())
+                return;
+
+            if (!p_EventInfo.GetDamageInfo()->GetSpellInfo())
+                return;
+
+            if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != SPELL_MAGE_FIREBALL && p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != SPELL_MAE_FROSTFIRE_BOLT)
+                return;
+
+            if (!(p_EventInfo.GetHitMask() & PROC_EX_CRITICAL_HIT))
+                return;
+
+            l_Caster->CastSpell(l_Caster, SPELL_MAGE_ENHANCED_PYROTECHNICS_PROC, true);
+        }
+
+        void Register()
+        {
+            OnEffectProc += AuraEffectProcFn(spell_mage_enhanced_pyrotechnics_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_mage_enhanced_pyrotechnics_AuraScript();
+    }
+};
+
+
+// Call by Blast Wave 157981 - Supernova 157980 - Ice Nova 157997
+class spell_mage_novas_talent : public SpellScriptLoader
+{
+public:
+    spell_mage_novas_talent() : SpellScriptLoader("spell_mage_novas_talent") { }
+
+    class spell_mage_novas_talent_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_mage_novas_talent_SpellScript);
+
+        uint64 m_MainTarget;
+
+        void HandleOnCast()
+        {
+            m_MainTarget = 0;
+
+            if (GetExplTargetUnit() != nullptr)
+                m_MainTarget = GetExplTargetUnit()->GetGUID();
+        }
+
+        void HandleDamage(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (Unit* l_Target = GetHitUnit())
+                {
+                    if (l_Target->GetGUID() == m_MainTarget && !l_Target->IsFriendlyTo(l_Caster))
+                    {
+                        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), GetSpellInfo()->Effects[EFFECT_0].BasePoints));
+                    }
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnCast += SpellCastFn(spell_mage_novas_talent_SpellScript::HandleOnCast);
+            OnEffectHitTarget += SpellEffectFn(spell_mage_novas_talent_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_mage_novas_talent_SpellScript();
+    }
+};
+
+// Arcane Blast - 30451
+class spell_mage_arcane_blast : public SpellScriptLoader
+{
+public:
+    spell_mage_arcane_blast() : SpellScriptLoader("spell_mage_arcane_blast") { }
+
+    class spell_mage_arcane_blast_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_mage_arcane_blast_SpellScript);
+
+        void HandleOnPrepare()
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (l_Caster->HasAura(SPELL_MAGE_ENHANCED_ARCANE_BLAST) && l_Caster->getLevel() >= 92)
+                {
+                    const SpellInfo *l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_ENHANCED_ARCANE_BLAST);
+
+                    if (l_SpellInfo == nullptr)
+                        return;
+
+                    if (AuraPtr l_ArcaneCharge = l_Caster->GetAura(SPELL_MAGE_ARCANE_CHARGE))
+                    {
+                        if (AuraEffectPtr l_EffectCastSpeed = l_ArcaneCharge->GetEffect(4))
+                            l_EffectCastSpeed->SetAmount(l_SpellInfo->Effects[EFFECT_0].BasePoints * l_ArcaneCharge->GetCharges() * -1);
+                    }
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnPrepare += SpellOnPrepareFn(spell_mage_arcane_blast_SpellScript::HandleOnPrepare);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_mage_arcane_blast_SpellScript();
+    }
+};
+
 void AddSC_mage_spell_scripts()
 {
+    new spell_mage_arcane_blast();
+    new spell_mage_novas_talent();
+    new spell_mage_enhanced_pyrotechnics();
+    new spell_mage_scorch();
     new spell_mage_ring_of_frost();
     new spell_mage_kindling();
     new spell_mage_frostfire_bolt();
