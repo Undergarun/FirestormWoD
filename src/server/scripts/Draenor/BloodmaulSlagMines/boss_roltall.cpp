@@ -240,7 +240,10 @@ namespace MS { namespace Instances { namespace Bloodmaul
                         case eEvents::EventBurningSlag:
                         {
                             if (!m_BurningSlagCount)
+                            {
+                                m_BurningSlagCount = eDatas::MaxBurningSlag;
                                 m_Events.ScheduleEvent(eEvents::EventBurningSlag, 28 * TimeConstants::IN_MILLISECONDS);
+                            }
                             else
                             {
                                 me->CastSpell(me, eSpells::SpellBurningSlagDummy, false);
