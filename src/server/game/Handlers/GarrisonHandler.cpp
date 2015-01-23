@@ -263,6 +263,7 @@ void WorldSession::HandleGarrisonPurchaseBuildingOpcode(WorldPacket & p_RecvData
             break;
 
         case MS::Garrison::Buildings::DwarvenBunker__WarMill_Level1:
+            /// 26/01/2015 @ 12h00
             l_CanBuild = time(nullptr) >= 1422273600;
             break;
 
