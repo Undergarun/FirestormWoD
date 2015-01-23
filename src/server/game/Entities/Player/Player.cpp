@@ -3398,24 +3398,24 @@ void Player::Regenerate(Powers power)
             if (!isInCombat())
                 addvalue += -1.0f; // remove 1 each 10 sec
             break;
+        // Regenerate Eclipse Power
         case POWER_ECLIPSE:
         {
-            maxValue = GetMaxPower(Powers::POWER_ECLIPSE) * GetPowerCoeff(Powers::POWER_ECLIPSE);   ///< Must change here
+            maxValue = GetMaxPower(Powers::POWER_ECLIPSE) * GetPowerCoeff(Powers::POWER_ECLIPSE); ///< Must change here
             if (!isInCombat())
             {
                 if (GetPower(Powers::POWER_ECLIPSE) >= 10 * GetPowerCoeff(Powers::POWER_ECLIPSE))
-                    addvalue += -10.0f * GetPowerCoeff(Powers::POWER_ECLIPSE); ///< -1000 per sec
+                    addvalue += -10.0f * GetPowerCoeff(Powers::POWER_ECLIPSE); ///< -1 000 per sec
                 else
                     addvalue += -GetPower(Powers::POWER_ECLIPSE);
             }
             else if (IsEclipseCyclesActive())
             {
                 if (GetLastEclipseState() == eclipseState::ECLIPSE_SOLAR || GetLastEclipseState() == eclipseState::ECLIPSE_NONE)
-                    addvalue += 10.0f * GetPowerCoeff(Powers::POWER_ECLIPSE); ///< +1000 per sec
+                    addvalue += 10.0f * GetPowerCoeff(Powers::POWER_ECLIPSE); ///< +1 000 per sec
                 else
-                    addvalue += -10.0f * GetPowerCoeff(Powers::POWER_ECLIPSE); ///< -1000 per sec
+                    addvalue += -10.0f * GetPowerCoeff(Powers::POWER_ECLIPSE); ///< -1 000 per sec
             }
-
             break;
         }
         // Regenerate Chi
@@ -3563,7 +3563,7 @@ void Player::Regenerate(Powers power)
 
     if (addvalue < 0.0f)
     {
-        if (curValue == 0)
+        if (curValue == 0 && power != POWER_ECLIPSE)
             return;
     }
     else if (addvalue > 0.0f)
@@ -3579,7 +3579,7 @@ void Player::Regenerate(Powers power)
 
     if (addvalue < 0.0f)
     {
-        if (curValue > integerValue)
+        if (curValue > integerValue || power == POWER_ECLIPSE)
         {
             curValue -= integerValue;
             m_powerFraction[powerIndex] = addvalue + integerValue;
@@ -3594,7 +3594,7 @@ void Player::Regenerate(Powers power)
     {
         curValue += integerValue;
 
-        if (curValue > maxValue)
+        if (curValue > maxValue && power != POWER_ECLIPSE)
         {
             curValue = maxValue;
             m_powerFraction[powerIndex] = 0;
@@ -31971,4 +31971,14 @@ void Player::AddDailyLootCooldown(uint32 p_Entry)
     l_Statement->setUInt32(0, GetGUIDLow());
     l_Statement->setUInt32(1, p_Entry);
     CharacterDatabase.Execute(l_Statement);
+}
+
+bool Player::HasEclipseSideAvantage(uint8 p_EclipseState)
+{
+    int32 l_Power = GetPower(Powers::POWER_ECLIPSE);
+    uint8 l_Coeff = GetPowerCoeff(Powers::POWER_ECLIPSE);
+
+    if ((p_EclipseState == ECLIPSE_SOLAR && l_Power <= (-90 * l_Coeff)) || (p_EclipseState == ECLIPSE_LUNAR && l_Power >= (90 * l_Coeff)))
+        return true;
+    return false;
 }

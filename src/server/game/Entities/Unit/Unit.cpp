@@ -16031,13 +16031,17 @@ void Unit::SetPower(Powers p_PowerType, int32 p_PowerValue, bool p_Regen)
     if (p_PowerType == Powers::POWER_ECLIPSE)
         l_MaxPower *= GetPowerCoeff(Powers::POWER_ECLIPSE);
 
-    if (l_MaxPower < p_PowerValue)
+    if (p_PowerValue > l_MaxPower)
         p_PowerValue = l_MaxPower;
 
     if (ToCreature() && ToCreature()->IsAIEnabled)
         ToCreature()->AI()->SetPower(p_PowerType, p_PowerValue);
 
     m_powers[l_PowerIndex] = p_PowerValue;
+
+    // Hook playerScript OnModifyPower
+    if (GetTypeId() == TYPEID_PLAYER)
+        sScriptMgr->OnModifyPower(ToPlayer(), p_PowerType, p_PowerValue);
 
     uint32 l_RegenDiff = getMSTime() - m_lastRegenTime[l_PowerIndex];
 
@@ -16060,10 +16064,6 @@ void Unit::SetPower(Powers p_PowerType, int32 p_PowerValue, bool p_Regen)
 
         SendMessageToSet(&l_Data, GetTypeId() == TYPEID_PLAYER ? true : false);
     }
-
-    // Hook playerScript OnModifyPower
-    if (GetTypeId() == TYPEID_PLAYER)
-        sScriptMgr->OnModifyPower(ToPlayer(), p_PowerType, p_PowerValue);
 
     /// Custom MoP Script
     /// Pursuit of Justice - 26023

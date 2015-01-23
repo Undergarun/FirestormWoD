@@ -3380,6 +3380,7 @@ class Player : public Unit, public GridObject<Player>
         IntervalTimer& GetEclipseTimer() { return m_EclipseTimer; }
         uint8 GetLastEclipseState() const { return m_LastEclipseState; }
         void SetLastEclipseState(uint8 p_EclipseState) { m_LastEclipseState = p_EclipseState; }
+        bool HasEclipseSideAvantage(uint8 p_EclipseState);
         //////////////////////////////////////////////////////////////////////////
 
     protected:

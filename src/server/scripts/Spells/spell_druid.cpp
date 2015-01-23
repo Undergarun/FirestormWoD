@@ -1479,10 +1479,10 @@ enum EclipseSpells
 };
 
 /// Eclipse power handling
-class spell_dru_eclipse_playerscript : public PlayerScript
+class spell_dru_eclipse : public PlayerScript
 {
     public:
-        spell_dru_eclipse_playerscript() : PlayerScript("spell_dru_eclipse_playerscript") {}
+        spell_dru_eclipse() : PlayerScript("spell_dru_eclipse") {}
 
         void OnEnterInCombat(Player* p_Player)
         {
@@ -1493,8 +1493,6 @@ class spell_dru_eclipse_playerscript : public PlayerScript
             if (p_Player->GetSpecializationId(p_Player->GetActiveSpec()) != SpecIndex::SPEC_DRUID_BALANCE ||
                 (p_Player->GetShapeshiftForm() != ShapeshiftForm::FORM_MOONKIN && p_Player->GetShapeshiftForm() != ShapeshiftForm::FORM_NONE))
                 return;
-
-            p_Player->SetPower(Powers::POWER_ECLIPSE, 10 * p_Player->GetPowerCoeff(Powers::POWER_ECLIPSE));
 
             if (!p_Player->IsEclipseCyclesActive())
                 p_Player->SetEclipseCyclesState(true);
@@ -1523,6 +1521,7 @@ class spell_dru_eclipse_playerscript : public PlayerScript
                 (p_Player->GetShapeshiftForm() != ShapeshiftForm::FORM_MOONKIN && p_Player->GetShapeshiftForm() != ShapeshiftForm::FORM_NONE))
                 return;
 
+            /// Wait for the cycle to finish when leaving combat
             if (p_Player->IsEclipseCyclesActive() && !p_Player->isInCombat())
             {
                 if (p_Player->GetEclipseTimer().Passed() || (p_Player->GetEclipseTimer().GetCurrent() / TimeConstants::IN_MILLISECONDS) >= 20)
@@ -1532,55 +1531,41 @@ class spell_dru_eclipse_playerscript : public PlayerScript
                 }
             }
 
-            if (!p_Player->IsEclipseCyclesActive())
-            {
-                if (p_Power == 0)
-                    p_Player->SetLastEclipseState(ECLIPSE_NONE);
+            int32 l_Power = p_Player->GetPower(Powers::POWER_ECLIPSE);
+            uint8 l_Coeff = p_Player->GetPowerCoeff(Powers::POWER_ECLIPSE);
 
+            if (!p_Player->IsEclipseCyclesActive() && l_Power == 0)
+            {
+                p_Player->SetLastEclipseState(ECLIPSE_NONE);
                 return;
             }
 
+            // @Todo: Reset the cursor to the center, more tests needed
             /*
-            p_Player->GetEclipseTimer().Update(p_Diff);
-
-            uint32 l_Power = uint32((p_Player->GetEclipseTimer().GetCurrent() / IN_MILLISECONDS) * p_Player->GetMaxPower(POWER_ECLIPSE) / ECLIPSE_FULL_CYCLE_DURATION);
-            if (l_Power != p_Player->GetPower(Powers::POWER_ECLIPSE))
-                p_Player->ModifyPower(Powers::POWER_ECLIPSE, l_Power * p_Player->GetPowerCoeff(Powers::POWER_ECLIPSE));
-
-            if (p_Player->GetEclipseTimer().Passed())
-                p_Player->GetEclipseTimer().Reset();
-
-            */
-            /// Remove previous if any you're not supposed to
-            /*if (p_Value < 25)
+            if (l_Power == 0)
             {
-                if (p_Player->HasAura(SPELL_DRUID_ECLIPSE_LUNAR_PEAK))
-                    p_Player->RemoveAurasDueToSpell(SPELL_DRUID_ECLIPSE_LUNAR_PEAK);
+                if (p_Player->GetLastEclipseState() == ECLIPSE_SOLAR || p_Player->GetLastEclipseState() == ECLIPSE_NONE)
+                    p_Player->CastSpell(p_Player, SPELL_DRUID_ECLIPSE_SOUND_LUNAR, true);
+                else
+                    p_Player->CastSpell(p_Player, SPELL_DRUID_ECLIPSE_SOUND_SOLAR, true);
             }
-            else if (p_Value < 75)
-            {
-                if (p_Player->HasAura(SPELL_DRUID_ECLIPSE_SOLAR_PEAK))
-                    p_Player->RemoveAurasDueToSpell(SPELL_DRUID_ECLIPSE_SOLAR_PEAK);
-            }*/
+            */
 
-            int32 l_Power = p_Player->GetPower(Powers::POWER_ECLIPSE) + p_Value;
-            uint8 l_Coeff = p_Player->GetPowerCoeff(Powers::POWER_ECLIPSE);
+            if (l_Power <= (-90 * l_Coeff) && !p_Player->HasAura(SPELL_DRUID_ECLIPSE_VISUAL_SOLAR)) ///< Solar avantage at -90
+                p_Player->CastSpell(p_Player, SPELL_DRUID_ECLIPSE_VISUAL_SOLAR, true);
+            else if (l_Power >= (90 * l_Coeff) && !p_Player->HasAura(SPELL_DRUID_ECLIPSE_VISUAL_LUNAR)) ///< Lunar avantage at 90
+                p_Player->CastSpell(p_Player, SPELL_DRUID_ECLIPSE_VISUAL_LUNAR, true);
 
-            if (l_Power <= (-90 * l_Coeff) && p_Player->GetLastEclipseState() != ECLIPSE_SOLAR) ///< Solar Eclipse at -90
+            if (l_Power <= (-100 * l_Coeff) && p_Player->GetLastEclipseState() != ECLIPSE_SOLAR)  ///< Solar Eclipse at -100
             {
                 p_Player->SetLastEclipseState(ECLIPSE_SOLAR);
-                p_Player->CastSpell(p_Player, SPELL_DRUID_ECLIPSE_VISUAL_SOLAR, true);
+                p_Player->CastSpell(p_Player, SPELL_DRUID_ECLIPSE_SOLAR_PEAK, true);
             }
-            else if (l_Power >= (90 * l_Coeff) && p_Player->GetLastEclipseState() != ECLIPSE_LUNAR) ///< Lunar Eclipse at 90
+            else if (l_Power >= (100 * l_Coeff) & p_Player->GetLastEclipseState() != ECLIPSE_LUNAR)  ///< Lunar Eclipse at 100
             {
                 p_Player->SetLastEclipseState(ECLIPSE_LUNAR);
-                p_Player->CastSpell(p_Player, SPELL_DRUID_ECLIPSE_VISUAL_LUNAR, true);
-            }
-
-            if (l_Power <= (-100 * l_Coeff) && !p_Player->HasAura(SPELL_DRUID_ECLIPSE_SOLAR_PEAK))  ///< Solar Bonus at -100
-                p_Player->CastSpell(p_Player, SPELL_DRUID_ECLIPSE_SOLAR_PEAK, true);
-            else if (l_Power >= (100 * l_Coeff) && !p_Player->HasAura(SPELL_DRUID_ECLIPSE_LUNAR_PEAK))  ///< Lunar Bonus at 1000
                 p_Player->CastSpell(p_Player, SPELL_DRUID_ECLIPSE_LUNAR_PEAK, true);
+            }
         }
 };
 
@@ -1597,17 +1582,22 @@ class spell_dru_eclipse_mod_damage : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                Unit* l_Caster = GetCaster();
+                Player* l_Player = GetCaster()->ToPlayer();
+                if (!l_Player)
+                    return;
 
-                if (AuraEffectPtr l_Aura = l_Caster->GetAuraEffect(SPELL_DRUID_ECLIPSE, EFFECT_0))
+                if (AuraEffectPtr l_Aura = l_Player->GetAuraEffect(SPELL_DRUID_ECLIPSE, EFFECT_0))
                 {
                     float l_BonusSolarSpells = 0.0f;
                     float l_BonusLunarSpells = 0.0f;
                     float l_DamageModPCT = l_Aura->GetAmount();
 
-                    if (l_Caster->HasAura(SPELL_DRUID_ECLIPSE_VISUAL_SOLAR) || l_Caster->HasAura(SPELL_DRUID_ECLIPSE_VISUAL_LUNAR))
+                    if (l_Player->HasEclipseSideAvantage(ECLIPSE_SOLAR) || l_Player->HasEclipseSideAvantage(ECLIPSE_LUNAR))
                     {
-                        l_BonusSolarSpells = CalculatePct(l_DamageModPCT, l_Caster->GetPower(Powers::POWER_ECLIPSE));
+                        int32 l_Power = l_Player->GetPower(Powers::POWER_ECLIPSE);
+                        uint8 l_Coeff = l_Player->GetPowerCoeff(Powers::POWER_ECLIPSE);
+
+                        l_BonusSolarSpells = CalculatePct(l_DamageModPCT, l_Power / l_Coeff);
                         l_BonusLunarSpells = l_DamageModPCT - l_BonusSolarSpells;
                     }
 
@@ -2760,7 +2750,7 @@ void AddSC_druid_spell_scripts()
     new spell_dru_faerie_fire();
     new spell_dru_teleport_moonglade();
     new spell_dru_activate_cat_form();
-    new spell_dru_eclipse_playerscript();
+    new spell_dru_eclipse();
     new spell_dru_eclipse_mod_damage();
     new spell_dru_celestial_alignment();
     new spell_dru_moonfire();
