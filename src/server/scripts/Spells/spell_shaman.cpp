@@ -980,7 +980,6 @@ class spell_sha_healing_stream: public SpellScriptLoader
         }
 };
 
-
 // Elemental Blast - 117014
 class spell_sha_elemental_blast: public SpellScriptLoader
 {
@@ -1082,7 +1081,7 @@ class spell_sha_earthquake_tick: public SpellScriptLoader
         }
 };
 
-// Earthquake - 61882
+/// Earthquake - 61882
 class spell_sha_earthquake: public SpellScriptLoader
 {
     public:
@@ -1094,11 +1093,11 @@ class spell_sha_earthquake: public SpellScriptLoader
 
             void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
             {
-                 m_PctBonus = 0.f;
+                 m_PctBonus = 1.0f;
 
                 if (AuraPtr l_Aura = GetCaster()->GetAura(SPELL_SHA_IMPROVED_CHAIN_LIGHTNING))
                 {
-                    m_PctBonus = l_Aura->GetEffect(EFFECT_0)->GetAmount();
+                    m_PctBonus = l_Aura->GetEffect(EFFECT_0)->GetAmount() / 100.0f;
                     l_Aura->Remove();
                 }
 
@@ -1106,7 +1105,7 @@ class spell_sha_earthquake: public SpellScriptLoader
 
             void OnTick(constAuraEffectPtr aurEff)
             {
-                int32 l_bp0 = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster()) * m_PctBonus / 100;
+                int32 l_bp0 = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster()) * m_PctBonus;
 
                 if (Unit* caster = GetCaster())
                     if (DynamicObject* dynObj = caster->GetDynObject(SPELL_SHA_EARTHQUAKE))
