@@ -1465,7 +1465,7 @@ class spell_dru_activate_cat_form: public SpellScriptLoader
 
 enum EclipseSpells
 {
-    // Eclipse system
+    /// Eclipse system
     SPELL_DRUID_ECLIPSE_SOUND_SOLAR      = 65632,
     SPELL_DRUID_ECLIPSE                  = 79577,
     SPELL_DRUID_ECLIPSE_SOUND_LUNAR      = 93333,
@@ -1474,8 +1474,8 @@ enum EclipseSpells
     SPELL_DRUID_ECLIPSE_LUNAR_PEAK       = 171743,
     SPELL_DRUID_ECLIPSE_SOLAR_PEAK       = 171744,
 
-    // Related spells to Eclipse system
-    SPELL_DRUID_CELESTIAL_ALIGNMENT      = 112071,
+    /// Related spells to Eclipse system
+    SPELL_DRUID_CELESTIAL_ALIGNMENT      = 112071
 };
 
 /// Eclipse power handling
@@ -1540,7 +1540,7 @@ class spell_dru_eclipse : public PlayerScript
                 return;
             }
 
-            // @Todo: Reset the cursor to the center, more tests needed
+            /// @Todo: Reset the cursor to the center, more tests needed
             /*
             if (l_Power == 0)
             {
@@ -1569,8 +1569,8 @@ class spell_dru_eclipse : public PlayerScript
         }
 };
 
-// Eclipse (damage mod) - 79577
-// Linked to the 8 spells of Nature and Arcane (Info here http://wowpedia.org/Eclipse )
+/// Eclipse (damage mod) - 79577
+/// Linked to the 8 spells of Nature and Arcane (Info here http://wowpedia.org/Eclipse )
 class spell_dru_eclipse_mod_damage : public SpellScriptLoader
 {
     public:
@@ -1620,7 +1620,7 @@ class spell_dru_eclipse_mod_damage : public SpellScriptLoader
         }
 };
 
-// Celestial Alignment - 112071
+/// Celestial Alignment - 112071
 class spell_dru_celestial_alignment : public SpellScriptLoader
 {
 public:
@@ -1676,7 +1676,7 @@ enum MoonfireSpells
     SPELL_DRUID_DREAM_OF_CENARIUS_RESTO  = 145153
 };
 
-// Moonfire - 8921
+/// Moonfire - 8921
 class spell_dru_moonfire : public SpellScriptLoader
 {
 public:
@@ -1705,7 +1705,7 @@ public:
     }
 };
 
-// Moonfire - 164812, Sunfire - 164815
+/// Moonfire - 164812, Sunfire - 164815
 class spell_dru_moonfire_sunfire_damage : public SpellScriptLoader
 {
 public:
@@ -1743,10 +1743,10 @@ public:
 enum ShootingStarsSpells
 {
     SPELL_DRUID_STARFALL       = 48505,
-    SPELL_DRUID_STARSURGE      = 78674,
+    SPELL_DRUID_STARSURGE      = 78674
 };
 
-// Shooting Stars 93399
+/// Shooting Stars - 93399
 class spell_dru_shooting_stars: public SpellScriptLoader
 {
 public:
@@ -1787,7 +1787,6 @@ public:
         return new spell_dru_shooting_stars_SpellScript();
     }
 };
-
 
 // T10 Restoration 4P - 70691
 class spell_dru_t10_restoration_4p_bonus: public SpellScriptLoader

@@ -16039,7 +16039,7 @@ void Unit::SetPower(Powers p_PowerType, int32 p_PowerValue, bool p_Regen)
 
     m_powers[l_PowerIndex] = p_PowerValue;
 
-    // Hook playerScript OnModifyPower
+    /// Hook playerScript OnModifyPower
     if (GetTypeId() == TYPEID_PLAYER)
         sScriptMgr->OnModifyPower(ToPlayer(), p_PowerType, p_PowerValue);
 

@@ -401,6 +401,7 @@ class PlayerScript : public ScriptObjectImpl<false>
         virtual void OnUpdate(Player * p_Player, uint32 p_Diff)
         {
             UNUSED(p_Player);
+            UNUSED(p_Diff);
         }
 
         /// Called when a player is bound to an instance
@@ -471,7 +472,6 @@ class PlayerScript : public ScriptObjectImpl<false>
         {
             UNUSED(p_Player);
             UNUSED(p_Item);
-
         }
 
         /// Called when a player enter in combat
@@ -487,7 +487,6 @@ class PlayerScript : public ScriptObjectImpl<false>
         {
             UNUSED(p_Player);
         }
-
 };
 
 #endif  ///< SCRIPTING_INTERFACES_PLAYER
