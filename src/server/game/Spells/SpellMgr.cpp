@@ -3460,9 +3460,6 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
-            case 157154:// High tide fix temp !!!
-                spellInfo->Effects[0].BasePoints = 0;
-                break;
             case 178531:///< Alliance Reward (but for Horde)
                 spellInfo->Effects[0].TargetA = TARGET_SRC_CASTER;
                 spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ALLY;

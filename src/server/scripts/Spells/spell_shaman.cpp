@@ -128,6 +128,80 @@ enum ShamanSpells
     SPELL_SHA_IMPROVED_LIGHTNING_SHIELD     = 157774
 };
 
+/// Called by Chain Heal - 1064
+/// High Tide - 157154
+class spell_sha_high_tide : public SpellScriptLoader
+{
+    public:
+        spell_sha_high_tide() : SpellScriptLoader("spell_sha_high_tide") { }
+
+        class spell_sha_high_tide_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_high_tide_SpellScript);
+
+            enum eSpells
+            {
+                SpellHighTide   = 157154,
+                SpellRiptide    = 61295
+            };
+
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (!l_Caster->HasAura(eSpells::SpellHighTide))
+                        return;
+
+                    std::map<uint64, WorldObject*> l_TargetMap;
+                    for (WorldObject* l_Object : p_Targets)
+                        l_TargetMap.insert(std::make_pair(l_Object->GetGUID(), l_Object));
+
+                    std::list<Unit*> l_TempList;
+                    JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(l_Caster, l_Caster, GetSpellInfo()->RangeEntry->maxRangeFriend);
+                    JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, l_TempList, l_Check);
+                    l_Caster->VisitNearbyObject(GetSpellInfo()->RangeEntry->maxRangeFriend, l_Searcher);
+
+                    l_TempList.remove_if([this, l_TargetMap, l_Caster](Unit* p_Unit) -> bool
+                    {
+                        if (p_Unit == nullptr || !p_Unit->HasAura(eSpells::SpellRiptide) || p_Unit == l_Caster)
+                            return true;
+
+                        /// Already in list
+                        if (l_TargetMap.find(p_Unit->GetGUID()) != l_TargetMap.end())
+                            return true;
+
+                        return false;
+                    });
+
+                    if (l_TempList.empty())
+                        return;
+
+                    l_TempList.sort(JadeCore::HealthPctOrderPred());
+                    uint8 l_TargetCount = GetSpellInfo()->Effects[EFFECT_1].BasePoints;
+
+                    for (Unit* l_Unit : l_TempList)
+                    {
+                        if (!l_TargetCount)
+                            break;
+
+                        p_Targets.push_back(l_Unit);
+                        --l_TargetCount;
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_high_tide_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_TARGET_CHAINHEAL_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_high_tide_SpellScript();
+        }
+};
+
 /// Storm Elemental - 77936
 class npc_storm_elemental : public CreatureScript
 {
@@ -1808,7 +1882,6 @@ class spell_sha_molten_earth_damage: public SpellScriptLoader
         }
 };
 
-
 // Echo of Elements - 108283
 class spell_sha_echo_of_elements: public SpellScriptLoader
 {
@@ -2107,13 +2180,13 @@ public:
     }
 };
 
-
 void AddSC_shaman_spell_scripts()
 {
     /// Npcs
     new npc_storm_elemental();
 
     /// Spells
+    new spell_sha_high_tide();
     new spell_sha_tidal_waves();
     new spell_sha_unleash_elements();
     new spell_sha_totemic_projection();
