@@ -138,8 +138,17 @@ public:
 
         void JustSummoned(Creature* summoned)
         {
-            CAST_AI(mob_water_elemental::mob_water_elementalAI, summoned->AI())->balindaGUID = me->GetGUID();
-            summoned->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM, 0, 50, true));
+            mob_water_elemental::mob_water_elementalAI* l_WaterElementalAI = CAST_AI(mob_water_elemental::mob_water_elementalAI, summoned->AI());
+
+            if (l_WaterElementalAI)
+                l_WaterElementalAI->balindaGUID = me->GetGUID();
+
+            if (summoned->AI())
+            {
+                if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50, true))
+                    summoned->AI()->AttackStart(l_Target);
+            }
+
             summoned->setFaction(me->getFaction());
             summons.Summon(summoned);
         }
