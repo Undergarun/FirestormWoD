@@ -29,6 +29,7 @@
 #include "Unit.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "ScriptedCreature.h"
 
 enum ShamanSpells
 {
@@ -125,6 +126,91 @@ enum ShamanSpells
     SPELL_SHA_ELEMENTAL_FUSION              = 152257,
     SPELL_SHA_ELEMENTAL_FUSION_PROC         = 157174,
     SPELL_SHA_IMPROVED_LIGHTNING_SHIELD     = 157774
+};
+
+/// Storm Elemental - 77936
+class npc_storm_elemental : public CreatureScript
+{
+    public:
+        npc_storm_elemental() : CreatureScript("npc_storm_elemental") { }
+
+        struct npc_storm_elementalAI : public ScriptedAI
+        {
+            npc_storm_elementalAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            enum eSpells
+            {
+                SpellWindGust       = 157333,
+                SpellCallLightning  = 157348
+            };
+
+            enum eEvents
+            {
+                EventWindGust = 1,
+                EventCallLightning
+            };
+
+            EventMap m_Events;
+
+            void Reset()
+            {
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker)
+            {
+                m_Events.ScheduleEvent(eEvents::EventWindGust, 2000);
+                m_Events.ScheduleEvent(eEvents::EventCallLightning, 8000);
+            }
+
+            void UpdateAI(uint32 const p_Diff)
+            {
+                if (!UpdateVictim())
+                {
+                    if (Unit* l_Owner = me->GetOwner())
+                    {
+                        Unit* l_OwnerTarget = nullptr;
+                        if (Player* l_Player = l_Owner->ToPlayer())
+                            l_OwnerTarget = l_Player->GetSelectedUnit();
+                        else
+                            l_OwnerTarget = l_Owner->getVictim();
+
+                        if (l_OwnerTarget)
+                            AttackStart(l_OwnerTarget);
+                    }
+
+                    return;
+                }
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventWindGust:
+                        if (Unit* l_Target = me->getVictim())
+                            me->CastSpell(l_Target, eSpells::SpellWindGust, false);
+                        m_Events.ScheduleEvent(eEvents::EventWindGust, 9000);
+                        break;
+                    case eEvents::EventCallLightning:
+                        if (Unit* l_Target = me->getVictim())
+                            me->CastSpell(l_Target, eSpells::SpellCallLightning, false);
+                        m_Events.ScheduleEvent(eEvents::EventCallLightning, 15000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_storm_elementalAI(p_Creature);
+        }
 };
 
 // Totemic Projection - 108287
@@ -2025,6 +2111,10 @@ public:
 
 void AddSC_shaman_spell_scripts()
 {
+    /// Npcs
+    new npc_storm_elemental();
+
+    /// Spells
     new spell_sha_tidal_waves();
     new spell_sha_unleash_elements();
     new spell_sha_totemic_projection();
