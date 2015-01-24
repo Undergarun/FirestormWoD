@@ -199,7 +199,6 @@ void WorldSession::HandleSwapItem(WorldPacket& p_RecvData)
         return;
     }
 
-    sLog->outAshran("HandleSwapItem[%u] %u %u", m_Player->GetGUIDLow(), l_Source, l_Dest);
     m_Player->SwapItem(l_Source, l_Dest);
 }
 
@@ -369,8 +368,6 @@ void WorldSession::HandleDestroyItemOpcode(WorldPacket & p_Packet)
             return;
         }
     }
-
-    sLog->outAshran("HandleDestroyItemOpcode[%u] %u %u", m_Player->GetGUIDLow(), l_ItemPosition, l_Count);
 
     if (l_Count)
     {
@@ -725,7 +722,6 @@ void WorldSession::HandleBuybackItem(WorldPacket& recvData)
     Item* pItem = m_Player->GetItemFromBuyBackSlot(slot);
     if (pItem)
     {
-        sLog->outAshran("HandleBuybackItem[%u] %u %u", m_Player->GetGUIDLow(), pItem->GetEntry(), slot);
         uint32 price = m_Player->GetUInt32Value(PLAYER_FIELD_BUYBACK_PRICE + slot - BUYBACK_SLOT_START);
         if (!m_Player->HasEnoughMoney(uint64(price)))
         {
@@ -780,8 +776,6 @@ void WorldSession::HandleBuyItemInSlotOpcode(WorldPacket& recvData)
     if (bag == NULL_BAG)
         return;
 
-    sLog->outAshran("HandleBuyItemInSlotOpcode[%u] %u %u %u %u", m_Player->GetGUIDLow(), item, slot, count, bagslot);
-
     GetPlayer()->BuyItemFromVendorSlot(vendorguid, slot, item, count, bag, bagslot);
 }
 
@@ -832,8 +826,6 @@ void WorldSession::HandleBuyItemOpcode(WorldPacket& p_RecvPacket)
         --l_Muid;
     else
         return; // cheating
-
-    sLog->outAshran("HandleBuyItemOpcode[%u] %u %u %u", m_Player->GetGUIDLow(), l_Quantity, l_Muid, l_Slot);
 
     switch (l_ItemType)
     {
@@ -1123,8 +1115,6 @@ void WorldSession::HandleAutoStoreBagItemOpcode(WorldPacket& p_RecvData)
         return;
     }
 
-    sLog->outAshran("HandleAutoStoreBagItemOpcode[%u] %u %u %u", m_Player->GetGUIDLow(), l_DestBag, l_SrcBag, l_SrcSlot);
-
     m_Player->RemoveItem(l_SrcBag, l_SrcSlot, true);
     m_Player->StoreItem(l_Dest, l_Item, true);
 }
@@ -1313,8 +1303,6 @@ void WorldSession::HandleAutoStoreBankItemOpcode(WorldPacket& p_RecvData)
 
     if (!l_Item)
         return;
-
-    sLog->outAshran("HandleAutoStoreBankItemOpcode[%u] %u %u %u", m_Player->GetGUID(), l_PackSlot, l_Slot, l_Item->GetEntry());
 
     // moving from bank to inventory
     if (m_Player->IsBankPos(l_PackSlot, l_Slot))

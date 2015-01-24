@@ -120,7 +120,9 @@ enum MonkSpells
     SPELL_MONK_RING_OF_PEACE_SILENCE            = 137460,
     SPELL_MONK_COMBO_BREAKER_AURA               = 137384,
     SPELL_MONK_COMBO_BREAKER_TIGER_PALM         = 118864,
-    SPELL_MONK_COMBO_BREAKER_BLACKOUT_KICK      = 116768
+    SPELL_MONK_COMBO_BREAKER_BLACKOUT_KICK      = 116768,
+    SPELL_MONK_MORTEL_WOUNDS                    = 115804,
+    SPELL_MONK_RISING_SUN_KICK_DOT              = 130320
 };
 
 // Tiger Eye Brew - 123980 & Mana Tea - 123766
@@ -2272,7 +2274,7 @@ class spell_monk_renewing_mist: public SpellScriptLoader
                 update = 0;
                 spreadCount = 1;
 
-                if (!sSpellMgr->GetSpellInfo(119611))
+                if (!sSpellMgr->GetSpellInfo(SPELL_MONK_RENEWING_MIST_HOT))
                     return false;
                 return true;
             }
@@ -4173,40 +4175,6 @@ public:
     }
 };
 
-// Detox - 115450
-class spell_monk_detox: public SpellScriptLoader
-{
-public:
-    spell_monk_detox() : SpellScriptLoader("spell_monk_detox") { }
-
-    class spell_monk_detox_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_monk_detox_SpellScript);
-
-        void HandleDispel(SpellEffIndex effIndex)
-        {
-            PreventHitDefaultEffect(effIndex);
-
-            if (!GetCaster())
-                return;
-
-            Player* l_Player = GetCaster()->ToPlayer();
-            if (l_Player && l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_MONK_MISTWEAVER)
-                return;
-        }
-
-        void Register()
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_monk_detox_SpellScript::HandleDispel, EFFECT_2, SPELL_EFFECT_DISPEL);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_monk_detox_SpellScript();
-    }
-};
-
 // /Rising Sun Kick - 107428
 class spell_monk_rising_sun_kick: public SpellScriptLoader
 {
@@ -4234,12 +4202,11 @@ public:
             l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
 
             if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_WINDWALKER)
-                l_Player->CastSpell(l_Target, 115804, true);
+                l_Player->CastSpell(l_Target, SPELL_MONK_MORTEL_WOUNDS, true);
             if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_MONK_BREWMASTER)
-                l_Player->CastSpell(l_Player, 130320, true);
+                l_Player->CastSpell(l_Player, SPELL_MONK_RISING_SUN_KICK_DOT, true);
 
             SetHitDamage(int32(frand(8.0f * l_Low, 8.0f * l_High)));
-
         }
 
         void Register()
@@ -4289,8 +4256,42 @@ public:
     }
 };
 
+// Uplift - 116670
+class spell_monk_uplift : public SpellScriptLoader
+{
+public:
+    spell_monk_uplift() : SpellScriptLoader("spell_monk_uplift") { }
+
+    class spell_monk_uplift_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_monk_uplift_SpellScript);
+
+        void CorrectTarget(std::list<WorldObject*>& p_Targets)
+        {
+            std::list<WorldObject*> l_TempTargets = p_Targets;
+            for (auto itr : l_TempTargets)
+            {
+                if (itr->ToUnit() == nullptr || !itr->ToUnit()->HasAura(SPELL_MONK_RENEWING_MIST_HOT))
+                    p_Targets.remove(itr);
+            }
+        }
+
+        void Register()
+        {
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_uplift_SpellScript::CorrectTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_uplift_SpellScript::CorrectTarget, EFFECT_1, TARGET_UNIT_SRC_AREA_ALLY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_monk_uplift_SpellScript();
+    }
+};
+
 void AddSC_monk_spell_scripts()
 {
+    new spell_monk_uplift();
     new spell_monk_rising_sun_kick();
     new spell_monk_stance_of_tiger();
     new spell_monk_combo_breaker();
@@ -4365,7 +4366,6 @@ void AddSC_monk_spell_scripts()
     new spell_monk_hurricane_strike_damage();
     new spell_monk_hurricane_strike();
     new spell_monk_serenity();
-    new spell_monk_detox();
 
     // Player Script
     new PlayerScript_TigereEyeBrew_ManaTea();

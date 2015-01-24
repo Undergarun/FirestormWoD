@@ -2838,12 +2838,13 @@ void ObjectMgr::LoadItemTemplates()
             itemTemplate.MaxCount                  = fields[26].GetInt32();
             itemTemplate.Stackable                 = fields[27].GetInt32();
             itemTemplate.ContainerSlots            = uint32(fields[28].GetUInt8());
+
             for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
             {
                 itemTemplate.ItemStat[i].ItemStatType  = uint32(fields[29 + i * 4 + 0].GetUInt32());
                 itemTemplate.ItemStat[i].ItemStatValue = int32(fields[29 + i * 4 + 1].GetInt32());
                 itemTemplate.ItemStat[i].ScalingValue  = fields[29 + i * 4 + 2].GetInt32();
-                itemTemplate.ItemStat[i].SocketCostRate  = fields[29 + i * 4 + 3].GetInt32();
+                itemTemplate.ItemStat[i].SocketCostRate = fields[29 + i * 4 + 3].GetInt32();
             }
 
             itemTemplate.ScalingStatDistribution = uint32(fields[69].GetUInt16());
@@ -5791,10 +5792,10 @@ uint32 ObjectMgr::GetNearestTaxiNode(float x, float y, float z, uint32 mapid, ui
         
         if (l_Entry)
         {
-            l_MapOverrides[l_Entry->MapID] = GARRISON_BASE_MAP;
+            l_MapOverrides[l_Entry->MapID] = MS::Garrison::Globals::BaseMap;
 
             if (l_Entry->MapID == mapid)
-                mapid = GARRISON_BASE_MAP;
+                mapid = MS::Garrison::Globals::BaseMap;
         }
     }
 

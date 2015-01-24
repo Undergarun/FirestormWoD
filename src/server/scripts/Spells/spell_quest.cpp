@@ -2406,6 +2406,12 @@ class spell_q30136_silken_rope: public SpellScriptLoader
         }
 };
 
+enum Quest31049
+{
+    NPC_DARKWOODS_FAERIE    = 62522,
+    NPC_FAE_SPIRIT          = 62753,
+};
+
 class spell_q31049_fae_spirit : public SpellScriptLoader
 {
 public:
@@ -2419,21 +2425,21 @@ public:
         {
             if (Unit* l_Caster = GetCaster())
             {
-                if (l_Caster->GetTypeId() != TYPEID_UNIT && l_Caster->GetEntry() != 62522)
+                if (l_Caster->GetTypeId() != TYPEID_UNIT && l_Caster->GetEntry() != NPC_DARKWOODS_FAERIE)
                     return SPELL_FAILED_BAD_TARGETS;
             }
             return SPELL_CAST_OK;
         }
 
-        void CorrectTarget(std::list<WorldObject*>& targets)
+        void CorrectTarget(std::list<WorldObject*>& p_Targets)
         {
-            std::list<WorldObject*> tempTargets = targets;
-            for (auto itr : tempTargets)
+            std::list<WorldObject*> l_TempTargets = p_Targets;
+            for (auto itr : l_TempTargets)
             {
                 if (itr->GetTypeId() != TYPEID_UNIT)
-                    targets.remove(itr);
-                if (itr->GetEntry() != 62522 && itr->GetEntry() != 62753)
-                    targets.remove(itr);
+                    p_Targets.remove(itr);
+                else if (itr->GetEntry() != NPC_DARKWOODS_FAERIE && itr->GetEntry() != NPC_FAE_SPIRIT)
+                    p_Targets.remove(itr);
             }
         }
 

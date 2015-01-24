@@ -695,10 +695,6 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     if (plr && plr->getClass() == CLASS_WARLOCK && plr->HasSpellCooldown(5484) && damage)
         plr->ReduceSpellCooldown(5484, 1000);
 
-    // Log damage > 1 000 000 on worldboss
-    if (damage > 1000000 && GetTypeId() == TYPEID_PLAYER && victim->GetTypeId() == TYPEID_UNIT && victim->ToCreature()->GetCreatureTemplate()->rank)
-        sLog->outAshran("World Boss %u [%s] take more than 1M damage (%u) by player %u [%s] with spell %u", victim->GetEntry(), victim->GetName(), damage, GetGUIDLow(), GetName(), spellProto ? spellProto->Id : 0);
-
     // Custom MoP Script - Glyph of Fortuitous Spheres
     if (plr && ToPlayer() && victim->getClass() == CLASS_MONK && victim->HasAura(146953))
     {
@@ -4160,7 +4156,6 @@ void Unit::RemoveAurasByType(AuraType auraType, uint64 casterGUID, AuraPtr excep
 
         if (!aurApp)
         {
-            sLog->outAshran("CRASH ALERT : Unit::RemoveAurasByType no AurApp pointer for Aura Id %u\n", aura->GetId());
             ++iter;
             continue;
         }
@@ -12799,6 +12794,13 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const *spellProto, ui
         DoneTotal += CalculatePct(healamount, PvPPower);
     }
 
+    // 77484 - Mastery : Shield Discipline
+    if (GetTypeId() == TYPEID_PLAYER && spellProto && healamount != 0 && HasAura(77484))
+    {
+        float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 0.75f;
+        DoneTotal += CalculatePct(healamount, Mastery);
+    }
+
     // Done fixed damage bonus auras
     int32 DoneAdvertisedBenefit = SpellBaseHealingBonusDone(spellProto->GetSchoolMask());
 
@@ -13787,7 +13789,7 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
             pet->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
 
         player->UnsummonCurrentBattlePetIfAny(true);
-        player->SendMovementSetCollisionHeight(player->GetCollisionHeight(true));
+        //player->SendMovementSetCollisionHeight(player->GetCollisionHeight(true));
 
         if (player->HasAura(57958)) // TODO: we need to create a new trigger flag - on mount, to handle it properly
             player->AddAura(20217, player);
@@ -13806,7 +13808,7 @@ void Unit::Dismount()
 
     if (Player* thisPlayer = ToPlayer())
     {
-        thisPlayer->SendMovementSetCollisionHeight(thisPlayer->GetCollisionHeight(false));
+        //thisPlayer->SendMovementSetCollisionHeight(thisPlayer->GetCollisionHeight(false));
         thisPlayer->RemoveAurasDueToSpell(143314);
     }
 
@@ -16736,7 +16738,12 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
 
                     uint32 l_DoneProcFlag = procFlag & MULTISTRIKE_DONE_HIT_PROC_FLAG_MASK;
                     uint32 l_TakenProcFlag = PROC_FLAG_TAKEN_DAMAGE;
-                    uint32 l_ExFlag = PROC_EX_INTERNAL_TRIGGERED | PROC_EX_INTERNAL_MULTISTRIKE | (l_IsCrit) ? PROC_EX_CRITICAL_HIT : PROC_EX_NORMAL_HIT;
+                    uint32 l_ExFlag = PROC_EX_INTERNAL_TRIGGERED | PROC_EX_INTERNAL_MULTISTRIKE;
+
+                    if (l_IsCrit)
+                        l_ExFlag |= PROC_EX_CRITICAL_HIT;
+                    else
+                        l_ExFlag |= PROC_EX_NORMAL_HIT;
 
                     if (procFlag & PROC_FLAG_DONE_MELEE_AUTO_ATTACK)
                         l_TakenProcFlag |= PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK;

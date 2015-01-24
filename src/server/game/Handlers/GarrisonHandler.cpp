@@ -94,13 +94,13 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
         uint32 l_TravelDuration     = 0;
         uint32 l_MissionDuration    = 0;
 
-        if (l_Missions[l_I].State == MS::Garrison::GARRISON_MISSION_IN_PROGRESS && sGarrMissionStore.LookupEntry(l_Missions[l_I].MissionID))
+        if (l_Missions[l_I].State == MS::Garrison::MissionStates::InProgress && sGarrMissionStore.LookupEntry(l_Missions[l_I].MissionID))
         {
             l_TravelDuration    = l_Garrison->GetMissionTravelDuration(l_Missions[l_I].MissionID);
             l_MissionDuration   = l_Garrison->GetMissionDuration(l_Missions[l_I].MissionID);
         }
 
-        l_Infos << uint64(l_Missions[l_I].DB_ID);
+        l_Infos << uint64(l_Missions[l_I].DatabaseID);
         l_Infos << uint32(l_Missions[l_I].MissionID);
         l_Infos << uint32(l_Missions[l_I].OfferTime);
         l_Infos << uint32(l_Missions[l_I].OfferMaxDuration);
@@ -263,7 +263,7 @@ void WorldSession::HandleGarrisonPurchaseBuildingOpcode(WorldPacket & p_RecvData
             break;
 
         default:
-            l_CanBuild = false;
+            l_CanBuild = m_Player->isGameMaster();
             break;
     }
 
@@ -275,33 +275,33 @@ void WorldSession::HandleGarrisonPurchaseBuildingOpcode(WorldPacket & p_RecvData
         return;
     }
 
-    MS::Garrison::GarrisonPurchaseBuildingResult l_Result = MS::Garrison::GARRISON_PURCHASE_BUILDING_OK;
+    MS::Garrison::PurchaseBuildingResults::Type l_Result = MS::Garrison::PurchaseBuildingResults::Ok;
 
     if (!sGarrBuildingStore.LookupEntry(l_BuildingID))
-        l_Result = MS::Garrison::GARRISON_PURCHASE_BUILDING_INVALID_BUILDING_ID;
+        l_Result = MS::Garrison::PurchaseBuildingResults::InvalidBuildingID;
 
     if (!l_Result && !sGarrPlotInstanceStore.LookupEntry(l_PlotInstanceID))
-        l_Result = MS::Garrison::GARRISON_PURCHASE_BUILDING_INVALID_PLOT;
+        l_Result = MS::Garrison::PurchaseBuildingResults::InvalidPlot;
 
     if (!l_Result && !l_Garrison->KnownBlueprint(l_BuildingID))
-        l_Result = MS::Garrison::GARRISON_PURCHASE_BUILDING_REQUIRE_BLUE_PRINT;
+        l_Result = MS::Garrison::PurchaseBuildingResults::RequireBluePrint;
 
     if (!l_Result && l_Garrison->GetBuilding(l_BuildingID).BuildingID != 0)
-        l_Result = MS::Garrison::GARRISON_PURCHASE_BUILDING_BUILDING_EXIST;
+        l_Result = MS::Garrison::PurchaseBuildingResults::BuildingExists;
 
     if (!l_Result && !l_Garrison->IsBuildingPlotInstanceValid(l_BuildingID, l_PlotInstanceID))
-        l_Result = MS::Garrison::GARRISON_PURCHASE_BUILDING_INVALID_PLOT_BUILDING;
+        l_Result = MS::Garrison::PurchaseBuildingResults::InvalidPlotBuilding;
 
     if (!l_Result)
         l_Result = l_Garrison->CanPurchaseBuilding(l_BuildingID);
 
     if (!l_CanBuild)
-        l_Result = MS::Garrison::GARRISON_PURCHASE_BUILDING_INVALID_BUILDING_ID;
+        l_Result = MS::Garrison::PurchaseBuildingResults::InvalidBuildingID;
 
     WorldPacket l_PlaceResult(SMSG_GARRISON_PLACE_BUILDING_RESULT, 26);
     l_PlaceResult << uint32(l_Result);
 
-    if (l_Result == MS::Garrison::GARRISON_PURCHASE_BUILDING_OK)
+    if (l_Result == MS::Garrison::PurchaseBuildingResults::Ok)
     {
         MS::Garrison::GarrisonBuilding l_Building = l_Garrison->PurchaseBuilding(l_BuildingID, l_PlotInstanceID);
 

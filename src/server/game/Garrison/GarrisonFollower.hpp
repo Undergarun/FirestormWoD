@@ -30,7 +30,7 @@ namespace MS { namespace Garrison
             void Write(ByteBuffer & p_Buffer);
 
         public:
-            uint32 DB_ID;               ///< Database ID
+            uint32 DatabaseID;          ///< Database ID
             uint32 FollowerID;          ///< Follower ID (GarrFollower.db2)
             uint32 Quality;             ///< Follower quality
             int32  Level;               ///< Follower level

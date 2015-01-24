@@ -3700,6 +3700,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[2].Effect = 0;
                 spellInfo->Effects[3].Effect = 0;
                 break;
+            case 59052:// Freezing Fog
+                spellInfo->ProcChance = 45;
+                break;
             case 136654:// Rending Charge
                 spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(153); // 60 yards
                 break;

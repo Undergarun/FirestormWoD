@@ -36,7 +36,7 @@ class npc_archmage_khadgar : public CreatureScript
 
         bool OnQuestAccept(Player* p_Player, Creature* p_Creature, Quest const* p_Quest)
         {
-            if (p_Quest->GetQuestId() == 35933)
+            if (p_Quest->GetQuestId() == QUEST_AZEROTH_S_LAST_STAND)
             {
                 Position l_Pos;
                 p_Player->GetPosition(&l_Pos);
@@ -52,15 +52,31 @@ class npc_archmage_khadgar : public CreatureScript
 
         bool OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option)
         {
-            if (p_Quest->GetQuestId() == 34393)
+            switch (p_Quest->GetQuestId())
             {
-                if (GameObject* l_Gob = GetClosestGameObjectWithEntry(p_Creature, 234622, 200.0f))
-                    l_Gob->DestroyForPlayer(p_Player); // remains there, wtf ? to check soon
-            }
-            else if (p_Quest->GetQuestId() == 34420)
-            {
-                if (Quest const* l_Quest = sObjectMgr->GetQuestTemplate(30040))
-                    p_Player->AddQuest(l_Quest, p_Creature);
+                case QUEST_THE_DARK_PORTAL:
+                {
+                    p_Player->PlayerTalkClass->SendCloseGossip();
+                    break;
+                }
+                case QUEST_THE_PORTAL_POWER:
+                {
+                    if (GameObject* l_Gob = GetClosestGameObjectWithEntry(p_Creature, 234622, 200.0f))
+                        l_Gob->DestroyForPlayer(p_Player); // remains there, wtf ? to check soon
+
+                    p_Player->PlayerTalkClass->SendCloseGossip();
+                    break;
+                }
+                case QUEST_COST_OF_WAR:
+                {
+                    if (Quest const* l_Quest = sObjectMgr->GetQuestTemplate(QUEST_BLAZE_OF_GLORY))
+                        p_Player->AddQuest(l_Quest, p_Creature);
+
+                    p_Player->PlayerTalkClass->SendCloseGossip();
+                    break;
+                }
+                default:
+                    break;
             }
 
             return true;
@@ -76,9 +92,9 @@ class npc_archmage_khadgar : public CreatureScript
                 p_Player->RewardQuest(l_Quest, 0, p_Creature);
             }
 
-            if (p_Player->GetQuestStatus(36881) == QUEST_STATUS_COMPLETE)
+            if (p_Player->GetQuestStatus(QUEST_START_DRAENOR) == QUEST_STATUS_COMPLETE)
             {
-                const Quest* l_Quest = sObjectMgr->GetQuestTemplate(36881);
+                const Quest* l_Quest = sObjectMgr->GetQuestTemplate(QUEST_START_DRAENOR);
                 p_Player->RewardQuest(l_Quest, 0, p_Creature);
             }
 
@@ -104,24 +120,6 @@ class npc_archmage_khadgar : public CreatureScript
 
                 for (Creature* l_Grunt : l_CreatureList)
                     me->AddAura(29266, l_Grunt);
-            }
-
-            void JustDied(Unit* p_Killer)
-            {
-                std::list<Unit*> l_Members;
-                p_Killer->GetPartyMembers(l_Members);
-
-                for (Unit* l_Unit : l_Members)
-                {
-                    if (l_Unit == nullptr || l_Unit->GetTypeId() != TYPEID_PLAYER)
-                        continue;
-
-                    if (l_Unit->ToPlayer()->GetQuestStatus(33334) == QUEST_STATUS_INCOMPLETE)
-                        l_Unit->ToPlayer()->KilledMonsterCredit(73983);
-                }
-
-                if (Creature* l_FishgorgedCrane = GetClosestCreatureWithEntry(me, 73297, 24.0f))
-                    l_FishgorgedCrane->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
             }
         };
 };
@@ -507,6 +505,11 @@ class npc_tanaan_ariok : public CreatureScript
     public:
         npc_tanaan_ariok() : CreatureScript("npc_tanaan_ariok") { }
 
+        enum eDatas
+        {
+            ACTION_START_ESCORT = 1
+        };
+
         bool OnGossipHello(Player* p_Player, Creature* p_Creature)
         {
             if (p_Player->GetQuestStatus(QUEST_ALTAR_ALTERCATION) == QUEST_STATUS_INCOMPLETE || p_Player->GetQuestStatus(QUEST_ALTAR_ALTERCATION) == QUEST_STATUS_FAILED)
@@ -516,10 +519,15 @@ class npc_tanaan_ariok : public CreatureScript
 
                 Position l_Pos;
                 p_Creature->GetPosition(&l_Pos);
-                p_Creature->SummonCreature(p_Creature->GetEntry(), l_Pos, TEMPSUMMON_MANUAL_DESPAWN);
 
-                if (p_Creature->GetAI())
-                    p_Creature->AI()->SetGUID(p_Player->GetGUID());
+                if (Creature* l_Ariok = p_Creature->SummonCreature(p_Creature->GetEntry(), l_Pos, TEMPSUMMON_MANUAL_DESPAWN))
+                {
+                    if (l_Ariok->GetAI())
+                    {
+                        l_Ariok->AI()->SetGUID(p_Player->GetGUID());
+                        l_Ariok->AI()->DoAction(ACTION_START_ESCORT);
+                    }
+                }
             }
 
             return true;
@@ -543,18 +551,24 @@ class npc_tanaan_ariok : public CreatureScript
                 m_PlayerGuid = p_Guid;
             }
 
+            void DoAction(int32 const p_Action)
+            {
+                if (p_Action == ACTION_START_ESCORT && m_IsSummoned)
+                {
+                    if (me->HasFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
+                        me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+
+                    if (m_PlayerGuid)
+                    {
+                        if (Player* p_Followed = me->GetPlayer(*me, m_PlayerGuid))
+                            me->GetMotionMaster()->MoveFollow(p_Followed, 1.0f, M_PI);
+                    }
+                }
+            }
+
             void IsSummonedBy(Unit* /*p_Summoner*/)
             {
                 m_IsSummoned = true;
-
-                if (me->HasFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
-                    me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-
-                if (m_PlayerGuid)
-                {
-                    if (Player* p_Followed = me->GetPlayer(*me, m_PlayerGuid))
-                        me->GetMotionMaster()->MoveFollow(p_Followed, 2.0f, 2.0f);
-                }
             }
         };
 
@@ -730,11 +744,15 @@ class spell_tanaan_inferno : public SpellScriptLoader
 
                 std::list<Creature*> l_CreatureList;
                 l_Caster->GetCreatureListWithEntryInGrid(l_CreatureList, 300004, 20.0f);
-                Quest const* l_Quest = sObjectMgr->GetQuestTemplate(QUEST_BLAZE_OF_GLORY);
-                const QuestObjective* l_Objective = l_Quest->GetQuestObjective(l_Quest->GetQuestObjectiveId(QUEST_BLAZE_OF_GLORY, 0));
 
-                if (!l_CreatureList.empty())
-                    l_Caster->ToPlayer()->QuestObjectiveSatisfy(l_Objective->ObjectID, 1);
+                if (const Quest* l_Quest = sObjectMgr->GetQuestTemplate(QUEST_BLAZE_OF_GLORY))
+                {
+                    if (const QuestObjective* l_Objective = l_Quest->GetQuestObjective(l_Quest->GetQuestObjectiveId(QUEST_BLAZE_OF_GLORY, 0)))
+                    {
+                        if (!l_CreatureList.empty())
+                            l_Caster->ToPlayer()->QuestObjectiveSatisfy(l_Objective->ObjectID, 1);
+                    }
+                }
             }
 
             void Register()
