@@ -3460,6 +3460,11 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 150004: // Magma Barrage
+                spellInfo->InterruptFlags = SPELL_INTERRUPT_FLAG_MOVEMENT;
+                spellInfo->Effects[EFFECT_1].Effect = 0;
+                spellInfo->Effects[EFFECT_0].TriggerSpell = 150306;
+                break;
             case 149959: // Earth Shatter
             case 149968:
             case 149969:

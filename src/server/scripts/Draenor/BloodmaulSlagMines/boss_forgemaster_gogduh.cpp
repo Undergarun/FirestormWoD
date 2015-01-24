@@ -13,22 +13,23 @@ namespace MS
                 {
                 }
 
-                enum class Spells
+                enum Spells
                 {
                     MagmaBarrage = 150004,
                 };
 
-                enum class Events
+                enum Events
                 {
-                    MagmaBarrage    = 1,
-                    SpawnRuination  = 2,
-                    SpawnCalamity   = 3,
+                    MagmaBarrageCast    = 1,
+                    SpawnRuination      = 2,
+                    SpawnCalamity       = 3,
                 };
 
-                enum class NPCs
+                enum NPCs
                 {
                     Ruination   = 74570,
-                    Calamity    = 74571   
+                    Calamity    = 74571,
+                    Magmolatus  = 86221   
                 };
 
                 CreatureAI* GetAI(Creature* creature) const
@@ -77,11 +78,15 @@ namespace MS
                     void JustDied(Unit* /*killer*/)
                     {
                         DespawnAllSummons();
+                        
+                        if (instance)
+                            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+
+                        if (Unit* p_Boss = me->FindNearestCreature((uint32)NPCs::Magmolatus, VISIBLE_RANGE, true))
+                            if (UnitAI* p_AI = p_Boss->GetAI())
+                                p_AI->DoAction(0);
                     }
 
-                    void KilledUnit(Unit* /*victim*/)
-                    {
-                    }
 
                     void EnterCombat(Unit* who)
                     {
@@ -90,7 +95,7 @@ namespace MS
                         if (instance)
                             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
 
-                        events.ScheduleEvent((uint32)Events::MagmaBarrage, 5000);
+                        events.ScheduleEvent((uint32)Events::MagmaBarrageCast, 5000);
                         events.ScheduleEvent((uint32)Events::SpawnRuination, 15000);
                         events.ScheduleEvent((uint32)Events::SpawnCalamity, 30000);
                     }
@@ -98,16 +103,20 @@ namespace MS
                     void UpdateAI(const uint32 diff)
                     {
                         if (!UpdateVictim())
+                        {
+                            if (me->HasUnitState(UNIT_STATE_ROOT))
+                                me->SetControlled(false, UNIT_STATE_ROOT);
                             return;
+                        }
 
                         events.Update(diff);
 
                         switch ((Events)events.ExecuteEvent())
                         {
-                            case Events::MagmaBarrage:
-                                // HACK - needs to be cleared, channeling system is a bit fucked up xD
-                                me->GetMotionMaster()->Clear();
+                            case Events::MagmaBarrageCast:
+                                me->SetControlled(true, UNIT_STATE_ROOT);
                                 DoCast(me, Spells::MagmaBarrage, false);
+                                events.ScheduleEvent((uint32)Events::MagmaBarrageCast, 10000);
                                 break;
                             case Events::SpawnRuination:
                                 if (Unit* l_Summon = SummonCreature(NPCs::Ruination, m_RuinationSpawnPos))
@@ -124,7 +133,8 @@ namespace MS
                         if (me->HasUnitState(UNIT_STATE_CASTING) || me->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
                             return;
 
-                        DoMeleeAttackIfReady();
+                        if (me->HasUnitState(UNIT_STATE_ROOT))
+                            me->SetControlled(false, UNIT_STATE_ROOT);
                     }
 
                     Unit* SummonCreature(NPCs p_Creature, Position const& p_Position)
@@ -157,16 +167,21 @@ namespace MS
                 {
                 }
 
-                enum class Spells
+                enum Spells
                 {
                     WitheringFlames = 150032,
                     MoltenImpact    = 150045
                 };
 
-                enum class Events
+                enum Events
                 {
                     CastFlames  = 1,
                     CastImpact  = 2
+                };
+
+                enum NPCs
+                {
+                    ForgemasterGogduh   = 74366
                 };
 
                 CreatureAI* GetAI(Creature* creature) const
@@ -178,31 +193,63 @@ namespace MS
                 {
                     boss_AI(Creature* p_Creature) : BossAI(p_Creature, uint32(BossIds::ForgemasterGogduh))
                     {
+                        me->SetControlled(true, UNIT_STATE_ROOT);
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
+                        me->SetReactState(REACT_PASSIVE);
+
                         if (instance)
                             instance->SetBossState(uint32(BossIds::ForgemasterGogduh), EncounterState::TO_BE_DECIDED);
                     }
 
-                    void Reset()
+                    void DoAction(const int32 p_Action)
                     {
-                        _Reset();
+                        me->SetControlled(false, UNIT_STATE_ROOT);
+                        me->GetMotionMaster()->MovePoint(1, 2082.f, 116.f, 225.f);
                     }
 
                     void JustReachedHome()
                     {
+                        me->SetControlled(true, UNIT_STATE_ROOT);
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
+                        me->SetReactState(REACT_PASSIVE);
                         _JustReachedHome();
-                    }
 
+                        if (Creature* p_Gogduh = me->FindNearestCreature((uint32)NPCs::ForgemasterGogduh, VISIBLE_RANGE, false))
+                        {
+                            p_Gogduh->Respawn(true);
+                            p_Gogduh->GetMotionMaster()->MoveTargetedHome();
+                        }
+
+                        if (instance)
+                        {
+                            instance->SetBossState(uint32(BossIds::ForgemasterGogduh), FAIL);
+                            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                        }
+                    }
+                    
                     void JustDied(Unit* /*killer*/)
                     {
+                        if (instance)
+                            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+
                         _JustDied();
                     }
 
-                    void EnterCombat(Unit* who)
+                    void MovementInform(uint32 p_MoveType, uint32 p_Id)
                     {
-                        if (instance)
-                            instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+                        if (p_Id == 1)
+                        {
+                            if (instance)
+                                instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+                                
+                            me->SetReactState(REACT_AGGRESSIVE);
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
+                                
+                            if (Unit* l_Victim = me->SelectNearestPlayer(VISIBLE_RANGE))
+                                AttackStart(l_Victim);
 
-                        events.ScheduleEvent((uint32)Events::CastFlames, 5000);
+                            events.ScheduleEvent((uint32)Events::CastFlames, 5000);
+                        }
                     }
 
                     void UpdateAI(const uint32 diff)
@@ -243,13 +290,13 @@ namespace MS
                 {
                 }
 
-                enum class Spells
+                enum Spells
                 {
                     ShatterEarth    = 150324,
                     EarthSmash      = 149941
                 };
 
-                enum class Events
+                enum Events
                 {
                     CastSpell = 1
                 };
@@ -279,15 +326,23 @@ namespace MS
                     void UpdateAI(const uint32 diff)
                     {
                         if (!UpdateVictim())
+                        {
+                            if (me->HasUnitState(UNIT_STATE_ROOT))
+                                me->SetControlled(false, UNIT_STATE_ROOT);
                             return;
+                        }
                             
                         if (me->HasUnitState(UNIT_STATE_CASTING) || me->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
                             return;
+                            
+                        if (me->HasUnitState(UNIT_STATE_ROOT))
+                            me->SetControlled(false, UNIT_STATE_ROOT);
 
                         events.Update(diff);
 
                         if ((Events)events.ExecuteEvent() == Events::CastSpell)
                         {
+                            me->SetControlled(true, UNIT_STATE_ROOT);
                             DoCast(me->getVictim(), urand(0, 1) ? Spells::ShatterEarth : Spells::EarthSmash, false);
                             events.ScheduleEvent((uint32)Events::CastSpell, 5000);
                         }
@@ -305,14 +360,14 @@ namespace MS
                 {
                 }
 
-                enum class Spells
+                enum Spells
                 {
                     DancingFlames   = 149975,
                     Firestorm       = 144461,
                     Scorch          = 150290
                 };
 
-                enum class Events
+                enum Events
                 {
                     CastSpell   = 1,
                     CastScorch  = 2
@@ -354,11 +409,13 @@ namespace MS
                             }
                             case Events::CastScorch:
                             {
+                                events.ScheduleEvent((uint32)Events::CastScorch, 3000);
+
                                 if (me->HasUnitState(UNIT_STATE_CASTING) || me->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
-                                break;
+                                    break;
 
                                 me->CastSpell(me->getVictim(), (uint32)Spells::Scorch, false);
-                                events.ScheduleEvent((uint32)Events::CastScorch, 3000);
+                                break;
                             }
                             default:
                                 break;
@@ -395,10 +452,51 @@ namespace MS
 
                     void Reset()
                     {
-                        me->DespawnOrUnsummon(12000);
                         me->CastSpell(me, (uint32)Spells::Firestorm, true);
+                        m_Timer = 12000;
                     }
+
+                    void UpdateAI(uint32 const p_Diff)
+                    {
+                        if (m_Timer < p_Diff)
+                        {
+                            me->DisappearAndDie();
+                        }
+                        else m_Timer -= p_Diff;
+                    }
+                    uint32 m_Timer;
                 };
+            };
+            
+            class spell_magma_barrage: public SpellScriptLoader
+            {
+                public:
+                    spell_magma_barrage() : SpellScriptLoader("spell_magma_barrage") { }
+ 
+                    class spell_magma_barrage_AuraScript : public AuraScript
+                    {
+                        PrepareAuraScript(spell_magma_barrage_AuraScript)
+
+                        void OnPeriodic(constAuraEffectPtr aurEff)
+                        {
+                            Unit* l_Caster = GetCaster();
+                            if (!l_Caster)
+                                return;
+
+                            if (Unit* l_Target = l_Caster->SelectNearbyTarget(nullptr, VISIBLE_RANGE))
+                                l_Caster->CastSpell(l_Target, GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, true);
+                        }
+ 
+                        void Register()
+                        {
+                            OnEffectPeriodic += AuraEffectPeriodicFn(spell_magma_barrage_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+                        }
+                    };
+ 
+                    AuraScript* GetAuraScript() const
+                    {
+                        return new spell_magma_barrage_AuraScript();
+                    }
             };
 
             class spell_rough_smash: public SpellScriptLoader
@@ -424,9 +522,9 @@ namespace MS
                         Position* m_CasterPosition;
                     };
 
-                    void FilterTargets(std::list<WorldObject*>& targets)
+                    void FilterTargets(std::list<WorldObject*>& p_Targets)
                     {
-                        targets.remove_if(RoughSmashTargetFilter(&m_CastPosition));
+                        p_Targets.remove_if(RoughSmashTargetFilter(&m_CastPosition));
                     }
 
                     void HandleOnPrepare()
@@ -580,7 +678,7 @@ namespace MS
                 {
                 }
 
-                enum class Spells
+                enum Spells
                 {
                     ShatterEarthDamage  = 149963
                 };
@@ -718,7 +816,7 @@ namespace MS
 
                         void HandleScript(SpellEffIndex effIndex)
                         {
-                            SetHitDamage((30.f - std::max((float)GetHitDest()->GetExactDist(GetHitUnit()), 30.f)) / 30.f * GetHitDamage());
+                            SetHitDamage((float)GetHitDamage() * (30.f - std::min((float)GetHitDest()->GetExactDist(GetHitUnit()), 30.f)) / 30.f);
                         }
 
                         void Register()
@@ -732,6 +830,148 @@ namespace MS
                         return new spell_molten_impact_SpellScript();
                     }
             };
+
+            class areatrigger_volcanic_trantum : public AreaTriggerEntityScript
+            {
+                enum Spells
+                {
+                    VolcanicTrantrumNE      = 150050,
+                    VolcanicTrantrumNW      = 150051,
+                    VolcanicTrantrumSW      = 150052,
+                    VolcanicTrantrumSE      = 150053,
+                    VolcanicTrantrumDamage  = 150055
+                };
+
+            public:
+                areatrigger_volcanic_trantum() : AreaTriggerEntityScript("areatrigger_volcanic_trantum")
+                {
+                }
+        
+                void OnSetCreatePosition(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition)
+                {
+                    if (!p_Caster)
+                        return;
+
+                    float l_Orientation;
+                    switch ((Spells)p_AreaTrigger->GetSpellId())
+                    {
+                        case Spells::VolcanicTrantrumNW:
+                            l_Orientation = M_PI / 4.f; // 45°
+                            break;
+                        case Spells::VolcanicTrantrumSW:
+                            l_Orientation = M_PI / 4.f * 3.f; // 135°
+                            break;
+                        case Spells::VolcanicTrantrumSE:
+                            l_Orientation = M_PI / 4.f * 5.f; // 225°
+                            break;
+                        case Spells::VolcanicTrantrumNE:
+                            l_Orientation = M_PI / 4.f * 7.f; // 315°
+                            break;
+                        default:
+                            l_Orientation = 0.f;
+                    }
+                    
+                    p_SourcePosition.m_positionX = p_Caster->GetPositionX() + (cos(l_Orientation) * 8.f);
+                    p_SourcePosition.m_positionY = p_Caster->GetPositionY() + (sin(l_Orientation) * 8.f);
+                    p_SourcePosition.m_positionZ = p_Caster->GetPositionZ();
+                    p_Caster->UpdateGroundPositionZ(p_SourcePosition.m_positionX, p_SourcePosition.m_positionY, p_SourcePosition.m_positionZ);
+                    p_SourcePosition.SetOrientation(l_Orientation);
+
+                    p_DestinationPosition.m_positionX = p_SourcePosition.GetPositionX() + (cos(l_Orientation) * 20.f);
+                    p_DestinationPosition.m_positionY = p_SourcePosition.GetPositionY() + (sin(l_Orientation) * 20.f);
+                    p_DestinationPosition.m_positionZ = p_SourcePosition.GetPositionZ();
+                    p_Caster->UpdateGroundPositionZ(p_DestinationPosition.m_positionX, p_DestinationPosition.m_positionY, p_DestinationPosition.m_positionZ);
+                    p_DestinationPosition.SetOrientation(l_Orientation);
+                }
+
+                void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+                {
+                    Unit* l_Caster = p_AreaTrigger->GetCaster();
+                    Unit* l_Target = nullptr;
+                    std::list<Unit*> l_TargetList;
+                    float l_Radius = 3.f;
+
+                    if (!l_Caster)
+                        return;
+
+                    JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(p_AreaTrigger, l_Caster, l_Radius);
+                    JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(p_AreaTrigger, l_TargetList, u_check);
+                    p_AreaTrigger->VisitNearbyObject(l_Radius, searcher);
+                    
+                    for (auto& l_Itr : l_TargetList)
+                    {
+                        if (!l_Itr->HasAura((uint32)Spells::VolcanicTrantrumDamage))
+                        {
+                            l_Target = l_Itr;
+                            break;
+                        }
+                    }
+
+                    if (l_Target)
+                        l_Caster->CastSpell(l_Target, (uint32)Spells::VolcanicTrantrumDamage, true);
+                }
+                
+                AreaTriggerEntityScript* GetAI() const
+                {
+                    return new areatrigger_volcanic_trantum();
+                }
+            };
+
+            class npc_gugdoh_molten_elemental : public CreatureScript
+            {
+            public:
+                npc_gugdoh_molten_elemental() : CreatureScript("npc_gugdoh_molten_elemental")
+                {
+                }
+
+                enum Spells
+                {
+                    MagmaBarrage    = 150004,
+                    VolcanicTantrum = 150048
+                };
+
+                enum Events
+                {
+                    CastSpell = 1
+                };
+
+                CreatureAI* GetAI(Creature* creature) const
+                {
+                    return new npc_gugdoh_molten_elementalAI(creature);
+                }
+
+                struct npc_gugdoh_molten_elementalAI : public ScriptedAI
+                {
+                    npc_gugdoh_molten_elementalAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+                    {
+                    }
+
+                    void Reset()
+                    {
+                        events.Reset();
+                        events.ScheduleEvent((uint32)Events::CastSpell, 100);
+                    }
+
+                    void UpdateAI(const uint32 diff)
+                    {
+                        if (!UpdateVictim())
+                            return;
+                            
+                        if (me->HasUnitState(UNIT_STATE_CASTING) || me->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
+                            return;
+
+                        events.Update(diff);
+
+                        if ((Events)events.ExecuteEvent() == Events::CastSpell)
+                        {
+                            me->CastSpell(me, uint32(urand(0, 1) ? Spells::VolcanicTantrum : Spells::MagmaBarrage), false);
+                            events.ScheduleEvent((uint32)Events::CastSpell, 5000);
+                        }
+
+                        DoMeleeAttackIfReady();
+                    }
+                };
+            };
         }
     }
 }
@@ -742,6 +982,8 @@ void AddSC_boss_forgemaster_gogduh()
     new MS::Instances::Bloodmaul::npc_ruination();
     new MS::Instances::Bloodmaul::npc_calamity_firestorm();
     new MS::Instances::Bloodmaul::npc_calamity();
+    new MS::Instances::Bloodmaul::boss_magmolatus();
+    new MS::Instances::Bloodmaul::spell_magma_barrage();
     new MS::Instances::Bloodmaul::spell_rough_smash();
     new MS::Instances::Bloodmaul::spell_shatter_earth();
     new MS::Instances::Bloodmaul::areatrigger_shatter_earth();
@@ -749,4 +991,6 @@ void AddSC_boss_forgemaster_gogduh()
     new MS::Instances::Bloodmaul::spell_dancing_flames();
     new MS::Instances::Bloodmaul::spell_withering_flames();
     new MS::Instances::Bloodmaul::spell_molten_impact();
+    new MS::Instances::Bloodmaul::areatrigger_volcanic_trantum();
+    new MS::Instances::Bloodmaul::npc_gugdoh_molten_elemental();
 }
