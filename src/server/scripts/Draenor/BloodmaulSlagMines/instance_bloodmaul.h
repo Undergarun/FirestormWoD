@@ -54,13 +54,14 @@ namespace MS
                 MagmaLord = 75211,
 
                 /// Roltall
-                Roltall         = 75786,
-                FieryBoulder1   = 75853,
-                FieryBoulder2   = 75854,
-                FieryBoulder3   = 75828,
+                Roltall                 = 75786,
+                FieryBoulder1           = 75853,
+                FieryBoulder2           = 75854,
+                FieryBoulder3           = 75828,
 
                 /// Gug'rokk
-                Gugrokk         = 74790
+                Gugrokk                 = 74790,
+                SLGGenricMoPLargeAoI    = 68553
             };
 
             enum GameObjects

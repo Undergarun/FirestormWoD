@@ -29,6 +29,7 @@ set(scripts_STAT_SRCS
   Draenor/BloodmaulSlagMines/boss_slave_watcher_crushto.cpp
   Draenor/BloodmaulSlagMines/boss_forgemaster_gogduh.cpp
   Draenor/BloodmaulSlagMines/boss_roltall.cpp
+  Draenor/BloodmaulSlagMines/boss_gugrokk.cpp
   Draenor/Garrison/GarrisonNPC.cpp
   Draenor/Garrison/GarrisonNPC_Horde.cpp
   Draenor/Garrison/GarrisonNPC_Alliance.cpp

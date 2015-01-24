@@ -3998,6 +3998,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 167738:///< Scorching Aura (Debuff)
             case 153227:///< Burning Slag (DoT)
+            case 150784:///< Magma Eruption (DoT)
             case 161288:// Vileblood Serum (DoT)
             case 161833:// Noxious Spit (DoT)
             case 157420:// Fiery Trail (DoT)

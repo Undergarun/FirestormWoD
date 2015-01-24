@@ -176,10 +176,10 @@ namespace MS
 
                 struct boss_AI : public BossAI
                 {
-                    boss_AI(Creature* p_Creature) : BossAI(p_Creature, uint32(BossIds::ForgemasterGogduh))
+                    boss_AI(Creature* p_Creature) : BossAI(p_Creature, BossIds::BossForgemasterGogduh)
                     {
                         if (instance)
-                            instance->SetBossState(uint32(BossIds::ForgemasterGogduh), EncounterState::TO_BE_DECIDED);
+                            instance->SetBossState(BossIds::BossForgemasterGogduh, EncounterState::TO_BE_DECIDED);
                     }
 
                     void Reset()
