@@ -134,7 +134,12 @@ namespace MS { namespace Garrison
         }
 
         /// Storehouse learning
-        LearnBlueprint(51);
+        LearnBlueprint(Buildings::Storehouse__Storehouse_Level1);
+        LearnBlueprint(Buildings::Barracks__Barracks_Level1);
+
+        /// 26/01/2015 @ 12h00
+        if (time(nullptr) >= 1422273600)
+            LearnBlueprint(Buildings::DwarvenBunker__WarMill_Level1);
     }
     /// Load
     bool Manager::Load(PreparedQueryResult p_GarrisonResult, PreparedQueryResult p_BuildingsResult, PreparedQueryResult p_FollowersResult, PreparedQueryResult p_MissionsResult)
@@ -221,7 +226,7 @@ namespace MS { namespace Garrison
                     l_Fields = p_FollowersResult->Fetch();
 
                     GarrisonFollower l_Follower;
-                    l_Follower.DatabaseID             = l_Fields[0].GetUInt32();
+                    l_Follower.DatabaseID        = l_Fields[0].GetUInt32();
                     l_Follower.FollowerID        = l_Fields[1].GetUInt32();
                     l_Follower.Level             = l_Fields[2].GetUInt32();
                     l_Follower.XP                = l_Fields[3].GetUInt32();
@@ -458,7 +463,12 @@ namespace MS { namespace Garrison
             }
 
             /// Storehouse learning
-            LearnBlueprint(51);
+            LearnBlueprint(Buildings::Barracks__Barracks_Level1);
+            LearnBlueprint(Buildings::Storehouse__Storehouse_Level1);
+
+            /// 26/01/2015 @ 12h00
+            if (time(nullptr) >= 1422273600)
+                LearnBlueprint(Buildings::DwarvenBunker__WarMill_Level1);
 
             return true;
         }
@@ -2487,6 +2497,17 @@ namespace MS { namespace Garrison
 
         m_Owner->SendDirectMessage(&l_BuildingRemovedPacket);
     }
+    /// Has active building
+    bool Manager::HasActiveBuilding(uint32 p_BuildingID)
+    {
+        for (std::vector<GarrisonBuilding>::iterator l_It = m_Buildings.begin(); l_It != m_Buildings.end(); ++l_It)
+        {
+            if (l_It->BuildingID == p_BuildingID && l_It->Active)
+                return true;
+        }
+
+        return false;
+    }
 
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
@@ -2826,12 +2847,20 @@ namespace MS { namespace Garrison
                             m_PlotsCreatures[p_PlotInstanceID].push_back(l_Creature->GetGUID());
 
                             if (l_Creature->AI())
-                                l_Creature->AI()->SetData(GARRISON_CREATURE_AI_DATA_BUILDER, 1);
+                            {
+                                if (l_Contents[l_I].PlotTypeOrBuilding > 0)
+                                    l_Creature->AI()->SetData(CreatureAIDataIDs::Builder, 1);
+                                else
+                                {
+                                    l_Creature->AI()->SetData(CreatureAIDataIDs::BuildingID,    -l_Contents[l_I].PlotTypeOrBuilding);
+                                    l_Creature->AI()->SetData(CreatureAIDataIDs::PlotInstanceID, p_PlotInstanceID | (GetGarrisonSiteLevelEntry()->SiteLevelID << 16));
+                                }
+                            }
                         }
                     }
                     else
                     {
-                        GameObject * l_Cosmetic = m_Owner->SummonGameObject(-l_Contents[l_I].CreatureOrGob, l_Position.x, l_Position.y, l_Position.z, l_Contents[l_I].O, 0, 0, 0, 0, 0);
+                        GameObject * l_Cosmetic = m_Owner->SummonGameObject(-l_Contents[l_I].CreatureOrGob, l_Position.x, l_Position.y, l_Position.z, l_Contents[l_I].O + l_PlotInfo.O, 0, 0, 0, 0, 0);
 
                         if (l_Cosmetic)
                             m_PlotsGameObjects[p_PlotInstanceID].push_back(l_Cosmetic->GetGUID());
@@ -3018,7 +3047,7 @@ namespace MS { namespace Garrison
             {
                 /// Get display ID
                 uint32 l_DisplayIDOffset    = l_NumRessourceGenerated == Globals::CacheMaxToken ? 2 : ((l_NumRessourceGenerated > Globals::CacheHeftyToken) ? 1 : 0);
-                const uint32 & l_DisplayID  = gGarrisonCacheGameObjectID[(GetGarrisonFactionIndex() * Globals::MaxLevel) + l_DisplayIDOffset];
+                const uint32 & l_DisplayID  = gGarrisonCacheGameObjectID[(GetGarrisonFactionIndex() * 3) + l_DisplayIDOffset];
 
                 /// Destroy old cache if exist
                 GameObject * l_Cache = HashMapHolder<GameObject>::Find(m_CacheGameObjectGUID);

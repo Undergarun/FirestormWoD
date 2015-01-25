@@ -55,7 +55,7 @@ namespace MS { namespace Garrison
                 if (l_Creature->GetScriptName() != "npc_FrostwallPeon_Dynamic" || !l_Creature->AI())
                     continue;
 
-                l_Creature->AI()->SetData(GARRISON_CREATURE_AI_DATA_PEON_WORKING, HordePeonData::PHASE_WOODCUTTING);
+                l_Creature->AI()->SetData(CreatureAIDataIDs::PeonWorking, HordePeonData::PHASE_WOODCUTTING);
             }
         }
 
@@ -290,6 +290,212 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
 
     /// Constructor
+    npc_GrunLek::npc_GrunLek()
+        : CreatureScript("npc_GrunLek_Garr")
+    {
+
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Called when a CreatureAI object is needed for the creature.
+    /// @p_Creature : Target creature instance
+    CreatureAI * npc_GrunLek::GetAI(Creature * p_Creature) const
+    {
+        return new npc_GrunLekAI(p_Creature);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    npc_GrunLek::npc_GrunLekAI::npc_GrunLekAI(Creature * p_Creature)
+        : GarrisonNPCAI(p_Creature), m_SequencePosition(0xFF)
+    {
+        SetAIObstacleManagerEnabled(true);
+
+        m_OnPointReached[GrunLek::MovePointIDs::Out] = [this]() -> void
+        {
+            AddTimedDelayedOperation(GrunLek::DestPointDuration::Out, [this]() -> void { DoNextSequenceAction(); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(GrunLek::MovePointLoc[GrunLek::MovePointIDs::Out - GrunLek::MovePointIDs::Out][3]); });
+        };
+
+        m_OnPointReached[GrunLek::MovePointIDs::Carpet] = [this]() -> void
+        {
+            AddTimedDelayedOperation(GrunLek::DestPointDuration::Carpet, [this]() -> void { DoNextSequenceAction(); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(GrunLek::MovePointLoc[GrunLek::MovePointIDs::Carpet - GrunLek::MovePointIDs::Out][3]); });
+
+            AddTimedDelayedOperation(0 * IN_MILLISECONDS, [this]() -> void { me->HandleEmoteCommand(EMOTE_ONESHOT_TALK); });
+            AddTimedDelayedOperation(3 * IN_MILLISECONDS, [this]() -> void { me->HandleEmoteCommand(EMOTE_ONESHOT_TALK); });
+        };
+
+        m_OnPointReached[GrunLek::MovePointIDs::Chest] = [this]() -> void
+        {
+            AddTimedDelayedOperation(GrunLek::DestPointDuration::Chest, [this]() -> void { DoNextSequenceAction(); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(GrunLek::MovePointLoc[GrunLek::MovePointIDs::Chest - GrunLek::MovePointIDs::Out][3]); });
+
+            AddTimedDelayedOperation(0 * IN_MILLISECONDS, [this]() -> void { me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 8); });
+            AddTimedDelayedOperation(5 * IN_MILLISECONDS, [this]() -> void { me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0); });
+        };
+
+        m_OnPointReached[GrunLek::MovePointIDs::Table] = [this]() -> void
+        {
+            AddTimedDelayedOperation(GrunLek::DestPointDuration::Table, [this]() -> void { DoNextSequenceAction(); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(GrunLek::MovePointLoc[GrunLek::MovePointIDs::Table - GrunLek::MovePointIDs::Out][3]); });
+
+            AddTimedDelayedOperation(1  * IN_MILLISECONDS, [this]() -> void { me->HandleEmoteCommand(EMOTE_STATE_READ_AND_TALK);    });
+            AddTimedDelayedOperation(9  * IN_MILLISECONDS, [this]() -> void 
+            {
+                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
+                me->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
+            });
+            AddTimedDelayedOperation(11 * IN_MILLISECONDS, [this]() -> void { me->HandleEmoteCommand(EMOTE_STATE_READ_AND_TALK);    });
+            AddTimedDelayedOperation(19 * IN_MILLISECONDS, [this]() -> void { me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);        });
+        };
+
+        DoNextSequenceAction();
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Do next sequence element
+    void npc_GrunLek::npc_GrunLekAI::DoNextSequenceAction()
+    {
+        if (m_SequencePosition >= sizeof(GrunLek::Sequence))
+            m_SequencePosition = 0;
+
+        m_DelayedOperations.push([this]() -> void
+        {
+            me->SetWalk(true);
+
+            uint32 l_LocationID = GrunLek::Sequence[m_SequencePosition] - GrunLek::MovePointIDs::Out;
+            MoveBuildingRelative(GrunLek::Sequence[m_SequencePosition],   GrunLek::MovePointLoc[l_LocationID][0],
+                                                                          GrunLek::MovePointLoc[l_LocationID][1], 
+                                                                          GrunLek::MovePointLoc[l_LocationID][2]);
+
+            m_SequencePosition++;
+        });
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    npc_FrostWallGrunt::npc_FrostWallGrunt()
+        : CreatureScript("npc_FrostwallGrunt_Garr")
+    {
+
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Called when a CreatureAI object is needed for the creature.
+    /// @p_Creature : Target creature instance
+    CreatureAI * npc_FrostWallGrunt::GetAI(Creature * p_Creature) const
+    {
+        return new npc_FrostWallGruntAI(p_Creature);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+   
+    /// Constructor
+    npc_FrostWallGrunt::npc_FrostWallGruntAI::npc_FrostWallGruntAI(Creature * p_Creature)
+        : CreatureAI(p_Creature)
+    {
+
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// On AI Update
+    /// @p_Diff : Time since last update
+    void npc_FrostWallGrunt::npc_FrostWallGruntAI::UpdateAI(const uint32 p_Diff)
+    {
+
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Set UInt32 value
+    /// @p_ID    : Value ID
+    /// @p_Value : Value
+    void npc_FrostWallGrunt::npc_FrostWallGruntAI::SetData(uint32 p_ID, uint32 p_Value)
+    {
+        if (p_ID == CreatureAIDataIDs::BuildingID && p_Value == Buildings::DwarvenBunker__WarMill_Level1)
+            me->HandleEmoteCommand(EMOTE_STATE_USE_STANDING_NO_SHEATHE);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    npc_FrostWallSmith::npc_FrostWallSmith()
+        : CreatureScript("npc_FrostWallSmith_Garr")
+    {
+
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Called when a CreatureAI object is needed for the creature.
+    /// @p_Creature : Target creature instance
+    CreatureAI * npc_FrostWallSmith::GetAI(Creature * p_Creature) const
+    {
+        return new npc_FrostWallSmithAI(p_Creature);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    npc_FrostWallSmith::npc_FrostWallSmithAI::npc_FrostWallSmithAI(Creature * p_Creature)
+        : CreatureAI(p_Creature)
+    {
+
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// On AI Update
+    /// @p_Diff : Time since last update
+    void npc_FrostWallSmith::npc_FrostWallSmithAI::UpdateAI(const uint32 p_Diff)
+    {
+
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Set UInt32 value
+    /// @p_ID    : Value ID
+    /// @p_Value : Value
+    void npc_FrostWallSmith::npc_FrostWallSmithAI::SetData(uint32 p_ID, uint32 p_Value)
+    {
+        if (p_ID == CreatureAIDataIDs::BuildingID && p_Value == Buildings::DwarvenBunker__WarMill_Level1)
+        {
+            me->LoadEquipment(1, true);
+            me->HandleEmoteCommand(EMOTE_STATE_WORK_CHOPWOOD_GARR);
+        }
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
     /// @p_ScriptName : Script name
     npc_FrostwallPeon::npc_FrostwallPeon(const std::string & p_ScriptName)
         : CreatureScript(p_ScriptName.c_str())
@@ -327,7 +533,7 @@ namespace MS { namespace Garrison
         m_ThreeID               = -1;
 
         if (m_IsDynamicScript && me->GetInstanceScript()->GetData(MS::Garrison::InstanceDataIDs::GARRISON_INSTANCE_DATA_PEON_ENABLED))
-            SetData(GARRISON_CREATURE_AI_DATA_PEON_WORKING, HordePeonData::PHASE_WOODCUTTING);
+            SetData(CreatureAIDataIDs::PeonWorking, HordePeonData::PHASE_WOODCUTTING);
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -357,7 +563,7 @@ namespace MS { namespace Garrison
                                 me->GetMotionMaster()->MoveIdle();
 
                                 m_WoodCuttingCycleCount = -1;
-                                SetData(GARRISON_CREATURE_AI_DATA_PEON_WORKING, HordePeonData::PHASE_WOODCUTTING_DISENGAGE);
+                                SetData(CreatureAIDataIDs::PeonWorking, HordePeonData::PHASE_WOODCUTTING_DISENGAGE);
                                 m_WoodCuttingRemainingTime = 200;
                             });
                         }
@@ -430,7 +636,7 @@ namespace MS { namespace Garrison
             if (!m_Initialised)
             {
                 if (me->GetInstanceScript() && me->GetInstanceScript()->GetData(InstanceDataIDs::GARRISON_INSTANCE_DATA_PEON_ENABLED))
-                    SetData(GARRISON_CREATURE_AI_DATA_PEON_WORKING, HordePeonData::PHASE_WOODCUTTING);
+                    SetData(CreatureAIDataIDs::PeonWorking, HordePeonData::PHASE_WOODCUTTING);
 
                 m_Initialised = true;
             }
@@ -447,16 +653,16 @@ namespace MS { namespace Garrison
                     m_WoodCuttingRemainingTime -= p_Diff;
 
                     if (m_WoodCuttingRemainingTime < 0)
-                        SetData(GARRISON_CREATURE_AI_DATA_PEON_WORKING, HordePeonData::PHASE_WOODCUTTING_DISENGAGE);
+                        SetData(CreatureAIDataIDs::PeonWorking, HordePeonData::PHASE_WOODCUTTING_DISENGAGE);
                     break;
 
                 case HordePeonData::PHASE_WOODCUTTING_DISENGAGE:
                     m_WoodCuttingRemainingTime -= p_Diff;
 
                     if (m_WoodCuttingRemainingTime < 0 && m_WoodCuttingCycleCount < HordePeonData::WOODCUTTING_MAX_CYLE_COUNT)
-                        SetData(GARRISON_CREATURE_AI_DATA_PEON_WORKING, HordePeonData::PHASE_WOODCUTTING_REENGAGE);
+                        SetData(CreatureAIDataIDs::PeonWorking, HordePeonData::PHASE_WOODCUTTING_REENGAGE);
                     else if (m_WoodCuttingRemainingTime < 0)
-                        SetData(GARRISON_CREATURE_AI_DATA_PEON_WORKING, HordePeonData::PHASE_WOODCUTTING_DEPOSIT);
+                        SetData(CreatureAIDataIDs::PeonWorking, HordePeonData::PHASE_WOODCUTTING_DEPOSIT);
 
                     break;
 
@@ -470,14 +676,14 @@ namespace MS { namespace Garrison
     /// @p_Value : Value
     void npc_FrostwallPeon::npc_FrostwallPeonAI::SetData(uint32 p_ID, uint32 p_Value)
     {
-        if (p_ID == GARRISON_CREATURE_AI_DATA_BUILDER)
+        if (p_ID == CreatureAIDataIDs::Builder)
         {
             me->LoadEquipment(1, true);
             me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_WORK);
         }
         else if (m_IsDynamicScript)
         {
-            if (p_ID == GARRISON_CREATURE_AI_DATA_PEON_WORKING)
+            if (p_ID == CreatureAIDataIDs::PeonWorking)
             {
                 if (p_Value == HordePeonData::PHASE_BACK_TO_HOME && !me->HasAura(Spells::SPELL_COMESTIC_SLEEP))
                 {

@@ -197,11 +197,32 @@ namespace MS { namespace Garrison
         TERRAIN_SWAP_GARRISON_SMV_ALLIANCE_TIER_3 = 974
     };
 
-    enum 
+    namespace CreatureAIDataIDs
     {
-        GARRISON_CREATURE_AI_DATA_BUILDER       = 10000,
-        GARRISON_CREATURE_AI_DATA_PEON_WORKING  = 10001
-    };
+        enum
+        {
+            Builder         = 10000,
+            PeonWorking     = 10001,
+            BuildingID      = 10002,
+            PlotInstanceID  = 10003
+        };
+    }
+
+    namespace Buildings
+    {
+        enum
+        {
+            DwarvenBunker__WarMill_Level1   = 8,
+            DwarvenBunker__WarMill_Level2   = 9,
+            DwarvenBunker__WarMill_Level3   = 10,
+            Barracks__Barracks_Level1       = 26,
+            Barracks__Barracks_Level2       = 27,
+            Barracks__Barracks_Level3       = 28,
+            Storehouse__Storehouse_Level1   = 51,
+            Storehouse__Storehouse_Level2   = 142,
+            Storehouse__Storehouse_Level3   = 143,
+        };
+    }
 
     enum GarrisonFollowerFlags
     {

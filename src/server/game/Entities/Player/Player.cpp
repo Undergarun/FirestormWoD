@@ -17888,17 +17888,30 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
                             && l_Map->Expansion() == Expansion::EXPANSION_WARLORDS_OF_DRAENOR)
                         {
                             float l_Roll = frand(0.f, 100.f);
+                            float l_Coeff = 1.0f;
+
+                            if (GetGarrison())
+                            {
+                                bool l_Level1 = GetGarrison()->HasActiveBuilding(MS::Garrison::Buildings::DwarvenBunker__WarMill_Level1);
+                                bool l_Level2 = GetGarrison()->HasActiveBuilding(MS::Garrison::Buildings::DwarvenBunker__WarMill_Level2);
+                                bool l_Level3 = GetGarrison()->HasActiveBuilding(MS::Garrison::Buildings::DwarvenBunker__WarMill_Level3);
+
+                                if (l_Level1 || l_Level2 || l_Level3)
+                                    l_Coeff *= 2.0f;
+
+                            }
+
                             //bool  l_SendDisplayToast = false;
 
                             // If item is uncommon & chance match, add uncommun to rare modifier
                             if (l_ItemTemplate->Quality == ItemQualities::ITEM_QUALITY_UNCOMMON
-                                && l_Roll > gQuestRewardBonusRareChanceRange[0] && l_Roll < gQuestRewardBonusRareChanceRange[1])
+                                && l_Roll > (gQuestRewardBonusRareChanceRange[0] * l_Coeff) && l_Roll < (gQuestRewardBonusRareChanceRange[1] * l_Coeff))
                             {
                                 l_Item->AddItemBonus((uint32)QuestRewardItemBonus::UncommunToRare);
                                 //l_SendDisplayToast = true;
                             }
 
-                            if (l_Roll > gQuestRewardBonusEpicChanceRange[0] && l_Roll < gQuestRewardBonusEpicChanceRange[1])
+                            if (l_Roll > (gQuestRewardBonusEpicChanceRange[0] * l_Coeff) && l_Roll < (gQuestRewardBonusEpicChanceRange[1] * l_Coeff))
                             {
                                 if (l_ItemTemplate->Quality == ItemQualities::ITEM_QUALITY_UNCOMMON)
                                 {
