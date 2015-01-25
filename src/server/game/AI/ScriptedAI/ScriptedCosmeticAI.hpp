@@ -17,11 +17,13 @@
 namespace MS { namespace AI 
 {
 
-    class CosmeticAI : public CreatureAI
+    struct CosmeticAI : public CreatureAI
     {
         public:
             /// Constructor
-            CosmeticAI(Creature * p_Creature);
+            explicit CosmeticAI(Creature * p_Creature);
+            /// Destructor
+            virtual ~CosmeticAI();
 
             /// Add timed delayed operation
             /// @p_Timeout  : Delay time
