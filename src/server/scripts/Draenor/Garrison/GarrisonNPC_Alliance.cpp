@@ -412,8 +412,8 @@ namespace MS { namespace Garrison
             me->SetWalk(true);
 
             uint32 l_LocationID = GussofForgefire::Sequence[m_SequencePosition] - GussofForgefire::MovePointIDs::Nothing;
-            MoveBuildingRelative(GussofForgefire::Sequence[m_SequencePosition],   GussofForgefire::MovePointLoc[l_LocationID][0],
-                                                                                  GussofForgefire::MovePointLoc[l_LocationID][1], 
+            MoveBuildingRelative( GussofForgefire::Sequence[m_SequencePosition],  GussofForgefire::MovePointLoc[l_LocationID][0],
+                                                                                  GussofForgefire::MovePointLoc[l_LocationID][1],
                                                                                   GussofForgefire::MovePointLoc[l_LocationID][2]);
 
             m_SequencePosition++;
@@ -517,8 +517,8 @@ namespace MS { namespace Garrison
             me->SetWalk(true);
 
             uint32 l_LocationID = KristenStoneforge::Sequence[m_SequencePosition] - KristenStoneforge::MovePointIDs::Table;
-            MoveBuildingRelative(KristenStoneforge::Sequence[m_SequencePosition],   KristenStoneforge::MovePointLoc[l_LocationID][0],
-                                                                                    KristenStoneforge::MovePointLoc[l_LocationID][1], 
+            MoveBuildingRelative( KristenStoneforge::Sequence[m_SequencePosition],  KristenStoneforge::MovePointLoc[l_LocationID][0],
+                                                                                    KristenStoneforge::MovePointLoc[l_LocationID][1],
                                                                                     KristenStoneforge::MovePointLoc[l_LocationID][2]);
 
             m_SequencePosition++;

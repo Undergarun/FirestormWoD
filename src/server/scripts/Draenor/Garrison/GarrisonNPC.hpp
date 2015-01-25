@@ -243,7 +243,7 @@ namespace MS { namespace Garrison
             MovePointIDs::Canon,
             MovePointIDs::Nothing,
             MovePointIDs::Canon,
-            MovePointIDs::Anvil,
+            MovePointIDs::Anvil
         };
 
         static float MovePointLoc[][4] =
@@ -254,7 +254,7 @@ namespace MS { namespace Garrison
             { -10.3781f,  8.7117f, 3.1357f, 3.7304f },   ///< MovePointIDs::Stairs3
             { -13.3514f,  9.4382f, 3.2421f, 2.2028f },   ///< MovePointIDs::Stairs4
             {  -0.5560f, -9.9787f, 0.3217f, 4.9244f },   ///< MovePointIDs::Anvil
-            {  -8.5564f, -9.4336f, 0.3063f, 4.3707f },   ///< MovePointIDs::Canon
+            {  -8.5564f, -9.4336f, 0.3063f, 4.3707f }    ///< MovePointIDs::Canon
         };
     }
 
@@ -296,7 +296,7 @@ namespace MS { namespace Garrison
                 Stairs4     = 104,
                 Chest       = 105,
                 UpTable     = 106,
-                CanonBalls  = 107,
+                CanonBalls  = 107
             };
         }
 
@@ -336,7 +336,7 @@ namespace MS { namespace Garrison
             MovePointIDs::Stairs2,
             MovePointIDs::Stairs1,
             MovePointIDs::Table,
-            MovePointIDs::CanonBalls,
+            MovePointIDs::CanonBalls
         };
 
         static float MovePointLoc[][4] =
@@ -348,7 +348,7 @@ namespace MS { namespace Garrison
             { -11.2239f,  9.5250f, 3.1786f, 3.9061f },   ///< MovePointIDs::Stairs4
             { -16.2015f, -2.1603f, 3.2165f, 3.5134f },   ///< MovePointIDs::Chest
             { -16.5532f,  2.0093f, 3.2329f, 2.9236f },   ///< MovePointIDs::UpTable
-            {   1.6793f,  7.7725f, 0.3264f, 0.0019f },   ///< MovePointIDs::CanonBalls
+            {   1.6793f,  7.7725f, 0.3264f, 0.0019f }    ///< MovePointIDs::CanonBalls
         };
     }
 
@@ -536,7 +536,7 @@ namespace MS { namespace Garrison
             { 17.9442f, -1.0791f, 0.3122f, 6.0833f },   ///< MovePointIDs::Out
             {  3.2029f, -0.1679f, 1.1216f, 0.1070f },   ///< MovePointIDs::Carpet
             { -0.3188f,  0.1821f, 1.1216f, 3.2722f },   ///< MovePointIDs::Chest
-            {  4.3978f,  1.8508f, 1.1218f, 2.2001f },   ///< MovePointIDs::Table
+            {  4.3978f,  1.8508f, 1.1218f, 2.2001f }    ///< MovePointIDs::Table
         };
     }
 
