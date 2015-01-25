@@ -302,18 +302,6 @@ void Object::BuildValuesUpdateBlockForPlayer(UpdateData* data, Player* target) c
     buf << uint8(UPDATETYPE_VALUES);
     buf.append(GetPackGUID());
 
-    if (sWorld->isDelete((Object*)this))
-    {
-        ACE_Stack_Trace trace;
-        sLog->outAshran("BuildValuesUpdateBlockForPlayer this delete !!!");
-    }
-
-    if (sWorld->isDelete(target))
-    {
-        ACE_Stack_Trace trace;
-        sLog->outAshran("BuildValuesUpdateBlockForPlayer target delete !!!");
-    }
-
     BuildValuesUpdate(UPDATETYPE_VALUES, &buf, target);
     BuildDynamicValuesUpdate(UPDATETYPE_VALUES, &buf, target);
 
@@ -2953,7 +2941,7 @@ TempSummon* WorldObject::SummonCreature(uint32 entry, const Position &pos, TempS
     else
     {
         m_summonCounter++;
-        if (m_summonCounter > 20 && isType(TYPEMASK_PLAYER))
+        if (m_summonCounter > 50 && isType(TYPEMASK_PLAYER))
             sLog->outAshran("Player %u spam summon of creature %u [counter %u]", GetGUIDLow(), entry, m_summonCounter);
     }
 

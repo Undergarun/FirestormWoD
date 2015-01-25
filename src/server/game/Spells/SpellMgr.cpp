@@ -3994,6 +3994,16 @@ void SpellMgr::LoadSpellCustomAttr()
             case 161203:// Rejuvenating Serum (Kyrak)
                 spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MAGIC;
                 break;
+            case 152742:///< Fiery Boulder - AoE impact damage
+                spellInfo->Effects[EFFECT_1].TargetA = TARGET_SRC_CASTER;
+                spellInfo->Effects[EFFECT_1].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
+                break;
+            case 152867:///< Heat Wave (Create AT)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
+                break;
+            case 167738:///< Scorching Aura (Debuff)
+            case 153227:///< Burning Slag (DoT)
+            case 150784:///< Magma Eruption (DoT)
             case 161288:// Vileblood Serum (DoT)
             case 161833:// Noxious Spit (DoT)
             case 157420:// Fiery Trail (DoT)

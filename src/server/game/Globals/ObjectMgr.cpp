@@ -5792,10 +5792,10 @@ uint32 ObjectMgr::GetNearestTaxiNode(float x, float y, float z, uint32 mapid, ui
         
         if (l_Entry)
         {
-            l_MapOverrides[l_Entry->MapID] = GARRISON_BASE_MAP;
+            l_MapOverrides[l_Entry->MapID] = MS::Garrison::Globals::BaseMap;
 
             if (l_Entry->MapID == mapid)
-                mapid = GARRISON_BASE_MAP;
+                mapid = MS::Garrison::Globals::BaseMap;
         }
     }
 

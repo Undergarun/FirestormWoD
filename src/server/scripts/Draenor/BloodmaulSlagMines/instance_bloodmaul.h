@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2015 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #ifndef INSTANCE_BLOODMAUL_H
 # define INSTANCE_BLOODMAUL_H
 
@@ -9,18 +17,15 @@ namespace MS
     {
         namespace Bloodmaul
         {
-            enum class BossEntries : uint32
+            enum BossIds
             {
-                SlaveWatcherCrushto = 74787,
+                BossSlaveWatcherCrushto,
+                BossForgemasterGogduh,
+                BossRoltall,
+                BossGugrokk
             };
 
-            enum class BossIds : uint32 
-            {
-                SlaveWatcherCrushto,
-                ForgemasterGogduh
-            };
-
-            enum class MobEntries : uint32
+            enum MobEntries
             {
                 MinesBat = 75374,
                 BloodmaulEnforcer = 84978,
@@ -47,16 +52,33 @@ namespace MS
                 SearingEmber = 75360,
                 LavaExplosionStalker = 75846,
                 MagmaLord = 75211,
+
+                /// Roltall
+                Roltall                 = 75786,
+                FieryBoulder1           = 75853,
+                FieryBoulder2           = 75854,
+                FieryBoulder3           = 75828,
+
+                /// Gug'rokk
+                Gugrokk                 = 74790,
+                SLGGenricMoPLargeAoI    = 68553
             };
 
-            enum class Data : uint32
+            enum GameObjects
+            {
+                RoltallEntranceWall = 224643,
+                RoltallExitWall     = 225693,
+                RoltallBridge       = 224487
+            };
+
+            enum Data
             {
                 RaiseTheMiners,
                 RaiseTheMinersChangeTarget,
                 SpawnSlagna,
             };
 
-            enum class Talks : uint32
+            enum Talks
             {
                 WarderAttack = 0,
                 CapturedMinerReleased = 0,
@@ -64,7 +86,7 @@ namespace MS
 
             namespace SlaverWatcherCrushto
             {
-                enum class Texts : int32
+                enum Texts
                 {
                     BloodmaulOgreMagesDied1 = 0,
                     BloodmaulOgreMagesDied2 = 1,

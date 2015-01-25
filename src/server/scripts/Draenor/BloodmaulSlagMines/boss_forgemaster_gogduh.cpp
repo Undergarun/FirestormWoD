@@ -39,10 +39,10 @@ namespace MS
 
                 struct boss_AI : public BossAI
                 {
-                    boss_AI(Creature* p_Creature) : BossAI(p_Creature, uint32(BossIds::ForgemasterGogduh))
+                    boss_AI(Creature* p_Creature) : BossAI(p_Creature, BossIds::BossForgemasterGogduh)
                     {
                         if (instance)
-                            instance->SetBossState(uint32(BossIds::ForgemasterGogduh), EncounterState::TO_BE_DECIDED);
+                            instance->SetBossState(BossIds::BossForgemasterGogduh, EncounterState::TO_BE_DECIDED);
                     }
 
                     Position const m_RuinationSpawnPos = Position{2093.f, 113.f, 225.f, 4.583f};
@@ -70,7 +70,7 @@ namespace MS
 
                         if (instance)
                         {
-                            instance->SetBossState(uint32(BossIds::ForgemasterGogduh), FAIL);
+                            instance->SetBossState(BossIds::BossForgemasterGogduh, FAIL);
                             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                         }
                     }
@@ -191,14 +191,14 @@ namespace MS
 
                 struct boss_AI : public BossAI
                 {
-                    boss_AI(Creature* p_Creature) : BossAI(p_Creature, uint32(BossIds::ForgemasterGogduh))
+                    boss_AI(Creature* p_Creature) : BossAI(p_Creature, BossIds::BossForgemasterGogduh)
                     {
                         me->SetControlled(true, UNIT_STATE_ROOT);
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
                         me->SetReactState(REACT_PASSIVE);
 
                         if (instance)
-                            instance->SetBossState(uint32(BossIds::ForgemasterGogduh), EncounterState::TO_BE_DECIDED);
+                            instance->SetBossState(BossIds::BossForgemasterGogduh, EncounterState::TO_BE_DECIDED);
                     }
 
                     void DoAction(const int32 p_Action)

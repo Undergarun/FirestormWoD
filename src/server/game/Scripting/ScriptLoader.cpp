@@ -831,6 +831,8 @@ void AddSC_spell_Bloodmaul();
 void AddSC_areatrigger_Bloodmaul();
 void AddSC_boss_SlaveWatcherCrushto();
 void AddSC_boss_forgemaster_gogduh();
+void AddSC_boss_roltall();
+void AddSC_boss_gugrokk();
 
 // battlegrounds
 void AddSC_BattlegroundAVcripts();
@@ -1704,6 +1706,8 @@ void AddDraenorScripts()
     AddSC_areatrigger_Bloodmaul();
     AddSC_boss_SlaveWatcherCrushto();
     AddSC_boss_forgemaster_gogduh();
+    AddSC_boss_roltall();
+    AddSC_boss_gugrokk();
     AddSC_item_strongboxes();
 #endif
 }

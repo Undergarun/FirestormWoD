@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2015 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "instance_bloodmaul.h"
 
 namespace MS
@@ -48,11 +56,11 @@ namespace MS
 
                 struct boss_AI : public BossAI
                 {
-                    boss_AI(Creature* creature) : BossAI(creature, uint32(BossIds::SlaveWatcherCrushto)),
+                    boss_AI(Creature* creature) : BossAI(creature, BossIds::BossSlaveWatcherCrushto),
                     m_LastEarthCrushStalkerPosition()
                     {
                         if (instance)
-                            instance->SetBossState(uint32(BossIds::SlaveWatcherCrushto), EncounterState::TO_BE_DECIDED);
+                            instance->SetBossState(BossIds::BossSlaveWatcherCrushto, EncounterState::TO_BE_DECIDED);
                     }
 
                     void Reset()
@@ -66,7 +74,7 @@ namespace MS
 
                         if (instance)
                         {
-                            instance->SetBossState(uint32(BossIds::SlaveWatcherCrushto), FAIL);
+                            instance->SetBossState(BossIds::BossSlaveWatcherCrushto, FAIL);
                             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                         }
                     }
