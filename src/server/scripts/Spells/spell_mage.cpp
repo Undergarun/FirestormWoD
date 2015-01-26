@@ -106,7 +106,9 @@ enum MageSpells
     SPELL_MAGE_ENHANCED_PYROTECHNICS_PROC        = 157644,
     SPELL_MAGE_ENHANCED_ARCANE_BLAST             = 157595,
     SPELL_MAGE_IMPROVED_BLINK                    = 157606,
-    SPELL_MAGE_IMPROVED_BLINK_PROC               = 157610
+    SPELL_MAGE_IMPROVED_BLINK_PROC               = 157610,
+    SPELL_MAGE_IMPROVED_BLIZZARD                 = 157727,
+    SPELL_MAGE_FORZEN_ORB                        = 84714
 };
 
 
@@ -1766,9 +1768,52 @@ public:
     }
 };
 
+// Blizzar - 10
+class spell_mage_blizzard : public SpellScriptLoader
+{
+public:
+    spell_mage_blizzard() : SpellScriptLoader("spell_mage_blizzard") { }
+
+    class spell_mage_blizzard_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_mage_blizzard_SpellScript);
+
+        void HandleAfterHit()
+        {
+            Unit *l_Caster = GetCaster();
+
+            if (l_Caster == nullptr)
+                return;
+
+            Player *l_Player = l_Caster->ToPlayer();
+            const SpellInfo *l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_IMPROVED_BLIZZARD);
+
+            if (l_Player == nullptr || l_SpellInfo == nullptr)
+                return;
+
+            if (l_Player->HasAura(SPELL_MAGE_IMPROVED_BLIZZARD) && l_Player->getLevel() >= 92 && l_SpellInfo->Effects[EFFECT_0].BasePoints > 0)
+            {
+                if (l_Player->HasSpellCooldown(SPELL_MAGE_FORZEN_ORB))
+                    l_Player->ReduceSpellCooldown(SPELL_MAGE_FORZEN_ORB, (l_SpellInfo->Effects[EFFECT_0].BasePoints / 100) * IN_MILLISECONDS);
+            }
+        }
+
+        void Register()
+        {
+            AfterHit += SpellHitFn(spell_mage_blizzard_SpellScript::HandleAfterHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_mage_blizzard_SpellScript();
+    }
+};
+
 
 void AddSC_mage_spell_scripts()
 {
+    new spell_mage_blizzard();
     new spell_mage_blink();
     new spell_mage_arcane_blast();
     new spell_mage_novas_talent();
