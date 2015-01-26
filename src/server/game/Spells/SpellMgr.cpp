@@ -6246,6 +6246,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TriggerSpell = 109772;
                 spellInfo->ProcChance = 100;
                 break;
+            case 109772: // Flare
+                spellInfo->SetDurationIndex(18); // 20s Duration
+                break;
             // Player Damage Reduction Level 90, we have S13, so we need to decrease to 65% of base resilience
             // @TODO: Remove this hack when we out S14
             case 142689:
