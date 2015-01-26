@@ -67,7 +67,7 @@ enum MageSpells
     SPELL_MAGE_ARCANE_BARRAGE_TRIGGERED          = 50273,
     SPELL_MAGE_CAUTERIZE                         = 87023,
     SPELL_MAGE_ARCANE_MISSILES                   = 79683,
-    SPELL_MAGE_INCANTERS_ABSORBTION              = 116267,
+    SPELL_MAGE_INCANTERS_FLOW                    = 116267,
     SPELL_MAGE_GLYPH_OF_ICE_BLOCK                = 115723,
     SPELL_MAGE_GLYPH_OF_ICE_BLOCK_IMMUNITY       = 115760,
     SPELL_MAGE_GLYPH_OF_ICE_BLOCK_FROST_NOVA     = 115757,
@@ -1817,8 +1817,61 @@ public:
     }
 };
 
+// Incanter's Flow - 1463
+class spell_mage_incanters_flow : public SpellScriptLoader
+{
+public:
+    spell_mage_incanters_flow() : SpellScriptLoader("spell_mage_incanters_flow") { }
+
+    class spell_mage_incanters_flow_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_mage_incanters_flow_AuraScript);
+
+        bool m_Up = true;
+
+        void OnTick(constAuraEffectPtr aurEff)
+        {
+            if (Unit *l_Caster = GetCaster())
+            {
+                if (l_Caster->HasAura(SPELL_MAGE_INCANTERS_FLOW))
+                {
+                    if (AuraPtr l_IncantersFlow = l_Caster->GetAura(SPELL_MAGE_INCANTERS_FLOW))
+                    {
+                        if (m_Up)
+                            l_IncantersFlow->SetStackAmount(l_IncantersFlow->GetStackAmount() + 1);
+                        else
+                            l_IncantersFlow->SetStackAmount(l_IncantersFlow->GetStackAmount() - 1);
+
+                        if (l_IncantersFlow->GetStackAmount() == 5)
+                            m_Up = false;
+                        if (l_IncantersFlow->GetStackAmount() == 1)
+                            m_Up = true;
+                    }
+                }
+                else if (l_Caster->isInCombat())
+                {
+                    l_Caster->CastSpell(l_Caster, SPELL_MAGE_INCANTERS_FLOW, true);
+                    m_Up = true;
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_mage_incanters_flow_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_mage_incanters_flow_AuraScript();
+    }
+};
+
+
 void AddSC_mage_spell_scripts()
 {
+    new spell_mage_incanters_flow();
     new spell_mage_blizzard();
     new spell_mage_blink();
     new spell_mage_arcane_blast();
