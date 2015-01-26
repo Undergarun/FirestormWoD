@@ -2551,6 +2551,7 @@ bool Player::BuildEnumData(PreparedQueryResult p_Result, ByteBuffer* p_Data)
     p_Data->WriteBits(l_CharacterName.size(), 6);           ///< Character name
     p_Data->WriteBit(l_CharacterFirstLogin);                ///< Is character first login
     p_Data->WriteBit(0);                                    ///< Boosted to level 90
+    p_Data->WriteBits(0, 5);                                ///< Unk 19508
     p_Data->FlushBits();
     p_Data->WriteString(l_CharacterName);                   ///< Character name
 

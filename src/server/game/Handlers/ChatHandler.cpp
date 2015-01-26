@@ -69,7 +69,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& p_RecvData)
     uint32 l_Language   = 0;
 
     switch (p_RecvData.GetOpcode())
-    {
+    {/*
         case CMSG_CHAT_MESSAGE_SAY:
             l_Type = CHAT_MSG_SAY;
             break;
@@ -105,7 +105,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& p_RecvData)
             break;
         case CMSG_CHAT_MESSAGE_RAID_WARNING:
             l_Type = CHAT_MSG_RAID_WARNING;
-            break;
+            break;*/
         default:
             sLog->outError(LOG_FILTER_NETWORKIO, "HandleMessagechatOpcode : Unknown chat opcode (%u)", p_RecvData.GetOpcode());
             p_RecvData.hexlike();

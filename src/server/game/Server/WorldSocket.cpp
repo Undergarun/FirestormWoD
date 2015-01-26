@@ -189,13 +189,13 @@ int WorldSocket::SendPacket(WorldPacket const& pct)
 
 #   ifdef WIN32
         switch (pct.GetOpcode())
-        {
+        {/*
             case SMSG_MONSTER_MOVE:
             case SMSG_THREAT_CLEAR:
             case SMSG_THREAT_REMOVE:
             case SMSG_THREAT_UPDATE:
             case SMSG_HIGHEST_THREAT_UPDATE:
-            case SMSG_ATTACKER_STATE_UPDATE:
+            case SMSG_ATTACKER_STATE_UPDATE:*/
                 break;
 
             default:
@@ -819,7 +819,7 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
                 sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
                 return HandleAuthSession(*new_pct);
             }
-            case CMSG_KEEP_ALIVE:
+            /*case CMSG_KEEP_ALIVE:
             {
                 sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", GetOpcodeNameForLogging(opcode, WOW_CLIENT_TO_SERVER).c_str());
                 sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
@@ -832,6 +832,7 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
                 sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
                 return 0;
             }
+            */
             // not an opcode, client sends string "WORLD OF WARCRAFT CONNECTION - CLIENT TO SERVER" without opcode
             // first 4 bytes become the opcode (2 dropped)
             case CMSG_HANDSHAKE:
@@ -844,12 +845,13 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
                     return -1;
                 return HandleSendAuthSession();
             }
+            /*
             case CMSG_ENABLE_NAGLE:
             {
                 sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", opcodeName.c_str());
                 sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
                 return m_Session ? m_Session->HandleEnableNagleAlgorithm() : -1;
-            }
+            }*/
             default:
             {
                 ACE_GUARD_RETURN(LockType, Guard, m_SessionLock, -1);
