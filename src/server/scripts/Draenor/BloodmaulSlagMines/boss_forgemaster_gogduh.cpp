@@ -222,7 +222,7 @@ namespace MS
 
                         if (instance)
                         {
-                            instance->SetBossState(uint32(BossIds::ForgemasterGogduh), FAIL);
+                            instance->SetBossState(uint32(BossIds::BossForgemasterGogduh), FAIL);
                             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                         }
                     }
