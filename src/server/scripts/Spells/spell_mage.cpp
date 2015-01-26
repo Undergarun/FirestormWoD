@@ -364,17 +364,17 @@ class spell_mage_arcane_missile: public SpellScriptLoader
         {
             PrepareSpellScript(spell_mage_arcane_missile_SpellScript);
 
-            void HandleOnHit()
+            void HandleOnCast()
             {
                 if (Unit* l_Caster = GetCaster())
-                    if (l_Caster->HasAura(SPELL_MAGE_OVERPOWERED))
+                    if (l_Caster->HasSpell(SPELL_MAGE_OVERPOWERED) && sSpellMgr->GetSpellInfo(SPELL_MAGE_OVERPOWERED) != nullptr)
                         if (AuraPtr l_Aura = l_Caster->GetAura(SPELL_MAGE_ARCANE_POWER, l_Caster->GetGUID()))
-                            l_Aura->SetDuration(l_Aura->GetMaxDuration() + sSpellMgr->GetSpellInfo(SPELL_MAGE_OVERPOWERED)->Effects[EFFECT_0].BasePoints * IN_MILLISECONDS);
+                            l_Aura->SetDuration(l_Aura->GetDuration() + sSpellMgr->GetSpellInfo(SPELL_MAGE_OVERPOWERED)->Effects[EFFECT_0].BasePoints * IN_MILLISECONDS);
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_mage_arcane_missile_SpellScript::HandleOnHit);
+                OnCast += SpellCastFn(spell_mage_arcane_missile_SpellScript::HandleOnCast);
             }
         };
 
