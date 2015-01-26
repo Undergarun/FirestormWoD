@@ -642,17 +642,19 @@ float SpellEffectInfo::CalcValueMultiplier(Unit* caster, Spell* spell) const
     return multiplier;
 }
 
-float SpellEffectInfo::CalcDamageMultiplier(Unit* caster, Spell* spell) const
+float SpellEffectInfo::CalcDamageMultiplier(Unit* p_Caster, Spell* p_Spell) const
 {
-    float multiplier = DamageMultiplier;
-    if (Player* modOwner = (caster ? caster->GetSpellModOwner() : NULL))
-        modOwner->ApplySpellMod(_spellInfo->Id, SPELLMOD_DAMAGE_MULTIPLIER, multiplier, spell);
-    return multiplier;
+    float l_Multiplier = DamageMultiplier * 100.0f;
+
+    if (Player* l_ModOwner = (p_Caster ? p_Caster->GetSpellModOwner() : nullptr))
+        l_ModOwner->ApplySpellMod(_spellInfo->Id, SPELLMOD_DAMAGE_MULTIPLIER, l_Multiplier, p_Spell);
+
+    return l_Multiplier / 100.0f;
 }
 
 bool SpellEffectInfo::HasRadius() const
 {
-    return RadiusEntry != NULL;
+    return RadiusEntry != nullptr;
 }
 
 float SpellEffectInfo::CalcRadius(Unit* caster, Spell* spell) const
@@ -661,7 +663,7 @@ float SpellEffectInfo::CalcRadius(Unit* caster, Spell* spell) const
         return 0.0f;
 
     float radius = _spellInfo->IsPositive() ? RadiusEntry->radiusFriend : RadiusEntry->radiusHostile;
-    if (Player* modOwner = (caster ? caster->GetSpellModOwner() : NULL))
+    if (Player* modOwner = (caster ? caster->GetSpellModOwner() : nullptr))
         modOwner->ApplySpellMod(_spellInfo->Id, SPELLMOD_RADIUS, radius, spell);
 
     return radius;

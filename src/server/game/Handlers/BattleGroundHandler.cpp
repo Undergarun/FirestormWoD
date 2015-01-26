@@ -677,10 +677,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& p_Packet)
         uint32 l_QueueSlot = l_Member->AddBattlegroundQueueId(l_BGQueueTypeID);
 
         if (!l_GroupQueueInfo)
-        {
-            sLog->outAshran("NULL ginfo !!!!");
             return;
-        }
 
         /// Add joined time data
         l_Member->AddBattlegroundQueueJoinTime(l_BGTypeId, l_GroupQueueInfo->JoinTime);
@@ -797,10 +794,7 @@ void WorldSession::HandleBattlemasterJoinArenaSkirmish(WorldPacket& p_Packet)
             }
 
             if (!l_GroupQueueInfo)
-            {
-                sLog->outAshran("NULL ginfo !!!!");
                 return;
-            }
 
             /// Add to queue
             uint32 l_QueueSlot = l_Member->AddBattlegroundQueueId(l_BGQueueTypeID);

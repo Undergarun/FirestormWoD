@@ -162,8 +162,8 @@ class garrison_commandscript: public CommandScript
 
             l_TargetPlayer->DeleteGarrison();
 
-            if (l_TargetPlayer->GetCurrency(GARRISON_CURRENCY_ID, false))
-                l_TargetPlayer->ModifyCurrency(GARRISON_CURRENCY_ID, -(int32)l_TargetPlayer->GetCurrency(GARRISON_CURRENCY_ID, false));
+            if (l_TargetPlayer->GetCurrency(MS::Garrison::Globals::CurrencyID, false))
+                l_TargetPlayer->ModifyCurrency(MS::Garrison::Globals::CurrencyID, -(int32)l_TargetPlayer->GetCurrency(MS::Garrison::Globals::CurrencyID, false));
 
             return true;
         }
@@ -238,7 +238,7 @@ class garrison_commandscript: public CommandScript
             {
                 const GarrBuildingEntry * l_Entry = sGarrBuildingStore.LookupEntry(l_Building.BuildingID);
 
-                p_Handler->PSendSysMessage("Building : %u - %s", l_Entry->BuildingID, l_TargetPlayer->GetGarrison()->GetGarrisonFactionIndex() == MS::Garrison::GARRISON_FACTION_ALLIANCE ? l_Entry->NameA : l_Entry->NameH);
+                p_Handler->PSendSysMessage("Building : %u - %s", l_Entry->BuildingID, l_TargetPlayer->GetGarrison()->GetGarrisonFactionIndex() == MS::Garrison::Factions::Alliance ? l_Entry->NameA : l_Entry->NameH);
                 p_Handler->PSendSysMessage("Active %u Level %u", l_Building.Active, l_Entry->BuildingLevel);
             }
 

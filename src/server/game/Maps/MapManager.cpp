@@ -305,6 +305,18 @@ void MapManager::Update(uint32 diff)
         m_CriticalOperation.pop();
     }
 
+    m_CriticalOperationLock.acquire();
+    
+    while (!m_CriticalOperation.empty())
+    {
+        if (m_CriticalOperation.front())
+            m_CriticalOperation.front()();
+
+        m_CriticalOperation.pop();
+    }
+
+    m_CriticalOperationLock.release();
+
     i_timer.SetCurrent(0);
 }
 

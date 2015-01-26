@@ -489,7 +489,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
         if (deletePacket)
             delete packet;
 
-#define MAX_PROCESSED_PACKETS_IN_SAME_WORLDSESSION_UPDATE 250
+#define MAX_PROCESSED_PACKETS_IN_SAME_WORLDSESSION_UPDATE 50
         processedPackets++;
 
         //process only a max amout of packets in 1 Update() call.
@@ -527,7 +527,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     }
 
     sessionDiff = getMSTime() - sessionDiff;
-    if (sessionDiff > 50)
+    if (sessionDiff > 100)
     {
         std::map<uint32, OpcodeInfo>::iterator itr = pktHandle.find(CMSG_ADD_FRIEND);
         if (itr != pktHandle.end())
@@ -540,7 +540,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
             }
         }
 
-        sLog->outAshran("Session of account [%u] take more than 50 ms to execute (%u ms)", GetAccountId(), sessionDiff);
+        sLog->outAshran("Session of account [%u] take more than 100 ms to execute (%u ms)", GetAccountId(), sessionDiff);
         for (auto itr : pktHandle)
             sLog->outAshran("-----> %u %s (%u ms)", itr.second.nbPkt, GetOpcodeNameForLogging((Opcodes)itr.first, WOW_CLIENT_TO_SERVER).c_str(), itr.second.totalTime);
     }

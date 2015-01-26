@@ -1832,93 +1832,93 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
         switch (m_spellInfo->Id)
         {
             // Tipping of the Scales, Scales of Life
-        case 96880:
-        {
-            if (constAuraEffectPtr aurEff = m_caster->GetAuraEffect(96881, EFFECT_0))
+            case 96880:
             {
-                addhealth = aurEff->GetAmount();
-                m_caster->RemoveAurasDueToSpell(96881);
+                if (constAuraEffectPtr aurEff = m_caster->GetAuraEffect(96881, EFFECT_0))
+                {
+                    addhealth = aurEff->GetAmount();
+                    m_caster->RemoveAurasDueToSpell(96881);
+                }
+                else
+                    return;
+                break;
             }
-            else
-                return;
-            break;
-        }
-        case 15290: // Vampiric Embrace
-        {
-            uint32 count = 0;
-            for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
-                if (ihit->effectMask & (1 << effIndex))
-                    ++count;
-
-            damage /= count;                    // divide to all targets
-            break;
-        }
-        case 19750: // Selfless Healer
-        {
-            if (!caster)
-                break;
-
-            addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, effIndex, HEAL);
-
-            if (!caster->HasAura(114250))
-                break;
-
-            int32 charges = 0;
-
-            if (AuraPtr selflessHealer = caster->GetAura(114250))
-                charges = selflessHealer->GetStackAmount();
-
-            if (charges && unitTarget->GetGUID() != caster->GetGUID())
-                AddPct(addhealth, (35 * charges));
-
-            break;
-        }
-        case 45064: // Vessel of the Naaru (Vial of the Sunwell trinket)
-        {
-            if (!caster)
-                break;
-
-            // Amount of heal - depends from stacked Holy Energy
-            int damageAmount = 0;
-            if (constAuraEffectPtr aurEff = caster->GetAuraEffect(45062, 0))
+            case 15290: // Vampiric Embrace
             {
-                damageAmount += aurEff->GetAmount();
-                caster->RemoveAurasDueToSpell(45062);
+                uint32 count = 0;
+                for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+                    if (ihit->effectMask & (1 << effIndex))
+                        ++count;
+
+                damage /= count;                    // divide to all targets
+                break;
             }
+            case 19750: // Selfless Healer
+            {
+                if (!caster)
+                    break;
 
-            addhealth += damageAmount;
-            addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, effIndex, HEAL);
+                addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, effIndex, HEAL);
 
-            break;
-        }
-        case 67489: // Runic Healing Injector (heal increased by 25% for engineers - 3.2.0 patch change)
-            if (!caster)
+                if (!caster->HasAura(114250))
+                    break;
+
+                int32 charges = 0;
+
+                if (AuraPtr selflessHealer = caster->GetAura(114250))
+                    charges = selflessHealer->GetStackAmount();
+
+                if (charges && unitTarget->GetGUID() != caster->GetGUID())
+                    AddPct(addhealth, (35 * charges));
+
                 break;
+            }
+            case 45064: // Vessel of the Naaru (Vial of the Sunwell trinket)
+            {
+                if (!caster)
+                    break;
 
-            if (Player* player = caster->ToPlayer())
-                if (player->HasSkill(SKILL_ENGINEERING))
-                    AddPct(addhealth, 25);
-            break;
-        case 86961: // Cleansing Waters
-        {
-            addhealth = m_caster->CountPctFromMaxHealth(4);
-            break;
-        }
-        case 73921: // Healing Rain
-        {
-            addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, effIndex, HEAL);
+                // Amount of heal - depends from stacked Holy Energy
+                int damageAmount = 0;
+                if (constAuraEffectPtr aurEff = caster->GetAuraEffect(45062, 0))
+                {
+                    damageAmount += aurEff->GetAmount();
+                    caster->RemoveAurasDueToSpell(45062);
+                }
 
-            // Increase the effectiveness by 30% with Unleashed Life
-            if (AuraEffectPtr healingRain = caster->GetAuraEffect(142923, EFFECT_1))
-                AddPct(addhealth, healingRain->GetAmount());
-            break;
-        }
-        default:
-            if (!caster)
+                addhealth += damageAmount;
+                addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, effIndex, HEAL);
+
                 break;
+            }
+            case 67489: // Runic Healing Injector (heal increased by 25% for engineers - 3.2.0 patch change)
+                if (!caster)
+                    break;
 
-            addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, effIndex, HEAL);
-            break;
+                if (Player* player = caster->ToPlayer())
+                    if (player->HasSkill(SKILL_ENGINEERING))
+                        AddPct(addhealth, 25);
+                break;
+            case 86961: // Cleansing Waters
+            {
+                addhealth = m_caster->CountPctFromMaxHealth(4);
+                break;
+            }
+            case 73921: // Healing Rain
+            {
+                addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, effIndex, HEAL);
+
+                // Increase the effectiveness by 30% with Unleashed Life
+                if (AuraEffectPtr healingRain = caster->GetAuraEffect(142923, EFFECT_1))
+                    AddPct(addhealth, healingRain->GetAmount());
+                break;
+            }
+            default:
+                if (!caster)
+                    break;
+
+                addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, effIndex, HEAL);
+                break;
         }
 
         addhealth = unitTarget->SpellHealingBonusTaken(caster, m_spellInfo, addhealth, HEAL);
@@ -7813,7 +7813,7 @@ void Spell::EffectLearnBluePrint(SpellEffIndex p_EffIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (!m_CastItem || !unitTarget || !unitTarget->IsInWorld())
+    if (!unitTarget || !unitTarget->IsInWorld())
         return;
 
     Player* l_Player = unitTarget->ToPlayer();
@@ -7826,8 +7826,24 @@ void Spell::EffectLearnBluePrint(SpellEffIndex p_EffIndex)
 
     if (l_Player->GetGarrison()->LearnBlueprint(m_spellInfo->Effects[p_EffIndex].MiscValue))
     {
-        uint32 l_DestroyCount = 1;
-        l_Player->DestroyItemCount(m_CastItem, l_DestroyCount, true);
+        if (m_CastItem)
+        {
+            uint64 l_PlayerGUID = m_CastItem->GetOwnerGUID();
+            uint64 l_ItemGUID   = m_CastItem->GetGUID();
+
+            l_Player->AddCriticalOperation([l_PlayerGUID, l_ItemGUID]() -> void
+            {
+                if (Player * l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID))
+                {
+                    uint32 l_DestroyCount = 1;
+
+                    if (Item * l_Item = l_Player->GetItemByGuid(l_ItemGUID))
+                        l_Player->DestroyItemCount(l_Item, l_DestroyCount, true);
+                }
+            });
+
+            m_CastItem = nullptr;
+        }
     }
     else
         SendCastResult(SPELL_FAILED_BLUEPRINT_KNOWN);
@@ -7853,8 +7869,21 @@ void Spell::EffectObtainFollower(SpellEffIndex p_EffIndex)
     {
         if (m_CastItem)
         {
-            uint32 l_DestroyCount = 1;
-            l_Player->DestroyItemCount(m_CastItem, l_DestroyCount, true);
+            uint64 l_PlayerGUID = m_CastItem->GetOwnerGUID();
+            uint64 l_ItemGUID   = m_CastItem->GetGUID();
+
+            l_Player->AddCriticalOperation([l_PlayerGUID, l_ItemGUID]() -> void
+            {
+                if (Player * l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID))
+                {
+                    uint32 l_DestroyCount = 1;
+
+                    if (Item * l_Item = l_Player->GetItemByGuid(l_ItemGUID))
+                        l_Player->DestroyItemCount(l_Item, l_DestroyCount, true);
+                }
+            });
+
+            m_CastItem = nullptr;
         }
     }
     else

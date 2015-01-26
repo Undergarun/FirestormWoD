@@ -3335,7 +3335,6 @@ void World::InitCurrencyResetTime()
     }
 
     m_NextCurrencyReset = nextResetDay * 86400 + 5 * 3600;
-    sLog->outAshran("World::InitCurrencyResetTime: m_NextCurrencyReset %u, nextResetDay : %u", m_NextCurrencyReset, nextResetDay);
 }
 
 void World::InitDailyLootResetTime()
@@ -3349,7 +3348,6 @@ void World::InitDailyLootResetTime()
     }
 
     m_NextDailyLootReset = l_NextResetDay * 86400 + 5 * 3600;
-    sLog->outAshran("World::InitDailyLootResetTime: m_NextDailyLootReset %u, nextResetDay : %u", m_NextDailyLootReset, l_NextResetDay);
 }
 
 void World::InitServerAutoRestartTime()
@@ -3411,8 +3409,6 @@ void World::ResetCurrencyWeekCap()
 
     m_NextCurrencyReset = time_t(m_NextCurrencyReset + DAY * 7);
     sWorld->setWorldState(WS_CURRENCY_RESET_TIME, getWorldState(WS_CURRENCY_RESET_TIME) + 7);
-
-    sLog->outAshran("World::ResetCurrencyWeekCap()");
 }
 
 void World::ResetDailyLoots()
@@ -3428,8 +3424,6 @@ void World::ResetDailyLoots()
 
     m_NextDailyLootReset = time_t(m_NextDailyLootReset + DAY);
     sWorld->setWorldState(WS_DAILY_LOOT_RESET_TIME, getWorldState(WS_DAILY_LOOT_RESET_TIME) + 1);
-
-    sLog->outAshran("World::ResetDailyLoots");
 }
 
 void World::LoadDBAllowedSecurityLevel()
