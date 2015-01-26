@@ -1507,10 +1507,12 @@ class npc_faction_boss : public CreatureScript
 
             enum eSpells
             {
-                SpellBladeTwisterSearcher    = 178798,   ///< Uses 178797 on the target (Only 1)
-                SpellBladeTwisterMissile     = 178797,   ///< Launch 178795, Summons 89320
-                SpellMortalCleave            = 177147,
-                SpellEnableUnitFrame         = 177684
+                SpellBladeTwisterSearcher   = 178798,   ///< Uses 178797 on the target (Only 1)
+                SpellBladeTwisterMissile    = 178797,   ///< Launch 178795, Summons 89320
+                SpellMortalCleave           = 177147,
+                SpellEnableUnitFrame        = 177684,
+
+                SpellAshranLaneMobScaling   = 178838
             };
 
             enum eTalk
@@ -1539,10 +1541,14 @@ class npc_faction_boss : public CreatureScript
                 m_Events.Reset();
 
                 me->RemoveAura(eSpells::SpellEnableUnitFrame);
+                me->RemoveAura(eSpells::SpellAshranLaneMobScaling);
 
                 m_FirstVictim = true;
 
                 me->SetHealth(m_BaseHP);
+
+                if (me->GetEntry() == eCreatures::GrandMarshalTremblade)
+                    me->setFaction(12); ///< Alliance
             }
 
             void EnterCombat(Unit* p_Attacker)
