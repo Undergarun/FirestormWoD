@@ -1861,7 +1861,7 @@ class Unit : public WorldObject
         virtual bool SetDisableGravity(bool disable, bool packetOnly = false);
         bool SetHover(bool enable);
 
-        void SetInFront(Unit const* target);
+        void SetInFront(WorldObject const* target);
         void SetFacingTo(float ori);
         void SetFacingToObject(WorldObject* object);
 
@@ -2487,7 +2487,7 @@ class Unit : public WorldObject
         }
 
         // Handling caster facing during spell cast
-        void FocusTarget(Spell const* focusSpell, uint64 target);
+        void FocusTarget(Spell const* p_FocusSpell, WorldObject* p_Target);
         void ReleaseFocus(Spell const* focusSpell);
 
         int32 GetEclipsePower() { return m_EclipsePower; };

@@ -3460,6 +3460,12 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 157154:// High tide fix temp !!!
+                spellInfo->Effects[0].BasePoints = 0;
+                break;
+            case 175975:///< Genesis
+                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(10);  ///< 30y
+                break;
             case 178531:///< Alliance Reward (but for Horde)
                 spellInfo->Effects[0].TargetA = TARGET_SRC_CASTER;
                 spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ALLY;
@@ -3984,6 +3990,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 157420:// Fiery Trail (DoT)
             case 155057:// Magma Pool (DoT)
             case 166730:// Burning Bridge (DoT)
+            case 176037:///< Noxious Spit (DoT)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
                 break;
