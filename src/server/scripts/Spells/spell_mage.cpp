@@ -104,7 +104,9 @@ enum MageSpells
     SPELL_MAGE_IMPROVED_SCORCH                   = 157632,
     SPELL_MAGE_IMPROVED_SCORCH_AURA              = 157633,
     SPELL_MAGE_ENHANCED_PYROTECHNICS_PROC        = 157644,
-    SPELL_MAGE_ENHANCED_ARCANE_BLAST             = 157595
+    SPELL_MAGE_ENHANCED_ARCANE_BLAST             = 157595,
+    SPELL_MAGE_IMPROVED_BLINK                    = 157606,
+    SPELL_MAGE_IMPROVED_BLINK_PROC               = 157610
 };
 
 
@@ -1735,8 +1737,39 @@ public:
     }
 };
 
+// Blink - 1953
+class spell_mage_blink : public SpellScriptLoader
+{
+public:
+    spell_mage_blink() : SpellScriptLoader("spell_mage_blink") { }
+
+    class spell_mage_blink_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_mage_blink_SpellScript);
+
+        void HandleAfterHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+                if (l_Caster->HasAura(SPELL_MAGE_IMPROVED_BLINK) && l_Caster->getLevel() >= 92)
+                    l_Caster->CastSpell(l_Caster, SPELL_MAGE_IMPROVED_BLINK_PROC, true);
+        }
+
+        void Register()
+        {
+            AfterHit += SpellHitFn(spell_mage_blink_SpellScript::HandleAfterHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_mage_blink_SpellScript();
+    }
+};
+
+
 void AddSC_mage_spell_scripts()
 {
+    new spell_mage_blink();
     new spell_mage_arcane_blast();
     new spell_mage_novas_talent();
     new spell_mage_enhanced_pyrotechnics();
