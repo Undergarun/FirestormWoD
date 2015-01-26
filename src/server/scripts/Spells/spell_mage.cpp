@@ -108,7 +108,9 @@ enum MageSpells
     SPELL_MAGE_IMPROVED_BLINK                    = 157606,
     SPELL_MAGE_IMPROVED_BLINK_PROC               = 157610,
     SPELL_MAGE_IMPROVED_BLIZZARD                 = 157727,
-    SPELL_MAGE_FORZEN_ORB                        = 84714
+    SPELL_MAGE_FORZEN_ORB                        = 84714,
+    SPELL_MAGE_ENHANCED_FROSTBOLT                = 157646,
+    SPELL_MAGE_ENHANCED_FROSTBOLT_PROC           = 157648
 };
 
 
@@ -578,8 +580,13 @@ class spell_mage_frostbolt: public SpellScriptLoader
             void HandleOnHit()
             {
                 if (Unit* l_Caster = GetCaster())
+                {
                     if (l_Caster->HasAura(SPELL_MAGE_BRAIN_FREEZE) && roll_chance_i(sSpellMgr->GetSpellInfo(SPELL_MAGE_BRAIN_FREEZE)->Effects[EFFECT_0].BasePoints))
                         GetCaster()->CastSpell(GetCaster(), SPELL_MAGE_BRAIN_FREEZE_TRIGGERED, true);
+                    
+                    if (l_Caster->HasAura(SPELL_MAGE_ENHANCED_FROSTBOLT) && l_Caster->getLevel() >= 92 && !l_Caster->HasAura(SPELL_MAGE_ENHANCED_FROSTBOLT_PROC))
+                        l_Caster->CastSpell(l_Caster, SPELL_MAGE_ENHANCED_FROSTBOLT_PROC, true);
+                }
             }
 
             void Register()
@@ -1768,7 +1775,7 @@ public:
     }
 };
 
-// Blizzar - 10
+// Blizzard - 10
 class spell_mage_blizzard : public SpellScriptLoader
 {
 public:
@@ -1809,7 +1816,6 @@ public:
         return new spell_mage_blizzard_SpellScript();
     }
 };
-
 
 void AddSC_mage_spell_scripts()
 {
