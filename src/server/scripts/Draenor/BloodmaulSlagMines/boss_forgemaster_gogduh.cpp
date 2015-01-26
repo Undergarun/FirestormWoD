@@ -15,7 +15,9 @@ namespace MS
 
                 enum Spells
                 {
-                    MagmaBarrage = 150004,
+                    MagmaBarrage    = 150004,
+                    ThrowFlame      = 150078,
+                    ThrowEarth      = 150076,
                 };
 
                 enum Events
@@ -27,9 +29,21 @@ namespace MS
 
                 enum NPCs
                 {
-                    Ruination   = 74570,
-                    Calamity    = 74571,
-                    Magmolatus  = 86221   
+                    Ruination           = 74570,
+                    Calamity            = 74571,
+                    Magmolatus          = 74475,
+                    ForgemasterGogduh   = 74366
+                };
+                
+
+                enum Yells
+                {
+                    Aggro           = 0,
+                    RuinationSpawn  = 1,
+                    RuinationDeath  = 2,
+                    CalamitySpawn   = 3,
+                    CalamityDeath   = 4,
+                    Death           = 5
                 };
 
                 CreatureAI* GetAI(Creature* creature) const
@@ -41,12 +55,14 @@ namespace MS
                 {
                     boss_AI(Creature* p_Creature) : BossAI(p_Creature, BossIds::BossForgemasterGogduh)
                     {
+                        m_SaidAggro = false;
+
                         if (instance)
                             instance->SetBossState(BossIds::BossForgemasterGogduh, EncounterState::TO_BE_DECIDED);
                     }
 
-                    Position const m_RuinationSpawnPos = Position{2093.f, 113.f, 225.f, 4.583f};
-                    Position const m_CalamitySpawnPos  = Position{2071.f, 111.f, 225.f, 5.003f};
+                    //Position const m_RuinationSpawnPos = Position{2093.f, 113.f, 225.f, 4.583f};
+                    //Position const m_CalamitySpawnPos  = Position{2071.f, 111.f, 225.f, 5.003f};
                     
                     void DoCast(Unit* p_UnitTarget, Spells p_SpellId, bool p_Triggered)
                     {
@@ -56,6 +72,19 @@ namespace MS
                     void DoCast(float p_X, float p_Y, float p_Z, Spells p_SpellId, bool p_Triggered)
                     {
                         me->CastSpell(p_X, p_Y, p_Z, (uint32)p_SpellId, p_Triggered);
+                    }
+
+                    void MoveInLineOfSight(Unit* p_Who)
+                    {
+                        if (!m_SaidAggro && me->IsWithinDist2d(p_Who, 30.f))
+                        {
+                            m_SaidAggro = true;
+                            Talk((uint8)Yells::Aggro);
+
+                        if (Unit* p_Boss = me->FindNearestCreature((uint32)NPCs::Magmolatus, VISIBLE_RANGE, true))
+                            if (BossAI* p_AI = CAST_AI(BossAI, p_Boss->GetAI()))
+                                p_AI->Talk((uint8)boss_magmolatus::Yells::Aggro);
+                        }
                     }
 
                     void Reset()
@@ -114,18 +143,24 @@ namespace MS
                         switch ((Events)events.ExecuteEvent())
                         {
                             case Events::MagmaBarrageCast:
+                            {
                                 me->SetControlled(true, UNIT_STATE_ROOT);
                                 DoCast(me, Spells::MagmaBarrage, false);
                                 events.ScheduleEvent((uint32)Events::MagmaBarrageCast, 10000);
                                 break;
+                            }
                             case Events::SpawnRuination:
-                                if (Unit* l_Summon = SummonCreature(NPCs::Ruination, m_RuinationSpawnPos))
-                                    l_Summon->Attack(me->getVictim(), true);
+                            {
+                                Talk((uint8)Yells::RuinationSpawn);
+                                DoCastAOE((uint32)Spells::ThrowEarth);
                                 break;
+                            }
                             case Events::SpawnCalamity:
-                                if (Unit* l_Summon = SummonCreature(NPCs::Calamity, m_CalamitySpawnPos))
-                                    l_Summon->Attack(me->getVictim(), true);
+                            {
+                                Talk((uint8)Yells::CalamitySpawn);
+                                DoCastAOE((uint32)Spells::ThrowFlame);
                                 break;
+                            }
                             default:
                                 break;
                         }
@@ -157,6 +192,7 @@ namespace MS
                     }
 
                     std::list<uint64> m_SpawnedCreatures;
+                    bool m_SaidAggro = false;
                 };
             };
 
@@ -170,18 +206,25 @@ namespace MS
                 enum Spells
                 {
                     WitheringFlames = 150032,
-                    MoltenImpact    = 150045
+                    MoltenImpact    = 150045,
+                    SlagSmash       = 150023
                 };
 
                 enum Events
                 {
                     CastFlames  = 1,
-                    CastImpact  = 2
+                    CastImpact  = 2,
+                    CastSmash   = 3
                 };
 
-                enum NPCs
+                enum Yells
                 {
-                    ForgemasterGogduh   = 74366
+                    Aggro       = 0,
+                    Release     = 1,
+                    SlagSmash   = 2,
+                    Elemental   = 3,
+                    Kill        = 4,
+                    Death       = 5
                 };
 
                 CreatureAI* GetAI(Creature* creature) const
@@ -203,6 +246,7 @@ namespace MS
 
                     void DoAction(const int32 p_Action)
                     {
+                        Talk((uint8)Yells::Release);
                         me->SetControlled(false, UNIT_STATE_ROOT);
                         me->GetMotionMaster()->MovePoint(1, 2082.f, 116.f, 225.f);
                     }
@@ -214,7 +258,7 @@ namespace MS
                         me->SetReactState(REACT_PASSIVE);
                         _JustReachedHome();
 
-                        if (Creature* p_Gogduh = me->FindNearestCreature((uint32)NPCs::ForgemasterGogduh, VISIBLE_RANGE, false))
+                        if (Creature* p_Gogduh = me->FindNearestCreature((uint32)boss_forgemaster_gogduh::NPCs::ForgemasterGogduh, VISIBLE_RANGE, false))
                         {
                             p_Gogduh->Respawn(true);
                             p_Gogduh->GetMotionMaster()->MoveTargetedHome();
@@ -226,9 +270,16 @@ namespace MS
                             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                         }
                     }
-                    
-                    void JustDied(Unit* /*killer*/)
+
+                    void KilledUnit(Unit* /*p_Victim*/)
                     {
+                        Talk((uint8)Yells::Kill);
+                    }
+
+                    void JustDied(Unit* /*p_Killer*/)
+                    {
+                        Talk((uint8)Yells::Death);
+
                         if (instance)
                             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
@@ -252,6 +303,25 @@ namespace MS
                         }
                     }
 
+                    void NextEvent()
+                    {
+                        switch (urand(0, 2))
+                        {
+                            case 0:
+                                events.ScheduleEvent(uint32(Events::CastFlames), 5000);
+                                break;
+                            case 1:
+                                events.ScheduleEvent(uint32(Events::CastImpact), 5000);
+                                break;
+                            case 2:
+                                events.ScheduleEvent(uint32(Events::CastSmash), 5000);
+                                break;
+                            default:
+                                break;
+                                
+                        }
+                    }
+
                     void UpdateAI(const uint32 diff)
                     {
                         if (!UpdateVictim())
@@ -265,14 +335,28 @@ namespace MS
                         switch ((Events)events.ExecuteEvent())
                         {
                             case Events::CastFlames:
+                            {
                                 DoCast(me, (uint32)Spells::WitheringFlames, false);
-                                events.ScheduleEvent(uint32(urand(0, 1) ? Events::CastFlames : Events::CastImpact), 5000);
+                                NextEvent();
                                 break;
+                            }
                             case Events::CastImpact:
+                            {
+                                Talk((uint8)Yells::Elemental);
+
                                 if (Unit* l_Target = me->SelectNearbyTarget(nullptr, VISIBLE_RANGE))
                                     me->CastSpell(l_Target->GetPositionX(), l_Target->GetPositionY(), l_Target->GetPositionZ(), (uint32)Spells::MoltenImpact, false);
-                                events.ScheduleEvent(uint32(urand(0, 1) ? Events::CastFlames : Events::CastImpact), 5000);
+
+                                NextEvent();
                                 break;
+                            }
+                            case Events::CastSmash:
+                            {
+                                Talk((uint8)Yells::SlagSmash);
+                                DoCastAOE((uint32)Spells::SlagSmash);
+                                NextEvent();
+                                break;
+                            }
                             default:
                                 break;
                         }
@@ -321,6 +405,13 @@ namespace MS
                     void DoCast(Unit* p_UnitTarget, Spells p_SpellId, bool p_Triggered)
                     {
                         me->CastSpell(p_UnitTarget, (uint32)p_SpellId, p_Triggered);
+                    }
+
+                    void JustDied(Unit* /* p_Killer */)
+                    {
+                        if (Creature* l_Boss = me->FindNearestCreature((uint32)boss_forgemaster_gogduh::NPCs::ForgemasterGogduh, VISIBLE_RANGE))
+                            if (CreatureAI* l_AI = CAST_AI(CreatureAI, l_Boss->GetAI()))
+                                l_AI->Talk((uint8)boss_forgemaster_gogduh::Yells::RuinationDeath);
                     }
 
                     void UpdateAI(const uint32 diff)
@@ -389,6 +480,13 @@ namespace MS
                         events.Reset();
                         events.ScheduleEvent((uint32)Events::CastSpell, 12000);
                         events.ScheduleEvent((uint32)Events::CastScorch, 3000);
+                    }
+
+                    void JustDied(Unit* /* p_Killer */)
+                    {
+                        if (Creature* l_Boss = me->FindNearestCreature((uint32)boss_forgemaster_gogduh::NPCs::ForgemasterGogduh, VISIBLE_RANGE))
+                            if (CreatureAI* l_AI = CAST_AI(CreatureAI, l_Boss->GetAI()))
+                                l_AI->Talk((uint8)boss_forgemaster_gogduh::Yells::CalamityDeath);
                     }
 
                     void UpdateAI(const uint32 diff)
