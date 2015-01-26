@@ -55,13 +55,13 @@ enum Opcodes
     #pragma region JamDispatch
         /// Base opcodes
         SMSG_AUTH_RESPONSE                          = 0x0B61, ///< 6.1.0 19508
-        SMSG_CACHE_VERSION                          = 0x0000, ///<
-        SMSG_ADDON_INFO                             = 0x0000, ///<
+        SMSG_CACHE_VERSION                          = 0x198A, ///< 6.1.0 19508
+        SMSG_ADDON_INFO                             = 0x199B, ///< 6.1.0 19508
         SMSG_FEATURE_SYSTEM_STATUS                  = 0x0000, ///<
-        SMSG_SET_TIME_ZONE_INFORMATION              = 0x0000, ///<
+        SMSG_SET_TIME_ZONE_INFORMATION              = 0x15B4, ///< 6.1.0 19508
         SMSG_LOGIN_VERIFY_WORLD                     = 0x0000, ///<
         SMSG_NEW_WORLD                              = 0x0000, ///<
-        SMSG_LOGIN_SET_TIME_SPEED                   = 0x0000, ///<
+        SMSG_LOGIN_SET_TIME_SPEED                   = 0x1309, ///< 6.1.0 19508
         SMSG_HOTFIX_NOTIFY_BLOB                     = 0x0000, ///<
         SMSG_HOTFIX_NOTIFY                          = 0x0000, ///<
         SMSG_WORLD_SERVER_INFO                      = 0x0000, ///<
@@ -70,13 +70,13 @@ enum Opcodes
         SMSG_UITIME                                 = 0x0000, ///<
 
         /// Query
-        SMSG_DB_REPLY                               = 0x0000, ///<
-        SMSG_CREATURE_QUERY_RESPONSE                = 0x0000, ///<
-        SMSG_NPC_TEXT_UPDATE                        = 0x0000, ///<
-        SMSG_NAME_QUERY_RESPONSE                    = 0x0000, ///<
-        SMSG_REALM_QUERY_RESPONSE                   = 0x0000, ///<
-        SMSG_GAMEOBJECT_QUERY_RESPONSE              = 0x0000, ///<
-        SMSG_QUERY_TIME_RESPONSE                    = 0x0000, ///<
+        SMSG_DB_REPLY                               = 0x097C, ///< 6.1.0 19508
+        SMSG_CREATURE_QUERY_RESPONSE                = 0x0DC2, ///< 6.1.0 19508
+        SMSG_NPC_TEXT_UPDATE                        = 0x0A31, ///< 6.1.0 19508
+        SMSG_NAME_QUERY_RESPONSE                    = 0x11A9, ///< 6.1.0 19508
+        SMSG_REALM_QUERY_RESPONSE                   = 0x1D22, ///< 6.1.0 19508
+        SMSG_GAMEOBJECT_QUERY_RESPONSE              = 0x1559, ///< 6.1.0 19508
+        SMSG_QUERY_TIME_RESPONSE                    = 0x13B1, ///< 6.1.0 19508
 
         /// Misc
         SMSG_UPDATE_ACTION_BUTTONS                  = 0x0000, ///<
@@ -205,9 +205,9 @@ enum Opcodes
         SMSG_SET_FORCED_REACTIONS                   = 0x0000, ///<
 
         /// Interaction
-        SMSG_LOGOUT_RESPONSE                        = 0x0000, ///<
-        SMSG_LOGOUT_CANCEL_ACK                      = 0x0000, ///<
-        SMSG_LOGOUT_COMPLETE                        = 0x0000, ///<
+        SMSG_LOGOUT_RESPONSE                        = 0x05C3, ///< 6.1.0 19508
+        SMSG_LOGOUT_CANCEL_ACK                      = 0x1D8A, ///< 6.1.0 19508
+        SMSG_LOGOUT_COMPLETE                        = 0x17AA, ///< 6.1.0 19508
         SMSG_GOSSIP_POI                             = 0x0000, ///<
 
         /// World Object management
@@ -216,16 +216,16 @@ enum Opcodes
 
         /// Character list
         SMSG_ENUM_CHARACTERS_RESULT                 = 0x13F2, ///< 6.1.0 19508
-        SMSG_CREATE_CHAR                            = 0x0000, ///<
-        SMSG_CHAR_DELETE                            = 0x0000, ///<
+        SMSG_CREATE_CHAR                            = 0x17BB, ///< 6.1.0 19508
+        SMSG_CHAR_DELETE                            = 0x13E4, ///< 6.1.0 19508
         SMSG_SET_PLAYER_DECLINED_NAMES_RESULT       = 0x0000, ///<
         SMSG_CHAR_FACTION_CHANGE                    = 0x0000, ///<
         SMSG_CHAR_RENAME                            = 0x0000, ///<
 
         /// Account data
-        SMSG_ACCOUNT_DATA_TIMES                     = 0x0000, ///<
-        SMSG_UPDATE_ACCOUNT_DATA                    = 0x0000, ///<
-        SMSG_TUTORIAL_FLAGS                         = 0x0000, ///<
+        SMSG_ACCOUNT_DATA_TIMES                     = 0x093B, ///< 6.1.0 19508
+        SMSG_UPDATE_ACCOUNT_DATA                    = 0x087B, ///< 6.1.0 19508
+        SMSG_TUTORIAL_FLAGS                         = 0x11B9, ///< 6.1.0 19508
 
         /// Combat
         SMSG_ATTACKER_STATE_UPDATE                  = 0x0000, ///<
@@ -775,10 +775,10 @@ enum Opcodes
         SMSG_SPELL_CHANNEL_UPDATE                   = 0x0000, ///<
         SMSG_SPELL_DAMAGE_SHIELD                    = 0x0000,
         SMSG_SPELL_DELAYED                          = 0x0000, ///<
-        SMSG_SPELL_GO                               = 0x0000, ///<
+        SMSG_SPELL_GO                               = 0x1281, ///< 6.1.0 19508
         SMSG_SPELL_MULTISTRIKE_EFFECT               = 0x0000, ///< (unused)
         SMSG_SPELL_OR_DAMAGE_IMMUNE                 = 0x0000,
-        SMSG_SPELL_START                            = 0x0000, ///<
+        SMSG_SPELL_START                            = 0x0629, ///< 6.1.0 19508
         SMSG_SPELL_UPDATE_CHAIN_TARGETS             = 0x0000, ///< (unused)
 
         /// Logging
@@ -979,8 +979,8 @@ enum Opcodes
     /// Character
     //////////////////////////////////////////////////////////////////////////
     CMSG_ENUM_CHARACTERS                        = 0x19E3, ///< 6.1.0 19508
-    CMSG_CREATE_CHARACTER                       = 0x0000, ///<
-    CMSG_CHAR_DELETE                            = 0x0000, ///<
+    CMSG_CREATE_CHARACTER                       = 0x133A, ///< 6.1.0 19508
+    CMSG_CHAR_DELETE                            = 0x1774, ///< 6.1.0 19508
     CMSG_REORDER_CHARACTERS                     = 0x0000, ///<
     CMSG_PLAYER_LOGIN                           = 0x1D31, ///< 6.1.0 19508
     CMSG_VIOLENCE_LEVEL                         = 0x0000, ///<
@@ -1073,7 +1073,7 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Spell
     //////////////////////////////////////////////////////////////////////////
-    CMSG_CAST_SPELL                             = 0x0000, ///<
+    CMSG_CAST_SPELL                             = 0x0A5A, ///< 6.1.0 19508
     CMSG_CANCEL_CAST                            = 0x0000, ///<
     CMSG_USE_ITEM                               = 0x0000, ///<
     CMSG_CANCEL_AURA                            = 0x0000, ///<
@@ -1087,13 +1087,13 @@ enum Opcodes
     /// Cache
     //////////////////////////////////////////////////////////////////////////
     CMSG_REQUEST_HOTFIX                         = 0x0000, ///<
-    CMSG_CREATURE_QUERY                         = 0x0000, ///<
-    CMSG_NPC_TEXT_QUERY                         = 0x0000, ///<
-    CMSG_NAME_QUERY                             = 0x0000, ///<
-    CMSG_QUEST_QUERY                            = 0x0000, ///<
+    CMSG_CREATURE_QUERY                         = 0x007C, ///< 6.1.0 19508
+    CMSG_NPC_TEXT_QUERY                         = 0x0E44, ///< 6.1.0 19508
+    CMSG_NAME_QUERY                             = 0x15A2, ///< 6.1.0 19508
+    CMSG_QUEST_QUERY                            = 0x005A, ///< 6.1.0 19508
     CMSG_QUEST_POI_QUERY                        = 0x0000, ///<
-    CMSG_REALM_NAME_QUERY                       = 0x0000, ///<
-    CMSG_GAMEOBJECT_QUERY                       = 0x0000, ///<
+    CMSG_REALM_NAME_QUERY                       = 0x17BC, ///< 6.1.0 19508
+    CMSG_GAMEOBJECT_QUERY                       = 0x021A, ///< 6.1.0 19508
     CMSG_PETITION_QUERY                         = 0x0000, ///<
     CMSG_QUERY_GUILD_INFO                       = 0x0000, ///<
     CMSG_PAGE_TEXT_QUERY                        = 0x0000, ///<
@@ -1102,8 +1102,8 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Interaction
     //////////////////////////////////////////////////////////////////////////
-    CMSG_LOGOUT_REQUEST                         = 0x0000, ///<
-    CMSG_LOGOUT_CANCEL                          = 0x0000, ///<
+    CMSG_LOGOUT_REQUEST                         = 0x0824, ///< 6.1.0 19508
+    CMSG_LOGOUT_CANCEL                          = 0x0DC1, ///< 6.1.0 19508
     CMSG_SET_ACTION_BUTTON                      = 0x0000, ///<
     CMSG_SET_ACTIONBAR_TOGGLES                  = 0x0000, ///<
     CMSG_SET_SELECTION                          = 0x0000, ///<
