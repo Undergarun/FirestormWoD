@@ -112,7 +112,8 @@ enum MageSpells
     SPELL_MAGE_ENHANCED_FROSTBOLT                = 157646,
     SPELL_MAGE_ENHANCED_FROSTBOLT_PROC           = 157648,
     SPELL_MAGE_FLAMEGLOW                         = 140468,
-    SPELL_MAGE_RAPID_TELEPORTATION               = 46989
+    SPELL_MAGE_RAPID_TELEPORTATION               = 46989,
+    SPELL_MAGE_RAPID_TELEPORTATION_AURA          = 89749
 };
 
 
@@ -1906,10 +1907,8 @@ public:
 
     void OnTeleport(Player* p_Player, const SpellInfo * p_SpellInfo)
     {
-        sLog->outError(LOG_FILTER_GENERAL, "LE SORT A LE FAMILY %d", p_SpellInfo->SpellFamilyName);
-        if (p_Player->getClass() == CLASS_MAGE &&  p_SpellInfo->SpellFamilyName == SPELLFAMILY_MAGE && p_Player->HasAura(89749))
+        if (p_Player->getClass() == CLASS_MAGE &&  p_SpellInfo->SpellFamilyName == SPELLFAMILY_MAGE && p_Player->HasAura(SPELL_MAGE_RAPID_TELEPORTATION_AURA))
         {
-            sLog->outError(LOG_FILTER_GENERAL, "LE SORT est cast");
             p_Player->CastSpell(p_Player, SPELL_MAGE_RAPID_TELEPORTATION, true);
         }
     }
