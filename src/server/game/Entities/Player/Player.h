@@ -549,6 +549,8 @@ enum PlayerFlagsEx
 #define KNOWN_TITLES_SIZE   10
 #define MAX_TITLE_INDEX     (KNOWN_TITLES_SIZE*64)          // 5 uint64 fields
 
+#define ECLIPSE_FULL_CYCLE_DURATION 40
+
 // used in PLAYER_FIELD_BYTES values
 enum PlayerFieldByteFlags
 {
@@ -2921,8 +2923,6 @@ class Player : public Unit, public GridObject<Player>
 
         WorldLocation GetStartPosition() const;
 
-        uint32 m_lastEclipseState;
-
         // current pet slot
         PetSlot m_currentPetSlot;
         uint32 m_petSlotUsed;
@@ -3373,6 +3373,16 @@ class Player : public Unit, public GridObject<Player>
             m_CriticalOperationLock.release();
         }
 
+        //////////////////////////////////////////////////////////////////////////
+        /// Eclipse System
+        bool IsEclipseCyclesActive() const { return m_EclipseCycleActive; }
+        void SetEclipseCyclesState(bool p_State) { m_EclipseCycleActive = p_State; }
+        IntervalTimer& GetEclipseTimer() { return m_EclipseTimer; }
+        uint8 GetLastEclipseState() const { return m_LastEclipseState; }
+        void SetLastEclipseState(uint8 p_EclipseState) { m_LastEclipseState = p_EclipseState; }
+        bool HasEclipseSideAvantage(uint8 p_EclipseState) const;
+        //////////////////////////////////////////////////////////////////////////
+
     protected:
         void OnEnterPvPCombat();
         void OnLeavePvPCombat();
@@ -3400,6 +3410,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_burningEmbersRegenTimerCount;
         uint32 m_soulShardsRegenTimerCount;
         uint32 m_focusRegenTimerCount;
+        uint32 m_EclipseRegenTimer;
         uint32 m_demonicFuryPowerRegenTimerCount;
         float m_powerFraction[MAX_POWERS_PER_CLASS];
         uint32 m_contestedPvPTimer;
@@ -3830,6 +3841,13 @@ class Player : public Unit, public GridObject<Player>
 
         uint32 m_PvPCombatTimer;
         bool m_pvpCombat;
+
+        /*********************************************************/
+        /***                  ECLIPSE SYSTEM                   ***/
+        /*********************************************************/
+        bool m_EclipseCycleActive;
+        IntervalTimer m_EclipseTimer;
+        uint8 m_LastEclipseState;
 };
 
 void AddItemsSetItem(Player*player, Item* item);
