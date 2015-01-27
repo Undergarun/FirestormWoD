@@ -1676,6 +1676,14 @@ void ScriptMgr::OnPlayerDuelEnd(Player * p_Winner, Player * p_Looser, DuelComple
     FOREACH_SCRIPT(PlayerScript)->OnDuelEnd(p_Winner, p_Looser, p_CompletionType);
 }
 
+/// Called when the player get Teleport
+/// @p_Player : Player
+/// @p_SpellID : SpellID
+void ScriptMgr::OnTeleport(Player * p_Player, const SpellInfo *p_SpellInfo)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnTeleport(p_Player, p_SpellInfo);
+}
+
 /// The following methods are called when a player sends a chat message. (World)
 /// @p_Player  : Player instance
 /// @p_Type    : Message type

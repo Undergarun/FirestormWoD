@@ -250,6 +250,7 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_Player1);
             UNUSED(p_Player2);
         }
+        
         /// Called when a duel ends
         /// @p_Winner         : Duel winner
         /// @p_Looser         : Duel looser
@@ -261,6 +262,15 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_CompletionType);
         }
 
+        /// Called when a player get teleport by a player
+        /// @p_Player : Player
+        /// @p_SpellID : SpellID
+        virtual void OnTeleport(Player * p_Player, const SpellInfo *p_SpellInfo)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_SpellInfo);
+        }
+        
         /// The following methods are called when a player sends a chat message. (World)
         /// @p_Player  : Player instance
         /// @p_Type    : Message type

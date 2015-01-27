@@ -110,7 +110,9 @@ enum MageSpells
     SPELL_MAGE_IMPROVED_BLIZZARD                 = 157727,
     SPELL_MAGE_FORZEN_ORB                        = 84714,
     SPELL_MAGE_ENHANCED_FROSTBOLT                = 157646,
-    SPELL_MAGE_ENHANCED_FROSTBOLT_PROC           = 157648
+    SPELL_MAGE_ENHANCED_FROSTBOLT_PROC           = 157648,
+    SPELL_MAGE_FLAMEGLOW                         = 140468,
+    SPELL_MAGE_RAPID_TELEPORTATION               = 46989
 };
 
 
@@ -1879,7 +1881,8 @@ public:
 
         {
             if (Unit *l_Caster = GetCaster())
-                p_AurEff->SetAmount(p_AbsorbAmount + ((l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * GetSpellInfo()->Effects[EFFECT_1].BasePoints) / 100));
+                if (l_Caster->HasSpell(SPELL_MAGE_FLAMEGLOW))
+                    p_AurEff->SetAmount(p_AbsorbAmount + ((l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * GetSpellInfo()->Effects[EFFECT_1].BasePoints) / 100));
         }
 
 
@@ -1896,6 +1899,21 @@ public:
     }
 };
 
+class PlayerScript_rapid_teleportation : public PlayerScript
+{
+public:
+    PlayerScript_rapid_teleportation() :PlayerScript("PlayerScript_rapid_teleportation") {}
+
+    void OnTeleport(Player* p_Player, const SpellInfo * p_SpellInfo)
+    {
+        sLog->outError(LOG_FILTER_GENERAL, "LE SORT A LE FAMILY %d", p_SpellInfo->SpellFamilyName);
+        if (p_Player->getClass() == CLASS_MAGE &&  p_SpellInfo->SpellFamilyName == SPELLFAMILY_MAGE && p_Player->HasAura(89749))
+        {
+            sLog->outError(LOG_FILTER_GENERAL, "LE SORT est cast");
+            p_Player->CastSpell(p_Player, SPELL_MAGE_RAPID_TELEPORTATION, true);
+        }
+    }
+};
 
 void AddSC_mage_spell_scripts()
 {
@@ -1940,4 +1958,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_living_bomb();
     new spell_mage_mirror_image_summon();
     new spell_mage_ice_barrier();
+
+    // Player Script
+    new PlayerScript_rapid_teleportation();
 }

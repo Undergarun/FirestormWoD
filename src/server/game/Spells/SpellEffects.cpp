@@ -1490,6 +1490,10 @@ void Spell::EffectTeleportUnits(SpellEffIndex /*effIndex*/)
     if (!unitTarget || unitTarget->isInFlight())
         return;
 
+    if (unitTarget->GetTypeId() == TYPEID_PLAYER && m_caster->GetTypeId() == TYPEID_PLAYER)
+        if (Player* l_Target = unitTarget->ToPlayer())
+            sScriptMgr->OnTeleport(l_Target, m_spellInfo);
+
     // Pre effects
     uint8 uiMaxSafeLevel = 0;
     switch (m_spellInfo->Id)
