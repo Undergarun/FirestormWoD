@@ -1455,7 +1455,12 @@ namespace MS { namespace Garrison
         m_Owner->ModifyMoney(m_PendingMissionReward.RewardGold);
 
         for (auto l_Currency : m_PendingMissionReward.RewardCurrencies)
-            m_Owner->ModifyCurrency(l_Currency.first, l_Currency.second);
+        {
+            const CurrencyTypesEntry * l_Currency = sCurrencyTypesStore.LookupEntry(l_Currency.first);
+
+            if (l_Currency)
+                m_Owner->ModifyCurrency(l_Currency.first, l_Currency.second * l_Currency->GetPrecision());
+        }
 
         for (auto l_Item : m_PendingMissionReward.RewardItems)
         {
