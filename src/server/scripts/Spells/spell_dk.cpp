@@ -799,41 +799,40 @@ class spell_dk_death_strike: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetHitUnit();
+                if (!l_Player && !l_Target)
+                    return;
+
+                l_Player->CastSpell(l_Player, DK_SPELL_DEATH_STRIKE_HEAL, true);
+
+                // Apply Blood Rites effects
+                if (l_Player->HasAura(DK_SPELL_BLOOD_RITES))
                 {
-                    if (Unit* l_Target = GetHitUnit())
+                    bool l_RuneFrost = false;
+                    bool l_RuneUnholy = false;
+
+                    for (uint8 i = 0; i < MAX_RUNES; ++i)
                     {
-                        l_Player->CastSpell(l_Player, DK_SPELL_DEATH_STRIKE_HEAL, true);
+                        if (l_Player->GetCurrentRune(i) == RUNE_DEATH
+                            || l_Player->GetCurrentRune(i) == RUNE_BLOOD
+                            || l_Player->GetBaseRune(i) == RUNE_BLOOD)
+                            continue;
 
-                        // Apply Blood Rites effects
-                        if (l_Player->HasAura(DK_SPELL_BLOOD_RITES))
+                        if (l_RuneUnholy && l_Player->GetCurrentRune(i) == RUNE_UNHOLY)
+                            continue;
+
+                        if (l_RuneFrost && l_Player->GetCurrentRune(i) == RUNE_FROST)
+                            continue;
+
+                        if (l_Player->GetRuneCooldown(i))
                         {
-                            bool l_RuneFrost = false;
-                            bool l_RuneUnholy = false;
+                            if (l_Player->GetCurrentRune(i) == RUNE_FROST)
+                                l_RuneFrost = true;
+                            else
+                                l_RuneUnholy = true;
 
-                            for (uint8 i = 0; i < MAX_RUNES; ++i)
-                            {
-                                if (l_Player->GetCurrentRune(i) == RUNE_DEATH
-                                    || l_Player->GetCurrentRune(i) == RUNE_BLOOD
-                                    || l_Player->GetBaseRune(i) == RUNE_BLOOD)
-                                    continue;
-
-                                if (l_RuneUnholy && l_Player->GetCurrentRune(i) == RUNE_UNHOLY)
-                                    continue;
-
-                                if (l_RuneFrost && l_Player->GetCurrentRune(i) == RUNE_FROST)
-                                    continue;
-
-                                if (l_Player->GetRuneCooldown(i))
-                                {
-                                    if (l_Player->GetCurrentRune(i) == RUNE_FROST)
-                                        l_RuneFrost = true;
-                                    else
-                                        l_RuneUnholy = true;
-
-                                    l_Player->ConvertRune(i, RUNE_DEATH);
-                                }
-                            }
+                            l_Player->ConvertRune(i, RUNE_DEATH);
                         }
                     }
                 }

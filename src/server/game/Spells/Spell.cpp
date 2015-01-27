@@ -5737,12 +5737,6 @@ void Spell::TakeRunePower(bool didHit)
                     player->AddRuneBySpell(i, RUNE_DEATH, 56835);
                 break;
             }
-            case 49998: // Death Strike
-            {
-                // Blood Rites
-                player->AddRuneBySpell(i, RUNE_DEATH, 50034);
-                break;
-            }
             default:
                 break;
         }
@@ -5789,12 +5783,6 @@ void Spell::TakeRunePower(bool didHit)
                         // Reaping
                         if (player->HasAura(56835))
                             player->AddRuneBySpell(i, RUNE_DEATH, 56835);
-                        break;
-                    }
-                    case 49998: // Death Strike
-                    {
-                        // Blood Rites
-                        player->AddRuneBySpell(i, RUNE_DEATH, 50034);
                         break;
                     }
                     default:
