@@ -367,9 +367,13 @@ class spell_mage_arcane_missile: public SpellScriptLoader
             void HandleOnCast()
             {
                 if (Unit* l_Caster = GetCaster())
-                    if (l_Caster->HasSpell(SPELL_MAGE_OVERPOWERED) && sSpellMgr->GetSpellInfo(SPELL_MAGE_OVERPOWERED) != nullptr)
+                {
+                    const SpellInfo *l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_OVERPOWERED);
+
+                    if (l_Caster->HasSpell(SPELL_MAGE_OVERPOWERED) && l_SpellInfo != nullptr)
                         if (AuraPtr l_Aura = l_Caster->GetAura(SPELL_MAGE_ARCANE_POWER, l_Caster->GetGUID()))
-                            l_Aura->SetDuration(l_Aura->GetDuration() + sSpellMgr->GetSpellInfo(SPELL_MAGE_OVERPOWERED)->Effects[EFFECT_0].BasePoints * IN_MILLISECONDS);
+                            l_Aura->SetDuration(l_Aura->GetDuration() + l_SpellInfo->Effects[EFFECT_0].BasePoints * IN_MILLISECONDS);
+                }
             }
 
             void Register()
@@ -1789,9 +1793,6 @@ public:
         {
             Unit *l_Caster = GetCaster();
 
-            if (l_Caster == nullptr)
-                return;
-
             Player *l_Player = l_Caster->ToPlayer();
             const SpellInfo *l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_IMPROVED_BLIZZARD);
 
@@ -1837,14 +1838,10 @@ public:
                 {
                     if (AuraPtr l_IncantersFlow = l_Caster->GetAura(SPELL_MAGE_INCANTERS_FLOW))
                     {
-                        if (m_Up)
-                            l_IncantersFlow->SetStackAmount(l_IncantersFlow->GetStackAmount() + 1);
-                        else
-                            l_IncantersFlow->SetStackAmount(l_IncantersFlow->GetStackAmount() - 1);
-
+                        l_IncantersFlow->ModStackAmount(m_Up ? 1 : -1);
                         if (l_IncantersFlow->GetStackAmount() == 5)
                             m_Up = false;
-                        if (l_IncantersFlow->GetStackAmount() == 1)
+                        else if (l_IncantersFlow->GetStackAmount() == 1)
                             m_Up = true;
                     }
                 }
