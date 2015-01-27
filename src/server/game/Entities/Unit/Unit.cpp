@@ -14032,7 +14032,8 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy, bool isControlled)
                 player->SetInPvPCombat(true);
         }
 
-        sScriptMgr->OnPlayerEnterInCombat(player);
+        if (!isInCombat())
+            sScriptMgr->OnPlayerEnterInCombat(player);
     }
 
     if (GetTypeId() == TYPEID_PLAYER && !ToPlayer()->IsInWorgenForm() && ToPlayer()->CanSwitch())
