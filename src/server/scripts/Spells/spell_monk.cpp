@@ -3385,6 +3385,11 @@ class spell_monk_provoke: public SpellScriptLoader
         }
 };
 
+enum ParalysisSpells
+{
+    SPELL_MONK_GLYPH_OF_PARALYSIS = 125755
+};
+
 // Paralysis - 115078
 class spell_monk_paralysis: public SpellScriptLoader
 {
@@ -3397,37 +3402,10 @@ class spell_monk_paralysis: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (target->isInBack(caster))
-                        {
-                            if (AuraApplication* aura = target->GetAuraApplication(115078))
-                            {
-                                AuraPtr Paralysis = aura->GetBase();
-                                int32 maxDuration = Paralysis->GetMaxDuration();
-                                int32 newDuration = maxDuration * 2;
-                                Paralysis->SetDuration(newDuration);
-
-                                if (newDuration > maxDuration)
-                                    Paralysis->SetMaxDuration(newDuration);
-                            }
-                        }
-
-                        if (target->ToPlayer())
-                        {
-                            if (AuraApplication* aura = target->GetAuraApplication(115078))
-                            {
-                                AuraPtr Paralysis = aura->GetBase();
-                                int32 maxDuration = Paralysis->GetMaxDuration();
-                                int32 newDuration = maxDuration / 2;
-                                Paralysis->SetDuration(newDuration);
-                                Paralysis->SetMaxDuration(newDuration);
-                            }
-                        }
-                    }
-                }
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+                if (l_Caster->HasAura(SPELL_MONK_GLYPH_OF_PARALYSIS))
+                    l_Target->RemoveAllAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
             }
 
             void Register()
