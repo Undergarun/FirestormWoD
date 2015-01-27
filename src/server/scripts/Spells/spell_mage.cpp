@@ -649,35 +649,29 @@ class spell_mage_nether_tempest: public SpellScriptLoader
         {
             PrepareAuraScript(spell_mage_nether_tempest_AuraScript);
 
+            void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& /*p_Recalculate*/)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    const SpellInfo *l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_ARCANE_CHARGE);
+
+                    if (l_Caster->HasAura(SPELL_MAGE_ARCANE_CHARGE) && l_SpellInfo != nullptr)
+                        if (AuraPtr l_ArcaneCharge = l_Caster->GetAura(SPELL_MAGE_ARCANE_CHARGE))
+                            p_Amount += CalculatePct(p_Amount, l_SpellInfo->Effects[EFFECT_0].BasePoints) * l_ArcaneCharge->GetStackAmount();
+                }
+            }
+
             void OnTick(constAuraEffectPtr aurEff)
             {
-                if (GetCaster())
-                {
-                    if (Player* _player = GetCaster()->ToPlayer())
-                    {
-                        std::list<Unit*> targetList;
-
-                        GetTarget()->GetAttackableUnitListInRange(targetList, 10.0f);
-                        targetList.remove_if(CheckNetherImpactPredicate(_player, GetTarget()));
-
-                        JadeCore::Containers::RandomResizeList(targetList, 1);
-
-                        for (auto itr : targetList)
-                        {
-                            GetCaster()->CastSpell(itr, SPELL_MAGE_NETHER_TEMPEST_DIRECT_DAMAGE, true);
-                            GetTarget()->CastSpell(itr, SPELL_MAGE_NETHER_TEMPEST_MISSILE, true);
-                        }
-
-                        if (GetCaster()->HasAura(SPELL_MAGE_BRAIN_FREEZE))
-                            if (roll_chance_i(10))
-                                GetCaster()->CastSpell(GetCaster(), SPELL_MAGE_BRAIN_FREEZE_TRIGGERED, true);
-                    }
-                }
+                if (Unit* l_Caster = GetCaster())
+                    if (Unit *l_Target = GetTarget())
+                        l_Caster->CastSpell(l_Target, SPELL_MAGE_NETHER_TEMPEST_DIRECT_DAMAGE, true);
             }
 
             void Register()
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_mage_nether_tempest_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_nether_tempest_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
             }
         };
 
