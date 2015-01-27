@@ -1859,9 +1859,47 @@ public:
     }
 };
 
+// Flameglow - 140468
+class spell_mage_flameglow : public SpellScriptLoader
+{
+public:
+    spell_mage_flameglow() : SpellScriptLoader("spell_mage_flameglow") { }
+
+    class spell_mage_flameglow_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_mage_flameglow_AuraScript);
+
+        void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& p_Amount, bool& /*canBeRecalculated*/)
+        {
+            if (Unit *l_Caster = GetCaster())
+                p_Amount = (l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * GetSpellInfo()->Effects[EFFECT_1].BasePoints) / 100;
+        }
+
+        void AfterAbsorb(AuraEffectPtr p_AurEff, DamageInfo & /*p_DmgInfo*/, uint32 & p_AbsorbAmount)
+
+        {
+            if (Unit *l_Caster = GetCaster())
+                p_AurEff->SetAmount(p_AbsorbAmount + ((l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * GetSpellInfo()->Effects[EFFECT_1].BasePoints) / 100));
+        }
+
+
+        void Register()
+        {
+            AfterEffectAbsorb += AuraEffectAbsorbFn(spell_mage_flameglow_AuraScript::AfterAbsorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_flameglow_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_mage_flameglow_AuraScript();
+    }
+};
+
 
 void AddSC_mage_spell_scripts()
 {
+    new spell_mage_flameglow();
     new spell_mage_incanters_flow();
     new spell_mage_blizzard();
     new spell_mage_blink();
