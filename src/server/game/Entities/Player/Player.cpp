@@ -17606,6 +17606,10 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 p_Reward, bool msg)
                 case uint8(PackageItemRewardType::SpecializationReward):
                     if (!l_ItemTemplate->HasSpec((SpecIndex)GetSpecializationId(GetActiveSpec())))
                     {
+                        // Hard fix to apply dynamic rewards for low level quests
+                        if (quest->GetQuestLevel() < 10 && l_ItemTemplate->HasClassSpec(getClass()))
+                            break;
+
                         GetSession()->SendNotification(LANG_NO_SPE_FOR_DYNAMIC_REWARD);
                         return false;
                     }
@@ -17858,9 +17862,11 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
             switch (l_DynamicReward->Type)
             {
                 case uint8(PackageItemRewardType::SpecializationReward):
+                {
                     if (!l_ItemTemplate->HasSpec((SpecIndex)GetSpecializationId(GetActiveSpec())))
                         continue;
                     break;
+                }
                 case uint8(PackageItemRewardType::ClassReward):
                     if (!l_ItemTemplate->HasClassSpec(getClass()))
                         continue;
