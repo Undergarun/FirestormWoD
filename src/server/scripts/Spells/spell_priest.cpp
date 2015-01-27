@@ -744,7 +744,7 @@ class spell_pri_surge_of_light: public SpellScriptLoader
                             if (AuraPtr l_SurgeOfLight = l_Player->GetAura(PRIEST_SURGE_OF_LIGHT))
                             {
                                 if (l_SurgeOfLight->GetStackAmount() == 2)
-                                    l_SurgeOfLight->SetDuration(l_SurgeOfLight->GetMaxDuration);
+                                    l_SurgeOfLight->SetDuration(l_SurgeOfLight->GetMaxDuration());
                                 else
                                     l_Player->CastSpell(l_Player, PRIEST_SURGE_OF_LIGHT, true);
                             }
