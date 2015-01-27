@@ -4175,6 +4175,11 @@ public:
     }
 };
 
+enum DetoxSpells
+{
+    SPELL_MONK_GLYPH_OF_DETOX = 146954
+};
+
 // Detox - 115450
 class spell_monk_detox: public SpellScriptLoader
 {
@@ -4189,17 +4194,28 @@ public:
         {
             PreventHitDefaultEffect(effIndex);
 
-            if (!GetCaster())
-                return;
-
             Player* l_Player = GetCaster()->ToPlayer();
             if (l_Player && l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_MONK_MISTWEAVER)
                 return;
+
+            GetSpell()->EffectDispel(effIndex);
+        }
+
+        void HandleHeal(SpellEffIndex effIndex)
+        {
+            PreventHitDefaultEffect(effIndex);
+
+            Unit* l_Caster = GetCaster();
+            if (!l_Caster->HasAura(SPELL_MONK_GLYPH_OF_DETOX))
+                return;
+
+            GetSpell()->EffectHealPct(effIndex);
         }
 
         void Register()
         {
             OnEffectHitTarget += SpellEffectFn(spell_monk_detox_SpellScript::HandleDispel, EFFECT_2, SPELL_EFFECT_DISPEL);
+            OnEffectHitTarget += SpellEffectFn(spell_monk_detox_SpellScript::HandleHeal, EFFECT_3, SPELL_EFFECT_HEAL_MAX_HEALTH);
         }
     };
 
