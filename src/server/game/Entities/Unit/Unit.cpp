@@ -14066,8 +14066,12 @@ void Unit::ClearInCombat()
     }
     else
     {
-        ToPlayer()->UpdatePotionCooldown();
-        sScriptMgr->OnPlayerLeaveCombat(ToPlayer());
+        if (Player* l_Player = ToPlayer())
+        {
+            l_Player->UpdatePotionCooldown();
+            if (isInCombat())
+                sScriptMgr->OnPlayerLeaveCombat(l_Player);
+        }
     }
 
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
