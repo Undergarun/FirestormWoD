@@ -3248,35 +3248,15 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
     }
 
     // Get Data Needed for Diminishing Returns, some effects may have multiple auras, so this must be done on spell hit, not aura add
-    m_diminishGroup = GetDiminishingReturnsGroupForSpell(m_spellInfo, m_triggeredByAuraSpell);
+    m_diminishGroup = GetDiminishingReturnsGroupForSpell(m_spellInfo);
     if (m_diminishGroup)
     {
-        m_diminishLevel = DIMINISHING_LEVEL_1;
-        // Special handling for Deep Freeze & Ring of Frost diminishing
-        // Ring of Frost
-        if (m_spellInfo->Id == 82691)
-        {
-            m_diminishLevel = unit->GetDiminishing(DIMINISHING_RING_OF_FROST);
-            if (unit->GetCharmerOrOwnerPlayerOrPlayerItself())
-                unit->IncrDiminishing(DIMINISHING_RING_OF_FROST);
-        }
-        // Deep Freze
-        else if (m_spellInfo->Id == 44572)
-        {
-            m_diminishLevel = unit->GetDiminishing(DIMINISHING_DEEP_FREEZE);
-            if (unit->GetCharmerOrOwnerPlayerOrPlayerItself())
-                unit->IncrDiminishing(DIMINISHING_DEEP_FREEZE);
-        }
-        // Holy Wrath diminishing problem
-        else if (m_spellInfo->Id == 2812)
-        {
-            if ((effectMask & (1 << EFFECT_1)) == 0)
-                m_diminishGroup = DIMINISHING_NONE;
-        }
         m_diminishLevel = unit->GetDiminishing(m_diminishGroup);
         DiminishingReturnsType type = GetDiminishingReturnsGroupType(m_diminishGroup);
         // Increase Diminishing on unit, current informations for actually casts will use values above
-        if ((type == DRTYPE_PLAYER && (unit->GetCharmerOrOwnerPlayerOrPlayerItself() || (unit->GetTypeId() == TYPEID_UNIT && unit->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_ALL_DIMINISH))) || type == DRTYPE_ALL)
+        if ((type == DRTYPE_PLAYER &&
+             (unit->GetCharmerOrOwnerPlayerOrPlayerItself() || (unit->GetTypeId() == TYPEID_UNIT && unit->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_ALL_DIMINISH))) ||
+            type == DRTYPE_ALL)
             unit->IncrDiminishing(m_diminishGroup);
     }
 
@@ -3330,7 +3310,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
 
                 // Now Reduce spell duration using data received at spell hit
                 int32 duration = m_spellAura->GetMaxDuration();
-                int32 limitduration = GetDiminishingReturnsLimitDuration(m_diminishGroup, aurSpellInfo);
+                int32 limitduration = GetDiminishingReturnsLimitDuration(aurSpellInfo);
                 float diminishMod = unit->ApplyDiminishingToDuration(m_diminishGroup, duration, m_originalCaster, m_diminishLevel, limitduration);
 
                 // unit is immune to aura if it was diminished to 0 duration
