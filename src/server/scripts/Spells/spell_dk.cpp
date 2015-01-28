@@ -800,8 +800,7 @@ class spell_dk_death_strike: public SpellScriptLoader
             void HandleOnHit()
             {
                 Player* l_Player = GetCaster()->ToPlayer();
-                Unit* l_Target = GetHitUnit();
-                if (!l_Player && !l_Target)
+                if (!l_Player)
                     return;
 
                 l_Player->CastSpell(l_Player, DK_SPELL_DEATH_STRIKE_HEAL, true);

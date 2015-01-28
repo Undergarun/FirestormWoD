@@ -3404,7 +3404,7 @@ class spell_monk_paralysis: public SpellScriptLoader
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetHitUnit();
-                if (l_Caster->HasAura(SPELL_MONK_GLYPH_OF_PARALYSIS))
+                if (l_Target && l_Caster->HasAura(SPELL_MONK_GLYPH_OF_PARALYSIS))
                     l_Target->RemoveAllAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
             }
 
