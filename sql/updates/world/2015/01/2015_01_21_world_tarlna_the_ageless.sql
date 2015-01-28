@@ -2,9 +2,9 @@ DELETE FROM creature WHERE id = 81535;
 INSERT INTO creature (id, map, zoneId, areaId, spawnMask, phaseMask, equipment_id, position_x, position_y, position_z, orientation, spawntimesecs) VALUE
 (81535, 1116, 6721, 6914, 1, 1, 0, 4872.012, 1226.342, 121.3324, 3.470886, 604800);
 
-UPDATE creature_template SET unit_flags = unit_flags & ~0x200000, dmg_multiplier = 5, ScriptName = 'boss_tarlna_the_ageless', mechanic_immune_mask = 617299839 WHERE entry = 81535;
-UPDATE creature_template SET minlevel = 102, maxlevel = 102, faction = 2741, ScriptName = 'npc_untamed_mandragora' WHERE entry = 88150;
-UPDATE creature_template SET minlevel = 100, maxlevel = 100, faction = 2741, ScriptName = 'npc_giant_lasher' WHERE entry = 88142;
+UPDATE creature_template SET unit_flags = unit_flags & ~0x200000, dmg_multiplier = 15, ScriptName = 'boss_tarlna_the_ageless', mechanic_immune_mask = 617299839 WHERE entry = 81535;
+UPDATE creature_template SET minlevel = 102, maxlevel = 102, dmg_multiplier = 8, faction = 2741, ScriptName = 'npc_untamed_mandragora' WHERE entry = 88150;
+UPDATE creature_template SET minlevel = 100, maxlevel = 100, dmg_multiplier = 8, faction = 2741, ScriptName = 'npc_giant_lasher' WHERE entry = 88142;
 REPLACE INTO creature_model_info VALUE (57232, 3.1, 30, 0, 0);
 REPLACE INTO creature_model_info VALUE (55767, 3, 15, 0, 0);
 
