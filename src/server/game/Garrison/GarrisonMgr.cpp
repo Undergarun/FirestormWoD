@@ -1456,10 +1456,10 @@ namespace MS { namespace Garrison
 
         for (auto l_Currency : m_PendingMissionReward.RewardCurrencies)
         {
-            const CurrencyTypesEntry * l_Currency = sCurrencyTypesStore.LookupEntry(l_Currency.first);
+            const CurrencyTypesEntry * l_CurrencyEntry = sCurrencyTypesStore.LookupEntry(l_Currency.first);
 
-            if (l_Currency)
-                m_Owner->ModifyCurrency(l_Currency.first, l_Currency.second * l_Currency->GetPrecision());
+            if (l_CurrencyEntry)
+                m_Owner->ModifyCurrency(l_Currency.first, l_Currency.second * l_CurrencyEntry->GetPrecision());
         }
 
         for (auto l_Item : m_PendingMissionReward.RewardItems)
@@ -2321,7 +2321,7 @@ namespace MS { namespace Garrison
         if (GetGarrisonScript())
             l_BuildingTime = GetGarrisonScript()->OnPrePurchaseBuilding(m_Owner, p_BuildingRecID, l_BuildingTime);
 
-        l_Building.DatabaseID            = sObjectMgr->GetNewGarrisonBuildingID();
+        l_Building.DatabaseID       = sObjectMgr->GetNewGarrisonBuildingID();
         l_Building.BuildingID       = p_BuildingRecID;
         l_Building.PlotInstanceID   = p_PlotInstanceID;
         l_Building.TimeBuiltStart   = time(0);
