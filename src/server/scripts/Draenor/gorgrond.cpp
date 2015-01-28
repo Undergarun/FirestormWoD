@@ -287,6 +287,7 @@ class npc_giant_lasher : public CreatureScript
                 m_CheckPlayerTimer = 500;
 
                 me->SetReactState(ReactStates::REACT_PASSIVE);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
                 me->CastSpell(me, eSpells::SpellGenesisAura, true);
                 me->CastSpell(me, eSpells::SpellSubmerged, true);
             }
@@ -298,6 +299,7 @@ class npc_giant_lasher : public CreatureScript
                     m_CheckPlayerTimer = 0;
 
                     me->SetReactState(ReactStates::REACT_AGGRESSIVE);
+                    me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
                     me->RemoveAura(eSpells::SpellGenesisAura);
                     me->RemoveAura(eSpells::SpellSubmerged);
                 }
