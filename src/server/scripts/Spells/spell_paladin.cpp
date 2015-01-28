@@ -133,7 +133,9 @@ enum PaladinSpells
     PALADIN_SPELL_GLYPH_OF_DIVINE_SHIELD        = 146956,
     PALADIN_SPELL_IMPROVED_DAYBREAK             = 157455,
     PALADIN_SPELL_FLASH_OF_LIGHT                = 19750,
-    PALADIN_SPELL_HOLY_LIGHT                    = 13952
+    PALADIN_SPELL_HOLY_LIGHT                    = 13952,
+    PALADIN_NPC_LIGHTS_HAMMER                   = 59738,
+    PALADIN_SPELL_LIGHTS_HAMMER_TICK            = 114918
 };
 
 // Glyph of devotion aura - 146955
@@ -1023,37 +1025,83 @@ class spell_pal_execution_sentence: public SpellScriptLoader
 };
 
 // Light's Hammer (periodic dummy for npc) - 114918
-class spell_pal_lights_hammer: public SpellScriptLoader
+class spell_pal_lights_hammer_tick: public SpellScriptLoader
 {
     public:
-        spell_pal_lights_hammer() : SpellScriptLoader("spell_pal_lights_hammer") { }
+        spell_pal_lights_hammer_tick() : SpellScriptLoader("spell_pal_lights_hammer_tick") { }
 
-        class spell_pal_lights_hammer_AuraScript : public AuraScript
+        class spell_pal_lights_hammer_tick_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_pal_lights_hammer_AuraScript);
+            PrepareAuraScript(spell_pal_lights_hammer_tick_AuraScript);
 
-            void OnTick(constAuraEffectPtr aurEff)
+            void OnTick(constAuraEffectPtr /*aurEff*/)
             {
-                if (GetCaster())
+                if (Unit *l_Caster = GetCaster())
                 {
-                    if (GetCaster()->GetOwner())
+                    if (l_Caster->GetOwner())
                     {
-                        GetCaster()->CastSpell(GetCaster()->GetPositionX(), GetCaster()->GetPositionY(), GetCaster()->GetPositionZ(), PALADIN_SPELL_ARCING_LIGHT_HEAL, true, 0, NULLAURA_EFFECT, GetCaster()->GetOwner()->GetGUID());
-                        GetCaster()->CastSpell(GetCaster()->GetPositionX(), GetCaster()->GetPositionY(), GetCaster()->GetPositionZ(), PALADIN_SPELL_ARCING_LIGHT_DAMAGE, true, 0, NULLAURA_EFFECT, GetCaster()->GetOwner()->GetGUID());
+                        l_Caster->CastSpell(l_Caster->GetPositionX(), l_Caster->GetPositionY(), l_Caster->GetPositionZ(), PALADIN_SPELL_ARCING_LIGHT_HEAL, true, 0, NULLAURA_EFFECT, l_Caster->GetOwner()->GetGUID());
+                        l_Caster->CastSpell(l_Caster->GetPositionX(), l_Caster->GetPositionY(), l_Caster->GetPositionZ(), PALADIN_SPELL_ARCING_LIGHT_DAMAGE, true, 0, NULLAURA_EFFECT, l_Caster->GetOwner()->GetGUID());
                     }
                 }
             }
 
             void Register()
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_pal_lights_hammer_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_pal_lights_hammer_tick_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
         AuraScript* GetAuraScript() const
         {
-            return new spell_pal_lights_hammer_AuraScript();
+            return new spell_pal_lights_hammer_tick_AuraScript();
         }
+};
+
+class spell_pal_lights_hammer : public SpellScriptLoader
+{
+public:
+    spell_pal_lights_hammer() : SpellScriptLoader("spell_pal_lights_hammer") { }
+
+    class spell_pal_lights_hammer_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pal_lights_hammer_SpellScript);
+
+        void HandleAfterCast()
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                std::list<Creature*> l_TempList;
+                std::list<Creature*> l_LightsHammerlist;
+
+                l_Caster->GetCreatureListWithEntryInGrid(l_LightsHammerlist, PALADIN_NPC_LIGHTS_HAMMER, 500.0f);
+
+                l_TempList = l_LightsHammerlist;
+
+                for (std::list<Creature*>::iterator i = l_TempList.begin(); i != l_TempList.end(); ++i)
+                {
+                    Unit* l_Owner = (*i)->GetOwner();
+                    if (l_Owner != nullptr && l_Owner->GetGUID() == l_Caster->GetGUID() && (*i)->isSummon())
+                        continue;
+
+                    l_LightsHammerlist.remove((*i));
+                }
+
+                for (std::list<Creature*>::iterator itr = l_LightsHammerlist.begin(); itr != l_LightsHammerlist.end(); ++itr)
+                    (*itr)->CastSpell((*itr), PALADIN_SPELL_LIGHTS_HAMMER_TICK, true);
+            }
+        }
+
+        void Register()
+        {
+            AfterCast += SpellCastFn(spell_pal_lights_hammer_SpellScript::HandleAfterCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pal_lights_hammer_SpellScript();
+    }
 };
 
 // called by Holy Prism (damage) - 114852 or Holy Prism (heal) - 114871
@@ -2233,6 +2281,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_divine_shield();
     new spell_pal_execution_sentence_dispel();
     new spell_pal_execution_sentence();
+    new spell_pal_lights_hammer_tick();
     new spell_pal_lights_hammer();
     new spell_pal_holy_prism_visual();
     new spell_pal_holy_prism_effect();
