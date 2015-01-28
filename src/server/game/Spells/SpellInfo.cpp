@@ -3974,9 +3974,6 @@ bool SpellInfo::IsBreakingStealth(Unit* m_caster) const
     if (!m_caster)
         return false;
 
-    if (m_caster->HasAura(115192))
-        return false;
-
     // Hearthstone shoudn't call subterfuge effect
     if ((SpellIconID == 776 || SpellFamilyName == SPELLFAMILY_POTION) && m_caster->HasAura(115191))
     {
@@ -4009,7 +4006,7 @@ bool SpellInfo::IsBreakingStealth(Unit* m_caster) const
         if (callSubterfuge)
         {
             m_caster->CastSpell(m_caster, 115192, true);
-            return false;
+            return true;
         }
     }
 

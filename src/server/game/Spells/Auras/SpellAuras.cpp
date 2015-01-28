@@ -1960,12 +1960,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                             }
                         }
                         break;
-                    // Remove Stealth on Subterfuge remove
-                    case 115192:
-                    {
-                        target->RemoveAura(115191);
-                        break;
-                    }
                 }
                 break;
             case SPELLFAMILY_MAGE:

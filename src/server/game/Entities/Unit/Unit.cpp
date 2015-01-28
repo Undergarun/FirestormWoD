@@ -3948,7 +3948,7 @@ void Unit::RemoveAura(AuraApplication * aurApp, AuraRemoveMode mode)
         return;
     uint32 spellId = aurApp->GetBase()->GetId();
 
-    if ((spellId == 51713 || spellId == 115192) && mode != AURA_REMOVE_BY_EXPIRE)
+    if (spellId == 51713 && mode != AURA_REMOVE_BY_EXPIRE)
         return;
 
     for (AuraApplicationMap::iterator iter = m_appliedAuras.lower_bound(spellId); iter != m_appliedAuras.upper_bound(spellId);)
@@ -4135,6 +4135,9 @@ void Unit::RemoveAurasByType(AuraType auraType, uint64 casterGUID, AuraPtr excep
         }
 
         ++iter;
+
+        if (auraType == SPELL_AURA_MOD_STEALTH && !HasAura(115192))
+            CastSpell(this, 115192, true);
 
         // Subterfuge can't be removed except manually
         if (aura->GetSpellInfo()->Id == 115191)

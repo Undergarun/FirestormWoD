@@ -1058,6 +1058,7 @@ class spell_pal_lights_hammer_tick: public SpellScriptLoader
         }
 };
 
+// Light's Hammer - 122773
 class spell_pal_lights_hammer : public SpellScriptLoader
 {
 public:
