@@ -1113,19 +1113,22 @@ class spell_pri_lightwell_renew: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* m_caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (Unit* unitTarget = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
-                        if (m_caster->GetTypeId() != TYPEID_UNIT || !m_caster->ToCreature()->isSummon())
+                        if (l_Caster->GetTypeId() != TYPEID_UNIT || !l_Caster->ToCreature()->isSummon())
                             return;
 
                         // proc a spellcast
-                        if (AuraPtr chargesAura = m_caster->GetAura(LIGHTWELL_CHARGES))
+                        if (AuraPtr l_ChargesAura = l_Caster->GetAura(LIGHTWELL_CHARGES))
                         {
-                            m_caster->CastSpell(unitTarget, LIGHTSPRING_RENEW, true, NULL, NULLAURA_EFFECT, m_caster->ToTempSummon()->GetSummonerGUID());
-                            if (chargesAura->ModCharges(-1))
-                                m_caster->ToTempSummon()->UnSummon();
+                            if (!l_Target->HasAura(LIGHTSPRING_RENEW))
+                            {
+                                l_Caster->CastSpell(l_Target, LIGHTSPRING_RENEW, true, NULL, NULLAURA_EFFECT, l_Caster->ToTempSummon()->GetSummonerGUID());
+                                if (l_ChargesAura->ModCharges(-1))
+                                    l_Caster->ToTempSummon()->UnSummon();
+                            }
                         }
                     }
                 }
