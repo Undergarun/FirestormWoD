@@ -4136,7 +4136,7 @@ void Unit::RemoveAurasByType(AuraType auraType, uint64 casterGUID, AuraPtr excep
 
         ++iter;
 
-        if (auraType == SPELL_AURA_MOD_STEALTH && !HasAura(115192))
+        if (auraType == SPELL_AURA_MOD_STEALTH && HasSpell(108208) && !HasAura(115192))
             CastSpell(this, 115192, true);
 
         // Subterfuge can't be removed except manually
