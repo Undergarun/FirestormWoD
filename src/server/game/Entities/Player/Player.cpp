@@ -17863,7 +17863,7 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
             {
                 case uint8(PackageItemRewardType::SpecializationReward):
                 {
-                    if (!l_ItemTemplate->HasSpec((SpecIndex)GetSpecializationId(GetActiveSpec())))
+                    if (!l_ItemTemplate->HasSpec((SpecIndex)GetSpecializationId(GetActiveSpec())) && !l_ItemTemplate->HasClassSpec(getClass()))
                         continue;
                     break;
                 }
@@ -19067,8 +19067,7 @@ void Player::KilledPlayerCredit()
 
 void Player::CastedCreatureOrGO(uint32 entry, uint64 guid, uint32 spell_id)
 {
-    UNUSED(entry);  ///@TODO refactor spell quest objective
-    QuestObjectiveSatisfy(spell_id, 1, QUEST_OBJECTIVE_TYPE_SPELL /*QUEST_OBJECTIVE_TYPE_NPC_INTERACT*/, guid);
+    QuestObjectiveSatisfy(spell_id, 1, QUEST_OBJECTIVE_TYPE_SPELL, guid);
 }
 
 void Player::TalkedToCreature(uint32 entry, uint64 guid)
