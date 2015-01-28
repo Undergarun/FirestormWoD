@@ -911,24 +911,6 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         }
     }
 
-    // Rage from Damage made (only from direct weapon damage)
-    if (cleanDamage && damagetype == DIRECT_DAMAGE && this != victim && getPowerType() == POWER_RAGE
-        && (!spellProto || !spellProto->HasAura(SPELL_AURA_SPLIT_DAMAGE_PCT)) && cleanDamage->mitigated_damage > 0)
-    {
-        float rage = GetAttackTime(cleanDamage->attackType) / 1000.f * 5.f;
-
-        switch (cleanDamage->attackType)
-        {
-            case WeaponAttackType::OffAttack:
-                rage /= 2;
-            case WeaponAttackType::BaseAttack:
-                RewardRage(rage, true);
-                break;
-            default:
-                break;
-        }
-    }
-
     if (damagetype != NODAMAGE && (damage || (cleanDamage && cleanDamage->absorbed_damage)))
     {
         if (victim != this && victim->GetTypeId() == TYPEID_PLAYER) // does not support creature push_back
@@ -946,15 +928,6 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
                 }
             }
         }
-    }
-
-    if (!damage)
-    {
-        // Rage from absorbed damage
-        if (cleanDamage && cleanDamage->absorbed_damage && victim->getPowerType() == POWER_RAGE)
-            victim->RewardRage(cleanDamage->absorbed_damage, false);
-
-        return 0;
     }
 
     uint32 health = victim->GetHealth();
@@ -1055,11 +1028,15 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
             }
         }
 
-        // Rage from damage received
-        if (this != victim && victim->getPowerType() == POWER_RAGE)
+        /// WoD: Arms Warriors now generate Rage from taking auto-attack damage.
+        /// Each 1% of health taken as damage will generate 1 Rage, up to 5 Rage per hit.
+        if (damage && this != victim && victim->GetTypeId() == TYPEID_PLAYER && victim->getPowerType() == POWER_RAGE && victim->ToPlayer()->GetSpecializationId(victim->ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
         {
-            float rage_damage = damage + (cleanDamage ? cleanDamage->absorbed_damage : 0);
-            victim->RewardRage(rage_damage, false);
+            float l_RetiredPctOfHealth = damage / (victim->GetMaxHealth() / 100.0f);
+            if (l_RetiredPctOfHealth > 5.0f)
+                l_RetiredPctOfHealth = 5.0f;
+
+            victim->RewardRage(l_RetiredPctOfHealth);
         }
 
         if (GetTypeId() == TYPEID_PLAYER)
@@ -21298,31 +21275,12 @@ void Unit::SendRemoveFromThreatListOpcode(HostileReference* p_HostileReference)
     SendMessageToSet(&l_Data, false);
 }
 
-// baseRage means damage taken when attacker = false
-void Unit::RewardRage(float baseRage, bool attacker)
+void Unit::RewardRage(float baseRage)
 {
     float addRage = baseRage;
 
-    if (attacker)
-    {
-        // talent who gave more rage on attack
-        addRage *= 1.0f + GetTotalAuraModifier(SPELL_AURA_MOD_RAGE_FROM_DAMAGE_DEALT) / 100.0f;
-    }
-    else
-    {
-        addRage /= (GetCreateHealth()/35);
-
-        // Generate rage from damage taken only in Berserker Stance
-        if (!HasAura(2458))
-            return;
-
-        // Berserker Rage effect
-        if (HasAura(18499))
-        {
-            float mod = 2.0f;
-            addRage *= mod;
-        }
-    }
+    if (addRage < 0.0f)
+        addRage = 0.0f;
 
     ModifyPower(POWER_RAGE, uint32(addRage * GetPowerCoeff(POWER_RAGE)));
 }
