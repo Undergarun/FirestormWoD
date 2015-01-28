@@ -96,7 +96,7 @@ enum MageSpells
     SPELL_MAGE_ICY_VEINS                         = 12472,
     SPELL_MAGE_THERMAL_VOID                      = 155149,
     SPELL_MAGE_HEATING_UP                        = 48108,
-    SPELL_MAGE_KINDKING                          = 155148,
+    SPELL_MAGE_KINDLING                          = 155148,
     SPELL_MAGE_COMBUSTION                        = 11129,
     SPELL_MAGE_FROST_BOMB_AURA                   = 112948,
     SPELL_MAGE_FROST_BOMB_VISUAL                 = 69846,
@@ -1493,11 +1493,12 @@ public:
 
         void HandleOnHit()
         {
-            if (Unit* l_Unit = GetCaster())
-                if (l_Unit->HasAura(SPELL_MAGE_KINDKING))
-                    if (Player *l_Player = l_Unit->ToPlayer())
-                        if (l_Player->HasSpellCooldown(SPELL_MAGE_COMBUSTION))
-                            l_Player->ReduceSpellCooldown(SPELL_MAGE_COMBUSTION, sSpellMgr->GetSpellInfo(SPELL_MAGE_KINDKING)->Effects[EFFECT_0].BasePoints);
+            if (Player *l_Player = GetCaster()->ToPlayer())
+                if (l_Player->HasSpell(SPELL_MAGE_KINDLING))
+                {
+                    if (l_Player->HasSpellCooldown(SPELL_MAGE_COMBUSTION))
+                        l_Player->ReduceSpellCooldown(SPELL_MAGE_COMBUSTION, sSpellMgr->GetSpellInfo(SPELL_MAGE_KINDLING)->Effects[EFFECT_0].BasePoints * IN_MILLISECONDS);
+                }
         }
 
         void Register()
