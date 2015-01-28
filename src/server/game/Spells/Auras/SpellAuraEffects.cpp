@@ -5088,7 +5088,6 @@ void AuraEffect::HandleModPowerRegen(AuraApplication const* aurApp, uint8 mode, 
             break;
         default:
             // other powers are not immediate effects - implemented in Player::Regenerate, Creature::Regenerate
-            sLog->outError(LOG_FILTER_GENERAL, ">>> Unhandled power in HandleModPowerRegen, power %i", GetMiscValue());
             break;
     }
 }
