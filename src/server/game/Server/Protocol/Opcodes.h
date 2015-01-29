@@ -186,8 +186,6 @@ enum Opcodes
         SMSG_CLIENT_CONTROL_UPDATE                  = 0x080E,   ///< 6.0.3 19116
         SMSG_AREA_TRIGGER_NO_CORPSE                 = 0x0D3F,   ///< 6.0.3 19116
         SMSG_VIGNETTE_UPDATE                        = 0x09AC,   ///< 6.0.3 19116
-        SMSG_CHAR_CUSTOMIZE_RESULT                  = 0x0BAA,   ///< 6.0.3 19116
-        SMSG_CHAR_CUSTOMIZE                         = 0x1932,   ///< 6.0.3 19116
         SMSG_ACCOUNT_MOUNT_UPDATE                   = 0x0140,   ///< 6.0.3 19116
 
         /// Control Alert

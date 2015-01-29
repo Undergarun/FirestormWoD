@@ -197,4 +197,20 @@ namespace Vignette
             return false;
         });
     }
+
+    template void Manager::OnWorldObjectDisappear(Corpse const*);
+    template void Manager::OnWorldObjectDisappear(Creature const*);
+    template void Manager::OnWorldObjectDisappear(GameObject const*);
+    template void Manager::OnWorldObjectDisappear(DynamicObject const*);
+    template void Manager::OnWorldObjectDisappear(AreaTrigger const*);
+    template void Manager::OnWorldObjectDisappear(WorldObject const*);
+    template void Manager::OnWorldObjectDisappear(Player const*);
+
+    template void Manager::OnWorldObjectAppear(Corpse const*);
+    template void Manager::OnWorldObjectAppear(Creature const*);
+    template void Manager::OnWorldObjectAppear(GameObject const*);
+    template void Manager::OnWorldObjectAppear(DynamicObject const*);
+    template void Manager::OnWorldObjectAppear(AreaTrigger const*);
+    template void Manager::OnWorldObjectAppear(WorldObject const*);
+    template void Manager::OnWorldObjectAppear(Player const*);
 }
