@@ -291,6 +291,7 @@ void AddSC_Garrison_NPC()
     new MS::Garrison::npc_LunarfallLaborer;
     new MS::Garrison::npc_GussofForgefire;
     new MS::Garrison::npc_KristenStoneforge;
+    new MS::Garrison::npc_JonathanStephens;
 
     /// Horde
     new MS::Garrison::npc_FrostwallPeon("npc_FrostwallPeon_Dynamic");
