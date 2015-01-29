@@ -52,6 +52,7 @@ namespace MS { namespace Garrison
         QUEST_KEEPING_IT_TOGETHER       = 35176,
         QUEST_SHIP_SALVAGE              = 35166,
         QUEST_PALE_MOONLIGHT            = 35174,
+        LostInTransition                = 37087,
 
         /// Horde
         QUEST_ETABLISH_YOUR_GARRISON_H  = 34378,
