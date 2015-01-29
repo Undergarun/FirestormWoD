@@ -1519,6 +1519,43 @@ public:
     }
 };
 
+enum EnhancedRendSpells
+{
+    SPELL_WARR_ENHANCED_REND_DAMAGE = 174736,
+    SPELL_WARR_REND                 = 772
+};
+
+// Enhanced Rend - 174737
+class spell_warr_enhanced_rend: public SpellScriptLoader
+{
+    public:
+        spell_warr_enhanced_rend() : SpellScriptLoader("spell_warr_enhanced_rend") { }
+
+        class spell_warr_enhanced_rend_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_enhanced_rend_AuraScript);
+
+            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& l_ProcInfo)
+            {
+                PreventDefaultAction();
+
+                if (Unit* l_Target = l_ProcInfo.GetActionTarget())
+                    if (l_Target->HasAura(SPELL_WARR_REND, GetCaster()->GetGUID()))
+                        GetCaster()->CastSpell(l_Target, SPELL_WARR_ENHANCED_REND_DAMAGE, true);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_warr_enhanced_rend_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_enhanced_rend_AuraScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_slam();
@@ -1557,4 +1594,5 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_whirlwind();
     new spell_warr_shield_charge();
     new spell_warr_execute_default();
+    new spell_warr_enhanced_rend();
 }
