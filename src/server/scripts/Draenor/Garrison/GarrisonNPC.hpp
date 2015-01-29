@@ -63,6 +63,38 @@ namespace MS { namespace Garrison
 
     };
 
+    /// 87518 - 87519 - 80258
+    class npc_CallToArms : public CreatureScript
+    {
+        public:
+            /// Constructor
+            npc_CallToArms();
+
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            virtual CreatureAI * GetAI(Creature * p_Creature) const override;
+
+            /// AI Script
+            struct npc_CallToArmsAI : public CreatureAI
+            {
+                /// Constructor
+                npc_CallToArmsAI(Creature * p_Creature);
+
+                /// On reset
+                virtual void Reset() override;
+                /// On AI Update
+                /// @p_Diff : Time since last update
+                virtual void UpdateAI(const uint32 p_Diff) override;
+
+                Player * m_Owner;
+                bool m_Ranged;
+            };
+
+    };
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
     /// Garrison ROPE owner
     class npc_GarrisonCartRope : public CreatureScript
     {
