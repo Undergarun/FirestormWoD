@@ -48,7 +48,7 @@
 #include "DB2Stores.h"
 #include "Configuration/Config.h"
 #include "VMapFactory.h"
-#include "Garrison.h"
+#include "GarrisonMgr.hpp"
 
 ScriptMapMap sQuestEndScripts;
 ScriptMapMap sQuestStartScripts;
@@ -2848,12 +2848,13 @@ void ObjectMgr::LoadItemTemplates()
             itemTemplate.MaxCount                  = fields[26].GetInt32();
             itemTemplate.Stackable                 = fields[27].GetInt32();
             itemTemplate.ContainerSlots            = uint32(fields[28].GetUInt8());
+
             for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
             {
                 itemTemplate.ItemStat[i].ItemStatType  = uint32(fields[29 + i * 4 + 0].GetUInt32());
                 itemTemplate.ItemStat[i].ItemStatValue = int32(fields[29 + i * 4 + 1].GetInt32());
                 itemTemplate.ItemStat[i].ScalingValue  = fields[29 + i * 4 + 2].GetInt32();
-                itemTemplate.ItemStat[i].SocketCostRate  = fields[29 + i * 4 + 3].GetInt32();
+                itemTemplate.ItemStat[i].SocketCostRate = fields[29 + i * 4 + 3].GetInt32();
             }
 
             itemTemplate.ScalingStatDistribution = uint32(fields[69].GetUInt16());
@@ -4095,6 +4096,8 @@ void ObjectMgr::LoadQuests()
 
     std::map<uint32, uint32> usedMailTemplates;
 
+    std::list<uint32> l_QuestToRemove;
+
     // Post processing
     for (QuestMap::iterator iter = _questTemplates.begin(); iter != _questTemplates.end(); ++iter)
     {
@@ -4105,9 +4108,15 @@ void ObjectMgr::LoadQuests()
         Quest * qinfo = iter->second;
 
         // Additional quest integrity checks (GO, creature_template and item_template must be loaded already)
-
         if (qinfo->GetQuestMethod() >= 3)
             sLog->outError(LOG_FILTER_SQL, "Quest %u has `Method` = %u, expected values are 0, 1 or 2.", qinfo->GetQuestId(), qinfo->GetQuestMethod());
+
+        if (qinfo->IsAutoComplete() && qinfo->IsRepeatable())
+        {
+            sLog->outError(LOG_FILTER_SQL, "Quest %u is auto-complete and is repeatable", qinfo->GetQuestId());
+            l_QuestToRemove.push_back(iter->first);
+            continue;
+        }
 
         if (qinfo->SpecialFlags & ~QUEST_SPECIAL_FLAGS_DB_ALLOWED)
         {
@@ -4607,6 +4616,12 @@ void ObjectMgr::LoadQuests()
             mExclusiveQuestGroups.insert(std::pair<int32, uint32>(qinfo->ExclusiveGroup, qinfo->GetQuestId()));
         if (qinfo->LimitTime)
             qinfo->SetSpecialFlag(QUEST_SPECIAL_FLAGS_TIMED);
+    }
+
+    for (uint32 l_QuestID : l_QuestToRemove)
+    {
+        if (_questTemplates.find(l_QuestID) != _questTemplates.end())
+            _questTemplates.erase(l_QuestID);   ///< Disable auto complete quests which are repeatable
     }
 
     // Check QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT for spell with SPELL_EFFECT_QUEST_COMPLETE
@@ -5787,10 +5802,10 @@ uint32 ObjectMgr::GetNearestTaxiNode(float x, float y, float z, uint32 mapid, ui
         
         if (l_Entry)
         {
-            l_MapOverrides[l_Entry->MapID] = GARRISON_BASE_MAP;
+            l_MapOverrides[l_Entry->MapID] = MS::Garrison::Globals::BaseMap;
 
             if (l_Entry->MapID == mapid)
-                mapid = GARRISON_BASE_MAP;
+                mapid = MS::Garrison::Globals::BaseMap;
         }
     }
 

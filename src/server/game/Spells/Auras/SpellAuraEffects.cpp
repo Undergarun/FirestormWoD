@@ -509,7 +509,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //450 SPELL_AURA_450
     &AuraEffect::HandleNULL,                                      //451 SPELL_AURA_451
     &AuraEffect::HandleNULL,                                      //452 SPELL_AURA_452
-    &AuraEffect::HandleNULL,                                      //453 SPELL_AURA_453
+    &AuraEffect::HandleNULL,                                      //453 SPELL_AURA_MOD_COOLDOWN_2
     &AuraEffect::HandleNULL,                                      //454 SPELL_AURA_454
     &AuraEffect::HandleAuraModRoot,                               //455 SPELL_AURA_MOD_ROOT_2
     &AuraEffect::HandleNULL,                                      //456 SPELL_AURA_456
@@ -997,32 +997,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 
                         AddPct(amount, doctorIsIn->GetEffect(0)->GetAmount());
                     }
-
-                    break;
-                }
-                case 90361: // Spirit Mend
-                {
-                    if (!caster->GetOwner())
-                        break;
-
-                    Player* m_owner = caster->GetOwner()->ToPlayer();
-                    if (!m_owner)
-                        break;
-
-                    amount += int32(m_owner->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.35f * 0.335f);
-
-                    break;
-                }
-                // Recuperate
-                case 73651:
-                {
-                    int32 heal_pct = amount * 1000;
-
-                    // Improved Recuperate
-                    if (constAuraEffectPtr aurEff = caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_ROGUE, 4819, 0))
-                        heal_pct += aurEff->GetAmount();
-
-                    amount = CalculatePct(caster->GetMaxHealth(), 0.001 * heal_pct);
 
                     break;
                 }
@@ -2717,15 +2691,17 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
     {
         SpellShapeshiftFormEntry const* shapeInfo = sSpellShapeshiftFormStore.LookupEntry(form);
         // Learn spells for shapeshift form - no need to send action bars or add spells to spellbook
-        for (uint8 i = 0; i<MAX_SHAPESHIFT_SPELLS; ++i)
+        for (uint8 i = 0; i < MAX_SHAPESHIFT_SPELLS; ++i)
         {
-            if (!shapeInfo->stanceSpell[i])
+            if (!shapeInfo || !shapeInfo->stanceSpell[i])
                 continue;
+
             if (apply)
                 target->ToPlayer()->AddTemporarySpell(shapeInfo->stanceSpell[i]);
             else
                 target->ToPlayer()->RemoveTemporarySpell(shapeInfo->stanceSpell[i]);
         }
+
         // Update the Mastery percentage for Shapeshift
         target->ToPlayer()->UpdateMasteryPercentage();
     }
@@ -3549,6 +3525,24 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* p_AurApp, uint8 p_Mode
         auto l_MountEntry = sMountStore.LookupEntry(GetId());
         if (l_MountEntry != nullptr)
             l_DisplayId = l_MountEntry->CreatureDisplayID;
+
+        /// Hackfix for somes mount unavailable on retail (data aren't)
+        /// But we need it because we sell it on the shop
+        switch (GetId())
+        {
+            case 171630:                ///< Armored Razorback
+                l_DisplayId = 61484;
+                break;
+            case 171619:                ///< Tundra Icehoof
+                l_DisplayId = 53307;
+                break;
+            case 171826:
+                l_DisplayId = 59746;    ///< Mudback Riverbeast
+                break;
+            case 171837:
+                l_DisplayId = 59536;    ///< Warsong Direfang
+                break;
+        }
 
         l_Target->Mount(l_DisplayId, l_VehicleId, GetMiscValue());
         l_Target->RemoveFlagsAuras();

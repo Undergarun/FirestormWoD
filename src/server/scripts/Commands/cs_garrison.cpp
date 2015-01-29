@@ -1,16 +1,9 @@
 #include "ScriptMgr.h"
 #include "GameEventMgr.h"
 #include "Chat.h"
-#include "Garrison.h"
+#include "GarrisonMgr.hpp"
 #include "ObjectMgr.h"
-
-extern float gGarrisonCreationCoords[][4];
-
-enum
-{
-    QUEST_ETABLISH_YOUR_GARRISON_A = 34586,
-    QUEST_ETABLISH_YOUR_GARRISON_H = 34378,
-};
+#include "../Draenor/Garrison/GarrisonScriptData.hpp"
 
 /// Garrison commands
 class garrison_commandscript: public CommandScript
@@ -98,7 +91,6 @@ class garrison_commandscript: public CommandScript
 
         static bool HandleGarrisonCreate(ChatHandler * p_Handler, char const* p_Args)
         {
-            /*
             Player * l_TargetPlayer = p_Handler->getSelectedPlayer();
 
             if (!l_TargetPlayer)
@@ -121,18 +113,22 @@ class garrison_commandscript: public CommandScript
             uint32 l_MapID   = l_TargetPlayer->GetGarrison()->GetGarrisonSiteLevelEntry()->MapID;
             uint32 l_TeamID  = l_TargetPlayer->GetTeamId();
 
-            l_TargetPlayer->AddMovieDelayedTeleport(l_MovieID, l_MapID, gGarrisonCreationCoords[l_TeamID][0], gGarrisonCreationCoords[l_TeamID][1], gGarrisonCreationCoords[l_TeamID][2], gGarrisonCreationCoords[l_TeamID][3]);
+            l_TargetPlayer->AddMovieDelayedTeleport(l_MovieID, l_MapID, MS::Garrison::gGarrisonCreationCoords[l_TeamID][0], 
+                                                                        MS::Garrison::gGarrisonCreationCoords[l_TeamID][1], 
+                                                                        MS::Garrison::gGarrisonCreationCoords[l_TeamID][2], 
+                                                                        MS::Garrison::gGarrisonCreationCoords[l_TeamID][3]);
+
             l_TargetPlayer->SendMovieStart(l_MovieID);
 
             if (l_TeamID == TEAM_ALLIANCE)
             {
-                l_TargetPlayer->AddQuest(sObjectMgr->GetQuestTemplate(QUEST_ETABLISH_YOUR_GARRISON_A), l_TargetPlayer);
-                l_TargetPlayer->CompleteQuest(QUEST_ETABLISH_YOUR_GARRISON_A);
+                l_TargetPlayer->AddQuest(sObjectMgr->GetQuestTemplate(MS::Garrison::Quests::QUEST_ETABLISH_YOUR_GARRISON_A), l_TargetPlayer);
+                l_TargetPlayer->CompleteQuest(MS::Garrison::Quests::QUEST_ETABLISH_YOUR_GARRISON_A);
             }
             else if (l_TeamID == TEAM_HORDE)
             {
-                l_TargetPlayer->AddQuest(sObjectMgr->GetQuestTemplate(QUEST_ETABLISH_YOUR_GARRISON_H), l_TargetPlayer);
-                l_TargetPlayer->CompleteQuest(QUEST_ETABLISH_YOUR_GARRISON_H);
+                l_TargetPlayer->AddQuest(sObjectMgr->GetQuestTemplate(MS::Garrison::Quests::QUEST_ETABLISH_YOUR_GARRISON_H), l_TargetPlayer);
+                l_TargetPlayer->CompleteQuest(MS::Garrison::Quests::QUEST_ETABLISH_YOUR_GARRISON_H);
             }
 
             /// HACK until shadowmoon quest are done : add follower Qiana Moonshadow / Olin Umberhide
@@ -140,9 +136,6 @@ class garrison_commandscript: public CommandScript
             l_TargetPlayer->GetGarrison()->AddFollower(89);
             l_TargetPlayer->GetGarrison()->AddFollower(92);
 
-            /// HACK until quest : add barracks plan
-            l_TargetPlayer->GetGarrison()->LearnBlueprint(26);
-            */
             return true;
         }
 
@@ -166,8 +159,8 @@ class garrison_commandscript: public CommandScript
 
             l_TargetPlayer->DeleteGarrison();
 
-            if (l_TargetPlayer->GetCurrency(GARRISON_CURRENCY_ID, false))
-                l_TargetPlayer->ModifyCurrency(GARRISON_CURRENCY_ID, -(int32)l_TargetPlayer->GetCurrency(GARRISON_CURRENCY_ID, false));
+            if (l_TargetPlayer->GetCurrency(MS::Garrison::Globals::CurrencyID, false))
+                l_TargetPlayer->ModifyCurrency(MS::Garrison::Globals::CurrencyID, -(int32)l_TargetPlayer->GetCurrency(MS::Garrison::Globals::CurrencyID, false));
 
             return true;
         }
@@ -224,7 +217,7 @@ class garrison_commandscript: public CommandScript
                 return false;
             }
 
-            GarrisonPlotInstanceInfoLocation l_Info = l_TargetPlayer->GetGarrison()->GetPlot(l_TargetPlayer->GetPositionX(), l_TargetPlayer->GetPositionY(), l_TargetPlayer->GetPositionZ());
+            MS::Garrison::GarrisonPlotInstanceInfoLocation l_Info = l_TargetPlayer->GetGarrison()->GetPlot(l_TargetPlayer->GetPositionX(), l_TargetPlayer->GetPositionY(), l_TargetPlayer->GetPositionZ());
 
             if (!l_Info.PlotInstanceID)
             {
@@ -236,15 +229,55 @@ class garrison_commandscript: public CommandScript
             p_Handler->PSendSysMessage("Plot instance id %u type %u", l_Info.PlotInstanceID, l_TargetPlayer->GetGarrison()->GetPlotType(l_Info.PlotInstanceID));
             p_Handler->PSendSysMessage("Position %f %f %f %f", l_Info.X, l_Info.Y, l_Info.Z, l_Info.O);
 
-            GarrisonBuilding l_Building = l_TargetPlayer->GetGarrison()->GetBuilding(l_Info.PlotInstanceID);
+            MS::Garrison::GarrisonBuilding l_Building = l_TargetPlayer->GetGarrison()->GetBuilding(l_Info.PlotInstanceID);
 
             if (l_Building.BuildingID)
             {
                 const GarrBuildingEntry * l_Entry = sGarrBuildingStore.LookupEntry(l_Building.BuildingID);
 
-                p_Handler->PSendSysMessage("Building : %u - %s", l_Entry->BuildingID, l_TargetPlayer->GetGarrison()->GetGarrisonFactionIndex() == GARRISON_FACTION_ALLIANCE ? l_Entry->NameA : l_Entry->NameH);
+                p_Handler->PSendSysMessage("Building : %u - %s", l_Entry->BuildingID, l_TargetPlayer->GetGarrison()->GetGarrisonFactionIndex() == MS::Garrison::Factions::Alliance ? l_Entry->NameA : l_Entry->NameH);
                 p_Handler->PSendSysMessage("Active %u Level %u", l_Building.Active, l_Entry->BuildingLevel);
             }
+
+            float l_X = l_TargetPlayer->GetPositionX();
+            float l_Y = l_TargetPlayer->GetPositionY();
+            float l_Z = l_TargetPlayer->GetPositionZ();
+            float l_O = l_TargetPlayer->GetOrientation();
+
+            G3D::Matrix3 l_Mat = G3D::Matrix3::identity();
+            l_Mat = l_Mat.fromAxisAngle(G3D::Vector3(0, 0, 1), -l_Info.O);
+
+            G3D::Vector3 l_ElementPosition = G3D::Vector3(l_X, l_Y, 0);
+            l_ElementPosition  -= G3D::Vector3(l_Info.X, l_Info.Y, 0);
+            l_ElementPosition   = l_Mat *l_ElementPosition;
+            l_ElementPosition.z = l_Z - l_Info.Z;
+
+            float l_Orientation = Position::NormalizeOrientation((2 * M_PI) - Position::NormalizeOrientation(l_Info.O - l_O));
+
+            p_Handler->PSendSysMessage("Relative location X:%f Y:%f Z:%f O:%f", l_ElementPosition.x, l_ElementPosition.y, l_ElementPosition.z, l_Orientation);
+
+#ifdef WIN32
+            char   l_Buffer[120];
+            char * lPtrData = nullptr;
+
+            sprintf(l_Buffer, "{ %.4f.f, %.4f.f, %.4f.f, %.4f.f },", l_ElementPosition.x, l_ElementPosition.y, l_ElementPosition.z, l_Orientation);
+
+            HANDLE l_Handle;
+
+            int l_BufferSize = strlen(l_Buffer);
+
+            l_Handle = GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, l_BufferSize + 1);
+
+            lPtrData = (char*)GlobalLock(l_Handle);
+            memcpy(lPtrData, l_Buffer, l_BufferSize + 1);
+
+            GlobalUnlock(l_Handle);
+
+            OpenClipboard(nullptr);
+            EmptyClipboard();
+            SetClipboardData(CF_TEXT, l_Handle);
+            CloseClipboard();
+#endif
 
             return true;
         }
@@ -259,7 +292,7 @@ class garrison_commandscript: public CommandScript
                 return false;
             }
 
-            GarrisonPlotInstanceInfoLocation l_Info = l_Player->GetGarrison()->GetPlot(l_Player->GetPositionX(), l_Player->GetPositionY(), l_Player->GetPositionZ());
+            MS::Garrison::GarrisonPlotInstanceInfoLocation l_Info = l_Player->GetGarrison()->GetPlot(l_Player->GetPositionX(), l_Player->GetPositionY(), l_Player->GetPositionZ());
 
             if (!l_Info.PlotInstanceID)
             {
@@ -268,7 +301,7 @@ class garrison_commandscript: public CommandScript
                 return false;
             }
 
-            GarrisonBuilding l_Building = l_Player->GetGarrison()->GetBuilding(l_Info.PlotInstanceID);
+            MS::Garrison::GarrisonBuilding l_Building = l_Player->GetGarrison()->GetBuilding(l_Info.PlotInstanceID);
 
             if (!l_Building.BuildingID)
             {
@@ -304,7 +337,7 @@ class garrison_commandscript: public CommandScript
             l_NewData.X                     = l_ElementPosition.x;
             l_NewData.Y                     = l_ElementPosition.y;
             l_NewData.Z                     = l_ElementPosition.z;
-            l_NewData.O                     = (l_O - l_Info.O);
+            l_NewData.O                     = Position::NormalizeOrientation((2 * M_PI) - Position::NormalizeOrientation(l_Info.O - l_O));
 
             sObjectMgr->AddGarrisonPlotBuildingContent(l_NewData);
 
@@ -332,7 +365,7 @@ class garrison_commandscript: public CommandScript
                 l_Position.z = l_ElementPosition.z + l_Info.Z;
 
                 p_Handler->PSendSysMessage("Spawn coord %f %f %f %f", l_X, l_Y, l_Z, l_O);
-                p_Handler->PSendSysMessage("Trans coord %f %f %f %f", l_Position.x, l_Position.y, l_Position.z, (l_O - l_Info.O) + l_Info.O);
+                p_Handler->PSendSysMessage("Trans coord %f %f %f %f", l_Position.x, l_Position.y, l_Position.z, l_NewData.O + l_Info.O);
             }
 
             l_Player->GetGarrison()->OnPlayerEnter();
@@ -361,7 +394,7 @@ class garrison_commandscript: public CommandScript
                 return false;
             }
 
-            GarrisonPlotInstanceInfoLocation l_Info = l_Player->GetGarrison()->GetPlot(l_Player->GetPositionX(), l_Player->GetPositionY(), l_Player->GetPositionZ());
+            MS::Garrison::GarrisonPlotInstanceInfoLocation l_Info = l_Player->GetGarrison()->GetPlot(l_Player->GetPositionX(), l_Player->GetPositionY(), l_Player->GetPositionZ());
 
             if (!l_Info.PlotInstanceID)
             {

@@ -19,6 +19,7 @@
 
 #include "OutdoorPvPAshran.h"
 #include "ScriptPCH.h"
+#include "MapManager.h"
 
 OutdoorGraveyardAshran::OutdoorGraveyardAshran(OutdoorPvPAshran* p_OutdoorPvP) : OutdoorGraveyard(p_OutdoorPvP)
 {
@@ -492,6 +493,9 @@ void OPvPCapturePoint_Graveyard::UpdateTowerState()
 
 bool OPvPCapturePoint_Graveyard::HandlePlayerEnter(Player* p_Player)
 {
+    if (p_Player == nullptr)
+        return false;
+
     if (OPvPCapturePoint::HandlePlayerEnter(p_Player))
     {
         p_Player->SendUpdateWorldState(eWorldStates::WorldStateEnableGraveyardProgressBar, eWorldStates::WorldStateEnabled);
@@ -506,6 +510,9 @@ bool OPvPCapturePoint_Graveyard::HandlePlayerEnter(Player* p_Player)
 
 void OPvPCapturePoint_Graveyard::HandlePlayerLeave(Player* p_Player)
 {
+    if (p_Player == nullptr)
+        return;
+
     p_Player->SendUpdateWorldState(eWorldStates::WorldStateEnableGraveyardProgressBar, eWorldStates::WorldStateDisabled);
     OPvPCapturePoint::HandlePlayerLeave(p_Player);
 }
@@ -698,7 +705,7 @@ void OutdoorPvPAshran::HandlePlayerEnterMap(Player* p_Player, uint32 p_MapID)
 
 void OutdoorPvPAshran::HandlePlayerLeaveMap(Player* p_Player, uint32 p_MapID)
 {
-    if (p_MapID != eAshranDatas::AshranMapID)
+    if (p_MapID != eAshranDatas::AshranMapID || p_Player == nullptr)
         return;
 
     if (p_Player->GetTeamId() < 2)
@@ -716,11 +723,22 @@ void OutdoorPvPAshran::HandlePlayerLeaveMap(Player* p_Player, uint32 p_MapID)
 
 void OutdoorPvPAshran::HandlePlayerEnterArea(Player* p_Player, uint32 p_AreaID)
 {
+    if (p_Player == nullptr)
+        return;
+
     if (p_Player->GetMapId() != eAshranDatas::AshranNeutralMapID && p_Player->GetMapId() != eAshranDatas::AshranMapID)
         return;
 
     if (p_AreaID == eAshranDatas::AshranPreAreaHorde || p_AreaID == eAshranDatas::AshranPreAreaAlliance)
-        p_Player->SwitchToPhasedMap(eAshranDatas::AshranNeutralMapID);
+    {
+        uint64 l_Guid = p_Player->GetGUID();
+
+        sMapMgr->AddCriticalOperation([l_Guid]() -> void
+        {
+            if (Player* l_Player = sObjectAccessor->FindPlayer(l_Guid))
+                l_Player->SwitchToPhasedMap(eAshranDatas::AshranNeutralMapID);
+        });
+    }
 
     /// +30% damage, healing and health for players in their faction bases
     if ((p_AreaID == eAshranDatas::AshranHordeBase && p_Player->GetTeamId() == TeamId::TEAM_HORDE) ||
@@ -738,11 +756,22 @@ void OutdoorPvPAshran::HandlePlayerEnterArea(Player* p_Player, uint32 p_AreaID)
 
 void OutdoorPvPAshran::HandlePlayerLeaveArea(Player* p_Player, uint32 p_AreaID)
 {
+    if (p_Player == nullptr)
+        return;
+
     if (p_Player->GetMapId() != eAshranDatas::AshranNeutralMapID && p_Player->GetMapId() != eAshranDatas::AshranMapID)
         return;
 
     if (p_AreaID == eAshranDatas::AshranPreAreaHorde || p_AreaID == eAshranDatas::AshranPreAreaAlliance)
-        p_Player->SwitchToPhasedMap(eAshranDatas::AshranMapID);
+    {
+        uint64 l_Guid = p_Player->GetGUID();
+
+        sMapMgr->AddCriticalOperation([l_Guid]() -> void
+        {
+            if (Player* l_Player = sObjectAccessor->FindPlayer(l_Guid))
+                l_Player->SwitchToPhasedMap(eAshranDatas::AshranMapID);
+        });
+    }
 
     if (p_AreaID == eAshranDatas::AshranHordeBase || p_AreaID == eAshranDatas::AshranAllianceBase)
         p_Player->RemoveAura(eAshranSpells::SpellHoldYourGround);
@@ -754,6 +783,9 @@ void OutdoorPvPAshran::HandlePlayerLeaveArea(Player* p_Player, uint32 p_AreaID)
 
 void OutdoorPvPAshran::HandlePlayerKilled(Player* p_Player)
 {
+    if (p_Player == nullptr)
+        return;
+
     // Drop half of artifact fragments at player death
     // Even if he's killed by a creature
     if (uint32 l_ArtifactCount = p_Player->GetCurrency(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT, false))
@@ -1173,25 +1205,25 @@ void OutdoorPvPAshran::SetBattleState(uint32 p_NewState)
         {
             case eWorldStates::WorldStateEmberfallTowerBattle:
                 DelCreature(eSpecialSpawns::HordeFactionBoss);
-                AddCreature(eSpecialSpawns::HordeFactionBoss, g_FactionBossesSpawn[5]);
+                AddCreature(eSpecialSpawns::HordeFactionBoss, g_FactionBossesSpawn[5], 5 * TimeConstants::MINUTE);
                 break;
             case eWorldStates::WorldStateVolrathsAdvanceBattle:
                 DelCreature(eSpecialSpawns::HordeFactionBoss);
-                AddCreature(eSpecialSpawns::HordeFactionBoss, g_FactionBossesSpawn[4]);
+                AddCreature(eSpecialSpawns::HordeFactionBoss, g_FactionBossesSpawn[4], 5 * TimeConstants::MINUTE);
                 break;
             case eWorldStates::WorldStateTheCrossroadsBattle:
                 DelCreature(eSpecialSpawns::AllianceFactionBoss);
                 DelCreature(eSpecialSpawns::HordeFactionBoss);
-                AddCreature(eSpecialSpawns::AllianceFactionBoss, g_FactionBossesSpawn[0]);
-                AddCreature(eSpecialSpawns::HordeFactionBoss, g_FactionBossesSpawn[3]);
+                AddCreature(eSpecialSpawns::AllianceFactionBoss, g_FactionBossesSpawn[0], 5 * TimeConstants::MINUTE);
+                AddCreature(eSpecialSpawns::HordeFactionBoss, g_FactionBossesSpawn[3], 5 * TimeConstants::MINUTE);
                 break;
             case eWorldStates::WorldStateTrembladesVanguardBattle:
                 DelCreature(eSpecialSpawns::AllianceFactionBoss);
-                AddCreature(eSpecialSpawns::AllianceFactionBoss, g_FactionBossesSpawn[1]);
+                AddCreature(eSpecialSpawns::AllianceFactionBoss, g_FactionBossesSpawn[1], 5 * TimeConstants::MINUTE);
                 break;
             case eWorldStates::WorldStateArchmageOverwatchBattle:
                 DelCreature(eSpecialSpawns::AllianceFactionBoss);
-                AddCreature(eSpecialSpawns::AllianceFactionBoss, g_FactionBossesSpawn[2]);
+                AddCreature(eSpecialSpawns::AllianceFactionBoss, g_FactionBossesSpawn[2], 5 * TimeConstants::MINUTE);
                 break;
             default:
                 break;
@@ -1470,14 +1502,17 @@ class npc_faction_boss : public CreatureScript
             npc_faction_bossAI(Creature* p_Creature) : ScriptedAI(p_Creature)
             {
                 m_ZoneScript = sOutdoorPvPMgr->GetZoneScript(p_Creature->GetZoneId());
+                m_BaseHP = me->GetMaxHealth();
             }
 
             enum eSpells
             {
-                SpellBladeTwisterSearcher    = 178798,   ///< Uses 178797 on the target (Only 1)
-                SpellBladeTwisterMissile     = 178797,   ///< Launch 178795, Summons 89320
-                SpellMortalCleave            = 177147,
-                SpellEnableUnitFrame         = 177684
+                SpellBladeTwisterSearcher   = 178798,   ///< Uses 178797 on the target (Only 1)
+                SpellBladeTwisterMissile    = 178797,   ///< Launch 178795, Summons 89320
+                SpellMortalCleave           = 177147,
+                SpellEnableUnitFrame        = 177684,
+
+                SpellAshranLaneMobScaling   = 178838
             };
 
             enum eTalk
@@ -1498,12 +1533,22 @@ class npc_faction_boss : public CreatureScript
             EventMap m_Events;
             ZoneScript* m_ZoneScript;
 
+            bool m_FirstVictim;
+            uint32 m_BaseHP;
+
             void Reset()
             {
                 m_Events.Reset();
 
                 me->RemoveAura(eSpells::SpellEnableUnitFrame);
-                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISARMED);
+                me->RemoveAura(eSpells::SpellAshranLaneMobScaling);
+
+                m_FirstVictim = true;
+
+                me->SetHealth(m_BaseHP);
+
+                if (me->GetEntry() == eCreatures::GrandMarshalTremblade)
+                    me->setFaction(12); ///< Alliance
             }
 
             void EnterCombat(Unit* p_Attacker)
@@ -1611,6 +1656,43 @@ class npc_faction_boss : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
+
+            void OnHostileReferenceAdded(Unit* p_Ennemy)
+            {
+                if (p_Ennemy->GetTypeId() != TypeID::TYPEID_PLAYER)
+                    return;
+
+                if (m_FirstVictim)
+                {
+                    m_FirstVictim = false;
+                    return;
+                }
+
+                float l_HealthPct = me->GetHealthPct();
+                uint32 l_AddedValue = m_BaseHP / 2;
+
+                me->SetMaxHealth(me->GetMaxHealth() + l_AddedValue);
+                me->SetHealth(CalculatePct(me->GetMaxHealth(), l_HealthPct));
+            }
+
+            void OnHostileReferenceRemoved(Unit* p_Ennemy)
+            {
+                if (p_Ennemy->GetTypeId() != TypeID::TYPEID_PLAYER)
+                    return;
+
+                float l_HealthPct = me->GetHealthPct();
+                uint32 l_AddedValue = m_BaseHP / 2;
+
+                if ((me->GetMaxHealth() - l_AddedValue) < m_BaseHP)
+                {
+                    me->SetMaxHealth(m_BaseHP);
+                    me->SetHealth(CalculatePct(m_BaseHP, l_HealthPct));
+                    return;
+                }
+
+                me->SetMaxHealth(me->GetMaxHealth() - l_AddedValue);
+                me->SetHealth(CalculatePct(me->GetMaxHealth(), l_HealthPct));
+            }
         };
 
         CreatureAI* GetAI(Creature* p_Creature) const
@@ -1673,7 +1755,7 @@ class npc_jeron_emberfall : public CreatureScript
             {
                 m_Events.Reset();
 
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISARMED);
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISARMED);
             }
 
             void EnterCombat(Unit* p_Attacker)
@@ -2232,7 +2314,8 @@ class spell_ashran_faction_rewards : public SpellScriptLoader
                         return true;
 
                     /// Only one strongbox per day
-                    if (!l_Player->CanLoot(Items::StrongboxAlliance) || !l_Player->CanLoot(Items::StrongboxHorde))
+                    if (!l_Player->CanHaveDailyLootForItem(Items::StrongboxAlliance) ||
+                        !l_Player->CanHaveDailyLootForItem(Items::StrongboxHorde))
                         return true;
 
                     return false;

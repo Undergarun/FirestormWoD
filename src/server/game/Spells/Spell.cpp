@@ -3758,8 +3758,10 @@ void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggere
 
         // set target for proper facing
         if ((m_casttime || m_spellInfo->IsChanneled()) && !(_triggeredCastFlags & TRIGGERED_IGNORE_SET_FACING))
-            if (m_caster->GetGUID() != m_targets.GetObjectTargetGUID() && m_caster->GetTypeId() == TYPEID_UNIT)
-                m_caster->FocusTarget(this, m_targets.GetObjectTargetGUID());
+        {
+            if (m_targets.GetObjectTarget() && m_caster != m_targets.GetObjectTarget() && m_caster->GetTypeId() == TYPEID_UNIT)
+                m_caster->FocusTarget(this, m_targets.GetObjectTarget());
+        }
 
         if (!(_triggeredCastFlags & TRIGGERED_IGNORE_GCD) && result == SPELL_CAST_OK)
             TriggerGlobalCooldown();
@@ -4761,14 +4763,10 @@ void Spell::SendSpellStart()
         l_CastFlags |= CAST_FLAG_POWER_LEFT_SELF;
 
     if (m_spellInfo->RuneCostID && m_spellInfo->GetMainPower() == POWER_RUNES)
-        l_CastFlags |= CAST_FLAG_UNKNOWN_19;
+        l_CastFlags |= CAST_FLAG_NO_GCD;
 
     if (m_targets.HasTraj())
         l_CastFlags |= CAST_FLAG_ADJUST_MISSILE;
-
-    //@TODO: Remove this hack
-    if (m_spellInfo->Id == 147193)
-        l_CastFlags |= CAST_FLAG_UNKNOWN_4;
 
     WorldPacket data(SMSG_SPELL_START);
 
@@ -4842,9 +4840,9 @@ void Spell::SendSpellStart()
         }
 
         data.appendPackGUID(m_targets.GetSrc()->_transportGUID);
+        data << float(l_X);
         data << float(l_Y);
         data << float(l_Z);
-        data << float(l_X);
     }
 
     if (m_targets.HasDst())
@@ -4865,9 +4863,9 @@ void Spell::SendSpellStart()
         }
 
         data.appendPackGUID(m_targets.GetDst()->_transportGUID);
+        data << float(l_X);
         data << float(l_Y);
         data << float(l_Z);
-        data << float(l_X);
     }
 
     data << uint32(0);                      ///< Remaining power count
@@ -4917,7 +4915,18 @@ void Spell::SendSpellGo()
     if (!IsNeedSendToClient())
         return;
 
+    bool l_IsHealthPowerSpell = false;
+    for (auto itr : m_spellInfo->SpellPowers)
+    {
+        if (itr->PowerType == POWER_HEALTH)
+        {
+            l_IsHealthPowerSpell = true;
+            break;
+        }
+    }
+
     uint32 l_CastFlags = CAST_FLAG_UNKNOWN_9;
+    uint32 l_CastFlagsEx = CastFlagsEx::CAST_FLAG_EX_NONE;
 
     // triggered spells with spell visual != 0
     if (m_triggeredByAuraSpell)
@@ -4925,36 +4934,26 @@ void Spell::SendSpellGo()
 
     if ((m_caster->GetTypeId() == TYPEID_PLAYER ||
         (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->isPet()))
-        && m_spellInfo->GetMainPower() != POWER_HEALTH)
+        && !l_IsHealthPowerSpell)
         l_CastFlags |= CAST_FLAG_POWER_LEFT_SELF; // should only be sent to self, but the current messaging doesn't make that possible
-
-    //@TODO: Remove this hack
-    // Hack fix to avoid wow error
-    if (m_spellInfo->Id == 116803 || m_spellInfo->Id == 118327)
-        l_CastFlags &= ~CAST_FLAG_POWER_LEFT_SELF;
 
     if ((m_caster->GetTypeId() == TYPEID_PLAYER)
         && (m_caster->getClass() == CLASS_DEATH_KNIGHT)
         && m_spellInfo->RuneCostID
         && m_spellInfo->GetMainPower() == POWER_RUNES)
     {
-        l_CastFlags |= CAST_FLAG_UNKNOWN_19;                   // same as in SMSG_SPELL_START
-        l_CastFlags |= CAST_FLAG_RUNE_LIST;                    // rune cooldowns list
+        l_CastFlags |= CAST_FLAG_NO_GCD;                    ///< same as in SMSG_SPELL_START
+        l_CastFlags |= CAST_FLAG_RUNE_LIST;                 ///< rune cooldowns list
     }
 
     if (m_spellInfo->HasEffect(SPELL_EFFECT_ACTIVATE_RUNE))
-    {
-        l_CastFlags |= CAST_FLAG_RUNE_LIST;                    // rune cooldowns list
-        l_CastFlags |= CAST_FLAG_UNKNOWN_19;                   // same as in SMSG_SPELL_START
-    }
+        l_CastFlags |= CAST_FLAG_RUNE_LIST;                 ///< rune cooldowns list
 
     if (m_targets.HasTraj())
         l_CastFlags |= CAST_FLAG_ADJUST_MISSILE;
 
-    //@TODO: Remove this hack
-    if (m_spellInfo->Id == 147193)
-        l_CastFlags |= CAST_FLAG_UNKNOWN_4;
-
+    if (!m_spellInfo->StartRecoveryTime)
+        l_CastFlags |= CAST_FLAG_NO_GCD;
 
     uint32 l_MissCount = 0;
     uint32 l_HitCount = 0;
@@ -5159,9 +5158,8 @@ void Spell::SendSpellGo()
         l_Data << float(l_Itr._position.GetPositionZ());
     }
 
-    l_Data.WriteBits(0, 18);                                      ///< Cast flag ex
-
-    l_Data.WriteBit(l_HasRuneData);                               ///< HasRuneData
+    l_Data.WriteBits(l_CastFlagsEx, 18);                        ///< Cast flag ex
+    l_Data.WriteBit(l_HasRuneData);                             ///< HasRuneData
     l_Data.WriteBit(l_CastFlags & CAST_FLAG_PROJECTILE || l_CastFlags & CAST_FLAG_VISUAL_CHAIN);
     l_Data.FlushBits();
 
@@ -5170,9 +5168,9 @@ void Spell::SendSpellGo()
     {
         Player* l_DeathKnight = m_caster->ToPlayer();
 
-        l_Data << uint8(m_runesState);                            ///< Start
-        l_Data << uint8(l_DeathKnight->GetRunesState());          ///< Count
-        l_Data.WriteBits(MAX_RUNES, 3);                           ///< Cooldowns lenght
+        l_Data << uint8(m_runesState);                          ///< Start
+        l_Data << uint8(l_DeathKnight->GetRunesState());        ///< Count
+        l_Data.WriteBits(MAX_RUNES, 3);                         ///< Cooldowns lenght
         l_Data.FlushBits();
 
         for (uint8 l_I = 0; l_I < MAX_RUNES; ++l_I)
@@ -5180,15 +5178,15 @@ void Spell::SendSpellGo()
             float l_BaseCooldown = float(l_DeathKnight->GetRuneBaseCooldown(l_I));
             uint8 l_Cooldown = uint8((l_BaseCooldown - float(l_DeathKnight->GetRuneCooldown(l_I))) / l_BaseCooldown * 255);
 
-            l_Data << uint8(l_Cooldown);                          ///< Cooldowns
+            l_Data << uint8(l_Cooldown);                        ///< Cooldowns
         }
     }
 
     // JamProjectileVisual
     if (l_CastFlags & CAST_FLAG_PROJECTILE || l_CastFlags & CAST_FLAG_VISUAL_CHAIN)
     {
-        l_Data << uint32(0);                                      ///< Projectile Visual 1
-        l_Data << uint32(0);                                      ///< Projectile Visual 2
+        l_Data << uint32(0);                                    ///< Projectile Visual 1
+        l_Data << uint32(0);                                    ///< Projectile Visual 2
     }
 
     l_Data.WriteBit(l_HasSpellCastLogData);
@@ -5200,9 +5198,9 @@ void Spell::SendSpellGo()
         int32 l_AttackPower = m_caster->GetTotalAttackPowerValue(m_attackType);
         int32 l_SpellPower  = m_caster->SpellBaseDamageBonusDone(m_spellSchoolMask);
 
-        l_Data << int32(l_Health);                                ///< Health
-        l_Data << int32(l_AttackPower);                           ///< Attack power
-        l_Data << int32(l_SpellPower);                            ///< Spell power
+        l_Data << int32(l_Health);                              ///< Health
+        l_Data << int32(l_AttackPower);                         ///< Attack power
+        l_Data << int32(l_SpellPower);                          ///< Spell power
 
         uint32 l_PowerDataSize = l_UsablePowers.size();
 
@@ -5210,8 +5208,8 @@ void Spell::SendSpellGo()
         for (Unit::PowerTypeSet::const_iterator l_Itr = l_UsablePowers.begin(); l_Itr != l_UsablePowers.end(); l_Itr++)
         {
             Powers l_Power = Powers((*l_Itr));
-            l_Data << int32(l_Power);                             ///< Power type
-            l_Data << int32(m_caster->GetPower(l_Power));         ///< Amount
+            l_Data << int32(l_Power);                           ///< Power type
+            l_Data << int32(m_caster->GetPower(l_Power));       ///< Amount
         }
 
         bool l_HasUnknowFloat = false;
@@ -5739,12 +5737,6 @@ void Spell::TakeRunePower(bool didHit)
                     player->AddRuneBySpell(i, RUNE_DEATH, 56835);
                 break;
             }
-            case 49998: // Death Strike
-            {
-                // Blood Rites
-                player->AddRuneBySpell(i, RUNE_DEATH, 50034);
-                break;
-            }
             default:
                 break;
         }
@@ -5791,12 +5783,6 @@ void Spell::TakeRunePower(bool didHit)
                         // Reaping
                         if (player->HasAura(56835))
                             player->AddRuneBySpell(i, RUNE_DEATH, 56835);
-                        break;
-                    }
-                    case 49998: // Death Strike
-                    {
-                        // Blood Rites
-                        player->AddRuneBySpell(i, RUNE_DEATH, 50034);
                         break;
                     }
                     default:
@@ -6097,10 +6083,6 @@ SpellCastResult Spell::CheckCast(bool strict)
     // not for triggered spells (needed by execute)
     if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CASTER_AURASTATE))
     {
-        // Custom MoP Script
-        // 76856 - Mastery : Unshackled Fury - Hack Fix fake check cast
-        if (m_spellInfo->Id == 76856 && m_caster->ToPlayer() && m_caster->ToPlayer()->getLevel() > 80)
-            return SPELL_CAST_OK;
         if (m_spellInfo->CasterAuraState && !m_caster->HasAuraState(AuraStateType(m_spellInfo->CasterAuraState), m_spellInfo, m_caster))
             return SPELL_FAILED_CASTER_AURASTATE;
         if (m_spellInfo->CasterAuraStateNot && m_caster->HasAuraState(AuraStateType(m_spellInfo->CasterAuraStateNot), m_spellInfo, m_caster))

@@ -39,3 +39,8 @@ INSERT INTO gameobject (`id`, `map`, `position_x`, `position_y`, `position_z`, `
 INSERT INTO gameobject (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `animprogress`, `state`) VALUES(234092, 1152, 5587.337, 4576.163, 136.7603, 1.213002, 268435455, 65535, 255, 0) ;
 INSERT INTO gameobject (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `animprogress`, `state`) VALUES(239174, 1152, 5558.5, 4507.769, 132.7027, 3.528391, 268435455, 65535, 255, 1) ;
 INSERT INTO gameobject (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `animprogress`, `state`) VALUES(239181, 1152, 5563.049, 4518.574, 131.976, 5.896115, 268435455, 65535, 255, 1) ;
+
+---------------------------------------------------------
+-- GameObject Spawn phase 2
+---------------------------------------------------------
+INSERT INTO gameobject (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `animprogress`, `state`, `rotation3`) VALUES(231012, 1152, 5579.406, 4464.98, 132.1373, 0.9588462, 268435455, 2, 255, 1, 1) ON DUPLICATE KEY UPDATE `id` = VALUES(`id`), `map` = VALUES(`map`), `position_x` = VALUES(`position_x`), `position_y` = VALUES(`position_y`), `position_z` = VALUES(`position_z`), `orientation` = VALUES(`orientation`), `spawnMask` = VALUES(`spawnMask`), `phaseMask` = VALUES(`phaseMask`), `animprogress` = VALUES(`animprogress`), `state` = VALUES(`state`);

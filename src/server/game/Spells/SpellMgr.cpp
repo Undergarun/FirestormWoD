@@ -3460,8 +3460,8 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
-            case 157154:// High tide fix temp !!!
-                spellInfo->Effects[0].BasePoints = 0;
+            case 175975:///< Genesis
+                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(10);  ///< 30y
                 break;
             case 178531:///< Alliance Reward (but for Horde)
                 spellInfo->Effects[0].TargetA = TARGET_SRC_CASTER;
@@ -3700,6 +3700,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[2].Effect = 0;
                 spellInfo->Effects[3].Effect = 0;
                 break;
+            case 59052:// Freezing Fog
+                spellInfo->ProcChance = 45;
+                break;
             case 136654:// Rending Charge
                 spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(153); // 60 yards
                 break;
@@ -3858,7 +3861,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ALLY;
                 spellInfo->Effects[1].TargetB = 0;
                 break;
-            case 53390:
+            case 53390: // Tidal Waves
                 spellInfo->Effects[0].BasePoints = -20;
                 spellInfo->Effects[1].BasePoints = 30;
                 break;
@@ -3897,10 +3900,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 81782: // Power Word: Barrier (buff)
             case 139485:// Dark Winds
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(285); // 1s
-                break;
-            case 134735:// Battle Fatigue : Hardcoded Basepoint for Season 13
-                spellInfo->Effects[0].BasePoints = -30;
-                spellInfo->Effects[1].BasePoints = -30;
                 break;
             case 103965:// Metamorphosis (override auras)
                 spellInfo->Effects[2].SpellClassMask[0] = 64;
@@ -3988,6 +3987,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 157420:// Fiery Trail (DoT)
             case 155057:// Magma Pool (DoT)
             case 166730:// Burning Bridge (DoT)
+            case 176037:///< Noxious Spit (DoT)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
                 break;
@@ -5145,9 +5145,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->ProcFlags = 0x00A22A8;   // 1784 ProcsFlags
                 break;
             case 115192:// Subterfuge
-                spellInfo->Attributes |= SPELL_ATTR0_DONT_AFFECT_SHEATH_STATE;
-                spellInfo->Attributes |= SPELL_ATTR0_NOT_SHAPESHIFT;
-                spellInfo->AttributesEx |= SPELL_ATTR1_NOT_BREAK_STEALTH;
+                spellInfo->AttributesEx &= ~SPELL_ATTR1_NOT_BREAK_STEALTH;
                 break;
             case 84745: // Shallow Insight
             case 84746: // Moderate Insight
@@ -5355,6 +5353,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 115295:// Guard
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_MOD_HEALING_DONE_PERCENT;
                 spellInfo->Effects[1].BasePoints = 30;
+                break;
+            case 126060:// Desperate Measures
+                spellInfo->Effects[0].BasePoints = 0;
                 break;
             case 124273:// Heavy Stagger
             case 124274:// Moderate Stagger
@@ -6243,6 +6244,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TriggerSpell = 109772;
                 spellInfo->ProcChance = 100;
                 break;
+            case 109772: // Flare
+                spellInfo->SetDurationIndex(18); // 20s Duration
+                break;
             // Player Damage Reduction Level 90, we have S13, so we need to decrease to 65% of base resilience
             // @TODO: Remove this hack when we out S14
             case 142689:
@@ -6326,6 +6330,9 @@ void SpellMgr::LoadSpellCustomAttr()
 
             switch (spellInfo->Id)
             {
+                case 61882: ///< Earthquake
+                    spellInfo->ExplicitTargetMask &= ~TARGET_FLAG_UNIT;
+                    break;
                 case 73680: // Unleash Elements
                     spellInfo->ExplicitTargetMask |= TARGET_FLAG_UNIT_ALLY;
                     spellInfo->ExplicitTargetMask |= TARGET_FLAG_UNIT_ENEMY;

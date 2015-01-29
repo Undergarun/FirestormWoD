@@ -46,7 +46,7 @@ bool OPvPCapturePoint::HandlePlayerEnter(Player* player)
     }
 
     if (player->GetTeamId() < 2)
-        return m_activePlayers[player->GetTeamId()].insert(player).second;
+        return m_activePlayers[player->GetTeamId()].insert(player->GetGUID()).second;
 
     return false;
 }
@@ -57,7 +57,7 @@ void OPvPCapturePoint::HandlePlayerLeave(Player* player)
         player->SendUpdateWorldState(m_capturePoint->GetGOInfo()->controlZone.worldState1, 0);
 
     if (player->GetTeamId() < 2)
-        m_activePlayers[player->GetTeamId()].erase(player);
+        m_activePlayers[player->GetTeamId()].erase(player->GetGUID());
 }
 
 void OPvPCapturePoint::SendChangePhase()
@@ -310,12 +310,16 @@ bool OPvPCapturePoint::Update(uint32 diff)
 
     for (uint32 team = 0; team < 2; ++team)
     {
-        for (PlayerSet::iterator itr = m_activePlayers[team].begin(); itr != m_activePlayers[team].end();)
+        for (GuidSet::iterator itr = m_activePlayers[team].begin(); itr != m_activePlayers[team].end();)
         {
-            Player* player = *itr;
+            Player* player = sObjectAccessor->FindPlayer(*itr);
             ++itr;
-            if (!m_capturePoint->IsWithinDistInMap(player, radius) || !player->IsOutdoorPvPActive())
-                HandlePlayerLeave(player);
+
+            if (player)
+            {
+                if (!m_capturePoint->IsWithinDistInMap(player, radius) || !player->IsOutdoorPvPActive())
+                    HandlePlayerLeave(player);
+            }
         }
     }
 
@@ -326,9 +330,9 @@ bool OPvPCapturePoint::Update(uint32 diff)
 
     for (std::list<Player*>::iterator itr = players.begin(); itr != players.end(); ++itr)
     {
-        if ((*itr)->IsOutdoorPvPActive())
+        if ((*itr)->IsOutdoorPvPActive() && (*itr)->GetTeamId() < 2)
         {
-            if (m_activePlayers[(*itr)->GetTeamId()].insert(*itr).second)
+            if (m_activePlayers[(*itr)->GetTeamId()].insert((*itr)->GetGUID()).second)
                 HandlePlayerEnter(*itr);
         }
     }
@@ -433,9 +437,10 @@ void OPvPCapturePoint::SendUpdateWorldState(uint32 field, uint32 value)
     for (uint32 team = 0; team < 2; ++team)
     {
         // send to all players present in the area
-        for (PlayerSet::iterator itr = m_activePlayers[team].begin(); itr != m_activePlayers[team].end(); ++itr)
+        for (GuidSet::iterator itr = m_activePlayers[team].begin(); itr != m_activePlayers[team].end(); ++itr)
         {
-            (*itr)->SendUpdateWorldState(field, value);
+            if (Player* player = sObjectAccessor->FindPlayer((*itr)))
+                player->SendUpdateWorldState(field, value);
         }
     }
 }
@@ -456,8 +461,11 @@ void OPvPCapturePoint::SendObjectiveComplete(uint32 id, uint64 guid)
     }
 
     // send to all players present in the area
-    for (PlayerSet::iterator itr = m_activePlayers[team].begin(); itr != m_activePlayers[team].end(); ++itr)
-        (*itr)->KilledMonsterCredit(id, guid);
+    for (GuidSet::iterator itr = m_activePlayers[team].begin(); itr != m_activePlayers[team].end(); ++itr)
+    {
+        if (Player* player = sObjectAccessor->FindPlayer((*itr)))
+            player->KilledMonsterCredit(id, guid);
+    }
 }
 
 void OutdoorPvP::HandleKill(Player* killer, Unit* killed)
@@ -505,7 +513,7 @@ bool OutdoorPvP::IsInsideObjective(Player* player) const
 bool OPvPCapturePoint::IsInsideObjective(Player* player) const
 {
     if (player && player->GetTeamId() < 2)
-        return m_activePlayers[player->GetTeamId()].find(player) != m_activePlayers[player->GetTeamId()].end();
+        return m_activePlayers[player->GetTeamId()].find(player->GetGUID()) != m_activePlayers[player->GetTeamId()].end();
 
     return false;
 }
@@ -717,7 +725,7 @@ void OutdoorPvP::OnGameObjectRemove(GameObject* p_Go)
 
 WorldSafeLocsEntry const* OutdoorPvP::GetClosestGraveyard(Player* p_Player)
 {
-    OutdoorGraveyard* l_ClotestGraveyard = nullptr;
+    OutdoorGraveyard* l_ClosestGraveyard = nullptr;
     float l_MaxDist = 1000000.0f;
 
     for (uint8 l_I = 0; l_I < m_GraveyardList.size(); l_I++)
@@ -730,14 +738,14 @@ WorldSafeLocsEntry const* OutdoorPvP::GetClosestGraveyard(Player* p_Player)
             float l_Dist = m_GraveyardList[l_I]->GetDistance(p_Player);
             if (l_Dist < l_MaxDist || l_MaxDist < 0)
             {
-                l_ClotestGraveyard = m_GraveyardList[l_I];
+                l_ClosestGraveyard = m_GraveyardList[l_I];
                 l_MaxDist = l_Dist;
             }
         }
     }
 
-    if (l_ClotestGraveyard)
-        return sWorldSafeLocsStore.LookupEntry(l_ClotestGraveyard->GetGraveyardId());
+    if (l_ClosestGraveyard)
+        return sWorldSafeLocsStore.LookupEntry(l_ClosestGraveyard->GetGraveyardId());
 
     return nullptr;
 }
@@ -874,20 +882,20 @@ void OutdoorGraveyard::GiveControlTo(TeamId p_Team)
 
 void OutdoorGraveyard::RelocateDeadPlayers()
 {
-    WorldSafeLocsEntry const* l_ClotestGrave = nullptr;
+    WorldSafeLocsEntry const* l_ClosestGrave = nullptr;
     for (GuidSet::const_iterator l_Iter = m_ResurrectQueue.begin(); l_Iter != m_ResurrectQueue.end(); ++l_Iter)
     {
         Player* l_Player = sObjectAccessor->FindPlayer(*l_Iter);
         if (!l_Player)
             continue;
 
-        if (l_ClotestGrave)
-            l_Player->TeleportTo(l_Player->GetMapId(), l_ClotestGrave->x, l_ClotestGrave->y, l_ClotestGrave->z, l_Player->GetOrientation());
+        if (l_ClosestGrave)
+            l_Player->TeleportTo(l_Player->GetMapId(), l_ClosestGrave->x, l_ClosestGrave->y, l_ClosestGrave->z, l_Player->GetOrientation());
         else
         {
-            l_ClotestGrave = m_OutdoorPvP->GetClosestGraveyard(l_Player);
-            if (l_ClotestGrave)
-                l_Player->TeleportTo(l_Player->GetMapId(), l_ClotestGrave->x, l_ClotestGrave->y, l_ClotestGrave->z, l_Player->GetOrientation());
+            l_ClosestGrave = m_OutdoorPvP->GetClosestGraveyard(l_Player);
+            if (l_ClosestGrave)
+                l_Player->TeleportTo(l_Player->GetMapId(), l_ClosestGrave->x, l_ClosestGrave->y, l_ClosestGrave->z, l_Player->GetOrientation());
         }
     }
 }

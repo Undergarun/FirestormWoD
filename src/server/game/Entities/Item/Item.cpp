@@ -596,6 +596,94 @@ uint32 Item::GetSkill() const
     return GetTemplate()->GetSkill();
 }
 
+void Item::GenerateItemBonus(uint32 p_ItemId, uint32 p_ItemBonusDifficulty, std::vector<uint32>& p_ItemBonus)
+{
+    /// Item bonus per item are store in ItemXBonusTree.db2
+    if (sItemBonusTreeByID.find(p_ItemId) == sItemBonusTreeByID.end())
+        return;
+
+    /// Step one : search for generic bonus we can find in DB2 (90, 92, 94, 95, 97, heroic)
+    auto& l_ItemBonusTree = sItemBonusTreeByID[p_ItemId];
+    std::for_each(l_ItemBonusTree.begin(), l_ItemBonusTree.end(), [&p_ItemBonusDifficulty, &p_ItemBonus](ItemXBonusTreeEntry const* p_ItemXBonusTree) -> void
+    {
+        /// Lookup for the right bonus
+        for (uint32 l_Index = 0; l_Index < sItemBonusTreeNodeStore.GetNumRows(); l_Index++)
+        {
+            auto l_ItemBonusTreeNode = sItemBonusTreeNodeStore.LookupEntry(l_Index);
+            if (l_ItemBonusTreeNode == nullptr)
+                continue;
+
+            if (l_ItemBonusTreeNode->Category != p_ItemXBonusTree->ItemBonusTreeCategory)
+                continue;
+
+            if (l_ItemBonusTreeNode->Difficulty != p_ItemBonusDifficulty)
+                continue;
+
+            auto l_BonusId = l_ItemBonusTreeNode->ItemBonusEntry;
+
+            /// If no bonusId, we must use LinkedCategory to try to find it ...
+            /// ItemBonusTreeNode.db2 havn't full data (6.0.3 19116), in somes case we can't find the item bonus
+            /// Maybe we can have full data by bruteforcing on retail ?
+            if (l_BonusId == 0)
+            {
+                for (uint32 l_LinkedIndex = 0; l_LinkedIndex < sItemBonusTreeNodeStore.GetNumRows(); l_LinkedIndex++)
+                {
+                    auto l_LinkedItemBonusTreeNode = sItemBonusTreeNodeStore.LookupEntry(l_LinkedIndex);
+                    if (l_LinkedItemBonusTreeNode == nullptr)
+                        continue;
+
+                    if (l_LinkedItemBonusTreeNode->Category != l_ItemBonusTreeNode->LinkedCategory)
+                        continue;
+
+                    l_BonusId = l_LinkedItemBonusTreeNode->ItemBonusEntry;
+                    break;
+                }
+            }
+
+            if (l_BonusId != 0)
+                p_ItemBonus.push_back(l_BonusId);
+        }
+    });
+
+    /// Step two : Roll for stats bonus (Avoidance, Leech & Speed)
+    /// Atm, i can't find percentage chance to have stats but it's same pretty low (~ 10%)
+    /// Item can have only on stat bonus, and it's only in dungeon/raid
+    if (p_ItemBonusDifficulty != 0)             ///< Only in dungeon & raid
+    {
+        /// @TODO: Add Indestructible for raid, need more informations about normal, heroic, mythic & lfr ...
+        std::vector<uint32> l_StatsBonus =
+        {
+            ItemBonus::Stats::Avoidance,
+            ItemBonus::Stats::Speed,
+            ItemBonus::Stats::Leech
+        };
+
+        if (roll_chance_f(ItemBonus::Chances::Stats))
+        { 
+            /// Could be a good thing to improve performance to declare one random generator somewhere and always use the same instead of declare it new one for each std::shuffle call
+            /// Note for developers : std::random_shuffle is c based and will be removed soon (c++x14), so it's a good tips to always use std::shuffle instead 
+            std::random_device l_RandomDevice;
+            std::mt19937 l_RandomGenerator(l_RandomDevice());
+            std::shuffle(l_StatsBonus.begin(), l_StatsBonus.end(), l_RandomGenerator);
+
+            p_ItemBonus.push_back(*l_StatsBonus.begin());
+        }
+    }
+
+    /// Step tree : Roll for Warforged & Prismatic Socket
+    /// That roll happen only in heroic dungeons & raid
+    /// Exaclty like stats, we don't know the chance to have that kind of bonus ...
+    /// @TODO: Handle raid case, need more informations about normal, heroic, mythic & lfr ...
+    if (p_ItemBonusDifficulty == Difficulty::HEROIC_5_DIFFICULTY)
+    {
+        if (roll_chance_f(ItemBonus::Chances::Warforged))
+            p_ItemBonus.push_back(ItemBonus::HeroicOrRaid::Warforged);
+
+        if (roll_chance_f(ItemBonus::Chances::PrismaticSocket))
+            p_ItemBonus.push_back(ItemBonus::HeroicOrRaid::PrismaticSocket);
+    }
+}
+
 int32 Item::GenerateItemRandomPropertyId(uint32 item_id)
 {
     ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(item_id);

@@ -258,6 +258,10 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
     LastUsedScriptID = GetGOInfo()->ScriptId;
     AIM_Initialize();
 
+    auto l_MapDifficulty     = map->GetMapDifficulty();
+    if (l_MapDifficulty != nullptr)
+        loot.ItemBonusDifficulty = l_MapDifficulty->ItemBonusTreeDifficulty ? l_MapDifficulty->ItemBonusTreeDifficulty : map->GetDifficulty();
+
     switch (goinfo->type)
     {
             // @todo On port intactNumHits is removed
@@ -2193,8 +2197,10 @@ void GameObject::EnableCollision(bool enable)
     if (!m_model)
         return;
 
-    /*if (enable && !GetMap()->ContainsGameObjectModel(*m_model))
-        GetMap()->InsertGameObjectModel(*m_model);*/
+    /// CRASH ALERT !!!!!
+    /// Enabled at 23/01/2015 can may server crash
+    if (enable && !GetMap()->ContainsGameObjectModel(*m_model))
+        GetMap()->InsertGameObjectModel(*m_model);
 
     m_model->enable(enable ? GetPhaseMask() : 0);
 }

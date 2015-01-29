@@ -142,6 +142,7 @@ struct PlayerSpell
     bool active            : 1;                             // show in spellbook
     bool dependent         : 1;                             // learned as result another spell learn, skill grow, quest reward, etc
     bool disabled          : 1;                             // first rank has been learned in result talent learn but currently talent unlearned, save max learned ranks
+    bool IsMountFavorite   : 1;                             // Is flagged as favorite mount spell
 };
 
 struct PlayerTalent
@@ -548,6 +549,8 @@ enum PlayerFlagsEx
 
 #define KNOWN_TITLES_SIZE   10
 #define MAX_TITLE_INDEX     (KNOWN_TITLES_SIZE*64)          // 5 uint64 fields
+
+#define ECLIPSE_FULL_CYCLE_DURATION 40
 
 // used in PLAYER_FIELD_BYTES values
 enum PlayerFieldByteFlags
@@ -1438,7 +1441,11 @@ enum BattlegroundTimerTypes
     CHALLENGE_TIMER
 };
 
-class Garrison;
+namespace MS { namespace Garrison 
+{
+    class Manager;
+}   ///< namespace Garrison
+}   ///< namespace MS
 
 class Player : public Unit, public GridObject<Player>
 {
@@ -1504,7 +1511,7 @@ class Player : public Unit, public GridObject<Player>
         std::string afkMsg;
         std::string dndMsg;
 
-        Garrison * GetGarrison();
+        MS::Garrison::Manager * GetGarrison();
         void CreateGarrison();
         bool IsInGarrison();
         void DeleteGarrison();
@@ -2091,7 +2098,7 @@ class Player : public Unit, public GridObject<Player>
         bool IsNeedCastPassiveSpellAtLearn(SpellInfo const* spellInfo) const;
 
         void SendProficiency(ItemClass itemClass, uint32 itemSubclassMask);
-        bool addSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading = false);
+        bool addSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading = false, bool p_IsMountFavorite = false);
         void learnSpell(uint32 spell_id, bool dependent);
         void removeSpell(uint32 spell_id, bool disabled = false, bool learn_low_rank = true);
         void resetSpells(bool myClassOnly = false);
@@ -2104,6 +2111,8 @@ class Player : public Unit, public GridObject<Player>
         void SetReputation(uint32 factionentry, uint32 value);
         uint32 GetReputation(uint32 factionentry);
         std::string GetGuildName();
+
+        void MountSetFavorite(uint32 p_SpellID, bool p_IsFavorite);
 
         // Talents
         uint32 GetFreeTalentPoints() const { return _talentMgr->FreeTalentPoints; }
@@ -2345,10 +2354,7 @@ class Player : public Unit, public GridObject<Player>
         void SetArenaPersonalRating(uint8 slot, uint32 value)
         {
             if (slot >= MAX_PVP_SLOT)
-            {
-                sLog->outAshran("ARENA SLOT OVERFLOW!!");
                 return;
-            }
 
             if (value > 3500)
             {
@@ -2366,10 +2372,7 @@ class Player : public Unit, public GridObject<Player>
         void SetArenaMatchMakerRating(uint8 slot, uint32 value)
         {
             if (slot >= MAX_PVP_SLOT)
-            {
-                sLog->outAshran("ARENA SLOT OVERFLOW!!");
                 return;
-            }
 
             if (value > 3500)
             {
@@ -2382,37 +2385,29 @@ class Player : public Unit, public GridObject<Player>
         void IncrementWeekGames(uint8 slot)
         {
             if (slot >= MAX_PVP_SLOT)
-            {
-                sLog->outAshran("ARENA SLOT OVERFLOW!!");
                 return;
-            }
+
             ++m_WeekGames[slot];
         }
         void IncrementWeekWins(uint8 slot)
         {
             if (slot >= MAX_PVP_SLOT)
-            {
-                sLog->outAshran("ARENA SLOT OVERFLOW!!");
                 return;
-            }
+
             ++m_WeekWins[slot];
         }
         void IncrementSeasonGames(uint8 slot)
         {
             if (slot >= MAX_PVP_SLOT)
-            {
-                sLog->outAshran("ARENA SLOT OVERFLOW!!");
                 return;
-            }
+
             ++m_SeasonGames[slot];
         }
         void IncrementSeasonWins(uint8 slot)
         {
             if (slot >= MAX_PVP_SLOT)
-            {
-                sLog->outAshran("ARENA SLOT OVERFLOW!!");
                 return;
-            }
+
             ++m_SeasonWins[slot];
         }
         void FinishWeek();
@@ -2932,8 +2927,6 @@ class Player : public Unit, public GridObject<Player>
 
         WorldLocation GetStartPosition() const;
 
-        uint32 m_lastEclipseState;
-
         // current pet slot
         PetSlot m_currentPetSlot;
         uint32 m_petSlotUsed;
@@ -3380,8 +3373,28 @@ class Player : public Unit, public GridObject<Player>
         DailyLootsCooldowns m_DailyLootsCooldowns;
         void _LoadDailyLootsCooldowns(PreparedQueryResult&& p_Result);
         void ResetDailyLoots();
-        bool CanLoot(uint32 p_Entry) const { return m_DailyLootsCooldowns.find(p_Entry) == m_DailyLootsCooldowns.end(); }
+        bool CanHaveDailyLootForItem(uint32 p_Entry) const { return m_DailyLootsCooldowns.find(p_Entry) == m_DailyLootsCooldowns.end(); }
         void AddDailyLootCooldown(uint32 p_Entry);
+
+        void _GarrisonSetIn();
+        void _GarrisonSetOut();
+
+        void AddCriticalOperation(std::function<void()> const&& p_Function)
+        {
+            m_CriticalOperationLock.acquire();
+            m_CriticalOperation.push(std::function<void()>(p_Function));
+            m_CriticalOperationLock.release();
+        }
+
+        //////////////////////////////////////////////////////////////////////////
+        /// Eclipse System
+        bool IsEclipseCyclesActive() const { return m_EclipseCycleActive; }
+        void SetEclipseCyclesState(bool p_State) { m_EclipseCycleActive = p_State; }
+        IntervalTimer& GetEclipseTimer() { return m_EclipseTimer; }
+        uint8 GetLastEclipseState() const { return m_LastEclipseState; }
+        void SetLastEclipseState(uint8 p_EclipseState) { m_LastEclipseState = p_EclipseState; }
+        bool HasEclipseSideAvantage(uint8 p_EclipseState) const;
+        //////////////////////////////////////////////////////////////////////////
 
     protected:
         void OnEnterPvPCombat();
@@ -3410,6 +3423,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_burningEmbersRegenTimerCount;
         uint32 m_soulShardsRegenTimerCount;
         uint32 m_focusRegenTimerCount;
+        uint32 m_EclipseRegenTimer;
         uint32 m_demonicFuryPowerRegenTimerCount;
         float m_powerFraction[MAX_POWERS_PER_CLASS];
         uint32 m_contestedPvPTimer;
@@ -3696,6 +3710,9 @@ class Player : public Unit, public GridObject<Player>
 
         MS::Utilities::BitSet m_CompletedQuestBits;
 
+        std::queue<std::function<void()>> m_CriticalOperation;
+        ACE_Thread_Mutex m_CriticalOperationLock;
+
     private:
         // internal common parts for CanStore/StoreItem functions
         InventoryResult CanStoreItem_InSpecificSlot(uint8 bag, uint8 slot, ItemPosCountVec& dest, ItemTemplate const* pProto, uint32& count, bool swap, Item* pSrcItem) const;
@@ -3781,7 +3798,7 @@ class Player : public Unit, public GridObject<Player>
         //////////////////////////////////////////////////////////////////////////
         /// Garrison
         //////////////////////////////////////////////////////////////////////////
-        Garrison * m_Garrison;
+        MS::Garrison::Manager * m_Garrison;
         IntervalTimer m_GarrisonUpdateTimer;
 
         //////////////////////////////////////////////////////////////////////////
@@ -3842,6 +3859,13 @@ class Player : public Unit, public GridObject<Player>
         /// Vignette
         //////////////////////////////////////////////////////////////////////////
         Vignette::Manager m_VignetteMgr;
+
+        /*********************************************************/
+        /***                  ECLIPSE SYSTEM                   ***/
+        /*********************************************************/
+        bool m_EclipseCycleActive;
+        IntervalTimer m_EclipseTimer;
+        uint8 m_LastEclipseState;
 };
 
 void AddItemsSetItem(Player*player, Item* item);

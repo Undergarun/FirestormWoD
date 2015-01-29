@@ -422,7 +422,7 @@ UPDATE creature_template SET gossip_menu_id = 0, ScriptName="npc_ShellyHamby" WH
 
 REPLACE INTO creature_text (entry, `groupid`, `id`, `text`, `type`, `language`, `probability`) VALUES(79457, 0, 0, "Be careful, commander. If these pale orcs are real, who knows what powers they possess.", 12, 0, 100);
 REPLACE INTO creature_text (entry, `groupid`, `id`, `text`, `type`, `language`, `probability`) VALUES(79457, 1, 0, "These pale orcs sound dangerous. Hopefully this is the last we see of them.", 12, 0, 100);
-UPDATE creature_template SET ScriptName="npc_VindicatorMaraad" WHERE entry=79457;	
+UPDATE creature_template SET ScriptName="npc_VindicatorMaraad_GarrA" WHERE entry=79457;	
 
 ---------------------------------------------------------
 -- Quest lines

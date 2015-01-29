@@ -94,8 +94,8 @@ void LoginDatabaseConnection::DoPrepareStatements()
 
     PREPARE_STATEMENT(LOGIN_ADD_TRANSFERTS_LOGS, "INSERT INTO transferts_logs (`id`, `account`, `perso_guid`, `from`, `to`, `dump`) VALUES (?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
 
-    PREPARE_STATEMENT(LOGIN_INS_CHAR_SPELL, "INSERT INTO account_spell (accountId, spell, active, disabled) VALUES (?, ?, ?, ?)", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(LOGIN_SEL_CHARACTER_SPELL, "SELECT spell, active, disabled FROM account_spell WHERE accountId = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(LOGIN_INS_CHAR_SPELL, "INSERT INTO account_spell (accountId, spell, active, disabled, IsMountFavorite) VALUES (?, ?, ?, ?, ?)", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(LOGIN_SEL_CHARACTER_SPELL, "SELECT spell, active, disabled, IsMountFavorite FROM account_spell WHERE accountId = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_DEL_CHAR_SPELL_BY_SPELL, "DELETE FROM account_spell WHERE spell = ? AND accountId = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_DEL_CHAR_SPELL, "DELETE FROM account_spell WHERE accountId = ?", CONNECTION_ASYNC);
 

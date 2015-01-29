@@ -178,6 +178,7 @@ enum Opcodes
         SMSG_ITEM_PURCHASE_REFUND_RESULT            = 0x0B3D,   ///< 6.0.3 19116
         SMSG_GAMEOBJECT_DESPAWN                     = 0x0D29,   ///< 6.0.3 19116
         SMSG_GAMEOBJECT_CUSTOM_ANIM                 = 0x03EB,   ///< 6.0.3 19116
+        SMSG_GAME_OBJECT_ACTIVATE_ANIM_KIT          = 0x038C,   ///< 6.0.3 19116
         SMSG_FISH_NOT_HOOKED                        = 0x0DC0,   ///< 6.0.3 19116
         SMSG_FISH_ESCAPED                           = 0x0530,   ///< 6.0.3 19116
         SMSG_DESTRUCTIBLE_BUILDING_DAMAGE           = 0x0A28,   ///< 6.0.3 19116
@@ -185,6 +186,9 @@ enum Opcodes
         SMSG_CLIENT_CONTROL_UPDATE                  = 0x080E,   ///< 6.0.3 19116
         SMSG_AREA_TRIGGER_NO_CORPSE                 = 0x0D3F,   ///< 6.0.3 19116
         SMSG_VIGNETTE_UPDATE                        = 0x09AC,   ///< 6.0.3 19116
+        SMSG_CHAR_CUSTOMIZE_RESULT                  = 0x0BAA,   ///< 6.0.3 19116
+        SMSG_CHAR_CUSTOMIZE                         = 0x1932,   ///< 6.0.3 19116
+        SMSG_ACCOUNT_MOUNT_UPDATE                   = 0x0140,   ///< 6.0.3 19116
 
         /// Control Alert
         SMSG_LOSS_OF_CONTROL_AURA_UPDATE            = 0x0305,   ///< 6.0.3 19116
@@ -1819,7 +1823,6 @@ enum Opcodes
     SMSG_GAME_TIME_SET                                  = 0x0000,
     SMSG_GAME_TIME_UPDATE                               = 0x0000,
     SMSG_GAME_EVENT_DEBUG_LOG                           = 0x0000,
-    SMSG_GAME_OBJECT_ACTIVATE_ANIM_KIT                  = 0x0000,
     SMSG_GM_PLAYER_INFO                                 = 0x0000,
     SMSG_GOD_MODE                                       = 0x0000,
     SMSG_GROUP_ACTION_THROTTLED                         = 0x0000,

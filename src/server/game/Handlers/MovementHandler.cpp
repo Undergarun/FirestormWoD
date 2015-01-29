@@ -164,7 +164,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
         Difficulty diff = GetPlayer()->GetDifficulty(mEntry->IsRaid());
         if (MapDifficulty const* mapDiff = GetMapDifficultyData(mEntry->MapID, diff))
         {
-            if (mapDiff->resetTime)
+            if (mapDiff->ResetTime)
             {
                 if (time_t timeReset = sInstanceSaveMgr->GetResetTimeFor(mEntry->MapID, diff))
                 {
