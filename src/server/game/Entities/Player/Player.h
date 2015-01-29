@@ -42,6 +42,7 @@
 #include "PhaseMgr.h"
 #include "CUFProfiles.h"
 #include "CinematicPathMgr.h"
+#include "VignetteMgr.hpp"
 #include "BitSet.hpp"
 
 // for template
@@ -1679,7 +1680,8 @@ class Player : public Unit, public GridObject<Player>
         bool StoreNewItemInBestSlots(uint32 item_id, uint32 item_count);
         void AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore const& store, bool broadcast = false);
         void AutoStoreLoot(uint32 loot_id, LootStore const& store, bool broadcast = false) { AutoStoreLoot(NULL_BAG, NULL_SLOT, loot_id, store, broadcast); }
-        void StoreLootItem(uint8 lootSlot, Loot* loot, uint8 linkedLootSlot = 255);
+        void StoreLootItem(uint8 p_LootSlot, Loot* p_Loot, uint8 p_LinkedLootSlot = 255);
+        void AddTrackingQuestIfNeeded(uint64 p_SourceGuid);
 
         InventoryResult CanTakeMoreSimilarItems(uint32 entry, uint32 count, Item* pItem, uint32* no_space_count = NULL) const;
         InventoryResult CanStoreItem(uint8 bag, uint8 slot, ItemPosCountVec& dest, uint32 entry, uint32 count, Item* pItem = NULL, bool swap = false, uint32* no_space_count = NULL) const;
@@ -1950,6 +1952,8 @@ class Player : public Unit, public GridObject<Player>
 
         void AddTimedQuest(uint32 quest_id) { m_timedquests.insert(quest_id); }
         void RemoveTimedQuest(uint32 quest_id) { m_timedquests.erase(quest_id); }
+
+        MS::Utilities::BitSet const& GetCompletedQuests() const { return m_CompletedQuestBits; }
 
         /*********************************************************/
         /***                   LOAD SYSTEM                     ***/
@@ -3331,6 +3335,15 @@ class Player : public Unit, public GridObject<Player>
         CompletedChallengesMap m_CompletedChallenges;
         //////////////////////////////////////////////////////////////////////////
 
+        //////////////////////////////////////////////////////////////////////////
+        /// Vignette
+        //////////////////////////////////////////////////////////////////////////
+
+        Vignette::Manager const& GetVignetteMgr() { return m_VignetteMgr; }
+
+        /////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////
+
         struct MovieDelayedTeleport
         {
             uint32 MovieID;
@@ -3841,6 +3854,11 @@ class Player : public Unit, public GridObject<Player>
 
         uint32 m_PvPCombatTimer;
         bool m_pvpCombat;
+
+        //////////////////////////////////////////////////////////////////////////
+        /// Vignette
+        //////////////////////////////////////////////////////////////////////////
+        Vignette::Manager m_VignetteMgr;
 
         /*********************************************************/
         /***                  ECLIPSE SYSTEM                   ***/

@@ -410,7 +410,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& p_Packet)
         {
             if (EmotesEntry const* emoteInfo = sEmotesStore.LookupEntry(l_EmoteId))
             {
-                if (emoteInfo->EmoteType != 1)
+                if (emoteInfo->EmoteType != EmoteTypes::EmoteLoop)
                     l_PlayerMover->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
             }
         }
