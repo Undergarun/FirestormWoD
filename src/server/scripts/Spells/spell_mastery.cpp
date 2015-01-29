@@ -32,14 +32,16 @@ enum MasterySpells
     MASTERY_SPELL_LAVA_BURST            = 77451,
     MASTERY_SPELL_ELEMENTAL_BLAST       = 120588,
     MASTERY_SPELL_HAND_OF_LIGHT         = 96172,
-    MASTERY_SPELL_IGNITE                = 12654,
+    MASTERY_SPELL_IGNITE_AURA           = 12654,
     MASTERY_SPELL_BLOOD_SHIELD          = 77535,
     MASTERY_SPELL_DISCIPLINE_SHIELD     = 77484,
     SPELL_DK_SCENT_OF_BLOOD             = 50421,
     SPELL_MAGE_MASTERY_ICICLES          = 76613,
     SPELL_MAGE_ICICLE_DAMAGE            = 148022,
     SPELL_MAGE_ICICLE_PERIODIC_TRIGGER  = 148023,
-    SPELL_PRIEST_ECHO_OF_LIGHT          = 77489
+    SPELL_PRIEST_ECHO_OF_LIGHT          = 77489,
+    SPELL_WARRIOR_WEAPONS_MASTER        = 76838,
+    MASTERY_SPELL_IGNITE                = 12846
 };
 
 ///< Mastery: Sniper Training - 76659
@@ -486,14 +488,14 @@ class spell_mastery_shield_discipline: public SpellScriptLoader
         {
             PrepareAuraScript(spell_mastery_shield_discipline_AuraScript);
 
-            void CalculateAmount(constAuraEffectPtr , int32 & amount, bool & )
+            void CalculateAmount(constAuraEffectPtr , int32 & p_Amount, bool & )
             {
                 if (Unit* caster = GetCaster())
                 {
                     if (caster->HasAura(MASTERY_SPELL_DISCIPLINE_SHIELD) && caster->getLevel() >= 80)
                     {
-                        float Mastery = 1 + (caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.5f / 100.0f);
-                        amount = int32(amount * Mastery);
+                        float l_Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.625f;
+                        p_Amount += CalculatePct(p_Amount, l_Mastery);
                     }
                 }
             }
@@ -576,27 +578,31 @@ class spell_mastery_ignite: public SpellScriptLoader
 
             void HandleAfterHit()
             {
-                if (Unit* caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
-                        if (caster->GetTypeId() == TYPEID_PLAYER && caster->HasAura(12846) && caster->getLevel() >= 80)
+                        if (l_Caster->GetTypeId() == TYPEID_PLAYER && l_Caster->HasAura(MASTERY_SPELL_IGNITE) && l_Caster->getLevel() >= 80)
                         {
-                            uint32 procSpellId = GetSpellInfo()->Id ? GetSpellInfo()->Id : 0;
-                            if (procSpellId != MASTERY_SPELL_IGNITE)
+                            const SpellInfo *l_SpellInfo = sSpellMgr->GetSpellInfo(MASTERY_SPELL_IGNITE_AURA);
+                            if (GetSpellInfo()->Id != MASTERY_SPELL_IGNITE_AURA && l_SpellInfo != nullptr)
                             {
-                                float value = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.5f / 100.0f;
+                                float l_Value = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.5f;
 
-                                int32 bp = GetHitDamage();
-                                bp = int32(bp * value / 2);
+                                int32 l_Bp = GetHitDamage();
 
-                                if (target->HasAura(MASTERY_SPELL_IGNITE, caster->GetGUID()))
+                                if (l_Bp)
                                 {
-                                    bp += target->GetRemainingPeriodicAmount(caster->GetGUID(), MASTERY_SPELL_IGNITE, SPELL_AURA_PERIODIC_DAMAGE);
-                                    bp = int32(bp * 0.66f);
-                                }
+                                    l_Bp = int32(CalculatePct(l_Bp, l_Value));
 
-                                caster->CastCustomSpell(target, MASTERY_SPELL_IGNITE, &bp, NULL, NULL, true);
+                                    if (l_SpellInfo->Effects[EFFECT_0].Amplitude > 0)
+                                        l_Bp = l_Bp / (l_SpellInfo->GetMaxDuration() / l_SpellInfo->Effects[EFFECT_0].Amplitude);
+                                    
+                                    if (l_Target->HasAura(MASTERY_SPELL_IGNITE_AURA, l_Caster->GetGUID()))
+                                        l_Bp += l_Target->GetRemainingPeriodicAmount(l_Caster->GetGUID(), MASTERY_SPELL_IGNITE_AURA, SPELL_AURA_PERIODIC_DAMAGE);
+
+                                    l_Caster->CastCustomSpell(l_Target, MASTERY_SPELL_IGNITE_AURA, &l_Bp, NULL, NULL, true);
+                                }
                             }
                         }
                     }
@@ -615,7 +621,7 @@ class spell_mastery_ignite: public SpellScriptLoader
         }
 };
 
-// Called by 35395 - Crusader Strike, 53595 - Hammer of the Righteous, 24275 - Hammer of Wrath, 85256 - Templar's Verdict and 53385 - Divine Storm
+// Called by 35395 - Crusader Strike, 53595 - Hammer of the Righteous, 24275 - Hammer of Wrath, 85256 - Templar's Verdict, 53385 - Divine Storm, 157048 - Final Verdict
 // 76672 - Mastery : Hand of Light
 class spell_mastery_hand_of_light: public SpellScriptLoader
 {
@@ -758,8 +764,45 @@ class spell_mastery_elemental_overload: public SpellScriptLoader
         }
 };
 
+// Call by Mortal Strike - 12294, Colossus Smash - 86346, Execute - 5308
+// Mastery: Weapons Master - 76338
+class spell_mastery_weapons_master : public SpellScriptLoader
+{
+public:
+    spell_mastery_weapons_master() : SpellScriptLoader("spell_mastery_weapons_master") { }
+
+    class spell_mastery_weapons_master_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_mastery_weapons_master_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (l_Caster->HasAura(SPELL_WARRIOR_WEAPONS_MASTER))
+                {
+                    float l_MasteryValue = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 3.5f;
+
+                    SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_MasteryValue));
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_mastery_weapons_master_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_mastery_weapons_master_SpellScript();
+    }
+};
+
 void AddSC_mastery_spell_scripts()
 {
+    new spell_mastery_weapons_master();
     new spell_mastery_sniper_training();
     new spell_mastery_recently_moved();
     new spell_mastery_sniper_training_aura();

@@ -216,8 +216,7 @@ class mob_darkwoods_faerie : public CreatureScript
                             events.ScheduleEvent(EVENT_DISGUISE, 70000);
                             break;
                         case EVENT_FAE_SPIRIT:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
-                                me->CastSpell(target, SPELL_FAE_SPIRIT, false);
+                            me->CastSpell(me, SPELL_FAE_SPIRIT, false);
                             events.ScheduleEvent(EVENT_FAE_SPIRIT, 15000);
                             break;
                         case EVENT_NIGHT_SKY:

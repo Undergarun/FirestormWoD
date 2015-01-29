@@ -12,7 +12,7 @@ file(GLOB_RECURSE sources_Accounts Accounts/*.cpp Accounts/*.h)
 file(GLOB_RECURSE sources_Anticheat Anticheat/*.cpp Anticheat/*.h)
 file(GLOB_RECURSE sources_Achievements Achievements/*.cpp Achievements/*.h)
 file(GLOB_RECURSE sources_Addons Addons/*.cpp Addons/*.h)
-file(GLOB_RECURSE sources_AI AI/*.cpp AI/*.h)
+file(GLOB_RECURSE sources_AI AI/*.cpp AI/*.h AI/*.hpp)
 file(GLOB_RECURSE sources_AuctionHouse AuctionHouse/*.cpp AuctionHouse/*.h)
 file(GLOB_RECURSE sources_Battlefield Battlefield/*.cpp Battlefield/*.h)
 file(GLOB_RECURSE sources_Battlegrounds Battlegrounds/*.cpp Battlegrounds/*.h Battlegrounds/*.hpp)
@@ -55,7 +55,8 @@ file(GLOB_RECURSE sources_PetBattle PetBattle/*.cpp PetBattle/*.h)
 file(GLOB_RECURSE sources_World World/*.cpp World/*.h)
 file(GLOB_RECURSE sources_shared_ptrs SharedPtrs/*.h)
 file(GLOB_RECURSE sources_Cinematic Cinematic/*.h Cinematic/*.cpp)
-file(GLOB_RECURSE sources_Garrison Garrison/*.h Garrison/*.cpp)
+file(GLOB_RECURSE sources_Garrison Garrison/*.hpp Garrison/*.cpp)
+file(GLOB_RECURSE sources_Vignette Vignette/*.hpp Vignette/*.cpp Vignette/*.hxx)
 
 # Create game-libary
 
@@ -114,6 +115,7 @@ set(game_STAT_SRCS
   ${sources_PetBattle}
   ${sources_Garrison}
   ${sources_shared_ptrs}
+  ${sources_Vignette}
 )
 
 MACRO( auto_group ProjectDirectory ProjectSources )
@@ -260,6 +262,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/PetBattle
   ${CMAKE_CURRENT_SOURCE_DIR}/World
   ${CMAKE_CURRENT_SOURCE_DIR}/SharedPtrs
+  ${CMAKE_CURRENT_SOURCE_DIR}/Vignette
   ${CMAKE_SOURCE_DIR}/src/server/scripts/PrecompiledHeaders
   ${ACE_INCLUDE_DIR}
   ${MYSQL_INCLUDE_DIR}

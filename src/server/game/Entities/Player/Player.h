@@ -42,6 +42,8 @@
 #include "PhaseMgr.h"
 #include "CUFProfiles.h"
 #include "CinematicPathMgr.h"
+#include "VignetteMgr.hpp"
+#include "BitSet.hpp"
 
 // for template
 #include "SpellMgr.h"
@@ -68,6 +70,7 @@ class PhaseMgr;
 class SceneObject;
 
 typedef std::deque<Mail*> PlayerMails;
+typedef std::set<uint32> DailyLootsCooldowns;
 
 #define PLAYER_MAX_SKILLS           128
 #define DEFAULT_MAX_PRIMARY_TRADE_SKILL 2
@@ -76,9 +79,9 @@ typedef std::deque<Mail*> PlayerMails;
 /// 6.0.3 19116
 enum ToastTypes
 {
-    TOAST_TYPE_NONE         = 0,
+    TOAST_TYPE_MONEY        = 0,
     TOAST_TYPE_NEW_CURRENCY = 1,
-    TOAST_TYPE_MONEY        = 2,
+    TOAST_TYPE_UNK1         = 2,
     TOAST_TYPE_NEW_ITEM     = 3,
 };
 /// 6.0.3 19116
@@ -87,7 +90,7 @@ enum DisplayToastMethod
     DISPLAY_TOAST_METHOD_UNK1                               = 0x0,
     DISPLAY_TOAST_METHOD_LOOT                               = 0x1,
     DISPLAY_TOAST_METHOD_PET_BATTLE_LOOT                    = 0x2,
-    DISPLAY_TOAST_METHOD_UNK2                               = 0x3,
+    DISPLAY_TOAST_METHOD_CURRENCY_OR_GOLD                   = 0x3,
     DISPLAY_TOAST_METHOD_GARRISON_MISSION_BONUS_ROLL_LOOT_1 = 0x4,
     DISPLAY_TOAST_METHOD_LOOT_TOAST_UPGRADE_1               = 0x5,
     DISPLAY_TOAST_METHOD_LOOT_TOAST_UPGRADE_2               = 0x6,
@@ -139,6 +142,7 @@ struct PlayerSpell
     bool active            : 1;                             // show in spellbook
     bool dependent         : 1;                             // learned as result another spell learn, skill grow, quest reward, etc
     bool disabled          : 1;                             // first rank has been learned in result talent learn but currently talent unlearned, save max learned ranks
+    bool IsMountFavorite   : 1;                             // Is flagged as favorite mount spell
 };
 
 struct PlayerTalent
@@ -546,6 +550,8 @@ enum PlayerFlagsEx
 #define KNOWN_TITLES_SIZE   10
 #define MAX_TITLE_INDEX     (KNOWN_TITLES_SIZE*64)          // 5 uint64 fields
 
+#define ECLIPSE_FULL_CYCLE_DURATION 40
+
 // used in PLAYER_FIELD_BYTES values
 enum PlayerFieldByteFlags
 {
@@ -607,6 +613,9 @@ typedef std::set<uint32> RewardedQuestSet;
 
 //               quest,  keep
 typedef std::map<uint32, bool> QuestStatusSaveMap;
+
+// Size (in bytes) of client completed quests bit map
+#define QUESTS_COMPLETED_BITS_SIZE 2500
 
 enum QuestSlotOffsets
 {
@@ -942,6 +951,11 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_QUEST_OBJECTIVE_STATUS  = 44,
     PLAYER_LOGIN_QUERY_LOAD_CHARGES_COOLDOWNS       = 45,
     PLAYER_LOGIN_QUERY_LOAD_COMPLETED_CHALLENGES    = 46,
+    PLAYER_LOGIN_QUERY_GARRISON                     = 47,
+    PLAYER_LOGIN_QUERY_GARRISON_MISSIONS            = 48,
+    PLAYER_LOGIN_QUERY_GARRISON_FOLLOWERS           = 49,
+    PLAYER_LOGIN_QUERY_GARRISON_BUILDINGS           = 50,
+    PLAYER_LOGIN_QUERY_DAILY_LOOT_COOLDOWNS         = 51,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -1427,7 +1441,11 @@ enum BattlegroundTimerTypes
     CHALLENGE_TIMER
 };
 
-class Garrison;
+namespace MS { namespace Garrison 
+{
+    class Manager;
+}   ///< namespace Garrison
+}   ///< namespace MS
 
 class Player : public Unit, public GridObject<Player>
 {
@@ -1493,9 +1511,10 @@ class Player : public Unit, public GridObject<Player>
         std::string afkMsg;
         std::string dndMsg;
 
-        Garrison * GetGarrison();
+        MS::Garrison::Manager * GetGarrison();
         void CreateGarrison();
         bool IsInGarrison();
+        void DeleteGarrison();
 
         uint32 GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 newfacialhair, BarberShopStyleEntry const* newSkin=NULL);
 
@@ -1503,8 +1522,8 @@ class Player : public Unit, public GridObject<Player>
 
         PlayerTaxi m_taxi;
         void InitTaxiNodesForLevel() { m_taxi.InitTaxiNodesForLevel(getRace(), getClass(), getLevel()); }
-        bool ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc = NULL, uint32 spellid = 0);
-        bool ActivateTaxiPathTo(uint32 taxi_path_id, uint32 spellid = 0);
+        bool ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc = NULL, uint32 spellid = 0, bool p_Triggered = false);
+        bool ActivateTaxiPathTo(uint32 taxi_path_id, uint32 spellid = 0, bool p_Triggered = false);
         void CleanupAfterTaxiFlight();
         void ContinueTaxiFlight();
                                                             // mount_id can be used in scripting calls
@@ -1661,7 +1680,8 @@ class Player : public Unit, public GridObject<Player>
         bool StoreNewItemInBestSlots(uint32 item_id, uint32 item_count);
         void AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore const& store, bool broadcast = false);
         void AutoStoreLoot(uint32 loot_id, LootStore const& store, bool broadcast = false) { AutoStoreLoot(NULL_BAG, NULL_SLOT, loot_id, store, broadcast); }
-        void StoreLootItem(uint8 lootSlot, Loot* loot, uint8 linkedLootSlot = 255);
+        void StoreLootItem(uint8 p_LootSlot, Loot* p_Loot, uint8 p_LinkedLootSlot = 255);
+        void AddTrackingQuestIfNeeded(uint64 p_SourceGuid);
 
         /// Apply a function on every item found in the bags.
         /// @p_Function : A function that takes the owner of the items, the item to process, the slot bag of the item and the slot of the item.
@@ -1730,7 +1750,6 @@ class Player : public Unit, public GridObject<Player>
         }
         Item* BankItem(uint16 pos, Item* pItem, bool update);
         void RemoveItem(uint8 bag, uint8 slot, bool update);
-        bool RemoveItemByDelete(Item* item);
         void MoveItemFromInventory(uint8 bag, uint8 slot, bool update);
                                                             // in trade, auction, guild bank, mail....
         void MoveItemToInventory(ItemPosCountVec const& dest, Item* pItem, bool update, bool in_characterInventoryDB = false);
@@ -1767,7 +1786,7 @@ class Player : public Unit, public GridObject<Player>
 
             return mainItem && ((mainItem->GetTemplate()->InventoryType == INVTYPE_2HWEAPON && !CanTitanGrip()) || mainItem->GetTemplate()->InventoryType == INVTYPE_RANGED || mainItem->GetTemplate()->InventoryType == INVTYPE_THROWN || mainItem->GetTemplate()->InventoryType == INVTYPE_RANGEDRIGHT);
         }
-        void SendNewItem(Item* item, uint32 count, bool received, bool created, bool broadcast = false);
+        void SendNewItem(Item* item, uint32 count, bool received, bool created, bool broadcast = false, std::vector<uint32> const& p_ItemBonus = {});
         bool BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot);
         bool BuyCurrencyFromVendorSlot(uint64 vendorGuid, uint32 vendorSlot, uint32 currency, uint32 count);
         bool _StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot, int64 price, ItemTemplate const* pProto, Creature* pVendor, VendorItem const* crItem, bool bStore);
@@ -1798,7 +1817,7 @@ class Player : public Unit, public GridObject<Player>
         void AddItemDurations(Item* item);
         void RemoveItemDurations(Item* item);
         void SendItemDurations();
-        void SendDisplayToast(uint32 p_Entry, uint32 p_Count, DisplayToastMethod p_Method, ToastTypes p_Type, bool p_BonusRoll, bool p_Mailed);
+        void SendDisplayToast(uint32 p_Entry, uint32 p_Count, DisplayToastMethod p_Method, ToastTypes p_Type, bool p_BonusRoll, bool p_Mailed, std::vector<uint32> const& p_Bonus = {});
         void LoadCorpse();
         void LoadPet(PreparedQueryResult result);
 
@@ -1924,7 +1943,7 @@ class Player : public Unit, public GridObject<Player>
         void ReputationChangedQuestCheck(FactionEntry const* factionEntry);
         bool HasQuestForItem(uint32 itemid) const;
         bool HasQuestForGO(uint32 GOId) const;
-        bool hasQuest(uint32 p_QuestID) const;
+        bool HasQuest(uint32 p_QuestID) const;
         void UpdateForQuestWorldObjects();
         bool CanShareQuest(uint32 quest_id) const;
         void QuestObjectiveSatisfy(uint32 objectId, uint32 amount, uint8 type = 0u, uint64 guid = 0u);
@@ -1948,6 +1967,8 @@ class Player : public Unit, public GridObject<Player>
 
         void AddTimedQuest(uint32 quest_id) { m_timedquests.insert(quest_id); }
         void RemoveTimedQuest(uint32 quest_id) { m_timedquests.erase(quest_id); }
+
+        MS::Utilities::BitSet const& GetCompletedQuests() const { return m_CompletedQuestBits; }
 
         /*********************************************************/
         /***                   LOAD SYSTEM                     ***/
@@ -2092,7 +2113,7 @@ class Player : public Unit, public GridObject<Player>
         bool IsNeedCastPassiveSpellAtLearn(SpellInfo const* spellInfo) const;
 
         void SendProficiency(ItemClass itemClass, uint32 itemSubclassMask);
-        bool addSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading = false);
+        bool addSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading = false, bool p_IsMountFavorite = false);
         void learnSpell(uint32 spell_id, bool dependent);
         void removeSpell(uint32 spell_id, bool disabled = false, bool learn_low_rank = true);
         void resetSpells(bool myClassOnly = false);
@@ -2105,6 +2126,8 @@ class Player : public Unit, public GridObject<Player>
         void SetReputation(uint32 factionentry, uint32 value);
         uint32 GetReputation(uint32 factionentry);
         std::string GetGuildName();
+
+        void MountSetFavorite(uint32 p_SpellID, bool p_IsFavorite);
 
         // Talents
         uint32 GetFreeTalentPoints() const { return _talentMgr->FreeTalentPoints; }
@@ -2346,10 +2369,7 @@ class Player : public Unit, public GridObject<Player>
         void SetArenaPersonalRating(uint8 slot, uint32 value)
         {
             if (slot >= MAX_PVP_SLOT)
-            {
-                sLog->outAshran("ARENA SLOT OVERFLOW!!");
                 return;
-            }
 
             if (value > 3500)
             {
@@ -2367,10 +2387,7 @@ class Player : public Unit, public GridObject<Player>
         void SetArenaMatchMakerRating(uint8 slot, uint32 value)
         {
             if (slot >= MAX_PVP_SLOT)
-            {
-                sLog->outAshran("ARENA SLOT OVERFLOW!!");
                 return;
-            }
 
             if (value > 3500)
             {
@@ -2383,37 +2400,29 @@ class Player : public Unit, public GridObject<Player>
         void IncrementWeekGames(uint8 slot)
         {
             if (slot >= MAX_PVP_SLOT)
-            {
-                sLog->outAshran("ARENA SLOT OVERFLOW!!");
                 return;
-            }
+
             ++m_WeekGames[slot];
         }
         void IncrementWeekWins(uint8 slot)
         {
             if (slot >= MAX_PVP_SLOT)
-            {
-                sLog->outAshran("ARENA SLOT OVERFLOW!!");
                 return;
-            }
+
             ++m_WeekWins[slot];
         }
         void IncrementSeasonGames(uint8 slot)
         {
             if (slot >= MAX_PVP_SLOT)
-            {
-                sLog->outAshran("ARENA SLOT OVERFLOW!!");
                 return;
-            }
+
             ++m_SeasonGames[slot];
         }
         void IncrementSeasonWins(uint8 slot)
         {
             if (slot >= MAX_PVP_SLOT)
-            {
-                sLog->outAshran("ARENA SLOT OVERFLOW!!");
                 return;
-            }
+
             ++m_SeasonWins[slot];
         }
         void FinishWeek();
@@ -2486,8 +2495,10 @@ class Player : public Unit, public GridObject<Player>
         void ApplyHealthRegenBonus(int32 amount, bool apply);
         void UpdateManaRegen();
         void UpdateEnergyRegen();
+        void UpdateFocusRegen();
         void UpdateRuneRegen(RuneType rune);
         void UpdateAllRunesRegen();
+        float GetRegenForPower(Powers p_Power);
 
         bool CanSwitch() const;
         bool IsInWorgenForm() const { return HasAuraType(SPELL_AURA_ALLOW_WORGEN_TRANSFORM); }
@@ -2936,8 +2947,6 @@ class Player : public Unit, public GridObject<Player>
 
         WorldLocation GetStartPosition() const;
 
-        uint32 m_lastEclipseState;
-
         // current pet slot
         PetSlot m_currentPetSlot;
         uint32 m_petSlotUsed;
@@ -3310,6 +3319,8 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetEquipItemLevelFor(ItemTemplate const* itemProto, Item const* item = nullptr) const;
         void RescaleItemTo(uint8 slot, uint32 ilvl);
         void RescaleAllItemsIfNeeded(bool p_KeepHPPct = false);
+        bool UpdateItemLevelCutOff(uint32 p_StartsWith, uint32 p_MinLevel, uint32 p_MaxLevel, bool p_RescaleItems = true);
+        void CutOffItemLevel(bool p_RescaleItems = true);
 
         void SetInPvPCombat(bool set);
         bool IsInPvPCombat() const { return m_pvpCombat; }
@@ -3344,6 +3355,15 @@ class Player : public Unit, public GridObject<Player>
         CompletedChallengesMap m_CompletedChallenges;
         //////////////////////////////////////////////////////////////////////////
 
+        //////////////////////////////////////////////////////////////////////////
+        /// Vignette
+        //////////////////////////////////////////////////////////////////////////
+
+        Vignette::Manager const& GetVignetteMgr() { return m_VignetteMgr; }
+
+        /////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////
+
         struct MovieDelayedTeleport
         {
             uint32 MovieID;
@@ -3369,6 +3389,32 @@ class Player : public Unit, public GridObject<Player>
             MovieDelayedTeleports.push_back(l_Data);
             MovieDelayedTeleportMutex.unlock();
         }
+
+        DailyLootsCooldowns m_DailyLootsCooldowns;
+        void _LoadDailyLootsCooldowns(PreparedQueryResult&& p_Result);
+        void ResetDailyLoots();
+        bool CanHaveDailyLootForItem(uint32 p_Entry) const { return m_DailyLootsCooldowns.find(p_Entry) == m_DailyLootsCooldowns.end(); }
+        void AddDailyLootCooldown(uint32 p_Entry);
+
+        void _GarrisonSetIn();
+        void _GarrisonSetOut();
+
+        void AddCriticalOperation(std::function<void()> const&& p_Function)
+        {
+            m_CriticalOperationLock.acquire();
+            m_CriticalOperation.push(std::function<void()>(p_Function));
+            m_CriticalOperationLock.release();
+        }
+
+        //////////////////////////////////////////////////////////////////////////
+        /// Eclipse System
+        bool IsEclipseCyclesActive() const { return m_EclipseCycleActive; }
+        void SetEclipseCyclesState(bool p_State) { m_EclipseCycleActive = p_State; }
+        IntervalTimer& GetEclipseTimer() { return m_EclipseTimer; }
+        uint8 GetLastEclipseState() const { return m_LastEclipseState; }
+        void SetLastEclipseState(uint8 p_EclipseState) { m_LastEclipseState = p_EclipseState; }
+        bool HasEclipseSideAvantage(uint8 p_EclipseState) const;
+        //////////////////////////////////////////////////////////////////////////
 
     protected:
         void OnEnterPvPCombat();
@@ -3397,6 +3443,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_burningEmbersRegenTimerCount;
         uint32 m_soulShardsRegenTimerCount;
         uint32 m_focusRegenTimerCount;
+        uint32 m_EclipseRegenTimer;
         uint32 m_demonicFuryPowerRegenTimerCount;
         float m_powerFraction[MAX_POWERS_PER_CLASS];
         uint32 m_contestedPvPTimer;
@@ -3681,6 +3728,11 @@ class Player : public Unit, public GridObject<Player>
         typedef std::set<uint32> DailyQuestList;
         DailyQuestList m_dailyQuestStorage;
 
+        MS::Utilities::BitSet m_CompletedQuestBits;
+
+        std::queue<std::function<void()>> m_CriticalOperation;
+        ACE_Thread_Mutex m_CriticalOperationLock;
+
     private:
         // internal common parts for CanStore/StoreItem functions
         InventoryResult CanStoreItem_InSpecificSlot(uint8 bag, uint8 slot, ItemPosCountVec& dest, ItemTemplate const* pProto, uint32& count, bool swap, Item* pSrcItem) const;
@@ -3766,7 +3818,7 @@ class Player : public Unit, public GridObject<Player>
         //////////////////////////////////////////////////////////////////////////
         /// Garrison
         //////////////////////////////////////////////////////////////////////////
-        Garrison * m_Garrison;
+        MS::Garrison::Manager * m_Garrison;
         IntervalTimer m_GarrisonUpdateTimer;
 
         //////////////////////////////////////////////////////////////////////////
@@ -3822,6 +3874,18 @@ class Player : public Unit, public GridObject<Player>
 
         uint32 m_PvPCombatTimer;
         bool m_pvpCombat;
+
+        //////////////////////////////////////////////////////////////////////////
+        /// Vignette
+        //////////////////////////////////////////////////////////////////////////
+        Vignette::Manager m_VignetteMgr;
+
+        /*********************************************************/
+        /***                  ECLIPSE SYSTEM                   ***/
+        /*********************************************************/
+        bool m_EclipseCycleActive;
+        IntervalTimer m_EclipseTimer;
+        uint8 m_LastEclipseState;
 };
 
 void AddItemsSetItem(Player*player, Item* item);

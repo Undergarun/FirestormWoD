@@ -89,7 +89,8 @@ enum RogueSpells
     ROGUE_SPELL_COMBO_POINT_DELAYED             = 139569,
     ROGUE_SPELL_RUTHLESSNESS                    = 14161,
     ROGUE_SPELL_EVISCERATE_ENVENOM_BONUS_DAMAGE = 37169,
-    ROGUE_SPELL_DEADLY_THROW_INTERRUPT          = 137576
+    ROGUE_SPELL_DEADLY_THROW_INTERRUPT          = 137576,
+    ROGUE_SPELL_STEALTH_SUBTERFUGE              = 115191
 };
 
 // Killing Spree - 51690
@@ -1347,33 +1348,25 @@ class spell_rog_recuperate: public SpellScriptLoader
     public:
         spell_rog_recuperate() : SpellScriptLoader("spell_rog_recuperate") { }
 
-        class spell_rog_recuperate_SpellScript : public SpellScript
+        class spell_rog_recuperate_AuraScript : public AuraScript
         {
-            PrepareSpellScript(spell_rog_recuperate_SpellScript);
+            PrepareAuraScript(spell_rog_recuperate_AuraScript);
 
-            void HandleOnHit()
+            void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& amount, bool& /*canBeRecalculated*/)
             {
-                if (Unit* caster = GetCaster())
-                {
-                    if (AuraPtr recuperate = caster->GetAura(ROGUE_SPELL_RECUPERATE))
-                    {
-                        int32 bp = caster->CountPctFromMaxHealth(caster->HasAura(ROGUE_SPELL_GLYPH_OF_RECUPERATE) ? 4 : 3);
-                        bp = caster->SpellHealingBonusDone(caster, GetSpellInfo(), bp, EFFECT_0, HEAL);
-                        bp = caster->SpellHealingBonusTaken(caster, GetSpellInfo(), bp, HEAL);
-                        recuperate->GetEffect(0)->ChangeAmount(bp);
-                    }
-                }
+                if (Unit* l_Caster = GetCaster())
+                    amount = l_Caster->CountPctFromMaxHealth(l_Caster->HasAura(ROGUE_SPELL_GLYPH_OF_RECUPERATE) ? 4 : 3);
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_rog_recuperate_SpellScript::HandleOnHit);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_rog_recuperate_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        AuraScript* GetAuraScript() const
         {
-            return new spell_rog_recuperate_SpellScript();
+            return new spell_rog_recuperate_AuraScript();
         }
 };
 
@@ -1555,7 +1548,7 @@ class spell_rog_shadowstep: public SpellScriptLoader
         }
 };
 
-// Stealth - 1784
+// Stealth - 1784 Subterfuge - 115191
 class spell_rog_stealth: public SpellScriptLoader
 {
     public:
@@ -1589,8 +1582,8 @@ class spell_rog_stealth: public SpellScriptLoader
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_rog_stealth_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_rog_stealth_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectApply += AuraEffectApplyFn(spell_rog_stealth_AuraScript::OnApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_rog_stealth_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -1907,6 +1900,46 @@ public:
     }
 };
 
+// Subterfuge - 115192
+class spell_rog_subterfuge : public SpellScriptLoader
+{
+public:
+    spell_rog_subterfuge() : SpellScriptLoader("spell_rog_subterfuge") { }
+
+    class spell_rog_subterfuge_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_rog_subterfuge_AuraScript);
+
+        void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                l_Caster->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
+            }
+        }
+
+        void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (l_Caster->HasAura(ROGUE_SPELL_STEALTH_SUBTERFUGE))
+                    l_Caster->RemoveAura(ROGUE_SPELL_STEALTH_SUBTERFUGE);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_rog_subterfuge_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            OnEffectRemove += AuraEffectRemoveFn(spell_rog_subterfuge_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_rog_subterfuge_AuraScript();
+    }
+};
+
 class PlayerScript_ruthlessness : public PlayerScript
 {
 public:
@@ -1919,9 +1952,9 @@ public:
         {
             if (p_Player->HasSpellCooldown(ROGUE_SPELL_ADRENALINE_RUSH))
                 p_Player->ReduceSpellCooldown(ROGUE_SPELL_ADRENALINE_RUSH, sSpellMgr->GetSpellInfo(ROGUE_SPELL_RUTHLESSNESS)->Effects[EFFECT_2].BasePoints * p_Value * -1);
-            else if (p_Player->HasSpellCooldown(ROGUE_SPELL_KILLING_SPREE))
+            if (p_Player->HasSpellCooldown(ROGUE_SPELL_KILLING_SPREE))
                 p_Player->ReduceSpellCooldown(ROGUE_SPELL_KILLING_SPREE, sSpellMgr->GetSpellInfo(ROGUE_SPELL_RUTHLESSNESS)->Effects[EFFECT_2].BasePoints * p_Value * -1);
-            else if (p_Player->HasSpellCooldown(ROGUE_SPELL_SPRINT))
+            if (p_Player->HasSpellCooldown(ROGUE_SPELL_SPRINT))
                 p_Player->ReduceSpellCooldown(ROGUE_SPELL_SPRINT, sSpellMgr->GetSpellInfo(ROGUE_SPELL_RUTHLESSNESS)->Effects[EFFECT_2].BasePoints * p_Value * -1);
         }
     }
@@ -1929,6 +1962,7 @@ public:
 
 void AddSC_rogue_spell_scripts()
 {
+    new spell_rog_subterfuge();
     new spell_rog_deadly_throw();
     new spell_rog_evicerate();
     new spell_rog_envenom();

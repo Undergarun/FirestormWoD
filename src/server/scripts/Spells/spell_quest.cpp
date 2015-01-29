@@ -1898,7 +1898,7 @@ class spell_q12919_gymers_grab: public SpellScriptLoader
             }
         };
 
-        SpellScript* GetSpellScript()
+        SpellScript* GetSpellScript() const
         {
             return new spell_q12919_gymers_grab_SpellScript();
         }
@@ -1935,7 +1935,7 @@ class spell_q12919_gymers_throw: public SpellScriptLoader
             }
         };
 
-        SpellScript* GetSpellScript()
+        SpellScript* GetSpellScript() const
         {
             return new spell_q12919_gymers_throw_SpellScript();
         }
@@ -1989,7 +1989,7 @@ class spell_q13595_bottle_of_wildfire: public SpellScriptLoader
             {
                 if (GetCaster())
                     if (Player* caster = GetCaster()->ToPlayer())
-                        if (Creature* target = GetClosestCreatureWithEntry(caster, BATHRAN_S_CORPSE, 5.0f))
+                        if (GetClosestCreatureWithEntry(caster, BATHRAN_S_CORPSE, 5.0f))
                             caster->KilledMonsterCredit(BATHRAN_S_CORPSE, 0);
             }
 
@@ -2406,8 +2406,59 @@ class spell_q30136_silken_rope: public SpellScriptLoader
         }
 };
 
+enum Quest31049
+{
+    NPC_DARKWOODS_FAERIE    = 62522,
+    NPC_FAE_SPIRIT          = 62753,
+};
+
+class spell_q31049_fae_spirit : public SpellScriptLoader
+{
+public:
+    spell_q31049_fae_spirit() : SpellScriptLoader("spell_q31049_fae_spirit") { }
+
+    class spell_q31049_fae_spirit_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_q31049_fae_spirit_SpellScript);
+
+        SpellCastResult CheckCast()
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (l_Caster->GetTypeId() != TYPEID_UNIT && l_Caster->GetEntry() != NPC_DARKWOODS_FAERIE)
+                    return SPELL_FAILED_BAD_TARGETS;
+            }
+            return SPELL_CAST_OK;
+        }
+
+        void CorrectTarget(std::list<WorldObject*>& p_Targets)
+        {
+            std::list<WorldObject*> l_TempTargets = p_Targets;
+            for (auto itr : l_TempTargets)
+            {
+                if (itr->GetTypeId() != TYPEID_UNIT)
+                    p_Targets.remove(itr);
+                else if (itr->GetEntry() != NPC_DARKWOODS_FAERIE && itr->GetEntry() != NPC_FAE_SPIRIT)
+                    p_Targets.remove(itr);
+            }
+        }
+
+        void Register()
+        {
+            OnCheckCast += SpellCheckCastFn(spell_q31049_fae_spirit_SpellScript::CheckCast);
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_q31049_fae_spirit_SpellScript::CorrectTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_q31049_fae_spirit_SpellScript();
+    }
+};
+
 void AddSC_quest_spell_scripts()
 {
+    new spell_q31049_fae_spirit();
     new spell_q55_sacred_cleansing();
     new spell_q5206_test_fetid_skull();
     new spell_q6124_6129_apply_salve();

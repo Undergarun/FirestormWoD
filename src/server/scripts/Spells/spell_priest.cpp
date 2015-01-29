@@ -37,7 +37,7 @@ enum PriestSpells
     PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD         = 33202,
     PRIEST_SHADOW_WORD_DEATH                        = 32409,
     PRIEST_LEAP_OF_FAITH                            = 73325,
-    PRIEST_LEAP_OF_FAITH_JUMP                       = 110726,
+    PRIEST_LEAP_OF_FAITH_JUMP                       = 97817,
     PRIEST_SPELL_HALO_HEAL_SHADOW                   = 120696,
     PRIEST_SPELL_HALO_HEAL_HOLY                     = 120692,
 
@@ -744,7 +744,7 @@ class spell_pri_surge_of_light: public SpellScriptLoader
                             if (AuraPtr l_SurgeOfLight = l_Player->GetAura(PRIEST_SURGE_OF_LIGHT))
                             {
                                 if (l_SurgeOfLight->GetStackAmount() == 2)
-                                    l_SurgeOfLight->SetDuration(GetSpellInfo()->GetDuration());
+                                    l_SurgeOfLight->SetDuration(l_SurgeOfLight->GetMaxDuration());
                                 else
                                     l_Player->CastSpell(l_Player, PRIEST_SURGE_OF_LIGHT, true);
                             }
@@ -972,6 +972,11 @@ class spell_pri_holy_word_sanctuary: public SpellScriptLoader
         }
 };
 
+enum MasterySpells
+{
+    MASTERY_SPELL_DISCIPLINE_SHIELD = 77484
+};
+
 // Power Word: Shield - 17
 class spell_pri_power_word_shield: public SpellScriptLoader
 {
@@ -991,6 +996,12 @@ class spell_pri_power_word_shield: public SpellScriptLoader
                     return;
 
                 p_Amount = ((l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 5) + GetSpellInfo()->Effects[EFFECT_0].BasePoints) * 1;
+
+                if (l_Caster->HasAura(MASTERY_SPELL_DISCIPLINE_SHIELD) && l_Caster->getLevel() >= 80)
+                {
+                    float l_Mastery = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.625f;
+                    p_Amount += CalculatePct(p_Amount, l_Mastery);
+                }
             }
 
             void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*mode*/) // Case of PRIEST_GLYPH_OF_REFLECTIVE_SHIELD
@@ -1045,35 +1056,48 @@ class spell_pri_power_word_shield: public SpellScriptLoader
         }
 };
 
-// Called by Smite - 585
-// Chakra : Chastise - 81209
-class spell_pri_chakra_chastise: public SpellScriptLoader
+// Smite - 585
+class spell_pri_smite: public SpellScriptLoader
 {
     public:
-        spell_pri_chakra_chastise() : SpellScriptLoader("spell_pri_chakra_chastise") { }
+        spell_pri_smite() : SpellScriptLoader("spell_pri_smite") { }
 
-        class spell_pri_chakra_chastise_SpellScript : public SpellScript
+        class spell_pri_smite_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_pri_chakra_chastise_SpellScript);
+            PrepareSpellScript(spell_pri_smite_SpellScript);
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                     if (Unit* target = GetHitUnit())
-                        if (roll_chance_i(GetSpellInfo()->Effects[EFFECT_1].BasePoints))
-                            if (_player->HasSpellCooldown(PRIEST_HOLY_WORD_CHASTISE))
-                                _player->RemoveSpellCooldown(PRIEST_HOLY_WORD_CHASTISE, true);
+                    {
+                        // Surge of light 
+                        const SpellInfo * l_SpellInfo = sSpellMgr->GetSpellInfo(PRIEST_SURGE_OF_LIGHT_AURA);
+
+                        if (l_SpellInfo != nullptr && l_Player->HasSpell(PRIEST_SURGE_OF_LIGHT_AURA) && roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
+                        {
+                            if (AuraPtr l_SurgeOfLight = l_Player->GetAura(PRIEST_SURGE_OF_LIGHT))
+                            {
+                                if (l_SurgeOfLight->GetStackAmount() == 2)
+                                    l_SurgeOfLight->SetDuration(l_SurgeOfLight->GetMaxDuration());
+                                else
+                                    l_Player->CastSpell(l_Player, PRIEST_SURGE_OF_LIGHT, true);
+                            }
+                            else
+                                l_Player->CastSpell(l_Player, PRIEST_SURGE_OF_LIGHT, true);
+                        }
+                    }
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_pri_chakra_chastise_SpellScript::HandleOnHit);
+                OnHit += SpellHitFn(spell_pri_smite_SpellScript::HandleOnHit);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_pri_chakra_chastise_SpellScript();
+            return new spell_pri_smite_SpellScript();
         }
 };
 
@@ -1089,19 +1113,22 @@ class spell_pri_lightwell_renew: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* m_caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (Unit* unitTarget = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
-                        if (m_caster->GetTypeId() != TYPEID_UNIT || !m_caster->ToCreature()->isSummon())
+                        if (l_Caster->GetTypeId() != TYPEID_UNIT || !l_Caster->ToCreature()->isSummon())
                             return;
 
                         // proc a spellcast
-                        if (AuraPtr chargesAura = m_caster->GetAura(LIGHTWELL_CHARGES))
+                        if (AuraPtr l_ChargesAura = l_Caster->GetAura(LIGHTWELL_CHARGES))
                         {
-                            m_caster->CastSpell(unitTarget, LIGHTSPRING_RENEW, true, NULL, NULLAURA_EFFECT, m_caster->ToTempSummon()->GetSummonerGUID());
-                            if (chargesAura->ModCharges(-1))
-                                m_caster->ToTempSummon()->UnSummon();
+                            if (!l_Target->HasAura(LIGHTSPRING_RENEW))
+                            {
+                                l_Caster->CastSpell(l_Target, LIGHTSPRING_RENEW, true, NULL, NULLAURA_EFFECT, l_Caster->ToTempSummon()->GetSummonerGUID());
+                                if (l_ChargesAura->ModCharges(-1))
+                                    l_Caster->ToTempSummon()->UnSummon();
+                            }
                         }
                     }
                 }
@@ -1257,6 +1284,9 @@ class spell_pri_devouring_plague: public SpellScriptLoader
                     {
                         if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PRIEST_SHADOW)
                         {
+                            if (l_Player->HasAura(PRIEST_SURGE_OF_DARKNESS_AURA))
+                                if (roll_chance_i(sSpellMgr->GetSpellInfo(PRIEST_SURGE_OF_DARKNESS_AURA)->Effects[EFFECT_0].BasePoints))
+                                    l_Player->CastSpell(l_Player, PRIEST_SURGE_OF_DARKNESS, true);
                             // Shadow Orb visual
                             if (l_Player->HasAura(PRIEST_SHADOW_ORB_AURA))
                                 l_Player->RemoveAura(PRIEST_SHADOW_ORB_AURA);
@@ -1311,6 +1341,10 @@ public:
                     l_TickDamage *= aurEff2->GetAmount();
 
                 l_Caster->CastCustomSpell(l_Caster, PRIEST_DEVOURING_PLAGUE_HEAL, &l_TickDamage, NULL, NULL, true);
+
+                if (l_Caster->HasAura(PRIEST_SURGE_OF_DARKNESS_AURA))
+                    if (roll_chance_i(sSpellMgr->GetSpellInfo(PRIEST_SURGE_OF_DARKNESS_AURA)->Effects[EFFECT_0].BasePoints))
+                        l_Caster->CastSpell(l_Caster, PRIEST_SURGE_OF_DARKNESS, true);
             }
         }
 
@@ -1372,32 +1406,47 @@ class spell_pri_mind_spike: public SpellScriptLoader
         {
             PrepareSpellScript(spell_pri_mind_spike_SpellScript);
 
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(PRIEST_SURGE_OF_DARKNESS))
+                    {
+                        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(PRIEST_SURGE_OF_DARKNESS);
+                        if (l_SpellInfo)
+                            SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_SpellInfo->Effects[EFFECT_3].BasePoints));
+                    }
+                }
+            }
+
             void HandleOnHit()
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
+                if (Unit* l_Caster = GetCaster())
                 {
                     if (Unit* l_Target = GetHitUnit())
                     {
-                        if (l_Player->HasAura(PRIEST_SPELL_SHADOW_INSIGHT))
+                        if (l_Caster->HasAura(PRIEST_SPELL_SHADOW_INSIGHT))
                             if (roll_chance_i(sSpellMgr->GetSpellInfo(PRIEST_SPELL_SHADOW_INSIGHT)->Effects[EFFECT_3].BasePoints))
-                                l_Player->CastSpell(l_Player, PRIEST_SPELL_SHADOW_INSIGHT_PROC, true);
+                                l_Caster->CastSpell(l_Caster, PRIEST_SPELL_SHADOW_INSIGHT_PROC, true);
                         // Surge of Darkness - Your next Mind Spike will not consume your damage-over-time effects ...
-                        if (!l_Player->HasAura(PRIEST_SURGE_OF_DARKNESS))
+                        if (!l_Caster->HasAura(PRIEST_SURGE_OF_DARKNESS))
                         {
                             // Mind Spike remove all DoT on the target's
-                            if (l_Target->HasAura(PRIEST_SHADOW_WORD_PAIN, l_Player->GetGUID()))
-                                l_Target->RemoveAura(PRIEST_SHADOW_WORD_PAIN, l_Player->GetGUID());
-                            if (l_Target->HasAura(PRIEST_DEVOURING_PLAGUE, l_Player->GetGUID()))
-                                l_Target->RemoveAura(PRIEST_DEVOURING_PLAGUE, l_Player->GetGUID());
-                            if (l_Target->HasAura(PRIEST_VAMPIRIC_TOUCH, l_Player->GetGUID()))
-                                l_Target->RemoveAura(PRIEST_VAMPIRIC_TOUCH, l_Player->GetGUID());
+                            if (l_Target->HasAura(PRIEST_SHADOW_WORD_PAIN, l_Caster->GetGUID()))
+                                l_Target->RemoveAura(PRIEST_SHADOW_WORD_PAIN, l_Caster->GetGUID());
+                            if (l_Target->HasAura(PRIEST_DEVOURING_PLAGUE, l_Caster->GetGUID()))
+                                l_Target->RemoveAura(PRIEST_DEVOURING_PLAGUE, l_Caster->GetGUID());
+                            if (l_Target->HasAura(PRIEST_VAMPIRIC_TOUCH, l_Caster->GetGUID()))
+                                l_Target->RemoveAura(PRIEST_VAMPIRIC_TOUCH, l_Caster->GetGUID());
                         }
                     }
                 }
             }
 
+
             void Register()
             {
+                OnEffectHitTarget += SpellEffectFn(spell_pri_mind_spike_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
                 OnHit += SpellHitFn(spell_pri_mind_spike_SpellScript::HandleOnHit);
             }
         };
@@ -1840,9 +1889,9 @@ class spell_pri_leap_of_faith: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* _player = GetCaster())
-                    if (Unit* target = GetHitUnit())
-                        target->CastSpell(_player, PRIEST_LEAP_OF_FAITH_JUMP, true);
+                if (Unit* l_Player = GetCaster())
+                    if (Unit* l_Target = GetHitUnit())
+                        l_Target->CastSpell(l_Player, PRIEST_LEAP_OF_FAITH_JUMP, true);
             }
 
             void Register()
@@ -2101,14 +2150,13 @@ class spell_pri_vampiric_touch: public SpellScriptLoader
 
             void OnTick(constAuraEffectPtr aurEff)
             {
-                if (GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    GetCaster()->EnergizeBySpell(GetCaster(), GetSpellInfo()->Id,  GetCaster()->CountPctFromMaxMana(2), POWER_MANA);
+                    l_Caster->EnergizeBySpell(GetCaster(), GetSpellInfo()->Id, l_Caster->CountPctFromMaxMana(2), POWER_MANA);
 
-                    // From Darkness, Comes Light
-                    if (GetCaster()->HasAura(PRIEST_SURGE_OF_LIGHT_AURA))
-                        if (roll_chance_i(sSpellMgr->GetSpellInfo(PRIEST_SURGE_OF_LIGHT_AURA)->Effects[EFFECT_0].BasePoints)) // 8% Chance
-                            GetCaster()->CastSpell(GetCaster(), PRIEST_SURGE_OF_DARKNESS, true);
+                    if (l_Caster->HasAura(PRIEST_SURGE_OF_DARKNESS_AURA))
+                        if (roll_chance_i(sSpellMgr->GetSpellInfo(PRIEST_SURGE_OF_DARKNESS_AURA)->Effects[EFFECT_0].BasePoints))
+                            l_Caster->CastSpell(l_Caster, PRIEST_SURGE_OF_DARKNESS, true);
                 }
             }
 
@@ -2518,37 +2566,6 @@ public:
     }
 };
 
-// Call by Vampiric Touch 34914 - Devouring Plague 2944
-// Surge of Darkness - 162448
-class spell_pri_surge_of_darkness: public SpellScriptLoader
-{
-public:
-    spell_pri_surge_of_darkness() : SpellScriptLoader("spell_pri_surge_of_darkness") {}
-
-    class spell_pri_surge_of_darkness_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_pri_surge_of_darkness_SpellScript);
-
-        void HandleOnHit()
-        {
-            if (Unit* l_Caster = GetCaster())
-                if (l_Caster->HasAura(PRIEST_SURGE_OF_DARKNESS_AURA))
-                    if (roll_chance_i(sSpellMgr->GetSpellInfo(PRIEST_SURGE_OF_DARKNESS_AURA)->Effects[EFFECT_0].BasePoints))
-                        l_Caster->CastSpell(l_Caster, PRIEST_SURGE_OF_DARKNESS, true);
-        }
-
-        void Register()
-        {
-            OnHit += SpellHitFn(spell_pri_surge_of_darkness_SpellScript::HandleOnHit);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_pri_surge_of_darkness_SpellScript();
-    }
-};
-
 // Angelic Feather - 121536
 class spell_pri_angelic_feather: public SpellScriptLoader
 {
@@ -2619,8 +2636,12 @@ public:
     void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_Value)
     {
         if (p_Player->getClass() == CLASS_PRIEST && p_Player->GetSpecializationId(p_Player->GetActiveSpec()) == SPEC_PRIEST_SHADOW && p_Power == POWER_SHADOW_ORB)
-            if (p_Value > 0 && p_Player->HasAura(PRIEST_SPELL_INSANITY_AURA) && roll_chance_i(sSpellMgr->GetSpellInfo(PRIEST_SPELL_INSANITY_AURA)->Effects[EFFECT_0].BasePoints))
+            if (p_Value < 0 && p_Player->HasAura(PRIEST_SPELL_INSANITY_AURA))
+            {
                 p_Player->CastSpell(p_Player, PRIEST_SPELL_INSANITY, true);
+                if (AuraPtr l_Insanity = p_Player->GetAura(PRIEST_SPELL_INSANITY))
+                    l_Insanity->SetDuration(l_Insanity->GetMaxDuration() * (p_Value * -1));
+            }
     }
 };
 
@@ -2630,7 +2651,6 @@ void AddSC_priest_spell_scripts()
     new spell_pri_shadow_word_pain();
     new spell_pri_angelic_feather();
     new spell_pri_spirit_shell();
-    new spell_pri_surge_of_darkness();
     new spell_pri_clarity_of_power();
     new spell_pri_prayer_of_mending();
     new spell_pri_archangel();
@@ -2659,7 +2679,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_divine_insight_holy();
     new spell_pri_divine_insight_discipline();
     new spell_pri_holy_word_sanctuary();
-    new spell_pri_chakra_chastise();
+    new spell_pri_smite();
     new spell_pri_lightwell_renew();
     new spell_pri_atonement();
     new spell_pri_purify();

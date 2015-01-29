@@ -213,14 +213,24 @@ enum QuestObjectiveType
     QUEST_OBJECTIVE_TYPE_FACTION_REP2     = 7,
     QUEST_OBJECTIVE_TYPE_MONEY            = 8,
     QUEST_OBJECTIVE_TYPE_PLAYER           = 9,
-    QUEST_OBJECTIVE_TYPE_DUMMY            = 10,
+    QUEST_OBJECTIVE_AREATRIGGER           = 10,     ///< @TODO
     QUEST_OBJECTIVE_TYPE_PET_BATTLE_TAMER = 11,
     QUEST_OBJECTIVE_TYPE_PET_BATTLE_ELITE = 12,
     QUEST_OBJECTIVE_TYPE_PET_BATTLE_PVP   = 13,
-    QUEST_OBJECTIVE_TYPE_CRITERIA           = 14,
+    QUEST_OBJECTIVE_TYPE_CRITERIA         = 14,
     QUEST_OBJECTIVE_TYPE_PET_BATTLE_UNK2  = 15,
     QUEST_OBJECTIVE_TYPE_END
 };
+
+enum class QuestRewardItemBonus : uint32
+{
+    UncommunToRare  = 171,
+    UncommunToEpic  = 15,
+    RareToEpic      = 545
+};
+
+const float gQuestRewardBonusRareChanceRange[2] = { 0.f,    10.f };    ///< Range 0-10
+const float gQuestRewardBonusEpicChanceRange[2] = { 10.01f, 20.0f};    ///< Range 10.01-20
 
 struct QuestLocale
 {
@@ -279,6 +289,7 @@ class Quest
         // table data accessors:
         uint32 GetQuestId() const { return Id; }
         uint32 GetQuestMethod() const { return Method; }
+        uint32 GetQuestPackageID() const { return PackageID; }
         int32  GetZoneOrSort() const { return ZoneOrSort; }
         uint32 GetMinLevel() const { return MinLevel; }
         uint32 GetMaxLevel() const { return MaxLevel; }
@@ -434,7 +445,7 @@ class Quest
         int32  RewardArenaPoints;
         int32  PrevQuestId;
         int32  NextQuestId;
-        int32  ExclusiveGroup;
+        uint32 PackageID;
         uint32 NextQuestIdChain;
         uint32 RewardXPId;
         uint32 SourceItemId;
@@ -462,7 +473,6 @@ class Quest
         uint32 EmoteOnComplete;
         uint32 StartScript;
         uint32 CompleteScript;
-        // new in 4.x
         uint32 MinimapTargetMark;
         uint32 RewardSkillId;
         uint32 RewardSkillPoints;
@@ -476,7 +486,8 @@ class Quest
         uint32 SoundAccept;
         uint32 SoundTurnIn;
 
-        uint32 SpecialFlags; // custom flags, not sniffed/WDB
+        uint32 SpecialFlags;        ///< custom flags, not sniffed/WDB
+        int32  ExclusiveGroup;      ///< custom value, not sniffed/WDB
 };
 
 struct QuestStatusData

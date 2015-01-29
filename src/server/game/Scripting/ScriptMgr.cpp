@@ -1051,6 +1051,18 @@ bool ScriptMgr::OnItemUse(Player * p_Player, Item * p_Item, const SpellCastTarge
     return tmpscript->OnUse(p_Player, p_Item, p_SpellCastTargets);
 }
 
+/// Called when a player opnes the item
+/// @p_Player : The Player who has used this item
+/// @p_Item   : Used Item instance
+bool ScriptMgr::OnItemOpen(Player* p_Player, Item * p_Item)
+{
+    ASSERT(p_Player);
+    ASSERT(p_Item);
+    
+    GET_SCRIPT_RET(ItemScript, p_Item->GetScriptId(), tmpscript, false);
+    return tmpscript->OnOpen(p_Player, p_Item);
+}
+
 /// Called when the item expires (is destroyed).
 /// @p_Player       : Item destroyer player instance
 /// @p_ItemTemplate : Destroyed item template
@@ -1664,6 +1676,14 @@ void ScriptMgr::OnPlayerDuelEnd(Player * p_Winner, Player * p_Looser, DuelComple
     FOREACH_SCRIPT(PlayerScript)->OnDuelEnd(p_Winner, p_Looser, p_CompletionType);
 }
 
+/// Called when the player get Teleport
+/// @p_Player : Player
+/// @p_SpellID : SpellID
+void ScriptMgr::OnTeleport(Player * p_Player, const SpellInfo *p_SpellInfo)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnTeleport(p_Player, p_SpellInfo);
+}
+
 /// The following methods are called when a player sends a chat message. (World)
 /// @p_Player  : Player instance
 /// @p_Type    : Message type
@@ -1772,6 +1792,14 @@ void ScriptMgr::OnPlayerDelete(uint64 p_GUID)
     FOREACH_SCRIPT(PlayerScript)->OnDelete(p_GUID);
 }
 
+/// Called when a update() of a player is done
+/// @p_Player : Player instance
+/// @p_Diff : diff time
+void ScriptMgr::OnPlayerUpdate(Player* p_Player, uint32 p_Diff)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnUpdate(p_Player, p_Diff);
+}
+
 /// Called when a player is bound to an instance
 /// @p_Player     : Player instance
 /// @p_Difficulty : Instance Difficulty ID
@@ -1796,7 +1824,7 @@ void ScriptMgr::OnPlayerUpdateZone(Player * p_Player, uint32 p_NewZoneID, uint32
 /// @p_Player : Player instance
 void ScriptMgr::OnPlayerUpdateMovement(Player * p_Player)
 {
-    FOREACH_SCRIPT(PlayerScript)->OnPlayerUpdateMovement(p_Player);
+    FOREACH_SCRIPT(PlayerScript)->OnUpdateMovement(p_Player);
 }
 
 /// Called when player rewards some quest
@@ -1806,6 +1834,7 @@ void ScriptMgr::OnQuestReward(Player* p_Player, const Quest* p_Quest)
 {
     FOREACH_SCRIPT(PlayerScript)->OnQuestReward(p_Player, p_Quest);
 }
+
 /// Called when a player validates some quest objective
 /// @p_Player      : Player instance
 /// @p_QuestID     : Quest ID
@@ -1821,6 +1850,28 @@ void ScriptMgr::OnObjectiveValidate(Player * p_Player, uint32 p_QuestID, uint32 
 void ScriptMgr::OnPlayerChangeShapeshift(Player * p_Player, ShapeshiftForm p_Form)
 {
     FOREACH_SCRIPT(PlayerScript)->OnChangeShapeshift(p_Player, p_Form);
+}
+
+/// Called when a player loot an item
+/// @p_Player : Player instance
+/// @p_Item   : New looted item instance
+void ScriptMgr::OnPlayerItemLooted(Player* p_Player, Item * p_Item)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnItemLooted(p_Player, p_Item);
+}
+
+/// Called when a player enter in combat
+/// @p_Player : Player instance
+void ScriptMgr::OnPlayerEnterInCombat(Player* p_Player)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnEnterInCombat(p_Player);
+}
+
+/// Called when a player leave combat status
+/// @p_Player : Player instance
+void ScriptMgr::OnPlayerLeaveCombat(Player* p_Player)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnLeaveCombat(p_Player);
 }
 
 //////////////////////////////////////////////////////////////////////////

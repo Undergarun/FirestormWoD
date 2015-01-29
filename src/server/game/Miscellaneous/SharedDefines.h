@@ -2155,12 +2155,13 @@ enum GameobjectTypes
     GAMEOBJECT_TYPE_CLIENT_CREATURE        = 40,
     GAMEOBJECT_TYPE_CLIENT_ITEM            = 41,
     GAMEOBJECT_TYPE_CAPTURE_POINT          = 42,
-    GAMEOBJECT_TYPE_TROPHY                 = 43,
-    GAMEOBJECT_TYPE_PHASEABLE_MO           = 44,
-    GAMEOBJECT_TYPE_SHIPMENT               = 45,
+    GAMEOBJECT_TYPE_PHASEABLE_MO           = 43,
+    GAMEOBJECT_TYPE_GARRISON_MONUMENT      = 44,
+    GAMEOBJECT_TYPE_GARRISON_SHIPMENT      = 45,
+    GAMEOBJECT_TYPE_GARRISON_MONUMENT_PLAQUE = 46
 };
 
-#define MAX_GAMEOBJECT_TYPE                  46             // sending to client this or greater value can crash client.
+#define MAX_GAMEOBJECT_TYPE                  47             // sending to client this or greater value can crash client.
 #define MAX_GAMEOBJECT_DATA                  33             // Max number of uint32 vars in gameobject_template data field
 
 enum GameObjectFlags
@@ -4398,7 +4399,7 @@ enum AiReaction
 // Diminishing Returns Types
 enum DiminishingReturnsType
 {
-    DRTYPE_NONE         = 0,                                // this spell is not diminished, but may have limited it's duration to 10s
+    DRTYPE_NONE         = 0,                                // this spell is not diminished, but may have its duration limited
     DRTYPE_PLAYER       = 1,                                // this spell is diminished only when applied on players
     DRTYPE_ALL          = 2                                 // this spell is diminished in every case
 };
@@ -4406,33 +4407,15 @@ enum DiminishingReturnsType
 // Diminishing Return Groups
 enum DiminishingGroup
 {
-    DIMINISHING_NONE                = 0,
-    DIMINISHING_BANISH              = 1,
-    DIMINISHING_CHARGE              = 2,
-    DIMINISHING_OPENING_STUN        = 3,                    // Cheap Shot and Pounce
-    DIMINISHING_CONTROLLED_STUN     = 4,
-    DIMINISHING_CONTROLLED_ROOT     = 5,
-    DIMINISHING_CYCLONE             = 6,
-    DIMINISHING_DISARM              = 7,
-    DIMINISHING_DISORIENT           = 8,                    // Several spells where name cant be generalized.
-    DIMINISHING_ENTRAPMENT          = 9,
-    DIMINISHING_FEAR                = 10,
-    DIMINISHING_HORROR              = 11,
-    DIMINISHING_MIND_CONTROL        = 12,
-    DIMINISHING_RANDOM_ROOT         = 13,
-    DIMINISHING_RANDOM_STUN         = 14,
-    DIMINISHING_SCATTER_SHOT        = 15,
-    DIMINISHING_SILENCE             = 16,
-    DIMINISHING_SLEEP               = 17,
-    DIMINISHING_TAUNT               = 18,
-    DIMINISHING_LIMITONLY           = 19,
-    DIMINISHING_DRAGONS_BREATH      = 20,
-    DIMINISHING_DEEP_FREEZE         = 21,
-    DIMINISHING_RING_OF_FROST       = 22,
-    DIMINISHING_PARALYTIC_POISON    = 23,
-    DIMINISHING_ICE_WARD            = 24,
-    DIMINISHING_DOMINATE_MIND       = 25,
-    DIMINISHING_BIND_ELEMENTAL      = 26
+    DIMINISHING_NONE             = 0,
+    DIMINISHING_ROOT             = 1,
+    DIMINISHING_STUN             = 2,
+    DIMINISHING_INCAPACITATE     = 3,
+    DIMINISHING_DISORIENT        = 4,
+    DIMINISHING_SILENCE          = 5,
+    DIMINISHING_AOE_KNOCKBACK    = 6,
+    DIMINISHING_TAUNT            = 7,
+    DIMINISHING_LIMITONLY        = 8
 };
 
 enum SummonCategory
@@ -4698,7 +4681,7 @@ enum SpellFamilyNames
     // Found on SpellClassOptions.db2
     SPELLFAMILY_UNK4        = 54,
     SPELLFAMILY_UNK5        = 56,
-    SPELLFAMILY_UNK6        = 57,                           // Special Ability
+    SPELLFAMILY_WARLOCK_PET = 57,                           // Special Ability
     SPELLFAMILY_UNK7        = 66,                           // 2 Only
     SPELLFAMILY_UNK8        = 71,                           // 2 Only
     SPELLFAMILY_UNK9        = 78,

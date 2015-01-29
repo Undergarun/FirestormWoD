@@ -1258,7 +1258,7 @@ class npc_dazzling_destruction_stalker : public CreatureScript
                 //DoCast(me, SPELL_DAZZLING_DESTRUCTION_STALKER_VISUAL);
             }
 
-            void SpellHit(Unit* caster, SpellEntry const* spell)
+            void SpellHit(Unit* caster, SpellInfo const* spell)
             {
                 if (spell->Id == SPELL_DAZZLING_DESTRUCTION_DMG ||
                     spell->Id == SPELL_DAZZLING_DESTRUCTION_DMG_25 ||

@@ -467,7 +467,8 @@ void BattlegroundIC::HandleKillPlayer(Player* player, Player* killer)
 void BattlegroundIC::EndBattleground(uint32 winner)
 {
     SendMessage2ToAll(LANG_BG_IC_TEAM_WINS, CHAT_MSG_BG_SYSTEM_NEUTRAL, NULL, (winner == ALLIANCE ? LANG_BG_IC_ALLIANCE : LANG_BG_IC_HORDE));
-
+    
+    AwardTeams(MAX_REINFORCEMENTS - factionReinforcements[GetOtherTeam(winner) == HORDE], MAX_REINFORCEMENTS, GetOtherTeam(winner));
     Battleground::EndBattleground(winner);
 }
 

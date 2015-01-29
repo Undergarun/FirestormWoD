@@ -958,24 +958,30 @@ class boss_protector_kaolan : public CreatureScript
             InstanceScript* pInstance;
             EventMap events;
 
+            enum LootMode
+            {
+                NormalModeLoot  = 1,
+                HardModeLoot    = 2
+            };
+
             bool firstSpecialEnabled;
             bool secondSpecialEnabled;
             bool isInWipeState;
             bool introDone;
 			
-			void Reset()
-			{
+            void Reset()
+            {
                 if (!pInstance || pInstance->GetBossState(DATA_PROTECTORS) == NOT_STARTED)
                     return;
 
                 SetEquipmentSlots(false, KAOLAN_MH_ITEM, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
                 me->CastSpell(me, SPELL_SHA_MASK, true);
 
-				_Reset();
+                _Reset();
 				
-				events.Reset();
+                events.Reset();
 				
-				summons.DespawnAll();
+                summons.DespawnAll();
 
                 firstSpecialEnabled = false;
                 secondSpecialEnabled = false;
@@ -985,7 +991,7 @@ class boss_protector_kaolan : public CreatureScript
 
                 events.ScheduleEvent(EVENT_TOUCH_OF_SHA, 12000);
 				
-				if (pInstance)
+                if (pInstance)
                 {
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TOUCH_OF_SHA);
@@ -999,22 +1005,31 @@ class boss_protector_kaolan : public CreatureScript
 
                     RespawnProtectors(pInstance, me);
                 }
-			}
+            }
 			
-			void JustReachedHome()
+            void JustReachedHome()
             {
                 _JustReachedHome();
                 Reset();
             }
 
-            void DamageTaken(Unit* attacker, uint32& /*damage*/)
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage)
             {
                 if (pInstance)
+                {
                     if (pInstance->GetBossState(DATA_PROTECTORS) != IN_PROGRESS)
-                        EnterCombat(attacker);
+                        EnterCombat(p_Attacker);
+                }
+
+                /// Handle here elite loots, Kaolan needs to be the last killed
+                if (p_Damage > me->GetHealth() && ProtectorsAlive(pInstance, me) <= 1)  ///< Kaolan is the last !
+                {
+                    me->RemoveLootMode(LootMode::NormalModeLoot);
+                    me->AddLootMode(LootMode::HardModeLoot);
+                }
             }
 
-			void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* attacker)
             {
                 if (pInstance)
                 {
@@ -1032,7 +1047,7 @@ class boss_protector_kaolan : public CreatureScript
                 ProtectorsWipe(pInstance);
             }
 
-			void JustSummoned(Creature* summon)
+            void JustSummoned(Creature* summon)
             {
                 summons.Summon(summon);
             }
@@ -1051,13 +1066,13 @@ class boss_protector_kaolan : public CreatureScript
                 }
             }
 			
-			void KilledUnit(Unit* who)
+            void KilledUnit(Unit* who)
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
                     Talk(TALK_KAOLAN_SLAY);
             }
 			
-			void JustDied(Unit* killer)
+            void JustDied(Unit* killer)
             {
                 Talk(TALK_KAOLAN_DEATH);
 
@@ -1201,22 +1216,22 @@ class boss_protector_kaolan : public CreatureScript
             {
                 switch (type)
                 {
-                case TYPE_SET_WIPE:
+                    case TYPE_SET_WIPE:
                     {
                         isInWipeState = true;
                         break;
                     }
-                case TYPE_UNSET_WIPE:
+                    case TYPE_UNSET_WIPE:
                     {
                         isInWipeState = false;
                         break;
                     }
-                default:
-                    break;
+                    default:
+                        break;
                 }
             }
 
-			void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 diff)
             {
                 if (pInstance)
                 {
@@ -1287,10 +1302,10 @@ class boss_protector_kaolan : public CreatureScript
                     }
                     default:
                         break;
-				}
+                }
 
                 DoMeleeAttackIfReady();
-			}
+            }
         };
 
         CreatureAI* GetAI(Creature* creature) const

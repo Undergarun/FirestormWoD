@@ -498,7 +498,7 @@ class boss_chogall : public CreatureScript
                     
                     for (Map::PlayerList::const_iterator itr = pList.begin(); itr != pList.end(); ++itr)
                     {
-                        Player* pPlayer = itr->getSource();
+                        //Player* pPlayer = itr->getSource();
                     }
                 }
         };

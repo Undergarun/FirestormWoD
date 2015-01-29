@@ -414,7 +414,7 @@ namespace MS
 
                 void UpdateAI(const uint32 diff)
                 {
-                    if (!UpdateVictim() || me->getVictim()->GetDistance(me) > 50.0f)
+                    if (!UpdateVictim() || (me->getVictim() && me->getVictim()->GetDistance(me) > 50.0f))
                     {
                         if (m_CombatStarted)
                         {
@@ -459,7 +459,7 @@ namespace MS
                     case uint32(Events::SUMMON_SOLAR_FLARE):
                         events.ScheduleEvent(uint32(Events::SUMMON_SOLAR_FLARE), urand(14000, 16000));
 
-                        if (Player* l_Plr = ScriptUtils::SelectRandomPlayerIncludedTank(me, 30.0f))
+                        if (ScriptUtils::SelectRandomPlayerIncludedTank(me, 30.0f))
                         {
                             m_LastTarget = urand(0, 10) + 1;
                             Position l_Pos = k_RandomSummonSolarFlare[m_LastTarget - 1];
@@ -471,7 +471,7 @@ namespace MS
                         // We want to cast PierceArmor on the closest ennemy.
                         if (me->getVictim() && me->getVictim()->IsWithinMeleeRange(me))
                             me->CastSpell(me->getVictim(), uint32(Spells::PIERCE_ARMOR));
-                        else if (Player* l_Plr = ScriptUtils::SelectNearestPlayer(me, 15.f))
+                        else if (ScriptUtils::SelectNearestPlayer(me, 15.f))
                             me->CastSpell(me->getVictim(), uint32(Spells::PIERCE_ARMOR));
                         break;
                     case uint32(Events::QUILLS):

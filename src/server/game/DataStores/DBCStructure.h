@@ -537,14 +537,25 @@ struct DurabilityQualityEntry
 struct EmotesEntry
 {
     uint32  Id;                                             // 0        m_ID
-    //char*     EmoteSlashCommand;                          // 1        EmoteSlashCommand
-    //uint32    m_AnimID;                                   // 2        m_AnimID
+    char*     EmoteSlashCommand;                          // 1        EmoteSlashCommand
+    uint32    m_AnimID;                                   // 2        m_AnimID
     uint32  Flags;                                          // 3        m_EmoteFlags
     uint32  EmoteType;                                      // 4        m_EmoteSpecProc
     uint32  UnitStandState;                                 // 5        m_EmoteSpecProcParam
-    //uint32    m_EventSoundID;                             // 6        m_EventSoundID
-    //uint32    SpellVisualKitID;                           // 7        m_SpellVisualKitID
+    uint32    m_EventSoundID;                             // 6        m_EventSoundID
+    uint32    SpellVisualKitID;                           // 7        m_SpellVisualKitID
 };
+
+/// @see EmoteType in EmotesEntry
+namespace EmoteTypes
+{
+    enum
+    {
+        OneStep,
+        EmoteLoop,
+        StateLoop       ///< Also related to m_EventSoundID, client play the sound only when EmoteType == StateLoop
+    };
+}
 
 struct EmotesTextEntry
 {
@@ -689,7 +700,6 @@ struct GlyphPropertiesEntry
     uint32  GlyphExclusiveCategoryID;                       // 4        m_GlyphExclusiveCategoryID
 };
 
-// @author Selenium: 5.4 valid
 struct GlyphSlotEntry
 {
     uint32  Id;                                             // 0        m_ID
@@ -1076,12 +1086,20 @@ struct MailTemplateEntry
     char*   content;                                        // 2        m_body_lang
 };
 
+enum MapFlags : uint32
+{
+    MAP_FLAG_CAN_CHANGE_DIFFICULTY  = 0x00000001,
+    MAP_FLAG_DEV                    = 0x00000002,
+    MAP_FLAG_OVERRIDE_FAR_CLIP      = 0x00010000,
+    MAP_FLAG_CAN_GET_GARRISON_INFO  = 0x04000000
+};
+
 struct MapEntry
 {
     uint32  MapID;                                          // 0        m_ID
     //char*     direcotry;                                  // 1        m_Directory
-    uint32  instanceType;                                   // 2        m_InstanceType
-    //uint32    flags;                                      // 3        m_Flags
+    uint32  instanceType;                                   // 2        m_InstanceType => 0 none, 1 party, 2 raid, 3 pvp, 4 arena, 5 scenario
+    uint32  Flags;                                          // 3        m_Flags
     //int     unk_602;                                      // 4
     //uint32    MapType;                                    // 5        m_MapType 4 Garison, 3 Transport 2/1 unk usage
     char*   MapNameLang;                                    // 6        m_MapName_lang
@@ -1136,11 +1154,11 @@ struct MapDifficultyEntry
     //uint32    Id;                                         // 0        m_ID
     uint32  MapId;                                          // 1        m_MapID
     uint32  Difficulty;                                     // 2        m_DifficultyID          (for arenas: arena slot)
-    char*   areaTriggerText;                                // 3        m_message_lang          (text showed when transfer to map failed)
-    uint32  resetTime;                                      // 4        m_raidDuration          in secs, 0 if no fixed reset time
-    uint32  maxPlayers;                                     // 5        m_maxPlayers            some heroic versions have 0 when expected same amount as in normal version
+    char*   AreaTriggerText;                                // 3        m_message_lang          (text showed when transfer to map failed)
+    uint32  ResetTime;                                      // 4        m_raidDuration          in secs, 0 if no fixed reset time
+    uint32  MaxPlayers;                                     // 5        m_maxPlayers            some heroic versions have 0 when expected same amount as in normal version
     //uint32    LockID;                                     // 6        m_LockID
-    //uint32    Unk_601_18612;                              // 7        Unk_601_18612           m_message_lang for WOD
+    uint32  ItemBonusTreeDifficulty;                        // 7
 };
 
 struct MinorTalentEntry
@@ -1220,6 +1238,12 @@ struct QuestXPEntry
 {
     uint32  id;                                             // 0        m_ID
     uint32  Exp[10];                                        // 1 -9     m_Difficulty
+};
+
+struct QuestV2Entry
+{
+    uint32      ID;                                         // 0
+    uint32      UniqueBitFlag;                              // 1
 };
 
 struct QuestFactionRewEntry
@@ -1905,6 +1929,18 @@ struct WMOAreaTableEntry
     //uint32    m_UwAmbience;                               // 14       m_UwAmbience
 };
 
+// unused
+struct WorldEffectEntry
+{
+    int ID;                                                 //
+    int TargetType;                                         //
+    int TargetAsset;                                        //
+    int QuestFeedbackEffectID;                              //
+    int PlayerConditionID;                                  //
+    int CombatConditionID;                                  //
+    int WhenToDisplay;                                      // 
+};
+
 struct WorldMapAreaEntry
 {
     //uint32    m_ID;                                       // 0        m_ID
@@ -2381,15 +2417,19 @@ struct VectorArray
 typedef std::map<uint32, VectorArray> NameGenVectorArraysMap;
 
 // Structures not used for casting to loaded DBC data and not required then packing
-// @author Selenium: 5.4 valid
 struct MapDifficulty
 {
-    MapDifficulty() : resetTime(0), maxPlayers(0), hasErrorMessage(false) {}
-    MapDifficulty(uint32 _resetTime, uint32 _maxPlayers, bool _hasErrorMessage) : resetTime(_resetTime), maxPlayers(_maxPlayers), hasErrorMessage(_hasErrorMessage) {}
+    MapDifficulty() : ResetTime(0), MaxPlayers(0), HasErrorMessage(false), ItemBonusTreeDifficulty(0)
+    {}
 
-    uint32 resetTime;
-    uint32 maxPlayers;
-    bool hasErrorMessage;
+    MapDifficulty(uint32 p_ResetTime, uint32 p_MaxPlayers, uint32 p_ItemBonusTreeDifficulty, bool p_HasErrorMessage)
+        : ResetTime(p_ResetTime), MaxPlayers(p_MaxPlayers), ItemBonusTreeDifficulty(p_ItemBonusTreeDifficulty), HasErrorMessage(p_HasErrorMessage)
+    {}
+
+    uint32 ResetTime;
+    uint32 MaxPlayers;
+    uint32 ItemBonusTreeDifficulty;
+    bool   HasErrorMessage;
 };
 
 struct TalentSpellPos

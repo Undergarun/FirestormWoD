@@ -1125,7 +1125,7 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
         else
         // removing offline participant
         {
-            if (!IsSkirmish() && GetStatus() == STATUS_IN_PROGRESS)
+            if (isArena() && !IsSkirmish() && GetStatus() == STATUS_IN_PROGRESS)
             {
                 //left a rated match while the encounter was in progress, consider as loser
                 Group* others_group = GetBgRaid(GetOtherTeam(team));
@@ -1431,6 +1431,9 @@ void Battleground::EventPlayerLoggedIn(Player* player)
 // This method should be called when player logs out from running battleground
 void Battleground::EventPlayerLoggedOut(Player* player)
 {
+    if (player == nullptr)
+        return;
+
     uint64 guid = player->GetGUID();
     if (!IsPlayerInBattleground(guid))  // Check if this player really is in battleground (might be a GM who teleported inside)
         return;
@@ -2232,3 +2235,46 @@ void Battleground::AddCrowdChoseYouEffect()
 
     m_CrowdChosed = true;
 }
+
+void Battleground::AwardTeams(uint32 p_PointsCount, uint32 p_MaxCount, uint32 p_Looser)
+{
+    float l_Factor = (float)p_PointsCount / (float)p_MaxCount;
+    BattlegroundAward l_LooserAward = AWARD_NONE;
+ 
+    if (l_Factor >= 0.666f)
+        l_LooserAward = AWARD_SILVER;
+    else if (l_Factor >= 0.333f)
+        l_LooserAward = AWARD_BRONZE;
+
+    AwardTeamsWithRewards(l_LooserAward, p_Looser);
+}
+
+void Battleground::AwardTeamsWithRewards(BattlegroundAward p_LooserAward, uint32 p_LooserTeam)
+{
+    uint32 l_WinnerTeam = GetOtherTeam(p_LooserTeam);
+
+    if (isBattleground() && !IsRatedBG())
+    {
+        CastSpellOnTeam(PVP_AWARD_SPELL_GOLDEN_STRONBOX, l_WinnerTeam);
+        CastSpellOnTeam(GetSpellIdForAward(p_LooserAward), p_LooserTeam);
+    }
+    else if (IsSkirmish())
+    {
+        CastSpellOnTeam(PVP_AWARD_SPELL_SKIRMISH_WIN, l_WinnerTeam);
+    }
+}
+uint32 Battleground::GetSpellIdForAward(BattlegroundAward p_Award)
+{
+    switch (p_Award)
+    {
+        case AWARD_GOLD:
+            return PVP_AWARD_SPELL_GOLDEN_STRONBOX;
+        case AWARD_SILVER:
+            return PVP_AWARD_SPELL_SILVER_STRONGBOX;
+        case AWARD_BRONZE:
+            return PVP_AWARD_SPELL_BRONZE_STRONGBOX;
+        default:
+            return 0;
+    }
+}
+

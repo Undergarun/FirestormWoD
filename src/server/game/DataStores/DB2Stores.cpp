@@ -24,8 +24,12 @@
 
 #include <map>
 
+std::map<uint32 /*curveID*/, std::map<uint32/*index*/, CurvePointEntry const*, std::greater<uint32>>> HeirloomCurvePoints;
+DB2Storage<CurvePointEntry>                 sCurvePointStore(CurvePointEntryfmt);
 DB2Storage <ItemEntry>                      sItemStore(Itemfmt);
 DB2Storage <ItemBonusEntry>                 sItemBonusStore(ItemBonusfmt);
+DB2Storage <ItemBonusTreeNodeEntry>         sItemBonusTreeNodeStore(ItemBonusTreeNodefmt);
+DB2Storage <ItemXBonusTreeEntry>            sItemXBonusTreeStore(ItemXBonusTreefmt);
 DB2Storage <ItemCurrencyCostEntry>          sItemCurrencyCostStore(ItemCurrencyCostfmt);
 DB2Storage <ItemExtendedCostEntry>          sItemExtendedCostStore(ItemExtendedCostEntryfmt);
 DB2Storage <ItemSparseEntry>                sItemSparseStore(ItemSparsefmt);
@@ -53,6 +57,9 @@ DB2Storage <SpellTotemsEntry>               sSpellTotemsStore(SpellTotemsEntryfm
 DB2Storage <SpellClassOptionsEntry>         sSpellClassOptionsStore(SpellClassOptionsEntryfmt);
 DB2Storage <MapChallengeModeEntry>          sMapChallengeModeStore(MapChallengeModeEntryfmt);
 DB2Storage <QuestPackageItemEntry>          sQuestPackageItemStore(QuestPackageItemEntryfmt);
+DB2Storage <MountEntry>                     sMountStore(MountEntryfmt);
+DB2Storage <PlayerConditionEntry>           sPlayerConditionStore(PlayerConditionEntryfmt);
+DB2Storage <VignetteEntry>                  sVignetteStore(VignetteEntryfmt);
 
 //////////////////////////////////////////////////////////////////////////
 /// Garrison DB2
@@ -99,6 +106,7 @@ TaxiPathNodesByPath sTaxiPathNodesByPath;
 SpellTotemMap sSpellTotemMap;
 std::map<uint32, std::vector<uint32>> sItemEffectsByItemID;
 std::map<uint32, std::vector<ItemBonusEntry const*>> sItemBonusesByID;
+std::map<uint32, std::vector<ItemXBonusTreeEntry const*>> sItemBonusTreeByID;
 std::map<uint32, std::vector<QuestPackageItemEntry const*>> sQuestPackageItemsByGroup;
 
 typedef std::list<std::string> StoreProblemList1;
@@ -166,8 +174,12 @@ void LoadDB2Stores(const std::string& dataPath)
     /// Misc DB2
     //////////////////////////////////////////////////////////////////////////
     LoadDB2(bad_db2_files, sAreaPOIStore,                   db2Path, "AreaPOI.db2");
+    LoadDB2(bad_db2_files, sCurvePointStore,                db2Path, "CurvePoint.db2");
     LoadDB2(bad_db2_files, sHolidaysStore,                  db2Path, "Holidays.db2");
     LoadDB2(bad_db2_files, sMapChallengeModeStore,          db2Path, "MapChallengeMode.db2");
+    LoadDB2(bad_db2_files, sMountStore,                     db2Path, "Mount.db2");
+    LoadDB2(bad_db2_files, sPlayerConditionStore,           db2Path, "PlayerCondition.db2");
+    LoadDB2(bad_db2_files, sVignetteStore,                  db2Path, "Vignette.db2");
 
     //////////////////////////////////////////////////////////////////////////
     /// Quest DB2
@@ -191,7 +203,6 @@ void LoadDB2Stores(const std::string& dataPath)
     /// Item DB2
     //////////////////////////////////////////////////////////////////////////
     LoadDB2(bad_db2_files, sItemStore,                      db2Path, "Item.db2");
-    LoadDB2(bad_db2_files, sItemBonusStore,                 db2Path, "ItemBonus.db2");
     LoadDB2(bad_db2_files, sItemCurrencyCostStore,          db2Path, "ItemCurrencyCost.db2");
     LoadDB2(bad_db2_files, sItemSparseStore,                db2Path, "Item-sparse.db2");
     LoadDB2(bad_db2_files, sItemEffectStore,                db2Path, "ItemEffect.db2");
@@ -201,6 +212,13 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sPvpItemStore,                   db2Path, "PvpItem.db2");
     LoadDB2(bad_db2_files, sItemUpgradeStore,               db2Path, "ItemUpgrade.db2");
     LoadDB2(bad_db2_files, sRulesetItemUpgradeStore,        db2Path, "RulesetItemUpgrade.db2");
+
+    //////////////////////////////////////////////////////////////////////////
+    /// Item Bonus DB2
+    //////////////////////////////////////////////////////////////////////////
+    LoadDB2(bad_db2_files, sItemBonusStore,                 db2Path, "ItemBonus.db2");
+    LoadDB2(bad_db2_files, sItemBonusTreeNodeStore,         db2Path, "ItemBonusTreeNode.db2");
+    LoadDB2(bad_db2_files, sItemXBonusTreeStore,            db2Path, "ItemXBonusTree.db2");
 
     //////////////////////////////////////////////////////////////////////////
     /// Spell DB2
@@ -254,6 +272,16 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sBattlePetSpeciesStateStore,     db2Path, "BattlePetSpeciesState.db2");
     LoadDB2(bad_db2_files, sBattlePetSpeciesXAbilityStore,  db2Path, "BattlePetSpeciesXAbility.db2");
 
+    std::set<uint32> scalingCurves;
+    for (uint32 i = 0; i < sScalingStatDistributionStore.GetNumRows(); ++i)
+        if (ScalingStatDistributionEntry const* ssd = sScalingStatDistributionStore.LookupEntry(i))
+            scalingCurves.insert(ssd->CurveProperties);
+
+    for (uint32 i = 0; i < sCurvePointStore.GetNumRows(); ++i)
+        if (CurvePointEntry const* curvePoint = sCurvePointStore.LookupEntry(i))
+            if (scalingCurves.count(curvePoint->CurveID))
+                HeirloomCurvePoints[curvePoint->CurveID][curvePoint->Index] = curvePoint;
+
     for (uint32 l_Y = 0; l_Y < sItemModifiedAppearanceStore.GetNumRows(); l_Y++)
     {
         if (const ItemModifiedAppearanceEntry * l_ModifiedAppearanceEntry = sItemModifiedAppearanceStore.LookupEntry(l_Y))
@@ -304,7 +332,17 @@ void LoadDB2Stores(const std::string& dataPath)
         if (l_QuestPackageItem == nullptr)
             continue;
 
-        sQuestPackageItemsByGroup[l_QuestPackageItem->ExclusiveGroup].push_back(l_QuestPackageItem);
+        sQuestPackageItemsByGroup[l_QuestPackageItem->PackageID].push_back(l_QuestPackageItem);
+    }
+
+    /// - Load Item Bonus Tree
+    for (uint32 l_I = 0; l_I < sItemXBonusTreeStore.GetNumRows(); l_I++)
+    {
+        auto l_ItemXBonusTree = sItemXBonusTreeStore.LookupEntry(l_I);
+        if (l_ItemXBonusTree == nullptr)
+            continue;
+
+        sItemBonusTreeByID[l_ItemXBonusTree->ItemId].push_back(l_ItemXBonusTree);
     }
 
     // Initialize global taxinodes mask
@@ -425,4 +463,23 @@ std::vector<ItemBonusEntry const*> const* GetItemBonusesByID(uint32 Id)
 {
     std::map<uint32, std::vector<ItemBonusEntry const*>>::const_iterator iter = sItemBonusesByID.find(Id);
     return iter != sItemBonusesByID.end() ? &(iter->second) : nullptr;
+}
+
+uint32 GetHeirloomItemLevel(uint32 curveId, uint32 level)
+{
+    // Assuming linear item level scaling for heirlooms
+    auto itr = HeirloomCurvePoints.find(curveId);
+    if (itr == HeirloomCurvePoints.end())
+        return 0;
+
+    auto it2 = itr->second.begin(); // Highest scaling point
+    if (level >= it2->second->X)
+        return it2->second->Y;
+
+    auto previousItr = it2++;
+    for (; it2 != itr->second.end(); ++it2, ++previousItr)
+        if (level >= it2->second->X)
+            return uint32((previousItr->second->Y - it2->second->Y) / (previousItr->second->X - it2->second->X) * (float(level) - it2->second->X) + it2->second->Y);
+
+    return uint32(previousItr->second->Y);  // Lowest scaling point
 }

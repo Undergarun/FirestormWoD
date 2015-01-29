@@ -18,8 +18,11 @@
 #ifndef TRINITY_DB2SFRM_H
 #define TRINITY_DB2SFRM_H
 
+char const CurvePointEntryfmt[] = "niiff";
 const char Itemfmt[] = "niiiiiiii";
 const char ItemBonusfmt[] = "diiiii";
+const char ItemBonusTreeNodefmt[] = "diiii";
+const char ItemXBonusTreefmt[] = "dii";
 const char ItemCurrencyCostfmt[] = "xn";
 const char ItemSparsefmt[] = "niiiiffiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiffffffffffiiifisssssiiiiiiiiiiiiiiiiiiifiiifiii";
 const char ItemEffectFmt[] = "niiiiiiii";
@@ -47,6 +50,9 @@ const char SpellTotemsEntryfmt[] = "niiii";
 const char SpellClassOptionsEntryfmt[] = "dxiiiii";
 const char MapChallengeModeEntryfmt[] = "nixxxiiixx";
 const char QuestPackageItemEntryfmt[] = "niiii";
+const char MountEntryfmt[] = "iiiisssini";
+const char PlayerConditionEntryfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiisiii";
+const char VignetteEntryfmt[] = "nsiiff";
 
 //////////////////////////////////////////////////////////////////////////
 /// Garrison DB2

@@ -463,7 +463,7 @@ enum AuraType
     SPELL_AURA_SET_POWER_TYPE                               = 402,  // SPELL_AURA_SET_POWER_TYPE
     SPELL_AURA_CHANGE_VISUAL_EFFECT                         = 403,  // SPELL_AURA_CHANGE_VISUAL_EFFECT
     SPELL_AURA_OVERRIDE_AP_BY_SPELL_POWER_PCT               = 404,  // Sets attack power equal to % of spellpower, discarding all other bonuses (from gear and buffs)
-    SPELL_AURA_INCREASE_HASTE_FROM_ITEMS_BY_PCT             = 405,  // SPELL_AURA_INCREASE_STATS_FROM_ITEMS_BY_PCT
+    SPELL_AURA_INCREASE_RATING_PCT                          = 405,  // SPELL_AURA_INCREASE_RATING_PCT
     SPELL_AURA_406                                          = 406,  // 5.0.5 unk aura
     SPELL_AURA_MOD_FEAR_2                                   = 407,  // SPELL_AURA_MOD_FEAR_2
     SPELL_AURA_408                                          = 408,  // 5.0.5 unk aura
@@ -511,7 +511,7 @@ enum AuraType
     SPELL_AURA_450                                          = 450,  // 6.0.X
     SPELL_AURA_451                                          = 451,  // 6.0.X
     SPELL_AURA_452                                          = 452,  // 6.0.X
-    SPELL_AURA_453                                          = 453,  // 6.0.X
+    SPELL_AURA_MOD_COOLDOWN_2                               = 453,  // 6.0.X SPELL_AURA_MOD_COOLDOWN_2
     SPELL_AURA_454                                          = 454,  // 6.0.X
     SPELL_AURA_MOD_ROOT_2                                   = 455,  // 6.0.X SPELL_AURA_MOD_ROOT_2
     SPELL_AURA_456                                          = 456,  // 6.0.X

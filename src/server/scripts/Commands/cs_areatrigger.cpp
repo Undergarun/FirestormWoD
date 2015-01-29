@@ -54,8 +54,6 @@ class at_commandscript: public CommandScript
 
         static uint32 GetAreaTriggerGUIDLow(ChatHandler* p_Handler, char const* p_Args)
         {
-            Player* l_Player = p_Handler->GetSession()->GetPlayer();
-
             if (*p_Args)
             {
                 // number or [name] Shift-click form |color|Hareatrigger:at_guid|h[name]|h|r
@@ -130,7 +128,7 @@ class at_commandscript: public CommandScript
                     l_AreaTrigger->GetMapId());
             }
 
-            p_Handler->PSendSysMessage("Nearest AreaTriggers in %f yards : %u.", l_Distance, l_ATList.size());
+            p_Handler->PSendSysMessage("Nearest AreaTriggers in %f yards : %lu.", l_Distance, l_ATList.size());
             return true;
         }
 };

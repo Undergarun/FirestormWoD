@@ -1,349 +1,205 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2014-2015 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+#include "GarrisonNPC.hpp"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "GameObjectAI.h"
 #include "Spell.h"
-#include "Garrison.h"
+#include "GarrisonMgr.hpp"
 
-enum 
+#include <random>
+
+namespace MS { namespace Garrison 
 {
-    SPELL_LEFT_ROPE                                 = 164400,
-    SPELL_RIGHT_ROPE                                = 164422,
+    /// Constructor
+    GarrisonNPCAI::GarrisonNPCAI(Creature * p_Creature)
+        : MS::AI::CosmeticAI(p_Creature), m_PlotInstanceLocation(nullptr)
+    {
 
-    NPC_GARRISON_ALLIANCE_CART                      = 81627,
-    NPC_GARRISON_ALLIANCE_HORSE                     = 81633,
+    }
 
-    QUEST_ETABLISH_YOUR_GARRISON_A                  = 34586,
-    QUEST_ETABLISH_YOUR_GARRISON_H                  = 34378,
-    QUEST_KEEPING_IT_TOGETHER                       = 35176,
-    QUEST_SHIP_SALVAGE                              = 35166,
-    QUEST_PALE_MOONLIGHT                            = 35174,
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
 
-    NPC_ASSISTANT_BRIGHTSTONE_TEXT_1                = 85492,
-    NPC_ASSISTANT_BRIGHTSTONE_TEXT_2                = 85490,
-    NPC_ASSISTANT_BRIGHTSTONE_TEXT_3                = 85493,
-    NPC_ASSISTANT_BRIGHTSTONE_TEXT_QUEST            = 83682,
-    NPC_SHELLY_HAMBY_TEXT_QUEST                     = 83505,
-    NPC_BAROS_ETABLISH_YOUR_GARRISON_CHAT           = 0,
-    NPC_BAROS_KEEPING_IT_TOGETHER_START_CHAT        = 1,
-    NPC_BAROS_KEEPING_IT_TOGETHER_END_CHAT          = 2,
-    NPC_BAROS_SHIP_SALVAGE_START_CHAT               = 3,
-    NPC_BAROS_SHIP_SALVAGE_END_CHAT                 = 4,
-    NPC_VINDICATOR_MARAAD_PALE_MOONLIGHT_START_CHAT = 0,
-    NPC_VINDICATOR_MARAAD_PALE_MOONLIGHT_END_CHAT   = 1,
+    /// Set to relative position from building
+    /// @p_X : Relative X
+    /// @p_Y : Relative Y
+    /// @p_Z : Relative Z
+    void GarrisonNPCAI::MoveBuildingRelative(uint32 p_PointID, float p_X, float p_Y, float p_Z)
+    {
+        if (!m_PlotInstanceLocation)
+            return;
 
-    ITEM_SHELLY_HAMBY_REPORT                        = 112730,
-};
+        G3D::Vector3 l_Position = G3D::Vector3(p_X, p_Y, 0);
 
-float gGarrisonCreationCoords[][4] =
-{
-    { 1766.761475f,  191.2846830f,  72.115326f, 0.0510594f },   ///< TEAM_ALLIANCE
-    { 5698.020020f, 4512.1635574f, 127.401695f, 2.7822720f }    ///< TEAM_HORDE
-};
+        G3D::Matrix3 l_Mat = G3D::Matrix3::identity();
+        l_Mat = l_Mat.fromAxisAngle(G3D::Vector3(0, 0, 1), m_PlotInstanceLocation->O);
 
-/// Garrison Ford
-class npc_GarrisonFord : public CreatureScript
-{
-    public:
-        /// Constructor
-        npc_GarrisonFord()
-            : CreatureScript("npc_GarrisonFord")
-        { 
+        l_Position.x += m_NonRotatedPlotPosition.x;
+        l_Position.y += m_NonRotatedPlotPosition.y;
 
-        }
+        l_Position = l_Mat * l_Position;
 
-        /// Called when a player opens a gossip dialog with the creature.
-        bool OnGossipHello(Player * p_Player, Creature * p_Creature) override
+        l_Position.z = p_Z + m_PlotInstanceLocation->Z;
+
+        me->GetMotionMaster()->MovePoint(p_PointID, l_Position.x, l_Position.y, l_Position.z);
+    }
+    /// Set facing to relative angle from the building
+    /// @p_O : Relative angle
+    void GarrisonNPCAI::SetFacingBuildingRelative(float p_O)
+    {
+        float l_Angle = p_O;
+
+        if (m_PlotInstanceLocation)
+            l_Angle += m_PlotInstanceLocation->O;
+
+        me->SetFacingTo(Position::NormalizeOrientation(l_Angle));
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Set UInt32 value
+    /// @p_ID    : Value ID
+    /// @p_Value : Value
+    void GarrisonNPCAI::SetData(uint32 p_ID, uint32 p_Value)
+    {
+        if (p_ID == CreatureAIDataIDs::PlotInstanceID)
         {
-            if (!p_Player->GetGarrison())
-                p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Create me a garrison.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-            
-            p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
+            m_PlotInstanceLocation = nullptr;
 
-            return true;
+            for (uint32 l_I = 0; l_I < Globals::PlotInstanceCount; ++l_I)
+            {
+                if (gGarrisonPlotInstanceInfoLocation[l_I].PlotInstanceID == (p_Value & 0x0000FFFF) && gGarrisonPlotInstanceInfoLocation[l_I].SiteLevelID == ((p_Value >> 16) & 0x0000FFFF))
+                {
+                    m_PlotInstanceLocation = &gGarrisonPlotInstanceInfoLocation[l_I];
+                    break;
+                }
+            }
+
+            if (m_PlotInstanceLocation)
+            {
+                G3D::Matrix3 l_Mat = G3D::Matrix3::identity();
+                l_Mat = l_Mat.fromAxisAngle(G3D::Vector3(0, 0, 1), -m_PlotInstanceLocation->O);
+
+                /// transform plot coord
+                m_NonRotatedPlotPosition = l_Mat * G3D::Vector3(m_PlotInstanceLocation->X, m_PlotInstanceLocation->Y, m_PlotInstanceLocation->Z);
+            }
         }
+    }
 
-        /// Called when a player selects a gossip item in the creature's gossip menu.
-        bool OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action) override
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    npc_GarrisonFord::npc_GarrisonFord()
+        : CreatureScript("npc_GarrisonFord")
+    {
+
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Called when a player opens a gossip dialog with the creature.
+    /// @p_Player   : Source player instance
+    /// @p_Creature : Target creature instance
+    bool npc_GarrisonFord::OnGossipHello(Player * p_Player, Creature * p_Creature)
+    {
+        if (!p_Player->GetGarrison())
+            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Create me a garrison.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+        else
+            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Delete my garrison.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+
+        p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
+
+        return true;
+    }
+    /// Called when a player selects a gossip item in the creature's gossip menu.
+    /// @p_Player   : Source player instance
+    /// @p_Creature : Target creature instance
+    /// @p_Sender   : Sender menu
+    /// @p_Action   : Action
+    bool npc_GarrisonFord::OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action)
+    {
+        if (!p_Player->GetGarrison())
         {
             p_Player->CLOSE_GOSSIP_MENU();
             p_Player->CreateGarrison();
 
-            uint32 l_MovieID = p_Player->GetGarrison()->GetGarrisonSiteLevelEntry()->CreationMovie;
-            uint32 l_MapID   = p_Player->GetGarrison()->GetGarrisonSiteLevelEntry()->MapID;
-            uint32 l_TeamID  = p_Player->GetTeamId();
+            uint32 l_MovieID    = p_Player->GetGarrison()->GetGarrisonSiteLevelEntry()->CreationMovie;
+            uint32 l_MapID      = p_Player->GetGarrison()->GetGarrisonSiteLevelEntry()->MapID;
+            uint32 l_TeamID     = p_Player->GetTeamId();
 
-            p_Player->AddMovieDelayedTeleport(l_MovieID, l_MapID, gGarrisonCreationCoords[l_TeamID][0], gGarrisonCreationCoords[l_TeamID][1], gGarrisonCreationCoords[l_TeamID][2], gGarrisonCreationCoords[l_TeamID][3]);
+            p_Player->AddMovieDelayedTeleport(l_MovieID, l_MapID,   MS::Garrison::gGarrisonCreationCoords[l_TeamID][0],
+                                                                    MS::Garrison::gGarrisonCreationCoords[l_TeamID][1],
+                                                                    MS::Garrison::gGarrisonCreationCoords[l_TeamID][2],
+                                                                    MS::Garrison::gGarrisonCreationCoords[l_TeamID][3]);
             p_Player->SendMovieStart(l_MovieID);
 
-            if (l_TeamID == TEAM_ALLIANCE)
+            if (l_TeamID == TEAM_ALLIANCE && p_Player->GetQuestStatus(Quests::QUEST_ETABLISH_YOUR_GARRISON_A) != QUEST_STATUS_REWARDED)
             {
-                p_Player->AddQuest(sObjectMgr->GetQuestTemplate(QUEST_ETABLISH_YOUR_GARRISON_A), p_Creature);
-                p_Player->CompleteQuest(QUEST_ETABLISH_YOUR_GARRISON_A);
+                p_Player->AddQuest(sObjectMgr->GetQuestTemplate(Quests::QUEST_ETABLISH_YOUR_GARRISON_A), p_Creature);
+                p_Player->CompleteQuest(MS::Garrison::Quests::QUEST_ETABLISH_YOUR_GARRISON_A);
             }
-            else if (l_TeamID == TEAM_HORDE)
+            else if (l_TeamID == TEAM_HORDE && p_Player->GetQuestStatus(Quests::QUEST_ETABLISH_YOUR_GARRISON_H) != QUEST_STATUS_REWARDED)
             {
-                p_Player->AddQuest(sObjectMgr->GetQuestTemplate(QUEST_ETABLISH_YOUR_GARRISON_H), p_Creature);
-                p_Player->CompleteQuest(QUEST_ETABLISH_YOUR_GARRISON_H);
-            }
-
-            return true;
-        }
-};
-
-/// Garrison ROPE owner
-class npc_GarrisonCartRope : public CreatureScript
-{
-    public:
-        /// Constructor
-        npc_GarrisonCartRope() 
-            : CreatureScript("npc_GarrisonCartRope")
-        { 
-
-        }
-
-        CreatureAI* GetAI(Creature * p_Creature) const
-        {
-            return new npc_GarrisonCartRopeAI(p_Creature);
-        }
-
-        struct npc_GarrisonCartRopeAI : public CreatureAI
-        {
-            /// Constructor
-            npc_GarrisonCartRopeAI(Creature * p_Creature) 
-                : CreatureAI(p_Creature)
-            {
-                HasRope = false;
-                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
+                p_Player->AddQuest(sObjectMgr->GetQuestTemplate(Quests::QUEST_ETABLISH_YOUR_GARRISON_H), p_Creature);
+                p_Player->CompleteQuest(Quests::QUEST_ETABLISH_YOUR_GARRISON_H);
             }
 
-            void Reset() override
-            {
-                HasRope = false;
-            }
-
-            void UpdateAI(const uint32 p_Diff) override
-            {
-                if (me->GetEntry() == NPC_GARRISON_ALLIANCE_CART && !HasRope)
-                {
-                    Creature * l_Horse = me->FindNearestCreature(NPC_GARRISON_ALLIANCE_HORSE, 2.5f);
-
-                    if (l_Horse)
-                    {
-                        me->CastSpell(l_Horse, SPELL_LEFT_ROPE, TRIGGERED_FULL_MASK);
-                        HasRope = true;
-                    }
-                }
-                else if (me->GetEntry() == NPC_GARRISON_ALLIANCE_HORSE && !HasRope)
-                {
-                    Creature * l_Cart = me->FindNearestCreature(NPC_GARRISON_ALLIANCE_CART, 4.0f);
-
-                    if (l_Cart && l_Cart->GetEntry() == NPC_GARRISON_ALLIANCE_CART)
-                    {
-                        me->CastSpell(l_Cart, SPELL_RIGHT_ROPE, TRIGGERED_FULL_MASK);
-                        HasRope = true;
-                    }
-                }
-            }
-
-            bool HasRope;
-        };
-};
-
-/// Garrison assistant brightstone
-class npc_AssistantBrightstone : public CreatureScript
-{
-    public:
-        /// Constructor
-        npc_AssistantBrightstone()
-            : CreatureScript("npc_AssistantBrightstone")
+            /// HACK until shadowmoon quest are done : add follower Qiana Moonshadow / Olin Umberhide
+            /// @Morgoporc Dont worry, this code will disappear
+            p_Player->GetGarrison()->AddFollower(34);
+            p_Player->GetGarrison()->AddFollower(89);
+            p_Player->GetGarrison()->AddFollower(92);
+        }
+        else
         {
+            if (p_Player->GetCurrency(MS::Garrison::Globals::CurrencyID, false))
+                p_Player->ModifyCurrency(MS::Garrison::Globals::CurrencyID, -(int32)p_Player->GetCurrency(MS::Garrison::Globals::CurrencyID, false));
 
+            p_Player->DeleteGarrison();
         }
 
-        /// Called when a player opens a gossip dialog with the creature.
-        bool OnGossipHello(Player * p_Player, Creature * p_Creature) override
-        {
-            if (p_Player->GetQuestStatus(QUEST_KEEPING_IT_TOGETHER) == QUEST_STATUS_INCOMPLETE && p_Player->GetQuestObjectiveCounter(273535) != 1)
-            {
-                p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Time to get back to work.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-                p_Player->SEND_GOSSIP_MENU(NPC_ASSISTANT_BRIGHTSTONE_TEXT_QUEST, p_Creature->GetGUID());
-            }
-            else
-            {
-                p_Player->SEND_GOSSIP_MENU(RAND(NPC_ASSISTANT_BRIGHTSTONE_TEXT_1, NPC_ASSISTANT_BRIGHTSTONE_TEXT_2, NPC_ASSISTANT_BRIGHTSTONE_TEXT_3), p_Creature->GetGUID());
-            }
+        return true;
+    }
 
-            return true;
-        }
-
-        /// Called when a player selects a gossip item in the creature's gossip menu.
-        bool OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action) override
-        {
-            if (p_Player->GetQuestStatus(QUEST_KEEPING_IT_TOGETHER) == QUEST_STATUS_INCOMPLETE && p_Player->GetQuestObjectiveCounter(273535) != 1)
-            {
-                p_Player->QuestObjectiveSatisfy(84455, 1, QUEST_OBJECTIVE_TYPE_NPC, p_Creature->GetGUID());
-
-                // @TODO move peon arround
-
-                p_Player->CLOSE_GOSSIP_MENU();
-                p_Player->SEND_GOSSIP_MENU(NPC_ASSISTANT_BRIGHTSTONE_TEXT_QUEST, p_Creature->GetGUID());
-            }
-
-            return true;
-        }
-
-};
-
-/// Garrison shelly hamby
-class npc_ShellyHamby : public CreatureScript
-{
-    public:
-        /// Constructor
-        npc_ShellyHamby()
-            : CreatureScript("npc_ShellyHamby")
-        {
-
-        }
-
-        /// Called when a player opens a gossip dialog with the creature.
-        bool OnGossipHello(Player * p_Player, Creature * p_Creature) override
-        {
-            if (!p_Player->HasItemCount(ITEM_SHELLY_HAMBY_REPORT, 1))
-                p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Gather Shelly's report.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-
-            p_Player->SEND_GOSSIP_MENU(NPC_SHELLY_HAMBY_TEXT_QUEST, p_Creature->GetGUID());
-
-            return true;
-        }
-
-        /// Called when a player selects a gossip item in the creature's gossip menu.
-        bool OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action) override
-        {
-            p_Player->CLOSE_GOSSIP_MENU();
-            p_Creature->AI()->Talk(0);
-
-            if (!p_Player->HasItemCount(ITEM_SHELLY_HAMBY_REPORT, 1))
-                p_Player->AddItem(ITEM_SHELLY_HAMBY_REPORT, 1);
-
-            return true;
-        }
-
-};
-
-/// Garrison baros alexston
-class npc_BarosAlexsom : public CreatureScript
-{
-    public:
-        /// Constructor
-        npc_BarosAlexsom()
-            : CreatureScript("npc_BarosAlexsom")
-        {
-
-        }
-
-        /// Called when a player accepts a quest from the creature.
-        virtual bool OnQuestAccept(Player * p_Player, Creature * p_Creature, const Quest * p_Quest) override
-        {
-            if (p_Quest && p_Quest->GetQuestId() == QUEST_KEEPING_IT_TOGETHER)
-                p_Creature->AI()->Talk(NPC_BAROS_KEEPING_IT_TOGETHER_START_CHAT);
-            else if (p_Quest && p_Quest->GetQuestId() == QUEST_SHIP_SALVAGE)
-                p_Creature->AI()->Talk(NPC_BAROS_SHIP_SALVAGE_START_CHAT);
-
-            return false;
-        }
-        /// Called when a player completes a quest with the creature.
-        virtual bool OnQuestComplete(Player * p_Player, Creature * p_Creature, const Quest * p_Quest) override
-        {
-            if (p_Quest && p_Quest->GetQuestId() == QUEST_ETABLISH_YOUR_GARRISON_A)
-                p_Creature->AI()->Talk(NPC_BAROS_ETABLISH_YOUR_GARRISON_CHAT);
-            else if (p_Quest && p_Quest->GetQuestId() == QUEST_KEEPING_IT_TOGETHER)
-                p_Creature->AI()->Talk(NPC_BAROS_KEEPING_IT_TOGETHER_END_CHAT);
-            else if (p_Quest && p_Quest->GetQuestId() == QUEST_SHIP_SALVAGE)
-                p_Creature->AI()->Talk(NPC_BAROS_SHIP_SALVAGE_END_CHAT);
-
-            return false;
-        }
-
-};
-
-/// Garrison vindicator maraad
-class npc_VindicatorMaraad : public CreatureScript
-{
-    public:
-        /// Constructor
-        npc_VindicatorMaraad()
-            : CreatureScript("npc_VindicatorMaraad")
-        {
-
-        }
-
-        /// Called when a player accepts a quest from the creature.
-        virtual bool OnQuestAccept(Player * p_Player, Creature * p_Creature, const Quest * p_Quest) override
-        {
-            if (p_Quest && p_Quest->GetQuestId() == QUEST_PALE_MOONLIGHT)
-                p_Creature->AI()->Talk(NPC_VINDICATOR_MARAAD_PALE_MOONLIGHT_START_CHAT);
-
-            return false;
-        }
-        /// Called when a player completes a quest with the creature.
-        virtual bool OnQuestComplete(Player * p_Player, Creature * p_Creature, const Quest * p_Quest) override
-        {
-            if (p_Quest && p_Quest->GetQuestId() == QUEST_PALE_MOONLIGHT)
-                p_Creature->AI()->Talk(NPC_VINDICATOR_MARAAD_PALE_MOONLIGHT_END_CHAT);
-
-            return false;
-        }
-
-};
-
-/// Lunarfall Laborer
-class npc_LunarfallLaborer : public CreatureScript
-{
-    public:
-        /// Constructor
-        npc_LunarfallLaborer()
-            : CreatureScript("npc_LunarfallLaborer")
-        {
-
-        }
-
-        CreatureAI* GetAI(Creature * p_Creature) const
-        {
-            return new npc_LunarfallLaborerAI(p_Creature);
-        }
-
-        struct npc_LunarfallLaborerAI : public CreatureAI
-        {
-            /// Constructor
-            npc_LunarfallLaborerAI(Creature * p_Creature)
-                : CreatureAI(p_Creature)
-            {
-
-            }
-
-            void UpdateAI(const uint32 p_Diff) override
-            {
-
-            }
-
-            virtual void SetData(uint32 p_ID, uint32 p_Value) 
-            {
-                if (p_ID == GARRISON_CREATURE_AI_DATA_BUILDER)
-                {
-                    me->SetCurrentEquipmentId(1);
-                    me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_WORK);
-                }
-            }
-        };
-};
+}   ///< namespace Garrison
+}   ///< namespace MS
 
 void AddSC_Garrison_NPC()
 {
-    new npc_GarrisonFord;
-    new npc_GarrisonCartRope;
-    new npc_AssistantBrightstone;
-    new npc_ShellyHamby;
-    new npc_BarosAlexsom;
-    new npc_VindicatorMaraad;
+    /// Generic
+    new MS::Garrison::npc_GarrisonFord;
+
+    /// Alliance
+    new MS::Garrison::npc_GarrisonCartRope;
+    new MS::Garrison::npc_AssistantBrightstone;
+    new MS::Garrison::npc_ShellyHamby;
+    new MS::Garrison::npc_BarosAlexsom;
+    new MS::Garrison::npc_VindicatorMaraad;
+    new MS::Garrison::npc_LunarfallLaborer;
+    new MS::Garrison::npc_GussofForgefire;
+    new MS::Garrison::npc_KristenStoneforge;
+
+    /// Horde
+    new MS::Garrison::npc_FrostwallPeon("npc_FrostwallPeon_Dynamic");
+    new MS::Garrison::npc_FrostwallPeon("npc_FrostwallPeon");
+    new MS::Garrison::npc_Skaggit;
+    new MS::Garrison::npc_LadySena;
+    new MS::Garrison::npc_SergeantGrimjaw;
+    new MS::Garrison::npc_SeniorPeonII;
+    new MS::Garrison::npc_Gazlowe;
+    new MS::Garrison::npc_GrunLek;
+    new MS::Garrison::npc_FrostWallGrunt;
+    new MS::Garrison::npc_FrostWallSmith;
 }

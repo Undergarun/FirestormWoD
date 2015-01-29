@@ -71,6 +71,7 @@
 #include <errno.h>
 #include <signal.h>
 #include <assert.h>
+#include <random>
 
 #if PLATFORM == PLATFORM_WINDOWS
 #define STRCASECMP stricmp
@@ -93,6 +94,12 @@
 #include <ace/Guard_T.h>
 #include <ace/RW_Thread_Mutex.h>
 #include <ace/Thread_Mutex.h>
+
+// To remove later, when VS will support thread_local (c++x11)
+// Add fix for Apple LLVM version 6.0 (clang-600.0.54) (based on LLVM 3.5svn)
+#if PLATFORM == PLATFORM_WINDOWS || PLATFORM == PLATFORM_APPLE
+#define thread_local  __declspec(thread)
+#endif
 
 #if PLATFORM == PLATFORM_WINDOWS
 #  include <ace/config-all.h>

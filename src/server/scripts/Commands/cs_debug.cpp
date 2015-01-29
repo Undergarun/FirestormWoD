@@ -43,7 +43,10 @@ EndScriptData */
 class debug_commandscript: public CommandScript
 {
     public:
-        debug_commandscript() : CommandScript("debug_commandscript") { }
+
+        debug_commandscript() : CommandScript("debug_commandscript")
+        {
+        }
 
         ChatCommand* GetCommands() const
         {
@@ -117,6 +120,10 @@ class debug_commandscript: public CommandScript
                 { "bgstart",        SEC_ADMINISTRATOR,  false, &HandleDebugBattlegroundStart,      "", NULL },
                 { "criteria",       SEC_ADMINISTRATOR,  false, &HandleDebugCriteriaCommand,        "", NULL },
                 { "moditem",        SEC_ADMINISTRATOR,  false, &HandleDebugModItem,                "", NULL },
+                { "crashtest",      SEC_ADMINISTRATOR,  false, &HandleDebugCrashTest,              "", NULL },
+                { "bgaward",        SEC_ADMINISTRATOR,  false, &HandleDebugBgAward,                "", NULL },
+                { "vignette",       SEC_ADMINISTRATOR,  false, &HandleDebugVignette,               "", NULL },
+
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand commandTable[] =
@@ -182,9 +189,6 @@ class debug_commandscript: public CommandScript
                 p_Handler->SetSentErrorMessage(true);
                 return false;
             }
-
-            char* l_StrIndex = strtok((char*)p_Args, " ");
-            uint32 l_Index = uint32(atoi(l_StrIndex));
 
             char* l_StrID = strtok(NULL, " ");
             uint32 l_ID = l_StrID ? uint32(atoi(l_StrID)) : 0;
@@ -425,7 +429,7 @@ class debug_commandscript: public CommandScript
             err = grp->CanJoinBattlegroundQueue(bg, bgQueueTypeId, 2);
             if (!err)
             {
-                sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: leader %s queued");
+                sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: leader %s queued", handler->GetSession()->GetPlayer()->GetName());
 
                 ginfo = l_Scheduler.AddGroup(handler->GetSession()->GetPlayer(), grp, bgQueueTypeId, bracketEntry, 0, true, true, personalRating, matchmakerRating, false);
                 avgTime = l_InvitationsMgr.GetAverageQueueWaitTime(ginfo, bracketEntry->m_Id);
@@ -2283,11 +2287,90 @@ class debug_commandscript: public CommandScript
             Battleground* l_Battleground = p_Handler->GetSession()->GetPlayer()->GetBattleground();
             if (l_Battleground == nullptr)
             {
-                p_Handler->PSendSysMessage("You're not in battleground !");
+                p_Handler->PSendSysMessage("You're not in a battleground !");
                 return false;
             }
 
             l_Battleground->FastStart();
+            return true;
+        }
+
+        static bool HandleDebugCrashTest(ChatHandler* p_Handler, char const* p_Args)
+        {
+            Player* l_CrashPlayer = nullptr;
+            uint64 l_Guid         = GUID_LOPART(l_CrashPlayer->GetPetGUID());
+
+            p_Handler->PSendSysMessage("You've crash the server ! (%lu)", l_Guid);
+
+            return true;
+        }
+
+        static bool HandleDebugBgAward(ChatHandler* p_Handler, char const* p_Args)
+        {
+            Battleground* l_Battleground = p_Handler->GetSession()->GetPlayer()->GetBattleground();
+
+            char* arg1 = strtok((char*)p_Args, " ");
+            char* arg2 = strtok(NULL, " ");
+
+            if (!arg1 || !arg2)
+                return false;
+
+            int32 l_Team = atoi(arg1) == 1 ? HORDE : ALLIANCE;
+            int32 l_Points = atoi(arg2);
+            if (!l_Battleground)
+            {
+                p_Handler->PSendSysMessage("You're not in a battleground !");
+                return false;
+            }
+
+            l_Battleground->AwardTeams(l_Points, 3, l_Team); 
+            return true;
+        }
+
+        static bool HandleDebugVignette(ChatHandler* p_Handler, char const* p_Args)
+        {
+            char* l_VignetteIDStr = strtok((char*)p_Args, " ");
+            if (!l_VignetteIDStr)
+                return false;
+
+            Unit* l_SelectedUnit = p_Handler->GetSession()->GetPlayer()->GetSelectedUnit();
+            if (!l_SelectedUnit)
+                return false;
+
+            uint32 l_VignetteID = atoi(l_VignetteIDStr);
+            uint64 l_VignetteGUID = MAKE_NEW_GUID(l_SelectedUnit->GetGUIDLow(), l_VignetteID, HIGHGUID_VIGNETTE);
+
+
+            WorldPacket l_Data(SMSG_VIGNETTE_UPDATE);
+            l_Data.WriteBit(true);                                 ///< ForceUpdate
+            l_Data << uint32(0);                                   ///< RemovedCount
+            
+            //for ()
+            //    l_Data.appendPackGUID(IDs);
+
+            l_Data << uint32(1);                                   ///< Added count
+
+//            for ()
+                l_Data.appendPackGUID(l_VignetteGUID);
+
+            l_Data << uint32(1);
+            {
+                l_Data << float(l_SelectedUnit->GetPositionX());
+                l_Data << float(l_SelectedUnit->GetPositionY());
+                l_Data << float(l_SelectedUnit->GetPositionZ());
+                l_Data.appendPackGUID(l_VignetteGUID);
+                l_Data << uint32(l_VignetteID);
+                l_Data << uint32(0);                               ///< unk
+            }
+
+            l_Data << uint32(0);                                   ///< UpdateCount
+            {
+            }
+
+            l_Data << uint32(0);                                   ///< UpdateDataCount 
+
+            p_Handler->GetSession()->SendPacket(&l_Data);
+
             return true;
         }
 };

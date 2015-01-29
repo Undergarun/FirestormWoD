@@ -175,6 +175,7 @@ extern MapDifficultyMap                          sMapDifficultyMap;
 extern DBCStorage <MovieEntry>                   sMovieStore;
 extern DBCStorage <PowerDisplayEntry>            sPowerDisplayStore;
 extern DBCStorage <QuestSortEntry>               sQuestSortStore;
+extern DBCStorage <QuestV2Entry>                 sQuestV2Store;
 extern DBCStorage <QuestXPEntry>                 sQuestXPStore;
 extern DBCStorage <QuestFactionRewEntry>         sQuestFactionRewardStore;
 extern DBCStorage <QuestPOIPointEntry>           sQuestPOIPointStore;
@@ -236,5 +237,7 @@ extern DBCStorage <GtBattlePetTypeDamageModEntry> sGtBattlePetTypeDamageModStore
 extern DBCStorage <GtBattlePetXPEntry>           sGtBattlePetXPStore;
 
 void LoadDBCStores(const std::string& dataPath);
+
+uint32 GetQuestUniqueBitFlag(uint32 questId);
 
 #endif

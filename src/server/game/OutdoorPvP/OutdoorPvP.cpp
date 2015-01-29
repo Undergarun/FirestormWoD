@@ -46,7 +46,7 @@ bool OPvPCapturePoint::HandlePlayerEnter(Player* player)
     }
 
     if (player->GetTeamId() < 2)
-        return m_activePlayers[player->GetTeamId()].insert(player).second;
+        return m_activePlayers[player->GetTeamId()].insert(player->GetGUID()).second;
 
     return false;
 }
@@ -57,7 +57,7 @@ void OPvPCapturePoint::HandlePlayerLeave(Player* player)
         player->SendUpdateWorldState(m_capturePoint->GetGOInfo()->controlZone.worldState1, 0);
 
     if (player->GetTeamId() < 2)
-        m_activePlayers[player->GetTeamId()].erase(player);
+        m_activePlayers[player->GetTeamId()].erase(player->GetGUID());
 }
 
 void OPvPCapturePoint::SendChangePhase()
@@ -241,7 +241,7 @@ void OutdoorPvP::DeleteSpawns()
     m_capturePoints.clear();
 }
 
-OutdoorPvP::OutdoorPvP() : m_sendUpdate(true)
+OutdoorPvP::OutdoorPvP() : m_sendUpdate(true), m_LastResurectTimer(0)
 {
 }
 
@@ -275,15 +275,30 @@ void OutdoorPvP::HandlePlayerResurrects(Player* /*player*/, uint32 /*zone*/)
 {
 }
 
-bool OutdoorPvP::Update(uint32 diff)
+bool OutdoorPvP::Update(uint32 p_Diff)
 {
-    bool objective_changed = false;
-    for (OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
+    bool l_ObjectiveChanged = false;
+
+    for (OPvPCapturePointMap::iterator l_Iter = m_capturePoints.begin(); l_Iter != m_capturePoints.end(); ++l_Iter)
     {
-        if (itr->second->Update(diff))
-            objective_changed = true;
+        if (l_Iter->second->Update(p_Diff))
+            l_ObjectiveChanged = true;
     }
-    return objective_changed;
+
+    if (m_LastResurectTimer <= p_Diff)
+    {
+        for (uint8 l_I = 0; l_I < m_GraveyardList.size(); ++l_I)
+        {
+            if (GetGraveyardById(l_I))
+                m_GraveyardList[l_I]->Resurrect();
+        }
+
+        m_LastResurectTimer = BattlegroundTimeIntervals::RESURRECTION_INTERVAL;
+    }
+    else
+        m_LastResurectTimer -= p_Diff;
+
+    return l_ObjectiveChanged;
 }
 
 bool OPvPCapturePoint::Update(uint32 diff)
@@ -295,12 +310,16 @@ bool OPvPCapturePoint::Update(uint32 diff)
 
     for (uint32 team = 0; team < 2; ++team)
     {
-        for (PlayerSet::iterator itr = m_activePlayers[team].begin(); itr != m_activePlayers[team].end();)
+        for (GuidSet::iterator itr = m_activePlayers[team].begin(); itr != m_activePlayers[team].end();)
         {
-            Player* player = *itr;
+            Player* player = sObjectAccessor->FindPlayer(*itr);
             ++itr;
-            if (!m_capturePoint->IsWithinDistInMap(player, radius) || !player->IsOutdoorPvPActive())
-                HandlePlayerLeave(player);
+
+            if (player)
+            {
+                if (!m_capturePoint->IsWithinDistInMap(player, radius) || !player->IsOutdoorPvPActive())
+                    HandlePlayerLeave(player);
+            }
         }
     }
 
@@ -311,9 +330,9 @@ bool OPvPCapturePoint::Update(uint32 diff)
 
     for (std::list<Player*>::iterator itr = players.begin(); itr != players.end(); ++itr)
     {
-        if ((*itr)->IsOutdoorPvPActive())
+        if ((*itr)->IsOutdoorPvPActive() && (*itr)->GetTeamId() < 2)
         {
-            if (m_activePlayers[(*itr)->GetTeamId()].insert(*itr).second)
+            if (m_activePlayers[(*itr)->GetTeamId()].insert((*itr)->GetGUID()).second)
                 HandlePlayerEnter(*itr);
         }
     }
@@ -418,9 +437,10 @@ void OPvPCapturePoint::SendUpdateWorldState(uint32 field, uint32 value)
     for (uint32 team = 0; team < 2; ++team)
     {
         // send to all players present in the area
-        for (PlayerSet::iterator itr = m_activePlayers[team].begin(); itr != m_activePlayers[team].end(); ++itr)
+        for (GuidSet::iterator itr = m_activePlayers[team].begin(); itr != m_activePlayers[team].end(); ++itr)
         {
-            (*itr)->SendUpdateWorldState(field, value);
+            if (Player* player = sObjectAccessor->FindPlayer((*itr)))
+                player->SendUpdateWorldState(field, value);
         }
     }
 }
@@ -441,8 +461,11 @@ void OPvPCapturePoint::SendObjectiveComplete(uint32 id, uint64 guid)
     }
 
     // send to all players present in the area
-    for (PlayerSet::iterator itr = m_activePlayers[team].begin(); itr != m_activePlayers[team].end(); ++itr)
-        (*itr)->KilledMonsterCredit(id, guid);
+    for (GuidSet::iterator itr = m_activePlayers[team].begin(); itr != m_activePlayers[team].end(); ++itr)
+    {
+        if (Player* player = sObjectAccessor->FindPlayer((*itr)))
+            player->KilledMonsterCredit(id, guid);
+    }
 }
 
 void OutdoorPvP::HandleKill(Player* killer, Unit* killed)
@@ -490,7 +513,7 @@ bool OutdoorPvP::IsInsideObjective(Player* player) const
 bool OPvPCapturePoint::IsInsideObjective(Player* player) const
 {
     if (player && player->GetTeamId() < 2)
-        return m_activePlayers[player->GetTeamId()].find(player) != m_activePlayers[player->GetTeamId()].end();
+        return m_activePlayers[player->GetTeamId()].find(player->GetGUID()) != m_activePlayers[player->GetTeamId()].end();
 
     return false;
 }
@@ -698,4 +721,181 @@ void OutdoorPvP::OnGameObjectRemove(GameObject* p_Go)
         cp->m_capturePoint = NULL;
 
     ZoneScript::OnGameObjectRemove(p_Go);
+}
+
+WorldSafeLocsEntry const* OutdoorPvP::GetClosestGraveyard(Player* p_Player)
+{
+    OutdoorGraveyard* l_ClosestGraveyard = nullptr;
+    float l_MaxDist = 1000000.0f;
+
+    for (uint8 l_I = 0; l_I < m_GraveyardList.size(); l_I++)
+    {
+        if (m_GraveyardList[l_I])
+        {
+            if (m_GraveyardList[l_I]->GetControlTeamId() != p_Player->GetTeamId())
+                continue;
+
+            float l_Dist = m_GraveyardList[l_I]->GetDistance(p_Player);
+            if (l_Dist < l_MaxDist || l_MaxDist < 0)
+            {
+                l_ClosestGraveyard = m_GraveyardList[l_I];
+                l_MaxDist = l_Dist;
+            }
+        }
+    }
+
+    if (l_ClosestGraveyard)
+        return sWorldSafeLocsStore.LookupEntry(l_ClosestGraveyard->GetGraveyardId());
+
+    return nullptr;
+}
+
+void OutdoorPvP::SendAreaSpiritHealerQueryOpcode(Player* p_Player, uint64 const& p_Guid)
+{
+    ASSERT(p_Player && p_Player->GetSession());
+
+    WorldPacket l_Data(Opcodes::SMSG_AREA_SPIRIT_HEALER_TIME, 12);
+    l_Data.appendPackGUID(p_Guid);
+    l_Data << uint32(m_LastResurectTimer);
+    p_Player->GetSession()->SendPacket(&l_Data);
+}
+
+void OutdoorPvP::AddPlayerToResurrectQueue(uint64 p_SpiritGuid, uint64 p_PlayerGuid)
+{
+    for (uint8 l_I = 0; l_I < m_GraveyardList.size(); l_I++)
+    {
+        if (m_GraveyardList[l_I] == nullptr)
+            continue;
+
+        if (m_GraveyardList[l_I]->HasNpc(p_SpiritGuid))
+        {
+            m_GraveyardList[l_I]->AddPlayer(p_PlayerGuid);
+            break;
+        }
+    }
+}
+
+OutdoorGraveyard* OutdoorPvP::GetGraveyardById(uint32 p_ID)
+{
+    if (p_ID < m_GraveyardList.size())
+    {
+        if (m_GraveyardList[p_ID])
+            return m_GraveyardList[p_ID];
+        else
+            sLog->outError(LOG_FILTER_BATTLEFIELD, "OutdoorPvP::GetGraveyardById Id:%u not existed", p_ID);
+    }
+    else
+        sLog->outError(LOG_FILTER_BATTLEFIELD, "OutdoorPvP::GetGraveyardById Id:%u cant be found", p_ID);
+
+    return nullptr;
+}
+
+OutdoorGraveyard::OutdoorGraveyard(OutdoorPvP* p_OutdoorPvP)
+{
+    m_OutdoorPvP = p_OutdoorPvP;
+    m_GraveyardId = 0;
+    m_ControlTeam = TeamId::TEAM_NEUTRAL;
+    m_SpiritGuide[0] = 0;
+    m_SpiritGuide[1] = 0;
+    m_ResurrectQueue.clear();
+}
+
+void OutdoorGraveyard::Initialize(TeamId p_Team, uint32 p_Graveyard)
+{
+    m_ControlTeam = p_Team;
+    m_GraveyardId = p_Graveyard;
+}
+
+void OutdoorGraveyard::SetSpirit(Creature* p_Spirit, TeamId p_Team)
+{
+    if (p_Spirit == nullptr)
+    {
+        sLog->outError(LOG_FILTER_BATTLEFIELD, "OutdoorGraveyard::SetSpirit -> Invalid Spirit.");
+        return;
+    }
+
+    m_SpiritGuide[p_Team] = p_Spirit->GetGUID();
+    p_Spirit->SetReactState(ReactStates::REACT_PASSIVE);
+}
+
+float OutdoorGraveyard::GetDistance(Player* p_Player) const
+{
+    WorldSafeLocsEntry const* l_SafeLoc = sWorldSafeLocsStore.LookupEntry(m_GraveyardId);
+    return p_Player->GetDistance2d(l_SafeLoc->x, l_SafeLoc->y);
+}
+
+void OutdoorGraveyard::AddPlayer(uint64 p_Guid)
+{
+    if (!m_ResurrectQueue.count(p_Guid))
+    {
+        m_ResurrectQueue.insert(p_Guid);
+
+        if (Player* l_Player = sObjectAccessor->FindPlayer(p_Guid))
+            l_Player->CastSpell(l_Player, BattlegroundSpells::SPELL_WAITING_FOR_RESURRECT, true);
+    }
+}
+
+void OutdoorGraveyard::RemovePlayer(uint64 p_Guid)
+{
+    m_ResurrectQueue.erase(m_ResurrectQueue.find(p_Guid));
+
+    if (Player* l_Player = sObjectAccessor->FindPlayer(p_Guid))
+        l_Player->RemoveAurasDueToSpell(BattlegroundSpells::SPELL_WAITING_FOR_RESURRECT);
+}
+
+void OutdoorGraveyard::Resurrect()
+{
+    if (m_ResurrectQueue.empty())
+        return;
+
+    for (GuidSet::const_iterator l_Iter = m_ResurrectQueue.begin(); l_Iter != m_ResurrectQueue.end(); ++l_Iter)
+    {
+        /// Get player object from his guid
+        Player* l_Player = sObjectAccessor->FindPlayer(*l_Iter);
+        if (!l_Player)
+            continue;
+
+        /// Check  if the player is in world and on the good graveyard
+        if (l_Player->IsInWorld())
+        {
+            if (Unit* l_Spirit = sObjectAccessor->FindUnit(m_SpiritGuide[m_ControlTeam]))
+                l_Spirit->CastSpell(l_Spirit, BattlegroundSpells::SPELL_SPIRIT_HEAL, true);
+        }
+
+        /// Resurrect player
+        l_Player->CastSpell(l_Player, BattlegroundSpells::SPELL_RESURRECTION_VISUAL, true);
+        l_Player->ResurrectPlayer(1.0f);
+        l_Player->CastSpell(l_Player, BattlegroundSpells::SPELL_PET_SUMMONED, true);
+        l_Player->CastSpell(l_Player, BattlegroundSpells::SPELL_SPIRIT_HEAL_MANA, true);
+
+        sObjectAccessor->ConvertCorpseForPlayer(l_Player->GetGUID());
+    }
+
+    m_ResurrectQueue.clear();
+}
+
+void OutdoorGraveyard::GiveControlTo(TeamId p_Team)
+{
+    m_ControlTeam = p_Team;
+    RelocateDeadPlayers();
+}
+
+void OutdoorGraveyard::RelocateDeadPlayers()
+{
+    WorldSafeLocsEntry const* l_ClosestGrave = nullptr;
+    for (GuidSet::const_iterator l_Iter = m_ResurrectQueue.begin(); l_Iter != m_ResurrectQueue.end(); ++l_Iter)
+    {
+        Player* l_Player = sObjectAccessor->FindPlayer(*l_Iter);
+        if (!l_Player)
+            continue;
+
+        if (l_ClosestGrave)
+            l_Player->TeleportTo(l_Player->GetMapId(), l_ClosestGrave->x, l_ClosestGrave->y, l_ClosestGrave->z, l_Player->GetOrientation());
+        else
+        {
+            l_ClosestGrave = m_OutdoorPvP->GetClosestGraveyard(l_Player);
+            if (l_ClosestGrave)
+                l_Player->TeleportTo(l_Player->GetMapId(), l_ClosestGrave->x, l_ClosestGrave->y, l_ClosestGrave->z, l_Player->GetOrientation());
+        }
+    }
 }

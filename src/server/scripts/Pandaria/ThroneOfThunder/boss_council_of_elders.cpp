@@ -2549,7 +2549,7 @@ class spell_frosbite_malakk_aura: public SpellScriptLoader
                             target->GetPlayerListInGrid(playerList, 4.0f);
                             uint8 size = playerList.size();
 
-                            if (pInstance = target->GetInstanceScript())
+                            if ((pInstance = target->GetInstanceScript()))
                             {
                                 if (!pInstance->instance->IsHeroic())
                                 {
@@ -2575,7 +2575,7 @@ class spell_frosbite_malakk_aura: public SpellScriptLoader
                     std::list<Player*> playerList;
                     target->GetPlayerListInGrid(playerList, 4.0f);
 
-                    if (pInstance = target->GetInstanceScript())
+                    if ((pInstance = target->GetInstanceScript()))
                     {
                         if (pInstance->instance->IsHeroic())
                         {
@@ -2783,7 +2783,7 @@ class spell_soul_fragment: public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-                    if (instance = caster->GetInstanceScript())
+                    if ((instance = caster->GetInstanceScript()))
                         if (Creature* garaJal = instance->instance->GetCreature(instance->GetData64(NPC_GARA_JAL_SOUL)))
                             if (garaJal->GetAI())
                                 caster->setFaction(CAST_AI(npc_gara_jal_s_soul::npc_gara_jal_s_soulAI, garaJal->AI())->targetFaction);

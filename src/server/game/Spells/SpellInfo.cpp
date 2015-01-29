@@ -642,17 +642,19 @@ float SpellEffectInfo::CalcValueMultiplier(Unit* caster, Spell* spell) const
     return multiplier;
 }
 
-float SpellEffectInfo::CalcDamageMultiplier(Unit* caster, Spell* spell) const
+float SpellEffectInfo::CalcDamageMultiplier(Unit* p_Caster, Spell* p_Spell) const
 {
-    float multiplier = DamageMultiplier;
-    if (Player* modOwner = (caster ? caster->GetSpellModOwner() : NULL))
-        modOwner->ApplySpellMod(_spellInfo->Id, SPELLMOD_DAMAGE_MULTIPLIER, multiplier, spell);
-    return multiplier;
+    float l_Multiplier = DamageMultiplier * 100.0f;
+
+    if (Player* l_ModOwner = (p_Caster ? p_Caster->GetSpellModOwner() : nullptr))
+        l_ModOwner->ApplySpellMod(_spellInfo->Id, SPELLMOD_DAMAGE_MULTIPLIER, l_Multiplier, p_Spell);
+
+    return l_Multiplier / 100.0f;
 }
 
 bool SpellEffectInfo::HasRadius() const
 {
-    return RadiusEntry != NULL;
+    return RadiusEntry != nullptr;
 }
 
 float SpellEffectInfo::CalcRadius(Unit* caster, Spell* spell) const
@@ -661,7 +663,7 @@ float SpellEffectInfo::CalcRadius(Unit* caster, Spell* spell) const
         return 0.0f;
 
     float radius = _spellInfo->IsPositive() ? RadiusEntry->radiusFriend : RadiusEntry->radiusHostile;
-    if (Player* modOwner = (caster ? caster->GetSpellModOwner() : NULL))
+    if (Player* modOwner = (caster ? caster->GetSpellModOwner() : nullptr))
         modOwner->ApplySpellMod(_spellInfo->Id, SPELLMOD_RADIUS, radius, spell);
 
     return radius;
@@ -1659,6 +1661,7 @@ bool SpellInfo::IsAuraExclusiveBySpecificWith(SpellInfo const* spellInfo) const
         case SPELL_SPECIFIC_PRIEST_SANCTUM:
         case SPELL_SPECIFIC_CHAKRA:
         case SPELL_SPECIFIC_EXOTIC_MUNITION:
+        case SPELL_SPECIFIC_LONE_WOLF_BUFF:
             return spellSpec1 == spellSpec2;
         case SPELL_SPECIFIC_FOOD:
             return spellSpec2 == SPELL_SPECIFIC_FOOD
@@ -1880,7 +1883,7 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
             if (!mapEntry)
                 return SPELL_FAILED_INCORRECT_AREA;
 
-            return zone_id == 4197 || (mapEntry->IsBattleground() && player && player->InBattleground()) ? SPELL_CAST_OK : SPELL_FAILED_REQUIRES_AREA;
+            return map_id == 1191 || zone_id == 4197 || (mapEntry->IsBattleground() && player && player->InBattleground()) ? SPELL_CAST_OK : SPELL_FAILED_REQUIRES_AREA;
         }
         case 44521:                                         // Preparation
         {
@@ -2108,7 +2111,7 @@ SpellCastResult SpellInfo::CheckExplicitTarget(Unit const* caster, WorldObject c
     uint32 neededTargets = GetExplicitTargetMask();
     if (!target)
     {
-        if (neededTargets & (TARGET_FLAG_UNIT_MASK | TARGET_FLAG_GAMEOBJECT_MASK | TARGET_FLAG_CORPSE_MASK) && Id != 115073 && Id != 6544)
+        if (neededTargets & (TARGET_FLAG_UNIT_MASK | TARGET_FLAG_GAMEOBJECT_MASK | TARGET_FLAG_CORPSE_MASK))
             if (!(neededTargets & TARGET_FLAG_GAMEOBJECT_ITEM) || !itemTarget)
                 return SPELL_FAILED_BAD_TARGETS;
         return SPELL_CAST_OK;
@@ -2477,8 +2480,22 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
             if (SpellFamilyFlags.HasFlag(0x00380000, 0x00440000, 0x00001010) && Id != 67801)
                 return SPELL_SPECIFIC_ASPECT;
 
-            if (Id == 162536 || Id == 162537 || Id == 162539)
-                return SPELL_SPECIFIC_EXOTIC_MUNITION;
+            switch (Id)
+            {
+                case 162536:///< Incendiary Ammo
+                case 162537:///< Poisoned Ammo
+                case 162539:///< Frozen Ammo
+                    return SPELL_SPECIFIC_EXOTIC_MUNITION;
+                case 160198:///< Grace of the Cat
+                case 160199:///< Fortitude of the Bear
+                case 160200:///< Ferocity of the Raptor
+                case 160203:///< Haste of the Hyena
+                case 160205:///< Wisdom of the Serpent
+                case 160206:///< Power of the Primates
+                case 172967:///< Versatility of the Ravager
+                case 172968:///< Quickness of the Dragonhawk
+                    return SPELL_SPECIFIC_LONE_WOLF_BUFF;
+            }
 
             break;
         }
@@ -3957,9 +3974,6 @@ bool SpellInfo::IsBreakingStealth(Unit* m_caster) const
     if (!m_caster)
         return false;
 
-    if (m_caster->HasAura(115192))
-        return false;
-
     // Hearthstone shoudn't call subterfuge effect
     if ((SpellIconID == 776 || SpellFamilyName == SPELLFAMILY_POTION) && m_caster->HasAura(115191))
     {
@@ -3992,7 +4006,7 @@ bool SpellInfo::IsBreakingStealth(Unit* m_caster) const
         if (callSubterfuge)
         {
             m_caster->CastSpell(m_caster, 115192, true);
-            return false;
+            return true;
         }
     }
 

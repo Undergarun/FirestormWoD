@@ -827,12 +827,15 @@ bool Master::_StartDB()
     }
 
     synch_threads = ConfigMgr::GetIntDefault("WorldDatabase.SynchThreads", 1);
-    ///- Initialise the world database
+    ///- Initialize the world database
     if (!WorldDatabase.Open(dbstring, async_threads, synch_threads))
     {
         sLog->outError(LOG_FILTER_WORLDSERVER, "Cannot connect to world database %s", dbstring.c_str());
         return false;
     }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
 
     ///- Get character database info from configuration file
     dbstring = ConfigMgr::GetStringDefault("CharacterDatabaseInfo", "");
@@ -852,12 +855,15 @@ bool Master::_StartDB()
 
     synch_threads = ConfigMgr::GetIntDefault("CharacterDatabase.SynchThreads", 2);
 
-    ///- Initialise the Character database
+    ///- Initialize the Character database
     if (!CharacterDatabase.Open(dbstring, async_threads, synch_threads))
     {
         sLog->outError(LOG_FILTER_WORLDSERVER, "Cannot connect to Character database %s", dbstring.c_str());
         return false;
     }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
 
     ///- Get login database info from configuration file
     dbstring = ConfigMgr::GetStringDefault("LoginDatabaseInfo", "");
@@ -876,12 +882,42 @@ bool Master::_StartDB()
     }
 
     synch_threads = ConfigMgr::GetIntDefault("LoginDatabase.SynchThreads", 1);
-    ///- Initialise the login database
+    ///- Initialize the login database
     if (!LoginDatabase.Open(dbstring, async_threads, synch_threads))
     {
         sLog->outError(LOG_FILTER_WORLDSERVER, "Cannot connect to login database %s", dbstring.c_str());
         return false;
     }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    dbstring = ConfigMgr::GetStringDefault("MonitoringDatabaseInfo", "");
+    if (dbstring.empty())
+    {
+        sLog->outError(LOG_FILTER_WORLDSERVER, "Monitoring database not specified in configuration file");
+        return false;
+    }
+
+    async_threads = uint8(ConfigMgr::GetIntDefault("MonitoringDatabase.WorkerThreads", 1));
+    if (async_threads < 1 || async_threads > 32)
+    {
+        sLog->outError(LOG_FILTER_WORLDSERVER, "Monitoring database: invalid number of worker threads specified. "
+            "Please pick a value between 1 and 32.");
+        return false;
+    }
+
+    synch_threads = uint8(ConfigMgr::GetIntDefault("MonitoringDatabase.SynchThreads", 1));
+
+    ///- Initialize the monitoring database
+    if (!MonitoringDatabase.Open(dbstring, async_threads, synch_threads))
+    {
+        sLog->outError(LOG_FILTER_WORLDSERVER, "Cannot connect to monitoring database %s", dbstring.c_str());
+        return false;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
 
     ///- Get the realm Id from the configuration file
     g_RealmID = ConfigMgr::GetIntDefault("RealmID", 0);
@@ -911,6 +947,7 @@ void Master::_StopDB()
     CharacterDatabase.Close();
     WorldDatabase.Close();
     LoginDatabase.Close();
+    MonitoringDatabase.Close();
 
     MySQL::Library_End();
 }

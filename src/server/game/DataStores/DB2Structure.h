@@ -38,6 +38,15 @@
 #pragma pack(push, 1)
 #endif
 
+struct CurvePointEntry
+{
+    uint32 ID;                                                      // 0
+    uint32 CurveID;                                                 // 1
+    uint32 Index;                                                   // 2
+    float X;                                                        // 3
+    float Y;                                                        // 4
+};
+
 // Structures used to access raw DB2 data and required packing to portability
 struct ItemEntry
 {
@@ -61,6 +70,22 @@ struct ItemBonusEntry
     uint32 Index;
 };
 
+struct ItemBonusTreeNodeEntry
+{
+    //uint32 ID;                                            // 0
+    uint32 Category;                                        // 1
+    uint32 Difficulty;                                      // 2
+    uint32 LinkedCategory;                                  // 3
+    uint32 ItemBonusEntry;                                  // 4
+};
+
+struct ItemXBonusTreeEntry
+{
+    //uint32 ID;                                             // 0
+    uint32 ItemId;                                           // 1
+    uint32 ItemBonusTreeCategory;                            // 2
+};
+
 struct ItemCurrencyCostEntry
 {
     //uint32  Id;
@@ -73,7 +98,7 @@ struct ItemSparseEntry
     uint32     Quality;                                      // 1
     uint32     Flags;                                        // 2
     uint32     Flags2;                                       // 3
-    uint32     Unk540_1;                                     // 4 unk flag
+    uint32     Flags3;                                       // 4 NYI
     float      Unk430_1;                                     // 5
     float      Unk430_2;                                     // 6
     uint32     BuyCount;                                     // 7
@@ -194,27 +219,26 @@ struct RulesetItemUpgradeEntry
 
 struct ItemExtendedCostEntry
 {
-    uint32      ID;                                                       // 0 extended-cost entry id
-    //uint32    reqhonorpoints;                                                             // 1 required honor points, only 0
-    //uint32    reqarenapoints;                                                            // 2 required arena points, only 0
-    uint32      RequiredArenaSlot;                                       // 3 arena slot restrictions (min slot value)
+    uint32      ID;                                                     // 0 extended-cost entry id
+    //uint32    reqhonorpoints;                                         // 1 required honor points, only 0
+    //uint32    reqarenapoints;                                         // 2 required arena points, only 0
+    uint32      RequiredArenaSlot;                                      // 3 arena slot restrictions (min slot value)
     uint32      RequiredItem[MAX_ITEM_EXT_COST_ITEMS];                  // 4-8 required item id
     uint32      RequiredItemCount[MAX_ITEM_EXT_COST_ITEMS];             // 9-13 required count of 1st item
     uint32      RequiredPersonalArenaRating;                            // 14 required personal arena rating
-    //uint32    ItemPurchaseGroup;                                                         // 15, only 0
+    //uint32    ItemPurchaseGroup;                                      // 15, only 0
     uint32      RequiredCurrency[MAX_ITEM_EXT_COST_CURRENCIES];         // 16-20 required curency id
     uint32      RequiredCurrencyCount[MAX_ITEM_EXT_COST_CURRENCIES];    // 21-25 required curency count
     //uint32    RequiredFactionId;                                      // 26
     //uint32    RequiredFactionStanding;                                // 27
     //uint32    RequirementFlags;                                       // 28
     //uint32    RequiredGuildLevel;                                     // 29 removed in 6.X
-    //uint32    RequiredAchievement;                                    // 30 only 0
 };
 
 struct QuestPackageItemEntry
 {
     uint32 ID;                  // 0
-    uint32 ExclusiveGroup;      // 1
+    uint32 PackageID;           // 1
     uint32 ItemId;              // 2
     uint32 Count;               // 3
     uint32 Type;                // 4
@@ -286,7 +310,6 @@ struct SpellReagent
 
 typedef std::map<uint32, SpellReagent> SpellReagentMap;
 
-// @author Selenium: 5.4 valid
 struct TaxiPathNodeEntry
 {
     //uint32    ID;                                         // 0        m_ID
@@ -302,7 +325,6 @@ struct TaxiPathNodeEntry
     uint32    departureEventID;                             // 10       m_departureEventID
 };
 
-// @author Selenium: 5.4 valid
 struct SpellRuneCostEntry
 {
     uint32  ID;                                             // 0
@@ -313,8 +335,7 @@ struct SpellRuneCostEntry
     bool NoRunicPowerGain() const { return runePowerGain == 0; }
 };
 
-// SpellCastingRequirements.dbc
-// @author Selenium: 5.4 valid
+// SpellCastingRequirements.db2
 struct SpellCastingRequirementsEntry
 {
     //uint32    Id;                                         // 0      m_ID
@@ -326,35 +347,35 @@ struct SpellCastingRequirementsEntry
     uint32    RequiresSpellFocus;                           // 6      m_requiresSpellFocus
 };
 
-// SpellAuraRestrictions.dbc/
+// SpellAuraRestrictions.db2
 struct SpellAuraRestrictionsEntry
 {
-    //uint32    Id;                                         // 0       m_ID
-    uint32    CasterAuraState;                              // 1       Flag
-    uint32    TargetAuraState;                              // 2       Flag
-    uint32    CasterAuraStateNot;                           // 3       m_excludeCasterAuraState
-    uint32    TargetAuraStateNot;                           // 4       m_excludeTargetAuraState
-    uint32    casterAuraSpell;                              // 5       m_casterAuraSpell
-    uint32    targetAuraSpell;                              // 6       m_targetAuraSpell
-    uint32    excludeCasterAuraSpell;                       // 7      m_excludeCasterAuraSpell
-    uint32    excludeTargetAuraSpell;                       // 8      m_excludeTargetAuraSpell
+    //uint32    Id;                                         // 0 m_ID
+    uint32    CasterAuraState;                              // 1 Flag
+    uint32    TargetAuraState;                              // 2 Flag
+    uint32    CasterAuraStateNot;                           // 3 m_excludeCasterAuraState
+    uint32    TargetAuraStateNot;                           // 4 m_excludeTargetAuraState
+    uint32    casterAuraSpell;                              // 5 m_casterAuraSpell
+    uint32    targetAuraSpell;                              // 6 m_targetAuraSpell
+    uint32    excludeCasterAuraSpell;                       // 7 m_excludeCasterAuraSpell
+    uint32    excludeTargetAuraSpell;                       // 8 m_excludeTargetAuraSpell
 };
 
 struct AreaPOIEntry
 {
     uint32 id;                                              // 0
-    //uint32 unk;                                           // 1
+    //uint32 unk;                                           // 1 m_Importance
     //uint32 unk;                                           // 2
     //uint32 unk;                                           // 3
-    uint32 mapId;                                           // 4
-    uint32 zoneId;                                          // 5
+    uint32 mapId;                                           // 4 m_ContinentID
+    uint32 zoneId;                                          // 5 m_AreaID
     //uint32 unk;                                           // 6
-    float x;                                                // 7
-    float y;                                                // 8
-    //uint32 unk;                                           // 9
-    //char* name;                                           // 10
-    uint32 worldState;                                      // 11
-    //uint32 unk;                                           // 12
+    float x;                                                // 7 m_Pos
+    float y;                                                // 8 m_Pos
+    //char* m_NameLang;                                     // 9 m_NameLang
+    //char* m_DescriptionLang;                              // 10 m_DescriptionLang
+    uint32 worldState;                                      // 11 m_WorldStateID
+    //uint32 unk;                                           // 12 m_PlayerConditionID @todo
     //uint32 unk                                            // 13
     //uint32 unk;                                           // 14
 };
@@ -363,7 +384,6 @@ struct AreaPOIEntry
 #define MAX_HOLIDAY_DATES 16
 #define MAX_HOLIDAY_FLAGS 10
 
-// @author Selenium: 5.4 valid
 struct HolidaysEntry
 {
     uint32 Id;                                              // 0        m_ID
@@ -382,7 +402,6 @@ struct HolidaysEntry
 
 #define MAX_OVERRIDE_SPELL 10
 
-// @author Selenium: 5.4 valid
 struct OverrideSpellDataEntry
 {
     uint32      id;                                         // 0
@@ -441,7 +460,6 @@ struct SpellPowerEntry
 #define MAX_SPELL_TOTEMS            2
 
 // SpellTotems.dbc
-// @author Selenium: 5.4 valid
 struct SpellTotemsEntry
 {
     uint32    Id;                                           // 0  m_ID
@@ -464,7 +482,6 @@ struct SpellTotem
 typedef std::map<uint32, SpellTotem> SpellTotemMap;
 
 // SpellClassOptions.dbc
-// @author Selenium: 5.4 valid
 struct SpellClassOptionsEntry
 {
     //uint32    Id;                                         // 0       m_ID
@@ -860,6 +877,122 @@ struct BattlePetSpeciesXAbilityEntry
     uint32 abilityId; // BattlePetAbility.dbc
     uint32 level;
     uint32 tier;
+};
+
+/// Mount.db2
+struct MountEntry
+{
+    uint32 Id;
+    uint32 Category;
+    uint32 CreatureDisplayID;
+    uint32 Flags;
+    char*  Name;
+    char*  Description;
+    char*  Icon;
+    int32  Unknow;
+    uint32 SpellID;
+    uint32 UnknowEntry;
+};
+
+/// PlayerCondition.db2
+struct PlayerConditionEntry
+{
+    uint32 ID;
+    uint32 Flags;
+    uint32 MinLevel;
+    uint32 MaxLevel;
+    uint32 RaceMask;
+    uint32 ClassMask;
+    uint32 Gender;
+    uint32 NativeGender;
+    uint32 SkillID[4];
+    uint32 MinSkill[4];
+    uint32 MaxSkill[4];
+    uint32 SkillLogic;
+    uint32 LanguageID;
+    uint32 MinLanguage;
+    uint32 MaxLanguage;
+    uint32 MinFactionID[3];
+    uint32 MaxFactionID;
+    uint32 MinReputation[3];
+    uint32 MaxReputation;
+    uint32 ReputationLogic;
+    uint32 MinPVPRank;
+    uint32 MaxPVPRank;
+    uint32 PvpMedal;
+    uint32 PrevQuestLogic;
+    uint32 PrevQuestID[4];
+    uint32 CurrQuestLogic;
+    uint32 CurrQuestID[4];
+    uint32 CurrentCompletedQuestLogic;
+    uint32 CurrentCompletedQuestID[4];
+    uint32 SpellLogic;
+    uint32 SpellID[4];
+    uint32 ItemLogic;
+    uint32 ItemID[4];
+    uint32 ItemCount[4];
+    uint32 ItemFlags;
+    uint32 Explored[2];
+    uint32 Time[2];
+    uint32 AuraSpellLogic;
+    uint32 AuraSpellID[4];
+    uint32 WorldStateExpressionID;
+    uint32 WeatherID;
+    uint32 PartyStatus;
+    uint32 LifetimeMaxPVPRank;
+    uint32 AchievementLogic;
+    uint32 Achievement[4];
+    uint32 LfgLogic;
+    uint32 LfgStatus[4];
+    uint32 LfgCompare[4];
+    uint32 LfgValue[4];
+    uint32 AreaLogic;
+    uint32 AreaID[4];
+    uint32 CurrencyLogic;
+    uint32 CurrencyID[4];
+    uint32 CurrencyCount[4];
+    uint32 QuestKillID;
+    uint32 QuestKillLogic;
+    uint32 QuestKillMonster[4];
+    uint32 MinExpansionLevel;
+    uint32 MaxExpansionLevel;
+    uint32 MinExpansionTier;
+    uint32 MaxExpansionTier;
+    uint32 MinGuildLevel;
+    uint32 MaxGuildLevel;
+    uint32 PhaseUseFlags;
+    uint32 PhaseID;
+    uint32 PhaseGroupID;
+    uint32 MinAvgItemLevel;
+    uint32 MaxAvgItemLevel;
+    uint32 MinAvgEquippedItemLevel;
+    uint32 MaxAvgEquippedItemLevel;
+    uint32 ChrSpecializationIndex;
+    uint32 ChrSpecializationRole;
+    char*  FailureDescriptionLang;
+    uint32 PowerType;
+    uint32 PowerTypeComp;
+    uint32 PowerTypeValue;
+};
+
+/// Flags of PrevQuestLogic (PlayerConditionEntry) 
+namespace PrevQuestLogicFlags
+{
+    enum 
+    {
+        TrackingQuest = 0x10000
+    };
+}
+
+/// Vignette.db2
+struct VignetteEntry
+{
+    uint32 Id;
+    char*  Name;
+    uint32 QuestFeedbackEffectId;
+    uint32 Flags;
+    float  X;
+    float  Y;
 };
 
 // GCC has alternative #pragma pack(N) syntax and old gcc version does not support pack(push, N), also any gcc version does not support it at some platform

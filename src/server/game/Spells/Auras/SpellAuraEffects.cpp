@@ -461,7 +461,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleAuraSetPowerType,                          //402 SPELL_AURA_SET_POWER_TYPE
     &AuraEffect::HandleChangeSpellVisualEffect,                   //403 SPELL_AURA_CHANGE_VISUAL_EFFECT
     &AuraEffect::HandleOverrideAttackPowerBySpellPower,           //404 SPELL_AURA_OVERRIDE_AP_BY_SPELL_POWER_PCT
-    &AuraEffect::HandleIncreaseHasteFromItemsByPct,               //405 SPELL_AURA_INCREASE_HASTE_FROM_ITEMS_BY_PCT
+    &AuraEffect::HandleIncreaseRatingPct,                         //405 SPELL_AURA_INCREASE_RATING_PCT
     &AuraEffect::HandleNULL,                                      //406 SPELL_AURA_406
     &AuraEffect::HandleModFear,                                   //407 SPELL_AURA_MOD_FEAR_2      TODO : Find the difference between 7 & 407
     &AuraEffect::HandleNULL,                                      //408 SPELL_AURA_408
@@ -509,7 +509,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //450 SPELL_AURA_450
     &AuraEffect::HandleNULL,                                      //451 SPELL_AURA_451
     &AuraEffect::HandleNULL,                                      //452 SPELL_AURA_452
-    &AuraEffect::HandleNULL,                                      //453 SPELL_AURA_453
+    &AuraEffect::HandleNULL,                                      //453 SPELL_AURA_MOD_COOLDOWN_2
     &AuraEffect::HandleNULL,                                      //454 SPELL_AURA_454
     &AuraEffect::HandleAuraModRoot,                               //455 SPELL_AURA_MOD_ROOT_2
     &AuraEffect::HandleNULL,                                      //456 SPELL_AURA_456
@@ -761,7 +761,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                     if (GetSpellInfo()->Id == 116849)
                     {
                         // +1100% from sp bonus
-                        DoneActualBenefit += caster->SpellBaseDamageBonusDone(m_spellInfo->GetSchoolMask()) * 11.0f;
+                        DoneActualBenefit += caster->SpellBaseDamageBonusDone(m_spellInfo->GetSchoolMask()) * 34.341f;
                     }
                     break;
                 case SPELLFAMILY_MAGE:
@@ -997,32 +997,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 
                         AddPct(amount, doctorIsIn->GetEffect(0)->GetAmount());
                     }
-
-                    break;
-                }
-                case 90361: // Spirit Mend
-                {
-                    if (!caster->GetOwner())
-                        break;
-
-                    Player* m_owner = caster->GetOwner()->ToPlayer();
-                    if (!m_owner)
-                        break;
-
-                    amount += int32(m_owner->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.35f * 0.335f);
-
-                    break;
-                }
-                // Recuperate
-                case 73651:
-                {
-                    int32 heal_pct = amount * 1000;
-
-                    // Improved Recuperate
-                    if (constAuraEffectPtr aurEff = caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_ROGUE, 4819, 0))
-                        heal_pct += aurEff->GetAmount();
-
-                    amount = CalculatePct(caster->GetMaxHealth(), 0.001 * heal_pct);
 
                     break;
                 }
@@ -1323,25 +1297,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
         default:
             break;
 
-    }
-
-    // Eternal Flame
-    if (GetId() == 114163 && caster)
-    {
-        amount += int32(0.0585f * caster->SpellBaseDamageBonusDone(SpellSchoolMask(m_spellInfo->SchoolMask)));
-
-        int32 holyPower = caster->GetPower(POWER_HOLY_POWER) + 1;
-
-        if (holyPower > 3)
-            holyPower = 3;
-
-        // Divine Purpose
-        if (caster->HasAura(90174))
-            holyPower = 3;
-
-        amount *= holyPower;
-
-        caster->ModifyPower(POWER_HOLY_POWER, (holyPower > 1) ? (-(holyPower - 1)) : 0);
     }
 
     if (DoneActualBenefit != 0.0f)
@@ -2736,15 +2691,17 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
     {
         SpellShapeshiftFormEntry const* shapeInfo = sSpellShapeshiftFormStore.LookupEntry(form);
         // Learn spells for shapeshift form - no need to send action bars or add spells to spellbook
-        for (uint8 i = 0; i<MAX_SHAPESHIFT_SPELLS; ++i)
+        for (uint8 i = 0; i < MAX_SHAPESHIFT_SPELLS; ++i)
         {
-            if (!shapeInfo->stanceSpell[i])
+            if (!shapeInfo || !shapeInfo->stanceSpell[i])
                 continue;
+
             if (apply)
                 target->ToPlayer()->AddTemporarySpell(shapeInfo->stanceSpell[i]);
             else
                 target->ToPlayer()->RemoveTemporarySpell(shapeInfo->stanceSpell[i]);
         }
+
         // Update the Mastery percentage for Shapeshift
         target->ToPlayer()->UpdateMasteryPercentage();
     }
@@ -3513,85 +3470,107 @@ void AuraEffect::HandleAuraModSkillValue(AuraApplication const* aurApp, uint8 mo
 /***       MOVEMENT       ***/
 /****************************/
 
-void AuraEffect::HandleAuraMounted(AuraApplication const* aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleAuraMounted(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
 {
-    if (!(mode & AURA_EFFECT_HANDLE_SEND_FOR_CLIENT_MASK))
+    if (!(p_Mode & AURA_EFFECT_HANDLE_SEND_FOR_CLIENT_MASK))
         return;
 
-    Unit* target = aurApp->GetTarget();
+    Unit* l_Target = p_AurApp->GetTarget();
 
-    if (apply)
+    if (p_Apply)
     {
-        uint32 creatureEntry = GetMiscValue();
-        uint32 displayId = 0;
-        uint32 vehicleId = 0;
+        uint32 l_CreatureEntry = GetMiscValue();
+        uint32 l_DisplayId = 0;
+        uint32 l_VehicleId = 0;
 
         // Festive Holiday Mount
-        if (target->HasAura(62061))
+        if (l_Target->HasAura(62061))
         {
             if (GetBase()->HasEffectType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED))
-                creatureEntry = 24906;
+                l_CreatureEntry = 24906;
             else
-                creatureEntry = 15665;
+                l_CreatureEntry = 15665;
         }
 
-        if (CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate(creatureEntry))
+        if (CreatureTemplate const* l_CreatureTemplate = sObjectMgr->GetCreatureTemplate(l_CreatureEntry))
         {
-            uint32 team = 0;
-            if (target->GetTypeId() == TYPEID_PLAYER)
-                team = target->ToPlayer()->GetTeam();
+            uint32 l_Team = 0;
+            if (l_Target->GetTypeId() == TYPEID_PLAYER)
+                l_Team = l_Target->ToPlayer()->GetTeam();
 
-            displayId = ObjectMgr::ChooseDisplayId(team, ci);
-            sObjectMgr->GetCreatureModelRandomGender(&displayId);
+            l_DisplayId = ObjectMgr::ChooseDisplayId(l_Team, l_CreatureTemplate);
+            sObjectMgr->GetCreatureModelRandomGender(&l_DisplayId);
 
-            vehicleId = ci->VehicleId;
+            l_VehicleId = l_CreatureTemplate->VehicleId;
 
             //some spell has one aura of mount and one of vehicle
-            for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                if (GetSpellInfo()->Effects[i].Effect == SPELL_EFFECT_SUMMON
-                    && GetSpellInfo()->Effects[i].MiscValue == GetMiscValue())
-                    displayId = 0;
+            for (uint32 l_I = 0; l_I < MAX_SPELL_EFFECTS; ++l_I)
+                if (GetSpellInfo()->Effects[l_I].Effect == SPELL_EFFECT_SUMMON
+                    && GetSpellInfo()->Effects[l_I].MiscValue == GetMiscValue())
+                    l_DisplayId = 0;
         }
 
         // Glyph of the Mounted King
-        if (GetSpellInfo()->SpellFamilyName == SPELLFAMILY_PALADIN && target->HasAura(57958))
-            target->CastSpell(target, 20217, true);
+        if (GetSpellInfo()->SpellFamilyName == SPELLFAMILY_PALADIN && l_Target->HasAura(57958))
+            l_Target->CastSpell(l_Target, 20217, true);
 
         if (GetBase()->GetId() == 87840)
         {
-            displayId = target->getGender() == GENDER_FEMALE ? 29423 : 29422;
-            if (target->GetTypeId() == TYPEID_PLAYER)
-                target->ToPlayer()->SwitchToWorgenForm();
-            target->SetDisplayId(displayId);
+            l_DisplayId = l_Target->getGender() == GENDER_FEMALE ? 29423 : 29422;
+            if (l_Target->GetTypeId() == TYPEID_PLAYER)
+                l_Target->ToPlayer()->SwitchToWorgenForm();
+            l_Target->SetDisplayId(l_DisplayId);
         }
 
-        target->Mount(displayId, vehicleId, GetMiscValue());
-        target->RemoveFlagsAuras();
+        auto l_MountEntry = sMountStore.LookupEntry(GetId());
+        if (l_MountEntry != nullptr)
+            l_DisplayId = l_MountEntry->CreatureDisplayID;
+
+        /// Hackfix for somes mount unavailable on retail (data aren't)
+        /// But we need it because we sell it on the shop
+        switch (GetId())
+        {
+            case 171630:                ///< Armored Razorback
+                l_DisplayId = 61484;
+                break;
+            case 171619:                ///< Tundra Icehoof
+                l_DisplayId = 53307;
+                break;
+            case 171826:
+                l_DisplayId = 59746;    ///< Mudback Riverbeast
+                break;
+            case 171837:
+                l_DisplayId = 59536;    ///< Warsong Direfang
+                break;
+        }
+
+        l_Target->Mount(l_DisplayId, l_VehicleId, GetMiscValue());
+        l_Target->RemoveFlagsAuras();
 
         // cast speed aura
         if (MountCapabilityEntry const* mountCapability = sMountCapabilityStore.LookupEntry(GetAmount()))
-            target->CastSpell(target, mountCapability->SpeedModSpell, true);
+            l_Target->CastSpell(l_Target, mountCapability->SpeedModSpell, true);
     }
     else
     {
         if (GetBase()->GetId() == 87840)
-            target->DeMorph();
+            l_Target->DeMorph();
 
-        target->Dismount();
+        l_Target->Dismount();
         //some mounts like Headless Horseman's Mount or broom stick are skill based spell
         // need to remove ALL arura related to mounts, this will stop client crash with broom stick
         // and never endless flying after using Headless Horseman's Mount
-        if (mode & AURA_EFFECT_HANDLE_REAL)
+        if (p_Mode & AURA_EFFECT_HANDLE_REAL)
         {
-            target->RemoveAurasByType(SPELL_AURA_MOUNTED);
+            l_Target->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
             // remove speed aura
             if (MountCapabilityEntry const* mountCapability = sMountCapabilityStore.LookupEntry(GetAmount()))
-                target->RemoveAurasDueToSpell(mountCapability->SpeedModSpell, target->GetGUID());
+                l_Target->RemoveAurasDueToSpell(mountCapability->SpeedModSpell, l_Target->GetGUID());
         }
     }
 
-    target->UpdateSpeed(MOVE_RUN, true);
+    l_Target->UpdateSpeed(MOVE_RUN, true);
 }
 
 void AuraEffect::HandleAuraAllowFlight(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -3917,10 +3896,6 @@ void AuraEffect::HandleAuraModRoot(AuraApplication const* p_AurApp, uint8 p_Mode
 
     Unit* l_Target = p_AurApp->GetTarget();
     if (l_Target == nullptr)
-        return;
-
-    // Earthgrab totem - Immunity
-    if (p_Apply && l_Target->HasAura(116946))
         return;
 
     if (p_Apply)
@@ -5093,21 +5068,23 @@ void AuraEffect::HandleModPowerRegen(AuraApplication const* aurApp, uint8 mode, 
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
 
-    Unit* target = aurApp->GetTarget();
-
-    if (target->GetTypeId() != TYPEID_PLAYER)
+    if (!aurApp->GetTarget() || aurApp->GetTarget()->GetTypeId() != TYPEID_PLAYER)
         return;
 
+    Player* l_Player = aurApp->GetTarget()->ToPlayer();
     switch (GetMiscValue())
     {
         case POWER_MANA:
-            target->ToPlayer()->UpdateManaRegen();
+            l_Player->UpdateManaRegen();
             break;
         case POWER_RUNES:
-            target->ToPlayer()->UpdateAllRunesRegen();
+            l_Player->UpdateAllRunesRegen();
             break;
         case POWER_ENERGY:
-            target->ToPlayer()->UpdateEnergyRegen();
+            l_Player->UpdateEnergyRegen();
+            break;
+        case POWER_FOCUS:
+            l_Player->UpdateFocusRegen();
             break;
         default:
             // other powers are not immediate effects - implemented in Player::Regenerate, Creature::Regenerate
@@ -5454,7 +5431,10 @@ void AuraEffect::HandleModCastingSpeed(AuraApplication const* aurApp, uint8 mode
     float value = float(GetAmount());
 
     if (target->GetTypeId() == TYPEID_PLAYER)
+    {
         value /= m_spellInfo->GetCastTimeReduction();
+        target->ToPlayer()->UpdateRating(CR_HASTE_SPELL);
+    }
 
     target->ApplyCastTimePercentMod(value, apply);
 }
@@ -5489,12 +5469,7 @@ void AuraEffect::HandleModCombatSpeedPct(AuraApplication const* aurApp, uint8 mo
 
     // Unholy Presence
     if (target->GetTypeId() == TYPEID_PLAYER)
-    {
-        if (m_spellInfo->Id == 48265)
-            target->ToPlayer()->UpdateAllRunesRegen();
-        else if (m_spellInfo->Id == 156989)
-            target->ToPlayer()->UpdateRating(CR_HASTE_MELEE);
-    }
+        target->ToPlayer()->UpdateRating(CR_HASTE_MELEE);
 }
 
 void AuraEffect::HandleModAttackSpeed(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -5683,29 +5658,20 @@ void AuraEffect::HandleOverrideSpellPowerByAttackPower(AuraApplication const* au
     target->SetFloatValue(PLAYER_FIELD_OVERRIDE_SPELL_POWER_BY_APPERCENT, float(GetAmount()));
 }
 
-void AuraEffect::HandleIncreaseHasteFromItemsByPct(AuraApplication const* aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleIncreaseRatingPct(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
 {
-    if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
+    if (!(p_Mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
 
-    Unit* target = aurApp->GetTarget();
-
-    if (!target->ToPlayer())
+    Unit* l_Target = p_AurApp->GetTarget();
+    if (l_Target->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    if (apply)
+    for (uint32 l_Rating = 0; l_Rating < MAX_COMBAT_RATING; ++l_Rating)
     {
-        float HasteRating = target->ToPlayer()->GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_HASTE_MELEE);
-        HasteRating *= (1 + GetAmount() / 100.0f);
-        float haste = 1 / (1 + (HasteRating * target->ToPlayer()->GetRatingMultiplier(CR_HASTE_MELEE)) / 100);
-
-        // Update haste percentage for client
-        target->SetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, haste);
-        target->SetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE, haste);
-        target->SetFloatValue(UNIT_FIELD_MOD_HASTE, haste);
+        if (GetMiscValue() & (1 << l_Rating))
+            l_Target->ToPlayer()->UpdateRating(CombatRating(l_Rating));
     }
-    else
-        target->ToPlayer()->UpdateRating(CR_HASTE_MELEE);
 }
 
 /********************************/
@@ -7799,6 +7765,12 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
     }
     else
         damage = uint32(target->CountPctFromMaxHealth(damage));
+
+    // WoD: Apply factor on damages depending on creature level and expansion
+    if ((caster->GetTypeId() == TYPEID_PLAYER || caster->IsPetGuardianStuff()) && target->GetTypeId() == TYPEID_UNIT)
+        damage *= caster->CalculateDamageDealtFactor(caster, target->ToCreature());
+    else if (caster->GetTypeId() == TYPEID_UNIT && (target->GetTypeId() == TYPEID_PLAYER || target->IsPetGuardianStuff()))
+        damage *= caster->CalculateDamageTakenFactor(target, caster->ToCreature());
 
     if (!(m_spellInfo->AttributesEx4 & SPELL_ATTR4_FIXED_DAMAGE))
         if (m_spellInfo->Effects[m_effIndex].IsTargetingArea() || isAreaAura)

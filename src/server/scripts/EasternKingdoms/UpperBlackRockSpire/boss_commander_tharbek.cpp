@@ -592,7 +592,7 @@ class boss_commander_tharbek : public CreatureScript
                     // First wave : 2 Worgs, 2 Leadbelcher and 5 Hatchlings
                     for (uint8 l_Index = 0; l_Index < MAX_RAGEMAW_SPAWN; ++l_Index)
                     {
-                        if (l_Summon = me->SummonCreature(NPC_RAGEMAW_WORG, g_RagemawWorgSpawnPos[l_Index]))
+                        if ((l_Summon = me->SummonCreature(NPC_RAGEMAW_WORG, g_RagemawWorgSpawnPos[l_Index])))
                         {
                             l_Summon->AI()->AttackStart(l_Player);
                             m_WaveGuidsContainer.push_back(l_Summon->GetGUID());
@@ -601,7 +601,7 @@ class boss_commander_tharbek : public CreatureScript
 
                     for (uint8 l_Index = 0; l_Index < MAX_LEADBELCHER_SPAWN; ++l_Index)
                     {
-                        if (l_Summon = me->SummonCreature(NPC_BLACK_IRON_LEADBELCHER, g_BlackIronLeadbelcherSpawnPos[l_Index]))
+                        if ((l_Summon = me->SummonCreature(NPC_BLACK_IRON_LEADBELCHER, g_BlackIronLeadbelcherSpawnPos[l_Index])))
                         {
                             l_Summon->AI()->AttackStart(l_Player);
                             m_WaveGuidsContainer.push_back(l_Summon->GetGUID());
@@ -610,7 +610,7 @@ class boss_commander_tharbek : public CreatureScript
 
                     for (uint8 l_Index = 0; l_Index < 5; ++l_Index)
                     {
-                        if (l_Summon = me->SummonCreature(NPC_VILEMAW_HATCHLING, g_VilemawHatchlingSpawnPos[urand(0, MAX_VILEMAW_SPAWN - 1)]))
+                        if ((l_Summon = me->SummonCreature(NPC_VILEMAW_HATCHLING, g_VilemawHatchlingSpawnPos[urand(0, MAX_VILEMAW_SPAWN - 1)])))
                         {
                             l_Summon->AI()->AttackStart(l_Player);
                             m_WaveGuidsContainer.push_back(l_Summon->GetGUID());
@@ -638,7 +638,7 @@ class boss_commander_tharbek : public CreatureScript
                     // First wave : 2 Berserker, 2 Dreadweaver and 5 Hatchlings
                     for (uint8 l_Index = 0; l_Index < MAX_BERSERKER_SPAWN; ++l_Index)
                     {
-                        if (l_Summon = me->SummonCreature(NPC_BLACK_IRON_BERSERKER, g_BlackIronBerserkerSpawnPos[l_Index]))
+                        if ((l_Summon = me->SummonCreature(NPC_BLACK_IRON_BERSERKER, g_BlackIronBerserkerSpawnPos[l_Index])))
                         {
                             l_Summon->AI()->AttackStart(l_Player);
                             m_WaveGuidsContainer.push_back(l_Summon->GetGUID());
@@ -647,7 +647,7 @@ class boss_commander_tharbek : public CreatureScript
 
                     for (uint8 l_Index = 0; l_Index < MAX_DREADWEAVER_SPAWN; ++l_Index)
                     {
-                        if (l_Summon = me->SummonCreature(NPC_BLACK_IRON_DREADWEAVER, g_BlackIronDreadweaverSpawnPos[l_Index]))
+                        if ((l_Summon = me->SummonCreature(NPC_BLACK_IRON_DREADWEAVER, g_BlackIronDreadweaverSpawnPos[l_Index])))
                         {
                             l_Summon->AI()->AttackStart(l_Player);
                             m_WaveGuidsContainer.push_back(l_Summon->GetGUID());
@@ -656,7 +656,7 @@ class boss_commander_tharbek : public CreatureScript
 
                     for (uint8 l_Index = 0; l_Index < 5; ++l_Index)
                     {
-                        if (l_Summon = me->SummonCreature(NPC_VILEMAW_HATCHLING, g_VilemawHatchlingSpawnPos[urand(0, MAX_VILEMAW_SPAWN - 1)]))
+                        if ((l_Summon = me->SummonCreature(NPC_VILEMAW_HATCHLING, g_VilemawHatchlingSpawnPos[urand(0, MAX_VILEMAW_SPAWN - 1)])))
                         {
                             l_Summon->AI()->AttackStart(l_Player);
                             m_WaveGuidsContainer.push_back(l_Summon->GetGUID());
@@ -682,7 +682,7 @@ class boss_commander_tharbek : public CreatureScript
                     m_WaveGuidsContainer.resize(8);
 
                     // First wave : 1 Engineer, 2 Veterans and 5 Hatchlings
-                    if (l_Summon = me->SummonCreature(NPC_BLACK_IRON_ENGINEER, g_BlackIronEngineerSpawnPos))
+                    if ((l_Summon = me->SummonCreature(NPC_BLACK_IRON_ENGINEER, g_BlackIronEngineerSpawnPos)))
                     {
                         l_Summon->AI()->AttackStart(l_Player);
                         m_WaveGuidsContainer.push_back(l_Summon->GetGUID());
@@ -690,7 +690,7 @@ class boss_commander_tharbek : public CreatureScript
 
                     for (uint8 l_Index = 0; l_Index < MAX_VETERAN_SPAWN; ++l_Index)
                     {
-                        if (l_Summon = me->SummonCreature(NPC_BLACK_IRON_VETERAN, g_BlackIronVeteranSpawnPos[l_Index]))
+                        if ((l_Summon = me->SummonCreature(NPC_BLACK_IRON_VETERAN, g_BlackIronVeteranSpawnPos[l_Index])))
                         {
                             l_Summon->AI()->AttackStart(l_Player);
                             m_WaveGuidsContainer.push_back(l_Summon->GetGUID());
@@ -699,7 +699,7 @@ class boss_commander_tharbek : public CreatureScript
 
                     for (uint8 l_Index = 0; l_Index < 5; ++l_Index)
                     {
-                        if (l_Summon = me->SummonCreature(NPC_VILEMAW_HATCHLING, g_VilemawHatchlingSpawnPos[urand(0, MAX_VILEMAW_SPAWN - 1)]))
+                        if ((l_Summon = me->SummonCreature(NPC_VILEMAW_HATCHLING, g_VilemawHatchlingSpawnPos[urand(0, MAX_VILEMAW_SPAWN - 1)])))
                         {
                             l_Summon->AI()->AttackStart(l_Player);
                             m_WaveGuidsContainer.push_back(l_Summon->GetGUID());

@@ -27,6 +27,8 @@
 
 extern DB2Storage <ItemEntry>                       sItemStore;
 extern DB2Storage <ItemBonusEntry>                  sItemStoreEntry;
+extern DB2Storage <ItemBonusTreeNodeEntry>          sItemBonusTreeNodeStore;
+extern DB2Storage <ItemXBonusTreeEntry>             sItemXBonusTreeStore;
 extern DB2Storage <ItemCurrencyCostEntry>           sItemCurrencyCostStore;
 extern DB2Storage <ItemExtendedCostEntry>           sItemExtendedCostStore;
 extern DB2Storage <ItemSparseEntry>                 sItemSparseStore;
@@ -54,6 +56,9 @@ extern DB2Storage <SpellTotemsEntry>                sSpellTotemsStore;
 extern DB2Storage <SpellClassOptionsEntry>          sSpellClassOptionsStore;
 extern DB2Storage <MapChallengeModeEntry>           sMapChallengeModeStore;
 extern DB2Storage <QuestPackageItemEntry>           sQuestPackageItemStore;
+extern DB2Storage <MountEntry>                      sMountStore;
+extern DB2Storage <PlayerConditionEntry>            sPlayerConditionStore;
+extern DB2Storage <VignetteEntry>                   sVignetteStore;
 
 //////////////////////////////////////////////////////////////////////////
 /// Garrison DB2
@@ -99,6 +104,7 @@ SpellTotemsEntry const* GetSpellTotemEntry(uint32 spellId, uint8 totem);
 
 extern std::map<uint32, std::vector<uint32>> sItemEffectsByItemID;
 extern std::map<uint32, std::vector<ItemBonusEntry const*>> sItemBonusesByID;
+extern std::map<uint32, std::vector<ItemXBonusTreeEntry const*>> sItemBonusTreeByID;
 extern std::map<uint32, std::vector<QuestPackageItemEntry const*>> sQuestPackageItemsByGroup;
 
 std::vector<ItemBonusEntry const*> const* GetItemBonusesByID(uint32 Id);
@@ -116,5 +122,6 @@ typedef Path<TaxiPathNodePtr, TaxiPathNodeEntry const> TaxiPathNodeList;
 typedef std::vector<TaxiPathNodeList> TaxiPathNodesByPath;
 
 extern TaxiPathNodesByPath                       sTaxiPathNodesByPath;
+uint32 GetHeirloomItemLevel(uint32 curveId, uint32 level);
 
 #endif

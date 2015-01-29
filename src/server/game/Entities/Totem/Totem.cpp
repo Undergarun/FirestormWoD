@@ -42,6 +42,8 @@ void Totem::Update(uint32 time)
 
     if (m_duration <= time)
     {
+        if (m_Properties->Id == 3407) // Capacitor Totem
+          CastSpell(this, 118905, true);
         UnSummon();                                         // remove self
         return;
     }

@@ -171,15 +171,15 @@ float tabCenter[3] = {-2274.8f, 259.187f, 406.5f};
 
 float rangeAttenuation1[2][2] =
 {
-    -2256.0f, -2208.0f,
-      190.0f,   240.0f
+    {-2256.0f, -2208.0f},
+      {190.0f,   240.0f}
 };
 
 float rangeAttenuation2[2][2] =
 {
     // Coords to redone
-    -2297.0f, -2250.0f,
-      237.0f,   280.0f
+    {-2297.0f, -2250.0f},
+      {237.0f,   280.0f}
 };
 
 // Zorlok - 62980
@@ -1340,7 +1340,7 @@ class mob_sonic_pulse : public CreatureScript
                 return reachPoint;
             }
 
-            void MovementInform(uint8 point, uint8 type)
+            void MovementInform(uint32 point, uint32 type)
             {
                 if (type != POINT_MOTION_TYPE)
                     return;
@@ -1667,47 +1667,48 @@ class spell_zorlok_exhale_damage: public SpellScriptLoader
         {
             PrepareSpellScript(spell_zorlok_exhale_damage_SpellScript);
 
-            void FilterTargets(std::list<WorldObject*>& targets)
+            void FilterTargets(std::list<WorldObject*> & p_Targets)
             {
                 Unit* caster = GetCaster();
+
+                if (!caster || !caster->GetAI())
+                    return;
+
                 //Unit* currentTarget = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(TYPEID_PLAYER, 0, caster->GetAI()->GetData(TYPE_EXHALE_TARGET)));
                 Unit* currentTarget = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(caster->GetAI()->GetData(TYPE_EXHALE_TARGET), 0, HIGHGUID_PLAYER));
 
-                if (targets.empty() || !caster || !currentTarget)
+                if (p_Targets.empty() || !currentTarget)
                     return;
 
-                // Remove players not between Zorlok and his target.
-                std::list<WorldObject*>::iterator itr, next;
-                for (itr = targets.begin(); itr != targets.end(); itr = next)
+                p_Targets.remove_if([this, caster, currentTarget](WorldObject* p_Object) -> bool
                 {
-                    next = itr;
-                    ++next;
+                    if (p_Object == currentTarget)
+                        return false;
 
-                    // Keeping current target
-                    if ((*itr) == currentTarget)
-                        continue;
+                    if (p_Object->GetTypeId() != TYPEID_PLAYER || !p_Object->IsInBetween(caster, currentTarget, 3.0f))
+                        return true;
 
-                    if ((*itr)->GetTypeId() != TYPEID_PLAYER || !(*itr)->IsInBetween(caster, currentTarget, 3.0f))
-                        targets.remove(*itr);
-                }
+                    return false;
+                });
 
                 // Two or more targets, means there's someone between Zor'lok and his target.
-                if (targets.size() > 1)
+                if (p_Targets.size() > 1)
                 {
                     // Select first target between Zor'lok and the Exhale target.
-                    WorldObject* nearestTarget = 0;
+                    WorldObject* nearestTarget = nullptr;
                     float distance = 1000.0f;
 
-                    for (itr = targets.begin(); itr != targets.end(); ++itr)
+                    for (WorldObject* l_Object : p_Targets)
                     {
-                        if (caster->GetDistance2d(*itr) < distance)
+                        if (caster->GetDistance2d(l_Object) < distance)
                         {
-                            nearestTarget = *itr;
-                            distance = caster->GetDistance2d(*itr);
+                            nearestTarget = l_Object;
+                            distance = caster->GetDistance2d(l_Object);
                         }
                     }
 
-                    if (nearestTarget != currentTarget)
+                    if (nearestTarget != nullptr
+                        && nearestTarget != currentTarget)
                     {
                         // Set Zor'lok's current Exhale target to that nearest player.
                         uint32 targetLowGuid = nearestTarget->GetGUIDLow();
