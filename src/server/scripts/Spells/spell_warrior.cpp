@@ -1484,6 +1484,41 @@ public:
 };
 
 
+enum ExecuteSpells
+{
+    SPELL_EXECUTE_OFFHAND = 163558
+};
+
+// Execute - 5308 (Prot, Fury, Default)
+class spell_warr_execute_default: public SpellScriptLoader
+{
+public:
+    spell_warr_execute_default() : SpellScriptLoader("spell_warr_execute_default") { }
+
+    class spell_warr_execute_default_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warr_execute_default_SpellScript);
+
+        void HandleOnCast()
+        {
+            if (Unit* l_Target = GetExplTargetUnit())
+                if (Player* l_Caster = GetCaster()->ToPlayer())
+                    if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) == SPEC_WARRIOR_FURY)
+                        l_Caster->CastSpell(l_Target, SPELL_EXECUTE_OFFHAND, true);
+        }
+
+        void Register()
+        {
+            OnCast += SpellCastFn(spell_warr_execute_default_SpellScript::HandleOnCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_warr_execute_default_SpellScript();
+    }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_slam();
@@ -1521,4 +1556,5 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_execute();
     new spell_warr_whirlwind();
     new spell_warr_shield_charge();
+    new spell_warr_execute_default();
 }
