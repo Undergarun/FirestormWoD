@@ -1561,7 +1561,7 @@ class spell_dru_eclipse : public PlayerScript
                 p_Player->SetLastEclipseState(ECLIPSE_SOLAR);
                 p_Player->CastSpell(p_Player, SPELL_DRUID_ECLIPSE_SOLAR_PEAK, true);
             }
-            else if (l_Power >= (100 * l_Coeff) & p_Player->GetLastEclipseState() != ECLIPSE_LUNAR)  ///< Lunar Eclipse at 100
+            else if (l_Power >= (100 * l_Coeff) && p_Player->GetLastEclipseState() != ECLIPSE_LUNAR)  ///< Lunar Eclipse at 100
             {
                 p_Player->SetLastEclipseState(ECLIPSE_LUNAR);
                 p_Player->CastSpell(p_Player, SPELL_DRUID_ECLIPSE_LUNAR_PEAK, true);
