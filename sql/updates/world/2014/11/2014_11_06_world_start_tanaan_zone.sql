@@ -602,14 +602,21 @@
 
 			UPDATE creature SET phasemask = 4294967295 WHERE map = 1265;
 			UPDATE gameobject SET phasemask = 65535 WHERE map = 1265;
-			UPDATE gameobject SET phasemask = 4 WHERE id IN (232502, 232503, 232504);
-			UPDATE gameobject SET phasemask = 4 WHERE id = 237667;
-			UPDATE gameobject SET phasemask = 4 WHERE id = 231763;
+			UPDATE gameobject SET phasemask = 8 WHERE id IN (232502, 232503, 232504); -- débris
+			UPDATE gameobject SET phasemask = 4 WHERE id = 237667; -- portail
+			UPDATE gameobject SET phasemask = 8 WHERE id = 231763; -- iron horde capsule
 			UPDATE creature SET phasemask = 1 WHERE id = 78333;
 			UPDATE gameobject SET phasemask = 1 WHERE id = 234622;
+			UPDATE gameobject SET phasemask = 8 WHERE id = 232500;
+			UPDATE creature SET phasemask = 3 WHERE id IN
+			( 78430, 79316, 78553, 78568, 78556, 78554, 78569, 79315, 76975, 78558, 78965, 76793)
+			AND areaId = 7037 AND position_z < 95 AND position_z > 90;
+			UPDATE gameobject SET phasemask = 8 WHERE id = 237667;
 
 		-- Misc
 
+			DELETE FROM creature WHERE id IN
+			(82125, 81776, 79185, 79659, 81885, 78965, 82973, 79770, 88354);
 			DELETE FROM creature_template_addon WHERE entry = 82260;
 			DELETE FROM creature_template_addon WHERE entry = 78507;
 			UPDATE creature SET spawntimesecs = 15 WHERE id = 78883;
@@ -625,3 +632,26 @@
 			UPDATE creature SET npcflag = 0 WHERE id = 78556;
 			UPDATE creature_template SET npcflag = 1 WHERE entry = 78556;
 			UPDATE creature SET npcflag = 1 WHERE id = 76643;
+			UPDATE `creature_template`
+			SET `minlevel` = 100,
+			`maxlevel` = 100,
+			`unit_flags` = 896,
+			faction = 35,
+			scriptname = "npc_generic_tanaan_escorter" WHERE `entry` IN
+			(82125, 81776, 79185, 79659, 81885, 78965, 82973, 79770, 88354, );
+
+		-- Quests suit
+
+			UPDATE `quest_template` SET `PrevQuestId` = 0, `NextQuestId` = 34392, `ExclusiveGroup` = 34398, `NextQuestIdChain` = 34392 WHERE `Id` = 34398;
+			UPDATE `quest_template` SET `PrevQuestId` = 0, `NextQuestId` = 34392, `ExclusiveGroup` = 34398, `NextQuestIdChain` = 34392 WHERE `Id` = 35933;
+			UPDATE `quest_template` SET `PrevQuestId` = 0, `NextQuestId` = 34392, `ExclusiveGroup` = 34398, `NextQuestIdChain` = 34392 WHERE `Id` = 36881;
+			UPDATE `quest_template` SET `PrevQuestId` = 0, `NextQuestId` = 0, `ExclusiveGroup` = 0, `NextQuestIdChain` = 34393 WHERE `Id` = 34392;
+			UPDATE `quest_template` SET `PrevQuestId` = 34392, `NextQuestId` = 0, `ExclusiveGroup` = 0, `NextQuestIdChain` = 34420 WHERE `Id` = 34393;
+			UPDATE `quest_template` SET `PrevQuestId` = 34393, `NextQuestId` = 0, `ExclusiveGroup` = 0, `NextQuestIdChain` = 0 WHERE `Id` = 34420;
+
+		-- Talks
+
+			DELETE FROM creature_text WHERE entry = 82125;
+			insert into `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) values('82125','0','0','I can open up a portal to Stormwind only briefly.','12','0','100','0','0','0','');
+			insert into `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) values('82125','1','0','The Vanguard is falling. We will not let their great sacrifice be in vain !','12','0','100','0','0','0','Khadgar start Tanaan escort');
+			insert into `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) values('82125','2','0','In Here ! ','12','0','100','0','0','0','Khadgar reaches house');
