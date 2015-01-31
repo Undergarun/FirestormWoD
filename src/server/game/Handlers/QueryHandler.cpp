@@ -93,16 +93,7 @@ void WorldSession::HandleNameQueryOpcode(WorldPacket& recvData)
 {
 
     uint64 guid;
-
     recvData.readPackGUID(guid);
-    bool hasVirtualRealmAddress = recvData.ReadBit();
-    bool hasNativeRealmAddress = recvData.ReadBit();
-
-    if (hasVirtualRealmAddress)
-        uint32 VirtualRealmAddress = recvData.read<uint32>();
-
-    if (hasNativeRealmAddress)
-        uint32 NativeRealmAddress = recvData.read<uint32>();
 
     // This is disable by default to prevent lots of console spam
     // sLog->outInfo(LOG_FILTER_NETWORKIO, "HandleNameQueryOpcode %u", guid);

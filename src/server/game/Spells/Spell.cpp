@@ -4814,7 +4814,7 @@ void Spell::SendSpellStart()
     data << uint32(0);                      ///< Hitted target count
     data << uint32(0);                      ///< Missed target count
     data << uint32(0);                      ///< Miss count 2
-    data.WriteBits(m_targets.GetTargetMask(), 21);
+    data.WriteBits(m_targets.GetTargetMask(), 23);
     data.WriteBit(m_targets.HasSrc());
     data.WriteBit(m_targets.HasDst());
     data.WriteBit(false);
@@ -5023,7 +5023,7 @@ void Spell::SendSpellGo()
     l_Data << uint32(l_HitCount);
     l_Data << uint32(l_MissCount);
     l_Data << uint32(l_MissCount);
-    l_Data.WriteBits(m_targets.GetTargetMask(), 21);
+    l_Data.WriteBits(m_targets.GetTargetMask(), 23);
     l_Data.WriteBit(m_targets.HasSrc());
     l_Data.WriteBit(m_targets.HasDst());
     l_Data.WriteBit(l_HasUnk1);
