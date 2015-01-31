@@ -212,7 +212,7 @@ namespace MS
                     {
                         m_Initialized = true;
 
-                        if (instance->GetBossState(Data::Araknath) == EncounterState::SPECIAL || instance->GetBossState(Data::Araknath) == EncounterState::IN_PROGRESS)
+                        if (instance && (instance->GetBossState(Data::Araknath) == EncounterState::SPECIAL || instance->GetBossState(Data::Araknath) == EncounterState::IN_PROGRESS))
                             instance->SetData(Data::SkyreachArcanologistIsDead, 0);
                     }
                     else
@@ -228,10 +228,6 @@ namespace MS
 
                     switch (events.ExecuteEvent())
                     {
-                    /*case uint32(Events::Reset):
-                        if (instance)
-                            instance->SetData(Data::AraknathSolarConstructorActivation, false);
-                        break;*/
                     case uint32(Events::MELEE):
                         events.ScheduleEvent(uint32(Events::MELEE), 2000);
                         me->CastSpell(me->getVictim(), uint32(Spells::MELEE));
