@@ -26,6 +26,7 @@ const char ItemXBonusTreefmt[] = "dii";
 const char ItemCurrencyCostfmt[] = "xn";
 const char ItemSparsefmt[] = "niiiiffiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiffffffffffiiifisssssiiiiiiiiiiiiiiiiiiifiiifiii";
 const char ItemEffectFmt[] = "niiiiiiii";
+const char HeirloomFmt[] = "nissiiiiiiii";
 const char PvpItemfmt[] = "xni";
 const char ItemModifiedAppearanceFmt[] = "niiiii";
 const char ItemAppearanceFmt[] = "nii";

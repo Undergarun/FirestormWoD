@@ -13818,11 +13818,6 @@ InventoryResult Player::CanEquipItem(uint8 slot, uint16 &dest, Item* pItem, bool
                     return EQUIP_ERR_CLIENT_LOCKED_OUT;
             }
 
-            ScalingStatDistributionEntry const* ssd = pProto->ScalingStatDistribution ? sScalingStatDistributionStore.LookupEntry(pProto->ScalingStatDistribution) : 0;
-            // check allowed level (extend range to upper values if MaxLevel more or equal max player level, this let GM set high level with 1...max range items)
-            if (ssd && ssd->MaxLevel < DEFAULT_MAX_LEVEL && ssd->MaxLevel < getLevel())
-                return EQUIP_ERR_NOT_EQUIPPABLE;
-
             uint8 eslot = FindEquipSlot(pProto, slot, swap);
             if (eslot == NULL_SLOT)
                 return EQUIP_ERR_NOT_EQUIPPABLE;
@@ -14424,6 +14419,10 @@ Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update
         if (randomPropertyId)
             pItem->SetItemRandomProperties(randomPropertyId);
         pItem = StoreItem(dest, pItem, update);
+
+        if (pItem->GetTemplate()->Quality == ITEM_QUALITY_HEIRLOOM)
+            if (HeirloomEntry const* l_HeirloomEntry = GetHeirloomEntryByItemID(pItem->GetTemplate()->ItemId))
+                AddHeirloom(l_HeirloomEntry);
 
         if (allowedLooters.size() > 1 && pItem->GetTemplate()->GetMaxStackSize() == 1 && pItem->IsSoulBound())
         {
@@ -20232,6 +20231,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     // must be before inventory (some items required reputation check)
     m_reputationMgr.LoadFromDB(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADREPUTATION));
 
+    _LoadHeirloomCollection(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_HEIRLOOM_COLLECTION));
     _LoadInventory(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADINVENTORY), time_diff);
 
     if (IsVoidStorageUnlocked())
@@ -20744,6 +20744,10 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
                     item->DeleteFromInventoryDB(trans);
                     problematicItems.push_back(item);
                 }
+
+                if (item->GetTemplate()->Quality == ITEM_QUALITY_HEIRLOOM)
+                    if (HeirloomEntry const* l_HeirloomEntry = GetHeirloomEntryByItemID(item->GetTemplate()->ItemId))
+                        AddHeirloom(l_HeirloomEntry);
             }
         }
         while (result->NextRow());
@@ -31346,12 +31350,46 @@ Stats Player::GetPrimaryStat() const
  *
  */
 
+ScalingStatDistributionEntry const* Player::GetSSDForItem(Item const* p_Item) const
+{
+    if (!p_Item)
+        return nullptr;
+
+    uint32 l_SSDID = p_Item->GetTemplate()->ScalingStatDistribution;
+
+    std::vector<uint32> const& l_ItemBonuses = p_Item->GetAllItemBonuses();
+    for (auto l_Bonus : l_ItemBonuses)
+    {
+        if (!l_Bonus)
+            continue;
+
+        std::vector<ItemBonusEntry const*> const* l_ItemBonus = GetItemBonusesByID(l_Bonus);
+        if (!l_ItemBonus)
+            continue;
+
+        for (uint32 i = 0; i < l_ItemBonus->size(); i++)
+        {
+            ItemBonusEntry const* l_ItemSubBonus = (*l_ItemBonus)[i];
+            if (!l_ItemSubBonus)
+                break;
+
+            if (l_ItemSubBonus->Type == ITEM_BONUS_MODIFY_SSD_ID)
+            {
+                l_SSDID = l_ItemSubBonus->Value[0];
+                break;
+            }
+        }
+    }
+
+    return sScalingStatDistributionStore.LookupEntry(l_SSDID);
+}
+
 uint32 Player::GetEquipItemLevelFor(ItemTemplate const* itemProto, Item const* item) const
 {
     uint32 ilvl = itemProto->ItemLevel;
     
     if (itemProto->Quality == ITEM_QUALITY_HEIRLOOM)
-        if (ScalingStatDistributionEntry const* ssd = sScalingStatDistributionStore.LookupEntry(itemProto->ScalingStatDistribution))
+        if (ScalingStatDistributionEntry const* ssd = GetSSDForItem(item))
             if (uint32 heirloomIlvl = GetHeirloomItemLevel(ssd->CurveProperties, std::max(std::min(ssd->MaxLevel, (uint32)getLevel()), ssd->MinLevel)))
                 ilvl = heirloomIlvl;
 
@@ -31907,4 +31945,116 @@ void Player::AddDailyLootCooldown(uint32 p_Entry)
     PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_DAILY_LOOT_COOLDOWNS);
     l_Statement->setUInt32(0, GetGUIDLow());
     CharacterDatabase.Execute(l_Statement);
+}
+
+bool Player::AddHeirloom(HeirloomEntry const* p_HeirloomEntry, uint8 p_UpgradeLevel)
+{
+    if (HasHeirloom(p_HeirloomEntry))
+        return false;
+
+    uint32 l_Index = GetDynamicValues(PLAYER_DYNAMIC_FIELD_HEIRLOOMS).size();
+    p_UpgradeLevel = std::min(p_UpgradeLevel, (uint8)p_HeirloomEntry->MaxHeirloomUpgrade);
+    uint32 l_HeirloomFlags = (1 << p_UpgradeLevel) - 1;
+
+    SetDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOMS, l_Index, p_HeirloomEntry->ItemID);
+    SetDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOMS_FLAGS, l_Index, l_HeirloomFlags);
+
+    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_HEIRLOOM);
+    l_Statement->setUInt32(0, GetSession()->GetAccountId());
+    l_Statement->setUInt32(1, p_HeirloomEntry->ID);
+    l_Statement->setUInt32(2, l_HeirloomFlags);
+    CharacterDatabase.Execute(l_Statement);
+
+    return true;
+}
+
+bool Player::HasHeirloom(uint32 p_ItemID) const
+{
+    HeirloomEntry const* l_Heirloom = GetHeirloomEntryByItemID(p_ItemID);
+    return HasHeirloom(l_Heirloom);
+}
+
+bool Player::HasHeirloom(HeirloomEntry const* p_HeirloomEntry) const
+{
+    if (!p_HeirloomEntry)
+        return false;
+
+    std::vector<uint32> const& l_Heirlooms = GetDynamicValues(PLAYER_DYNAMIC_FIELD_HEIRLOOMS);
+
+    for (uint32 l_I = 0; l_I < l_Heirlooms.size(); ++l_I)
+        if (l_Heirlooms[l_I] == p_HeirloomEntry->ItemID)
+            return true;
+
+    return false;
+}
+
+
+void Player::_LoadHeirloomCollection(PreparedQueryResult p_Result)
+{
+    if (!p_Result)
+        return;
+
+    do
+    {
+        Field* l_Fields = p_Result->Fetch();
+        uint32 l_HeirloomID = l_Fields[0].GetUInt32();
+        uint32 l_HeirloomFlags = l_Fields[1].GetUInt32();
+
+        HeirloomEntry const* l_HeirloomEntry = sHeirloomStore.LookupEntry(l_HeirloomID);
+
+        if (!l_HeirloomEntry)
+            continue;
+
+        if (HasHeirloom(l_HeirloomEntry))
+            continue;
+
+        l_HeirloomFlags = std::min(l_HeirloomFlags, (uint32)(1 << l_HeirloomEntry->MaxHeirloomUpgrade) - 1);
+
+        uint32 l_Index = GetDynamicValues(PLAYER_DYNAMIC_FIELD_HEIRLOOMS).size();
+        SetDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOMS, l_Index, l_HeirloomEntry->ItemID);
+        SetDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOMS_FLAGS, l_Index, l_HeirloomFlags);
+    }
+    while (p_Result->NextRow());
+}
+
+uint32 Player::GetHeirloomUpgradeLevel(HeirloomEntry const* p_HeirloomEntry) const
+{
+    if (!p_HeirloomEntry)
+        return 0;
+
+    std::vector<uint32> const& l_Heirlooms = GetDynamicValues(PLAYER_DYNAMIC_FIELD_HEIRLOOMS);
+
+    for (uint32 l_I = 0; l_I < l_Heirlooms.size(); ++l_I)
+    {
+        if (l_Heirlooms[l_I] == p_HeirloomEntry->ItemID)
+        {
+            for (int l_X = p_HeirloomEntry->MaxHeirloomUpgrade + 1; l_X != 0; --l_X)
+                if (GetDynamicValues(PLAYER_DYNAMIC_FIELD_HEIRLOOMS_FLAGS)[l_I] & (1 << (l_X - 1)))
+                    return l_X;
+            return 0;
+        }
+    }
+
+    return 0;
+}
+
+bool Player::CanUpgradeHeirloomWith(HeirloomEntry const* p_HeirloomEntry, uint32 p_ItemId) const
+{
+    if (!p_HeirloomEntry)
+        return false;
+
+    if (!HasHeirloom(p_HeirloomEntry))
+        return false;
+
+    uint32 l_CurrentUpgradeLevel = GetHeirloomUpgradeLevel(p_HeirloomEntry);
+    if (p_HeirloomEntry->MaxHeirloomUpgrade <= l_CurrentUpgradeLevel)
+        return false;
+
+    if (!p_HeirloomEntry->UpgradeIemBonusID[l_CurrentUpgradeLevel])
+        return false;
+
+    if (p_HeirloomEntry->UpgradableByItemID[l_CurrentUpgradeLevel] != p_ItemId)
+        return false;
+
+    return HasItemCount(p_ItemId);
 }

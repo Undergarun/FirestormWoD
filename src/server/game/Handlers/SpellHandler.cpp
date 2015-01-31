@@ -118,7 +118,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
     p_RecvPacket >> l_SpellID;
     p_RecvPacket >> l_Misc;
 
-    l_TargetFlags           = p_RecvPacket.ReadBits(21);
+    l_TargetFlags           = p_RecvPacket.ReadBits(23);
     l_HasSourceTarget       = p_RecvPacket.ReadBit();
     l_HasDestinationTarget  = p_RecvPacket.ReadBit();
     l_HasUnkFloat           = p_RecvPacket.ReadBit();
@@ -198,14 +198,14 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
 
     //////////////////////////////////////////////////////////////////////////
     
-    bool l_IsGarrisonItem = false;
+    bool l_IsGlyph = false;
     
     if (sSpellMgr->GetSpellInfo(l_SpellID))
     {
         switch (sSpellMgr->GetSpellInfo(l_SpellID)->Effects[EFFECT_0].Effect)
         {
-            case SPELL_EFFECT_UPGRADE_FOLLOWER_ILVL:
-                l_IsGarrisonItem = true;
+            case SPELL_EFFECT_APPLY_GLYPH:
+                l_IsGlyph = true;
                 break;
 
             default:
@@ -213,7 +213,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
         }
     }
 
-    if (!l_IsGarrisonItem && l_Misc >= MAX_GLYPH_SLOT_INDEX)
+    if (l_IsGlyph && l_Misc >= MAX_GLYPH_SLOT_INDEX)
     {
         pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
         return;
@@ -502,7 +502,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
     p_RecvPacket >> l_SpellID;
     p_RecvPacket >> l_Misc;
 
-    l_TargetFlags           = p_RecvPacket.ReadBits(21);
+    l_TargetFlags           = p_RecvPacket.ReadBits(23);
     l_HasSourceTarget       = p_RecvPacket.ReadBit();
     l_HasDestinationTarget  = p_RecvPacket.ReadBit();
     l_HasUnkFloat           = p_RecvPacket.ReadBit();

@@ -1298,7 +1298,7 @@ enum SpellEffects
     SPELL_EFFECT_219                                = 219,
     SPELL_EFFECT_OBTAIN_FOLLOWER                    = 220,
     SPELL_EFFECT_221                                = 221,
-    SPELL_EFFECT_222                                = 222,
+    SPELL_EFFECT_CREATE_HEIRLOOM                    = 222,
     SPELL_EFFECT_223                                = 223,
     SPELL_EFFECT_GARRISON_FINALIZE_BUILDING         = 224,
     SPELL_EFFECT_225                                = 225,
@@ -1321,7 +1321,7 @@ enum SpellEffects
     SPELL_EFFECT_242                                = 242,
     SPELL_EFFECT_243                                = 243,
     SPELL_EFFECT_TEACH_FOLLOWER_ABILITY             = 244,
-    SPELL_EFFECT_245                                = 245,
+    SPELL_EFFECT_UPGRADE_HEIRLOOM                   = 245,
     SPELL_EFFECT_246                                = 246,
     TOTAL_SPELL_EFFECTS                             = 247
 };

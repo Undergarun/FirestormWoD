@@ -98,7 +98,7 @@ enum Opcodes
         SMSG_UPDATE_TALENT_DATA                     = 0x04C4, ///< 6.1.0 19551
         SMSG_TRANSFER_ABORTED                       = 0x0000, ///<
         SMSG_TRANSFER_PENDING                       = 0x0000, ///<
-        SMSG_INVENTORY_CHANGE_FAILURE               = 0x0000, ///<
+        SMSG_INVENTORY_CHANGE_FAILURE               = 0x1B1C, ///< 6.1.0 19551
         SMSG_SET_DUNGEON_DIFFICULTY                 = 0x0000, ///<
         SMSG_SET_RAID_DIFFICULTY                    = 0x0000, ///<
         SMSG_LOAD_CUF_PROFILES                      = 0x0000, ///<
@@ -731,9 +731,9 @@ enum Opcodes
         SMSG_PET_CLEAR_SPELLS                       = 0x0000, ///< (unused)
         SMSG_REFRESH_SPELL_HISTORY                  = 0x0000, ///< (unused)
         SMSG_RESUME_CAST_BAR                        = 0x0000, ///< (unused)
-        SMSG_CAST_FAILED                            = 0x0000, ///<
-        SMSG_SPELL_FAILURE                          = 0x0000, ///<
-        SMSG_SPELL_FAILED_OTHER                     = 0x0000, ///<
+        SMSG_CAST_FAILED                            = 0x040C, ///< 6.1.0 19551
+        SMSG_SPELL_FAILURE                          = 0x072A, ///< 6.1.0 19551
+        SMSG_SPELL_FAILED_OTHER                     = 0x128A, ///< 6.1.0 19551
         SMSG_PET_CAST_FAILED                        = 0x0000, ///<
         SMSG_ITEM_COOLDOWN                          = 0x0000, ///<
         SMSG_MODIFY_COOLDOWN                        = 0x0000, ///<
@@ -1075,7 +1075,7 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     CMSG_CAST_SPELL                             = 0x1B02, ///< 6.1.0 19551
     CMSG_CANCEL_CAST                            = 0x0F63, ///< 6.1.0 19551
-    CMSG_USE_ITEM                               = 0x0000, ///<
+    CMSG_USE_ITEM                               = 0x0A5A, ///< 6.1.0 19551
     CMSG_CANCEL_AURA                            = 0x084B, ///< 6.1.0 19551
     CMSG_CANCEL_AUTO_REPEAT_SPELL               = 0x0000, ///<
     CMSG_CANCEL_CHANNELLING                     = 0x0000, ///<

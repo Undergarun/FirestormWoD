@@ -25,6 +25,8 @@
 #include <map>
 
 std::map<uint32 /*curveID*/, std::map<uint32/*index*/, CurvePointEntry const*, std::greater<uint32>>> HeirloomCurvePoints;
+std::unordered_map<uint32 /*ItemID*/, HeirloomEntry const*> HeirloomEntryByItemID;
+
 DB2Storage<CurvePointEntry>                 sCurvePointStore(CurvePointEntryfmt);
 DB2Storage <ItemEntry>                      sItemStore(Itemfmt);
 DB2Storage <ItemBonusEntry>                 sItemBonusStore(ItemBonusfmt);
@@ -34,6 +36,7 @@ DB2Storage <ItemCurrencyCostEntry>          sItemCurrencyCostStore(ItemCurrencyC
 DB2Storage <ItemExtendedCostEntry>          sItemExtendedCostStore(ItemExtendedCostEntryfmt);
 DB2Storage <ItemSparseEntry>                sItemSparseStore(ItemSparsefmt);
 DB2Storage <ItemEffectEntry>                sItemEffectStore(ItemEffectFmt);
+DB2Storage <HeirloomEntry>                  sHeirloomStore(HeirloomFmt);
 DB2Storage <PvpItemEntry>                   sPvpItemStore(PvpItemfmt);
 DB2Storage <ItemModifiedAppearanceEntry>    sItemModifiedAppearanceStore(ItemModifiedAppearanceFmt);
 DB2Storage <ItemAppearanceEntry>            sItemAppearanceStore(ItemAppearanceFmt);
@@ -205,6 +208,7 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sItemModifiedAppearanceStore,    db2Path, "ItemModifiedAppearance.db2");
     LoadDB2(bad_db2_files, sItemAppearanceStore,            db2Path, "ItemAppearance.db2");
     LoadDB2(bad_db2_files, sItemExtendedCostStore,          db2Path, "ItemExtendedCost.db2");
+    LoadDB2(bad_db2_files, sHeirloomStore,                  db2Path, "Heirloom.db2");
     LoadDB2(bad_db2_files, sPvpItemStore,                   db2Path, "PvpItem.db2");
     LoadDB2(bad_db2_files, sItemUpgradeStore,               db2Path, "ItemUpgrade.db2");
     LoadDB2(bad_db2_files, sRulesetItemUpgradeStore,        db2Path, "RulesetItemUpgrade.db2");
@@ -428,6 +432,23 @@ void LoadDB2Stores(const std::string& dataPath)
         if (TaxiPathNodeEntry const* entry = sTaxiPathNodeStore.LookupEntry(l_I))
             sTaxiPathNodesByPath[entry->path].set(entry->index, entry);
 
+    for (uint32 l_ID = 0; l_ID < sHeirloomStore.GetNumRows(); ++l_ID)
+    {
+        HeirloomEntry const* l_Heirloom = sHeirloomStore.LookupEntry(l_ID);
+
+        if (!l_Heirloom)
+            continue;
+
+        HeirloomEntryByItemID.insert({ l_Heirloom->ItemID, l_Heirloom });
+
+        for (uint32 l_X = 0; l_X < 2; l_X++)
+            if (uint32 l_OlderItemID = l_Heirloom->OldHeirloomID[l_X])
+                HeirloomEntryByItemID.insert({ l_OlderItemID, l_Heirloom});
+
+        if (uint32 l_HeroicID = l_Heirloom->HeroicVersion)
+            HeirloomEntryByItemID.insert({ l_HeroicID, l_Heirloom});
+    }
+
     // error checks
     if (bad_db2_files.size() >= DB2FilesCount)
     {
@@ -479,3 +500,9 @@ uint32 GetHeirloomItemLevel(uint32 curveId, uint32 level)
 
     return uint32(previousItr->second->Y);  // Lowest scaling point
 }
+
+HeirloomEntry const* GetHeirloomEntryByItemID(uint32 p_ItemID)
+{
+    std::unordered_map<uint32, HeirloomEntry const*>::const_iterator l_Iter =  HeirloomEntryByItemID.find(p_ItemID);
+    return l_Iter != HeirloomEntryByItemID.end() ? l_Iter->second : nullptr;
+};

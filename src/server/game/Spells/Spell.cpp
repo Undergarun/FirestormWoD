@@ -6719,6 +6719,33 @@ SpellCastResult Spell::CheckCast(bool strict)
                         return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
                 break;
             }
+            case SPELL_EFFECT_CREATE_HEIRLOOM:
+            {
+                Player* l_Player = m_caster->ToPlayer();
+
+                if (!l_Player)
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                if (!l_Player->HasHeirloom(m_glyphIndex))
+                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+                break;
+            }
+            case SPELL_EFFECT_UPGRADE_HEIRLOOM:
+            {
+                Player* l_Player = m_caster->ToPlayer();
+                HeirloomEntry const* l_Heirloom = GetHeirloomEntryByItemID(m_glyphIndex);
+
+                if (!l_Player || !l_Heirloom || !m_CastItem)
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                if (!l_Player->HasHeirloom(l_Heirloom))
+                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+                if (!l_Player->CanUpgradeHeirloomWith(l_Heirloom, m_CastItem->GetTemplate()->ItemId))
+                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+                break;
+            }
             default:
                 break;
         }

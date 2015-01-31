@@ -33,6 +33,7 @@ extern DB2Storage <ItemCurrencyCostEntry>           sItemCurrencyCostStore;
 extern DB2Storage <ItemExtendedCostEntry>           sItemExtendedCostStore;
 extern DB2Storage <ItemSparseEntry>                 sItemSparseStore;
 extern DB2Storage <ItemEffectEntry>                 sItemEffectStore;
+extern DB2Storage <HeirloomEntry>                   sHeirloomStore;
 extern DB2Storage<PvpItemEntry>                     sPvpItemStore;
 extern DB2Storage <ItemModifiedAppearanceEntry>     sItemModifiedAppearanceStore;
 extern DB2Storage <ItemAppearanceEntry>             sItemAppearanceStore;
@@ -122,5 +123,6 @@ typedef std::vector<TaxiPathNodeList> TaxiPathNodesByPath;
 
 extern TaxiPathNodesByPath                       sTaxiPathNodesByPath;
 uint32 GetHeirloomItemLevel(uint32 curveId, uint32 level);
+HeirloomEntry const* GetHeirloomEntryByItemID(uint32 p_ItemID);
 
 #endif

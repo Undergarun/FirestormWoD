@@ -294,7 +294,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectNULL,                                     //219 SPELL_EFFECT_219                     Unk 6.0.1
     &Spell::EffectObtainFollower,                           //220 SPELL_EFFECT_OBTAIN_FOLLOWER         Obtain a garrison follower (contract item)
     &Spell::EffectNULL,                                     //221 SPELL_EFFECT_221                     Unk 6.0.1
-    &Spell::EffectNULL,                                     //222 SPELL_EFFECT_222                     Create Heirloom
+    &Spell::EffectCreateHeirloom,                           //222 SPELL_EFFECT_CREATE_HEIRLOOM         Create Heirloom
     &Spell::EffectNULL,                                     //223 SPELL_EFFECT_223                     Unk 6.0.1
     &Spell::EffectGarrisonFinalize,                         //224 SPELL_EFFECT_GARRISON_FINALIZE_BUILDING
     &Spell::EffectNULL,                                     //225 SPELL_EFFECT_225                     Battle-Training Stone
@@ -317,9 +317,10 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectNULL,                                     //242 SPELL_EFFECT_242                     Unused 6.0.3
     &Spell::EffectNULL,                                     //243 SPELL_EFFECT_243                     Illusion spells (visual enchant)
     &Spell::EffectNULL,                                     //244 SPELL_EFFECT_244                     learn an follower ability NYI
-    &Spell::EffectNULL,                                     //245 SPELL_EFFECT_245                     Unused 6.0.3
+    &Spell::EffectUpgradeHeirloom,                          //245 SPELL_EFFECT_UPGRADE_HEIRLOOM        Unused 6.0.3
     &Spell::EffectNULL,                                     //246 SPELL_EFFECT_246                     Unused 6.0.3
 };
+
 void Spell::EffectNULL(SpellEffIndex /*effIndex*/)
 {
     sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "WORLD: Spell Effect DUMMY");
@@ -8107,6 +8108,86 @@ void Spell::EffectStampede(SpellEffIndex p_EffIndex)
             if (l_MalusSpell != 0)
                 l_Pet->CastSpell(l_Pet, l_MalusSpell, true);
             l_Pet->AI()->AttackStart(l_Target);
+        }
+    }
+}
+
+void Spell::EffectCreateHeirloom(SpellEffIndex p_EffIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
+        return;
+
+    Player* l_Player = GetCaster()->ToPlayer();
+    HeirloomEntry const* l_HeirloomEntry = GetHeirloomEntryByItemID(m_glyphIndex);
+
+    if (!l_Player || !l_HeirloomEntry)
+        return;
+
+    if (l_HeirloomEntry->ItemID != m_glyphIndex)
+        return;
+
+    ItemPosCountVec l_Destination;
+    InventoryResult l_Result = l_Player->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, l_HeirloomEntry->ItemID, 1);
+
+    if (l_Result != EQUIP_ERR_OK)
+    {
+        l_Player->SendEquipError(l_Result, NULL, NULL, l_HeirloomEntry->ItemID);
+        return;
+    }
+
+    uint32 l_UpgradeLevel = l_Player->GetHeirloomUpgradeLevel(l_HeirloomEntry);
+    uint32 l_UpgradeId = 0;
+
+    if (l_UpgradeLevel)
+        l_UpgradeId = l_UpgradeLevel <= MAX_HEIRLOOM_UPGRADE_LEVEL ? l_HeirloomEntry->UpgradeIemBonusID[l_UpgradeLevel - 1] : 0;
+
+    std::vector<uint32> l_Upgrades;
+
+    if (l_UpgradeId)
+        l_Upgrades.push_back(l_UpgradeId);
+
+    Item* l_Item = l_Player->StoreNewItem(l_Destination, l_HeirloomEntry->ItemID, true);
+    l_Item->AddItemBonus(l_UpgradeId);
+    l_Player->SendNewItem(l_Item, l_HeirloomEntry->ItemID, false, false, false, l_Upgrades);
+}
+
+void Spell::EffectUpgradeHeirloom(SpellEffIndex p_EffIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
+        return;
+
+    Player* l_Player = GetCaster()->ToPlayer();
+    HeirloomEntry const* l_HeirloomEntry = GetHeirloomEntryByItemID(m_glyphIndex);
+
+    if (!l_Player || !l_HeirloomEntry || !m_CastItem)
+        return;
+
+    if (l_HeirloomEntry->ItemID != m_glyphIndex)
+        return;
+
+    if (!l_Player->HasHeirloom(l_HeirloomEntry))
+        return;
+
+    if (!l_Player->CanUpgradeHeirloomWith(l_HeirloomEntry, m_CastItem->GetTemplate()->ItemId))
+        return;
+
+    uint32 l_UpgradeFlags = (1 << (l_Player->GetHeirloomUpgradeLevel(l_HeirloomEntry) + 1)) - 1;
+
+    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_HEILOOM_FLAGS);
+    l_Statement->setUInt32(0, l_UpgradeFlags);
+    l_Statement->setUInt32(1, l_Player->GetSession()->GetAccountId());
+    l_Statement->setUInt32(2, l_HeirloomEntry->ID);
+    CharacterDatabase.Execute(l_Statement);
+
+    l_Player->RemoveItem(m_CastItem->GetBagSlot(), m_CastItem->GetSlot(), true);
+
+    std::vector<uint32> const& l_Heirlooms = l_Player->GetDynamicValues(PLAYER_DYNAMIC_FIELD_HEIRLOOMS);
+    for (uint32 l_I = 0; l_I < l_Heirlooms.size(); ++l_I)
+    {
+        if (l_Heirlooms[l_I] == l_HeirloomEntry->ItemID)
+        {
+            l_Player->SetDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOMS_FLAGS, l_I, l_UpgradeFlags);
+            break;
         }
     }
 }

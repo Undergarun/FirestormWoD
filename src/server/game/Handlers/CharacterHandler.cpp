@@ -274,6 +274,10 @@ bool LoginQueryHolder::Initialize()
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_DAILY_LOOT_COOLDOWNS, l_Statement);
 
+    l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_HEIRLOOM_COLLECTION);
+    l_Statement->setUInt32(0, m_accountId);
+    l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_HEIRLOOM_COLLECTION, l_Statement);
+
     return l_Result;
 }
 

@@ -453,6 +453,8 @@ public:
     void EffectDespawnAreaTrigger(SpellEffIndex p_EffIndex);
     void EffectRandomizeArchaeologyDigsites(SpellEffIndex p_EffIndex);
     void EffectStampede(SpellEffIndex p_EffIndex);
+    void EffectCreateHeirloom(SpellEffIndex p_EffIndex);
+    void EffectUpgradeHeirloom(SpellEffIndex p_EffIndex);
 
     typedef std::set<AuraPtr> UsedSpellMods;
 

@@ -953,6 +953,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_GARRISON_FOLLOWERS           = 49,
     PLAYER_LOGIN_QUERY_GARRISON_BUILDINGS           = 50,
     PLAYER_LOGIN_QUERY_DAILY_LOOT_COOLDOWNS         = 51,
+    PLAYER_LOGIN_QUERY_LOAD_HEIRLOOM_COLLECTION     = 52,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -3306,6 +3307,7 @@ class Player : public Unit, public GridObject<Player>
         }
         //////////////////////////////////////////////////////////////////////////
 
+        ScalingStatDistributionEntry const* GetSSDForItem(Item const* p_Item) const;
         uint32 GetEquipItemLevelFor(ItemTemplate const* itemProto, Item const* item = nullptr) const;
         void RescaleItemTo(uint8 slot, uint32 ilvl);
         void RescaleAllItemsIfNeeded(bool p_KeepHPPct = false);
@@ -3380,6 +3382,11 @@ class Player : public Unit, public GridObject<Player>
         void _GarrisonSetIn();
         void _GarrisonSetOut();
 
+        bool AddHeirloom(HeirloomEntry const* p_HeirloomEntry, uint8 p_UpgradeLevel = 0);
+        bool HasHeirloom(uint32 p_ItemID) const;
+        bool HasHeirloom(HeirloomEntry const* p_HeirloomEntry) const;
+        uint32 GetHeirloomUpgradeLevel(HeirloomEntry const* p_HeirloomEntry) const;
+        bool CanUpgradeHeirloomWith(HeirloomEntry const* p_HeirloomEntry, uint32 p_ItemId) const;
     protected:
         void OnEnterPvPCombat();
         void OnLeavePvPCombat();
@@ -3455,6 +3462,7 @@ class Player : public Unit, public GridObject<Player>
         void _LoadAuras(PreparedQueryResult result, PreparedQueryResult resultEffect, uint32 timediff);
         void _LoadGlyphAuras();
         void _LoadBoundInstances(PreparedQueryResult result);
+        void _LoadHeirloomCollection(PreparedQueryResult p_Result);
         void _LoadInventory(PreparedQueryResult result, uint32 timeDiff);
         void _LoadVoidStorage(PreparedQueryResult result);
         void _LoadMailInit(PreparedQueryResult resultUnread, PreparedQueryResult resultDelivery);
