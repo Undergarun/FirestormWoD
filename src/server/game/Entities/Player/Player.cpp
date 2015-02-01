@@ -32050,7 +32050,7 @@ bool Player::CanUpgradeHeirloomWith(HeirloomEntry const* p_HeirloomEntry, uint32
         return false;
 
     uint32 l_CurrentUpgradeLevel = GetHeirloomUpgradeLevel(p_HeirloomEntry);
-    if (p_HeirloomEntry->MaxHeirloomUpgrade <= l_CurrentUpgradeLevel)
+    if (p_HeirloomEntry->MaxHeirloomUpgrade <= l_CurrentUpgradeLevel || l_CurrentUpgradeLevel >= MAX_HEIRLOOM_UPGRADE_LEVEL)
         return false;
 
     if (!p_HeirloomEntry->UpgradeIemBonusID[l_CurrentUpgradeLevel])
