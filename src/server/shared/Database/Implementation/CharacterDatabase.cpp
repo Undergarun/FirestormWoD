@@ -692,13 +692,6 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     //////////////////////////////////////////////////////////////////////////
 
     //////////////////////////////////////////////////////////////////////////
-    /// Heirloom Collection
-    PREPARE_STATEMENT(CHAR_SEL_HEIRLOOM_COLLECTION, "SELECT heirloom_id, upgrade_flags FROM account_heirlooms WHERE account_id = ?", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(CHAR_INS_HEIRLOOM, "INSERT INTO account_heirlooms (account_id, heirloom_id, upgrade_flags) VALUE (?, ?, ?)", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(CHAR_UPD_HEILOOM_FLAGS, "UPDATE account_heirlooms SET upgrade_flags = ? WHERE account_id = ? AND heirloom_id = ?", CONNECTION_ASYNC);
-    //////////////////////////////////////////////////////////////////////////
-
-    //////////////////////////////////////////////////////////////////////////
     /// Calendar
     PREPARE_STATEMENT(CHAR_REP_CALENDAR_EVENT, "REPLACE INTO calendar_events (id, creator, title, description, type, dungeon, eventtime, flags, time2) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_DEL_CALENDAR_EVENT, "DELETE FROM calendar_events WHERE id = ?", CONNECTION_ASYNC);

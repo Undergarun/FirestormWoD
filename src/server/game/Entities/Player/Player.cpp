@@ -20231,7 +20231,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     // must be before inventory (some items required reputation check)
     m_reputationMgr.LoadFromDB(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADREPUTATION));
 
-    _LoadHeirloomCollection(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_HEIRLOOM_COLLECTION));
+    _LoadHeirloomCollection();
     _LoadInventory(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADINVENTORY), time_diff);
 
     if (IsVoidStorageUnlocked())
@@ -31959,11 +31959,11 @@ bool Player::AddHeirloom(HeirloomEntry const* p_HeirloomEntry, uint8 p_UpgradeLe
     SetDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOMS, l_Index, p_HeirloomEntry->ItemID);
     SetDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOMS_FLAGS, l_Index, l_HeirloomFlags);
 
-    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_HEIRLOOM);
+    PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_INS_HEIRLOOM);
     l_Statement->setUInt32(0, GetSession()->GetAccountId());
     l_Statement->setUInt32(1, p_HeirloomEntry->ID);
     l_Statement->setUInt32(2, l_HeirloomFlags);
-    CharacterDatabase.Execute(l_Statement);
+    LoginDatabase.Execute(l_Statement);
 
     return true;
 }
@@ -31988,15 +31988,18 @@ bool Player::HasHeirloom(HeirloomEntry const* p_HeirloomEntry) const
     return false;
 }
 
-
-void Player::_LoadHeirloomCollection(PreparedQueryResult p_Result)
+void Player::_LoadHeirloomCollection()
 {
-    if (!p_Result)
+    PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_SEL_HEIRLOOM_COLLECTION);
+    l_Statement->setUInt32(0, GetSession()->GetAccountId());
+    PreparedQueryResult l_Result = LoginDatabase.Query(l_Statement);
+
+    if (!l_Result)
         return;
 
     do
     {
-        Field* l_Fields = p_Result->Fetch();
+        Field* l_Fields = l_Result->Fetch();
         uint32 l_HeirloomID = l_Fields[0].GetUInt32();
         uint32 l_HeirloomFlags = l_Fields[1].GetUInt32();
 
@@ -32014,7 +32017,7 @@ void Player::_LoadHeirloomCollection(PreparedQueryResult p_Result)
         SetDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOMS, l_Index, l_HeirloomEntry->ItemID);
         SetDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOMS_FLAGS, l_Index, l_HeirloomFlags);
     }
-    while (p_Result->NextRow());
+    while (l_Result->NextRow());
 }
 
 uint32 Player::GetHeirloomUpgradeLevel(HeirloomEntry const* p_HeirloomEntry) const

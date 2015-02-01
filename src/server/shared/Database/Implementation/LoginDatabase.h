@@ -132,6 +132,13 @@ enum LoginDatabaseStatements
     LOGIN_SEL_TRANSFERT_DUMP,
     LOGIN_SEL_TRANSFERT_LOAD,
 
+    //////////////////////////////////////////////////////////////////////////
+    /// Heirloom Colleciton
+    LOGIN_SEL_HEIRLOOM_COLLECTION,
+    LOGIN_INS_HEIRLOOM,
+    LOGIN_UPD_HEILOOM_FLAGS,
+    //////////////////////////////////////////////////////////////////////////
+
     MAX_LOGINDATABASE_STATEMENTS
 };
 

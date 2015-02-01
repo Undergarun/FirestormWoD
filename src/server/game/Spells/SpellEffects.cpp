@@ -8173,11 +8173,11 @@ void Spell::EffectUpgradeHeirloom(SpellEffIndex p_EffIndex)
 
     uint32 l_UpgradeFlags = (1 << (l_Player->GetHeirloomUpgradeLevel(l_HeirloomEntry) + 1)) - 1;
 
-    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_HEILOOM_FLAGS);
+    PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_UPD_HEILOOM_FLAGS);
     l_Statement->setUInt32(0, l_UpgradeFlags);
     l_Statement->setUInt32(1, l_Player->GetSession()->GetAccountId());
     l_Statement->setUInt32(2, l_HeirloomEntry->ID);
-    CharacterDatabase.Execute(l_Statement);
+    LoginDatabase.Execute(l_Statement);
 
     l_Player->RemoveItem(m_CastItem->GetBagSlot(), m_CastItem->GetSlot(), true);
 
