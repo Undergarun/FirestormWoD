@@ -127,8 +127,8 @@ namespace MS { namespace Instances { namespace Bloodmaul
                 {
                     _EnterCombat();
 
-                    ///m_Events.ScheduleEvent(eEvents::EventHeatWave, 20 * TimeConstants::IN_MILLISECONDS);
-                    ///m_Events.ScheduleEvent(eEvents::EventFieryBoulder, 7 * TimeConstants::IN_MILLISECONDS);
+                    m_Events.ScheduleEvent(eEvents::EventHeatWave, 20 * TimeConstants::IN_MILLISECONDS);
+                    m_Events.ScheduleEvent(eEvents::EventFieryBoulder, 7 * TimeConstants::IN_MILLISECONDS);
                     m_Events.ScheduleEvent(eEvents::EventBurningSlag, 28 * TimeConstants::IN_MILLISECONDS);
 
                     if (m_Instance != nullptr)
@@ -344,7 +344,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
                         case eEvents::EventDealDamage:
                         {
                             std::list<Player*> l_PlayerList;
-                            me->GetPlayerListInGrid(l_PlayerList, 5.0f);
+                            me->GetPlayerListInGrid(l_PlayerList, 6.0f);
 
                             for (Player* l_Player : l_PlayerList)
                                 me->CastSpell(l_Player, eSpells::SpellFieryBoulderStun, true);
@@ -403,7 +403,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
                         l_Caster->VisitNearbyObject(l_Radius, searcher);
 
                         for (Unit* l_Unit : l_TargetList)
-                            l_Caster->CastSpell(l_Unit, eSpells::ScorchingAuraDebuff, true);
+                            l_Caster->AddAura(eSpells::ScorchingAuraDebuff, l_Unit);
                     }
                 }
 
@@ -435,11 +435,11 @@ namespace MS { namespace Instances { namespace Bloodmaul
                 if (Unit* l_Caster = p_AreaTrigger->GetCaster())
                 {
                     std::list<Player*> l_PlayerList;
-                    l_Caster->GetPlayerListInGrid(l_PlayerList, 60.0f);
+                    l_Caster->GetPlayerListInGrid(l_PlayerList, 70.0f);
 
                     for (Player* l_Player : l_PlayerList)
                     {
-                        if (l_Player->IsWithinDist(p_AreaTrigger, 50.0f, true))
+                        if (l_Player->IsWithinDist(p_AreaTrigger, 60.0f, true))
                         {
                             if (l_Player->isAlive() && !l_Player->HasMovementForce(p_AreaTrigger->GetGUID()))
                                 l_Player->SendApplyMovementForce(p_AreaTrigger->GetGUID(), true, s_HeatWavePos, -7.0f, 1);
@@ -462,7 +462,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
                 if (Unit* l_Caster = p_AreaTrigger->GetCaster())
                 {
                     std::list<Player*> l_PlayerList;
-                    l_Caster->GetPlayerListInGrid(l_PlayerList, 60.0f);
+                    l_Caster->GetPlayerListInGrid(l_PlayerList, 70.0f);
 
                     for (Player* l_Player : l_PlayerList)
                     {

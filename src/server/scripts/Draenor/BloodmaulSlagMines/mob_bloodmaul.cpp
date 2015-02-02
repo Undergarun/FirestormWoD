@@ -223,13 +223,18 @@ namespace MS
                     void Reset()
                     {
                         events.Reset();
+
                         me->AddUnitState(UNIT_STATE_ROOT);
+                        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_UNK_6 | eUnitFlags::UNIT_FLAG_UNK_15 | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
                     }
 
                     void SetData(uint32 p_Type, uint32)
                     {
                         if (p_Type == uint32(Data::SpawnSlagna))
+                        {
                             me->RemoveAura(uint32(Spells::SubmergeVisual));
+                            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_UNK_6 | eUnitFlags::UNIT_FLAG_UNK_15 | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+                        }
                     }
 
                     void EnterCombat(Unit* p_Who)
@@ -266,38 +271,61 @@ namespace MS
             // Entry: 74355
             class mob_CapturedMiner : public CreatureScript
             {
-            public:
-                mob_CapturedMiner()
-                    : CreatureScript("mob_CapturedMiner")
-                {
-                }
+                public:
+                    mob_CapturedMiner() : CreatureScript("mob_CapturedMiner") { }
 
-                CreatureAI* GetAI(Creature* creature) const
-                {
-                    return new mob_AI(creature);
-                }
-
-                struct mob_AI : public ScriptedAI
-                {
-                    mob_AI(Creature* creature)
-                    : ScriptedAI(creature)
+                    CreatureAI* GetAI(Creature* p_Creature) const
                     {
-                        me->SetUInt32Value(UNIT_FIELD_FLAGS, 0);
+                        return new mob_AI(p_Creature);
                     }
 
-                    void EnterCombat(Unit* p_Target)
+                    enum eEvents
                     {
-                        me->getThreatManager().addThreat(p_Target, 1000.0f);
-                    }
+                        EventTraumaticStrike = 1
+                    };
 
-                    void UpdateAI(const uint32 diff)
+                    enum eSpells
                     {
-                        if (!UpdateVictim())
-                            return;
+                        SpellTraumaticStrike = 151092
+                    };
 
-                        DoMeleeAttackIfReady();
-                    }
-                };
+                    struct mob_AI : public ScriptedAI
+                    {
+                        mob_AI(Creature* p_Creature) : ScriptedAI(p_Creature)
+                        {
+                            me->SetUInt32Value(EUnitFields::UNIT_FIELD_FLAGS, 0);
+                        }
+
+                        EventMap m_Events;
+
+                        void EnterCombat(Unit* p_Target)
+                        {
+                            me->getThreatManager().addThreat(p_Target, 1000.0f);
+
+                            m_Events.Reset();
+
+                            m_Events.ScheduleEvent(eEvents::EventTraumaticStrike, 4000);
+                        }
+
+                        void UpdateAI(const uint32 p_Diff)
+                        {
+                            if (!UpdateVictim())
+                                return;
+
+                            m_Events.Update(p_Diff);
+
+                            switch (m_Events.ExecuteEvent())
+                            {
+                                case eEvents::EventTraumaticStrike:
+                                    DoCastVictim(eSpells::SpellTraumaticStrike);
+                                    break;
+                                default:
+                                    break;
+                            }
+
+                            DoMeleeAttackIfReady();
+                        }
+                    };
             };
 
             // Entry: 75272

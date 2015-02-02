@@ -1,9 +1,9 @@
-UPDATE creature_template SET scriptname = "boss_forgemaster_gogduh" WHERE entry = 74366;
+UPDATE creature_template SET scriptname = "boss_forgemaster_gogduh", mechanic_immune_mask = 617299839, flags_extra = flags_extra | 0x01 WHERE entry = 74366;
 UPDATE creature_template SET scriptname = "npc_ruination" WHERE entry = 74570;
 UPDATE creature_template SET scriptname = "npc_calamity" WHERE entry = 74571;
 UPDATE creature_template SET scriptname = "npc_calamity_firestorm" WHERE entry = 71971;
 UPDATE creature_template SET scriptname = "npc_gugdoh_molten_elemental" WHERE entry = 74579;
-UPDATE creature_template SET scriptname = "boss_magmolatus" WHERE entry = 74475;
+UPDATE creature_template SET scriptname = "boss_magmolatus", mechanic_immune_mask = 617299839, flags_extra = flags_extra | 0x01 WHERE entry = 74475;
 
 DELETE FROM spell_script_names WHERE ScriptName IN 
 (

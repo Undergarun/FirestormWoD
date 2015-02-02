@@ -3864,7 +3864,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 152867:///< Heat Wave (Create AT)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
                 break;
-            case 167738:///< Scorching Aura (Debuff)
+            case 167739:///< Scorching Aura (Debuff)
             case 153227:///< Burning Slag (DoT)
             case 150784:///< Magma Eruption (DoT)
             case 161288:// Vileblood Serum (DoT)
@@ -3874,6 +3874,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 166730:// Burning Bridge (DoT)
             case 176037:///< Noxious Spit (DoT)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
+                spellInfo->AttributesEx5 |= SPELL_ATTR5_HIDE_DURATION;
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
                 break;
             case 154996:// Engulfing Fire (searcher)
