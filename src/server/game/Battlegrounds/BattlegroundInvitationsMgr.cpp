@@ -66,7 +66,6 @@ namespace MS
                     p_Bg->IncreaseInvitedCount(p_GroupInfo->m_Team);
 
                     l_Player->SetInviteForBattlegroundQueueType(p_GroupInfo->m_BgTypeId, p_GroupInfo->m_IsInvitedToBGInstanceGUID);
-                    l_Player->SetBattlegroundId(p_Bg->GetInstanceID(), p_Bg->GetTypeID());
 
                     /// Create remind invite news.
                     BGQueueInviteEvent* l_InviteEvent = new BGQueueInviteEvent(l_Player->GetGUID(), p_GroupInfo->m_IsInvitedToBGInstanceGUID, l_BGTypeId, p_GroupInfo->m_ArenaType, p_GroupInfo->m_RemoveInviteTime);
