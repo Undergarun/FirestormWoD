@@ -168,7 +168,7 @@ namespace MS
                 l_GroupQueue->m_WantedBGs = BattlegroundMasks::AllArenas;
                 break;
             default:
-                l_GroupQueue->m_WantedBGs = (uint64)1 << p_BgTypeId;
+                l_GroupQueue->m_WantedBGs = 1LL << p_BgTypeId;
                 break;
             }
 
@@ -181,8 +181,8 @@ namespace MS
                     if (l_Type == BattlegroundType::None)
                         continue;
 
-                    if (l_GroupQueue->m_WantedBGs & ((uint64)1 << l_Type))
-                        l_GroupQueue->m_WantedBGs &= ~((uint64)1 << l_Type);
+                    if (l_GroupQueue->m_WantedBGs & (1LL << l_Type))
+                        l_GroupQueue->m_WantedBGs &= ~(1LL << l_Type);
                 }
             }
 
@@ -409,7 +409,7 @@ namespace MS
                                 continue;
 
                             /// We check if the number of players doesn't exceed the max number of players in the battleground.
-                            if (p_PotientialBGs[i + l_Team] + l_Group->m_Players.size() > l_Template->GetMaxPlayers())
+                            if (p_PotientialBGs[i + l_Team] + l_Group->m_Players.size() > l_Template->GetMaxPlayersPerTeam())
                                 continue;
 
                             p_PotientialBGs[i + l_Team] += l_Group->m_Players.size();
