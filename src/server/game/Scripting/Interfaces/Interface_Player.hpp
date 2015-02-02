@@ -163,10 +163,10 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_Killed);
         }
 
-        /// Called when a player kills another player
+        /// Called when power is modify
         /// @p_Player : Player instance
         /// @p_Power  : Power type
-        /// @p_Value  : New value
+        /// @p_Value  : Dif between old and new value
         virtual void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_Value)
         {
             UNUSED(p_Player);

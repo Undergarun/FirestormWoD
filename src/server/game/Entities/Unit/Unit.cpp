@@ -16064,11 +16064,11 @@ void Unit::SetPower(Powers p_PowerType, int32 p_PowerValue, bool p_Regen)
     if (ToCreature() && ToCreature()->IsAIEnabled)
         ToCreature()->AI()->SetPower(p_PowerType, p_PowerValue);
 
-    m_powers[l_PowerIndex] = p_PowerValue;
-
     /// Hook playerScript OnModifyPower
     if (GetTypeId() == TYPEID_PLAYER)
-        sScriptMgr->OnModifyPower(ToPlayer(), p_PowerType, p_PowerValue);
+        sScriptMgr->OnModifyPower(ToPlayer(), p_PowerType, p_PowerValue - m_powers[l_PowerIndex]);
+
+    m_powers[l_PowerIndex] = p_PowerValue;
 
     uint32 l_RegenDiff = getMSTime() - m_lastRegenTime[l_PowerIndex];
 

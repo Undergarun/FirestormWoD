@@ -1593,10 +1593,10 @@ void ScriptMgr::OnPlayerKilledByCreature(Creature * p_Killer, Player * p_Killed)
     FOREACH_SCRIPT(PlayerScript)->OnPlayerKilledByCreature(p_Killer, p_Killed);
 }
 
-/// Called when a player kills another player
+/// Called when power is modify
 /// @p_Player : Player instance
 /// @p_Power  : Power type
-/// @p_Value  : New value
+/// @p_Value  : Dif between old and new value
 void ScriptMgr::OnModifyPower(Player * p_Player, Powers p_Power, int32 p_Value)
 {
     FOREACH_SCRIPT(PlayerScript)->OnModifyPower(p_Player, p_Power, p_Value);
