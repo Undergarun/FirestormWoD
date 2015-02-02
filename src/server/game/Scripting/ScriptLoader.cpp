@@ -20,6 +20,7 @@
 
 // Customs
 void AddSC_event_april();
+void AddSC_promotion_new_players();
 //void AddSC_DuelReset();
 
 // spells
@@ -1738,5 +1739,6 @@ void AddCustomScripts()
 {
 #ifdef SCRIPTS
     AddSC_event_april();
+    AddSC_promotion_new_players();
 #endif
 }

@@ -56,7 +56,7 @@ bool IsPartOfSkillLine(uint32 skillId, uint32 spellId)
     return false;
 }
 
-DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto, bool triggered)
+DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
 {
     if (spellproto->IsPositive())
         return DIMINISHING_NONE;
@@ -72,387 +72,336 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
     {
         case SPELLFAMILY_GENERIC:
         {
-            switch (spellproto->Id)
-            {
-                case 20549:  // War Stomp
-                case 47481:  // Gnaw
-                case 96201:  // Web Wrap
-                    return DIMINISHING_CONTROLLED_STUN;
-                case 25046:  // Arcane Torrent (Energy)
-                case 28730:  // Arcane Torrent (Mana)
-                case 50613:  // Arcane Torrent (Death Knight)
-                case 69179:  // Arcane Torrent (Warrior)
-                case 80483:  // Arcane Torrent (Hunter)
-                case 129597: // Arcane Torrent (Monk)
-                    return DIMINISHING_SILENCE;
-                case 107079: // Quaking Palm
-                    return DIMINISHING_DISORIENT;
-            }
+            // Entrapment -- 135373
+            if (spellproto->SpellIconID == 20 && spellproto->SpellVisual[0] == 39588)
+                return DIMINISHING_ROOT;
 
-            // Pet charge effects (Infernal Awakening, Demon Charge)
-            if (spellproto->SpellVisual[0] == 2816 && spellproto->SpellIconID == 15)
-                return DIMINISHING_CONTROLLED_STUN;
-            // Frost Tomb
-            else if (spellproto->Id == 48400)
-                return DIMINISHING_NONE;
-            // Earthquake (Trash, Ulduar)
-            else if (spellproto->Id == 64697)
-                return DIMINISHING_NONE;
-            // Summoning Disorientation
-            else if (spellproto->Id == 32752)
-                return DIMINISHING_NONE;
-            else if (spellproto->SpellVisual[0] == 14153)
-                return DIMINISHING_NONE;
-            // Silence, Asira Dawnslayer, Hour of Twilight
-            else if (spellproto->Id == 103587)
-                return DIMINISHING_NONE;
-            // Glyph of Intimidating Shout
-            else if (spellproto->Id == 95199)
-                return DIMINISHING_LIMITONLY;
+            // Intimidation -- 24394
+            if (spellproto->SpellIconID == 166 && spellproto->SpellVisual[0] == 2816)
+                return DIMINISHING_STUN;
+            // Pulverize (Primal Earth Elemental) -- 118345
+            if (spellproto->SpellIconID == 4507 && spellproto->SpellVisual[0] == 39877)
+                return DIMINISHING_STUN;
+            // Static Charge (Capacitor Totem) -- 118905
+            if (spellproto->SpellIconID == 54 && spellproto->SpellVisual[0] == 24442)
+                return DIMINISHING_STUN;
+            // Remorseless Winter -- 115001
+            if (spellproto->SpellIconID == 5744 && spellproto->SpellVisual[0] == 23514)
+                return DIMINISHING_STUN;
+
+            // Gorefiend's Grasp -- 108199
+            if (spellproto->SpellIconID == 5743 && spellproto->SpellVisual[0] == 28937)
+                return DIMINISHING_AOE_KNOCKBACK;
             break;
         }
-        // Event spells
-        case SPELLFAMILY_UNK1:
-            return DIMINISHING_NONE;
         case SPELLFAMILY_MAGE:
         {
-            switch (spellproto->Id)
-            {
-                case 122:    // Frost Nova
-                case 33395:  // Freeze
-                    return DIMINISHING_CONTROLLED_ROOT;
-                case 44572:  // Deep Freeze
-                case 118271: // Combustion Impact
-                    return DIMINISHING_CONTROLLED_STUN;
-                case 118:    // Polymorph
-                case 82691:  // Ring of Frost
-                    return DIMINISHING_DISORIENT;
-                case 55021:  // Improved Counter Spell
-                case 102051: // Frostjaw
-                    return DIMINISHING_SILENCE;
-                case 111340: // Ice Ward
-                    return DIMINISHING_ICE_WARD;
-                case 31589:  // Slow
-                    return DIMINISHING_LIMITONLY;
-            }
+            // Frostjaw -- 102051
+            if (spellproto->SpellFamilyFlags[2] & 0x40000)
+                return DIMINISHING_SILENCE;
 
+            // Frost Nova -- 122
+            if (spellproto->SpellFamilyFlags[0] & 0x40)
+                return DIMINISHING_ROOT;
+            // Ice Ward -- 111340
+            if (spellproto->SpellFamilyFlags[0] & 0x80000 && spellproto->SpellFamilyFlags[2] & 0x2000)
+                return DIMINISHING_ROOT;
+            // Freeze (Water Elemental) -- 33395
+            if (spellproto->SpellFamilyFlags[2] & 0x200)
+                return DIMINISHING_ROOT;
+
+            // Deep Freeze -- 44572
+            if (spellproto->SpellFamilyFlags[1] & 0x100000)
+                return DIMINISHING_STUN;
+
+            // Dragon's Breath -- 31661
+            if (spellproto->SpellFamilyFlags[0] & 0x800000)
+                return DIMINISHING_INCAPACITATE;
+            // Polymorph -- 118
+            if (spellproto->SpellFamilyFlags[0] & 0x1000000)
+                return DIMINISHING_INCAPACITATE;
+            // Ring of Frost -- 82691
+            if (spellproto->SpellFamilyFlags[2] & 0x40)
+                return DIMINISHING_INCAPACITATE;
+            // Ice Nova -- 157997
+            if (spellproto->SpellFamilyFlags[2] & 0x800000)
+                return DIMINISHING_INCAPACITATE;
             break;
         }
         case SPELLFAMILY_WARRIOR:
         {
-            switch (spellproto->Id)
-            {
-                case 107566: // Staggering Shout
-                case 105771: // Warbringer
-                    return DIMINISHING_CONTROLLED_ROOT;
-                case 132168: // Shockwave
-                case 132169: // Storm Bolt
-                    return DIMINISHING_CONTROLLED_STUN;
-                case 676:    // Disarm
-                    return DIMINISHING_DISARM;
-                case 5246:   // Intimidating Shout
-                    return DIMINISHING_FEAR;
-                case 118895: // Dragon Roar
-                    return DIMINISHING_RANDOM_STUN;
-                case 6552:   // Pummel
-                case 18498:  // Glyph of Gag Order
-                    return DIMINISHING_SILENCE;
-                case 12323:  // Piercing Howl
-                    return DIMINISHING_LIMITONLY;
-                default:
-                    break;
-            }
+            // Shockwave -- 132168
+            if (spellproto->SpellFamilyFlags[1] & 0x8000)
+                return DIMINISHING_STUN;
+            // Storm Bolt -- 132169
+            if (spellproto->SpellFamilyFlags[2] & 0x1000)
+                return DIMINISHING_STUN;
 
-            // Hamstring - limit duration to 10s in PvP
+            // Intimidating Shout -- 5246
+            if (spellproto->SpellFamilyFlags[0] & 0x40000)
+                return DIMINISHING_DISORIENT;
+
+            // Hamstring -- 1715, 8 seconds in PvP (6.0)
             if (spellproto->SpellFamilyFlags[0] & 0x2)
                 return DIMINISHING_LIMITONLY;
-            // Charge Stun (own diminishing)
-            else if (spellproto->SpellFamilyFlags[0] & 0x01000000)
-                return DIMINISHING_CHARGE;
             break;
         }
         case SPELLFAMILY_WARLOCK:
         {
-            switch (spellproto->Id)
-            {
-                case 22703:  // Infernal Awakening
-                case 30283:  // Shadowfury
-                case 89766:  // Axe Toss
-                    return DIMINISHING_CONTROLLED_STUN;
-                case 118093: // Voidwalker: Disarm
-                    return DIMINISHING_DISARM;
-                case 6358:   // Seduction
-                case 115268: // Mesmerize
-                case 132412: // Seduction
-                    return DIMINISHING_DISORIENT;
-                case 118699: // Fear
-                case 5484:   // Howl of Terror
-                case 104045: // Sleep
-                    return DIMINISHING_FEAR;
-                case 6789:   // Mortal Coil
-                    return DIMINISHING_HORROR;
-                case 24259:  // Spell Lock
-                case 115782: // Optical Blast
-                    return DIMINISHING_SILENCE;
-                case 710:    // Banish
-                    return DIMINISHING_BANISH;
-                case 31117:  // Unstable Affliction
-                    return DIMINISHING_LIMITONLY;
-            }
+            // Mortal Coil -- 6789
+            if (spellproto->SpellFamilyFlags[0] & 0x80000)
+                return DIMINISHING_INCAPACITATE;
+            // Banish -- 710
+            if (spellproto->SpellFamilyFlags[1] & 0x8000000)
+                return DIMINISHING_INCAPACITATE;
+            // Blood Horror -- 137143, no flags (17986)
+            if (spellproto->SpellIconID == 6447 && spellproto->SpellVisual[0] == 26758)
+                return DIMINISHING_INCAPACITATE;
 
-            // Curses/etc
-            if ((spellproto->SpellFamilyFlags[0] & 0x80000000) || (spellproto->SpellFamilyFlags[1] & 0x200))
-                return DIMINISHING_LIMITONLY;
-            // Curse of Exhaustion
-            else if (spellproto->Id == 18223)
-                return DIMINISHING_LIMITONLY;
+            // Fear -- 118699
+            if (spellproto->SpellFamilyFlags[1] & 0x400)
+                return DIMINISHING_DISORIENT;
+            // Howl of Terror -- 5484
+            if (spellproto->SpellFamilyFlags[1] & 0x8)
+                return DIMINISHING_DISORIENT;
 
+            // Shadowfury -- 30283
+            if (spellproto->SpellFamilyFlags[1] & 0x1000)
+                return DIMINISHING_STUN;
+            // Summon Infernal -- 22703
+            if (spellproto->SpellFamilyFlags[0] & 0x1000)
+                return DIMINISHING_STUN;
+            break;
+        }
+        case SPELLFAMILY_WARLOCK_PET:
+        {
+            // Fellash -- 115770
+            // Whiplash -- 6360
+            if (spellproto->SpellFamilyFlags[0] & 0x8000000)
+                return DIMINISHING_AOE_KNOCKBACK;
+
+            // Mesmerize (Shivarra pet) -- 115268
+            // Seduction (Succubus pet) -- 6358
+            if (spellproto->SpellFamilyFlags[0] & 0x2000000)
+                return DIMINISHING_DISORIENT;
+
+            // Axe Toss (Felguard pet) -- 89766
+            if (spellproto->SpellFamilyFlags[1] & 0x4)
+                return DIMINISHING_STUN;
             break;
         }
         case SPELLFAMILY_DRUID:
         {
-            switch (spellproto->Id)
-            {
-                case 9005:  // Pounce
-                case 22570: // Maim
-                case 102456:// Pounce (Incarnation)
-                case 5211:  // Mighty Bash
-                case 102795:// Bear Hug
-                case 113801:// Bash
-                    return DIMINISHING_CONTROLLED_STUN;
-                case 33786: // Cyclone
-                    return DIMINISHING_CYCLONE;
-                case 339:   // Entangling Roots
-                case 19975: // Entangling Roots (Nature's Grasp)
-                case 102359:// Mass Entanglement
-                    return DIMINISHING_CONTROLLED_ROOT;
-                case 81261: // Solar Beam
-                    return DIMINISHING_SILENCE;
-                case 770:   // Faerie Fire
-                case 102355:// Faerie Swarm
-                    return DIMINISHING_LIMITONLY;
-                case 45334: // Feral Charge: Bear Effect
-                    return DIMINISHING_RANDOM_ROOT;
-                case 2637:  // Hibernate
-                    return DIMINISHING_DISORIENT;
-                default:
-                    break;
-            }
+            // Maim -- 22570
+            if (spellproto->SpellFamilyFlags[1] & 0x80)
+                return DIMINISHING_STUN;
+            // Mighty Bash -- 5211
+            if (spellproto->SpellFamilyFlags[0] & 0x2000)
+                return DIMINISHING_STUN;
+            // Rake -- 163505 -- no flags on the stun, 20490
+            if (spellproto->SpellIconID == 494 && spellproto->SpellVisual[0] == 38283)
+                return DIMINISHING_STUN;
 
+            // Incapacitating Roar -- 99, no flags on the stun, 14
+            if (spellproto->SpellIconID == 960 && spellproto->SpellVisual[0] == 38528)
+                return DIMINISHING_INCAPACITATE;
+
+            // Cyclone -- 33786
+            if (spellproto->SpellFamilyFlags[1] & 0x20)
+                return DIMINISHING_DISORIENT;
+
+            // Glyph of Fae Silence -- 114238, no flags on the silence, 15035
+            if (spellproto->SpellIconID == 957 && spellproto->SchoolMask == 8)
+                return DIMINISHING_SILENCE;
+
+            // Typhoon -- 61391
+            if (spellproto->SpellFamilyFlags[1] & 0x1000000)
+                return DIMINISHING_AOE_KNOCKBACK;
+            // Ursol's Vortex -- 127797, no flags on the effect, 16921
+            if (spellproto->SpellIconID == 5784 && spellproto->SchoolMask == 8)
+                return DIMINISHING_AOE_KNOCKBACK;
+
+            // Entangling Roots -- 339
+            if (spellproto->SpellFamilyFlags[0] & 0x200)
+                return DIMINISHING_ROOT;
+            // Mass Entanglement -- 102359, no flags on the root, 13535
+            if (spellproto->SpellIconID == 5782 && spellproto->SpellVisual[0] == 38269)
+                return DIMINISHING_ROOT;
+
+            // Faerie Fire -- 770, 20 seconds in PvP (6.0)
+            if (spellproto->SpellFamilyFlags[0] & 0x400)
+                return DIMINISHING_LIMITONLY;
             break;
         }
         case SPELLFAMILY_ROGUE:
         {
-            switch (spellproto->Id)
-            {
-                case 115197: // Partial Paralysis
-                    return DIMINISHING_CONTROLLED_ROOT;
-                case 1833:   // Cheap Shot
-                case 408:    // Kidney Shot
-                    return DIMINISHING_CONTROLLED_STUN;
-                case 51722:  // Dismantle
-                    return DIMINISHING_DISARM;
-                case 1776:   // Gouge
-                case 6770:   // Sap
-                    return DIMINISHING_DISORIENT;
-                case 2094:   // Blind
-                    return DIMINISHING_FEAR;
-                case 113953: // Paralytic Poison
-                    return DIMINISHING_RANDOM_STUN;
-                case 1330:   // Garrote
-                    return DIMINISHING_SILENCE;
-            }
+            // Cheap Shot -- 1833
+            if (spellproto->SpellFamilyFlags[0] & 0x400)
+                return DIMINISHING_STUN;
+            // Kidney Shot -- 408
+            if (spellproto->SpellFamilyFlags[0] & 0x200000)
+                return DIMINISHING_STUN;
 
-            // Crippling poison - Limit to 10 seconds in PvP (No SpellFamilyFlags)
-            if (spellproto->SpellIconID == 163)
-                return DIMINISHING_LIMITONLY;
+            // Gouge -- 1776
+            if (spellproto->SpellFamilyFlags[0] & 0x8)
+                return DIMINISHING_INCAPACITATE;
+            // Sap -- 6770
+            if (spellproto->SpellFamilyFlags[0] & 0x80)
+                return DIMINISHING_INCAPACITATE;
 
+            // Blind -- 2094
+            if (spellproto->SpellFamilyFlags[0] & 0x1000000)
+                return DIMINISHING_DISORIENT;
+
+            // Garrote -- 1330
+            if (spellproto->SpellFamilyFlags[1] & 0x20000000)
+                return DIMINISHING_SILENCE;
             break;
         }
         case SPELLFAMILY_HUNTER:
         {
-            switch (spellproto->Id)
-            {
-                case 4167:   // Web
-                case 50245:  // Pin
-                case 53148:  // Charge
-                case 54706:  // Venom Web Spray
-                case 90327:  // Lock Jaw
-                case 136634: // Narrow Escape
-                    return DIMINISHING_CONTROLLED_ROOT;
-                case 24394:  // Intimidation
-                case 50519:  // Sonic Blast
-                case 56626:  // Sting
-                case 90337:  // Bad Manner
-                case 117526: // Binding Shot
-                    return DIMINISHING_CONTROLLED_STUN;
-                case 50541:  // Clench
-                case 91644:  // Snatch
-                    return DIMINISHING_DISARM;
-                case 19386:  // Wyvern Sting
-                case 3355:   // Freezing Trap
-                    return DIMINISHING_DISORIENT;
-                case 1513:   // Scare Beast
-                    return DIMINISHING_FEAR;
-                case 34490:  // Silencing Shot
-                    return DIMINISHING_SILENCE;
-                case 64803:  // Entrapment
-                    return DIMINISHING_ENTRAPMENT;
-            }
+            // Glyph of Explosive Trap -- 149575 maybe? @todo
+            // return DIMINISHING_AOE_KNOCKBACK;
 
-            // Hunter's Mark
-            if ((spellproto->SpellFamilyFlags[0] & 0x400) && spellproto->SpellIconID == 538)
-                return DIMINISHING_LIMITONLY;
+            // Charge (Tenacity pet) -- 53148, no flags (5526)
+            if (spellproto->SpellIconID == 1559 && spellproto->SpellVisual[0] == 39480)
+                return DIMINISHING_ROOT;
+            // Narrow Escape -- 136634, no flags (17964)
+            if (spellproto->SpellIconID == 3342 && spellproto->SchoolMask == 8)
+                return DIMINISHING_ROOT;
 
+            // Binding Shot -- 117526, no flags (15581)
+            if (spellproto->SpellIconID == 4612 && spellproto->SpellVisual[0] == 6859)
+                return DIMINISHING_STUN;
+
+            // Freezing Trap -- 3355
+            if (spellproto->SpellFamilyFlags[0] & 0x8)
+                return DIMINISHING_INCAPACITATE;
+            // Wyvern Sting -- 19386
+            if (spellproto->SpellFamilyFlags[1] & 0x1000)
+                return DIMINISHING_INCAPACITATE;
             break;
         }
         case SPELLFAMILY_PALADIN:
         {
-            switch (spellproto->Id)
-            {
-                case 853:    // Hammer of Justice
-                case 105593: // Fist of Justice
-                case 115752: // Blinding Light (Glyphed)
-                case 119072: // Holy Wrath
-                    return DIMINISHING_CONTROLLED_STUN;
-                case 20066:  // Repentance
-                    return DIMINISHING_DISORIENT;
-                case 10326:  // Turn Evil
-                case 145067: // Turn Evil
-                case 105421: // Blinding Light
-                    return DIMINISHING_FEAR;
-                case 31935:  // Avenger's Shield
-                    return DIMINISHING_SILENCE;
-            }
+            // Repentance -- 20066
+            if (spellproto->SpellFamilyFlags[0] & 0x4)
+                return DIMINISHING_INCAPACITATE;
 
-            // Judgement of Justice - limit duration to 10s in PvP
-            if (spellproto->SpellFamilyFlags[0] & 0x100000)
-                return DIMINISHING_LIMITONLY;
-
-            break;
-        }
-        case SPELLFAMILY_DEATHKNIGHT:
-        {
-            switch (spellproto->Id)
-            {
-                case 96294:  // Chains of Ice
-                    return DIMINISHING_CONTROLLED_ROOT;
-                case 91797:  // Monstrous Blow
-                case 91800:  // Gnaw
-                case 108194: // Asphyxiate
-                case 115001: // Remorseless Winter
-                    return DIMINISHING_CONTROLLED_STUN;
-                case 47476:  // Strangulate
-                    return DIMINISHING_SILENCE;
-            }
-
-            // Hungering Cold (no flags)
-            if (spellproto->SpellIconID == 2797)
+            // Turn Evil -- 10326
+            if (spellproto->SpellFamilyFlags[1] & 0x800000)
                 return DIMINISHING_DISORIENT;
-            // Mark of Blood
-            else if ((spellproto->SpellFamilyFlags[0] & 0x10000000) && spellproto->SpellIconID == 2285)
-                return DIMINISHING_LIMITONLY;
-            break;
-        }
-        case SPELLFAMILY_MONK:
-        {
-            switch (spellproto->Id)
-            {
-                case 116706: // Disable
-                    return DIMINISHING_CONTROLLED_ROOT;
-                case 120086: // Fists of Fury
-                case 119381: // Leg Sweep
-                case 119392: // Charging Ox Wave
-                case 122242: // Clash
-                    return DIMINISHING_CONTROLLED_STUN;
-                case 117368: // Grapple Weapon
-                    return DIMINISHING_DISARM;
-                case 115078: // Disable
-                    return DIMINISHING_DISORIENT;
-                case 116709: // Spear Hand Strike
-                    return DIMINISHING_SILENCE;
-                case 116095: // Disable (reduce movement speed)
-                    return DIMINISHING_LIMITONLY;
-            }
 
-            break;
-        }
-        case SPELLFAMILY_PRIEST:
-        {
-            switch (spellproto->Id)
-            {
-                case 87194:  // Glyph of Mind Blast
-                case 114404: // Void Tendril's Grasp
-                    return DIMINISHING_CONTROLLED_ROOT;
-                case 64058:  // Psychic Horror
-                    return DIMINISHING_DISARM;
-                case 9484:   // Shackle Undead
-                    return DIMINISHING_DISORIENT;
-                case 8122:   // Psychic Scream
-                case 113792: // Psychic Terror
-                    return DIMINISHING_FEAR;
-                case 64044:  // Psychic Horror
-                case 87204:  // Sin and Punishment
-                    return DIMINISHING_HORROR;
-                case 15487:  // Silence
-                    return DIMINISHING_SILENCE;
-                case 605:    // Dominate Mind
-                    return DIMINISHING_DOMINATE_MIND;
-                case 88625:  // Holy Word: Chastise
-                    return DIMINISHING_NONE;
-            }
+            // Avenger's Shield -- 31935
+            if (spellproto->SpellFamilyFlags[0] & 0x4000)
+                return DIMINISHING_SILENCE;
 
+            // Fist of Justice -- 105593
+            // Hammer of Justice -- 853
+            if (spellproto->SpellFamilyFlags[0] & 0x800)
+                return DIMINISHING_STUN;
+            // Holy Wrath -- 119072
+            if (spellproto->SpellFamilyFlags[1] & 0x200000)
+                return DIMINISHING_STUN;
             break;
         }
         case SPELLFAMILY_SHAMAN:
         {
-            switch (spellproto->Id)
-            {
-                case 63685:  // Freeze
-                case 64695:  // Earthgrab
-                    return DIMINISHING_CONTROLLED_ROOT;
-                case 118905: // Static Charge
-                    return DIMINISHING_CONTROLLED_STUN;
-                case 51514:  // Hex
-                    return DIMINISHING_DISORIENT;
-                case 77505:  // Earthquake
-                    return DIMINISHING_RANDOM_STUN;
-                case 76780:  // Bind Elemental
-                    return DIMINISHING_BIND_ELEMENTAL;
-            }
+            // Hex -- 51514
+            if (spellproto->SpellFamilyFlags[1] & 0x8000)
+                return DIMINISHING_INCAPACITATE;
 
+            // Thunderstorm -- 51490
+            if (spellproto->SpellFamilyFlags[1] & 0x2000)
+                return DIMINISHING_AOE_KNOCKBACK;
+            // Earthgrab Totem -- 64695
+            if (spellproto->SpellFamilyFlags[2] & 0x4000)
+                return DIMINISHING_ROOT;
+            // Frost Shock (with Frozen Power) -- 63685, no flags (6918)
+            if (spellproto->SpellIconID == 193 && spellproto->SpellVisual[0] == 39876)
+                return DIMINISHING_ROOT;
+            break;
+        }
+        case SPELLFAMILY_DEATHKNIGHT:
+        {
+            // Strangulate -- 47476
+            if (spellproto->SpellFamilyFlags[0] & 0x200)
+                return DIMINISHING_SILENCE;
+
+            // Chains of Ice (with Chilblains) -- 96294, no flags (13020)
+            if (spellproto->SpellIconID == 180 && spellproto->SpellVisual[0] == 20135)
+                return DIMINISHING_ROOT;
+
+            // Asphyxiate -- 108194
+            if (spellproto->SpellFamilyFlags[2] & 0x100000)
+                return DIMINISHING_STUN;
+            // Gnaw (Ghoul) -- 91800, no flags (12511)
+            if (spellproto->SpellIconID == 3010 && spellproto->SpellVisual[0] == 38760)
+                return DIMINISHING_STUN;
+            // Monstrous Blow (Ghoul w/ Dark Transformation active) -- 91797, no flags (12510)
+            if (spellproto->SpellIconID == 15 && spellproto->SpellVisual[0] == 38761)
+                return DIMINISHING_STUN;
+            break;
+        }
+        case SPELLFAMILY_PRIEST:
+        {
+            // Glyph of Mind Blast -- 87194, no flags (10092)
+            if (spellproto->SpellIconID == 2114 && spellproto->SpellVisual[0] == 38927)
+                return DIMINISHING_ROOT;
+            // Void Tendrils -- 114404, no flags (15067)
+            if (spellproto->SpellIconID == 5816 && spellproto->SpellVisual[0] == 25199)
+                return DIMINISHING_ROOT;
+
+            // Dominate Mind -- 605
+            if (spellproto->SpellFamilyFlags[0] & 0x20000 && spellproto->SpellVisual[0] == 39068)
+                return DIMINISHING_INCAPACITATE;
+            // Holy Word: Chastise -- 88625
+            if (spellproto->SpellFamilyFlags[2] & 0x20)
+                return DIMINISHING_INCAPACITATE;
+            // Psychic Horror -- 64044
+            if (spellproto->SpellFamilyFlags[2] & 0x2000)
+                return DIMINISHING_INCAPACITATE;
+
+            // Psychic Scream -- 8122
+            if (spellproto->SpellFamilyFlags[0] & 0x10000)
+                return DIMINISHING_DISORIENT;
+
+            // Silence -- 15487
+            if (spellproto->SpellFamilyFlags[1] & 0x200000 && spellproto->SchoolMask == 32)
+                return DIMINISHING_SILENCE;
+            break;
+        }
+        case SPELLFAMILY_MONK:
+        {
+            // Disable -- 116706, no flags (15483)
+            if (spellproto->SpellIconID == 23 && spellproto->SpellVisual[0] == 39984)
+                return DIMINISHING_ROOT;
+
+            // Charging Ox Wave -- 119392
+            if (spellproto->SpellFamilyFlags[1] & 0x10000)
+                return DIMINISHING_STUN;
+            // Fists of Fury -- 120086
+            if (spellproto->SpellFamilyFlags[1] & 0x800000 && !(spellproto->SpellFamilyFlags[2] & 0x8))
+                return DIMINISHING_STUN;
+            // Leg Sweep -- 119381
+            if (spellproto->SpellFamilyFlags[1] & 0x200)
+                return DIMINISHING_STUN;
+
+            // Glyph of Breath of Fire -- 123393, no flags (16504)
+            if (spellproto->SpellIconID == 15 && spellproto->SpellVisual[0] == 25408)
+                return DIMINISHING_INCAPACITATE;
+            // Paralysis -- 115078
+            if (spellproto->SpellFamilyFlags[2] & 0x800000)
+                return DIMINISHING_INCAPACITATE;
+            // Ring of Peace -- 137460, no flags (18006)
+            if (spellproto->SpellIconID == 7195 && spellproto->SpellVisual[0] == 39999)
+                return DIMINISHING_INCAPACITATE;
             break;
         }
         default:
             break;
     }
-
-    // Lastly - Set diminishing depending on mechanic
-    uint32 mechanic = spellproto->GetAllEffectsMechanicMask();
-    if (mechanic & (1 << MECHANIC_CHARM))
-        return DIMINISHING_MIND_CONTROL;
-    if (mechanic & (1 << MECHANIC_SILENCE))
-        return DIMINISHING_SILENCE;
-    if (mechanic & (1 << MECHANIC_SLEEP))
-        return DIMINISHING_SLEEP;
-    if (mechanic & ((1 << MECHANIC_SAPPED) | (1 << MECHANIC_POLYMORPH) | (1 << MECHANIC_SHACKLE)))
-        return DIMINISHING_DISORIENT;
-    // Mechanic Knockout, except Blast Wave
-    if (mechanic & (1 << MECHANIC_KNOCKOUT) && spellproto->SpellIconID != 292)
-        return DIMINISHING_DISORIENT;
-    if (mechanic & (1 << MECHANIC_DISARM))
-        return DIMINISHING_DISARM;
-    if (mechanic & (1 << MECHANIC_FEAR))
-        return DIMINISHING_FEAR;
-    if (mechanic & (1 << MECHANIC_STUN))
-        return triggered ? DIMINISHING_RANDOM_STUN : DIMINISHING_CONTROLLED_STUN;
-    if (mechanic & (1 << MECHANIC_BANISH))
-        return DIMINISHING_BANISH;
-    if (mechanic & (1 << MECHANIC_ROOT))
-        return triggered ? DIMINISHING_RANDOM_ROOT : DIMINISHING_CONTROLLED_ROOT;
-    if (mechanic & (1 << MECHANIC_HORROR))
-        return DIMINISHING_HORROR;
-
+    
     return DIMINISHING_NONE;
 }
 
@@ -461,11 +410,7 @@ DiminishingReturnsType GetDiminishingReturnsGroupType(DiminishingGroup group)
     switch (group)
     {
         case DIMINISHING_TAUNT:
-        case DIMINISHING_CONTROLLED_STUN:
-        case DIMINISHING_RANDOM_STUN:
-        case DIMINISHING_OPENING_STUN:
-        case DIMINISHING_CYCLONE:
-        case DIMINISHING_CHARGE:
+        case DIMINISHING_STUN:
             return DRTYPE_ALL;
         case DIMINISHING_LIMITONLY:
         case DIMINISHING_NONE:
@@ -481,91 +426,40 @@ DiminishingLevels GetDiminishingReturnsMaxLevel(DiminishingGroup group)
     {
         case DIMINISHING_TAUNT:
             return DIMINISHING_LEVEL_TAUNT_IMMUNE;
+        case DIMINISHING_AOE_KNOCKBACK:
+            return DIMINISHING_LEVEL_2;
         default:
             return DIMINISHING_LEVEL_IMMUNE;
     }
 }
 
-int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellInfo const* spellproto)
+int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto)
 {
-    if (!IsDiminishingReturnsGroupDurationLimited(group))
-        return 0;
-
     // Explicit diminishing duration
     switch (spellproto->SpellFamilyName)
     {
         case SPELLFAMILY_DRUID:
         {
-            switch (spellproto->Id)
-            {
-                case 770:   // Faerie Fire - limit to 20 seconds in PvP (5.4)
-                    return 20 * IN_MILLISECONDS;
-                case 102355:// Faerie Swarm - limit to 40 seconds in PvP (3.1)
-                    return 40 * IN_MILLISECONDS;
-                default:
-                    break;
-            }
-
-            break;
-        }
-        case SPELLFAMILY_WARRIOR:
-        {
-            // Piercing Howl
-            if (spellproto->Id == 12323)
-                return 8 * IN_MILLISECONDS;
+            // Faerie Fire - 20 seconds in PvP (6.0)
+            if (spellproto->SpellFamilyFlags[0] & 0x400)
+                return 20 * IN_MILLISECONDS;
             break;
         }
         case SPELLFAMILY_HUNTER:
         {
-            // Wyvern Sting
+            // Binding Shot - 3 seconds in PvP (6.0)
+            if (spellproto->SpellIconID == 4612 && spellproto->SpellVisual[0] == 6859)
+                return 3 * IN_MILLISECONDS;
+            // Wyvern Sting - 6 seconds in PvP (6.0)
             if (spellproto->SpellFamilyFlags[1] & 0x1000)
                 return 6 * IN_MILLISECONDS;
-            // Hunter's Mark
-            if (spellproto->SpellFamilyFlags[0] & 0x400)
-                return 30 * IN_MILLISECONDS;
-            break;
-        }
-        case SPELLFAMILY_PALADIN:
-        {
-            // Repentance - limit to 6 seconds in PvP
-            if (spellproto->SpellFamilyFlags[0] & 0x4)
-                return 6 * IN_MILLISECONDS;
-             // Turn Evil - limit to 8 seconds in PvP
-            else if (spellproto->Id == 145067 || spellproto->Id == 10326)
-                 return 8 * IN_MILLISECONDS;
-            break;
-        }
-        case SPELLFAMILY_WARLOCK:
-        {
-            // Banish - limit to 6 seconds in PvP
-            if (spellproto->SpellFamilyFlags[1] & 0x8000000)
-                return 6 * IN_MILLISECONDS;
-            // Curse of Tongues - limit to 12 seconds in PvP
-            else if (spellproto->SpellFamilyFlags[2] & 0x800)
-                return 12 * IN_MILLISECONDS;
-            // Curse of Exhaustion
-            else if (spellproto->Id == 18223)
-                return 10 * IN_MILLISECONDS;
             break;
         }
         case SPELLFAMILY_MONK:
         {
-            switch (spellproto->Id)
-            {
-                case 116095:// Disable (reduce movement speed) - limit to 8 seconds in PvP
-                    return 8 * IN_MILLISECONDS;
-                case 116706:// Disable (root) - limit to 4 seconds in PvP
-                    return 4 * IN_MILLISECONDS;
-                default:
-                    break;
-            }
-
-            break;
-        }
-        case SPELLFAMILY_PRIEST:
-        {
-            if (spellproto->Id == 605) // Dominate Mind
-                return 8 * IN_MILLISECONDS;
+            // Paralysis - 4 seconds in PvP regardless of if they are facing you (6.0)
+            if (spellproto->SpellFamilyFlags[2] & 0x800000)
+                return 4 * IN_MILLISECONDS;
             break;
         }
         default:
@@ -573,37 +467,6 @@ int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellInfo const
     }
 
     return 8 * IN_MILLISECONDS;
-}
-
-bool IsDiminishingReturnsGroupDurationLimited(DiminishingGroup group)
-{
-    switch (group)
-    {
-        case DIMINISHING_BANISH:
-        case DIMINISHING_CONTROLLED_STUN:
-        case DIMINISHING_CONTROLLED_ROOT:
-        case DIMINISHING_CYCLONE:
-        case DIMINISHING_DISORIENT:
-        case DIMINISHING_ENTRAPMENT:
-        case DIMINISHING_FEAR:
-        case DIMINISHING_HORROR:
-        case DIMINISHING_MIND_CONTROL:
-        case DIMINISHING_OPENING_STUN:
-        case DIMINISHING_RANDOM_ROOT:
-        case DIMINISHING_RANDOM_STUN:
-        case DIMINISHING_SLEEP:
-        case DIMINISHING_LIMITONLY:
-        case DIMINISHING_BIND_ELEMENTAL:
-        case DIMINISHING_DOMINATE_MIND:
-        case DIMINISHING_ICE_WARD:
-        case DIMINISHING_PARALYTIC_POISON:
-        case DIMINISHING_RING_OF_FROST:
-        case DIMINISHING_DEEP_FREEZE:
-        case DIMINISHING_DRAGONS_BREATH:
-            return true;
-        default:
-            return false;
-    }
 }
 
 SpellMgr::SpellMgr()
@@ -5145,9 +5008,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->ProcFlags = 0x00A22A8;   // 1784 ProcsFlags
                 break;
             case 115192:// Subterfuge
-                spellInfo->Attributes |= SPELL_ATTR0_DONT_AFFECT_SHEATH_STATE;
-                spellInfo->Attributes |= SPELL_ATTR0_NOT_SHAPESHIFT;
-                spellInfo->AttributesEx |= SPELL_ATTR1_NOT_BREAK_STEALTH;
+                spellInfo->AttributesEx &= ~SPELL_ATTR1_NOT_BREAK_STEALTH;
                 break;
             case 84745: // Shallow Insight
             case 84746: // Moderate Insight
@@ -6246,6 +6107,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TriggerSpell = 109772;
                 spellInfo->ProcChance = 100;
                 break;
+            case 109772: // Flare
+                spellInfo->SetDurationIndex(18); // 20s Duration
+                break;
             // Player Damage Reduction Level 90, we have S13, so we need to decrease to 65% of base resilience
             // @TODO: Remove this hack when we out S14
             case 142689:
@@ -6329,6 +6193,9 @@ void SpellMgr::LoadSpellCustomAttr()
 
             switch (spellInfo->Id)
             {
+                case 61882: ///< Earthquake
+                    spellInfo->ExplicitTargetMask &= ~TARGET_FLAG_UNIT;
+                    break;
                 case 73680: // Unleash Elements
                     spellInfo->ExplicitTargetMask |= TARGET_FLAG_UNIT_ALLY;
                     spellInfo->ExplicitTargetMask |= TARGET_FLAG_UNIT_ENEMY;

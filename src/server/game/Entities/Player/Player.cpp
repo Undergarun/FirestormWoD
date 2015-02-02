@@ -84,6 +84,7 @@
 #include "SceneObject.h"
 #include "GarrisonMgr.hpp"
 #include "PetBattle.h"
+#include "Vignette.hpp"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -692,7 +693,7 @@ bool PetLoginQueryHolder::Initialize()
 #ifdef _MSC_VER
 #pragma warning(disable:4355)
 #endif
-Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_reputationMgr(this), m_battlePetMgr(this), phaseMgr(this), m_archaeologyMgr(this)
+Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_reputationMgr(this), m_battlePetMgr(this), phaseMgr(this), m_archaeologyMgr(this), m_VignetteMgr(this)
 {
 #ifdef _MSC_VER
 #pragma warning(default:4355)
@@ -706,7 +707,9 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     m_speakTime = 0;
     m_speakCount = 0;
 
-    m_lastEclipseState = ECLIPSE_NONE;
+    m_EclipseCycleActive = false;
+    m_EclipseTimer.SetInterval(ECLIPSE_FULL_CYCLE_DURATION * IN_MILLISECONDS);
+    m_LastEclipseState = ECLIPSE_NONE;
 
     m_bgRoles = 0;
 
@@ -755,6 +758,7 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     m_soulShardsRegenTimerCount = 0;
     m_burningEmbersRegenTimerCount = 0;
     m_focusRegenTimerCount = 0;
+    m_EclipseRegenTimer = 0;
     m_weaponChangeTimer = 0;
 
     m_zoneUpdateId = 0;
@@ -2335,6 +2339,10 @@ void Player::Update(uint32 p_time)
         m_GarrisonUpdateTimer.Reset();
     }
 
+    m_VignetteMgr.Update();
+
+    sScriptMgr->OnPlayerUpdate(this, p_time);
+
     m_CriticalOperationLock.acquire();
 
     while (!m_CriticalOperation.empty())
@@ -3193,49 +3201,79 @@ void Player::RegenerateAll()
 {
     m_regenTimerCount += m_RegenPowerTimer;
 
-    if (getClass() == CLASS_PALADIN)
-        m_holyPowerRegenTimerCount += m_RegenPowerTimer;
+    Classes l_Class = (Classes)getClass();
+    switch (l_Class)
+    {
+        case Classes::CLASS_PALADIN:
+            m_holyPowerRegenTimerCount += m_RegenPowerTimer;
+            break;
+        case Classes::CLASS_MONK:
+            m_chiPowerRegenTimerCount += m_RegenPowerTimer;
+            break;
+        case Classes::CLASS_HUNTER:
+            m_focusRegenTimerCount += m_RegenPowerTimer;
+            break;
+        case Classes::CLASS_DRUID:
+            m_EclipseRegenTimer += m_RegenPowerTimer;
+            break;
+        case Classes::CLASS_WARLOCK:
+        {
+            switch (GetSpecializationId(GetActiveSpec()))
+            {
+                case SpecIndex::SPEC_WARLOCK_DEMONOLOGY:
+                    m_demonicFuryPowerRegenTimerCount += m_RegenPowerTimer;
+                    break;
+                case SpecIndex::SPEC_WARLOCK_DESTRUCTION:
+                    m_burningEmbersRegenTimerCount += m_RegenPowerTimer;
+                    break;
+                case SpecIndex::SPEC_WARLOCK_AFFLICTION:
+                    m_soulShardsRegenTimerCount += m_RegenPowerTimer;
+                    break;
+                default:
+                    break;
+            }
+            break;
+        }
+        case Classes::CLASS_DEATH_KNIGHT:   ///< Runes act as cooldowns, and they don't need to send any data
+        {
+            for (uint8 l_I = 0; l_I < MAX_RUNES; l_I += 2)
+            {
+                uint8 l_RuneToRegen = l_I;
+                uint32 l_Cooldown = GetRuneCooldown(l_I);
+                uint32 l_SecondRuneCooldown = GetRuneCooldown(l_I + 1);
+                // Regenerate second rune of the same type only after first rune is off the cooldown
+                if (l_SecondRuneCooldown && (l_Cooldown > l_SecondRuneCooldown || !l_Cooldown))
+                {
+                    l_RuneToRegen = l_I + 1;
+                    l_Cooldown = l_SecondRuneCooldown;
+                }
 
-    if (getClass() == CLASS_MONK)
-        m_chiPowerRegenTimerCount += m_RegenPowerTimer;
-
-    if (getClass() == CLASS_HUNTER)
-        m_focusRegenTimerCount += m_RegenPowerTimer;
-
-    if (getClass() == CLASS_WARLOCK && GetSpecializationId(GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
-        m_demonicFuryPowerRegenTimerCount += m_RegenPowerTimer;
-    else if (getClass() == CLASS_WARLOCK && GetSpecializationId(GetActiveSpec()) == SPEC_WARLOCK_DESTRUCTION)
-        m_burningEmbersRegenTimerCount += m_RegenPowerTimer;
-    else if (getClass() == CLASS_WARLOCK && GetSpecializationId(GetActiveSpec()) == SPEC_WARLOCK_AFFLICTION)
-        m_soulShardsRegenTimerCount += m_RegenPowerTimer;
+                if (l_Cooldown)
+                    SetRuneCooldown(l_RuneToRegen, (l_Cooldown > m_RegenPowerTimer) ? l_Cooldown - m_RegenPowerTimer : 0);
+            }
+            break;
+        }
+        default:
+            break;
+    }
 
     Regenerate(POWER_MANA);
     Regenerate(POWER_ENERGY);
 
-    // Runes act as cooldowns, and they don't need to send any data
-    if (getClass() == CLASS_DEATH_KNIGHT)
+    if (m_focusRegenTimerCount >= 1000)
     {
-        for (uint8 i = 0; i < MAX_RUNES; i += 2)
-        {
-            uint8 runeToRegen = i;
-            uint32 cd = GetRuneCooldown(i);
-            uint32 secondRuneCd = GetRuneCooldown(i + 1);
-            // Regenerate second rune of the same type only after first rune is off the cooldown
-            if (secondRuneCd && (cd > secondRuneCd || !cd))
-            {
-                runeToRegen = i + 1;
-                cd = secondRuneCd;
-            }
+        if (l_Class == CLASS_HUNTER)
+            Regenerate(POWER_FOCUS);
 
-            if (cd)
-                SetRuneCooldown(runeToRegen, (cd > m_RegenPowerTimer) ? cd - m_RegenPowerTimer : 0);
-        }
+        m_focusRegenTimerCount -= 1000;
     }
 
-    if (m_focusRegenTimerCount >= 1000 && getClass() == CLASS_HUNTER)
+    if (m_EclipseRegenTimer >= 1000)
     {
-        Regenerate(POWER_FOCUS);
-        m_focusRegenTimerCount -= 1000;
+        if (l_Class == CLASS_DRUID && GetSpecializationId(GetActiveSpec()) == SPEC_DRUID_BALANCE)
+            Regenerate(POWER_ECLIPSE);
+
+        m_EclipseRegenTimer -= 1000;
     }
 
     if (m_regenTimerCount >= 2000)
@@ -3249,37 +3287,38 @@ void Player::RegenerateAll()
         }
 
         Regenerate(POWER_RAGE);
-        if (getClass() == CLASS_DEATH_KNIGHT)
+
+        if (l_Class == CLASS_DEATH_KNIGHT)
             Regenerate(POWER_RUNIC_POWER);
 
         m_regenTimerCount -= 2000;
     }
 
-    if (m_burningEmbersRegenTimerCount >= 2000 && getClass() == CLASS_WARLOCK && GetSpecializationId(GetActiveSpec()) == SPEC_WARLOCK_DESTRUCTION)
+    if (m_burningEmbersRegenTimerCount >= 2000 && l_Class == CLASS_WARLOCK && GetSpecializationId(GetActiveSpec()) == SPEC_WARLOCK_DESTRUCTION)
     {
         Regenerate(POWER_BURNING_EMBERS);
         m_burningEmbersRegenTimerCount -= 2000;
     }
 
-    if (m_holyPowerRegenTimerCount >= 10000 && getClass() == CLASS_PALADIN)
+    if (m_holyPowerRegenTimerCount >= 10000 && l_Class == CLASS_PALADIN)
     {
         Regenerate(POWER_HOLY_POWER);
         m_holyPowerRegenTimerCount -= 10000;
     }
 
-    if (m_chiPowerRegenTimerCount >= 10000 && getClass() == CLASS_MONK)
+    if (m_chiPowerRegenTimerCount >= 10000 && l_Class == CLASS_MONK)
     {
         Regenerate(POWER_CHI);
         m_chiPowerRegenTimerCount -= 10000;
     }
 
-    if (m_demonicFuryPowerRegenTimerCount >= 100 && getClass() == CLASS_WARLOCK && (ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY))
+    if (m_demonicFuryPowerRegenTimerCount >= 100 && l_Class == CLASS_WARLOCK && (ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY))
     {
         Regenerate(POWER_DEMONIC_FURY);
         m_demonicFuryPowerRegenTimerCount -= 100;
     }
 
-    if (m_soulShardsRegenTimerCount >= 20000 && getClass() == CLASS_WARLOCK && (ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_WARLOCK_AFFLICTION))
+    if (m_soulShardsRegenTimerCount >= 20000 && l_Class == CLASS_WARLOCK && (ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_WARLOCK_AFFLICTION))
     {
         Regenerate(POWER_SOUL_SHARDS);
         m_soulShardsRegenTimerCount -= 20000;
@@ -3296,85 +3335,103 @@ void Player::Regenerate(Powers power)
 
     uint32 curValue = GetPower(power);
 
-    // TODO: possible use of miscvalueb instead of amount
+    /// @Todo: possible use of miscvalueb instead of amount
     if (HasAuraTypeWithValue(SPELL_AURA_PREVENT_REGENERATE_POWER, power))
         return;
 
-    // Skip regeneration for power type we cannot have
+    /// Skip regeneration for power type we cannot have
     uint32 powerIndex = GetPowerIndexByClass(power, getClass());
     if (powerIndex == MAX_POWERS)
         return;
 
     float addvalue = 0.0f;
 
-    ///< Powers now benefit from haste.
+    /// Powers now benefit from haste.
     float HastePct = 2.0f - GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN);
 
     switch (power)
     {
-        // Regenerate Mana
+        /// Regenerate Mana
         case POWER_MANA:
         {
             float ManaIncreaseRate = sWorld->getRate(RATE_POWER_MANA);
 
-            if (isInCombat()) // Trinity Updates Mana in intervals of 2s, which is correct
+            if (isInCombat())
                 addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER) *  ManaIncreaseRate * ((0.001f * m_RegenPowerTimer) + CalculatePct(0.001f, HastePct));
             else
                 addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER) *  ManaIncreaseRate * ((0.001f * m_RegenPowerTimer) + CalculatePct(0.001f, HastePct));
             break;
         }
-        // Regenerate Rage
+        /// Regenerate Rage
         case POWER_RAGE:
         {
             if (!isInCombat() && !HasAuraType(SPELL_AURA_INTERRUPT_REGEN))
             {
                 float RageDecreaseRate = sWorld->getRate(RATE_POWER_RAGE_LOSS);
-                addvalue += (-25 * RageDecreaseRate / HastePct);                // 2.5 rage by tick (= 2 seconds => 1.25 rage/sec)
+                addvalue += (-25 * RageDecreaseRate / HastePct); ///< 2.5 rage by tick (= 2 seconds => 1.25 rage/sec)
             }
-
             break;
         }
-        // Regenerate Focus
+        /// Regenerate Focus
         case POWER_FOCUS:
-        {
             addvalue += (5.0f + CalculatePct(5.0f, HastePct)) * sWorld->getRate(RATE_POWER_FOCUS);
             break;
-        }
-        // Regenerate Energy
+        /// Regenerate Energy
         case POWER_ENERGY:
             addvalue += ((0.01f * m_RegenPowerTimer) * sWorld->getRate(RATE_POWER_ENERGY) * HastePct);
             break;
-        // Regenerate Runic Power
+        /// Regenerate Runic Power
         case POWER_RUNIC_POWER:
         {
             if (!isInCombat() && !HasAuraType(SPELL_AURA_INTERRUPT_REGEN))
             {
                 float RunicPowerDecreaseRate = sWorld->getRate(RATE_POWER_RUNICPOWER_LOSS);
-                addvalue += -30 * RunicPowerDecreaseRate;         // 3 RunicPower by tick
+                addvalue += -30 * RunicPowerDecreaseRate; ///< 3 RunicPower by tick
             }
 
             break;
         }
-        // Regenerate Holy Power
+        /// Regenerate Holy Power
         case POWER_HOLY_POWER:
+        {
             if (!isInCombat())
-                addvalue += -1.0f; // remove 1 each 10 sec
+                addvalue += -1.0f; ///< remove 1 each 10 sec
             break;
-        case POWER_RUNES:
-        case POWER_HEALTH:
+        }
+        /// Regenerate Eclipse Power
+        case POWER_ECLIPSE:
+        {
+            maxValue = GetMaxPower(Powers::POWER_ECLIPSE) * GetPowerCoeff(Powers::POWER_ECLIPSE); ///< Must change here
+            if (!isInCombat())
+            {
+                if (GetPower(Powers::POWER_ECLIPSE) >= 10 * GetPowerCoeff(Powers::POWER_ECLIPSE))
+                    addvalue += -10.0f * GetPowerCoeff(Powers::POWER_ECLIPSE); ///< -1 000 per sec
+                else
+                    addvalue += -GetPower(Powers::POWER_ECLIPSE);
+            }
+            else if (IsEclipseCyclesActive())
+            {
+                if (GetLastEclipseState() == eclipseState::ECLIPSE_SOLAR || GetLastEclipseState() == eclipseState::ECLIPSE_NONE)
+                    addvalue += 10.0f * GetPowerCoeff(Powers::POWER_ECLIPSE); ///< +1 000 per sec
+                else
+                    addvalue += -10.0f * GetPowerCoeff(Powers::POWER_ECLIPSE); ///< -1 000 per sec
+            }
             break;
-        // Regenerate Chi
+        }
+        /// Regenerate Chi
         case POWER_CHI:
+        {
             if (!isInCombat())
-                addvalue += -1.0f; // remove 1 each 10 sec
+                addvalue += -1.0f; ///< remove 1 each 10 sec
             break;
-        // Regenerate Demonic Fury
+        }
+        /// Regenerate Demonic Fury
         case POWER_DEMONIC_FURY:
         {
             if (!isInCombat() && GetPower(POWER_DEMONIC_FURY) >= 300 && GetShapeshiftForm() != FORM_METAMORPHOSIS)
-                addvalue += -1.0f;    // remove 1 each 100ms
+                addvalue += -1.0f;    ///< remove 1 each 100ms
             else if (!isInCombat() && GetPower(POWER_DEMONIC_FURY) < 200 && GetShapeshiftForm() != FORM_METAMORPHOSIS)
-                addvalue += 1.0f;     // give 1 each 100ms while player has less than 200 demonic fury
+                addvalue += 1.0f;     ///< give 1 each 100ms while player has less than 200 demonic fury
 
             if (!HasAura(114168))
             {
@@ -3388,7 +3445,7 @@ void Player::Regenerate(Powers power)
                 }
             }
 
-            // Demonic Fury visuals
+            /// Demonic Fury visuals
             if (GetPower(POWER_DEMONIC_FURY) == 1000)
                 CastSpell(this, 131755, true);
             else if (GetPower(POWER_DEMONIC_FURY) >= 500)
@@ -3408,11 +3465,11 @@ void Player::Regenerate(Powers power)
 
             break;
         }
-        // Regenerate Burning Embers
+        /// Regenerate Burning Embers
         case POWER_BURNING_EMBERS:
         {
-            // After 15s return to one embers if no one
-            // or return to one if more than one
+            /// After 15s return to one embers if no one
+            /// or return to one if more than one
             if (!isInCombat() && GetPower(POWER_BURNING_EMBERS) < 10)
                 SetPower(POWER_BURNING_EMBERS, GetPower(POWER_BURNING_EMBERS) + 1);
             else if (!isInCombat() && GetPower(POWER_BURNING_EMBERS) > 10)
@@ -3422,49 +3479,50 @@ void Player::Regenerate(Powers power)
             {
                 if (GetPower(POWER_BURNING_EMBERS) < 20)
                 {
-                    RemoveAura(123730); // 2
-                    RemoveAura(123728); // 1
-                    RemoveAura(123731); // 3
+                    RemoveAura(123730); ///< 2
+                    RemoveAura(123728); ///< 1
+                    RemoveAura(123731); ///< 3
                 }
                 else if (GetPower(POWER_BURNING_EMBERS) < 30)
                 {
-                    RemoveAura(123730); // 2 shards visual
-                    CastSpell(this, 123728, true); // 1 shard visual
+                    RemoveAura(123730);            ///< 2 shards visual
+                    CastSpell(this, 123728, true); ///< 1 shard visual
                 }
                 else if (GetPower(POWER_BURNING_EMBERS) < 40)
                 {
-                    CastSpell(this, 123728, true); // 1 shard visual
-                    CastSpell(this, 123730, true); // 2 shards visual
-                    RemoveAura(123731); // 3 shards visual
+                    CastSpell(this, 123728, true); ///< 1 shard visual
+                    CastSpell(this, 123730, true); ///< 2 shards visual
+                    RemoveAura(123731);            ///< 3 shards visual
                 }
                 else if (GetPower(POWER_BURNING_EMBERS) < 50)
                 {
-                    CastSpell(this, 123728, true); // 1 shard visual
-                    CastSpell(this, 123730, true); // 2 shards visual
-                    CastSpell(this, 123731, true); // 3 shards visual
+                    CastSpell(this, 123728, true); ///< 1 shard visual
+                    CastSpell(this, 123730, true); ///< 2 shards visual
+                    CastSpell(this, 123731, true); ///< 3 shards visual
                 }
             }
             else
             {
                 if (GetPower(POWER_BURNING_EMBERS) < 20)
                 {
-                    RemoveAura(116855); // First visual
-                    RemoveAura(116920); // Second visual
+                    RemoveAura(116855); ///< First visual
+                    RemoveAura(116920); ///< Second visual
                 }
                 if (GetPower(POWER_BURNING_EMBERS) < 30)
                 {
-                    CastSpell(this, 116855, true);  // First visual
-                    RemoveAura(116920);             // Second visual
+                    CastSpell(this, 116855, true);  ///< First visual
+                    RemoveAura(116920);             ///< Second visual
                 }
                 else
-                    CastSpell(this, 116920, true);  // Second visual
+                    CastSpell(this, 116920, true);  ///< Second visual
             }
 
             break;
         }
-        // Regenerate Soul Shards
+        /// Regenerate Soul Shards
         case POWER_SOUL_SHARDS:
-            // If isn't in combat, gain 1 shard every 20s
+        {
+            /// If isn't in combat, gain 1 shard every 20s
             if (!isInCombat())
                 SetPower(POWER_SOUL_SHARDS, GetPower(POWER_SOUL_SHARDS) + 100);
 
@@ -3472,28 +3530,29 @@ void Player::Regenerate(Powers power)
             {
                 if (GetPower(POWER_SOUL_SHARDS) < 200 && GetPower(POWER_SOUL_SHARDS) >= 100)
                 {
-                    RemoveAura(123730); // 2 shards visual
-                    CastSpell(this, 123728, true); // 1 shard visual
+                    RemoveAura(123730);            ///< 2 shards visual
+                    CastSpell(this, 123728, true); ///< 1 shard visual
                 }
                 else if (GetPower(POWER_SOUL_SHARDS) < 300)
                 {
-                    CastSpell(this, 123728, true); // 1 shard visual
-                    CastSpell(this, 123730, true); // 2 shards visual
-                    RemoveAura(123731); // 3 shards visual
+                    CastSpell(this, 123728, true); ///< 1 shard visual
+                    CastSpell(this, 123730, true); ///< 2 shards visual
+                    RemoveAura(123731);            ///< 3 shards visual
                 }
                 else if (GetPower(POWER_SOUL_SHARDS) < 400)
                 {
-                    CastSpell(this, 123728, true); // 1 shard visual
-                    CastSpell(this, 123730, true); // 2 shards visual
-                    CastSpell(this, 123731, true); // 3 shards visual
+                    CastSpell(this, 123728, true); ///< 1 shard visual
+                    CastSpell(this, 123730, true); ///< 2 shards visual
+                    CastSpell(this, 123731, true); ///< 3 shards visual
                 }
             }
             break;
+        }
         default:
             break;
     }
 
-    // Mana regen calculated in Player::UpdateManaRegen()
+    /// Mana regen calculated in Player::UpdateManaRegen()
     if (power != POWER_MANA && power != POWER_CHI && power != POWER_HOLY_POWER && power != POWER_SOUL_SHARDS && power != POWER_BURNING_EMBERS && power != POWER_DEMONIC_FURY)
     {
         AuraEffectList const& ModPowerRegenPCTAuras = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
@@ -3508,7 +3567,7 @@ void Player::Regenerate(Powers power)
 
     if (addvalue < 0.0f)
     {
-        if (curValue == 0)
+        if (curValue == 0 && power != POWER_ECLIPSE)
             return;
     }
     else if (addvalue > 0.0f)
@@ -3524,7 +3583,7 @@ void Player::Regenerate(Powers power)
 
     if (addvalue < 0.0f)
     {
-        if (curValue > integerValue)
+        if (curValue > integerValue || power == POWER_ECLIPSE)
         {
             curValue -= integerValue;
             m_powerFraction[powerIndex] = addvalue + integerValue;
@@ -3539,7 +3598,7 @@ void Player::Regenerate(Powers power)
     {
         curValue += integerValue;
 
-        if (curValue > maxValue)
+        if (curValue > maxValue && power != POWER_ECLIPSE)
         {
             curValue = maxValue;
             m_powerFraction[powerIndex] = 0;
@@ -10992,6 +11051,16 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
             return;
         }
 
+        /// If gameobject is quest tracked and player already have it, player can't loot (cheat ?)
+        auto l_TrackingQuest = go->GetGOInfo()->GetTrackingQuestId();
+        auto l_QuestBit      = GetQuestUniqueBitFlag(l_TrackingQuest);
+
+        if (l_TrackingQuest && m_CompletedQuestBits.GetBit(l_QuestBit - 1))
+        {
+            SendLootRelease(guid);
+            return;
+        }
+
         loot = &go->loot;
 
         if (go->getLootState() == GO_READY)
@@ -11157,6 +11226,16 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
         }
 
         if (loot_type == LOOT_PICKPOCKETING && IsFriendlyTo(creature))
+        {
+            SendLootRelease(guid);
+            return;
+        }
+
+        /// If creature is quest tracked and player already have it, player can't loot (cheat ?)
+        auto l_TrackingQuest = creature->GetCreatureTemplate()->TrackingQuestID;
+        uint32 l_QuestBit    = GetQuestUniqueBitFlag(l_TrackingQuest);
+
+        if (l_TrackingQuest && m_CompletedQuestBits.GetBit(l_QuestBit - 1))
         {
             SendLootRelease(guid);
             return;
@@ -20425,6 +20504,12 @@ bool Player::isAllowedToLoot(const Creature* creature)
     if (HasPendingBind())
         return false;
 
+    /// If creature is quest tracked and player have the quest, player isn't allowed to loot
+    auto l_TrackingQuestId = creature->GetCreatureTemplate()->TrackingQuestID;
+    uint32 l_QuestBit = GetQuestUniqueBitFlag(l_TrackingQuestId);
+    if (l_TrackingQuestId && m_CompletedQuestBits.GetBit(l_QuestBit - 1))
+        return false;
+
     const Loot* loot = &creature->loot;
     if (loot->isLooted()) // nothing to loot or everything looted.
         return false;
@@ -25753,6 +25838,7 @@ void Player::UpdateVisibilityOf(WorldObject* target)
 
             target->DestroyForPlayer(this);
             m_clientGUIDs.erase(target->GetGUID());
+            m_VignetteMgr.OnWorldObjectDisappear(target);
 
             #ifdef TRINITY_DEBUG
                 sLog->outDebug(LOG_FILTER_MAPS, "Object %u (Type: %u) out of range for player %u. Distance = %f", target->GetGUIDLow(), target->GetTypeId(), GetGUIDLow(), GetDistance(target));
@@ -25765,6 +25851,7 @@ void Player::UpdateVisibilityOf(WorldObject* target)
         {
             target->SendUpdateToPlayer(this);
             m_clientGUIDs.insert(target->GetGUID());
+            m_VignetteMgr.OnWorldObjectAppear(target);
 
             #ifdef TRINITY_DEBUG
                 sLog->outDebug(LOG_FILTER_MAPS, "Object %u (Type: %u) is visible now for player %u. Distance = %f", target->GetGUIDLow(), target->GetTypeId(), GetGUIDLow(), GetDistance(target));
@@ -25821,6 +25908,7 @@ void Player::UpdateTriggerVisibility()
 void Player::SendInitialVisiblePackets(Unit* target)
 {
     SendAurasForTarget(target);
+
     if (target->isAlive())
     {
         if (target->HasUnitState(UNIT_STATE_MELEE_ATTACKING) && target->getVictim())
@@ -25839,6 +25927,7 @@ void Player::UpdateVisibilityOf(T* target, UpdateData& data, std::set<Unit*>& vi
 
             target->BuildOutOfRangeUpdateBlock(&data);
             m_clientGUIDs.erase(target->GetGUID());
+            m_VignetteMgr.OnWorldObjectDisappear(target);
 
             #ifdef TRINITY_DEBUG
                 sLog->outDebug(LOG_FILTER_MAPS, "Object %u (Type: %u, Entry: %u) is out of range for player %u. Distance = %f", target->GetGUIDLow(), target->GetTypeId(), target->GetEntry(), GetGUIDLow(), GetDistance(target));
@@ -25851,6 +25940,7 @@ void Player::UpdateVisibilityOf(T* target, UpdateData& data, std::set<Unit*>& vi
         {
             target->BuildCreateUpdateBlockForPlayer(&data, this);
             UpdateVisibilityOf_helper(m_clientGUIDs, target, visibleNow);
+            m_VignetteMgr.OnWorldObjectAppear(target);
 
             #ifdef TRINITY_DEBUG
                 sLog->outDebug(LOG_FILTER_MAPS, "Object %u (Type: %u, Entry: %u) is visible now for player %u. Distance = %f", target->GetGUIDLow(), target->GetTypeId(), target->GetEntry(), GetGUIDLow(), GetDistance(target));
@@ -28300,16 +28390,59 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, uint8 linkedLootSlot)
                     guild->GetNewsLog().AddNewEvent(GUILD_NEWS_ITEM_LOOTED, time(NULL), GetGUID(), 0, item->itemid);*/
 
         SendNewItem(newitem, uint32(item->count), false, false, true);
+
+        /// Add bonus to item if needed
         newitem->AddItemBonuses(item->itemBonuses);
 
+        /// Handle achievement criteria related to loot
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, item->itemid, item->count);
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE, loot->Type, item->count);
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM, item->itemid, item->count);
 
+        /// Complete the tracking quest if needed
+        AddTrackingQuestIfNeeded(loot->source);
         sScriptMgr->OnPlayerItemLooted(this, newitem);
     }
     else
         SendEquipError(msg, NULL, NULL, item->itemid);
+}
+
+void Player::AddTrackingQuestIfNeeded(uint64 p_SourceGuid)
+{
+    uint32 l_TrackingQuest = 0;
+
+    /// If source is a creature
+    if (IS_UNIT_GUID(p_SourceGuid))
+    {
+        Creature const* l_CreatureSource = sObjectAccessor->FindCreature(p_SourceGuid);
+        if (l_CreatureSource == nullptr)
+            return;
+
+        l_TrackingQuest = l_CreatureSource->GetCreatureTemplate()->TrackingQuestID;
+    }
+
+    /// If source is a gameobject
+    if (IS_GAMEOBJECT_GUID(p_SourceGuid))
+    {
+        GameObject const* l_GameObjectSource = sObjectAccessor->FindGameObject(p_SourceGuid);
+        if (l_GameObjectSource == nullptr)
+            return;
+
+        l_TrackingQuest = l_GameObjectSource->GetGOInfo()->GetTrackingQuestId();
+    }
+
+    /// @TODO: Item can have tracking quest ?
+    /// If someone as more informations, please tell me :D
+
+    if (l_TrackingQuest == 0)
+        return;
+
+    auto l_Quest = sObjectMgr->GetQuestTemplate(l_TrackingQuest);
+    if (l_Quest == nullptr)
+        return;
+
+    SetQuestStatus(l_Quest->GetQuestId(), QUEST_STATUS_COMPLETE);
+    RewardQuest(l_Quest, 0, nullptr);
 }
 
 uint32 Player::CalculateTalentsPoints() const
@@ -31916,4 +32049,14 @@ void Player::AddDailyLootCooldown(uint32 p_Entry)
     l_Statement->setUInt32(0, GetGUIDLow());
     l_Statement->setUInt32(1, p_Entry);
     CharacterDatabase.Execute(l_Statement);
+}
+
+bool Player::HasEclipseSideAvantage(uint8 p_EclipseState) const
+{
+    int32 l_Power = GetPower(Powers::POWER_ECLIPSE);
+    uint8 l_Coeff = GetPowerCoeff(Powers::POWER_ECLIPSE);
+
+    if ((p_EclipseState == ECLIPSE_SOLAR && l_Power <= (-90 * l_Coeff)) || (p_EclipseState == ECLIPSE_LUNAR && l_Power >= (90 * l_Coeff)))
+        return true;
+    return false;
 }

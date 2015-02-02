@@ -89,7 +89,8 @@ enum RogueSpells
     ROGUE_SPELL_COMBO_POINT_DELAYED             = 139569,
     ROGUE_SPELL_RUTHLESSNESS                    = 14161,
     ROGUE_SPELL_EVISCERATE_ENVENOM_BONUS_DAMAGE = 37169,
-    ROGUE_SPELL_DEADLY_THROW_INTERRUPT          = 137576
+    ROGUE_SPELL_DEADLY_THROW_INTERRUPT          = 137576,
+    ROGUE_SPELL_STEALTH_SUBTERFUGE              = 115191
 };
 
 // Killing Spree - 51690
@@ -1547,7 +1548,7 @@ class spell_rog_shadowstep: public SpellScriptLoader
         }
 };
 
-// Stealth - 1784
+// Stealth - 1784 Subterfuge - 115191
 class spell_rog_stealth: public SpellScriptLoader
 {
     public:
@@ -1581,8 +1582,8 @@ class spell_rog_stealth: public SpellScriptLoader
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_rog_stealth_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_rog_stealth_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectApply += AuraEffectApplyFn(spell_rog_stealth_AuraScript::OnApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_rog_stealth_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -1899,6 +1900,46 @@ public:
     }
 };
 
+// Subterfuge - 115192
+class spell_rog_subterfuge : public SpellScriptLoader
+{
+public:
+    spell_rog_subterfuge() : SpellScriptLoader("spell_rog_subterfuge") { }
+
+    class spell_rog_subterfuge_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_rog_subterfuge_AuraScript);
+
+        void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                l_Caster->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
+            }
+        }
+
+        void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (l_Caster->HasAura(ROGUE_SPELL_STEALTH_SUBTERFUGE))
+                    l_Caster->RemoveAura(ROGUE_SPELL_STEALTH_SUBTERFUGE);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_rog_subterfuge_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            OnEffectRemove += AuraEffectRemoveFn(spell_rog_subterfuge_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_rog_subterfuge_AuraScript();
+    }
+};
+
 class PlayerScript_ruthlessness : public PlayerScript
 {
 public:
@@ -1921,6 +1962,7 @@ public:
 
 void AddSC_rogue_spell_scripts()
 {
+    new spell_rog_subterfuge();
     new spell_rog_deadly_throw();
     new spell_rog_evicerate();
     new spell_rog_envenom();

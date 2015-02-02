@@ -2111,7 +2111,7 @@ SpellCastResult SpellInfo::CheckExplicitTarget(Unit const* caster, WorldObject c
     uint32 neededTargets = GetExplicitTargetMask();
     if (!target)
     {
-        if (neededTargets & (TARGET_FLAG_UNIT_MASK | TARGET_FLAG_GAMEOBJECT_MASK | TARGET_FLAG_CORPSE_MASK) && Id != 115073 && Id != 6544)
+        if (neededTargets & (TARGET_FLAG_UNIT_MASK | TARGET_FLAG_GAMEOBJECT_MASK | TARGET_FLAG_CORPSE_MASK))
             if (!(neededTargets & TARGET_FLAG_GAMEOBJECT_ITEM) || !itemTarget)
                 return SPELL_FAILED_BAD_TARGETS;
         return SPELL_CAST_OK;
@@ -3974,9 +3974,6 @@ bool SpellInfo::IsBreakingStealth(Unit* m_caster) const
     if (!m_caster)
         return false;
 
-    if (m_caster->HasAura(115192))
-        return false;
-
     // Hearthstone shoudn't call subterfuge effect
     if ((SpellIconID == 776 || SpellFamilyName == SPELLFAMILY_POTION) && m_caster->HasAura(115191))
     {
@@ -4009,7 +4006,7 @@ bool SpellInfo::IsBreakingStealth(Unit* m_caster) const
         if (callSubterfuge)
         {
             m_caster->CastSpell(m_caster, 115192, true);
-            return false;
+            return true;
         }
     }
 

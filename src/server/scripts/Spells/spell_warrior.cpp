@@ -1362,12 +1362,13 @@ public:
             int32 l_Damage = GetHitDamage();
 
             // converts each extra rage (up to 30 rage) into additional damage
-            int32 l_RageConsumed = -GetCaster()->ModifyPower(POWER_RAGE, -GetSpellInfo()->Effects[EFFECT_2].BasePoints);
-            // 30 rage = 320% more damage
-            AddPct(l_Damage, float(l_RageConsumed * (320.0f / GetSpellInfo()->Effects[EFFECT_2].BasePoints)));
+            int32 l_RageConsumed = -GetCaster()->ModifyPower(POWER_RAGE, -(GetSpellInfo()->Effects[EFFECT_2].BasePoints * 10));
+            // 30 rage = 320% more weapon damage
+            AddPct(l_Damage, (l_RageConsumed / 1.5f));
 
             SetHitDamage(l_Damage);
         }
+
         void Register()
         {
             OnHit += SpellHitFn(spell_warr_execute_SpellScript::HandleOnHit);
@@ -1483,6 +1484,78 @@ public:
 };
 
 
+enum ExecuteSpells
+{
+    SPELL_EXECUTE_OFFHAND = 163558
+};
+
+// Execute - 5308 (Prot, Fury, Default)
+class spell_warr_execute_default: public SpellScriptLoader
+{
+public:
+    spell_warr_execute_default() : SpellScriptLoader("spell_warr_execute_default") { }
+
+    class spell_warr_execute_default_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warr_execute_default_SpellScript);
+
+        void HandleOnCast()
+        {
+            if (Unit* l_Target = GetExplTargetUnit())
+                if (Player* l_Caster = GetCaster()->ToPlayer())
+                    if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) == SPEC_WARRIOR_FURY)
+                        l_Caster->CastSpell(l_Target, SPELL_EXECUTE_OFFHAND, true);
+        }
+
+        void Register()
+        {
+            OnCast += SpellCastFn(spell_warr_execute_default_SpellScript::HandleOnCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_warr_execute_default_SpellScript();
+    }
+};
+
+enum EnhancedRendSpells
+{
+    SPELL_WARR_ENHANCED_REND_DAMAGE = 174736,
+    SPELL_WARR_REND                 = 772
+};
+
+// Enhanced Rend - 174737
+class spell_warr_enhanced_rend: public SpellScriptLoader
+{
+    public:
+        spell_warr_enhanced_rend() : SpellScriptLoader("spell_warr_enhanced_rend") { }
+
+        class spell_warr_enhanced_rend_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_enhanced_rend_AuraScript);
+
+            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& l_ProcInfo)
+            {
+                PreventDefaultAction();
+
+                if (Unit* l_Target = l_ProcInfo.GetActionTarget())
+                    if (l_Target->HasAura(SPELL_WARR_REND, GetCaster()->GetGUID()))
+                        GetCaster()->CastSpell(l_Target, SPELL_WARR_ENHANCED_REND_DAMAGE, true);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_warr_enhanced_rend_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_enhanced_rend_AuraScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_slam();
@@ -1520,4 +1593,6 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_execute();
     new spell_warr_whirlwind();
     new spell_warr_shield_charge();
+    new spell_warr_execute_default();
+    new spell_warr_enhanced_rend();
 }

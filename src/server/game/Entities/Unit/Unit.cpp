@@ -281,9 +281,6 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
     _lastLiquid = NULL;
     _isWalkingBeforeCharm = false;
 
-    // Don't send packet in constructor, it may cause crashes
-    SetEclipsePower(0, false); // Not sure of 0
-
     // Area Skip Update
     _skipCount = 0;
     _skipDiff = 0;
@@ -914,18 +911,22 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         }
     }
 
-    // Rage from Damage made (only from direct weapon damage)
-    if (cleanDamage && damagetype == DIRECT_DAMAGE && this != victim && getPowerType() == POWER_RAGE
-        && (!spellProto || !spellProto->HasAura(SPELL_AURA_SPLIT_DAMAGE_PCT)) && cleanDamage->mitigated_damage > 0)
+    /// Rage from Damage made (only from direct weapon damage)
+    if (cleanDamage && damagetype == DIRECT_DAMAGE && this != victim && getPowerType() == POWER_RAGE &&
+        HasAura(SPELL_AURA_MOD_RAGE_FROM_DAMAGE_DEALT) && cleanDamage->mitigated_damage > 0 &&
+        (!spellProto || !spellProto->HasAura(SPELL_AURA_SPLIT_DAMAGE_PCT)))
     {
-        float rage = GetAttackTime(cleanDamage->attackType) / 1000.f * 5.f;
+        float l_Rage = GetAttackTime(cleanDamage->attackType) / 1000.f * 5.f;
 
         switch (cleanDamage->attackType)
         {
             case WeaponAttackType::OffAttack:
-                rage /= 2;
+                l_Rage /= 2.f;
             case WeaponAttackType::BaseAttack:
-                RewardRage(rage, true);
+                /// Which amount of the calculated rage the player can get ? Ex: http://www.wowhead.com/spell=2457 it's 100%
+                l_Rage = CalculatePct(l_Rage, GetTotalAuraModifier(SPELL_AURA_MOD_RAGE_FROM_DAMAGE_DEALT));
+                if (l_Rage)
+                    RewardRage(l_Rage);
                 break;
             default:
                 break;
@@ -949,15 +950,6 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
                 }
             }
         }
-    }
-
-    if (!damage)
-    {
-        // Rage from absorbed damage
-        if (cleanDamage && cleanDamage->absorbed_damage && victim->getPowerType() == POWER_RAGE)
-            victim->RewardRage(cleanDamage->absorbed_damage, false);
-
-        return 0;
     }
 
     uint32 health = victim->GetHealth();
@@ -1058,11 +1050,15 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
             }
         }
 
-        // Rage from damage received
-        if (this != victim && victim->getPowerType() == POWER_RAGE)
+        /// WoD: Arms Warriors now generate Rage from taking auto-attack damage.
+        /// Each 1% of health taken as damage will generate 1 Rage, up to 5 Rage per hit.
+        if (damage && this != victim && victim->GetTypeId() == TYPEID_PLAYER && victim->getPowerType() == POWER_RAGE && victim->ToPlayer()->GetSpecializationId(victim->ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
         {
-            float rage_damage = damage + (cleanDamage ? cleanDamage->absorbed_damage : 0);
-            victim->RewardRage(rage_damage, false);
+            float l_RetiredPctOfHealth = damage / (victim->GetMaxHealth() / 100.0f);
+            if (l_RetiredPctOfHealth > 5.0f)
+                l_RetiredPctOfHealth = 5.0f;
+
+            victim->RewardRage(l_RetiredPctOfHealth);
         }
 
         if (GetTypeId() == TYPEID_PLAYER)
@@ -1837,10 +1833,10 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
     }
 }
 
-void Unit::HandleEmoteCommand(uint32 emoteId)
+void Unit::HandleEmoteCommand(uint32 p_EmoteId)
 {
-    EmotesEntry const* emoteInfo = sEmotesStore.LookupEntry(emoteId);
-    if (!emoteInfo)
+    EmotesEntry const* l_EmoteInfo = sEmotesStore.LookupEntry(p_EmoteId);
+    if (!l_EmoteInfo)
     {
         SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
         return;
@@ -1849,19 +1845,19 @@ void Unit::HandleEmoteCommand(uint32 emoteId)
     if (!isAlive())
         return;
 
-    switch (emoteInfo->EmoteType)
+    switch (l_EmoteInfo->EmoteType)
     {
-        case 0:
+        case EmoteTypes::OneStep:
         {
             WorldPacket l_Data(SMSG_EMOTE, 4 + 8);
             l_Data.appendPackGUID(GetGUID());
-            l_Data << uint32(emoteId);
+            l_Data << uint32(p_EmoteId);
             SendMessageToSet(&l_Data, true);
             break;
         }
-        case 1:
-        case 2:
-            SetUInt32Value(UNIT_FIELD_EMOTE_STATE, emoteId);
+        case EmoteTypes::EmoteLoop:
+        case EmoteTypes::StateLoop:
+            SetUInt32Value(UNIT_FIELD_EMOTE_STATE, p_EmoteId);
             break;
         default:
             break;
@@ -3974,7 +3970,7 @@ void Unit::RemoveAura(AuraApplication * aurApp, AuraRemoveMode mode)
         return;
     uint32 spellId = aurApp->GetBase()->GetId();
 
-    if ((spellId == 51713 || spellId == 115192) && mode != AURA_REMOVE_BY_EXPIRE)
+    if (spellId == 51713 && mode != AURA_REMOVE_BY_EXPIRE)
         return;
 
     for (AuraApplicationMap::iterator iter = m_appliedAuras.lower_bound(spellId); iter != m_appliedAuras.upper_bound(spellId);)
@@ -4161,6 +4157,9 @@ void Unit::RemoveAurasByType(AuraType auraType, uint64 casterGUID, AuraPtr excep
         }
 
         ++iter;
+
+        if (auraType == SPELL_AURA_MOD_STEALTH && HasSpell(108208) && !HasAura(115192))
+            CastSpell(this, 115192, true);
 
         // Subterfuge can't be removed except manually
         if (aura->GetSpellInfo()->Id == 115191)
@@ -7286,18 +7285,15 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
 
                     ToPlayer()->AddSpellCooldown(46832, 0, 6 * IN_MILLISECONDS);
 
-                    if (GetEclipsePower() <= 0)
-                        SetEclipsePower(GetEclipsePower() - 20);
-                    else
-                        SetEclipsePower(GetEclipsePower() + 20);
+                    ModifyPower(Powers::POWER_ECLIPSE, 20);
 
-                    if (GetEclipsePower() == 100)
+                    if (GetPower(Powers::POWER_ECLIPSE) == 100)
                     {
                         CastSpell(this, 48517, true, 0); // Cast Lunar Eclipse
                         CastSpell(this, 16886, true); // Cast Nature's Grace
                         CastSpell(this, 81070, true); // Cast Eclipse - Give 35% of POWER_MANA
                     }
-                    else if (GetEclipsePower() == -100)
+                    else if (GetPower(Powers::POWER_ECLIPSE) == 0)
                     {
                         CastSpell(this, 48518, true, 0); // Cast Lunar Eclipse
                         CastSpell(this, 16886, true); // Cast Nature's Grace
@@ -14037,6 +14033,9 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy, bool isControlled)
             if (!player->IsInPvPCombat() && PvP)
                 player->SetInPvPCombat(true);
         }
+
+        if (!isInCombat())
+            sScriptMgr->OnPlayerEnterInCombat(player);
     }
 
     if (GetTypeId() == TYPEID_PLAYER && !ToPlayer()->IsInWorgenForm() && ToPlayer()->CanSwitch())
@@ -14070,7 +14069,12 @@ void Unit::ClearInCombat()
     }
     else
     {
-        ToPlayer()->UpdatePotionCooldown();
+        if (Player* l_Player = ToPlayer())
+        {
+            l_Player->UpdatePotionCooldown();
+            if (isInCombat())
+                sScriptMgr->OnPlayerLeaveCombat(l_Player);
+        }
     }
 
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
@@ -14378,10 +14382,6 @@ int32 Unit::ModifyPower(Powers power, int32 dVal)
 
     if (dVal == 0 && power != POWER_ENERGY) // The client will always regen energy if we don't send him the actual value
         return 0;
-
-    // Hook playerScript OnModifyPower
-    if (GetTypeId() == TYPEID_PLAYER)
-        sScriptMgr->OnModifyPower(this->ToPlayer(), power, dVal);
 
     int32 curPower = GetPower(power);
 
@@ -15420,8 +15420,8 @@ DiminishingLevels Unit::GetDiminishing(DiminishingGroup group)
         if (!i->hitTime)
             return DIMINISHING_LEVEL_1;
 
-        // If last spell was casted more than 15 seconds ago - reset the count.
-        if (i->stack == 0 && getMSTimeDiff(i->hitTime, getMSTime()) > 15000)
+        // If last spell was casted more than 18 seconds ago - reset the count.
+        if (i->stack == 0 && getMSTimeDiff(i->hitTime, getMSTime()) > 18 * IN_MILLISECONDS)
         {
             i->hitCount = DIMINISHING_LEVEL_1;
             return DIMINISHING_LEVEL_1;
@@ -15456,54 +15456,74 @@ float Unit::ApplyDiminishingToDuration(DiminishingGroup group, int32 &duration, 
     Unit const* targetOwner = GetCharmerOrOwner();
     Unit const* casterOwner = caster->GetCharmerOrOwner();
 
-    // Duration of crowd control abilities on pvp target is limited by 10 sec. (2.2.0)
     if (limitduration > 0 && duration > limitduration)
     {
         Unit const* target = targetOwner ? targetOwner : this;
         Unit const* source = casterOwner ? casterOwner : caster;
 
         if ((target->GetTypeId() == TYPEID_PLAYER
-            || ((Creature*)target)->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_ALL_DIMINISH)
+            || (target->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_ALL_DIMINISH))
             && source->GetTypeId() == TYPEID_PLAYER)
             duration = limitduration;
     }
 
     float mod = 1.0f;
 
-    if (group == DIMINISHING_TAUNT)
+    switch (group)
     {
-        if (GetTypeId() == TYPEID_UNIT && (ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_TAUNT_DIMINISH))
+        case DIMINISHING_TAUNT:
         {
-            DiminishingLevels diminish = Level;
-            switch (diminish)
+            if (GetTypeId() == TYPEID_UNIT && (ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_TAUNT_DIMINISH))
             {
-                case DIMINISHING_LEVEL_1: break;
-                case DIMINISHING_LEVEL_2: mod = 0.65f; break;
-                case DIMINISHING_LEVEL_3: mod = 0.4225f; break;
-                case DIMINISHING_LEVEL_4: mod = 0.274625f; break;
-                case DIMINISHING_LEVEL_TAUNT_IMMUNE: mod = 0.0f; break;
-                default: break;
+                DiminishingLevels diminish = Level;
+                switch (diminish)
+                {
+                    case DIMINISHING_LEVEL_1: break;
+                    case DIMINISHING_LEVEL_2: mod = 0.65f; break;
+                    case DIMINISHING_LEVEL_3: mod = 0.4225f; break;
+                    case DIMINISHING_LEVEL_4: mod = 0.274625f; break;
+                    case DIMINISHING_LEVEL_TAUNT_IMMUNE: mod = 0.0f; break;
+                    default: break;
+                }
             }
+            break;
         }
-    }
-    // Some diminishings applies to mobs too (for example, Stun)
-    else if ((GetDiminishingReturnsGroupType(group) == DRTYPE_PLAYER
-         && ((targetOwner ? (targetOwner->GetTypeId() == TYPEID_PLAYER) : (GetTypeId() == TYPEID_PLAYER))
-         || (targetOwner ? (targetOwner->GetTypeId() == TYPEID_UNIT && ((Creature*)targetOwner)->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_ALL_DIMINISH)
-            : (GetTypeId() == TYPEID_UNIT && ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_ALL_DIMINISH))))
-         || GetDiminishingReturnsGroupType(group) == DRTYPE_ALL)
-    {
-        DiminishingLevels diminish = Level;
-        switch (diminish)
+        case DIMINISHING_AOE_KNOCKBACK:
         {
-            case DIMINISHING_LEVEL_1: break;
-            case DIMINISHING_LEVEL_2: mod = 0.5f; break;
-            case DIMINISHING_LEVEL_3: mod = 0.25f; break;
-            case DIMINISHING_LEVEL_IMMUNE: mod = 0.0f; break;
-            default: break;
+            if ((GetDiminishingReturnsGroupType(group) == DRTYPE_PLAYER && (((targetOwner ? targetOwner : this)->ToPlayer())
+                                                                            || (ToCreature() && (ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_ALL_DIMINISH))))
+                || GetDiminishingReturnsGroupType(group) == DRTYPE_ALL)
+            {
+                DiminishingLevels diminish = Level;
+                switch (diminish)
+                {
+                    case DIMINISHING_LEVEL_1: break;
+                    case DIMINISHING_LEVEL_2: mod = 0.0f; break;
+                    default: break;
+                }
+            }
+            break;
+        }
+        default:
+        {
+            if ((GetDiminishingReturnsGroupType(group) == DRTYPE_PLAYER && (((targetOwner ? targetOwner : this)->ToPlayer())
+                                                                            || (ToCreature() && (ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_ALL_DIMINISH))))
+                || GetDiminishingReturnsGroupType(group) == DRTYPE_ALL)
+            {
+                DiminishingLevels diminish = Level;
+                switch (diminish)
+                {
+                    case DIMINISHING_LEVEL_1: break;
+                    case DIMINISHING_LEVEL_2: mod = 0.5f; break;
+                    case DIMINISHING_LEVEL_3: mod = 0.25f; break;
+                    case DIMINISHING_LEVEL_IMMUNE: mod = 0.0f; break;
+                    default: break;
+                }
+            }
+            break;
         }
     }
-
+    
     duration = int32(duration * mod);
     return mod;
 }
@@ -16003,22 +16023,25 @@ int32 Unit::GetPowerCoeff(Powers p_PowerType) const
 {
     switch (p_PowerType)
     {
-    case POWER_MANA:
-    case POWER_ECLIPSE:
-    case POWER_HOLY_POWER:
-    case POWER_CHI:
-    case POWER_ENERGY:
-    case POWER_FOCUS:
-    case POWER_SHADOW_ORB:
-    case POWER_DEMONIC_FURY:
-        return 1;
-    case POWER_RAGE:
-    case POWER_RUNIC_POWER:
-    case POWER_BURNING_EMBERS:
-        return 10;
-    case POWER_SOUL_SHARDS:
-        return 100;
+        case POWER_MANA:
+        case POWER_HOLY_POWER:
+        case POWER_CHI:
+        case POWER_ENERGY:
+        case POWER_FOCUS:
+        case POWER_SHADOW_ORB:
+        case POWER_DEMONIC_FURY:
+            return 1;
+        case POWER_RAGE:
+        case POWER_RUNIC_POWER:
+        case POWER_BURNING_EMBERS:
+            return 10;
+        case POWER_SOUL_SHARDS:
+        case POWER_ECLIPSE: ///< Max is 100, but can be up to 10.000 in SMSG_UPDATE_OBJECT
+            return 100;
+        default:
+            break;
     }
+
     return 1;
 }
 
@@ -16031,13 +16054,21 @@ void Unit::SetPower(Powers p_PowerType, int32 p_PowerValue, bool p_Regen)
 
     int32 l_MaxPower = int32(GetMaxPower(p_PowerType));
 
-    if (l_MaxPower < p_PowerValue)
+    /// Custom case for EclipsePower, cannot be set in GetMaxPower
+    if (p_PowerType == Powers::POWER_ECLIPSE)
+        l_MaxPower *= GetPowerCoeff(Powers::POWER_ECLIPSE);
+
+    if (p_PowerValue > l_MaxPower)
         p_PowerValue = l_MaxPower;
 
     if (ToCreature() && ToCreature()->IsAIEnabled)
         ToCreature()->AI()->SetPower(p_PowerType, p_PowerValue);
 
     m_powers[l_PowerIndex] = p_PowerValue;
+
+    /// Hook playerScript OnModifyPower
+    if (GetTypeId() == TYPEID_PLAYER)
+        sScriptMgr->OnModifyPower(ToPlayer(), p_PowerType, p_PowerValue);
 
     uint32 l_RegenDiff = getMSTime() - m_lastRegenTime[l_PowerIndex];
 
@@ -16158,7 +16189,7 @@ int32 Unit::GetCreatePowers(Powers power) const
         case POWER_SOUL_SHARDS:
             return (GetTypeId() == TYPEID_PLAYER && ToPlayer()->getClass() == CLASS_WARLOCK && (ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_WARLOCK_AFFLICTION) ? 400 : 0);
         case POWER_ECLIPSE:
-            return (GetTypeId() == TYPEID_PLAYER && ToPlayer()->getClass() == CLASS_DRUID && (ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_DRUID_BALANCE) ? 100 : 0); // Should be -100 to 100 this needs the power to be int32 instead of uint32
+            return (GetTypeId() == TYPEID_PLAYER && ToPlayer()->getClass() == CLASS_DRUID && (ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_DRUID_BALANCE) ? 100 : 0);
         case POWER_HOLY_POWER:
             return (GetTypeId() == TYPEID_PLAYER && ToPlayer()->getClass() == CLASS_PALADIN ? 3 : 0);
         case POWER_HEALTH:
@@ -21289,31 +21320,12 @@ void Unit::SendRemoveFromThreatListOpcode(HostileReference* p_HostileReference)
     SendMessageToSet(&l_Data, false);
 }
 
-// baseRage means damage taken when attacker = false
-void Unit::RewardRage(float baseRage, bool attacker)
+void Unit::RewardRage(float baseRage)
 {
     float addRage = baseRage;
 
-    if (attacker)
-    {
-        // talent who gave more rage on attack
-        addRage *= 1.0f + GetTotalAuraModifier(SPELL_AURA_MOD_RAGE_FROM_DAMAGE_DEALT) / 100.0f;
-    }
-    else
-    {
-        addRage /= (GetCreateHealth()/35);
-
-        // Generate rage from damage taken only in Berserker Stance
-        if (!HasAura(2458))
-            return;
-
-        // Berserker Rage effect
-        if (HasAura(18499))
-        {
-            float mod = 2.0f;
-            addRage *= mod;
-        }
-    }
+    if (addRage < 0.0f)
+        addRage = 0.0f;
 
     ModifyPower(POWER_RAGE, uint32(addRage * GetPowerCoeff(POWER_RAGE)));
 }
@@ -21782,56 +21794,6 @@ bool Unit::IsSplineEnabled() const
 bool Unit::IsSplineFinished() const
 {
     return movespline->Finalized();
-}
-
-void Unit::SetEclipsePower(int32 p_Power, bool p_Send)
-{
-    if (p_Power > 100)
-        p_Power = 100;
-
-    if (p_Power < -100)
-        p_Power = -100;
-
-    if (p_Power > 0)
-    {
-        if (HasAura(48518))
-            RemoveAurasDueToSpell(48518); ///< Eclipse (Lunar)
-        if (HasAura(107095))
-            RemoveAurasDueToSpell(107095);///< Eclipse (Lunar) - SPELL_AURA_OVERRIDE_SPELLS
-    }
-
-    if (p_Power == 0)
-    {
-        if (HasAura(48517))
-            RemoveAurasDueToSpell(48517); ///< Eclipse (Solar)
-        if (HasAura(48518))
-            RemoveAurasDueToSpell(48518); ///< Eclipse (Lunar)
-        if (HasAura(107095))
-            RemoveAurasDueToSpell(107095);///< Eclipse (Lunar) - SPELL_AURA_OVERRIDE_SPELLS
-    }
-
-    if (p_Power < 0)
-    {
-        if (HasAura(48517))
-            RemoveAurasDueToSpell(48517); ///< Eclipse (Solar)
-    }
-
-    m_EclipsePower = p_Power;
-
-    if (p_Send)
-    {
-        int l_PowerCount = 1;
-
-        WorldPacket l_Data(SMSG_POWER_UPDATE, 2 + 16 + 4 + 4 + 1);
-
-        l_Data.appendPackGUID(GetGUID());
-        l_Data << uint32(l_PowerCount);
-
-        l_Data << int32(m_EclipsePower);
-        l_Data << uint8(POWER_ECLIPSE);
-
-        SendMessageToSet(&l_Data, GetTypeId() == TYPEID_PLAYER ? true : false);
-    }
 }
 
 /* In the next functions, we keep 1 minute of last damage */

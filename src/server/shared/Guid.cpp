@@ -31,6 +31,7 @@ Guid128 Guid64To128(const uint64 & p_64Guid)
         case HIGHGUID_SCENEOBJECT:        l_Type = GUID_TYPE_SCENE_OBJECT;      break;
         case HIGHGUID_BNET_ACCOUNT:       l_Type = GUID_TYPE_BNET_ACC;          break;
         case HIGHGUID_WOW_ACCOUNT:        l_Type = GUID_TYPE_WOW_ACC;           break;
+        case HIGHGUID_VIGNETTE:           l_Type = GUID_TYPE_VIGNETTE;          break;
     }
 
     if (l_Type == GUID_TYPE_BNET_ACC || l_Type == GUID_TYPE_WOW_ACC)
@@ -66,6 +67,7 @@ uint64 Guid128To64(const Guid128 & p_128Guid)
         case GUID_TYPE_SCENE_OBJECT:       l_Type = HIGHGUID_SCENEOBJECT;       break;
         case GUID_TYPE_BNET_ACC:           l_Type = HIGHGUID_BNET_ACCOUNT;      break;
         case GUID_TYPE_WOW_ACC:            l_Type = HIGHGUID_WOW_ACCOUNT;       break;
+        case GUID_TYPE_VIGNETTE:           l_Type = HIGHGUID_VIGNETTE;          break;
 
         default:
             l_Type = 0;

@@ -25,7 +25,8 @@ enum HighGuid
     HIGHGUID_LOOT               = 0xF19,                        // new 5.4.x
     HIGHGUID_SCENEOBJECT        = 0x18F,
     HIGHGUID_BNET_ACCOUNT       = 0xE4E,
-    HIGHGUID_WOW_ACCOUNT        = 0xD4E
+    HIGHGUID_WOW_ACCOUNT        = 0xD4E,
+    HIGHGUID_VIGNETTE           = 0x200
 };
 
 #define IS_EMPTY_GUID(Guid)          (Guid == 0)

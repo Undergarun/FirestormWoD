@@ -1577,7 +1577,7 @@ class Unit : public WorldObject
         void setPowerType(Powers power);
         int32 GetPower(Powers power) const;
         float GetPowerPct(Powers power) const { return GetMaxPower(power) ? 100.f * GetPower(power) / GetMaxPower(power) : 0.0f; }
-        int32 GetMinPower(Powers power) const { return power == POWER_ECLIPSE ? -100 : 0; }
+        int32 GetMinPower(Powers power) const { return power == POWER_ECLIPSE ? -10000 : 0; }
         int32 GetMaxPower(Powers power) const;
         int32 GetPowerCoeff(Powers p_powerType) const;
         void SetPower(Powers power, int32 val, bool regen = false);
@@ -2463,7 +2463,7 @@ class Unit : public WorldObject
         bool IsFlying() const   { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FLYING | MOVEMENTFLAG_DISABLE_GRAVITY); }
         void SetCanFly(bool apply);
 
-        void RewardRage(float baseRage, bool attacker);
+        void RewardRage(float baseRage);
 
         virtual float GetFollowAngle() const { return static_cast<float>(M_PI/2); }
 
@@ -2489,9 +2489,6 @@ class Unit : public WorldObject
         // Handling caster facing during spell cast
         void FocusTarget(Spell const* p_FocusSpell, WorldObject* p_Target);
         void ReleaseFocus(Spell const* focusSpell);
-
-        int32 GetEclipsePower() { return m_EclipsePower; };
-        void SetEclipsePower(int32 power, bool send = true);
 
         uint32 GetHealingDoneInPastSecs(uint32 secs);
         uint32 GetHealingTakenInPastSecs(uint32 secs);
@@ -2692,8 +2689,6 @@ class Unit : public WorldObject
 
         Spell const* _focusSpell;   ///> Locks the target during spell cast for proper facing
         bool _isWalkingBeforeCharm; // Are we walking before we were charmed?
-
-        int32 m_EclipsePower;
 
         time_t _lastDamagedTime;
 };
