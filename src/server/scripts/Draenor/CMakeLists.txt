@@ -12,6 +12,7 @@ set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
   Draenor/tanaan_jungle.cpp
   Draenor/tanaan_jungle.h
+  Draenor/gorgrond.cpp
   Draenor/item_strongboxes.cpp
   Draenor/Skyreach/instance_skyreach.h
   Draenor/Skyreach/instance_skyreach.cpp

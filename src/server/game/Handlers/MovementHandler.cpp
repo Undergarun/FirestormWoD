@@ -410,7 +410,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& p_Packet)
         {
             if (EmotesEntry const* emoteInfo = sEmotesStore.LookupEntry(l_EmoteId))
             {
-                if (emoteInfo->EmoteType != 1)
+                if (emoteInfo->EmoteType != EmoteTypes::EmoteLoop)
                     l_PlayerMover->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
             }
         }
@@ -418,13 +418,19 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& p_Packet)
 
     //if (plrMover)
     //    sAnticheatMgr->StartHackDetection(plrMover, movementInfo, opcode);
+
     /*----------------------*/
 
     /* process position-change */
     WorldPacket data(SMSG_MOVE_UPDATE, p_Packet.size());
-    l_MovementInfo.Alive32 = l_MovementInfo.time; // hack, but it's work in 505 in this way ...
-    l_MovementInfo.time = getMSTime();
     l_MovementInfo.guid = l_Mover->GetGUID();
+
+    uint32 l_MSTime = getMSTime();
+
+    if (m_clientTimeDelay == 0)
+        m_clientTimeDelay = l_MSTime - l_MovementInfo.time;
+
+    l_MovementInfo.time = l_MovementInfo.time + m_clientTimeDelay;
 
     WorldSession::WriteMovementInfo(data, &l_MovementInfo);
     l_Mover->SendMessageToSet(&data, m_Player);

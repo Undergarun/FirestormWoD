@@ -151,6 +151,8 @@ namespace MS { namespace Garrison
             void CancelConstruction(uint32 p_PlotInstanceID);
             /// Delete building
             void DeleteBuilding(uint32 p_PlotInstanceID);
+            /// Has active building
+            bool HasActiveBuilding(uint32 p_BuildingID);
 
             /// Get known blueprints
             std::vector<int32> GetKnownBlueprints();

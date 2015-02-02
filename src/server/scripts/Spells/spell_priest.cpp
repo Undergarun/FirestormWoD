@@ -744,7 +744,7 @@ class spell_pri_surge_of_light: public SpellScriptLoader
                             if (AuraPtr l_SurgeOfLight = l_Player->GetAura(PRIEST_SURGE_OF_LIGHT))
                             {
                                 if (l_SurgeOfLight->GetStackAmount() == 2)
-                                    l_SurgeOfLight->SetDuration(20 * IN_MILLISECONDS);
+                                    l_SurgeOfLight->SetDuration(l_SurgeOfLight->GetMaxDuration());
                                 else
                                     l_Player->CastSpell(l_Player, PRIEST_SURGE_OF_LIGHT, true);
                             }
@@ -1056,52 +1056,48 @@ class spell_pri_power_word_shield: public SpellScriptLoader
         }
 };
 
-// Called by Smite - 585
-// Chakra : Chastise - 81209
-class spell_pri_chakra_chastise: public SpellScriptLoader
+// Smite - 585
+class spell_pri_smite: public SpellScriptLoader
 {
     public:
-        spell_pri_chakra_chastise() : SpellScriptLoader("spell_pri_chakra_chastise") { }
+        spell_pri_smite() : SpellScriptLoader("spell_pri_smite") { }
 
-        class spell_pri_chakra_chastise_SpellScript : public SpellScript
+        class spell_pri_smite_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_pri_chakra_chastise_SpellScript);
+            PrepareSpellScript(spell_pri_smite_SpellScript);
 
             void HandleOnHit()
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
                     if (Unit* target = GetHitUnit())
                     {
-                        // Surge of light
-                        if (l_Player->HasSpell(109186))
-                            if (roll_chance_i(GetSpellInfo()->Effects[EFFECT_0].BasePoints))
+                        // Surge of light 
+                        const SpellInfo * l_SpellInfo = sSpellMgr->GetSpellInfo(PRIEST_SURGE_OF_LIGHT_AURA);
+
+                        if (l_SpellInfo != nullptr && l_Player->HasSpell(PRIEST_SURGE_OF_LIGHT_AURA) && roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
+                        {
+                            if (AuraPtr l_SurgeOfLight = l_Player->GetAura(PRIEST_SURGE_OF_LIGHT))
                             {
-                                if (AuraPtr l_SurgeOfLight = l_Player->GetAura(PRIEST_SURGE_OF_LIGHT))
-                                {
-                                    if (l_SurgeOfLight->GetStackAmount() == 2)
-                                        l_SurgeOfLight->SetDuration(20 * IN_MILLISECONDS);
-                                    else
-                                        l_Player->CastSpell(l_Player, PRIEST_SURGE_OF_LIGHT, true);
-                                }
+                                if (l_SurgeOfLight->GetStackAmount() == 2)
+                                    l_SurgeOfLight->SetDuration(l_SurgeOfLight->GetMaxDuration());
                                 else
                                     l_Player->CastSpell(l_Player, PRIEST_SURGE_OF_LIGHT, true);
                             }
-
-                        if (roll_chance_i(GetSpellInfo()->Effects[EFFECT_1].BasePoints))
-                            if (l_Player->HasSpellCooldown(PRIEST_HOLY_WORD_CHASTISE))
-                                l_Player->RemoveSpellCooldown(PRIEST_HOLY_WORD_CHASTISE, true);
+                            else
+                                l_Player->CastSpell(l_Player, PRIEST_SURGE_OF_LIGHT, true);
+                        }
                     }
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_pri_chakra_chastise_SpellScript::HandleOnHit);
+                OnHit += SpellHitFn(spell_pri_smite_SpellScript::HandleOnHit);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_pri_chakra_chastise_SpellScript();
+            return new spell_pri_smite_SpellScript();
         }
 };
 
@@ -1117,19 +1113,22 @@ class spell_pri_lightwell_renew: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* m_caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (Unit* unitTarget = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
-                        if (m_caster->GetTypeId() != TYPEID_UNIT || !m_caster->ToCreature()->isSummon())
+                        if (l_Caster->GetTypeId() != TYPEID_UNIT || !l_Caster->ToCreature()->isSummon())
                             return;
 
                         // proc a spellcast
-                        if (AuraPtr chargesAura = m_caster->GetAura(LIGHTWELL_CHARGES))
+                        if (AuraPtr l_ChargesAura = l_Caster->GetAura(LIGHTWELL_CHARGES))
                         {
-                            m_caster->CastSpell(unitTarget, LIGHTSPRING_RENEW, true, NULL, NULLAURA_EFFECT, m_caster->ToTempSummon()->GetSummonerGUID());
-                            if (chargesAura->ModCharges(-1))
-                                m_caster->ToTempSummon()->UnSummon();
+                            if (!l_Target->HasAura(LIGHTSPRING_RENEW))
+                            {
+                                l_Caster->CastSpell(l_Target, LIGHTSPRING_RENEW, true, NULL, NULLAURA_EFFECT, l_Caster->ToTempSummon()->GetSummonerGUID());
+                                if (l_ChargesAura->ModCharges(-1))
+                                    l_Caster->ToTempSummon()->UnSummon();
+                            }
                         }
                     }
                 }
@@ -2680,7 +2679,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_divine_insight_holy();
     new spell_pri_divine_insight_discipline();
     new spell_pri_holy_word_sanctuary();
-    new spell_pri_chakra_chastise();
+    new spell_pri_smite();
     new spell_pri_lightwell_renew();
     new spell_pri_atonement();
     new spell_pri_purify();

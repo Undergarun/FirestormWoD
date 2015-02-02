@@ -509,7 +509,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //450 SPELL_AURA_450
     &AuraEffect::HandleNULL,                                      //451 SPELL_AURA_451
     &AuraEffect::HandleNULL,                                      //452 SPELL_AURA_452
-    &AuraEffect::HandleNULL,                                      //453 SPELL_AURA_453
+    &AuraEffect::HandleNULL,                                      //453 SPELL_AURA_MOD_COOLDOWN_2
     &AuraEffect::HandleNULL,                                      //454 SPELL_AURA_454
     &AuraEffect::HandleAuraModRoot,                               //455 SPELL_AURA_MOD_ROOT_2
     &AuraEffect::HandleNULL,                                      //456 SPELL_AURA_456

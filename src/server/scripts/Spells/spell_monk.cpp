@@ -3385,6 +3385,11 @@ class spell_monk_provoke: public SpellScriptLoader
         }
 };
 
+enum ParalysisSpells
+{
+    SPELL_MONK_GLYPH_OF_PARALYSIS = 125755
+};
+
 // Paralysis - 115078
 class spell_monk_paralysis: public SpellScriptLoader
 {
@@ -3397,37 +3402,10 @@ class spell_monk_paralysis: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (target->isInBack(caster))
-                        {
-                            if (AuraApplication* aura = target->GetAuraApplication(115078))
-                            {
-                                AuraPtr Paralysis = aura->GetBase();
-                                int32 maxDuration = Paralysis->GetMaxDuration();
-                                int32 newDuration = maxDuration * 2;
-                                Paralysis->SetDuration(newDuration);
-
-                                if (newDuration > maxDuration)
-                                    Paralysis->SetMaxDuration(newDuration);
-                            }
-                        }
-
-                        if (target->ToPlayer())
-                        {
-                            if (AuraApplication* aura = target->GetAuraApplication(115078))
-                            {
-                                AuraPtr Paralysis = aura->GetBase();
-                                int32 maxDuration = Paralysis->GetMaxDuration();
-                                int32 newDuration = maxDuration / 2;
-                                Paralysis->SetDuration(newDuration);
-                                Paralysis->SetMaxDuration(newDuration);
-                            }
-                        }
-                    }
-                }
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+                if (l_Target && l_Caster->HasAura(SPELL_MONK_GLYPH_OF_PARALYSIS))
+                    l_Target->RemoveAllAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
             }
 
             void Register()
@@ -4175,6 +4153,56 @@ public:
     }
 };
 
+enum DetoxSpells
+{
+    SPELL_MONK_GLYPH_OF_DETOX = 146954
+};
+
+// Detox - 115450
+class spell_monk_detox: public SpellScriptLoader
+{
+public:
+    spell_monk_detox() : SpellScriptLoader("spell_monk_detox") { }
+
+    class spell_monk_detox_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_monk_detox_SpellScript);
+
+        void HandleDispel(SpellEffIndex effIndex)
+        {
+            PreventHitDefaultEffect(effIndex);
+
+            Player* l_Player = GetCaster()->ToPlayer();
+            if (l_Player && l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_MONK_MISTWEAVER)
+                return;
+
+            GetSpell()->EffectDispel(effIndex);
+        }
+
+        void HandleHeal(SpellEffIndex effIndex)
+        {
+            PreventHitDefaultEffect(effIndex);
+
+            Unit* l_Caster = GetCaster();
+            if (!l_Caster->HasAura(SPELL_MONK_GLYPH_OF_DETOX))
+                return;
+
+            GetSpell()->EffectHealPct(effIndex);
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_monk_detox_SpellScript::HandleDispel, EFFECT_2, SPELL_EFFECT_DISPEL);
+            OnEffectHitTarget += SpellEffectFn(spell_monk_detox_SpellScript::HandleHeal, EFFECT_3, SPELL_EFFECT_HEAL_MAX_HEALTH);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_monk_detox_SpellScript();
+    }
+};
+
 // /Rising Sun Kick - 107428
 class spell_monk_rising_sun_kick: public SpellScriptLoader
 {
@@ -4366,6 +4394,7 @@ void AddSC_monk_spell_scripts()
     new spell_monk_hurricane_strike_damage();
     new spell_monk_hurricane_strike();
     new spell_monk_serenity();
+    new spell_monk_detox();
 
     // Player Script
     new PlayerScript_TigereEyeBrew_ManaTea();

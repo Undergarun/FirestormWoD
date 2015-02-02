@@ -30,6 +30,8 @@
 #include "UnitAI.h"
 #include "GameObjectAI.h"
 
+#include "BattlegroundPacketFactory.hpp"
+
 bool GameEventMgr::CheckOneGameEvent(uint16 entry) const
 {
     switch (mGameEvent[entry].state)
@@ -1489,14 +1491,14 @@ void GameEventMgr::UpdateWorldStates(uint16 event_id, bool Activate)
     GameEventData const& event = mGameEvent[event_id];
     if (event.holiday_id != HOLIDAY_NONE)
     {
-        BattlegroundTypeId bgTypeId = BattlegroundMgr::WeekendHolidayIdToBGType(event.holiday_id);
+        BattlegroundTypeId bgTypeId = MS::Battlegrounds::BattlegroundMgr::WeekendHolidayIdToBGType(event.holiday_id);
         if (bgTypeId != BATTLEGROUND_TYPE_NONE)
         {
             BattlemasterListEntry const* bl = sBattlemasterListStore.LookupEntry(bgTypeId);
             if (bl && bl->HolidayWorldState)
             {
                 WorldPacket data;
-                sBattlegroundMgr->BuildUpdateWorldStatePacket(&data, bl->HolidayWorldState, Activate ? 1 : 0);
+                MS::Battlegrounds::PacketFactory::UpdateWorldState(&data, bl->HolidayWorldState, Activate ? 1 : 0);
                 sWorld->SendGlobalMessage(&data);
             }
         }

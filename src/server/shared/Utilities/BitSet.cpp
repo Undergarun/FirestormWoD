@@ -55,5 +55,11 @@ namespace MS { namespace Utilities
         m_Bits[p_Index / 8] &= 0xFF ^ (1 << (p_Index % 8));
     }
 
+    bool BitSet::GetBit(uint32 p_Index) const
+    {
+        ASSERT(p_Index < (8 * m_Size));
+        return m_Bits[p_Index / 8] & (1 << (p_Index % 8));
+    }
+
 }   ///< namespace Utilities
 }   ///< namespace MS

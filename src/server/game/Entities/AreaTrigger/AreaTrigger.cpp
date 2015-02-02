@@ -90,12 +90,12 @@ bool AreaTrigger::CreateAreaTriggerFromSpell(uint32 p_GuidLow, Unit* p_Caster, S
 
     WorldObject::_Create(p_GuidLow, HIGHGUID_AREATRIGGER, p_Caster->GetPhaseMask());
 
-    const AreaTriggerTemplateList* l_Templates = sObjectMgr->GetAreaTriggerTemplatesForSpell(p_SpellInfo->Id);
+    AreaTriggerTemplateList const* l_Templates = sObjectMgr->GetAreaTriggerTemplatesForSpell(p_SpellInfo->Id);
     if (l_Templates != nullptr)
     {
         for (AreaTriggerTemplateList::const_iterator l_Itr = l_Templates->begin(); l_Itr != l_Templates->end(); l_Itr++)
         {
-            const AreaTriggerTemplate l_AreaTriggerTemplate = *l_Itr;
+            AreaTriggerTemplate const l_AreaTriggerTemplate = *l_Itr;
             if (l_AreaTriggerTemplate.m_EffIndex == p_EffIndex)
                 m_Templates.push_back(l_AreaTriggerTemplate);
         }
@@ -112,7 +112,7 @@ bool AreaTrigger::CreateAreaTriggerFromSpell(uint32 p_GuidLow, Unit* p_Caster, S
         m_Templates.push_back(l_DefaultAreaTriggerTemplate);
     }
 
-    const AreaTriggerTemplate* l_MainTemplate = GetMainTemplate();
+    AreaTriggerTemplate const* l_MainTemplate = GetMainTemplate();
     if (l_MainTemplate == nullptr)
         return false;
 
@@ -174,7 +174,7 @@ bool AreaTrigger::CreateAreaTrigger(uint32 p_Entry, uint32 p_GuidLow, uint32 p_P
 
     WorldObject::_Create(p_GuidLow, HIGHGUID_AREATRIGGER, p_PhaseMask);
 
-    const AreaTriggerTemplateList* l_Templates = sObjectMgr->GetAreaTriggerTemplatesForEntry(p_Entry);
+    AreaTriggerTemplateList const* l_Templates = sObjectMgr->GetAreaTriggerTemplatesForEntry(p_Entry);
     if (l_Templates != nullptr)
     {
         for (AreaTriggerTemplateList::const_iterator l_Itr = l_Templates->begin(); l_Itr != l_Templates->end(); l_Itr++)
@@ -192,7 +192,7 @@ bool AreaTrigger::CreateAreaTrigger(uint32 p_Entry, uint32 p_GuidLow, uint32 p_P
         m_Templates.push_back(l_DefaultAreaTriggerTemplate);
     }
 
-    const AreaTriggerTemplate* l_MainTemplate = GetMainTemplate();
+    AreaTriggerTemplate const* l_MainTemplate = GetMainTemplate();
     if (l_MainTemplate == nullptr)
         return false;
 
@@ -250,15 +250,11 @@ void AreaTrigger::Update(uint32 p_Time)
     {
         m_UpdateTimer.Reset();
 
-        // Calculate new position
+        /// Calculate new position
         if (GetMainTemplate()->m_MoveCurveID != 0 && GetTrajectory() != AREATRIGGER_INTERPOLATION_LINEAR)
-        {
             UpdatePositionWithPathId(m_CreatedTime, this);
-        }
         else if (m_Trajectory)
-        {
             GetPositionAtTime(m_CreatedTime, this);
-        }
     }
 }
 
@@ -309,7 +305,7 @@ void AreaTrigger::SendMovementUpdate()
 
 void AreaTrigger::UpdatePositionWithPathId(uint32 p_Time, Position* p_OutPos)
 {
-    const AreaTriggerTemplate* l_template = GetMainTemplate();
+    AreaTriggerTemplate const* l_template = GetMainTemplate();
 
     if (l_template->m_Flags & AREATRIGGER_FLAG_HAS_MOVE_CURVE)
     {
@@ -348,7 +344,7 @@ void AreaTrigger::UpdatePositionWithPathId(uint32 p_Time, Position* p_OutPos)
 
 void AreaTrigger::GetPositionFromPathId(uint32 p_PathId, Position* p_OutPos) const
 {
-    const AreaTriggerTemplate* l_template = GetMainTemplate();
+    AreaTriggerTemplate const* l_template = GetMainTemplate();
 
     if (l_template->m_Flags & AREATRIGGER_FLAG_HAS_MOVE_CURVE)
     {
@@ -374,20 +370,20 @@ void AreaTrigger::GetPositionAtTime(uint32 p_Time, Position* p_OutPos) const
 {
     switch (m_Trajectory)
     {
-    case AREATRIGGER_INTERPOLATION_LINEAR:
-    {
-        AreaTriggerTemplate const* l_MainTemplate = GetMainTemplate();
-        // Durations gets decreased over time so create time + remaining duration = max duration
-        int32 l_Duration = l_MainTemplate && l_MainTemplate->m_Type == AREATRIGGER_TYPE_SPLINE && l_MainTemplate->m_SplineDatas.TimeToTarget ? l_MainTemplate->m_SplineDatas.TimeToTarget : GetDuration() + GetCreatedTime();
-        float l_Progress = std::min((float)l_Duration, (float)p_Time) / l_Duration;
-        p_OutPos->m_positionX = m_Source.m_positionX + l_Progress * (m_Destination.m_positionX - m_Source.m_positionX);
-        p_OutPos->m_positionY = m_Source.m_positionY + l_Progress * (m_Destination.m_positionY - m_Source.m_positionY);
-        p_OutPos->m_positionZ = m_Source.m_positionZ + l_Progress * (m_Destination.m_positionZ - m_Source.m_positionZ);
-        p_OutPos->m_orientation = m_Source.m_orientation + l_Progress * (m_Destination.m_orientation - m_Source.m_orientation);
-        break;
-    }
-    default:
-        *p_OutPos = m_Source;
-        break;
+        case AREATRIGGER_INTERPOLATION_LINEAR:
+        {
+            AreaTriggerTemplate const* l_MainTemplate = GetMainTemplate();
+            /// Durations get decreased over time so create time + remaining duration = max duration
+            int32 l_Duration = l_MainTemplate && l_MainTemplate->m_Type == AREATRIGGER_TYPE_SPLINE && l_MainTemplate->m_SplineDatas.TimeToTarget ? l_MainTemplate->m_SplineDatas.TimeToTarget : GetDuration() + GetCreatedTime();
+            float l_Progress = std::min((float)l_Duration, (float)p_Time) / l_Duration;
+            p_OutPos->m_positionX = m_Source.m_positionX + l_Progress * (m_Destination.m_positionX - m_Source.m_positionX);
+            p_OutPos->m_positionY = m_Source.m_positionY + l_Progress * (m_Destination.m_positionY - m_Source.m_positionY);
+            p_OutPos->m_positionZ = m_Source.m_positionZ + l_Progress * (m_Destination.m_positionZ - m_Source.m_positionZ);
+            p_OutPos->m_orientation = m_Source.m_orientation + l_Progress * (m_Destination.m_orientation - m_Source.m_orientation);
+            break;
+        }
+        default:
+            *p_OutPos = m_Source;
+            break;
     }
 }

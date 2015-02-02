@@ -70,6 +70,7 @@ namespace MS { namespace Garrison
         NPC_GARRISON_ALLIANCE_HORSE                     = 81633,
         NPC_SENIOR_PEON_II                              = 86775,
         NPC_FROSTWALL_PEON_DYNAMIC                      = 79605,
+        NPC_FROSTWALL_GRUNT                             = 79781,
         NPC_GASLOWE                                     = 78466,
         NPC_ASSISTANT_BRIGHTSTONE                       = 84455,
         NPC_SKAGGIT                                     = 80225
@@ -125,12 +126,6 @@ namespace MS { namespace Garrison
     enum MovePointIDs
     {
         MOVE_POINT_GAZLOWE_BARRACK_A = 0
-    };
-
-    /// Buildings IDs
-    enum Buildings
-    {
-        BUILDING_BARRACK = 26
     };
 
     /// Garrison creation coords

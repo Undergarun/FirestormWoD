@@ -247,6 +247,8 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
 
     SetDisplayId(goinfo->displayId);
 
+    loot.SetSource(GetGUID());
+
     // GAMEOBJECT_BYTES_1, index at 0, 1, 2 and 3
     SetGoType(GameobjectTypes(goinfo->type));
     SetGoState(go_state);
@@ -2195,8 +2197,10 @@ void GameObject::EnableCollision(bool enable)
     if (!m_model)
         return;
 
-    /*if (enable && !GetMap()->ContainsGameObjectModel(*m_model))
-        GetMap()->InsertGameObjectModel(*m_model);*/
+    /// CRASH ALERT !!!!!
+    /// Enabled at 23/01/2015 can may server crash
+    if (enable && !GetMap()->ContainsGameObjectModel(*m_model))
+        GetMap()->InsertGameObjectModel(*m_model);
 
     m_model->enable(enable ? GetPhaseMask() : 0);
 }
@@ -2256,15 +2260,22 @@ void GameObject::SetLootRecipient(Unit* unit)
         m_lootRecipientGroup = group->GetLowGUID();
 }
 
-bool GameObject::IsLootAllowedFor(Player const* player) const
+bool GameObject::IsLootAllowedFor(Player const* p_Player) const
 {
+    /// If creature is quest tracked and player have the quest, player isn't allowed to loot
+    auto l_TrackingQuestId = GetGOInfo()->GetTrackingQuestId();
+    auto l_QuestBit = GetQuestUniqueBitFlag(l_TrackingQuestId);
+
+    if (l_TrackingQuestId && p_Player->GetCompletedQuests().GetBit(l_QuestBit - 1))
+        return false;
+
     if (!m_lootRecipient && !m_lootRecipientGroup)
         return true;
 
-    if (player->GetGUID() == m_lootRecipient)
+    if (p_Player->GetGUID() == m_lootRecipient)
         return true;
 
-    Group const* playerGroup = player->GetGroup();
+    Group const* playerGroup = p_Player->GetGroup();
     if (!playerGroup || playerGroup != GetLootRecipientGroup()) // if we dont have a group we arent the recipient
         return false;                                           // if go doesnt have group bound it means it was solo killed by someone else
 
@@ -2333,7 +2344,7 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
             {
                 uint32 flags = m_uint32Values[GAMEOBJECT_FIELD_FLAGS];
                 if (GetGoType() == GAMEOBJECT_TYPE_CHEST)
-                    if (GetGOInfo()->chest.usegrouplootrules && !IsLootAllowedFor(target))
+                    if ((GetGOInfo()->chest.usegrouplootrules || GetGOInfo()->GetTrackingQuestId()) && !IsLootAllowedFor(target))
                         flags |= GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE;
 
                 fieldBuffer << flags;

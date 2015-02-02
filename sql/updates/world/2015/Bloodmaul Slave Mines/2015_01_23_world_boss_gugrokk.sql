@@ -7,9 +7,9 @@ DELETE FROM areatrigger_template WHERE spell_id = 150783;
 DELETE FROM creature WHERE id IN (74927, 74967, 83808) AND map = 1175;
 UPDATE creature SET unit_flags = unit_flags & ~0x200 WHERE id = 68553 AND map = 1175;
 
-DELETE FROM trinity_string WHERE entry = 14063;
+DELETE FROM trinity_string WHERE entry = 14064;
 INSERT INTO trinity_string (entry, content_default, content_loc2, content_loc6) VALUE
-(14063, '|TInterface\\Icons\\spell_fire_elementaldevastation.blp:20|t |cFFF00000|Hspell:150678|h[Molten Core]|h|r causes %s to unleash a |cFFF00000|Hspell:150682|h[Motlen Barrage]|h|r!',
+(14064, '|TInterface\\Icons\\spell_fire_elementaldevastation.blp:20|t |cFFF00000|Hspell:150678|h[Molten Core]|h|r causes %s to unleash a |cFFF00000|Hspell:150682|h[Motlen Barrage]|h|r!',
 	'|TInterface\\Icons\\spell_fire_elementaldevastation.blp:20|t |cFFF00000|Hspell:150678|h[Cœur de la fournaise]|h|r permet à %s de libérer un |cFFF00000|Hspell:150682|h[Barrage de lave]|h|r !',
 	'|TInterface\\Icons\\Ability_Druid_EmpoweredTouch:20|t Tarlna comienza a canalizar |cFFFF0404|Hspell:175979|h[Génesis]|h|r.');
 

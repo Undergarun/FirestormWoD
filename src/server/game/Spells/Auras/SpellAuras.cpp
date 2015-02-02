@@ -1960,12 +1960,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                             }
                         }
                         break;
-                    // Remove Stealth on Subterfuge remove
-                    case 115192:
-                    {
-                        target->RemoveAura(115191);
-                        break;
-                    }
                 }
                 break;
             case SPELLFAMILY_MAGE:
@@ -3319,39 +3313,11 @@ UnitAura::UnitAura(SpellInfo const* spellproto, uint32 effMask, WorldObject* own
 void UnitAura::_ApplyForTarget(Unit* target, Unit* caster, AuraApplication * aurApp)
 {
     Aura::_ApplyForTarget(target, caster, aurApp);
-
-    // register aura diminishing on apply
-    if (DiminishingGroup group = GetDiminishGroup())
-    {
-        target->ApplyDiminishingAura(group, true);
-        if (GetId() == 82691)       // Ring of Frost
-        {
-            target->ApplyDiminishingAura(DIMINISHING_RING_OF_FROST, true);
-        }
-        else if (GetId() == 44572)  // Deep Freeze
-        {
-            target->ApplyDiminishingAura(DIMINISHING_DEEP_FREEZE, true);
-        }
-    }
 }
 
 void UnitAura::_UnapplyForTarget(Unit* target, Unit* caster, AuraApplication * aurApp)
 {
     Aura::_UnapplyForTarget(target, caster, aurApp);
-
-    // unregister aura diminishing (and store last time)
-    if (DiminishingGroup group = GetDiminishGroup())
-    {
-        target->ApplyDiminishingAura(group, false);
-        if (GetId() == 82691)       // Ring of Frost
-        {
-            target->ApplyDiminishingAura(DIMINISHING_RING_OF_FROST, false);
-        }
-        else if (GetId() == 44572)  // Deep Freeze
-        {
-            target->ApplyDiminishingAura(DIMINISHING_DEEP_FREEZE, false);
-        }
-    }
 }
 
 void UnitAura::Remove(AuraRemoveMode removeMode)
