@@ -640,8 +640,8 @@ enum Opcodes
         SMSG_MOVE_SET_FLIGHT_BACK_SPEED             = 0x0752, ///< 6.1.0 19551
         SMSG_MOVE_SET_WALK_SPEED                    = 0x024A, ///< 6.1.0 19551
         SMSG_MOVE_SET_TURN_RATE                     = 0x0E74, ///< 6.1.0 19551
-        SMSG_MOVE_SET_PITCH_RATE                    = 0x048B, ///< 6.1.0 19551
-        SMSG_MOVE_KNOCK_BACK                        = 0x0000, ///< 6.1.0 19551
+        SMSG_MOVE_SET_PITCH_RATE                    = 0x0D21, ///< 6.1.0 19551
+        SMSG_MOVE_KNOCK_BACK                        = 0x048B, ///< 6.1.0 19551
         SMSG_MOVE_UPDATE_RUN_SPEED                  = 0x015B, ///< 6.1.0 19551
         SMSG_MOVE_UPDATE_RUN_BACK_SPEED             = 0x012A, ///< 6.1.0 19551
         SMSG_MOVE_UPDATE_SWIM_SPEED                 = 0x016B, ///< 6.1.0 19551
