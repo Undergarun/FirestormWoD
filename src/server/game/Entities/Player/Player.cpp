@@ -55,7 +55,7 @@
 #include "Weather.h"
 #include "Battleground.h"
 #include "BattlegroundAV.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 #include "OutdoorPvP.h"
 #include "OutdoorPvPMgr.h"
 #include "Arena.h"

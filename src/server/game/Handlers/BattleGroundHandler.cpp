@@ -23,7 +23,7 @@
 #include "WorldSession.h"
 
 #include "Arena.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 #include "Battleground.h"
 #include "Chat.h"
 #include "Language.h"
@@ -37,7 +37,6 @@
 
 #include "BattlegroundPacketFactory.hpp"
 #include "BattlegroundScheduler.hpp"
-#include "BattlegroundMgr.h"
 
 void WorldSession::HandleBattlemasterHelloOpcode(WorldPacket& recvData)
 {
@@ -188,7 +187,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& p_Packet)
 
         m_Player->SetBattleGroundRoles(l_Roles);
 
-        GroupQueueInfo * l_GroupQueueInfo = l_Scheduler.AddGroup(m_Player, nullptr, l_BGQueueTypeID, l_BlacklistMap, l_BracketEntry, 0, false, l_IsPremade, 0, 0, false);
+        GroupQueueInfo * l_GroupQueueInfo = l_Scheduler.AddGroup(m_Player, nullptr, l_BGQueueTypeID, l_BlacklistMap, l_BracketEntry, 0, false, 0, 0, false);
         uint32 l_AverageTime = l_InvitationsMgr.GetAverageQueueWaitTime(l_GroupQueueInfo, l_BracketEntry->m_Id);
         uint32 l_QueueSlot      = m_Player->AddBattlegroundQueueId(l_BGQueueTypeID);
 
@@ -220,7 +219,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& p_Packet)
         if (!l_Error)
         {
             sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: the following players are joining as group:");
-            ginfo = l_Scheduler.AddGroup(m_Player, l_Group, l_BGQueueTypeID, l_BlacklistMap, l_BracketEntry, 0, false, l_IsPremade, 0, 0, false);
+            ginfo = l_Scheduler.AddGroup(m_Player, l_Group, l_BGQueueTypeID, l_BlacklistMap, l_BracketEntry, 0, false, 0, 0, false);
             avgTime = l_InvitationsMgr.GetAverageQueueWaitTime(ginfo, l_BracketEntry->m_Id);
         }
 
@@ -318,12 +317,6 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& p_Packet)
     if (l_QueueSlotID == 3)
         l_QueueSlotID = 0;
 
-    if (!sBattlegroundMgr->GetInvitationsMgr().IsOwningPlayer(m_Player->GetGUID()))
-    {
-        sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BattlegroundHandler: Invalid CMSG_BATTLEFIELD_PORT received from player (Name: %s, GUID: %u), he is not in bg_queue.", m_Player->GetName(), m_Player->GetGUIDLow());
-        return;
-    }
-
     if (l_QueueSlotID > PLAYER_MAX_BATTLEGROUND_QUEUES)
     {
         sLog->outAshran("HandleBattleFieldPortOpcode queueSlot %u", l_QueueSlotID);
@@ -338,12 +331,13 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& p_Packet)
         return;
     }
 
+    MS::Battlegrounds::BattlegroundScheduler& l_Scheduler = sBattlegroundMgr->GetScheduler();
     MS::Battlegrounds::BattlegroundInvitationsMgr& l_InvitationsMgr = sBattlegroundMgr->GetInvitationsMgr();
 
     /// We must use temporary variable, because GroupQueueInfo pointer can be deleted in BattlegroundQueue::RemovePlayer() function
     GroupQueueInfo l_GroupQueueInfo;
 
-    if (!l_InvitationsMgr.GetPlayerGroupInfoData(m_Player->GetGUID(), l_GroupQueueInfo))
+    if (!l_InvitationsMgr.GetPlayerGroupInfoData(m_Player->GetGUID(), l_GroupQueueInfo) && !l_Scheduler.GetPlayerGroupInfoData(m_Player->GetGUID(), l_GroupQueueInfo))
     {
         sLog->outError(LOG_FILTER_NETWORKIO, "BattlegroundHandler: itrplayerstatus not found.");
         return;
@@ -358,11 +352,11 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& p_Packet)
 
     /// BGTemplateId returns BATTLEGROUND_AA when it is arena queue.
     /// Do instance id search as there is no AA bg instances.
-    Battleground * l_BG = sBattlegroundMgr->GetBattleground(l_GroupQueueInfo.m_IsInvitedToBGInstanceGUID, l_BGQueueTypeID == MS::Battlegrounds::BattlegroundType::AllArenas ? MS::Battlegrounds::BattlegroundType::None : l_BGQueueTypeID);
+    Battleground * l_BG = sBattlegroundMgr->GetBattleground(l_GroupQueueInfo.m_IsInvitedToBGInstanceGUID, l_BGQueueTypeID);
 
     /// BG template might and must be used in case of leaving queue, when instance is not created yet
     if (!l_BG && l_AcceptedInvite == 0)
-        l_BG = sBattlegroundMgr->GetBattlegroundTemplate(l_BGQueueTypeID);
+        l_BG = sBattlegroundMgr->GetBattlegroundTemplate(MS::Battlegrounds::BattlegroundType::IsArena(l_BGQueueTypeID) ? MS::Battlegrounds::BattlegroundType::AllArenas : l_BGQueueTypeID);
 
     if (!l_BG)
     {
@@ -452,17 +446,17 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& p_Packet)
 
         /// Leave queue
         case 0:
-            if (l_BG->isArena() && l_BG->GetStatus() > STATUS_WAIT_QUEUE)
+            if (l_BG->isArena() && l_BG->GetStatus() > STATUS_WAIT_JOIN)
                 return;
 
-            MS::Battlegrounds::PacketFactory::Status(&l_Response, l_BG, m_Player, l_QueueSlotID, STATUS_NONE, m_Player->GetBattlegroundQueueJoinTime(l_BGTypeID), 0, 0, MS::Battlegrounds::BattlegroundMgr::IsSkirmishQueue(l_BGQueueTypeID));
+            MS::Battlegrounds::PacketFactory::Status(&l_Response, l_BG, m_Player, l_QueueSlotID, STATUS_NONE, m_Player->GetBattlegroundQueueJoinTime(l_BGTypeID), 0, l_GroupQueueInfo.m_ArenaType, l_GroupQueueInfo.m_IsSkirmish);
             SendPacket(&l_Response);
 
             /// Must be called this way, because if you move this call to queue->removeplayer, it causes bugs
             m_Player->RemoveBattlegroundQueueId(l_BGQueueTypeID);  
 
             sBattlegroundMgr->RemovePlayer(m_Player->GetGUID(), true);
-
+            m_Player->SetBattlegroundId(0, BATTLEGROUND_TYPE_NONE);
             break;
 
         default:
@@ -641,7 +635,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& p_Packet)
     MS::Battlegrounds::BattlegroundInvitationsMgr& l_InvitationsMgr = sBattlegroundMgr->GetInvitationsMgr();
 
     uint32 l_AverageTime = 0;
-    GroupQueueInfo * l_GroupQueueInfo = NULL;
+    GroupQueueInfo * l_GroupQueueInfo = nullptr;
 
     l_ResultError = l_Group->CanJoinBattlegroundQueue(l_Battleground, l_BGQueueTypeID, l_ArenaType);
     
@@ -649,7 +643,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& p_Packet)
     {
         sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: leader %s queued with matchmaker rating %u for type %u", m_Player->GetName(), l_MatchmakerRating, l_ArenaType);
 
-        l_GroupQueueInfo = l_Scheduler.AddGroup(m_Player, l_Group, l_BGQueueTypeID, nullptr, l_BracketEntry, l_ArenaType, true, false, l_ArenaRating, l_MatchmakerRating, true);
+        l_GroupQueueInfo = l_Scheduler.AddGroup(m_Player, l_Group, l_BGQueueTypeID, nullptr, l_BracketEntry, l_ArenaType, true, l_ArenaRating, l_MatchmakerRating, true);
         l_AverageTime = l_InvitationsMgr.GetAverageQueueWaitTime(l_GroupQueueInfo, l_BracketEntry->m_Id);
     }
 
@@ -772,7 +766,7 @@ void WorldSession::HandleBattlemasterJoinArenaSkirmish(WorldPacket& p_Packet)
 
         if (!l_ResultError || (l_ResultError && sBattlegroundMgr->isArenaTesting()))
         {
-            l_GroupQueueInfo = l_Scheduler.AddGroup(m_Player, l_Group, l_BGQueueTypeID, nullptr, l_BracketEntry, l_ArenaType, false, true, 0, 0, true);
+            l_GroupQueueInfo = l_Scheduler.AddGroup(m_Player, l_Group, l_BGQueueTypeID, nullptr, l_BracketEntry, l_ArenaType, false, 0, 0, true);
             l_AverageTime = l_InvitationsMgr.GetAverageQueueWaitTime(l_GroupQueueInfo, l_BracketEntry->m_Id);
         }
 
@@ -835,7 +829,7 @@ void WorldSession::HandleBattlemasterJoinArenaSkirmish(WorldPacket& p_Packet)
 
         m_Player->SetBattleGroundRoles(l_Roles);
 
-        l_GroupQueueInfo = l_Scheduler.AddGroup(m_Player, nullptr, l_BGQueueTypeID, nullptr, l_BracketEntry, l_ArenaType, false, false, 0, 0, true);
+        l_GroupQueueInfo = l_Scheduler.AddGroup(m_Player, nullptr, l_BGQueueTypeID, nullptr, l_BracketEntry, l_ArenaType, false, 0, 0, true);
         uint32 l_AverageTime = l_InvitationsMgr.GetAverageQueueWaitTime(l_GroupQueueInfo, l_BracketEntry->m_Id);
         uint32 l_QueueSlot   = m_Player->AddBattlegroundQueueId(l_BGQueueTypeID);
 
@@ -918,7 +912,7 @@ void WorldSession::HandleBattlemasterJoinRated(WorldPacket &p_Packet)
     l_Error = l_Group->CanJoinBattlegroundQueue(l_Battleground, l_BgQueueTypeId, 10);
     if (!l_Error)
     {
-        l_GroupQueue = l_Scheduler.AddGroup(m_Player, l_Group, l_BgQueueTypeId, nullptr, l_BracketEntry, 0, true, true, l_PersonalRating, l_MatchmakerRating, false);
+        l_GroupQueue = l_Scheduler.AddGroup(m_Player, l_Group, l_BgQueueTypeId, nullptr, l_BracketEntry, 0, true, l_PersonalRating, l_MatchmakerRating, false);
         l_AvgTime = l_InvitationsMgr.GetAverageQueueWaitTime(l_GroupQueue, l_BracketEntry->m_Id);
     }
 

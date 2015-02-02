@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2014 Millenium-studio SARL
+//  All Rights Reserved.
+//
+//////////////////////////////////////////////////////////////////////////////// 
+
 #ifndef BATTLEGROUND_INVITATIONS_MGR_HPP
 # define BATTLEGROUND_INVITATIONS_MGR_HPP
 
@@ -50,21 +58,18 @@ namespace MS
             /// @p_Guid : The player.
             void RemovePlayer(uint64 p_Guid, bool p_DecreaseInvitedCount);
 
-            /// Retreive the GroupQueueInfo structure from the invited list.
+            /// Retrieve the GroupQueueInfo structure from the invited list.
             /// @p_Guid : Guid of the player.
             /// @p_GroupInfo : The group structure to fill.
             bool GetPlayerGroupInfoData(uint64 p_Guid, GroupQueueInfo& p_GroupInfo) const;
         
         private:
-            uint32 m_WaitTimes[BG_TEAMS_COUNT][Brackets::Count][COUNT_OF_PLAYERS_TO_AVERAGE_WAIT_TIME];
-            uint32 m_WaitTimeLastPlayer[BG_TEAMS_COUNT][Brackets::Count];
-            uint32 m_SumOfWaitTimes[BG_TEAMS_COUNT][Brackets::Count];
-
-            QueuedPlayersMap m_InvitedPlayers;
-
-            EventProcessor m_Events;    ///< Events handler.
+            uint32 m_WaitTimes[TeamsCount::Value][Brackets::Count][COUNT_OF_PLAYERS_TO_AVERAGE_WAIT_TIME];  ///< The average time to wait.
+            uint32 m_WaitTimeLastPlayer[TeamsCount::Value][Brackets::Count];                                ///< ?????
+            uint32 m_SumOfWaitTimes[TeamsCount::Value][Brackets::Count];                                    ///< The sum of the wait times.
+            QueuedPlayersMap m_InvitedPlayers;                                                              ///< The players owned by the invitations manager that we are waiting for enter battleground.
+            EventProcessor m_Events;                                                                        ///< Events handler.
         };
-
 
         /// This class is used to invite player to BG again, when minute lasts from his first invitation
         /// it is capable to solve all possibilities.
@@ -112,7 +117,7 @@ namespace MS
             BattlegroundTypeId m_BgTypeId;
             BattlegroundType::Type m_BgType;
         };
-    }
-}
+    } ///< namespace Battlegrounds.
+} ///< namespace MS.
 
 #endif /// !BATTLEGROUND_INVITATIONS_MGR_HPP

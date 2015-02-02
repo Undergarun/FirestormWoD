@@ -26,7 +26,7 @@
 #include "MapManager.h"
 #include "GossipDef.h"
 #include "Player.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 #include "UnitAI.h"
 #include "GameObjectAI.h"
 

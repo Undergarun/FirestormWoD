@@ -23,7 +23,7 @@
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "ScriptedCreature.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 
 /************************************************************************/
 /*                     STARTING BATTLEGROUND                            */
@@ -576,14 +576,14 @@ void BattlegroundDG::EventPlayerClickedOnFlag(Player* p_Source, Unit* p_Flag)
 
 void BattlegroundDG::_postUpdateImpl_Flags(uint32 p_Diff)
 {
-    int l_TeamPoints[BG_TEAMS_COUNT] = { 0, 0 };
+    int l_TeamPoints[MS::Battlegrounds::TeamsCount::Value] = { 0, 0 };
 
     for (int l_Node = 0; l_Node < BG_DG_ALL_NODES_COUNT; ++l_Node)
     {
         // 1-minute to occupy a node from contested state
         _contestedTime(l_Node, p_Diff);
 
-        for (int l_Team = 0; l_Team < BG_TEAMS_COUNT; ++l_Team)
+        for (int l_Team = 0; l_Team < MS::Battlegrounds::TeamsCount::Value; ++l_Team)
         {
             if (m_Nodes[l_Node] == l_Team + BG_DG_NODE_TYPE_OCCUPIED)
                 ++l_TeamPoints[l_Team];
@@ -591,7 +591,7 @@ void BattlegroundDG::_postUpdateImpl_Flags(uint32 p_Diff)
     }
 
     // Accumulate points
-    for (int l_Team = 0; l_Team < BG_TEAMS_COUNT; ++l_Team)
+    for (int l_Team = 0; l_Team < MS::Battlegrounds::TeamsCount::Value; ++l_Team)
     {
         int l_Points = l_TeamPoints[l_Team];
         if (!l_Points)

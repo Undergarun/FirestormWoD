@@ -44,6 +44,14 @@ namespace MS
 {
     namespace Battlegrounds
     {
+        namespace TeamsCount
+        {
+            enum
+            {
+                Value = 2
+            };
+        }
+        /// This enum is for INTERNAL purpose, do not use it as a client battleground type id.
         namespace BattlegroundType
         {
             enum Type
@@ -55,10 +63,10 @@ namespace MS
                 Warsong,
                 ArathiBassin,
                 EyeOfTheStorm,
-                StrandOfTheAncients,
-                IsleOfConquest,
                 TwinPeaks,
                 BattleForGilneas,
+                StrandOfTheAncients,
+                IsleOfConquest,
                 KotmoguTemple,
                 SilvershardMines,
                 DeepwindGorge,
@@ -70,13 +78,13 @@ namespace MS
                 ArenaSkirmish3v3,
                 /// Rated battlegrounds.
                 RatedBg10v10,
+                /// Instanciable arenas.
                 TigersPeaks,
                 TolvironArena,
                 BladeEdgeArena,
                 DalaranArena,
                 RuinsOfLordaeron,
                 NagrandArena,
-                TheRingOfValor,
                 /// End iterators.
                 End,
                 RatedBg15v15,
@@ -92,20 +100,28 @@ namespace MS
                 EndArena = ArenaSkirmish3v3,
                 BeginArena = Arena2v2,
                 NumBattlegrounds = Arena2v2,
+                TheRingOfValor, /// Deprecated.
             };
 
             /// Check if the BattlegroundType given is a casual battleground.
             /// @p_Type : The type of the battleground.
             static bool IsCasualBattleground(Type p_Type)
             {
-                return p_Type < BattlegroundType::NumBattlegrounds;
+                return p_Type < BattlegroundType::NumBattlegrounds || p_Type == BattlegroundType::RandomBattleground;
             }
 
-            /// Check if the BattlegroundType given is an arena.
+            /// Check if the BattlegroundType given is an instance of an arena.
             /// @p_Type : The type of the battleground.
             static bool IsArena(Type p_Type)
             {
                 return p_Type >= BeginArena && p_Type <= EndArena;
+            }
+
+            /// Check if the BattlegroundType given is a rated battleground.
+            /// @p_Type : The type of the battleground.
+            static bool IsRated(Type p_Type)
+            {
+                return (p_Type == RatedBg10v10 || p_Type == RatedBg15v15 || p_Type == RatedBg25v25) || (p_Type >= Arena2v2 && p_Type <= Arena5v5);
             }
             
             /// Return the ArenaType of the battleground.
@@ -444,6 +460,7 @@ struct GroupQueueInfo                                       // stores informatio
     MS::Battlegrounds::BattlegroundType::Type m_BgTypeId;                            // battleground type id
     bool    m_IsRatedBG;                                      // rated battleground
     bool    m_IsSkirmish;                                     // skirmish arena
+    bool    m_IsRandom;
     uint8   m_ArenaType;                                      // 2v2, 3v3, 5v5 or 0 when BG
     uint32  m_JoinTime;                                       // time when group was added
     uint32  m_RemoveInviteTime;                               // time when we will remove invite for players in group
@@ -706,7 +723,6 @@ enum BattlegroundTeamId
     BG_TEAM_ALLIANCE        = 0,
     BG_TEAM_HORDE           = 1
 };
-#define BG_TEAMS_COUNT  2
 
 enum BattlegroundStartingEvents
 {
@@ -994,7 +1010,7 @@ class Battleground
         // used for rated arena battles
         int32 GetArenaTeamRatingChangeByIndex(uint32 index) const
         {
-            if (index >= BG_TEAMS_COUNT)
+            if (index >= MS::Battlegrounds::TeamsCount::Value)
                 return 0;
 
             return m_ArenaTeamRatingChanges[index];
@@ -1002,7 +1018,7 @@ class Battleground
 
         uint32 GetArenaMatchmakerRatingByIndex(uint32 index) const
         {
-            if (index >= BG_TEAMS_COUNT)
+            if (index >= MS::Battlegrounds::TeamsCount::Value)
                 return 0;
 
             return m_ArenaTeamMMR[index];
@@ -1081,7 +1097,7 @@ class Battleground
         void SetDeleteThis() { m_SetDeleteThis = true; }
 
         // virtual score-array - get's used in bg-subclasses
-        int32 m_TeamScores[BG_TEAMS_COUNT];
+        int32 m_TeamScores[MS::Battlegrounds::TeamsCount::Value];
 
         void RewardXPAtKill(Player* killer, Player* victim);
         bool CanAwardArenaPoints() const { return m_LevelMin >= BG_AWARD_ARENA_POINTS_MIN_LEVEL; }
@@ -1211,16 +1227,16 @@ class Battleground
         uint32 m_InvitedHorde;
 
         // Raid Group
-        Group* m_BgRaids[BG_TEAMS_COUNT];                   // 0 - alliance, 1 - horde
+        Group* m_BgRaids[MS::Battlegrounds::TeamsCount::Value];                   // 0 - alliance, 1 - horde
 
         // Players count by team
-        uint32 m_PlayersCount[BG_TEAMS_COUNT];
+        uint32 m_PlayersCount[MS::Battlegrounds::TeamsCount::Value];
 
         // Arena team ids by team
-        uint32 m_ArenaTeamIds[BG_TEAMS_COUNT];
+        uint32 m_ArenaTeamIds[MS::Battlegrounds::TeamsCount::Value];
 
-        int32 m_ArenaTeamRatingChanges[BG_TEAMS_COUNT];
-        uint32 m_ArenaTeamMMR[BG_TEAMS_COUNT];
+        int32 m_ArenaTeamRatingChanges[MS::Battlegrounds::TeamsCount::Value];
+        uint32 m_ArenaTeamMMR[MS::Battlegrounds::TeamsCount::Value];
 
         // Limits
         uint32 m_LevelMin;
@@ -1233,10 +1249,10 @@ class Battleground
         // Start location
         uint32 m_MapId;
         BattlegroundMap* m_Map;
-        float m_TeamStartLocX[BG_TEAMS_COUNT];
-        float m_TeamStartLocY[BG_TEAMS_COUNT];
-        float m_TeamStartLocZ[BG_TEAMS_COUNT];
-        float m_TeamStartLocO[BG_TEAMS_COUNT];
+        float m_TeamStartLocX[MS::Battlegrounds::TeamsCount::Value];
+        float m_TeamStartLocY[MS::Battlegrounds::TeamsCount::Value];
+        float m_TeamStartLocZ[MS::Battlegrounds::TeamsCount::Value];
+        float m_TeamStartLocO[MS::Battlegrounds::TeamsCount::Value];
         float m_StartMaxDist;
         uint32 m_holiday;
         uint32 ScriptId;

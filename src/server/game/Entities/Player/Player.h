@@ -2742,6 +2742,16 @@ class Player : public Unit, public GridObject<Player>
             return itr != m_bgData.bgQueuesJoinedTime.end() ? itr->second : time(NULL);
         }
 
+        void ChangeBattlegroundQueueJoinTimeKey(uint32 p_BgTypeId, uint32 p_OldBgTypeId)
+        {
+            auto l_Itr = m_bgData.bgQueuesJoinedTime.find(p_OldBgTypeId);
+            if (l_Itr != std::end(m_bgData.bgQueuesJoinedTime))
+            {
+                m_bgData.bgQueuesJoinedTime.insert(std::make_pair(p_BgTypeId, l_Itr->second));
+                m_bgData.bgQueuesJoinedTime.erase(l_Itr);
+            }
+        }
+
         void AddBattlegroundQueueJoinTime(uint32 bgTypeId, uint32 joinTime)
         {
             m_bgData.bgQueuesJoinedTime[bgTypeId] = joinTime;
@@ -2749,8 +2759,9 @@ class Player : public Unit, public GridObject<Player>
 
         void RemoveBattlegroundQueueJoinTime(uint32 bgTypeId)
         {
-            if (m_bgData.bgQueuesJoinedTime.find(bgTypeId) != m_bgData.bgQueuesJoinedTime.end())
-                m_bgData.bgQueuesJoinedTime.erase(m_bgData.bgQueuesJoinedTime.find(bgTypeId)->second);
+            auto l_Itr = m_bgData.bgQueuesJoinedTime.find(bgTypeId);
+            if (l_Itr != m_bgData.bgQueuesJoinedTime.end())
+                m_bgData.bgQueuesJoinedTime.erase(l_Itr);
         }
         
         bool InBattlegroundQueue() const

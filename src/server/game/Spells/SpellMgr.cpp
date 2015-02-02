@@ -26,7 +26,7 @@
 #include "World.h"
 #include "Chat.h"
 #include "Spell.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 #include "CreatureAI.h"
 #include "MapManager.h"
 #include "BattlegroundIC.h"

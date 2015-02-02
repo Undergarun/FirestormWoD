@@ -22,7 +22,7 @@
 #include "Creature.h"
 #include "GameObject.h"
 #include "ObjectMgr.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 #include "WorldPacket.h"
 #include "Language.h"
 #include "MapManager.h"

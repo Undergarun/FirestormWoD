@@ -1,20 +1,10 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2014 Millenium-studio SARL
+//  All Rights Reserved.
+//
+//////////////////////////////////////////////////////////////////////////////// 
 
 #include "Common.h"
 #include "ObjectMgr.h"
@@ -22,7 +12,7 @@
 #include "WorldPacket.h"
 
 #include "Arena.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 #include "BattlegroundAV.h"
 #include "BattlegroundAB.h"
 #include "BattlegroundDG.h"
@@ -69,14 +59,13 @@ namespace MS
             m_ArenaSelectionWeights(),
             m_BGSelectionWeights(),
             m_RatedBGSelectionWeights(),
-            m_QueueUpdateScheduler(),
             m_ClientBattlegroundIds(),
-            m_NextRatedArenaUpdate(sWorld->getIntConfig(CONFIG_ARENA_RATED_UPDATE_TIMER)),
             m_ArenaTesting(false),
             m_Testing(false),
             m_Scheduler(),
             m_InvitationsMgr()
         {
+            std::fill(std::begin(m_BattlegroundTemplates), std::end(m_BattlegroundTemplates), nullptr);
         }
 
         BattlegroundMgr::~BattlegroundMgr()
@@ -89,7 +78,8 @@ namespace MS
              for (std::size_t i = BattlegroundType::Begin; i < BattlegroundType::End; i++)
              {
                  /// Delete template object.
-                 delete m_BattlegroundTemplates[i];
+                 if (m_BattlegroundTemplates[i])
+                     delete m_BattlegroundTemplates[i];
  
                  /// Delete battleground objects for each bracket id.
                  for (std::size_t l_BracketId = 0; l_BracketId < Brackets::Count; l_BracketId++)
@@ -138,8 +128,9 @@ namespace MS
                         if (l_Bg->ToBeDeleted())
                         {
                             l_I2B.erase(l_Bg->GetInstanceID());
-                            if (!l_Clients[l_Bg->GetBracketId()].empty())
-                                l_Clients[l_Bg->GetBracketId()].erase(l_Bg->GetClientInstanceID());
+                            l_Clients[l_Bg->GetBracketId()].erase(l_Bg->GetClientInstanceID());
+                            delete l_Bg;
+
                             return true;
                         }
 
@@ -153,29 +144,6 @@ namespace MS
 
             /// Update Scheduler.
             m_Scheduler.FindMatches();
-
-            // if rating difference counts, maybe force-update queues
-            /*if (sWorld->getIntConfig(CONFIG_ARENA_MAX_RATING_DIFFERENCE) && sWorld->getIntConfig(CONFIG_ARENA_RATED_UPDATE_TIMER))
-            {
-            // it's time to force update
-            if (m_NextRatedArenaUpdate < diff)
-            {
-            // forced update for rated arenas (scan all, but skipped non rated)
-            sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BattlegroundMgr: UPDATING ARENA QUEUES");
-            for (int qtype = BATTLEGROUND_QUEUE_2v2; qtype <= BATTLEGROUND_QUEUE_5v5; ++qtype)
-            for (int bracket = BG_BRACKET_ID_FIRST; bracket < Brackets::Count; ++bracket)
-            {
-            m_BattlegroundQueues[qtype].BattlegroundQueueUpdate(
-            BATTLEGROUND_AA, Bracket::Id(bracket),
-            BattlegroundMgr::BGArenaType(BattlegroundQueueTypeId(qtype)));
-
-            }
-
-            m_NextRatedArenaUpdate = sWorld->getIntConfig(CONFIG_ARENA_RATED_UPDATE_TIMER);
-            }
-            else
-            m_NextRatedArenaUpdate -= diff;
-            }*/
         }
 
         Battleground* BattlegroundMgr::GetBattleground(uint32 p_InstanceId, BattlegroundType::Type p_BgType) const
@@ -240,7 +208,7 @@ namespace MS
                 return nullptr;
             }
 
-            bool l_IsRatedBg = p_BgType == BattlegroundType::RatedBg10v10;
+            bool l_IsRatedBg = BattlegroundType::IsRated(p_BgType);
 
             Battleground* l_Battleground = nullptr;
 
@@ -335,7 +303,7 @@ namespace MS
 
         uint32 BattlegroundMgr::CreateBattlegroundTemplate(CreateBattlegroundData& data)
         {
-            // Create the BG.
+            /// Create the battleground template.
             Battleground* l_Bg = nullptr;
             switch (data.bgTypeId)
             {
@@ -426,7 +394,7 @@ namespace MS
             l_Bg->SetHolidayId(data.holiday);
             l_Bg->SetScriptId(data.scriptId);
 
-            // Add template.
+            /// Add template.
             m_BattlegroundTemplates[GetSchedulerType(l_Bg->GetTypeID())] = l_Bg;
 
             /// Return some not-null value, bgTypeId is good enough for me.
@@ -591,6 +559,10 @@ namespace MS
             }
         }
 
+        //////////////////////////////////////////////////////////////////////////
+        /// Config stuff
+        //////////////////////////////////////////////////////////////////////////
+
         void BattlegroundMgr::ToggleTesting()
         {
             m_Testing = !m_Testing;
@@ -607,24 +579,6 @@ namespace MS
                 sWorld->SendWorldText(LANG_DEBUG_ARENA_ON);
             else
                 sWorld->SendWorldText(LANG_DEBUG_ARENA_OFF);
-        }
-
-        void BattlegroundMgr::SetHolidayWeekends(std::list<uint32> activeHolidayId)
-        {
-            for (std::size_t l_BgType = BattlegroundType::Begin; l_BgType < BattlegroundType::End; l_BgType++)
-            {
-                if (Battleground* bg = GetBattlegroundTemplate(static_cast<BattlegroundType::Type>(l_BgType)))
-                {
-                    bool holidayActivate = false;
-
-                    if (uint32 holidayId = bg->GetHolidayId())
-                        for (auto activeId : activeHolidayId)
-                            if (holidayId == activeId)
-                                holidayActivate = true;
-
-                    bg->SetHoliday(holidayActivate);
-                }
-            }
         }
 
         uint32 BattlegroundMgr::GetMaxRatingDifference() const
@@ -645,6 +599,10 @@ namespace MS
         {
             return sWorld->getIntConfig(CONFIG_BATTLEGROUND_PREMATURE_FINISH_TIMER);
         }
+
+        //////////////////////////////////////////////////////////////////////////
+        /// Loading stuff
+        //////////////////////////////////////////////////////////////////////////
 
         void BattlegroundMgr::LoadBattleMastersEntry()
         {
@@ -679,6 +637,28 @@ namespace MS
             } while (l_Result->NextRow());
 
             sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u battlemaster entries in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+        }
+
+        //////////////////////////////////////////////////////////////////////////
+        /// Holiday stuff
+        //////////////////////////////////////////////////////////////////////////
+
+        void BattlegroundMgr::SetHolidayWeekends(std::list<uint32> const& activeHolidayId)
+        {
+            for (std::size_t l_BgType = BattlegroundType::Begin; l_BgType < BattlegroundType::End; l_BgType++)
+            {
+                if (Battleground* bg = GetBattlegroundTemplate(static_cast<BattlegroundType::Type>(l_BgType)))
+                {
+                    bool holidayActivate = false;
+
+                    if (uint32 holidayId = bg->GetHolidayId())
+                        for (auto activeId : activeHolidayId)
+                            if (holidayId == activeId)
+                                holidayActivate = true;
+
+                    bg->SetHoliday(holidayActivate);
+                }
+            }
         }
 
         HolidayIds BattlegroundMgr::BGTypeToWeekendHolidayId(BattlegroundTypeId bgTypeId)
@@ -717,6 +697,5 @@ namespace MS
         {
             return IsHolidayActive(BGTypeToWeekendHolidayId(bgTypeId));
         }
-
-    }
-}
+    } ///< namespace Battlegrounds.
+} ///< namespace MS.
