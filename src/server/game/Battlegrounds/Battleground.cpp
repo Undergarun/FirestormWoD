@@ -1199,10 +1199,6 @@ void Battleground::StartBattleground()
 {
     SetElapsedTime(0);
     SetLastResurrectTime(0);
-    // add bg to update list
-    // This must be done here, because we need to have already invited some players when first BG::Update() method is executed
-    // and it doesn't matter if we call StartBattleground() more times, because m_Battlegrounds is a map and instance id never changes
-    sBattlegroundMgr->AddBattleground(GetInstanceID(), GetTypeID(), this);
 }
 
 void Battleground::BuildArenaOpponentSpecializations(WorldPacket* p_Packet, uint32 p_Team)
