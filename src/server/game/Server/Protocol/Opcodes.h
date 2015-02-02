@@ -1094,7 +1094,7 @@ enum Opcodes
     CMSG_REALM_NAME_QUERY                       = 0x17BC, ///< 6.1.0 19551
     CMSG_GAMEOBJECT_QUERY                       = 0x021A, ///< 6.1.0 19551
     CMSG_PETITION_QUERY                         = 0x0000, ///<
-    CMSG_QUERY_GUILD_INFO                       = 0x0000, ///<
+    CMSG_QUERY_GUILD_INFO                       = 0x19B3, ///< 6.1.0 19551
     CMSG_PAGE_TEXT_QUERY                        = 0x0000, ///<
     CMSG_ITEM_TEXT_QUERY                        = 0x0000, ///<
 
