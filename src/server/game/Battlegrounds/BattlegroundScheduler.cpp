@@ -441,7 +441,7 @@ namespace MS
                         }
 
                         /// Add groups to the battleground and remove them from waiting groups list.
-                        for (std::size_t i = l_BestType + TEAM_ALLIANCE; i <= l_BestType + TEAM_HORDE; i++)
+                        for (int i = l_BestType + TEAM_ALLIANCE; i <= l_BestType + TEAM_HORDE; i++)
                         {
                             for (GroupQueueInfo* l_Group : l_PotentialGroups[i])
                             {
