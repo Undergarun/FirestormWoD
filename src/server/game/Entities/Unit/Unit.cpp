@@ -911,6 +911,28 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         }
     }
 
+    /// Rage from Damage made (only from direct weapon damage)
+    if (cleanDamage && damagetype == DIRECT_DAMAGE && this != victim && getPowerType() == POWER_RAGE &&
+        HasAura(SPELL_AURA_MOD_RAGE_FROM_DAMAGE_DEALT) && cleanDamage->mitigated_damage > 0 &&
+        (!spellProto || !spellProto->HasAura(SPELL_AURA_SPLIT_DAMAGE_PCT)))
+    {
+        float l_Rage = GetAttackTime(cleanDamage->attackType) / 1000.f * 5.f;
+
+        switch (cleanDamage->attackType)
+        {
+            case WeaponAttackType::OffAttack:
+                l_Rage /= 2.f;
+            case WeaponAttackType::BaseAttack:
+                /// Which amount of the calculated rage the player can get ? Ex: http://www.wowhead.com/spell=2457 it's 100%
+                l_Rage = CalculatePct(l_Rage, GetTotalAuraModifier(SPELL_AURA_MOD_RAGE_FROM_DAMAGE_DEALT));
+                if (l_Rage)
+                    RewardRage(l_Rage);
+                break;
+            default:
+                break;
+        }
+    }
+
     if (damagetype != NODAMAGE && (damage || (cleanDamage && cleanDamage->absorbed_damage)))
     {
         if (victim != this && victim->GetTypeId() == TYPEID_PLAYER) // does not support creature push_back
