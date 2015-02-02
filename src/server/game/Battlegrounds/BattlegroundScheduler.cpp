@@ -705,6 +705,8 @@ namespace MS
                                     AddToBG(l_Group, l_Bg);
                                 }
                             }
+
+                            l_Bg->StartBattleground();
                         }
                         else if (BattlegroundType::IsRated(l_DecidedBg))
                         {
@@ -746,6 +748,8 @@ namespace MS
 
                                     l_Previous = nullptr;
                                     continue;
+
+                                    l_Bg->StartBattleground();
                                 }
 
                                 l_Previous = l_Group;
@@ -773,6 +777,8 @@ namespace MS
                                     AddToBG(l_Group, l_Bg, i == TEAM_ALLIANCE ? ALLIANCE : HORDE);
                                 }
                             }
+
+                            l_Bg->StartBattleground();
                         }
                     }
                 }
