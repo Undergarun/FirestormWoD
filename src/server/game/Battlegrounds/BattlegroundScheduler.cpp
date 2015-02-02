@@ -24,7 +24,7 @@ namespace MS
             /// @p_BracketId : The bracket id of the battleground.
             static bool IsEligibleForBattleground(GroupQueueInfo const* p_Group, BattlegroundType::Type p_Type, Bracket::Id p_BracketId)
             {
-                std::size_t l_BattlegroundMask = 1i64 << p_Type;
+                uint64 l_BattlegroundMask = 1 << p_Type;
 
                 if (p_Group->m_BracketId != p_BracketId)
                     return false;
@@ -168,7 +168,7 @@ namespace MS
                 l_GroupQueue->m_WantedBGs = BattlegroundMasks::AllArenas;
                 break;
             default:
-                l_GroupQueue->m_WantedBGs = 1i64 << p_BgTypeId;
+                l_GroupQueue->m_WantedBGs = (uint64)1 << p_BgTypeId;
                 break;
             }
 
@@ -181,8 +181,8 @@ namespace MS
                     if (l_Type == BattlegroundType::None)
                         continue;
 
-                    if (l_GroupQueue->m_WantedBGs & (1i64 << l_Type))
-                        l_GroupQueue->m_WantedBGs &= ~(1i64 << l_Type);
+                    if (l_GroupQueue->m_WantedBGs & ((uint64)1 << l_Type))
+                        l_GroupQueue->m_WantedBGs &= ~((uint64)1 << l_Type);
                 }
             }
 
