@@ -821,7 +821,7 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
 
     for (uint8 j = 0; j < PLAYER_MAX_BATTLEGROUND_QUEUES; ++j)
     {
-        m_bgBattlegroundQueueID[j].bgQueueTypeId = BATTLEGROUND_QUEUE_NONE;
+        m_bgBattlegroundQueueID[j].BgType = MS::Battlegrounds::BattlegroundType::None;
         m_bgBattlegroundQueueID[j].invitedToInstance = 0;
     }
 
@@ -12246,7 +12246,7 @@ void Player::SendBGWeekendWorldStates()
         BattlemasterListEntry const* bl = sBattlemasterListStore.LookupEntry(i);
         if (bl && bl->HolidayWorldState)
         {
-            if (BattlegroundMgr::IsBGWeekend((BattlegroundTypeId)bl->ID))
+            if (MS::Battlegrounds::BattlegroundMgr::IsBGWeekend((BattlegroundTypeId)bl->ID))
                 SendUpdateWorldState(bl->HolidayWorldState, 1);
             else
                 SendUpdateWorldState(bl->HolidayWorldState, 0);
@@ -15557,6 +15557,12 @@ void Player::SwapItem(uint16 src, uint16 dst)
 
     Item* pSrcItem = GetItemByPos(srcbag, srcslot);
     Item* pDstItem = GetItemByPos(dstbag, dstslot);
+
+    /// If we want to swap the same item it is useless.
+    if (pSrcItem == pDstItem)
+        return;
+
+    sLog->outAshran("Player::SwapItem[%u] srcbag : %u destbag : %u pSrcItem %u pDstItem %u", GetGUIDLow(), src, dst, pSrcItem ? pSrcItem->GetEntry() : 0, pDstItem ? pDstItem->GetEntry() : 0);
 
     if (!pSrcItem)
         return;
@@ -19928,13 +19934,13 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     {
         Battleground* currentBg = NULL;
         if (m_bgData.bgInstanceID)                                                //saved in Battleground
-            currentBg = sBattlegroundMgr->GetBattleground(m_bgData.bgInstanceID, BATTLEGROUND_TYPE_NONE);
+            currentBg = sBattlegroundMgr->GetBattleground(m_bgData.bgInstanceID, MS::Battlegrounds::BattlegroundType::None);
 
         bool player_at_bg = currentBg && currentBg->IsPlayerInBattleground(GetGUID());
 
         if (player_at_bg && currentBg->GetStatus() != STATUS_WAIT_LEAVE)
         {
-            BattlegroundQueueTypeId bgQueueTypeId = sBattlegroundMgr->BGQueueTypeId(currentBg->GetTypeID(), currentBg->GetArenaType(), currentBg->IsSkirmish());
+            MS::Battlegrounds::BattlegroundType::Type bgQueueTypeId = MS::Battlegrounds::GetTypeFromId(currentBg->GetTypeID(), currentBg->GetArenaType(), currentBg->IsSkirmish());
             AddBattlegroundQueueId(bgQueueTypeId);
 
             m_bgData.bgTypeID = currentBg->GetTypeID();
@@ -26808,7 +26814,7 @@ Battleground* Player::GetBattleground() const
     if (GetBattlegroundId() == 0)
         return NULL;
 
-    return sBattlegroundMgr->GetBattleground(GetBattlegroundId(), m_bgData.bgTypeID);
+    return sBattlegroundMgr->GetBattleground(GetBattlegroundId(), MS::Battlegrounds::GetSchedulerType(m_bgData.bgTypeID));
 }
 
 bool Player::InArena() const
@@ -26832,7 +26838,7 @@ bool Player::InRatedBattleGround() const
 bool Player::GetBGAccessByLevel(BattlegroundTypeId bgTypeId) const
 {
     // get a template bg instead of running one
-    Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(bgTypeId);
+    Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(MS::Battlegrounds::GetSchedulerType(bgTypeId));
     if (!bg)
         return false;
 
@@ -32016,6 +32022,72 @@ CompletedChallenge* Player::GetCompletedChallenge(uint32 p_MapID)
     return &m_CompletedChallenges[p_MapID];
 }
 //////////////////////////////////////////////////////////////////////////
+
+void Player::ApplyOnBagsItems(std::function<bool(Player*, Item*, uint8, uint8)>&& p_Function)
+{
+    for (uint32 l_I = INVENTORY_SLOT_ITEM_START; l_I < INVENTORY_SLOT_ITEM_END; l_I++)
+    {
+        if (Item* l_Item = GetItemByPos(INVENTORY_SLOT_BAG_0, l_I))
+        {
+            if (!p_Function(this, l_Item, INVENTORY_SLOT_BAG_0, l_I))
+                return;
+        }
+    }
+
+    for (uint32 l_I = INVENTORY_SLOT_BAG_START; l_I < INVENTORY_SLOT_BAG_END; ++l_I)
+    {
+        if (Bag* l_Bag = (Bag*)GetItemByPos(INVENTORY_SLOT_BAG_0, l_I))
+        {
+            for (uint32 l_J = 0; l_J < l_Bag->GetBagSize(); ++l_J)
+            {
+                if (Item* l_Item = GetItemByPos(l_I, l_J))
+                {
+                    if (!p_Function(this, l_Item, l_I, l_J))
+                        return;
+                }
+            }
+        }
+    }
+}
+
+void Player::ApplyOnBankItems(std::function<bool(Player*, Item*, uint8, uint8)>&& p_Function)
+{
+    for (uint32 l_I = BANK_SLOT_ITEM_START; l_I < BANK_SLOT_ITEM_END; l_I++)
+    {
+        if (Item* l_Item = GetItemByPos(INVENTORY_SLOT_BAG_0, l_I))
+        {
+            if (!p_Function(this, l_Item, INVENTORY_SLOT_BAG_0, l_I))
+                return;
+        }
+    }
+
+    for (uint32 l_I = BANK_SLOT_BAG_START; l_I < BANK_SLOT_BAG_END; ++l_I)
+    {
+        if (Bag* l_Bag = (Bag*)GetItemByPos(INVENTORY_SLOT_BAG_0, l_I))
+        {
+            for (uint32 l_J = 0; l_J < l_Bag->GetBagSize(); ++l_J)
+            {
+                if (Item* l_Item = GetItemByPos(l_I, l_J))
+                {
+                    if (!p_Function(this, l_Item, l_I, l_J))
+                        return;
+                }
+            }
+        }
+    }
+}
+
+void Player::ApplyOnReagentBankItems(std::function<bool(Player*, Item*, uint8, uint8)>&& p_Function)
+{
+    for (uint32 l_I = REAGENT_BANK_SLOT_BAG_START; l_I < REAGENT_BANK_SLOT_BAG_END; ++l_I)
+    {
+        if (Item* l_Item = GetItemByPos(INVENTORY_SLOT_BAG_0, l_I))
+        {
+            if (!p_Function(this, l_Item, INVENTORY_SLOT_BAG_0, l_I))
+                return;
+        }
+    }
+}
 
 void Player::_LoadDailyLootsCooldowns(PreparedQueryResult&& p_Result)
 {

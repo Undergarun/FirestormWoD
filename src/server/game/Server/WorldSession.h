@@ -1114,6 +1114,9 @@ class WorldSession
         void HandleChallengeModeRequestLeaders(WorldPacket& p_RecvData);
         void HandleChallengeModeRequestMapStats(WorldPacket& p_RecvData);
 
+        /// Auto sort bags.
+        void HandleSortBags(WorldPacket& p_RecvData);
+
     private:
         void InitializeQueryCallbackParameters();
         void ProcessQueryCallbacks();
