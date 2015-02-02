@@ -59,10 +59,10 @@ enum Opcodes
         SMSG_ADDON_INFO                             = 0x199B, ///< 6.1.0 19551
         SMSG_FEATURE_SYSTEM_STATUS                  = 0x13F3, ///< 6.1.0 19551
         SMSG_SET_TIME_ZONE_INFORMATION              = 0x15B4, ///< 6.1.0 19551
-        SMSG_LOGIN_VERIFY_WORLD                     = 0x0B31, ///< 6.1.0 19951
+        SMSG_LOGIN_VERIFY_WORLD                     = 0x0B31, ///< 6.1.0 19551
         SMSG_NEW_WORLD                              = 0x190B, ///< 6.1.0 19551
         SMSG_LOGIN_SET_TIME_SPEED                   = 0x1309, ///< 6.1.0 19551
-        SMSG_HOTFIX_NOTIFY_BLOB                     = 0x19B9, ///< 6.1.0 19951
+        SMSG_HOTFIX_NOTIFY_BLOB                     = 0x19B9, ///< 6.1.0 19551
         SMSG_HOTFIX_NOTIFY                          = 0x199C, ///< 6.1.0 19551
         SMSG_WORLD_SERVER_INFO                      = 0x0864, ///< 6.1.0 19551
         SMSG_INITIAL_SETUP                          = 0x0A6B, ///< 6.1.0 19551
@@ -605,18 +605,17 @@ enum Opcodes
         SMSG_WHO                                    = 0x14F2, ///< 6.1.0 19551
 
         /// Chat
-        SMSG_CHAT_SERVER_MESSAGE                    = 0x0000, ///<
-        SMSG_CHAT_RESTRICTED                        = 0x0000, ///<
+        SMSG_CHAT_SERVER_MESSAGE                    = 0x103A, ///< 6.1.0 19551
+        SMSG_CHAT_RESTRICTED                        = 0x103B, ///< 6.1.0 19551
         SMSG_CHAT_RECONNECT                         = 0x0000, ///< (unused)
-        SMSG_CHAT_PLAYER_NOTFOUND                   = 0x0000, ///<
-        SMSG_CHAT_PLAYER_AMBIGUOUS                  = 0x0000, ///<
+        SMSG_CHAT_PLAYER_NOTFOUND                   = 0x1079, ///< 6.1.0 19551
+        SMSG_CHAT_PLAYER_AMBIGUOUS                  = 0x1232, ///< 6.1.0 19551
         SMSG_CHAT_NOT_IN_PARTY                      = 0x0000, ///< (unused)
         SMSG_CHAT_IS_DOWN                           = 0x0000, ///< (unused)
         SMSG_CHAT_IGNORED_ACCOUNT_MUTED             = 0x0000, ///< (unused)
         SMSG_CHAT_DOWN                              = 0x0000, ///< (unused)
         SMSG_CHAT_AUTO_RESPONDED                    = 0x0000, ///< (unused)
         SMSG_CHAT                                   = 0x1472, ///< 6.1.0 19551
-        SMSG_CHAT_PLAYER_NOT_FOUND                  = 0x0000, ///<
 
         /// Channel
         SMSG_CHANNEL_NOTIFY_LEFT                    = 0x0000, ///<
@@ -657,7 +656,7 @@ enum Opcodes
         /// Player
         SMSG_MOVE_UPDATE                                    = 0x1514, ///< 6.1.0 19551
         SMSG_MOVE_TELEPORT                                  = 0x0C21, ///< 6.1.0 19551
-        SMSG_MOVE_UPDATE_TELEPORT                           = 0x0171, ///< 6.1.0 19951
+        SMSG_MOVE_UPDATE_TELEPORT                           = 0x0171, ///< 6.1.0 19551
         SMSG_MOVE_ROOT                                      = 0x0031, ///< 6.1.0 19551
         SMSG_MOVE_UNROOT                                    = 0x0A52, ///< 6.1.0 19551
         SMSG_MOVE_WATER_WALK                                = 0x0D62, ///< 6.1.0 19551
@@ -983,7 +982,7 @@ enum Opcodes
     CMSG_CHAR_DELETE                            = 0x1774, ///< 6.1.0 19551
     CMSG_REORDER_CHARACTERS                     = 0x0000, ///<
     CMSG_PLAYER_LOGIN                           = 0x1D31, ///< 6.1.0 19551
-    CMSG_VIOLENCE_LEVEL                         = 0x0071, ///< 6.1.0 19951
+    CMSG_VIOLENCE_LEVEL                         = 0x0071, ///< 6.1.0 19551
     CMSG_LOAD_SCREEN                            = 0x13E4, ///< 6.1.0 19551
     CMSG_REQUEST_ACCOUNT_DATA                   = 0x0000, ///<
     CMSG_UPDATE_ACCOUNT_DATA                    = 0x0000, ///<
@@ -1152,7 +1151,7 @@ enum Opcodes
     CMSG_REQUEST_INSPECT_RATED_BG_STATS         = 0x0000, ///<
     CMSG_TIME_SYNC_RESP                         = 0x0000, ///<
     CMSG_UNLEARN_SKILL                          = 0x0000, ///<
-    CMSG_EMOTE                                  = 0x0A27, ///>
+    CMSG_EMOTE                                  = 0x0A27, ///<
     CMSG_SEND_TEXT_EMOTE                        = 0x0000, ///<
     CMSG_ALTER_APPEARANCE                       = 0x0000, ///<
     CMSG_SELF_RES                               = 0x0000, ///<
