@@ -120,15 +120,6 @@ namespace MS
             /// @p_Data : The data associated to the template we are looking for.
             uint32 CreateBattlegroundTemplate(CreateBattlegroundData& p_Data);
 
-            /// Adds a battleground to the list of battlegrounds owned.
-            /// @p_InstanceId   : The instance id of the battleground.
-            /// @p_BgTypeId     : The TypeId of the battleground.
-            /// @p_Bg           : The battleground instance.
-            void AddBattleground(uint32 p_InstanceId, BattlegroundTypeId p_BgTypeId, Battleground* p_Bg)
-            {
-                m_Battlegrounds[p_Bg->GetBracketId()][p_BgTypeId].push_back(std::make_pair(p_InstanceId, p_Bg));
-            }
-
             /// Removes the instance of the battleground associated to the instance id and the type.
             /// @p_InstanceId   : The instance id.
             /// @p_BgTypeId     : The type of the battleground.
