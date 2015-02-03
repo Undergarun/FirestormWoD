@@ -9798,28 +9798,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
 
             break;
         }
-        case 87195: // Glyph of Mind Blast
-        {
-            if (!procSpell)
-                return false;
-
-            if (GetTypeId() != TYPEID_PLAYER)
-                return false;
-
-            if (!victim)
-                return false;
-
-            if (procSpell->Id != 8092)
-                return false;
-
-            if (HasAura(87160))
-                return false;
-
-            if (!(procEx & PROC_EX_CRITICAL_HIT))
-                return false;
-
-            break;
-        }
         case 109142:// Twist of Fate
         {
             if (!victim)

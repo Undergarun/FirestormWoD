@@ -137,7 +137,8 @@ enum PriestSpells
     PRIEST_GLYPH_OF_POWER_WORD_SHIELD_PROC          = 56160,
     PRIEST_GLYPH_OF_MIND_HARVEST                    = 162532,
     PRIEST_GLYPH_OF_MIND_HARVEST_MARKER             = 162414,
-    PRIEST_SPELL_VOID_ENTROPY                       = 155361
+    PRIEST_SPELL_VOID_ENTROPY                       = 155361,
+    PRIEST_GLYPH_OF_MIND_BLAST                      = 87194
 };
 
 // Shadow Orb - 77487 & Glyph od Shadow ravens - 57985
@@ -2699,6 +2700,49 @@ public:
     }
 };
 
+// Glyphe of Mind Blast - 87195
+class spell_pri_glyphe_of_mind_blast : public SpellScriptLoader
+{
+public:
+    spell_pri_glyphe_of_mind_blast() : SpellScriptLoader("spell_pri_glyphe_of_mind_blast") { }
+
+    class spell_pri_glyphe_of_mind_blast_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pri_glyphe_of_mind_blast_AuraScript);
+
+        void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+        {
+            PreventDefaultAction();
+
+            Unit* l_Caster = GetCaster();
+
+            if (!l_Caster)
+                return;
+
+            if (p_EventInfo.GetActor()->GetGUID() != l_Caster->GetGUID())
+                return;
+
+            if (!p_EventInfo.GetDamageInfo()->GetSpellInfo() || p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != PRIEST_SPELL_MIND_BLAST || !GetSpellInfo())
+                return;
+
+            if (!(p_EventInfo.GetHitMask() & PROC_EX_CRITICAL_HIT))
+                return;
+
+            l_Caster->CastSpell(p_EventInfo.GetDamageInfo()->GetVictim(), PRIEST_GLYPH_OF_MIND_BLAST, true);
+        }
+
+        void Register()
+        {
+            OnEffectProc += AuraEffectProcFn(spell_pri_glyphe_of_mind_blast_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_pri_glyphe_of_mind_blast_AuraScript();
+    }
+};
+
 // Insanity - 132573
 class PlayerScript_insanity: public PlayerScript
 {
@@ -2726,6 +2770,7 @@ public:
 
 void AddSC_priest_spell_scripts()
 {
+    new spell_pri_glyphe_of_mind_blast();
     new spell_pri_mind_blast();
     new spell_pri_word_barrier_update();
     new spell_pri_shadow_word_pain();
