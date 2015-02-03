@@ -134,7 +134,9 @@ enum PriestSpells
     PRIEST_SPELL_SHADOW_INSIGHT                     = 162452,
     PRIEST_SPELL_SHADOW_INSIGHT_PROC                = 124430,
     PRIEST_GLYPH_OF_POWER_WORD_SHIELD               = 55672,
-    PRIEST_GLYPH_OF_POWER_WORD_SHIELD_PROC          = 56160
+    PRIEST_GLYPH_OF_POWER_WORD_SHIELD_PROC          = 56160,
+    PRIEST_GLYPH_OF_MIND_HARVEST                    = 162532,
+    PRIEST_GLYPH_OF_MIND_HARVEST_MARKER             = 162414
 };
 
 // Shadow Orb - 77487 & Glyph od Shadow ravens - 57985
@@ -2630,6 +2632,67 @@ public:
     }
 };
 
+// Mind Blast - 8092
+class spell_pri_mind_blast: public SpellScriptLoader
+{
+public:
+    spell_pri_mind_blast() : SpellScriptLoader("spell_pri_mind_blast") { }
+
+    class spell_pri_mind_blast_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pri_mind_blast_SpellScript);
+
+        bool m_HasMarker = false;
+
+        void HandleBeforeCast()
+        {
+            if (Unit* l_Caster = GetCaster())
+                if (Unit* l_Target = GetExplTargetUnit())
+                {
+                    if (l_Target->HasAura(PRIEST_GLYPH_OF_MIND_HARVEST_MARKER))
+                        m_HasMarker = true;
+                }
+        }
+
+        void HandleEnergize(SpellEffIndex effIndex)
+        {
+            PreventHitDefaultEffect(effIndex);
+
+            Player *l_Player = GetCaster()->ToPlayer();
+
+            if (l_Player == nullptr || !l_Player->HasAura(PRIEST_GLYPH_OF_MIND_HARVEST))
+                return;
+
+            if (AuraPtr aura = l_Player->GetAura(PRIEST_GLYPH_OF_MIND_HARVEST))
+            {
+                uint32 l_OldCooldown = l_Player->GetSpellCooldownDelay(GetSpellInfo()->Id);
+                uint32 l_NewCooldown = l_OldCooldown + sSpellMgr->GetSpellInfo(PRIEST_GLYPH_OF_MIND_HARVEST)->Effects[EFFECT_1].BasePoints;
+
+                l_Player->RemoveSpellCooldown(GetSpellInfo()->Id, true);
+
+                if (m_HasMarker)
+                    l_Player->AddSpellCooldown(GetSpellInfo()->Id, 0, l_OldCooldown, true);
+                else
+                {
+                    l_Player->AddSpellCooldown(GetSpellInfo()->Id, 0, l_NewCooldown, true);
+                    GetSpell()->EffectEnergize(effIndex);
+                }
+            }
+        }
+
+        void Register()
+        {
+            BeforeCast += SpellCastFn(spell_pri_mind_blast_SpellScript::HandleBeforeCast);
+            OnEffectHitTarget += SpellEffectFn(spell_pri_mind_blast_SpellScript::HandleEnergize, EFFECT_3, SPELL_EFFECT_ENERGIZE);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pri_mind_blast_SpellScript();
+    }
+};
+
 // Insanity - 132573
 class PlayerScript_insanity: public PlayerScript
 {
@@ -2654,8 +2717,10 @@ public:
     }
 };
 
+
 void AddSC_priest_spell_scripts()
 {
+    new spell_pri_mind_blast();
     new spell_pri_word_barrier_update();
     new spell_pri_shadow_word_pain();
     new spell_pri_angelic_feather();
