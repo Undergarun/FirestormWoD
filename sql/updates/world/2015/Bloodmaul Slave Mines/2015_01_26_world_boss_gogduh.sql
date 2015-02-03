@@ -12,7 +12,9 @@ DELETE FROM spell_script_names WHERE ScriptName IN
 "spell_dancing_flames",
 "spell_withering_flames",
 "spell_molten_impact",
-"spell_magma_barrage"
+"spell_magma_barrage",
+"spell_magma_barrage_damage",
+"spell_magma_barrage_trigger"
 );
 
 INSERT INTO spell_script_names VALUES
@@ -21,7 +23,10 @@ INSERT INTO spell_script_names VALUES
 (149975, "spell_dancing_flames"),
 (150032, "spell_withering_flames"),
 (150045, "spell_molten_impact"),
-(150004, "spell_magma_barrage");
+(150004, "spell_magma_barrage"),
+(150007, "spell_magma_barrage_trigger"),
+(150306, "spell_magma_barrage_trigger"),
+(150011, "spell_magma_barrage_damage");
 
 DELETE FROM areatrigger_template WHERE spell_id IN (149970, 149969, 149968, 149959);
 INSERT INTO areatrigger_template (`spell_id`, `eff_index`, `entry`, `scale_x`, `scale_y`, `flags`, `morph_curve_id`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `data6`, `data7`, ScriptName) VALUES(149959, 0, 5555, 1, 1, 16512, 0, 10000, 0, 0, 0, 0, 0, 0, 0, "areatrigger_shatter_earth") ON DUPLICATE KEY UPDATE `spell_id` = VALUES(`spell_id`), `eff_index` = VALUES(`eff_index`), `entry` = VALUES(`entry`), `scale_x` = VALUES(`scale_x`), `scale_y` = VALUES(`scale_y`), `flags` = VALUES(`flags`), `morph_curve_id` = VALUES(`morph_curve_id`), `data0` = VALUES(`data0`), `data1` = VALUES(`data1`), `data2` = VALUES(`data2`), `data3` = VALUES(`data3`), `data4` = VALUES(`data4`), `data5` = VALUES(`data5`), `data6` = VALUES(`data6`), `data7` = VALUES(`data7`), scriptName = VALUES(scriptName);
@@ -37,6 +42,10 @@ INSERT INTO areatrigger_template (`spell_id`, `eff_index`, `entry`, `scale_x`, `
 INSERT INTO areatrigger_template (`spell_id`, `eff_index`, `entry`, `scale_x`, `scale_y`, `flags`, `morph_curve_id`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `data6`, `data7`, scriptName) VALUES(150051, 0, 5559, 1, 1, 16512, 0, 10000, 0, 0, 0, 0, 0, 0, 0, "areatrigger_volcanic_trantum") ON DUPLICATE KEY UPDATE `spell_id` = VALUES(`spell_id`), `eff_index` = VALUES(`eff_index`), `entry` = VALUES(`entry`), `scale_x` = VALUES(`scale_x`), `scale_y` = VALUES(`scale_y`), `flags` = VALUES(`flags`), `morph_curve_id` = VALUES(`morph_curve_id`), `data0` = VALUES(`data0`), `data1` = VALUES(`data1`), `data2` = VALUES(`data2`), `data3` = VALUES(`data3`), `data4` = VALUES(`data4`), `data5` = VALUES(`data5`), `data6` = VALUES(`data6`), `data7` = VALUES(`data7`), scriptName = VALUES(scriptName);
 INSERT INTO areatrigger_template (`spell_id`, `eff_index`, `entry`, `scale_x`, `scale_y`, `flags`, `morph_curve_id`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `data6`, `data7`, scriptName) VALUES(150052, 0, 5559, 1, 1, 16512, 0, 10000, 0, 0, 0, 0, 0, 0, 0, "areatrigger_volcanic_trantum") ON DUPLICATE KEY UPDATE `spell_id` = VALUES(`spell_id`), `eff_index` = VALUES(`eff_index`), `entry` = VALUES(`entry`), `scale_x` = VALUES(`scale_x`), `scale_y` = VALUES(`scale_y`), `flags` = VALUES(`flags`), `morph_curve_id` = VALUES(`morph_curve_id`), `data0` = VALUES(`data0`), `data1` = VALUES(`data1`), `data2` = VALUES(`data2`), `data3` = VALUES(`data3`), `data4` = VALUES(`data4`), `data5` = VALUES(`data5`), `data6` = VALUES(`data6`), `data7` = VALUES(`data7`), scriptName = VALUES(scriptName);
 INSERT INTO areatrigger_template (`spell_id`, `eff_index`, `entry`, `scale_x`, `scale_y`, `flags`, `morph_curve_id`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `data6`, `data7`, scriptName) VALUES(150053, 0, 5559, 1, 1, 16512, 0, 10000, 0, 0, 0, 0, 0, 0, 0, "areatrigger_volcanic_trantum") ON DUPLICATE KEY UPDATE `spell_id` = VALUES(`spell_id`), `eff_index` = VALUES(`eff_index`), `entry` = VALUES(`entry`), `scale_x` = VALUES(`scale_x`), `scale_y` = VALUES(`scale_y`), `flags` = VALUES(`flags`), `morph_curve_id` = VALUES(`morph_curve_id`), `data0` = VALUES(`data0`), `data1` = VALUES(`data1`), `data2` = VALUES(`data2`), `data3` = VALUES(`data3`), `data4` = VALUES(`data4`), `data5` = VALUES(`data5`), `data6` = VALUES(`data6`), `data7` = VALUES(`data7`), scriptName = VALUES(scriptName);
+
+DELETE FROM areatrigger_template WHERE spell_id IN (167465);
+INSERT INTO areatrigger_template (`spell_id`, `eff_index`, `entry`, `scale_x`, `scale_y`, `flags`, `morph_curve_id`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `data6`, `data7`, ScriptName) VALUES(167465, 0, 7455, 3, 3, 16384, 0, 0, 0, 0, 0, 0, 0, 0, 0, "areatrigger_magma_barrage") ON DUPLICATE KEY UPDATE `spell_id` = VALUES(`spell_id`), `eff_index` = VALUES(`eff_index`), `entry` = VALUES(`entry`), `scale_x` = VALUES(`scale_x`), `scale_y` = VALUES(`scale_y`), `flags` = VALUES(`flags`), `morph_curve_id` = VALUES(`morph_curve_id`), `data0` = VALUES(`data0`), `data1` = VALUES(`data1`), `data2` = VALUES(`data2`), `data3` = VALUES(`data3`), `data4` = VALUES(`data4`), `data5` = VALUES(`data5`), `data6` = VALUES(`data6`), `data7` = VALUES(`data7`), scriptName = VALUES(scriptName);
+
 
 DELETE FROM creature_text WHERE entry IN (74366, 74475);
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES

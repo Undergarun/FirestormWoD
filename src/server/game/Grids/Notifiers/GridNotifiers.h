@@ -363,7 +363,20 @@ namespace JadeCore
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) {}
     };
 
+    template<class Check>
+    struct AreaTriggerSearcher
+    {
+        uint32 i_phaseMask;
+        AreaTrigger* &i_object;
+        Check & i_check;
 
+        AreaTriggerSearcher(WorldObject const* searcher, AreaTrigger* & result, Check & check)
+            : i_phaseMask(searcher->GetPhaseMask()), i_object(result), i_check(check) {}
+
+        void Visit(AreaTriggerMapType &m);
+
+        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) {}
+    };
     /// Gameobject searchers
 
     template<class Check>
@@ -1064,6 +1077,29 @@ namespace JadeCore
 
             // prevent clone this object
             NearestAttackableUnitInObjectRangeCheck(NearestAttackableUnitInObjectRangeCheck const&);
+    };
+
+    class NearestAreaTriggerWithIdInObjectRangeCheck
+    {
+        public:
+            NearestAreaTriggerWithIdInObjectRangeCheck(WorldObject const* obj, uint32 spellId, float range) : i_obj(obj), i_spellId(spellId), i_range(range) {}
+            bool operator()(AreaTrigger* a)
+            {
+                if (i_obj->IsWithinDistInMap(a, i_range) && a->GetSpellId() == i_spellId)
+                {
+                    i_range = i_obj->GetDistance(a);        // use found unit range as new range limit for next check
+                    return true;
+                }
+
+                return false;
+            }
+        private:
+            WorldObject const* i_obj;
+            uint32 i_spellId;
+            float i_range;
+
+            // prevent clone this object
+            NearestAreaTriggerWithIdInObjectRangeCheck(NearestAreaTriggerWithIdInObjectRangeCheck const&);
     };
 
     // Success at unit in range, range update for next check (this can be use with UnitLastSearcher to find nearest unit)

@@ -83,7 +83,7 @@ namespace MS
 
                         if (Unit* p_Boss = me->FindNearestCreature((uint32)NPCs::Magmolatus, VISIBLE_RANGE, true))
                             if (BossAI* p_AI = CAST_AI(BossAI, p_Boss->GetAI()))
-                                p_AI->Talk((uint8)boss_magmolatus::Yells::Aggro);
+                                p_AI->Talk(0);
                         }
                     }
 
@@ -152,13 +152,13 @@ namespace MS
                             case Events::SpawnRuination:
                             {
                                 Talk((uint8)Yells::RuinationSpawn);
-                                DoCastAOE((uint32)Spells::ThrowEarth);
+                                DoCastAOE((uint32)Spells::ThrowEarth, true);
                                 break;
                             }
                             case Events::SpawnCalamity:
                             {
                                 Talk((uint8)Yells::CalamitySpawn);
-                                DoCastAOE((uint32)Spells::ThrowFlame);
+                                DoCastAOE((uint32)Spells::ThrowFlame, true);
                                 break;
                             }
                             default:
@@ -170,6 +170,8 @@ namespace MS
 
                         if (me->HasUnitState(UNIT_STATE_ROOT))
                             me->SetControlled(false, UNIT_STATE_ROOT);
+
+                        DoMeleeAttackIfReady();
                     }
 
                     Unit* SummonCreature(NPCs p_Creature, Position const& p_Position)
@@ -219,12 +221,17 @@ namespace MS
 
                 enum Yells
                 {
-                    Aggro       = 0,
-                    Release     = 1,
-                    SlagSmash   = 2,
-                    Elemental   = 3,
-                    Kill        = 4,
-                    Death       = 5
+                    Aggro           = 0,
+                    Release         = 1,
+                    SlagSmashYell   = 2,
+                    Elemental       = 3,
+                    Kill            = 4,
+                    Death           = 5
+                };
+
+                enum Achievements
+                {
+                    AGiftOfEarthAndFire = 8993
                 };
 
                 CreatureAI* GetAI(Creature* creature) const
@@ -282,6 +289,18 @@ namespace MS
 
                         if (instance)
                             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+
+                        Creature* l_Calamity = me->FindNearestCreature((uint32)boss_forgemaster_gogduh::NPCs::Calamity, VISIBLE_RANGE);
+                        Creature* l_Ruination = me->FindNearestCreature((uint32)boss_forgemaster_gogduh::NPCs::Ruination, VISIBLE_RANGE);
+
+                        if (l_Calamity && l_Ruination && instance && me->GetMap()->IsHeroic())
+                            instance->DoCompleteAchievement((uint32)Achievements::AGiftOfEarthAndFire);
+
+                        if (l_Calamity)
+                            l_Calamity->DisappearAndDie();
+
+                        if (l_Ruination)
+                            l_Ruination->DisappearAndDie();
 
                         _JustDied();
                     }
@@ -352,7 +371,7 @@ namespace MS
                             }
                             case Events::CastSmash:
                             {
-                                Talk((uint8)Yells::SlagSmash);
+                                Talk((uint8)Yells::SlagSmashYell);
                                 DoCastAOE((uint32)Spells::SlagSmash);
                                 NextEvent();
                                 break;
@@ -1070,6 +1089,124 @@ namespace MS
                     }
                 };
             };
+
+            class areatrigger_magma_barrage : public AreaTriggerEntityScript
+            {
+                enum Spells
+                {
+                    MagmaBarrageDamage = 150011
+                };
+
+            public:
+                areatrigger_magma_barrage() : AreaTriggerEntityScript("areatrigger_magma_barrage")
+                {
+                }
+
+                void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+                {
+                    Unit* l_Caster = p_AreaTrigger->GetCaster();
+                    std::list<Unit*> l_TargetList;
+                    float l_Radius = 3.f;
+
+                    if (!l_Caster)
+                        return;
+
+                    JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(p_AreaTrigger, l_Caster, l_Radius);
+                    JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(p_AreaTrigger, l_TargetList, u_check);
+                    p_AreaTrigger->VisitNearbyObject(l_Radius, searcher);
+
+                    for (auto& l_Itr : l_TargetList)
+                    {
+                        if (!l_Itr->HasAura((uint32)Spells::MagmaBarrageDamage))
+                        {
+                            l_Caster->CastSpell(l_Itr, (uint32)Spells::MagmaBarrageDamage, true);
+                        }
+                    }
+                }
+
+                AreaTriggerEntityScript* GetAI() const
+                {
+                    return new areatrigger_magma_barrage();
+                }
+            };
+
+            class spell_magma_barrage_trigger: public SpellScriptLoader
+            {
+            public:
+                spell_magma_barrage_trigger() : SpellScriptLoader("spell_magma_barrage_trigger") { }
+                
+                enum Spells
+                {
+                    MagmaBarrageTrigger = 167465
+                };
+
+                class spell_magma_barrage_trigger_SpellScript : public SpellScript
+                {
+                    PrepareSpellScript(spell_magma_barrage_trigger_SpellScript);
+
+                    void OnSpellHit(SpellEffIndex /*p_EffIndex*/)
+                    {
+                        Unit* l_Caster = GetCaster();
+                        WorldLocation const* l_Dest = GetExplTargetDest();
+
+                        if (!l_Caster || !l_Dest)
+                            return;
+
+                        l_Caster->CastSpell(l_Dest->m_positionX, l_Dest->m_positionY, l_Dest->m_positionZ, (uint32)Spells::MagmaBarrageTrigger, true);
+                    }
+
+                    void Register()
+                    {
+                        OnEffectHitTarget += SpellEffectFn(spell_magma_barrage_trigger_SpellScript::OnSpellHit, EFFECT_0, SPELL_EFFECT_TRIGGER_MISSILE);
+                    }
+                };
+
+                SpellScript* GetSpellScript() const
+                {
+                    return new spell_magma_barrage_trigger_SpellScript();
+                }
+            };
+
+            class spell_magma_barrage_damage: public SpellScriptLoader
+            {
+                public:
+                    spell_magma_barrage_damage() : SpellScriptLoader("spell_magma_barrage_damage") { }
+ 
+                    enum Spells
+                    {
+                        MagmaBarrageAreaTrigger = 167465
+                    };
+
+                    class spell_magma_barrage_damage_AuraScript : public AuraScript
+                    {
+                        PrepareAuraScript(spell_magma_barrage_damage_AuraScript)
+
+                        void OnPeriodic(constAuraEffectPtr aurEff)
+                        {
+                            Unit* l_Owner = GetOwner()->ToPlayer();
+                            if (!l_Owner)
+                                return;
+
+                            AreaTrigger* l_Trigger = nullptr;
+                            JadeCore::NearestAreaTriggerWithIdInObjectRangeCheck u_check(l_Owner, (uint32)Spells::MagmaBarrageAreaTrigger, 3.f);
+                            JadeCore::AreaTriggerSearcher<JadeCore::NearestAreaTriggerWithIdInObjectRangeCheck> searcher(l_Owner, l_Trigger, u_check);
+                            l_Owner->VisitNearbyObject(3.f, searcher);
+
+                            if (!l_Trigger)
+                                aurEff->GetBase()->Remove();
+                        }
+ 
+                        void Register()
+                        {
+                            OnEffectPeriodic += AuraEffectPeriodicFn(spell_magma_barrage_damage_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+                        }
+                    };
+ 
+                    AuraScript* GetAuraScript() const
+                    {
+                        return new spell_magma_barrage_damage_AuraScript();
+                    }
+            };
         }
     }
 }
@@ -1091,4 +1228,7 @@ void AddSC_boss_forgemaster_gogduh()
     new MS::Instances::Bloodmaul::spell_molten_impact();
     new MS::Instances::Bloodmaul::areatrigger_volcanic_trantum();
     new MS::Instances::Bloodmaul::npc_gugdoh_molten_elemental();
+    new MS::Instances::Bloodmaul::areatrigger_magma_barrage();
+    new MS::Instances::Bloodmaul::spell_magma_barrage_damage();
+    new MS::Instances::Bloodmaul::spell_magma_barrage_trigger();
 }

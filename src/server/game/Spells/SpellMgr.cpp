@@ -3460,6 +3460,10 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 150055: // Volcanic Tantrum
+            case 149963: // Shatter Earth
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(27); // 3 sec
+                break;
             case 150004: // Magma Barrage
                 spellInfo->InterruptFlags = SPELL_INTERRUPT_FLAG_MOVEMENT;
                 spellInfo->Effects[EFFECT_1].Effect = 0;

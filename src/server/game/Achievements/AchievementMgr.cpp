@@ -2532,6 +2532,11 @@ bool AchievementMgr<T>::CanUpdateCriteria(CriteriaEntry const* p_Criteria, Achie
         return false;
     }
 
+    if (RequiresScript(p_Criteria))
+    {
+        return false;
+    }
+
     return true;
 }
 
@@ -3905,4 +3910,21 @@ AchievementEntry const* AchievementGlobalMgr::GetAchievement(uint32 p_Achievemen
 CriteriaEntry const* AchievementGlobalMgr::GetAchievementCriteria(uint32 p_CriteriaID) const
 {
     return sCriteriaStore.LookupEntry(p_CriteriaID);
+}
+
+// This function will be used temporarely for scripted achievements because we dont want them to be spread
+// accross the whole core and untill criteria scripts are fixed.
+template<class T>
+bool AchievementMgr<T>::RequiresScript(CriteriaEntry const* p_Criteria)
+{
+    if (!p_Criteria)
+        return true;
+
+    switch (p_Criteria->ID)
+    {
+        case 24682: // A Gift of Earth and Fire
+            return true;
+        default:
+            return false;
+    }
 }
