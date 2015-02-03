@@ -2748,7 +2748,7 @@ namespace MS { namespace Garrison
 
         if (l_GobEntry != 0)
         {
-            GameObject * l_Gob = m_Owner->SummonGameObject(l_GobEntry, l_PlotInfo.X, l_PlotInfo.Y, l_PlotInfo.Z, l_PlotInfo.O, 0, 0, 0, 0, 0);
+            GameObject * l_Gob = m_Owner->SummonGameObject(l_GobEntry, l_PlotInfo.X, l_PlotInfo.Y, l_PlotInfo.Z, l_PlotInfo.O, 0, 0, 0, 0, 0, 0, 0, 255, 0, true);
         
             if (l_Gob)
             {
