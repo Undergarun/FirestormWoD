@@ -1,5 +1,5 @@
 UPDATE creature_template SET ScriptName='boss_SlaveWatcherCrushto', mechanic_immune_mask = 617299839, flags_extra = flags_extra | 0x01 WHERE entry=74787;
-UPDATE creature_template SET modelid1 = 11686, modelid2 = 0 WHERE entry IN (75303, 75585, 75586, 83650);
+UPDATE creature_template SET modelid1 = 11686, modelid2 = 0 WHERE entry IN (75303, 75585, 75586, 83650, 83808);
 
 DELETE FROM creature_text WHERE entry IN (75210, 74787, 74355);
 INSERT INTO creature_text VALUES
@@ -24,21 +24,21 @@ INSERT INTO creature_text VALUES
 
 DELETE FROM locales_creature_text WHERE entry IN (75210, 74787, 74355);
 INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc6) VALUES
-(75210, 0, 0, 'Je arrêter eux !', ''),
-(75210, 0, 1, 'On leur fait payer !', ''),
-(75210, 1, 0, 'HAAAAAAAAAAAA ! TOUT CE FEU !', ''),
+(75210, 0, 0, 'Je arrêter eux !', '¡Yo parar ellos!'),
+(75210, 0, 1, 'On leur fait payer !', '¡Nosotros hacer pagar!'),
+(75210, 1, 0, 'HAAAAAAAAAAAA ! TOUT CE FEU !', '¡AAAAAHHH! ¡TANTO FUEGO!'),
 
-(74787, 0, 0, 'Gardes ! Arrêtez de jacasser, et frappez !', ''),
-(74787, 0, 1, '... Mes esclaves ! Ils appartenaient à la Masse-Sanglante !', ''),
-(74787, 1, 0, 'Mmm-hmm... Approchez ! Je vais vous enchaîner.', ''),
-(74787, 2, 0, 'Capturez cette punaise !', ''),
-(74787, 2, 1, 'Esclaves ! Battez-vous ou mourez !', ''),
-(74787, 3, 0, 'Fuyez, misérables vermines ! Ha ha !', ''),
-(74787, 4, 0, 'Ha ha ! De la bouillie !', ''),
-(74787, 4, 1, 'Du menu fretin !', ''),
-(74787, 4, 2, 'Suivant ! Ha ha !', ''),
-(74787, 5, 0, 'Argh... vous mourrez pour ça...', ''),
+(74787, 0, 0, 'Gardes ! Arrêtez de jacasser, et frappez !', '¡Guardias! ¡Dejad de ladrar y luchad!'),
+(74787, 0, 1, '... Mes esclaves ! Ils appartenaient à la Masse-Sanglante !', '... ¡Mis esclavos! ¡Pertenecen a los Machacasangre!'),
+(74787, 1, 0, 'Mmm-hmm... Approchez ! Je vais vous enchaîner.', 'Mmm-hmm... ¡Acercáos! Os voy a encadenar.'),
+(74787, 2, 0, 'Capturez cette punaise !', '¡Capturad a ese bicho!'),
+(74787, 2, 1, 'Esclaves ! Battez-vous ou mourez !', '¡Esclavos! ¡Luchad o morid!'),
+(74787, 3, 0, 'Fuyez, misérables vermines ! Ha ha !', '¡Huid, miserables sabandijas! ¡Ja Já!'),
+(74787, 4, 0, 'Ha ha ! De la bouillie !', '¡Ja já! ¡Papilla!'),
+(74787, 4, 1, 'Du menu fretin !', '¡Un menú frito!'),
+(74787, 4, 2, 'Suivant ! Ha ha !', '¡Siguiente! ¡Ja já!'),
+(74787, 5, 0, 'Argh... vous mourrez pour ça...', 'Argh... Moriréis por esto...'),
 
-(74355, 0, 0, 'Voici un avenir moins misérable !', ''),
-(74355, 0, 1, 'Je serais fort et avec vous !', ''),
-(74355, 0, 2, 'Nous ne serons plus jamais des esclaves !', '');
+(74355, 0, 0, 'Voici un avenir moins misérable !', '¡Os daré un futuro menos miserable!'),
+(74355, 0, 1, 'Je serais fort et avec vous !', '¡Seré fuerte con vosotros!'),
+(74355, 0, 2, 'Nous ne serons plus jamais des esclaves !', '¡No seremos nunca más esclavos!');

@@ -3867,6 +3867,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 150759:///< Ferocious Yell
                 spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
                 break;
+            case 164616:///< Channel Flames (DoT)
             case 167739:///< Scorching Aura (Debuff)
             case 153227:///< Burning Slag (DoT)
             case 150784:///< Magma Eruption (DoT)
