@@ -1,11 +1,3 @@
-REPLACE INTO creature_text (entry, `groupid`, `id`, `text`, `type`, `language`, `probability`) VALUES(74787, 0, 0, "Gardes ! Arrêtez de jacasser, et frappez !", 14, 0, 100);
-REPLACE INTO creature_text (entry, `groupid`, `id`, `text`, `type`, `language`, `probability`) VALUES(74787, 0, 1, "… Mes esclaves ! Ils appartenaient à la Masse-Sanglante !", 14, 0, 100);
-REPLACE INTO creature_text (entry, `groupid`, `id`, `text`, `type`, `language`, `probability`) VALUES(74787, 0, 2, "Mmm-hmm… Approchez ! Je vais vous enchaîner.", 14, 0, 100);
-REPLACE INTO creature_text (entry, `groupid`, `id`, `text`, `type`, `language`, `probability`) VALUES(74787, 0, 3, "Esclaves ! Battez-vous ou mourez !", 14, 0, 100);
-REPLACE INTO creature_text (entry, `groupid`, `id`, `text`, `type`, `language`, `probability`) VALUES(74787, 0, 4, "Du menu fretin !", 14, 0, 100);
-REPLACE INTO creature_text (entry, `groupid`, `id`, `text`, `type`, `language`, `probability`) VALUES(74787, 0, 5, "Capturez cette punaise !", 14, 0, 100);
-REPLACE INTO creature_text (entry, `groupid`, `id`, `text`, `type`, `language`, `probability`) VALUES(74787, 0, 6, "Suivant ! Ha ha !", 14, 0, 100);
-REPLACE INTO creature_text (entry, `groupid`, `id`, `text`, `type`, `language`, `probability`) VALUES(74787, 0, 7, "Argh… vous mourrez pour ça…", 14, 0, 100);
 REPLACE INTO creature_text (entry, `groupid`, `id`, `text`, `type`, `language`, `probability`) VALUES(74790, 0, 0, "Je vais me faire un plaisir de vous briser.", 14, 0, 100);
 REPLACE INTO creature_text (entry, `groupid`, `id`, `text`, `type`, `language`, `probability`) VALUES(74790, 0, 1, "Dabord, je vais briser votre esprit. Ensuite je vendrai votre avenir.", 14, 0, 100);
 REPLACE INTO creature_text (entry, `groupid`, `id`, `text`, `type`, `language`, `probability`) VALUES(74790, 0, 2, "Brûlez !", 14, 0, 100);
@@ -41,26 +33,4 @@ REPLACE INTO creature_text (entry, `groupid`, `id`, `text`, `type`, `language`, 
 REPLACE INTO creature_text (entry, `groupid`, `id`, `text`, `type`, `language`, `probability`) VALUES(75427, 0, 1, "Nooooooooooooooooooooooooooon !", 14, 0, 100);
 REPLACE INTO creature_text (entry, `groupid`, `id`, `text`, `type`, `language`, `probability`) VALUES(75196, 0, 0, "Pour séchapper, cest maintenant ou jamais !", 14, 0, 100);
 REPLACE INTO creature_text (entry, `groupid`, `id`, `text`, `type`, `language`, `probability`) VALUES(75195, 0, 0, "Pour séchapper, cest maintenant ou jamais !", 14, 0, 100);
-REPLACE INTO creature_text (entry, `groupid`, `id`, `text`, `type`, `language`, `probability`) VALUES(75210, 0, 0, "On leur fait payer !", 14, 0, 100);
-REPLACE INTO creature_text (entry, `groupid`, `id`, `text`, `type`, `language`, `probability`) VALUES(75210, 0, 1, "Je arrêter eux !", 14, 0, 100);
 REPLACE INTO creature_text (entry, `groupid`, `id`, `text`, `type`, `language`, `probability`) VALUES(75406, 0, 0, "|cFFF00000Scoria|r surgit de la lave !", 41, 0, 100);
-
-INSERT INTO creature_text VALUES ('75210', '0', '0', 'Me stop them!', '14', '7', '100', '0', '0', '0', 'Warder attack1 when mage dies.');
-INSERT INTO creature_text VALUES ('75210', '1', '0', 'We make them pay!', '14', '7', '100', '0', '0', '0', 'Warder attack2 when mage dies.');
-
-INSERT INTO creature_text VALUES ('74787', '8', '0', 'Ha Ha! Smashed!', '14', '7', '100', '0', '0', '41649', 'Crushto boss slay 1');
-INSERT INTO creature_text VALUES ('74787', '9', '0', 'Run away, little ones! Ha ha!', '14', '7', '100', '0', '0', '41653', 'Crushto boss spell 2');
-
-INSERT INTO creature_text VALUES ('74355', '0', '0', 'Here''s to a less miserable future!', '12', '7', '25', '10', '0', '', 'Captured miner');
-INSERT INTO creature_text VALUES ('74355', '0', '1', 'I will be strong and stand with you!', '12', '7', '25', '10', '0', '', 'Captured miner');
-INSERT INTO creature_text VALUES ('74355', '0', '2', 'We will not be slaves again!', '12', '7', '25', '10', '0', '', 'Captured miner');
-
-UPDATE creature_text SET sound=41645 WHERE entry=74787 AND groupid=2;
-UPDATE creature_text SET sound=41646 WHERE entry=74787 AND groupid=7;
-UPDATE creature_text SET sound=41647 WHERE entry=74787 AND groupid=0;
-UPDATE creature_text SET sound=41648 WHERE entry=74787 AND groupid=1;
-UPDATE creature_text SET sound=41649 WHERE entry=74787 AND groupid=8;
-UPDATE creature_text SET sound=41651 WHERE entry=74787 AND groupid=6;
-UPDATE creature_text SET sound=41652 WHERE entry=74787 AND groupid=5;
-UPDATE creature_text SET sound=41654 WHERE entry=74787 AND groupid=3;
-UPDATE creature_text SET sound=41650 WHERE entry=74787 AND groupid=4;

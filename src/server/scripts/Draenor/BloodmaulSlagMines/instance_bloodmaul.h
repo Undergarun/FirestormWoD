@@ -88,16 +88,7 @@ namespace MS
             {
                 enum Texts
                 {
-                    BloodmaulOgreMagesDied1 = 0,
-                    BloodmaulOgreMagesDied2 = 1,
-                    Aggro = 2,
-                    RaiseTheMiners = 3,
-                    Slay1 = 4,
-                    CrushingLeap = 5,
-                    Slay3 = 6,
-                    JustDied = 7,
-                    Slay2 = 8,
-                    EarthCrush = 9,
+                    TalkIntro
                 };
             }
         }

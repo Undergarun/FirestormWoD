@@ -186,89 +186,90 @@ namespace MS
                 };
             };
 
-            // Entry: 75406
+            /// Slagna - 75406
             class mob_Slagna : public CreatureScript
             {
-            public:
-                mob_Slagna()
-                    : CreatureScript("mob_Slagna")
-                {
-                }
+                public:
+                    mob_Slagna() : CreatureScript("mob_Slagna") { }
 
-                enum class Spells : uint32
-                {
-                    SubmergeVisual = 139832,
-                    LavaSpit = 152183,
-
-                };
-
-                enum class Events : uint32
-                {
-                    LavaSpit = 1,
-                };
-
-                CreatureAI* GetAI(Creature* creature) const
-                {
-                    return new mob_AI(creature);
-                }
-
-                struct mob_AI : public ScriptedAI
-                {
-                    mob_AI(Creature* creature)
-                    : ScriptedAI(creature)
+                    enum class Spells : uint32
                     {
-                        me->AddAura(uint32(Spells::SubmergeVisual), me);
+                        SubmergeVisual  = 139832,
+                        LavaSpit        = 152183
+                    };
+
+                    enum class Events : uint32
+                    {
+                        LavaSpit = 1
+                    };
+
+                    CreatureAI* GetAI(Creature* p_Creature) const
+                    {
+                        return new mob_AI(p_Creature);
                     }
 
-                    void Reset()
+                    struct mob_AI : public ScriptedAI
                     {
-                        events.Reset();
+                        mob_AI(Creature* p_Creature) : ScriptedAI(p_Creature)
+                        {
+                            me->AddAura(uint32(Spells::SubmergeVisual), me);
+                        }
 
-                        me->AddUnitState(UNIT_STATE_ROOT);
-                        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_UNK_6 | eUnitFlags::UNIT_FLAG_UNK_15 | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
-                    }
+                        void Reset()
+                        {
+                            events.Reset();
 
-                    void SetData(uint32 p_Type, uint32)
-                    {
-                        if (p_Type == uint32(Data::SpawnSlagna))
+                            me->AddUnitState(UNIT_STATE_ROOT);
+                            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_UNK_6 | eUnitFlags::UNIT_FLAG_UNK_15 | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+                        }
+
+                        void SetData(uint32 p_Type, uint32)
+                        {
+                            if (p_Type == uint32(Data::SpawnSlagna))
+                            {
+                                me->RemoveAura(uint32(Spells::SubmergeVisual));
+                                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_UNK_6 | eUnitFlags::UNIT_FLAG_UNK_15 | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+
+                                if (Unit* l_Target = me->SelectNearestPlayerNotGM(20.0f))
+                                    AttackStart(l_Target);
+                            }
+                        }
+
+                        void EnterCombat(Unit*)
                         {
                             me->RemoveAura(uint32(Spells::SubmergeVisual));
                             me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_UNK_6 | eUnitFlags::UNIT_FLAG_UNK_15 | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
-                        }
-                    }
 
-                    void EnterCombat(Unit* p_Who)
-                    {
-                        events.ScheduleEvent(uint32(Events::LavaSpit), urand(2000, 2500));
-                    }
-
-                    void UpdateAI(const uint32 diff)
-                    {
-                        if (!UpdateVictim())
-                            return;
-
-                        events.Update(diff);
-
-                        if (me->HasUnitState(UNIT_STATE_CASTING) || me->GetCurrentSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL))
-                            return;
-
-                        switch (events.ExecuteEvent())
-                        {
-                        case uint32(Events::LavaSpit):
-                            if (Player* l_Plr = ScriptUtils::SelectRandomPlayerIncludedTank(me, 30.0f))
-                                me->CastSpell(l_Plr, uint32(Spells::LavaSpit));
                             events.ScheduleEvent(uint32(Events::LavaSpit), urand(2000, 2500));
-                            break;
-                        default:
-                            break;
                         }
 
-                        DoMeleeAttackIfReady();
-                    }
-                };
+                        void UpdateAI(const uint32 p_Diff)
+                        {
+                            if (!UpdateVictim())
+                                return;
+
+                            events.Update(p_Diff);
+
+                            if (me->HasUnitState(UNIT_STATE_CASTING) || me->GetCurrentSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL))
+                                return;
+
+                            switch (events.ExecuteEvent())
+                            {
+                                case uint32(Events::LavaSpit):
+                                    if (Player* l_Plr = ScriptUtils::SelectRandomPlayerIncludedTank(me, 30.0f))
+                                        me->CastSpell(l_Plr, uint32(Spells::LavaSpit));
+                                    events.ScheduleEvent(uint32(Events::LavaSpit), urand(2000, 2500));
+                                    break;
+                                default:
+                                    break;
+                            }
+
+                            DoMeleeAttackIfReady();
+                        }
+                    };
             };
 
-            // Entry: 74355
+            /// Captured Miner - 74355
             class mob_CapturedMiner : public CreatureScript
             {
                 public:

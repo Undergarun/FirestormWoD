@@ -22,7 +22,7 @@ namespace MS
             static const DoorData k_DoorData[] =
             {
                 { GameObjects::RoltallBridge,       BossIds::BossForgemasterGogduh, DoorType::DOOR_TYPE_PASSAGE, BoundaryType::BOUNDARY_NONE },
-                { GameObjects::RoltallEntranceWall, BossIds::BossRoltall,           DoorType::DOOR_TYPE_ROOM,    BoundaryType::BOUNDARY_NONE },
+                { GameObjects::RoltallEntranceWall, BossIds::BossForgemasterGogduh, DoorType::DOOR_TYPE_PASSAGE, BoundaryType::BOUNDARY_NONE },
                 { GameObjects::RoltallExitWall,     BossIds::BossRoltall,           DoorType::DOOR_TYPE_PASSAGE, BoundaryType::BOUNDARY_NONE },
                 { 0,                                0,                              DoorType::DOOR_TYPE_ROOM,    0                           }  // EOF
             };
@@ -48,11 +48,13 @@ namespace MS
                         std::list<uint64> m_NearestWarderGuids;
                         uint64 m_slaveWatcherCrushtoGuid;
 
-                        // Slagna.
-                        uint64 m_Slagna;
+                        /// Slagna
+                        bool m_SlagnaSpawned;
 
                         /// Gug'rokk
                         uint64 m_GugrokkGuid;
+
+                        uint32 m_CheckZPosTimer;
 
                         instance_BloodmaulInstanceMapScript(Map* p_Map)
                             : InstanceScript(p_Map),
@@ -64,8 +66,9 @@ namespace MS
                             m_OgreMageDeads(0),
                             m_NearestWarderGuids(),
                             m_slaveWatcherCrushtoGuid(0),
-                            m_Slagna(0),
-                            m_GugrokkGuid(0)
+                            m_SlagnaSpawned(false),
+                            m_GugrokkGuid(0),
+                            m_CheckZPosTimer(1000)
                         {
                             SetBossNumber(MaxEncounter::Number);
                             LoadDoorData(k_DoorData);
@@ -101,9 +104,6 @@ namespace MS
                                         m_NearestWarderGuids.emplace_back(p_Creature->GetGUID());
                                     break;
                                 }
-                                case uint32(MobEntries::Slagna):
-                                    m_Slagna = p_Creature->GetGUID();
-                                    break;
                                 case uint32(MobEntries::MoltenEarthElemental):
                                     if (Unit* l_Unit = ScriptUtils::SelectNearestCreatureWithEntry(p_Creature, uint32(MobEntries::BloodmaulWarder), 50.0f))
                                         p_Creature->Attack(l_Unit, false);
@@ -139,6 +139,7 @@ namespace MS
                                     p_Creature->DespawnOrUnsummon();
                                     break;
                                 case uint32(MobEntries::BloodmaulOgreMage):
+                                {
                                     if (!m_NearestWarderGuids.empty())
                                     {
                                         auto l_Itr = std::begin(m_NearestWarderGuids);
@@ -151,23 +152,23 @@ namespace MS
                                             if (l_Warder->AI())
                                                 l_Warder->AI()->Talk(uint32(Talks::WarderAttack));
                                         }
+
                                         ++m_OgreMageDeads;
 
                                         if (m_OgreMageDeads == 2)
                                         {
                                             m_OgreMageDeads = 0;
+
                                             if (Creature* l_Boss = sObjectAccessor->FindCreature(m_slaveWatcherCrushtoGuid))
                                             {
                                                 if (l_Boss->AI())
-                                                {
-                                                    if (urand(0, 1))
-                                                        l_Boss->AI()->Talk(uint32(SlaverWatcherCrushto::Texts::BloodmaulOgreMagesDied1));
-                                                    else
-                                                        l_Boss->AI()->Talk(uint32(SlaverWatcherCrushto::Texts::BloodmaulOgreMagesDied2));
-                                                }
+                                                    l_Boss->AI()->Talk(uint32(SlaverWatcherCrushto::Texts::TalkIntro));
                                             }
                                         }
                                     }
+                                    break;
+                                }
+                                default:
                                     break;
                             }
 
@@ -246,12 +247,20 @@ namespace MS
                                     }
                                     break;
                                 case uint32(Data::SpawnSlagna):
-                                    if (Creature* l_Slagna = sObjectAccessor->FindCreature(m_Slagna))
+                                {
+                                    if (m_SlagnaSpawned)
+                                        break;
+
+                                    static const Position k_SpawnSlagna = { 2191.21f, -191.67f, 213.72f };
+                                    if (Creature* l_Slagna = instance->SummonCreature(uint32(MobEntries::Slagna), k_SpawnSlagna))
                                     {
+                                        m_SlagnaSpawned = true;
                                         if (l_Slagna->GetAI())
                                             l_Slagna->GetAI()->SetData(uint32(Data::SpawnSlagna), 0);
                                     }
+
                                     break;
+                                }
                             }
                         }
 
@@ -296,6 +305,7 @@ namespace MS
 
                         void Update(uint32 p_Diff)
                         {
+                            CheckPositionZForPlayers(p_Diff);
                             ScheduleBeginningTimeUpdate(p_Diff);
                             ScheduleChallengeStartup(p_Diff);
                             ScheduleChallengeTimeUpdate(p_Diff);
@@ -304,6 +314,29 @@ namespace MS
                                 return;
 
                             m_BeginningTime += p_Diff;
+                        }
+
+                        void CheckPositionZForPlayers(uint32 p_Diff)
+                        {
+                            if (!m_CheckZPosTimer)
+                                return;
+
+                            if (m_CheckZPosTimer <= p_Diff)
+                            {
+                                Map::PlayerList const& l_PlayerList = instance->GetPlayers();
+                                for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)
+                                {
+                                    if (Player* l_Player = l_Iter->getSource())
+                                    {
+                                        if (l_Player->GetPositionZ() <= 150.0f)
+                                            l_Player->Kill(l_Player);
+                                    }
+                                }
+
+                                m_CheckZPosTimer = 1000;
+                            }
+                            else
+                                m_CheckZPosTimer -= p_Diff;
                         }
                     };
 

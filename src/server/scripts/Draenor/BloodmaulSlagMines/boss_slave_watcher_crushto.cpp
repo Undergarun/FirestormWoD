@@ -14,7 +14,7 @@ namespace MS
     {
         namespace Bloodmaul
         {
-            /// Entry: 74787
+            /// Slave Watcher Crushto <Bloodmaul Slave Traders> - 74787
             class boss_SlaveWatcherCrushto : public CreatureScript
             {
                 public:
@@ -44,6 +44,15 @@ namespace MS
                         RaiseTheMiners  = 3,
                         WildSlam        = 4,
                         CrushingLeap    = 5
+                    };
+
+                    enum eTalks
+                    {
+                        TalkAggro = 1,
+                        TalkMiner,
+                        TalkFerociousYell,
+                        TalkSlay,
+                        TalkDeath
                     };
 
                     CreatureAI* GetAI(Creature* creature) const
@@ -80,35 +89,23 @@ namespace MS
                         {
                             _JustDied();
 
-                            Talk(uint32(SlaverWatcherCrushto::Texts::JustDied));
+                            Talk(eTalks::TalkDeath);
 
                             if (instance)
                                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                         }
 
-                        void KilledUnit(Unit*)
+                        void KilledUnit(Unit* p_Who)
                         {
-                            uint32 l_Urand = urand(0, 2);
-
-                            switch (l_Urand)
-                            {
-                                case 0:
-                                    Talk(uint32(SlaverWatcherCrushto::Texts::Slay1));
-                                    break;
-                                case 1:
-                                    Talk(uint32(SlaverWatcherCrushto::Texts::Slay2));
-                                    break;
-                                case 2:
-                                    Talk(uint32(SlaverWatcherCrushto::Texts::Slay3));
-                                    break;
-                            }
+                            if (p_Who->GetTypeId() == TypeID::TYPEID_PLAYER)
+                                Talk(eTalks::TalkSlay);
                         }
 
                         void EnterCombat(Unit*)
                         {
                             _EnterCombat();
 
-                            Talk(uint32(SlaverWatcherCrushto::Texts::Aggro));
+                            Talk(eTalks::TalkAggro);
 
                             events.ScheduleEvent(uint32(Events::EarthCrush), 5000);
                             events.ScheduleEvent(uint32(Events::FerociousYell), 10000);
@@ -138,22 +135,33 @@ namespace MS
 
                         void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo)
                         {
-                            // Handling Earth Crush damages.
-                            if (p_SpellInfo->Id == uint32(Spells::EarthCrush3) && p_Target && p_Target->GetEntry() == uint32(MobEntries::EarthCrushStalker))
+                            if (p_Target == nullptr)
+                                return;
+
+                            /// Handling Earth Crush damages.
+                            if (p_SpellInfo->Id == uint32(Spells::EarthCrush3) && p_Target->GetEntry() == uint32(MobEntries::EarthCrushStalker))
                             {
                                 ScriptUtils::ApplyOnEveryPlayer(me, [&](Unit* p_Me, Player* p_Plr)
                                 {
-                                    // We check if players are in not behind the boss and if they are in the line.
+                                    /// We check if players are in not behind the boss and if they are in the line.
                                     if (p_Me->isInFront(p_Plr) && DistanceFromLine(*p_Me, m_LastEarthCrushStalkerPosition, *p_Plr) < 2.0f && p_Me->GetExactDist2d(p_Plr) < 40.0f)
                                         p_Me->CastSpell(p_Plr, uint32(Spells::EarthCrush3), true);
                                 });
                             }
 
-                            // Handling fear after Ferocious Yell.
-                            if (p_SpellInfo->Id == uint32(Spells::FerociousYell) && p_Target && p_Target->GetAuraCount(uint32(Spells::WeakenedWill)) == 3)
+                            /// Handling fear after Ferocious Yell.
+                            if (p_SpellInfo->Id == uint32(Spells::FerociousYell))
                             {
-                                p_Target->RemoveAura(uint32(Spells::WeakenedWill));
-                                me->AddAura(uint32(Spells::Fear), p_Target);
+                                if (p_Target->GetAuraCount(uint32(Spells::WeakenedWill)) == 3)
+                                {
+                                    p_Target->RemoveAura(uint32(Spells::WeakenedWill));
+                                    me->AddAura(uint32(Spells::Fear), p_Target);
+                                }
+                                else
+                                {
+                                    if (Unit* l_Target = me->getVictim())
+                                        p_Target->AddThreat(l_Target, 10000.0f);
+                                }
                             }
                         }
 
@@ -192,21 +200,20 @@ namespace MS
 
                                             l_Summon->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
                                         }
-
-                                        Talk(uint32(SlaverWatcherCrushto::Texts::EarthCrush));
                                     }
                                     events.ScheduleEvent(uint32(Events::EarthCrush), urand(20000, 25000));
                                     break;
                                 }
                                 case uint32(Events::FerociousYell):
                                 {
+                                    Talk(eTalks::TalkFerociousYell);
                                     me->CastSpell(me, uint32(Spells::FerociousYell));
                                     events.ScheduleEvent(uint32(Events::FerociousYell), urand(10000, 12000));
                                     break;
                                 }
                                 case uint32(Events::RaiseTheMiners):
                                 {
-                                    Talk(uint32(SlaverWatcherCrushto::Texts::RaiseTheMiners));
+                                    Talk(eTalks::TalkMiner);
                                     me->CastSpell(me, uint32(Spells::RaiseTheMiners));
                                     events.ScheduleEvent(uint32(Events::RaiseTheMiners), urand(25000, 29000));
                                     break;
@@ -221,7 +228,6 @@ namespace MS
                                 {
                                     if (Player* l_Plr = ScriptUtils::SelectFarEnoughPlayerIncludedTank(me, 8.0f))
                                     {
-                                        Talk(uint32(SlaverWatcherCrushto::Texts::CrushingLeap));
                                         m_TargetGUID = l_Plr->GetGUID();
                                         me->CastSpell(l_Plr, uint32(Spells::CrushingLeap));
                                     }

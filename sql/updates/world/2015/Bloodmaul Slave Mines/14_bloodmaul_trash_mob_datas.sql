@@ -11,18 +11,17 @@ UPDATE creature_template SET ScriptName='mob_BloodmaulSlaver' WHERE entry=75191;
 UPDATE creature_template SET ScriptName='mob_BloodmaulOverseer' WHERE entry=75426;
 UPDATE creature_template SET ScriptName='mob_BloodmaulOverseer' WHERE entry=75193;
 UPDATE creature_template SET ScriptName='mob_BloodmaulWarder' WHERE entry=75210;
-UPDATE creature_template SET ScriptName='boss_SlaveWatcherCrushto', mechanic_immune_mask = 617299839, flags_extra = flags_extra | 0x01 WHERE entry=74787;
 UPDATE creature_template SET ScriptName='mob_BloodmaulOgreMage' WHERE entry=75272;
 UPDATE creature_template SET ScriptName='mob_BloodmaulGeomancer' WHERE entry=75198;
 UPDATE creature_template SET ScriptName='mob_Slagna' where entry=75406;
 UPDATE creature_template SET ScriptName='mob_MoltenEarthElemental' where entry=75209;
 UPDATE creature_template SET ScriptName='mob_MagmaLord' where entry=75211;
+UPDATE creature_template SET unit_flags = unit_flags | (0x02 | 0x100 | 0x200 | 0x02000000) WHERE entry = 75192;
 
 UPDATE creature_template SET faction=1780 WHERE entry=75857;
 UPDATE creature_template SET faction=1780 WHERE entry=75360;
 UPDATE creature_template SET faction=1780 WHERE entry=75820;
 UPDATE creature_template SET faction=35 WHERE entry=75846;
-UPDATE creature_template SET modelid1 = 11686, modelid2 = 0 WHERE entry IN (75303, 75585, 83650);
 
 UPDATE areatrigger_template SET ScriptName='AreaTrigger_SuppresionField' where spell_id=151582;
 

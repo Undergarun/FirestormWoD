@@ -23,6 +23,11 @@ namespace MS { namespace Instances { namespace Bloodmaul
 
     static Position const s_HeatWavePos = { 2312.793f, -211.3021f, 217.0487f, 3.178043f };
 
+    static float const s_MaxPositionX = 2304.24f;
+    static float const s_MinPositionX = 2244.11f;
+    static float const s_MaxPositionY = -196.27f;
+    static float const s_MinPositionY = -226.51f;
+
     /// Roltall - 75786
     class boss_roltall : public CreatureScript
     {
@@ -61,7 +66,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
             enum eDatas
             {
                 MaxFieryBoulder = 3,
-                MaxBurningSlag  = 7,
+                MaxBurningSlag  = 6,
 
                 NoBoulderSpawn  = 0x00,
                 Boulder1Spawned = 0x01,
@@ -184,17 +189,21 @@ namespace MS { namespace Instances { namespace Bloodmaul
                             break;
                         }
                         case eSpells::SpellHeatWaveAuraDummy:
+                        {
                             me->CastSpell(s_HeatWavePos.m_positionX, s_HeatWavePos.m_positionY, s_HeatWavePos.m_positionZ, eSpells::SpellHeatWaveAreaTrigger, true);
                             me->CastSpell(me, eSpells::SpellHeatWaveVisual, true);  ///< Heat wind visual
                             me->SetFacingTo(me->GetHomePosition().m_orientation);
                             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
                             m_Events.ScheduleEvent(eEvents::EventHeatWaveEnd, 8 * TimeConstants::IN_MILLISECONDS);
                             break;
+                        }
                         case eSpells::SpellBurningSlagDummy:
-                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
-                                me->CastSpell(l_Target, eSpells::SpellBurningSlagMissile, true);
+                        {
+                            G3D::Vector3 l_SpawnPos = GetBurningSlagSpawnPos();
+                            me->CastSpell(l_SpawnPos.x, l_SpawnPos.y, l_SpawnPos.z, eSpells::SpellBurningSlagMissile, true);
                             --m_BurningSlagCount;
                             break;
+                        }
                         default:
                             break;
                     }
@@ -257,6 +266,13 @@ namespace MS { namespace Instances { namespace Bloodmaul
 
                     DoMeleeAttackIfReady();
                 }
+
+                G3D::Vector3 GetBurningSlagSpawnPos()
+                {
+                    float l_PosX = frand(s_MinPositionX, s_MaxPositionX);
+                    float l_PosY = frand(s_MinPositionY, s_MaxPositionY);
+                    return G3D::Vector3(l_PosX, l_PosY, s_PositionZ);
+                }
             };
 
             CreatureAI* GetAI(Creature* p_Creature) const
@@ -315,8 +331,8 @@ namespace MS { namespace Instances { namespace Bloodmaul
                     {
                         if (p_ID == eMoves::FirstMove)  ///< Only in Heroic
                         {
-                            float l_X = me->GetPositionX() + ((45.0f) * cos(me->GetOrientation() + M_PI));
-                            float l_Y = me->GetPositionY() + ((45.0f) * sin(me->GetOrientation() + M_PI));
+                            float l_X = me->GetPositionX() + ((65.0f) * cos(me->GetOrientation() + M_PI));
+                            float l_Y = me->GetPositionY() + ((65.0f) * sin(me->GetOrientation() + M_PI));
 
                             me->GetMotionMaster()->Clear();
                             me->GetMotionMaster()->MovePoint(eMoves::SecondMove, l_X, l_Y, s_PositionZ);
@@ -344,7 +360,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
                         case eEvents::EventDealDamage:
                         {
                             std::list<Player*> l_PlayerList;
-                            me->GetPlayerListInGrid(l_PlayerList, 6.0f);
+                            me->GetPlayerListInGrid(l_PlayerList, 5.0f);
 
                             for (Player* l_Player : l_PlayerList)
                                 me->CastSpell(l_Player, eSpells::SpellFieryBoulderStun, true);
@@ -354,10 +370,11 @@ namespace MS { namespace Instances { namespace Bloodmaul
                         }
                         case eEvents::EventMovePoint:
                         {
+                            me->m_positionZ = s_PositionZ;
                             me->CastSpell(me, eSpells::SpellFieryBoulderDamage, true);
 
-                            float l_X = me->GetPositionX() + ((45.0f) * cos(me->GetOrientation()));
-                            float l_Y = me->GetPositionY() + ((45.0f) * sin(me->GetOrientation()));
+                            float l_X = me->GetPositionX() + ((55.0f) * cos(me->GetOrientation()));
+                            float l_Y = me->GetPositionY() + ((55.0f) * sin(me->GetOrientation()));
 
                             me->GetMotionMaster()->Clear();
                             me->GetMotionMaster()->MovePoint(eMoves::FirstMove, l_X, l_Y, s_PositionZ);

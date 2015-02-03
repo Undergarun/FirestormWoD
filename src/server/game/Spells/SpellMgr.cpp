@@ -3864,6 +3864,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 152867:///< Heat Wave (Create AT)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
                 break;
+            case 150759:///< Ferocious Yell
+                spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
+                break;
             case 167739:///< Scorching Aura (Debuff)
             case 153227:///< Burning Slag (DoT)
             case 150784:///< Magma Eruption (DoT)

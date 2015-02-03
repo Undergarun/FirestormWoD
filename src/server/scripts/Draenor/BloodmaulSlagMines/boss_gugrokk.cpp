@@ -339,6 +339,9 @@ namespace MS { namespace Instances { namespace Bloodmaul
                     me->SetReactState(ReactStates::REACT_PASSIVE);
 
                     m_Events.ScheduleEvent(eEvents::EventCheckSLG, 1 * TimeConstants::IN_MILLISECONDS);
+
+                    me->SetSpeed(UnitMoveType::MOVE_WALK, 0.5f);
+                    me->SetSpeed(UnitMoveType::MOVE_RUN, 0.5f);
                 }
 
                 void SetGUID(uint64 p_GUID, int32 p_ID)
@@ -364,13 +367,10 @@ namespace MS { namespace Instances { namespace Bloodmaul
                             {
                                 if (me->GetDistance(l_SLG) > 3.0f)
                                 {
-                                    m_Events.ScheduleEvent(eEvents::EventCheckSLG, 1 * TimeConstants::IN_MILLISECONDS);
-                                    break;
-                                }
-                                else
-                                {
                                     me->CastSpell(l_SLG, eSpells::SpellSiphonFlames, false);
                                     me->GetMotionMaster()->MoveChase(l_SLG, 2.5f);
+                                    m_Events.ScheduleEvent(eEvents::EventCheckSLG, 1 * TimeConstants::IN_MILLISECONDS);
+                                    break;
                                 }
                             }
                             else
@@ -378,6 +378,10 @@ namespace MS { namespace Instances { namespace Bloodmaul
 
                             me->CastSpell(me, eSpells::SpellEmpoweredFlames, true);
                             me->SetReactState(ReactStates::REACT_AGGRESSIVE);
+
+                            if (Unit* l_Target = me->FindNearestPlayer(60.0f))
+                                AttackStart(l_Target);
+
                             m_FollowingSLG = 0;
                             break;
                         }
