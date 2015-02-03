@@ -3471,9 +3471,9 @@ void Player::Regenerate(Powers power)
             /// After 15s return to one embers if no one
             /// or return to one if more than one
             if (!isInCombat() && GetPower(POWER_BURNING_EMBERS) < 10)
-                SetPower(POWER_BURNING_EMBERS, GetPower(POWER_BURNING_EMBERS) + 1);
+                SetPower(POWER_BURNING_EMBERS, GetPower(POWER_BURNING_EMBERS) + 1, true);
             else if (!isInCombat() && GetPower(POWER_BURNING_EMBERS) > 10)
-                SetPower(POWER_BURNING_EMBERS, GetPower(POWER_BURNING_EMBERS) - 1);
+                SetPower(POWER_BURNING_EMBERS, GetPower(POWER_BURNING_EMBERS) - 1, true);
 
             if (HasAura(56241))
             {
@@ -3524,7 +3524,7 @@ void Player::Regenerate(Powers power)
         {
             /// If isn't in combat, gain 1 shard every 20s
             if (!isInCombat())
-                SetPower(POWER_SOUL_SHARDS, GetPower(POWER_SOUL_SHARDS) + 100);
+                SetPower(POWER_SOUL_SHARDS, GetPower(POWER_SOUL_SHARDS) + 100, true);
 
             if (HasAura(56241))
             {

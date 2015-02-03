@@ -131,14 +131,17 @@ class PlayerScript_TigereEyeBrew_ManaTea: public PlayerScript
     public:
         PlayerScript_TigereEyeBrew_ManaTea() :PlayerScript("PlayerScript_TigereEyeBrew_ManaTea") {}
 
-        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_Value)
+        void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32 p_NewValue, bool p_Regen)
         {
-            if (p_Power == POWER_CHI && p_Value < 0)
+            // Get the power earn (if > 0 ) or consum (if < 0)
+            int32 l_diffValue = p_NewValue - p_OldValue;
+
+            if (p_Power == POWER_CHI && l_diffValue < 0)
             {
                 if (AuraPtr tigereyeBrew = p_Player->GetAura(123980))
-                    tigereyeBrew->SetScriptData(0, -p_Value);
+                    tigereyeBrew->SetScriptData(0, -l_diffValue);
                 else if (AuraPtr manaTea = p_Player->GetAura(123766))
-                    manaTea->SetScriptData(0, -p_Value);
+                    manaTea->SetScriptData(0, -l_diffValue);
             }
         }
 };
@@ -4140,16 +4143,19 @@ class spell_monk_serenity: public PlayerScript
 public:
     spell_monk_serenity() :PlayerScript("spell_monk_serenity") {}
 
-    void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_Value)
+    void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32 p_NewValue, bool p_Regen)
     {
-        if (p_Player->getClass() != CLASS_MONK || p_Power != POWER_CHI || !p_Player->HasAura(SPELL_MONK_SERENITY))
+        if (p_Player->getClass() != CLASS_MONK || p_Power != POWER_CHI || !p_Player->HasAura(SPELL_MONK_SERENITY)|| p_Regen)
             return;
+
+        // Get the power earn (if > 0 ) or consum (if < 0)
+        int32 l_diffValue = p_NewValue - p_OldValue;
 
         // Only get spended chi
-        if (p_Value > 0)
+        if (l_diffValue > 0)
             return;
 
-        p_Player->ModifyPower(POWER_CHI, -p_Value);
+        p_Player->ModifyPower(POWER_CHI, -l_diffValue);
     }
 };
 

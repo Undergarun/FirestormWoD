@@ -548,24 +548,29 @@ class ScriptMgr
 
         /// PlayerScript
     public:
+        
         /// Called when a player kills another player
         /// @p_Killer : Killer instance
         /// @p_Killed : Killed instance
         void OnPVPKill(Player * p_Killer, Player * p_Killed);
+        
         /// Called when a player kills a creature
         /// @p_Killer : Killer instance
         /// @p_Killed : Killed instance
         void OnCreatureKill(Player * p_Killer, Creature * p_Killed);
+        
         /// Called when a player is killed by a creature
         /// @p_Killer : Killer instance
         /// @p_Killed : Killed instance
         void OnPlayerKilledByCreature(Creature * p_Killer, Player * p_Killed);
-
-        /// Called when a player kills another player
+        
+        /// Called when power change is modify (SetPower)
         /// @p_Player : Player instance
         /// @p_Power  : Power type
-        /// @p_Value  : New value
-        void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_Value);
+        /// @p_OldValue  : Old value
+        /// @p_NewValue  : New value
+        /// @p_Regen  : If it's a regen modification
+        void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32 p_NewValue, bool p_Regen);
 
         /// Called when a player kills another player
         /// @p_Player : Player instance

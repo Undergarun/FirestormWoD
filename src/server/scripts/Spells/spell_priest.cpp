@@ -143,8 +143,11 @@ class PlayerScript_Shadow_Orb: public PlayerScript
     public:
         PlayerScript_Shadow_Orb() :PlayerScript("PlayerScript_Shadow_Orb") {}
 
-        void OnModifyPower(Player* p_Player, Powers p_Power, int32 /*p_Value*/)
+        void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32 p_NewValue, bool p_Regen)
         {
+            if (p_Regen)
+                return;
+
             if (p_Power == POWER_SHADOW_ORB && p_Player->GetPower(POWER_SHADOW_ORB) > 0)
             {
                 // Shadow Orb visual
@@ -2633,14 +2636,20 @@ class PlayerScript_insanity: public PlayerScript
 public:
     PlayerScript_insanity() :PlayerScript("PlayerScript_insanity") {}
 
-    void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_Value)
+    void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32 p_NewValue, bool p_Regen)
     {
+        if (p_Regen)
+            return;
+
+        // Get the power earn (if > 0 ) or consum (if < 0)
+        int32 l_diffValue = p_NewValue - p_OldValue;
+
         if (p_Player->getClass() == CLASS_PRIEST && p_Player->GetSpecializationId(p_Player->GetActiveSpec()) == SPEC_PRIEST_SHADOW && p_Power == POWER_SHADOW_ORB)
-            if (p_Value < 0 && p_Player->HasAura(PRIEST_SPELL_INSANITY_AURA))
+            if (l_diffValue < 0 && p_Player->HasAura(PRIEST_SPELL_INSANITY_AURA))
             {
                 p_Player->CastSpell(p_Player, PRIEST_SPELL_INSANITY, true);
                 if (AuraPtr l_Insanity = p_Player->GetAura(PRIEST_SPELL_INSANITY))
-                    l_Insanity->SetDuration(l_Insanity->GetMaxDuration() * (p_Value * -1));
+                    l_Insanity->SetDuration(l_Insanity->GetMaxDuration() * (l_diffValue * -1));
             }
     }
 };
