@@ -325,7 +325,8 @@ namespace MS
             for (GroupQueueInfo* l_Group : m_QueuedGroups[p_BracketId][p_Team])
             {
                 /// We first sort the averages and keep track of the indexes.
-                std::sort(std::begin(p_Avg), std::end(p_Avg), [](std::pair<float, std::size_t> const& p_A, std::pair<float, std::size_t> const& p_B) {
+                std::sort(std::begin(p_Avg), std::end(p_Avg), [](std::pair<float, std::size_t> const& p_A, std::pair<float, std::size_t> const& p_B)
+                {
                     return p_A.first < p_B.first;
                 });
 
@@ -345,7 +346,8 @@ namespace MS
 
                     auto& l_Battlegrounds = sBattlegroundMgr->GetBattlegroundList(p_BracketId, l_BgType);
                     /// We sort according to the lowest ratio of players for the specific team.
-                    l_Battlegrounds.sort([p_Team, l_BgType, l_Template](std::pair<uint32, Battleground*> const& p_A, std::pair<uint32, Battleground*> const& p_B) {
+                    l_Battlegrounds.sort([p_Team, l_BgType, l_Template](std::pair<uint32, Battleground*> const& p_A, std::pair<uint32, Battleground*> const& p_B)
+                    {
                         return p_A.second->GetPlayersCountByTeam(p_Team == TEAM_ALLIANCE ? ALLIANCE : HORDE) / l_Template->GetMaxPlayers()
                             - p_B.second->GetPlayersCountByTeam(p_Team == TEAM_ALLIANCE ? ALLIANCE : HORDE) / l_Template->GetMaxPlayers();
                     });
@@ -561,10 +563,13 @@ namespace MS
                 }
 
                 /// Sort averages and keep track of indexes.
-                std::sort(std::begin(l_AvgAlliance), std::end(l_AvgAlliance), [](std::pair<float, std::size_t> const& p_A, std::pair<float, std::size_t> const& p_B) {
+                std::sort(std::begin(l_AvgAlliance), std::end(l_AvgAlliance), [](std::pair<float, std::size_t> const& p_A, std::pair<float, std::size_t> const& p_B)
+                {
                     return p_A.first < p_B.first;
                 });
-                std::sort(std::begin(l_AvgHorde), std::end(l_AvgHorde), [](std::pair<float, std::size_t> const& p_A, std::pair<float, std::size_t> const& p_B) {
+
+                std::sort(std::begin(l_AvgHorde), std::end(l_AvgHorde), [](std::pair<float, std::size_t> const& p_A, std::pair<float, std::size_t> const& p_B)
+                {
                     return p_A.first < p_B.first;
                 });
 
@@ -577,10 +582,12 @@ namespace MS
                 std::vector<std::list<GroupQueueInfo*>> l_PotentialGroups(BattlegroundType::Max * 2);
 
                 /// We sort according to the join time because we want older groups to join the most rapidly.
-                m_QueuedGroups[l_BracketId][TEAM_ALLIANCE].sort([](GroupQueueInfo const* p_G1, GroupQueueInfo const* p_G2) {
+                m_QueuedGroups[l_BracketId][TEAM_ALLIANCE].sort([](GroupQueueInfo const* p_G1, GroupQueueInfo const* p_G2)
+                {
                     return p_G1->m_JoinTime < p_G2->m_JoinTime;
                 });
-                m_QueuedGroups[l_BracketId][TEAM_HORDE].sort([](GroupQueueInfo const* p_G1, GroupQueueInfo const* p_G2) {
+                m_QueuedGroups[l_BracketId][TEAM_HORDE].sort([](GroupQueueInfo const* p_G1, GroupQueueInfo const* p_G2)
+                {
                     return p_G1->m_JoinTime < p_G2->m_JoinTime;
                 });
 
@@ -714,7 +721,8 @@ namespace MS
                             auto& l_Groups = l_PotentialGroups[l_DecidedBg * 2];
 
                             /// We sort them according to their MMR.
-                            l_Groups.sort([](GroupQueueInfo const* p_A, GroupQueueInfo const* p_B) {
+                            l_Groups.sort([](GroupQueueInfo const* p_A, GroupQueueInfo const* p_B)
+                            {
                                 return p_A->m_ArenaMatchmakerRating - p_B->m_ArenaMatchmakerRating;
                             });
 
