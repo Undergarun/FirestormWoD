@@ -340,8 +340,8 @@ namespace MS { namespace Instances { namespace Bloodmaul
 
                     m_Events.ScheduleEvent(eEvents::EventCheckSLG, 1 * TimeConstants::IN_MILLISECONDS);
 
-                    me->SetSpeed(UnitMoveType::MOVE_WALK, 0.5f);
-                    me->SetSpeed(UnitMoveType::MOVE_RUN, 0.5f);
+                    me->SetSpeed(UnitMoveType::MOVE_WALK, 0.7f);
+                    me->SetSpeed(UnitMoveType::MOVE_RUN, 0.7f);
                 }
 
                 void SetGUID(uint64 p_GUID, int32 p_ID)
