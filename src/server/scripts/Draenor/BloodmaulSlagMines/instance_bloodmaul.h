@@ -27,31 +27,31 @@ namespace MS
 
             enum MobEntries
             {
-                MinesBat = 75374,
-                BloodmaulEnforcer = 84978,
-                BloodmaulOverseer = 75426,
-                BloodmaulSlaver = 75191,
-                BloodmaulOverseer2 = 75193,
-                BloodmaulGeomancer = 75198,
-                BloodmaulEnforcer2 = 84978,
-                BloodmaulWarder = 75210,
-                BloodmaulOgreMage = 75272,
-                EarthCrushStalker = 83650,
-                CapturedMiner1 = 74355,
-                CapturedMiner2 = 74356,
-                CapturedMiner3 = 74357,
-                HordeMinerSpawn = 75585,
-                NeutralMinerSpawn = 75586,
-                AllianceMinerSpawn = 75584,
-                SlaveWatcherCrushto = 74787,
+                MinesBat                = 75374,
+                BloodmaulEnforcer       = 84978,
+                BloodmaulOverseer       = 75426,
+                BloodmaulSlaver         = 75191,
+                BloodmaulOverseer2      = 75193,
+                BloodmaulGeomancer      = 75198,
+                BloodmaulEnforcer2      = 84978,
+                BloodmaulWarder         = 75210,
+                BloodmaulOgreMage       = 75272,
+                EarthCrushStalker       = 83650,
+                CapturedMiner1          = 74355,
+                CapturedMiner2          = 74356,
+                CapturedMiner3          = 74357,
+                HordeMinerSpawn         = 75585,
+                NeutralMinerSpawn       = 75586,
+                AllianceMinerSpawn      = 75584,
+                SlaveWatcherCrushto     = 74787,
 
-                OgreWheelStalker = 75499,
-                Slagna = 75406,
-                MoltenEarthElemental = 75209,
-                FirePillar = 75327,
-                SearingEmber = 75360,
-                LavaExplosionStalker = 75846,
-                MagmaLord = 75211,
+                OgreWheelStalker        = 75499,
+                Slagna                  = 75406,
+                MoltenEarthElemental    = 75209,
+                FirePillar              = 75327,
+                SearingEmber            = 75360,
+                LavaExplosionStalker    = 75846,
+                MagmaLord               = 75211,
 
                 /// Roltall
                 Roltall                 = 75786,
@@ -61,7 +61,8 @@ namespace MS
 
                 /// Gug'rokk
                 Gugrokk                 = 74790,
-                SLGGenricMoPLargeAoI    = 68553
+                SLGGenricMoPLargeAoI    = 68553,
+                UnstableSlag            = 74927
             };
 
             enum GameObjects
@@ -75,13 +76,18 @@ namespace MS
             {
                 RaiseTheMiners,
                 RaiseTheMinersChangeTarget,
-                SpawnSlagna,
+                SpawnSlagna
             };
 
             enum Talks
             {
-                WarderAttack = 0,
-                CapturedMinerReleased = 0,
+                WarderAttack            = 0,
+                CapturedMinerReleased   = 0
+            };
+
+            enum eAchievements
+            {
+                IsDraenorOnFire = 9008
             };
 
             namespace SlaverWatcherCrushto

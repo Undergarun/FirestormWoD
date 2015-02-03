@@ -53,6 +53,7 @@ namespace MS
 
                         /// Gug'rokk
                         uint64 m_GugrokkGuid;
+                        uint32 m_UnstableSlagKilled;
 
                         uint32 m_CheckZPosTimer;
 
@@ -68,6 +69,7 @@ namespace MS
                             m_slaveWatcherCrushtoGuid(0),
                             m_SlagnaSpawned(false),
                             m_GugrokkGuid(0),
+                            m_UnstableSlagKilled(0),
                             m_CheckZPosTimer(1000)
                         {
                             SetBossNumber(MaxEncounter::Number);
@@ -168,6 +170,9 @@ namespace MS
                                     }
                                     break;
                                 }
+                                case MobEntries::UnstableSlag:
+                                    ++m_UnstableSlagKilled;
+                                    break;
                                 default:
                                     break;
                             }
@@ -218,6 +223,14 @@ namespace MS
                                             }
                                         }
                                     }
+                                    break;
+                                }
+                                case BossIds::BossGugrokk:
+                                {
+                                    if (p_State == EncounterState::NOT_STARTED)
+                                        m_UnstableSlagKilled = 0;
+                                    else if (p_State == EncounterState::DONE && m_UnstableSlagKilled == 0)
+                                        DoCompleteAchievement(eAchievements::IsDraenorOnFire);
                                     break;
                                 }
                                 default:

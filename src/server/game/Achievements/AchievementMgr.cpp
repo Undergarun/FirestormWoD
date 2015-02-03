@@ -3206,6 +3206,8 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(CriteriaEntry const* p_C
                     return false;
                 break;
             }
+            case CRITERIA_CONDITION_UNK67:
+                return false;   ///< Must be scripted
             case CRITERIA_CONDITION_PROJECT_RACE:                       // 66
             {
                 if (!p_MiscValue1 || !p_ReferencePlayer)
