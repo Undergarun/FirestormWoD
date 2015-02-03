@@ -229,7 +229,7 @@ namespace MS
                                 {
                                     if (p_State == EncounterState::NOT_STARTED)
                                         m_UnstableSlagKilled = 0;
-                                    else if (p_State == EncounterState::DONE && m_UnstableSlagKilled == 0)
+                                    else if (p_State == EncounterState::DONE && m_UnstableSlagKilled == 0 && instance->IsHeroic())
                                         DoCompleteAchievement(eAchievements::IsDraenorOnFire);
                                     break;
                                 }
