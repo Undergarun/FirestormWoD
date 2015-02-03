@@ -1910,18 +1910,27 @@ public:
         }
 
         void AfterAbsorb(AuraEffectPtr p_AurEff, DamageInfo & /*p_DmgInfo*/, uint32 & p_AbsorbAmount)
-
         {
             if (Unit *l_Caster = GetCaster())
                 if (l_Caster->HasSpell(SPELL_MAGE_FLAMEGLOW))
                     p_AurEff->SetAmount(p_AbsorbAmount + ((l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * GetSpellInfo()->Effects[EFFECT_1].BasePoints) / 100));
         }
 
+        void OnAbsorb(AuraEffectPtr p_AurEff, DamageInfo & p_DmgInfo, uint32 & p_AbsorbAmount)
+        {
+            if (Unit* l_Attacker = p_DmgInfo.GetAttacker())
+            {
+                if (p_AbsorbAmount > CalculatePct(p_DmgInfo.GetDamage(), GetSpellInfo()->Effects[EFFECT_2].BasePoints))
+                    p_AbsorbAmount = CalculatePct(p_DmgInfo.GetDamage(), GetSpellInfo()->Effects[EFFECT_2].BasePoints);
+            }
+        }
+
 
         void Register()
         {
-            AfterEffectAbsorb += AuraEffectAbsorbFn(spell_mage_flameglow_AuraScript::AfterAbsorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+            OnEffectAbsorb += AuraEffectAbsorbFn(spell_mage_flameglow_AuraScript::OnAbsorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
             DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_flameglow_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+            AfterEffectAbsorb += AuraEffectAbsorbFn(spell_mage_flameglow_AuraScript::AfterAbsorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
         }
     };
 
