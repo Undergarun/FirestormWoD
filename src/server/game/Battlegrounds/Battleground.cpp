@@ -259,7 +259,7 @@ void Battleground::Update(uint32 diff)
     if (!PreUpdateImpl(diff))
         return;
 
-    if (!GetPlayersSize())
+    if (!GetPlayersSize() && !m_InvitedHorde && !m_InvitedAlliance)
     {
         //BG is empty
         // if there are no players invited, delete BG
@@ -271,8 +271,7 @@ void Battleground::Update(uint32 diff)
         //      should be used instead of current
         // ]]
         // Battleground Template instance cannot be updated, because it would be deleted
-        if (!GetInvitedCount(HORDE) && !GetInvitedCount(ALLIANCE))
-            m_SetDeleteThis = true;
+        m_SetDeleteThis = true;
         return;
     }
 
@@ -1137,7 +1136,6 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
                 SetBgRaid(team, NULL);
             }
         }
-        DecreaseInvitedCount(team);
 
         // Let others know
         WorldPacket data;

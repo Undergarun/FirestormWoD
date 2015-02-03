@@ -206,11 +206,6 @@ namespace MS
             if (pitr != l_Group->m_Players.end())
                 l_Group->m_Players.erase(pitr);
 
-            /// If invited to bg, and should decrease invited count, then do it.
-            if (p_DecreaseInvitedCount && l_Group->m_IsInvitedToBGInstanceGUID)
-                if (Battleground* bg = sBattlegroundMgr->GetBattleground(l_Group->m_IsInvitedToBGInstanceGUID, l_Group->m_BgTypeId == BattlegroundType::AllArenas ? BattlegroundType::None : l_Group->m_BgTypeId))
-                    bg->DecreaseInvitedCount(l_Group->m_Team);
-
             /// Remove player queue info.
             m_InvitedPlayers.erase(l_Itr);
 

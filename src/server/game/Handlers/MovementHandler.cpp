@@ -116,7 +116,10 @@ void WorldSession::HandleMoveWorldportAckOpcode()
         else if (Battleground* bg = m_Player->GetBattleground())
         {
             if (m_Player->IsInvitedForBattlegroundInstance(m_Player->GetBattlegroundId()))
+            {
                 bg->AddPlayer(m_Player);
+                bg->DecreaseInvitedCount(m_Player->GetTeam());
+            }
         }
     }
 

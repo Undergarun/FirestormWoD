@@ -423,8 +423,6 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& p_Packet)
             if (m_Player->isInFlight())
                 m_Player->CleanupAfterTaxiFlight();
 
-            /// Remove battleground queue status from BGmgr
-            sBattlegroundMgr->RemovePlayer(m_Player->GetGUID(), false);
             /// This is still needed here if battleground "jumping" shouldn't add deserter debuff
             /// Also this is required to prevent stuck at old battleground after SetBattlegroundId set to new
             if (Battleground* currentBg = m_Player->GetBattleground())
@@ -438,6 +436,9 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& p_Packet)
 
             /// Bg->HandleBeforeTeleportToBattleground(_player);
             sBattlegroundMgr->TeleportToBattleground(m_Player, l_GroupQueueInfo.m_IsInvitedToBGInstanceGUID, l_BGQueueTypeID);
+
+            /// Remove battleground queue status from BGmgr
+            sBattlegroundMgr->RemovePlayer(m_Player->GetGUID(), true);
 
             /// Add only in HandleMoveWorldPortAck()
             /// Bg->AddPlayer(_player, team);
