@@ -136,9 +136,6 @@ class garrison_commandscript: public CommandScript
             l_TargetPlayer->GetGarrison()->AddFollower(89);
             l_TargetPlayer->GetGarrison()->AddFollower(92);
 
-            /// HACK until quest : add barracks plan
-            l_TargetPlayer->GetGarrison()->LearnBlueprint(26);
-
             return true;
         }
 
@@ -242,6 +239,46 @@ class garrison_commandscript: public CommandScript
                 p_Handler->PSendSysMessage("Active %u Level %u", l_Building.Active, l_Entry->BuildingLevel);
             }
 
+            float l_X = l_TargetPlayer->GetPositionX();
+            float l_Y = l_TargetPlayer->GetPositionY();
+            float l_Z = l_TargetPlayer->GetPositionZ();
+            float l_O = l_TargetPlayer->GetOrientation();
+
+            G3D::Matrix3 l_Mat = G3D::Matrix3::identity();
+            l_Mat = l_Mat.fromAxisAngle(G3D::Vector3(0, 0, 1), -l_Info.O);
+
+            G3D::Vector3 l_ElementPosition = G3D::Vector3(l_X, l_Y, 0);
+            l_ElementPosition  -= G3D::Vector3(l_Info.X, l_Info.Y, 0);
+            l_ElementPosition   = l_Mat *l_ElementPosition;
+            l_ElementPosition.z = l_Z - l_Info.Z;
+
+            float l_Orientation = Position::NormalizeOrientation((2 * M_PI) - Position::NormalizeOrientation(l_Info.O - l_O));
+
+            p_Handler->PSendSysMessage("Relative location X:%f Y:%f Z:%f O:%f", l_ElementPosition.x, l_ElementPosition.y, l_ElementPosition.z, l_Orientation);
+
+#ifdef WIN32
+            char   l_Buffer[120];
+            char * lPtrData = nullptr;
+
+            sprintf(l_Buffer, "{ %.4f.f, %.4f.f, %.4f.f, %.4f.f },", l_ElementPosition.x, l_ElementPosition.y, l_ElementPosition.z, l_Orientation);
+
+            HANDLE l_Handle;
+
+            int l_BufferSize = strlen(l_Buffer);
+
+            l_Handle = GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, l_BufferSize + 1);
+
+            lPtrData = (char*)GlobalLock(l_Handle);
+            memcpy(lPtrData, l_Buffer, l_BufferSize + 1);
+
+            GlobalUnlock(l_Handle);
+
+            OpenClipboard(nullptr);
+            EmptyClipboard();
+            SetClipboardData(CF_TEXT, l_Handle);
+            CloseClipboard();
+#endif
+
             return true;
         }
         static bool HandlePlotAddCommand(ChatHandler * p_Handler, char const* p_Args)
@@ -300,7 +337,7 @@ class garrison_commandscript: public CommandScript
             l_NewData.X                     = l_ElementPosition.x;
             l_NewData.Y                     = l_ElementPosition.y;
             l_NewData.Z                     = l_ElementPosition.z;
-            l_NewData.O                     = (l_O - l_Info.O);
+            l_NewData.O                     = Position::NormalizeOrientation((2 * M_PI) - Position::NormalizeOrientation(l_Info.O - l_O));
 
             sObjectMgr->AddGarrisonPlotBuildingContent(l_NewData);
 
@@ -328,7 +365,7 @@ class garrison_commandscript: public CommandScript
                 l_Position.z = l_ElementPosition.z + l_Info.Z;
 
                 p_Handler->PSendSysMessage("Spawn coord %f %f %f %f", l_X, l_Y, l_Z, l_O);
-                p_Handler->PSendSysMessage("Trans coord %f %f %f %f", l_Position.x, l_Position.y, l_Position.z, (l_O - l_Info.O) + l_Info.O);
+                p_Handler->PSendSysMessage("Trans coord %f %f %f %f", l_Position.x, l_Position.y, l_Position.z, l_NewData.O + l_Info.O);
             }
 
             l_Player->GetGarrison()->OnPlayerEnter();

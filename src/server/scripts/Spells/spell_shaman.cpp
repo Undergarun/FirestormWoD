@@ -29,6 +29,7 @@
 #include "Unit.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "ScriptedCreature.h"
 
 enum ShamanSpells
 {
@@ -125,6 +126,165 @@ enum ShamanSpells
     SPELL_SHA_ELEMENTAL_FUSION              = 152257,
     SPELL_SHA_ELEMENTAL_FUSION_PROC         = 157174,
     SPELL_SHA_IMPROVED_LIGHTNING_SHIELD     = 157774
+};
+
+/// Called by Chain Heal - 1064
+/// High Tide - 157154
+class spell_sha_high_tide : public SpellScriptLoader
+{
+    public:
+        spell_sha_high_tide() : SpellScriptLoader("spell_sha_high_tide") { }
+
+        class spell_sha_high_tide_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_high_tide_SpellScript);
+
+            enum eSpells
+            {
+                SpellHighTide   = 157154,
+                SpellRiptide    = 61295
+            };
+
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (!l_Caster->HasAura(eSpells::SpellHighTide))
+                        return;
+
+                    std::map<uint64, WorldObject*> l_TargetMap;
+                    for (WorldObject* l_Object : p_Targets)
+                        l_TargetMap.insert(std::make_pair(l_Object->GetGUID(), l_Object));
+
+                    std::list<Unit*> l_TempList;
+                    JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(l_Caster, l_Caster, GetSpellInfo()->RangeEntry->maxRangeFriend);
+                    JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, l_TempList, l_Check);
+                    l_Caster->VisitNearbyObject(GetSpellInfo()->RangeEntry->maxRangeFriend, l_Searcher);
+
+                    l_TempList.remove_if([this, l_TargetMap, l_Caster](Unit* p_Unit) -> bool
+                    {
+                        if (p_Unit == nullptr || !p_Unit->HasAura(eSpells::SpellRiptide) || p_Unit == l_Caster)
+                            return true;
+
+                        /// Already in list
+                        if (l_TargetMap.find(p_Unit->GetGUID()) != l_TargetMap.end())
+                            return true;
+
+                        return false;
+                    });
+
+                    if (l_TempList.empty())
+                        return;
+
+                    l_TempList.sort(JadeCore::HealthPctOrderPred());
+                    uint8 l_TargetCount = GetSpellInfo()->Effects[EFFECT_1].BasePoints;
+
+                    for (Unit* l_Unit : l_TempList)
+                    {
+                        if (!l_TargetCount)
+                            break;
+
+                        p_Targets.push_back(l_Unit);
+                        --l_TargetCount;
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_high_tide_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_TARGET_CHAINHEAL_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_high_tide_SpellScript();
+        }
+};
+
+/// Storm Elemental - 77936
+class npc_storm_elemental : public CreatureScript
+{
+    public:
+        npc_storm_elemental() : CreatureScript("npc_storm_elemental") { }
+
+        struct npc_storm_elementalAI : public ScriptedAI
+        {
+            npc_storm_elementalAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            enum eSpells
+            {
+                SpellWindGust       = 157333,
+                SpellCallLightning  = 157348
+            };
+
+            enum eEvents
+            {
+                EventWindGust = 1,
+                EventCallLightning
+            };
+
+            EventMap m_Events;
+
+            void Reset()
+            {
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker)
+            {
+                m_Events.ScheduleEvent(eEvents::EventWindGust, 2000);
+                m_Events.ScheduleEvent(eEvents::EventCallLightning, 8000);
+            }
+
+            void UpdateAI(uint32 const p_Diff)
+            {
+                if (!UpdateVictim())
+                {
+                    if (Unit* l_Owner = me->GetOwner())
+                    {
+                        Unit* l_OwnerTarget = nullptr;
+                        if (Player* l_Player = l_Owner->ToPlayer())
+                            l_OwnerTarget = l_Player->GetSelectedUnit();
+                        else
+                            l_OwnerTarget = l_Owner->getVictim();
+
+                        if (l_OwnerTarget)
+                            AttackStart(l_OwnerTarget);
+                    }
+
+                    return;
+                }
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventWindGust:
+                        if (Unit* l_Target = me->getVictim())
+                            me->CastSpell(l_Target, eSpells::SpellWindGust, false);
+                        m_Events.ScheduleEvent(eEvents::EventWindGust, 9000);
+                        break;
+                    case eEvents::EventCallLightning:
+                        if (Unit* l_Target = me->getVictim())
+                            me->CastSpell(l_Target, eSpells::SpellCallLightning, false);
+                        m_Events.ScheduleEvent(eEvents::EventCallLightning, 15000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_storm_elementalAI(p_Creature);
+        }
 };
 
 // Totemic Projection - 108287
@@ -894,7 +1054,6 @@ class spell_sha_healing_stream: public SpellScriptLoader
         }
 };
 
-
 // Elemental Blast - 117014
 class spell_sha_elemental_blast: public SpellScriptLoader
 {
@@ -996,7 +1155,7 @@ class spell_sha_earthquake_tick: public SpellScriptLoader
         }
 };
 
-// Earthquake - 61882
+/// Earthquake - 61882
 class spell_sha_earthquake: public SpellScriptLoader
 {
     public:
@@ -1008,11 +1167,11 @@ class spell_sha_earthquake: public SpellScriptLoader
 
             void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
             {
-                 m_PctBonus = 0.f;
+                 m_PctBonus = 1.0f;
 
                 if (AuraPtr l_Aura = GetCaster()->GetAura(SPELL_SHA_IMPROVED_CHAIN_LIGHTNING))
                 {
-                    m_PctBonus = l_Aura->GetEffect(EFFECT_0)->GetAmount();
+                    m_PctBonus = l_Aura->GetEffect(EFFECT_0)->GetAmount() / 100.0f;
                     l_Aura->Remove();
                 }
 
@@ -1020,7 +1179,7 @@ class spell_sha_earthquake: public SpellScriptLoader
 
             void OnTick(constAuraEffectPtr aurEff)
             {
-                int32 l_bp0 = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster()) * m_PctBonus / 100;
+                int32 l_bp0 = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster()) * m_PctBonus;
 
                 if (Unit* caster = GetCaster())
                     if (DynamicObject* dynObj = caster->GetDynObject(SPELL_SHA_EARTHQUAKE))
@@ -1723,7 +1882,6 @@ class spell_sha_molten_earth_damage: public SpellScriptLoader
         }
 };
 
-
 // Echo of Elements - 108283
 class spell_sha_echo_of_elements: public SpellScriptLoader
 {
@@ -2022,9 +2180,13 @@ public:
     }
 };
 
-
 void AddSC_shaman_spell_scripts()
 {
+    /// Npcs
+    new npc_storm_elemental();
+
+    /// Spells
+    new spell_sha_high_tide();
     new spell_sha_tidal_waves();
     new spell_sha_unleash_elements();
     new spell_sha_totemic_projection();

@@ -1,1 +1,0 @@
-INSERT INTO instance_template VALUES ('1175', '1116', 'instance_Bloodmaul', '0');

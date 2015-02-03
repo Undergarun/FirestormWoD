@@ -51,6 +51,8 @@ const char SpellClassOptionsEntryfmt[] = "dxiiiii";
 const char MapChallengeModeEntryfmt[] = "nixxxiiixx";
 const char QuestPackageItemEntryfmt[] = "niiii";
 const char MountEntryfmt[] = "iiiisssini";
+const char PlayerConditionEntryfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiisiii";
+const char VignetteEntryfmt[] = "nsiiff";
 
 //////////////////////////////////////////////////////////////////////////
 /// Garrison DB2

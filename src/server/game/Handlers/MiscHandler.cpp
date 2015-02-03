@@ -60,6 +60,8 @@
 #include "OutdoorPvP.h"
 #include "OutdoorPvPMgr.h"
 
+#include "BattlegroundPacketFactory.hpp"
+
 void WorldSession::HandleRepopRequestOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_REPOP_REQUEST Message");
@@ -2066,7 +2068,7 @@ void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPacket& p_Packet)
         return;
 
     if (Battleground* l_Battleground = m_Player->GetBattleground())
-        sBattlegroundMgr->SendAreaSpiritHealerQueryOpcode(m_Player, l_Battleground, l_Healer);
+        MS::Battlegrounds::PacketFactory::AreaSpiritHealerQuery(m_Player, l_Battleground, l_Healer);
     else if (Battlefield * l_Battlefield = sBattlefieldMgr->GetBattlefieldToZoneId(m_Player->GetZoneId()))
         l_Battlefield->SendAreaSpiritHealerQueryOpcode(m_Player, l_Healer);
     else if (OutdoorPvP* l_OutdoorPvP = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(m_Player->GetZoneId()))

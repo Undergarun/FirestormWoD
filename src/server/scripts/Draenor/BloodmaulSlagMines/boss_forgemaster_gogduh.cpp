@@ -83,7 +83,7 @@ namespace MS
 
                         if (Unit* p_Boss = me->FindNearestCreature((uint32)NPCs::Magmolatus, VISIBLE_RANGE, true))
                             if (BossAI* p_AI = CAST_AI(BossAI, p_Boss->GetAI()))
-                                p_AI->Talk(0);
+                                p_AI->Talk(Yells::Aggro);
                         }
                     }
 
@@ -209,7 +209,7 @@ namespace MS
                 {
                     WitheringFlames = 150032,
                     MoltenImpact    = 150045,
-                    SlagSmash       = 150023
+                    SpellSlagSmash  = 150023
                 };
 
                 enum Events
@@ -372,7 +372,7 @@ namespace MS
                             case Events::CastSmash:
                             {
                                 Talk((uint8)Yells::SlagSmashYell);
-                                DoCastAOE((uint32)Spells::SlagSmash);
+                                DoCastAOE((uint32)Spells::SpellSlagSmash);
                                 NextEvent();
                                 break;
                             }

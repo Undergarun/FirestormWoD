@@ -475,6 +475,8 @@ bool Creature::UpdateEntry(uint32 p_Entry, uint32 p_Team, const CreatureData* p_
     if (l_CreatureTemplate->InhabitType & INHABIT_WATER && IsInWater())
         AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
 
+    loot.SetSource(GetGUID());
+
     return true;
 }
 

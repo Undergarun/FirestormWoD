@@ -20,6 +20,8 @@
     \ingroup Trinityd
 */
 
+#include <thread>
+
 #include <ace/Sig_Handler.h>
 
 #include "Common.h"
@@ -48,6 +50,8 @@
 #include "RealmList.h"
 
 #include "BigNumber.h"
+
+#include "ReportWorker.hpp"
 
 #ifdef _WIN32
 #include "ServiceWin32.h"
@@ -601,6 +605,23 @@ int Master::Run()
     Handler.register_handler(SIGBREAK, &SignalBREAK);
     #endif /* _WIN32 */
 
+    ///- Launch the reporting thread. Didn't use asyn futures because I don't think it is intended for this use case.
+    std::thread l_Reporter([](){
+
+        // Thread which repeat reporting.
+        sLog->outInfo(LOG_FILTER_WORLDSERVER, "REPORTER: Creating worker.");
+        MS::Reporting::ReportWorker l_ReportWorker(ConfigMgr::GetStringDefault("ReporterAddress", "localhost:3000"));
+        while (!World::IsStopped())
+        {
+            l_ReportWorker.ProcessReporting();
+#ifdef _MSC_VER
+            Sleep(1);
+#elif 
+            usleep(1);
+#endif
+        }
+    });
+
     ///- Launch WorldRunnable thread
     ACE_Based::Thread world_thread(new WorldRunnable);
     world_thread.setPriority(ACE_Based::Highest);
@@ -705,6 +726,7 @@ int Master::Run()
     // since worldrunnable uses them, it will crash if unloaded after master
     world_thread.wait();
     rar_thread.wait();
+    l_Reporter.join();
 
     if (soap_thread)
     {

@@ -1588,7 +1588,7 @@ public:
         if (power >= MAX_POWERS)
             return false;
 
-        uint32 value = (uint32)atoi(value_str);
+        int32 value = (int32)atoi(value_str);
 
         target->SetPower(Powers(power), value);
 
