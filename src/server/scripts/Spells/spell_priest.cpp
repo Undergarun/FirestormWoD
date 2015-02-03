@@ -136,7 +136,8 @@ enum PriestSpells
     PRIEST_GLYPH_OF_POWER_WORD_SHIELD               = 55672,
     PRIEST_GLYPH_OF_POWER_WORD_SHIELD_PROC          = 56160,
     PRIEST_GLYPH_OF_MIND_HARVEST                    = 162532,
-    PRIEST_GLYPH_OF_MIND_HARVEST_MARKER             = 162414
+    PRIEST_GLYPH_OF_MIND_HARVEST_MARKER             = 162414,
+    PRIEST_SPELL_VOID_ENTROPY                       = 155361
 };
 
 // Shadow Orb - 77487 & Glyph od Shadow ravens - 57985
@@ -1298,6 +1299,11 @@ class spell_pri_devouring_plague: public SpellScriptLoader
                             // Glyph of Shadow Ravens
                             else if (l_Player->HasAura(PRIEST_SHADOW_ORB_DUMMY))
                                 l_Player->RemoveAura(PRIEST_SHADOW_ORB_DUMMY);
+                            
+                            // Case of Void Entropy running on Target -> refresh this effect to its full 1 min duration.
+                            if (l_Target->HasAura(PRIEST_SPELL_VOID_ENTROPY))
+                                if (AuraPtr l_VoidEntropy = l_Target->GetAura(PRIEST_SPELL_VOID_ENTROPY))
+                                    l_VoidEntropy->SetDuration(l_VoidEntropy->GetMaxDuration());
 
                             int32 l_Heal = GetHitDamage();
                             l_Player->CastCustomSpell(l_Player, PRIEST_DEVOURING_PLAGUE_HEAL, &l_Heal, NULL, NULL, true);
