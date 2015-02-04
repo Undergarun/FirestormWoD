@@ -150,7 +150,7 @@ namespace MS
 
         bool BattlegroundInvitationsMgr::IsOwningPlayer(uint64 p_Guid) const
         {
-            return m_InvitedPlayers.find(p_Guid) != std::cend(m_InvitedPlayers);
+            return m_InvitedPlayers.find(p_Guid) != std::end(m_InvitedPlayers);
         }
 
         bool BattlegroundInvitationsMgr::IsPlayerInvited(uint64 p_PlrGuid, uint32 p_BgInstanceId, uint32 p_RemoveTime) const
