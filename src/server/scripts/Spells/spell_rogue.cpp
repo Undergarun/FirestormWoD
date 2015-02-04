@@ -1915,10 +1915,11 @@ public:
             if (Unit* l_Caster = GetCaster())
             {
                 l_Caster->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
+                l_Caster->RemoveStandFlags(UNIT_STAND_FLAGS_CREEP);
             }
         }
 
-        void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
         {
             if (Unit* l_Caster = GetCaster())
             {
