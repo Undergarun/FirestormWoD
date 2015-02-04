@@ -771,7 +771,17 @@ class spell_mage_combustion: public SpellScriptLoader
                     {
                         if (l_Player->HasSpellCooldown(SPELL_MAGE_INFERNO_BLAST_IMPACT))
                             l_Player->RemoveSpellCooldown(SPELL_MAGE_INFERNO_BLAST_IMPACT, true);
-                        //l_Player->SendClearSpellCharges(SPELL_MAGE_INFERNO_BLAST);
+
+                        if (ChargesData* l_Charges = l_Player->GetChargesData(SPELL_MAGE_INFERNO_BLAST))
+                        {
+                            if (l_Charges->m_ConsumedCharges > 0)
+                                --l_Charges->m_ConsumedCharges;
+
+                            if (!l_Charges->m_ChargesCooldown.empty())
+                                l_Charges->m_ChargesCooldown.erase(l_Charges->m_ChargesCooldown.begin());
+
+                            l_Player->SendClearSpellCharges(SPELL_MAGE_INFERNO_BLAST);
+                        }
 
                         int32 combustionBp = 0;
 
