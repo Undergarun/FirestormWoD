@@ -2017,11 +2017,19 @@ class PlayerScript_empowered_divine_storm: public PlayerScript
 public:
     PlayerScript_empowered_divine_storm() :PlayerScript("PlayerScript_empowered_divine_storm") {}
 
-    void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_Value)
+    void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32 p_NewValue, bool p_Regen)
     {
-        if (p_Player->getClass() == CLASS_PALADIN && p_Player->GetSpecializationId(p_Player->GetActiveSpec()) == SPEC_PALADIN_RETRIBUTION && p_Power == POWER_HOLY_POWER && p_Player->GetPower(POWER_HOLY_POWER) > 0)
-            if (p_Value < 0 && p_Player->HasAura(PALADIN_SPELL_EMPOWERED_DIVINE_STORM) && roll_chance_i(sSpellMgr->GetSpellInfo(PALADIN_SPELL_EMPOWERED_DIVINE_STORM)->Effects[EFFECT_0].BasePoints))
+        if (p_Regen)
+            return;
+
+        if (p_Player->getClass() == CLASS_PALADIN && p_Player->GetSpecializationId(p_Player->GetActiveSpec()) == SPEC_PALADIN_RETRIBUTION && p_Power == POWER_HOLY_POWER)
+        {
+            // Get the power earn (if > 0 ) or consum (if < 0)
+            int32 l_diffValue = p_NewValue - p_OldValue;
+
+            if (l_diffValue < 0 && p_Player->HasAura(PALADIN_SPELL_EMPOWERED_DIVINE_STORM) && roll_chance_i(sSpellMgr->GetSpellInfo(PALADIN_SPELL_EMPOWERED_DIVINE_STORM)->Effects[EFFECT_0].BasePoints))
                 p_Player->CastSpell(p_Player, PALADIN_SPELL_DIVINE_CRUSADER, true);
+        }
     }
 };
 

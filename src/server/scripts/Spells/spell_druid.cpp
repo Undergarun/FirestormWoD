@@ -1512,7 +1512,7 @@ class spell_dru_eclipse : public PlayerScript
             p_Player->SetEclipseCyclesState(false);
         }
 
-        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_Value)
+        void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32 /*p_NewValue*/, bool /*p_Regen*/)
         {
             if (!p_Player || p_Player->getClass() != Classes::CLASS_DRUID || p_Power != Powers::POWER_ECLIPSE)
                 return;
@@ -1531,7 +1531,7 @@ class spell_dru_eclipse : public PlayerScript
                 }
             }
 
-            int32 l_Power = p_Player->GetPower(Powers::POWER_ECLIPSE);
+            int32 l_Power = p_OldValue;
             uint8 l_Coeff = p_Player->GetPowerCoeff(Powers::POWER_ECLIPSE);
 
             if (!p_Player->IsEclipseCyclesActive() && l_Power == 0)

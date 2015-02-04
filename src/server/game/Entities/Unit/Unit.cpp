@@ -9798,28 +9798,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
 
             break;
         }
-        case 87195: // Glyph of Mind Blast
-        {
-            if (!procSpell)
-                return false;
-
-            if (GetTypeId() != TYPEID_PLAYER)
-                return false;
-
-            if (!victim)
-                return false;
-
-            if (procSpell->Id != 8092)
-                return false;
-
-            if (HasAura(87160))
-                return false;
-
-            if (!(procEx & PROC_EX_CRITICAL_HIT))
-                return false;
-
-            break;
-        }
         case 109142:// Twist of Fate
         {
             if (!victim)
@@ -16064,11 +16042,11 @@ void Unit::SetPower(Powers p_PowerType, int32 p_PowerValue, bool p_Regen)
     if (ToCreature() && ToCreature()->IsAIEnabled)
         ToCreature()->AI()->SetPower(p_PowerType, p_PowerValue);
 
-    m_powers[l_PowerIndex] = p_PowerValue;
-
     /// Hook playerScript OnModifyPower
     if (GetTypeId() == TYPEID_PLAYER)
-        sScriptMgr->OnModifyPower(ToPlayer(), p_PowerType, p_PowerValue);
+        sScriptMgr->OnModifyPower(ToPlayer(), p_PowerType, m_powers[l_PowerIndex], p_PowerValue, p_Regen);
+
+    m_powers[l_PowerIndex] = p_PowerValue;
 
     uint32 l_RegenDiff = getMSTime() - m_lastRegenTime[l_PowerIndex];
 

@@ -113,7 +113,8 @@ enum MageSpells
     SPELL_MAGE_ENHANCED_FROSTBOLT_PROC           = 157648,
     SPELL_MAGE_FLAMEGLOW                         = 140468,
     SPELL_MAGE_RAPID_TELEPORTATION               = 46989,
-    SPELL_MAGE_RAPID_TELEPORTATION_AURA          = 89749
+    SPELL_MAGE_RAPID_TELEPORTATION_AURA          = 89749,
+    SPELL_MAGE_RING_OF_FROST_IMMUNATE            = 91264
 };
 
 
@@ -1555,7 +1556,7 @@ public:
                     (*itr)->GetCreatureListInGrid(l_TempListCreature, 6.50);
                     for (std::list<Creature*>::iterator i = l_TempListCreature.begin(); i != l_TempListCreature.end(); ++i)
                     {
-                        if ((*i)->IsFriendlyTo(l_Caster) == false && (*i)->HasAura(SPELL_MAGE_RING_OF_FROST_AURA) == false)
+                        if (!(*i)->IsFriendlyTo(l_Caster) && !(*i)->HasAura(SPELL_MAGE_RING_OF_FROST_AURA) && !(*i)->HasAura(SPELL_MAGE_RING_OF_FROST_IMMUNATE))
                             l_Caster->CastSpell((*i), SPELL_MAGE_RING_OF_FROST_AURA, true);
                     }
 
@@ -1563,7 +1564,7 @@ public:
                     (*itr)->GetPlayerListInGrid(l_TempListPlayer, 6.50);
                     for (std::list<Player*>::iterator i = l_TempListPlayer.begin(); i != l_TempListPlayer.end(); ++i)
                     {
-                        if ((*i)->IsFriendlyTo(l_Caster) == false && (*i)->HasAura(SPELL_MAGE_RING_OF_FROST_AURA) == false)
+                        if (!(*i)->IsFriendlyTo(l_Caster) && !(*i)->HasAura(SPELL_MAGE_RING_OF_FROST_AURA) && !(*i)->HasAura(SPELL_MAGE_RING_OF_FROST_IMMUNATE))
                             l_Caster->CastSpell((*i), SPELL_MAGE_RING_OF_FROST_AURA, true);
                     }
                 }
@@ -1579,6 +1580,35 @@ public:
     AuraScript* GetAuraScript() const
     {
         return new spell_mage_ring_of_frost_AuraScript();
+    }
+};
+
+// Call by Ring of Frost (Aura) - 82691
+// Ring of Frost (immunity 2.5s) - 91264
+class spell_mage_ring_of_frost_immunity : public SpellScriptLoader
+{
+public:
+    spell_mage_ring_of_frost_immunity() : SpellScriptLoader("spell_mage_ring_of_frost_immunity") { }
+
+    class spell_mage_ring_of_frost_immunity_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_mage_ring_of_frost_immunity_AuraScript);
+
+        void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Unit* l_Target = GetTarget())
+                l_Target->CastSpell(l_Target, SPELL_MAGE_RING_OF_FROST_IMMUNATE, true);
+        }
+
+        void Register()
+        {
+            OnEffectRemove += AuraEffectRemoveFn(spell_mage_ring_of_frost_immunity_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_mage_ring_of_frost_immunity_AuraScript();
     }
 };
 
@@ -1880,18 +1910,27 @@ public:
         }
 
         void AfterAbsorb(AuraEffectPtr p_AurEff, DamageInfo & /*p_DmgInfo*/, uint32 & p_AbsorbAmount)
-
         {
             if (Unit *l_Caster = GetCaster())
                 if (l_Caster->HasSpell(SPELL_MAGE_FLAMEGLOW))
                     p_AurEff->SetAmount(p_AbsorbAmount + ((l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * GetSpellInfo()->Effects[EFFECT_1].BasePoints) / 100));
         }
 
+        void OnAbsorb(AuraEffectPtr p_AurEff, DamageInfo & p_DmgInfo, uint32 & p_AbsorbAmount)
+        {
+            if (Unit* l_Attacker = p_DmgInfo.GetAttacker())
+            {
+                if (p_AbsorbAmount > CalculatePct(p_DmgInfo.GetDamage(), GetSpellInfo()->Effects[EFFECT_2].BasePoints))
+                    p_AbsorbAmount = CalculatePct(p_DmgInfo.GetDamage(), GetSpellInfo()->Effects[EFFECT_2].BasePoints);
+            }
+        }
+
 
         void Register()
         {
-            AfterEffectAbsorb += AuraEffectAbsorbFn(spell_mage_flameglow_AuraScript::AfterAbsorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+            OnEffectAbsorb += AuraEffectAbsorbFn(spell_mage_flameglow_AuraScript::OnAbsorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
             DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_flameglow_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+            AfterEffectAbsorb += AuraEffectAbsorbFn(spell_mage_flameglow_AuraScript::AfterAbsorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
         }
     };
 
@@ -1917,6 +1956,7 @@ public:
 
 void AddSC_mage_spell_scripts()
 {
+    new spell_mage_ring_of_frost_immunity();
     new spell_mage_flameglow();
     new spell_mage_incanters_flow();
     new spell_mage_blizzard();

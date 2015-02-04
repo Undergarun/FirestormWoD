@@ -5118,16 +5118,15 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].BasePoints = 35;
                 break;
             case 162532: // Glyph of Mind Harvest
+                spellInfo->ProcChance = 0;
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
-            case 8092: // Mind Blast
-                spellInfo->Effects[1].BasePoints = 1;
-                spellInfo->Effects[2].Effect = SPELL_EFFECT_DUMMY;
-                spellInfo->Effects[3].BasePoints = 0;
                 break;
             case 162452: // Shadowy Insight
                 spellInfo->ProcChance = 0;
+                break;
             case 87160: // Surge of Darkness
                 spellInfo->ProcCharges = 3;
+                break;
             case 6346:  // Fear Ward
             case 48108: // Hot Streak
             case 57761: // Brain Freeze

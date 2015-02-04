@@ -1915,10 +1915,11 @@ public:
             if (Unit* l_Caster = GetCaster())
             {
                 l_Caster->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
+                l_Caster->RemoveStandFlags(UNIT_STAND_FLAGS_CREEP);
             }
         }
 
-        void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
         {
             if (Unit* l_Caster = GetCaster())
             {
@@ -1945,17 +1946,25 @@ class PlayerScript_ruthlessness : public PlayerScript
 public:
     PlayerScript_ruthlessness() : PlayerScript("PlayerScript_ruthlessness") {}
 
-    void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_Value)
+    void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32 p_NewValue, bool p_Regen)
     {
+        if (p_Regen)
+            return;
+
+        // Get the power earn (if > 0 ) or consum (if < 0)
+        int32 l_diffValue = p_NewValue - p_OldValue;
+
         if (p_Player->getClass() == CLASS_ROGUE && p_Player->GetSpecializationId(p_Player->GetActiveSpec()) == SPEC_ROGUE_COMBAT && p_Power == POWER_COMBO_POINT)
-        if (p_Value < 0 && p_Player->HasAura(ROGUE_SPELL_RUTHLESSNESS))
         {
-            if (p_Player->HasSpellCooldown(ROGUE_SPELL_ADRENALINE_RUSH))
-                p_Player->ReduceSpellCooldown(ROGUE_SPELL_ADRENALINE_RUSH, sSpellMgr->GetSpellInfo(ROGUE_SPELL_RUTHLESSNESS)->Effects[EFFECT_2].BasePoints * p_Value * -1);
-            if (p_Player->HasSpellCooldown(ROGUE_SPELL_KILLING_SPREE))
-                p_Player->ReduceSpellCooldown(ROGUE_SPELL_KILLING_SPREE, sSpellMgr->GetSpellInfo(ROGUE_SPELL_RUTHLESSNESS)->Effects[EFFECT_2].BasePoints * p_Value * -1);
-            if (p_Player->HasSpellCooldown(ROGUE_SPELL_SPRINT))
-                p_Player->ReduceSpellCooldown(ROGUE_SPELL_SPRINT, sSpellMgr->GetSpellInfo(ROGUE_SPELL_RUTHLESSNESS)->Effects[EFFECT_2].BasePoints * p_Value * -1);
+            if (l_diffValue < 0 && p_Player->HasAura(ROGUE_SPELL_RUTHLESSNESS))
+            {
+                if (p_Player->HasSpellCooldown(ROGUE_SPELL_ADRENALINE_RUSH))
+                    p_Player->ReduceSpellCooldown(ROGUE_SPELL_ADRENALINE_RUSH, sSpellMgr->GetSpellInfo(ROGUE_SPELL_RUTHLESSNESS)->Effects[EFFECT_2].BasePoints * l_diffValue * -1);
+                if (p_Player->HasSpellCooldown(ROGUE_SPELL_KILLING_SPREE))
+                    p_Player->ReduceSpellCooldown(ROGUE_SPELL_KILLING_SPREE, sSpellMgr->GetSpellInfo(ROGUE_SPELL_RUTHLESSNESS)->Effects[EFFECT_2].BasePoints * l_diffValue * -1);
+                if (p_Player->HasSpellCooldown(ROGUE_SPELL_SPRINT))
+                    p_Player->ReduceSpellCooldown(ROGUE_SPELL_SPRINT, sSpellMgr->GetSpellInfo(ROGUE_SPELL_RUTHLESSNESS)->Effects[EFFECT_2].BasePoints * l_diffValue * -1);
+            }
         }
     }
 };

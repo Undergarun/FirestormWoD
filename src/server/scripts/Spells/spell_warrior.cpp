@@ -1324,16 +1324,19 @@ public:
 
     uint16 m_RageSpend = 0;
 
-    void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_Value)
+    void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32 p_NewValue, bool p_Regen)
     {
-        if (!p_Player || p_Player->getClass() != CLASS_WARRIOR || p_Power != POWER_RAGE)
+        if (!p_Player || p_Player->getClass() != CLASS_WARRIOR || p_Power != POWER_RAGE || p_Regen)
             return;
+
+        // Get the power earn (if > 0 ) or consum (if < 0)
+        int32 l_diffValue = p_NewValue - p_OldValue;
 
         // Only get spended rage
-        if (p_Value > 0)
+        if (l_diffValue > 0)
             return;
 
-        m_RageSpend += -p_Value / p_Player->GetPowerCoeff(POWER_RAGE);
+        m_RageSpend += -l_diffValue / p_Player->GetPowerCoeff(POWER_RAGE);
         if (m_RageSpend >= sSpellMgr->GetSpellInfo(SPELL_WARR_ANGER_MANAGEMENT)->Effects[EFFECT_0].BasePoints)
         {
             for (int l_I = 0; l_I < REDUCED_SPELLS_ID_MAX; l_I++)
