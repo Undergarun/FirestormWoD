@@ -222,14 +222,14 @@ namespace MS
         {
             enum
             {
-                Count = sizeof (k_Brackets) / sizeof(Bracket)
+                Count = sizeof (k_Brackets) / sizeof (k_Brackets[0])
             };
 
             static Bracket const* FindForLevel(std::size_t p_Level)
             {
                 for (std::size_t i = 0; i < Count; i++)
                 {
-                    if (k_Brackets[i].m_MinLevel >= p_Level && k_Brackets[i].m_MaxLevel)
+                    if (k_Brackets[i].m_MinLevel <= p_Level && p_Level <= k_Brackets[i].m_MaxLevel)
                         return &k_Brackets[i];
                 }
 
