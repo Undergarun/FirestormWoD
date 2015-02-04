@@ -1576,12 +1576,10 @@ class spell_monk_crackling_jade_lightning: public SpellScriptLoader
 
             void OnTick(constAuraEffectPtr aurEff)
             {
-                if (Unit* caster = GetCaster())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (roll_chance_i(30))
-                        caster->CastSpell(caster, SPELL_MONK_JADE_LIGHTNING_ENERGIZE, true);
-                    if (caster->HasAura(103985) || caster->HasAura(115069))
-                        caster->EnergizeBySpell(caster, GetSpellInfo()->Id, -20, POWER_ENERGY);
+                    if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER)
+                        l_Player->CastSpell(l_Player, SPELL_MONK_JADE_LIGHTNING_ENERGIZE, true);
                 }
             }
 
@@ -1595,14 +1593,16 @@ class spell_monk_crackling_jade_lightning: public SpellScriptLoader
                 if (eventInfo.GetActor()->GetGUID() != GetTarget()->GetGUID())
                     return;
 
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (GetTarget()->HasAura(aurEff->GetSpellInfo()->Id, _player->GetGUID()))
+                    if (GetTarget()->HasAura(aurEff->GetSpellInfo()->Id, l_Player->GetGUID()))
                     {
-                        if (!_player->HasSpellCooldown(SPELL_MONK_CRACKLING_JADE_SHOCK_BUMP))
+                        const SpellInfo *l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MONK_CRACKLING_JADE_SHOCK_BUMP);
+
+                        if (!l_Player->HasSpellCooldown(SPELL_MONK_CRACKLING_JADE_SHOCK_BUMP) && l_SpellInfo != nullptr)
                         {
-                            _player->CastSpell(GetTarget(), SPELL_MONK_CRACKLING_JADE_SHOCK_BUMP, true);
-                            _player->AddSpellCooldown(SPELL_MONK_CRACKLING_JADE_SHOCK_BUMP, 0, 8 * IN_MILLISECONDS);
+                            l_Player->CastSpell(GetTarget(), SPELL_MONK_CRACKLING_JADE_SHOCK_BUMP, true);
+                            l_Player->AddSpellCooldown(SPELL_MONK_CRACKLING_JADE_SHOCK_BUMP, 0, l_SpellInfo->RecoveryTime);
                         }
                     }
                 }

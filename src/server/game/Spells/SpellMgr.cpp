@@ -4940,8 +4940,11 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 20066: // Repentence
             case 115175:// Soothing Mists
+                spellInfo->PreventionType = SPELL_PREVENTION_TYPE_SILENCE;
+                break;
             case 117952:// Crackling Jade Lightning
                 spellInfo->PreventionType = SPELL_PREVENTION_TYPE_SILENCE;
+                spellInfo->AttributesEx5 &= ~SPELL_ATTR5_HASTE_AFFECT_DURATION;
                 break;
             case 117833:// Crazy Thought
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_FEARED;
