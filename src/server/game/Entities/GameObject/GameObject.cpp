@@ -1403,6 +1403,8 @@ void GameObject::Use(Unit* p_User)
         case GAMEOBJECT_TYPE_GOOBER:                        //10
         {
             const GameObjectTemplate * l_Info = GetGOInfo();
+            if (!l_Info)
+                break;
 
             if (p_User->GetTypeId() == TYPEID_PLAYER)
             {
@@ -1476,6 +1478,8 @@ void GameObject::Use(Unit* p_User)
                 return;
 
             Player* player = p_User->ToPlayer();
+            if (!player)
+                break;
 
             if (info->camera.camera)
                 player->SendCinematicStart(info->camera.camera);
@@ -1688,7 +1692,7 @@ void GameObject::Use(Unit* p_User)
         {
             GameObjectTemplate const* info = GetGOInfo();
 
-            if (p_User->GetTypeId() != TYPEID_PLAYER)
+            if (p_User->GetTypeId() != TYPEID_PLAYER || !info)
                 return;
 
             Player* player = p_User->ToPlayer();
@@ -1722,6 +1726,8 @@ void GameObject::Use(Unit* p_User)
                 return;
 
             Player* player = p_User->ToPlayer();
+            if (!player)
+                break;
 
             if (player->CanUseBattlegroundObject())
             {
@@ -1754,6 +1760,8 @@ void GameObject::Use(Unit* p_User)
                 return;
 
             Player* player = p_User->ToPlayer();
+            if (!player)
+                break;
 
             player->SendLoot(GetGUID(), LOOT_FISHINGHOLE);
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_FISH_IN_GAMEOBJECT, GetGOInfo()->entry);
