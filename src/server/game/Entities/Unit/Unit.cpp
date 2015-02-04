@@ -1133,7 +1133,7 @@ uint32 Unit::CalcStaggerDamage(Player* victim, uint32 damage)
     // Mastery increases stagger amount - Mastery: Elusive Brawler
     if (victim->HasAura(117906))
     {
-        float Mastery = victim->GetFloatValue(PLAYER_FIELD_MASTERY) / 2.0f / 100.0f;
+        float Mastery = (victim->GetFloatValue(PLAYER_FIELD_MASTERY) * 0.625f) / 100.0f;
         stagger -= Mastery;
     }
 
