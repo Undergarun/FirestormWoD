@@ -4,6 +4,8 @@
 # define CURL_STATICLIB
 # include <curl/curl.h>
 
+#include <iostream>
+
 namespace MS
 {
     namespace Reporting

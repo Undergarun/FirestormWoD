@@ -9,6 +9,7 @@
 #define GARRISON_MGR_FOLLOWER_HPP_GARRISON
 
 #include "Common.h"
+#include "ByteBuffer.h"
 
 #include <vector>
 
