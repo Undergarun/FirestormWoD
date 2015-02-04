@@ -1855,51 +1855,67 @@ public:
     }
 };
 
-// Incanter's Flow - 1463
+/// Incanter's Flow - 1463
 class spell_mage_incanters_flow : public SpellScriptLoader
 {
-public:
-    spell_mage_incanters_flow() : SpellScriptLoader("spell_mage_incanters_flow") { }
+    public:
+        spell_mage_incanters_flow() : SpellScriptLoader("spell_mage_incanters_flow") { }
 
-    class spell_mage_incanters_flow_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_mage_incanters_flow_AuraScript);
-
-        bool m_Up = true;
-
-        void OnTick(constAuraEffectPtr aurEff)
+        class spell_mage_incanters_flow_AuraScript : public AuraScript
         {
-            if (Unit *l_Caster = GetCaster())
+            PrepareAuraScript(spell_mage_incanters_flow_AuraScript);
+
+            bool m_Up = true;
+            bool m_Changed = false;
+
+            void OnTick(constAuraEffectPtr)
             {
-                if (l_Caster->HasAura(SPELL_MAGE_INCANTERS_FLOW))
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (AuraPtr l_IncantersFlow = l_Caster->GetAura(SPELL_MAGE_INCANTERS_FLOW))
+                    /// Break the cycle if caster is out of combat
+                    if (!l_Caster->isInCombat())
+                        return;
+
+                    if (l_Caster->HasAura(SPELL_MAGE_INCANTERS_FLOW))
                     {
-                        l_IncantersFlow->ModStackAmount(m_Up ? 1 : -1);
-                        if (l_IncantersFlow->GetStackAmount() == 5)
-                            m_Up = false;
-                        else if (l_IncantersFlow->GetStackAmount() == 1)
-                            m_Up = true;
+                        if (AuraPtr l_IncantersFlow = l_Caster->GetAura(SPELL_MAGE_INCANTERS_FLOW))
+                        {
+                            m_Changed = false;
+
+                            if (l_IncantersFlow->GetStackAmount() == 5 && m_Up)
+                            {
+                                m_Up = false;
+                                m_Changed = true;
+                            }
+                            else if (l_IncantersFlow->GetStackAmount() == 1 && !m_Up)
+                            {
+                                m_Up = true;
+                                m_Changed = true;
+                            }
+
+                            if (!m_Changed)
+                                l_IncantersFlow->ModStackAmount(m_Up ? 1 : -1);
+                        }
+                    }
+                    else if (l_Caster->isInCombat())
+                    {
+                        l_Caster->CastSpell(l_Caster, SPELL_MAGE_INCANTERS_FLOW, true);
+                        m_Up = true;
+                        m_Changed = false;
                     }
                 }
-                else if (l_Caster->isInCombat())
-                {
-                    l_Caster->CastSpell(l_Caster, SPELL_MAGE_INCANTERS_FLOW, true);
-                    m_Up = true;
-                }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_mage_incanters_flow_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
         {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_mage_incanters_flow_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            return new spell_mage_incanters_flow_AuraScript();
         }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_mage_incanters_flow_AuraScript();
-    }
 };
 
 // Flameglow - 140468
