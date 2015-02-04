@@ -4437,6 +4437,21 @@ void Player::InitSpellForLevel()
     // Fix Pick Lock update at each level
     if (HasSpell(1804) && getLevel() > 20)
         SetSkill(921, GetSkillStep(921), (getLevel() * 5), (getLevel() * 5));
+
+    /// - Remove non authorized spell (learned when system was buggede)
+    uint32 l_RaceMask = getRaceMask();
+    for (auto l_Itr : GetSpellMap())
+    {
+        auto l_SpellInfo = sSpellMgr->GetSpellInfo(l_Itr.first);
+        if (l_SpellInfo == nullptr)
+            continue;
+
+        if ((l_SpellInfo->AttributesEx7 & SPELL_ATTR7_HORDE_ONLY && (l_RaceMask & RACEMASK_HORDE) == 0)
+            || (l_SpellInfo->AttributesEx7 & SPELL_ATTR7_ALLIANCE_ONLY && (l_RaceMask & RACEMASK_ALLIANCE) == 0))
+        {
+            removeSpell(l_SpellInfo->Id, false, false);
+        }
+    }
 }
 
 void Player::RemoveSpecializationSpells()
@@ -26869,27 +26884,36 @@ float Player::GetReputationPriceDiscount(Creature const* creature) const
     return 1.0f - 0.05f* (rank - REP_NEUTRAL);
 }
 
-bool Player::IsSpellFitByClassAndRace(uint32 spell_id) const
+bool Player::IsSpellFitByClassAndRace(uint32 p_SpellId) const
 {
-    uint32 racemask  = getRaceMask();
-    uint32 classmask = getClassMask();
+    uint32 l_RaceMask  = getRaceMask();
+    uint32 l_ClassMask = getClassMask();
+    auto l_Spellinfo   = sSpellMgr->GetSpellInfo(p_SpellId);
 
-    SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spell_id);
-    if (bounds.first == bounds.second)
+    if (l_Spellinfo == nullptr)
+        return false;
+
+    SkillLineAbilityMapBounds l_Bounds = sSpellMgr->GetSkillLineAbilityMapBounds(p_SpellId);
+    if (l_Bounds.first == l_Bounds.second)
         return true;
 
-    for (SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
+    for (SkillLineAbilityMap::const_iterator l_SpellIdx = l_Bounds.first; l_SpellIdx != l_Bounds.second; ++l_SpellIdx)
     {
         // Hackfix, Gift of the Naaru for Monks (121093) doesn't have a racemask for only Draenei
-        if (spell_id == 121093 && racemask != 1024)
+        if (p_SpellId == 121093 && l_RaceMask != 1024)
+            continue;
+
+        /// Skip horde or alliance only spells
+        if ((l_Spellinfo->AttributesEx7 & SPELL_ATTR7_HORDE_ONLY && (l_RaceMask & RACEMASK_HORDE) == 0)
+            || (l_Spellinfo->AttributesEx7 & SPELL_ATTR7_ALLIANCE_ONLY && (l_RaceMask & RACEMASK_ALLIANCE) == 0))
             continue;
 
         // skip wrong race skills
-        if (_spell_idx->second->racemask && (_spell_idx->second->racemask & racemask) == 0)
+        if (l_SpellIdx->second->racemask && (l_SpellIdx->second->racemask & l_RaceMask) == 0)
             continue;
 
         // skip wrong class skills
-        if (_spell_idx->second->classmask && (_spell_idx->second->classmask & classmask) == 0)
+        if (l_SpellIdx->second->classmask && (l_SpellIdx->second->classmask & l_ClassMask) == 0)
             continue;
 
         return true;
