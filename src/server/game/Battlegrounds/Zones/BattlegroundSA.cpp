@@ -559,12 +559,8 @@ void BattlegroundSA::TeleportPlayers()
             player->ResetAllPowers();
             player->CombatStopWithPets(true);
 
-            for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-                if (Player* p = ObjectAccessor::FindPlayer(itr->first))
-                {
-                    p->ModifyAuraState(AURA_STATE_PVP_RAID_PREPARE, true);
-                    p->CastSpell(p, SPELL_PREPARATION, true);
-                }
+            player->ModifyAuraState(AURA_STATE_PVP_RAID_PREPARE, true);
+            player->CastSpell(player, SPELL_PREPARATION, true);
 
             if (player->GetTeamId() == Attackers)
             {

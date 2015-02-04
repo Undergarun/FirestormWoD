@@ -598,7 +598,7 @@ OutdoorPvPAshran::OutdoorPvPAshran()
     m_Guid = MAKE_NEW_GUID(m_WorldPvPAreaId, 0, HighGuid::HIGHGUID_TYPE_BATTLEGROUND);
     m_Guid |= eAshranDatas::BattlefieldWorldPvP;
 
-    for (uint8 l_Team = BattlegroundTeamId::BG_TEAM_ALLIANCE; l_Team < BG_TEAMS_COUNT; ++l_Team)
+    for (uint8 l_Team = BattlegroundTeamId::BG_TEAM_ALLIANCE; l_Team < MS::Battlegrounds::TeamsCount::Value; ++l_Team)
     {
         m_PlayersInWar[l_Team].clear();
         m_InvitedPlayers[l_Team].clear();
@@ -794,7 +794,7 @@ void OutdoorPvPAshran::HandlePlayerKilled(Player* p_Player)
 
 bool OutdoorPvPAshran::Update(uint32 p_Diff)
 {
-    PlayerTimerMap l_TempList[BG_TEAMS_COUNT];
+    PlayerTimerMap l_TempList[MS::Battlegrounds::TeamsCount::Value];
 
     for (uint8 l_Team = 0; l_Team < 2; ++l_Team)
     {

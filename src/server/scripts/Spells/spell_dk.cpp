@@ -595,16 +595,19 @@ class PlayerScript_Blood_Tap: public PlayerScript
 
         uint16 m_RunicPower = 0;
 
-        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_Value)
+        void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32 p_NewValue, bool p_Regen)
         {
-            if (p_Player->getClass() != CLASS_DEATH_KNIGHT || p_Power != POWER_RUNIC_POWER || !p_Player->HasSpell(45529))
+            if (p_Player->getClass() != CLASS_DEATH_KNIGHT || p_Power != POWER_RUNIC_POWER || !p_Player->HasSpell(45529) || p_Regen)
                 return;
+
+            // Get the power earn (if > 0 ) or consum (if < 0)
+            int32 l_diffValue = p_NewValue - p_OldValue;
 
             // Only on use runic power
-            if (p_Value > 0)
+            if (l_diffValue > 0)
                 return;
 
-            m_RunicPower += -p_Value;
+            m_RunicPower += -l_diffValue;
 
             if (m_RunicPower >= 150)
             {
@@ -799,41 +802,39 @@ class spell_dk_death_strike: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
+                Player* l_Player = GetCaster()->ToPlayer();
+                if (!l_Player)
+                    return;
+
+                l_Player->CastSpell(l_Player, DK_SPELL_DEATH_STRIKE_HEAL, true);
+
+                // Apply Blood Rites effects
+                if (l_Player->HasAura(DK_SPELL_BLOOD_RITES))
                 {
-                    if (Unit* l_Target = GetHitUnit())
+                    bool l_RuneFrost = false;
+                    bool l_RuneUnholy = false;
+
+                    for (uint8 i = 0; i < MAX_RUNES; ++i)
                     {
-                        l_Player->CastSpell(l_Player, DK_SPELL_DEATH_STRIKE_HEAL, true);
+                        if (l_Player->GetCurrentRune(i) == RUNE_DEATH
+                            || l_Player->GetCurrentRune(i) == RUNE_BLOOD
+                            || l_Player->GetBaseRune(i) == RUNE_BLOOD)
+                            continue;
 
-                        // Apply Blood Rites effects
-                        if (l_Player->HasAura(DK_SPELL_BLOOD_RITES))
+                        if (l_RuneUnholy && l_Player->GetCurrentRune(i) == RUNE_UNHOLY)
+                            continue;
+
+                        if (l_RuneFrost && l_Player->GetCurrentRune(i) == RUNE_FROST)
+                            continue;
+
+                        if (l_Player->GetRuneCooldown(i))
                         {
-                            bool l_RuneFrost = false;
-                            bool l_RuneUnholy = false;
+                            if (l_Player->GetCurrentRune(i) == RUNE_FROST)
+                                l_RuneFrost = true;
+                            else
+                                l_RuneUnholy = true;
 
-                            for (uint8 i = 0; i < MAX_RUNES; ++i)
-                            {
-                                if (l_Player->GetCurrentRune(i) == RUNE_DEATH
-                                    || l_Player->GetCurrentRune(i) == RUNE_BLOOD
-                                    || l_Player->GetBaseRune(i) == RUNE_BLOOD)
-                                    continue;
-
-                                if (l_RuneUnholy && l_Player->GetCurrentRune(i) == RUNE_UNHOLY)
-                                    continue;
-
-                                if (l_RuneFrost && l_Player->GetCurrentRune(i) == RUNE_FROST)
-                                    continue;
-
-                                if (l_Player->GetRuneCooldown(i))
-                                {
-                                    if (l_Player->GetCurrentRune(i) == RUNE_FROST)
-                                        l_RuneFrost = true;
-                                    else
-                                        l_RuneUnholy = true;
-
-                                    l_Player->ConvertRune(i, RUNE_DEATH);
-                                }
-                            }
+                            l_Player->ConvertRune(i, RUNE_DEATH);
                         }
                     }
                 }
@@ -1788,13 +1789,16 @@ class PlayerScript_Runic_Empowerment: public PlayerScript
     public:
         PlayerScript_Runic_Empowerment() :PlayerScript("PlayerScript_Runic_Empowerment") {}
 
-        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_Value)
+        void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32 p_NewValue, bool p_Regen)
         {
-            if (p_Player->getClass() != CLASS_DEATH_KNIGHT || p_Power != POWER_RUNIC_POWER || !p_Player->HasAura(DK_SPELL_RUNIC_EMPOWERMENT))
+            if (p_Player->getClass() != CLASS_DEATH_KNIGHT || p_Power != POWER_RUNIC_POWER || !p_Player->HasAura(DK_SPELL_RUNIC_EMPOWERMENT) || p_Regen)
                 return;
 
+            // Get the power earn (if > 0 ) or consum (if < 0)
+            int32 l_diffValue = p_NewValue - p_OldValue;
+
             // Only on use runic power
-            if (p_Value > 0)
+            if (l_diffValue > 0)
                 return;
 
             if (AuraEffectPtr l_RunicEmpowerment = p_Player->GetAuraEffect(DK_SPELL_RUNIC_EMPOWERMENT, EFFECT_0))
@@ -1803,7 +1807,7 @@ class PlayerScript_Runic_Empowerment: public PlayerScript
                 float l_Amount = l_RunicEmpowerment->GetAmount();
                 l_Amount /= 100.f;
 
-                float l_Chance = l_Amount * (((float)-p_Value) / 10.f);
+                float l_Chance = l_Amount * (((float)-l_diffValue) / 10.f);
 
                 if (roll_chance_f(l_Chance))
                 {
@@ -1833,13 +1837,16 @@ class PlayerScript_Corrupion_Runic: public PlayerScript
     public:
         PlayerScript_Corrupion_Runic() :PlayerScript("PlayerScript_Corrupion_Runic") {}
 
-        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_Value)
+        void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32 p_NewValue, bool p_Regen)
         {
-            if (p_Player->getClass() != CLASS_DEATH_KNIGHT || p_Power != POWER_RUNIC_POWER || !p_Player->HasAura(DK_SPELL_RUNIC_CORRUPTION_AURA))
+            if (p_Player->getClass() != CLASS_DEATH_KNIGHT || p_Power != POWER_RUNIC_POWER || !p_Player->HasAura(DK_SPELL_RUNIC_CORRUPTION_AURA) || p_Regen)
                 return;
 
+            // Get the power earn (if > 0 ) or consum (if < 0)
+            int32 l_diffValue = p_NewValue - p_OldValue;
+
             // Only on use runic power
-            if (p_Value > 0)
+            if (l_diffValue > 0)
                 return;
 
             if (AuraEffectPtr l_RunicCorruption = p_Player->GetAuraEffect(DK_SPELL_RUNIC_CORRUPTION_AURA, EFFECT_1))
@@ -1848,7 +1855,7 @@ class PlayerScript_Corrupion_Runic: public PlayerScript
                 float l_Amount = l_RunicCorruption->GetAmount();
                 l_Amount /= 100.f;
 
-                float l_Chance = l_Amount * (((float)-p_Value) / 10.f);
+                float l_Chance = l_Amount * (((float)-l_diffValue) / 10.f);
 
                 if (roll_chance_f(l_Chance))
                     p_Player->CastSpell(p_Player, DK_SPELL_RUNIC_CORRUPTION, true);

@@ -31,12 +31,14 @@
 #include "ObjectAccessor.h"
 #include "Creature.h"
 #include "Pet.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 #include "Battleground.h"
 #include "ScriptMgr.h"
 #include "CreatureAI.h"
 #include "SpellInfo.h"
 #include "Guild.h"
+
+#include "BattlegroundPacketFactory.hpp"
 
 enum StableResultCode
 {
@@ -378,7 +380,7 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
         if (bg)
         {
             bg->AddPlayerToResurrectQueue(unit->GetGUID(), m_Player->GetGUID());
-            sBattlegroundMgr->SendAreaSpiritHealerQueryOpcode(m_Player, bg, unit->GetGUID());
+            MS::Battlegrounds::PacketFactory::AreaSpiritHealerQuery(m_Player, bg, unit->GetGUID());
             return;
         }
     }

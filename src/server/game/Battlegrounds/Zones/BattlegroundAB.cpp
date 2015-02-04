@@ -19,7 +19,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "ObjectMgr.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 #include "Battleground.h"
 #include "BattlegroundAB.h"
 #include "Creature.h"
@@ -51,7 +51,7 @@ void BattlegroundAB::PostUpdateImpl(uint32 diff)
 {
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
-        int team_points[BG_TEAMS_COUNT] = { 0, 0 };
+        int team_points[MS::Battlegrounds::TeamsCount::Value] = { 0, 0 };
 
         for (int node = 0; node < BG_AB_DYNAMIC_NODES_COUNT; ++node)
         {
@@ -89,13 +89,13 @@ void BattlegroundAB::PostUpdateImpl(uint32 diff)
                 }
             }
 
-            for (int team = 0; team < BG_TEAMS_COUNT; ++team)
+            for (int team = 0; team < MS::Battlegrounds::TeamsCount::Value; ++team)
                 if (m_Nodes[node] == team + BG_AB_NODE_TYPE_OCCUPIED)
                     ++team_points[team];
         }
 
         // Accumulate points
-        for (int team = 0; team < BG_TEAMS_COUNT; ++team)
+        for (int team = 0; team < MS::Battlegrounds::TeamsCount::Value; ++team)
         {
             int points = team_points[team];
             if (!points)
@@ -135,7 +135,7 @@ void BattlegroundAB::PostUpdateImpl(uint32 diff)
                     UpdateWorldState(BG_AB_OP_RESOURCES_HORDE, m_TeamScores[team]);
                 // update achievement flags
                 // we increased m_TeamScores[team] so we just need to check if it is 500 more than other teams resources
-                uint8 otherTeam = (team + 1) % BG_TEAMS_COUNT;
+                uint8 otherTeam = (team + 1) % MS::Battlegrounds::TeamsCount::Value;
                 if (m_TeamScores[team] > m_TeamScores[otherTeam] + 500)
                     m_TeamScores500Disadvantage[otherTeam] = true;
             }

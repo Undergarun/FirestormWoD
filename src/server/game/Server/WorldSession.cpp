@@ -36,7 +36,7 @@
 #include "Guild.h"
 #include "World.h"
 #include "ObjectAccessor.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 #include "OutdoorPvPMgr.h"
 #include "MapManager.h"
 #include "SocialMgr.h"
@@ -103,7 +103,8 @@ m_TimeLastChannelMuteCommand(0), m_TimeLastChannelBanCommand(0), m_TimeLastChann
 m_TimeLastChannelAnnounceCommand(0), m_TimeLastGroupInviteCommand(0), m_TimeLastChannelModerCommand(0),
 m_TimeLastChannelOwnerCommand(0), m_TimeLastChannelSetownerCommand(0), m_TimeLastChannelUnmoderCommand(0),
 m_TimeLastChannelUnmuteCommand(0), m_TimeLastChannelKickCommand(0), timeLastServerCommand(0), timeLastArenaTeamCommand(0),
-timeLastChangeSubGroupCommand(0), m_TimeLastSellItemOpcode(0), m_uiAntispamMailSentCount(0), m_uiAntispamMailSentTimer(0), m_PlayerLoginCounter(0)
+timeLastChangeSubGroupCommand(0), m_TimeLastSellItemOpcode(0), m_uiAntispamMailSentCount(0), m_uiAntispamMailSentTimer(0), m_PlayerLoginCounter(0),
+m_clientTimeDelay(0)
 {
     _warden = NULL;
     _filterAddonMessages = false;
@@ -641,10 +642,10 @@ void WorldSession::LogoutPlayer(bool Save)
 
         for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
         {
-            if (BattlegroundQueueTypeId bgQueueTypeId = m_Player->GetBattlegroundQueueTypeId(i))
+            if (MS::Battlegrounds::BattlegroundType::Type bgQueueTypeId = m_Player->GetBattlegroundQueueTypeId(i))
             {
                 m_Player->RemoveBattlegroundQueueId(bgQueueTypeId);
-                sBattlegroundMgr->m_BattlegroundQueues[ bgQueueTypeId ].RemovePlayer(m_Player->GetGUID(), true);
+                sBattlegroundMgr->RemovePlayer(m_Player->GetGUID(), true);
             }
         }
 

@@ -45,6 +45,8 @@
 #include "DBCStores.h"
 #include "LFGMgr.h"
 
+#include "Reporter.hpp"
+
 class LoginQueryHolder : public SQLQueryHolder
 {
     private:
@@ -794,6 +796,11 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
                 uint8 unk;
                 createInfo->Data >> unk;
                 sLog->outDebug(LOG_FILTER_NETWORKIO, "Character creation %s (account %u) has unhandled tail data: [%u]", createInfo->Name.c_str(), GetAccountId(), unk);
+            }
+
+            {
+                using namespace MS;
+                sReporter->Report(Reporting::MakeReport<Reporting::CharacterCreation>::Craft(GetAccountId(), time(NULL)));
             }
 
             Player newChar(this);

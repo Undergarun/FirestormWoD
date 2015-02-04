@@ -134,7 +134,11 @@ enum PriestSpells
     PRIEST_SPELL_SHADOW_INSIGHT                     = 162452,
     PRIEST_SPELL_SHADOW_INSIGHT_PROC                = 124430,
     PRIEST_GLYPH_OF_POWER_WORD_SHIELD               = 55672,
-    PRIEST_GLYPH_OF_POWER_WORD_SHIELD_PROC          = 56160
+    PRIEST_GLYPH_OF_POWER_WORD_SHIELD_PROC          = 56160,
+    PRIEST_GLYPH_OF_MIND_HARVEST                    = 162532,
+    PRIEST_GLYPH_OF_MIND_HARVEST_MARKER             = 162414,
+    PRIEST_SPELL_VOID_ENTROPY                       = 155361,
+    PRIEST_GLYPH_OF_MIND_BLAST                      = 87194
 };
 
 // Shadow Orb - 77487 & Glyph od Shadow ravens - 57985
@@ -143,8 +147,11 @@ class PlayerScript_Shadow_Orb: public PlayerScript
     public:
         PlayerScript_Shadow_Orb() :PlayerScript("PlayerScript_Shadow_Orb") {}
 
-        void OnModifyPower(Player* p_Player, Powers p_Power, int32 /*p_Value*/)
+        void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32 p_NewValue, bool p_Regen)
         {
+            if (p_Regen)
+                return;
+
             if (p_Power == POWER_SHADOW_ORB && p_Player->GetPower(POWER_SHADOW_ORB) > 0)
             {
                 // Shadow Orb visual
@@ -744,7 +751,7 @@ class spell_pri_surge_of_light: public SpellScriptLoader
                             if (AuraPtr l_SurgeOfLight = l_Player->GetAura(PRIEST_SURGE_OF_LIGHT))
                             {
                                 if (l_SurgeOfLight->GetStackAmount() == 2)
-                                    l_SurgeOfLight->SetDuration(20 * IN_MILLISECONDS);
+                                    l_SurgeOfLight->SetDuration(l_SurgeOfLight->GetMaxDuration());
                                 else
                                     l_Player->CastSpell(l_Player, PRIEST_SURGE_OF_LIGHT, true);
                             }
@@ -1056,52 +1063,48 @@ class spell_pri_power_word_shield: public SpellScriptLoader
         }
 };
 
-// Called by Smite - 585
-// Chakra : Chastise - 81209
-class spell_pri_chakra_chastise: public SpellScriptLoader
+// Smite - 585
+class spell_pri_smite: public SpellScriptLoader
 {
     public:
-        spell_pri_chakra_chastise() : SpellScriptLoader("spell_pri_chakra_chastise") { }
+        spell_pri_smite() : SpellScriptLoader("spell_pri_smite") { }
 
-        class spell_pri_chakra_chastise_SpellScript : public SpellScript
+        class spell_pri_smite_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_pri_chakra_chastise_SpellScript);
+            PrepareSpellScript(spell_pri_smite_SpellScript);
 
             void HandleOnHit()
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
                     if (Unit* target = GetHitUnit())
                     {
-                        // Surge of light
-                        if (l_Player->HasSpell(109186))
-                            if (roll_chance_i(GetSpellInfo()->Effects[EFFECT_0].BasePoints))
+                        // Surge of light 
+                        const SpellInfo * l_SpellInfo = sSpellMgr->GetSpellInfo(PRIEST_SURGE_OF_LIGHT_AURA);
+
+                        if (l_SpellInfo != nullptr && l_Player->HasSpell(PRIEST_SURGE_OF_LIGHT_AURA) && roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
+                        {
+                            if (AuraPtr l_SurgeOfLight = l_Player->GetAura(PRIEST_SURGE_OF_LIGHT))
                             {
-                                if (AuraPtr l_SurgeOfLight = l_Player->GetAura(PRIEST_SURGE_OF_LIGHT))
-                                {
-                                    if (l_SurgeOfLight->GetStackAmount() == 2)
-                                        l_SurgeOfLight->SetDuration(20 * IN_MILLISECONDS);
-                                    else
-                                        l_Player->CastSpell(l_Player, PRIEST_SURGE_OF_LIGHT, true);
-                                }
+                                if (l_SurgeOfLight->GetStackAmount() == 2)
+                                    l_SurgeOfLight->SetDuration(l_SurgeOfLight->GetMaxDuration());
                                 else
                                     l_Player->CastSpell(l_Player, PRIEST_SURGE_OF_LIGHT, true);
                             }
-
-                        if (roll_chance_i(GetSpellInfo()->Effects[EFFECT_1].BasePoints))
-                            if (l_Player->HasSpellCooldown(PRIEST_HOLY_WORD_CHASTISE))
-                                l_Player->RemoveSpellCooldown(PRIEST_HOLY_WORD_CHASTISE, true);
+                            else
+                                l_Player->CastSpell(l_Player, PRIEST_SURGE_OF_LIGHT, true);
+                        }
                     }
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_pri_chakra_chastise_SpellScript::HandleOnHit);
+                OnHit += SpellHitFn(spell_pri_smite_SpellScript::HandleOnHit);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_pri_chakra_chastise_SpellScript();
+            return new spell_pri_smite_SpellScript();
         }
 };
 
@@ -1117,19 +1120,22 @@ class spell_pri_lightwell_renew: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* m_caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (Unit* unitTarget = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
-                        if (m_caster->GetTypeId() != TYPEID_UNIT || !m_caster->ToCreature()->isSummon())
+                        if (l_Caster->GetTypeId() != TYPEID_UNIT || !l_Caster->ToCreature()->isSummon())
                             return;
 
                         // proc a spellcast
-                        if (AuraPtr chargesAura = m_caster->GetAura(LIGHTWELL_CHARGES))
+                        if (AuraPtr l_ChargesAura = l_Caster->GetAura(LIGHTWELL_CHARGES))
                         {
-                            m_caster->CastSpell(unitTarget, LIGHTSPRING_RENEW, true, NULL, NULLAURA_EFFECT, m_caster->ToTempSummon()->GetSummonerGUID());
-                            if (chargesAura->ModCharges(-1))
-                                m_caster->ToTempSummon()->UnSummon();
+                            if (!l_Target->HasAura(LIGHTSPRING_RENEW))
+                            {
+                                l_Caster->CastSpell(l_Target, LIGHTSPRING_RENEW, true, NULL, NULLAURA_EFFECT, l_Caster->ToTempSummon()->GetSummonerGUID());
+                                if (l_ChargesAura->ModCharges(-1))
+                                    l_Caster->ToTempSummon()->UnSummon();
+                            }
                         }
                     }
                 }
@@ -1294,6 +1300,11 @@ class spell_pri_devouring_plague: public SpellScriptLoader
                             // Glyph of Shadow Ravens
                             else if (l_Player->HasAura(PRIEST_SHADOW_ORB_DUMMY))
                                 l_Player->RemoveAura(PRIEST_SHADOW_ORB_DUMMY);
+                            
+                            // Case of Void Entropy running on Target -> refresh this effect to its full 1 min duration.
+                            if (l_Target->HasAura(PRIEST_SPELL_VOID_ENTROPY))
+                                if (AuraPtr l_VoidEntropy = l_Target->GetAura(PRIEST_SPELL_VOID_ENTROPY))
+                                    l_VoidEntropy->SetDuration(l_VoidEntropy->GetMaxDuration());
 
                             int32 l_Heal = GetHitDamage();
                             l_Player->CastCustomSpell(l_Player, PRIEST_DEVOURING_PLAGUE_HEAL, &l_Heal, NULL, NULL, true);
@@ -2628,26 +2639,139 @@ public:
     }
 };
 
+// Mind Blast - 8092
+class spell_pri_mind_blast: public SpellScriptLoader
+{
+public:
+    spell_pri_mind_blast() : SpellScriptLoader("spell_pri_mind_blast") { }
+
+    class spell_pri_mind_blast_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pri_mind_blast_SpellScript);
+
+        bool m_HasMarker = false;
+
+        void HandleBeforeCast()
+        {
+            if (Unit* l_Caster = GetCaster())
+                if (Unit* l_Target = GetExplTargetUnit())
+                {
+                    if (l_Target->HasAura(PRIEST_GLYPH_OF_MIND_HARVEST_MARKER))
+                        m_HasMarker = true;
+                }
+        }
+
+        void HandleEnergize(SpellEffIndex effIndex)
+        {
+            PreventHitDefaultEffect(effIndex);
+
+            Player *l_Player = GetCaster()->ToPlayer();
+
+            if (l_Player == nullptr || !l_Player->HasAura(PRIEST_GLYPH_OF_MIND_HARVEST))
+                return;
+
+            if (AuraPtr aura = l_Player->GetAura(PRIEST_GLYPH_OF_MIND_HARVEST))
+            {
+                uint32 l_OldCooldown = l_Player->GetSpellCooldownDelay(GetSpellInfo()->Id);
+                uint32 l_NewCooldown = l_OldCooldown + sSpellMgr->GetSpellInfo(PRIEST_GLYPH_OF_MIND_HARVEST)->Effects[EFFECT_1].BasePoints;
+
+                l_Player->RemoveSpellCooldown(GetSpellInfo()->Id, true);
+
+                if (m_HasMarker)
+                    l_Player->AddSpellCooldown(GetSpellInfo()->Id, 0, l_OldCooldown, true);
+                else
+                {
+                    l_Player->AddSpellCooldown(GetSpellInfo()->Id, 0, l_NewCooldown, true);
+                    GetSpell()->EffectEnergize(effIndex);
+                }
+            }
+        }
+
+        void Register()
+        {
+            BeforeCast += SpellCastFn(spell_pri_mind_blast_SpellScript::HandleBeforeCast);
+            OnEffectHitTarget += SpellEffectFn(spell_pri_mind_blast_SpellScript::HandleEnergize, EFFECT_3, SPELL_EFFECT_ENERGIZE);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pri_mind_blast_SpellScript();
+    }
+};
+
+// Glyphe of Mind Blast - 87195
+class spell_pri_glyphe_of_mind_blast : public SpellScriptLoader
+{
+public:
+    spell_pri_glyphe_of_mind_blast() : SpellScriptLoader("spell_pri_glyphe_of_mind_blast") { }
+
+    class spell_pri_glyphe_of_mind_blast_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pri_glyphe_of_mind_blast_AuraScript);
+
+        void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+        {
+            PreventDefaultAction();
+
+            Unit* l_Caster = GetCaster();
+
+            if (!l_Caster)
+                return;
+
+            if (p_EventInfo.GetActor()->GetGUID() != l_Caster->GetGUID())
+                return;
+
+            if (!p_EventInfo.GetDamageInfo()->GetSpellInfo() || p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != PRIEST_SPELL_MIND_BLAST || !GetSpellInfo())
+                return;
+
+            if (!(p_EventInfo.GetHitMask() & PROC_EX_CRITICAL_HIT))
+                return;
+
+            l_Caster->CastSpell(p_EventInfo.GetDamageInfo()->GetVictim(), PRIEST_GLYPH_OF_MIND_BLAST, true);
+        }
+
+        void Register()
+        {
+            OnEffectProc += AuraEffectProcFn(spell_pri_glyphe_of_mind_blast_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_pri_glyphe_of_mind_blast_AuraScript();
+    }
+};
+
 // Insanity - 132573
 class PlayerScript_insanity: public PlayerScript
 {
 public:
     PlayerScript_insanity() :PlayerScript("PlayerScript_insanity") {}
 
-    void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_Value)
+    void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32 p_NewValue, bool p_Regen)
     {
+        if (p_Regen)
+            return;
+
+        // Get the power earn (if > 0 ) or consum (if < 0)
+        int32 l_diffValue = p_NewValue - p_OldValue;
+
         if (p_Player->getClass() == CLASS_PRIEST && p_Player->GetSpecializationId(p_Player->GetActiveSpec()) == SPEC_PRIEST_SHADOW && p_Power == POWER_SHADOW_ORB)
-            if (p_Value < 0 && p_Player->HasAura(PRIEST_SPELL_INSANITY_AURA))
+            if (l_diffValue < 0 && p_Player->HasAura(PRIEST_SPELL_INSANITY_AURA))
             {
                 p_Player->CastSpell(p_Player, PRIEST_SPELL_INSANITY, true);
                 if (AuraPtr l_Insanity = p_Player->GetAura(PRIEST_SPELL_INSANITY))
-                    l_Insanity->SetDuration(l_Insanity->GetMaxDuration() * (p_Value * -1));
+                    l_Insanity->SetDuration(l_Insanity->GetMaxDuration() * (l_diffValue * -1));
             }
     }
 };
 
+
 void AddSC_priest_spell_scripts()
 {
+    new spell_pri_glyphe_of_mind_blast();
+    new spell_pri_mind_blast();
     new spell_pri_word_barrier_update();
     new spell_pri_shadow_word_pain();
     new spell_pri_angelic_feather();
@@ -2680,7 +2804,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_divine_insight_holy();
     new spell_pri_divine_insight_discipline();
     new spell_pri_holy_word_sanctuary();
-    new spell_pri_chakra_chastise();
+    new spell_pri_smite();
     new spell_pri_lightwell_renew();
     new spell_pri_atonement();
     new spell_pri_purify();

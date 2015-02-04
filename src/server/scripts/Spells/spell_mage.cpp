@@ -96,7 +96,7 @@ enum MageSpells
     SPELL_MAGE_ICY_VEINS                         = 12472,
     SPELL_MAGE_THERMAL_VOID                      = 155149,
     SPELL_MAGE_HEATING_UP                        = 48108,
-    SPELL_MAGE_KINDKING                          = 155148,
+    SPELL_MAGE_KINDLING                          = 155148,
     SPELL_MAGE_COMBUSTION                        = 11129,
     SPELL_MAGE_FROST_BOMB_AURA                   = 112948,
     SPELL_MAGE_FROST_BOMB_VISUAL                 = 69846,
@@ -110,7 +110,11 @@ enum MageSpells
     SPELL_MAGE_IMPROVED_BLIZZARD                 = 157727,
     SPELL_MAGE_FORZEN_ORB                        = 84714,
     SPELL_MAGE_ENHANCED_FROSTBOLT                = 157646,
-    SPELL_MAGE_ENHANCED_FROSTBOLT_PROC           = 157648
+    SPELL_MAGE_ENHANCED_FROSTBOLT_PROC           = 157648,
+    SPELL_MAGE_FLAMEGLOW                         = 140468,
+    SPELL_MAGE_RAPID_TELEPORTATION               = 46989,
+    SPELL_MAGE_RAPID_TELEPORTATION_AURA          = 89749,
+    SPELL_MAGE_RING_OF_FROST_IMMUNATE            = 91264
 };
 
 
@@ -367,9 +371,13 @@ class spell_mage_arcane_missile: public SpellScriptLoader
             void HandleOnCast()
             {
                 if (Unit* l_Caster = GetCaster())
-                    if (l_Caster->HasSpell(SPELL_MAGE_OVERPOWERED) && sSpellMgr->GetSpellInfo(SPELL_MAGE_OVERPOWERED) != nullptr)
+                {
+                    const SpellInfo *l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_OVERPOWERED);
+
+                    if (l_Caster->HasSpell(SPELL_MAGE_OVERPOWERED) && l_SpellInfo != nullptr)
                         if (AuraPtr l_Aura = l_Caster->GetAura(SPELL_MAGE_ARCANE_POWER, l_Caster->GetGUID()))
-                            l_Aura->SetDuration(l_Aura->GetDuration() + sSpellMgr->GetSpellInfo(SPELL_MAGE_OVERPOWERED)->Effects[EFFECT_0].BasePoints * IN_MILLISECONDS);
+                            l_Aura->SetDuration(l_Aura->GetDuration() + l_SpellInfo->Effects[EFFECT_0].BasePoints * IN_MILLISECONDS);
+                }
             }
 
             void Register()
@@ -645,35 +653,29 @@ class spell_mage_nether_tempest: public SpellScriptLoader
         {
             PrepareAuraScript(spell_mage_nether_tempest_AuraScript);
 
+            void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& /*p_Recalculate*/)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    const SpellInfo *l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_ARCANE_CHARGE);
+
+                    if (l_Caster->HasAura(SPELL_MAGE_ARCANE_CHARGE) && l_SpellInfo != nullptr)
+                        if (AuraPtr l_ArcaneCharge = l_Caster->GetAura(SPELL_MAGE_ARCANE_CHARGE))
+                            p_Amount += CalculatePct(p_Amount, l_SpellInfo->Effects[EFFECT_0].BasePoints) * l_ArcaneCharge->GetStackAmount();
+                }
+            }
+
             void OnTick(constAuraEffectPtr aurEff)
             {
-                if (GetCaster())
-                {
-                    if (Player* _player = GetCaster()->ToPlayer())
-                    {
-                        std::list<Unit*> targetList;
-
-                        GetTarget()->GetAttackableUnitListInRange(targetList, 10.0f);
-                        targetList.remove_if(CheckNetherImpactPredicate(_player, GetTarget()));
-
-                        JadeCore::Containers::RandomResizeList(targetList, 1);
-
-                        for (auto itr : targetList)
-                        {
-                            GetCaster()->CastSpell(itr, SPELL_MAGE_NETHER_TEMPEST_DIRECT_DAMAGE, true);
-                            GetTarget()->CastSpell(itr, SPELL_MAGE_NETHER_TEMPEST_MISSILE, true);
-                        }
-
-                        if (GetCaster()->HasAura(SPELL_MAGE_BRAIN_FREEZE))
-                            if (roll_chance_i(10))
-                                GetCaster()->CastSpell(GetCaster(), SPELL_MAGE_BRAIN_FREEZE_TRIGGERED, true);
-                    }
-                }
+                if (Unit* l_Caster = GetCaster())
+                    if (Unit *l_Target = GetTarget())
+                        l_Caster->CastSpell(l_Target, SPELL_MAGE_NETHER_TEMPEST_DIRECT_DAMAGE, true);
             }
 
             void Register()
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_mage_nether_tempest_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_nether_tempest_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
             }
         };
 
@@ -1492,11 +1494,12 @@ public:
 
         void HandleOnHit()
         {
-            if (Unit* l_Unit = GetCaster())
-                if (l_Unit->HasAura(SPELL_MAGE_KINDKING))
-                    if (Player *l_Player = l_Unit->ToPlayer())
-                        if (l_Player->HasSpellCooldown(SPELL_MAGE_COMBUSTION))
-                            l_Player->ReduceSpellCooldown(SPELL_MAGE_COMBUSTION, sSpellMgr->GetSpellInfo(SPELL_MAGE_KINDKING)->Effects[EFFECT_0].BasePoints);
+            if (Player *l_Player = GetCaster()->ToPlayer())
+                if (l_Player->HasSpell(SPELL_MAGE_KINDLING))
+                {
+                    if (l_Player->HasSpellCooldown(SPELL_MAGE_COMBUSTION))
+                        l_Player->ReduceSpellCooldown(SPELL_MAGE_COMBUSTION, sSpellMgr->GetSpellInfo(SPELL_MAGE_KINDLING)->Effects[EFFECT_0].BasePoints * IN_MILLISECONDS);
+                }
         }
 
         void Register()
@@ -1553,7 +1556,7 @@ public:
                     (*itr)->GetCreatureListInGrid(l_TempListCreature, 6.50);
                     for (std::list<Creature*>::iterator i = l_TempListCreature.begin(); i != l_TempListCreature.end(); ++i)
                     {
-                        if ((*i)->IsFriendlyTo(l_Caster) == false && (*i)->HasAura(SPELL_MAGE_RING_OF_FROST_AURA) == false)
+                        if (!(*i)->IsFriendlyTo(l_Caster) && !(*i)->HasAura(SPELL_MAGE_RING_OF_FROST_AURA) && !(*i)->HasAura(SPELL_MAGE_RING_OF_FROST_IMMUNATE))
                             l_Caster->CastSpell((*i), SPELL_MAGE_RING_OF_FROST_AURA, true);
                     }
 
@@ -1561,7 +1564,7 @@ public:
                     (*itr)->GetPlayerListInGrid(l_TempListPlayer, 6.50);
                     for (std::list<Player*>::iterator i = l_TempListPlayer.begin(); i != l_TempListPlayer.end(); ++i)
                     {
-                        if ((*i)->IsFriendlyTo(l_Caster) == false && (*i)->HasAura(SPELL_MAGE_RING_OF_FROST_AURA) == false)
+                        if (!(*i)->IsFriendlyTo(l_Caster) && !(*i)->HasAura(SPELL_MAGE_RING_OF_FROST_AURA) && !(*i)->HasAura(SPELL_MAGE_RING_OF_FROST_IMMUNATE))
                             l_Caster->CastSpell((*i), SPELL_MAGE_RING_OF_FROST_AURA, true);
                     }
                 }
@@ -1577,6 +1580,35 @@ public:
     AuraScript* GetAuraScript() const
     {
         return new spell_mage_ring_of_frost_AuraScript();
+    }
+};
+
+// Call by Ring of Frost (Aura) - 82691
+// Ring of Frost (immunity 2.5s) - 91264
+class spell_mage_ring_of_frost_immunity : public SpellScriptLoader
+{
+public:
+    spell_mage_ring_of_frost_immunity() : SpellScriptLoader("spell_mage_ring_of_frost_immunity") { }
+
+    class spell_mage_ring_of_frost_immunity_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_mage_ring_of_frost_immunity_AuraScript);
+
+        void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Unit* l_Target = GetTarget())
+                l_Target->CastSpell(l_Target, SPELL_MAGE_RING_OF_FROST_IMMUNATE, true);
+        }
+
+        void Register()
+        {
+            OnEffectRemove += AuraEffectRemoveFn(spell_mage_ring_of_frost_immunity_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_mage_ring_of_frost_immunity_AuraScript();
     }
 };
 
@@ -1789,9 +1821,6 @@ public:
         {
             Unit *l_Caster = GetCaster();
 
-            if (l_Caster == nullptr)
-                return;
-
             Player *l_Player = l_Caster->ToPlayer();
             const SpellInfo *l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_IMPROVED_BLIZZARD);
 
@@ -1837,14 +1866,10 @@ public:
                 {
                     if (AuraPtr l_IncantersFlow = l_Caster->GetAura(SPELL_MAGE_INCANTERS_FLOW))
                     {
-                        if (m_Up)
-                            l_IncantersFlow->SetStackAmount(l_IncantersFlow->GetStackAmount() + 1);
-                        else
-                            l_IncantersFlow->SetStackAmount(l_IncantersFlow->GetStackAmount() - 1);
-
+                        l_IncantersFlow->ModStackAmount(m_Up ? 1 : -1);
                         if (l_IncantersFlow->GetStackAmount() == 5)
                             m_Up = false;
-                        if (l_IncantersFlow->GetStackAmount() == 1)
+                        else if (l_IncantersFlow->GetStackAmount() == 1)
                             m_Up = true;
                     }
                 }
@@ -1868,9 +1893,71 @@ public:
     }
 };
 
+// Flameglow - 140468
+class spell_mage_flameglow : public SpellScriptLoader
+{
+public:
+    spell_mage_flameglow() : SpellScriptLoader("spell_mage_flameglow") { }
+
+    class spell_mage_flameglow_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_mage_flameglow_AuraScript);
+
+        void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& p_Amount, bool& /*canBeRecalculated*/)
+        {
+            if (Unit *l_Caster = GetCaster())
+                p_Amount = (l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * GetSpellInfo()->Effects[EFFECT_1].BasePoints) / 100;
+        }
+
+        void AfterAbsorb(AuraEffectPtr p_AurEff, DamageInfo & /*p_DmgInfo*/, uint32 & p_AbsorbAmount)
+        {
+            if (Unit *l_Caster = GetCaster())
+                if (l_Caster->HasSpell(SPELL_MAGE_FLAMEGLOW))
+                    p_AurEff->SetAmount(p_AbsorbAmount + ((l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * GetSpellInfo()->Effects[EFFECT_1].BasePoints) / 100));
+        }
+
+        void OnAbsorb(AuraEffectPtr p_AurEff, DamageInfo & p_DmgInfo, uint32 & p_AbsorbAmount)
+        {
+            if (Unit* l_Attacker = p_DmgInfo.GetAttacker())
+            {
+                if (p_AbsorbAmount > CalculatePct(p_DmgInfo.GetDamage(), GetSpellInfo()->Effects[EFFECT_2].BasePoints))
+                    p_AbsorbAmount = CalculatePct(p_DmgInfo.GetDamage(), GetSpellInfo()->Effects[EFFECT_2].BasePoints);
+            }
+        }
+
+
+        void Register()
+        {
+            OnEffectAbsorb += AuraEffectAbsorbFn(spell_mage_flameglow_AuraScript::OnAbsorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_flameglow_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+            AfterEffectAbsorb += AuraEffectAbsorbFn(spell_mage_flameglow_AuraScript::AfterAbsorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_mage_flameglow_AuraScript();
+    }
+};
+
+class PlayerScript_rapid_teleportation : public PlayerScript
+{
+public:
+    PlayerScript_rapid_teleportation() :PlayerScript("PlayerScript_rapid_teleportation") {}
+
+    void OnTeleport(Player* p_Player, const SpellInfo * p_SpellInfo)
+    {
+        if (p_Player->getClass() == CLASS_MAGE &&  p_SpellInfo->SpellFamilyName == SPELLFAMILY_MAGE && p_Player->HasAura(SPELL_MAGE_RAPID_TELEPORTATION_AURA))
+        {
+            p_Player->CastSpell(p_Player, SPELL_MAGE_RAPID_TELEPORTATION, true);
+        }
+    }
+};
 
 void AddSC_mage_spell_scripts()
 {
+    new spell_mage_ring_of_frost_immunity();
+    new spell_mage_flameglow();
     new spell_mage_incanters_flow();
     new spell_mage_blizzard();
     new spell_mage_blink();
@@ -1911,4 +1998,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_living_bomb();
     new spell_mage_mirror_image_summon();
     new spell_mage_ice_barrier();
+
+    // Player Script
+    new PlayerScript_rapid_teleportation();
 }

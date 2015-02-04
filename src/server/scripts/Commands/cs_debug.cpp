@@ -24,7 +24,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ObjectMgr.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 #include "Chat.h"
 #include "Cell.h"
 #include "CellImpl.h"
@@ -38,10 +38,15 @@ EndScriptData */
 
 #include <fstream>
 
+#include "BattlegroundPacketFactory.hpp"
+
 class debug_commandscript: public CommandScript
 {
     public:
-        debug_commandscript() : CommandScript("debug_commandscript") { }
+
+        debug_commandscript() : CommandScript("debug_commandscript")
+        {
+        }
 
         ChatCommand* GetCommands() const
         {
@@ -117,6 +122,8 @@ class debug_commandscript: public CommandScript
                 { "moditem",        SEC_ADMINISTRATOR,  false, &HandleDebugModItem,                "", NULL },
                 { "crashtest",      SEC_ADMINISTRATOR,  false, &HandleDebugCrashTest,              "", NULL },
                 { "bgaward",        SEC_ADMINISTRATOR,  false, &HandleDebugBgAward,                "", NULL },
+                { "vignette",       SEC_ADMINISTRATOR,  false, &HandleDebugVignette,               "", NULL },
+
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand commandTable[] =
@@ -362,7 +369,7 @@ class debug_commandscript: public CommandScript
             uint32 matchmakerRating = 0;
 
             //check existance
-            Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(BATTLEGROUND_RATED_10_VS_10);
+            Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(MS::Battlegrounds::BattlegroundType::RatedBg10v10);
             if (!bg)
             {
                 sLog->outError(LOG_FILTER_NETWORKIO, "Battleground: template bg (10 vs 10) not found");
@@ -373,9 +380,9 @@ class debug_commandscript: public CommandScript
                 return false;
 
             BattlegroundTypeId bgTypeId = bg->GetTypeID();
-            BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(bgTypeId, 0);
+            MS::Battlegrounds::BattlegroundType::Type bgQueueTypeId = MS::Battlegrounds::GetTypeFromId(bgTypeId, 0);
 
-            PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bg->GetMapId(), handler->GetSession()->GetPlayer()->getLevel());
+            MS::Battlegrounds::Bracket const* bracketEntry = MS::Battlegrounds::Brackets::FindForLevel(handler->GetSession()->GetPlayer()->getLevel());
             if (!bracketEntry)
                 return false;
 
@@ -413,7 +420,8 @@ class debug_commandscript: public CommandScript
             if (matchmakerRating <= 0)
                 matchmakerRating = 1;
 
-            BattlegroundQueue &bgQueue = sBattlegroundMgr->GetBattlegroundQueue(bgQueueTypeId);
+            MS::Battlegrounds::BattlegroundScheduler& l_Scheduler = sBattlegroundMgr->GetScheduler();
+            MS::Battlegrounds::BattlegroundInvitationsMgr& l_InvitationsMgr = sBattlegroundMgr->GetInvitationsMgr();
 
             uint32 avgTime = 0;
             GroupQueueInfo* ginfo;
@@ -423,8 +431,8 @@ class debug_commandscript: public CommandScript
             {
                 sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: leader %s queued", handler->GetSession()->GetPlayer()->GetName());
 
-                ginfo = bgQueue.AddGroup(handler->GetSession()->GetPlayer(), grp, bgTypeId, bracketEntry, 0, true, true, personalRating, matchmakerRating);
-                avgTime = bgQueue.GetAverageQueueWaitTime(ginfo, bracketEntry->GetBracketId());
+                ginfo = l_Scheduler.AddGroup(handler->GetSession()->GetPlayer(), grp, bgQueueTypeId, nullptr, bracketEntry, 0, true, personalRating, matchmakerRating, false);
+                avgTime = l_InvitationsMgr.GetAverageQueueWaitTime(ginfo, bracketEntry->m_Id);
             }
 
             for (GroupReference* itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
@@ -436,7 +444,7 @@ class debug_commandscript: public CommandScript
                 if (err)
                 {
                     WorldPacket data;
-                    sBattlegroundMgr->BuildStatusFailedPacket(&data, bg, handler->GetSession()->GetPlayer(), 0, err);
+                    MS::Battlegrounds::PacketFactory::StatusFailed(&data, bg, handler->GetSession()->GetPlayer(), 0, err);
                     member->GetSession()->SendPacket(&data);
                     continue;
                 }
@@ -445,16 +453,16 @@ class debug_commandscript: public CommandScript
                 uint32 queueSlot = member->AddBattlegroundQueueId(bgQueueTypeId);
 
                 // add joined time data
-                member->AddBattlegroundQueueJoinTime(bgTypeId, ginfo->JoinTime);
+                member->AddBattlegroundQueueJoinTime(bgTypeId, ginfo->m_JoinTime);
 
                 WorldPacket data; // send status packet (in queue)
-                sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, bg, member, queueSlot, STATUS_WAIT_QUEUE, avgTime, ginfo->JoinTime, ginfo->ArenaType);
+                MS::Battlegrounds::PacketFactory::Status(&data, bg, member, queueSlot, STATUS_WAIT_QUEUE, avgTime, ginfo->m_JoinTime, ginfo->m_ArenaType, false);
                 member->GetSession()->SendPacket(&data);
 
                 sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: player joined queue for rated battleground as group bg queue type %u bg type %u: GUID %u, NAME %s", bgQueueTypeId, bgTypeId, member->GetGUIDLow(), member->GetName());
             }
 
-            sBattlegroundMgr->ScheduleQueueUpdate(matchmakerRating, 0, bgQueueTypeId, bgTypeId, bracketEntry->GetBracketId());
+            //sBattlegroundMgr->ScheduleQueueUpdate(matchmakerRating, 0, bgQueueTypeId, bgTypeId, bracketEntry->GetBracketId());
 
             return true;
         }
@@ -2316,6 +2324,53 @@ class debug_commandscript: public CommandScript
             }
 
             l_Battleground->AwardTeams(l_Points, 3, l_Team); 
+            return true;
+        }
+
+        static bool HandleDebugVignette(ChatHandler* p_Handler, char const* p_Args)
+        {
+            char* l_VignetteIDStr = strtok((char*)p_Args, " ");
+            if (!l_VignetteIDStr)
+                return false;
+
+            Unit* l_SelectedUnit = p_Handler->GetSession()->GetPlayer()->GetSelectedUnit();
+            if (!l_SelectedUnit)
+                return false;
+
+            uint32 l_VignetteID = atoi(l_VignetteIDStr);
+            uint64 l_VignetteGUID = MAKE_NEW_GUID(l_SelectedUnit->GetGUIDLow(), l_VignetteID, HIGHGUID_VIGNETTE);
+
+
+            WorldPacket l_Data(SMSG_VIGNETTE_UPDATE);
+            l_Data.WriteBit(true);                                 ///< ForceUpdate
+            l_Data << uint32(0);                                   ///< RemovedCount
+            
+            //for ()
+            //    l_Data.appendPackGUID(IDs);
+
+            l_Data << uint32(1);                                   ///< Added count
+
+//            for ()
+                l_Data.appendPackGUID(l_VignetteGUID);
+
+            l_Data << uint32(1);
+            {
+                l_Data << float(l_SelectedUnit->GetPositionX());
+                l_Data << float(l_SelectedUnit->GetPositionY());
+                l_Data << float(l_SelectedUnit->GetPositionZ());
+                l_Data.appendPackGUID(l_VignetteGUID);
+                l_Data << uint32(l_VignetteID);
+                l_Data << uint32(0);                               ///< unk
+            }
+
+            l_Data << uint32(0);                                   ///< UpdateCount
+            {
+            }
+
+            l_Data << uint32(0);                                   ///< UpdateDataCount 
+
+            p_Handler->GetSession()->SendPacket(&l_Data);
+
             return true;
         }
 };

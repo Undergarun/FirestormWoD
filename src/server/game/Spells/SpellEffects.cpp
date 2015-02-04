@@ -43,7 +43,7 @@
 #include "Creature.h"
 #include "Totem.h"
 #include "CreatureAI.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 #include "Battleground.h"
 #include "BattlegroundEY.h"
 #include "BattlegroundWS.h"
@@ -1489,6 +1489,10 @@ void Spell::EffectTeleportUnits(SpellEffIndex /*effIndex*/)
 
     if (!unitTarget || unitTarget->isInFlight())
         return;
+
+    if (unitTarget->GetTypeId() == TYPEID_PLAYER && m_caster->GetTypeId() == TYPEID_PLAYER)
+        if (Player* l_Target = unitTarget->ToPlayer())
+            sScriptMgr->OnTeleport(l_Target, m_spellInfo);
 
     // Pre effects
     uint8 uiMaxSafeLevel = 0;
@@ -5360,24 +5364,36 @@ void Spell::EffectStuck(SpellEffIndex /*effIndex*/)
     if (!sWorld->getBoolConfig(CONFIG_CAST_UNSTUCK))
         return;
 
-    Player* target = (Player*)m_caster;
-
-    if (target->isInFlight())
+    Player* l_Player = m_caster->ToPlayer();
+    if (!l_Player)
         return;
 
-    if (target->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
-        target->RepopAtGraveyard();
-    else
-        target->TeleportTo(target->GetStartPosition(), TELE_TO_SPELL);
-    // homebind location is loaded always
-    // target->TeleportTo(target->m_homebindMapId, target->m_homebindX, target->m_homebindY, target->m_homebindZ, target->GetOrientation(), (m_caster == m_caster ? TELE_TO_SPELL : 0));
+    if (l_Player->isInFlight())
+        return;
+
+    // if player is dead without death timer is teleported to graveyard, otherwise not apply the effect
+    if (l_Player->isDead() && !l_Player->GetDeathTimer())
+    {
+        l_Player->RepopAtGraveyard();
+        return;
+    }
+
+    // the player dies if hearthstone is in cooldown
+    if (l_Player->HasSpellCooldown(8690))
+    {
+        l_Player->Kill(l_Player);
+        return;
+    }
+
+    // the player is teleported to home
+    l_Player->TeleportTo(l_Player->m_homebindMapId, l_Player->m_homebindX, l_Player->m_homebindY, l_Player->m_homebindZ, l_Player->GetOrientation(), TELE_TO_SPELL);
 
     // Stuck spell trigger Hearthstone cooldown
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(8690);
-    if (!spellInfo)
+    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(8690);
+    if (!l_SpellInfo)
         return;
-    Spell spell(target, spellInfo, TRIGGERED_FULL_MASK);
-    spell.SendSpellCooldown();
+    Spell l_Spell(l_Player, l_SpellInfo, TRIGGERED_FULL_MASK);
+    l_Spell.SendSpellCooldown();
 }
 
 void Spell::EffectSummonPlayer(SpellEffIndex /*effIndex*/)
