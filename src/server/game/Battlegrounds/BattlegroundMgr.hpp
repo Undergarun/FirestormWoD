@@ -165,12 +165,13 @@ namespace MS
             /// Remove the player from the invitations manager and the scheduler.
             /// @p_Guid                 : The GUID of the player.
             /// @p_DecreaseInvitedCount : A boolean which indicate if it decrease the count of invitations to make.
-            void RemovePlayer(uint64 p_Guid, bool p_DecreaseInvitedCount)
+            /// @p_Type : The type of battleground the player wants to go.
+            void RemovePlayer(uint64 p_Guid, bool p_DecreaseInvitedCount, BattlegroundType::Type p_Type)
             {
                 if (m_InvitationsMgr.IsOwningPlayer(p_Guid))
-                    m_InvitationsMgr.RemovePlayer(p_Guid, p_DecreaseInvitedCount);
+                    m_InvitationsMgr.RemovePlayer(p_Guid, p_DecreaseInvitedCount, p_Type);
                 else
-                    m_Scheduler.RemovePlayer(p_Guid);
+                    m_Scheduler.RemovePlayer(p_Guid, p_Type);
             }
 
             /// Returns a copy of the set of battleground client ids associated to the type and the bracket id.

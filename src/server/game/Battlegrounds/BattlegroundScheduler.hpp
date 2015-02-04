@@ -69,7 +69,7 @@ namespace MS
                 BattlegroundType::Type p_BgTypeId,
                 uint32 p_BlackWishes[2],
                 Bracket const* p_BracketEntry,
-                uint8 p_ArenaType,
+                ArenaType p_ArenaType,
                 bool p_IsRatedBG,
                 uint32 p_ArenaRating,
                 uint32 p_MatchmakerRating,
@@ -83,12 +83,14 @@ namespace MS
 
             /// Remove the player associated the GUID given.
             /// @p_Guid : The guid of the player.
-            void RemovePlayer(uint64 p_Guid);
+            /// @p_Type : The type of wishes the player wanted
+            void RemovePlayer(uint64 p_Guid, BattlegroundType::Type p_Type);
 
             /// Retreive the GroupQueueInfo structure from the queued list.
             /// @p_Guid : Guid of the player.
             /// @p_GroupInfo : The group structure to fill.
-            bool GetPlayerGroupInfoData(uint64 p_Guid, GroupQueueInfo& p_GroupInfo) const;
+            /// @p_Type : The type that corresponds to the wishes of the group.
+            bool GetPlayerGroupInfoData(uint64 p_Guid, GroupQueueInfo& p_GroupInfo, BattlegroundType::Type p_Type) const;
 
             //////////////////////////////////////////////////////////////////////////
             /// Scheduling part.

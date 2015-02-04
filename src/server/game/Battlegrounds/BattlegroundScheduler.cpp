@@ -127,7 +127,8 @@ namespace MS
                 if (!l_Player)
                     continue;
 
-                l_Player->ChangeBattlegroundQueueJoinTimeKey(p_BG->GetTypeID(), GetIdFromType(BattlegroundType::IsArena(p_Group->m_BgTypeId) ? BattlegroundType::AllArenas : p_Group->m_BgTypeId));
+                if (GetSchedulerType(p_BG->GetTypeID()) != p_Group->m_BgTypeId)
+                    l_Player->ChangeBattlegroundQueueJoinTimeKey(GetSchedulerType(p_BG->GetTypeID()), p_Group->m_BgTypeId);
                 l_Player->SetBattlegroundQueueTypeId(l_Player->GetBattlegroundQueueIndex(p_Group->m_BgTypeId), GetSchedulerType(p_BG->GetTypeID()));
             }
             p_Group->m_BgTypeId = GetSchedulerType(p_BG->GetTypeID());
@@ -136,7 +137,7 @@ namespace MS
             sBattlegroundMgr->GetInvitationsMgr().InviteGroupToBG(p_Group, p_BG, p_Team);
         }
 
-        GroupQueueInfo* BattlegroundScheduler::AddGroup(Player* p_Leader, Group* p_Group, BattlegroundType::Type p_BgTypeId, uint32 p_BlackWishes[2], MS::Battlegrounds::Bracket const*  p_BracketEntry, uint8 p_ArenaType, bool p_IsRatedBG, uint32 p_ArenaRating, uint32 p_MatchmakerRating, bool p_IsSkirmish)
+        GroupQueueInfo* BattlegroundScheduler::AddGroup(Player* p_Leader, Group* p_Group, BattlegroundType::Type p_BgTypeId, uint32 p_BlackWishes[2], MS::Battlegrounds::Bracket const*  p_BracketEntry, ArenaType p_ArenaType, bool p_IsRatedBG, uint32 p_ArenaRating, uint32 p_MatchmakerRating, bool p_IsSkirmish)
         {
             Bracket::Id l_BracketId = p_BracketEntry->m_Id;
 
@@ -201,8 +202,7 @@ namespace MS
 
                     /// Create the PlayerQueueInfo.
                     PlayerQueueInfo& l_PlayerQueue = m_QueuedPlayers[l_Member->GetGUID()];
-                    l_PlayerQueue.LastOnlineTime = l_LastOnlineTime;
-                    l_PlayerQueue.GroupInfo = l_GroupQueue;
+                    l_PlayerQueue.Infos.emplace_back(PlayerQueueInfo::Pair{ l_LastOnlineTime, l_GroupQueue });
 
                     l_GroupQueue->m_Players[l_Member->GetGUID()] = &l_PlayerQueue;
                 }
@@ -210,8 +210,7 @@ namespace MS
             else
             {
                 PlayerQueueInfo& l_PlayerQueue = m_QueuedPlayers[p_Leader->GetGUID()];
-                l_PlayerQueue.LastOnlineTime = l_LastOnlineTime;
-                l_PlayerQueue.GroupInfo = l_GroupQueue;
+                l_PlayerQueue.Infos.emplace_back(PlayerQueueInfo::Pair{ l_LastOnlineTime, l_GroupQueue });
 
                 l_GroupQueue->m_Players[p_Leader->GetGUID()] = &l_PlayerQueue;
             }
@@ -222,23 +221,37 @@ namespace MS
             return l_GroupQueue;
         }
 
-        void BattlegroundScheduler::RemovePlayer(uint64 p_Guid)
+        void BattlegroundScheduler::RemovePlayer(uint64 p_Guid, BattlegroundType::Type p_Type)
         {
             /// Remove player from map, if he's there.
             auto l_Itr = m_QueuedPlayers.find(p_Guid);
             if (l_Itr == m_QueuedPlayers.end())
                 return;
 
-            GroupQueueInfo* l_Group = l_Itr->second.GroupInfo;
+            GroupQueueInfo* l_Group = nullptr;
+            
+            auto l_Pair = std::begin(l_Itr->second.Infos);
+            for (; l_Pair != std::end(l_Itr->second.Infos); l_Pair++)
+            {
+                GroupQueueInfo* l_GroupInfo = l_Pair->GroupInfo;
+                if (l_GroupInfo->m_BgTypeId == p_Type)
+                {
+                    l_Group = l_GroupInfo;
+                    break;
+                }
+            }
+
+            /// Player can't be in queue without group, but just in case.
+            if (!l_Group)
+                return;
 
             int32 l_BracketId = l_Group->m_BracketId;
-
-            //player can't be in queue without group, but just in case
             if (l_BracketId == -1)
             {
                 sLog->outError(LOG_FILTER_BATTLEGROUND, "BattlegroundQueue: ERROR Cannot find groupinfo for player GUID: %u", GUID_LOPART(p_Guid));
                 return;
             }
+
             sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BattlegroundQueue: Removing player GUID %u, from bracket_id %u", GUID_LOPART(p_Guid), (uint32)l_BracketId);
 
             // ALL variables are correctly set
@@ -252,7 +265,10 @@ namespace MS
                 l_Group->m_Players.erase(pitr);
 
             /// Remove player queue info.
-            m_QueuedPlayers.erase(l_Itr);
+            if (l_Itr->second.Infos.size() == 1)
+                m_QueuedPlayers.erase(l_Itr);
+            else
+                l_Itr->second.Infos.erase(l_Pair);
 
             // remove group queue info if needed
             if (l_Group->m_Players.empty())
@@ -270,12 +286,12 @@ namespace MS
             // don't remove recursively if already invited to bg!
             else if (!l_Group->m_IsInvitedToBGInstanceGUID && l_Group->m_IsRatedBG)
             {
+                BattlegroundType::Type bgQueueTypeId = GetTypeFromId(GetIdFromType(l_Group->m_BgTypeId), l_Group->m_ArenaType);
                 // remove next player, this is recursive
                 // first send removal information
                 if (Player* plr2 = ObjectAccessor::FindPlayer(l_Group->m_Players.begin()->first))
                 {
                     Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(l_Group->m_BgTypeId);
-                    BattlegroundType::Type bgQueueTypeId = GetTypeFromId(GetIdFromType(l_Group->m_BgTypeId), l_Group->m_ArenaType);
                     uint32 queueSlot = plr2->GetBattlegroundQueueIndex(bgQueueTypeId);
                     plr2->RemoveBattlegroundQueueId(bgQueueTypeId); // must be called this way, because if you move this call to
                     // queue->removeplayer, it causes bugs
@@ -284,17 +300,24 @@ namespace MS
                     plr2->GetSession()->SendPacket(&data);
                 }
                 // then actually delete, this may delete the group as well!
-                RemovePlayer(l_Group->m_Players.begin()->first);
+                RemovePlayer(l_Group->m_Players.begin()->first, bgQueueTypeId);
             }
         }
 
-        bool BattlegroundScheduler::GetPlayerGroupInfoData(uint64 p_Guid, GroupQueueInfo& p_GroupInfo) const
+        bool BattlegroundScheduler::GetPlayerGroupInfoData(uint64 p_Guid, GroupQueueInfo& p_GroupInfo, BattlegroundType::Type p_Type) const
         {
             auto l_Itr = m_QueuedPlayers.find(p_Guid);
-            if (l_Itr != std::end(m_QueuedPlayers))
+            if (l_Itr == std::end(m_QueuedPlayers))
+                return false;
+
+            for (auto l_Pair = std::begin(l_Itr->second.Infos); l_Pair != std::end(l_Itr->second.Infos); l_Pair++)
             {
-                p_GroupInfo = *l_Itr->second.GroupInfo;
-                return true;
+                GroupQueueInfo* l_Group = l_Pair->GroupInfo;
+                if (l_Group->m_BgTypeId == p_Type)
+                {
+                    p_GroupInfo = *l_Group;
+                    return true;
+                }
             }
 
             return false;

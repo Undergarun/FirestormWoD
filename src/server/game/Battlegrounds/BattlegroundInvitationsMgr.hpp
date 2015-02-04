@@ -56,12 +56,15 @@ namespace MS
             /// Remove the player from the invited list and from the GroupQueueInfo.
             /// If the GroupQueueInfo is then empty, we remove it too.
             /// @p_Guid : The player.
-            void RemovePlayer(uint64 p_Guid, bool p_DecreaseInvitedCount);
+            /// @p_DecreaseInvitedCount : If set to true, decrease the invitation count in the battleground.
+            /// @p_Type : The type of the battleground where the player wanted to go.
+            void RemovePlayer(uint64 p_Guid, bool p_DecreaseInvitedCount, BattlegroundType::Type p_Type);
 
             /// Retrieve the GroupQueueInfo structure from the invited list.
             /// @p_Guid : Guid of the player.
             /// @p_GroupInfo : The group structure to fill.
-            bool GetPlayerGroupInfoData(uint64 p_Guid, GroupQueueInfo& p_GroupInfo) const;
+            /// @p_Type : The type that corresponds to the wishes of the group.
+            bool GetPlayerGroupInfoData(uint64 p_Guid, GroupQueueInfo& p_GroupInfo, BattlegroundType::Type p_Type) const;
         
         private:
             uint32 m_WaitTimes[TeamsCount::Value][Brackets::Count][COUNT_OF_PLAYERS_TO_AVERAGE_WAIT_TIME];  ///< The average time to wait.

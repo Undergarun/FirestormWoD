@@ -189,7 +189,7 @@ class misc_commandscript: public CommandScript
                 return true;
             }
 
-            uint8 l_ArenaType = 0;
+            ArenaType l_ArenaType = ArenaType::None;
             switch (l_GroupSize)
             {
             case 2:
