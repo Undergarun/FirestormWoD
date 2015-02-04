@@ -221,6 +221,9 @@ namespace MS { namespace Garrison
             Storehouse__Storehouse_Level1   = 51,
             Storehouse__Storehouse_Level2   = 142,
             Storehouse__Storehouse_Level3   = 143,
+            TheForge__TheForge_Level1       = 60,
+            TheForge__TheForge_Level2       = 117,
+            TheForge__TheForge_Level3       = 118,
         };
     }
 
