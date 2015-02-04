@@ -4942,6 +4942,11 @@ void SpellMgr::LoadSpellCustomAttr()
             case 115175:// Soothing Mists
                 spellInfo->PreventionType = SPELL_PREVENTION_TYPE_SILENCE;
                 break;
+            case 146950:// Glyph of Targeted Expulsion
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
+            case 115072:// Expel Harm
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ALLY;
+                spellInfo->ExplicitTargetMask &= ~TARGET_FLAG_UNIT;
             case 117952:// Crackling Jade Lightning
                 spellInfo->PreventionType = SPELL_PREVENTION_TYPE_SILENCE;
                 spellInfo->AttributesEx5 &= ~SPELL_ATTR5_HASTE_AFFECT_DURATION;

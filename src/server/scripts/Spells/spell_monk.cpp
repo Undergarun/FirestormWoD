@@ -124,7 +124,8 @@ enum MonkSpells
     SPELL_MONK_MORTEL_WOUNDS                    = 115804,
     SPELL_MONK_RISING_SUN_KICK_DOT              = 130320,
     SPELL_MONK_GLYPH_OF_RAPID_ROLLING           = 146951,
-    SPELL_MONK_RAPID_ROLLING                    = 147364
+    SPELL_MONK_RAPID_ROLLING                    = 147364,
+    SPELL_MONK_GLYPH_OF_TARGETED_EXPULSION      = 146950
 };
 
 // Tiger Eye Brew - 123980 & Mana Tea - 123766
@@ -3996,6 +3997,20 @@ public:
     {
         PrepareSpellScript(spell_monk_expel_harm_SpellScript);
 
+        SpellCastResult CheckTarget()
+        {
+            Unit *l_Caster = GetCaster();
+            Unit *l_Target = GetExplTargetUnit();
+
+            if (l_Caster == nullptr || l_Target == nullptr)
+                return SPELL_FAILED_BAD_TARGETS;
+
+            if (!l_Caster->HasAura(SPELL_MONK_GLYPH_OF_TARGETED_EXPULSION) && l_Target->GetGUID() != l_Caster->GetGUID())
+                return SPELL_FAILED_BAD_TARGETS;
+
+            return SPELL_CAST_OK;
+        }
+
         void HandleHeal(SpellEffIndex /*effIndex*/)
         {
             if (!GetCaster())
@@ -4018,6 +4033,10 @@ public:
             if (l_Target->GetGUID() == l_Player->GetGUID() && l_Player->HasAura(SPELL_MONK_GUARD) && l_SpellInfoGuard != nullptr)
                 l_Heal += CalculatePct(l_Heal, l_SpellInfoGuard->Effects[EFFECT_1].BasePoints);
             
+            SpellInfo const* l_GlyphTargetedExpulsion = sSpellMgr->GetSpellInfo(SPELL_MONK_GLYPH_OF_TARGETED_EXPULSION);
+            if (l_Player->HasAura(SPELL_MONK_GLYPH_OF_TARGETED_EXPULSION) && l_Target->GetGUID() != l_Player->GetGUID() && l_GlyphTargetedExpulsion != nullptr)
+                l_Heal = CalculatePct(l_Heal, l_GlyphTargetedExpulsion->Effects[EFFECT_1].BasePoints);
+
             SetHitHeal(l_Heal);
 
             float l_Radius = 10.0f;
@@ -4045,6 +4064,7 @@ public:
 
         void Register()
         {
+            OnCheckCast += SpellCheckCastFn(spell_monk_expel_harm_SpellScript::CheckTarget);
             OnEffectHitTarget += SpellEffectFn(spell_monk_expel_harm_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
         }
     };
