@@ -150,14 +150,14 @@ namespace MS
 
         bool BattlegroundInvitationsMgr::IsOwningPlayer(uint64 p_Guid) const
         {
-            return m_InvitedPlayers.find(p_Guid) != std::cend(m_InvitedPlayers);
+            return m_InvitedPlayers.find(p_Guid) != std::end(m_InvitedPlayers);
         }
 
         bool BattlegroundInvitationsMgr::IsPlayerInvited(uint64 p_PlrGuid, uint32 p_BgInstanceId, uint32 p_RemoveTime) const
         {
             QueuedPlayersMap::const_iterator l_Itr = m_InvitedPlayers.find(p_PlrGuid);
 
-            if (l_Itr != std::cend(m_InvitedPlayers))
+            if (l_Itr != std::end(m_InvitedPlayers))
             {
                 for (auto l_Pair = l_Itr->second.Infos.begin(); l_Pair != l_Itr->second.Infos.end(); l_Pair++)
                 {

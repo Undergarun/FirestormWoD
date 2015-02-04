@@ -15,7 +15,7 @@ namespace MS
         /// @p_Arg1 : TimeStamp (expect int64)
         template<>
         template<typename... Args>
-        static std::string MakeReport<ReportOpcodes::CharacterCreation>::Craft(Args... p_Args)
+        std::string MakeReport<ReportOpcodes::CharacterCreation>::Craft(Args... p_Args)
         {
             static_assert(sizeof... (p_Args) == 2, "The number of arguments given is not the one expected.");
             auto&& l_DeveloppedArgs = std::forward_as_tuple(p_Args...);
