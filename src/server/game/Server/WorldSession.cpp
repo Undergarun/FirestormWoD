@@ -45,6 +45,7 @@
 #include "Transport.h"
 #include "WardenWin.h"
 #include "WardenMac.h"
+#include "GarrisonMgr.hpp"
 
 bool MapSessionFilter::Process(WorldPacket* packet)
 {
@@ -566,6 +567,9 @@ void WorldSession::LogoutPlayer(bool Save)
 
     if (m_Player)
     {
+        if (m_Player->IsInGarrison())
+            m_Player->GetGarrison()->OnPlayerLeave();
+
         if (uint64 lguid = m_Player->GetLootGUID())
             DoLootRelease(lguid);
 

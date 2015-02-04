@@ -798,11 +798,6 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
                 sLog->outDebug(LOG_FILTER_NETWORKIO, "Character creation %s (account %u) has unhandled tail data: [%u]", createInfo->Name.c_str(), GetAccountId(), unk);
             }
 
-            {
-                using namespace MS;
-                sReporter->Report(Reporting::MakeReport<Reporting::CharacterCreation>::Craft(GetAccountId(), time(NULL)));
-            }
-
             Player newChar(this);
             newChar.GetMotionMaster()->Initialize();
             if (!newChar.Create(sObjectMgr->GenerateLowGuid(HIGHGUID_PLAYER), createInfo))

@@ -97,23 +97,23 @@ const struct RewriteItem Mac64Patchs[] =
 #ifdef LIVE
 
 const uint8_t jam_dispatch_check_data_win32[] = { 0xEB, 0x1D };     ///< jmp to bypass socket check
-const uint8_t jam_quest_check_data_win32[]    = { 0xEB, 0x19 };     ///< jmp to bypass socket check
+const uint8_t jam_quest_check_data_win32[]    = { 0x90, 0x90 };     ///< jmp to bypass socket check
 const uint8_t jam_spell_check_data_win32[]    = { 0xEB, 0x1D };     ///< jmp to bypass socket check
-const uint8_t jam_guild_check_data_win32[]    = { 0xEB };           ///< jmp to bypass socket check
+const uint8_t jam_guild_check_data_win32[]    = { 0x74, 0x19 };     ///< jmp to bypass socket check
 
 const struct RewriteItem Win32Patchs[] =
 {
-    { 0x00960808, sizeof(config_data),                           config_data                            },        ///< Change default configuration file, could be 0x0095FDA9
-    { 0x00976F08, sizeof(build_date_data),                       build_date_data                        },        ///< Change build date, could be 0x9605D2
-    { 0x009F87F4, sizeof(bnet_portal_data),                      bnet_portal_data                       },        ///< Change bnet portal
-    { 0x00A8B2F8, sizeof(bnet_logon_data),                       bnet_logon_data                        },        ///< Change bnet logon
-    { 0x0097F148, sizeof(bnet_agent_data),                       bnet_agent_data                        },        ///< Change bnet agent
-    { 0x0095FB60, sizeof(bnet_versions_data),                    bnet_versions_data                     },        ///< Change bnet versions data
-    { 0x0095FB8C, sizeof(bnet_cdns_data),                        bnet_cdns_data                         },        ///< Change bnet cdns data
-    { 0x001FEDCA, sizeof(jam_dispatch_check_data_win32),         jam_dispatch_check_data_win32          },        ///< Bypass jam dispatch socket check
-    { 0x001F419D, sizeof(jam_quest_check_data_win32),            jam_quest_check_data_win32             },        ///< bypass jam quest dispatch socket check
-    { 0x008AD992, sizeof(jam_spell_check_data_win32),            jam_spell_check_data_win32             },        ///< bypass jam spell dispatch socket check
-    { 0x0021E71F, sizeof(jam_guild_check_data_win32),            jam_guild_check_data_win32             },        ///< bypass jam guild dispatch socket check
+    { 0x00960A08, sizeof(config_data),                           config_data                            },        ///< Change default configuration file, could be 0x0095FDA9
+    { 0x009770F8, sizeof(build_date_data),                       build_date_data                        },        ///< Change build date, could be 0x9605D2
+    { 0x009F8BCC, sizeof(bnet_portal_data),                      bnet_portal_data                       },        ///< Change bnet portal
+    { 0x00A8B6F8, sizeof(bnet_logon_data),                       bnet_logon_data                        },        ///< Change bnet logon
+    { 0x0097F380, sizeof(bnet_agent_data),                       bnet_agent_data                        },        ///< Change bnet agent
+    { 0x0095FD60, sizeof(bnet_versions_data),                    bnet_versions_data                     },        ///< Change bnet versions data
+    { 0x0095FD8C, sizeof(bnet_cdns_data),                        bnet_cdns_data                         },        ///< Change bnet cdns data
+    { 0x001FF606, sizeof(jam_dispatch_check_data_win32),         jam_dispatch_check_data_win32          },        ///< Bypass jam dispatch socket check
+    { 0x001F4810, sizeof(jam_quest_check_data_win32),            jam_quest_check_data_win32             },        ///< bypass jam quest dispatch socket check
+    //{ 0x008AD992, sizeof(jam_spell_check_data_win32),            jam_spell_check_data_win32             },        ///< bypass jam spell dispatch socket check
+    { 0x0021ECDD, sizeof(jam_guild_check_data_win32),            jam_guild_check_data_win32             },        ///< bypass jam guild dispatch socket check
 };
 
 const uint8_t client_packets_check_data_mac64[] = { 0xB9, 0x00 };   ///< jmp to bypass socket check

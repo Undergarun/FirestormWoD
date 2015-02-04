@@ -4437,21 +4437,6 @@ void Player::InitSpellForLevel()
     // Fix Pick Lock update at each level
     if (HasSpell(1804) && getLevel() > 20)
         SetSkill(921, GetSkillStep(921), (getLevel() * 5), (getLevel() * 5));
-
-    /// - Remove non authorized spell (learned when system was buggede)
-    uint32 l_RaceMask = getRaceMask();
-    for (auto l_Itr : GetSpellMap())
-    {
-        auto l_SpellInfo = sSpellMgr->GetSpellInfo(l_Itr.first);
-        if (l_SpellInfo == nullptr)
-            continue;
-
-        if ((l_SpellInfo->AttributesEx7 & SPELL_ATTR7_HORDE_ONLY && (l_RaceMask & RACEMASK_HORDE) == 0)
-            || (l_SpellInfo->AttributesEx7 & SPELL_ATTR7_ALLIANCE_ONLY && (l_RaceMask & RACEMASK_ALLIANCE) == 0))
-        {
-            removeSpell(l_SpellInfo->Id, false, false);
-        }
-    }
 }
 
 void Player::RemoveSpecializationSpells()
@@ -4461,7 +4446,8 @@ void Player::RemoveSpecializationSpells()
     for (auto itr : GetSpellMap())
     {
         SpellInfo const* spell = sSpellMgr->GetSpellInfo(itr.first);
-        if (spell && !spell->SpecializationIdList.empty())
+        if (spell && !spell->SpecializationIdList.empty()
+            && spell->Id != 674)    ///< Ambidextrie hackfix, removed at spec switch (rogue)
             spellToRemove.push_back(itr.first);
     }
 
@@ -4883,6 +4869,11 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
         sWorld->BanAccount(BAN_CHARACTER, GetName(), "-1", banString, "Auto-Ban");
         return false;
     }
+
+    /// - Remove non authorized spell (learned when system was buggede)
+    if ((spellInfo->AttributesEx7 & SPELL_ATTR7_HORDE_ONLY && (getRaceMask() & RACEMASK_HORDE) == 0)
+        || (spellInfo->AttributesEx7 & SPELL_ATTR7_ALLIANCE_ONLY && (getRaceMask() & RACEMASK_ALLIANCE) == 0))
+        return false;
 
     // Validate profession
     if (loading)

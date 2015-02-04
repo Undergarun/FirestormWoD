@@ -173,6 +173,106 @@ namespace MS { namespace Garrison
         return true;
     }
 
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    npc_CallToArms::npc_CallToArms()
+        : CreatureScript("npc_CallToArms_Garr")
+    {
+
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Called when a CreatureAI object is needed for the creature.
+    /// @p_Creature : Target creature instance
+    CreatureAI * npc_CallToArms::GetAI(Creature * p_Creature) const
+    {
+        return new npc_CallToArmsAI(p_Creature);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    npc_CallToArms::npc_CallToArmsAI::npc_CallToArmsAI(Creature * p_Creature)
+        : CreatureAI(p_Creature)
+    {
+        m_Owner = sObjectAccessor->FindPlayer(me->GetCreatorGUID());
+
+        if (me->GetEntry() == NPCs::NPC_ARCHER || me->GetEntry() == NPCs::Marksman)
+        {
+            m_Ranged = true;
+            me->m_CombatDistance    = 8;
+            me->m_SightDistance     = 8;
+
+            for (int8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
+                me->m_threatModifier[i] *= 0.001f;
+        }
+        else
+        {
+            m_Ranged = false;
+
+            if (me->m_spells[0] && !me->m_spells[1])
+                me->m_spells[1] = me->m_spells[0];
+
+            if (me->m_spells[0] && !me->m_spells[2])
+                me->m_spells[2] = me->m_spells[0];
+
+            for (int8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
+                me->m_threatModifier[i] *= 10000.f;
+        }
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// On reset
+    void npc_CallToArms::npc_CallToArmsAI::Reset()
+    {
+        me->LoadEquipment(1, true);
+
+        if (m_Owner && m_Owner->getVictim() && m_Owner->getVictim() != me->getVictim())
+        {
+            if (!m_Ranged)
+                AttackStart(m_Owner->getVictim());
+            else
+                AttackStartCaster(m_Owner->getVictim(), 8);
+        }
+    }
+    /// On AI Update
+    /// @p_Diff : Time since last update
+    void npc_CallToArms::npc_CallToArmsAI::UpdateAI(const uint32 p_Diff)
+    {
+        if (!UpdateVictim())
+            return;
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        if (m_Ranged)
+        {
+            if (me->IsWithinMeleeRange(me->getVictim(), 1.f))
+            {
+                me->CastSpell(me, Spells::Disengage, TRIGGERED_FULL_MASK);
+                me->resetAttackTimer();
+            }
+
+            DoSpellAttackIfReady(RAND(Spells::MultiShot, Spells::Shoot));
+        }
+        else
+        {
+            if (roll_chance_i(30))
+                DoMeleeAttackIfReady();
+            else
+                DoSpellAttackIfReady(RAND(me->m_spells[0], me->m_spells[1], me->m_spells[2]));
+        }
+    }
+
 }   ///< namespace Garrison
 }   ///< namespace MS
 
@@ -180,6 +280,7 @@ void AddSC_Garrison_NPC()
 {
     /// Generic
     new MS::Garrison::npc_GarrisonFord;
+    new MS::Garrison::npc_CallToArms;
 
     /// Alliance
     new MS::Garrison::npc_GarrisonCartRope;
@@ -190,6 +291,8 @@ void AddSC_Garrison_NPC()
     new MS::Garrison::npc_LunarfallLaborer;
     new MS::Garrison::npc_GussofForgefire;
     new MS::Garrison::npc_KristenStoneforge;
+    new MS::Garrison::npc_JonathanStephens;
+    new MS::Garrison::npc_AuriaIrondreamer;
 
     /// Horde
     new MS::Garrison::npc_FrostwallPeon("npc_FrostwallPeon_Dynamic");
@@ -202,4 +305,6 @@ void AddSC_Garrison_NPC()
     new MS::Garrison::npc_GrunLek;
     new MS::Garrison::npc_FrostWallGrunt;
     new MS::Garrison::npc_FrostWallSmith;
+    new MS::Garrison::npc_OrgekIronhand;
+    new MS::Garrison::npc_Kinja;
 }
