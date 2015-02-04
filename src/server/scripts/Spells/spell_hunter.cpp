@@ -3059,6 +3059,62 @@ class AreaTrigger_freezing_trap : public AreaTriggerEntityScript
         }
 };
 
+enum class HunterExplosiveTrap : uint32
+{
+    ArmTimer             = 2000,
+    SpellExplosiveEffect = 13812
+};
+
+/// Explosive trap - 13813
+class AreaTrigger_explosive_trap : public AreaTriggerEntityScript
+{
+public:
+    AreaTrigger_explosive_trap()
+        : AreaTriggerEntityScript("at_explosive_trap")
+    {
+        m_TrapArmTimer = (uint32)HunterFreezingTrap::ArmTimer;
+    }
+
+    uint32 m_TrapArmTimer;
+
+    AreaTriggerEntityScript* GetAI() const
+    {
+        return new AreaTrigger_explosive_trap();
+    }
+
+    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+    {
+        /// Hunter trap have arm time ~2sec (can't find exact timer, but it's close to 2 sec)
+        if (m_TrapArmTimer <= p_Time)
+        {
+            auto l_CreateSpell = sSpellMgr->GetSpellInfo(p_AreaTrigger->GetSpellId());
+            auto l_AreaTriggerCaster = p_AreaTrigger->GetCaster();
+
+            if (l_AreaTriggerCaster && l_CreateSpell)
+            {
+                float l_Radius = l_CreateSpell->Effects[0].CalcRadius(l_AreaTriggerCaster);
+                Unit* l_Target = nullptr;
+
+                JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_AreaTriggerCaster, l_Radius);
+                JadeCore::UnitSearcher<JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_Target, l_Checker);
+                p_AreaTrigger->VisitNearbyGridObject(l_Radius, l_Searcher);
+                if (!l_Target)
+                    p_AreaTrigger->VisitNearbyWorldObject(l_Radius, l_Searcher);
+
+                if (l_Target != nullptr)
+                {
+                    l_AreaTriggerCaster->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), (uint32)HunterExplosiveTrap::SpellExplosiveEffect, true);
+                    p_AreaTrigger->Remove(0);
+                }
+            }
+
+            m_TrapArmTimer = (uint32)HunterFreezingTrap::ArmTimer;
+        }
+        else
+            m_TrapArmTimer -= p_Time;
+    }
+};
+
 void AddSC_hunter_spell_scripts()
 {
     new spell_hun_spirit_mend();
@@ -3124,4 +3180,5 @@ void AddSC_hunter_spell_scripts()
     new AreaTrigger_ice_trap();
     new AreaTrigger_ice_trap_effect();
     new AreaTrigger_freezing_trap();
+    new AreaTrigger_explosive_trap();
 }
