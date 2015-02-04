@@ -2912,6 +2912,97 @@ class PlayerScript_thrill_of_the_hunt: public PlayerScript
         }
 };
 
+enum class HunterIceTrap : uint32
+{
+    ArmTimer            = 2000,
+    SpellIceTrapEffect  = 13810
+};
+
+/// Ice trap - 13809
+class AreaTrigger_ice_trap : public AreaTriggerEntityScript
+{
+public:
+    AreaTrigger_ice_trap()
+        : AreaTriggerEntityScript("at_ice_trap")
+    {
+        m_TrapArmTimer = (uint32)HunterIceTrap::ArmTimer;
+    }
+
+    uint32 m_TrapArmTimer;
+
+    AreaTriggerEntityScript* GetAI() const
+    {
+        return new AreaTrigger_ice_trap();
+    }
+
+    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+    {
+        /// Hunter trap have arm time ~2sec (can't find exact timer, but it's close to 2 sec)
+        if (m_TrapArmTimer <= p_Time)
+        {
+            SpellInfo const* l_CreateSpell = sSpellMgr->GetSpellInfo(p_AreaTrigger->GetSpellId());
+            Unit* l_Caster                 = p_AreaTrigger->GetCaster();
+
+            if (l_Caster && l_CreateSpell)
+            {
+                float l_Radius = l_CreateSpell->Effects[0].CalcRadius(l_Caster);
+                Unit* l_Target = nullptr;
+
+                JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_Caster, l_Radius);
+                JadeCore::UnitSearcher<JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_Target, l_Checker);
+                p_AreaTrigger->VisitNearbyGridObject(l_Radius, l_Searcher);
+                if (!l_Target)
+                    p_AreaTrigger->VisitNearbyWorldObject(l_Radius, l_Searcher);
+
+                if (l_Target != nullptr)
+                {
+                    l_Caster->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), (uint32)HunterIceTrap::SpellIceTrapEffect, true);
+                    p_AreaTrigger->Remove(0);
+                }
+            }
+
+            m_TrapArmTimer = (uint32)HunterIceTrap::ArmTimer;
+        }
+        else
+            m_TrapArmTimer -= p_Time;
+    }
+};
+
+/// Ice trap effect - 13810
+class AreaTrigger_ice_trap_effect : public AreaTriggerEntityScript
+{
+public:
+    AreaTrigger_ice_trap_effect()
+        : AreaTriggerEntityScript("at_ice_trap_effect")
+    {
+    }
+
+    AreaTriggerEntityScript* GetAI() const
+    {
+        return new AreaTrigger_ice_trap_effect();
+    }
+
+    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+    {
+        std::list<Unit*> targetList;
+        float l_Radius = 10.0f;
+        Unit* l_Caster = p_AreaTrigger->GetCaster();
+
+        JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(p_AreaTrigger, l_Caster, l_Radius);
+        JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(p_AreaTrigger, targetList, u_check);
+        p_AreaTrigger->VisitNearbyObject(l_Radius, searcher);
+
+        for (auto itr : targetList)
+            itr->CastSpell(itr, 135299, true);
+
+        // Glyph of Black Ice
+        if (l_Caster->GetDistance(p_AreaTrigger) <= l_Radius && l_Caster->HasAura(109263) && !l_Caster->HasAura(83559))
+            l_Caster->CastSpell(l_Caster, 83559, true);
+        else
+            l_Caster->RemoveAura(83559);
+    }
+};
+
 void AddSC_hunter_spell_scripts()
 {
     new spell_hun_spirit_mend();
@@ -2972,4 +3063,8 @@ void AddSC_hunter_spell_scripts()
 
     // Player Script
     new PlayerScript_thrill_of_the_hunt();
+
+    /// AreaTrigger Scripts
+    new AreaTrigger_ice_trap();
+    new AreaTrigger_ice_trap_effect();
 }
