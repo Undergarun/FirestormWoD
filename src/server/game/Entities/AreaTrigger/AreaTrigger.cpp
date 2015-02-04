@@ -377,3 +377,47 @@ void AreaTrigger::GetPositionAtTime(uint32 p_Time, Position* p_OutPos) const
             break;
     }
 }
+
+void AreaTrigger::CastSpell(Unit* p_Target, uint32 p_SpellId)
+{
+    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(p_SpellId);
+    if (!l_SpellInfo)
+        return;
+
+    bool l_Self = false;
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    {
+        if (l_SpellInfo->Effects[i].TargetA.GetTarget() == TARGET_UNIT_CASTER)
+        {
+            l_Self = true;
+            break;
+        }
+    }
+
+    if (l_Self)
+    {
+        if (p_Target)
+            p_Target->CastSpell(p_Target, l_SpellInfo, true);
+        return;
+    }
+
+    //summon world trigger
+    Creature* l_Trigger = SummonTrigger(GetPositionX(), GetPositionY(), GetPositionZ(), 0, l_SpellInfo->CalcCastTime() + 100);
+    if (!l_Trigger)
+        return;
+
+    if (Unit* l_Owner = GetCaster())
+    {
+        l_Trigger->setFaction(l_Owner->getFaction());
+        // needed for GO casts for proper target validation checks
+        l_Trigger->SetGuidValue(UNIT_FIELD_SUMMONED_BY, l_Owner->GetGUID());
+        l_Trigger->CastSpell(p_Target ? p_Target : l_Trigger, l_SpellInfo, true, 0, NULLAURA_EFFECT, l_Owner->GetGUID());
+    }
+    else
+    {
+        l_Trigger->setFaction(14);
+        // Set owner guid for target if no owner available - needed by trigger auras
+        // - trigger gets despawned and there's no caster avalible (see AuraEffect::TriggerSpell())
+        l_Trigger->CastSpell(p_Target ? p_Target : l_Trigger, l_SpellInfo, true, 0, NULLAURA_EFFECT, p_Target ? p_Target->GetGUID() : 0);
+    }
+}
