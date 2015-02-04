@@ -44,6 +44,32 @@ Position gWaypoints[7] =
     { 3954.4253f, -2519.3913f, 69.7395f, 2.4735f } // in the house, cast spell + dispersion
 };
 
+Position gBabSpawn[2] =
+{
+    { 3964.6762f, -2536.0610f, 66.6200f, 5.8923f },
+    { 3971.2495f, -2526.6828f, 66.0740f, 5.4917f }
+};
+
+struct EscortSpawn
+{
+    uint32 summoned;
+    uint32 summoner;
+};
+
+EscortSpawn const g_EscortSpawns[10]
+{
+    { 78430, 79659 }, ///< Cordana Felsong
+    { 79316, 81776 }, ///< Qiana Moonshadow
+    { 78553, 79185 }, ///< Thrall
+    { 78568, 81885 }, ///< Thaelin Darkanvil
+    { 78556, 78965 }, ///< Ariok
+    { 78554, 82973 }, ///< Vindicator Maraad
+    { 78569, 79770 }, ///< Hansel
+    { 79315, 88354 }, ///< Olin
+    { 76975, 76793 }, ///< Lady Liadrin
+    { 78558, 82125}   ///< Archmage Khadgar
+};
+
 // Archmage Khadgar - 78558 (Main quest giver/taker)
 class npc_archmage_khadgar : public CreatureScript
 {
@@ -100,17 +126,8 @@ class npc_archmage_khadgar : public CreatureScript
                     l_PlayerPhase &= ~TANAAN_BASE_PHASE;
                     p_Player->SetPhaseMask(l_PlayerPhase, true);
 
-                    // @TODO : struct/table
-                    SummonEscorter(79659, 78430, p_Creature, p_Player); ///< Cordana Felsong
-                    SummonEscorter(81776, 79316, p_Creature, p_Player); ///< Qiana Moonshadow
-                    SummonEscorter(79185, 78553, p_Creature, p_Player); ///< Thrall
-                    SummonEscorter(81885, 78568, p_Creature, p_Player); ///< Thaelin Darkanvil
-                    SummonEscorter(78965, 78556, p_Creature, p_Player); ///< Ariok
-                    SummonEscorter(82973, 78554, p_Creature, p_Player); ///< Vindicator Maraad
-                    SummonEscorter(79770, 78569, p_Creature, p_Player); ///< Hansel
-                    SummonEscorter(88354, 79315, p_Creature, p_Player); ///< Olin
-                    SummonEscorter(76793, 76975, p_Creature, p_Player); ///< Lady Liadrin
-                    SummonEscorter(82125, 78558, p_Creature, p_Player); ///< Archmage Khadgar
+                    for (int8 l_Itr = 0; l_Itr < 10; l_Itr++)
+                        SummonEscorter(g_EscortSpawns[l_Itr].summoner, g_EscortSpawns[l_Itr].summoned, p_Creature, p_Player);
 
                     p_Player->PlayerTalkClass->SendCloseGossip();
                     break;
@@ -341,11 +358,24 @@ class npc_generic_tanaan_escorter : public CreatureScript
                         break;
                     case 4:
                         me->GetMotionMaster()->MovePoint(5, gWaypoints[4]);
-                        Talk(2);
                         break;
                     case 5:
+                    {
                         me->GetMotionMaster()->MovePoint(6, gWaypoints[5]);
+
+                        if (me->GetEntry() == 82125)
+                        {
+                            std::list<Creature*> l_CreatureList;
+                            Talk(2);
+                            me->GetCreatureListWithEntryInGrid(l_CreatureList, 78507, 15.0f);
+
+                            for (Creature* l_Creature : l_CreatureList)
+                                me->CastSpell(l_Creature, 133123, true);
+
+                            // 133123
+                        }
                         break;
+                    }
                     case 6:
                         me->GetMotionMaster()->MovePoint(7, gWaypoints[6]);
                         break;
@@ -374,6 +404,8 @@ class npc_generic_tanaan_escorter : public CreatureScript
                     case EVENT_GO:
                     {
                         me->GetMotionMaster()->MovePoint(1, gWaypoints[0]);
+                        me->SummonCreature(78507, gBabSpawn[0]);
+                        me->SummonCreature(78507, gBabSpawn[1]);
                         break;
                     }
                     default:
