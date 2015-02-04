@@ -183,7 +183,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* /*pDoneBy*/, uint32 &uiDamage)
+        void DamageTaken(Unit* /*pDoneBy*/, uint32 &uiDamage, SpellInfo const* p_SpellInfo)
         {
             if (!me->IsVisible())
                 uiDamage = 0;
@@ -330,7 +330,7 @@ public:
                 me->DespawnOrUnsummon();
         }
 
-        void DamageTaken(Unit* /*pDoneBy*/, uint32 &uiDamage)
+        void DamageTaken(Unit* /*pDoneBy*/, uint32 &uiDamage, SpellInfo const* p_SpellInfo)
         {
             uiDamage = 0;
         }

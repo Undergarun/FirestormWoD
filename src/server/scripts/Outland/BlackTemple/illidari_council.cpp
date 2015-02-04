@@ -433,7 +433,7 @@ struct boss_illidari_councilAI : public ScriptedAI
         ScriptedAI::EnterEvadeMode();
     }
 
-    void DamageTaken(Unit* done_by, uint32 &damage)
+    void DamageTaken(Unit* done_by, uint32 &damage, SpellInfo const* p_SpellInfo)
     {
         if (done_by == me)
             return;

@@ -367,7 +367,7 @@ class boss_gothik : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*who*/, uint32& damage)
+            void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (!phaseTwo)
                     damage = 0;
@@ -529,7 +529,7 @@ class mob_gothik_minion : public CreatureScript
                 gateClose = param;
             }
 
-            void DamageTaken(Unit* attacker, uint32 &damage)
+            void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const* p_SpellInfo)
             {
                 if (gateClose && !isOnSameSide(attacker))
                     damage = 0;

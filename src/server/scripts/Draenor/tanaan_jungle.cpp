@@ -161,7 +161,7 @@ class npc_generic_tanaan_guardian : public CreatureScript
                 me->SetAttackTime(WeaponAttackType::BaseAttack, 2000);
             }
 
-            void DamageTaken(Unit* p_DoneBy, uint32& p_Damage)
+            void DamageTaken(Unit* p_DoneBy, uint32& p_Damage, SpellInfo const* p_SpellInfo)
             {
                 if (p_DoneBy->ToCreature())
                 {

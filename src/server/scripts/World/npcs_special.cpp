@@ -2269,7 +2269,7 @@ class npc_training_dummy : public CreatureScript
                 Reset();
             }
 
-            void DamageTaken(Unit* /*doneBy*/, uint32& damage)
+            void DamageTaken(Unit* /*doneBy*/, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 resetTimer = 5000;
                 damage = 0;

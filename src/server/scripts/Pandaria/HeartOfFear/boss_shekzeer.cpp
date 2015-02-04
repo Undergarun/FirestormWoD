@@ -451,7 +451,7 @@ class boss_shekzeer : public CreatureScript
                 _EnterEvadeMode();
             }
 
-            void DamageTaken(Unit* attacker, uint32 &damage)
+            void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const* p_SpellInfo)
             {
                 if (phase == 3)
                     return;
@@ -1393,7 +1393,7 @@ class mob_dissonance_field : public CreatureScript
             }
 
             // Can't be wounded directly by player attacks
-            void DamageTaken(Unit* attacker, uint32 &damage)
+            void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const* p_SpellInfo)
             {
                 if (attacker->GetTypeId() == TYPEID_PLAYER || attacker->GetEntry() == me->GetEntry())
                     damage = 0;
@@ -1480,7 +1480,7 @@ class mob_sha_of_fear : public CreatureScript
                 me->SetDisplayId(DISPLAYID_INVISIBLE);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32 &damage)
+            void DamageTaken(Unit* /*attacker*/, uint32 &damage, SpellInfo const* p_SpellInfo)
             {
                 damage = 0;
             }

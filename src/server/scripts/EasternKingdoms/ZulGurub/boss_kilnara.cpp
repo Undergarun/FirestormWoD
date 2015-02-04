@@ -182,7 +182,7 @@ class boss_kilnara : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* attacker, uint32 &damage)
+            void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const* p_SpellInfo)
             {
                 if (me->GetGUID() == attacker->GetGUID())
                     damage = 0;

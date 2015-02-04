@@ -1689,7 +1689,7 @@ class npc_jaina_and_sylvana_hor_part2 : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*pDoneBy*/, uint32 &uiDamage)
+            void DamageTaken(Unit* /*pDoneBy*/, uint32 &uiDamage, SpellInfo const* p_SpellInfo)
             {
                 if (!_instance)
                     return;

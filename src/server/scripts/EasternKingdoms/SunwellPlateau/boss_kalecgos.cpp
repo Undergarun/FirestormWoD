@@ -338,7 +338,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* done_by, uint32 &damage)
+        void DamageTaken(Unit* done_by, uint32 &damage, SpellInfo const* p_SpellInfo)
         {
             if (damage >= me->GetHealth() && done_by != me)
                 damage = 0;
@@ -473,7 +473,7 @@ public:
             isEnraged = false;
         }
 
-        void DamageTaken(Unit* done_by, uint32 &damage)
+        void DamageTaken(Unit* done_by, uint32 &damage, SpellInfo const* p_SpellInfo)
         {
             if (done_by->GetGUID() != SathGUID)
                 damage = 0;
