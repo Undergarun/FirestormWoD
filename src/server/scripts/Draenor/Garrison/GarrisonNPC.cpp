@@ -204,7 +204,7 @@ namespace MS { namespace Garrison
     {
         m_Owner = sObjectAccessor->FindPlayer(me->GetCreatorGUID());
 
-        if (me->GetEntry() == NPCs::NPC_ARCHER)
+        if (me->GetEntry() == NPCs::NPC_ARCHER || me->GetEntry() == NPCs::Marksman)
         {
             m_Ranged = true;
             me->m_CombatDistance    = 8;

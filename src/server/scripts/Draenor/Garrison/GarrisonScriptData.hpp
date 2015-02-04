@@ -39,9 +39,9 @@ namespace MS { namespace Garrison
         SPELL_RIGHT_ROPE                       = 164422,
         SPELL_COMESTIC_SLEEP                   = 162907,
         SPELL_GARRISON_ORC_MALE_CARRYNG_LUMBER = 161329,
-        MultiShot = 18651,
-        Disengage = 82707,
-        Shoot = 6660
+        MultiShot   = 18651,
+        Disengage   = 82707,
+        Shoot       = 6660
     };
 
     /// Garrison Quests
@@ -78,7 +78,8 @@ namespace MS { namespace Garrison
         NPC_GASLOWE                                     = 78466,
         NPC_ASSISTANT_BRIGHTSTONE                       = 84455,
         NPC_SKAGGIT                                     = 80225,
-        NPC_ARCHER                                      = 87518
+        NPC_ARCHER                                      = 87518,
+        Marksman                                        = 88391
     };
 
     /// NPC texts id
