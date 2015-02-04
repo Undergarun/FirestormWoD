@@ -4042,6 +4042,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 108862: // Twilight Onslaught
             case 109226: // Twilight Onslaught
             case 109227: // Twilight Onslaught
+            case 155152:///< Prismatic Crystal damage
                 // ONLY SPELLS WITH SPELLFAMILY_GENERIC and EFFECT_SCHOOL_DAMAGE
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
                 break;

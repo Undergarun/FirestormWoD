@@ -117,6 +117,88 @@ enum MageSpells
     SPELL_MAGE_RING_OF_FROST_IMMUNATE            = 91264
 };
 
+/// Prismatic Crystal - 76933
+class npc_mage_prismatic_crystal : public CreatureScript
+{
+    public:
+        npc_mage_prismatic_crystal() : CreatureScript("npc_mage_prismatic_crystal") { }
+
+        struct npc_mage_prismatic_crystalAI : public ScriptedAI
+        {
+            npc_mage_prismatic_crystalAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            enum eSpells
+            {
+                PrismaticCrystalAura    = 155153,
+                PrismaticCrystalDamage  = 155152
+            };
+
+            enum eDatas
+            {
+                FactionHostile = 14,
+                FactionFriend  = 35
+            };
+
+            uint64 m_Owner = 0;
+
+            void IsSummonedBy(Unit* p_Summoner)
+            {
+                m_Owner = p_Summoner->GetGUID();
+
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+                me->AddUnitState(UnitState::UNIT_STATE_ROOT);
+
+                if (Player* l_Player = p_Summoner->ToPlayer())
+                {
+                    if (AuraPtr l_Aura = me->AddAura(eSpells::PrismaticCrystalAura, me))
+                    {
+                        if (AuraEffectPtr l_DamageTaken = l_Aura->GetEffect(SpellEffIndex::EFFECT_0))
+                        {
+                            if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SpecIndex::SPEC_MAGE_FROST)
+                                l_DamageTaken->ChangeAmount(10);    ///< BasePoint = 30, but only for Arcane and Fire spec
+                        }
+                    }
+                }
+
+                me->setFaction(eDatas::FactionHostile);
+                me->ForceValuesUpdateAtIndex(EUnitFields::UNIT_FIELD_FACTION_TEMPLATE);
+            }
+
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
+            {
+                if (p_Attacker->GetGUID() != m_Owner)
+                {
+                    p_Damage = 0;
+                    return;
+                }
+
+                if (p_SpellInfo && p_SpellInfo->Id != eSpells::PrismaticCrystalDamage)
+                {
+                    if (Unit* l_Owner = sObjectAccessor->FindUnit(m_Owner))
+                    {
+                        int32 l_BasePoint = p_Damage;
+                        l_Owner->CastCustomSpell(me, eSpells::PrismaticCrystalDamage, nullptr, &l_BasePoint, nullptr, true);
+                    }
+                }
+            }
+
+            void OnSendFactionTemplate(uint32& p_FactionID, Player* p_Target)
+            {
+                if (m_Owner == p_Target->GetGUID())
+                    p_FactionID = eDatas::FactionHostile;
+                else
+                    p_FactionID = eDatas::FactionFriend;
+            }
+
+            void UpdateAI(uint32 const p_Diff) { }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_mage_prismatic_crystalAI(p_Creature);
+        }
+};
+
 /// Comet Storm - 153595
 class spell_mage_comet_storm : public SpellScriptLoader
 {
@@ -1742,7 +1824,6 @@ public:
     }
 };
 
-
 // Call by Blast Wave 157981 - Supernova 157980 - Ice Nova 157997
 class spell_mage_novas_talent : public SpellScriptLoader
 {
@@ -2026,6 +2107,10 @@ public:
 
 void AddSC_mage_spell_scripts()
 {
+    /// Npcs
+    new npc_mage_prismatic_crystal();
+
+    /// Spells
     new spell_mage_comet_storm();
     new spell_mage_ring_of_frost_immunity();
     new spell_mage_flameglow();

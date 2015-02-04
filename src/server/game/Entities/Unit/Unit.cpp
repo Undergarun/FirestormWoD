@@ -21890,7 +21890,6 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target)
     uint32* flags;
     uint32 visibleFlag = GetUpdateFieldData(target, flags);
 
-
     Creature const* creature = ToCreature();
     for (uint16 index = 0; index < m_valuesCount; ++index)
     {
@@ -22006,6 +22005,10 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target)
             // FG: pretend that OTHER players in own group are friendly ("blue")
             else if (index == UNIT_FIELD_SHAPESHIFT_FORM || index == UNIT_FIELD_FACTION_TEMPLATE)
             {
+                uint32 l_Value = m_uint32Values[index];
+                if (index == UNIT_FIELD_FACTION_TEMPLATE && creature && creature->IsAIEnabled)
+                    creature->AI()->OnSendFactionTemplate(l_Value, target);
+
                 if (IsControlledByPlayer() && target != this && sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP) && IsInRaidWith(target))
                 {
                     FactionTemplateEntry const* ft1 = getFactionTemplateEntry();
@@ -22020,10 +22023,10 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target)
                             fieldBuffer << uint32(target->getFaction());
                     }
                     else
-                        fieldBuffer << m_uint32Values[index];
+                        fieldBuffer << l_Value;
                 }
                 else
-                    fieldBuffer << m_uint32Values[index];
+                    fieldBuffer << l_Value;
             }
             else
             {
