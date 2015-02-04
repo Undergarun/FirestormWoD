@@ -38,7 +38,10 @@ namespace MS { namespace Garrison
         SPELL_LEFT_ROPE                        = 164400,
         SPELL_RIGHT_ROPE                       = 164422,
         SPELL_COMESTIC_SLEEP                   = 162907,
-        SPELL_GARRISON_ORC_MALE_CARRYNG_LUMBER = 161329
+        SPELL_GARRISON_ORC_MALE_CARRYNG_LUMBER = 161329,
+        MultiShot   = 18651,
+        Disengage   = 82707,
+        Shoot       = 6660
     };
 
     /// Garrison Quests
@@ -49,6 +52,7 @@ namespace MS { namespace Garrison
         QUEST_KEEPING_IT_TOGETHER       = 35176,
         QUEST_SHIP_SALVAGE              = 35166,
         QUEST_PALE_MOONLIGHT            = 35174,
+        LostInTransition                = 37087,
 
         /// Horde
         QUEST_ETABLISH_YOUR_GARRISON_H  = 34378,
@@ -73,7 +77,9 @@ namespace MS { namespace Garrison
         NPC_FROSTWALL_GRUNT                             = 79781,
         NPC_GASLOWE                                     = 78466,
         NPC_ASSISTANT_BRIGHTSTONE                       = 84455,
-        NPC_SKAGGIT                                     = 80225
+        NPC_SKAGGIT                                     = 80225,
+        NPC_ARCHER                                      = 87518,
+        Marksman                                        = 88391
     };
 
     /// NPC texts id

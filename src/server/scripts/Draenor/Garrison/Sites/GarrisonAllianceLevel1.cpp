@@ -84,7 +84,9 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_Quest : Started quest
     void InstanceScript_GarrisonAllianceLevel1::OnQuestStarted(Player * p_Owner, const Quest * p_Quest)
     {
-
+        /// Hack fix for storehouse, need more work
+        if (p_Owner && p_Quest && p_Quest->GetQuestId() == Quests::LostInTransition)
+            p_Owner->CompleteQuest(Quests::LostInTransition);
     }
     /// When the garrison owner reward a quest
     /// @p_Owner : Garrison owner
