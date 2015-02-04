@@ -616,7 +616,7 @@ int Master::Run()
             l_ReportWorker.ProcessReporting();
 #ifdef _MSC_VER
             Sleep(1);
-#elif 
+#else
             usleep(1);
 #endif
         }
