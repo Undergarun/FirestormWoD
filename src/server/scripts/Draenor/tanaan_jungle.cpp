@@ -33,7 +33,28 @@ enum ePhases
     TANAAN_ESCORT_SECOND_ZONE = 0x0004
 };
 
-Position gWaypoints[7] =
+struct EscortSpawns
+{
+    uint32 summoner;
+    uint32 summoned;
+};
+
+EscortSpawns const g_EscortSpawns[10]
+{
+    // Summoner, Summoned
+    { 78430,     79659 }, ///< Cordana Felsong
+    { 79316,     81776 }, ///< Qiana Moonshadow
+    { 78553,     79185 }, ///< Thrall
+    { 78568,     81885 }, ///< Thaelin Darkanvil
+    { 78556,     78965 }, ///< Ariok
+    { 78554,     82973 }, ///< Vindicator Maraad
+    { 78569,     79770 }, ///< Hansel
+    { 79315,     88354 }, ///< Olin
+    { 79675,     76793 }, ///< Lady Liadrin
+    { 78558,     82125 }  ///< Archmage Khadgar
+};
+
+Position g_Waypoints[7] =
 {
     { 4070.7846f, -2424.4675f, 94.7915f, 4.6861f },
     { 4042.2768f, -2469.6655f, 94.6138f, 4.5807f }, // upstairs
@@ -44,30 +65,27 @@ Position gWaypoints[7] =
     { 3954.4253f, -2519.3913f, 69.7395f, 2.4735f } // in the house, cast spell + dispersion
 };
 
-Position gBabSpawn[2] =
+Position g_BleedingHollowSpawn[5] =
 {
     { 3964.6762f, -2536.0610f, 66.6200f, 5.8923f },
-    { 3971.2495f, -2526.6828f, 66.0740f, 5.4917f }
+    { 3971.2495f, -2526.6828f, 66.0740f, 5.4917f },
+    { 3933.9599f, -2521.4599f, 69.7307f, 0.7224f },
+    { 3932.1899f, -2511.2600f, 69.8392f, 4.9061f },
+    { 3952.9599f, -2499.9799f, 69.7307f, 3.9810f }
 };
 
-struct EscortSpawn
+Position g_FirstStepPos[10]
 {
-    uint32 summoned;
-    uint32 summoner;
-};
-
-EscortSpawn const g_EscortSpawns[10]
-{
-    { 78430, 79659 }, ///< Cordana Felsong
-    { 79316, 81776 }, ///< Qiana Moonshadow
-    { 78553, 79185 }, ///< Thrall
-    { 78568, 81885 }, ///< Thaelin Darkanvil
-    { 78556, 78965 }, ///< Ariok
-    { 78554, 82973 }, ///< Vindicator Maraad
-    { 78569, 79770 }, ///< Hansel
-    { 79315, 88354 }, ///< Olin
-    { 76975, 76793 }, ///< Lady Liadrin
-    { 78558, 82125}   ///< Archmage Khadgar
+    { 3936.0500f, -2520.3500f, 69.7307f, 3.9808f }, // Ariok done
+    { 3931.8000f, -2510.6999f, 69.7307f, 4.6681f }, // Hansel done
+    { 3936.7199f, -2505.2199f, 69.7307f, 5.6082f }, // Khadgar done
+    { 3936.3200f, -2503.6201f, 69.7307f, 5.6268f }, // Cordana done
+    { 3940.8999f, -2510.8798f, 69.3792f, 5.6180f }, // Thaelin done
+    { 3943.5500f, -2505.1799f, 69.3792f, 5.8881f }, // Olin done
+    { 3951.2399f, -2501.2299f, 69.7307f, 0.7631f }, // Lady Liadrin done
+    { 3956.7600f, -2523.6799f, 69.7497f, 5.8588f }, // Thrall done
+    { 3958.9099f, -2520.1499f, 69.8712f, 5.8444f }, // Vindicator done
+    { 3962.4799f, -2536.5000f, 61.5501f, 3.7332f }  // Qiana done
 };
 
 // Archmage Khadgar - 78558 (Main quest giver/taker)
@@ -78,14 +96,14 @@ class npc_archmage_khadgar : public CreatureScript
         {
         }
 
-        void SummonEscorter(uint32 p_EscorterEntry, uint32 p_BaseEntry, Creature* p_Gossip, Player* p_Escorted)
+        void SummonEscorter(uint32 p_SummonerEntry, uint32 p_EscorterEntry, Creature* p_Khadgar, Player* p_Escorted)
         {
-            if (Creature* l_Summoner = GetClosestCreatureWithEntry(p_Gossip, p_BaseEntry, 20.0f))
+            if (Creature* l_Summoner = GetClosestCreatureWithEntry(p_Khadgar, p_SummonerEntry, 20.0f))
             {
                 Position l_Pos;
                 l_Summoner->GetPosition(&l_Pos);
 
-                if (Creature* l_Summoned = l_Summoner->SummonCreature(p_EscorterEntry, l_Pos, TEMPSUMMON_MANUAL_DESPAWN))
+                if (Creature* l_Summoned = l_Summoner->SummonCreature(p_EscorterEntry, l_Pos, TEMPSUMMON_MANUAL_DESPAWN, 36000, 0, p_Escorted->GetGUID()))
                     l_Summoned->SetPhaseMask(p_Escorted->GetPhaseMask(), true);
             }
         }
@@ -336,10 +354,6 @@ class npc_generic_tanaan_escorter : public CreatureScript
                 me->GetMotionMaster()->Clear();
             }
 
-            void DoAction(int32 const p_Action)
-            {
-            }
-
             void MovementInform(uint32 p_Type, uint32 p_Id)
             {
                 if (p_Type != POINT_MOTION_TYPE)
@@ -348,37 +362,120 @@ class npc_generic_tanaan_escorter : public CreatureScript
                 switch (p_Id)
                 {
                     case 1:
-                        me->GetMotionMaster()->MovePoint(2, gWaypoints[1]);
+                        me->GetMotionMaster()->MovePoint(2, g_Waypoints[1]);
                         break;
                     case 2:
-                        me->GetMotionMaster()->MovePoint(3, gWaypoints[2]);
+                        me->GetMotionMaster()->MovePoint(3, g_Waypoints[2]);
                         break;
                     case 3:
-                        me->GetMotionMaster()->MovePoint(4, gWaypoints[3]);
+                        me->GetMotionMaster()->MovePoint(4, g_Waypoints[3]);
                         break;
                     case 4:
-                        me->GetMotionMaster()->MovePoint(5, gWaypoints[4]);
+                        me->GetMotionMaster()->MovePoint(5, g_Waypoints[4]);
                         break;
                     case 5:
                     {
-                        me->GetMotionMaster()->MovePoint(6, gWaypoints[5]);
-
                         if (me->GetEntry() == 82125)
                         {
                             std::list<Creature*> l_CreatureList;
                             Talk(2);
-                            me->GetCreatureListWithEntryInGrid(l_CreatureList, 78507, 15.0f);
+                            me->GetCreatureListWithEntryInGrid(l_CreatureList, 78507, 30.0f);
+
+                            l_CreatureList.remove_if([this](Creature* l_Creature) -> bool
+                            {
+                                if (l_Creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE))
+                                    return false;
+
+                                return true;
+                            });
 
                             for (Creature* l_Creature : l_CreatureList)
                                 me->CastSpell(l_Creature, 133123, true);
-
-                            // 133123
                         }
+                        else if (me->GetEntry() == 81776) ///< Qiana
+                        {
+                            me->GetMotionMaster()->MovePoint(6, g_FirstStepPos[9]);
+                            break;
+                        }
+
+                        me->GetMotionMaster()->MovePoint(6, g_Waypoints[5]);
                         break;
                     }
                     case 6:
-                        me->GetMotionMaster()->MovePoint(7, gWaypoints[6]);
+                    {
+                        if (me->GetEntry() == 82973) ///< Vindicator Maraad
+                        {
+                            me->GetMotionMaster()->MovePoint(7, g_FirstStepPos[8]);
+                            break;
+                        }
+                        else if (me->GetEntry() == 79185) ///< Thrall
+                        {
+                            me->GetMotionMaster()->MovePoint(7, g_FirstStepPos[7]);
+                            break;
+                        }
+
+                        me->GetMotionMaster()->MovePoint(7, g_Waypoints[6]);
                         break;
+                    }
+                    case 7:
+                    {
+                        switch (me->GetEntry())
+                        {
+                            case 82125: ///< Khadgar
+                            {
+                                std::list<Creature*> l_CreatureList;
+                                me->GetCreatureListWithEntryInGrid(l_CreatureList, 78507, 20.0f);
+
+                                l_CreatureList.remove_if([this](Creature* l_Creature) -> bool
+                                {
+                                    if (l_Creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE))
+                                        return false;
+
+                                    return true;
+                                });
+
+                                for (Creature* l_Creature : l_CreatureList)
+                                    me->CastSpell(l_Creature, 133123, true);
+
+                                me->GetMotionMaster()->MovePoint(8, g_FirstStepPos[2]);
+
+                                break;
+                            }
+                            case 79770: ///< Hansel
+                            {
+                                me->GetMotionMaster()->MovePoint(8, g_FirstStepPos[1]);
+                                break;
+                            }
+                            case 78965: ///< Ariok
+                            {
+                                me->GetMotionMaster()->MovePoint(8, g_FirstStepPos[0]);
+                                break;
+                            }
+                            case 79659: ///< Cordana
+                            {
+                                me->GetMotionMaster()->MovePoint(8, g_FirstStepPos[3]);
+                                break;
+                            }
+                            case 81885: ///< Thaelin
+                            {
+                                me->GetMotionMaster()->MovePoint(8, g_FirstStepPos[4]);
+                                break;
+                            }
+                            case 88354:
+                            {
+                                me->GetMotionMaster()->MovePoint(8, g_FirstStepPos[5]);
+                                break;
+                            }
+                            case 76793:
+                            {
+                                me->GetMotionMaster()->MovePoint(8, g_FirstStepPos[6]);
+                                break;
+                            }
+                            default:
+                                break;
+                        }
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -395,17 +492,53 @@ class npc_generic_tanaan_escorter : public CreatureScript
                 {
                     case EVENT_TALK:
                     {
-                        if (me->GetEntry() == 82125)
-                            Talk(1);
-
-                        m_Events.ScheduleEvent(EVENT_GO, 2000);
+                        switch (me->GetEntry())
+                        {
+                            case 82125: // Khadgar
+                                Talk(1);
+                                m_Events.ScheduleEvent(EVENT_GO, 2000);
+                                break;
+                            case 76793: // Lady
+                                m_Events.ScheduleEvent(EVENT_GO, 2500);
+                                break;
+                            case 88354: // Olin
+                                m_Events.ScheduleEvent(EVENT_GO, 2800);
+                                break;
+                            case 79770: // Hansel
+                                m_Events.ScheduleEvent(EVENT_GO, 3100);
+                                break;
+                            case 82973: // Vindicator
+                                m_Events.ScheduleEvent(EVENT_GO, 3400);
+                                break;
+                            case 78965: // Ariok
+                                m_Events.ScheduleEvent(EVENT_GO, 3700);
+                                break;
+                            case 81885: // Thaelin
+                                m_Events.ScheduleEvent(EVENT_GO, 4000);
+                                break;
+                            case 79185: // Thrall
+                                m_Events.ScheduleEvent(EVENT_GO, 4300);
+                                break;
+                            case 81776: // Qiana
+                                m_Events.ScheduleEvent(EVENT_GO, 4600);
+                                break;
+                            case 79659: // Cordana
+                                m_Events.ScheduleEvent(EVENT_GO, 4900);
+                                break;
+                        }
                         break;
                     }
                     case EVENT_GO:
                     {
-                        me->GetMotionMaster()->MovePoint(1, gWaypoints[0]);
-                        me->SummonCreature(78507, gBabSpawn[0]);
-                        me->SummonCreature(78507, gBabSpawn[1]);
+                        me->GetMotionMaster()->MovePoint(1, g_Waypoints[0]);
+                        if (me->GetEntry() == 82125)
+                        {
+                            for (int8 l_Itr = 0; l_Itr < 5; l_Itr++)
+                            {
+                                if (Creature* l_Creature = me->SummonCreature(78507, g_BleedingHollowSpawn[l_Itr]))
+                                    l_Creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                            }
+                        }
                         break;
                     }
                     default:
@@ -783,6 +916,29 @@ class npc_tanaan_ariok : public CreatureScript
         }
 };
 
+// Ariok - 78556
+class npc_bleeding_hollow_sauvage : public CreatureScript
+{
+    public:
+        npc_bleeding_hollow_sauvage() : CreatureScript("npc_bleeding_hollow_sauvage") { }
+
+        struct npc_bleeding_hollow_sauvageAI : public ScriptedAI
+        {
+            npc_bleeding_hollow_sauvageAI(Creature* creature) : ScriptedAI(creature) { }
+
+            void SpellHit(Unit* /*p_Caster*/, const SpellInfo* p_SpellInfo)
+            {
+                if (p_SpellInfo->Id == 133123)
+                    me->DespawnOrUnsummon();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_bleeding_hollow_sauvageAI(creature);
+        }
+};
+
 // 237670/237667 - Dark Portal
 class go_platform_tanaan : public GameObjectScript
 {
@@ -1014,6 +1170,7 @@ void AddSC_tanaan_jungle()
     new npc_gul_dan_trigger();
     new npc_tormented_soul();
     new npc_tanaan_ariok();
+    new npc_bleeding_hollow_sauvage();
     new gob_static_rune();
     new go_platform_tanaan();
     new go_bleeding_hollow_cage();
