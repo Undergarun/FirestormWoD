@@ -1245,7 +1245,7 @@ void GameObject::Use(Unit* p_User)
         if (sScriptMgr->OnGossipHello(playerUser, this))
             return;
 
-        if (AI()->GossipHello(playerUser))
+        if (AI() && AI()->GossipHello(playerUser))
             return;
     }
 
@@ -1286,23 +1286,25 @@ void GameObject::Use(Unit* p_User)
             if (p_User->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            Player* player = p_User->ToPlayer();
-
-            player->PrepareGossipMenu(this, GetGOInfo()->questgiver.gossipID, true);
-            player->SendPreparedGossip(this);
+            if (Player* player = p_User->ToPlayer())
+            {
+                player->PrepareGossipMenu(this, GetGOInfo()->questgiver.gossipID, true);
+                player->SendPreparedGossip(this);
+            }
             return;
         }
         case GAMEOBJECT_TYPE_TRAP:                          //6
             {
-                GameObjectTemplate const* goInfo = GetGOInfo();
-                if (goInfo->trap.spell)
-                    CastSpell(p_User, goInfo->trap.spell);
+                if (GameObjectTemplate const* goInfo = GetGOInfo())
+                {
+                    if (goInfo->trap.spell)
+                        CastSpell(p_User, goInfo->trap.spell);
 
-                m_cooldownTime = time(NULL) + (goInfo->trap.cooldown ? goInfo->trap.cooldown :  uint32(4));   // template or 4 seconds
+                    m_cooldownTime = time(NULL) + (goInfo->trap.cooldown ? goInfo->trap.cooldown : uint32(4));   // template or 4 seconds
 
-                if (goInfo->trap.charges == 1)         // Deactivate after trigger
-                    SetLootState(GO_JUST_DEACTIVATED);
-
+                    if (goInfo->trap.charges == 1)         // Deactivate after trigger
+                        SetLootState(GO_JUST_DEACTIVATED);
+                }
                 return;
             }
         //Sitting: Wooden bench, chairs enzz
@@ -1325,6 +1327,8 @@ void GameObject::Use(Unit* p_User)
             }
 
             Player* player = p_User->ToPlayer();
+            if (!player)
+                break;
 
             // a chair may have n slots. we have to calculate their positions and teleport the player to the nearest one
 
@@ -1402,7 +1406,9 @@ void GameObject::Use(Unit* p_User)
 
             if (p_User->GetTypeId() == TYPEID_PLAYER)
             {
-                Player * l_Player = p_User->ToPlayer();
+                Player* l_Player = p_User->ToPlayer();
+                if (!l_Player)
+                    break;
 
                 if (l_Info->goober.pageID)                    // show page...
                 {
