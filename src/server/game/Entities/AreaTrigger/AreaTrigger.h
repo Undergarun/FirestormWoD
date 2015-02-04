@@ -217,7 +217,7 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
          * Cast spell by using unit trigger/dummy at areatrigger posiiton
          * Use areatrigger owner (caster) for ennemies/friends selection
          * @param p_Target  : Target of the spell we cast
-         @ @param p_SpellId : Id of spell to cast
+         * @param p_SpellId : Id of spell to cast
          */
         void CastSpell(Unit* p_Target, uint32 p_SpellId);
 

@@ -8765,6 +8765,7 @@ bool Unit::HandleObsModEnergyAuraProc(Unit* victim, uint32 /*damage*/, AuraEffec
         ToPlayer()->AddSpellCooldown(triggered_spell_id, 0, cooldown);
     return true;
 }
+
 bool Unit::HandleModDamagePctTakenAuraProc(Unit* victim, uint32 /*damage*/, AuraEffectPtr triggeredByAura, SpellInfo const* /*procSpell*/, uint32 /*procFlag*/, uint32 /*procEx*/, uint32 cooldown)
 {
     SpellInfo const* dummySpell = triggeredByAura->GetSpellInfo();
@@ -8794,7 +8795,7 @@ bool Unit::HandleModDamagePctTakenAuraProc(Unit* victim, uint32 /*damage*/, Aura
         CastSpell(target, triggered_spell_id, true, castItem, triggeredByAura);
 
     if (cooldown && GetTypeId() == TYPEID_PLAYER)
-        ToPlayer()->AddSpellCooldown(triggered_spell_id, 0, time(NULL) + cooldown);
+        ToPlayer()->AddSpellCooldown(triggered_spell_id, 0, cooldown);
 
     return true;
 }
