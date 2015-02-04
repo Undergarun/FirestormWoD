@@ -2764,10 +2764,20 @@ class Player : public Unit, public GridObject<Player>
                 m_bgData.bgQueuesJoinedTime.erase(l_Itr);
         }
         
+        /// Returns true if the player is in a battleground queue.
         bool InBattlegroundQueue() const
         {
             for (uint8 i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
-                if (m_bgBattlegroundQueueID[i].BgType != MS::Battlegrounds::BattlegroundType::None)
+                if (m_bgBattlegroundQueueID[i].BgType <= MS::Battlegrounds::BattlegroundType::DeepwindGorge)
+                    return true;
+            return false;
+        }
+
+        /// Returns true if the player is in an arena queue.
+        bool InArenaQueue() const
+        {
+            for (uint8 i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
+                if (m_bgBattlegroundQueueID[i].BgType >= MS::Battlegrounds::BattlegroundType::Arena2v2 && m_bgBattlegroundQueueID[i].BgType <= MS::Battlegrounds::BattlegroundType::ArenaSkirmish3v3)
                     return true;
             return false;
         }

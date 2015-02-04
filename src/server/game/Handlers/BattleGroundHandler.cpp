@@ -808,6 +808,15 @@ void WorldSession::HandleBattlemasterJoinArenaSkirmish(WorldPacket& p_Packet)
             return;
         }
 
+        if (m_Player->InArenaQueue())
+        {
+            /// Player is already in an arena queue.
+            WorldPacket l_Data;
+            MS::Battlegrounds::PacketFactory::StatusFailed(&l_Data, l_Battleground, m_Player, 0, ERR_BATTLEGROUND_JOIN_FAILED);
+            m_Player->GetSession()->SendPacket(&l_Data);
+            return;
+        }
+
         if (m_Player->GetBattlegroundQueueIndex(l_BGQueueTypeID) < PLAYER_MAX_BATTLEGROUND_QUEUES)
         {
             //player is already in random queue
