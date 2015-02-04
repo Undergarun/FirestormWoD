@@ -17158,8 +17158,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         if (spellInfo->Id == 115191)
         {
             useCharges = false;
-
-            if (procExtra & PROC_EX_INTERNAL_DOT && !HasAura(115192) && !HasAura(131369))
+            if (!HasAura(115192) && !HasAura(131369))
                 CastSpell(this, 115192, true);
         }
 

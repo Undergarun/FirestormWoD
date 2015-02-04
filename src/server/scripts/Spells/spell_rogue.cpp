@@ -1914,6 +1914,8 @@ public:
         {
             if (Unit* l_Caster = GetCaster())
             {
+                if (!l_Caster->HasAura(ROGUE_SPELL_STEALTH_SUBTERFUGE))
+                    l_Caster->CastSpell(l_Caster, ROGUE_SPELL_STEALTH_SUBTERFUGE, true);
                 l_Caster->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
                 l_Caster->RemoveStandFlags(UNIT_STAND_FLAGS_CREEP);
             }
