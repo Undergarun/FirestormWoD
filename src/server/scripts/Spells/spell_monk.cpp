@@ -122,7 +122,9 @@ enum MonkSpells
     SPELL_MONK_COMBO_BREAKER_TIGER_PALM         = 118864,
     SPELL_MONK_COMBO_BREAKER_BLACKOUT_KICK      = 116768,
     SPELL_MONK_MORTEL_WOUNDS                    = 115804,
-    SPELL_MONK_RISING_SUN_KICK_DOT              = 130320
+    SPELL_MONK_RISING_SUN_KICK_DOT              = 130320,
+    SPELL_MONK_GLYPH_OF_RAPID_ROLLING           = 146951,
+    SPELL_MONK_RAPID_ROLLING                    = 147364
 };
 
 // Tiger Eye Brew - 123980 & Mana Tea - 123766
@@ -134,14 +136,14 @@ class PlayerScript_TigereEyeBrew_ManaTea: public PlayerScript
         void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32 p_NewValue, bool p_Regen)
         {
             // Get the power earn (if > 0 ) or consum (if < 0)
-            int32 l_diffValue = p_NewValue - p_OldValue;
+            int32 l_DiffValue = p_NewValue - p_OldValue;
 
-            if (p_Power == POWER_CHI && l_diffValue < 0)
+            if (p_Power == POWER_CHI && l_DiffValue < 0)
             {
                 if (AuraPtr tigereyeBrew = p_Player->GetAura(123980))
-                    tigereyeBrew->SetScriptData(0, -l_diffValue);
+                    tigereyeBrew->SetScriptData(0, -l_DiffValue);
                 else if (AuraPtr manaTea = p_Player->GetAura(123766))
-                    manaTea->SetScriptData(0, -l_diffValue);
+                    manaTea->SetScriptData(0, -l_DiffValue);
             }
         }
 };
@@ -2658,7 +2660,7 @@ class spell_monk_tigereye_brew: public SpellScriptLoader
                         int32 stacks = 0;
                         if (AuraPtr tigereyeBrewStacks = _player->GetAura(SPELL_MONK_TIGEREYE_BREW_STACKS))
                         {
-                            int32 effectAmount = tigereyeBrewStacks->GetStackAmount() * 6;
+                            int32 effectAmount = tigereyeBrewStacks->GetStackAmount() * GetSpellInfo()->Effects[EFFECT_0].BasePoints;
                             stacks = tigereyeBrewStacks->GetStackAmount();
 
                             if (stacks >= 10)
@@ -4323,6 +4325,37 @@ public:
     }
 };
 
+// Glyph of rapid rolling - 146951
+class spell_monk_glyph_of_rapid_rolling : public SpellScriptLoader
+{
+public:
+    spell_monk_glyph_of_rapid_rolling() : SpellScriptLoader("spell_monk_glyph_of_rapid_rolling") { }
+
+    class spell_monk_glyph_of_rapid_rolling_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_monk_glyph_of_rapid_rolling_SpellScript);
+
+        void HandleAfterCast()
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (l_Caster->HasAura(SPELL_MONK_GLYPH_OF_RAPID_ROLLING))
+                    l_Caster->CastSpell(l_Caster, SPELL_MONK_RAPID_ROLLING, true);
+            }
+        }
+
+        void Register()
+        {
+            AfterCast += SpellCastFn(spell_monk_glyph_of_rapid_rolling_SpellScript::HandleAfterCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_monk_glyph_of_rapid_rolling_SpellScript();
+    }
+};
+
 void AddSC_monk_spell_scripts()
 {
     new spell_monk_uplift();
@@ -4401,6 +4434,7 @@ void AddSC_monk_spell_scripts()
     new spell_monk_hurricane_strike();
     new spell_monk_serenity();
     new spell_monk_detox();
+    new spell_monk_glyph_of_rapid_rolling();
 
     // Player Script
     new PlayerScript_TigereEyeBrew_ManaTea();
