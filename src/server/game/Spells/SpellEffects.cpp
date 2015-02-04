@@ -1010,7 +1010,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                             if (Pet* pet = m_caster->ToPlayer()->GetPet())
                             {
                                 pet->CastSpell(targets.GetDstPos()->GetPositionX(), targets.GetDstPos()->GetPositionY(), targets.GetDstPos()->GetPositionZ(), damage, true);
-                                m_caster->ToPlayer()->AddSpellCooldown(119909, 0, time(NULL) + 25);
+                                m_caster->ToPlayer()->AddSpellCooldown(119909, 0, 25 * IN_MILLISECONDS);
                             }
 
                     break;
