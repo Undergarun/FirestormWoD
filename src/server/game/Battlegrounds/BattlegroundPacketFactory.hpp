@@ -459,7 +459,7 @@ namespace MS
                 p_Data->appendPackGUID(p_Player->GetGUID());
                 *p_Data << uint32(p_QueueSlot);                                                 ///< ID
                 *p_Data << uint32(p_BG->isArena() ? p_BG->GetMaxPlayersPerTeam() : 1);          ///< Type
-                *p_Data << uint32(p_Player->GetBattlegroundQueueJoinTime(p_BG->GetTypeID()));   ///< Time
+                *p_Data << uint32(p_Player->GetBattlegroundQueueJoinTime(GetSchedulerType(p_BG->GetTypeID())));   ///< Time
 
                 *p_Data << uint64(p_BG->GetGUID());
                 *p_Data << uint32(p_Result);

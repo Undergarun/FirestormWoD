@@ -558,7 +558,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                     WorldPacket status;
                     MS::Battlegrounds::BattlegroundType::Type l_BgType = MS::Battlegrounds::GetTypeFromId(m_TypeID, GetArenaType(), IsSkirmish());
                     uint32 queueSlot = player->GetBattlegroundQueueIndex(MS::Battlegrounds::GetSchedulerType(m_TypeID));
-                    MS::Battlegrounds::PacketFactory::Status(&status, this, player, queueSlot, STATUS_IN_PROGRESS, player->GetBattlegroundQueueJoinTime(m_TypeID), GetElapsedTime(), GetArenaType(), IsSkirmish());
+                    MS::Battlegrounds::PacketFactory::Status(&status, this, player, queueSlot, STATUS_IN_PROGRESS, player->GetBattlegroundQueueJoinTime(l_BgType), GetElapsedTime(), GetArenaType(), IsSkirmish());
                     player->GetSession()->SendPacket(&status);
 
                     player->RemoveAurasDueToSpell(SPELL_ARENA_PREPARATION);
@@ -992,7 +992,7 @@ void Battleground::EndBattleground(uint32 winner)
         player->GetSession()->SendPacket(&data);
 
         MS::Battlegrounds::BattlegroundType::Type bgQueueTypeId = MS::Battlegrounds::GetTypeFromId(GetTypeID(), GetArenaType(), IsSkirmish());
-        MS::Battlegrounds::PacketFactory::Status(&data, this, player, player->GetBattlegroundQueueIndex(MS::Battlegrounds::GetSchedulerType(GetTypeID())), STATUS_IN_PROGRESS, player->GetBattlegroundQueueJoinTime(GetTypeID()), GetElapsedTime(), GetArenaType(), IsSkirmish());
+        MS::Battlegrounds::PacketFactory::Status(&data, this, player, player->GetBattlegroundQueueIndex(MS::Battlegrounds::GetSchedulerType(GetTypeID())), STATUS_IN_PROGRESS, player->GetBattlegroundQueueJoinTime(bgQueueTypeId), GetElapsedTime(), GetArenaType(), IsSkirmish());
         player->GetSession()->SendPacket(&data);
         player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND, 1);
     }
@@ -1108,7 +1108,7 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
             if (SendPacket)
             {
                 WorldPacket data;
-                MS::Battlegrounds::PacketFactory::Status(&data, this, player, player->GetBattlegroundQueueIndex(bgQueueTypeId), STATUS_NONE, player->GetBattlegroundQueueJoinTime(bgTypeId), 0, 0, IsSkirmish());
+                MS::Battlegrounds::PacketFactory::Status(&data, this, player, player->GetBattlegroundQueueIndex(bgQueueTypeId), STATUS_NONE, player->GetBattlegroundQueueJoinTime(bgQueueTypeId), 0, 0, IsSkirmish());
                 player->GetSession()->SendPacket(&data);
             }
 
@@ -1150,7 +1150,7 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
         // reset destination bg team
         player->SetBGTeam(0);
         player->SetByteValue(PLAYER_FIELD_ARENA_FACTION, 3, 0);
-        player->RemoveBattlegroundQueueJoinTime(bgTypeId);
+        player->RemoveBattlegroundQueueJoinTime(bgQueueTypeId);
 
         if (Transport)
             player->TeleportToBGEntryPoint();
@@ -1250,7 +1250,7 @@ void Battleground::AddPlayer(Player* player)
 
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
-        MS::Battlegrounds::PacketFactory::Status(&data, this, player, queueSlot, STATUS_IN_PROGRESS, player->GetBattlegroundQueueJoinTime(m_TypeID), GetElapsedTime(), GetArenaType(), IsSkirmish());
+        MS::Battlegrounds::PacketFactory::Status(&data, this, player, queueSlot, STATUS_IN_PROGRESS, player->GetBattlegroundQueueJoinTime(bgQueueTypeId), GetElapsedTime(), GetArenaType(), IsSkirmish());
         player->GetSession()->SendPacket(&data);
     }
 
@@ -1906,7 +1906,7 @@ void Battleground::PlayerAddedToBGCheckIfBGIsRunning(Player* player)
     MS::Battlegrounds::PacketFactory::PvpLogData(&data, this);
     player->GetSession()->SendPacket(&data);
 
-    MS::Battlegrounds::PacketFactory::Status(&data, this, player, player->GetBattlegroundQueueIndex(bgQueueTypeId), STATUS_IN_PROGRESS, player->GetBattlegroundQueueJoinTime(GetTypeID()), GetElapsedTime(), GetArenaType(), IsSkirmish());
+    MS::Battlegrounds::PacketFactory::Status(&data, this, player, player->GetBattlegroundQueueIndex(bgQueueTypeId), STATUS_IN_PROGRESS, player->GetBattlegroundQueueJoinTime(bgQueueTypeId), GetElapsedTime(), GetArenaType(), IsSkirmish());
     player->GetSession()->SendPacket(&data);
 }
 

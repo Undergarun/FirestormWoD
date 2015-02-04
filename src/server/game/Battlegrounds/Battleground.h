@@ -449,8 +449,14 @@ namespace MS
 struct GroupQueueInfo;                                      // type predefinition
 struct PlayerQueueInfo                                      // stores information for players in queue
 {
-    uint32  LastOnlineTime;                                 // for tracking and removing offline players from queue after 5 minutes
-    GroupQueueInfo* GroupInfo;                             // pointer to the associated groupqueueinfo
+    /// Internal structure.
+    struct Pair
+    {
+        uint32 LastOnlineTime;      /// For tracking and removing offline players from queue after 5 minutes.
+        GroupQueueInfo* GroupInfo;  /// Information of the group currently queued.
+    };  
+
+    std::list<Pair> Infos;
 };
 
 struct GroupQueueInfo                                       // stores information about the group in queue (also used when joined as solo!)
@@ -461,7 +467,7 @@ struct GroupQueueInfo                                       // stores informatio
     bool    m_IsRatedBG;                                      // rated battleground
     bool    m_IsSkirmish;                                     // skirmish arena
     bool    m_IsRandom;
-    uint8   m_ArenaType;                                      // 2v2, 3v3, 5v5 or 0 when BG
+    ArenaType   m_ArenaType;                                  // 2v2, 3v3, 5v5 or 0 when BG
     uint32  m_JoinTime;                                       // time when group was added
     uint32  m_RemoveInviteTime;                               // time when we will remove invite for players in group
     uint32  m_IsInvitedToBGInstanceGUID;                      // was invited to certain BG

@@ -39,6 +39,7 @@ enum ArenaTeamCommandTypes
 
 enum ArenaType
 {
+    None      = 0,
     Arena2v2  = 2,
     Arena3v3  = 3,
     Arena5v5  = 5
@@ -147,7 +148,7 @@ namespace Arena
         return 0xFF;
     }
 
-    inline uint8 GetTypeBySlot(uint8 slot)
+    inline ArenaType GetTypeBySlot(uint8 slot)
     {
         switch (slot)
         {
@@ -161,7 +162,7 @@ namespace Arena
                 break;
         }
         sLog->outError(LOG_FILTER_ARENAS, "FATAL: Unknown arena team slot %u for some arena team", slot);
-        return 0xFF;
+        return ArenaType::None;
     }
 
     inline float GetChanceAgainst(uint32 ownRating, uint32 opponentRating)

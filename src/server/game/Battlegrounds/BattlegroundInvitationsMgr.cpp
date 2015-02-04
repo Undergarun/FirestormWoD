@@ -56,8 +56,7 @@ namespace MS
 
                     /// Insert player in the invited map players.
                     PlayerQueueInfo& l_PlayerQueue = m_InvitedPlayers[l_Player->GetGUID()];
-                    l_PlayerQueue.LastOnlineTime = getMSTime();
-                    l_PlayerQueue.GroupInfo = p_GroupInfo;
+                    l_PlayerQueue.Infos.emplace_back(PlayerQueueInfo::Pair{ getMSTime(), p_GroupInfo });
 
                     /// Invite the player.
                     UpdateAverageWaitTimeForGroup(p_GroupInfo, l_BracketId);
@@ -82,7 +81,7 @@ namespace MS
 
                     /// Send status packet.
                     WorldPacket data;
-                    PacketFactory::Status(&data, p_Bg, l_Player, l_QueueSlot, STATUS_WAIT_JOIN, INVITE_ACCEPT_WAIT_TIME, l_Player->GetBattlegroundQueueJoinTime(l_BGTypeId), p_GroupInfo->m_ArenaType, p_GroupInfo->m_IsSkirmish);
+                    PacketFactory::Status(&data, p_Bg, l_Player, l_QueueSlot, STATUS_WAIT_JOIN, INVITE_ACCEPT_WAIT_TIME, l_Player->GetBattlegroundQueueJoinTime(p_GroupInfo->m_BgTypeId), p_GroupInfo->m_ArenaType, p_GroupInfo->m_IsSkirmish);
                     l_Player->GetSession()->SendPacket(&data);
                 }
 
@@ -158,19 +157,36 @@ namespace MS
         {
             QueuedPlayersMap::const_iterator l_Itr = m_InvitedPlayers.find(p_PlrGuid);
 
-            return (l_Itr != std::cend(m_InvitedPlayers)
-                && l_Itr->second.GroupInfo->m_IsInvitedToBGInstanceGUID == p_BgInstanceId
-                && l_Itr->second.GroupInfo->m_RemoveInviteTime == p_RemoveTime);
+            if (l_Itr != std::cend(m_InvitedPlayers))
+            {
+                for (auto l_Pair = l_Itr->second.Infos.begin(); l_Pair != l_Itr->second.Infos.end(); l_Pair++)
+                {
+                    GroupQueueInfo* l_Group = l_Pair->GroupInfo;
+                    if (l_Group->m_IsInvitedToBGInstanceGUID == p_BgInstanceId && l_Group->m_RemoveInviteTime == p_RemoveTime)
+                        return true;
+                }
+            }
+
+            return false;
         }
 
-        bool BattlegroundInvitationsMgr::GetPlayerGroupInfoData(uint64 p_Guid, GroupQueueInfo& p_GroupInfo) const
+        bool BattlegroundInvitationsMgr::GetPlayerGroupInfoData(uint64 p_Guid, GroupQueueInfo& p_GroupInfo, BattlegroundType::Type p_Type) const
         {
             auto l_Itr = m_InvitedPlayers.find(p_Guid);
             if (l_Itr == m_InvitedPlayers.end())
                 return false;
 
-            p_GroupInfo = *l_Itr->second.GroupInfo;
-            return true;
+            for (auto l_Pair = l_Itr->second.Infos.begin(); l_Pair != l_Itr->second.Infos.end(); l_Pair++)
+            {
+                GroupQueueInfo* l_Group = l_Pair->GroupInfo;
+                if (l_Group->m_BgTypeId == p_Type)
+                {
+                    p_GroupInfo = *l_Group;
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         void BattlegroundInvitationsMgr::UpdateEvents(uint32 diff)
@@ -178,14 +194,29 @@ namespace MS
             m_Events.Update(diff);
         }
 
-        void BattlegroundInvitationsMgr::RemovePlayer(uint64 p_Guid, bool p_DecreaseInvitedCount)
+        void BattlegroundInvitationsMgr::RemovePlayer(uint64 p_Guid, bool p_DecreaseInvitedCount, BattlegroundType::Type p_Type)
         {
             /// Remove player from map, if he's there.
             auto l_Itr = m_InvitedPlayers.find(p_Guid);
             if (l_Itr == m_InvitedPlayers.end())
                 return;
 
-            GroupQueueInfo* l_Group = l_Itr->second.GroupInfo;
+            GroupQueueInfo* l_Group = nullptr;
+
+            auto l_Pair = std::begin(l_Itr->second.Infos);
+            for (; l_Pair != std::end(l_Itr->second.Infos); l_Pair++)
+            {
+                GroupQueueInfo* l_GroupInfo = l_Pair->GroupInfo;
+                if (l_GroupInfo->m_BgTypeId == p_Type)
+                {
+                    l_Group = l_GroupInfo;
+                    break;
+                }
+            }
+
+            if (!l_Group)
+                return;
+
             int32 l_BracketId = l_Group->m_BracketId;
 
             /// Player can't be in queue without group, but just in case.
@@ -207,10 +238,13 @@ namespace MS
                 l_Group->m_Players.erase(pitr);
 
             /// Remove player queue info.
-            m_InvitedPlayers.erase(l_Itr);
+            if (l_Itr->second.Infos.size() == 1)
+                m_InvitedPlayers.erase(l_Itr);
+            else
+                l_Itr->second.Infos.erase(l_Pair);
 
             /// If player leaves queue and he is invited to rated arena match, then he have to lose.
-            if (l_Group->m_IsInvitedToBGInstanceGUID && !l_Group->m_IsSkirmish && p_DecreaseInvitedCount)
+            if (l_Group->m_IsInvitedToBGInstanceGUID && l_Group->m_IsRatedBG && IsArena(l_Group->m_BgTypeId) && p_DecreaseInvitedCount)
             {
                 if (Player* player = ObjectAccessor::FindPlayer(p_Guid))
                 {
@@ -238,12 +272,12 @@ namespace MS
             /// don't remove recursively if already invited to bg!
             else if (!l_Group->m_IsInvitedToBGInstanceGUID && l_Group->m_IsRatedBG)
             {
+                BattlegroundType::Type bgQueueTypeId = GetTypeFromId(GetIdFromType(l_Group->m_BgTypeId), l_Group->m_ArenaType);
                 /// Remove next player, this is recursive.
                 /// First send removal information.
                 if (Player* plr2 = ObjectAccessor::FindPlayer(l_Group->m_Players.begin()->first))
                 {
                     Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(l_Group->m_BgTypeId);
-                    BattlegroundType::Type bgQueueTypeId = GetTypeFromId(GetIdFromType(l_Group->m_BgTypeId), l_Group->m_ArenaType);
                     uint32 queueSlot = plr2->GetBattlegroundQueueIndex(bgQueueTypeId);
                     plr2->RemoveBattlegroundQueueId(bgQueueTypeId); // must be called this way, because if you move this call to
                     // queue->removeplayer, it causes bugs
@@ -253,7 +287,7 @@ namespace MS
                 }
 
                 /// Then actually delete, this may delete the group as well!
-                RemovePlayer(l_Group->m_Players.begin()->first, p_DecreaseInvitedCount);
+                RemovePlayer(l_Group->m_Players.begin()->first, p_DecreaseInvitedCount, bgQueueTypeId);
             }
         }
 
@@ -285,7 +319,7 @@ namespace MS
 
                     /// We must send remaining time in queue.
                     if (BattlegroundType::IsArena(bgQueueTypeId))
-                        PacketFactory::Status(&l_Data, l_Bg, l_Player, l_QueueSlot, STATUS_WAIT_JOIN, INVITE_ACCEPT_WAIT_TIME - INVITATION_REMIND_TIME, l_Player->GetBattlegroundQueueJoinTime(m_BgTypeId), m_ArenaType, l_Bg->IsSkirmish());
+                        PacketFactory::Status(&l_Data, l_Bg, l_Player, l_QueueSlot, STATUS_WAIT_JOIN, INVITE_ACCEPT_WAIT_TIME - INVITATION_REMIND_TIME, l_Player->GetBattlegroundQueueJoinTime(bgQueueTypeId), m_ArenaType, l_Bg->IsSkirmish());
                     
                     l_Player->GetSession()->SendPacket(&l_Data);
                 }
@@ -326,10 +360,10 @@ namespace MS
                     sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: removing player %u from bg queue for instance %u because of not pressing enter battle in time.", l_Player->GetGUIDLow(), m_BgInstanceGUID);
 
                     l_Player->RemoveBattlegroundQueueId(m_BgType);
-                    l_InvitationsMgr.RemovePlayer(m_PlayerGuid, true);
+                    l_InvitationsMgr.RemovePlayer(m_PlayerGuid, true, Battlegrounds::GetSchedulerType(m_BgTypeId));
 
                     WorldPacket l_Data;
-                    PacketFactory::Status(&l_Data, l_Bg, l_Player, l_QueueSlot, STATUS_NONE, l_Player->GetBattlegroundQueueJoinTime(m_BgTypeId), 0, 0, false);
+                    PacketFactory::Status(&l_Data, l_Bg, l_Player, l_QueueSlot, STATUS_NONE, l_Player->GetBattlegroundQueueJoinTime(GetSchedulerType(m_BgTypeId)), 0, 0, false);
                     l_Player->GetSession()->SendPacket(&l_Data);
                 }
             }
