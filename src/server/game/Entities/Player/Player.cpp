@@ -4461,7 +4461,8 @@ void Player::RemoveSpecializationSpells()
     for (auto itr : GetSpellMap())
     {
         SpellInfo const* spell = sSpellMgr->GetSpellInfo(itr.first);
-        if (spell && !spell->SpecializationIdList.empty())
+        if (spell && !spell->SpecializationIdList.empty()
+            && spell->Id != 674)    ///< Ambidextrie hackfix, removed at spec switch (rogue)
             spellToRemove.push_back(itr.first);
     }
 

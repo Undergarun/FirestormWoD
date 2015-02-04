@@ -1142,7 +1142,7 @@ SpellInfo::SpellInfo(SpellEntry const* p_SpellEntry, uint32 p_Difficulty)
         Totem[i] = _totem ? _totem->Totem[i] : 0;
 
     // SpecializationSpellsEntry
-    SpecializationSpellEntry const* specializationInfo = NULL;
+    SpecializationSpellEntry const* specializationInfo = nullptr;
     for (uint32 i = 0; i < sSpecializationSpellStore.GetNumRows(); i++)
     {
         specializationInfo = sSpecializationSpellStore.LookupEntry(i);
