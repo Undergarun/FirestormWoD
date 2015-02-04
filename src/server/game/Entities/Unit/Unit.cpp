@@ -8324,7 +8324,13 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                             pPet->DealDamage(pPet->getVictim() ? pPet->getVictim() : getVictim(), procDmg, NULL, SPELL_DIRECT_DAMAGE, procSpell->GetSchoolMask(), procSpell, true);
                         }
                         else
-                            pPet->CastCustomSpell(pPet->getVictim() ? pPet->getVictim() : getVictim(), procSpell->Id, &procDmg, NULL, NULL, true);
+                        {
+                            if (!pPet->ToCreature()->HasSpellCooldown(procSpell->Id))
+                            {
+                                pPet->ToCreature()->_AddCreatureSpellCooldown(procSpell->Id, time(nullptr) + 1);
+                                pPet->CastCustomSpell(pPet->getVictim() ? pPet->getVictim() : getVictim(), procSpell->Id, &procDmg, NULL, NULL, true);
+                            }
+                        }
 
                         break;
                     }
