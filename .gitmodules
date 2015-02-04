@@ -1,3 +1,4 @@
 [submodule "dep/EasyJSon"]
-	path = dep/EasyJSon
-	url = https://github.com/hardcpp/EasyJSon.git
+    path = dep/EasyJSon
+    url = https://github.com/hardcpp/EasyJSon.git
+    branch = master
