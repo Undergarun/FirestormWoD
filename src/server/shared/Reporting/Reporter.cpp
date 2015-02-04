@@ -19,7 +19,7 @@ namespace MS
             /// We lock in order to access the queue.
             Threading::ScopedLock<std::mutex> l_ScopedMutex(m_Mutex);
 
-            m_ReportQueue.emplace(std::move(std::make_unique<report_type>(p_Query)));
+            m_ReportQueue.emplace(std::move(std::shared_ptr<report_type>(new report_type(p_Query))));
         }
 
         void Reporter::Fallback(report_pointer p_Query)

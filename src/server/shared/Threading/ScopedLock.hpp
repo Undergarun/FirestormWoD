@@ -52,7 +52,7 @@ namespace MS
 
         private:
             /// The mutex. It's mutable because we may want to lock the mutex in a const-context method.
-            mutable MutexType& m_Mutex;
+            MutexType& m_Mutex;
         };
     } ///< Namespace Threading
 } ///< Namespace MS
