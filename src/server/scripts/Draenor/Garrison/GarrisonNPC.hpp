@@ -489,6 +489,83 @@ namespace MS { namespace Garrison
 
     };
 
+    namespace AuriaIrondreamer
+    {
+        namespace MovePointIDs
+        {
+            enum Type
+            {
+                ForgeOre        = 100,
+                ForgeFront      = 101,
+                Workorder       = 102,
+                WorkorderDown   = 103,
+                WorkorderFront  = 104,
+                ChestLeft       = 105,
+            };
+        }
+
+        namespace DestPointDuration
+        {
+            enum
+            {
+                ForgeOre       = 35 * IN_MILLISECONDS,
+                ForgeFront     = 35 * IN_MILLISECONDS,
+                Workorder      = 35 * IN_MILLISECONDS,
+                WorkorderDown  =  3 * IN_MILLISECONDS,
+                WorkorderFront = 35 * IN_MILLISECONDS,
+                ChestLeft      = 35 * IN_MILLISECONDS,
+            };
+        }
+
+        static uint8 Sequence[] =
+        {
+            MovePointIDs::ForgeOre,
+            MovePointIDs::ForgeFront,
+            MovePointIDs::ForgeOre,
+            MovePointIDs::Workorder,
+            MovePointIDs::ForgeFront,
+            MovePointIDs::Workorder,
+            MovePointIDs::WorkorderDown,
+            MovePointIDs::WorkorderFront,
+            MovePointIDs::ChestLeft
+        };
+
+        static float MovePointLoc[][4] =
+        {
+            { -2.0217f,  4.1932f, 0.7731f, 2.5023f },   ///< MovePointIDs::ForgeOre
+            { -0.6606f,  2.6584f, 0.7726f, 6.1426f },   ///< MovePointIDs::ForgeFront
+            {  5.6272f, -3.0714f, 0.8021f, 0.1579f },   ///< MovePointIDs::Workorder
+            {  9.1293f, -1.9385f, 0.0000f, 3.6411f },   ///< MovePointIDs::WorkorderDown
+            {  9.1293f, -1.9385f, 0.0000f, 0.3935f },   ///< MovePointIDs::WorkorderFront
+            {  1.6735f, -4.8942f, 0.7983f, 4.6229f },   ///< MovePointIDs::ChestLeft
+        };
+    }
+
+    /// 77359 - Auria Irondreamer
+    class npc_AuriaIrondreamer : public CreatureScript
+    {
+        public:
+            /// Constructor
+            npc_AuriaIrondreamer();
+
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            CreatureAI * GetAI(Creature * p_Creature) const;
+
+            /// Creature AI
+            struct npc_AuriaIrondreamerAI : public GarrisonNPCAI
+            {
+                /// Constructor
+                npc_AuriaIrondreamerAI(Creature * p_Creature);
+
+                /// Do next sequence element
+                void DoNextSequenceAction();
+
+                uint8 m_SequencePosition;
+            };
+
+    };
+
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
@@ -731,6 +808,150 @@ namespace MS { namespace Garrison
                 /// @p_ID    : Value ID
                 /// @p_Value : Value
                 virtual void SetData(uint32 p_ID, uint32 p_Value) override;
+            };
+
+    };
+
+    namespace OrgekIronhand
+    {
+        namespace MovePointIDs
+        {
+            enum Type
+            {
+                Anvil  = 100,
+                Front  = 101,
+                Forge1 = 102,
+                Forge2 = 103,
+                Chest  = 104,
+            };
+        }
+
+        namespace DestPointDuration
+        {
+            enum
+            {
+                Anvil  = 35 * IN_MILLISECONDS,
+                Front  = 15 * IN_MILLISECONDS,
+                Forge1 = 10 * IN_MILLISECONDS,
+                Forge2 = 10 * IN_MILLISECONDS,
+                Chest  =  5 * IN_MILLISECONDS,
+            };
+        }
+
+        static uint8 Sequence[] =
+        {
+            MovePointIDs::Anvil,
+            MovePointIDs::Front,
+            MovePointIDs::Forge1,
+            MovePointIDs::Forge2,
+            MovePointIDs::Front,
+            MovePointIDs::Chest,
+            MovePointIDs::Forge1,
+            MovePointIDs::Forge2,
+            MovePointIDs::Front,
+        };
+
+        static float MovePointLoc[][4] =
+        {
+            {  1.1273f, -2.3209f,  0.6197f, 5.4307f },   ///< MovePointIDs::Anvil
+            {  4.9331f,  1.2398f,  0.6199f, 0.2502f },   ///< MovePointIDs::Front
+            { -0.3698f,  3.0644f,  0.6210f, 1.5305f },   ///< MovePointIDs::Forge1
+            {  0.0264f,  2.1578f,  0.6197f, 1.6915f },   ///< MovePointIDs::Forge2
+            { 10.0623f, -5.8536f, -0.1225f, 3.9730f },   ///< MovePointIDs::Chest
+        };
+    }
+
+    /// 79867 - Orgek Ironhand
+    class npc_OrgekIronhand : public CreatureScript
+    {
+        public:
+            /// Constructor
+            npc_OrgekIronhand();
+
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            CreatureAI * GetAI(Creature * p_Creature) const;
+
+            /// Creature AI
+            struct npc_OrgekIronhandAI : public GarrisonNPCAI
+            {
+                /// Constructor
+                npc_OrgekIronhandAI(Creature * p_Creature);
+
+                /// Do next sequence element
+                void DoNextSequenceAction();
+
+                uint8 m_SequencePosition;
+            };
+
+    };
+
+    namespace Kinja
+    {
+        namespace MovePointIDs
+        {
+            enum Type
+            {
+                Anvil  = 100,
+                Front  = 101,
+                Forge1 = 102,
+                Forge2 = 103,
+            };
+        }
+
+        namespace DestPointDuration
+        {
+            enum
+            {
+                Anvil  = 60 * IN_MILLISECONDS,
+                Front  = 40 * IN_MILLISECONDS,
+                Forge1 = 25 * IN_MILLISECONDS,
+                Forge2 = 20 * IN_MILLISECONDS,
+            };
+        }
+
+        static uint8 Sequence[] =
+        {
+            MovePointIDs::Front,
+            MovePointIDs::Anvil,
+            MovePointIDs::Forge1,
+            MovePointIDs::Forge2,
+            MovePointIDs::Front,
+            MovePointIDs::Forge1,
+            MovePointIDs::Forge2,
+            MovePointIDs::Front,
+        };
+
+        static float MovePointLoc[][4] =
+        {
+            {  1.1273f, -2.3209f,  0.6197f, 5.4307f },   ///< MovePointIDs::Anvil
+            {  4.9331f,  1.2398f,  0.6199f, 0.2502f },   ///< MovePointIDs::Front
+            { -0.3698f,  3.0644f,  0.6210f, 1.5305f },   ///< MovePointIDs::Forge1
+            {  0.0264f,  2.1578f,  0.6197f, 1.6915f },   ///< MovePointIDs::Forge2
+        };
+    }
+
+    /// 79817 - Kinja
+    class npc_Kinja : public CreatureScript
+    {
+        public:
+            /// Constructor
+            npc_Kinja();
+
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            CreatureAI * GetAI(Creature * p_Creature) const;
+
+            /// Creature AI
+            struct npc_KinjaAI : public GarrisonNPCAI
+            {
+                /// Constructor
+                npc_KinjaAI(Creature * p_Creature);
+
+                /// Do next sequence element
+                void DoNextSequenceAction();
+
+                uint8 m_SequencePosition;
             };
 
     };

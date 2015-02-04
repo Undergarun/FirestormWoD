@@ -292,6 +292,7 @@ void AddSC_Garrison_NPC()
     new MS::Garrison::npc_GussofForgefire;
     new MS::Garrison::npc_KristenStoneforge;
     new MS::Garrison::npc_JonathanStephens;
+    new MS::Garrison::npc_AuriaIrondreamer;
 
     /// Horde
     new MS::Garrison::npc_FrostwallPeon("npc_FrostwallPeon_Dynamic");
@@ -304,4 +305,6 @@ void AddSC_Garrison_NPC()
     new MS::Garrison::npc_GrunLek;
     new MS::Garrison::npc_FrostWallGrunt;
     new MS::Garrison::npc_FrostWallSmith;
+    new MS::Garrison::npc_OrgekIronhand;
+    new MS::Garrison::npc_Kinja;
 }

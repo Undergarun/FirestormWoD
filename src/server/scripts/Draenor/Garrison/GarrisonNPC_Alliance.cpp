@@ -648,5 +648,112 @@ namespace MS { namespace Garrison
         });
     }
 
+    //////////////////////////////////////////////////////////////////////////
+    /// 77359 - Auria Irondreamer                                         ////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    npc_AuriaIrondreamer::npc_AuriaIrondreamer()
+        : CreatureScript("npc_AuriaIrondreamer_Garr")
+    {
+
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Called when a CreatureAI object is needed for the creature.
+    /// @p_Creature : Target creature instance
+    CreatureAI * npc_AuriaIrondreamer::GetAI(Creature * p_Creature) const
+    {
+        return new npc_AuriaIrondreamerAI(p_Creature);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    npc_AuriaIrondreamer::npc_AuriaIrondreamerAI::npc_AuriaIrondreamerAI(Creature * p_Creature)
+        : GarrisonNPCAI(p_Creature), m_SequencePosition(0xFF)
+    {
+        SetAIObstacleManagerEnabled(true);
+
+        m_OnPointReached[AuriaIrondreamer::MovePointIDs::ForgeOre] = [this]() -> void
+        {
+            AddTimedDelayedOperation(AuriaIrondreamer::DestPointDuration::ForgeOre, [this]() -> void { DoNextSequenceAction(); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(AuriaIrondreamer::MovePointLoc[AuriaIrondreamer::MovePointIDs::ForgeOre - AuriaIrondreamer::MovePointIDs::ForgeOre][3]); });
+
+            AddTimedDelayedOperation(0 * IN_MILLISECONDS,                           [this]() -> void { me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 8); });
+            AddTimedDelayedOperation(AuriaIrondreamer::DestPointDuration::ForgeOre, [this]() -> void { me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0); });
+        };
+
+        m_OnPointReached[AuriaIrondreamer::MovePointIDs::ForgeFront] = [this]() -> void
+        {
+            AddTimedDelayedOperation(AuriaIrondreamer::DestPointDuration::ForgeFront, [this]() -> void { DoNextSequenceAction(); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(AuriaIrondreamer::MovePointLoc[AuriaIrondreamer::MovePointIDs::ForgeFront - AuriaIrondreamer::MovePointIDs::ForgeOre][3]); });
+
+            AddTimedDelayedOperation(0 * IN_MILLISECONDS,                             [this]() -> void { me->HandleEmoteCommand(EMOTE_STATE_READ_AND_TALK);    });
+            AddTimedDelayedOperation(AuriaIrondreamer::DestPointDuration::ForgeFront, [this]() -> void
+            {
+                me->HandleEmoteCommand(0);
+                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
+            });
+        };
+
+        m_OnPointReached[AuriaIrondreamer::MovePointIDs::Workorder] = [this]() -> void
+        {
+            AddTimedDelayedOperation(AuriaIrondreamer::DestPointDuration::Workorder, [this]() -> void { DoNextSequenceAction(); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(AuriaIrondreamer::MovePointLoc[AuriaIrondreamer::MovePointIDs::Workorder - AuriaIrondreamer::MovePointIDs::ForgeOre][3]); });
+        };
+
+        m_OnPointReached[AuriaIrondreamer::MovePointIDs::WorkorderDown] = [this]() -> void
+        {
+            AddTimedDelayedOperation(AuriaIrondreamer::DestPointDuration::WorkorderDown, [this]() -> void { DoNextSequenceAction(); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(AuriaIrondreamer::MovePointLoc[AuriaIrondreamer::MovePointIDs::WorkorderDown - AuriaIrondreamer::MovePointIDs::ForgeOre][3]); });
+
+            AddTimedDelayedOperation(0 * IN_MILLISECONDS,                                [this]() -> void { me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 8); });
+            AddTimedDelayedOperation(AuriaIrondreamer::DestPointDuration::WorkorderDown, [this]() -> void { me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0); });
+        };
+
+        m_OnPointReached[AuriaIrondreamer::MovePointIDs::WorkorderFront] = [this]() -> void
+        {
+            AddTimedDelayedOperation(AuriaIrondreamer::DestPointDuration::WorkorderFront, [this]() -> void { DoNextSequenceAction(); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(AuriaIrondreamer::MovePointLoc[AuriaIrondreamer::MovePointIDs::ForgeOre - AuriaIrondreamer::MovePointIDs::ForgeOre][3]); });
+        };
+
+        m_OnPointReached[AuriaIrondreamer::MovePointIDs::ChestLeft] = [this]() -> void
+        {
+            AddTimedDelayedOperation(AuriaIrondreamer::DestPointDuration::ChestLeft, [this]() -> void { DoNextSequenceAction(); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(AuriaIrondreamer::MovePointLoc[AuriaIrondreamer::MovePointIDs::ForgeOre - AuriaIrondreamer::MovePointIDs::ForgeOre][3]); });
+
+            AddTimedDelayedOperation(0 * IN_MILLISECONDS,                            [this]() -> void { me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 8); });
+            AddTimedDelayedOperation(AuriaIrondreamer::DestPointDuration::ChestLeft, [this]() -> void { me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0); });
+        };
+
+        DoNextSequenceAction();
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Do next sequence element
+    void npc_AuriaIrondreamer::npc_AuriaIrondreamerAI::DoNextSequenceAction()
+    {
+        if (m_SequencePosition >= sizeof(JonathanStephens::Sequence))
+            m_SequencePosition = 0;
+
+        m_DelayedOperations.push([this]() -> void
+        {
+            me->SetWalk(true);
+
+            uint32 l_LocationID = AuriaIrondreamer::Sequence[m_SequencePosition] - AuriaIrondreamer::MovePointIDs::ForgeOre;
+            MoveBuildingRelative(AuriaIrondreamer::Sequence[m_SequencePosition],   AuriaIrondreamer::MovePointLoc[l_LocationID][0],
+                                                                                   AuriaIrondreamer::MovePointLoc[l_LocationID][1],
+                                                                                   AuriaIrondreamer::MovePointLoc[l_LocationID][2]);
+
+            m_SequencePosition++;
+        });
+    }
+
 }   ///< namespace Garrison
 }   ///< namespace MS
