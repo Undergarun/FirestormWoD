@@ -3894,7 +3894,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 75111: // Blue Crashin' Thrashin' Racer Controller
             case 60256: // Collect Sample
                 //Crashes client on pressing ESC (Maybe because of ReqSpellFocus and GameObject)
-                spellInfo->AttributesEx4 &= ~SPELL_ATTR4_TRIGGERED;
+                spellInfo->AttributesEx4 &= ~SPELL_ATTR4_CAN_CAST_WHILE_CASTING;
                 break;
             case 8629:
             case 11285:
@@ -4446,7 +4446,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 108482:// Unbound Will
                 // Crashes client on pressing ESC
-                spellInfo->AttributesEx4 &= ~SPELL_ATTR4_TRIGGERED;
+                spellInfo->AttributesEx4 &= ~SPELL_ATTR4_CAN_CAST_WHILE_CASTING;
                 break;
             case 66:    // Invisibility
                 spellInfo->OverrideSpellList.push_back(110959); // Greater Invisibility
@@ -6131,10 +6131,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->SetDurationIndex(39); // 2 seconds
                 spellInfo->MaxAffectedTargets = 3;
                 break;
-            // Chi Brew, SPELL_ATTR4_TRIGGERED bypass charge check and players can usebug (the check is only doing client-side)
-            // Maybe SPELL_ATTR4_TRIGGERED don't bypass charge ?
+            // Chi Brew, SPELL_ATTR4_CAN_CAST_WHILE_CASTING bypass charge check and players can usebug (the check is only doing client-side)
+            // Maybe SPELL_ATTR4_CAN_CAST_WHILE_CASTING don't bypass charge ?
             case 115399:
-                spellInfo->AttributesEx4 &= ~SPELL_ATTR4_TRIGGERED;
+                spellInfo->AttributesEx4 &= ~SPELL_ATTR4_CAN_CAST_WHILE_CASTING;
                 break;
             default:
                 break;

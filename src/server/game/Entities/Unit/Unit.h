@@ -109,7 +109,7 @@ enum SpellModOp
     SPELLMOD_COOLDOWN                   = 11,
     SPELLMOD_EFFECT2                    = 12,
     SPELLMOD_IGNORE_ARMOR               = 13,
-    SPELLMOD_COST                       = 14,
+    SPELLMOD_COST                       = 14, ///< Used when SpellPowerEntry::PowerIndex == 0
     SPELLMOD_CRIT_DAMAGE_BONUS          = 15,
     SPELLMOD_RESIST_MISS_CHANCE         = 16,
     SPELLMOD_JUMP_TARGETS               = 17,
@@ -120,15 +120,19 @@ enum SpellModOp
     SPELLMOD_DOT                        = 22,
     SPELLMOD_EFFECT3                    = 23,
     SPELLMOD_BONUS_MULTIPLIER           = 24,
-    // spellmod 25
+    SPELLMOD_UNK_25                     = 25,
     SPELLMOD_PROC_PER_MINUTE            = 26,
     SPELLMOD_VALUE_MULTIPLIER           = 27,
     SPELLMOD_RESIST_DISPEL_CHANCE       = 28,
-    SPELLMOD_CRIT_DAMAGE_BONUS_2        = 29, //one not used spell
+    SPELLMOD_CRIT_DAMAGE_BONUS_2        = 29, ///< One not used spell
     SPELLMOD_SPELL_COST_REFUND_ON_FAIL  = 30,
-    SPELLMOD_UNK31                      = 31,
-    SPELLMOD_UNK32                      = 32,
-    SPELLMOD_EFFECT5                    = 33
+    SPELLMOD_STACK_AMOUNT               = 31,
+    SPELLMOD_EFFECT4                    = 32,
+    SPELLMOD_EFFECT5                    = 33,
+    SPELLMOD_SPELL_COST2                = 34, ///< Used when SpellPowerEntry::PowerIndex == 1
+    SPELLMOD_JUMP_DISTANCE              = 35,
+    SPELLMOD_UNK_36                     = 36,
+    SPELLMOD_STACK_AMOUNT2              = 37  ///< same as SPELLMOD_STACK_AMOUNT but affects tooltips
 };
 
 #define MAX_SPELLMOD 38

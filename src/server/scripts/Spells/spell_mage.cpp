@@ -117,7 +117,6 @@ enum MageSpells
     SPELL_MAGE_RING_OF_FROST_IMMUNATE            = 91264
 };
 
-
 // Greater Invisibility (remove timer) - 122293
 class spell_mage_greater_invisibility_removed: public SpellScriptLoader
 {
