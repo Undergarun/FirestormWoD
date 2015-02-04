@@ -117,6 +117,51 @@ enum MageSpells
     SPELL_MAGE_RING_OF_FROST_IMMUNATE            = 91264
 };
 
+/// Comet Storm - 153595
+class spell_mage_comet_storm : public SpellScriptLoader
+{
+    public:
+        spell_mage_comet_storm() : SpellScriptLoader("spell_mage_comet_storm") { }
+
+        class spell_mage_comet_storm_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mage_comet_storm_SpellScript);
+
+            enum eCometDatas
+            {
+                MaxComets   = 7,
+                CometStorm  = 153596
+            };
+
+            void HandleAfterCast()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (WorldLocation const* l_Dest = GetExplTargetDest())
+                    {
+                        for (uint8 l_I = 0; l_I < eCometDatas::MaxComets; ++l_I)
+                        {
+                            float l_X = l_Dest->m_positionX + frand(-4.0f, 4.0f);
+                            float l_Y = l_Dest->m_positionY + frand(-4.0f, 4.0f);
+
+                            l_Caster->CastSpell(l_X, l_Y, l_Dest->m_positionZ, eCometDatas::CometStorm, true);
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_mage_comet_storm_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_mage_comet_storm_SpellScript();
+        }
+};
+
 // Greater Invisibility (remove timer) - 122293
 class spell_mage_greater_invisibility_removed: public SpellScriptLoader
 {
@@ -1981,6 +2026,7 @@ public:
 
 void AddSC_mage_spell_scripts()
 {
+    new spell_mage_comet_storm();
     new spell_mage_ring_of_frost_immunity();
     new spell_mage_flameglow();
     new spell_mage_incanters_flow();
