@@ -529,7 +529,6 @@ class spell_hun_exotic_munitions : public SpellScriptLoader
         }
 };
 
-// Called by Explosive Shot - 53301
 // Hunter's Mark - 1130
 class spell_hun_hunters_mark: public SpellScriptLoader
 {
@@ -540,18 +539,21 @@ class spell_hun_hunters_mark: public SpellScriptLoader
         {
             PrepareSpellScript(spell_hun_hunters_mark_SpellScript);
 
-            void HandleOnHit()
+            void HandleAfterHit()
             {
-                if (Unit* caster = GetCaster())
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target->GetTypeId() == TYPEID_PLAYER)
                 {
-                    if (Unit* target = GetHitUnit())
-                        caster->CastSpell(target, HUNTER_SPELL_HUNTERS_MARK, true);
+                    if (AuraPtr l_HuntersMarker = l_Target->GetAura(1130, l_Caster->GetGUID()))
+                        l_HuntersMarker->SetDuration(l_HuntersMarker->GetMaxDuration() / 10);
                 }
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_hun_hunters_mark_SpellScript::HandleOnHit);
+                AfterHit += SpellHitFn(spell_hun_hunters_mark_SpellScript::HandleAfterHit);
             }
         };
 
@@ -3117,6 +3119,7 @@ public:
 
 void AddSC_hunter_spell_scripts()
 {
+    new spell_hun_hunters_mark();
     new spell_hun_spirit_mend();
     new spell_hun_thunderstomp();
     new spell_hun_steady_focus();
