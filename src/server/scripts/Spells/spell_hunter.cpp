@@ -1700,21 +1700,17 @@ class spell_hun_cobra_strikes: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (GetSpell()->IsCritForTarget(target))
-                        {
-                            if (roll_chance_i(15))
-                            {
-                                _player->CastSpell(_player, HUNTER_SPELL_COBRA_STRIKES_STACKS, true);
-                                _player->CastSpell(_player, HUNTER_SPELL_COBRA_STRIKES_STACKS, true);
-                            }
-                        }
+                Unit* l_Caster = GetCaster();
 
-                        _player->CastSpell(target, HUNTER_SPELL_HUNTERS_MARK, true);
-                    }
+                if (l_Caster->HasAura(HUNTER_SPELL_COBRA_STRIKES_AURA))
+                {
+                    const SpellInfo* l_SpellInfo = sSpellMgr->GetSpellInfo(HUNTER_SPELL_COBRA_STRIKES_AURA);
+
+                    if (l_SpellInfo == nullptr)
+                        return;
+
+                    if (roll_chance_i(l_SpellInfo->ProcChance))
+                        l_Caster->CastSpell(l_Caster, HUNTER_SPELL_COBRA_STRIKES_STACKS, true);
                 }
             }
 
@@ -2821,7 +2817,7 @@ class spell_hun_tame_beast: public SpellScriptLoader
         }
 };
 
-// Claw - 16827 / Bite - 17253
+// Claw - 16827 / Bite - 17253 / Smack - 49966
 class spell_hun_claw_bite : public SpellScriptLoader
 {
     public:
@@ -2834,6 +2830,7 @@ class spell_hun_claw_bite : public SpellScriptLoader
             void HandleOnHit()
             {
                 if (Unit* l_Pet = GetCaster())
+                {
                     if (Unit* l_Hunter = GetCaster()->GetOwner())
                     {
                         int32 l_Damage = int32(1.5f * l_Hunter->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.333f);
@@ -2848,6 +2845,22 @@ class spell_hun_claw_bite : public SpellScriptLoader
                         }
                         SetHitDamage(l_Damage);
                     }
+                }
+            }
+
+            void HandleAfterHit()
+            {
+                if (Unit* l_Pet = GetCaster())
+                {
+                    if (Unit* l_Hunter = GetCaster()->GetOwner())
+                    {
+                        if (l_Hunter->HasAura(HUNTER_SPELL_COBRA_STRIKES_STACKS))
+                        {
+                            if (AuraPtr l_CobraStrike = l_Hunter->GetAura(HUNTER_SPELL_COBRA_STRIKES_STACKS))
+                                l_CobraStrike->ModStackAmount(-1);
+                        }
+                    }
+                }
             }
 
             void HandleBeforeHit()
@@ -2859,6 +2872,7 @@ class spell_hun_claw_bite : public SpellScriptLoader
             {
                 BeforeHit += SpellHitFn(spell_hun_claw_bite_SpellScript::HandleBeforeHit);
                 OnHit += SpellHitFn(spell_hun_claw_bite_SpellScript::HandleOnHit);
+                AfterHit += SpellHitFn(spell_hun_claw_bite_SpellScript::HandleAfterHit);
             }
         };
 
