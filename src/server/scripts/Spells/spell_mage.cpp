@@ -929,8 +929,74 @@ class CheckNetherImpactPredicate
         Unit* _mainTarget;
 };
 
-// Nether Tempest - 114923
-class spell_mage_nether_tempest: public SpellScriptLoader
+/// Nether Tempest - 114954
+class spell_mage_nether_tempest_damage : public SpellScriptLoader
+{
+    public:
+        spell_mage_nether_tempest_damage() : SpellScriptLoader("spell_mage_nether_tempest_damage") { }
+
+        class spell_mage_nether_tempest_damage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mage_nether_tempest_damage_SpellScript);
+
+            enum eSpell
+            {
+                NetherTempestAura = 114923
+            };
+
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.empty())
+                    return;
+
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                p_Targets.remove_if([this, l_Caster](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr || p_Object->ToUnit() == nullptr)
+                        return true;
+
+                    if (p_Object->ToUnit()->HasAura(eSpell::NetherTempestAura, l_Caster->GetGUID()))
+                        return true;
+
+                    return false;
+                });
+            }
+
+            void HandleDamage()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_ARCANE_CHARGE);
+
+                    if (l_Caster->HasAura(SPELL_MAGE_ARCANE_CHARGE) && l_SpellInfo != nullptr)
+                    {
+                        if (AuraPtr l_ArcaneCharge = l_Caster->GetAura(SPELL_MAGE_ARCANE_CHARGE))
+                        {
+                            int32 l_Damage = GetHitDamage();
+                            SetHitDamage(AddPct(l_Damage, int32(l_SpellInfo->Effects[EFFECT_0].BasePoints * l_ArcaneCharge->GetStackAmount())));
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mage_nether_tempest_damage_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+                OnHit += SpellHitFn(spell_mage_nether_tempest_damage_SpellScript::HandleDamage);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_mage_nether_tempest_damage_SpellScript();
+        }
+};
+
+/// Nether Tempest - 114923
+class spell_mage_nether_tempest : public SpellScriptLoader
 {
     public:
         spell_mage_nether_tempest() : SpellScriptLoader("spell_mage_nether_tempest") { }
@@ -939,23 +1005,27 @@ class spell_mage_nether_tempest: public SpellScriptLoader
         {
             PrepareAuraScript(spell_mage_nether_tempest_AuraScript);
 
-            void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& /*p_Recalculate*/)
+            void CalculateAmount(constAuraEffectPtr, int32& p_Amount, bool&)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    const SpellInfo *l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_ARCANE_CHARGE);
+                    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_ARCANE_CHARGE);
 
                     if (l_Caster->HasAura(SPELL_MAGE_ARCANE_CHARGE) && l_SpellInfo != nullptr)
+                    {
                         if (AuraPtr l_ArcaneCharge = l_Caster->GetAura(SPELL_MAGE_ARCANE_CHARGE))
                             p_Amount += CalculatePct(p_Amount, l_SpellInfo->Effects[EFFECT_0].BasePoints) * l_ArcaneCharge->GetStackAmount();
+                    }
                 }
             }
 
-            void OnTick(constAuraEffectPtr aurEff)
+            void OnTick(constAuraEffectPtr)
             {
                 if (Unit* l_Caster = GetCaster())
-                    if (Unit *l_Target = GetTarget())
+                {
+                    if (Unit* l_Target = GetTarget())
                         l_Caster->CastSpell(l_Target, SPELL_MAGE_NETHER_TEMPEST_DIRECT_DAMAGE, true);
+                }
             }
 
             void Register()
@@ -2346,6 +2416,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_arcane_barrage();
     new spell_mage_arcane_explosion();
     new spell_mage_frostbolt();
+    new spell_mage_nether_tempest_damage();
     new spell_mage_nether_tempest();
     new spell_mage_blazing_speed();
     new spell_mage_frostjaw();
