@@ -5271,6 +5271,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 92328: ///< Heart's Judgment, Heart of Ignacious trinket (heroic)
                 spellInfo->CasterAuraSpell = 92325;
                 break;
+            case 157717: ///< Enhanced Basic Attacks
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_CASTER;
+                break;
             case 56244: ///< Glyph of Fear
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_ADD_FLAT_MODIFIER;
                 spellInfo->Effects[EFFECT_0].BasePoints = 5000;

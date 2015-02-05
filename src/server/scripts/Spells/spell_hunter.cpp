@@ -144,15 +144,15 @@ class spell_hun_thunderstomp : public SpellScriptLoader
         {
             PrepareSpellScript(spell_hun_thunderstomp_SpellScript);
 
-            void HandleOnHit()
+            void HandleDamage(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* l_Owner = GetCaster()->GetOwner())
-                    SetHitDamage((int32)CalculatePct(l_Owner->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack), 37.5f));
+                    SetHitDamage((int32)(1.5f * (l_Owner->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.250f)));
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_hun_thunderstomp_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_hun_thunderstomp_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
