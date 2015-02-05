@@ -189,7 +189,7 @@ class npc_shadow_of_obsidius : public CreatureScript
 				events.ScheduleEvent(EVENT_CREPUSCULAR_VEIL, 3900);
 			}
 
-			void DamageTaken(Unit* attacker, uint32 &damage)
+			void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const* p_SpellInfo)
 			{
 				if (me->getVictim() != attacker)
 				{

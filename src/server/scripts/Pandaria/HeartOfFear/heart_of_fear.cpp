@@ -52,7 +52,7 @@ class mob_kor_thik_slicer : public CreatureScript
                 me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_TRASH_4);
             }
 
-            void DamageTaken(Unit* killer, uint32& damage)
+            void DamageTaken(Unit* killer, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if(!eventScheduled)
                 {

@@ -1983,7 +1983,7 @@ class npc_rylai_crestfall : public CreatureScript
                 Talk(eTalk::TalkDeath);
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage)
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
             {
                 if (me->HealthBelowPctDamaged(20, p_Damage) && !me->HasAura(eSpells::Hypotermia))
                 {

@@ -26,6 +26,7 @@
 #include "ByteBuffer.h"
 #include "Unit.h"
 #include "AchievementMgr.h"
+#include "Arena.h"
 
 class Creature;
 class GameObject;

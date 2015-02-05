@@ -322,7 +322,7 @@ class boss_professor_putricide : public CreatureScript
                     DoZoneInCombat(summon);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const* p_SpellInfo)
             {
                 switch (_phase)
                 {

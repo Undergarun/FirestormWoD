@@ -425,7 +425,7 @@ class boss_horridon : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (jalakSpawned)
                     return;
@@ -1399,7 +1399,7 @@ class mob_zandalari_dinomancer : public CreatureScript
                 canEnterCombat = value != 0;
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (transformed)
                     return;

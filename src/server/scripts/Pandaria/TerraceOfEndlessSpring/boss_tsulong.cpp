@@ -328,7 +328,7 @@ class boss_tsulong : public CreatureScript
                 value = 0;
             }
 
-            void DamageTaken(Unit* doneBy, uint32 &damage)
+            void DamageTaken(Unit* doneBy, uint32 &damage, SpellInfo const* p_SpellInfo)
             {
                 if (pInstance && pInstance->GetBossState(DATA_TSULONG) == DONE)
                 {

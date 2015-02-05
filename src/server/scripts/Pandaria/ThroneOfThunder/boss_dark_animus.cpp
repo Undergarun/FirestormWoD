@@ -494,7 +494,7 @@ class mob_anima_orb : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage)
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
             {
                 p_Damage = 0;
 
@@ -747,7 +747,7 @@ class mob_anima_golem : public CreatureScript
                 m_Events.ScheduleEvent(EVENT_CHECK_NEAR_GOLEM, 1000);
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage)
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
             {
                 // Disabled golems cannot be killed
                 if (me->HasAura(SPELL_CRITICALLY_DAMAGED_1))

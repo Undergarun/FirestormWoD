@@ -122,7 +122,10 @@ enum MonkSpells
     SPELL_MONK_COMBO_BREAKER_TIGER_PALM         = 118864,
     SPELL_MONK_COMBO_BREAKER_BLACKOUT_KICK      = 116768,
     SPELL_MONK_MORTEL_WOUNDS                    = 115804,
-    SPELL_MONK_RISING_SUN_KICK_DOT              = 130320
+    SPELL_MONK_RISING_SUN_KICK_DOT              = 130320,
+    SPELL_MONK_GLYPH_OF_RAPID_ROLLING           = 146951,
+    SPELL_MONK_RAPID_ROLLING                    = 147364,
+    SPELL_MONK_GLYPH_OF_TARGETED_EXPULSION      = 146950
 };
 
 // Tiger Eye Brew - 123980 & Mana Tea - 123766
@@ -134,14 +137,14 @@ class PlayerScript_TigereEyeBrew_ManaTea: public PlayerScript
         void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32 p_NewValue, bool p_Regen)
         {
             // Get the power earn (if > 0 ) or consum (if < 0)
-            int32 l_diffValue = p_NewValue - p_OldValue;
+            int32 l_DiffValue = p_NewValue - p_OldValue;
 
-            if (p_Power == POWER_CHI && l_diffValue < 0)
+            if (p_Power == POWER_CHI && l_DiffValue < 0)
             {
                 if (AuraPtr tigereyeBrew = p_Player->GetAura(123980))
-                    tigereyeBrew->SetScriptData(0, -l_diffValue);
+                    tigereyeBrew->SetScriptData(0, -l_DiffValue);
                 else if (AuraPtr manaTea = p_Player->GetAura(123766))
-                    manaTea->SetScriptData(0, -l_diffValue);
+                    manaTea->SetScriptData(0, -l_DiffValue);
             }
         }
 };
@@ -1576,12 +1579,10 @@ class spell_monk_crackling_jade_lightning: public SpellScriptLoader
 
             void OnTick(constAuraEffectPtr aurEff)
             {
-                if (Unit* caster = GetCaster())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (roll_chance_i(30))
-                        caster->CastSpell(caster, SPELL_MONK_JADE_LIGHTNING_ENERGIZE, true);
-                    if (caster->HasAura(103985) || caster->HasAura(115069))
-                        caster->EnergizeBySpell(caster, GetSpellInfo()->Id, -20, POWER_ENERGY);
+                    if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER)
+                        l_Player->CastSpell(l_Player, SPELL_MONK_JADE_LIGHTNING_ENERGIZE, true);
                 }
             }
 
@@ -1595,14 +1596,16 @@ class spell_monk_crackling_jade_lightning: public SpellScriptLoader
                 if (eventInfo.GetActor()->GetGUID() != GetTarget()->GetGUID())
                     return;
 
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (GetTarget()->HasAura(aurEff->GetSpellInfo()->Id, _player->GetGUID()))
+                    if (GetTarget()->HasAura(aurEff->GetSpellInfo()->Id, l_Player->GetGUID()))
                     {
-                        if (!_player->HasSpellCooldown(SPELL_MONK_CRACKLING_JADE_SHOCK_BUMP))
+                        const SpellInfo *l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MONK_CRACKLING_JADE_SHOCK_BUMP);
+
+                        if (!l_Player->HasSpellCooldown(SPELL_MONK_CRACKLING_JADE_SHOCK_BUMP) && l_SpellInfo != nullptr)
                         {
-                            _player->CastSpell(GetTarget(), SPELL_MONK_CRACKLING_JADE_SHOCK_BUMP, true);
-                            _player->AddSpellCooldown(SPELL_MONK_CRACKLING_JADE_SHOCK_BUMP, 0, 8 * IN_MILLISECONDS);
+                            l_Player->CastSpell(GetTarget(), SPELL_MONK_CRACKLING_JADE_SHOCK_BUMP, true);
+                            l_Player->AddSpellCooldown(SPELL_MONK_CRACKLING_JADE_SHOCK_BUMP, 0, l_SpellInfo->RecoveryTime);
                         }
                     }
                 }
@@ -2658,7 +2661,7 @@ class spell_monk_tigereye_brew: public SpellScriptLoader
                         int32 stacks = 0;
                         if (AuraPtr tigereyeBrewStacks = _player->GetAura(SPELL_MONK_TIGEREYE_BREW_STACKS))
                         {
-                            int32 effectAmount = tigereyeBrewStacks->GetStackAmount() * 6;
+                            int32 effectAmount = tigereyeBrewStacks->GetStackAmount() * GetSpellInfo()->Effects[EFFECT_0].BasePoints;
                             stacks = tigereyeBrewStacks->GetStackAmount();
 
                             if (stacks >= 10)
@@ -3994,6 +3997,20 @@ public:
     {
         PrepareSpellScript(spell_monk_expel_harm_SpellScript);
 
+        SpellCastResult CheckTarget()
+        {
+            Unit *l_Caster = GetCaster();
+            Unit *l_Target = GetExplTargetUnit();
+
+            if (l_Caster == nullptr || l_Target == nullptr)
+                return SPELL_FAILED_BAD_TARGETS;
+
+            if (!l_Caster->HasAura(SPELL_MONK_GLYPH_OF_TARGETED_EXPULSION) && l_Target->GetGUID() != l_Caster->GetGUID())
+                return SPELL_FAILED_BAD_TARGETS;
+
+            return SPELL_CAST_OK;
+        }
+
         void HandleHeal(SpellEffIndex /*effIndex*/)
         {
             if (!GetCaster())
@@ -4016,6 +4033,10 @@ public:
             if (l_Target->GetGUID() == l_Player->GetGUID() && l_Player->HasAura(SPELL_MONK_GUARD) && l_SpellInfoGuard != nullptr)
                 l_Heal += CalculatePct(l_Heal, l_SpellInfoGuard->Effects[EFFECT_1].BasePoints);
             
+            SpellInfo const* l_GlyphTargetedExpulsion = sSpellMgr->GetSpellInfo(SPELL_MONK_GLYPH_OF_TARGETED_EXPULSION);
+            if (l_Player->HasAura(SPELL_MONK_GLYPH_OF_TARGETED_EXPULSION) && l_Target->GetGUID() != l_Player->GetGUID() && l_GlyphTargetedExpulsion != nullptr)
+                l_Heal = CalculatePct(l_Heal, l_GlyphTargetedExpulsion->Effects[EFFECT_1].BasePoints);
+
             SetHitHeal(l_Heal);
 
             float l_Radius = 10.0f;
@@ -4043,6 +4064,7 @@ public:
 
         void Register()
         {
+            OnCheckCast += SpellCheckCastFn(spell_monk_expel_harm_SpellScript::CheckTarget);
             OnEffectHitTarget += SpellEffectFn(spell_monk_expel_harm_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
         }
     };
@@ -4323,6 +4345,37 @@ public:
     }
 };
 
+// Glyph of rapid rolling - 146951
+class spell_monk_glyph_of_rapid_rolling : public SpellScriptLoader
+{
+public:
+    spell_monk_glyph_of_rapid_rolling() : SpellScriptLoader("spell_monk_glyph_of_rapid_rolling") { }
+
+    class spell_monk_glyph_of_rapid_rolling_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_monk_glyph_of_rapid_rolling_SpellScript);
+
+        void HandleAfterCast()
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (l_Caster->HasAura(SPELL_MONK_GLYPH_OF_RAPID_ROLLING))
+                    l_Caster->CastSpell(l_Caster, SPELL_MONK_RAPID_ROLLING, true);
+            }
+        }
+
+        void Register()
+        {
+            AfterCast += SpellCastFn(spell_monk_glyph_of_rapid_rolling_SpellScript::HandleAfterCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_monk_glyph_of_rapid_rolling_SpellScript();
+    }
+};
+
 void AddSC_monk_spell_scripts()
 {
     new spell_monk_uplift();
@@ -4401,6 +4454,7 @@ void AddSC_monk_spell_scripts()
     new spell_monk_hurricane_strike();
     new spell_monk_serenity();
     new spell_monk_detox();
+    new spell_monk_glyph_of_rapid_rolling();
 
     // Player Script
     new PlayerScript_TigereEyeBrew_ManaTea();

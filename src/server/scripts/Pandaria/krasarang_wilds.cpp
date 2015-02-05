@@ -789,7 +789,7 @@ class mob_ellia_ravenmane : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (Player* player = attacker->ToPlayer())
                 {
@@ -1066,7 +1066,7 @@ class mob_fat_long_fat : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (Player* player = attacker->ToPlayer())
                 {
@@ -1270,7 +1270,7 @@ class mob_huck_wheelbarrow : public CreatureScript
                 events.ScheduleEvent(EVENT_ROLLING_THROW, 13000);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (Player* player = attacker->ToPlayer())
                 {
@@ -1431,7 +1431,7 @@ class mob_dextrous_izissha : public CreatureScript
                 events.ScheduleEvent(EVENT_STILL_WATERS_RUN_DEEP, 13000);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (Player* player = attacker->ToPlayer())
                 {
@@ -1591,7 +1591,7 @@ class mob_julia_bates : public CreatureScript
                 events.ScheduleEvent(EVENT_SOOTHING_MIST, 8000);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (Player* player = attacker->ToPlayer())
                 {
@@ -1747,7 +1747,7 @@ class mob_kuo_na : public CreatureScript
                 events.ScheduleEvent(EVENT_UPPERCUT_2, 15000);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (Player* player = attacker->ToPlayer())
                 {
@@ -1907,7 +1907,7 @@ class mob_mindel_sunspeaker : public CreatureScript
                 events.ScheduleEvent(EVENT_SUNSTRIKE, 8000);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (Player* player = attacker->ToPlayer())
                 {
@@ -2062,7 +2062,7 @@ class mob_minh_do_tan : public CreatureScript
                 events.ScheduleEvent(EVENT_SUNSTRIKE, 8000);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (Player* player = attacker->ToPlayer())
                 {
@@ -2219,7 +2219,7 @@ class mob_thelonius : public CreatureScript
                 events.ScheduleEvent(EVENT_FLYING_SERPENT_KICK, 20000);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (Player* player = attacker->ToPlayer())
                 {
@@ -2385,7 +2385,7 @@ class mob_tukka_tuk : public CreatureScript
                 events.ScheduleEvent(EVENT_PUNCH_YOU, 13000);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (Player* player = attacker->ToPlayer())
                 {
@@ -2546,7 +2546,7 @@ class mob_yan_quillpaw : public CreatureScript
                 events.ScheduleEvent(EVENT_PAW_PUNCH, 13000);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (Player* player = attacker->ToPlayer())
                 {

@@ -167,7 +167,7 @@ public:
             tSeek      = urand(1000, 2000);
         }
 
-        void DamageTaken(Unit* who, uint32& damage)
+        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* p_SpellInfo)
         {
             if (who->GetTypeId() == TYPEID_PLAYER)
             {
@@ -248,7 +248,7 @@ public:
         }
 
         //There is NO phase shift here!!!!
-        void DamageTaken(Unit* who, uint32& damage)
+        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* p_SpellInfo)
         {
             if (who->GetTypeId() == TYPEID_PLAYER)
             {
@@ -363,7 +363,7 @@ public:
             willCastEnrage = urand(0, 1);
         }
 
-        void DamageTaken(Unit* who, uint32& damage)
+        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* p_SpellInfo)
         {
             if (who->GetTypeId() == TYPEID_PLAYER)
             {
@@ -772,7 +772,7 @@ public:
             tSeek             = 100; // On initial loading, we should find our target rather quickly
         }
 
-        void DamageTaken(Unit* who, uint32& damage)
+        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* p_SpellInfo)
         {
             if (who->GetTypeId() == TYPEID_PLAYER)
             {
@@ -844,7 +844,7 @@ public:
             tSeek      = urand(1000, 2000);
         }
 
-        void DamageTaken(Unit* who, uint32& damage)
+        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* p_SpellInfo)
         {
             if (who->GetTypeId() == TYPEID_PLAYER)
             {
@@ -907,7 +907,7 @@ public:
             tSeek      = urand(1000, 2000);
         }
 
-        void DamageTaken(Unit* who, uint32& damage)
+        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* p_SpellInfo)
         {
             if (who->GetTypeId() == TYPEID_PLAYER)
             {
@@ -970,7 +970,7 @@ public:
             tSeek = urand(1000, 2000);
         }
 
-        void DamageTaken(Unit* who, uint32& damage)
+        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* p_SpellInfo)
         {
             if (me->HealthBelowPct(AI_MIN_HP) && who->GetEntry() == NPC_BLOODFANG_WORGEN)
                 damage = 0;
@@ -2107,7 +2107,7 @@ public:
             tYell       = urand(10000, 20000);
         }
 
-        void DamageTaken(Unit* who, uint32& damage)
+        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* p_SpellInfo)
         {
             if (who->GetEntry() == NPC_AFFLICTED_GILNEAN_P8 && me->GetHealthPct() <= AI_MIN_HP)
             {
@@ -2163,7 +2163,7 @@ public:
             tSeek             = 100; // On initial loading, we should find our target rather quickly
         }
 
-        void DamageTaken(Unit* who, uint32& damage)
+        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* p_SpellInfo)
         {
             if (who->GetTypeId() == TYPEID_PLAYER)
             {

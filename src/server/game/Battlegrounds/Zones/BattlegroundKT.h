@@ -19,6 +19,7 @@
 #define __BattleGroundKT_H
 
 #include "Battleground.h"
+#include "ObjectAccessor.h"
 
 enum BG_KT_NPC
 {

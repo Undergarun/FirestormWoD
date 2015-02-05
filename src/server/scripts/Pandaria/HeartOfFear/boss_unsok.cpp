@@ -326,7 +326,7 @@ class boss_unsok : public CreatureScript
                         EnterCombat(who);
             }
 
-            void DamageTaken(Unit* attacker, uint32 &damage)
+            void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const* p_SpellInfo)
             {
                 if (!fightInProgress)
                     EnterCombat(attacker);
@@ -758,7 +758,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* attacker, uint32 &damage)
+        void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const* p_SpellInfo)
         {
             if (damage > me->GetHealth())
             {

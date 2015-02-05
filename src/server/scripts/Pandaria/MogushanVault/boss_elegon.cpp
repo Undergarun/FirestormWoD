@@ -568,7 +568,7 @@ class boss_elegon : public CreatureScript
                     caster->SendSpellMiss(me, spell->Id, SPELL_MISS_MISS);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
 
                 if (phase == PHASE_1 && me->HealthBelowPctDamaged(nextPhase1EndingHealthPct, damage))
@@ -1035,7 +1035,7 @@ class mob_empyreal_focus : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (me->GetHealth() < damage)
                 {
@@ -1122,7 +1122,7 @@ class mob_celestial_protector : public CreatureScript
                     AttackStart(player);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (!stabilityFluxCasted)
                 {

@@ -3894,7 +3894,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 75111: // Blue Crashin' Thrashin' Racer Controller
             case 60256: // Collect Sample
                 //Crashes client on pressing ESC (Maybe because of ReqSpellFocus and GameObject)
-                spellInfo->AttributesEx4 &= ~SPELL_ATTR4_TRIGGERED;
+                spellInfo->AttributesEx4 &= ~SPELL_ATTR4_CAN_CAST_WHILE_CASTING;
                 break;
             case 8629:
             case 11285:
@@ -4042,6 +4042,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 108862: // Twilight Onslaught
             case 109226: // Twilight Onslaught
             case 109227: // Twilight Onslaught
+            case 155152:///< Prismatic Crystal damage
                 // ONLY SPELLS WITH SPELLFAMILY_GENERIC and EFFECT_SCHOOL_DAMAGE
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
                 break;
@@ -4446,7 +4447,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 108482:// Unbound Will
                 // Crashes client on pressing ESC
-                spellInfo->AttributesEx4 &= ~SPELL_ATTR4_TRIGGERED;
+                spellInfo->AttributesEx4 &= ~SPELL_ATTR4_CAN_CAST_WHILE_CASTING;
                 break;
             case 66:    // Invisibility
                 spellInfo->OverrideSpellList.push_back(110959); // Greater Invisibility
@@ -4939,8 +4940,18 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 20066: // Repentence
             case 115175:// Soothing Mists
+                spellInfo->PreventionType = SPELL_PREVENTION_TYPE_SILENCE;
+                break;
+            case 146950:// Glyph of Targeted Expulsion
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
+                break;
+            case 115072:// Expel Harm
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ALLY;
+                spellInfo->ExplicitTargetMask &= ~TARGET_FLAG_UNIT;
+                break;
             case 117952:// Crackling Jade Lightning
                 spellInfo->PreventionType = SPELL_PREVENTION_TYPE_SILENCE;
+                spellInfo->AttributesEx5 &= ~SPELL_ATTR5_HASTE_AFFECT_DURATION;
                 break;
             case 117833:// Crazy Thought
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_FEARED;
@@ -5107,6 +5118,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 113656:// Fists of Fury
                 spellInfo->PreventionType = SPELL_PREVENTION_TYPE_SILENCE;
+                spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_PROC_TRIGGER_SPELL;
                 break;
             case 115315:// Summon Black Ox Statue
                 spellInfo->Effects[1].Effect = SPELL_EFFECT_APPLY_AURA;
@@ -6131,10 +6143,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->SetDurationIndex(39); // 2 seconds
                 spellInfo->MaxAffectedTargets = 3;
                 break;
-            // Chi Brew, SPELL_ATTR4_TRIGGERED bypass charge check and players can usebug (the check is only doing client-side)
-            // Maybe SPELL_ATTR4_TRIGGERED don't bypass charge ?
+            // Chi Brew, SPELL_ATTR4_CAN_CAST_WHILE_CASTING bypass charge check and players can usebug (the check is only doing client-side)
+            // Maybe SPELL_ATTR4_CAN_CAST_WHILE_CASTING don't bypass charge ?
             case 115399:
-                spellInfo->AttributesEx4 &= ~SPELL_ATTR4_TRIGGERED;
+                spellInfo->AttributesEx4 &= ~SPELL_ATTR4_CAN_CAST_WHILE_CASTING;
                 break;
             default:
                 break;
@@ -6193,6 +6205,7 @@ void SpellMgr::LoadSpellCustomAttr()
             switch (spellInfo->Id)
             {
                 case 61882: ///< Earthquake
+                case 116011:///< Rune of Power
                     spellInfo->ExplicitTargetMask &= ~TARGET_FLAG_UNIT;
                     break;
                 case 73680: // Unleash Elements

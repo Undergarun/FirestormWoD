@@ -31,15 +31,6 @@ if( NOT CMAKE_BUILD_TYPE )
   set(CMAKE_BUILD_TYPE "Release")
 endif()
 
-if(CMAKE_COMPILER_IS_GNUCXX)
-  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++0x")
-  set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lpthread")
-endif(CMAKE_COMPILER_IS_GNUCXX)
-
-if( APPLE )
-    set (CMAKE_CXX_FLAGS "-std=c++0x -stdlib=libc++ -g3 -Wall -O0")
-endif()
-
 include(CheckCXXSourceRuns)
 include(CheckIncludeFiles)
 

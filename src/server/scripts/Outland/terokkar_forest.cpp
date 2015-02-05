@@ -92,7 +92,7 @@ public:
             UnkorUnfriendly_Timer = 60000;
         }
 
-        void DamageTaken(Unit* done_by, uint32 &damage)
+        void DamageTaken(Unit* done_by, uint32 &damage, SpellInfo const* p_SpellInfo)
         {
             if (done_by->GetTypeId() == TYPEID_PLAYER)
                 if (me->HealthBelowPctDamaged(30, damage))
@@ -175,7 +175,7 @@ public:
         void Reset() { }
         void EnterCombat(Unit* /*who*/) { }
 
-        void DamageTaken(Unit* done_by, uint32 &damage)
+        void DamageTaken(Unit* done_by, uint32 &damage, SpellInfo const* p_SpellInfo)
         {
             if (done_by && done_by->GetTypeId() == TYPEID_PLAYER)
                 if (me->GetHealth() <= damage)
@@ -268,7 +268,7 @@ public:
         void Reset() { }
         void EnterCombat(Unit* /*who*/) { }
 
-        void DamageTaken(Unit* done_by, uint32 &damage)
+        void DamageTaken(Unit* done_by, uint32 &damage, SpellInfo const* p_SpellInfo)
         {
             if (done_by->GetTypeId() == TYPEID_PLAYER)
                 if (me->GetHealth() <= damage)

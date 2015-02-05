@@ -1278,8 +1278,10 @@ class spell_pri_devouring_plague: public SpellScriptLoader
             SpellCastResult CheckCast()
             {
                 if (Unit* l_Caster = GetCaster())
-                if (l_Caster->GetPower(POWER_SHADOW_ORB) < 3)
-                    return SPELL_FAILED_NO_POWER;
+                {
+                    if (l_Caster->GetPower(POWER_SHADOW_ORB) < 3)
+                        return SPELL_FAILED_NO_POWER;
+                }
                 return SPELL_CAST_OK;
             }
 
@@ -1292,8 +1294,10 @@ class spell_pri_devouring_plague: public SpellScriptLoader
                         if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PRIEST_SHADOW)
                         {
                             if (l_Player->HasAura(PRIEST_SURGE_OF_DARKNESS_AURA))
+                            {
                                 if (roll_chance_i(sSpellMgr->GetSpellInfo(PRIEST_SURGE_OF_DARKNESS_AURA)->Effects[EFFECT_0].BasePoints))
                                     l_Player->CastSpell(l_Player, PRIEST_SURGE_OF_DARKNESS, true);
+                            }
                             // Shadow Orb visual
                             if (l_Player->HasAura(PRIEST_SHADOW_ORB_AURA))
                                 l_Player->RemoveAura(PRIEST_SHADOW_ORB_AURA);
@@ -1303,8 +1307,10 @@ class spell_pri_devouring_plague: public SpellScriptLoader
                             
                             // Case of Void Entropy running on Target -> refresh this effect to its full 1 min duration.
                             if (l_Target->HasAura(PRIEST_SPELL_VOID_ENTROPY))
+                            {
                                 if (AuraPtr l_VoidEntropy = l_Target->GetAura(PRIEST_SPELL_VOID_ENTROPY))
-                                    l_VoidEntropy->SetDuration(l_VoidEntropy->GetMaxDuration());
+                                    l_VoidEntropy->RefreshDuration();
+                            }
 
                             int32 l_Heal = GetHitDamage();
                             l_Player->CastCustomSpell(l_Player, PRIEST_DEVOURING_PLAGUE_HEAL, &l_Heal, NULL, NULL, true);
@@ -1355,8 +1361,10 @@ public:
                 l_Caster->CastCustomSpell(l_Caster, PRIEST_DEVOURING_PLAGUE_HEAL, &l_TickDamage, NULL, NULL, true);
 
                 if (l_Caster->HasAura(PRIEST_SURGE_OF_DARKNESS_AURA))
+                {
                     if (roll_chance_i(sSpellMgr->GetSpellInfo(PRIEST_SURGE_OF_DARKNESS_AURA)->Effects[EFFECT_0].BasePoints))
                         l_Caster->CastSpell(l_Caster, PRIEST_SURGE_OF_DARKNESS, true);
+                }
             }
         }
 
@@ -1438,8 +1446,10 @@ class spell_pri_mind_spike: public SpellScriptLoader
                     if (Unit* l_Target = GetHitUnit())
                     {
                         if (l_Caster->HasAura(PRIEST_SPELL_SHADOW_INSIGHT))
+                        {
                             if (roll_chance_i(sSpellMgr->GetSpellInfo(PRIEST_SPELL_SHADOW_INSIGHT)->Effects[EFFECT_3].BasePoints))
                                 l_Caster->CastSpell(l_Caster, PRIEST_SPELL_SHADOW_INSIGHT_PROC, true);
+                        }
                         // Surge of Darkness - Your next Mind Spike will not consume your damage-over-time effects ...
                         if (!l_Caster->HasAura(PRIEST_SURGE_OF_DARKNESS))
                         {
@@ -1482,10 +1492,14 @@ class spell_pri_evangelism: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (_player->HasAura(PRIEST_EVANGELISM_AURA))
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    if (l_Player->HasAura(PRIEST_EVANGELISM_AURA))
+                    {
                         if (GetHitDamage())
-                            _player->CastSpell(_player, PRIEST_EVANGELISM_STACK, true);
+                            l_Player->CastSpell(l_Player, PRIEST_EVANGELISM_STACK, true);
+                    }
+                }
             }
 
             void Register()
@@ -2666,22 +2680,23 @@ public:
             PreventHitDefaultEffect(effIndex);
 
             Player *l_Player = GetCaster()->ToPlayer();
+            int32 l_IdSpell = GetSpellInfo()->Id;
 
             if (l_Player == nullptr || !l_Player->HasAura(PRIEST_GLYPH_OF_MIND_HARVEST))
                 return;
 
             if (AuraPtr aura = l_Player->GetAura(PRIEST_GLYPH_OF_MIND_HARVEST))
             {
-                uint32 l_OldCooldown = l_Player->GetSpellCooldownDelay(GetSpellInfo()->Id);
+                uint32 l_OldCooldown = l_Player->GetSpellCooldownDelay(l_IdSpell);
                 uint32 l_NewCooldown = l_OldCooldown + sSpellMgr->GetSpellInfo(PRIEST_GLYPH_OF_MIND_HARVEST)->Effects[EFFECT_1].BasePoints;
 
-                l_Player->RemoveSpellCooldown(GetSpellInfo()->Id, true);
+                l_Player->RemoveSpellCooldown(l_IdSpell, true);
 
                 if (m_HasMarker)
-                    l_Player->AddSpellCooldown(GetSpellInfo()->Id, 0, l_OldCooldown, true);
+                    l_Player->AddSpellCooldown(l_IdSpell, 0, l_OldCooldown, true);
                 else
                 {
-                    l_Player->AddSpellCooldown(GetSpellInfo()->Id, 0, l_NewCooldown, true);
+                    l_Player->AddSpellCooldown(l_IdSpell, 0, l_NewCooldown, true);
                     GetSpell()->EffectEnergize(effIndex);
                 }
             }

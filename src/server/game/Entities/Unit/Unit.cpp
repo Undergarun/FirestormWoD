@@ -828,7 +828,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     }
 
     if (victim->IsAIEnabled)
-        victim->GetAI()->DamageTaken(this, damage);
+        victim->GetAI()->DamageTaken(this, damage, spellProto);
 
     if (IsAIEnabled)
         GetAI()->DamageDealt(victim, damage, damagetype);
@@ -1133,7 +1133,7 @@ uint32 Unit::CalcStaggerDamage(Player* victim, uint32 damage)
     // Mastery increases stagger amount - Mastery: Elusive Brawler
     if (victim->HasAura(117906))
     {
-        float Mastery = victim->GetFloatValue(PLAYER_FIELD_MASTERY) / 2.0f / 100.0f;
+        float Mastery = (victim->GetFloatValue(PLAYER_FIELD_MASTERY) * 0.625f) / 100.0f;
         stagger -= Mastery;
     }
 
@@ -15224,17 +15224,22 @@ float Unit::ApplyEffectModifiers(SpellInfo const* spellProto, uint8 effect_index
         modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_ALL_EFFECTS, value);
         switch (effect_index)
         {
-            case 0:
+            case EFFECT_0:
                 modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_EFFECT1, value);
                 break;
-            case 1:
+            case EFFECT_1:
                 modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_EFFECT2, value);
                 break;
-            case 2:
+            case EFFECT_2:
                 modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_EFFECT3, value);
                 break;
-            case 4:
+            case EFFECT_3:
+                modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_EFFECT4, value);
+                break;
+            case EFFECT_4:
                 modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_EFFECT5, value);
+                break;
+            default:
                 break;
         }
     }
@@ -17153,8 +17158,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         if (spellInfo->Id == 115191)
         {
             useCharges = false;
-
-            if (procExtra & PROC_EX_INTERNAL_DOT && !HasAura(115192) && !HasAura(131369))
+            if (!HasAura(115192) && !HasAura(131369))
                 CastSpell(this, 115192, true);
         }
 
@@ -21891,7 +21895,6 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target)
     uint32* flags;
     uint32 visibleFlag = GetUpdateFieldData(target, flags);
 
-
     Creature const* creature = ToCreature();
     for (uint16 index = 0; index < m_valuesCount; ++index)
     {
@@ -22007,6 +22010,10 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target)
             // FG: pretend that OTHER players in own group are friendly ("blue")
             else if (index == UNIT_FIELD_SHAPESHIFT_FORM || index == UNIT_FIELD_FACTION_TEMPLATE)
             {
+                uint32 l_Value = m_uint32Values[index];
+                if (index == UNIT_FIELD_FACTION_TEMPLATE && creature && creature->IsAIEnabled)
+                    creature->AI()->OnSendFactionTemplate(l_Value, target);
+
                 if (IsControlledByPlayer() && target != this && sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP) && IsInRaidWith(target))
                 {
                     FactionTemplateEntry const* ft1 = getFactionTemplateEntry();
@@ -22021,10 +22028,10 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target)
                             fieldBuffer << uint32(target->getFaction());
                     }
                     else
-                        fieldBuffer << m_uint32Values[index];
+                        fieldBuffer << l_Value;
                 }
                 else
-                    fieldBuffer << m_uint32Values[index];
+                    fieldBuffer << l_Value;
             }
             else
             {

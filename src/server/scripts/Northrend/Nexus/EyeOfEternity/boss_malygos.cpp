@@ -1218,7 +1218,7 @@ public:
             _wpCount = 0;
         }
 
-        void DamageTaken(Unit* /*who*/, uint32& damage)
+        void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const* p_SpellInfo)
         {
             damage = 0;
         }
@@ -1309,7 +1309,7 @@ public:
         {
         }
 
-        void DamageTaken(Unit* /*who*/, uint32& damage)
+        void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const* p_SpellInfo)
         {
             damage = 0;
         }

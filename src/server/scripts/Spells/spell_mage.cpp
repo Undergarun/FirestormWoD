@@ -117,6 +117,132 @@ enum MageSpells
     SPELL_MAGE_RING_OF_FROST_IMMUNATE            = 91264
 };
 
+/// Prismatic Crystal - 76933
+class npc_mage_prismatic_crystal : public CreatureScript
+{
+    public:
+        npc_mage_prismatic_crystal() : CreatureScript("npc_mage_prismatic_crystal") { }
+
+        struct npc_mage_prismatic_crystalAI : public ScriptedAI
+        {
+            npc_mage_prismatic_crystalAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            enum eSpells
+            {
+                PrismaticCrystalAura    = 155153,
+                PrismaticCrystalDamage  = 155152
+            };
+
+            enum eDatas
+            {
+                FactionHostile = 14,
+                FactionFriend  = 35
+            };
+
+            uint64 m_Owner = 0;
+
+            void IsSummonedBy(Unit* p_Summoner)
+            {
+                m_Owner = p_Summoner->GetGUID();
+
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+                me->AddUnitState(UnitState::UNIT_STATE_ROOT);
+
+                if (Player* l_Player = p_Summoner->ToPlayer())
+                {
+                    if (AuraPtr l_Aura = me->AddAura(eSpells::PrismaticCrystalAura, me))
+                    {
+                        if (AuraEffectPtr l_DamageTaken = l_Aura->GetEffect(SpellEffIndex::EFFECT_0))
+                        {
+                            if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SpecIndex::SPEC_MAGE_FROST)
+                                l_DamageTaken->ChangeAmount(10);    ///< BasePoint = 30, but only for Arcane and Fire spec
+                        }
+                    }
+                }
+
+                me->setFaction(eDatas::FactionHostile);
+                me->ForceValuesUpdateAtIndex(EUnitFields::UNIT_FIELD_FACTION_TEMPLATE);
+            }
+
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
+            {
+                if (p_Attacker->GetGUID() != m_Owner)
+                {
+                    p_Damage = 0;
+                    return;
+                }
+
+                if (p_SpellInfo && p_SpellInfo->Id != eSpells::PrismaticCrystalDamage)
+                {
+                    if (Unit* l_Owner = sObjectAccessor->FindUnit(m_Owner))
+                    {
+                        int32 l_BasePoint = p_Damage;
+                        l_Owner->CastCustomSpell(me, eSpells::PrismaticCrystalDamage, nullptr, &l_BasePoint, nullptr, true);
+                    }
+                }
+            }
+
+            void OnSendFactionTemplate(uint32& p_FactionID, Player* p_Target)
+            {
+                if (m_Owner == p_Target->GetGUID())
+                    p_FactionID = eDatas::FactionHostile;
+                else
+                    p_FactionID = eDatas::FactionFriend;
+            }
+
+            void UpdateAI(uint32 const p_Diff) { }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_mage_prismatic_crystalAI(p_Creature);
+        }
+};
+
+/// Comet Storm - 153595
+class spell_mage_comet_storm : public SpellScriptLoader
+{
+    public:
+        spell_mage_comet_storm() : SpellScriptLoader("spell_mage_comet_storm") { }
+
+        class spell_mage_comet_storm_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mage_comet_storm_SpellScript);
+
+            enum eCometDatas
+            {
+                MaxComets   = 7,
+                CometStorm  = 153596
+            };
+
+            void HandleAfterCast()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (WorldLocation const* l_Dest = GetExplTargetDest())
+                    {
+                        for (uint8 l_I = 0; l_I < eCometDatas::MaxComets; ++l_I)
+                        {
+                            float l_X = l_Dest->m_positionX + frand(-4.0f, 4.0f);
+                            float l_Y = l_Dest->m_positionY + frand(-4.0f, 4.0f);
+
+                            l_Caster->CastSpell(l_X, l_Y, l_Dest->m_positionZ, eCometDatas::CometStorm, true);
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_mage_comet_storm_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_mage_comet_storm_SpellScript();
+        }
+};
 
 // Greater Invisibility (remove timer) - 122293
 class spell_mage_greater_invisibility_removed: public SpellScriptLoader
@@ -772,7 +898,17 @@ class spell_mage_combustion: public SpellScriptLoader
                     {
                         if (l_Player->HasSpellCooldown(SPELL_MAGE_INFERNO_BLAST_IMPACT))
                             l_Player->RemoveSpellCooldown(SPELL_MAGE_INFERNO_BLAST_IMPACT, true);
-                        //l_Player->SendClearSpellCharges(SPELL_MAGE_INFERNO_BLAST);
+
+                        if (ChargesData* l_Charges = l_Player->GetChargesData(SPELL_MAGE_INFERNO_BLAST))
+                        {
+                            if (l_Charges->m_ConsumedCharges > 0)
+                                --l_Charges->m_ConsumedCharges;
+
+                            if (!l_Charges->m_ChargesCooldown.empty())
+                                l_Charges->m_ChargesCooldown.erase(l_Charges->m_ChargesCooldown.begin());
+
+                            l_Player->SendClearSpellCharges(SPELL_MAGE_INFERNO_BLAST);
+                        }
 
                         int32 combustionBp = 0;
 
@@ -1688,7 +1824,6 @@ public:
     }
 };
 
-
 // Call by Blast Wave 157981 - Supernova 157980 - Ice Nova 157997
 class spell_mage_novas_talent : public SpellScriptLoader
 {
@@ -1846,51 +1981,67 @@ public:
     }
 };
 
-// Incanter's Flow - 1463
+/// Incanter's Flow - 1463
 class spell_mage_incanters_flow : public SpellScriptLoader
 {
-public:
-    spell_mage_incanters_flow() : SpellScriptLoader("spell_mage_incanters_flow") { }
+    public:
+        spell_mage_incanters_flow() : SpellScriptLoader("spell_mage_incanters_flow") { }
 
-    class spell_mage_incanters_flow_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_mage_incanters_flow_AuraScript);
-
-        bool m_Up = true;
-
-        void OnTick(constAuraEffectPtr aurEff)
+        class spell_mage_incanters_flow_AuraScript : public AuraScript
         {
-            if (Unit *l_Caster = GetCaster())
+            PrepareAuraScript(spell_mage_incanters_flow_AuraScript);
+
+            bool m_Up = true;
+            bool m_Changed = false;
+
+            void OnTick(constAuraEffectPtr)
             {
-                if (l_Caster->HasAura(SPELL_MAGE_INCANTERS_FLOW))
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (AuraPtr l_IncantersFlow = l_Caster->GetAura(SPELL_MAGE_INCANTERS_FLOW))
+                    /// Break the cycle if caster is out of combat
+                    if (!l_Caster->isInCombat())
+                        return;
+
+                    if (l_Caster->HasAura(SPELL_MAGE_INCANTERS_FLOW))
                     {
-                        l_IncantersFlow->ModStackAmount(m_Up ? 1 : -1);
-                        if (l_IncantersFlow->GetStackAmount() == 5)
-                            m_Up = false;
-                        else if (l_IncantersFlow->GetStackAmount() == 1)
-                            m_Up = true;
+                        if (AuraPtr l_IncantersFlow = l_Caster->GetAura(SPELL_MAGE_INCANTERS_FLOW))
+                        {
+                            m_Changed = false;
+
+                            if (l_IncantersFlow->GetStackAmount() == 5 && m_Up)
+                            {
+                                m_Up = false;
+                                m_Changed = true;
+                            }
+                            else if (l_IncantersFlow->GetStackAmount() == 1 && !m_Up)
+                            {
+                                m_Up = true;
+                                m_Changed = true;
+                            }
+
+                            if (!m_Changed)
+                                l_IncantersFlow->ModStackAmount(m_Up ? 1 : -1);
+                        }
+                    }
+                    else if (l_Caster->isInCombat())
+                    {
+                        l_Caster->CastSpell(l_Caster, SPELL_MAGE_INCANTERS_FLOW, true);
+                        m_Up = true;
+                        m_Changed = false;
                     }
                 }
-                else if (l_Caster->isInCombat())
-                {
-                    l_Caster->CastSpell(l_Caster, SPELL_MAGE_INCANTERS_FLOW, true);
-                    m_Up = true;
-                }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_mage_incanters_flow_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
         {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_mage_incanters_flow_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            return new spell_mage_incanters_flow_AuraScript();
         }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_mage_incanters_flow_AuraScript();
-    }
 };
 
 // Flameglow - 140468
@@ -1919,10 +2070,7 @@ public:
         void OnAbsorb(AuraEffectPtr p_AurEff, DamageInfo & p_DmgInfo, uint32 & p_AbsorbAmount)
         {
             if (Unit* l_Attacker = p_DmgInfo.GetAttacker())
-            {
-                if (p_AbsorbAmount > CalculatePct(p_DmgInfo.GetDamage(), GetSpellInfo()->Effects[EFFECT_2].BasePoints))
-                    p_AbsorbAmount = CalculatePct(p_DmgInfo.GetDamage(), GetSpellInfo()->Effects[EFFECT_2].BasePoints);
-            }
+                p_AbsorbAmount = std::min(p_AbsorbAmount, CalculatePct(p_DmgInfo.GetDamage(), GetSpellInfo()->Effects[EFFECT_2].BasePoints));
         }
 
 
@@ -1956,6 +2104,11 @@ public:
 
 void AddSC_mage_spell_scripts()
 {
+    /// Npcs
+    new npc_mage_prismatic_crystal();
+
+    /// Spells
+    new spell_mage_comet_storm();
     new spell_mage_ring_of_frost_immunity();
     new spell_mage_flameglow();
     new spell_mage_incanters_flow();

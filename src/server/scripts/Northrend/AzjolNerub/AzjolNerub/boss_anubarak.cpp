@@ -137,7 +137,7 @@ class boss_anub_arak : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32 &damage)
+            void DamageTaken(Unit* /*attacker*/, uint32 &damage, SpellInfo const* p_SpellInfo)
             {
                 if (me->HasUnitState(UNIT_STATE_CASTING) || me->HasAura(SPELL_SUBMERGE))
                     return;

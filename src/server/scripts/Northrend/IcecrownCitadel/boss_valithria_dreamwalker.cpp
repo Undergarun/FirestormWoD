@@ -367,7 +367,7 @@ class boss_valithria_dreamwalker : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (me->HealthBelowPctDamaged(25, damage))
                 {

@@ -149,7 +149,7 @@ class boss_immerseus : public CreatureScript
             {
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (phase == PHASE_IMMERSEUS_BOSS && damage > me->GetHealth())
                 {

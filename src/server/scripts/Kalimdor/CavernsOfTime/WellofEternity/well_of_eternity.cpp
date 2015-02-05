@@ -541,7 +541,7 @@ class npc_well_of_eternity_illidan_1 : public CreatureScript
                         me->DespawnOrUnsummon(500);
             }
 
-            void DamageTaken(Unit* who, uint32 &damage)
+            void DamageTaken(Unit* who, uint32 &damage, SpellInfo const* p_SpellInfo)
             {
                 if (who->GetGUID() == me->GetGUID())
                     if (damage >= me->GetHealth())
@@ -1044,7 +1044,7 @@ class npc_well_of_eternity_illidan_2 : public CreatureScript
 
             void EnterEvadeMode() {}
 
-            void DamageTaken(Unit* who, uint32 &damage)
+            void DamageTaken(Unit* who, uint32 &damage, SpellInfo const* p_SpellInfo)
             {
                 if (who->GetGUID() == me->GetGUID())
                     if (damage >= me->GetHealth())

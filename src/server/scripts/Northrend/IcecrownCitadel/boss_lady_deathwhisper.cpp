@@ -359,7 +359,7 @@ class boss_lady_deathwhisper : public CreatureScript
                     Talk(SAY_KILL);
             }
 
-            void DamageTaken(Unit* /*damageDealer*/, uint32& damage)
+            void DamageTaken(Unit* /*damageDealer*/, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 // phase transition
                 if (events.IsInPhase(PHASE_ONE) && int32(damage) > me->GetPower(POWER_MANA))

@@ -1617,6 +1617,7 @@ void AuraEffect::ApplySpellMod(Unit* target, bool apply)
         case SPELLMOD_EFFECT1:
         case SPELLMOD_EFFECT2:
         case SPELLMOD_EFFECT3:
+        case SPELLMOD_EFFECT4:
         case SPELLMOD_EFFECT5:
         {
             uint64 guid = target->GetGUID();
@@ -1649,6 +1650,11 @@ void AuraEffect::ApplySpellMod(Unit* target, bool apply)
                     else if (GetMiscValue() == SPELLMOD_EFFECT3)
                     {
                        if (AuraEffectPtr aurEff = aura->GetEffect(2))
+                            aurEff->RecalculateAmount();
+                    }
+                    else if (GetMiscValue() == SPELLMOD_EFFECT4)
+                    {
+                        if (AuraEffectPtr aurEff = aura->GetEffect(3))
                             aurEff->RecalculateAmount();
                     }
                     else if (GetMiscValue() == SPELLMOD_EFFECT5)

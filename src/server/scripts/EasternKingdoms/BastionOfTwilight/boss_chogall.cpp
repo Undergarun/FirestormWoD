@@ -1031,7 +1031,7 @@ class npc_chogall_corrupting_adherent : public CreatureScript
                             me->InterruptSpell(CURRENT_GENERIC_SPELL);
             }
 
-            void DamageTaken(Unit* /*who*/, uint32& damage)
+            void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (damage >= me->GetHealth())
                 {
