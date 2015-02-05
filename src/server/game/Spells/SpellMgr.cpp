@@ -4857,15 +4857,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 spellInfo->Effects[0].TargetB = 0;
                 break;
-            case 157977: // Unstable Magic FIRE
-                spellInfo->Effects[0].BasePoints = 150;
-                break;
-            case 157978: // Unstable Magic FROST
-                spellInfo->Effects[0].BasePoints = 150;
-                break;
-            case 157979: // Unstable Magic ARCANE
-                spellInfo->Effects[0].BasePoints = 150;
-                break;
             case 158624: // Feather
                 spellInfo->Effects[0].TargetB = TARGET_UNIT_DEST_AREA_ENTRY;
                 break;

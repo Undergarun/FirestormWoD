@@ -86,7 +86,7 @@ enum MageSpells
     SPELL_MAGE_ARCANE_BLAST                      = 30451,
     SPELL_MAGE_FIREBALL                          = 133,
     SPELL_MAGE_FROSTBOLT                         = 116,
-    SPELL_MAE_FROSTFIRE_BOLT                     = 44614,
+    SPELL_MAGE_FROSTFIRE_BOLT                    = 44614,
     SPELL_MAGE_UNSTABLE_MAGIC                    = 157976,
     SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE_FIRE        = 157977,
     SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE_FROST       = 157978,
@@ -1641,42 +1641,91 @@ class spell_mage_ice_barrier: public SpellScriptLoader
         }
 };
 
-// Call by Arcane Blast 30451 - Fireball 133 - Frostbolt 116
-// Unstable Magic - 157976
+/// Call by Arcane Blast - 30451, Fireball - 133, Frostbolt - 116 and Frostfire Bolt 44614
+/// Unstable Magic - 157976
 class spell_mage_unstable_magic: public SpellScriptLoader
 {
-public:
-    spell_mage_unstable_magic() : SpellScriptLoader("spell_mage_unstable_magic") { }
+    public:
+        spell_mage_unstable_magic() : SpellScriptLoader("spell_mage_unstable_magic") { }
 
-    class spell_mage_unstable_magic_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_mage_unstable_magic_SpellScript);
-
-        void HandleOnHit()
+        class spell_mage_unstable_magic_SpellScript : public SpellScript
         {
-            if (Unit* l_Caster = GetCaster())
-                if (l_Caster->HasAura(SPELL_MAGE_UNSTABLE_MAGIC))
-                    if (Unit* l_Target = GetHitUnit())
+            PrepareSpellScript(spell_mage_unstable_magic_SpellScript);
+
+            void HandleDamage(SpellEffIndex)
+            {
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    if (AuraPtr l_Aura = l_Player->GetAura(SPELL_MAGE_UNSTABLE_MAGIC))
                     {
-                        if (GetSpellInfo()->Id == SPELL_MAGE_ARCANE_BLAST && roll_chance_i(sSpellMgr->GetSpellInfo(SPELL_MAGE_UNSTABLE_MAGIC)->Effects[EFFECT_0].BasePoints))
-                            l_Caster->CastSpell(l_Target, SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE_ARCANE, true);
-                        else if (GetSpellInfo()->Id == SPELL_MAGE_FROSTBOLT && roll_chance_i(sSpellMgr->GetSpellInfo(SPELL_MAGE_UNSTABLE_MAGIC)->Effects[EFFECT_1].BasePoints))
-                            l_Caster->CastSpell(l_Target, SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE_FROST, true);
-                        else if (GetSpellInfo()->Id == SPELL_MAGE_FIREBALL && roll_chance_i(sSpellMgr->GetSpellInfo(SPELL_MAGE_UNSTABLE_MAGIC)->Effects[EFFECT_2].BasePoints))
-                            l_Caster->CastSpell(l_Target, SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE_FIRE, true);
+                        int32 l_Chance = 0;
+                        switch (l_Player->GetSpecializationId(l_Player->GetActiveSpec()))
+                        {
+                            case SpecIndex::SPEC_MAGE_ARCANE:
+                                l_Chance = l_Aura->GetEffect(EFFECT_0) ? l_Aura->GetEffect(EFFECT_0)->GetAmount() : 0;
+                                break;
+                            case SpecIndex::SPEC_MAGE_FIRE:
+                                l_Chance = l_Aura->GetEffect(EFFECT_2) ? l_Aura->GetEffect(EFFECT_2)->GetAmount() : 0;
+                                break;
+                            case SpecIndex::SPEC_MAGE_FROST:
+                                l_Chance = l_Aura->GetEffect(EFFECT_1) ? l_Aura->GetEffect(EFFECT_1)->GetAmount() : 0;
+                                break;
+                            default:
+                                break;
+                        }
+
+                        if (!roll_chance_i(l_Chance))
+                            return;
+
+                        if (Unit* l_Target = GetHitUnit())
+                        {
+                            int32 l_Pct = l_Aura->GetEffect(EFFECT_3) ? l_Aura->GetEffect(EFFECT_3)->GetAmount() : 0;
+                            int32 l_BasePoints = CalculatePct(GetHitDamage(), l_Pct);
+                            uint32 l_SpellID = GetSpellInfo()->Id;
+                            switch (l_SpellID)
+                            {
+                                case SPELL_MAGE_ARCANE_BLAST:
+                                    l_Player->CastCustomSpell(l_Target, SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE_ARCANE, &l_BasePoints, nullptr, nullptr, true);
+                                    break;
+                                case SPELL_MAGE_FROSTBOLT:
+                                    l_Player->CastCustomSpell(l_Target, SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE_FROST, &l_BasePoints, nullptr, nullptr, true);
+                                    break;
+                                case SPELL_MAGE_FIREBALL:
+                                    l_Player->CastCustomSpell(l_Target, SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE_FIRE, &l_BasePoints, nullptr, nullptr, true);
+                                    break;
+                                case SPELL_MAGE_FROSTFIRE_BOLT:
+                                    if (urand(0, 1))
+                                        l_Player->CastCustomSpell(l_Target, SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE_FROST, &l_BasePoints, nullptr, nullptr, true);
+                                    else
+                                        l_Player->CastCustomSpell(l_Target, SPELL_MAGE_UNSTABLE_MAGIC_DAMAGE_FIRE, &l_BasePoints, nullptr, nullptr, true);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
                     }
-        }
+                }
+            }
 
-        void Register()
+            void Register()
+            {
+                switch (m_scriptSpellId)
+                {
+                    case SPELL_MAGE_FROSTBOLT:
+                    case SPELL_MAGE_FROSTFIRE_BOLT:
+                        OnEffectHitTarget += SpellEffectFn(spell_mage_unstable_magic_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+                        break;
+                    default:
+                        OnEffectHitTarget += SpellEffectFn(spell_mage_unstable_magic_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                        break;
+                }
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnHit += SpellHitFn(spell_mage_unstable_magic_SpellScript::HandleOnHit);
+            return new spell_mage_unstable_magic_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_mage_unstable_magic_SpellScript();
-    }
 };
 
 // Ice Lance - 30455
@@ -1963,7 +2012,7 @@ class spell_mage_enhanced_pyrotechnics : public SpellScriptLoader
                 if (!p_EventInfo.GetDamageInfo()->GetSpellInfo())
                     return;
 
-                if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != SPELL_MAGE_FIREBALL && p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != SPELL_MAE_FROSTFIRE_BOLT)
+                if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != SPELL_MAGE_FIREBALL && p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != SPELL_MAGE_FROSTFIRE_BOLT)
                     return;
 
                 if (p_EventInfo.GetHitMask() & PROC_EX_CRITICAL_HIT)
