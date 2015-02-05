@@ -5162,6 +5162,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 52437: // Sudden Death
                 spellInfo->ProcCharges = 1;
                 break;
+            case 117957:///< Nether Attunement
+                spellInfo->Effects[EFFECT_0].BasePoints = 300;
+                break;
             case 111546:
                 spellInfo->Effects[1].Effect = 0;
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_NONE;
