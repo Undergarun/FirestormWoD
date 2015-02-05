@@ -1857,49 +1857,49 @@ public:
     }
 };
 
-// Enhanced Pyrotechnics - 157642
+/// Enhanced Pyrotechnics - 157642
 class spell_mage_enhanced_pyrotechnics : public SpellScriptLoader
 {
-public:
-    spell_mage_enhanced_pyrotechnics() : SpellScriptLoader("spell_mage_enhanced_pyrotechnics") { }
+    public:
+        spell_mage_enhanced_pyrotechnics() : SpellScriptLoader("spell_mage_enhanced_pyrotechnics") { }
 
-    class spell_mage_enhanced_pyrotechnics_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_mage_enhanced_pyrotechnics_AuraScript);
-
-        void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+        class spell_mage_enhanced_pyrotechnics_AuraScript : public AuraScript
         {
-            PreventDefaultAction();
+            PrepareAuraScript(spell_mage_enhanced_pyrotechnics_AuraScript);
 
-            Unit* l_Caster = GetCaster();
-            if (!l_Caster)
-                return;
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
 
-            if (p_EventInfo.GetActor()->GetGUID() != l_Caster->GetGUID())
-                return;
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
 
-            if (!p_EventInfo.GetDamageInfo()->GetSpellInfo())
-                return;
+                if (p_EventInfo.GetActor()->GetGUID() != l_Caster->GetGUID())
+                    return;
 
-            if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != SPELL_MAGE_FIREBALL && p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != SPELL_MAE_FROSTFIRE_BOLT)
-                return;
+                if (!p_EventInfo.GetDamageInfo()->GetSpellInfo())
+                    return;
 
-            if (!(p_EventInfo.GetHitMask() & PROC_EX_CRITICAL_HIT))
-                return;
+                if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != SPELL_MAGE_FIREBALL && p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != SPELL_MAE_FROSTFIRE_BOLT)
+                    return;
 
-            l_Caster->CastSpell(l_Caster, SPELL_MAGE_ENHANCED_PYROTECHNICS_PROC, true);
-        }
+                if (p_EventInfo.GetHitMask() & PROC_EX_CRITICAL_HIT)
+                    l_Caster->RemoveAura(SPELL_MAGE_ENHANCED_PYROTECHNICS_PROC);
+                else
+                    l_Caster->CastSpell(l_Caster, SPELL_MAGE_ENHANCED_PYROTECHNICS_PROC, true);
+            }
 
-        void Register()
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_mage_enhanced_pyrotechnics_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
         {
-            OnEffectProc += AuraEffectProcFn(spell_mage_enhanced_pyrotechnics_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            return new spell_mage_enhanced_pyrotechnics_AuraScript();
         }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_mage_enhanced_pyrotechnics_AuraScript();
-    }
 };
 
 // Call by Blast Wave 157981 - Supernova 157980 - Ice Nova 157997
