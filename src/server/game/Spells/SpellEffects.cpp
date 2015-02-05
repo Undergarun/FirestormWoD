@@ -3135,6 +3135,10 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
         break;
     }
 
+    /// Ring of frost
+    if (m_spellInfo->Id == 113724 && summon != nullptr)
+        summon->SetReactState(REACT_PASSIVE);
+
     if (summon)
     {
         summon->SetCreatorGUID(m_originalCaster->GetGUID());
