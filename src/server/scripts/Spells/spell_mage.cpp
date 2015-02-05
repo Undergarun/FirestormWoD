@@ -404,7 +404,7 @@ class spell_mage_comet_storm : public SpellScriptLoader
         }
 };
 
-// Greater Invisibility (remove timer) - 122293
+/// Greater Invisibility (remove timer) - 122293
 class spell_mage_greater_invisibility_removed: public SpellScriptLoader
 {
     public:
@@ -414,11 +414,10 @@ class spell_mage_greater_invisibility_removed: public SpellScriptLoader
         {
             PrepareAuraScript(spell_mage_greater_invisibility_removed_AuraScript);
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(constAuraEffectPtr, AuraEffectHandleModes)
             {
-                if (Player* _player = GetTarget()->ToPlayer())
-                    if (_player->HasAura(SPELL_MAGE_GREATER_INVISIBILITY_LESS_DAMAGE))
-                        _player->RemoveAurasDueToSpell(SPELL_MAGE_GREATER_INVISIBILITY_LESS_DAMAGE);
+                if (Unit* l_Target = GetTarget())
+                    l_Target->RemoveAura(SPELL_MAGE_GREATER_INVISIBILITY_LESS_DAMAGE);
             }
 
             void Register()
@@ -433,7 +432,7 @@ class spell_mage_greater_invisibility_removed: public SpellScriptLoader
         }
 };
 
-// Greater Invisibility (triggered) - 110960
+/// Greater Invisibility (triggered) - 110960
 class spell_mage_greater_invisibility_triggered: public SpellScriptLoader
 {
     public:
@@ -443,16 +442,33 @@ class spell_mage_greater_invisibility_triggered: public SpellScriptLoader
         {
             PrepareAuraScript(spell_mage_greater_invisibility_triggered_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(constAuraEffectPtr, AuraEffectHandleModes)
             {
-                if (Player* _player = GetTarget()->ToPlayer())
-                    _player->CastSpell(_player, SPELL_MAGE_GREATER_INVISIBILITY_LESS_DAMAGE, true);
+                if (Unit* l_Target = GetTarget())
+                {
+                    l_Target->CastSpell(l_Target, SPELL_MAGE_GREATER_INVISIBILITY_LESS_DAMAGE, true);
+                    l_Target->CombatStop();
+
+                    Unit::AuraEffectList const& l_AuraList = l_Target->GetAuraEffectsByType(AuraType::SPELL_AURA_PERIODIC_DAMAGE);
+                    if (l_AuraList.size() <= 2)
+                        l_Target->RemoveAurasByType(AuraType::SPELL_AURA_PERIODIC_DAMAGE);
+                    else
+                    {
+                        std::list<uint32> l_ListID;
+                        for (Unit::AuraEffectList::const_iterator l_Iter = l_AuraList.begin(); l_Iter != l_AuraList.end(); ++l_Iter)
+                            l_ListID.push_back((*l_Iter)->GetId());
+
+                        JadeCore::Containers::RandomResizeList(l_ListID, 2);
+                        for (uint32 l_ID : l_ListID)
+                            l_Target->RemoveAura(l_ID);
+                    }
+                }
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(constAuraEffectPtr, AuraEffectHandleModes)
             {
-                if (Player* _player = GetTarget()->ToPlayer())
-                    _player->CastSpell(_player, SPELL_MAGE_REMOVE_INVISIBILITY_REMOVED_TIMER, true);
+                if (Unit* l_Target = GetTarget())
+                    l_Target->CastSpell(l_Target, SPELL_MAGE_REMOVE_INVISIBILITY_REMOVED_TIMER, true);
             }
 
             void Register()
