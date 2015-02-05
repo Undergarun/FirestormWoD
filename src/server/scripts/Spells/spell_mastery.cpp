@@ -354,8 +354,12 @@ class spell_mastery_icicles_trigger: public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
+                    if (caster->HasAura(SPELL_MAGE_ICICLE_PERIODIC_TRIGGER))
+                        return;
+
                     if (GetHitUnit())
                         caster->SetIciclesTarget(GetHitUnit()->GetGUID());
+
                     caster->CastSpell(caster, SPELL_MAGE_ICICLE_PERIODIC_TRIGGER, true);
                 }
             }

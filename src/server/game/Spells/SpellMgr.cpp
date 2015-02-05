@@ -6209,8 +6209,11 @@ void SpellMgr::LoadSpellCustomAttr()
             switch (spellInfo->Id)
             {
                 case 61882: ///< Earthquake
+                    spellInfo->ExplicitTargetMask &= ~TARGET_FLAG_UNIT;
+                    break;
                 case 116011:///< Rune of Power
                     spellInfo->ExplicitTargetMask &= ~TARGET_FLAG_UNIT;
+                    spellInfo->Effects[2].Effect = 0;   ///< No summon needed
                     break;
                 case 73680: // Unleash Elements
                     spellInfo->ExplicitTargetMask |= TARGET_FLAG_UNIT_ALLY;
