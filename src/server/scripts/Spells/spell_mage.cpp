@@ -2063,43 +2063,40 @@ public:
     }
 };
 
-// Blizzard - 10
+/// Blizzard - 42208
 class spell_mage_blizzard : public SpellScriptLoader
 {
-public:
-    spell_mage_blizzard() : SpellScriptLoader("spell_mage_blizzard") { }
+    public:
+        spell_mage_blizzard() : SpellScriptLoader("spell_mage_blizzard") { }
 
-    class spell_mage_blizzard_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_mage_blizzard_SpellScript);
-
-        void HandleAfterHit()
+        class spell_mage_blizzard_SpellScript : public SpellScript
         {
-            Unit *l_Caster = GetCaster();
+            PrepareSpellScript(spell_mage_blizzard_SpellScript);
 
-            Player *l_Player = l_Caster->ToPlayer();
-            const SpellInfo *l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_IMPROVED_BLIZZARD);
-
-            if (l_Player == nullptr || l_SpellInfo == nullptr)
-                return;
-
-            if (l_Player->HasAura(SPELL_MAGE_IMPROVED_BLIZZARD) && l_Player->getLevel() >= 92 && l_SpellInfo->Effects[EFFECT_0].BasePoints > 0)
+            void HandleAfterHit()
             {
-                if (l_Player->HasSpellCooldown(SPELL_MAGE_FORZEN_ORB))
-                    l_Player->ReduceSpellCooldown(SPELL_MAGE_FORZEN_ORB, (l_SpellInfo->Effects[EFFECT_0].BasePoints / 100) * IN_MILLISECONDS);
+                Player* l_Player = GetCaster()->ToPlayer();
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_IMPROVED_BLIZZARD);
+                if (l_Player == nullptr || l_SpellInfo == nullptr)
+                    return;
+
+                if (l_Player->HasAura(SPELL_MAGE_IMPROVED_BLIZZARD) && l_Player->getLevel() >= 92 && l_SpellInfo->Effects[EFFECT_0].BasePoints > 0)
+                {
+                    if (l_Player->HasSpellCooldown(SPELL_MAGE_FORZEN_ORB))
+                        l_Player->ReduceSpellCooldown(SPELL_MAGE_FORZEN_ORB, l_SpellInfo->Effects[EFFECT_0].BasePoints * 10);   ///< BasePoint is 50, should reduce CD by 500ms
+                }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                AfterHit += SpellHitFn(spell_mage_blizzard_SpellScript::HandleAfterHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            AfterHit += SpellHitFn(spell_mage_blizzard_SpellScript::HandleAfterHit);
+            return new spell_mage_blizzard_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_mage_blizzard_SpellScript();
-    }
 };
 
 /// Incanter's Flow - 1463

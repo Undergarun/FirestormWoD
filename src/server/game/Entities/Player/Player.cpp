@@ -5565,7 +5565,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
 
 void Player::ReduceSpellCooldown(uint32 p_SpellID, time_t p_ModifyTime)
 {
-    int32 l_NewCooldown = GetSpellCooldownDelay(p_SpellID) * 1000;
+    int32 l_NewCooldown = GetSpellCooldownDelay(p_SpellID);
 
     if (l_NewCooldown < 0)
         l_NewCooldown = 0;
