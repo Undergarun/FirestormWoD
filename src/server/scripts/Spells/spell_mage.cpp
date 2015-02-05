@@ -1896,37 +1896,42 @@ public:
     }
 };
 
-// Call by Fireball 133 - FrostFire Bolt 44614 - Pyroblast 11366 - Inferno Blast 108853
-// Kindling - 5405
-class spell_mage_kindling: public SpellScriptLoader
+/// Call by Fireball - 133, FrostFire Bolt - 44614, Pyroblast 11366 and Inferno Blast 108853
+/// Kindling - 5405
+class spell_mage_kindling : public SpellScriptLoader
 {
-public:
-    spell_mage_kindling() : SpellScriptLoader("spell_mage_kindling") { }
+    public:
+        spell_mage_kindling() : SpellScriptLoader("spell_mage_kindling") { }
 
-    class spell_mage_kindling_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_mage_kindling_SpellScript);
-
-        void HandleOnHit()
+        class spell_mage_kindling_SpellScript : public SpellScript
         {
-            if (Player *l_Player = GetCaster()->ToPlayer())
-                if (l_Player->HasSpell(SPELL_MAGE_KINDLING))
+            PrepareSpellScript(spell_mage_kindling_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (l_Player->HasSpellCooldown(SPELL_MAGE_COMBUSTION))
-                        l_Player->ReduceSpellCooldown(SPELL_MAGE_COMBUSTION, sSpellMgr->GetSpellInfo(SPELL_MAGE_KINDLING)->Effects[EFFECT_0].BasePoints * IN_MILLISECONDS);
+                    if (Unit* l_Target = GetHitUnit())
+                    {
+                        if (l_Player->HasAura(SPELL_MAGE_KINDLING) && GetSpell()->IsCritForTarget(l_Target))
+                        {
+                            if (l_Player->HasSpellCooldown(SPELL_MAGE_COMBUSTION))
+                                l_Player->ReduceSpellCooldown(SPELL_MAGE_COMBUSTION, sSpellMgr->GetSpellInfo(SPELL_MAGE_KINDLING)->Effects[EFFECT_0].BasePoints * IN_MILLISECONDS);
+                        }
+                    }
                 }
-        }
+            }
 
-        void Register()
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_mage_kindling_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnHit += SpellHitFn(spell_mage_kindling_SpellScript::HandleOnHit);
+            return new spell_mage_kindling_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_mage_kindling_SpellScript();
-    }
 };
 
 // Ring of Frost - 136511
