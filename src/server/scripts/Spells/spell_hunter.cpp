@@ -2202,7 +2202,6 @@ class spell_hun_kill_command: public SpellScriptLoader
                         return;
 
                     pet->CastSpell(GetExplTargetUnit(), HUNTER_SPELL_KILL_COMMAND_TRIGGER, true);
-                    GetCaster()->CastSpell(GetExplTargetUnit(), HUNTER_SPELL_HUNTERS_MARK, true);
 
                     if (pet->getVictim())
                     {
@@ -2224,6 +2223,34 @@ class spell_hun_kill_command: public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_hun_kill_command_SpellScript();
+        }
+};
+
+// Kill Command - 83381
+class spell_hun_kill_command_proc : public SpellScriptLoader
+{
+    public:
+        spell_hun_kill_command_proc() : SpellScriptLoader("spell_hun_kill_command_proc") { }
+
+        class spell_hun_kill_command_proc_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_kill_command_proc_SpellScript);
+
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* l_Owner = GetCaster()->GetOwner())
+                    SetHitDamage((int32)(1.5f * (l_Owner->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 1.36f)));
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_hun_kill_command_proc_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_kill_command_proc_SpellScript();
         }
 };
 
@@ -2897,55 +2924,55 @@ class spell_hun_claw_bite : public SpellScriptLoader
 // Spirit Mend - 90361
 class spell_hun_spirit_mend : public SpellScriptLoader
 {
-public:
-    spell_hun_spirit_mend() : SpellScriptLoader("spell_hun_spirit_mend") { }
+    public:
+        spell_hun_spirit_mend() : SpellScriptLoader("spell_hun_spirit_mend") { }
 
-    class spell_hun_spirit_mend_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_hun_spirit_mend_AuraScript);
-
-        void CalculateAmount(constAuraEffectPtr l_AuraEffect, int32& l_Amount, bool& /*canBeRecalculated*/)
+        class spell_hun_spirit_mend_AuraScript : public AuraScript
         {
-            if (Unit* l_Caster = GetCaster())
+            PrepareAuraScript(spell_hun_spirit_mend_AuraScript);
+
+            void CalculateAmount(constAuraEffectPtr l_AuraEffect, int32& l_Amount, bool& /*canBeRecalculated*/)
             {
-                if (l_AuraEffect->GetAmplitude() && GetMaxDuration())
-                    l_Amount = int32(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.35f * 0.5f) / (GetMaxDuration() / l_AuraEffect->GetAmplitude());
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_AuraEffect->GetAmplitude() && GetMaxDuration())
+                        l_Amount = int32(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.35f * 0.5f) / (GetMaxDuration() / l_AuraEffect->GetAmplitude());
+                }
             }
-        }
 
-        void Register()
-        {
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_spirit_mend_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_PERIODIC_HEAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_hun_spirit_mend_AuraScript();
-    }
-
-    class spell_hun_spirit_mend_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_hun_spirit_mend_SpellScript);
-
-        void HandleHeal(SpellEffIndex)
-        {
-            if (Unit* l_Caster = GetCaster())
+            void Register()
             {
-                SetHitHeal(int32(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.35f * 0.75f));
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_spirit_mend_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_PERIODIC_HEAL);
             }
-        }
+        };
 
-        void Register()
+        AuraScript* GetAuraScript() const
         {
-            OnEffectHitTarget += SpellEffectFn(spell_hun_spirit_mend_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+            return new spell_hun_spirit_mend_AuraScript();
         }
-    };
 
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_hun_spirit_mend_SpellScript();
-    }
+        class spell_hun_spirit_mend_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_spirit_mend_SpellScript);
+
+            void HandleHeal(SpellEffIndex)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    SetHitHeal(int32(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.35f * 0.75f));
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_hun_spirit_mend_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_spirit_mend_SpellScript();
+        }
 };
 
 // Thrill of the Hunt - 109396
@@ -3129,55 +3156,56 @@ enum class HunterExplosiveTrap : uint32
 /// Explosive trap - 13813
 class AreaTrigger_explosive_trap : public AreaTriggerEntityScript
 {
-public:
-    AreaTrigger_explosive_trap()
-        : AreaTriggerEntityScript("at_explosive_trap")
-    {
-        m_TrapArmTimer = (uint32)HunterFreezingTrap::ArmTimer;
-    }
-
-    uint32 m_TrapArmTimer;
-
-    AreaTriggerEntityScript* GetAI() const
-    {
-        return new AreaTrigger_explosive_trap();
-    }
-
-    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
-    {
-        /// Hunter trap have arm time ~2sec (can't find exact timer, but it's close to 2 sec)
-        if (m_TrapArmTimer <= p_Time)
+    public:
+        AreaTrigger_explosive_trap()
+            : AreaTriggerEntityScript("at_explosive_trap")
         {
-            auto l_CreateSpell = sSpellMgr->GetSpellInfo(p_AreaTrigger->GetSpellId());
-            auto l_AreaTriggerCaster = p_AreaTrigger->GetCaster();
-
-            if (l_AreaTriggerCaster && l_CreateSpell)
-            {
-                float l_Radius = l_CreateSpell->Effects[0].CalcRadius(l_AreaTriggerCaster);
-                Unit* l_Target = nullptr;
-
-                JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_AreaTriggerCaster, l_Radius);
-                JadeCore::UnitSearcher<JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_Target, l_Checker);
-                p_AreaTrigger->VisitNearbyGridObject(l_Radius, l_Searcher);
-                if (!l_Target)
-                    p_AreaTrigger->VisitNearbyWorldObject(l_Radius, l_Searcher);
-
-                if (l_Target != nullptr)
-                {
-                    l_AreaTriggerCaster->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), (uint32)HunterExplosiveTrap::SpellExplosiveEffect, true);
-                    p_AreaTrigger->Remove(0);
-                }
-            }
-
             m_TrapArmTimer = (uint32)HunterFreezingTrap::ArmTimer;
         }
-        else
-            m_TrapArmTimer -= p_Time;
-    }
+
+        uint32 m_TrapArmTimer;
+
+        AreaTriggerEntityScript* GetAI() const
+        {
+            return new AreaTrigger_explosive_trap();
+        }
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            /// Hunter trap have arm time ~2sec (can't find exact timer, but it's close to 2 sec)
+            if (m_TrapArmTimer <= p_Time)
+            {
+                auto l_CreateSpell = sSpellMgr->GetSpellInfo(p_AreaTrigger->GetSpellId());
+                auto l_AreaTriggerCaster = p_AreaTrigger->GetCaster();
+
+                if (l_AreaTriggerCaster && l_CreateSpell)
+                {
+                    float l_Radius = l_CreateSpell->Effects[0].CalcRadius(l_AreaTriggerCaster);
+                    Unit* l_Target = nullptr;
+
+                    JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_AreaTriggerCaster, l_Radius);
+                    JadeCore::UnitSearcher<JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_Target, l_Checker);
+                    p_AreaTrigger->VisitNearbyGridObject(l_Radius, l_Searcher);
+                    if (!l_Target)
+                        p_AreaTrigger->VisitNearbyWorldObject(l_Radius, l_Searcher);
+
+                    if (l_Target != nullptr)
+                    {
+                        l_AreaTriggerCaster->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), (uint32)HunterExplosiveTrap::SpellExplosiveEffect, true);
+                        p_AreaTrigger->Remove(0);
+                    }
+                }
+
+                m_TrapArmTimer = (uint32)HunterFreezingTrap::ArmTimer;
+            }
+            else
+                m_TrapArmTimer -= p_Time;
+        }
 };
 
 void AddSC_hunter_spell_scripts()
 {
+    new spell_hun_kill_command_proc();
     new spell_hun_hunters_mark();
     new spell_hun_spirit_mend();
     new spell_hun_thunderstomp();
