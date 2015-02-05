@@ -1062,7 +1062,7 @@ float Player::GetRegenForPower(Powers p_Power)
             l_HastePct += (*l_Iter)->GetAmount() / 100.0f;
     }
 
-    return l_BaseRegen - (l_BaseRegen * l_HastePct);
+    return l_BaseRegen + (l_BaseRegen * l_HastePct);
 }
 
 void Player::_ApplyAllStatBonuses()
