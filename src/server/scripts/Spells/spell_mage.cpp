@@ -117,6 +117,49 @@ enum MageSpells
     SPELL_MAGE_RING_OF_FROST_IMMUNATE            = 91264
 };
 
+/// Arcane Charge - 36032
+class spell_mage_arcane_charge : public SpellScriptLoader
+{
+    public:
+        spell_mage_arcane_charge() : SpellScriptLoader("spell_mage_arcane_charge") { }
+
+        class spell_mage_arcane_charge_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mage_arcane_charge_AuraScript);
+
+            enum eDatas
+            {
+                EnhancedArcaneBlast = 157595
+            };
+
+            void CalulcateSpellMod(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(eDatas::EnhancedArcaneBlast))
+                    {
+                        SpellInfo const* l_EnhancedArcaneBlast = sSpellMgr->GetSpellInfo(eDatas::EnhancedArcaneBlast);
+                        if (l_EnhancedArcaneBlast == nullptr)
+                            return;
+
+                        if (AuraPtr l_Aura = p_AurEff->GetBase())
+                            p_Amount = -int32(l_EnhancedArcaneBlast->Effects[EFFECT_0].BasePoints);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_arcane_charge_AuraScript::CalulcateSpellMod, EFFECT_4, SPELL_AURA_ADD_PCT_MODIFIER);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_mage_arcane_charge_AuraScript();
+        }
+};
+
 /// Meteor Burn - 175396
 class spell_areatrigger_meteor_burn : public AreaTriggerEntityScript
 {
@@ -2189,6 +2232,7 @@ void AddSC_mage_spell_scripts()
     new npc_mage_prismatic_crystal();
 
     /// Spells
+    new spell_mage_arcane_charge();
     new spell_mage_meteor();
     new spell_mage_comet_storm();
     new spell_mage_ring_of_frost_immunity();
