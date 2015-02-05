@@ -447,6 +447,9 @@ int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto)
         }
         case SPELLFAMILY_HUNTER:
         {
+            // Hunter's Mark - 30 seconds in PvP (6.0)
+            if (spellproto->Id == 1130)
+                return 30 * IN_MILLISECONDS;
             // Binding Shot - 3 seconds in PvP (6.0)
             if (spellproto->SpellIconID == 4612 && spellproto->SpellVisual[0] == 6859)
                 return 3 * IN_MILLISECONDS;
