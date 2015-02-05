@@ -7449,15 +7449,16 @@ void Spell::EffectCreateAreatrigger(SpellEffIndex effIndex)
 
     switch (l_MiscValue)
     {
-    case 719:  // Anima Ring
-        m_caster->GetPosition(&l_Dest);
-        break;
-    case 1315: // Chi Burst
-    case 1316: // Chi Burst
-        m_caster->MovePosition(l_Dest, m_spellInfo->GetMaxRange(true, m_caster, this), 0.0f);
-        break;
-    default:
-        break;
+        case 719:  // Anima Ring
+            m_caster->GetPosition(&l_Dest);
+            break;
+        case 1315: // Chi Burst
+        case 1316: // Chi Burst
+        case 1612: ///< Arcane Orb
+            m_caster->MovePosition(l_Dest, m_spellInfo->GetMaxRange(true, m_caster, this), 0.0f);
+            break;
+        default:
+            break;
     }
 
     AreaTrigger* l_AreaTrigger = new AreaTrigger;

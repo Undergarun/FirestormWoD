@@ -117,6 +117,45 @@ enum MageSpells
     SPELL_MAGE_RING_OF_FROST_IMMUNATE            = 91264
 };
 
+/// Arcane Orb - 153626
+class spell_areatrigger_arcane_orb : public AreaTriggerEntityScript
+{
+    public:
+        spell_areatrigger_arcane_orb() : AreaTriggerEntityScript("spell_areatrigger_arcane_orb") { }
+
+        enum eArcaneOrbSpell
+        {
+            ArcaneOrbDamage = 153640
+        };
+
+        void OnCreate(AreaTrigger* p_AreaTrigger)
+        {
+            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+                l_Caster->CastSpell(l_Caster, SPELL_MAGE_ARCANE_CHARGE, true);
+        }
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+            {
+                std::list<Unit*> l_TargetList;
+                float l_Radius = 2.0f;
+
+                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
+                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+                p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+                for (Unit* l_Unit : l_TargetList)
+                    l_Caster->CastSpell(l_Unit, eArcaneOrbSpell::ArcaneOrbDamage, true);
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const
+        {
+            return new spell_areatrigger_arcane_orb();
+        }
+};
+
 /// Arcane Charge - 36032
 class spell_mage_arcane_charge : public SpellScriptLoader
 {
@@ -172,7 +211,7 @@ class spell_areatrigger_meteor_burn : public AreaTriggerEntityScript
             VisualID  = 45326
         };
 
-        void OnCreateAreaTriggerEntity(AreaTrigger* p_AreaTrigger)
+        void OnCreate(AreaTrigger* p_AreaTrigger)
         {
             /// VisualID of 175396 is not the same of his AreaTrigger
             p_AreaTrigger->SetUInt32Value(EAreaTriggerFields::AREATRIGGER_FIELD_SPELL_VISUAL_ID, eMeteorSpell::VisualID);
@@ -2223,6 +2262,7 @@ public:
 void AddSC_mage_spell_scripts()
 {
     /// AreaTriggers
+    new spell_areatrigger_arcane_orb();
     new spell_areatrigger_meteor_burn();
 
     /// Npcs
