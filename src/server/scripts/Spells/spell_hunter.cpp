@@ -130,7 +130,8 @@ enum HunterSpells
     HUNTER_SPELL_BOMBARDMENT                        = 82921,
     HUNTER_SPELL_BASIC_ATTACK_COST_MODIFIER         = 62762,
     HUNTER_SPELL_IMPROVED_FOCUS_FIRE                = 157705,
-    HUNTER_SPELL_SPIKED_COLLAR                      = 53184
+    HUNTER_SPELL_SPIKED_COLLAR                      = 53184,
+    HUNTER_SPELL_ENHANCED_BASIC_ATTACK              = 157717
 };
 
 ///< Thunderstomp - 63900
@@ -2830,13 +2831,18 @@ class spell_hun_claw_bite : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* l_Pet = GetCaster())
+                if (Pet* l_Pet = GetCaster()->ToPet())
                 {
                     if (Unit* l_Hunter = GetCaster()->GetOwner())
                     {
                         int32 l_Damage = int32(1.5f * l_Hunter->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.333f);
 
                         const SpellInfo *l_SpikedCollar = sSpellMgr->GetSpellInfo(HUNTER_SPELL_SPIKED_COLLAR);
+                        const SpellInfo *l_EnhancedBasicAttacks = sSpellMgr->GetSpellInfo(HUNTER_SPELL_ENHANCED_BASIC_ATTACK);
+                        const SpellInfo* l_SpellInfo = sSpellMgr->GetSpellInfo(HUNTER_SPELL_BASIC_ATTACK_COST_MODIFIER);
+
+                        if (l_EnhancedBasicAttacks != nullptr && l_Hunter->HasSpell(HUNTER_SPELL_ENHANCED_BASIC_ATTACK) && roll_chance_i(l_EnhancedBasicAttacks->Effects[EFFECT_0].BasePoints))
+                            l_Pet->CastSpell(l_Pet, HUNTER_SPELL_ENHANCED_BASIC_ATTACK, true);
 
                         // Increases the damage done by your pet's Basic Attacks by 10%
                         if (l_Hunter->HasAura(HUNTER_SPELL_SPIKED_COLLAR) && l_SpikedCollar != nullptr)
@@ -2845,7 +2851,6 @@ class spell_hun_claw_bite : public SpellScriptLoader
                         // Deals 100% more damage and costs 100% more Focus when your pet has 50 or more Focus.
                         if (l_Pet->GetPower(POWER_FOCUS) + 25 >= 50)
                         {
-                            const SpellInfo* l_SpellInfo = sSpellMgr->GetSpellInfo(HUNTER_SPELL_BASIC_ATTACK_COST_MODIFIER);
                             if (l_SpellInfo != nullptr)
                                 l_Damage += CalculatePct(l_Damage, l_SpellInfo->Effects[EFFECT_1].BasePoints);
                             l_Pet->EnergizeBySpell(l_Pet, GetSpellInfo()->Id, -25, POWER_FOCUS);
