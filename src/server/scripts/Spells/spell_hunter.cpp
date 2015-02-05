@@ -128,7 +128,8 @@ enum HunterSpells
     HUNTER_SPELL_GLYPH_OF_ANIMAL_BOND               = 24529,
     HUNTER_SPELL_MULTI_SHOT                         = 2643,
     HUNTER_SPELL_BOMBARDMENT                        = 82921,
-    HUNTER_SPELL_BASIC_ATTACK_COST_MODIFIER         = 62762
+    HUNTER_SPELL_BASIC_ATTACK_COST_MODIFIER         = 62762,
+    HUNTER_SPELL_IMPROVED_FOCUS_FIRE                = 157705
 };
 
 ///< Thunderstomp - 63900
@@ -1326,6 +1327,38 @@ class spell_hun_focus_fire: public SpellScriptLoader
 {
     public:
         spell_hun_focus_fire() : SpellScriptLoader("spell_hun_focus_fire") { }
+
+        class spell_hun_focus_fire_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_focus_fire_AuraScript);
+
+            void CalculateAmount(constAuraEffectPtr /*l_AuraEffect*/, int32& l_Amount, bool& /*canBeRecalculated*/)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(HUNTER_SPELL_IMPROVED_FOCUS_FIRE))
+                    {
+                        const SpellInfo *l_SpellInfo = sSpellMgr->GetSpellInfo(HUNTER_SPELL_IMPROVED_FOCUS_FIRE);
+
+                        if (l_SpellInfo == nullptr)
+                            return;
+
+                        if (AuraPtr l_Frenzy = l_Caster->GetAura(HUNTER_SPELL_FRENZY_STACKS))
+                            l_Amount = l_Frenzy->GetStackAmount() * l_SpellInfo->Effects[EFFECT_0].BasePoints;
+                    }
+                }
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_focus_fire_AuraScript::CalculateAmount, EFFECT_2, SPELL_AURA_MOD_RANGED_ATTACK_POWER_PCT);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_focus_fire_AuraScript();
+        }
 
         class spell_hun_focus_fire_SpellScript : public SpellScript
         {
