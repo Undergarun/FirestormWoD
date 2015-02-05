@@ -114,7 +114,8 @@ enum MageSpells
     SPELL_MAGE_FLAMEGLOW                         = 140468,
     SPELL_MAGE_RAPID_TELEPORTATION               = 46989,
     SPELL_MAGE_RAPID_TELEPORTATION_AURA          = 89749,
-    SPELL_MAGE_RING_OF_FROST_IMMUNATE            = 91264
+    SPELL_MAGE_RING_OF_FROST_IMMUNATE            = 91264,
+    SPELL_MAGE_LIVING_BOMB                       = 44457
 };
 
 /// Arcane Orb - 153626
@@ -1221,7 +1222,7 @@ class CheckInfernoBlastImpactPredicate
         Unit* _mainTarget;
 };
 
-// Inferno Blast - 108853
+/// Inferno Blast - 108853
 class spell_mage_inferno_blast: public SpellScriptLoader
 {
     public:
@@ -1231,65 +1232,79 @@ class spell_mage_inferno_blast: public SpellScriptLoader
         {
             PrepareSpellScript(spell_mage_inferno_blast_SpellScript);
 
+            enum eSpell
+            {
+                ImprovedInfernoBlast = 157629
+            };
+
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
-                        std::list<Unit*> targetList;
-                        int32 combustionBp = 0;
+                        std::list<Unit*> l_TargetList;
+                        int32 l_CombustionBP = 0;
 
-                        _player->CastSpell(target, SPELL_MAGE_INFERNO_BLAST_IMPACT, true);
+                        l_Caster->CastSpell(l_Target, SPELL_MAGE_INFERNO_BLAST_IMPACT, true);
 
-                        // Spreads any Pyroblast, Ignite, and Combustion effects to up to 2 nearby enemy targets within 10 yards
+                        /// Spreads any Pyroblast, Ignite, Living Bomb and Combustion effects to up to 2 nearby enemy targets within 10 yards
+                        l_Target->GetAttackableUnitListInRange(l_TargetList, 10.0f);
 
-                        target->GetAttackableUnitListInRange(targetList, 10.0f);
+                        l_TargetList.remove_if(CheckInfernoBlastImpactPredicate(l_Caster, l_Target));
 
-                        targetList.remove_if(CheckInfernoBlastImpactPredicate(_player, target));
-
-                        if (targetList.size() > (uint32)GetSpellInfo()->Effects[EFFECT_1].BasePoints)
-                            JadeCore::Containers::RandomResizeList(targetList, GetSpellInfo()->Effects[EFFECT_1].BasePoints);
-
-                        for (auto itr : targetList)
+                        uint8 l_TargetCount = GetSpellInfo()->Effects[EFFECT_1].BasePoints;
+                        if (SpellInfo const* l_ImprovedBlast = sSpellMgr->GetSpellInfo(eSpell::ImprovedInfernoBlast))
                         {
-                            // 1 : Ignite
-                            if (target->HasAura(SPELL_MAGE_IGNITE, _player->GetGUID()))
+                            if (l_Caster->HasAura(l_ImprovedBlast->Id))
+                                l_TargetCount += l_ImprovedBlast->Effects[EFFECT_0].BasePoints;
+                        }
+
+                        if (l_TargetList.size() > l_TargetCount)
+                            JadeCore::Containers::RandomResizeList(l_TargetList, l_TargetCount);
+
+                        for (Unit* l_Unit : l_TargetList)
+                        {
+                            /// 1 : Ignite
+                            if (l_Target->HasAura(SPELL_MAGE_IGNITE, l_Caster->GetGUID()))
                             {
-                                float value = _player->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.5f;
+                                float l_Value = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.5f;
 
-                                int32 igniteBp = 0;
-
-                                const SpellInfo *l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_IGNITE);
+                                int32 l_Ignite = 0;
+                                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_IGNITE);
 
                                 if (l_SpellInfo != nullptr)
                                 {
-                                    if (itr->HasAura(SPELL_MAGE_IGNITE, _player->GetGUID()))
-                                        igniteBp += itr->GetRemainingPeriodicAmount(_player->GetGUID(), SPELL_MAGE_IGNITE, SPELL_AURA_PERIODIC_DAMAGE);
+                                    if (l_Unit->HasAura(SPELL_MAGE_IGNITE, l_Caster->GetGUID()))
+                                        l_Ignite += l_Unit->GetRemainingPeriodicAmount(l_Caster->GetGUID(), SPELL_MAGE_IGNITE, SPELL_AURA_PERIODIC_DAMAGE);
 
-                                    igniteBp += int32((CalculatePct(GetHitDamage(), value)) / (l_SpellInfo->GetMaxDuration() / l_SpellInfo->Effects[EFFECT_0].Amplitude));
+                                    l_Ignite += int32((CalculatePct(GetHitDamage(), l_Value)) / (l_SpellInfo->GetMaxDuration() / l_SpellInfo->Effects[EFFECT_0].Amplitude));
 
-                                    _player->CastCustomSpell(itr, SPELL_MAGE_IGNITE, &igniteBp, NULL, NULL, true);
+                                    l_Caster->CastCustomSpell(l_Unit, SPELL_MAGE_IGNITE, &l_Ignite, NULL, NULL, true);
                                 }
                             }
 
-                            // 2 : Pyroblast
-                            if (target->HasAura(SPELL_MAGE_PYROBLAST, _player->GetGUID()))
-                                _player->AddAura(SPELL_MAGE_PYROBLAST, itr);
+                            /// 2 : Pyroblast
+                            if (l_Target->HasAura(SPELL_MAGE_PYROBLAST, l_Caster->GetGUID()))
+                                l_Caster->AddAura(SPELL_MAGE_PYROBLAST, l_Unit);
 
-                            // 3 : Combustion
-                            if (target->HasAura(SPELL_MAGE_COMBUSTION_DOT, _player->GetGUID()))
+                            /// 3 : Living Bomb
+                            if (l_Target->HasAura(SPELL_MAGE_LIVING_BOMB, l_Caster->GetGUID()))
+                                l_Caster->AddAura(SPELL_MAGE_LIVING_BOMB, l_Unit);
+
+                            /// 4 : Combustion
+                            if (l_Target->HasAura(SPELL_MAGE_COMBUSTION_DOT, l_Caster->GetGUID()))
                             {
-                                if (itr->HasAura(SPELL_MAGE_PYROBLAST, _player->GetGUID()))
+                                if (l_Unit->HasAura(SPELL_MAGE_PYROBLAST, l_Caster->GetGUID()))
                                 {
-                                    combustionBp += _player->CalculateSpellDamage(target, sSpellMgr->GetSpellInfo(SPELL_MAGE_PYROBLAST), 1);
-                                    combustionBp = _player->SpellDamageBonusDone(target, sSpellMgr->GetSpellInfo(SPELL_MAGE_PYROBLAST), combustionBp, EFFECT_0, DOT);
+                                    l_CombustionBP += l_Caster->CalculateSpellDamage(l_Target, sSpellMgr->GetSpellInfo(SPELL_MAGE_PYROBLAST), 1);
+                                    l_CombustionBP = l_Caster->SpellDamageBonusDone(l_Target, sSpellMgr->GetSpellInfo(SPELL_MAGE_PYROBLAST), l_CombustionBP, EFFECT_0, DOT);
                                 }
-                                if (itr->HasAura(SPELL_MAGE_IGNITE, _player->GetGUID()))
-                                    combustionBp += itr->GetRemainingPeriodicAmount(_player->GetGUID(), SPELL_MAGE_IGNITE, SPELL_AURA_PERIODIC_DAMAGE);
+                                if (l_Unit->HasAura(SPELL_MAGE_IGNITE, l_Caster->GetGUID()))
+                                    l_CombustionBP += l_Unit->GetRemainingPeriodicAmount(l_Caster->GetGUID(), SPELL_MAGE_IGNITE, SPELL_AURA_PERIODIC_DAMAGE);
 
-                                if (combustionBp)
-                                    _player->CastCustomSpell(itr, SPELL_MAGE_COMBUSTION_DOT, &combustionBp, NULL, NULL, true);
+                                if (l_CombustionBP)
+                                    l_Caster->CastCustomSpell(l_Unit, SPELL_MAGE_COMBUSTION_DOT, &l_CombustionBP, NULL, NULL, true);
                             }
                         }
                     }
