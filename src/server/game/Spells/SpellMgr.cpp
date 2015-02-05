@@ -3851,6 +3851,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 155057:// Magma Pool (DoT)
             case 166730:// Burning Bridge (DoT)
             case 176037:///< Noxious Spit (DoT)
+            case 155158:///< Meteor Burn
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
                 break;

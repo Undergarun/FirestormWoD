@@ -117,6 +117,83 @@ enum MageSpells
     SPELL_MAGE_RING_OF_FROST_IMMUNATE            = 91264
 };
 
+/// Meteor Burn - 175396
+class spell_areatrigger_meteor_burn : public AreaTriggerEntityScript
+{
+    public:
+        spell_areatrigger_meteor_burn() : AreaTriggerEntityScript("spell_areatrigger_meteor_burn") { }
+
+        enum eMeteorSpell
+        {
+            MeteorDoT = 155158,
+            VisualID  = 45326
+        };
+
+        void OnCreateAreaTriggerEntity(AreaTrigger* p_AreaTrigger)
+        {
+            /// VisualID of 175396 is not the same of his AreaTrigger
+            p_AreaTrigger->SetUInt32Value(EAreaTriggerFields::AREATRIGGER_FIELD_SPELL_VISUAL_ID, eMeteorSpell::VisualID);
+        }
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+            {
+                std::list<Unit*> l_TargetList;
+                float l_Radius = 8.0f;
+
+                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
+                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+                p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+                for (Unit* l_Unit : l_TargetList)
+                    l_Caster->CastSpell(l_Unit, eMeteorSpell::MeteorDoT, true);
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const
+        {
+            return new spell_areatrigger_meteor_burn();
+        }
+};
+
+/// Meteor - 153561
+class spell_mage_meteor : public SpellScriptLoader
+{
+    public:
+        spell_mage_meteor() : SpellScriptLoader("spell_mage_meteor") { }
+
+        class spell_mage_meteor_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mage_meteor_SpellScript);
+
+            enum eMeteorDatas
+            {
+                MeteorSpell = 153564
+            };
+
+            void HandleAfterCast()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    /// @TODO: Add delay of 3s before cast
+                    if (WorldLocation const* l_Dest = GetExplTargetDest())
+                        l_Caster->CastSpell(l_Dest->m_positionX, l_Dest->m_positionY, l_Dest->m_positionZ, eMeteorDatas::MeteorSpell, true);
+                }
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_mage_meteor_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_mage_meteor_SpellScript();
+        }
+};
+
 /// Prismatic Crystal - 76933
 class npc_mage_prismatic_crystal : public CreatureScript
 {
@@ -226,6 +303,7 @@ class spell_mage_comet_storm : public SpellScriptLoader
                             float l_X = l_Dest->m_positionX + frand(-4.0f, 4.0f);
                             float l_Y = l_Dest->m_positionY + frand(-4.0f, 4.0f);
 
+                            /// @TODO: Add delay of 500ms between casts
                             l_Caster->CastSpell(l_X, l_Y, l_Dest->m_positionZ, eCometDatas::CometStorm, true);
                         }
                     }
@@ -2104,10 +2182,14 @@ public:
 
 void AddSC_mage_spell_scripts()
 {
+    /// AreaTriggers
+    new spell_areatrigger_meteor_burn();
+
     /// Npcs
     new npc_mage_prismatic_crystal();
 
     /// Spells
+    new spell_mage_meteor();
     new spell_mage_comet_storm();
     new spell_mage_ring_of_frost_immunity();
     new spell_mage_flameglow();
