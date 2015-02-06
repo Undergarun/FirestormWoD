@@ -599,6 +599,9 @@ void Player::UpdateCritPercentage(WeaponAttackType attType)
 
     value = value < 0.0f ? 0.0f : value;
     SetStatFloatValue(index, value);
+
+    if (HasAuraType(AuraType::SPELL_AURA_ADD_PARRY_PCT_OF_CS_FROM_GEAR))
+        UpdateParryPercentage();
 }
 
 void Player::UpdateAllCritPercentages()
@@ -672,6 +675,10 @@ void Player::UpdateParryPercentage()
 
         // apply diminishing formula to diminishing parry chance
         value = nondiminishing + diminishing * parryCap[pClass] / (diminishing + parryCap[pClass] * k_constant[pClass]);
+
+        /// Apply parry from pct of critical strike from gear
+        value += CalculatePct(GetRatingBonusValue(CR_CRIT_MELEE), GetTotalAuraModifier(SPELL_AURA_ADD_PARRY_PCT_OF_CS_FROM_GEAR));
+
         if (value < 0.0f)
             value = 0.0f;
 

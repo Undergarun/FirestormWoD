@@ -252,6 +252,7 @@ class AuraEffect : public std::enable_shared_from_this<AuraEffect>
         void HandleAuraMultistrike(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const;
         void HandleAuraLeech(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const;
         void HandleAuraVersatility(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const;
+        void HandleAuraAddParryPCTOfCSFromGear(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const;
         void HandleAuraBonusArmor(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const;
 
         //   heal and energize
