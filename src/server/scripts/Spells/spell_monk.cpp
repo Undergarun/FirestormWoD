@@ -3662,41 +3662,41 @@ enum SpinningCraneKickSpells
 // Spinning Crane Kick - 101546
 class spell_monk_spinning_crane_kick: public SpellScriptLoader
 {
-public:
-    spell_monk_spinning_crane_kick() : SpellScriptLoader("spell_monk_spinning_crane_kick") { }
+    public:
+        spell_monk_spinning_crane_kick() : SpellScriptLoader("spell_monk_spinning_crane_kick") { }
 
-    class spell_monk_spinning_crane_kick_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_monk_spinning_crane_kick_AuraScript);
-
-        void OnTick(constAuraEffectPtr aurEff)
+        class spell_monk_spinning_crane_kick_AuraScript : public AuraScript
         {
-            if (!GetCaster())
-                return;
+            PrepareAuraScript(spell_monk_spinning_crane_kick_AuraScript);
 
-            float l_Low = 0;
-            float l_High = 0;
+            void OnTick(constAuraEffectPtr aurEff)
+            {
+                if (!GetCaster())
+                    return;
 
-            Player* l_Player = GetCaster()->ToPlayer();
+                float l_Low = 0;
+                float l_High = 0;
 
-            if (l_Player == nullptr)
-                return;
+                Player* l_Player = GetCaster()->ToPlayer();
 
-            l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
+                if (l_Player == nullptr)
+                    return;
 
-            int l_Bp0 = (((4 * 0.75f * l_Low + 4 * 0.75f * l_High) / 2) / (GetSpellInfo()->GetDuration() / IN_MILLISECONDS));
-            l_Player->CastCustomSpell(l_Player, SPELL_MONK_SPINNING_CRANE_KICK_DAMAGE , &l_Bp0, NULL, NULL, true);
-        }
-        void Register()
+                l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
+
+                int l_Bp0 = (((4 * 0.75f * l_Low + 4 * 0.75f * l_High) / 2) / (GetSpellInfo()->GetDuration() / IN_MILLISECONDS));
+                l_Player->CastCustomSpell(l_Player, SPELL_MONK_SPINNING_CRANE_KICK_DAMAGE, &l_Bp0, NULL, NULL, true);
+            }
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_spinning_crane_kick_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
         {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_spinning_crane_kick_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            return new spell_monk_spinning_crane_kick_AuraScript();
         }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_monk_spinning_crane_kick_AuraScript();
-    }
 };
 
 enum RushingJadeWindSpells
@@ -3712,41 +3712,41 @@ enum RushingJadeWindSpells
 // Rushing Jade Wind - 116847
 class spell_monk_rushing_jade_wind: public SpellScriptLoader
 {
-public:
-    spell_monk_rushing_jade_wind() : SpellScriptLoader("spell_monk_rushing_jade_wind") { }
+    public:
+        spell_monk_rushing_jade_wind() : SpellScriptLoader("spell_monk_rushing_jade_wind") { }
 
-    class spell_monk_rushing_jade_wind_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_monk_rushing_jade_wind_AuraScript);
-
-        void OnTick(constAuraEffectPtr aurEff)
+        class spell_monk_rushing_jade_wind_AuraScript : public AuraScript
         {
-            if (!GetCaster())
-                return;
+            PrepareAuraScript(spell_monk_rushing_jade_wind_AuraScript);
 
-            float l_Low = 0;
-            float l_High = 0;
+            void OnTick(constAuraEffectPtr aurEff)
+            {
+                if (!GetCaster())
+                    return;
 
-            Player* l_Player = GetCaster()->ToPlayer();
+                float l_Low = 0;
+                float l_High = 0;
 
-            if (l_Player == nullptr)
-                return;
+                Player* l_Player = GetCaster()->ToPlayer();
 
-            l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
+                if (l_Player == nullptr)
+                    return;
 
-            int l_Bp0 = (((0.6f * l_Low + 0.6f * l_High) / 2) * 9) / (GetSpellInfo()->GetDuration() / IN_MILLISECONDS);
-            l_Player->CastCustomSpell(l_Player, SPELL_MONK_RUSHING_JADE_WIND_DAMAGE , &l_Bp0, NULL, NULL, true);
-        }
-        void Register()
+                l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
+
+                int l_Bp0 = (((0.6f * l_Low + 0.6f * l_High) / 2) * 9) / (GetSpellInfo()->GetDuration() / IN_MILLISECONDS);
+                l_Player->CastCustomSpell(l_Player, SPELL_MONK_RUSHING_JADE_WIND_DAMAGE, &l_Bp0, NULL, NULL, true);
+            }
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_rushing_jade_wind_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
         {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_rushing_jade_wind_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            return new spell_monk_rushing_jade_wind_AuraScript();
         }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_monk_rushing_jade_wind_AuraScript();
-    }
 };
 
 enum FistsOfFurySpells
@@ -3760,36 +3760,36 @@ enum FistsOfFurySpells
 // Fists of Fury - 113656
 class spell_monk_fists_of_fury: public SpellScriptLoader
 {
-public:
-    spell_monk_fists_of_fury() : SpellScriptLoader("spell_monk_fists_of_fury") { }
+    public:
+        spell_monk_fists_of_fury() : SpellScriptLoader("spell_monk_fists_of_fury") { }
 
-    class spell_monk_fists_of_fury_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_monk_fists_of_fury_AuraScript);
-
-        void CalculateAmount(constAuraEffectPtr /*p_AurEff*/, int32 & p_Amount, bool & /*p_CanBeRecalculated*/)
+        class spell_monk_fists_of_fury_AuraScript : public AuraScript
         {
-            if (!GetCaster())
-                return;
-            
-            float l_Low = 0;
-            float l_High = 0;
+            PrepareAuraScript(spell_monk_fists_of_fury_AuraScript);
 
-            if (Player* l_Player = GetCaster()->ToPlayer())
-                l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
-            p_Amount += ((5 * 5.875f * l_Low + 5 * 5.875f * l_High) / 2) / (GetSpellInfo()->GetDuration() / IN_MILLISECONDS);
+            void CalculateAmount(constAuraEffectPtr /*p_AurEff*/, int32 & p_Amount, bool & /*p_CanBeRecalculated*/)
+            {
+                if (!GetCaster())
+                    return;
 
-        }
-        void Register()
+                float l_Low = 0;
+                float l_High = 0;
+
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                    l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
+                p_Amount += ((5 * 5.875f * l_Low + 5 * 5.875f * l_High) / 2) / (GetSpellInfo()->GetDuration() / IN_MILLISECONDS);
+
+            }
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_monk_fists_of_fury_AuraScript::CalculateAmount, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
         {
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_monk_fists_of_fury_AuraScript::CalculateAmount, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE);
+            return new spell_monk_fists_of_fury_AuraScript();
         }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_monk_fists_of_fury_AuraScript();
-    }
 };
 
 enum JabSpells
@@ -3802,36 +3802,36 @@ enum JabSpells
 
 class spell_monk_jab: public SpellScriptLoader
 {
-public:
-    spell_monk_jab() : SpellScriptLoader("spell_monk_jab") { }
+    public:
+        spell_monk_jab() : SpellScriptLoader("spell_monk_jab") { }
 
-    class spell_monk_jab_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_monk_jab_SpellScript);
-
-        void HandleDamage(SpellEffIndex /*effIndex*/)
+        class spell_monk_jab_SpellScript : public SpellScript
         {
-            if (!GetCaster())
-                return;
+            PrepareSpellScript(spell_monk_jab_SpellScript);
 
-            float l_Low = 0;
-            float l_High = 0;
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                if (!GetCaster())
+                    return;
 
-            if (Player* l_Player = GetCaster()->ToPlayer())
-                l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
+                float l_Low = 0;
+                float l_High = 0;
 
-            SetHitDamage(int32(frand(1.15f * l_Low, 1.15f * l_High)));
-        }
-        void Register()
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                    l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
+
+                SetHitDamage(int32(frand(1.15f * l_Low, 1.15f * l_High)));
+            }
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_monk_jab_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnEffectHitTarget += SpellEffectFn(spell_monk_jab_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            return new spell_monk_jab_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_monk_jab_SpellScript();
-    }
 };
 
 enum TigerPalmSpells
@@ -3845,43 +3845,43 @@ enum TigerPalmSpells
 // Tiger Palm - 100787
 class spell_monk_tiger_palm: public SpellScriptLoader
 {
-public:
-    spell_monk_tiger_palm() : SpellScriptLoader("spell_monk_tiger_palm") { }
+    public:
+        spell_monk_tiger_palm() : SpellScriptLoader("spell_monk_tiger_palm") { }
 
-    class spell_monk_tiger_palm_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_monk_tiger_palm_SpellScript);
-
-        void HandleDamage(SpellEffIndex /*effIndex*/)
+        class spell_monk_tiger_palm_SpellScript : public SpellScript
         {
-            if (!GetCaster())
-                return;
+            PrepareSpellScript(spell_monk_tiger_palm_SpellScript);
 
-            float l_Low = 0;
-            float l_High = 0;
-            float l_Coeff = 3.0f;
-
-            if (Player* l_Player = GetCaster()->ToPlayer())
+            void HandleDamage(SpellEffIndex /*effIndex*/)
             {
-                l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
+                if (!GetCaster())
+                    return;
 
-                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER)
-                    l_Coeff = 6.0f;
-                l_Player->RemoveAurasDueToSpell(118864); // Combo Breaker
+                float l_Low = 0;
+                float l_High = 0;
+                float l_Coeff = 3.0f;
+
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
+
+                    if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER)
+                        l_Coeff = 6.0f;
+                    l_Player->RemoveAurasDueToSpell(118864); // Combo Breaker
+                }
+
+                SetHitDamage(int32(frand(l_Coeff * l_Low, l_Coeff * l_High)));
             }
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_monk_tiger_palm_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
 
-            SetHitDamage(int32(frand(l_Coeff * l_Low, l_Coeff * l_High)));
-        }
-        void Register()
+        SpellScript* GetSpellScript() const
         {
-            OnEffectHitTarget += SpellEffectFn(spell_monk_tiger_palm_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            return new spell_monk_tiger_palm_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_monk_tiger_palm_SpellScript();
-    }
 };
 
 enum BlackoutKickSpells
@@ -3899,83 +3899,83 @@ enum BlackoutKickSpells
 // Blackout Kick - 100784
 class spell_monk_blackout_kick: public SpellScriptLoader
 {
-public:
-    spell_monk_blackout_kick() : SpellScriptLoader("spell_monk_blackout_kick") { }
+    public:
+        spell_monk_blackout_kick() : SpellScriptLoader("spell_monk_blackout_kick") { }
 
-    class spell_monk_blackout_kick_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_monk_blackout_kick_SpellScript);
-
-        void HandleDamage(SpellEffIndex /*p_EffIndex*/)
+        class spell_monk_blackout_kick_SpellScript : public SpellScript
         {
-            if (!GetCaster())
-                return;
+            PrepareSpellScript(spell_monk_blackout_kick_SpellScript);
 
-            float l_Low = 0;
-            float l_High = 0;
-
-            Player* l_Player = GetCaster()->ToPlayer();
-            Unit* l_Target = GetHitUnit();
-
-            if (l_Player == nullptr || l_Target == nullptr)
-                return;
-
-            l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
-
-            // Base damage
-            int32 l_Damage = GetHitDamage() + int32(frand(5.375f * l_Low, 5.375f * l_High));
-            SetHitDamage(l_Damage);
-
-            // Add additionnal stuff depending on spec
-            if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER)
+            void HandleDamage(SpellEffIndex /*p_EffIndex*/)
             {
-                l_Damage += int32(frand(4.9645f * l_Low, 4.9645f * l_High));
+                if (!GetCaster())
+                    return;
+
+                float l_Low = 0;
+                float l_High = 0;
+
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Player == nullptr || l_Target == nullptr)
+                    return;
+
+                l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
+
+                // Base damage
+                int32 l_Damage = GetHitDamage() + int32(frand(5.375f * l_Low, 5.375f * l_High));
+                SetHitDamage(l_Damage);
+
+                // Add additionnal stuff depending on spec
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER)
+                {
+                    l_Damage += int32(frand(4.9645f * l_Low, 4.9645f * l_High));
+                }
+                else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_WINDWALKER && l_Player->getLevel() >= 20)
+                {
+                    if (l_Target->isInBack(l_Player))
+                    {
+                        int32 l_Bp0 = CalculatePct(l_Damage, GetSpellInfo()->Effects[EFFECT_1].BasePoints);
+                        if (AuraPtr l_CombatConditioning = l_Player->GetAura(SPELL_MONK_COMBAT_CONDITIONING))
+                            l_Bp0 += CalculatePct(l_Damage, l_CombatConditioning->GetEffect(EFFECT_0)->GetAmount());
+                        l_Bp0 /= 4;
+
+                        l_Player->CastCustomSpell(l_Target, SPELL_MONK_BLACKOUT_KICK_DOT, &l_Bp0, NULL, NULL, true);
+                    }
+                    else
+                    {
+                        int32 l_Bp0 = CalculatePct(l_Damage, GetSpellInfo()->Effects[EFFECT_1].BasePoints);
+                        if (AuraPtr l_CombatConditioning = l_Player->GetAura(SPELL_MONK_COMBAT_CONDITIONING))
+                            l_Bp0 += CalculatePct(l_Damage, l_CombatConditioning->GetEffect(EFFECT_0)->GetAmount());
+
+                        l_Player->CastCustomSpell(l_Player, SPELL_MONK_BLACKOUT_KICK_HEAL, &l_Bp0, NULL, NULL, true);
+                    }
+                }
+                else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_BREWMASTER && l_Player->getLevel() >= 34)
+                {
+                    if (AuraPtr l_Shuffle = l_Player->GetAura(SPELL_MONK_SHUFFLE))
+                    {
+                        l_Shuffle->SetMaxDuration(l_Shuffle->GetMaxDuration() + 5 * IN_MILLISECONDS);
+                        l_Shuffle->SetDuration(l_Shuffle->GetDuration() + 5 * IN_MILLISECONDS);
+                    }
+                    else
+                        l_Player->CastSpell(l_Player, SPELL_MONK_SHUFFLE, true);
+                }
+
+                if (l_Player->HasAura(116768))
+                    l_Player->RemoveAurasDueToSpell(116768);
             }
-            else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_WINDWALKER && l_Player->getLevel() >= 20)
+
+            void Register()
             {
-                if (l_Target->isInBack(l_Player))
-                {
-                    int32 l_Bp0 = CalculatePct(l_Damage, GetSpellInfo()->Effects[EFFECT_1].BasePoints);
-                    if (AuraPtr l_CombatConditioning = l_Player->GetAura(SPELL_MONK_COMBAT_CONDITIONING))
-                        l_Bp0 += CalculatePct(l_Damage, l_CombatConditioning->GetEffect(EFFECT_0)->GetAmount());
-                    l_Bp0 /= 4;
-
-                    l_Player->CastCustomSpell(l_Target, SPELL_MONK_BLACKOUT_KICK_DOT, &l_Bp0, NULL, NULL, true);
-                }
-                else
-                {
-                    int32 l_Bp0 = CalculatePct(l_Damage, GetSpellInfo()->Effects[EFFECT_1].BasePoints);
-                    if (AuraPtr l_CombatConditioning = l_Player->GetAura(SPELL_MONK_COMBAT_CONDITIONING))
-                        l_Bp0 += CalculatePct(l_Damage, l_CombatConditioning->GetEffect(EFFECT_0)->GetAmount());
-
-                    l_Player->CastCustomSpell(l_Player, SPELL_MONK_BLACKOUT_KICK_HEAL, &l_Bp0, NULL, NULL, true);
-                }
+                OnEffectHitTarget += SpellEffectFn(spell_monk_blackout_kick_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
-            else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_BREWMASTER && l_Player->getLevel() >= 34)
-            {
-                if (AuraPtr l_Shuffle = l_Player->GetAura(SPELL_MONK_SHUFFLE))
-                {
-                    l_Shuffle->SetMaxDuration(l_Shuffle->GetMaxDuration() + 5 * IN_MILLISECONDS);
-                    l_Shuffle->SetDuration(l_Shuffle->GetDuration() + 5 * IN_MILLISECONDS);
-                }
-                else
-                    l_Player->CastSpell(l_Player, SPELL_MONK_SHUFFLE, true);
-            }
+        };
 
-            if (l_Player->HasAura(116768))
-                l_Player->RemoveAurasDueToSpell(116768);
-        }
-
-        void Register()
+        SpellScript* GetSpellScript() const
         {
-            OnEffectHitTarget += SpellEffectFn(spell_monk_blackout_kick_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            return new spell_monk_blackout_kick_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_monk_blackout_kick_SpellScript();
-    }
 };
 
 enum ExpelHarmSpells
@@ -3990,89 +3990,89 @@ enum ExpelHarmSpells
 // Expel Harm - 115072
 class spell_monk_expel_harm: public SpellScriptLoader
 {
-public:
-    spell_monk_expel_harm() : SpellScriptLoader("spell_monk_expel_harm") { }
+    public:
+        spell_monk_expel_harm() : SpellScriptLoader("spell_monk_expel_harm") { }
 
-    class spell_monk_expel_harm_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_monk_expel_harm_SpellScript);
-
-        SpellCastResult CheckTarget()
+        class spell_monk_expel_harm_SpellScript : public SpellScript
         {
-            Unit *l_Caster = GetCaster();
-            Unit *l_Target = GetExplTargetUnit();
+            PrepareSpellScript(spell_monk_expel_harm_SpellScript);
 
-            if (l_Caster == nullptr || l_Target == nullptr)
-                return SPELL_FAILED_BAD_TARGETS;
-
-            if (!l_Caster->HasAura(SPELL_MONK_GLYPH_OF_TARGETED_EXPULSION) && l_Target->GetGUID() != l_Caster->GetGUID())
-                return SPELL_FAILED_BAD_TARGETS;
-
-            return SPELL_CAST_OK;
-        }
-
-        void HandleHeal(SpellEffIndex /*effIndex*/)
-        {
-            if (!GetCaster())
-                return;
-
-            float l_Low = 0;
-            float l_High = 0;
-
-            Player* l_Player = GetCaster()->ToPlayer();
-            Unit* l_Target = GetHitUnit();
-
-            if (l_Player == nullptr || l_Target == nullptr)
-                return;
-
-            l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
-
-            int32 l_Heal = GetHitHeal() + int32(frand(7.5f * l_Low, 7.5f * l_High));
-
-            SpellInfo const* l_SpellInfoGuard = sSpellMgr->GetSpellInfo(SPELL_MONK_GUARD);
-            if (l_Target->GetGUID() == l_Player->GetGUID() && l_Player->HasAura(SPELL_MONK_GUARD) && l_SpellInfoGuard != nullptr)
-                l_Heal += CalculatePct(l_Heal, l_SpellInfoGuard->Effects[EFFECT_1].BasePoints);
-            
-            SpellInfo const* l_GlyphTargetedExpulsion = sSpellMgr->GetSpellInfo(SPELL_MONK_GLYPH_OF_TARGETED_EXPULSION);
-            if (l_Player->HasAura(SPELL_MONK_GLYPH_OF_TARGETED_EXPULSION) && l_Target->GetGUID() != l_Player->GetGUID() && l_GlyphTargetedExpulsion != nullptr)
-                l_Heal = CalculatePct(l_Heal, l_GlyphTargetedExpulsion->Effects[EFFECT_1].BasePoints);
-
-            SetHitHeal(l_Heal);
-
-            float l_Radius = 10.0f;
-            SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MONK_EXPEL_HARM_DAMAGE);
-            if (l_SpellInfo != nullptr)
+            SpellCastResult CheckTarget()
             {
-                if (l_SpellInfo->Effects[EFFECT_0].RadiusEntry != nullptr)
-                    l_Radius = l_SpellInfo->Effects[EFFECT_0].RadiusEntry->radiusHostile;
+                Unit *l_Caster = GetCaster();
+                Unit *l_Target = GetExplTargetUnit();
+
+                if (l_Caster == nullptr || l_Target == nullptr)
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                if (!l_Caster->HasAura(SPELL_MONK_GLYPH_OF_TARGETED_EXPULSION) && l_Target->GetGUID() != l_Caster->GetGUID())
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                return SPELL_CAST_OK;
             }
 
-            std::list<Unit*> l_TargetList;
-            JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(l_Player, l_Player, l_Radius);
-            JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(l_Player, l_TargetList, u_check);
-            l_Player->VisitNearbyObject(l_Radius, searcher);
-
-            for (auto l_Itr : l_TargetList)
+            void HandleHeal(SpellEffIndex /*effIndex*/)
             {
-                if (l_Player->IsValidAttackTarget(l_Itr))
+                if (!GetCaster())
+                    return;
+
+                float l_Low = 0;
+                float l_High = 0;
+
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Player == nullptr || l_Target == nullptr)
+                    return;
+
+                l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
+
+                int32 l_Heal = GetHitHeal() + int32(frand(7.5f * l_Low, 7.5f * l_High));
+
+                SpellInfo const* l_SpellInfoGuard = sSpellMgr->GetSpellInfo(SPELL_MONK_GUARD);
+                if (l_Target->GetGUID() == l_Player->GetGUID() && l_Player->HasAura(SPELL_MONK_GUARD) && l_SpellInfoGuard != nullptr)
+                    l_Heal += CalculatePct(l_Heal, l_SpellInfoGuard->Effects[EFFECT_1].BasePoints);
+
+                SpellInfo const* l_GlyphTargetedExpulsion = sSpellMgr->GetSpellInfo(SPELL_MONK_GLYPH_OF_TARGETED_EXPULSION);
+                if (l_Player->HasAura(SPELL_MONK_GLYPH_OF_TARGETED_EXPULSION) && l_Target->GetGUID() != l_Player->GetGUID() && l_GlyphTargetedExpulsion != nullptr)
+                    l_Heal = CalculatePct(l_Heal, l_GlyphTargetedExpulsion->Effects[EFFECT_1].BasePoints);
+
+                SetHitHeal(l_Heal);
+
+                float l_Radius = 10.0f;
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MONK_EXPEL_HARM_DAMAGE);
+                if (l_SpellInfo != nullptr)
                 {
-                    int32 l_Bp0 = CalculatePct(l_Heal, sSpellMgr->GetSpellInfo(SPELL_MONK_EXPEL_HARM_DAMAGE)->Effects[EFFECT_1].BasePoints);
-                    l_Player->CastCustomSpell(l_Itr, SPELL_MONK_EXPEL_HARM_DAMAGE, &l_Bp0, NULL, NULL, true);
+                    if (l_SpellInfo->Effects[EFFECT_0].RadiusEntry != nullptr)
+                        l_Radius = l_SpellInfo->Effects[EFFECT_0].RadiusEntry->radiusHostile;
+                }
+
+                std::list<Unit*> l_TargetList;
+                JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(l_Player, l_Player, l_Radius);
+                JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(l_Player, l_TargetList, u_check);
+                l_Player->VisitNearbyObject(l_Radius, searcher);
+
+                for (auto l_Itr : l_TargetList)
+                {
+                    if (l_Player->IsValidAttackTarget(l_Itr))
+                    {
+                        int32 l_Bp0 = CalculatePct(l_Heal, sSpellMgr->GetSpellInfo(SPELL_MONK_EXPEL_HARM_DAMAGE)->Effects[EFFECT_1].BasePoints);
+                        l_Player->CastCustomSpell(l_Itr, SPELL_MONK_EXPEL_HARM_DAMAGE, &l_Bp0, NULL, NULL, true);
+                    }
                 }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_monk_expel_harm_SpellScript::CheckTarget);
+                OnEffectHitTarget += SpellEffectFn(spell_monk_expel_harm_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnCheckCast += SpellCheckCastFn(spell_monk_expel_harm_SpellScript::CheckTarget);
-            OnEffectHitTarget += SpellEffectFn(spell_monk_expel_harm_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+            return new spell_monk_expel_harm_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_monk_expel_harm_SpellScript();
-    }
 };
 
 enum HurricaneStrikeSpells
@@ -4087,70 +4087,70 @@ enum HurricaneStrikeSpells
 // Hurricane Strike - 152175
 class spell_monk_hurricane_strike : public SpellScriptLoader
 {
-public:
-    spell_monk_hurricane_strike() : SpellScriptLoader("spell_monk_hurricane_strike") { }
+    public:
+        spell_monk_hurricane_strike() : SpellScriptLoader("spell_monk_hurricane_strike") { }
 
-    class spell_monk_hurricane_strike_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_monk_hurricane_strike_SpellScript);
-
-        void HandleOnHit()
+        class spell_monk_hurricane_strike_SpellScript : public SpellScript
         {
-            if (Unit* l_Caster = GetCaster())
+            PrepareSpellScript(spell_monk_hurricane_strike_SpellScript);
+
+            void HandleOnHit()
             {
-                l_Caster->CastSpell(l_Caster, 158221, true);
+                if (Unit* l_Caster = GetCaster())
+                {
+                    l_Caster->CastSpell(l_Caster, 158221, true);
+                }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_monk_hurricane_strike_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnHit += SpellHitFn(spell_monk_hurricane_strike_SpellScript::HandleOnHit);
+            return new spell_monk_hurricane_strike_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_monk_hurricane_strike_SpellScript();
-    }
 };
 
 // Hurricane Strike - 158221
 class spell_monk_hurricane_strike_damage: public SpellScriptLoader
 {
-public:
-    spell_monk_hurricane_strike_damage() : SpellScriptLoader("spell_monk_hurricane_strike_damage") { }
+    public:
+        spell_monk_hurricane_strike_damage() : SpellScriptLoader("spell_monk_hurricane_strike_damage") { }
 
-    class spell_monk_hurricane_strike_damage_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_monk_hurricane_strike_damage_SpellScript);
-
-        void HandleDamage(SpellEffIndex /*effIndex*/)
+        class spell_monk_hurricane_strike_damage_SpellScript : public SpellScript
         {
-            if (!GetCaster())
-                return;
+            PrepareSpellScript(spell_monk_hurricane_strike_damage_SpellScript);
 
-            float l_Low = 0;
-            float l_High = 0;
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                if (!GetCaster())
+                    return;
 
-            Player* l_Player = GetCaster()->ToPlayer();
-            if (!l_Player)
-                return;
+                float l_Low = 0;
+                float l_High = 0;
 
-            l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
+                Player* l_Player = GetCaster()->ToPlayer();
+                if (!l_Player)
+                    return;
 
-            SetHitDamage(int32(frand(15 * 2 * l_Low, 15 * 2 * l_High) / (GetSpellInfo()->GetDuration() / IN_MILLISECONDS)));
-        }
+                l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
 
-        void Register()
+                SetHitDamage(int32(frand(15 * 2 * l_Low, 15 * 2 * l_High) / (GetSpellInfo()->GetDuration() / IN_MILLISECONDS)));
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_monk_hurricane_strike_damage_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnEffectHitTarget += SpellEffectFn(spell_monk_hurricane_strike_damage_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            return new spell_monk_hurricane_strike_damage_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_monk_hurricane_strike_damage_SpellScript();
-    }
 };
 
 
@@ -4162,23 +4162,23 @@ enum SerenitySpells
 // Serenity - 152173
 class spell_monk_serenity: public PlayerScript
 {
-public:
-    spell_monk_serenity() :PlayerScript("spell_monk_serenity") {}
+    public:
+        spell_monk_serenity() :PlayerScript("spell_monk_serenity") {}
 
-    void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32 p_NewValue, bool p_Regen)
-    {
-        if (p_Player->getClass() != CLASS_MONK || p_Power != POWER_CHI || !p_Player->HasAura(SPELL_MONK_SERENITY)|| p_Regen)
-            return;
+        void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32 p_NewValue, bool p_Regen)
+        {
+            if (p_Player->getClass() != CLASS_MONK || p_Power != POWER_CHI || !p_Player->HasAura(SPELL_MONK_SERENITY) || p_Regen)
+                return;
 
-        // Get the power earn (if > 0 ) or consum (if < 0)
-        int32 l_diffValue = p_NewValue - p_OldValue;
+            // Get the power earn (if > 0 ) or consum (if < 0)
+            int32 l_diffValue = p_NewValue - p_OldValue;
 
-        // Only get spended chi
-        if (l_diffValue > 0)
-            return;
+            // Only get spended chi
+            if (l_diffValue > 0)
+                return;
 
-        p_Player->ModifyPower(POWER_CHI, -l_diffValue);
-    }
+            p_Player->ModifyPower(POWER_CHI, -l_diffValue);
+        }
 };
 
 enum DetoxSpells
@@ -4189,160 +4189,160 @@ enum DetoxSpells
 // Detox - 115450
 class spell_monk_detox: public SpellScriptLoader
 {
-public:
-    spell_monk_detox() : SpellScriptLoader("spell_monk_detox") { }
+    public:
+        spell_monk_detox() : SpellScriptLoader("spell_monk_detox") { }
 
-    class spell_monk_detox_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_monk_detox_SpellScript);
-
-        void HandleDispel(SpellEffIndex effIndex)
+        class spell_monk_detox_SpellScript : public SpellScript
         {
-            PreventHitDefaultEffect(effIndex);
+            PrepareSpellScript(spell_monk_detox_SpellScript);
 
-            Player* l_Player = GetCaster()->ToPlayer();
-            if (l_Player && l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_MONK_MISTWEAVER)
-                return;
+            void HandleDispel(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
 
-            GetSpell()->EffectDispel(effIndex);
-        }
+                Player* l_Player = GetCaster()->ToPlayer();
+                if (l_Player && l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_MONK_MISTWEAVER)
+                    return;
 
-        void HandleHeal(SpellEffIndex effIndex)
+                GetSpell()->EffectDispel(effIndex);
+            }
+
+            void HandleHeal(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster->HasAura(SPELL_MONK_GLYPH_OF_DETOX))
+                    return;
+
+                GetSpell()->EffectHealPct(effIndex);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_monk_detox_SpellScript::HandleDispel, EFFECT_2, SPELL_EFFECT_DISPEL);
+                OnEffectHitTarget += SpellEffectFn(spell_monk_detox_SpellScript::HandleHeal, EFFECT_3, SPELL_EFFECT_HEAL_MAX_HEALTH);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            PreventHitDefaultEffect(effIndex);
-
-            Unit* l_Caster = GetCaster();
-            if (!l_Caster->HasAura(SPELL_MONK_GLYPH_OF_DETOX))
-                return;
-
-            GetSpell()->EffectHealPct(effIndex);
+            return new spell_monk_detox_SpellScript();
         }
-
-        void Register()
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_monk_detox_SpellScript::HandleDispel, EFFECT_2, SPELL_EFFECT_DISPEL);
-            OnEffectHitTarget += SpellEffectFn(spell_monk_detox_SpellScript::HandleHeal, EFFECT_3, SPELL_EFFECT_HEAL_MAX_HEALTH);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_monk_detox_SpellScript();
-    }
 };
 
 // /Rising Sun Kick - 107428
 class spell_monk_rising_sun_kick: public SpellScriptLoader
 {
-public:
-    spell_monk_rising_sun_kick() : SpellScriptLoader("spell_monk_rising_sun_kick") { }
+    public:
+        spell_monk_rising_sun_kick() : SpellScriptLoader("spell_monk_rising_sun_kick") { }
 
-    class spell_monk_rising_sun_kick_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_monk_rising_sun_kick_SpellScript);
-
-        void HandleDamage(SpellEffIndex /*effIndex*/)
+        class spell_monk_rising_sun_kick_SpellScript : public SpellScript
         {
-            if (!GetCaster())
-                return;
+            PrepareSpellScript(spell_monk_rising_sun_kick_SpellScript);
 
-            float l_Low = 0;
-            float l_High = 0;
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                if (!GetCaster())
+                    return;
 
-            Player* l_Player = GetCaster()->ToPlayer();
-            Unit* l_Target = GetHitUnit();
+                float l_Low = 0;
+                float l_High = 0;
 
-            if (l_Player == nullptr || l_Target == nullptr)
-                return;
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetHitUnit();
 
-            l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
+                if (l_Player == nullptr || l_Target == nullptr)
+                    return;
 
-            if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_WINDWALKER)
-                l_Player->CastSpell(l_Target, SPELL_MONK_MORTEL_WOUNDS, true);
-            if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_MONK_BREWMASTER)
-                l_Player->CastSpell(l_Player, SPELL_MONK_RISING_SUN_KICK_DOT, true);
+                l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
 
-            SetHitDamage(int32(frand(8.0f * l_Low, 8.0f * l_High)));
-        }
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_WINDWALKER)
+                    l_Player->CastSpell(l_Target, SPELL_MONK_MORTEL_WOUNDS, true);
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_MONK_BREWMASTER)
+                    l_Player->CastSpell(l_Player, SPELL_MONK_RISING_SUN_KICK_DOT, true);
 
-        void Register()
+                SetHitDamage(int32(frand(8.0f * l_Low, 8.0f * l_High)));
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_monk_rising_sun_kick_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnEffectHitTarget += SpellEffectFn(spell_monk_rising_sun_kick_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            return new spell_monk_rising_sun_kick_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_monk_rising_sun_kick_SpellScript();
-    }
 };
 
 // Stance of the Fierce Tiger - 103985
 class spell_monk_stance_of_tiger: public SpellScriptLoader
 {
-public:
-    spell_monk_stance_of_tiger() : SpellScriptLoader("spell_monk_stance_of_tiger") { }
+    public:
+        spell_monk_stance_of_tiger() : SpellScriptLoader("spell_monk_stance_of_tiger") { }
 
-    class spell_monk_stance_of_tiger_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_monk_stance_of_tiger_AuraScript);
-
-        void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        class spell_monk_stance_of_tiger_AuraScript : public AuraScript
         {
-            if (Unit* caster = GetCaster())
-                caster->RemoveAura(166646);
-        }
+            PrepareAuraScript(spell_monk_stance_of_tiger_AuraScript);
 
-        void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                    caster->RemoveAura(166646);
+            }
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(caster, 166646, true);
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_monk_stance_of_tiger_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_monk_stance_of_tiger_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
         {
-            if (Unit* caster = GetCaster())
-                caster->CastSpell(caster, 166646, true);
+            return new spell_monk_stance_of_tiger_AuraScript();
         }
-
-        void Register()
-        {
-            AfterEffectApply += AuraEffectApplyFn(spell_monk_stance_of_tiger_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
-            AfterEffectRemove += AuraEffectRemoveFn(spell_monk_stance_of_tiger_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_monk_stance_of_tiger_AuraScript();
-    }
 };
 
 // Uplift - 116670
 class spell_monk_uplift : public SpellScriptLoader
 {
-public:
-    spell_monk_uplift() : SpellScriptLoader("spell_monk_uplift") { }
+    public:
+        spell_monk_uplift() : SpellScriptLoader("spell_monk_uplift") { }
 
-    class spell_monk_uplift_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_monk_uplift_SpellScript);
-
-        void CorrectTarget(std::list<WorldObject*>& p_Targets)
+        class spell_monk_uplift_SpellScript : public SpellScript
         {
-            std::list<WorldObject*> l_TempTargets = p_Targets;
-            for (auto itr : l_TempTargets)
+            PrepareSpellScript(spell_monk_uplift_SpellScript);
+
+            void CorrectTarget(std::list<WorldObject*>& p_Targets)
             {
-                if (itr->ToUnit() == nullptr || !itr->ToUnit()->HasAura(SPELL_MONK_RENEWING_MIST_HOT))
-                    p_Targets.remove(itr);
+                std::list<WorldObject*> l_TempTargets = p_Targets;
+                for (auto itr : l_TempTargets)
+                {
+                    if (itr->ToUnit() == nullptr || !itr->ToUnit()->HasAura(SPELL_MONK_RENEWING_MIST_HOT))
+                        p_Targets.remove(itr);
+                }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_uplift_SpellScript::CorrectTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_uplift_SpellScript::CorrectTarget, EFFECT_1, TARGET_UNIT_SRC_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_uplift_SpellScript::CorrectTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_uplift_SpellScript::CorrectTarget, EFFECT_1, TARGET_UNIT_SRC_AREA_ALLY);
+            return new spell_monk_uplift_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_monk_uplift_SpellScript();
-    }
 };
 
 // Glyph of rapid rolling - 146951

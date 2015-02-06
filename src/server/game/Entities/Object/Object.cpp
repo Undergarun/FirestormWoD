@@ -773,10 +773,8 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
 
         if (l_HasAreaTriggerSpline)
         {
-            uint32 l_PathNodeCount = l_AreaTrigger->GetDuration() / l_AreaTrigger->GetUpdateInterval();
-
             AreaTriggerMoveTemplate l_MoveTemplate = sObjectMgr->GetAreaTriggerMoveTemplate(l_MainTemplate->m_MoveCurveID);
-            if (l_MoveTemplate.m_path_size != 0)
+            if (l_AreaTrigger->GetTrajectory() != AREATRIGGER_INTERPOLATION_LINEAR && l_MoveTemplate.m_path_size != 0)
             {
                 *p_Data << uint32(l_MoveTemplate.m_duration > 0 ? l_MoveTemplate.m_duration : l_AreaTrigger->GetDuration());  ///< Time To Target
                 *p_Data << uint32(l_ElapsedMS);                                             ///< Elapsed Time For Movement
@@ -793,7 +791,9 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
             }
             else
             {
-                *p_Data << uint32(l_MainTemplate->m_SplineDatas.TimeToTarget);               ///< Time To Target
+                uint32 l_PathNodeCount = l_AreaTrigger->GetDuration() / l_AreaTrigger->GetUpdateInterval();
+
+                *p_Data << uint32(l_AreaTrigger->GetDuration());                            ///< Time To Target
                 *p_Data << uint32(l_ElapsedMS);                                             ///< Elapsed Time For Movement
                 *p_Data << uint32(l_PathNodeCount);                                         ///< Path node count
                 for (uint32 l_I = 0; l_I < l_PathNodeCount; l_I++)

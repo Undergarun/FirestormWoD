@@ -974,7 +974,12 @@ void Player::UpdateManaRegen()
     outOfCombatRegen *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, POWER_MANA);
     combatRegen *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, POWER_MANA);
 
-    // Mana Meditation && Meditation
+    if (HasAuraType(AuraType::SPELL_AURA_MOD_MANA_REGEN_BY_HASTE))
+    {
+        float l_HastePct = 1.0f + GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_HASTE_MELEE) * GetRatingMultiplier(CR_HASTE_MELEE) / 100.0f;
+        outOfCombatRegen *= l_HastePct;
+        combatRegen *= l_HastePct;
+    }
 
     SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, combatRegen);
     SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, outOfCombatRegen);
@@ -1064,7 +1069,7 @@ float Player::GetRegenForPower(Powers p_Power)
             l_HastePct += (*l_Iter)->GetAmount() / 100.0f;
     }
 
-    return l_BaseRegen - (l_BaseRegen * l_HastePct);
+    return l_BaseRegen + (l_BaseRegen * l_HastePct);
 }
 
 void Player::_ApplyAllStatBonuses()

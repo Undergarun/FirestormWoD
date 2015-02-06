@@ -625,7 +625,7 @@ bool Unit::HasCrowdControlAuraType(AuraType type, uint32 excludeAura) const
     AuraEffectList const& auras = GetAuraEffectsByType(type);
     for (AuraEffectList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
         if ((!excludeAura || excludeAura != (*itr)->GetSpellInfo()->Id) && //Avoid self interrupt of channeled Crowd Control spells like Seduction
-            ((*itr)->GetSpellInfo()->Attributes & SPELL_ATTR0_BREAKABLE_BY_DAMAGE || (*itr)->GetSpellInfo()->AuraInterruptFlags & AURA_INTERRUPT_FLAG_TAKE_DAMAGE))
+            ((*itr)->GetSpellInfo()->Attributes & SPELL_ATTR0_BREAKABLE_BY_DAMAGE || (*itr)->GetSpellInfo()->AuraInterruptFlags & (AURA_INTERRUPT_FLAG_TAKE_DAMAGE | AURA_INTERRUPT_FLAG_ANY_DAMAGE)))
             return true;
     return false;
 }
@@ -650,7 +650,7 @@ bool Unit::HasBreakableByDamageAuraType(AuraType type, uint32 excludeAura) const
     AuraEffectList const& auras = GetAuraEffectsByType(type);
     for (AuraEffectList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
         if ((!excludeAura || excludeAura != (*itr)->GetSpellInfo()->Id) && //Avoid self interrupt of channeled Crowd Control spells like Seduction
-            ((*itr)->GetSpellInfo()->Attributes & SPELL_ATTR0_BREAKABLE_BY_DAMAGE || (*itr)->GetSpellInfo()->AuraInterruptFlags & AURA_INTERRUPT_FLAG_TAKE_DAMAGE))
+            ((*itr)->GetSpellInfo()->Attributes & SPELL_ATTR0_BREAKABLE_BY_DAMAGE || (*itr)->GetSpellInfo()->AuraInterruptFlags & (AURA_INTERRUPT_FLAG_TAKE_DAMAGE | AURA_INTERRUPT_FLAG_ANY_DAMAGE)))
             return true;
     return false;
 }
@@ -856,11 +856,11 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
                 if (cleanDamage && cleanDamage->mitigated_damage)
                     victim->RemoveAurasDueToSpell(20066);
 
-                victim->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TAKE_DAMAGE, spellProto->Id);
+                victim->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TAKE_DAMAGE | AURA_INTERRUPT_FLAG_ANY_DAMAGE, spellProto->Id);
             }
         }
         else
-            victim->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TAKE_DAMAGE, 0);
+            victim->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TAKE_DAMAGE | AURA_INTERRUPT_FLAG_ANY_DAMAGE, 0);
 
         // We're going to call functions which can modify content of the list during iteration over it's elements
         // Let's copy the list so we can prevent iterator invalidation
@@ -14100,6 +14100,9 @@ bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, Wo
     // Sha of anger mind control and Maddening Shout
     if (target->HasAura(119626) || target->HasAura(117708))
         return true;
+
+    if (target->HasAuraType(SPELL_AURA_SEE_WHILE_INVISIBLE))
+        return false;
 
     // can't attack unattackable units or GMs
     if (target->HasUnitState(UNIT_STATE_UNATTACKABLE)
