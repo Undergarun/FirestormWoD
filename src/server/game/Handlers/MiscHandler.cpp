@@ -1355,7 +1355,7 @@ void WorldSession::HandleSetActionBarToggles(WorldPacket& p_Packet)
         return;
     }
 
-    m_Player->SetByteValue(PLAYER_FIELD_LIFETIME_MAX_RANK, 1, l_ActionBar);
+    m_Player->SetByteValue(PLAYER_FIELD_LIFETIME_MAX_RANK, PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES, l_ActionBar);
 }
 
 void WorldSession::HandlePlayedTime(WorldPacket& recvData)
