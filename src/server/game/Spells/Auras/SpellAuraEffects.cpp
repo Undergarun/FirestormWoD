@@ -1033,6 +1033,9 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                 amount = GetBase()->GetUnitOwner()->CountPctFromMaxHealth(amount);
             break;
         case SPELL_AURA_MOD_INCREASE_SPEED:
+           //Displacer Beast - Keep the sprint if not in cat form
+            if (GetId() == 137452)
+                break;
             // Dash - do not set speed if not in cat form
             if (GetSpellInfo()->SpellFamilyName == SPELLFAMILY_DRUID && GetSpellInfo()->SpellFamilyFlags[2] & 0x00000008)
                 amount = GetBase()->GetUnitOwner()->GetShapeshiftForm() == FORM_CAT ? amount : 0;
