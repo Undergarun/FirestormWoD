@@ -32,9 +32,9 @@ namespace MS
             EasyJSon::Node<std::string> l_Node;
             l_Node["Opcode"] = "0";
             l_Node["AccountId"] = std::to_string(std::get<0>(l_DeveloppedArgs));
-            l_Node["Referer"] = std::to_string(std::get<1>(l_DeveloppedArgs));
-            l_Node["IpToCountry"] = std::to_string(std::get<2>(l_DeveloppedArgs));
-            l_Node["MailAddress"] = std::to_string(std::get<3>(l_DeveloppedArgs));
+            l_Node["Referer"] = std::get<1>(l_DeveloppedArgs);
+            l_Node["IpToCountry"] = std::get<2>(l_DeveloppedArgs);
+            l_Node["MailAddress"] = std::get<3>(l_DeveloppedArgs);
 
             return l_Node.Serialize<std::ostringstream>();
         }
@@ -67,7 +67,7 @@ namespace MS
 
             EasyJSon::Node<std::string> l_Node;
             l_Node["Opcode"] = "2";
-            l_Node["RealmName"] = std::to_string(std::get<0>(l_DeveloppedArgs));
+            l_Node["RealmName"] = std::get<0>(l_DeveloppedArgs);
             l_Node["Population"] = std::to_string(std::get<1>(l_DeveloppedArgs));
 
             return l_Node.Serialize<std::ostringstream>();
@@ -85,7 +85,7 @@ namespace MS
 
             EasyJSon::Node<std::string> l_Node;
             l_Node["Opcode"] = "3";
-            l_Node["BossName"] = std::to_string(std::get<0>(l_DeveloppedArgs));
+            l_Node["BossName"] = std::get<0>(l_DeveloppedArgs);
             l_Node["NbKillers"] = std::to_string(std::get<1>(l_DeveloppedArgs));
 
             return l_Node.Serialize<std::ostringstream>();
@@ -105,8 +105,8 @@ namespace MS
             EasyJSon::Node<std::string> l_Node;
             l_Node["Opcode"] = "4";
             l_Node["AccountId"] = std::to_string(std::get<0>(l_DeveloppedArgs));
-            l_Node["Referer"] = std::to_string(std::get<1>(l_DeveloppedArgs));
-            l_Node["IpToCountry"] = std::to_string(std::get<2>(l_DeveloppedArgs));
+            l_Node["Referer"] = std::get<1>(l_DeveloppedArgs);
+            l_Node["IpToCountry"] = std::get<2>(l_DeveloppedArgs);
 
             return l_Node.Serialize<std::ostringstream>();
         }
@@ -143,7 +143,7 @@ namespace MS
 
             EasyJSon::Node<std::string> l_Node;
             l_Node["Opcode"] = "6";
-            l_Node["Realm"] = std::to_string(std::get<0>(l_DeveloppedArgs));
+            l_Node["Realm"] = std::get<0>(l_DeveloppedArgs);
             l_Node["UpdateDiff"] = std::to_string(std::get<1>(l_DeveloppedArgs));
 
             return l_Node.Serialize<std::ostringstream>();
@@ -165,10 +165,10 @@ namespace MS
             EasyJSon::Node<std::string> l_Node;
             l_Node["Opcode"] = "7";
             l_Node["AccountId"] = std::to_string(std::get<0>(l_DeveloppedArgs));
-            l_Node["Realm"] = std::to_string(std::get<1>(l_DeveloppedArgs));
-            l_Node["ClientPlatform"] = std::to_string(std::get<2>(l_DeveloppedArgs));
-            l_Node["IpToCountry"] = std::to_string(std::get<3>(l_DeveloppedArgs));
-            l_Node["ClientLang"] = std::to_string(std::get<4>(l_DeveloppedArgs));
+            l_Node["Realm"] = std::get<1>(l_DeveloppedArgs);
+            l_Node["ClientPlatform"] = std::get<2>(l_DeveloppedArgs);
+            l_Node["IpToCountry"] = std::get<3>(l_DeveloppedArgs);
+            l_Node["ClientLang"] = std::get<4>(l_DeveloppedArgs);
 
             return l_Node.Serialize<std::ostringstream>();
         }
