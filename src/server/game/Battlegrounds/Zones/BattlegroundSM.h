@@ -134,8 +134,8 @@ enum SMBattlegroundObjectTypes
 
 enum BG_SM_Score
 {
-    BG_SM_WARNING_NEAR_VICTORY_SCORE    = 1400,
-    BG_SM_MAX_TEAM_SCORE                = 1600
+    BG_SM_WARNING_NEAR_VICTORY_SCORE    = 1200,
+    BG_SM_MAX_TEAM_SCORE                = 1500
 };
 
 enum SMBattlegroundMineCartState
