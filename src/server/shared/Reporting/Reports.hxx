@@ -24,7 +24,7 @@ namespace MS
         /// @p_Arg3 : MailAddress (expect text)
         template<>
         template<typename... Args>
-        static std::string MakeReport<ReportOpcodes::AccountCreation>::Craft(Args... p_Args)
+        std::string MakeReport<ReportOpcodes::AccountCreation>::Craft(Args... p_Args)
         {
             static_assert(sizeof... (p_Args) == 4, "The number of arguments given is not the one expected.");
             auto&& l_DeveloppedArgs = std::forward_as_tuple(p_Args...);
@@ -43,7 +43,7 @@ namespace MS
         /// @p_Arg0 : BattlegroundType (expect int32)
         template<>
         template<typename... Args>
-        static std::string MakeReport<ReportOpcodes::BattlegroundInstanciation>::Craft(Args... p_Args)
+        std::string MakeReport<ReportOpcodes::BattlegroundInstanciation>::Craft(Args... p_Args)
         {
             static_assert(sizeof... (p_Args) == 1, "The number of arguments given is not the one expected.");
             auto&& l_DeveloppedArgs = std::forward_as_tuple(p_Args...);
@@ -60,7 +60,7 @@ namespace MS
         /// @p_Arg1 : Population (expect int32)
         template<>
         template<typename... Args>
-        static std::string MakeReport<ReportOpcodes::RealmPopulation>::Craft(Args... p_Args)
+        std::string MakeReport<ReportOpcodes::RealmPopulation>::Craft(Args... p_Args)
         {
             static_assert(sizeof... (p_Args) == 2, "The number of arguments given is not the one expected.");
             auto&& l_DeveloppedArgs = std::forward_as_tuple(p_Args...);
@@ -78,7 +78,7 @@ namespace MS
         /// @p_Arg1 : NbKillers (expect int32)
         template<>
         template<typename... Args>
-        static std::string MakeReport<ReportOpcodes::BossKilled>::Craft(Args... p_Args)
+        std::string MakeReport<ReportOpcodes::BossKilled>::Craft(Args... p_Args)
         {
             static_assert(sizeof... (p_Args) == 2, "The number of arguments given is not the one expected.");
             auto&& l_DeveloppedArgs = std::forward_as_tuple(p_Args...);
@@ -97,7 +97,7 @@ namespace MS
         /// @p_Arg2 : IpToCountry (expect text)
         template<>
         template<typename... Args>
-        static std::string MakeReport<ReportOpcodes::LauncherDownloading>::Craft(Args... p_Args)
+        std::string MakeReport<ReportOpcodes::LauncherDownloading>::Craft(Args... p_Args)
         {
             static_assert(sizeof... (p_Args) == 3, "The number of arguments given is not the one expected.");
             auto&& l_DeveloppedArgs = std::forward_as_tuple(p_Args...);
@@ -117,7 +117,7 @@ namespace MS
         /// @p_Arg2 : Classe (expect int32)
         template<>
         template<typename... Args>
-        static std::string MakeReport<ReportOpcodes::FirstTimeConnexion>::Craft(Args... p_Args)
+        std::string MakeReport<ReportOpcodes::FirstTimeConnexion>::Craft(Args... p_Args)
         {
             static_assert(sizeof... (p_Args) == 3, "The number of arguments given is not the one expected.");
             auto&& l_DeveloppedArgs = std::forward_as_tuple(p_Args...);
@@ -136,7 +136,7 @@ namespace MS
         /// @p_Arg1 : UpdateDiff (expect int32)
         template<>
         template<typename... Args>
-        static std::string MakeReport<ReportOpcodes::UpdateDiff>::Craft(Args... p_Args)
+        std::string MakeReport<ReportOpcodes::UpdateDiff>::Craft(Args... p_Args)
         {
             static_assert(sizeof... (p_Args) == 2, "The number of arguments given is not the one expected.");
             auto&& l_DeveloppedArgs = std::forward_as_tuple(p_Args...);
@@ -157,7 +157,7 @@ namespace MS
         /// @p_Arg4 : ClientLang (expect text)
         template<>
         template<typename... Args>
-        static std::string MakeReport<ReportOpcodes::AuthChooseRealm>::Craft(Args... p_Args)
+        std::string MakeReport<ReportOpcodes::AuthChooseRealm>::Craft(Args... p_Args)
         {
             static_assert(sizeof... (p_Args) == 5, "The number of arguments given is not the one expected.");
             auto&& l_DeveloppedArgs = std::forward_as_tuple(p_Args...);
