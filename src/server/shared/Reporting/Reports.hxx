@@ -14,6 +14,7 @@ namespace MS
             LauncherDownloading = 4,
             FirstTimeConnexion = 5,
             UpdateDiff = 6,
+            AuthChooseRealm = 7,
         };
 
         /// Craft a 'AccountCreation' report.
@@ -144,6 +145,30 @@ namespace MS
             l_Node["Opcode"] = "6";
             l_Node["Realm"] = std::to_string(std::get<0>(l_DeveloppedArgs));
             l_Node["UpdateDiff"] = std::to_string(std::get<1>(l_DeveloppedArgs));
+
+            return l_Node.Serialize<std::ostringstream>();
+        }
+
+        /// Craft a 'AuthChooseRealm' report.
+        /// @p_Arg0 : AccountId (expect int64)
+        /// @p_Arg1 : Realm (expect text)
+        /// @p_Arg2 : ClientVersion (expect text)
+        /// @p_Arg3 : IpToCountry (expect text)
+        /// @p_Arg4 : ClientLang (expect text)
+        template<>
+        template<typename... Args>
+        static std::string MakeReport<ReportOpcodes::AuthChooseRealm>::Craft(Args... p_Args)
+        {
+            static_assert(sizeof... (p_Args) == 5, "The number of arguments given is not the one expected.");
+            auto&& l_DeveloppedArgs = std::forward_as_tuple(p_Args...);
+
+            EasyJSon::Node<std::string> l_Node;
+            l_Node["Opcode"] = "7";
+            l_Node["AccountId"] = std::to_string(std::get<0>(l_DeveloppedArgs));
+            l_Node["Realm"] = std::to_string(std::get<1>(l_DeveloppedArgs));
+            l_Node["ClientVersion"] = std::to_string(std::get<2>(l_DeveloppedArgs));
+            l_Node["IpToCountry"] = std::to_string(std::get<3>(l_DeveloppedArgs));
+            l_Node["ClientLang"] = std::to_string(std::get<4>(l_DeveloppedArgs));
 
             return l_Node.Serialize<std::ostringstream>();
         }
