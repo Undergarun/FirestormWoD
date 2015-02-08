@@ -97,6 +97,10 @@ if( NOT WIN32 )
   )
  endif()
 
+if( UNIX AND NOT NOJEM AND NOT APPLE )
+  set(worldserver_LINK_FLAGS "-pthread ${worldserver_LINK_FLAGS}")
+endif()
+
 target_link_libraries(authserver
   shared
   ${MYSQL_LIBRARY}
