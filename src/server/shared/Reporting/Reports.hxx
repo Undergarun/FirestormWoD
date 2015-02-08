@@ -152,7 +152,7 @@ namespace MS
         /// Craft a 'AuthChooseRealm' report.
         /// @p_Arg0 : AccountId (expect int64)
         /// @p_Arg1 : Realm (expect text)
-        /// @p_Arg2 : ClientVersion (expect text)
+        /// @p_Arg2 : ClientPlatform (expect text)
         /// @p_Arg3 : IpToCountry (expect text)
         /// @p_Arg4 : ClientLang (expect text)
         template<>
@@ -166,7 +166,7 @@ namespace MS
             l_Node["Opcode"] = "7";
             l_Node["AccountId"] = std::to_string(std::get<0>(l_DeveloppedArgs));
             l_Node["Realm"] = std::to_string(std::get<1>(l_DeveloppedArgs));
-            l_Node["ClientVersion"] = std::to_string(std::get<2>(l_DeveloppedArgs));
+            l_Node["ClientPlatform"] = std::to_string(std::get<2>(l_DeveloppedArgs));
             l_Node["IpToCountry"] = std::to_string(std::get<3>(l_DeveloppedArgs));
             l_Node["ClientLang"] = std::to_string(std::get<4>(l_DeveloppedArgs));
 
