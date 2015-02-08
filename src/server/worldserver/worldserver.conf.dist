@@ -159,12 +159,12 @@ BindIP = "0.0.0.0"
 #       Description: Says if the reporter is activated.
 #       Default: "1"
 #
-#   ReporterAdress
+#   ReporterAddress
 #       Description: HTTP address of the ReportingConnector that will handle reports and insert them in a database.
 #       Default:    "localhost:3000"
 
 ReporterActivated = "1"
-ReporterAdress = "localhost:3000"
+ReporterAddress = "localhost:3000"
 
 #
 ###################################################################################################
