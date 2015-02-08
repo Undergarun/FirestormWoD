@@ -535,6 +535,8 @@ namespace BNet2 {
         BNet2::Packet l_Pong(BNet2::SMSG_PONG);
         Send(&l_Pong);
 
+        WoW_Handle_RealmUpdate(p_Packet);
+
         return true;
     }
     /// Disconnect notify
