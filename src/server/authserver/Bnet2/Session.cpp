@@ -16,6 +16,9 @@
 
 #include <algorithm>
 
+#include <Reporting/Reporter.hpp>
+#include <Reporting/Reports.hpp>
+
 namespace BNet2 {
 
     typedef struct AuthHandler
@@ -730,23 +733,25 @@ namespace BNet2 {
         l_Stmt->setString(1, GetSocket().getRemoteAddress().c_str());
         l_Stmt->setUInt32(2, GetLocaleByName(m_Locale));
 
+        std::string l_PlateformName;
+
         switch (GetClientPlatform())
         {
             case BATTLENET2_PLATFORM_WIN:
-                l_Stmt->setString(3, "Win");
+                l_PlateformName = "Win";
                 break;
             case BATTLENET2_PLATFORM_WIN64:
-                l_Stmt->setString(3, "Wn64");
+                l_PlateformName = "Wn64";
                 break;
             case BATTLENET2_PLATFORM_MAC64:
-                l_Stmt->setString(3, "Mc64");
+                l_PlateformName = "Mc64";
                 break;
-
             default:
-                l_Stmt->setString(3, "unk");
+                l_PlateformName = "unk";
                 break;
         }
 
+        l_Stmt->setString(3, l_PlateformName);
         l_Stmt->setString(4, m_AccountName);
 
         LoginDatabase.Query(l_Stmt);
@@ -766,6 +771,15 @@ namespace BNet2 {
 
         if (!l_RealmRequested)
             return false;
+
+        sReporter->Report(MS::Reporting::MakeReport<MS::Reporting::ReportOpcodes::AuthChooseRealm>::Craft
+        (
+            m_AccountID,                    ///< AccountId
+            l_RealmRequested->name,         ///< Realm
+            l_PlateformName,                ///< ClientPlatform
+            m_Socket.getRemoteAddress(),    ///< IpToCountry
+            m_Locale                        ///< ClientLang
+        ));
 
         uint8 l_LockStatus = (l_RealmRequested->allowedSecurityLevel > m_AccountSecurityLevel) ? 1 : 0;
 
