@@ -519,7 +519,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleAuraResetCooldowns,                        //460 SPELL_AURA_RESET_COOLDOWNS
     &AuraEffect::HandleNULL,                                      //461 SPELL_AURA_461
     &AuraEffect::HandleNULL,                                      //462 SPELL_AURA_462
-    &AuraEffect::HandleNULL,                                      //463 SPELL_AURA_463
+    &AuraEffect::HandleAuraAddParryPCTOfCSFromGear,               //463 SPELL_AURA_ADD_PARRY_PCT_OF_CS_FROM_GEAR
     &AuraEffect::HandleNoImmediateEffect,                         //464 SPELL_AURA_ADD_AP_PCT_OF_BONUS_ARMOR
     &AuraEffect::HandleAuraBonusArmor,                            //465 SPELL_AURA_MOD_BONUS_ARMOR
     &AuraEffect::HandleAuraBonusArmor,                            //466 SPELL_AURA_MOD_BONUS_ARMOR_PCT
@@ -8750,6 +8750,15 @@ void AuraEffect::HandleAuraVersatility(AuraApplication const* p_AurApp, uint8 p_
 
     if (Player* l_Player = p_AurApp->GetTarget()->ToPlayer())
         l_Player->UpdateVersatilityPercentage();
+}
+
+void AuraEffect::HandleAuraAddParryPCTOfCSFromGear(AuraApplication const* p_AurApp, uint8 p_Mode, bool /*p_Apply*/) const
+{
+    if (!(p_Mode & AURA_EFFECT_HANDLE_REAL) || !p_AurApp->GetTarget())
+        return;
+
+    if (Player* l_Player = p_AurApp->GetTarget()->ToPlayer())
+        l_Player->UpdateParryPercentage();
 }
 
 void AuraEffect::HandleAuraBonusArmor(AuraApplication const* p_AurApp, uint8 p_Mode, bool /*p_Apply*/) const
