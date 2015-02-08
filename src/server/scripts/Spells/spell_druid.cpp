@@ -855,14 +855,14 @@ enum GerminationSpells
 };
 
 // Rejuvenation - 774 (germination effect)
-class spell_germination : public SpellScriptLoader
+class spell_dru_germination : public SpellScriptLoader
 {
 public:
-    spell_germination() : SpellScriptLoader("spell_germination") { }
+    spell_dru_germination() : SpellScriptLoader("spell_dru_germination") { }
 
-    class spell_germination_SpellScript : public SpellScript
+    class spell_dru_germination_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_germination_SpellScript);
+        PrepareSpellScript(spell_dru_germination_SpellScript);
 
         void HandleBeforeHit()
         {
@@ -876,13 +876,13 @@ public:
 
         void Register()
         {
-            BeforeHit += SpellHitFn(spell_germination_SpellScript::HandleBeforeHit);
+            BeforeHit += SpellHitFn(spell_dru_germination_SpellScript::HandleBeforeHit);
         }
     };
 
     SpellScript* GetSpellScript() const
     {
-        return new spell_germination_SpellScript();
+        return new spell_dru_germination_SpellScript();
     }
 };
 
@@ -1483,15 +1483,16 @@ class spell_dru_activate_cat_form: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_activate_cat_form_SpellScript);
 
-            void HandleOnHit()
+            void HandleBeforeHit()
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
-                    l_Player->CastSpell(l_Player, SPELL_DRUID_CAT_FORM, true);
+                    if (!l_Player->HasAura(SPELL_DRUID_CAT_FORM))
+                        l_Player->CastSpell(l_Player, SPELL_DRUID_CAT_FORM, true);
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_dru_activate_cat_form_SpellScript::HandleOnHit);
+                BeforeHit += SpellHitFn(spell_dru_activate_cat_form_SpellScript::HandleBeforeHit);
             }
         };
 
@@ -2809,5 +2810,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_dream_of_cenarius();
     new spell_dru_primal_fury();
     new spell_dru_healing_touch();
-    new spell_germination();
+    new spell_dru_germination();
 }
