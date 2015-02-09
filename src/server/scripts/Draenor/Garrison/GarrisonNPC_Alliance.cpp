@@ -662,6 +662,20 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
+    /// Called when a player opens a gossip dialog with the GameObject.
+    /// @p_Player     : Source player instance
+    /// @p_Creature   : Target GameObject instance
+    bool npc_AuriaIrondreamer::OnGossipHello(Player * p_Player, Creature * p_Creature)
+    {
+        p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I need you to do something for me.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+        p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
+
+        return true;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
     /// Called when a CreatureAI object is needed for the creature.
     /// @p_Creature : Target creature instance
     CreatureAI * npc_AuriaIrondreamer::GetAI(Creature * p_Creature) const
@@ -690,7 +704,7 @@ namespace MS { namespace Garrison
         m_OnPointReached[AuriaIrondreamer::MovePointIDs::ForgeFront] = [this]() -> void
         {
             AddTimedDelayedOperation(AuriaIrondreamer::DestPointDuration::ForgeFront, [this]() -> void { DoNextSequenceAction(); });
-            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(AuriaIrondreamer::MovePointLoc[AuriaIrondreamer::MovePointIDs::ForgeFront - AuriaIrondreamer::MovePointIDs::ForgeOre][3]); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(AuriaIrondreamer::MovePointLoc[AuriaIrondreamer::MovePointIDs::ForgeFront - AuriaIrondreamer::MovePointIDs::ForgeFront][3]); });
 
             AddTimedDelayedOperation(0 * IN_MILLISECONDS,                             [this]() -> void { me->HandleEmoteCommand(EMOTE_STATE_READ_AND_TALK);    });
             AddTimedDelayedOperation(AuriaIrondreamer::DestPointDuration::ForgeFront, [this]() -> void
@@ -703,13 +717,13 @@ namespace MS { namespace Garrison
         m_OnPointReached[AuriaIrondreamer::MovePointIDs::Workorder] = [this]() -> void
         {
             AddTimedDelayedOperation(AuriaIrondreamer::DestPointDuration::Workorder, [this]() -> void { DoNextSequenceAction(); });
-            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(AuriaIrondreamer::MovePointLoc[AuriaIrondreamer::MovePointIDs::Workorder - AuriaIrondreamer::MovePointIDs::ForgeOre][3]); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(AuriaIrondreamer::MovePointLoc[AuriaIrondreamer::MovePointIDs::Workorder - AuriaIrondreamer::MovePointIDs::Workorder][3]); });
         };
 
         m_OnPointReached[AuriaIrondreamer::MovePointIDs::WorkorderDown] = [this]() -> void
         {
             AddTimedDelayedOperation(AuriaIrondreamer::DestPointDuration::WorkorderDown, [this]() -> void { DoNextSequenceAction(); });
-            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(AuriaIrondreamer::MovePointLoc[AuriaIrondreamer::MovePointIDs::WorkorderDown - AuriaIrondreamer::MovePointIDs::ForgeOre][3]); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(AuriaIrondreamer::MovePointLoc[AuriaIrondreamer::MovePointIDs::WorkorderDown - AuriaIrondreamer::MovePointIDs::WorkorderDown][3]); });
 
             AddTimedDelayedOperation(0 * IN_MILLISECONDS,                                [this]() -> void { me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 8); });
             AddTimedDelayedOperation(AuriaIrondreamer::DestPointDuration::WorkorderDown, [this]() -> void { me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0); });
@@ -718,13 +732,13 @@ namespace MS { namespace Garrison
         m_OnPointReached[AuriaIrondreamer::MovePointIDs::WorkorderFront] = [this]() -> void
         {
             AddTimedDelayedOperation(AuriaIrondreamer::DestPointDuration::WorkorderFront, [this]() -> void { DoNextSequenceAction(); });
-            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(AuriaIrondreamer::MovePointLoc[AuriaIrondreamer::MovePointIDs::ForgeOre - AuriaIrondreamer::MovePointIDs::ForgeOre][3]); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(AuriaIrondreamer::MovePointLoc[AuriaIrondreamer::MovePointIDs::ForgeOre - AuriaIrondreamer::MovePointIDs::WorkorderFront][3]); });
         };
 
         m_OnPointReached[AuriaIrondreamer::MovePointIDs::ChestLeft] = [this]() -> void
         {
             AddTimedDelayedOperation(AuriaIrondreamer::DestPointDuration::ChestLeft, [this]() -> void { DoNextSequenceAction(); });
-            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(AuriaIrondreamer::MovePointLoc[AuriaIrondreamer::MovePointIDs::ForgeOre - AuriaIrondreamer::MovePointIDs::ForgeOre][3]); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(AuriaIrondreamer::MovePointLoc[AuriaIrondreamer::MovePointIDs::ForgeOre - AuriaIrondreamer::MovePointIDs::ChestLeft][3]); });
 
             AddTimedDelayedOperation(0 * IN_MILLISECONDS,                            [this]() -> void { me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 8); });
             AddTimedDelayedOperation(AuriaIrondreamer::DestPointDuration::ChestLeft, [this]() -> void { me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0); });
@@ -753,6 +767,102 @@ namespace MS { namespace Garrison
 
             m_SequencePosition++;
         });
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    /// 77792 - Yulia Samras                                              ////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    npc_YuliaSamras::npc_YuliaSamras()
+        : CreatureScript("npc_YuliaSamras_Garr")
+    {
+
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Called when a player opens a gossip dialog with the GameObject.
+    /// @p_Player     : Source player instance
+    /// @p_Creature   : Target GameObject instance
+    bool npc_YuliaSamras::OnGossipHello(Player * p_Player, Creature * p_Creature)
+    {
+        if (p_Player->HasQuest(Quests::Alliance_YourFirstBlacksmithingWorkOrder) || p_Player->IsQuestRewarded(Quests::Alliance_YourFirstBlacksmithingWorkOrder))
+            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to place an order.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+
+        p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
+
+        return true;
+    }
+
+    /// Called when a player selects a gossip item in the creature's gossip menu.
+    /// @p_Player   : Source player instance
+    /// @p_Creature : Target creature instance
+    /// @p_Sender   : Sender menu
+    /// @p_Action   : Action
+    bool npc_YuliaSamras::OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action)
+    {
+        if (p_Player && p_Creature && p_Creature->AI() && p_Creature->GetScriptName() == GetName())
+            reinterpret_cast<GarrisonNPCAI*>(p_Creature->AI())->SendShipmentCrafterUI(p_Player);
+
+        return true;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Called when a CreatureAI object is needed for the creature.
+    /// @p_Creature : Target creature instance
+    CreatureAI * npc_YuliaSamras::GetAI(Creature * p_Creature) const
+    {
+        return new npc_YuliaSamrasAI(p_Creature);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    npc_YuliaSamras::npc_YuliaSamrasAI::npc_YuliaSamrasAI(Creature * p_Creature)
+        : GarrisonNPCAI(p_Creature), m_SequencePosition(0xFF)
+    {
+        SetAIObstacleManagerEnabled(true);
+
+        m_OnPointReached[YuliaSamras::MovePointIDs::Workorder] = [this]() -> void
+        {
+            AddTimedDelayedOperation(YuliaSamras::DestPointDuration::Workorder, [this]() -> void { DoNextSequenceAction(); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(YuliaSamras::MovePointLoc[YuliaSamras::MovePointIDs::Workorder - YuliaSamras::MovePointIDs::Workorder][3]); });
+        };
+
+        DoNextSequenceAction();
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Do next sequence element
+    void npc_YuliaSamras::npc_YuliaSamrasAI::DoNextSequenceAction()
+    {
+        if (m_SequencePosition >= sizeof(JonathanStephens::Sequence))
+            m_SequencePosition = 0;
+
+        m_DelayedOperations.push([this]() -> void
+        {
+            me->SetWalk(true);
+
+            uint32 l_LocationID = YuliaSamras::Sequence[m_SequencePosition] -   YuliaSamras::MovePointIDs::Workorder;
+            MoveBuildingRelative(YuliaSamras::Sequence[m_SequencePosition],     YuliaSamras::MovePointLoc[l_LocationID][0],
+                                                                                YuliaSamras::MovePointLoc[l_LocationID][1],
+                                                                                YuliaSamras::MovePointLoc[l_LocationID][2]);
+
+            m_SequencePosition++;
+        });
+    }
+
+    /// Get garrison shipment crafter shipment ID
+    uint32 npc_YuliaSamras::npc_YuliaSamrasAI::GetGarrisonShipmentID()
+    {
+        return ShipmentIDs::TheForge;
     }
 
 }   ///< namespace Garrison

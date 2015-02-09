@@ -50,6 +50,7 @@ namespace MS { namespace Garrison
 
         me->GetMotionMaster()->MovePoint(p_PointID, l_Position.x, l_Position.y, l_Position.z);
     }
+
     /// Set facing to relative angle from the building
     /// @p_O : Relative angle
     void GarrisonNPCAI::SetFacingBuildingRelative(float p_O)
@@ -91,6 +92,29 @@ namespace MS { namespace Garrison
                 /// transform plot coord
                 m_NonRotatedPlotPosition = l_Mat * G3D::Vector3(m_PlotInstanceLocation->X, m_PlotInstanceLocation->Y, m_PlotInstanceLocation->Z);
             }
+        }
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Show shipment crafter UI
+    void GarrisonNPCAI::SendShipmentCrafterUI(Player * p_Player)
+    {
+        if (p_Player->IsInGarrison())
+        {
+            uint32 l_ShipmentID = me->AI()->GetGarrisonShipmentID();
+
+            if (l_ShipmentID)
+            {
+                WorldPacket l_Data(SMSG_OPEN_SHIPMENT_NPCRESULT);
+                l_Data.appendPackGUID(me->GetGUID());
+                l_Data << uint32(0x31);
+
+                p_Player->SendDirectMessage(&l_Data);
+            }
+            else
+                p_Player->PlayerTalkClass->SendCloseGossip();
         }
     }
 
@@ -139,16 +163,16 @@ namespace MS { namespace Garrison
             uint32 l_MapID      = p_Player->GetGarrison()->GetGarrisonSiteLevelEntry()->MapID;
             uint32 l_TeamID     = p_Player->GetTeamId();
 
-            p_Player->AddMovieDelayedTeleport(l_MovieID, l_MapID,   MS::Garrison::gGarrisonCreationCoords[l_TeamID][0],
-                                                                    MS::Garrison::gGarrisonCreationCoords[l_TeamID][1],
-                                                                    MS::Garrison::gGarrisonCreationCoords[l_TeamID][2],
-                                                                    MS::Garrison::gGarrisonCreationCoords[l_TeamID][3]);
+            p_Player->AddMovieDelayedTeleport(l_MovieID, l_MapID,   gGarrisonCreationCoords[l_TeamID][0],
+                                                                    gGarrisonCreationCoords[l_TeamID][1],
+                                                                    gGarrisonCreationCoords[l_TeamID][2],
+                                                                    gGarrisonCreationCoords[l_TeamID][3]);
             p_Player->SendMovieStart(l_MovieID);
 
             if (l_TeamID == TEAM_ALLIANCE && p_Player->GetQuestStatus(Quests::QUEST_ETABLISH_YOUR_GARRISON_A) != QUEST_STATUS_REWARDED)
             {
                 p_Player->AddQuest(sObjectMgr->GetQuestTemplate(Quests::QUEST_ETABLISH_YOUR_GARRISON_A), p_Creature);
-                p_Player->CompleteQuest(MS::Garrison::Quests::QUEST_ETABLISH_YOUR_GARRISON_A);
+                p_Player->CompleteQuest(Quests::QUEST_ETABLISH_YOUR_GARRISON_A);
             }
             else if (l_TeamID == TEAM_HORDE && p_Player->GetQuestStatus(Quests::QUEST_ETABLISH_YOUR_GARRISON_H) != QUEST_STATUS_REWARDED)
             {
@@ -164,8 +188,8 @@ namespace MS { namespace Garrison
         }
         else
         {
-            if (p_Player->GetCurrency(MS::Garrison::Globals::CurrencyID, false))
-                p_Player->ModifyCurrency(MS::Garrison::Globals::CurrencyID, -(int32)p_Player->GetCurrency(MS::Garrison::Globals::CurrencyID, false));
+            if (p_Player->GetCurrency(Globals::CurrencyID, false))
+                p_Player->ModifyCurrency(Globals::CurrencyID, -(int32)p_Player->GetCurrency(Globals::CurrencyID, false));
 
             p_Player->DeleteGarrison();
         }
@@ -293,6 +317,7 @@ void AddSC_Garrison_NPC()
     new MS::Garrison::npc_KristenStoneforge;
     new MS::Garrison::npc_JonathanStephens;
     new MS::Garrison::npc_AuriaIrondreamer;
+    new MS::Garrison::npc_YuliaSamras;
 
     /// Horde
     new MS::Garrison::npc_FrostwallPeon("npc_FrostwallPeon_Dynamic");

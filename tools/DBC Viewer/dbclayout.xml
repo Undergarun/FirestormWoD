@@ -2915,14 +2915,14 @@
   </AreaTable>
   <CharShipment build="0">
     <index>
-      <primary>field0</primary>
+      <primary>ID</primary>
     </index>
-    <field type="int" name="field0" />
+    <field type="int" name="ID" />
     <field type="int" name="field1" />
     <field type="int" name="field2" />
     <field type="int" name="field3" />
-    <field type="int" name="field4" />
-    <field type="int" name="field5" />
+    <field type="int" name="Duration" />
+    <field type="int" name="SpellID" />
     <field type="int" name="field6" />
   </CharShipment>
   <GarrBuildingPlotInst build="0">
@@ -4103,4 +4103,57 @@
     <field type="float" name="X" />
     <field type="float" name="Y" />
   </Vignette>
+  <SpellReagents build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+    <field type="int" name="field7" />
+    <field type="int" name="field8" />
+    <field type="int" name="field9" />
+    <field type="int" name="field10" />
+    <field type="int" name="field11" />
+    <field type="int" name="field12" />
+    <field type="int" name="field13" />
+    <field type="int" name="field14" />
+    <field type="int" name="field15" />
+    <field type="int" name="field16" />
+    <field type="int" name="field17" />
+    <field type="int" name="field18" />
+  </SpellReagents>
+  <GarrBuildingDoodadSet build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+  </GarrBuildingDoodadSet>
+  <CharShipmentContainer build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="string" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+    <field type="int" name="field7" />
+    <field type="int" name="field8" />
+    <field type="int" name="field9" />
+    <field type="string" name="field10" />
+    <field type="int" name="field11" />
+    <field type="int" name="field12" />
+  </CharShipmentContainer>
 </DBFilesClient>

@@ -234,10 +234,50 @@ namespace MS { namespace Garrison
         GARRISON_FOLLOWER_FLAG_INACTIVE     = 0x4
     };
 
+    namespace BuildingType
+    {
+        enum
+        {
+            Mine                = 1,
+            Garden              = 2,
+            Barn                = 3,
+            LumberMill          = 4,
+            Tavern              = 5,
+            TradingPost         = 6,
+            Menagerie           = 7,
+            Barracks            = 8,
+            Orchard             = 9,
+            WarFactory          = 10,
+            Stable              = 11,
+            Unk12               = 12,
+            MagusOffice         = 13,
+            SortingOffice       = 14,
+            Magasin             = 15,
+            AlchemyLab          = 16,
+            Forge               = 17,
+            EnchantingCabinet   = 18,
+            EngineeringPole     = 19,
+            ScribeStudy         = 20,
+            ShopGems            = 21,
+            Tannery             = 22,
+            TailoringWorkshop   = 23,
+            FishingHut          = 24,
+            SanctumGladiator    = 25,
+            GnomeWorkshop       = 26
+        };
+    }
+
+    static const uint32 gGarrisonBuildingMaxWorkOrderPerBuildingLevel[Globals::MaxLevel] =
+    {
+        7,
+        14,
+        21
+    };
+
     static const uint32 gGarrisonInGarrisonAreaID[Factions::Max] =
     {
         7004,   ///< Horde
-        7078,   ///< Alliance
+        7078    ///< Alliance
     };
 
     static const uint32 gGarrisonEmptyPlotGameObject[PlotTypes::Max * Factions::Max] =
@@ -283,8 +323,8 @@ namespace MS { namespace Garrison
     static const float gGarrisonBuildingPlotAABBDiminishReturnFactor[PlotTypes::Max * Factions::Max] =
     {
         /// Horde
-        0,          ///< PlotTypes::Small
-        0,          ///< PlotTypes::Medium
+        10,         ///< PlotTypes::Small
+        16,         ///< PlotTypes::Medium
         24,         ///< PlotTypes::Large
         0,          ///< PlotTypes::Farm          same as PlotTypes::Medium
         0,          ///< PlotTypes::Mine          same as PlotTypes::Medium

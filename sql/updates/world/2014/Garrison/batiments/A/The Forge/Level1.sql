@@ -10,7 +10,7 @@ REPLACE INTO creature_template (entry, `name`, `subname`, `IconName`, `RacialLea
 UPDATE `creature_template_addon` SET `bytes1`='0',`bytes2`='0' WHERE `entry`='77792';
 
 UPDATE creature_template SET unit_flags=32768, unit_flags2=2048, npcflag=3, npcflag2=140, ScriptName="npc_AuriaIrondreamer_Garr" WHERE entry = 77359;
-UPDATE creature_template SET unit_flags=32768, unit_flags2=2048, npcflag=3, npcflag2=44 WHERE entry = 77792;
+UPDATE creature_template SET unit_flags=32768, unit_flags2=2048, npcflag=3, npcflag2=44, ScriptName="npc_YuliaSamras_Garr" WHERE entry = 77792;
 
 INSERT INTO creature_model_info (`modelid`, `bounding_radius`, `combat_reach`, `gender`) VALUES(53956, 0.208, 1.5, 1) ON DUPLICATE KEY UPDATE `modelid` = VALUES(`modelid`), `bounding_radius` = VALUES(`bounding_radius`), `combat_reach` = VALUES(`combat_reach`), `gender` = VALUES(`gender`);
 INSERT INTO creature_model_info (`modelid`, `bounding_radius`, `combat_reach`, `gender`) VALUES(54624, 0.208, 1.5, 1) ON DUPLICATE KEY UPDATE `modelid` = VALUES(`modelid`), `bounding_radius` = VALUES(`bounding_radius`), `combat_reach` = VALUES(`combat_reach`), `gender` = VALUES(`gender`);

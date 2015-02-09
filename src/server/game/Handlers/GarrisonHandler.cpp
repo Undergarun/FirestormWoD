@@ -13,6 +13,7 @@
 #include "Pet.h"
 #include "MapManager.h"
 #include "GarrisonMgr.hpp"
+#include "CreatureAI.h"
 
 void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
 {
@@ -468,6 +469,64 @@ void WorldSession::HandleGarrisonChangeFollowerActivationStateOpcode(WorldPacket
     l_Desactivate = p_RecvData.ReadBit();
 
     l_Garrison->ChangeFollowerActivationState(l_FollowerDBID, !l_Desactivate);
+}
+
+void WorldSession::HandleGarrisonGetShipmentInfoOpcode(WorldPacket & p_RecvData)
+{
+    if (!m_Player)
+        return;
+
+    MS::Garrison::Manager * l_Garrison = m_Player->GetGarrison();
+
+    if (!l_Garrison || !m_Player->IsInGarrison())
+        return;
+
+    uint64 l_NpcGUID = 0;
+
+    p_RecvData.readPackGUID(l_NpcGUID);
+
+    Creature * l_Unit = GetPlayer()->GetNPCIfCanInteractWithFlag2(l_NpcGUID, UNIT_NPC_FLAG2_GARRISON_SHIPMENT_CRAFTER);
+
+    if (!l_Unit)
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleGarrisonMissionNPCHelloOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(l_NpcGUID)));
+        return;
+    }
+
+    uint32 l_ShipmentID = 0;
+    uint32 l_OrderAvailable = 0;
+    uint32 l_PlotInstanceID = 0;
+
+    if (l_Unit->AI())
+        l_ShipmentID = l_Unit->AI()->GetGarrisonShipmentID();
+
+    l_PlotInstanceID = l_Garrison->GetCreaturePlotInstanceID(l_NpcGUID);
+
+    if (!!l_PlotInstanceID)
+        l_OrderAvailable = l_Garrison->GetBuildingMaxWorkOrder(l_PlotInstanceID);
+
+    bool l_Success = !!l_ShipmentID && !!l_PlotInstanceID;
+
+    WorldPacket l_Response(SMSG_CREATE_SHIPMENT_RESPONSE);
+    l_Response.WriteBit(l_Success);
+    l_Response.FlushBits();
+
+    if (l_Success)
+    {
+        l_Response << uint32(l_ShipmentID);
+        l_Response << uint32(l_OrderAvailable);
+        l_Response << uint32(0);
+        l_Response << uint32(l_PlotInstanceID);
+    }
+    else
+    {
+        l_Response << uint32(0);
+        l_Response << uint32(0);
+        l_Response << uint32(0);
+        l_Response << uint32(0);
+    }
+
+    SendPacket(&l_Response);
 }
 
 //////////////////////////////////////////////////////////////////////////

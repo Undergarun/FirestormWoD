@@ -31,6 +31,9 @@ namespace MS { namespace Garrison
             /// @p_O : Relative angle
             void SetFacingBuildingRelative(float p_O);
 
+            /// Show shipment crafter UI
+            void SendShipmentCrafterUI(Player * p_Player);
+
         public:
             /// Set UInt32 value
             /// @p_ID    : Value ID
@@ -548,6 +551,11 @@ namespace MS { namespace Garrison
             /// Constructor
             npc_AuriaIrondreamer();
 
+            /// Called when a player opens a gossip dialog with the GameObject.
+            /// @p_Player     : Source player instance
+            /// @p_Creature   : Target GameObject instance
+            virtual bool OnGossipHello(Player * p_Player, Creature * p_Creature) override;
+
             /// Called when a CreatureAI object is needed for the creature.
             /// @p_Creature : Target creature instance
             CreatureAI * GetAI(Creature * p_Creature) const;
@@ -560,6 +568,75 @@ namespace MS { namespace Garrison
 
                 /// Do next sequence element
                 void DoNextSequenceAction();
+
+                uint8 m_SequencePosition;
+            };
+
+    };
+
+    
+    namespace YuliaSamras
+    {
+        namespace MovePointIDs
+        {
+            enum Type
+            {
+                Workorder       = 100,
+            };
+        }
+
+        namespace DestPointDuration
+        {
+            enum
+            {
+                Workorder      = 35 * IN_MILLISECONDS,
+            };
+        }
+
+        static uint8 Sequence[] =
+        {
+            MovePointIDs::Workorder,
+        };
+
+        static float MovePointLoc[][4] =
+        {
+            {  5.6272f, -3.0714f, 0.8021f, 0.1579f },   ///< MovePointIDs::Workorder
+        };
+    }
+
+    /// 77792 - Yulia Samras
+    class npc_YuliaSamras : public CreatureScript
+    {
+        public:
+            /// Constructor
+            npc_YuliaSamras();
+
+            /// Called when a player opens a gossip dialog with the GameObject.
+            /// @p_Player     : Source player instance
+            /// @p_Creature   : Target GameObject instance
+            virtual bool OnGossipHello(Player * p_Player, Creature * p_Creature) override;
+            /// Called when a player selects a gossip item in the creature's gossip menu.
+            /// @p_Player   : Source player instance
+            /// @p_Creature : Target creature instance
+            /// @p_Sender   : Sender menu
+            /// @p_Action   : Action
+            virtual bool OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action) override;
+
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            CreatureAI * GetAI(Creature * p_Creature) const;
+
+            /// Creature AI
+            struct npc_YuliaSamrasAI : public GarrisonNPCAI
+            {
+                /// Constructor
+                npc_YuliaSamrasAI(Creature * p_Creature);
+
+                /// Do next sequence element
+                void DoNextSequenceAction();
+
+                /// Get garrison shipment crafter shipment ID
+                virtual uint32 GetGarrisonShipmentID() override;
 
                 uint8 m_SequencePosition;
             };

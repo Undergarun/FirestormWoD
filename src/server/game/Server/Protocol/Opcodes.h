@@ -504,6 +504,10 @@ enum Opcodes
         SMSG_BLACK_MARKET_REQUEST_ITEMS_RESULT                  = 0x1BC2, ///< 6.0.3 19116
         SMSG_BLACK_MARKET_BID_ON_ITEM_RESULT                    = 0x0825, ///< 6.0.3 19116
         SMSG_BLACK_MARKET_WON                                   = 0x1BAA, ///< 6.0.3 19116
+
+        /// Garrison
+        SMSG_OPEN_SHIPMENT_NPCRESULT                            = 0x0709, ///< 6.0.3 19116
+        SMSG_CREATE_SHIPMENT_RESPONSE                           = 0x1BAB, ///< 6.0.3 19116
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -960,6 +964,7 @@ enum Opcodes
     CMSG_GARRISON_REQUEST_UPGRADEABLE                       = 0x02BD,   ///< 6.0.3 19116
     CMSG_GARRISON_REQUEST_LANDING_PAGE_SHIPMENT_INFO        = 0x0000,
     CMSG_GARRISON_MISSION_NPC_HELLO                         = 0x03D9,   ///< 6.0.3 19116
+    CMSG_GET_SHIPMENT_INFO                                  = 0x06E3,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// User Router

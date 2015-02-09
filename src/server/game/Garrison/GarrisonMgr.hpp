@@ -153,6 +153,10 @@ namespace MS { namespace Garrison
             void DeleteBuilding(uint32 p_PlotInstanceID);
             /// Has active building
             bool HasActiveBuilding(uint32 p_BuildingID);
+            /// Get building max work order
+            uint32 GetBuildingMaxWorkOrder(uint32 p_PlotInstanceID);
+            /// Get creature plot instance ID
+            uint32 GetCreaturePlotInstanceID(uint64 p_GUID);
 
             /// Get known blueprints
             std::vector<int32> GetKnownBlueprints();

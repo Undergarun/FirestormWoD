@@ -593,7 +593,7 @@ struct GarrBuildingEntry
     uint32 BuildingID;                                  // 0
     uint32 GameObjects[2];                              // 1 - 2
     uint32 Unk2;                                        // 3
-    uint32 Unk3;                                        // 4
+    uint32 BuildingType;                                // 4
     uint32 BuildingLevel;                               // 5
     char * NameA;                                       // 6
     char * NameH;                                       // 7
@@ -608,7 +608,7 @@ struct GarrBuildingEntry
     uint32 Unk7;                                        // 16
     uint32 Unk8;                                        // 17
     uint32 BuiltScene[2];                               // 18 - 19
-    uint32 Unk11;                                       // 20
+    uint32 BonusAmount;                                 // 20
     uint32 Unk12;                                       // 21
     uint32 PassiveEffect;                               // 22
     uint32 MoneyCost;                                   // 23

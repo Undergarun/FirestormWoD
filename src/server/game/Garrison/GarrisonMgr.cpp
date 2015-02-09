@@ -2268,6 +2268,7 @@ namespace MS { namespace Garrison
 
         return false;
     }
+
     /// Player fill all condition
     PurchaseBuildingResults::Type Manager::CanPurchaseBuilding(uint32 p_BuildingRecID)
     {
@@ -2284,6 +2285,7 @@ namespace MS { namespace Garrison
 
         return PurchaseBuildingResults::Ok;
     }
+
     /// PurchaseBuilding
     GarrisonBuilding Manager::PurchaseBuilding(uint32 p_BuildingRecID, uint32 p_PlotInstanceID, bool p_Triggered)
     {
@@ -2352,6 +2354,7 @@ namespace MS { namespace Garrison
 
         return l_Building;
     }
+
     /// Get building
     GarrisonBuilding Manager::GetBuilding(uint32 p_PlotInstanceID)
     {
@@ -2361,11 +2364,13 @@ namespace MS { namespace Garrison
 
         return GarrisonBuilding();
     }
+
     /// Get buildings
     std::vector<GarrisonBuilding> Manager::GetBuildings()
     {
         return m_Buildings;
     }
+
     /// Get building passive ability effects
     std::vector<uint32> Manager::GetBuildingsPassiveAbilityEffects()
     {
@@ -2381,6 +2386,7 @@ namespace MS { namespace Garrison
 
         return l_PassiveEffects;
     }
+
     /// Activate building
     void Manager::ActivateBuilding(uint32 p_PlotInstanceID)
     {
@@ -2416,6 +2422,7 @@ namespace MS { namespace Garrison
         if (GetGarrisonScript())
             GetGarrisonScript()->OnBuildingActivated(m_Owner, l_Building->BuildingID);
     }
+
     /// Activate building
     void Manager::ActivateBuilding()
     {
@@ -2424,6 +2431,7 @@ namespace MS { namespace Garrison
         if (l_PlotInstance)
             ActivateBuilding(l_PlotInstance);
     }
+
     /// Cancel construction
     void Manager::CancelConstruction(uint32 p_PlotInstanceID)
     {
@@ -2448,6 +2456,7 @@ namespace MS { namespace Garrison
         if (l_BuildingEntry->MoneyCost != 0)
             m_Owner->ModifyMoney(l_BuildingEntry->MoneyCost);
     }
+
     /// Delete building
     void Manager::DeleteBuilding(uint32 p_PlotInstanceID)
     {
@@ -2498,6 +2507,7 @@ namespace MS { namespace Garrison
 
         m_Owner->SendDirectMessage(&l_BuildingRemovedPacket);
     }
+
     /// Has active building
     bool Manager::HasActiveBuilding(uint32 p_BuildingID)
     {
@@ -2508,6 +2518,65 @@ namespace MS { namespace Garrison
         }
 
         return false;
+    }
+
+    /// Get building max work order
+    uint32 Manager::GetBuildingMaxWorkOrder(uint32 p_PlotInstanceID)
+    {
+        if (!HasPlotInstance(p_PlotInstanceID))
+            return 0;
+
+        uint32 l_BuildingID = GetBuilding(p_PlotInstanceID).BuildingID;
+
+        if (!l_BuildingID)
+            return 0;
+
+        const GarrBuildingEntry * l_BuildingEntry = sGarrBuildingStore.LookupEntry(l_BuildingID);
+
+        if (!l_BuildingEntry)
+            return 0;
+
+        uint32 l_MaxWorkOrder = 0;
+
+        for (uint32 l_CurrentValue : gGarrisonBuildingMaxWorkOrderPerBuildingLevel)
+        {
+            if (l_CurrentValue == l_BuildingEntry->BonusAmount)
+            {
+                l_MaxWorkOrder += l_BuildingEntry->BonusAmount;
+                break;
+            }
+        }
+
+        if (!l_MaxWorkOrder)
+            return 0;
+
+        for (uint32 l_I = 0; l_I < m_Buildings.size(); ++l_I)
+        {
+            const GarrBuildingEntry * l_Building = sGarrBuildingStore.LookupEntry(m_Buildings[l_I].BuildingID);
+
+            if (!l_Building)
+                continue;
+
+            if (l_Building->BuildingType != BuildingType::Magasin)
+                continue;
+
+            l_MaxWorkOrder += l_Building->BonusAmount;
+        }
+
+        return l_MaxWorkOrder;
+    }
+    /// Get creature plot instance ID
+    uint32 Manager::GetCreaturePlotInstanceID(uint64 p_GUID)
+    {
+        for (auto & l_Pair : m_PlotsCreatures)
+        {
+            std::vector<uint64>::iterator l_It = std::find(l_Pair.second.begin(), l_Pair.second.end(), p_GUID);
+
+            if (l_It != l_Pair.second.end())
+                return l_Pair.first;
+        }
+
+        return 0;
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -2948,7 +3017,7 @@ namespace MS { namespace Garrison
             if (!l_Building)
                 continue;
 
-            if (l_Building->Unk3 != 8)
+            if (l_Building->BuildingType != BuildingType::Barracks)
                 continue;
 
             l_BonusMaxActiveFollower = l_Building->Unk7;
@@ -2960,7 +3029,7 @@ namespace MS { namespace Garrison
                 if (!l_Specialization)
                     continue;
 
-                if (   l_Specialization->Unk2 == l_Building->Unk3
+                if (   l_Specialization->Unk2 == l_Building->BuildingType
                     && l_Specialization->Unk4 <= l_Building->BuildingLevel
                     && l_Specialization->Unk3 == 10)
                 {
