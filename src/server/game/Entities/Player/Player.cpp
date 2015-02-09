@@ -5970,11 +5970,11 @@ bool Player::ResetTalents(bool no_cost)
     return true;
 }
 
-void Player::ResetSpec()
+void Player::ResetSpec(bool p_NoCost /* = false */)
 {
     uint32 cost = 0;
 
-    if (!sWorld->getBoolConfig(CONFIG_NO_RESET_TALENT_COST))
+    if (!sWorld->getBoolConfig(CONFIG_NO_RESET_TALENT_COST) && !p_NoCost)
     {
         cost = GetNextResetSpecializationCost();
 
