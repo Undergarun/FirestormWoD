@@ -918,7 +918,18 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         HasAuraType(SPELL_AURA_MOD_RAGE_FROM_DAMAGE_DEALT) && cleanDamage->mitigated_damage > 0 &&
         (!spellProto || !spellProto->HasAura(SPELL_AURA_SPLIT_DAMAGE_PCT)))
     {
-        float l_Rage = GetAttackTime(cleanDamage->attackType) / 1000.f * 5.f;
+        float l_Speed = 0.f;
+        if (GetTypeId() == TYPEID_PLAYER)
+        {
+            Player* l_Player = ToPlayer();
+
+            Item const* l_Weapon = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, cleanDamage->attackType == WeaponAttackType::BaseAttack ? EQUIPMENT_SLOT_MAINHAND : EQUIPMENT_SLOT_OFFHAND);
+            l_Speed = l_Weapon ? l_Weapon->GetTemplate()->Delay : BASE_ATTACK_TIME;
+        }
+        else
+            l_Speed = GetAttackTime(cleanDamage->attackType);
+
+        float l_Rage = l_Speed / 1000.f * 5.f;
 
         switch (cleanDamage->attackType)
         {
