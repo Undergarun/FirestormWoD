@@ -131,7 +131,9 @@ enum HunterSpells
     HUNTER_SPELL_BASIC_ATTACK_COST_MODIFIER         = 62762,
     HUNTER_SPELL_IMPROVED_FOCUS_FIRE                = 157705,
     HUNTER_SPELL_SPIKED_COLLAR                      = 53184,
-    HUNTER_SPELL_ENHANCED_BASIC_ATTACK              = 157717
+    HUNTER_SPELL_ENHANCED_BASIC_ATTACK              = 157717,
+    HUNTER_SPELL_POISONED_AMMO                      = 162543,
+    HUNTER_SPELL_POISONED_AMMO_AURA                 = 170661
 };
 
 ///< Thunderstomp - 63900
@@ -533,6 +535,61 @@ class spell_hun_exotic_munitions : public SpellScriptLoader
 };
 
 const uint32 fireworksSpells[4] = { 127937, 127936, 127961, 127951 };
+
+///< Poisoned Ammo - 162543
+class spell_hun_poisoned_ammo : public SpellScriptLoader
+{
+    public:
+        spell_hun_poisoned_ammo() : SpellScriptLoader("spell_hun_poisoned_ammo") { }
+
+        class spell_hun_poisoned_ammo_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_poisoned_ammo_SpellScript);
+
+            int32 m_Damage = 0;
+
+            void HandleOnHit()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (Unit* l_Target = GetHitUnit())
+                    {
+                        if (AuraPtr l_PoisonedAmmo = l_Target->GetAura(HUNTER_SPELL_POISONED_AMMO))
+                        {
+                            const SpellInfo *l_SpellInfo = sSpellMgr->GetSpellInfo(HUNTER_SPELL_POISONED_AMMO_AURA);
+
+                            if (m_Damage > 0)
+                                m_Damage = m_Damage / (l_PoisonedAmmo->GetDuration() / l_PoisonedAmmo->GetEffect(0)->GetAmplitude());
+                            if (l_SpellInfo != nullptr)
+                                m_Damage += l_SpellInfo->Effects[EFFECT_0].AttackPowerMultiplier * l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack);
+
+                            l_PoisonedAmmo->GetEffect(0)->SetAmount(m_Damage);
+                        }
+                    }
+                }
+            }
+
+            void HandleBeforeHit()
+            {
+                if (Unit* l_Target = GetHitUnit())
+                {
+                    if (AuraPtr l_PoisonedAmmo = l_Target->GetAura(HUNTER_SPELL_POISONED_AMMO))
+                        m_Damage = l_PoisonedAmmo->GetEffect(0)->GetAmount() * (l_PoisonedAmmo->GetDuration() / l_PoisonedAmmo->GetEffect(0)->GetAmplitude());
+                }
+            }
+
+            void Register()
+            {
+                BeforeHit += SpellHitFn(spell_hun_poisoned_ammo_SpellScript::HandleBeforeHit);
+                OnHit += SpellHitFn(spell_hun_poisoned_ammo_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_poisoned_ammo_SpellScript();
+        }
+};
 
 // Fireworks - 127933
 class spell_hun_fireworks: public SpellScriptLoader
@@ -3171,6 +3228,7 @@ class AreaTrigger_explosive_trap : public AreaTriggerEntityScript
 
 void AddSC_hunter_spell_scripts()
 {
+    new spell_hun_poisoned_ammo();
     new spell_hun_kill_command_proc();
     new spell_hun_spirit_mend();
     new spell_hun_thunderstomp();
