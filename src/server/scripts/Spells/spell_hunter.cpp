@@ -1399,25 +1399,22 @@ class spell_hun_focus_fire: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (AuraPtr focusFire = _player->GetAura(HUNTER_SPELL_FOCUS_FIRE_AURA))
+                    if (AuraPtr l_FocusFire = l_Player->GetAura(HUNTER_SPELL_FOCUS_FIRE_AURA))
                     {
-                        if (AuraPtr frenzy = _player->GetAura(HUNTER_SPELL_FRENZY_STACKS))
+                        if (AuraPtr l_Frenzy = l_Player->GetAura(HUNTER_SPELL_FRENZY_STACKS))
                         {
-                            if (Pet* pet = _player->GetPet())
+                            if (Pet* l_Pet = l_Player->GetPet())
                             {
-                                int32 stackAmount = frenzy->GetStackAmount();
+                                l_FocusFire->GetEffect(0)->ChangeAmount(l_FocusFire->GetEffect(0)->GetAmount() * l_Frenzy->GetStackAmount());
 
-                                focusFire->GetEffect(0)->ChangeAmount(focusFire->GetEffect(0)->GetAmount() * stackAmount);
-
-                                if (pet->HasAura(HUNTER_SPELL_FRENZY_STACKS))
+                                if (AuraPtr l_FrenzyPet = l_Pet->GetAura(HUNTER_SPELL_FRENZY_STACKS))
                                 {
-                                    pet->RemoveAura(HUNTER_SPELL_FRENZY_STACKS);
-                                    pet->EnergizeBySpell(pet, GetSpellInfo()->Id, 6, POWER_FOCUS);
+                                    l_Pet->EnergizeBySpell(l_Pet, GetSpellInfo()->Id, GetSpellInfo()->Effects[EFFECT_1].BasePoints * l_FrenzyPet->GetStackAmount(), POWER_FOCUS);
+                                    l_Pet->RemoveAura(HUNTER_SPELL_FRENZY_STACKS);
                                 }
-
-                                _player->RemoveAura(HUNTER_SPELL_FRENZY_STACKS);
+                               l_Player->RemoveAura(HUNTER_SPELL_FRENZY_STACKS);
                             }
                         }
                     }
