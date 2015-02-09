@@ -37,3 +37,11 @@ INSERT INTO areatrigger_template (spell_id, eff_index, entry, scale_x, scale_y, 
 
 DELETE FROM spell_script_names WHERE ScriptName = 'spell_bloodmaul_channel_flames';
 INSERT INTO spell_script_names VALUE (164615, 'spell_bloodmaul_channel_flames');
+
+UPDATE creature_template SET ScriptName = "mob_molten_earth_elemental" WHERE entry = 75209;
+UPDATE creature_template SET ScriptName = "mob_vengeful_magma_elemental" WHERE entry = 75820;
+UPDATE creature_template SET ScriptName = "mob_magma_lord" WHERE entry = 75211;
+UPDATE creature_template SET ScriptName = "mob_pillar_of_flame" WHERE entry = 75327;
+UPDATE creature_template SET MovementType = 1 WHERE entry = 75360;
+UPDATE creature SET spawndist = 20 WHERE id = 75360;
+INSERT INTO spell_linked_spell VALUES (164546, 151626, 0, "");
