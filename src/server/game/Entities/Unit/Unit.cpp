@@ -4396,6 +4396,40 @@ void Unit::RemoveAreaAurasDueToLeaveWorld()
         }
     }
 
+    /// We need to remove all area auras which are casted by the pet and owned by the pet owner
+    if (isPet())
+    {
+        if (Unit* l_Owner = GetOwner())
+        {
+            Unit::AuraMap& auras = l_Owner->GetOwnedAuras();
+            for (Unit::AuraMap::const_iterator itr = auras.begin(); itr != auras.end();)
+            {
+                AuraPtr l_Aura = itr->second;
+                ++itr;
+
+                if (l_Aura->GetCasterGUID() != GetGUID())
+                    continue;
+
+                Aura::ApplicationMap const& l_AppMap = l_Aura->GetApplicationMap();
+                for (Aura::ApplicationMap::const_iterator iter = l_AppMap.begin(); iter != l_AppMap.end();)
+                {
+                    AuraApplication * aurApp = iter->second;
+                    ++iter;
+
+                    Unit* l_Target = aurApp->GetTarget();
+                    if (l_Target == this)
+                        continue;
+
+                    l_Target->RemoveAura(aurApp);
+
+                    // things linked on aura remove may apply new area aura - so start from the beginning
+                    itr  = auras.begin();
+                    iter = l_AppMap.begin();
+                }
+            }
+        }
+    }
+
     // remove area auras owned by others
     for (AuraApplicationMap::iterator iter = m_appliedAuras.begin(); iter != m_appliedAuras.end();)
     {
