@@ -283,6 +283,11 @@ class spell_warr_storm_bolt: public SpellScriptLoader
         }
 };
 
+enum ColossusSpells
+{
+    SPELL_WARRIOR_WEAPONS_MASTER = 76838,
+};
+
 // Colossus Smash - 86346
 class spell_warr_colossus_smash: public SpellScriptLoader
 {
@@ -292,6 +297,18 @@ class spell_warr_colossus_smash: public SpellScriptLoader
         class spell_warr_colossus_smash_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_warr_colossus_smash_SpellScript);
+
+            void HandleDamage(SpellEffIndex)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (caster->HasAura(SPELL_WARRIOR_WEAPONS_MASTER))
+                    {
+                        float l_MasteryValue = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 3.5f;
+                        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_MasteryValue));
+                    }
+                }
+            }
 
             void HandleOnHit()
             {
@@ -310,6 +327,7 @@ class spell_warr_colossus_smash: public SpellScriptLoader
             void Register()
             {
                 OnHit += SpellHitFn(spell_warr_colossus_smash_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_warr_colossus_smash_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
             }
         };
 
@@ -1368,6 +1386,13 @@ public:
             int32 l_RageConsumed = -GetCaster()->ModifyPower(POWER_RAGE, -(GetSpellInfo()->Effects[EFFECT_2].BasePoints * 10));
             // 30 rage = 320% more weapon damage
             AddPct(l_Damage, (l_RageConsumed / 1.5f));
+
+            if (GetCaster()->HasAura(SPELL_WARRIOR_WEAPONS_MASTER))
+            {
+                float l_MasteryValue = GetCaster()->GetFloatValue(PLAYER_FIELD_MASTERY) * 3.5f;
+
+                l_Damage += CalculatePct(l_Damage, l_MasteryValue);
+            }
 
             SetHitDamage(l_Damage);
         }
