@@ -941,13 +941,18 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         {
             if (damagetype != DOT || (spellProto && spellProto->IsChanneled()))
             {
-                if (Spell* spell = victim->m_currentSpells[CURRENT_GENERIC_SPELL])
+                uint32 const l_SpellTypesToInterrupt[2] = { CurrentSpellTypes::CURRENT_CHANNELED_SPELL, CurrentSpellTypes::CURRENT_CHANNELED_SPELL };
+
+                for (int l_I = 0; l_I < 2; l_I++)
                 {
-                    if (spell->getState() == SPELL_STATE_PREPARING)
+                    if (Spell* spell = victim->m_currentSpells[l_SpellTypesToInterrupt[l_I]])
                     {
-                        uint32 interruptFlags = spell->m_spellInfo->InterruptFlags;
-                        if (interruptFlags & SPELL_INTERRUPT_FLAG_ABORT_ON_DMG)
-                            victim->InterruptNonMeleeSpells(false);
+                        if (spell->getState() == SPELL_STATE_PREPARING)
+                        {
+                            uint32 interruptFlags = spell->m_spellInfo->InterruptFlags;
+                            if (interruptFlags & SPELL_INTERRUPT_FLAG_ABORT_ON_DMG)
+                                victim->InterruptNonMeleeSpells(false);
+                        }
                     }
                 }
             }
@@ -1078,15 +1083,24 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
             if (victim != this && victim->GetTypeId() == TYPEID_PLAYER) // does not support creature push_back
             {
                 if (damagetype != DOT)
-                    if (Spell* spell = victim->m_currentSpells[CURRENT_GENERIC_SPELL])
-                        if (spell->getState() == SPELL_STATE_PREPARING)
+                {
+                    uint32 const l_SpellTypesToInterrupt[2] = { CurrentSpellTypes::CURRENT_CHANNELED_SPELL, CurrentSpellTypes::CURRENT_CHANNELED_SPELL };
+
+                    for (int l_I = 0; l_I < 2; l_I++)
+                    {
+                        if (Spell* spell = victim->m_currentSpells[l_SpellTypesToInterrupt[l_I]])
                         {
-                            uint32 interruptFlags = spell->m_spellInfo->InterruptFlags;
-                            if (interruptFlags & SPELL_INTERRUPT_FLAG_ABORT_ON_DMG)
-                                victim->InterruptNonMeleeSpells(false);
-                            else if (interruptFlags & SPELL_INTERRUPT_FLAG_PUSH_BACK)
-                                spell->Delayed();
+                            if (spell->getState() == SPELL_STATE_PREPARING)
+                            {
+                                uint32 interruptFlags = spell->m_spellInfo->InterruptFlags;
+                                if (interruptFlags & SPELL_INTERRUPT_FLAG_ABORT_ON_DMG)
+                                    victim->InterruptNonMeleeSpells(false);
+                                else if (interruptFlags & SPELL_INTERRUPT_FLAG_PUSH_BACK)
+                                    spell->Delayed();
+                            }
                         }
+                    }
+                }
             }
         }
 
