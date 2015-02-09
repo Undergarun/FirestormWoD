@@ -22195,7 +22195,7 @@ float Unit::CalculateDamageTakenFactor(Unit* p_Unit, Creature* p_Creature)
     uint16 l_IntendedItemLevelByExpansion[MAX_EXPANSION] = {65, 115, 200, 346, 463, 609};
     uint16 l_MaxPlayerLevelsByExpansion[MAX_EXPANSION] = {69, 79, 84, 89, 99, 109};
 
-    if (l_TargetExpansion > 0 && p_Unit->GetTypeId() == TYPEID_PLAYER)
+    if (l_TargetExpansion && l_LevelDiff > 0 && p_Unit->GetTypeId() == TYPEID_PLAYER)
     {
         Player* p_Player = p_Unit->ToPlayer();
 
