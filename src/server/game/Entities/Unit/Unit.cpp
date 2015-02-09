@@ -66,6 +66,8 @@
 #include "BattlegroundWS.h"
 #include "BattlegroundTP.h"
 #include "Guild.h"
+#include <Reporting/Reporter.hpp>
+#include <Reporting/Reports.hpp>
 
 float baseMoveSpeed[MAX_MOVE_TYPE] =
 {
@@ -1106,6 +1108,26 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
             he->CastSpell(he, 7267, true);                  // beg
             he->DuelComplete(DUEL_WON);
         }
+    }
+
+    if (spellProto != nullptr && GetTypeId() == TYPEID_PLAYER && (ToPlayer()->InBattleground() || ToPlayer()->InArena()) && victim->GetTypeId() == TYPEID_PLAYER)
+    {
+        using namespace MS::Reporting;
+        auto l_Row = sChrSpecializationsStore.LookupEntry(ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()));
+        std::string l_SpeName = "";
+        if (l_Row != nullptr)
+            l_SpeName = l_Row->specializationName;
+
+        sReporter->Report(MakeReport<BattlegroundDealDamageWatcher>::Craft
+        (
+            GetGUIDLow(),
+            sWorld->GetRealmName(),
+            spellProto->Id,
+            damage,
+            getClass(),
+            getRace(),
+            l_SpeName
+        ));
     }
 
     DamageTaken* dmgTaken = new DamageTaken(damage, getMSTime());

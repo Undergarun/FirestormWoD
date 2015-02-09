@@ -15,6 +15,8 @@ namespace MS
             FirstTimeConnexion = 5,
             UpdateDiff = 6,
             AuthChooseRealm = 7,
+            IndexWatcher = 8,
+            BattlegroundDealDamageWatcher = 9,
         };
 
         /// Craft a 'AccountCreation' report.
@@ -169,6 +171,52 @@ namespace MS
             l_Node["ClientPlatform"] = std::get<2>(l_DeveloppedArgs);
             l_Node["IpToCountry"] = std::get<3>(l_DeveloppedArgs);
             l_Node["ClientLang"] = std::get<4>(l_DeveloppedArgs);
+
+            return l_Node.Serialize<std::ostringstream>();
+        }
+
+        /// Craft a 'IndexWatcher' report.
+        /// @p_Arg0 : Referer (expect text)
+        /// @p_Arg1 : IpToCountry (expect text)
+        template<>
+        template<typename... Args>
+        std::string MakeReport<ReportOpcodes::IndexWatcher>::Craft(Args... p_Args)
+        {
+            static_assert(sizeof... (p_Args) == 2, "The number of arguments given is not the one expected.");
+            auto&& l_DeveloppedArgs = std::forward_as_tuple(p_Args...);
+
+            EasyJSon::Node<std::string> l_Node;
+            l_Node["Opcode"] = "8";
+            l_Node["Referer"] = std::get<0>(l_DeveloppedArgs);
+            l_Node["IpToCountry"] = std::get<1>(l_DeveloppedArgs);
+
+            return l_Node.Serialize<std::ostringstream>();
+        }
+
+        /// Craft a 'BattlegroundDealDamageWatcher' report.
+        /// @p_Arg0 : Guid (expect int64)
+        /// @p_Arg1 : Realm (expect text)
+        /// @p_Arg2 : SpellId (expect int32)
+        /// @p_Arg3 : Damage (expect int32)
+        /// @p_Arg4 : Classe (expect int8)
+        /// @p_Arg5 : Race (expect int8)
+        /// @p_Arg6 : Specialization (expect text)
+        template<>
+        template<typename... Args>
+        std::string MakeReport<ReportOpcodes::BattlegroundDealDamageWatcher>::Craft(Args... p_Args)
+        {
+            static_assert(sizeof... (p_Args) == 7, "The number of arguments given is not the one expected.");
+            auto&& l_DeveloppedArgs = std::forward_as_tuple(p_Args...);
+
+            EasyJSon::Node<std::string> l_Node;
+            l_Node["Opcode"] = "9";
+            l_Node["Guid"] = std::to_string(std::get<0>(l_DeveloppedArgs));
+            l_Node["Realm"] = std::get<1>(l_DeveloppedArgs);
+            l_Node["SpellId"] = std::to_string(std::get<2>(l_DeveloppedArgs));
+            l_Node["Damage"] = std::to_string(std::get<3>(l_DeveloppedArgs));
+            l_Node["Classe"] = std::to_string(std::get<4>(l_DeveloppedArgs));
+            l_Node["Race"] = std::to_string(std::get<5>(l_DeveloppedArgs));
+            l_Node["Specialization"] = std::get<6>(l_DeveloppedArgs);
 
             return l_Node.Serialize<std::ostringstream>();
         }

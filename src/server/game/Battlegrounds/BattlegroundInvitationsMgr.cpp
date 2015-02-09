@@ -81,7 +81,7 @@ namespace MS
 
                     /// Send status packet.
                     WorldPacket data;
-                    PacketFactory::Status(&data, p_Bg, l_Player, l_QueueSlot, STATUS_WAIT_JOIN, INVITE_ACCEPT_WAIT_TIME, l_Player->GetBattlegroundQueueJoinTime(p_GroupInfo->m_BgTypeId), p_GroupInfo->m_ArenaType, p_GroupInfo->m_IsSkirmish);
+                    PacketFactory::Status(&data, p_Bg, l_Player, l_QueueSlot, STATUS_WAIT_JOIN, p_Bg->GetExpirationDate(), l_Player->GetBattlegroundQueueJoinTime(p_GroupInfo->m_BgTypeId), p_GroupInfo->m_ArenaType, p_GroupInfo->m_IsSkirmish);
                     l_Player->GetSession()->SendPacket(&data);
                 }
 
@@ -319,7 +319,7 @@ namespace MS
 
                     /// We must send remaining time in queue.
                     if (BattlegroundType::IsArena(bgQueueTypeId))
-                        PacketFactory::Status(&l_Data, l_Bg, l_Player, l_QueueSlot, STATUS_WAIT_JOIN, INVITE_ACCEPT_WAIT_TIME - INVITATION_REMIND_TIME, l_Player->GetBattlegroundQueueJoinTime(bgQueueTypeId), m_ArenaType, l_Bg->IsSkirmish());
+                        PacketFactory::Status(&l_Data, l_Bg, l_Player, l_QueueSlot, STATUS_WAIT_JOIN, l_Bg->GetExpirationDate(), l_Player->GetBattlegroundQueueJoinTime(bgQueueTypeId), m_ArenaType, l_Bg->IsSkirmish());
                     
                     l_Player->GetSession()->SendPacket(&l_Data);
                 }

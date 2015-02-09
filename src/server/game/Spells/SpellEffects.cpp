@@ -1857,26 +1857,6 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
                 damage /= count;                    // divide to all targets
                 break;
             }
-            case 19750: // Selfless Healer
-            {
-                if (!caster)
-                    break;
-
-                addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, effIndex, HEAL);
-
-                if (!caster->HasAura(114250))
-                    break;
-
-                int32 charges = 0;
-
-                if (AuraPtr selflessHealer = caster->GetAura(114250))
-                    charges = selflessHealer->GetStackAmount();
-
-                if (charges && unitTarget->GetGUID() != caster->GetGUID())
-                    AddPct(addhealth, (35 * charges));
-
-                break;
-            }
             case 45064: // Vessel of the Naaru (Vial of the Sunwell trinket)
             {
                 if (!caster)
