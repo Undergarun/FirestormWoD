@@ -2982,22 +2982,22 @@ class Player : public Unit, public GridObject<Player>
 
         PetSlot getSlotForNewPet()
         {
-            uint32 last_known = 0;
+            uint32 l_LastKnow = 0;
             // Call Pet Spells
             // 883 83242 83243 83244 83245
             //  1    2     3     4     5
             if (HasSpell(83245))
-                last_known = 5;
+                l_LastKnow = 5;
             else if (HasSpell(83244))
-                last_known = 4;
+                l_LastKnow = 4;
             else if (HasSpell(83243))
-                last_known = 3;
+                l_LastKnow = 3;
             else if (HasSpell(83242))
-                last_known = 2;
+                l_LastKnow = 2;
             else if (HasSpell(883))
-                last_known = 1;
+                l_LastKnow = 1;
 
-            for (uint32 i = uint32(PET_SLOT_HUNTER_FIRST); i < last_known; ++i)
+            for (uint32 i = uint32(PET_SLOT_HUNTER_FIRST); i < l_LastKnow; ++i)
                 if ((m_petSlotUsed & (1 << i)) == 0)
                     return PetSlot(i);
 

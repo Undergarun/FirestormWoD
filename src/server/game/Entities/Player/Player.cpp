@@ -19830,7 +19830,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     SetByteValue(PLAYER_FIELD_LIFETIME_MAX_RANK, 1, fields[60].GetUInt8());
 
     m_currentPetSlot = (PetSlot)fields[61].GetUInt8();
-    m_petSlotUsed = fields[62].GetUInt32();
+
+    /// I think we didn't need to save it or load it, we can get it in StablePetCallback
+    //m_petSlotUsed = fields[62].GetUInt32();
 
     InitDisplayIds();
 
