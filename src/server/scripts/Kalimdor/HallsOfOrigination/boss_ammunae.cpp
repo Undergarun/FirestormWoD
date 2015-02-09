@@ -288,7 +288,7 @@ class npc_ammunae_spore : public CreatureScript
                 me->GetMotionMaster()->MoveRandom(15.0f);
             }
             
-            void DamageTaken(Unit* /*who*/, uint32& damage)
+            void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (damage >= me->GetHealth())
                 {

@@ -247,6 +247,8 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
 
     SetDisplayId(goinfo->displayId);
 
+    loot.SetSource(GetGUID());
+
     // GAMEOBJECT_BYTES_1, index at 0, 1, 2 and 3
     SetGoType(GameobjectTypes(goinfo->type));
     SetGoState(go_state);
@@ -1243,7 +1245,7 @@ void GameObject::Use(Unit* p_User)
         if (sScriptMgr->OnGossipHello(playerUser, this))
             return;
 
-        if (AI()->GossipHello(playerUser))
+        if (AI() && AI()->GossipHello(playerUser))
             return;
     }
 
@@ -1284,23 +1286,25 @@ void GameObject::Use(Unit* p_User)
             if (p_User->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            Player* player = p_User->ToPlayer();
-
-            player->PrepareGossipMenu(this, GetGOInfo()->questgiver.gossipID, true);
-            player->SendPreparedGossip(this);
+            if (Player* player = p_User->ToPlayer())
+            {
+                player->PrepareGossipMenu(this, GetGOInfo()->questgiver.gossipID, true);
+                player->SendPreparedGossip(this);
+            }
             return;
         }
         case GAMEOBJECT_TYPE_TRAP:                          //6
             {
-                GameObjectTemplate const* goInfo = GetGOInfo();
-                if (goInfo->trap.spell)
-                    CastSpell(p_User, goInfo->trap.spell);
+                if (GameObjectTemplate const* goInfo = GetGOInfo())
+                {
+                    if (goInfo->trap.spell)
+                        CastSpell(p_User, goInfo->trap.spell);
 
-                m_cooldownTime = time(NULL) + (goInfo->trap.cooldown ? goInfo->trap.cooldown :  uint32(4));   // template or 4 seconds
+                    m_cooldownTime = time(NULL) + (goInfo->trap.cooldown ? goInfo->trap.cooldown : uint32(4));   // template or 4 seconds
 
-                if (goInfo->trap.charges == 1)         // Deactivate after trigger
-                    SetLootState(GO_JUST_DEACTIVATED);
-
+                    if (goInfo->trap.charges == 1)         // Deactivate after trigger
+                        SetLootState(GO_JUST_DEACTIVATED);
+                }
                 return;
             }
         //Sitting: Wooden bench, chairs enzz
@@ -1323,6 +1327,8 @@ void GameObject::Use(Unit* p_User)
             }
 
             Player* player = p_User->ToPlayer();
+            if (!player)
+                break;
 
             // a chair may have n slots. we have to calculate their positions and teleport the player to the nearest one
 
@@ -1397,10 +1403,14 @@ void GameObject::Use(Unit* p_User)
         case GAMEOBJECT_TYPE_GOOBER:                        //10
         {
             const GameObjectTemplate * l_Info = GetGOInfo();
+            if (!l_Info)
+                break;
 
             if (p_User->GetTypeId() == TYPEID_PLAYER)
             {
-                Player * l_Player = p_User->ToPlayer();
+                Player* l_Player = p_User->ToPlayer();
+                if (!l_Player)
+                    break;
 
                 if (l_Info->goober.pageID)                    // show page...
                 {
@@ -1433,7 +1443,7 @@ void GameObject::Use(Unit* p_User)
                 if (Battleground* bg = l_Player->GetBattleground())
                     bg->EventPlayerUsedGO(l_Player, this);
 
-                l_Player->CastedCreatureOrGO(l_Info->entry, GetGUID(), 0);
+                l_Player->QuestObjectiveSatisfy(GetEntry(), 1, QUEST_OBJECTIVE_TYPE_GO, GetGUID());
 
                 GetMap()->ScriptsStart(sGameObjectScripts, GetDBTableGUIDLow(), l_Player, this);
             }
@@ -1468,6 +1478,8 @@ void GameObject::Use(Unit* p_User)
                 return;
 
             Player* player = p_User->ToPlayer();
+            if (!player)
+                break;
 
             if (info->camera.camera)
                 player->SendCinematicStart(info->camera.camera);
@@ -1680,7 +1692,7 @@ void GameObject::Use(Unit* p_User)
         {
             GameObjectTemplate const* info = GetGOInfo();
 
-            if (p_User->GetTypeId() != TYPEID_PLAYER)
+            if (p_User->GetTypeId() != TYPEID_PLAYER || !info)
                 return;
 
             Player* player = p_User->ToPlayer();
@@ -1714,6 +1726,8 @@ void GameObject::Use(Unit* p_User)
                 return;
 
             Player* player = p_User->ToPlayer();
+            if (!player)
+                break;
 
             if (player->CanUseBattlegroundObject())
             {
@@ -1746,6 +1760,8 @@ void GameObject::Use(Unit* p_User)
                 return;
 
             Player* player = p_User->ToPlayer();
+            if (!player)
+                break;
 
             player->SendLoot(GetGUID(), LOOT_FISHINGHOLE);
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_FISH_IN_GAMEOBJECT, GetGOInfo()->entry);
@@ -2258,15 +2274,22 @@ void GameObject::SetLootRecipient(Unit* unit)
         m_lootRecipientGroup = group->GetLowGUID();
 }
 
-bool GameObject::IsLootAllowedFor(Player const* player) const
+bool GameObject::IsLootAllowedFor(Player const* p_Player) const
 {
+    /// If creature is quest tracked and player have the quest, player isn't allowed to loot
+    auto l_TrackingQuestId = GetGOInfo()->GetTrackingQuestId();
+    auto l_QuestBit = GetQuestUniqueBitFlag(l_TrackingQuestId);
+
+    if (l_TrackingQuestId && p_Player->GetCompletedQuests().GetBit(l_QuestBit - 1))
+        return false;
+
     if (!m_lootRecipient && !m_lootRecipientGroup)
         return true;
 
-    if (player->GetGUID() == m_lootRecipient)
+    if (p_Player->GetGUID() == m_lootRecipient)
         return true;
 
-    Group const* playerGroup = player->GetGroup();
+    Group const* playerGroup = p_Player->GetGroup();
     if (!playerGroup || playerGroup != GetLootRecipientGroup()) // if we dont have a group we arent the recipient
         return false;                                           // if go doesnt have group bound it means it was solo killed by someone else
 
@@ -2335,7 +2358,7 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
             {
                 uint32 flags = m_uint32Values[GAMEOBJECT_FIELD_FLAGS];
                 if (GetGoType() == GAMEOBJECT_TYPE_CHEST)
-                    if (GetGOInfo()->chest.usegrouplootrules && !IsLootAllowedFor(target))
+                    if ((GetGOInfo()->chest.usegrouplootrules || GetGOInfo()->GetTrackingQuestId()) && !IsLootAllowedFor(target))
                         flags |= GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE;
 
                 fieldBuffer << flags;

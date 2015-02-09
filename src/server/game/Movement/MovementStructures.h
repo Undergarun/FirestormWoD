@@ -84,7 +84,6 @@ MovementStatusElements MovementGlobalSequence[] =
     MSEHasFallData,
     MSEZeroBit,
     MSEZeroBit,
-    MSEZeroBit,
 
     MSETransportGuid,
     MSETransportPositionX,
@@ -101,8 +100,8 @@ MovementStatusElements MovementGlobalSequence[] =
     MSEFallTime,
     MSEFallVerticalSpeed,
     MSEHasFallDirection,
-    MSEFallCosAngle,
     MSEFallSinAngle,
+    MSEFallCosAngle,
     MSEFallHorizontalSpeed,
 
     MSEEnd,
@@ -112,7 +111,7 @@ MovementStatusElements MovementGlobalSequence[] =
 MovementStatusElements PlayerMoveSequence[] =
 {
     MSEGuid,
-    MSEAlive32,
+    MSETimestamp,
     MSEPositionX,
     MSEPositionY,
     MSEPositionZ,
@@ -120,12 +119,11 @@ MovementStatusElements PlayerMoveSequence[] =
     MSEPitch,
     MSESplineElevation,
     MSEUnkCounter,
-    MSETimestamp,
+    MSEAlive32,
     MSEMovementFlags,
     MSEMovementFlags2,
     MSEHasTransportData,
     MSEHasFallData,
-    MSEZeroBit,
     MSEZeroBit,
     MSEZeroBit,
     MSEFlushBits,
@@ -147,8 +145,8 @@ MovementStatusElements PlayerMoveSequence[] =
     MSEFallVerticalSpeed,
     MSEHasFallDirection, 
     MSEFlushBits,
-    MSEFallCosAngle,
     MSEFallSinAngle,
+    MSEFallCosAngle,
     MSEFallHorizontalSpeed,
 
     MSEEnd,

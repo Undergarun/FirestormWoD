@@ -104,7 +104,7 @@ struct boss_twinemperorsAI : public ScriptedAI
             return NULL;
     }
 
-    void DamageTaken(Unit* /*done_by*/, uint32 &damage)
+    void DamageTaken(Unit* /*done_by*/, uint32 &damage, SpellInfo const* p_SpellInfo)
     {
         Unit* pOtherBoss = GetOtherBoss();
         if (pOtherBoss)

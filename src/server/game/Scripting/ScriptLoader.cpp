@@ -20,6 +20,8 @@
 
 // Customs
 void AddSC_event_april();
+void AddSC_promotion_new_players();
+void AddSC_first_time_connexion();
 //void AddSC_DuelReset();
 
 // spells
@@ -803,6 +805,7 @@ void AddSC_timeless_isle();
 
 // Draenor
 void AddSC_tanaan_jungle();
+void AddSC_gorgrond();
 void AddSC_Garrison_GO();
 void AddSC_Garrison_NPC();
 void AddSC_Garrison_Quest();
@@ -1678,6 +1681,7 @@ void AddDraenorScripts()
 {
 #ifdef SCRIPTS
     AddSC_tanaan_jungle();
+    AddSC_gorgrond();
     AddSC_Garrison_GO();
     AddSC_Garrison_NPC();
     AddSC_Garrison_Quest();
@@ -1736,5 +1740,7 @@ void AddCustomScripts()
 {
 #ifdef SCRIPTS
     AddSC_event_april();
+    AddSC_promotion_new_players();
+    AddSC_first_time_connexion();
 #endif
 }

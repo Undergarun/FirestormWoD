@@ -598,7 +598,7 @@ OutdoorPvPAshran::OutdoorPvPAshran()
     m_Guid = MAKE_NEW_GUID(m_WorldPvPAreaId, 0, HighGuid::HIGHGUID_TYPE_BATTLEGROUND);
     m_Guid |= eAshranDatas::BattlefieldWorldPvP;
 
-    for (uint8 l_Team = BattlegroundTeamId::BG_TEAM_ALLIANCE; l_Team < BG_TEAMS_COUNT; ++l_Team)
+    for (uint8 l_Team = BattlegroundTeamId::BG_TEAM_ALLIANCE; l_Team < MS::Battlegrounds::TeamsCount::Value; ++l_Team)
     {
         m_PlayersInWar[l_Team].clear();
         m_InvitedPlayers[l_Team].clear();
@@ -794,7 +794,7 @@ void OutdoorPvPAshran::HandlePlayerKilled(Player* p_Player)
 
 bool OutdoorPvPAshran::Update(uint32 p_Diff)
 {
-    PlayerTimerMap l_TempList[BG_TEAMS_COUNT];
+    PlayerTimerMap l_TempList[MS::Battlegrounds::TeamsCount::Value];
 
     for (uint8 l_Team = 0; l_Team < 2; ++l_Team)
     {
@@ -1507,10 +1507,12 @@ class npc_faction_boss : public CreatureScript
 
             enum eSpells
             {
-                SpellBladeTwisterSearcher    = 178798,   ///< Uses 178797 on the target (Only 1)
-                SpellBladeTwisterMissile     = 178797,   ///< Launch 178795, Summons 89320
-                SpellMortalCleave            = 177147,
-                SpellEnableUnitFrame         = 177684
+                SpellBladeTwisterSearcher   = 178798,   ///< Uses 178797 on the target (Only 1)
+                SpellBladeTwisterMissile    = 178797,   ///< Launch 178795, Summons 89320
+                SpellMortalCleave           = 177147,
+                SpellEnableUnitFrame        = 177684,
+
+                SpellAshranLaneMobScaling   = 178838
             };
 
             enum eTalk
@@ -1539,10 +1541,14 @@ class npc_faction_boss : public CreatureScript
                 m_Events.Reset();
 
                 me->RemoveAura(eSpells::SpellEnableUnitFrame);
+                me->RemoveAura(eSpells::SpellAshranLaneMobScaling);
 
                 m_FirstVictim = true;
 
                 me->SetHealth(m_BaseHP);
+
+                if (me->GetEntry() == eCreatures::GrandMarshalTremblade)
+                    me->setFaction(12); ///< Alliance
             }
 
             void EnterCombat(Unit* p_Attacker)
@@ -1977,7 +1983,7 @@ class npc_rylai_crestfall : public CreatureScript
                 Talk(eTalk::TalkDeath);
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage)
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
             {
                 if (me->HealthBelowPctDamaged(20, p_Damage) && !me->HasAura(eSpells::Hypotermia))
                 {

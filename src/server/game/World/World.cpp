@@ -50,7 +50,7 @@
 #include "ItemEnchantmentMgr.h"
 #include "MapManager.h"
 #include "CreatureAIRegistry.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 #include "OutdoorPvPMgr.h"
 #include "TemporarySummon.h"
 #include "WaypointMovementGenerator.h"
@@ -1978,6 +1978,10 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Starting Map System");
     sMapMgr->Initialize();
 
+    ///- Initialize Battlegrounds
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Starting Battleground System");
+    sBattlegroundMgr->CreateInitialBattlegrounds();
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Starting Game Event system...");
     uint32 nextGameEvent = sGameEventMgr->StartSystem();
     m_timers[WUPDATE_EVENTS].SetInterval(nextGameEvent);    //depend on next event
@@ -1993,9 +1997,6 @@ void World::SetInitialWorldSettings()
 
     sTicketMgr->Initialize();
 
-    ///- Initialize Battlegrounds
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Starting Battleground System");
-    sBattlegroundMgr->CreateInitialBattlegrounds();
     //sBattlegroundMgr->InitAutomaticArenaPointDistribution();
 
     ///- Initialize outdoor pvp
@@ -3321,7 +3322,7 @@ void World::InitRandomBGResetTime()
 
 void World::InitCurrencyResetTime()
 {
-    uint32 nextResetDay = sWorld->getWorldState(WS_CURRENCY_RESET_TIME);
+    uint32 nextResetDay = sWorld->getWorldState(MS::Battlegrounds::WsCurrency::ResetTime);
     if (!nextResetDay)
     {
         uint32 baseDay = 16022; // mercredi 13 novembre 2013
@@ -3331,7 +3332,7 @@ void World::InitCurrencyResetTime()
         while (nextResetDay < currentDay)
             nextResetDay += 7;
 
-        sWorld->setWorldState(WS_CURRENCY_RESET_TIME, nextResetDay);
+        sWorld->setWorldState(MS::Battlegrounds::WsCurrency::ResetTime, nextResetDay);
     }
 
     m_NextCurrencyReset = nextResetDay * 86400 + 5 * 3600;
@@ -3407,8 +3408,9 @@ void World::ResetCurrencyWeekCap()
         if (itr->second->GetPlayer())
             itr->second->GetPlayer()->ResetCurrencyWeekCap();
 
+    sWorld->setWorldState(MS::Battlegrounds::WsCurrency::ResetTime, getWorldState(MS::Battlegrounds::WsCurrency::ResetTime) + 7);
+
     m_NextCurrencyReset = time_t(m_NextCurrencyReset + DAY * 7);
-    sWorld->setWorldState(WS_CURRENCY_RESET_TIME, getWorldState(WS_CURRENCY_RESET_TIME) + 7);
 }
 
 void World::ResetDailyLoots()

@@ -587,7 +587,7 @@ class boss_sha_of_fear : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (!IsHeroic() || isInSecondPhase)
                     return;
@@ -1014,7 +1014,7 @@ class mob_pure_light_terrace : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 damage = 0;
                 return;
@@ -1436,7 +1436,7 @@ class mob_shrine_guardian : public CreatureScript
                 Talk(GUARDIAN_SAY_AGGRO);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (nextGlobePct < 5)
                     return;

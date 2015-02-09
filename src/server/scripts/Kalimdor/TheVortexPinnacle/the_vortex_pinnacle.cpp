@@ -760,7 +760,7 @@ class npc_howling_gale : public CreatureScript
                 Reset();
             }
 
-            void DamageTaken(Unit* who, uint32 &damage)
+            void DamageTaken(Unit* who, uint32 &damage, SpellInfo const* p_SpellInfo)
             {
                 bCombat = true;
                 events.CancelEvent(EVENT_HOWLING_GALE);

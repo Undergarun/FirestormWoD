@@ -548,7 +548,7 @@ class mob_living_fluid : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* p_SpellInfo)
             {
                 if (p_Damage >= me->GetHealth())
                 {

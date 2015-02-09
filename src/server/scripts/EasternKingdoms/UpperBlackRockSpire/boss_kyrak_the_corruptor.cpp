@@ -178,7 +178,7 @@ class boss_kyrak_the_corruptor : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage)
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
             {
                 if (!me->HasAura(SPELL_VILEBLOOD_SERUM_ACTIVATED) && me->HealthBelowPctDamaged(50, p_Damage))
                     me->CastSpell(me, SPELL_VILEBLOOD_SERUM_SEARCHER, true);

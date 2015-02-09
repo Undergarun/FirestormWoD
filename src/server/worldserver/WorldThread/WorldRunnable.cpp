@@ -26,7 +26,7 @@
 #include "WorldSocketMgr.h"
 #include "Database/DatabaseEnv.h"
 #include "ScriptMgr.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 #include "MapManager.h"
 #include "Timer.h"
 #include "WorldRunnable.h"

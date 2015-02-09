@@ -195,7 +195,7 @@ class mob_tushui_trainee : public CreatureScript
                 me->SetFullHealth();
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (me->HealthBelowPctDamaged(16.67f, damage))
                 {
@@ -327,7 +327,7 @@ public:
             }
         }
         
-        void DamageTaken(Unit* attacker, uint32& damage)
+        void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
         {
             if (Player* player = attacker->ToPlayer())
             {
@@ -465,7 +465,7 @@ public:
     {
     	mob_attacker_dimwindAI(Creature* creature) : ScriptedAI(creature) {}
     	
-        void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
+        void DamageTaken(Unit* pDoneBy, uint32 &uiDamage, SpellInfo const* p_SpellInfo)
         {
             if(me->GetHealthPct() < 90 && pDoneBy && pDoneBy->ToCreature() && pDoneBy->ToCreature()->GetEntry() == 54785)
                 uiDamage = 0;
@@ -509,7 +509,7 @@ public:
             me->HandleEmoteCommand(EMOTE_STATE_READY2H);
         }
         
-        void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
+        void DamageTaken(Unit* pDoneBy, uint32 &uiDamage, SpellInfo const* p_SpellInfo)
         {
             if(me->GetHealthPct() < 25 && pDoneBy && pDoneBy->ToCreature() && pDoneBy->ToCreature()->GetEntry() == 54130)
                 uiDamage = 0;
@@ -733,7 +733,7 @@ public:
             EVENT_END           = 4,
         };
         
-        void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
+        void DamageTaken(Unit* pDoneBy, uint32 &uiDamage, SpellInfo const* p_SpellInfo)
         {
             if(me->HealthBelowPctDamaged(5, uiDamage))
             {
@@ -1084,7 +1084,7 @@ public:
             playerGuid = guid;
         }
         
-        void DamageTaken(Unit* attacker, uint32& damage)
+        void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
         {
             if (me->HealthBelowPctDamaged(10, damage))
             {
@@ -1475,7 +1475,7 @@ class mob_huojin_trainee : public CreatureScript
                 isInCombat = false;
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (me->HealthBelowPctDamaged(16.67f, damage))
                 {

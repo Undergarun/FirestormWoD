@@ -124,7 +124,7 @@ class boss_drahga_shadowburner : public CreatureScript
                 summons.Summon(summon);
             }
 
-            void DamageTaken(Unit* attacker, uint32 &damage)
+            void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const* p_SpellInfo)
             {
                 if (me->GetVehicle())
                     damage = 0;

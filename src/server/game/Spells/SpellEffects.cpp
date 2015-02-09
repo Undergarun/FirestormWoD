@@ -43,7 +43,7 @@
 #include "Creature.h"
 #include "Totem.h"
 #include "CreatureAI.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 #include "Battleground.h"
 #include "BattlegroundEY.h"
 #include "BattlegroundWS.h"
@@ -1010,7 +1010,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                             if (Pet* pet = m_caster->ToPlayer()->GetPet())
                             {
                                 pet->CastSpell(targets.GetDstPos()->GetPositionX(), targets.GetDstPos()->GetPositionY(), targets.GetDstPos()->GetPositionZ(), damage, true);
-                                m_caster->ToPlayer()->AddSpellCooldown(119909, 0, time(NULL) + 25);
+                                m_caster->ToPlayer()->AddSpellCooldown(119909, 0, 25 * IN_MILLISECONDS);
                             }
 
                     break;
@@ -1490,6 +1490,10 @@ void Spell::EffectTeleportUnits(SpellEffIndex /*effIndex*/)
     if (!unitTarget || unitTarget->isInFlight())
         return;
 
+    if (unitTarget->GetTypeId() == TYPEID_PLAYER && m_caster->GetTypeId() == TYPEID_PLAYER)
+        if (Player* l_Target = unitTarget->ToPlayer())
+            sScriptMgr->OnTeleport(l_Target, m_spellInfo);
+
     // Pre effects
     uint8 uiMaxSafeLevel = 0;
     switch (m_spellInfo->Id)
@@ -1832,93 +1836,93 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
         switch (m_spellInfo->Id)
         {
             // Tipping of the Scales, Scales of Life
-        case 96880:
-        {
-            if (constAuraEffectPtr aurEff = m_caster->GetAuraEffect(96881, EFFECT_0))
+            case 96880:
             {
-                addhealth = aurEff->GetAmount();
-                m_caster->RemoveAurasDueToSpell(96881);
+                if (constAuraEffectPtr aurEff = m_caster->GetAuraEffect(96881, EFFECT_0))
+                {
+                    addhealth = aurEff->GetAmount();
+                    m_caster->RemoveAurasDueToSpell(96881);
+                }
+                else
+                    return;
+                break;
             }
-            else
-                return;
-            break;
-        }
-        case 15290: // Vampiric Embrace
-        {
-            uint32 count = 0;
-            for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
-                if (ihit->effectMask & (1 << effIndex))
-                    ++count;
-
-            damage /= count;                    // divide to all targets
-            break;
-        }
-        case 19750: // Selfless Healer
-        {
-            if (!caster)
-                break;
-
-            addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, effIndex, HEAL);
-
-            if (!caster->HasAura(114250))
-                break;
-
-            int32 charges = 0;
-
-            if (AuraPtr selflessHealer = caster->GetAura(114250))
-                charges = selflessHealer->GetStackAmount();
-
-            if (charges && unitTarget->GetGUID() != caster->GetGUID())
-                AddPct(addhealth, (35 * charges));
-
-            break;
-        }
-        case 45064: // Vessel of the Naaru (Vial of the Sunwell trinket)
-        {
-            if (!caster)
-                break;
-
-            // Amount of heal - depends from stacked Holy Energy
-            int damageAmount = 0;
-            if (constAuraEffectPtr aurEff = caster->GetAuraEffect(45062, 0))
+            case 15290: // Vampiric Embrace
             {
-                damageAmount += aurEff->GetAmount();
-                caster->RemoveAurasDueToSpell(45062);
+                uint32 count = 0;
+                for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+                    if (ihit->effectMask & (1 << effIndex))
+                        ++count;
+
+                damage /= count;                    // divide to all targets
+                break;
             }
+            case 19750: // Selfless Healer
+            {
+                if (!caster)
+                    break;
 
-            addhealth += damageAmount;
-            addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, effIndex, HEAL);
+                addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, effIndex, HEAL);
 
-            break;
-        }
-        case 67489: // Runic Healing Injector (heal increased by 25% for engineers - 3.2.0 patch change)
-            if (!caster)
+                if (!caster->HasAura(114250))
+                    break;
+
+                int32 charges = 0;
+
+                if (AuraPtr selflessHealer = caster->GetAura(114250))
+                    charges = selflessHealer->GetStackAmount();
+
+                if (charges && unitTarget->GetGUID() != caster->GetGUID())
+                    AddPct(addhealth, (35 * charges));
+
                 break;
+            }
+            case 45064: // Vessel of the Naaru (Vial of the Sunwell trinket)
+            {
+                if (!caster)
+                    break;
 
-            if (Player* player = caster->ToPlayer())
-                if (player->HasSkill(SKILL_ENGINEERING))
-                    AddPct(addhealth, 25);
-            break;
-        case 86961: // Cleansing Waters
-        {
-            addhealth = m_caster->CountPctFromMaxHealth(4);
-            break;
-        }
-        case 73921: // Healing Rain
-        {
-            addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, effIndex, HEAL);
+                // Amount of heal - depends from stacked Holy Energy
+                int damageAmount = 0;
+                if (constAuraEffectPtr aurEff = caster->GetAuraEffect(45062, 0))
+                {
+                    damageAmount += aurEff->GetAmount();
+                    caster->RemoveAurasDueToSpell(45062);
+                }
 
-            // Increase the effectiveness by 30% with Unleashed Life
-            if (AuraEffectPtr healingRain = caster->GetAuraEffect(142923, EFFECT_1))
-                AddPct(addhealth, healingRain->GetAmount());
-            break;
-        }
-        default:
-            if (!caster)
+                addhealth += damageAmount;
+                addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, effIndex, HEAL);
+
                 break;
+            }
+            case 67489: // Runic Healing Injector (heal increased by 25% for engineers - 3.2.0 patch change)
+                if (!caster)
+                    break;
 
-            addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, effIndex, HEAL);
-            break;
+                if (Player* player = caster->ToPlayer())
+                    if (player->HasSkill(SKILL_ENGINEERING))
+                        AddPct(addhealth, 25);
+                break;
+            case 86961: // Cleansing Waters
+            {
+                addhealth = m_caster->CountPctFromMaxHealth(4);
+                break;
+            }
+            case 73921: // Healing Rain
+            {
+                addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, effIndex, HEAL);
+
+                // Increase the effectiveness by 30% with Unleashed Life
+                if (AuraEffectPtr healingRain = caster->GetAuraEffect(142923, EFFECT_1))
+                    AddPct(addhealth, healingRain->GetAmount());
+                break;
+            }
+            default:
+                if (!caster)
+                    break;
+
+                addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, effIndex, HEAL);
+                break;
         }
 
         addhealth = unitTarget->SpellHealingBonusTaken(caster, m_spellInfo, addhealth, HEAL);
@@ -3130,6 +3134,10 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
         summon->setFaction(faction);
         break;
     }
+
+    /// Ring of frost
+    if (m_spellInfo->Id == 113724 && summon != nullptr)
+        summon->SetReactState(REACT_PASSIVE);
 
     if (summon)
     {
@@ -5360,24 +5368,36 @@ void Spell::EffectStuck(SpellEffIndex /*effIndex*/)
     if (!sWorld->getBoolConfig(CONFIG_CAST_UNSTUCK))
         return;
 
-    Player* target = (Player*)m_caster;
-
-    if (target->isInFlight())
+    Player* l_Player = m_caster->ToPlayer();
+    if (!l_Player)
         return;
 
-    if (target->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
-        target->RepopAtGraveyard();
-    else
-        target->TeleportTo(target->GetStartPosition(), TELE_TO_SPELL);
-    // homebind location is loaded always
-    // target->TeleportTo(target->m_homebindMapId, target->m_homebindX, target->m_homebindY, target->m_homebindZ, target->GetOrientation(), (m_caster == m_caster ? TELE_TO_SPELL : 0));
+    if (l_Player->isInFlight())
+        return;
+
+    // if player is dead without death timer is teleported to graveyard, otherwise not apply the effect
+    if (l_Player->isDead() && !l_Player->GetDeathTimer())
+    {
+        l_Player->RepopAtGraveyard();
+        return;
+    }
+
+    // the player dies if hearthstone is in cooldown
+    if (l_Player->HasSpellCooldown(8690))
+    {
+        l_Player->Kill(l_Player);
+        return;
+    }
+
+    // the player is teleported to home
+    l_Player->TeleportTo(l_Player->m_homebindMapId, l_Player->m_homebindX, l_Player->m_homebindY, l_Player->m_homebindZ, l_Player->GetOrientation(), TELE_TO_SPELL);
 
     // Stuck spell trigger Hearthstone cooldown
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(8690);
-    if (!spellInfo)
+    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(8690);
+    if (!l_SpellInfo)
         return;
-    Spell spell(target, spellInfo, TRIGGERED_FULL_MASK);
-    spell.SendSpellCooldown();
+    Spell l_Spell(l_Player, l_SpellInfo, TRIGGERED_FULL_MASK);
+    l_Spell.SendSpellCooldown();
 }
 
 void Spell::EffectSummonPlayer(SpellEffIndex /*effIndex*/)
@@ -7086,9 +7106,10 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
         if (summon->HasUnitTypeMask(UNIT_MASK_MINION) && m_targets.HasDst())
             ((Minion*)summon)->SetFollowAngle(m_caster->GetAngle(summon));
 
+        /// Dancing rune weapon summon
         if (summon->GetEntry() == 27893)
         {
-            if (uint32 weapon = m_caster->GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS))
+            if (uint32 weapon = m_caster->GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (SLOT_MAIN_HAND * 3)))
             {
                 summon->SetDisplayId(11686);
                 summon->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, weapon);
@@ -7432,15 +7453,16 @@ void Spell::EffectCreateAreatrigger(SpellEffIndex effIndex)
 
     switch (l_MiscValue)
     {
-    case 719:  // Anima Ring
-        m_caster->GetPosition(&l_Dest);
-        break;
-    case 1315: // Chi Burst
-    case 1316: // Chi Burst
-        m_caster->MovePosition(l_Dest, m_spellInfo->GetMaxRange(true, m_caster, this), 0.0f);
-        break;
-    default:
-        break;
+        case 719:  // Anima Ring
+            m_caster->GetPosition(&l_Dest);
+            break;
+        case 1315: // Chi Burst
+        case 1316: // Chi Burst
+        case 1612: ///< Arcane Orb
+            m_caster->MovePosition(l_Dest, m_spellInfo->GetMaxRange(true, m_caster, this), 0.0f);
+            break;
+        default:
+            break;
     }
 
     AreaTrigger* l_AreaTrigger = new AreaTrigger;

@@ -472,7 +472,7 @@ class mob_whirl_turtle : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (shellBlocked)
                     return;

@@ -511,7 +511,7 @@ enum AuraType
     SPELL_AURA_450                                          = 450,  // 6.0.X
     SPELL_AURA_451                                          = 451,  // 6.0.X
     SPELL_AURA_452                                          = 452,  // 6.0.X
-    SPELL_AURA_453                                          = 453,  // 6.0.X
+    SPELL_AURA_MOD_COOLDOWN_2                               = 453,  // 6.0.X SPELL_AURA_MOD_COOLDOWN_2
     SPELL_AURA_454                                          = 454,  // 6.0.X
     SPELL_AURA_MOD_ROOT_2                                   = 455,  // 6.0.X SPELL_AURA_MOD_ROOT_2
     SPELL_AURA_456                                          = 456,  // 6.0.X
@@ -521,7 +521,7 @@ enum AuraType
     SPELL_AURA_RESET_COOLDOWNS                              = 460,  // 6.0.X SPELL_AURA_RESET_COOLDOWNS
     SPELL_AURA_461                                          = 461,  // 6.0.X
     SPELL_AURA_462                                          = 462,  // 6.0.X
-    SPELL_AURA_463                                          = 463,  // 6.0.X
+    SPELL_AURA_ADD_PARRY_PCT_OF_CS_FROM_GEAR                = 463,  // 6.0.X SPELL_AURA_ADD_PARRY_PCT_OF_CS_FROM_GEAR
     SPELL_AURA_ADD_AP_PCT_OF_BONUS_ARMOR                    = 464,  // 6.0.X SPELL_AURA_ADD_AP_PCT_OF_BONUS_ARMOR
     SPELL_AURA_MOD_BONUS_ARMOR                              = 465,  // 6.0.X
     SPELL_AURA_MOD_BONUS_ARMOR_PCT                          = 466,  // 6.0.X

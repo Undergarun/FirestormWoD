@@ -559,8 +559,8 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
 
     m_spellState = SPELL_STATE_NULL;
     _triggeredCastFlags = triggerFlags;
-    if (info->AttributesEx4 & SPELL_ATTR4_TRIGGERED)
-        _triggeredCastFlags = TRIGGERED_FULL_MASK;
+    if (info->AttributesEx4 & SPELL_ATTR4_CAN_CAST_WHILE_CASTING)
+        _triggeredCastFlags = TriggerCastFlags(uint32(_triggeredCastFlags) | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_CAST_DIRECTLY);
 
     m_CastItem = NULL;
     m_castItemGUID = 0;
@@ -3248,35 +3248,15 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
     }
 
     // Get Data Needed for Diminishing Returns, some effects may have multiple auras, so this must be done on spell hit, not aura add
-    m_diminishGroup = GetDiminishingReturnsGroupForSpell(m_spellInfo, m_triggeredByAuraSpell);
+    m_diminishGroup = GetDiminishingReturnsGroupForSpell(m_spellInfo);
     if (m_diminishGroup)
     {
-        m_diminishLevel = DIMINISHING_LEVEL_1;
-        // Special handling for Deep Freeze & Ring of Frost diminishing
-        // Ring of Frost
-        if (m_spellInfo->Id == 82691)
-        {
-            m_diminishLevel = unit->GetDiminishing(DIMINISHING_RING_OF_FROST);
-            if (unit->GetCharmerOrOwnerPlayerOrPlayerItself())
-                unit->IncrDiminishing(DIMINISHING_RING_OF_FROST);
-        }
-        // Deep Freze
-        else if (m_spellInfo->Id == 44572)
-        {
-            m_diminishLevel = unit->GetDiminishing(DIMINISHING_DEEP_FREEZE);
-            if (unit->GetCharmerOrOwnerPlayerOrPlayerItself())
-                unit->IncrDiminishing(DIMINISHING_DEEP_FREEZE);
-        }
-        // Holy Wrath diminishing problem
-        else if (m_spellInfo->Id == 2812)
-        {
-            if ((effectMask & (1 << EFFECT_1)) == 0)
-                m_diminishGroup = DIMINISHING_NONE;
-        }
         m_diminishLevel = unit->GetDiminishing(m_diminishGroup);
         DiminishingReturnsType type = GetDiminishingReturnsGroupType(m_diminishGroup);
         // Increase Diminishing on unit, current informations for actually casts will use values above
-        if ((type == DRTYPE_PLAYER && (unit->GetCharmerOrOwnerPlayerOrPlayerItself() || (unit->GetTypeId() == TYPEID_UNIT && unit->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_ALL_DIMINISH))) || type == DRTYPE_ALL)
+        if ((type == DRTYPE_PLAYER &&
+             (unit->GetCharmerOrOwnerPlayerOrPlayerItself() || (unit->GetTypeId() == TYPEID_UNIT && unit->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_ALL_DIMINISH))) ||
+            type == DRTYPE_ALL)
             unit->IncrDiminishing(m_diminishGroup);
     }
 
@@ -3330,7 +3310,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
 
                 // Now Reduce spell duration using data received at spell hit
                 int32 duration = m_spellAura->GetMaxDuration();
-                int32 limitduration = GetDiminishingReturnsLimitDuration(m_diminishGroup, aurSpellInfo);
+                int32 limitduration = GetDiminishingReturnsLimitDuration(aurSpellInfo);
                 float diminishMod = unit->ApplyDiminishingToDuration(m_diminishGroup, duration, m_originalCaster, m_diminishLevel, limitduration);
 
                 // unit is immune to aura if it was diminished to 0 duration
@@ -3758,8 +3738,10 @@ void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggere
 
         // set target for proper facing
         if ((m_casttime || m_spellInfo->IsChanneled()) && !(_triggeredCastFlags & TRIGGERED_IGNORE_SET_FACING))
-            if (m_caster->GetGUID() != m_targets.GetObjectTargetGUID() && m_caster->GetTypeId() == TYPEID_UNIT)
-                m_caster->FocusTarget(this, m_targets.GetObjectTargetGUID());
+        {
+            if (m_targets.GetObjectTarget() && m_caster != m_targets.GetObjectTarget() && m_caster->GetTypeId() == TYPEID_UNIT)
+                m_caster->FocusTarget(this, m_targets.GetObjectTarget());
+        }
 
         if (!(_triggeredCastFlags & TRIGGERED_IGNORE_GCD) && result == SPELL_CAST_OK)
             TriggerGlobalCooldown();
@@ -4761,14 +4743,10 @@ void Spell::SendSpellStart()
         l_CastFlags |= CAST_FLAG_POWER_LEFT_SELF;
 
     if (m_spellInfo->RuneCostID && m_spellInfo->GetMainPower() == POWER_RUNES)
-        l_CastFlags |= CAST_FLAG_UNKNOWN_19;
+        l_CastFlags |= CAST_FLAG_NO_GCD;
 
     if (m_targets.HasTraj())
         l_CastFlags |= CAST_FLAG_ADJUST_MISSILE;
-
-    //@TODO: Remove this hack
-    if (m_spellInfo->Id == 147193)
-        l_CastFlags |= CAST_FLAG_UNKNOWN_4;
 
     WorldPacket data(SMSG_SPELL_START);
 
@@ -4842,9 +4820,9 @@ void Spell::SendSpellStart()
         }
 
         data.appendPackGUID(m_targets.GetSrc()->_transportGUID);
+        data << float(l_X);
         data << float(l_Y);
         data << float(l_Z);
-        data << float(l_X);
     }
 
     if (m_targets.HasDst())
@@ -4865,9 +4843,9 @@ void Spell::SendSpellStart()
         }
 
         data.appendPackGUID(m_targets.GetDst()->_transportGUID);
+        data << float(l_X);
         data << float(l_Y);
         data << float(l_Z);
-        data << float(l_X);
     }
 
     data << uint32(0);                      ///< Remaining power count
@@ -4917,7 +4895,18 @@ void Spell::SendSpellGo()
     if (!IsNeedSendToClient())
         return;
 
+    bool l_IsHealthPowerSpell = false;
+    for (auto itr : m_spellInfo->SpellPowers)
+    {
+        if (itr->PowerType == POWER_HEALTH)
+        {
+            l_IsHealthPowerSpell = true;
+            break;
+        }
+    }
+
     uint32 l_CastFlags = CAST_FLAG_UNKNOWN_9;
+    uint32 l_CastFlagsEx = CastFlagsEx::CAST_FLAG_EX_NONE;
 
     // triggered spells with spell visual != 0
     if (m_triggeredByAuraSpell)
@@ -4925,36 +4914,26 @@ void Spell::SendSpellGo()
 
     if ((m_caster->GetTypeId() == TYPEID_PLAYER ||
         (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->isPet()))
-        && m_spellInfo->GetMainPower() != POWER_HEALTH)
+        && !l_IsHealthPowerSpell)
         l_CastFlags |= CAST_FLAG_POWER_LEFT_SELF; // should only be sent to self, but the current messaging doesn't make that possible
-
-    //@TODO: Remove this hack
-    // Hack fix to avoid wow error
-    if (m_spellInfo->Id == 116803 || m_spellInfo->Id == 118327)
-        l_CastFlags &= ~CAST_FLAG_POWER_LEFT_SELF;
 
     if ((m_caster->GetTypeId() == TYPEID_PLAYER)
         && (m_caster->getClass() == CLASS_DEATH_KNIGHT)
         && m_spellInfo->RuneCostID
         && m_spellInfo->GetMainPower() == POWER_RUNES)
     {
-        l_CastFlags |= CAST_FLAG_UNKNOWN_19;                   // same as in SMSG_SPELL_START
-        l_CastFlags |= CAST_FLAG_RUNE_LIST;                    // rune cooldowns list
+        l_CastFlags |= CAST_FLAG_NO_GCD;                    ///< same as in SMSG_SPELL_START
+        l_CastFlags |= CAST_FLAG_RUNE_LIST;                 ///< rune cooldowns list
     }
 
     if (m_spellInfo->HasEffect(SPELL_EFFECT_ACTIVATE_RUNE))
-    {
-        l_CastFlags |= CAST_FLAG_RUNE_LIST;                    // rune cooldowns list
-        l_CastFlags |= CAST_FLAG_UNKNOWN_19;                   // same as in SMSG_SPELL_START
-    }
+        l_CastFlags |= CAST_FLAG_RUNE_LIST;                 ///< rune cooldowns list
 
     if (m_targets.HasTraj())
         l_CastFlags |= CAST_FLAG_ADJUST_MISSILE;
 
-    //@TODO: Remove this hack
-    if (m_spellInfo->Id == 147193)
-        l_CastFlags |= CAST_FLAG_UNKNOWN_4;
-
+    if (!m_spellInfo->StartRecoveryTime)
+        l_CastFlags |= CAST_FLAG_NO_GCD;
 
     uint32 l_MissCount = 0;
     uint32 l_HitCount = 0;
@@ -5159,9 +5138,8 @@ void Spell::SendSpellGo()
         l_Data << float(l_Itr._position.GetPositionZ());
     }
 
-    l_Data.WriteBits(0, 18);                                      ///< Cast flag ex
-
-    l_Data.WriteBit(l_HasRuneData);                               ///< HasRuneData
+    l_Data.WriteBits(l_CastFlagsEx, 18);                        ///< Cast flag ex
+    l_Data.WriteBit(l_HasRuneData);                             ///< HasRuneData
     l_Data.WriteBit(l_CastFlags & CAST_FLAG_PROJECTILE || l_CastFlags & CAST_FLAG_VISUAL_CHAIN);
     l_Data.FlushBits();
 
@@ -5170,9 +5148,9 @@ void Spell::SendSpellGo()
     {
         Player* l_DeathKnight = m_caster->ToPlayer();
 
-        l_Data << uint8(m_runesState);                            ///< Start
-        l_Data << uint8(l_DeathKnight->GetRunesState());          ///< Count
-        l_Data.WriteBits(MAX_RUNES, 3);                           ///< Cooldowns lenght
+        l_Data << uint8(m_runesState);                          ///< Start
+        l_Data << uint8(l_DeathKnight->GetRunesState());        ///< Count
+        l_Data.WriteBits(MAX_RUNES, 3);                         ///< Cooldowns lenght
         l_Data.FlushBits();
 
         for (uint8 l_I = 0; l_I < MAX_RUNES; ++l_I)
@@ -5180,15 +5158,15 @@ void Spell::SendSpellGo()
             float l_BaseCooldown = float(l_DeathKnight->GetRuneBaseCooldown(l_I));
             uint8 l_Cooldown = uint8((l_BaseCooldown - float(l_DeathKnight->GetRuneCooldown(l_I))) / l_BaseCooldown * 255);
 
-            l_Data << uint8(l_Cooldown);                          ///< Cooldowns
+            l_Data << uint8(l_Cooldown);                        ///< Cooldowns
         }
     }
 
     // JamProjectileVisual
     if (l_CastFlags & CAST_FLAG_PROJECTILE || l_CastFlags & CAST_FLAG_VISUAL_CHAIN)
     {
-        l_Data << uint32(0);                                      ///< Projectile Visual 1
-        l_Data << uint32(0);                                      ///< Projectile Visual 2
+        l_Data << uint32(0);                                    ///< Projectile Visual 1
+        l_Data << uint32(0);                                    ///< Projectile Visual 2
     }
 
     l_Data.WriteBit(l_HasSpellCastLogData);
@@ -5200,9 +5178,9 @@ void Spell::SendSpellGo()
         int32 l_AttackPower = m_caster->GetTotalAttackPowerValue(m_attackType);
         int32 l_SpellPower  = m_caster->SpellBaseDamageBonusDone(m_spellSchoolMask);
 
-        l_Data << int32(l_Health);                                ///< Health
-        l_Data << int32(l_AttackPower);                           ///< Attack power
-        l_Data << int32(l_SpellPower);                            ///< Spell power
+        l_Data << int32(l_Health);                              ///< Health
+        l_Data << int32(l_AttackPower);                         ///< Attack power
+        l_Data << int32(l_SpellPower);                          ///< Spell power
 
         uint32 l_PowerDataSize = l_UsablePowers.size();
 
@@ -5210,8 +5188,8 @@ void Spell::SendSpellGo()
         for (Unit::PowerTypeSet::const_iterator l_Itr = l_UsablePowers.begin(); l_Itr != l_UsablePowers.end(); l_Itr++)
         {
             Powers l_Power = Powers((*l_Itr));
-            l_Data << int32(l_Power);                             ///< Power type
-            l_Data << int32(m_caster->GetPower(l_Power));         ///< Amount
+            l_Data << int32(l_Power);                           ///< Power type
+            l_Data << int32(m_caster->GetPower(l_Power));       ///< Amount
         }
 
         bool l_HasUnknowFloat = false;
@@ -5739,12 +5717,6 @@ void Spell::TakeRunePower(bool didHit)
                     player->AddRuneBySpell(i, RUNE_DEATH, 56835);
                 break;
             }
-            case 49998: // Death Strike
-            {
-                // Blood Rites
-                player->AddRuneBySpell(i, RUNE_DEATH, 50034);
-                break;
-            }
             default:
                 break;
         }
@@ -5791,12 +5763,6 @@ void Spell::TakeRunePower(bool didHit)
                         // Reaping
                         if (player->HasAura(56835))
                             player->AddRuneBySpell(i, RUNE_DEATH, 56835);
-                        break;
-                    }
-                    case 49998: // Death Strike
-                    {
-                        // Blood Rites
-                        player->AddRuneBySpell(i, RUNE_DEATH, 50034);
                         break;
                     }
                     default:

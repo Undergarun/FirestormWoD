@@ -213,6 +213,14 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         void SetTrajectory(AreatriggerInterpolation p_Trajectory) { m_Trajectory = p_Trajectory; }
         void SetUpdateTimerInterval(uint32 p_Timer) { m_UpdateTimer.SetInterval(p_Timer); }
 
+        /*
+         * Cast spell by using unit trigger/dummy at areatrigger posiiton
+         * Use areatrigger owner (caster) for ennemies/friends selection
+         * @param p_Target  : Target of the spell we cast
+         * @param p_SpellId : Id of spell to cast
+         */
+        void CastSpell(Unit* p_Target, uint32 p_SpellId);
+
     protected:
         int32 m_Duration;
         Unit* m_Caster;

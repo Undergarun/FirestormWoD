@@ -1,5 +1,10 @@
 -- Tanaan Jungle
 
+	-- Spells
+
+		DELETE FROM spell_script_names where spell_id = 165988;
+		INSERT INTO spell_script_names VALUES (165988, "spell_tanaan_inferno");
+
 	-- Game Objects
 	
 		UPDATE gameobject SET phasemask = 2 WHERE id = 237667;
@@ -22,6 +27,9 @@
 		#82188/NPC - Mumper
 
 			DELETE FROM creature WHERE id = 82188 AND areaId = 7037;
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `dynamicflags`, `isActive`, `protec_anti_doublet`) values('82188','1265','7025','7045','1','1','0','1','3568.39','-2130.44','17.8266','1.77576','120','0','0','1','0','0','0','0','0','0','0','0',NULL);
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `dynamicflags`, `isActive`, `protec_anti_doublet`) values('82188','1265','7025','7037','1','1','0','0','4054.23','-2360.82','87.4181','1.55796','300','0','0','87515','0','0','0','0','0','2048','0','0',NULL);
+
 			UPDATE `creature_template` SET `exp` = 5, `ScriptName` = 'npc_mumper' WHERE `entry` = 82188;
 
 		#78883/NPC - Iron Grunt
@@ -32,11 +40,14 @@
 		#81990/NPC - Moriccalas
 
 			DELETE FROM creature WHERE id = 81990 AND areaId = 7037;
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `dynamicflags`, `isActive`, `protec_anti_doublet`) values('81990','1265','7025','7045','1','1','0','1','3682.2','-2045.1','11.0711','1.32942','120','0','0','1','0','0','0','0','0','0','0','0',NULL);
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `dynamicflags`, `isActive`, `protec_anti_doublet`) values('81990','1265','7025','7037','1','1','0','0','4078.91','-2346.17','77.7762','1.56974','300','0','0','87515','0','0','0','0','0','2048','0','0',NULL);
+
 			UPDATE `creature_template` SET `exp` = 5, `ScriptName` = 'npc_moriccalas' WHERE `entry` = 81990;
 			
 		#83538/NPC - Warsong Commander
 
-			UPDATE `creature_template` SET `exp` = 5, faction = 14, `ScriptName` = 'npc_warsong_commander' WHERE `entry` = 83538;
+			UPDATE `creature_template` SET `exp` = 5, faction = 14, `ScriptName` = '' WHERE `entry` = 83538;
 			DELETE FROM creature WHERE id = 83538 AND areaId = 7037;
 			INSERT INTO `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `dynamicflags`, `isActive`, `protec_anti_doublet`) VALUES('83538','1265','7025','7037','1','4294967295','0','0','4065.2','-2277.73','64.9206','4.70883','300','0','0','1','0','0','0','0','0','2048','0','0',NULL);
 			INSERT INTO `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `dynamicflags`, `isActive`, `protec_anti_doublet`) VALUES('83538','1265','7025','7037','1','4294967295','0','0','4005.49','-2282.36','58.8881','4.52977','300','0','0','1','0','0','0','0','0','2048','0','0',NULL);
@@ -165,10 +176,17 @@
 		
 			UPDATE `creature_template` SET `ScriptName` = 'npc_archmage_khadgar' WHERE `entry` = 78558;
 		
-		#78559/NPC - The cost Of War
+		#78559/NPC - Archmage Khadgar
 		
 			UPDATE `creature_template` SET `ScriptName` = 'npc_archmage_khadgar' WHERE `entry` = 78559;
 			
+		#82012/NPC - Kengtus Pranch the Patient
+
+			DELETE FROM creature WHERE id = 82012;
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `dynamicflags`, `isActive`, `protec_anti_doublet`) values('82012','1265','7025','7037','1','1','0','1','4040.23','-2288.61','64.9604','0.903204','120','0','0','1','0','0','0','0','0','0','0','0',NULL);
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `dynamicflags`, `isActive`, `protec_anti_doublet`) values('82012','1265','7025','7045','1','1','0','1','3770.24','-2044.35','14.1326','0.903204','120','0','0','1','0','0','0','0','0','0','0','0',NULL);
+			UPDATE `creature_template` SET `exp` = 5, faction=14, `ScriptName` = 'npc_kengtus_pranch_the_patient' WHERE `entry` = 82012;
+
 		#81762/NPC - Taag
 		
 			DELETE FROM creature WHERE id = 81762;
@@ -178,6 +196,251 @@
 		
 			UPDATE `creature_template` SET `unit_flags` = 131844 WHERE `entry` = 85142;
 		
+		#76643/NPC - Archmage Khadgar
+
+			DELETE FROM creature WHERE id = 76643;
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `dynamicflags`, `isActive`, `protec_anti_doublet`) values('76643','1190','4','72','1','4294967295','0','0','-11821.7','-3209.23','-29.7129','3.27012','300','0','0','3','0','0','0','0','0','2048','0','0',NULL);
+			UPDATE `creature_template` SET `npcflag` = 1, `ScriptName` = 'npc_archmage_khadgar_gossip' WHERE `entry` = 76643;
+
+		#300003/NPC - Gul Dan Trigger (Tanaan) (custom)
+
+			DELETE FROM creature_template WHERE entry = 300003;
+			DELETE FROM creature WHERE id = 300003;
+			insert into `creature_template` (`entry`, `KillCredit1`, `KillCredit2`, `modelid1`, `modelid2`, `modelid3`, `modelid4`, `name`, `subname`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `exp`, `exp_unk`, `faction`, `npcflag`, `npcflag2`, `speed_walk`, `speed_run`, `speed_fly`, `scale`, `rank`, `dmgschool`, `dmg_multiplier`, `baseattacktime`, `rangeattacktime`, `baseVariance`, `rangeVariance`, `unit_class`, `unit_flags`, `unit_flags2`, `dynamicflags`, `family`, `trainer_type`, `trainer_spell`, `trainer_class`, `trainer_race`, `type`, `type_flags`, `type_flags2`, `lootid`, `pickpocketloot`, `skinloot`, `resistance1`, `resistance2`, `resistance3`, `resistance4`, `resistance5`, `resistance6`, `spell1`, `spell2`, `spell3`, `spell4`, `spell5`, `spell6`, `spell7`, `spell8`, `PetSpellDataId`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `InhabitType`, `HoverHeight`, `Health_mod`, `Mana_mod`, `Mana_mod_extra`, `Armor_mod`, `RacialLeader`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `movementId`, `RegenHealth`, `equipment_id`, `mechanic_immune_mask`, `flags_extra`, `ScriptName`, `WDBVerified`) values('300003','0','0','11686','0','0','0','Gul Dan trigger (Tanaan)',NULL,NULL,'0','1','1','0','0','35','0','0','1','1.14286','1.14286','1','0','0','1','0','0','1','1','0','33554950','0','0','0','0','0','0','0','10','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','','0','3','1','1','1','1','1','0','0','0','0','0','0','0','0','1','0','0','0','npc_gul_dan_trigger','1');
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `dynamicflags`, `isActive`, `protec_anti_doublet`) values('300003','1265','7025','7037','1','4294967295','0','0','4100.54','-2377.3','79.6406','3.03056','300','0','0','42','0','0','0','0','0','2048','0','0',NULL);
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `dynamicflags`, `isActive`, `protec_anti_doublet`) values('300003','1265','7025','7037','1','1','0','0','4036.25','-2377.51','79.6502','3.19942','300','0','0','42','0','0','0','0','0','2048','0','0',NULL);
+
+		#82001/NPC - Monishot
+
+			DELETE FROM creature WHERE id = 82001;
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('82001','1265','7025','7037','1','1','0','1','4068.36','-2274.85','64.9704','0.758156','120','0','0','1','0','0','0','0','0','0','0','0','0','0',NULL);
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('82001','1265','7025','7045','1','1','0','1','3703.74','-2039.62','10.5628','4.12717','120','0','0','1','0','0','0','0','0','0','0','0','0','0',NULL);
+			UPDATE creature_template SEt faction = 35 WHERE entry = 82001;
+
+		#82014/NPC - Archon
+
+			DELETE FROM creature WHERE id = 82014;
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('82014','1265','7025','7037','1','65535','0','1','4083.9','-2306.21','65.0406','0.0832898','120','0','0','1','0','0','0','0','0','0','0','0','0','0',NULL);
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('82014','1265','7025','7045','1','65535','0','1','3960.82','-2019.81','24.8669','0.0832898','120','0','0','1','0','0','0','0','0','0','0','0','0','0',NULL);
+
+		#82647/NPC - Tormented Soul
+
+			UPDATE `creature_template` SET faction = 7, `unit_flags` = 512, `ScriptName` = 'npc_tormented_soul' WHERE `entry` = 82647;
+
+		#82002/NPC - Alya
+
+			DELETE FROM creature WHERE id = 82002;
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('82002','1265','7025','7037','1','65535','0','1','4086.72','-2313.24','64.8113','0.0501919','120','0','0','1','0','0','0','0','0','0','0','0','0','0',NULL);
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('82002','1265','7025','7045','1','65535','0','1','3963.5','-1995.19','26.4083','4.56414','120','0','0','1','0','0','0','0','0','0','0','0','0','0',NULL);
+			UPDATE `creature_template` SET `ScriptName` = 'npc_alya' WHERE `entry` = 82002;
+
+		#81996/NPC - Turkina
+
+			DELETE FROM creature WHERE id = 81996;
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('81996','1265','7025','7045','1','65535','0','0','3687.14','-2078.4','7.47598','1.82787','120','0','0','1','0','0','0','0','0','0','0','0','0','0',NULL);
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('81996','1265','7025','7037','1','65535','0','0','4076.54','-2288.55','64.9968','1.82787','120','0','0','1','0','0','0','0','0','0','0','0','0','0',NULL);
+			UPDATE `creature_template` SET `ScriptName` = 'npc_turkina' WHERE `entry` = 81996;
+
+		#81998/NPC - Anruin
+
+			DELETE FROM creature WHERE id = 81998;
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('81998','1265','7025','7037','1','65535','0','1','4085.89','-2286.46','64.9908','0.628133','120','0','0','1','0','0','0','0','0','0','0','0','0','0',NULL);
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('81998','1265','7025','7045','1','65535','0','1','3939.04','-2001.51','22.4796','0.628133','120','0','0','1','0','0','0','0','0','0','0','0','0','0',NULL);
+			UPDATE `creature_template` SET `ScriptName` = 'npc_anruin' WHERE `entry` = 81998;
+
+		#79062/NPC - Arnold Croman
+
+			DELETE FROM creature WHERE id = 79062;
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('79062','1265','7025','7037','1','65535','0','1','4143.53','-2322.31','64.6627','5.55645','120','0','0','1','0','0','0','0','0','0','0','0','0','0',NULL);
+
+		#81993/NPC - Starcaller Astrylian
+
+			DELETE FROM creature WHERE id = 81993;
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('81993','1265','7025','7045','1','65535','0','0','3892.93','-2013.85','19.8355','0.0102745','120','0','0','1','0','0','0','0','0','0','0','0','0','0',NULL);
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('81993','1265','7025','7037','1','65535','0','0','4075.67','-2306.26','64.9208','1.58058','120','0','0','1','0','0','0','0','0','0','0','0','0','0',NULL);
+			UPDATE `creature_template` SET `ScriptName` = 'npc_starcaller_astrylian' WHERE `entry` = 81993;
+
+		#81995/NPC - Maelgwyn
+
+			DELETE FROM creature WHERE id = 81995;
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('81995','1265','7025','7037','1','1','0','0','4069.73','-2315.9','64.7455','1.39489','300','0','0','87515','0','0','0','0','0','2048','0','0','0','0',NULL);
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('81995','1265','7025','7045','1','4294967295','0','1','3716.59','-2035.08','11.7287','1.36721','120','0','0','1','0','0','0','0','0','0','0','0','0','0',NULL);
+			UPDATE `creature_template` SET `ScriptName` = 'npc_maelgwyn' WHERE `entry` = 81995;
+
+		#82000/NPC - Elaynea Welton the Wind and Sea
+
+			DELETE FROM creature WHERE id = 82000;
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('82000','1265','7025','7037','1','65535','0','1','4055.82','-2276.56','64.973','1.42816','120','0','0','1','0','0','0','0','0','0','0','0','0','0',NULL);
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('82000','1265','7025','7045','1','65535','0','1','3812.44','-2084.12','14.6447','1.42816','120','0','0','1','0','0','0','0','0','0','0','0','0','0',NULL);
+			UPDATE `creature_template` SET `ScriptName` = 'npc_elaynea_welton' WHERE `entry` = 82000;
+
+		#82001/NPC - Monishot
+
+			DELETE FROM creature WHERE id = 82001;
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('82001','1265','7025','7037','1','4294967295','0','0','4068.34','-2278.94','64.9206','4.58748','300','0','0','87515','0','0','0','0','262144','2048','0','0','0','0',NULL);
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('82001','1265','7025','7045','1','65535','0','1','3703.74','-2039.62','10.5628','4.12717','120','0','0','1','0','0','0','0','0','0','0','0','0','0',NULL);
+			UPDATE `creature_template` SET `ScriptName` = 'npc_monishot' WHERE `entry` = 82001;
+
+		#82003/NPC - Ed
+
+			DELETE FROM creature WHERE id = 82003;
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('82003','1265','7025','7037','1','1','0','0','4100.1','-2269.93','64.487','0.271995','300','0','0','87515','0','0','0','0','0','2048','0','0','0','0',NULL);
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('82003','1265','7025','7045','1','4294967295','0','1','3846.23','-2061.96','16.0158','4.15417','120','0','0','1','0','0','0','0','0','0','0','0','0','0',NULL);
+			UPDATE `creature_template` SET `ScriptName` = 'npc_tanaan_ed' WHERE `entry` = 82003;
+
+		#82004/NPC - Salty Futz
+
+			DELETE FROM creature WHERE id = 82004;
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('82004','1265','7025','7037','1','65535','0','1','4069.36','-2295.16','65.0164','5.76947','120','0','0','1','0','0','0','0','0','0','0','0','0','0',NULL);
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('82004','1265','7025','7045','1','65535','0','1','3767.21','-2067.1','15.2172','0.640037','120','0','0','1','0','0','0','0','0','0','0','0','0','0',NULL);
+			UPDATE `creature_template` SET `ScriptName` = 'npc_salty_futz' WHERE `entry` = 82004;
+
+		#82005/NPC - Challe Tebrilinde
+
+			DELETE FROM creature WHERE id = 82005;
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('82005','1265','7025','7037','1','4294967295','0','1','4035.3','-2289.21','64.9977','2.20653','120','0','0','1','0','0','0','0','0','0','0','0','0','0',NULL);
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('82005','1265','7025','7045','1','4294967295','0','1','3920.82','-2006.44','20.4369','2.20653','120','0','0','1','0','0','0','0','0','0','0','0','0','0',NULL);
+			UPDATE `creature_template` SET `ScriptName` = 'npc_challe_tebrilinde' WHERE `entry` = 82005;
+
+		#82008/NPC - Malothas
+
+			DELETE FROM creature WHERE id = 82008;
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('82008','1265','7025','7037','1','65535','0','1','4048.26','-2283.59','64.9846','1.62065','120','0','0','1','0','0','0','0','0','0','0','0','0','0',NULL);
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('82008','1265','7025','7045','1','65535','0','1','3753.14','-2056.05','13.7327','5.84369','120','0','0','1','0','0','0','0','0','0','0','0','0','0',NULL);
+			UPDATE `creature_template` SET `ScriptName` = 'npc_malothas' WHERE `entry` = 82008;
+
+		#78554/NPC - Vindicator Maraad
+
+			DELETE FROM creature WHERE id = 78554;
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('78554','1265','7025','7037','1','4294967295','0','1','4068.79','-2372.78','94.6872','1.66015','120','0','0','1','0','0','2','0','0','0','0','0','0','0',NULL);
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('78554','1265','7025','7040','1','4294967295','0','1','4221.55','-2814.22','17.1296','0.800784','120','0','0','1','0','0','2','0','0','0','0','0','0','0',NULL);
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('78554','1265','7025','7040','1','4294967295','0','1','4386.65','-2811.78','4.91145','1.78075','120','0','0','1','0','0','2','0','0','0','0','0','0','0',NULL);
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('78554','1265','7025','7041','1','4294967295','0','1','3834.89','-2775.64','94.0558','3.19539','120','0','0','1','0','0','2','0','0','0','0','0','0','0',NULL);
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('78554','1265','7025','7041','1','4294967295','0','1','3958.91','-2520.15','69.7493','5.84448','120','0','0','1','0','0','2','0','0','0','0','0','0','0',NULL);
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('78554','1265','7025','7042','1','4294967295','0','1','4526.04','-2632.74','1.89463','0.10128','120','0','0','1','0','0','2','0','0','0','0','0','0','0',NULL);
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('78554','1265','7025','7043','1','4294967295','0','1','4380.66','-2065.69','2.33573','2.34674','120','0','0','1','0','0','2','0','0','0','0','0','0','0',NULL);
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('78554','1265','7025','7043','1','4294967295','0','1','4522.78','-2181.86','-15.762','6.10103','120','0','0','1','0','0','2','0','0','0','0','0','0','0',NULL);
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('78554','1265','7025','7043','1','4294967295','0','1','4613.97','-2223.53','9.63803','1.28408','120','0','0','1','0','0','2','0','0','0','0','0','0','0',NULL);
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('78554','1265','7025','7045','1','4294967295','0','1','3537.82','-2121.15','17.2781','0.0564164','120','0','0','1','0','0','2','0','0','0','0','0','0','0',NULL);
+
+		#82025/NPC - Yoori
+
+			DELETE FROM creature WHERE id = 82025;
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('82025','1265','7025','7037','1','4294967295','0','1','4061.38','-2295.95','65.0185','2.12653','120','0','0','1','0','0','0','0','0','0','0','0','0','0',NULL);
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('82025','1265','7025','7045','1','4294967295','0','1','3981.92','-2019.71','27.5168','3.75962','120','0','0','1','0','0','0','0','0','0','0','0','0','0',NULL);
+			UPDATE `creature_template` SET `ScriptName` = 'npc_yoori' WHERE `entry` = 82025;
+
+		#82016/NPC - Durphorn the Bullheaded
+
+			DELETE FROM creature WHERE id = 82016;
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('82016','1265','7025','7037','1','4294967295','0','1','4057.16','-2289.11','64.9979','2.00044','120','0','0','1','0','0','0','0','0','0','0','0','0','0',NULL);
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('82016','1265','7025','7045','1','4294967295','0','1','3860.92','-2030.94','17.6147','5.60851','120','0','0','1','0','0','0','0','0','0','0','0','0','0',NULL);
+			UPDATE `creature_template` SET `ScriptName` = 'npc_durphorn_the_bullheaded' WHERE `entry` = 82016;
+
+		#82260/NPC - Rainiara the Kingslayer
+
+			DELETE FROM creature WHERE id = 82260;
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('82260','1265','7025','7037','1','4294967295','0','1','4033.17','-2303.81','71.0954','0.788713','120','0','0','1','0','0','0','0','0','0','0','0','0','0',NULL);
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('82260','1265','7025','7045','1','4294967295','0','1','3653.91','-2083.01','7.47502','1.30584','120','0','0','1','0','0','0','0','0','0','0','0','0','0',NULL);
+			UPDATE `creature_template` SET `ScriptName` = 'npc_rainiara_the_kingslayer' WHERE `entry` = 82260;
+
+		#82264/NPC - Johnny Oshimo
+
+			DELETE FROM creature WHERE id = 82264;
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('82264','1265','7025','7037','1','1','0','0','4092.7','-2306.96','64.9211','2.51801','300','0','0','87515','0','0','0','0','0','2048','0','0','0','0',NULL);
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('82264','1265','7025','7045','1','4294967295','0','1','3736.49','-2045.19','12.3724','3.16184','120','0','0','1','0','0','0','0','0','0','0','0','0','0',NULL);
+			UPDATE `creature_template` SET `ScriptName` = 'npc_johnny_oshimo' WHERE `entry` = 82264;
+
+		#82014/NPC - Archon
+
+			DELETE FROM creature WHERE id = 82014;
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('82014','1265','7025','7037','1','4294967295','0','1','4083.9','-2306.21','65.0406','0.0832898','120','0','0','1','0','0','0','0','0','0','0','0','0','0',NULL);
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('82014','1265','7025','7045','1','4294967295','0','1','3960.82','-2019.81','24.8669','0.0832898','120','0','0','1','0','0','0','0','0','0','0','0','0','0',NULL);
+			UPDATE `creature_template` SET `ScriptName` = 'npc_tanaan_archon' WHERE `entry` = 82014;
+
+		#82009/NPC - Barbery the Crazy Cat Lady
+
+			DELETE FROM creature WHERE id = 82009;
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('82009','1265','7025','7037','1','4294967295','0','1','4093.24','-2298.36','65.0266','0.461711','120','0','0','1','0','0','0','0','0','0','0','0','0','0',NULL);
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('82009','1265','7025','7045','1','4294967295','0','1','3925.39','-2026.74','19.604','0.454164','120','0','0','1','0','0','0','0','0','0','0','0','0','0',NULL);
+			UPDATE `creature_template` SET `ScriptName` = 'npc_barbery_the_cray_cat_lady' WHERE `entry` = 82009;
+
+		#82075/NPC - Ryii the Shameless
+
+			DELETE FROM creature WHERE id = 82075;
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('82075','1265','7025','7037','1','4294967295','0','1','4095.91','-2289.02','64.9987','1.39051','120','0','0','1','0','0','0','0','0','0','0','0','0','0',NULL);
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('82075','1265','7025','7045','1','4294967295','0','1','3689.23','-2069.73','7.68034','1.39051','120','0','0','1','0','0','0','0','0','0','0','0','0','0',NULL);
+			UPDATE `creature_template` SET `ScriptName` = 'npc_ryii_the_shameless' WHERE `entry` = 82075;
+
+		#82017/NPC - Miserain Starsorrow
+
+			DELETE FROM creature WHERE id = 82017;
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('82017','1265','7025','7045','1','4294967295','0','0','3716.66','-2054.56','10.1277','3.22075','120','0','0','1','0','0','0','0','0','0','0','0','0','0',NULL);
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('82017','1265','7025','7037','1','4294967295','0','0','4084.98','-2295.92','65.0191','0.670326','120','0','0','1','0','0','0','0','0','0','0','0','0','0',NULL);
+			UPDATE `creature_template` SET `ScriptName` = 'npc_miserain_starsorrow' WHERE `entry` = 82017;
+
+		#82189/NPC - Lupas
+
+			DELETE FROM creature WHERE id = 82189;
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('82189','1265','7025','7037','1','4294967295','0','1','4067.34','-2283.15','64.9841','1.76585','120','0','0','1','0','0','0','0','0','0','0','0','0','0',NULL);
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('82189','1265','7025','7045','1','4294967295','0','1','3736.97','-2043.52','12.4679','3.39335','120','0','0','1','0','0','0','0','0','0','0','0','0','0',NULL);
+			UPDATE `creature_template` SET `ScriptName` = 'npc_tanaan_lupas' WHERE `entry` = 82189;
+
+		#82263/NPC - Agios Lumen
+
+			DELETE FROM creature WHERE id = 82263;
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('82263','1265','7025','7037','1','4294967295','0','1','4014.39','-2298.41','59.3297','3.98826','120','0','0','1','0','0','0','0','0','0','0','0','0','0',NULL);
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('82263','1265','7025','7044','1','4294967295','0','1','4014.03','-1998.66','31.9664','3.16719','120','0','0','1','0','0','0','0','0','0','0','0','0','0',NULL);
+			UPDATE `creature_template` SET `ScriptName` = 'npc_agios_lumen' WHERE `entry` = 82263;
+
+		#300004/NPC - Blaze of Glory Trigger
+
+			insert into `creature_template` (`entry`, `KillCredit1`, `KillCredit2`, `modelid1`, `modelid2`, `modelid3`, `modelid4`, `name`, `subname`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `exp`, `exp_unk`, `faction`, `npcflag`, `npcflag2`, `speed_walk`, `speed_run`, `speed_fly`, `scale`, `rank`, `dmgschool`, `dmg_multiplier`, `baseattacktime`, `rangeattacktime`, `baseVariance`, `rangeVariance`, `unit_class`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `family`, `trainer_type`, `trainer_spell`, `trainer_class`, `trainer_race`, `type`, `type_flags`, `type_flags2`, `lootid`, `pickpocketloot`, `skinloot`, `resistance1`, `resistance2`, `resistance3`, `resistance4`, `resistance5`, `resistance6`, `spell1`, `spell2`, `spell3`, `spell4`, `spell5`, `spell6`, `spell7`, `spell8`, `PetSpellDataId`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `InhabitType`, `HoverHeight`, `Health_mod`, `Mana_mod`, `Mana_mod_extra`, `Armor_mod`, `RacialLeader`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `movementId`, `RegenHealth`, `equipment_id`, `mechanic_immune_mask`, `flags_extra`, `ScriptName`, `WDBVerified`) values('300004','0','0','11686','0','0','0','Blaze of Glory Trigger (Tanaan)',NULL,NULL,'0','1','1','0','0','35','0','0','1','1.14286','1.14286','1','0','0','1','0','0','1','1','0','33554950','0','0','0','0','0','0','0','0','0','10','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','','0','3','1','1','1','1','1','0','0','0','0','0','0','0','0','1','0','0','0','','1');
+			DELETE FROM creature WHERE id = 300004;
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('300004','1265','7025','7041','1','4294967295','0','0','4045.68','-2587.89','52.0885','2.10206','300','0','0','42','0','0','0','0','0','2048','0','0','0','0',NULL);
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('300004','1265','7025','7041','1','4294967295','0','0','3944.56','-2654.11','54.7813','4.13624','300','0','0','42','0','0','0','0','0','2048','0','0','0','0',NULL);
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('300004','1265','7025','7041','1','4294967295','0','0','3999.03','-2667.21','47.3317','4.36793','300','0','0','42','0','0','0','0','0','2048','0','0','0','0',NULL);
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('300004','1265','7025','7038','1','4294967295','0','0','3766.49','-2581.04','58.1768','2.46727','300','0','0','42','0','0','0','0','0','2048','0','0','0','0',NULL);
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('300004','1265','7025','7041','1','4294967295','0','0','3849.51','-2535.05','65.301','2.09028','300','0','0','42','0','0','0','0','0','2048','0','0','0','0',NULL);
+
+		#83652/NPC - Battered Draenei Prisoner
+
+			UPDATE creature_template SET faction = 35 WHERE entry = 83652;
+
+		#78556/NPC - Ariok
+
+			DELETE FROM creature WHERE id = 78556;
+			insert into `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('10123139','78556','1265','7025','7041','1','4294967295','0','1','3936.05','-2520.35','69.7308','3.9808','120','0','0','1','0','0','3','0','0','0','0','0','0','0',NULL);
+			insert into `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('10123140','78556','1265','7025','7037','1','4294967295','0','1','4005.06','-2345.96','73.3521','0.176713','120','0','0','1','0','0','3','0','0','0','0','0','0','0',NULL);
+			insert into `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('10123141','78556','1265','7025','7041','1','4294967295','0','1','3842.37','-2787.32','94.3774','5.56085','120','0','0','1','0','0','3','0','0','0','0','0','0','0',NULL);
+			insert into `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('10123142','78556','1265','7025','7037','1','4294967295','0','1','4066.56','-2375.84','95.1081','1.66777','120','0','0','1','0','0','3','0','0','0','0','0','0','0',NULL);
+			UPDATE `creature_template` SET `ScriptName` = 'npc_tanaan_ariok' WHERE `entry` = 78556;
+
+		-- Game Objects
+
+		#233104/Game Object - Stasis Rune
+
+			DELETE FROM gameobject WHERE id = 233104;
+			insert into `gameobject` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `isActive`, `protect_anti_doublet`) values('233104','1265','7025','7037','1','1','4066.84','-2403.46','77.7679','1.56486','0','0','0.705006','0.709201','300','0','1','0',NULL);
+			UPDATE `gameobject_template` SET `ScriptName` = 'gob_static_rune' WHERE `entry` = 233104;
+
+		#229598/Game Object - Mark of the Burning Blade
+
+			DELETE FROM gameobject WHERE id = 229598;
+			insert into `gameobject` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `isActive`, `protect_anti_doublet`) values('229598','1265','7025','7037','1','1','4099.81','-2402.92','69.8151','3.13566','0','0','0.999996','0.00296636','300','0','1','0',NULL);
+
+		#233614/Game Object - Chamber Door
+
+			DELETE FROM gameobject WHERE id = 233614;
+
+		#229350/Game Object - Bleeding Hollow Cage
+
+			UPDATE `gameobject_template` SET `ScriptName` = 'go_bleeding_hollow_cage' WHERE `entry` = 229350;
+
+		#229325/Game Object - Bleeding Hollow Cage
+
+			UPDATE `gameobject_template` SET `ScriptName` = 'go_bleeding_hollow_cage' WHERE `entry` = 229325;
+
 		-- Quests
 
 		#35933/Quest - Azeroth s Last Stand
@@ -290,3 +553,75 @@
 			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry` = 81762;
 			DELETE FROM `creature_involvedrelation` WHERE `quest` = 35240;
 			DELETE FROM `gameobject_involvedrelation` WHERE `quest` = 35240;
+			DELETE FROM `creature_questrelation` WHERE `quest` = 35240;
+			DELETE FROM `gameobject_questrelation` WHERE `quest` = 35240;
+			UPDATE `item_template` SET `StartQuest`=0 WHERE `StartQuest` = 35240;
+			INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (81762, 35240);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry` = 81762;
+			DELETE FROM `creature_involvedrelation` WHERE `quest` = 35240;
+			DELETE FROM `gameobject_involvedrelation` WHERE `quest` = 35240;
+			INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (78559, 35240);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry`=78559;
+
+
+		#35241/Quest - Vengeance for the Fallen
+
+			DELETE FROM `creature_questrelation` WHERE `quest` = 35241;
+			DELETE FROM `gameobject_questrelation` WHERE `quest` = 35241;
+			UPDATE `item_template` SET `StartQuest`=0 WHERE `StartQuest` = 35241;
+			INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (81761, 35241);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry` = 81761;
+			DELETE FROM `creature_involvedrelation` WHERE `quest` = 35241;
+			DELETE FROM `gameobject_involvedrelation` WHERE `quest` = 35241;
+			INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (78553, 35241);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry`=78553;
+			DELETE FROM `creature_questrelation` WHERE `quest` = 35242;
+			DELETE FROM `gameobject_questrelation` WHERE `quest` = 35242;
+			UPDATE `item_template` SET `StartQuest`=0 WHERE `StartQuest` = 35242;
+			INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (81763, 35242);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry` = 81763;
+			DELETE FROM `creature_involvedrelation` WHERE `quest` = 35242;
+			DELETE FROM `gameobject_involvedrelation` WHERE `quest` = 35242;
+			INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (78554, 35242);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry`=78554;
+
+		#34423/Quest - Altar Altercation
+
+			DELETE FROM `creature_questrelation` WHERE `quest` = 34423;
+			DELETE FROM `gameobject_questrelation` WHERE `quest` = 34423;
+			UPDATE `item_template` SET `StartQuest`=0 WHERE `StartQuest` = 34423;
+			INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (78559, 34423);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry` = 78559;
+			DELETE FROM `creature_involvedrelation` WHERE `quest` = 34423;
+			DELETE FROM `gameobject_involvedrelation` WHERE `quest` = 34423;
+			INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (78560, 34423);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry`=78560;
+
+
+		-- Phases
+
+			UPDATE creature SET phasemask = 4294967295 WHERE map = 1265;
+			UPDATE gameobject SET phasemask = 65535 WHERE map = 1265;
+			UPDATE gameobject SET phasemask = 4 WHERE id IN (232502, 232503, 232504);
+			UPDATE gameobject SET phasemask = 4 WHERE id = 237667;
+			UPDATE gameobject SET phasemask = 4 WHERE id = 231763;
+			UPDATE creature SET phasemask = 1 WHERE id = 78333;
+			UPDATE gameobject SET phasemask = 1 WHERE id = 234622;
+
+		-- Misc
+
+			DELETE FROM creature_template_addon WHERE entry = 82260;
+			DELETE FROM creature_template_addon WHERE entry = 78507;
+			UPDATE creature SET spawntimesecs = 15 WHERE id = 78883;
+			UPDATE creature_template SET scriptname = "npc_generic_tanaan_guardian" WHERE entry IN
+			(82188, 81990, 82007, 82010, 81994, 82011, 81997, 82082, 82191, 82012, 82014, 82002,
+			81996, 81998, 79062, 81993, 81995, 82000, 82001, 82003, 82004, 82005, 82008, 82025,
+			82016, 82260, 82264, 82014, 82009, 82075, 82017, 82189, 82263);
+			UPDATE quest_template_objective SET `index` = 0 WHERE id = 273635;
+			UPDATE quest_template_objective SET flags = 0 WHERE questid = 34393;
+			UPDATE `quest_template` SET `Flags` = 8 WHERE `Id` = 35241;
+			UPDATE `creature_template` SET `type_flags` = 4 WHERE `entry` = 78553;
+			UPDATE quest_template_objective SET flags = 0 WHERE questid = 34423;
+			UPDATE creature SET npcflag = 0 WHERE id = 78556;
+			UPDATE creature_template SET npcflag = 1 WHERE entry = 78556;
+			UPDATE creature SET npcflag = 1 WHERE id = 76643;

@@ -461,12 +461,10 @@ namespace MS { namespace Garrison
             }
 
             /// Storehouse learning
-            LearnBlueprint(Buildings::Barracks__Barracks_Level1);
             LearnBlueprint(Buildings::Storehouse__Storehouse_Level1);
-
-            /// 26/01/2015 @ 12h00
-            if (time(nullptr) >= 1422273600)
-                LearnBlueprint(Buildings::DwarvenBunker__WarMill_Level1);
+            LearnBlueprint(Buildings::Barracks__Barracks_Level1);
+            LearnBlueprint(Buildings::DwarvenBunker__WarMill_Level1);
+            LearnBlueprint(Buildings::TheForge__TheForge_Level1);
 
             return true;
         }

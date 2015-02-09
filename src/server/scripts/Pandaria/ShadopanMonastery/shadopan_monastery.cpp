@@ -227,7 +227,7 @@ class npc_shadopan_hatred : public CreatureScript
                 DoZoneInCombat();
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (me->HasAura(SPELL_APPARITIONS_AURA))
                     damage = 0;

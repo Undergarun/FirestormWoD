@@ -243,7 +243,7 @@ public:
             } else uiPhaseTimer -= diff;
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage)
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage, SpellInfo const* p_SpellInfo)
         {
             Unit* pEmbraceTarget = GetEmbraceTarget();
 

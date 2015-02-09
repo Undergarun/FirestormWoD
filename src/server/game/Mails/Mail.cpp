@@ -23,7 +23,7 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "Unit.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 #include "Item.h"
 #include "AuctionHouseMgr.h"
 #include "BlackMarket/BlackMarketMgr.h"

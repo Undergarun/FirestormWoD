@@ -8,6 +8,7 @@
 #
 #    EXAMPLE CONFIG
 #    CONNECTIONS AND DIRECTORIES
+#    REPORTING SETTINGS
 #    PERFORMANCE SETTINGS
 #    SERVER LOGGING
 #    SERVER SETTINGS
@@ -147,6 +148,23 @@ WorldServerPort = 8085
 #        Default:     "0.0.0.0" - (Bind to all IPs on the system)
 
 BindIP = "0.0.0.0"
+
+#
+###################################################################################################
+
+###################################################################################################
+# REPORTING SETTINGS
+#
+#   ReporterActivated
+#       Description: Says if the reporter is activated.
+#       Default: "1"
+#
+#   ReporterAddress
+#       Description: HTTP address of the ReportingConnector that will handle reports and insert them in a database.
+#       Default:    "localhost:3000"
+
+ReporterActivated = "1"
+ReporterAddress = "localhost:3000"
 
 #
 ###################################################################################################

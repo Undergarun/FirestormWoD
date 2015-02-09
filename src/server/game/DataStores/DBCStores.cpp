@@ -24,6 +24,7 @@
 #include "DBCfmt.h"
 #include "ItemPrototype.h"
 #include "TransportMgr.h"
+#include "Battleground.h"
 #include <iostream>
 #include <fstream>
 #include <map>
@@ -492,8 +493,8 @@ void LoadDBCStores(const std::string& dataPath)
     {
         if (PvPDifficultyEntry const* entry = sPvPDifficultyStore.LookupEntry(i))
         {
-            if (entry->bracketId > MAX_BATTLEGROUND_BRACKETS)
-                ASSERT(false && "Need update MAX_BATTLEGROUND_BRACKETS by DBC data");
+            if (entry->bracketId > MS::Battlegrounds::Brackets::Count)
+                ASSERT(false && "Need update Brackets::Count by DBC data");
         }
     }
 
@@ -1014,7 +1015,7 @@ MapDifficulty const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &di
     return mapDiff;
 }
 
-PvPDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 level)
+/*vPDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 level)
 {
     PvPDifficultyEntry const* maxEntry = NULL;              // Used for level > max listed level case
     for (uint32 i = 0; i < sPvPDifficultyStore.GetNumRows(); ++i)
@@ -1036,9 +1037,9 @@ PvPDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 lev
     }
 
     return maxEntry;
-}
+}*/
 
-PvPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, BattlegroundBracketId id)
+/*vPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, Bracket::Id id)
 {
     for (uint32 i = 0; i < sPvPDifficultyStore.GetNumRows(); ++i)
         if (PvPDifficultyEntry const* entry = sPvPDifficultyStore.LookupEntry(i))
@@ -1046,7 +1047,19 @@ PvPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, BattlegroundB
                 return entry;
 
     return NULL;
-}
+}*/
+
+/*std::size_t GetBracketSizeByMapId(uint32 p_MapId)
+{
+    std::size_t l_Size = 0;
+
+    for (uint32 i = 0; i < sPvPDifficultyStore.GetNumRows(); ++i)
+        if (PvPDifficultyEntry const* entry = sPvPDifficultyStore.LookupEntry(i))
+            if (entry->mapId == p_MapId)
+                l_Size++;
+
+    return l_Size;
+}*/
 
 std::vector<uint32> const* GetTalentTreePrimarySpells(uint32 talentTree)
 {

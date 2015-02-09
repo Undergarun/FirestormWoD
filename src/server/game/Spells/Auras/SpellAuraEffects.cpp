@@ -391,7 +391,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNoImmediateEffect,                         //332 SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS implemented in WorldSession::HandleCastSpellOpcode
     &AuraEffect::HandleNoImmediateEffect,                         //333 SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2 implemented in WorldSession::HandleCastSpellOpcode
     &AuraEffect::HandleNULL,                                      //334 SPELL_AURA_MOD_BLIND
-    &AuraEffect::HandleNULL,                                      //335 SPELL_AURA_335
+    &AuraEffect::HandleNULL,                                      //335 SPELL_AURA_SEE_WHILE_INVISIBLE
     &AuraEffect::HandleNULL,                                      //336 SPELL_AURA_MOD_FLYING_RESTRICTIONS
     &AuraEffect::HandleNoImmediateEffect,                         //337 SPELL_AURA_MOD_VENDOR_ITEMS_PRICES
     &AuraEffect::HandleNoImmediateEffect,                         //338 SPELL_AURA_MOD_DURABILITY_LOSS
@@ -468,7 +468,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleAllowMoveWhileFalling,                     //409 SPELL_AURA_ALLOW_MOVE_WHILE_FALLING
     &AuraEffect::HandleNoImmediateEffect,                         //410 SPELL_AURA_STAMPEDE_ONLY_CURRENT_PET implemented in EffectSummonMultipleHunterPets
     &AuraEffect::HandleNoImmediateEffect,                         //411 SPELL_AURA_MOD_CHARGES implemented with SpellCharges system
-    &AuraEffect::HandleModManaRegenByHaste,                       //412 SPELL_AURA_412
+    &AuraEffect::HandleModManaRegenByHaste,                       //412 SPELL_AURA_MOD_MANA_REGEN_BY_HASTE
     &AuraEffect::HandleNULL,                                      //413 SPELL_AURA_413
     &AuraEffect::HandleNULL,                                      //414 SPELL_AURA_414
     &AuraEffect::HandleNULL,                                      //415 SPELL_AURA_415
@@ -509,7 +509,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //450 SPELL_AURA_450
     &AuraEffect::HandleNULL,                                      //451 SPELL_AURA_451
     &AuraEffect::HandleNULL,                                      //452 SPELL_AURA_452
-    &AuraEffect::HandleNULL,                                      //453 SPELL_AURA_453
+    &AuraEffect::HandleNULL,                                      //453 SPELL_AURA_MOD_COOLDOWN_2
     &AuraEffect::HandleNULL,                                      //454 SPELL_AURA_454
     &AuraEffect::HandleAuraModRoot,                               //455 SPELL_AURA_MOD_ROOT_2
     &AuraEffect::HandleNULL,                                      //456 SPELL_AURA_456
@@ -519,7 +519,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleAuraResetCooldowns,                        //460 SPELL_AURA_RESET_COOLDOWNS
     &AuraEffect::HandleNULL,                                      //461 SPELL_AURA_461
     &AuraEffect::HandleNULL,                                      //462 SPELL_AURA_462
-    &AuraEffect::HandleNULL,                                      //463 SPELL_AURA_463
+    &AuraEffect::HandleAuraAddParryPCTOfCSFromGear,               //463 SPELL_AURA_ADD_PARRY_PCT_OF_CS_FROM_GEAR
     &AuraEffect::HandleNoImmediateEffect,                         //464 SPELL_AURA_ADD_AP_PCT_OF_BONUS_ARMOR
     &AuraEffect::HandleAuraBonusArmor,                            //465 SPELL_AURA_MOD_BONUS_ARMOR
     &AuraEffect::HandleAuraBonusArmor,                            //466 SPELL_AURA_MOD_BONUS_ARMOR_PCT
@@ -1033,6 +1033,9 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                 amount = GetBase()->GetUnitOwner()->CountPctFromMaxHealth(amount);
             break;
         case SPELL_AURA_MOD_INCREASE_SPEED:
+           //Displacer Beast - Keep the sprint if not in cat form
+            if (GetId() == 137452)
+                break;
             // Dash - do not set speed if not in cat form
             if (GetSpellInfo()->SpellFamilyName == SPELLFAMILY_DRUID && GetSpellInfo()->SpellFamilyFlags[2] & 0x00000008)
                 amount = GetBase()->GetUnitOwner()->GetShapeshiftForm() == FORM_CAT ? amount : 0;
@@ -1617,6 +1620,7 @@ void AuraEffect::ApplySpellMod(Unit* target, bool apply)
         case SPELLMOD_EFFECT1:
         case SPELLMOD_EFFECT2:
         case SPELLMOD_EFFECT3:
+        case SPELLMOD_EFFECT4:
         case SPELLMOD_EFFECT5:
         {
             uint64 guid = target->GetGUID();
@@ -1649,6 +1653,11 @@ void AuraEffect::ApplySpellMod(Unit* target, bool apply)
                     else if (GetMiscValue() == SPELLMOD_EFFECT3)
                     {
                        if (AuraEffectPtr aurEff = aura->GetEffect(2))
+                            aurEff->RecalculateAmount();
+                    }
+                    else if (GetMiscValue() == SPELLMOD_EFFECT4)
+                    {
+                        if (AuraEffectPtr aurEff = aura->GetEffect(3))
                             aurEff->RecalculateAmount();
                     }
                     else if (GetMiscValue() == SPELLMOD_EFFECT5)
@@ -8744,6 +8753,15 @@ void AuraEffect::HandleAuraVersatility(AuraApplication const* p_AurApp, uint8 p_
 
     if (Player* l_Player = p_AurApp->GetTarget()->ToPlayer())
         l_Player->UpdateVersatilityPercentage();
+}
+
+void AuraEffect::HandleAuraAddParryPCTOfCSFromGear(AuraApplication const* p_AurApp, uint8 p_Mode, bool /*p_Apply*/) const
+{
+    if (!(p_Mode & AURA_EFFECT_HANDLE_REAL) || !p_AurApp->GetTarget())
+        return;
+
+    if (Player* l_Player = p_AurApp->GetTarget()->ToPlayer())
+        l_Player->UpdateParryPercentage();
 }
 
 void AuraEffect::HandleAuraBonusArmor(AuraApplication const* p_AurApp, uint8 p_Mode, bool /*p_Apply*/) const

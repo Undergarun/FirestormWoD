@@ -310,7 +310,7 @@ class boss_ancient_regail : public CreatureScript
                 Reset();
             }
 
-            void DamageTaken(Unit* attacker, uint32& /*damage*/)
+            void DamageTaken(Unit* attacker, uint32& /*damage*/, SpellInfo const* p_SpellInfo)
             {
                 if (pInstance)
                     if (pInstance->GetBossState(DATA_PROTECTORS) != IN_PROGRESS)
@@ -660,7 +660,7 @@ class boss_ancient_asani : public CreatureScript
                 Reset();
             }
 
-            void DamageTaken(Unit* attacker, uint32& /*damage*/)
+            void DamageTaken(Unit* attacker, uint32& /*damage*/, SpellInfo const* p_SpellInfo)
             {
                 if (pInstance)
                     if (pInstance->GetBossState(DATA_PROTECTORS) != IN_PROGRESS)
@@ -1013,7 +1013,7 @@ class boss_protector_kaolan : public CreatureScript
                 Reset();
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage)
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
             {
                 if (pInstance)
                 {

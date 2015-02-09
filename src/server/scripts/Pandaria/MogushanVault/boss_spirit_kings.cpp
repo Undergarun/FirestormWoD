@@ -917,7 +917,7 @@ class boss_spirit_kings : public CreatureScript
                     value = 0;
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (me->GetEntry() == NPC_QIANG)
                 {
@@ -1353,7 +1353,7 @@ class mob_undying_shadow : public CreatureScript
                 phase = PHASE_UNDYING_SHADOW;
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (phase == PHASE_UNDYING_SHADOW)
                 {

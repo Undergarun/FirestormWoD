@@ -45,6 +45,8 @@
 #include "DBCStores.h"
 #include "LFGMgr.h"
 
+#include "Reporter.hpp"
+
 class LoginQueryHolder : public SQLQueryHolder
 {
     private:

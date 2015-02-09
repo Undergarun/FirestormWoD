@@ -90,12 +90,12 @@ bool AreaTrigger::CreateAreaTriggerFromSpell(uint32 p_GuidLow, Unit* p_Caster, S
 
     WorldObject::_Create(p_GuidLow, HIGHGUID_AREATRIGGER, p_Caster->GetPhaseMask());
 
-    const AreaTriggerTemplateList* l_Templates = sObjectMgr->GetAreaTriggerTemplatesForSpell(p_SpellInfo->Id);
+    AreaTriggerTemplateList const* l_Templates = sObjectMgr->GetAreaTriggerTemplatesForSpell(p_SpellInfo->Id);
     if (l_Templates != nullptr)
     {
         for (AreaTriggerTemplateList::const_iterator l_Itr = l_Templates->begin(); l_Itr != l_Templates->end(); l_Itr++)
         {
-            const AreaTriggerTemplate l_AreaTriggerTemplate = *l_Itr;
+            AreaTriggerTemplate const l_AreaTriggerTemplate = *l_Itr;
             if (l_AreaTriggerTemplate.m_EffIndex == p_EffIndex)
                 m_Templates.push_back(l_AreaTriggerTemplate);
         }
@@ -112,7 +112,7 @@ bool AreaTrigger::CreateAreaTriggerFromSpell(uint32 p_GuidLow, Unit* p_Caster, S
         m_Templates.push_back(l_DefaultAreaTriggerTemplate);
     }
 
-    const AreaTriggerTemplate* l_MainTemplate = GetMainTemplate();
+    AreaTriggerTemplate const* l_MainTemplate = GetMainTemplate();
     if (l_MainTemplate == nullptr)
         return false;
 
@@ -166,7 +166,7 @@ bool AreaTrigger::CreateAreaTrigger(uint32 p_Entry, uint32 p_GuidLow, uint32 p_P
 
     WorldObject::_Create(p_GuidLow, HIGHGUID_AREATRIGGER, p_PhaseMask);
 
-    const AreaTriggerTemplateList* l_Templates = sObjectMgr->GetAreaTriggerTemplatesForEntry(p_Entry);
+    AreaTriggerTemplateList const* l_Templates = sObjectMgr->GetAreaTriggerTemplatesForEntry(p_Entry);
     if (l_Templates != nullptr)
     {
         for (AreaTriggerTemplateList::const_iterator l_Itr = l_Templates->begin(); l_Itr != l_Templates->end(); l_Itr++)
@@ -184,7 +184,7 @@ bool AreaTrigger::CreateAreaTrigger(uint32 p_Entry, uint32 p_GuidLow, uint32 p_P
         m_Templates.push_back(l_DefaultAreaTriggerTemplate);
     }
 
-    const AreaTriggerTemplate* l_MainTemplate = GetMainTemplate();
+    AreaTriggerTemplate const* l_MainTemplate = GetMainTemplate();
     if (l_MainTemplate == nullptr)
         return false;
 
@@ -244,13 +244,9 @@ void AreaTrigger::Update(uint32 p_Time)
 
         // Calculate new position
         if (GetMainTemplate()->m_MoveCurveID != 0)
-        {
             UpdatePositionWithPathId(m_CreatedTime, this);
-        }
         else if (m_Trajectory)
-        {
             GetPositionAtTime(m_CreatedTime, this);
-        }
     }
 }
 
@@ -301,7 +297,7 @@ void AreaTrigger::SendMovementUpdate()
 
 void AreaTrigger::UpdatePositionWithPathId(uint32 p_Time, Position* p_OutPos)
 {
-    const AreaTriggerTemplate* l_template = GetMainTemplate();
+    AreaTriggerTemplate const* l_template = GetMainTemplate();
 
     if (l_template->m_Flags & AREATRIGGER_FLAG_HAS_MOVE_CURVE)
     {
@@ -340,7 +336,7 @@ void AreaTrigger::UpdatePositionWithPathId(uint32 p_Time, Position* p_OutPos)
 
 void AreaTrigger::GetPositionFromPathId(uint32 p_PathId, Position* p_OutPos) const
 {
-    const AreaTriggerTemplate* l_template = GetMainTemplate();
+    AreaTriggerTemplate const* l_template = GetMainTemplate();
 
     if (l_template->m_Flags & AREATRIGGER_FLAG_HAS_MOVE_CURVE)
     {
@@ -366,18 +362,62 @@ void AreaTrigger::GetPositionAtTime(uint32 p_Time, Position* p_OutPos) const
 {
     switch (m_Trajectory)
     {
-    case AREATRIGGER_INTERPOLATION_LINEAR:
-    {
-        int32 l_Duration = GetDuration();
-        float l_Progress = float(p_Time % l_Duration) / l_Duration;
-        p_OutPos->m_positionX = m_Source.m_positionX + l_Progress * (m_Destination.m_positionX - m_Source.m_positionX);
-        p_OutPos->m_positionY = m_Source.m_positionY + l_Progress * (m_Destination.m_positionY - m_Source.m_positionY);
-        p_OutPos->m_positionZ = m_Source.m_positionZ + l_Progress * (m_Destination.m_positionZ - m_Source.m_positionZ);
-        p_OutPos->m_orientation = m_Source.m_orientation + l_Progress * (m_Destination.m_orientation - m_Source.m_orientation);
-        break;
+        case AREATRIGGER_INTERPOLATION_LINEAR:
+        {
+            int32 l_Duration = GetDuration();
+            float l_Progress = float(p_Time % l_Duration) / l_Duration;
+            p_OutPos->m_positionX = m_Source.m_positionX + l_Progress * (m_Destination.m_positionX - m_Source.m_positionX);
+            p_OutPos->m_positionY = m_Source.m_positionY + l_Progress * (m_Destination.m_positionY - m_Source.m_positionY);
+            p_OutPos->m_positionZ = m_Source.m_positionZ + l_Progress * (m_Destination.m_positionZ - m_Source.m_positionZ);
+            p_OutPos->m_orientation = m_Source.m_orientation + l_Progress * (m_Destination.m_orientation - m_Source.m_orientation);
+            break;
+        }
+        default:
+            *p_OutPos = m_Source;
+            break;
     }
-    default:
-        *p_OutPos = m_Source;
-        break;
+}
+
+void AreaTrigger::CastSpell(Unit* p_Target, uint32 p_SpellId)
+{
+    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(p_SpellId);
+    if (!l_SpellInfo)
+        return;
+
+    bool l_Self = false;
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    {
+        if (l_SpellInfo->Effects[i].TargetA.GetTarget() == TARGET_UNIT_CASTER)
+        {
+            l_Self = true;
+            break;
+        }
+    }
+
+    if (l_Self)
+    {
+        if (p_Target)
+            p_Target->CastSpell(p_Target, l_SpellInfo, true);
+        return;
+    }
+
+    //summon world trigger
+    Creature* l_Trigger = SummonTrigger(GetPositionX(), GetPositionY(), GetPositionZ(), 0, l_SpellInfo->CalcCastTime() + 100);
+    if (!l_Trigger)
+        return;
+
+    if (Unit* l_Owner = GetCaster())
+    {
+        l_Trigger->setFaction(l_Owner->getFaction());
+        // needed for GO casts for proper target validation checks
+        l_Trigger->SetGuidValue(UNIT_FIELD_SUMMONED_BY, l_Owner->GetGUID());
+        l_Trigger->CastSpell(p_Target ? p_Target : l_Trigger, l_SpellInfo, true, 0, NULLAURA_EFFECT, l_Owner->GetGUID());
+    }
+    else
+    {
+        l_Trigger->setFaction(14);
+        // Set owner guid for target if no owner available - needed by trigger auras
+        // - trigger gets despawned and there's no caster avalible (see AuraEffect::TriggerSpell())
+        l_Trigger->CastSpell(p_Target ? p_Target : l_Trigger, l_SpellInfo, true, 0, NULLAURA_EFFECT, p_Target ? p_Target->GetGUID() : 0);
     }
 }

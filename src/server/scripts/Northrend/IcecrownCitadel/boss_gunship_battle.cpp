@@ -979,7 +979,7 @@ class npc_muradin_gunship : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (me->GetHealthPct() < 2.0f)
                 {
@@ -1354,7 +1354,7 @@ class npc_korkron_axethrower_rifleman : public CreatureScript
                     SetEquipmentSlots(false, 49691, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const* p_SpellInfo)
             {
                 if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE && me->GetHealthPct() < 20.0f && !desperated)
                 {
@@ -1461,7 +1461,7 @@ class npc_sergeant : public CreatureScript
                     events.ScheduleEvent(EVENT_ELITE, urand(59000, 61000));       // ~60 sec
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const* p_SpellInfo)
             {
                 if (me->GetHealthPct() < 20.0f && !desperated)
                 {
@@ -1593,7 +1593,7 @@ class npc_marine_or_reaver : public CreatureScript
                 events.ScheduleEvent(EVENT_BURNING_PITCH, urand(60000, 62000));// ~61 sec
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const* p_SpellInfo)
             {
                 if (me->GetHealthPct() < 20.0f && !desperated)
                 {
@@ -1799,7 +1799,7 @@ class npc_gunship_cannon : public CreatureScript
                     me->GetVehicleKit()->RemoveAllPassengers();
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if(me->GetEntry() == NPC_GB_ALLIANCE_CANON)
                 {
@@ -2185,7 +2185,7 @@ class npc_saurfang_gunship : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (me->GetHealthPct() < 2.0f)
                 {
@@ -2494,7 +2494,7 @@ class npc_gunship_trigger : public CreatureScript
                 SetCombatMovement(false);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 damage = 0;
             }

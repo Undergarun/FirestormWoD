@@ -546,26 +546,31 @@ class ScriptMgr
         /// @p_SourceInfo : Condition  source
         bool OnConditionCheck(Condition * p_Condition, ConditionSourceInfo & p_SourceInfo);
 
-    /// PlayerScript
+        /// PlayerScript
     public:
+        
         /// Called when a player kills another player
         /// @p_Killer : Killer instance
         /// @p_Killed : Killed instance
         void OnPVPKill(Player * p_Killer, Player * p_Killed);
+        
         /// Called when a player kills a creature
         /// @p_Killer : Killer instance
         /// @p_Killed : Killed instance
         void OnCreatureKill(Player * p_Killer, Creature * p_Killed);
+        
         /// Called when a player is killed by a creature
         /// @p_Killer : Killer instance
         /// @p_Killed : Killed instance
         void OnPlayerKilledByCreature(Creature * p_Killer, Player * p_Killed);
-
-        /// Called when a player kills another player
+        
+        /// Called when power change is modify (SetPower)
         /// @p_Player : Player instance
         /// @p_Power  : Power type
-        /// @p_Value  : New value
-        void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_Value);
+        /// @p_OldValue  : Old value
+        /// @p_NewValue  : New value
+        /// @p_Regen  : If it's a regen modification
+        void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32 p_NewValue, bool p_Regen);
 
         /// Called when a player kills another player
         /// @p_Player : Player instance
@@ -613,6 +618,11 @@ class ScriptMgr
         /// @p_Looser         : Duel looser
         /// @p_CompletionType : Duel Completion Type
         void OnPlayerDuelEnd(Player * p_Winner, Player * p_Looser, DuelCompleteType p_CompletionType);
+
+        /// Called when the player get Teleport
+        /// @p_Player : Player
+        /// @p_SpellID : SpellID
+        void OnTeleport(Player * p_Player, const SpellInfo *p_SpellInfo);
 
         /// The following methods are called when a player sends a chat message. (World)
         /// @p_Player  : Player instance
@@ -683,6 +693,11 @@ class ScriptMgr
         /// @p_GUID : Player instance
         void OnPlayerDelete(uint64 p_GUID);
 
+        /// Called when a update() of a player is done
+        /// @p_Player : Player instance
+        /// @p_Diff : diff time
+        void OnPlayerUpdate(Player * p_Player, uint32 p_Diff);
+
         /// Called when a player is bound to an instance
         /// @p_Player     : Player instance
         /// @p_Difficulty : Instance Difficulty ID
@@ -720,6 +735,14 @@ class ScriptMgr
         /// @p_Player : Player instance
         /// @p_Item   : New looted item instance
         void OnPlayerItemLooted(Player* p_Player, Item * p_Item);
+
+        /// Called when a player enter in combat
+        /// @p_Player : Player instance
+        void OnPlayerEnterInCombat(Player * p_Player);
+
+        /// Called when a player leave combat status
+        /// @p_Player : Player instance
+        void OnPlayerLeaveCombat(Player * p_Player);
 
     /// BattlegroundScript
     public:

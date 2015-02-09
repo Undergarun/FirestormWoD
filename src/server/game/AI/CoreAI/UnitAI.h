@@ -254,7 +254,11 @@ class UnitAI
         // Called at any Damage from any attacker (before damage apply)
         // Note: it for recalculation damage or special reaction at damage
         // for attack reaction use AttackedBy called for not DOT damage in Unit::DealDamage also
-        virtual void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) { }
+        virtual void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const* p_SpellInfo) { }
+
+        /// Called when Unit::BuildValuesUpdate is called
+        /// Used for send differents factions for players for a same unit
+        virtual void OnSendFactionTemplate(uint32& p_FactionID, Player* p_Target) { }
 
         // Called when the creature receives heal
         virtual void HealReceived(Unit* /*done_by*/, uint32& /*addhealth*/) { }
