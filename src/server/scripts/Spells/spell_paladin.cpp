@@ -473,7 +473,7 @@ class spell_pal_selfless_healer: public SpellScriptLoader
         {
             PrepareSpellScript(spell_pal_selfless_healer_SpellScript);
 
-            void HandleOnHit()
+            void HandleHeal(SpellEffIndex /*l_EffIndex*/)
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
@@ -497,7 +497,7 @@ class spell_pal_selfless_healer: public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_pal_selfless_healer_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_pal_selfless_healer_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
             }
         };
 
