@@ -855,14 +855,14 @@ enum GerminationSpells
 };
 
 // Rejuvenation - 774 (germination effect)
-class spell_dru_germination : public SpellScriptLoader
+class spell_dru_rejuvenation : public SpellScriptLoader
 {
 public:
-    spell_dru_germination() : SpellScriptLoader("spell_dru_germination") { }
+    spell_dru_rejuvenation() : SpellScriptLoader("spell_dru_rejuvenation") { }
 
-    class spell_dru_germination_SpellScript : public SpellScript
+    class spell_dru_rejuvenation_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_dru_germination_SpellScript);
+        PrepareSpellScript(spell_dru_rejuvenation_SpellScript);
 
         void HandleBeforeHit()
         {
@@ -876,13 +876,13 @@ public:
 
         void Register()
         {
-            BeforeHit += SpellHitFn(spell_dru_germination_SpellScript::HandleBeforeHit);
+            BeforeHit += SpellHitFn(spell_dru_rejuvenation_SpellScript::HandleBeforeHit);
         }
     };
 
     SpellScript* GetSpellScript() const
     {
-        return new spell_dru_germination_SpellScript();
+        return new spell_dru_rejuvenation_SpellScript();
     }
 };
 
@@ -2827,5 +2827,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_dream_of_cenarius();
     new spell_dru_primal_fury();
     new spell_dru_healing_touch();
-    new spell_dru_germination();
+    new spell_dru_rejuvenation();
 }
