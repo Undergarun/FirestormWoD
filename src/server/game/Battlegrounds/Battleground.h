@@ -851,7 +851,7 @@ class Battleground
         uint32 GetClientInstanceID() const  { return m_ClientInstanceID; }
         uint32 GetElapsedTime() const       { return m_StartTime; }
         uint32 GetRemainingTime() const     { return m_EndTime; }
-        uint32 GetExpirationDate() const    { return 0; } /// Handled differently.
+        uint32 GetExpirationDate() const    { return 0; } ///< Handled differently.
         uint32 GetLastResurrectTime() const { return m_LastResurrectTime; }
         uint32 GetMaxPlayers() const        { return m_MaxPlayers; }
         uint32 GetMinPlayers() const        { return m_MinPlayers; }
