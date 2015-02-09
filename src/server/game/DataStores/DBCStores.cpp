@@ -24,6 +24,7 @@
 #include "DBCfmt.h"
 #include "ItemPrototype.h"
 #include "TransportMgr.h"
+#include "Battleground.h"
 #include <iostream>
 #include <fstream>
 #include <map>

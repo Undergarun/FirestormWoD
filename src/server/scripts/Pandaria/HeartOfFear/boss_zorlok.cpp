@@ -544,7 +544,7 @@ class boss_zorlok : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* attacker, uint32 &damage)
+            void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const* p_SpellInfo)
             {
                 // Check if trashes are done
                 if (pInstance && !isEcho)

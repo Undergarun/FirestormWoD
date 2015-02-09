@@ -473,7 +473,7 @@ class mob_aysa_gunship_crash : public CreatureScript
             mob_aysa_gunship_crashAI(Creature* creature) : ScriptedAI(creature)
             {}
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (HealthBelowPct(70))
                     damage = 0;

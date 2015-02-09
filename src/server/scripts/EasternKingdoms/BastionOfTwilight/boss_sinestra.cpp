@@ -736,7 +736,7 @@ class npc_sinestra_twilight_whelp : public CreatureScript
                 events.ScheduleEvent(EVENT_TWILIGHT_SPIT, urand(7000, 15000));
             }
 
-            void DamageTaken(Unit* attacker, uint32 &damage)
+            void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const* p_SpellInfo)
             {
                 if (damage >= me->GetHealth() && !bDead)
                 {

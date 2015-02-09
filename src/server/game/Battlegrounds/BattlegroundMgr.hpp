@@ -13,6 +13,7 @@
 # include "DBCEnums.h"
 # include "Battleground.h"
 # include "Object.h"
+# include "ObjectAccessor.h"
 # include <ace/Singleton.h>
 # include <array>
 

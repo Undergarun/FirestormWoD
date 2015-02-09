@@ -70,7 +70,7 @@ class CritterAI : public PassiveAI
     public:
         explicit CritterAI(Creature* c) : PassiveAI(c) {}
 
-        void DamageTaken(Unit* done_by, uint32& /*damage*/);
+        void DamageTaken(Unit* done_by, uint32& /*damage*/, SpellInfo const* p_SpellInfo);
         void EnterEvadeMode();
 };
 

@@ -204,7 +204,7 @@ class boss_ming_the_cunning : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* killer, uint32 &damage)
+            void DamageTaken(Unit* killer, uint32 &damage, SpellInfo const* p_SpellInfo)
             {
                 //We need to retire Ming and let the next boss enter combat.
                 if (int(me->GetHealth()) - int(damage) <= 0)
@@ -584,7 +584,7 @@ class boss_kuai_the_brute : public CreatureScript
                     mu_shiba->AI()->DoAction(ACTION_ATTACK);
             }
 
-            void DamageTaken(Unit* killer, uint32 &damage)
+            void DamageTaken(Unit* killer, uint32 &damage, SpellInfo const* p_SpellInfo)
             {
                 //We need to retire Ming and let the next boss enter combat.
                 if (int(me->GetHealth()) - int(damage) <= 0)
@@ -830,7 +830,7 @@ class boss_haiyan_the_unstoppable : public CreatureScript
                 Talk(TALK_KILLING);
             }
 
-            void DamageTaken(Unit* killer, uint32 &damage)
+            void DamageTaken(Unit* killer, uint32 &damage, SpellInfo const* p_SpellInfo)
             {
                 //We need to retire Ming and let the next boss enter combat.
                 if (int(me->GetHealth()) - int(damage) <= 0)

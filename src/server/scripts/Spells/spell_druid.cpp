@@ -848,6 +848,44 @@ class spell_dru_dash: public SpellScriptLoader
         }
 };
 
+enum GerminationSpells
+{
+    SPELL_DRUID_GERMINATION = 155777,
+    SPELL_DRUID_GERMINATION_PASSIVE_TALENT = 155675
+};
+
+// Rejuvenation - 774 (germination effect)
+class spell_dru_germination : public SpellScriptLoader
+{
+public:
+    spell_dru_germination() : SpellScriptLoader("spell_dru_germination") { }
+
+    class spell_dru_germination_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_dru_germination_SpellScript);
+
+        void HandleBeforeHit()
+        {
+            if (Player* l_Player = GetCaster()->ToPlayer())
+            {
+                if (l_Player->HasAura(SPELL_DRUID_GERMINATION_PASSIVE_TALENT) && l_Player->HasAura(SPELL_DRUID_REJUVENATION)
+                     && !l_Player->HasAura(SPELL_DRUID_GERMINATION))
+                    l_Player->AddAura(SPELL_DRUID_GERMINATION, l_Player);
+            }
+        }
+
+        void Register()
+        {
+            BeforeHit += SpellHitFn(spell_dru_germination_SpellScript::HandleBeforeHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_dru_germination_SpellScript();
+    }
+};
+
 enum SavageDefenseSpells
 {
     SPELL_DRUID_SAVAGE_DEFENSE_DODGE_PCT = 132402
@@ -1445,15 +1483,16 @@ class spell_dru_activate_cat_form: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_activate_cat_form_SpellScript);
 
-            void HandleOnHit()
+            void HandleBeforeHit()
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
-                    l_Player->CastSpell(l_Player, SPELL_DRUID_CAT_FORM, true);
+                    if (!l_Player->HasAura(SPELL_DRUID_CAT_FORM))
+                        l_Player->CastSpell(l_Player, SPELL_DRUID_CAT_FORM, true);
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_dru_activate_cat_form_SpellScript::HandleOnHit);
+                BeforeHit += SpellHitFn(spell_dru_activate_cat_form_SpellScript::HandleBeforeHit);
             }
         };
 
@@ -2771,4 +2810,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_dream_of_cenarius();
     new spell_dru_primal_fury();
     new spell_dru_healing_touch();
+    new spell_dru_germination();
 }

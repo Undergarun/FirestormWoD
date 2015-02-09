@@ -609,7 +609,7 @@ class mob_frost_sphere : public CreatureScript
                 me->GetMotionMaster()->MoveRandom(20.0f);
             }
 
-            void DamageTaken(Unit* /*who*/, uint32& damage)
+            void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (me->GetHealth() <= damage)
                 {
@@ -696,7 +696,7 @@ class mob_anubarak_spike : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*who*/, uint32& uiDamage)
+            void DamageTaken(Unit* /*who*/, uint32& uiDamage, SpellInfo const* p_SpellInfo)
             {
                 uiDamage = 0;
             }

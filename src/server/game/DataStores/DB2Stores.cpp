@@ -21,6 +21,7 @@
 #include "SharedDefines.h"
 #include "SpellMgr.h"
 #include "DB2fmt.h"
+#include "Item.h"
 
 #include <map>
 

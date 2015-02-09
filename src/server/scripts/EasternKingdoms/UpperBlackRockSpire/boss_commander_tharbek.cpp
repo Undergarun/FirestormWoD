@@ -329,7 +329,7 @@ class boss_commander_tharbek : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage)
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
             {
                 if (!me->HasAura(SPELL_IRON_RAGE) && me->HealthBelowPctDamaged(50, p_Damage))
                     me->CastSpell(me, SPELL_IRON_RAGE, true);
@@ -823,7 +823,7 @@ class mob_ironbarb_skyreaver : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage)
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
             {
                 if (!m_BossOut && me->HealthBelowPctDamaged(50, p_Damage))
                 {

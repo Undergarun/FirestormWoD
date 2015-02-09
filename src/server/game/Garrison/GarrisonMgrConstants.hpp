@@ -8,6 +8,7 @@
 #ifndef GARRISON_MGR_CONSTANTS_HPP_GARRISON
 #define GARRISON_MGR_CONSTANTS_HPP_GARRISON
 
+#include "SharedDefines.h"
 #include "GarrisonMgrStructures.hpp"
 
 /// @Hatters gonna hate, float doesn't go into the Globals enum, Change standard ?
