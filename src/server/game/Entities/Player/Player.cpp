@@ -997,6 +997,8 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
 
     if (GetSession()->GetSecurity() > SEC_PLAYER)
         gOnlineGameMaster++;
+
+    m_LastEclipseState = ECLIPSE_NONE;
 }
 
 Player::~Player()
@@ -3333,7 +3335,7 @@ void Player::Regenerate(Powers power)
     if (!maxValue)
         return;
 
-    uint32 curValue = GetPower(power);
+    int32 curValue = GetPower(power);
 
     /// @Todo: possible use of miscvalueb instead of amount
     if (HasAuraTypeWithValue(SPELL_AURA_PREVENT_REGENERATE_POWER, power))
@@ -3572,7 +3574,7 @@ void Player::Regenerate(Powers power)
     }
     else if (addvalue > 0.0f)
     {
-        if (curValue == maxValue)
+        if (curValue == maxValue && power != POWER_ECLIPSE)
             return;
     }
     else
