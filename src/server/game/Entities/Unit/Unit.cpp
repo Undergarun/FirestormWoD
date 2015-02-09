@@ -14096,8 +14096,7 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy, bool isControlled)
                 player->SetInPvPCombat(true);
         }
 
-        if (!isInCombat())
-            sScriptMgr->OnPlayerEnterInCombat(player);
+        sScriptMgr->OnPlayerEnterInCombat(player);
     }
 
     if (GetTypeId() == TYPEID_PLAYER && !ToPlayer()->IsInWorgenForm() && ToPlayer()->CanSwitch())
@@ -14134,8 +14133,7 @@ void Unit::ClearInCombat()
         if (Player* l_Player = ToPlayer())
         {
             l_Player->UpdatePotionCooldown();
-            if (isInCombat())
-                sScriptMgr->OnPlayerLeaveCombat(l_Player);
+            sScriptMgr->OnPlayerLeaveCombat(l_Player);
         }
     }
 
