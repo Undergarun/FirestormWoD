@@ -5936,6 +5936,11 @@ bool Player::ResetTalents(bool no_cost)
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             if (_spellEntry->Effects[i].TriggerSpell > 0 && _spellEntry->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL)
                 removeSpell(_spellEntry->Effects[i].TriggerSpell, true);
+
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            if (_spellEntry->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS || _spellEntry->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2)
+                RemoveAurasDueToSpell(_spellEntry->Effects[i].BasePoints);
+
         // if this talent rank can be found in the PlayerTalentMap, mark the talent as removed so it gets deleted
         PlayerTalentMap::iterator plrTalent = GetTalentMap(GetActiveSpec())->find(itr.first);
         if (plrTalent != GetTalentMap(GetActiveSpec())->end())
@@ -5987,6 +5992,42 @@ void Player::ResetSpec()
 
     if (GetSpecializationId(GetActiveSpec()) == 0)
         return;
+
+    for (auto itr : *GetTalentMap(GetActiveSpec()))
+    {
+        SpellInfo const* spell = sSpellMgr->GetSpellInfo(itr.first);
+        if (!spell)
+            continue;
+
+        bool l_Remove = false;
+        for (uint32 l_TalentID : spell->m_TalentIDs)
+        {
+            TalentEntry const* l_TalentEntry = sTalentStore.LookupEntry(l_TalentID);
+            if (l_TalentEntry && l_TalentEntry->SpecID == GetSpecializationId(GetActiveSpec()))
+            {
+                l_Remove = true;
+                break;
+            }
+        }
+
+        if (!l_Remove)
+            continue;
+
+        removeSpell(itr.first, true);
+
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            if (spell->Effects[i].TriggerSpell > 0 && spell->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL)
+                removeSpell(spell->Effects[i].TriggerSpell, true);
+
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            if (spell->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS || spell->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2)
+                RemoveAurasDueToSpell(spell->Effects[i].BasePoints);
+
+        itr.second->state = PLAYERSPELL_REMOVED;
+
+        SetUsedTalentCount(GetUsedTalentCount() - 1);
+        SetFreeTalentPoints(GetFreeTalentPoints() + 1);
+    }
 
     RemoveSpecializationSpells();
     SetSpecializationId(GetActiveSpec(), 0);
@@ -28970,7 +29011,7 @@ void Player::BuildPlayerTalentsInfoData(WorldPacket * p_Data)
         {
             SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo((*itr).first);
 
-            if (l_SpellInfo && !l_SpellInfo->m_TalentIDs.empty())
+            if (l_SpellInfo && !l_SpellInfo->m_TalentIDs.empty() && itr->second->state != PLAYERSPELL_REMOVED)
             {
                 uint32 l_SpecID = GetSpecializationId(GetActiveSpec());
                 uint16 l_Talent = 0;
@@ -29480,9 +29521,16 @@ void Player::ActivateSpec(uint8 spec)
     {
         removeSpell(itr.first, true); // removes the talent, and all dependant, learned, and chained spells..
         if (const SpellInfo* _spellEntry = sSpellMgr->GetSpellInfo(itr.first))
+        {
             for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)                  // search through the SpellInfo for valid trigger spells
                 if (_spellEntry->Effects[i].TriggerSpell > 0 && _spellEntry->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL)
                     removeSpell(_spellEntry->Effects[i].TriggerSpell, true); // and remove any spells that the talent teaches
+
+            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                if (_spellEntry->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS || _spellEntry->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2)
+                    RemoveAurasDueToSpell(_spellEntry->Effects[i].BasePoints);
+        }
+
     }
 
     RemoveSpecializationSpells();

@@ -7405,6 +7405,10 @@ void Spell::EffectUnlearnTalent(SpellEffIndex effIndex)
             if (spell->Effects[i].TriggerSpell > 0 && spell->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL)
                 plr->removeSpell(spell->Effects[i].TriggerSpell, true);
 
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            if (spell->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS || spell->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2)
+                plr->RemoveAurasDueToSpell(spell->Effects[i].BasePoints);
+
         itr.second->state = PLAYERSPELL_REMOVED;
 
         plr->SetUsedTalentCount(plr->GetUsedTalentCount() - 1);
