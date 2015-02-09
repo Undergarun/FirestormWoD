@@ -5819,6 +5819,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 61882: ///< Earthquake
                     spellInfo->ExplicitTargetMask &= ~TARGET_FLAG_UNIT;
                     break;
+                case 109248: ///< Binding Shot
+                    spellInfo->ExplicitTargetMask &= ~TARGET_FLAG_UNIT;
+                    break;
                 case 116011: ///< Rune of Power
                     spellInfo->ExplicitTargetMask &= ~TARGET_FLAG_UNIT;
                     spellInfo->Effects[2].Effect = 0;   ///< No summon needed
