@@ -473,7 +473,7 @@ class spell_pal_selfless_healer: public SpellScriptLoader
         {
             PrepareSpellScript(spell_pal_selfless_healer_SpellScript);
 
-            void HandleOnHit()
+            void HandleHeal(SpellEffIndex /*l_EffIndex*/)
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
@@ -497,7 +497,7 @@ class spell_pal_selfless_healer: public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_pal_selfless_healer_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_pal_selfless_healer_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
             }
         };
 
@@ -962,8 +962,8 @@ class spell_pal_execution_sentence_dispel: public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-                    int32 spellPowerBonus = int32(caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY) * GetSpellInfo()->Effects[EFFECT_2].BasePoints / 1000);
-                    int32 damage = spellPowerBonus + 26.72716306f * GetSpellInfo()->Effects[EFFECT_1].BasePoints;
+                    int32 spellPowerBonus = int32(caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY) * GetSpellInfo()->Effects[EFFECT_1].BasePoints / 1000);
+                    int32 damage = spellPowerBonus + 26.72716306f * GetSpellInfo()->Effects[EFFECT_0].BasePoints;
                     damage = int32(damage * 0.444f); // Final: 44.4%
 
                     if (GetSpellInfo()->Id == PALADIN_SPELL_EXECUTION_SENTENCE)

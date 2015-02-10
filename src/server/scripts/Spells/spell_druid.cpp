@@ -855,14 +855,14 @@ enum GerminationSpells
 };
 
 // Rejuvenation - 774 (germination effect)
-class spell_dru_germination : public SpellScriptLoader
+class spell_dru_rejuvenation : public SpellScriptLoader
 {
 public:
-    spell_dru_germination() : SpellScriptLoader("spell_dru_germination") { }
+    spell_dru_rejuvenation() : SpellScriptLoader("spell_dru_rejuvenation") { }
 
-    class spell_dru_germination_SpellScript : public SpellScript
+    class spell_dru_rejuvenation_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_dru_germination_SpellScript);
+        PrepareSpellScript(spell_dru_rejuvenation_SpellScript);
 
         void HandleBeforeHit()
         {
@@ -876,13 +876,13 @@ public:
 
         void Register()
         {
-            BeforeHit += SpellHitFn(spell_dru_germination_SpellScript::HandleBeforeHit);
+            BeforeHit += SpellHitFn(spell_dru_rejuvenation_SpellScript::HandleBeforeHit);
         }
     };
 
     SpellScript* GetSpellScript() const
     {
-        return new spell_dru_germination_SpellScript();
+        return new spell_dru_rejuvenation_SpellScript();
     }
 };
 
@@ -2064,6 +2064,12 @@ class spell_dru_survival_instincts: public SpellScriptLoader
         }
 };
 
+enum DruidSoulOfTheForestSpells
+{
+    SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO_TALENT = 158478,
+    SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO = 114108
+};
+
 // Swiftmend - 18562
 class spell_dru_swiftmend: public SpellScriptLoader
 {
@@ -2076,16 +2082,27 @@ class spell_dru_swiftmend: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    int32 heal = GetHitHeal() + CalculatePct(caster->SpellBaseHealingBonusDone(SPELL_SCHOOL_MASK_ALL), GetSpellInfo()->Effects[EFFECT_0].BasePoints);
-                    SetHitHeal(heal);
+                    int32 l_HealAmount = GetHitHeal() + CalculatePct(l_Caster->SpellBaseHealingBonusDone(SPELL_SCHOOL_MASK_ALL), GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+                    SetHitHeal(l_HealAmount);
+                }
+            }
+
+            void HandleAfterHit()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    //Restoration soul of the forest - 114108
+                    if (l_Caster->HasAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO_TALENT))
+                        l_Caster->CastSpell(l_Caster, SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO, false);
                 }
             }
 
             void Register()
             {
                 OnHit += SpellHitFn(spell_dru_swiftmend_SpellScript::HandleOnHit);
+                AfterHit += SpellHitFn(spell_dru_swiftmend_SpellScript::HandleAfterHit);
             }
         };
 
@@ -2810,5 +2827,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_dream_of_cenarius();
     new spell_dru_primal_fury();
     new spell_dru_healing_touch();
-    new spell_dru_germination();
+    new spell_dru_rejuvenation();
 }

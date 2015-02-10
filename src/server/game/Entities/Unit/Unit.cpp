@@ -66,6 +66,8 @@
 #include "BattlegroundWS.h"
 #include "BattlegroundTP.h"
 #include "Guild.h"
+#include <Reporting/Reporter.hpp>
+#include <Reporting/Reports.hpp>
 
 float baseMoveSpeed[MAX_MOVE_TYPE] =
 {
@@ -913,10 +915,21 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
 
     /// Rage from Damage made (only from direct weapon damage)
     if (cleanDamage && damagetype == DIRECT_DAMAGE && this != victim && getPowerType() == POWER_RAGE &&
-        HasAura(SPELL_AURA_MOD_RAGE_FROM_DAMAGE_DEALT) && cleanDamage->mitigated_damage > 0 &&
+        HasAuraType(SPELL_AURA_MOD_RAGE_FROM_DAMAGE_DEALT) && cleanDamage->mitigated_damage > 0 &&
         (!spellProto || !spellProto->HasAura(SPELL_AURA_SPLIT_DAMAGE_PCT)))
     {
-        float l_Rage = GetAttackTime(cleanDamage->attackType) / 1000.f * 5.f;
+        float l_Speed = 0.f;
+        if (GetTypeId() == TYPEID_PLAYER)
+        {
+            Player* l_Player = ToPlayer();
+
+            Item const* l_Weapon = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, cleanDamage->attackType == WeaponAttackType::BaseAttack ? EQUIPMENT_SLOT_MAINHAND : EQUIPMENT_SLOT_OFFHAND);
+            l_Speed = l_Weapon ? l_Weapon->GetTemplate()->Delay : BASE_ATTACK_TIME;
+        }
+        else
+            l_Speed = GetAttackTime(cleanDamage->attackType);
+
+        float l_Rage = l_Speed / 1000.f * 5.f;
 
         switch (cleanDamage->attackType)
         {
@@ -939,13 +952,18 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         {
             if (damagetype != DOT || (spellProto && spellProto->IsChanneled()))
             {
-                if (Spell* spell = victim->m_currentSpells[CURRENT_GENERIC_SPELL])
+                uint32 const l_SpellTypesToInterrupt[2] = { CurrentSpellTypes::CURRENT_CHANNELED_SPELL, CurrentSpellTypes::CURRENT_CHANNELED_SPELL };
+
+                for (int l_I = 0; l_I < 2; l_I++)
                 {
-                    if (spell->getState() == SPELL_STATE_PREPARING)
+                    if (Spell* spell = victim->m_currentSpells[l_SpellTypesToInterrupt[l_I]])
                     {
-                        uint32 interruptFlags = spell->m_spellInfo->InterruptFlags;
-                        if (interruptFlags & SPELL_INTERRUPT_FLAG_ABORT_ON_DMG)
-                            victim->InterruptNonMeleeSpells(false);
+                        if (spell->getState() == SPELL_STATE_PREPARING)
+                        {
+                            uint32 interruptFlags = spell->m_spellInfo->InterruptFlags;
+                            if (interruptFlags & SPELL_INTERRUPT_FLAG_ABORT_ON_DMG)
+                                victim->InterruptNonMeleeSpells(false);
+                        }
                     }
                 }
             }
@@ -1076,15 +1094,24 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
             if (victim != this && victim->GetTypeId() == TYPEID_PLAYER) // does not support creature push_back
             {
                 if (damagetype != DOT)
-                    if (Spell* spell = victim->m_currentSpells[CURRENT_GENERIC_SPELL])
-                        if (spell->getState() == SPELL_STATE_PREPARING)
+                {
+                    uint32 const l_SpellTypesToInterrupt[2] = { CurrentSpellTypes::CURRENT_CHANNELED_SPELL, CurrentSpellTypes::CURRENT_CHANNELED_SPELL };
+
+                    for (int l_I = 0; l_I < 2; l_I++)
+                    {
+                        if (Spell* spell = victim->m_currentSpells[l_SpellTypesToInterrupt[l_I]])
                         {
-                            uint32 interruptFlags = spell->m_spellInfo->InterruptFlags;
-                            if (interruptFlags & SPELL_INTERRUPT_FLAG_ABORT_ON_DMG)
-                                victim->InterruptNonMeleeSpells(false);
-                            else if (interruptFlags & SPELL_INTERRUPT_FLAG_PUSH_BACK)
-                                spell->Delayed();
+                            if (spell->getState() == SPELL_STATE_PREPARING)
+                            {
+                                uint32 interruptFlags = spell->m_spellInfo->InterruptFlags;
+                                if (interruptFlags & SPELL_INTERRUPT_FLAG_ABORT_ON_DMG)
+                                    victim->InterruptNonMeleeSpells(false);
+                                else if (interruptFlags & SPELL_INTERRUPT_FLAG_PUSH_BACK)
+                                    spell->Delayed();
+                            }
                         }
+                    }
+                }
             }
         }
 
@@ -1106,6 +1133,26 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
             he->CastSpell(he, 7267, true);                  // beg
             he->DuelComplete(DUEL_WON);
         }
+    }
+
+    if (spellProto != nullptr && GetTypeId() == TYPEID_PLAYER && (ToPlayer()->InBattleground() || ToPlayer()->InArena()) && victim->GetTypeId() == TYPEID_PLAYER)
+    {
+        using namespace MS::Reporting;
+        auto l_Row = sChrSpecializationsStore.LookupEntry(ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()));
+        std::string l_SpeName = "";
+        if (l_Row != nullptr)
+            l_SpeName = l_Row->specializationName;
+
+        sReporter->Report(MakeReport<BattlegroundDealDamageWatcher>::Craft
+        (
+            GetGUIDLow(),
+            sWorld->GetRealmName(),
+            spellProto->Id,
+            damage,
+            getClass(),
+            getRace(),
+            l_SpeName
+        ));
     }
 
     DamageTaken* dmgTaken = new DamageTaken(damage, getMSTime());
@@ -4357,6 +4404,40 @@ void Unit::RemoveAreaAurasDueToLeaveWorld()
             target->RemoveAura(aurApp);
             // things linked on aura remove may apply new area aura - so start from the beginning
             iter = m_ownedAuras.begin();
+        }
+    }
+
+    /// We need to remove all area auras which are casted by the pet and owned by the pet owner
+    if (isPet())
+    {
+        if (Unit* l_Owner = GetOwner())
+        {
+            Unit::AuraMap& auras = l_Owner->GetOwnedAuras();
+            for (Unit::AuraMap::const_iterator itr = auras.begin(); itr != auras.end();)
+            {
+                AuraPtr l_Aura = itr->second;
+                ++itr;
+
+                if (l_Aura->GetCasterGUID() != GetGUID())
+                    continue;
+
+                Aura::ApplicationMap const& l_AppMap = l_Aura->GetApplicationMap();
+                for (Aura::ApplicationMap::const_iterator iter = l_AppMap.begin(); iter != l_AppMap.end();)
+                {
+                    AuraApplication * aurApp = iter->second;
+                    ++iter;
+
+                    Unit* l_Target = aurApp->GetTarget();
+                    if (l_Target == this)
+                        continue;
+
+                    l_Target->RemoveAura(aurApp);
+
+                    // things linked on aura remove may apply new area aura - so start from the beginning
+                    itr  = auras.begin();
+                    iter = l_AppMap.begin();
+                }
+            }
         }
     }
 
@@ -11036,10 +11117,7 @@ void Unit::SetMinion(Minion *minion, bool apply, PetSlot slot, bool stampeded)
         if (GetTypeId() == TYPEID_PLAYER)
         {
             if (!minion->isHunterPet() && getClass() != CLASS_HUNTER) // If its not a hunter pet, well lets not try to use it for hunter then
-            {
                 ToPlayer()->m_currentPetSlot = slot;
-                ToPlayer()->m_petSlotUsed = 3452816845; // the same as 100 so that the pet is only that and nothing more
-            }
 
             if (slot >= PET_SLOT_HUNTER_FIRST && slot <= PET_SLOT_HUNTER_LAST && !stampeded) // Always save thoose spots where hunter is correct
             {
@@ -12634,7 +12712,7 @@ uint32 Unit::MeleeCriticalDamageBonus(SpellInfo const* p_SpellProto, uint32 p_Da
 {
     int32 l_CritPct = 200; // 200% for all melee damage type...
 
-    if (GetTypeId() == TYPEID_PLAYER && p_Victim->GetTypeId() == TYPEID_PLAYER && GetMapId() != 1191)
+    if (p_Victim && GetTypeId() == TYPEID_PLAYER && p_Victim->GetTypeId() == TYPEID_PLAYER && this != p_Victim && GetMapId() != 1191)
         l_CritPct = 150; // WoD: ...except for PvP out of Ashran area where is 150%
 
     if (p_AttackType == WeaponAttackType::RangedAttack)
@@ -12660,7 +12738,7 @@ uint32 Unit::SpellCriticalDamageBonus(SpellInfo const* p_SpellProto, uint32 p_Da
 {
     int32 l_CritPct = 200; // 200% for all spell damage type...
 
-    if (GetTypeId() == TYPEID_PLAYER && p_Victim->GetTypeId() == TYPEID_PLAYER && GetMapId() != 1191)
+    if (p_Victim && GetTypeId() == TYPEID_PLAYER && p_Victim->GetTypeId() == TYPEID_PLAYER && this != p_Victim && GetMapId() != 1191)
         l_CritPct = 150; // WoD: ...except for PvP out of Ashran area where is 150%
 
     l_CritPct += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, p_SpellProto->GetSchoolMask());
@@ -12678,7 +12756,7 @@ uint32 Unit::SpellCriticalHealingBonus(SpellInfo const* /*p_SpellProto*/, uint32
 {
     int32 l_CritPct = 200; // 200% for all healing type...
 
-    if (p_Victim && GetTypeId() == TYPEID_PLAYER && p_Victim->GetTypeId() == TYPEID_PLAYER && GetMapId() != 1191)
+    if (p_Victim && GetTypeId() == TYPEID_PLAYER && p_Victim->GetTypeId() == TYPEID_PLAYER && this != p_Victim && GetMapId() != 1191)
         l_CritPct = 150; // WoD: ...except for PvP out of Ashran area where is 150%
 
     l_CritPct += GetTotalAuraModifier(SPELL_AURA_MOD_CRITICAL_HEALING_AMOUNT);
@@ -13997,8 +14075,7 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy, bool isControlled)
                 player->SetInPvPCombat(true);
         }
 
-        if (!isInCombat())
-            sScriptMgr->OnPlayerEnterInCombat(player);
+        sScriptMgr->OnPlayerEnterInCombat(player);
     }
 
     if (GetTypeId() == TYPEID_PLAYER && !ToPlayer()->IsInWorgenForm() && ToPlayer()->CanSwitch())
@@ -14035,8 +14112,7 @@ void Unit::ClearInCombat()
         if (Player* l_Player = ToPlayer())
         {
             l_Player->UpdatePotionCooldown();
-            if (isInCombat())
-                sScriptMgr->OnPlayerLeaveCombat(l_Player);
+            sScriptMgr->OnPlayerLeaveCombat(l_Player);
         }
     }
 
@@ -22037,9 +22113,15 @@ float Unit::CalculateDamageDealtFactor(Unit* p_Unit, Creature* p_Creature)
 
     float l_DamageDealtFactor = 1.0f;
 
+
     if (l_LevelDiff && l_TargetExpansion < EXPANSION_MISTS_OF_PANDARIA)
     {
-        if (l_LevelDiff < 5)
+        if (l_LevelDiff < 1)
+        {
+            // Negative numbers fiyyy
+            l_DamageDealtFactor = 1.f;
+        }
+        else if (l_LevelDiff < 5)
         {
             // Ranges from 1.0625 to 1.25 vs. 1-4 LevelDiffs
             l_DamageDealtFactor = 1 + 0.0625f * l_LevelDiff;
@@ -22083,7 +22165,7 @@ float Unit::CalculateDamageTakenFactor(Unit* p_Unit, Creature* p_Creature)
 
     float l_DamageTakenFactor = 1.0f;
 
-    if (l_LevelDiff && l_TargetExpansion < EXPANSION_MISTS_OF_PANDARIA)
+    if (l_LevelDiff > 0 && l_TargetExpansion < EXPANSION_MISTS_OF_PANDARIA)
     {
         // 10% DR per level diff, with a floor of 10%
         l_DamageTakenFactor = std::max(1.0f - 0.1f * l_LevelDiff, 0.1f);
@@ -22092,7 +22174,7 @@ float Unit::CalculateDamageTakenFactor(Unit* p_Unit, Creature* p_Creature)
     uint16 l_IntendedItemLevelByExpansion[MAX_EXPANSION] = {65, 115, 200, 346, 463, 609};
     uint16 l_MaxPlayerLevelsByExpansion[MAX_EXPANSION] = {69, 79, 84, 89, 99, 109};
 
-    if (l_TargetExpansion > 0 && p_Unit->GetTypeId() == TYPEID_PLAYER)
+    if (l_TargetExpansion && l_LevelDiff > 0 && p_Unit->GetTypeId() == TYPEID_PLAYER)
     {
         Player* p_Player = p_Unit->ToPlayer();
 
