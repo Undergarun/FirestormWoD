@@ -35,9 +35,7 @@ enum WarriorSpells
     WARRIOR_SPELL_BLOODTHIRST                   = 23881,
     WARRIOR_SPELL_BLOODTHIRST_HEAL              = 117313,
     WARRIOR_SPELL_DEEP_WOUNDS                   = 115767,
-    WARRIOR_SPELL_THUNDER_CLAP                  = 6343,
     WARRIOR_SPELL_WEAKENED_BLOWS                = 115798,
-    WARRIOR_SPELL_BLOOD_AND_THUNDER             = 84615,
     WARRIOR_SPELL_SHOCKWAVE_STUN                = 132168,
     WARRIOR_SPELL_HEROIC_LEAP_DAMAGE            = 52174,
     WARRIOR_SPELL_RALLYING_CRY                  = 97463,
@@ -988,22 +986,19 @@ class spell_warr_deep_wounds: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (target->GetGUID() == caster->GetGUID())
-                            return;
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+                if (!l_Target)
+                    return;
 
-                        if (caster->getLevel() >= GetSpellInfo()->BaseLevel)
-                        {
-                            if (GetSpellInfo()->Id == WARRIOR_SPELL_THUNDER_CLAP && caster->HasAura(WARRIOR_SPELL_BLOOD_AND_THUNDER))
-                                caster->CastSpell(target, WARRIOR_SPELL_DEEP_WOUNDS, true);
-                            else
-                                caster->CastSpell(target, WARRIOR_SPELL_DEEP_WOUNDS, true);
-                        }
-                    }
-                }
+                if (l_Caster->GetTypeId() == TYPEID_PLAYER && l_Caster->ToPlayer()->GetSpecializationId(l_Caster->ToPlayer()->GetActiveSpec()) != SPEC_WARRIOR_PROTECTION)
+                    return;
+
+                if (l_Target->GetGUID() == l_Caster->GetGUID())
+                    return;
+
+                if (l_Caster->getLevel() >= GetSpellInfo()->BaseLevel)
+                    l_Caster->CastSpell(l_Target, WARRIOR_SPELL_DEEP_WOUNDS, true);
             }
 
             void Register()
