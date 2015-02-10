@@ -570,7 +570,7 @@ class ScriptMgr
         /// @p_OldValue  : Old value
         /// @p_NewValue  : New value
         /// @p_Regen  : If it's a regen modification
-        void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32 p_NewValue, bool p_Regen);
+        void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen);
 
         /// Called when a player kills another player
         /// @p_Player : Player instance

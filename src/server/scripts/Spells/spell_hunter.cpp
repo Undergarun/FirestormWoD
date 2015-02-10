@@ -3001,7 +3001,7 @@ class PlayerScript_thrill_of_the_hunt: public PlayerScript
     public:
         PlayerScript_thrill_of_the_hunt() :PlayerScript("PlayerScript_thrill_of_the_hunt") {}
 
-        void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32 p_NewValue, bool p_Regen)
+        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
         {
             if (p_Regen)
                 return;

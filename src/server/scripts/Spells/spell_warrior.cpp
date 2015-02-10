@@ -1342,7 +1342,7 @@ public:
 
     uint16 m_RageSpend = 0;
 
-    void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32 p_NewValue, bool p_Regen)
+    void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
     {
         if (!p_Player || p_Player->getClass() != CLASS_WARRIOR || p_Power != POWER_RAGE || p_Regen)
             return;

@@ -169,7 +169,7 @@ class PlayerScript : public ScriptObjectImpl<false>
         /// @p_OldValue  : Old value
         /// @p_NewValue  : New value
         /// @p_Regen  : If it's a regen modification
-        virtual void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32 p_NewValue, bool p_Regen)
+        virtual void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
         {
             UNUSED(p_Player);
             UNUSED(p_Power);

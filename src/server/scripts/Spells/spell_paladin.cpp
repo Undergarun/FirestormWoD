@@ -2022,7 +2022,7 @@ class PlayerScript_empowered_divine_storm: public PlayerScript
 public:
     PlayerScript_empowered_divine_storm() :PlayerScript("PlayerScript_empowered_divine_storm") {}
 
-    void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32 p_NewValue, bool p_Regen)
+    void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
     {
         if (p_Regen)
             return;

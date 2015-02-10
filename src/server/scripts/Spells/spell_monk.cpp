@@ -134,7 +134,7 @@ class PlayerScript_TigereEyeBrew_ManaTea: public PlayerScript
     public:
         PlayerScript_TigereEyeBrew_ManaTea() :PlayerScript("PlayerScript_TigereEyeBrew_ManaTea") {}
 
-        void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32 p_NewValue, bool p_Regen)
+        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
         {
             // Get the power earn (if > 0 ) or consum (if < 0)
             int32 l_DiffValue = p_NewValue - p_OldValue;
@@ -2818,7 +2818,7 @@ class spell_monk_chi_torpedo: public SpellScriptLoader
 
                         for (auto itr : tempUnitMap)
                         {
-                            if (!_player->isInFront(itr, M_PI / 3) && itr->GetGUID() != _player->GetGUID())
+                            if (!itr->isInFront(_player, M_PI / 3) && itr->GetGUID() != _player->GetGUID())
                                 continue;
 
                             uint32 spell = _player->IsValidAttackTarget(itr) ? SPELL_MONK_CHI_TORPEDO_DAMAGE : SPELL_MONK_CHI_TORPEDO_HEAL;
@@ -4165,7 +4165,7 @@ class spell_monk_serenity: public PlayerScript
     public:
         spell_monk_serenity() :PlayerScript("spell_monk_serenity") {}
 
-        void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32 p_NewValue, bool p_Regen)
+        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
         {
             if (p_Player->getClass() != CLASS_MONK || p_Power != POWER_CHI || !p_Player->HasAura(SPELL_MONK_SERENITY) || p_Regen)
                 return;
@@ -4177,7 +4177,8 @@ class spell_monk_serenity: public PlayerScript
             if (l_diffValue > 0)
                 return;
 
-            p_Player->ModifyPower(POWER_CHI, -l_diffValue);
+            // No cost
+            p_NewValue = p_OldValue;
         }
 };
 

@@ -595,7 +595,7 @@ class PlayerScript_Blood_Tap: public PlayerScript
 
         uint16 m_RunicPower = 0;
 
-        void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32 p_NewValue, bool p_Regen)
+        void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
         {
             if (p_Player->getClass() != CLASS_DEATH_KNIGHT || p_Power != POWER_RUNIC_POWER || !p_Player->HasSpell(45529) || p_Regen)
                 return;
@@ -1789,7 +1789,7 @@ class PlayerScript_Runic_Empowerment: public PlayerScript
     public:
         PlayerScript_Runic_Empowerment() :PlayerScript("PlayerScript_Runic_Empowerment") {}
 
-        void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32 p_NewValue, bool p_Regen)
+        void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
         {
             if (p_Player->getClass() != CLASS_DEATH_KNIGHT || p_Power != POWER_RUNIC_POWER || !p_Player->HasAura(DK_SPELL_RUNIC_EMPOWERMENT) || p_Regen)
                 return;
@@ -1837,7 +1837,7 @@ class PlayerScript_Corrupion_Runic: public PlayerScript
     public:
         PlayerScript_Corrupion_Runic() :PlayerScript("PlayerScript_Corrupion_Runic") {}
 
-        void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32 p_NewValue, bool p_Regen)
+        void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
         {
             if (p_Player->getClass() != CLASS_DEATH_KNIGHT || p_Power != POWER_RUNIC_POWER || !p_Player->HasAura(DK_SPELL_RUNIC_CORRUPTION_AURA) || p_Regen)
                 return;
