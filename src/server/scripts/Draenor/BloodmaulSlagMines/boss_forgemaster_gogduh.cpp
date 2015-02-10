@@ -109,24 +109,33 @@ namespace MS { namespace Instances { namespace Bloodmaul
                 {
                     DespawnAllSummons();
 
+                    Talk(Yells::Death);
+
                     if (instance)
                         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
                     if (Unit* p_Boss = me->FindNearestCreature((uint32)NPCs::Magmolatus, VISIBLE_RANGE, true))
+                    {
                         if (UnitAI* p_AI = p_Boss->GetAI())
                             p_AI->DoAction(0);
+                    }
                 }
 
-                void EnterCombat(Unit* who)
+                void JustSummoned(Creature* p_Summon)
+                {
+                    BossAI::JustSummoned(p_Summon);
+                }
+
+                void EnterCombat(Unit*)
                 {
                     _EnterCombat();
 
                     if (instance)
                         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
 
-                    events.ScheduleEvent((uint32)Events::MagmaBarrageCast, 5000);
-                    events.ScheduleEvent((uint32)Events::SpawnRuination, 15000);
-                    events.ScheduleEvent((uint32)Events::SpawnCalamity, 30000);
+                    events.ScheduleEvent((uint32)Events::MagmaBarrageCast, 4000);
+                    events.ScheduleEvent((uint32)Events::SpawnRuination, 6000);
+                    events.ScheduleEvent((uint32)Events::SpawnCalamity, 25000);
                 }
 
                 void UpdateAI(const uint32 diff)
@@ -174,30 +183,6 @@ namespace MS { namespace Instances { namespace Bloodmaul
                     DoMeleeAttackIfReady();
                 }
 
-                Unit* SummonCreature(NPCs p_Creature, Position const& p_Position)
-                {
-                    if (TempSummon* l_Summon = me->SummonCreature((uint32)p_Creature, p_Position, TEMPSUMMON_DEAD_DESPAWN))
-                    {
-                        m_SpawnedCreatures.push_back(l_Summon->GetGUID());
-                        return l_Summon;
-                    }
-
-                    return nullptr;
-                }
-
-                void DespawnAllSummons()
-                {
-                    for (auto& l_GUID : m_SpawnedCreatures)
-                    {
-                        if (Unit* l_Spawn = sObjectAccessor->GetCreature(*me, l_GUID))
-                        {
-                            if (TempSummon* l_TempSummon = l_Spawn->ToTempSummon())
-                                l_TempSummon->UnSummon();
-                        }
-                    }
-                }
-
-                std::list<uint64> m_SpawnedCreatures;
                 bool m_SaidAggro = false;
             };
     };
@@ -281,12 +266,13 @@ namespace MS { namespace Instances { namespace Bloodmaul
                     }
                 }
 
-                void KilledUnit(Unit* /*p_Victim*/)
+                void KilledUnit(Unit* p_Victim)
                 {
-                    Talk((uint8)Yells::Kill);
+                    if (p_Victim->GetTypeId() == TypeID::TYPEID_PLAYER)
+                        Talk((uint8)Yells::Kill);
                 }
 
-                void JustDied(Unit* /*p_Killer*/)
+                void JustDied(Unit*)
                 {
                     Talk((uint8)Yells::Death);
 
@@ -308,7 +294,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
                     _JustDied();
                 }
 
-                void MovementInform(uint32 p_MoveType, uint32 p_Id)
+                void MovementInform(uint32, uint32 p_Id)
                 {
                     if (p_Id == 1)
                     {
@@ -344,7 +330,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
                     }
                 }
 
-                void UpdateAI(const uint32 diff)
+                void UpdateAI(const uint32 p_Diff)
                 {
                     if (!UpdateVictim())
                         return;
@@ -352,7 +338,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
                     if (me->HasUnitState(UNIT_STATE_CASTING) || me->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
                         return;
 
-                    events.Update(diff);
+                    events.Update(p_Diff);
 
                     switch ((Events)events.ExecuteEvent())
                     {
@@ -385,7 +371,6 @@ namespace MS { namespace Instances { namespace Bloodmaul
 
                     DoMeleeAttackIfReady();
                 }
-
             };
     };
 
