@@ -27,6 +27,9 @@ namespace MS
                 throw std::runtime_error("");
             }
 
+            ACE_Stack_Trace l_Trace;
+            sLog->outError(LOG_FILTER_WORLDSERVER, "MS::SignalHandler : can't rescue the thread, shutdown the server  StackTrace : %s", l_Trace.c_str());
+
             // We can't rescue the thread, shutdown the server 
             exit(SIGTERM);
         }
