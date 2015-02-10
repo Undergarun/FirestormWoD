@@ -793,9 +793,6 @@ struct ItemTemplate
             case ITEM_QUALITY_HEIRLOOM:
                 l_ItemLevel -= 13; // leaving this as a separate statement since we do not know the real behavior in this case
                 break;
-            case ITEM_QUALITY_RARE:
-                l_ItemLevel -= 13;
-                break;
             case ITEM_QUALITY_EPIC:
             case ITEM_QUALITY_LEGENDARY:
             default:

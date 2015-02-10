@@ -5762,6 +5762,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 /// Maybe SPELL_ATTR4_CAN_CAST_WHILE_CASTING don't bypass charge ?
                 spellInfo->AttributesEx4 &= ~SPELL_ATTR4_CAN_CAST_WHILE_CASTING;
                 break;
+            case 46916: ///< Bloodsurge
+                /// Blizzard use -300%, idk why
+                spellInfo->Effects[EFFECT_1].BasePoints = -100;
+                break;
             default:
                 break;
         }
