@@ -49,7 +49,7 @@ enum WarriorSpells
     WARRIOR_NPC_MOCKING_BANNER                  = 59390,
     WARRIOR_SPELL_BERZERKER_RAGE_EFFECT         = 23691,
     WARRIOR_SPELL_ENRAGE                        = 12880,
-    WARRIOR_SPELL_COLOSSUS_SMASH                = 86346,
+    WARRIOR_SPELL_COLOSSUS_SMASH                = 167105,
     WARRIOR_SPELL_MORTAL_STRIKE_AURA            = 12294,
     WARRIOR_SPELL_TASTE_FOR_BLOOD               = 56636,
     WARRIOR_SPELL_ALLOW_OVERPOWER               = 60503,
@@ -288,7 +288,7 @@ enum ColossusSpells
     SPELL_WARRIOR_WEAPONS_MASTER = 76838,
 };
 
-// Colossus Smash - 86346
+// Colossus Smash - 167105
 class spell_warr_colossus_smash: public SpellScriptLoader
 {
     public:
@@ -297,18 +297,6 @@ class spell_warr_colossus_smash: public SpellScriptLoader
         class spell_warr_colossus_smash_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_warr_colossus_smash_SpellScript);
-
-            void HandleDamage(SpellEffIndex)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if (caster->HasAura(SPELL_WARRIOR_WEAPONS_MASTER))
-                    {
-                        float l_MasteryValue = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 3.5f;
-                        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_MasteryValue));
-                    }
-                }
-            }
 
             void HandleOnHit()
             {

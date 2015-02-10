@@ -768,7 +768,7 @@ class spell_mastery_elemental_overload: public SpellScriptLoader
         }
 };
 
-// Call by Mortal Strike - 12294, Colossus Smash - 86346, Execute - 5308
+// Call by Mortal Strike - 12294, Colossus Smash - 167105, Execute - 5308
 // Mastery: Weapons Master - 76338
 class spell_mastery_weapons_master : public SpellScriptLoader
 {
