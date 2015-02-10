@@ -1616,12 +1616,6 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex p_EffIndex, SpellImplicitTar
         {
             switch (m_spellInfo->Id)
             {
-                case 46968: // Shockwave
-                    if (l_UnitTargets.size() < 3)
-                        break;
-
-                    m_caster->ToPlayer()->ReduceSpellCooldown(46968, 20000);
-                    break;
                 // Spinning Crane Kick / Rushing Jade Wind : Give 1 Chi if the spell hits at least 3 targets
                 case 107270:
                 case 117640:

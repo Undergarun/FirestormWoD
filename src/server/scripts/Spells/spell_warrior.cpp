@@ -313,7 +313,6 @@ class spell_warr_colossus_smash: public SpellScriptLoader
             void Register()
             {
                 OnHit += SpellHitFn(spell_warr_colossus_smash_SpellScript::HandleOnHit);
-                OnEffectHitTarget += SpellEffectFn(spell_warr_colossus_smash_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
             }
         };
 
@@ -815,6 +814,11 @@ class spell_warr_heroic_leap_damage: public SpellScriptLoader
         }
 };
 
+enum class ShockwaveValues : uint32
+{
+    SpellId = 46968
+};
+
 // Shockwave - 46968
 class spell_warr_shockwave: public SpellScriptLoader
 {
@@ -832,9 +836,20 @@ class spell_warr_shockwave: public SpellScriptLoader
                         caster->CastSpell(target, WARRIOR_SPELL_SHOCKWAVE_STUN, true);
             }
 
+            /// Cooldown reduced by 20 sec if it strikes at least 3 targets.
+            void HandleAfterHit()
+            {
+                if (GetCaster()->GetTypeId() != TYPEID_PLAYER)
+                    return;
+
+                if (int32(GetSpell()->GetUnitTargetCount()) >= GetSpellInfo()->Effects[EFFECT_0].BasePoints)
+                    GetCaster()->ToPlayer()->ReduceSpellCooldown((uint32)ShockwaveValues::SpellId, GetSpellInfo()->Effects[EFFECT_3].BasePoints * IN_MILLISECONDS);
+            }
+
             void Register()
             {
                 OnEffectHitTarget += SpellEffectFn(spell_warr_shockwave_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+                AfterCast += SpellCastFn(spell_warr_shockwave_SpellScript::HandleAfterHit);
             }
         };
 
