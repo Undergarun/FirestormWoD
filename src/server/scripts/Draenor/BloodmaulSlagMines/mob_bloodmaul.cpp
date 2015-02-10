@@ -782,196 +782,196 @@ namespace MS { namespace Instances { namespace Bloodmaul
             }
     };
 
-    // Molten Earth Elemental - 75209
+    /// Molten Earth Elemental - 75209
     class mob_molten_earth_elemental : public CreatureScript
     {
-    public:
-        mob_molten_earth_elemental() : CreatureScript("mob_molten_earth_elemental") { }
+        public:
+            mob_molten_earth_elemental() : CreatureScript("mob_molten_earth_elemental") { }
 
-        struct mob_molten_earth_elementalAI : public ScriptedAI
-        {
-            mob_molten_earth_elementalAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
-
-            enum Spells
+            struct mob_molten_earth_elementalAI : public ScriptedAI
             {
-                SpellLavaArc = 151720,
-            };
+                mob_molten_earth_elementalAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
-            enum Events
-            {
-                EventLavaArc = 1,
-            };
-
-            EventMap m_Events;
-
-            void Reset()
-            {
-                m_Events.Reset();
-            }
-
-            void EnterCombat(Unit*)
-            {
-                m_Events.ScheduleEvent(Events::EventLavaArc, 3000);
-            }
-
-            void UpdateAI(const uint32 p_Diff)
-            {
-                if (!UpdateVictim())
-                    return;
-
-                m_Events.Update(p_Diff);
-
-                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING) || me->HasUnitState(UnitState::UNIT_STATE_STUNNED))
-                    return;
-
-                switch ((Events)m_Events.ExecuteEvent())
+                enum Spells
                 {
-                    case Events::EventLavaArc:
-                    {
-                        if (Map* l_Map = me->GetMap())
-                            if (!l_Map->IsHeroic() && !l_Map->IsChallengeMode())
-                                break;
+                    SpellLavaArc = 151720,
+                };
 
-                        me->CastSpell(me, Spells::SpellLavaArc, false);
-                        m_Events.ScheduleEvent(Events::EventLavaArc, 12000);
-                        break;
-                    }
-                    default:
-                        break;
+                enum Events
+                {
+                    EventLavaArc = 1,
+                };
+
+                EventMap m_Events;
+
+                void Reset()
+                {
+                    m_Events.Reset();
                 }
 
-                DoMeleeAttackIfReady();
-            }
-        };
+                void EnterCombat(Unit*)
+                {
+                    m_Events.ScheduleEvent(Events::EventLavaArc, 3000);
+                }
 
-        CreatureAI* GetAI(Creature* p_Creature) const
-        {
-            return new mob_molten_earth_elementalAI(p_Creature);
-        }
+                void UpdateAI(const uint32 p_Diff)
+                {
+                    if (!UpdateVictim())
+                        return;
+
+                    m_Events.Update(p_Diff);
+
+                    if (me->HasUnitState(UnitState::UNIT_STATE_CASTING) || me->HasUnitState(UnitState::UNIT_STATE_STUNNED))
+                        return;
+
+                    switch ((Events)m_Events.ExecuteEvent())
+                    {
+                        case Events::EventLavaArc:
+                        {
+                            if (Map* l_Map = me->GetMap())
+                                if (!l_Map->IsHeroic() && !l_Map->IsChallengeMode())
+                                    break;
+
+                            me->CastSpell(me, Spells::SpellLavaArc, false);
+                            m_Events.ScheduleEvent(Events::EventLavaArc, 12000);
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+
+                    DoMeleeAttackIfReady();
+                }
+            };
+
+            CreatureAI* GetAI(Creature* p_Creature) const
+            {
+                return new mob_molten_earth_elementalAI(p_Creature);
+            }
     };
 
-    // Vengeful Magma Elemental - 75820
+    /// Vengeful Magma Elemental - 75820
     class mob_vengeful_magma_elemental : public CreatureScript
     {
-    public:
-        mob_vengeful_magma_elemental() : CreatureScript("mob_vengeful_magma_elemental") { }
+        public:
+            mob_vengeful_magma_elemental() : CreatureScript("mob_vengeful_magma_elemental") { }
 
-        struct mob_vengeful_magma_elementalAI : public ScriptedAI
-        {
-            mob_vengeful_magma_elementalAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
-
-            enum Spells
+            struct mob_vengeful_magma_elementalAI : public ScriptedAI
             {
-                SpellArmorDent = 151685,
-                SpellCinderSplash = 152298,
-            };
+                mob_vengeful_magma_elementalAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
-            enum Events
-            {
-                EventArmorDent = 1,
-                EventCinderSplash = 2
-            };
-
-            EventMap m_Events;
-
-            void Reset()
-            {
-                m_Events.Reset();
-
-                if (Map* l_Map = me->GetMap())
-                    m_IsHC = l_Map->IsHeroic() || l_Map->IsChallengeMode();
-                else
-                    m_IsHC = false;
-            }
-
-            void EnterCombat(Unit*)
-            {
-                m_Events.ScheduleEvent(Events::EventArmorDent, 3000);
-            }
-
-            void UpdateAI(const uint32 p_Diff)
-            {
-                if (!UpdateVictim())
-                    return;
-
-                m_Events.Update(p_Diff);
-
-                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING) || me->HasUnitState(UnitState::UNIT_STATE_STUNNED))
-                    return;
-
-                switch ((Events)m_Events.ExecuteEvent())
+                enum Spells
                 {
-                case Events::EventArmorDent:
-                    me->CastSpell(me->getVictim(), Spells::SpellArmorDent, false);
-                    m_Events.ScheduleEvent(m_IsHC ? urand(Events::EventArmorDent, Events::EventCinderSplash) : Events::EventArmorDent, 6000);
-                    break;
-                case Events::EventCinderSplash:
-                    me->CastSpell(me->getVictim(), Spells::SpellCinderSplash, false);
-                    m_Events.ScheduleEvent(urand(Events::EventArmorDent, Events::EventCinderSplash), 6000);
-                    break;
-                default:
-                    break;
+                    SpellArmorDent = 151685,
+                    SpellCinderSplash = 152298,
+                };
+
+                enum Events
+                {
+                    EventArmorDent = 1,
+                    EventCinderSplash = 2
+                };
+
+                EventMap m_Events;
+
+                void Reset()
+                {
+                    m_Events.Reset();
+
+                    if (Map* l_Map = me->GetMap())
+                        m_IsHC = l_Map->IsHeroic() || l_Map->IsChallengeMode();
+                    else
+                        m_IsHC = false;
                 }
 
-                DoMeleeAttackIfReady();
+                void EnterCombat(Unit*)
+                {
+                    m_Events.ScheduleEvent(Events::EventArmorDent, 3000);
+                }
+
+                void UpdateAI(const uint32 p_Diff)
+                {
+                    if (!UpdateVictim())
+                        return;
+
+                    m_Events.Update(p_Diff);
+
+                    if (me->HasUnitState(UnitState::UNIT_STATE_CASTING) || me->HasUnitState(UnitState::UNIT_STATE_STUNNED))
+                        return;
+
+                    switch ((Events)m_Events.ExecuteEvent())
+                    {
+                        case Events::EventArmorDent:
+                            me->CastSpell(me->getVictim(), Spells::SpellArmorDent, false);
+                            m_Events.ScheduleEvent(m_IsHC ? urand(Events::EventArmorDent, Events::EventCinderSplash) : Events::EventArmorDent, 6000);
+                            break;
+                        case Events::EventCinderSplash:
+                            me->CastSpell(me->getVictim(), Spells::SpellCinderSplash, false);
+                            m_Events.ScheduleEvent(urand(Events::EventArmorDent, Events::EventCinderSplash), 6000);
+                            break;
+                        default:
+                            break;
+                    }
+
+                    DoMeleeAttackIfReady();
+                }
+
+                bool m_IsHC;
+            };
+
+            CreatureAI* GetAI(Creature* p_Creature) const
+            {
+                return new mob_vengeful_magma_elementalAI(p_Creature);
             }
-
-            bool m_IsHC;
-        };
-
-        CreatureAI* GetAI(Creature* p_Creature) const
-        {
-            return new mob_vengeful_magma_elementalAI(p_Creature);
-        }
     };
 
-    // Magma Lord - 75211
+    /// Magma Lord - 75211
     class mob_magma_lord : public CreatureScript
     {
-    public:
-        mob_magma_lord() : CreatureScript("mob_magma_lord") { }
+        public:
+            mob_magma_lord() : CreatureScript("mob_magma_lord") { }
 
-        struct mob_magma_lordAI : public ScriptedAI
-        {
-            mob_magma_lordAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
-
-            enum Spells
+            struct mob_magma_lordAI : public ScriptedAI
             {
-                SpellFireball       = 152427,
-                SpellPillarOfFlames = 151623
-            };
+                mob_magma_lordAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
-            enum Events
-            {
-                EvenFireball = 1,
-            };
-
-            EventMap m_Events;
-
-            void Reset()
-            {
-                m_Events.Reset();
-            }
-
-            void EnterCombat(Unit*)
-            {
-                m_Events.ScheduleEvent(Events::EvenFireball, 3000);
-                me->CastSpell(me, Spells::SpellPillarOfFlames, true);
-            }
-
-            void UpdateAI(const uint32 p_Diff)
-            {
-                if (!UpdateVictim())
-                    return;
-
-                m_Events.Update(p_Diff);
-
-                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING) || me->HasUnitState(UnitState::UNIT_STATE_STUNNED))
-                    return;
-
-                switch ((Events)m_Events.ExecuteEvent())
+                enum Spells
                 {
-                    case Events::EvenFireball:
+                    SpellFireball       = 152427,
+                    SpellPillarOfFlames = 151623
+                };
+
+                enum Events
+                {
+                    EvenFireball = 1,
+                };
+
+                EventMap m_Events;
+
+                void Reset()
+                {
+                    m_Events.Reset();
+                }
+
+                void EnterCombat(Unit*)
+                {
+                    m_Events.ScheduleEvent(Events::EvenFireball, 3000);
+                    me->CastSpell(me, Spells::SpellPillarOfFlames, true);
+                }
+
+                void UpdateAI(const uint32 p_Diff)
+                {
+                    if (!UpdateVictim())
+                        return;
+
+                    m_Events.Update(p_Diff);
+
+                    if (me->HasUnitState(UnitState::UNIT_STATE_CASTING) || me->HasUnitState(UnitState::UNIT_STATE_STUNNED))
+                        return;
+
+                    switch ((Events)m_Events.ExecuteEvent())
+                    {
+                        case Events::EvenFireball:
                         {
                             if (Map* l_Map = me->GetMap())
                                 if (!l_Map->IsHeroic() && !l_Map->IsChallengeMode())
@@ -983,99 +983,93 @@ namespace MS { namespace Instances { namespace Bloodmaul
                         }
                         default:
                             break;
+                    }
+
+                    DoMeleeAttackIfReady();
                 }
+            };
 
-                DoMeleeAttackIfReady();
+            CreatureAI* GetAI(Creature* p_Creature) const
+            {
+                return new mob_magma_lordAI(p_Creature);
             }
-        };
-
-        CreatureAI* GetAI(Creature* p_Creature) const
-        {
-            return new mob_magma_lordAI(p_Creature);
-        }
     };
 
-    // Pillar Of Flame - 75327
+    /// Pillar Of Flame - 75327
     class mob_pillar_of_flame : public CreatureScript
     {
-    public:
-        mob_pillar_of_flame() : CreatureScript("mob_pillar_of_flame") { }
+        public:
+            mob_pillar_of_flame() : CreatureScript("mob_pillar_of_flame") { }
 
-        struct mob_pillar_of_flameAI : public ScriptedAI
-        {
-            mob_pillar_of_flameAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
-
-            enum Spells
+            struct mob_pillar_of_flameAI : public ScriptedAI
             {
-                SpellATSummon   = 145844,
-                SpellDebuff     = 145843
-            };
+                mob_pillar_of_flameAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
-            enum Events
-            {
-                EventDamage = 1,
-            };
-
-            EventMap m_Events;
-
-            void Reset()
-            {
-                m_Events.Reset();
-                m_CanDamage = false;
-                me->SetControlled(true, UNIT_STATE_ROOT);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NON_ATTACKABLE);
-                m_Events.ScheduleEvent(Events::EventDamage, 3000);
-                me->CastSpell(me, Spells::SpellATSummon, false);
-                me->DespawnOrUnsummon(6000);
-            }
-
-            void EnterCombat(Unit*)
-            {
-            }
-
-            void MoveInLineOfSight(Unit* p_Who)
-            {
-                if (p_Who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDist2d(p_Who, 5.f) && !p_Who->HasAura(Spells::SpellDebuff))
+                enum Spells
                 {
-                    me->CastSpell(p_Who, Spells::SpellDebuff, true);
+                    SpellATSummon   = 145844,
+                    SpellDebuff     = 145843
+                };
+
+                enum Events
+                {
+                    EventDamage = 1,
+                };
+
+                EventMap m_Events;
+
+                void Reset()
+                {
+                    m_Events.Reset();
+                    m_CanDamage = false;
+                    me->SetControlled(true, UNIT_STATE_ROOT);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NON_ATTACKABLE);
+                    m_Events.ScheduleEvent(Events::EventDamage, 3000);
+                    me->CastSpell(me, Spells::SpellATSummon, false);
+                    me->DespawnOrUnsummon(6000);
                 }
-            }
 
-            void UpdateAI(const uint32 p_Diff)
-            {
-                if (!UpdateVictim())
-                    return;
-
-                m_Events.Update(p_Diff);
-
-                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING) || me->HasUnitState(UnitState::UNIT_STATE_STUNNED))
-                    return;
-
-                switch ((Events)m_Events.ExecuteEvent())
+                void MoveInLineOfSight(Unit* p_Who)
                 {
-                    case Events::EventDamage:
+                    if (p_Who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDist2d(p_Who, 5.f) && !p_Who->HasAura(Spells::SpellDebuff))
+                        me->CastSpell(p_Who, Spells::SpellDebuff, true);
+                }
+
+                void UpdateAI(const uint32 p_Diff)
+                {
+                    if (!UpdateVictim())
+                        return;
+
+                    m_Events.Update(p_Diff);
+
+                    if (me->HasUnitState(UnitState::UNIT_STATE_CASTING) || me->HasUnitState(UnitState::UNIT_STATE_STUNNED))
+                        return;
+
+                    switch ((Events)m_Events.ExecuteEvent())
                     {
-                        if (Map* l_Map = me->GetMap())
-                            if (!l_Map->IsHeroic() && !l_Map->IsChallengeMode())
-                                break;
+                        case Events::EventDamage:
+                        {
+                            if (Map* l_Map = me->GetMap())
+                                if (!l_Map->IsHeroic() && !l_Map->IsChallengeMode())
+                                    break;
 
-                        m_CanDamage = true;
-                        break;
+                            m_CanDamage = true;
+                            break;
+                        }
+                        default:
+                            break;
                     }
-                    default:
-                        break;
+
+                    DoMeleeAttackIfReady();
                 }
 
-                DoMeleeAttackIfReady();
+                bool m_CanDamage;
+            };
+
+            CreatureAI* GetAI(Creature* p_Creature) const
+            {
+                return new mob_pillar_of_flameAI(p_Creature);
             }
-
-            bool m_CanDamage;
-        };
-
-        CreatureAI* GetAI(Creature* p_Creature) const
-        {
-            return new mob_pillar_of_flameAI(p_Creature);
-        }
     };
 
     /// Channel Flames - 164615

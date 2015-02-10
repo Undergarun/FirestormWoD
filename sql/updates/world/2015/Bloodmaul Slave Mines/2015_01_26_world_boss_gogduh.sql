@@ -46,7 +46,6 @@ INSERT INTO areatrigger_template (`spell_id`, `eff_index`, `entry`, `scale_x`, `
 DELETE FROM areatrigger_template WHERE spell_id IN (167465);
 INSERT INTO areatrigger_template (`spell_id`, `eff_index`, `entry`, `scale_x`, `scale_y`, `flags`, `morph_curve_id`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `data6`, `data7`, ScriptName) VALUES(167465, 0, 7455, 3, 3, 16384, 0, 0, 0, 0, 0, 0, 0, 0, 0, "areatrigger_magma_barrage") ON DUPLICATE KEY UPDATE `spell_id` = VALUES(`spell_id`), `eff_index` = VALUES(`eff_index`), `entry` = VALUES(`entry`), `scale_x` = VALUES(`scale_x`), `scale_y` = VALUES(`scale_y`), `flags` = VALUES(`flags`), `morph_curve_id` = VALUES(`morph_curve_id`), `data0` = VALUES(`data0`), `data1` = VALUES(`data1`), `data2` = VALUES(`data2`), `data3` = VALUES(`data3`), `data4` = VALUES(`data4`), `data5` = VALUES(`data5`), `data6` = VALUES(`data6`), `data7` = VALUES(`data7`), scriptName = VALUES(scriptName);
 
-
 DELETE FROM creature_text WHERE entry IN (74366, 74475);
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
 (74366, 0, 1, 'Go away! I will fix this!', 14, 0, 100, 0, 0, 42051, 'aggro'),
@@ -59,6 +58,7 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (74366, 3, 2, 'Uh... Fire?', 14, 0, 100, 0, 0, 42060, 'calamity spawn'),
 (74366, 4, 0, 'Hah hah! So weak.', 14, 0, 100, 0, 0, 42054, 'calamity death'),
 (74366, 5, 0, 'Augh! Noooooo...', 14, 0, 100, 0, 0, 42052, 'death'),
+
 (74475, 0, 0, 'Yes... the brute weakens...', 14, 0, 100, 0, 0, 41729, 'aggro'),
 (74475, 0, 1, 'Kill him! I will be free!', 14, 0, 100, 0, 0, 41730, 'aggro'),
 (74475, 1, 0, 'You are but a pebble amongst boulders...', 14, 0, 100, 0, 0, 41725, 'release'),
@@ -74,3 +74,32 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (74475, 4, 1, 'Imperfections.', 14, 0, 100, 0, 0, 41732, 'killed unit'),
 (74475, 4, 2, 'Flesh burns.', 14, 0, 100, 0, 0, 41733, 'killed unit'),
 (74475, 5, 0, 'I return to the earth...', 14, 0, 100, 0, 0, 41728, 'death');
+
+DELETE FROM locales_creature_text WHERE entry IN (74366, 74475);
+INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc6) VALUES
+(74366, 0, 1, 'Partez ! Je me charge de réparer ça.', ''),
+(74366, 1, 0, 'Heu... pierre !', ''),
+(74366, 1, 1, 'Encore de la pierre !', ''),
+(74366, 1, 2, 'Heu... rocher !', ''),
+(74366, 2, 0, 'Les rochers sont stupides.', ''),
+(74366, 3, 0, 'Des flammes !', ''),
+(74366, 3, 1, 'Ouais ! Des flammes !', ''),
+(74366, 3, 2, 'Encore... Des flammes ?', ''),
+(74366, 4, 0, 'Ha ha ha ! Si faible.', ''),
+(74366, 5, 0, 'Aïe ! Noooon...', ''),
+
+(74475, 0, 0, 'Oui... la brute saffaiblit...', ''),
+(74475, 0, 1, 'Tuez-le ! Que je sois libéré !', ''),
+(74475, 1, 0, 'Vous n''êtes qu''un gravillon parmi les rochers...', ''),
+(74475, 1, 1, 'Je suis un éboulement !', ''),
+(74475, 1, 2, 'Je mettrai fin à votre existence.', ''),
+(74475, 2, 0, 'Soyez réduits en poussière...', ''),
+(74475, 2, 1, 'Détruire !', ''),
+(74475, 2, 2, 'Que la terre vous écrase !', ''),
+(74475, 3, 0, 'Les flammes calcineront vos os !', ''),
+(74475, 3, 1, 'Je vais vous réduire en cendres !', ''),
+(74475, 3, 2, 'Serviteurs, à moi !', ''),
+(74475, 4, 0, 'Uh, de la matière gâchée !', ''),
+(74475, 4, 1, 'Imperfections.', ''),
+(74475, 4, 2, 'La chair brûle.', ''),
+(74475, 5, 0, 'Je reviens à la terre...', '');

@@ -1,7 +1,6 @@
 UPDATE creature_template SET unit_flags = unit_flags & ~0x200000, ScriptName = 'boss_gugrokk', mechanic_immune_mask = 617299839, flags_extra = flags_extra | 0x01 WHERE entry = 74790;
 UPDATE creature_template SET modelid1 = 11686, modelid2 = 0, ScriptName = 'npc_gugrokk_magma_eruption' WHERE entry = 74967;
 UPDATE creature_template SET ScriptName = 'npc_gugrokk_unstable_slag' WHERE entry = 74927;
-REPLACE INTO creature_template (entry, NAME, subname, IconName, RacialLeader, family, TYPE, modelid1, modelid2, modelid3, modelid4, questItem1, questItem2, questItem3, questItem4, questItem5, questItem6, unit_flags, unit_flags2, Health_mod, Mana_mod, Armor_mod, rank, KillCredit1, KillCredit2, movementId, npcflag, npcflag2, scale, minlevel, maxlevel, faction, baseattacktime, rangeattacktime, unit_class, resistance1, resistance2, resistance3, resistance4, resistance5, resistance6, speed_walk, speed_run, spell1, spell2, spell3, spell4, spell5, spell6, spell7, spell8, WDBVerified) VALUES(68553, "SLG Generic MoP (Large AOI)", "", "", 0, 0, 10, 11686, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17826816, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 90, 90, 14, 2000, 2000, 1, 0, 0, 0, 0, 0, 0, 1, 1.142857, 0, 0, 0, 0, 0, 0, 0, 0, 19005);
 
 DELETE FROM areatrigger_template WHERE spell_id = 150783;
 DELETE FROM creature WHERE id IN (74927, 74967, 83808) AND map = 1175;
