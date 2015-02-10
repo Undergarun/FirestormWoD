@@ -551,6 +551,29 @@ class spell_dk_soul_reaper: public SpellScriptLoader
         {
             return new spell_dk_soul_reaper_AuraScript();
         }
+
+        class spell_dk_soul_reaper_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dk_soul_reaper_SpellScript);
+
+            void HandleAfterHit()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    l_Caster->CastSpell(l_Caster, DK_SPELL_SCENT_OF_BLOOD_AURA, true);
+                }
+            }
+
+            void Register()
+            {
+                AfterHit += SpellHitFn(spell_dk_soul_reaper_SpellScript::HandleAfterHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dk_soul_reaper_SpellScript();
+        }
 };
 
 // Pillar of Frost - 51271
