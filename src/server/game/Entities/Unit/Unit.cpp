@@ -6745,27 +6745,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     target = victim;
                     break;
                 }
-                // Bloodbath
-                case 12292:
-                {
-                    if (!procSpell || !victim || !damage)
-                        return false;
-
-                    int32 l_Bp = int32(CalculatePct(damage, triggerAmount) / 6); // damage / tick_number
-
-                    if (AuraEffectPtr l_BloodbathInProgress = victim->GetAuraEffect(113344, EFFECT_0))
-                        l_Bp += l_BloodbathInProgress->GetAmount();
-
-                    CastSpell(victim, 113344, true); // Periodic Damage
-
-                    if (AuraEffectPtr l_BloodbathActual = victim->GetAuraEffect(113344, EFFECT_0))
-                        l_BloodbathActual->SetAmount(l_Bp);
-
-                    CastSpell(victim, 147531, true); // Snare effect
-
-                    // Should not be removed
-                    return false;
-                }
                 // Sweeping Strikes
                 case 12328:
                 {

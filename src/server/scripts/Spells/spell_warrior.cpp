@@ -1543,8 +1543,13 @@ class spell_warr_enhanced_rend: public SpellScriptLoader
                 PreventDefaultAction();
 
                 if (Unit* l_Target = l_ProcInfo.GetActionTarget())
-                    if (l_Target->HasAura(SPELL_WARR_REND, GetCaster()->GetGUID()))
-                        GetCaster()->CastSpell(l_Target, SPELL_WARR_ENHANCED_REND_DAMAGE, true);
+                {
+                    if (Unit* l_Caster = GetCaster())
+                    {
+                        if (l_Target->HasAura(SPELL_WARR_REND, l_Caster->GetGUID()))
+                            l_Caster->CastSpell(l_Target, SPELL_WARR_ENHANCED_REND_DAMAGE, true);
+                    }
+                }
             }
 
             void Register()
@@ -1556,6 +1561,61 @@ class spell_warr_enhanced_rend: public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_warr_enhanced_rend_AuraScript();
+        }
+};
+
+enum BloodBathSpells
+{
+    SPELL_BLOOD_BATH        = 12292,
+    SPELL_BLOOD_BATH_SNARE  = 147531,
+    SPELL_BLOOD_BATH_DAMAGE = 113344
+};
+
+// Blood Bath - 12292
+class spell_warr_blood_bath : public SpellScriptLoader
+{
+    public:
+        spell_warr_blood_bath() : SpellScriptLoader("spell_warr_blood_bath") { }
+
+        class spell_warr_blood_bath_Aurascript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_blood_bath_Aurascript);
+
+            void HandleOnProc(constAuraEffectPtr aurEff, ProcEventInfo& l_ProcInfo)
+            {
+                PreventDefaultAction();
+
+                if (!l_ProcInfo.GetDamageInfo() || !l_ProcInfo.GetDamageInfo()->GetDamage() || !l_ProcInfo.GetDamageInfo()->GetSpellInfo())
+                    return;
+
+                if (l_ProcInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_BLOOD_BATH_DAMAGE)
+                    return;
+
+                if (Unit* l_Target = l_ProcInfo.GetActionTarget())
+                {
+                    if (Unit* l_Caster = GetCaster())
+                    {
+                        // 30% additional damage as a bleed over 6 sec
+                        int32 l_Damage = (l_ProcInfo.GetDamageInfo()->GetDamage() * sSpellMgr->GetSpellInfo(SPELL_BLOOD_BATH)->Effects[EFFECT_0].BasePoints / 100) / 6;
+
+                        l_Caster->CastSpell(l_Target, SPELL_BLOOD_BATH_SNARE, true);
+                        l_Caster->CastSpell(l_Target, SPELL_BLOOD_BATH_DAMAGE, true);
+
+                        if (AuraEffectPtr l_BloodbathActual = l_Target->GetAuraEffect(SPELL_BLOOD_BATH_DAMAGE, EFFECT_0, l_Caster->GetGUID()))
+                            l_BloodbathActual->SetAmount(l_Damage);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_warr_blood_bath_Aurascript::HandleOnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_blood_bath_Aurascript();
         }
 };
 
@@ -1598,4 +1658,5 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_shield_charge();
     new spell_warr_execute_default();
     new spell_warr_enhanced_rend();
+    new spell_warr_blood_bath();
 }
