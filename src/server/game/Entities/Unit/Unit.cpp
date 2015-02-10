@@ -13483,11 +13483,6 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
             if (AuraEffectPtr shadowInfusion = stacks->GetEffect(0))
                 AddPct(DoneTotalMod, shadowInfusion->GetAmount());
 
-    // Seasoned Soldier
-    if (GetTypeId() == TYPEID_PLAYER && HasAura(12712) && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) != SPEC_WARRIOR_ARMS)
-        if (ToPlayer() && ToPlayer()->IsTwoHandUsed())
-            AddPct(DoneTotalMod, 25);
-
     bool weaponAttack = false;
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
