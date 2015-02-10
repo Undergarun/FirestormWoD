@@ -43,6 +43,7 @@ namespace MS { namespace Garrison
         protected:
             const GarrisonPlotInstanceInfoLocation * m_PlotInstanceLocation;
             G3D::Vector3 m_NonRotatedPlotPosition;
+            uint32 m_BuildingID;
 
     };
 
@@ -634,9 +635,6 @@ namespace MS { namespace Garrison
 
                 /// Do next sequence element
                 void DoNextSequenceAction();
-
-                /// Get garrison shipment crafter shipment ID
-                virtual uint32 GetGarrisonShipmentID() override;
 
                 uint8 m_SequencePosition;
             };

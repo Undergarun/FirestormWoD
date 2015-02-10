@@ -139,8 +139,9 @@ namespace MS { namespace Garrison
         LearnBlueprint(Buildings::DwarvenBunker__WarMill_Level1);
         LearnBlueprint(Buildings::TheForge__TheForge_Level1);
     }
+
     /// Load
-    bool Manager::Load(PreparedQueryResult p_GarrisonResult, PreparedQueryResult p_BuildingsResult, PreparedQueryResult p_FollowersResult, PreparedQueryResult p_MissionsResult)
+    bool Manager::Load(PreparedQueryResult p_GarrisonResult, PreparedQueryResult p_BuildingsResult, PreparedQueryResult p_FollowersResult, PreparedQueryResult p_MissionsResult, PreparedQueryResult p_WorkOrderResult)
     {
         if (p_GarrisonResult)
         {
@@ -247,6 +248,23 @@ namespace MS { namespace Garrison
                     m_Followers.push_back(l_Follower);
 
                 } while (p_FollowersResult->NextRow());
+            }
+
+            if (p_WorkOrderResult)
+            {
+                do
+                {
+                    l_Fields = p_FollowersResult->Fetch();
+
+                    GarrisonWorkOrder l_Order;
+                    l_Order.DatabaseID        = l_Fields[0].GetUInt32();
+                    l_Order.PlotInstanceID    = l_Fields[1].GetUInt32();
+                    l_Order.ShipmentID        = l_Fields[2].GetUInt32();
+                    l_Order.CompleteTime      = l_Fields[3].GetUInt32();
+
+                    m_WorkOrders.push_back(l_Order);
+
+                } while (p_WorkOrderResult->NextRow());
             }
 
             Init();
@@ -471,6 +489,7 @@ namespace MS { namespace Garrison
 
         return false;
     }
+
     /// Save this garrison to DB
     void Manager::Save()
     {
@@ -568,6 +587,7 @@ namespace MS { namespace Garrison
             CharacterDatabase.AsyncQuery(l_Stmt);
         }
     }
+
     /// Delete garrison
     void Manager::DeleteFromDB(uint64 p_PlayerGUID, SQLTransaction p_Transation)
     {
@@ -584,7 +604,11 @@ namespace MS { namespace Garrison
         l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GARRISON_FOLLOWERS);
         l_Stmt->setUInt32(0, p_PlayerGUID);
         p_Transation->Append(l_Stmt);
-    
+
+        l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GARRISON_WORKORDERS);
+        l_Stmt->setUInt32(0, p_PlayerGUID);
+        p_Transation->Append(l_Stmt);
+
         l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GARRISON);
         l_Stmt->setUInt32(0, p_PlayerGUID);
         p_Transation->Append(l_Stmt);
@@ -716,6 +740,7 @@ namespace MS { namespace Garrison
             }
         }
     }
+
     /// When the garrison owner leave the garrisson (@See Player::UpdateArea)
     void Manager::OnPlayerLeave()
     {
@@ -739,6 +764,7 @@ namespace MS { namespace Garrison
         /// Disable AI Client collision manager
         m_Owner->RemoveFlag(UNIT_FIELD_NPC_FLAGS + 1, UNIT_NPC_FLAG2_AI_OBSTACLE);
     }
+
     /// When the garrison owner started a quest
     void Manager::OnQuestStarted(const Quest * p_Quest)
     {
@@ -752,6 +778,7 @@ namespace MS { namespace Garrison
             m_Owner->SetPhaseMask(l_GarrisonScript->GetPhaseMask(m_Owner), true);
         }
     }
+
     /// When the garrison owner reward a quest
     void Manager::OnQuestReward(const Quest * p_Quest)
     {
@@ -765,6 +792,7 @@ namespace MS { namespace Garrison
             m_Owner->SetPhaseMask(l_GarrisonScript->GetPhaseMask(m_Owner), true);
         }
     }
+
     /// When the garrison owner abandon a quest
     void Manager::OnQuestAbandon(const Quest * p_Quest)
     {
@@ -796,6 +824,7 @@ namespace MS { namespace Garrison
     {
         return sGarrSiteLevelStore.LookupEntry(m_GarrisonLevelID);
     }
+
     /// Get Garrison Faction Index
     Factions::Type Manager::GetGarrisonFactionIndex()
     {
@@ -821,6 +850,7 @@ namespace MS { namespace Garrison
     {
         return m_Plots;
     }
+
     /// Get plot by position
     GarrisonPlotInstanceInfoLocation Manager::GetPlot(float p_X, float p_Y, float p_Z)
     {
@@ -842,6 +872,7 @@ namespace MS { namespace Garrison
 
         return l_Plot;
     }
+
     /// Get plot instance plot type
     uint32 Manager::GetPlotType(uint32 p_PlotInstanceID)
     {
@@ -857,6 +888,7 @@ namespace MS { namespace Garrison
 
         return l_PlotEntry->PlotType;
     }
+
     /// Plot is free ?
     bool Manager::PlotIsFree(uint32 p_PlotInstanceID)
     {
@@ -866,6 +898,7 @@ namespace MS { namespace Garrison
 
         return true;
     }
+
     /// Has plot instance
     bool Manager::HasPlotInstance(uint32 p_PlotInstanceID)
     {
@@ -875,6 +908,7 @@ namespace MS { namespace Garrison
 
         return false;
     }
+
     /// Get plot location
     GarrisonPlotInstanceInfoLocation Manager::GetPlot(uint32 p_PlotInstanceID)
     {
@@ -886,6 +920,7 @@ namespace MS { namespace Garrison
 
         return GarrisonPlotInstanceInfoLocation();
     }
+
     /// Get plot instance ID by activation game object
     uint32 Manager::GetPlotInstanceIDByActivationGameObject(uint64 p_Guid)
     {
@@ -959,6 +994,7 @@ namespace MS { namespace Garrison
 
         return true;
     }
+
     /// Player have mission
     bool Manager::HaveMission(uint32 p_MissionRecID)
     {
@@ -974,6 +1010,7 @@ namespace MS { namespace Garrison
 
         return false;
     }
+
     /// Start mission
     void Manager::StartMission(uint32 p_MissionRecID, std::vector<uint64> p_Followers)
     {
@@ -1095,6 +1132,7 @@ namespace MS { namespace Garrison
                 GetGarrisonScript()->OnMissionStart(m_Owner, p_MissionRecID, l_FollowersIDs);
         }
     }
+
     /// Send mission start failed packet
     void Manager::StartMissionFailed(uint32 p_MissionRecID, std::vector<uint64> p_Followers)
     {
@@ -1144,6 +1182,7 @@ namespace MS { namespace Garrison
 
         m_Owner->SendDirectMessage(&l_Data);
     }
+
     /// Complete a mission
     void Manager::CompleteMission(uint32 p_MissionRecID)
     {
@@ -1374,6 +1413,7 @@ namespace MS { namespace Garrison
             }
         }
     }
+
     /// Do mission bonus roll
     void Manager::DoMissionBonusRoll(uint32 p_MissionRecID)
     {
@@ -1518,6 +1558,7 @@ namespace MS { namespace Garrison
             m_Owner->SendDirectMessage(&l_Update);
         });
     }
+
     /// Set mission has complete
     void Manager::SetAllInProgressMissionAsComplete()
     {
@@ -1530,6 +1571,7 @@ namespace MS { namespace Garrison
         WorldPacket l_PlaceHolder;
         m_Owner->GetSession()->HandleGetGarrisonInfoOpcode(l_PlaceHolder);
     }
+
     /// Get followers on a mission
     std::vector<GarrisonFollower*> Manager::GetMissionFollowers(uint32 p_MissionRecID)
     {
@@ -1543,6 +1585,7 @@ namespace MS { namespace Garrison
 
         return l_MissionFollowers;
     }
+
     /// Get mission followers abilities effect
     std::vector<uint32> Manager::GetMissionFollowersAbilitiesEffects(uint32 p_MissionRecID)
     {
@@ -1569,6 +1612,7 @@ namespace MS { namespace Garrison
 
         return l_AbilitiesEffects;
     }
+
     /// Get mission followers abilities effect
     std::vector<uint32> Manager::GetMissionFollowersAbilitiesEffects(uint32 p_MissionRecID, AbilityEffectTypes::Type p_Type, uint32 p_TargetMask)
     {
@@ -1598,6 +1642,7 @@ namespace MS { namespace Garrison
 
         return l_AbilitiesEffects;
     }
+
     /// Get the mission travel time
     uint32 Manager::GetMissionTravelDuration(uint32 p_MissionRecID)
     {
@@ -1630,6 +1675,7 @@ namespace MS { namespace Garrison
 
         return floorf(l_MissionTravelTime);
     }
+
     /// Get the mission duration
     uint32 Manager::GetMissionDuration(uint32 p_MissionRecID)
     {
@@ -1650,6 +1696,7 @@ namespace MS { namespace Garrison
 
         return floorf(l_MissionDuration);
     }
+
     /// Get mission chest chance
     uint32 Manager::GetMissionSuccessChance(uint32 p_MissionRecID)
     {
@@ -2054,6 +2101,7 @@ namespace MS { namespace Garrison
 
         return l_CurrentAdditionalWinChance;
     }
+
     /// Get missions
     std::vector<GarrisonMission> Manager::GetMissions()
     {
@@ -2068,6 +2116,7 @@ namespace MS { namespace Garrison
 
         return l_Result;
     }
+
     /// Get all completed missions
     std::vector<GarrisonMission> Manager::GetCompletedMissions()
     {
@@ -2146,6 +2195,7 @@ namespace MS { namespace Garrison
 
         return true;
     }
+
     /// Change follower activation state
     void Manager::ChangeFollowerActivationState(uint64 p_FollowerDBID, bool p_Active)
     {
@@ -2203,11 +2253,13 @@ namespace MS { namespace Garrison
 
         m_Owner->SendDirectMessage(&l_Update);
     }
+
     /// Get followers
     std::vector<GarrisonFollower> Manager::GetFollowers()
     {
         return m_Followers;
     }
+
     /// Get follower
     GarrisonFollower Manager::GetFollower(uint32 p_FollowerID)
     {
@@ -2222,6 +2274,7 @@ namespace MS { namespace Garrison
 
         return l_FailResult;
     }
+
     /// Get activated followers count
     uint32 Manager::GetActivatedFollowerCount()
     {
@@ -2235,6 +2288,7 @@ namespace MS { namespace Garrison
 
         return l_ActivatedFollowerCount;
     }
+
     /// Get num follower activation remaining
     uint32 Manager::GetNumFollowerActivationsRemaining()
     {
@@ -2565,6 +2619,7 @@ namespace MS { namespace Garrison
 
         return l_MaxWorkOrder;
     }
+
     /// Get creature plot instance ID
     uint32 Manager::GetCreaturePlotInstanceID(uint64 p_GUID)
     {
@@ -2587,6 +2642,7 @@ namespace MS { namespace Garrison
     {
         return m_KnownBlueprints;
     }
+
     /// Learn blue print
     bool Manager::LearnBlueprint(uint32 p_BuildingRecID)
     {
@@ -2619,6 +2675,7 @@ namespace MS { namespace Garrison
 
         return true;
     }
+
     /// Known blue print
     bool Manager::KnownBlueprint(uint32 p_BuildingRecID)
     {
@@ -2632,6 +2689,15 @@ namespace MS { namespace Garrison
     std::vector<int32> Manager::GetKnownSpecializations()
     {
         return m_KnownSpecializations;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Get work orders
+    std::vector<GarrisonWorkOrder> Manager::GetWorkOrders()
+    {
+        return m_WorkOrders;
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -2693,6 +2759,7 @@ namespace MS { namespace Garrison
         for (uint32 l_I = 0; l_I < m_Plots.size(); ++l_I)
             UpdatePlot(m_Plots[l_I].PlotInstanceID);
     }
+
     /// Uninit plots
     void Manager::UninitPlots()
     {
@@ -3061,6 +3128,7 @@ namespace MS { namespace Garrison
             }
         }
     }
+
     /// Update followers
     void Manager::UpdateFollowers()
     {
@@ -3076,6 +3144,7 @@ namespace MS { namespace Garrison
             m_Owner->SendDirectMessage(&l_Data);
         }
     }
+
     /// Update cache
     void Manager::UpdateCache()
     {
@@ -3157,6 +3226,7 @@ namespace MS { namespace Garrison
             m_CacheGameObjectGUID = 0;
         }
     }
+
     /// Update mission distribution
     void Manager::UpdateMissionDistribution()
     {
@@ -3239,6 +3309,7 @@ namespace MS { namespace Garrison
             m_MissionDistributionLastUpdate = time(0);
         }
     }
+
     /// Update garrison ability
     void Manager::UpdateGarrisonAbility()
     {

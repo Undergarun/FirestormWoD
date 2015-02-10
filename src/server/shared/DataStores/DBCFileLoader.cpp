@@ -148,7 +148,7 @@ uint32 DBCFileLoader::GetFormatRecordSize(const char* format, int32* index_pos)
             case FT_SORT:
                 i = x;
                 break;
-            case FT_IND:
+            case FT_INDEX:
                 i = x;
                 recordsize += sizeof(uint32);
                 break;
@@ -240,7 +240,7 @@ char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**
                     *((float*)(&dataTable[offset])) = getRecord(y).getFloat(x);
                     offset += sizeof(float);
                     break;
-                case FT_IND:
+                case FT_INDEX:
                 case FT_INT:
                     *((uint32*)(&dataTable[offset])) = getRecord(y).getUInt(x);
                     offset += sizeof(uint32);
@@ -291,7 +291,7 @@ char* DBCFileLoader::AutoProduceStrings(const char* format, char* dataTable)
                 case FT_FLOAT:
                     offset += sizeof(float);
                     break;
-                case FT_IND:
+                case FT_INDEX:
                 case FT_INT:
                     offset += sizeof(uint32);
                     break;

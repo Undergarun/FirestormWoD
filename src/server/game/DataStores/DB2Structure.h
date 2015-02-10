@@ -731,6 +731,43 @@ struct GarrSpecializationEntry
     char * Description;                                 // 8
 };
 
+namespace CharShipmentFlags
+{
+    enum
+    {
+        Quest       = 0x1,
+        Internal    = 0x8
+    };
+}
+
+struct CharShipmentEntry
+{
+    uint32 ID;                                          // 0
+    uint32 ShipmentContainerID;                         // 1
+    uint32 Unk1;                                        // 2
+    uint32 Flags;                                       // 3
+    uint32 Duration;                                    // 4
+    uint32 SpellID;                                     // 5
+    uint32 ResultItemID;                                // 6
+};
+
+struct CharShipmentContainerEntry
+{
+    uint32 ID;                                          // 0
+    uint32 Unk1;                                        // 1
+    uint32 BuildingType;                                // 2
+    char * Name;                                        // 3
+    uint32 TextureKitID;                                // 4
+    uint32 Unk2;                                        // 5
+    uint32 Unk3;                                        // 6
+    uint32 Unk4;                                        // 7
+    uint32 Unk5;                                        // 8
+    uint32 Unk6;                                        // 9
+    char * Description;                                 // 10
+    uint32 Unk7;                                        // 11
+    uint32 Unk8;                                        // 12
+};
+
 #define MAX_BATTLEPET_PROPERTIES 6
 
 // BattlePetAbility.dbc

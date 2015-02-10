@@ -203,12 +203,6 @@ class CreatureAI : public UnitAI
 
         virtual bool CanSeeAlways(WorldObject const* /*obj*/) { return false; }
 
-        /// Get garrison shipment crafter shipment ID
-        virtual uint32 GetGarrisonShipmentID()
-        {
-            return 0;
-        }
-
     protected:
         virtual void MoveInLineOfSight(Unit* /*who*/);
 

@@ -131,6 +131,21 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
         l_Data << int32(l_KnownSpecializations[l_I]);
 
     SendPacket(&l_Data);
+
+    std::vector<MS::Garrison::GarrisonWorkOrder> l_WorkOrders = l_Garrison->GetWorkOrders();
+
+    l_Data.Initialize(SMSG_COMPLETE_SHIPMENT_RESPONSE, 500);
+    l_Data << uint32(l_WorkOrders.size());
+
+    for (uint32 l_I = 0; l_I < l_WorkOrders.size(); ++l_I)
+    {
+        l_Data << uint32(l_WorkOrders[l_I].ShipmentID);
+        l_Data << uint64(l_WorkOrders[l_I].DatabaseID);
+        l_Data << uint32(0);
+        l_Data << uint32(l_WorkOrders[l_I].CompleteTime);
+    }
+
+    SendPacket(&l_Data);
 }
 void WorldSession::HandleRequestGarrisonUpgradeableOpcode(WorldPacket & p_RecvData)
 {
@@ -497,17 +512,39 @@ void WorldSession::HandleGarrisonGetShipmentInfoOpcode(WorldPacket & p_RecvData)
     uint32 l_OrderAvailable = 0;
     uint32 l_PlotInstanceID = 0;
 
-    if (l_Unit->AI())
-        l_ShipmentID = l_Unit->AI()->GetGarrisonShipmentID();
-
     l_PlotInstanceID = l_Garrison->GetCreaturePlotInstanceID(l_NpcGUID);
 
     if (!!l_PlotInstanceID)
+    {
         l_OrderAvailable = l_Garrison->GetBuildingMaxWorkOrder(l_PlotInstanceID);
 
+        uint32 l_BuildingID = l_Garrison->GetBuilding(l_PlotInstanceID).BuildingID;
+
+        if (l_BuildingID)
+        {
+            int a = sGarrisonShipmentManager->GetShipmentIDForBuilding(l_BuildingID, m_Player, false);
+            int b = sGarrisonShipmentManager->GetShipmentIDForBuilding(l_BuildingID, m_Player, true);
+
+            printf("A: %u B: %u PlotInstance %u BuildingID %u\n", a, b, l_PlotInstanceID, l_BuildingID);
+            
+            l_ShipmentID = sGarrisonShipmentManager->GetShipmentIDForBuilding(l_BuildingID, m_Player, false);
+        }
+    }
+    static bool a = false;
+
+    if (!a)
+    {
+        l_ShipmentID = 113;
+        a = true;
+    }
+    else
+    {
+        l_ShipmentID = 124;
+        a = false;
+    }
     bool l_Success = !!l_ShipmentID && !!l_PlotInstanceID;
 
-    WorldPacket l_Response(SMSG_CREATE_SHIPMENT_RESPONSE);
+    WorldPacket l_Response(SMSG_GET_SHIPMENT_INFO_RESPONSE);
     l_Response.WriteBit(l_Success);
     l_Response.FlushBits();
 

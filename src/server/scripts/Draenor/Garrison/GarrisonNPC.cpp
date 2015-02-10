@@ -19,7 +19,7 @@ namespace MS { namespace Garrison
 {
     /// Constructor
     GarrisonNPCAI::GarrisonNPCAI(Creature * p_Creature)
-        : MS::AI::CosmeticAI(p_Creature), m_PlotInstanceLocation(nullptr)
+        : MS::AI::CosmeticAI(p_Creature), m_PlotInstanceLocation(nullptr), m_BuildingID(0)
     {
 
     }
@@ -93,6 +93,10 @@ namespace MS { namespace Garrison
                 m_NonRotatedPlotPosition = l_Mat * G3D::Vector3(m_PlotInstanceLocation->X, m_PlotInstanceLocation->Y, m_PlotInstanceLocation->Z);
             }
         }
+        else if (p_ID == CreatureAIDataIDs::BuildingID)
+        {
+            m_BuildingID = p_Value;
+        }
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -103,11 +107,11 @@ namespace MS { namespace Garrison
     {
         if (p_Player->IsInGarrison())
         {
-            uint32 l_ShipmentID = me->AI()->GetGarrisonShipmentID();
+            uint32 l_ShipmentID = sGarrisonShipmentManager->GetShipmentIDForBuilding(m_BuildingID, p_Player, false);
 
             if (l_ShipmentID)
             {
-                WorldPacket l_Data(SMSG_OPEN_SHIPMENT_NPCRESULT);
+                WorldPacket l_Data(SMSG_OPEN_SHIPMENT_NPCFROM_GOSSIP);
                 l_Data.appendPackGUID(me->GetGUID());
                 l_Data << uint32(0x31);
 

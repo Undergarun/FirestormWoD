@@ -5,8 +5,8 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef GARRISON_MGR_CONSTANTS_HPP_GARRISON
-#define GARRISON_MGR_CONSTANTS_HPP_GARRISON
+#ifndef GARRISON_CONSTANTS_HPP_GARRISON
+#define GARRISON_CONSTANTS_HPP_GARRISON
 
 #include "SharedDefines.h"
 #include "GarrisonMgrStructures.hpp"
@@ -431,4 +431,4 @@ namespace MS { namespace Garrison
 }   ///< namespace Garrison
 }   ///< namespace MS
 
-#endif  ///< GARRISON_MGR_CONSTANTS_HPP_GARRISON
+#endif  ///< GARRISON_CONSTANTS_HPP_GARRISON

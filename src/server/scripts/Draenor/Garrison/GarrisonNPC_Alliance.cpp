@@ -843,7 +843,7 @@ namespace MS { namespace Garrison
     /// Do next sequence element
     void npc_YuliaSamras::npc_YuliaSamrasAI::DoNextSequenceAction()
     {
-        if (m_SequencePosition >= sizeof(JonathanStephens::Sequence))
+        if (m_SequencePosition >= sizeof(YuliaSamras::Sequence))
             m_SequencePosition = 0;
 
         m_DelayedOperations.push([this]() -> void
@@ -857,12 +857,6 @@ namespace MS { namespace Garrison
 
             m_SequencePosition++;
         });
-    }
-
-    /// Get garrison shipment crafter shipment ID
-    uint32 npc_YuliaSamras::npc_YuliaSamrasAI::GetGarrisonShipmentID()
-    {
-        return ShipmentIDs::TheForge;
     }
 
 }   ///< namespace Garrison

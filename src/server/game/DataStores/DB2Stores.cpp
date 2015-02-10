@@ -85,6 +85,8 @@ DB2Storage <GarrMechanicEntry>              sGarrMechanicStore(GarrMechanicEntry
 DB2Storage <GarrEncouterXMechanicEntry>     sGarrEncouterXMechanicStore(GarrEncouterXMechanicEntryfmt);
 DB2Storage <GarrFollowerLevelXPEntry>       sGarrFollowerLevelXPStore(GarrFollowerLevelXPEntryfmt);
 DB2Storage <GarrSpecializationEntry>        sGarrSpecializationStore(GarrSpecializationEntryfmt);
+DB2Storage <CharShipmentEntry>              sCharShipmentStore(CharShipmentEntryfmt);
+DB2Storage <CharShipmentContainerEntry>     sCharShipmentContainerStore(CharShipmentContainerEntryfmt);
 
 //////////////////////////////////////////////////////////////////////////
 /// Battle pet
@@ -257,6 +259,8 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sGarrEncouterXMechanicStore,     db2Path, "GarrEncounterXMechanic.db2");
     LoadDB2(bad_db2_files, sGarrFollowerLevelXPStore,       db2Path, "GarrFollowerLevelXP.db2");
     LoadDB2(bad_db2_files, sGarrSpecializationStore,        db2Path, "GarrSpecialization.db2");
+    LoadDB2(bad_db2_files, sCharShipmentStore,              db2Path, "CharShipment.db2");
+    LoadDB2(bad_db2_files, sCharShipmentContainerStore,     db2Path, "CharShipmentContainer.db2");
 
     //////////////////////////////////////////////////////////////////////////
     /// Battle pet DB2

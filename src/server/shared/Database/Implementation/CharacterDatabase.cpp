@@ -680,6 +680,11 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(CHAR_DEL_GARRISON_FOLLOWER,        "DELETE FROM character_garrison_follower WHERE id = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_DEL_GARRISON_FOLLOWERS,       "DELETE FROM character_garrison_follower WHERE garrison_id = (SELECT b.id FROM character_garrison b WHERE b.character_guid = ? LIMIT 1)", CONNECTION_ASYNC);
 
+    PREPARE_STATEMENT(CHAR_INS_GARRISON_WORKORDER,       "INSERT INTO character_garrison_work_order(id, garrison_id, plot_instance_id, shipment_id, complete_time) VALUES (?,?,?,?,?)", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_SEL_GARRISON_WORKORDER,       "SELECT id, plot_instance_id, shipment_id, complete_time FROM character_garrison_work_order WHERE garrison_id = (SELECT b.id FROM character_garrison b WHERE b.character_guid=?)", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_DEL_GARRISON_WORKORDER,       "DELETE FROM character_garrison_work_order WHERE id = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_DEL_GARRISON_WORKORDERS,      "DELETE FROM character_garrison_work_order WHERE garrison_id = (SELECT b.id FROM character_garrison b WHERE b.character_guid = ? LIMIT 1)", CONNECTION_ASYNC);
+
     // Battle pets
     PREPARE_STATEMENT(CHAR_UPD_LAST_BATTLEPET, "UPDATE characters SET lastbattlepet = ? WHERE guid = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_SEL_LAST_BATTLEPET, "SELECT lastbattlepet FROM characters WHERE guid = ? AND lastbattlepet != 0", CONNECTION_ASYNC);

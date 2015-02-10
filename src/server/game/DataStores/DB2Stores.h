@@ -83,6 +83,8 @@ extern DB2Storage <GarrMechanicEntry>               sGarrMechanicStore;
 extern DB2Storage <GarrEncouterXMechanicEntry>      sGarrEncouterXMechanicStore;
 extern DB2Storage <GarrFollowerLevelXPEntry>        sGarrFollowerLevelXPStore;
 extern DB2Storage <GarrSpecializationEntry>         sGarrSpecializationStore;
+extern DB2Storage <CharShipmentEntry>               sCharShipmentStore;
+extern DB2Storage <CharShipmentContainerEntry>      sCharShipmentContainerStore;
 
 //////////////////////////////////////////////////////////////////////////
 /// Battle pet

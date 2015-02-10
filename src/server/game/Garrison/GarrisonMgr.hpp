@@ -13,6 +13,8 @@
 #include "GarrisonFollower.hpp"
 #include "GarrisonMission.hpp"
 #include "GarrisonBuilding.hpp"
+#include "GarrisonWorkOrder.hpp"
+#include "GarrisonShipmentManager.hpp"
 
 #include "Interfaces/Interface_GarrisonSite.hpp"
 
@@ -33,7 +35,7 @@ namespace MS { namespace Garrison
             /// Create the garrison
             void Create();
             /// Load
-            bool Load(PreparedQueryResult p_GarrisonResult, PreparedQueryResult p_BuildingsResult, PreparedQueryResult p_FollowersResult, PreparedQueryResult p_MissionsResult);
+            bool Load(PreparedQueryResult p_GarrisonResult, PreparedQueryResult p_BuildingsResult, PreparedQueryResult p_FollowersResult, PreparedQueryResult p_MissionsResult, PreparedQueryResult p_WorkOrderResult);
             /// Save this garrison to DB
             void Save();
             /// Delete garrison
@@ -168,6 +170,9 @@ namespace MS { namespace Garrison
             /// Get known specializations
             std::vector<int32> GetKnownSpecializations();
 
+            /// Get work orders
+            std::vector<GarrisonWorkOrder> GetWorkOrders();
+
         public:
             /// Replace garrison script
             void _SetGarrisonScript(Interfaces::GarrisonSite * p_Script)
@@ -223,6 +228,7 @@ namespace MS { namespace Garrison
             std::vector<GarrisonMission>                    m_Missions;
             std::vector<GarrisonFollower>                   m_Followers;
             std::vector<GarrisonBuilding>                   m_Buildings;
+            std::vector<GarrisonWorkOrder>                  m_WorkOrders;
             std::vector<int32>                              m_KnownBlueprints;
             std::vector<int32>                              m_KnownSpecializations;
 

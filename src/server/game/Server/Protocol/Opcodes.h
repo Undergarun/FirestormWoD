@@ -506,8 +506,9 @@ enum Opcodes
         SMSG_BLACK_MARKET_WON                                   = 0x1BAA, ///< 6.0.3 19116
 
         /// Garrison
-        SMSG_OPEN_SHIPMENT_NPCRESULT                            = 0x0709, ///< 6.0.3 19116
-        SMSG_CREATE_SHIPMENT_RESPONSE                           = 0x1BAB, ///< 6.0.3 19116
+        SMSG_OPEN_SHIPMENT_NPCFROM_GOSSIP                       = 0x0709, ///< 6.0.3 19116
+        SMSG_GET_SHIPMENT_INFO_RESPONSE                         = 0x1BAB, ///< 6.0.3 19116
+        SMSG_COMPLETE_SHIPMENT_RESPONSE                         = 0x1901, ///< 6.0.3 19116
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////

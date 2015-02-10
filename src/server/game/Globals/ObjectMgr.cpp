@@ -10221,6 +10221,23 @@ void ObjectMgr::LoadFollowerQuests()
     }
 }
 
+void ObjectMgr::LoadQuestForItem()
+{
+    const ObjectMgr::QuestMap & l_QuestTemplates = GetQuestTemplates();
+    for (ObjectMgr::QuestMap::const_iterator l_It = l_QuestTemplates.begin(); l_It != l_QuestTemplates.end(); ++l_It)
+    {
+        Quest * l_Quest = l_It->second;
+
+        for (auto l_Objective : l_Quest->QuestObjectives)
+        {
+            if (l_Objective.Type != QUEST_OBJECTIVE_TYPE_ITEM)
+                continue;
+
+            QuestForItem[l_Objective.ObjectID].push_back(std::pair<uint32, uint8>(l_Quest->Id, l_Objective.Index));
+        }
+    }
+}
+
 QuestObjectiveLocale const* ObjectMgr::GetQuestObjectiveLocale(uint32 objectiveId) const
 {
     QuestObjectiveLocaleContainer::const_iterator l_It = m_questObjectiveLocaleStore.find(objectiveId);
