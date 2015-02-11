@@ -125,7 +125,8 @@ enum MonkSpells
     SPELL_MONK_RISING_SUN_KICK_DOT              = 130320,
     SPELL_MONK_GLYPH_OF_RAPID_ROLLING           = 146951,
     SPELL_MONK_RAPID_ROLLING                    = 147364,
-    SPELL_MONK_GLYPH_OF_TARGETED_EXPULSION      = 146950
+    SPELL_MONK_GLYPH_OF_TARGETED_EXPULSION      = 146950,
+    SPELL_MONK_CRANES_ZEAL                      = 127722
 };
 
 // Tiger Eye Brew - 123980 & Mana Tea - 123766
@@ -609,41 +610,6 @@ class spell_monk_storm_earth_and_fire: public SpellScriptLoader
         }
 };
 
-// Called by Jab - 100780 / 108557 / 115698 / 115687 / 115693 / 115695
-// Muscle Memory - 139598
-class spell_monk_muscle_memory: public SpellScriptLoader
-{
-    public:
-        spell_monk_muscle_memory() : SpellScriptLoader("spell_monk_muscle_memory") { }
-
-        class spell_monk_muscle_memory_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_monk_muscle_memory_SpellScript)
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER && _player->getLevel() >= 20)
-                            _player->AddAura(SPELL_MONK_MUSCLE_MEMORY_EFFECT,_player);
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_monk_muscle_memory_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_monk_muscle_memory_SpellScript();
-        }
-};
-
 // Chi Brew - 115399
 class spell_monk_chi_brew: public SpellScriptLoader
 {
@@ -1065,85 +1031,6 @@ class spell_monk_transcendence_transfer: public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_monk_transcendence_transfer_SpellScript();
-        }
-};
-
-// Serpent's Zeal - 127722
-class spell_monk_serpents_zeal: public SpellScriptLoader
-{
-    public:
-        spell_monk_serpents_zeal() : SpellScriptLoader("spell_monk_serpents_zeal") { }
-
-        class spell_monk_serpents_zeal_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_monk_serpents_zeal_AuraScript);
-
-            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
-            {
-                PreventDefaultAction();
-
-                if (!GetCaster())
-                    return;
-
-                if (eventInfo.GetDamageInfo()->GetSpellInfo())
-                    return;
-
-                if (!(eventInfo.GetDamageInfo()->GetDamage()))
-                    return;
-
-                int32 bp = eventInfo.GetDamageInfo()->GetDamage();
-
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    std::list<Creature*> tempList;
-                    std::list<Creature*> statueList;
-                    Creature* statue = NULL;
-
-                    if (AuraPtr serpentsZeal = _player->GetAura(aurEff->GetSpellInfo()->Id))
-                    {
-                        if (serpentsZeal->GetStackAmount() < 2)
-                            bp /= 4;
-                        else
-                            bp /= 2;
-                    }
-
-                    _player->GetCreatureListWithEntryInGrid(tempList, MONK_NPC_JADE_SERPENT_STATUE, 100.0f);
-                    _player->GetCreatureListWithEntryInGrid(statueList, MONK_NPC_JADE_SERPENT_STATUE, 100.0f);
-
-                    // Remove other players jade statue
-                    for (std::list<Creature*>::iterator i = tempList.begin(); i != tempList.end(); ++i)
-                    {
-                        Unit* owner = (*i)->GetOwner();
-                        if (owner && owner == _player && (*i)->isSummon())
-                            continue;
-
-                        statueList.remove((*i));
-                    }
-
-                    // you gain Serpent's Zeal causing you to heal nearby injured targets equal to 25% of your auto-attack damage. Stacks up to 2 times.
-                    _player->CastCustomSpell(_player, SPELL_MONK_EMINENCE_HEAL, &bp, NULL, NULL, true);
-
-                    if (statueList.size() == 1)
-                    {
-                        for (auto itrBis : statueList)
-                            statue = itrBis;
-
-                        if (statue && (statue->isPet() || statue->isGuardian()))
-                            if (statue->GetOwner() && statue->GetOwner()->GetGUID() == _player->GetGUID())
-                                statue->CastCustomSpell(statue, SPELL_MONK_EMINENCE_HEAL, &bp, NULL, NULL, true, 0, NULLAURA_EFFECT, _player->GetGUID()); // Eminence - statue
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnEffectProc += AuraEffectProcFn(spell_monk_serpents_zeal_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_monk_serpents_zeal_AuraScript();
         }
 };
 
@@ -2182,7 +2069,7 @@ class spell_monk_renewing_mist_hot: public SpellScriptLoader
             {
                 if (Unit* l_Caster = GetCaster())
                     if (Unit* l_Target = GetHitUnit())
-                        caster->CastSpell(l_Target, SPELL_MONK_RENEWING_MIST_HOT, true);
+                        l_Caster->CastSpell(l_Target, SPELL_MONK_RENEWING_MIST_HOT, true);
             }
 
             void Register()
@@ -4031,6 +3918,9 @@ class spell_monk_blackout_kick: public SpellScriptLoader
                 if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER)
                 {
                     l_Damage += int32(frand(4.9645f * l_Low, 4.9645f * l_High));
+
+                    if (l_Player->HasAura(SPELL_MONK_MUSCLE_MEMORY))
+                        l_Player->CastSpell(l_Player, SPELL_MONK_CRANES_ZEAL, true);
                 }
                 else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_WINDWALKER && l_Player->getLevel() >= 20)
                 {
@@ -4283,6 +4173,34 @@ class spell_monk_serenity: public PlayerScript
         }
 };
 
+enum VitalMistsSpell
+{
+    SPELL_MONK_VITALS_MISTS = 118674
+};
+
+/// Vital Mists - 118674  
+class spell_monk_vital_mists : public PlayerScript
+{
+    public:
+        spell_monk_vital_mists() :PlayerScript("spell_monk_vital_mists") {}
+
+        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
+        {
+            if (p_Player->getClass() != CLASS_MONK || p_Power != POWER_CHI || !p_Player->HasAura(SPELL_MONK_MUSCLE_MEMORY) || p_Regen)
+                return;
+
+            // Get the power earn (if > 0 ) or consum (if < 0)
+            int32 l_DiffValue = p_NewValue - p_OldValue;
+
+            // Only get spended chi
+            if (l_DiffValue > 0)
+                return;
+
+            for (int8 i = 0; i < -l_DiffValue; ++i)
+                p_Player->CastSpell(p_Player, SPELL_MONK_VITALS_MISTS, true);
+        }
+};
+
 enum DetoxSpells
 {
     SPELL_MONK_GLYPH_OF_DETOX = 146954
@@ -4497,7 +4415,6 @@ void AddSC_monk_spell_scripts()
     new spell_monk_chi_wave();
     new spell_monk_grapple_weapon();
     new spell_monk_transcendence_transfer();
-    new spell_monk_serpents_zeal();
     new spell_monk_dampen_harm();
     new spell_monk_item_s12_4p_mistweaver();
     new spell_monk_diffuse_magic();
@@ -4562,4 +4479,5 @@ void AddSC_monk_spell_scripts()
 
     // Player Script
     new PlayerScript_TigereEyeBrew_ManaTea();
+    new spell_monk_vital_mists();
 }
