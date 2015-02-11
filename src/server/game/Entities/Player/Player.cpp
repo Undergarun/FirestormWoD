@@ -999,6 +999,12 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
         gOnlineGameMaster++;
 
     m_LastEclipseState = ECLIPSE_NONE;
+
+    /// Unlock WoD heroic dungeons
+    if (uint32 l_QuestBit = GetQuestUniqueBitFlag(37213))   ///< FLAG - Proving Grounds - Damage Silver
+        m_CompletedQuestBits.SetBit(l_QuestBit - 1);
+
+    ///////////////////////////////////////////////////////////
 }
 
 Player::~Player()
