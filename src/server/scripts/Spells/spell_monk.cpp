@@ -3709,7 +3709,10 @@ enum RushingJadeWindSpells
     //SPELL_MONK_2H_STAFF_OVERRIDE          = 108561,
     //SPELL_MONK_2H_POLEARM_OVERRIDE        = 115697,
     //SPELL_MONK_MANA_MEDITATION            = 121278
-    SPELL_MONK_RUSHING_JADE_WIND_DAMAGE = 148187
+    SPELL_MONK_SPINNING_CRANE_KICK = 129881,
+    SPELL_MONK_RUSHING_JADE_WIND = 116847,
+    SPELL_MONK_RUSHING_JADE_WIND_DAMAGE = 148187,
+    SPELL_MONK_RUSHING_JADE_WIND_HEAL = 162530
 };
 
 // Rushing Jade Wind - 116847
@@ -3732,13 +3735,18 @@ class spell_monk_rushing_jade_wind: public SpellScriptLoader
 
                 Player* l_Player = GetCaster()->ToPlayer();
 
-                if (l_Player == nullptr)
+                if (l_Player == nullptr || GetSpellInfo()->GetDuration() <= 0)
                     return;
 
-                l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_MONK_MISTWEAVER)
+                {
+                    l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
 
-                int l_Bp0 = (((0.6f * l_Low + 0.6f * l_High) / 2) * 9) / (GetSpellInfo()->GetDuration() / IN_MILLISECONDS);
-                l_Player->CastCustomSpell(l_Player, SPELL_MONK_RUSHING_JADE_WIND_DAMAGE, &l_Bp0, NULL, NULL, true);
+                    int l_Bp0 = (((0.6f * l_Low + 0.6f * l_High) / 2) * 9) / (GetSpellInfo()->GetDuration() / IN_MILLISECONDS);
+                    l_Player->CastCustomSpell(l_Player, SPELL_MONK_RUSHING_JADE_WIND_DAMAGE, &l_Bp0, NULL, NULL, true);
+                }
+                else
+                    l_Player->CastSpell(l_Player, SPELL_MONK_RUSHING_JADE_WIND_HEAL, true);
             }
             void Register()
             {
@@ -3749,6 +3757,96 @@ class spell_monk_rushing_jade_wind: public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_monk_rushing_jade_wind_AuraScript();
+        }
+};
+
+///  Rushing Jade Wind (damage) - 148187
+class spell_monk_rushing_jade_wind_damage : public SpellScriptLoader
+{
+    public:
+        spell_monk_rushing_jade_wind_damage() : SpellScriptLoader("spell_monk_rushing_jade_wind_damage") { }
+
+        class spell_monk_rushing_jade_wind_damage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_rushing_jade_wind_damage_SpellScript);
+
+            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (Unit *l_Caster = GetCaster())
+                {
+                    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MONK_SPINNING_CRANE_KICK);
+
+                    // Generates 1 Chi if it hits at least 3 targets.
+                    if (l_SpellInfo != nullptr && p_Targets.size() >= l_SpellInfo->Effects[EFFECT_1].BasePoints)
+                        l_Caster->CastSpell(l_Caster, SPELL_MONK_SPINNING_CRANE_KICK, true);
+                }
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_rushing_jade_wind_damage_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_monk_rushing_jade_wind_damage_SpellScript();
+        }
+};
+
+///  Rushing Jade Wind (heal) - 162530
+class spell_monk_rushing_jade_wind_heal : public SpellScriptLoader
+{
+    public:
+        spell_monk_rushing_jade_wind_heal() : SpellScriptLoader("spell_monk_rushing_jade_wind_heal") { }
+
+        class spell_monk_rushing_jade_wind_heal_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_rushing_jade_wind_heal_SpellScript);
+
+            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (Unit *l_Caster = GetCaster())
+                {
+                    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MONK_SPINNING_CRANE_KICK);
+
+                    // Generates 1 Chi if it hits at least 3 targets.
+                    if (l_SpellInfo != nullptr && p_Targets.size() >= l_SpellInfo->Effects[EFFECT_1].BasePoints)
+                        l_Caster->CastSpell(l_Caster, SPELL_MONK_SPINNING_CRANE_KICK, true);
+
+                    /// up to 6 allies
+                    if (p_Targets.size() <= 6)
+                        return;
+
+                    JadeCore::RandomResizeList(p_Targets, 6);
+                }
+            }
+
+            void HandleHeal(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit *l_Caster = GetCaster())
+                {
+                    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MONK_RUSHING_JADE_WIND);
+
+                    if (l_SpellInfo == nullptr || l_SpellInfo->GetDuration() <= 0)
+                        return;
+
+                    int l_Bp0 = (l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL) * GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier) * 9;
+                    l_Bp0 /= l_SpellInfo->GetDuration() / IN_MILLISECONDS;
+                    SetHitHeal(l_Bp0);
+                }
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_rushing_jade_wind_heal_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+                OnEffectHitTarget += SpellEffectFn(spell_monk_rushing_jade_wind_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_monk_rushing_jade_wind_heal_SpellScript();
         }
 };
 
@@ -4449,6 +4547,8 @@ void AddSC_monk_spell_scripts()
     new spell_monk_tigereye_brew_stacks();
     new spell_monk_spinning_crane_kick();
     new spell_monk_rushing_jade_wind();
+    new spell_monk_rushing_jade_wind_damage();
+    new spell_monk_rushing_jade_wind_heal();
     new spell_monk_fists_of_fury();
     new spell_monk_jab();
     new spell_monk_tiger_palm();
