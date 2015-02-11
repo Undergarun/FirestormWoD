@@ -4750,9 +4750,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Mechanic = 0;
                 break;
             case 116694: ///< Surging Mists
-                spellInfo->PreventionType = SPELL_PREVENTION_TYPE_SILENCE;
-                spellInfo->Effects[EFFECT_1].BasePoints = 0;
-                break;
             case 20066:  ///< Repentence
             case 115175: ///< Soothing Mists
                 spellInfo->PreventionType = SPELL_PREVENTION_TYPE_SILENCE;
