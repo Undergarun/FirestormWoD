@@ -90,7 +90,6 @@ namespace MS { namespace Instances { namespace Bloodmaul
 
                 void Reset()
                 {
-                    DespawnAllSummons();
                     _Reset();
                 }
 
@@ -105,9 +104,9 @@ namespace MS { namespace Instances { namespace Bloodmaul
                     }
                 }
 
-                void JustDied(Unit* /*killer*/)
+                void JustDied(Unit*)
                 {
-                    DespawnAllSummons();
+                    _JustDied();
 
                     Talk(Yells::Death);
 

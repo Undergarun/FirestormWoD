@@ -45,3 +45,5 @@ UPDATE creature_template SET ScriptName = "mob_pillar_of_flame" WHERE entry = 75
 UPDATE creature_template SET MovementType = 1 WHERE entry = 75360;
 UPDATE creature SET spawndist = 20 WHERE id = 75360;
 INSERT INTO spell_linked_spell VALUES (164546, 151626, 0, "");
+
+UPDATE creature_template SET minlevel = 91, maxlevel = 93, faction = 14 WHERE entry IN (75191, 75198, 75426, 84978);
