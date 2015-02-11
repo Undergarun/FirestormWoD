@@ -26221,19 +26221,35 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
 void Player::SendCooldownAtLogin()
 {
-    uint64 curTime = 0;
-    ACE_OS::gettimeofday().msec(curTime);
+    uint64 l_CurTime = 0;
+    ACE_OS::gettimeofday().msec(l_CurTime);
 
-    for (SpellCooldowns::const_iterator itr = GetSpellCooldownMap().begin(); itr != GetSpellCooldownMap().end(); ++itr)
+    for (SpellCooldowns::const_iterator l_Iter = GetSpellCooldownMap().begin(); l_Iter != GetSpellCooldownMap().end(); ++l_Iter)
     {
-        WorldPacket data(SMSG_SPELL_COOLDOWN, 12);
-        data.appendPackGUID(GetGUID());
-        data << uint8(1);
-        data << uint32(1);
-        data << uint32(itr->first);
-        data << uint32(itr->second.end - curTime);
+        WorldPacket l_Data(SMSG_SPELL_COOLDOWN, 12);
+        bool l_HasCooldown = l_Iter->second.end > l_CurTime;
 
-        GetSession()->SendPacket(&data);
+        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_Iter->first);
+        if (l_SpellInfo == nullptr)
+            continue;
+
+        l_Data.appendPackGUID(GetGUID());                   ///< Caster
+
+        if (l_HasCooldown)                                  ///< Flags
+        {
+            if (l_SpellInfo->Attributes & SpellAttr0::SPELL_ATTR0_DISABLED_WHILE_ACTIVE)
+                l_Data << uint8(CooldownFlags::CooldownFlagIncludeGCD | CooldownFlags::CooldownFlagIncludeEventCooldowns);
+            else
+                l_Data << uint8(CooldownFlags::CooldownFlagIncludeGCD);
+        }
+        else
+            l_Data << uint8(CooldownFlags::CooldownFlagNone);
+
+        l_Data << uint32(1);                                ///< Count
+        l_Data << uint32(l_Iter->first);                    ///< SrecID
+        l_Data << uint32(l_Iter->second.end - l_CurTime);   ///< ForcedCooldown
+
+        GetSession()->SendPacket(&l_Data);
     }
 }
 
