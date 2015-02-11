@@ -4407,7 +4407,6 @@ void AddSC_monk_spell_scripts()
     new spell_monk_zen_meditation();
     new spell_monk_storm_earth_and_fire_stats();
     new spell_monk_storm_earth_and_fire();
-    new spell_monk_muscle_memory();
     new spell_monk_chi_brew();
     new spell_monk_fists_of_fury_stun();
     new spell_monk_chi_wave_healing_bolt();
