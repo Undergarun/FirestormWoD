@@ -1642,6 +1642,53 @@ class spell_warr_blood_bath : public SpellScriptLoader
         }
 };
 
+enum BloodCrazeSpells
+{
+    SPELL_WARR_BLOOD_CRAZE_HEAL = 159363
+};
+
+/// Blood Craze - 159362
+class spell_warr_blood_craze : public SpellScriptLoader
+{
+public:
+    spell_warr_blood_craze() : SpellScriptLoader("spell_warr_blood_craze") { }
+
+    class spell_warr_blood_craze_Aurascript : public AuraScript
+    {
+        PrepareAuraScript(spell_warr_blood_craze_Aurascript);
+
+        void HandleOnProc(constAuraEffectPtr aurEff, ProcEventInfo& l_ProcInfo)
+        {
+            PreventDefaultAction();
+
+            if (!(l_ProcInfo.GetHitMask() & PROC_EX_INTERNAL_MULTISTRIKE))
+                return;
+
+            if (!sSpellMgr->GetSpellInfo(SPELL_WARR_BLOOD_CRAZE_HEAL) || sSpellMgr->GetSpellInfo(SPELL_WARR_BLOOD_CRAZE_HEAL)->GetDuration())
+                return;
+
+            if (Unit* l_Caster = GetCaster())
+            {
+                // 3% of your health over 3 sec.
+                int32 l_Health = CalculatePct(l_Caster->GetMaxHealth(), aurEff->GetAmount()) / (sSpellMgr->GetSpellInfo(SPELL_WARR_BLOOD_CRAZE_HEAL)->GetDuration() / IN_MILLISECONDS);
+
+                l_Caster->CastSpell(l_Caster, SPELL_WARR_BLOOD_CRAZE_HEAL, &l_Health, NULL, NULL, true);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectProc += AuraEffectProcFn(spell_warr_blood_craze_Aurascript::HandleOnProc, EFFECT_0, SPELL_AURA_DUMMY);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_warr_blood_craze_Aurascript();
+    }
+};
+
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_slam();
@@ -1682,4 +1729,5 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_execute_default();
     new spell_warr_enhanced_rend();
     new spell_warr_blood_bath();
+    new spell_warr_blood_craze();
 }
