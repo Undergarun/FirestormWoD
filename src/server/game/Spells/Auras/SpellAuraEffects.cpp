@@ -1233,24 +1233,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 
             break;
         }
-        case SPELL_AURA_MOD_PARRY_PERCENT:
-        {
-            switch (GetId())
-            {
-                case 113656:// Fists of Fury
-                {
-                    if (caster)
-                        if (caster->HasAura(125671))
-                            amount = 100;
-
-                    break;
-                }
-                default:
-                    break;
-            }
-
-            break;
-        }
         case SPELL_AURA_MOD_INCREASE_SWIM_SPEED:
         {
             switch (GetId())
@@ -1451,10 +1433,6 @@ void AuraEffect::CalculateSpellMod()
             {
                 case 51713: // Shadowdance
                     m_spellmod->mask[0] = 0x00800200; // Ambush
-                    break;
-                case 125671:// Glyph of Fists of Fury
-                    // Increases Parry chance by 100% while channeling Fists of Fury
-                    m_spellmod->mask = sSpellMgr->GetSpellInfo(113686)->SpellFamilyFlags;
                     break;
                 case 114232:// Sanctified Wrath
                 {

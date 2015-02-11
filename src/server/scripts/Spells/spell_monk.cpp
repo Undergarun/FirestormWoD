@@ -675,33 +675,6 @@ class spell_monk_chi_brew: public SpellScriptLoader
         }
 };
 
-// Fists of Fury (stun effect) - 120086
-class spell_monk_fists_of_fury_stun: public SpellScriptLoader
-{
-    public:
-        spell_monk_fists_of_fury_stun() : SpellScriptLoader("spell_monk_fists_of_fury_stun") { }
-
-        class spell_monk_fists_of_fury_stun_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_monk_fists_of_fury_stun_SpellScript);
-
-            void RemoveInvalidTargets(std::list<WorldObject*>& targets)
-            {
-                targets.remove_if(JadeCore::UnitAuraCheck(true, GetSpellInfo()->Id));
-            }
-
-            void Register()
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_fists_of_fury_stun_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_24);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_monk_fists_of_fury_stun_SpellScript();
-        }
-};
-
 // Chi Wave (healing bolt) - 132464
 class spell_monk_chi_wave_healing_bolt: public SpellScriptLoader
 {
@@ -3745,17 +3718,33 @@ enum FistsOfFurySpells
     //SPELL_MONK_MANA_MEDITATION            = 121278
 };
 
-// Fists of Fury - 113656
+/// Fists of Fury - 113656
+/// Fists of Fury (Stun) - 120086
 class spell_monk_fists_of_fury: public SpellScriptLoader
 {
     public:
         spell_monk_fists_of_fury() : SpellScriptLoader("spell_monk_fists_of_fury") { }
 
+        class spell_monk_fists_of_fury_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_fists_of_fury_SpellScript);
+
+            void RemoveInvalidTargets(std::list<WorldObject*>& targets)
+            {
+                targets.remove_if(JadeCore::UnitAuraCheck(true, GetSpellInfo()->Id));
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_fists_of_fury_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_24);
+            }
+        };
+
         class spell_monk_fists_of_fury_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_monk_fists_of_fury_AuraScript);
 
-            void CalculateAmount(constAuraEffectPtr /*p_AurEff*/, int32 & p_Amount, bool & /*p_CanBeRecalculated*/)
+            void CalculateDamageAmount(constAuraEffectPtr /*p_AurEff*/, int32 & p_Amount, bool & /*p_CanBeRecalculated*/)
             {
                 if (!GetCaster())
                     return;
@@ -3768,11 +3757,17 @@ class spell_monk_fists_of_fury: public SpellScriptLoader
                 p_Amount += ((5 * 5.875f * l_Low + 5 * 5.875f * l_High) / 2) / (GetSpellInfo()->GetDuration() / IN_MILLISECONDS);
 
             }
+
             void Register()
             {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_monk_fists_of_fury_AuraScript::CalculateAmount, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_monk_fists_of_fury_AuraScript::CalculateDamageAmount, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE);
             }
         };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_monk_fists_of_fury_SpellScript();
+        }
 
         AuraScript* GetAuraScript() const
         {
@@ -4408,7 +4403,6 @@ void AddSC_monk_spell_scripts()
     new spell_monk_storm_earth_and_fire_stats();
     new spell_monk_storm_earth_and_fire();
     new spell_monk_chi_brew();
-    new spell_monk_fists_of_fury_stun();
     new spell_monk_chi_wave_healing_bolt();
     new spell_monk_chi_wave_bolt();
     new spell_monk_chi_wave();
