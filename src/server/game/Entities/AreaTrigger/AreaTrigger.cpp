@@ -116,6 +116,7 @@ bool AreaTrigger::CreateAreaTriggerFromSpell(uint32 p_GuidLow, Unit* p_Caster, S
     if (l_MainTemplate == nullptr)
         return false;
 
+    sScriptMgr->InitScriptEntity(this);
     m_Flags = l_MainTemplate->m_Flags;
 
     if (p_Caster->GetVehicleKit() && m_Flags & AREATRIGGER_FLAG_ATTACHED)
@@ -133,9 +134,16 @@ bool AreaTrigger::CreateAreaTriggerFromSpell(uint32 p_GuidLow, Unit* p_Caster, S
     SetUInt32Value(AREATRIGGER_FIELD_SPELL_ID, p_SpellInfo->Id);
     SetUInt32Value(AREATRIGGER_FIELD_SPELL_VISUAL_ID, p_SpellInfo->SpellVisual[0]);
 
-    SetSource(pos);
-    SetDestination(p_Dest);
-    SetTrajectory(pos != p_Dest ? AREATRIGGER_INTERPOLATION_LINEAR : AREATRIGGER_INTERPOLATION_NONE);
+    Position l_SourcePosition;
+    l_SourcePosition.Relocate(pos);
+    Position l_DestinationPosition;
+    l_DestinationPosition.Relocate(p_Dest);
+
+    sScriptMgr->OnSetCreatePositionEntity(this, p_Caster, l_SourcePosition, l_DestinationPosition);
+
+    SetSource(l_SourcePosition);
+    SetDestination(l_DestinationPosition);
+    SetTrajectory(l_SourcePosition != l_DestinationPosition ? AREATRIGGER_INTERPOLATION_LINEAR : AREATRIGGER_INTERPOLATION_NONE);
     SetUpdateTimerInterval(60);
 
     if (p_SpellInfo->GetDuration() != -1)
@@ -242,8 +250,8 @@ void AreaTrigger::Update(uint32 p_Time)
     {
         m_UpdateTimer.Reset();
 
-        // Calculate new position
-        if (GetMainTemplate()->m_MoveCurveID != 0)
+        /// Calculate new position
+        if (GetMainTemplate()->m_MoveCurveID != 0 && GetTrajectory() != AREATRIGGER_INTERPOLATION_LINEAR)
             UpdatePositionWithPathId(m_CreatedTime, this);
         else if (m_Trajectory)
             GetPositionAtTime(m_CreatedTime, this);
@@ -364,8 +372,10 @@ void AreaTrigger::GetPositionAtTime(uint32 p_Time, Position* p_OutPos) const
     {
         case AREATRIGGER_INTERPOLATION_LINEAR:
         {
-            int32 l_Duration = GetDuration();
-            float l_Progress = float(p_Time % l_Duration) / l_Duration;
+            AreaTriggerTemplate const* l_MainTemplate = GetMainTemplate();
+            /// Durations get decreased over time so create time + remaining duration = max duration
+            int32 l_Duration = l_MainTemplate && l_MainTemplate->m_Type == AREATRIGGER_TYPE_SPLINE && l_MainTemplate->m_SplineDatas.TimeToTarget ? l_MainTemplate->m_SplineDatas.TimeToTarget : GetDuration() + GetCreatedTime();
+            float l_Progress = std::min((float)l_Duration, (float)p_Time) / l_Duration;
             p_OutPos->m_positionX = m_Source.m_positionX + l_Progress * (m_Destination.m_positionX - m_Source.m_positionX);
             p_OutPos->m_positionY = m_Source.m_positionY + l_Progress * (m_Destination.m_positionY - m_Source.m_positionY);
             p_OutPos->m_positionZ = m_Source.m_positionZ + l_Progress * (m_Destination.m_positionZ - m_Source.m_positionZ);

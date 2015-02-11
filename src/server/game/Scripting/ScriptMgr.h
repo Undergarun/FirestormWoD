@@ -60,9 +60,17 @@ class ScriptMgr
 
     /// AreaTriggerScript
     public:
+        /// Assign script to Areatrigger
+        void InitScriptEntity(AreaTrigger* p_AreaTrigger);
         /// Proc when AreaTrigger is created.
         /// @p_AreaTrigger : AreaTrigger instance
         void OnCreateAreaTriggerEntity(AreaTrigger * p_AreaTrigger);
+        /// Procs before creation to specify position and linear destination of the areatrigger
+        /// @p_AreaTrigger: Areatrigger Instance
+        /// @p_Caster: Caster because he the Areatrigger is not spawned so caster is not defined
+        /// @p_SourcePosition: Spawn location of the Areatrigger
+        /// @p_DestinationPostion: Linear destination of the Areatrigger
+        void OnSetCreatePositionEntity(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition);
         /// Proc when AreaTrigger is updated.
         /// @p_AreaTrigger : AreaTrigger instance
         /// @p_Time        : Diff since last update
