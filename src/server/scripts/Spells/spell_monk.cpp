@@ -4398,7 +4398,8 @@ enum AfterLifeSpells
 {
     SPELL_MONK_BLACKOUT_KICK = 100784,
     SPELL_MONK_SUMMON_HEALING_SPHERE = 117032,
-    SPELL_MONK_SUMMON_CHI_SPHERE = 121286
+    SPELL_MONK_SUMMON_CHI_SPHERE = 121286,
+    SPELL_MONK_CHI_EXPLOSION = 152174
 };
 
 // Afterlife - 116092
@@ -4426,13 +4427,18 @@ class spell_monk_afterlife: public SpellScriptLoader
             {
                 PreventDefaultAction();
 
-                if (eventInfo.GetDamageInfo()->GetSpellInfo() && eventInfo.GetDamageInfo()->GetSpellInfo()->Id != SPELL_MONK_BLACKOUT_KICK)
+                if (!eventInfo.GetDamageInfo()->GetSpellInfo())
                     return;
 
-                if (!roll_chance_f(aurEff->GetAmount()))
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
                     return;
 
-                if (Unit* l_Caster = GetCaster())
+                /// Can proc only from Blackout Kick or Chi Explosion
+                if ((!l_Caster->HasAura(SPELL_MONK_CHI_EXPLOSION) && eventInfo.GetDamageInfo()->GetSpellInfo()->Id != SPELL_MONK_BLACKOUT_KICK) ||(l_Caster->HasAura(SPELL_MONK_CHI_EXPLOSION) && eventInfo.GetDamageInfo()->GetSpellInfo()->Id != SPELL_MONK_CHI_EXPLOSION))
+                    return;
+
+                if (roll_chance_f(aurEff->GetAmount()))
                     l_Caster->CastSpell(l_Caster, SPELL_MONK_SUMMON_CHI_SPHERE, true);
             }
 
