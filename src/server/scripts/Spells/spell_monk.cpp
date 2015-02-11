@@ -4067,7 +4067,9 @@ enum HurricaneStrikeSpells
     //SPELL_MONK_SPINNING_CRANE_KICK_DAMAGE = 107270,
     //SPELL_MONK_2H_STAFF_OVERRIDE          = 108561,
     //SPELL_MONK_2H_POLEARM_OVERRIDE        = 115697,
-    //SPELL_MONK_MANA_MEDITATION            = 121278
+    //SPELL_MONK_MANA_MEDITATION            = 121278,
+    SPELL_MONK_HURRICANE_STRIKE             = 152175,
+    SPELL_MONK_HURRICANE_STRIKE_DAMAGE      = 158221
 };
 
 // Hurricane Strike - 152175
@@ -4083,9 +4085,7 @@ class spell_monk_hurricane_strike : public SpellScriptLoader
             void HandleOnHit()
             {
                 if (Unit* l_Caster = GetCaster())
-                {
-                    l_Caster->CastSpell(l_Caster, 158221, true);
-                }
+                    l_Caster->CastSpell(l_Caster, SPELL_MONK_HURRICANE_STRIKE_DAMAGE, true);
             }
 
             void Register()
@@ -4100,7 +4100,7 @@ class spell_monk_hurricane_strike : public SpellScriptLoader
         }
 };
 
-// Hurricane Strike - 158221
+// Hurricane Strike (damage) - 158221
 class spell_monk_hurricane_strike_damage: public SpellScriptLoader
 {
     public:
@@ -4112,6 +4112,9 @@ class spell_monk_hurricane_strike_damage: public SpellScriptLoader
 
             void HandleDamage(SpellEffIndex /*effIndex*/)
             {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MONK_HURRICANE_STRIKE) || !sSpellMgr->GetSpellInfo(SPELL_MONK_HURRICANE_STRIKE)->GetDuration())
+                    return;
+
                 if (!GetCaster())
                     return;
 
@@ -4124,7 +4127,7 @@ class spell_monk_hurricane_strike_damage: public SpellScriptLoader
 
                 l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
 
-                SetHitDamage(int32(frand(15 * 2 * l_Low, 15 * 2 * l_High) / (GetSpellInfo()->GetDuration() / IN_MILLISECONDS)));
+                SetHitDamage(int32(frand(15 * 2 * l_Low, 15 * 2 * l_High) / (sSpellMgr->GetSpellInfo(SPELL_MONK_HURRICANE_STRIKE)->GetDuration() / IN_MILLISECONDS)));
             }
 
             void Register()
