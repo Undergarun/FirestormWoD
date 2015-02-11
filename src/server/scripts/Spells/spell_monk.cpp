@@ -3084,7 +3084,9 @@ class spell_monk_breath_of_fire: public SpellScriptLoader
 
 enum SoothingMist
 {
-    NPC_SNAKE_JADE_STATUE = 60849
+    NPC_SNAKE_JADE_STATUE = 60849,
+    SPELL_MONK_GLYPH_OF_SHOOTING_MIST_AURA = 159536,
+    SPELL_MONK_GLYPH_OF_SHOOTING_MIST = 159537
 };
 
 // Soothing Mist - 115175
@@ -3178,7 +3180,28 @@ class spell_monk_soothing_mist: public SpellScriptLoader
                 if (l_Target == nullptr || l_Caster == nullptr)
                     return;
 
-                l_Target->CastSpell(l_Target, SPELL_MONK_SOOTHING_MIST_VISUAL, true);
+                if (l_Target->HasAura(SPELL_MONK_SOOTHING_MIST_VISUAL))
+                    l_Target->RemoveAura(SPELL_MONK_SOOTHING_MIST_VISUAL);
+
+                if (l_Caster->HasAura(SPELL_MONK_GLYPH_OF_SHOOTING_MIST_AURA))
+                {
+                    SpellInfo const * l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MONK_GLYPH_OF_SHOOTING_MIST_AURA);
+
+                    if (l_SpellInfo != nullptr && l_SpellInfo->Effects[EFFECT_1].BasePoints > 0)
+                    {
+                        /// If already has buff, add duration with old duration
+                        if (AuraPtr l_HasAlreadyAuraGlyph = l_Caster->GetAura(SPELL_MONK_GLYPH_OF_SHOOTING_MIST))
+                            l_HasAlreadyAuraGlyph->SetDuration(l_HasAlreadyAuraGlyph->GetDuration() + ((aurEff->GetTickNumber() / l_SpellInfo->Effects[EFFECT_1].BasePoints) * IN_MILLISECONDS));
+                        else
+                        {
+                            l_Caster->CastSpell(l_Caster, SPELL_MONK_GLYPH_OF_SHOOTING_MIST, true);
+
+                            /// 1 sec for every sec you spent channeling Soothing Mist
+                            if (AuraPtr l_AuraGlyph = l_Caster->GetAura(SPELL_MONK_GLYPH_OF_SHOOTING_MIST))
+                                l_AuraGlyph->SetDuration(((aurEff->GetTickNumber() / l_SpellInfo->Effects[EFFECT_1].BasePoints) * IN_MILLISECONDS));
+                        }
+                    }
+                }
 
                 Unit *l_JadeStatue = GetStatueOfUnit(l_Caster);
 
@@ -3191,9 +3214,6 @@ class spell_monk_soothing_mist: public SpellScriptLoader
                     return;
 
                 l_JadeStatue->CastStop();
-
-                if (l_Target->HasAura(SPELL_MONK_SOOTHING_MIST_VISUAL))
-                    l_Target->RemoveAura(SPELL_MONK_SOOTHING_MIST_VISUAL);
             }
 
             void Register()
