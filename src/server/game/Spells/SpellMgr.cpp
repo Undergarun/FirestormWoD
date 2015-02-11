@@ -5799,6 +5799,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 /// Blizzard use -300%, idk why
                 spellInfo->Effects[EFFECT_1].BasePoints = -100;
                 break;
+            case 103985: ///< Stance of the Fierce Tiger
+                spellInfo->Effects[EFFECT_4].Effect = SPELL_EFFECT_APPLY_AREA_AURA_FRIEND;
+                spellInfo->Effects[EFFECT_4].ApplyAuraName = SPELL_AURA_MOD_INCREASE_SPEED;
+                break;
             default:
                 break;
         }
