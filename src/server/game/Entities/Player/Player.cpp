@@ -3331,7 +3331,7 @@ void Player::RegenerateAll()
 
 void Player::Regenerate(Powers power)
 {
-    uint32 maxValue = GetMaxPower(power);
+    int32 maxValue = GetMaxPower(power);
     if (!maxValue)
         return;
 
@@ -3581,7 +3581,7 @@ void Player::Regenerate(Powers power)
         return;
 
     addvalue += m_powerFraction[powerIndex];
-    uint32 integerValue = uint32(fabs(addvalue));
+    int32 integerValue = uint32(fabs(addvalue));
 
     if (addvalue < 0.0f)
     {
