@@ -26247,7 +26247,11 @@ void Player::SendCooldownAtLogin()
 
         l_Data << uint32(1);                                ///< Count
         l_Data << uint32(l_Iter->first);                    ///< SrecID
-        l_Data << uint32(l_Iter->second.end - l_CurTime);   ///< ForcedCooldown
+
+        if (l_HasCooldown)                                  ///< ForcedCooldown
+            l_Data << uint32(l_Iter->second.end - l_CurTime);
+        else
+            l_Data << uint32(0);
 
         GetSession()->SendPacket(&l_Data);
     }
