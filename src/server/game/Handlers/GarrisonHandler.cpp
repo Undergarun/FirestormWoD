@@ -551,8 +551,7 @@ void WorldSession::HandleGarrisonGetShipmentInfoOpcode(WorldPacket & p_RecvData)
         
             if (l_Entry)
                 l_Duration = l_Entry->Duration;
-        
-            l_Duration = 20 * MINUTE;
+
             l_Response << uint32(l_WorkOrders[l_I].ShipmentID);
             l_Response << uint64(l_WorkOrders[l_I].DatabaseID);
             l_Response << uint32(l_WorkOrders[l_I].CreationTime);
@@ -713,7 +712,7 @@ void WorldSession::HandleGarrisonGetShipmentsOpcode(WorldPacket & p_RecvData)
 
         if (l_Entry)
             l_Duration = l_Entry->Duration;
-        l_Duration = 20 * MINUTE;
+
         l_Data << uint32(l_WorkOrders[l_I].ShipmentID);
         l_Data << uint64(l_WorkOrders[l_I].DatabaseID);
         l_Data << uint32(l_WorkOrders[l_I].CreationTime);

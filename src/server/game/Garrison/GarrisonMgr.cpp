@@ -2653,7 +2653,7 @@ namespace MS { namespace Garrison
         l_WorkOrder.PlotInstanceID  = p_PlotInstanceID;
         l_WorkOrder.ShipmentID      = p_ShipmentID;
         l_WorkOrder.CreationTime    = l_MaxCompleteTime;
-        l_WorkOrder.CompleteTime = l_MaxCompleteTime + (20* MINUTE);// l_ShipmentEntry->Duration;
+        l_WorkOrder.CompleteTime    = l_MaxCompleteTime + l_ShipmentEntry->Duration;
 
         PreparedStatement * l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GARRISON_WORKORDER);
 
