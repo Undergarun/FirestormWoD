@@ -985,9 +985,9 @@ void Aura::Update(uint32 diff, Unit* caster)
         m_duration -= diff;
         if (m_duration < 0)
             m_duration = 0;
-
-        CallScriptAuraUpdateHandlers(diff);
     }
+
+    CallScriptAuraUpdateHandlers(diff);
 }
 
 int32 Aura::CalcMaxDuration(Unit* caster) const

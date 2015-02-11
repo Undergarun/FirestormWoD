@@ -7431,7 +7431,7 @@ void Spell::EffectCreateAreatrigger(SpellEffIndex effIndex)
     else
         destTarget->GetPosition(&l_Source);
     l_Dest = l_Source;
-
+    
     // trigger entry/miscvalue relation is currently unknown, for now use MiscValue as trigger entry
     uint32 l_MiscValue = GetSpellInfo()->Effects[effIndex].MiscValue;
 

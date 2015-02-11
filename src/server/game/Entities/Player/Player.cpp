@@ -3331,7 +3331,7 @@ void Player::RegenerateAll()
 
 void Player::Regenerate(Powers power)
 {
-    uint32 maxValue = GetMaxPower(power);
+    int32 maxValue = GetMaxPower(power);
     if (!maxValue)
         return;
 
@@ -3581,7 +3581,7 @@ void Player::Regenerate(Powers power)
         return;
 
     addvalue += m_powerFraction[powerIndex];
-    uint32 integerValue = uint32(fabs(addvalue));
+    int32 integerValue = uint32(fabs(addvalue));
 
     if (addvalue < 0.0f)
     {
@@ -26226,19 +26226,39 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
 void Player::SendCooldownAtLogin()
 {
-    uint64 curTime = 0;
-    ACE_OS::gettimeofday().msec(curTime);
+    uint64 l_CurTime = 0;
+    ACE_OS::gettimeofday().msec(l_CurTime);
 
-    for (SpellCooldowns::const_iterator itr = GetSpellCooldownMap().begin(); itr != GetSpellCooldownMap().end(); ++itr)
+    for (SpellCooldowns::const_iterator l_Iter = GetSpellCooldownMap().begin(); l_Iter != GetSpellCooldownMap().end(); ++l_Iter)
     {
-        WorldPacket data(SMSG_SPELL_COOLDOWN, 12);
-        data.appendPackGUID(GetGUID());
-        data << uint8(1);
-        data << uint32(1);
-        data << uint32(itr->first);
-        data << uint32(itr->second.end - curTime);
+        WorldPacket l_Data(SMSG_SPELL_COOLDOWN, 12);
+        bool l_HasCooldown = l_Iter->second.end > l_CurTime;
 
-        GetSession()->SendPacket(&data);
+        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_Iter->first);
+        if (l_SpellInfo == nullptr)
+            continue;
+
+        l_Data.appendPackGUID(GetGUID());                   ///< Caster
+
+        if (l_HasCooldown)                                  ///< Flags
+        {
+            if (l_SpellInfo->Attributes & SpellAttr0::SPELL_ATTR0_DISABLED_WHILE_ACTIVE)
+                l_Data << uint8(CooldownFlags::CooldownFlagIncludeGCD | CooldownFlags::CooldownFlagIncludeEventCooldowns);
+            else
+                l_Data << uint8(CooldownFlags::CooldownFlagIncludeGCD);
+        }
+        else
+            l_Data << uint8(CooldownFlags::CooldownFlagNone);
+
+        l_Data << uint32(1);                                ///< Count
+        l_Data << uint32(l_Iter->first);                    ///< SrecID
+
+        if (l_HasCooldown)                                  ///< ForcedCooldown
+            l_Data << uint32(l_Iter->second.end - l_CurTime);
+        else
+            l_Data << uint32(0);
+
+        GetSession()->SendPacket(&l_Data);
     }
 }
 
@@ -30962,7 +30982,7 @@ void Player::SetEmoteState(uint32 anim_id)
     m_emote = anim_id;
 }
 
-void Player::SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Direction, float p_Magnitude)
+void Player::SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Direction, float p_Magnitude /*= 0.0f*/, uint8 p_Type /*= 0*/)
 {
     if (sAreaTriggerStore.LookupEntry(GUID_ENPART(p_Source)) || GUID_HIPART(p_Source) != HIGHGUID_AREATRIGGER)
     {
@@ -30985,7 +31005,7 @@ void Player::SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Di
         l_Data << uint32(l_TransportID);                ///< Transport ID
         l_Data << float(p_Magnitude);                   ///< Magnitude
 
-        l_Data.WriteBits(0, 2);                         ///< Force type, still one yet
+        l_Data.WriteBits(p_Type, 2);                    ///< Force type, still one yet
         l_Data.FlushBits();
 
         SendMessageToSet(&l_Data, true);

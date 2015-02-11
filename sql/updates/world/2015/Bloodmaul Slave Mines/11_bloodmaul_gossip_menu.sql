@@ -1,0 +1,2 @@
+REPLACE INTO gossip_menu (entry, `text_id`) VALUES(16796, 24420);
+REPLACE INTO gossip_menu_option (menu_id, id, `option_icon`, `option_text`, `option_id`, `box_coded`, `box_money`, `box_text`) VALUES(16796, 31, 0, "Où puis-je remplacer un anneau perdu ou men procurer un neuf ?", 31, 0, 0, "");

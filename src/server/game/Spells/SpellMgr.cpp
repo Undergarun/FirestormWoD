@@ -3326,7 +3326,23 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
-            case 175975: ///< Genesis
+            case 150055: // Volcanic Tantrum
+            case 149963: // Shatter Earth
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(27); // 3 sec
+                break;
+            case 150004: // Magma Barrage
+                spellInfo->InterruptFlags = SPELL_INTERRUPT_FLAG_MOVEMENT;
+                spellInfo->Effects[EFFECT_1].Effect = 0;
+                spellInfo->Effects[EFFECT_0].TriggerSpell = 150306;
+                break;
+            case 149959: // Earth Shatter
+            case 149968:
+            case 149969:
+            case 149970:
+                spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
+                spellInfo->ExplicitTargetMask = spellInfo->_GetExplicitTargetMask();
+                break;
+            case 175975:///< Genesis
                 spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(10);  ///< 30y
                 break;
             case 178531: ///< Alliance Reward (but for Horde)
@@ -3848,6 +3864,20 @@ void SpellMgr::LoadSpellCustomAttr()
             case 161203: ///< Rejuvenating Serum (Kyrak)
                 spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MAGIC;
                 break;
+            case 152742:///< Fiery Boulder - AoE impact damage
+                spellInfo->Effects[EFFECT_1].TargetA = TARGET_SRC_CASTER;
+                spellInfo->Effects[EFFECT_1].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
+                break;
+            case 152867:///< Heat Wave (Create AT)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
+                break;
+            case 150759:///< Ferocious Yell
+                spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
+                break;
+            case 164616:///< Channel Flames (DoT)
+            case 167739:///< Scorching Aura (Debuff)
+            case 153227:///< Burning Slag (DoT)
+            case 150784:///< Magma Eruption (DoT)
             case 161288: ///< Vileblood Serum (DoT)
             case 161833: ///< Noxious Spit (DoT)
             case 157420: ///< Fiery Trail (DoT)
@@ -3856,7 +3886,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 176037: ///< Noxious Spit (DoT)
             case 155158: ///< Meteor Burn
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
-                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); ///< 2s
+                spellInfo->AttributesEx5 |= SPELL_ATTR5_HIDE_DURATION;
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
                 break;
             case 154996: ///< Engulfing Fire (searcher)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
