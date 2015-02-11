@@ -16,10 +16,8 @@ namespace MS { namespace Garrison
         uint32 DatabaseID;      ///< Building DB ID
         uint32 PlotInstanceID;  ///< Plot instance ID
         uint32 ShipmentID;      ///< Shipment ID (CharShipment.db2)
+        uint32 CreationTime;    ///< Timestamp of creatop,
         uint32 CompleteTime;    ///< Timestamp of completion
-
-        /// Get list of 
-        static std::vector<uint32> GetShipmentsForBuilding(uint32 p_BuildingRecID);
     };
 
 }   ///< namespace Garrison

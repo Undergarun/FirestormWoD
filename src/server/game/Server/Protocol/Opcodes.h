@@ -508,7 +508,8 @@ enum Opcodes
         /// Garrison
         SMSG_OPEN_SHIPMENT_NPCFROM_GOSSIP                       = 0x0709, ///< 6.0.3 19116
         SMSG_GET_SHIPMENT_INFO_RESPONSE                         = 0x1BAB, ///< 6.0.3 19116
-        SMSG_COMPLETE_SHIPMENT_RESPONSE                         = 0x1901, ///< 6.0.3 19116
+        SMSG_GET_SHIPMENTS                                      = 0x1901, ///< 6.0.3 19116
+        SMSG_CREATE_SHIPMENT_RESPONSE                           = 0x11AB, ///< 6.0.3 19116
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -966,6 +967,8 @@ enum Opcodes
     CMSG_GARRISON_REQUEST_LANDING_PAGE_SHIPMENT_INFO        = 0x0000,
     CMSG_GARRISON_MISSION_NPC_HELLO                         = 0x03D9,   ///< 6.0.3 19116
     CMSG_GET_SHIPMENT_INFO                                  = 0x06E3,   ///< 6.0.3 19116
+    CMSG_CREATE_SHIPMENT                                    = 0x068B,   ///< 6.0.3 19116
+    CMSG_GET_SHIPMENTS                                      = 0x0623,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// User Router

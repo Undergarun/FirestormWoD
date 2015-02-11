@@ -126,7 +126,7 @@ namespace MS { namespace Garrison
                     {
                         const QuestObjective * l_Objective = l_Quest->GetQuestObjectiveXIndex(l_QuestPair.second);
 
-                        if (l_Objective->ObjectID == l_QuestItem && p_Target->HasItemCount(l_QuestItem, 1, false))
+                        if (l_Objective->ObjectID == l_QuestItem && !p_Target->HasItemCount(l_QuestItem, 1, false))
                             return m_QuestShipmentPerBuildingType[l_BuildingType];
                     }
                 }

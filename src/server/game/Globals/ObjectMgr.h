@@ -1616,6 +1616,12 @@ class ObjectMgr
             return m_HiVignetteGuid++;
         }
 
+        uint32 GetNewGarrisonWorkOrderID()
+        {
+            return m_GarrisonWorkOrderID++;
+        }
+
+
     private:
         // first free id for selected id type
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _auctionId;
@@ -1640,6 +1646,7 @@ class ObjectMgr
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_GarrisonBuildingID;
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_GarrisonFollowerID;
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_GarrisonMissionID;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_GarrisonWorkOrderID;
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_HiVignetteGuid;
 
         QuestMap _questTemplates;

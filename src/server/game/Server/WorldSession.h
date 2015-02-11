@@ -1073,6 +1073,8 @@ class WorldSession
         void HandleGarrisonMissionBonusRollOpcode(WorldPacket & p_RecvData);
         void HandleGarrisonChangeFollowerActivationStateOpcode(WorldPacket & p_RecvData);
         void HandleGarrisonGetShipmentInfoOpcode(WorldPacket & p_RecvData);
+        void HandleGarrisonCreateShipmentOpcode(WorldPacket & p_RecvData);
+        void HandleGarrisonGetShipmentsOpcode(WorldPacket & p_RecvData);
 
         void SendGarrisonOpenArchitect(uint64 p_CreatureGUID);
         void SendGarrisonOpenMissionNpc(uint64 p_CreatureGUID);

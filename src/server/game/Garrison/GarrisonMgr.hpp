@@ -157,6 +157,10 @@ namespace MS { namespace Garrison
             bool HasActiveBuilding(uint32 p_BuildingID);
             /// Get building max work order
             uint32 GetBuildingMaxWorkOrder(uint32 p_PlotInstanceID);
+            /// Get in progress work order count
+            uint32 GetWorkOrderCount(uint32 p_PlotInstanceID);
+            /// Start new work order
+            uint64 StartWorkOrder(uint32 p_PlotInstanceID, uint32 p_ShipmentID);
             /// Get creature plot instance ID
             uint32 GetCreaturePlotInstanceID(uint64 p_GUID);
 
@@ -207,6 +211,8 @@ namespace MS { namespace Garrison
             void UpdateMissionDistribution();
             /// Update garrison ability
             void UpdateGarrisonAbility();
+            /// Update work order
+            void UpdateWorkOrders();
 
         private:
             Player *    m_Owner;            ///< Garrison owner
@@ -234,6 +240,7 @@ namespace MS { namespace Garrison
 
             std::map<uint32, uint64>                m_PlotsGob;
             std::map<uint32, uint64>                m_PlotsActivateGob;
+            std::map<uint32, uint64>                m_PlotsWorkOrderGob;
             std::map<uint32, std::vector<uint64>>   m_PlotsGameObjects;
             std::map<uint32, std::vector<uint64>>   m_PlotsCreatures;
 

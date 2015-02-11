@@ -267,6 +267,16 @@ namespace MS { namespace Garrison
         };
     }
 
+    namespace WorkOrderGODisplayID
+    {
+        enum
+        {
+            NoWork      = 15585,
+            Working     = 15585,
+            AllComplete = 16091,
+        };
+    }
+
     static const uint32 gGarrisonBuildingMaxWorkOrderPerBuildingLevel[Globals::MaxLevel] =
     {
         7,

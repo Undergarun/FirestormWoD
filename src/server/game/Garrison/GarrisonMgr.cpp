@@ -254,13 +254,14 @@ namespace MS { namespace Garrison
             {
                 do
                 {
-                    l_Fields = p_FollowersResult->Fetch();
+                    l_Fields = p_WorkOrderResult->Fetch();
 
                     GarrisonWorkOrder l_Order;
                     l_Order.DatabaseID        = l_Fields[0].GetUInt32();
                     l_Order.PlotInstanceID    = l_Fields[1].GetUInt32();
                     l_Order.ShipmentID        = l_Fields[2].GetUInt32();
-                    l_Order.CompleteTime      = l_Fields[3].GetUInt32();
+                    l_Order.CreationTime      = l_Fields[3].GetUInt32();
+                    l_Order.CompleteTime      = l_Fields[4].GetUInt32();
 
                     m_WorkOrders.push_back(l_Order);
 
@@ -630,6 +631,8 @@ namespace MS { namespace Garrison
         UpdateMissionDistribution();
         /// Update garrison ability
         UpdateGarrisonAbility();
+        /// Update work order
+        UpdateWorkOrders();
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -2620,6 +2623,55 @@ namespace MS { namespace Garrison
         return l_MaxWorkOrder;
     }
 
+    /// Get in progress work order count
+    uint32 Manager::GetWorkOrderCount(uint32 p_PlotInstanceID)
+    {
+        return std::count_if(m_WorkOrders.begin(), m_WorkOrders.end(), [p_PlotInstanceID](const GarrisonWorkOrder & p_Order) -> bool
+        {
+            return p_Order.PlotInstanceID == p_PlotInstanceID;
+        });
+    }
+
+    /// Start new work order
+    uint64 Manager::StartWorkOrder(uint32 p_PlotInstanceID, uint32 p_ShipmentID)
+    {
+        const CharShipmentEntry * l_ShipmentEntry = sCharShipmentStore.LookupEntry(p_ShipmentID);
+
+        if (!l_ShipmentEntry)
+            return 0;
+
+        uint32 l_MaxCompleteTime = time(0);
+
+        for (uint32 l_I = 0; l_I < m_WorkOrders.size(); ++l_I)
+        {
+            if (m_WorkOrders[l_I].PlotInstanceID == p_PlotInstanceID)
+                l_MaxCompleteTime = std::max<uint32>(l_MaxCompleteTime, m_WorkOrders[l_I].CompleteTime);
+        }
+
+        GarrisonWorkOrder l_WorkOrder;
+        l_WorkOrder.DatabaseID      = sObjectMgr->GetNewGarrisonWorkOrderID();
+        l_WorkOrder.PlotInstanceID  = p_PlotInstanceID;
+        l_WorkOrder.ShipmentID      = p_ShipmentID;
+        l_WorkOrder.CreationTime    = l_MaxCompleteTime;
+        l_WorkOrder.CompleteTime = l_MaxCompleteTime + (20* MINUTE);// l_ShipmentEntry->Duration;
+
+        PreparedStatement * l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GARRISON_WORKORDER);
+
+        uint32 l_Index = 0;
+        l_Stmt->setUInt32(l_Index++, l_WorkOrder.DatabaseID);
+        l_Stmt->setUInt32(l_Index++, m_ID);
+        l_Stmt->setUInt32(l_Index++, l_WorkOrder.PlotInstanceID);
+        l_Stmt->setUInt32(l_Index++, l_WorkOrder.ShipmentID);
+        l_Stmt->setUInt32(l_Index++, l_WorkOrder.CreationTime);
+        l_Stmt->setUInt32(l_Index++, l_WorkOrder.CompleteTime);
+
+        CharacterDatabase.AsyncQuery(l_Stmt);
+
+        m_WorkOrders.push_back(l_WorkOrder);
+
+        return l_WorkOrder.DatabaseID;
+    }
+
     /// Get creature plot instance ID
     uint32 Manager::GetCreaturePlotInstanceID(uint64 p_GUID)
     {
@@ -2848,6 +2900,8 @@ namespace MS { namespace Garrison
             m_PlotsGob[p_PlotInstanceID] = 0;
         }
     
+        m_PlotsWorkOrderGob[p_PlotInstanceID] = 0;
+
         uint32 l_GobEntry = 0;
         bool l_SpanwActivateGob = false;
         bool l_IsPlotBuilding = false;
@@ -3000,7 +3054,12 @@ namespace MS { namespace Garrison
                         GameObject * l_Cosmetic = m_Owner->SummonGameObject(-l_Contents[l_I].CreatureOrGob, l_Position.x, l_Position.y, l_Position.z, l_Contents[l_I].O + l_PlotInfo.O, 0, 0, 0, 0, 0);
 
                         if (l_Cosmetic)
+                        {
                             m_PlotsGameObjects[p_PlotInstanceID].push_back(l_Cosmetic->GetGUID());
+
+                            if (l_Cosmetic->GetDisplayId() == WorkOrderGODisplayID::NoWork || l_Cosmetic->GetDisplayId() == WorkOrderGODisplayID::Working || l_Cosmetic->GetDisplayId() == WorkOrderGODisplayID::AllComplete)
+                                m_PlotsWorkOrderGob[p_PlotInstanceID] = l_Cosmetic->GetGUID();
+                        }
                     }
                 }
 
@@ -3344,6 +3403,64 @@ namespace MS { namespace Garrison
         {
             if (m_Owner->HasAura(l_AbilityOverrideSpellID))
                 m_Owner->RemoveAura(l_AbilityOverrideSpellID);
+        }
+    }
+
+    /// Update work order
+    void Manager::UpdateWorkOrders()
+    {
+        if (!m_Owner->IsInGarrison())
+            return;
+
+        for (uint32 l_PlotI = 0; l_PlotI < m_Plots.size(); ++l_PlotI)
+        {
+            uint32 l_PlotInstanceID = m_Plots[l_PlotI].PlotInstanceID;
+
+            if (m_PlotsWorkOrderGob[l_PlotInstanceID] == 0)
+                continue;
+
+            GameObject * l_WorkOrderGameObject = HashMapHolder<GameObject>::Find(m_PlotsWorkOrderGob[l_PlotInstanceID]);
+
+            if (!l_WorkOrderGameObject)
+                continue;
+
+            std::vector<GarrisonWorkOrder*> l_PlotWorkOrder;
+
+            for (uint32 l_OrderI = 0; l_OrderI < m_WorkOrders.size(); ++l_OrderI)
+            {
+                if (m_WorkOrders[l_OrderI].PlotInstanceID == l_PlotInstanceID)
+                    l_PlotWorkOrder.push_back(&m_WorkOrders[l_OrderI]);
+            }
+
+            if (l_PlotWorkOrder.size() > 0)
+            {
+                bool l_AllComplete = l_PlotWorkOrder.size() > 1;
+
+                uint32 l_CurrentTimeStamp = time(0);
+                for (uint32 l_OrderI = 0; l_OrderI < l_PlotWorkOrder.size(); ++l_OrderI)
+                {
+                    if (l_PlotWorkOrder[l_OrderI]->CompleteTime > l_CurrentTimeStamp)
+                        l_AllComplete = false;
+                    else if (l_PlotWorkOrder.size() == 1)
+                        l_AllComplete = true;
+                }
+
+                if (l_AllComplete)
+                {
+                    l_WorkOrderGameObject->SetDisplayId(WorkOrderGODisplayID::AllComplete);
+                    l_WorkOrderGameObject->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_ACTIVATED);
+                }
+                else
+                {
+                    l_WorkOrderGameObject->SetDisplayId(WorkOrderGODisplayID::Working);
+                    l_WorkOrderGameObject->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_ACTIVATED);
+                }
+            }
+            else
+            {
+                l_WorkOrderGameObject->SetDisplayId(WorkOrderGODisplayID::NoWork);
+                l_WorkOrderGameObject->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_ACTIVATED);
+            }
         }
     }
 
