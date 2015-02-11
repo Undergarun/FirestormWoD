@@ -1614,13 +1614,15 @@ void ScriptMgr::OnPlayerKilledByCreature(Creature * p_Killer, Player * p_Killed)
     FOREACH_SCRIPT(PlayerScript)->OnPlayerKilledByCreature(p_Killer, p_Killed);
 }
 
-/// Called when a player kills another player
+/// Called when power change is modify (SetPower)
 /// @p_Player : Player instance
 /// @p_Power  : Power type
-/// @p_Value  : New value
-void ScriptMgr::OnModifyPower(Player * p_Player, Powers p_Power, int32 p_Value)
+/// @p_OldValue  : Old value
+/// @p_NewValue  : New value
+/// @p_Regen  : If it's a regen modification
+void ScriptMgr::OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
 {
-    FOREACH_SCRIPT(PlayerScript)->OnModifyPower(p_Player, p_Power, p_Value);
+    FOREACH_SCRIPT(PlayerScript)->OnModifyPower(p_Player, p_Power, p_OldValue, p_NewValue, p_Regen);
 }
 
 /// Called when a player kills another player

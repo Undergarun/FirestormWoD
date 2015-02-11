@@ -607,6 +607,8 @@ int Master::Run()
 
     ///- Launch the reporting thread. Didn't use asyn futures because I don't think it is intended for this use case.
     std::thread l_Reporter([](){
+        if (ConfigMgr::GetIntDefault("ReporterActivated", 1) != 1)
+            return;
 
         // Thread which repeat reporting.
         sLog->outInfo(LOG_FILTER_WORLDSERVER, "REPORTER: Creating worker.");
@@ -616,7 +618,7 @@ int Master::Run()
             l_ReportWorker.ProcessReporting();
 #ifdef _MSC_VER
             Sleep(1);
-#elif 
+#else
             usleep(1);
 #endif
         }

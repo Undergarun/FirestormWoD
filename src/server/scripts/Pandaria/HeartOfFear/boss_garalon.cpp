@@ -235,7 +235,7 @@ public:
             return true;
         }
 
-        void DamageTaken(Unit* attacker, uint32& damage)
+        void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
         {
             if (!fightInProgress)
                 if (CheckTrash())
@@ -625,7 +625,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* /*who*/, uint32& damage)
+        void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const* p_SpellInfo)
         {
             // Players cannot actually kill the legs, they damage them enough and they become unselectable etc.
             if (me->GetHealth() <= damage)

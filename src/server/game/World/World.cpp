@@ -50,7 +50,7 @@
 #include "ItemEnchantmentMgr.h"
 #include "MapManager.h"
 #include "CreatureAIRegistry.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 #include "OutdoorPvPMgr.h"
 #include "TemporarySummon.h"
 #include "WaypointMovementGenerator.h"
@@ -3322,7 +3322,7 @@ void World::InitRandomBGResetTime()
 
 void World::InitCurrencyResetTime()
 {
-    uint32 nextResetDay = sWorld->getWorldState(WS_CURRENCY_RESET_TIME);
+    uint32 nextResetDay = sWorld->getWorldState(MS::Battlegrounds::WsCurrency::ResetTime);
     if (!nextResetDay)
     {
         uint32 baseDay = 16022; // mercredi 13 novembre 2013
@@ -3332,7 +3332,7 @@ void World::InitCurrencyResetTime()
         while (nextResetDay < currentDay)
             nextResetDay += 7;
 
-        sWorld->setWorldState(WS_CURRENCY_RESET_TIME, nextResetDay);
+        sWorld->setWorldState(MS::Battlegrounds::WsCurrency::ResetTime, nextResetDay);
     }
 
     m_NextCurrencyReset = nextResetDay * 86400 + 5 * 3600;
@@ -3408,8 +3408,9 @@ void World::ResetCurrencyWeekCap()
         if (itr->second->GetPlayer())
             itr->second->GetPlayer()->ResetCurrencyWeekCap();
 
+    sWorld->setWorldState(MS::Battlegrounds::WsCurrency::ResetTime, getWorldState(MS::Battlegrounds::WsCurrency::ResetTime) + 7);
+
     m_NextCurrencyReset = time_t(m_NextCurrencyReset + DAY * 7);
-    sWorld->setWorldState(WS_CURRENCY_RESET_TIME, getWorldState(WS_CURRENCY_RESET_TIME) + 7);
 }
 
 void World::ResetDailyLoots()

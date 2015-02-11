@@ -390,7 +390,7 @@ class boss_theralion : public CreatureScript
                 instance->SetData(DATA_HEALTH_VALIONA_THERALION, me->GetMaxHealth());
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (!me || !me->isAlive())
                     return;
@@ -704,7 +704,7 @@ class boss_valiona : public CreatureScript
                 instance->SetBossState(DATA_VALIONA_THERALION, NOT_STARTED);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (!me || !me->isAlive())
                     return;

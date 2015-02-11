@@ -642,6 +642,6 @@ class BattlegroundSA : public Battleground
         std::map<uint32, uint32> DemoliserRespawnList; ///< std::map<ID, Timer>
 
         // Achievement: Not Even a Scratch
-        bool _notEvenAScratch[BG_TEAMS_COUNT];
+        bool _notEvenAScratch[MS::Battlegrounds::TeamsCount::Value];
 };
 #endif

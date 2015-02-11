@@ -13,6 +13,7 @@ set(scripts_STAT_SRCS
 	Custom/event_april.cpp
 	Custom/duel_reset.cpp
 	Custom/promo_new_players.cpp
+    Custom/first_time_connexion.cpp
 )
 
 message("  -> Prepared: Custom")

@@ -559,8 +559,8 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
 
     m_spellState = SPELL_STATE_NULL;
     _triggeredCastFlags = triggerFlags;
-    if (info->AttributesEx4 & SPELL_ATTR4_TRIGGERED)
-        _triggeredCastFlags = TRIGGERED_FULL_MASK;
+    if (info->AttributesEx4 & SPELL_ATTR4_CAN_CAST_WHILE_CASTING)
+        _triggeredCastFlags = TriggerCastFlags(uint32(_triggeredCastFlags) | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_CAST_DIRECTLY);
 
     m_CastItem = NULL;
     m_castItemGUID = 0;
@@ -1616,12 +1616,6 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex p_EffIndex, SpellImplicitTar
         {
             switch (m_spellInfo->Id)
             {
-                case 46968: // Shockwave
-                    if (l_UnitTargets.size() < 3)
-                        break;
-
-                    m_caster->ToPlayer()->ReduceSpellCooldown(46968, 20000);
-                    break;
                 // Spinning Crane Kick / Rushing Jade Wind : Give 1 Chi if the spell hits at least 3 targets
                 case 107270:
                 case 117640:

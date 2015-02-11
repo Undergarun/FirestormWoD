@@ -31,7 +31,7 @@
 #include "ObjectAccessor.h"
 #include "Creature.h"
 #include "Pet.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 #include "Battleground.h"
 #include "ScriptMgr.h"
 #include "CreatureAI.h"
@@ -560,6 +560,8 @@ void WorldSession::SendStablePetCallback(PreparedQueryResult p_QueryResult, uint
             uint32 l_ExperienceLevel = l_Fields[4].GetUInt16();
             uint8  l_PetFlag         = l_Fields[1].GetUInt8() < uint8(PET_SLOT_STABLE_FIRST) ? 1 : 3;
 
+            m_Player->setPetSlotUsed((PetSlot)l_PetSlot, true);
+
             uint32 l_DisplayID = 0;
             if (CreatureTemplate const* l_CreatureInfo = sObjectMgr->GetCreatureTemplate(l_CreatureID))
                 l_DisplayID = l_CreatureInfo->Modelid1 ? l_CreatureInfo->Modelid1 : l_CreatureInfo->Modelid2;
@@ -633,68 +635,68 @@ void WorldSession::HandleStableSetPetSlot(WorldPacket& p_RecvData)
     _setPetSlotCallback.SetFutureResult(CharacterDatabase.AsyncQuery(stmt));
 }
 
-void WorldSession::HandleStableSetPetSlotCallback(PreparedQueryResult result, uint32 petId)
+void WorldSession::HandleStableSetPetSlotCallback(PreparedQueryResult p_Result, uint32 l_NewSlot)
 {
     if (!GetPlayer())
         return;
 
-    if (!result)
+    if (!p_Result)
     {
         SendStableResult(STABLE_ERR_STABLE);
         return;
     }
 
-    Field* fields = result->Fetch();
+    Field* fields = p_Result->Fetch();
 
-    uint32 slot         = fields[0].GetUInt8();
-    uint32 petEntry     = fields[1].GetUInt32();
-    uint32 pet_number   = fields[2].GetUInt32();
+    uint32 l_OldSlot   = fields[0].GetUInt8();
+    uint32 l_PetEntry  = fields[1].GetUInt32();
+    uint32 l_PetNumber = fields[2].GetUInt32();
 
-    if (!petEntry)
+    if (!l_PetEntry)
     {
         SendStableResult(STABLE_ERR_STABLE);
         return;
     }
 
-    CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(petEntry);
-    if (!creatureInfo || !creatureInfo->isTameable(m_Player->CanTameExoticPets()))
+    CreatureTemplate const* l_CreatureInfo = sObjectMgr->GetCreatureTemplate(l_PetEntry);
+    if (!l_CreatureInfo || !l_CreatureInfo->isTameable(m_Player->CanTameExoticPets()))
     {
         // if problem in exotic pet
-        if (creatureInfo && creatureInfo->isTameable(true))
+        if (l_CreatureInfo && l_CreatureInfo->isTameable(true))
             SendStableResult(STABLE_ERR_EXOTIC);
         else
             SendStableResult(STABLE_ERR_STABLE);
         return;
     }
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
 
-    auto stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PET_DATA_OWNER);
+    auto l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PET_DATA_OWNER);
     {
-        stmt->setUInt32(0, petId);
-        stmt->setUInt32(1, slot);
-        stmt->setUInt32(2, GetPlayer()->GetGUIDLow());
+        l_Statement->setUInt32(0, l_NewSlot);
+        l_Statement->setUInt32(1, l_OldSlot);
+        l_Statement->setUInt32(2, GetPlayer()->GetGUIDLow());
 
-        trans->Append(stmt);
-    }
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PET_DATA_OWNER_ID);
-    {
-        stmt->setUInt32(0, slot);
-        stmt->setUInt32(1, petId);
-        stmt->setUInt32(2, GetPlayer()->GetGUIDLow());
-        stmt->setUInt32(3, pet_number);
-
-        trans->Append(stmt);
+        l_Transaction->Append(l_Statement);
     }
 
-    CharacterDatabase.CommitTransaction(trans);
-
-    if (petId != 100)
+    l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PET_DATA_OWNER_ID);
     {
-        // We need to remove and add the new pet to there diffrent slots
-        // GetPlayer()->setPetSlotUsed((PetSlot)slot, false);
-        m_Player->setPetSlotUsed((PetSlot)slot, false);
-        m_Player->setPetSlotUsed((PetSlot)petId, true);
+        l_Statement->setUInt32(0, l_OldSlot);
+        l_Statement->setUInt32(1, l_NewSlot);
+        l_Statement->setUInt32(2, GetPlayer()->GetGUIDLow());
+        l_Statement->setUInt32(3, l_PetNumber);
+
+        l_Transaction->Append(l_Statement);
+    }
+
+    CharacterDatabase.CommitTransaction(l_Transaction);
+
+    if (l_NewSlot != PET_SLOT_OTHER_PET)
+    {
+        m_Player->setPetSlotUsed((PetSlot)l_OldSlot, false);
+        m_Player->setPetSlotUsed((PetSlot)l_NewSlot, true);
+
         SendStableResult(STABLE_SUCCESS_UNSTABLE);
     }
     else

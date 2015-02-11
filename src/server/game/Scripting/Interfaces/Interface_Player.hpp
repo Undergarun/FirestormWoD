@@ -163,15 +163,19 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_Killed);
         }
 
-        /// Called when a player kills another player
+        /// Called when power change is modify (SetPower)
         /// @p_Player : Player instance
         /// @p_Power  : Power type
-        /// @p_Value  : New value
-        virtual void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_Value)
+        /// @p_OldValue  : Old value
+        /// @p_NewValue  : New value
+        /// @p_Regen  : If it's a regen modification
+        virtual void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
         {
             UNUSED(p_Player);
             UNUSED(p_Power);
-            UNUSED(p_Value);
+            UNUSED(p_OldValue);
+            UNUSED(p_NewValue);
+            UNUSED(p_Regen);
         }
 
         /// Called when a player kills another player

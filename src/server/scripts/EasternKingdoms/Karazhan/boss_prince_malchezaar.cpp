@@ -166,7 +166,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* done_by, uint32 &damage)
+        void DamageTaken(Unit* done_by, uint32 &damage, SpellInfo const* p_SpellInfo)
         {
             if (!malchezaar)
                 return;

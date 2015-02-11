@@ -24,7 +24,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ObjectMgr.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 #include "Chat.h"
 #include "Cell.h"
 #include "CellImpl.h"
@@ -431,7 +431,7 @@ class debug_commandscript: public CommandScript
             {
                 sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: leader %s queued", handler->GetSession()->GetPlayer()->GetName());
 
-                ginfo = l_Scheduler.AddGroup(handler->GetSession()->GetPlayer(), grp, bgQueueTypeId, bracketEntry, 0, true, true, personalRating, matchmakerRating, false);
+                ginfo = l_Scheduler.AddGroup(handler->GetSession()->GetPlayer(), grp, bgQueueTypeId, nullptr, bracketEntry, ArenaType::None, true, personalRating, matchmakerRating, false);
                 avgTime = l_InvitationsMgr.GetAverageQueueWaitTime(ginfo, bracketEntry->m_Id);
             }
 
@@ -453,7 +453,7 @@ class debug_commandscript: public CommandScript
                 uint32 queueSlot = member->AddBattlegroundQueueId(bgQueueTypeId);
 
                 // add joined time data
-                member->AddBattlegroundQueueJoinTime(bgTypeId, ginfo->m_JoinTime);
+                member->AddBattlegroundQueueJoinTime(bgQueueTypeId, ginfo->m_JoinTime);
 
                 WorldPacket data; // send status packet (in queue)
                 MS::Battlegrounds::PacketFactory::Status(&data, bg, member, queueSlot, STATUS_WAIT_QUEUE, avgTime, ginfo->m_JoinTime, ginfo->m_ArenaType, false);

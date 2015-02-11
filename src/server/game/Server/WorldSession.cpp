@@ -36,7 +36,7 @@
 #include "Guild.h"
 #include "World.h"
 #include "ObjectAccessor.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 #include "OutdoorPvPMgr.h"
 #include "MapManager.h"
 #include "SocialMgr.h"
@@ -45,6 +45,7 @@
 #include "Transport.h"
 #include "WardenWin.h"
 #include "WardenMac.h"
+#include "GarrisonMgr.hpp"
 
 bool MapSessionFilter::Process(WorldPacket* packet)
 {
@@ -566,6 +567,9 @@ void WorldSession::LogoutPlayer(bool Save)
 
     if (m_Player)
     {
+        if (m_Player->IsInGarrison())
+            m_Player->GetGarrison()->OnPlayerLeave();
+
         if (uint64 lguid = m_Player->GetLootGUID())
             DoLootRelease(lguid);
 
@@ -645,7 +649,7 @@ void WorldSession::LogoutPlayer(bool Save)
             if (MS::Battlegrounds::BattlegroundType::Type bgQueueTypeId = m_Player->GetBattlegroundQueueTypeId(i))
             {
                 m_Player->RemoveBattlegroundQueueId(bgQueueTypeId);
-                sBattlegroundMgr->RemovePlayer(m_Player->GetGUID(), true);
+                sBattlegroundMgr->RemovePlayer(m_Player->GetGUID(), true, bgQueueTypeId);
             }
         }
 

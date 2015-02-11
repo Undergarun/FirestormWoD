@@ -55,7 +55,7 @@
 #include "Weather.h"
 #include "Battleground.h"
 #include "BattlegroundAV.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 #include "OutdoorPvP.h"
 #include "OutdoorPvPMgr.h"
 #include "Arena.h"
@@ -997,6 +997,8 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
 
     if (GetSession()->GetSecurity() > SEC_PLAYER)
         gOnlineGameMaster++;
+
+    m_LastEclipseState = ECLIPSE_NONE;
 }
 
 Player::~Player()
@@ -3333,7 +3335,7 @@ void Player::Regenerate(Powers power)
     if (!maxValue)
         return;
 
-    uint32 curValue = GetPower(power);
+    int32 curValue = GetPower(power);
 
     /// @Todo: possible use of miscvalueb instead of amount
     if (HasAuraTypeWithValue(SPELL_AURA_PREVENT_REGENERATE_POWER, power))
@@ -3471,9 +3473,9 @@ void Player::Regenerate(Powers power)
             /// After 15s return to one embers if no one
             /// or return to one if more than one
             if (!isInCombat() && GetPower(POWER_BURNING_EMBERS) < 10)
-                SetPower(POWER_BURNING_EMBERS, GetPower(POWER_BURNING_EMBERS) + 1);
+                SetPower(POWER_BURNING_EMBERS, GetPower(POWER_BURNING_EMBERS) + 1, true);
             else if (!isInCombat() && GetPower(POWER_BURNING_EMBERS) > 10)
-                SetPower(POWER_BURNING_EMBERS, GetPower(POWER_BURNING_EMBERS) - 1);
+                SetPower(POWER_BURNING_EMBERS, GetPower(POWER_BURNING_EMBERS) - 1, true);
 
             if (HasAura(56241))
             {
@@ -3524,7 +3526,7 @@ void Player::Regenerate(Powers power)
         {
             /// If isn't in combat, gain 1 shard every 20s
             if (!isInCombat())
-                SetPower(POWER_SOUL_SHARDS, GetPower(POWER_SOUL_SHARDS) + 100);
+                SetPower(POWER_SOUL_SHARDS, GetPower(POWER_SOUL_SHARDS) + 100, true);
 
             if (HasAura(56241))
             {
@@ -3572,7 +3574,7 @@ void Player::Regenerate(Powers power)
     }
     else if (addvalue > 0.0f)
     {
-        if (curValue == maxValue)
+        if (curValue == maxValue && power != POWER_ECLIPSE)
             return;
     }
     else
@@ -4446,7 +4448,8 @@ void Player::RemoveSpecializationSpells()
     for (auto itr : GetSpellMap())
     {
         SpellInfo const* spell = sSpellMgr->GetSpellInfo(itr.first);
-        if (spell && !spell->SpecializationIdList.empty())
+        if (spell && !spell->SpecializationIdList.empty()
+            && spell->Id != 674)    ///< Ambidextrie hackfix, removed at spec switch (rogue)
             spellToRemove.push_back(itr.first);
     }
 
@@ -4868,6 +4871,11 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
         sWorld->BanAccount(BAN_CHARACTER, GetName(), "-1", banString, "Auto-Ban");
         return false;
     }
+
+    /// - Remove non authorized spell (learned when system was buggede)
+    if ((spellInfo->AttributesEx7 & SPELL_ATTR7_HORDE_ONLY && (getRaceMask() & RACEMASK_HORDE) == 0)
+        || (spellInfo->AttributesEx7 & SPELL_ATTR7_ALLIANCE_ONLY && (getRaceMask() & RACEMASK_ALLIANCE) == 0))
+        return false;
 
     // Validate profession
     if (loading)
@@ -5559,7 +5567,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
 
 void Player::ReduceSpellCooldown(uint32 p_SpellID, time_t p_ModifyTime)
 {
-    int32 l_NewCooldown = GetSpellCooldownDelay(p_SpellID) * 1000;
+    int32 l_NewCooldown = GetSpellCooldownDelay(p_SpellID);
 
     if (l_NewCooldown < 0)
         l_NewCooldown = 0;
@@ -5930,6 +5938,11 @@ bool Player::ResetTalents(bool no_cost)
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             if (_spellEntry->Effects[i].TriggerSpell > 0 && _spellEntry->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL)
                 removeSpell(_spellEntry->Effects[i].TriggerSpell, true);
+
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            if (_spellEntry->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS || _spellEntry->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2)
+                RemoveAurasDueToSpell(_spellEntry->Effects[i].BasePoints);
+
         // if this talent rank can be found in the PlayerTalentMap, mark the talent as removed so it gets deleted
         PlayerTalentMap::iterator plrTalent = GetTalentMap(GetActiveSpec())->find(itr.first);
         if (plrTalent != GetTalentMap(GetActiveSpec())->end())
@@ -5959,11 +5972,11 @@ bool Player::ResetTalents(bool no_cost)
     return true;
 }
 
-void Player::ResetSpec()
+void Player::ResetSpec(bool p_NoCost /* = false */)
 {
     uint32 cost = 0;
 
-    if (!sWorld->getBoolConfig(CONFIG_NO_RESET_TALENT_COST))
+    if (!sWorld->getBoolConfig(CONFIG_NO_RESET_TALENT_COST) && !p_NoCost)
     {
         cost = GetNextResetSpecializationCost();
 
@@ -5981,6 +5994,42 @@ void Player::ResetSpec()
 
     if (GetSpecializationId(GetActiveSpec()) == 0)
         return;
+
+    for (auto itr : *GetTalentMap(GetActiveSpec()))
+    {
+        SpellInfo const* spell = sSpellMgr->GetSpellInfo(itr.first);
+        if (!spell)
+            continue;
+
+        bool l_Remove = false;
+        for (uint32 l_TalentID : spell->m_TalentIDs)
+        {
+            TalentEntry const* l_TalentEntry = sTalentStore.LookupEntry(l_TalentID);
+            if (l_TalentEntry && l_TalentEntry->SpecID == GetSpecializationId(GetActiveSpec()))
+            {
+                l_Remove = true;
+                break;
+            }
+        }
+
+        if (!l_Remove)
+            continue;
+
+        removeSpell(itr.first, true);
+
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            if (spell->Effects[i].TriggerSpell > 0 && spell->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL)
+                removeSpell(spell->Effects[i].TriggerSpell, true);
+
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            if (spell->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS || spell->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2)
+                RemoveAurasDueToSpell(spell->Effects[i].BasePoints);
+
+        itr.second->state = PLAYERSPELL_REMOVED;
+
+        SetUsedTalentCount(GetUsedTalentCount() - 1);
+        SetFreeTalentPoints(GetFreeTalentPoints() + 1);
+    }
 
     RemoveSpecializationSpells();
     SetSpecializationId(GetActiveSpec(), 0);
@@ -17691,6 +17740,10 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 p_Reward, bool msg)
                 case uint8(PackageItemRewardType::SpecializationReward):
                     if (!l_ItemTemplate->HasSpec((SpecIndex)GetSpecializationId(GetActiveSpec())))
                     {
+                        // Hard fix to apply dynamic rewards for low level quests
+                        if (quest->GetQuestLevel() < 10 && l_ItemTemplate->HasClassSpec(getClass()))
+                            break;
+
                         GetSession()->SendNotification(LANG_NO_SPE_FOR_DYNAMIC_REWARD);
                         return false;
                     }
@@ -17943,7 +17996,7 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
             switch (l_DynamicReward->Type)
             {
                 case uint8(PackageItemRewardType::SpecializationReward):
-                    if (!l_ItemTemplate->HasSpec((SpecIndex)GetSpecializationId(GetActiveSpec())))
+                    if (!l_ItemTemplate->HasSpec((SpecIndex)GetSpecializationId(GetActiveSpec())) && !l_ItemTemplate->HasClassSpec(getClass()))
                         continue;
                     break;
                 case uint8(PackageItemRewardType::ClassReward):
@@ -19146,8 +19199,7 @@ void Player::KilledPlayerCredit()
 
 void Player::CastedCreatureOrGO(uint32 entry, uint64 guid, uint32 spell_id)
 {
-    UNUSED(entry);  ///@TODO refactor spell quest objective
-    QuestObjectiveSatisfy(spell_id, 1, QUEST_OBJECTIVE_TYPE_SPELL /*QUEST_OBJECTIVE_TYPE_NPC_INTERACT*/, guid);
+    QuestObjectiveSatisfy(spell_id, 1, QUEST_OBJECTIVE_TYPE_SPELL, guid);
 }
 
 void Player::TalkedToCreature(uint32 entry, uint64 guid)
@@ -19821,7 +19873,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     SetByteValue(PLAYER_FIELD_LIFETIME_MAX_RANK, 1, fields[60].GetUInt8());
 
     m_currentPetSlot = (PetSlot)fields[61].GetUInt8();
-    m_petSlotUsed = fields[62].GetUInt32();
+
+    /// I think we didn't need to save it or load it, we can get it in StablePetCallback
+    //m_petSlotUsed = fields[62].GetUInt32();
 
     InitDisplayIds();
 
@@ -26866,27 +26920,36 @@ float Player::GetReputationPriceDiscount(Creature const* creature) const
     return 1.0f - 0.05f* (rank - REP_NEUTRAL);
 }
 
-bool Player::IsSpellFitByClassAndRace(uint32 spell_id) const
+bool Player::IsSpellFitByClassAndRace(uint32 p_SpellId) const
 {
-    uint32 racemask  = getRaceMask();
-    uint32 classmask = getClassMask();
+    uint32 l_RaceMask  = getRaceMask();
+    uint32 l_ClassMask = getClassMask();
+    auto l_Spellinfo   = sSpellMgr->GetSpellInfo(p_SpellId);
 
-    SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spell_id);
-    if (bounds.first == bounds.second)
+    if (l_Spellinfo == nullptr)
+        return false;
+
+    SkillLineAbilityMapBounds l_Bounds = sSpellMgr->GetSkillLineAbilityMapBounds(p_SpellId);
+    if (l_Bounds.first == l_Bounds.second)
         return true;
 
-    for (SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
+    for (SkillLineAbilityMap::const_iterator l_SpellIdx = l_Bounds.first; l_SpellIdx != l_Bounds.second; ++l_SpellIdx)
     {
         // Hackfix, Gift of the Naaru for Monks (121093) doesn't have a racemask for only Draenei
-        if (spell_id == 121093 && racemask != 1024)
+        if (p_SpellId == 121093 && l_RaceMask != 1024)
+            continue;
+
+        /// Skip horde or alliance only spells
+        if ((l_Spellinfo->AttributesEx7 & SPELL_ATTR7_HORDE_ONLY && (l_RaceMask & RACEMASK_HORDE) == 0)
+            || (l_Spellinfo->AttributesEx7 & SPELL_ATTR7_ALLIANCE_ONLY && (l_RaceMask & RACEMASK_ALLIANCE) == 0))
             continue;
 
         // skip wrong race skills
-        if (_spell_idx->second->racemask && (_spell_idx->second->racemask & racemask) == 0)
+        if (l_SpellIdx->second->racemask && (l_SpellIdx->second->racemask & l_RaceMask) == 0)
             continue;
 
         // skip wrong class skills
-        if (_spell_idx->second->classmask && (_spell_idx->second->classmask & classmask) == 0)
+        if (l_SpellIdx->second->classmask && (l_SpellIdx->second->classmask & l_ClassMask) == 0)
             continue;
 
         return true;
@@ -28950,7 +29013,7 @@ void Player::BuildPlayerTalentsInfoData(WorldPacket * p_Data)
         {
             SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo((*itr).first);
 
-            if (l_SpellInfo && !l_SpellInfo->m_TalentIDs.empty())
+            if (l_SpellInfo && !l_SpellInfo->m_TalentIDs.empty() && itr->second->state != PLAYERSPELL_REMOVED)
             {
                 uint32 l_SpecID = GetSpecializationId(GetActiveSpec());
                 uint16 l_Talent = 0;
@@ -29460,9 +29523,16 @@ void Player::ActivateSpec(uint8 spec)
     {
         removeSpell(itr.first, true); // removes the talent, and all dependant, learned, and chained spells..
         if (const SpellInfo* _spellEntry = sSpellMgr->GetSpellInfo(itr.first))
+        {
             for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)                  // search through the SpellInfo for valid trigger spells
                 if (_spellEntry->Effects[i].TriggerSpell > 0 && _spellEntry->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL)
                     removeSpell(_spellEntry->Effects[i].TriggerSpell, true); // and remove any spells that the talent teaches
+
+            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                if (_spellEntry->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS || _spellEntry->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2)
+                    RemoveAurasDueToSpell(_spellEntry->Effects[i].BasePoints);
+        }
+
     }
 
     RemoveSpecializationSpells();

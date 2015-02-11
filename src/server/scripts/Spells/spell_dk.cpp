@@ -82,7 +82,8 @@ enum DeathKnightSpells
     DK_SPELL_DEATH_PACT                         = 48743,
     DK_SPELL_ICY_TOUCH                          = 45477,
     DK_SPELL_CHILBLAINS_TRIGGER                 = 50435,
-    DK_SPELL_REAPING                            = 56835
+    DK_SPELL_REAPING                            = 56835,
+    DK_SPELL_NECROTIC_PLAGUE_ENERGIZE           = 155165
 };
 
 uint32 g_TabDeasesDK[3] = { DK_SPELL_FROST_FEVER, DK_SPELL_BLOOD_PLAGUE, DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA };
@@ -595,16 +596,19 @@ class PlayerScript_Blood_Tap: public PlayerScript
 
         uint16 m_RunicPower = 0;
 
-        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_Value)
+        void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
         {
-            if (p_Player->getClass() != CLASS_DEATH_KNIGHT || p_Power != POWER_RUNIC_POWER || !p_Player->HasSpell(45529))
+            if (p_Player->getClass() != CLASS_DEATH_KNIGHT || p_Power != POWER_RUNIC_POWER || !p_Player->HasSpell(45529) || p_Regen)
                 return;
+
+            // Get the power earn (if > 0 ) or consum (if < 0)
+            int32 l_diffValue = p_NewValue - p_OldValue;
 
             // Only on use runic power
-            if (p_Value > 0)
+            if (l_diffValue > 0)
                 return;
 
-            m_RunicPower += -p_Value;
+            m_RunicPower += -l_diffValue;
 
             if (m_RunicPower >= 150)
             {
@@ -1762,6 +1766,20 @@ class spell_dk_necrotic_plague_aura: public SpellScriptLoader
                 }
             }
 
+            void OnProc(constAuraEffectPtr /*p_AurEff*/, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (Unit* l_Target = p_EventInfo.GetActionTarget())
+                    {
+                        if (l_Caster->GetGUID() == l_Target->GetGUID())
+                            l_Caster->CastSpell(l_Caster, DK_SPELL_NECROTIC_PLAGUE_ENERGIZE, true);
+                    }
+                }
+            }
+
             bool CanRefreshProcDummy()
             {
                 return false;
@@ -1771,6 +1789,7 @@ class spell_dk_necrotic_plague_aura: public SpellScriptLoader
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_dk_necrotic_plague_aura_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
                 CanRefreshProc += AuraCanRefreshProcFn(spell_dk_necrotic_plague_aura_AuraScript::CanRefreshProcDummy);
+                OnEffectProc += AuraEffectProcFn(spell_dk_necrotic_plague_aura_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
             }
         };
 
@@ -1786,13 +1805,16 @@ class PlayerScript_Runic_Empowerment: public PlayerScript
     public:
         PlayerScript_Runic_Empowerment() :PlayerScript("PlayerScript_Runic_Empowerment") {}
 
-        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_Value)
+        void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
         {
-            if (p_Player->getClass() != CLASS_DEATH_KNIGHT || p_Power != POWER_RUNIC_POWER || !p_Player->HasAura(DK_SPELL_RUNIC_EMPOWERMENT))
+            if (p_Player->getClass() != CLASS_DEATH_KNIGHT || p_Power != POWER_RUNIC_POWER || !p_Player->HasAura(DK_SPELL_RUNIC_EMPOWERMENT) || p_Regen)
                 return;
 
+            // Get the power earn (if > 0 ) or consum (if < 0)
+            int32 l_diffValue = p_NewValue - p_OldValue;
+
             // Only on use runic power
-            if (p_Value > 0)
+            if (l_diffValue > 0)
                 return;
 
             if (AuraEffectPtr l_RunicEmpowerment = p_Player->GetAuraEffect(DK_SPELL_RUNIC_EMPOWERMENT, EFFECT_0))
@@ -1801,7 +1823,7 @@ class PlayerScript_Runic_Empowerment: public PlayerScript
                 float l_Amount = l_RunicEmpowerment->GetAmount();
                 l_Amount /= 100.f;
 
-                float l_Chance = l_Amount * (((float)-p_Value) / 10.f);
+                float l_Chance = l_Amount * (((float)-l_diffValue) / 10.f);
 
                 if (roll_chance_f(l_Chance))
                 {
@@ -1831,13 +1853,16 @@ class PlayerScript_Corrupion_Runic: public PlayerScript
     public:
         PlayerScript_Corrupion_Runic() :PlayerScript("PlayerScript_Corrupion_Runic") {}
 
-        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_Value)
+        void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
         {
-            if (p_Player->getClass() != CLASS_DEATH_KNIGHT || p_Power != POWER_RUNIC_POWER || !p_Player->HasAura(DK_SPELL_RUNIC_CORRUPTION_AURA))
+            if (p_Player->getClass() != CLASS_DEATH_KNIGHT || p_Power != POWER_RUNIC_POWER || !p_Player->HasAura(DK_SPELL_RUNIC_CORRUPTION_AURA) || p_Regen)
                 return;
 
+            // Get the power earn (if > 0 ) or consum (if < 0)
+            int32 l_diffValue = p_NewValue - p_OldValue;
+
             // Only on use runic power
-            if (p_Value > 0)
+            if (l_diffValue > 0)
                 return;
 
             if (AuraEffectPtr l_RunicCorruption = p_Player->GetAuraEffect(DK_SPELL_RUNIC_CORRUPTION_AURA, EFFECT_1))
@@ -1846,7 +1871,7 @@ class PlayerScript_Corrupion_Runic: public PlayerScript
                 float l_Amount = l_RunicCorruption->GetAmount();
                 l_Amount /= 100.f;
 
-                float l_Chance = l_Amount * (((float)-p_Value) / 10.f);
+                float l_Chance = l_Amount * (((float)-l_diffValue) / 10.f);
 
                 if (roll_chance_f(l_Chance))
                     p_Player->CastSpell(p_Player, DK_SPELL_RUNIC_CORRUPTION, true);

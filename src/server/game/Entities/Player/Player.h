@@ -1171,7 +1171,7 @@ struct BGData
                                             ///  when player is teleported to BG - (it is battleground's GUID)
     BattlegroundTypeId bgTypeID;
 
-    std::map<uint32, uint32> bgQueuesJoinedTime;
+    std::map<MS::Battlegrounds::BattlegroundType::Type, uint32> bgQueuesJoinedTime;
 
     std::set<uint32>   bgAfkReporter;
     uint8              bgAfkReportedCount;
@@ -2171,7 +2171,7 @@ class Player : public Unit, public GridObject<Player>
         void CastPassiveTalentSpell(uint32 spellId);
         void RemovePassiveTalentSpell(uint32 spellId);
 
-        void ResetSpec();
+        void ResetSpec(bool p_NoCost = false);
 
         // Dual Spec
         void UpdateSpecCount(uint8 count);
@@ -2736,27 +2736,48 @@ class Player : public Unit, public GridObject<Player>
         BattlegroundTypeId GetBattlegroundTypeId() const { return m_bgData.bgTypeID; }
         Battleground* GetBattleground() const;
 
-        uint32 GetBattlegroundQueueJoinTime(uint32 bgTypeId) const
+        uint32 GetBattlegroundQueueJoinTime(MS::Battlegrounds::BattlegroundType::Type bgTypeId) const
         {
             auto itr = m_bgData.bgQueuesJoinedTime.find(bgTypeId);
             return itr != m_bgData.bgQueuesJoinedTime.end() ? itr->second : time(NULL);
         }
 
-        void AddBattlegroundQueueJoinTime(uint32 bgTypeId, uint32 joinTime)
+        void ChangeBattlegroundQueueJoinTimeKey(MS::Battlegrounds::BattlegroundType::Type p_BgTypeId, MS::Battlegrounds::BattlegroundType::Type p_OldBgTypeId)
+        {
+            auto l_Itr = m_bgData.bgQueuesJoinedTime.find(p_OldBgTypeId);
+            if (l_Itr != std::end(m_bgData.bgQueuesJoinedTime))
+            {
+                m_bgData.bgQueuesJoinedTime.insert(std::make_pair(p_BgTypeId, l_Itr->second));
+                m_bgData.bgQueuesJoinedTime.erase(l_Itr);
+            }
+        }
+
+        void AddBattlegroundQueueJoinTime(MS::Battlegrounds::BattlegroundType::Type bgTypeId, uint32 joinTime)
         {
             m_bgData.bgQueuesJoinedTime[bgTypeId] = joinTime;
         }
 
-        void RemoveBattlegroundQueueJoinTime(uint32 bgTypeId)
+        void RemoveBattlegroundQueueJoinTime(MS::Battlegrounds::BattlegroundType::Type bgTypeId)
         {
-            if (m_bgData.bgQueuesJoinedTime.find(bgTypeId) != m_bgData.bgQueuesJoinedTime.end())
-                m_bgData.bgQueuesJoinedTime.erase(m_bgData.bgQueuesJoinedTime.find(bgTypeId)->second);
+            auto l_Itr = m_bgData.bgQueuesJoinedTime.find(bgTypeId);
+            if (l_Itr != m_bgData.bgQueuesJoinedTime.end())
+                m_bgData.bgQueuesJoinedTime.erase(l_Itr);
         }
         
+        /// Returns true if the player is in a battleground queue.
         bool InBattlegroundQueue() const
         {
             for (uint8 i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
-                if (m_bgBattlegroundQueueID[i].BgType != MS::Battlegrounds::BattlegroundType::None)
+                if (m_bgBattlegroundQueueID[i].BgType <= MS::Battlegrounds::BattlegroundType::DeepwindGorge)
+                    return true;
+            return false;
+        }
+
+        /// Returns true if the player is in an arena queue.
+        bool InArenaQueue() const
+        {
+            for (uint8 i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
+                if (m_bgBattlegroundQueueID[i].BgType >= MS::Battlegrounds::BattlegroundType::Arena2v2 && m_bgBattlegroundQueueID[i].BgType <= MS::Battlegrounds::BattlegroundType::ArenaSkirmish3v3)
                     return true;
             return false;
         }
@@ -2961,22 +2982,22 @@ class Player : public Unit, public GridObject<Player>
 
         PetSlot getSlotForNewPet()
         {
-            uint32 last_known = 0;
+            uint32 l_LastKnow = 0;
             // Call Pet Spells
             // 883 83242 83243 83244 83245
             //  1    2     3     4     5
             if (HasSpell(83245))
-                last_known = 5;
+                l_LastKnow = 5;
             else if (HasSpell(83244))
-                last_known = 4;
+                l_LastKnow = 4;
             else if (HasSpell(83243))
-                last_known = 3;
+                l_LastKnow = 3;
             else if (HasSpell(83242))
-                last_known = 2;
+                l_LastKnow = 2;
             else if (HasSpell(883))
-                last_known = 1;
+                l_LastKnow = 1;
 
-            for (uint32 i = uint32(PET_SLOT_HUNTER_FIRST); i < last_known; ++i)
+            for (uint32 i = uint32(PET_SLOT_HUNTER_FIRST); i < l_LastKnow; ++i)
                 if ((m_petSlotUsed & (1 << i)) == 0)
                     return PetSlot(i);
 

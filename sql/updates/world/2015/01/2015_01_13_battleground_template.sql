@@ -1,0 +1,1 @@
+UPDATE battleground_template SET MinPlayersPerTeam=1 WHERE MinPlayersPerTeam=0;

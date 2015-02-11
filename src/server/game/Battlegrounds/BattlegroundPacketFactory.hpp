@@ -1,9 +1,17 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2014 Millenium-studio SARL
+//  All Rights Reserved.
+//
+//////////////////////////////////////////////////////////////////////////////// 
+
 #ifndef BATTLEGROUND_PACKET_FACTORY_HPP
 # define BATTLEGROUND_PACKET_FACTORY_HPP
 
 # include "BattlegroundScheduler.hpp"
 
-# include "BattlegroundMgr.h"
+# include "BattlegroundMgr.hpp"
 # include "BattlegroundAV.h"
 # include "BattlegroundAB.h"
 # include "BattlegroundDG.h"
@@ -61,10 +69,7 @@ namespace MS
                     p_Data->appendPackGUID(l_PlayerGuid);                                           ///< Requester Guid
                     *p_Data << uint32(p_QueueSlot);                                                 ///< Instance ID
 
-                    if (p_BG)
-                        *p_Data << uint32(p_BG->isArena() ? p_BG->GetMaxPlayersPerTeam() : 1);      ///< Type
-                    else
-                        *p_Data << uint32(1);                                                       ///< Type
+                    *p_Data << uint32(1);                                                           ///< Type
 
                     *p_Data << uint32(p_Time1);                                                     ///< Time
 
@@ -76,7 +81,7 @@ namespace MS
 
                     p_Data->appendPackGUID(l_PlayerGuid);                                     ///< Requester Guid
                     *p_Data << uint32(p_QueueSlot);                                           ///< Instance ID
-                    *p_Data << uint32(p_BG->isArena() ? p_BG->GetMaxPlayersPerTeam() : 1);    ///< Type
+                    *p_Data << uint32(1);                                                     ///< Type
                     *p_Data << uint32(p_Time2);                                               ///< Time
 
                     *p_Data << uint64(l_BGQueueID);                                           ///< QueueID
@@ -105,7 +110,7 @@ namespace MS
 
                     p_Data->appendPackGUID(l_PlayerGuid);                                     ///< Requester Guid
                     *p_Data << uint32(p_QueueSlot);                                           ///< Instance ID
-                    *p_Data << uint32(p_BG->isArena() ? p_BG->GetMaxPlayersPerTeam() : 1);    ///< Type
+                    *p_Data << uint32(1);                                                     ///< Type
                     *p_Data << uint32(p_Time2);                                               ///< Time
 
                     *p_Data << uint64(l_BGQueueID);                                           ///< QueueID
@@ -137,8 +142,8 @@ namespace MS
 
                     p_Data->appendPackGUID(l_PlayerGuid);                                     ///< Requester Guid
                     *p_Data << uint32(p_QueueSlot);                                           ///< Instance ID
-                    *p_Data << uint32(p_BG->isArena() ? p_BG->GetMaxPlayersPerTeam() : 1);    ///< Type
-                    *p_Data << uint32(p_Time2);                                                 ///< Time
+                    *p_Data << uint32(1);                                                     ///< Type
+                    *p_Data << uint32(p_Time2);                                               ///< Time
 
                     *p_Data << uint64(l_BGQueueID);                                           ///< QueueID
                     *p_Data << uint8(p_BG->GetMinLevel());                                    ///< RangeMin
@@ -164,7 +169,7 @@ namespace MS
 
                     p_Data->appendPackGUID(l_PlayerGuid);                                     ///< Requester Guid
                     *p_Data << uint32(p_QueueSlot);                                           ///< Instance ID
-                    *p_Data << uint32(p_BG->isArena() ? p_BG->GetMaxPlayersPerTeam() : 1);    ///< Type
+                    *p_Data << uint32(1);                                                     ///< Type
                     *p_Data << uint32(p_Time2);                                               ///< Time
 
                     *p_Data << uint64(l_BGQueueID);                                           ///< QueueID
@@ -179,7 +184,7 @@ namespace MS
                     *p_Data << uint32(p_BG->GetMapId());                                      ///< Map Id
                     *p_Data << uint32(p_Time1);                                               ///< Time to Close
 
-                    for (uint32 l_I = 0; l_I < BG_TEAMS_COUNT; l_I++)
+                    for (uint32 l_I = 0; l_I < TeamsCount::Value; l_I++)
                     {
                         *p_Data << uint8(0);                                                  ///< @TODO TotalPlayers
                         *p_Data << uint8(0);                                                  ///< @TODO AwaitingPlayers
@@ -245,7 +250,7 @@ namespace MS
 
                 if (l_HasRatings)
                 {
-                    for (int8 l_I = 0; l_I < BG_TEAMS_COUNT; ++l_I)
+                    for (int8 l_I = 0; l_I < TeamsCount::Value; ++l_I)
                     {
                         int32 l_RatingChange = p_BG->GetArenaTeamRatingChangeByIndex(l_I);
                         uint32 l_Prematch = l_RatingChange < 0 ? -l_RatingChange : 0;
@@ -253,7 +258,7 @@ namespace MS
                         *p_Data << uint32(l_Prematch);                      ///< Rating Lost
                     }
 
-                    for (int8 l_I = 0; l_I < BG_TEAMS_COUNT; ++l_I)
+                    for (int8 l_I = 0; l_I < TeamsCount::Value; ++l_I)
                     {
                         int32 l_RatingChange = p_BG->GetArenaTeamRatingChangeByIndex(l_I);
                         uint32 l_Postmatch = l_RatingChange > 0 ? l_RatingChange : 0;
@@ -261,7 +266,7 @@ namespace MS
                         *p_Data << uint32(l_Postmatch);                    ///< Rating Lost
                     }
 
-                    for (int8 l_I = 0; l_I < BG_TEAMS_COUNT; ++l_I)
+                    for (int8 l_I = 0; l_I < TeamsCount::Value; ++l_I)
                     {
                         uint32 l_PrematchMMR = p_BG->GetArenaMatchmakerRatingByIndex(l_I);
 
@@ -454,7 +459,7 @@ namespace MS
                 p_Data->appendPackGUID(p_Player->GetGUID());
                 *p_Data << uint32(p_QueueSlot);                                                 ///< ID
                 *p_Data << uint32(p_BG->isArena() ? p_BG->GetMaxPlayersPerTeam() : 1);          ///< Type
-                *p_Data << uint32(p_Player->GetBattlegroundQueueJoinTime(p_BG->GetTypeID()));   ///< Time
+                *p_Data << uint32(p_Player->GetBattlegroundQueueJoinTime(GetSchedulerType(p_BG->GetTypeID())));   ///< Time
 
                 *p_Data << uint64(p_BG->GetGUID());
                 *p_Data << uint32(p_Result);

@@ -282,7 +282,7 @@ public:
             }
         }*/
 
-        /*void DamageTaken(Unit* attacker, uint32 &damage)
+        /*void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const* p_SpellInfo)
         {
             if (me->HealthBelowPct(50) && !me->HasAura(SPELL_BLUR))
             {

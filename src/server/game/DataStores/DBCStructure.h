@@ -536,14 +536,14 @@ struct DurabilityQualityEntry
 
 struct EmotesEntry
 {
-    uint32  Id;                                             // 0        m_ID
-    char*     EmoteSlashCommand;                          // 1        EmoteSlashCommand
-    uint32    m_AnimID;                                   // 2        m_AnimID
-    uint32  Flags;                                          // 3        m_EmoteFlags
-    uint32  EmoteType;                                      // 4        m_EmoteSpecProc
-    uint32  UnitStandState;                                 // 5        m_EmoteSpecProcParam
-    uint32    m_EventSoundID;                             // 6        m_EventSoundID
-    uint32    SpellVisualKitID;                           // 7        m_SpellVisualKitID
+    uint32  Id;                                         // 0        m_ID
+    char*   EmoteSlashCommand;                          // 1        EmoteSlashCommand
+    uint32  m_AnimID;                                   // 2        m_AnimID
+    uint32  Flags;                                      // 3        m_EmoteFlags
+    uint32  EmoteType;                                  // 4        m_EmoteSpecProc
+    uint32  UnitStandState;                             // 5        m_EmoteSpecProcParam
+    uint32  m_EventSoundID;                             // 6        m_EventSoundID
+    uint32  SpellVisualKitID;                           // 7        m_SpellVisualKitID
 };
 
 /// @see EmoteType in EmotesEntry

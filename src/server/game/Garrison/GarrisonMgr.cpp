@@ -136,10 +136,8 @@ namespace MS { namespace Garrison
         /// Storehouse learning
         LearnBlueprint(Buildings::Storehouse__Storehouse_Level1);
         LearnBlueprint(Buildings::Barracks__Barracks_Level1);
-
-        /// 26/01/2015 @ 12h00
-        if (time(nullptr) >= 1422273600)
-            LearnBlueprint(Buildings::DwarvenBunker__WarMill_Level1);
+        LearnBlueprint(Buildings::DwarvenBunker__WarMill_Level1);
+        LearnBlueprint(Buildings::TheForge__TheForge_Level1);
     }
     /// Load
     bool Manager::Load(PreparedQueryResult p_GarrisonResult, PreparedQueryResult p_BuildingsResult, PreparedQueryResult p_FollowersResult, PreparedQueryResult p_MissionsResult)
@@ -463,12 +461,10 @@ namespace MS { namespace Garrison
             }
 
             /// Storehouse learning
-            LearnBlueprint(Buildings::Barracks__Barracks_Level1);
             LearnBlueprint(Buildings::Storehouse__Storehouse_Level1);
-
-            /// 26/01/2015 @ 12h00
-            if (time(nullptr) >= 1422273600)
-                LearnBlueprint(Buildings::DwarvenBunker__WarMill_Level1);
+            LearnBlueprint(Buildings::Barracks__Barracks_Level1);
+            LearnBlueprint(Buildings::DwarvenBunker__WarMill_Level1);
+            LearnBlueprint(Buildings::TheForge__TheForge_Level1);
 
             return true;
         }
@@ -1455,7 +1451,12 @@ namespace MS { namespace Garrison
         m_Owner->ModifyMoney(m_PendingMissionReward.RewardGold);
 
         for (auto l_Currency : m_PendingMissionReward.RewardCurrencies)
-            m_Owner->ModifyCurrency(l_Currency.first, l_Currency.second);
+        {
+            const CurrencyTypesEntry * l_CurrencyEntry = sCurrencyTypesStore.LookupEntry(l_Currency.first);
+
+            if (l_CurrencyEntry)
+                m_Owner->ModifyCurrency(l_Currency.first, l_Currency.second * l_CurrencyEntry->GetPrecision());
+        }
 
         for (auto l_Item : m_PendingMissionReward.RewardItems)
         {
@@ -2316,7 +2317,7 @@ namespace MS { namespace Garrison
         if (GetGarrisonScript())
             l_BuildingTime = GetGarrisonScript()->OnPrePurchaseBuilding(m_Owner, p_BuildingRecID, l_BuildingTime);
 
-        l_Building.DatabaseID            = sObjectMgr->GetNewGarrisonBuildingID();
+        l_Building.DatabaseID       = sObjectMgr->GetNewGarrisonBuildingID();
         l_Building.BuildingID       = p_BuildingRecID;
         l_Building.PlotInstanceID   = p_PlotInstanceID;
         l_Building.TimeBuiltStart   = time(0);
@@ -2743,7 +2744,7 @@ namespace MS { namespace Garrison
 
         if (l_GobEntry != 0)
         {
-            GameObject * l_Gob = m_Owner->SummonGameObject(l_GobEntry, l_PlotInfo.X, l_PlotInfo.Y, l_PlotInfo.Z, l_PlotInfo.O, 0, 0, 0, 0, 0);
+            GameObject * l_Gob = m_Owner->SummonGameObject(l_GobEntry, l_PlotInfo.X, l_PlotInfo.Y, l_PlotInfo.Z, l_PlotInfo.O, 0, 0, 0, 0, 0, 0, 0, 255, 0, true);
         
             if (l_Gob)
             {

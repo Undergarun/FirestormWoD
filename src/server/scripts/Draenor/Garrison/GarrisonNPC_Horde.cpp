@@ -383,6 +383,251 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
+    
+    /// Constructor
+    npc_OrgekIronhand::npc_OrgekIronhand()
+        : CreatureScript("npc_OrgekIronhand_Garr")
+    {
+
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Called when a CreatureAI object is needed for the creature.
+    /// @p_Creature : Target creature instance
+    CreatureAI * npc_OrgekIronhand::GetAI(Creature * p_Creature) const
+    {
+        return new npc_OrgekIronhandAI(p_Creature);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    npc_OrgekIronhand::npc_OrgekIronhandAI::npc_OrgekIronhandAI(Creature * p_Creature)
+        : GarrisonNPCAI(p_Creature), m_SequencePosition(0xFF)
+    {
+        SetAIObstacleManagerEnabled(true);
+
+        m_OnPointReached[OrgekIronhand::MovePointIDs::Anvil] = [this]() -> void
+        {
+            AddTimedDelayedOperation(OrgekIronhand::DestPointDuration::Anvil, [this]() -> void { DoNextSequenceAction(); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(OrgekIronhand::MovePointLoc[OrgekIronhand::MovePointIDs::Anvil - OrgekIronhand::MovePointIDs::Anvil][3]); });
+
+            AddTimedDelayedOperation(0 * IN_MILLISECONDS,                     [this]() -> void
+            {
+                me->LoadEquipment(1, true);
+                me->HandleEmoteCommand(EMOTE_STATE_WORK_CHOPWOOD_GARR);
+            });
+            AddTimedDelayedOperation(OrgekIronhand::DestPointDuration::Anvil, [this]() -> void
+            {
+                me->LoadEquipment(0, true);
+                me->HandleEmoteCommand(0);
+                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
+            });
+        };
+
+        m_OnPointReached[OrgekIronhand::MovePointIDs::Front] = [this]() -> void
+        {
+            AddTimedDelayedOperation(OrgekIronhand::DestPointDuration::Front, [this]() -> void { DoNextSequenceAction(); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(OrgekIronhand::MovePointLoc[OrgekIronhand::MovePointIDs::Front - OrgekIronhand::MovePointIDs::Anvil][3]); });
+
+            AddTimedDelayedOperation(0 * IN_MILLISECONDS,                     [this]() -> void { me->HandleEmoteCommand(EMOTE_STATE_READ_AND_TALK);    });
+            AddTimedDelayedOperation(OrgekIronhand::DestPointDuration::Front, [this]() -> void
+            {
+                me->HandleEmoteCommand(0);
+                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
+            });
+        };
+
+        m_OnPointReached[OrgekIronhand::MovePointIDs::Forge1] = [this]() -> void
+        {
+            AddTimedDelayedOperation(OrgekIronhand::DestPointDuration::Forge1, [this]() -> void { DoNextSequenceAction(); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(OrgekIronhand::MovePointLoc[OrgekIronhand::MovePointIDs::Forge1 - OrgekIronhand::MovePointIDs::Anvil][3]); });
+
+            AddTimedDelayedOperation(0 * IN_MILLISECONDS,                      [this]() -> void
+            {
+                me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 8);
+                me->HandleEmoteCommand(EMOTE_STATE_USE_STANDING_NO_SHEATHE);
+            });
+            AddTimedDelayedOperation(OrgekIronhand::DestPointDuration::Forge1, [this]() -> void
+            {
+                me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0);
+                me->HandleEmoteCommand(0);
+                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
+            });
+        };
+
+        m_OnPointReached[OrgekIronhand::MovePointIDs::Forge2] = [this]() -> void
+        {
+            AddTimedDelayedOperation(OrgekIronhand::DestPointDuration::Forge2, [this]() -> void { DoNextSequenceAction(); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(OrgekIronhand::MovePointLoc[OrgekIronhand::MovePointIDs::Forge2 - OrgekIronhand::MovePointIDs::Anvil][3]); });
+
+            AddTimedDelayedOperation(0 * IN_MILLISECONDS,                      [this]() -> void { me->HandleEmoteCommand(EMOTE_STATE_READ_AND_TALK);    });
+            AddTimedDelayedOperation(OrgekIronhand::DestPointDuration::Forge2, [this]() -> void
+            {
+                me->HandleEmoteCommand(0);
+                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
+            });
+        };
+
+        m_OnPointReached[OrgekIronhand::MovePointIDs::Chest] = [this]() -> void
+        {
+            AddTimedDelayedOperation(OrgekIronhand::DestPointDuration::Chest, [this]() -> void { DoNextSequenceAction(); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(OrgekIronhand::MovePointLoc[OrgekIronhand::MovePointIDs::Chest - OrgekIronhand::MovePointIDs::Anvil][3]); });
+
+            AddTimedDelayedOperation(0 * IN_MILLISECONDS,                     [this]() -> void { me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 8); });
+            AddTimedDelayedOperation(OrgekIronhand::DestPointDuration::Chest, [this]() -> void { me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0); });
+        };
+
+        DoNextSequenceAction();
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Do next sequence element
+    void npc_OrgekIronhand::npc_OrgekIronhandAI::DoNextSequenceAction()
+    {
+        if (m_SequencePosition >= sizeof(OrgekIronhand::Sequence))
+            m_SequencePosition = 0;
+
+        m_DelayedOperations.push([this]() -> void
+        {
+            me->SetWalk(true);
+
+            uint32 l_LocationID = OrgekIronhand::Sequence[m_SequencePosition] - OrgekIronhand::MovePointIDs::Anvil;
+            MoveBuildingRelative(OrgekIronhand::Sequence[m_SequencePosition],   OrgekIronhand::MovePointLoc[l_LocationID][0],
+                                                                                OrgekIronhand::MovePointLoc[l_LocationID][1], 
+                                                                                OrgekIronhand::MovePointLoc[l_LocationID][2]);
+
+            m_SequencePosition++;
+        });
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    npc_Kinja::npc_Kinja()
+        : CreatureScript("npc_Kinja_Garr")
+    {
+
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Called when a CreatureAI object is needed for the creature.
+    /// @p_Creature : Target creature instance
+    CreatureAI * npc_Kinja::GetAI(Creature * p_Creature) const
+    {
+        return new npc_KinjaAI(p_Creature);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    npc_Kinja::npc_KinjaAI::npc_KinjaAI(Creature * p_Creature)
+        : GarrisonNPCAI(p_Creature), m_SequencePosition(0xFF)
+    {
+        SetAIObstacleManagerEnabled(true);
+
+        m_OnPointReached[Kinja::MovePointIDs::Anvil] = [this]() -> void
+        {
+            AddTimedDelayedOperation(Kinja::DestPointDuration::Anvil, [this]() -> void { DoNextSequenceAction(); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(Kinja::MovePointLoc[Kinja::MovePointIDs::Anvil - Kinja::MovePointIDs::Anvil][3]); });
+
+            AddTimedDelayedOperation(0 * IN_MILLISECONDS,             [this]() -> void
+            {
+                me->LoadEquipment(1, true);
+                me->HandleEmoteCommand(EMOTE_STATE_WORK_CHOPWOOD_GARR);
+            });
+            AddTimedDelayedOperation(Kinja::DestPointDuration::Anvil, [this]() -> void
+            {
+                me->LoadEquipment(0, true);
+                me->HandleEmoteCommand(0);
+                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
+            });
+        };
+
+        m_OnPointReached[Kinja::MovePointIDs::Front] = [this]() -> void
+        {
+            AddTimedDelayedOperation(Kinja::DestPointDuration::Front, [this]() -> void { DoNextSequenceAction(); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(Kinja::MovePointLoc[Kinja::MovePointIDs::Front - Kinja::MovePointIDs::Anvil][3]); });
+
+            AddTimedDelayedOperation(0 * IN_MILLISECONDS,             [this]() -> void { me->HandleEmoteCommand(EMOTE_STATE_READ_AND_TALK);    });
+            AddTimedDelayedOperation(Kinja::DestPointDuration::Front, [this]() -> void
+            {
+                me->HandleEmoteCommand(0);
+                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
+            });
+        };
+
+        m_OnPointReached[Kinja::MovePointIDs::Forge1] = [this]() -> void
+        {
+            AddTimedDelayedOperation(Kinja::DestPointDuration::Forge1, [this]() -> void { DoNextSequenceAction(); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(Kinja::MovePointLoc[Kinja::MovePointIDs::Forge1 - Kinja::MovePointIDs::Anvil][3]); });
+
+            AddTimedDelayedOperation(0 * IN_MILLISECONDS,              [this]() -> void
+            {
+                me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 8);
+                me->HandleEmoteCommand(EMOTE_STATE_USE_STANDING_NO_SHEATHE);
+            });
+            AddTimedDelayedOperation(Kinja::DestPointDuration::Forge1, [this]() -> void
+            {
+                me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0);
+                me->HandleEmoteCommand(0);
+                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
+            });
+        };
+
+        m_OnPointReached[Kinja::MovePointIDs::Forge2] = [this]() -> void
+        {
+            AddTimedDelayedOperation(Kinja::DestPointDuration::Forge2, [this]() -> void { DoNextSequenceAction(); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(Kinja::MovePointLoc[Kinja::MovePointIDs::Forge2 - Kinja::MovePointIDs::Anvil][3]); });
+
+            AddTimedDelayedOperation(0 * IN_MILLISECONDS,              [this]() -> void { me->HandleEmoteCommand(EMOTE_STATE_READ_AND_TALK);    });
+            AddTimedDelayedOperation(Kinja::DestPointDuration::Forge2, [this]() -> void
+            {
+                me->HandleEmoteCommand(0);
+                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
+            });
+        };
+
+        DoNextSequenceAction();
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Do next sequence element
+    void npc_Kinja::npc_KinjaAI::DoNextSequenceAction()
+    {
+        if (m_SequencePosition >= sizeof(Kinja::Sequence))
+            m_SequencePosition = 0;
+
+        m_DelayedOperations.push([this]() -> void
+        {
+            me->SetWalk(true);
+
+            uint32 l_LocationID = Kinja::Sequence[m_SequencePosition] - Kinja::MovePointIDs::Anvil;
+            MoveBuildingRelative(Kinja::Sequence[m_SequencePosition],   Kinja::MovePointLoc[l_LocationID][0],
+                                                                                Kinja::MovePointLoc[l_LocationID][1], 
+                                                                                Kinja::MovePointLoc[l_LocationID][2]);
+
+            m_SequencePosition++;
+        });
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
 
     /// Constructor
     npc_FrostWallGrunt::npc_FrostWallGrunt()

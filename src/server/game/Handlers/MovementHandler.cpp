@@ -116,7 +116,10 @@ void WorldSession::HandleMoveWorldportAckOpcode()
         else if (Battleground* bg = m_Player->GetBattleground())
         {
             if (m_Player->IsInvitedForBattlegroundInstance(m_Player->GetBattlegroundId()))
+            {
                 bg->AddPlayer(m_Player);
+                bg->DecreaseInvitedCount(m_Player->GetTeam());
+            }
         }
     }
 
@@ -585,6 +588,13 @@ void WorldSession::HandleMoveKnockBackAck(WorldPacket & recvData)
     m_Player->m_movementInfo = movementInfo;
 
     WorldPacket data(SMSG_MOVE_UPDATE_KNOCK_BACK, 200);
+    uint32 l_MSTime = getMSTime();
+
+    if (m_clientTimeDelay == 0)
+        m_clientTimeDelay = l_MSTime - m_Player->m_movementInfo.time;
+
+    m_Player->m_movementInfo.time = m_Player->m_movementInfo.time + m_clientTimeDelay;
+
     WriteMovementInfo(data, &m_Player->m_movementInfo);
 
     m_Player->SendMessageToSet(&data, false);

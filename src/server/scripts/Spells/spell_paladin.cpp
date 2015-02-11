@@ -473,18 +473,23 @@ class spell_pal_selfless_healer: public SpellScriptLoader
         {
             PrepareSpellScript(spell_pal_selfless_healer_SpellScript);
 
-            void HandleOnHit()
+            void HandleHeal(SpellEffIndex /*l_EffIndex*/)
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
-                        if (_player->HasAura(PALADIN_SPELL_SELFLESS_HEALER_STACK))
+                        if (l_Player->HasAura(PALADIN_SPELL_SELFLESS_HEALER_STACK))
                         {
-                            int32 charges = _player->GetAura(PALADIN_SPELL_SELFLESS_HEALER_STACK)->GetStackAmount();
+                            int32 l_Charges = l_Player->GetAura(PALADIN_SPELL_SELFLESS_HEALER_STACK)->GetStackAmount();
 
-                            if (_player->IsValidAssistTarget(target) && target != _player)
-                                SetHitHeal(int32(GetHitHeal() + ((GetHitHeal() * sSpellMgr->GetSpellInfo(PALADIN_SPELL_SELFLESS_HEALER_STACK)->Effects[EFFECT_3].BasePoints / 100) * charges)));
+                            if (l_Player->IsValidAssistTarget(l_Target) && l_Target != l_Player)
+                            {
+                                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PALADIN_HOLY)
+                                    SetHitHeal(int32(GetHitHeal() + ((GetHitHeal() * sSpellMgr->GetSpellInfo(PALADIN_SPELL_SELFLESS_HEALER_STACK)->Effects[EFFECT_3].BasePoints / 100) * l_Charges)));
+                                else
+                                    SetHitHeal(int32(GetHitHeal() + ((GetHitHeal() * sSpellMgr->GetSpellInfo(PALADIN_SPELL_SELFLESS_HEALER_STACK)->Effects[EFFECT_1].BasePoints / 100) * l_Charges)));
+                            }
                         }
                     }
                 }
@@ -492,7 +497,7 @@ class spell_pal_selfless_healer: public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_pal_selfless_healer_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_pal_selfless_healer_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
             }
         };
 
@@ -957,8 +962,8 @@ class spell_pal_execution_sentence_dispel: public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-                    int32 spellPowerBonus = int32(caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY) * GetSpellInfo()->Effects[EFFECT_2].BasePoints / 1000);
-                    int32 damage = spellPowerBonus + 26.72716306f * GetSpellInfo()->Effects[EFFECT_1].BasePoints;
+                    int32 spellPowerBonus = int32(caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY) * GetSpellInfo()->Effects[EFFECT_1].BasePoints / 1000);
+                    int32 damage = spellPowerBonus + 26.72716306f * GetSpellInfo()->Effects[EFFECT_0].BasePoints;
                     damage = int32(damage * 0.444f); // Final: 44.4%
 
                     if (GetSpellInfo()->Id == PALADIN_SPELL_EXECUTION_SENTENCE)
@@ -2017,11 +2022,19 @@ class PlayerScript_empowered_divine_storm: public PlayerScript
 public:
     PlayerScript_empowered_divine_storm() :PlayerScript("PlayerScript_empowered_divine_storm") {}
 
-    void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_Value)
+    void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
     {
-        if (p_Player->getClass() == CLASS_PALADIN && p_Player->GetSpecializationId(p_Player->GetActiveSpec()) == SPEC_PALADIN_RETRIBUTION && p_Power == POWER_HOLY_POWER && p_Player->GetPower(POWER_HOLY_POWER) > 0)
-            if (p_Value < 0 && p_Player->HasAura(PALADIN_SPELL_EMPOWERED_DIVINE_STORM) && roll_chance_i(sSpellMgr->GetSpellInfo(PALADIN_SPELL_EMPOWERED_DIVINE_STORM)->Effects[EFFECT_0].BasePoints))
+        if (p_Regen)
+            return;
+
+        if (p_Player->getClass() == CLASS_PALADIN && p_Player->GetSpecializationId(p_Player->GetActiveSpec()) == SPEC_PALADIN_RETRIBUTION && p_Power == POWER_HOLY_POWER)
+        {
+            // Get the power earn (if > 0 ) or consum (if < 0)
+            int32 l_diffValue = p_NewValue - p_OldValue;
+
+            if (l_diffValue < 0 && p_Player->HasAura(PALADIN_SPELL_EMPOWERED_DIVINE_STORM) && roll_chance_i(sSpellMgr->GetSpellInfo(PALADIN_SPELL_EMPOWERED_DIVINE_STORM)->Effects[EFFECT_0].BasePoints))
                 p_Player->CastSpell(p_Player, PALADIN_SPELL_DIVINE_CRUSADER, true);
+        }
     }
 };
 

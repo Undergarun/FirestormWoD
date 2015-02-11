@@ -848,6 +848,44 @@ class spell_dru_dash: public SpellScriptLoader
         }
 };
 
+enum GerminationSpells
+{
+    SPELL_DRUID_GERMINATION = 155777,
+    SPELL_DRUID_GERMINATION_PASSIVE_TALENT = 155675
+};
+
+// Rejuvenation - 774 (germination effect)
+class spell_dru_rejuvenation : public SpellScriptLoader
+{
+public:
+    spell_dru_rejuvenation() : SpellScriptLoader("spell_dru_rejuvenation") { }
+
+    class spell_dru_rejuvenation_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_dru_rejuvenation_SpellScript);
+
+        void HandleBeforeHit()
+        {
+            if (Player* l_Player = GetCaster()->ToPlayer())
+            {
+                if (l_Player->HasAura(SPELL_DRUID_GERMINATION_PASSIVE_TALENT) && l_Player->HasAura(SPELL_DRUID_REJUVENATION)
+                     && !l_Player->HasAura(SPELL_DRUID_GERMINATION))
+                    l_Player->AddAura(SPELL_DRUID_GERMINATION, l_Player);
+            }
+        }
+
+        void Register()
+        {
+            BeforeHit += SpellHitFn(spell_dru_rejuvenation_SpellScript::HandleBeforeHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_dru_rejuvenation_SpellScript();
+    }
+};
+
 enum SavageDefenseSpells
 {
     SPELL_DRUID_SAVAGE_DEFENSE_DODGE_PCT = 132402
@@ -1445,15 +1483,16 @@ class spell_dru_activate_cat_form: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_activate_cat_form_SpellScript);
 
-            void HandleOnHit()
+            void HandleBeforeHit()
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
-                    l_Player->CastSpell(l_Player, SPELL_DRUID_CAT_FORM, true);
+                    if (!l_Player->HasAura(SPELL_DRUID_CAT_FORM))
+                        l_Player->CastSpell(l_Player, SPELL_DRUID_CAT_FORM, true);
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_dru_activate_cat_form_SpellScript::HandleOnHit);
+                BeforeHit += SpellHitFn(spell_dru_activate_cat_form_SpellScript::HandleBeforeHit);
             }
         };
 
@@ -1512,7 +1551,7 @@ class spell_dru_eclipse : public PlayerScript
             p_Player->SetEclipseCyclesState(false);
         }
 
-        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_Value)
+        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32 /*p_NewValue*/, bool /*p_Regen*/)
         {
             if (!p_Player || p_Player->getClass() != Classes::CLASS_DRUID || p_Power != Powers::POWER_ECLIPSE)
                 return;
@@ -1531,7 +1570,7 @@ class spell_dru_eclipse : public PlayerScript
                 }
             }
 
-            int32 l_Power = p_Player->GetPower(Powers::POWER_ECLIPSE);
+            int32 l_Power = p_OldValue;
             uint8 l_Coeff = p_Player->GetPowerCoeff(Powers::POWER_ECLIPSE);
 
             if (!p_Player->IsEclipseCyclesActive() && l_Power == 0)
@@ -2025,6 +2064,12 @@ class spell_dru_survival_instincts: public SpellScriptLoader
         }
 };
 
+enum DruidSoulOfTheForestSpells
+{
+    SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO_TALENT = 158478,
+    SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO = 114108
+};
+
 // Swiftmend - 18562
 class spell_dru_swiftmend: public SpellScriptLoader
 {
@@ -2037,16 +2082,27 @@ class spell_dru_swiftmend: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    int32 heal = GetHitHeal() + CalculatePct(caster->SpellBaseHealingBonusDone(SPELL_SCHOOL_MASK_ALL), GetSpellInfo()->Effects[EFFECT_0].BasePoints);
-                    SetHitHeal(heal);
+                    int32 l_HealAmount = GetHitHeal() + CalculatePct(l_Caster->SpellBaseHealingBonusDone(SPELL_SCHOOL_MASK_ALL), GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+                    SetHitHeal(l_HealAmount);
+                }
+            }
+
+            void HandleAfterHit()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    //Restoration soul of the forest - 114108
+                    if (l_Caster->HasAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO_TALENT))
+                        l_Caster->CastSpell(l_Caster, SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO, false);
                 }
             }
 
             void Register()
             {
                 OnHit += SpellHitFn(spell_dru_swiftmend_SpellScript::HandleOnHit);
+                AfterHit += SpellHitFn(spell_dru_swiftmend_SpellScript::HandleAfterHit);
             }
         };
 
@@ -2771,4 +2827,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_dream_of_cenarius();
     new spell_dru_primal_fury();
     new spell_dru_healing_touch();
+    new spell_dru_rejuvenation();
 }

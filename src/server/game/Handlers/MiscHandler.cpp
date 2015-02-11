@@ -53,7 +53,7 @@
 #include "Group.h"
 #include "AccountMgr.h"
 #include "Spell.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "TicketMgr.h"

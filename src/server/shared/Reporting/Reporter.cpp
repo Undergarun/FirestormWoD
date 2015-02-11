@@ -1,5 +1,6 @@
 #include "Reporter.hpp"
 #include "ScopedLock.hpp"
+#include <Config.h>
 
 namespace MS
 {
@@ -16,10 +17,13 @@ namespace MS
 
         void Reporter::Report(report_type const& p_Query)
         {
+            if (ConfigMgr::GetIntDefault("ReporterActivated", 1) != 1)
+                return;
+
             /// We lock in order to access the queue.
             Threading::ScopedLock<std::mutex> l_ScopedMutex(m_Mutex);
 
-            m_ReportQueue.emplace(std::move(std::make_unique<report_type>(p_Query)));
+            m_ReportQueue.emplace(std::move(std::unique_ptr<report_type>(new report_type(p_Query))));
         }
 
         void Reporter::Fallback(report_pointer p_Query)

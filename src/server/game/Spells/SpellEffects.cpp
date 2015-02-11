@@ -43,7 +43,7 @@
 #include "Creature.h"
 #include "Totem.h"
 #include "CreatureAI.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 #include "Battleground.h"
 #include "BattlegroundEY.h"
 #include "BattlegroundWS.h"
@@ -1010,7 +1010,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                             if (Pet* pet = m_caster->ToPlayer()->GetPet())
                             {
                                 pet->CastSpell(targets.GetDstPos()->GetPositionX(), targets.GetDstPos()->GetPositionY(), targets.GetDstPos()->GetPositionZ(), damage, true);
-                                m_caster->ToPlayer()->AddSpellCooldown(119909, 0, time(NULL) + 25);
+                                m_caster->ToPlayer()->AddSpellCooldown(119909, 0, 25 * IN_MILLISECONDS);
                             }
 
                     break;
@@ -1855,26 +1855,6 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
                         ++count;
 
                 damage /= count;                    // divide to all targets
-                break;
-            }
-            case 19750: // Selfless Healer
-            {
-                if (!caster)
-                    break;
-
-                addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, effIndex, HEAL);
-
-                if (!caster->HasAura(114250))
-                    break;
-
-                int32 charges = 0;
-
-                if (AuraPtr selflessHealer = caster->GetAura(114250))
-                    charges = selflessHealer->GetStackAmount();
-
-                if (charges && unitTarget->GetGUID() != caster->GetGUID())
-                    AddPct(addhealth, (35 * charges));
-
                 break;
             }
             case 45064: // Vessel of the Naaru (Vial of the Sunwell trinket)
@@ -3134,6 +3114,10 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
         summon->setFaction(faction);
         break;
     }
+
+    /// Ring of frost
+    if (m_spellInfo->Id == 113724 && summon != nullptr)
+        summon->SetReactState(REACT_PASSIVE);
 
     if (summon)
     {
@@ -7102,9 +7086,10 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
         if (summon->HasUnitTypeMask(UNIT_MASK_MINION) && m_targets.HasDst())
             ((Minion*)summon)->SetFollowAngle(m_caster->GetAngle(summon));
 
+        /// Dancing rune weapon summon
         if (summon->GetEntry() == 27893)
         {
-            if (uint32 weapon = m_caster->GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS))
+            if (uint32 weapon = m_caster->GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (SLOT_MAIN_HAND * 3)))
             {
                 summon->SetDisplayId(11686);
                 summon->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, weapon);
@@ -7420,6 +7405,10 @@ void Spell::EffectUnlearnTalent(SpellEffIndex effIndex)
             if (spell->Effects[i].TriggerSpell > 0 && spell->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL)
                 plr->removeSpell(spell->Effects[i].TriggerSpell, true);
 
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            if (spell->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS || spell->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2)
+                plr->RemoveAurasDueToSpell(spell->Effects[i].BasePoints);
+
         itr.second->state = PLAYERSPELL_REMOVED;
 
         plr->SetUsedTalentCount(plr->GetUsedTalentCount() - 1);
@@ -7453,6 +7442,7 @@ void Spell::EffectCreateAreatrigger(SpellEffIndex effIndex)
             break;
         case 1315: // Chi Burst
         case 1316: // Chi Burst
+        case 1612: ///< Arcane Orb
             m_caster->MovePosition(l_Dest, m_spellInfo->GetMaxRange(true, m_caster, this), 0.0f);
             break;
         default:

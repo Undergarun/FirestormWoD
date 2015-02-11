@@ -71,6 +71,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/shared/Logging
   ${CMAKE_SOURCE_DIR}/src/server/shared/Threading
   ${CMAKE_SOURCE_DIR}/src/server/shared/Utilities
+  ${CMAKE_SOURCE_DIR}/src/server/shared/Reporting
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/Authentication
   ${CMAKE_CURRENT_SOURCE_DIR}/Realms
@@ -79,6 +80,7 @@ include_directories(
   ${MYSQL_INCLUDE_DIR}
   ${OPENSSL_INCLUDE_DIR}
   ${EASYJSON_INCLUDE_DIR}
+  ${CURL_INCLUDE_DIR}
 )
 
 add_executable(authserver
@@ -95,12 +97,17 @@ if( NOT WIN32 )
   )
  endif()
 
+if( UNIX AND NOT NOJEM AND NOT APPLE )
+  set(worldserver_LINK_FLAGS "-pthread ${worldserver_LINK_FLAGS}")
+endif()
+
 target_link_libraries(authserver
   shared
   ${MYSQL_LIBRARY}
   ${OPENSSL_LIBRARIES}
   ${OPENSSL_EXTRA_LIBRARIES}
   ${OSX_LIBS}
+  ${CURL_LIBRARIES}
 )
 
 if( WIN32 )

@@ -354,8 +354,12 @@ class spell_mastery_icicles_trigger: public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
+                    if (caster->HasAura(SPELL_MAGE_ICICLE_PERIODIC_TRIGGER))
+                        return;
+
                     if (GetHitUnit())
                         caster->SetIciclesTarget(GetHitUnit()->GetGUID());
+
                     caster->CastSpell(caster, SPELL_MAGE_ICICLE_PERIODIC_TRIGGER, true);
                 }
             }
@@ -764,7 +768,7 @@ class spell_mastery_elemental_overload: public SpellScriptLoader
         }
 };
 
-// Call by Mortal Strike - 12294, Colossus Smash - 86346, Execute - 5308
+// Call by Mortal Strike - 12294, Colossus Smash - 167105, Execute - 5308
 // Mastery: Weapons Master - 76338
 class spell_mastery_weapons_master : public SpellScriptLoader
 {

@@ -1,0 +1,1 @@
+UPDATE creature_template SET trainer_class = 10 WHERE subname = "Monk Trainer";
