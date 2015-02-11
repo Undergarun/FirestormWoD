@@ -259,12 +259,9 @@ void WorldSession::HandleGarrisonPurchaseBuildingOpcode(WorldPacket & p_RecvData
     {
         case MS::Garrison::Buildings::Barracks__Barracks_Level1:
         case MS::Garrison::Buildings::Storehouse__Storehouse_Level1:
-            l_CanBuild = true;
-            break;
-
         case MS::Garrison::Buildings::DwarvenBunker__WarMill_Level1:
-            /// 26/01/2015 @ 12h00
-            l_CanBuild = time(nullptr) >= 1422273600;
+        case MS::Garrison::Buildings::TheForge__TheForge_Level1:
+            l_CanBuild = true;
             break;
 
         default:
