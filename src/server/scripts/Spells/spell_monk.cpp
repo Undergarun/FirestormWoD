@@ -3082,6 +3082,11 @@ class spell_monk_breath_of_fire: public SpellScriptLoader
         }
 };
 
+enum SoothingMist
+{
+    NPC_SNAKE_JADE_STATUE = 60849
+};
+
 // Soothing Mist - 115175
 class spell_monk_soothing_mist: public SpellScriptLoader
 {
@@ -3092,130 +3097,108 @@ class spell_monk_soothing_mist: public SpellScriptLoader
         {
             PrepareAuraScript(spell_monk_soothing_mist_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            Unit*    GetRandomPartyMember(Unit* p_JadeStatue, Unit *p_Caster, Unit *p_Target)
             {
-                if (!GetCaster())
-                    return;
+                if (p_Caster == nullptr)
+                    return nullptr;
 
-                if (Unit* target = GetTarget())
-                    target->CastSpell(target, SPELL_MONK_SOOTHING_MIST_VISUAL, true);
+                std::list<Unit*> l_UnitList;
+                std::list<Unit*> l_UnitTempList;
 
-                if (Player* _player = GetCaster()->ToPlayer())
+                p_Caster->GetPartyMembers(l_UnitList);
+                p_Caster->GetPartyMembers(l_UnitTempList);
+
+                /// Remove Unit out of range
+                for (std::list<Unit*>::iterator i = l_UnitTempList.begin(); i != l_UnitTempList.end(); ++i)
                 {
-                    if (Unit* target = GetTarget())
-                    {
-                        std::list<Unit*> playerList;
-                        std::list<Creature*> tempList;
-                        std::list<Creature*> statueList;
-                        Creature* statue;
-
-                        _player->GetPartyMembers(playerList);
-
-                        if (playerList.size() > 1)
-                        {
-                            playerList.remove(target);
-                            playerList.sort(JadeCore::HealthPctOrderPred());
-                            playerList.resize(1);
-                        }
-
-                        _player->GetCreatureListWithEntryInGrid(tempList, 60849, 100.0f);
-                        _player->GetCreatureListWithEntryInGrid(statueList, 60849, 100.0f);
-
-                        // Remove other players jade statue
-                        for (std::list<Creature*>::iterator i = tempList.begin(); i != tempList.end(); ++i)
-                        {
-                            Unit* owner = (*i)->GetOwner();
-                            if (owner && owner == _player && (*i)->isSummon())
-                                continue;
-
-                            statueList.remove((*i));
-                        }
-
-                        for (auto itr : playerList)
-                        {
-                            if (statueList.size() == 1)
-                            {
-                                for (auto itrBis : statueList)
-                                    statue = itrBis;
-
-                                if (statue && (statue->isPet() || statue->isGuardian()))
-                                    if (statue->GetOwner() && statue->GetOwner()->GetGUID() == _player->GetGUID())
-                                        statue->CastSpell(itr, GetSpellInfo()->Id, true);
-                            }
-                        }
-                    }
+                    if (!(*i)->IsInRange(p_JadeStatue, 0.0f, 40.0f))
+                        l_UnitList.remove((*i));
                 }
+
+                if (l_UnitList.size() > 1)
+                {
+                    l_UnitList.remove(p_Target);
+                    l_UnitList.sort(JadeCore::HealthPctOrderPred());
+                    l_UnitList.resize(1);
+                }
+
+                if (l_UnitList.size() == 1)
+                    return l_UnitList.front();
+
+                return nullptr;
             }
 
-            void HandleEffectPeriodic(constAuraEffectPtr /*aurEff*/)
+            Unit*   GetStatueOfUnit(Unit *p_Caster)
             {
-                if (Unit* caster = GetCaster())
-                    if (Unit* target = GetTarget())
-                        // 30% to give 1 chi per tick
-                        if (roll_chance_i(30))
-                            caster->CastSpell(caster, SPELL_MONK_SOOTHING_MIST_ENERGIZE, true);
+                if (p_Caster == nullptr)
+                    return nullptr;
+
+                Unit *l_JadeStatue = nullptr;
+
+                for (Unit::ControlList::const_iterator itr = p_Caster->m_Controlled.begin(); itr != p_Caster->m_Controlled.end(); ++itr)
+                {
+                    if ((*itr)->GetEntry() == NPC_SNAKE_JADE_STATUE)
+                    {
+                        if ((*itr)->GetDistance(p_Caster) <= 40.0f)
+                            l_JadeStatue = (*itr);
+                    }
+                }
+
+                return l_JadeStatue;
+            }
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetTarget();
+
+                if (l_Target == nullptr || l_Caster == nullptr)
+                    return;
+
+                l_Target->CastSpell(l_Target, SPELL_MONK_SOOTHING_MIST_VISUAL, true);
+
+                Unit *l_JadeStatue = GetStatueOfUnit(l_Caster);
+
+                if (l_JadeStatue == nullptr)
+                    return;
+                
+                Unit *l_TargetOfJadeStatue = GetRandomPartyMember(l_JadeStatue, l_Caster, l_Target);
+
+                if (l_TargetOfJadeStatue == nullptr)
+                    return;
+
+                l_JadeStatue->CastSpell(l_TargetOfJadeStatue, GetSpellInfo()->Id, true);
             }
 
             void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
             {
-                if (Unit* caster = GetCaster())
-                {
-                    if (Unit* target = GetTarget())
-                    {
-                        if (Player* _player = GetCaster()->ToPlayer())
-                        {
-                            std::list<Unit*> playerList;
-                            std::list<Creature*> tempList;
-                            std::list<Creature*> statueList;
-                            Creature* statue;
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetTarget();
 
-                            _player->GetPartyMembers(playerList);
+                if (l_Target == nullptr || l_Caster == nullptr)
+                    return;
 
-                            if (playerList.size() > 1)
-                            {
-                                playerList.sort(JadeCore::HealthPctOrderPred());
-                                playerList.resize(1);
-                            }
+                l_Target->CastSpell(l_Target, SPELL_MONK_SOOTHING_MIST_VISUAL, true);
 
-                            _player->GetCreatureListWithEntryInGrid(tempList, 60849, 100.0f);
-                            _player->GetCreatureListWithEntryInGrid(statueList, 60849, 100.0f);
+                Unit *l_JadeStatue = GetStatueOfUnit(l_Caster);
 
-                            // Remove other players jade statue
-                            for (std::list<Creature*>::iterator i = tempList.begin(); i != tempList.end(); ++i)
-                            {
-                                Unit* owner = (*i)->GetOwner();
-                                if (owner && owner == _player && (*i)->isSummon())
-                                    continue;
+                if (l_JadeStatue == nullptr)
+                    return;
 
-                                statueList.remove((*i));
-                            }
+                Unit *l_TargetOfJadeStatue = GetRandomPartyMember(l_JadeStatue, l_Caster, l_Target);
 
-                            for (auto itr : playerList)
-                            {
-                                if (statueList.size() == 1)
-                                {
-                                    for (auto itrBis : statueList)
-                                        statue = itrBis;
+                if (l_TargetOfJadeStatue == nullptr)
+                    return;
 
-                                    if (statue && (statue->isPet() || statue->isGuardian()))
-                                    {
-                                        if (statue->GetOwner() && statue->GetOwner()->GetGUID() == _player->GetGUID())
-                                            statue->CastStop();
-                                    }
-                                }
-                            }
+                l_JadeStatue->CastStop();
 
-                            if (target->HasAura(SPELL_MONK_SOOTHING_MIST_VISUAL))
-                                target->RemoveAura(SPELL_MONK_SOOTHING_MIST_VISUAL);
-                        }
-                    }
-                }
+                if (l_Target->HasAura(SPELL_MONK_SOOTHING_MIST_VISUAL))
+                    l_Target->RemoveAura(SPELL_MONK_SOOTHING_MIST_VISUAL);
             }
 
             void Register()
             {
                 AfterEffectApply += AuraEffectApplyFn(spell_monk_soothing_mist_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_soothing_mist_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_monk_soothing_mist_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
             }
         };
