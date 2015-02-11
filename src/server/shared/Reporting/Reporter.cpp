@@ -10,6 +10,7 @@ namespace MS
             : m_ReportQueue(),
             m_Mutex()
         {
+            m_Activated = ConfigMgr::GetBoolDefault("ReporterActivated", false);
         }
 
         //////////////////////////////////////////////////////////////////////////
@@ -17,7 +18,7 @@ namespace MS
 
         void Reporter::Report(report_type const& p_Query)
         {
-            if (ConfigMgr::GetIntDefault("ReporterActivated", 1) != 1)
+            if (!m_Activated)
                 return;
 
             /// We lock in order to access the queue.
