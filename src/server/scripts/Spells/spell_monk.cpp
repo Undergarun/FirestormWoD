@@ -1439,6 +1439,9 @@ class spell_monk_crackling_jade_lightning: public SpellScriptLoader
 
             void OnTick(constAuraEffectPtr aurEff)
             {
+                if (!GetCaster())
+                    return;
+
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
                     if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER)
