@@ -4394,6 +4394,61 @@ public:
     }
 };
 
+enum AfterLifeSpells
+{
+    SPELL_MONK_BLACKOUT_KICK = 100784,
+    SPELL_MONK_SUMMON_HEALING_SPHERE = 117032,
+    SPELL_MONK_SUMMON_CHI_SPHERE = 121286
+};
+
+// Afterlife - 116092
+class spell_monk_afterlife: public SpellScriptLoader
+{
+    public:
+        spell_monk_afterlife() : SpellScriptLoader("spell_monk_afterlife") { }
+
+        class spell_monk_afterlife_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_monk_afterlife_AuraScript);
+
+            void OnProcHealingSphere(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                if (eventInfo.GetDamageInfo()->GetSpellInfo() && eventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_MONK_BLACKOUT_KICK)
+                    return;
+
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->CastSpell(l_Caster, SPELL_MONK_SUMMON_HEALING_SPHERE, true);
+            }
+
+            void OnProcChiSphere(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                if (eventInfo.GetDamageInfo()->GetSpellInfo() && eventInfo.GetDamageInfo()->GetSpellInfo()->Id != SPELL_MONK_BLACKOUT_KICK)
+                    return;
+
+                if (!roll_chance_f(aurEff->GetAmount()))
+                    return;
+
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->CastSpell(l_Caster, SPELL_MONK_SUMMON_CHI_SPHERE, true);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_monk_afterlife_AuraScript::OnProcHealingSphere, EFFECT_0, SPELL_AURA_DUMMY);
+                OnEffectProc += AuraEffectProcFn(spell_monk_afterlife_AuraScript::OnProcChiSphere, EFFECT_1, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_monk_afterlife_AuraScript();
+        }
+};
+
 void AddSC_monk_spell_scripts()
 {
     new spell_monk_uplift();
@@ -4472,6 +4527,7 @@ void AddSC_monk_spell_scripts()
     new spell_monk_serenity();
     new spell_monk_detox();
     new spell_monk_glyph_of_rapid_rolling();
+    new spell_monk_afterlife();
 
     // Player Script
     new PlayerScript_TigereEyeBrew_ManaTea();
