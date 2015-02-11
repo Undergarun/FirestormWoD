@@ -126,7 +126,8 @@ enum MonkSpells
     SPELL_MONK_GLYPH_OF_RAPID_ROLLING           = 146951,
     SPELL_MONK_RAPID_ROLLING                    = 147364,
     SPELL_MONK_GLYPH_OF_TARGETED_EXPULSION      = 146950,
-    SPELL_MONK_CRANES_ZEAL                      = 127722
+    SPELL_MONK_CRANES_ZEAL                      = 127722,
+    SPELL_MONK_STANCE_OF_THE_WISE_SERPENT       = 115070
 };
 
 // Tiger Eye Brew - 123980 & Mana Tea - 123766
@@ -1774,16 +1775,25 @@ class spell_monk_teachings_of_the_monastery: public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_teachings_of_the_monastery_SpellScript);
 
-            void HandleAfterCast()
+            void HandleHeal()
             {
-                if (GetCaster())
-                    if (GetCaster()->HasAura(118672))
-                        GetCaster()->CastSpell(GetCaster(), SPELL_MONK_SPINNING_CRANE_KICK_HEAL, true);
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster->HasAura(SPELL_MONK_STANCE_OF_THE_WISE_SERPENT))
+                    return;
+
+                std::list<Player*> l_TempListPlayer;
+
+                l_Caster->GetPlayerListInGrid(l_TempListPlayer, 8.0f);
+                for (std::list<Player*>::iterator i = l_TempListPlayer.begin(); i != l_TempListPlayer.end(); ++i)
+                {
+                    if ((*i)->IsFriendlyTo(l_Caster))
+                        l_Caster->CastSpell((*i), SPELL_MONK_SPINNING_CRANE_KICK_HEAL, true);
+                }
             }
 
             void Register()
             {
-                AfterCast += SpellCastFn(spell_monk_teachings_of_the_monastery_SpellScript::HandleAfterCast);
+                OnCast += SpellCastFn(spell_monk_teachings_of_the_monastery_SpellScript::HandleHeal);
             }
         };
 
@@ -2364,7 +2374,7 @@ class spell_monk_zen_sphere: public SpellScriptLoader
 enum ChiBurstSpells
 {
     SPELL_MONK_STANCE_OF_THE_FIERCE_TIGER = 103985,
-    SPELL_MONK_STANCE_OF_THE_WISE_SERPENT = 115070,
+    //SPELL_MONK_STANCE_OF_THE_WISE_SERPENT = 115070,
     SPELL_MONK_CHI_BURST_DAMAGE           = 148135,
     SPELL_MONK_CHI_BURST_HEAL             = 130654,
 };
