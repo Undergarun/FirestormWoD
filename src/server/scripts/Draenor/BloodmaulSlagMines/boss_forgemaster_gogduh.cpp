@@ -814,7 +814,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
 
                 void HandleRemoveEffect(constAuraEffectPtr aurEff, AuraEffectHandleModes mode)
                 {
-                    if (m_Dispelled)
+                    if (m_Dispelled || GetTargetApplication()->GetRemoveMode() == AuraRemoveMode::AURA_REMOVE_BY_DEATH)
                         return;
 
                     if (Unit* l_Caster = GetCaster())
