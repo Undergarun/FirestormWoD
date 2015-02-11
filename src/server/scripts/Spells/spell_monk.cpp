@@ -2180,9 +2180,9 @@ class spell_monk_renewing_mist_hot: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
-                    if (Unit* target = GetHitUnit())
-                        caster->CastSpell(target, SPELL_MONK_RENEWING_MIST_HOT, true);
+                if (Unit* l_Caster = GetCaster())
+                    if (Unit* l_Target = GetHitUnit())
+                        caster->CastSpell(l_Target, SPELL_MONK_RENEWING_MIST_HOT, true);
             }
 
             void Register()
