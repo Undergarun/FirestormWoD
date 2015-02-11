@@ -473,7 +473,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //414 SPELL_AURA_414
     &AuraEffect::HandleNULL,                                      //415 SPELL_AURA_415
     &AuraEffect::HandleNULL,                                      //416 SPELL_AURA_MOD_COOLDOWN_BY_HASTE
-    &AuraEffect::HandleNULL,                                      //417 SPELL_AURA_417
+    &AuraEffect::HandleNULL,                                      //417 SPELL_AURA_MOD_GLOBAL_COOLDOWN_BY_HASTE
     &AuraEffect::HandleAuraModMaxPower,                           //418 SPELL_AURA_MOD_MAX_POWER
     &AuraEffect::HandleAuraModifyManaPoolPct,                     //419 SPELL_AURA_MODIFY_MANA_REGEN_FROM_MANA_PCT
     &AuraEffect::HandleNULL,                                      //420 SPELL_AURA_420
@@ -679,6 +679,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
     switch (GetAuraType())
     {
         case SPELL_AURA_MOD_COOLDOWN_BY_HASTE:
+        case SPELL_AURA_MOD_GLOBAL_COOLDOWN_BY_HASTE:
                 amount = -ceil(((float)GetSpellInfo()->Effects[GetEffIndex()].BasePoints * ((1.f / caster->GetFloatValue(UNIT_FIELD_MOD_HASTE)) - 1.f)));
             break;
         case SPELL_AURA_MOD_RATING:
@@ -1424,6 +1425,7 @@ void AuraEffect::CalculateSpellMod()
             }
             break;
         case SPELL_AURA_MOD_COOLDOWN_BY_HASTE:
+        case SPELL_AURA_MOD_GLOBAL_COOLDOWN_BY_HASTE:
         case SPELL_AURA_ADD_FLAT_MODIFIER:
         case SPELL_AURA_ADD_PCT_MODIFIER:
             if (!m_spellmod)
@@ -1432,6 +1434,10 @@ void AuraEffect::CalculateSpellMod()
 
                 m_spellmod = new SpellModifier(GetBase());
                 m_spellmod->op = SpellModOp(GetMiscValue());
+
+                if (GetAuraType() == SPELL_AURA_MOD_GLOBAL_COOLDOWN_BY_HASTE)
+                    m_spellmod->op = SpellModOp::SPELLMOD_GLOBAL_COOLDOWN;
+
                 ASSERT(m_spellmod->op < MAX_SPELLMOD);
 
                 m_spellmod->type = type;    // SpellModType value == spell aura types

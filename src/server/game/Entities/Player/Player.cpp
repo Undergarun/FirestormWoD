@@ -7555,11 +7555,16 @@ void Player::UpdateRating(CombatRating p_CombatRating)
         SetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, l_Haste);
         SetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN, l_Haste);
 
-        AuraEffectList const& l_AuraList = GetAuraEffectsByType(SPELL_AURA_MOD_COOLDOWN_BY_HASTE);
-        for (AuraEffectList::const_iterator iter = l_AuraList.begin(); iter != l_AuraList.end(); iter++)
+        AuraType const l_HasteSpellAuraMod[] = { SPELL_AURA_MOD_COOLDOWN_BY_HASTE, SPELL_AURA_MOD_GLOBAL_COOLDOWN_BY_HASTE };
+
+        for (auto l_AuraMod : l_HasteSpellAuraMod)
         {
-            (*iter)->SetCanBeRecalculated(true);
-            (*iter)->RecalculateAmount();
+            AuraEffectList const& l_AuraList = GetAuraEffectsByType(l_AuraMod);
+            for (AuraEffectList::const_iterator iter = l_AuraList.begin(); iter != l_AuraList.end(); iter++)
+            {
+                (*iter)->SetCanBeRecalculated(true);
+                (*iter)->RecalculateAmount();
+            }
         }
 
         UpdateManaRegen();
