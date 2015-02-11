@@ -5573,14 +5573,16 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
 
 void Player::ReduceSpellCooldown(uint32 p_SpellID, time_t p_ModifyTime)
 {
-    int32 l_NewCooldown = GetSpellCooldownDelay(p_SpellID);
+    SpellCooldowns::iterator itr = m_spellCooldowns.find(p_SpellID);
+    if (itr == m_spellCooldowns.end())
+        return;
 
-    if (l_NewCooldown < 0)
-        l_NewCooldown = 0;
+    uint64 currTime = 0;
+    ACE_OS::gettimeofday().msec(currTime);
+    if ((itr->second.end - uint64(p_ModifyTime)) > currTime)
+        itr->second.end -= uint64(p_ModifyTime);
     else
-        l_NewCooldown -= p_ModifyTime;
-
-    AddSpellCooldown(p_SpellID, 0, l_NewCooldown);
+        m_spellCooldowns.erase(itr);
 
     WorldPacket l_Data(SMSG_MODIFY_COOLDOWN, 4 + 18 + 4);
     l_Data << uint32(p_SpellID);
