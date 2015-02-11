@@ -1665,7 +1665,7 @@ class spell_warr_blood_craze : public SpellScriptLoader
                     return;
 
                 SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_WARR_BLOOD_CRAZE_HEAL);
-                if (l_SpellInfo == nullptr || l_SpellInfo->GetDuration())
+                if (l_SpellInfo == nullptr || !l_SpellInfo->GetDuration())
                     return;
 
                 if (Unit* l_Caster = GetCaster())
