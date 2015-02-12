@@ -190,9 +190,16 @@ void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level
     // New continent starting masks (It will be accessible only at new map)
     switch (Player::TeamForRace(race))
     {
-        case ALLIANCE: SetTaximaskNode(100); break;
-        case HORDE:    SetTaximaskNode(99);  break;
+        case ALLIANCE:
+            SetTaximaskNode(100);
+            SetTaximaskNode(1420);      ///< Ashran flypath (Stormshield)
+            break;
+        case HORDE:
+            SetTaximaskNode(99);
+            SetTaximaskNode(1408);      ///< Ashran flypath (Warspear)
+            break;
     }
+
     // Level dependent taxi hubs
     if (level >= 68)
         SetTaximaskNode(213);                               //Shattered Sun Staging Area
