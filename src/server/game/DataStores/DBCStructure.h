@@ -1750,7 +1750,7 @@ struct TaxiNodesEntry
     char*   name;                                           // 5        m_Name_lang
     uint32  MountCreatureID[2];                             // 6-7      m_MountCreatureID[2]
     //uint32    m_ConditionID                               // 8        m_ConditionID
-    //uint32    m_Flags                                     // 9        m_Flags
+    uint32    m_Flags;                                      // 9        m_Flags
     //float     m_MapOffset                                 // 10       m_MapOffset
     //float     m_MapOffset                                 // 11       m_MapOffset
 };
