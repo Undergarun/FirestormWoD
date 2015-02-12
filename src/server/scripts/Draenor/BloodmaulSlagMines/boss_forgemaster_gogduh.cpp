@@ -461,8 +461,14 @@ namespace MS { namespace Instances { namespace Bloodmaul
 
             enum Events
             {
-                CastSpell   = 1,
-                CastScorch  = 2
+                CastSpell = 1,
+                CastScorch,
+                RefreshFlames
+            };
+
+            enum Action
+            {
+                ActionJumpFlames
             };
 
             CreatureAI* GetAI(Creature* p_Creature) const
@@ -481,7 +487,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
                     events.ScheduleEvent((uint32)Events::CastScorch, 3000);
                 }
 
-                void JustDied(Unit* /* p_Killer */)
+                void JustDied(Unit*)
                 {
                     if (Creature* l_Boss = me->FindNearestCreature((uint32)boss_forgemaster_gogduh::NPCs::ForgemasterGogduh, VISIBLE_RANGE))
                     {
@@ -490,12 +496,18 @@ namespace MS { namespace Instances { namespace Bloodmaul
                     }
                 }
 
-                void UpdateAI(const uint32 diff)
+                void DoAction(int32 const p_Action)
+                {
+                    if (p_Action == Action::ActionJumpFlames)
+                        events.ScheduleEvent(Events::RefreshFlames, 100);
+                }
+
+                void UpdateAI(const uint32 p_Diff)
                 {
                     if (!UpdateVictim())
                         return;
 
-                    events.Update(diff);
+                    events.Update(p_Diff);
 
                     switch ((Events)events.ExecuteEvent())
                     {
@@ -514,6 +526,11 @@ namespace MS { namespace Instances { namespace Bloodmaul
                                 break;
 
                             me->CastSpell(me->getVictim(), (uint32)Spells::Scorch, false);
+                            break;
+                        }
+                        case Events::RefreshFlames:
+                        {
+                            me->CastSpell(me, Spells::DancingFlames, true);
                             break;
                         }
                         default:
@@ -796,6 +813,11 @@ namespace MS { namespace Instances { namespace Bloodmaul
                 DancingFlames = 149975
             };
 
+            enum Action
+            {
+                ActionJumpFlames
+            };
+
             class spell_dancing_flames_AuraScript : public AuraScript
             {
                 PrepareAuraScript(spell_dancing_flames_AuraScript);
@@ -812,11 +834,14 @@ namespace MS { namespace Instances { namespace Bloodmaul
 
                 void HandleRemoveEffect(constAuraEffectPtr aurEff, AuraEffectHandleModes mode)
                 {
-                    if (m_Dispelled || GetTargetApplication()->GetRemoveMode() == AuraRemoveMode::AURA_REMOVE_BY_DEATH)
+                    if (m_Dispelled || !GetCaster())
                         return;
 
-                    if (Unit* l_Caster = GetCaster())
-                        l_Caster->CastSpell(l_Caster, (uint32)Spells::DancingFlames, true);
+                    if (Creature* l_Caster = GetCaster()->ToCreature())
+                    {
+                        if (l_Caster->IsAIEnabled)
+                            l_Caster->AI()->DoAction(Action::ActionJumpFlames);
+                    }
                 }
 
                 bool m_Dispelled;
