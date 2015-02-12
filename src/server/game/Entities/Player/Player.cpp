@@ -16519,7 +16519,7 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
         for (int s = 0; s < MAX_ENCHANTMENT_SPELLS; ++s)
         {
             uint32 enchant_display_type = pEnchant->type[s];
-            uint32 enchant_amount = pEnchant->amount[s];
+            uint32 enchant_amount = CalculateEnchantmentBonus(pEnchant, pEnchant->amount[s], s, getLevel());
             uint32 enchant_spell_id = pEnchant->spellid[s];
 
             switch (enchant_display_type)
