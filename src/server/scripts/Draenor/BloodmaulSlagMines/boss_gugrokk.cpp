@@ -70,7 +70,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
 
             struct boss_gugrokkAI : public BossAI
             {
-                boss_gugrokkAI(Creature* p_Creature) : BossAI(p_Creature, BossIds::BossRoltall)
+                boss_gugrokkAI(Creature* p_Creature) : BossAI(p_Creature, BossIds::BossGugrokk)
                 {
                     m_Instance = p_Creature->GetInstanceScript();
                 }

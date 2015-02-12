@@ -106,8 +106,6 @@ namespace MS { namespace Instances { namespace Bloodmaul
 
                 void JustDied(Unit*)
                 {
-                    _JustDied();
-
                     Talk(Yells::Death);
 
                     if (instance)

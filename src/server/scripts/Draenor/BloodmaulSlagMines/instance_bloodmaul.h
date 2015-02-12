@@ -90,6 +90,23 @@ namespace MS
                 IsDraenorOnFire = 9008
             };
 
+            enum eScenarioDatas
+            {
+                /// Normal/Heroic Mode
+                /// ScenarioID
+                BloodmaulScenarioID     = 681,
+                /// Bosses
+                BloodmaulMagmolatus     = 25036,
+                BloodmaulCrushto        = 25035,
+                BloodmaulRoltall        = 25037,
+                BloodmaulGugrokk        = 24989,
+                /// Challenge Mode
+                /// ScenarioID
+                BloodmaulChallengeID    = 425,
+                BloodmaulKillCount      = 39,
+                BloodmaulEnnemies       = 26275
+            };
+
             namespace SlaverWatcherCrushto
             {
                 enum Texts

@@ -62,13 +62,6 @@ INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `l
 
 DELETE FROM `reference_loot_template` WHERE entry = @REF_MAGMOLATUS;
 INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
-(@REF_MAGMOLATUS, 106322, 0, 1, 1, 1, 1), 
-(@REF_MAGMOLATUS, 106333, 0, 1, 1, 1, 1), 
-(@REF_MAGMOLATUS, 106336, 0, 1, 1, 1, 1), 
-(@REF_MAGMOLATUS, 106342, 0, 1, 1, 1, 1), 
-(@REF_MAGMOLATUS, 106421, 0, 1, 1, 1, 1), 
-(@REF_MAGMOLATUS, 106440, 0, 1, 1, 1, 1), 
-(@REF_MAGMOLATUS, 106694, 0, 1, 1, 1, 1), 
 (@REF_MAGMOLATUS, 109844, 0, 1, 1, 1, 1), 
 (@REF_MAGMOLATUS, 109845, 0, 1, 1, 1, 1), 
 (@REF_MAGMOLATUS, 109846, 0, 1, 1, 1, 1), 
