@@ -1519,17 +1519,26 @@ void Player::RewardCurrencyAtKill(Unit* p_Victim)
     if (!l_Result)
         return;
 
-    Unit::AuraEffectList const& l_Auras = GetAuraEffectsByType(SPELL_AURA_MOD_CURRENCY_GAIN_PCT);
-    for (Unit::AuraEffectList::const_iterator i = l_Auras.begin(); i != l_Auras.end(); ++i)
+    for (CurrencyOnKillEntry::const_iterator idx = l_Curr->begin(); idx != l_Curr->end(); ++idx)
     {
-        for (CurrencyOnKillEntry::const_iterator idx = l_Curr->begin(); idx != l_Curr->end(); ++idx)
+        // Players won't receive justice points from pre-MoP dungeons/raids when they are more than Cataclysm max level (85)
+        if ((idx->first == CURRENCY_TYPE_JUSTICE_POINTS
+            || idx->first == CURRENCY_TYPE_VALOR_POINTS)
+            && p_Victim->GetMap()->Expansion() != EXPANSION_MISTS_OF_PANDARIA
+            && getLevel() > 85)
+            continue;
+
+        int32 l_Pct = 100;
+        Unit::AuraEffectList const& l_Auras = GetAuraEffectsByType(SPELL_AURA_MOD_CURRENCY_GAIN_PCT);
+        for (Unit::AuraEffectList::const_iterator i = l_Auras.begin(); i != l_Auras.end(); ++i)
         {
-            if ((int32)idx->first == (*i)->GetMiscValue())
-                ModifyCurrency(idx->first, idx->second + CalculatePct(idx->second, (*i)->GetAmount()));
+            if (idx->first == (*i)->GetMiscValue())
+                l_Pct += (*i)->GetAmount();
         }
+
+        ModifyCurrency(idx->first, CalculatePct(idx->second, l_Pct));
     }
 }
-
 void Player::SendMirrorTimer(MirrorTimerType p_Type, uint32 p_MaxValue, uint32 p_CurrValue, int32 p_Regen)
 {
     if (int(p_MaxValue) == DISABLED_MIRROR_TIMER)
