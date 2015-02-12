@@ -27393,21 +27393,18 @@ bool Player::GetsRecruitAFriendBonus(bool forXP)
 
 void Player::RewardPlayerAndGroupAtKill(Unit* victim, bool isBattleGround)
 {
-     //currency reward
-    if (sMapStore.LookupEntry(GetMapId())->IsDungeon())
+    if (Group *pGroup = GetGroup())
     {
-        if (Group *pGroup = GetGroup())
+        for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
         {
-            for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
-            {
-                Player* pGroupGuy = itr->getSource();
-                if (IsInMap(pGroupGuy))
-                    pGroupGuy->RewardCurrencyAtKill(victim);
-            }
+            Player* pGroupGuy = itr->getSource();
+            if (IsInMap(pGroupGuy))
+                pGroupGuy->RewardCurrencyAtKill(victim);
         }
-        else
-            RewardCurrencyAtKill(victim);
     }
+    else
+        RewardCurrencyAtKill(victim);
+
     KillRewarder(this, victim, isBattleGround).Reward();
 }
 
