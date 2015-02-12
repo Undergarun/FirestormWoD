@@ -69,7 +69,8 @@ namespace MS
             {
                 RoltallEntranceWall = 224643,
                 RoltallExitWall     = 225693,
-                RoltallBridge       = 224487
+                RoltallBridge       = 224487,
+                ChallengeDoor       = 211992
             };
 
             enum Data
@@ -104,7 +105,7 @@ namespace MS
                 /// ScenarioID
                 BloodmaulChallengeID    = 425,
                 BloodmaulKillCount      = 39,
-                BloodmaulEnnemies       = 26275
+                BloodmaulEnnemies       = 25122
             };
 
             namespace SlaverWatcherCrushto

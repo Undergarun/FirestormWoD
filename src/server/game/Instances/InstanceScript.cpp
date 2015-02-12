@@ -302,7 +302,7 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
         for (MinionSet::iterator i = bossInfo->minion.begin(); i != bossInfo->minion.end(); ++i)
             UpdateMinionState(*i, state);
 
-        ///< End of challenge
+        /// End of challenge
         if (id == (bosses.size() - 1) && state == DONE)
         {
             if (instance->IsChallengeMode() && m_ChallengeStarted && m_ConditionCompleted)

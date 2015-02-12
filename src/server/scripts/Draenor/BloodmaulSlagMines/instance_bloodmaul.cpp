@@ -136,6 +136,9 @@ namespace MS
                                 case GameObjects::RoltallExitWall:
                                     AddDoor(p_GameObject, true);
                                     break;
+                                case GameObjects::ChallengeDoor:
+                                    m_ChallengeDoorGuid = p_GameObject->GetGUID();
+                                    break;
                                 default:
                                     break;
                             }
@@ -197,6 +200,9 @@ namespace MS
 
                             ++m_CreatureKilled;
                             SendScenarioProgressUpdate(CriteriaProgressData(eScenarioDatas::BloodmaulEnnemies, m_CreatureKilled, m_InstanceGuid, time(NULL), m_BeginningTime, 0));
+
+                            if (m_CreatureKilled >= eScenarioDatas::BloodmaulKillCount)
+                                m_ConditionCompleted = true;
                         }
 
                         bool SetBossState(uint32 p_ID, EncounterState p_State)
