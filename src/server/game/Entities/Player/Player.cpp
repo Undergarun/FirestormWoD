@@ -1508,6 +1508,13 @@ void Player::RewardCurrencyAtKill(Unit* p_Victim)
     if (!p_Victim->ToCreature()->GetEntry())
         return;
 
+    if (uint32 l_TrackingQuestId = Vignette::GetTrackingQuestIdFromWorldObject(p_Victim))
+    {
+        uint32 l_QuestBit = GetQuestUniqueBitFlag(l_TrackingQuestId);
+        if (m_CompletedQuestBits.GetBit(l_QuestBit - 1))
+            return;
+    }
+
     CurrencyOnKillEntry const* l_Curr = sObjectMgr->GetCurrencyOnKillEntry(p_Victim->ToCreature()->GetEntry());
     if (!l_Curr)
         return;
