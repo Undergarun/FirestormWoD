@@ -69,7 +69,8 @@ namespace MS
             {
                 RoltallEntranceWall = 224643,
                 RoltallExitWall     = 225693,
-                RoltallBridge       = 224487
+                RoltallBridge       = 224487,
+                ChallengeDoor       = 211992
             };
 
             enum Data
@@ -88,6 +89,23 @@ namespace MS
             enum eAchievements
             {
                 IsDraenorOnFire = 9008
+            };
+
+            enum eScenarioDatas
+            {
+                /// Normal/Heroic Mode
+                /// ScenarioID
+                BloodmaulScenarioID     = 681,
+                /// Bosses
+                BloodmaulMagmolatus     = 25036,
+                BloodmaulCrushto        = 25035,
+                BloodmaulRoltall        = 25037,
+                BloodmaulGugrokk        = 24989,
+                /// Challenge Mode
+                /// ScenarioID
+                BloodmaulChallengeID    = 425,
+                BloodmaulKillCount      = 39,
+                BloodmaulEnnemies       = 25122
             };
 
             namespace SlaverWatcherCrushto

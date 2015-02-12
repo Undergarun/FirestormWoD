@@ -27,6 +27,15 @@ namespace MS
                 { 0,                                0,                              DoorType::DOOR_TYPE_ROOM,    0                           }  // EOF
             };
 
+            static const BossScenarios g_BossScenarios[] =
+            {
+                { BossIds::BossSlaveWatcherCrushto, eScenarioDatas::BloodmaulCrushto    },
+                { BossIds::BossForgemasterGogduh,   eScenarioDatas::BloodmaulMagmolatus },
+                { BossIds::BossRoltall,             eScenarioDatas::BloodmaulRoltall    },
+                { BossIds::BossGugrokk,             eScenarioDatas::BloodmaulGugrokk    },
+                { 0,                                0                                   }
+            };
+
             class instance_Bloodmaul : public InstanceMapScript
             {
                 public:
@@ -38,10 +47,10 @@ namespace MS
                         bool m_CanUpdate;
                         ObjectGuid m_InstanceGuid;
 
-                        // Scenario handling.
+                        /// Scenario handling.
                         uint32 m_CreatureKilled;
 
-                        // Slave Watcher Crushto.
+                        /// Slave Watcher Crushto.
                         std::vector<uint64> m_NeutralMinerSpawnGuids;
                         std::list<uint64> m_CapturedMinerGuids;
                         uint32 m_OgreMageDeads;
@@ -74,7 +83,7 @@ namespace MS
                         {
                             SetBossNumber(MaxEncounter::Number);
                             LoadDoorData(k_DoorData);
-                            //LoadScenariosInfos(k_ScenarioData, p_Map->IsChallengeMode() ? ScenarioDatas::ChallengeScenarioId : ScenarioDatas::ScenarioId);
+                            LoadScenariosInfos(g_BossScenarios, p_Map->IsChallengeMode() ? eScenarioDatas::BloodmaulChallengeID : eScenarioDatas::BloodmaulScenarioID);
                         }
 
                         void OnCreatureCreate(Creature* p_Creature)
@@ -127,6 +136,9 @@ namespace MS
                                 case GameObjects::RoltallExitWall:
                                     AddDoor(p_GameObject, true);
                                     break;
+                                case GameObjects::ChallengeDoor:
+                                    m_ChallengeDoorGuid = p_GameObject->GetGUID();
+                                    break;
                                 default:
                                     break;
                             }
@@ -177,7 +189,7 @@ namespace MS
                                     break;
                             }
 
-                            /*if (!instance->IsChallengeMode() || !IsChallengeModeStarted() || m_CreatureKilled >= ScenarioDatas::MaxEnnemiesToKill)
+                            if (!instance->IsChallengeMode() || !IsChallengeModeStarted() || m_CreatureKilled >= eScenarioDatas::BloodmaulKillCount)
                                 return;
 
                             if (p_Creature == nullptr)
@@ -187,7 +199,10 @@ namespace MS
                                 return;
 
                             ++m_CreatureKilled;
-                            SendScenarioProgressUpdate(CriteriaProgressData(ScenarioDatas::EnnemiesCriteriaId, m_CreatureKilled, m_InstanceGuid, time(NULL), m_BeginningTime, 0));*/
+                            SendScenarioProgressUpdate(CriteriaProgressData(eScenarioDatas::BloodmaulEnnemies, m_CreatureKilled, m_InstanceGuid, time(NULL), m_BeginningTime, 0));
+
+                            if (m_CreatureKilled >= eScenarioDatas::BloodmaulKillCount)
+                                m_ConditionCompleted = true;
                         }
 
                         bool SetBossState(uint32 p_ID, EncounterState p_State)

@@ -196,14 +196,18 @@ class boss_orebender_gorashan : public CreatureScript
                 me->RemoveAllAreasTrigger();
             }
 
-            void JustReachedHome()
+            void EnterEvadeMode()
             {
+                _EnterEvadeMode();
+
                 if (m_Instance)
                 {
                     _JustReachedHome();
                     m_Instance->SetBossState(DATA_OREBENDER_GORASHAN, FAIL);
                     m_Instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                 }
+
+                Reset();
             }
 
             void SpellHit(Unit* p_Caster, SpellInfo const* p_SpellInfo)

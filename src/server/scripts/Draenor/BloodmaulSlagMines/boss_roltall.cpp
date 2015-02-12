@@ -96,8 +96,6 @@ namespace MS { namespace Instances { namespace Bloodmaul
 
                     _Reset();
 
-                    summons.DespawnAll();
-
                     /// -100% casting speed of players in melee range
                     if (!IsHeroic())
                         me->RemoveAura(eSpells::SpellScorchingAura);
@@ -119,8 +117,6 @@ namespace MS { namespace Instances { namespace Bloodmaul
                 void JustDied(Unit*)
                 {
                     _JustDied();
-
-                    summons.DespawnAll();
 
                     me->RemoveAllAreasTrigger();
 
@@ -207,6 +203,13 @@ namespace MS { namespace Instances { namespace Bloodmaul
                         default:
                             break;
                     }
+                }
+
+                void EnterEvadeMode()
+                {
+                    /// Don't need classic EvadeMode, Roltall can't move
+                    _EnterEvadeMode();
+                    Reset();
                 }
 
                 void UpdateAI(uint32 const p_Diff)
