@@ -31124,7 +31124,6 @@ void Player::SendRefreshSpellMods()
 
             if (l_PctValue != 1.f)
             {
-                printf("%i %f PCT\n", i++, l_PctValue);
                 l_SubPctBuffer << float(l_PctValue);
                 l_SubPctBuffer << uint8(l_EffectIndex);
 
@@ -31138,7 +31137,6 @@ void Player::SendRefreshSpellMods()
 
             if (l_FlatValue)
             {
-                printf("%i FLAT\n", i++);
                 l_SubFlatBuffer << float(l_FlatValue);
                 l_SubFlatBuffer << uint8(l_EffectIndex);
 
