@@ -5140,11 +5140,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 104855: ///< Overpacked Firework
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
-            /// Remove Dash and Prowl when stance is differente of FORM_CAT
-            case 1850: ///< Dash
-            case 5215: ///< Prowl
-                spellInfo->Stances = 0x01;
-                break;
             /// Add Server-Side dummy spell for Fishing
             /// TODO : Add more generic system to load server-side spell
             case 7733:   ///< Apprentice Fishing

@@ -1628,7 +1628,9 @@ class spell_dru_teleport_moonglade: public SpellScriptLoader
 
 enum ActivateCatFormSpells
 {
-    SPELL_DRUID_CAT_FORM = 768
+    SPELL_DRUID_CAT_FORM = 768,
+    SPELL_DRUID_DASH = 1850,
+    SPELL_DRUID_DESPLACER_BEAST_AURA = 137452
 };
 
 // Prowl - 5215, Displacer Beast - 102280 and Dash - 1850
@@ -1644,8 +1646,10 @@ class spell_dru_activate_cat_form: public SpellScriptLoader
             void HandleBeforeHit()
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
+                {
                     if (!l_Player->HasAura(SPELL_DRUID_CAT_FORM))
                         l_Player->CastSpell(l_Player, SPELL_DRUID_CAT_FORM, true);
+                }
             }
 
             void Register()
@@ -1657,6 +1661,44 @@ class spell_dru_activate_cat_form: public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_dru_activate_cat_form_SpellScript();
+        }
+};
+
+// Call by Cat Form 768
+// Prowl - 5215, Displacer Beast - 102280 and Dash - 1850
+class spell_dru_on_desactivate_cat_form : public SpellScriptLoader
+{
+    public:
+        spell_dru_on_desactivate_cat_form() : SpellScriptLoader("spell_dru_on_desactivate_cat_form") { }
+
+        class spell_dru_on_desactivate_cat_form_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_on_desactivate_cat_form_AuraScript);
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (!l_Target)
+                    return;
+
+                if (l_Target->HasAura(SPELL_DRUID_PROWL))
+                    l_Target->RemoveAura(SPELL_DRUID_PROWL);
+                if (l_Target->HasAura(SPELL_DRUID_DASH))
+                    l_Target->RemoveAura(SPELL_DRUID_DASH);
+                if (l_Target->HasAura(SPELL_DRUID_DESPLACER_BEAST_AURA))
+                    l_Target->RemoveAura(SPELL_DRUID_DESPLACER_BEAST_AURA);
+            }
+
+            void Register()
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_dru_on_desactivate_cat_form_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_on_desactivate_cat_form_AuraScript();
         }
 };
 
@@ -2957,6 +2999,7 @@ void AddSC_druid_spell_scripts()
     new spell_dru_faerie_fire();
     new spell_dru_teleport_moonglade();
     new spell_dru_activate_cat_form();
+    new spell_dru_on_desactivate_cat_form();
     new spell_dru_eclipse();
     new spell_dru_eclipse_mod_damage();
     new spell_dru_celestial_alignment();
