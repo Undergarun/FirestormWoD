@@ -860,7 +860,7 @@ enum DruidSoulOfTheForestSpells
     SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO = 114108
 };
 
-// Rejuvenation - 774 (germination effect)
+/// Rejuvenation - 774 (germination effect)
 class spell_dru_rejuvenation : public SpellScriptLoader
 {
 public:
@@ -897,7 +897,7 @@ public:
             if (!l_Target)
                 return;
 
-            //Germination
+            ///Germination
             if (l_Caster->HasAura(SPELL_DRUID_GERMINATION_PASSIVE_TALENT) && l_Target->HasAura(SPELL_DRUID_REJUVENATION))
             {
                 AuraPtr l_RejuvenationAuraPtr = l_Target->GetAura(SPELL_DRUID_REJUVENATION);
@@ -944,7 +944,7 @@ public:
         {
             if (Unit* l_Caster = GetCaster())
             {
-                //If soul of the forest is activated we increase the heal by 100%
+                ///If soul of the forest is activated we increase the heal by 100%
                 if (l_Caster->HasAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO))
                 {
                     amount *= 2;
@@ -985,7 +985,7 @@ public:
         {
             if (Unit* l_Caster = GetCaster())
             {
-                //If soul of the forest is activated we increase the heal by 100%
+                ///If soul of the forest is activated we increase the heal by 100%
                 if (l_Caster->HasAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO))
                     SetHitHeal(GetHitHeal() * 2);
             }
@@ -1005,7 +1005,7 @@ public:
         {
             if (Unit* l_Caster = GetCaster())
             {
-                //If soul of the forest is activated we increase the heal by 100%
+                ///If soul of the forest is activated we increase the heal by 100%
                 if (l_Caster->HasAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO))
                 {
                     amount *= 2;
@@ -1045,7 +1045,7 @@ public:
         {
             if (Unit* l_Caster = GetCaster())
             {
-                //If soul of the forest is activated we increase the heal by 50%
+                ///If soul of the forest is activated we increase the heal by 50%
                 if (l_Caster->HasAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO))
                 {
                     amount *= 1.5f;
@@ -1862,7 +1862,7 @@ class spell_dru_eclipse_mod_damage : public SpellScriptLoader
                         l_BonusSolarSpells = CalculatePct(l_DamageModPCT, l_Power / l_Coeff);
                         l_BonusLunarSpells = l_DamageModPCT - l_BonusSolarSpells;
                     }
-                    
+
                     if (GetSpellInfo()->GetSchoolMask() == SPELL_SCHOOL_MASK_NATURE)
                         SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_BonusSolarSpells));
                     else if (GetSpellInfo()->GetSchoolMask() == SPELL_SCHOOL_MASK_ARCANE)
