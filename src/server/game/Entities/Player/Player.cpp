@@ -4570,7 +4570,6 @@ void Player::InitStatsForLevel(bool reapplyMods)
     SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL_EQUIPPED, 0.0f);
     SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL_TOTAL, 0.0f);
 
-
     // Init spell schools (will be recalculated in UpdateAllStats() at loading and in _ApplyAllStatBonuses() at reset
     for (uint8 i = 0; i < 7; ++i)
         SetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE+i, 0.0f);
@@ -7575,8 +7574,9 @@ void Player::UpdateRating(CombatRating p_CombatRating)
             AuraEffectList const& l_AuraList = GetAuraEffectsByType(l_AuraMod);
             for (AuraEffectList::const_iterator iter = l_AuraList.begin(); iter != l_AuraList.end(); iter++)
             {
-                (*iter)->SetCanBeRecalculated(true);
-                (*iter)->RecalculateAmount();
+                AuraEffectPtr l_AuraEff = *iter;
+                l_AuraEff->SetCanBeRecalculated(true);
+                l_AuraEff->ChangeAmount(l_AuraEff->CalculateAmount(this), true, true);
             }
         }
 
@@ -24023,72 +24023,76 @@ bool Player::IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier* mod
 
 void Player::AddSpellMod(SpellModifier* p_Modifier, bool p_Apply)
 {
-    Opcodes l_Opcode = Opcodes((p_Modifier->type == SPELLMOD_FLAT) ? SMSG_SET_FLAT_SPELL_MODIFIER : SMSG_SET_PCT_SPELL_MODIFIER);
-
-    flag128 l_Mask = 0;
-    uint32 l_ModifierTypeCount = 0; // count of mods per one mod->op
-    uint32 l_MaskIndex = 0;
-
-    WorldPacket l_Packet(l_Opcode);
-    ByteBuffer l_Buffer;
-
-    for (int l_EffectIndex = 0; l_EffectIndex < 128; ++l_EffectIndex)
+    // Dont pointlessly send mods when player is not in world
+    if (IsInWorld())
     {
-        if (l_EffectIndex != 0 && (l_EffectIndex % 32) == 0)
-            l_Mask[l_MaskIndex++] = 0;
+        Opcodes l_Opcode = Opcodes((p_Modifier->type == SPELLMOD_FLAT) ? SMSG_SET_FLAT_SPELL_MODIFIER : SMSG_SET_PCT_SPELL_MODIFIER);
 
-        l_Mask[l_MaskIndex] = uint32(1) << (l_EffectIndex - (32 * l_MaskIndex));
+        flag128 l_Mask = 0;
+        uint32 l_ModifierTypeCount = 0; // count of mods per one mod->op
+        uint32 l_MaskIndex = 0;
 
-        if (p_Modifier->mask & l_Mask)
+        WorldPacket l_Packet(l_Opcode);
+        ByteBuffer l_Buffer;
+
+        for (int l_EffectIndex = 0; l_EffectIndex < 128; ++l_EffectIndex)
         {
-            if (l_Opcode == SMSG_SET_PCT_SPELL_MODIFIER)
+            if (l_EffectIndex != 0 && (l_EffectIndex % 32) == 0)
+                l_Mask[l_MaskIndex++] = 0;
+
+            l_Mask[l_MaskIndex] = uint32(1) << (l_EffectIndex - (32 * l_MaskIndex));
+
+            if (p_Modifier->mask & l_Mask)
             {
-                float l_Value = 1;
-
-                for (SpellModList::iterator l_It = m_spellMods[p_Modifier->op].begin(); l_It != m_spellMods[p_Modifier->op].end(); ++l_It)
-                    if ((*l_It)->type == p_Modifier->type && (*l_It)->mask & l_Mask)
-                        l_Value += float((*l_It)->value)/100;
-
-                if (p_Modifier->value)
-                    l_Value += p_Apply ? float(p_Modifier->value) / 100.f : float(p_Modifier->value) / -100.f;
-
-                uint32 l_EffIndex = p_Modifier->ownerAura->GetEffectIndexByType(SPELL_AURA_MOD_COOLDOWN_BY_HASTE);
-                if (l_EffIndex != MAX_EFFECTS && p_Apply)
+                if (l_Opcode == SMSG_SET_PCT_SPELL_MODIFIER)
                 {
-                    // This needs to be done so sclient receives precise numbers
-                    l_Value -= float(p_Modifier->value) / 100.f;
-                    l_Value -= ((float)p_Modifier->ownerAura->GetSpellInfo()->Effects[l_EffIndex].BasePoints * ((1.f / GetFloatValue(UNIT_FIELD_MOD_HASTE)) - 1.f)) / 100.f;
+                    float l_Value = 1;
+
+                    for (SpellModList::iterator l_It = m_spellMods[p_Modifier->op].begin(); l_It != m_spellMods[p_Modifier->op].end(); ++l_It)
+                        if ((*l_It)->type == p_Modifier->type && (*l_It)->mask & l_Mask)
+                            l_Value += float((*l_It)->value)/100;
+
+                    if (p_Modifier->value)
+                        l_Value += p_Apply ? float(p_Modifier->value) / 100.f : float(p_Modifier->value) / -100.f;
+
+                    uint32 l_EffIndex = p_Modifier->ownerAura->GetEffectIndexByType(SPELL_AURA_MOD_COOLDOWN_BY_HASTE);
+                    if (l_EffIndex != MAX_EFFECTS && p_Apply)
+                    {
+                        // This needs to be done so sclient receives precise numbers
+                        l_Value -= float(p_Modifier->value) / 100.f;
+                        l_Value -= ((float)p_Modifier->ownerAura->GetSpellInfo()->Effects[l_EffIndex].BasePoints * ((1.f / GetFloatValue(UNIT_FIELD_MOD_HASTE)) - 1.f)) / 100.f;
+                    }
+
+                    l_Buffer << float(l_Value);
+                    l_Buffer << uint8(l_EffectIndex);
+
+                    ++l_ModifierTypeCount;
+
+                    continue;
                 }
+
+                float l_Value = 0;
+
+                for (SpellModList::iterator itr = m_spellMods[p_Modifier->op].begin(); itr != m_spellMods[p_Modifier->op].end(); ++itr)
+                    if ((*itr)->type == p_Modifier->type && (*itr)->mask & l_Mask)
+                        l_Value += float((*itr)->value);
+
+                l_Value += p_Apply ? float(p_Modifier->value) : -float(p_Modifier->value);
 
                 l_Buffer << float(l_Value);
                 l_Buffer << uint8(l_EffectIndex);
 
                 ++l_ModifierTypeCount;
-
-                continue;
             }
-
-            int32 l_Value = 0;
-
-            for (SpellModList::iterator itr = m_spellMods[p_Modifier->op].begin(); itr != m_spellMods[p_Modifier->op].end(); ++itr)
-                if ((*itr)->type == p_Modifier->type && (*itr)->mask & l_Mask)
-                    l_Value += float((*itr)->value);
-
-            l_Value += p_Apply ? float(p_Modifier->value) : -float(p_Modifier->value);
-
-            l_Buffer << float(l_Value);
-            l_Buffer << uint8(l_EffectIndex);
-
-            ++l_ModifierTypeCount;
         }
+
+        l_Packet << uint32(1);
+        l_Packet << uint8(p_Modifier->op);
+        l_Packet << uint32(l_ModifierTypeCount);
+        l_Packet.append(l_Buffer);
+
+        SendDirectMessage(&l_Packet);
     }
-
-    l_Packet << uint32(1);
-    l_Packet << uint8(p_Modifier->op);
-    l_Packet << uint32(l_ModifierTypeCount);
-    l_Packet.append(l_Buffer);
-
-    SendDirectMessage(&l_Packet);
 
     if (p_Apply)
         m_spellMods[p_Modifier->op].push_back(p_Modifier);
@@ -30017,7 +30021,10 @@ uint32 Player::GetAverageItemLevelTotal()
     {
         // don't check tabard, ranged or shirt
         if (i == EQUIPMENT_SLOT_TABARD || i == EQUIPMENT_SLOT_RANGED || i == EQUIPMENT_SLOT_BODY)
+        {
+            l_EquipItemLevel[i] = 0;
             continue;
+        }
 
         Item* l_Item = m_items[i];
         if (l_Item && l_Item->GetTemplate())
@@ -30038,7 +30045,7 @@ uint32 Player::GetAverageItemLevelTotal()
 
     l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET1] = std::max(l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET1], l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET2]);
     l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET2] = l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET1];
-    l_EquipItemLevel[EQUIPMENT_SLOT_FINGER1] = std::max(l_EquipItemLevel[EQUIPMENT_SLOT_FINGER2], l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET2]);
+    l_EquipItemLevel[EQUIPMENT_SLOT_FINGER1] = std::max(l_EquipItemLevel[EQUIPMENT_SLOT_FINGER1], l_EquipItemLevel[EQUIPMENT_SLOT_FINGER2]);
     l_EquipItemLevel[EQUIPMENT_SLOT_FINGER2] = l_EquipItemLevel[EQUIPMENT_SLOT_FINGER1];
 
     for (uint8 i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_END; ++i)
@@ -31065,62 +31072,96 @@ void Player::SendResumeToken(uint32 token)
 
 void Player::SendRefreshSpellMods()
 {
-    for (uint8 i = 0; i < MAX_SPELLMOD; ++i)
+    flag128 l_Mask = 0;
+    uint32 l_PctModifierTypeCount;
+    uint32 l_FlatModifierTypeCount;
+    uint32 l_PctModifiersCount = 0;
+    uint32 l_FlatModifiersCount = 0;
+    uint32 l_MaskIndex;
+    ByteBuffer l_PctBuffer;
+    ByteBuffer l_FlatBuffer;
+    int i = 0;
+
+    for (int l_SpellModOp = 0; l_SpellModOp < MAX_SPELLMOD; ++l_SpellModOp)
     {
-        for (auto mod : m_spellMods[i])
+        if (!m_spellMods[l_SpellModOp].size())
+            continue;
+
+        l_PctModifierTypeCount = 0;
+        l_FlatModifierTypeCount = 0;
+        l_MaskIndex = 0;
+
+        ByteBuffer l_SubFlatBuffer;
+        ByteBuffer l_SubPctBuffer;
+
+        for (int l_EffectIndex = 0; l_EffectIndex < 128; ++l_EffectIndex)
         {
-            Opcodes opcode = Opcodes((mod->type == SPELLMOD_FLAT) ? SMSG_SET_FLAT_SPELL_MODIFIER : SMSG_SET_PCT_SPELL_MODIFIER);
+            if (l_EffectIndex != 0 && (l_EffectIndex % 32) == 0)
+                l_Mask[l_MaskIndex++] = 0;
 
-            int i = 0;
-            flag128 _mask = 0;
-            uint32 modTypeCount = 0; // count of mods per one mod->op
+            l_Mask[l_MaskIndex] = uint32(1) << (l_EffectIndex - (32 * l_MaskIndex));
 
-            ByteBuffer dataBuffer;
-            WorldPacket data(opcode);
-            data << uint32(1);  // count of different mod->op's in packet
-            data << uint8(mod->op);
+            float l_PctValue = 1.f;
+            for (SpellModList::iterator l_It = m_spellMods[l_SpellModOp].begin(); l_It != m_spellMods[l_SpellModOp].end(); ++l_It)
+                if ((*l_It)->type == SPELLMOD_PCT && (*l_It)->mask & l_Mask)
+                    l_PctValue += float((*l_It)->value) / 100.f;
 
-            for (int eff = 0; eff < 128; ++eff)
+            if (l_PctValue != 1.f)
             {
-                if (eff != 0 && (eff % 32) == 0)
-                    _mask[i++] = 0;
+                l_SubPctBuffer << float(l_PctValue);
+                l_SubPctBuffer << uint8(l_EffectIndex);
 
-                _mask[i] = uint32(1) << (eff - (32 * i));
-                if (mod->mask & _mask)
-                {
-                    if (opcode == SMSG_SET_PCT_SPELL_MODIFIER)
-                    {
-                        float val = 1;
-                        for (SpellModList::iterator itr = m_spellMods[mod->op].begin(); itr != m_spellMods[mod->op].end(); ++itr)
-                            if ((*itr)->type == mod->type && (*itr)->mask & _mask && mod->spellId != (*itr)->spellId)
-                                val += (*itr)->value/100;
-
-                        if (mod->value)
-                            val += float(mod->value)/100;
-
-                        dataBuffer << float(val);
-                        dataBuffer << uint8(eff);
-                        ++modTypeCount;
-                        continue;
-                    }
-
-                    int32 val = 0;
-                    for (SpellModList::iterator itr = m_spellMods[mod->op].begin(); itr != m_spellMods[mod->op].end(); ++itr)
-                        if ((*itr)->type == mod->type && (*itr)->mask & _mask && mod->spellId != (*itr)->spellId)
-                            val += (*itr)->value;
-
-                    val += float(mod->value);
-
-                    dataBuffer << float(val);
-                    dataBuffer << uint8(eff);
-                    ++modTypeCount;
-                }
+                ++l_PctModifierTypeCount;
             }
 
-            data << uint32(modTypeCount);
-            data.append(dataBuffer);
-            SendDirectMessage(&data);
+            float l_FlatValue = 0.f;
+            for (SpellModList::iterator itr = m_spellMods[l_SpellModOp].begin(); itr != m_spellMods[l_SpellModOp].end(); ++itr)
+                if ((*itr)->type == SPELLMOD_FLAT && (*itr)->mask & l_Mask)
+                    l_FlatValue += float((*itr)->value);
+
+            if (l_FlatValue)
+            {
+                l_SubFlatBuffer << float(l_FlatValue);
+                l_SubFlatBuffer << uint8(l_EffectIndex);
+
+                ++l_FlatModifierTypeCount;
+            }
         }
+
+        if (l_PctModifierTypeCount)
+        {
+            ++l_PctModifiersCount;
+
+            l_PctBuffer << uint8(l_SpellModOp);
+            l_PctBuffer << uint32(l_PctModifierTypeCount);
+            l_PctBuffer.append(l_SubPctBuffer);
+        }
+
+        if (l_FlatModifierTypeCount)
+        {
+            ++l_FlatModifiersCount;
+
+            l_FlatBuffer << uint8(l_SpellModOp);
+            l_FlatBuffer << uint32(l_FlatModifierTypeCount);
+            l_FlatBuffer.append(l_SubFlatBuffer);
+        }
+
+    }
+
+    if (l_PctModifiersCount)
+    {
+        WorldPacket l_Packet(SMSG_SET_PCT_SPELL_MODIFIER);
+        l_Packet << uint32(l_PctModifiersCount);
+        l_Packet.append(l_PctBuffer);
+        SendDirectMessage(&l_Packet);
+    }
+
+    if (l_FlatModifiersCount)
+    {
+        WorldPacket l_Packet(SMSG_SET_FLAT_SPELL_MODIFIER);
+        l_Packet << uint32(l_FlatModifiersCount);
+        l_Packet.append(l_FlatBuffer);
+        SendDirectMessage(&l_Packet);
     }
 }
 

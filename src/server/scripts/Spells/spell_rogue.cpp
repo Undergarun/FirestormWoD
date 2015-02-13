@@ -1283,8 +1283,8 @@ class spell_rog_shiv: public SpellScriptLoader
         }
 };
 
-// All Poisons
-// Deadly Poison - 2823, Wound Poison - 8679, Mind-numbing Poison - 5761, Leeching Poison - 108211, Paralytic Poison - 108215 or Crippling Poison - 3408
+/// All Poisons
+/// Deadly Poison - 2823, Wound Poison - 8679, Mind-numbing Poison - 5761, Leeching Poison - 108211 or Crippling Poison - 3408
 class spell_rog_poisons: public SpellScriptLoader
 {
     public:
@@ -1398,7 +1398,7 @@ class spell_rog_preparation: public SpellScriptLoader
                     if (spellInfo->SpellFamilyName == SPELLFAMILY_ROGUE)
                     {
                         if (spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_ROGUE_VAN_EVAS_SPRINT ||   // Vanish, Evasion, Sprint
-                            spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_ROGUE_DISMANTLE)          // Dismantle
+                            spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_ROGUE_DISMANTLE)          // Dismantle is removed since 6.0.2
                             caster->RemoveSpellCooldown((itr++)->first, true);
                         else
                             ++itr;

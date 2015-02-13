@@ -99,9 +99,6 @@ enum MonkSpells
     SPELL_MONK_ITEM_4_S12_MISTWEAVER            = 124487,
     SPELL_MONK_ZEN_FOCUS                        = 124488,
     SPELL_MONK_EMINENCE_HEAL                    = 126890,
-    SPELL_MONK_GRAPPLE_WEAPON_DPS_UPGRADE       = 123231,
-    SPELL_MONK_GRAPPLE_WEAPON_TANK_UPGRADE      = 123232,
-    SPELL_MONK_GRAPPLE_WEAPON_HEAL_UPGRADE      = 123234,
     SPELL_MONK_CHI_WAVE_HEAL                    = 132463,
     SPELL_MONK_CHI_WAVE_DAMAGE                  = 132467,
     SPELL_MONK_CHI_WAVE_HEALING_BOLT            = 132464,
@@ -874,84 +871,6 @@ class spell_monk_chi_wave: public SpellScriptLoader
         }
 };
 
-// Grapple Weapon - 117368
-class spell_monk_grapple_weapon: public SpellScriptLoader
-{
-    public:
-        spell_monk_grapple_weapon() : SpellScriptLoader("spell_monk_grapple_weapon") { }
-
-        class spell_monk_grapple_weapon_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_monk_grapple_weapon_SpellScript)
-
-            void HandleBeforeHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (target->ToPlayer())
-                        {
-                            Item* mainItem = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-                            Item* targetMainItem = target->ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-
-                            if (mainItem && targetMainItem)
-                            {
-                                if (targetMainItem->GetTemplate()->ItemLevel > mainItem->GetTemplate()->ItemLevel)
-                                {
-                                    switch (_player->GetSpecializationId(_player->GetActiveSpec()))
-                                    {
-                                        case SPEC_MONK_BREWMASTER:
-                                            _player->CastSpell(_player, SPELL_MONK_GRAPPLE_WEAPON_TANK_UPGRADE, true);
-                                            break;
-                                        case SPEC_MONK_MISTWEAVER:
-                                            _player->CastSpell(_player, SPELL_MONK_GRAPPLE_WEAPON_HEAL_UPGRADE, true);
-                                            break;
-                                        case SPEC_MONK_WINDWALKER:
-                                            _player->CastSpell(_player, SPELL_MONK_GRAPPLE_WEAPON_DPS_UPGRADE, true);
-                                            break;
-                                        default:
-                                            break;
-                                    }
-                                }
-                            }
-                        }
-                        else if (target->GetTypeId() == TYPEID_UNIT)
-                        {
-                            if (target->getLevel() > _player->getLevel())
-                            {
-                                switch (_player->GetSpecializationId(_player->GetActiveSpec()))
-                                {
-                                    case SPEC_MONK_BREWMASTER:
-                                        _player->CastSpell(_player, SPELL_MONK_GRAPPLE_WEAPON_TANK_UPGRADE, true);
-                                        break;
-                                    case SPEC_MONK_MISTWEAVER:
-                                        _player->CastSpell(_player, SPELL_MONK_GRAPPLE_WEAPON_HEAL_UPGRADE, true);
-                                        break;
-                                    case SPEC_MONK_WINDWALKER:
-                                        _player->CastSpell(_player, SPELL_MONK_GRAPPLE_WEAPON_DPS_UPGRADE, true);
-                                        break;
-                                    default:
-                                        break;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                BeforeHit += SpellHitFn(spell_monk_grapple_weapon_SpellScript::HandleBeforeHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_monk_grapple_weapon_SpellScript();
-        }
-};
-
 // Transcendence : Transfer - 119996
 class spell_monk_transcendence_transfer: public SpellScriptLoader
 {
@@ -1280,37 +1199,6 @@ class spell_monk_guard: public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_monk_guard_AuraScript();
-        }
-};
-
-// Bear Hug - 127361
-class spell_monk_bear_hug: public SpellScriptLoader
-{
-    public:
-        spell_monk_bear_hug() : SpellScriptLoader("spell_monk_bear_hug") { }
-
-        class spell_monk_bear_hug_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_monk_bear_hug_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (Unit* target = GetHitUnit())
-                        if (AuraPtr bearHug = target->GetAura(SPELL_MONK_BEAR_HUG, _player->GetGUID()))
-                            if (bearHug->GetEffect(1))
-                                bearHug->GetEffect(1)->SetAmount(_player->CountPctFromMaxHealth(2));
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_monk_bear_hug_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_monk_bear_hug_SpellScript();
         }
 };
 
@@ -3612,15 +3500,17 @@ class spell_monk_rushing_jade_wind: public SpellScriptLoader
                 if (l_Player == nullptr || GetSpellInfo()->GetDuration() <= 0)
                     return;
 
-                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_MONK_MISTWEAVER)
-                {
-                    l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
 
-                    int l_Bp0 = (((0.6f * l_Low + 0.6f * l_High) / 2) * 9) / (GetSpellInfo()->GetDuration() / IN_MILLISECONDS);
-                    l_Player->CastCustomSpell(l_Player, SPELL_MONK_RUSHING_JADE_WIND_DAMAGE, &l_Bp0, NULL, NULL, true);
-                }
+                //< 6.1 rushing_jade_wind is a healing spell for MISTWEAVER spec
+                /*if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_MONK_MISTWEAVER)
+                {*/
+                l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
+
+                int l_Bp0 = (((0.6f * l_Low + 0.6f * l_High) / 2) * 9) / (GetSpellInfo()->GetDuration() / IN_MILLISECONDS);
+                l_Player->CastCustomSpell(l_Player, SPELL_MONK_RUSHING_JADE_WIND_DAMAGE, &l_Bp0, NULL, NULL, true);
+                /*}
                 else
-                    l_Player->CastSpell(l_Player, SPELL_MONK_RUSHING_JADE_WIND_HEAL, true);
+                    l_Player->CastSpell(l_Player, SPELL_MONK_RUSHING_JADE_WIND_HEAL, true);*/
             }
             void Register()
             {
@@ -4484,14 +4374,12 @@ void AddSC_monk_spell_scripts()
     new spell_monk_chi_wave_healing_bolt();
     new spell_monk_chi_wave_bolt();
     new spell_monk_chi_wave();
-    new spell_monk_grapple_weapon();
     new spell_monk_transcendence_transfer();
     new spell_monk_dampen_harm();
     new spell_monk_item_s12_4p_mistweaver();
     new spell_monk_diffuse_magic();
     new spell_monk_black_ox_statue();
     new spell_monk_guard();
-    new spell_monk_bear_hug();
     new spell_monk_zen_flight_check();
     new spell_monk_glyph_of_zen_flight();
     new spell_monk_power_strikes();

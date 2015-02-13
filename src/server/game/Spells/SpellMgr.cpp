@@ -3326,6 +3326,9 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 20167:  // Seal of Insight
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_NONE;
+                break;
             case 150055: // Volcanic Tantrum
             case 149963: // Shatter Earth
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(27); // 3 sec
@@ -5137,11 +5140,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 104855: ///< Overpacked Firework
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
-            /// Remove Dash and Prowl when stance is differente of FORM_CAT
-            case 1850: ///< Dash
-            case 5215: ///< Prowl
-                spellInfo->Stances = 0x01;
-                break;
             /// Add Server-Side dummy spell for Fishing
             /// TODO : Add more generic system to load server-side spell
             case 7733:   ///< Apprentice Fishing
@@ -5855,6 +5853,7 @@ void SpellMgr::LoadSpellCustomAttr()
             switch (spellInfo->Id)
             {
                 case 61882: ///< Earthquake
+                case 152280: ///< Defile
                     spellInfo->ExplicitTargetMask &= ~TARGET_FLAG_UNIT;
                     break;
                 case 109248: ///< Binding Shot

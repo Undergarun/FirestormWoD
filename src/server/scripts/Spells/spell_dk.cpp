@@ -2005,37 +2005,79 @@ class spell_dk_chilblains_aura: public SpellScriptLoader
         }
 };
 
+/// Mark of Sindragosa
+class spell_dk_mark_of_sindragosa : public SpellScriptLoader
+{
+    public:
+        spell_dk_mark_of_sindragosa() : SpellScriptLoader("spell_dk_mark_of_sindragosa") { }
+
+        class spell_dk_mark_of_sindragosa_AuraScript : public AuraScript
+        {
+
+            enum BloodBathSpells
+            {
+                SPELL_MARK_OF_SINDRAGOSA_HEAL = 155168
+            };
+
+            PrepareAuraScript(spell_dk_mark_of_sindragosa_AuraScript);
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                if (!p_EventInfo.GetDamageInfo() || !p_EventInfo.GetDamageInfo()->GetDamage())
+                    return;
+
+                if (Unit* l_Caster = GetCaster())
+                {
+                    int32 l_Damage = CalculatePct(p_EventInfo.GetDamageInfo()->GetDamage(), p_AurEff->GetAmount());
+                    l_Caster->CastCustomSpell(l_Caster, SPELL_MARK_OF_SINDRAGOSA_HEAL, &l_Damage, nullptr, nullptr, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dk_mark_of_sindragosa_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dk_mark_of_sindragosa_AuraScript();
+        }
+};
+
 //Death Coil - 47541
 class spell_dk_death_coil : public SpellScriptLoader
 {
-public:
-    spell_dk_death_coil() : SpellScriptLoader("spell_dk_death_coil") { }
+    public:
+        spell_dk_death_coil() : SpellScriptLoader("spell_dk_death_coil") { }
 
-    class spell_dk_death_coil_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_dk_death_coil_SpellScript);
-
-        void HandleOnHit()
+        class spell_dk_death_coil_SpellScript : public SpellScript
         {
-            if (Unit* l_Caster = GetCaster())
+            PrepareSpellScript(spell_dk_death_coil_SpellScript);
+
+            void HandleOnHit()
             {
-                if (l_Caster->HasAura(DK_SPELL_ENHANCED_DEATH_COIL))
+                if (Unit* l_Caster = GetCaster())
                 {
-                    l_Caster->CastSpell(l_Caster, DK_SPELL_SHADOW_OF_DEATH, true);
+                    if (l_Caster->HasAura(DK_SPELL_ENHANCED_DEATH_COIL))
+                    {
+                        l_Caster->CastSpell(l_Caster, DK_SPELL_SHADOW_OF_DEATH, true);
+                    }
                 }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_dk_death_coil_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnHit += SpellHitFn(spell_dk_death_coil_SpellScript::HandleOnHit);
+            return new spell_dk_death_coil_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_dk_death_coil_SpellScript();
-    }
 };
 
 void AddSC_deathknight_spell_scripts()
@@ -2083,6 +2125,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_death_pact();
     new spell_dk_chilblains_aura();
     new spell_dk_reaping();
+    new spell_dk_mark_of_sindragosa();
 
     /// Player script
     new PlayerScript_Blood_Tap();

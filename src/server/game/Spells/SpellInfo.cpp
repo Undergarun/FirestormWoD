@@ -1476,7 +1476,6 @@ bool SpellInfo::CanTriggerPoisonAdditional() const
         {
             case 1766:  // Kick
             case 1943:  // Rupture
-            case 51722: // Dismantle
             case 703:   // Garrote
                 return true;
             default:
@@ -3868,7 +3867,6 @@ bool SpellInfo::IsPoisonOrBleedSpell() const
         case 89775: // Hemorrhage (DoT)
         case 112961:// Leeching Poison
         case 113780:// Deadly Poison (direct damage)
-        case 113952:// Paralytic Poison
         case 122233:// Crimson Tempest (DoT)
             return true;
         default:
@@ -4238,7 +4236,6 @@ bool SpellInfo::IsLethalPoison() const
     {
         case 5760:  // Mind-Numbling Poison
         case 112961:// Leeching Poison
-        case 113952:// Paralytic Poison
             return true;
         default:
             break;

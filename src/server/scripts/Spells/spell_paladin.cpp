@@ -718,15 +718,14 @@ class spell_pal_seal_of_insight: public SpellScriptLoader
         {
             PrepareSpellScript(spell_pal_seal_of_insight_SpellScript);
 
-            void HandleOnHit()
+            void HandleOnHit(SpellEffIndex)
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    _player->SetHealth(uint32(_player->GetHealth()) + 0.16f * _player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL));
+                // Needs a glyph script later for now its disabled in spellmgr
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_pal_seal_of_insight_SpellScript::HandleOnHit);
+            //    OnEffectHitTarget += SpellEffectFn(spell_pal_seal_of_insight_SpellScript::HandleOnHit, EFFECT_1, SPELL_EFFECT_HEAL);
             }
         };
 

@@ -952,7 +952,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         {
             if (damagetype != DOT || (spellProto && spellProto->IsChanneled()))
             {
-                uint32 const l_SpellTypesToInterrupt[2] = { CurrentSpellTypes::CURRENT_CHANNELED_SPELL, CurrentSpellTypes::CURRENT_CHANNELED_SPELL };
+                uint32 const l_SpellTypesToInterrupt[2] = { CurrentSpellTypes::CURRENT_CHANNELED_SPELL, CurrentSpellTypes::CURRENT_GENERIC_SPELL };
 
                 for (int l_I = 0; l_I < 2; l_I++)
                 {
@@ -1095,7 +1095,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
             {
                 if (damagetype != DOT)
                 {
-                    uint32 const l_SpellTypesToInterrupt[2] = { CurrentSpellTypes::CURRENT_CHANNELED_SPELL, CurrentSpellTypes::CURRENT_CHANNELED_SPELL };
+                    uint32 const l_SpellTypesToInterrupt[2] = { CurrentSpellTypes::CURRENT_CHANNELED_SPELL, CurrentSpellTypes::CURRENT_GENERIC_SPELL };
 
                     for (int l_I = 0; l_I < 2; l_I++)
                     {
@@ -1442,11 +1442,11 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
     else if (GetTypeId() == TYPEID_UNIT && (victim->GetTypeId() == TYPEID_PLAYER || victim->IsPetGuardianStuff()))
         damage *= CalculateDamageTakenFactor(victim, ToCreature());
 
-    // Apply Versatility damage bonus done/taken
+    /// Apply Versatility damage bonus done/taken
     if (GetTypeId() == TYPEID_PLAYER)
         damage += CalculatePct(damage, ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
     if (victim->GetTypeId() == TYPEID_PLAYER)
-        damage -= CalculatePct(damage, victim->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN) + GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
+        damage -= CalculatePct(damage, victim->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN) + victim->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
 
     SpellSchoolMask damageSchoolMask = SpellSchoolMask(damageInfo->schoolMask);
 
@@ -1612,11 +1612,11 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
     else if (GetTypeId() == TYPEID_UNIT && (victim->GetTypeId() == TYPEID_PLAYER || victim->IsPetGuardianStuff()))
         damage *= CalculateDamageTakenFactor(victim, ToCreature());
 
-    // Apply Versatility damage bonus done/taken
+    /// Apply Versatility damage bonus done/taken
     if (GetTypeId() == TYPEID_PLAYER)
         damage += CalculatePct(damage, ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
     if (victim->GetTypeId() == TYPEID_PLAYER)
-        damage -= CalculatePct(damage, victim->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN) + GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
+        damage -= CalculatePct(damage, victim->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN) + victim->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
 
     // Calculate armor reduction
     if (IsDamageReducedByArmor((SpellSchoolMask)(damageInfo->damageSchoolMask)))
@@ -2278,10 +2278,6 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
             DealDamage(caster, splitted, &cleanDamage, DIRECT_DAMAGE, schoolMask, (*itr)->GetSpellInfo(), false);
         }
     }
-
-    // Apply Versatility absorb bonus
-    if (this->GetTypeId() == TYPEID_PLAYER)
-        dmgInfo.AbsorbDamage(CalculatePct(dmgInfo.GetDamage(), ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT)));
 
     *resist = dmgInfo.GetResist();
     *absorb = dmgInfo.GetAbsorb();
@@ -9576,7 +9572,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
         case 5761:  // Mind-Numbling Poison
         case 8679:  // Wound Poison
         case 108211:// Leeching Poison
-        case 108215:// Paralytic Poison
         {
             if (GetTypeId() != TYPEID_PLAYER)
                 return false;
@@ -9896,12 +9891,10 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
         case 54927: // Glyph of Avenging Wrath
         case 124487:// Zen Focus
         case 88764: // Rolling Thunder
-        case 12598: // Counterspell
         case 115946:// Glyph of Burning Anger
         case 88821: // Daybreak
         case 131542:// Relentless Grip
         case 56420: // Glyph of Denounce
-        case 126046:// Adaptation
         case 117967:// Brewmaster Training
         case 134563:// Healing Elixirs
         case 131564:// Arcane Intensity
@@ -10314,7 +10307,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
         case 3409:  // Crippling Poison
         case 5760:  // Mind-numbling Poison
         case 112961:// Leeching Poison
-        case 113952:// Paralytic Poison
         {
             // Shuriken Toss cannot trigger non lethal poison
             if (procSpell)
@@ -13070,9 +13062,10 @@ int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask)
             if ((*i)->GetMiscValue() & schoolMask)
                 AdvertisedBenefit += int32(CalculatePct(GetTotalAttackPowerValue(WeaponAttackType::BaseAttack), (*i)->GetAmount()));
 
-        // Apply Versatility healing bonus
+        /// Apply Versatility healing bonus
         AdvertisedBenefit += CalculatePct(AdvertisedBenefit, ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
     }
+
     return AdvertisedBenefit;
 }
 
@@ -15436,9 +15429,10 @@ DiminishingLevels Unit::GetDiminishing(DiminishingGroup group)
             return DIMINISHING_LEVEL_1;
 
         // If last spell was casted more than 18 seconds ago - reset the count.
-        if (i->stack == 0 && getMSTimeDiff(i->hitTime, getMSTime()) > 18 * IN_MILLISECONDS)
+        if (i->stack == 0 && GetMSTimeDiffToNow(i->hitTime) > (18 * TimeConstants::IN_MILLISECONDS))
         {
             i->hitCount = DIMINISHING_LEVEL_1;
+            i->hitTime = getMSTime();
             return DIMINISHING_LEVEL_1;
         }
         // or else increase the count.

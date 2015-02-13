@@ -854,7 +854,13 @@ enum GerminationSpells
     SPELL_DRUID_GERMINATION_PASSIVE_TALENT = 155675
 };
 
-// Rejuvenation - 774 (germination effect)
+enum DruidSoulOfTheForestSpells
+{
+    SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO_TALENT = 158478,
+    SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO = 114108
+};
+
+/// Rejuvenation - 774 (germination effect)
 class spell_dru_rejuvenation : public SpellScriptLoader
 {
 public:
@@ -863,26 +869,200 @@ public:
     class spell_dru_rejuvenation_SpellScript : public SpellScript
     {
         PrepareSpellScript(spell_dru_rejuvenation_SpellScript);
+        
+        int32 m_RejuvenationAuraPtr = 0;
+
+        void HandleAfterHit()
+        {
+            Unit* l_Caster = GetCaster();
+            if (!l_Caster)
+                return;
+
+            Unit* l_Target = GetHitUnit();
+            if (!l_Target)
+                return;
+
+            AuraPtr l_RejuvenationAuraPtr = l_Target->GetAura(SPELL_DRUID_REJUVENATION);
+            if (l_RejuvenationAuraPtr && m_RejuvenationAuraPtr > 0)
+                l_RejuvenationAuraPtr->SetDuration(m_RejuvenationAuraPtr);
+        }
 
         void HandleBeforeHit()
         {
-            if (Player* l_Player = GetCaster()->ToPlayer())
+            Unit* l_Caster = GetCaster();
+            if (!l_Caster)
+                return;
+
+            Unit* l_Target = GetHitUnit();
+            if (!l_Target)
+                return;
+
+            ///Germination
+            if (l_Caster->HasAura(SPELL_DRUID_GERMINATION_PASSIVE_TALENT) && l_Target->HasAura(SPELL_DRUID_REJUVENATION))
             {
-                if (l_Player->HasAura(SPELL_DRUID_GERMINATION_PASSIVE_TALENT) && l_Player->HasAura(SPELL_DRUID_REJUVENATION)
-                     && !l_Player->HasAura(SPELL_DRUID_GERMINATION))
-                    l_Player->AddAura(SPELL_DRUID_GERMINATION, l_Player);
+                AuraPtr l_RejuvenationAuraPtr = l_Target->GetAura(SPELL_DRUID_REJUVENATION);
+                if (!l_RejuvenationAuraPtr)
+                    return;
+
+                if (!l_Target->HasAura(SPELL_DRUID_GERMINATION))
+                {
+                    l_Caster->AddAura(SPELL_DRUID_GERMINATION, l_Target);
+                    m_RejuvenationAuraPtr = l_RejuvenationAuraPtr->GetDuration();
+                }
+                else
+                {
+                    AuraPtr l_GerminationAuraPtr = l_Target->GetAura(SPELL_DRUID_GERMINATION);
+                    AuraPtr l_RejuvenationAuraPtr = l_Target->GetAura(SPELL_DRUID_REJUVENATION);
+                    if (l_GerminationAuraPtr && l_RejuvenationAuraPtr)
+                    {
+                        int32 l_GerminationDuration = l_GerminationAuraPtr->GetDuration();
+                        int32 l_RejuvenationDuration = l_RejuvenationAuraPtr->GetDuration();
+                        if (l_GerminationDuration > l_RejuvenationDuration)
+                            l_Caster->AddAura(SPELL_DRUID_REJUVENATION, l_Target);
+                        else
+                        {
+                            l_Caster->AddAura(SPELL_DRUID_GERMINATION, l_Target);
+                            m_RejuvenationAuraPtr = l_RejuvenationDuration;
+                        }
+                    }
+                }
+            }
+        }
+
+        void Register()
+        { 
+            BeforeHit += SpellHitFn(spell_dru_rejuvenation_SpellScript::HandleBeforeHit);
+            AfterHit += SpellHitFn(spell_dru_rejuvenation_SpellScript::HandleAfterHit);
+        }
+    };
+
+    class spell_dru_rejuvenation_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dru_rejuvenation_AuraScript);
+
+        void HandleCalculateAmount(constAuraEffectPtr /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                ///If soul of the forest is activated we increase the heal by 100%
+                if (l_Caster->HasAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO))
+                {
+                    amount *= 2;
+                    l_Caster->RemoveAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO);
+                }
             }
         }
 
         void Register()
         {
-            BeforeHit += SpellHitFn(spell_dru_rejuvenation_SpellScript::HandleBeforeHit);
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_rejuvenation_AuraScript::HandleCalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
         }
     };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_dru_rejuvenation_AuraScript();
+    }
 
     SpellScript* GetSpellScript() const
     {
         return new spell_dru_rejuvenation_SpellScript();
+    }
+};
+
+
+// Regrowth - 8936
+class spell_dru_regrowth : public SpellScriptLoader
+{
+public:
+    spell_dru_regrowth() : SpellScriptLoader("spell_dru_regrowth") { }
+
+    class spell_dru_regrowth_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_dru_regrowth_SpellScript);
+
+        void HandleBeforeHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                ///If soul of the forest is activated we increase the heal by 100%
+                if (l_Caster->HasAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO))
+                    SetHitHeal(GetHitHeal() * 2);
+            }
+        }
+
+        void Register()
+        {
+            BeforeHit += SpellHitFn(spell_dru_regrowth_SpellScript::HandleBeforeHit);
+        }
+    };
+
+    class spell_dru_regrowth_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dru_regrowth_AuraScript);
+
+        void HandleCalculateAmountOnTick(constAuraEffectPtr /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                ///If soul of the forest is activated we increase the heal by 100%
+                if (l_Caster->HasAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO))
+                {
+                    amount *= 2;
+                    l_Caster->RemoveAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO);
+                }
+            }
+        }
+
+        void Register()
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_regrowth_AuraScript::HandleCalculateAmountOnTick, EFFECT_1, SPELL_AURA_PERIODIC_HEAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_dru_regrowth_AuraScript();
+    }
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_dru_regrowth_SpellScript();
+    }
+};
+
+// Wild growth - 48438
+class spell_dru_wild_growth : public SpellScriptLoader
+{
+public:
+    spell_dru_wild_growth() : SpellScriptLoader("spell_dru_wild_growth") { }
+
+    class spell_dru_wild_growth_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dru_wild_growth_AuraScript);
+
+        void HandleCalculateAmountOnTick(constAuraEffectPtr /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                ///If soul of the forest is activated we increase the heal by 50%
+                if (l_Caster->HasAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO))
+                {
+                    amount *= 1.5f;
+                    l_Caster->RemoveAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO);
+                }
+            }
+        }
+
+        void Register()
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_wild_growth_AuraScript::HandleCalculateAmountOnTick, EFFECT_1, SPELL_AURA_PERIODIC_HEAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_dru_wild_growth_AuraScript();
     }
 };
 
@@ -1470,7 +1650,10 @@ class spell_dru_teleport_moonglade: public SpellScriptLoader
 
 enum ActivateCatFormSpells
 {
-    SPELL_DRUID_CAT_FORM = 768
+    SPELL_DRUID_CAT_FORM = 768,
+    SPELL_DRUID_DASH = 1850,
+    SPELL_DRUID_DESPLACER_BEAST_AURA = 137452,
+    SPELL_DRUID_PROWL = 5215
 };
 
 // Prowl - 5215, Displacer Beast - 102280 and Dash - 1850
@@ -1486,8 +1669,10 @@ class spell_dru_activate_cat_form: public SpellScriptLoader
             void HandleBeforeHit()
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
+                {
                     if (!l_Player->HasAura(SPELL_DRUID_CAT_FORM))
                         l_Player->CastSpell(l_Player, SPELL_DRUID_CAT_FORM, true);
+                }
             }
 
             void Register()
@@ -1499,6 +1684,44 @@ class spell_dru_activate_cat_form: public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_dru_activate_cat_form_SpellScript();
+        }
+};
+
+// Call by Cat Form 768
+// Prowl - 5215, Displacer Beast - 102280 and Dash - 1850
+class spell_dru_on_desactivate_cat_form : public SpellScriptLoader
+{
+    public:
+        spell_dru_on_desactivate_cat_form() : SpellScriptLoader("spell_dru_on_desactivate_cat_form") { }
+
+        class spell_dru_on_desactivate_cat_form_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_on_desactivate_cat_form_AuraScript);
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (!l_Target)
+                    return;
+
+                if (l_Target->HasAura(SPELL_DRUID_PROWL))
+                    l_Target->RemoveAura(SPELL_DRUID_PROWL);
+                if (l_Target->HasAura(SPELL_DRUID_DASH))
+                    l_Target->RemoveAura(SPELL_DRUID_DASH);
+                if (l_Target->HasAura(SPELL_DRUID_DESPLACER_BEAST_AURA))
+                    l_Target->RemoveAura(SPELL_DRUID_DESPLACER_BEAST_AURA);
+            }
+
+            void Register()
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_dru_on_desactivate_cat_form_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_on_desactivate_cat_form_AuraScript();
         }
 };
 
@@ -2182,12 +2405,6 @@ class spell_dru_survival_instincts: public SpellScriptLoader
         }
 };
 
-enum DruidSoulOfTheForestSpells
-{
-    SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO_TALENT = 158478,
-    SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO = 114108
-};
-
 // Swiftmend - 18562
 class spell_dru_swiftmend: public SpellScriptLoader
 {
@@ -2554,7 +2771,6 @@ public:
 
 enum SpellsShred
 {
-    SPELL_DRUID_PROWL = 5215,
     SPELL_DRUID_SWIPE = 106785
 };
 
@@ -2923,6 +3139,7 @@ void AddSC_druid_spell_scripts()
     new spell_dru_faerie_fire();
     new spell_dru_teleport_moonglade();
     new spell_dru_activate_cat_form();
+    new spell_dru_on_desactivate_cat_form();
     new spell_dru_eclipse();
     new spell_dru_eclipse_mod_damage();
     new spell_dru_celestial_alignment();
@@ -2947,4 +3164,6 @@ void AddSC_druid_spell_scripts()
     new spell_dru_healing_touch();
     new spell_dru_rejuvenation();
     new spell_dru_sunfire();
+    new spell_dru_regrowth();
+    new spell_dru_wild_growth();
 }
