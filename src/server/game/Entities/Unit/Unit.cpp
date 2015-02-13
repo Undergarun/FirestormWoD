@@ -15964,6 +15964,9 @@ Unit::PowerTypeSet Unit::GetUsablePowers() const
         if (powerEntry->classId != getClass())
             continue;
 
+        if (powerEntry->power == Powers::POWER_ECLIPSE)
+            continue;
+
         l_Powers.insert(Powers(powerEntry->power));
     }
 

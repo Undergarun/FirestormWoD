@@ -714,10 +714,6 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     m_speakTime = 0;
     m_speakCount = 0;
 
-    m_EclipseCycleActive = false;
-    m_EclipseTimer.SetInterval(ECLIPSE_FULL_CYCLE_DURATION * IN_MILLISECONDS);
-    m_LastEclipseState = ECLIPSE_NONE;
-
     m_bgRoles = 0;
 
     m_lastPlayedEmote = 0;
@@ -1004,8 +1000,6 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
 
     if (GetSession()->GetSecurity() > SEC_PLAYER)
         gOnlineGameMaster++;
-
-    m_LastEclipseState = ECLIPSE_NONE;
 
     /// Unlock WoD heroic dungeons
     if (uint32 l_QuestBit = GetQuestUniqueBitFlag(37213))   ///< FLAG - Proving Grounds - Damage Silver
@@ -3299,12 +3293,12 @@ void Player::RegenerateAll()
         m_focusRegenTimerCount -= 1000;
     }
 
-    if (m_EclipseRegenTimer >= 1000)
+    if (m_EclipseRegenTimer >= 100)
     {
         if (l_Class == CLASS_DRUID && GetSpecializationId(GetActiveSpec()) == SPEC_DRUID_BALANCE)
             Regenerate(POWER_ECLIPSE);
 
-        m_EclipseRegenTimer -= 1000;
+        m_EclipseRegenTimer -= 100;
     }
 
     if (m_regenTimerCount >= 2000)
@@ -3380,211 +3374,197 @@ void Player::Regenerate(Powers power)
     /// Powers now benefit from haste.
     float HastePct = 2.0f - GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN);
 
-    switch (power)
+    bool l_PreventDefault = false;
+    sScriptMgr->OnPlayerRegenPower(this, power, addvalue, l_PreventDefault);
+
+    if (!l_PreventDefault)
     {
-        /// Regenerate Mana
-        case POWER_MANA:
+        switch (power)
         {
-            float ManaIncreaseRate = sWorld->getRate(RATE_POWER_MANA);
+            /// Regenerate Mana
+            case POWER_MANA:
+            {
+                float ManaIncreaseRate = sWorld->getRate(RATE_POWER_MANA);
 
-            if (isInCombat())
-                addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER) *  ManaIncreaseRate * ((0.001f * m_RegenPowerTimer) + CalculatePct(0.001f, HastePct));
-            else
-                addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER) *  ManaIncreaseRate * ((0.001f * m_RegenPowerTimer) + CalculatePct(0.001f, HastePct));
-            break;
-        }
-        /// Regenerate Rage
-        case POWER_RAGE:
-        {
-            if (!isInCombat() && !HasAuraType(SPELL_AURA_INTERRUPT_REGEN))
-            {
-                float RageDecreaseRate = sWorld->getRate(RATE_POWER_RAGE_LOSS);
-                addvalue += (-25 * RageDecreaseRate / HastePct); ///< 2.5 rage by tick (= 2 seconds => 1.25 rage/sec)
-            }
-            break;
-        }
-        /// Regenerate Focus
-        case POWER_FOCUS:
-            addvalue += (5.0f + CalculatePct(5.0f, HastePct)) * sWorld->getRate(RATE_POWER_FOCUS);
-            break;
-        /// Regenerate Energy
-        case POWER_ENERGY:
-            addvalue += ((0.01f * m_RegenPowerTimer) * sWorld->getRate(RATE_POWER_ENERGY) * HastePct);
-            break;
-        /// Regenerate Runic Power
-        case POWER_RUNIC_POWER:
-        {
-            if (!isInCombat() && !HasAuraType(SPELL_AURA_INTERRUPT_REGEN))
-            {
-                float RunicPowerDecreaseRate = sWorld->getRate(RATE_POWER_RUNICPOWER_LOSS);
-                addvalue += -30 * RunicPowerDecreaseRate; ///< 3 RunicPower by tick
-            }
-
-            break;
-        }
-        /// Regenerate Holy Power
-        case POWER_HOLY_POWER:
-        {
-            if (!isInCombat())
-                addvalue += -1.0f; ///< remove 1 each 10 sec
-            break;
-        }
-        /// Regenerate Eclipse Power
-        case POWER_ECLIPSE:
-        {
-            maxValue = GetMaxPower(Powers::POWER_ECLIPSE) * GetPowerCoeff(Powers::POWER_ECLIPSE); ///< Must change here
-            if (!isInCombat())
-            {
-                if (GetPower(Powers::POWER_ECLIPSE) >= 10 * GetPowerCoeff(Powers::POWER_ECLIPSE))
-                    addvalue += -10.0f * GetPowerCoeff(Powers::POWER_ECLIPSE); ///< -1 000 per sec
+                if (isInCombat())
+                    addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER) *  ManaIncreaseRate * ((0.001f * m_RegenPowerTimer) + CalculatePct(0.001f, HastePct));
                 else
-                    addvalue += -GetPower(Powers::POWER_ECLIPSE);
+                    addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER) *  ManaIncreaseRate * ((0.001f * m_RegenPowerTimer) + CalculatePct(0.001f, HastePct));
+                break;
             }
-            else if (IsEclipseCyclesActive())
+            /// Regenerate Rage
+            case POWER_RAGE:
             {
-                if (GetLastEclipseState() == eclipseState::ECLIPSE_SOLAR || GetLastEclipseState() == eclipseState::ECLIPSE_NONE)
-                    addvalue += 10.0f * GetPowerCoeff(Powers::POWER_ECLIPSE); ///< +1 000 per sec
-                else
-                    addvalue += -10.0f * GetPowerCoeff(Powers::POWER_ECLIPSE); ///< -1 000 per sec
+                if (!isInCombat() && !HasAuraType(SPELL_AURA_INTERRUPT_REGEN))
+                {
+                    float RageDecreaseRate = sWorld->getRate(RATE_POWER_RAGE_LOSS);
+                    addvalue += (-25 * RageDecreaseRate / HastePct); ///< 2.5 rage by tick (= 2 seconds => 1.25 rage/sec)
+                }
+                break;
             }
-            break;
-        }
-        /// Regenerate Chi
-        case POWER_CHI:
-        {
-            if (!isInCombat())
-                addvalue += -1.0f; ///< remove 1 each 10 sec
-            break;
-        }
-        /// Regenerate Demonic Fury
-        case POWER_DEMONIC_FURY:
-        {
-            if (!isInCombat() && GetPower(POWER_DEMONIC_FURY) >= 300 && GetShapeshiftForm() != FORM_METAMORPHOSIS)
-                addvalue += -1.0f;    ///< remove 1 each 100ms
-            else if (!isInCombat() && GetPower(POWER_DEMONIC_FURY) < 200 && GetShapeshiftForm() != FORM_METAMORPHOSIS)
-                addvalue += 1.0f;     ///< give 1 each 100ms while player has less than 200 demonic fury
-
-            if (!HasAura(114168))
+            /// Regenerate Focus
+            case POWER_FOCUS:
+                addvalue += (5.0f + CalculatePct(5.0f, HastePct)) * sWorld->getRate(RATE_POWER_FOCUS);
+                break;
+            /// Regenerate Energy
+            case POWER_ENERGY:
+                addvalue += ((0.01f * m_RegenPowerTimer) * sWorld->getRate(RATE_POWER_ENERGY) * HastePct);
+                break;
+            /// Regenerate Runic Power
+            case POWER_RUNIC_POWER:
             {
-                if (GetPower(POWER_DEMONIC_FURY) <= 40)
+                if (!isInCombat() && !HasAuraType(SPELL_AURA_INTERRUPT_REGEN))
                 {
-                    if (HasAura(103958))
-                        RemoveAura(103958);
-
-                    if (HasAura(54879))
-                        RemoveAura(54879);
+                    float RunicPowerDecreaseRate = sWorld->getRate(RATE_POWER_RUNICPOWER_LOSS);
+                    addvalue += -30 * RunicPowerDecreaseRate; ///< 3 RunicPower by tick
                 }
+
+                break;
             }
-
-            /// Demonic Fury visuals
-            if (GetPower(POWER_DEMONIC_FURY) == 1000)
-                CastSpell(this, 131755, true);
-            else if (GetPower(POWER_DEMONIC_FURY) >= 500)
+            /// Regenerate Holy Power
+            case POWER_HOLY_POWER:
             {
-                CastSpell(this, 122738, true);
-
-                if (HasAura(131755))
-                    RemoveAura(131755);
+                if (!isInCombat())
+                    addvalue += -1.0f; ///< remove 1 each 10 sec
+                break;
             }
-            else
+            /// Regenerate Chi
+            case POWER_CHI:
             {
-                if (HasAura(122738))
-                    RemoveAura(122738);
-                if (HasAura(131755))
-                    RemoveAura(131755);
+                if (!isInCombat())
+                    addvalue += -1.0f; ///< remove 1 each 10 sec
+                break;
             }
-
-            break;
-        }
-        /// Regenerate Burning Embers
-        case POWER_BURNING_EMBERS:
-        {
-            /// After 15s return to one embers if no one
-            /// or return to one if more than one
-            if (!isInCombat() && GetPower(POWER_BURNING_EMBERS) < 10)
-                SetPower(POWER_BURNING_EMBERS, GetPower(POWER_BURNING_EMBERS) + 1, true);
-            else if (!isInCombat() && GetPower(POWER_BURNING_EMBERS) > 10)
-                SetPower(POWER_BURNING_EMBERS, GetPower(POWER_BURNING_EMBERS) - 1, true);
-
-            if (HasAura(56241))
+            /// Regenerate Demonic Fury
+            case POWER_DEMONIC_FURY:
             {
-                if (GetPower(POWER_BURNING_EMBERS) < 20)
+                if (!isInCombat() && GetPower(POWER_DEMONIC_FURY) >= 300 && GetShapeshiftForm() != FORM_METAMORPHOSIS)
+                    addvalue += -1.0f;    ///< remove 1 each 100ms
+                else if (!isInCombat() && GetPower(POWER_DEMONIC_FURY) < 200 && GetShapeshiftForm() != FORM_METAMORPHOSIS)
+                    addvalue += 1.0f;     ///< give 1 each 100ms while player has less than 200 demonic fury
+
+                if (!HasAura(114168))
                 {
-                    RemoveAura(123730); ///< 2
-                    RemoveAura(123728); ///< 1
-                    RemoveAura(123731); ///< 3
+                    if (GetPower(POWER_DEMONIC_FURY) <= 40)
+                    {
+                        if (HasAura(103958))
+                            RemoveAura(103958);
+
+                        if (HasAura(54879))
+                            RemoveAura(54879);
+                    }
                 }
-                else if (GetPower(POWER_BURNING_EMBERS) < 30)
+
+                /// Demonic Fury visuals
+                if (GetPower(POWER_DEMONIC_FURY) == 1000)
+                    CastSpell(this, 131755, true);
+                else if (GetPower(POWER_DEMONIC_FURY) >= 500)
                 {
-                    RemoveAura(123730);            ///< 2 shards visual
-                    CastSpell(this, 123728, true); ///< 1 shard visual
-                }
-                else if (GetPower(POWER_BURNING_EMBERS) < 40)
-                {
-                    CastSpell(this, 123728, true); ///< 1 shard visual
-                    CastSpell(this, 123730, true); ///< 2 shards visual
-                    RemoveAura(123731);            ///< 3 shards visual
-                }
-                else if (GetPower(POWER_BURNING_EMBERS) < 50)
-                {
-                    CastSpell(this, 123728, true); ///< 1 shard visual
-                    CastSpell(this, 123730, true); ///< 2 shards visual
-                    CastSpell(this, 123731, true); ///< 3 shards visual
-                }
-            }
-            else
-            {
-                if (GetPower(POWER_BURNING_EMBERS) < 20)
-                {
-                    RemoveAura(116855); ///< First visual
-                    RemoveAura(116920); ///< Second visual
-                }
-                if (GetPower(POWER_BURNING_EMBERS) < 30)
-                {
-                    CastSpell(this, 116855, true);  ///< First visual
-                    RemoveAura(116920);             ///< Second visual
+                    CastSpell(this, 122738, true);
+
+                    if (HasAura(131755))
+                        RemoveAura(131755);
                 }
                 else
-                    CastSpell(this, 116920, true);  ///< Second visual
+                {
+                    if (HasAura(122738))
+                        RemoveAura(122738);
+                    if (HasAura(131755))
+                        RemoveAura(131755);
+                }
+
+                break;
             }
-
-            break;
-        }
-        /// Regenerate Soul Shards
-        case POWER_SOUL_SHARDS:
-        {
-            /// If isn't in combat, gain 1 shard every 20s
-            if (!isInCombat())
-                SetPower(POWER_SOUL_SHARDS, GetPower(POWER_SOUL_SHARDS) + 100, true);
-
-            if (HasAura(56241))
+            /// Regenerate Burning Embers
+            case POWER_BURNING_EMBERS:
             {
-                if (GetPower(POWER_SOUL_SHARDS) < 200 && GetPower(POWER_SOUL_SHARDS) >= 100)
+                /// After 15s return to one embers if no one
+                /// or return to one if more than one
+                if (!isInCombat() && GetPower(POWER_BURNING_EMBERS) < 10)
+                    SetPower(POWER_BURNING_EMBERS, GetPower(POWER_BURNING_EMBERS) + 1, true);
+                else if (!isInCombat() && GetPower(POWER_BURNING_EMBERS) > 10)
+                    SetPower(POWER_BURNING_EMBERS, GetPower(POWER_BURNING_EMBERS) - 1, true);
+
+                if (HasAura(56241))
                 {
-                    RemoveAura(123730);            ///< 2 shards visual
-                    CastSpell(this, 123728, true); ///< 1 shard visual
+                    if (GetPower(POWER_BURNING_EMBERS) < 20)
+                    {
+                        RemoveAura(123730); ///< 2
+                        RemoveAura(123728); ///< 1
+                        RemoveAura(123731); ///< 3
+                    }
+                    else if (GetPower(POWER_BURNING_EMBERS) < 30)
+                    {
+                        RemoveAura(123730);            ///< 2 shards visual
+                        CastSpell(this, 123728, true); ///< 1 shard visual
+                    }
+                    else if (GetPower(POWER_BURNING_EMBERS) < 40)
+                    {
+                        CastSpell(this, 123728, true); ///< 1 shard visual
+                        CastSpell(this, 123730, true); ///< 2 shards visual
+                        RemoveAura(123731);            ///< 3 shards visual
+                    }
+                    else if (GetPower(POWER_BURNING_EMBERS) < 50)
+                    {
+                        CastSpell(this, 123728, true); ///< 1 shard visual
+                        CastSpell(this, 123730, true); ///< 2 shards visual
+                        CastSpell(this, 123731, true); ///< 3 shards visual
+                    }
                 }
-                else if (GetPower(POWER_SOUL_SHARDS) < 300)
+                else
                 {
-                    CastSpell(this, 123728, true); ///< 1 shard visual
-                    CastSpell(this, 123730, true); ///< 2 shards visual
-                    RemoveAura(123731);            ///< 3 shards visual
+                    if (GetPower(POWER_BURNING_EMBERS) < 20)
+                    {
+                        RemoveAura(116855); ///< First visual
+                        RemoveAura(116920); ///< Second visual
+                    }
+                    if (GetPower(POWER_BURNING_EMBERS) < 30)
+                    {
+                        CastSpell(this, 116855, true);  ///< First visual
+                        RemoveAura(116920);             ///< Second visual
+                    }
+                    else
+                        CastSpell(this, 116920, true);  ///< Second visual
                 }
-                else if (GetPower(POWER_SOUL_SHARDS) < 400)
-                {
-                    CastSpell(this, 123728, true); ///< 1 shard visual
-                    CastSpell(this, 123730, true); ///< 2 shards visual
-                    CastSpell(this, 123731, true); ///< 3 shards visual
-                }
+
+                break;
             }
-            break;
+            /// Regenerate Soul Shards
+            case POWER_SOUL_SHARDS:
+            {
+                /// If isn't in combat, gain 1 shard every 20s
+                if (!isInCombat())
+                    SetPower(POWER_SOUL_SHARDS, GetPower(POWER_SOUL_SHARDS) + 100, true);
+
+                if (HasAura(56241))
+                {
+                    if (GetPower(POWER_SOUL_SHARDS) < 200 && GetPower(POWER_SOUL_SHARDS) >= 100)
+                    {
+                        RemoveAura(123730);            ///< 2 shards visual
+                        CastSpell(this, 123728, true); ///< 1 shard visual
+                    }
+                    else if (GetPower(POWER_SOUL_SHARDS) < 300)
+                    {
+                        CastSpell(this, 123728, true); ///< 1 shard visual
+                        CastSpell(this, 123730, true); ///< 2 shards visual
+                        RemoveAura(123731);            ///< 3 shards visual
+                    }
+                    else if (GetPower(POWER_SOUL_SHARDS) < 400)
+                    {
+                        CastSpell(this, 123728, true); ///< 1 shard visual
+                        CastSpell(this, 123730, true); ///< 2 shards visual
+                        CastSpell(this, 123731, true); ///< 3 shards visual
+                    }
+                }
+                break;
+            }
+            default:
+                break;
         }
-        default:
-            break;
     }
 
     /// Mana regen calculated in Player::UpdateManaRegen()
-    if (power != POWER_MANA && power != POWER_CHI && power != POWER_HOLY_POWER && power != POWER_SOUL_SHARDS && power != POWER_BURNING_EMBERS && power != POWER_DEMONIC_FURY)
+    if (power != POWER_MANA && power != POWER_CHI && power != POWER_HOLY_POWER && power != POWER_SOUL_SHARDS && power != POWER_BURNING_EMBERS && power != POWER_DEMONIC_FURY && power != POWER_ECLIPSE)
     {
         AuraEffectList const& ModPowerRegenPCTAuras = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
         for (AuraEffectList::const_iterator i = ModPowerRegenPCTAuras.begin(); i != ModPowerRegenPCTAuras.end(); ++i)
@@ -3609,12 +3589,14 @@ void Player::Regenerate(Powers power)
     else
         return;
 
-    addvalue += m_powerFraction[powerIndex];
+    if (power != Powers::POWER_ECLIPSE)
+        addvalue += m_powerFraction[powerIndex];
+
     int32 integerValue = uint32(fabs(addvalue));
 
     if (addvalue < 0.0f)
     {
-        if (curValue > integerValue || power == POWER_ECLIPSE)
+        if (curValue > integerValue || power == Powers::POWER_ECLIPSE)
         {
             curValue -= integerValue;
             m_powerFraction[powerIndex] = addvalue + integerValue;
@@ -32244,14 +32226,4 @@ void Player::AddDailyLootCooldown(uint32 p_Entry)
     l_Statement->setUInt32(0, GetGUIDLow());
     l_Statement->setUInt32(1, p_Entry);
     CharacterDatabase.Execute(l_Statement);
-}
-
-bool Player::HasEclipseSideAvantage(uint8 p_EclipseState) const
-{
-    int32 l_Power = GetPower(Powers::POWER_ECLIPSE);
-    uint8 l_Coeff = GetPowerCoeff(Powers::POWER_ECLIPSE);
-
-    if ((p_EclipseState == ECLIPSE_SOLAR && l_Power <= (-90 * l_Coeff)) || (p_EclipseState == ECLIPSE_LUNAR && l_Power >= (90 * l_Coeff)))
-        return true;
-    return false;
 }

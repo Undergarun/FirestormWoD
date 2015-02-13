@@ -752,6 +752,13 @@ class ScriptMgr
         /// @p_Player : Player instance
         void OnPlayerLeaveCombat(Player * p_Player);
 
+        /// Called when a player regen a power
+        /// @p_Player         : Player instance
+        /// @p_Power          : Power to be regenerate
+        /// @p_AddValue       : amount of power to regenerate
+        /// @p_PreventDefault : avoid default regeneration
+        void OnPlayerRegenPower(Player * p_Player, Powers const p_Power, float& p_AddValue, bool& p_PreventDefault);
+
     /// BattlegroundScript
     public:
         /// Should return a fully valid Battleground object for the type ID.

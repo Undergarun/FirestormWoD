@@ -1,0 +1,1 @@
+INSERT INTO spell_script_names VALUES (93402, "spell_dru_sunfire");

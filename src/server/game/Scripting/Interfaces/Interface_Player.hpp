@@ -501,6 +501,19 @@ class PlayerScript : public ScriptObjectImpl<false>
         {
             UNUSED(p_Player);
         }
+
+        /// Called when a player regen a power
+        /// Return false to prevent default regeneration
+        /// @p_Player   : Player instance
+        /// @p_Power    : Power to be regenerate
+        /// @p_AddValue : amount of power to regenerate
+        virtual void OnRegenPower(Player * p_Player, Powers const p_Power, float& l_AddValue, bool& p_PreventDefault)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_Power);
+            UNUSED(l_AddValue);
+            UNUSED(p_PreventDefault);
+        }
 };
 
 #endif  ///< SCRIPTING_INTERFACES_PLAYER
