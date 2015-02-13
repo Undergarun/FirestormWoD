@@ -3427,16 +3427,6 @@ class Player : public Unit, public GridObject<Player>
             m_CriticalOperationLock.release();
         }
 
-        //////////////////////////////////////////////////////////////////////////
-        /// Eclipse System
-        bool IsEclipseCyclesActive() const { return m_EclipseCycleActive; }
-        void SetEclipseCyclesState(bool p_State) { m_EclipseCycleActive = p_State; }
-        IntervalTimer& GetEclipseTimer() { return m_EclipseTimer; }
-        uint8 GetLastEclipseState() const { return m_LastEclipseState; }
-        void SetLastEclipseState(uint8 p_EclipseState) { m_LastEclipseState = p_EclipseState; }
-        bool HasEclipseSideAvantage(uint8 p_EclipseState) const;
-        //////////////////////////////////////////////////////////////////////////
-
     protected:
         void OnEnterPvPCombat();
         void OnLeavePvPCombat();
@@ -3900,13 +3890,6 @@ class Player : public Unit, public GridObject<Player>
         /// Vignette
         //////////////////////////////////////////////////////////////////////////
         Vignette::Manager m_VignetteMgr;
-
-        /*********************************************************/
-        /***                  ECLIPSE SYSTEM                   ***/
-        /*********************************************************/
-        bool m_EclipseCycleActive;
-        IntervalTimer m_EclipseTimer;
-        uint8 m_LastEclipseState;
 };
 
 void AddItemsSetItem(Player*player, Item* item);

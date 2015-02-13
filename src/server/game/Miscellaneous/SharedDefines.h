@@ -287,13 +287,6 @@ inline uint8 GetClassBySpec(uint32 spec)
     (1<<(CLASS_MAGE-1))    |(1<<(CLASS_WARLOCK-1))|(1<<(CLASS_DRUID-1)) | \
     (1<<(CLASS_DEATH_KNIGHT-1)) |(1<<(CLASS_MONK-1)))
 
-enum eclipseState
-{
-    ECLIPSE_NONE,
-    ECLIPSE_LUNAR,
-    ECLIPSE_SOLAR,
-};
-
 // valid classes for creature_template.unit_class
 enum UnitClass
 {

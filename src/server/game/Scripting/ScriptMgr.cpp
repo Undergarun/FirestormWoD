@@ -1897,6 +1897,11 @@ void ScriptMgr::OnPlayerLeaveCombat(Player* p_Player)
     FOREACH_SCRIPT(PlayerScript)->OnLeaveCombat(p_Player);
 }
 
+void ScriptMgr::OnPlayerRegenPower(Player * p_Player, Powers const p_Power, float& p_AddValue, bool& p_PreventDefault)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnRegenPower(p_Player, p_Power, p_AddValue, p_PreventDefault);
+}
+
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 

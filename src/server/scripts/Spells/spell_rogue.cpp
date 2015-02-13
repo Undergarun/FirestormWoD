@@ -1947,7 +1947,7 @@ class PlayerScript_ruthlessness : public PlayerScript
 public:
     PlayerScript_ruthlessness() : PlayerScript("PlayerScript_ruthlessness") {}
 
-    void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32 p_NewValue, bool p_Regen)
+    void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
     {
         if (p_Regen)
             return;
