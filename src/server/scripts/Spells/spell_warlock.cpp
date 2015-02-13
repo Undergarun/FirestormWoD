@@ -457,8 +457,9 @@ class spell_warl_soulburn_seed_of_corruption: public SpellScriptLoader
         }
 };
 
-// Called by Soulburn : Curse of Enfeeblement - 109468 and Soulburn : Curse of Exhaustion - 104223
-// Soulburn - 74434
+/// Curse of exhaustion is removed in  6.0.2 please clean me
+/// Called by Soulburn : Curse of Enfeeblement - 109468
+/// Soulburn - 74434
 class spell_warl_soulburn_override: public SpellScriptLoader
 {
     public:
