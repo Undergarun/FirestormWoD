@@ -3612,15 +3612,17 @@ class spell_monk_rushing_jade_wind: public SpellScriptLoader
                 if (l_Player == nullptr || GetSpellInfo()->GetDuration() <= 0)
                     return;
 
-                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_MONK_MISTWEAVER)
-                {
-                    l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
 
-                    int l_Bp0 = (((0.6f * l_Low + 0.6f * l_High) / 2) * 9) / (GetSpellInfo()->GetDuration() / IN_MILLISECONDS);
-                    l_Player->CastCustomSpell(l_Player, SPELL_MONK_RUSHING_JADE_WIND_DAMAGE, &l_Bp0, NULL, NULL, true);
-                }
+                //< 6.1 rushing_jade_wind is a healing spell for MISTWEAVER spec
+                /*if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_MONK_MISTWEAVER)
+                {*/
+                l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
+
+                int l_Bp0 = (((0.6f * l_Low + 0.6f * l_High) / 2) * 9) / (GetSpellInfo()->GetDuration() / IN_MILLISECONDS);
+                l_Player->CastCustomSpell(l_Player, SPELL_MONK_RUSHING_JADE_WIND_DAMAGE, &l_Bp0, NULL, NULL, true);
+                /*}
                 else
-                    l_Player->CastSpell(l_Player, SPELL_MONK_RUSHING_JADE_WIND_HEAL, true);
+                    l_Player->CastSpell(l_Player, SPELL_MONK_RUSHING_JADE_WIND_HEAL, true);*/
             }
             void Register()
             {
