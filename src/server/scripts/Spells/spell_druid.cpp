@@ -865,7 +865,7 @@ class spell_dru_rejuvenation : public SpellScriptLoader
 {
 public:
     spell_dru_rejuvenation() : SpellScriptLoader("spell_dru_rejuvenation") { }
-    
+
     class spell_dru_rejuvenation_SpellScript : public SpellScript
     {
         PrepareSpellScript(spell_dru_rejuvenation_SpellScript);
