@@ -4588,7 +4588,6 @@ void Player::InitStatsForLevel(bool reapplyMods)
     SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL_EQUIPPED, 0.0f);
     SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL_TOTAL, 0.0f);
 
-
     // Init spell schools (will be recalculated in UpdateAllStats() at loading and in _ApplyAllStatBonuses() at reset
     for (uint8 i = 0; i < 7; ++i)
         SetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE+i, 0.0f);
@@ -30040,7 +30039,10 @@ uint32 Player::GetAverageItemLevelTotal()
     {
         // don't check tabard, ranged or shirt
         if (i == EQUIPMENT_SLOT_TABARD || i == EQUIPMENT_SLOT_RANGED || i == EQUIPMENT_SLOT_BODY)
+        {
+            l_EquipItemLevel[i] = 0;
             continue;
+        }
 
         Item* l_Item = m_items[i];
         if (l_Item && l_Item->GetTemplate())
@@ -30061,7 +30063,7 @@ uint32 Player::GetAverageItemLevelTotal()
 
     l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET1] = std::max(l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET1], l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET2]);
     l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET2] = l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET1];
-    l_EquipItemLevel[EQUIPMENT_SLOT_FINGER1] = std::max(l_EquipItemLevel[EQUIPMENT_SLOT_FINGER2], l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET2]);
+    l_EquipItemLevel[EQUIPMENT_SLOT_FINGER1] = std::max(l_EquipItemLevel[EQUIPMENT_SLOT_FINGER1], l_EquipItemLevel[EQUIPMENT_SLOT_FINGER2]);
     l_EquipItemLevel[EQUIPMENT_SLOT_FINGER2] = l_EquipItemLevel[EQUIPMENT_SLOT_FINGER1];
 
     for (uint8 i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_END; ++i)
