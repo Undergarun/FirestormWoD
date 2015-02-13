@@ -1283,8 +1283,8 @@ class spell_rog_shiv: public SpellScriptLoader
         }
 };
 
-// All Poisons
-// Deadly Poison - 2823, Wound Poison - 8679, Mind-numbing Poison - 5761, Leeching Poison - 108211, Paralytic Poison - 108215 or Crippling Poison - 3408
+/// All Poisons
+/// Deadly Poison - 2823, Wound Poison - 8679, Mind-numbing Poison - 5761, Leeching Poison - 108211 or Crippling Poison - 3408
 class spell_rog_poisons: public SpellScriptLoader
 {
     public:

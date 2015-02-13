@@ -9572,7 +9572,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
         case 5761:  // Mind-Numbling Poison
         case 8679:  // Wound Poison
         case 108211:// Leeching Poison
-        case 108215:// Paralytic Poison
         {
             if (GetTypeId() != TYPEID_PLAYER)
                 return false;
@@ -10308,7 +10307,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
         case 3409:  // Crippling Poison
         case 5760:  // Mind-numbling Poison
         case 112961:// Leeching Poison
-        case 113952:// Paralytic Poison
         {
             // Shuriken Toss cannot trigger non lethal poison
             if (procSpell)
