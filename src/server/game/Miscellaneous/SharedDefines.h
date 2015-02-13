@@ -825,7 +825,7 @@ enum SpellAttr9
 
 enum SpellAttr10
 {
-    SPELL_ATTR10_UNK0                             = 0x00000001, // 0 Deep Wounds, Ignite, Blood Plague, Frost Fever, Ebon Plague, Scarlet Fever, Brittle Bones, Asira Dismount
+    SPELL_ATTR10_UNK0                             = 0x00000001, // 0 Deep Wounds, Ignite, Blood Plague, Frost Fever, Ebon Plague, Scarlet Fever, Asira Dismount
     SPELL_ATTR10_UNK1                             = 0x00000002, // 1 Combustion, Hemorrhage
     SPELL_ATTR10_UNK2                             = 0x00000004, // 2 Throw Spear, Unholy Shot, Crack Shot!, Throw Knife, Ice Arrow
     SPELL_ATTR10_UNK3                             = 0x00000008, // 3 Spirit Bond, Fel Armor

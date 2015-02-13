@@ -458,7 +458,6 @@ class spell_warl_soulburn_seed_of_corruption: public SpellScriptLoader
 };
 
 /// Curse of exhaustion is removed in  6.0.2 please clean me
-/// Called by Soulburn : Curse of Enfeeblement - 109468
 /// Soulburn - 74434
 class spell_warl_soulburn_override: public SpellScriptLoader
 {
@@ -2041,7 +2040,6 @@ class spell_warl_ember_tap: public SpellScriptLoader
 };
 
 // Called By : Incinerate (Fire and Brimstone) - 114654, Conflagrate (Fire and Brimstone) - 108685
-// Curse of the Elements (Fire and Brimstone) - 104225, Curse of Enfeeblement (Fire and Brimstone) - 109468
 // Immolate (Fire and Brimstone) - 108686
 // Fire and Brimstone - 108683
 class spell_warl_fire_and_brimstone: public SpellScriptLoader

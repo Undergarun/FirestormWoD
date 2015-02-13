@@ -897,7 +897,6 @@ class spell_rog_venomous_wounds: public SpellScriptLoader
                             // Each time your Rupture or Garrote deals damage to an enemy that you have poisoned ...
                             if (target->HasAura(8680, caster->GetGUID())
                                 || target->HasAura(2818, caster->GetGUID())
-                                || target->HasAura(5760, caster->GetGUID())
                                 || target->HasAura(3409, caster->GetGUID())
                                 || target->HasAura(113952, caster->GetGUID())
                                 || target->HasAura(112961, caster->GetGUID()))

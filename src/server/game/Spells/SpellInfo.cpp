@@ -3718,20 +3718,6 @@ float SpellInfo::GetGiftOfTheSerpentScaling(Unit* caster) const
 
 float SpellInfo::GetCastTimeReduction() const
 {
-    switch (Id)
-    {
-        case 50274: // Spore Cloud
-        case 90315: // Tailspin
-        case 109466:// Curse of Enfeeblement
-        case 109468:// Curse of Enfeeblement (Soulburn)
-        case 116198:// Enfeeblement Aura (Metamorphosis)
-            return 5.f;
-        case 5760:  // Mind-Numbing
-        case 58604: // Lava Breath
-        case 73975: // Necrotic Strike
-            return 2.f;
-    }
-
     return 1.f;
 }
 
@@ -3861,7 +3847,6 @@ bool SpellInfo::IsPoisonOrBleedSpell() const
         case 1943:  // Rupture
         case 2818:  // Deadly Poison (DoT)
         case 3409:  // Crippling Poison
-        case 5760:  // Mind-Numbling Poison
         case 8680:  // Wound Poison
         case 79136: // Venomous Wound (damage)
         case 89775: // Hemorrhage (DoT)
@@ -4234,7 +4219,6 @@ bool SpellInfo::IsLethalPoison() const
 {
     switch (Id)
     {
-        case 5760:  // Mind-Numbling Poison
         case 112961:// Leeching Poison
             return true;
         default:

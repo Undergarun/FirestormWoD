@@ -5687,7 +5687,7 @@ void Spell::TakeRunePower(bool didHit)
         sScriptMgr->OnModifyPower(player, POWER_RUNES, 0, runeCost[i], false);
     }
 
-    /* In MOP there is a some spell, that use death rune, e.g - 73975, so don't reset it*/
+    /* In MOP there is a some spell, that use death rune, so don't reset it*/
     //runeCost[RUNE_DEATH] = 0;                               // calculated later
 
     bool gain_runic = runeCostData->NoRuneCost();           //  if spell doesn't have runecost - player can have some runic power, Horn of Winter for example
@@ -7273,18 +7273,6 @@ SpellCastResult Spell::CheckPower()
             if (failReason != SPELL_CAST_OK)
                 return failReason;
         }
-    }
-
-    switch (m_spellInfo->Id)
-    {
-        case 109468:// Curse of Enfeeblement
-        {
-            if (m_caster->ToPlayer() && m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_WARLOCK_AFFLICTION)
-                return SPELL_CAST_OK;
-            break;
-        }
-        default:
-            break;
     }
 
     // Check power amount
