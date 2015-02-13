@@ -869,8 +869,25 @@ public:
     class spell_dru_rejuvenation_SpellScript : public SpellScript
     {
         PrepareSpellScript(spell_dru_rejuvenation_SpellScript);
+        
+        int32 m_RejuvenationAuraPtr = 0;
 
-        void HandleEffectHitTarget(SpellEffIndex effIndex)
+        void HandleAfterHit()
+        {
+            Unit* l_Caster = GetCaster();
+            if (!l_Caster)
+                return;
+
+            Unit* l_Target = GetHitUnit();
+            if (!l_Target)
+                return;
+
+            AuraPtr l_RejuvenationAuraPtr = l_Target->GetAura(SPELL_DRUID_REJUVENATION);
+            if (l_RejuvenationAuraPtr && m_RejuvenationAuraPtr > 0)
+                l_RejuvenationAuraPtr->SetDuration(m_RejuvenationAuraPtr);
+        }
+
+        void HandleBeforeHit()
         {
             Unit* l_Caster = GetCaster();
             if (!l_Caster)
@@ -883,25 +900,29 @@ public:
             //Germination
             if (l_Caster->HasAura(SPELL_DRUID_GERMINATION_PASSIVE_TALENT) && l_Target->HasAura(SPELL_DRUID_REJUVENATION))
             {
+                AuraPtr l_RejuvenationAuraPtr = l_Target->GetAura(SPELL_DRUID_REJUVENATION);
+                if (!l_RejuvenationAuraPtr)
+                    return;
+
                 if (!l_Target->HasAura(SPELL_DRUID_GERMINATION))
                 {
                     l_Caster->AddAura(SPELL_DRUID_GERMINATION, l_Target);
-                    PreventHitEffect(effIndex);
+                    m_RejuvenationAuraPtr = l_RejuvenationAuraPtr->GetDuration();
                 }
                 else
                 {
-                    AuraEffectPtr l_GerminationAuraPtr = l_Target->GetAuraEffect(SPELL_DRUID_GERMINATION, EFFECT_0);
-                    AuraEffectPtr l_RejuvenationAuraPtr = l_Target->GetAuraEffect(SPELL_DRUID_REJUVENATION, EFFECT_0);
+                    AuraPtr l_GerminationAuraPtr = l_Target->GetAura(SPELL_DRUID_GERMINATION);
+                    AuraPtr l_RejuvenationAuraPtr = l_Target->GetAura(SPELL_DRUID_REJUVENATION);
                     if (l_GerminationAuraPtr && l_RejuvenationAuraPtr)
                     {
-                        int32 l_GerminationDuration = l_GerminationAuraPtr->GetSpellInfo()->GetDuration();
-                        int32 l_RejuvenationDuration = l_RejuvenationAuraPtr->GetSpellInfo()->GetDuration();
+                        int32 l_GerminationDuration = l_GerminationAuraPtr->GetDuration();
+                        int32 l_RejuvenationDuration = l_RejuvenationAuraPtr->GetDuration();
                         if (l_GerminationDuration > l_RejuvenationDuration)
                             l_Caster->AddAura(SPELL_DRUID_REJUVENATION, l_Target);
                         else
                         {
                             l_Caster->AddAura(SPELL_DRUID_GERMINATION, l_Target);
-                            PreventHitEffect(effIndex);
+                            m_RejuvenationAuraPtr = l_RejuvenationDuration;
                         }
                     }
                 }
@@ -910,7 +931,8 @@ public:
 
         void Register()
         { 
-            OnEffectLaunchTarget += SpellEffectFn(spell_dru_rejuvenation_SpellScript::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+            BeforeHit += SpellHitFn(spell_dru_rejuvenation_SpellScript::HandleBeforeHit);
+            AfterHit += SpellHitFn(spell_dru_rejuvenation_SpellScript::HandleAfterHit);
         }
     };
 
