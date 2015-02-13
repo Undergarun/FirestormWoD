@@ -1957,6 +1957,48 @@ class spell_dk_chilblains_aura: public SpellScriptLoader
         }
 };
 
+/// Mark of Sindragosa
+class spell_dk_mark_of_sindragosa : public SpellScriptLoader
+{
+    public:
+        spell_dk_mark_of_sindragosa() : SpellScriptLoader("spell_dk_mark_of_sindragosa") { }
+
+        class spell_dk_mark_of_sindragosa_AuraScript : public AuraScript
+        {
+
+            enum BloodBathSpells
+            {
+                SPELL_MARK_OF_SINDRAGOSA_HEAL = 155168
+            };
+
+            PrepareAuraScript(spell_dk_mark_of_sindragosa_AuraScript);
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                if (!p_EventInfo.GetDamageInfo() || !p_EventInfo.GetDamageInfo()->GetDamage())
+                    return;
+
+                if (Unit* l_Caster = GetCaster())
+                {
+                    int32 l_Damage = CalculatePct(p_EventInfo.GetDamageInfo()->GetDamage(), p_AurEff->GetAmount());
+                    l_Caster->CastCustomSpell(l_Caster, SPELL_MARK_OF_SINDRAGOSA_HEAL, &l_Damage, nullptr, nullptr, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dk_mark_of_sindragosa_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dk_mark_of_sindragosa_AuraScript();
+        }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     new spell_dk_death_and_decay();
@@ -2000,6 +2042,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_death_pact();
     new spell_dk_chilblains_aura();
     new spell_dk_reaping();
+    new spell_dk_mark_of_sindragosa();
 
     /// Player script
     new PlayerScript_Blood_Tap();
