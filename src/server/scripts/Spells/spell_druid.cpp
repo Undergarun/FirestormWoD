@@ -1630,7 +1630,8 @@ enum ActivateCatFormSpells
 {
     SPELL_DRUID_CAT_FORM = 768,
     SPELL_DRUID_DASH = 1850,
-    SPELL_DRUID_DESPLACER_BEAST_AURA = 137452
+    SPELL_DRUID_DESPLACER_BEAST_AURA = 137452,
+    SPELL_DRUID_PROWL = 5215
 };
 
 // Prowl - 5215, Displacer Beast - 102280 and Dash - 1850
@@ -2630,7 +2631,6 @@ public:
 
 enum SpellsShred
 {
-    SPELL_DRUID_PROWL = 5215,
     SPELL_DRUID_SWIPE = 106785
 };
 
