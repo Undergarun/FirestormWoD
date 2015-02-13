@@ -1197,7 +1197,7 @@ class mob_emberscale_adolescent : public CreatureScript
 
             void Reset()
             {
-                if (me->HasAura(eSpells::SpellCaptivityChains))
+                if (me->AddAura(eSpells::SpellCaptivityChains, me))
                 {
                     me->SetReactState(ReactStates::REACT_PASSIVE);
                     me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);

@@ -5832,6 +5832,10 @@ uint32 ObjectMgr::GetNearestTaxiNode(float x, float y, float z, uint32 mapid, ui
         if ((sTaxiNodesMask[field] & submask) == 0)
             continue;
 
+        /// All taxi path with flag == 0 is quest taxi, event or transport, we can skip it
+        if (node->m_Flags == 0)
+            continue;
+
         float dist2 = (node->x - x)*(node->x - x)+(node->y - y)*(node->y - y)+(node->z - z)*(node->z - z);
         if (found)
         {

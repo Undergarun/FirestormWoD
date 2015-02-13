@@ -5684,6 +5684,7 @@ void Spell::TakeRunePower(bool didHit)
             if (runeCost[i] < 0)
                 runeCost[i] = 0;
         }
+        sScriptMgr->OnModifyPower(player, POWER_RUNES, 0, runeCost[i], false);
     }
 
     /* In MOP there is a some spell, that use death rune, e.g - 73975, so don't reset it*/

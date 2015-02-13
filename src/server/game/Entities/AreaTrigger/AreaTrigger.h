@@ -212,6 +212,7 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         void SetDestination(Position p_Dest) { m_Destination = p_Dest; }
         void SetTrajectory(AreatriggerInterpolation p_Trajectory) { m_Trajectory = p_Trajectory; }
         void SetUpdateTimerInterval(uint32 p_Timer) { m_UpdateTimer.SetInterval(p_Timer); }
+        Position const& GetDestination() const { return m_Destination; };
 
         /*
          * Cast spell by using unit trigger/dummy at areatrigger posiiton

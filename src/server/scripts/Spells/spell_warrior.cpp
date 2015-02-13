@@ -1342,7 +1342,7 @@ public:
 
     void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
     {
-        if (!p_Player || p_Player->getClass() != CLASS_WARRIOR || p_Power != POWER_RAGE || p_Regen)
+        if (!p_Player || p_Player->getClass() != CLASS_WARRIOR || p_Power != POWER_RAGE || p_Regen || !p_Player->HasAura(SPELL_WARR_ANGER_MANAGEMENT))
             return;
 
         // Get the power earn (if > 0 ) or consum (if < 0)
@@ -1650,42 +1650,43 @@ enum BloodCrazeSpells
 /// Blood Craze - 159362
 class spell_warr_blood_craze : public SpellScriptLoader
 {
-public:
-    spell_warr_blood_craze() : SpellScriptLoader("spell_warr_blood_craze") { }
+    public:
+        spell_warr_blood_craze() : SpellScriptLoader("spell_warr_blood_craze") { }
 
-    class spell_warr_blood_craze_Aurascript : public AuraScript
-    {
-        PrepareAuraScript(spell_warr_blood_craze_Aurascript);
-
-        void HandleOnProc(constAuraEffectPtr aurEff, ProcEventInfo& l_ProcInfo)
+        class spell_warr_blood_craze_Aurascript : public AuraScript
         {
-            PreventDefaultAction();
+            PrepareAuraScript(spell_warr_blood_craze_Aurascript);
 
-            if (!(l_ProcInfo.GetHitMask() & PROC_EX_INTERNAL_MULTISTRIKE))
-                return;
-
-            if (!sSpellMgr->GetSpellInfo(SPELL_WARR_BLOOD_CRAZE_HEAL) || sSpellMgr->GetSpellInfo(SPELL_WARR_BLOOD_CRAZE_HEAL)->GetDuration())
-                return;
-
-            if (Unit* l_Caster = GetCaster())
+            void HandleOnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_ProcInfos)
             {
-                // 3% of your health over 3 sec.
-                int32 l_Health = CalculatePct(l_Caster->GetMaxHealth(), aurEff->GetAmount()) / (sSpellMgr->GetSpellInfo(SPELL_WARR_BLOOD_CRAZE_HEAL)->GetDuration() / IN_MILLISECONDS);
+                PreventDefaultAction();
 
-                l_Caster->CastSpell(l_Caster, SPELL_WARR_BLOOD_CRAZE_HEAL, &l_Health, NULL, NULL, true);
+                if (!(p_ProcInfos.GetHitMask() & PROC_EX_INTERNAL_MULTISTRIKE))
+                    return;
+
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_WARR_BLOOD_CRAZE_HEAL);
+                if (l_SpellInfo == nullptr || !l_SpellInfo->GetDuration())
+                    return;
+
+                if (Unit* l_Caster = GetCaster())
+                {
+                    // 3% of your health over 3 sec.
+                    int32 l_Health = CalculatePct(l_Caster->GetMaxHealth(), p_AurEff->GetAmount()) / (l_SpellInfo->GetDuration() / IN_MILLISECONDS);
+
+                    l_Caster->CastCustomSpell(l_Caster, SPELL_WARR_BLOOD_CRAZE_HEAL, &l_Health, nullptr, nullptr, true);
+                }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_warr_blood_craze_Aurascript::HandleOnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
         {
-            OnEffectProc += AuraEffectProcFn(spell_warr_blood_craze_Aurascript::HandleOnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            return new spell_warr_blood_craze_Aurascript();
         }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_warr_blood_craze_Aurascript();
-    }
 };
 
 

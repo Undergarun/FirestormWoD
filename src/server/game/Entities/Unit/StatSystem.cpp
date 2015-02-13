@@ -410,8 +410,10 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     float attPowerMod = GetModifierValue(unitMod, TOTAL_VALUE);
     float attPowerMultiplier = GetModifierValue(unitMod, TOTAL_PCT) - 1.0f;
 
-    // 76857 - Mastery : Critical Block - Attack Percentage
-    if (GetTypeId() == TYPEID_PLAYER && (HasAura(76857) || HasAura(117906)))
+    /// 76857 - Mastery : Critical Block
+    /// 117906 - Mastery: Elusive Brawler
+    /// 77513 - Mastery: Blood Shield
+    if (GetTypeId() == TYPEID_PLAYER && (HasAura(76857) || HasAura(117906) || HasAura(77513)))
         attPowerMultiplier += GetFloatValue(PLAYER_FIELD_MASTERY) / 100;
 
     //add dynamic flat mods

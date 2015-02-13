@@ -83,7 +83,11 @@ enum DeathKnightSpells
     DK_SPELL_ICY_TOUCH                          = 45477,
     DK_SPELL_CHILBLAINS_TRIGGER                 = 50435,
     DK_SPELL_REAPING                            = 56835,
-    DK_SPELL_NECROTIC_PLAGUE_ENERGIZE           = 155165
+    DK_SPELL_NECROTIC_PLAGUE_ENERGIZE           = 155165,
+    DK_SPELL_EMPOWERED_OBLITERATE               = 157409,
+    DK_SPELL_FREEZING_FOG_AURA                  = 59052,
+    DK_SPELL_ENHANCED_DEATH_COIL                = 157343,
+    DK_SPELL_SHADOW_OF_DEATH                    = 164047
 };
 
 uint32 g_TabDeasesDK[3] = { DK_SPELL_FROST_FEVER, DK_SPELL_BLOOD_PLAGUE, DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA };
@@ -550,6 +554,29 @@ class spell_dk_soul_reaper: public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_dk_soul_reaper_AuraScript();
+        }
+
+        class spell_dk_soul_reaper_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dk_soul_reaper_SpellScript);
+
+            void HandleAfterHit()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    l_Caster->CastSpell(l_Caster, DK_SPELL_SCENT_OF_BLOOD_AURA, true);
+                }
+            }
+
+            void Register()
+            {
+                AfterHit += SpellHitFn(spell_dk_soul_reaper_SpellScript::HandleAfterHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dk_soul_reaper_SpellScript();
         }
 };
 
@@ -1678,6 +1705,50 @@ class spell_dk_icy_touch: public SpellScriptLoader
         }
 };
 
+// Empowered Obliterate - 157409
+// Called by Icy Touch - 45477 & Howling Blast - 49184
+class spell_dk_empowered_obliterate : public SpellScriptLoader
+{
+public:
+    spell_dk_empowered_obliterate() : SpellScriptLoader("spell_dk_empowered_obliterate") { }
+
+    class spell_dk_empowered_obliterate_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_dk_empowered_obliterate_SpellScript);
+
+        bool m_HasAura = false;
+
+        void HandleOnPrepare()
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (l_Caster->HasAura(DK_SPELL_EMPOWERED_OBLITERATE) && l_Caster->HasAura(DK_SPELL_FREEZING_FOG_AURA))
+                    m_HasAura = true;
+            }
+        }
+
+        void HandleDamage(SpellEffIndex /*effIndex*/)
+        {
+            SpellInfo const * l_SpellInfo = sSpellMgr->GetSpellInfo(DK_SPELL_EMPOWERED_OBLITERATE);
+
+            if (m_HasAura && l_SpellInfo != nullptr)
+                SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_SpellInfo->Effects[EFFECT_0].BasePoints));
+        }
+
+        void Register()
+        {
+            OnPrepare += SpellOnPrepareFn(spell_dk_empowered_obliterate_SpellScript::HandleOnPrepare);
+            OnEffectHitTarget += SpellEffectFn(spell_dk_empowered_obliterate_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            OnEffectHitTarget += SpellEffectFn(spell_dk_empowered_obliterate_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_dk_empowered_obliterate_SpellScript();
+    }
+};
+
 // Plaguebearer - 161497
 // Called by Death Coil 47541 & Frost Strike 49143
 class spell_dk_plaguebearer: public SpellScriptLoader
@@ -1800,21 +1871,18 @@ class spell_dk_necrotic_plague_aura: public SpellScriptLoader
 };
 
 // Runic Empowerment - 81229
-class PlayerScript_Runic_Empowerment: public PlayerScript
+// Runic Corruption - 51462
+class PlayerScript_Runic_Empowerment_Corrupion_Runic : public PlayerScript
 {
     public:
-        PlayerScript_Runic_Empowerment() :PlayerScript("PlayerScript_Runic_Empowerment") {}
+        PlayerScript_Runic_Empowerment_Corrupion_Runic() :PlayerScript("PlayerScript_Runic_Empowerment_Corrupion_Runic") {}
 
         void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
         {
-            if (p_Player->getClass() != CLASS_DEATH_KNIGHT || p_Power != POWER_RUNIC_POWER || !p_Player->HasAura(DK_SPELL_RUNIC_EMPOWERMENT) || p_Regen)
+            if (p_Player->getClass() != CLASS_DEATH_KNIGHT || p_Power != POWER_RUNES || p_Regen || p_NewValue <= 0)
                 return;
 
-            // Get the power earn (if > 0 ) or consum (if < 0)
-            int32 l_diffValue = p_NewValue - p_OldValue;
-
-            // Only on use runic power
-            if (l_diffValue > 0)
+            if (!p_Player->HasAura(DK_SPELL_RUNIC_EMPOWERMENT) && !p_Player->HasAura(DK_SPELL_RUNIC_CORRUPTION_AURA))
                 return;
 
             if (AuraEffectPtr l_RunicEmpowerment = p_Player->GetAuraEffect(DK_SPELL_RUNIC_EMPOWERMENT, EFFECT_0))
@@ -1823,7 +1891,7 @@ class PlayerScript_Runic_Empowerment: public PlayerScript
                 float l_Amount = l_RunicEmpowerment->GetAmount();
                 l_Amount /= 100.f;
 
-                float l_Chance = l_Amount * (((float)-l_diffValue) / 10.f);
+                float l_Chance = l_Amount * p_NewValue;
 
                 if (roll_chance_f(l_Chance))
                 {
@@ -1844,26 +1912,6 @@ class PlayerScript_Runic_Empowerment: public PlayerScript
                     p_Player->ResyncRunes(MAX_RUNES);
                 }
             }
-        }
-};
-
-// Runic Corruption - 51462
-class PlayerScript_Corrupion_Runic: public PlayerScript
-{
-    public:
-        PlayerScript_Corrupion_Runic() :PlayerScript("PlayerScript_Corrupion_Runic") {}
-
-        void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
-        {
-            if (p_Player->getClass() != CLASS_DEATH_KNIGHT || p_Power != POWER_RUNIC_POWER || !p_Player->HasAura(DK_SPELL_RUNIC_CORRUPTION_AURA) || p_Regen)
-                return;
-
-            // Get the power earn (if > 0 ) or consum (if < 0)
-            int32 l_diffValue = p_NewValue - p_OldValue;
-
-            // Only on use runic power
-            if (l_diffValue > 0)
-                return;
 
             if (AuraEffectPtr l_RunicCorruption = p_Player->GetAuraEffect(DK_SPELL_RUNIC_CORRUPTION_AURA, EFFECT_1))
             {
@@ -1871,7 +1919,7 @@ class PlayerScript_Corrupion_Runic: public PlayerScript
                 float l_Amount = l_RunicCorruption->GetAmount();
                 l_Amount /= 100.f;
 
-                float l_Chance = l_Amount * (((float)-l_diffValue) / 10.f);
+                float l_Chance = l_Amount * p_NewValue;
 
                 if (roll_chance_f(l_Chance))
                     p_Player->CastSpell(p_Player, DK_SPELL_RUNIC_CORRUPTION, true);
@@ -1999,8 +2047,43 @@ class spell_dk_mark_of_sindragosa : public SpellScriptLoader
         }
 };
 
+//Death Coil - 47541
+class spell_dk_death_coil : public SpellScriptLoader
+{
+    public:
+        spell_dk_death_coil() : SpellScriptLoader("spell_dk_death_coil") { }
+
+        class spell_dk_death_coil_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dk_death_coil_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(DK_SPELL_ENHANCED_DEATH_COIL))
+                    {
+                        l_Caster->CastSpell(l_Caster, DK_SPELL_SHADOW_OF_DEATH, true);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_dk_death_coil_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dk_death_coil_SpellScript();
+        }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
+    new spell_dk_death_coil();
+    new spell_dk_empowered_obliterate();
     new spell_dk_death_and_decay();
     new spell_dk_death_barrier();
     new spell_dk_plague_strike();
@@ -2046,6 +2129,5 @@ void AddSC_deathknight_spell_scripts()
 
     /// Player script
     new PlayerScript_Blood_Tap();
-    new PlayerScript_Runic_Empowerment();
-    new PlayerScript_Corrupion_Runic();
+    new PlayerScript_Runic_Empowerment_Corrupion_Runic();
 }

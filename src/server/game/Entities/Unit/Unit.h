@@ -1360,6 +1360,14 @@ enum PlayerTotemType
     SUMMON_TYPE_TOTEM_AIR5   = 3399
 };
 
+/// Spell cooldown flags sent in SMSG_SPELL_COOLDOWN
+enum CooldownFlags
+{
+    CooldownFlagNone                  = 0x0,
+    CooldownFlagIncludeGCD            = 0x1,  ///< Starts GCD in addition to normal cooldown specified in the packet
+    CooldownFlagIncludeEventCooldowns = 0x2   ///< Starts GCD for spells that should start their cooldown on events, requires CooldownFlagIncludeGCD set
+};
+
 enum Stagger
 {
     LIGHT_STAGGER       = 124275,

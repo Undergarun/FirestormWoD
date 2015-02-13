@@ -190,9 +190,16 @@ void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level
     // New continent starting masks (It will be accessible only at new map)
     switch (Player::TeamForRace(race))
     {
-        case ALLIANCE: SetTaximaskNode(100); break;
-        case HORDE:    SetTaximaskNode(99);  break;
+        case ALLIANCE:
+            SetTaximaskNode(100);
+            SetTaximaskNode(1420);      ///< Ashran flypath (Stormshield)
+            break;
+        case HORDE:
+            SetTaximaskNode(99);
+            SetTaximaskNode(1408);      ///< Ashran flypath (Warspear)
+            break;
     }
+
     // Level dependent taxi hubs
     if (level >= 68)
         SetTaximaskNode(213);                               //Shattered Sun Staging Area
@@ -999,6 +1006,12 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
         gOnlineGameMaster++;
 
     m_LastEclipseState = ECLIPSE_NONE;
+
+    /// Unlock WoD heroic dungeons
+    if (uint32 l_QuestBit = GetQuestUniqueBitFlag(37213))   ///< FLAG - Proving Grounds - Damage Silver
+        m_CompletedQuestBits.SetBit(l_QuestBit - 1);
+
+    ///////////////////////////////////////////////////////////
 }
 
 Player::~Player()
@@ -1502,6 +1515,13 @@ void Player::RewardCurrencyAtKill(Unit* p_Victim)
     if (!p_Victim->ToCreature()->GetEntry())
         return;
 
+    if (uint32 l_TrackingQuestId = Vignette::GetTrackingQuestIdFromWorldObject(p_Victim))
+    {
+        uint32 l_QuestBit = GetQuestUniqueBitFlag(l_TrackingQuestId);
+        if (m_CompletedQuestBits.GetBit(l_QuestBit - 1))
+            return;
+    }
+
     CurrencyOnKillEntry const* l_Curr = sObjectMgr->GetCurrencyOnKillEntry(p_Victim->ToCreature()->GetEntry());
     if (!l_Curr)
         return;
@@ -1513,17 +1533,26 @@ void Player::RewardCurrencyAtKill(Unit* p_Victim)
     if (!l_Result)
         return;
 
-    Unit::AuraEffectList const& l_Auras = GetAuraEffectsByType(SPELL_AURA_MOD_CURRENCY_GAIN_PCT);
-    for (Unit::AuraEffectList::const_iterator i = l_Auras.begin(); i != l_Auras.end(); ++i)
+    for (CurrencyOnKillEntry::const_iterator idx = l_Curr->begin(); idx != l_Curr->end(); ++idx)
     {
-        for (CurrencyOnKillEntry::const_iterator idx = l_Curr->begin(); idx != l_Curr->end(); ++idx)
+        // Players won't receive justice points from pre-MoP dungeons/raids when they are more than Cataclysm max level (85)
+        if ((idx->first == CURRENCY_TYPE_JUSTICE_POINTS
+            || idx->first == CURRENCY_TYPE_VALOR_POINTS)
+            && p_Victim->GetMap()->Expansion() != EXPANSION_MISTS_OF_PANDARIA
+            && getLevel() > 85)
+            continue;
+
+        int32 l_Pct = 100;
+        Unit::AuraEffectList const& l_Auras = GetAuraEffectsByType(SPELL_AURA_MOD_CURRENCY_GAIN_PCT);
+        for (Unit::AuraEffectList::const_iterator i = l_Auras.begin(); i != l_Auras.end(); ++i)
         {
-            if ((int32)idx->first == (*i)->GetMiscValue())
-                ModifyCurrency(idx->first, idx->second + CalculatePct(idx->second, (*i)->GetAmount()));
+            if (idx->first == (*i)->GetMiscValue())
+                l_Pct += (*i)->GetAmount();
         }
+
+        ModifyCurrency(idx->first, CalculatePct(idx->second, l_Pct));
     }
 }
-
 void Player::SendMirrorTimer(MirrorTimerType p_Type, uint32 p_MaxValue, uint32 p_CurrValue, int32 p_Regen)
 {
     if (int(p_MaxValue) == DISABLED_MIRROR_TIMER)
@@ -3331,7 +3360,7 @@ void Player::RegenerateAll()
 
 void Player::Regenerate(Powers power)
 {
-    uint32 maxValue = GetMaxPower(power);
+    int32 maxValue = GetMaxPower(power);
     if (!maxValue)
         return;
 
@@ -3581,7 +3610,7 @@ void Player::Regenerate(Powers power)
         return;
 
     addvalue += m_powerFraction[powerIndex];
-    uint32 integerValue = uint32(fabs(addvalue));
+    int32 integerValue = uint32(fabs(addvalue));
 
     if (addvalue < 0.0f)
     {
@@ -5567,14 +5596,16 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
 
 void Player::ReduceSpellCooldown(uint32 p_SpellID, time_t p_ModifyTime)
 {
-    int32 l_NewCooldown = GetSpellCooldownDelay(p_SpellID);
+    SpellCooldowns::iterator itr = m_spellCooldowns.find(p_SpellID);
+    if (itr == m_spellCooldowns.end())
+        return;
 
-    if (l_NewCooldown < 0)
-        l_NewCooldown = 0;
+    uint64 currTime = 0;
+    ACE_OS::gettimeofday().msec(currTime);
+    if ((itr->second.end - uint64(p_ModifyTime)) > currTime)
+        itr->second.end -= uint64(p_ModifyTime);
     else
-        l_NewCooldown -= p_ModifyTime;
-
-    AddSpellCooldown(p_SpellID, 0, l_NewCooldown);
+        m_spellCooldowns.erase(itr);
 
     WorldPacket l_Data(SMSG_MODIFY_COOLDOWN, 4 + 18 + 4);
     l_Data << uint32(p_SpellID);
@@ -7555,11 +7586,17 @@ void Player::UpdateRating(CombatRating p_CombatRating)
         SetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, l_Haste);
         SetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN, l_Haste);
 
-        AuraEffectList const& l_AuraList = GetAuraEffectsByType(SPELL_AURA_MOD_COOLDOWN_BY_HASTE);
-        for (AuraEffectList::const_iterator iter = l_AuraList.begin(); iter != l_AuraList.end(); iter++)
+        AuraType const l_HasteSpellAuraMod[] = { SPELL_AURA_MOD_COOLDOWN_BY_HASTE, SPELL_AURA_MOD_GLOBAL_COOLDOWN_BY_HASTE };
+
+        for (auto l_AuraMod : l_HasteSpellAuraMod)
         {
-            (*iter)->SetCanBeRecalculated(true);
-            (*iter)->RecalculateAmount();
+            AuraEffectList const& l_AuraList = GetAuraEffectsByType(l_AuraMod);
+            for (AuraEffectList::const_iterator iter = l_AuraList.begin(); iter != l_AuraList.end(); iter++)
+            {
+                AuraEffectPtr l_AuraEff = *iter;
+                l_AuraEff->SetCanBeRecalculated(true);
+                l_AuraEff->ChangeAmount(l_AuraEff->CalculateAmount(this), true, true);
+            }
         }
 
         UpdateManaRegen();
@@ -16506,7 +16543,7 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
         for (int s = 0; s < MAX_ENCHANTMENT_SPELLS; ++s)
         {
             uint32 enchant_display_type = pEnchant->type[s];
-            uint32 enchant_amount = pEnchant->amount[s];
+            uint32 enchant_amount = CalculateEnchantmentBonus(pEnchant, pEnchant->amount[s], s, getLevel());
             uint32 enchant_spell_id = pEnchant->spellid[s];
 
             switch (enchant_display_type)
@@ -24005,72 +24042,76 @@ bool Player::IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier* mod
 
 void Player::AddSpellMod(SpellModifier* p_Modifier, bool p_Apply)
 {
-    Opcodes l_Opcode = Opcodes((p_Modifier->type == SPELLMOD_FLAT) ? SMSG_SET_FLAT_SPELL_MODIFIER : SMSG_SET_PCT_SPELL_MODIFIER);
-
-    flag128 l_Mask = 0;
-    uint32 l_ModifierTypeCount = 0; // count of mods per one mod->op
-    uint32 l_MaskIndex = 0;
-
-    WorldPacket l_Packet(l_Opcode);
-    ByteBuffer l_Buffer;
-
-    for (int l_EffectIndex = 0; l_EffectIndex < 128; ++l_EffectIndex)
+    // Dont pointlessly send mods when player is not in world
+    if (IsInWorld())
     {
-        if (l_EffectIndex != 0 && (l_EffectIndex % 32) == 0)
-            l_Mask[l_MaskIndex++] = 0;
+        Opcodes l_Opcode = Opcodes((p_Modifier->type == SPELLMOD_FLAT) ? SMSG_SET_FLAT_SPELL_MODIFIER : SMSG_SET_PCT_SPELL_MODIFIER);
 
-        l_Mask[l_MaskIndex] = uint32(1) << (l_EffectIndex - (32 * l_MaskIndex));
+        flag128 l_Mask = 0;
+        uint32 l_ModifierTypeCount = 0; // count of mods per one mod->op
+        uint32 l_MaskIndex = 0;
 
-        if (p_Modifier->mask & l_Mask)
+        WorldPacket l_Packet(l_Opcode);
+        ByteBuffer l_Buffer;
+
+        for (int l_EffectIndex = 0; l_EffectIndex < 128; ++l_EffectIndex)
         {
-            if (l_Opcode == SMSG_SET_PCT_SPELL_MODIFIER)
+            if (l_EffectIndex != 0 && (l_EffectIndex % 32) == 0)
+                l_Mask[l_MaskIndex++] = 0;
+
+            l_Mask[l_MaskIndex] = uint32(1) << (l_EffectIndex - (32 * l_MaskIndex));
+
+            if (p_Modifier->mask & l_Mask)
             {
-                float l_Value = 1;
-
-                for (SpellModList::iterator l_It = m_spellMods[p_Modifier->op].begin(); l_It != m_spellMods[p_Modifier->op].end(); ++l_It)
-                    if ((*l_It)->type == p_Modifier->type && (*l_It)->mask & l_Mask)
-                        l_Value += float((*l_It)->value)/100;
-
-                if (p_Modifier->value)
-                    l_Value += p_Apply ? float(p_Modifier->value) / 100.f : float(p_Modifier->value) / -100.f;
-
-                uint32 l_EffIndex = p_Modifier->ownerAura->GetEffectIndexByType(SPELL_AURA_MOD_COOLDOWN_BY_HASTE);
-                if (l_EffIndex != MAX_EFFECTS && p_Apply)
+                if (l_Opcode == SMSG_SET_PCT_SPELL_MODIFIER)
                 {
-                    // This needs to be done so sclient receives precise numbers
-                    l_Value -= float(p_Modifier->value) / 100.f;
-                    l_Value -= ((float)p_Modifier->ownerAura->GetSpellInfo()->Effects[l_EffIndex].BasePoints * ((1.f / GetFloatValue(UNIT_FIELD_MOD_HASTE)) - 1.f)) / 100.f;
+                    float l_Value = 1;
+
+                    for (SpellModList::iterator l_It = m_spellMods[p_Modifier->op].begin(); l_It != m_spellMods[p_Modifier->op].end(); ++l_It)
+                        if ((*l_It)->type == p_Modifier->type && (*l_It)->mask & l_Mask)
+                            l_Value += float((*l_It)->value)/100;
+
+                    if (p_Modifier->value)
+                        l_Value += p_Apply ? float(p_Modifier->value) / 100.f : float(p_Modifier->value) / -100.f;
+
+                    uint32 l_EffIndex = p_Modifier->ownerAura->GetEffectIndexByType(SPELL_AURA_MOD_COOLDOWN_BY_HASTE);
+                    if (l_EffIndex != MAX_EFFECTS && p_Apply)
+                    {
+                        // This needs to be done so sclient receives precise numbers
+                        l_Value -= float(p_Modifier->value) / 100.f;
+                        l_Value -= ((float)p_Modifier->ownerAura->GetSpellInfo()->Effects[l_EffIndex].BasePoints * ((1.f / GetFloatValue(UNIT_FIELD_MOD_HASTE)) - 1.f)) / 100.f;
+                    }
+
+                    l_Buffer << float(l_Value);
+                    l_Buffer << uint8(l_EffectIndex);
+
+                    ++l_ModifierTypeCount;
+
+                    continue;
                 }
+
+                float l_Value = 0;
+
+                for (SpellModList::iterator itr = m_spellMods[p_Modifier->op].begin(); itr != m_spellMods[p_Modifier->op].end(); ++itr)
+                    if ((*itr)->type == p_Modifier->type && (*itr)->mask & l_Mask)
+                        l_Value += float((*itr)->value);
+
+                l_Value += p_Apply ? float(p_Modifier->value) : -float(p_Modifier->value);
 
                 l_Buffer << float(l_Value);
                 l_Buffer << uint8(l_EffectIndex);
 
                 ++l_ModifierTypeCount;
-
-                continue;
             }
-
-            int32 l_Value = 0;
-
-            for (SpellModList::iterator itr = m_spellMods[p_Modifier->op].begin(); itr != m_spellMods[p_Modifier->op].end(); ++itr)
-                if ((*itr)->type == p_Modifier->type && (*itr)->mask & l_Mask)
-                    l_Value += float((*itr)->value);
-
-            l_Value += p_Apply ? float(p_Modifier->value) : -float(p_Modifier->value);
-
-            l_Buffer << float(l_Value);
-            l_Buffer << uint8(l_EffectIndex);
-
-            ++l_ModifierTypeCount;
         }
+
+        l_Packet << uint32(1);
+        l_Packet << uint8(p_Modifier->op);
+        l_Packet << uint32(l_ModifierTypeCount);
+        l_Packet.append(l_Buffer);
+
+        SendDirectMessage(&l_Packet);
     }
-
-    l_Packet << uint32(1);
-    l_Packet << uint8(p_Modifier->op);
-    l_Packet << uint32(l_ModifierTypeCount);
-    l_Packet.append(l_Buffer);
-
-    SendDirectMessage(&l_Packet);
 
     if (p_Apply)
         m_spellMods[p_Modifier->op].push_back(p_Modifier);
@@ -26221,19 +26262,39 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
 void Player::SendCooldownAtLogin()
 {
-    uint64 curTime = 0;
-    ACE_OS::gettimeofday().msec(curTime);
+    uint64 l_CurTime = 0;
+    ACE_OS::gettimeofday().msec(l_CurTime);
 
-    for (SpellCooldowns::const_iterator itr = GetSpellCooldownMap().begin(); itr != GetSpellCooldownMap().end(); ++itr)
+    for (SpellCooldowns::const_iterator l_Iter = GetSpellCooldownMap().begin(); l_Iter != GetSpellCooldownMap().end(); ++l_Iter)
     {
-        WorldPacket data(SMSG_SPELL_COOLDOWN, 12);
-        data.appendPackGUID(GetGUID());
-        data << uint8(1);
-        data << uint32(1);
-        data << uint32(itr->first);
-        data << uint32(itr->second.end - curTime);
+        WorldPacket l_Data(SMSG_SPELL_COOLDOWN, 12);
+        bool l_HasCooldown = l_Iter->second.end > l_CurTime;
 
-        GetSession()->SendPacket(&data);
+        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_Iter->first);
+        if (l_SpellInfo == nullptr)
+            continue;
+
+        l_Data.appendPackGUID(GetGUID());                   ///< Caster
+
+        if (l_HasCooldown)                                  ///< Flags
+        {
+            if (l_SpellInfo->Attributes & SpellAttr0::SPELL_ATTR0_DISABLED_WHILE_ACTIVE)
+                l_Data << uint8(CooldownFlags::CooldownFlagIncludeGCD | CooldownFlags::CooldownFlagIncludeEventCooldowns);
+            else
+                l_Data << uint8(CooldownFlags::CooldownFlagIncludeGCD);
+        }
+        else
+            l_Data << uint8(CooldownFlags::CooldownFlagNone);
+
+        l_Data << uint32(1);                                ///< Count
+        l_Data << uint32(l_Iter->first);                    ///< SrecID
+
+        if (l_HasCooldown)                                  ///< ForcedCooldown
+            l_Data << uint32(l_Iter->second.end - l_CurTime);
+        else
+            l_Data << uint32(0);
+
+        GetSession()->SendPacket(&l_Data);
     }
 }
 
@@ -27337,21 +27398,18 @@ bool Player::GetsRecruitAFriendBonus(bool forXP)
 
 void Player::RewardPlayerAndGroupAtKill(Unit* victim, bool isBattleGround)
 {
-     //currency reward
-    if (sMapStore.LookupEntry(GetMapId())->IsDungeon())
+    if (Group *pGroup = GetGroup())
     {
-        if (Group *pGroup = GetGroup())
+        for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
         {
-            for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
-            {
-                Player* pGroupGuy = itr->getSource();
-                if (IsInMap(pGroupGuy))
-                    pGroupGuy->RewardCurrencyAtKill(victim);
-            }
+            Player* pGroupGuy = itr->getSource();
+            if (IsInMap(pGroupGuy))
+                pGroupGuy->RewardCurrencyAtKill(victim);
         }
-        else
-            RewardCurrencyAtKill(victim);
     }
+    else
+        RewardCurrencyAtKill(victim);
+
     KillRewarder(this, victim, isBattleGround).Reward();
 }
 
@@ -30957,7 +31015,7 @@ void Player::SetEmoteState(uint32 anim_id)
     m_emote = anim_id;
 }
 
-void Player::SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Direction, float p_Magnitude)
+void Player::SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Direction, float p_Magnitude /*= 0.0f*/, uint8 p_Type /*= 0*/)
 {
     if (sAreaTriggerStore.LookupEntry(GUID_ENPART(p_Source)) || GUID_HIPART(p_Source) != HIGHGUID_AREATRIGGER)
     {
@@ -30980,7 +31038,7 @@ void Player::SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Di
         l_Data << uint32(l_TransportID);                ///< Transport ID
         l_Data << float(p_Magnitude);                   ///< Magnitude
 
-        l_Data.WriteBits(0, 2);                         ///< Force type, still one yet
+        l_Data.WriteBits(p_Type, 2);                    ///< Force type, still one yet
         l_Data.FlushBits();
 
         SendMessageToSet(&l_Data, true);
@@ -31030,62 +31088,96 @@ void Player::SendResumeToken(uint32 token)
 
 void Player::SendRefreshSpellMods()
 {
-    for (uint8 i = 0; i < MAX_SPELLMOD; ++i)
+    flag128 l_Mask = 0;
+    uint32 l_PctModifierTypeCount;
+    uint32 l_FlatModifierTypeCount;
+    uint32 l_PctModifiersCount = 0;
+    uint32 l_FlatModifiersCount = 0;
+    uint32 l_MaskIndex;
+    ByteBuffer l_PctBuffer;
+    ByteBuffer l_FlatBuffer;
+    int i = 0;
+
+    for (int l_SpellModOp = 0; l_SpellModOp < MAX_SPELLMOD; ++l_SpellModOp)
     {
-        for (auto mod : m_spellMods[i])
+        if (!m_spellMods[l_SpellModOp].size())
+            continue;
+
+        l_PctModifierTypeCount = 0;
+        l_FlatModifierTypeCount = 0;
+        l_MaskIndex = 0;
+
+        ByteBuffer l_SubFlatBuffer;
+        ByteBuffer l_SubPctBuffer;
+
+        for (int l_EffectIndex = 0; l_EffectIndex < 128; ++l_EffectIndex)
         {
-            Opcodes opcode = Opcodes((mod->type == SPELLMOD_FLAT) ? SMSG_SET_FLAT_SPELL_MODIFIER : SMSG_SET_PCT_SPELL_MODIFIER);
+            if (l_EffectIndex != 0 && (l_EffectIndex % 32) == 0)
+                l_Mask[l_MaskIndex++] = 0;
 
-            int i = 0;
-            flag128 _mask = 0;
-            uint32 modTypeCount = 0; // count of mods per one mod->op
+            l_Mask[l_MaskIndex] = uint32(1) << (l_EffectIndex - (32 * l_MaskIndex));
 
-            ByteBuffer dataBuffer;
-            WorldPacket data(opcode);
-            data << uint32(1);  // count of different mod->op's in packet
-            data << uint8(mod->op);
+            float l_PctValue = 1.f;
+            for (SpellModList::iterator l_It = m_spellMods[l_SpellModOp].begin(); l_It != m_spellMods[l_SpellModOp].end(); ++l_It)
+                if ((*l_It)->type == SPELLMOD_PCT && (*l_It)->mask & l_Mask)
+                    l_PctValue += float((*l_It)->value) / 100.f;
 
-            for (int eff = 0; eff < 128; ++eff)
+            if (l_PctValue != 1.f)
             {
-                if (eff != 0 && (eff % 32) == 0)
-                    _mask[i++] = 0;
+                l_SubPctBuffer << float(l_PctValue);
+                l_SubPctBuffer << uint8(l_EffectIndex);
 
-                _mask[i] = uint32(1) << (eff - (32 * i));
-                if (mod->mask & _mask)
-                {
-                    if (opcode == SMSG_SET_PCT_SPELL_MODIFIER)
-                    {
-                        float val = 1;
-                        for (SpellModList::iterator itr = m_spellMods[mod->op].begin(); itr != m_spellMods[mod->op].end(); ++itr)
-                            if ((*itr)->type == mod->type && (*itr)->mask & _mask && mod->spellId != (*itr)->spellId)
-                                val += (*itr)->value/100;
-
-                        if (mod->value)
-                            val += float(mod->value)/100;
-
-                        dataBuffer << float(val);
-                        dataBuffer << uint8(eff);
-                        ++modTypeCount;
-                        continue;
-                    }
-
-                    int32 val = 0;
-                    for (SpellModList::iterator itr = m_spellMods[mod->op].begin(); itr != m_spellMods[mod->op].end(); ++itr)
-                        if ((*itr)->type == mod->type && (*itr)->mask & _mask && mod->spellId != (*itr)->spellId)
-                            val += (*itr)->value;
-
-                    val += float(mod->value);
-
-                    dataBuffer << float(val);
-                    dataBuffer << uint8(eff);
-                    ++modTypeCount;
-                }
+                ++l_PctModifierTypeCount;
             }
 
-            data << uint32(modTypeCount);
-            data.append(dataBuffer);
-            SendDirectMessage(&data);
+            float l_FlatValue = 0.f;
+            for (SpellModList::iterator itr = m_spellMods[l_SpellModOp].begin(); itr != m_spellMods[l_SpellModOp].end(); ++itr)
+                if ((*itr)->type == SPELLMOD_FLAT && (*itr)->mask & l_Mask)
+                    l_FlatValue += float((*itr)->value);
+
+            if (l_FlatValue)
+            {
+                l_SubFlatBuffer << float(l_FlatValue);
+                l_SubFlatBuffer << uint8(l_EffectIndex);
+
+                ++l_FlatModifierTypeCount;
+            }
         }
+
+        if (l_PctModifierTypeCount)
+        {
+            ++l_PctModifiersCount;
+
+            l_PctBuffer << uint8(l_SpellModOp);
+            l_PctBuffer << uint32(l_PctModifierTypeCount);
+            l_PctBuffer.append(l_SubPctBuffer);
+        }
+
+        if (l_FlatModifierTypeCount)
+        {
+            ++l_FlatModifiersCount;
+
+            l_FlatBuffer << uint8(l_SpellModOp);
+            l_FlatBuffer << uint32(l_FlatModifierTypeCount);
+            l_FlatBuffer.append(l_SubFlatBuffer);
+        }
+
+    }
+
+    if (l_PctModifiersCount)
+    {
+        WorldPacket l_Packet(SMSG_SET_PCT_SPELL_MODIFIER);
+        l_Packet << uint32(l_PctModifiersCount);
+        l_Packet.append(l_PctBuffer);
+        SendDirectMessage(&l_Packet);
+    }
+
+    if (l_FlatModifiersCount)
+    {
+        WorldPacket l_Packet(SMSG_SET_FLAT_SPELL_MODIFIER);
+        l_Packet << uint32(l_FlatModifiersCount);
+        l_Packet.append(l_FlatBuffer);
+        SendDirectMessage(&l_Packet);
     }
 }
 

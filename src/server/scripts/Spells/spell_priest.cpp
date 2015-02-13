@@ -2188,10 +2188,11 @@ class spell_pri_vampiric_touch: public SpellScriptLoader
 
             void HandleDispel(DispelInfo* dispelInfo)
             {
-                if (Unit* caster = GetCaster())
-                    if (Unit* dispeller = dispelInfo->GetDispeller())
-                        if (caster->HasAura(PRIEST_SPELL_4P_S12_SHADOW))
-                            dispeller->CastSpell(dispeller, PRIEST_SPELL_SIN_AND_PUNISHMENT, true, 0, NULLAURA_EFFECT, caster->GetGUID());
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (Unit* l_Dispeller = dispelInfo->GetDispeller())
+                        l_Dispeller->CastSpell(l_Dispeller, PRIEST_SPELL_SIN_AND_PUNISHMENT, true, 0, NULLAURA_EFFECT, l_Caster->GetGUID());
+                }
             }
 
             void Register()

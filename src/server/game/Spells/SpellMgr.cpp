@@ -3326,7 +3326,23 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
-            case 175975: ///< Genesis
+            case 150055: // Volcanic Tantrum
+            case 149963: // Shatter Earth
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(27); // 3 sec
+                break;
+            case 150004: // Magma Barrage
+                spellInfo->InterruptFlags = SPELL_INTERRUPT_FLAG_MOVEMENT;
+                spellInfo->Effects[EFFECT_1].Effect = 0;
+                spellInfo->Effects[EFFECT_0].TriggerSpell = 150306;
+                break;
+            case 149959: // Earth Shatter
+            case 149968:
+            case 149969:
+            case 149970:
+                spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
+                spellInfo->ExplicitTargetMask = spellInfo->_GetExplicitTargetMask();
+                break;
+            case 175975:///< Genesis
                 spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(10);  ///< 30y
                 break;
             case 178531: ///< Alliance Reward (but for Horde)
@@ -3848,6 +3864,20 @@ void SpellMgr::LoadSpellCustomAttr()
             case 161203: ///< Rejuvenating Serum (Kyrak)
                 spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MAGIC;
                 break;
+            case 152742:///< Fiery Boulder - AoE impact damage
+                spellInfo->Effects[EFFECT_1].TargetA = TARGET_SRC_CASTER;
+                spellInfo->Effects[EFFECT_1].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
+                break;
+            case 152867:///< Heat Wave (Create AT)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
+                break;
+            case 150759:///< Ferocious Yell
+                spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
+                break;
+            case 164616:///< Channel Flames (DoT)
+            case 167739:///< Scorching Aura (Debuff)
+            case 153227:///< Burning Slag (DoT)
+            case 150784:///< Magma Eruption (DoT)
             case 161288: ///< Vileblood Serum (DoT)
             case 161833: ///< Noxious Spit (DoT)
             case 157420: ///< Fiery Trail (DoT)
@@ -3856,7 +3886,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 176037: ///< Noxious Spit (DoT)
             case 155158: ///< Meteor Burn
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
-                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); ///< 2s
+                spellInfo->AttributesEx5 |= SPELL_ATTR5_HIDE_DURATION;
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
                 break;
             case 154996: ///< Engulfing Fire (searcher)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
@@ -4605,6 +4636,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 86273: ///< Illuminated Healing 
                 spellInfo->Effects[0].BonusMultiplier = 0.0f;
                 break;
+            case 119611: ///< Renewing Mist 
+                spellInfo->Effects[0].BonusMultiplier = 0.109984f;
+                break;
             case 109186: ///< Surge of light
                 spellInfo->ProcFlags = PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS;
                 break;
@@ -4716,9 +4750,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Mechanic = 0;
                 break;
             case 116694: ///< Surging Mists
-                spellInfo->PreventionType = SPELL_PREVENTION_TYPE_SILENCE;
-                spellInfo->Effects[EFFECT_1].BasePoints = 0;
-                break;
             case 20066:  ///< Repentence
             case 115175: ///< Soothing Mists
                 spellInfo->PreventionType = SPELL_PREVENTION_TYPE_SILENCE;
@@ -4879,7 +4910,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 113656: ///< Fists of Fury
                 spellInfo->PreventionType = SPELL_PREVENTION_TYPE_SILENCE;
-                spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_PROC_TRIGGER_SPELL;
                 break;
             case 115315: ///< Summon Black Ox Statue
                 spellInfo->Effects[1].Effect = SPELL_EFFECT_APPLY_AURA;
@@ -5765,6 +5795,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 46916: ///< Bloodsurge
                 /// Blizzard use -300%, idk why
                 spellInfo->Effects[EFFECT_1].BasePoints = -100;
+                break;
+            case 103985: ///< Stance of the Fierce Tiger
+                spellInfo->Effects[EFFECT_4].Effect = SPELL_EFFECT_APPLY_AREA_AURA_FRIEND;
+                spellInfo->Effects[EFFECT_4].ApplyAuraName = SPELL_AURA_MOD_INCREASE_SPEED;
                 break;
             default:
                 break;

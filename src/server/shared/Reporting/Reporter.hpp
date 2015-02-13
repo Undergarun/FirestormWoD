@@ -32,6 +32,7 @@ namespace MS
         private:
             std::queue<report_pointer> m_ReportQueue;
             mutable std::mutex m_Mutex;
+            bool m_Activated;
         };
     }
 }

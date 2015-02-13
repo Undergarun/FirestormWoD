@@ -205,3 +205,43 @@ uint32 GenerateEnchSuffixFactor(uint32 item_id)
     return 0;
 }
 
+uint32 CalculateEnchantmentBonus(SpellItemEnchantmentEntry const* p_SpellItemEnchantement, uint32 p_Amount, uint8 p_Index, uint8 p_CharacterLevel)
+{
+    uint32 l_Amount = p_Amount;
+
+    if (p_SpellItemEnchantement->m_ScalingClass)
+    {
+        l_Amount = 0;
+
+        int32 l_Unk = (p_SpellItemEnchantement->slot & 0x20) != 0 ? 1 : 60;
+        int32 l_ScalingClass = p_SpellItemEnchantement->m_ScalingClass;
+
+        if (p_SpellItemEnchantement->type[p_Index] && p_SpellItemEnchantement->m_ScalingClassRestricted)
+            l_ScalingClass = p_SpellItemEnchantement->m_ScalingClassRestricted;
+
+        int32 l_DefaultLevel = p_SpellItemEnchantement->m_MaxLevel;
+        if (l_DefaultLevel <= 0)
+            l_DefaultLevel = GT_MAX_LEVEL;
+
+        int32 l_Level      = std::max((int)p_CharacterLevel, (int)l_Unk);
+        int32 l_FinalLevel = 0;
+
+        if (l_DefaultLevel >= l_Level)
+            l_FinalLevel = l_Level;
+        else if (p_SpellItemEnchantement->m_MaxLevel <= 0)
+            l_FinalLevel = GT_MAX_LEVEL;
+        else
+            l_FinalLevel = p_SpellItemEnchantement->m_MaxLevel;
+
+        int32 l_ScalingClassIndex = (sChrClassesStore.GetNumRows() - 1) - l_ScalingClass - 1;
+
+        uint32 l_GTSpellScalingRecID = l_ScalingClassIndex * GT_MAX_LEVEL + l_FinalLevel - 1;
+        const GtSpellScalingEntry * l_GtScaling = sGtSpellScalingStore.LookupEntry(l_GTSpellScalingRecID);
+
+        if (l_GtScaling)
+            l_Amount = l_GtScaling->value * p_SpellItemEnchantement->m_EffectScalingPoints[p_Index];
+    }
+
+    return l_Amount;
+}
+

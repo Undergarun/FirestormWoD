@@ -8688,33 +8688,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
 
                     break;
                 }
-                case 116092:// Afterlife
-                {
-                    if (!victim)
-                        return false;
-
-                    if (GetTypeId() != TYPEID_PLAYER)
-                        return false;
-
-                    if (ToPlayer()->HasSpellCooldown(116092))
-                        return false;
-
-                    int32 chance = dummySpell->Effects[1].BasePoints;
-
-                    if (!roll_chance_i(chance))
-                        return false;
-
-                    triggered_spell_id = 117032; // Healing Sphere
-                    target = this;
-
-                    if (procSpell && procSpell->Id == 100784)
-                        triggered_spell_id = 121286; // Chi Sphere
-
-                    // Prevent multiple spawn of Sphere
-                    ToPlayer()->AddSpellCooldown(116092, 0, 1 * IN_MILLISECONDS);
-
-                    break;
-                }
                 case 137639:// Storm, Earth and Fire
                 {
                     if (GetTypeId() != TYPEID_PLAYER)

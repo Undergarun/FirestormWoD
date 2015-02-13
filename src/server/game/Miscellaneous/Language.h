@@ -1261,9 +1261,12 @@ enum TrinityStrings
     LANG_NO_SPE_FOR_DYNAMIC_REWARD          = 14062,
 
     /// Tarlna the Ageless
-    LangWarnGenesis                         = 14063
+    LangWarnGenesis                         = 14063,
 
-    // NOT RESERVED IDS                   14064-1999999999
+    /// Bloodmaul Slagmines
+    LangGugrokkWarnMoltenBarrage            = 14064
+
+    // NOT RESERVED IDS                   14065-1999999999
     // `db_script_string` table index     2000000000-2000009999 (MIN_DB_SCRIPT_STRING_ID-MAX_DB_SCRIPT_STRING_ID)
     // For other tables maybe             2000010000-2147483647 (max index)
 };

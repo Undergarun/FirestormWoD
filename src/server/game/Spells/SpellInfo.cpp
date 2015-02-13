@@ -3946,7 +3946,7 @@ bool SpellInfo::IsNeedAdditionalLosChecks() const
         case 23455: // Holy Nova
         case 87204: // Sin and Punishment proc
         case 117418: // Fists of Fury
-        case 120086: // Fists of Fury
+        case 120086: // Fists of Fury (Stun)
             return true;
         default:break;
     }
