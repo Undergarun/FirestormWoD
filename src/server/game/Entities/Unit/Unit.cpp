@@ -952,7 +952,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         {
             if (damagetype != DOT || (spellProto && spellProto->IsChanneled()))
             {
-                uint32 const l_SpellTypesToInterrupt[2] = { CurrentSpellTypes::CURRENT_CHANNELED_SPELL, CurrentSpellTypes::CURRENT_CHANNELED_SPELL };
+                uint32 const l_SpellTypesToInterrupt[2] = { CurrentSpellTypes::CURRENT_CHANNELED_SPELL, CurrentSpellTypes::CURRENT_GENERIC_SPELL };
 
                 for (int l_I = 0; l_I < 2; l_I++)
                 {
@@ -1095,7 +1095,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
             {
                 if (damagetype != DOT)
                 {
-                    uint32 const l_SpellTypesToInterrupt[2] = { CurrentSpellTypes::CURRENT_CHANNELED_SPELL, CurrentSpellTypes::CURRENT_CHANNELED_SPELL };
+                    uint32 const l_SpellTypesToInterrupt[2] = { CurrentSpellTypes::CURRENT_CHANNELED_SPELL, CurrentSpellTypes::CURRENT_GENERIC_SPELL };
 
                     for (int l_I = 0; l_I < 2; l_I++)
                     {
