@@ -9892,12 +9892,10 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
         case 54927: // Glyph of Avenging Wrath
         case 124487:// Zen Focus
         case 88764: // Rolling Thunder
-        case 12598: // Counterspell
         case 115946:// Glyph of Burning Anger
         case 88821: // Daybreak
         case 131542:// Relentless Grip
         case 56420: // Glyph of Denounce
-        case 126046:// Adaptation
         case 117967:// Brewmaster Training
         case 134563:// Healing Elixirs
         case 131564:// Arcane Intensity

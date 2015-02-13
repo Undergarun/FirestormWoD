@@ -3132,10 +3132,6 @@ void AuraEffect::HandleAuraModDisarm(AuraApplication const* p_AurApp, uint8 p_Mo
     if ((p_Apply) ? l_Target->GetAuraEffectsByType(l_AuraType).size() > 1 : l_Target->HasAuraType(l_AuraType))
         return;
 
-    // Adaptation
-    if (p_Apply && l_Target->HasAura(126046))
-        l_Target->CastSpell(l_Target, 126050, true);
-
     uint32 l_Field, l_Flag, l_Slot;
     WeaponAttackType l_AttType;
     switch (l_AuraType)
