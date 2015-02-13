@@ -5821,6 +5821,7 @@ void SpellMgr::LoadSpellCustomAttr()
             switch (spellInfo->Id)
             {
                 case 61882: ///< Earthquake
+                case 152280: ///< Defile
                     spellInfo->ExplicitTargetMask &= ~TARGET_FLAG_UNIT;
                     break;
                 case 109248: ///< Binding Shot
