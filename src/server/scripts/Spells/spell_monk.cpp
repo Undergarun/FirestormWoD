@@ -1202,37 +1202,6 @@ class spell_monk_guard: public SpellScriptLoader
         }
 };
 
-// Bear Hug - 127361
-class spell_monk_bear_hug: public SpellScriptLoader
-{
-    public:
-        spell_monk_bear_hug() : SpellScriptLoader("spell_monk_bear_hug") { }
-
-        class spell_monk_bear_hug_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_monk_bear_hug_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (Unit* target = GetHitUnit())
-                        if (AuraPtr bearHug = target->GetAura(SPELL_MONK_BEAR_HUG, _player->GetGUID()))
-                            if (bearHug->GetEffect(1))
-                                bearHug->GetEffect(1)->SetAmount(_player->CountPctFromMaxHealth(2));
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_monk_bear_hug_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_monk_bear_hug_SpellScript();
-        }
-};
-
 // Zen Flight - 125883
 class spell_monk_zen_flight_check: public SpellScriptLoader
 {
@@ -4411,7 +4380,6 @@ void AddSC_monk_spell_scripts()
     new spell_monk_diffuse_magic();
     new spell_monk_black_ox_statue();
     new spell_monk_guard();
-    new spell_monk_bear_hug();
     new spell_monk_zen_flight_check();
     new spell_monk_glyph_of_zen_flight();
     new spell_monk_power_strikes();
