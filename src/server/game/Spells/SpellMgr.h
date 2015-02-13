@@ -51,12 +51,12 @@ enum SpellFamilyFlag
 
     // Rogue
     SPELLFAMILYFLAG_ROGUE_VANISH            = 0x00000800,
-    SPELLFAMILYFLAG_ROGUE_VAN_EVAS_SPRINT   = 0x00000860,    // Vanish, Evasion, Sprint
-    SPELLFAMILYFLAG1_ROGUE_COLDB_SHADOWSTEP = 0x00000240,    // Cold Blood, Shadowstep
-    SPELLFAMILYFLAG_ROGUE_KICK              = 0x00000010,   // Kick
-    SPELLFAMILYFLAG1_ROGUE_DISMANTLE        = 0x00100000,   // Dismantle
-    SPELLFAMILYFLAG_ROGUE_BLADE_FLURRY      = 0x40000000,   // Blade Flurry
-    SPELLFAMILYFLAG1_ROGUE_BLADE_FLURRY     = 0x00000800,   // Blade Flurry
+    SPELLFAMILYFLAG_ROGUE_VAN_EVAS_SPRINT   = 0x00000860,   ///< Vanish, Evasion, Sprint
+    SPELLFAMILYFLAG1_ROGUE_COLDB_SHADOWSTEP = 0x00000240,   ///< Cold Blood, Shadowstep
+    SPELLFAMILYFLAG_ROGUE_KICK              = 0x00000010,   ///< Kick
+    SPELLFAMILYFLAG1_ROGUE_DISMANTLE        = 0x00100000,   ///< Dismantle is removed in 6.0.2 this flag still exist ?
+    SPELLFAMILYFLAG_ROGUE_BLADE_FLURRY      = 0x40000000,   ///< Blade Flurry
+    SPELLFAMILYFLAG1_ROGUE_BLADE_FLURRY     = 0x00000800,   ///< Blade Flurry
 
     // Warrior
     SPELLFAMILYFLAG_WARRIOR_CHARGE          = 0x00000001,
