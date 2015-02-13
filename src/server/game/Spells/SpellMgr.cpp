@@ -3326,6 +3326,9 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 20167:  // Seal of Insight
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_NONE;
+                break;
             case 150055: // Volcanic Tantrum
             case 149963: // Shatter Earth
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(27); // 3 sec
