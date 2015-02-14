@@ -46,7 +46,7 @@ enum WarlockSpells
     WARLOCK_AGONY                           = 980,
     //WARLOCK_DOOM                            = 603,
     WARLOCK_UNSTABLE_AFFLICTION             = 30108,
-    WARLOCK_IMMOLATE                        = 348,
+    WARLOCK_IMMOLATE                        = 157736,
     WARLOCK_SHADOWBURN_ENERGIZE             = 125882,
     WARLOCK_CONFLAGRATE                     = 17962,
     WARLOCK_CONFLAGRATE_FIRE_AND_BRIMSTONE  = 108685,
@@ -659,24 +659,24 @@ class spell_warl_rain_of_fire_damage: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_rain_of_fire_damage_SpellScript);
 
-            void HandleOnHit()
+            void HandleOnHitUnit(SpellEffIndex /*p_EffIndex*/)
             {
-                if (Unit* target = GetHitUnit())
+                if (Unit* l_Target = GetHitUnit())
                 {
                     // Deals 50% additional damage if the target is immolated.
-                    if (target->HasAura(WARLOCK_IMMOLATE) || target->HasAura(WARLOCK_IMMOLATE_FIRE_AND_BRIMSTONE))
+                    if (l_Target->HasAura(WARLOCK_IMMOLATE) || l_Target->HasAura(WARLOCK_IMMOLATE_FIRE_AND_BRIMSTONE))
                     {
-                        int32 damage = GetHitDamage();
+                        int32 l_Damage = GetHitDamage();
 
-                        AddPct(damage, 50);
-                        SetHitDamage(damage);
+                        AddPct(l_Damage, 50);
+                        SetHitDamage(l_Damage);
                     }
                 }
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_warl_rain_of_fire_damage_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_warl_rain_of_fire_damage_SpellScript::HandleOnHitUnit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
