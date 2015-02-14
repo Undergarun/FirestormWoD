@@ -1942,7 +1942,9 @@ void Spell::SelectImplicitChainTargets(SpellEffIndex effIndex, SpellImplicitTarg
     // Havoc
     if (AuraPtr havoc = m_caster->GetAura(80240))
     {
-        if (havoc->GetCharges() > 0 && target->ToUnit() && !target->ToUnit()->HasAura(80240))
+        int8 l_StacksToDrop = GetSpellInfo()->Id == 116858 ? 3 : 1;
+        if (GetSpellInfo()->SpellFamilyFlags & flag128(0x00000000, 0x00000000, 0x00000000, 0x00400000) &&
+            havoc->GetStackAmount() >= l_StacksToDrop && target->ToUnit() && !target->ToUnit()->HasAura(80240))
         {
             std::list<Unit*> targets;
             Unit* secondTarget = NULL;
@@ -1961,31 +1963,22 @@ void Spell::SelectImplicitChainTargets(SpellEffIndex effIndex, SpellImplicitTarg
                     break;
                 }
             }
-
+            
             if (secondTarget && target->GetGUID() != secondTarget->GetGUID())
             {
-                // Allow only one Chaos Bolt to be duplicated ...
-                if (m_spellInfo->Id == 116858 && havoc->GetCharges() >= 3)
-                {
-                    m_caster->RemoveAura(80240);
-                    secondTarget->RemoveAura(80240);
-                    m_caster->CastSpell(secondTarget, m_spellInfo->Id, true);
-                }
-                // ... or allow three next single target spells to be duplicated
-                else if (targetType.GetTarget() == TARGET_UNIT_TARGET_ENEMY && havoc->GetCharges() > 0)
-                {
-                    havoc->DropCharge();
+                int8 l_Stacks = havoc->GetStackAmount() - l_StacksToDrop;
 
-                    if (AuraPtr secondHavoc = secondTarget->GetAura(80240, m_caster->GetGUID()))
-                        secondHavoc->DropCharge();
-                    if (m_spellInfo->Id == 17877)
-                    {
-                        m_caster->ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, true);
-                        m_caster->CastSpell(secondTarget, m_spellInfo->Id, true);
-                        m_caster->ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, false);;
-                    }
-                    m_caster->CastSpell(secondTarget, m_spellInfo->Id, true);
+                if (l_Stacks > 0)
+                {
+                    havoc->SetStackAmount(l_Stacks);
                 }
+                else
+                {
+                    havoc->Remove();
+                    secondTarget->RemoveAurasDueToSpell(havoc->GetId());
+                }
+
+                AddUnitTarget(secondTarget, effMask, false);
             }
         }
     }
