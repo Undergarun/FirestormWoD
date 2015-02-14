@@ -4144,9 +4144,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 120644: ///< Halo (shadow)
                 spellInfo->AttributesCu &= ~SPELL_ATTR0_CU_NEGATIVE;
                 break;
-            case 80240: ///< Havoc
-                spellInfo->ProcCharges = 3;
-                break;
             case 121129: ///< Daybreak (heal)
                 spellInfo->Effects[1].TargetA = TARGET_SRC_CASTER;
                 break;

@@ -2898,6 +2898,39 @@ public:
     }
 };
 
+enum HavocSpells
+{
+    SPELL_GLYPH_OF_HAVOC    = 146962,
+};
+
+// Havoc - 80240 
+class spell_warl_havoc: public SpellScriptLoader
+{
+    public:
+        spell_warl_havoc() : SpellScriptLoader("spell_warl_havoc") { }
+
+        class spell_warl_havoc_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_havoc_AuraScript);
+
+            void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                // Set to max at apply
+                uint8 l_Charges = GetCaster()->HasAura(SPELL_GLYPH_OF_HAVOC) ? 6 : 3;
+                aurEff->GetBase()->SetStackAmount(l_Charges);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_warl_havoc_AuraScript::OnApply, EFFECT_1, SPELL_AURA_ADD_FLAT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_havoc_AuraScript();
+        }
+};
 
 void AddSC_warlock_spell_scripts()
 {
@@ -2962,4 +2995,5 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_demonic_circle_summon();
     new spell_warl_demonic_circle_teleport();
     new spell_warl_unstable_affliction();
+    new spell_warl_havoc();
 }
