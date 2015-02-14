@@ -1353,10 +1353,11 @@ class spell_warl_dark_bargain: public SpellScriptLoader
                 amount = -1;
             }
 
-            void Absorb(AuraEffectPtr /*auraEffect*/, DamageInfo& dmgInfo, uint32& absorbAmount)
+            void Absorb(AuraEffectPtr auraEffect, DamageInfo& dmgInfo, uint32& absorbAmount)
             {
                 absorbedAmount += dmgInfo.GetDamage();
                 absorbAmount = dmgInfo.GetDamage();
+                auraEffect->SetAmount(absorbAmount + absorbedAmount);
             }
 
             void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
