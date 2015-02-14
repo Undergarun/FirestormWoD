@@ -5919,53 +5919,6 @@ bool Unit::HandleAuraProcOnPowerAmount(Unit* victim, uint32 /*damage*/, AuraEffe
     if (GetPower(powerRequired) != powerAmountRequired)
         return false;
 
-    // Custom requirements (not listed in procEx) Warning! damage dealing after this
-    // Custom triggered spells
-    switch (auraSpellInfo->SpellFamilyName)
-    {
-        case SPELLFAMILY_DRUID:
-        {
-            // Eclipse Mastery Driver Passive
-            if (auraSpellInfo->Id == 79577)
-            {
-                uint32 solarEclipseMarker = 67483;
-                uint32 lunarEclipseMarker = 67484;
-
-                switch(effIndex)
-                {
-                    case 0:
-                    {
-                        // Do not proc if proc spell isnt starfire and starsurge
-                        if (procSpell->Id != 2912 && procSpell->Id != 78674)
-                            return false;
-
-                        if (HasAura(solarEclipseMarker))
-                        {
-                            RemoveAurasDueToSpell(solarEclipseMarker);
-                            CastSpell(this,lunarEclipseMarker,true);
-                        }
-                        break;
-                    }
-                    case 1:
-                    {
-                        // Do not proc if proc spell isnt wrath and starsurge
-                        if (procSpell->Id != 5176 && procSpell->Id != 78674)
-                            return false;
-
-                        if (HasAura(lunarEclipseMarker))
-                        {
-                            RemoveAurasDueToSpell(lunarEclipseMarker);
-                            CastSpell(this,solarEclipseMarker,true);
-                        }
-
-                        break;
-                    }
-                }
-            }
-            break;
-        }
-    }
-
     if (cooldown && GetTypeId() == TYPEID_PLAYER && ToPlayer()->HasSpellCooldown(trigger_spell_id))
         return false;
 

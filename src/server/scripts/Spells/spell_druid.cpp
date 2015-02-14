@@ -1922,22 +1922,34 @@ class spell_dru_eclipse_mod_damage : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                Player* l_Player = GetCaster()->ToPlayer();
-                if (!l_Player)
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
                     return;
 
-                /*if (AuraEffectPtr l_Aura = l_Player->GetAuraEffect(SPELL_DRUID_ECLIPSE, EFFECT_0))
+                if (AuraEffectPtr l_Aura = l_Caster->GetAuraEffect(SPELL_DRUID_ECLIPSE, EFFECT_0))
                 {
                     float l_BonusSolarSpells = 0.0f;
                     float l_BonusLunarSpells = 0.0f;
                     float l_DamageModPCT = l_Aura->GetAmount();
 
-                    if (l_Player->HasEclipseSideAvantage(ECLIPSE_SOLAR) || l_Player->HasEclipseSideAvantage(ECLIPSE_LUNAR))
-                    {
-                        int32 l_Power = l_Player->GetPower(Powers::POWER_ECLIPSE);
-                        uint8 l_Coeff = l_Player->GetPowerCoeff(Powers::POWER_ECLIPSE);
+                    int32 l_Eclipse = l_Caster->GetPower(Powers::POWER_ECLIPSE) / l_Caster->GetPowerCoeff(Powers::POWER_ECLIPSE);
 
-                        l_BonusSolarSpells = CalculatePct(l_DamageModPCT, l_Power / l_Coeff);
+                    /// Eclipse amount egal 0, each school have the same bonus
+                    if (l_Eclipse == 0)
+                    {
+                        l_BonusLunarSpells = l_DamageModPCT / 2.0f;
+                        l_BonusSolarSpells = l_DamageModPCT / 2.0f;
+                    }
+                    /// We're in lunar phase
+                    else if (l_Eclipse > 0)
+                    {
+                        l_BonusLunarSpells = (l_DamageModPCT / 2.0f) + CalculatePct(l_DamageModPCT / 2.0f, l_Eclipse);
+                        l_BonusSolarSpells = l_DamageModPCT - l_BonusLunarSpells;
+                    }
+                    /// We're in solar phase
+                    else if (l_Eclipse < 0)
+                    {
+                        l_BonusSolarSpells = (l_DamageModPCT / 2.0f) + CalculatePct(l_DamageModPCT / 2.0f, -l_Eclipse);
                         l_BonusLunarSpells = l_DamageModPCT - l_BonusSolarSpells;
                     }
 
@@ -1945,7 +1957,7 @@ class spell_dru_eclipse_mod_damage : public SpellScriptLoader
                         SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_BonusSolarSpells));
                     else if (GetSpellInfo()->GetSchoolMask() == SPELL_SCHOOL_MASK_ARCANE)
                         SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_BonusLunarSpells));
-                }*/
+                }
             }
 
             void Register()
