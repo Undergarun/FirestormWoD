@@ -1103,7 +1103,9 @@ enum LifebloomSpells
 {
     SPELL_DRUID_LIFEBLOOM                 = 33763,
     SPELL_DRUID_LIFEBLOOM_FINAL_HEAL      = 33778,
-    SPELL_DRUID_GLYPH_OF_BLOOMING         = 121840
+    SPELL_DRUID_GLYPH_OF_BLOOMING         = 121840,
+    SPELL_DRUID_OMEN_OF_CLARITY           = 113043,
+    SPELL_DRUID_CLEARCASTING              = 16870
 };
 
 // Called by Regrowth - 8936 and Healing Touch - 5185
@@ -1196,11 +1198,19 @@ class spell_dru_lifebloom: public SpellScriptLoader
                     l_Target->CastCustomSpell(l_Target, SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, &l_HealAmount, NULL, NULL, true, NULL, aurEff, GetCasterGUID());
                 }
             }
+            
+            void OnTick(constAuraEffectPtr /*p_AurEff*/)
+            {
+                Unit* l_Caster = GetCaster();
+                if (l_Caster && l_Caster->HasAura(SPELL_DRUID_OMEN_OF_CLARITY) && roll_chance_i(4))
+                    l_Caster->CastSpell(l_Caster, SPELL_DRUID_CLEARCASTING, true);
+            }
 
             void Register()
             {
                 AfterEffectRemove += AuraEffectRemoveFn(spell_dru_lifebloom_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
                 AfterDispel += AuraDispelFn(spell_dru_lifebloom_AuraScript::HandleDispel);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_lifebloom_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
             }
         };
 
@@ -1724,6 +1734,43 @@ class spell_dru_on_desactivate_cat_form : public SpellScriptLoader
             return new spell_dru_on_desactivate_cat_form_AuraScript();
         }
 };
+
+enum DruidOfFlamesEnum
+{
+    MODEL_DRUID_OF_FLAMES = 38150,
+    SPELL_DRUID_OF_FLAME = 138927
+};
+
+
+// Druid of the flames - 138927
+class spell_dru_druid_flames : public SpellScriptLoader
+{
+public:
+    spell_dru_druid_flames() : SpellScriptLoader("spell_dru_druid_flames") { }
+
+    class spell_dru_druid_flames_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_dru_druid_flames_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+                if (l_Caster->HasAura(SPELL_DRUID_CAT_FORM) && l_Caster->HasAura(SPELL_DRUID_OF_FLAME))
+                    l_Caster->SetDisplayId(MODEL_DRUID_OF_FLAMES);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_dru_druid_flames_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_dru_druid_flames_SpellScript();
+    }
+};
+
 
 enum EclipseSpells
 {
@@ -3216,4 +3263,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_sunfire();
     new spell_dru_regrowth();
     new spell_dru_wild_growth();
+    new spell_dru_druid_flames();
 }

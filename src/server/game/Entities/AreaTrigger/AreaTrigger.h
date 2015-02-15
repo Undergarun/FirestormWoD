@@ -18,7 +18,8 @@
 
 #ifndef TRINITYCORE_AREATRIGGER_H
 # define TRINITYCORE_AREATRIGGER_H
-  
+
+# include "G3D\Vector3.h"
 # include "Object.h"
 # include "Timer.h"
 
@@ -212,6 +213,7 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         void SetDestination(Position p_Dest) { m_Destination = p_Dest; }
         void SetTrajectory(AreatriggerInterpolation p_Trajectory) { m_Trajectory = p_Trajectory; }
         void SetUpdateTimerInterval(uint32 p_Timer) { m_UpdateTimer.SetInterval(p_Timer); }
+        void SetPathToLinearDestination(std::list<Position>& l_List) { m_PathToLinearDestination = l_List; }
         Position const& GetDestination() const { return m_Destination; };
 
         /*
@@ -234,5 +236,6 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         IntervalTimer m_UpdateTimer;
         AreaTriggerTemplateList m_Templates;
         AreaTriggerEntityScript* m_Script;
+        std::list<Position> m_PathToLinearDestination;
 };
 #endif

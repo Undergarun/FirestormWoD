@@ -3326,6 +3326,12 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 110744: // Divine Star - should be 2 sec -- WTF Blizz ?
+            case 122121:
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(66);
+                spellInfo->Effects[0].TargetA = SELECT_TARGET_SELF;
+                spellInfo->ExplicitTargetMask = spellInfo->_GetExplicitTargetMask();
+                break;
             case 20167:  // Seal of Insight
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_NONE;
                 break;

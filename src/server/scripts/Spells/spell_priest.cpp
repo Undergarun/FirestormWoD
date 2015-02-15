@@ -2783,6 +2783,86 @@ public:
     }
 };
 
+enum AreaTriggerSpells
+{
+    SPELL_DIVINE_STAR_HOLY      = 110744,
+    SPELL_DIVINE_STAR_HEAL      = 110745,
+    SPELL_DIVINE_STAR_DAMAGE    = 122128,
+};
+
+class at_pri_divine_star : public AreaTriggerEntityScript
+{
+public:
+    at_pri_divine_star()
+        : AreaTriggerEntityScript("at_pri_divine_star") { }
+
+    AreaTriggerEntityScript* GetAI() const
+    {
+        return new at_pri_divine_star();
+    }
+    
+    void OnSetCreatePosition(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition, std::list<Position>& p_PathToLinearDestination)
+    {
+        Position l_Position;
+        float l_Dist = 24.f; // Hardcoded in the tooltip;
+
+        l_Position.m_positionX = p_SourcePosition.m_positionX + (l_Dist * cos(p_Caster->GetOrientation()));
+        l_Position.m_positionY = p_SourcePosition.m_positionY + (l_Dist * sin(p_Caster->GetOrientation()));
+        l_Position.m_positionZ = p_SourcePosition.m_positionZ;
+        p_Caster->UpdateGroundPositionZ(l_Position.m_positionX, l_Position.m_positionY, l_Position.m_positionZ);
+
+        p_PathToLinearDestination.push_back(l_Position);
+        p_DestinationPosition = p_SourcePosition; // Return back
+    }
+
+    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+    {
+        Unit* l_Caster = p_AreaTrigger->GetCaster();
+
+        if (!l_Caster)
+            return;
+
+        std::list<Unit*> l_TargetList;
+        float l_Radius = 3.f;
+        bool friendly = p_AreaTrigger->GetSpellId() == SPELL_DIVINE_STAR_HOLY;
+        uint32 l_SpellID = friendly ? SPELL_DIVINE_STAR_HEAL : SPELL_DIVINE_STAR_DAMAGE;
+
+        for (std::map<uint64, uint32>::iterator iter = m_Cooldows.begin(); iter != m_Cooldows.end();)
+        {
+            if (iter->second < p_Time)
+                iter = m_Cooldows.erase(iter);
+            else
+            {
+                iter->second -= p_Time;
+                iter++;
+            }
+        }
+
+        if (friendly)
+        {
+            JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, p_AreaTrigger->GetCaster(), l_Radius);
+            JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+            p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+        }
+        else
+        {
+            JadeCore::NearestAttackableUnitInObjectRangeCheck l_Check(p_AreaTrigger, p_AreaTrigger->GetCaster(), l_Radius);
+            JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+            p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+        }
+
+        for (auto l_Unit : l_TargetList)
+        {
+            if (m_Cooldows.find(l_Unit->GetGUID()) != m_Cooldows.end())
+                continue;
+
+            m_Cooldows.insert({l_Unit->GetGUID(), 500});
+            l_Caster->CastSpell(l_Unit, l_SpellID, true);
+        }
+    }
+
+    std::map<uint64, uint32> m_Cooldows;
+};
 
 void AddSC_priest_spell_scripts()
 {
@@ -2844,8 +2924,9 @@ void AddSC_priest_spell_scripts()
     new spell_pri_evangelism();
     new spell_pri_levitate();
     new spell_pri_flash_heal();
-
     // Player Script
     new PlayerScript_Shadow_Orb();
     new PlayerScript_insanity();
+    // Areatrigger scripts
+    new at_pri_divine_star();
 }

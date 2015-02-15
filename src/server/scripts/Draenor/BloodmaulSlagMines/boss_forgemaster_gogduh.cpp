@@ -1020,7 +1020,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
         public:
             areatrigger_shatter_earth() : AreaTriggerEntityScript("areatrigger_shatter_earth") { }
 
-            void OnSetCreatePosition(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition)
+            void OnSetCreatePosition(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition, std::list<Position>& p_PathToLinearDestination)
             {
                 if (!p_Caster)
                     return;
@@ -1105,7 +1105,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
         public:
             areatrigger_volcanic_trantum() : AreaTriggerEntityScript("areatrigger_volcanic_trantum") { }
 
-            void OnSetCreatePosition(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition)
+            void OnSetCreatePosition(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition, std::list<Position>& p_PathToLinearDestination)
             {
                 if (!p_Caster)
                     return;
