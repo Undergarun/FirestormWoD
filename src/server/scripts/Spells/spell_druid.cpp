@@ -1791,17 +1791,20 @@ class spell_dru_eclipse : public PlayerScript
             if (!CanUseEclipse(p_Player, Powers::POWER_ECLIPSE))
                 return;
 
-            if (!m_EclipseCycleActive)
-                m_LastEclipseState = EclipseState::None;
+            m_EclipseFinishingCount = -1;
+
+            if (m_EclipseCycleActive)
+                return;
+
+            m_BalanceTime       = 0;
+            m_LastEclipseAmount = 0;
+            m_LastEclipseState  = EclipseState::None;
 
             m_EclipseCycleActive    = true;
             m_EclipseFinishingCount = -1;
 
-            m_BalanceTime        = 0;
-            m_LastEclipseAmount  = 0;
-
             ACE_OS::gettimeofday().msec(m_LastEclipseCheck);
-        }
+       }
 
         /// Override
         void OnLeaveCombat(Player* p_Player)
@@ -1823,6 +1826,14 @@ class spell_dru_eclipse : public PlayerScript
 
             uint64 l_ActualTime = 0;
             ACE_OS::gettimeofday().msec(l_ActualTime);
+
+            /// Celestial alignment interrupt eclipse regen
+            if (p_Player->HasAura(EclipseSpells::SPELL_DRUID_CELESTIAL_ALIGNMENT))
+            {
+                m_LastEclipseCheck = l_ActualTime;
+                p_AddValue = 0.0f;
+                return;
+            }
 
             m_BalanceTime      += l_ActualTime - m_LastEclipseCheck;
             m_LastEclipseCheck = l_ActualTime;
@@ -1953,6 +1964,13 @@ class spell_dru_eclipse_mod_damage : public SpellScriptLoader
                         l_BonusLunarSpells = l_DamageModPCT - l_BonusSolarSpells;
                     }
 
+                    /// Celestial alignment : All Lunar and Solar spells benefit from your maximum Eclipse bonus.
+                    if (l_Caster->HasAura(EclipseSpells::SPELL_DRUID_CELESTIAL_ALIGNMENT))
+                    {
+                        l_BonusSolarSpells = l_DamageModPCT;
+                        l_BonusLunarSpells = l_DamageModPCT;
+                    }
+
                     if (GetSpellInfo()->GetSchoolMask() == SPELL_SCHOOL_MASK_NATURE)
                         SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_BonusSolarSpells));
                     else if (GetSpellInfo()->GetSchoolMask() == SPELL_SCHOOL_MASK_ARCANE)
@@ -1988,29 +2006,35 @@ public:
             if (!l_Target)
                 return;
 
-            l_Target->SetPower(Powers::POWER_ECLIPSE, 0);
-            l_Target->CastSpell(l_Target, SPELL_DRUID_ECLIPSE_VISUAL_LUNAR, true);
-            l_Target->CastSpell(l_Target, SPELL_DRUID_ECLIPSE_LUNAR_PEAK, true);
-            l_Target->CastSpell(l_Target, SPELL_DRUID_ECLIPSE_VISUAL_SOLAR, true);
-            l_Target->CastSpell(l_Target, SPELL_DRUID_ECLIPSE_SOLAR_PEAK, true);
+            uint32 l_PowerIndex = l_Target->GetPowerIndexByClass(Powers::POWER_ECLIPSE, l_Target->getClass());
+            if (l_PowerIndex == MAX_POWERS)
+                return;
+
+            /// Disable regen client-side
+            l_Target->SetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + l_PowerIndex, -1.0f);
+
+            /// Force update of updatefield eclipse amount client-side
+            l_Target->SetPower(Powers::POWER_ECLIPSE, l_Target->GetPower(Powers::POWER_ECLIPSE));
         }
 
         void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-            Unit* l_Target = GetTarget();
+            Player* l_Target = GetTarget()->ToPlayer();
             if (!l_Target)
                 return;
 
-            if (l_Target->HasAura(SPELL_DRUID_ECLIPSE_LUNAR_PEAK))
-                l_Target->RemoveAurasDueToSpell(SPELL_DRUID_ECLIPSE_LUNAR_PEAK);
-            if (l_Target->HasAura(SPELL_DRUID_ECLIPSE_SOLAR_PEAK))
-                l_Target->RemoveAurasDueToSpell(SPELL_DRUID_ECLIPSE_SOLAR_PEAK);
+            uint32 l_PowerIndex = l_Target->GetPowerIndexByClass(Powers::POWER_ECLIPSE, l_Target->getClass());
+            if (l_PowerIndex == MAX_POWERS)
+                return;
+
+            /// Re-enable regen client-side
+            l_Target->SetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + l_PowerIndex, 0.0f);
         }
 
         void Register()
         {
-            OnEffectApply += AuraEffectApplyFn(spell_dru_celestial_alignment_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
-            OnEffectRemove += AuraEffectRemoveFn(spell_dru_celestial_alignment_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+            OnEffectApply += AuraEffectApplyFn(spell_dru_celestial_alignment_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            OnEffectRemove += AuraEffectRemoveFn(spell_dru_celestial_alignment_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
         }
     };
 
@@ -2027,6 +2051,14 @@ enum MoonfireSpells
     SPELL_DRUID_DREAM_OF_CENARIUS_RESTO  = 145153
 };
 
+namespace Sunfire
+{
+    enum
+    {
+        SpellDamage = 164815
+    };
+}
+
 /// Moonfire - 8921
 class spell_dru_moonfire : public SpellScriptLoader
 {
@@ -2040,8 +2072,16 @@ public:
         void HandleOnHit()
         {
             if (Unit* l_Caster = GetCaster())
+            {
                 if (Unit* l_Target = GetHitUnit())
+                {
                     l_Caster->CastSpell(l_Target, SPELL_DRUID_MOONFIRE_DAMAGE);
+
+                    /// Celestial Alignment : causes your Moonfire and Sunfire spells to also apply the other's damage over time effect.
+                    if (l_Caster->HasAura(EclipseSpells::SPELL_DRUID_CELESTIAL_ALIGNMENT))
+                        l_Caster->AddAura(Sunfire::SpellDamage, l_Target);
+                }
+            }
         }
 
         void Register()
@@ -2059,14 +2099,6 @@ public:
 
 
 /// Sunfire - 93402
-namespace Sunfire
-{
-    enum
-    {
-        SpellDamage = 164815
-    };
-}
-
 class spell_dru_sunfire : public SpellScriptLoader
 {
 public:
@@ -2081,7 +2113,13 @@ public:
             if (Unit* l_Caster = GetCaster())
             {
                 if (Unit* l_Target = GetHitUnit())
+                {
                     l_Caster->CastSpell(l_Target, Sunfire::SpellDamage);
+
+                    /// Celestial Alignment : causes your Moonfire and Sunfire spells to also apply the other's damage over time effect.
+                    if (l_Caster->HasAura(EclipseSpells::SPELL_DRUID_CELESTIAL_ALIGNMENT))
+                        l_Caster->AddAura(MoonfireSpells::SPELL_DRUID_MOONFIRE_DAMAGE, l_Target);
+                }
             }
         }
 
