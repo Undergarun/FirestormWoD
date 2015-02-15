@@ -2856,7 +2856,7 @@ public:
             if (m_Cooldows.find(l_Unit->GetGUID()) != m_Cooldows.end())
                 continue;
 
-            m_Cooldows.insert({l_Unit->GetGUID(), 250});
+            m_Cooldows.insert({l_Unit->GetGUID(), 500});
             l_Caster->CastSpell(l_Unit, l_SpellID, true);
         }
     }
