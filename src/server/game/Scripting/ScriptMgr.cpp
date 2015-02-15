@@ -503,7 +503,8 @@ void ScriptMgr::OnCreateAreaTriggerEntity(AreaTrigger * p_AreaTrigger)
 /// @p_Caster: Caster because he the Areatrigger is not spawned so caster is not defined
 /// @p_SourcePosition: Spawn location of the Areatrigger
 /// @p_DestinationPostion: Linear destination of the Areatrigger
-void ScriptMgr::OnSetCreatePositionEntity(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition)
+/// @p_PathToLinearDestination: Linear path without the endpoint
+void ScriptMgr::OnSetCreatePositionEntity(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition, std::list<Position>& p_PathToLinearDestination)
 {
     ASSERT(p_AreaTrigger);
 
@@ -511,7 +512,7 @@ void ScriptMgr::OnSetCreatePositionEntity(AreaTrigger* p_AreaTrigger, Unit* p_Ca
     if (!l_Script)
         return;
 
-    l_Script->OnSetCreatePosition(p_AreaTrigger, p_Caster, p_SourcePosition, p_DestinationPosition);
+    l_Script->OnSetCreatePosition(p_AreaTrigger, p_Caster, p_SourcePosition, p_DestinationPosition, p_PathToLinearDestination);
 }
 /// Proc when AreaTrigger is updated.
 /// @p_AreaTrigger : AreaTrigger instance
