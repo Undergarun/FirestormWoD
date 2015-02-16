@@ -689,6 +689,7 @@ void WorldSession::HandleGarrisonCreateShipmentOpcode(WorldPacket & p_RecvData)
 
     m_Player->SendDirectMessage(&l_Ack);
 }
+
 void WorldSession::HandleGarrisonGetShipmentsOpcode(WorldPacket & p_RecvData)
 {
     if (!m_Player)

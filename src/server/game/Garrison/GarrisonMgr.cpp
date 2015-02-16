@@ -2346,7 +2346,7 @@ namespace MS { namespace Garrison
     /// PurchaseBuilding
     GarrisonBuilding Manager::PurchaseBuilding(uint32 p_BuildingRecID, uint32 p_PlotInstanceID, bool p_Triggered)
     {
-        const GarrBuildingEntry * l_BuildingEntry = sGarrBuildingStore.LookupEntry(p_BuildingRecID);
+        GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(p_BuildingRecID);
 
         GarrisonBuilding l_Building;
 
@@ -2379,16 +2379,23 @@ namespace MS { namespace Garrison
         l_Building.DatabaseID       = sObjectMgr->GetNewGarrisonBuildingID();
         l_Building.BuildingID       = p_BuildingRecID;
         l_Building.PlotInstanceID   = p_PlotInstanceID;
-        l_Building.TimeBuiltStart   = time(0);
-        l_Building.TimeBuiltEnd     = time(0) + l_BuildingTime;           ///< 5/5/1905 18:45:05
+        l_Building.TimeBuiltStart   = time(nullptr);
+        l_Building.TimeBuiltEnd     = time(nullptr) + l_BuildingTime;           ///< 5/5/1905 18:45:05
         l_Building.SpecID           = 0;
         l_Building.Active           = false;
         l_Building.BuiltNotified    = false;
 
-        if (p_Triggered)
+        if (l_BuildingEntry->BuildingCategory == BuildingCategory::Prebuilt)
+        {
+            l_Building.TimeBuiltStart   = time(nullptr) - l_BuildingTime;
+            l_Building.TimeBuiltEnd     = time(nullptr);
+            l_Building.Active           = true;
+            l_Building.BuiltNotified    = true;
+        }
+        else if (p_Triggered)
             l_Building.TimeBuiltEnd = l_Building.TimeBuiltStart;
 
-        PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GARRISON_BUILDING);
+        PreparedStatement * l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GARRISON_BUILDING);
 
         uint32 l_Index = 0;
         l_Stmt->setUInt32(l_Index++, l_Building.DatabaseID);
@@ -2425,7 +2432,18 @@ namespace MS { namespace Garrison
     /// Get buildings
     std::vector<GarrisonBuilding> Manager::GetBuildings()
     {
-        return m_Buildings;
+        std::vector<GarrisonBuilding> l_Buildings;
+
+        for (uint32 l_I = 0; l_I < m_Buildings.size(); ++l_I)
+        {
+            /// Don't include the building if the owner doesn't have access to it
+            if (!sGarrisonBuildingManager->MatchsConditionsForBuilding(m_Buildings[l_I].BuildingID, m_Owner))
+                continue;
+
+            l_Buildings.push_back(m_Buildings[l_I]);
+        }
+
+        return l_Buildings;
     }
 
     /// Get building passive ability effects
@@ -2435,7 +2453,11 @@ namespace MS { namespace Garrison
 
         for (uint32 l_I = 0; l_I < m_Buildings.size(); ++l_I)
         {
-            const GarrBuildingEntry * l_BuildingTemplate = sGarrBuildingStore.LookupEntry(m_Buildings[l_I].BuildingID);
+            /// Don't include prebuilt building passives if the owner doesn't have access to it
+            if (!sGarrisonBuildingManager->MatchsConditionsForBuilding(m_Buildings[l_I].BuildingID, m_Owner))
+                continue;
+
+            GarrBuildingEntry const* l_BuildingTemplate = sGarrBuildingStore.LookupEntry(m_Buildings[l_I].BuildingID);
 
             if (l_BuildingTemplate && l_BuildingTemplate->PassiveEffect && sGarrAbilityEffectStore.LookupEntry(l_BuildingTemplate->PassiveEffect) != nullptr)
                 l_PassiveEffects.push_back(l_BuildingTemplate->PassiveEffect);
@@ -2461,7 +2483,7 @@ namespace MS { namespace Garrison
         if (!l_Building)
             return;
 
-        const GarrBuildingEntry * l_BuildingEntry = sGarrBuildingStore.LookupEntry(l_Building->BuildingID);
+        GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(l_Building->BuildingID);
 
         if (!l_BuildingEntry)
             return;
@@ -2571,6 +2593,23 @@ namespace MS { namespace Garrison
         for (std::vector<GarrisonBuilding>::iterator l_It = m_Buildings.begin(); l_It != m_Buildings.end(); ++l_It)
         {
             if (l_It->BuildingID == p_BuildingID && l_It->Active)
+                return true;
+        }
+
+        return false;
+    }
+
+    /// Has building type
+    bool Manager::HasBuildingType(BuildingType::Type p_BuildingType)
+    {
+        for (std::vector<GarrisonBuilding>::iterator l_It = m_Buildings.begin(); l_It != m_Buildings.end(); ++l_It)
+        {
+            GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(l_It->BuildingID);
+
+            if (!l_BuildingEntry)
+                continue;
+
+            if (l_BuildingEntry->BuildingType == p_BuildingType)
                 return true;
         }
 
@@ -2766,12 +2805,12 @@ namespace MS { namespace Garrison
     /// Init data for level
     void Manager::InitDataForLevel()
     {
-        const GarrSiteLevelEntry * l_SiteEntry = nullptr;
+        GarrSiteLevelEntry const* l_SiteEntry = nullptr;
 
         /// Search garrison site entry by SideID & Level
         for (uint32 l_I = 0; l_I < sGarrSiteLevelStore.GetNumRows(); ++l_I)
         {
-            const GarrSiteLevelEntry * l_CurrentSiteEntry = sGarrSiteLevelStore.LookupEntry(l_I);
+            GarrSiteLevelEntry const* l_CurrentSiteEntry = sGarrSiteLevelStore.LookupEntry(l_I);
 
             if (l_CurrentSiteEntry && l_CurrentSiteEntry->Level == m_GarrisonLevel && l_CurrentSiteEntry->SiteID == m_GarrisonSiteID)
             {
@@ -2796,6 +2835,54 @@ namespace MS { namespace Garrison
         {
             if (gGarrisonPlotInstanceInfoLocation[l_I].SiteLevelID == m_GarrisonLevelID)
                 m_Plots.push_back(gGarrisonPlotInstanceInfoLocation[l_I]);
+        }
+
+        /// Add prebuilt buildings
+        for (uint32 l_I = 0; l_I < sGarrBuildingStore.GetNumRows(); ++l_I)
+        {
+            GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(l_I);
+
+            if (!l_BuildingEntry || l_BuildingEntry->BuildingCategory != BuildingCategory::Prebuilt)
+                continue;
+
+            if (HasBuildingType((BuildingType::Type)l_BuildingEntry->BuildingType))
+                continue;
+
+            uint32 l_PlotID = 0;
+
+            /// Search building plot ID 
+            for (uint32 l_I = 0; l_I < sGarrPlotBuildingStore.GetNumRows(); ++l_I)
+            {
+                GarrPlotBuildingEntry const* l_PlotBuildingEntry = sGarrPlotBuildingStore.LookupEntry(l_I);
+
+                if (l_PlotBuildingEntry && l_PlotBuildingEntry->BuildingID == l_BuildingEntry->BuildingID)
+                {
+                    l_PlotID = l_PlotBuildingEntry->PlotId;
+                    break;
+                }
+            }
+
+            if (!l_PlotID)
+                continue;
+
+            uint32 l_PlotInstanceID = 0;
+
+            /// Search building plot instance ID
+            for (uint32 l_I = 0; l_I < sGarrBuildingStore.GetNumRows(); ++l_I)
+            {
+                GarrPlotInstanceEntry const* l_PlotInstanceEntry = sGarrPlotInstanceStore.LookupEntry(l_I);
+
+                if (l_PlotInstanceEntry && l_PlotInstanceEntry->PlotID == l_PlotID)
+                {
+                    l_PlotInstanceID = l_PlotInstanceEntry->InstanceID;
+                    break;
+                }
+            }
+
+            if (!l_PlotInstanceID || !HasPlotInstance(l_PlotInstanceID))
+                continue;
+
+            PurchaseBuilding(l_BuildingEntry->BuildingID, l_PlotInstanceID, true);
         }
     }
 

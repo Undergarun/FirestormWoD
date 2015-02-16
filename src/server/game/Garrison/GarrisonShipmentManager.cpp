@@ -39,12 +39,12 @@ namespace MS { namespace Garrison
 
         for (uint32 l_I = 0; l_I < sCharShipmentStore.GetNumRows(); ++l_I)
         {
-            const CharShipmentEntry * l_Entry = sCharShipmentStore.LookupEntry(l_I);
+            CharShipmentEntry const* l_Entry = sCharShipmentStore.LookupEntry(l_I);
 
             if (!l_Entry || l_Entry->Flags & CharShipmentFlags::Quest || l_Entry->Flags & CharShipmentFlags::Internal)
                 continue;
 
-            const CharShipmentContainerEntry * l_ContainerEntry = sCharShipmentContainerStore.LookupEntry(l_Entry->ShipmentContainerID);
+            CharShipmentContainerEntry const* l_ContainerEntry = sCharShipmentContainerStore.LookupEntry(l_Entry->ShipmentContainerID);
 
             if (!l_ContainerEntry || (std::string(l_ContainerEntry->Name).empty() && std::string(l_ContainerEntry->Description).empty()))
                 continue;
@@ -70,12 +70,12 @@ namespace MS { namespace Garrison
 
         for (uint32 l_I = 0; l_I < sCharShipmentStore.GetNumRows(); ++l_I)
         {
-            const CharShipmentEntry * l_Entry = sCharShipmentStore.LookupEntry(l_I);
+            CharShipmentEntry const* l_Entry = sCharShipmentStore.LookupEntry(l_I);
 
             if (!l_Entry || l_Entry->Flags != CharShipmentFlags::Quest)
                 continue;
 
-            const CharShipmentContainerEntry * l_ContainerEntry = sCharShipmentContainerStore.LookupEntry(l_Entry->ShipmentContainerID);
+            CharShipmentContainerEntry const* l_ContainerEntry = sCharShipmentContainerStore.LookupEntry(l_Entry->ShipmentContainerID);
 
             if (!l_ContainerEntry || (std::string(l_ContainerEntry->Name).empty() && std::string(l_ContainerEntry->Description).empty()))
                 continue;
@@ -117,14 +117,14 @@ namespace MS { namespace Garrison
             {
                 if (p_Target->HasQuest(l_QuestPair.first))
                 {
-                    const Quest * l_Quest = sObjectMgr->GetQuestTemplate(l_QuestPair.first);
+                    Quest const* l_Quest = sObjectMgr->GetQuestTemplate(l_QuestPair.first);
 
                     if (!l_Quest)
                         continue;
 
                     if (l_Quest->GetQuestObjectiveXIndex(l_QuestPair.second))
                     {
-                        const QuestObjective * l_Objective = l_Quest->GetQuestObjectiveXIndex(l_QuestPair.second);
+                        QuestObjective const* l_Objective = l_Quest->GetQuestObjectiveXIndex(l_QuestPair.second);
 
                         if (l_Objective->ObjectID == l_QuestItem && !p_Target->HasItemCount(l_QuestItem, 1, false))
                             return m_QuestShipmentPerBuildingType[l_BuildingType];
@@ -135,7 +135,6 @@ namespace MS { namespace Garrison
             return m_ShipmentPerBuildingType[l_BuildingType];
         }
     }
-
 
 }   ///< namespace Garrison
 }   ///< namespace MS

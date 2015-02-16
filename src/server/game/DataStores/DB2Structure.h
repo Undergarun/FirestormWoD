@@ -606,7 +606,7 @@ struct GarrBuildingEntry
     uint32 TexturePrefixH;                              // 14
     uint32 IconID;                                      // 15
     uint32 Unk7;                                        // 16
-    uint32 Unk8;                                        // 17
+    uint32 BuildingCategory;                            // 17
     uint32 BuiltScene[2];                               // 18 - 19
     uint32 BonusAmount;                                 // 20
     uint32 Unk12;                                       // 21

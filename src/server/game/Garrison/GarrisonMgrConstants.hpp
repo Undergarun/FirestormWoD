@@ -236,7 +236,7 @@ namespace MS { namespace Garrison
 
     namespace BuildingType
     {
-        enum
+        enum Type
         {
             Mine                = 1,
             Garden              = 2,
@@ -264,6 +264,15 @@ namespace MS { namespace Garrison
             FishingHut          = 24,
             SanctumGladiator    = 25,
             GnomeWorkshop       = 26
+        };
+    }
+
+    namespace BuildingCategory
+    {
+        enum Type
+        {
+            Prebuilt    = 0,
+            UserBuilt   = 1
         };
     }
 
@@ -296,18 +305,18 @@ namespace MS { namespace Garrison
         233083,     ///< PlotTypes::Small
         232425,     ///< PlotTypes::Medium
         233081,     ///< PlotTypes::Large
-        232415,     ///< PlotTypes::Farm
-        232447,     ///< PlotTypes::Mine
-        232426,     ///< PlotTypes::FishingHut
-        231706,     ///< PlotTypes::PetMenagerie
+        232425,     ///< PlotTypes::Farm
+        232425,     ///< PlotTypes::Mine
+        233083,     ///< PlotTypes::FishingHut
+        233083,     ///< PlotTypes::PetMenagerie
         /// Alliance
         229501,     ///< PlotTypes::Small
         232283,     ///< PlotTypes::Medium
         232143,     ///< PlotTypes::Large
-        232286,     ///< PlotTypes::Farm
-        233485,     ///< PlotTypes::Mine
-        237223,     ///< PlotTypes::FishingHut
-        0           ///< PlotTypes::PetMenagerie
+        232283,     ///< PlotTypes::Farm
+        232283,     ///< PlotTypes::Mine
+        229501,     ///< PlotTypes::FishingHut
+        229501      ///< PlotTypes::PetMenagerie
     };
 
     static const uint32 gGarrisonBuildingPlotGameObject[PlotTypes::Max * Factions::Max] =
@@ -420,7 +429,7 @@ namespace MS { namespace Garrison
         /// Alliance Level 1
         {       5,          1893.729f,   208.8733f,  77.06371f, 1.685312f  },
         /// Alliance Level 2
-        {     444,             0.f,        0.f,       0.f,      0.f        },
+        {     444,          1949.946f,   287.2795f,  88.96585f, 3.255662f  },
         /// Alliance Level 3
         {       6,             0.f,        0.f,       0.f,      0.f        }
     };

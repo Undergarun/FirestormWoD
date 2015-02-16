@@ -15,6 +15,7 @@
 #include "GarrisonBuilding.hpp"
 #include "GarrisonWorkOrder.hpp"
 #include "GarrisonShipmentManager.hpp"
+#include "GarrisonBuildingManager.hpp"
 
 #include "Interfaces/Interface_GarrisonSite.hpp"
 
@@ -155,6 +156,8 @@ namespace MS { namespace Garrison
             void DeleteBuilding(uint32 p_PlotInstanceID);
             /// Has active building
             bool HasActiveBuilding(uint32 p_BuildingID);
+            /// Has building type
+            bool HasBuildingType(BuildingType::Type p_BuildingType);
             /// Get building max work order
             uint32 GetBuildingMaxWorkOrder(uint32 p_PlotInstanceID);
             /// Get in progress work order count
