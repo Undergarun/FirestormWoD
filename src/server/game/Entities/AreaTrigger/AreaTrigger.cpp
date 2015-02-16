@@ -139,12 +139,14 @@ bool AreaTrigger::CreateAreaTriggerFromSpell(uint32 p_GuidLow, Unit* p_Caster, S
     l_SourcePosition.Relocate(pos);
     Position l_DestinationPosition;
     l_DestinationPosition.Relocate(p_Dest);
+    std::list<Position> p_PathToDest;
 
-    sScriptMgr->OnSetCreatePositionEntity(this, p_Caster, l_SourcePosition, l_DestinationPosition);
+    sScriptMgr->OnSetCreatePositionEntity(this, p_Caster, l_SourcePosition, l_DestinationPosition, p_PathToDest);
 
     SetSource(l_SourcePosition);
     SetDestination(l_DestinationPosition);
-    SetTrajectory(l_SourcePosition != l_DestinationPosition ? AREATRIGGER_INTERPOLATION_LINEAR : AREATRIGGER_INTERPOLATION_NONE);
+    SetPathToLinearDestination(p_PathToDest);
+    SetTrajectory(l_SourcePosition != l_DestinationPosition || p_PathToDest.size()  ? AREATRIGGER_INTERPOLATION_LINEAR : AREATRIGGER_INTERPOLATION_NONE);
     SetUpdateTimerInterval(60);
 
     if (p_SpellInfo->GetDuration() != -1)
@@ -389,15 +391,67 @@ void AreaTrigger::GetPositionAtTime(uint32 p_Time, Position* p_OutPos) const
     {
         case AREATRIGGER_INTERPOLATION_LINEAR:
         {
-            AreaTriggerTemplate const* l_MainTemplate = GetMainTemplate();
-            /// Durations get decreased over time so create time + remaining duration = max duration
-            int32 l_Duration = l_MainTemplate && l_MainTemplate->m_Type == AREATRIGGER_TYPE_SPLINE && l_MainTemplate->m_SplineDatas.TimeToTarget ? l_MainTemplate->m_SplineDatas.TimeToTarget : GetDuration() + GetCreatedTime();
-            float l_Progress = std::min((float)l_Duration, (float)p_Time) / l_Duration;
-            p_OutPos->m_positionX = m_Source.m_positionX + l_Progress * (m_Destination.m_positionX - m_Source.m_positionX);
-            p_OutPos->m_positionY = m_Source.m_positionY + l_Progress * (m_Destination.m_positionY - m_Source.m_positionY);
-            p_OutPos->m_positionZ = m_Source.m_positionZ + l_Progress * (m_Destination.m_positionZ - m_Source.m_positionZ);
-            p_OutPos->m_orientation = m_Source.m_orientation + l_Progress * (m_Destination.m_orientation - m_Source.m_orientation);
-            break;
+            if (!m_PathToLinearDestination.size())
+            {
+                AreaTriggerTemplate const* l_MainTemplate = GetMainTemplate();
+                /// Durations get decreased over time so create time + remaining duration = max duration
+                int32 l_Duration = l_MainTemplate && l_MainTemplate->m_Type == AREATRIGGER_TYPE_SPLINE && l_MainTemplate->m_SplineDatas.TimeToTarget ? l_MainTemplate->m_SplineDatas.TimeToTarget : GetDuration() + GetCreatedTime();
+                float l_Progress = std::min((float)l_Duration, (float)p_Time) / l_Duration;
+                p_OutPos->m_positionX = m_Source.m_positionX + l_Progress * (m_Destination.m_positionX - m_Source.m_positionX);
+                p_OutPos->m_positionY = m_Source.m_positionY + l_Progress * (m_Destination.m_positionY - m_Source.m_positionY);
+                p_OutPos->m_positionZ = m_Source.m_positionZ + l_Progress * (m_Destination.m_positionZ - m_Source.m_positionZ);
+                p_OutPos->m_orientation = m_Source.m_orientation + l_Progress * (m_Destination.m_orientation - m_Source.m_orientation);
+                break;
+            }
+            else
+            {
+                std::vector<Position> l_PathList;
+                l_PathList.resize(2 + m_PathToLinearDestination.size()); // Path + other points
+
+                l_PathList[0] = m_Source;
+                l_PathList[l_PathList.size() - 1] = m_Destination;
+
+                int l_Itr = 1;
+                for (auto& l_Path : m_PathToLinearDestination)
+                    l_PathList[l_Itr++] = l_Path;
+
+                float l_Dist = 0.f;
+                for (int l_I = 1; l_I < l_PathList.size(); l_I++)
+                    l_Dist += l_PathList[l_I].GetExactDist(&l_PathList[l_I - 1]);
+                
+                AreaTriggerTemplate const* l_MainTemplate = GetMainTemplate();
+                /// Durations get decreased over time so create time + remaining duration = max duration
+                int32 l_Duration = l_MainTemplate && l_MainTemplate->m_Type == AREATRIGGER_TYPE_SPLINE && l_MainTemplate->m_SplineDatas.TimeToTarget ? l_MainTemplate->m_SplineDatas.TimeToTarget : GetDuration() + GetCreatedTime();
+                float l_Progress = std::min((float)l_Duration, (float)p_Time) / l_Duration;
+
+                float l_CurrentDistanceProgress = l_Progress * l_Dist;
+                bool l_Found = false;
+                for (int l_I = 1; l_I < l_PathList.size(); l_I++)
+                {
+                    Position& l_CurrentPosition = l_PathList[l_I - 1];
+                    Position& l_NextPosition = l_PathList[l_I];
+
+                    float l_CurrentDistance = l_NextPosition.GetExactDist(&l_CurrentPosition);
+                    if ((l_CurrentDistanceProgress - l_CurrentDistance) > 0)
+                    {
+                        l_CurrentDistanceProgress -= l_CurrentDistance;
+                        continue;
+                    }
+
+                    float l_Angle = l_CurrentPosition.GetAngle(&l_NextPosition);
+                    float l_CurrentDistancePct = l_CurrentDistanceProgress / l_CurrentDistance;
+
+                    p_OutPos->m_positionX = l_CurrentPosition.m_positionX + (l_CurrentDistanceProgress * cos(l_Angle));
+                    p_OutPos->m_positionY = l_CurrentPosition.m_positionY + (l_CurrentDistanceProgress * sin(l_Angle));
+                    p_OutPos->m_positionZ = l_CurrentPosition.m_positionZ + l_CurrentDistancePct * (l_NextPosition.m_positionZ - l_CurrentPosition.m_positionZ);
+                    p_OutPos->m_orientation = l_Angle;
+                    l_Found = true;
+                    break;
+                }
+
+                if (l_Found)
+                    break;
+            }
         }
         default:
             *p_OutPos = m_Source;

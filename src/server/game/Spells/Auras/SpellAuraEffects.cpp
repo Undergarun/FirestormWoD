@@ -839,32 +839,32 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 
             switch (GetSpellInfo()->Id)
             {
-                case 1943:  // Rupture
+                case 1943:  ///< Rupture
                 {
                     m_canBeRecalculated = false;
 
                     if (caster->GetTypeId() != TYPEID_PLAYER)
                         break;
 
-                    uint8 cp = caster->ToPlayer()->GetComboPoints();
-                    float ap = caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
+                    int32 l_Combo = caster->GetPower(Powers::POWER_COMBO_POINT);
+                    float l_AttackPower = caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
 
-                    switch (cp)
+                    switch (l_Combo)
                     {
                         case 1:
-                            amount += int32(ap * 0.1f / 4);
+                            amount += int32(l_AttackPower * 0.1f / 4);
                             break;
                         case 2:
-                            amount += int32(ap * 0.24f / 6);
+                            amount += int32(l_AttackPower * 0.24f / 6);
                             break;
                         case 3:
-                            amount += int32(ap * 0.40f / 8);
+                            amount += int32(l_AttackPower * 0.40f / 8);
                             break;
                         case 4:
-                            amount += int32(ap * 0.56f / 10);
+                            amount += int32(l_AttackPower * 0.56f / 10);
                             break;
                         case 5:
-                            amount += int32(ap * 0.744f / 12);
+                            amount += int32(l_AttackPower * 0.744f / 12);
                             break;
                         default:
                             break;
@@ -927,23 +927,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
         {
             switch (m_spellInfo->Id)
             {
-                case 5171:  // Slice and Dice
-                {
-                    if (!caster)
-                        break;
-
-                    Player* plr = caster->ToPlayer();
-                    if (!plr)
-                        break;
-
-                    if (!plr->HasAura(76808) && !plr->HasAura(79152))
-                        break;
-
-                    float MasteryPCT = 1.0f + plr->GetFloatValue(PLAYER_FIELD_MASTERY) * 3.0f;
-                    AddPct(amount, MasteryPCT);
-
-                    break;
-                }
                 case 57669: // Replenishment (0.2% from max)
                     amount = CalculatePct(GetBase()->GetUnitOwner()->GetMaxPower(POWER_MANA), amount);
                     break;
@@ -1206,33 +1189,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
             }
             break;
         }
-        case SPELL_AURA_MOD_MELEE_HASTE_3:
-        {
-            switch (GetId())
-            {
-                case 5171:  // Slice and Dice
-                {
-                    if (!caster)
-                        break;
-
-                    Player* plr = caster->ToPlayer();
-                    if (!plr)
-                        break;
-
-                    if (!plr->HasAura(76808))
-                        break;
-
-                    float MasteryPCT = 1.0f + plr->GetFloatValue(PLAYER_FIELD_MASTERY) * 3.0f;
-                    AddPct(amount, MasteryPCT);
-
-                    break;
-                }
-                default:
-                    break;
-            }
-
-            break;
-        }
         case SPELL_AURA_MOD_INCREASE_SWIM_SPEED:
         {
             switch (GetId())
@@ -1289,6 +1245,13 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
     {
         DoneActualBenefit *= caster->CalculateLevelPenalty(GetSpellInfo());
         amount += (int32)DoneActualBenefit;
+    }
+
+    if (caster && caster->GetTypeId() == TypeID::TYPEID_PLAYER)
+    {
+        /// Apply Versatility absorb bonus
+        if (GetAuraType() == AuraType::SPELL_AURA_SCHOOL_ABSORB || GetAuraType() == AuraType::SPELL_AURA_SCHOOL_HEAL_ABSORB)
+            amount += CalculatePct(amount, caster->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + caster->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
     }
 
     GetBase()->CallScriptEffectCalcAmountHandlers(CONST_CAST(AuraEffect, shared_from_this()), amount, m_canBeRecalculated);
@@ -3124,10 +3087,6 @@ void AuraEffect::HandleAuraModDisarm(AuraApplication const* p_AurApp, uint8 p_Mo
     //Prevent handling aura twice
     if ((p_Apply) ? l_Target->GetAuraEffectsByType(l_AuraType).size() > 1 : l_Target->HasAuraType(l_AuraType))
         return;
-
-    // Adaptation
-    if (p_Apply && l_Target->HasAura(126046))
-        l_Target->CastSpell(l_Target, 126050, true);
 
     uint32 l_Field, l_Flag, l_Slot;
     WeaponAttackType l_AttType;
@@ -5056,7 +5015,7 @@ void AuraEffect::HandleAuraModExpertise(AuraApplication const* aurApp, uint8 mod
 /********************************/
 /***      HEAL & ENERGIZE     ***/
 /********************************/
-void AuraEffect::HandleModPowerRegen(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
+void AuraEffect::HandleModPowerRegen(AuraApplication const* aurApp, uint8 mode, bool apply) const
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
@@ -5079,6 +5038,36 @@ void AuraEffect::HandleModPowerRegen(AuraApplication const* aurApp, uint8 mode, 
         case POWER_FOCUS:
             l_Player->UpdateFocusRegen();
             break;
+        case POWER_ECLIPSE:
+        {
+            float l_RegenFlatMultiplier = 0.0f;
+            Unit::AuraEffectList const& regenAura = l_Player->GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
+            for (auto l_AuraEffect : regenAura)
+            {
+                if (l_AuraEffect->GetMiscValue() != GetMiscValue())
+                    continue;
+
+                if (!apply && l_AuraEffect == shared_from_this())
+                    continue;
+
+                l_RegenFlatMultiplier += l_AuraEffect->GetAmount() / 100.0f;
+            }
+
+            uint32 l_PowerIndex = l_Player->GetPowerIndexByClass(GetMiscValue(), l_Player->getClass());
+            if (l_PowerIndex != MAX_POWERS)
+            {
+                /// HACKFIX
+                /// Even if we have buff to speedup the cycle, it's freeze because of Celestial Alignment
+                if (l_Player->HasAura(112071) && !(!apply && GetId() == 112071))
+                    l_RegenFlatMultiplier = -1.0f;
+
+                l_Player->SetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + l_PowerIndex, l_RegenFlatMultiplier);
+
+                /// Force send of update to client
+                l_Player->SetPower(Powers::POWER_ECLIPSE, l_Player->GetPower(Powers::POWER_ECLIPSE));
+            }
+            break;
+        }
         default:
             // other powers are not immediate effects - implemented in Player::Regenerate, Creature::Regenerate
             break;
@@ -5090,7 +5079,7 @@ void AuraEffect::HandleModPowerRegenPCT(AuraApplication const* aurApp, uint8 mod
     HandleModPowerRegen(aurApp, mode, apply);
 }
 
-void AuraEffect::HandleModManaRegen(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
+void AuraEffect::HandleModManaRegen(AuraApplication const* aurApp, uint8 mode, bool apply) const
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
@@ -5347,7 +5336,11 @@ void AuraEffect::HandleModSpellCritChance(AuraApplication const* aurApp, uint8 m
     Unit* target = aurApp->GetTarget();
 
     if (target->GetTypeId() == TYPEID_PLAYER)
+    {
         target->ToPlayer()->UpdateAllSpellCritChances();
+        target->ToPlayer()->HandleBaseModValue(CRIT_PERCENTAGE, FLAT_MOD, float (GetAmount()), apply);
+        target->ToPlayer()->UpdateCritPercentage(WeaponAttackType::BaseAttack);
+    }
     else
         target->m_baseSpellCritChance += (apply) ? GetAmount():-GetAmount();
 }
@@ -5884,13 +5877,10 @@ void AuraEffect::HandleAuraRetainComboPoints(AuraApplication const* aurApp, uint
 
     Unit* target = aurApp->GetTarget();
 
-    if (target->GetTypeId() != TYPEID_PLAYER)
-        return;
-
     // combo points was added in SPELL_EFFECT_ADD_COMBO_POINTS handler
     // remove only if aura expire by time (in case combo points amount change aura removed without combo points lost)
     if (!(apply) && GetBase()->GetDuration() == 0)
-        target->ToPlayer()->AddComboPoints(-GetAmount());
+        target->AddComboPoints(-GetAmount());
 }
 
 /*********************************************************/

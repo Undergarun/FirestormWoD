@@ -2505,6 +2505,7 @@ class spell_hun_masters_call: public SpellScriptLoader
         }
 };
 
+/// Removed in 6.0.2 (still exist on wowhead) ? www.gamepedia.com/Scatter_Shot 
 // Scatter Shot - 37506
 class spell_hun_scatter_shot: public SpellScriptLoader
 {

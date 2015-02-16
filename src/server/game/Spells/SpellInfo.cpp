@@ -575,10 +575,9 @@ int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit c
     // random damage
     if (p_Caster)
     {
-        // bonus amount from combo points
-        if (p_Caster->m_movedPlayer && l_ComboDamage)
-            if (uint8 comboPoints = p_Caster->m_movedPlayer->GetComboPoints())
-                l_Value += l_ComboDamage * comboPoints;
+        /// Bonus amount from combo points
+        if (p_Caster && l_ComboDamage)
+            l_Value += l_ComboDamage * p_Caster->GetPower(Powers::POWER_COMBO_POINT);
 
         l_Value = p_Caster->ApplyEffectModifiers(_spellInfo, _effIndex, l_Value);
 
@@ -1476,7 +1475,6 @@ bool SpellInfo::CanTriggerPoisonAdditional() const
         {
             case 1766:  // Kick
             case 1943:  // Rupture
-            case 51722: // Dismantle
             case 703:   // Garrote
                 return true;
             default:
@@ -3719,20 +3717,6 @@ float SpellInfo::GetGiftOfTheSerpentScaling(Unit* caster) const
 
 float SpellInfo::GetCastTimeReduction() const
 {
-    switch (Id)
-    {
-        case 50274: // Spore Cloud
-        case 90315: // Tailspin
-        case 109466:// Curse of Enfeeblement
-        case 109468:// Curse of Enfeeblement (Soulburn)
-        case 116198:// Enfeeblement Aura (Metamorphosis)
-            return 5.f;
-        case 5760:  // Mind-Numbing
-        case 58604: // Lava Breath
-        case 73975: // Necrotic Strike
-            return 2.f;
-    }
-
     return 1.f;
 }
 
@@ -3862,13 +3846,11 @@ bool SpellInfo::IsPoisonOrBleedSpell() const
         case 1943:  // Rupture
         case 2818:  // Deadly Poison (DoT)
         case 3409:  // Crippling Poison
-        case 5760:  // Mind-Numbling Poison
         case 8680:  // Wound Poison
         case 79136: // Venomous Wound (damage)
         case 89775: // Hemorrhage (DoT)
         case 112961:// Leeching Poison
         case 113780:// Deadly Poison (direct damage)
-        case 113952:// Paralytic Poison
         case 122233:// Crimson Tempest (DoT)
             return true;
         default:
@@ -4236,9 +4218,7 @@ bool SpellInfo::IsLethalPoison() const
 {
     switch (Id)
     {
-        case 5760:  // Mind-Numbling Poison
         case 112961:// Leeching Poison
-        case 113952:// Paralytic Poison
             return true;
         default:
             break;

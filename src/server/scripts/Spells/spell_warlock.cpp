@@ -46,7 +46,7 @@ enum WarlockSpells
     WARLOCK_AGONY                           = 980,
     //WARLOCK_DOOM                            = 603,
     WARLOCK_UNSTABLE_AFFLICTION             = 30108,
-    WARLOCK_IMMOLATE                        = 348,
+    WARLOCK_IMMOLATE                        = 157736,
     WARLOCK_SHADOWBURN_ENERGIZE             = 125882,
     WARLOCK_CONFLAGRATE                     = 17962,
     WARLOCK_CONFLAGRATE_FIRE_AND_BRIMSTONE  = 108685,
@@ -457,8 +457,8 @@ class spell_warl_soulburn_seed_of_corruption: public SpellScriptLoader
         }
 };
 
-// Called by Soulburn : Curse of Enfeeblement - 109468 and Soulburn : Curse of Exhaustion - 104223
-// Soulburn - 74434
+/// Curse of exhaustion is removed in  6.0.2 please clean me
+/// Soulburn - 74434
 class spell_warl_soulburn_override: public SpellScriptLoader
 {
     public:
@@ -659,24 +659,24 @@ class spell_warl_rain_of_fire_damage: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_rain_of_fire_damage_SpellScript);
 
-            void HandleOnHit()
+            void HandleOnHitUnit(SpellEffIndex /*p_EffIndex*/)
             {
-                if (Unit* target = GetHitUnit())
+                if (Unit* l_Target = GetHitUnit())
                 {
                     // Deals 50% additional damage if the target is immolated.
-                    if (target->HasAura(WARLOCK_IMMOLATE) || target->HasAura(WARLOCK_IMMOLATE_FIRE_AND_BRIMSTONE))
+                    if (l_Target->HasAura(WARLOCK_IMMOLATE) || l_Target->HasAura(WARLOCK_IMMOLATE_FIRE_AND_BRIMSTONE))
                     {
-                        int32 damage = GetHitDamage();
+                        int32 l_Damage = GetHitDamage();
 
-                        AddPct(damage, 50);
-                        SetHitDamage(damage);
+                        AddPct(l_Damage, 50);
+                        SetHitDamage(l_Damage);
                     }
                 }
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_warl_rain_of_fire_damage_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_warl_rain_of_fire_damage_SpellScript::HandleOnHitUnit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
@@ -1353,10 +1353,11 @@ class spell_warl_dark_bargain: public SpellScriptLoader
                 amount = -1;
             }
 
-            void Absorb(AuraEffectPtr /*auraEffect*/, DamageInfo& dmgInfo, uint32& absorbAmount)
+            void Absorb(AuraEffectPtr auraEffect, DamageInfo& dmgInfo, uint32& absorbAmount)
             {
                 absorbedAmount += dmgInfo.GetDamage();
                 absorbAmount = dmgInfo.GetDamage();
+                auraEffect->SetAmount(absorbAmount + absorbedAmount);
             }
 
             void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
@@ -2040,7 +2041,6 @@ class spell_warl_ember_tap: public SpellScriptLoader
 };
 
 // Called By : Incinerate (Fire and Brimstone) - 114654, Conflagrate (Fire and Brimstone) - 108685
-// Curse of the Elements (Fire and Brimstone) - 104225, Curse of Enfeeblement (Fire and Brimstone) - 109468
 // Immolate (Fire and Brimstone) - 108686
 // Fire and Brimstone - 108683
 class spell_warl_fire_and_brimstone: public SpellScriptLoader
@@ -2898,6 +2898,39 @@ public:
     }
 };
 
+enum HavocSpells
+{
+    SPELL_GLYPH_OF_HAVOC    = 146962,
+};
+
+// Havoc - 80240 
+class spell_warl_havoc: public SpellScriptLoader
+{
+    public:
+        spell_warl_havoc() : SpellScriptLoader("spell_warl_havoc") { }
+
+        class spell_warl_havoc_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_havoc_AuraScript);
+
+            void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                // Set to max at apply
+                uint8 l_Charges = GetCaster()->HasAura(SPELL_GLYPH_OF_HAVOC) ? 6 : 3;
+                aurEff->GetBase()->SetStackAmount(l_Charges);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_warl_havoc_AuraScript::OnApply, EFFECT_1, SPELL_AURA_ADD_FLAT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_havoc_AuraScript();
+        }
+};
 
 void AddSC_warlock_spell_scripts()
 {
@@ -2962,4 +2995,5 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_demonic_circle_summon();
     new spell_warl_demonic_circle_teleport();
     new spell_warl_unstable_affliction();
+    new spell_warl_havoc();
 }

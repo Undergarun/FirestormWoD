@@ -952,7 +952,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         {
             if (damagetype != DOT || (spellProto && spellProto->IsChanneled()))
             {
-                uint32 const l_SpellTypesToInterrupt[2] = { CurrentSpellTypes::CURRENT_CHANNELED_SPELL, CurrentSpellTypes::CURRENT_CHANNELED_SPELL };
+                uint32 const l_SpellTypesToInterrupt[2] = { CurrentSpellTypes::CURRENT_CHANNELED_SPELL, CurrentSpellTypes::CURRENT_GENERIC_SPELL };
 
                 for (int l_I = 0; l_I < 2; l_I++)
                 {
@@ -1095,7 +1095,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
             {
                 if (damagetype != DOT)
                 {
-                    uint32 const l_SpellTypesToInterrupt[2] = { CurrentSpellTypes::CURRENT_CHANNELED_SPELL, CurrentSpellTypes::CURRENT_CHANNELED_SPELL };
+                    uint32 const l_SpellTypesToInterrupt[2] = { CurrentSpellTypes::CURRENT_CHANNELED_SPELL, CurrentSpellTypes::CURRENT_GENERIC_SPELL };
 
                     for (int l_I = 0; l_I < 2; l_I++)
                     {
@@ -1442,11 +1442,11 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
     else if (GetTypeId() == TYPEID_UNIT && (victim->GetTypeId() == TYPEID_PLAYER || victim->IsPetGuardianStuff()))
         damage *= CalculateDamageTakenFactor(victim, ToCreature());
 
-    // Apply Versatility damage bonus done/taken
+    /// Apply Versatility damage bonus done/taken
     if (GetTypeId() == TYPEID_PLAYER)
         damage += CalculatePct(damage, ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
     if (victim->GetTypeId() == TYPEID_PLAYER)
-        damage -= CalculatePct(damage, victim->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN) + GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
+        damage -= CalculatePct(damage, victim->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN) + victim->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
 
     SpellSchoolMask damageSchoolMask = SpellSchoolMask(damageInfo->schoolMask);
 
@@ -1612,11 +1612,11 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
     else if (GetTypeId() == TYPEID_UNIT && (victim->GetTypeId() == TYPEID_PLAYER || victim->IsPetGuardianStuff()))
         damage *= CalculateDamageTakenFactor(victim, ToCreature());
 
-    // Apply Versatility damage bonus done/taken
+    /// Apply Versatility damage bonus done/taken
     if (GetTypeId() == TYPEID_PLAYER)
         damage += CalculatePct(damage, ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
     if (victim->GetTypeId() == TYPEID_PLAYER)
-        damage -= CalculatePct(damage, victim->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN) + GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
+        damage -= CalculatePct(damage, victim->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN) + victim->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
 
     // Calculate armor reduction
     if (IsDamageReducedByArmor((SpellSchoolMask)(damageInfo->damageSchoolMask)))
@@ -2278,10 +2278,6 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
             DealDamage(caster, splitted, &cleanDamage, DIRECT_DAMAGE, schoolMask, (*itr)->GetSpellInfo(), false);
         }
     }
-
-    // Apply Versatility absorb bonus
-    if (this->GetTypeId() == TYPEID_PLAYER)
-        dmgInfo.AbsorbDamage(CalculatePct(dmgInfo.GetDamage(), ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT)));
 
     *resist = dmgInfo.GetResist();
     *absorb = dmgInfo.GetAbsorb();
@@ -5923,53 +5919,6 @@ bool Unit::HandleAuraProcOnPowerAmount(Unit* victim, uint32 /*damage*/, AuraEffe
     if (GetPower(powerRequired) != powerAmountRequired)
         return false;
 
-    // Custom requirements (not listed in procEx) Warning! damage dealing after this
-    // Custom triggered spells
-    switch (auraSpellInfo->SpellFamilyName)
-    {
-        case SPELLFAMILY_DRUID:
-        {
-            // Eclipse Mastery Driver Passive
-            if (auraSpellInfo->Id == 79577)
-            {
-                uint32 solarEclipseMarker = 67483;
-                uint32 lunarEclipseMarker = 67484;
-
-                switch(effIndex)
-                {
-                    case 0:
-                    {
-                        // Do not proc if proc spell isnt starfire and starsurge
-                        if (procSpell->Id != 2912 && procSpell->Id != 78674)
-                            return false;
-
-                        if (HasAura(solarEclipseMarker))
-                        {
-                            RemoveAurasDueToSpell(solarEclipseMarker);
-                            CastSpell(this,lunarEclipseMarker,true);
-                        }
-                        break;
-                    }
-                    case 1:
-                    {
-                        // Do not proc if proc spell isnt wrath and starsurge
-                        if (procSpell->Id != 5176 && procSpell->Id != 78674)
-                            return false;
-
-                        if (HasAura(lunarEclipseMarker))
-                        {
-                            RemoveAurasDueToSpell(lunarEclipseMarker);
-                            CastSpell(this,solarEclipseMarker,true);
-                        }
-
-                        break;
-                    }
-                }
-            }
-            break;
-        }
-    }
-
     if (cooldown && GetTypeId() == TYPEID_PLAYER && ToPlayer()->HasSpellCooldown(trigger_spell_id))
         return false;
 
@@ -7275,12 +7224,12 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     if (GetTypeId() != TYPEID_PLAYER)
                         return false;
 
-                    uint32 ui_chance = 20 * ToPlayer()->GetComboPoints();
-                    if (!roll_chance_i(ui_chance))
+                    int32 l_Chance = 20 * GetPower(Powers::POWER_COMBO_POINT);
+                    if (!roll_chance_i(l_Chance))
                         return false;
 
-                    if (AuraPtr aur = GetAura(50334))
-                        aur->SetDuration(aur->GetDuration() + 2000);
+                    if (AuraPtr l_Aura = GetAura(50334))
+                        l_Aura->SetDuration(l_Aura->GetDuration() + 2000);
                     break;
                 }
                 // Item  Druid T12 Feral 2P Bonus
@@ -7518,7 +7467,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
         {
             switch (dummySpell->Id)
             {
-                case 51701: // Honor Among Thieves
+                case 51701: ///< Honor Among Thieves
                 {
                     if (!triggeredByAura || !triggeredByAura->GetBase() || !triggeredByAura->GetBase()->GetCaster())
                         return false;
@@ -7526,19 +7475,20 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     if (triggeredByAura->GetBase()->GetCaster()->GetTypeId() != TYPEID_PLAYER)
                         return false;
 
-                    Player* player = triggeredByAura->GetBase()->GetCaster()->ToPlayer();
-                    if (!player)
+                    Player* l_Player = triggeredByAura->GetBase()->GetCaster()->ToPlayer();
+                    if (!l_Player)
                         return false;
 
-                    if (!player->isInCombat())
+                    if (!l_Player->isInCombat())
                         return false;
 
-                    if (player->HasSpellCooldown(51701))
+                    if (l_Player->HasSpellCooldown(51701))
                         return false;
 
                     if (!(procEx & PROC_EX_CRITICAL_HIT))
                         return false;
 
+                    triggered_spell_id = 51699;
                     break;
                 }
                 case 63254: // Glyph of Deadly Momentum
@@ -7571,24 +7521,24 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     if (!procSpell->HasEffect(SPELL_EFFECT_ADD_COMBO_POINTS) && procSpell->Id != 5374 && procSpell->Id != 27576)
                         return false;
 
-                    uint8 newCombo = ToPlayer()->GetComboPoints();
+                    int32 l_NewCombo = GetPower(Powers::POWER_COMBO_POINT);
 
                     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                     {
                         if (procSpell->Effects[i].IsEffect(SPELL_EFFECT_ADD_COMBO_POINTS))
                         {
-                            newCombo += procSpell->Effects[i].BasePoints;
+                            l_NewCombo += procSpell->Effects[i].BasePoints;
                             break;
                         }
                     }
 
                     if (procSpell->Id == 5374)
-                        newCombo += 2;
+                        l_NewCombo += 2;
 
-                    if (newCombo <= 5)
+                    if (l_NewCombo <= 5)
                         return false;
 
-                    basepoints0 = newCombo - 5;
+                    basepoints0 = l_NewCombo - 5;
                     triggered_spell_id = 115189;
 
                     // need to add one additional combo point if it's critical hit
@@ -9372,6 +9322,19 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
             if (procSpell->Id != 12294 && !roll_chance_i(50))
                 return false;
             break;
+        case 14190: ///< Seal Fate
+        {
+            if (GetTypeId() != TypeID::TYPEID_PLAYER)
+                return false;
+
+            if (!(procEx & PROC_EX_CRITICAL_HIT))
+                return false;
+
+            if (!procSpell || procSpell->HasEffect(SPELL_EFFECT_ADD_COMBO_POINTS))
+                return false;
+
+            break;
+        }
         case 104428:// Elemental Force (DND)
         {
             if (!IsValidAttackTarget(victim))
@@ -9576,7 +9539,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
         case 5761:  // Mind-Numbling Poison
         case 8679:  // Wound Poison
         case 108211:// Leeching Poison
-        case 108215:// Paralytic Poison
         {
             if (GetTypeId() != TYPEID_PLAYER)
                 return false;
@@ -9896,12 +9858,10 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
         case 54927: // Glyph of Avenging Wrath
         case 124487:// Zen Focus
         case 88764: // Rolling Thunder
-        case 12598: // Counterspell
         case 115946:// Glyph of Burning Anger
         case 88821: // Daybreak
         case 131542:// Relentless Grip
         case 56420: // Glyph of Denounce
-        case 126046:// Adaptation
         case 117967:// Brewmaster Training
         case 134563:// Healing Elixirs
         case 131564:// Arcane Intensity
@@ -10151,31 +10111,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
             target = victim;
             break;
         }
-        // Finish movies that add combo
-        case 14189: // Seal Fate (Nether blade set)
-        case 139546:// Ruthlessness
-        {
-            if (!victim || victim == this)
-                return false;
-
-            if (Player* plr = ToPlayer())
-            {
-                if (uint8 cp = plr->GetComboPoints())
-                {
-                    if (!procSpell)
-                        return false;
-
-                    if (!procSpell->NeedsComboPoints())
-                        return false;
-
-                    if (!roll_chance_i(cp * 20))
-                        return false;
-                }
-            }
-
-            // Need add combo point AFTER finish movie (or they dropped in finish phase)
-            break;
-        }
         // Item - Druid T10 Balance 2P Bonus
         case 16870:
         {
@@ -10312,9 +10247,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
             break;
         }
         case 3409:  // Crippling Poison
-        case 5760:  // Mind-numbling Poison
         case 112961:// Leeching Poison
-        case 113952:// Paralytic Poison
         {
             // Shuriken Toss cannot trigger non lethal poison
             if (procSpell)
@@ -11758,26 +11691,11 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         DoneTotal += CalculatePct(pdamage, Mastery);
     }
 
-    // Custom MoP Script
-    // 76808 - Mastery : Executioner
-    if (GetTypeId() == TYPEID_PLAYER && spellProto && (spellProto->Id == 1943 || spellProto->Id == 2098 || spellProto->Id == 121411) && HasAura(76808))
-    {
-        float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 3.0f;
-        DoneTotal += CalculatePct(pdamage, Mastery);
-    }
-
     // 77215 - Mastery : Potent Afflictions
     // Increase periodic damage of Corruption, Agony and Unstable Affliction
     if (GetTypeId() == TYPEID_PLAYER && spellProto && spellProto->IsAfflictionPeriodicDamage() && damagetype == DOT && HasAura(77215))
     {
         float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 3.1f;
-        DoneTotal += CalculatePct(pdamage, Mastery);
-    }
-
-    // 76803 - Mastery : Potent Poisons
-    if (GetTypeId() == TYPEID_PLAYER && spellProto && (spellProto->Id == 2818 || spellProto->Id == 8680 || spellProto->Id == 113780 || spellProto->Id == 32645) && pdamage != 0 && HasAura(76803))
-    {
-        float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 3.5f;
         DoneTotal += CalculatePct(pdamage, Mastery);
     }
 
@@ -12132,8 +12050,14 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
         case SPELLFAMILY_MAGE:
             // Ice Lance
             if (spellProto->SpellIconID == 186)
+            {
                 if (victim->HasAuraState(AURA_STATE_FROZEN, spellProto, this))
-                    DoneTotalMod *= 4.0f;
+                    DoneTotalMod *= 2.0f;
+
+                // Fingers of Frost
+                if (AuraPtr l_Aura = GetAura(44544))
+                    AddPct(DoneTotalMod, l_Aura->GetEffect(1)->GetAmount());
+            }
 
             // Torment the weak
             if (spellProto->GetSchoolMask() & SPELL_SCHOOL_MASK_ARCANE)
@@ -13070,9 +12994,10 @@ int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask)
             if ((*i)->GetMiscValue() & schoolMask)
                 AdvertisedBenefit += int32(CalculatePct(GetTotalAttackPowerValue(WeaponAttackType::BaseAttack), (*i)->GetAmount()));
 
-        // Apply Versatility healing bonus
+        /// Apply Versatility healing bonus
         AdvertisedBenefit += CalculatePct(AdvertisedBenefit, ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
     }
+
     return AdvertisedBenefit;
 }
 
@@ -14418,6 +14343,23 @@ int32 Unit::ModifyPower(Powers power, int32 dVal)
     return gain;
 }
 
+void Unit::AddComboPoints(int8 p_Count)
+{
+    if (!p_Count)
+        return;
+
+    /// Without combo points lost (duration checked in aura)
+    RemoveAurasByType(AuraType::SPELL_AURA_RETAIN_COMBO_POINTS);
+    ModifyPower(Powers::POWER_COMBO_POINT, p_Count);
+}
+
+void Unit::ClearComboPoints()
+{
+    /// Without combopoints lost (duration checked in aura)
+    RemoveAurasByType(SPELL_AURA_RETAIN_COMBO_POINTS);
+    SetPower(Powers::POWER_COMBO_POINT, 0);
+}
+
 // returns negative amount on power reduction
 int32 Unit::ModifyPowerPct(Powers power, float pct, bool apply)
 {
@@ -15277,21 +15219,21 @@ int32 Unit::CalculateSpellDamage(Unit const* p_Target, SpellInfo const* p_SpellP
     return p_SpellProto->Effects[p_EffectIndex].CalcValue(this, p_BasePoints, p_Target, p_Item);
 }
 
-int32 Unit::CalcSpellDuration(SpellInfo const* spellProto)
+int32 Unit::CalcSpellDuration(SpellInfo const* p_SpellInfo)
 {
-    uint8 comboPoints = m_movedPlayer ? m_movedPlayer->GetComboPoints() : 0;
+    int32 l_Combo = m_movedPlayer ? m_movedPlayer->GetPower(Powers::POWER_COMBO_POINT) : 0;
 
-    int32 minduration = spellProto->GetDuration();
-    int32 maxduration = spellProto->GetMaxDuration();
+    int32 l_MinDur = p_SpellInfo->GetDuration();
+    int32 l_MaxDur = p_SpellInfo->GetMaxDuration();
 
-    int32 duration;
+    int32 l_Dur = 0;
 
-    if (comboPoints && minduration != -1 && minduration != maxduration)
-        duration = minduration + int32((maxduration - minduration) * comboPoints / 5);
+    if (l_Combo && l_MinDur != -1 && l_MinDur != l_MaxDur)
+        l_Dur = l_MinDur + int32((l_MaxDur - l_MinDur) * l_Combo / 5);
     else
-        duration = minduration;
+        l_Dur = l_MinDur;
 
-    return duration;
+    return l_Dur;
 }
 
 int32 Unit::ModSpellDuration(SpellInfo const* spellProto, Unit const* target, int32 duration, bool positive, uint32 effectMask)
@@ -15436,9 +15378,10 @@ DiminishingLevels Unit::GetDiminishing(DiminishingGroup group)
             return DIMINISHING_LEVEL_1;
 
         // If last spell was casted more than 18 seconds ago - reset the count.
-        if (i->stack == 0 && getMSTimeDiff(i->hitTime, getMSTime()) > 18 * IN_MILLISECONDS)
+        if (i->stack == 0 && GetMSTimeDiffToNow(i->hitTime) > (18 * TimeConstants::IN_MILLISECONDS))
         {
             i->hitCount = DIMINISHING_LEVEL_1;
+            i->hitTime = getMSTime();
             return DIMINISHING_LEVEL_1;
         }
         // or else increase the count.
@@ -15964,6 +15907,9 @@ Unit::PowerTypeSet Unit::GetUsablePowers() const
         if (powerEntry->classId != getClass())
             continue;
 
+        if (powerEntry->power == Powers::POWER_ECLIPSE)
+            continue;
+
         l_Powers.insert(Powers(powerEntry->power));
     }
 
@@ -16060,6 +16006,14 @@ int32 Unit::GetPowerCoeff(Powers p_PowerType) const
     return 1;
 }
 
+namespace EclipsePower
+{
+    enum
+    {
+        CycleDuration = 40000
+    };
+}
+
 void Unit::SetPower(Powers p_PowerType, int32 p_PowerValue, bool p_Regen)
 {
     uint32 l_PowerIndex = GetPowerIndexByClass(p_PowerType, getClass());
@@ -16071,7 +16025,7 @@ void Unit::SetPower(Powers p_PowerType, int32 p_PowerValue, bool p_Regen)
 
     /// Custom case for EclipsePower, cannot be set in GetMaxPower
     if (p_PowerType == Powers::POWER_ECLIPSE)
-        l_MaxPower *= GetPowerCoeff(Powers::POWER_ECLIPSE);
+        l_MaxPower = EclipsePower::CycleDuration;
 
     if (p_PowerValue > l_MaxPower)
         p_PowerValue = l_MaxPower;
@@ -16293,9 +16247,7 @@ void Unit::CleanupBeforeRemoveFromMap(bool finalCleanup)
 
     m_Events.KillAllEvents(false);                      // non-delatable (currently casted spells) will not deleted now but it will deleted at call in Map::RemoveAllObjectsInRemoveList
     CombatStop();
-
-    if (ToPlayer())
-        ToPlayer()->ClearComboPoints();
+    ClearComboPoints();
 
     DeleteThreatList();
     getHostileRefManager().setOnlineOfflineState(false);
@@ -16917,9 +16869,9 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
             else // For attacker
             {
                 // Overpower on victim dodge
-                if (procExtra & PROC_EX_DODGE && GetTypeId() == TYPEID_PLAYER && getClass() == CLASS_WARRIOR)
+                if (procExtra & PROC_EX_DODGE && getClass() == CLASS_WARRIOR)
                 {
-                    ToPlayer()->AddComboPoints(1);
+                    AddComboPoints(1);
                     StartReactiveTimer(REACTIVE_OVERPOWER);
                     CastSpell(this, 60503, true);
                 }
@@ -16952,10 +16904,12 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     if (GetTypeId() == TYPEID_PLAYER && HasAura(91023) && procSpell && (procSpell->Id == 8676 || procSpell->Id == 703 || procSpell->Id == 1833))
         CastSpell(target, 91021, true);
 
-    // Revealing Strike - 84617
-    if (GetTypeId() == TYPEID_PLAYER && target && target->HasAura(84617, GetGUID()) && procSpell && procSpell->Id == 1752)
+    /// Revealing Strike - 84617
+    if (target && target->HasAura(84617, GetGUID()) && procSpell && procSpell->Id == 1752)
+    {
         if (roll_chance_i(20))
-            ToPlayer()->AddComboPoints(1);
+            AddComboPoints(1);
+    }
 
     // Bandit's Guile - 84654
     // Your Sinister Strike and Revealing Strike abilities increase your damage dealt by up to 30%
@@ -17005,7 +16959,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         ((procSpell->CastTimeEntry && procSpell->CastTimeEntry->CastTime > 0 && procSpell->CastTimeEntry->CastTime < 4000)
         || (procSpell->DurationEntry && procSpell->DurationEntry->Duration[0] > 0 && procSpell->DurationEntry->Duration[0] < 4000 && procSpell->AttributesEx & SPELL_ATTR1_CHANNELED_2)))
         if (AuraApplication* aura = GetAuraApplication(108839, GetGUID()))
-            aura->GetBase()->DropCharge();
+            aura->GetBase()->DropStack();
 
     // Hack Fix Cobra Strikes - Drop charge
     if (GetTypeId() == TYPEID_UNIT && HasAura(53257) && damage > 0)
@@ -17738,10 +17692,12 @@ void Unit::ClearAllReactives()
 
     if (HasAuraState(AURA_STATE_DEFENSE))
         ModifyAuraState(AURA_STATE_DEFENSE, false);
+
     if (getClass() == CLASS_HUNTER && HasAuraState(AURA_STATE_HUNTER_PARRY))
         ModifyAuraState(AURA_STATE_HUNTER_PARRY, false);
-    if (getClass() == CLASS_WARRIOR && GetTypeId() == TYPEID_PLAYER)
-        ToPlayer()->ClearComboPoints();
+
+    if (getClass() == CLASS_WARRIOR)
+        ClearComboPoints();
 }
 
 void Unit::UpdateReactives(uint32 p_time)
@@ -17768,8 +17724,8 @@ void Unit::UpdateReactives(uint32 p_time)
                         ModifyAuraState(AURA_STATE_HUNTER_PARRY, false);
                     break;
                 case REACTIVE_OVERPOWER:
-                    if (getClass() == CLASS_WARRIOR && GetTypeId() == TYPEID_PLAYER)
-                        ToPlayer()->ClearComboPoints();
+                    if (getClass() == CLASS_WARRIOR)
+                        ClearComboPoints();
                     break;
                 default:
                     break;

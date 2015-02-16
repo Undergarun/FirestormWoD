@@ -3118,7 +3118,7 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
                     break;
                 case ENTRY_VOIDWALKER:
                 case ENTRY_VOIDLORD:
-                    bp = 119907;// Disarm
+                    bp = 119907;// Disarm Removed since 6.0.2 please clean me
                     break;
                 case ENTRY_SUCCUBUS:
                     bp = 119909; // Whiplash

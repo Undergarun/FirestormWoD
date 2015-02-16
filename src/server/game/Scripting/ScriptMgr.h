@@ -70,7 +70,8 @@ class ScriptMgr
         /// @p_Caster: Caster because he the Areatrigger is not spawned so caster is not defined
         /// @p_SourcePosition: Spawn location of the Areatrigger
         /// @p_DestinationPostion: Linear destination of the Areatrigger
-        void OnSetCreatePositionEntity(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition);
+        /// @p_PathToLinearDestination: Linear path without the endpoint
+        void OnSetCreatePositionEntity(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition, std::list<Position>& p_PathToLinearDestination);
         /// Proc when AreaTrigger is updated.
         /// @p_AreaTrigger : AreaTrigger instance
         /// @p_Time        : Diff since last update
@@ -751,6 +752,13 @@ class ScriptMgr
         /// Called when a player leave combat status
         /// @p_Player : Player instance
         void OnPlayerLeaveCombat(Player * p_Player);
+
+        /// Called when a player regen a power
+        /// @p_Player         : Player instance
+        /// @p_Power          : Power to be regenerate
+        /// @p_AddValue       : amount of power to regenerate
+        /// @p_PreventDefault : avoid default regeneration
+        void OnPlayerRegenPower(Player * p_Player, Powers const p_Power, float& p_AddValue, bool& p_PreventDefault);
 
     /// BattlegroundScript
     public:

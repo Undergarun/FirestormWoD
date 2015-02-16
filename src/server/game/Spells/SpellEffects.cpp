@@ -4269,11 +4269,12 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
     if (!unitTarget || !unitTarget->isAlive())
         return;
 
-    // Deadly Throw - Interrupt spell only if used with 3 combo points
+    /// Deadly Throw - Interrupt spell only if used with 3 combo points
     if (m_spellInfo->Id == 26679)
-        if (m_originalCaster && m_originalCaster->GetTypeId() == TYPEID_PLAYER)
-            if (m_originalCaster->ToPlayer()->GetComboPoints() != 3)
-                return;
+    {
+        if (m_originalCaster && m_originalCaster->GetPower(Powers::POWER_COMBO_POINT) < 5)
+            return;
+    }
 
     // TODO: not all spells that used this effect apply cooldown at school spells
     // also exist case: apply cooldown to interrupted cast only and to all spells
@@ -5218,26 +5219,10 @@ void Spell::EffectAddComboPoints(SpellEffIndex /*effIndex*/)
     if (!unitTarget)
         return;
 
-    if (!m_caster->m_movedPlayer)
-        return;
-
     if (damage <= 0)
         return;
 
-    switch (m_spellInfo->Id)
-    {
-    case 51723: // Fan of Knives
-        if (!m_caster->ToPlayer())
-            break;
-
-        if (m_caster->ToPlayer()->GetSelectedUnit() != unitTarget)
-            return;
-        break;
-    default:
-        break;
-    }
-
-    m_caster->m_movedPlayer->AddComboPoints(damage, this);
+    m_caster->AddComboPoints(damage);
 }
 
 void Spell::EffectDuel(SpellEffIndex p_EffectIndex)
@@ -8068,6 +8053,9 @@ void Spell::EffectDespawnAreaTrigger(SpellEffIndex p_EffIndex)
 
 void Spell::EffectStampede(SpellEffIndex p_EffIndex)
 {
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
     if (m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
 
@@ -8094,13 +8082,27 @@ void Spell::EffectStampede(SpellEffIndex p_EffIndex)
             if (!l_Pet->isAlive())
                 l_Pet->setDeathState(ALIVE);
 
-            // Set pet at full health
+            /// Set pet at full health
             l_Pet->SetHealth(l_Pet->GetMaxHealth());
             l_Pet->SetReactState(REACT_HELPER);
             l_Pet->m_Stampeded = true;
 
+            std::list<uint32> l_SpellsToRemove;
+            for (auto l_Iter : l_Pet->m_spells)
+                l_SpellsToRemove.push_back(l_Iter.first);
+
+            /// Summoned pets with Stamped don't use abilities
+            for (uint32 l_ID : l_SpellsToRemove)
+            {
+                auto l_Iter = l_Pet->m_spells.find(l_ID);
+                l_Pet->m_spells.erase(l_Iter);
+            }
+
+            l_Pet->m_autospells.clear();
+            l_Pet->m_Events.KillAllEvents(true);    ///< Disable automatic cast spells
+
             l_Pet->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, GetSpellInfo()->Id);
-            if (l_MalusSpell != 0)
+            if (l_MalusSpell != 0 && l_Player->GetBattleground())
                 l_Pet->CastSpell(l_Pet, l_MalusSpell, true);
             l_Pet->AI()->AttackStart(l_Target);
         }

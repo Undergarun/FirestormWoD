@@ -1942,7 +1942,9 @@ void Spell::SelectImplicitChainTargets(SpellEffIndex effIndex, SpellImplicitTarg
     // Havoc
     if (AuraPtr havoc = m_caster->GetAura(80240))
     {
-        if (havoc->GetCharges() > 0 && target->ToUnit() && !target->ToUnit()->HasAura(80240))
+        int8 l_StacksToDrop = GetSpellInfo()->Id == 116858 ? 3 : 1;
+        if (GetSpellInfo()->SpellFamilyFlags & flag128(0x00000000, 0x00000000, 0x00000000, 0x00400000) &&
+            havoc->GetStackAmount() >= l_StacksToDrop && target->ToUnit() && !target->ToUnit()->HasAura(80240))
         {
             std::list<Unit*> targets;
             Unit* secondTarget = NULL;
@@ -1961,31 +1963,22 @@ void Spell::SelectImplicitChainTargets(SpellEffIndex effIndex, SpellImplicitTarg
                     break;
                 }
             }
-
+            
             if (secondTarget && target->GetGUID() != secondTarget->GetGUID())
             {
-                // Allow only one Chaos Bolt to be duplicated ...
-                if (m_spellInfo->Id == 116858 && havoc->GetCharges() >= 3)
-                {
-                    m_caster->RemoveAura(80240);
-                    secondTarget->RemoveAura(80240);
-                    m_caster->CastSpell(secondTarget, m_spellInfo->Id, true);
-                }
-                // ... or allow three next single target spells to be duplicated
-                else if (targetType.GetTarget() == TARGET_UNIT_TARGET_ENEMY && havoc->GetCharges() > 0)
-                {
-                    havoc->DropCharge();
+                int8 l_Stacks = havoc->GetStackAmount() - l_StacksToDrop;
 
-                    if (AuraPtr secondHavoc = secondTarget->GetAura(80240, m_caster->GetGUID()))
-                        secondHavoc->DropCharge();
-                    if (m_spellInfo->Id == 17877)
-                    {
-                        m_caster->ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, true);
-                        m_caster->CastSpell(secondTarget, m_spellInfo->Id, true);
-                        m_caster->ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, false);;
-                    }
-                    m_caster->CastSpell(secondTarget, m_spellInfo->Id, true);
+                if (l_Stacks > 0)
+                {
+                    havoc->SetStackAmount(l_Stacks);
                 }
+                else
+                {
+                    havoc->Remove();
+                    secondTarget->RemoveAurasDueToSpell(havoc->GetId());
+                }
+
+                AddUnitTarget(secondTarget, effMask, false);
             }
         }
     }
@@ -2942,25 +2935,21 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     {
         if (Player* plrCaster = m_caster->ToPlayer())
         {
-            if (uint8 cp = plrCaster->GetComboPoints())
+            if (int32 l_Combo = plrCaster->GetPower(Powers::POWER_COMBO_POINT))
             {
-                // Relentless Strikes
-                if (plrCaster->HasAura(58423))
-                {
-                    if (roll_chance_i(cp * 20))
-                    {
-                        if (!plrCaster->HasSpellCooldown(98440))
-                        {
-                            plrCaster->CastSpell(plrCaster, 98440, true); // Restore 25 energy
-                            plrCaster->AddSpellCooldown(98440, 0, 1 * IN_MILLISECONDS); // Prevent double cast
-                        }
-                    }
-                }
                 // Soul of the Forest - 4 Energy
-                else if (plrCaster->HasAura(114107))
+                if (plrCaster->HasAura(114107))
                 {
                     if (plrCaster->GetSpecializationId(plrCaster->GetActiveSpec()) == SPEC_DRUID_FERAL)
-                        plrCaster->EnergizeBySpell(plrCaster, 114107, 4 * cp, POWER_ENERGY);
+                        plrCaster->EnergizeBySpell(plrCaster, 114107, 4 * l_Combo, POWER_ENERGY);
+                }
+                else if (plrCaster->HasAura(14161)) ///< Ruthlessness
+                {
+                    if (roll_chance_i(20 * l_Combo))
+                    {
+                        plrCaster->CastSpell(plrCaster, 139569, true);  ///< Combo point awarding
+                        plrCaster->CastSpell(plrCaster, 14181, true);   ///< Energy energize
+                    }
                 }
             }
         }
@@ -4213,7 +4202,7 @@ void Spell::_handle_finish_phase()
         // Take for real after all targets are processed
         if (m_needComboPoints || m_spellInfo->Id == 127538)
         {
-            m_caster->m_movedPlayer->ClearComboPoints();
+            m_caster->ClearComboPoints();
 
             // Anticipation
             if (Player* _player = m_caster->ToPlayer())
@@ -4231,7 +4220,7 @@ void Spell::_handle_finish_phase()
 
         // Real add combo points from effects
         if (m_comboPointGain)
-            m_caster->m_movedPlayer->GainSpellComboPoints(m_comboPointGain);
+            m_caster->AddComboPoints(m_comboPointGain);
 
         if (m_spellInfo->PowerType == POWER_HOLY_POWER && m_caster->m_movedPlayer->getClass() == CLASS_PALADIN)
             HandleHolyPower(m_caster->m_movedPlayer);
@@ -5687,7 +5676,7 @@ void Spell::TakeRunePower(bool didHit)
         sScriptMgr->OnModifyPower(player, POWER_RUNES, 0, runeCost[i], false);
     }
 
-    /* In MOP there is a some spell, that use death rune, e.g - 73975, so don't reset it*/
+    /* In MOP there is a some spell, that use death rune, so don't reset it*/
     //runeCost[RUNE_DEATH] = 0;                               // calculated later
 
     bool gain_runic = runeCostData->NoRuneCost();           //  if spell doesn't have runecost - player can have some runic power, Horn of Winter for example
@@ -6915,11 +6904,9 @@ SpellCastResult Spell::CheckCast(bool strict)
         }
     }
 
-    // check if caster has at least 1 combo point for spells that require combo points
-    if (m_needComboPoints)
-        if (Player* plrCaster = m_caster->ToPlayer())
-            if (!plrCaster->GetComboPoints())
-                return SPELL_FAILED_NO_COMBO_POINTS;
+    /// Check if caster has at least 1 combo point for spells that require combo points
+    if (m_needComboPoints && !m_caster->GetPower(Powers::POWER_COMBO_POINT))
+        return SPELL_FAILED_NO_COMBO_POINTS;
 
     // all ok
     return SPELL_CAST_OK;
@@ -7273,18 +7260,6 @@ SpellCastResult Spell::CheckPower()
             if (failReason != SPELL_CAST_OK)
                 return failReason;
         }
-    }
-
-    switch (m_spellInfo->Id)
-    {
-        case 109468:// Curse of Enfeeblement
-        {
-            if (m_caster->ToPlayer() && m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_WARLOCK_AFFLICTION)
-                return SPELL_CAST_OK;
-            break;
-        }
-        default:
-            break;
     }
 
     // Check power amount

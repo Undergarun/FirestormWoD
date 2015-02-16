@@ -1605,6 +1605,9 @@ class Unit : public WorldObject
         int32 ModifyPower(Powers power, int32 val);
         int32 ModifyPowerPct(Powers power, float pct, bool apply = true);
 
+        void AddComboPoints(int8 p_Count);
+        void ClearComboPoints();
+
         PowerTypeSet GetUsablePowers() const;
         uint32 GetPowerIndexByClass(uint32 powerId, uint32 classId) const;
 

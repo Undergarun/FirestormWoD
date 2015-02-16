@@ -3326,6 +3326,15 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 110744: // Divine Star - should be 2 sec -- WTF Blizz ?
+            case 122121:
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(66);
+                spellInfo->Effects[0].TargetA = SELECT_TARGET_SELF;
+                spellInfo->ExplicitTargetMask = spellInfo->_GetExplicitTargetMask();
+                break;
+            case 20167:  // Seal of Insight
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_NONE;
+                break;
             case 150055: // Volcanic Tantrum
             case 149963: // Shatter Earth
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(27); // 3 sec
@@ -3472,10 +3481,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].BasePoints = spellInfo->Effects[1].BasePoints * 2.7;
                 break;
             case 14161: ///< Ruthlessness
-                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_PROC_TRIGGER_SPELL;
-                spellInfo->Effects[0].TriggerSpell = 139546;
-                spellInfo->ProcFlags = 0x00015550;
-                spellInfo->ProcChance = 100;
+                spellInfo->Effects[1].ApplyAuraName = 0;
+                spellInfo->Effects[1].Effect = 0;
                 break;
             case 137650: ///< Shadowed Soul
                 spellInfo->Effects[0].BasePoints = 3;
@@ -3543,11 +3550,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 136917: ///< Biting Cold
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[0].TargetB = 0;
-                break;
-            case 76808: ///< Mastery: Executioner
-                spellInfo->Effects[0].BasePoints = 24;
-                spellInfo->Effects[1].BasePoints = 24;
-                spellInfo->Effects[2].BasePoints = 24;
                 break;
             case 136467: ///< Lingering Presence
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
@@ -4140,9 +4142,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 120517: ///< Halo (Holy)
             case 120644: ///< Halo (shadow)
                 spellInfo->AttributesCu &= ~SPELL_ATTR0_CU_NEGATIVE;
-                break;
-            case 80240: ///< Havoc
-                spellInfo->ProcCharges = 3;
                 break;
             case 121129: ///< Daybreak (heal)
                 spellInfo->Effects[1].TargetA = TARGET_SRC_CASTER;
@@ -5136,11 +5135,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 104855: ///< Overpacked Firework
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
-                break;
-            /// Remove Dash and Prowl when stance is differente of FORM_CAT
-            case 1850: ///< Dash
-            case 5215: ///< Prowl
-                spellInfo->Stances = 0x01;
                 break;
             /// Add Server-Side dummy spell for Fishing
             /// TODO : Add more generic system to load server-side spell
