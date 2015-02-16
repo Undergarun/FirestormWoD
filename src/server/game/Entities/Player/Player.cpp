@@ -761,7 +761,6 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     m_soulShardsRegenTimerCount = 0;
     m_burningEmbersRegenTimerCount = 0;
     m_focusRegenTimerCount = 0;
-    m_EclipseRegenTimer = 0;
     m_weaponChangeTimer = 0;
 
     m_zoneUpdateId = 0;
@@ -3238,9 +3237,6 @@ void Player::RegenerateAll()
         case Classes::CLASS_HUNTER:
             m_focusRegenTimerCount += m_RegenPowerTimer;
             break;
-        case Classes::CLASS_DRUID:
-            m_EclipseRegenTimer += m_RegenPowerTimer;
-            break;
         case Classes::CLASS_WARLOCK:
         {
             switch (GetSpecializationId(GetActiveSpec()))
@@ -3291,14 +3287,6 @@ void Player::RegenerateAll()
             Regenerate(POWER_FOCUS);
 
         m_focusRegenTimerCount -= 1000;
-    }
-
-    if (m_EclipseRegenTimer >= 100)
-    {
-        if (l_Class == CLASS_DRUID && GetSpecializationId(GetActiveSpec()) == SPEC_DRUID_BALANCE)
-            Regenerate(POWER_ECLIPSE);
-
-        m_EclipseRegenTimer -= 100;
     }
 
     if (m_regenTimerCount >= 2000)
@@ -3564,7 +3552,7 @@ void Player::Regenerate(Powers power)
     }
 
     /// Mana regen calculated in Player::UpdateManaRegen()
-    if (power != POWER_MANA && power != POWER_CHI && power != POWER_HOLY_POWER && power != POWER_SOUL_SHARDS && power != POWER_BURNING_EMBERS && power != POWER_DEMONIC_FURY && power != POWER_ECLIPSE)
+    if (power != POWER_MANA && power != POWER_CHI && power != POWER_HOLY_POWER && power != POWER_SOUL_SHARDS && power != POWER_BURNING_EMBERS && power != POWER_DEMONIC_FURY)
     {
         AuraEffectList const& ModPowerRegenPCTAuras = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
         for (AuraEffectList::const_iterator i = ModPowerRegenPCTAuras.begin(); i != ModPowerRegenPCTAuras.end(); ++i)
@@ -3578,25 +3566,24 @@ void Player::Regenerate(Powers power)
 
     if (addvalue < 0.0f)
     {
-        if (curValue == 0 && power != POWER_ECLIPSE)
+        if (curValue == 0)
             return;
     }
     else if (addvalue > 0.0f)
     {
-        if (curValue == maxValue && power != POWER_ECLIPSE)
+        if (curValue == maxValue)
             return;
     }
     else
         return;
 
-    if (power != Powers::POWER_ECLIPSE)
-        addvalue += m_powerFraction[powerIndex];
+    addvalue += m_powerFraction[powerIndex];
 
     int32 integerValue = uint32(fabs(addvalue));
 
     if (addvalue < 0.0f)
     {
-        if (curValue > integerValue || power == Powers::POWER_ECLIPSE)
+        if (curValue > integerValue)
         {
             curValue -= integerValue;
             m_powerFraction[powerIndex] = addvalue + integerValue;
@@ -3611,7 +3598,7 @@ void Player::Regenerate(Powers power)
     {
         curValue += integerValue;
 
-        if (curValue > maxValue && power != POWER_ECLIPSE)
+        if (curValue > maxValue)
         {
             curValue = maxValue;
             m_powerFraction[powerIndex] = 0;

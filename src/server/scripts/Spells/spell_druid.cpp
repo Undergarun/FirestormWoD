@@ -1772,22 +1772,31 @@ public:
 };
 
 
-enum EclipseSpells
+namespace Eclipse
 {
-    /// Eclipse system
-    SPELL_DRUID_ECLIPSE_SOUND_SOLAR      = 65632,
-    SPELL_DRUID_ECLIPSE                  = 79577,
-    SPELL_DRUID_ECLIPSE_SOUND_LUNAR      = 93333,
-    SPELL_DRUID_ECLIPSE_VISUAL_SOLAR     = 93430,
-    SPELL_DRUID_ECLIPSE_VISUAL_LUNAR     = 93431,
-    SPELL_DRUID_ECLIPSE_LUNAR_PEAK       = 171743,
-    SPELL_DRUID_ECLIPSE_SOLAR_PEAK       = 171744,
-    SPELL_DRUID_ECLIPSE_SUNFIRE          = 163119,  ///< Trigger to override moonfire with sunfire in solar cycle
+    uint32 const g_BalanceCycleTime = 40000;
+    float  const g_ElipseMaxValue   = 105.0f;
 
-    /// Related spells to Eclipse system
-    SPELL_DRUID_CELESTIAL_ALIGNMENT      = 112071
-};
+    enum State
+    {
+        None,
+        Lunar,
+        Solar,
+    };
 
+    enum Spell
+    {
+        SoundSolar         = 65632,
+        Eclipse            = 79577,
+        SoundLunar         = 93333,
+        VisualSolar        = 93430,
+        VisualLunar        = 93431,
+        LunarPeak          = 171743,
+        SolarPeak          = 171744,
+        Sunfire            = 163119,    ///< Trigger to override moonfire with sunfire in solar cycle
+        CelestialAlignment = 112071
+    };
+}
 
 /// Eclipse power handling
 class spell_dru_eclipse : public PlayerScript
@@ -1797,19 +1806,13 @@ class spell_dru_eclipse : public PlayerScript
         {
             m_EclipseCycleActive    = false;
             m_EclipseFinishingCount = -1;
-            m_LastEclipseState      = EclipseState::None;
+            m_LastEclipseState      = Eclipse::State::None;
 
             m_LastEclipseCheck  = 0;
             m_BalanceTime       = 0;
             m_LastEclipseAmount = 0.0f;
+            m_ClientUpdateTimer = 2000;
         }
-
-        enum EclipseState
-        {
-            None,
-            Lunar,
-            Solar,
-        };
 
         bool m_EclipseCycleActive;      ///< Eclipse regen cycle is active ?
         uint8 m_LastEclipseState;       ///< Last eclipse state (reach when amount of eclipse power is >= 100)
@@ -1818,12 +1821,12 @@ class spell_dru_eclipse : public PlayerScript
         float  m_LastEclipseAmount;     ///< Amount of eclipse power at last tick
         uint64 m_LastEclipseCheck;      ///< Timestamp at last tick
         uint64 m_BalanceTime;           ///< Time in millisecondes since the current eclipse cycle is started
+        uint32 m_ClientUpdateTimer;     ///< Timer in millisecondes before sending update of eclipse timer to client
 
         /// This function is internal to script, not a override
-        bool CanUseEclipse(Player const* p_Player, Powers const p_Power) const
+        bool CanUseEclipse(Player const* p_Player) const
         {
-            if (p_Power != Powers::POWER_ECLIPSE
-                || p_Player == nullptr
+            if (p_Player == nullptr
                 || p_Player->getClass() != Classes::CLASS_DRUID
                 || p_Player->GetSpecializationId(p_Player->GetActiveSpec()) != SpecIndex::SPEC_DRUID_BALANCE
                 || (p_Player->GetShapeshiftForm() != ShapeshiftForm::FORM_MOONKIN && p_Player->GetShapeshiftForm() != ShapeshiftForm::FORM_NONE))
@@ -1835,7 +1838,7 @@ class spell_dru_eclipse : public PlayerScript
         /// Override
         void OnEnterInCombat(Player* p_Player)
         {
-            if (!CanUseEclipse(p_Player, Powers::POWER_ECLIPSE))
+            if (!CanUseEclipse(p_Player))
                 return;
 
             m_EclipseFinishingCount = -1;
@@ -1845,7 +1848,8 @@ class spell_dru_eclipse : public PlayerScript
 
             m_BalanceTime       = 0;
             m_LastEclipseAmount = 0;
-            m_LastEclipseState  = EclipseState::None;
+            m_LastEclipseState  = Eclipse::State::None;
+            m_ClientUpdateTimer = 2000;
 
             m_EclipseCycleActive    = true;
             m_EclipseFinishingCount = -1;
@@ -1856,38 +1860,37 @@ class spell_dru_eclipse : public PlayerScript
         /// Override
         void OnLeaveCombat(Player* p_Player)
         {
-            if (!CanUseEclipse(p_Player, Powers::POWER_ECLIPSE))
+            if (!CanUseEclipse(p_Player))
                 return;
 
-            m_EclipseFinishingCount = m_LastEclipseState == EclipseState::None ? 1 : 2;
+            m_EclipseFinishingCount = m_LastEclipseState == Eclipse::State::None ? 1 : 2;
         }
 
         /// Handle regeneration of eclipse
         /// Call at each update tick (100 ms)
-        void OnRegenPower(Player * p_Player, Powers const p_Power, float& p_AddValue, bool& p_PreventDefault)
+        void OnUpdate(Player * p_Player, uint32 p_Diff)
         {
-            if (!CanUseEclipse(p_Player, p_Power) || !m_EclipseCycleActive)
+            if (!CanUseEclipse(p_Player) || !m_EclipseCycleActive)
                 return;
-
-            p_PreventDefault = true;
 
             uint64 l_ActualTime = 0;
             ACE_OS::gettimeofday().msec(l_ActualTime);
 
-            /// Celestial alignment interrupt eclipse regen
-            if (p_Player->HasAura(EclipseSpells::SPELL_DRUID_CELESTIAL_ALIGNMENT))
-            {
-                m_LastEclipseCheck = l_ActualTime;
-                p_AddValue = 0.0f;
+            uint32 l_PowerIndex = p_Player->GetPowerIndexByClass(Powers::POWER_ECLIPSE, p_Player->getClass());
+            if (l_PowerIndex == MAX_POWERS)
                 return;
-            }
 
-            m_BalanceTime      += l_ActualTime - m_LastEclipseCheck;
+            float l_FloatMultiplier = (1.0f + p_Player->GetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + l_PowerIndex));
+
+            /// Even if we have buff to speedup the cycle, it's freeze because of Celestial Alignment
+            if (p_Player->HasAura(Eclipse::Spell::CelestialAlignment))
+                l_FloatMultiplier = 0.0f;
+
+            m_BalanceTime += (l_ActualTime - m_LastEclipseCheck) * l_FloatMultiplier;
             m_LastEclipseCheck = l_ActualTime;
 
             /// Eclipse regen isn't linear, it's a elipse ...
-            double l_EclipseAmount = 105.0f * std::sin(2 * M_PI * m_BalanceTime / 40000);
-            float  l_Diff = l_EclipseAmount - m_LastEclipseAmount;
+            double l_EclipseAmount = Eclipse::g_ElipseMaxValue * std::sin(2 * M_PI * m_BalanceTime / Eclipse::g_BalanceCycleTime);
 
             if (m_EclipseFinishingCount != -1)
             {
@@ -1899,23 +1902,34 @@ class spell_dru_eclipse : public PlayerScript
                     {
                         m_EclipseFinishingCount = -1;
                         m_EclipseCycleActive    = false;
+
+                        m_BalanceTime = 0;
                     }
                 }
             }
 
             m_LastEclipseAmount = l_EclipseAmount;
 
-            p_AddValue = (l_Diff * p_Player->GetPowerCoeff(Powers::POWER_ECLIPSE));
+            /// We need to send periodic update of server-side balance timer to be sure we are sync with the client timer.
+            bool l_ClientUpdate = false;
+            if (m_ClientUpdateTimer <= p_Diff)
+            {
+                l_ClientUpdate = true;
+                m_ClientUpdateTimer = 2000;
+            }
+            else
+                m_ClientUpdateTimer -= p_Diff;
 
-            /// float l_NewValue = (p_AddValue + p_Player->GetPower(Powers::POWER_ECLIPSE)) / p_Player->GetPowerCoeff(Powers::POWER_ECLIPSE);
+            p_Player->SetPower(Powers::POWER_ECLIPSE, m_BalanceTime % Eclipse::g_BalanceCycleTime, !l_ClientUpdate);
+
             /// Very usefull to debug eclipse and see server-side values
             /// Maybe we need to add a command to have it ?
-            //ChatHandler(p_Player).PSendSysMessage("Eclipse : %f", l_EclipseAmount);
+            //ChatHandler(p_Player).PSendSysMessage("Eclipse : %f balance time : %u", l_EclipseAmount, m_BalanceTime % Eclipse::g_BalanceCycleTime);
         }
 
         void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool /*p_Regen*/)
         {
-            if (!CanUseEclipse(p_Player, p_Power))
+            if (!CanUseEclipse(p_Player))
                 return;
 
             if (!m_EclipseCycleActive)
@@ -1924,44 +1938,43 @@ class spell_dru_eclipse : public PlayerScript
                 return;
             }
 
-            int32 l_Power = p_OldValue;
-            uint8 l_Coeff = p_Player->GetPowerCoeff(Powers::POWER_ECLIPSE);
+            double l_EclipseAmount = Eclipse::g_ElipseMaxValue *std::sin(2 * M_PI * p_Player->GetPower(Powers::POWER_ECLIPSE) / Eclipse::g_BalanceCycleTime);
 
             /// Overriding of moonfire with sunfire
             {
-                if (l_Power < 0 && !p_Player->HasAura(SPELL_DRUID_ECLIPSE_SUNFIRE))
-                    p_Player->CastSpell(p_Player, SPELL_DRUID_ECLIPSE_SUNFIRE, true);
-                else if (l_Power >= 0 && p_Player->HasAura(SPELL_DRUID_ECLIPSE_SUNFIRE))
-                    p_Player->RemoveAurasDueToSpell(SPELL_DRUID_ECLIPSE_SUNFIRE);
+                if (l_EclipseAmount < 0 && !p_Player->HasAura(Eclipse::Spell::Sunfire))
+                    p_Player->CastSpell(p_Player, Eclipse::Spell::Sunfire, true);
+                else if (l_EclipseAmount >= 0 && p_Player->HasAura(Eclipse::Spell::Sunfire))
+                    p_Player->RemoveAurasDueToSpell(Eclipse::Spell::Sunfire);
             }
 
             /// Visual effect (don't work ATM, need sniff / research)
-            {
-                if (l_Power <= (-90 * l_Coeff) && !p_Player->HasAura(SPELL_DRUID_ECLIPSE_VISUAL_SOLAR)) ///< Solar avantage at -90
+            /*{
+                if (l_EclipseAmount >= 90  && !p_Player->HasAura(SPELL_DRUID_ECLIPSE_VISUAL_SOLAR)) ///< Solar avantage at -90
                     p_Player->CastSpell(p_Player, SPELL_DRUID_ECLIPSE_VISUAL_SOLAR, true);
-                else if (l_Power >= (90 * l_Coeff) && !p_Player->HasAura(SPELL_DRUID_ECLIPSE_VISUAL_LUNAR)) ///< Lunar avantage at 90
+                else if (l_EclipseAmount <= 90 && !p_Player->HasAura(SPELL_DRUID_ECLIPSE_VISUAL_LUNAR)) ///< Lunar avantage at 90
                     p_Player->CastSpell(p_Player, SPELL_DRUID_ECLIPSE_VISUAL_LUNAR, true);
 
-                if (l_Power == 0)
+                if (l_EclipseAmount == 0)
                 {
                     if (m_LastEclipseState == EclipseState::Solar || m_LastEclipseState == EclipseState::Lunar)
                         p_Player->CastSpell(p_Player, SPELL_DRUID_ECLIPSE_SOUND_LUNAR, true);
                     else
                         p_Player->CastSpell(p_Player, SPELL_DRUID_ECLIPSE_SOUND_SOLAR, true);
                 }
-            }
+            }*/
 
             /// Peak buffs
             {
-                if (l_Power <= (-100 * l_Coeff) && m_LastEclipseState != EclipseState::Solar)  ///< Solar Eclipse at -100
+                if (l_EclipseAmount <= -100 && m_LastEclipseState != Eclipse::State::Solar)  ///< Solar Eclipse at -100
                 {
-                    m_LastEclipseState = EclipseState::Solar;
-                    p_Player->CastSpell(p_Player, SPELL_DRUID_ECLIPSE_SOLAR_PEAK, true);
+                    m_LastEclipseState = Eclipse::State::Solar;
+                    p_Player->CastSpell(p_Player, Eclipse::Spell::SolarPeak, true);
                 }
-                else if (l_Power >= (100 * l_Coeff) && m_LastEclipseState != EclipseState::Lunar)  ///< Lunar Eclipse at 100
+                else if (l_EclipseAmount >= 100 && m_LastEclipseState != Eclipse::State::Lunar)  ///< Lunar Eclipse at 100
                 {
-                    m_LastEclipseState = EclipseState::Lunar;
-                    p_Player->CastSpell(p_Player, SPELL_DRUID_ECLIPSE_LUNAR_PEAK, true);
+                    m_LastEclipseState = Eclipse::State::Lunar;
+                    p_Player->CastSpell(p_Player, Eclipse::Spell::LunarPeak, true);
                 }
             }
        }
@@ -1984,16 +1997,16 @@ class spell_dru_eclipse_mod_damage : public SpellScriptLoader
                 if (!l_Caster)
                     return;
 
-                if (AuraEffectPtr l_Aura = l_Caster->GetAuraEffect(SPELL_DRUID_ECLIPSE, EFFECT_0))
+                if (AuraEffectPtr l_Aura = l_Caster->GetAuraEffect(Eclipse::Spell::Eclipse, EFFECT_0))
                 {
                     float l_BonusSolarSpells = 0.0f;
                     float l_BonusLunarSpells = 0.0f;
                     float l_DamageModPCT = l_Aura->GetAmount();
 
-                    int32 l_Eclipse = l_Caster->GetPower(Powers::POWER_ECLIPSE) / l_Caster->GetPowerCoeff(Powers::POWER_ECLIPSE);
+                    float l_Eclipse = Eclipse::g_ElipseMaxValue * std::sin(2 * M_PI * l_Caster->GetPower(Powers::POWER_ECLIPSE) / Eclipse::g_BalanceCycleTime);
 
                     /// Eclipse amount egal 0, each school have the same bonus
-                    if (l_Eclipse == 0)
+                    if ((int)l_Eclipse == 0)
                     {
                         l_BonusLunarSpells = l_DamageModPCT / 2.0f;
                         l_BonusSolarSpells = l_DamageModPCT / 2.0f;
@@ -2012,7 +2025,7 @@ class spell_dru_eclipse_mod_damage : public SpellScriptLoader
                     }
 
                     /// Celestial alignment : All Lunar and Solar spells benefit from your maximum Eclipse bonus.
-                    if (l_Caster->HasAura(EclipseSpells::SPELL_DRUID_CELESTIAL_ALIGNMENT))
+                    if (l_Caster->HasAura(Eclipse::Spell::CelestialAlignment))
                     {
                         l_BonusSolarSpells = l_DamageModPCT;
                         l_BonusLunarSpells = l_DamageModPCT;
@@ -2035,60 +2048,6 @@ class spell_dru_eclipse_mod_damage : public SpellScriptLoader
         {
             return new spell_dru_eclipse_mod_damage_SpellScript();
         }
-};
-
-/// Celestial Alignment - 112071
-class spell_dru_celestial_alignment : public SpellScriptLoader
-{
-public:
-    spell_dru_celestial_alignment() : SpellScriptLoader("spell_dru_celestial_alignment") { }
-
-    class spell_dru_celestial_alignment_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_dru_celestial_alignment_AuraScript);
-
-        void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            Player* l_Target = GetTarget()->ToPlayer();
-            if (!l_Target)
-                return;
-
-            uint32 l_PowerIndex = l_Target->GetPowerIndexByClass(Powers::POWER_ECLIPSE, l_Target->getClass());
-            if (l_PowerIndex == MAX_POWERS)
-                return;
-
-            /// Disable regen client-side
-            l_Target->SetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + l_PowerIndex, -1.0f);
-
-            /// Force update of updatefield eclipse amount client-side
-            l_Target->SetPower(Powers::POWER_ECLIPSE, l_Target->GetPower(Powers::POWER_ECLIPSE));
-        }
-
-        void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            Player* l_Target = GetTarget()->ToPlayer();
-            if (!l_Target)
-                return;
-
-            uint32 l_PowerIndex = l_Target->GetPowerIndexByClass(Powers::POWER_ECLIPSE, l_Target->getClass());
-            if (l_PowerIndex == MAX_POWERS)
-                return;
-
-            /// Re-enable regen client-side
-            l_Target->SetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + l_PowerIndex, 0.0f);
-        }
-
-        void Register()
-        {
-            OnEffectApply += AuraEffectApplyFn(spell_dru_celestial_alignment_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            OnEffectRemove += AuraEffectRemoveFn(spell_dru_celestial_alignment_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_dru_celestial_alignment_AuraScript();
-    }
 };
 
 enum MoonfireSpells
@@ -2125,7 +2084,7 @@ public:
                     l_Caster->CastSpell(l_Target, SPELL_DRUID_MOONFIRE_DAMAGE);
 
                     /// Celestial Alignment : causes your Moonfire and Sunfire spells to also apply the other's damage over time effect.
-                    if (l_Caster->HasAura(EclipseSpells::SPELL_DRUID_CELESTIAL_ALIGNMENT))
+                    if (l_Caster->HasAura(Eclipse::Spell::CelestialAlignment))
                         l_Caster->AddAura(Sunfire::SpellDamage, l_Target);
                 }
             }
@@ -2164,7 +2123,7 @@ public:
                     l_Caster->CastSpell(l_Target, Sunfire::SpellDamage);
 
                     /// Celestial Alignment : causes your Moonfire and Sunfire spells to also apply the other's damage over time effect.
-                    if (l_Caster->HasAura(EclipseSpells::SPELL_DRUID_CELESTIAL_ALIGNMENT))
+                    if (l_Caster->HasAura(Eclipse::Spell::CelestialAlignment))
                         l_Caster->AddAura(MoonfireSpells::SPELL_DRUID_MOONFIRE_DAMAGE, l_Target);
                 }
             }
@@ -2197,7 +2156,7 @@ public:
             if (Player* l_Player = GetCaster()->ToPlayer())
             {
                 if (l_Player->HasAura(SPELL_DRUID_DREAM_OF_CENARIUS_TALENT) && l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_DRUID_RESTORATION &&
-                    (l_Player->HasAura(SPELL_DRUID_ECLIPSE_LUNAR_PEAK) || l_Player->HasAura(SPELL_DRUID_ECLIPSE_SOLAR_PEAK)))
+                    (l_Player->HasAura(Eclipse::Spell::LunarPeak) || l_Player->HasAura(Eclipse::Spell::SolarPeak)))
                 {
                     if (Unit* l_Target = l_Player->GetNextRandomRaidMember(15.0f))
                         l_Player->CastSpell(l_Target, SPELL_DRUID_DREAM_OF_CENARIUS_RESTO, true);
@@ -3239,7 +3198,6 @@ void AddSC_druid_spell_scripts()
     new spell_dru_on_desactivate_cat_form();
     new spell_dru_eclipse();
     new spell_dru_eclipse_mod_damage();
-    new spell_dru_celestial_alignment();
     new spell_dru_moonfire();
     new spell_dru_moonfire_sunfire_damage();
     new spell_dru_t10_restoration_4p_bonus();

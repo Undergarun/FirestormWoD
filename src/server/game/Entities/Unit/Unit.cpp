@@ -16009,6 +16009,14 @@ int32 Unit::GetPowerCoeff(Powers p_PowerType) const
     return 1;
 }
 
+namespace EclipsePower
+{
+    enum
+    {
+        CycleDuration = 40000
+    };
+}
+
 void Unit::SetPower(Powers p_PowerType, int32 p_PowerValue, bool p_Regen)
 {
     uint32 l_PowerIndex = GetPowerIndexByClass(p_PowerType, getClass());
@@ -16020,7 +16028,7 @@ void Unit::SetPower(Powers p_PowerType, int32 p_PowerValue, bool p_Regen)
 
     /// Custom case for EclipsePower, cannot be set in GetMaxPower
     if (p_PowerType == Powers::POWER_ECLIPSE)
-        l_MaxPower *= GetPowerCoeff(Powers::POWER_ECLIPSE);
+        l_MaxPower = EclipsePower::CycleDuration;
 
     if (p_PowerValue > l_MaxPower)
         p_PowerValue = l_MaxPower;

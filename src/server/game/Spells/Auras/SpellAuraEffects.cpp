@@ -5059,7 +5059,7 @@ void AuraEffect::HandleAuraModExpertise(AuraApplication const* aurApp, uint8 mod
 /********************************/
 /***      HEAL & ENERGIZE     ***/
 /********************************/
-void AuraEffect::HandleModPowerRegen(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
+void AuraEffect::HandleModPowerRegen(AuraApplication const* aurApp, uint8 mode, bool apply) const
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
@@ -5082,6 +5082,36 @@ void AuraEffect::HandleModPowerRegen(AuraApplication const* aurApp, uint8 mode, 
         case POWER_FOCUS:
             l_Player->UpdateFocusRegen();
             break;
+        case POWER_ECLIPSE:
+        {
+            float l_RegenFlatMultiplier = 0.0f;
+            Unit::AuraEffectList const& regenAura = l_Player->GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
+            for (auto l_AuraEffect : regenAura)
+            {
+                if (l_AuraEffect->GetMiscValue() != GetMiscValue())
+                    continue;
+
+                if (!apply && l_AuraEffect == shared_from_this())
+                    continue;
+
+                l_RegenFlatMultiplier += l_AuraEffect->GetAmount() / 100.0f;
+            }
+
+            uint32 l_PowerIndex = l_Player->GetPowerIndexByClass(GetMiscValue(), l_Player->getClass());
+            if (l_PowerIndex != MAX_POWERS)
+            {
+                /// HACKFIX
+                /// Even if we have buff to speedup the cycle, it's freeze because of Celestial Alignment
+                if (l_Player->HasAura(112071) && !(!apply && GetId() == 112071))
+                    l_RegenFlatMultiplier = -1.0f;
+
+                l_Player->SetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + l_PowerIndex, l_RegenFlatMultiplier);
+
+                /// Force send of update to client
+                l_Player->SetPower(Powers::POWER_ECLIPSE, l_Player->GetPower(Powers::POWER_ECLIPSE));
+            }
+            break;
+        }
         default:
             // other powers are not immediate effects - implemented in Player::Regenerate, Creature::Regenerate
             break;
@@ -5093,7 +5123,7 @@ void AuraEffect::HandleModPowerRegenPCT(AuraApplication const* aurApp, uint8 mod
     HandleModPowerRegen(aurApp, mode, apply);
 }
 
-void AuraEffect::HandleModManaRegen(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
+void AuraEffect::HandleModManaRegen(AuraApplication const* aurApp, uint8 mode, bool apply) const
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
