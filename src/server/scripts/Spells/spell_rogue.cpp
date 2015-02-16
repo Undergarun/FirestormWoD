@@ -849,7 +849,7 @@ class spell_rog_envenom: public SpellScriptLoader
                     {
                         float l_Ap = l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
 
-                        l_Damage += int32(1.05 * 1 * l_Ap * 0.306 * l_ComboPoint + (l_ComboPoint * GetSpellInfo()->Effects[EFFECT_0].BasePoints));
+                        l_Damage += int32(1.05 * l_Ap * 0.306 * l_ComboPoint + (l_ComboPoint * GetSpellInfo()->Effects[EFFECT_0].BasePoints));
 
                         /// Eviscerate and Envenom Bonus Damage (item set effect)
                         if (l_Caster->HasAura(ROGUE_SPELL_EVISCERATE_ENVENOM_BONUS_DAMAGE))
@@ -857,6 +857,9 @@ class spell_rog_envenom: public SpellScriptLoader
                             SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(ROGUE_SPELL_EVISCERATE_ENVENOM_BONUS_DAMAGE);
                             l_Damage += l_ComboPoint * l_SpellInfo->Effects[EFFECT_0].BasePoints;
                         }
+
+                        if (AuraPtr l_SliceAndDice = l_Caster->GetAura(ROGUE_SPELL_SLICE_AND_DICE))
+                            l_SliceAndDice->RefreshDuration();
                     }
 
                     SetHitDamage(l_Damage);
