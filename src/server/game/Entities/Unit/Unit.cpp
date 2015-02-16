@@ -9322,6 +9322,19 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
             if (procSpell->Id != 12294 && !roll_chance_i(50))
                 return false;
             break;
+        case 14190: ///< Seal Fate
+        {
+            if (GetTypeId() != TypeID::TYPEID_PLAYER)
+                return false;
+
+            if (!(procEx & PROC_EX_CRITICAL_HIT))
+                return false;
+
+            if (!procSpell || procSpell->HasEffect(SPELL_EFFECT_ADD_COMBO_POINTS))
+                return false;
+
+            break;
+        }
         case 104428:// Elemental Force (DND)
         {
             if (!IsValidAttackTarget(victim))
@@ -10099,7 +10112,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
             break;
         }
         /// Finish movies that add combo
-        case 14189: ///< Seal Fate (Nether blade set)
         case 139546:///< Ruthlessness
         {
             if (!victim || victim == this)
