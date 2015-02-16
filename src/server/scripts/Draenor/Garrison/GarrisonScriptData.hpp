@@ -94,7 +94,8 @@ namespace MS { namespace Garrison
         NPC_TEXT_SHELLY_HAMBY_TEXT_QUEST             = 83505,
         NPC_TEXT_LADY_SENA                           = 82232,
         NPC_TEXT_SERGENT_GRIMJAW                     = 84128,
-        NPC_TEXT_SENIOR_PEON_II                      = 88704
+        NPC_TEXT_SENIOR_PEON_II                      = 88704,
+        ThimothyLeens                                = 87264,
     };
 
     /// Creature text index

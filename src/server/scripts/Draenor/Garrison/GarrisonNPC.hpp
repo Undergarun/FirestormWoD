@@ -34,6 +34,9 @@ namespace MS { namespace Garrison
             /// Show shipment crafter UI
             void SendShipmentCrafterUI(Player * p_Player);
 
+            /// Get building ID
+            uint32 GetBuildingID();
+
         public:
             /// Set UInt32 value
             /// @p_ID    : Value ID
@@ -637,6 +640,38 @@ namespace MS { namespace Garrison
                 void DoNextSequenceAction();
 
                 uint8 m_SequencePosition;
+            };
+
+    };
+
+    /// 77730 - Timothy Leens
+    class npc_TimothyLeens : public CreatureScript
+    {
+        public:
+            /// Constructor
+            npc_TimothyLeens();
+
+            /// Called when a player opens a gossip dialog with the GameObject.
+            /// @p_Player     : Source player instance
+            /// @p_Creature   : Target GameObject instance
+            virtual bool OnGossipHello(Player * p_Player, Creature * p_Creature) override;
+            /// Called when a player selects a gossip item in the creature's gossip menu.
+            /// @p_Player   : Source player instance
+            /// @p_Creature : Target creature instance
+            /// @p_Sender   : Sender menu
+            /// @p_Action   : Action
+            virtual bool OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action) override;
+
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            CreatureAI * GetAI(Creature * p_Creature) const;
+
+            /// Creature AI
+            struct npc_TimothyLeensAI : public GarrisonNPCAI
+            {
+                /// Constructor
+                npc_TimothyLeensAI(Creature * p_Creature);
+
             };
 
     };

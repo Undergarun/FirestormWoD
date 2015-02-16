@@ -66,6 +66,15 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
+    /// Get building ID
+    uint32 GarrisonNPCAI::GetBuildingID()
+    {
+        return m_BuildingID;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
     /// Set UInt32 value
     /// @p_ID    : Value ID
     /// @p_Value : Value
@@ -322,6 +331,7 @@ void AddSC_Garrison_NPC()
     new MS::Garrison::npc_JonathanStephens;
     new MS::Garrison::npc_AuriaIrondreamer;
     new MS::Garrison::npc_YuliaSamras;
+    new MS::Garrison::npc_TimothyLeens;
 
     /// Horde
     new MS::Garrison::npc_FrostwallPeon("npc_FrostwallPeon_Dynamic");
