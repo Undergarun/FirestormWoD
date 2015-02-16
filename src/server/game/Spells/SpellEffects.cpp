@@ -5224,19 +5224,6 @@ void Spell::EffectAddComboPoints(SpellEffIndex /*effIndex*/)
     if (damage <= 0)
         return;
 
-    switch (m_spellInfo->Id)
-    {
-    case 51723: // Fan of Knives
-        if (!m_caster->ToPlayer())
-            break;
-
-        if (m_caster->ToPlayer()->GetSelectedUnit() != unitTarget)
-            return;
-        break;
-    default:
-        break;
-    }
-
     m_caster->m_movedPlayer->AddComboPoints(damage, this);
 }
 

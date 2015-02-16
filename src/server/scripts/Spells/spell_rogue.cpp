@@ -1721,32 +1721,32 @@ public:
     }
 };
 
-// Fan of Knives - 51723
+/// Fan of Knives - 51723
 class spell_rog_fan_of_knives: public SpellScriptLoader
 {
-public:
-    spell_rog_fan_of_knives() : SpellScriptLoader("spell_rog_fan_of_knives") { }
+    public:
+        spell_rog_fan_of_knives() : SpellScriptLoader("spell_rog_fan_of_knives") { }
 
-    class spell_rog_fan_of_knives_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_rog_fan_of_knives_SpellScript);
-
-        void HandleAfterHit()
+        class spell_rog_fan_of_knives_SpellScript : public SpellScript
         {
-            if (Player* l_Player = GetCaster()->ToPlayer())
-                l_Player->EnergizeBySpell(l_Player, GetSpellInfo()->Id, l_Player->GetPower(POWER_COMBO_POINT) + 1, POWER_COMBO_POINT);
-        }
+            PrepareSpellScript(spell_rog_fan_of_knives_SpellScript);
 
-        void Register()
+            void HandleAfterCast()
+            {
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                    l_Player->AddComboPoints(GetSpellInfo()->Effects[EFFECT_1].BasePoints, GetSpell());
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_rog_fan_of_knives_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            AfterHit += SpellHitFn(spell_rog_fan_of_knives_SpellScript::HandleAfterHit);
+            return new spell_rog_fan_of_knives_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_rog_fan_of_knives_SpellScript();
-    }
 };
 
 // Call by Kidney Shot 408 - Eviscerate 2098 - Recuperate 73651 - Slice and Dice 5171 - Deadly Throw 26679 - Rupture 1943
