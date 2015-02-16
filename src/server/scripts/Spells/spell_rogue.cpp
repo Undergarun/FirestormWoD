@@ -93,6 +93,45 @@ enum RogueSpells
     ROGUE_SPELL_STEALTH_SUBTERFUGE              = 115191
 };
 
+/// Vendetta - 79140
+class spell_rog_enhanced_vendetta : public SpellScriptLoader
+{
+    public:
+        spell_rog_enhanced_vendetta() : SpellScriptLoader("spell_rog_enhanced_vendetta") { }
+
+        class spell_rog_enhanced_vendetta_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_rog_enhanced_vendetta_SpellScript);
+
+            enum eSpells
+            {
+                EnhancedVendetta     = 157514,
+                EnhancedVendettaBuff = 158108
+            };
+
+            void HandleOnHit(SpellEffIndex)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (!l_Caster->HasAura(eSpells::EnhancedVendetta))
+                        return;
+
+                    l_Caster->CastSpell(l_Caster, eSpells::EnhancedVendettaBuff, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_rog_enhanced_vendetta_SpellScript::HandleOnHit, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_rog_enhanced_vendetta_SpellScript();
+        }
+};
+
 // Killing Spree - 51690
 class spell_rog_killing_spree: public SpellScriptLoader
 {
@@ -1972,6 +2011,7 @@ public:
 
 void AddSC_rogue_spell_scripts()
 {
+    new spell_rog_enhanced_vendetta();
     new spell_rog_subterfuge();
     new spell_rog_deadly_throw();
     new spell_rog_evicerate();
