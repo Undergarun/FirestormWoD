@@ -835,6 +835,25 @@ void Player::UpdateMasteryPercentage()
     // 77494 - Mastery : Nature's Guardian - Update Armor
     if (HasAura(77494))
         UpdateArmor();
+
+    /// Update some mastery spells
+    AuraApplicationMap& l_AppliedAuras = GetAppliedAuras();
+    for (auto l_Iter : l_AppliedAuras)
+    {
+        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_Iter.first);
+        if (l_SpellInfo != nullptr && l_SpellInfo->HasAttribute(SpellAttr8::SPELL_ATTR8_MASTERY_SPECIALIZATION))
+        {
+            AuraPtr l_Aura = l_Iter.second->GetBase();
+            for (uint8 l_I = 0; l_I < MAX_SPELL_EFFECTS; ++l_I)
+            {
+                if (AuraEffectPtr l_AurEff = l_Aura->GetEffect(l_I))
+                {
+                    l_AurEff->SetCanBeRecalculated(true);
+                    l_AurEff->ChangeAmount(l_AurEff->CalculateAmount(this), true, true);
+                }
+            }
+        }
+    }
 }
 
 void Player::UpdatePvPPowerPercentage()

@@ -11718,13 +11718,6 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         DoneTotal += CalculatePct(pdamage, Mastery);
     }
 
-    // 76803 - Mastery : Potent Poisons
-    if (GetTypeId() == TYPEID_PLAYER && spellProto && (spellProto->Id == 2818 || spellProto->Id == 8680 || spellProto->Id == 113780 || spellProto->Id == 32645) && pdamage != 0 && HasAura(76803))
-    {
-        float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 3.5f;
-        DoneTotal += CalculatePct(pdamage, Mastery);
-    }
-
     // 77219 - Mastery : Master Demonologist
     // Bonus damage while using Metamorphosis
     if (GetTypeId() == TYPEID_PLAYER && HasAura(77219))
