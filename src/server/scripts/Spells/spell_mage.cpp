@@ -115,7 +115,8 @@ enum MageSpells
     SPELL_MAGE_RAPID_TELEPORTATION               = 46989,
     SPELL_MAGE_RAPID_TELEPORTATION_AURA          = 89749,
     SPELL_MAGE_RING_OF_FROST_IMMUNATE            = 91264,
-    SPELL_MAGE_LIVING_BOMB                       = 44457
+    SPELL_MAGE_LIVING_BOMB                       = 44457,
+    SPELL_MAGE_CHILLED                           = 12486
 };
 
 /// Arcane Orb - 153626
@@ -2273,10 +2274,26 @@ class spell_mage_blizzard : public SpellScriptLoader
         {
             PrepareSpellScript(spell_mage_blizzard_SpellScript);
 
+            void HandleOnHit()
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (l_Target->GetGUID() == l_Caster->GetGUID())
+                    return;
+
+                /// Slowing enemies by 50%
+                l_Caster->CastSpell(l_Target, SPELL_MAGE_CHILLED, true);
+            }
+
             void HandleAfterHit()
             {
                 Player* l_Player = GetCaster()->ToPlayer();
                 SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_IMPROVED_BLIZZARD);
+
                 if (l_Player == nullptr || l_SpellInfo == nullptr)
                     return;
 
@@ -2289,6 +2306,7 @@ class spell_mage_blizzard : public SpellScriptLoader
 
             void Register()
             {
+                OnHit += SpellHitFn(spell_mage_blizzard_SpellScript::HandleOnHit);
                 AfterHit += SpellHitFn(spell_mage_blizzard_SpellScript::HandleAfterHit);
             }
         };
