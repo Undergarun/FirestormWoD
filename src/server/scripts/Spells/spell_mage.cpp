@@ -893,7 +893,12 @@ class spell_mage_frostbolt: public SpellScriptLoader
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    if (l_Caster->HasAura(SPELL_MAGE_BRAIN_FREEZE) && roll_chance_i(sSpellMgr->GetSpellInfo(SPELL_MAGE_BRAIN_FREEZE)->Effects[EFFECT_0].BasePoints))
+                    const SpellInfo *l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_BRAIN_FREEZE);
+
+                    if (l_SpellInfo == nullptr)
+                        return;
+
+                    if (l_Caster->HasAura(SPELL_MAGE_BRAIN_FREEZE) && roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
                         l_Caster->CastSpell(l_Caster, SPELL_MAGE_BRAIN_FREEZE_TRIGGERED, true);
                     
                     if (l_Caster->HasAura(SPELL_MAGE_ENHANCED_FROSTBOLT) && l_Caster->getLevel() >= 92 && !l_Caster->HasAura(SPELL_MAGE_ENHANCED_FROSTBOLT_PROC))
