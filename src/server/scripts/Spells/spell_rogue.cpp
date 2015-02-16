@@ -1750,75 +1750,75 @@ class spell_rog_fan_of_knives: public SpellScriptLoader
         }
 };
 
-// Call by Kidney Shot 408 - Eviscerate 2098 - Recuperate 73651 - Slice and Dice 5171 - Deadly Throw 26679 - Rupture 1943
-// Relentless Strikes - 58423
-class spell_rog_retenless_strikes: public SpellScriptLoader
+/// Call by Kidney Shot 408 - Eviscerate 2098 - Recuperate 73651 - Slice and Dice 5171 - Deadly Throw 26679 - Rupture 1943
+/// Relentless Strikes - 58423
+class spell_rog_relentless_strikes : public SpellScriptLoader
 {
-public:
-    spell_rog_retenless_strikes() : SpellScriptLoader("spell_rog_retenless_strikes") { }
+    public:
+        spell_rog_relentless_strikes() : SpellScriptLoader("spell_rog_relentless_strikes") { }
 
-    class spell_rog_retenless_strikes_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_rog_retenless_strikes_SpellScript);
-
-        void HandleOnHit()
+        class spell_rog_relentless_strikes_SpellScript : public SpellScript
         {
-            if (Player* l_Player = GetCaster()->ToPlayer())
+            PrepareSpellScript(spell_rog_relentless_strikes_SpellScript);
+
+            void HandleOnHit()
             {
-                if (l_Player->HasAura(ROGUE_SPELL_RELTENTLESS_STRIKES_AURA))
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (roll_chance_i(20 * l_Player->GetPower(POWER_COMBO_POINT)))
-                        l_Player->CastSpell(l_Player, ROGUE_SPELL_RELTENTLESS_STRIKES_PROC, true);
-                }
-                if (l_Player->HasAura(ROGUE_SPELL_RUTHLESSNESS))
-                {
-                    if (roll_chance_i(20 * l_Player->GetPower(POWER_COMBO_POINT)))
+                    if (l_Caster->HasAura(ROGUE_SPELL_RELTENTLESS_STRIKES_AURA))
                     {
-                        l_Player->CastSpell(l_Player, ROGUE_SPELL_COMBO_POINT_DELAYED, true);
-                        l_Player->CastSpell(l_Player, ROGUE_SPELL_RELTENTLESS_STRIKES_PROC, true);
+                        if (roll_chance_i(20 * l_Caster->GetPower(POWER_COMBO_POINT)))
+                            l_Caster->CastSpell(l_Caster, ROGUE_SPELL_RELTENTLESS_STRIKES_PROC, true);
+                    }
+                    if (l_Caster->HasAura(ROGUE_SPELL_RUTHLESSNESS))
+                    {
+                        if (roll_chance_i(20 * l_Caster->GetPower(POWER_COMBO_POINT)))
+                        {
+                            l_Caster->CastSpell(l_Caster, ROGUE_SPELL_COMBO_POINT_DELAYED, true);
+                            l_Caster->CastSpell(l_Caster, ROGUE_SPELL_RELTENTLESS_STRIKES_PROC, true);
+                        }
                     }
                 }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_rog_relentless_strikes_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnHit += SpellHitFn(spell_rog_retenless_strikes_SpellScript::HandleOnHit);
+            return new spell_rog_relentless_strikes_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_rog_retenless_strikes_SpellScript();
-    }
 };
 
-// Relentless Strikes proc - 14181 
-class spell_rog_retenless_strikes_proc: public SpellScriptLoader
+/// Relentless Strikes proc - 14181 
+class spell_rog_relentless_strikes_proc : public SpellScriptLoader
 {
-public:
-    spell_rog_retenless_strikes_proc() : SpellScriptLoader("spell_rog_retenless_strikes_proc") { }
+    public:
+        spell_rog_relentless_strikes_proc() : SpellScriptLoader("spell_rog_relentless_strikes_proc") { }
 
-    class spell_rog_retenless_strikes_proc_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_rog_retenless_strikes_proc_SpellScript);
-
-        void HandleOnHit()
+        class spell_rog_relentless_strikes_proc_SpellScript : public SpellScript
         {
-            if (Player* l_Player = GetCaster()->ToPlayer())
-                l_Player->EnergizeBySpell(l_Player, GetSpellInfo()->Id, GetSpellInfo()->Effects[EFFECT_0].BasePoints, POWER_ENERGY);
-        }
+            PrepareSpellScript(spell_rog_relentless_strikes_proc_SpellScript);
 
-        void Register()
+            void HandleOnHit()
+            {
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->EnergizeBySpell(l_Caster, GetSpellInfo()->Id, GetSpellInfo()->Effects[EFFECT_0].BasePoints, POWER_ENERGY);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_rog_relentless_strikes_proc_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnHit += SpellHitFn(spell_rog_retenless_strikes_proc_SpellScript::HandleOnHit);
+            return new spell_rog_relentless_strikes_proc_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_rog_retenless_strikes_proc_SpellScript();
-    }
 };
 
 // Combo Point Delayed - 139569
@@ -2023,8 +2023,8 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_evicerate();
     new spell_rog_envenom();
     new spell_rog_combo_point_delayed();
-    new spell_rog_retenless_strikes_proc();
-    new spell_rog_retenless_strikes();
+    new spell_rog_relentless_strikes_proc();
+    new spell_rog_relentless_strikes();
     new spell_rog_fan_of_knives();
     new spell_rog_smoke_bomb();
     new spell_rog_internal_bleeding();

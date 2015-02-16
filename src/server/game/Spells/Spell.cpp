@@ -2937,20 +2937,8 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         {
             if (int32 l_Combo = plrCaster->GetPower(Powers::POWER_COMBO_POINT))
             {
-                // Relentless Strikes
-                if (plrCaster->HasAura(58423))
-                {
-                    if (roll_chance_i(l_Combo * 20))
-                    {
-                        if (!plrCaster->HasSpellCooldown(98440))
-                        {
-                            plrCaster->CastSpell(plrCaster, 98440, true); // Restore 25 energy
-                            plrCaster->AddSpellCooldown(98440, 0, 1 * IN_MILLISECONDS); // Prevent double cast
-                        }
-                    }
-                }
                 // Soul of the Forest - 4 Energy
-                else if (plrCaster->HasAura(114107))
+                if (plrCaster->HasAura(114107))
                 {
                     if (plrCaster->GetSpecializationId(plrCaster->GetActiveSpec()) == SPEC_DRUID_FERAL)
                         plrCaster->EnergizeBySpell(plrCaster, 114107, 4 * l_Combo, POWER_ENERGY);
