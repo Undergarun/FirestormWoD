@@ -5336,7 +5336,11 @@ void AuraEffect::HandleModSpellCritChance(AuraApplication const* aurApp, uint8 m
     Unit* target = aurApp->GetTarget();
 
     if (target->GetTypeId() == TYPEID_PLAYER)
+    {
         target->ToPlayer()->UpdateAllSpellCritChances();
+        target->ToPlayer()->HandleBaseModValue(CRIT_PERCENTAGE, FLAT_MOD, float (GetAmount()), apply);
+        target->ToPlayer()->UpdateCritPercentage(WeaponAttackType::BaseAttack);
+    }
     else
         target->m_baseSpellCritChance += (apply) ? GetAmount():-GetAmount();
 }
