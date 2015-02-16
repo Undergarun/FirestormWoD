@@ -575,14 +575,14 @@ class spell_warl_imp_swarm: public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
+                if (Unit* l_Caster = GetCaster())
                 {
                     if (Unit* l_Target = GetHitUnit())
                     {
                         for (uint8 i = 0; i < GetEffectValue(); i++)
                         {
-                            l_Player->AddAura(WARLOCK_DEMONIC_CALL, l_Player);
-                            l_Player->CastSpell(l_Target, WARLOCK_WILD_IMP_SUMMON, true);
+                            l_Caster->AddAura(WARLOCK_DEMONIC_CALL, l_Caster);
+                            l_Caster->CastSpell(l_Target, WARLOCK_WILD_IMP_SUMMON, true);
                         }
                     }
                 }
