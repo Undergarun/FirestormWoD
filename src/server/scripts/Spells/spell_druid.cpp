@@ -445,21 +445,20 @@ class spell_dru_swipe: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
-                        int32 damage = GetHitDamage();
+                        int32 l_Damage = GetHitDamage();
 
-                        // Award 1 combot point
-                        if (Player* plr = caster->ToPlayer())
-                            plr->AddComboPoints(GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+                        /// Award 1 combot point
+                        l_Caster->AddComboPoints(GetSpellInfo()->Effects[EFFECT_0].BasePoints);
 
-                        // Swipe and Maul deals 20% more damage if target is bleeding
-                        if (target->HasAuraState(AURA_STATE_BLEEDING))
+                        /// Swipe and Maul deals 20% more damage if target is bleeding
+                        if (l_Target->HasAuraState(AURA_STATE_BLEEDING))
                         {
-                            AddPct(damage, GetSpellInfo()->Effects[EFFECT_1].BasePoints);
-                            SetHitDamage(damage);
+                            AddPct(l_Damage, GetSpellInfo()->Effects[EFFECT_1].BasePoints);
+                            SetHitDamage(l_Damage);
                         }
                     }
                 }
@@ -2797,16 +2796,13 @@ public:
 
                 if (constAuraEffectPtr l_GlyphOfSavageRoar = l_Caster->GetAuraEffect(SPELL_DRU_GLYPH_OF_SAVAGE_ROAR, EFFECT_0))
                 {
-                        if (Player* l_Player = l_Caster->ToPlayer())
-                        {
-                            uint8 l_ComboPointsBefore = l_Player->GetComboPoints();
-                            l_Player->AddComboPoints(l_GlyphOfSavageRoar->GetAmount(), nullptr);
+                    uint8 l_ComboPointsBefore = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
+                    l_Caster->AddComboPoints(l_GlyphOfSavageRoar->GetAmount());
 
-                            l_Caster->CastSpell(l_Target, SPELL_DRUID_SAVAGE_ROAR, true);
+                    l_Caster->CastSpell(l_Target, SPELL_DRUID_SAVAGE_ROAR, true);
 
-                            l_Player->ClearComboPoints();
-                            l_Player->AddComboPoints(l_ComboPointsBefore, nullptr);
-                        }
+                    l_Caster->ClearComboPoints();
+                    l_Caster->AddComboPoints(l_ComboPointsBefore);
                 }
             }
 
@@ -2862,16 +2858,13 @@ public:
                 {
                     if (constAuraEffectPtr l_GlyphOfSavageRoar = l_Caster->GetAuraEffect(SPELL_DRU_GLYPH_OF_SAVAGE_ROAR, EFFECT_0))
                     {
-                        if (l_Caster->GetTypeId() == TYPEID_PLAYER)
-                        {
-                            uint8 l_ComboPointsBefore = l_Caster->ToPlayer()->GetComboPoints();
-                            l_Caster->ToPlayer()->AddComboPoints(l_GlyphOfSavageRoar->GetAmount(), nullptr);
+                        uint8 l_ComboPointsBefore = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
+                        l_Caster->AddComboPoints(l_GlyphOfSavageRoar->GetAmount());
 
-                            l_Caster->CastSpell(l_Target, SPELL_DRUID_SAVAGE_ROAR, true);
+                        l_Caster->CastSpell(l_Target, SPELL_DRUID_SAVAGE_ROAR, true);
 
-                            l_Caster->ToPlayer()->ClearComboPoints();
-                            l_Caster->ToPlayer()->AddComboPoints(l_ComboPointsBefore, nullptr);
-                        }
+                        l_Caster->ClearComboPoints();
+                        l_Caster->AddComboPoints(l_ComboPointsBefore);
                     }
                 }
             }
@@ -2919,7 +2912,7 @@ public:
             int32 l_Damage = GetHitDamage();
 
             if (l_Caster->GetTypeId() == TYPEID_PLAYER)
-                l_Damage = (l_Damage / 5) * l_Caster->ToPlayer()->GetComboPoints();
+                l_Damage = (l_Damage / 5) * l_Caster->GetPower(Powers::POWER_COMBO_POINT);
 
             // converts each extra point of energy ( up to 25 energy ) into additional damage
             int32 l_EnergyConsumed = -l_Caster->ModifyPower(POWER_ENERGY, -GetSpellInfo()->Effects[EFFECT_1].BasePoints);
@@ -3005,7 +2998,7 @@ public:
             Unit* l_Caster = GetCaster();
 
             if (l_Caster && l_Caster->GetTypeId() == TYPEID_PLAYER && GetEffect(EFFECT_0))
-                p_Amount = (p_Amount * l_Caster->ToPlayer()->GetComboPoints() * 8) / (GetMaxDuration() / GetEffect(EFFECT_0)->GetAmplitude());
+                p_Amount = (p_Amount * l_Caster->GetPower(Powers::POWER_COMBO_POINT) * 8) / (GetMaxDuration() / GetEffect(EFFECT_0)->GetAmplitude());
         }
 
         void Register()

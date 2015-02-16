@@ -641,17 +641,17 @@ class spell_warr_mortal_strike: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                // Fix Apply Mortal strike buff on player only if he has the correct glyph
-                if (Player* _player = GetCaster()->ToPlayer())
+                /// Fix Apply Mortal strike buff on player only if he has the correct glyph
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (_player->HasAura(WARRIOR_SPELL_MORTAL_STRIKE_AURA) && !_player->HasAura(WARRIOR_SPELL_GLYPH_OF_MORTAL_STRIKE))
-                        _player->RemoveAura(WARRIOR_SPELL_MORTAL_STRIKE_AURA);
+                    if (l_Caster->HasAura(WARRIOR_SPELL_MORTAL_STRIKE_AURA) && !l_Caster->HasAura(WARRIOR_SPELL_GLYPH_OF_MORTAL_STRIKE))
+                        l_Caster->RemoveAura(WARRIOR_SPELL_MORTAL_STRIKE_AURA);
 
-                    if (_player->HasAura(WARRIOR_SPELL_TASTE_FOR_BLOOD))
+                    if (l_Caster->HasAura(WARRIOR_SPELL_TASTE_FOR_BLOOD))
                     {
-                        _player->AddComboPoints(1);
-                        _player->StartReactiveTimer(REACTIVE_OVERPOWER);
-                        _player->CastSpell(_player, WARRIOR_SPELL_ALLOW_OVERPOWER, true);
+                        l_Caster->AddComboPoints(1);
+                        l_Caster->StartReactiveTimer(REACTIVE_OVERPOWER);
+                        l_Caster->CastSpell(l_Caster, WARRIOR_SPELL_ALLOW_OVERPOWER, true);
                     }
                 }
             }

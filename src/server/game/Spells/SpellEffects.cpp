@@ -4269,11 +4269,12 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
     if (!unitTarget || !unitTarget->isAlive())
         return;
 
-    // Deadly Throw - Interrupt spell only if used with 3 combo points
+    /// Deadly Throw - Interrupt spell only if used with 3 combo points
     if (m_spellInfo->Id == 26679)
-        if (m_originalCaster && m_originalCaster->GetTypeId() == TYPEID_PLAYER)
-            if (m_originalCaster->ToPlayer()->GetComboPoints() != 3)
-                return;
+    {
+        if (m_originalCaster && m_originalCaster->GetPower(Powers::POWER_COMBO_POINT) < 5)
+            return;
+    }
 
     // TODO: not all spells that used this effect apply cooldown at school spells
     // also exist case: apply cooldown to interrupted cast only and to all spells
@@ -5218,26 +5219,10 @@ void Spell::EffectAddComboPoints(SpellEffIndex /*effIndex*/)
     if (!unitTarget)
         return;
 
-    if (!m_caster->m_movedPlayer)
-        return;
-
     if (damage <= 0)
         return;
 
-    switch (m_spellInfo->Id)
-    {
-    case 51723: // Fan of Knives
-        if (!m_caster->ToPlayer())
-            break;
-
-        if (m_caster->ToPlayer()->GetSelectedUnit() != unitTarget)
-            return;
-        break;
-    default:
-        break;
-    }
-
-    m_caster->m_movedPlayer->AddComboPoints(damage, this);
+    m_caster->AddComboPoints(damage);
 }
 
 void Spell::EffectDuel(SpellEffIndex p_EffectIndex)

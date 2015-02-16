@@ -93,6 +93,45 @@ enum RogueSpells
     ROGUE_SPELL_STEALTH_SUBTERFUGE              = 115191
 };
 
+/// Vendetta - 79140
+class spell_rog_enhanced_vendetta : public SpellScriptLoader
+{
+    public:
+        spell_rog_enhanced_vendetta() : SpellScriptLoader("spell_rog_enhanced_vendetta") { }
+
+        class spell_rog_enhanced_vendetta_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_rog_enhanced_vendetta_SpellScript);
+
+            enum eSpells
+            {
+                EnhancedVendetta     = 157514,
+                EnhancedVendettaBuff = 158108
+            };
+
+            void HandleOnHit(SpellEffIndex)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (!l_Caster->HasAura(eSpells::EnhancedVendetta))
+                        return;
+
+                    l_Caster->CastSpell(l_Caster, eSpells::EnhancedVendettaBuff, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_rog_enhanced_vendetta_SpellScript::HandleOnHit, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_rog_enhanced_vendetta_SpellScript();
+        }
+};
+
 // Killing Spree - 51690
 class spell_rog_killing_spree: public SpellScriptLoader
 {
@@ -789,53 +828,55 @@ class spell_rog_hemorrhage: public SpellScriptLoader
         }
 };
 
-// Called by Envenom - 32645
+/// Called by Envenom - 32645
 class spell_rog_envenom: public SpellScriptLoader
 {
-public:
-    spell_rog_envenom() : SpellScriptLoader("spell_rog_envenom") { }
+    public:
+        spell_rog_envenom() : SpellScriptLoader("spell_rog_envenom") { }
 
-    class spell_rog_envenom_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_rog_envenom_SpellScript);
-
-        void HandleOnHit()
+        class spell_rog_envenom_SpellScript : public SpellScript
         {
-            if (Player* l_Player = GetCaster()->ToPlayer())
+            PrepareSpellScript(spell_rog_envenom_SpellScript);
+
+            void HandleOnHit()
             {
-                uint8 l_ComboPoint = l_Player->GetComboPoints();
-                int32 l_Damage = 0;
-
-                if (l_ComboPoint)
+                if (Unit* l_Caster = GetCaster())
                 {
-                    float l_Ap = l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
+                    int32 l_ComboPoint = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
+                    int32 l_Damage = 0;
 
-                    l_Damage += int32(1.05 * 1 * l_Ap * 0.306 * l_ComboPoint + (l_ComboPoint * GetSpellInfo()->Effects[EFFECT_0].BasePoints));
-
-                    // Eviscerate and Envenom Bonus Damage (item set effect)
-                    if (l_Player->HasAura(ROGUE_SPELL_EVISCERATE_ENVENOM_BONUS_DAMAGE))
+                    if (l_ComboPoint)
                     {
-                        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(ROGUE_SPELL_EVISCERATE_ENVENOM_BONUS_DAMAGE);
+                        float l_Ap = l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
 
-                        l_Damage += l_ComboPoint * l_SpellInfo->Effects[EFFECT_0].BasePoints;
+                        l_Damage += int32(1.05 * l_Ap * 0.306 * l_ComboPoint + (l_ComboPoint * GetSpellInfo()->Effects[EFFECT_0].BasePoints));
+
+                        /// Eviscerate and Envenom Bonus Damage (item set effect)
+                        if (l_Caster->HasAura(ROGUE_SPELL_EVISCERATE_ENVENOM_BONUS_DAMAGE))
+                        {
+                            SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(ROGUE_SPELL_EVISCERATE_ENVENOM_BONUS_DAMAGE);
+                            l_Damage += l_ComboPoint * l_SpellInfo->Effects[EFFECT_0].BasePoints;
+                        }
+
+                        if (AuraPtr l_SliceAndDice = l_Caster->GetAura(ROGUE_SPELL_SLICE_AND_DICE))
+                            l_SliceAndDice->RefreshDuration();
                     }
+
+                    SetHitDamage(l_Damage);
                 }
-                SetHitDamage(l_Damage);
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_rog_envenom_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnHit += SpellHitFn(spell_rog_envenom_SpellScript::HandleOnHit);
+            return new spell_rog_envenom_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_rog_envenom_SpellScript();
-    }
 };
-
 
 // Called by Envenom - 32645 and Eviscerate - 2098
 // Cut to the Chase - 51667
@@ -977,7 +1018,7 @@ class spell_rog_redirect: public SpellScriptLoader
                     if (caster->GetTypeId() != TYPEID_PLAYER)
                         return SPELL_FAILED_DONT_REPORT;
 
-                    if (!caster->ToPlayer()->GetComboPoints())
+                    if (!caster->GetPower(Powers::POWER_COMBO_POINT))
                         return SPELL_FAILED_NO_COMBO_POINTS;
                 }
                 else
@@ -988,15 +1029,15 @@ class spell_rog_redirect: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    uint8 cp = _player->GetComboPoints();
+                    uint8 l_Combo = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
 
-                    if (cp > 5)
-                        cp = 5;
+                    if (l_Combo > 5)
+                        l_Combo = 5;
 
-                    _player->ClearComboPoints();
-                    _player->AddComboPoints(cp, GetSpell());
+                    l_Caster->ClearComboPoints();
+                    l_Caster->AddComboPoints(l_Combo);
                 }
             }
 
@@ -1112,12 +1153,13 @@ class spell_rog_crimson_tempest: public SpellScriptLoader
             void HandleOnHit()
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
+                {
                     if (Unit* l_Target = GetHitUnit())
                     {
                         if (l_Player->GetGUID() == l_Target->GetGUID())
                             return;
 
-                        uint8 l_ComboPoint = l_Player->GetComboPoints();
+                        uint8 l_ComboPoint = l_Player->GetPower(Powers::POWER_COMBO_POINT);
                         int32 l_Damage = 0;
 
                         if (l_ComboPoint)
@@ -1133,8 +1175,10 @@ class spell_rog_crimson_tempest: public SpellScriptLoader
 
                             l_Player->CastCustomSpell(l_Target, ROGUE_SPELL_CRIMSON_TEMPEST_DOT, &l_DamageDot, NULL, NULL, true);
                         }
+
                         SetHitDamage(l_Damage);
                     }
+                }
             }
 
             void Register()
@@ -1396,8 +1440,7 @@ class spell_rog_preparation: public SpellScriptLoader
 
                     if (spellInfo->SpellFamilyName == SPELLFAMILY_ROGUE)
                     {
-                        if (spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_ROGUE_VAN_EVAS_SPRINT ||   // Vanish, Evasion, Sprint
-                            spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_ROGUE_DISMANTLE)          // Dismantle is removed since 6.0.2
+                        if (spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_ROGUE_VAN_EVAS_SPRINT) ///< Vanish, Evasion, Sprint
                             caster->RemoveSpellCooldown((itr++)->first, true);
                         else
                             ++itr;
@@ -1682,103 +1725,103 @@ public:
     }
 };
 
-// Fan of Knives - 51723
+/// Fan of Knives - 51723
 class spell_rog_fan_of_knives: public SpellScriptLoader
 {
-public:
-    spell_rog_fan_of_knives() : SpellScriptLoader("spell_rog_fan_of_knives") { }
+    public:
+        spell_rog_fan_of_knives() : SpellScriptLoader("spell_rog_fan_of_knives") { }
 
-    class spell_rog_fan_of_knives_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_rog_fan_of_knives_SpellScript);
-
-        void HandleAfterHit()
+        class spell_rog_fan_of_knives_SpellScript : public SpellScript
         {
-            if (Player* l_Player = GetCaster()->ToPlayer())
-                l_Player->EnergizeBySpell(l_Player, GetSpellInfo()->Id, l_Player->GetPower(POWER_COMBO_POINT) + 1, POWER_COMBO_POINT);
-        }
+            PrepareSpellScript(spell_rog_fan_of_knives_SpellScript);
 
-        void Register()
+            void HandleAfterCast()
+            {
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->AddComboPoints(GetSpellInfo()->Effects[EFFECT_1].BasePoints);
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_rog_fan_of_knives_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            AfterHit += SpellHitFn(spell_rog_fan_of_knives_SpellScript::HandleAfterHit);
+            return new spell_rog_fan_of_knives_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_rog_fan_of_knives_SpellScript();
-    }
 };
 
-// Call by Kidney Shot 408 - Eviscerate 2098 - Recuperate 73651 - Slice and Dice 5171 - Deadly Throw 26679 - Rupture 1943
-// Relentless Strikes - 58423
-class spell_rog_retenless_strikes: public SpellScriptLoader
+/// Call by Kidney Shot 408 - Eviscerate 2098 - Recuperate 73651 - Slice and Dice 5171 - Deadly Throw 26679 - Rupture 1943
+/// Relentless Strikes - 58423
+class spell_rog_relentless_strikes : public SpellScriptLoader
 {
-public:
-    spell_rog_retenless_strikes() : SpellScriptLoader("spell_rog_retenless_strikes") { }
+    public:
+        spell_rog_relentless_strikes() : SpellScriptLoader("spell_rog_relentless_strikes") { }
 
-    class spell_rog_retenless_strikes_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_rog_retenless_strikes_SpellScript);
-
-        void HandleOnHit()
+        class spell_rog_relentless_strikes_SpellScript : public SpellScript
         {
-            if (Player* l_Player = GetCaster()->ToPlayer())
+            PrepareSpellScript(spell_rog_relentless_strikes_SpellScript);
+
+            void HandleOnHit()
             {
-                if (l_Player->HasAura(ROGUE_SPELL_RELTENTLESS_STRIKES_AURA))
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (roll_chance_i(20 * l_Player->GetPower(POWER_COMBO_POINT)))
-                        l_Player->CastSpell(l_Player, ROGUE_SPELL_RELTENTLESS_STRIKES_PROC, true);
-                }
-                if (l_Player->HasAura(ROGUE_SPELL_RUTHLESSNESS))
-                {
-                    if (roll_chance_i(20 * l_Player->GetPower(POWER_COMBO_POINT)))
+                    if (l_Caster->HasAura(ROGUE_SPELL_RELTENTLESS_STRIKES_AURA))
                     {
-                        l_Player->CastSpell(l_Player, ROGUE_SPELL_COMBO_POINT_DELAYED, true);
-                        l_Player->CastSpell(l_Player, ROGUE_SPELL_RELTENTLESS_STRIKES_PROC, true);
+                        if (roll_chance_i(20 * l_Caster->GetPower(POWER_COMBO_POINT)))
+                            l_Caster->CastSpell(l_Caster, ROGUE_SPELL_RELTENTLESS_STRIKES_PROC, true);
+                    }
+                    if (l_Caster->HasAura(ROGUE_SPELL_RUTHLESSNESS))
+                    {
+                        if (roll_chance_i(20 * l_Caster->GetPower(POWER_COMBO_POINT)))
+                        {
+                            l_Caster->CastSpell(l_Caster, ROGUE_SPELL_COMBO_POINT_DELAYED, true);
+                            l_Caster->CastSpell(l_Caster, ROGUE_SPELL_RELTENTLESS_STRIKES_PROC, true);
+                        }
                     }
                 }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_rog_relentless_strikes_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnHit += SpellHitFn(spell_rog_retenless_strikes_SpellScript::HandleOnHit);
+            return new spell_rog_relentless_strikes_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_rog_retenless_strikes_SpellScript();
-    }
 };
 
-// Relentless Strikes proc - 14181 
-class spell_rog_retenless_strikes_proc: public SpellScriptLoader
+/// Relentless Strikes proc - 14181 
+class spell_rog_relentless_strikes_proc : public SpellScriptLoader
 {
-public:
-    spell_rog_retenless_strikes_proc() : SpellScriptLoader("spell_rog_retenless_strikes_proc") { }
+    public:
+        spell_rog_relentless_strikes_proc() : SpellScriptLoader("spell_rog_relentless_strikes_proc") { }
 
-    class spell_rog_retenless_strikes_proc_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_rog_retenless_strikes_proc_SpellScript);
-
-        void HandleOnHit()
+        class spell_rog_relentless_strikes_proc_SpellScript : public SpellScript
         {
-            if (Player* l_Player = GetCaster()->ToPlayer())
-                l_Player->EnergizeBySpell(l_Player, GetSpellInfo()->Id, GetSpellInfo()->Effects[EFFECT_0].BasePoints, POWER_ENERGY);
-        }
+            PrepareSpellScript(spell_rog_relentless_strikes_proc_SpellScript);
 
-        void Register()
+            void HandleOnHit()
+            {
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->EnergizeBySpell(l_Caster, GetSpellInfo()->Id, GetSpellInfo()->Effects[EFFECT_0].BasePoints, POWER_ENERGY);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_rog_relentless_strikes_proc_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnHit += SpellHitFn(spell_rog_retenless_strikes_proc_SpellScript::HandleOnHit);
+            return new spell_rog_relentless_strikes_proc_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_rog_retenless_strikes_proc_SpellScript();
-    }
 };
 
 // Combo Point Delayed - 139569
@@ -1809,94 +1852,99 @@ public:
     }
 };
 
-// Eviscerate - 2098
+/// Eviscerate - 2098
 class spell_rog_evicerate : public SpellScriptLoader
 {
-public:
-    spell_rog_evicerate() : SpellScriptLoader("spell_rog_evicerate") { }
+    public:
+        spell_rog_evicerate() : SpellScriptLoader("spell_rog_evicerate") { }
 
-    class spell_rog_evicerate_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_rog_evicerate_SpellScript);
-
-        void HandleDamage(SpellEffIndex /*effIndex*/)
+        class spell_rog_evicerate_SpellScript : public SpellScript
         {
-            if (Player* l_Player = GetCaster()->ToPlayer())
+            PrepareSpellScript(spell_rog_evicerate_SpellScript);
+
+            void HandleDamage(SpellEffIndex)
             {
-                uint8 l_ComboPoint = l_Player->GetComboPoints();
-                int32 l_Damage = 0;
-
-                if (l_ComboPoint)
+                if (Unit* l_Caster = GetCaster())
                 {
-                    float l_Ap = l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
+                    uint8 l_ComboPoint = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
+                    int32 l_Damage = 0;
 
-                    l_Damage += int32((l_Ap * 0.577f) * 0.88f * l_ComboPoint);
-
-                    // Eviscerate and Envenom Bonus Damage (item set effect)
-                    if (l_Player->HasAura(ROGUE_SPELL_EVISCERATE_ENVENOM_BONUS_DAMAGE))
+                    if (l_ComboPoint)
                     {
-                        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(ROGUE_SPELL_EVISCERATE_ENVENOM_BONUS_DAMAGE);
+                        float l_Ap = l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
 
-                        if (l_SpellInfo != nullptr)
-                            l_Damage += l_ComboPoint * l_SpellInfo->Effects[EFFECT_0].BasePoints;
+                        l_Damage += int32((l_Ap * 0.577f) * 0.88f * l_ComboPoint);
+
+                        // Eviscerate and Envenom Bonus Damage (item set effect)
+                        if (l_Caster->HasAura(ROGUE_SPELL_EVISCERATE_ENVENOM_BONUS_DAMAGE))
+                        {
+                            SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(ROGUE_SPELL_EVISCERATE_ENVENOM_BONUS_DAMAGE);
+
+                            if (l_SpellInfo != nullptr)
+                                l_Damage += l_ComboPoint * l_SpellInfo->Effects[EFFECT_0].BasePoints;
+                        }
                     }
+
+                    SetHitDamage(l_Damage);
                 }
-                SetHitDamage(l_Damage);
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_rog_evicerate_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnEffectHitTarget += SpellEffectFn(spell_rog_evicerate_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            return new spell_rog_evicerate_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_rog_evicerate_SpellScript();
-    }
 };
 
-// Deadly Throw - 26679
+/// Deadly Throw - 26679
 class spell_rog_deadly_throw : public SpellScriptLoader
 {
-public:
-    spell_rog_deadly_throw() : SpellScriptLoader("spell_rog_deadly_throw") { }
+    public:
+        spell_rog_deadly_throw() : SpellScriptLoader("spell_rog_deadly_throw") { }
 
-    class spell_rog_deadly_throw_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_rog_deadly_throw_SpellScript);
-
-        void HandleDamage(SpellEffIndex /*effIndex*/)
+        class spell_rog_deadly_throw_SpellScript : public SpellScript
         {
-            if (Player* l_Player = GetCaster()->ToPlayer())
+            PrepareSpellScript(spell_rog_deadly_throw_SpellScript);
+
+            void HandleDamage(SpellEffIndex)
             {
-                uint8 l_ComboPoint = l_Player->GetComboPoints();
-                int32 l_Damage = 0;
-
-                if (l_ComboPoint)
+                if (Unit* l_Caster = GetCaster())
                 {
-                    float l_Ap = l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
+                    uint8 l_ComboPoint = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
+                    int32 l_Damage = 0;
 
-                    l_Damage += int32((l_Ap * 0.178f) * 1 * l_ComboPoint);
+                    if (l_ComboPoint)
+                    {
+                        float l_Ap = l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
+
+                        l_Damage += int32((l_Ap * 0.178f) * 1 * l_ComboPoint);
+                    }
+
+                    if (l_ComboPoint >= 5)
+                    {
+                        if (Unit* l_Target = GetHitUnit())
+                            l_Caster->CastSpell(l_Target, ROGUE_SPELL_DEADLY_THROW_INTERRUPT, true);
+                    }
+
+                    SetHitDamage(l_Damage);
                 }
-                if (l_ComboPoint >= 5)
-                    if (Unit* l_Target = GetHitUnit())
-                        l_Player->CastSpell(l_Target, ROGUE_SPELL_DEADLY_THROW_INTERRUPT, true);
-                SetHitDamage(l_Damage);
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_rog_deadly_throw_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnEffectHitTarget += SpellEffectFn(spell_rog_deadly_throw_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            return new spell_rog_deadly_throw_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_rog_deadly_throw_SpellScript();
-    }
 };
 
 // Subterfuge - 115192
@@ -1944,41 +1992,40 @@ public:
 
 class PlayerScript_ruthlessness : public PlayerScript
 {
-public:
-    PlayerScript_ruthlessness() : PlayerScript("PlayerScript_ruthlessness") {}
+    public:
+        PlayerScript_ruthlessness() : PlayerScript("PlayerScript_ruthlessness") { }
 
-    void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
-    {
-        if (p_Regen)
-            return;
-
-        // Get the power earn (if > 0 ) or consum (if < 0)
-        int32 l_diffValue = p_NewValue - p_OldValue;
-
-        if (p_Player->getClass() == CLASS_ROGUE && p_Player->GetSpecializationId(p_Player->GetActiveSpec()) == SPEC_ROGUE_COMBAT && p_Power == POWER_COMBO_POINT)
+        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
         {
-            if (l_diffValue < 0 && p_Player->HasAura(ROGUE_SPELL_RUTHLESSNESS))
+            if (p_Regen || p_Power != POWER_COMBO_POINT || p_Player->getClass() != CLASS_ROGUE || !p_Player->HasAura(ROGUE_SPELL_RUTHLESSNESS))
+                return;
+
+            /// Get the power earn (if > 0 ) or consum (if < 0)
+            int32 l_DiffVal = p_NewValue - p_OldValue;
+
+            if (l_DiffVal < 0 && p_Player->HasAura(ROGUE_SPELL_RUTHLESSNESS))
             {
+                int32 l_Duration = sSpellMgr->GetSpellInfo(ROGUE_SPELL_RUTHLESSNESS)->Effects[EFFECT_2].BasePoints;
                 if (p_Player->HasSpellCooldown(ROGUE_SPELL_ADRENALINE_RUSH))
-                    p_Player->ReduceSpellCooldown(ROGUE_SPELL_ADRENALINE_RUSH, sSpellMgr->GetSpellInfo(ROGUE_SPELL_RUTHLESSNESS)->Effects[EFFECT_2].BasePoints * l_diffValue * -1);
+                    p_Player->ReduceSpellCooldown(ROGUE_SPELL_ADRENALINE_RUSH, -(l_Duration * l_DiffVal));
                 if (p_Player->HasSpellCooldown(ROGUE_SPELL_KILLING_SPREE))
-                    p_Player->ReduceSpellCooldown(ROGUE_SPELL_KILLING_SPREE, sSpellMgr->GetSpellInfo(ROGUE_SPELL_RUTHLESSNESS)->Effects[EFFECT_2].BasePoints * l_diffValue * -1);
+                    p_Player->ReduceSpellCooldown(ROGUE_SPELL_KILLING_SPREE, -(l_Duration * l_DiffVal));
                 if (p_Player->HasSpellCooldown(ROGUE_SPELL_SPRINT))
-                    p_Player->ReduceSpellCooldown(ROGUE_SPELL_SPRINT, sSpellMgr->GetSpellInfo(ROGUE_SPELL_RUTHLESSNESS)->Effects[EFFECT_2].BasePoints * l_diffValue * -1);
+                    p_Player->ReduceSpellCooldown(ROGUE_SPELL_SPRINT, -(l_Duration * l_DiffVal));
             }
         }
-    }
 };
 
 void AddSC_rogue_spell_scripts()
 {
+    new spell_rog_enhanced_vendetta();
     new spell_rog_subterfuge();
     new spell_rog_deadly_throw();
     new spell_rog_evicerate();
     new spell_rog_envenom();
     new spell_rog_combo_point_delayed();
-    new spell_rog_retenless_strikes_proc();
-    new spell_rog_retenless_strikes();
+    new spell_rog_relentless_strikes_proc();
+    new spell_rog_relentless_strikes();
     new spell_rog_fan_of_knives();
     new spell_rog_smoke_bomb();
     new spell_rog_internal_bleeding();

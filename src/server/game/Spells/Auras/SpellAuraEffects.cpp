@@ -839,32 +839,32 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 
             switch (GetSpellInfo()->Id)
             {
-                case 1943:  // Rupture
+                case 1943:  ///< Rupture
                 {
                     m_canBeRecalculated = false;
 
                     if (caster->GetTypeId() != TYPEID_PLAYER)
                         break;
 
-                    uint8 cp = caster->ToPlayer()->GetComboPoints();
-                    float ap = caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
+                    int32 l_Combo = caster->GetPower(Powers::POWER_COMBO_POINT);
+                    float l_AttackPower = caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
 
-                    switch (cp)
+                    switch (l_Combo)
                     {
                         case 1:
-                            amount += int32(ap * 0.1f / 4);
+                            amount += int32(l_AttackPower * 0.1f / 4);
                             break;
                         case 2:
-                            amount += int32(ap * 0.24f / 6);
+                            amount += int32(l_AttackPower * 0.24f / 6);
                             break;
                         case 3:
-                            amount += int32(ap * 0.40f / 8);
+                            amount += int32(l_AttackPower * 0.40f / 8);
                             break;
                         case 4:
-                            amount += int32(ap * 0.56f / 10);
+                            amount += int32(l_AttackPower * 0.56f / 10);
                             break;
                         case 5:
-                            amount += int32(ap * 0.744f / 12);
+                            amount += int32(l_AttackPower * 0.744f / 12);
                             break;
                         default:
                             break;
@@ -927,23 +927,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
         {
             switch (m_spellInfo->Id)
             {
-                case 5171:  // Slice and Dice
-                {
-                    if (!caster)
-                        break;
-
-                    Player* plr = caster->ToPlayer();
-                    if (!plr)
-                        break;
-
-                    if (!plr->HasAura(76808) && !plr->HasAura(79152))
-                        break;
-
-                    float MasteryPCT = 1.0f + plr->GetFloatValue(PLAYER_FIELD_MASTERY) * 3.0f;
-                    AddPct(amount, MasteryPCT);
-
-                    break;
-                }
                 case 57669: // Replenishment (0.2% from max)
                     amount = CalculatePct(GetBase()->GetUnitOwner()->GetMaxPower(POWER_MANA), amount);
                     break;
@@ -1204,33 +1187,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                 if (AuraEffectPtr eff = target->GetAuraEffect(21009, 0))
                     amount += eff->GetAmount();
             }
-            break;
-        }
-        case SPELL_AURA_MOD_MELEE_HASTE_3:
-        {
-            switch (GetId())
-            {
-                case 5171:  // Slice and Dice
-                {
-                    if (!caster)
-                        break;
-
-                    Player* plr = caster->ToPlayer();
-                    if (!plr)
-                        break;
-
-                    if (!plr->HasAura(76808))
-                        break;
-
-                    float MasteryPCT = 1.0f + plr->GetFloatValue(PLAYER_FIELD_MASTERY) * 3.0f;
-                    AddPct(amount, MasteryPCT);
-
-                    break;
-                }
-                default:
-                    break;
-            }
-
             break;
         }
         case SPELL_AURA_MOD_INCREASE_SWIM_SPEED:
@@ -5917,13 +5873,10 @@ void AuraEffect::HandleAuraRetainComboPoints(AuraApplication const* aurApp, uint
 
     Unit* target = aurApp->GetTarget();
 
-    if (target->GetTypeId() != TYPEID_PLAYER)
-        return;
-
     // combo points was added in SPELL_EFFECT_ADD_COMBO_POINTS handler
     // remove only if aura expire by time (in case combo points amount change aura removed without combo points lost)
     if (!(apply) && GetBase()->GetDuration() == 0)
-        target->ToPlayer()->AddComboPoints(-GetAmount());
+        target->AddComboPoints(-GetAmount());
 }
 
 /*********************************************************/

@@ -3481,10 +3481,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].BasePoints = spellInfo->Effects[1].BasePoints * 2.7;
                 break;
             case 14161: ///< Ruthlessness
-                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_PROC_TRIGGER_SPELL;
-                spellInfo->Effects[0].TriggerSpell = 139546;
-                spellInfo->ProcFlags = 0x00015550;
-                spellInfo->ProcChance = 100;
+                spellInfo->Effects[1].ApplyAuraName = 0;
+                spellInfo->Effects[1].Effect = 0;
                 break;
             case 137650: ///< Shadowed Soul
                 spellInfo->Effects[0].BasePoints = 3;
@@ -3552,11 +3550,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 136917: ///< Biting Cold
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[0].TargetB = 0;
-                break;
-            case 76808: ///< Mastery: Executioner
-                spellInfo->Effects[0].BasePoints = 24;
-                spellInfo->Effects[1].BasePoints = 24;
-                spellInfo->Effects[2].BasePoints = 24;
                 break;
             case 136467: ///< Lingering Presence
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;

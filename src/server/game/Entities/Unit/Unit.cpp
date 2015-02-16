@@ -7224,12 +7224,12 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     if (GetTypeId() != TYPEID_PLAYER)
                         return false;
 
-                    uint32 ui_chance = 20 * ToPlayer()->GetComboPoints();
-                    if (!roll_chance_i(ui_chance))
+                    int32 l_Chance = 20 * GetPower(Powers::POWER_COMBO_POINT);
+                    if (!roll_chance_i(l_Chance))
                         return false;
 
-                    if (AuraPtr aur = GetAura(50334))
-                        aur->SetDuration(aur->GetDuration() + 2000);
+                    if (AuraPtr l_Aura = GetAura(50334))
+                        l_Aura->SetDuration(l_Aura->GetDuration() + 2000);
                     break;
                 }
                 // Item  Druid T12 Feral 2P Bonus
@@ -7467,7 +7467,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
         {
             switch (dummySpell->Id)
             {
-                case 51701: // Honor Among Thieves
+                case 51701: ///< Honor Among Thieves
                 {
                     if (!triggeredByAura || !triggeredByAura->GetBase() || !triggeredByAura->GetBase()->GetCaster())
                         return false;
@@ -7475,19 +7475,20 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     if (triggeredByAura->GetBase()->GetCaster()->GetTypeId() != TYPEID_PLAYER)
                         return false;
 
-                    Player* player = triggeredByAura->GetBase()->GetCaster()->ToPlayer();
-                    if (!player)
+                    Player* l_Player = triggeredByAura->GetBase()->GetCaster()->ToPlayer();
+                    if (!l_Player)
                         return false;
 
-                    if (!player->isInCombat())
+                    if (!l_Player->isInCombat())
                         return false;
 
-                    if (player->HasSpellCooldown(51701))
+                    if (l_Player->HasSpellCooldown(51701))
                         return false;
 
                     if (!(procEx & PROC_EX_CRITICAL_HIT))
                         return false;
 
+                    triggered_spell_id = 51699;
                     break;
                 }
                 case 63254: // Glyph of Deadly Momentum
@@ -7520,24 +7521,24 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     if (!procSpell->HasEffect(SPELL_EFFECT_ADD_COMBO_POINTS) && procSpell->Id != 5374 && procSpell->Id != 27576)
                         return false;
 
-                    uint8 newCombo = ToPlayer()->GetComboPoints();
+                    int32 l_NewCombo = GetPower(Powers::POWER_COMBO_POINT);
 
                     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                     {
                         if (procSpell->Effects[i].IsEffect(SPELL_EFFECT_ADD_COMBO_POINTS))
                         {
-                            newCombo += procSpell->Effects[i].BasePoints;
+                            l_NewCombo += procSpell->Effects[i].BasePoints;
                             break;
                         }
                     }
 
                     if (procSpell->Id == 5374)
-                        newCombo += 2;
+                        l_NewCombo += 2;
 
-                    if (newCombo <= 5)
+                    if (l_NewCombo <= 5)
                         return false;
 
-                    basepoints0 = newCombo - 5;
+                    basepoints0 = l_NewCombo - 5;
                     triggered_spell_id = 115189;
 
                     // need to add one additional combo point if it's critical hit
@@ -9321,6 +9322,19 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
             if (procSpell->Id != 12294 && !roll_chance_i(50))
                 return false;
             break;
+        case 14190: ///< Seal Fate
+        {
+            if (GetTypeId() != TypeID::TYPEID_PLAYER)
+                return false;
+
+            if (!(procEx & PROC_EX_CRITICAL_HIT))
+                return false;
+
+            if (!procSpell || procSpell->HasEffect(SPELL_EFFECT_ADD_COMBO_POINTS))
+                return false;
+
+            break;
+        }
         case 104428:// Elemental Force (DND)
         {
             if (!IsValidAttackTarget(victim))
@@ -10095,31 +10109,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
         case 20233: // Improved Lay on Hands (cast on target)
         {
             target = victim;
-            break;
-        }
-        // Finish movies that add combo
-        case 14189: // Seal Fate (Nether blade set)
-        case 139546:// Ruthlessness
-        {
-            if (!victim || victim == this)
-                return false;
-
-            if (Player* plr = ToPlayer())
-            {
-                if (uint8 cp = plr->GetComboPoints())
-                {
-                    if (!procSpell)
-                        return false;
-
-                    if (!procSpell->NeedsComboPoints())
-                        return false;
-
-                    if (!roll_chance_i(cp * 20))
-                        return false;
-                }
-            }
-
-            // Need add combo point AFTER finish movie (or they dropped in finish phase)
             break;
         }
         // Item - Druid T10 Balance 2P Bonus
@@ -11702,26 +11691,11 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         DoneTotal += CalculatePct(pdamage, Mastery);
     }
 
-    // Custom MoP Script
-    // 76808 - Mastery : Executioner
-    if (GetTypeId() == TYPEID_PLAYER && spellProto && (spellProto->Id == 1943 || spellProto->Id == 2098 || spellProto->Id == 121411) && HasAura(76808))
-    {
-        float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 3.0f;
-        DoneTotal += CalculatePct(pdamage, Mastery);
-    }
-
     // 77215 - Mastery : Potent Afflictions
     // Increase periodic damage of Corruption, Agony and Unstable Affliction
     if (GetTypeId() == TYPEID_PLAYER && spellProto && spellProto->IsAfflictionPeriodicDamage() && damagetype == DOT && HasAura(77215))
     {
         float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 3.1f;
-        DoneTotal += CalculatePct(pdamage, Mastery);
-    }
-
-    // 76803 - Mastery : Potent Poisons
-    if (GetTypeId() == TYPEID_PLAYER && spellProto && (spellProto->Id == 2818 || spellProto->Id == 8680 || spellProto->Id == 113780 || spellProto->Id == 32645) && pdamage != 0 && HasAura(76803))
-    {
-        float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 3.5f;
         DoneTotal += CalculatePct(pdamage, Mastery);
     }
 
@@ -14363,6 +14337,23 @@ int32 Unit::ModifyPower(Powers power, int32 dVal)
     return gain;
 }
 
+void Unit::AddComboPoints(int8 p_Count)
+{
+    if (!p_Count)
+        return;
+
+    /// Without combo points lost (duration checked in aura)
+    RemoveAurasByType(AuraType::SPELL_AURA_RETAIN_COMBO_POINTS);
+    ModifyPower(Powers::POWER_COMBO_POINT, p_Count);
+}
+
+void Unit::ClearComboPoints()
+{
+    /// Without combopoints lost (duration checked in aura)
+    RemoveAurasByType(SPELL_AURA_RETAIN_COMBO_POINTS);
+    SetPower(Powers::POWER_COMBO_POINT, 0);
+}
+
 // returns negative amount on power reduction
 int32 Unit::ModifyPowerPct(Powers power, float pct, bool apply)
 {
@@ -15222,21 +15213,21 @@ int32 Unit::CalculateSpellDamage(Unit const* p_Target, SpellInfo const* p_SpellP
     return p_SpellProto->Effects[p_EffectIndex].CalcValue(this, p_BasePoints, p_Target, p_Item);
 }
 
-int32 Unit::CalcSpellDuration(SpellInfo const* spellProto)
+int32 Unit::CalcSpellDuration(SpellInfo const* p_SpellInfo)
 {
-    uint8 comboPoints = m_movedPlayer ? m_movedPlayer->GetComboPoints() : 0;
+    int32 l_Combo = m_movedPlayer ? m_movedPlayer->GetPower(Powers::POWER_COMBO_POINT) : 0;
 
-    int32 minduration = spellProto->GetDuration();
-    int32 maxduration = spellProto->GetMaxDuration();
+    int32 l_MinDur = p_SpellInfo->GetDuration();
+    int32 l_MaxDur = p_SpellInfo->GetMaxDuration();
 
-    int32 duration;
+    int32 l_Dur = 0;
 
-    if (comboPoints && minduration != -1 && minduration != maxduration)
-        duration = minduration + int32((maxduration - minduration) * comboPoints / 5);
+    if (l_Combo && l_MinDur != -1 && l_MinDur != l_MaxDur)
+        l_Dur = l_MinDur + int32((l_MaxDur - l_MinDur) * l_Combo / 5);
     else
-        duration = minduration;
+        l_Dur = l_MinDur;
 
-    return duration;
+    return l_Dur;
 }
 
 int32 Unit::ModSpellDuration(SpellInfo const* spellProto, Unit const* target, int32 duration, bool positive, uint32 effectMask)
@@ -16250,9 +16241,7 @@ void Unit::CleanupBeforeRemoveFromMap(bool finalCleanup)
 
     m_Events.KillAllEvents(false);                      // non-delatable (currently casted spells) will not deleted now but it will deleted at call in Map::RemoveAllObjectsInRemoveList
     CombatStop();
-
-    if (ToPlayer())
-        ToPlayer()->ClearComboPoints();
+    ClearComboPoints();
 
     DeleteThreatList();
     getHostileRefManager().setOnlineOfflineState(false);
@@ -16874,9 +16863,9 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
             else // For attacker
             {
                 // Overpower on victim dodge
-                if (procExtra & PROC_EX_DODGE && GetTypeId() == TYPEID_PLAYER && getClass() == CLASS_WARRIOR)
+                if (procExtra & PROC_EX_DODGE && getClass() == CLASS_WARRIOR)
                 {
-                    ToPlayer()->AddComboPoints(1);
+                    AddComboPoints(1);
                     StartReactiveTimer(REACTIVE_OVERPOWER);
                     CastSpell(this, 60503, true);
                 }
@@ -16909,10 +16898,12 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     if (GetTypeId() == TYPEID_PLAYER && HasAura(91023) && procSpell && (procSpell->Id == 8676 || procSpell->Id == 703 || procSpell->Id == 1833))
         CastSpell(target, 91021, true);
 
-    // Revealing Strike - 84617
-    if (GetTypeId() == TYPEID_PLAYER && target && target->HasAura(84617, GetGUID()) && procSpell && procSpell->Id == 1752)
+    /// Revealing Strike - 84617
+    if (target && target->HasAura(84617, GetGUID()) && procSpell && procSpell->Id == 1752)
+    {
         if (roll_chance_i(20))
-            ToPlayer()->AddComboPoints(1);
+            AddComboPoints(1);
+    }
 
     // Bandit's Guile - 84654
     // Your Sinister Strike and Revealing Strike abilities increase your damage dealt by up to 30%
@@ -17695,10 +17686,12 @@ void Unit::ClearAllReactives()
 
     if (HasAuraState(AURA_STATE_DEFENSE))
         ModifyAuraState(AURA_STATE_DEFENSE, false);
+
     if (getClass() == CLASS_HUNTER && HasAuraState(AURA_STATE_HUNTER_PARRY))
         ModifyAuraState(AURA_STATE_HUNTER_PARRY, false);
-    if (getClass() == CLASS_WARRIOR && GetTypeId() == TYPEID_PLAYER)
-        ToPlayer()->ClearComboPoints();
+
+    if (getClass() == CLASS_WARRIOR)
+        ClearComboPoints();
 }
 
 void Unit::UpdateReactives(uint32 p_time)
@@ -17725,8 +17718,8 @@ void Unit::UpdateReactives(uint32 p_time)
                         ModifyAuraState(AURA_STATE_HUNTER_PARRY, false);
                     break;
                 case REACTIVE_OVERPOWER:
-                    if (getClass() == CLASS_WARRIOR && GetTypeId() == TYPEID_PLAYER)
-                        ToPlayer()->ClearComboPoints();
+                    if (getClass() == CLASS_WARRIOR)
+                        ClearComboPoints();
                     break;
                 default:
                     break;
