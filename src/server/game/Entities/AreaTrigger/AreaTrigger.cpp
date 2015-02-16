@@ -45,6 +45,7 @@ AreaTrigger::AreaTrigger()
     _dynamicValuesCount = AREATRIGGER_DYNAMIC_END;
     m_CreatedTime = 0;
     m_Flags = 0;
+    m_CreatureVisualGUID = 0;
 
     m_Trajectory = AREATRIGGER_INTERPOLATION_NONE;
     m_Templates.clear();
@@ -154,7 +155,15 @@ bool AreaTrigger::CreateAreaTriggerFromSpell(uint32 p_GuidLow, Unit* p_Caster, S
     if (!GetMap()->AddToMap(this))
         return false;
 
+    if (l_MainTemplate->m_CreatureVisualEntry != 0)
+    {
+        Creature* l_CreatureVisual = p_Caster->SummonCreature(l_MainTemplate->m_CreatureVisualEntry, l_DestinationPosition.GetPositionX(), l_DestinationPosition.GetPositionY(), l_DestinationPosition.GetPositionZ(), 0, TEMPSUMMON_MANUAL_DESPAWN, p_Caster->GetGUID());
+        m_CreatureVisualGUID = l_CreatureVisual->GetGUID();
+    }
+
     sScriptMgr->OnCreateAreaTriggerEntity(this);
+
+    /// Add npc for visual
 
     return true;
 }
@@ -271,6 +280,14 @@ void AreaTrigger::Remove(uint32 p_time)
         SendObjectDeSpawnAnim(GetGUID());
         RemoveFromWorld();
         AddObjectToRemoveList();
+
+        if (m_CreatureVisualGUID != 0)
+        {
+            if (Creature* l_CreatureVisual = GetMap()->GetCreature(m_CreatureVisualGUID))
+            {
+                l_CreatureVisual->DespawnOrUnsummon();
+            }
+        }
     }
 }
 
