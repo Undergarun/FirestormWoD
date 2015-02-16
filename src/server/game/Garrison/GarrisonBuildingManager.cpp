@@ -11,19 +11,62 @@
 #include "DatabaseEnv.h"
 #include "ObjectMgr.h"
 #include "ObjectAccessor.h"
+#include "Chat.h"
 
 namespace MS { namespace Garrison 
 {
     /// Constructor
     BuildingManager::BuildingManager()
     {
-
+        m_AllowedBluePrints.push_back(Buildings::Storehouse__Storehouse_Level1);
+        m_AllowedBluePrints.push_back(Buildings::Barracks__Barracks_Level1);
+        m_AllowedBluePrints.push_back(Buildings::DwarvenBunker__WarMill_Level1);
+        m_AllowedBluePrints.push_back(Buildings::TheForge__TheForge_Level1);
     }
 
     /// Destructor
     BuildingManager::~BuildingManager()
     {
 
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Learn allowed building blue prints
+    /// @p_Player     : Target player
+    void BuildingManager::LearnAllowedBuildings(Player * p_Player)
+    {
+        if (!p_Player || !p_Player->GetGarrison())
+            return;
+
+        std::vector<int32> l_KnownBluePrints = p_Player->GetGarrison()->GetKnownBlueprints();
+
+        for (int32 l_BluePrint : m_AllowedBluePrints)
+        {
+            /// Don't relearn the BluePrint if the player already known it
+            if (std::find(l_KnownBluePrints.begin(), l_KnownBluePrints.end(), l_BluePrint) != l_KnownBluePrints.end())
+                continue;
+
+            p_Player->GetGarrison()->LearnBlueprint(l_BluePrint);
+        }
+    }
+
+    /// Is that blue print allowed for Purchase a building
+    /// @p_BuildingID : Building ID we are looking for
+    /// @p_Player     : Target player
+    bool BuildingManager::IsBluePrintAllowedForPurchasingBuilding(uint32 p_BuildingID, Player * p_Player)
+    {
+        if (!p_Player || !p_Player->GetGarrison())
+            return false;
+
+        if (p_Player->isGameMaster())
+        {
+            ChatHandler(p_Player).PSendSysMessage("IsBluePrintAllowedForPurchasingBuilding Overrided by GM on.");
+            return true;
+        }
+
+        return std::find(m_AllowedBluePrints.begin(), m_AllowedBluePrints.end(), p_BuildingID) != m_AllowedBluePrints.end();
     }
 
     //////////////////////////////////////////////////////////////////////////

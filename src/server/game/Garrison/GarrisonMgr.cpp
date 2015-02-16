@@ -105,6 +105,7 @@ namespace MS { namespace Garrison
             m_Owner->learnSpell(GARRISON_SPELL_GARR_ABILITY, false);
 
         uint32 l_QuestEntry = 0;
+
         /// Select Garrison site ID
         switch (GetGarrisonFactionIndex())
         {
@@ -133,11 +134,7 @@ namespace MS { namespace Garrison
             }
         }
 
-        /// Storehouse learning
-        LearnBlueprint(Buildings::Storehouse__Storehouse_Level1);
-        LearnBlueprint(Buildings::Barracks__Barracks_Level1);
-        LearnBlueprint(Buildings::DwarvenBunker__WarMill_Level1);
-        LearnBlueprint(Buildings::TheForge__TheForge_Level1);
+        sGarrisonBuildingManager->LearnAllowedBuildings(m_Owner);
     }
 
     /// Load
@@ -479,11 +476,7 @@ namespace MS { namespace Garrison
                 }
             }
 
-            /// Storehouse learning
-            LearnBlueprint(Buildings::Storehouse__Storehouse_Level1);
-            LearnBlueprint(Buildings::Barracks__Barracks_Level1);
-            LearnBlueprint(Buildings::DwarvenBunker__WarMill_Level1);
-            LearnBlueprint(Buildings::TheForge__TheForge_Level1);
+            sGarrisonBuildingManager->LearnAllowedBuildings(m_Owner);
 
             return true;
         }

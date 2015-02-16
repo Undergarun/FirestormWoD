@@ -261,23 +261,7 @@ void WorldSession::HandleGarrisonPurchaseBuildingOpcode(WorldPacket & p_RecvData
     p_RecvData >> l_PlotInstanceID;
     p_RecvData >> l_BuildingID;
 
-    bool l_CanBuild = false;
-    switch (l_BuildingID)
-    {
-        case MS::Garrison::Buildings::Barracks__Barracks_Level1:
-        case MS::Garrison::Buildings::Storehouse__Storehouse_Level1:
-            l_CanBuild = true;
-            break;
-
-        case MS::Garrison::Buildings::DwarvenBunker__WarMill_Level1:
-            /// 26/01/2015 @ 12h00
-            l_CanBuild = time(nullptr) >= 1422273600;
-            break;
-
-        default:
-            l_CanBuild = m_Player->isGameMaster();
-            break;
-    }
+    sGarrisonBuildingManager->LearnAllowedBuildings(m_Player);
 
     Creature* l_Unit = GetPlayer()->GetNPCIfCanInteractWithFlag2(l_NpcGUID, UNIT_NPC_FLAG2_GARRISON_ARCHITECT);
 
@@ -307,7 +291,7 @@ void WorldSession::HandleGarrisonPurchaseBuildingOpcode(WorldPacket & p_RecvData
     if (!l_Result)
         l_Result = l_Garrison->CanPurchaseBuilding(l_BuildingID);
 
-    if (!l_CanBuild)
+    if (!sGarrisonBuildingManager->IsBluePrintAllowedForPurchasingBuilding(l_BuildingID, m_Player))
         l_Result = MS::Garrison::PurchaseBuildingResults::InvalidBuildingID;
 
     WorldPacket l_PlaceResult(SMSG_GARRISON_PLACE_BUILDING_RESULT, 26);
