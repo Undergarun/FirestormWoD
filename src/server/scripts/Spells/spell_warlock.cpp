@@ -555,20 +555,42 @@ class spell_warl_imp_swarm: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_imp_swarm_SpellScript);
 
+            SpellCastResult CheckSpec()
+            {
+                Unit *l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return SPELL_FAILED_DONT_REPORT;
+
+                if (l_Caster->GetTypeId() != TYPEID_PLAYER)
+                    return SPELL_FAILED_DONT_REPORT;
+
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_WARLOCK_DEMONOLOGY)
+                    return SPELL_FAILED_DONT_REPORT;
+
+                return SPELL_CAST_OK;
+            }
+
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (Unit* caster = GetCaster())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
                         for (uint8 i = 0; i < GetEffectValue(); i++)
-                            caster->CastSpell(target, WARLOCK_WILD_IMP_SUMMON, true);
+                        {
+                            l_Player->AddAura(WARLOCK_DEMONIC_CALL, l_Player);
+                            l_Player->CastSpell(l_Target, WARLOCK_WILD_IMP_SUMMON, true);
+                        }
                     }
                 }
             }
 
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_warl_imp_swarm_SpellScript::CheckSpec);
                 OnEffectHitTarget += SpellEffectFn(spell_warl_imp_swarm_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
