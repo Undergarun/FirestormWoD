@@ -7510,23 +7510,6 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
             }
         }
 
-        // Chaos Bolt with Grimoire
-        if (GetSpellInfo()->Id == 116858)
-        {
-            if (Player* _player = GetCaster()->ToPlayer())
-                if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_WARLOCK_DESTRUCTION && _player->HasAura(108503))
-                {
-                    SpellInfo const* chaosBolt;
-                    int32 chaosBoltDamage;
-                    chaosBolt = sSpellMgr->GetSpellInfo(116858);
-                    chaosBoltDamage = _player->CalculateSpellDamage(target, chaosBolt, 0);
-                    chaosBoltDamage = caster->SpellDamageBonusDone(target, chaosBolt, chaosBoltDamage, GetEffIndex(), SPELL_DIRECT_DAMAGE);
-                    chaosBoltDamage = CalculatePct(chaosBoltDamage, 15);
-                    chaosBoltDamage /= 3;
-                    damage = chaosBoltDamage;
-                }
-        }
-
         // Curse of Agony damage-per-tick calculation
         if (GetSpellInfo()->Id == 980)
         {
@@ -7620,7 +7603,6 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
 
                 int32 afflictionDamage;
                 SpellInfo const* afflictionSpell;
-                bool grimoireOfSacrifice = caster->HasAura(108503);
 
                 // ... and deals instantly 60% of tick-damage for each affliction effects on the target
                 // Corruption ...
@@ -7631,9 +7613,6 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
                     afflictionDamage = caster->SpellDamageBonusDone(target, afflictionSpell, afflictionDamage, EFFECT_0, DOT);
                     afflictionDamage = target->SpellDamageBonusTaken(caster, afflictionSpell, afflictionDamage, DOT);
                     afflictionDamage = CalculatePct(afflictionDamage, GetSpellInfo()->Effects[4].BasePoints);
-
-                    if (grimoireOfSacrifice)
-                        AddPct(afflictionDamage, 50);
 
                     caster->CastCustomSpell(target, 131740, &afflictionDamage, NULL, NULL, true);
                 }
@@ -7646,9 +7625,6 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
                     afflictionDamage = target->SpellDamageBonusTaken(caster, afflictionSpell, afflictionDamage, DOT);
                     afflictionDamage = CalculatePct(afflictionDamage, GetSpellInfo()->Effects[4].BasePoints);
 
-                    if (grimoireOfSacrifice)
-                        AddPct(afflictionDamage, 50);
-
                     caster->CastCustomSpell(target, 131736, &afflictionDamage, NULL, NULL, true);
                 }
                 // Seed of Corruption ...
@@ -7660,9 +7636,6 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
                     afflictionDamage = target->SpellDamageBonusTaken(caster, afflictionSpell, afflictionDamage, DOT);
                     afflictionDamage = CalculatePct(afflictionDamage, GetSpellInfo()->Effects[4].BasePoints);
 
-                    if (grimoireOfSacrifice)
-                        AddPct(afflictionDamage, 50);
-
                     caster->CastCustomSpell(target, 132566, &afflictionDamage, NULL, NULL, true);
                 }
                 // Agony ...
@@ -7673,9 +7646,6 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
                     afflictionDamage = caster->SpellDamageBonusDone(target, afflictionSpell, afflictionDamage, EFFECT_0, DOT);
                     afflictionDamage = target->SpellDamageBonusTaken(caster, afflictionSpell, afflictionDamage, DOT);
                     afflictionDamage = CalculatePct(afflictionDamage, GetSpellInfo()->Effects[4].BasePoints);
-
-                    if (grimoireOfSacrifice)
-                        AddPct(afflictionDamage, 50);
 
                     agony->ModStackAmount(1);
 

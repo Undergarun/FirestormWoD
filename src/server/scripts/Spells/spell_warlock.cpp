@@ -833,148 +833,49 @@ class spell_warl_grimoire_of_sacrifice: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_grimoire_of_sacrifice_AuraScript);
 
-            void CalculateEffectAmount2(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            void CalculateEffectAmountDestruction(constAuraEffectPtr /*aurEff*/, int32 & l_Amount, bool & /*canBeRecalculated*/)
             {
-                if (!GetUnitOwner())
+                Unit* l_Owner = GetUnitOwner();
+
+                if (l_Owner == nullptr)
                     return;
 
-                if (Player* target = GetUnitOwner()->ToPlayer())
+                if (Player* l_Target = l_Owner->ToPlayer())
                 {
-                    if (target->GetSpecializationId(target->GetActiveSpec()) != SPEC_WARLOCK_AFFLICTION)
-                        amount = 0;
+                    if (l_Target->GetSpecializationId(l_Target->GetActiveSpec()) != SPEC_WARLOCK_DESTRUCTION)
+                        l_Amount = 0;
                 }
             }
 
-            void CalculateEffectAmount3(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            void CalculateEffectAmountAffliction(constAuraEffectPtr /*aurEff*/, int32 & l_Amount, bool & /*canBeRecalculated*/)
             {
-                if (!GetUnitOwner())
+                Unit* l_Owner = GetUnitOwner();
+
+                if (l_Owner == nullptr)
                     return;
 
-                if (Player* target = GetUnitOwner()->ToPlayer())
+                if (Player* l_Target = l_Owner->ToPlayer())
                 {
-                    if (target->GetSpecializationId(target->GetActiveSpec()) != SPEC_WARLOCK_DEMONOLOGY)
-                        amount = 0;
-                }
-            }
-
-            void CalculateEffectAmount4(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
-            {
-                if (!GetUnitOwner())
-                    return;
-
-                if (Player* target = GetUnitOwner()->ToPlayer())
-                {
-                    if (target->GetSpecializationId(target->GetActiveSpec()) != SPEC_WARLOCK_DESTRUCTION)
-                        amount = 0;
-                }
-            }
-
-            void CalculateEffectAmount5(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
-            {
-                if (!GetUnitOwner())
-                    return;
-
-                if (Player* target = GetUnitOwner()->ToPlayer())
-                {
-                    if (target->GetSpecializationId(target->GetActiveSpec()) != SPEC_WARLOCK_AFFLICTION)
-                        amount = 0;
-                }
-            }
-
-            void CalculateEffectAmount6(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
-            {
-                if (!GetUnitOwner())
-                    return;
-
-                if (Player* target = GetUnitOwner()->ToPlayer())
-                {
-                    if (!target->HasSpell(WARLOCK_SOUL_LINK_TALENT))
-                        amount = 0;
-                }
-            }
-
-            void CalculateEffectAmount7(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
-            {
-                if (!GetUnitOwner())
-                    return;
-
-                if (Player* target = GetUnitOwner()->ToPlayer())
-                {
-                    if (target->GetSpecializationId(target->GetActiveSpec()) != SPEC_WARLOCK_AFFLICTION)
-                        amount = 0;
-                }
-            }
-
-            void CalculateEffectAmount8(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
-            {
-                if (!GetUnitOwner())
-                    return;
-
-                if (Player* target = GetUnitOwner()->ToPlayer())
-                {
-                    if (target->GetSpecializationId(target->GetActiveSpec()) != SPEC_WARLOCK_AFFLICTION)
-                        amount = 0;
-                }
-            }
-
-            void CalculateEffectAmount9(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
-            {
-                if (!GetUnitOwner())
-                    return;
-
-                if (Player* target = GetUnitOwner()->ToPlayer())
-                {
-                    if (target->GetSpecializationId(target->GetActiveSpec()) != SPEC_WARLOCK_DEMONOLOGY)
-                        amount = 0;
-                }
-            }
-
-            void CalculateEffectAmount10(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
-            {
-                if (!GetUnitOwner())
-                    return;
-
-                if (Player* target = GetUnitOwner()->ToPlayer())
-                {
-                    if (target->GetSpecializationId(target->GetActiveSpec()) != SPEC_WARLOCK_DESTRUCTION)
-                        amount = 0;
-                }
-            }
-
-            void CalculateEffectAmount11(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
-            {
-                if (!GetUnitOwner())
-                    return;
-
-                if (Player* target = GetUnitOwner()->ToPlayer())
-                {
-                    if (target->GetSpecializationId(target->GetActiveSpec()) != SPEC_WARLOCK_DESTRUCTION)
-                        amount = 0;
+                    if (l_Target->GetSpecializationId(l_Target->GetActiveSpec()) != SPEC_WARLOCK_AFFLICTION)
+                        l_Amount = 0;
                 }
             }
 
             void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (!GetTarget())
+                Unit* l_Target = GetTarget();
+
+                if (l_Target == nullptr)
                     return;
 
-                if (Player* _player = GetTarget()->ToPlayer())
-                    if (_player->HasAura(WARLOCK_SUPPLANT_DEMONIC_COMMAND))
-                        _player->RemoveAura(WARLOCK_SUPPLANT_DEMONIC_COMMAND);
+                if (l_Target->HasAura(WARLOCK_SUPPLANT_DEMONIC_COMMAND))
+                    l_Target->RemoveAura(WARLOCK_SUPPLANT_DEMONIC_COMMAND);
             }
 
             void Register()
             {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_grimoire_of_sacrifice_AuraScript::CalculateEffectAmount2, EFFECT_2, SPELL_AURA_ADD_PCT_MODIFIER);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_grimoire_of_sacrifice_AuraScript::CalculateEffectAmount3, EFFECT_3, SPELL_AURA_ADD_PCT_MODIFIER);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_grimoire_of_sacrifice_AuraScript::CalculateEffectAmount4, EFFECT_4, SPELL_AURA_ADD_PCT_MODIFIER);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_grimoire_of_sacrifice_AuraScript::CalculateEffectAmount5, EFFECT_5, SPELL_AURA_ADD_PCT_MODIFIER);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_grimoire_of_sacrifice_AuraScript::CalculateEffectAmount6, EFFECT_6, SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_grimoire_of_sacrifice_AuraScript::CalculateEffectAmount7, EFFECT_7, SPELL_AURA_ADD_PCT_MODIFIER);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_grimoire_of_sacrifice_AuraScript::CalculateEffectAmount8, EFFECT_8, SPELL_AURA_ADD_PCT_MODIFIER);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_grimoire_of_sacrifice_AuraScript::CalculateEffectAmount9, EFFECT_9, SPELL_AURA_ADD_PCT_MODIFIER);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_grimoire_of_sacrifice_AuraScript::CalculateEffectAmount10, EFFECT_10, SPELL_AURA_ADD_PCT_MODIFIER);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_grimoire_of_sacrifice_AuraScript::CalculateEffectAmount11, EFFECT_11, SPELL_AURA_ADD_FLAT_MODIFIER);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_grimoire_of_sacrifice_AuraScript::CalculateEffectAmountDestruction, EFFECT_3, SPELL_AURA_ADD_PCT_MODIFIER);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_grimoire_of_sacrifice_AuraScript::CalculateEffectAmountAffliction, EFFECT_4, SPELL_AURA_ADD_PCT_MODIFIER);
                 OnEffectRemove += AuraEffectApplyFn(spell_warl_grimoire_of_sacrifice_AuraScript::HandleRemove, EFFECT_1, SPELL_AURA_OBS_MOD_HEALTH, AURA_EFFECT_HANDLE_REAL);
             }
         };
