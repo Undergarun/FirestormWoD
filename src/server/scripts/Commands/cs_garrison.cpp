@@ -25,10 +25,11 @@ class garrison_commandscript: public CommandScript
             };
 
             static ChatCommand plotCommandTable[] =
-            {
-                { "info", SEC_GAMEMASTER, true, &HandlePlotInfoCommand, "", NULL },
-                { "add",  SEC_GAMEMASTER, true, &HandlePlotAddCommand,  "", NULL },
-                { "del",  SEC_GAMEMASTER, true, &HandlePlotDelCommand,  "", NULL },
+            {                                                                
+                { "info",    SEC_GAMEMASTER, true, &HandlePlotInfoCommand,   "", NULL },
+                { "add",     SEC_GAMEMASTER, true, &HandlePlotAddCommand,    "", NULL },
+                { "del",     SEC_GAMEMASTER, true, &HandlePlotDelCommand,    "", NULL },
+                { "import",  SEC_GAMEMASTER, true, &HandlePlotImportCommand, "", NULL },
             };
 
             static ChatCommand followerCommandTable[] =
@@ -260,7 +261,7 @@ class garrison_commandscript: public CommandScript
             char   l_Buffer[120];
             char * lPtrData = nullptr;
 
-            sprintf(l_Buffer, "{ %.4f.f, %.4f.f, %.4f.f, %.4f.f },", l_ElementPosition.x, l_ElementPosition.y, l_ElementPosition.z, l_Orientation);
+            sprintf(l_Buffer, "{ %.4ff, %.4ff, %.4ff, %.4ff },", l_ElementPosition.x, l_ElementPosition.y, l_ElementPosition.z, l_Orientation);
 
             HANDLE l_Handle;
 
@@ -281,6 +282,7 @@ class garrison_commandscript: public CommandScript
 
             return true;
         }
+
         static bool HandlePlotAddCommand(ChatHandler * p_Handler, char const* p_Args)
         {
             Player * l_Player = p_Handler->GetSession()->GetPlayer();
@@ -372,6 +374,7 @@ class garrison_commandscript: public CommandScript
 
             return true;
         }
+
         static bool HandlePlotDelCommand(ChatHandler * p_Handler, char const* p_Args)
         {
             Player      * l_Player = p_Handler->GetSession()->GetPlayer();
@@ -446,6 +449,144 @@ class garrison_commandscript: public CommandScript
             return true;
         }
         
+        static bool HandlePlotImportCommand(ChatHandler * p_Handler, char const* p_Args)
+        {
+            Player * l_Player = p_Handler->GetSession()->GetPlayer();
+
+            if (!l_Player || !l_Player->GetGarrison())
+            {
+                p_Handler->SendSysMessage("You don't have a garrison");
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            MS::Garrison::GarrisonPlotInstanceInfoLocation l_Info = l_Player->GetGarrison()->GetPlot(l_Player->GetPositionX(), l_Player->GetPositionY(), l_Player->GetPositionZ());
+
+            if (!l_Info.PlotInstanceID)
+            {
+                p_Handler->SendSysMessage("Plot not found");
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            MS::Garrison::GarrisonBuilding l_Building = l_Player->GetGarrison()->GetBuilding(l_Info.PlotInstanceID);
+
+            if (!l_Building.BuildingID)
+            {
+                p_Handler->SendSysMessage("Building not found");
+                p_Handler->SetSentErrorMessage(true);
+            }
+
+            int32 l_ElemEntry = 0;
+            float l_X = 0;
+            float l_Y = 0;
+            float l_Z = 0;
+            float l_O = 0;
+
+            Creature * l_Target = p_Handler->getSelectedCreature();
+
+            if (l_Target)
+            {
+                l_ElemEntry = l_Target->GetEntry();
+                l_X = l_Target->GetPositionX();
+                l_Y = l_Target->GetPositionY();
+                l_Z = l_Target->GetPositionZ();
+                l_O = l_Target->GetOrientation();
+            }
+            else if (p_Args != 0)
+            {
+                uint32 l_GuidLow = atoi(p_Args);
+
+                if (!l_GuidLow)
+                {
+                    p_Handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, l_GuidLow);
+                    p_Handler->SetSentErrorMessage(true);
+                    return false;
+                }
+
+                GameObject * l_GameObject = nullptr;
+
+                if (GameObjectData const* l_GameObjectData = sObjectMgr->GetGOData(l_GuidLow))
+                    l_GameObject = p_Handler->GetObjectGlobalyWithGuidOrNearWithDbGuid(l_GuidLow, l_GameObjectData->id);
+
+                if (!l_GameObject)
+                {
+                    p_Handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, l_GuidLow);
+                    p_Handler->SetSentErrorMessage(true);
+                    return false;
+                }
+
+                l_ElemEntry = -(int32)l_GameObject->GetEntry();
+                l_X = l_GameObject->GetPositionX();
+                l_Y = l_GameObject->GetPositionY();
+                l_Z = l_GameObject->GetPositionZ();
+                l_O = l_GameObject->GetOrientation();
+            }
+            else
+            {
+                p_Handler->SendSysMessage("Not creature/gameobject selected");
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            G3D::Matrix3 l_Mat = G3D::Matrix3::identity();
+            l_Mat = l_Mat.fromAxisAngle(G3D::Vector3(0, 0, 1), -l_Info.O);
+
+            G3D::Vector3 l_ElementPosition = G3D::Vector3(l_X, l_Y, 0);
+            l_ElementPosition -= G3D::Vector3(l_Info.X, l_Info.Y, 0);
+            l_ElementPosition = l_Mat *l_ElementPosition;
+            l_ElementPosition.z = l_Z - l_Info.Z;
+
+            if (l_ElemEntry > 0)
+                l_ElementPosition.z += 0.5f;
+
+            int32 l_TableIndex = l_Player->GetGarrison()->GetPlotType(l_Info.PlotInstanceID);
+            if (l_Building.Active)
+                l_TableIndex = -int32(l_Building.BuildingID);
+
+            GarrisonPlotBuildingContent l_NewData;
+            l_NewData.PlotTypeOrBuilding    = l_TableIndex;
+            l_NewData.CreatureOrGob         = l_ElemEntry;
+            l_NewData.FactionIndex          = l_Player->GetGarrison()->GetGarrisonFactionIndex();
+            l_NewData.X                     = l_ElementPosition.x;
+            l_NewData.Y                     = l_ElementPosition.y;
+            l_NewData.Z                     = l_ElementPosition.z;
+            l_NewData.O                     = Position::NormalizeOrientation((2 * M_PI) - Position::NormalizeOrientation(l_Info.O - l_O));
+
+            sObjectMgr->AddGarrisonPlotBuildingContent(l_NewData);
+
+            /// Test code
+            if (true)
+            {
+                G3D::Vector3 l_NonRotatedPosition;
+
+                l_Mat = G3D::Matrix3::identity();
+                l_Mat = l_Mat.fromAxisAngle(G3D::Vector3(0, 0, 1), -l_Info.O);
+
+                /// transform plot coord
+                l_NonRotatedPosition = l_Mat * G3D::Vector3(l_Info.X, l_Info.Y, l_Info.Z);
+
+                G3D::Vector3 l_Position = G3D::Vector3(l_ElementPosition.x, l_ElementPosition.y, 0);
+
+                l_Mat = G3D::Matrix3::identity();
+                l_Mat = l_Mat.fromAxisAngle(G3D::Vector3(0, 0, 1), l_Info.O);
+
+                l_Position.x += l_NonRotatedPosition.x;
+                l_Position.y += l_NonRotatedPosition.y;
+
+                l_Position = l_Mat * l_Position;
+
+                l_Position.z = l_ElementPosition.z + l_Info.Z;
+
+                p_Handler->PSendSysMessage("Spawn coord %f %f %f %f", l_X, l_Y, l_Z, l_O);
+                p_Handler->PSendSysMessage("Trans coord %f %f %f %f", l_Position.x, l_Position.y, l_Position.z, l_NewData.O + l_Info.O);
+            }
+
+            l_Player->GetGarrison()->OnPlayerEnter();
+
+            return true;
+        }
+
         static bool HandleFollowerAddCommand(ChatHandler * p_Handler, char const* p_Args)
         {
             Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
