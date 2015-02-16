@@ -1437,8 +1437,7 @@ class spell_rog_preparation: public SpellScriptLoader
 
                     if (spellInfo->SpellFamilyName == SPELLFAMILY_ROGUE)
                     {
-                        if (spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_ROGUE_VAN_EVAS_SPRINT ||   // Vanish, Evasion, Sprint
-                            spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_ROGUE_DISMANTLE)          // Dismantle is removed since 6.0.2
+                        if (spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_ROGUE_VAN_EVAS_SPRINT) ///< Vanish, Evasion, Sprint
                             caster->RemoveSpellCooldown((itr++)->first, true);
                         else
                             ++itr;
