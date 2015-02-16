@@ -3522,6 +3522,12 @@ void SpellMgr::LoadSpellCustomAttr()
             case 129869: ///< Strike from the Heavens
                 spellInfo->Effects[0].TriggerSpell = 129639;
                 break;
+            case 165363: ///< Devastation
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_CRIT_PCT;
+                break;
+            case 165367: ///< Eradication
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_HASTE_SPELLS;
+                break;
             case 165376: ///< Enlightenment
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_MOD_CRIT_PCT;
             case 156989: ///< Liadrin's Righteousness
