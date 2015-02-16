@@ -93,6 +93,39 @@ enum RogueSpells
     ROGUE_SPELL_STEALTH_SUBTERFUGE              = 115191
 };
 
+/// Smoke Bomb - 76577
+class spell_areatrigger_smoke_bomb : public AreaTriggerEntityScript
+{
+    public:
+        spell_areatrigger_smoke_bomb() : AreaTriggerEntityScript("spell_areatrigger_smoke_bomb") { }
+
+        enum eSmokeSpells
+        {
+            SmokeBombAura = 88611
+        };
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+            {
+                std::list<Unit*> l_TargetList;
+                float l_Radius = 8.0f;
+
+                JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
+                JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+                p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+                for (Unit* l_Unit : l_TargetList)
+                    l_Caster->CastSpell(l_Unit, eSmokeSpells::SmokeBombAura, true);
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const
+        {
+            return new spell_areatrigger_smoke_bomb();
+        }
+};
+
 /// Vendetta - 79140
 class spell_rog_enhanced_vendetta : public SpellScriptLoader
 {
@@ -1694,37 +1727,6 @@ public:
     }
 };
 
-// Smoke Bomb - 76577
-class spell_rog_smoke_bomb: public SpellScriptLoader
-{
-public:
-    spell_rog_smoke_bomb() : SpellScriptLoader("spell_rog_smoke_bomb") { }
-
-    class spell_rog_smoke_bomb_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_rog_smoke_bomb_SpellScript);
-
-        void HandleOnHit()
-        {
-            if (Unit* l_Caster = GetCaster())
-            {
-                AreaTrigger* l_Area = l_Caster->GetAreaTrigger(GetSpellInfo()->Id);
-                l_Caster->CastSpell(l_Area->GetPositionX(), l_Area->GetPositionY(), l_Area->GetPositionZ(), ROGUE_SPELL_SMOKE_BOMB, true);
-            }
-        }
-
-        void Register()
-        {
-            OnHit += SpellHitFn(spell_rog_smoke_bomb_SpellScript::HandleOnHit);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_rog_smoke_bomb_SpellScript();
-    }
-};
-
 /// Fan of Knives - 51723
 class spell_rog_fan_of_knives: public SpellScriptLoader
 {
@@ -2018,6 +2020,10 @@ class PlayerScript_ruthlessness : public PlayerScript
 
 void AddSC_rogue_spell_scripts()
 {
+    /// AreaTriggers
+    new spell_areatrigger_smoke_bomb();
+
+    /// Spells
     new spell_rog_enhanced_vendetta();
     new spell_rog_subterfuge();
     new spell_rog_deadly_throw();
@@ -2027,7 +2033,6 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_relentless_strikes_proc();
     new spell_rog_relentless_strikes();
     new spell_rog_fan_of_knives();
-    new spell_rog_smoke_bomb();
     new spell_rog_internal_bleeding();
     new spell_rog_burst_of_speed();
     new spell_rog_killing_spree();
@@ -2059,6 +2064,6 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_shadowstep();
     new spell_rog_stealth();
 
-    // Player Script
+    /// Player Scripts
     new PlayerScript_ruthlessness();
 }

@@ -1556,8 +1556,7 @@ bool SpellInfo::CanDispelAura(SpellInfo const* aura) const
 
     switch (aura->Id)
     {
-        case 94528: // Flare
-        case 76577: // Smoke Bomb
+        case 94528: ///< Flare
             return false;
         default:
             break;
