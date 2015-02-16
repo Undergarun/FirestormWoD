@@ -1832,41 +1832,45 @@ class spell_mage_unstable_magic: public SpellScriptLoader
 // Ice Lance - 30455
 class spell_mage_ice_lance: public SpellScriptLoader
 {
-public:
-    spell_mage_ice_lance() : SpellScriptLoader("spell_mage_ice_lance") { }
+    public:
+        spell_mage_ice_lance() : SpellScriptLoader("spell_mage_ice_lance") { }
 
-    class spell_mage_ice_lance_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_mage_ice_lance_SpellScript);
-
-        void HandleOnHit()
+        class spell_mage_ice_lance_SpellScript : public SpellScript
         {
-            if (Unit* l_Caster = GetCaster())
-            {
-                if (l_Caster->HasSpell(SPELL_MAGE_THERMAL_VOID))
-                    if (AuraPtr l_Aura = l_Caster->GetAura(SPELL_MAGE_ICY_VEINS, l_Caster->GetGUID()))
-                        l_Aura->SetDuration(l_Aura->GetDuration() + sSpellMgr->GetSpellInfo(SPELL_MAGE_THERMAL_VOID)->Effects[EFFECT_0].BasePoints * IN_MILLISECONDS);
+            PrepareSpellScript(spell_mage_ice_lance_SpellScript);
 
-                if (Unit* l_Target = GetHitUnit())
-                    if (l_Target->HasAura(SPELL_MAGE_FROST_BOMB_AURA) && l_Target->isFrozen())
+            void HandleOnHit()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasSpell(SPELL_MAGE_THERMAL_VOID))
                     {
-                        l_Caster->CastSpell(l_Target, SPELL_MAGE_FROST_BOMB_TRIGGERED, true);
-                        l_Caster->CastSpell(l_Target, SPELL_MAGE_FROST_BOMB_VISUAL, true);
+                        if (AuraPtr l_Aura = l_Caster->GetAura(SPELL_MAGE_ICY_VEINS, l_Caster->GetGUID()))
+                            l_Aura->SetDuration(l_Aura->GetDuration() + sSpellMgr->GetSpellInfo(SPELL_MAGE_THERMAL_VOID)->Effects[EFFECT_0].BasePoints * IN_MILLISECONDS);
                     }
 
+
+                    if (Unit* l_Target = GetHitUnit())
+                    {
+                        if (l_Target->HasAura(SPELL_MAGE_FROST_BOMB_AURA, l_Caster->GetGUID()))
+                        {
+                                l_Caster->CastSpell(l_Target, SPELL_MAGE_FROST_BOMB_TRIGGERED, true);
+                                l_Caster->CastSpell(l_Target, SPELL_MAGE_FROST_BOMB_VISUAL, true);
+                        }
+                    }
+                }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_mage_ice_lance_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnHit += SpellHitFn(spell_mage_ice_lance_SpellScript::HandleOnHit);
+            return new spell_mage_ice_lance_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_mage_ice_lance_SpellScript();
-    }
 };
 
 // Pyroblast - 11366
