@@ -751,8 +751,6 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     m_lootSpecId = 0;
     m_BonusRollFails = 0;
 
-    m_comboPoints = 0;
-
     m_RegenPowerTimer = 0;
     m_regenTimerCount = 0;
     m_holyPowerRegenTimerCount = 0;
@@ -26084,57 +26082,6 @@ Player* Player::GetSelectedPlayer() const
     if (m_curSelection)
         return ObjectAccessor::GetPlayer(*this, m_curSelection);
     return NULL;
-}
-
-void Player::SendComboPoints()
-{
-    SetPower(POWER_COMBO_POINT, m_comboPoints);
-}
-
-void Player::AddComboPoints(int8 count, Spell* spell)
-{
-    if (!count)
-        return;
-
-    int8 * comboPoints = spell ? &spell->m_comboPointGain : &m_comboPoints;
-
-    // without combo points lost (duration checked in aura)
-    RemoveAurasByType(SPELL_AURA_RETAIN_COMBO_POINTS);
-
-    *comboPoints += count;
-
-    if (*comboPoints > 5)
-        *comboPoints = 5;
-    else if (*comboPoints < 0)
-        *comboPoints = 0;
-
-    if (!spell)
-        SendComboPoints();
-}
-
-void Player::GainSpellComboPoints(int8 count)
-{
-    if (!count)
-        return;
-
-    m_comboPoints += count;
-    if (m_comboPoints > 5) m_comboPoints = 5;
-    else if (m_comboPoints < 0) m_comboPoints = 0;
-
-    SendComboPoints();
-}
-
-void Player::ClearComboPoints()
-{
-    // without combopoints lost (duration checked in aura)
-    RemoveAurasByType(SPELL_AURA_RETAIN_COMBO_POINTS);
-
-    m_comboPoints = 0;
-    int32 l_ComboPoint = GetPower(POWER_COMBO_POINT);
-    if (l_ComboPoint != 0)
-        ModifyPower(POWER_COMBO_POINT, l_ComboPoint * -1);
-
-    SendComboPoints();
 }
 
 void Player::SetGroup(Group* group, int8 subgroup)

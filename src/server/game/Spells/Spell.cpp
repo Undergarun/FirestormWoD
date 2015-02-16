@@ -2935,12 +2935,12 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     {
         if (Player* plrCaster = m_caster->ToPlayer())
         {
-            if (uint8 cp = plrCaster->GetComboPoints())
+            if (int32 l_Combo = plrCaster->GetPower(Powers::POWER_COMBO_POINT))
             {
                 // Relentless Strikes
                 if (plrCaster->HasAura(58423))
                 {
-                    if (roll_chance_i(cp * 20))
+                    if (roll_chance_i(l_Combo * 20))
                     {
                         if (!plrCaster->HasSpellCooldown(98440))
                         {
@@ -2953,7 +2953,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
                 else if (plrCaster->HasAura(114107))
                 {
                     if (plrCaster->GetSpecializationId(plrCaster->GetActiveSpec()) == SPEC_DRUID_FERAL)
-                        plrCaster->EnergizeBySpell(plrCaster, 114107, 4 * cp, POWER_ENERGY);
+                        plrCaster->EnergizeBySpell(plrCaster, 114107, 4 * l_Combo, POWER_ENERGY);
                 }
             }
         }
@@ -4206,7 +4206,7 @@ void Spell::_handle_finish_phase()
         // Take for real after all targets are processed
         if (m_needComboPoints || m_spellInfo->Id == 127538)
         {
-            m_caster->m_movedPlayer->ClearComboPoints();
+            m_caster->ClearComboPoints();
 
             // Anticipation
             if (Player* _player = m_caster->ToPlayer())
@@ -4224,7 +4224,7 @@ void Spell::_handle_finish_phase()
 
         // Real add combo points from effects
         if (m_comboPointGain)
-            m_caster->m_movedPlayer->GainSpellComboPoints(m_comboPointGain);
+            m_caster->AddComboPoints(m_comboPointGain);
 
         if (m_spellInfo->PowerType == POWER_HOLY_POWER && m_caster->m_movedPlayer->getClass() == CLASS_PALADIN)
             HandleHolyPower(m_caster->m_movedPlayer);
@@ -6908,11 +6908,9 @@ SpellCastResult Spell::CheckCast(bool strict)
         }
     }
 
-    // check if caster has at least 1 combo point for spells that require combo points
-    if (m_needComboPoints)
-        if (Player* plrCaster = m_caster->ToPlayer())
-            if (!plrCaster->GetComboPoints())
-                return SPELL_FAILED_NO_COMBO_POINTS;
+    /// Check if caster has at least 1 combo point for spells that require combo points
+    if (m_needComboPoints && !m_caster->GetPower(Powers::POWER_COMBO_POINT))
+        return SPELL_FAILED_NO_COMBO_POINTS;
 
     // all ok
     return SPELL_CAST_OK;

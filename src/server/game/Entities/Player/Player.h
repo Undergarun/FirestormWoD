@@ -2049,13 +2049,6 @@ class Player : public Unit, public GridObject<Player>
         Player* GetSelectedPlayer() const;
         void SetSelection(uint64 guid) { m_curSelection = guid; SetGuidValue(UNIT_FIELD_TARGET, guid); }
 
-        uint8 GetComboPoints() const { return m_comboPoints; }
-
-        void AddComboPoints(int8 count, Spell* spell = NULL);
-        void GainSpellComboPoints(int8 count);
-        void ClearComboPoints();
-        void SendComboPoints();
-
         void SendMailResult(uint32 mailId, MailResponseType mailAction, MailResponseResult mailError, uint32 equipError = 0, uint32 item_guid = 0, uint32 item_count = 0);
         void SendNewMail();
         void UpdateNextMailTimeAndUnreads();
@@ -3604,8 +3597,6 @@ class Player : public Unit, public GridObject<Player>
 
         uint32 m_ExtraFlags;
         uint64 m_curSelection;
-
-        int8 m_comboPoints;
 
         QuestStatusMap m_QuestStatus;
         QuestObjectiveStatusMap m_questObjectiveStatus;
