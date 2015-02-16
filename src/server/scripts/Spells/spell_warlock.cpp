@@ -2071,6 +2071,7 @@ class spell_warl_shadowburn: public SpellScriptLoader
 
 enum BurningEmbersSpells
 {
+    SPELL_WARL_GLYPH_OF_VERDANT_SPHERES = 56241,
     SPELL_WARL_CHARRED_REMAINS = 157696
 };
 
@@ -2115,6 +2116,122 @@ class spell_warl_burning_embers: public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_warl_burning_embers_SpellScript();
+        }
+};
+
+class spell_warl_burning_embers_regen : public PlayerScript
+{
+    public:
+        spell_warl_burning_embers_regen() : PlayerScript("spell_warl_burning_embers_regen")
+        {
+            m_LastCombat = 0;
+            m_RegenTimer = 2000;
+        }
+
+        uint64 m_LastCombat; ///< Timestamp at when leaving last combat
+        uint32 m_RegenTimer; ///< Timer in millisecondes we regenate the burnign embers
+
+        void OnLeaveCombat(Player* p_Player)
+        {
+            if (p_Player == nullptr
+                || p_Player->getClass() != Classes::CLASS_WARLOCK
+                || p_Player->GetSpecializationId(p_Player->GetActiveSpec()) != SpecIndex::SPEC_WARLOCK_DESTRUCTION)
+                return;
+
+            m_LastCombat = getMSTime();
+        }
+
+        /// Handle regeneration of burning embers
+        /// Call at each update tick (100 ms)
+        void OnUpdate(Player * p_Player, uint32 p_Diff)
+        {
+            if (p_Player == nullptr
+                || p_Player->getClass() != Classes::CLASS_WARLOCK
+                || p_Player->GetSpecializationId(p_Player->GetActiveSpec()) != SpecIndex::SPEC_WARLOCK_DESTRUCTION)
+                return;
+
+            if (m_RegenTimer <= p_Diff)
+            {
+                /// After 25s out of combat...
+                if (p_Player->isInCombat() || (m_LastCombat != 0 && GetMSTimeDiffToNow(m_LastCombat) < (25 * IN_MILLISECONDS)))
+                    return;
+
+                int32 l_CurrentPower = p_Player->GetPower(POWER_BURNING_EMBERS);
+
+                /// ...return to one embers if no one
+                /// or return to one if more than one
+                if (l_CurrentPower < (1 * p_Player->GetPowerCoeff(POWER_BURNING_EMBERS)))
+                    p_Player->SetPower(POWER_BURNING_EMBERS, l_CurrentPower + 1, true);
+                else if (l_CurrentPower > (1 * p_Player->GetPowerCoeff(POWER_BURNING_EMBERS)))
+                    p_Player->SetPower(POWER_BURNING_EMBERS, l_CurrentPower - 1, true);
+
+                m_RegenTimer = 2 * IN_MILLISECONDS;
+            }
+            else
+                m_RegenTimer -= p_Diff;
+        }
+
+        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool /*p_Regen*/)
+        {
+            if (p_Player == nullptr
+                || p_Player->getClass() != Classes::CLASS_WARLOCK
+                || p_Player->GetSpecializationId(p_Player->GetActiveSpec()) != SpecIndex::SPEC_WARLOCK_DESTRUCTION
+                || p_Power != POWER_BURNING_EMBERS)
+                return;
+
+            if (p_Player->HasAura(SPELL_WARL_GLYPH_OF_VERDANT_SPHERES))
+            {
+                if (p_NewValue < (2 * p_Player->GetPowerCoeff(POWER_BURNING_EMBERS)))
+                {
+                    p_Player->RemoveAura(123728); ///< 2 shards visual
+                    p_Player->RemoveAura(123730); ///< 3 shards visual
+                    p_Player->RemoveAura(123731); ///< 4 shards visual
+                }
+                else if (p_NewValue < (3 * p_Player->GetPowerCoeff(POWER_BURNING_EMBERS)))
+                {
+                    p_Player->CastSpell(p_Player, 123728, true); ///< 2 shards visual
+                    p_Player->RemoveAura(123730);                ///< 3 shards visual
+                    p_Player->RemoveAura(123731);                ///< 4 shards visual
+                }
+                else if (p_NewValue < (4 * p_Player->GetPowerCoeff(POWER_BURNING_EMBERS)))
+                {
+                    p_Player->CastSpell(p_Player, 123728, true); ///< 2 shards visual
+                    p_Player->CastSpell(p_Player, 123730, true); ///< 3 shards visual
+                    p_Player->RemoveAura(123731);                ///< 4 shards visual
+                }
+                else if (p_NewValue >= (4 * p_Player->GetPowerCoeff(POWER_BURNING_EMBERS)))
+                {
+                    p_Player->CastSpell(p_Player, 123728, true); ///< 2 shards visual
+                    p_Player->CastSpell(p_Player, 123730, true); ///< 3 shards visual
+                    p_Player->CastSpell(p_Player, 123731, true); ///< 4 shards visual
+                }
+            }
+            else
+            {
+                if (p_NewValue < (2 * p_Player->GetPowerCoeff(POWER_BURNING_EMBERS)))
+                {
+                    p_Player->CastSpell(p_Player, 116856, true); ///< Remove visual for 2,3,4 shards
+                }
+                else if (p_NewValue < (3 * p_Player->GetPowerCoeff(POWER_BURNING_EMBERS)))
+                {
+                    p_Player->CastSpell(p_Player, 116854, true);  ///< 2 shards visual
+                    p_Player->RemoveAura(116855);                 ///< 3 shards visual
+                    p_Player->RemoveAura(116920);                 ///< 4 shards visual
+                }
+                else if (p_NewValue < (4 * p_Player->GetPowerCoeff(POWER_BURNING_EMBERS)))
+                {
+                    p_Player->CastSpell(p_Player, 116854, true); ///< 2 shards visual
+                    p_Player->CastSpell(p_Player, 116855, true); ///< 3 shards visual
+                    p_Player->RemoveAura(116920);                ///< 4 shards visual
+                }
+                else if (p_NewValue >= (4 * p_Player->GetPowerCoeff(POWER_BURNING_EMBERS)))
+                {
+                    p_Player->CastSpell(p_Player, 116854, true); ///< 2 shards visual
+                    p_Player->CastSpell(p_Player, 116855, true); ///< 3 shards visual
+                    p_Player->CastSpell(p_Player, 116920, true); ///< 4 shards visual
+                }
+            }
+
         }
 };
 
@@ -2907,6 +3024,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_conflagrate_aura();
     new spell_warl_shadowburn();
     new spell_warl_burning_embers();
+    new spell_warl_burning_embers_regen();
     new spell_warl_drain_life();
     new spell_warl_soul_harverst();
     new spell_warl_life_tap();
