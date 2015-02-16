@@ -10111,27 +10111,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
             target = victim;
             break;
         }
-        /// Finish movies that add combo
-        case 139546:///< Ruthlessness
-        {
-            if (!victim || victim == this)
-                return false;
-
-            if (int32 l_Combo = GetPower(Powers::POWER_COMBO_POINT))
-            {
-                if (!procSpell)
-                    return false;
-
-                if (!procSpell->NeedsComboPoints())
-                    return false;
-
-                if (!roll_chance_i(l_Combo * 20))
-                    return false;
-            }
-
-            /// Need add combo point AFTER finish movie (or they dropped in finish phase)
-            break;
-        }
         // Item - Druid T10 Balance 2P Bonus
         case 16870:
         {

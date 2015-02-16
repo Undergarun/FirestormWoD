@@ -1992,30 +1992,28 @@ public:
 
 class PlayerScript_ruthlessness : public PlayerScript
 {
-public:
-    PlayerScript_ruthlessness() : PlayerScript("PlayerScript_ruthlessness") {}
+    public:
+        PlayerScript_ruthlessness() : PlayerScript("PlayerScript_ruthlessness") { }
 
-    void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
-    {
-        if (p_Regen)
-            return;
-
-        // Get the power earn (if > 0 ) or consum (if < 0)
-        int32 l_diffValue = p_NewValue - p_OldValue;
-
-        if (p_Player->getClass() == CLASS_ROGUE && p_Player->GetSpecializationId(p_Player->GetActiveSpec()) == SPEC_ROGUE_COMBAT && p_Power == POWER_COMBO_POINT)
+        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
         {
-            if (l_diffValue < 0 && p_Player->HasAura(ROGUE_SPELL_RUTHLESSNESS))
+            if (p_Regen || p_Power != POWER_COMBO_POINT || p_Player->getClass() != CLASS_ROGUE || !p_Player->HasAura(ROGUE_SPELL_RUTHLESSNESS))
+                return;
+
+            /// Get the power earn (if > 0 ) or consum (if < 0)
+            int32 l_DiffVal = p_NewValue - p_OldValue;
+
+            if (l_DiffVal < 0 && p_Player->HasAura(ROGUE_SPELL_RUTHLESSNESS))
             {
+                int32 l_Duration = sSpellMgr->GetSpellInfo(ROGUE_SPELL_RUTHLESSNESS)->Effects[EFFECT_2].BasePoints;
                 if (p_Player->HasSpellCooldown(ROGUE_SPELL_ADRENALINE_RUSH))
-                    p_Player->ReduceSpellCooldown(ROGUE_SPELL_ADRENALINE_RUSH, sSpellMgr->GetSpellInfo(ROGUE_SPELL_RUTHLESSNESS)->Effects[EFFECT_2].BasePoints * l_diffValue * -1);
+                    p_Player->ReduceSpellCooldown(ROGUE_SPELL_ADRENALINE_RUSH, -(l_Duration * l_DiffVal));
                 if (p_Player->HasSpellCooldown(ROGUE_SPELL_KILLING_SPREE))
-                    p_Player->ReduceSpellCooldown(ROGUE_SPELL_KILLING_SPREE, sSpellMgr->GetSpellInfo(ROGUE_SPELL_RUTHLESSNESS)->Effects[EFFECT_2].BasePoints * l_diffValue * -1);
+                    p_Player->ReduceSpellCooldown(ROGUE_SPELL_KILLING_SPREE, -(l_Duration * l_DiffVal));
                 if (p_Player->HasSpellCooldown(ROGUE_SPELL_SPRINT))
-                    p_Player->ReduceSpellCooldown(ROGUE_SPELL_SPRINT, sSpellMgr->GetSpellInfo(ROGUE_SPELL_RUTHLESSNESS)->Effects[EFFECT_2].BasePoints * l_diffValue * -1);
+                    p_Player->ReduceSpellCooldown(ROGUE_SPELL_SPRINT, -(l_Duration * l_DiffVal));
             }
         }
-    }
 };
 
 void AddSC_rogue_spell_scripts()
