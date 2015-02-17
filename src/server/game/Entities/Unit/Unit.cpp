@@ -12030,7 +12030,7 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
         case SPELLFAMILY_ROGUE:
         {
             // Revealing Strike for direct damage abilities
-            if (spellProto->AttributesEx & SPELL_ATTR1_REQ_COMBO_POINTS1 && damagetype != DOT)
+            if (spellProto->NeedsComboPoints() && damagetype != DOT)
             {
                 if (AuraEffectPtr aurEff = victim->GetAuraEffect(84617, 2, GetGUID()))
                     DoneTotalMod *= (100.0f + aurEff->GetAmount()) / 100.0f;

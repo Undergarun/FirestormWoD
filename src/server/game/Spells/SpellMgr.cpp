@@ -3468,6 +3468,13 @@ void SpellMgr::LoadSpellCustomAttr()
             case 134531: ///< Web Thread
                 spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED_1;
                 break;
+            case 152150:///< Death from Above (periodic dummy)
+                spellInfo->Effects[5].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                break;
+            case 178236:///< Death from Above (jump dest)
+                spellInfo->Effects[0].TargetB = TARGET_DEST_CASTER_BACK;
+                spellInfo->Effects[0].ValueMultiplier = 40.0f;
+                break;
             case 139498: ///< Web Spray
                 spellInfo->Effects[1].TriggerSpell = 0;
                 break;

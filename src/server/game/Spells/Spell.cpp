@@ -4875,7 +4875,7 @@ void Spell::SendSpellStart()
 void Spell::SendSpellGo()
 {
     // not send invisible spell casting
-    if (!IsNeedSendToClient())
+    if (!IsNeedSendToClient() && m_spellInfo->Id != 178236)
         return;
 
     bool l_IsHealthPowerSpell = false;
@@ -4972,7 +4972,7 @@ void Spell::SendSpellGo()
     uint64 l_TargetItemGUID = itemTarget ? itemTarget->GetGUID() : 0;
 
     // Unknown
-    bool l_HasUnk1 = false;
+    bool l_HasUnk1 = m_spellInfo->Id == 178236;
 
     // Forge the packet !
     WorldPacket l_Data(SMSG_SPELL_GO);
@@ -5042,7 +5042,7 @@ void Spell::SendSpellGo()
     }
 
     if (l_HasUnk1)
-        l_Data << float(0);
+        l_Data << float(5.825109f);
 
     l_Data << uint32(l_UsablePowers.size());        ///< Remaining power count
 

@@ -3612,8 +3612,6 @@ bool SpellInfo::IsIgnoringCombat() const
         // Blackjack
         case 79124:
         case 79126:
-        // Redirect
-        case 73981:
         // Venomous Wounds
         case 79136:
         // Master Poisoner

@@ -94,6 +94,163 @@ enum RogueSpells
     ROGUE_SPELL_STEALTH_SUBTERFUGE              = 115191
 };
 
+/// Death from Above (Jump back to target) - 178236
+class spell_rog_death_from_above_return : public SpellScriptLoader
+{
+    public:
+        spell_rog_death_from_above_return() : SpellScriptLoader("spell_rog_death_from_above_return") { }
+
+        class spell_rog_death_from_above_return_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_rog_death_from_above_return_SpellScript);
+
+            enum eSpells
+            {
+                DeathFromAboveBonus = 163786,
+                DeathFromAboveJump  = 178236
+            };
+
+            void ChangeJumpDestination(SpellEffIndex p_EffIndex)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    PreventHitDefaultEffect(p_EffIndex);
+
+                    SpellInfo const* l_SpellInfo = GetSpellInfo();
+                    float l_X = l_Caster->GetPositionX() + (5.0f * cos(l_Caster->GetOrientation() + M_PI));
+                    float l_Y = l_Caster->GetPositionY() + (5.0f * sin(l_Caster->GetOrientation() + M_PI));
+                    float l_Z = l_Caster->GetPositionZ() + 15.0f;
+
+                    float l_SpeedXY, l_SpeedZ;
+
+                    if (l_SpellInfo->Effects[p_EffIndex].MiscValue)
+                        l_SpeedZ = float(l_SpellInfo->Effects[p_EffIndex].MiscValue) / 10;
+                    else if (l_SpellInfo->Effects[p_EffIndex].MiscValueB)
+                        l_SpeedZ = float(l_SpellInfo->Effects[p_EffIndex].MiscValueB) / 10;
+                    else
+                        l_SpeedZ = 10.0f;
+
+                    if (l_SpellInfo->Effects[p_EffIndex].ValueMultiplier)
+                        l_SpeedXY = l_SpellInfo->Effects[p_EffIndex].ValueMultiplier;
+                    else
+                        l_SpeedXY = l_Caster->GetExactDist2d(l_X, l_Y) * 10.0f / l_SpeedZ;
+
+                    l_Caster->GetMotionMaster()->MoveJump(l_X, l_Y, l_Z, l_SpeedXY, l_SpeedZ, l_Caster->GetOrientation(), l_SpellInfo->Id);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectLaunch += SpellEffectFn(spell_rog_death_from_above_return_SpellScript::ChangeJumpDestination, EFFECT_0, SPELL_EFFECT_JUMP_DEST);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_rog_death_from_above_return_SpellScript();
+        }
+};
+
+/// Death from Above - 152150
+class spell_rog_death_from_above : public SpellScriptLoader
+{
+    public:
+        spell_rog_death_from_above() : SpellScriptLoader("spell_rog_death_from_above") { }
+
+        class spell_rog_death_from_above_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_rog_death_from_above_SpellScript);
+
+            enum eSpells
+            {
+                DeathFromAboveBonus = 163786,
+                DeathFromAboveJump  = 178236
+            };
+
+            void HandleOnHit(SpellEffIndex)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (Unit* l_Target = GetHitUnit())
+                    {
+                        l_Caster->CastSpell(l_Caster, eSpells::DeathFromAboveJump, true);
+                        l_Caster->CastSpell(l_Caster, eSpells::DeathFromAboveBonus, true);
+                    }
+                }
+            }
+
+            void HandleRegisterCombo(SpellEffIndex p_EffIndex)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (Unit* l_Target = GetHitUnit())
+                    {
+                        if (AuraPtr l_Aura = l_Target->GetAura(GetSpellInfo()->Id, l_Caster->GetGUID()))
+                        {
+                            if (AuraEffectPtr l_AuraEffect = l_Aura->GetEffect(p_EffIndex))
+                                l_AuraEffect->ChangeAmount(l_Caster->GetPower(Powers::POWER_COMBO_POINT));
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_rog_death_from_above_SpellScript::HandleOnHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget += SpellEffectFn(spell_rog_death_from_above_SpellScript::HandleRegisterCombo, EFFECT_5, SPELL_EFFECT_APPLY_AURA);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_rog_death_from_above_SpellScript();
+        }
+
+        class spell_rog_death_from_above_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_death_from_above_AuraScript);
+
+            enum eSpells
+            {
+                DeathFromAboveJump   = 178153,
+                SpellRogueEnvenom    = 32645,
+                SpellRogueEviscerate = 2098
+            };
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                if (GetCaster() == nullptr)
+                    return;
+
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    if (Unit* l_Target = GetTarget())
+                    {
+                        l_Player->CastSpell(l_Target, eSpells::DeathFromAboveJump, true);
+                        l_Player->SetPower(Powers::POWER_COMBO_POINT, p_AurEff->GetAmount());
+
+                        if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SpecIndex::SPEC_ROGUE_ASSASSINATION)
+                            l_Player->CastSpell(l_Target, eSpells::SpellRogueEnvenom, true);
+                        else
+                            l_Player->CastSpell(l_Target, eSpells::SpellRogueEviscerate, true);
+
+                        l_Player->SetPower(Powers::POWER_COMBO_POINT, 0);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_rog_death_from_above_AuraScript::OnTick, EFFECT_5, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_rog_death_from_above_AuraScript();
+        }
+};
+
 /// Shadow Reflection - 77726
 class npc_rogue_shadow_reflection : public CreatureScript
 {
@@ -1309,59 +1466,6 @@ class spell_rog_venomous_wounds: public SpellScriptLoader
         }
 };
 
-/// Redirect - 73981 and Redirect - 110730
-class spell_rog_redirect: public SpellScriptLoader
-{
-    public:
-        spell_rog_redirect() : SpellScriptLoader("spell_rog_redirect") { }
-
-        class spell_rog_redirect_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_rog_redirect_SpellScript);
-
-            SpellCastResult CheckCast()
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if (caster->GetTypeId() != TYPEID_PLAYER)
-                        return SPELL_FAILED_DONT_REPORT;
-
-                    if (!caster->GetPower(Powers::POWER_COMBO_POINT))
-                        return SPELL_FAILED_NO_COMBO_POINTS;
-                }
-                else
-                    return SPELL_FAILED_DONT_REPORT;
-
-                return SPELL_CAST_OK;
-            }
-
-            void HandleOnHit()
-            {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    uint8 l_Combo = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
-
-                    if (l_Combo > 5)
-                        l_Combo = 5;
-
-                    l_Caster->ClearComboPoints();
-                    l_Caster->AddComboPoints(l_Combo);
-                }
-            }
-
-            void Register()
-            {
-                OnCheckCast += SpellCheckCastFn(spell_rog_redirect_SpellScript::CheckCast);
-                OnHit += SpellHitFn(spell_rog_redirect_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_rog_redirect_SpellScript();
-        }
-};
-
 enum battleGroundsFlagsSpells
 {
     BG_WS_SPELL_WARSONG_FLAG    = 23333,
@@ -2306,6 +2410,8 @@ void AddSC_rogue_spell_scripts()
     new spell_areatrigger_smoke_bomb();
 
     /// Spells
+    new spell_rog_death_from_above_return();
+    new spell_rog_death_from_above();
     new spell_rog_shadow_reflection_proc();
     new spell_rog_shadow_reflection();
     new spell_rog_enhanced_vendetta();
@@ -2335,7 +2441,6 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_hemorrhage();
     new spell_rog_cut_to_the_chase();
     new spell_rog_venomous_wounds();
-    new spell_rog_redirect();
     new spell_rog_shroud_of_concealment();
     new spell_rog_crimson_tempest();
     new spell_rog_slice_and_dice();

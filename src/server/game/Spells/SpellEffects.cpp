@@ -1435,7 +1435,7 @@ void Spell::EffectJump(SpellEffIndex effIndex)
     m_caster->GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ);
 }
 
-void Spell::EffectJumpDest(SpellEffIndex effIndex)
+void Spell::EffectJumpDest(SpellEffIndex p_EffIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH)
         return;
@@ -1446,24 +1446,25 @@ void Spell::EffectJumpDest(SpellEffIndex effIndex)
     if (!m_targets.HasDst())
         return;
 
-    // Init dest coordinates
-    float x, y, z;
-    destTarget->GetPosition(x, y, z);
+    /// Init dest coordinates
+    float l_X, l_Y, l_Z;
+    destTarget->GetPosition(l_X, l_Y, l_Z);
 
-    float speedXY, speedZ;
-    CalculateJumpSpeeds(effIndex, m_caster->GetExactDist2d(x, y), speedXY, speedZ);
+    float l_SpeedXY, l_SpeedZ;
+    CalculateJumpSpeeds(p_EffIndex, m_caster->GetExactDist2d(l_X, l_Y), l_SpeedXY, l_SpeedZ);
 
     switch (m_spellInfo->Id)
     {
-    case 49575: // Death Grip
-    case 92832: // Leap of Faith
-        m_caster->GetMotionMaster()->CustomJump(x, y, z, speedXY, speedZ);
-        break;
-    case 49376:
-        m_caster->GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ, destTarget->GetOrientation());
-        break;
-    default:
-        m_caster->GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ, 10.0f, m_spellInfo->Id);
+        case 49575: ///< Death Grip
+        case 92832: ///< Leap of Faith
+            m_caster->GetMotionMaster()->CustomJump(l_X, l_Y, l_Z, l_SpeedXY, l_SpeedZ);
+            break;
+        case 49376: ///< Wild Charge
+            m_caster->GetMotionMaster()->MoveJump(l_X, l_Y, l_Z, l_SpeedXY, l_SpeedZ, destTarget->GetOrientation());
+            break;
+        default:
+            m_caster->GetMotionMaster()->MoveJump(l_X, l_Y, l_Z, l_SpeedXY, l_SpeedZ, m_caster->GetOrientation(), m_spellInfo->Id);
+            break;
     }
 }
 
@@ -1476,10 +1477,10 @@ void Spell::CalculateJumpSpeeds(uint8 i, float dist, float & speedXY, float & sp
     else
         speedZ = 10.0f;
 
-    speedXY = dist * 10.0f / speedZ;
-
-    if (m_spellInfo->Id == 49575)
-        speedXY = 38;
+    if (m_spellInfo->Effects[i].ValueMultiplier)
+        speedXY = m_spellInfo->Effects[i].ValueMultiplier;
+    else
+        speedXY = dist * 10.0f / speedZ;
 }
 
 void Spell::EffectTeleportUnits(SpellEffIndex /*effIndex*/)
