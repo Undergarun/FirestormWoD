@@ -13169,9 +13169,9 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
     }
 
     // Bladestorm - 46924
-    // Increase damage by 60% in Arms spec
+    // Increase damage by 160% in Arms spec
     if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_ARMS && HasAura(46924) && attType == WeaponAttackType::BaseAttack)
-        AddPct(DoneTotalMod, 60);
+        AddPct(DoneTotalMod, 160);
 
     // Sword of Light - 53503
     // Increase damage dealt by two handed weapons by 25%
@@ -13209,15 +13209,6 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
         if (roll_chance_i(10))
             CastSpell(this, 52437, true); // Reset Cooldown of Colossus Smash
 
-    // Custom MoP Script
-    // 76659 - Mastery : Wild Quiver, can't proc from Scatter Shot
-    if (GetTypeId() == TYPEID_PLAYER && HasAura(76659) && attType == WeaponAttackType::RangedAttack && spellProto->Id != 76663 && spellProto->Id != 19503)
-    {
-        float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
-
-        if (roll_chance_f(Mastery))
-            CastSpell(victim, 76663, true);
-    }
     // 77219 - Mastery : Master Demonologist
     // Bonus damage for demon servants
     if (isPet())
