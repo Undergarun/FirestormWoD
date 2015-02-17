@@ -12459,11 +12459,6 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                                 if (victim->HasAuraState(AURA_STATE_BLEEDING))
                                     crit_chance *= 2.0f;
                                 break;
-                            case 33878: // Mangle (Bear)
-                                if (ToPlayer() && HasAura(108373) &&
-                                    ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_DRUID_GUARDIAN)
-                                    crit_chance += 10.0f;
-                                break;
                         }
                         break;
                     }
@@ -12497,6 +12492,7 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                     case 19434: // Aimed Shot
                     case 82928: // Aimed Shot (Master Marksman)
                     case 56641: // Steady Shot
+                    case 152245: // Focusing Shot
                     {
                         if (HasAura(34483)) // Careful Aim
                         {
@@ -12504,7 +12500,7 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                             ///< by 60% on targets who are above 80% health...
                             ///< ... or while Rapid Fire is active.
                             if (victim->GetHealthPct() > 80.0f || HasAura(3045))
-                                crit_chance += 75.0f;
+                                crit_chance += 60.0f;
                         }
 
                         break;
