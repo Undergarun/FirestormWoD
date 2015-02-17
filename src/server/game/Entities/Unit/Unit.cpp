@@ -7507,46 +7507,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
 
                     break;
                 }
-                case 114015:// Anticipation
-                {
-                    if (GetTypeId() != TYPEID_PLAYER)
-                        return false;
-
-                    if (!procSpell)
-                        return false;
-
-                    if (procSpell->Id == 115190)
-                        return false;
-
-                    if (!procSpell->HasEffect(SPELL_EFFECT_ADD_COMBO_POINTS) && procSpell->Id != 5374 && procSpell->Id != 27576)
-                        return false;
-
-                    int32 l_NewCombo = GetPower(Powers::POWER_COMBO_POINT);
-
-                    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                    {
-                        if (procSpell->Effects[i].IsEffect(SPELL_EFFECT_ADD_COMBO_POINTS))
-                        {
-                            l_NewCombo += procSpell->Effects[i].BasePoints;
-                            break;
-                        }
-                    }
-
-                    if (procSpell->Id == 5374)
-                        l_NewCombo += 2;
-
-                    if (l_NewCombo <= 5)
-                        return false;
-
-                    basepoints0 = l_NewCombo - 5;
-                    triggered_spell_id = 115189;
-
-                    // need to add one additional combo point if it's critical hit
-                    if (procEx & PROC_EX_CRITICAL_HIT)
-                        CastSpell(this, 115189, true);
-
-                    break;
-                }
                 case 51626: // Deadly Brew
                 case 51667: // Cut to the Chase
                     return false;

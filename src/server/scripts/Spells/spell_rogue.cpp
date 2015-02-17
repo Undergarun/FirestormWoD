@@ -94,6 +94,75 @@ enum RogueSpells
     ROGUE_SPELL_STEALTH_SUBTERFUGE              = 115191
 };
 
+/// Anticipation - 114015
+class spell_rog_anticipation : public SpellScriptLoader
+{
+    public:
+        spell_rog_anticipation() : SpellScriptLoader("spell_rog_anticipation") { }
+
+        class spell_rog_anticipation_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_anticipation_AuraScript);
+
+            enum eSpells
+            {
+                AnticipationProc        = 115189,
+                SinisterStrike          = 1752,
+                SinisterStrikeEnabler   = 79327
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                SpellInfo const* l_SpellInfo = p_EventInfo.GetDamageInfo()->GetSpellInfo();
+                if (l_SpellInfo == nullptr)
+                    return;
+
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (!l_SpellInfo->HasEffect(SPELL_EFFECT_ADD_COMBO_POINTS))
+                        return;
+
+                    int32 l_NewCombo = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
+
+                    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                    {
+                        if (l_SpellInfo->Effects[i].IsEffect(SPELL_EFFECT_ADD_COMBO_POINTS))
+                        {
+                            l_NewCombo += l_SpellInfo->Effects[i].BasePoints;
+                            break;
+                        }
+                    }
+
+                    if (l_SpellInfo->Id == eSpells::SinisterStrike && l_Caster->HasAura(eSpells::SinisterStrikeEnabler))
+                        l_NewCombo += 2;
+
+                    if (l_NewCombo <= 5)
+                        return;
+
+                    uint8 l_CastCount = l_NewCombo - 5;
+                    /// Need to add one additional charge if it's critical hit
+                    if (p_EventInfo.GetHitMask() & PROC_EX_CRITICAL_HIT)
+                        ++l_CastCount;
+
+                    for (uint8 l_I = 0; l_I < l_CastCount; ++l_I)
+                        l_Caster->CastSpell(l_Caster, eSpells::AnticipationProc, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_rog_anticipation_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_rog_anticipation_AuraScript();
+        }
+};
+
 /// Called by Deadly Poison - 2818, Crippling Poison - 3409, Wound Poison - 8680 and Leeching Poison - 112961
 /// Venom Rush - 152152
 class spell_rog_venom_rush : public SpellScriptLoader
@@ -2490,6 +2559,7 @@ void AddSC_rogue_spell_scripts()
     new spell_areatrigger_smoke_bomb();
 
     /// Spells
+    new spell_rog_anticipation();
     new spell_rog_venom_rush();
     new spell_rog_death_from_above_return();
     new spell_rog_death_from_above();
