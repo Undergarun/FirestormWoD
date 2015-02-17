@@ -1879,7 +1879,10 @@ class PlayerScript_Runic_Empowerment_Corrupion_Runic : public PlayerScript
 
         void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
         {
-            if (p_Player->getClass() != CLASS_DEATH_KNIGHT || p_Power != POWER_RUNES || p_Regen || p_NewValue <= 0)
+            // Get the power earn (if > 0 ) or consum (if < 0)
+            int32 l_DiffValue = p_NewValue - p_OldValue;
+
+            if (p_Player->getClass() != CLASS_DEATH_KNIGHT || p_Power != POWER_RUNIC_POWER || p_Regen || l_DiffValue >= 0)
                 return;
 
             if (!p_Player->HasAura(DK_SPELL_RUNIC_EMPOWERMENT) && !p_Player->HasAura(DK_SPELL_RUNIC_CORRUPTION_AURA))
@@ -1891,7 +1894,7 @@ class PlayerScript_Runic_Empowerment_Corrupion_Runic : public PlayerScript
                 float l_Amount = l_RunicEmpowerment->GetAmount();
                 l_Amount /= 100.f;
 
-                float l_Chance = l_Amount * p_NewValue;
+                float l_Chance = l_Amount * -l_DiffValue / 10;
 
                 if (roll_chance_f(l_Chance))
                 {
@@ -1919,7 +1922,7 @@ class PlayerScript_Runic_Empowerment_Corrupion_Runic : public PlayerScript
                 float l_Amount = l_RunicCorruption->GetAmount();
                 l_Amount /= 100.f;
 
-                float l_Chance = l_Amount * p_NewValue;
+                float l_Chance = l_Amount * -l_DiffValue / 10;
 
                 if (roll_chance_f(l_Chance))
                     p_Player->CastSpell(p_Player, DK_SPELL_RUNIC_CORRUPTION, true);
