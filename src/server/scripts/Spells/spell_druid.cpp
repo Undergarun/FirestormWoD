@@ -57,7 +57,7 @@ class spell_dru_yseras_gift: public SpellScriptLoader
                 {
                     std::list<Unit*> l_Party;
 
-                    l_Caster->GetPartyMembers(l_Party);
+                    l_Caster->GetRaidMembers(l_Party);
 
                     l_Party.remove_if([l_Caster](Unit* p_Unit) {
                         return (p_Unit->IsFullHealth() || p_Unit->GetDistance(l_Caster) >= 40.0f);
@@ -146,7 +146,7 @@ class spell_dru_genesis: public SpellScriptLoader
                 if (Player* plr = GetCaster()->ToPlayer())
                 {
                     std::list<Unit*> partyMembers;
-                    plr->GetPartyMembers(partyMembers);
+                    plr->GetRaidMembers(partyMembers);
 
                     for (auto itr : partyMembers)
                     {

@@ -790,7 +790,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         std::list<Creature*> statueList;
         Creature* statue = nullptr;
 
-        ToPlayer()->GetPartyMembers(targetList);
+        ToPlayer()->GetRaidMembers(targetList);
 
         if (targetList.size() > 1)
         {

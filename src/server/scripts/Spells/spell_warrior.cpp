@@ -685,7 +685,7 @@ class spell_warr_rallying_cry: public SpellScriptLoader
                     int32 l_Bp0 = 0;
                     std::list<Unit*> l_MemberList;
 
-                    l_Player->GetPartyMembers(l_MemberList);
+                    l_Player->GetRaidMembers(l_MemberList);
 
                     for (auto l_Itr : l_MemberList)
                     {

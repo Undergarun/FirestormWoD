@@ -1563,7 +1563,7 @@ class spell_monk_thunder_focus_tea: public SpellScriptLoader
                         {
                             std::list<Unit*> groupList;
 
-                            _player->GetPartyMembers(groupList);
+                            _player->GetRaidMembers(groupList);
 
                             for (auto itr : groupList)
                                 if (AuraPtr renewingMistGroup = itr->GetAura(SPELL_MONK_RENEWING_MIST_HOT, _player->GetGUID()))
@@ -1978,7 +1978,7 @@ class spell_monk_renewing_mist: public SpellScriptLoader
                     std::list<Creature*> statueList;
                     Creature* statue;
 
-                    _player->GetPartyMembers(playerList);
+                    _player->GetRaidMembers(playerList);
 
                     if (playerList.size() > 1)
                     {
@@ -2869,8 +2869,8 @@ class spell_monk_soothing_mist: public SpellScriptLoader
                 std::list<Unit*> l_UnitList;
                 std::list<Unit*> l_UnitTempList;
 
-                p_Caster->GetPartyMembers(l_UnitList);
-                p_Caster->GetPartyMembers(l_UnitTempList);
+                p_Caster->GetRaidMembers(l_UnitList);
+                p_Caster->GetRaidMembers(l_UnitTempList);
 
                 /// Remove Unit out of range
                 for (std::list<Unit*>::iterator i = l_UnitTempList.begin(); i != l_UnitTempList.end(); ++i)
@@ -3290,7 +3290,7 @@ class spell_monk_legacy_of_the_emperor: public SpellScriptLoader
                 {
                     std::list<Unit*> groupList;
 
-                    plr->GetPartyMembers(groupList);
+                    plr->GetRaidMembers(groupList);
                     if (!groupList.empty())
                         for (auto itr : groupList)
                             plr->CastSpell(itr, SPELL_MONK_LEGACY_OF_THE_EMPEROR, true);

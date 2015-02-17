@@ -1175,7 +1175,7 @@ class spell_pri_atonement: public SpellScriptLoader
                             int32 bp = CalculatePct(GetHitDamage(), GetSpellInfo()->Effects[EFFECT_0].BasePoints);
                             std::list<Unit*> groupList;
 
-                            _player->GetPartyMembers(groupList);
+                            _player->GetRaidMembers(groupList);
                             groupList.remove_if([this, _player](Unit* p_Unit) {
                                 return _player->GetDistance(p_Unit->GetPositionX(), p_Unit->GetPositionY(), p_Unit->GetPositionZ()) > GetSpellInfo()->Effects[EFFECT_1].BasePoints;
                             });
