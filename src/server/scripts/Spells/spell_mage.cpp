@@ -894,7 +894,7 @@ class spell_mage_frostbolt: public SpellScriptLoader
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    const SpellInfo *l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_BRAIN_FREEZE);
+                    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_BRAIN_FREEZE);
 
                     if (l_SpellInfo == nullptr)
                         return;

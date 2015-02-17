@@ -875,36 +875,36 @@ public:
 // 77219 - Mastery: Master Demonologist
 class spell_mastery_master_demonologist : public SpellScriptLoader
 {
-public:
-    spell_mastery_master_demonologist() : SpellScriptLoader("spell_mastery_master_demonologist") { }
+    public:
+        spell_mastery_master_demonologist() : SpellScriptLoader("spell_mastery_master_demonologist") { }
 
-    class spell_mastery_master_demonologist_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_mastery_master_demonologist_SpellScript);
-
-        void HandleDamage(SpellEffIndex /*effIndex*/)
+        class spell_mastery_master_demonologist_SpellScript : public SpellScript
         {
-            if (Unit* l_Caster = GetCaster())
+            PrepareSpellScript(spell_mastery_master_demonologist_SpellScript);
+
+            void HandleDamage(SpellEffIndex /*effIndex*/)
             {
-                /// Further increases the damage of your Touch of Chaos, Chaos Wave, Doom, Immolation Aura, and Soul Fire while in Metamorphosis by 12%.
-                if (l_Caster->HasAura(SPELL_WARLOCK_METAMORPHIS) && l_Caster->HasAura(SPELL_WARLOCK_MASTER_DEMONOLOGIST))
+                if (Unit* l_Caster = GetCaster())
                 {
-                    float l_MasteryValue = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.5f;
-                    SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_MasteryValue));
+                    /// Further increases the damage of your Touch of Chaos, Chaos Wave, Doom, Immolation Aura, and Soul Fire while in Metamorphosis by 12%.
+                    if (l_Caster->HasAura(SPELL_WARLOCK_METAMORPHIS) && l_Caster->HasAura(SPELL_WARLOCK_MASTER_DEMONOLOGIST))
+                    {
+                        float l_MasteryValue = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.5f;
+                        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_MasteryValue));
+                    }
                 }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_mastery_master_demonologist_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnEffectHitTarget += SpellEffectFn(spell_mastery_master_demonologist_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            return new spell_mastery_master_demonologist_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_mastery_master_demonologist_SpellScript();
-    }
 };
 
 void AddSC_mastery_spell_scripts()

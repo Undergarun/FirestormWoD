@@ -557,7 +557,7 @@ class spell_warl_imp_swarm: public SpellScriptLoader
 
             SpellCastResult CheckSpec()
             {
-                Unit *l_Caster = GetCaster();
+                Unit* l_Caster = GetCaster();
 
                 if (l_Caster == nullptr)
                     return SPELL_FAILED_DONT_REPORT;
@@ -855,7 +855,7 @@ class spell_warl_grimoire_of_sacrifice: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_grimoire_of_sacrifice_AuraScript);
 
-            void CalculateEffectAmountDestruction(constAuraEffectPtr /*aurEff*/, int32 & l_Amount, bool & /*canBeRecalculated*/)
+            void CalculateEffectAmountDestruction(constAuraEffectPtr /*aurEff*/, int32 & p_Amount, bool & /*canBeRecalculated*/)
             {
                 Unit* l_Owner = GetUnitOwner();
 
@@ -865,11 +865,11 @@ class spell_warl_grimoire_of_sacrifice: public SpellScriptLoader
                 if (Player* l_Target = l_Owner->ToPlayer())
                 {
                     if (l_Target->GetSpecializationId(l_Target->GetActiveSpec()) != SPEC_WARLOCK_DESTRUCTION)
-                        l_Amount = 0;
+                        p_Amount = 0;
                 }
             }
 
-            void CalculateEffectAmountAffliction(constAuraEffectPtr /*aurEff*/, int32 & l_Amount, bool & /*canBeRecalculated*/)
+            void CalculateEffectAmountAffliction(constAuraEffectPtr /*aurEff*/, int32 & p_Amount, bool & /*canBeRecalculated*/)
             {
                 Unit* l_Owner = GetUnitOwner();
 
@@ -879,7 +879,7 @@ class spell_warl_grimoire_of_sacrifice: public SpellScriptLoader
                 if (Player* l_Target = l_Owner->ToPlayer())
                 {
                     if (l_Target->GetSpecializationId(l_Target->GetActiveSpec()) != SPEC_WARLOCK_AFFLICTION)
-                        l_Amount = 0;
+                        p_Amount = 0;
                 }
             }
 
