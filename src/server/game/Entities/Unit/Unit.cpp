@@ -12385,7 +12385,7 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                         {
                             case 25912: // Holy Shock (damage)
                             case 25914: // Holy Shock (heal)
-                                crit_chance += 25.0f;
+                                crit_chance *= 2.0f;
                                 break;
                         }
                         break;
@@ -12473,7 +12473,7 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                         {
                             case 23881: // Bloodthirst ...
                                 /// additional 30% chance to be a critical strike.
-                                crit_chance += 30.0f;
+                                crit_chance += (float)spellProto->Effects[EFFECT_3].BasePoints;
                                 break;
                             case 118000:// Dragon Roar ...
                                 // ... is always a critical hit
