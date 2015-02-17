@@ -17123,8 +17123,14 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                     {
                         if (isVictim && procSpell && procSpell->Id == 108853 && triggeredByAura->GetId() == 44448)
                             break;
+
                         if (HandleDummyAuraProc(target, damage, triggeredByAura, procSpell, procFlag, procExtra, cooldown))
                             takeCharges = true;
+
+                        /// Stealth isn't removed by multistrikes effects
+                        if ((triggeredByAura->GetId() == 1784 || triggeredByAura->GetId() == 115191) && (procExtra & PROC_EX_INTERNAL_MULTISTRIKE))
+                            takeCharges = false;
+
                         break;
                     }
                     case SPELL_AURA_PROC_ON_POWER_AMOUNT:
