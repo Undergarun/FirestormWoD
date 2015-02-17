@@ -28879,6 +28879,8 @@ void Player::ResummonPetTemporaryUnSummonedIfAny()
 
     if (!NewPet->LoadPetFromDB(this, 0, m_temporaryUnsummonedPetNumber, true))
         delete NewPet;
+    else if (HasSpell(109212) && !HasAura(118694)) ///< Spirit Bond have to be reload when pet reload
+        CastSpell(this, 118694, true);
 
     m_temporaryUnsummonedPetNumber = 0;
 }
