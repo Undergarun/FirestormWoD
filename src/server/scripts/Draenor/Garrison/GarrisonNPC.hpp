@@ -747,38 +747,6 @@ namespace MS { namespace Garrison
 
     };
 
-    /// 77730 - Timothy Leens
-    class npc_TimothyLeens : public CreatureScript
-    {
-        public:
-            /// Constructor
-            npc_TimothyLeens();
-
-            /// Called when a player opens a gossip dialog with the GameObject.
-            /// @p_Player     : Source player instance
-            /// @p_Creature   : Target GameObject instance
-            virtual bool OnGossipHello(Player * p_Player, Creature * p_Creature) override;
-            /// Called when a player selects a gossip item in the creature's gossip menu.
-            /// @p_Player   : Source player instance
-            /// @p_Creature : Target creature instance
-            /// @p_Sender   : Sender menu
-            /// @p_Action   : Action
-            virtual bool OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action) override;
-
-            /// Called when a CreatureAI object is needed for the creature.
-            /// @p_Creature : Target creature instance
-            CreatureAI * GetAI(Creature * p_Creature) const;
-
-            /// Creature AI
-            struct npc_TimothyLeensAI : public GarrisonNPCAI
-            {
-                /// Constructor
-                npc_TimothyLeensAI(Creature * p_Creature);
-
-            };
-
-    };
-
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 

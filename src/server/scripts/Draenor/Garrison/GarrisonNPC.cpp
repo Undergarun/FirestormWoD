@@ -14,6 +14,7 @@
 #include "GarrisonMgr.hpp"
 
 #include "Buildings/Alliance/FishingHut.hpp"
+#include "Buildings/Alliance/LunarfallExcavation.hpp"
 
 #include <random>
 

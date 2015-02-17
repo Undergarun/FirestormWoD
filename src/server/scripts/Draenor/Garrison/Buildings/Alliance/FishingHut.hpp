@@ -12,10 +12,16 @@
 #include "../../GarrisonNPC.hpp"
 #include "GarrisonMgr.hpp"
 
-#include "FishingHut_Level1Data.hpp"
-
 namespace MS { namespace Garrison 
 {
+    namespace FishingHut
+    {
+        enum Type
+        {
+            SpellFishingVisual = 154848
+        };
+    }
+
     //////////////////////////////////////////////////////////////////////////
     /// 82436 - Tharis Strongcast                                         ////
     //////////////////////////////////////////////////////////////////////////

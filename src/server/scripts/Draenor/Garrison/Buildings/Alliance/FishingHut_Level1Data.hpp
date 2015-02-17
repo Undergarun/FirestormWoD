@@ -13,11 +13,6 @@
 
 namespace MS { namespace Garrison 
 {
-    enum
-    {
-        SpellFishingVisual = 154848
-    };
-
     namespace TharisStrongcast_Level1
     {
         namespace MovePointIDs

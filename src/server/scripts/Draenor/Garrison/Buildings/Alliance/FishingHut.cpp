@@ -47,7 +47,7 @@ namespace MS { namespace Garrison
             {
                 p_This->AddTimedDelayedOperation(TharisStrongcast_Level1::DestPointDuration::Fishing1, [p_This, p_Me]() -> void
                 {
-                    p_Me->RemoveAura(SpellFishingVisual);
+                    p_Me->RemoveAura(FishingHut::SpellFishingVisual);
                     p_Me->LoadEquipment(1, true);
                     p_This->DoNextSequenceAction();
                 });
@@ -55,7 +55,7 @@ namespace MS { namespace Garrison
                 {
                     p_This->SetFacingBuildingRelative(TharisStrongcast_Level1::MovePointLoc[TharisStrongcast_Level1::MovePointIDs::Fishing1 - TharisStrongcast_Level1::MovePointIDs::Home].O);
                     p_Me->LoadEquipment(0, true);
-                    p_Me->AddAura(SpellFishingVisual, p_Me);
+                    p_Me->AddAura(FishingHut::SpellFishingVisual, p_Me);
                 });
             };
 
@@ -63,7 +63,7 @@ namespace MS { namespace Garrison
             {
                 p_This->AddTimedDelayedOperation(TharisStrongcast_Level1::DestPointDuration::Fishing1, [p_This, p_Me]() -> void
                 {
-                    p_Me->RemoveAura(SpellFishingVisual);
+                    p_Me->RemoveAura(FishingHut::SpellFishingVisual);
                     p_Me->LoadEquipment(1, true);
                     p_This->DoNextSequenceAction();
                 });
@@ -71,7 +71,7 @@ namespace MS { namespace Garrison
                 {
                     p_This->SetFacingBuildingRelative(TharisStrongcast_Level1::MovePointLoc[TharisStrongcast_Level1::MovePointIDs::Fishing2 - TharisStrongcast_Level1::MovePointIDs::Home].O);
                     p_Me->LoadEquipment(0, true);
-                    p_Me->AddAura(SpellFishingVisual, p_Me);
+                    p_Me->AddAura(FishingHut::SpellFishingVisual, p_Me);
                 });
             };
 
