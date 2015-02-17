@@ -3491,6 +3491,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].ApplyAuraName = 0;
                 spellInfo->Effects[1].Effect = 0;
                 break;
+            case 174597:///< Ruthlessness (passive aura)
+                spellInfo->Effects[0].Effect = 0;
+                break;
             case 137650: ///< Shadowed Soul
                 spellInfo->Effects[0].BasePoints = 3;
                 spellInfo->Effects[1].BasePoints = 3;
