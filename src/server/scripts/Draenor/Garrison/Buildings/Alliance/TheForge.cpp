@@ -64,7 +64,7 @@ namespace MS { namespace Garrison
         m_OnPointReached[AuriaIrondreamer_Level1::MovePointIDs::ForgeOre] = [this]() -> void
         {
             AddTimedDelayedOperation(AuriaIrondreamer_Level1::DestPointDuration::ForgeOre, [this]() -> void { DoNextSequenceAction(); });
-            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(AuriaIrondreamer_Level1::MovePointLoc[AuriaIrondreamer_Level1::MovePointIDs::ForgeOre - AuriaIrondreamer_Level1::MovePointIDs::ForgeOre][3]); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(AuriaIrondreamer_Level1::MovePointLoc[AuriaIrondreamer_Level1::MovePointIDs::ForgeOre - AuriaIrondreamer_Level1::MovePointIDs::ForgeOre].O); });
 
             AddTimedDelayedOperation(0 * IN_MILLISECONDS,                                  [this]() -> void { me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 8); });
             AddTimedDelayedOperation(AuriaIrondreamer_Level1::DestPointDuration::ForgeOre, [this]() -> void { me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0); });
@@ -73,7 +73,7 @@ namespace MS { namespace Garrison
         m_OnPointReached[AuriaIrondreamer_Level1::MovePointIDs::ForgeFront] = [this]() -> void
         {
             AddTimedDelayedOperation(AuriaIrondreamer_Level1::DestPointDuration::ForgeFront, [this]() -> void { DoNextSequenceAction(); });
-            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(AuriaIrondreamer_Level1::MovePointLoc[AuriaIrondreamer_Level1::MovePointIDs::ForgeFront - AuriaIrondreamer_Level1::MovePointIDs::ForgeFront][3]); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(AuriaIrondreamer_Level1::MovePointLoc[AuriaIrondreamer_Level1::MovePointIDs::ForgeFront - AuriaIrondreamer_Level1::MovePointIDs::ForgeFront].O); });
 
             AddTimedDelayedOperation(0 * IN_MILLISECONDS,                                    [this]() -> void { me->HandleEmoteCommand(EMOTE_STATE_READ_AND_TALK);    });
             AddTimedDelayedOperation(AuriaIrondreamer_Level1::DestPointDuration::ForgeFront, [this]() -> void
@@ -86,13 +86,13 @@ namespace MS { namespace Garrison
         m_OnPointReached[AuriaIrondreamer_Level1::MovePointIDs::Workorder] = [this]() -> void
         {
             AddTimedDelayedOperation(AuriaIrondreamer_Level1::DestPointDuration::Workorder, [this]() -> void { DoNextSequenceAction(); });
-            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(AuriaIrondreamer_Level1::MovePointLoc[AuriaIrondreamer_Level1::MovePointIDs::Workorder - AuriaIrondreamer_Level1::MovePointIDs::Workorder][3]); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(AuriaIrondreamer_Level1::MovePointLoc[AuriaIrondreamer_Level1::MovePointIDs::Workorder - AuriaIrondreamer_Level1::MovePointIDs::Workorder].O); });
         };
 
         m_OnPointReached[AuriaIrondreamer_Level1::MovePointIDs::WorkorderDown] = [this]() -> void
         {
             AddTimedDelayedOperation(AuriaIrondreamer_Level1::DestPointDuration::WorkorderDown, [this]() -> void { DoNextSequenceAction(); });
-            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(AuriaIrondreamer_Level1::MovePointLoc[AuriaIrondreamer_Level1::MovePointIDs::WorkorderDown - AuriaIrondreamer_Level1::MovePointIDs::WorkorderDown][3]); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(AuriaIrondreamer_Level1::MovePointLoc[AuriaIrondreamer_Level1::MovePointIDs::WorkorderDown - AuriaIrondreamer_Level1::MovePointIDs::WorkorderDown].O); });
 
             AddTimedDelayedOperation(0 * IN_MILLISECONDS,                                       [this]() -> void { me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 8); });
             AddTimedDelayedOperation(AuriaIrondreamer_Level1::DestPointDuration::WorkorderDown, [this]() -> void { me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0); });
@@ -101,13 +101,13 @@ namespace MS { namespace Garrison
         m_OnPointReached[AuriaIrondreamer_Level1::MovePointIDs::WorkorderFront] = [this]() -> void
         {
             AddTimedDelayedOperation(AuriaIrondreamer_Level1::DestPointDuration::WorkorderFront, [this]() -> void { DoNextSequenceAction(); });
-            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(AuriaIrondreamer_Level1::MovePointLoc[AuriaIrondreamer_Level1::MovePointIDs::ForgeOre - AuriaIrondreamer_Level1::MovePointIDs::WorkorderFront][3]); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(AuriaIrondreamer_Level1::MovePointLoc[AuriaIrondreamer_Level1::MovePointIDs::ForgeOre - AuriaIrondreamer_Level1::MovePointIDs::WorkorderFront].O); });
         };
 
         m_OnPointReached[AuriaIrondreamer_Level1::MovePointIDs::ChestLeft] = [this]() -> void
         {
             AddTimedDelayedOperation(AuriaIrondreamer_Level1::DestPointDuration::ChestLeft, [this]() -> void { DoNextSequenceAction(); });
-            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(AuriaIrondreamer_Level1::MovePointLoc[AuriaIrondreamer_Level1::MovePointIDs::ForgeOre - AuriaIrondreamer_Level1::MovePointIDs::ChestLeft][3]); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(AuriaIrondreamer_Level1::MovePointLoc[AuriaIrondreamer_Level1::MovePointIDs::ForgeOre - AuriaIrondreamer_Level1::MovePointIDs::ChestLeft].O); });
 
             AddTimedDelayedOperation(0 * IN_MILLISECONDS,                                   [this]() -> void { me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 8); });
             AddTimedDelayedOperation(AuriaIrondreamer_Level1::DestPointDuration::ChestLeft, [this]() -> void { me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0); });
@@ -179,7 +179,7 @@ namespace MS { namespace Garrison
         m_OnPointReached[YuliaSamras_Level1::MovePointIDs::Workorder] = [this]() -> void
         {
             AddTimedDelayedOperation(YuliaSamras_Level1::DestPointDuration::Workorder, [this]() -> void { DoNextSequenceAction(); });
-            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(YuliaSamras_Level1::MovePointLoc[YuliaSamras_Level1::MovePointIDs::Workorder - YuliaSamras_Level1::MovePointIDs::Workorder][3]); });
+            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(YuliaSamras_Level1::MovePointLoc[YuliaSamras_Level1::MovePointIDs::Workorder - YuliaSamras_Level1::MovePointIDs::Workorder].O); });
         };
 
         DoNextSequenceAction();

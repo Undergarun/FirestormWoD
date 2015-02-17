@@ -16,6 +16,7 @@
 #include "Buildings/Alliance/FishingHut.hpp"
 #include "Buildings/Alliance/LunarfallExcavation.hpp"
 #include "Buildings/Alliance/TheForge.hpp"
+#include "Buildings/Alliance/DwarvenBunker.hpp"
 
 #include <random>
 
@@ -378,9 +379,11 @@ void AddSC_Garrison_NPC()
         new MS::Garrison::npc_BarosAlexsom;
         new MS::Garrison::npc_VindicatorMaraad;
         new MS::Garrison::npc_LunarfallLaborer;
+        new MS::Garrison::npc_JonathanStephens;
+
+        /// Dwarven Bunker
         new MS::Garrison::npc_GussofForgefire;
         new MS::Garrison::npc_KristenStoneforge;
-        new MS::Garrison::npc_JonathanStephens;
 
         /// The forge
         new MS::Garrison::npc_AuriaIrondreamer;
