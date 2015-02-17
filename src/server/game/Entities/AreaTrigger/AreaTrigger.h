@@ -19,7 +19,6 @@
 #ifndef TRINITYCORE_AREATRIGGER_H
 # define TRINITYCORE_AREATRIGGER_H
 
-# include "G3D\Vector3.h"
 # include "Object.h"
 # include "Timer.h"
 
@@ -84,6 +83,7 @@ struct AreaTriggerTemplate
     uint32 m_FacingCurveID;
 
     uint32 m_ScriptId;
+    uint32 m_CreatureVisualEntry;
 
     union
     {
@@ -209,6 +209,8 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         void GetPositionFromPathId(uint32 p_MoveCurveId, Position* p_OutPos) const;
         void UpdatePositionWithPathId(uint32 p_Time, Position* p_OutPos);
 
+        uint64 GetGUIDCreatureVisual() { return m_CreatureVisualGUID; };
+
         void SetSource(Position p_Source) { m_Source = p_Source; }
         void SetDestination(Position p_Dest) { m_Destination = p_Dest; }
         void SetTrajectory(AreatriggerInterpolation p_Trajectory) { m_Trajectory = p_Trajectory; }
@@ -236,6 +238,8 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         IntervalTimer m_UpdateTimer;
         AreaTriggerTemplateList m_Templates;
         AreaTriggerEntityScript* m_Script;
+
+        uint64 m_CreatureVisualGUID;
         std::list<Position> m_PathToLinearDestination;
 };
 #endif

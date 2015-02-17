@@ -1081,16 +1081,16 @@ float Player::GetRegenForPower(Powers p_Power)
             return 0.0f;
     }
 
-    float l_HastePct = 1.0f;
-
+    float l_Pct = 1.0f;
     Unit::AuraEffectList const& l_ModPowerRegenPCT = GetAuraEffectsByType(AuraType::SPELL_AURA_MOD_POWER_REGEN_PERCENT);
     for (Unit::AuraEffectList::const_iterator l_Iter = l_ModPowerRegenPCT.begin(); l_Iter != l_ModPowerRegenPCT.end(); ++l_Iter)
     {
         if (Powers((*l_Iter)->GetMiscValue()) == p_Power)
-            l_HastePct += (*l_Iter)->GetAmount() / 100.0f;
+            l_Pct += (*l_Iter)->GetAmount() / 100.0f;
     }
 
-    return l_BaseRegen + (l_BaseRegen * l_HastePct);
+    float l_HastePct = 1.f / (1.f + (m_baseRatingValue[CR_HASTE_MELEE] * GetRatingMultiplier(CR_HASTE_MELEE) + l_Pct) / 100.f);
+    return l_BaseRegen * l_HastePct;
 }
 
 void Player::_ApplyAllStatBonuses()

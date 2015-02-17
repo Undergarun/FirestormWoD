@@ -7507,46 +7507,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
 
                     break;
                 }
-                case 114015:// Anticipation
-                {
-                    if (GetTypeId() != TYPEID_PLAYER)
-                        return false;
-
-                    if (!procSpell)
-                        return false;
-
-                    if (procSpell->Id == 115190)
-                        return false;
-
-                    if (!procSpell->HasEffect(SPELL_EFFECT_ADD_COMBO_POINTS) && procSpell->Id != 5374 && procSpell->Id != 27576)
-                        return false;
-
-                    int32 l_NewCombo = GetPower(Powers::POWER_COMBO_POINT);
-
-                    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                    {
-                        if (procSpell->Effects[i].IsEffect(SPELL_EFFECT_ADD_COMBO_POINTS))
-                        {
-                            l_NewCombo += procSpell->Effects[i].BasePoints;
-                            break;
-                        }
-                    }
-
-                    if (procSpell->Id == 5374)
-                        l_NewCombo += 2;
-
-                    if (l_NewCombo <= 5)
-                        return false;
-
-                    basepoints0 = l_NewCombo - 5;
-                    triggered_spell_id = 115189;
-
-                    // need to add one additional combo point if it's critical hit
-                    if (procEx & PROC_EX_CRITICAL_HIT)
-                        CastSpell(this, 115189, true);
-
-                    break;
-                }
                 case 51626: // Deadly Brew
                 case 51667: // Cut to the Chase
                     return false;
@@ -11618,9 +11578,9 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
     if (spellProto->Id == 83077 || spellProto->Id == 124051) // Improved Serpent Sting and Archimonde's Vengeance
         return pdamage;
 
-    // small exception for Hemorrhage, can't find any general rule
+    // small exception for Soul Link damage, can't find any general rule
     // should ignore ALL damage mods, they already calculated in trigger spell
-    if (spellProto->Id == 89775 || spellProto->Id == 108451) // Hemorrhage and Soul Link damage
+    if (spellProto->Id == 108451)
         return pdamage;
 
     // small exception for Echo of Light, can't find any general rule
@@ -11703,13 +11663,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
     // Bonus damage while using Metamorphosis
     if (GetTypeId() == TYPEID_PLAYER && HasAura(77219))
     {
-        float Mastery = 0.0f;
-
-        if (HasAura(103958))
-            Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 3.0f;
-        else
-            Mastery = GetFloatValue(PLAYER_FIELD_MASTERY);
-
+        float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 0.75f;
         DoneTotal += CalculatePct(pdamage, Mastery);
     }
     else if (isPet())
@@ -11717,7 +11671,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         Unit* owner = GetOwner();
         if (owner && owner->HasAura(77219) && owner->GetTypeId() == TYPEID_PLAYER)
         {
-            float Mastery = owner->GetFloatValue(PLAYER_FIELD_MASTERY);
+            float Mastery = owner->GetFloatValue(PLAYER_FIELD_MASTERY) * 0.75f;
             DoneTotal += CalculatePct(pdamage, Mastery);
         }
     }
@@ -11900,10 +11854,6 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
             break;
     }
 
-    // Done fixed damage bonus auras
-    int32 DoneAdvertisedBenefit  = SpellBaseDamageBonusDone(spellProto->GetSchoolMask());
-    UNUSED(DoneAdvertisedBenefit);  ///< @TODO
-
     // Check for table values
     float coeff = 0;
     SpellBonusEntry const* bonus = sSpellMgr->GetSpellBonusData(spellProto->Id);
@@ -12040,7 +11990,7 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
         case SPELLFAMILY_ROGUE:
         {
             // Revealing Strike for direct damage abilities
-            if (spellProto->AttributesEx & SPELL_ATTR1_REQ_COMBO_POINTS1 && damagetype != DOT)
+            if (spellProto->NeedsComboPoints() && damagetype != DOT)
             {
                 if (AuraEffectPtr aurEff = victim->GetAuraEffect(84617, 2, GetGUID()))
                     DoneTotalMod *= (100.0f + aurEff->GetAmount()) / 100.0f;
@@ -13276,28 +13226,14 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
         if (roll_chance_f(Mastery))
             CastSpell(victim, 76663, true);
     }
-
-    // Custom MoP Script
     // 77219 - Mastery : Master Demonologist
-    // Bonus damage while using Metamorphosis
-    if (HasAura(103958) && HasAura(77219) && GetTypeId() == TYPEID_PLAYER)
-    {
-        float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 3.0f;
-        AddPct(DoneTotalMod, Mastery);
-    }
-    // Bonus damage in caster form
-    else if (!HasAura(103958) && HasAura(77219) && GetTypeId() == TYPEID_PLAYER)
-    {
-        float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY);
-        AddPct(DoneTotalMod, Mastery);
-    }
     // Bonus damage for demon servants
-    else if (isPet())
+    if (isPet())
     {
         Unit* owner = GetOwner();
         if (owner && owner->HasAura(77219) && owner->GetTypeId() == TYPEID_PLAYER)
         {
-            float Mastery = owner->GetFloatValue(PLAYER_FIELD_MASTERY);
+            float Mastery = owner->GetFloatValue(PLAYER_FIELD_MASTERY) * 0.75;
             AddPct(DoneTotalMod, Mastery);
         }
     }
@@ -21055,92 +20991,6 @@ void Unit::_ExitVehicle(Position const* exitPosition)
     }
 }
 
-void Unit::BuildMovementPacket(ByteBuffer *data) const
-{
-    *data << uint32(GetUnitMovementFlags());            // movement flags
-    *data << uint16(GetExtraUnitMovementFlags());       // 2.3.0
-    *data << uint32(getMSTime());                       // time / counter
-    *data << GetPositionX();
-    *data << GetPositionY();
-    *data << GetPositionZMinusOffset();
-    *data << GetOrientation();
-
-    bool onTransport = m_movementInfo.t_guid != 0;
-    bool hasInterpolatedMovement = m_movementInfo.flags2 & MOVEMENTFLAG2_INTERPOLATED_MOVEMENT;
-    bool time3 = false;
-    bool swimming = ((GetUnitMovementFlags() & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING))
-        || (m_movementInfo.flags2 & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING));
-    bool interPolatedTurning = m_movementInfo.flags2 & MOVEMENTFLAG2_INTERPOLATED_TURNING;
-    bool jumping = GetUnitMovementFlags() & MOVEMENTFLAG_FALLING;
-    bool splineElevation = m_movementInfo.HaveSplineElevation;
-    bool splineData = false;
-
-    data->WriteBits(GetUnitMovementFlags(), 30);
-    data->WriteBits(m_movementInfo.flags2, 12);
-    data->WriteBit(onTransport);
-    if (onTransport)
-    {
-        data->WriteBit(hasInterpolatedMovement);
-        data->WriteBit(time3);
-    }
-
-    data->WriteBit(swimming);
-    data->WriteBit(interPolatedTurning);
-    if (interPolatedTurning)
-        data->WriteBit(jumping);
-
-    data->WriteBit(splineElevation);
-    data->WriteBit(splineData);
-
-    data->FlushBits(); // reset bit stream
-
-    *data << uint64(GetGUID());
-    *data << uint32(getMSTime());
-    *data << float(GetPositionX());
-    *data << float(GetPositionY());
-    *data << float(GetPositionZ());
-    *data << float(GetOrientation());
-
-    if (onTransport)
-    {
-        if (m_vehicle)
-            *data << uint64(m_vehicle->GetBase()->GetGUID());
-        else if (GetTransport())
-            *data << uint64(GetTransport()->GetGUID());
-        else // probably should never happen
-            *data << (uint64)0;
-
-        *data << float (GetTransOffsetX());
-        *data << float (GetTransOffsetY());
-        *data << float (GetTransOffsetZ());
-        *data << float (GetTransOffsetO());
-        *data << uint8 (GetTransSeat());
-        *data << uint32(GetTransTime());
-        if (hasInterpolatedMovement)
-            *data << int32(0); // Transport Time 2
-        if (time3)
-            *data << int32(0); // Transport Time 3
-    }
-
-    if (swimming)
-        *data << (float)m_movementInfo.pitch;
-
-    if (interPolatedTurning)
-    {
-        *data << (uint32)m_movementInfo.fallTime;
-        *data << (float)m_movementInfo.JumpVelocity;
-        if (jumping)
-        {
-            *data << (float)m_movementInfo.j_sinAngle;
-            *data << (float)m_movementInfo.j_cosAngle;
-            *data << (float)m_movementInfo.j_xyspeed;
-        }
-    }
-
-    if (splineElevation)
-        *data << (float)m_movementInfo.splineElevation;
-}
-
 void Unit::SetCanFly(bool apply)
 {
     if (apply)
@@ -22125,4 +21975,58 @@ void Unit::BuildEncounterFrameData(WorldPacket* p_Data, bool p_Engage, uint8 p_T
         p_Data->Initialize(SMSG_INSTANCE_ENCOUNTER_DISENGAGE_UNIT, 8 + 1);
         p_Data->append(GetPackGUID());
     }
+}
+
+bool Unit::AddPoisonTarget(uint32 p_SpellID, uint32 p_LowGuid)
+{
+    /// First target registration
+    if (m_PoisonTargets.find(p_LowGuid) == m_PoisonTargets.end())
+    {
+        std::set<uint32> l_SpellSet;
+        l_SpellSet.insert(p_SpellID);
+        m_PoisonTargets.insert(std::make_pair(p_LowGuid, l_SpellSet));
+        return true;
+    }
+
+    /// Target has already this spell registered
+    if (m_PoisonTargets[p_LowGuid].find(p_SpellID) != m_PoisonTargets[p_LowGuid].end())
+        return false;
+
+    /// Register new spell for target
+    m_PoisonTargets[p_LowGuid].insert(p_SpellID);
+    return true;
+}
+
+bool Unit::HasPoisonTarget(uint32 p_LowGuid) const
+{
+    for (auto l_Iter : m_PoisonTargets)
+    {
+        if (l_Iter.first == p_LowGuid)
+            return true;
+    }
+
+    return false;
+}
+
+void Unit::RemovePoisonTarget(uint32 p_LowGuid, uint32 p_SpellID)
+{
+    /// Target is not registered
+    if (m_PoisonTargets.find(p_LowGuid) == m_PoisonTargets.end())
+        return;
+
+    /// Spell is not registered for target
+    if (m_PoisonTargets[p_LowGuid].find(p_SpellID) == m_PoisonTargets[p_LowGuid].end())
+        return;
+
+    /// Unregister spell for target
+    m_PoisonTargets[p_LowGuid].erase(p_SpellID);
+
+    /// If no spell registered, unregister target
+    if (m_PoisonTargets[p_LowGuid].empty())
+        m_PoisonTargets.erase(p_LowGuid);
+}
+
+void Unit::ClearPoisonTargets()
+{
+    m_PoisonTargets.clear();
 }

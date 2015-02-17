@@ -41,6 +41,8 @@ enum MasterySpells
     SPELL_MAGE_ICICLE_PERIODIC_TRIGGER  = 148023,
     SPELL_PRIEST_ECHO_OF_LIGHT          = 77489,
     SPELL_WARRIOR_WEAPONS_MASTER        = 76838,
+    SPELL_WARLOCK_METAMORPHIS           = 103958,
+    SPELL_WARLOCK_MASTER_DEMONOLOGIST   = 77219,
     MASTERY_SPELL_IGNITE                = 12846
 };
 
@@ -869,8 +871,45 @@ public:
     }
 };
 
+// Called by 124915 - Chaos wave, 103964 - Touch of Chao, 603 - Doom, 140720 - Immolation Aura, 6353 - Soul Fire
+// 77219 - Mastery: Master Demonologist
+class spell_mastery_master_demonologist : public SpellScriptLoader
+{
+public:
+    spell_mastery_master_demonologist() : SpellScriptLoader("spell_mastery_master_demonologist") { }
+
+    class spell_mastery_master_demonologist_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_mastery_master_demonologist_SpellScript);
+
+        void HandleDamage(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                /// Further increases the damage of your Touch of Chaos, Chaos Wave, Doom, Immolation Aura, and Soul Fire while in Metamorphosis by 12%.
+                if (l_Caster->HasAura(SPELL_WARLOCK_METAMORPHIS) && l_Caster->HasAura(SPELL_WARLOCK_MASTER_DEMONOLOGIST))
+                {
+                    float l_MasteryValue = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.5f;
+                    SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_MasteryValue));
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_mastery_master_demonologist_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_mastery_master_demonologist_SpellScript();
+    }
+};
+
 void AddSC_mastery_spell_scripts()
 {
+    new spell_mastery_master_demonologist();
     new spell_mastery_executioner();
     new spell_mastery_potent_poisons();
     new spell_mastery_weapons_master();

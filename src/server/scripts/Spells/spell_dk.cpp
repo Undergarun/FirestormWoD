@@ -562,9 +562,14 @@ class spell_dk_soul_reaper: public SpellScriptLoader
 
             void HandleAfterHit()
             {
-                if (Unit* l_Caster = GetCaster())
+                if (!GetCaster())
+                    return;
+
+                if (Player* l_Caster = GetCaster()->ToPlayer())
                 {
-                    l_Caster->CastSpell(l_Caster, DK_SPELL_SCENT_OF_BLOOD_AURA, true);
+                    /// Only in blood spec
+                    if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) != SPEC_DK_BLOOD)
+                        l_Caster->CastSpell(l_Caster, DK_SPELL_SCENT_OF_BLOOD_AURA, true);
                 }
             }
 
@@ -1879,7 +1884,10 @@ class PlayerScript_Runic_Empowerment_Corrupion_Runic : public PlayerScript
 
         void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
         {
-            if (p_Player->getClass() != CLASS_DEATH_KNIGHT || p_Power != POWER_RUNES || p_Regen || p_NewValue <= 0)
+            // Get the power earn (if > 0 ) or consum (if < 0)
+            int32 l_DiffValue = p_NewValue - p_OldValue;
+
+            if (p_Player->getClass() != CLASS_DEATH_KNIGHT || p_Power != POWER_RUNIC_POWER || p_Regen || l_DiffValue >= 0)
                 return;
 
             if (!p_Player->HasAura(DK_SPELL_RUNIC_EMPOWERMENT) && !p_Player->HasAura(DK_SPELL_RUNIC_CORRUPTION_AURA))
@@ -1891,7 +1899,7 @@ class PlayerScript_Runic_Empowerment_Corrupion_Runic : public PlayerScript
                 float l_Amount = l_RunicEmpowerment->GetAmount();
                 l_Amount /= 100.f;
 
-                float l_Chance = l_Amount * p_NewValue;
+                float l_Chance = l_Amount * -l_DiffValue / 10;
 
                 if (roll_chance_f(l_Chance))
                 {
@@ -1919,7 +1927,7 @@ class PlayerScript_Runic_Empowerment_Corrupion_Runic : public PlayerScript
                 float l_Amount = l_RunicCorruption->GetAmount();
                 l_Amount /= 100.f;
 
-                float l_Chance = l_Amount * p_NewValue;
+                float l_Chance = l_Amount * -l_DiffValue / 10;
 
                 if (roll_chance_f(l_Chance))
                     p_Player->CastSpell(p_Player, DK_SPELL_RUNIC_CORRUPTION, true);
@@ -2080,6 +2088,83 @@ class spell_dk_death_coil : public SpellScriptLoader
         }
 };
 
+/// Areatrigger defile
+class spell_areatrigger_dk_defile : public AreaTriggerEntityScript
+{
+    public:
+        spell_areatrigger_dk_defile() : AreaTriggerEntityScript("spell_areatrigger_dk_defile") { }
+
+        enum eDefilebSpell
+        {
+            NpcDefileVisual     = 82521,
+            SpellDefileDamage   = 156000,
+            SpellDefile         = 152280,
+            TimerDefile         = 1 * IN_MILLISECONDS
+        };
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            if (TimerDefile <= m_CurrentTimerDefile)
+            {
+                if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+                {
+                    std::list<Unit*> l_TargetList;
+                    float l_Radius = p_AreaTrigger->GetFloatValue(AREATRIGGER_FIELD_EXPLICIT_SCALE) * 8.0f;
+
+                    JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
+                    JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+                    p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+                    if (!l_TargetList.empty())
+                    {
+                        /// Update size
+                        if (SpellInfo const* l_Defile = sSpellMgr->GetSpellInfo(eDefilebSpell::SpellDefile))
+                        {
+                            float l_MultiplicatorVisual = 1.0f + float(l_Defile->Effects[EFFECT_1].BasePoints) / 100 / 100;
+
+                            /// Cast damage
+                            for (Unit* l_Unit : l_TargetList)
+                            {
+                                /// Update damage
+                                if (SpellInfo const* l_DefileDamage = sSpellMgr->GetSpellInfo(eDefilebSpell::SpellDefileDamage))
+                                {
+                                    int32 l_BasePoints = l_DefileDamage->Effects[EFFECT_0].BasePoints + m_StackDefile * float(l_Defile->Effects[EFFECT_1].BasePoints) / 100;
+
+                                    l_Caster->CastCustomSpell(l_Unit, eDefilebSpell::SpellDefileDamage, &l_BasePoints, nullptr, nullptr, true);
+                                }
+                            }
+
+                            /// Update size
+                            uint64 l_CreatureVisualGUID = p_AreaTrigger->GetGUIDCreatureVisual();
+                            if (l_CreatureVisualGUID != 0)
+                            {
+                                if (Creature* l_CreatureVisual = p_AreaTrigger->GetMap()->GetCreature(l_CreatureVisualGUID))
+                                {
+                                    l_CreatureVisual->SetObjectScale(l_CreatureVisual->GetFloatValue(OBJECT_FIELD_SCALE) * l_MultiplicatorVisual);
+                                    p_AreaTrigger->SetFloatValue(AREATRIGGER_FIELD_EXPLICIT_SCALE, p_AreaTrigger->GetFloatValue(AREATRIGGER_FIELD_EXPLICIT_SCALE) * l_MultiplicatorVisual);
+                                }
+                            }
+
+                            m_StackDefile++;
+                        }
+                    }
+                }
+                m_CurrentTimerDefile = 0;
+            }
+            else
+                m_CurrentTimerDefile += p_Time;
+        }
+
+        AreaTriggerEntityScript* GetAI() const
+        {
+            return new spell_areatrigger_dk_defile();
+        }
+
+    private:
+        uint32 m_CurrentTimerDefile = 1000;
+        uint8 m_StackDefile = 0;
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     new spell_dk_death_coil();
@@ -2130,4 +2215,7 @@ void AddSC_deathknight_spell_scripts()
     /// Player script
     new PlayerScript_Blood_Tap();
     new PlayerScript_Runic_Empowerment_Corrupion_Runic();
+
+    /// AreaTriggers
+    new spell_areatrigger_dk_defile();
 }

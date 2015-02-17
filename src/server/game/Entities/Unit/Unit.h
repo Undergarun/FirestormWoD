@@ -2476,8 +2476,6 @@ class Unit : public WorldObject
         void _ExitVehicle(Position const* exitPosition = NULL);
         void _EnterVehicle(Vehicle* vehicle, int8 seatId, AuraApplication const* aurApp = NULL);
 
-        void BuildMovementPacket(ByteBuffer *data) const;
-
         bool isMoving() const   { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_MASK_MOVING); }
         bool isTurning() const  { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_MASK_TURNING); }
         virtual bool CanFly() const = 0;
@@ -2543,6 +2541,13 @@ class Unit : public WorldObject
         bool EvadeModeIsDisable() const { return m_disableEnterEvadeMode; }
 
         void BuildEncounterFrameData(WorldPacket* p_Data, bool p_Engage, uint8 p_TargetFramePriority = 0);
+
+        bool AddPoisonTarget(uint32 p_SpellID, uint32 p_LowGuid);
+        bool HasPoisonTarget(uint32 p_LowGuid) const;
+        void RemovePoisonTarget(uint32 p_LowGuid, uint32 p_SpellID);
+        void ClearPoisonTargets();
+        ///     LowGuid          SpellIDs
+        std::map<uint32, std::set<uint32>> m_PoisonTargets;
 
     public:
         uint64 _petBattleId;
