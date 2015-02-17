@@ -124,7 +124,8 @@ enum MonkSpells
     SPELL_MONK_RAPID_ROLLING                    = 147364,
     SPELL_MONK_GLYPH_OF_TARGETED_EXPULSION      = 146950,
     SPELL_MONK_CRANES_ZEAL                      = 127722,
-    SPELL_MONK_STANCE_OF_THE_WISE_SERPENT       = 115070
+    SPELL_MONK_STANCE_OF_THE_WISE_SERPENT       = 115070,
+    SPELL_MONL_SOOTHING_MIST                    = 115175
 };
 
 // Tiger Eye Brew - 123980 & Mana Tea - 123766
@@ -1893,6 +1894,18 @@ class spell_monk_surging_mist: public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_surging_mist_SpellScript);
 
+            void HandleOnPrepare()
+            {
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    if (l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL) && l_Player->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->GetSpellInfo()->Id == SPELL_MONL_SOOTHING_MIST)
+                    {
+                        TriggerCastFlags l_Flags = TriggerCastFlags(GetSpell()->getTriggerCastFlags() | TRIGGERED_CAST_DIRECTLY);
+                        GetSpell()->setTriggerCastFlags(l_Flags);
+                    }
+                }
+            }
+
             void HandleHeal()
             {
                 Player* l_Caster = GetCaster()->ToPlayer();
@@ -1920,6 +1933,7 @@ class spell_monk_surging_mist: public SpellScriptLoader
             void Register()
             {
                 OnHit += SpellHitFn(spell_monk_surging_mist_SpellScript::HandleHeal);
+                OnPrepare += SpellOnPrepareFn(spell_monk_surging_mist_SpellScript::HandleOnPrepare);
                 OnEffectHitTarget += SpellEffectFn(spell_monk_surging_mist_SpellScript::HandleGivePower, EFFECT_1, SPELL_EFFECT_ENERGIZE);
             }
         };
