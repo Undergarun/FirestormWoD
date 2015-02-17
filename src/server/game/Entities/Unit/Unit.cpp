@@ -12370,7 +12370,7 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                             break;
                         }
                         // Critical Mass - 117216
-                        // Fireball, Frost Fire Bolt, Pyroblast and scorch have 50% more crit chance
+                        // Multiplies the critical strike chance of your Fireball, Frostfire Bolt, Pyroblast, and Scorch by 1.30.
                         if (spellProto->Id == 133 || spellProto->Id == 44614 || spellProto->Id == 11366 || spellProto->Id == 2948)
                         {
                             if (HasAura(117216))
@@ -12455,9 +12455,9 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                         switch (spellProto->Id)
                         {
                             case 22568: // Ferocious Bite
-                                // +25% crit chance for Ferocious Bite on bleeding targets
+                                // Critical strike chance doubled against bleeding targets.
                                 if (victim->HasAuraState(AURA_STATE_BLEEDING))
-                                    crit_chance += 25.0f;
+                                    crit_chance *= 2.0f;
                                 break;
                             case 33878: // Mangle (Bear)
                                 if (ToPlayer() && HasAura(108373) &&
