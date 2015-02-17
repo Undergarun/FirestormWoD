@@ -1,7 +1,7 @@
 INSERT INTO npc_text (`ID`, `text0_0`, `text0_1`, `lang0`, `prob0`, `WDBVerified`) VALUES(87206, "Think you can help us catch some fish around here?", "Think you can help us catch some fish around here?", 0, 100, 19342) ON DUPLICATE KEY UPDATE `ID` = VALUES(`ID`), `text0_0` = VALUES(`text0_0`), `text0_1` = VALUES(`text0_1`), `lang0` = VALUES(`lang0`), `prob0` = VALUES(`prob0`), `WDBVerified` = VALUES(`WDBVerified`);
 INSERT INTO gossip_menu (`entry`, `text_id`) VALUES(16986, 87206) ON DUPLICATE KEY UPDATE `entry` = VALUES(`entry`), `text_id` = VALUES(`text_id`);
 INSERT INTO gossip_menu_option (`menu_id`, `id`, `option_icon`, `option_text`, `option_id`, `box_coded`, `box_money`, `box_text`, `npc_option_npcflag`) VALUES(16986, 1, 3, "I'm interested in fishing these savage lands.", 5, 0, 0, "", 16) ON DUPLICATE KEY UPDATE `menu_id` = VALUES(`menu_id`), `id` = VALUES(`id`), `option_icon` = VALUES(`option_icon`), `option_text` = VALUES(`option_text`), `option_id` = VALUES(`option_id`), `box_coded` = VALUES(`box_coded`), `box_money` = VALUES(`box_money`), `box_text` = VALUES(`box_text`), `npc_option_npcflag` = VALUES(`npc_option_npcflag`);
-UPDATE `creature_template` SET gossip_menu_id = 16986, `npcflag`=`npcflag`|17, trainer_type=2 WHERE `entry`=77733;
+UPDATE `creature_template` SET gossip_menu_id = 16986, `npcflag`=`npcflag`|17, trainer_type=2, ScriptName="npc_RonAshton_Garr" WHERE `entry`=77733;
 DELETE FROM `npc_trainer` WHERE `entry`=77733;
 INSERT INTO `npc_trainer` (`entry`, `spell`, `spellcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES
 (77733, 7620, 100, 356, 0, 1), 

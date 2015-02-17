@@ -386,6 +386,7 @@ void AddSC_Garrison_NPC()
         /// Fishing hut
         new MS::Garrison::npc_TharisStrongcast;
         new MS::Garrison::npc_Segumi;
+        new MS::Garrison::npc_RonAshton;
     }
 
     /// Horde

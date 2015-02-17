@@ -16,8 +16,10 @@
 
 namespace MS { namespace Garrison 
 {
+    /// Sequence position structure
     struct SequencePosition
     {
+        /// Position
         float X, Y, Z, O;
     };
 
@@ -63,9 +65,9 @@ namespace MS { namespace Garrison
             virtual void SetData(uint32 p_ID, uint32 p_Value) override;
 
         protected:
-            const GarrisonPlotInstanceInfoLocation * m_PlotInstanceLocation;
-            G3D::Vector3 m_NonRotatedPlotPosition;
-            uint32 m_BuildingID;
+            GarrisonPlotInstanceInfoLocation const* m_PlotInstanceLocation; ///< This creature plot
+            G3D::Vector3 m_NonRotatedPlotPosition;                          ///< Cache for coord transformation
+            uint32 m_BuildingID;                                            ///< This creature building ID
 
         private:
             SequencePosition * m_CoordTable;
@@ -75,6 +77,81 @@ namespace MS { namespace Garrison
             uint8 m_SequencePosition;
 
     };
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Sequence initializer function
+    using InitSequenceFunction = std::function<void(GarrisonNPCAI*, Creature*)>;
+
+    /// Simple sequence cosmetic script, Helper for small cosmetic script
+    /// @t_ScriptName  : Script name
+    /// @t_SetupLevel1 : Function pour initializing sequence for level 1 building
+    /// @t_SetupLevel2 : Function pour initializing sequence for level 2 building
+    /// @t_SetupLevel3 : Function pour initializing sequence for level 3 building
+    template<const char * t_ScriptName, InitSequenceFunction * t_SetupLevel1, InitSequenceFunction * t_SetupLevel2, InitSequenceFunction * t_SetupLevel3>
+    class SimpleSequenceCosmeticScript : public CreatureScript
+    {
+        public:
+            /// Constructor
+            SimpleSequenceCosmeticScript()
+                : CreatureScript(t_ScriptName)
+            {
+
+            }
+
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            CreatureAI * GetAI(Creature * p_Creature) const
+            {
+                return new SimpleSequenceCosmeticScriptAI(p_Creature);
+            }
+
+            /// Creature AI
+            struct SimpleSequenceCosmeticScriptAI : public GarrisonNPCAI
+            {
+                /// Constructor
+                SimpleSequenceCosmeticScriptAI(Creature * p_Creature)
+                    : GarrisonNPCAI(p_Creature)
+                {
+                    SetAIObstacleManagerEnabled(true);
+                }
+
+                /// When the building ID is set
+                /// @p_BuildingID : Set building ID
+                virtual void OnSetBuildingID(uint32 p_BuildingID) override
+                {
+                    m_OnPointReached.clear();
+
+                    GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(p_BuildingID);
+
+                    if (!l_BuildingEntry)
+                        return;
+
+                    switch (l_BuildingEntry->BuildingLevel)
+                    {
+                        case 1:
+                            (*t_SetupLevel1)(this, me);
+                            break;
+
+                        case 2:
+                            (*t_SetupLevel2)(this, me);
+                            break;
+
+                        case 3:
+                            (*t_SetupLevel3)(this, me);
+                            break;
+
+                        default:
+                            break;
+                    }
+                }
+
+            };
+    };
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
 
     /// Garrison Ford
     class npc_GarrisonFord : public CreatureScript
