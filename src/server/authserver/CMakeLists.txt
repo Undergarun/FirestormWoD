@@ -98,8 +98,10 @@ if( NOT WIN32 )
  endif()
 
 if( UNIX AND NOT NOJEM AND NOT APPLE )
-  set(worldserver_LINK_FLAGS "-pthread ${worldserver_LINK_FLAGS}")
+  set(authserver_LINK_FLAGS "-lpthread ${worldserver_LINK_FLAGS}")
 endif()
+
+set_target_properties(authserver PROPERTIES LINK_FLAGS "${authserver_LINK_FLAGS}")
 
 target_link_libraries(authserver
   shared
