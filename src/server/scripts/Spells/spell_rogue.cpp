@@ -53,7 +53,7 @@ enum RogueSpells
     ROGUE_SPELL_ADRENALINE_RUSH                 = 13750,
     ROGUE_SPELL_KILLING_SPREE                   = 51690,
     ROGUE_SPELL_SPRINT                          = 2983,
-    ROGUE_SPELL_HEMORRHAGE_DOT                  = 89775,
+    ROGUE_SPELL_HEMORRHAGE                      = 16511,
     ROGUE_SPELL_SANGUINARY_VEIN_DEBUFF          = 124271,
     ROGUE_SPELL_NIGHTSTALKER_AURA               = 14062,
     ROGUE_SPELL_NIGHTSTALKER_DAMAGE_DONE        = 130493,
@@ -440,7 +440,7 @@ class spell_rog_enhanced_vendetta : public SpellScriptLoader
         }
 };
 
-// Killing Spree - 51690
+/// Killing Spree - 51690
 class spell_rog_killing_spree: public SpellScriptLoader
 {
     public:
@@ -524,8 +524,8 @@ class spell_rog_killing_spree: public SpellScriptLoader
         }
 };
 
-// Called by Vanish - 1856
-// Glyph of Decoy - 56800
+/// Called by Vanish - 1856
+/// Glyph of Decoy - 56800
 class spell_rog_glyph_of_decoy: public SpellScriptLoader
 {
     public:
@@ -558,7 +558,7 @@ class spell_rog_glyph_of_decoy: public SpellScriptLoader
         }
 };
 
-// Shuriken Toss - 114014
+/// Shuriken Toss - 114014
 class spell_rog_shuriken_toss: public SpellScriptLoader
 {
     public:
@@ -588,7 +588,7 @@ class spell_rog_shuriken_toss: public SpellScriptLoader
         }
 };
 
-// Marked for Death - 137619
+/// Marked for Death - 137619
 class spell_rog_marked_for_death: public SpellScriptLoader
 {
     public:
@@ -639,8 +639,8 @@ class spell_rog_marked_for_death: public SpellScriptLoader
         }
 };
 
-// Called by Ambush - 8676, Garrote - 703 and Cheap Shot - 1833
-// Cloak and Dagger - 138106
+/// Called by Ambush - 8676, Garrote - 703 and Cheap Shot - 1833
+/// Cloak and Dagger - 138106
 class spell_rog_cloak_and_dagger: public SpellScriptLoader
 {
     public:
@@ -685,7 +685,7 @@ class spell_rog_cloak_and_dagger: public SpellScriptLoader
         }
 };
 
-// Cheat Death - 31230
+/// Cheat Death - 31230
 class spell_rog_cheat_death: public SpellScriptLoader
 {
     public:
@@ -740,7 +740,7 @@ class spell_rog_cheat_death: public SpellScriptLoader
         }
 };
 
-// Blade Flurry - 13877
+/// Blade Flurry - 13877
 class spell_rog_blade_flurry: public SpellScriptLoader
 {
     public:
@@ -788,7 +788,7 @@ class spell_rog_blade_flurry: public SpellScriptLoader
         }
 };
 
-// Growl - 113613
+/// Growl - 113613
 class spell_rog_growl: public SpellScriptLoader
 {
     public:
@@ -818,7 +818,7 @@ class spell_rog_growl: public SpellScriptLoader
         }
 };
 
-// Cloak of Shadows - 31224
+/// Cloak of Shadows - 31224
 class spell_rog_cloak_of_shadows: public SpellScriptLoader
 {
     public:
@@ -863,7 +863,7 @@ class spell_rog_cloak_of_shadows: public SpellScriptLoader
         }
 };
 
-// Combat Readiness - 74001
+/// Combat Readiness - 74001
 class spell_rog_combat_readiness: public SpellScriptLoader
 {
     public:
@@ -913,8 +913,8 @@ class spell_rog_combat_readiness: public SpellScriptLoader
         }
 };
 
-// Called by Kidney Shot - 408 and Cheap Shot - 1833
-// Nerve Strike - 108210
+/// Called by Kidney Shot - 408 and Cheap Shot - 1833
+/// Nerve Strike - 108210
 class spell_rog_nerve_strike: public SpellScriptLoader
 {
     public:
@@ -982,8 +982,8 @@ class spell_rog_nerve_strike: public SpellScriptLoader
         }
 };
 
-// Called by Stealth - 1784
-// Nightstalker - 14062
+/// Called by Stealth - 1784
+/// Nightstalker - 14062
 class spell_rog_nightstalker: public SpellScriptLoader
 {
     public:
@@ -1044,8 +1044,8 @@ class spell_rog_nightstalker: public SpellScriptLoader
         }
 };
 
-// Called by Rupture - 1943, Garrote - 703, Hemorrhage (DoT) - 89775 and Crimson Tempest - 121411
-// Sanguinary Vein - 79147
+/// Called by Rupture - 1943, Garrote - 703, Hemorrhage (DoT) - 16511 and Crimson Tempest - 121411
+/// Sanguinary Vein - 79147
 class spell_rog_sanguinary_vein: public SpellScriptLoader
 {
     public:
@@ -1061,7 +1061,7 @@ class spell_rog_sanguinary_vein: public SpellScriptLoader
                 {
                     if (Unit* target = GetTarget())
                     {
-                        if (GetSpellInfo()->Id == ROGUE_SPELL_HEMORRHAGE_DOT && !caster->HasAura(ROGUE_SPELL_GLYPH_OF_HEMORRHAGING_VEINS))
+                        if (GetSpellInfo()->Id == ROGUE_SPELL_HEMORRHAGE && !caster->HasAura(ROGUE_SPELL_GLYPH_OF_HEMORRHAGING_VEINS))
                             return;
 
                         caster->CastSpell(target, ROGUE_SPELL_SANGUINARY_VEIN_DEBUFF, true);
@@ -1075,7 +1075,7 @@ class spell_rog_sanguinary_vein: public SpellScriptLoader
                 {
                     if (Unit* target = GetTarget())
                     {
-                        if (GetSpellInfo()->Id == ROGUE_SPELL_HEMORRHAGE_DOT && !caster->HasAura(ROGUE_SPELL_GLYPH_OF_HEMORRHAGING_VEINS))
+                        if (GetSpellInfo()->Id == ROGUE_SPELL_HEMORRHAGE && !caster->HasAura(ROGUE_SPELL_GLYPH_OF_HEMORRHAGING_VEINS))
                             return;
 
                         if (target->HasAura(ROGUE_SPELL_SANGUINARY_VEIN_DEBUFF, caster->GetGUID()))
@@ -1097,7 +1097,7 @@ class spell_rog_sanguinary_vein: public SpellScriptLoader
         }
 };
 
-// Hemorrhage - 16511
+/// Hemorrhage - 16511
 class spell_rog_hemorrhage: public SpellScriptLoader
 {
     public:
@@ -1109,17 +1109,17 @@ class spell_rog_hemorrhage: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
-                        if (caster->HasAura(ROGUE_SPELL_GLYPH_OF_HEMORRHAGE))
-                            if (!target->HasAuraState(AURA_STATE_BLEEDING))
+                        if (l_Caster->HasAura(ROGUE_SPELL_GLYPH_OF_HEMORRHAGE))
+                        {
+                            if (!l_Target->HasAuraState(AURA_STATE_BLEEDING))
                                 return;
 
-                        int32 bp = int32(GetHitDamage() / 2 / 8);
-
-                        caster->CastCustomSpell(target, ROGUE_SPELL_HEMORRHAGE_DOT, &bp, NULL, NULL, true);
+                            SetHitDamage(0);
+                        }
                     }
                 }
             }
@@ -1186,8 +1186,8 @@ class spell_rog_envenom: public SpellScriptLoader
         }
 };
 
-// Called by Envenom - 32645 and Eviscerate - 2098
-// Cut to the Chase - 51667
+/// Called by Envenom - 32645 and Eviscerate - 2098
+/// Cut to the Chase - 51667
 class spell_rog_cut_to_the_chase: public SpellScriptLoader
 {
     public:
@@ -1224,8 +1224,8 @@ class spell_rog_cut_to_the_chase: public SpellScriptLoader
         }
 };
 
-// Called by Garrote - 703 and Rupture - 1943
-// Venomous Wounds - 79134
+/// Called by Garrote - 703 and Rupture - 1943
+/// Venomous Wounds - 79134
 class spell_rog_venomous_wounds: public SpellScriptLoader
 {
     public:
@@ -1309,7 +1309,7 @@ class spell_rog_venomous_wounds: public SpellScriptLoader
         }
 };
 
-// Redirect - 73981 and Redirect - 110730
+/// Redirect - 73981 and Redirect - 110730
 class spell_rog_redirect: public SpellScriptLoader
 {
     public:
@@ -1374,7 +1374,7 @@ enum battleGroundsFlagsSpells
     BG_KT_HORDE_INSIGNIA        = 131528
 };
 
-// Shroud of Concealment - 115834
+/// Shroud of Concealment - 115834
 class spell_rog_shroud_of_concealment: public SpellScriptLoader
 {
     public:
@@ -1448,7 +1448,7 @@ class spell_rog_shroud_of_concealment: public SpellScriptLoader
         }
 };
 
-// Crimson Tempest - 121411
+/// Crimson Tempest - 121411
 class spell_rog_crimson_tempest: public SpellScriptLoader
 {
     public:
@@ -1501,7 +1501,7 @@ class spell_rog_crimson_tempest: public SpellScriptLoader
         }
 };
 
-// Slice and Dice - 5171
+/// Slice and Dice - 5171
 class spell_rog_slice_and_dice: public SpellScriptLoader
 {
     public:
@@ -1567,8 +1567,8 @@ class spell_rog_slice_and_dice: public SpellScriptLoader
         }
 };
 
-// Called by Deadly Poison - 2818
-// Deadly Poison : Instant damage - 113780
+/// Called by Deadly Poison - 2818
+/// Deadly Poison : Instant damage - 113780
 class spell_rog_deadly_poison_instant_damage: public SpellScriptLoader
 {
     public:
@@ -1598,7 +1598,7 @@ class spell_rog_deadly_poison_instant_damage: public SpellScriptLoader
         }
 };
 
-// Shiv - 5938
+/// Shiv - 5938
 class spell_rog_shiv: public SpellScriptLoader
 {
     public:
@@ -1693,7 +1693,7 @@ class spell_rog_poisons: public SpellScriptLoader
         }
 };
 
-// Recuperate - 73651
+/// Recuperate - 73651
 class spell_rog_recuperate: public SpellScriptLoader
 {
     public:
@@ -1721,7 +1721,7 @@ class spell_rog_recuperate: public SpellScriptLoader
         }
 };
 
-// Preparation - 14185
+/// Preparation - 14185
 class spell_rog_preparation: public SpellScriptLoader
 {
     public:
@@ -1866,7 +1866,7 @@ class spell_rog_deadly_poison: public SpellScriptLoader
         }
 };
 
-// Shadowstep - 36554
+/// Shadowstep - 36554
 class spell_rog_shadowstep: public SpellScriptLoader
 {
     public:
@@ -1898,7 +1898,7 @@ class spell_rog_shadowstep: public SpellScriptLoader
         }
 };
 
-// Stealth - 1784 Subterfuge - 115191
+/// Stealth - 1784 Subterfuge - 115191
 class spell_rog_stealth: public SpellScriptLoader
 {
     public:
@@ -1943,7 +1943,7 @@ class spell_rog_stealth: public SpellScriptLoader
     }
 };
 
-// Burst of Speed - 108212
+/// Burst of Speed - 108212
 class spell_rog_burst_of_speed: public SpellScriptLoader
 {
 public:
@@ -2105,7 +2105,7 @@ class spell_rog_relentless_strikes_proc : public SpellScriptLoader
         }
 };
 
-// Combo Point Delayed - 139569
+/// Combo Point Delayed - 139569
 class spell_rog_combo_point_delayed: public SpellScriptLoader
 {
 public:
@@ -2228,7 +2228,7 @@ class spell_rog_deadly_throw : public SpellScriptLoader
         }
 };
 
-// Subterfuge - 115192
+/// Subterfuge - 115192
 class spell_rog_subterfuge : public SpellScriptLoader
 {
 public:

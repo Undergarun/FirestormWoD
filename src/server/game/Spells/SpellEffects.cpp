@@ -3983,152 +3983,158 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
 
     switch (m_spellInfo->SpellFamilyName)
     {
-    case SPELLFAMILY_GENERIC:
-    {
-        switch (m_spellInfo->Id)
+        case SPELLFAMILY_GENERIC:
         {
-        case 69055: // Saber Lash
-        case 70814: // Saber Lash
-        {
-            uint32 count = 0;
-            for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
-                if (ihit->effectMask & (1 << effIndex))
-                    ++count;
+            switch (m_spellInfo->Id)
+            {
+                case 69055: // Saber Lash
+                case 70814: // Saber Lash
+                {
+                    uint32 count = 0;
+                    for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+                        if (ihit->effectMask & (1 << effIndex))
+                            ++count;
 
-            totalDamagePercentMod /= count;
+                    totalDamagePercentMod /= count;
+                    break;
+                }
+            }
             break;
         }
-        }
-        break;
-    }
-    case SPELLFAMILY_WARLOCK:
-    {
-        switch (m_spellInfo->Id)
+        case SPELLFAMILY_WARLOCK:
         {
-        case 30213: // Legion Strike
-        {
-            if (Unit* owner = m_caster->GetOwner())
+            switch (m_spellInfo->Id)
             {
-                int32 spd = owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL);
-                fixed_bonus += spd * 0.264f;
+                case 30213: // Legion Strike
+                {
+                    if (Unit* owner = m_caster->GetOwner())
+                    {
+                        int32 spd = owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL);
+                        fixed_bonus += spd * 0.264f;
 
-                if (owner->GetTypeId() == TYPEID_PLAYER)
-                    if (owner->ToPlayer()->GetSpecializationId(owner->ToPlayer()->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
-                        owner->EnergizeBySpell(owner, m_spellInfo->Id, 12, POWER_DEMONIC_FURY);
+                        if (owner->GetTypeId() == TYPEID_PLAYER)
+                            if (owner->ToPlayer()->GetSpecializationId(owner->ToPlayer()->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
+                                owner->EnergizeBySpell(owner, m_spellInfo->Id, 12, POWER_DEMONIC_FURY);
+                    }
+
+                    break;
+                }
+                case 89753: // Fel Storm
+                {
+                    if (Unit* owner = m_caster->GetOwner())
+                    {
+                        int32 spd = owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL);
+                        fixed_bonus += spd * 0.33f;
+                    }
+
+                    break;
+                }
+                default:
+                    break;
             }
 
             break;
         }
-        case 89753: // Fel Storm
+        case SPELLFAMILY_ROGUE:
         {
-            if (Unit* owner = m_caster->GetOwner())
+            switch (m_spellInfo->Id)
             {
-                int32 spd = owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL);
-                fixed_bonus += spd * 0.33f;
+                case 8676:  // Ambush
+                {
+                    // 44.7% more damage with daggers
+                    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+                        if (Item* item = m_caster->ToPlayer()->GetWeaponForAttack(m_attackType, true))
+                            if (item->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)
+                                totalDamagePercentMod *= 1.447f;
+                    break;
+                }
+                case 16511: // Hemorrhage
+                {
+                    // 40% more damage with daggers
+                    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+                    {
+                        if (Item* l_Item = m_caster->ToPlayer()->GetWeaponForAttack(m_attackType, true))
+                        {
+                            if (l_Item->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)
+                                totalDamagePercentMod *= 1.40f;
+                        }
+                    }
+                    break;
+                }
+                default:
+                    break;
             }
 
             break;
         }
-        default:
+        case SPELLFAMILY_SHAMAN:
+        {
+            // Skyshatter Harness item set bonus
+            // Stormstrike
+            if (AuraEffectPtr aurEff = m_caster->IsScriptOverriden(m_spellInfo, 5634))
+                m_caster->CastSpell(m_caster, 38430, true, NULL, aurEff);
             break;
         }
+        case SPELLFAMILY_HUNTER:
+        {
+            float shotMod = 0;
+            switch (m_spellInfo->Id)
+            {
+                case 53351: // Kill Shot
+                {
+                    // "You attempt to finish the wounded target off, firing a long range attack dealing % weapon damage plus RAP*0.30+543."
+                    shotMod = 0.45f;
+                    // Kill Shot - (100% weapon dmg + 45% RAP + 543) * 150% - EJ
+                    final_bonus = 1.5f;
+                    break;
+                }
+                case 56641: // Steady Shot
+                {
+                    // "A steady shot that causes % weapon damage plus RAP*0.021+280. Generates 9 Focus."
+                    // focus effect done in dummy
+                    shotMod = 0.021f;
+                    break;
+                }
+                case 53209: // Chimera Shot
+                {
+                    shotMod = 0.398f;
+                    break;
+                }
+                case 3044: // Arcane Shot
+                {
+                    shotMod = 0.0483f;
+                    break;
+                }
+                case 75:
+                {
+                    m_caster->Attack(unitTarget, false);
+                    break;
+                }
+                default:
+                    break;
+            }
 
-        break;
-    }
-    case SPELLFAMILY_ROGUE:
-    {
-        switch (m_spellInfo->Id)
-        {
-        case 8676:  // Ambush
-        {
-            // 44.7% more damage with daggers
-            if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                if (Item* item = m_caster->ToPlayer()->GetWeaponForAttack(m_attackType, true))
-                    if (item->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)
-                        totalDamagePercentMod *= 1.447f;
+            spell_bonus += int32((shotMod*m_caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack)));
             break;
         }
-        case 16511: // Hemorrhage
+        case SPELLFAMILY_DEATHKNIGHT:
         {
-            // 45% more damage with daggers
-            if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                if (Item* item = m_caster->ToPlayer()->GetWeaponForAttack(m_attackType, true))
-                    if (item->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)
-                        totalDamagePercentMod *= 1.45f;
-            break;
-        }
-        default:
-            break;
-        }
-
-        break;
-    }
-    case SPELLFAMILY_SHAMAN:
-    {
-        // Skyshatter Harness item set bonus
-        // Stormstrike
-        if (AuraEffectPtr aurEff = m_caster->IsScriptOverriden(m_spellInfo, 5634))
-            m_caster->CastSpell(m_caster, 38430, true, NULL, aurEff);
-        break;
-    }
-    case SPELLFAMILY_HUNTER:
-    {
-        float shotMod = 0;
-        switch (m_spellInfo->Id)
-        {
-        case 53351: // Kill Shot
-        {
-            // "You attempt to finish the wounded target off, firing a long range attack dealing % weapon damage plus RAP*0.30+543."
-            shotMod = 0.45f;
-            // Kill Shot - (100% weapon dmg + 45% RAP + 543) * 150% - EJ
-            final_bonus = 1.5f;
-            break;
-        }
-        case 56641: // Steady Shot
-        {
-            // "A steady shot that causes % weapon damage plus RAP*0.021+280. Generates 9 Focus."
-            // focus effect done in dummy
-            shotMod = 0.021f;
-            break;
-        }
-        case 53209: // Chimera Shot
-        {
-            shotMod = 0.398f;
-            break;
-        }
-        case 3044: // Arcane Shot
-        {
-            shotMod = 0.0483f;
-            break;
-        }
-        case 75:
-        {
-            m_caster->Attack(unitTarget, false);
-            break;
-        }
-
-        default: break;
-        }
-        spell_bonus += int32((shotMod*m_caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack)));
-    }
-    case SPELLFAMILY_DEATHKNIGHT:
-    {
-        switch (m_spellInfo->Id)
-        {
-        case 52374: // Blood Strike
-        {
-            float bonusPct = ((m_spellInfo->Effects[EFFECT_0].BasePoints * m_spellInfo->Effects[EFFECT_1].BasePoints) / 100) * unitTarget->GetDiseasesByCaster(m_caster->GetGUID());
+            switch (m_spellInfo->Id)
+            {
+                case 52374: // Blood Strike
+                {
+                    float bonusPct = ((m_spellInfo->Effects[EFFECT_0].BasePoints * m_spellInfo->Effects[EFFECT_1].BasePoints) / 100) * unitTarget->GetDiseasesByCaster(m_caster->GetGUID());
             
-            AddPct(totalDamagePercentMod, bonusPct);
+                    AddPct(totalDamagePercentMod, bonusPct);
+                    break;
+                }
+                default:
+                    break;
+            }
             break;
         }
         default:
             break;
-        }
-        break;
-    }
-    default:
-        break;
     }
 
     bool normalized = false;
@@ -4137,19 +4143,19 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
     {
         switch (m_spellInfo->Effects[j].Effect)
         {
-        case SPELL_EFFECT_WEAPON_DAMAGE:
-        case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
-            fixed_bonus += CalculateDamage(j, unitTarget);
-            break;
-        case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
-            fixed_bonus += CalculateDamage(j, unitTarget);
-            normalized = true;
-            break;
-        case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
-            ApplyPct(weaponDamagePercentMod, CalculateDamage(j, unitTarget));
-            break;
-        default:
-            break;                                      // not weapon damage effect, just skip
+            case SPELL_EFFECT_WEAPON_DAMAGE:
+            case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
+                fixed_bonus += CalculateDamage(j, unitTarget);
+                break;
+            case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
+                fixed_bonus += CalculateDamage(j, unitTarget);
+                normalized = true;
+                break;
+            case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
+                ApplyPct(weaponDamagePercentMod, CalculateDamage(j, unitTarget));
+                break;
+            default:
+                break;                                      // not weapon damage effect, just skip
         }
     }
 
@@ -4159,10 +4165,16 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
         UnitMods unitMod;
         switch (m_attackType)
         {
-        default:
-        case WeaponAttackType::BaseAttack:   unitMod = UNIT_MOD_DAMAGE_MAINHAND; break;
-        case WeaponAttackType::OffAttack:    unitMod = UNIT_MOD_DAMAGE_OFFHAND;  break;
-        case WeaponAttackType::RangedAttack: unitMod = UNIT_MOD_DAMAGE_RANGED;   break;
+            case WeaponAttackType::OffAttack:
+                unitMod = UNIT_MOD_DAMAGE_OFFHAND;
+                break;
+            case WeaponAttackType::RangedAttack:
+                unitMod = UNIT_MOD_DAMAGE_RANGED;
+                break;
+            case WeaponAttackType::BaseAttack:
+            default:
+                unitMod = UNIT_MOD_DAMAGE_MAINHAND;
+                break;
         }
 
         float weapon_total_pct = 1.0f;
@@ -4186,15 +4198,15 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
         // and at most one weaponDamagePercentMod
         switch (m_spellInfo->Effects[j].Effect)
         {
-        case SPELL_EFFECT_WEAPON_DAMAGE:
-        case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
-        case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
-            weaponDamage += fixed_bonus;
-            break;
-        case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
-            weaponDamage = int32(weaponDamage* weaponDamagePercentMod);
-        default:
-            break;                                      // not weapon damage effect, just skip
+            case SPELL_EFFECT_WEAPON_DAMAGE:
+            case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
+            case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
+                weaponDamage += fixed_bonus;
+                break;
+            case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
+                weaponDamage = int32(weaponDamage* weaponDamagePercentMod);
+            default:
+                break;                                      // not weapon damage effect, just skip
         }
     }
 
@@ -4220,8 +4232,10 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
     {
         uint32 count = 0;
         for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+        {
             if (ihit->effectMask & (1 << effIndex))
                 ++count;
+        }
 
         m_damage /= count;
     }

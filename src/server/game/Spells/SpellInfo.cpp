@@ -3841,16 +3841,16 @@ bool SpellInfo::IsPoisonOrBleedSpell() const
 {
     switch (Id)
     {
-        case 703:   // Garrote
-        case 1943:  // Rupture
-        case 2818:  // Deadly Poison (DoT)
-        case 3409:  // Crippling Poison
-        case 8680:  // Wound Poison
-        case 79136: // Venomous Wound (damage)
-        case 89775: // Hemorrhage (DoT)
-        case 112961:// Leeching Poison
-        case 113780:// Deadly Poison (direct damage)
-        case 122233:// Crimson Tempest (DoT)
+        case 703:   ///< Garrote
+        case 1943:  ///< Rupture
+        case 2818:  ///< Deadly Poison (DoT)
+        case 3409:  ///< Crippling Poison
+        case 8680:  ///< Wound Poison
+        case 16511: ///< Hemorrhage (DoT)
+        case 79136: ///< Venomous Wound (damage)
+        case 112961:///< Leeching Poison
+        case 113780:///< Deadly Poison (direct damage)
+        case 122233:///< Crimson Tempest (DoT)
             return true;
         default:
             break;
