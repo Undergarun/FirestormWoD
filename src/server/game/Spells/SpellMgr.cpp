@@ -3468,6 +3468,13 @@ void SpellMgr::LoadSpellCustomAttr()
             case 134531: ///< Web Thread
                 spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED_1;
                 break;
+            case 152150:///< Death from Above (periodic dummy)
+                spellInfo->Effects[5].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                break;
+            case 178236:///< Death from Above (jump dest)
+                spellInfo->Effects[0].TargetB = TARGET_DEST_CASTER_BACK;
+                spellInfo->Effects[0].ValueMultiplier = 40.0f;
+                break;
             case 139498: ///< Web Spray
                 spellInfo->Effects[1].TriggerSpell = 0;
                 break;
@@ -3741,9 +3748,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 148908: ///< Mark of Salvation
                 spellInfo->Effects[0].BasePoints = 963;
                 break;
-            case 88611: ///< Smoke Bomb (triggered)
-                spellInfo->Effects[0].TargetB = TARGET_UNIT_DEST_AREA_ENEMY;
-                break;
             case 128997: ///< Spirit Beast Blessing
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                 break;
@@ -3886,13 +3890,14 @@ void SpellMgr::LoadSpellCustomAttr()
             case 167739:///< Scorching Aura (Debuff)
             case 153227:///< Burning Slag (DoT)
             case 150784:///< Magma Eruption (DoT)
-            case 161288: ///< Vileblood Serum (DoT)
-            case 161833: ///< Noxious Spit (DoT)
-            case 157420: ///< Fiery Trail (DoT)
-            case 155057: ///< Magma Pool (DoT)
-            case 166730: ///< Burning Bridge (DoT)
-            case 176037: ///< Noxious Spit (DoT)
-            case 155158: ///< Meteor Burn
+            case 161288:///< Vileblood Serum (DoT)
+            case 161833:///< Noxious Spit (DoT)
+            case 157420:///< Fiery Trail (DoT)
+            case 155057:///< Magma Pool (DoT)
+            case 166730:///< Burning Bridge (DoT)
+            case 176037:///< Noxious Spit (DoT)
+            case 155158:///< Meteor Burn
+            case 88611: ///< Smoke Bomb
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_HIDE_DURATION;
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
@@ -4591,9 +4596,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 91021: ///< Find Weakness
                 spellInfo->Effects[0].BasePoints = 100;
-                break;
-            case 76577: ///< Smoke Bomb
-                spellInfo->SpellVisual[1] = 20733;
                 break;
             case 118699: ///< Fear Effect
                 spellInfo->Dispel = DISPEL_MAGIC;
