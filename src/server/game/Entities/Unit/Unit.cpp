@@ -12471,13 +12471,9 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                     {
                         switch (spellProto->Id)
                         {
-                            case 7384:  // Overpower ...
-                                // ... has a 60% increased chance to be a critical strike.
-                                crit_chance += 60.0f;
-                                break;
                             case 23881: // Bloodthirst ...
-                                // ... has double critical chance
-                                crit_chance *= 2;
+                                /// additional 30% chance to be a critical strike.
+                                crit_chance += 30.0f;
                                 break;
                             case 118000:// Dragon Roar ...
                                 // ... is always a critical hit
