@@ -1546,6 +1546,7 @@ public:
 enum EnhancedRendSpells
 {
     SPELL_WARR_ENHANCED_REND_DAMAGE = 174736,
+    SPELL_WARR_REND_FINAL_BURST     = 94009,
     SPELL_WARR_REND                 = 772
 };
 
@@ -1582,6 +1583,44 @@ class spell_warr_enhanced_rend: public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_warr_enhanced_rend_AuraScript();
+        }
+};
+
+// Rend - 772
+class spell_warr_rend : public SpellScriptLoader
+{
+    public:
+        spell_warr_rend() : SpellScriptLoader("spell_warr_rend") { }
+
+        class spell_warr_rend_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_rend_AuraScript);
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Owner = GetUnitOwner();
+                Unit* l_Target = GetTarget();
+
+                if (l_Owner == nullptr || l_Target == nullptr)
+                    return;
+
+                AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
+
+                if (l_RemoveMode != AURA_REMOVE_BY_EXPIRE)
+                    return;
+
+                l_Owner->CastSpell(l_Target, SPELL_WARR_REND_FINAL_BURST, true);
+            }
+
+            void Register()
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_warr_rend_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_rend_AuraScript();
         }
 };
 
@@ -1690,6 +1729,7 @@ class spell_warr_blood_craze : public SpellScriptLoader
 
 void AddSC_warrior_spell_scripts()
 {
+    new spell_warr_rend();
     new spell_warr_slam();
     new spell_warr_victorious_state();
     new spell_warr_glyph_of_hindering_strikes();
