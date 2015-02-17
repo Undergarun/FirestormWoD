@@ -1557,6 +1557,9 @@ void SpellMgr::LoadSpellLearnSkills()
     mSpellLearnSkills.clear();                              // need for reload case
 
     // search auto-learned skills and add its to map also for use in unlearn spells/talents
+
+    uint32 l_ProfessionSkillForStep[] { 0, 75, 150, 225, 300, 375, 450, 525, 600, 700};
+
     uint32 dbc_count = 0;
     for (uint32 spell = 0; spell < GetSpellInfoStoreSize(); ++spell)
     {
@@ -1571,12 +1574,23 @@ void SpellMgr::LoadSpellLearnSkills()
             {
                 SpellLearnSkillNode dbc_node;
                 dbc_node.skill = entry->Effects[i].MiscValue;
-                dbc_node.step  = entry->Effects[i].CalcValue();
-                if (dbc_node.skill != SKILL_RIDING)
+                dbc_node.step = entry->Effects[i].CalcValue();
+
+                if (IsProfessionSkill(dbc_node.skill))
+                {
+                    uint16 l_Step = std::min(dbc_node.step, (uint16)((sizeof(l_ProfessionSkillForStep) / sizeof(uint32)) - 1));
                     dbc_node.value = 1;
+                    dbc_node.maxvalue = l_ProfessionSkillForStep[l_Step];
+                }
                 else
-                    dbc_node.value = dbc_node.step * 75;
-                dbc_node.maxvalue = dbc_node.step * 75;
+                {
+                    if (dbc_node.skill != SKILL_RIDING)
+                        dbc_node.value = 1;
+                    else
+                        dbc_node.value = dbc_node.step * 75;
+                    dbc_node.maxvalue = dbc_node.step * 75;
+                }
+
                 mSpellLearnSkills[spell] = dbc_node;
                 ++dbc_count;
                 break;
