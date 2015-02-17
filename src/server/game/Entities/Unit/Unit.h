@@ -2542,6 +2542,13 @@ class Unit : public WorldObject
 
         void BuildEncounterFrameData(WorldPacket* p_Data, bool p_Engage, uint8 p_TargetFramePriority = 0);
 
+        bool AddPoisonTarget(uint32 p_SpellID, uint32 p_LowGuid);
+        bool HasPoisonTarget(uint32 p_LowGuid) const;
+        void RemovePoisonTarget(uint32 p_LowGuid, uint32 p_SpellID);
+        void ClearPoisonTargets();
+        ///     LowGuid          SpellIDs
+        std::map<uint32, std::set<uint32>> m_PoisonTargets;
+
     public:
         uint64 _petBattleId;
 

@@ -94,6 +94,103 @@ enum RogueSpells
     ROGUE_SPELL_STEALTH_SUBTERFUGE              = 115191
 };
 
+/// Called by Deadly Poison - 2818, Crippling Poison - 3409, Wound Poison - 8680 and Leeching Poison - 112961
+/// Venom Rush - 152152
+class spell_rog_venom_rush : public SpellScriptLoader
+{
+    public:
+        spell_rog_venom_rush() : SpellScriptLoader("spell_rog_venom_rush") { }
+
+        enum eSpells
+        {
+            WoundPoison     = 8680,
+            VenomRushAura   = 152152,
+            VenomRushProc   = 156719
+        };
+
+        class spell_rog_venom_rush_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_venom_rush_AuraScript);
+
+            void OnApply(constAuraEffectPtr, AuraEffectHandleModes)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (!l_Caster->HasAura(eSpells::VenomRushAura))
+                    {
+                        if (l_Caster->HasAura(eSpells::VenomRushProc))
+                            l_Caster->RemoveAura(eSpells::VenomRushProc);
+
+                        l_Caster->ClearPoisonTargets();
+                        return;
+                    }
+
+                    if (Unit* l_Target = GetTarget())
+                    {
+                        bool l_MustCast = !l_Caster->HasPoisonTarget(l_Target->GetGUIDLow());
+                        if (l_Caster->AddPoisonTarget(GetSpellInfo()->Id, l_Target->GetGUIDLow()) && l_MustCast)
+                            l_Caster->CastSpell(l_Caster, eSpells::VenomRushProc, true);
+                    }
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr, AuraEffectHandleModes)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (!l_Caster->HasAura(eSpells::VenomRushAura))
+                    {
+                        if (l_Caster->HasAura(eSpells::VenomRushProc))
+                            l_Caster->RemoveAura(eSpells::VenomRushProc);
+
+                        l_Caster->ClearPoisonTargets();
+                        return;
+                    }
+
+                    if (Unit* l_Target = GetTarget())
+                    {
+                        l_Caster->RemovePoisonTarget(l_Target->GetGUIDLow(), GetSpellInfo()->Id);
+                        if (l_Caster->HasPoisonTarget(l_Target->GetGUIDLow()))
+                            return;
+
+                        if (AuraPtr l_Aura = l_Caster->GetAura(eSpells::VenomRushProc))
+                            l_Aura->DropStack();
+                    }
+                }
+            }
+
+            void Register()
+            {
+                switch (m_scriptSpellId)
+                {
+                    case ROGUE_SPELL_DEADLY_POISON_DOT:
+                        OnEffectApply += AuraEffectApplyFn(spell_rog_venom_rush_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+                        OnEffectRemove += AuraEffectRemoveFn(spell_rog_venom_rush_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+                        break;
+                    case ROGUE_SPELL_CRIPPLING_POISON_DEBUFF:
+                        OnEffectApply += AuraEffectApplyFn(spell_rog_venom_rush_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED, AURA_EFFECT_HANDLE_REAL);
+                        OnEffectRemove += AuraEffectRemoveFn(spell_rog_venom_rush_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED, AURA_EFFECT_HANDLE_REAL);
+                        break;
+                    case eSpells::WoundPoison:
+                        OnEffectApply += AuraEffectApplyFn(spell_rog_venom_rush_AuraScript::OnApply, EFFECT_1, SPELL_AURA_MOD_HEALING_PCT, AURA_EFFECT_HANDLE_REAL);
+                        OnEffectRemove += AuraEffectRemoveFn(spell_rog_venom_rush_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_MOD_HEALING_PCT, AURA_EFFECT_HANDLE_REAL);
+                        break;
+                    case ROGUE_SPELL_LEECHING_POISON_DEBUFF:
+                        OnEffectApply += AuraEffectApplyFn(spell_rog_venom_rush_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                        OnEffectRemove += AuraEffectRemoveFn(spell_rog_venom_rush_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_rog_venom_rush_AuraScript();
+        }
+};
+
 /// Death from Above (Jump back to target) - 178236
 class spell_rog_death_from_above_return : public SpellScriptLoader
 {
@@ -2393,6 +2490,7 @@ void AddSC_rogue_spell_scripts()
     new spell_areatrigger_smoke_bomb();
 
     /// Spells
+    new spell_rog_venom_rush();
     new spell_rog_death_from_above_return();
     new spell_rog_death_from_above();
     new spell_rog_shadow_reflection_proc();

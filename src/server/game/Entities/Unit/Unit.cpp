@@ -22016,3 +22016,57 @@ void Unit::BuildEncounterFrameData(WorldPacket* p_Data, bool p_Engage, uint8 p_T
         p_Data->append(GetPackGUID());
     }
 }
+
+bool Unit::AddPoisonTarget(uint32 p_SpellID, uint32 p_LowGuid)
+{
+    /// First target registration
+    if (m_PoisonTargets.find(p_LowGuid) == m_PoisonTargets.end())
+    {
+        std::set<uint32> l_SpellSet;
+        l_SpellSet.insert(p_SpellID);
+        m_PoisonTargets.insert(std::make_pair(p_LowGuid, l_SpellSet));
+        return true;
+    }
+
+    /// Target has already this spell registered
+    if (m_PoisonTargets[p_LowGuid].find(p_SpellID) != m_PoisonTargets[p_LowGuid].end())
+        return false;
+
+    /// Register new spell for target
+    m_PoisonTargets[p_LowGuid].insert(p_SpellID);
+    return true;
+}
+
+bool Unit::HasPoisonTarget(uint32 p_LowGuid) const
+{
+    for (auto l_Iter : m_PoisonTargets)
+    {
+        if (l_Iter.first == p_LowGuid)
+            return true;
+    }
+
+    return false;
+}
+
+void Unit::RemovePoisonTarget(uint32 p_LowGuid, uint32 p_SpellID)
+{
+    /// Target is not registered
+    if (m_PoisonTargets.find(p_LowGuid) == m_PoisonTargets.end())
+        return;
+
+    /// Spell is not registered for target
+    if (m_PoisonTargets[p_LowGuid].find(p_SpellID) == m_PoisonTargets[p_LowGuid].end())
+        return;
+
+    /// Unregister spell for target
+    m_PoisonTargets[p_LowGuid].erase(p_SpellID);
+
+    /// If no spell registered, unregister target
+    if (m_PoisonTargets[p_LowGuid].empty())
+        m_PoisonTargets.erase(p_LowGuid);
+}
+
+void Unit::ClearPoisonTargets()
+{
+    m_PoisonTargets.clear();
+}
