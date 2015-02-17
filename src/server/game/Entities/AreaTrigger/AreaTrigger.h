@@ -19,7 +19,6 @@
 #ifndef TRINITYCORE_AREATRIGGER_H
 # define TRINITYCORE_AREATRIGGER_H
 
-# include "G3D\Vector3.h"
 # include "Object.h"
 # include "Timer.h"
 

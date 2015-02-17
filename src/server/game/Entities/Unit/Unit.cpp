@@ -11703,13 +11703,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
     // Bonus damage while using Metamorphosis
     if (GetTypeId() == TYPEID_PLAYER && HasAura(77219))
     {
-        float Mastery = 0.0f;
-
-        if (HasAura(103958))
-            Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 3.0f;
-        else
-            Mastery = GetFloatValue(PLAYER_FIELD_MASTERY);
-
+        float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 0.75f;
         DoneTotal += CalculatePct(pdamage, Mastery);
     }
     else if (isPet())
@@ -11717,7 +11711,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         Unit* owner = GetOwner();
         if (owner && owner->HasAura(77219) && owner->GetTypeId() == TYPEID_PLAYER)
         {
-            float Mastery = owner->GetFloatValue(PLAYER_FIELD_MASTERY);
+            float Mastery = owner->GetFloatValue(PLAYER_FIELD_MASTERY) * 0.75f;
             DoneTotal += CalculatePct(pdamage, Mastery);
         }
     }
@@ -13276,28 +13270,14 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
         if (roll_chance_f(Mastery))
             CastSpell(victim, 76663, true);
     }
-
-    // Custom MoP Script
     // 77219 - Mastery : Master Demonologist
-    // Bonus damage while using Metamorphosis
-    if (HasAura(103958) && HasAura(77219) && GetTypeId() == TYPEID_PLAYER)
-    {
-        float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 3.0f;
-        AddPct(DoneTotalMod, Mastery);
-    }
-    // Bonus damage in caster form
-    else if (!HasAura(103958) && HasAura(77219) && GetTypeId() == TYPEID_PLAYER)
-    {
-        float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY);
-        AddPct(DoneTotalMod, Mastery);
-    }
     // Bonus damage for demon servants
-    else if (isPet())
+    if (isPet())
     {
         Unit* owner = GetOwner();
         if (owner && owner->HasAura(77219) && owner->GetTypeId() == TYPEID_PLAYER)
         {
-            float Mastery = owner->GetFloatValue(PLAYER_FIELD_MASTERY);
+            float Mastery = owner->GetFloatValue(PLAYER_FIELD_MASTERY) * 0.75;
             AddPct(DoneTotalMod, Mastery);
         }
     }

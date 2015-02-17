@@ -757,7 +757,6 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     m_chiPowerRegenTimerCount = 0;
     m_demonicFuryPowerRegenTimerCount = 0;
     m_soulShardsRegenTimerCount = 0;
-    m_burningEmbersRegenTimerCount = 0;
     m_focusRegenTimerCount = 0;
     m_weaponChangeTimer = 0;
 
@@ -3242,9 +3241,6 @@ void Player::RegenerateAll()
                 case SpecIndex::SPEC_WARLOCK_DEMONOLOGY:
                     m_demonicFuryPowerRegenTimerCount += m_RegenPowerTimer;
                     break;
-                case SpecIndex::SPEC_WARLOCK_DESTRUCTION:
-                    m_burningEmbersRegenTimerCount += m_RegenPowerTimer;
-                    break;
                 case SpecIndex::SPEC_WARLOCK_AFFLICTION:
                     m_soulShardsRegenTimerCount += m_RegenPowerTimer;
                     break;
@@ -3303,12 +3299,6 @@ void Player::RegenerateAll()
             Regenerate(POWER_RUNIC_POWER);
 
         m_regenTimerCount -= 2000;
-    }
-
-    if (m_burningEmbersRegenTimerCount >= 2000 && l_Class == CLASS_WARLOCK && GetSpecializationId(GetActiveSpec()) == SPEC_WARLOCK_DESTRUCTION)
-    {
-        Regenerate(POWER_BURNING_EMBERS);
-        m_burningEmbersRegenTimerCount -= 2000;
     }
 
     if (m_holyPowerRegenTimerCount >= 10000 && l_Class == CLASS_PALADIN)
@@ -3457,60 +3447,6 @@ void Player::Regenerate(Powers power)
                         RemoveAura(122738);
                     if (HasAura(131755))
                         RemoveAura(131755);
-                }
-
-                break;
-            }
-            /// Regenerate Burning Embers
-            case POWER_BURNING_EMBERS:
-            {
-                /// After 15s return to one embers if no one
-                /// or return to one if more than one
-                if (!isInCombat() && GetPower(POWER_BURNING_EMBERS) < 10)
-                    SetPower(POWER_BURNING_EMBERS, GetPower(POWER_BURNING_EMBERS) + 1, true);
-                else if (!isInCombat() && GetPower(POWER_BURNING_EMBERS) > 10)
-                    SetPower(POWER_BURNING_EMBERS, GetPower(POWER_BURNING_EMBERS) - 1, true);
-
-                if (HasAura(56241))
-                {
-                    if (GetPower(POWER_BURNING_EMBERS) < 20)
-                    {
-                        RemoveAura(123730); ///< 2
-                        RemoveAura(123728); ///< 1
-                        RemoveAura(123731); ///< 3
-                    }
-                    else if (GetPower(POWER_BURNING_EMBERS) < 30)
-                    {
-                        RemoveAura(123730);            ///< 2 shards visual
-                        CastSpell(this, 123728, true); ///< 1 shard visual
-                    }
-                    else if (GetPower(POWER_BURNING_EMBERS) < 40)
-                    {
-                        CastSpell(this, 123728, true); ///< 1 shard visual
-                        CastSpell(this, 123730, true); ///< 2 shards visual
-                        RemoveAura(123731);            ///< 3 shards visual
-                    }
-                    else if (GetPower(POWER_BURNING_EMBERS) < 50)
-                    {
-                        CastSpell(this, 123728, true); ///< 1 shard visual
-                        CastSpell(this, 123730, true); ///< 2 shards visual
-                        CastSpell(this, 123731, true); ///< 3 shards visual
-                    }
-                }
-                else
-                {
-                    if (GetPower(POWER_BURNING_EMBERS) < 20)
-                    {
-                        RemoveAura(116855); ///< First visual
-                        RemoveAura(116920); ///< Second visual
-                    }
-                    if (GetPower(POWER_BURNING_EMBERS) < 30)
-                    {
-                        CastSpell(this, 116855, true);  ///< First visual
-                        RemoveAura(116920);             ///< Second visual
-                    }
-                    else
-                        CastSpell(this, 116920, true);  ///< Second visual
                 }
 
                 break;
