@@ -15,6 +15,7 @@
 
 #include "Buildings/Alliance/FishingHut.hpp"
 #include "Buildings/Alliance/LunarfallExcavation.hpp"
+#include "Buildings/Alliance/TheForge.hpp"
 
 #include <random>
 
@@ -380,8 +381,12 @@ void AddSC_Garrison_NPC()
         new MS::Garrison::npc_GussofForgefire;
         new MS::Garrison::npc_KristenStoneforge;
         new MS::Garrison::npc_JonathanStephens;
+
+        /// The forge
         new MS::Garrison::npc_AuriaIrondreamer;
         new MS::Garrison::npc_YuliaSamras;
+
+        /// Lunarfall excavation
         new MS::Garrison::npc_TimothyLeens;
 
         /// Fishing hut
