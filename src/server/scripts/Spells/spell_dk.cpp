@@ -562,9 +562,14 @@ class spell_dk_soul_reaper: public SpellScriptLoader
 
             void HandleAfterHit()
             {
-                if (Unit* l_Caster = GetCaster())
+                if (!GetCaster())
+                    return;
+
+                if (Player* l_Caster = GetCaster()->ToPlayer())
                 {
-                    l_Caster->CastSpell(l_Caster, DK_SPELL_SCENT_OF_BLOOD_AURA, true);
+                    /// Only in blood spec
+                    if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) != SPEC_DK_BLOOD)
+                        l_Caster->CastSpell(l_Caster, DK_SPELL_SCENT_OF_BLOOD_AURA, true);
                 }
             }
 
