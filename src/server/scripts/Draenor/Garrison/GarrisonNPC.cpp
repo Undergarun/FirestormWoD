@@ -13,6 +13,8 @@
 #include "Spell.h"
 #include "GarrisonMgr.hpp"
 
+#include "Buildings/Alliance/FishingHut.hpp"
+
 #include <random>
 
 namespace MS { namespace Garrison 
@@ -75,6 +77,52 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
+    /// Setup action sequence
+    /// @p_CoordTable       : Coordinates table
+    /// @p_SequenceTable    : Sequence table
+    /// @p_SequenceSize     : Size of sequence table,
+    /// @p_FirstMovePointID : First move point ID
+    void GarrisonNPCAI::SetupActionSequence(SequencePosition * p_CoordTable, uint8 * p_SequenceTable, uint32 p_SequenceSize, uint32 p_FirstMovePointID)
+    {
+        m_CoordTable        = p_CoordTable;
+        m_SequencePosition  = 0xFF;
+        m_SequenceTable     = p_SequenceTable;
+        m_SequenceSize      = p_SequenceSize;
+        m_FirstMovePointID  = p_FirstMovePointID;
+    }
+
+    /// Do next sequence element
+    void GarrisonNPCAI::DoNextSequenceAction()
+    {
+        if (m_SequencePosition >= m_SequenceSize)
+            m_SequencePosition = 0;
+
+        m_DelayedOperations.push([this]() -> void
+        {
+            me->SetWalk(true);
+
+            uint32 l_LocationID = m_SequenceTable[m_SequencePosition] - m_FirstMovePointID;
+            MoveBuildingRelative( m_SequenceTable[m_SequencePosition], m_CoordTable[l_LocationID].X,
+                                                                       m_CoordTable[l_LocationID].Y,
+                                                                       m_CoordTable[l_LocationID].Z);
+
+            m_SequencePosition++;
+        });
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// When the building ID is set
+    /// @p_BuildingID : Set building ID
+    void GarrisonNPCAI::OnSetBuildingID(uint32 p_BuildingID)
+    {
+
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
     /// Set UInt32 value
     /// @p_ID    : Value ID
     /// @p_Value : Value
@@ -105,6 +153,7 @@ namespace MS { namespace Garrison
         else if (p_ID == CreatureAIDataIDs::BuildingID)
         {
             m_BuildingID = p_Value;
+            OnSetBuildingID(m_BuildingID);
         }
     }
 
@@ -320,18 +369,24 @@ void AddSC_Garrison_NPC()
     new MS::Garrison::npc_CallToArms;
 
     /// Alliance
-    new MS::Garrison::npc_GarrisonCartRope;
-    new MS::Garrison::npc_AssistantBrightstone;
-    new MS::Garrison::npc_ShellyHamby;
-    new MS::Garrison::npc_BarosAlexsom;
-    new MS::Garrison::npc_VindicatorMaraad;
-    new MS::Garrison::npc_LunarfallLaborer;
-    new MS::Garrison::npc_GussofForgefire;
-    new MS::Garrison::npc_KristenStoneforge;
-    new MS::Garrison::npc_JonathanStephens;
-    new MS::Garrison::npc_AuriaIrondreamer;
-    new MS::Garrison::npc_YuliaSamras;
-    new MS::Garrison::npc_TimothyLeens;
+    {
+        new MS::Garrison::npc_GarrisonCartRope;
+        new MS::Garrison::npc_AssistantBrightstone;
+        new MS::Garrison::npc_ShellyHamby;
+        new MS::Garrison::npc_BarosAlexsom;
+        new MS::Garrison::npc_VindicatorMaraad;
+        new MS::Garrison::npc_LunarfallLaborer;
+        new MS::Garrison::npc_GussofForgefire;
+        new MS::Garrison::npc_KristenStoneforge;
+        new MS::Garrison::npc_JonathanStephens;
+        new MS::Garrison::npc_AuriaIrondreamer;
+        new MS::Garrison::npc_YuliaSamras;
+        new MS::Garrison::npc_TimothyLeens;
+
+        /// Fishing hut
+        new MS::Garrison::npc_TharisStrongcast;
+        new MS::Garrison::npc_Segumi;
+    }
 
     /// Horde
     new MS::Garrison::npc_FrostwallPeon("npc_FrostwallPeon_Dynamic");

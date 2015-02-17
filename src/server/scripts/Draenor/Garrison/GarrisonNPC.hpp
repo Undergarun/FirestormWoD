@@ -16,6 +16,11 @@
 
 namespace MS { namespace Garrison 
 {
+    struct SequencePosition
+    {
+        float X, Y, Z, O;
+    };
+
     class GarrisonNPCAI : public AI::CosmeticAI
     {
         public:
@@ -37,6 +42,20 @@ namespace MS { namespace Garrison
             /// Get building ID
             uint32 GetBuildingID();
 
+            /// Setup action sequence
+            /// @p_CoordTable       : Coordinates table
+            /// @p_SequenceTable    : Sequence table
+            /// @p_SequenceSize     : Size of sequence table,
+            /// @p_FirstMovePointID : First move point ID
+            void SetupActionSequence(SequencePosition * p_CoordTable, uint8 * p_SequenceTable, uint32 p_SequenceSize, uint32 p_FirstMovePointID);
+            /// Do next sequence element
+            virtual void DoNextSequenceAction();
+
+        public:
+            /// When the building ID is set
+            /// @p_BuildingID : Set building ID
+            virtual void OnSetBuildingID(uint32 p_BuildingID);
+
         public:
             /// Set UInt32 value
             /// @p_ID    : Value ID
@@ -47,6 +66,13 @@ namespace MS { namespace Garrison
             const GarrisonPlotInstanceInfoLocation * m_PlotInstanceLocation;
             G3D::Vector3 m_NonRotatedPlotPosition;
             uint32 m_BuildingID;
+
+        private:
+            SequencePosition * m_CoordTable;
+            uint8 * m_SequenceTable;
+            uint32 m_SequenceSize;
+            uint32 m_FirstMovePointID;
+            uint8 m_SequencePosition;
 
     };
 
