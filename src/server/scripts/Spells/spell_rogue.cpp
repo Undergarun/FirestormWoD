@@ -607,64 +607,47 @@ class spell_rog_killing_spree: public SpellScriptLoader
         {
             PrepareAuraScript(spell_rog_killing_spree_AuraScript);
 
-            void OnTick(constAuraEffectPtr aurEff)
+            void OnTick(constAuraEffectPtr)
             {
-                if (Unit* caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (!caster->HasAura(ROGUE_SPELL_BLADE_FLURRY_AURA))
+                    if (!l_Caster->HasAura(ROGUE_SPELL_BLADE_FLURRY_AURA))
                     {
-                        Unit* target = caster->getVictim();
-                        if (!target && caster->ToPlayer())
-                            target = caster->ToPlayer()->GetSelectedUnit();
-                        if (!target)
+                        Unit* l_Target = l_Caster->getVictim();
+                        if (!l_Target && l_Caster->ToPlayer())
+                            l_Target = l_Caster->ToPlayer()->GetSelectedUnit();
+                        if (!l_Target)
                             return;
 
-                        caster->CastSpell(target, ROGUE_SPELL_KILLING_SPREE_TELEPORT, true);
-                        caster->CastSpell(target, ROGUE_SPELL_KILLING_SPREE_DAMAGES, true);
+                        l_Caster->CastSpell(l_Target, ROGUE_SPELL_KILLING_SPREE_TELEPORT, true);
+                        l_Caster->CastSpell(l_Target, ROGUE_SPELL_KILLING_SPREE_DAMAGES, true);
                     }
                     else
                     {
-                        UnitList targets;
+                        std::list<Unit*> l_TargetList;
+                        float l_Radius = 10.0f;
+
+                        JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(l_Caster, l_Caster, l_Radius);
+                        JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, l_TargetList, l_Check);
+                        l_Caster->VisitNearbyObject(l_Radius, l_Searcher);
+
+                        l_TargetList.remove_if([this](Unit* p_Unit) -> bool
                         {
-                            //// eff_radius == 0
-                            //float radius = GetSpellInfo()->GetMaxRange(false);
+                            if (p_Unit == nullptr || p_Unit->HasCrowdControlAura())
+                                return true;
 
-                            //CellCoord p(JadeCore::ComputeCellCoord(caster->GetPositionX(), caster->GetPositionY()));
-                            //Cell cell(p);
+                            return false;
+                        });
 
-                            //JadeCore::AnyUnfriendlyAttackableVisibleUnitInObjectRangeCheck u_check(caster, radius);
-                            //JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyAttackableVisibleUnitInObjectRangeCheck> checker(caster, targets, u_check);
-
-                            //TypeContainerVisitor<JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyAttackableVisibleUnitInObjectRangeCheck>, GridTypeMapContainer > grid_object_checker(checker);
-                            //TypeContainerVisitor<JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyAttackableVisibleUnitInObjectRangeCheck>, WorldTypeMapContainer > world_object_checker(checker);
-
-                            //cell.Visit(p, grid_object_checker,  *caster->GetMap(), *caster, radius);
-                            //cell.Visit(p, world_object_checker, *caster->GetMap(), *caster, radius);
-                        }
-
-                        std::vector<uint64> validTargets;
-
-                        for (auto itr : targets)
-                        {
-                             if (itr->HasAuraType(SPELL_AURA_MOD_CONFUSE) ||
-                                 itr->HasAuraType(SPELL_AURA_MOD_CHARM) ||
-                                 itr->HasAuraType(SPELL_AURA_MOD_FEAR) ||
-                                 itr->HasAuraType(SPELL_AURA_MOD_CONFUSE) ||
-                                 itr->HasAuraType(SPELL_AURA_MOD_STUN))
-                                continue;
-
-                             validTargets.push_back(itr->GetGUID());
-                        }
-
-                        if (validTargets.empty())
+                        if (l_TargetList.empty())
                             return;
 
-                        Unit* spellTarget = sObjectAccessor->FindUnit(JadeCore::Containers::SelectRandomContainerElement(validTargets));
-                        if (!spellTarget)
+                        Unit* l_Target = JadeCore::Containers::SelectRandomContainerElement(l_TargetList);
+                        if (!l_Target)
                             return;
 
-                        caster->CastSpell(spellTarget, ROGUE_SPELL_KILLING_SPREE_TELEPORT, true);
-                        caster->CastSpell(spellTarget, ROGUE_SPELL_KILLING_SPREE_DAMAGES, true);
+                        l_Caster->CastSpell(l_Target, ROGUE_SPELL_KILLING_SPREE_TELEPORT, true);
+                        l_Caster->CastSpell(l_Target, ROGUE_SPELL_KILLING_SPREE_DAMAGES, true);
                     }
                 }
             }
