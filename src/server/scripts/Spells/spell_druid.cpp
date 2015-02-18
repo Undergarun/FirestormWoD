@@ -1104,6 +1104,8 @@ enum LifebloomSpells
     SPELL_DRUID_LIFEBLOOM_FINAL_HEAL      = 33778,
     SPELL_DRUID_GLYPH_OF_BLOOMING         = 121840,
     SPELL_DRUID_OMEN_OF_CLARITY           = 113043,
+    SPELL_DRUID_MOMENT_OF_CLARITY_TALENT  = 155577,
+    SPELL_DRUID_MOMENT_OF_CLARITY         = 155631,
     SPELL_DRUID_CLEARCASTING              = 16870
 };
 
@@ -1202,7 +1204,12 @@ class spell_dru_lifebloom: public SpellScriptLoader
             {
                 Unit* l_Caster = GetCaster();
                 if (l_Caster && l_Caster->HasAura(SPELL_DRUID_OMEN_OF_CLARITY) && roll_chance_i(4))
-                    l_Caster->CastSpell(l_Caster, SPELL_DRUID_CLEARCASTING, true);
+                {
+                    if (l_Caster->HasAura(SPELL_DRUID_MOMENT_OF_CLARITY_TALENT))
+                        l_Caster->CastSpell(l_Caster, SPELL_DRUID_MOMENT_OF_CLARITY, true);
+                    else
+                        l_Caster->CastSpell(l_Caster, SPELL_DRUID_CLEARCASTING, true);
+                }
             }
 
             void Register()
