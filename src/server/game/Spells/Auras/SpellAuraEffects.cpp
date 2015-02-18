@@ -2287,10 +2287,6 @@ void AuraEffect::HandleModStealth(const AuraApplication * p_AuraApplication, uin
 
         l_Target->SetStandFlags(UNIT_STAND_FLAGS_CREEP);
 
-        //WorldPacket data(SMSG_CLEAR_TARGET, 16 + 2);
-        //data.appendPackGUID(target->GetGUID());
-        //target->SendMessageUnfriendlyToSetInRange(&data, true);
-
         Unit::AttackerSet const& l_Attackers = l_Target->getAttackers();
         for (Unit::AttackerSet::const_iterator l_Itr = l_Attackers.begin(); l_Itr != l_Attackers.end();)
         {

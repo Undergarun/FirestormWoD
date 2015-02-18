@@ -4842,10 +4842,12 @@ void SpellMgr::LoadSpellCustomAttr()
             case 115191: ///< Subterfuge
                 spellInfo->AttributesEx |= SPELL_ATTR0_DISABLED_WHILE_ACTIVE;
                 spellInfo->AttributesEx8 |= SPELL_ATTR8_AURA_SEND_AMOUNT;
-                spellInfo->ProcFlags = 0x00A22A8;   ///< 1784 ProcsFlags
+                spellInfo->ProcFlags = 0x800A22A8;   ///< 1784 ProcsFlags
                 break;
             case 115192: ///< Subterfuge
-                spellInfo->AttributesEx &= ~SPELL_ATTR1_NOT_BREAK_STEALTH;
+                spellInfo->Attributes |= SPELL_ATTR0_DONT_AFFECT_SHEATH_STATE;
+                spellInfo->Attributes |= SPELL_ATTR0_NOT_SHAPESHIFT;
+                spellInfo->AttributesEx |= SPELL_ATTR1_NOT_BREAK_STEALTH;
                 break;
             case 84745: ///< Shallow Insight
             case 84746: ///< Moderate Insight

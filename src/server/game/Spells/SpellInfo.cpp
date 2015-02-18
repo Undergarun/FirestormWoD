@@ -3953,7 +3953,10 @@ bool SpellInfo::IsBreakingStealth(Unit* m_caster) const
     if (!m_caster)
         return false;
 
-    // Hearthstone shoudn't call subterfuge effect
+    if (m_caster->HasAura(115192))
+        return false;
+
+    /// Hearthstone shouldn't call subterfuge effect
     if ((SpellIconID == 776 || SpellFamilyName == SPELLFAMILY_POTION) && m_caster->HasAura(115191))
     {
         m_caster->RemoveAura(115191);
@@ -3972,7 +3975,7 @@ bool SpellInfo::IsBreakingStealth(Unit* m_caster) const
     if (m_caster->HasAura(108208) && m_caster->HasAura(115191) && !m_caster->HasAura(115192) &&
         !HasAttribute(SPELL_ATTR1_NOT_BREAK_STEALTH) && !m_caster->HasAura(51713))
     {
-        // Mounts shouldn't call subterfuge effect
+        /// Mounts shouldn't call subterfuge effect
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
             if (Effects[i].ApplyAuraName == SPELL_AURA_MOUNTED)
@@ -3985,18 +3988,21 @@ bool SpellInfo::IsBreakingStealth(Unit* m_caster) const
         if (callSubterfuge)
         {
             m_caster->CastSpell(m_caster, 115192, true);
-            return true;
+            return false;
         }
     }
 
     if (m_caster->HasAura(115191))
         return false;
 
-    switch(Id)
+    switch (Id)
     {
-        case 3600:  // Earthbind Totem
-        case 99:    // Demoralizing Roar
-        case 50256:
+        case 99:    ///< Incapaciting Roar
+        case 2643:  ///< Multi-shot
+        case 3600:  ///< Earthbind
+        case 12323: ///< Piercing Howl
+        case 50256: ///< Invigorating Roar (Special Ability)
+        case 64695: ///< Earthgrab
             return false;
         default:
             break;
@@ -4004,8 +4010,8 @@ bool SpellInfo::IsBreakingStealth(Unit* m_caster) const
 
     if (IsTargetingArea())
     {
-        // dispel etc spells
-        switch(Effects[EFFECT_0].Effect)
+        /// Dispel etc spells
+        switch (Effects[EFFECT_0].Effect)
         {
             case SPELL_EFFECT_DISPEL:
             case SPELL_EFFECT_DISPEL_MECHANIC:
