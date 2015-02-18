@@ -30,6 +30,11 @@ namespace MS
             ACE_Stack_Trace l_Trace;
             sLog->outError(LOG_FILTER_WORLDSERVER, "MS::SignalHandler : can't rescue the thread, shutdown the server  StackTrace : %s", l_Trace.c_str());
 
+#ifdef _MSC_VER
+            /// Pause process execution on windows only to let time to the dev
+            /// to see the call stack on crash.
+            system("pause");
+#endif
             // We can't rescue the thread, shutdown the server 
             exit(SIGTERM);
         }
