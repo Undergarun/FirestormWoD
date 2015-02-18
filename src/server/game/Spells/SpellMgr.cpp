@@ -4402,14 +4402,17 @@ void SpellMgr::LoadSpellCustomAttr()
             case 89523: ///< Glyph of Grounding Totem
                 spellInfo->SpellFamilyName = SPELLFAMILY_SHAMAN;
                 break;
-            case 1856: ///< Vanish
+            case 1856:  ///< Vanish
                 spellInfo->Effects[1].TriggerSpell = 131368;
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_SANCTUARY;
                 break;
-            case 131369: ///< Vanish - Improved Stealth
+            case 131368:  ///< Vanish (triggered)
+                spellInfo->Effects[2].TriggerSpell = 131361;
+                break;
+            case 131361:///< Vanish - Improved Stealth
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(27); ///< 3s
                 break;
-            case 116784: ///< Wildfire Spark - Boss Feng
+            case 116784:///< Wildfire Spark - Boss Feng
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 spellInfo->Effects[0].TargetB = 0;
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ENEMY;
@@ -4839,10 +4842,12 @@ void SpellMgr::LoadSpellCustomAttr()
             case 115191: ///< Subterfuge
                 spellInfo->AttributesEx |= SPELL_ATTR0_DISABLED_WHILE_ACTIVE;
                 spellInfo->AttributesEx8 |= SPELL_ATTR8_AURA_SEND_AMOUNT;
-                spellInfo->ProcFlags = 0x00A22A8;   ///< 1784 ProcsFlags
+                spellInfo->ProcFlags = 0x800A22A8;   ///< 1784 ProcsFlags
                 break;
             case 115192: ///< Subterfuge
-                spellInfo->AttributesEx &= ~SPELL_ATTR1_NOT_BREAK_STEALTH;
+                spellInfo->Attributes |= SPELL_ATTR0_DONT_AFFECT_SHEATH_STATE;
+                spellInfo->Attributes |= SPELL_ATTR0_NOT_SHAPESHIFT;
+                spellInfo->AttributesEx |= SPELL_ATTR1_NOT_BREAK_STEALTH;
                 break;
             case 84745: ///< Shallow Insight
             case 84746: ///< Moderate Insight

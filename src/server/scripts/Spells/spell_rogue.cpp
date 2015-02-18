@@ -45,8 +45,6 @@ enum RogueSpells
     ROGUE_SPELL_SMOKE_BOMB_AURA                 = 88611,
     ROGUE_SPELL_CRIMSON_TEMPEST_DOT             = 122233,
     ROGUE_SPELL_SHROUD_OF_CONCEALMENT_AURA      = 115834,
-    ROGUE_SPELL_VENOMOUS_VIM_ENERGIZE           = 51637,
-    ROGUE_SPELL_VENOMOUS_WOUND_DAMAGE           = 79136,
     ROGUE_SPELL_GARROTE_DOT                     = 703,
     ROGUE_SPELL_RUPTURE_DOT                     = 1943,
     ROGUE_SPELL_CUT_TO_THE_CHASE_AURA           = 51667,
@@ -108,7 +106,9 @@ class spell_rog_anticipation : public SpellScriptLoader
             {
                 AnticipationProc        = 115189,
                 SinisterStrike          = 1752,
-                SinisterStrikeEnabler   = 79327
+                SinisterStrikeEnabler   = 79327,
+                MutilateMainHand        = 5374,
+                MutilateOffHand         = 27576
             };
 
             void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
@@ -137,6 +137,9 @@ class spell_rog_anticipation : public SpellScriptLoader
 
                     if (l_SpellInfo->Id == eSpells::SinisterStrike && l_Caster->HasAura(eSpells::SinisterStrikeEnabler))
                         l_NewCombo += 2;
+
+                    if (l_SpellInfo->Id == eSpells::MutilateMainHand || l_SpellInfo->Id == eSpells::MutilateOffHand)
+                        l_NewCombo += 1;
 
                     if (l_NewCombo <= 5)
                         return;
@@ -189,14 +192,11 @@ class spell_rog_venom_rush : public SpellScriptLoader
                     {
                         if (l_Caster->HasAura(eSpells::VenomRushProc))
                             l_Caster->RemoveAura(eSpells::VenomRushProc);
-
-                        l_Caster->ClearPoisonTargets();
-                        return;
                     }
 
                     if (Unit* l_Target = GetTarget())
                     {
-                        bool l_MustCast = !l_Caster->HasPoisonTarget(l_Target->GetGUIDLow());
+                        bool l_MustCast = !l_Caster->HasPoisonTarget(l_Target->GetGUIDLow()) && l_Caster->HasAura(eSpells::VenomRushAura);
                         if (l_Caster->AddPoisonTarget(GetSpellInfo()->Id, l_Target->GetGUIDLow()) && l_MustCast)
                             l_Caster->CastSpell(l_Caster, eSpells::VenomRushProc, true);
                     }
@@ -211,15 +211,12 @@ class spell_rog_venom_rush : public SpellScriptLoader
                     {
                         if (l_Caster->HasAura(eSpells::VenomRushProc))
                             l_Caster->RemoveAura(eSpells::VenomRushProc);
-
-                        l_Caster->ClearPoisonTargets();
-                        return;
                     }
 
                     if (Unit* l_Target = GetTarget())
                     {
                         l_Caster->RemovePoisonTarget(l_Target->GetGUIDLow(), GetSpellInfo()->Id);
-                        if (l_Caster->HasPoisonTarget(l_Target->GetGUIDLow()))
+                        if (l_Caster->HasPoisonTarget(l_Target->GetGUIDLow()) || !l_Caster->HasAura(eSpells::VenomRushAura))
                             return;
 
                         if (AuraPtr l_Aura = l_Caster->GetAura(eSpells::VenomRushProc))
@@ -1288,68 +1285,6 @@ class spell_rog_nerve_strike: public SpellScriptLoader
         }
 };
 
-/// Called by Stealth - 1784
-/// Nightstalker - 14062
-class spell_rog_nightstalker: public SpellScriptLoader
-{
-    public:
-        spell_rog_nightstalker() : SpellScriptLoader("spell_rog_nightstalker") { }
-
-        class spell_rog_nightstalker_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_rog_nightstalker_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if (caster->HasAura(ROGUE_SPELL_NIGHTSTALKER_AURA))
-                        caster->CastSpell(caster, ROGUE_SPELL_NIGHTSTALKER_DAMAGE_DONE, true);
-
-                    if (caster->HasAura(ROGUE_SPELL_SHADOW_FOCUS_AURA))
-                        caster->CastSpell(caster, ROGUE_SPELL_SHADOW_FOCUS_COST_PCT, true);
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_rog_nightstalker_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_rog_nightstalker_SpellScript();
-        }
-
-        class spell_rog_nightstalker_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_rog_nightstalker_AuraScript);
-
-            void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes mode)
-            {
-                if (GetCaster())
-                {
-                    if (GetCaster()->HasAura(ROGUE_SPELL_NIGHTSTALKER_DAMAGE_DONE))
-                        GetCaster()->RemoveAura(ROGUE_SPELL_NIGHTSTALKER_DAMAGE_DONE);
-
-                    if (GetCaster()->HasAura(ROGUE_SPELL_SHADOW_FOCUS_COST_PCT))
-                        GetCaster()->RemoveAura(ROGUE_SPELL_SHADOW_FOCUS_COST_PCT);
-                }
-            }
-
-            void Register()
-            {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_rog_nightstalker_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_rog_nightstalker_AuraScript();
-        }
-};
-
 /// Called by Rupture - 1943, Garrote - 703, Hemorrhage (DoT) - 16511 and Crimson Tempest - 121411
 /// Sanguinary Vein - 79147
 class spell_rog_sanguinary_vein: public SpellScriptLoader
@@ -1530,7 +1465,7 @@ class spell_rog_cut_to_the_chase: public SpellScriptLoader
         }
 };
 
-/// Called by Garrote - 703 and Rupture - 1943
+/// Called by Rupture - 1943
 /// Venomous Wounds - 79134
 class spell_rog_venomous_wounds: public SpellScriptLoader
 {
@@ -1541,62 +1476,39 @@ class spell_rog_venomous_wounds: public SpellScriptLoader
         {
             PrepareAuraScript(spell_rog_venomous_wounds_AuraScript);
 
-            void HandleEffectPeriodic(constAuraEffectPtr /*aurEff*/)
+            enum eSpells
             {
-                if (Unit* caster = GetCaster())
+                VenomousWoundsDamage = 79136,
+                VenomousVimEnergize  = 51637
+            };
+
+            void HandleEffectPeriodic(constAuraEffectPtr)
+            {
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (Unit* target = GetTarget())
+                    if (Unit* l_Target = GetTarget())
                     {
-                        if (caster->HasAura(79134))
-                        {
-                            // Each time your Rupture or Garrote deals damage to an enemy that you have poisoned ...
-                            if (target->HasAura(8680, caster->GetGUID())
-                                || target->HasAura(2818, caster->GetGUID())
-                                || target->HasAura(3409, caster->GetGUID())
-                                || target->HasAura(113952, caster->GetGUID())
-                                || target->HasAura(112961, caster->GetGUID()))
-                            {
-                                if (AuraPtr rupture = target->GetAura(ROGUE_SPELL_RUPTURE_DOT, caster->GetGUID()))
-                                {
-                                    // ... you have a 75% chance ...
-                                    if (roll_chance_i(75))
-                                    {
-                                        // ... to deal [ X + 16% of AP ] additional Nature damage and to regain 10 Energy
-                                        caster->CastSpell(target, ROGUE_SPELL_VENOMOUS_WOUND_DAMAGE, true);
-                                        int32 bp = 10;
-                                        caster->CastCustomSpell(caster, ROGUE_SPELL_VENOMOUS_VIM_ENERGIZE, &bp, NULL, NULL, true);
-                                    }
-                                }
-                                // Garrote will not trigger this effect if the enemy is also afflicted by your Rupture
-                                else if (AuraPtr garrote = target->GetAura(ROGUE_SPELL_GARROTE_DOT, caster->GetGUID()))
-                                {
-                                    // ... you have a 75% chance ...
-                                    if (roll_chance_i(75))
-                                    {
-                                        // ... to deal [ X + 16% of AP ] additional Nature damage and to regain 10 Energy
-                                        caster->CastSpell(target, ROGUE_SPELL_VENOMOUS_WOUND_DAMAGE, true);
-                                        int32 bp = 10;
-                                        caster->CastCustomSpell(caster, ROGUE_SPELL_VENOMOUS_VIM_ENERGIZE, &bp, NULL, NULL, true);
-                                    }
-                                }
-                            }
-                        }
+                        if (!l_Caster->HasPoisonTarget(l_Target->GetGUIDLow()))
+                            return;
+
+                        l_Caster->CastSpell(l_Target, eSpells::VenomousWoundsDamage, true);
                     }
                 }
             }
 
-            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes)
             {
-                if (Unit* caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
-                    if (removeMode == AURA_REMOVE_BY_DEATH)
+                    AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
+                    if (l_RemoveMode == AURA_REMOVE_BY_DEATH)
                     {
-                        if (AuraPtr rupture = aurEff->GetBase())
+                        if (AuraPtr l_Rupture = p_AurEff->GetBase())
                         {
-                            // If an enemy dies while afflicted by your Rupture, you regain energy proportional to the remaining Rupture duration
-                            int32 duration = int32(rupture->GetDuration() / 1000);
-                            caster->CastCustomSpell(caster, ROGUE_SPELL_VENOMOUS_VIM_ENERGIZE, &duration, NULL, NULL, true);
+                            /// If an enemy dies while afflicted by your Rupture, you regain energy proportional to the remaining Rupture duration
+                            /// 120 for max duration (12s)
+                            int32 l_Duration = int32(l_Rupture->GetDuration() / 100 / 2);
+                            l_Caster->CastCustomSpell(l_Caster, eSpells::VenomousVimEnergize, &l_Duration, NULL, NULL, true);
                         }
                     }
                 }
@@ -2157,6 +2069,12 @@ class spell_rog_stealth: public SpellScriptLoader
     public:
         spell_rog_stealth() : SpellScriptLoader("spell_rog_stealth") { }
 
+        enum eSpells
+        {
+            StealthTriggered1 = 158188,
+            StealthTriggered2 = 158185
+        };
+
         class spell_rog_stealth_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_rog_stealth_AuraScript);
@@ -2165,9 +2083,15 @@ class spell_rog_stealth: public SpellScriptLoader
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    l_Caster->CastSpell(l_Caster, 158188, true);
-                    l_Caster->CastSpell(l_Caster, 158185, true);
-                    if (l_Caster->HasSpell(ROGUE_SPELL_SHADOW_FOCUS_AURA))
+                    if (GetSpellInfo()->Id != ROGUE_SPELL_STEALTH_SUBTERFUGE)
+                        l_Caster->CastSpell(l_Caster, eSpells::StealthTriggered1, true);
+
+                    l_Caster->CastSpell(l_Caster, eSpells::StealthTriggered2, true);
+
+                    if (l_Caster->HasAura(ROGUE_SPELL_NIGHTSTALKER_AURA))
+                        l_Caster->CastSpell(l_Caster, ROGUE_SPELL_NIGHTSTALKER_DAMAGE_DONE, true);
+
+                    if (l_Caster->HasAura(ROGUE_SPELL_SHADOW_FOCUS_AURA))
                         l_Caster->CastSpell(l_Caster, ROGUE_SPELL_SHADOW_FOCUS_COST_PCT, true);
                 }
             }
@@ -2176,10 +2100,13 @@ class spell_rog_stealth: public SpellScriptLoader
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    l_Caster->RemoveAura(158188);
-                    l_Caster->RemoveAura(158185);
-                    if (l_Caster->HasAura(ROGUE_SPELL_SHADOW_FOCUS_COST_PCT))
-                        l_Caster->RemoveAura(ROGUE_SPELL_SHADOW_FOCUS_COST_PCT);
+                    l_Caster->RemoveAura(eSpells::StealthTriggered1);
+                    l_Caster->RemoveAura(eSpells::StealthTriggered2);
+
+                    if (AuraPtr l_Nightstalker = l_Caster->GetAura(ROGUE_SPELL_NIGHTSTALKER_DAMAGE_DONE))
+                        l_Nightstalker->SetDuration(200);   ///< We can't remove it now
+
+                    l_Caster->RemoveAura(ROGUE_SPELL_SHADOW_FOCUS_COST_PCT);
                 }
             }
 
@@ -2481,49 +2408,6 @@ class spell_rog_deadly_throw : public SpellScriptLoader
         }
 };
 
-/// Subterfuge - 115192
-class spell_rog_subterfuge : public SpellScriptLoader
-{
-public:
-    spell_rog_subterfuge() : SpellScriptLoader("spell_rog_subterfuge") { }
-
-    class spell_rog_subterfuge_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_rog_subterfuge_AuraScript);
-
-        void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            if (Unit* l_Caster = GetCaster())
-            {
-                if (!l_Caster->HasAura(ROGUE_SPELL_STEALTH_SUBTERFUGE))
-                    l_Caster->CastSpell(l_Caster, ROGUE_SPELL_STEALTH_SUBTERFUGE, true);
-                l_Caster->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
-                l_Caster->RemoveStandFlags(UNIT_STAND_FLAGS_CREEP);
-            }
-        }
-
-        void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
-        {
-            if (Unit* l_Caster = GetCaster())
-            {
-                if (l_Caster->HasAura(ROGUE_SPELL_STEALTH_SUBTERFUGE))
-                    l_Caster->RemoveAura(ROGUE_SPELL_STEALTH_SUBTERFUGE);
-            }
-        }
-
-        void Register()
-        {
-            OnEffectApply += AuraEffectApplyFn(spell_rog_subterfuge_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            OnEffectRemove += AuraEffectRemoveFn(spell_rog_subterfuge_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_rog_subterfuge_AuraScript();
-    }
-};
-
 class PlayerScript_ruthlessness : public PlayerScript
 {
     public:
@@ -2566,7 +2450,6 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_shadow_reflection_proc();
     new spell_rog_shadow_reflection();
     new spell_rog_enhanced_vendetta();
-    new spell_rog_subterfuge();
     new spell_rog_deadly_throw();
     new spell_rog_evicerate();
     new spell_rog_envenom();
@@ -2587,7 +2470,6 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_cloak_of_shadows();
     new spell_rog_combat_readiness();
     new spell_rog_nerve_strike();
-    new spell_rog_nightstalker();
     new spell_rog_sanguinary_vein();
     new spell_rog_hemorrhage();
     new spell_rog_cut_to_the_chase();

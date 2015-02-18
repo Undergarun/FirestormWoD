@@ -24124,7 +24124,8 @@ void Player::RemoveSpellMods(Spell* spell)
             else if (mod->ownerAura->GetId() == 12043 && magePyroblast)
                 continue;
 
-            if (!(mod->ownerAura->GetId() == 117828 && spell->GetSpellInfo()->Id == 116858))
+            /// Camouflage and Camouflage (Subterfuge) have spellModifier with value 0, add specific case
+            if (!(mod->ownerAura->GetId() == 117828 && spell->GetSpellInfo()->Id == 116858) && mod->ownerAura->GetId() != 1784 && mod->ownerAura->GetId() != 115191)
                 if (std::const_pointer_cast<Aura>(mod->ownerAura)->DropCharge(AURA_REMOVE_BY_EXPIRE))
                     itr = m_spellMods[i].begin();
         }
