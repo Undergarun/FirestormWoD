@@ -133,7 +133,9 @@ enum HunterSpells
     HUNTER_SPELL_SPIKED_COLLAR                      = 53184,
     HUNTER_SPELL_ENHANCED_BASIC_ATTACK              = 157717,
     HUNTER_SPELL_POISONED_AMMO                      = 162543,
-    HUNTER_SPELL_POISONED_AMMO_AURA                 = 170661
+    HUNTER_SPELL_POISONED_AMMO_AURA                 = 170661,
+    HUNTER_SPELL_GLYPH_OF_MEND_PET                  = 19573,
+    HUNTER_SPELL_GLYPH_OF_MEND_PET_TICK             = 24406
 };
 
 ///< Thunderstomp - 63900
@@ -2996,6 +2998,44 @@ class spell_hun_spirit_mend : public SpellScriptLoader
         }
 };
 
+/// Mend Pet - 136
+class spell_hun_mend_pet : public SpellScriptLoader
+{
+    public:
+        spell_hun_mend_pet() : SpellScriptLoader("spell_hun_mend_pet") { }
+
+        class spell_hun_mend_pet_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_mend_pet_AuraScript);
+
+            void OnTick(constAuraEffectPtr /*aurEff*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetTarget();
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(HUNTER_SPELL_GLYPH_OF_MEND_PET);
+
+                if (l_Caster == nullptr || l_Target == nullptr || l_SpellInfo == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(HUNTER_SPELL_GLYPH_OF_MEND_PET)) ///< Glyph of Mend Pet
+                {
+                    if (roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
+                        l_Caster->CastSpell(l_Target, HUNTER_SPELL_GLYPH_OF_MEND_PET_TICK, true); // Dispel
+                }
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_mend_pet_AuraScript::OnTick, EFFECT_0, SPELL_AURA_OBS_MOD_HEALTH);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_mend_pet_AuraScript();
+        }
+};
+
 // Thrill of the Hunt - 109396
 class PlayerScript_thrill_of_the_hunt: public PlayerScript
 {
@@ -3224,8 +3264,10 @@ class AreaTrigger_explosive_trap : public AreaTriggerEntityScript
         }
 };
 
+
 void AddSC_hunter_spell_scripts()
 {
+    new spell_hun_mend_pet();
     new spell_hun_poisoned_ammo();
     new spell_hun_kill_command_proc();
     new spell_hun_spirit_mend();
