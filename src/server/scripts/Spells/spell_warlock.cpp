@@ -2162,36 +2162,67 @@ class spell_warl_burning_embers_regen : public PlayerScript
     public:
         spell_warl_burning_embers_regen() : PlayerScript("spell_warl_burning_embers_regen")
         {
-            m_LastCombat = 0;
-            m_RegenTimer = 2000;
         }
 
-        uint64 m_LastCombat; ///< Timestamp at when leaving last combat
-        uint32 m_RegenTimer; ///< Timer in millisecondes we regenate the burnign embers
-
-        void OnLeaveCombat(Player* p_Player)
+        struct BuringEmbersData
         {
+            uint64 m_LastCombat; ///< Timestamp at when leaving last combat
+            uint32 m_RegenTimer; ///< Timer in millisecondes we regenate the burnign embers
+
+            BuringEmbersData()
+            {
+                m_LastCombat = 0;
+                m_RegenTimer = 2000;
+            }
+        };
+
+        ACE_Based::LockedMap<uint32, BuringEmbersData> m_BurningEmbersData;
+
+        /// Internal script function
+        bool CanUseBuringEmbers(Player* p_Player, Powers p_Power = Powers::POWER_BURNING_EMBERS)
+        {
+            if (m_BurningEmbersData.find(p_Player->GetGUIDLow()) == m_BurningEmbersData.end())
+                m_BurningEmbersData[p_Player->GetGUIDLow()] = BuringEmbersData();
+
             if (p_Player == nullptr
                 || p_Player->getClass() != Classes::CLASS_WARLOCK
-                || p_Player->GetSpecializationId(p_Player->GetActiveSpec()) != SpecIndex::SPEC_WARLOCK_DESTRUCTION)
+                || p_Player->GetSpecializationId(p_Player->GetActiveSpec()) != SpecIndex::SPEC_WARLOCK_DESTRUCTION
+                || p_Power != POWER_BURNING_EMBERS)
+                return false;
+
+            return true;
+        }
+
+        /// Override
+        void OnLogout(Player * p_Player)
+        {
+            m_BurningEmbersData.erase(p_Player->GetGUIDLow());
+        }
+
+        /// Override
+        void OnLeaveCombat(Player* p_Player)
+        {
+            if (!CanUseBuringEmbers(p_Player))
                 return;
 
-            m_LastCombat = getMSTime();
+            BuringEmbersData& l_BuringEmbersData = m_BurningEmbersData[p_Player->GetGUIDLow()];
+            l_BuringEmbersData.m_LastCombat = getMSTime();
         }
 
         /// Handle regeneration of burning embers
         /// Call at each update tick (100 ms)
+        /// Override
         void OnUpdate(Player * p_Player, uint32 p_Diff)
         {
-            if (p_Player == nullptr
-                || p_Player->getClass() != Classes::CLASS_WARLOCK
-                || p_Player->GetSpecializationId(p_Player->GetActiveSpec()) != SpecIndex::SPEC_WARLOCK_DESTRUCTION)
+            if (!CanUseBuringEmbers(p_Player))
                 return;
 
-            if (m_RegenTimer <= p_Diff)
+            BuringEmbersData& l_BuringEmbersData = m_BurningEmbersData[p_Player->GetGUIDLow()];
+
+            if (l_BuringEmbersData.m_RegenTimer <= p_Diff)
             {
                 /// After 25s out of combat...
-                if (p_Player->isInCombat() || (m_LastCombat != 0 && GetMSTimeDiffToNow(m_LastCombat) < (25 * IN_MILLISECONDS)))
+                if (p_Player->isInCombat() || (l_BuringEmbersData.m_LastCombat != 0 && GetMSTimeDiffToNow(l_BuringEmbersData.m_LastCombat) < (25 * IN_MILLISECONDS)))
                     return;
 
                 int32 l_CurrentPower = p_Player->GetPower(POWER_BURNING_EMBERS);
@@ -2203,18 +2234,16 @@ class spell_warl_burning_embers_regen : public PlayerScript
                 else if (l_CurrentPower > (1 * p_Player->GetPowerCoeff(POWER_BURNING_EMBERS)))
                     p_Player->SetPower(POWER_BURNING_EMBERS, l_CurrentPower - 1, true);
 
-                m_RegenTimer = 2 * IN_MILLISECONDS;
+                l_BuringEmbersData.m_RegenTimer = 2 * IN_MILLISECONDS;
             }
             else
-                m_RegenTimer -= p_Diff;
+                l_BuringEmbersData.m_RegenTimer -= p_Diff;
         }
 
+        /// Override
         void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool /*p_Regen*/)
         {
-            if (p_Player == nullptr
-                || p_Player->getClass() != Classes::CLASS_WARLOCK
-                || p_Player->GetSpecializationId(p_Player->GetActiveSpec()) != SpecIndex::SPEC_WARLOCK_DESTRUCTION
-                || p_Power != POWER_BURNING_EMBERS)
+            if (!CanUseBuringEmbers(p_Player, p_Power))
                 return;
 
             if (p_Player->HasAura(SPELL_WARL_GLYPH_OF_VERDANT_SPHERES))
