@@ -19947,16 +19947,16 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
         // Bg was not found - go to Entry Point
         else
         {
-            // leave bg
+            /// Leave bg.
             if (player_at_bg)
                 currentBg->RemovePlayerAtLeave(GetGUID(), false, true);
 
-            // Do not look for instance if bg not found
+            /// Do not look for instance if bg not found.
             const WorldLocation& _loc = GetBattlegroundEntryPoint();
             mapId = _loc.GetMapId(); instanceId = 0;
 
-            // Db field type is type int16, so it can never be MAPID_INVALID
-            //if (mapId == MAPID_INVALID) -- code kept for reference
+            /// Db field type is type int16, so it can never be MAPID_INVALID.
+            /// if (mapId == MAPID_INVALID) -- code kept for reference
             if (int16(mapId) == int16(-1)) // Battleground Entry Point not found (???)
             {
                 sLog->outError(LOG_FILTER_PLAYER, "Player (guidlow %d) was in BG in database, but BG was not found, and entry point was invalid! Teleport to default race/class locations.", guid);
@@ -19965,7 +19965,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
             else
                 Relocate(&_loc);
 
-            // We are not in BG anymore
+            /// We are not in BG anymore.
             m_bgData.bgInstanceID = 0;
         }
     }
@@ -25680,8 +25680,8 @@ void Player::LeaveBattleground(bool teleportToEntryPoint)
 
 bool Player::CanJoinToBattleground() const
 {
-    // check Deserter debuff
-    if (HasAura(26013))
+    /// Check Deserter debuff.
+    if (HasAura(MS::Battlegrounds::Spells::DeserterBuff))
         return false;
 
     return true;

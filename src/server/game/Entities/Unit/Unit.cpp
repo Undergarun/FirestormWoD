@@ -65,6 +65,7 @@
 #include "BattlegroundKT.h"
 #include "BattlegroundWS.h"
 #include "BattlegroundTP.h"
+#include "BattlegroundDG.h"
 #include "Guild.h"
 #include <Reporting/Reporter.hpp>
 #include <Reporting/Reports.hpp>
@@ -4326,6 +4327,9 @@ void Unit::RemoveFlagsAuras()
                     break;
                 case BATTLEGROUND_TP:
                     ((BattlegroundTP*)bg)->EventPlayerDroppedFlag(plr);
+                    break;
+                case BATTLEGROUND_DG:
+                    ((BattlegroundDG*)bg)->EventPlayerDroppedFlag(plr);
                     break;
                 default:
                     break;
@@ -20992,31 +20996,34 @@ void Unit::NearTeleportTo(float x, float y, float z, float orientation, bool cas
         ToPlayer()->TeleportTo(GetMapId(), x, y, z, orientation, TELE_TO_NOT_LEAVE_TRANSPORT | TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET | (casting ? TELE_TO_SPELL : 0));
     else
     {
+        Position l_Position;
+        l_Position.m_positionX = x;
+        l_Position.m_positionY = y;
+        l_Position.m_positionZ = z;
+        l_Position.m_orientation = orientation;
+        SendTeleportPacket(l_Position);
+
         UpdatePosition(x, y, z, orientation, true);
         SendMovementFlagUpdate();
-
-        Position pos;
-        GetPosition(&pos);
-        SendTeleportPacket(pos);
     }
 }
 
-void Unit::SendTeleportPacket(Position &oldPos)
+void Unit::SendTeleportPacket(Position &p_NewPosition)
 {
     WorldPacket data(SMSG_MOVE_TELEPORT, 38);
 
     data.appendPackGUID(GetGUID());
     data << uint32(0);                  //  SequenceIndex
-    data << float(GetPositionX());
-    data << float(GetPositionY());
-    data << float(GetPositionZMinusOffset());
+    data << float(p_NewPosition.GetPositionX());
+    data << float(p_NewPosition.GetPositionY());
+    data << float(p_NewPosition.GetPositionZ());
+    data << float(p_NewPosition.GetOrientation());
     data << float(GetOrientation());
 
     data.WriteBit(false);
     data.WriteBit(false);
     data.FlushBits();
 
-    Relocate(&oldPos);
     SendMessageToSet(&data, false);
 }
 

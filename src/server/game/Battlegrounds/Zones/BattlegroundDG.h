@@ -315,6 +315,7 @@ class BattlegroundDG : public Battleground
         void RemovePlayer(Player* player, uint64 guid, uint32 team);
         WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
         void HandleKillPlayer(Player* player, Player* killer);
+        void EventPlayerDroppedFlag(Player* player);
 
     private:
         uint8 GetFlagState(uint32 team)             { return _flagState[GetTeamIndexByTeamId(team)]; };
@@ -348,7 +349,6 @@ class BattlegroundDG : public Battleground
         void _postUpdateImpl_Cart(uint32 diff);
         void RespawnFlagAfterDrop(uint32 team);
         void EventPlayerCapturedFlag(Player* player);
-        void EventPlayerDroppedFlag(Player* player);
         int32 _GetNodeNameId(uint8 node);
         void _contestedTime(int node, uint32 diff);
         /* Gameobject spawning/despawning */

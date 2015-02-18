@@ -568,7 +568,7 @@ class spell_dk_soul_reaper: public SpellScriptLoader
                 if (Player* l_Caster = GetCaster()->ToPlayer())
                 {
                     /// Only in blood spec
-                    if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) != SPEC_DK_BLOOD)
+                    if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) == SPEC_DK_BLOOD)
                         l_Caster->CastSpell(l_Caster, DK_SPELL_SCENT_OF_BLOOD_AURA, true);
                 }
             }
@@ -2108,44 +2108,55 @@ class spell_areatrigger_dk_defile : public AreaTriggerEntityScript
             {
                 if (Unit* l_Caster = p_AreaTrigger->GetCaster())
                 {
-                    std::list<Unit*> l_TargetList;
+                    std::list<Unit*> l_TargetListTemp;
                     float l_Radius = p_AreaTrigger->GetFloatValue(AREATRIGGER_FIELD_EXPLICIT_SCALE) * 8.0f;
 
                     JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
-                    JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+                    JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetListTemp, l_Check);
                     p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
 
-                    if (!l_TargetList.empty())
+                    if (!l_TargetListTemp.empty())
                     {
-                        /// Update size
-                        if (SpellInfo const* l_Defile = sSpellMgr->GetSpellInfo(eDefilebSpell::SpellDefile))
+                        std::list<Unit*> l_TargetList;
+                        /// Remove unatackable target
+                        for (Unit* l_Unit : l_TargetListTemp)
                         {
-                            float l_MultiplicatorVisual = 1.0f + float(l_Defile->Effects[EFFECT_1].BasePoints) / 100 / 100;
+                            if (l_Caster->IsValidAttackTarget(l_Unit))
+                                l_TargetList.push_back(l_Unit);
+                        }
 
-                            /// Cast damage
-                            for (Unit* l_Unit : l_TargetList)
-                            {
-                                /// Update damage
-                                if (SpellInfo const* l_DefileDamage = sSpellMgr->GetSpellInfo(eDefilebSpell::SpellDefileDamage))
-                                {
-                                    int32 l_BasePoints = l_DefileDamage->Effects[EFFECT_0].BasePoints + m_StackDefile * float(l_Defile->Effects[EFFECT_1].BasePoints) / 100;
-
-                                    l_Caster->CastCustomSpell(l_Unit, eDefilebSpell::SpellDefileDamage, &l_BasePoints, nullptr, nullptr, true);
-                                }
-                            }
-
+                        if (!l_TargetList.empty())
+                        {
                             /// Update size
-                            uint64 l_CreatureVisualGUID = p_AreaTrigger->GetGUIDCreatureVisual();
-                            if (l_CreatureVisualGUID != 0)
+                            if (SpellInfo const* l_Defile = sSpellMgr->GetSpellInfo(eDefilebSpell::SpellDefile))
                             {
-                                if (Creature* l_CreatureVisual = p_AreaTrigger->GetMap()->GetCreature(l_CreatureVisualGUID))
-                                {
-                                    l_CreatureVisual->SetObjectScale(l_CreatureVisual->GetFloatValue(OBJECT_FIELD_SCALE) * l_MultiplicatorVisual);
-                                    p_AreaTrigger->SetFloatValue(AREATRIGGER_FIELD_EXPLICIT_SCALE, p_AreaTrigger->GetFloatValue(AREATRIGGER_FIELD_EXPLICIT_SCALE) * l_MultiplicatorVisual);
-                                }
-                            }
+                                float l_MultiplicatorVisual = 1.0f + float(l_Defile->Effects[EFFECT_1].BasePoints) / 100 / 100;
 
-                            m_StackDefile++;
+                                /// Cast damage
+                                for (Unit* l_Unit : l_TargetList)
+                                {
+                                    /// Update damage
+                                    if (SpellInfo const* l_DefileDamage = sSpellMgr->GetSpellInfo(eDefilebSpell::SpellDefileDamage))
+                                    {
+                                        int32 l_BasePoints = l_DefileDamage->Effects[EFFECT_0].BasePoints + m_StackDefile * float(l_Defile->Effects[EFFECT_1].BasePoints) / 100;
+
+                                        l_Caster->CastCustomSpell(l_Unit, eDefilebSpell::SpellDefileDamage, &l_BasePoints, nullptr, nullptr, true);
+                                    }
+                                }
+
+                                /// Update size
+                                uint64 l_CreatureVisualGUID = p_AreaTrigger->GetGUIDCreatureVisual();
+                                if (l_CreatureVisualGUID != 0)
+                                {
+                                    if (Creature* l_CreatureVisual = p_AreaTrigger->GetMap()->GetCreature(l_CreatureVisualGUID))
+                                    {
+                                        l_CreatureVisual->SetObjectScale(l_CreatureVisual->GetFloatValue(OBJECT_FIELD_SCALE) * l_MultiplicatorVisual);
+                                        p_AreaTrigger->SetFloatValue(AREATRIGGER_FIELD_EXPLICIT_SCALE, p_AreaTrigger->GetFloatValue(AREATRIGGER_FIELD_EXPLICIT_SCALE) * l_MultiplicatorVisual);
+                                    }
+                                }
+
+                                m_StackDefile++;
+                            }
                         }
                     }
                 }
