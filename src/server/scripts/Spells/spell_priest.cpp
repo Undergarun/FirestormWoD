@@ -1166,34 +1166,34 @@ class spell_pri_atonement: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                Player* l_Caster = GetCaster()->ToPlayer();
+                if (!l_Caster)
+                    return;
+
+                SpellInfo const* l_SpellInfoAtonement = sSpellMgr->GetSpellInfo(PRIEST_ATONEMENT_AURA);
+                if (!l_SpellInfoAtonement && !l_Caster->HasAura(PRIEST_ATONEMENT_AURA))
+                    return;
+
+                std::list<Unit*> l_GroupList;
+                l_Caster->GetRaidMembers(l_GroupList);
+
+                l_GroupList.remove_if([this, l_Caster, l_SpellInfoAtonement](Unit* p_Unit) {
+                    return l_Caster->GetDistance(p_Unit->GetPositionX(), p_Unit->GetPositionY(), p_Unit->GetPositionZ()) > l_SpellInfoAtonement->Effects[EFFECT_1].BasePoints;
+                });
+
+                if (l_GroupList.size() > 1)
                 {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (_player->HasAura(PRIEST_ATONEMENT_AURA))
-                        {
-                            int32 bp = CalculatePct(GetHitDamage(), GetSpellInfo()->Effects[EFFECT_0].BasePoints);
-                            std::list<Unit*> groupList;
+                    l_GroupList.sort(JadeCore::HealthPctOrderPred());
+                    l_GroupList.resize(1);
+                }
 
-                            _player->GetRaidMembers(groupList);
-                            groupList.remove_if([this, _player](Unit* p_Unit) {
-                                return _player->GetDistance(p_Unit->GetPositionX(), p_Unit->GetPositionY(), p_Unit->GetPositionZ()) > GetSpellInfo()->Effects[EFFECT_1].BasePoints;
-                            });
+                int32 l_Heal = CalculatePct(GetHitDamage(), l_SpellInfoAtonement->Effects[EFFECT_0].BasePoints);
+                for (auto itr : l_GroupList)
+                {
+                    if (itr->GetGUID() == l_Caster->GetGUID())
+                        l_Heal /= 2;
 
-                            if (groupList.size() > 1)
-                            {
-                                groupList.sort(JadeCore::HealthPctOrderPred());
-                                groupList.resize(1);
-                            }
-                            for (auto itr : groupList)
-                            {
-                                if (itr->GetGUID() == _player->GetGUID())
-                                    bp /= 2;
-
-                                _player->CastCustomSpell(itr, PRIEST_ATONEMENT_HEAL, &bp, NULL, NULL, true);
-                            }
-                        }
-                    }
+                    l_Caster->CastCustomSpell(itr, PRIEST_ATONEMENT_HEAL, &l_Heal, NULL, NULL, true);
                 }
             }
 
