@@ -1288,68 +1288,6 @@ class spell_rog_nerve_strike: public SpellScriptLoader
         }
 };
 
-/// Called by Stealth - 1784
-/// Nightstalker - 14062
-class spell_rog_nightstalker: public SpellScriptLoader
-{
-    public:
-        spell_rog_nightstalker() : SpellScriptLoader("spell_rog_nightstalker") { }
-
-        class spell_rog_nightstalker_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_rog_nightstalker_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if (caster->HasAura(ROGUE_SPELL_NIGHTSTALKER_AURA))
-                        caster->CastSpell(caster, ROGUE_SPELL_NIGHTSTALKER_DAMAGE_DONE, true);
-
-                    if (caster->HasAura(ROGUE_SPELL_SHADOW_FOCUS_AURA))
-                        caster->CastSpell(caster, ROGUE_SPELL_SHADOW_FOCUS_COST_PCT, true);
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_rog_nightstalker_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_rog_nightstalker_SpellScript();
-        }
-
-        class spell_rog_nightstalker_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_rog_nightstalker_AuraScript);
-
-            void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes mode)
-            {
-                if (GetCaster())
-                {
-                    if (GetCaster()->HasAura(ROGUE_SPELL_NIGHTSTALKER_DAMAGE_DONE))
-                        GetCaster()->RemoveAura(ROGUE_SPELL_NIGHTSTALKER_DAMAGE_DONE);
-
-                    if (GetCaster()->HasAura(ROGUE_SPELL_SHADOW_FOCUS_COST_PCT))
-                        GetCaster()->RemoveAura(ROGUE_SPELL_SHADOW_FOCUS_COST_PCT);
-                }
-            }
-
-            void Register()
-            {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_rog_nightstalker_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_rog_nightstalker_AuraScript();
-        }
-};
-
 /// Called by Rupture - 1943, Garrote - 703, Hemorrhage (DoT) - 16511 and Crimson Tempest - 121411
 /// Sanguinary Vein - 79147
 class spell_rog_sanguinary_vein: public SpellScriptLoader
@@ -2157,6 +2095,12 @@ class spell_rog_stealth: public SpellScriptLoader
     public:
         spell_rog_stealth() : SpellScriptLoader("spell_rog_stealth") { }
 
+        enum eSpells
+        {
+            StealthTriggered1 = 158188,
+            StealthTriggered2 = 158185
+        };
+
         class spell_rog_stealth_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_rog_stealth_AuraScript);
@@ -2165,9 +2109,15 @@ class spell_rog_stealth: public SpellScriptLoader
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    l_Caster->CastSpell(l_Caster, 158188, true);
-                    l_Caster->CastSpell(l_Caster, 158185, true);
-                    if (l_Caster->HasSpell(ROGUE_SPELL_SHADOW_FOCUS_AURA))
+                    if (GetSpellInfo()->Id != ROGUE_SPELL_STEALTH_SUBTERFUGE)
+                        l_Caster->CastSpell(l_Caster, eSpells::StealthTriggered1, true);
+
+                    l_Caster->CastSpell(l_Caster, eSpells::StealthTriggered2, true);
+
+                    if (l_Caster->HasAura(ROGUE_SPELL_NIGHTSTALKER_AURA))
+                        l_Caster->CastSpell(l_Caster, ROGUE_SPELL_NIGHTSTALKER_DAMAGE_DONE, true);
+
+                    if (l_Caster->HasAura(ROGUE_SPELL_SHADOW_FOCUS_AURA))
                         l_Caster->CastSpell(l_Caster, ROGUE_SPELL_SHADOW_FOCUS_COST_PCT, true);
                 }
             }
@@ -2176,10 +2126,13 @@ class spell_rog_stealth: public SpellScriptLoader
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    l_Caster->RemoveAura(158188);
-                    l_Caster->RemoveAura(158185);
-                    if (l_Caster->HasAura(ROGUE_SPELL_SHADOW_FOCUS_COST_PCT))
-                        l_Caster->RemoveAura(ROGUE_SPELL_SHADOW_FOCUS_COST_PCT);
+                    l_Caster->RemoveAura(eSpells::StealthTriggered1);
+                    l_Caster->RemoveAura(eSpells::StealthTriggered2);
+
+                    if (AuraPtr l_Nightstalker = l_Caster->GetAura(ROGUE_SPELL_NIGHTSTALKER_DAMAGE_DONE))
+                        l_Nightstalker->SetDuration(200);   ///< We can't remove it now
+
+                    l_Caster->RemoveAura(ROGUE_SPELL_SHADOW_FOCUS_COST_PCT);
                 }
             }
 
@@ -2481,49 +2434,6 @@ class spell_rog_deadly_throw : public SpellScriptLoader
         }
 };
 
-/// Subterfuge - 115192
-class spell_rog_subterfuge : public SpellScriptLoader
-{
-public:
-    spell_rog_subterfuge() : SpellScriptLoader("spell_rog_subterfuge") { }
-
-    class spell_rog_subterfuge_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_rog_subterfuge_AuraScript);
-
-        void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            if (Unit* l_Caster = GetCaster())
-            {
-                if (!l_Caster->HasAura(ROGUE_SPELL_STEALTH_SUBTERFUGE))
-                    l_Caster->CastSpell(l_Caster, ROGUE_SPELL_STEALTH_SUBTERFUGE, true);
-                l_Caster->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
-                l_Caster->RemoveStandFlags(UNIT_STAND_FLAGS_CREEP);
-            }
-        }
-
-        void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
-        {
-            if (Unit* l_Caster = GetCaster())
-            {
-                if (l_Caster->HasAura(ROGUE_SPELL_STEALTH_SUBTERFUGE))
-                    l_Caster->RemoveAura(ROGUE_SPELL_STEALTH_SUBTERFUGE);
-            }
-        }
-
-        void Register()
-        {
-            OnEffectApply += AuraEffectApplyFn(spell_rog_subterfuge_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            OnEffectRemove += AuraEffectRemoveFn(spell_rog_subterfuge_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_rog_subterfuge_AuraScript();
-    }
-};
-
 class PlayerScript_ruthlessness : public PlayerScript
 {
     public:
@@ -2566,7 +2476,6 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_shadow_reflection_proc();
     new spell_rog_shadow_reflection();
     new spell_rog_enhanced_vendetta();
-    new spell_rog_subterfuge();
     new spell_rog_deadly_throw();
     new spell_rog_evicerate();
     new spell_rog_envenom();
@@ -2587,7 +2496,6 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_cloak_of_shadows();
     new spell_rog_combat_readiness();
     new spell_rog_nerve_strike();
-    new spell_rog_nightstalker();
     new spell_rog_sanguinary_vein();
     new spell_rog_hemorrhage();
     new spell_rog_cut_to_the_chase();

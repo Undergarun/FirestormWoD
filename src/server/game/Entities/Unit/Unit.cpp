@@ -4013,7 +4013,7 @@ void Unit::RemoveAura(AuraApplication * aurApp, AuraRemoveMode mode)
         return;
     uint32 spellId = aurApp->GetBase()->GetId();
 
-    if (spellId == 51713 && mode != AURA_REMOVE_BY_EXPIRE)
+    if ((spellId == 51713 || spellId == 115192) && mode != AURA_REMOVE_BY_EXPIRE)
         return;
 
     for (AuraApplicationMap::iterator iter = m_appliedAuras.lower_bound(spellId); iter != m_appliedAuras.upper_bound(spellId);)
@@ -4201,10 +4201,7 @@ void Unit::RemoveAurasByType(AuraType auraType, uint64 casterGUID, AuraPtr excep
 
         ++iter;
 
-        if (auraType == SPELL_AURA_MOD_STEALTH && HasSpell(108208) && !HasAura(115192))
-            CastSpell(this, 115192, true);
-
-        // Subterfuge can't be removed except manually
+        /// Subterfuge can't be removed except manually
         if (aura->GetSpellInfo()->Id == 115191)
             continue;
 
@@ -17056,7 +17053,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         if (spellInfo->Id == 115191)
         {
             useCharges = false;
-            if (!HasAura(115192) && !HasAura(131369))
+            if ((isVictim || procExtra & PROC_EX_INTERNAL_DOT) && !HasAura(115192) && !HasAura(131369) && !(procExtra & PROC_EX_ABSORB))
                 CastSpell(this, 115192, true);
         }
 
@@ -17123,8 +17120,14 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                     {
                         if (isVictim && procSpell && procSpell->Id == 108853 && triggeredByAura->GetId() == 44448)
                             break;
+
                         if (HandleDummyAuraProc(target, damage, triggeredByAura, procSpell, procFlag, procExtra, cooldown))
                             takeCharges = true;
+
+                        /// Stealth isn't removed by multistrikes effects
+                        if ((triggeredByAura->GetId() == 1784 || triggeredByAura->GetId() == 115191) && (procExtra & PROC_EX_INTERNAL_MULTISTRIKE))
+                            takeCharges = false;
+
                         break;
                     }
                     case SPELL_AURA_PROC_ON_POWER_AMOUNT:
