@@ -245,7 +245,15 @@ class spell_pri_glyph_of_confession: public SpellScriptLoader
         }
 };
 
-// Shadow Word: Death (overrided by Glyph) - 129176
+enum ShadowWordDeath
+{
+    ShadowWordDeathGlyph            = 129176,
+    EnhancedShadowWordDeath         = 157218,
+    ShadowWordDeathOrbEnergize      = 125927,
+    ShadowWordDeathCooldownMarker   = 95652
+};
+
+///Shadow Word: Death - 32379 and Shadow Word: Death (overrided by Glyph) - 129176
 class spell_pri_shadow_word_death: public SpellScriptLoader
 {
     public:
@@ -255,30 +263,84 @@ class spell_pri_shadow_word_death: public SpellScriptLoader
         {
             PrepareSpellScript(spell_pri_shadow_word_death_SpellScript);
 
-            void HandleOnHit()
+            bool m_Flag = false;
+
+            void HandleDamage(SpellEffIndex /*effIndex*/)
             {
-                if (Unit* caster = GetCaster())
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Caster == nullptr || l_Target == nullptr)
+                    return;
+
+                if (GetSpellInfo()->Id == ShadowWordDeath::ShadowWordDeathGlyph && l_Target->GetHealthPct() < 20.0f)
                 {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (target->GetHealthPct() < 20.0f)
-                            SetHitDamage(GetHitDamage() * 4);
-                    }
+                    m_Flag = true;
+                    SetHitDamage(GetHitDamage() * 4); ///< If the target is below 20% health, the target takes four times as much damage
                 }
             }
 
             void HandleAfterHit()
             {
-                if (Unit* caster = GetCaster())
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Player == nullptr || l_Target == nullptr)
+                    return;
+
+                int32 l_Damage = GetHitDamage();
+
+
+                if (GetSpellInfo()->Id == ShadowWordDeath::ShadowWordDeathGlyph)
                 {
-                    int32 damage = GetHitDamage();
-                    caster->CastCustomSpell(caster, PRIEST_SHADOW_WORD_DEATH, &damage, NULL, NULL, true);
+                    if (m_Flag)
+                    {
+                        l_Damage /= 4;
+
+                        /// Grants a Shadow Orb if the target is below 20% health
+                        l_Player->CastSpell(l_Player, ShadowWordDeath::ShadowWordDeathOrbEnergize, true); ///< Shadow Orb energize
+
+                        /// Gain an additional Shadow Orb if the cooldown of Shadow Word: Death had not been reset in the last 6 seconds
+                        /// If the target dies
+                        if (!l_Target->isAlive())
+                        {
+                            int32 l_Duration = 0;
+
+                            if (AuraPtr l_CooldownMarker = l_Player->GetAura(ShadowWordDeath::ShadowWordDeathCooldownMarker))
+                                l_Duration = l_CooldownMarker->GetDuration();
+                            
+                            if (l_Duration <= 3 * IN_MILLISECONDS)
+                                l_Player->CastSpell(l_Player, ShadowWordDeath::ShadowWordDeathOrbEnergize, true); ///< Shadow Orb energize
+                        }
+                    }
+                    if (l_Target->isAlive())
+                    {
+                        /// The cooldown is reset if the target does not die.
+                        /// This reset cannot happen more often than once every 9 sec.
+                        /// If the target is below 20% health
+                        if (!l_Player->HasAura(ShadowWordDeath::ShadowWordDeathCooldownMarker) && m_Flag)
+                        {
+                            l_Player->CastSpell(l_Player, ShadowWordDeath::ShadowWordDeathCooldownMarker, true);
+                            l_Player->ToPlayer()->RemoveSpellCooldown(GetSpellInfo()->Id, true);
+                        }
+
+                        /// If the target not dies, you take damage
+                        l_Player->CastCustomSpell(l_Player, PRIEST_SHADOW_WORD_DEATH, &l_Damage, NULL, NULL, true);
+                    }
                 }
+                else
+                {
+                    if (!l_Target->isAlive() || l_Player->HasAura(ShadowWordDeath::EnhancedShadowWordDeath))
+                        l_Player->CastSpell(l_Player, ShadowWordDeath::ShadowWordDeathOrbEnergize, true); ///< Shadow Orb energize
+                    if (l_Target->isAlive())
+                        l_Player->ToPlayer()->RemoveSpellCooldown(GetSpellInfo()->Id, true); ///< If the target does not die, the cooldown is reset, 
+                }
+
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_pri_shadow_word_death_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_pri_shadow_word_death_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
                 AfterHit += SpellHitFn(spell_pri_shadow_word_death_SpellScript::HandleAfterHit);
             }
         };

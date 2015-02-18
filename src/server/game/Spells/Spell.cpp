@@ -4451,30 +4451,6 @@ void Spell::finish(bool ok)
 
     switch (m_spellInfo->Id)
     {
-        case 32379: // Shadow Word: Death
-        case 129176:// Shadow Word: Death (overrided by Glyph)
-        {
-            if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                break;
-
-            if (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) != SPEC_PRIEST_SHADOW)
-                break;
-
-            if (m_caster->HasAura(95652))
-                break;
-
-            if (!unitTarget || !unitTarget->isAlive() || unitTarget->GetHealthPct() >= 20.0f)
-            {
-                m_caster->CastSpell(m_caster, 125927, true); // Shadow Orb energize
-                break;
-            }
-
-            m_caster->CastSpell(m_caster, 125927, true); // Shadow Orb energize
-            m_caster->CastSpell(m_caster, 95652, true); // Effect cooldown marker
-            m_caster->ToPlayer()->RemoveSpellCooldown(m_spellInfo->Id, true);
-
-            break;
-        }
         case 49560: // Death Grip
         case 49576: // Death Grip dummy
         {
