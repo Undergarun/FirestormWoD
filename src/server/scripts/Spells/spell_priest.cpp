@@ -2812,6 +2812,47 @@ public:
     }
 };
 
+enum MindFlay
+{
+    GlyphOfMindFlay = 120585,
+    GlyphOfMindFlayTick = 120587
+};
+
+/// Mind Flay - 15407
+class spell_pri_mind_flay : public SpellScriptLoader
+{
+    public:
+        spell_pri_mind_flay() : SpellScriptLoader("spell_pri_mind_flay") { }
+
+        class spell_pri_mind_flay_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pri_mind_flay_AuraScript);
+
+            void OnTick(constAuraEffectPtr /*aurEff*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                // Glyph of Mind Flay
+                if (l_Caster->HasAura(MindFlay::GlyphOfMindFlay))
+                    l_Caster->CastSpell(l_Caster, MindFlay::GlyphOfMindFlayTick, true);
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_pri_mind_flay_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pri_mind_flay_AuraScript();
+        }
+};
+
+
 enum WordsOfMendingSpells
 {
     WordsOfMendingAuraStack     = 155362,
@@ -3034,6 +3075,7 @@ public:
 
 void AddSC_priest_spell_scripts()
 {
+    new spell_pri_mind_flay();
     new spell_pri_glyphe_of_mind_blast();
     new spell_pri_mind_blast();
     new spell_pri_word_barrier_update();

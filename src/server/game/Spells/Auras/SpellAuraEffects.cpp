@@ -7432,10 +7432,6 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
             damage = damageReductedArmor;
         }
 
-        // Glyph of Mind Flay
-        if ((GetSpellInfo()->Id == 15407 || GetSpellInfo()->Id == 129197) && caster->HasAura(120585))
-            caster->CastSpell(caster, 120587, true);
-
         // Deep Wounds
         if (GetSpellInfo()->Id == 115767)
         {
