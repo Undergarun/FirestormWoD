@@ -65,6 +65,7 @@
 #include "BattlegroundKT.h"
 #include "BattlegroundWS.h"
 #include "BattlegroundTP.h"
+#include "BattlegroundDG.h"
 #include "Guild.h"
 #include <Reporting/Reporter.hpp>
 #include <Reporting/Reports.hpp>
@@ -4326,6 +4327,9 @@ void Unit::RemoveFlagsAuras()
                     break;
                 case BATTLEGROUND_TP:
                     ((BattlegroundTP*)bg)->EventPlayerDroppedFlag(plr);
+                    break;
+                case BATTLEGROUND_DG:
+                    ((BattlegroundDG*)bg)->EventPlayerDroppedFlag(plr);
                     break;
                 default:
                     break;
