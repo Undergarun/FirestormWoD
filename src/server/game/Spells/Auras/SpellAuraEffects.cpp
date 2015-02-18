@@ -7432,35 +7432,6 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
             damage = damageReductedArmor;
         }
 
-        // 77486 - Mastery : Shadowy Recall
-        if (GetSpellInfo()->SchoolMask == SPELL_SCHOOL_MASK_SHADOW && caster->HasAura(77486))
-        {
-            float Mastery = caster->ToPlayer()->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.8f;
-
-            if (roll_chance_f(Mastery))
-            {
-                int32 bp = damage;
-
-                switch (GetSpellInfo()->Id)
-                {
-                    case 589:   // Shadow Word: Pain
-                        caster->CastCustomSpell(target, 124464, &bp, NULL, NULL, true);
-                        break;
-                    case 2944:  // Devouring Plague
-                        caster->CastCustomSpell(target, 124467, &bp, NULL, NULL, true);
-                        break;
-                    case 15407: // Mind Flay
-                        caster->CastCustomSpell(target, 124468, &bp, NULL, NULL, true);
-                        break;
-                    case 34914: // Vampiric Touch
-                        caster->CastCustomSpell(target, 124465, &bp, NULL, NULL, true);
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-
         // Glyph of Mind Flay
         if ((GetSpellInfo()->Id == 15407 || GetSpellInfo()->Id == 129197) && caster->HasAura(120585))
             caster->CastSpell(caster, 120587, true);
