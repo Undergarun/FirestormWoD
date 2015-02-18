@@ -138,6 +138,9 @@ namespace MS { namespace Garrison
         if (p_Player->HasQuest(Quests::Alliance_YourFirstBlacksmithingWorkOrder) || p_Player->IsQuestRewarded(Quests::Alliance_YourFirstBlacksmithingWorkOrder))
             p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to place an order.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
+        if (p_Player->HasQuest(Quests::Alliance_YourFirstBlacksmithingWorkOrder) && !p_Player->IsQuestRewarded(Quests::Alliance_YourFirstBlacksmithingWorkOrder))
+            p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(Quests::Alliance_YourFirstBlacksmithingWorkOrder, 4);
+
         p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
 
         return true;
