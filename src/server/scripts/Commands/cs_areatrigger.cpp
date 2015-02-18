@@ -74,7 +74,7 @@ class at_commandscript: public CommandScript
                 return false;
 
             std::list<AreaTrigger*> l_ATList;
-            AreaTrigger* l_AT;
+            AreaTrigger* l_AT = nullptr;
             Player* l_Player = p_Handler->GetSession()->GetPlayer();
             l_Player->GetAreatriggerListInRange(l_ATList, 50.0f);
 

@@ -1557,6 +1557,9 @@ void SpellMgr::LoadSpellLearnSkills()
     mSpellLearnSkills.clear();                              // need for reload case
 
     // search auto-learned skills and add its to map also for use in unlearn spells/talents
+
+    uint32 l_ProfessionSkillForStep[] { 0, 75, 150, 225, 300, 375, 450, 525, 600, 700};
+
     uint32 dbc_count = 0;
     for (uint32 spell = 0; spell < GetSpellInfoStoreSize(); ++spell)
     {
@@ -1571,12 +1574,23 @@ void SpellMgr::LoadSpellLearnSkills()
             {
                 SpellLearnSkillNode dbc_node;
                 dbc_node.skill = entry->Effects[i].MiscValue;
-                dbc_node.step  = entry->Effects[i].CalcValue();
-                if (dbc_node.skill != SKILL_RIDING)
+                dbc_node.step = entry->Effects[i].CalcValue();
+
+                if (IsProfessionSkill(dbc_node.skill))
+                {
+                    uint16 l_Step = std::min(dbc_node.step, (uint16)((sizeof(l_ProfessionSkillForStep) / sizeof(uint32)) - 1));
                     dbc_node.value = 1;
+                    dbc_node.maxvalue = l_ProfessionSkillForStep[l_Step];
+                }
                 else
-                    dbc_node.value = dbc_node.step * 75;
-                dbc_node.maxvalue = dbc_node.step * 75;
+                {
+                    if (dbc_node.skill != SKILL_RIDING)
+                        dbc_node.value = 1;
+                    else
+                        dbc_node.value = dbc_node.step * 75;
+                    dbc_node.maxvalue = dbc_node.step * 75;
+                }
+
                 mSpellLearnSkills[spell] = dbc_node;
                 ++dbc_count;
                 break;
@@ -3326,6 +3340,15 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 110744: // Divine Star - should be 2 sec -- WTF Blizz ?
+            case 122121:
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(66);
+                spellInfo->Effects[0].TargetA = SELECT_TARGET_SELF;
+                spellInfo->ExplicitTargetMask = spellInfo->_GetExplicitTargetMask();
+                break;
+            case 20167:  // Seal of Insight
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_NONE;
+                break;
             case 150055: // Volcanic Tantrum
             case 149963: // Shatter Earth
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(27); // 3 sec
@@ -3459,6 +3482,13 @@ void SpellMgr::LoadSpellCustomAttr()
             case 134531: ///< Web Thread
                 spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED_1;
                 break;
+            case 152150:///< Death from Above (periodic dummy)
+                spellInfo->Effects[5].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                break;
+            case 178236:///< Death from Above (jump dest)
+                spellInfo->Effects[0].TargetB = TARGET_DEST_CASTER_BACK;
+                spellInfo->Effects[0].ValueMultiplier = 40.0f;
+                break;
             case 139498: ///< Web Spray
                 spellInfo->Effects[1].TriggerSpell = 0;
                 break;
@@ -3472,10 +3502,11 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].BasePoints = spellInfo->Effects[1].BasePoints * 2.7;
                 break;
             case 14161: ///< Ruthlessness
-                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_PROC_TRIGGER_SPELL;
-                spellInfo->Effects[0].TriggerSpell = 139546;
-                spellInfo->ProcFlags = 0x00015550;
-                spellInfo->ProcChance = 100;
+                spellInfo->Effects[1].ApplyAuraName = 0;
+                spellInfo->Effects[1].Effect = 0;
+                break;
+            case 174597:///< Ruthlessness (passive aura)
+                spellInfo->Effects[0].Effect = 0;
                 break;
             case 137650: ///< Shadowed Soul
                 spellInfo->Effects[0].BasePoints = 3;
@@ -3543,11 +3574,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 136917: ///< Biting Cold
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[0].TargetB = 0;
-                break;
-            case 76808: ///< Mastery: Executioner
-                spellInfo->Effects[0].BasePoints = 24;
-                spellInfo->Effects[1].BasePoints = 24;
-                spellInfo->Effects[2].BasePoints = 24;
                 break;
             case 136467: ///< Lingering Presence
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
@@ -3733,9 +3759,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 148908: ///< Mark of Salvation
                 spellInfo->Effects[0].BasePoints = 963;
                 break;
-            case 88611: ///< Smoke Bomb (triggered)
-                spellInfo->Effects[0].TargetB = TARGET_UNIT_DEST_AREA_ENEMY;
-                break;
             case 128997: ///< Spirit Beast Blessing
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                 break;
@@ -3878,13 +3901,14 @@ void SpellMgr::LoadSpellCustomAttr()
             case 167739:///< Scorching Aura (Debuff)
             case 153227:///< Burning Slag (DoT)
             case 150784:///< Magma Eruption (DoT)
-            case 161288: ///< Vileblood Serum (DoT)
-            case 161833: ///< Noxious Spit (DoT)
-            case 157420: ///< Fiery Trail (DoT)
-            case 155057: ///< Magma Pool (DoT)
-            case 166730: ///< Burning Bridge (DoT)
-            case 176037: ///< Noxious Spit (DoT)
-            case 155158: ///< Meteor Burn
+            case 161288:///< Vileblood Serum (DoT)
+            case 161833:///< Noxious Spit (DoT)
+            case 157420:///< Fiery Trail (DoT)
+            case 155057:///< Magma Pool (DoT)
+            case 166730:///< Burning Bridge (DoT)
+            case 176037:///< Noxious Spit (DoT)
+            case 155158:///< Meteor Burn
+            case 88611: ///< Smoke Bomb
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_HIDE_DURATION;
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
@@ -4141,9 +4165,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 120644: ///< Halo (shadow)
                 spellInfo->AttributesCu &= ~SPELL_ATTR0_CU_NEGATIVE;
                 break;
-            case 80240: ///< Havoc
-                spellInfo->ProcCharges = 3;
-                break;
             case 121129: ///< Daybreak (heal)
                 spellInfo->Effects[1].TargetA = TARGET_SRC_CASTER;
                 break;
@@ -4381,14 +4402,17 @@ void SpellMgr::LoadSpellCustomAttr()
             case 89523: ///< Glyph of Grounding Totem
                 spellInfo->SpellFamilyName = SPELLFAMILY_SHAMAN;
                 break;
-            case 1856: ///< Vanish
+            case 1856:  ///< Vanish
                 spellInfo->Effects[1].TriggerSpell = 131368;
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_SANCTUARY;
                 break;
-            case 131369: ///< Vanish - Improved Stealth
+            case 131368:  ///< Vanish (triggered)
+                spellInfo->Effects[2].TriggerSpell = 131361;
+                break;
+            case 131361:///< Vanish - Improved Stealth
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(27); ///< 3s
                 break;
-            case 116784: ///< Wildfire Spark - Boss Feng
+            case 116784:///< Wildfire Spark - Boss Feng
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 spellInfo->Effects[0].TargetB = 0;
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ENEMY;
@@ -4586,9 +4610,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 91021: ///< Find Weakness
                 spellInfo->Effects[0].BasePoints = 100;
-                break;
-            case 76577: ///< Smoke Bomb
-                spellInfo->SpellVisual[1] = 20733;
                 break;
             case 118699: ///< Fear Effect
                 spellInfo->Dispel = DISPEL_MAGIC;
@@ -4821,10 +4842,12 @@ void SpellMgr::LoadSpellCustomAttr()
             case 115191: ///< Subterfuge
                 spellInfo->AttributesEx |= SPELL_ATTR0_DISABLED_WHILE_ACTIVE;
                 spellInfo->AttributesEx8 |= SPELL_ATTR8_AURA_SEND_AMOUNT;
-                spellInfo->ProcFlags = 0x00A22A8;   ///< 1784 ProcsFlags
+                spellInfo->ProcFlags = 0x800A22A8;   ///< 1784 ProcsFlags
                 break;
             case 115192: ///< Subterfuge
-                spellInfo->AttributesEx &= ~SPELL_ATTR1_NOT_BREAK_STEALTH;
+                spellInfo->Attributes |= SPELL_ATTR0_DONT_AFFECT_SHEATH_STATE;
+                spellInfo->Attributes |= SPELL_ATTR0_NOT_SHAPESHIFT;
+                spellInfo->AttributesEx |= SPELL_ATTR1_NOT_BREAK_STEALTH;
                 break;
             case 84745: ///< Shallow Insight
             case 84746: ///< Moderate Insight
@@ -5136,11 +5159,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 104855: ///< Overpacked Firework
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
-                break;
-            /// Remove Dash and Prowl when stance is differente of FORM_CAT
-            case 1850: ///< Dash
-            case 5215: ///< Prowl
-                spellInfo->Stances = 0x01;
                 break;
             /// Add Server-Side dummy spell for Fishing
             /// TODO : Add more generic system to load server-side spell
@@ -5855,6 +5873,7 @@ void SpellMgr::LoadSpellCustomAttr()
             switch (spellInfo->Id)
             {
                 case 61882: ///< Earthquake
+                case 152280: ///< Defile
                     spellInfo->ExplicitTargetMask &= ~TARGET_FLAG_UNIT;
                     break;
                 case 109248: ///< Binding Shot

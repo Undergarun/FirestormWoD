@@ -1153,94 +1153,93 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
         // special cases
         switch (triggered_spell_id)
         {
-            // Vanish (not exist)
-        case 131369:
-        {
-            unitTarget->RemoveMovementImpairingAuras();
-            unitTarget->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
-
-            // If this spell is given to an NPC, it must handle the rest using its own AI
-            if (unitTarget->GetTypeId() != TYPEID_PLAYER)
-                return;
-
-            // See if we already are stealthed. If so, we're done.
-            if (unitTarget->HasAura(1784) || unitTarget->HasAura(115191))
-                return;
-
-            // Reset cooldown on stealth if needed
-            if (unitTarget->ToPlayer()->HasSpellCooldown(1784))
-                unitTarget->ToPlayer()->RemoveSpellCooldown(1784, true);
-            if (unitTarget->ToPlayer()->HasSpellCooldown(115191))
-                unitTarget->ToPlayer()->RemoveSpellCooldown(115191, true);
-
-            if (!unitTarget->HasAura(108208))
-                unitTarget->CastSpell(unitTarget, 1784, true);
-            else
-                unitTarget->CastSpell(unitTarget, 115191, true);
-            return;
-        }
-        // Demonic Empowerment -- succubus
-        case 54437:
-        {
-            unitTarget->RemoveMovementImpairingAuras();
-            unitTarget->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
-            unitTarget->RemoveAurasByType(SPELL_AURA_MOD_STUN);
-
-            // Cast Lesser Invisibility
-            unitTarget->CastSpell(unitTarget, 7870, true);
-            return;
-        }
-        // Brittle Armor - (need add max stack of 24575 Brittle Armor)
-        case 29284:
-        {
-            // Brittle Armor
-            SpellInfo const* spell = sSpellMgr->GetSpellInfo(24575);
-            if (!spell)
-                return;
-
-            for (uint32 j = 0; j < spell->StackAmount; ++j)
-                m_caster->CastSpell(unitTarget, spell->Id, true);
-            return;
-        }
-        // Mercurial Shield - (need add max stack of 26464 Mercurial Shield)
-        case 29286:
-        {
-            // Mercurial Shield
-            SpellInfo const* spell = sSpellMgr->GetSpellInfo(26464);
-            if (!spell)
-                return;
-
-            for (uint32 j = 0; j < spell->StackAmount; ++j)
-                m_caster->CastSpell(unitTarget, spell->Id, true);
-            return;
-        }
-        // Righteous Defense
-        case 31980:
-        {
-            m_caster->CastSpell(unitTarget, 31790, true);
-            return;
-        }
-        // Cloak of Shadows
-        case 35729:
-        {
-            uint32 dispelMask = SpellInfo::GetDispelMask(DISPEL_ALL);
-            Unit::AuraApplicationMap& Auras = unitTarget->GetAppliedAuras();
-            for (Unit::AuraApplicationMap::iterator iter = Auras.begin(); iter != Auras.end();)
+            case 131361:///< Vanish
             {
-                // remove all harmful spells on you...
-                SpellInfo const* spell = iter->second->GetBase()->GetSpellInfo();
-                if ((spell->DmgClass == SPELL_DAMAGE_CLASS_MAGIC // only affect magic spells
-                    || (spell->GetDispelMask() & dispelMask) || (spell->GetSchoolMask() & SPELL_SCHOOL_MASK_MAGIC))
-                    // ignore positive and passive auras
-                    && !iter->second->IsPositive() && !iter->second->GetBase()->IsPassive() && m_spellInfo->CanDispelAura(spell))
-                {
-                    m_caster->RemoveAura(iter);
-                }
+                unitTarget->RemoveMovementImpairingAuras();
+                unitTarget->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
+
+                /// If this spell is given to an NPC, it must handle the rest using its own AI
+                if (unitTarget->GetTypeId() != TYPEID_PLAYER)
+                    return;
+
+                /// See if we already are stealthed. If so, we're done.
+                if (unitTarget->HasAura(1784) || unitTarget->HasAura(115191))
+                    return;
+
+                /// Reset cooldown on stealth if needed
+                if (unitTarget->ToPlayer()->HasSpellCooldown(1784))
+                    unitTarget->ToPlayer()->RemoveSpellCooldown(1784, true);
+                if (unitTarget->ToPlayer()->HasSpellCooldown(115191))
+                    unitTarget->ToPlayer()->RemoveSpellCooldown(115191, true);
+
+                if (!unitTarget->HasAura(108208))
+                    unitTarget->CastSpell(unitTarget, 1784, true);
                 else
-                    ++iter;
+                    unitTarget->CastSpell(unitTarget, 115191, true);
+                return;
             }
-            return;
-        }
+            // Demonic Empowerment -- succubus
+            case 54437:
+            {
+                unitTarget->RemoveMovementImpairingAuras();
+                unitTarget->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
+                unitTarget->RemoveAurasByType(SPELL_AURA_MOD_STUN);
+
+                // Cast Lesser Invisibility
+                unitTarget->CastSpell(unitTarget, 7870, true);
+                return;
+            }
+            // Brittle Armor - (need add max stack of 24575 Brittle Armor)
+            case 29284:
+            {
+                // Brittle Armor
+                SpellInfo const* spell = sSpellMgr->GetSpellInfo(24575);
+                if (!spell)
+                    return;
+
+                for (uint32 j = 0; j < spell->StackAmount; ++j)
+                    m_caster->CastSpell(unitTarget, spell->Id, true);
+                return;
+            }
+            // Mercurial Shield - (need add max stack of 26464 Mercurial Shield)
+            case 29286:
+            {
+                // Mercurial Shield
+                SpellInfo const* spell = sSpellMgr->GetSpellInfo(26464);
+                if (!spell)
+                    return;
+
+                for (uint32 j = 0; j < spell->StackAmount; ++j)
+                    m_caster->CastSpell(unitTarget, spell->Id, true);
+                return;
+            }
+            // Righteous Defense
+            case 31980:
+            {
+                m_caster->CastSpell(unitTarget, 31790, true);
+                return;
+            }
+            // Cloak of Shadows
+            case 35729:
+            {
+                uint32 dispelMask = SpellInfo::GetDispelMask(DISPEL_ALL);
+                Unit::AuraApplicationMap& Auras = unitTarget->GetAppliedAuras();
+                for (Unit::AuraApplicationMap::iterator iter = Auras.begin(); iter != Auras.end();)
+                {
+                    // remove all harmful spells on you...
+                    SpellInfo const* spell = iter->second->GetBase()->GetSpellInfo();
+                    if ((spell->DmgClass == SPELL_DAMAGE_CLASS_MAGIC // only affect magic spells
+                        || (spell->GetDispelMask() & dispelMask) || (spell->GetSchoolMask() & SPELL_SCHOOL_MASK_MAGIC))
+                        // ignore positive and passive auras
+                        && !iter->second->IsPositive() && !iter->second->GetBase()->IsPassive() && m_spellInfo->CanDispelAura(spell))
+                    {
+                        m_caster->RemoveAura(iter);
+                    }
+                    else
+                        ++iter;
+                }
+                return;
+            }
         }
     }
 
@@ -1435,7 +1434,7 @@ void Spell::EffectJump(SpellEffIndex effIndex)
     m_caster->GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ);
 }
 
-void Spell::EffectJumpDest(SpellEffIndex effIndex)
+void Spell::EffectJumpDest(SpellEffIndex p_EffIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH)
         return;
@@ -1446,24 +1445,25 @@ void Spell::EffectJumpDest(SpellEffIndex effIndex)
     if (!m_targets.HasDst())
         return;
 
-    // Init dest coordinates
-    float x, y, z;
-    destTarget->GetPosition(x, y, z);
+    /// Init dest coordinates
+    float l_X, l_Y, l_Z;
+    destTarget->GetPosition(l_X, l_Y, l_Z);
 
-    float speedXY, speedZ;
-    CalculateJumpSpeeds(effIndex, m_caster->GetExactDist2d(x, y), speedXY, speedZ);
+    float l_SpeedXY, l_SpeedZ;
+    CalculateJumpSpeeds(p_EffIndex, m_caster->GetExactDist2d(l_X, l_Y), l_SpeedXY, l_SpeedZ);
 
     switch (m_spellInfo->Id)
     {
-    case 49575: // Death Grip
-    case 92832: // Leap of Faith
-        m_caster->GetMotionMaster()->CustomJump(x, y, z, speedXY, speedZ);
-        break;
-    case 49376:
-        m_caster->GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ, destTarget->GetOrientation());
-        break;
-    default:
-        m_caster->GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ, 10.0f, m_spellInfo->Id);
+        case 49575: ///< Death Grip
+        case 92832: ///< Leap of Faith
+            m_caster->GetMotionMaster()->CustomJump(l_X, l_Y, l_Z, l_SpeedXY, l_SpeedZ);
+            break;
+        case 49376: ///< Wild Charge
+            m_caster->GetMotionMaster()->MoveJump(l_X, l_Y, l_Z, l_SpeedXY, l_SpeedZ, destTarget->GetOrientation());
+            break;
+        default:
+            m_caster->GetMotionMaster()->MoveJump(l_X, l_Y, l_Z, l_SpeedXY, l_SpeedZ, m_caster->GetOrientation(), m_spellInfo->Id);
+            break;
     }
 }
 
@@ -1476,10 +1476,10 @@ void Spell::CalculateJumpSpeeds(uint8 i, float dist, float & speedXY, float & sp
     else
         speedZ = 10.0f;
 
-    speedXY = dist * 10.0f / speedZ;
-
-    if (m_spellInfo->Id == 49575)
-        speedXY = 38;
+    if (m_spellInfo->Effects[i].ValueMultiplier)
+        speedXY = m_spellInfo->Effects[i].ValueMultiplier;
+    else
+        speedXY = dist * 10.0f / speedZ;
 }
 
 void Spell::EffectTeleportUnits(SpellEffIndex /*effIndex*/)
@@ -3983,152 +3983,158 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
 
     switch (m_spellInfo->SpellFamilyName)
     {
-    case SPELLFAMILY_GENERIC:
-    {
-        switch (m_spellInfo->Id)
+        case SPELLFAMILY_GENERIC:
         {
-        case 69055: // Saber Lash
-        case 70814: // Saber Lash
-        {
-            uint32 count = 0;
-            for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
-                if (ihit->effectMask & (1 << effIndex))
-                    ++count;
+            switch (m_spellInfo->Id)
+            {
+                case 69055: // Saber Lash
+                case 70814: // Saber Lash
+                {
+                    uint32 count = 0;
+                    for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+                        if (ihit->effectMask & (1 << effIndex))
+                            ++count;
 
-            totalDamagePercentMod /= count;
+                    totalDamagePercentMod /= count;
+                    break;
+                }
+            }
             break;
         }
-        }
-        break;
-    }
-    case SPELLFAMILY_WARLOCK:
-    {
-        switch (m_spellInfo->Id)
+        case SPELLFAMILY_WARLOCK:
         {
-        case 30213: // Legion Strike
-        {
-            if (Unit* owner = m_caster->GetOwner())
+            switch (m_spellInfo->Id)
             {
-                int32 spd = owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL);
-                fixed_bonus += spd * 0.264f;
+                case 30213: // Legion Strike
+                {
+                    if (Unit* owner = m_caster->GetOwner())
+                    {
+                        int32 spd = owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL);
+                        fixed_bonus += spd * 0.264f;
 
-                if (owner->GetTypeId() == TYPEID_PLAYER)
-                    if (owner->ToPlayer()->GetSpecializationId(owner->ToPlayer()->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
-                        owner->EnergizeBySpell(owner, m_spellInfo->Id, 12, POWER_DEMONIC_FURY);
+                        if (owner->GetTypeId() == TYPEID_PLAYER)
+                            if (owner->ToPlayer()->GetSpecializationId(owner->ToPlayer()->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
+                                owner->EnergizeBySpell(owner, m_spellInfo->Id, 12, POWER_DEMONIC_FURY);
+                    }
+
+                    break;
+                }
+                case 89753: // Fel Storm
+                {
+                    if (Unit* owner = m_caster->GetOwner())
+                    {
+                        int32 spd = owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL);
+                        fixed_bonus += spd * 0.33f;
+                    }
+
+                    break;
+                }
+                default:
+                    break;
             }
 
             break;
         }
-        case 89753: // Fel Storm
+        case SPELLFAMILY_ROGUE:
         {
-            if (Unit* owner = m_caster->GetOwner())
+            switch (m_spellInfo->Id)
             {
-                int32 spd = owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL);
-                fixed_bonus += spd * 0.33f;
+                case 8676:  // Ambush
+                {
+                    // 44.7% more damage with daggers
+                    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+                        if (Item* item = m_caster->ToPlayer()->GetWeaponForAttack(m_attackType, true))
+                            if (item->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)
+                                totalDamagePercentMod *= 1.447f;
+                    break;
+                }
+                case 16511: // Hemorrhage
+                {
+                    // 40% more damage with daggers
+                    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+                    {
+                        if (Item* l_Item = m_caster->ToPlayer()->GetWeaponForAttack(m_attackType, true))
+                        {
+                            if (l_Item->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)
+                                totalDamagePercentMod *= 1.40f;
+                        }
+                    }
+                    break;
+                }
+                default:
+                    break;
             }
 
             break;
         }
-        default:
+        case SPELLFAMILY_SHAMAN:
+        {
+            // Skyshatter Harness item set bonus
+            // Stormstrike
+            if (AuraEffectPtr aurEff = m_caster->IsScriptOverriden(m_spellInfo, 5634))
+                m_caster->CastSpell(m_caster, 38430, true, NULL, aurEff);
             break;
         }
+        case SPELLFAMILY_HUNTER:
+        {
+            float shotMod = 0;
+            switch (m_spellInfo->Id)
+            {
+                case 53351: // Kill Shot
+                {
+                    // "You attempt to finish the wounded target off, firing a long range attack dealing % weapon damage plus RAP*0.30+543."
+                    shotMod = 0.45f;
+                    // Kill Shot - (100% weapon dmg + 45% RAP + 543) * 150% - EJ
+                    final_bonus = 1.5f;
+                    break;
+                }
+                case 56641: // Steady Shot
+                {
+                    // "A steady shot that causes % weapon damage plus RAP*0.021+280. Generates 9 Focus."
+                    // focus effect done in dummy
+                    shotMod = 0.021f;
+                    break;
+                }
+                case 53209: // Chimera Shot
+                {
+                    shotMod = 0.398f;
+                    break;
+                }
+                case 3044: // Arcane Shot
+                {
+                    shotMod = 0.0483f;
+                    break;
+                }
+                case 75:
+                {
+                    m_caster->Attack(unitTarget, false);
+                    break;
+                }
+                default:
+                    break;
+            }
 
-        break;
-    }
-    case SPELLFAMILY_ROGUE:
-    {
-        switch (m_spellInfo->Id)
-        {
-        case 8676:  // Ambush
-        {
-            // 44.7% more damage with daggers
-            if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                if (Item* item = m_caster->ToPlayer()->GetWeaponForAttack(m_attackType, true))
-                    if (item->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)
-                        totalDamagePercentMod *= 1.447f;
+            spell_bonus += int32((shotMod*m_caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack)));
             break;
         }
-        case 16511: // Hemorrhage
+        case SPELLFAMILY_DEATHKNIGHT:
         {
-            // 45% more damage with daggers
-            if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                if (Item* item = m_caster->ToPlayer()->GetWeaponForAttack(m_attackType, true))
-                    if (item->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)
-                        totalDamagePercentMod *= 1.45f;
-            break;
-        }
-        default:
-            break;
-        }
-
-        break;
-    }
-    case SPELLFAMILY_SHAMAN:
-    {
-        // Skyshatter Harness item set bonus
-        // Stormstrike
-        if (AuraEffectPtr aurEff = m_caster->IsScriptOverriden(m_spellInfo, 5634))
-            m_caster->CastSpell(m_caster, 38430, true, NULL, aurEff);
-        break;
-    }
-    case SPELLFAMILY_HUNTER:
-    {
-        float shotMod = 0;
-        switch (m_spellInfo->Id)
-        {
-        case 53351: // Kill Shot
-        {
-            // "You attempt to finish the wounded target off, firing a long range attack dealing % weapon damage plus RAP*0.30+543."
-            shotMod = 0.45f;
-            // Kill Shot - (100% weapon dmg + 45% RAP + 543) * 150% - EJ
-            final_bonus = 1.5f;
-            break;
-        }
-        case 56641: // Steady Shot
-        {
-            // "A steady shot that causes % weapon damage plus RAP*0.021+280. Generates 9 Focus."
-            // focus effect done in dummy
-            shotMod = 0.021f;
-            break;
-        }
-        case 53209: // Chimera Shot
-        {
-            shotMod = 0.398f;
-            break;
-        }
-        case 3044: // Arcane Shot
-        {
-            shotMod = 0.0483f;
-            break;
-        }
-        case 75:
-        {
-            m_caster->Attack(unitTarget, false);
-            break;
-        }
-
-        default: break;
-        }
-        spell_bonus += int32((shotMod*m_caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack)));
-    }
-    case SPELLFAMILY_DEATHKNIGHT:
-    {
-        switch (m_spellInfo->Id)
-        {
-        case 52374: // Blood Strike
-        {
-            float bonusPct = ((m_spellInfo->Effects[EFFECT_0].BasePoints * m_spellInfo->Effects[EFFECT_1].BasePoints) / 100) * unitTarget->GetDiseasesByCaster(m_caster->GetGUID());
+            switch (m_spellInfo->Id)
+            {
+                case 52374: // Blood Strike
+                {
+                    float bonusPct = ((m_spellInfo->Effects[EFFECT_0].BasePoints * m_spellInfo->Effects[EFFECT_1].BasePoints) / 100) * unitTarget->GetDiseasesByCaster(m_caster->GetGUID());
             
-            AddPct(totalDamagePercentMod, bonusPct);
+                    AddPct(totalDamagePercentMod, bonusPct);
+                    break;
+                }
+                default:
+                    break;
+            }
             break;
         }
         default:
             break;
-        }
-        break;
-    }
-    default:
-        break;
     }
 
     bool normalized = false;
@@ -4137,19 +4143,19 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
     {
         switch (m_spellInfo->Effects[j].Effect)
         {
-        case SPELL_EFFECT_WEAPON_DAMAGE:
-        case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
-            fixed_bonus += CalculateDamage(j, unitTarget);
-            break;
-        case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
-            fixed_bonus += CalculateDamage(j, unitTarget);
-            normalized = true;
-            break;
-        case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
-            ApplyPct(weaponDamagePercentMod, CalculateDamage(j, unitTarget));
-            break;
-        default:
-            break;                                      // not weapon damage effect, just skip
+            case SPELL_EFFECT_WEAPON_DAMAGE:
+            case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
+                fixed_bonus += CalculateDamage(j, unitTarget);
+                break;
+            case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
+                fixed_bonus += CalculateDamage(j, unitTarget);
+                normalized = true;
+                break;
+            case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
+                ApplyPct(weaponDamagePercentMod, CalculateDamage(j, unitTarget));
+                break;
+            default:
+                break;                                      // not weapon damage effect, just skip
         }
     }
 
@@ -4159,10 +4165,16 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
         UnitMods unitMod;
         switch (m_attackType)
         {
-        default:
-        case WeaponAttackType::BaseAttack:   unitMod = UNIT_MOD_DAMAGE_MAINHAND; break;
-        case WeaponAttackType::OffAttack:    unitMod = UNIT_MOD_DAMAGE_OFFHAND;  break;
-        case WeaponAttackType::RangedAttack: unitMod = UNIT_MOD_DAMAGE_RANGED;   break;
+            case WeaponAttackType::OffAttack:
+                unitMod = UNIT_MOD_DAMAGE_OFFHAND;
+                break;
+            case WeaponAttackType::RangedAttack:
+                unitMod = UNIT_MOD_DAMAGE_RANGED;
+                break;
+            case WeaponAttackType::BaseAttack:
+            default:
+                unitMod = UNIT_MOD_DAMAGE_MAINHAND;
+                break;
         }
 
         float weapon_total_pct = 1.0f;
@@ -4186,15 +4198,15 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
         // and at most one weaponDamagePercentMod
         switch (m_spellInfo->Effects[j].Effect)
         {
-        case SPELL_EFFECT_WEAPON_DAMAGE:
-        case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
-        case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
-            weaponDamage += fixed_bonus;
-            break;
-        case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
-            weaponDamage = int32(weaponDamage* weaponDamagePercentMod);
-        default:
-            break;                                      // not weapon damage effect, just skip
+            case SPELL_EFFECT_WEAPON_DAMAGE:
+            case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
+            case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
+                weaponDamage += fixed_bonus;
+                break;
+            case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
+                weaponDamage = int32(weaponDamage* weaponDamagePercentMod);
+            default:
+                break;                                      // not weapon damage effect, just skip
         }
     }
 
@@ -4220,8 +4232,10 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
     {
         uint32 count = 0;
         for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+        {
             if (ihit->effectMask & (1 << effIndex))
                 ++count;
+        }
 
         m_damage /= count;
     }
@@ -4269,11 +4283,12 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
     if (!unitTarget || !unitTarget->isAlive())
         return;
 
-    // Deadly Throw - Interrupt spell only if used with 3 combo points
+    /// Deadly Throw - Interrupt spell only if used with 3 combo points
     if (m_spellInfo->Id == 26679)
-        if (m_originalCaster && m_originalCaster->GetTypeId() == TYPEID_PLAYER)
-            if (m_originalCaster->ToPlayer()->GetComboPoints() != 3)
-                return;
+    {
+        if (m_originalCaster && m_originalCaster->GetPower(Powers::POWER_COMBO_POINT) < 5)
+            return;
+    }
 
     // TODO: not all spells that used this effect apply cooldown at school spells
     // also exist case: apply cooldown to interrupted cast only and to all spells
@@ -5218,26 +5233,10 @@ void Spell::EffectAddComboPoints(SpellEffIndex /*effIndex*/)
     if (!unitTarget)
         return;
 
-    if (!m_caster->m_movedPlayer)
-        return;
-
     if (damage <= 0)
         return;
 
-    switch (m_spellInfo->Id)
-    {
-    case 51723: // Fan of Knives
-        if (!m_caster->ToPlayer())
-            break;
-
-        if (m_caster->ToPlayer()->GetSelectedUnit() != unitTarget)
-            return;
-        break;
-    default:
-        break;
-    }
-
-    m_caster->m_movedPlayer->AddComboPoints(damage, this);
+    m_caster->AddComboPoints(damage);
 }
 
 void Spell::EffectDuel(SpellEffIndex p_EffectIndex)
@@ -8068,6 +8067,9 @@ void Spell::EffectDespawnAreaTrigger(SpellEffIndex p_EffIndex)
 
 void Spell::EffectStampede(SpellEffIndex p_EffIndex)
 {
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
     if (m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
 
@@ -8094,13 +8096,27 @@ void Spell::EffectStampede(SpellEffIndex p_EffIndex)
             if (!l_Pet->isAlive())
                 l_Pet->setDeathState(ALIVE);
 
-            // Set pet at full health
+            /// Set pet at full health
             l_Pet->SetHealth(l_Pet->GetMaxHealth());
             l_Pet->SetReactState(REACT_HELPER);
             l_Pet->m_Stampeded = true;
 
+            std::list<uint32> l_SpellsToRemove;
+            for (auto l_Iter : l_Pet->m_spells)
+                l_SpellsToRemove.push_back(l_Iter.first);
+
+            /// Summoned pets with Stamped don't use abilities
+            for (uint32 l_ID : l_SpellsToRemove)
+            {
+                auto l_Iter = l_Pet->m_spells.find(l_ID);
+                l_Pet->m_spells.erase(l_Iter);
+            }
+
+            l_Pet->m_autospells.clear();
+            l_Pet->m_Events.KillAllEvents(true);    ///< Disable automatic cast spells
+
             l_Pet->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, GetSpellInfo()->Id);
-            if (l_MalusSpell != 0)
+            if (l_MalusSpell != 0 && l_Player->GetBattleground())
                 l_Pet->CastSpell(l_Pet, l_MalusSpell, true);
             l_Pet->AI()->AttackStart(l_Target);
         }

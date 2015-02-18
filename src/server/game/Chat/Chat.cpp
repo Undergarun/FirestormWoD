@@ -360,6 +360,8 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, co
 
             // Disable the command
             table[i].SecurityLevel = (uint32)SpecificSecurityLevel::DisableByFailure;
+
+            sLog->outError(LOG_FILTER_WORLDSERVER, "Crash intercepted => ChatHandler::ExecuteCommandInTable(%p, %s, %s)", table, text, fullcmd.c_str());
         }
         MS::SignalHandler::DisableThrowExceptionAtFailure();
 

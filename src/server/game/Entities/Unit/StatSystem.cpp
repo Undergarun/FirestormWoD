@@ -835,6 +835,25 @@ void Player::UpdateMasteryPercentage()
     // 77494 - Mastery : Nature's Guardian - Update Armor
     if (HasAura(77494))
         UpdateArmor();
+
+    /// Update some mastery spells
+    AuraApplicationMap& l_AppliedAuras = GetAppliedAuras();
+    for (auto l_Iter : l_AppliedAuras)
+    {
+        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_Iter.first);
+        if (l_SpellInfo != nullptr && l_SpellInfo->HasAttribute(SpellAttr8::SPELL_ATTR8_MASTERY_SPECIALIZATION))
+        {
+            AuraPtr l_Aura = l_Iter.second->GetBase();
+            for (uint8 l_I = 0; l_I < MAX_SPELL_EFFECTS; ++l_I)
+            {
+                if (AuraEffectPtr l_AurEff = l_Aura->GetEffect(l_I))
+                {
+                    l_AurEff->SetCanBeRecalculated(true);
+                    l_AurEff->ChangeAmount(l_AurEff->CalculateAmount(this), true, true);
+                }
+            }
+        }
+    }
 }
 
 void Player::UpdatePvPPowerPercentage()
@@ -1062,16 +1081,16 @@ float Player::GetRegenForPower(Powers p_Power)
             return 0.0f;
     }
 
-    float l_HastePct = 1.0f;
-
+    float l_Pct = 1.0f;
     Unit::AuraEffectList const& l_ModPowerRegenPCT = GetAuraEffectsByType(AuraType::SPELL_AURA_MOD_POWER_REGEN_PERCENT);
     for (Unit::AuraEffectList::const_iterator l_Iter = l_ModPowerRegenPCT.begin(); l_Iter != l_ModPowerRegenPCT.end(); ++l_Iter)
     {
         if (Powers((*l_Iter)->GetMiscValue()) == p_Power)
-            l_HastePct += (*l_Iter)->GetAmount() / 100.0f;
+            l_Pct += (*l_Iter)->GetAmount() / 100.0f;
     }
 
-    return l_BaseRegen + (l_BaseRegen * l_HastePct);
+    float l_HastePct = 1.f / (1.f + (m_baseRatingValue[CR_HASTE_MELEE] * GetRatingMultiplier(CR_HASTE_MELEE) + l_Pct) / 100.f);
+    return l_BaseRegen * l_HastePct;
 }
 
 void Player::_ApplyAllStatBonuses()

@@ -575,10 +575,9 @@ int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit c
     // random damage
     if (p_Caster)
     {
-        // bonus amount from combo points
-        if (p_Caster->m_movedPlayer && l_ComboDamage)
-            if (uint8 comboPoints = p_Caster->m_movedPlayer->GetComboPoints())
-                l_Value += l_ComboDamage * comboPoints;
+        /// Bonus amount from combo points
+        if (p_Caster && l_ComboDamage)
+            l_Value += l_ComboDamage * p_Caster->GetPower(Powers::POWER_COMBO_POINT);
 
         l_Value = p_Caster->ApplyEffectModifiers(_spellInfo, _effIndex, l_Value);
 
@@ -1476,7 +1475,6 @@ bool SpellInfo::CanTriggerPoisonAdditional() const
         {
             case 1766:  // Kick
             case 1943:  // Rupture
-            case 51722: // Dismantle
             case 703:   // Garrote
                 return true;
             default:
@@ -1558,8 +1556,7 @@ bool SpellInfo::CanDispelAura(SpellInfo const* aura) const
 
     switch (aura->Id)
     {
-        case 94528: // Flare
-        case 76577: // Smoke Bomb
+        case 94528: ///< Flare
             return false;
         default:
             break;
@@ -3615,8 +3612,6 @@ bool SpellInfo::IsIgnoringCombat() const
         // Blackjack
         case 79124:
         case 79126:
-        // Redirect
-        case 73981:
         // Venomous Wounds
         case 79136:
         // Master Poisoner
@@ -3719,20 +3714,6 @@ float SpellInfo::GetGiftOfTheSerpentScaling(Unit* caster) const
 
 float SpellInfo::GetCastTimeReduction() const
 {
-    switch (Id)
-    {
-        case 50274: // Spore Cloud
-        case 90315: // Tailspin
-        case 109466:// Curse of Enfeeblement
-        case 109468:// Curse of Enfeeblement (Soulburn)
-        case 116198:// Enfeeblement Aura (Metamorphosis)
-            return 5.f;
-        case 5760:  // Mind-Numbing
-        case 58604: // Lava Breath
-        case 73975: // Necrotic Strike
-            return 2.f;
-    }
-
     return 1.f;
 }
 
@@ -3858,18 +3839,16 @@ bool SpellInfo::IsPoisonOrBleedSpell() const
 {
     switch (Id)
     {
-        case 703:   // Garrote
-        case 1943:  // Rupture
-        case 2818:  // Deadly Poison (DoT)
-        case 3409:  // Crippling Poison
-        case 5760:  // Mind-Numbling Poison
-        case 8680:  // Wound Poison
-        case 79136: // Venomous Wound (damage)
-        case 89775: // Hemorrhage (DoT)
-        case 112961:// Leeching Poison
-        case 113780:// Deadly Poison (direct damage)
-        case 113952:// Paralytic Poison
-        case 122233:// Crimson Tempest (DoT)
+        case 703:   ///< Garrote
+        case 1943:  ///< Rupture
+        case 2818:  ///< Deadly Poison (DoT)
+        case 3409:  ///< Crippling Poison
+        case 8680:  ///< Wound Poison
+        case 16511: ///< Hemorrhage (DoT)
+        case 79136: ///< Venomous Wound (damage)
+        case 112961:///< Leeching Poison
+        case 113780:///< Deadly Poison (direct damage)
+        case 122233:///< Crimson Tempest (DoT)
             return true;
         default:
             break;
@@ -3974,7 +3953,10 @@ bool SpellInfo::IsBreakingStealth(Unit* m_caster) const
     if (!m_caster)
         return false;
 
-    // Hearthstone shoudn't call subterfuge effect
+    if (m_caster->HasAura(115192))
+        return false;
+
+    /// Hearthstone shouldn't call subterfuge effect
     if ((SpellIconID == 776 || SpellFamilyName == SPELLFAMILY_POTION) && m_caster->HasAura(115191))
     {
         m_caster->RemoveAura(115191);
@@ -3993,7 +3975,7 @@ bool SpellInfo::IsBreakingStealth(Unit* m_caster) const
     if (m_caster->HasAura(108208) && m_caster->HasAura(115191) && !m_caster->HasAura(115192) &&
         !HasAttribute(SPELL_ATTR1_NOT_BREAK_STEALTH) && !m_caster->HasAura(51713))
     {
-        // Mounts shouldn't call subterfuge effect
+        /// Mounts shouldn't call subterfuge effect
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
             if (Effects[i].ApplyAuraName == SPELL_AURA_MOUNTED)
@@ -4006,18 +3988,21 @@ bool SpellInfo::IsBreakingStealth(Unit* m_caster) const
         if (callSubterfuge)
         {
             m_caster->CastSpell(m_caster, 115192, true);
-            return true;
+            return false;
         }
     }
 
     if (m_caster->HasAura(115191))
         return false;
 
-    switch(Id)
+    switch (Id)
     {
-        case 3600:  // Earthbind Totem
-        case 99:    // Demoralizing Roar
-        case 50256:
+        case 99:    ///< Incapaciting Roar
+        case 2643:  ///< Multi-shot
+        case 3600:  ///< Earthbind
+        case 12323: ///< Piercing Howl
+        case 50256: ///< Invigorating Roar (Special Ability)
+        case 64695: ///< Earthgrab
             return false;
         default:
             break;
@@ -4025,8 +4010,8 @@ bool SpellInfo::IsBreakingStealth(Unit* m_caster) const
 
     if (IsTargetingArea())
     {
-        // dispel etc spells
-        switch(Effects[EFFECT_0].Effect)
+        /// Dispel etc spells
+        switch (Effects[EFFECT_0].Effect)
         {
             case SPELL_EFFECT_DISPEL:
             case SPELL_EFFECT_DISPEL_MECHANIC:
@@ -4236,9 +4221,7 @@ bool SpellInfo::IsLethalPoison() const
 {
     switch (Id)
     {
-        case 5760:  // Mind-Numbling Poison
         case 112961:// Leeching Poison
-        case 113952:// Paralytic Poison
             return true;
         default:
             break;

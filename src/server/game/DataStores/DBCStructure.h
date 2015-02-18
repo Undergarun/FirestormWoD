@@ -1696,12 +1696,11 @@ struct SpellItemEnchantmentEntry
     uint32  requiredSkill;                                  // 16       m_requiredSkillID
     uint32  requiredSkillValue;                             // 17       m_requiredSkillRank
     uint32  requiredLevel;                                  // 18       m_MinLevel
-    //uint32    m_MaxLevel;                                 // 19       m_MaxLevel
-    // uint32   m_ItemLevel;                                // 20       m_ItemLevel
-    // int32    m_ScalingClass;                             // 21       m_ScalingClass
-    // int32    m_ScalingClassRestricted                    // 22       m_ScalingClassRestricted
-    // float    m_EffectScalingPoints[3]                    // 23 -25   m_EffectScalingPoints
-
+    uint32  m_MaxLevel;                                     // 19       m_MaxLevel
+    uint32  m_ItemLevel;                                    // 20       m_ItemLevel
+    int32   m_ScalingClass;                                 // 21       m_ScalingClass
+    int32   m_ScalingClassRestricted;                       // 22       m_ScalingClassRestricted
+    float   m_EffectScalingPoints[3];                       // 23 -25   m_EffectScalingPoints
 };
 
 //@todo
@@ -1751,7 +1750,7 @@ struct TaxiNodesEntry
     char*   name;                                           // 5        m_Name_lang
     uint32  MountCreatureID[2];                             // 6-7      m_MountCreatureID[2]
     //uint32    m_ConditionID                               // 8        m_ConditionID
-    //uint32    m_Flags                                     // 9        m_Flags
+    uint32    m_Flags;                                      // 9        m_Flags
     //float     m_MapOffset                                 // 10       m_MapOffset
     //float     m_MapOffset                                 // 11       m_MapOffset
 };

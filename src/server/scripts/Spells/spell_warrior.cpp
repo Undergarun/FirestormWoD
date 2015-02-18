@@ -641,17 +641,17 @@ class spell_warr_mortal_strike: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                // Fix Apply Mortal strike buff on player only if he has the correct glyph
-                if (Player* _player = GetCaster()->ToPlayer())
+                /// Fix Apply Mortal strike buff on player only if he has the correct glyph
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (_player->HasAura(WARRIOR_SPELL_MORTAL_STRIKE_AURA) && !_player->HasAura(WARRIOR_SPELL_GLYPH_OF_MORTAL_STRIKE))
-                        _player->RemoveAura(WARRIOR_SPELL_MORTAL_STRIKE_AURA);
+                    if (l_Caster->HasAura(WARRIOR_SPELL_MORTAL_STRIKE_AURA) && !l_Caster->HasAura(WARRIOR_SPELL_GLYPH_OF_MORTAL_STRIKE))
+                        l_Caster->RemoveAura(WARRIOR_SPELL_MORTAL_STRIKE_AURA);
 
-                    if (_player->HasAura(WARRIOR_SPELL_TASTE_FOR_BLOOD))
+                    if (l_Caster->HasAura(WARRIOR_SPELL_TASTE_FOR_BLOOD))
                     {
-                        _player->AddComboPoints(1);
-                        _player->StartReactiveTimer(REACTIVE_OVERPOWER);
-                        _player->CastSpell(_player, WARRIOR_SPELL_ALLOW_OVERPOWER, true);
+                        l_Caster->AddComboPoints(1);
+                        l_Caster->StartReactiveTimer(REACTIVE_OVERPOWER);
+                        l_Caster->CastSpell(l_Caster, WARRIOR_SPELL_ALLOW_OVERPOWER, true);
                     }
                 }
             }
@@ -685,7 +685,7 @@ class spell_warr_rallying_cry: public SpellScriptLoader
                     int32 l_Bp0 = 0;
                     std::list<Unit*> l_MemberList;
 
-                    l_Player->GetPartyMembers(l_MemberList);
+                    l_Player->GetRaidMembers(l_MemberList);
 
                     for (auto l_Itr : l_MemberList)
                     {
@@ -886,8 +886,6 @@ class spell_warr_bloodthirst: public SpellScriptLoader
 
                         const SpellInfo *l_SpellInfo = sSpellMgr->GetSpellInfo(WARRIOR_SPELL_BLOODSURGE);
 
-                        if (l_SpellInfo != nullptr && l_Caster->HasSpell(WARRIOR_SPELL_WILD_STRIKE) && roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
-                            l_Caster->CastSpell(l_Caster, WARRIOR_SPELL_BLOODSURGE_PROC, true);
                         if (l_SpellInfo != nullptr && l_Caster->HasAura(WARRIOR_SPELL_BLOODSURGE) && roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
                             l_Caster->CastSpell(l_Caster, WARRIOR_SPELL_BLOODSURGE_PROC, true);
                     }
@@ -1548,6 +1546,7 @@ public:
 enum EnhancedRendSpells
 {
     SPELL_WARR_ENHANCED_REND_DAMAGE = 174736,
+    SPELL_WARR_REND_FINAL_BURST     = 94009,
     SPELL_WARR_REND                 = 772
 };
 
@@ -1584,6 +1583,44 @@ class spell_warr_enhanced_rend: public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_warr_enhanced_rend_AuraScript();
+        }
+};
+
+// Rend - 772
+class spell_warr_rend : public SpellScriptLoader
+{
+    public:
+        spell_warr_rend() : SpellScriptLoader("spell_warr_rend") { }
+
+        class spell_warr_rend_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_rend_AuraScript);
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Owner = GetUnitOwner();
+                Unit* l_Target = GetTarget();
+
+                if (l_Owner == nullptr || l_Target == nullptr)
+                    return;
+
+                AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
+
+                if (l_RemoveMode != AURA_REMOVE_BY_EXPIRE)
+                    return;
+
+                l_Owner->CastSpell(l_Target, SPELL_WARR_REND_FINAL_BURST, true);
+            }
+
+            void Register()
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_warr_rend_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_rend_AuraScript();
         }
 };
 
@@ -1692,6 +1729,7 @@ class spell_warr_blood_craze : public SpellScriptLoader
 
 void AddSC_warrior_spell_scripts()
 {
+    new spell_warr_rend();
     new spell_warr_slam();
     new spell_warr_victorious_state();
     new spell_warr_glyph_of_hindering_strikes();

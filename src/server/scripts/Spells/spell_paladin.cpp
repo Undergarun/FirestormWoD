@@ -718,15 +718,14 @@ class spell_pal_seal_of_insight: public SpellScriptLoader
         {
             PrepareSpellScript(spell_pal_seal_of_insight_SpellScript);
 
-            void HandleOnHit()
+            void HandleOnHit(SpellEffIndex)
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    _player->SetHealth(uint32(_player->GetHealth()) + 0.16f * _player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL));
+                // Needs a glyph script later for now its disabled in spellmgr
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_pal_seal_of_insight_SpellScript::HandleOnHit);
+            //    OnEffectHitTarget += SpellEffectFn(spell_pal_seal_of_insight_SpellScript::HandleOnHit, EFFECT_1, SPELL_EFFECT_HEAL);
             }
         };
 
@@ -2174,51 +2173,48 @@ public:
 // Light of Dawn - 85222
 class spell_pal_light_of_dawn : public SpellScriptLoader
 {
-public:
-    spell_pal_light_of_dawn() : SpellScriptLoader("spell_pal_light_of_dawn") { }
+    public:
+        spell_pal_light_of_dawn() : SpellScriptLoader("spell_pal_light_of_dawn") { }
 
-    class spell_pal_light_of_dawn_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_pal_light_of_dawn_SpellScript);
-
-        int32 m_HolyPower = 0;
-
-        void HandleOnCast()
+        class spell_pal_light_of_dawn_SpellScript : public SpellScript
         {
-            if (Player* l_Player = GetCaster()->ToPlayer())
-                m_HolyPower = l_Player->GetPower(POWER_HOLY_POWER);
-        }
+            PrepareSpellScript(spell_pal_light_of_dawn_SpellScript);
 
-        void HandleHeal(SpellEffIndex /*effIndex*/)
-        {
-            if (Player* l_Player = GetCaster()->ToPlayer())
+            int32 m_HolyPower = 0;
+
+            void HandleOnCast()
             {
-                if (Unit* l_Target = GetHitUnit())
-                {
-                    l_Player->SetPower(POWER_HOLY_POWER, m_HolyPower);
+                if (Unit* l_Caster = GetCaster())
+                    m_HolyPower = l_Caster->GetPower(POWER_HOLY_POWER);
+            }
 
-                    if (m_HolyPower > 3 || l_Player->HasAura(PALADIN_SPELL_DIVINE_PURPOSE_AURA))
+            void HandleHeal(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    l_Caster->SetPower(POWER_HOLY_POWER, m_HolyPower);
+
+                    if (m_HolyPower > 3 || l_Caster->HasAura(PALADIN_SPELL_DIVINE_PURPOSE_AURA))
                         m_HolyPower = 3;
 
                     SetHitHeal(GetHitHeal() * m_HolyPower);
 
-                    if (!l_Player->HasAura(PALADIN_SPELL_DIVINE_PURPOSE_AURA))
-                        l_Player->ModifyPower(POWER_HOLY_POWER, -m_HolyPower);
+                    if (!l_Caster->HasAura(PALADIN_SPELL_DIVINE_PURPOSE_AURA))
+                        l_Caster->ModifyPower(POWER_HOLY_POWER, -m_HolyPower);
                 }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                OnCast += SpellCastFn(spell_pal_light_of_dawn_SpellScript::HandleOnCast);
+                OnEffectHitTarget += SpellEffectFn(spell_pal_light_of_dawn_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnCast += SpellCastFn(spell_pal_light_of_dawn_SpellScript::HandleOnCast);
-            OnEffectHitTarget += SpellEffectFn(spell_pal_light_of_dawn_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+            return new spell_pal_light_of_dawn_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_pal_light_of_dawn_SpellScript();
-    }
 };
 
 // Enhanced Holy Shock - 157478

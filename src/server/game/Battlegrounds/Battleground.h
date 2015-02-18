@@ -52,6 +52,16 @@ namespace MS
                 Value = 2
             };
         }
+
+        /// Correponds to the spells related to battlegrounds.        
+        namespace Spells
+        {
+            enum Type
+            {
+                DeserterBuff = 26013
+            };
+        }
+
         /// This enum is for INTERNAL purpose, do not use it as a client battleground type id.
         namespace BattlegroundType
         {

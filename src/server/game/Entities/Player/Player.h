@@ -2049,13 +2049,6 @@ class Player : public Unit, public GridObject<Player>
         Player* GetSelectedPlayer() const;
         void SetSelection(uint64 guid) { m_curSelection = guid; SetGuidValue(UNIT_FIELD_TARGET, guid); }
 
-        uint8 GetComboPoints() const { return m_comboPoints; }
-
-        void AddComboPoints(int8 count, Spell* spell = NULL);
-        void GainSpellComboPoints(int8 count);
-        void ClearComboPoints();
-        void SendComboPoints();
-
         void SendMailResult(uint32 mailId, MailResponseType mailAction, MailResponseResult mailError, uint32 equipError = 0, uint32 item_guid = 0, uint32 item_count = 0);
         void SendNewMail();
         void UpdateNextMailTimeAndUnreads();
@@ -3427,16 +3420,6 @@ class Player : public Unit, public GridObject<Player>
             m_CriticalOperationLock.release();
         }
 
-        //////////////////////////////////////////////////////////////////////////
-        /// Eclipse System
-        bool IsEclipseCyclesActive() const { return m_EclipseCycleActive; }
-        void SetEclipseCyclesState(bool p_State) { m_EclipseCycleActive = p_State; }
-        IntervalTimer& GetEclipseTimer() { return m_EclipseTimer; }
-        uint8 GetLastEclipseState() const { return m_LastEclipseState; }
-        void SetLastEclipseState(uint8 p_EclipseState) { m_LastEclipseState = p_EclipseState; }
-        bool HasEclipseSideAvantage(uint8 p_EclipseState) const;
-        //////////////////////////////////////////////////////////////////////////
-
     protected:
         void OnEnterPvPCombat();
         void OnLeavePvPCombat();
@@ -3461,10 +3444,8 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_regenTimerCount;
         uint32 m_holyPowerRegenTimerCount;
         uint32 m_chiPowerRegenTimerCount;
-        uint32 m_burningEmbersRegenTimerCount;
         uint32 m_soulShardsRegenTimerCount;
         uint32 m_focusRegenTimerCount;
-        uint32 m_EclipseRegenTimer;
         uint32 m_demonicFuryPowerRegenTimerCount;
         float m_powerFraction[MAX_POWERS_PER_CLASS];
         uint32 m_contestedPvPTimer;
@@ -3614,8 +3595,6 @@ class Player : public Unit, public GridObject<Player>
 
         uint32 m_ExtraFlags;
         uint64 m_curSelection;
-
-        int8 m_comboPoints;
 
         QuestStatusMap m_QuestStatus;
         QuestObjectiveStatusMap m_questObjectiveStatus;
@@ -3900,13 +3879,6 @@ class Player : public Unit, public GridObject<Player>
         /// Vignette
         //////////////////////////////////////////////////////////////////////////
         Vignette::Manager m_VignetteMgr;
-
-        /*********************************************************/
-        /***                  ECLIPSE SYSTEM                   ***/
-        /*********************************************************/
-        bool m_EclipseCycleActive;
-        IntervalTimer m_EclipseTimer;
-        uint8 m_LastEclipseState;
 };
 
 void AddItemsSetItem(Player*player, Item* item);

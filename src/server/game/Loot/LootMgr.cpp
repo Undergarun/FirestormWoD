@@ -971,7 +971,7 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
 
     uint8 l_ItemCount       = 0;
     uint8 l_CurrencyCount   = 0;
-    uint8 l_UIType          = LOOT_ITEM_UI_MASTER;
+    uint8 l_UIType          = LOOT_ITEM_UI_NORMAL;
 
     ByteBuffer l_ItemsDataBuffer;
 
@@ -1489,7 +1489,7 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                     l_CurrenciesDataBuffer << uint32(0);
                 l_CurrenciesDataBuffer << uint32(item.count);
                 l_CurrenciesDataBuffer << uint8(ci->index);
-                l_CurrenciesDataBuffer.WriteBits(LOOT_ITEM_UI_MASTER, 3);
+                l_CurrenciesDataBuffer.WriteBits(LOOT_ITEM_UI_NORMAL, 3);
                 l_CurrenciesDataBuffer.FlushBits();
 
                 ++l_CurrencyCount;

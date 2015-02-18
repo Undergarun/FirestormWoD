@@ -46,7 +46,7 @@ enum WarlockSpells
     WARLOCK_AGONY                           = 980,
     //WARLOCK_DOOM                            = 603,
     WARLOCK_UNSTABLE_AFFLICTION             = 30108,
-    WARLOCK_IMMOLATE                        = 348,
+    WARLOCK_IMMOLATE                        = 157736,
     WARLOCK_SHADOWBURN_ENERGIZE             = 125882,
     WARLOCK_CONFLAGRATE                     = 17962,
     WARLOCK_CONFLAGRATE_FIRE_AND_BRIMSTONE  = 108685,
@@ -457,8 +457,8 @@ class spell_warl_soulburn_seed_of_corruption: public SpellScriptLoader
         }
 };
 
-// Called by Soulburn : Curse of Enfeeblement - 109468 and Soulburn : Curse of Exhaustion - 104223
-// Soulburn - 74434
+/// Curse of exhaustion is removed in  6.0.2 please clean me
+/// Soulburn - 74434
 class spell_warl_soulburn_override: public SpellScriptLoader
 {
     public:
@@ -555,20 +555,42 @@ class spell_warl_imp_swarm: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_imp_swarm_SpellScript);
 
+            SpellCastResult CheckSpec()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return SPELL_FAILED_DONT_REPORT;
+
+                if (l_Caster->GetTypeId() != TYPEID_PLAYER)
+                    return SPELL_FAILED_DONT_REPORT;
+
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_WARLOCK_DEMONOLOGY)
+                    return SPELL_FAILED_DONT_REPORT;
+
+                return SPELL_CAST_OK;
+            }
+
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (Unit* caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
                         for (uint8 i = 0; i < GetEffectValue(); i++)
-                            caster->CastSpell(target, WARLOCK_WILD_IMP_SUMMON, true);
+                        {
+                            l_Caster->AddAura(WARLOCK_DEMONIC_CALL, l_Caster);
+                            l_Caster->CastSpell(l_Target, WARLOCK_WILD_IMP_SUMMON, true);
+                        }
                     }
                 }
             }
 
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_warl_imp_swarm_SpellScript::CheckSpec);
                 OnEffectHitTarget += SpellEffectFn(spell_warl_imp_swarm_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
@@ -659,24 +681,24 @@ class spell_warl_rain_of_fire_damage: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_rain_of_fire_damage_SpellScript);
 
-            void HandleOnHit()
+            void HandleOnHitUnit(SpellEffIndex /*p_EffIndex*/)
             {
-                if (Unit* target = GetHitUnit())
+                if (Unit* l_Target = GetHitUnit())
                 {
                     // Deals 50% additional damage if the target is immolated.
-                    if (target->HasAura(WARLOCK_IMMOLATE) || target->HasAura(WARLOCK_IMMOLATE_FIRE_AND_BRIMSTONE))
+                    if (l_Target->HasAura(WARLOCK_IMMOLATE) || l_Target->HasAura(WARLOCK_IMMOLATE_FIRE_AND_BRIMSTONE))
                     {
-                        int32 damage = GetHitDamage();
+                        int32 l_Damage = GetHitDamage();
 
-                        AddPct(damage, 50);
-                        SetHitDamage(damage);
+                        AddPct(l_Damage, 50);
+                        SetHitDamage(l_Damage);
                     }
                 }
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_warl_rain_of_fire_damage_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_warl_rain_of_fire_damage_SpellScript::HandleOnHitUnit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
@@ -833,148 +855,49 @@ class spell_warl_grimoire_of_sacrifice: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_grimoire_of_sacrifice_AuraScript);
 
-            void CalculateEffectAmount2(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            void CalculateEffectAmountDestruction(constAuraEffectPtr /*aurEff*/, int32 & p_Amount, bool & /*canBeRecalculated*/)
             {
-                if (!GetUnitOwner())
+                Unit* l_Owner = GetUnitOwner();
+
+                if (l_Owner == nullptr)
                     return;
 
-                if (Player* target = GetUnitOwner()->ToPlayer())
+                if (Player* l_Target = l_Owner->ToPlayer())
                 {
-                    if (target->GetSpecializationId(target->GetActiveSpec()) != SPEC_WARLOCK_AFFLICTION)
-                        amount = 0;
+                    if (l_Target->GetSpecializationId(l_Target->GetActiveSpec()) != SPEC_WARLOCK_DESTRUCTION)
+                        p_Amount = 0;
                 }
             }
 
-            void CalculateEffectAmount3(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            void CalculateEffectAmountAffliction(constAuraEffectPtr /*aurEff*/, int32 & p_Amount, bool & /*canBeRecalculated*/)
             {
-                if (!GetUnitOwner())
+                Unit* l_Owner = GetUnitOwner();
+
+                if (l_Owner == nullptr)
                     return;
 
-                if (Player* target = GetUnitOwner()->ToPlayer())
+                if (Player* l_Target = l_Owner->ToPlayer())
                 {
-                    if (target->GetSpecializationId(target->GetActiveSpec()) != SPEC_WARLOCK_DEMONOLOGY)
-                        amount = 0;
-                }
-            }
-
-            void CalculateEffectAmount4(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
-            {
-                if (!GetUnitOwner())
-                    return;
-
-                if (Player* target = GetUnitOwner()->ToPlayer())
-                {
-                    if (target->GetSpecializationId(target->GetActiveSpec()) != SPEC_WARLOCK_DESTRUCTION)
-                        amount = 0;
-                }
-            }
-
-            void CalculateEffectAmount5(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
-            {
-                if (!GetUnitOwner())
-                    return;
-
-                if (Player* target = GetUnitOwner()->ToPlayer())
-                {
-                    if (target->GetSpecializationId(target->GetActiveSpec()) != SPEC_WARLOCK_AFFLICTION)
-                        amount = 0;
-                }
-            }
-
-            void CalculateEffectAmount6(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
-            {
-                if (!GetUnitOwner())
-                    return;
-
-                if (Player* target = GetUnitOwner()->ToPlayer())
-                {
-                    if (!target->HasSpell(WARLOCK_SOUL_LINK_TALENT))
-                        amount = 0;
-                }
-            }
-
-            void CalculateEffectAmount7(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
-            {
-                if (!GetUnitOwner())
-                    return;
-
-                if (Player* target = GetUnitOwner()->ToPlayer())
-                {
-                    if (target->GetSpecializationId(target->GetActiveSpec()) != SPEC_WARLOCK_AFFLICTION)
-                        amount = 0;
-                }
-            }
-
-            void CalculateEffectAmount8(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
-            {
-                if (!GetUnitOwner())
-                    return;
-
-                if (Player* target = GetUnitOwner()->ToPlayer())
-                {
-                    if (target->GetSpecializationId(target->GetActiveSpec()) != SPEC_WARLOCK_AFFLICTION)
-                        amount = 0;
-                }
-            }
-
-            void CalculateEffectAmount9(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
-            {
-                if (!GetUnitOwner())
-                    return;
-
-                if (Player* target = GetUnitOwner()->ToPlayer())
-                {
-                    if (target->GetSpecializationId(target->GetActiveSpec()) != SPEC_WARLOCK_DEMONOLOGY)
-                        amount = 0;
-                }
-            }
-
-            void CalculateEffectAmount10(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
-            {
-                if (!GetUnitOwner())
-                    return;
-
-                if (Player* target = GetUnitOwner()->ToPlayer())
-                {
-                    if (target->GetSpecializationId(target->GetActiveSpec()) != SPEC_WARLOCK_DESTRUCTION)
-                        amount = 0;
-                }
-            }
-
-            void CalculateEffectAmount11(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
-            {
-                if (!GetUnitOwner())
-                    return;
-
-                if (Player* target = GetUnitOwner()->ToPlayer())
-                {
-                    if (target->GetSpecializationId(target->GetActiveSpec()) != SPEC_WARLOCK_DESTRUCTION)
-                        amount = 0;
+                    if (l_Target->GetSpecializationId(l_Target->GetActiveSpec()) != SPEC_WARLOCK_AFFLICTION)
+                        p_Amount = 0;
                 }
             }
 
             void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (!GetTarget())
+                Unit* l_Target = GetTarget();
+
+                if (l_Target == nullptr)
                     return;
 
-                if (Player* _player = GetTarget()->ToPlayer())
-                    if (_player->HasAura(WARLOCK_SUPPLANT_DEMONIC_COMMAND))
-                        _player->RemoveAura(WARLOCK_SUPPLANT_DEMONIC_COMMAND);
+                if (l_Target->HasAura(WARLOCK_SUPPLANT_DEMONIC_COMMAND))
+                    l_Target->RemoveAura(WARLOCK_SUPPLANT_DEMONIC_COMMAND);
             }
 
             void Register()
             {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_grimoire_of_sacrifice_AuraScript::CalculateEffectAmount2, EFFECT_2, SPELL_AURA_ADD_PCT_MODIFIER);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_grimoire_of_sacrifice_AuraScript::CalculateEffectAmount3, EFFECT_3, SPELL_AURA_ADD_PCT_MODIFIER);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_grimoire_of_sacrifice_AuraScript::CalculateEffectAmount4, EFFECT_4, SPELL_AURA_ADD_PCT_MODIFIER);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_grimoire_of_sacrifice_AuraScript::CalculateEffectAmount5, EFFECT_5, SPELL_AURA_ADD_PCT_MODIFIER);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_grimoire_of_sacrifice_AuraScript::CalculateEffectAmount6, EFFECT_6, SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_grimoire_of_sacrifice_AuraScript::CalculateEffectAmount7, EFFECT_7, SPELL_AURA_ADD_PCT_MODIFIER);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_grimoire_of_sacrifice_AuraScript::CalculateEffectAmount8, EFFECT_8, SPELL_AURA_ADD_PCT_MODIFIER);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_grimoire_of_sacrifice_AuraScript::CalculateEffectAmount9, EFFECT_9, SPELL_AURA_ADD_PCT_MODIFIER);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_grimoire_of_sacrifice_AuraScript::CalculateEffectAmount10, EFFECT_10, SPELL_AURA_ADD_PCT_MODIFIER);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_grimoire_of_sacrifice_AuraScript::CalculateEffectAmount11, EFFECT_11, SPELL_AURA_ADD_FLAT_MODIFIER);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_grimoire_of_sacrifice_AuraScript::CalculateEffectAmountDestruction, EFFECT_3, SPELL_AURA_ADD_PCT_MODIFIER);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_grimoire_of_sacrifice_AuraScript::CalculateEffectAmountAffliction, EFFECT_4, SPELL_AURA_ADD_PCT_MODIFIER);
                 OnEffectRemove += AuraEffectApplyFn(spell_warl_grimoire_of_sacrifice_AuraScript::HandleRemove, EFFECT_1, SPELL_AURA_OBS_MOD_HEALTH, AURA_EFFECT_HANDLE_REAL);
             }
         };
@@ -1353,10 +1276,11 @@ class spell_warl_dark_bargain: public SpellScriptLoader
                 amount = -1;
             }
 
-            void Absorb(AuraEffectPtr /*auraEffect*/, DamageInfo& dmgInfo, uint32& absorbAmount)
+            void Absorb(AuraEffectPtr auraEffect, DamageInfo& dmgInfo, uint32& absorbAmount)
             {
                 absorbedAmount += dmgInfo.GetDamage();
                 absorbAmount = dmgInfo.GetDamage();
+                auraEffect->SetAmount(absorbAmount + absorbedAmount);
             }
 
             void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
@@ -1827,6 +1751,60 @@ class spell_warl_drain_soul: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_drain_soul_AuraScript);
 
+            void HandlePeriodicDamage(AuraEffectPtr p_AurEff)
+            {
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                std::list<Unit*> l_TargetList;
+
+                p_AurEff->GetTargetList(l_TargetList);
+                for (auto l_Target : l_TargetList)
+                {
+                    if (l_Caster->getLevel() >= 92 && l_Caster->HasSpell(SPELL_WARL_IMPROVED_DRAIN_SOUL) && l_Target->GetHealthPct() < 20)
+                    {
+                        if (SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_WARL_IMPROVED_DRAIN_SOUL))
+                            p_AurEff->SetAmount(p_AurEff->GetAmount() + CalculatePct(p_AurEff->GetAmount(), l_SpellInfo->Effects[EFFECT_0].BasePoints));
+                    }
+
+                    Unit::AuraEffectList const& l_AuraList = l_Target->GetAuraEffectsByType(AuraType::SPELL_AURA_PERIODIC_DAMAGE);
+                    if (l_AuraList.empty())
+                        return;
+
+                    for (Unit::AuraEffectList::const_iterator l_AuraEffect = l_AuraList.begin(); l_AuraEffect != l_AuraList.end(); ++l_AuraEffect)
+                    {
+                        if ((*l_AuraEffect)->GetCasterGUID() != l_Caster->GetGUID())
+                            continue;
+
+                        uint32 l_SpellId = 0;
+                        switch ((*l_AuraEffect)->GetId())
+                        {
+                            case 146739: ///< Corruption
+                                l_SpellId = 131740;
+                                break;
+                            case 30108: ///< Unstable Affliction
+                                l_SpellId = 131736;
+                                break;
+                            case 27243: ///< Seed of Corruption
+                                l_SpellId = 132566;
+                                break;
+                            case 980: ///< Agony
+                                l_SpellId = 131737;
+                                break;
+                            default:
+                                break;
+                        }
+
+                        if (!l_SpellId)
+                            return;
+
+                        int32 l_Bp0 = CalculatePct((*l_AuraEffect)->GetAmount(), GetSpellInfo()->Effects[EFFECT_2].BasePoints);
+                        l_Caster->CastCustomSpell(l_Target, l_SpellId, &l_Bp0, NULL, NULL, true);
+                    }
+                }
+            }
+
             void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Target = GetTarget();
@@ -1838,27 +1816,11 @@ class spell_warl_drain_soul: public SpellScriptLoader
                                 l_Caster->ModifyPower(POWER_SOUL_SHARDS, 1 * l_Caster->GetPowerCoeff(POWER_SOUL_SHARDS));
             }
 
-            void HandleEffectPeriodicUpdate(AuraEffectPtr p_AurEff)
-            {
-                std::list<Unit*> l_TargetList;
-                p_AurEff->GetTargetList(l_TargetList);
-
-                if (Unit* l_Caster = GetCaster())
-                    if (l_Caster->getLevel() >= 92 && l_Caster->HasSpell(SPELL_WARL_IMPROVED_DRAIN_SOUL))
-                    {
-                        for (auto itr : l_TargetList)
-                            if (itr != nullptr && itr->GetHealthPct() < 20)
-                            {
-                                if (SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_WARL_IMPROVED_DRAIN_SOUL))
-                                    p_AurEff->SetAmount(p_AurEff->GetAmount() + CalculatePct(p_AurEff->GetAmount(), l_SpellInfo->Effects[EFFECT_0].BasePoints));
-                            }
-                    }
-            }
-
             void Register()
             {
-                OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_warl_drain_soul_AuraScript::HandleEffectPeriodicUpdate, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+                OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_warl_drain_soul_AuraScript::HandlePeriodicDamage, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
                 OnEffectRemove += AuraEffectApplyFn(spell_warl_drain_soul_AuraScript::HandleRemove, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+
             }
         };
 
@@ -2040,7 +2002,6 @@ class spell_warl_ember_tap: public SpellScriptLoader
 };
 
 // Called By : Incinerate (Fire and Brimstone) - 114654, Conflagrate (Fire and Brimstone) - 108685
-// Curse of the Elements (Fire and Brimstone) - 104225, Curse of Enfeeblement (Fire and Brimstone) - 109468
 // Immolate (Fire and Brimstone) - 108686
 // Fire and Brimstone - 108683
 class spell_warl_fire_and_brimstone: public SpellScriptLoader
@@ -2148,6 +2109,7 @@ class spell_warl_shadowburn: public SpellScriptLoader
 
 enum BurningEmbersSpells
 {
+    SPELL_WARL_GLYPH_OF_VERDANT_SPHERES = 56241,
     SPELL_WARL_CHARRED_REMAINS = 157696
 };
 
@@ -2192,6 +2154,122 @@ class spell_warl_burning_embers: public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_warl_burning_embers_SpellScript();
+        }
+};
+
+class spell_warl_burning_embers_regen : public PlayerScript
+{
+    public:
+        spell_warl_burning_embers_regen() : PlayerScript("spell_warl_burning_embers_regen")
+        {
+            m_LastCombat = 0;
+            m_RegenTimer = 2000;
+        }
+
+        uint64 m_LastCombat; ///< Timestamp at when leaving last combat
+        uint32 m_RegenTimer; ///< Timer in millisecondes we regenate the burnign embers
+
+        void OnLeaveCombat(Player* p_Player)
+        {
+            if (p_Player == nullptr
+                || p_Player->getClass() != Classes::CLASS_WARLOCK
+                || p_Player->GetSpecializationId(p_Player->GetActiveSpec()) != SpecIndex::SPEC_WARLOCK_DESTRUCTION)
+                return;
+
+            m_LastCombat = getMSTime();
+        }
+
+        /// Handle regeneration of burning embers
+        /// Call at each update tick (100 ms)
+        void OnUpdate(Player * p_Player, uint32 p_Diff)
+        {
+            if (p_Player == nullptr
+                || p_Player->getClass() != Classes::CLASS_WARLOCK
+                || p_Player->GetSpecializationId(p_Player->GetActiveSpec()) != SpecIndex::SPEC_WARLOCK_DESTRUCTION)
+                return;
+
+            if (m_RegenTimer <= p_Diff)
+            {
+                /// After 25s out of combat...
+                if (p_Player->isInCombat() || (m_LastCombat != 0 && GetMSTimeDiffToNow(m_LastCombat) < (25 * IN_MILLISECONDS)))
+                    return;
+
+                int32 l_CurrentPower = p_Player->GetPower(POWER_BURNING_EMBERS);
+
+                /// ...return to one embers if no one
+                /// or return to one if more than one
+                if (l_CurrentPower < (1 * p_Player->GetPowerCoeff(POWER_BURNING_EMBERS)))
+                    p_Player->SetPower(POWER_BURNING_EMBERS, l_CurrentPower + 1, true);
+                else if (l_CurrentPower > (1 * p_Player->GetPowerCoeff(POWER_BURNING_EMBERS)))
+                    p_Player->SetPower(POWER_BURNING_EMBERS, l_CurrentPower - 1, true);
+
+                m_RegenTimer = 2 * IN_MILLISECONDS;
+            }
+            else
+                m_RegenTimer -= p_Diff;
+        }
+
+        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool /*p_Regen*/)
+        {
+            if (p_Player == nullptr
+                || p_Player->getClass() != Classes::CLASS_WARLOCK
+                || p_Player->GetSpecializationId(p_Player->GetActiveSpec()) != SpecIndex::SPEC_WARLOCK_DESTRUCTION
+                || p_Power != POWER_BURNING_EMBERS)
+                return;
+
+            if (p_Player->HasAura(SPELL_WARL_GLYPH_OF_VERDANT_SPHERES))
+            {
+                if (p_NewValue < (2 * p_Player->GetPowerCoeff(POWER_BURNING_EMBERS)))
+                {
+                    p_Player->RemoveAura(123728); ///< 2 shards visual
+                    p_Player->RemoveAura(123730); ///< 3 shards visual
+                    p_Player->RemoveAura(123731); ///< 4 shards visual
+                }
+                else if (p_NewValue < (3 * p_Player->GetPowerCoeff(POWER_BURNING_EMBERS)))
+                {
+                    p_Player->CastSpell(p_Player, 123728, true); ///< 2 shards visual
+                    p_Player->RemoveAura(123730);                ///< 3 shards visual
+                    p_Player->RemoveAura(123731);                ///< 4 shards visual
+                }
+                else if (p_NewValue < (4 * p_Player->GetPowerCoeff(POWER_BURNING_EMBERS)))
+                {
+                    p_Player->CastSpell(p_Player, 123728, true); ///< 2 shards visual
+                    p_Player->CastSpell(p_Player, 123730, true); ///< 3 shards visual
+                    p_Player->RemoveAura(123731);                ///< 4 shards visual
+                }
+                else if (p_NewValue >= (4 * p_Player->GetPowerCoeff(POWER_BURNING_EMBERS)))
+                {
+                    p_Player->CastSpell(p_Player, 123728, true); ///< 2 shards visual
+                    p_Player->CastSpell(p_Player, 123730, true); ///< 3 shards visual
+                    p_Player->CastSpell(p_Player, 123731, true); ///< 4 shards visual
+                }
+            }
+            else
+            {
+                if (p_NewValue < (2 * p_Player->GetPowerCoeff(POWER_BURNING_EMBERS)))
+                {
+                    p_Player->CastSpell(p_Player, 116856, true); ///< Remove visual for 2,3,4 shards
+                }
+                else if (p_NewValue < (3 * p_Player->GetPowerCoeff(POWER_BURNING_EMBERS)))
+                {
+                    p_Player->CastSpell(p_Player, 116854, true);  ///< 2 shards visual
+                    p_Player->RemoveAura(116855);                 ///< 3 shards visual
+                    p_Player->RemoveAura(116920);                 ///< 4 shards visual
+                }
+                else if (p_NewValue < (4 * p_Player->GetPowerCoeff(POWER_BURNING_EMBERS)))
+                {
+                    p_Player->CastSpell(p_Player, 116854, true); ///< 2 shards visual
+                    p_Player->CastSpell(p_Player, 116855, true); ///< 3 shards visual
+                    p_Player->RemoveAura(116920);                ///< 4 shards visual
+                }
+                else if (p_NewValue >= (4 * p_Player->GetPowerCoeff(POWER_BURNING_EMBERS)))
+                {
+                    p_Player->CastSpell(p_Player, 116854, true); ///< 2 shards visual
+                    p_Player->CastSpell(p_Player, 116855, true); ///< 3 shards visual
+                    p_Player->CastSpell(p_Player, 116920, true); ///< 4 shards visual
+                }
+            }
+
         }
 };
 
@@ -2898,6 +2976,39 @@ public:
     }
 };
 
+enum HavocSpells
+{
+    SPELL_GLYPH_OF_HAVOC    = 146962,
+};
+
+// Havoc - 80240 
+class spell_warl_havoc: public SpellScriptLoader
+{
+    public:
+        spell_warl_havoc() : SpellScriptLoader("spell_warl_havoc") { }
+
+        class spell_warl_havoc_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_havoc_AuraScript);
+
+            void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                // Set to max at apply
+                uint8 l_Charges = GetCaster()->HasAura(SPELL_GLYPH_OF_HAVOC) ? 6 : 3;
+                aurEff->GetBase()->SetStackAmount(l_Charges);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_warl_havoc_AuraScript::OnApply, EFFECT_1, SPELL_AURA_ADD_FLAT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_havoc_AuraScript();
+        }
+};
 
 void AddSC_warlock_spell_scripts()
 {
@@ -2951,6 +3062,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_conflagrate_aura();
     new spell_warl_shadowburn();
     new spell_warl_burning_embers();
+    new spell_warl_burning_embers_regen();
     new spell_warl_drain_life();
     new spell_warl_soul_harverst();
     new spell_warl_life_tap();
@@ -2962,4 +3074,5 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_demonic_circle_summon();
     new spell_warl_demonic_circle_teleport();
     new spell_warl_unstable_affliction();
+    new spell_warl_havoc();
 }
