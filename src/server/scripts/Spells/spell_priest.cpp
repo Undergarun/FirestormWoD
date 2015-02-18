@@ -3008,6 +3008,61 @@ class at_pri_divine_star : public AreaTriggerEntityScript
         std::map<uint64, uint32> m_Cooldows;
 };
 
+enum TwistOfFateSpells
+{
+    SPELL_PRI_TWIST_OF_FATE_PROC = 123254
+};
+
+/// Twist of Fate - 109142
+class spell_pri_twist_of_fate : public SpellScriptLoader
+{
+public:
+    spell_pri_twist_of_fate() : SpellScriptLoader("spell_pri_twist_of_fate") { }
+
+    class spell_pri_twist_of_fate_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pri_twist_of_fate_AuraScript);
+
+        void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+        {
+            PreventDefaultAction();
+
+            if (!GetCaster())
+                return;
+
+            Player* l_Caster = GetCaster()->ToPlayer();
+            if (!l_Caster)
+                return;
+
+            /// GetDamageInfo and GetHealInfo contain the same infos no matter if it's a heal or damage spell
+            SpellInfo const* l_SpellInfoProcSpell = p_EventInfo.GetDamageInfo()->GetSpellInfo();
+            if (!l_SpellInfoProcSpell)
+                return;
+
+            if ((l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) == SPEC_PRIEST_SHADOW && l_SpellInfoProcSpell->IsPositive()) ||
+                (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) != SPEC_PRIEST_SHADOW && !l_SpellInfoProcSpell->IsPositive()))
+                return;
+
+            Unit* l_Target = p_EventInfo.GetActionTarget();
+            if (!l_Target || l_Target == l_Caster || l_Target->GetHealthPct() > p_AurEff->GetAmount())
+                return;
+
+            l_Caster->CastSpell(l_Caster, SPELL_PRI_TWIST_OF_FATE_PROC, true);
+        }
+
+        void Register()
+        {
+            OnEffectProc += AuraEffectProcFn(spell_pri_twist_of_fate_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_pri_twist_of_fate_AuraScript();
+    }
+};
+
+
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_glyphe_of_mind_blast();
@@ -3070,6 +3125,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_levitate();
     new spell_pri_flash_heal();
     new spell_pri_words_of_mending();
+    new spell_pri_twist_of_fate();
 
     /// Player Script
     new PlayerScript_Shadow_Orb();

@@ -9760,19 +9760,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
 
             break;
         }
-        case 109142:// Twist of Fate
-        {
-            if (!victim)
-                return false;
-
-            if (!procSpell)
-                return false;
-
-            if (victim->GetHealthPct() > 35.0f)
-                return false;
-
-            break;
-        }
         // Item - Dragon Soul Legendary Daggers
         case 109939:
         {
