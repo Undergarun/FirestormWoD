@@ -5,8 +5,8 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
-#include "TheForge.hpp"
-#include "TheForge_Level1Data.hpp"
+#include "ATheForge.hpp"
+#include "ATheForge_Level1Data.hpp"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"

@@ -5,8 +5,8 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
-#include "FishingHut.hpp"
-#include "FishingHut_Level1Data.hpp"
+#include "AFishingHut.hpp"
+#include "AFishingHut_Level1Data.hpp"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"

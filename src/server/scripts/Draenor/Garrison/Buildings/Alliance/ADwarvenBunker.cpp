@@ -5,8 +5,8 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
-#include "DwarvenBunker.hpp"
-#include "DwarvenBunker_Level1Data.hpp"
+#include "ADwarvenBunker.hpp"
+#include "ADwarvenBunker_Level1Data.hpp"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
@@ -46,7 +46,7 @@ namespace MS { namespace Garrison
                     p_This->SetFacingBuildingRelative(GussofForgefire_Level1::MovePointLoc[GussofForgefire_Level1::MovePointIDs::Stairs4 - GussofForgefire_Level1::MovePointIDs::Nothing].O);
                 });
 
-                p_This->AddTimedDelayedOperation(0 * IN_MILLISECONDS, [p_Me]() -> void { p_Me->HandleEmoteCommand(EMOTE_STATE_USE_STANDING_NO_SHEATHE); });
+                p_This->AddTimedDelayedOperation(0 * IN_MILLISECONDS,                                [p_Me]() -> void { p_Me->HandleEmoteCommand(EMOTE_STATE_USE_STANDING_NO_SHEATHE); });
                 p_This->AddTimedDelayedOperation(GussofForgefire_Level1::DestPointDuration::Stairs4, [p_Me]() -> void
                 {
                     p_Me->HandleEmoteCommand(0);

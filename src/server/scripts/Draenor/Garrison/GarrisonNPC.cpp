@@ -13,10 +13,11 @@
 #include "Spell.h"
 #include "GarrisonMgr.hpp"
 
-#include "Buildings/Alliance/FishingHut.hpp"
-#include "Buildings/Alliance/LunarfallExcavation.hpp"
-#include "Buildings/Alliance/TheForge.hpp"
-#include "Buildings/Alliance/DwarvenBunker.hpp"
+#include "Buildings/Alliance/AFishingHut.hpp"
+#include "Buildings/Alliance/ALunarfallExcavation.hpp"
+#include "Buildings/Alliance/ATheForge.hpp"
+#include "Buildings/Alliance/ADwarvenBunker.hpp"
+#include "Buildings/Alliance/ABarracks.hpp"
 
 #include <random>
 
@@ -379,6 +380,8 @@ void AddSC_Garrison_NPC()
         new MS::Garrison::npc_BarosAlexsom;
         new MS::Garrison::npc_VindicatorMaraad;
         new MS::Garrison::npc_LunarfallLaborer;
+
+        /// Barracks
         new MS::Garrison::npc_JonathanStephens;
 
         /// Dwarven Bunker
