@@ -91,15 +91,16 @@ set_property(TARGET authserver PROPERTY FOLDER "server")
 
 add_dependencies(authserver revision.h)
 
-if( NOT WIN32 )
-  set_target_properties(authserver PROPERTIES
-    COMPILE_DEFINITIONS _TRINITY_REALM_CONFIG="${CONF_DIR}/authserver.conf"
-  )
- endif()
-
 if( UNIX AND NOT NOJEM AND NOT APPLE )
-  set(worldserver_LINK_FLAGS "-pthread ${worldserver_LINK_FLAGS}")
+  set(authserver_LINK_FLAGS "-pthread")
 endif()
+
+if( NOT WIN32 )
+   set_target_properties(authserver PROPERTIES
+    LINK_FLAGS "${authserver_LINK_FLAGS}" COMPILE_DEFINITIONS _TRINITY_REALM_CONFIG="${CONF_DIR}/authserver.conf"
+   )
+endif()
+
 
 target_link_libraries(authserver
   shared
