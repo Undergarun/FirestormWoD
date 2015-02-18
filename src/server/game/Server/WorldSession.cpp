@@ -653,6 +653,13 @@ void WorldSession::LogoutPlayer(bool Save)
             }
         }
 
+        /// If, when the player logout, the battleground pointer of the player is still good, we apply deserter buff.
+        if (Save && m_Player->GetBattleground() != nullptr && m_Player->GetBattleground()->GetStatus() != STATUS_WAIT_LEAVE)
+        {
+            /// We add the Deserter buff, otherwise it can be used bug.
+            m_Player->AddAura(MS::Battlegrounds::Spells::DeserterBuff, m_Player);
+        }
+
         // Repop at GraveYard or other player far teleport will prevent saving player because of not present map
         // Teleport player immediately for correct player save
         while (m_Player->IsBeingTeleportedFar())

@@ -19955,9 +19955,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
             const WorldLocation& _loc = GetBattlegroundEntryPoint();
             mapId = _loc.GetMapId(); instanceId = 0;
 
-            /// We add the Deserter buff, otherwise it can be used bug.
-            AddAura(MS::Battlegrounds::Spells::DeserterBuff, this);
-
             /// Db field type is type int16, so it can never be MAPID_INVALID.
             /// if (mapId == MAPID_INVALID) -- code kept for reference
             if (int16(mapId) == int16(-1)) // Battleground Entry Point not found (???)
