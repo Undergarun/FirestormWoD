@@ -6499,6 +6499,8 @@ void ObjectMgr::SetHighestGuids()
     result = CharacterDatabase.Query("SELECT MAX(id) from character_garrison_work_order");
     if (result)
         m_GarrisonWorkOrderID = (*result)[0].GetUInt32() + 1;
+
+    m_StandaloneSceneInstanceID = 1;
 }
 
 uint32 ObjectMgr::GenerateAuctionID()

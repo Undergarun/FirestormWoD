@@ -1876,6 +1876,15 @@ void ScriptMgr::OnPlayerLeaveCombat(Player* p_Player)
     FOREACH_SCRIPT(PlayerScript)->OnLeaveCombat(p_Player);
 }
 
+/// Called when a player receive a scene triggered event
+/// @p_Player          : Player instance
+/// @p_SceneInstanceID : Standalone scene instance ID
+/// @p_Event           : Event string received from client
+void ScriptMgr::OnSceneTriggerEvent(Player * p_Player, uint32 p_SceneInstanceID, std::string p_Event)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnSceneTriggerEvent(p_Player, p_SceneInstanceID, p_Event);
+}
+
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 

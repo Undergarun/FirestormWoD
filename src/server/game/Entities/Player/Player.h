@@ -3326,6 +3326,15 @@ class Player : public Unit, public GridObject<Player>
         /***                  SCENES SYSTEM                    ***/
         /*********************************************************/
         void PlayScene(uint32 sceneId, WorldObject* spectator);
+        /// Play standalone scene script on client side
+        /// @p_ScenePackageID : Scene package ID @ScenePackage.db2
+        /// @p_PlaybackFlags  : Playback flags (@TODO make some reverse on it)
+        /// @p_Location       : Scene script start location
+        /// Return generated Scene instance ID
+        uint32 PlayStandaloneScene(uint32 p_ScenePackageID, uint32 p_PlaybackFlags, Position p_Location);
+        /// Cancel a client-side played standalone scene
+        /// @p_SceneInstanceID : Scene instance ID
+        void CancelStandaloneScene(uint32 p_SceneInstanceID);
 
         /// Compute the unlocked pet battle slot
         uint32 GetUnlockedPetBattleSlot();

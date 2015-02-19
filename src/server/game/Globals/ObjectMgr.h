@@ -1621,6 +1621,11 @@ class ObjectMgr
             return m_GarrisonWorkOrderID++;
         }
 
+        uint32 GetNewStandaloneSceneInstanceID()
+        {
+            return m_StandaloneSceneInstanceID++;
+        }
+
 
     private:
         // first free id for selected id type
@@ -1648,6 +1653,7 @@ class ObjectMgr
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_GarrisonMissionID;
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_GarrisonWorkOrderID;
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_HiVignetteGuid;
+        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_StandaloneSceneInstanceID;
 
         QuestMap _questTemplates;
         QuestObjectiveLookupMap m_questObjectiveLookup;
