@@ -745,14 +745,6 @@ CharactersPerAccount = 50
 CharactersPerRealm = 11
 
 #
-#    HeroicCharactersPerRealm
-#        Description: Limit number of heroic class characters per account on this realm.
-#        Range:       1-10
-#        Default:     1
-
-HeroicCharactersPerRealm = 1
-
-#
 #    CharacterCreating.MinLevelForHeroicCharacter
 #        Description: Limit creating heroic characters only for account with another
 #                     character of specific level (ignored for GM accounts)
