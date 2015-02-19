@@ -17781,10 +17781,14 @@ void Player::CompleteQuest(uint32 quest_id)
                 RewardQuest(qInfo, 0, this, false);
             else
                 SendQuestComplete(qInfo);
+
+
+            sScriptMgr->OnQuestComplete(this, qInfo);
         }
 
         if (Guild* l_Guild = GetGuild())
             l_Guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_GUILD, 1, 0, 0, nullptr, this);
+
     }
 }
 
@@ -18745,6 +18749,21 @@ void Player::RemoveActiveQuest(uint32 quest_id)
 
         if (l_Quest)
         {
+// Not sure, need to find real flag value (LANG_CANT_ABANDON_QUEST_FLAGGED undefined in trinity_string)
+//             if ((l_Quest->GetFlags2() & QUEST_FLAGS2_NO_ABANDON_ON_ANY_OBJECTIVE_COMPLETE) != 0)
+//             {
+//                 for (QuestObjective l_Objective : l_Quest->QuestObjectives)
+//                 {
+//                     if (m_questObjectiveStatus[l_Objective.ID] == l_Objective.Amount)
+//                     {
+//                         if (GetSession())
+//                             GetSession()->SendNotification(LANG_CANT_ABANDON_QUEST_FLAGGED);
+//
+//                         return;
+//                     }
+//                 }
+//             }
+
             for (QuestObjective l_Objective : l_Quest->QuestObjectives)
             {
                 m_questObjectiveStatus[l_Objective.ID] = 0;

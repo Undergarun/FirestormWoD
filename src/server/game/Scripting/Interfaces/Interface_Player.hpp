@@ -465,6 +465,15 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_Item);
         }
 
+        /// Called when player completes some quest
+        /// @p_Player : Player instance
+        /// @p_Quest  : Completed quest
+        virtual void OnQuestComplete(Player* p_Player, const Quest* p_Quest)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_Quest);
+        }
+
 };
 
 #endif  ///< SCRIPTING_INTERFACES_PLAYER

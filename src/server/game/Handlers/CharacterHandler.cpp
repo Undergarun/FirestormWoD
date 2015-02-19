@@ -1366,8 +1366,6 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
     else
         pCurrChar->RemoveAurasDueToSpell(VOTE_BUFF);
 
-    sScriptMgr->OnPlayerLogin(pCurrChar);
-
     uint32 time9 = getMSTime() - time8;
 
     uint32 totalTime = getMSTime() - time;
@@ -1376,6 +1374,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
 
     // Fix chat with transfert / rename
     sWorld->AddCharacterNameData(pCurrChar->GetGUIDLow(), pCurrChar->GetName(), pCurrChar->getGender(), pCurrChar->getRace(), pCurrChar->getClass(), pCurrChar->getLevel());
+
+    sScriptMgr->OnPlayerLogin(pCurrChar);
 
     delete holder;
 }

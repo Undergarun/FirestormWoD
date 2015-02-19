@@ -721,6 +721,11 @@ class ScriptMgr
         /// @p_Item   : New looted item instance
         void OnPlayerItemLooted(Player* p_Player, Item * p_Item);
 
+        /// Called when player completes some quest
+        /// @p_Player : Player instance
+        /// @p_Quest  : Rewarded quest
+        void OnQuestComplete(Player* p_Player, const Quest* p_Quest);
+
     /// BattlegroundScript
     public:
         /// Should return a fully valid Battleground object for the type ID.

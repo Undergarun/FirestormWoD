@@ -1843,6 +1843,14 @@ void ScriptMgr::OnPlayerItemLooted(Player* p_Player, Item * p_Item)
     FOREACH_SCRIPT(PlayerScript)->OnItemLooted(p_Player, p_Item);
 }
 
+/// Called when player completes some quest
+/// @p_Player : Player instance
+/// @p_Quest  : Completed quest
+void ScriptMgr::OnQuestComplete(Player* p_Player, const Quest* p_Quest)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnQuestComplete(p_Player, p_Quest);
+}
+
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
