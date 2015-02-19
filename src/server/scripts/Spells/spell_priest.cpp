@@ -1227,7 +1227,7 @@ class spell_pri_atonement: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                Player* l_Caster = GetCaster()->ToPlayer();
+                Unit* l_Caster = GetCaster();
                 if (!l_Caster)
                     return;
 
@@ -1238,7 +1238,8 @@ class spell_pri_atonement: public SpellScriptLoader
                 std::list<Unit*> l_GroupList;
                 l_Caster->GetRaidMembers(l_GroupList);
 
-                l_GroupList.remove_if([this, l_Caster, l_SpellInfoAtonement](Unit* p_Unit) {
+                l_GroupList.remove_if([this, l_Caster, l_SpellInfoAtonement](Unit* p_Unit)
+                {
                     return l_Caster->GetDistance(p_Unit->GetPositionX(), p_Unit->GetPositionY(), p_Unit->GetPositionZ()) > l_SpellInfoAtonement->Effects[EFFECT_1].BasePoints;
                 });
 
@@ -2802,33 +2803,33 @@ public:
 // Mind Blast - 8092
 class spell_pri_mind_blast: public SpellScriptLoader
 {
-public:
-    spell_pri_mind_blast() : SpellScriptLoader("spell_pri_mind_blast") { }
+    public:
+        spell_pri_mind_blast() : SpellScriptLoader("spell_pri_mind_blast") { }
 
-    class spell_pri_mind_blast_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_pri_mind_blast_SpellScript);
-
-        void HandleAdditionalsOrbs(SpellEffIndex effIndex)
+        class spell_pri_mind_blast_SpellScript : public SpellScript
         {
-            PreventHitDefaultEffect(effIndex);
+            PrepareSpellScript(spell_pri_mind_blast_SpellScript);
 
-            if (!GetCaster()->HasAura(PRIEST_GLYPH_OF_MIND_HARVEST))
-                return;
+            void HandleAdditionalsOrbs(SpellEffIndex p_EffIndex)
+            {
+                PreventHitDefaultEffect(p_EffIndex);
 
-            GetSpell()->EffectEnergize(effIndex);
-        }
+                if (!GetCaster()->HasAura(PRIEST_GLYPH_OF_MIND_HARVEST))
+                    return;
 
-        void Register()
+                GetSpell()->EffectEnergize(p_EffIndex);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_pri_mind_blast_SpellScript::HandleAdditionalsOrbs, EFFECT_3, SPELL_EFFECT_ENERGIZE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnEffectHitTarget += SpellEffectFn(spell_pri_mind_blast_SpellScript::HandleAdditionalsOrbs, EFFECT_3, SPELL_EFFECT_ENERGIZE);
+            return new spell_pri_mind_blast_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_pri_mind_blast_SpellScript();
-    }
 };
 
 // Glyphe of Mind Blast - 87195
@@ -3088,50 +3089,50 @@ enum TwistOfFateSpells
 /// Twist of Fate - 109142
 class spell_pri_twist_of_fate : public SpellScriptLoader
 {
-public:
-    spell_pri_twist_of_fate() : SpellScriptLoader("spell_pri_twist_of_fate") { }
+    public:
+        spell_pri_twist_of_fate() : SpellScriptLoader("spell_pri_twist_of_fate") { }
 
-    class spell_pri_twist_of_fate_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_pri_twist_of_fate_AuraScript);
-
-        void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+        class spell_pri_twist_of_fate_AuraScript : public AuraScript
         {
-            PreventDefaultAction();
+            PrepareAuraScript(spell_pri_twist_of_fate_AuraScript);
 
-            if (!GetCaster())
-                return;
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
 
-            Player* l_Caster = GetCaster()->ToPlayer();
-            if (!l_Caster)
-                return;
+                if (!GetCaster())
+                    return;
 
-            /// GetDamageInfo and GetHealInfo contain the same infos no matter if it's a heal or damage spell
-            SpellInfo const* l_SpellInfoProcSpell = p_EventInfo.GetDamageInfo()->GetSpellInfo();
-            if (!l_SpellInfoProcSpell)
-                return;
+                Player* l_Caster = GetCaster()->ToPlayer();
+                if (!l_Caster)
+                    return;
 
-            if ((l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) == SPEC_PRIEST_SHADOW && l_SpellInfoProcSpell->IsPositive()) ||
-                (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) != SPEC_PRIEST_SHADOW && !l_SpellInfoProcSpell->IsPositive()))
-                return;
+                /// GetDamageInfo and GetHealInfo contain the same infos no matter if it's a heal or damage spell
+                SpellInfo const* l_SpellInfoProcSpell = p_EventInfo.GetDamageInfo()->GetSpellInfo();
+                if (!l_SpellInfoProcSpell)
+                    return;
 
-            Unit* l_Target = p_EventInfo.GetActionTarget();
-            if (!l_Target || l_Target == l_Caster || l_Target->GetHealthPct() > p_AurEff->GetAmount())
-                return;
+                if ((l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) == SPEC_PRIEST_SHADOW && l_SpellInfoProcSpell->IsPositive()) ||
+                    (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) != SPEC_PRIEST_SHADOW && !l_SpellInfoProcSpell->IsPositive()))
+                    return;
 
-            l_Caster->CastSpell(l_Caster, SPELL_PRI_TWIST_OF_FATE_PROC, true);
-        }
+                Unit* l_Target = p_EventInfo.GetActionTarget();
+                if (!l_Target || l_Target == l_Caster || l_Target->GetHealthPct() > p_AurEff->GetAmount())
+                    return;
 
-        void Register()
+                l_Caster->CastSpell(l_Caster, SPELL_PRI_TWIST_OF_FATE_PROC, true);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pri_twist_of_fate_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
         {
-            OnEffectProc += AuraEffectProcFn(spell_pri_twist_of_fate_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            return new spell_pri_twist_of_fate_AuraScript();
         }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_pri_twist_of_fate_AuraScript();
-    }
 };
 
 
