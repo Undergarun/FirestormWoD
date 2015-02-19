@@ -236,7 +236,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid
                             pet->ToCreature()->AI()->AttackStart(TargetUnit);
 
                             /// Blink Strikes
-                            if (pet->GetOwner() && pet->GetOwner()->HasAura(130392) && TargetUnit->IsWithinLOSInMap(p_Pet) && pet->GetDistance(TargetUnit) <= 30.f)
+                            if (pet->GetOwner() && pet->GetOwner()->HasAura(130392) && TargetUnit->IsWithinLOSInMap(pet) && pet->GetDistance(TargetUnit) <= 30.f)
                             {
                                 pet->GetMotionMaster()->Clear();
                                 pet->NearTeleportTo(TargetUnit->GetPositionX(), TargetUnit->GetPositionY(), TargetUnit->GetPositionZ(), TargetUnit->GetOrientation());
