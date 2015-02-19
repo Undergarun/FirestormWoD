@@ -3901,22 +3901,22 @@ bool SpellInfo::IsCanBeStolen() const
     {
         switch (Effects[l_I].Effect)
         {
-        case SPELL_EFFECT_SUMMON:
-        case SPELL_EFFECT_SUMMON_PET:
-        case SPELL_EFFECT_CAST_BUTTON:
-        case SPELL_EFFECT_TAMECREATURE:
-        case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
-            return false;
-        case SPELL_EFFECT_SCHOOL_DAMAGE:
-            if (DmgClass == SPELL_DAMAGE_CLASS_MELEE)
+            case SPELL_EFFECT_SUMMON:
+            case SPELL_EFFECT_SUMMON_PET:
+            case SPELL_EFFECT_CAST_BUTTON:
+            case SPELL_EFFECT_TAMECREATURE:
+            case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
                 return false;
-            break;
-        case SPELL_EFFECT_APPLY_AURA:
-            if (Effects[l_I].ApplyAuraName == SPELL_AURA_MOD_SHAPESHIFT)
-                return false;
-            break;
-        default:
-            break;
+            case SPELL_EFFECT_SCHOOL_DAMAGE:
+                if (DmgClass == SPELL_DAMAGE_CLASS_MELEE)
+                    return false;
+                break;
+            case SPELL_EFFECT_APPLY_AURA:
+                if (Effects[l_I].ApplyAuraName == SPELL_AURA_MOD_SHAPESHIFT)
+                    return false;
+                break;
+            default:
+                break;
         }
     }
 
