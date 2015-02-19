@@ -485,29 +485,29 @@ class spell_dk_howling_blast: public SpellScriptLoader
 // Conversion - 119975
 class spell_dk_conversion: public SpellScriptLoader
 {
-public:
-    spell_dk_conversion() : SpellScriptLoader("spell_dk_conversion") { }
+    public:
+        spell_dk_conversion() : SpellScriptLoader("spell_dk_conversion") { }
 
-    class spell_dk_conversion_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_dk_conversion_AuraScript);
-
-        void OnTick(constAuraEffectPtr aurEff)
+        class spell_dk_conversion_AuraScript : public AuraScript
         {
-            if (Unit* l_unit = GetCaster())
-                l_unit->CastSpell(l_unit, DK_SPELL_CONVERSION_REGEN, true);
-        }
+            PrepareAuraScript(spell_dk_conversion_AuraScript);
 
-        void Register()
+            void OnTick(constAuraEffectPtr aurEff)
+            {
+                if (Unit* l_unit = GetCaster())
+                    l_unit->CastSpell(l_unit, DK_SPELL_CONVERSION_REGEN, true);
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_dk_conversion_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
         {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_dk_conversion_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            return new spell_dk_conversion_AuraScript();
         }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_dk_conversion_AuraScript();
-    }
 };
 
 // Remorseless Winter - 115000
