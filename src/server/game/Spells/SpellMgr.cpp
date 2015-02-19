@@ -4246,8 +4246,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[2].Effect = 0;
                 break;
             case 53490: ///< Bullheaded
-                spellInfo->ProcChance = 100;
-                spellInfo->Effects[0].TargetA = TARGET_UNIT_PET;
+                spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
                 break;
             case 32645: ///< Envenom
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ENEMY;
