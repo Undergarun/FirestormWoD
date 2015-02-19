@@ -47,6 +47,25 @@ struct CurvePointEntry
     float Y;                                                        // 4
 };
 
+struct PathNodeEntry
+{
+    uint32 ID;                                                      ///< 0
+    uint32 PathID;                                                  ///< 1
+    uint32 Order;                                                   ///< 2
+    uint32 LocationID;                                              ///< 3
+};
+
+struct LocationEntry
+{
+    uint32 ID;                                                      ///< 0
+    float X;                                                        ///< 1
+    float Y;                                                        ///< 2
+    float Z;                                                        ///< 3
+    float Unk1;                                                     ///< 4
+    float Unk2;                                                     ///< 5
+    float Unk3;                                                     ///< 6
+};
+
 // Structures used to access raw DB2 data and required packing to portability
 struct ItemEntry
 {

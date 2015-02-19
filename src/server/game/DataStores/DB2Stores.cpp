@@ -24,6 +24,9 @@
 
 #include <map>
 
+DB2Storage <PathNodeEntry>                  sPathNodeStore(PathNodeEntryfmt);
+DB2Storage <LocationEntry>                  sLocationStore(LocationEntryfmt);
+
 std::map<uint32 /*curveID*/, std::map<uint32/*index*/, CurvePointEntry const*, std::greater<uint32>>> HeirloomCurvePoints;
 DB2Storage<CurvePointEntry>                 sCurvePointStore(CurvePointEntryfmt);
 DB2Storage <ItemEntry>                      sItemStore(Itemfmt);
@@ -171,6 +174,8 @@ void LoadDB2Stores(const std::string& dataPath)
     //////////////////////////////////////////////////////////////////////////
     /// Misc DB2
     //////////////////////////////////////////////////////////////////////////
+    LoadDB2(bad_db2_files, sPathNodeStore,                  db2Path, "PathNode.db2");
+    LoadDB2(bad_db2_files, sLocationStore,                  db2Path, "Location.db2");
     LoadDB2(bad_db2_files, sAreaPOIStore,                   db2Path, "AreaPOI.db2");
     LoadDB2(bad_db2_files, sCurvePointStore,                db2Path, "CurvePoint.db2");
     LoadDB2(bad_db2_files, sHolidaysStore,                  db2Path, "Holidays.db2");
