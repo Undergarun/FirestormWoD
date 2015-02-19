@@ -235,12 +235,12 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid
 
                             pet->ToCreature()->AI()->AttackStart(TargetUnit);
 
-                            // Blink Strikes
-                            /*if (pet->HasAura(130392))
+                            /// Blink Strikes
+                            if (pet->GetOwner() && pet->GetOwner()->HasAura(130392) && TargetUnit->IsWithinLOSInMap(p_Pet) && pet->GetDistance(TargetUnit) <= 30.f)
                             {
                                 pet->GetMotionMaster()->Clear();
                                 pet->NearTeleportTo(TargetUnit->GetPositionX(), TargetUnit->GetPositionY(), TargetUnit->GetPositionZ(), TargetUnit->GetOrientation());
-                            }*/
+                            }
 
                             //10% chance to play special pet attack talk, else growl
                             if (pet->ToCreature()->isPet() && ((Pet*)pet)->getPetType() == SUMMON_PET && pet != TargetUnit && urand(0, 100) < 10)
@@ -358,6 +358,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid
             }
 
             Spell* spell = new Spell(pet, spellInfo, TRIGGERED_NONE);
+            spell->m_targets.SetUnitTarget(unit_target);
 
             SpellCastResult result = spell->CheckPetCast(unit_target);
 

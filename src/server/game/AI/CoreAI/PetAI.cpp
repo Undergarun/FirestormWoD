@@ -471,12 +471,12 @@ void PetAI::DoAttack(Unit* target, bool chase)
             me->GetMotionMaster()->Clear();
             me->GetMotionMaster()->MoveChase(target);
 
-            // Blink Strikes
-            /*if (me->HasAura(130392))
+            /// Blink Strikes
+            if (me->GetOwner() && me->GetOwner()->HasAura(130392) && target->IsWithinLOSInMap(me) && me->GetDistance(target) <= 30.f)
             {
                 me->GetMotionMaster()->Clear();
                 me->NearTeleportTo(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation());
-            }*/
+            }
         }
     }
     else // (Stay && ((Aggressive || Defensive) && In Melee Range)))
@@ -486,12 +486,12 @@ void PetAI::DoAttack(Unit* target, bool chase)
         me->GetCharmInfo()->SetIsReturning(false);
         me->Attack(target, true);
 
-        // Blink Strikes
-        /*if (me->HasAura(130392))
+        /// Blink Strikes
+        if (me->GetOwner() && me->GetOwner()->HasAura(130392) && target->IsWithinLOSInMap(me) && me->GetDistance(target) <= 30.f)
         {
             me->GetMotionMaster()->Clear();
             me->NearTeleportTo(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation());
-        }*/
+        }
     }
 }
 
