@@ -423,7 +423,7 @@ namespace MS { namespace Garrison
         /// Horde Level 1
         {     258,          5565.679f,  4499.0090f, 132.02610f, 0.081281f  },
         /// Horde level 2
-        {     445,             0.f,        0.f,       0.f,      0.f        },
+        {     445,          5589.409f,  4596.8510f, 136.58750f, 5.953404f  },
         /// Horde level 3
         {     259,          5592.272f,  4589.9390f, 136.66830f, 5.858787f  },
         /// Alliance Level 1
