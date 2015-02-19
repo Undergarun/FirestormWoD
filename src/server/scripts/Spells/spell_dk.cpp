@@ -92,15 +92,16 @@ enum DeathKnightSpells
 
 uint32 g_TabDeasesDK[3] = { DK_SPELL_FROST_FEVER, DK_SPELL_BLOOD_PLAGUE, DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA };
 
-// Death and Decay - 43265
-class spell_dk_death_and_decay: public SpellScriptLoader
+/// Glyph of Death and Decay - 58629
+/// Call By Death and Decay 43265 & Defile 152280 (hot fix 6.0.3)
+class spell_dk_glyph_of_death_and_decay: public SpellScriptLoader
 {
     public:
-        spell_dk_death_and_decay() : SpellScriptLoader("spell_dk_death_and_decay") { }
+        spell_dk_glyph_of_death_and_decay() : SpellScriptLoader("spell_dk_glyph_of_death_and_decay") { }
 
-        class spell_dk_death_and_decay_SpellScript : public SpellScript
+        class spell_dk_glyph_of_death_and_decay_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_dk_death_and_decay_SpellScript);
+            PrepareSpellScript(spell_dk_glyph_of_death_and_decay_SpellScript);
 
             void HandleAfterCast()
             {
@@ -111,13 +112,13 @@ class spell_dk_death_and_decay: public SpellScriptLoader
 
             void Register()
             {
-                AfterCast += SpellCastFn(spell_dk_death_and_decay_SpellScript::HandleAfterCast);
+                AfterCast += SpellCastFn(spell_dk_glyph_of_death_and_decay_SpellScript::HandleAfterCast);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_dk_death_and_decay_SpellScript();
+            return new spell_dk_glyph_of_death_and_decay_SpellScript();
         }
 };
 
@@ -2220,7 +2221,7 @@ void AddSC_deathknight_spell_scripts()
 {
     new spell_dk_death_coil();
     new spell_dk_empowered_obliterate();
-    new spell_dk_death_and_decay();
+    new spell_dk_glyph_of_death_and_decay();
     new spell_dk_death_barrier();
     new spell_dk_plague_strike();
     new spell_dk_gorefiends_grasp();
