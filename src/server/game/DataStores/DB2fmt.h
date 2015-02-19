@@ -18,6 +18,25 @@
 #ifndef TRINITY_DB2SFRM_H
 #define TRINITY_DB2SFRM_H
 
+char const PathNodeEntryfmt[] =
+{
+    FT_INDEX,
+    FT_INT,
+    FT_INT,
+    FT_INT,
+    FT_END
+};
+char const LocationEntryfmt[] =
+{
+    FT_INDEX,
+    FT_FLOAT,
+    FT_FLOAT,
+    FT_FLOAT,
+    FT_FLOAT,
+    FT_FLOAT,
+    FT_FLOAT,
+    FT_END
+};
 char const CurvePointEntryfmt[] = "niiff";
 const char Itemfmt[] = "niiiiiiii";
 const char ItemBonusfmt[] = "diiiii";
