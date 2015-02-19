@@ -137,7 +137,50 @@ enum HunterSpells
     HUNTER_SPELL_GLYPH_OF_MEND_PET_TICK             = 24406
 };
 
-///< Thunderstomp - 63900
+/// Called by Deterrence (overrided) - 148467
+/// Glyph of Mirrored Blades - 83495
+class spell_hun_glyph_of_mirrored_blades : public SpellScriptLoader
+{
+    public:
+        spell_hun_glyph_of_mirrored_blades() : SpellScriptLoader("spell_hun_glyph_of_mirrored_blades") { }
+
+        enum eSpells
+        {
+            GlyphOfMirroredBlades = 83495
+        };
+
+        class spell_hun_glyph_of_mirrored_blades_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_glyph_of_mirrored_blades_AuraScript);
+
+            void CalculateAmount(constAuraEffectPtr, int32& p_Amount, bool&)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(eSpells::GlyphOfMirroredBlades))
+                    {
+                        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::GlyphOfMirroredBlades);
+                        if (l_SpellInfo == nullptr)
+                            return;
+
+                        p_Amount = l_SpellInfo->Effects[EFFECT_0].BasePoints;
+                    }
+                }
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_glyph_of_mirrored_blades_AuraScript::CalculateAmount, EFFECT_9, SPELL_AURA_REFLECT_SPELLS);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_glyph_of_mirrored_blades_AuraScript();
+        }
+};
+
+/// Thunderstomp - 63900
 class spell_hun_thunderstomp : public SpellScriptLoader
 {
     public:
@@ -165,7 +208,7 @@ class spell_hun_thunderstomp : public SpellScriptLoader
         }
 };
 
-///< Steady Focus - 177667
+/// Steady Focus - 177667
 class spell_hun_steady_focus: public SpellScriptLoader
 {
     public:
@@ -269,7 +312,7 @@ class spell_hun_steady_focus: public SpellScriptLoader
         }
 };
 
-///< Cornered - 53497
+/// Cornered - 53497
 class spell_hun_cornered : public SpellScriptLoader
 {
     public:
@@ -339,7 +382,7 @@ static uint32 const g_BuffSpells[8] =
     LoneWolfes::LoneWolfMultistrike
 };
 
-///< Lone Wolf - 155228
+/// Lone Wolf - 155228
 class spell_hun_lone_wolf : public SpellScriptLoader
 {
     public:
@@ -430,8 +473,8 @@ class spell_hun_lone_wolf : public SpellScriptLoader
         }
 };
 
-///< Kill Shot - 53351
-///< Kill Shot (overrided) - 157708
+/// Kill Shot - 53351
+/// Kill Shot (overrided) - 157708
 class spell_hun_kill_shot : public SpellScriptLoader
 {
     public:
@@ -479,7 +522,7 @@ class spell_hun_kill_shot : public SpellScriptLoader
         }
 };
 
-///< Exotic Munitions - 162534
+/// Exotic Munitions - 162534
 class spell_hun_exotic_munitions : public SpellScriptLoader
 {
     public:
@@ -537,7 +580,7 @@ class spell_hun_exotic_munitions : public SpellScriptLoader
 
 const uint32 fireworksSpells[4] = { 127937, 127936, 127961, 127951 };
 
-///< Poisoned Ammo - 162543
+/// Poisoned Ammo - 162543
 class spell_hun_poisoned_ammo : public SpellScriptLoader
 {
     public:
@@ -3279,9 +3322,10 @@ class AreaTrigger_explosive_trap : public AreaTriggerEntityScript
         }
 };
 
-
 void AddSC_hunter_spell_scripts()
 {
+    /// Spells
+    new spell_hun_glyph_of_mirrored_blades();
     new spell_hun_mend_pet();
     new spell_hun_poisoned_ammo();
     new spell_hun_kill_command_proc();
