@@ -137,6 +137,47 @@ enum HunterSpells
     HUNTER_SPELL_GLYPH_OF_MEND_PET_TICK             = 24406
 };
 
+/// Called by Aspect of the Cheetah - 5118
+/// Glyph of Aspect of the Cheetah - 119462
+class spell_hun_glyph_of_aspect_of_the_cheetah : public SpellScriptLoader
+{
+    public:
+        spell_hun_glyph_of_aspect_of_the_cheetah() : SpellScriptLoader("spell_hun_glyph_of_aspect_of_the_cheetah") { }
+
+        class spell_hun_glyph_of_aspect_of_the_cheetah_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_glyph_of_aspect_of_the_cheetah_AuraScript);
+
+            enum eSpells
+            {
+                GlyphOfAspectOfTheCheetah = 119462
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo&)
+            {
+                PreventDefaultAction();
+
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(eSpells::GlyphOfAspectOfTheCheetah))
+                        p_AurEff->GetBase()->Remove();
+                    else
+                        l_Caster->CastSpell(l_Caster, GetSpellInfo()->Effects[EFFECT_1].TriggerSpell, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_hun_glyph_of_aspect_of_the_cheetah_AuraScript::OnProc, EFFECT_1, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_glyph_of_aspect_of_the_cheetah_AuraScript();
+        }
+};
+
 /// Called by Deterrence (overrided) - 148467
 /// Glyph of Mirrored Blades - 83495
 class spell_hun_glyph_of_mirrored_blades : public SpellScriptLoader
@@ -3358,6 +3399,7 @@ class AreaTrigger_explosive_trap : public AreaTriggerEntityScript
 void AddSC_hunter_spell_scripts()
 {
     /// Spells
+    new spell_hun_glyph_of_aspect_of_the_cheetah();
     new spell_hun_glyph_of_mirrored_blades();
     new spell_hun_mend_pet();
     new spell_hun_poisoned_ammo();
