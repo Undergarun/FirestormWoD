@@ -882,7 +882,7 @@ class spell_hun_item_pvp_s13_2p: public SpellScriptLoader
         }
 };
 
-// Spirit Bond - 118694
+/// Spirit Bond - 118694
 class spell_hun_spirit_bond: public SpellScriptLoader
 {
     public:
@@ -892,13 +892,18 @@ class spell_hun_spirit_bond: public SpellScriptLoader
         {
             PrepareAuraScript(spell_hun_spirit_bond_AuraScript);
 
-            void OnTick(constAuraEffectPtr aurEff)
+            void OnTick(constAuraEffectPtr)
             {
                 if (!GetTarget())
                     return;
+
                 if (Player* l_Player = GetTarget()->ToPlayer())
+                {
                     if (Pet* l_Pet = l_Player->GetPet())
                         l_Pet->CastSpell(l_Pet, HUNTER_SPELL_SPIRIT_BOND_HEAL, true);
+
+                    l_Player->CastSpell(l_Player, HUNTER_SPELL_SPIRIT_BOND_HEAL, true);
+                }
             }
 
             void Register()
@@ -913,33 +918,32 @@ class spell_hun_spirit_bond: public SpellScriptLoader
         }
 };
 
-// Spirit Bond - 109212
+/// Spirit Bond - 109212
 class spell_hun_spirit_bond_apply: public SpellScriptLoader
 {
-public:
-    spell_hun_spirit_bond_apply() : SpellScriptLoader("spell_hun_spirit_bond_apply") { }
+    public:
+        spell_hun_spirit_bond_apply() : SpellScriptLoader("spell_hun_spirit_bond_apply") { }
 
-    class spell_hun_spirit_bond_apply_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_hun_spirit_bond_apply_SpellScript);
-
-        void HandleOnHit()
+        class spell_hun_spirit_bond_apply_SpellScript : public SpellScript
         {
-            if (Unit* l_Player = GetCaster())
-                l_Player->CastSpell(GetCaster(), HUNTER_SPELL_SPIRIT_BOND, true);
-        }
+            PrepareSpellScript(spell_hun_spirit_bond_apply_SpellScript);
 
-        void Register()
+            void HandleOnHit()
+            {
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->CastSpell(l_Caster, HUNTER_SPELL_SPIRIT_BOND, true);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_hun_spirit_bond_apply_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnHit += SpellHitFn(spell_hun_spirit_bond_apply_SpellScript::HandleOnHit);
+            return new spell_hun_spirit_bond_apply_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_hun_spirit_bond_apply_SpellScript();
-    }
-  
 };
 
 // Glyph of Aspect of the Beast - 125042
