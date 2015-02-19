@@ -368,6 +368,15 @@ class spell_dk_festering_strike: public SpellScriptLoader
                             if (dur > uint32(l_AuraChainsOfIce->GetMaxDuration()))
                                 l_AuraChainsOfIce->SetMaxDuration(dur);
                         }
+
+                        if (AuraPtr l_NecroticPlague = l_Target->GetAura(DK_SPELL_NECROTIC_PLAGUE, l_Player->GetGUID()))
+                        {
+                            uint32 dur = l_NecroticPlague->GetDuration() + 6000;
+                            l_NecroticPlague->SetDuration(dur);
+
+                            if (dur > uint32(l_NecroticPlague->GetMaxDuration()))
+                                l_NecroticPlague->SetMaxDuration(dur);
+                        }
                     }
                 }
             }
