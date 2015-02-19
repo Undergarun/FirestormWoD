@@ -30919,6 +30919,49 @@ void Player::PlayScene(uint32 sceneId, WorldObject* spectator)
         m_LastPlayedScene->SendUpdateToPlayer(this);
 }
 
+/// Play standalone scene script on client size
+/// @p_ScenePackageID : Scene package ID @ScenePackage.db2
+/// @p_PlaybackFlags  : Playback flags (@TODO make some reverse on it)
+/// @p_Location       : Scene script start location
+/// Return generated Scene instance ID
+uint32 Player::PlayStandaloneScene(uint32 p_ScenePackageID, uint32 p_PlaybackFlags, Position p_Location)
+{
+    SceneScriptPackageEntry const* l_Entry = sSceneScriptPackageStore.LookupEntry(p_ScenePackageID);
+
+    if (!l_Entry)
+    {
+        sLog->outError(LOG_FILTER_PLAYER, "Player::PlayStandaloneScene => ScenePackage %u doesn't exist", p_ScenePackageID);
+        return -1;
+    }
+
+    uint64 l_TransportGUID      = 0;
+    uint32 l_SceneInstanceID    = sObjectMgr->GetNewStandaloneSceneInstanceID();
+
+    WorldPacket l_PlayScenePacket(SMSG_PLAY_SCENE, 4 + 4 + 4 + 4 + 2 + 16 + 4 + 4 + 4 + 4);
+    l_PlayScenePacket << uint32(0);                 ///< SceneID
+    l_PlayScenePacket << uint32(p_PlaybackFlags);
+    l_PlayScenePacket << uint32(l_SceneInstanceID);
+    l_PlayScenePacket << uint32(p_ScenePackageID);
+    l_PlayScenePacket.appendPackGUID(l_TransportGUID);
+    l_PlayScenePacket << float(p_Location.m_positionX);
+    l_PlayScenePacket << float(p_Location.m_positionY);
+    l_PlayScenePacket << float(p_Location.m_positionZ);
+    l_PlayScenePacket << float(p_Location.m_orientation);
+
+    SendDirectMessage(&l_PlayScenePacket);
+
+    return l_SceneInstanceID;
+}
+/// Cancel a client-side played standalone scene
+/// @p_SceneInstanceID : Scene instance ID
+void Player::CancelStandaloneScene(uint32 p_SceneInstanceID)
+{
+    WorldPacket l_PlayScenePacket(SMSG_CANCEL_SCENE, 4);
+    l_PlayScenePacket << uint32(p_SceneInstanceID);
+
+    SendDirectMessage(&l_PlayScenePacket);
+}
+
 /// Compute the unlocked pet battle slot
 uint32 Player::GetUnlockedPetBattleSlot()
 {

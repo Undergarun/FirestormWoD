@@ -188,6 +188,8 @@ enum Opcodes
         SMSG_CHAR_CUSTOMIZE_RESULT                  = 0x0BAA,   ///< 6.0.3 19116
         SMSG_CHAR_CUSTOMIZE                         = 0x1932,   ///< 6.0.3 19116
         SMSG_ACCOUNT_MOUNT_UPDATE                   = 0x0140,   ///< 6.0.3 19116
+        SMSG_PLAY_SCENE                             = 0x0917,   ///< 6.0.3 19116
+        SMSG_CANCEL_SCENE                           = 0x033F,   ///< 6.0.3 19116
 
         /// Control Alert
         SMSG_LOSS_OF_CONTROL_AURA_UPDATE            = 0x0305,   ///< 6.0.3 19116
@@ -1158,6 +1160,7 @@ enum Opcodes
     CMSG_SELF_RES                               = 0x1343,   ///< 6.0.3 19116
     CMSG_READ_ITEM                              = 0x09B9,   ///< 6.0.3 19116
     CMSG_COMPLETE_MOVIE                         = 0x13D4,   ///< 6.0.3 19116
+    CMSG_SCENE_TRIGGER_EVENT                    = 0x11B9,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Vehicles
@@ -1739,7 +1742,6 @@ enum Opcodes
     SMSG_AREA_SHARE_INFO_RESPONSE                       = 0x0000,
     SMSG_BEASTMASTER_FAILED                             = 0x0000,
     SMSG_BONUS_ROLL_EMPTY                               = 0x0000,
-    SMSG_CANCEL_SCENE                                   = 0x0000,
     SMSG_CANCEL_ORPHAN_SPELL_VISUAL                     = 0x0000,
     SMSG_CANCEL_SPELL_VISUAL                            = 0x0000,
     SMSG_CHALLENGE_MODE_DELETE_LEADER_RESULT            = 0x0000,
@@ -1773,7 +1775,6 @@ enum Opcodes
     SMSG_PET_BATTLE_SLOT_UPDATE                         = 0x0000,
     SMSG_PLAYER_NOT_FOUND_FAILURE                       = 0x0000,
     SMSG_PLAY_ORPHAN_SPELL_VISUAL                       = 0x0000,
-    SMSG_PLAY_SCENE                                     = 0x0000,
     SMSG_REFRESH_COMPONENT                              = 0x0000,
     SMSG_RESET_WEEKLY_CURRENCY                          = 0x0000,
     SMSG_SCENE_OBJECT_EVENT                             = 0x0000,

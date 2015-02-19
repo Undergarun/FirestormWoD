@@ -1257,6 +1257,18 @@ void WorldSession::HandleCompleteMovieOpcode(WorldPacket & p_Packet)
     m_Player->MovieDelayedTeleportMutex.unlock();
 }
 
+void WorldSession::HandleSceneTriggerEventOpcode(WorldPacket & p_Packet)
+{
+    if (!m_Player)
+        return;
+
+    uint8 l_EventLenght         = p_Packet.ReadBits(6);
+    uint32 l_SceneInstanceID    = p_Packet.read<uint32>();
+    std::string l_Event         = p_Packet.ReadString(l_EventLenght);
+
+    sScriptMgr->OnSceneTriggerEvent(m_Player, l_SceneInstanceID, l_Event);
+}
+
 void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket& p_Packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_MOVE_TIME_SKIPPED");
