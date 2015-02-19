@@ -74,7 +74,6 @@ enum HunterSpells
     HUNTER_SPELL_LYNX_RUSH_AURA                     = 120697,
     HUNTER_SPELL_LYNX_CRUSH_DAMAGE                  = 120699,
     HUNTER_SPELL_FRENZY_STACKS                      = 19615,
-    HUNTER_SPELL_FOCUS_FIRE_READY                   = 88843,
     HUNTER_SPELL_FOCUS_FIRE_AURA                    = 82692,
     HUNTER_SPELL_DIRE_BEAST                         = 120679,
     DIRE_BEAST_JADE_FOREST                          = 121118,
@@ -1349,29 +1348,33 @@ class spell_hun_a_murder_of_crows: public SpellScriptLoader
         }
 };
 
-// Focus Fire - 82692
-class spell_hun_focus_fire: public SpellScriptLoader
+/// Focus Fire - 82692
+class spell_hun_focus_fire : public SpellScriptLoader
 {
     public:
         spell_hun_focus_fire() : SpellScriptLoader("spell_hun_focus_fire") { }
+
+        enum eFrenzy
+        {
+            FrenzyReady = 88843
+        };
 
         class spell_hun_focus_fire_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_hun_focus_fire_AuraScript);
 
-            void CalculateAmount(constAuraEffectPtr /*l_AuraEffect*/, int32& l_Amount, bool& /*canBeRecalculated*/)
+            void CalculateAmount(constAuraEffectPtr, int32& p_Amount, bool&)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
                     if (l_Caster->HasAura(HUNTER_SPELL_IMPROVED_FOCUS_FIRE))
                     {
-                        const SpellInfo *l_SpellInfo = sSpellMgr->GetSpellInfo(HUNTER_SPELL_IMPROVED_FOCUS_FIRE);
-
+                        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(HUNTER_SPELL_IMPROVED_FOCUS_FIRE);
                         if (l_SpellInfo == nullptr)
                             return;
 
                         if (AuraPtr l_Frenzy = l_Caster->GetAura(HUNTER_SPELL_FRENZY_STACKS))
-                            l_Amount = l_Frenzy->GetStackAmount() * l_SpellInfo->Effects[EFFECT_0].BasePoints;
+                            p_Amount = l_Frenzy->GetStackAmount() * l_SpellInfo->Effects[EFFECT_0].BasePoints;
                     }
                 }
             }
@@ -1403,20 +1406,22 @@ class spell_hun_focus_fire: public SpellScriptLoader
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (AuraPtr l_FocusFire = l_Player->GetAura(HUNTER_SPELL_FOCUS_FIRE_AURA))
+                    if (AuraEffectPtr l_FocusFire = l_Player->GetAuraEffect(HUNTER_SPELL_FOCUS_FIRE_AURA, EFFECT_0))
                     {
                         if (AuraPtr l_Frenzy = l_Player->GetAura(HUNTER_SPELL_FRENZY_STACKS))
                         {
                             if (Pet* l_Pet = l_Player->GetPet())
                             {
-                                l_FocusFire->GetEffect(0)->ChangeAmount(l_FocusFire->GetEffect(0)->GetAmount() * l_Frenzy->GetStackAmount());
+                                l_FocusFire->ChangeAmount(l_FocusFire->GetAmount() * l_Frenzy->GetStackAmount());
 
                                 if (AuraPtr l_FrenzyPet = l_Pet->GetAura(HUNTER_SPELL_FRENZY_STACKS))
                                 {
                                     l_Pet->EnergizeBySpell(l_Pet, GetSpellInfo()->Id, GetSpellInfo()->Effects[EFFECT_1].BasePoints * l_FrenzyPet->GetStackAmount(), POWER_FOCUS);
                                     l_Pet->RemoveAura(HUNTER_SPELL_FRENZY_STACKS);
                                 }
-                               l_Player->RemoveAura(HUNTER_SPELL_FRENZY_STACKS);
+
+                                l_Player->RemoveAura(HUNTER_SPELL_FRENZY_STACKS);
+                                l_Player->RemoveAura(eFrenzy::FrenzyReady);
                             }
                         }
                     }
@@ -1436,11 +1441,16 @@ class spell_hun_focus_fire: public SpellScriptLoader
         }
 };
 
-// Frenzy - 19615
-class spell_hun_frenzy: public SpellScriptLoader
+/// Frenzy - 19615
+class spell_hun_frenzy : public SpellScriptLoader
 {
     public:
         spell_hun_frenzy() : SpellScriptLoader("spell_hun_frenzy") { }
+
+        enum eFrenzy
+        {
+            FrenzyReady = 88843
+        };
 
         class spell_hun_frenzy_SpellScript : public SpellScript
         {
@@ -1448,16 +1458,22 @@ class spell_hun_frenzy: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
-                    if (caster->GetOwner())
-                        if (AuraPtr frenzy = caster->GetAura(HUNTER_SPELL_FRENZY_STACKS))
-                            if (frenzy->GetStackAmount() >= 5)
-                                caster->GetOwner()->CastSpell(caster->GetOwner(), HUNTER_SPELL_FOCUS_FIRE_READY, true);
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (Unit* l_Owner = l_Caster->GetOwner())
+                    {
+                        if (AuraPtr l_Frenzy = l_Caster->GetAura(HUNTER_SPELL_FRENZY_STACKS))
+                        {
+                            if (l_Frenzy->GetStackAmount() >= 5)
+                                l_Owner->CastSpell(l_Owner, eFrenzy::FrenzyReady, true);
+                        }
+                    }
+                }
             }
 
             void Register()
             {
-               OnHit += SpellHitFn(spell_hun_frenzy_SpellScript::HandleOnHit);
+                OnHit += SpellHitFn(spell_hun_frenzy_SpellScript::HandleOnHit);
             }
         };
 
@@ -1470,16 +1486,15 @@ class spell_hun_frenzy: public SpellScriptLoader
         {
             PrepareAuraScript(spell_hun_frenzy_AuraScript);
 
-            void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes mode)
+            void HandleRemove(constAuraEffectPtr, AuraEffectHandleModes)
             {
-                if (GetTarget()->GetOwner())
-                    if (GetTarget()->GetOwner()->HasAura(HUNTER_SPELL_FOCUS_FIRE_READY))
-                        GetTarget()->GetOwner()->RemoveAura(HUNTER_SPELL_FOCUS_FIRE_READY);
+                if (Unit* l_Target = GetTarget())
+                    l_Target->RemoveAura(eFrenzy::FrenzyReady);
             }
 
             void Register()
             {
-                OnEffectRemove += AuraEffectApplyFn(spell_hun_frenzy_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_MOD_MELEE_HASTE_3, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectApplyFn(spell_hun_frenzy_AuraScript::HandleRemove, EFFECT_2, SPELL_AURA_408, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
