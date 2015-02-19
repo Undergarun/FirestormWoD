@@ -90,6 +90,14 @@ enum DeathKnightSpells
     DK_SPELL_SHADOW_OF_DEATH                    = 164047
 };
 
+enum DeathKnightPresence
+{
+    BloodPresence   = 48263,
+    UnholyPresence  = 48265,
+    FrostPresence   = 48266
+};
+
+
 uint32 g_TabDeasesDK[3] = { DK_SPELL_FROST_FEVER, DK_SPELL_BLOOD_PLAGUE, DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA };
 
 /// Glyph of Death and Decay - 58629
@@ -2054,7 +2062,40 @@ class spell_dk_chilblains_aura: public SpellScriptLoader
         }
 };
 
-/// Mark of Sindragosa
+/// Dark Succor - 178819
+class spell_dk_dark_succor : public SpellScriptLoader
+{
+    public:
+        spell_dk_dark_succor() : SpellScriptLoader("spell_dk_dark_succor") { }
+
+        class spell_dk_dark_succor_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_dark_succor_AuraScript);
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                if (Unit* l_Caster = GetCaster())
+                {
+                   if (l_Caster->HasAura(DeathKnightPresence::FrostPresence) || l_Caster->HasAura(DeathKnightPresence::UnholyPresence))
+                        l_Caster->CastSpell(l_Caster, 101568, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dk_dark_succor_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dk_dark_succor_AuraScript();
+        }
+};
+
+/// Mark of Sindragosa - 178819
 class spell_dk_mark_of_sindragosa : public SpellScriptLoader
 {
     public:
@@ -2263,6 +2304,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_chilblains_aura();
     new spell_dk_reaping();
     new spell_dk_mark_of_sindragosa();
+    new spell_dk_dark_succor();
 
     /// Player script
     new PlayerScript_Blood_Tap();
