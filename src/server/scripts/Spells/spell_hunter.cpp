@@ -1882,8 +1882,8 @@ class spell_hun_cobra_strikes: public SpellScriptLoader
         }
 };
 
-// Barrage damage - 120361
-class spell_hun_barrage: public SpellScriptLoader
+/// Barrage damage - 120361
+class spell_hun_barrage : public SpellScriptLoader
 {
     public:
         spell_hun_barrage() : SpellScriptLoader("spell_hun_barrage") { }
@@ -1892,17 +1892,46 @@ class spell_hun_barrage: public SpellScriptLoader
         {
             PrepareSpellScript(spell_hun_barrage_SpellScript);
 
+            enum eSpells
+            {
+                BarrageTalent = 120360
+            };
+
+            void CheckLOS(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.empty())
+                    return;
+
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                p_Targets.remove_if([this, l_Caster](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr || !p_Object->IsWithinLOSInMap(l_Caster))
+                        return true;
+
+                    return false;
+                });
+            }
+
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (Unit* target = GetHitUnit())
-                        if (!target->HasAura(120360))
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (Unit* l_Target = GetHitUnit())
+                    {
+                        if (!l_Target->HasAura(eSpells::BarrageTalent))
                             SetHitDamage(GetHitDamage() / 2);
+                    }
+                }
             }
 
             void Register()
             {
-               OnHit += SpellHitFn(spell_hun_barrage_SpellScript::HandleOnHit);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_barrage_SpellScript::CheckLOS, EFFECT_1, TARGET_UNIT_CONE_ENEMY_104);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_barrage_SpellScript::CheckLOS, EFFECT_2, TARGET_UNIT_CONE_ENEMY_104);
+                OnHit += SpellHitFn(spell_hun_barrage_SpellScript::HandleOnHit);
             }
         };
 
