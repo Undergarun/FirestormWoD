@@ -969,7 +969,6 @@ public:
     }
 };
 
-
 // Regrowth - 8936
 class spell_dru_regrowth : public SpellScriptLoader
 {
@@ -1747,7 +1746,6 @@ enum DruidOfFlamesEnum
     SPELL_DRUID_OF_FLAME = 138927
 };
 
-
 // Druid of the flames - 138927
 class spell_dru_druid_flames : public SpellScriptLoader
 {
@@ -1776,7 +1774,6 @@ public:
         return new spell_dru_druid_flames_SpellScript();
     }
 };
-
 
 namespace Eclipse
 {
@@ -1961,7 +1958,7 @@ class spell_dru_eclipse : public PlayerScript
 
         void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool /*p_Regen*/)
         {
-            if (!CanUseEclipse(p_Player))
+            if (!CanUseEclipse(p_Player) || p_Power != Powers::POWER_ECLIPSE)
                 return;
 
             EclipseData& l_EclipseData = m_EclipseData[p_Player->GetGUIDLow()];
@@ -2134,8 +2131,6 @@ public:
         return new spell_dru_moonfire_SpellScript();
     }
 };
-
-
 
 /// Sunfire - 93402
 class spell_dru_sunfire : public SpellScriptLoader
