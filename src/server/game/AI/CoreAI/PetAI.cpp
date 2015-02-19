@@ -465,33 +465,33 @@ void PetAI::DoAttack(Unit* target, bool chase)
     {
         if (me->Attack(target, true))
         {
-            me->GetCharmInfo()->SetIsAtStay(false);
-            me->GetCharmInfo()->SetIsFollowing(false);
-            me->GetCharmInfo()->SetIsReturning(false);
-            me->GetMotionMaster()->Clear();
-            me->GetMotionMaster()->MoveChase(target);
-
             /// Blink Strikes
             if (me->GetOwner() && me->GetOwner()->HasAura(130392) && target->IsWithinLOSInMap(me) && me->GetDistance(target) <= 30.f)
             {
                 me->GetMotionMaster()->Clear();
                 me->NearTeleportTo(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation());
             }
+
+            me->GetCharmInfo()->SetIsAtStay(false);
+            me->GetCharmInfo()->SetIsFollowing(false);
+            me->GetCharmInfo()->SetIsReturning(false);
+            me->GetMotionMaster()->Clear();
+            me->GetMotionMaster()->MoveChase(target);
         }
     }
     else // (Stay && ((Aggressive || Defensive) && In Melee Range)))
     {
-        me->GetCharmInfo()->SetIsAtStay(true);
-        me->GetCharmInfo()->SetIsFollowing(false);
-        me->GetCharmInfo()->SetIsReturning(false);
-        me->Attack(target, true);
-
         /// Blink Strikes
         if (me->GetOwner() && me->GetOwner()->HasAura(130392) && target->IsWithinLOSInMap(me) && me->GetDistance(target) <= 30.f)
         {
             me->GetMotionMaster()->Clear();
             me->NearTeleportTo(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation());
         }
+
+        me->GetCharmInfo()->SetIsAtStay(true);
+        me->GetCharmInfo()->SetIsFollowing(false);
+        me->GetCharmInfo()->SetIsReturning(false);
+        me->Attack(target, true);
     }
 }
 

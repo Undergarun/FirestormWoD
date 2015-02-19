@@ -228,19 +228,19 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid
 
                         if (pet->GetTypeId() != TYPEID_PLAYER && pet->ToCreature()->IsAIEnabled)
                         {
-                            charmInfo->SetIsCommandAttack(true);
-                            charmInfo->SetIsAtStay(false);
-                            charmInfo->SetIsFollowing(false);
-                            charmInfo->SetIsReturning(false);
-
-                            pet->ToCreature()->AI()->AttackStart(TargetUnit);
-
                             /// Blink Strikes
                             if (pet->GetOwner() && pet->GetOwner()->HasAura(130392) && TargetUnit->IsWithinLOSInMap(pet) && pet->GetDistance(TargetUnit) <= 30.f)
                             {
                                 pet->GetMotionMaster()->Clear();
                                 pet->NearTeleportTo(TargetUnit->GetPositionX(), TargetUnit->GetPositionY(), TargetUnit->GetPositionZ(), TargetUnit->GetOrientation());
                             }
+
+                            charmInfo->SetIsCommandAttack(true);
+                            charmInfo->SetIsAtStay(false);
+                            charmInfo->SetIsFollowing(false);
+                            charmInfo->SetIsReturning(false);
+
+                            pet->ToCreature()->AI()->AttackStart(TargetUnit);
 
                             //10% chance to play special pet attack talk, else growl
                             if (pet->ToCreature()->isPet() && ((Pet*)pet)->getPetType() == SUMMON_PET && pet != TargetUnit && urand(0, 100) < 10)
