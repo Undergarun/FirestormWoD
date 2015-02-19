@@ -944,6 +944,35 @@ class spell_hun_spirit_bond_apply: public SpellScriptLoader
         {
             return new spell_hun_spirit_bond_apply_SpellScript();
         }
+
+        class spell_hun_spirit_bond_apply_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_spirit_bond_apply_AuraScript);
+
+            void OnUpdate(uint32)
+            {
+                if (!GetCaster())
+                    return;
+
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    if (l_Player->GetPet() == nullptr)
+                        l_Player->RemoveAura(HUNTER_SPELL_SPIRIT_BOND);
+                    else if (!l_Player->HasAura(HUNTER_SPELL_SPIRIT_BOND))
+                        l_Player->CastSpell(l_Player, HUNTER_SPELL_SPIRIT_BOND, true);
+                }
+            }
+
+            void Register()
+            {
+                OnAuraUpdate += AuraUpdateFn(spell_hun_spirit_bond_apply_AuraScript::OnUpdate);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_spirit_bond_apply_AuraScript();
+        }
 };
 
 // Glyph of Aspect of the Beast - 125042
