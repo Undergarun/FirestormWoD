@@ -8187,10 +8187,12 @@ void Spell::DoAllEffectOnLaunchTarget(TargetInfo& targetInfo, float* multiplier)
                         if (targetAmount > 10)
                             m_damage = m_damage * 10/targetAmount;
 
-                        // Hack Fix Frost Bomb : Doesn't add AoE damage to main target
-                        if (m_spellInfo->Id == 113092)
+                        // Hack Fix Frost Bomb, Beast Cleave : Doesn't add AoE damage to main target
+                        if (m_spellInfo->Id == 113092 || m_spellInfo->Id == 118459)
+                        {
                             if (targetInfo.targetGUID == (*m_UniqueTargetInfo.begin()).targetGUID)
                                 continue;
+                        }
                     }
                 }
             }

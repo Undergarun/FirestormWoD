@@ -66,7 +66,6 @@ enum HunterSpells
     HUNTER_SPELL_COBRA_STRIKES_STACKS               = 53257,
     HUNTER_SPELL_BEAST_CLEAVE_AURA                  = 115939,
     HUNTER_SPELL_BEAST_CLEAVE_PROC                  = 118455,
-    HUNTER_SPELL_BEAST_CLEAVE_DAMAGE                = 118459,
     HUNTER_SPELL_LYNX_RUSH_AURA                     = 120697,
     HUNTER_SPELL_LYNX_CRUSH_DAMAGE                  = 120699,
     HUNTER_SPELL_FRENZY_STACKS                      = 19615,
@@ -1874,7 +1873,7 @@ class spell_hun_lynx_rush: public SpellScriptLoader
         }
 };
 
-// Beast Cleave - 118455
+/// Beast Cleave - 118455
 class spell_hun_beast_cleave_proc: public SpellScriptLoader
 {
     public:
@@ -1884,26 +1883,38 @@ class spell_hun_beast_cleave_proc: public SpellScriptLoader
         {
             PrepareAuraScript(spell_hun_beast_cleave_proc_AuraScript);
 
-            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
+            enum eSpells
+            {
+                BeastCleaveAura     = 115939,
+                BeastCleaveDamage   = 118459
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
                 if (!GetCaster())
                     return;
 
-                if (eventInfo.GetActor()->GetGUID() != GetTarget()->GetGUID())
+                Unit* l_Target = GetTarget();
+                if (l_Target == nullptr)
                     return;
 
-                if (eventInfo.GetDamageInfo()->GetSpellInfo() && eventInfo.GetDamageInfo()->GetSpellInfo()->Id == 118459)
+                if (p_EventInfo.GetActor()->GetGUID() != l_Target->GetGUID())
                     return;
 
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (p_EventInfo.GetDamageInfo()->GetSpellInfo() && p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id == eSpells::BeastCleaveDamage)
+                    return;
+
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (GetTarget()->HasAura(aurEff->GetSpellInfo()->Id, _player->GetGUID()))
+                    if (l_Target->HasAura(p_AurEff->GetSpellInfo()->Id, l_Player->GetGUID()))
                     {
-                        int32 bp = int32(eventInfo.GetDamageInfo()->GetDamage() * 0.3f);
-
-                        GetTarget()->CastCustomSpell(GetTarget(), HUNTER_SPELL_BEAST_CLEAVE_DAMAGE, &bp, NULL, NULL, true);
+                        if (AuraEffectPtr l_AurEff = l_Player->GetAuraEffect(eSpells::BeastCleaveAura, EFFECT_0))
+                        {
+                            int32 l_BP = CalculatePct(p_EventInfo.GetDamageInfo()->GetDamage(), l_AurEff->GetAmount());
+                            l_Target->CastCustomSpell(l_Target, eSpells::BeastCleaveDamage, &l_BP, nullptr, nullptr, true);
+                        }
                     }
                 }
             }
