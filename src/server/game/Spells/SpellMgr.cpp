@@ -4265,7 +4265,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 24529: ///< Glyph of Animal Bond
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
-                spellInfo->Effects[0].TargetB = TARGET_UNIT_PET;
                 break;
             case 982: ///< Revive Pet - hotfix 5.4.2
                 spellInfo->CastTimeEntry = sSpellCastTimesStore.LookupEntry(5); ///< 2s

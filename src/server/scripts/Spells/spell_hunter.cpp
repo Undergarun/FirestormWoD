@@ -119,7 +119,6 @@ enum HunterSpells
     HUNTER_SPELL_ARCANE_INTENSITY_AURA              = 131564,
     HUNTER_SPELL_THRILL_OF_THE_HUNT                 = 109306,
     HUNTER_SPELL_THRILL_OF_THE_HUNT_PROC            = 34720,
-    HUNTER_SPELL_GLYPH_OF_ANIMAL_BOND               = 24529,
     HUNTER_SPELL_MULTI_SHOT                         = 2643,
     HUNTER_SPELL_BOMBARDMENT                        = 82921,
     HUNTER_SPELL_BASIC_ATTACK_COST_MODIFIER         = 62762,
@@ -877,32 +876,84 @@ class spell_hun_glyph_of_aspects: public SpellScriptLoader
         }
 };
 
-// Glyph of animal bond - 20895
-class spell_hun_glyph_of_animal_bond: public SpellScriptLoader
+/// Glyph of animal bond - 20895
+class spell_hun_glyph_of_animal_bond : public SpellScriptLoader
 {
-public:
-    spell_hun_glyph_of_animal_bond() : SpellScriptLoader("spell_hun_glyph_of_animal_bond") { }
+    public:
+        spell_hun_glyph_of_animal_bond() : SpellScriptLoader("spell_hun_glyph_of_animal_bond") { }
 
-    class spell_hun_glyph_of_animal_bond_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_hun_glyph_of_animal_bond_SpellScript);
-
-        void HandleOnHit()
+        enum eSpells
         {
-            if (Unit* l_Caster = GetCaster())
-                l_Caster->CastSpell(l_Caster, HUNTER_SPELL_GLYPH_OF_ANIMAL_BOND, true);
+            GlyphOfAnimalBond = 24529
+        };
+
+        class spell_hun_glyph_of_animal_bond_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_glyph_of_animal_bond_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->CastSpell(l_Caster, eSpells::GlyphOfAnimalBond, true);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_hun_glyph_of_animal_bond_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_glyph_of_animal_bond_SpellScript();
         }
 
-        void Register()
+        class spell_hun_glyph_of_animal_bond_AuraScript : public AuraScript
         {
-            OnHit += SpellHitFn(spell_hun_glyph_of_animal_bond_SpellScript::HandleOnHit);
-        }
-    };
+            PrepareAuraScript(spell_hun_glyph_of_animal_bond_AuraScript);
 
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_hun_glyph_of_animal_bond_SpellScript();
-    }
+            void OnUpdate(uint32, AuraEffectPtr p_AurEff)
+            {
+                if (!GetCaster())
+                    return;
+
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    if (Pet* l_Pet = l_Player->GetPet())
+                    {
+                        if (!l_Player->HasAura(eSpells::GlyphOfAnimalBond))
+                            l_Player->CastSpell(l_Player, eSpells::GlyphOfAnimalBond, true);
+                    }
+                    else
+                        l_Player->RemoveAura(eSpells::GlyphOfAnimalBond);
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (!GetCaster())
+                    return;
+
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    if (Pet* l_Pet = l_Player->GetPet())
+                        l_Pet->RemoveAura(eSpells::GlyphOfAnimalBond);
+
+                    l_Player->RemoveAura(eSpells::GlyphOfAnimalBond);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectUpdate += AuraEffectUpdateFn(spell_hun_glyph_of_animal_bond_AuraScript::OnUpdate, EFFECT_0, SPELL_AURA_DUMMY);
+                OnEffectRemove += AuraEffectRemoveFn(spell_hun_glyph_of_animal_bond_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_glyph_of_animal_bond_AuraScript();
+        }
 };
 
 // Bestial Wrath - 19574 and The Beast Within - 34471
