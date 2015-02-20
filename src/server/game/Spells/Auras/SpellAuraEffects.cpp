@@ -4504,9 +4504,10 @@ void AuraEffect::HandleModMechanicImmunity(AuraApplication const* aurApp, uint8 
 
     switch (GetId())
     {
-        case 42292: // PvP trinket
-        case 59752: // Every Man for Himself
-        case 65547: // PvP trinket (Trial of Crusader)
+        case 42292: ///< PvP trinket
+        case 59752: ///< Every Man for Himself
+        case 65547: ///< PvP trinket (Trial of Crusader)
+        case 53490: ///< Bullheaded (Cunning pet Ability)
         {
             mechanic = IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK;
             // Actually we should apply immunities here, too, but the aura has only 100 ms duration, so there is practically no point
@@ -7432,39 +7433,6 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
             damage = damageReductedArmor;
         }
 
-        // 77486 - Mastery : Shadowy Recall
-        if (GetSpellInfo()->SchoolMask == SPELL_SCHOOL_MASK_SHADOW && caster->HasAura(77486))
-        {
-            float Mastery = caster->ToPlayer()->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.8f;
-
-            if (roll_chance_f(Mastery))
-            {
-                int32 bp = damage;
-
-                switch (GetSpellInfo()->Id)
-                {
-                    case 589:   // Shadow Word: Pain
-                        caster->CastCustomSpell(target, 124464, &bp, NULL, NULL, true);
-                        break;
-                    case 2944:  // Devouring Plague
-                        caster->CastCustomSpell(target, 124467, &bp, NULL, NULL, true);
-                        break;
-                    case 15407: // Mind Flay
-                        caster->CastCustomSpell(target, 124468, &bp, NULL, NULL, true);
-                        break;
-                    case 34914: // Vampiric Touch
-                        caster->CastCustomSpell(target, 124465, &bp, NULL, NULL, true);
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-
-        // Glyph of Mind Flay
-        if ((GetSpellInfo()->Id == 15407 || GetSpellInfo()->Id == 129197) && caster->HasAura(120585))
-            caster->CastSpell(caster, 120587, true);
-
         // Deep Wounds
         if (GetSpellInfo()->Id == 115767)
         {
@@ -7920,12 +7888,6 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
 
         TakenTotalMod = std::max(TakenTotalMod, 0.0f);
 
-        // Mend Pet
-        if (m_spellInfo->Id == 136)
-            if (caster->HasAura(19573)) // Glyph of Mend Pet
-                if (roll_chance_i(50))
-                    caster->CastSpell(target, 24406, true); // Dispel
-
         damage = uint32(target->CountPctFromMaxHealth(damage));
 
         switch (m_spellInfo->Id)
@@ -8124,11 +8086,6 @@ void AuraEffect::HandleObsModPowerAuraTick(Unit* target, Unit* caster) const
     uint32 amount = std::max(m_amount, 0) * target->GetMaxPower(powerType) /100;
     SpellPeriodicAuraLogInfo pInfo(CONST_CAST(AuraEffect, shared_from_this()), amount, 0, 0, 0, 0.0f, false);
     target->SendPeriodicAuraLog(&pInfo);
-
-    // Hack Fix Glyph of Evocation - 56380
-    if (GetBase()->GetId() == 12051 && GetTickNumber() > 1)
-        if (target->HasAura(56380) && !target->HasAura(114003))
-            target->HealBySpell(target, sSpellMgr->GetSpellInfo(12051), target->CountPctFromMaxHealth(20), false);
 
     int32 gain = target->ModifyPower(powerType, amount);
 

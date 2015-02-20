@@ -43,6 +43,7 @@ enum MasterySpells
     SPELL_WARRIOR_WEAPONS_MASTER        = 76838,
     SPELL_WARLOCK_METAMORPHIS           = 103958,
     SPELL_WARLOCK_MASTER_DEMONOLOGIST   = 77219,
+    SPELL_PRIEST_MENTAL_ANGUISH         = 77486,
     MASTERY_SPELL_IGNITE                = 12846
 };
 
@@ -907,8 +908,86 @@ class spell_mastery_master_demonologist : public SpellScriptLoader
         }
 };
 
+enum MasterAnguish
+{
+    SPELL_PRIEST_MIND_BLAST = 8092,
+    SPELL_PRIEST_MIND_SPIKE = 73510,
+    SPELL_PRIEST_MIND_FLAY = 15407
+};
+
+// Called by 8092 - Mind Blast, 73510 - Mind Spike, 15407 - Mind Flay
+// 77486 - Mastery: Mental Anguish
+class spell_mastery_master_mental_anguish : public SpellScriptLoader
+{
+    public:
+        spell_mastery_master_mental_anguish() : SpellScriptLoader("spell_mastery_master_mental_anguish") { }
+
+        class spell_mastery_master_mental_anguish_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mastery_master_mental_anguish_SpellScript);
+
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (GetSpellInfo()->Id != SPELL_PRIEST_MIND_BLAST && GetSpellInfo()->Id != SPELL_PRIEST_MIND_SPIKE)
+                        return;
+
+                    /// Increases the damage of Mind Blast, Mind Spike, and Mind Flay by 20 %.
+                    if (l_Caster->HasAura(SPELL_PRIEST_MENTAL_ANGUISH))
+                    {
+                        float l_MasteryValue = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.5f;
+                        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_MasteryValue));
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_mastery_master_mental_anguish_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        class pell_mastery_master_mental_anguish_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(pell_mastery_master_mental_anguish_AuraScript);
+
+            void CalculateAmount(constAuraEffectPtr, int32& p_Amount, bool&)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (GetSpellInfo()->Id != SPELL_PRIEST_MIND_FLAY)
+                        return;
+
+                    if (l_Caster->HasAura(SPELL_PRIEST_MENTAL_ANGUISH))
+                    {
+                        float l_MasteryValue = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.5f;
+                        p_Amount += CalculatePct(p_Amount, l_MasteryValue);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(pell_mastery_master_mental_anguish_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new pell_mastery_master_mental_anguish_AuraScript();
+        }
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_mastery_master_mental_anguish_SpellScript();
+        }
+};
+
+
 void AddSC_mastery_spell_scripts()
 {
+    new spell_mastery_master_mental_anguish();
     new spell_mastery_master_demonologist();
     new spell_mastery_executioner();
     new spell_mastery_potent_poisons();

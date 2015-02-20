@@ -1860,10 +1860,7 @@ class spell_mage_ice_lance: public SpellScriptLoader
                     if (Unit* l_Target = GetHitUnit())
                     {
                         if (l_Target->HasAura(SPELL_MAGE_FROST_BOMB_AURA, l_Caster->GetGUID()))
-                        {
                             l_Caster->CastSpell(l_Target, SPELL_MAGE_FROST_BOMB_TRIGGERED, true);
-                            l_Caster->CastSpell(l_Target, SPELL_MAGE_FROST_BOMB_VISUAL, true);
-                        }
                     }
                 }
             }
@@ -1877,38 +1874,6 @@ class spell_mage_ice_lance: public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_mage_ice_lance_SpellScript();
-        }
-};
-
-// Frost Bomb - 112948
-class spell_mage_frost_bomb : public SpellScriptLoader
-{
-    public:
-        spell_mage_frost_bomb() : SpellScriptLoader("spell_mage_frost_bomb") { }
-
-        class spell_mage_frost_bomb_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_mage_frost_bomb_SpellScript);
-
-            void HandleOnHit()
-            {
-                Unit* l_Target = GetHitUnit();
-
-                if (l_Target == nullptr)
-                    return;
-
-                l_Target->CastSpell(l_Target, SPELL_MAGE_FROST_BOMB_VISUAL_TARGETING, true);
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_mage_frost_bomb_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_mage_frost_bomb_SpellScript();
         }
 };
 
@@ -2486,7 +2451,6 @@ void AddSC_mage_spell_scripts()
     new npc_mage_prismatic_crystal();
 
     /// Spells
-    new spell_mage_frost_bomb();
     new spell_mage_arcane_charge();
     new spell_mage_meteor();
     new spell_mage_comet_storm();

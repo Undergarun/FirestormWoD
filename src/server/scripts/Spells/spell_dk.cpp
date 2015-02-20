@@ -90,17 +90,25 @@ enum DeathKnightSpells
     DK_SPELL_SHADOW_OF_DEATH                    = 164047
 };
 
+enum DeathKnightPresence
+{
+    BloodPresence   = 48263,
+    UnholyPresence  = 48265,
+    FrostPresence   = 48266
+};
+
 uint32 g_TabDeasesDK[3] = { DK_SPELL_FROST_FEVER, DK_SPELL_BLOOD_PLAGUE, DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA };
 
-// Death and Decay - 43265
-class spell_dk_death_and_decay: public SpellScriptLoader
+/// Glyph of Death and Decay - 58629
+/// Call By Death and Decay 43265 & Defile 152280 (hot fix 6.0.3)
+class spell_dk_glyph_of_death_and_decay: public SpellScriptLoader
 {
     public:
-        spell_dk_death_and_decay() : SpellScriptLoader("spell_dk_death_and_decay") { }
+        spell_dk_glyph_of_death_and_decay() : SpellScriptLoader("spell_dk_glyph_of_death_and_decay") { }
 
-        class spell_dk_death_and_decay_SpellScript : public SpellScript
+        class spell_dk_glyph_of_death_and_decay_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_dk_death_and_decay_SpellScript);
+            PrepareSpellScript(spell_dk_glyph_of_death_and_decay_SpellScript);
 
             void HandleAfterCast()
             {
@@ -111,13 +119,13 @@ class spell_dk_death_and_decay: public SpellScriptLoader
 
             void Register()
             {
-                AfterCast += SpellCastFn(spell_dk_death_and_decay_SpellScript::HandleAfterCast);
+                AfterCast += SpellCastFn(spell_dk_glyph_of_death_and_decay_SpellScript::HandleAfterCast);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_dk_death_and_decay_SpellScript();
+            return new spell_dk_glyph_of_death_and_decay_SpellScript();
         }
 };
 
@@ -191,8 +199,6 @@ class spell_dk_plague_strike: public SpellScriptLoader
             return new spell_dk_plague_strike_SpellScript();
         }
 };
-
-
 
 // Gorefiend's Grasp - 108199
 class spell_dk_gorefiends_grasp: public SpellScriptLoader
@@ -359,6 +365,15 @@ class spell_dk_festering_strike: public SpellScriptLoader
                             if (dur > uint32(l_AuraChainsOfIce->GetMaxDuration()))
                                 l_AuraChainsOfIce->SetMaxDuration(dur);
                         }
+
+                        if (AuraPtr l_NecroticPlague = l_Target->GetAura(DK_SPELL_NECROTIC_PLAGUE, l_Player->GetGUID()))
+                        {
+                            uint32 dur = l_NecroticPlague->GetDuration() + 6000;
+                            l_NecroticPlague->SetDuration(dur);
+
+                            if (dur > uint32(l_NecroticPlague->GetMaxDuration()))
+                                l_NecroticPlague->SetMaxDuration(dur);
+                        }
                     }
                 }
             }
@@ -467,29 +482,29 @@ class spell_dk_howling_blast: public SpellScriptLoader
 // Conversion - 119975
 class spell_dk_conversion: public SpellScriptLoader
 {
-public:
-    spell_dk_conversion() : SpellScriptLoader("spell_dk_conversion") { }
+    public:
+        spell_dk_conversion() : SpellScriptLoader("spell_dk_conversion") { }
 
-    class spell_dk_conversion_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_dk_conversion_AuraScript);
-
-        void OnTick(constAuraEffectPtr aurEff)
+        class spell_dk_conversion_AuraScript : public AuraScript
         {
-            if (Unit* l_unit = GetCaster())
-                l_unit->CastSpell(l_unit, DK_SPELL_CONVERSION_REGEN, true);
-        }
+            PrepareAuraScript(spell_dk_conversion_AuraScript);
 
-        void Register()
+            void OnTick(constAuraEffectPtr aurEff)
+            {
+                if (Unit* l_unit = GetCaster())
+                    l_unit->CastSpell(l_unit, DK_SPELL_CONVERSION_REGEN, true);
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_dk_conversion_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
         {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_dk_conversion_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            return new spell_dk_conversion_AuraScript();
         }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_dk_conversion_AuraScript();
-    }
 };
 
 // Remorseless Winter - 115000
@@ -1220,6 +1235,12 @@ class spell_dk_anti_magic_shell_raid: public SpellScriptLoader
         }
 };
 
+enum GlyphOfRegenerativeMagicSpells
+{
+    GlyphOfRegenerativeMagicAura = 146648,
+    AntiMagicShellSpell          = 48707
+};
+
 // 48707 - Anti-Magic Shell (on self)
 class spell_dk_anti_magic_shell_self: public SpellScriptLoader
 {
@@ -1230,11 +1251,12 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
         {
             PrepareAuraScript(spell_dk_anti_magic_shell_self_AuraScript);
 
-            uint32 absorbPct, hpPct;
+            uint32 m_AbsorbPct, m_HpPct, m_AmountAbsorb, m_Absorbed = 0;
+
             bool Load()
             {
-                absorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster());
-                hpPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue(GetCaster());
+                m_AbsorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster());
+                m_HpPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue(GetCaster());
                 return true;
             }
 
@@ -1245,18 +1267,22 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
                 return true;
             }
 
-            void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
             {
                 if (GetCaster())
-                    amount = GetCaster()->CountPctFromMaxHealth(hpPct);
+                {
+                    amount = GetCaster()->CountPctFromMaxHealth(m_HpPct);
+                    m_AmountAbsorb = amount;
+                }
             }
 
-            void Absorb(AuraEffectPtr /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
+            void Absorb(AuraEffectPtr /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
             {
-                absorbAmount = std::min(CalculatePct(dmgInfo.GetDamage(), absorbPct), GetTarget()->CountPctFromMaxHealth(hpPct));
+                absorbAmount = std::min(CalculatePct(dmgInfo.GetDamage(), m_AbsorbPct), GetTarget()->CountPctFromMaxHealth(m_HpPct));
+                m_Absorbed += absorbAmount;
             }
 
-            void Trigger(AuraEffectPtr aurEff, DamageInfo & /*dmgInfo*/, uint32 & absorbAmount)
+            void Trigger(AuraEffectPtr aurEff, DamageInfo& /*dmgInfo*/, uint32& absorbAmount)
             {
                 Unit* target = GetTarget();
                 // damage absorbed by Anti-Magic Shell energizes the DK with additional runic power.
@@ -1265,11 +1291,38 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
                 target->CastCustomSpell(target, DK_SPELL_RUNIC_POWER_ENERGIZE, &bp, NULL, NULL, true, NULL, aurEff);
             }
 
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
+
+                if (l_RemoveMode != AURA_REMOVE_BY_EXPIRE)
+                    return;
+
+                if (!GetCaster())
+                    return;
+
+                if (Player* l_Caster = GetCaster()->ToPlayer())
+                {
+                    if (l_Caster->HasAura(GlyphOfRegenerativeMagicSpells::GlyphOfRegenerativeMagicAura))
+                    {
+                        SpellInfo const * l_SpellInfo = sSpellMgr->GetSpellInfo(GlyphOfRegenerativeMagicSpells::GlyphOfRegenerativeMagicAura);
+
+                        if (l_SpellInfo == nullptr)
+                            return;
+
+                        int32 l_Reduce = 100 * (m_AmountAbsorb - m_Absorbed) / m_AmountAbsorb / 5;
+
+                        l_Caster->ReduceSpellCooldown(GlyphOfRegenerativeMagicSpells::AntiMagicShellSpell, l_Reduce);
+                    }
+                }
+            }
+
             void Register()
             {
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_anti_magic_shell_self_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
                 OnEffectAbsorb += AuraEffectAbsorbFn(spell_dk_anti_magic_shell_self_AuraScript::Absorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
                 AfterEffectAbsorb += AuraEffectAbsorbFn(spell_dk_anti_magic_shell_self_AuraScript::Trigger, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+                OnEffectRemove += AuraEffectRemoveFn(spell_dk_anti_magic_shell_self_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -2013,7 +2066,40 @@ class spell_dk_chilblains_aura: public SpellScriptLoader
         }
 };
 
-/// Mark of Sindragosa
+/// Dark Succor - 178819
+class spell_dk_dark_succor : public SpellScriptLoader
+{
+    public:
+        spell_dk_dark_succor() : SpellScriptLoader("spell_dk_dark_succor") { }
+
+        class spell_dk_dark_succor_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_dark_succor_AuraScript);
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                if (Unit* l_Caster = GetCaster())
+                {
+                   if (l_Caster->HasAura(DeathKnightPresence::FrostPresence) || l_Caster->HasAura(DeathKnightPresence::UnholyPresence))
+                        l_Caster->CastSpell(l_Caster, 101568, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dk_dark_succor_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dk_dark_succor_AuraScript();
+        }
+};
+
+/// Mark of Sindragosa - 178819
 class spell_dk_mark_of_sindragosa : public SpellScriptLoader
 {
     public:
@@ -2180,7 +2266,7 @@ void AddSC_deathknight_spell_scripts()
 {
     new spell_dk_death_coil();
     new spell_dk_empowered_obliterate();
-    new spell_dk_death_and_decay();
+    new spell_dk_glyph_of_death_and_decay();
     new spell_dk_death_barrier();
     new spell_dk_plague_strike();
     new spell_dk_gorefiends_grasp();
@@ -2222,6 +2308,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_chilblains_aura();
     new spell_dk_reaping();
     new spell_dk_mark_of_sindragosa();
+    new spell_dk_dark_succor();
 
     /// Player script
     new PlayerScript_Blood_Tap();

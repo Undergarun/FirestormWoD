@@ -9760,19 +9760,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
 
             break;
         }
-        case 109142:// Twist of Fate
-        {
-            if (!victim)
-                return false;
-
-            if (!procSpell)
-                return false;
-
-            if (victim->GetHealthPct() > 35.0f)
-                return false;
-
-            break;
-        }
         // Item - Dragon Soul Legendary Daggers
         case 109939:
         {
@@ -16966,18 +16953,18 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                 active = true;
         }
 
+        if (spellProto->Id == 77606 && procSpell && procSpell->IsCanBeStolen())  ///< Dark Simulacrum
+            active = true;
+
         // Custom MoP Script
         // Breath of Fire DoT shoudn't remove Breath of Fire disorientation - Hack Fix
         if (procSpell && procSpell->Id == 123725 && itr->first == 123393)
             continue;
 
         // Some spells can proc on absorb
-        if (triggerData.aura && triggerData.aura->GetSpellInfo() && (triggerData.aura->GetSpellInfo()->Id == 33757 ||
-            triggerData.aura->GetSpellInfo()->Id == 28305 || triggerData.aura->GetSpellInfo()->Id == 2823 ||
-            triggerData.aura->GetSpellInfo()->Id == 3408 || triggerData.aura->GetSpellInfo()->Id == 5761 ||
-            triggerData.aura->GetSpellInfo()->Id == 8679 || triggerData.aura->GetSpellInfo()->Id == 108211 ||
-            triggerData.aura->GetSpellInfo()->Id == 108215 || triggerData.aura->GetSpellInfo()->GetSpellSpecific() == SPELL_SPECIFIC_SEAL ||
-            triggerData.aura->GetSpellInfo()->HasAura(SPELL_AURA_MOD_STEALTH) || triggerData.aura->GetSpellInfo()->HasAura(SPELL_AURA_MOD_INVISIBILITY)))
+        if (spellProto->Id == 33757 || spellProto->Id == 28305 || spellProto->Id == 2823 || spellProto->Id == 3408 || spellProto->Id == 108211 ||
+            triggerData.aura->GetSpellInfo()->GetSpellSpecific() == SPELL_SPECIFIC_SEAL || spellProto->HasAura(SPELL_AURA_MOD_STEALTH)
+            || spellProto->HasAura(SPELL_AURA_MOD_INVISIBILITY))
             active = true;
 
         if (!IsTriggeredAtSpellProcEvent(target, triggerData.aura, procSpell, procFlag, procExtra, attType, isVictim, active, triggerData.spellProcEvent))

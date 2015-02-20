@@ -967,6 +967,10 @@ void Aura::Update(uint32 diff, Unit* caster)
                     }
                     else
                     {
+                        /// Conversion temp fix
+                        if (m_spellInfo->Id == 119975)
+                            powerPerSecond = 50;
+
                         if (int32(caster->GetPower(powerType)) >= powerPerSecond)
                             caster->ModifyPower(powerType, -powerPerSecond);
                         else

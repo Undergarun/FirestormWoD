@@ -4451,30 +4451,6 @@ void Spell::finish(bool ok)
 
     switch (m_spellInfo->Id)
     {
-        case 32379: // Shadow Word: Death
-        case 129176:// Shadow Word: Death (overrided by Glyph)
-        {
-            if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                break;
-
-            if (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) != SPEC_PRIEST_SHADOW)
-                break;
-
-            if (m_caster->HasAura(95652))
-                break;
-
-            if (!unitTarget || !unitTarget->isAlive() || unitTarget->GetHealthPct() >= 20.0f)
-            {
-                m_caster->CastSpell(m_caster, 125927, true); // Shadow Orb energize
-                break;
-            }
-
-            m_caster->CastSpell(m_caster, 125927, true); // Shadow Orb energize
-            m_caster->CastSpell(m_caster, 95652, true); // Effect cooldown marker
-            m_caster->ToPlayer()->RemoveSpellCooldown(m_spellInfo->Id, true);
-
-            break;
-        }
         case 49560: // Death Grip
         case 49576: // Death Grip dummy
         {
@@ -7006,17 +6982,13 @@ SpellCastResult Spell::CheckCasterAuras() const
         else
             prevented_reason = SPELL_FAILED_STUNNED;
     }
-    else if (unitflag & UNIT_FLAG_CONFUSED && !(m_spellInfo->AttributesEx5 & SPELL_ATTR5_USABLE_WHILE_CONFUSED))
+    else if (unitflag & UNIT_FLAG_CONFUSED && !m_spellInfo->HasAttribute(SPELL_ATTR5_USABLE_WHILE_CONFUSED))
         prevented_reason = SPELL_FAILED_CONFUSED;
-    else if (unitflag & UNIT_FLAG_FLEEING && !(m_spellInfo->AttributesEx5 & SPELL_ATTR5_USABLE_WHILE_FEARED))
+    else if (unitflag & UNIT_FLAG_FLEEING && !m_spellInfo->HasAttribute(SPELL_ATTR5_USABLE_WHILE_FEARED))
         prevented_reason = SPELL_FAILED_FLEEING;
     else if (unitflag & UNIT_FLAG_SILENCED && m_spellInfo->PreventionType == SPELL_PREVENTION_TYPE_SILENCE)
         prevented_reason = SPELL_FAILED_SILENCED;
     else if (unitflag & UNIT_FLAG_PACIFIED && m_spellInfo->PreventionType == SPELL_PREVENTION_TYPE_PACIFY)
-        prevented_reason = SPELL_FAILED_PACIFIED;
-    else if (unitflag & UNIT_FLAG_PACIFIED &&
-        (m_spellInfo->PreventionType == SPELL_PREVENTION_TYPE_UNK2 ||
-        m_spellInfo->Id == 1850) && m_spellInfo->Id != 781) // THIS ... IS ... HACKYYYY !
         prevented_reason = SPELL_FAILED_PACIFIED;
 
     // Barkskin & Hex hotfix 4.3 patch http://eu.battle.net/wow/ru/blog/10037151
