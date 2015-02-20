@@ -4341,33 +4341,6 @@ void Player::InitSpellForLevel()
             removeSpell(90267, false, false);
     }
 
-    // Mage players learn automatically Portal: Vale of Eternal Blossom and Teleport: Vale of Eternal Blossom at level 90
-    if (l_Level == 90 && getClass() == CLASS_MAGE)
-    {
-        if (TeamForRace(getRace()) == HORDE)
-        {
-            learnSpell(132627, false); // Teleport: Vale of Eternal Blossoms
-            learnSpell(132626, false); // Portal: Vale of Eternal Blossoms
-
-            // Only for alliance
-            if (HasSpell(132621))
-                removeSpell(132621, false, false);
-            if (HasSpell(132620))
-                removeSpell(132620, false, false);
-        }
-        else
-        {
-            learnSpell(132621, false); // Teleport: Vale of Eternal Blossoms
-            learnSpell(132620, false); // Portal: Vale of Eternal Blossoms
-
-            // Only for horde
-            if (HasSpell(132626))
-                removeSpell(132626, false, false);
-            if (HasSpell(132627))
-                removeSpell(132627, false, false);
-        }
-    }
-
     // Fix Pick Lock update at each level
     if (HasSpell(1804) && getLevel() > 20)
         SetSkill(921, GetSkillStep(921), (getLevel() * 5), (getLevel() * 5));

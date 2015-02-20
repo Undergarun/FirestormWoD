@@ -4653,6 +4653,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 2484: ///< Earthbind Totem
                 spellInfo->OverrideSpellList.push_back(51485);
                 break;
+            case 47753: ///< Divine Aegis
             case 86273: ///< Illuminated Healing 
                 spellInfo->Effects[0].BonusMultiplier = 0.0f;
                 break;
@@ -5245,12 +5246,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 147362: ///< Counter Shot
                 spellInfo->Speed = 0;
-                break;
-            case 132626: ///< Alliance Portal - Mage
-                spellInfo->AttributesEx7 |= SPELL_ATTR7_ALLIANCE_ONLY;
-                break;
-            case 132620: ///< Horde Portal - Mage
-                spellInfo->AttributesEx7 |= SPELL_ATTR7_HORDE_ONLY;
                 break;
             case 38112: ///< Magic Barrier, Lady Vashj
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
