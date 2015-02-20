@@ -3044,7 +3044,7 @@ class spell_hun_misdirection_proc: public SpellScriptLoader
         }
 };
 
-// Disengage - 781
+/// Disengage - 781
 class spell_hun_disengage: public SpellScriptLoader
 {
     public:

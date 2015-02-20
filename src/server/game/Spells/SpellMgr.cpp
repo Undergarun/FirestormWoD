@@ -266,8 +266,9 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
             // Charge (Tenacity pet) -- 53148, no flags (5526)
             if (spellproto->SpellIconID == 1559 && spellproto->SpellVisual[0] == 39480)
                 return DIMINISHING_ROOT;
-            // Narrow Escape -- 136634, no flags (17964)
-            if (spellproto->SpellIconID == 3342 && spellproto->SchoolMask == 8)
+
+            /// Narrow Escape -- 136634
+            if (spellproto->Id == 136634)
                 return DIMINISHING_ROOT;
 
             // Binding Shot -- 117526, no flags (15581)
