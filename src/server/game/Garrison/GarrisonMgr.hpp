@@ -167,8 +167,12 @@ namespace MS { namespace Garrison
             uint32 GetWorkOrderCount(uint32 p_PlotInstanceID);
             /// Start new work order
             uint64 StartWorkOrder(uint32 p_PlotInstanceID, uint32 p_ShipmentID);
+            /// Delete work order
+            void DeleteWorkOrder(uint64 p_DBID);
             /// Get creature plot instance ID
             uint32 GetCreaturePlotInstanceID(uint64 p_GUID);
+            /// Get gameobject plot instance ID
+            uint32 GetGameObjectPlotInstanceID(uint64 p_GUID);
 
             /// Get known blueprints
             std::vector<int32> GetKnownBlueprints();

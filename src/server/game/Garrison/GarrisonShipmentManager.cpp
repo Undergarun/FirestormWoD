@@ -118,6 +118,8 @@ namespace MS { namespace Garrison
 
             uint32 l_QuestItem = l_ShipmentEntry->ResultItemID;
 
+            std::vector<GarrisonWorkOrder> l_WorkOrders = p_Target->GetGarrison()->GetWorkOrders();
+
             for (auto l_QuestPair : sObjectMgr->QuestForItem[l_QuestItem])
             {
                 if (p_Target->HasQuest(l_QuestPair.first))
@@ -131,7 +133,12 @@ namespace MS { namespace Garrison
                     {
                         QuestObjective const* l_Objective = l_Quest->GetQuestObjectiveXIndex(l_QuestPair.second);
 
-                        if (l_Objective->ObjectID == l_QuestItem && !p_Target->HasItemCount(l_QuestItem, 1, false))
+                        uint32 l_Count = std::count_if(l_WorkOrders.begin(), l_WorkOrders.end(), [this, l_BuildingType](const GarrisonWorkOrder & p_Order) -> bool
+                        {
+                            return p_Order.ShipmentID == m_QuestShipmentPerBuildingType[l_BuildingType];
+                        });
+
+                        if (l_Objective->ObjectID == l_QuestItem && !p_Target->HasItemCount(l_QuestItem, 1, false) && !l_Count)
                             return m_QuestShipmentPerBuildingType[l_BuildingType];
                     }
                 }

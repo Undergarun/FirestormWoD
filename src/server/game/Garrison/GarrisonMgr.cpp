@@ -2716,10 +2716,41 @@ namespace MS { namespace Garrison
         return l_WorkOrder.DatabaseID;
     }
 
+    /// Delete work order
+    void Manager::DeleteWorkOrder(uint64 p_DBID)
+    {
+        PreparedStatement * l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GARRISON_WORKORDER);
+        l_Stmt->setUInt32(0, p_DBID);
+        CharacterDatabase.AsyncQuery(l_Stmt);
+
+        for (std::vector<GarrisonWorkOrder>::iterator l_It = m_WorkOrders.begin(); l_It != m_WorkOrders.end(); ++l_It)
+        {
+            if (l_It->DatabaseID == p_DBID)
+            {
+                m_WorkOrders.erase(l_It);
+                break;
+            }
+        }
+    }
+
     /// Get creature plot instance ID
     uint32 Manager::GetCreaturePlotInstanceID(uint64 p_GUID)
     {
         for (auto & l_Pair : m_PlotsCreatures)
+        {
+            std::vector<uint64>::iterator l_It = std::find(l_Pair.second.begin(), l_Pair.second.end(), p_GUID);
+
+            if (l_It != l_Pair.second.end())
+                return l_Pair.first;
+        }
+
+        return 0;
+    }
+
+    /// Get gameobject plot instance ID
+    uint32 Manager::GetGameObjectPlotInstanceID(uint64 p_GUID)
+    {
+        for (auto & l_Pair : m_PlotsGameObjects)
         {
             std::vector<uint64>::iterator l_It = std::find(l_Pair.second.begin(), l_Pair.second.end(), p_GUID);
 
