@@ -61,8 +61,9 @@ namespace MS { namespace Garrison
                 std::vector<uint32> l_Candidates;
                 std::copy(l_Pair.second.begin(), l_Pair.second.end(), std::back_inserter(l_Candidates));
 
-                auto l_Seed = std::chrono::system_clock::now().time_since_epoch().count();
-                std::shuffle(l_Candidates.begin(), l_Candidates.end(), std::default_random_engine(l_Seed));
+                /// @TODO Some conflict can appear if queue contains more than 1 ID Range
+                ///auto l_Seed = std::chrono::system_clock::now().time_since_epoch().count();
+                ///std::shuffle(l_Candidates.begin(), l_Candidates.end(), std::default_random_engine(l_Seed));
 
                 m_ShipmentPerBuildingType[l_Pair.first] = l_Candidates.at(0);
             }
@@ -78,6 +79,10 @@ namespace MS { namespace Garrison
             CharShipmentContainerEntry const* l_ContainerEntry = sCharShipmentContainerStore.LookupEntry(l_Entry->ShipmentContainerID);
 
             if (!l_ContainerEntry || (std::string(l_ContainerEntry->Name).empty() && std::string(l_ContainerEntry->Description).empty()))
+                continue;
+
+            /// Some conflict can appear if queue contains more than 1 ID Range
+            if (m_QuestShipmentPerBuildingType[l_ContainerEntry->BuildingType] != 0)
                 continue;
 
             m_QuestShipmentPerBuildingType[l_ContainerEntry->BuildingType] = l_Entry->ID;
