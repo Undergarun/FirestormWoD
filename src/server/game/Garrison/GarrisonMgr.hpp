@@ -45,6 +45,9 @@ namespace MS { namespace Garrison
             /// Update the garrison
             void Update();
 
+            /// Set garrison level
+            void SetLevel(uint32 p_Level);
+
             /// Reward garrison cache content
             void RewardGarrisonCache();
             /// Get garrison cache token count

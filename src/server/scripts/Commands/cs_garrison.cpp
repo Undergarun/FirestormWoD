@@ -45,13 +45,14 @@ class garrison_commandscript: public CommandScript
 
             static ChatCommand garrisonCommandTable[] =
             {
-                { "blueprint", SEC_GAMEMASTER,  true,   NULL, "", blueprintCommandTable },
-                { "plot",      SEC_GAMEMASTER,  true,   NULL, "", plotCommandTable      },
-                { "follower",  SEC_GAMEMASTER,  true,   NULL, "", followerCommandTable  },
-                { "mission" ,  SEC_GAMEMASTER,  true,   NULL, "", missionCommandTable   },
-                { "info",      SEC_GAMEMASTER,  true,   &HandleGarrisonInfo,   "", NULL },
-                { "create",    SEC_GAMEMASTER,  true,   &HandleGarrisonCreate, "", NULL },
-                { "delete",    SEC_GAMEMASTER,  true,   &HandleGarrisonDelete, "", NULL },
+                { "blueprint", SEC_GAMEMASTER,  true,   NULL, "", blueprintCommandTable   },
+                { "plot",      SEC_GAMEMASTER,  true,   NULL, "", plotCommandTable        },
+                { "follower",  SEC_GAMEMASTER,  true,   NULL, "", followerCommandTable    },
+                { "mission" ,  SEC_GAMEMASTER,  true,   NULL, "", missionCommandTable     },
+                { "info",      SEC_GAMEMASTER,  true,   &HandleGarrisonInfo,     "", NULL },
+                { "setlevel",  SEC_GAMEMASTER,  true,   &HandleGarrisonSetLevel, "", NULL },
+                { "create",    SEC_GAMEMASTER,  true,   &HandleGarrisonCreate,   "", NULL },
+                { "delete",    SEC_GAMEMASTER,  true,   &HandleGarrisonDelete,   "", NULL },
                 { NULL,        0,               false,  NULL, "", NULL }
             };
 
@@ -86,6 +87,30 @@ class garrison_commandscript: public CommandScript
             p_Handler->PSendSysMessage("Garrison info");
             p_Handler->PSendSysMessage("Level : %u SiteLevelID : %u MapID : %u FactionID : %u", l_Entry->Level, l_Entry->SiteID, l_Entry->MapID, (uint32)l_TargetPlayer->GetGarrison()->GetGarrisonFactionIndex());
             p_Handler->PSendSysMessage("Cache Resource : %u", l_TargetPlayer->GetGarrison()->GetGarrisonCacheTokenCount());
+
+            return true;
+        }
+
+        static bool HandleGarrisonSetLevel(ChatHandler * p_Handler, char const* p_Args)
+        {
+            Player * l_TargetPlayer = p_Handler->getSelectedPlayer();
+
+            if (!l_TargetPlayer || !l_TargetPlayer->GetGarrison())
+            {
+                p_Handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            if (p_Args != 0)
+            {
+                uint32 l_Level = atoi(p_Args);
+
+                if (!l_Level)
+                    return false;
+
+                l_TargetPlayer->GetGarrison()->SetLevel(l_Level);
+            }
 
             return true;
         }
