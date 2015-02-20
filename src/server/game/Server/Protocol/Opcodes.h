@@ -937,7 +937,6 @@ enum Opcodes
     CMSG_GARRISON_CREATE_CHEAT                              = 0x0000,
     CMSG_GARRISON_DELETE_CHEAT                              = 0x0000,
     CMSG_GARRISON_SET_LEVEL_CHEAT                           = 0x0000,
-    CMSG_UPGRADE_GARRISON                                   = 0x0000,
     CMSG_GARRISON_PLACE_BUILDING_CHEAT                      = 0x0000,
     CMSG_GARRISON_REMOVE_BUILDING_CHEAT                     = 0x0000,
     CMSG_GARRISON_UPGRADE_BUILDING_CHEAT                    = 0x0000,
@@ -966,6 +965,7 @@ enum Opcodes
     CMSG_GARRISON_COMPLETE_MISSION                          = 0x102C,   ///< 6.0.3 19116
     CMSG_GARRISON_MISSION_BONUS_ROLL                        = 0x02C2,   ///< 6.0.3 19116
     CMSG_GARRISON_REQUEST_UPGRADEABLE                       = 0x02BD,   ///< 6.0.3 19116
+    CMSG_UPGRADE_GARRISON                                   = 0x0526,   ///< 6.0.3 19116
     CMSG_GARRISON_REQUEST_LANDING_PAGE_SHIPMENT_INFO        = 0x0000,
     CMSG_GARRISON_MISSION_NPC_HELLO                         = 0x03D9,   ///< 6.0.3 19116
     CMSG_GET_SHIPMENT_INFO                                  = 0x06E3,   ///< 6.0.3 19116

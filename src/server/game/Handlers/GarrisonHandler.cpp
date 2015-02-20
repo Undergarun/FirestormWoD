@@ -144,13 +144,44 @@ void WorldSession::HandleRequestGarrisonUpgradeableOpcode(WorldPacket & p_RecvDa
     if (!l_Garrison)
         return;
 
-    bool l_CanUpgrade = false;
+    bool l_CanUpgrade = l_Garrison->CanUpgrade();
 
     WorldPacket l_Data(SMSG_GARRISON_REQUEST_UPGRADEABLE_RESULT, 4);
 
     l_Data << uint32(!l_CanUpgrade);
 
     SendPacket(&l_Data);
+}
+
+void WorldSession::HandleUpgradeGarrisonOpcode(WorldPacket & p_RecvData)
+{
+    if (!m_Player)
+        return;
+
+    MS::Garrison::Manager * l_Garrison = m_Player->GetGarrison();
+
+    if (!l_Garrison)
+        return;
+
+    uint64 l_NpcGUID = 0;
+
+    p_RecvData.readPackGUID(l_NpcGUID);
+
+    Creature* l_Unit = GetPlayer()->GetNPCIfCanInteractWithFlag2(l_NpcGUID, UNIT_NPC_FLAG2_GARRISON_ARCHITECT);
+
+    if (!l_Unit)
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleUpgradeGarrisonOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(l_NpcGUID)));
+        return;
+    }
+
+    if (!l_Garrison->CanUpgrade())
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleUpgradeGarrisonOpcode - Can't upgrade");
+        return;
+    }
+
+    l_Garrison->Upgrade();
 }
 
 void WorldSession::HandleRequestLandingPageShipmentInfoOpcode(WorldPacket & p_RecvData)

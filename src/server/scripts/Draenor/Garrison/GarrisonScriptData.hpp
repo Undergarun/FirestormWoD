@@ -54,12 +54,14 @@ namespace MS { namespace Garrison
         QUEST_PALE_MOONLIGHT                        = 35174,
         LostInTransition                            = 37087,
         Alliance_YourFirstBlacksmithingWorkOrder    = 35168,
+        Alliance_BiggerIsBetter                     = 36592,
 
         /// Horde
         QUEST_ETABLISH_YOUR_GARRISON_H            = 34378,
         QUEST_WHAT_WE_GOT                         = 34824,
         QUEST_BUILD_YOUR_BARRACKS                 = 34461,
-        Horde_YourFirstBlacksmithingWorkOrder     = 37569
+        Horde_YourFirstBlacksmithingWorkOrder     = 37569,
+        Horde_BiggerIsBetter                      = 36567
 
     };
 

@@ -59,6 +59,11 @@ namespace MS { namespace Garrison
             /// Get garrison script
             Interfaces::GarrisonSite * GetGarrisonScript();
 
+            /// Can upgrade the garrison
+            bool CanUpgrade();
+            /// Upgrade the garrison
+            void Upgrade();
+
             /// When the garrison owner enter in the garrisson (@See Player::UpdateArea)
             void OnPlayerEnter();
             /// When the garrison owner leave the garrisson (@See Player::UpdateArea)

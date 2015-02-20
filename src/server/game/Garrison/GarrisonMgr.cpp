@@ -706,6 +706,40 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
+    /// Can upgrade the garrison
+    bool Manager::CanUpgrade()
+    {
+        if (!m_Owner->HasCurrency(Globals::CurrencyID, GetGarrisonSiteLevelEntry()->UpgradeCost))
+            return false;
+
+        if (!m_Owner->HasEnoughMoney((int64)GetGarrisonSiteLevelEntry()->UpgradeMoneyCost))
+            return false;
+
+        Interfaces::GarrisonSite * l_GarrisonScript = GetGarrisonScript();
+
+        if (l_GarrisonScript)
+            return l_GarrisonScript->CanUpgrade(m_Owner);
+
+        return false;
+    }
+
+    /// Upgrade the garrison
+    void Manager::Upgrade()
+    {
+        m_Owner->ModifyCurrency(Globals::CurrencyID, -((int32)GetGarrisonSiteLevelEntry()->UpgradeCost));
+        m_Owner->ModifyMoney(-((int64)GetGarrisonSiteLevelEntry()->UpgradeMoneyCost));
+
+        SetLevel(m_GarrisonLevel + 1);
+
+        Interfaces::GarrisonSite * l_GarrisonScript = GetGarrisonScript();
+
+        if (l_GarrisonScript)
+            l_GarrisonScript->OnUpgrade(m_Owner);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
     /// Reward garrison cache content
     void Manager::RewardGarrisonCache()
     {

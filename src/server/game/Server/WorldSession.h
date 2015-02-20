@@ -1064,6 +1064,7 @@ class WorldSession
         //////////////////////////////////////////////////////////////////////////
         void HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData);
         void HandleRequestGarrisonUpgradeableOpcode(WorldPacket & p_RecvData);
+        void HandleUpgradeGarrisonOpcode(WorldPacket & p_RecvData);
         void HandleRequestLandingPageShipmentInfoOpcode(WorldPacket & p_RecvData);
         void HandleGarrisonMissionNPCHelloOpcode(WorldPacket & p_RecvData);
         void HandleGarrisonRequestBuildingsOpcode(WorldPacket & p_RecvData);
