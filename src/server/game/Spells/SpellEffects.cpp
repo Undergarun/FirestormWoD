@@ -7671,8 +7671,6 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
     Player* l_Player = unitTarget->ToPlayer();
     if (!l_Player)
         return;
-    if (!l_Player->isAlive())
-        return;
 
     Unit* l_Caster = NULL;
     Unit::AuraEffectList const& l_AuraList = l_Player->GetAuraEffectsByType(SPELL_AURA_TRIGGER_BONUS_LOOT);
