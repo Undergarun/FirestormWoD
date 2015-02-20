@@ -485,7 +485,7 @@ class garrison_commandscript: public CommandScript
                 return false;
             }
 
-            MS::Garrison::GarrisonPlotInstanceInfoLocation l_Info = l_Player->GetGarrison()->GetPlot(l_Player->GetPositionX(), l_Player->GetPositionY(), l_Player->GetPositionZ());
+            MS::Garrison::GarrisonPlotInstanceInfoLocation l_Info{ 445, 59, 5399.831f, 4465.9760f, 114.46130f, 0.8464847f };//l_Player->GetGarrison()->GetPlot(l_Player->GetPositionX(), l_Player->GetPositionY(), l_Player->GetPositionZ());
 
             if (!l_Info.PlotInstanceID)
             {
@@ -495,7 +495,8 @@ class garrison_commandscript: public CommandScript
             }
 
             MS::Garrison::GarrisonBuilding l_Building = l_Player->GetGarrison()->GetBuilding(l_Info.PlotInstanceID);
-
+            l_Building.BuildingID = 61;
+            l_Building.Active = true;
             if (!l_Building.BuildingID)
             {
                 p_Handler->SendSysMessage("Building not found");
