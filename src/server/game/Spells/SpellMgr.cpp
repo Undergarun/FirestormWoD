@@ -5872,13 +5872,11 @@ void SpellMgr::LoadSpellCustomAttr()
             switch (spellInfo->Id)
             {
                 case 61882: ///< Earthquake
-                case 152280: ///< Defile
+                case 152280:///< Defile
+                case 109248:///< Binding Shot
                     spellInfo->ExplicitTargetMask &= ~TARGET_FLAG_UNIT;
                     break;
-                case 109248: ///< Binding Shot
-                    spellInfo->ExplicitTargetMask &= ~TARGET_FLAG_UNIT;
-                    break;
-                case 116011: ///< Rune of Power
+                case 116011:///< Rune of Power
                     spellInfo->ExplicitTargetMask &= ~TARGET_FLAG_UNIT;
                     spellInfo->Effects[2].Effect = 0;   ///< No summon needed
                     break;
@@ -5886,17 +5884,13 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->ExplicitTargetMask |= TARGET_FLAG_UNIT_ALLY;
                     spellInfo->ExplicitTargetMask |= TARGET_FLAG_UNIT_ENEMY;
                     break;
-                case 107223: ///< Sunfire Rays
-                    spellInfo->ExplicitTargetMask = TARGET_FLAG_UNIT_MASK;
-                   break;
-                case 106736: ///< Wither Will
+                case 107223:///< Sunfire Rays
+                case 106736:///< Wither Will
+                case 106113:///< Touch of Nothingness
                     spellInfo->ExplicitTargetMask = TARGET_FLAG_UNIT_MASK;
                     break;
-                case 106112: ///< Release Doubt
+                case 106112:///< Release Doubt
                     spellInfo->ExplicitTargetMask |= TARGET_FLAG_DEST_LOCATION;
-                    break;
-                case 106113: ///< Touch of Nothingness
-                    spellInfo->ExplicitTargetMask = TARGET_FLAG_UNIT_MASK;
                     break;
                 default:
                     break;
