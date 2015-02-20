@@ -3266,7 +3266,7 @@ void Spell::EffectDispel(SpellEffIndex p_EffectIndex)
             {
                 if (m_caster->IsFriendlyTo(unitTarget))
                 {
-                    int32 bp = int32(unitTarget->CountPctFromMaxHealth(aurEff->GetAmount() * l_Count));
+                    int32 bp = int32(m_caster->CountPctFromMaxHealth(aurEff->GetAmount() * l_Count));
                     m_caster->CastCustomSpell(unitTarget, 56131, &bp, 0, 0, true);
                 }
             }
