@@ -21,6 +21,7 @@ INSERT INTO creature_model_info (`modelid`, `bounding_radius`, `combat_reach`, `
 DELETE FROM creature_questrelation WHERE id = 77792 AND quest = 35168;
 DELETE FROM creature_questrelation WHERE id = 77792 AND quest = 35172;
 DELETE FROM creature_questrelation WHERE id = 77359 AND quest = 35172;
+DELETE FROM creature_questrelation WHERE id = 77359 AND quest = 35168;
 INSERT INTO `creature_questrelation`(`id`,`quest`) VALUES ( '77359','35168');
 
 DELETE FROM creature_involvedrelation WHERE id = 77792 AND quest = 35168;
