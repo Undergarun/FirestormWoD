@@ -97,7 +97,6 @@ enum DeathKnightPresence
     FrostPresence   = 48266
 };
 
-
 uint32 g_TabDeasesDK[3] = { DK_SPELL_FROST_FEVER, DK_SPELL_BLOOD_PLAGUE, DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA };
 
 /// Glyph of Death and Decay - 58629
@@ -200,8 +199,6 @@ class spell_dk_plague_strike: public SpellScriptLoader
             return new spell_dk_plague_strike_SpellScript();
         }
 };
-
-
 
 // Gorefiend's Grasp - 108199
 class spell_dk_gorefiends_grasp: public SpellScriptLoader
@@ -1237,8 +1234,6 @@ class spell_dk_anti_magic_shell_raid: public SpellScriptLoader
             return new spell_dk_anti_magic_shell_raid_AuraScript();
         }
 };
-
-
 
 enum GlyphOfRegenerativeMagicSpells
 {

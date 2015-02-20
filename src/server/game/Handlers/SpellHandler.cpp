@@ -606,6 +606,9 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
 
         for (auto itr : spellInfo->OverrideSpellList)
         {
+            if (!l_Count)
+                break;
+
             if (m_Player->HasSpell(itr))
             {
                 SpellInfo const* overrideSpellInfo = sSpellMgr->GetSpellInfo(itr);

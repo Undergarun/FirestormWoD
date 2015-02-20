@@ -35,8 +35,6 @@
 
 void WorldSession::HandleLootItemOpcode(WorldPacket & p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT_ITEM");
-
     Loot* l_Loot = NULL;
 
     uint64 l_LootGuid = m_Player->GetLootGUID();
@@ -102,7 +100,8 @@ void WorldSession::HandleLootItemOpcode(WorldPacket & p_RecvData)
 
             bool l_IsLootAllowed = l_Creature && l_Creature->isAlive() == (m_Player->getClass() == CLASS_ROGUE && l_Creature->lootForPickPocketed);
 
-            if (!l_IsLootAllowed || (!l_Creature->IsWithinDistInMap(m_Player, INTERACTION_DISTANCE) && !m_Player->HasSpell(125048)))
+            /// Check for Glyph of Fetch too
+            if (!l_IsLootAllowed || (!l_Creature->IsWithinDistInMap(m_Player, INTERACTION_DISTANCE) && !m_Player->HasSpell(125050)))
             {
                 m_Player->SendLootRelease(l_LootGuid);
                 return;
@@ -134,8 +133,6 @@ void WorldSession::HandleLootItemOpcode(WorldPacket & p_RecvData)
 
 void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT_MONEY");
-
     Player* player = GetPlayer();
 
     uint64 guid = player->GetLootGUID();
@@ -162,7 +159,8 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
         {
             Corpse* bones = ObjectAccessor::GetCorpse(*player, guid);
 
-            if (bones && bones->IsWithinDistInMap(player, INTERACTION_DISTANCE))
+            /// Check for Glyph of Fetch too
+            if (bones && (bones->IsWithinDistInMap(player, INTERACTION_DISTANCE) || m_Player->HasSpell(125050)))
             {
                 masterLoot = &bones->loot;
                 shareMoney = false;
@@ -184,7 +182,9 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
         {
             Creature* creature = player->GetMap()->GetCreature(guid);
             bool lootAllowed = creature && creature->isAlive() == (player->getClass() == CLASS_ROGUE && creature->lootForPickPocketed);
-            if (lootAllowed && creature->IsWithinDistInMap(player, INTERACTION_DISTANCE))
+
+            /// Check for Glyph of Fetch too
+            if (lootAllowed && (creature->IsWithinDistInMap(player, INTERACTION_DISTANCE) || m_Player->HasSpell(125050)))
             {
                 masterLoot = &creature->loot;
                 if (creature->isAlive())
@@ -312,8 +312,6 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
 
 void WorldSession::HandleLootOpcode(WorldPacket & recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT");
-
     uint64 l_UnitGuid;
 
     recvData.readPackGUID(l_UnitGuid);
@@ -331,8 +329,6 @@ void WorldSession::HandleLootOpcode(WorldPacket & recvData)
 
 void WorldSession::HandleLootReleaseOpcode(WorldPacket& p_RecvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT_RELEASE");
-
     // cheaters can modify lguid to prevent correct apply loot release code and re-loot
     // use internal stored guid
     uint64 l_ObjectGuid;
@@ -409,7 +405,8 @@ void WorldSession::DoLootRelease(uint64 lguid)
     else if (IS_CORPSE_GUID(lguid))        // ONLY remove insignia at BG
     {
         Corpse* corpse = ObjectAccessor::GetCorpse(*player, lguid);
-        if (!corpse || !corpse->IsWithinDistInMap(m_Player, INTERACTION_DISTANCE))
+        /// Check for Glyph of Fetch too
+        if (!corpse || !corpse->IsWithinDistInMap(m_Player, INTERACTION_DISTANCE) && !m_Player->HasSpell(125050))
             return;
 
         loot = &corpse->loot;
@@ -452,7 +449,9 @@ void WorldSession::DoLootRelease(uint64 lguid)
         Creature* creature = GetPlayer()->GetMap()->GetCreature(lguid);
 
         bool lootAllowed = creature && creature->isAlive() == (player->getClass() == CLASS_ROGUE && creature->lootForPickPocketed);
-        if (!lootAllowed || !creature->IsWithinDistInMap(m_Player, INTERACTION_DISTANCE))
+
+        /// Check for Glyph of Fetch too
+        if (!lootAllowed || !creature->IsWithinDistInMap(m_Player, INTERACTION_DISTANCE) && !m_Player->HasSpell(125050))
             return;
 
         loot = &creature->loot;
