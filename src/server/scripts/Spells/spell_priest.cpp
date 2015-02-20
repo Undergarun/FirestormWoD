@@ -84,7 +84,6 @@ enum PriestSpells
     PRIEST_SPELL_DIVINE_INSIGHT_HOLY                = 123267,
     PRIEST_PRAYER_OF_MENDING                        = 33076,
     PRIEST_PRAYER_OF_MENDING_HEAL                   = 33110,
-    PRIEST_POWER_WORD_BARRIER_AREA_TRIGGER          = 62618,
     PRIEST_PRAYER_OF_MENDING_RADIUS                 = 123262,
     PRIEST_PRAYER_OF_MENDING_AURA                   = 44586,
     PRIEST_BODY_AND_SOUL_AURA                       = 64129,
@@ -2435,92 +2434,6 @@ class spell_pri_void_tendrils: public SpellScriptLoader
         }
 };
 
-//Power word : Barrier Update - 145645
-class spell_pri_word_barrier_update: public SpellScriptLoader
-{
-public:
-    spell_pri_word_barrier_update() : SpellScriptLoader("spell_pri_word_barrier_update") { }
-
-    class spell_pri_word_barrier_update_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_pri_word_barrier_update_AuraScript);
-
-        void OnTick(constAuraEffectPtr aurEff)
-        {
-            if (Unit* l_Caster = GetCaster())
-            {
-                AreaTrigger* l_Area = l_Caster->GetAreaTrigger(62618);
-
-                if (!l_Area)
-                    return;
-
-                std::list<Unit*> l_BindedList;
-
-                CellCoord l_Pos(JadeCore::ComputeCellCoord(l_Area->GetPositionX(), l_Area->GetPositionY()));
-                Cell l_Cell(l_Pos);
-                l_Cell.SetNoCreate();
-
-                JadeCore::AnyUnitInObjectRangeCheck l_Check(l_Area, 10.0f);
-                JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck> l_Searcher(l_Area, l_BindedList, l_Check);
-
-                TypeContainerVisitor<JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck>, WorldTypeMapContainer > world_unit_searcher(l_Searcher);
-                TypeContainerVisitor<JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck>, GridTypeMapContainer >  grid_unit_searcher(l_Searcher);
-
-                l_Cell.Visit(l_Pos, world_unit_searcher, *l_Area->GetMap(), *l_Area, 10.0f);
-                l_Cell.Visit(l_Pos, grid_unit_searcher, *l_Area->GetMap(), *l_Area, 10.0f);
-
-                for (auto itr : l_BindedList)
-                {
-                    Unit* l_Target = itr->ToUnit();
-                    if (!l_Target)
-                        continue;
-
-                    if (!l_Target->HasAura(81782))
-                        l_Caster->CastSpell(l_Target, 81782, true);
-                }
-            }
-        }
-
-        void Register()
-        {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_pri_word_barrier_update_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_pri_word_barrier_update_AuraScript();
-    }
-};
-//Power word : Barrier - 62618
-class spell_pri_power_word_barrier: public SpellScriptLoader
-{
-public:
-    spell_pri_power_word_barrier() : SpellScriptLoader("spell_pri_power_word_barrier") { }
-
-    class spell_pri_power_word_barrier_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_pri_power_word_barrier_SpellScript);
-
-        void HandleOnHit()
-        {
-                if (Unit* l_Caster = GetCaster())
-                    if (AreaTrigger* l_Area = l_Caster->GetAreaTrigger(GetSpellInfo()->Id))
-                        l_Caster->CastSpell(l_Area->GetPositionX(), l_Area->GetPositionY(), l_Area->GetPositionZ(), 145645, true);
-        }
-
-        void Register()
-        {
-            OnHit += SpellHitFn(spell_pri_power_word_barrier_SpellScript::HandleOnHit);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_pri_power_word_barrier_SpellScript();
-    }
-};
-
 // Archangel - 81700
 class spell_pri_archangel: public SpellScriptLoader
 {
@@ -3135,13 +3048,50 @@ class spell_pri_twist_of_fate : public SpellScriptLoader
         }
 };
 
+/// Power Word: Barrier - 62618
+class spell_areatrigger_power_word_barrier : public AreaTriggerEntityScript
+{
+    public:
+        spell_areatrigger_power_word_barrier() : AreaTriggerEntityScript("spell_areatrigger_power_word_barrier") { }
+
+        enum ePowerWordBarrierSpell
+        {
+            PowerWordBarrierAura     = 81782
+        };
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+            {
+                std::list<Unit*> l_FriendListInRadius;
+                float l_Radius = 6.5f;
+
+                JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
+                JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_FriendListInRadius, l_Check);
+                p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+                if (!l_FriendListInRadius.empty())
+                {
+                    for (Unit* l_Unit : l_FriendListInRadius)
+                    {
+                        if (l_Caster->IsValidAssistTarget(l_Unit))
+                            l_Caster->CastSpell(l_Unit, ePowerWordBarrierSpell::PowerWordBarrierAura, true);
+                    }
+                }
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const
+        {
+            return new spell_areatrigger_power_word_barrier();
+        }
+};
 
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_mind_flay();
     new spell_pri_glyphe_of_mind_blast();
     new spell_pri_mind_blast();
-    new spell_pri_word_barrier_update();
     new spell_pri_shadow_word_pain();
     new spell_pri_angelic_feather();
     new spell_pri_spirit_shell();
@@ -3150,7 +3100,6 @@ void AddSC_priest_spell_scripts()
     new spell_pri_prayer_of_mending_heal();
     new spell_pri_prayer_of_mending_aura();
     new spell_pri_archangel();
-    new spell_pri_power_word_barrier();
     new spell_pri_void_tendrils();
     new spell_pri_clarity_of_will();
     new spell_pri_confession();
@@ -3207,4 +3156,5 @@ void AddSC_priest_spell_scripts()
 
     /// Areatrigger scripts
     new at_pri_divine_star();
+    new spell_areatrigger_power_word_barrier();
 }

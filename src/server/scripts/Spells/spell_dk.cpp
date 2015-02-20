@@ -2179,7 +2179,7 @@ class spell_dk_death_coil : public SpellScriptLoader
         }
 };
 
-/// Areatrigger defile
+/// Areatrigger defile - 152280
 class spell_areatrigger_dk_defile : public AreaTriggerEntityScript
 {
     public:
