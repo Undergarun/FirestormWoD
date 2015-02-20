@@ -133,6 +133,46 @@ enum HunterSpells
     HUNTER_SPELL_GLYPH_OF_MEND_PET_TICK             = 24406
 };
 
+/// Fetch (Glyph) - 125050
+class spell_hun_fetch_glyph : public SpellScriptLoader
+{
+    public:
+        spell_hun_fetch_glyph() : SpellScriptLoader("spell_hun_fetch_glyph") { }
+
+        class spell_hun_fetch_glyph_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_fetch_glyph_SpellScript);
+
+            void HandleScript(SpellEffIndex)
+            {
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    if (Unit* l_Target = GetHitUnit())
+                    {
+                        if (l_Target->isAlive())
+                            return;
+
+                        if (Pet* l_Pet = l_Player->GetPet())
+                        {
+                            l_Pet->GetMotionMaster()->MoveCharge(l_Target->GetPositionX(), l_Target->GetPositionY(), l_Target->GetPositionZ());
+                            l_Player->SendLoot(l_Target->GetGUID(), LootType::LOOT_CORPSE, true);
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_hun_fetch_glyph_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_fetch_glyph_SpellScript();
+        }
+};
+
 /// Called by Aspect of the Cheetah - 5118
 /// Glyph of Aspect of the Cheetah - 119462
 class spell_hun_glyph_of_aspect_of_the_cheetah : public SpellScriptLoader
@@ -3448,6 +3488,7 @@ class AreaTrigger_explosive_trap : public AreaTriggerEntityScript
 void AddSC_hunter_spell_scripts()
 {
     /// Spells
+    new spell_hun_fetch_glyph();
     new spell_hun_glyph_of_aspect_of_the_cheetah();
     new spell_hun_glyph_of_mirrored_blades();
     new spell_hun_mend_pet();
