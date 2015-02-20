@@ -102,7 +102,6 @@ enum HunterSpells
     HUNTER_SPELL_GLAIVE_TOSS_DAMAGE_AND_SNARE_LEFT  = 120761,
     HUNTER_SPELL_GLAIVE_TOSS_DAMAGE_AND_SNARE_RIGHT = 121414,
     HUNTER_SPELL_ASPECT_OF_THE_BEAST                = 61648,
-    HUNTER_SPELL_EXPLOSIVE_SHOT                     = 53301,
     HUNTER_SPELL_SPIRIT_BOND_HEAL                   = 149254,
     HUNTER_SPELL_ARCANE_INTENSITY                   = 142978,
     HUNTER_SPELL_A_MURDER_OF_CROWS_DAMAGE           = 131900,
@@ -131,6 +130,61 @@ enum HunterSpells
     HUNTER_SPELL_POISONED_AMMO_AURA                 = 170661,
     HUNTER_SPELL_GLYPH_OF_MEND_PET                  = 19573,
     HUNTER_SPELL_GLYPH_OF_MEND_PET_TICK             = 24406
+};
+
+/// Black Arrow - 3674
+class spell_hun_black_arrow : public SpellScriptLoader
+{
+    public:
+        spell_hun_black_arrow() : SpellScriptLoader("spell_hun_black_arrow") { }
+
+        class spell_hun_black_arrow_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_black_arrow_AuraScript);
+
+            enum eSpells
+            {
+                LockAndLoad     = 168980,
+                ExplosiveShot   = 53301
+            };
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                if (GetCaster() == nullptr)
+                    return;
+
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    if (!roll_chance_i(GetSpellInfo()->Effects[EFFECT_1].BasePoints))
+                        return;
+
+                    if (l_Player->HasSpellCooldown(eSpells::ExplosiveShot))
+                        l_Player->RemoveSpellCooldown(eSpells::ExplosiveShot);
+
+                    l_Player->CastSpell(l_Player, eSpells::LockAndLoad, true);
+                }
+            }
+
+            void HandleDispel(DispelInfo*)
+            {
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    if (l_Player->HasSpellCooldown(GetSpellInfo()->Id))
+                        l_Player->RemoveSpellCooldown(GetSpellInfo()->Id);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_black_arrow_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+                OnDispel += AuraDispelFn(spell_hun_black_arrow_AuraScript::HandleDispel);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_black_arrow_AuraScript();
+        }
 };
 
 /// Fetch (Glyph) - 125050
@@ -851,37 +905,6 @@ public:
     }
 };
 
-// Lock and Load - 56453
-class spell_hun_lock_and_load_proc: public SpellScriptLoader
-{
-    public:
-        spell_hun_lock_and_load_proc() : SpellScriptLoader("spell_hun_lock_and_load_proc") { }
-
-        class spell_hun_lock_and_load_proc_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_hun_lock_and_load_proc_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Player* plr = GetCaster()->ToPlayer())
-                {
-                    if (plr->HasSpellCooldown(HUNTER_SPELL_EXPLOSIVE_SHOT))
-                        plr->RemoveSpellCooldown(HUNTER_SPELL_EXPLOSIVE_SHOT, true);
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_hun_lock_and_load_proc_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_hun_lock_and_load_proc_SpellScript();
-        }
-};
-
 // Bestial Wrath - 19574 and The Beast Within - 34471
 class spell_hun_bestial_wrath_dispel: public SpellScriptLoader
 {
@@ -978,8 +1001,6 @@ class spell_hun_spirit_bond: public SpellScriptLoader
                 {
                     if (Pet* l_Pet = l_Player->GetPet())
                         l_Pet->CastSpell(l_Pet, HUNTER_SPELL_SPIRIT_BOND_HEAL, true);
-
-                    l_Player->CastSpell(l_Player, HUNTER_SPELL_SPIRIT_BOND_HEAL, true);
                 }
             }
 
@@ -3488,6 +3509,7 @@ class AreaTrigger_explosive_trap : public AreaTriggerEntityScript
 void AddSC_hunter_spell_scripts()
 {
     /// Spells
+    new spell_hun_black_arrow();
     new spell_hun_fetch_glyph();
     new spell_hun_glyph_of_aspect_of_the_cheetah();
     new spell_hun_glyph_of_mirrored_blades();
@@ -3507,7 +3529,6 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_fireworks();
     new spell_hun_glyph_of_fireworks();
     new spell_hun_glyph_of_aspects();
-    new spell_hun_lock_and_load_proc();
     new spell_hun_bestial_wrath_dispel();
     new spell_hun_bestial_wrath_dispel();
     new spell_hun_item_pvp_s13_2p();

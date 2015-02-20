@@ -150,7 +150,7 @@ class spell_mastery_sniper_training : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(constAuraEffectPtr, AuraEffectHandleModes)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -162,7 +162,7 @@ class spell_mastery_sniper_training : public SpellScriptLoader
             void Register()
             {
                 OnEffectUpdate += AuraEffectUpdateFn(spell_mastery_sniper_training_AuraScript::OnUpdate, EFFECT_2, SPELL_AURA_DUMMY);
-                OnEffectRemove += AuraEffectRemoveFn(spell_mastery_sniper_training_AuraScript::OnRemove, EFFECT_2, SPELL_AURA_DUMMY);
+                OnEffectRemove += AuraEffectRemoveFn(spell_mastery_sniper_training_AuraScript::OnRemove, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -235,6 +235,9 @@ class spell_mastery_sniper_training_aura : public SpellScriptLoader
 
                 if (Player* l_Player = GetUnitOwner()->ToPlayer())
                 {
+                    if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SpecIndex::SPEC_HUNTER_MARKSMANSHIP)
+                        p_AurEff->GetBase()->Remove();
+
                     float l_Mastery = l_Player->GetFloatValue(EPlayerFields::PLAYER_FIELD_MASTERY) * 0.5f;
                     int32 l_BasePoints = l_Mastery;
 
