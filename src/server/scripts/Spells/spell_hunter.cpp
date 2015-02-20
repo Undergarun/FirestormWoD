@@ -3286,7 +3286,6 @@ class PlayerScript_thrill_of_the_hunt: public PlayerScript
 
 enum class HunterIceTrap : uint32
 {
-    ArmTimer            = 2000,
     SpellIceTrapEffect  = 13810
 };
 
@@ -3295,13 +3294,7 @@ enum class HunterIceTrap : uint32
 class AreaTrigger_ice_trap : public AreaTriggerEntityScript
 {
     public:
-        AreaTrigger_ice_trap()
-            : AreaTriggerEntityScript("at_ice_trap")
-        {
-            m_TrapArmTimer = (uint32)HunterIceTrap::ArmTimer;
-        }
-
-        uint32 m_TrapArmTimer;
+        AreaTrigger_ice_trap() : AreaTriggerEntityScript("at_ice_trap") { }
 
         AreaTriggerEntityScript* GetAI() const
         {
@@ -3310,34 +3303,26 @@ class AreaTrigger_ice_trap : public AreaTriggerEntityScript
 
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
-            /// Hunter trap have arm time ~2sec (can't find exact timer, but it's close to 2 sec)
-            if (m_TrapArmTimer <= p_Time)
+            SpellInfo const* l_CreateSpell = sSpellMgr->GetSpellInfo(p_AreaTrigger->GetSpellId());
+            Unit* l_Caster                 = p_AreaTrigger->GetCaster();
+
+            if (l_Caster && l_CreateSpell)
             {
-                SpellInfo const* l_CreateSpell = sSpellMgr->GetSpellInfo(p_AreaTrigger->GetSpellId());
-                Unit* l_Caster                 = p_AreaTrigger->GetCaster();
+                float l_Radius = 5.0f;
+                Unit* l_Target = nullptr;
 
-                if (l_Caster && l_CreateSpell)
+                JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_Caster, l_Radius);
+                JadeCore::UnitSearcher<JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_Target, l_Checker);
+                p_AreaTrigger->VisitNearbyGridObject(l_Radius, l_Searcher);
+                if (!l_Target)
+                    p_AreaTrigger->VisitNearbyWorldObject(l_Radius, l_Searcher);
+
+                if (l_Target != nullptr)
                 {
-                    float l_Radius = l_CreateSpell->Effects[0].CalcRadius(l_Caster);
-                    Unit* l_Target = nullptr;
-
-                    JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_Caster, l_Radius);
-                    JadeCore::UnitSearcher<JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_Target, l_Checker);
-                    p_AreaTrigger->VisitNearbyGridObject(l_Radius, l_Searcher);
-                    if (!l_Target)
-                        p_AreaTrigger->VisitNearbyWorldObject(l_Radius, l_Searcher);
-
-                    if (l_Target != nullptr)
-                    {
-                        l_Caster->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), (uint32)HunterIceTrap::SpellIceTrapEffect, true);
-                        p_AreaTrigger->Remove(0);
-                    }
+                    l_Caster->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), (uint32)HunterIceTrap::SpellIceTrapEffect, true);
+                    p_AreaTrigger->Remove(0);
                 }
-
-                m_TrapArmTimer = (uint32)HunterIceTrap::ArmTimer;
             }
-            else
-                m_TrapArmTimer -= p_Time;
         }
 };
 
@@ -3378,7 +3363,6 @@ class AreaTrigger_ice_trap_effect : public AreaTriggerEntityScript
 
 enum class HunterFreezingTrap : uint32
 {
-    ArmTimer            = 2000,
     SpellIncapacitate   = 3355
 };
 
@@ -3387,13 +3371,7 @@ enum class HunterFreezingTrap : uint32
 class AreaTrigger_freezing_trap : public AreaTriggerEntityScript
 {
     public:
-        AreaTrigger_freezing_trap()
-            : AreaTriggerEntityScript("at_freezing_trap")
-        {
-            m_TrapArmTimer = (uint32)HunterFreezingTrap::ArmTimer;
-        }
-
-        uint32 m_TrapArmTimer;
+        AreaTrigger_freezing_trap() : AreaTriggerEntityScript("at_freezing_trap") { }
 
         AreaTriggerEntityScript* GetAI() const
         {
@@ -3402,40 +3380,31 @@ class AreaTrigger_freezing_trap : public AreaTriggerEntityScript
 
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
-            /// Hunter trap have arm time ~2sec (can't find exact timer, but it's close to 2 sec)
-            if (m_TrapArmTimer <= p_Time)
+            auto l_CreateSpell       = sSpellMgr->GetSpellInfo(p_AreaTrigger->GetSpellId());
+            auto l_AreaTriggerCaster = p_AreaTrigger->GetCaster();
+
+            if (l_AreaTriggerCaster && l_CreateSpell)
             {
-                auto l_CreateSpell       = sSpellMgr->GetSpellInfo(p_AreaTrigger->GetSpellId());
-                auto l_AreaTriggerCaster = p_AreaTrigger->GetCaster();
+                float l_Radius = 5.0f;
+                Unit* l_Target = nullptr;
 
-                if (l_AreaTriggerCaster && l_CreateSpell)
+                JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_AreaTriggerCaster, l_Radius);
+                JadeCore::UnitSearcher<JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_Target, l_Checker);
+                p_AreaTrigger->VisitNearbyGridObject(l_Radius, l_Searcher);
+                if (!l_Target)
+                    p_AreaTrigger->VisitNearbyWorldObject(l_Radius, l_Searcher);
+
+                if (l_Target != nullptr)
                 {
-                    float l_Radius = l_CreateSpell->Effects[0].CalcRadius(l_AreaTriggerCaster);
-                    Unit* l_Target = nullptr;
-
-                    JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_AreaTriggerCaster, l_Radius);
-                    JadeCore::UnitSearcher<JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_Target, l_Checker);
-                    p_AreaTrigger->VisitNearbyGridObject(l_Radius, l_Searcher);
-                    if (!l_Target)
-                        p_AreaTrigger->VisitNearbyWorldObject(l_Radius, l_Searcher);
-
-                    if (l_Target != nullptr)
-                    {
-                        l_AreaTriggerCaster->CastSpell(l_Target, (uint32)HunterFreezingTrap::SpellIncapacitate, true);
-                        p_AreaTrigger->Remove(0);
-                    }
+                    l_AreaTriggerCaster->CastSpell(l_Target, (uint32)HunterFreezingTrap::SpellIncapacitate, true);
+                    p_AreaTrigger->Remove(0);
                 }
-
-                m_TrapArmTimer = (uint32)HunterFreezingTrap::ArmTimer;
             }
-            else
-                m_TrapArmTimer -= p_Time;
         }
 };
 
 enum class HunterExplosiveTrap : uint32
 {
-    ArmTimer             = 2000,
     SpellExplosiveEffect = 13812
 };
 
@@ -3444,13 +3413,7 @@ enum class HunterExplosiveTrap : uint32
 class AreaTrigger_explosive_trap : public AreaTriggerEntityScript
 {
     public:
-        AreaTrigger_explosive_trap()
-            : AreaTriggerEntityScript("at_explosive_trap")
-        {
-            m_TrapArmTimer = (uint32)HunterFreezingTrap::ArmTimer;
-        }
-
-        uint32 m_TrapArmTimer;
+        AreaTrigger_explosive_trap() : AreaTriggerEntityScript("at_explosive_trap") { }
 
         AreaTriggerEntityScript* GetAI() const
         {
@@ -3459,34 +3422,26 @@ class AreaTrigger_explosive_trap : public AreaTriggerEntityScript
 
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
-            /// Hunter trap have arm time ~2sec (can't find exact timer, but it's close to 2 sec)
-            if (m_TrapArmTimer <= p_Time)
+            auto l_CreateSpell = sSpellMgr->GetSpellInfo(p_AreaTrigger->GetSpellId());
+            auto l_AreaTriggerCaster = p_AreaTrigger->GetCaster();
+
+            if (l_AreaTriggerCaster && l_CreateSpell)
             {
-                auto l_CreateSpell = sSpellMgr->GetSpellInfo(p_AreaTrigger->GetSpellId());
-                auto l_AreaTriggerCaster = p_AreaTrigger->GetCaster();
+                float l_Radius = l_CreateSpell->Effects[0].CalcRadius(l_AreaTriggerCaster);
+                Unit* l_Target = nullptr;
 
-                if (l_AreaTriggerCaster && l_CreateSpell)
+                JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_AreaTriggerCaster, l_Radius);
+                JadeCore::UnitSearcher<JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_Target, l_Checker);
+                p_AreaTrigger->VisitNearbyGridObject(l_Radius, l_Searcher);
+                if (!l_Target)
+                    p_AreaTrigger->VisitNearbyWorldObject(l_Radius, l_Searcher);
+
+                if (l_Target != nullptr)
                 {
-                    float l_Radius = l_CreateSpell->Effects[0].CalcRadius(l_AreaTriggerCaster);
-                    Unit* l_Target = nullptr;
-
-                    JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_AreaTriggerCaster, l_Radius);
-                    JadeCore::UnitSearcher<JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_Target, l_Checker);
-                    p_AreaTrigger->VisitNearbyGridObject(l_Radius, l_Searcher);
-                    if (!l_Target)
-                        p_AreaTrigger->VisitNearbyWorldObject(l_Radius, l_Searcher);
-
-                    if (l_Target != nullptr)
-                    {
-                        l_AreaTriggerCaster->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), (uint32)HunterExplosiveTrap::SpellExplosiveEffect, true);
-                        p_AreaTrigger->Remove(0);
-                    }
+                    l_AreaTriggerCaster->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), (uint32)HunterExplosiveTrap::SpellExplosiveEffect, true);
+                    p_AreaTrigger->Remove(0);
                 }
-
-                m_TrapArmTimer = (uint32)HunterFreezingTrap::ArmTimer;
             }
-            else
-                m_TrapArmTimer -= p_Time;
         }
 };
 
