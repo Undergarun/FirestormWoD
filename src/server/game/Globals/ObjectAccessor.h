@@ -194,10 +194,14 @@ class ObjectAccessor
         // these functions return objects if found in whole world
         // ACCESS LIKE THAT IS NOT THREAD SAFE
         static Pet* FindPet(uint64);
+        /// Find player /!\ IN WORLD !!!!
         static Player* FindPlayer(uint64);
+        /// Find creature /!\ IN WORLD !!!!
         static Creature* FindCreature(uint64);
+        /// Find unit /!\ IN WORLD !!!!
         static Unit* FindUnit(uint64);
         static Player* FindPlayerByName(const char* name);
+        /// Find gameobject /!\ IN WORLD !!!!
         static GameObject* FindGameObject(uint64);
 
         // when using this, you must use the hashmapholder's lock
