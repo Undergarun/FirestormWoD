@@ -31084,6 +31084,7 @@ uint32 Player::PlayStandaloneScene(uint32 p_ScenePackageID, uint32 p_PlaybackFla
 
     return l_SceneInstanceID;
 }
+
 /// Cancel a client-side played standalone scene
 /// @p_SceneInstanceID : Scene instance ID
 void Player::CancelStandaloneScene(uint32 p_SceneInstanceID)

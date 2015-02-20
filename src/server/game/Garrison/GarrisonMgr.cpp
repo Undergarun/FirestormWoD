@@ -644,7 +644,7 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
 
     /// Get garrison cache token count
-    uint32 Manager::GetGarrisonCacheTokenCount()
+    uint32 Manager::GetGarrisonCacheTokenCount() const
     {
         return m_CacheLastTokenAmount;
     }
@@ -653,7 +653,7 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
 
     /// Get terrain swaps
-    void Manager::GetTerrainSwaps(std::set<uint32> & p_TerrainSwaps)
+    void Manager::GetTerrainSwaps(std::set<uint32> & p_TerrainSwaps) const
     {
         if (!GetGarrisonSiteLevelEntry())
             return;
@@ -698,7 +698,7 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
 
     /// Get garrison script
-    Interfaces::GarrisonSite * Manager::GetGarrisonScript()
+    Interfaces::GarrisonSite * Manager::GetGarrisonScript() const
     {
         return m_GarrisonScript;
     }
@@ -707,7 +707,7 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
 
     /// Can upgrade the garrison
-    bool Manager::CanUpgrade()
+    bool Manager::CanUpgrade() const
     {
         if (!m_Owner->HasCurrency(Globals::CurrencyID, GetGarrisonSiteLevelEntry()->UpgradeCost))
             return false;
@@ -862,13 +862,13 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
 
     /// Get GarrSiteLevelEntry for current garrison
-    const GarrSiteLevelEntry * Manager::GetGarrisonSiteLevelEntry()
+    const GarrSiteLevelEntry * Manager::GetGarrisonSiteLevelEntry() const
     {
         return sGarrSiteLevelStore.LookupEntry(m_GarrisonLevelID);
     }
 
     /// Get Garrison Faction Index
-    FactionIndex::Type Manager::GetGarrisonFactionIndex()
+    FactionIndex::Type Manager::GetGarrisonFactionIndex() const
     {
         assert(m_Owner);
 
@@ -916,7 +916,7 @@ namespace MS { namespace Garrison
     }
 
     /// Get plot instance plot type
-    uint32 Manager::GetPlotType(uint32 p_PlotInstanceID)
+    uint32 Manager::GetPlotType(uint32 p_PlotInstanceID) const
     {
         const GarrPlotInstanceEntry * l_PlotInstanceEntry = sGarrPlotInstanceStore.LookupEntry(p_PlotInstanceID);
 
@@ -932,7 +932,7 @@ namespace MS { namespace Garrison
     }
 
     /// Plot is free ?
-    bool Manager::PlotIsFree(uint32 p_PlotInstanceID)
+    bool Manager::PlotIsFree(uint32 p_PlotInstanceID) const
     {
         for (uint32 l_I = 0; l_I < m_Buildings.size(); ++l_I)
             if (m_Buildings[l_I].PlotInstanceID == p_PlotInstanceID)
@@ -942,7 +942,7 @@ namespace MS { namespace Garrison
     }
 
     /// Has plot instance
-    bool Manager::HasPlotInstance(uint32 p_PlotInstanceID)
+    bool Manager::HasPlotInstance(uint32 p_PlotInstanceID) const
     {
         for (uint32 l_I = 0; l_I < m_Plots.size(); ++l_I)
             if (m_Plots[l_I].PlotInstanceID == p_PlotInstanceID)
@@ -952,7 +952,7 @@ namespace MS { namespace Garrison
     }
 
     /// Get plot location
-    GarrisonPlotInstanceInfoLocation Manager::GetPlot(uint32 p_PlotInstanceID)
+    GarrisonPlotInstanceInfoLocation Manager::GetPlot(uint32 p_PlotInstanceID) const
     {
         for (uint32 l_I = 0; l_I < m_Plots.size(); ++l_I)
         {
@@ -964,9 +964,9 @@ namespace MS { namespace Garrison
     }
 
     /// Get plot instance ID by activation game object
-    uint32 Manager::GetPlotInstanceIDByActivationGameObject(uint64 p_Guid)
+    uint32 Manager::GetPlotInstanceIDByActivationGameObject(uint64 p_Guid) const
     {
-        for (std::map<uint32, uint64>::iterator l_It = m_PlotsActivateGob.begin(); l_It != m_PlotsActivateGob.end(); ++l_It)
+        for (std::map<uint32, uint64>::const_iterator l_It = m_PlotsActivateGob.begin(); l_It != m_PlotsActivateGob.end(); ++l_It)
             if (l_It->second == p_Guid)
                 return l_It->first;
 
@@ -1038,7 +1038,7 @@ namespace MS { namespace Garrison
     }
 
     /// Player have mission
-    bool Manager::HaveMission(uint32 p_MissionRecID)
+    bool Manager::HaveMission(uint32 p_MissionRecID)  const
     {
         for (uint32 l_I = 0; l_I < m_Missions.size(); ++l_I)
         {
@@ -2145,7 +2145,7 @@ namespace MS { namespace Garrison
     }
 
     /// Get missions
-    std::vector<GarrisonMission> Manager::GetMissions()
+    std::vector<GarrisonMission> Manager::GetMissions() const
     {
         std::vector<GarrisonMission> l_Result;
 
@@ -2160,7 +2160,7 @@ namespace MS { namespace Garrison
     }
 
     /// Get all completed missions
-    std::vector<GarrisonMission> Manager::GetCompletedMissions()
+    std::vector<GarrisonMission> Manager::GetCompletedMissions() const
     {
         std::vector<GarrisonMission> l_Result;
 
@@ -2297,13 +2297,13 @@ namespace MS { namespace Garrison
     }
 
     /// Get followers
-    std::vector<GarrisonFollower> Manager::GetFollowers()
+    std::vector<GarrisonFollower> Manager::GetFollowers() const
     {
         return m_Followers;
     }
 
     /// Get follower
-    GarrisonFollower Manager::GetFollower(uint32 p_FollowerID)
+    GarrisonFollower Manager::GetFollower(uint32 p_FollowerID) const
     {
         for (uint32 l_I = 0; l_I < m_Followers.size(); l_I++)
         {
@@ -2318,7 +2318,7 @@ namespace MS { namespace Garrison
     }
 
     /// Get activated followers count
-    uint32 Manager::GetActivatedFollowerCount()
+    uint32 Manager::GetActivatedFollowerCount() const
     {
         uint32 l_ActivatedFollowerCount = 0;
 
@@ -2332,7 +2332,7 @@ namespace MS { namespace Garrison
     }
 
     /// Get num follower activation remaining
-    uint32 Manager::GetNumFollowerActivationsRemaining()
+    uint32 Manager::GetNumFollowerActivationsRemaining() const
     {
         return m_NumFollowerActivation;
     }
@@ -2341,7 +2341,7 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
 
     /// Can build building X at slot instance Y
-    bool Manager::IsBuildingPlotInstanceValid(uint32 p_BuildingRecID, uint32 p_PlotInstanceID)
+    bool Manager::IsBuildingPlotInstanceValid(uint32 p_BuildingRecID, uint32 p_PlotInstanceID) const
     {
         const GarrBuildingEntry * l_BuildingEntry = sGarrBuildingStore.LookupEntry(p_BuildingRecID);
 
@@ -2366,7 +2366,7 @@ namespace MS { namespace Garrison
     }
 
     /// Player fill all condition
-    PurchaseBuildingResults::Type Manager::CanPurchaseBuilding(uint32 p_BuildingRecID)
+    PurchaseBuildingResults::Type Manager::CanPurchaseBuilding(uint32 p_BuildingRecID) const
     {
         const GarrBuildingEntry * l_BuildingEntry = sGarrBuildingStore.LookupEntry(p_BuildingRecID);
 
@@ -2459,7 +2459,7 @@ namespace MS { namespace Garrison
     }
 
     /// Get building
-    GarrisonBuilding Manager::GetBuilding(uint32 p_PlotInstanceID)
+    GarrisonBuilding Manager::GetBuilding(uint32 p_PlotInstanceID) const
     {
         for (uint32 l_I = 0; l_I < m_Buildings.size(); ++l_I)
             if (m_Buildings[l_I].PlotInstanceID == p_PlotInstanceID)
@@ -2469,7 +2469,7 @@ namespace MS { namespace Garrison
     }
 
     /// Get buildings
-    std::vector<GarrisonBuilding> Manager::GetBuildings()
+    std::vector<GarrisonBuilding> Manager::GetBuildings() const
     {
         std::vector<GarrisonBuilding> l_Buildings;
 
@@ -2486,7 +2486,7 @@ namespace MS { namespace Garrison
     }
 
     /// Get building passive ability effects
-    std::vector<uint32> Manager::GetBuildingsPassiveAbilityEffects()
+    std::vector<uint32> Manager::GetBuildingsPassiveAbilityEffects() const
     {
         std::vector<uint32> l_PassiveEffects;
 
@@ -2627,9 +2627,9 @@ namespace MS { namespace Garrison
     }
 
     /// Has active building
-    bool Manager::HasActiveBuilding(uint32 p_BuildingID)
+    bool Manager::HasActiveBuilding(uint32 p_BuildingID) const
     {
-        for (std::vector<GarrisonBuilding>::iterator l_It = m_Buildings.begin(); l_It != m_Buildings.end(); ++l_It)
+        for (std::vector<GarrisonBuilding>::const_iterator l_It = m_Buildings.begin(); l_It != m_Buildings.end(); ++l_It)
         {
             if (l_It->BuildingID == p_BuildingID && l_It->Active)
                 return true;
@@ -2639,9 +2639,9 @@ namespace MS { namespace Garrison
     }
 
     /// Has building type
-    bool Manager::HasBuildingType(BuildingType::Type p_BuildingType)
+    bool Manager::HasBuildingType(BuildingType::Type p_BuildingType) const
     {
-        for (std::vector<GarrisonBuilding>::iterator l_It = m_Buildings.begin(); l_It != m_Buildings.end(); ++l_It)
+        for (std::vector<GarrisonBuilding>::const_iterator l_It = m_Buildings.begin(); l_It != m_Buildings.end(); ++l_It)
         {
             GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(l_It->BuildingID);
 
@@ -2656,7 +2656,7 @@ namespace MS { namespace Garrison
     }
 
     /// Get building max work order
-    uint32 Manager::GetBuildingMaxWorkOrder(uint32 p_PlotInstanceID)
+    uint32 Manager::GetBuildingMaxWorkOrder(uint32 p_PlotInstanceID) const
     {
         if (!HasPlotInstance(p_PlotInstanceID))
             return 0;
@@ -2702,7 +2702,7 @@ namespace MS { namespace Garrison
     }
 
     /// Get in progress work order count
-    uint32 Manager::GetWorkOrderCount(uint32 p_PlotInstanceID)
+    uint32 Manager::GetWorkOrderCount(uint32 p_PlotInstanceID) const
     {
         return std::count_if(m_WorkOrders.begin(), m_WorkOrders.end(), [p_PlotInstanceID](const GarrisonWorkOrder & p_Order) -> bool
         {
@@ -2768,11 +2768,11 @@ namespace MS { namespace Garrison
     }
 
     /// Get creature plot instance ID
-    uint32 Manager::GetCreaturePlotInstanceID(uint64 p_GUID)
+    uint32 Manager::GetCreaturePlotInstanceID(uint64 p_GUID) const
     {
         for (auto & l_Pair : m_PlotsCreatures)
         {
-            std::vector<uint64>::iterator l_It = std::find(l_Pair.second.begin(), l_Pair.second.end(), p_GUID);
+            auto l_It = std::find(l_Pair.second.begin(), l_Pair.second.end(), p_GUID);
 
             if (l_It != l_Pair.second.end())
                 return l_Pair.first;
@@ -2782,11 +2782,11 @@ namespace MS { namespace Garrison
     }
 
     /// Get gameobject plot instance ID
-    uint32 Manager::GetGameObjectPlotInstanceID(uint64 p_GUID)
+    uint32 Manager::GetGameObjectPlotInstanceID(uint64 p_GUID) const
     {
         for (auto & l_Pair : m_PlotsGameObjects)
         {
-            std::vector<uint64>::iterator l_It = std::find(l_Pair.second.begin(), l_Pair.second.end(), p_GUID);
+            auto l_It = std::find(l_Pair.second.begin(), l_Pair.second.end(), p_GUID);
 
             if (l_It != l_Pair.second.end())
                 return l_Pair.first;
@@ -2799,7 +2799,7 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
 
     /// Get known blueprints
-    std::vector<int32> Manager::GetKnownBlueprints()
+    std::vector<int32> Manager::GetKnownBlueprints() const
     {
         return m_KnownBlueprints;
     }
@@ -2838,7 +2838,7 @@ namespace MS { namespace Garrison
     }
 
     /// Known blue print
-    bool Manager::KnownBlueprint(uint32 p_BuildingRecID)
+    bool Manager::KnownBlueprint(uint32 p_BuildingRecID) const
     {
         return std::find(m_KnownBlueprints.begin(), m_KnownBlueprints.end(), p_BuildingRecID) != m_KnownBlueprints.end();
     }
@@ -2847,7 +2847,7 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
 
     /// Get known specializations
-    std::vector<int32> Manager::GetKnownSpecializations()
+    std::vector<int32> Manager::GetKnownSpecializations() const
     {
         return m_KnownSpecializations;
     }
@@ -2856,7 +2856,7 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
 
     /// Get work orders
-    std::vector<GarrisonWorkOrder> Manager::GetWorkOrders()
+    std::vector<GarrisonWorkOrder> Manager::GetWorkOrders() const
     {
         return m_WorkOrders;
     }

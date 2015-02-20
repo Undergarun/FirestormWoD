@@ -51,16 +51,16 @@ namespace MS { namespace Garrison
             /// Reward garrison cache content
             void RewardGarrisonCache();
             /// Get garrison cache token count
-            uint32 GetGarrisonCacheTokenCount();
+            uint32 GetGarrisonCacheTokenCount() const;
 
             /// Get terrain swaps
-            void GetTerrainSwaps(std::set<uint32> & p_TerrainSwaps);
+            void GetTerrainSwaps(std::set<uint32> & p_TerrainSwaps) const;
 
             /// Get garrison script
-            Interfaces::GarrisonSite * GetGarrisonScript();
+            Interfaces::GarrisonSite * GetGarrisonScript() const;
 
             /// Can upgrade the garrison
-            bool CanUpgrade();
+            bool CanUpgrade() const;
             /// Upgrade the garrison
             void Upgrade();
 
@@ -79,29 +79,29 @@ namespace MS { namespace Garrison
             void SetLastUsedActivationGameObject(uint64 p_Guid);
 
             /// Get GarrSiteLevelEntry for current garrison
-            const GarrSiteLevelEntry * GetGarrisonSiteLevelEntry();
+            const GarrSiteLevelEntry * GetGarrisonSiteLevelEntry() const;
             /// Get Garrison Faction Index
-            FactionIndex::Type GetGarrisonFactionIndex();
+            FactionIndex::Type GetGarrisonFactionIndex() const;
 
             /// Get plots for level
             std::vector<GarrisonPlotInstanceInfoLocation> GetPlots();
             /// Get plot by position
             GarrisonPlotInstanceInfoLocation GetPlot(float p_X, float p_Y, float p_Z);
             /// Get plot instance plot type
-            uint32 GetPlotType(uint32 p_PlotInstanceID);
+            uint32 GetPlotType(uint32 p_PlotInstanceID) const;
             /// Plot is free ?
-            bool PlotIsFree(uint32 p_PlotInstanceID);
+            bool PlotIsFree(uint32 p_PlotInstanceID) const;
             /// Has plot instance
-            bool HasPlotInstance(uint32 p_PlotInstanceID);
+            bool HasPlotInstance(uint32 p_PlotInstanceID) const;
             /// Get plot location
-            GarrisonPlotInstanceInfoLocation GetPlot(uint32 p_PlotInstanceID);
+            GarrisonPlotInstanceInfoLocation GetPlot(uint32 p_PlotInstanceID) const;
             /// Get plot instance ID by activation game object
-            uint32 GetPlotInstanceIDByActivationGameObject(uint64 p_Guid);
+            uint32 GetPlotInstanceIDByActivationGameObject(uint64 p_Guid) const;
 
             /// Add mission
             bool AddMission(uint32 p_MissionRecID);
             /// Player have mission
-            bool HaveMission(uint32 p_MissionRecID);
+            bool HaveMission(uint32 p_MissionRecID) const;
             /// Start mission
             void StartMission(uint32 p_MissionRecID, std::vector<uint64> p_Followers);
             /// Send mission start failed packet
@@ -125,35 +125,35 @@ namespace MS { namespace Garrison
             /// Get mission chest chance
             uint32 GetMissionSuccessChance(uint32 p_MissionRecID);
             /// Get missions
-            std::vector<GarrisonMission> GetMissions();
+            std::vector<GarrisonMission> GetMissions() const;
             /// Get all completed missions
-            std::vector<GarrisonMission> GetCompletedMissions();
+            std::vector<GarrisonMission> GetCompletedMissions() const;
 
             /// Add follower
             bool AddFollower(uint32 p_FollowerID);
             /// Change follower activation state
             void ChangeFollowerActivationState(uint64 p_FollowerDBID, bool p_Active);
             /// Get followers
-            std::vector<GarrisonFollower> GetFollowers();
+            std::vector<GarrisonFollower> GetFollowers() const;
             /// Get follower
-            GarrisonFollower GetFollower(uint32 p_FollowerID);
+            GarrisonFollower GetFollower(uint32 p_FollowerID) const;
             /// Get activated followers count
-            uint32 GetActivatedFollowerCount();
+            uint32 GetActivatedFollowerCount() const;
             /// Get num follower activation remaining
-            uint32 GetNumFollowerActivationsRemaining();
+            uint32 GetNumFollowerActivationsRemaining() const;
 
             /// Can build building X at slot instance Y
-            bool IsBuildingPlotInstanceValid(uint32 p_BuildingRecID, uint32 p_PlotInstanceID);
+            bool IsBuildingPlotInstanceValid(uint32 p_BuildingRecID, uint32 p_PlotInstanceID) const;
             /// Player fill all condition
-            PurchaseBuildingResults::Type CanPurchaseBuilding(uint32 p_BuildingRecID);
+            PurchaseBuildingResults::Type CanPurchaseBuilding(uint32 p_BuildingRecID) const;
             /// PurchaseBuilding
             GarrisonBuilding PurchaseBuilding(uint32 p_BuildingRecID, uint32 p_PlotInstanceID, bool p_Triggered = false);
             /// Get building
-            GarrisonBuilding GetBuilding(uint32 p_PlotInstanceID);
+            GarrisonBuilding GetBuilding(uint32 p_PlotInstanceID) const;
             /// Get buildings
-            std::vector<GarrisonBuilding> GetBuildings();
+            std::vector<GarrisonBuilding> GetBuildings() const;
             /// Get building passive ability effects
-            std::vector<uint32> GetBuildingsPassiveAbilityEffects();
+            std::vector<uint32> GetBuildingsPassiveAbilityEffects() const;
             /// Activate building
             void ActivateBuilding(uint32 p_PlotInstanceID);
             /// Activate building
@@ -163,34 +163,34 @@ namespace MS { namespace Garrison
             /// Delete building
             void DeleteBuilding(uint32 p_PlotInstanceID);
             /// Has active building
-            bool HasActiveBuilding(uint32 p_BuildingID);
+            bool HasActiveBuilding(uint32 p_BuildingID) const;
             /// Has building type
-            bool HasBuildingType(BuildingType::Type p_BuildingType);
+            bool HasBuildingType(BuildingType::Type p_BuildingType) const;
             /// Get building max work order
-            uint32 GetBuildingMaxWorkOrder(uint32 p_PlotInstanceID);
+            uint32 GetBuildingMaxWorkOrder(uint32 p_PlotInstanceID) const;
             /// Get in progress work order count
-            uint32 GetWorkOrderCount(uint32 p_PlotInstanceID);
+            uint32 GetWorkOrderCount(uint32 p_PlotInstanceID) const;
             /// Start new work order
             uint64 StartWorkOrder(uint32 p_PlotInstanceID, uint32 p_ShipmentID);
             /// Delete work order
             void DeleteWorkOrder(uint64 p_DBID);
             /// Get creature plot instance ID
-            uint32 GetCreaturePlotInstanceID(uint64 p_GUID);
+            uint32 GetCreaturePlotInstanceID(uint64 p_GUID) const;
             /// Get gameobject plot instance ID
-            uint32 GetGameObjectPlotInstanceID(uint64 p_GUID);
+            uint32 GetGameObjectPlotInstanceID(uint64 p_GUID) const;
 
             /// Get known blueprints
-            std::vector<int32> GetKnownBlueprints();
+            std::vector<int32> GetKnownBlueprints() const;
             /// Learn blue print
             bool LearnBlueprint(uint32 p_BuildingRecID);
             /// Known blue print
-            bool KnownBlueprint(uint32 p_BuildingRecID);
+            bool KnownBlueprint(uint32 p_BuildingRecID) const;
 
             /// Get known specializations
-            std::vector<int32> GetKnownSpecializations();
+            std::vector<int32> GetKnownSpecializations() const;
 
             /// Get work orders
-            std::vector<GarrisonWorkOrder> GetWorkOrders();
+            std::vector<GarrisonWorkOrder> GetWorkOrders() const;
 
         public:
             /// Replace garrison script
