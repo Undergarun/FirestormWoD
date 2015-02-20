@@ -7011,26 +7011,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     triggered_spell_id = 99156;
                     break;
                 }
-                // Divine Aegis
-                case 47515:
-                {
-                    if (!target)
-                        return false;
-
-                    if (!procSpell)
-                        return false;
-
-                    if (!(procEx & PROC_EX_CRITICAL_HIT))
-                        return false;
-
-                    uint32 amount = CalculatePct(int32(damage), triggerAmount);
-                    triggered_spell_id = 47753;
-                    amount += target->GetAuraEffect(triggered_spell_id, 0) ? target->GetAuraEffect(triggered_spell_id, 0)->GetAmount() : 0;
-
-                    basepoints0 = std::min(amount, target->CountPctFromMaxHealth(60));
-
-                    break;
-                }
                 // Vampiric Embrace
                 case 15286:
                 {

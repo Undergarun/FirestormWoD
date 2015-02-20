@@ -3048,6 +3048,57 @@ class spell_pri_twist_of_fate : public SpellScriptLoader
         }
 };
 
+/// Divine Aegis - 47515
+class spell_pri_divine_aegis : public SpellScriptLoader
+{
+    public:
+        spell_pri_divine_aegis() : SpellScriptLoader("spell_pri_divine_aegis") { }
+
+        class spell_pri_divine_aegis_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pri_divine_aegis_AuraScript);
+
+            enum eDivineAegisSpell
+            {
+                DivineAegisAura  = 47753
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                if (!(p_EventInfo.GetHitMask() & PROC_EX_CRITICAL_HIT) || !(p_EventInfo.GetHitMask() & PROC_EX_INTERNAL_MULTISTRIKE))
+                    return;
+
+                if (!GetCaster())
+                    return;
+
+                if (Player* l_Caster = GetCaster()->ToPlayer())
+                {
+                    if (Unit* l_Target = GetTarget())
+                    {
+                        if (!p_EventInfo.GetHealInfo())
+                            return;
+
+                        int32 l_Amount = p_EventInfo.GetHealInfo()->GetHeal();
+
+                        l_Caster->CastCustomSpell(l_Target, eDivineAegisSpell::DivineAegisAura, &l_Amount, nullptr, nullptr, true);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pri_divine_aegis_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pri_divine_aegis_AuraScript();
+        }
+};
+
 /// Power Word: Barrier - 62618
 class spell_areatrigger_power_word_barrier : public AreaTriggerEntityScript
 {
@@ -3149,6 +3200,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_flash_heal();
     new spell_pri_words_of_mending();
     new spell_pri_twist_of_fate();
+    new spell_pri_divine_aegis();
 
     /// Player Script
     new PlayerScript_Shadow_Orb();
