@@ -29,15 +29,15 @@ namespace MS { namespace Garrison
         /// Select Garrison site ID
         switch (GetGarrisonFactionIndex())
         {
-            case Factions::Alliance:
+            case FactionIndex::Alliance:
                 m_GarrisonSiteID = 2;
                 break;
 
-            case Factions::Horde:
+            case FactionIndex::Horde:
                 m_GarrisonSiteID = 71;
                 break;
 
-            case Factions::Max:
+            case FactionIndex::Max:
             default:
                 ASSERT(false);
                 break;
@@ -109,15 +109,15 @@ namespace MS { namespace Garrison
         /// Select Garrison site ID
         switch (GetGarrisonFactionIndex())
         {
-            case Factions::Alliance:
+            case FactionIndex::Alliance:
                 l_QuestEntry = BaseQuests::FoundedGarrisonA;
                 break;
 
-            case Factions::Horde:
+            case FactionIndex::Horde:
                 l_QuestEntry = BaseQuests::FoundedGarrisonH;
                 break;
 
-            case Factions::Max:
+            case FactionIndex::Max:
             default:
                 ASSERT(false);
                 break;
@@ -451,15 +451,15 @@ namespace MS { namespace Garrison
             /// Select Garrison site ID
             switch (GetGarrisonFactionIndex())
             {
-                case Factions::Alliance:
+                case FactionIndex::Alliance:
                     l_QuestEntry = BaseQuests::FoundedGarrisonA;
                     break;
 
-                case Factions::Horde:
+                case FactionIndex::Horde:
                     l_QuestEntry = BaseQuests::FoundedGarrisonH;
                     break;
 
-                case Factions::Max:
+                case FactionIndex::Max:
                 default:
                     ASSERT(false);
                     break;
@@ -658,7 +658,7 @@ namespace MS { namespace Garrison
         if (!GetGarrisonSiteLevelEntry())
             return;
 
-        if (GetGarrisonFactionIndex() == Factions::Horde)
+        if (GetGarrisonFactionIndex() == FactionIndex::Horde)
         {
             switch (GetGarrisonSiteLevelEntry()->Level)
             {
@@ -834,20 +834,20 @@ namespace MS { namespace Garrison
     }
 
     /// Get Garrison Faction Index
-    Factions::Type Manager::GetGarrisonFactionIndex()
+    FactionIndex::Type Manager::GetGarrisonFactionIndex()
     {
         assert(m_Owner);
 
         switch (m_Owner->GetTeam())
         {
             case ALLIANCE:
-                return Factions::Alliance;
+                return FactionIndex::Alliance;
 
             case HORDE:
-                return Factions::Horde;
+                return FactionIndex::Horde;
         }
 
-        return Factions::Horde;
+        return FactionIndex::Horde;
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -3180,7 +3180,7 @@ namespace MS { namespace Garrison
                         {
                             m_PlotsGameObjects[p_PlotInstanceID].push_back(l_Cosmetic->GetGUID());
 
-                            if (l_Cosmetic->GetDisplayId() == WorkOrderGODisplayID::NoWork || l_Cosmetic->GetDisplayId() == WorkOrderGODisplayID::Working || l_Cosmetic->GetDisplayId() == WorkOrderGODisplayID::AllComplete)
+                            if (l_Cosmetic->GetGoType() == GAMEOBJECT_TYPE_GARRISON_SHIPMENT)
                                 m_PlotsWorkOrderGob[p_PlotInstanceID] = l_Cosmetic->GetGUID();
                         }
                     }
@@ -3502,15 +3502,15 @@ namespace MS { namespace Garrison
 
         switch (GetGarrisonFactionIndex())
         {
-            case Factions::Alliance:
+            case FactionIndex::Alliance:
                 l_AbilityOverrideSpellID = GARRISON_SPELL_GARR_ABILITY_ALLIANCE_BASE;
                 break;
 
-            case Factions::Horde:
+            case FactionIndex::Horde:
                 l_AbilityOverrideSpellID = GARRISON_SPELL_GARR_ABILITY_HORDE_BASE;
                 break;
 
-            case Factions::Max:
+            case FactionIndex::Max:
             default:
                 ASSERT(false);
                 break;
@@ -3575,13 +3575,13 @@ namespace MS { namespace Garrison
                 }
                 else
                 {
-                    l_WorkOrderGameObject->SetDisplayId(WorkOrderGODisplayID::Working);
+                    l_WorkOrderGameObject->SetDisplayId(GetGarrisonFactionIndex() == FactionIndex::Alliance ? WorkOrderGODisplayID::BaseA : WorkOrderGODisplayID::BaseH);
                     l_WorkOrderGameObject->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_ACTIVATED);
                 }
             }
             else
             {
-                l_WorkOrderGameObject->SetDisplayId(WorkOrderGODisplayID::NoWork);
+                l_WorkOrderGameObject->SetDisplayId(GetGarrisonFactionIndex() == FactionIndex::Alliance ? WorkOrderGODisplayID::BaseA : WorkOrderGODisplayID::BaseH);
                 l_WorkOrderGameObject->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_ACTIVATED);
             }
         }

@@ -76,7 +76,7 @@ namespace MS { namespace Garrison
             /// Get GarrSiteLevelEntry for current garrison
             const GarrSiteLevelEntry * GetGarrisonSiteLevelEntry();
             /// Get Garrison Faction Index
-            Factions::Type GetGarrisonFactionIndex();
+            FactionIndex::Type GetGarrisonFactionIndex();
 
             /// Get plots for level
             std::vector<GarrisonPlotInstanceInfoLocation> GetPlots();

@@ -19,6 +19,8 @@
 #include "Buildings/Alliance/ADwarvenBunker.hpp"
 #include "Buildings/Alliance/ABarracks.hpp"
 
+#include "Buildings/Horde/HTheForge.hpp"
+
 #include <random>
 
 namespace MS { namespace Garrison 
@@ -402,16 +404,20 @@ void AddSC_Garrison_NPC()
     }
 
     /// Horde
-    new MS::Garrison::npc_FrostwallPeon("npc_FrostwallPeon_Dynamic");
-    new MS::Garrison::npc_FrostwallPeon("npc_FrostwallPeon");
-    new MS::Garrison::npc_Skaggit;
-    new MS::Garrison::npc_LadySena;
-    new MS::Garrison::npc_SergeantGrimjaw;
-    new MS::Garrison::npc_SeniorPeonII;
-    new MS::Garrison::npc_Gazlowe;
-    new MS::Garrison::npc_GrunLek;
-    new MS::Garrison::npc_FrostWallGrunt;
-    new MS::Garrison::npc_FrostWallSmith;
-    new MS::Garrison::npc_OrgekIronhand;
-    new MS::Garrison::npc_Kinja;
+    {
+        new MS::Garrison::npc_FrostwallPeon("npc_FrostwallPeon_Dynamic");
+        new MS::Garrison::npc_FrostwallPeon("npc_FrostwallPeon");
+        new MS::Garrison::npc_Skaggit;
+        new MS::Garrison::npc_LadySena;
+        new MS::Garrison::npc_SergeantGrimjaw;
+        new MS::Garrison::npc_SeniorPeonII;
+        new MS::Garrison::npc_Gazlowe;
+        new MS::Garrison::npc_GrunLek;
+        new MS::Garrison::npc_FrostWallGrunt;
+        new MS::Garrison::npc_FrostWallSmith;
+
+        /// The forge
+        new MS::Garrison::npc_OrgekIronhand;
+        new MS::Garrison::npc_Kinja;
+    }
 }

@@ -37,7 +37,7 @@ namespace MS { namespace Garrison
         };
     }
 
-    namespace Factions
+    namespace FactionIndex
     {
         enum Type : uint8
         {
@@ -280,8 +280,8 @@ namespace MS { namespace Garrison
     {
         enum
         {
-            NoWork      = 15585,
-            Working     = 15585,
+            BaseA       = 15585,
+            BaseH       = 20508,
             AllComplete = 16091,
         };
     }
@@ -293,13 +293,13 @@ namespace MS { namespace Garrison
         21
     };
 
-    static const uint32 gGarrisonInGarrisonAreaID[Factions::Max] =
+    static const uint32 gGarrisonInGarrisonAreaID[FactionIndex::Max] =
     {
         7004,   ///< Horde
         7078    ///< Alliance
     };
 
-    static const uint32 gGarrisonEmptyPlotGameObject[PlotTypes::Max * Factions::Max] =
+    static const uint32 gGarrisonEmptyPlotGameObject[PlotTypes::Max * FactionIndex::Max] =
     {
         /// Horde
         233083,     ///< PlotTypes::Small
@@ -319,7 +319,7 @@ namespace MS { namespace Garrison
         229501      ///< PlotTypes::PetMenagerie
     };
 
-    static const uint32 gGarrisonBuildingPlotGameObject[PlotTypes::Max * Factions::Max] =
+    static const uint32 gGarrisonBuildingPlotGameObject[PlotTypes::Max * FactionIndex::Max] =
     {
         /// Horde
         233958,     ///< PlotTypes::Small
@@ -339,7 +339,7 @@ namespace MS { namespace Garrison
         233957      ///< PlotTypes::PetMenagerie  same as PlotTypes::Small
     };
 
-    static const float gGarrisonBuildingPlotAABBDiminishReturnFactor[PlotTypes::Max * Factions::Max] =
+    static const float gGarrisonBuildingPlotAABBDiminishReturnFactor[PlotTypes::Max * FactionIndex::Max] =
     {
         /// Horde
         10,         ///< PlotTypes::Small
@@ -359,7 +359,7 @@ namespace MS { namespace Garrison
         10          ///< PlotTypes::PetMenagerie  same as PlotTypes::Small
     };
 
-    static const uint32 gGarrisonBuildingActivationGameObject[Factions::Max] =
+    static const uint32 gGarrisonBuildingActivationGameObject[FactionIndex::Max] =
     {
         233248,     ///< Horde
         233250      ///< Alliance
@@ -417,7 +417,7 @@ namespace MS { namespace Garrison
     };
 
     /// Cache game object position for each faction / level
-    static const GarrisonCacheInfoLocation gGarrisonCacheInfoLocation[Factions::Max * Globals::MaxLevel] =
+    static const GarrisonCacheInfoLocation gGarrisonCacheInfoLocation[FactionIndex::Max * Globals::MaxLevel] =
     {
         /// SiteLevelID         X           Y          Z         O
         /// Horde Level 1
@@ -435,7 +435,7 @@ namespace MS { namespace Garrison
     };
 
     /// Cache game object entry for each faction / state
-    static const uint32 gGarrisonCacheGameObjectID[Factions::Max * 3] =
+    static const uint32 gGarrisonCacheGameObjectID[FactionIndex::Max * 3] =
     {
         /// Horde
         237191,         ///< Normal

@@ -56,9 +56,10 @@ namespace MS { namespace Garrison
         Alliance_YourFirstBlacksmithingWorkOrder    = 35168,
 
         /// Horde
-        QUEST_ETABLISH_YOUR_GARRISON_H  = 34378,
-        QUEST_WHAT_WE_GOT               = 34824,
-        QUEST_BUILD_YOUR_BARRACKS       = 34461
+        QUEST_ETABLISH_YOUR_GARRISON_H            = 34378,
+        QUEST_WHAT_WE_GOT                         = 34824,
+        QUEST_BUILD_YOUR_BARRACKS                 = 34461,
+        Horde_YourFirstBlacksmithingWorkOrder     = 37569
 
     };
 
