@@ -112,7 +112,7 @@ class spell_mastery_potent_poisons : public SpellScriptLoader
         }
 };
 
-///< Mastery: Sniper Training - 76659
+/// Mastery: Sniper Training - 76659
 class spell_mastery_sniper_training : public SpellScriptLoader
 {
     public:
@@ -150,9 +150,19 @@ class spell_mastery_sniper_training : public SpellScriptLoader
                 }
             }
 
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    l_Caster->RemoveAura(Masteries::RecentlyMoved);
+                    l_Caster->RemoveAura(Masteries::SniperTrainingAura);
+                }
+            }
+
             void Register()
             {
                 OnEffectUpdate += AuraEffectUpdateFn(spell_mastery_sniper_training_AuraScript::OnUpdate, EFFECT_2, SPELL_AURA_DUMMY);
+                OnEffectRemove += AuraEffectRemoveFn(spell_mastery_sniper_training_AuraScript::OnRemove, EFFECT_2, SPELL_AURA_DUMMY);
             }
         };
 
@@ -162,7 +172,7 @@ class spell_mastery_sniper_training : public SpellScriptLoader
         }
 };
 
-///< Sniper Training: Recently Moved - 168809
+/// Sniper Training: Recently Moved - 168809
 class spell_mastery_recently_moved : public SpellScriptLoader
 {
     public:
@@ -208,7 +218,7 @@ class spell_mastery_recently_moved : public SpellScriptLoader
         }
 };
 
-///< Sniper Training - 168811
+/// Sniper Training - 168811
 class spell_mastery_sniper_training_aura : public SpellScriptLoader
 {
     public:
