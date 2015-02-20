@@ -60,9 +60,18 @@ class ScriptMgr
 
     /// AreaTriggerScript
     public:
+        /// Assign script to Areatrigger
+        void InitScriptEntity(AreaTrigger* p_AreaTrigger);
         /// Proc when AreaTrigger is created.
         /// @p_AreaTrigger : AreaTrigger instance
         void OnCreateAreaTriggerEntity(AreaTrigger * p_AreaTrigger);
+        /// Procs before creation to specify position and linear destination of the areatrigger
+        /// @p_AreaTrigger: Areatrigger Instance
+        /// @p_Caster: Caster because he the Areatrigger is not spawned so caster is not defined
+        /// @p_SourcePosition: Spawn location of the Areatrigger
+        /// @p_DestinationPostion: Linear destination of the Areatrigger
+        /// @p_PathToLinearDestination: Linear path without the endpoint
+        void OnSetCreatePositionEntity(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition, std::list<Position>& p_PathToLinearDestination);
         /// Proc when AreaTrigger is updated.
         /// @p_AreaTrigger : AreaTrigger instance
         /// @p_Time        : Diff since last update
@@ -570,7 +579,7 @@ class ScriptMgr
         /// @p_OldValue  : Old value
         /// @p_NewValue  : New value
         /// @p_Regen  : If it's a regen modification
-        void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32 p_NewValue, bool p_Regen);
+        void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen);
 
         /// Called when a player kills another player
         /// @p_Player : Player instance
@@ -749,6 +758,13 @@ class ScriptMgr
         /// @p_SceneInstanceID : Standalone scene instance ID
         /// @p_Event           : Event string received from client
         void OnSceneTriggerEvent(Player * p_Player, uint32 p_SceneInstanceID, std::string p_Event);
+
+        /// Called when a player regen a power
+        /// @p_Player         : Player instance
+        /// @p_Power          : Power to be regenerate
+        /// @p_AddValue       : amount of power to regenerate
+        /// @p_PreventDefault : avoid default regeneration
+        void OnPlayerRegenPower(Player * p_Player, Powers const p_Power, float& p_AddValue, bool& p_PreventDefault);
 
     /// BattlegroundScript
     public:

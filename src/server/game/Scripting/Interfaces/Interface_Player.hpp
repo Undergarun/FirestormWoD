@@ -169,7 +169,7 @@ class PlayerScript : public ScriptObjectImpl<false>
         /// @p_OldValue  : Old value
         /// @p_NewValue  : New value
         /// @p_Regen  : If it's a regen modification
-        virtual void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32 p_NewValue, bool p_Regen)
+        virtual void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
         {
             UNUSED(p_Player);
             UNUSED(p_Power);
@@ -511,6 +511,19 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_Player);
             UNUSED(p_SceneInstanceID);
             UNUSED(p_Event);
+        }
+
+        /// Called when a player regen a power
+        /// Return false to prevent default regeneration
+        /// @p_Player   : Player instance
+        /// @p_Power    : Power to be regenerate
+        /// @p_AddValue : amount of power to regenerate
+        virtual void OnRegenPower(Player * p_Player, Powers const p_Power, float& l_AddValue, bool& p_PreventDefault)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_Power);
+            UNUSED(l_AddValue);
+            UNUSED(p_PreventDefault);
         }
 
 };

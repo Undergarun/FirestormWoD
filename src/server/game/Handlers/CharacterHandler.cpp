@@ -521,16 +521,6 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& p_RecvData)
     }
 
     /// speedup check for heroic class disabled case
-    uint32 l_HeroicFreeSlots = sWorld->getIntConfig(CONFIG_HEROIC_CHARACTERS_PER_REALM);
-    if (l_HeroicFreeSlots == 0 && AccountMgr::IsPlayerAccount(GetSecurity()) && l_CharacterClass == CLASS_DEATH_KNIGHT)
-    {
-        l_CreationResponse << (uint8)CHAR_CREATE_UNIQUE_CLASS_LIMIT;
-        SendPacket(&l_CreationResponse);
-
-        return;
-    }
-
-    /// speedup check for heroic class disabled case
     uint32 l_RequiredLevelForHeroic = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_HEROIC_CHARACTER);
     if (AccountMgr::IsPlayerAccount(GetSecurity()) && l_CharacterClass == CLASS_DEATH_KNIGHT && l_RequiredLevelForHeroic > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
     {
@@ -681,30 +671,12 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
             if (result)
             {
                 uint32 team = Player::TeamForRace(createInfo->Race);
-                uint32 freeHeroicSlots = sWorld->getIntConfig(CONFIG_HEROIC_CHARACTERS_PER_REALM);
 
                 Field* field = result->Fetch();
                 uint8 accRace  = field[1].GetUInt8();
 
                 if (AccountMgr::IsPlayerAccount(GetSecurity()) && createInfo->Class == CLASS_DEATH_KNIGHT)
                 {
-                    uint8 accClass = field[2].GetUInt8();
-                    if (accClass == CLASS_DEATH_KNIGHT)
-                    {
-                        if (freeHeroicSlots > 0)
-                            --freeHeroicSlots;
-
-                        if (freeHeroicSlots == 0)
-                        {
-                            WorldPacket data(SMSG_CREATE_CHAR, 1);
-                            data << uint8(CHAR_CREATE_UNIQUE_CLASS_LIMIT);
-                            SendPacket(&data);
-                            delete createInfo;
-                            _charCreateCallback.Reset();
-                            return;
-                        }
-                    }
-
                     if (!hasHeroicReqLevel)
                     {
                         uint8 accLevel = field[0].GetUInt8();
@@ -747,23 +719,6 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
 
                     if (AccountMgr::IsPlayerAccount(GetSecurity()) && createInfo->Class == CLASS_DEATH_KNIGHT)
                     {
-                        uint8 acc_class = field[2].GetUInt8();
-                        if (acc_class == CLASS_DEATH_KNIGHT)
-                        {
-                            if (freeHeroicSlots > 0)
-                                --freeHeroicSlots;
-
-                            if (freeHeroicSlots == 0)
-                            {
-                                WorldPacket data(SMSG_CREATE_CHAR, 1);
-                                data << uint8(CHAR_CREATE_UNIQUE_CLASS_LIMIT);
-                                SendPacket(&data);
-                                delete createInfo;
-                                _charCreateCallback.Reset();
-                                return;
-                            }
-                        }
-
                         if (!hasHeroicReqLevel)
                         {
                             uint8 acc_level = field[0].GetUInt8();

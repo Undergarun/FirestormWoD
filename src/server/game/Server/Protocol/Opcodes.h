@@ -1173,6 +1173,7 @@ enum Opcodes
     CMSG_READ_ITEM                              = 0x09B9,   ///< 6.0.3 19116
     CMSG_COMPLETE_MOVIE                         = 0x13D4,   ///< 6.0.3 19116
     CMSG_SCENE_TRIGGER_EVENT                    = 0x11B9,   ///< 6.0.3 19116
+    CMSG_GET_MIRRORIMAGE_DATA                   = 0x08F6,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Vehicles
@@ -1660,7 +1661,6 @@ enum Opcodes
     CMSG_GAMESPEED_SET                                  = 0x0000,
     CMSG_GAMETIME_SET                                   = 0x0000,
     CMSG_GETDEATHBINDZONE                               = 0x0000,
-    CMSG_GET_MIRRORIMAGE_DATA                           = 0x0000,
     CMSG_GHOST                                          = 0x0000,
     CMSG_GRANT_LEVEL                                    = 0x0000,
     CMSG_GROUP_ASSISTANT_LEADER                         = 0x0000,

@@ -1360,6 +1360,14 @@ enum PlayerTotemType
     SUMMON_TYPE_TOTEM_AIR5   = 3399
 };
 
+/// Spell cooldown flags sent in SMSG_SPELL_COOLDOWN
+enum CooldownFlags
+{
+    CooldownFlagNone                  = 0x0,
+    CooldownFlagIncludeGCD            = 0x1,  ///< Starts GCD in addition to normal cooldown specified in the packet
+    CooldownFlagIncludeEventCooldowns = 0x2   ///< Starts GCD for spells that should start their cooldown on events, requires CooldownFlagIncludeGCD set
+};
+
 enum Stagger
 {
     LIGHT_STAGGER       = 124275,
@@ -1596,6 +1604,9 @@ class Unit : public WorldObject
         // returns the change in power
         int32 ModifyPower(Powers power, int32 val);
         int32 ModifyPowerPct(Powers power, float pct, bool apply = true);
+
+        void AddComboPoints(int8 p_Count);
+        void ClearComboPoints();
 
         PowerTypeSet GetUsablePowers() const;
         uint32 GetPowerIndexByClass(uint32 powerId, uint32 classId) const;
@@ -1836,7 +1847,7 @@ class Unit : public WorldObject
         void SendMessageUnfriendlyToSetInRange(WorldPacket* data, float fist);
 
         void NearTeleportTo(float x, float y, float z, float orientation, bool casting = false);
-        void SendTeleportPacket(Position &oldPos);
+        void SendTeleportPacket(Position &p_NewPosition);
         virtual bool UpdatePosition(float x, float y, float z, float ang, bool teleport = false);
         // returns true if unit's position really changed
         bool UpdatePosition(const Position &pos, bool teleport = false) { return UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport); }
@@ -2465,8 +2476,6 @@ class Unit : public WorldObject
         void _ExitVehicle(Position const* exitPosition = NULL);
         void _EnterVehicle(Vehicle* vehicle, int8 seatId, AuraApplication const* aurApp = NULL);
 
-        void BuildMovementPacket(ByteBuffer *data) const;
-
         bool isMoving() const   { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_MASK_MOVING); }
         bool isTurning() const  { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_MASK_TURNING); }
         virtual bool CanFly() const = 0;
@@ -2532,6 +2541,13 @@ class Unit : public WorldObject
         bool EvadeModeIsDisable() const { return m_disableEnterEvadeMode; }
 
         void BuildEncounterFrameData(WorldPacket* p_Data, bool p_Engage, uint8 p_TargetFramePriority = 0);
+
+        bool AddPoisonTarget(uint32 p_SpellID, uint32 p_LowGuid);
+        bool HasPoisonTarget(uint32 p_LowGuid) const;
+        void RemovePoisonTarget(uint32 p_LowGuid, uint32 p_SpellID);
+        void ClearPoisonTargets();
+        ///     LowGuid          SpellIDs
+        std::map<uint32, std::set<uint32>> m_PoisonTargets;
 
     public:
         uint64 _petBattleId;

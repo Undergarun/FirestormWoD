@@ -2090,13 +2090,6 @@ class Player : public Unit, public GridObject<Player>
         Player* GetSelectedPlayer() const;
         void SetSelection(uint64 guid) { m_curSelection = guid; SetGuidValue(UNIT_FIELD_TARGET, guid); }
 
-        uint8 GetComboPoints() const { return m_comboPoints; }
-
-        void AddComboPoints(int8 count, Spell* spell = NULL);
-        void GainSpellComboPoints(int8 count);
-        void ClearComboPoints();
-        void SendComboPoints();
-
         void SendMailResult(uint32 mailId, MailResponseType mailAction, MailResponseResult mailError, uint32 equipError = 0, uint32 item_guid = 0, uint32 item_count = 0);
         void SendNewMail();
         void UpdateNextMailTimeAndUnreads();
@@ -2212,7 +2205,7 @@ class Player : public Unit, public GridObject<Player>
         void CastPassiveTalentSpell(uint32 spellId);
         void RemovePassiveTalentSpell(uint32 spellId);
 
-        void ResetSpec();
+        void ResetSpec(bool p_NoCost = false);
 
         // Dual Spec
         void UpdateSpecCount(uint8 count);
@@ -2975,7 +2968,7 @@ class Player : public Unit, public GridObject<Player>
 
         bool SetHover(bool enable);
 
-        void SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Direction, float p_Magnitude = 0.0f);
+        void SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Direction, float p_Magnitude = 0.0f, uint8 p_Type = 0);
         void RemoveAllMovementForces();
         bool HasMovementForce(uint64 p_Source);
 
@@ -3023,22 +3016,22 @@ class Player : public Unit, public GridObject<Player>
 
         PetSlot getSlotForNewPet()
         {
-            uint32 last_known = 0;
+            uint32 l_LastKnow = 0;
             // Call Pet Spells
             // 883 83242 83243 83244 83245
             //  1    2     3     4     5
             if (HasSpell(83245))
-                last_known = 5;
+                l_LastKnow = 5;
             else if (HasSpell(83244))
-                last_known = 4;
+                l_LastKnow = 4;
             else if (HasSpell(83243))
-                last_known = 3;
+                l_LastKnow = 3;
             else if (HasSpell(83242))
-                last_known = 2;
+                l_LastKnow = 2;
             else if (HasSpell(883))
-                last_known = 1;
+                l_LastKnow = 1;
 
-            for (uint32 i = uint32(PET_SLOT_HUNTER_FIRST); i < last_known; ++i)
+            for (uint32 i = uint32(PET_SLOT_HUNTER_FIRST); i < l_LastKnow; ++i)
                 if ((m_petSlotUsed & (1 << i)) == 0)
                     return PetSlot(i);
 
@@ -3477,16 +3470,6 @@ class Player : public Unit, public GridObject<Player>
             m_CriticalOperationLock.release();
         }
 
-        //////////////////////////////////////////////////////////////////////////
-        /// Eclipse System
-        bool IsEclipseCyclesActive() const { return m_EclipseCycleActive; }
-        void SetEclipseCyclesState(bool p_State) { m_EclipseCycleActive = p_State; }
-        IntervalTimer& GetEclipseTimer() { return m_EclipseTimer; }
-        uint8 GetLastEclipseState() const { return m_LastEclipseState; }
-        void SetLastEclipseState(uint8 p_EclipseState) { m_LastEclipseState = p_EclipseState; }
-        bool HasEclipseSideAvantage(uint8 p_EclipseState) const;
-        //////////////////////////////////////////////////////////////////////////
-
     protected:
         void OnEnterPvPCombat();
         void OnLeavePvPCombat();
@@ -3511,10 +3494,8 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_regenTimerCount;
         uint32 m_holyPowerRegenTimerCount;
         uint32 m_chiPowerRegenTimerCount;
-        uint32 m_burningEmbersRegenTimerCount;
         uint32 m_soulShardsRegenTimerCount;
         uint32 m_focusRegenTimerCount;
-        uint32 m_EclipseRegenTimer;
         uint32 m_demonicFuryPowerRegenTimerCount;
         float m_powerFraction[MAX_POWERS_PER_CLASS];
         uint32 m_contestedPvPTimer;
@@ -3664,8 +3645,6 @@ class Player : public Unit, public GridObject<Player>
 
         uint32 m_ExtraFlags;
         uint64 m_curSelection;
-
-        int8 m_comboPoints;
 
         QuestStatusMap m_QuestStatus;
         QuestObjectiveStatusMap m_questObjectiveStatus;
@@ -3950,13 +3929,6 @@ class Player : public Unit, public GridObject<Player>
         /// Vignette
         //////////////////////////////////////////////////////////////////////////
         Vignette::Manager m_VignetteMgr;
-
-        /*********************************************************/
-        /***                  ECLIPSE SYSTEM                   ***/
-        /*********************************************************/
-        bool m_EclipseCycleActive;
-        IntervalTimer m_EclipseTimer;
-        uint8 m_LastEclipseState;
 };
 
 void AddItemsSetItem(Player*player, Item* item);

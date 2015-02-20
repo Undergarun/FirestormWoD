@@ -475,7 +475,7 @@ enum AuraType
     SPELL_AURA_414                                          = 414,  // 5.0.5 unk aura
     SPELL_AURA_415                                          = 415,  // 5.0.5 unk aura
     SPELL_AURA_MOD_COOLDOWN_BY_HASTE                        = 416,  // SPELL_AURA_MOD_COOLDOWN_BY_HASTE
-    SPELL_AURA_417                                          = 417,  // 5.0.5 unk aura
+    SPELL_AURA_MOD_GLOBAL_COOLDOWN_BY_HASTE                 = 417,  // SPELL_AURA_MOD_GLOBAL_COOLDOWN_BY_HASTE
     SPELL_AURA_MOD_MAX_POWER                                = 418,  // SPELL_AURA_MOD_MAX_POWER
     SPELL_AURA_MODIFY_MANA_POOL_PCT                         = 419,  // SPELL_AURA_MODIFY_MANA_POOL_PCT
     SPELL_AURA_BATTLEPET_XP_INCRASE                         = 420,  // 5.4.0 +10% Battle Pet XP (134635)(NYI)

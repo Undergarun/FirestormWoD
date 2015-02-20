@@ -598,10 +598,17 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
     }
 
     // Override spell Id, client send base spell and not the overrided id
-    if (!spellInfo->OverrideSpellList.empty())
+    uint8 l_Count = std::numeric_limits<uint8>::max();
+    while (!spellInfo->OverrideSpellList.empty())
     {
+        if (!l_Count)
+            break;
+
         for (auto itr : spellInfo->OverrideSpellList)
         {
+            if (!l_Count)
+                break;
+
             if (m_Player->HasSpell(itr))
             {
                 SpellInfo const* overrideSpellInfo = sSpellMgr->GetSpellInfo(itr);
@@ -612,6 +619,8 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
                 }
                 break;
             }
+
+            --l_Count;
         }
     }
 
@@ -900,9 +909,9 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_GET_MIRRORIMAGE_DATA");
     uint64 guid;
-    uint32 displayId = recvData.read<uint32>();
 
     recvData.readPackGUID(guid);
+    uint32 displayId = recvData.read<uint32>();
 
     // Get unit for which data is needed by client
     Unit* unit = ObjectAccessor::GetObjectInWorld(guid, (Unit*)NULL);

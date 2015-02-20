@@ -135,6 +135,12 @@ namespace MS { namespace Garrison
         }
 
         sGarrisonBuildingManager->LearnAllowedBuildings(m_Owner);
+
+        /// Learn garrison taxinodes
+        if (m_Owner->getFaction() == HORDE)
+            m_Owner->m_taxi.SetTaximaskNode(TaxiNodes::Horde);
+        else
+            m_Owner->m_taxi.SetTaximaskNode(TaxiNodes::Alliance);
     }
 
     /// Load

@@ -507,7 +507,7 @@ void WorldSession::HandleBattlefieldStatusOpcode(WorldPacket& /*recvData*/)
             {
                 /// This line is checked, i only don't know if GetElapsedTime() is changing itself after bg end!
                 /// Send status in Battleground
-                MS::Battlegrounds::PacketFactory::Status(&l_Data, l_BG, m_Player, l_I, STATUS_IN_PROGRESS, m_Player->GetBattlegroundQueueJoinTime(l_BGQueueTypeID), l_BG->GetElapsedTime(), l_ArenaType, false);
+                MS::Battlegrounds::PacketFactory::Status(&l_Data, l_BG, m_Player, l_I, STATUS_IN_PROGRESS, l_BG->GetExpirationDate(), l_BG->GetElapsedTime(), l_ArenaType, false);
                 SendPacket(&l_Data);
 
                 continue;
@@ -530,7 +530,7 @@ void WorldSession::HandleBattlefieldStatusOpcode(WorldPacket& /*recvData*/)
                 continue;
 
             /// Send status invited to Battleground
-            MS::Battlegrounds::PacketFactory::Status(&l_Data, l_BG, GetPlayer(), l_I, STATUS_WAIT_JOIN, getMSTimeDiff(getMSTime(), l_GroupQueueInfo.m_RemoveInviteTime), m_Player->GetBattlegroundQueueJoinTime(l_BGQueueTypeID), l_ArenaType, false);
+            MS::Battlegrounds::PacketFactory::Status(&l_Data, l_BG, GetPlayer(), l_I, STATUS_WAIT_JOIN, l_BG->GetExpirationDate(), m_Player->GetBattlegroundQueueJoinTime(l_BGQueueTypeID), l_ArenaType, false);
             SendPacket(&l_Data);
         }
         else

@@ -57,7 +57,7 @@ class spell_dru_yseras_gift: public SpellScriptLoader
                 {
                     std::list<Unit*> l_Party;
 
-                    l_Caster->GetPartyMembers(l_Party);
+                    l_Caster->GetRaidMembers(l_Party);
 
                     l_Party.remove_if([l_Caster](Unit* p_Unit) {
                         return (p_Unit->IsFullHealth() || p_Unit->GetDistance(l_Caster) >= 40.0f);
@@ -146,7 +146,7 @@ class spell_dru_genesis: public SpellScriptLoader
                 if (Player* plr = GetCaster()->ToPlayer())
                 {
                     std::list<Unit*> partyMembers;
-                    plr->GetPartyMembers(partyMembers);
+                    plr->GetRaidMembers(partyMembers);
 
                     for (auto itr : partyMembers)
                     {
@@ -445,21 +445,20 @@ class spell_dru_swipe: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
-                        int32 damage = GetHitDamage();
+                        int32 l_Damage = GetHitDamage();
 
-                        // Award 1 combot point
-                        if (Player* plr = caster->ToPlayer())
-                            plr->AddComboPoints(GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+                        /// Award 1 combot point
+                        l_Caster->AddComboPoints(GetSpellInfo()->Effects[EFFECT_0].BasePoints);
 
-                        // Swipe and Maul deals 20% more damage if target is bleeding
-                        if (target->HasAuraState(AURA_STATE_BLEEDING))
+                        /// Swipe and Maul deals 20% more damage if target is bleeding
+                        if (l_Target->HasAuraState(AURA_STATE_BLEEDING))
                         {
-                            AddPct(damage, GetSpellInfo()->Effects[EFFECT_1].BasePoints);
-                            SetHitDamage(damage);
+                            AddPct(l_Damage, GetSpellInfo()->Effects[EFFECT_1].BasePoints);
+                            SetHitDamage(l_Damage);
                         }
                     }
                 }
@@ -854,35 +853,214 @@ enum GerminationSpells
     SPELL_DRUID_GERMINATION_PASSIVE_TALENT = 155675
 };
 
-// Rejuvenation - 774 (germination effect)
-class spell_dru_germination : public SpellScriptLoader
+enum DruidSoulOfTheForestSpells
+{
+    SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO_TALENT = 158478,
+    SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO = 114108
+};
+
+/// Rejuvenation - 774 (germination effect)
+class spell_dru_rejuvenation : public SpellScriptLoader
 {
 public:
-    spell_dru_germination() : SpellScriptLoader("spell_dru_germination") { }
+    spell_dru_rejuvenation() : SpellScriptLoader("spell_dru_rejuvenation") { }
 
-    class spell_dru_germination_SpellScript : public SpellScript
+    class spell_dru_rejuvenation_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_dru_germination_SpellScript);
+        PrepareSpellScript(spell_dru_rejuvenation_SpellScript);
+        
+        int32 m_RejuvenationAuraPtr = 0;
+
+        void HandleAfterHit()
+        {
+            Unit* l_Caster = GetCaster();
+            if (!l_Caster)
+                return;
+
+            Unit* l_Target = GetHitUnit();
+            if (!l_Target)
+                return;
+
+            AuraPtr l_RejuvenationAuraPtr = l_Target->GetAura(SPELL_DRUID_REJUVENATION);
+            if (l_RejuvenationAuraPtr && m_RejuvenationAuraPtr > 0)
+                l_RejuvenationAuraPtr->SetDuration(m_RejuvenationAuraPtr);
+        }
 
         void HandleBeforeHit()
         {
-            if (Player* l_Player = GetCaster()->ToPlayer())
+            Unit* l_Caster = GetCaster();
+            if (!l_Caster)
+                return;
+
+            Unit* l_Target = GetHitUnit();
+            if (!l_Target)
+                return;
+
+            ///Germination
+            if (l_Caster->HasAura(SPELL_DRUID_GERMINATION_PASSIVE_TALENT) && l_Target->HasAura(SPELL_DRUID_REJUVENATION))
             {
-                if (l_Player->HasAura(SPELL_DRUID_GERMINATION_PASSIVE_TALENT) && l_Player->HasAura(SPELL_DRUID_REJUVENATION)
-                     && !l_Player->HasAura(SPELL_DRUID_GERMINATION))
-                    l_Player->AddAura(SPELL_DRUID_GERMINATION, l_Player);
+                AuraPtr l_RejuvenationAuraPtr = l_Target->GetAura(SPELL_DRUID_REJUVENATION);
+                if (!l_RejuvenationAuraPtr)
+                    return;
+
+                if (!l_Target->HasAura(SPELL_DRUID_GERMINATION))
+                {
+                    l_Caster->AddAura(SPELL_DRUID_GERMINATION, l_Target);
+                    m_RejuvenationAuraPtr = l_RejuvenationAuraPtr->GetDuration();
+                }
+                else
+                {
+                    AuraPtr l_GerminationAuraPtr = l_Target->GetAura(SPELL_DRUID_GERMINATION);
+                    AuraPtr l_RejuvenationAuraPtr = l_Target->GetAura(SPELL_DRUID_REJUVENATION);
+                    if (l_GerminationAuraPtr && l_RejuvenationAuraPtr)
+                    {
+                        int32 l_GerminationDuration = l_GerminationAuraPtr->GetDuration();
+                        int32 l_RejuvenationDuration = l_RejuvenationAuraPtr->GetDuration();
+                        if (l_GerminationDuration > l_RejuvenationDuration)
+                            l_Caster->AddAura(SPELL_DRUID_REJUVENATION, l_Target);
+                        else
+                        {
+                            l_Caster->AddAura(SPELL_DRUID_GERMINATION, l_Target);
+                            m_RejuvenationAuraPtr = l_RejuvenationDuration;
+                        }
+                    }
+                }
+            }
+        }
+
+        void Register()
+        { 
+            BeforeHit += SpellHitFn(spell_dru_rejuvenation_SpellScript::HandleBeforeHit);
+            AfterHit += SpellHitFn(spell_dru_rejuvenation_SpellScript::HandleAfterHit);
+        }
+    };
+
+    class spell_dru_rejuvenation_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dru_rejuvenation_AuraScript);
+
+        void HandleCalculateAmount(constAuraEffectPtr /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                ///If soul of the forest is activated we increase the heal by 100%
+                if (l_Caster->HasAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO))
+                {
+                    amount *= 2;
+                    l_Caster->RemoveAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO);
+                }
             }
         }
 
         void Register()
         {
-            BeforeHit += SpellHitFn(spell_dru_germination_SpellScript::HandleBeforeHit);
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_rejuvenation_AuraScript::HandleCalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
         }
     };
 
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_dru_rejuvenation_AuraScript();
+    }
+
     SpellScript* GetSpellScript() const
     {
-        return new spell_dru_germination_SpellScript();
+        return new spell_dru_rejuvenation_SpellScript();
+    }
+};
+
+// Regrowth - 8936
+class spell_dru_regrowth : public SpellScriptLoader
+{
+public:
+    spell_dru_regrowth() : SpellScriptLoader("spell_dru_regrowth") { }
+
+    class spell_dru_regrowth_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_dru_regrowth_SpellScript);
+
+        void HandleBeforeHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                ///If soul of the forest is activated we increase the heal by 100%
+                if (l_Caster->HasAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO))
+                    SetHitHeal(GetHitHeal() * 2);
+            }
+        }
+
+        void Register()
+        {
+            BeforeHit += SpellHitFn(spell_dru_regrowth_SpellScript::HandleBeforeHit);
+        }
+    };
+
+    class spell_dru_regrowth_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dru_regrowth_AuraScript);
+
+        void HandleCalculateAmountOnTick(constAuraEffectPtr /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                ///If soul of the forest is activated we increase the heal by 100%
+                if (l_Caster->HasAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO))
+                {
+                    amount *= 2;
+                    l_Caster->RemoveAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO);
+                }
+            }
+        }
+
+        void Register()
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_regrowth_AuraScript::HandleCalculateAmountOnTick, EFFECT_1, SPELL_AURA_PERIODIC_HEAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_dru_regrowth_AuraScript();
+    }
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_dru_regrowth_SpellScript();
+    }
+};
+
+// Wild growth - 48438
+class spell_dru_wild_growth : public SpellScriptLoader
+{
+public:
+    spell_dru_wild_growth() : SpellScriptLoader("spell_dru_wild_growth") { }
+
+    class spell_dru_wild_growth_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dru_wild_growth_AuraScript);
+
+        void HandleCalculateAmountOnTick(constAuraEffectPtr /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                ///If soul of the forest is activated we increase the heal by 50%
+                if (l_Caster->HasAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO))
+                {
+                    amount *= 1.5f;
+                    l_Caster->RemoveAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO);
+                }
+            }
+        }
+
+        void Register()
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_wild_growth_AuraScript::HandleCalculateAmountOnTick, EFFECT_1, SPELL_AURA_PERIODIC_HEAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_dru_wild_growth_AuraScript();
     }
 };
 
@@ -923,7 +1101,11 @@ enum LifebloomSpells
 {
     SPELL_DRUID_LIFEBLOOM                 = 33763,
     SPELL_DRUID_LIFEBLOOM_FINAL_HEAL      = 33778,
-    SPELL_DRUID_GLYPH_OF_BLOOMING         = 121840
+    SPELL_DRUID_GLYPH_OF_BLOOMING         = 121840,
+    SPELL_DRUID_OMEN_OF_CLARITY           = 113043,
+    SPELL_DRUID_MOMENT_OF_CLARITY_TALENT  = 155577,
+    SPELL_DRUID_MOMENT_OF_CLARITY         = 155631,
+    SPELL_DRUID_CLEARCASTING              = 16870
 };
 
 // Called by Regrowth - 8936 and Healing Touch - 5185
@@ -1016,11 +1198,24 @@ class spell_dru_lifebloom: public SpellScriptLoader
                     l_Target->CastCustomSpell(l_Target, SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, &l_HealAmount, NULL, NULL, true, NULL, aurEff, GetCasterGUID());
                 }
             }
+            
+            void OnTick(constAuraEffectPtr /*p_AurEff*/)
+            {
+                Unit* l_Caster = GetCaster();
+                if (l_Caster && l_Caster->HasAura(SPELL_DRUID_OMEN_OF_CLARITY) && roll_chance_i(4))
+                {
+                    if (l_Caster->HasAura(SPELL_DRUID_MOMENT_OF_CLARITY_TALENT))
+                        l_Caster->CastSpell(l_Caster, SPELL_DRUID_MOMENT_OF_CLARITY, true);
+                    else
+                        l_Caster->CastSpell(l_Caster, SPELL_DRUID_CLEARCASTING, true);
+                }
+            }
 
             void Register()
             {
                 AfterEffectRemove += AuraEffectRemoveFn(spell_dru_lifebloom_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
                 AfterDispel += AuraDispelFn(spell_dru_lifebloom_AuraScript::HandleDispel);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_lifebloom_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
             }
         };
 
@@ -1470,7 +1665,10 @@ class spell_dru_teleport_moonglade: public SpellScriptLoader
 
 enum ActivateCatFormSpells
 {
-    SPELL_DRUID_CAT_FORM = 768
+    SPELL_DRUID_CAT_FORM = 768,
+    SPELL_DRUID_DASH = 1850,
+    SPELL_DRUID_DESPLACER_BEAST_AURA = 137452,
+    SPELL_DRUID_PROWL = 5215
 };
 
 // Prowl - 5215, Displacer Beast - 102280 and Dash - 1850
@@ -1486,8 +1684,10 @@ class spell_dru_activate_cat_form: public SpellScriptLoader
             void HandleBeforeHit()
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
+                {
                     if (!l_Player->HasAura(SPELL_DRUID_CAT_FORM))
                         l_Player->CastSpell(l_Player, SPELL_DRUID_CAT_FORM, true);
+                }
             }
 
             void Register()
@@ -1502,110 +1702,312 @@ class spell_dru_activate_cat_form: public SpellScriptLoader
         }
 };
 
-enum EclipseSpells
+// Call by Cat Form 768
+// Prowl - 5215, Displacer Beast - 102280 and Dash - 1850
+class spell_dru_on_desactivate_cat_form : public SpellScriptLoader
 {
-    /// Eclipse system
-    SPELL_DRUID_ECLIPSE_SOUND_SOLAR      = 65632,
-    SPELL_DRUID_ECLIPSE                  = 79577,
-    SPELL_DRUID_ECLIPSE_SOUND_LUNAR      = 93333,
-    SPELL_DRUID_ECLIPSE_VISUAL_SOLAR     = 93430,
-    SPELL_DRUID_ECLIPSE_VISUAL_LUNAR     = 93431,
-    SPELL_DRUID_ECLIPSE_LUNAR_PEAK       = 171743,
-    SPELL_DRUID_ECLIPSE_SOLAR_PEAK       = 171744,
+    public:
+        spell_dru_on_desactivate_cat_form() : SpellScriptLoader("spell_dru_on_desactivate_cat_form") { }
 
-    /// Related spells to Eclipse system
-    SPELL_DRUID_CELESTIAL_ALIGNMENT      = 112071
+        class spell_dru_on_desactivate_cat_form_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_on_desactivate_cat_form_AuraScript);
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (!l_Target)
+                    return;
+
+                if (l_Target->HasAura(SPELL_DRUID_PROWL))
+                    l_Target->RemoveAura(SPELL_DRUID_PROWL);
+                if (l_Target->HasAura(SPELL_DRUID_DASH))
+                    l_Target->RemoveAura(SPELL_DRUID_DASH);
+                if (l_Target->HasAura(SPELL_DRUID_DESPLACER_BEAST_AURA))
+                    l_Target->RemoveAura(SPELL_DRUID_DESPLACER_BEAST_AURA);
+            }
+
+            void Register()
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_dru_on_desactivate_cat_form_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_on_desactivate_cat_form_AuraScript();
+        }
 };
+
+enum DruidOfFlamesEnum
+{
+    MODEL_DRUID_OF_FLAMES = 38150,
+    SPELL_DRUID_OF_FLAME = 138927
+};
+
+// Druid of the flames - 138927
+class spell_dru_druid_flames : public SpellScriptLoader
+{
+public:
+    spell_dru_druid_flames() : SpellScriptLoader("spell_dru_druid_flames") { }
+
+    class spell_dru_druid_flames_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_dru_druid_flames_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+                if (l_Caster->HasAura(SPELL_DRUID_CAT_FORM) && l_Caster->HasAura(SPELL_DRUID_OF_FLAME))
+                    l_Caster->SetDisplayId(MODEL_DRUID_OF_FLAMES);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_dru_druid_flames_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_dru_druid_flames_SpellScript();
+    }
+};
+
+namespace Eclipse
+{
+    uint32 const g_BalanceCycleTime = 40000;
+    float  const g_ElipseMaxValue   = 105.0f;
+
+    enum State
+    {
+        None,
+        Lunar,
+        Solar,
+    };
+
+    enum Spell
+    {
+        SoundSolar         = 65632,
+        Eclipse            = 79577,
+        SoundLunar         = 93333,
+        VisualSolar        = 93430,
+        VisualLunar        = 93431,
+        LunarPeak          = 171743,
+        SolarPeak          = 171744,
+        Sunfire            = 163119,    ///< Trigger to override moonfire with sunfire in solar cycle
+        CelestialAlignment = 112071
+    };
+}
 
 /// Eclipse power handling
 class spell_dru_eclipse : public PlayerScript
 {
     public:
-        spell_dru_eclipse() : PlayerScript("spell_dru_eclipse") {}
+        spell_dru_eclipse() : PlayerScript("spell_dru_eclipse")
+        {
+        }
 
+        struct EclipseData
+        {
+            bool m_EclipseCycleActive;      ///< Eclipse regen cycle is active ?
+            uint8 m_LastEclipseState;       ///< Last eclipse state (reach when amount of eclipse power is >= 100)
+            int8  m_EclipseFinishingCount;  ///< Reamining time the amount of eclipse power need to be at 0 before cycle finished
+
+            float  m_LastEclipseAmount;     ///< Amount of eclipse power at last tick
+            uint64 m_LastEclipseCheck;      ///< Timestamp at last tick
+            uint64 m_BalanceTime;           ///< Time in millisecondes since the current eclipse cycle is started
+            uint32 m_ClientUpdateTimer;     ///< Timer in millisecondes before sending update of eclipse timer to client
+
+            EclipseData()
+            {
+                m_EclipseCycleActive = false;
+                m_EclipseFinishingCount = -1;
+                m_LastEclipseState = Eclipse::State::None;
+
+                m_LastEclipseCheck = 0;
+                m_BalanceTime = 0;
+                m_LastEclipseAmount = 0.0f;
+                m_ClientUpdateTimer = 2000;
+            }
+        };
+
+        ACE_Based::LockedMap<uint32, EclipseData> m_EclipseData;
+
+        /// This function is internal to script, not a override
+        bool CanUseEclipse(Player const* p_Player)
+        {
+            if (m_EclipseData.find(p_Player->GetGUIDLow()) == m_EclipseData.end())
+                m_EclipseData[p_Player->GetGUIDLow()] = EclipseData();
+
+            if (p_Player == nullptr
+                || p_Player->getClass() != Classes::CLASS_DRUID
+                || p_Player->GetSpecializationId(p_Player->GetActiveSpec()) != SpecIndex::SPEC_DRUID_BALANCE
+                || (p_Player->GetShapeshiftForm() != ShapeshiftForm::FORM_MOONKIN && p_Player->GetShapeshiftForm() != ShapeshiftForm::FORM_NONE))
+                return false;
+
+            return true;
+        }
+
+        /// Override
         void OnEnterInCombat(Player* p_Player)
         {
-            /// Don't reset EnterCombat power if EclipseCycle is active
-            if (!p_Player || p_Player->getClass() != Classes::CLASS_DRUID || p_Player->IsEclipseCyclesActive())
+            if (!CanUseEclipse(p_Player))
                 return;
 
-            if (p_Player->GetSpecializationId(p_Player->GetActiveSpec()) != SpecIndex::SPEC_DRUID_BALANCE ||
-                (p_Player->GetShapeshiftForm() != ShapeshiftForm::FORM_MOONKIN && p_Player->GetShapeshiftForm() != ShapeshiftForm::FORM_NONE))
+            EclipseData& l_EclipseData = m_EclipseData[p_Player->GetGUIDLow()];
+
+            l_EclipseData.m_EclipseFinishingCount = -1;
+
+            if (l_EclipseData.m_EclipseCycleActive)
                 return;
 
-            if (!p_Player->IsEclipseCyclesActive())
-                p_Player->SetEclipseCyclesState(true);
-        }
+            l_EclipseData.m_BalanceTime = 0;
+            l_EclipseData.m_LastEclipseAmount = 0;
+            l_EclipseData.m_LastEclipseState = Eclipse::State::None;
+            l_EclipseData.m_ClientUpdateTimer = 2000;
 
+            l_EclipseData.m_EclipseCycleActive = true;
+            l_EclipseData.m_EclipseFinishingCount = -1;
+
+            ACE_OS::gettimeofday().msec(l_EclipseData.m_LastEclipseCheck);
+       }
+
+        /// Override
         void OnLeaveCombat(Player* p_Player)
         {
-            /// Don't reset EnterCombat power if EclipseCycle is active
-            if (!p_Player || p_Player->getClass() != Classes::CLASS_DRUID || !p_Player->IsEclipseCyclesActive())
+            if (!CanUseEclipse(p_Player))
                 return;
 
-            if (p_Player->GetSpecializationId(p_Player->GetActiveSpec()) != SpecIndex::SPEC_DRUID_BALANCE ||
-                (p_Player->GetShapeshiftForm() != ShapeshiftForm::FORM_MOONKIN && p_Player->GetShapeshiftForm() != ShapeshiftForm::FORM_NONE))
-                return;
-
-            p_Player->GetEclipseTimer().Reset();
-            p_Player->SetEclipseCyclesState(false);
+            EclipseData& l_EclipseData = m_EclipseData[p_Player->GetGUIDLow()];
+            l_EclipseData.m_EclipseFinishingCount = l_EclipseData.m_LastEclipseState == Eclipse::State::None ? 1 : 2;
         }
 
-        void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32 /*p_NewValue*/, bool /*p_Regen*/)
+        /// Override
+        void OnLogout(Player * p_Player)
         {
-            if (!p_Player || p_Player->getClass() != Classes::CLASS_DRUID || p_Power != Powers::POWER_ECLIPSE)
+            m_EclipseData.erase(p_Player->GetGUIDLow());
+        }
+
+        /// Handle regeneration of eclipse
+        /// Call at each update tick (100 ms)
+        /// Override
+        void OnUpdate(Player * p_Player, uint32 p_Diff)
+        {
+            if (!CanUseEclipse(p_Player))
                 return;
 
-            if (p_Player->GetSpecializationId(p_Player->GetActiveSpec()) != SpecIndex::SPEC_DRUID_BALANCE ||
-                (p_Player->GetShapeshiftForm() != ShapeshiftForm::FORM_MOONKIN && p_Player->GetShapeshiftForm() != ShapeshiftForm::FORM_NONE))
+            EclipseData& l_EclipseData = m_EclipseData[p_Player->GetGUIDLow()];
+            if (!l_EclipseData.m_EclipseCycleActive)
                 return;
 
-            /// Wait for the cycle to finish when leaving combat
-            if (p_Player->IsEclipseCyclesActive() && !p_Player->isInCombat())
+            uint64 l_ActualTime = 0;
+            ACE_OS::gettimeofday().msec(l_ActualTime);
+
+            uint32 l_PowerIndex = p_Player->GetPowerIndexByClass(Powers::POWER_ECLIPSE, p_Player->getClass());
+            if (l_PowerIndex == MAX_POWERS)
+                return;
+
+            float l_FloatMultiplier = (1.0f + p_Player->GetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + l_PowerIndex));
+
+            /// Even if we have buff to speedup the cycle, it's freeze because of Celestial Alignment
+            if (p_Player->HasAura(Eclipse::Spell::CelestialAlignment))
+                l_FloatMultiplier = 0.0f;
+
+            l_EclipseData.m_BalanceTime += (l_ActualTime - l_EclipseData.m_LastEclipseCheck) * l_FloatMultiplier;
+            l_EclipseData.m_LastEclipseCheck = l_ActualTime;
+
+            /// Eclipse regen isn't linear, it's a elipse ...
+            double l_EclipseAmount = Eclipse::g_ElipseMaxValue * std::sin(2 * M_PI * l_EclipseData.m_BalanceTime / Eclipse::g_BalanceCycleTime);
+
+            if (l_EclipseData.m_EclipseFinishingCount != -1)
             {
-                if (p_Player->GetEclipseTimer().Passed() || (p_Player->GetEclipseTimer().GetCurrent() / TimeConstants::IN_MILLISECONDS) >= 20)
+                if (int(l_EclipseAmount) == 0 && int(l_EclipseData.m_LastEclipseAmount) != 0)
                 {
-                    p_Player->GetEclipseTimer().Reset();
-                    p_Player->SetEclipseCyclesState(false);
+                    l_EclipseData.m_EclipseFinishingCount--;
+
+                    if (l_EclipseData.m_EclipseFinishingCount == 0)
+                    {
+                        l_EclipseData.m_EclipseFinishingCount = -1;
+                        l_EclipseData.m_EclipseCycleActive = false;
+
+                        l_EclipseData.m_BalanceTime = 0;
+                    }
                 }
             }
 
-            int32 l_Power = p_OldValue;
-            uint8 l_Coeff = p_Player->GetPowerCoeff(Powers::POWER_ECLIPSE);
+            l_EclipseData.m_LastEclipseAmount = l_EclipseAmount;
 
-            if (!p_Player->IsEclipseCyclesActive() && l_Power == 0)
+            /// We need to send periodic update of server-side balance timer to be sure we are sync with the client timer.
+            bool l_ClientUpdate = false;
+            if (l_EclipseData.m_ClientUpdateTimer <= p_Diff)
             {
-                p_Player->SetLastEclipseState(ECLIPSE_NONE);
+                l_ClientUpdate = true;
+                l_EclipseData.m_ClientUpdateTimer = 2000;
+            }
+            else
+                l_EclipseData.m_ClientUpdateTimer -= p_Diff;
+
+            p_Player->SetPower(Powers::POWER_ECLIPSE, l_EclipseData.m_BalanceTime % Eclipse::g_BalanceCycleTime, !l_ClientUpdate);
+
+            /// Very usefull to debug eclipse and see server-side values
+            /// Maybe we need to add a command to have it ?
+            //ChatHandler(p_Player).PSendSysMessage("Eclipse : %f balance time : %u", l_EclipseAmount, m_BalanceTime % Eclipse::g_BalanceCycleTime);
+        }
+
+        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool /*p_Regen*/)
+        {
+            if (!CanUseEclipse(p_Player) || p_Power != Powers::POWER_ECLIPSE)
+                return;
+
+            EclipseData& l_EclipseData = m_EclipseData[p_Player->GetGUIDLow()];
+            if (!l_EclipseData.m_EclipseCycleActive)
+            {
+                p_NewValue = 0;
                 return;
             }
 
-            /// @Todo: Reset the cursor to the center, more tests needed
-            /*
-            if (l_Power == 0)
-            {
-                if (p_Player->GetLastEclipseState() == ECLIPSE_SOLAR || p_Player->GetLastEclipseState() == ECLIPSE_NONE)
-                    p_Player->CastSpell(p_Player, SPELL_DRUID_ECLIPSE_SOUND_LUNAR, true);
-                else
-                    p_Player->CastSpell(p_Player, SPELL_DRUID_ECLIPSE_SOUND_SOLAR, true);
-            }
-            */
+            double l_EclipseAmount = Eclipse::g_ElipseMaxValue *std::sin(2 * M_PI * p_Player->GetPower(Powers::POWER_ECLIPSE) / Eclipse::g_BalanceCycleTime);
 
-            if (l_Power <= (-90 * l_Coeff) && !p_Player->HasAura(SPELL_DRUID_ECLIPSE_VISUAL_SOLAR)) ///< Solar avantage at -90
-                p_Player->CastSpell(p_Player, SPELL_DRUID_ECLIPSE_VISUAL_SOLAR, true);
-            else if (l_Power >= (90 * l_Coeff) && !p_Player->HasAura(SPELL_DRUID_ECLIPSE_VISUAL_LUNAR)) ///< Lunar avantage at 90
-                p_Player->CastSpell(p_Player, SPELL_DRUID_ECLIPSE_VISUAL_LUNAR, true);
+            /// Overriding of moonfire with sunfire
+            {
+                if (l_EclipseAmount < 0 && !p_Player->HasAura(Eclipse::Spell::Sunfire))
+                    p_Player->CastSpell(p_Player, Eclipse::Spell::Sunfire, true);
+                else if (l_EclipseAmount >= 0 && p_Player->HasAura(Eclipse::Spell::Sunfire))
+                    p_Player->RemoveAurasDueToSpell(Eclipse::Spell::Sunfire);
+            }
 
-            if (l_Power <= (-100 * l_Coeff) && p_Player->GetLastEclipseState() != ECLIPSE_SOLAR)  ///< Solar Eclipse at -100
+            /// Visual effect (don't work ATM, need sniff / research)
+            /*{
+                if (l_EclipseAmount >= 90  && !p_Player->HasAura(SPELL_DRUID_ECLIPSE_VISUAL_SOLAR)) ///< Solar avantage at -90
+                    p_Player->CastSpell(p_Player, SPELL_DRUID_ECLIPSE_VISUAL_SOLAR, true);
+                else if (l_EclipseAmount <= 90 && !p_Player->HasAura(SPELL_DRUID_ECLIPSE_VISUAL_LUNAR)) ///< Lunar avantage at 90
+                    p_Player->CastSpell(p_Player, SPELL_DRUID_ECLIPSE_VISUAL_LUNAR, true);
+
+                if (l_EclipseAmount == 0)
+                {
+                    if (m_LastEclipseState == EclipseState::Solar || m_LastEclipseState == EclipseState::Lunar)
+                        p_Player->CastSpell(p_Player, SPELL_DRUID_ECLIPSE_SOUND_LUNAR, true);
+                    else
+                        p_Player->CastSpell(p_Player, SPELL_DRUID_ECLIPSE_SOUND_SOLAR, true);
+                }
+            }*/
+
+            /// Peak buffs
             {
-                p_Player->SetLastEclipseState(ECLIPSE_SOLAR);
-                p_Player->CastSpell(p_Player, SPELL_DRUID_ECLIPSE_SOLAR_PEAK, true);
+                if (l_EclipseAmount <= -100 && l_EclipseData.m_LastEclipseState != Eclipse::State::Solar)  ///< Solar Eclipse at -100
+                {
+                    l_EclipseData.m_LastEclipseState = Eclipse::State::Solar;
+                    p_Player->CastSpell(p_Player, Eclipse::Spell::SolarPeak, true);
+                }
+                else if (l_EclipseAmount >= 100 && l_EclipseData.m_LastEclipseState != Eclipse::State::Lunar)  ///< Lunar Eclipse at 100
+                {
+                    l_EclipseData.m_LastEclipseState = Eclipse::State::Lunar;
+                    p_Player->CastSpell(p_Player, Eclipse::Spell::LunarPeak, true);
+                }
             }
-            else if (l_Power >= (100 * l_Coeff) && p_Player->GetLastEclipseState() != ECLIPSE_LUNAR)  ///< Lunar Eclipse at 100
-            {
-                p_Player->SetLastEclipseState(ECLIPSE_LUNAR);
-                p_Player->CastSpell(p_Player, SPELL_DRUID_ECLIPSE_LUNAR_PEAK, true);
-            }
-        }
+       }
 };
 
 /// Eclipse (damage mod) - 79577
@@ -1621,23 +2023,42 @@ class spell_dru_eclipse_mod_damage : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                Player* l_Player = GetCaster()->ToPlayer();
-                if (!l_Player)
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
                     return;
 
-                if (AuraEffectPtr l_Aura = l_Player->GetAuraEffect(SPELL_DRUID_ECLIPSE, EFFECT_0))
+                if (AuraEffectPtr l_Aura = l_Caster->GetAuraEffect(Eclipse::Spell::Eclipse, EFFECT_0))
                 {
                     float l_BonusSolarSpells = 0.0f;
                     float l_BonusLunarSpells = 0.0f;
                     float l_DamageModPCT = l_Aura->GetAmount();
 
-                    if (l_Player->HasEclipseSideAvantage(ECLIPSE_SOLAR) || l_Player->HasEclipseSideAvantage(ECLIPSE_LUNAR))
-                    {
-                        int32 l_Power = l_Player->GetPower(Powers::POWER_ECLIPSE);
-                        uint8 l_Coeff = l_Player->GetPowerCoeff(Powers::POWER_ECLIPSE);
+                    float l_Eclipse = Eclipse::g_ElipseMaxValue * std::sin(2 * M_PI * l_Caster->GetPower(Powers::POWER_ECLIPSE) / Eclipse::g_BalanceCycleTime);
 
-                        l_BonusSolarSpells = CalculatePct(l_DamageModPCT, l_Power / l_Coeff);
+                    /// Eclipse amount egal 0, each school have the same bonus
+                    if ((int)l_Eclipse == 0)
+                    {
+                        l_BonusLunarSpells = l_DamageModPCT / 2.0f;
+                        l_BonusSolarSpells = l_DamageModPCT / 2.0f;
+                    }
+                    /// We're in lunar phase
+                    else if (l_Eclipse > 0)
+                    {
+                        l_BonusLunarSpells = (l_DamageModPCT / 2.0f) + CalculatePct(l_DamageModPCT / 2.0f, l_Eclipse);
+                        l_BonusSolarSpells = l_DamageModPCT - l_BonusLunarSpells;
+                    }
+                    /// We're in solar phase
+                    else if (l_Eclipse < 0)
+                    {
+                        l_BonusSolarSpells = (l_DamageModPCT / 2.0f) + CalculatePct(l_DamageModPCT / 2.0f, -l_Eclipse);
                         l_BonusLunarSpells = l_DamageModPCT - l_BonusSolarSpells;
+                    }
+
+                    /// Celestial alignment : All Lunar and Solar spells benefit from your maximum Eclipse bonus.
+                    if (l_Caster->HasAura(Eclipse::Spell::CelestialAlignment))
+                    {
+                        l_BonusSolarSpells = l_DamageModPCT;
+                        l_BonusLunarSpells = l_DamageModPCT;
                     }
 
                     if (GetSpellInfo()->GetSchoolMask() == SPELL_SCHOOL_MASK_NATURE)
@@ -1659,61 +2080,20 @@ class spell_dru_eclipse_mod_damage : public SpellScriptLoader
         }
 };
 
-/// Celestial Alignment - 112071
-class spell_dru_celestial_alignment : public SpellScriptLoader
-{
-public:
-    spell_dru_celestial_alignment() : SpellScriptLoader("spell_dru_celestial_alignment") { }
-
-    class spell_dru_celestial_alignment_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_dru_celestial_alignment_AuraScript);
-
-        void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            Player* l_Target = GetTarget()->ToPlayer();
-            if (!l_Target)
-                return;
-
-            l_Target->SetPower(Powers::POWER_ECLIPSE, 0);
-            l_Target->SetLastEclipseState(ECLIPSE_NONE);
-            l_Target->CastSpell(l_Target, SPELL_DRUID_ECLIPSE_VISUAL_LUNAR, true);
-            l_Target->CastSpell(l_Target, SPELL_DRUID_ECLIPSE_LUNAR_PEAK, true);
-            l_Target->CastSpell(l_Target, SPELL_DRUID_ECLIPSE_VISUAL_SOLAR, true);
-            l_Target->CastSpell(l_Target, SPELL_DRUID_ECLIPSE_SOLAR_PEAK, true);
-        }
-
-        void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            Unit* l_Target = GetTarget();
-            if (!l_Target)
-                return;
-
-            if (l_Target->HasAura(SPELL_DRUID_ECLIPSE_LUNAR_PEAK))
-                l_Target->RemoveAurasDueToSpell(SPELL_DRUID_ECLIPSE_LUNAR_PEAK);
-            if (l_Target->HasAura(SPELL_DRUID_ECLIPSE_SOLAR_PEAK))
-                l_Target->RemoveAurasDueToSpell(SPELL_DRUID_ECLIPSE_SOLAR_PEAK);
-        }
-
-        void Register()
-        {
-            OnEffectApply += AuraEffectApplyFn(spell_dru_celestial_alignment_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
-            OnEffectRemove += AuraEffectRemoveFn(spell_dru_celestial_alignment_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_dru_celestial_alignment_AuraScript();
-    }
-};
-
 enum MoonfireSpells
 {
     SPELL_DRUID_MOONFIRE_DAMAGE          = 164812,
     SPELL_DRUID_DREAM_OF_CENARIUS_TALENT = 108373,
     SPELL_DRUID_DREAM_OF_CENARIUS_RESTO  = 145153
 };
+
+namespace Sunfire
+{
+    enum
+    {
+        SpellDamage = 164815
+    };
+}
 
 /// Moonfire - 8921
 class spell_dru_moonfire : public SpellScriptLoader
@@ -1728,8 +2108,16 @@ public:
         void HandleOnHit()
         {
             if (Unit* l_Caster = GetCaster())
+            {
                 if (Unit* l_Target = GetHitUnit())
+                {
                     l_Caster->CastSpell(l_Target, SPELL_DRUID_MOONFIRE_DAMAGE);
+
+                    /// Celestial Alignment : causes your Moonfire and Sunfire spells to also apply the other's damage over time effect.
+                    if (l_Caster->HasAura(Eclipse::Spell::CelestialAlignment))
+                        l_Caster->AddAura(Sunfire::SpellDamage, l_Target);
+                }
+            }
         }
 
         void Register()
@@ -1741,6 +2129,43 @@ public:
     SpellScript* GetSpellScript() const
     {
         return new spell_dru_moonfire_SpellScript();
+    }
+};
+
+/// Sunfire - 93402
+class spell_dru_sunfire : public SpellScriptLoader
+{
+public:
+    spell_dru_sunfire() : SpellScriptLoader("spell_dru_sunfire") { }
+
+    class spell_dru_sunfire_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_dru_sunfire_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (Unit* l_Target = GetHitUnit())
+                {
+                    l_Caster->CastSpell(l_Target, Sunfire::SpellDamage);
+
+                    /// Celestial Alignment : causes your Moonfire and Sunfire spells to also apply the other's damage over time effect.
+                    if (l_Caster->HasAura(Eclipse::Spell::CelestialAlignment))
+                        l_Caster->AddAura(MoonfireSpells::SPELL_DRUID_MOONFIRE_DAMAGE, l_Target);
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_dru_sunfire_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_dru_sunfire_SpellScript();
     }
 };
 
@@ -1759,7 +2184,7 @@ public:
             if (Player* l_Player = GetCaster()->ToPlayer())
             {
                 if (l_Player->HasAura(SPELL_DRUID_DREAM_OF_CENARIUS_TALENT) && l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_DRUID_RESTORATION &&
-                    (l_Player->HasAura(SPELL_DRUID_ECLIPSE_LUNAR_PEAK) || l_Player->HasAura(SPELL_DRUID_ECLIPSE_SOLAR_PEAK)))
+                    (l_Player->HasAura(Eclipse::Spell::LunarPeak) || l_Player->HasAura(Eclipse::Spell::SolarPeak)))
                 {
                     if (Unit* l_Target = l_Player->GetNextRandomRaidMember(15.0f))
                         l_Player->CastSpell(l_Target, SPELL_DRUID_DREAM_OF_CENARIUS_RESTO, true);
@@ -2076,16 +2501,27 @@ class spell_dru_swiftmend: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    int32 heal = GetHitHeal() + CalculatePct(caster->SpellBaseHealingBonusDone(SPELL_SCHOOL_MASK_ALL), GetSpellInfo()->Effects[EFFECT_0].BasePoints);
-                    SetHitHeal(heal);
+                    int32 l_HealAmount = GetHitHeal() + CalculatePct(l_Caster->SpellBaseHealingBonusDone(SPELL_SCHOOL_MASK_ALL), GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+                    SetHitHeal(l_HealAmount);
+                }
+            }
+
+            void HandleAfterHit()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    //Restoration soul of the forest - 114108
+                    if (l_Caster->HasAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO_TALENT))
+                        l_Caster->CastSpell(l_Caster, SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO, false);
                 }
             }
 
             void Register()
             {
                 OnHit += SpellHitFn(spell_dru_swiftmend_SpellScript::HandleOnHit);
+                AfterHit += SpellHitFn(spell_dru_swiftmend_SpellScript::HandleAfterHit);
             }
         };
 
@@ -2389,16 +2825,13 @@ public:
 
                 if (constAuraEffectPtr l_GlyphOfSavageRoar = l_Caster->GetAuraEffect(SPELL_DRU_GLYPH_OF_SAVAGE_ROAR, EFFECT_0))
                 {
-                        if (Player* l_Player = l_Caster->ToPlayer())
-                        {
-                            uint8 l_ComboPointsBefore = l_Player->GetComboPoints();
-                            l_Player->AddComboPoints(l_GlyphOfSavageRoar->GetAmount(), nullptr);
+                    uint8 l_ComboPointsBefore = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
+                    l_Caster->AddComboPoints(l_GlyphOfSavageRoar->GetAmount());
 
-                            l_Caster->CastSpell(l_Target, SPELL_DRUID_SAVAGE_ROAR, true);
+                    l_Caster->CastSpell(l_Target, SPELL_DRUID_SAVAGE_ROAR, true);
 
-                            l_Player->ClearComboPoints();
-                            l_Player->AddComboPoints(l_ComboPointsBefore, nullptr);
-                        }
+                    l_Caster->ClearComboPoints();
+                    l_Caster->AddComboPoints(l_ComboPointsBefore);
                 }
             }
 
@@ -2419,7 +2852,6 @@ public:
 
 enum SpellsShred
 {
-    SPELL_DRUID_PROWL = 5215,
     SPELL_DRUID_SWIPE = 106785
 };
 
@@ -2455,16 +2887,13 @@ public:
                 {
                     if (constAuraEffectPtr l_GlyphOfSavageRoar = l_Caster->GetAuraEffect(SPELL_DRU_GLYPH_OF_SAVAGE_ROAR, EFFECT_0))
                     {
-                        if (l_Caster->GetTypeId() == TYPEID_PLAYER)
-                        {
-                            uint8 l_ComboPointsBefore = l_Caster->ToPlayer()->GetComboPoints();
-                            l_Caster->ToPlayer()->AddComboPoints(l_GlyphOfSavageRoar->GetAmount(), nullptr);
+                        uint8 l_ComboPointsBefore = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
+                        l_Caster->AddComboPoints(l_GlyphOfSavageRoar->GetAmount());
 
-                            l_Caster->CastSpell(l_Target, SPELL_DRUID_SAVAGE_ROAR, true);
+                        l_Caster->CastSpell(l_Target, SPELL_DRUID_SAVAGE_ROAR, true);
 
-                            l_Caster->ToPlayer()->ClearComboPoints();
-                            l_Caster->ToPlayer()->AddComboPoints(l_ComboPointsBefore, nullptr);
-                        }
+                        l_Caster->ClearComboPoints();
+                        l_Caster->AddComboPoints(l_ComboPointsBefore);
                     }
                 }
             }
@@ -2512,7 +2941,7 @@ public:
             int32 l_Damage = GetHitDamage();
 
             if (l_Caster->GetTypeId() == TYPEID_PLAYER)
-                l_Damage = (l_Damage / 5) * l_Caster->ToPlayer()->GetComboPoints();
+                l_Damage = (l_Damage / 5) * l_Caster->GetPower(Powers::POWER_COMBO_POINT);
 
             // converts each extra point of energy ( up to 25 energy ) into additional damage
             int32 l_EnergyConsumed = -l_Caster->ModifyPower(POWER_ENERGY, -GetSpellInfo()->Effects[EFFECT_1].BasePoints);
@@ -2598,7 +3027,7 @@ public:
             Unit* l_Caster = GetCaster();
 
             if (l_Caster && l_Caster->GetTypeId() == TYPEID_PLAYER && GetEffect(EFFECT_0))
-                p_Amount = (p_Amount * l_Caster->ToPlayer()->GetComboPoints() * 8) / (GetMaxDuration() / GetEffect(EFFECT_0)->GetAmplitude());
+                p_Amount = (p_Amount * l_Caster->GetPower(Powers::POWER_COMBO_POINT) * 8) / (GetMaxDuration() / GetEffect(EFFECT_0)->GetAmplitude());
         }
 
         void Register()
@@ -2788,9 +3217,9 @@ void AddSC_druid_spell_scripts()
     new spell_dru_faerie_fire();
     new spell_dru_teleport_moonglade();
     new spell_dru_activate_cat_form();
+    new spell_dru_on_desactivate_cat_form();
     new spell_dru_eclipse();
     new spell_dru_eclipse_mod_damage();
-    new spell_dru_celestial_alignment();
     new spell_dru_moonfire();
     new spell_dru_moonfire_sunfire_damage();
     new spell_dru_t10_restoration_4p_bonus();
@@ -2810,5 +3239,9 @@ void AddSC_druid_spell_scripts()
     new spell_dru_dream_of_cenarius();
     new spell_dru_primal_fury();
     new spell_dru_healing_touch();
-    new spell_dru_germination();
+    new spell_dru_rejuvenation();
+    new spell_dru_sunfire();
+    new spell_dru_regrowth();
+    new spell_dru_wild_growth();
+    new spell_dru_druid_flames();
 }

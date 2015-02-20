@@ -287,13 +287,6 @@ inline uint8 GetClassBySpec(uint32 spec)
     (1<<(CLASS_MAGE-1))    |(1<<(CLASS_WARLOCK-1))|(1<<(CLASS_DRUID-1)) | \
     (1<<(CLASS_DEATH_KNIGHT-1)) |(1<<(CLASS_MONK-1)))
 
-enum eclipseState
-{
-    ECLIPSE_NONE,
-    ECLIPSE_LUNAR,
-    ECLIPSE_SOLAR,
-};
-
 // valid classes for creature_template.unit_class
 enum UnitClass
 {
@@ -825,7 +818,7 @@ enum SpellAttr9
 
 enum SpellAttr10
 {
-    SPELL_ATTR10_UNK0                             = 0x00000001, // 0 Deep Wounds, Ignite, Blood Plague, Frost Fever, Ebon Plague, Scarlet Fever, Brittle Bones, Asira Dismount
+    SPELL_ATTR10_UNK0                             = 0x00000001, // 0 Deep Wounds, Ignite, Blood Plague, Frost Fever, Ebon Plague, Scarlet Fever, Asira Dismount
     SPELL_ATTR10_UNK1                             = 0x00000002, // 1 Combustion, Hemorrhage
     SPELL_ATTR10_UNK2                             = 0x00000004, // 2 Throw Spear, Unholy Shot, Crack Shot!, Throw Knife, Ice Arrow
     SPELL_ATTR10_UNK3                             = 0x00000008, // 3 Spirit Bond, Fel Armor

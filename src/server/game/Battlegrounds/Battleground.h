@@ -52,6 +52,16 @@ namespace MS
                 Value = 2
             };
         }
+
+        /// Correponds to the spells related to battlegrounds.        
+        namespace Spells
+        {
+            enum Type
+            {
+                DeserterBuff = 26013
+            };
+        }
+
         /// This enum is for INTERNAL purpose, do not use it as a client battleground type id.
         namespace BattlegroundType
         {
@@ -851,6 +861,7 @@ class Battleground
         uint32 GetClientInstanceID() const  { return m_ClientInstanceID; }
         uint32 GetElapsedTime() const       { return m_StartTime; }
         uint32 GetRemainingTime() const     { return m_EndTime; }
+        uint32 GetExpirationDate() const    { return 0; } ///< Handled differently.
         uint32 GetLastResurrectTime() const { return m_LastResurrectTime; }
         uint32 GetMaxPlayers() const        { return m_MaxPlayers; }
         uint32 GetMinPlayers() const        { return m_MinPlayers; }
@@ -1174,6 +1185,7 @@ class Battleground
         uint32 m_ResetStatTimer;
         uint32 m_ValidStartPositionTimer;
         int32 m_EndTime;                                    // it is set to 120000 when bg is ending and it decreases itself
+        int32 m_CreationTime;
         uint32 m_LastResurrectTime;
         MS::Battlegrounds::Bracket::Id m_BracketId;
         uint8  m_ArenaType;                                 // 2=2v2, 3=3v3, 5=5v5

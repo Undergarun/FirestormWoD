@@ -3330,8 +3330,8 @@ void ObjectMgr::LoadAreaTriggerTemplates()
 
     //                                                      0           1          2        3        4          5         6            7               8                   9
     QueryResult l_Result = WorldDatabase.Query("SELECT `spell_id`, `eff_index`, `entry`, `type`, `scale_x`, `scale_y`, `flags`, `move_curve_id`, `scale_curve_id`, `morph_curve_id`,"
-    //                                                         10            11        12      13       14       15       16        17      18          19
-                                                       "`facing_curve_id`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `data6`, `data7`, `ScriptName` FROM `areatrigger_template`");
+    //                                                         10            11        12      13       14       15       16        17      18          19                20
+                                                       "`facing_curve_id`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `data6`, `data7`, `ScriptName`, `creature_visual` FROM `areatrigger_template`");
     if (!l_Result)
     {
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 Areatrigger template in %u ms", GetMSTimeDiffToNow(l_OldMSTime));
@@ -3387,6 +3387,7 @@ void ObjectMgr::LoadAreaTriggerTemplates()
         }
 
         l_Template.m_ScriptId = sObjectMgr->GetScriptId(l_Fields[l_Index++].GetCString());
+        l_Template.m_CreatureVisualEntry = l_Fields[l_Index++].GetUInt32();
 
         m_AreaTriggerTemplates[l_Template.m_Entry].push_back(l_Template);
         m_AreaTriggerTemplatesSpell[l_Template.m_SpellID].push_back(l_Template);
@@ -5830,6 +5831,10 @@ uint32 ObjectMgr::GetNearestTaxiNode(float x, float y, float z, uint32 mapid, ui
 
         // skip not taxi network nodes
         if ((sTaxiNodesMask[field] & submask) == 0)
+            continue;
+
+        /// All taxi path with flag == 0 is quest taxi, event or transport, we can skip it
+        if (node->m_Flags == 0)
             continue;
 
         float dist2 = (node->x - x)*(node->x - x)+(node->y - y)*(node->y - y)+(node->z - z)*(node->z - z);

@@ -470,27 +470,49 @@ bool ScriptMgr::OnAreaTrigger(Player * p_Player, const AreaTriggerEntry * p_Trig
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
+
+/// Assign script to Areatrigger
+void ScriptMgr::InitScriptEntity(AreaTrigger* p_AreaTrigger)
+{
+    ASSERT(p_AreaTrigger);
+
+    // On creation, we look for instantiating a new script, locally to the AreaTrigger.
+    if (p_AreaTrigger->GetScript())
+        return;
+
+    AreaTriggerEntityScript* l_AreaTriggerScript = ScriptRegistry<AreaTriggerEntityScript>::GetScriptById(p_AreaTrigger->GetMainTemplate()->m_ScriptId);
+    if (l_AreaTriggerScript == nullptr)
+        return;
+
+    p_AreaTrigger->SetScript(l_AreaTriggerScript->GetAI());
+}
 /// Proc when AreaTrigger is created.
 /// @p_AreaTrigger : AreaTrigger instance
 void ScriptMgr::OnCreateAreaTriggerEntity(AreaTrigger * p_AreaTrigger)
 {
     ASSERT(p_AreaTrigger);
-
-    // On creation, we look for instantiating a new script, locally to the AreaTrigger.
-    if (!p_AreaTrigger->GetScript())
-    {
-        AreaTriggerEntityScript* l_AreaTriggerScript = ScriptRegistry<AreaTriggerEntityScript>::GetScriptById(p_AreaTrigger->GetMainTemplate()->m_ScriptId);
-        if (l_AreaTriggerScript == nullptr)
-            return;
-
-        p_AreaTrigger->SetScript(l_AreaTriggerScript->GetAI());
-    }
-
-    // This checks is usefull if you run out of memory.
-    if (!p_AreaTrigger->GetScript())
+    
+    AreaTriggerEntityScript* l_Script = p_AreaTrigger->GetScript();
+    if (!l_Script)
         return;
 
-    p_AreaTrigger->GetScript()->OnCreate(p_AreaTrigger);
+    l_Script->OnCreate(p_AreaTrigger);
+}
+/// Procs before creation to specify position and linear destination of the areatrigger
+/// @p_AreaTrigger: Areatrigger Instance
+/// @p_Caster: Caster because he the Areatrigger is not spawned so caster is not defined
+/// @p_SourcePosition: Spawn location of the Areatrigger
+/// @p_DestinationPostion: Linear destination of the Areatrigger
+/// @p_PathToLinearDestination: Linear path without the endpoint
+void ScriptMgr::OnSetCreatePositionEntity(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition, std::list<Position>& p_PathToLinearDestination)
+{
+    ASSERT(p_AreaTrigger);
+
+    AreaTriggerEntityScript* l_Script = p_AreaTrigger->GetScript();
+    if (!l_Script)
+        return;
+
+    l_Script->OnSetCreatePosition(p_AreaTrigger, p_Caster, p_SourcePosition, p_DestinationPosition, p_PathToLinearDestination);
 }
 /// Proc when AreaTrigger is updated.
 /// @p_AreaTrigger : AreaTrigger instance
@@ -1599,7 +1621,7 @@ void ScriptMgr::OnPlayerKilledByCreature(Creature * p_Killer, Player * p_Killed)
 /// @p_OldValue  : Old value
 /// @p_NewValue  : New value
 /// @p_Regen  : If it's a regen modification
-void ScriptMgr::OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32 p_NewValue, bool p_Regen)
+void ScriptMgr::OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
 {
     FOREACH_SCRIPT(PlayerScript)->OnModifyPower(p_Player, p_Power, p_OldValue, p_NewValue, p_Regen);
 }
@@ -1883,6 +1905,16 @@ void ScriptMgr::OnPlayerLeaveCombat(Player* p_Player)
 void ScriptMgr::OnSceneTriggerEvent(Player * p_Player, uint32 p_SceneInstanceID, std::string p_Event)
 {
     FOREACH_SCRIPT(PlayerScript)->OnSceneTriggerEvent(p_Player, p_SceneInstanceID, p_Event);
+}
+
+/// Called when a player regen a power
+/// @p_Player         : Player instance
+/// @p_Power          : Power to be regenerate
+/// @p_AddValue       : amount of power to regenerate
+/// @p_PreventDefault : avoid default regeneration
+void ScriptMgr::OnPlayerRegenPower(Player * p_Player, Powers const p_Power, float& p_AddValue, bool& p_PreventDefault)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnRegenPower(p_Player, p_Power, p_AddValue, p_PreventDefault);
 }
 
 //////////////////////////////////////////////////////////////////////////

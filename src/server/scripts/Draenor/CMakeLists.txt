@@ -32,6 +32,9 @@ set(scripts_STAT_SRCS
   Draenor/BloodmaulSlagMines/spell_bloodmaul.cpp
   Draenor/BloodmaulSlagMines/areatrigger_bloodmaul.cpp
   Draenor/BloodmaulSlagMines/boss_slave_watcher_crushto.cpp
+  Draenor/BloodmaulSlagMines/boss_forgemaster_gogduh.cpp
+  Draenor/BloodmaulSlagMines/boss_roltall.cpp
+  Draenor/BloodmaulSlagMines/boss_gugrokk.cpp
 )
 
 message("  -> Prepared: Draenor")

@@ -100,8 +100,8 @@ MovementStatusElements MovementGlobalSequence[] =
     MSEFallTime,
     MSEFallVerticalSpeed,
     MSEHasFallDirection,
-    MSEFallSinAngle,
     MSEFallCosAngle,
+    MSEFallSinAngle,
     MSEFallHorizontalSpeed,
 
     MSEEnd,
@@ -145,8 +145,8 @@ MovementStatusElements PlayerMoveSequence[] =
     MSEFallVerticalSpeed,
     MSEHasFallDirection, 
     MSEFlushBits,
-    MSEFallSinAngle,
     MSEFallCosAngle,
+    MSEFallSinAngle,
     MSEFallHorizontalSpeed,
 
     MSEEnd,
@@ -198,6 +198,7 @@ MovementStatusElements* GetMovementStatusElementsSequence(Opcodes opcode)
         || opcode == CMSG_MOVE_SET_CAN_FLY_ACK
         || opcode == CMSG_MOVE_FEATHER_FALL_ACK
         || opcode == CMSG_MOVE_WATER_WALK_ACK
+        || opcode == CMSG_MOVE_KNOCK_BACK_ACK
         || opcode == CMSG_MOVE_HOVER_ACK
         || opcode == CMSG_MOVE_SPLINE_DONE
         || opcode == CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE)

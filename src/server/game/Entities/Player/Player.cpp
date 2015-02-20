@@ -190,9 +190,16 @@ void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level
     // New continent starting masks (It will be accessible only at new map)
     switch (Player::TeamForRace(race))
     {
-        case ALLIANCE: SetTaximaskNode(100); break;
-        case HORDE:    SetTaximaskNode(99);  break;
+        case ALLIANCE:
+            SetTaximaskNode(100);
+            SetTaximaskNode(1420);      ///< Ashran flypath (Stormshield)
+            break;
+        case HORDE:
+            SetTaximaskNode(99);
+            SetTaximaskNode(1408);      ///< Ashran flypath (Warspear)
+            break;
     }
+
     // Level dependent taxi hubs
     if (level >= 68)
         SetTaximaskNode(213);                               //Shattered Sun Staging Area
@@ -707,10 +714,6 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     m_speakTime = 0;
     m_speakCount = 0;
 
-    m_EclipseCycleActive = false;
-    m_EclipseTimer.SetInterval(ECLIPSE_FULL_CYCLE_DURATION * IN_MILLISECONDS);
-    m_LastEclipseState = ECLIPSE_NONE;
-
     m_bgRoles = 0;
 
     m_lastPlayedEmote = 0;
@@ -748,17 +751,13 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     m_lootSpecId = 0;
     m_BonusRollFails = 0;
 
-    m_comboPoints = 0;
-
     m_RegenPowerTimer = 0;
     m_regenTimerCount = 0;
     m_holyPowerRegenTimerCount = 0;
     m_chiPowerRegenTimerCount = 0;
     m_demonicFuryPowerRegenTimerCount = 0;
     m_soulShardsRegenTimerCount = 0;
-    m_burningEmbersRegenTimerCount = 0;
     m_focusRegenTimerCount = 0;
-    m_EclipseRegenTimer = 0;
     m_weaponChangeTimer = 0;
 
     m_zoneUpdateId = 0;
@@ -997,6 +996,12 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
 
     if (GetSession()->GetSecurity() > SEC_PLAYER)
         gOnlineGameMaster++;
+
+    /// Unlock WoD heroic dungeons
+    if (uint32 l_QuestBit = GetQuestUniqueBitFlag(37213))   ///< FLAG - Proving Grounds - Damage Silver
+        m_CompletedQuestBits.SetBit(l_QuestBit - 1);
+
+    ///////////////////////////////////////////////////////////
 }
 
 Player::~Player()
@@ -1503,6 +1508,13 @@ void Player::RewardCurrencyAtKill(Unit* p_Victim)
     if (!p_Victim->ToCreature()->GetEntry())
         return;
 
+    if (uint32 l_TrackingQuestId = Vignette::GetTrackingQuestIdFromWorldObject(p_Victim))
+    {
+        uint32 l_QuestBit = GetQuestUniqueBitFlag(l_TrackingQuestId);
+        if (m_CompletedQuestBits.GetBit(l_QuestBit - 1))
+            return;
+    }
+
     CurrencyOnKillEntry const* l_Curr = sObjectMgr->GetCurrencyOnKillEntry(p_Victim->ToCreature()->GetEntry());
     if (!l_Curr)
         return;
@@ -1514,17 +1526,26 @@ void Player::RewardCurrencyAtKill(Unit* p_Victim)
     if (!l_Result)
         return;
 
-    Unit::AuraEffectList const& l_Auras = GetAuraEffectsByType(SPELL_AURA_MOD_CURRENCY_GAIN_PCT);
-    for (Unit::AuraEffectList::const_iterator i = l_Auras.begin(); i != l_Auras.end(); ++i)
+    for (CurrencyOnKillEntry::const_iterator idx = l_Curr->begin(); idx != l_Curr->end(); ++idx)
     {
-        for (CurrencyOnKillEntry::const_iterator idx = l_Curr->begin(); idx != l_Curr->end(); ++idx)
+        // Players won't receive justice points from pre-MoP dungeons/raids when they are more than Cataclysm max level (85)
+        if ((idx->first == CURRENCY_TYPE_JUSTICE_POINTS
+            || idx->first == CURRENCY_TYPE_VALOR_POINTS)
+            && p_Victim->GetMap()->Expansion() != EXPANSION_MISTS_OF_PANDARIA
+            && getLevel() > 85)
+            continue;
+
+        int32 l_Pct = 100;
+        Unit::AuraEffectList const& l_Auras = GetAuraEffectsByType(SPELL_AURA_MOD_CURRENCY_GAIN_PCT);
+        for (Unit::AuraEffectList::const_iterator i = l_Auras.begin(); i != l_Auras.end(); ++i)
         {
-            if ((int32)idx->first == (*i)->GetMiscValue())
-                ModifyCurrency(idx->first, idx->second + CalculatePct(idx->second, (*i)->GetAmount()));
+            if (idx->first == (*i)->GetMiscValue())
+                l_Pct += (*i)->GetAmount();
         }
+
+        ModifyCurrency(idx->first, CalculatePct(idx->second, l_Pct));
     }
 }
-
 void Player::SendMirrorTimer(MirrorTimerType p_Type, uint32 p_MaxValue, uint32 p_CurrValue, int32 p_Regen)
 {
     if (int(p_MaxValue) == DISABLED_MIRROR_TIMER)
@@ -3216,18 +3237,12 @@ void Player::RegenerateAll()
         case Classes::CLASS_HUNTER:
             m_focusRegenTimerCount += m_RegenPowerTimer;
             break;
-        case Classes::CLASS_DRUID:
-            m_EclipseRegenTimer += m_RegenPowerTimer;
-            break;
         case Classes::CLASS_WARLOCK:
         {
             switch (GetSpecializationId(GetActiveSpec()))
             {
                 case SpecIndex::SPEC_WARLOCK_DEMONOLOGY:
                     m_demonicFuryPowerRegenTimerCount += m_RegenPowerTimer;
-                    break;
-                case SpecIndex::SPEC_WARLOCK_DESTRUCTION:
-                    m_burningEmbersRegenTimerCount += m_RegenPowerTimer;
                     break;
                 case SpecIndex::SPEC_WARLOCK_AFFLICTION:
                     m_soulShardsRegenTimerCount += m_RegenPowerTimer;
@@ -3271,14 +3286,6 @@ void Player::RegenerateAll()
         m_focusRegenTimerCount -= 1000;
     }
 
-    if (m_EclipseRegenTimer >= 1000)
-    {
-        if (l_Class == CLASS_DRUID && GetSpecializationId(GetActiveSpec()) == SPEC_DRUID_BALANCE)
-            Regenerate(POWER_ECLIPSE);
-
-        m_EclipseRegenTimer -= 1000;
-    }
-
     if (m_regenTimerCount >= 2000)
     {
         // Not in combat or they have regeneration
@@ -3295,12 +3302,6 @@ void Player::RegenerateAll()
             Regenerate(POWER_RUNIC_POWER);
 
         m_regenTimerCount -= 2000;
-    }
-
-    if (m_burningEmbersRegenTimerCount >= 2000 && l_Class == CLASS_WARLOCK && GetSpecializationId(GetActiveSpec()) == SPEC_WARLOCK_DESTRUCTION)
-    {
-        Regenerate(POWER_BURNING_EMBERS);
-        m_burningEmbersRegenTimerCount -= 2000;
     }
 
     if (m_holyPowerRegenTimerCount >= 10000 && l_Class == CLASS_PALADIN)
@@ -3332,11 +3333,11 @@ void Player::RegenerateAll()
 
 void Player::Regenerate(Powers power)
 {
-    uint32 maxValue = GetMaxPower(power);
+    int32 maxValue = GetMaxPower(power);
     if (!maxValue)
         return;
 
-    uint32 curValue = GetPower(power);
+    int32 curValue = GetPower(power);
 
     /// @Todo: possible use of miscvalueb instead of amount
     if (HasAuraTypeWithValue(SPELL_AURA_PREVENT_REGENERATE_POWER, power))
@@ -3352,207 +3353,139 @@ void Player::Regenerate(Powers power)
     /// Powers now benefit from haste.
     float HastePct = 2.0f - GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN);
 
-    switch (power)
+    bool l_PreventDefault = false;
+    sScriptMgr->OnPlayerRegenPower(this, power, addvalue, l_PreventDefault);
+
+    if (!l_PreventDefault)
     {
-        /// Regenerate Mana
-        case POWER_MANA:
+        switch (power)
         {
-            float ManaIncreaseRate = sWorld->getRate(RATE_POWER_MANA);
+            /// Regenerate Mana
+            case POWER_MANA:
+            {
+                float ManaIncreaseRate = sWorld->getRate(RATE_POWER_MANA);
 
-            if (isInCombat())
-                addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER) *  ManaIncreaseRate * ((0.001f * m_RegenPowerTimer) + CalculatePct(0.001f, HastePct));
-            else
-                addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER) *  ManaIncreaseRate * ((0.001f * m_RegenPowerTimer) + CalculatePct(0.001f, HastePct));
-            break;
-        }
-        /// Regenerate Rage
-        case POWER_RAGE:
-        {
-            if (!isInCombat() && !HasAuraType(SPELL_AURA_INTERRUPT_REGEN))
-            {
-                float RageDecreaseRate = sWorld->getRate(RATE_POWER_RAGE_LOSS);
-                addvalue += (-25 * RageDecreaseRate / HastePct); ///< 2.5 rage by tick (= 2 seconds => 1.25 rage/sec)
-            }
-            break;
-        }
-        /// Regenerate Focus
-        case POWER_FOCUS:
-            addvalue += (5.0f + CalculatePct(5.0f, HastePct)) * sWorld->getRate(RATE_POWER_FOCUS);
-            break;
-        /// Regenerate Energy
-        case POWER_ENERGY:
-            addvalue += ((0.01f * m_RegenPowerTimer) * sWorld->getRate(RATE_POWER_ENERGY) * HastePct);
-            break;
-        /// Regenerate Runic Power
-        case POWER_RUNIC_POWER:
-        {
-            if (!isInCombat() && !HasAuraType(SPELL_AURA_INTERRUPT_REGEN))
-            {
-                float RunicPowerDecreaseRate = sWorld->getRate(RATE_POWER_RUNICPOWER_LOSS);
-                addvalue += -30 * RunicPowerDecreaseRate; ///< 3 RunicPower by tick
-            }
-
-            break;
-        }
-        /// Regenerate Holy Power
-        case POWER_HOLY_POWER:
-        {
-            if (!isInCombat())
-                addvalue += -1.0f; ///< remove 1 each 10 sec
-            break;
-        }
-        /// Regenerate Eclipse Power
-        case POWER_ECLIPSE:
-        {
-            maxValue = GetMaxPower(Powers::POWER_ECLIPSE) * GetPowerCoeff(Powers::POWER_ECLIPSE); ///< Must change here
-            if (!isInCombat())
-            {
-                if (GetPower(Powers::POWER_ECLIPSE) >= 10 * GetPowerCoeff(Powers::POWER_ECLIPSE))
-                    addvalue += -10.0f * GetPowerCoeff(Powers::POWER_ECLIPSE); ///< -1 000 per sec
+                if (isInCombat())
+                    addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER) *  ManaIncreaseRate * ((0.001f * m_RegenPowerTimer) + CalculatePct(0.001f, HastePct));
                 else
-                    addvalue += -GetPower(Powers::POWER_ECLIPSE);
+                    addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER) *  ManaIncreaseRate * ((0.001f * m_RegenPowerTimer) + CalculatePct(0.001f, HastePct));
+                break;
             }
-            else if (IsEclipseCyclesActive())
+            /// Regenerate Rage
+            case POWER_RAGE:
             {
-                if (GetLastEclipseState() == eclipseState::ECLIPSE_SOLAR || GetLastEclipseState() == eclipseState::ECLIPSE_NONE)
-                    addvalue += 10.0f * GetPowerCoeff(Powers::POWER_ECLIPSE); ///< +1 000 per sec
-                else
-                    addvalue += -10.0f * GetPowerCoeff(Powers::POWER_ECLIPSE); ///< -1 000 per sec
+                if (!isInCombat() && !HasAuraType(SPELL_AURA_INTERRUPT_REGEN))
+                {
+                    float RageDecreaseRate = sWorld->getRate(RATE_POWER_RAGE_LOSS);
+                    addvalue += (-25 * RageDecreaseRate / HastePct); ///< 2.5 rage by tick (= 2 seconds => 1.25 rage/sec)
+                }
+                break;
             }
-            break;
-        }
-        /// Regenerate Chi
-        case POWER_CHI:
-        {
-            if (!isInCombat())
-                addvalue += -1.0f; ///< remove 1 each 10 sec
-            break;
-        }
-        /// Regenerate Demonic Fury
-        case POWER_DEMONIC_FURY:
-        {
-            if (!isInCombat() && GetPower(POWER_DEMONIC_FURY) >= 300 && GetShapeshiftForm() != FORM_METAMORPHOSIS)
-                addvalue += -1.0f;    ///< remove 1 each 100ms
-            else if (!isInCombat() && GetPower(POWER_DEMONIC_FURY) < 200 && GetShapeshiftForm() != FORM_METAMORPHOSIS)
-                addvalue += 1.0f;     ///< give 1 each 100ms while player has less than 200 demonic fury
-
-            if (!HasAura(114168))
+            /// Regenerate Focus
+            case POWER_FOCUS:
+                addvalue += (5.0f + CalculatePct(5.0f, HastePct)) * sWorld->getRate(RATE_POWER_FOCUS);
+                break;
+            /// Regenerate Energy
+            case POWER_ENERGY:
+                addvalue += ((0.01f * m_RegenPowerTimer) * sWorld->getRate(RATE_POWER_ENERGY) * HastePct);
+                break;
+            /// Regenerate Runic Power
+            case POWER_RUNIC_POWER:
             {
-                if (GetPower(POWER_DEMONIC_FURY) <= 40)
+                if (!isInCombat() && !HasAuraType(SPELL_AURA_INTERRUPT_REGEN))
                 {
-                    if (HasAura(103958))
-                        RemoveAura(103958);
-
-                    if (HasAura(54879))
-                        RemoveAura(54879);
+                    float RunicPowerDecreaseRate = sWorld->getRate(RATE_POWER_RUNICPOWER_LOSS);
+                    addvalue += -30 * RunicPowerDecreaseRate; ///< 3 RunicPower by tick
                 }
+
+                break;
             }
-
-            /// Demonic Fury visuals
-            if (GetPower(POWER_DEMONIC_FURY) == 1000)
-                CastSpell(this, 131755, true);
-            else if (GetPower(POWER_DEMONIC_FURY) >= 500)
+            /// Regenerate Holy Power
+            case POWER_HOLY_POWER:
             {
-                CastSpell(this, 122738, true);
-
-                if (HasAura(131755))
-                    RemoveAura(131755);
+                if (!isInCombat())
+                    addvalue += -1.0f; ///< remove 1 each 10 sec
+                break;
             }
-            else
+            /// Regenerate Chi
+            case POWER_CHI:
             {
-                if (HasAura(122738))
-                    RemoveAura(122738);
-                if (HasAura(131755))
-                    RemoveAura(131755);
+                if (!isInCombat())
+                    addvalue += -1.0f; ///< remove 1 each 10 sec
+                break;
             }
-
-            break;
-        }
-        /// Regenerate Burning Embers
-        case POWER_BURNING_EMBERS:
-        {
-            /// After 15s return to one embers if no one
-            /// or return to one if more than one
-            if (!isInCombat() && GetPower(POWER_BURNING_EMBERS) < 10)
-                SetPower(POWER_BURNING_EMBERS, GetPower(POWER_BURNING_EMBERS) + 1, true);
-            else if (!isInCombat() && GetPower(POWER_BURNING_EMBERS) > 10)
-                SetPower(POWER_BURNING_EMBERS, GetPower(POWER_BURNING_EMBERS) - 1, true);
-
-            if (HasAura(56241))
+            /// Regenerate Demonic Fury
+            case POWER_DEMONIC_FURY:
             {
-                if (GetPower(POWER_BURNING_EMBERS) < 20)
+                if (!isInCombat() && GetPower(POWER_DEMONIC_FURY) >= 300 && GetShapeshiftForm() != FORM_METAMORPHOSIS)
+                    addvalue += -1.0f;    ///< remove 1 each 100ms
+                else if (!isInCombat() && GetPower(POWER_DEMONIC_FURY) < 200 && GetShapeshiftForm() != FORM_METAMORPHOSIS)
+                    addvalue += 1.0f;     ///< give 1 each 100ms while player has less than 200 demonic fury
+
+                if (!HasAura(114168))
                 {
-                    RemoveAura(123730); ///< 2
-                    RemoveAura(123728); ///< 1
-                    RemoveAura(123731); ///< 3
+                    if (GetPower(POWER_DEMONIC_FURY) <= 40)
+                    {
+                        if (HasAura(103958))
+                            RemoveAura(103958);
+
+                        if (HasAura(54879))
+                            RemoveAura(54879);
+                    }
                 }
-                else if (GetPower(POWER_BURNING_EMBERS) < 30)
+
+                /// Demonic Fury visuals
+                if (GetPower(POWER_DEMONIC_FURY) == 1000)
+                    CastSpell(this, 131755, true);
+                else if (GetPower(POWER_DEMONIC_FURY) >= 500)
                 {
-                    RemoveAura(123730);            ///< 2 shards visual
-                    CastSpell(this, 123728, true); ///< 1 shard visual
-                }
-                else if (GetPower(POWER_BURNING_EMBERS) < 40)
-                {
-                    CastSpell(this, 123728, true); ///< 1 shard visual
-                    CastSpell(this, 123730, true); ///< 2 shards visual
-                    RemoveAura(123731);            ///< 3 shards visual
-                }
-                else if (GetPower(POWER_BURNING_EMBERS) < 50)
-                {
-                    CastSpell(this, 123728, true); ///< 1 shard visual
-                    CastSpell(this, 123730, true); ///< 2 shards visual
-                    CastSpell(this, 123731, true); ///< 3 shards visual
-                }
-            }
-            else
-            {
-                if (GetPower(POWER_BURNING_EMBERS) < 20)
-                {
-                    RemoveAura(116855); ///< First visual
-                    RemoveAura(116920); ///< Second visual
-                }
-                if (GetPower(POWER_BURNING_EMBERS) < 30)
-                {
-                    CastSpell(this, 116855, true);  ///< First visual
-                    RemoveAura(116920);             ///< Second visual
+                    CastSpell(this, 122738, true);
+
+                    if (HasAura(131755))
+                        RemoveAura(131755);
                 }
                 else
-                    CastSpell(this, 116920, true);  ///< Second visual
+                {
+                    if (HasAura(122738))
+                        RemoveAura(122738);
+                    if (HasAura(131755))
+                        RemoveAura(131755);
+                }
+
+                break;
             }
-
-            break;
-        }
-        /// Regenerate Soul Shards
-        case POWER_SOUL_SHARDS:
-        {
-            /// If isn't in combat, gain 1 shard every 20s
-            if (!isInCombat())
-                SetPower(POWER_SOUL_SHARDS, GetPower(POWER_SOUL_SHARDS) + 100, true);
-
-            if (HasAura(56241))
+            /// Regenerate Soul Shards
+            case POWER_SOUL_SHARDS:
             {
-                if (GetPower(POWER_SOUL_SHARDS) < 200 && GetPower(POWER_SOUL_SHARDS) >= 100)
+                /// If isn't in combat, gain 1 shard every 20s
+                if (!isInCombat())
+                    SetPower(POWER_SOUL_SHARDS, GetPower(POWER_SOUL_SHARDS) + 100, true);
+
+                if (HasAura(56241))
                 {
-                    RemoveAura(123730);            ///< 2 shards visual
-                    CastSpell(this, 123728, true); ///< 1 shard visual
+                    if (GetPower(POWER_SOUL_SHARDS) < 200 && GetPower(POWER_SOUL_SHARDS) >= 100)
+                    {
+                        RemoveAura(123730);            ///< 2 shards visual
+                        CastSpell(this, 123728, true); ///< 1 shard visual
+                    }
+                    else if (GetPower(POWER_SOUL_SHARDS) < 300)
+                    {
+                        CastSpell(this, 123728, true); ///< 1 shard visual
+                        CastSpell(this, 123730, true); ///< 2 shards visual
+                        RemoveAura(123731);            ///< 3 shards visual
+                    }
+                    else if (GetPower(POWER_SOUL_SHARDS) < 400)
+                    {
+                        CastSpell(this, 123728, true); ///< 1 shard visual
+                        CastSpell(this, 123730, true); ///< 2 shards visual
+                        CastSpell(this, 123731, true); ///< 3 shards visual
+                    }
                 }
-                else if (GetPower(POWER_SOUL_SHARDS) < 300)
-                {
-                    CastSpell(this, 123728, true); ///< 1 shard visual
-                    CastSpell(this, 123730, true); ///< 2 shards visual
-                    RemoveAura(123731);            ///< 3 shards visual
-                }
-                else if (GetPower(POWER_SOUL_SHARDS) < 400)
-                {
-                    CastSpell(this, 123728, true); ///< 1 shard visual
-                    CastSpell(this, 123730, true); ///< 2 shards visual
-                    CastSpell(this, 123731, true); ///< 3 shards visual
-                }
+                break;
             }
-            break;
+            default:
+                break;
         }
-        default:
-            break;
     }
 
     /// Mana regen calculated in Player::UpdateManaRegen()
@@ -3570,7 +3503,7 @@ void Player::Regenerate(Powers power)
 
     if (addvalue < 0.0f)
     {
-        if (curValue == 0 && power != POWER_ECLIPSE)
+        if (curValue == 0)
             return;
     }
     else if (addvalue > 0.0f)
@@ -3582,11 +3515,12 @@ void Player::Regenerate(Powers power)
         return;
 
     addvalue += m_powerFraction[powerIndex];
-    uint32 integerValue = uint32(fabs(addvalue));
+
+    int32 integerValue = uint32(fabs(addvalue));
 
     if (addvalue < 0.0f)
     {
-        if (curValue > integerValue || power == POWER_ECLIPSE)
+        if (curValue > integerValue)
         {
             curValue -= integerValue;
             m_powerFraction[powerIndex] = addvalue + integerValue;
@@ -3601,7 +3535,7 @@ void Player::Regenerate(Powers power)
     {
         curValue += integerValue;
 
-        if (curValue > maxValue && power != POWER_ECLIPSE)
+        if (curValue > maxValue)
         {
             curValue = maxValue;
             m_powerFraction[powerIndex] = 0;
@@ -4559,7 +4493,6 @@ void Player::InitStatsForLevel(bool reapplyMods)
     SetFloatValue(PLAYER_FIELD_RANGED_CRIT_PERCENTAGE, 0.0f);
     SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL_EQUIPPED, 0.0f);
     SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL_TOTAL, 0.0f);
-
 
     // Init spell schools (will be recalculated in UpdateAllStats() at loading and in _ApplyAllStatBonuses() at reset
     for (uint8 i = 0; i < 7; ++i)
@@ -5568,14 +5501,16 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
 
 void Player::ReduceSpellCooldown(uint32 p_SpellID, time_t p_ModifyTime)
 {
-    int32 l_NewCooldown = GetSpellCooldownDelay(p_SpellID);
+    SpellCooldowns::iterator itr = m_spellCooldowns.find(p_SpellID);
+    if (itr == m_spellCooldowns.end())
+        return;
 
-    if (l_NewCooldown < 0)
-        l_NewCooldown = 0;
+    uint64 currTime = 0;
+    ACE_OS::gettimeofday().msec(currTime);
+    if ((itr->second.end - uint64(p_ModifyTime)) > currTime)
+        itr->second.end -= uint64(p_ModifyTime);
     else
-        l_NewCooldown -= p_ModifyTime;
-
-    AddSpellCooldown(p_SpellID, 0, l_NewCooldown);
+        m_spellCooldowns.erase(itr);
 
     WorldPacket l_Data(SMSG_MODIFY_COOLDOWN, 4 + 18 + 4);
     l_Data << uint32(p_SpellID);
@@ -5939,6 +5874,11 @@ bool Player::ResetTalents(bool no_cost)
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             if (_spellEntry->Effects[i].TriggerSpell > 0 && _spellEntry->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL)
                 removeSpell(_spellEntry->Effects[i].TriggerSpell, true);
+
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            if (_spellEntry->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS || _spellEntry->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2)
+                RemoveAurasDueToSpell(_spellEntry->Effects[i].BasePoints);
+
         // if this talent rank can be found in the PlayerTalentMap, mark the talent as removed so it gets deleted
         PlayerTalentMap::iterator plrTalent = GetTalentMap(GetActiveSpec())->find(itr.first);
         if (plrTalent != GetTalentMap(GetActiveSpec())->end())
@@ -5968,11 +5908,11 @@ bool Player::ResetTalents(bool no_cost)
     return true;
 }
 
-void Player::ResetSpec()
+void Player::ResetSpec(bool p_NoCost /* = false */)
 {
     uint32 cost = 0;
 
-    if (!sWorld->getBoolConfig(CONFIG_NO_RESET_TALENT_COST))
+    if (!sWorld->getBoolConfig(CONFIG_NO_RESET_TALENT_COST) && !p_NoCost)
     {
         cost = GetNextResetSpecializationCost();
 
@@ -5990,6 +5930,42 @@ void Player::ResetSpec()
 
     if (GetSpecializationId(GetActiveSpec()) == 0)
         return;
+
+    for (auto itr : *GetTalentMap(GetActiveSpec()))
+    {
+        SpellInfo const* spell = sSpellMgr->GetSpellInfo(itr.first);
+        if (!spell)
+            continue;
+
+        bool l_Remove = false;
+        for (uint32 l_TalentID : spell->m_TalentIDs)
+        {
+            TalentEntry const* l_TalentEntry = sTalentStore.LookupEntry(l_TalentID);
+            if (l_TalentEntry && l_TalentEntry->SpecID == GetSpecializationId(GetActiveSpec()))
+            {
+                l_Remove = true;
+                break;
+            }
+        }
+
+        if (!l_Remove)
+            continue;
+
+        removeSpell(itr.first, true);
+
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            if (spell->Effects[i].TriggerSpell > 0 && spell->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL)
+                removeSpell(spell->Effects[i].TriggerSpell, true);
+
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            if (spell->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS || spell->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2)
+                RemoveAurasDueToSpell(spell->Effects[i].BasePoints);
+
+        itr.second->state = PLAYERSPELL_REMOVED;
+
+        SetUsedTalentCount(GetUsedTalentCount() - 1);
+        SetFreeTalentPoints(GetFreeTalentPoints() + 1);
+    }
 
     RemoveSpecializationSpells();
     SetSpecializationId(GetActiveSpec(), 0);
@@ -7511,11 +7487,17 @@ void Player::UpdateRating(CombatRating p_CombatRating)
         SetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, l_Haste);
         SetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN, l_Haste);
 
-        AuraEffectList const& l_AuraList = GetAuraEffectsByType(SPELL_AURA_MOD_COOLDOWN_BY_HASTE);
-        for (AuraEffectList::const_iterator iter = l_AuraList.begin(); iter != l_AuraList.end(); iter++)
+        AuraType const l_HasteSpellAuraMod[] = { SPELL_AURA_MOD_COOLDOWN_BY_HASTE, SPELL_AURA_MOD_GLOBAL_COOLDOWN_BY_HASTE };
+
+        for (auto l_AuraMod : l_HasteSpellAuraMod)
         {
-            (*iter)->SetCanBeRecalculated(true);
-            (*iter)->RecalculateAmount();
+            AuraEffectList const& l_AuraList = GetAuraEffectsByType(l_AuraMod);
+            for (AuraEffectList::const_iterator iter = l_AuraList.begin(); iter != l_AuraList.end(); iter++)
+            {
+                AuraEffectPtr l_AuraEff = *iter;
+                l_AuraEff->SetCanBeRecalculated(true);
+                l_AuraEff->ChangeAmount(l_AuraEff->CalculateAmount(this), true, true);
+            }
         }
 
         UpdateManaRegen();
@@ -16462,7 +16444,7 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
         for (int s = 0; s < MAX_ENCHANTMENT_SPELLS; ++s)
         {
             uint32 enchant_display_type = pEnchant->type[s];
-            uint32 enchant_amount = pEnchant->amount[s];
+            uint32 enchant_amount = CalculateEnchantmentBonus(pEnchant, pEnchant->amount[s], s, getLevel());
             uint32 enchant_spell_id = pEnchant->spellid[s];
 
             switch (enchant_display_type)
@@ -19829,7 +19811,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     SetByteValue(PLAYER_FIELD_LIFETIME_MAX_RANK, PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES, fields[60].GetUInt8());
 
     m_currentPetSlot = (PetSlot)fields[61].GetUInt8();
-    m_petSlotUsed = fields[62].GetUInt32();
+
+    /// I think we didn't need to save it or load it, we can get it in StablePetCallback
+    //m_petSlotUsed = fields[62].GetUInt32();
 
     InitDisplayIds();
 
@@ -19962,16 +19946,16 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
         // Bg was not found - go to Entry Point
         else
         {
-            // leave bg
+            /// Leave bg.
             if (player_at_bg)
                 currentBg->RemovePlayerAtLeave(GetGUID(), false, true);
 
-            // Do not look for instance if bg not found
+            /// Do not look for instance if bg not found.
             const WorldLocation& _loc = GetBattlegroundEntryPoint();
             mapId = _loc.GetMapId(); instanceId = 0;
 
-            // Db field type is type int16, so it can never be MAPID_INVALID
-            //if (mapId == MAPID_INVALID) -- code kept for reference
+            /// Db field type is type int16, so it can never be MAPID_INVALID.
+            /// if (mapId == MAPID_INVALID) -- code kept for reference
             if (int16(mapId) == int16(-1)) // Battleground Entry Point not found (???)
             {
                 sLog->outError(LOG_FILTER_PLAYER, "Player (guidlow %d) was in BG in database, but BG was not found, and entry point was invalid! Teleport to default race/class locations.", guid);
@@ -19980,7 +19964,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
             else
                 Relocate(&_loc);
 
-            // We are not in BG anymore
+            /// We are not in BG anymore.
             m_bgData.bgInstanceID = 0;
         }
     }
@@ -23959,72 +23943,76 @@ bool Player::IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier* mod
 
 void Player::AddSpellMod(SpellModifier* p_Modifier, bool p_Apply)
 {
-    Opcodes l_Opcode = Opcodes((p_Modifier->type == SPELLMOD_FLAT) ? SMSG_SET_FLAT_SPELL_MODIFIER : SMSG_SET_PCT_SPELL_MODIFIER);
-
-    flag128 l_Mask = 0;
-    uint32 l_ModifierTypeCount = 0; // count of mods per one mod->op
-    uint32 l_MaskIndex = 0;
-
-    WorldPacket l_Packet(l_Opcode);
-    ByteBuffer l_Buffer;
-
-    for (int l_EffectIndex = 0; l_EffectIndex < 128; ++l_EffectIndex)
+    // Dont pointlessly send mods when player is not in world
+    if (IsInWorld())
     {
-        if (l_EffectIndex != 0 && (l_EffectIndex % 32) == 0)
-            l_Mask[l_MaskIndex++] = 0;
+        Opcodes l_Opcode = Opcodes((p_Modifier->type == SPELLMOD_FLAT) ? SMSG_SET_FLAT_SPELL_MODIFIER : SMSG_SET_PCT_SPELL_MODIFIER);
 
-        l_Mask[l_MaskIndex] = uint32(1) << (l_EffectIndex - (32 * l_MaskIndex));
+        flag128 l_Mask = 0;
+        uint32 l_ModifierTypeCount = 0; // count of mods per one mod->op
+        uint32 l_MaskIndex = 0;
 
-        if (p_Modifier->mask & l_Mask)
+        WorldPacket l_Packet(l_Opcode);
+        ByteBuffer l_Buffer;
+
+        for (int l_EffectIndex = 0; l_EffectIndex < 128; ++l_EffectIndex)
         {
-            if (l_Opcode == SMSG_SET_PCT_SPELL_MODIFIER)
+            if (l_EffectIndex != 0 && (l_EffectIndex % 32) == 0)
+                l_Mask[l_MaskIndex++] = 0;
+
+            l_Mask[l_MaskIndex] = uint32(1) << (l_EffectIndex - (32 * l_MaskIndex));
+
+            if (p_Modifier->mask & l_Mask)
             {
-                float l_Value = 1;
-
-                for (SpellModList::iterator l_It = m_spellMods[p_Modifier->op].begin(); l_It != m_spellMods[p_Modifier->op].end(); ++l_It)
-                    if ((*l_It)->type == p_Modifier->type && (*l_It)->mask & l_Mask)
-                        l_Value += float((*l_It)->value)/100;
-
-                if (p_Modifier->value)
-                    l_Value += p_Apply ? float(p_Modifier->value) / 100.f : float(p_Modifier->value) / -100.f;
-
-                uint32 l_EffIndex = p_Modifier->ownerAura->GetEffectIndexByType(SPELL_AURA_MOD_COOLDOWN_BY_HASTE);
-                if (l_EffIndex != MAX_EFFECTS && p_Apply)
+                if (l_Opcode == SMSG_SET_PCT_SPELL_MODIFIER)
                 {
-                    // This needs to be done so sclient receives precise numbers
-                    l_Value -= float(p_Modifier->value) / 100.f;
-                    l_Value -= ((float)p_Modifier->ownerAura->GetSpellInfo()->Effects[l_EffIndex].BasePoints * ((1.f / GetFloatValue(UNIT_FIELD_MOD_HASTE)) - 1.f)) / 100.f;
+                    float l_Value = 1;
+
+                    for (SpellModList::iterator l_It = m_spellMods[p_Modifier->op].begin(); l_It != m_spellMods[p_Modifier->op].end(); ++l_It)
+                        if ((*l_It)->type == p_Modifier->type && (*l_It)->mask & l_Mask)
+                            l_Value += float((*l_It)->value)/100;
+
+                    if (p_Modifier->value)
+                        l_Value += p_Apply ? float(p_Modifier->value) / 100.f : float(p_Modifier->value) / -100.f;
+
+                    uint32 l_EffIndex = p_Modifier->ownerAura->GetEffectIndexByType(SPELL_AURA_MOD_COOLDOWN_BY_HASTE);
+                    if (l_EffIndex != MAX_EFFECTS && p_Apply)
+                    {
+                        // This needs to be done so sclient receives precise numbers
+                        l_Value -= float(p_Modifier->value) / 100.f;
+                        l_Value -= ((float)p_Modifier->ownerAura->GetSpellInfo()->Effects[l_EffIndex].BasePoints * ((1.f / GetFloatValue(UNIT_FIELD_MOD_HASTE)) - 1.f)) / 100.f;
+                    }
+
+                    l_Buffer << float(l_Value);
+                    l_Buffer << uint8(l_EffectIndex);
+
+                    ++l_ModifierTypeCount;
+
+                    continue;
                 }
+
+                float l_Value = 0;
+
+                for (SpellModList::iterator itr = m_spellMods[p_Modifier->op].begin(); itr != m_spellMods[p_Modifier->op].end(); ++itr)
+                    if ((*itr)->type == p_Modifier->type && (*itr)->mask & l_Mask)
+                        l_Value += float((*itr)->value);
+
+                l_Value += p_Apply ? float(p_Modifier->value) : -float(p_Modifier->value);
 
                 l_Buffer << float(l_Value);
                 l_Buffer << uint8(l_EffectIndex);
 
                 ++l_ModifierTypeCount;
-
-                continue;
             }
-
-            int32 l_Value = 0;
-
-            for (SpellModList::iterator itr = m_spellMods[p_Modifier->op].begin(); itr != m_spellMods[p_Modifier->op].end(); ++itr)
-                if ((*itr)->type == p_Modifier->type && (*itr)->mask & l_Mask)
-                    l_Value += float((*itr)->value);
-
-            l_Value += p_Apply ? float(p_Modifier->value) : -float(p_Modifier->value);
-
-            l_Buffer << float(l_Value);
-            l_Buffer << uint8(l_EffectIndex);
-
-            ++l_ModifierTypeCount;
         }
+
+        l_Packet << uint32(1);
+        l_Packet << uint8(p_Modifier->op);
+        l_Packet << uint32(l_ModifierTypeCount);
+        l_Packet.append(l_Buffer);
+
+        SendDirectMessage(&l_Packet);
     }
-
-    l_Packet << uint32(1);
-    l_Packet << uint8(p_Modifier->op);
-    l_Packet << uint32(l_ModifierTypeCount);
-    l_Packet.append(l_Buffer);
-
-    SendDirectMessage(&l_Packet);
 
     if (p_Apply)
         m_spellMods[p_Modifier->op].push_back(p_Modifier);
@@ -24132,7 +24120,8 @@ void Player::RemoveSpellMods(Spell* spell)
             else if (mod->ownerAura->GetId() == 12043 && magePyroblast)
                 continue;
 
-            if (!(mod->ownerAura->GetId() == 117828 && spell->GetSpellInfo()->Id == 116858))
+            /// Camouflage and Camouflage (Subterfuge) have spellModifier with value 0, add specific case
+            if (!(mod->ownerAura->GetId() == 117828 && spell->GetSpellInfo()->Id == 116858) && mod->ownerAura->GetId() != 1784 && mod->ownerAura->GetId() != 115191)
                 if (std::const_pointer_cast<Aura>(mod->ownerAura)->DropCharge(AURA_REMOVE_BY_EXPIRE))
                     itr = m_spellMods[i].begin();
         }
@@ -25690,8 +25679,8 @@ void Player::LeaveBattleground(bool teleportToEntryPoint)
 
 bool Player::CanJoinToBattleground() const
 {
-    // check Deserter debuff
-    if (HasAura(26013))
+    /// Check Deserter debuff.
+    if (HasAura(MS::Battlegrounds::Spells::DeserterBuff))
         return false;
 
     return true;
@@ -26018,57 +26007,6 @@ Player* Player::GetSelectedPlayer() const
     return NULL;
 }
 
-void Player::SendComboPoints()
-{
-    SetPower(POWER_COMBO_POINT, m_comboPoints);
-}
-
-void Player::AddComboPoints(int8 count, Spell* spell)
-{
-    if (!count)
-        return;
-
-    int8 * comboPoints = spell ? &spell->m_comboPointGain : &m_comboPoints;
-
-    // without combo points lost (duration checked in aura)
-    RemoveAurasByType(SPELL_AURA_RETAIN_COMBO_POINTS);
-
-    *comboPoints += count;
-
-    if (*comboPoints > 5)
-        *comboPoints = 5;
-    else if (*comboPoints < 0)
-        *comboPoints = 0;
-
-    if (!spell)
-        SendComboPoints();
-}
-
-void Player::GainSpellComboPoints(int8 count)
-{
-    if (!count)
-        return;
-
-    m_comboPoints += count;
-    if (m_comboPoints > 5) m_comboPoints = 5;
-    else if (m_comboPoints < 0) m_comboPoints = 0;
-
-    SendComboPoints();
-}
-
-void Player::ClearComboPoints()
-{
-    // without combopoints lost (duration checked in aura)
-    RemoveAurasByType(SPELL_AURA_RETAIN_COMBO_POINTS);
-
-    m_comboPoints = 0;
-    int32 l_ComboPoint = GetPower(POWER_COMBO_POINT);
-    if (l_ComboPoint != 0)
-        ModifyPower(POWER_COMBO_POINT, l_ComboPoint * -1);
-
-    SendComboPoints();
-}
-
 void Player::SetGroup(Group* group, int8 subgroup)
 {
     if (group == NULL)
@@ -26175,19 +26113,39 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
 void Player::SendCooldownAtLogin()
 {
-    uint64 curTime = 0;
-    ACE_OS::gettimeofday().msec(curTime);
+    uint64 l_CurTime = 0;
+    ACE_OS::gettimeofday().msec(l_CurTime);
 
-    for (SpellCooldowns::const_iterator itr = GetSpellCooldownMap().begin(); itr != GetSpellCooldownMap().end(); ++itr)
+    for (SpellCooldowns::const_iterator l_Iter = GetSpellCooldownMap().begin(); l_Iter != GetSpellCooldownMap().end(); ++l_Iter)
     {
-        WorldPacket data(SMSG_SPELL_COOLDOWN, 12);
-        data.appendPackGUID(GetGUID());
-        data << uint8(1);
-        data << uint32(1);
-        data << uint32(itr->first);
-        data << uint32(itr->second.end - curTime);
+        WorldPacket l_Data(SMSG_SPELL_COOLDOWN, 12);
+        bool l_HasCooldown = l_Iter->second.end > l_CurTime;
 
-        GetSession()->SendPacket(&data);
+        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_Iter->first);
+        if (l_SpellInfo == nullptr)
+            continue;
+
+        l_Data.appendPackGUID(GetGUID());                   ///< Caster
+
+        if (l_HasCooldown)                                  ///< Flags
+        {
+            if (l_SpellInfo->Attributes & SpellAttr0::SPELL_ATTR0_DISABLED_WHILE_ACTIVE)
+                l_Data << uint8(CooldownFlags::CooldownFlagIncludeGCD | CooldownFlags::CooldownFlagIncludeEventCooldowns);
+            else
+                l_Data << uint8(CooldownFlags::CooldownFlagIncludeGCD);
+        }
+        else
+            l_Data << uint8(CooldownFlags::CooldownFlagNone);
+
+        l_Data << uint32(1);                                ///< Count
+        l_Data << uint32(l_Iter->first);                    ///< SrecID
+
+        if (l_HasCooldown)                                  ///< ForcedCooldown
+            l_Data << uint32(l_Iter->second.end - l_CurTime);
+        else
+            l_Data << uint32(0);
+
+        GetSession()->SendPacket(&l_Data);
     }
 }
 
@@ -27291,21 +27249,18 @@ bool Player::GetsRecruitAFriendBonus(bool forXP)
 
 void Player::RewardPlayerAndGroupAtKill(Unit* victim, bool isBattleGround)
 {
-     //currency reward
-    if (sMapStore.LookupEntry(GetMapId())->IsDungeon())
+    if (Group *pGroup = GetGroup())
     {
-        if (Group *pGroup = GetGroup())
+        for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
         {
-            for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
-            {
-                Player* pGroupGuy = itr->getSource();
-                if (IsInMap(pGroupGuy))
-                    pGroupGuy->RewardCurrencyAtKill(victim);
-            }
+            Player* pGroupGuy = itr->getSource();
+            if (IsInMap(pGroupGuy))
+                pGroupGuy->RewardCurrencyAtKill(victim);
         }
-        else
-            RewardCurrencyAtKill(victim);
     }
+    else
+        RewardCurrencyAtKill(victim);
+
     KillRewarder(this, victim, isBattleGround).Reward();
 }
 
@@ -28924,6 +28879,8 @@ void Player::ResummonPetTemporaryUnSummonedIfAny()
 
     if (!NewPet->LoadPetFromDB(this, 0, m_temporaryUnsummonedPetNumber, true))
         delete NewPet;
+    else if (HasSpell(109212) && !HasAura(118694)) ///< Spirit Bond have to be reload when pet reload
+        CastSpell(this, 118694, true);
 
     m_temporaryUnsummonedPetNumber = 0;
 }
@@ -28967,7 +28924,7 @@ void Player::BuildPlayerTalentsInfoData(WorldPacket * p_Data)
         {
             SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo((*itr).first);
 
-            if (l_SpellInfo && !l_SpellInfo->m_TalentIDs.empty())
+            if (l_SpellInfo && !l_SpellInfo->m_TalentIDs.empty() && itr->second->state != PLAYERSPELL_REMOVED)
             {
                 uint32 l_SpecID = GetSpecializationId(GetActiveSpec());
                 uint16 l_Talent = 0;
@@ -29477,9 +29434,16 @@ void Player::ActivateSpec(uint8 spec)
     {
         removeSpell(itr.first, true); // removes the talent, and all dependant, learned, and chained spells..
         if (const SpellInfo* _spellEntry = sSpellMgr->GetSpellInfo(itr.first))
+        {
             for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)                  // search through the SpellInfo for valid trigger spells
                 if (_spellEntry->Effects[i].TriggerSpell > 0 && _spellEntry->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL)
                     removeSpell(_spellEntry->Effects[i].TriggerSpell, true); // and remove any spells that the talent teaches
+
+            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                if (_spellEntry->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS || _spellEntry->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2)
+                    RemoveAurasDueToSpell(_spellEntry->Effects[i].BasePoints);
+        }
+
     }
 
     RemoveSpecializationSpells();
@@ -29929,7 +29893,10 @@ uint32 Player::GetAverageItemLevelTotal()
     {
         // don't check tabard, ranged or shirt
         if (i == EQUIPMENT_SLOT_TABARD || i == EQUIPMENT_SLOT_RANGED || i == EQUIPMENT_SLOT_BODY)
+        {
+            l_EquipItemLevel[i] = 0;
             continue;
+        }
 
         Item* l_Item = m_items[i];
         if (l_Item && l_Item->GetTemplate())
@@ -29950,7 +29917,7 @@ uint32 Player::GetAverageItemLevelTotal()
 
     l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET1] = std::max(l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET1], l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET2]);
     l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET2] = l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET1];
-    l_EquipItemLevel[EQUIPMENT_SLOT_FINGER1] = std::max(l_EquipItemLevel[EQUIPMENT_SLOT_FINGER2], l_EquipItemLevel[EQUIPMENT_SLOT_TRINKET2]);
+    l_EquipItemLevel[EQUIPMENT_SLOT_FINGER1] = std::max(l_EquipItemLevel[EQUIPMENT_SLOT_FINGER1], l_EquipItemLevel[EQUIPMENT_SLOT_FINGER2]);
     l_EquipItemLevel[EQUIPMENT_SLOT_FINGER2] = l_EquipItemLevel[EQUIPMENT_SLOT_FINGER1];
 
     for (uint8 i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_END; ++i)
@@ -30904,7 +30871,7 @@ void Player::SetEmoteState(uint32 anim_id)
     m_emote = anim_id;
 }
 
-void Player::SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Direction, float p_Magnitude)
+void Player::SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Direction, float p_Magnitude /*= 0.0f*/, uint8 p_Type /*= 0*/)
 {
     if (sAreaTriggerStore.LookupEntry(GUID_ENPART(p_Source)) || GUID_HIPART(p_Source) != HIGHGUID_AREATRIGGER)
     {
@@ -30927,7 +30894,7 @@ void Player::SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Di
         l_Data << uint32(l_TransportID);                ///< Transport ID
         l_Data << float(p_Magnitude);                   ///< Magnitude
 
-        l_Data.WriteBits(0, 2);                         ///< Force type, still one yet
+        l_Data.WriteBits(p_Type, 2);                    ///< Force type, still one yet
         l_Data.FlushBits();
 
         SendMessageToSet(&l_Data, true);
@@ -30977,62 +30944,96 @@ void Player::SendResumeToken(uint32 token)
 
 void Player::SendRefreshSpellMods()
 {
-    for (uint8 i = 0; i < MAX_SPELLMOD; ++i)
+    flag128 l_Mask = 0;
+    uint32 l_PctModifierTypeCount;
+    uint32 l_FlatModifierTypeCount;
+    uint32 l_PctModifiersCount = 0;
+    uint32 l_FlatModifiersCount = 0;
+    uint32 l_MaskIndex;
+    ByteBuffer l_PctBuffer;
+    ByteBuffer l_FlatBuffer;
+    int i = 0;
+
+    for (int l_SpellModOp = 0; l_SpellModOp < MAX_SPELLMOD; ++l_SpellModOp)
     {
-        for (auto mod : m_spellMods[i])
+        if (!m_spellMods[l_SpellModOp].size())
+            continue;
+
+        l_PctModifierTypeCount = 0;
+        l_FlatModifierTypeCount = 0;
+        l_MaskIndex = 0;
+
+        ByteBuffer l_SubFlatBuffer;
+        ByteBuffer l_SubPctBuffer;
+
+        for (int l_EffectIndex = 0; l_EffectIndex < 128; ++l_EffectIndex)
         {
-            Opcodes opcode = Opcodes((mod->type == SPELLMOD_FLAT) ? SMSG_SET_FLAT_SPELL_MODIFIER : SMSG_SET_PCT_SPELL_MODIFIER);
+            if (l_EffectIndex != 0 && (l_EffectIndex % 32) == 0)
+                l_Mask[l_MaskIndex++] = 0;
 
-            int i = 0;
-            flag128 _mask = 0;
-            uint32 modTypeCount = 0; // count of mods per one mod->op
+            l_Mask[l_MaskIndex] = uint32(1) << (l_EffectIndex - (32 * l_MaskIndex));
 
-            ByteBuffer dataBuffer;
-            WorldPacket data(opcode);
-            data << uint32(1);  // count of different mod->op's in packet
-            data << uint8(mod->op);
+            float l_PctValue = 1.f;
+            for (SpellModList::iterator l_It = m_spellMods[l_SpellModOp].begin(); l_It != m_spellMods[l_SpellModOp].end(); ++l_It)
+                if ((*l_It)->type == SPELLMOD_PCT && (*l_It)->mask & l_Mask)
+                    l_PctValue += float((*l_It)->value) / 100.f;
 
-            for (int eff = 0; eff < 128; ++eff)
+            if (l_PctValue != 1.f)
             {
-                if (eff != 0 && (eff % 32) == 0)
-                    _mask[i++] = 0;
+                l_SubPctBuffer << float(l_PctValue);
+                l_SubPctBuffer << uint8(l_EffectIndex);
 
-                _mask[i] = uint32(1) << (eff - (32 * i));
-                if (mod->mask & _mask)
-                {
-                    if (opcode == SMSG_SET_PCT_SPELL_MODIFIER)
-                    {
-                        float val = 1;
-                        for (SpellModList::iterator itr = m_spellMods[mod->op].begin(); itr != m_spellMods[mod->op].end(); ++itr)
-                            if ((*itr)->type == mod->type && (*itr)->mask & _mask && mod->spellId != (*itr)->spellId)
-                                val += (*itr)->value/100;
-
-                        if (mod->value)
-                            val += float(mod->value)/100;
-
-                        dataBuffer << float(val);
-                        dataBuffer << uint8(eff);
-                        ++modTypeCount;
-                        continue;
-                    }
-
-                    int32 val = 0;
-                    for (SpellModList::iterator itr = m_spellMods[mod->op].begin(); itr != m_spellMods[mod->op].end(); ++itr)
-                        if ((*itr)->type == mod->type && (*itr)->mask & _mask && mod->spellId != (*itr)->spellId)
-                            val += (*itr)->value;
-
-                    val += float(mod->value);
-
-                    dataBuffer << float(val);
-                    dataBuffer << uint8(eff);
-                    ++modTypeCount;
-                }
+                ++l_PctModifierTypeCount;
             }
 
-            data << uint32(modTypeCount);
-            data.append(dataBuffer);
-            SendDirectMessage(&data);
+            float l_FlatValue = 0.f;
+            for (SpellModList::iterator itr = m_spellMods[l_SpellModOp].begin(); itr != m_spellMods[l_SpellModOp].end(); ++itr)
+                if ((*itr)->type == SPELLMOD_FLAT && (*itr)->mask & l_Mask)
+                    l_FlatValue += float((*itr)->value);
+
+            if (l_FlatValue)
+            {
+                l_SubFlatBuffer << float(l_FlatValue);
+                l_SubFlatBuffer << uint8(l_EffectIndex);
+
+                ++l_FlatModifierTypeCount;
+            }
         }
+
+        if (l_PctModifierTypeCount)
+        {
+            ++l_PctModifiersCount;
+
+            l_PctBuffer << uint8(l_SpellModOp);
+            l_PctBuffer << uint32(l_PctModifierTypeCount);
+            l_PctBuffer.append(l_SubPctBuffer);
+        }
+
+        if (l_FlatModifierTypeCount)
+        {
+            ++l_FlatModifiersCount;
+
+            l_FlatBuffer << uint8(l_SpellModOp);
+            l_FlatBuffer << uint32(l_FlatModifierTypeCount);
+            l_FlatBuffer.append(l_SubFlatBuffer);
+        }
+
+    }
+
+    if (l_PctModifiersCount)
+    {
+        WorldPacket l_Packet(SMSG_SET_PCT_SPELL_MODIFIER);
+        l_Packet << uint32(l_PctModifiersCount);
+        l_Packet.append(l_PctBuffer);
+        SendDirectMessage(&l_Packet);
+    }
+
+    if (l_FlatModifiersCount)
+    {
+        WorldPacket l_Packet(SMSG_SET_FLAT_SPELL_MODIFIER);
+        l_Packet << uint32(l_FlatModifiersCount);
+        l_Packet.append(l_FlatBuffer);
+        SendDirectMessage(&l_Packet);
     }
 }
 
@@ -32182,14 +32183,4 @@ void Player::AddDailyLootCooldown(uint32 p_Entry)
     l_Statement->setUInt32(0, GetGUIDLow());
     l_Statement->setUInt32(1, p_Entry);
     CharacterDatabase.Execute(l_Statement);
-}
-
-bool Player::HasEclipseSideAvantage(uint8 p_EclipseState) const
-{
-    int32 l_Power = GetPower(Powers::POWER_ECLIPSE);
-    uint8 l_Coeff = GetPowerCoeff(Powers::POWER_ECLIPSE);
-
-    if ((p_EclipseState == ECLIPSE_SOLAR && l_Power <= (-90 * l_Coeff)) || (p_EclipseState == ECLIPSE_LUNAR && l_Power >= (90 * l_Coeff)))
-        return true;
-    return false;
 }

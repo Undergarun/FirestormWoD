@@ -967,6 +967,10 @@ void Aura::Update(uint32 diff, Unit* caster)
                     }
                     else
                     {
+                        /// Conversion temp fix
+                        if (m_spellInfo->Id == 119975)
+                            powerPerSecond = 50;
+
                         if (int32(caster->GetPower(powerType)) >= powerPerSecond)
                             caster->ModifyPower(powerType, -powerPerSecond);
                         else
@@ -985,9 +989,9 @@ void Aura::Update(uint32 diff, Unit* caster)
         m_duration -= diff;
         if (m_duration < 0)
             m_duration = 0;
-
-        CallScriptAuraUpdateHandlers(diff);
     }
+
+    CallScriptAuraUpdateHandlers(diff);
 }
 
 int32 Aura::CalcMaxDuration(Unit* caster) const
@@ -1960,6 +1964,11 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                             }
                         }
                         break;
+                    case 115192:///< Remove Stealth on Subterfuge remove
+                    {
+                        target->RemoveAura(115191);
+                        break;
+                    }
                 }
                 break;
             case SPELLFAMILY_MAGE:
@@ -2036,7 +2045,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     // Remove Vanish on stealth remove
                     case 1784:
                     case 115191:
-                        target->RemoveAurasDueToSpell(131369, target->GetGUID());
+                        target->RemoveAurasDueToSpell(131361, target->GetGUID());
                         break;
                     default:
                         break;

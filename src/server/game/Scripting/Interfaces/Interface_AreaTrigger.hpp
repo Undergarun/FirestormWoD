@@ -49,6 +49,20 @@ class AreaTriggerEntityScript : public ScriptObjectImpl<true>
 
         }
 
+        /// Procs before creation to specify position and linear destination of the areatrigger
+        /// @p_AreaTrigger: Areatrigger Instance
+        /// @p_Caster: Caster because he the Areatrigger is not spawned so caster is not defined
+        /// @p_SourcePosition: Spawn location of the Areatrigger
+        /// @p_DestinationPostion: Linear destination of the Areatrigger
+        /// @p_PathToLinearDestination: Path to endpoint without the starting or end point
+        virtual void OnSetCreatePosition(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition, std::list<Position>& p_PathToLinearDestination)
+        {
+            UNUSED(p_AreaTrigger);
+            UNUSED(p_Caster);
+            UNUSED(p_SourcePosition);
+            UNUSED(p_DestinationPosition);
+            UNUSED(p_PathToLinearDestination);
+        }
         /// Proc when AreaTrigger is created.
         /// @p_AreaTrigger : AreaTrigger instance
         virtual void OnCreate(AreaTrigger* p_AreaTrigger) 

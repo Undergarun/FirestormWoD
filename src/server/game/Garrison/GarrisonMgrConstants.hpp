@@ -209,6 +209,15 @@ namespace MS { namespace Garrison
         };
     }
 
+    namespace TaxiNodes
+    {
+        enum
+        {
+            Alliance = 1476,
+            Horde    = 1432
+        };
+    }
+
     namespace Buildings
     {
         enum

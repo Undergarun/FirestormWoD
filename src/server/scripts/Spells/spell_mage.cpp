@@ -99,7 +99,8 @@ enum MageSpells
     SPELL_MAGE_KINDLING                          = 155148,
     SPELL_MAGE_COMBUSTION                        = 11129,
     SPELL_MAGE_FROST_BOMB_AURA                   = 112948,
-    SPELL_MAGE_FROST_BOMB_VISUAL                 = 69846,
+    SPELL_MAGE_FROST_BOMB_VISUAL                 = 64627,
+    SPELL_MAGE_FROST_BOMB_VISUAL_TARGETING       = 70022,
     SPELL_MAGE_RING_OF_FROST_AURA                = 82691,
     SPELL_MAGE_IMPROVED_SCORCH                   = 157632,
     SPELL_MAGE_IMPROVED_SCORCH_AURA              = 157633,
@@ -115,7 +116,8 @@ enum MageSpells
     SPELL_MAGE_RAPID_TELEPORTATION               = 46989,
     SPELL_MAGE_RAPID_TELEPORTATION_AURA          = 89749,
     SPELL_MAGE_RING_OF_FROST_IMMUNATE            = 91264,
-    SPELL_MAGE_LIVING_BOMB                       = 44457
+    SPELL_MAGE_LIVING_BOMB                       = 44457,
+    SPELL_MAGE_CHILLED                           = 12486
 };
 
 /// Arcane Orb - 153626
@@ -892,8 +894,13 @@ class spell_mage_frostbolt: public SpellScriptLoader
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    if (l_Caster->HasAura(SPELL_MAGE_BRAIN_FREEZE) && roll_chance_i(sSpellMgr->GetSpellInfo(SPELL_MAGE_BRAIN_FREEZE)->Effects[EFFECT_0].BasePoints))
-                        GetCaster()->CastSpell(GetCaster(), SPELL_MAGE_BRAIN_FREEZE_TRIGGERED, true);
+                    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_BRAIN_FREEZE);
+
+                    if (l_SpellInfo == nullptr)
+                        return;
+
+                    if (l_Caster->HasAura(SPELL_MAGE_BRAIN_FREEZE) && roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
+                        l_Caster->CastSpell(l_Caster, SPELL_MAGE_BRAIN_FREEZE_TRIGGERED, true);
                     
                     if (l_Caster->HasAura(SPELL_MAGE_ENHANCED_FROSTBOLT) && l_Caster->getLevel() >= 92 && !l_Caster->HasAura(SPELL_MAGE_ENHANCED_FROSTBOLT_PROC))
                         l_Caster->CastSpell(l_Caster, SPELL_MAGE_ENHANCED_FROSTBOLT_PROC, true);
@@ -1832,41 +1839,42 @@ class spell_mage_unstable_magic: public SpellScriptLoader
 // Ice Lance - 30455
 class spell_mage_ice_lance: public SpellScriptLoader
 {
-public:
-    spell_mage_ice_lance() : SpellScriptLoader("spell_mage_ice_lance") { }
+    public:
+        spell_mage_ice_lance() : SpellScriptLoader("spell_mage_ice_lance") { }
 
-    class spell_mage_ice_lance_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_mage_ice_lance_SpellScript);
-
-        void HandleOnHit()
+        class spell_mage_ice_lance_SpellScript : public SpellScript
         {
-            if (Unit* l_Caster = GetCaster())
-            {
-                if (l_Caster->HasSpell(SPELL_MAGE_THERMAL_VOID))
-                    if (AuraPtr l_Aura = l_Caster->GetAura(SPELL_MAGE_ICY_VEINS, l_Caster->GetGUID()))
-                        l_Aura->SetDuration(l_Aura->GetDuration() + sSpellMgr->GetSpellInfo(SPELL_MAGE_THERMAL_VOID)->Effects[EFFECT_0].BasePoints * IN_MILLISECONDS);
+            PrepareSpellScript(spell_mage_ice_lance_SpellScript);
 
-                if (Unit* l_Target = GetHitUnit())
-                    if (l_Target->HasAura(SPELL_MAGE_FROST_BOMB_AURA) && l_Target->isFrozen())
+            void HandleOnHit()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasSpell(SPELL_MAGE_THERMAL_VOID))
                     {
-                        l_Caster->CastSpell(l_Target, SPELL_MAGE_FROST_BOMB_TRIGGERED, true);
-                        l_Caster->CastSpell(l_Target, SPELL_MAGE_FROST_BOMB_VISUAL, true);
+                        if (AuraPtr l_Aura = l_Caster->GetAura(SPELL_MAGE_ICY_VEINS, l_Caster->GetGUID()))
+                            l_Aura->SetDuration(l_Aura->GetDuration() + sSpellMgr->GetSpellInfo(SPELL_MAGE_THERMAL_VOID)->Effects[EFFECT_0].BasePoints * IN_MILLISECONDS);
                     }
 
+
+                    if (Unit* l_Target = GetHitUnit())
+                    {
+                        if (l_Target->HasAura(SPELL_MAGE_FROST_BOMB_AURA, l_Caster->GetGUID()))
+                            l_Caster->CastSpell(l_Target, SPELL_MAGE_FROST_BOMB_TRIGGERED, true);
+                    }
+                }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_mage_ice_lance_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnHit += SpellHitFn(spell_mage_ice_lance_SpellScript::HandleOnHit);
+            return new spell_mage_ice_lance_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_mage_ice_lance_SpellScript();
-    }
 };
 
 // Pyroblast - 11366
@@ -1901,30 +1909,32 @@ public:
 // FrostFire bolt - 44614
 class spell_mage_frostfire_bolt: public SpellScriptLoader
 {
-public:
-    spell_mage_frostfire_bolt() : SpellScriptLoader("spell_mage_frostfire_bolt") { }
+    public:
+        spell_mage_frostfire_bolt() : SpellScriptLoader("spell_mage_frostfire_bolt") { }
 
-    class spell_mage_frostfire_bolt_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_mage_frostfire_bolt_SpellScript);
-
-        void HandleDamage(SpellEffIndex /*effIndex*/)
+        class spell_mage_frostfire_bolt_SpellScript : public SpellScript
         {
-            if (Unit* l_Caster = GetCaster())
-                if (AuraPtr l_Aura = l_Caster->GetAura(SPELL_MAGE_BRAIN_FREEZE))
+            PrepareSpellScript(spell_mage_frostfire_bolt_SpellScript);
+
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (AuraPtr l_Aura = l_Caster->GetAura(SPELL_MAGE_BRAIN_FREEZE_TRIGGERED))
                         SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), sSpellMgr->GetSpellInfo(SPELL_MAGE_BRAIN_FREEZE)->Effects[EFFECT_2].BasePoints));
-        }
+                }
+            }
 
-        void Register()
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_mage_frostfire_bolt_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnEffectHitTarget += SpellEffectFn(spell_mage_frostfire_bolt_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+            return new spell_mage_frostfire_bolt_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_mage_frostfire_bolt_SpellScript();
-    }
 };
 
 /// Call by Fireball - 133, FrostFire Bolt - 44614, Pyroblast 11366 and Inferno Blast 108853
@@ -2267,10 +2277,26 @@ class spell_mage_blizzard : public SpellScriptLoader
         {
             PrepareSpellScript(spell_mage_blizzard_SpellScript);
 
+            void HandleOnHit()
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (l_Target->GetGUID() == l_Caster->GetGUID())
+                    return;
+
+                /// Slowing enemies by 50%
+                l_Caster->CastSpell(l_Target, SPELL_MAGE_CHILLED, true);
+            }
+
             void HandleAfterHit()
             {
                 Player* l_Player = GetCaster()->ToPlayer();
                 SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_IMPROVED_BLIZZARD);
+
                 if (l_Player == nullptr || l_SpellInfo == nullptr)
                     return;
 
@@ -2283,6 +2309,7 @@ class spell_mage_blizzard : public SpellScriptLoader
 
             void Register()
             {
+                OnHit += SpellHitFn(spell_mage_blizzard_SpellScript::HandleOnHit);
                 AfterHit += SpellHitFn(spell_mage_blizzard_SpellScript::HandleAfterHit);
             }
         };
