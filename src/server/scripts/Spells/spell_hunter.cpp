@@ -3290,7 +3290,8 @@ enum class HunterIceTrap : uint32
     SpellIceTrapEffect  = 13810
 };
 
-/// Ice trap - 13809
+/// Ice Trap - 13809
+/// Ice Trap (Frost - Trap Launcher) - 82940
 class AreaTrigger_ice_trap : public AreaTriggerEntityScript
 {
     public:
@@ -3381,7 +3382,8 @@ enum class HunterFreezingTrap : uint32
     SpellIncapacitate   = 3355
 };
 
-/// Freezing trap - 1499
+/// Freezing Trap - 1499
+/// Freezing Trap (Frost - Trap Launcher) - 60202
 class AreaTrigger_freezing_trap : public AreaTriggerEntityScript
 {
     public:
@@ -3437,7 +3439,8 @@ enum class HunterExplosiveTrap : uint32
     SpellExplosiveEffect = 13812
 };
 
-/// Explosive trap - 13813
+/// Explosive Trap - 13813
+/// Explosive Trap (Fire - Trap Launcher) - 82938
 class AreaTrigger_explosive_trap : public AreaTriggerEntityScript
 {
     public:
