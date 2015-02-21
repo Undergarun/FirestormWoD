@@ -382,126 +382,126 @@ enum Opcodes
         SMSG_PETBATTLE_UPDATE_BATTLESLOT                    = 0x0000,
 
         /// Instances
-        SMSG_INSTANCE_ENCOUNTER_ENGAGE_UNIT                     = 0x0137, ///<
-        SMSG_INSTANCE_ENCOUNTER_DISENGAGE_UNIT                  = 0x05AE, ///<
-        SMSG_INSTANCE_ENCOUNTER_CHANGE_PRIORITY                 = 0x0B03, ///<
-        SMSG_INSTANCE_ENCOUNTER_TIMER_START                     = 0x010F, ///<
-        SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_START                 = 0x0F8D, ///<
-        SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_COMPLETE              = 0x150E, ///<
-        SMSG_INSTANCE_ENCOUNTER_START                           = 0x051A, ///<
-        SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_UPDATE                = 0x0B0D, ///<
-        SMSG_INSTANCE_ENCOUNTER_END                             = 0x0B1A, ///<
-        SMSG_INSTANCE_ENCOUNTER_IN_COMBAT_RESURRECTION          = 0x13A1, ///<
-        SMSG_INSTANCE_ENCOUNTER_PHASE_SHIFT_CHANGED             = 0x19EA, ///<
-        SMSG_INSTANCE_ENCOUNTER_GAIN_COMBAT_RESURRECTION_CHARGE = 0x15BD, ///<
-        SMSG_INSTANCE_RESET                                     = 0x0B16, ///<
-        SMSG_INSTANCE_RESET_FAILED                              = 0x1189, ///<
-        SMSG_RAID_INSTANCE_INFO                                 = 0x0DA0, ///<
-        SMSG_RAID_GROUP_ONLY                                    = 0x0D9D, ///<
-        SMSG_RAID_MARKERS_CHANGED                               = 0x0384, ///<
-        SMSG_INSTANCE_SAVE_CREATED                              = 0x093A, ///<
+        SMSG_INSTANCE_ENCOUNTER_ENGAGE_UNIT                     = 0x0000, ///<
+        SMSG_INSTANCE_ENCOUNTER_DISENGAGE_UNIT                  = 0x0000, ///<
+        SMSG_INSTANCE_ENCOUNTER_CHANGE_PRIORITY                 = 0x0000, ///<
+        SMSG_INSTANCE_ENCOUNTER_TIMER_START                     = 0x0000, ///<
+        SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_START                 = 0x0000, ///<
+        SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_COMPLETE              = 0x0000, ///<
+        SMSG_INSTANCE_ENCOUNTER_START                           = 0x0000, ///<
+        SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_UPDATE                = 0x0000, ///<
+        SMSG_INSTANCE_ENCOUNTER_END                             = 0x0000, ///<
+        SMSG_INSTANCE_ENCOUNTER_IN_COMBAT_RESURRECTION          = 0x0000, ///<
+        SMSG_INSTANCE_ENCOUNTER_PHASE_SHIFT_CHANGED             = 0x0000, ///<
+        SMSG_INSTANCE_ENCOUNTER_GAIN_COMBAT_RESURRECTION_CHARGE = 0x0000, ///<
+        SMSG_INSTANCE_RESET                                     = 0x0000, ///<
+        SMSG_INSTANCE_RESET_FAILED                              = 0x0000, ///<
+        SMSG_RAID_INSTANCE_INFO                                 = 0x0000, ///<
+        SMSG_RAID_GROUP_ONLY                                    = 0x0000, ///<
+        SMSG_RAID_MARKERS_CHANGED                               = 0x0000, ///<
+        SMSG_INSTANCE_SAVE_CREATED                              = 0x0000, ///<
 
         /// Scenarios
-        SMSG_SCENARIO_POI                                       = 0x0343, ///<
-        SMSG_SCENARIO_PROGRESS_UPDATE                           = 0x0324, ///<
-        SMSG_SCENARIO_STATE                                     = 0x152D, ///<
+        SMSG_SCENARIO_POI                                       = 0x0000, ///<
+        SMSG_SCENARIO_PROGRESS_UPDATE                           = 0x0000, ///<
+        SMSG_SCENARIO_STATE                                     = 0x0000, ///<
 
         /// Auction House
-        SMSG_AUCTION_HELLO_RESPONSE                             = 0x011F, ///<
-        SMSG_AUCTION_BIDDER_LIST_RESULT                         = 0x01E9, ///<
-        SMSG_AUCTION_BIDDER_NOTIFICATION                        = 0x0D90, ///<
-        SMSG_AUCTION_BUYOUT_NOTIFICATION                        = 0x172E, ///<
-        SMSG_AUCTION_COMMAND_RESULT                             = 0x0B2D, ///<
-        SMSG_AUCTION_CLOSED_NOTIFICATION                        = 0x058E, ///<
-        SMSG_AUCTION_LIST_PENDING_SALES                         = 0x0332, ///<
-        SMSG_AUCTION_LIST_RESULT                                = 0x0BA4, ///<
-        SMSG_AUCTION_OWNER_LIST_RESULT                          = 0x0B42, ///<
-        SMSG_AUCTION_OWNER_BID_NOTIFICATION                     = 0x0026, ///<
+        SMSG_AUCTION_HELLO_RESPONSE                             = 0x0000, ///<
+        SMSG_AUCTION_BIDDER_LIST_RESULT                         = 0x0000, ///<
+        SMSG_AUCTION_BIDDER_NOTIFICATION                        = 0x0000, ///<
+        SMSG_AUCTION_BUYOUT_NOTIFICATION                        = 0x0000, ///<
+        SMSG_AUCTION_COMMAND_RESULT                             = 0x0000, ///<
+        SMSG_AUCTION_CLOSED_NOTIFICATION                        = 0x0000, ///<
+        SMSG_AUCTION_LIST_PENDING_SALES                         = 0x0000, ///<
+        SMSG_AUCTION_LIST_RESULT                                = 0x0000, ///<
+        SMSG_AUCTION_OWNER_LIST_RESULT                          = 0x0000, ///<
+        SMSG_AUCTION_OWNER_BID_NOTIFICATION                     = 0x0000, ///<
 
         /// Mail
-        SMSG_SEND_MAIL_RESULT                                   = 0x0302, ///<
-        SMSG_MAIL_LIST_RESULT                                   = 0x0B3F, ///<
-        SMSG_RECEIVED_MAIL                                      = 0x1F0D, ///<
-        SMSG_MAIL_QUERY_NEXT_TIME_RESULT                        = 0x153D, ///<
+        SMSG_SEND_MAIL_RESULT                                   = 0x0000, ///<
+        SMSG_MAIL_LIST_RESULT                                   = 0x0000, ///<
+        SMSG_RECEIVED_MAIL                                      = 0x0000, ///<
+        SMSG_MAIL_QUERY_NEXT_TIME_RESULT                        = 0x0000, ///<
 
         /// Trainers
-        SMSG_TRAINER_LIST                                       = 0x0BA9, ///<
-        SMSG_TRAINER_SERVICE                                    = 0x1BD2, ///<
+        SMSG_TRAINER_LIST                                       = 0x0000, ///<
+        SMSG_TRAINER_SERVICE                                    = 0x0000, ///<
 
         /// Void Storage
-        SMSG_VOID_ITEM_SWAP_RESPONSE                            = 0x1131, ///<
-        SMSG_VOID_STORAGE_CONTENTS                              = 0x0108, ///<
-        SMSG_VOID_STORAGE_FAILED                                = 0x0B01, ///<
-        SMSG_VOID_STORAGE_TRANSFER_CHANGES                      = 0x0321, ///<
-        SMSG_VOID_TRANSFER_RESULT                               = 0x0539, ///<
+        SMSG_VOID_ITEM_SWAP_RESPONSE                            = 0x0000, ///<
+        SMSG_VOID_STORAGE_CONTENTS                              = 0x0000, ///<
+        SMSG_VOID_STORAGE_FAILED                                = 0x0000, ///<
+        SMSG_VOID_STORAGE_TRANSFER_CHANGES                      = 0x0000, ///<
+        SMSG_VOID_TRANSFER_RESULT                               = 0x0000, ///<
 
         /// Petition
-        SMSG_PETITION_ALREADY_SIGNED                            = 0x0D8E, ///<
-        SMSG_PETITION_DECLINED                                  = 0x11E9, ///<
-        SMSG_PETITION_QUERY_RESPONSE                            = 0x13AC, ///<
-        SMSG_PETITION_SHOW_LIST                                 = 0x0915, ///<
-        SMSG_PETITION_SHOW_SIGNATURES                           = 0x0830, ///<
-        SMSG_TURN_IN_PETITION_RESULTS                           = 0x0919, ///<
+        SMSG_PETITION_ALREADY_SIGNED                            = 0x0000, ///<
+        SMSG_PETITION_DECLINED                                  = 0x0000, ///<
+        SMSG_PETITION_QUERY_RESPONSE                            = 0x0000, ///<
+        SMSG_PETITION_SHOW_LIST                                 = 0x0000, ///<
+        SMSG_PETITION_SHOW_SIGNATURES                           = 0x0000, ///<
+        SMSG_TURN_IN_PETITION_RESULTS                           = 0x0000, ///<
 
         /// Threat
-        SMSG_THREAT_CLEAR                                       = 0x030F, ///<
-        SMSG_THREAT_REMOVE                                      = 0x0F3D, ///<
-        SMSG_THREAT_UPDATE                                      = 0x03A9, ///<
-        SMSG_HIGHEST_THREAT_UPDATE                              = 0x059A, ///<
+        SMSG_THREAT_CLEAR                                       = 0x0000, ///<
+        SMSG_THREAT_REMOVE                                      = 0x0000, ///<
+        SMSG_THREAT_UPDATE                                      = 0x0000, ///<
+        SMSG_HIGHEST_THREAT_UPDATE                              = 0x0000, ///<
 
         /// Tickets
-        SMSG_GM_TICKET_GET_TICKET_RESPONSE                      = 0x0389, ///<
-        SMSG_GM_TICKET_RESPONSE                                 = 0x03EA, ///<
-        SMSG_GM_TICKET_RESPONSE_ERROR                           = 0x070D, ///<
-        SMSG_GM_TICKET_RESOLVE_RESPONSE                         = 0x091F, ///<
-        SMSG_GM_TICKET_SYSTEM_STATUS                            = 0x1229, ///<
-        SMSG_GM_TICKET_UPDATE                                   = 0x13EB, ///<
-        SMSG_GM_TICKET_STATUS_UPDATE                            = 0x1D2E, ///<
-        SMSG_GM_TICKET_CASE_STATUS                              = 0x1D8D, ///<
+        SMSG_GM_TICKET_GET_TICKET_RESPONSE                      = 0x0000, ///<
+        SMSG_GM_TICKET_RESPONSE                                 = 0x0000, ///<
+        SMSG_GM_TICKET_RESPONSE_ERROR                           = 0x0000, ///<
+        SMSG_GM_TICKET_RESOLVE_RESPONSE                         = 0x0000, ///<
+        SMSG_GM_TICKET_SYSTEM_STATUS                            = 0x0000, ///<
+        SMSG_GM_TICKET_UPDATE                                   = 0x0000, ///<
+        SMSG_GM_TICKET_STATUS_UPDATE                            = 0x0000, ///<
+        SMSG_GM_TICKET_CASE_STATUS                              = 0x0000, ///<
 
         /// Toybox
-        SMSG_ACCOUNT_TOYS_UPDATE                                = 0x0590, ///<
+        SMSG_ACCOUNT_TOYS_UPDATE                                = 0x0000, ///<
 
         /// Calendar
-        SMSG_CALENDAR_CLEAR_PENDING_ACTION                      = 0x1E8A, ///<
-        SMSG_CALENDAR_COMMAND_RESULT                            = 0x138A, ///<
-        SMSG_CALENDAR_EVENT_INITIAL_INVITE                      = 0x0139, ///<
-        SMSG_CALENDAR_EVENT_INVITE                              = 0x0BA2, ///<
-        SMSG_CALENDAR_EVENT_INVITE_ALERT                        = 0x0A0F, ///<
-        SMSG_CALENDAR_EVENT_INVITE_NOTES                        = 0x0208, ///<
-        SMSG_CALENDAR_EVENT_INVITE_NOTES_ALERT                  = 0x1104, ///<
-        SMSG_CALENDAR_EVENT_INVITE_REMOVED                      = 0x1F0E, ///<
-        SMSG_CALENDAR_EVENT_INVITE_REMOVED_ALERT                = 0x0116, ///<
-        SMSG_CALENDAR_EVENT_INVITE_STATUS                       = 0x1183, ///<
-        SMSG_CALENDAR_EVENT_INVITE_STATUS_ALERT                 = 0x1BD3, ///<
-        SMSG_CALENDAR_EVENT_MODERATOR_STATUS                    = 0x0B52, ///<
-        SMSG_CALENDAR_EVENT_REMOVED_ALERT                       = 0x1124, ///<
-        SMSG_CALENDAR_EVENT_UPDATED_ALERT                       = 0x1D9D, ///<
-        SMSG_CALENDAR_RAID_LOCKOUT_ADDED                        = 0x0901, ///<
-        SMSG_CALENDAR_RAID_LOCKOUT_REMOVED                      = 0x0122, ///<
-        SMSG_CALENDAR_RAID_LOCKOUT_UPDATED                      = 0x09A4, ///<
-        SMSG_CALENDAR_SEND_CALENDAR                             = 0x0184, ///<
-        SMSG_CALENDAR_SEND_EVENT                                = 0x0225, ///<
-        SMSG_CALENDAR_SEND_NUM_PENDING                          = 0x1B3A, ///<
+        SMSG_CALENDAR_CLEAR_PENDING_ACTION                      = 0x0000, ///<
+        SMSG_CALENDAR_COMMAND_RESULT                            = 0x0000, ///<
+        SMSG_CALENDAR_EVENT_INITIAL_INVITE                      = 0x0000, ///<
+        SMSG_CALENDAR_EVENT_INVITE                              = 0x0000, ///<
+        SMSG_CALENDAR_EVENT_INVITE_ALERT                        = 0x0000, ///<
+        SMSG_CALENDAR_EVENT_INVITE_NOTES                        = 0x0000, ///<
+        SMSG_CALENDAR_EVENT_INVITE_NOTES_ALERT                  = 0x0000, ///<
+        SMSG_CALENDAR_EVENT_INVITE_REMOVED                      = 0x0000, ///<
+        SMSG_CALENDAR_EVENT_INVITE_REMOVED_ALERT                = 0x0000, ///<
+        SMSG_CALENDAR_EVENT_INVITE_STATUS                       = 0x0000, ///<
+        SMSG_CALENDAR_EVENT_INVITE_STATUS_ALERT                 = 0x0000, ///<
+        SMSG_CALENDAR_EVENT_MODERATOR_STATUS                    = 0x0000, ///<
+        SMSG_CALENDAR_EVENT_REMOVED_ALERT                       = 0x0000, ///<
+        SMSG_CALENDAR_EVENT_UPDATED_ALERT                       = 0x0000, ///<
+        SMSG_CALENDAR_RAID_LOCKOUT_ADDED                        = 0x0000, ///<
+        SMSG_CALENDAR_RAID_LOCKOUT_REMOVED                      = 0x0000, ///<
+        SMSG_CALENDAR_RAID_LOCKOUT_UPDATED                      = 0x0000, ///<
+        SMSG_CALENDAR_SEND_CALENDAR                             = 0x0000, ///<
+        SMSG_CALENDAR_SEND_EVENT                                = 0x0000, ///<
+        SMSG_CALENDAR_SEND_NUM_PENDING                          = 0x0000, ///<
 
         /// Warden
         SMSG_WARDEN_DATA                                        = 0x0000, ///<
 
         /// Challenges
-        SMSG_CHALLENGE_MODE_REQUEST_LEADERS_RESULT              = 0x07AA, ///<
-        SMSG_CHALLENGE_MODE_MAP_STATS_UPDATE                    = 0x0135, ///< (NYI)
-        SMSG_CHALLENGE_MODE_NEW_PLAYER_RECORD                   = 0x13A3, ///<
-        SMSG_CHALLENGE_MODE_ALL_MAP_STATS                       = 0x0904, ///<
-        SMSG_CHALLENGE_MODE_START                               = 0x1221, ///<
-        SMSG_CHALLENGE_MODE_COMPLETE                            = 0x1B31, ///<
-        SMSG_CHALLENGE_MOD_REWARDS                              = 0x1CC9, ///< (NYI)
+        SMSG_CHALLENGE_MODE_REQUEST_LEADERS_RESULT              = 0x0000, ///<
+        SMSG_CHALLENGE_MODE_MAP_STATS_UPDATE                    = 0x0000, ///< (NYI)
+        SMSG_CHALLENGE_MODE_NEW_PLAYER_RECORD                   = 0x0000, ///<
+        SMSG_CHALLENGE_MODE_ALL_MAP_STATS                       = 0x0000, ///<
+        SMSG_CHALLENGE_MODE_START                               = 0x0000, ///<
+        SMSG_CHALLENGE_MODE_COMPLETE                            = 0x0000, ///<
+        SMSG_CHALLENGE_MOD_REWARDS                              = 0x0000, ///< (NYI)
 
         /// BlackMarket
-        SMSG_BLACK_MARKET_OPEN_RESULT                           = 0x0A05, ///<
-        SMSG_BLACK_MARKET_OUTBID                                = 0x0B1D, ///<
-        SMSG_BLACK_MARKET_REQUEST_ITEMS_RESULT                  = 0x1BC2, ///<
-        SMSG_BLACK_MARKET_BID_ON_ITEM_RESULT                    = 0x0825, ///<
-        SMSG_BLACK_MARKET_WON                                   = 0x1BAA, ///<
+        SMSG_BLACK_MARKET_OPEN_RESULT                           = 0x0000, ///<
+        SMSG_BLACK_MARKET_OUTBID                                = 0x0000, ///<
+        SMSG_BLACK_MARKET_REQUEST_ITEMS_RESULT                  = 0x0000, ///<
+        SMSG_BLACK_MARKET_BID_ON_ITEM_RESULT                    = 0x0000, ///<
+        SMSG_BLACK_MARKET_WON                                   = 0x0000, ///<
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////

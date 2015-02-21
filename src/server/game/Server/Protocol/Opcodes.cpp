@@ -666,7 +666,7 @@ void InitOpcodes()
         DEFINE_OPCODE_HANDLER(SMSG_CHAT_DOWN,                                       STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_CHAT_AUTO_RESPONDED,                             STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_CHAT,                                            STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
-        DEFINE_OPCODE_HANDLER(SMSG_CHAT_PLAYER_NOT_FOUND,                           STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        //DEFINE_OPCODE_HANDLER(SMSG_CHAT_PLAYER_NOT_FOUND,                           STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
 
         /// Channel
         DEFINE_OPCODE_HANDLER(SMSG_CHANNEL_NOTIFY_LEFT,                             STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
