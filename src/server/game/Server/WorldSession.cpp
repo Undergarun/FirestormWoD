@@ -1191,10 +1191,13 @@ void WorldSession::SendTimeZoneInformations()
     const static std::string l_TimeZoneName = "Europe/Paris";
 
     WorldPacket l_Data(SMSG_SET_TIME_ZONE_INFORMATION, 26);
-    l_Data << uint32(l_TimeZoneName.size());
+    l_Data.WriteBits(l_TimeZoneName.size(), 7);
+    l_Data.WriteBits(l_TimeZoneName.size(), 7);
+    l_Data.FlushBits();
+
     l_Data.WriteString(l_TimeZoneName);
-    l_Data << uint32(l_TimeZoneName.size());
     l_Data.WriteString(l_TimeZoneName);
+
     SendPacket(&l_Data);
 }
 
