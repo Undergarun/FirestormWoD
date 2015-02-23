@@ -2130,158 +2130,204 @@ namespace Sunfire
 /// Moonfire - 8921
 class spell_dru_moonfire : public SpellScriptLoader
 {
-public:
-    spell_dru_moonfire() : SpellScriptLoader("spell_dru_moonfire") { }
+    public:
+        spell_dru_moonfire() : SpellScriptLoader("spell_dru_moonfire") { }
 
-    class spell_dru_moonfire_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_dru_moonfire_SpellScript);
-
-        void HandleOnHit()
+        class spell_dru_moonfire_SpellScript : public SpellScript
         {
-            if (Unit* l_Caster = GetCaster())
-            {
-                if (Unit* l_Target = GetHitUnit())
-                {
-                    l_Caster->CastSpell(l_Target, SPELL_DRUID_MOONFIRE_DAMAGE);
+            PrepareSpellScript(spell_dru_moonfire_SpellScript);
 
-                    /// Celestial Alignment : causes your Moonfire and Sunfire spells to also apply the other's damage over time effect.
-                    if (l_Caster->HasAura(Eclipse::Spell::CelestialAlignment))
-                        l_Caster->AddAura(Sunfire::SpellDamage, l_Target);
+            void HandleOnHit()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (Unit* l_Target = GetHitUnit())
+                    {
+                        l_Caster->CastSpell(l_Target, SPELL_DRUID_MOONFIRE_DAMAGE);
+
+                        /// Celestial Alignment : causes your Moonfire and Sunfire spells to also apply the other's damage over time effect.
+                        if (l_Caster->HasAura(Eclipse::Spell::CelestialAlignment))
+                            l_Caster->AddAura(Sunfire::SpellDamage, l_Target);
+                    }
                 }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_dru_moonfire_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnHit += SpellHitFn(spell_dru_moonfire_SpellScript::HandleOnHit);
+            return new spell_dru_moonfire_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_dru_moonfire_SpellScript();
-    }
 };
 
 /// Sunfire - 93402
 class spell_dru_sunfire : public SpellScriptLoader
 {
-public:
-    spell_dru_sunfire() : SpellScriptLoader("spell_dru_sunfire") { }
+    public:
+        spell_dru_sunfire() : SpellScriptLoader("spell_dru_sunfire") { }
 
-    class spell_dru_sunfire_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_dru_sunfire_SpellScript);
-
-        void HandleOnHit()
+        class spell_dru_sunfire_SpellScript : public SpellScript
         {
-            if (Unit* l_Caster = GetCaster())
-            {
-                if (Unit* l_Target = GetHitUnit())
-                {
-                    l_Caster->CastSpell(l_Target, Sunfire::SpellDamage);
+            PrepareSpellScript(spell_dru_sunfire_SpellScript);
 
-                    /// Celestial Alignment : causes your Moonfire and Sunfire spells to also apply the other's damage over time effect.
-                    if (l_Caster->HasAura(Eclipse::Spell::CelestialAlignment))
-                        l_Caster->AddAura(MoonfireSpells::SPELL_DRUID_MOONFIRE_DAMAGE, l_Target);
+            void HandleOnHit()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (Unit* l_Target = GetHitUnit())
+                    {
+                        l_Caster->CastSpell(l_Target, Sunfire::SpellDamage);
+
+                        /// Celestial Alignment : causes your Moonfire and Sunfire spells to also apply the other's damage over time effect.
+                        if (l_Caster->HasAura(Eclipse::Spell::CelestialAlignment))
+                            l_Caster->AddAura(MoonfireSpells::SPELL_DRUID_MOONFIRE_DAMAGE, l_Target);
+                    }
                 }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_dru_sunfire_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnHit += SpellHitFn(spell_dru_sunfire_SpellScript::HandleOnHit);
+            return new spell_dru_sunfire_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_dru_sunfire_SpellScript();
-    }
 };
 
 /// Moonfire - 164812, Sunfire - 164815
 class spell_dru_moonfire_sunfire_damage : public SpellScriptLoader
 {
-public:
-    spell_dru_moonfire_sunfire_damage() : SpellScriptLoader("spell_dru_moonfire_sunfire_damage") { }
+    public:
+        spell_dru_moonfire_sunfire_damage() : SpellScriptLoader("spell_dru_moonfire_sunfire_damage") { }
 
-    class spell_dru_moonfire_sunfire_damage_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_dru_moonfire_sunfire_damage_SpellScript);
-
-        void HandleOnHit()
+        class spell_dru_moonfire_sunfire_damage_SpellScript : public SpellScript
         {
-            if (Player* l_Player = GetCaster()->ToPlayer())
+            PrepareSpellScript(spell_dru_moonfire_sunfire_damage_SpellScript);
+
+            void HandleOnHit()
             {
-                if (l_Player->HasAura(SPELL_DRUID_DREAM_OF_CENARIUS_TALENT) && l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_DRUID_RESTORATION &&
-                    (l_Player->HasAura(Eclipse::Spell::LunarPeak) || l_Player->HasAura(Eclipse::Spell::SolarPeak)))
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (Unit* l_Target = l_Player->GetNextRandomRaidMember(15.0f))
-                        l_Player->CastSpell(l_Target, SPELL_DRUID_DREAM_OF_CENARIUS_RESTO, true);
+                    if (l_Player->HasAura(SPELL_DRUID_DREAM_OF_CENARIUS_TALENT) && l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_DRUID_RESTORATION &&
+                        (l_Player->HasAura(Eclipse::Spell::LunarPeak) || l_Player->HasAura(Eclipse::Spell::SolarPeak)))
+                    {
+                        if (Unit* l_Target = l_Player->GetNextRandomRaidMember(15.0f))
+                            l_Player->CastSpell(l_Target, SPELL_DRUID_DREAM_OF_CENARIUS_RESTO, true);
+                    }
                 }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_dru_moonfire_sunfire_damage_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnHit += SpellHitFn(spell_dru_moonfire_sunfire_damage_SpellScript::HandleOnHit);
+            return new spell_dru_moonfire_sunfire_damage_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_dru_moonfire_sunfire_damage_SpellScript();
-    }
 };
 
-enum ShootingStarsSpells
-{
-    SPELL_DRUID_STARFALL       = 48505,
-    SPELL_DRUID_STARSURGE      = 78674
-};
-
+/// Called by Moonfire - 8921/164812 and Sunfire - 93402/164815
 /// Shooting Stars - 93399
+class spell_dru_shooting_stars_proc : public SpellScriptLoader
+{
+    public:
+        spell_dru_shooting_stars_proc() : SpellScriptLoader("spell_dru_shooting_stars_proc") { }
+
+        class spell_dru_shooting_stars_proc_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_shooting_stars_proc_AuraScript);
+
+            enum eSpells
+            {
+                Moonfire            = 8921,
+                Sunfire             = 93402,
+                MoonfireOverrided   = 164812,
+                SunfireOverrided    = 164815,
+                ShootingStars       = 93400
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                if (Unit* l_Caster = GetCaster())
+                {
+                    SpellInfo const* l_SpellInfo = p_EventInfo.GetDamageInfo()->GetSpellInfo();
+                    if (l_SpellInfo == nullptr)
+                        return;
+
+                    if (l_SpellInfo->Id != eSpells::Moonfire && l_SpellInfo->Id != eSpells::Sunfire &&
+                        l_SpellInfo->Id != eSpells::MoonfireOverrided && l_SpellInfo->Id != eSpells::SunfireOverrided)
+                        return;
+
+                    int32 l_Chance = p_AurEff->GetAmount();
+                    if (p_EventInfo.GetHitMask() & PROC_EX_CRITICAL_HIT)
+                        l_Chance *= 2;
+
+                    if (!roll_chance_i(l_Chance))
+                        return;
+
+                    l_Caster->CastSpell(l_Caster, eSpells::ShootingStars, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dru_shooting_stars_proc_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_shooting_stars_proc_AuraScript();
+        }
+};
+
+/// Shooting Stars - 93400
 class spell_dru_shooting_stars: public SpellScriptLoader
 {
-public:
-    spell_dru_shooting_stars() : SpellScriptLoader("spell_dru_shooting_stars") { }
+    public:
+        spell_dru_shooting_stars() : SpellScriptLoader("spell_dru_shooting_stars") { }
 
-    class spell_dru_shooting_stars_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_dru_shooting_stars_SpellScript);
-
-        void HandleOnHit()
+        class spell_dru_shooting_stars_SpellScript : public SpellScript
         {
-            Unit* l_Caster = GetCaster();
-            Unit* l_Target = GetHitUnit();
-            if (!l_Target)
-                return;
+            PrepareSpellScript(spell_dru_shooting_stars_SpellScript);
 
-            int32 l_Chance = GetSpellInfo()->Effects[EFFECT_0].BasePoints;
-            if (GetSpell()->IsCritForTarget(l_Target))
-                l_Chance *= 2;
-
-            if (roll_chance_i(l_Chance))
+            enum eSpells
             {
-                if (AuraPtr l_Aura = l_Caster->GetAura(SPELL_DRUID_STARFALL))
-                    l_Aura->ModCharges(1);
-                if (AuraPtr l_Aura = l_Caster->GetAura(SPELL_DRUID_STARSURGE))
-                    l_Aura->ModCharges(1);
+                CategoryID = 1485
+            };
+
+            void HandleOnHit()
+            {
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    /// Recover one charge of Starfall and Starsurge (share same charges category)
+                    if (ChargesData* l_Charges = l_Player->GetChargesData(eSpells::CategoryID))
+                        l_Player->RestoreCharge(eSpells::CategoryID);
+                }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_dru_shooting_stars_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnHit += SpellHitFn(spell_dru_shooting_stars_SpellScript::HandleOnHit);
+            return new spell_dru_shooting_stars_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_dru_shooting_stars_SpellScript();
-    }
 };
 
 // T10 Restoration 4P - 70691
@@ -2342,12 +2388,11 @@ class spell_dru_t10_restoration_4p_bonus: public SpellScriptLoader
 enum StarfallSpells
 {
     SPELL_DRUID_MOONFIRE              = 8921,
-    //SPELL_DRUID_STARFALL              = 48505,
     SPELL_DRUID_SUNFIRE               = 93402,
     SPELL_DRUID_GLYPH_OF_GUIDED_STARS = 146655
 };
 
-// Starfall (triggered) - 50286
+/// Starfall (triggered) - 50286
 class spell_dru_starfall_dummy: public SpellScriptLoader
 {
     public:
@@ -2356,6 +2401,11 @@ class spell_dru_starfall_dummy: public SpellScriptLoader
         class spell_dru_starfall_dummy_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_dru_starfall_dummy_SpellScript);
+
+            enum eSpells
+            {
+                Starfall = 48505
+            };
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
@@ -2367,7 +2417,7 @@ class spell_dru_starfall_dummy: public SpellScriptLoader
                 if (!target)
                     return;
 
-                // Shapeshifting into an animal form or mounting cancels the effect
+                /// Shapeshifting into an animal form or mounting cancels the effect
                 if (caster->GetCreatureType() == CREATURE_TYPE_BEAST || caster->IsMounted())
                 {
                     if (SpellInfo const* spellInfo = GetTriggeringSpell())
@@ -2375,25 +2425,25 @@ class spell_dru_starfall_dummy: public SpellScriptLoader
                     return;
                 }
 
-                // Any effect which causes you to lose control of your character will supress the starfall effect.
+                /// Any effect which causes you to lose control of your character will supress the starfall effect.
                 if (caster->HasUnitState(UNIT_STATE_CONTROLLED))
                     return;
 
-                // Glyph of Guided Stars - Starfall can only hit targets with Moonfire or Sunfire
+                /// Glyph of Guided Stars - Starfall can only hit targets with Moonfire or Sunfire
                 if (caster->HasAura(SPELL_DRUID_GLYPH_OF_GUIDED_STARS))
                     if (!target->HasAura(SPELL_DRUID_MOONFIRE) && !target->HasAura(SPELL_DRUID_SUNFIRE))
                         return;
 
                 caster->CastSpell(target, uint32(GetEffectValue()), true);
 
-                // Starfall can only launch 20 stars
-                if (AuraEffectPtr starfall = caster->GetAuraEffect(SPELL_DRUID_STARFALL, EFFECT_1))
+                /// Starfall can only launch 20 stars
+                if (AuraEffectPtr starfall = caster->GetAuraEffect(eSpells::Starfall, EFFECT_1))
                 {
                     int32 amount = starfall->GetAmount();
                     if (amount > 1)
                         starfall->SetAmount(amount - 1);
                     else
-                        caster->RemoveAura(SPELL_DRUID_STARFALL);
+                        caster->RemoveAura(eSpells::Starfall);
                 }
             }
 
@@ -3283,6 +3333,8 @@ void AddSC_druid_spell_scripts()
     new spell_dru_eclipse_mod_damage();
     new spell_dru_moonfire();
     new spell_dru_moonfire_sunfire_damage();
+    new spell_dru_shooting_stars_proc();
+    new spell_dru_shooting_stars();
     new spell_dru_t10_restoration_4p_bonus();
     new spell_dru_starfall_dummy();
     new spell_dru_savage_roar();

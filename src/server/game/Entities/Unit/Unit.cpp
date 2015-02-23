@@ -9440,22 +9440,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
 
             break;
         }
-        case 33605: // Lunar Shower
-        {
-            if (GetTypeId() != TYPEID_PLAYER)
-                return false;
-
-            if (!procSpell)
-                return false;
-
-            if (procSpell->Id != 8921 && procSpell->Id != 93402)
-                return false;
-
-            if (procFlags & PROC_FLAG_DONE_PERIODIC)
-                return false;
-
-            break;
-        }
         case 54943: // Glyph of Blessed Life
             return false;
         case 109306:// Trill of the Hunt
@@ -9526,22 +9510,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
                 arcaneMissiles->RefreshDuration();
                 return false;
             }
-
-            break;
-        }
-        case 93399: // Shooting Stars
-        {
-            if (!procSpell)
-                return false;
-
-            if (procSpell->Id != 8921 && procSpell->Id != 93402)
-                return false;
-
-            if (GetTypeId() != TYPEID_PLAYER)
-                return false;
-
-            if (!(procEx & PROC_EX_CRITICAL_HIT))
-                return false;
 
             break;
         }
