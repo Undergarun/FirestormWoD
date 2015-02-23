@@ -3358,7 +3358,7 @@ class spell_hun_claw_bite : public SpellScriptLoader
         }
 };
 
-// Spirit Mend - 90361
+/// Spirit Mend - 90361
 class spell_hun_spirit_mend : public SpellScriptLoader
 {
     public:
