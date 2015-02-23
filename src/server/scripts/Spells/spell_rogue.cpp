@@ -790,8 +790,8 @@ class spell_rog_killing_spree: public SpellScriptLoader
                         std::list<Unit*> l_TargetList;
                         float l_Radius = 10.0f;
 
-                        JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(l_Caster, l_Caster, l_Radius);
-                        JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, l_TargetList, l_Check);
+                        JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(l_Caster, l_Caster, l_Radius);
+                        JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, l_TargetList, l_Check);
                         l_Caster->VisitNearbyObject(l_Radius, l_Searcher);
 
                         l_TargetList.remove_if([this](Unit* p_Unit) -> bool
