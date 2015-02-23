@@ -2931,24 +2931,23 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     }
 
     // Your finishing moves restore X Energy per combo
-    if (m_needComboPoints || m_spellInfo->Id == 127538)
+    if (m_needComboPoints)
     {
-        if (Player* plrCaster = m_caster->ToPlayer())
+        if (Player* l_Caster = m_caster->ToPlayer())
         {
-            if (int32 l_Combo = plrCaster->GetPower(Powers::POWER_COMBO_POINT))
+            if (int32 l_Combo = l_Caster->GetPower(Powers::POWER_COMBO_POINT))
             {
-                // Soul of the Forest - 4 Energy
-                if (plrCaster->HasAura(114107))
+                if (l_Caster->HasAura(158476)) ///< Soul of the forest
                 {
-                    if (plrCaster->GetSpecializationId(plrCaster->GetActiveSpec()) == SPEC_DRUID_FERAL)
-                        plrCaster->EnergizeBySpell(plrCaster, 114107, 4 * l_Combo, POWER_ENERGY);
+                    if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) == SPEC_DRUID_FERAL)
+                        l_Caster->EnergizeBySpell(l_Caster, 158476, 4 * l_Combo, POWER_ENERGY);
                 }
-                else if (plrCaster->HasAura(14161)) ///< Ruthlessness
+                else if (l_Caster->HasAura(14161)) ///< Ruthlessness
                 {
                     if (roll_chance_i(20 * l_Combo))
                     {
-                        plrCaster->CastSpell(plrCaster, 139569, true);  ///< Combo point awarding
-                        plrCaster->CastSpell(plrCaster, 14181, true);   ///< Energy energize
+                        l_Caster->CastSpell(l_Caster, 139569, true); ///< Combo point awarding
+                        l_Caster->CastSpell(l_Caster, 14181, true);  ///< Energy energize
                     }
                 }
             }
