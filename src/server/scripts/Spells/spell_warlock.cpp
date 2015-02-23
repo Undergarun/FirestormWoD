@@ -1950,8 +1950,13 @@ class spell_warl_ember_tap: public SpellScriptLoader
 
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
+                    float pct = GetSpellInfo()->Effects[EFFECT_0].BasePoints / 100;
+
+                    if (AuraPtr l_GlyphOfEmberTap = l_Player->GetAura(SPELL_WARL_GLYPH_OF_EMBER_TAP))
+                        pct += (l_GlyphOfEmberTap->GetSpellInfo()->Effects[EFFECT_2].BasePoints / 100);
+
                     float Mastery = 3.0f * l_Player->GetFloatValue(PLAYER_FIELD_MASTERY) / 100.0f;
-                    float pct = 0.05f * (1 + Mastery);
+                    pct *= (1 + Mastery);
 
                     int32 healAmount = int32(l_Player->GetMaxHealth() * pct);
                     healAmount = l_Player->SpellHealingBonusDone(l_Player, GetSpellInfo(), healAmount, EFFECT_0, HEAL);
@@ -1965,10 +1970,6 @@ class spell_warl_ember_tap: public SpellScriptLoader
                         //l_Player->ModifyPower(POWER_BURNING_EMBERS, CalculatePct(GetSpellInfo()->ManaCost, l_SearingFlames->GetSpellInfo()->Effects[EFFECT_1].BasePoints));
                         l_Player->ModifyPower(POWER_BURNING_EMBERS, 5);
                     }
-
-                    if (AuraPtr l_GlyphOfEmberTap = l_Player->GetAura(SPELL_WARL_GLYPH_OF_EMBER_TAP))
-                        healAmount += CalculatePct(l_Player->GetMaxHealth(), l_GlyphOfEmberTap->GetSpellInfo()->Effects[EFFECT_2].BasePoints);
-
                     SetHitHeal(healAmount);
                 }
             }
@@ -2054,6 +2055,48 @@ class spell_warl_conflagrate_aura: public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_warl_conflagrate_aura_SpellScript();
+        }
+};
+
+/// Call by : Felsteed - 5784, Dreadsteed - 23161
+/// Glyph of Nightmares - 56232
+class spell_warl_glyph_of_nightmares : public SpellScriptLoader
+{
+    public:
+        spell_warl_glyph_of_nightmares() : SpellScriptLoader("spell_warl_glyph_of_nightmares") { }
+
+        class spell_warl_glyph_of_nightmares_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_glyph_of_nightmares_AuraScript);
+
+            void HandleApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(56232))
+                        l_Caster->CastSpell(l_Caster, 143314, true);
+                }
+            }
+
+            void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(143314))
+                        l_Caster->RemoveAura(143314);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_warl_glyph_of_nightmares_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_MOUNTED, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectApplyFn(spell_warl_glyph_of_nightmares_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_MOUNTED, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_glyph_of_nightmares_AuraScript();
         }
 };
 
@@ -3025,6 +3068,7 @@ class spell_warl_havoc: public SpellScriptLoader
 
 void AddSC_warlock_spell_scripts()
 {
+    new spell_warl_glyph_of_nightmares();
     new spell_warl_cataclysm();
     new spell_warl_siphon_life();
     new spell_warl_corruption();
