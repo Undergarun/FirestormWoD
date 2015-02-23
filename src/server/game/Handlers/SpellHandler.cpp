@@ -598,10 +598,17 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
     }
 
     // Override spell Id, client send base spell and not the overrided id
-    if (!spellInfo->OverrideSpellList.empty())
+    uint8 l_Count = std::numeric_limits<uint8>::max();
+    while (!spellInfo->OverrideSpellList.empty())
     {
+        if (!l_Count)
+            break;
+
         for (auto itr : spellInfo->OverrideSpellList)
         {
+            if (!l_Count)
+                break;
+
             if (m_Player->HasSpell(itr))
             {
                 SpellInfo const* overrideSpellInfo = sSpellMgr->GetSpellInfo(itr);
@@ -612,6 +619,8 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
                 }
                 break;
             }
+
+            --l_Count;
         }
     }
 

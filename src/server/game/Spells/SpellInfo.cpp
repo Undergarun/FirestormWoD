@@ -3859,51 +3859,62 @@ bool SpellInfo::IsPoisonOrBleedSpell() const
 
 bool SpellInfo::IsCanBeStolen() const
 {
-    // some of the rules for those spells that can be stolen by Dark Simulacrum
-    // spells should use mana
-    if (PowerType != POWER_MANA)
-        return false;
-
-    // and should have mana cost
-    if (!ManaCost && !ManaCostPercentage)
-        return false;
-
-    // special rules
+    /// Special rules, some aren't using mana but can be stolen
     switch (Id)
     {
-        case 633:   // Lay on Hands
-        case 22812: // Barkskin
-        case 24275: // Hammer of Wrath
-        case 31935: // Avenger's Shield
-        case 53563: // Beacon of the Light
-        case 156910: // Beacon of the Faith
+        case 633:   ///< Lay on Hands
+        case 22812: ///< Barkskin
+        case 24275: ///< Hammer of Wrath
+        case 31935: ///< Avenger's Shield
+        case 53563: ///< Beacon of Light
             return false;
+        case 642:   ///< Divine Shield
+        case 5484:  ///< Howl of Terror
+        case 12472: ///< Icy Veins
+        case 51490: ///< Thunderstorm
+        case 64044: ///< Psychic Horror
+            return true;
         default:
             break;
     }
 
-    for (uint8 x = 0; x < MAX_SPELL_EFFECTS; ++x)
+    /// Some of the rules for those spells that can be stolen by Dark Simulacrum
+    /// Spells should use mana
+    bool l_UseMana = false;
+    for (auto l_Iter : SpellPowers)
     {
-        switch (Effects[x].Effect)
+        if (l_Iter->PowerType != POWER_MANA)
+            return false;
+
+        /// And should have mana cost
+        if (!l_Iter->Cost && !l_Iter->CostBasePercentage)
+            return false;
+
+        l_UseMana = true;
+        break;
+    }
+
+    if (!l_UseMana)
+        return false;
+
+    for (uint8 l_I = 0; l_I < MAX_EFFECTS; ++l_I)
+    {
+        switch (Effects[l_I].Effect)
         {
             case SPELL_EFFECT_SUMMON:
             case SPELL_EFFECT_SUMMON_PET:
             case SPELL_EFFECT_CAST_BUTTON:
             case SPELL_EFFECT_TAMECREATURE:
             case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
-            case SPELL_EFFECT_KNOCK_BACK:
                 return false;
             case SPELL_EFFECT_SCHOOL_DAMAGE:
                 if (DmgClass == SPELL_DAMAGE_CLASS_MELEE)
                     return false;
                 break;
-            default:
+            case SPELL_EFFECT_APPLY_AURA:
+                if (Effects[l_I].ApplyAuraName == SPELL_AURA_MOD_SHAPESHIFT)
+                    return false;
                 break;
-        }
-        switch (Effects[x].ApplyAuraName)
-        {
-            case SPELL_AURA_MOD_SHAPESHIFT:
-                return false;
             default:
                 break;
         }

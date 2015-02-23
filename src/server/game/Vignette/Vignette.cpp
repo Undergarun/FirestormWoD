@@ -46,6 +46,10 @@ namespace Vignette
 
     void Entity::UpdatePosition(G3D::Vector3 p_NewPosition)
     {
+        if ((int32)m_Position.x == (int32)p_NewPosition.x &&
+            (int32)m_Position.y == (int32)p_NewPosition.y)
+            return;
+
         m_Position         = p_NewPosition;
         m_NeedClientUpdate = true;
     }

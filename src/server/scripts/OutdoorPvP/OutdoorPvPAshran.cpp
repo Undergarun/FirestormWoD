@@ -1497,9 +1497,9 @@ class npc_faction_boss : public CreatureScript
     public:
         npc_faction_boss() : CreatureScript("npc_faction_boss") { }
 
-        struct npc_faction_bossAI : public ScriptedAI
+        struct npc_faction_bossAI : public BossAI
         {
-            npc_faction_bossAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            npc_faction_bossAI(Creature* p_Creature) : BossAI(p_Creature, 0)
             {
                 m_ZoneScript = sOutdoorPvPMgr->GetZoneScript(p_Creature->GetZoneId());
                 m_BaseHP = me->GetMaxHealth();
@@ -1538,6 +1538,8 @@ class npc_faction_boss : public CreatureScript
 
             void Reset()
             {
+                _Reset();
+
                 m_Events.Reset();
 
                 me->RemoveAura(eSpells::SpellEnableUnitFrame);
@@ -1553,6 +1555,8 @@ class npc_faction_boss : public CreatureScript
 
             void EnterCombat(Unit* p_Attacker)
             {
+                _EnterCombat();
+
                 Talk(eTalk::TalkAggro);
 
                 m_Events.ScheduleEvent(eEvents::EventMortalCleave, 5000);
@@ -1569,6 +1573,8 @@ class npc_faction_boss : public CreatureScript
 
             void JustDied(Unit* p_Killer)
             {
+                _JustDied();
+
                 Talk(eTalk::TalkDeath);
 
                 uint64 l_GenericGuid = ((OutdoorPvPAshran*)m_ZoneScript)->GetFactionGenericMoP(me->GetEntry() == eCreatures::GrandMarshalTremblade ? TeamId::TEAM_ALLIANCE : TeamId::TEAM_HORDE);
@@ -1632,7 +1638,11 @@ class npc_faction_boss : public CreatureScript
             void UpdateAI(uint32 const p_Diff)
             {
                 if (!UpdateVictim())
+                {
+                    if (me->isInCombat())
+                        EnterEvadeMode();
                     return;
+                }
 
                 m_Events.Update(p_Diff);
 

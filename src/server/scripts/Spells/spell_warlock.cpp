@@ -1751,60 +1751,6 @@ class spell_warl_drain_soul: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_drain_soul_AuraScript);
 
-            void HandlePeriodicDamage(AuraEffectPtr p_AurEff)
-            {
-                Unit* l_Caster = GetCaster();
-                if (!l_Caster)
-                    return;
-
-                std::list<Unit*> l_TargetList;
-
-                p_AurEff->GetTargetList(l_TargetList);
-                for (auto l_Target : l_TargetList)
-                {
-                    if (l_Caster->getLevel() >= 92 && l_Caster->HasSpell(SPELL_WARL_IMPROVED_DRAIN_SOUL) && l_Target->GetHealthPct() < 20)
-                    {
-                        if (SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_WARL_IMPROVED_DRAIN_SOUL))
-                            p_AurEff->SetAmount(p_AurEff->GetAmount() + CalculatePct(p_AurEff->GetAmount(), l_SpellInfo->Effects[EFFECT_0].BasePoints));
-                    }
-
-                    Unit::AuraEffectList const& l_AuraList = l_Target->GetAuraEffectsByType(AuraType::SPELL_AURA_PERIODIC_DAMAGE);
-                    if (l_AuraList.empty())
-                        return;
-
-                    for (Unit::AuraEffectList::const_iterator l_AuraEffect = l_AuraList.begin(); l_AuraEffect != l_AuraList.end(); ++l_AuraEffect)
-                    {
-                        if ((*l_AuraEffect)->GetCasterGUID() != l_Caster->GetGUID())
-                            continue;
-
-                        uint32 l_SpellId = 0;
-                        switch ((*l_AuraEffect)->GetId())
-                        {
-                            case 146739: ///< Corruption
-                                l_SpellId = 131740;
-                                break;
-                            case 30108: ///< Unstable Affliction
-                                l_SpellId = 131736;
-                                break;
-                            case 27243: ///< Seed of Corruption
-                                l_SpellId = 132566;
-                                break;
-                            case 980: ///< Agony
-                                l_SpellId = 131737;
-                                break;
-                            default:
-                                break;
-                        }
-
-                        if (!l_SpellId)
-                            return;
-
-                        int32 l_Bp0 = CalculatePct((*l_AuraEffect)->GetAmount(), GetSpellInfo()->Effects[EFFECT_2].BasePoints);
-                        l_Caster->CastCustomSpell(l_Target, l_SpellId, &l_Bp0, NULL, NULL, true);
-                    }
-                }
-            }
-
             void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Target = GetTarget();
@@ -1816,11 +1762,27 @@ class spell_warl_drain_soul: public SpellScriptLoader
                                 l_Caster->ModifyPower(POWER_SOUL_SHARDS, 1 * l_Caster->GetPowerCoeff(POWER_SOUL_SHARDS));
             }
 
+            void HandleEffectPeriodicUpdate(AuraEffectPtr p_AurEff)
+            {
+                std::list<Unit*> l_TargetList;
+                p_AurEff->GetTargetList(l_TargetList);
+
+                if (Unit* l_Caster = GetCaster())
+                    if (l_Caster->getLevel() >= 92 && l_Caster->HasSpell(SPELL_WARL_IMPROVED_DRAIN_SOUL))
+                    {
+                        for (auto itr : l_TargetList)
+                            if (itr != nullptr && itr->GetHealthPct() < 20)
+                            {
+                                if (SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_WARL_IMPROVED_DRAIN_SOUL))
+                                    p_AurEff->SetAmount(p_AurEff->GetAmount() + CalculatePct(p_AurEff->GetAmount(), l_SpellInfo->Effects[EFFECT_0].BasePoints));
+                            }
+                    }
+            }
+
             void Register()
             {
-                OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_warl_drain_soul_AuraScript::HandlePeriodicDamage, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+                OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_warl_drain_soul_AuraScript::HandleEffectPeriodicUpdate, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
                 OnEffectRemove += AuraEffectApplyFn(spell_warl_drain_soul_AuraScript::HandleRemove, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-
             }
         };
 
@@ -2162,36 +2124,67 @@ class spell_warl_burning_embers_regen : public PlayerScript
     public:
         spell_warl_burning_embers_regen() : PlayerScript("spell_warl_burning_embers_regen")
         {
-            m_LastCombat = 0;
-            m_RegenTimer = 2000;
         }
 
-        uint64 m_LastCombat; ///< Timestamp at when leaving last combat
-        uint32 m_RegenTimer; ///< Timer in millisecondes we regenate the burnign embers
-
-        void OnLeaveCombat(Player* p_Player)
+        struct BuringEmbersData
         {
+            uint64 m_LastCombat; ///< Timestamp at when leaving last combat
+            uint32 m_RegenTimer; ///< Timer in millisecondes we regenate the burnign embers
+
+            BuringEmbersData()
+            {
+                m_LastCombat = 0;
+                m_RegenTimer = 2000;
+            }
+        };
+
+        ACE_Based::LockedMap<uint32, BuringEmbersData> m_BurningEmbersData;
+
+        /// Internal script function
+        bool CanUseBuringEmbers(Player* p_Player, Powers p_Power = Powers::POWER_BURNING_EMBERS)
+        {
+            if (m_BurningEmbersData.find(p_Player->GetGUIDLow()) == m_BurningEmbersData.end())
+                m_BurningEmbersData[p_Player->GetGUIDLow()] = BuringEmbersData();
+
             if (p_Player == nullptr
                 || p_Player->getClass() != Classes::CLASS_WARLOCK
-                || p_Player->GetSpecializationId(p_Player->GetActiveSpec()) != SpecIndex::SPEC_WARLOCK_DESTRUCTION)
+                || p_Player->GetSpecializationId(p_Player->GetActiveSpec()) != SpecIndex::SPEC_WARLOCK_DESTRUCTION
+                || p_Power != POWER_BURNING_EMBERS)
+                return false;
+
+            return true;
+        }
+
+        /// Override
+        void OnLogout(Player * p_Player)
+        {
+            m_BurningEmbersData.erase(p_Player->GetGUIDLow());
+        }
+
+        /// Override
+        void OnLeaveCombat(Player* p_Player)
+        {
+            if (!CanUseBuringEmbers(p_Player))
                 return;
 
-            m_LastCombat = getMSTime();
+            BuringEmbersData& l_BuringEmbersData = m_BurningEmbersData[p_Player->GetGUIDLow()];
+            l_BuringEmbersData.m_LastCombat = getMSTime();
         }
 
         /// Handle regeneration of burning embers
         /// Call at each update tick (100 ms)
+        /// Override
         void OnUpdate(Player * p_Player, uint32 p_Diff)
         {
-            if (p_Player == nullptr
-                || p_Player->getClass() != Classes::CLASS_WARLOCK
-                || p_Player->GetSpecializationId(p_Player->GetActiveSpec()) != SpecIndex::SPEC_WARLOCK_DESTRUCTION)
+            if (!CanUseBuringEmbers(p_Player))
                 return;
 
-            if (m_RegenTimer <= p_Diff)
+            BuringEmbersData& l_BuringEmbersData = m_BurningEmbersData[p_Player->GetGUIDLow()];
+
+            if (l_BuringEmbersData.m_RegenTimer <= p_Diff)
             {
                 /// After 25s out of combat...
-                if (p_Player->isInCombat() || (m_LastCombat != 0 && GetMSTimeDiffToNow(m_LastCombat) < (25 * IN_MILLISECONDS)))
+                if (p_Player->isInCombat() || (l_BuringEmbersData.m_LastCombat != 0 && GetMSTimeDiffToNow(l_BuringEmbersData.m_LastCombat) < (25 * IN_MILLISECONDS)))
                     return;
 
                 int32 l_CurrentPower = p_Player->GetPower(POWER_BURNING_EMBERS);
@@ -2203,18 +2196,16 @@ class spell_warl_burning_embers_regen : public PlayerScript
                 else if (l_CurrentPower > (1 * p_Player->GetPowerCoeff(POWER_BURNING_EMBERS)))
                     p_Player->SetPower(POWER_BURNING_EMBERS, l_CurrentPower - 1, true);
 
-                m_RegenTimer = 2 * IN_MILLISECONDS;
+                l_BuringEmbersData.m_RegenTimer = 2 * IN_MILLISECONDS;
             }
             else
-                m_RegenTimer -= p_Diff;
+                l_BuringEmbersData.m_RegenTimer -= p_Diff;
         }
 
+        /// Override
         void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool /*p_Regen*/)
         {
-            if (p_Player == nullptr
-                || p_Player->getClass() != Classes::CLASS_WARLOCK
-                || p_Player->GetSpecializationId(p_Player->GetActiveSpec()) != SpecIndex::SPEC_WARLOCK_DESTRUCTION
-                || p_Power != POWER_BURNING_EMBERS)
+            if (!CanUseBuringEmbers(p_Player, p_Power))
                 return;
 
             if (p_Player->HasAura(SPELL_WARL_GLYPH_OF_VERDANT_SPHERES))

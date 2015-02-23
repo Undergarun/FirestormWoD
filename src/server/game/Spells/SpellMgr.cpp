@@ -266,8 +266,9 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
             // Charge (Tenacity pet) -- 53148, no flags (5526)
             if (spellproto->SpellIconID == 1559 && spellproto->SpellVisual[0] == 39480)
                 return DIMINISHING_ROOT;
-            // Narrow Escape -- 136634, no flags (17964)
-            if (spellproto->SpellIconID == 3342 && spellproto->SchoolMask == 8)
+
+            /// Narrow Escape -- 136634
+            if (spellproto->Id == 136634)
                 return DIMINISHING_ROOT;
 
             // Binding Shot -- 117526, no flags (15581)
@@ -4246,8 +4247,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[2].Effect = 0;
                 break;
             case 53490: ///< Bullheaded
-                spellInfo->ProcChance = 100;
-                spellInfo->Effects[0].TargetA = TARGET_UNIT_PET;
+                spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
                 break;
             case 32645: ///< Envenom
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ENEMY;
@@ -4265,7 +4265,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 24529: ///< Glyph of Animal Bond
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
-                spellInfo->Effects[0].TargetB = TARGET_UNIT_PET;
                 break;
             case 982: ///< Revive Pet - hotfix 5.4.2
                 spellInfo->CastTimeEntry = sSpellCastTimesStore.LookupEntry(5); ///< 2s
@@ -4654,6 +4653,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 2484: ///< Earthbind Totem
                 spellInfo->OverrideSpellList.push_back(51485);
                 break;
+            case 47753: ///< Divine Aegis
             case 86273: ///< Illuminated Healing 
                 spellInfo->Effects[0].BonusMultiplier = 0.0f;
                 break;
@@ -5247,12 +5247,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 147362: ///< Counter Shot
                 spellInfo->Speed = 0;
                 break;
-            case 132626: ///< Alliance Portal - Mage
-                spellInfo->AttributesEx7 |= SPELL_ATTR7_ALLIANCE_ONLY;
-                break;
-            case 132620: ///< Horde Portal - Mage
-                spellInfo->AttributesEx7 |= SPELL_ATTR7_HORDE_ONLY;
-                break;
             case 38112: ///< Magic Barrier, Lady Vashj
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
@@ -5326,9 +5320,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 92328: ///< Heart's Judgment, Heart of Ignacious trinket (heroic)
                 spellInfo->CasterAuraSpell = 92325;
-                break;
-            case 157717: ///< Enhanced Basic Attacks
-                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_CASTER;
                 break;
             case 56244: ///< Glyph of Fear
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_ADD_FLAT_MODIFIER;
@@ -5818,6 +5809,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_4].Effect = SPELL_EFFECT_APPLY_AREA_AURA_FRIEND;
                 spellInfo->Effects[EFFECT_4].ApplyAuraName = SPELL_AURA_MOD_INCREASE_SPEED;
                 break;
+            case 125050:///< Fetch (Glyph)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[EFFECT_0].TargetB = 0;
+                break;
             default:
                 break;
         }
@@ -5873,13 +5868,11 @@ void SpellMgr::LoadSpellCustomAttr()
             switch (spellInfo->Id)
             {
                 case 61882: ///< Earthquake
-                case 152280: ///< Defile
+                case 152280:///< Defile
+                case 109248:///< Binding Shot
                     spellInfo->ExplicitTargetMask &= ~TARGET_FLAG_UNIT;
                     break;
-                case 109248: ///< Binding Shot
-                    spellInfo->ExplicitTargetMask &= ~TARGET_FLAG_UNIT;
-                    break;
-                case 116011: ///< Rune of Power
+                case 116011:///< Rune of Power
                     spellInfo->ExplicitTargetMask &= ~TARGET_FLAG_UNIT;
                     spellInfo->Effects[2].Effect = 0;   ///< No summon needed
                     break;
@@ -5887,17 +5880,13 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->ExplicitTargetMask |= TARGET_FLAG_UNIT_ALLY;
                     spellInfo->ExplicitTargetMask |= TARGET_FLAG_UNIT_ENEMY;
                     break;
-                case 107223: ///< Sunfire Rays
-                    spellInfo->ExplicitTargetMask = TARGET_FLAG_UNIT_MASK;
-                   break;
-                case 106736: ///< Wither Will
+                case 107223:///< Sunfire Rays
+                case 106736:///< Wither Will
+                case 106113:///< Touch of Nothingness
                     spellInfo->ExplicitTargetMask = TARGET_FLAG_UNIT_MASK;
                     break;
-                case 106112: ///< Release Doubt
+                case 106112:///< Release Doubt
                     spellInfo->ExplicitTargetMask |= TARGET_FLAG_DEST_LOCATION;
-                    break;
-                case 106113: ///< Touch of Nothingness
-                    spellInfo->ExplicitTargetMask = TARGET_FLAG_UNIT_MASK;
                     break;
                 default:
                     break;

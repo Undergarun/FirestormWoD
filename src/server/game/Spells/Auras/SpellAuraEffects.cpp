@@ -507,7 +507,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //448 SPELL_AURA_448
     &AuraEffect::HandleNULL,                                      //449 SPELL_AURA_449
     &AuraEffect::HandleNULL,                                      //450 SPELL_AURA_450
-    &AuraEffect::HandleNULL,                                      //451 SPELL_AURA_451
+    &AuraEffect::HandleAuraAdaptation,                            //451 SPELL_AURA_ADAPTATION
     &AuraEffect::HandleNULL,                                      //452 SPELL_AURA_452
     &AuraEffect::HandleNULL,                                      //453 SPELL_AURA_MOD_COOLDOWN_2
     &AuraEffect::HandleNULL,                                      //454 SPELL_AURA_454
@@ -709,12 +709,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                 case 3355:  // Freezing Trap
                 {
                     amount = 1;
-                    customAmount = true;
-                    break;
-                }
-                case 128405:// Narrow Escape
-                {
-                    amount = int32(GetBase()->GetUnitOwner()->CountPctFromMaxHealth(10));
                     customAmount = true;
                     break;
                 }
@@ -4504,9 +4498,10 @@ void AuraEffect::HandleModMechanicImmunity(AuraApplication const* aurApp, uint8 
 
     switch (GetId())
     {
-        case 42292: // PvP trinket
-        case 59752: // Every Man for Himself
-        case 65547: // PvP trinket (Trial of Crusader)
+        case 42292: ///< PvP trinket
+        case 59752: ///< Every Man for Himself
+        case 65547: ///< PvP trinket (Trial of Crusader)
+        case 53490: ///< Bullheaded (Cunning pet Ability)
         {
             mechanic = IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK;
             // Actually we should apply immunities here, too, but the aura has only 100 ms duration, so there is practically no point
@@ -7432,39 +7427,6 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
             damage = damageReductedArmor;
         }
 
-        // 77486 - Mastery : Shadowy Recall
-        if (GetSpellInfo()->SchoolMask == SPELL_SCHOOL_MASK_SHADOW && caster->HasAura(77486))
-        {
-            float Mastery = caster->ToPlayer()->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.8f;
-
-            if (roll_chance_f(Mastery))
-            {
-                int32 bp = damage;
-
-                switch (GetSpellInfo()->Id)
-                {
-                    case 589:   // Shadow Word: Pain
-                        caster->CastCustomSpell(target, 124464, &bp, NULL, NULL, true);
-                        break;
-                    case 2944:  // Devouring Plague
-                        caster->CastCustomSpell(target, 124467, &bp, NULL, NULL, true);
-                        break;
-                    case 15407: // Mind Flay
-                        caster->CastCustomSpell(target, 124468, &bp, NULL, NULL, true);
-                        break;
-                    case 34914: // Vampiric Touch
-                        caster->CastCustomSpell(target, 124465, &bp, NULL, NULL, true);
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-
-        // Glyph of Mind Flay
-        if ((GetSpellInfo()->Id == 15407 || GetSpellInfo()->Id == 129197) && caster->HasAura(120585))
-            caster->CastSpell(caster, 120587, true);
-
         // Deep Wounds
         if (GetSpellInfo()->Id == 115767)
         {
@@ -7518,6 +7480,147 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
                 damage += (damage+1)/2;           // +1 prevent 0.5 damage possible lost at 1..4 ticks
             // 5..8 ticks have normal tick damage
             damage /= 10; // Prevent insane damage with 10 stacks
+        }
+        // Malefic Grasp
+        if (GetSpellInfo()->Id == 103103)
+        {
+            int32 afflictionDamage;
+            SpellInfo const* afflictionSpell;
+
+            // Soul Leech
+            if (caster->HasAura(108370) && caster->GetTypeId() == TYPEID_PLAYER)
+            {
+                int32 bp = int32(damage / 10);
+
+                caster->CastCustomSpell(caster, 108366, &bp, NULL, NULL, true);
+
+                if (Pet* pet = caster->ToPlayer()->GetPet())
+                    caster->CastCustomSpell(pet, 108366, &bp, NULL, NULL, true);
+            }
+
+            // Every tick, Malefic Grasp deals instantly 30% of tick-damage for each affliction effects on the target
+            // Corruption ...
+            if (AuraPtr corruption = target->GetAura(146739, caster->GetGUID()))
+            {
+                afflictionSpell = sSpellMgr->GetSpellInfo(146739);
+                afflictionDamage = caster->CalculateSpellDamage(target, afflictionSpell, 0);
+                afflictionDamage = caster->SpellDamageBonusDone(target, afflictionSpell, afflictionDamage, EFFECT_0, DOT);
+                afflictionDamage = target->SpellDamageBonusTaken(caster, afflictionSpell, afflictionDamage, DOT);
+                afflictionDamage = CalculatePct(afflictionDamage, GetSpellInfo()->Effects[2].BasePoints);
+
+                caster->CastCustomSpell(target, 131740, &afflictionDamage, NULL, NULL, true);
+            }
+            // Unstable Affliction ...
+            if (AuraPtr unstableAffliction = target->GetAura(30108, caster->GetGUID()))
+            {
+                afflictionSpell = sSpellMgr->GetSpellInfo(30108);
+                afflictionDamage = caster->CalculateSpellDamage(target, afflictionSpell, 0);
+                afflictionDamage = caster->SpellDamageBonusDone(target, afflictionSpell, afflictionDamage, EFFECT_0, DOT);
+                afflictionDamage = target->SpellDamageBonusTaken(caster, afflictionSpell, afflictionDamage, DOT);
+                afflictionDamage = CalculatePct(afflictionDamage, GetSpellInfo()->Effects[2].BasePoints);
+
+                caster->CastCustomSpell(target, 131736, &afflictionDamage, NULL, NULL, true);
+            }
+            // Seed of Corruption ...
+            if (AuraPtr seedOfCorruption = target->GetAura(27243, caster->GetGUID()))
+            {
+                afflictionSpell = sSpellMgr->GetSpellInfo(27243);
+                afflictionDamage = caster->CalculateSpellDamage(target, afflictionSpell, 0);
+                afflictionDamage = caster->SpellDamageBonusDone(target, afflictionSpell, afflictionDamage, EFFECT_0, DOT);
+                afflictionDamage = target->SpellDamageBonusTaken(caster, afflictionSpell, afflictionDamage, DOT);
+                afflictionDamage = CalculatePct(afflictionDamage, GetSpellInfo()->Effects[2].BasePoints);
+
+                caster->CastCustomSpell(target, 132566, &afflictionDamage, NULL, NULL, true);
+            }
+            // Agony ...
+            if (AuraPtr agony = target->GetAura(980, caster->GetGUID()))
+            {
+                afflictionSpell = sSpellMgr->GetSpellInfo(980);
+                afflictionDamage = caster->CalculateSpellDamage(target, afflictionSpell, 0);
+                afflictionDamage = caster->SpellDamageBonusDone(target, afflictionSpell, afflictionDamage, EFFECT_0, DOT);
+                afflictionDamage = target->SpellDamageBonusTaken(caster, afflictionSpell, afflictionDamage, DOT);
+                afflictionDamage = CalculatePct(afflictionDamage, GetSpellInfo()->Effects[2].BasePoints);
+
+                agony->ModStackAmount(1);
+
+                caster->CastCustomSpell(target, 131737, &afflictionDamage, NULL, NULL, true);
+            }
+        }
+        // Soul Drain
+        if (GetSpellInfo()->Id == 1120)
+        {
+            // Energize one soul shard every 2 ticks
+            if (!(m_tickNumber%2))
+                caster->EnergizeBySpell(caster, GetSpellInfo()->Id, 100, POWER_SOUL_SHARDS);
+
+            // if target is below 20% of life ...
+            if (target->GetHealthPct() <= 20)
+            {
+                // ... drain soul deal 100% more damage ...
+                damage *= 2;
+
+                int32 afflictionDamage;
+                SpellInfo const* afflictionSpell;
+
+                // ... and deals instantly 60% of tick-damage for each affliction effects on the target
+                // Corruption ...
+                if (AuraPtr corruption = target->GetAura(146739, caster->GetGUID()))
+                {
+                    afflictionSpell = sSpellMgr->GetSpellInfo(146739);
+                    afflictionDamage = caster->CalculateSpellDamage(target, afflictionSpell, 0);
+                    afflictionDamage = caster->SpellDamageBonusDone(target, afflictionSpell, afflictionDamage, EFFECT_0, DOT);
+                    afflictionDamage = target->SpellDamageBonusTaken(caster, afflictionSpell, afflictionDamage, DOT);
+                    afflictionDamage = CalculatePct(afflictionDamage, GetSpellInfo()->Effects[4].BasePoints);
+
+                    caster->CastCustomSpell(target, 131740, &afflictionDamage, NULL, NULL, true);
+                }
+                // Unstable Affliction ...
+                if (AuraPtr unstableAffliction = target->GetAura(30108, caster->GetGUID()))
+                {
+                    afflictionSpell = sSpellMgr->GetSpellInfo(30108);
+                    afflictionDamage = caster->CalculateSpellDamage(target, afflictionSpell, 0);
+                    afflictionDamage = caster->SpellDamageBonusDone(target, afflictionSpell, afflictionDamage, EFFECT_0, DOT);
+                    afflictionDamage = target->SpellDamageBonusTaken(caster, afflictionSpell, afflictionDamage, DOT);
+                    afflictionDamage = CalculatePct(afflictionDamage, GetSpellInfo()->Effects[4].BasePoints);
+
+                    caster->CastCustomSpell(target, 131736, &afflictionDamage, NULL, NULL, true);
+                }
+                // Seed of Corruption ...
+                if (AuraPtr seedOfCorruption = target->GetAura(27243, caster->GetGUID()))
+                {
+                    afflictionSpell = sSpellMgr->GetSpellInfo(27243);
+                    afflictionDamage = caster->CalculateSpellDamage(target, afflictionSpell, 0);
+                    afflictionDamage = caster->SpellDamageBonusDone(target, afflictionSpell, afflictionDamage, EFFECT_0, DOT);
+                    afflictionDamage = target->SpellDamageBonusTaken(caster, afflictionSpell, afflictionDamage, DOT);
+                    afflictionDamage = CalculatePct(afflictionDamage, GetSpellInfo()->Effects[4].BasePoints);
+
+                    caster->CastCustomSpell(target, 132566, &afflictionDamage, NULL, NULL, true);
+                }
+                // Agony ...
+                if (AuraPtr agony = target->GetAura(980, caster->GetGUID()))
+                {
+                    afflictionSpell = sSpellMgr->GetSpellInfo(980);
+                    afflictionDamage = caster->CalculateSpellDamage(target, afflictionSpell, 0);
+                    afflictionDamage = caster->SpellDamageBonusDone(target, afflictionSpell, afflictionDamage, EFFECT_0, DOT);
+                    afflictionDamage = target->SpellDamageBonusTaken(caster, afflictionSpell, afflictionDamage, DOT);
+                    afflictionDamage = CalculatePct(afflictionDamage, GetSpellInfo()->Effects[4].BasePoints);
+
+                    agony->ModStackAmount(1);
+
+                    caster->CastCustomSpell(target, 131737, &afflictionDamage, NULL, NULL, true);
+                }
+            }
+
+            // Soul Leech
+            if (caster->HasAura(108370) && caster->GetTypeId() == TYPEID_PLAYER)
+            {
+                int32 bp = int32(damage / 10);
+
+                caster->CastCustomSpell(caster, 108366, &bp, NULL, NULL, true);
+
+                if (Pet* pet = caster->ToPlayer()->GetPet())
+                    caster->CastCustomSpell(pet, 108366, &bp, NULL, NULL, true);
+            }
         }
         // Execution Sentence damage-per-tick calculation
         if (GetSpellInfo()->Id == 114916)
@@ -7779,12 +7882,6 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
 
         TakenTotalMod = std::max(TakenTotalMod, 0.0f);
 
-        // Mend Pet
-        if (m_spellInfo->Id == 136)
-            if (caster->HasAura(19573)) // Glyph of Mend Pet
-                if (roll_chance_i(50))
-                    caster->CastSpell(target, 24406, true); // Dispel
-
         damage = uint32(target->CountPctFromMaxHealth(damage));
 
         switch (m_spellInfo->Id)
@@ -7983,11 +8080,6 @@ void AuraEffect::HandleObsModPowerAuraTick(Unit* target, Unit* caster) const
     uint32 amount = std::max(m_amount, 0) * target->GetMaxPower(powerType) /100;
     SpellPeriodicAuraLogInfo pInfo(CONST_CAST(AuraEffect, shared_from_this()), amount, 0, 0, 0, 0.0f, false);
     target->SendPeriodicAuraLog(&pInfo);
-
-    // Hack Fix Glyph of Evocation - 56380
-    if (GetBase()->GetId() == 12051 && GetTickNumber() > 1)
-        if (target->HasAura(56380) && !target->HasAura(114003))
-            target->HealBySpell(target, sSpellMgr->GetSpellInfo(12051), target->CountPctFromMaxHealth(20), false);
 
     int32 gain = target->ModifyPower(powerType, amount);
 
@@ -8625,4 +8717,64 @@ void AuraEffect::HandleAuraSetPowerType(AuraApplication const* p_AurApp, uint8 p
 
     Powers l_Power = Powers(l_PowerDisplay->ActualType);
     l_Target->setPowerType(l_Power);
+}
+
+void AuraEffect::HandleAuraAdaptation(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
+{
+    if (!(p_Mode & AuraEffectHandleModes::AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Unit* l_Target = p_AurApp->GetTarget();
+    if (l_Target == nullptr || l_Target->GetTypeId() != TypeID::TYPEID_PLAYER)
+        return;
+
+    Player* l_Player = l_Target->ToPlayer();
+    if (l_Player == nullptr)
+        return;
+
+    SpecIndex l_NewSpec = SpecIndex::SPEC_NONE;
+    if (Pet* l_Pet = l_Player->GetPet())
+    {
+        if (p_Apply)
+        {
+            switch (l_Pet->GetSpecializationId())
+            {
+                case SpecIndex::SPEC_PET_FEROCITY:
+                    l_NewSpec = SpecIndex::SPEC_ROGUE_FEROCITY_ADAPT;
+                    break;
+                case SpecIndex::SPEC_PET_CUNNING:
+                    l_NewSpec = SpecIndex::SPEC_ROGUE_CUNNING_ADAPT;
+                    break;
+                case SpecIndex::SPEC_PET_TENACITY:
+                    l_NewSpec = SpecIndex::SPEC_ROGUE_TENACIOUS_ADAPT;
+                    break;
+                default:
+                    break;
+            }
+        }
+        else
+        {
+            switch (l_Pet->GetSpecializationId())
+            {
+                case SpecIndex::SPEC_ROGUE_FEROCITY_ADAPT:
+                    l_NewSpec = SpecIndex::SPEC_PET_FEROCITY;
+                    break;
+                case SpecIndex::SPEC_ROGUE_CUNNING_ADAPT:
+                    l_NewSpec = SpecIndex::SPEC_PET_CUNNING;
+                    break;
+                case SpecIndex::SPEC_ROGUE_TENACIOUS_ADAPT:
+                    l_NewSpec = SpecIndex::SPEC_PET_TENACITY;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        if (l_Pet->GetSpecializationId())
+            l_Pet->UnlearnSpecializationSpell();
+
+        l_Pet->SetSpecializationId((uint32)l_NewSpec);
+        l_Pet->LearnSpecializationSpell();
+        l_Player->SendTalentsInfoData(true);
+    }
 }

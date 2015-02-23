@@ -969,7 +969,6 @@ public:
     }
 };
 
-
 // Regrowth - 8936
 class spell_dru_regrowth : public SpellScriptLoader
 {
@@ -1747,7 +1746,6 @@ enum DruidOfFlamesEnum
     SPELL_DRUID_OF_FLAME = 138927
 };
 
-
 // Druid of the flames - 138927
 class spell_dru_druid_flames : public SpellScriptLoader
 {
@@ -1776,7 +1774,6 @@ public:
         return new spell_dru_druid_flames_SpellScript();
     }
 };
-
 
 namespace Eclipse
 {
@@ -1810,28 +1807,40 @@ class spell_dru_eclipse : public PlayerScript
     public:
         spell_dru_eclipse() : PlayerScript("spell_dru_eclipse")
         {
-            m_EclipseCycleActive    = false;
-            m_EclipseFinishingCount = -1;
-            m_LastEclipseState      = Eclipse::State::None;
-
-            m_LastEclipseCheck  = 0;
-            m_BalanceTime       = 0;
-            m_LastEclipseAmount = 0.0f;
-            m_ClientUpdateTimer = 2000;
         }
 
-        bool m_EclipseCycleActive;      ///< Eclipse regen cycle is active ?
-        uint8 m_LastEclipseState;       ///< Last eclipse state (reach when amount of eclipse power is >= 100)
-        int8  m_EclipseFinishingCount;  ///< Reamining time the amount of eclipse power need to be at 0 before cycle finished
+        struct EclipseData
+        {
+            bool m_EclipseCycleActive;      ///< Eclipse regen cycle is active ?
+            uint8 m_LastEclipseState;       ///< Last eclipse state (reach when amount of eclipse power is >= 100)
+            int8  m_EclipseFinishingCount;  ///< Reamining time the amount of eclipse power need to be at 0 before cycle finished
 
-        float  m_LastEclipseAmount;     ///< Amount of eclipse power at last tick
-        uint64 m_LastEclipseCheck;      ///< Timestamp at last tick
-        uint64 m_BalanceTime;           ///< Time in millisecondes since the current eclipse cycle is started
-        uint32 m_ClientUpdateTimer;     ///< Timer in millisecondes before sending update of eclipse timer to client
+            float  m_LastEclipseAmount;     ///< Amount of eclipse power at last tick
+            uint64 m_LastEclipseCheck;      ///< Timestamp at last tick
+            uint64 m_BalanceTime;           ///< Time in millisecondes since the current eclipse cycle is started
+            uint32 m_ClientUpdateTimer;     ///< Timer in millisecondes before sending update of eclipse timer to client
+
+            EclipseData()
+            {
+                m_EclipseCycleActive = false;
+                m_EclipseFinishingCount = -1;
+                m_LastEclipseState = Eclipse::State::None;
+
+                m_LastEclipseCheck = 0;
+                m_BalanceTime = 0;
+                m_LastEclipseAmount = 0.0f;
+                m_ClientUpdateTimer = 2000;
+            }
+        };
+
+        ACE_Based::LockedMap<uint32, EclipseData> m_EclipseData;
 
         /// This function is internal to script, not a override
-        bool CanUseEclipse(Player const* p_Player) const
+        bool CanUseEclipse(Player const* p_Player)
         {
+            if (m_EclipseData.find(p_Player->GetGUIDLow()) == m_EclipseData.end())
+                m_EclipseData[p_Player->GetGUIDLow()] = EclipseData();
+
             if (p_Player == nullptr
                 || p_Player->getClass() != Classes::CLASS_DRUID
                 || p_Player->GetSpecializationId(p_Player->GetActiveSpec()) != SpecIndex::SPEC_DRUID_BALANCE
@@ -1847,20 +1856,22 @@ class spell_dru_eclipse : public PlayerScript
             if (!CanUseEclipse(p_Player))
                 return;
 
-            m_EclipseFinishingCount = -1;
+            EclipseData& l_EclipseData = m_EclipseData[p_Player->GetGUIDLow()];
 
-            if (m_EclipseCycleActive)
+            l_EclipseData.m_EclipseFinishingCount = -1;
+
+            if (l_EclipseData.m_EclipseCycleActive)
                 return;
 
-            m_BalanceTime       = 0;
-            m_LastEclipseAmount = 0;
-            m_LastEclipseState  = Eclipse::State::None;
-            m_ClientUpdateTimer = 2000;
+            l_EclipseData.m_BalanceTime = 0;
+            l_EclipseData.m_LastEclipseAmount = 0;
+            l_EclipseData.m_LastEclipseState = Eclipse::State::None;
+            l_EclipseData.m_ClientUpdateTimer = 2000;
 
-            m_EclipseCycleActive    = true;
-            m_EclipseFinishingCount = -1;
+            l_EclipseData.m_EclipseCycleActive = true;
+            l_EclipseData.m_EclipseFinishingCount = -1;
 
-            ACE_OS::gettimeofday().msec(m_LastEclipseCheck);
+            ACE_OS::gettimeofday().msec(l_EclipseData.m_LastEclipseCheck);
        }
 
         /// Override
@@ -1869,14 +1880,26 @@ class spell_dru_eclipse : public PlayerScript
             if (!CanUseEclipse(p_Player))
                 return;
 
-            m_EclipseFinishingCount = m_LastEclipseState == Eclipse::State::None ? 1 : 2;
+            EclipseData& l_EclipseData = m_EclipseData[p_Player->GetGUIDLow()];
+            l_EclipseData.m_EclipseFinishingCount = l_EclipseData.m_LastEclipseState == Eclipse::State::None ? 1 : 2;
+        }
+
+        /// Override
+        void OnLogout(Player * p_Player)
+        {
+            m_EclipseData.erase(p_Player->GetGUIDLow());
         }
 
         /// Handle regeneration of eclipse
         /// Call at each update tick (100 ms)
+        /// Override
         void OnUpdate(Player * p_Player, uint32 p_Diff)
         {
-            if (!CanUseEclipse(p_Player) || !m_EclipseCycleActive)
+            if (!CanUseEclipse(p_Player))
+                return;
+
+            EclipseData& l_EclipseData = m_EclipseData[p_Player->GetGUIDLow()];
+            if (!l_EclipseData.m_EclipseCycleActive)
                 return;
 
             uint64 l_ActualTime = 0;
@@ -1892,41 +1915,41 @@ class spell_dru_eclipse : public PlayerScript
             if (p_Player->HasAura(Eclipse::Spell::CelestialAlignment))
                 l_FloatMultiplier = 0.0f;
 
-            m_BalanceTime += (l_ActualTime - m_LastEclipseCheck) * l_FloatMultiplier;
-            m_LastEclipseCheck = l_ActualTime;
+            l_EclipseData.m_BalanceTime += (l_ActualTime - l_EclipseData.m_LastEclipseCheck) * l_FloatMultiplier;
+            l_EclipseData.m_LastEclipseCheck = l_ActualTime;
 
             /// Eclipse regen isn't linear, it's a elipse ...
-            double l_EclipseAmount = Eclipse::g_ElipseMaxValue * std::sin(2 * M_PI * m_BalanceTime / Eclipse::g_BalanceCycleTime);
+            double l_EclipseAmount = Eclipse::g_ElipseMaxValue * std::sin(2 * M_PI * l_EclipseData.m_BalanceTime / Eclipse::g_BalanceCycleTime);
 
-            if (m_EclipseFinishingCount != -1)
+            if (l_EclipseData.m_EclipseFinishingCount != -1)
             {
-                if (int(l_EclipseAmount) == 0 && int(m_LastEclipseAmount) != 0)
+                if (int(l_EclipseAmount) == 0 && int(l_EclipseData.m_LastEclipseAmount) != 0)
                 {
-                    m_EclipseFinishingCount--;
+                    l_EclipseData.m_EclipseFinishingCount--;
 
-                    if (m_EclipseFinishingCount == 0)
+                    if (l_EclipseData.m_EclipseFinishingCount == 0)
                     {
-                        m_EclipseFinishingCount = -1;
-                        m_EclipseCycleActive    = false;
+                        l_EclipseData.m_EclipseFinishingCount = -1;
+                        l_EclipseData.m_EclipseCycleActive = false;
 
-                        m_BalanceTime = 0;
+                        l_EclipseData.m_BalanceTime = 0;
                     }
                 }
             }
 
-            m_LastEclipseAmount = l_EclipseAmount;
+            l_EclipseData.m_LastEclipseAmount = l_EclipseAmount;
 
             /// We need to send periodic update of server-side balance timer to be sure we are sync with the client timer.
             bool l_ClientUpdate = false;
-            if (m_ClientUpdateTimer <= p_Diff)
+            if (l_EclipseData.m_ClientUpdateTimer <= p_Diff)
             {
                 l_ClientUpdate = true;
-                m_ClientUpdateTimer = 2000;
+                l_EclipseData.m_ClientUpdateTimer = 2000;
             }
             else
-                m_ClientUpdateTimer -= p_Diff;
+                l_EclipseData.m_ClientUpdateTimer -= p_Diff;
 
-            p_Player->SetPower(Powers::POWER_ECLIPSE, m_BalanceTime % Eclipse::g_BalanceCycleTime, !l_ClientUpdate);
+            p_Player->SetPower(Powers::POWER_ECLIPSE, l_EclipseData.m_BalanceTime % Eclipse::g_BalanceCycleTime, !l_ClientUpdate);
 
             /// Very usefull to debug eclipse and see server-side values
             /// Maybe we need to add a command to have it ?
@@ -1935,10 +1958,11 @@ class spell_dru_eclipse : public PlayerScript
 
         void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool /*p_Regen*/)
         {
-            if (!CanUseEclipse(p_Player))
+            if (!CanUseEclipse(p_Player) || p_Power != Powers::POWER_ECLIPSE)
                 return;
 
-            if (!m_EclipseCycleActive)
+            EclipseData& l_EclipseData = m_EclipseData[p_Player->GetGUIDLow()];
+            if (!l_EclipseData.m_EclipseCycleActive)
             {
                 p_NewValue = 0;
                 return;
@@ -1972,14 +1996,14 @@ class spell_dru_eclipse : public PlayerScript
 
             /// Peak buffs
             {
-                if (l_EclipseAmount <= -100 && m_LastEclipseState != Eclipse::State::Solar)  ///< Solar Eclipse at -100
+                if (l_EclipseAmount <= -100 && l_EclipseData.m_LastEclipseState != Eclipse::State::Solar)  ///< Solar Eclipse at -100
                 {
-                    m_LastEclipseState = Eclipse::State::Solar;
+                    l_EclipseData.m_LastEclipseState = Eclipse::State::Solar;
                     p_Player->CastSpell(p_Player, Eclipse::Spell::SolarPeak, true);
                 }
-                else if (l_EclipseAmount >= 100 && m_LastEclipseState != Eclipse::State::Lunar)  ///< Lunar Eclipse at 100
+                else if (l_EclipseAmount >= 100 && l_EclipseData.m_LastEclipseState != Eclipse::State::Lunar)  ///< Lunar Eclipse at 100
                 {
-                    m_LastEclipseState = Eclipse::State::Lunar;
+                    l_EclipseData.m_LastEclipseState = Eclipse::State::Lunar;
                     p_Player->CastSpell(p_Player, Eclipse::Spell::LunarPeak, true);
                 }
             }
@@ -2107,8 +2131,6 @@ public:
         return new spell_dru_moonfire_SpellScript();
     }
 };
-
-
 
 /// Sunfire - 93402
 class spell_dru_sunfire : public SpellScriptLoader

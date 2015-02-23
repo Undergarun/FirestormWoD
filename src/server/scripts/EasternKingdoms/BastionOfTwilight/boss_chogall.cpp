@@ -484,6 +484,7 @@ class boss_chogall : public CreatureScript
                             pPlayer->RemoveAurasDueToSpell(SPELL_CORRUPTION_ABSOLUTE);
                             pPlayer->RemoveAurasDueToSpell(SPELL_CORRUPTION_ABSOLUTE_VISUAL);
                             pPlayer->RemoveAurasDueToSpell(SPELL_CORRUPTED_BLOOD_AURA);
+                            pPlayer->RemoveAurasDueToSpell(SPELL_FESTERING_BLOOD);
                         }
                         break;
                     }
