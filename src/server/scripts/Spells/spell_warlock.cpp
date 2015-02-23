@@ -1931,7 +1931,8 @@ class spell_warl_rain_of_fire_despawn: public SpellScriptLoader
 enum EmberTapSpells
 {
     SPELL_WARL_GLYPH_OF_EMBER_TAP = 63304,
-    SPELL_WARL_SEARING_FLAMES = 174848
+    SPELL_WARL_SEARING_FLAMES = 174848,
+    SPELL_WARL_ENHANCED_OF_EMBER_TAP = 157121
 };
 // Ember Tap - 114635
 class spell_warl_ember_tap: public SpellScriptLoader
@@ -1943,32 +1944,39 @@ class spell_warl_ember_tap: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_ember_tap_SpellScript);
 
-            void HandleOnHit()
+            void HandleHeal(SpellEffIndex /*effIndex*/)
             {
                 if (!GetHitUnit())
-                    return;
+                return;
 
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    float pct = GetSpellInfo()->Effects[EFFECT_0].BasePoints / 100;
+                    float pct = (float)(GetSpellInfo()->Effects[EFFECT_0].BasePoints) / 100;
 
                     if (AuraPtr l_GlyphOfEmberTap = l_Player->GetAura(SPELL_WARL_GLYPH_OF_EMBER_TAP))
-                        pct += (l_GlyphOfEmberTap->GetSpellInfo()->Effects[EFFECT_2].BasePoints / 100);
-
-                    float Mastery = 3.0f * l_Player->GetFloatValue(PLAYER_FIELD_MASTERY) / 100.0f;
-                    pct *= (1 + Mastery);
+                        pct += ((float)l_GlyphOfEmberTap->GetSpellInfo()->Effects[EFFECT_2].BasePoints / 100);
 
                     int32 healAmount = int32(l_Player->GetMaxHealth() * pct);
-                    healAmount = l_Player->SpellHealingBonusDone(l_Player, GetSpellInfo(), healAmount, EFFECT_0, HEAL);
-                    healAmount = l_Player->SpellHealingBonusTaken(l_Player, GetSpellInfo(), healAmount, HEAL);
+
+                    float Mastery = 3.0f * l_Player->GetFloatValue(PLAYER_FIELD_MASTERY);
+                    healAmount += CalculatePct(healAmount, Mastery);
 
                     if (AuraPtr l_SearingFlames = l_Player->GetAura(SPELL_WARL_SEARING_FLAMES))
                     {
                         healAmount *= 1 + (l_SearingFlames->GetSpellInfo()->Effects[EFFECT_0].BasePoints / 100.0f);
 
-                        // ManaCost == 0, wrong way to retrieve cost ?
-                        //l_Player->ModifyPower(POWER_BURNING_EMBERS, CalculatePct(GetSpellInfo()->ManaCost, l_SearingFlames->GetSpellInfo()->Effects[EFFECT_1].BasePoints));
+                        /// ManaCost == 0, wrong way to retrieve cost ?
+                        ///l_Player->ModifyPower(POWER_BURNING_EMBERS, CalculatePct(GetSpellInfo()->ManaCost, l_SearingFlames->GetSpellInfo()->Effects[EFFECT_1].BasePoints));
                         l_Player->ModifyPower(POWER_BURNING_EMBERS, 5);
+                    }
+
+                    if (l_Player->HasAura(SPELL_WARL_ENHANCED_OF_EMBER_TAP))
+                    {
+                        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_WARL_ENHANCED_OF_EMBER_TAP);
+                        Pet* l_Pet = l_Player->GetPet();
+
+                        if (l_Pet != nullptr && l_SpellInfo != nullptr)
+                            l_Pet->SetHealth(l_Pet->GetHealth() + CalculatePct(healAmount, l_SpellInfo->Effects[EFFECT_0].BasePoints));
                     }
                     SetHitHeal(healAmount);
                 }
@@ -1976,7 +1984,7 @@ class spell_warl_ember_tap: public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_warl_ember_tap_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_warl_ember_tap_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL_PCT);
             }
         };
 
