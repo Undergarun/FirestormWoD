@@ -859,6 +859,17 @@ enum DruidSoulOfTheForestSpells
     SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO = 114108
 };
 
+enum LifebloomSpells
+{
+    SPELL_DRUID_LIFEBLOOM = 33763,
+    SPELL_DRUID_LIFEBLOOM_FINAL_HEAL = 33778,
+    SPELL_DRUID_GLYPH_OF_BLOOMING = 121840,
+    SPELL_DRUID_OMEN_OF_CLARITY = 113043,
+    SPELL_DRUID_MOMENT_OF_CLARITY_TALENT = 155577,
+    SPELL_DRUID_MOMENT_OF_CLARITY = 155631,
+    SPELL_DRUID_CLEARCASTING = 16870
+};
+
 /// Rejuvenation - 774 (germination effect)
 class spell_dru_rejuvenation : public SpellScriptLoader
 {
@@ -989,9 +1000,19 @@ public:
             }
         }
 
+        void HandleAfterHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (l_Caster->HasAura(SPELL_DRUID_CLEARCASTING))
+                    l_Caster->RemoveAura(SPELL_DRUID_CLEARCASTING);
+            }
+        }
+
         void Register()
         {
             BeforeHit += SpellHitFn(spell_dru_regrowth_SpellScript::HandleBeforeHit);
+            AfterHit += SpellHitFn(spell_dru_regrowth_SpellScript::HandleAfterHit);
         }
     };
 
@@ -1095,17 +1116,6 @@ class spell_dru_savage_defense: public SpellScriptLoader
         {
             return new spell_dru_savage_defense_SpellScript();
         }
-};
-
-enum LifebloomSpells
-{
-    SPELL_DRUID_LIFEBLOOM                 = 33763,
-    SPELL_DRUID_LIFEBLOOM_FINAL_HEAL      = 33778,
-    SPELL_DRUID_GLYPH_OF_BLOOMING         = 121840,
-    SPELL_DRUID_OMEN_OF_CLARITY           = 113043,
-    SPELL_DRUID_MOMENT_OF_CLARITY_TALENT  = 155577,
-    SPELL_DRUID_MOMENT_OF_CLARITY         = 155631,
-    SPELL_DRUID_CLEARCASTING              = 16870
 };
 
 // Called by Regrowth - 8936 and Healing Touch - 5185
