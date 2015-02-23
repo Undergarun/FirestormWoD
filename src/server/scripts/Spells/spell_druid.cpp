@@ -2696,6 +2696,31 @@ class spell_dru_travel_form_playerscript: public PlayerScript
         }
 };
 
+enum GlyphOfTheShapemender
+{
+    SPELL_DRUID_GLYPH_OF_THE_SHAPEMENDER_AURA = 159453,
+    SPELL_DRUID_GLYPH_OF_THE_SHAPEMENDER = 159454
+};
+
+/// 159453 - Glyph of the Shapemender
+class spell_dru_glyph_of_the_shapemender_playerscript : public PlayerScript
+{
+    public:
+        spell_dru_glyph_of_the_shapemender_playerscript() : PlayerScript("spell_dru_glyph_of_the_shapemender_playerscript") {}
+
+        void OnChangeShapeshift(Player* p_Player, ShapeshiftForm p_Form)
+        {
+            if (!p_Player || p_Player->getClass() != CLASS_DRUID)
+                return;
+
+            if (p_Player->HasAura(SPELL_DRUID_GLYPH_OF_THE_SHAPEMENDER_AURA) && p_Player->HasAuraType(SPELL_AURA_MOD_SHAPESHIFT) && !p_Player->HasSpellCooldown(SPELL_DRUID_GLYPH_OF_THE_SHAPEMENDER))
+            {
+                p_Player->CastSpell(p_Player, SPELL_DRUID_GLYPH_OF_THE_SHAPEMENDER, true);
+                p_Player->AddSpellCooldown(SPELL_DRUID_GLYPH_OF_THE_SHAPEMENDER, 0, 5 * IN_MILLISECONDS); ///< This effect cannot occur more often than once every 5 sec.
+            }
+        }
+};
+
 // 40121 - Swift Flight Form (Passive)
 class spell_dru_swift_flight_passive: public SpellScriptLoader
 {
@@ -3244,4 +3269,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_regrowth();
     new spell_dru_wild_growth();
     new spell_dru_druid_flames();
+    new spell_dru_glyph_of_the_shapemender_playerscript();
 }
