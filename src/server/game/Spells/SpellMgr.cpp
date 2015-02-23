@@ -4653,6 +4653,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 2484: ///< Earthbind Totem
                 spellInfo->OverrideSpellList.push_back(51485);
                 break;
+            case 33110: ///< Prayer of Mending
             case 47753: ///< Divine Aegis
             case 86273: ///< Illuminated Healing 
                 spellInfo->Effects[0].BonusMultiplier = 0.0f;

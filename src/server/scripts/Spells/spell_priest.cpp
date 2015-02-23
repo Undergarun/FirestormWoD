@@ -2470,7 +2470,9 @@ enum PrayerOfMendingSpells
 {
     PrayerOfMendingAura     = 41635,
     PrayerOfMendingHeal     = 33110,
-    T9Healing2Pieces        = 67201
+    T9Healing2Pieces        = 67201,
+    SpiritualHealingAura    = 87336,
+    DivineFuryAura          = 122098
 };
 
 // Prayer of Mending - 33076
@@ -2491,7 +2493,9 @@ class spell_pri_prayer_of_mending: public SpellScriptLoader
                     {
                         l_Caster->CastSpell(l_Target, PrayerOfMendingSpells::PrayerOfMendingAura, true);
                         if (AuraPtr l_PrayerOfMendingAura = l_Target->GetAura(PrayerOfMendingSpells::PrayerOfMendingAura))
+                        {
                             l_PrayerOfMendingAura->SetStackAmount(5);
+                        }
                     }
                 }
             }
@@ -2518,62 +2522,45 @@ class spell_pri_prayer_of_mending_aura : public SpellScriptLoader
         {
             PrepareAuraScript(spell_pri_prayer_of_mending_aura_AuraScript);
 
+            void CalculateAmount(constAuraEffectPtr p_AuraEffect, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (p_AuraEffect->GetBase())
+                    {
+                        float l_Multiplicator = 1.0f;
+
+                        if (l_Caster->HasAura(PrayerOfMendingSpells::SpiritualHealingAura))
+                            l_Multiplicator = 1.25f;
+
+                        if (l_Caster->HasAura(PrayerOfMendingSpells::DivineFuryAura))
+                            l_Multiplicator *= 1.25f;
+
+                        p_Amount = l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 0.442787 * l_Multiplicator / p_AuraEffect->GetBase()->GetStackAmount();
+                    }
+                }
+            }
+
             void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
-                if (p_EventInfo.GetHealInfo())
+                if (p_EventInfo.GetSpellInfo())
                 {
-                    if (p_EventInfo.GetHealInfo()->GetHeal() > 0)
+                    if (p_EventInfo.GetSpellInfo()->IsPositive())
                         return;
                 }
 
                 if (Unit* l_Caster = GetCaster())
                 {
                     if (Unit* l_Target = p_EventInfo.GetActionTarget())
-                    {
                         l_Caster->CastSpell(l_Target, PrayerOfMendingSpells::PrayerOfMendingHeal, true);
-
-                        uint8 l_CurrentStackAmount = p_AurEff->GetBase()->GetStackAmount();
-
-                        if (l_CurrentStackAmount >= 1)
-                        {
-                            std::list<Unit*> l_FriendlyUnitListTemp;
-                            JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(l_Caster, l_Caster, 20.0f);
-                            JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, l_FriendlyUnitListTemp, l_Check);
-                            l_Caster->VisitNearbyObject(20.0f, l_Searcher);
-
-                            if (!l_FriendlyUnitListTemp.empty())
-                            {
-                                std::list<Unit*> l_FriendlyUnitList;
-
-                                for (auto l_Itr : l_FriendlyUnitListTemp)
-                                {
-                                    if (l_Caster->IsValidAssistTarget(l_Itr))
-                                        l_FriendlyUnitList.push_back(l_Itr);
-                                }
-
-                                if (!l_FriendlyUnitList.empty())
-                                {
-                                    JadeCore::Containers::RandomResizeList(l_FriendlyUnitList, 1);
-
-                                    for (auto l_Itr : l_FriendlyUnitList)
-                                    {
-                                        l_Caster->CastSpell(l_Itr, PrayerOfMendingSpells::PrayerOfMendingAura, true);
-                                        if (AuraPtr l_PrayerOfMendingAura = l_Itr->GetAura(PrayerOfMendingSpells::PrayerOfMendingAura, l_Caster->GetGUID()))
-                                            l_PrayerOfMendingAura->SetStackAmount(l_CurrentStackAmount - 1);
-                                    }
-                                }
-                            }
-                        }
-
-                        l_Target->RemoveAura(PrayerOfMendingSpells::PrayerOfMendingAura);
-                    }
                 }
             }
 
             void Register()
             {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_prayer_of_mending_aura_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_DUMMY);
                 OnEffectProc += AuraEffectProcFn(spell_pri_prayer_of_mending_aura_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
@@ -2594,15 +2581,54 @@ class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
         {
             PrepareSpellScript(spell_pri_prayer_of_mending_heal_SpellScript);
 
-            void HandleHeal(SpellEffIndex /*effIndex*/)
+            void HandleHeal()
             {
                 if (Unit* l_Caster = GetOriginalCaster())
                 {
-                    if (AuraEffectPtr l_AurEff = l_Caster->GetAuraEffect(PrayerOfMendingSpells::T9Healing2Pieces, EFFECT_0))
+                    if (Unit* l_Target = GetHitUnit())
                     {
-                        int32 l_Heal = GetHitHeal();
-                        AddPct(l_Heal, l_AurEff->GetAmount());
-                        SetHitHeal(l_Heal);
+                        if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(PrayerOfMendingSpells::PrayerOfMendingAura, EFFECT_0))
+                        {
+                            int32 l_Heal = l_AurEff->GetAmount();
+                            uint8 l_CurrentStackAmount = l_AurEff->GetBase()->GetStackAmount();
+
+                            if (AuraEffectPtr l_AurEffT9 = l_Caster->GetAuraEffect(PrayerOfMendingSpells::T9Healing2Pieces, EFFECT_0))
+                                AddPct(l_Heal, l_AurEffT9->GetAmount());
+
+                            SetHitHeal(l_Heal);
+
+                            if (l_CurrentStackAmount >= 1)
+                            {
+                                std::list<Unit*> l_FriendlyUnitListTemp;
+                                JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(l_Caster, l_Caster, 20.0f);
+                                JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, l_FriendlyUnitListTemp, l_Check);
+                                l_Caster->VisitNearbyObject(20.0f, l_Searcher);
+
+                                if (!l_FriendlyUnitListTemp.empty())
+                                {
+                                    std::list<Unit*> l_FriendlyUnitList;
+
+                                    for (auto l_Itr : l_FriendlyUnitListTemp)
+                                    {
+                                        if (l_Caster->IsValidAssistTarget(l_Itr))
+                                            l_FriendlyUnitList.push_back(l_Itr);
+                                    }
+
+                                    if (!l_FriendlyUnitList.empty())
+                                    {
+                                        JadeCore::Containers::RandomResizeList(l_FriendlyUnitList, 1);
+
+                                        for (auto l_Itr : l_FriendlyUnitList)
+                                        {
+                                            l_Caster->CastSpell(l_Itr, PrayerOfMendingSpells::PrayerOfMendingAura, true);
+                                            if (AuraPtr l_PrayerOfMendingAura = l_Itr->GetAura(PrayerOfMendingSpells::PrayerOfMendingAura, l_Caster->GetGUID()))
+                                                l_PrayerOfMendingAura->SetStackAmount(l_CurrentStackAmount - 1);
+                                        }
+                                    }
+                                }
+                            }
+                            l_Target->RemoveAura(PrayerOfMendingSpells::PrayerOfMendingAura);
+                        }
                     }
                 }
 
@@ -2610,7 +2636,7 @@ class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_pri_prayer_of_mending_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+                OnHit += SpellHitFn(spell_pri_prayer_of_mending_heal_SpellScript::HandleHeal);
             }
         };
 
