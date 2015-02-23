@@ -1560,7 +1560,8 @@ class spell_dru_stampeding_roar: public SpellScriptLoader
 
 enum LacerateSpells
 {
-    SPELL_DRUID_MANGLE = 33917
+    SPELL_DRUID_MANGLE = 33917,
+    SPELL_DRUID_LACERATE_3_STACKS_MARKER = 158790
 };
 
 // Lacerate - 33745
@@ -1587,9 +1588,30 @@ class spell_dru_lacerate: public SpellScriptLoader
             }
         };
 
+        class spell_dru_lacerate_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_lacerate_AuraScript);
+
+            void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                if (GetCaster() && aurEff->GetBase()->GetStackAmount() == 3)
+                    GetCaster()->CastSpell(GetTarget(), SPELL_DRUID_LACERATE_3_STACKS_MARKER, true);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_dru_lacerate_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAPPLY);
+            }
+        };
+
         SpellScript* GetSpellScript() const
         {
             return new spell_dru_lacerate_SpellScript();
+        }
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_lacerate_AuraScript();
         }
 };
 
