@@ -1921,7 +1921,10 @@ class spell_mage_frostfire_bolt: public SpellScriptLoader
                 if (Unit* l_Caster = GetCaster())
                 {
                     if (AuraPtr l_Aura = l_Caster->GetAura(SPELL_MAGE_BRAIN_FREEZE_TRIGGERED))
+                    {
                         SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), sSpellMgr->GetSpellInfo(SPELL_MAGE_BRAIN_FREEZE)->Effects[EFFECT_2].BasePoints));
+                        l_Aura->ModStackAmount(-1);
+                    }
                 }
             }
 
