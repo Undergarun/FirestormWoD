@@ -2840,7 +2840,8 @@ public:
 enum SpellsRake
 {
     SPELL_DRU_RAKE_STUNT = 163505,
-    SPELL_DRU_GLYPH_OF_SAVAGE_ROAR = 127540
+    SPELL_DRU_GLYPH_OF_SAVAGE_ROAR = 127540,
+    SPELL_DRU_IMPROVED_RAKE = 157276
 };
 
 // Rake - 1822
@@ -2866,9 +2867,12 @@ public:
             Unit* l_Caster = GetCaster();
             Unit* l_Target = GetHitUnit();
 
-            if (l_Target &&  l_Caster && m_isStealthed)
+            if (l_Target && l_Caster && m_isStealthed)
             {
                 l_Caster->CastSpell(l_Target, SPELL_DRU_RAKE_STUNT, true);
+
+                if (constAuraEffectPtr l_ImprovedRake = l_Caster->GetAuraEffect(SPELL_DRU_IMPROVED_RAKE, EFFECT_0))
+                    SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_ImprovedRake->GetAmount()));
 
                 if (constAuraEffectPtr l_GlyphOfSavageRoar = l_Caster->GetAuraEffect(SPELL_DRU_GLYPH_OF_SAVAGE_ROAR, EFFECT_0))
                 {
