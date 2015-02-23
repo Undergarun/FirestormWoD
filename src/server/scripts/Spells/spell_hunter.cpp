@@ -396,9 +396,13 @@ class spell_hun_glyph_of_aspect_of_the_cheetah : public SpellScriptLoader
                 GlyphOfAspectOfTheCheetah = 119462
             };
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo&)
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
+
+                if (p_EventInfo.GetDamageInfo() && p_EventInfo.GetDamageInfo()->GetSpellInfo() &&
+                    p_EventInfo.GetDamageInfo()->GetSpellInfo()->IsPositive())
+                    return;
 
                 if (Unit* l_Caster = GetCaster())
                 {
