@@ -1053,29 +1053,30 @@ class spell_rog_blade_flurry: public SpellScriptLoader
         {
             PrepareAuraScript(spell_rog_blade_flurry_AuraScript);
 
-            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
-                if (!GetCaster() || !GetTarget())
+                if (!GetTarget())
                     return;
 
-                if (eventInfo.GetActor()->GetGUID() != GetTarget()->GetGUID())
+                if (p_EventInfo.GetActor()->GetGUID() != GetTarget()->GetGUID())
                     return;
 
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    int32 damage = eventInfo.GetDamageInfo()->GetDamage();
-                    SpellInfo const* spellInfo = eventInfo.GetDamageInfo()->GetSpellInfo();
+                    SpellInfo const* l_ProcSpell = p_EventInfo.GetDamageInfo()->GetSpellInfo();
+                    SpellInfo const* l_SpellInfo = GetSpellInfo();
+                    int32 l_Damage = CalculatePct(p_EventInfo.GetDamageInfo()->GetDamage(), l_SpellInfo->Effects[EFFECT_2].BasePoints);
 
-                    if (!damage || eventInfo.GetDamageInfo()->GetDamageType() == DOT)
+                    if (!l_Damage || p_EventInfo.GetDamageInfo()->GetDamageType() == DOT)
                         return;
 
-                    if (spellInfo && !spellInfo->CanTriggerBladeFlurry())
+                    if (l_ProcSpell && !l_ProcSpell->CanTriggerBladeFlurry())
                         return;
 
-                    if (Unit* target = _player->SelectNearbyTarget(eventInfo.GetActionTarget()))
-                        _player->CastCustomSpell(target, ROGUE_SPELL_BLADE_FLURRY_DAMAGE, &damage, NULL, NULL, true);
+                    if (Unit* l_Target = l_Caster->SelectNearbyTarget(p_EventInfo.GetActionTarget()))
+                        l_Caster->CastCustomSpell(l_Target, ROGUE_SPELL_BLADE_FLURRY_DAMAGE, &l_Damage, NULL, NULL, true);
                 }
             }
 
