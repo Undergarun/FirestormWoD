@@ -912,9 +912,8 @@ void WorldSession::SendPetNameInvalid(uint32 p_Result, const std::string& p_NewN
 
 void WorldSession::HandleLearnPetSpecialization(WorldPacket & p_RecvData)
 {
-
-    uint64 l_PetGUID;
-    uint32 l_SpecGroupIndex;
+    uint64 l_PetGUID = 0;
+    uint32 l_SpecGroupIndex = 0;
 
     p_RecvData.readPackGUID(l_PetGUID);
     p_RecvData >> l_SpecGroupIndex;
@@ -929,8 +928,8 @@ void WorldSession::HandleLearnPetSpecialization(WorldPacket & p_RecvData)
         if (l_ChrSpecialization == nullptr)
             continue;
 
-        // Pet specialization are the only one to have flags == 0 & classid == 0
-        if (l_ChrSpecialization->Flags != 0 || l_ChrSpecialization->ClassID != 0)
+        /// Pet specialization are the only one to have flags == 0/32 & classid == 0
+        if ((l_ChrSpecialization->Flags != 0 && l_ChrSpecialization->Flags != 32) || l_ChrSpecialization->ClassID != 0)
             continue;
 
         if (l_SpecGroupIndex != l_ChrSpecialization->PetTalentType)
@@ -942,6 +941,24 @@ void WorldSession::HandleLearnPetSpecialization(WorldPacket & p_RecvData)
 
     if (!l_PetSpecializationId)
         return;
+
+    if (m_Player->HasAuraType(AuraType::SPELL_AURA_ADAPTATION))
+    {
+        switch (l_PetSpecializationId)
+        {
+            case SpecIndex::SPEC_PET_FEROCITY:
+                l_PetSpecializationId = (uint32)SpecIndex::SPEC_ROGUE_FEROCITY_ADAPT;
+                break;
+            case SpecIndex::SPEC_PET_CUNNING:
+                l_PetSpecializationId = (uint32)SpecIndex::SPEC_ROGUE_CUNNING_ADAPT;
+                break;
+            case SpecIndex::SPEC_PET_TENACITY:
+                l_PetSpecializationId = (uint32)SpecIndex::SPEC_ROGUE_TENACIOUS_ADAPT;
+                break;
+            default:
+                break;
+        }
+    }
 
     Pet* l_Pet = m_Player->GetPet();
     if (!l_Pet)

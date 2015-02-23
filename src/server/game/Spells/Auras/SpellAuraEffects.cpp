@@ -507,7 +507,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //448 SPELL_AURA_448
     &AuraEffect::HandleNULL,                                      //449 SPELL_AURA_449
     &AuraEffect::HandleNULL,                                      //450 SPELL_AURA_450
-    &AuraEffect::HandleNULL,                                      //451 SPELL_AURA_451
+    &AuraEffect::HandleAuraAdaptation,                            //451 SPELL_AURA_ADAPTATION
     &AuraEffect::HandleNULL,                                      //452 SPELL_AURA_452
     &AuraEffect::HandleNULL,                                      //453 SPELL_AURA_MOD_COOLDOWN_2
     &AuraEffect::HandleNULL,                                      //454 SPELL_AURA_454
@@ -8717,4 +8717,64 @@ void AuraEffect::HandleAuraSetPowerType(AuraApplication const* p_AurApp, uint8 p
 
     Powers l_Power = Powers(l_PowerDisplay->ActualType);
     l_Target->setPowerType(l_Power);
+}
+
+void AuraEffect::HandleAuraAdaptation(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
+{
+    if (!(p_Mode & AuraEffectHandleModes::AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Unit* l_Target = p_AurApp->GetTarget();
+    if (l_Target == nullptr || l_Target->GetTypeId() != TypeID::TYPEID_PLAYER)
+        return;
+
+    Player* l_Player = l_Target->ToPlayer();
+    if (l_Player == nullptr)
+        return;
+
+    SpecIndex l_NewSpec = SpecIndex::SPEC_NONE;
+    if (Pet* l_Pet = l_Player->GetPet())
+    {
+        if (p_Apply)
+        {
+            switch (l_Pet->GetSpecializationId())
+            {
+                case SpecIndex::SPEC_PET_FEROCITY:
+                    l_NewSpec = SpecIndex::SPEC_ROGUE_FEROCITY_ADAPT;
+                    break;
+                case SpecIndex::SPEC_PET_CUNNING:
+                    l_NewSpec = SpecIndex::SPEC_ROGUE_CUNNING_ADAPT;
+                    break;
+                case SpecIndex::SPEC_PET_TENACITY:
+                    l_NewSpec = SpecIndex::SPEC_ROGUE_TENACIOUS_ADAPT;
+                    break;
+                default:
+                    break;
+            }
+        }
+        else
+        {
+            switch (l_Pet->GetSpecializationId())
+            {
+                case SpecIndex::SPEC_ROGUE_FEROCITY_ADAPT:
+                    l_NewSpec = SpecIndex::SPEC_PET_FEROCITY;
+                    break;
+                case SpecIndex::SPEC_ROGUE_CUNNING_ADAPT:
+                    l_NewSpec = SpecIndex::SPEC_PET_CUNNING;
+                    break;
+                case SpecIndex::SPEC_ROGUE_TENACIOUS_ADAPT:
+                    l_NewSpec = SpecIndex::SPEC_PET_TENACITY;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        if (l_Pet->GetSpecializationId())
+            l_Pet->UnlearnSpecializationSpell();
+
+        l_Pet->SetSpecializationId((uint32)l_NewSpec);
+        l_Pet->LearnSpecializationSpell();
+        l_Player->SendTalentsInfoData(true);
+    }
 }
