@@ -2897,29 +2897,30 @@ public:
             m_isStealthed = GetCaster()->HasStealthAura();
         }
 
-        void HandleOnHit()
+        void HandleDamage(SpellEffIndex /*effIndex*/)
         {
-            int32 l_Damage = GetHitDamage();
             Unit* l_Caster = GetCaster();
             Unit* l_Target = GetHitUnit();
+            int32 l_Damage = GetHitDamage();
+            SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_DRUID_PROWL);
+
+            if (l_Target == nullptr)
+                return;
 
             if (m_isStealthed)
             {
-                if (sSpellMgr->GetSpellInfo(SPELL_DRUID_PROWL))
-                    l_Damage += CalculatePct(l_Damage, sSpellMgr->GetSpellInfo(SPELL_DRUID_PROWL)->Effects[EFFECT_3].BasePoints);
+                if (l_SpellInfo != nullptr)
+                    l_Damage += CalculatePct(l_Damage, l_SpellInfo->Effects[EFFECT_3].BasePoints);
 
-                if (l_Target)
+                if (constAuraEffectPtr l_GlyphOfSavageRoar = l_Caster->GetAuraEffect(SPELL_DRU_GLYPH_OF_SAVAGE_ROAR, EFFECT_0))
                 {
-                    if (constAuraEffectPtr l_GlyphOfSavageRoar = l_Caster->GetAuraEffect(SPELL_DRU_GLYPH_OF_SAVAGE_ROAR, EFFECT_0))
-                    {
-                        uint8 l_ComboPointsBefore = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
-                        l_Caster->AddComboPoints(l_GlyphOfSavageRoar->GetAmount());
+                    uint8 l_ComboPointsBefore = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
+                    l_Caster->AddComboPoints(l_GlyphOfSavageRoar->GetAmount());
 
-                        l_Caster->CastSpell(l_Target, SPELL_DRUID_SAVAGE_ROAR, true);
+                    l_Caster->CastSpell(l_Target, SPELL_DRUID_SAVAGE_ROAR, true);
 
-                        l_Caster->ClearComboPoints();
-                        l_Caster->AddComboPoints(l_ComboPointsBefore);
-                    }
+                    l_Caster->ClearComboPoints();
+                    l_Caster->AddComboPoints(l_ComboPointsBefore);
                 }
             }
 
@@ -2932,7 +2933,7 @@ public:
         void Register()
         {
             OnPrepare += SpellOnPrepareFn(spell_dru_shred_SpellScript::HandleOnPrepare);
-            OnHit += SpellHitFn(spell_dru_shred_SpellScript::HandleOnHit);
+            OnEffectHitTarget += SpellEffectFn(spell_dru_shred_SpellScript::HandleDamage, EFFECT_2, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
         }
     };
 
