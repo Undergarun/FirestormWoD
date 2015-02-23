@@ -123,11 +123,166 @@ enum HunterSpells
     HUNTER_SPELL_BASIC_ATTACK_COST_MODIFIER         = 62762,
     HUNTER_SPELL_IMPROVED_FOCUS_FIRE                = 157705,
     HUNTER_SPELL_SPIKED_COLLAR                      = 53184,
-    HUNTER_SPELL_ENHANCED_BASIC_ATTACK              = 157717,
     HUNTER_SPELL_POISONED_AMMO                      = 162543,
     HUNTER_SPELL_POISONED_AMMO_AURA                 = 170661,
     HUNTER_SPELL_GLYPH_OF_MEND_PET                  = 19573,
     HUNTER_SPELL_GLYPH_OF_MEND_PET_TICK             = 24406
+};
+
+/// Lesser Proportion - 57894
+class spell_hun_lesser_proportion : public SpellScriptLoader
+{
+    public:
+        spell_hun_lesser_proportion() : SpellScriptLoader("spell_hun_lesser_proportion") { }
+
+        class spell_hun_lesser_proportion_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_lesser_proportion_AuraScript);
+
+            enum eSpells
+            {
+                GlyphOfLesserProportion = 57870
+            };
+
+            void OnUpdate(uint32, AuraEffectPtr p_AurEff)
+            {
+                if (!GetUnitOwner())
+                    return;
+
+                if (Pet* l_Pet = GetUnitOwner()->ToPet())
+                {
+                    if (Unit* l_Owner = l_Pet->GetOwner())
+                    {
+                        if (!l_Owner->HasAura(eSpells::GlyphOfLesserProportion))
+                            p_AurEff->GetBase()->Remove();
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectUpdate += AuraEffectUpdateFn(spell_hun_lesser_proportion_AuraScript::OnUpdate, EFFECT_0, SPELL_AURA_MOD_SCALE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_lesser_proportion_AuraScript();
+        }
+};
+
+/// Glyph of Lesser Proportion - 57870
+class spell_hun_glyph_of_lesser_proportion : public SpellScriptLoader
+{
+    public:
+        spell_hun_glyph_of_lesser_proportion() : SpellScriptLoader("spell_hun_glyph_of_lesser_proportion") { }
+
+        class spell_hun_glyph_of_lesser_proportion_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_glyph_of_lesser_proportion_AuraScript);
+
+            enum eSpells
+            {
+                LesserProportion = 57894
+            };
+
+            void OnApply(constAuraEffectPtr, AuraEffectHandleModes)
+            {
+                if (!GetCaster())
+                    return;
+
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    if (Pet* l_Pet = l_Player->GetPet())
+                        l_Player->CastSpell(l_Pet, eSpells::LesserProportion, true);
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr, AuraEffectHandleModes)
+            {
+                if (!GetTarget())
+                    return;
+
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    if (Pet* l_Pet = l_Player->GetPet())
+                        l_Pet->RemoveAura(eSpells::LesserProportion);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_hun_glyph_of_lesser_proportion_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_hun_glyph_of_lesser_proportion_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_glyph_of_lesser_proportion_AuraScript();
+        }
+};
+
+/// Enhanced Basic Attacks - 157717
+class spell_hun_enhanced_basic_attacks : public SpellScriptLoader
+{
+    public:
+        spell_hun_enhanced_basic_attacks() : SpellScriptLoader("spell_hun_enhanced_basic_attacks") { }
+
+        class spell_hun_enhanced_basic_attacks_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_enhanced_basic_attacks_SpellScript);
+
+            enum eBasicAttacks
+            {
+                Claw  = 16827,
+                Bite  = 17253,
+                Smack = 49966
+            };
+
+            void HandleScript(SpellEffIndex)
+            {
+                if (Creature* l_Caster = GetCaster()->ToCreature())
+                {
+                    if (!l_Caster->isPet())
+                        return;
+
+                    if (Unit* l_Owner = l_Caster->GetOwner())
+                    {
+                        if (l_Owner->GetTypeId() != TypeID::TYPEID_PLAYER)
+                            return;
+
+                        uint32 l_SpellID = 0;
+                        if (l_Caster->HasSpellCooldown(eBasicAttacks::Claw))
+                            l_SpellID = eBasicAttacks::Claw;
+                        if (l_Caster->HasSpellCooldown(eBasicAttacks::Bite))
+                            l_SpellID = eBasicAttacks::Bite;
+                        if (l_Caster->HasSpellCooldown(eBasicAttacks::Smack))
+                            l_SpellID = eBasicAttacks::Smack;
+
+                        l_Caster->m_CreatureSpellCooldowns.erase(l_SpellID);
+
+                        WorldPacket l_Data(SMSG_SPELL_COOLDOWN, 12);
+                        l_Data.appendPackGUID(l_Caster->GetGUID());
+                        l_Data << uint8(1);
+                        l_Data << uint32(1);
+                        l_Data << uint32(l_SpellID);
+                        l_Data << uint32(0);
+                        l_Owner->ToPlayer()->SendDirectMessage(&l_Data);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_hun_enhanced_basic_attacks_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_enhanced_basic_attacks_SpellScript();
+        }
 };
 
 /// Black Arrow - 3674
@@ -241,9 +396,13 @@ class spell_hun_glyph_of_aspect_of_the_cheetah : public SpellScriptLoader
                 GlyphOfAspectOfTheCheetah = 119462
             };
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo&)
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
+
+                if (p_EventInfo.GetDamageInfo() && p_EventInfo.GetDamageInfo()->GetSpellInfo() &&
+                    p_EventInfo.GetDamageInfo()->GetSpellInfo()->IsPositive())
+                    return;
 
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -393,7 +552,7 @@ class spell_hun_steady_focus: public SpellScriptLoader
                         }
                         case SpecIndex::SPEC_NONE:
                             return;
-                        ///< Beast Mastery and  Survival (Level 81)
+                        ///< Beast Mastery and Survival (Level 81)
                         ///< - Cobra Shot twice in a row
                         default:
                         {
@@ -3215,11 +3374,17 @@ class spell_hun_tame_beast: public SpellScriptLoader
         }
 };
 
-// Claw - 16827 / Bite - 17253 / Smack - 49966
+/// Claw - 16827 / Bite - 17253 / Smack - 49966
 class spell_hun_claw_bite : public SpellScriptLoader
 {
     public:
         spell_hun_claw_bite() : SpellScriptLoader("spell_hun_claw_bite") { }
+
+        enum eSpells
+        {
+            EnhancedBasicAttacksAura = 157715,
+            EnhancedBasicAttacksProc = 157717
+        };
 
         class spell_hun_claw_bite_SpellScript : public SpellScript
         {
@@ -3233,24 +3398,25 @@ class spell_hun_claw_bite : public SpellScriptLoader
                     {
                         int32 l_Damage = int32(1.5f * l_Hunter->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.333f);
 
-                        const SpellInfo *l_SpikedCollar = sSpellMgr->GetSpellInfo(HUNTER_SPELL_SPIKED_COLLAR);
-                        const SpellInfo *l_EnhancedBasicAttacks = sSpellMgr->GetSpellInfo(HUNTER_SPELL_ENHANCED_BASIC_ATTACK);
-                        const SpellInfo* l_SpellInfo = sSpellMgr->GetSpellInfo(HUNTER_SPELL_BASIC_ATTACK_COST_MODIFIER);
+                        SpellInfo const* l_SpikedCollar = sSpellMgr->GetSpellInfo(HUNTER_SPELL_SPIKED_COLLAR);
+                        SpellInfo const* l_EnhancedBasicAttacks = sSpellMgr->GetSpellInfo(eSpells::EnhancedBasicAttacksAura);
+                        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(HUNTER_SPELL_BASIC_ATTACK_COST_MODIFIER);
 
-                        if (l_EnhancedBasicAttacks != nullptr && l_Hunter->HasSpell(HUNTER_SPELL_ENHANCED_BASIC_ATTACK) && roll_chance_i(l_EnhancedBasicAttacks->Effects[EFFECT_0].BasePoints))
-                            l_Pet->CastSpell(l_Pet, HUNTER_SPELL_ENHANCED_BASIC_ATTACK, true);
+                        if (l_EnhancedBasicAttacks != nullptr && l_Hunter->HasAura(eSpells::EnhancedBasicAttacksAura) && roll_chance_i(l_EnhancedBasicAttacks->Effects[EFFECT_0].BasePoints))
+                            l_Pet->CastSpell(l_Pet, eSpells::EnhancedBasicAttacksProc, true);
 
-                        // Increases the damage done by your pet's Basic Attacks by 10%
+                        /// Increases the damage done by your pet's Basic Attacks by 10%
                         if (l_Hunter->HasAura(HUNTER_SPELL_SPIKED_COLLAR) && l_SpikedCollar != nullptr)
                             AddPct(l_Damage, l_SpikedCollar->Effects[EFFECT_0].BasePoints);
 
-                        // Deals 100% more damage and costs 100% more Focus when your pet has 50 or more Focus.
+                        /// Deals 100% more damage and costs 100% more Focus when your pet has 50 or more Focus.
                         if (l_Pet->GetPower(POWER_FOCUS) + 25 >= 50)
                         {
                             if (l_SpellInfo != nullptr)
                                 l_Damage += CalculatePct(l_Damage, l_SpellInfo->Effects[EFFECT_1].BasePoints);
                             l_Pet->EnergizeBySpell(l_Pet, GetSpellInfo()->Id, -25, POWER_FOCUS);
                         }
+
                         SetHitDamage(l_Damage);
                     }
                 }
@@ -3290,7 +3456,7 @@ class spell_hun_claw_bite : public SpellScriptLoader
         }
 };
 
-// Spirit Mend - 90361
+/// Spirit Mend - 90361
 class spell_hun_spirit_mend : public SpellScriptLoader
 {
     public:
@@ -3366,7 +3532,7 @@ class spell_hun_mend_pet : public SpellScriptLoader
                 if (l_Caster->HasAura(HUNTER_SPELL_GLYPH_OF_MEND_PET)) ///< Glyph of Mend Pet
                 {
                     if (roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
-                        l_Caster->CastSpell(l_Target, HUNTER_SPELL_GLYPH_OF_MEND_PET_TICK, true); // Dispel
+                        l_Caster->CastSpell(l_Target, HUNTER_SPELL_GLYPH_OF_MEND_PET_TICK, true); ///< Dispel
                 }
             }
 
@@ -3571,6 +3737,9 @@ class AreaTrigger_explosive_trap : public AreaTriggerEntityScript
 void AddSC_hunter_spell_scripts()
 {
     /// Spells
+    new spell_hun_lesser_proportion();
+    new spell_hun_glyph_of_lesser_proportion();
+    new spell_hun_enhanced_basic_attacks();
     new spell_hun_black_arrow();
     new spell_hun_fetch_glyph();
     new spell_hun_glyph_of_aspect_of_the_cheetah();

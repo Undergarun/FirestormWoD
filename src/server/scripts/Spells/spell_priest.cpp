@@ -289,7 +289,6 @@ class spell_pri_shadow_word_death: public SpellScriptLoader
 
                 int32 l_Damage = GetHitDamage();
 
-
                 if (GetSpellInfo()->Id == ShadowWordDeath::ShadowWordDeathGlyph)
                 {
                     if (m_Flag)
@@ -332,7 +331,7 @@ class spell_pri_shadow_word_death: public SpellScriptLoader
                     if (!l_Target->isAlive() || l_Player->HasAura(ShadowWordDeath::EnhancedShadowWordDeath))
                         l_Player->CastSpell(l_Player, ShadowWordDeath::ShadowWordDeathOrbEnergize, true); ///< Shadow Orb energize
                     if (l_Target->isAlive())
-                        l_Player->ToPlayer()->RemoveSpellCooldown(GetSpellInfo()->Id, true); ///< If the target does not die, the cooldown is reset, 
+                        l_Player->RemoveSpellCooldown(GetSpellInfo()->Id, true); ///< If the target does not die, the cooldown is reset, 
                 }
 
             }

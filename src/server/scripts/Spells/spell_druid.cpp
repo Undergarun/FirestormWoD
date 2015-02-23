@@ -1560,7 +1560,8 @@ class spell_dru_stampeding_roar: public SpellScriptLoader
 
 enum LacerateSpells
 {
-    SPELL_DRUID_MANGLE = 33917
+    SPELL_DRUID_MANGLE = 33917,
+    SPELL_DRUID_LACERATE_3_STACKS_MARKER = 158790
 };
 
 // Lacerate - 33745
@@ -1587,9 +1588,30 @@ class spell_dru_lacerate: public SpellScriptLoader
             }
         };
 
+        class spell_dru_lacerate_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_lacerate_AuraScript);
+
+            void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                if (GetCaster() && aurEff->GetBase()->GetStackAmount() == 3)
+                    GetCaster()->CastSpell(GetTarget(), SPELL_DRUID_LACERATE_3_STACKS_MARKER, true);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_dru_lacerate_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAPPLY);
+            }
+        };
+
         SpellScript* GetSpellScript() const
         {
             return new spell_dru_lacerate_SpellScript();
+        }
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_lacerate_AuraScript();
         }
 };
 
@@ -2696,6 +2718,31 @@ class spell_dru_travel_form_playerscript: public PlayerScript
         }
 };
 
+enum GlyphOfTheShapemender
+{
+    SPELL_DRUID_GLYPH_OF_THE_SHAPEMENDER_AURA = 159453,
+    SPELL_DRUID_GLYPH_OF_THE_SHAPEMENDER = 159454
+};
+
+/// 159453 - Glyph of the Shapemender
+class spell_dru_glyph_of_the_shapemender_playerscript : public PlayerScript
+{
+    public:
+        spell_dru_glyph_of_the_shapemender_playerscript() : PlayerScript("spell_dru_glyph_of_the_shapemender_playerscript") {}
+
+        void OnChangeShapeshift(Player* p_Player, ShapeshiftForm p_Form)
+        {
+            if (!p_Player || p_Player->getClass() != CLASS_DRUID)
+                return;
+
+            if (p_Player->HasAura(SPELL_DRUID_GLYPH_OF_THE_SHAPEMENDER_AURA) && p_Player->HasAuraType(SPELL_AURA_MOD_SHAPESHIFT) && !p_Player->HasSpellCooldown(SPELL_DRUID_GLYPH_OF_THE_SHAPEMENDER))
+            {
+                p_Player->CastSpell(p_Player, SPELL_DRUID_GLYPH_OF_THE_SHAPEMENDER, true);
+                p_Player->AddSpellCooldown(SPELL_DRUID_GLYPH_OF_THE_SHAPEMENDER, 0, 5 * IN_MILLISECONDS); ///< This effect cannot occur more often than once every 5 sec.
+            }
+        }
+};
+
 // 40121 - Swift Flight Form (Passive)
 class spell_dru_swift_flight_passive: public SpellScriptLoader
 {
@@ -2793,7 +2840,8 @@ public:
 enum SpellsRake
 {
     SPELL_DRU_RAKE_STUNT = 163505,
-    SPELL_DRU_GLYPH_OF_SAVAGE_ROAR = 127540
+    SPELL_DRU_GLYPH_OF_SAVAGE_ROAR = 127540,
+    SPELL_DRU_IMPROVED_RAKE = 157276
 };
 
 // Rake - 1822
@@ -2819,9 +2867,12 @@ public:
             Unit* l_Caster = GetCaster();
             Unit* l_Target = GetHitUnit();
 
-            if (l_Target &&  l_Caster && m_isStealthed)
+            if (l_Target && l_Caster && m_isStealthed)
             {
                 l_Caster->CastSpell(l_Target, SPELL_DRU_RAKE_STUNT, true);
+
+                if (constAuraEffectPtr l_ImprovedRake = l_Caster->GetAuraEffect(SPELL_DRU_IMPROVED_RAKE, EFFECT_0))
+                    SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_ImprovedRake->GetAmount()));
 
                 if (constAuraEffectPtr l_GlyphOfSavageRoar = l_Caster->GetAuraEffect(SPELL_DRU_GLYPH_OF_SAVAGE_ROAR, EFFECT_0))
                 {
@@ -2872,29 +2923,30 @@ public:
             m_isStealthed = GetCaster()->HasStealthAura();
         }
 
-        void HandleOnHit()
+        void HandleDamage(SpellEffIndex /*effIndex*/)
         {
-            int32 l_Damage = GetHitDamage();
             Unit* l_Caster = GetCaster();
             Unit* l_Target = GetHitUnit();
+            int32 l_Damage = GetHitDamage();
+            SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_DRUID_PROWL);
+
+            if (l_Target == nullptr)
+                return;
 
             if (m_isStealthed)
             {
-                if (sSpellMgr->GetSpellInfo(SPELL_DRUID_PROWL))
-                    l_Damage += CalculatePct(l_Damage, sSpellMgr->GetSpellInfo(SPELL_DRUID_PROWL)->Effects[EFFECT_3].BasePoints);
+                if (l_SpellInfo != nullptr)
+                    l_Damage += CalculatePct(l_Damage, l_SpellInfo->Effects[EFFECT_3].BasePoints);
 
-                if (l_Target)
+                if (constAuraEffectPtr l_GlyphOfSavageRoar = l_Caster->GetAuraEffect(SPELL_DRU_GLYPH_OF_SAVAGE_ROAR, EFFECT_0))
                 {
-                    if (constAuraEffectPtr l_GlyphOfSavageRoar = l_Caster->GetAuraEffect(SPELL_DRU_GLYPH_OF_SAVAGE_ROAR, EFFECT_0))
-                    {
-                        uint8 l_ComboPointsBefore = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
-                        l_Caster->AddComboPoints(l_GlyphOfSavageRoar->GetAmount());
+                    uint8 l_ComboPointsBefore = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
+                    l_Caster->AddComboPoints(l_GlyphOfSavageRoar->GetAmount());
 
-                        l_Caster->CastSpell(l_Target, SPELL_DRUID_SAVAGE_ROAR, true);
+                    l_Caster->CastSpell(l_Target, SPELL_DRUID_SAVAGE_ROAR, true);
 
-                        l_Caster->ClearComboPoints();
-                        l_Caster->AddComboPoints(l_ComboPointsBefore);
-                    }
+                    l_Caster->ClearComboPoints();
+                    l_Caster->AddComboPoints(l_ComboPointsBefore);
                 }
             }
 
@@ -2907,7 +2959,7 @@ public:
         void Register()
         {
             OnPrepare += SpellOnPrepareFn(spell_dru_shred_SpellScript::HandleOnPrepare);
-            OnHit += SpellHitFn(spell_dru_shred_SpellScript::HandleOnHit);
+            OnEffectHitTarget += SpellEffectFn(spell_dru_shred_SpellScript::HandleDamage, EFFECT_2, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
         }
     };
 
@@ -3244,4 +3296,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_regrowth();
     new spell_dru_wild_growth();
     new spell_dru_druid_flames();
+    new spell_dru_glyph_of_the_shapemender_playerscript();
 }
