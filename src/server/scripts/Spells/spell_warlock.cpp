@@ -1768,39 +1768,23 @@ class spell_warl_drain_soul: public SpellScriptLoader
                             p_AurEff->SetAmount(p_AurEff->GetAmount() + CalculatePct(p_AurEff->GetAmount(), l_SpellInfo->Effects[EFFECT_0].BasePoints));
                     }
 
-                    Unit::AuraEffectList const& l_AuraList = l_Target->GetAuraEffectsByType(AuraType::SPELL_AURA_PERIODIC_DAMAGE);
-                    if (l_AuraList.empty())
-                        return;
+                    /// Associate DoT spells to their damage spells
+                    std::list<std::pair<uint32, uint32>> l_DotAurasList;
+                    l_DotAurasList.push_back(std::make_pair(980,    131737)); ///< Agony
+                    l_DotAurasList.push_back(std::make_pair(27243,  132566)); ///< Seed of Corruption
+                    l_DotAurasList.push_back(std::make_pair(30108,  131736)); ///< Unstable Affliction
+                    l_DotAurasList.push_back(std::make_pair(146739, 131740)); ///< Corruption
 
-                    for (Unit::AuraEffectList::const_iterator l_AuraEffect = l_AuraList.begin(); l_AuraEffect != l_AuraList.end(); ++l_AuraEffect)
+                    for (std::list<std::pair<uint32, uint32>>::const_iterator l_DotAura = l_DotAurasList.begin(); l_DotAura != l_DotAurasList.end(); ++l_DotAura)
                     {
-                        if ((*l_AuraEffect)->GetCasterGUID() != l_Caster->GetGUID())
-                            continue;
-
-                        uint32 l_SpellId = 0;
-                        switch ((*l_AuraEffect)->GetId())
+                        if (AuraPtr l_AuraPtr = l_Target->GetAura((*l_DotAura).first, l_Caster->GetGUID()))
                         {
-                            case 146739: ///< Corruption
-                                l_SpellId = 131740;
-                                break;
-                            case 30108: ///< Unstable Affliction
-                                l_SpellId = 131736;
-                                break;
-                            case 27243: ///< Seed of Corruption
-                                l_SpellId = 132566;
-                                break;
-                            case 980: ///< Agony
-                                l_SpellId = 131737;
-                                break;
-                            default:
-                                break;
+                            if (AuraEffectPtr l_AuraEffect = l_AuraPtr->GetEffect(l_AuraPtr->GetEffectIndexByType(SPELL_AURA_PERIODIC_DAMAGE)))
+                            {
+                                int32 l_Bp0 = CalculatePct(l_AuraEffect->GetAmount(), GetSpellInfo()->Effects[EFFECT_2].BasePoints);
+                                l_Caster->CastCustomSpell(l_Target, (*l_DotAura).second, &l_Bp0, NULL, NULL, true);
+                            }
                         }
-
-                        if (!l_SpellId)
-                            return;
-
-                        int32 l_Bp0 = CalculatePct((*l_AuraEffect)->GetAmount(), GetSpellInfo()->Effects[EFFECT_2].BasePoints);
-                        l_Caster->CastCustomSpell(l_Target, l_SpellId, &l_Bp0, NULL, NULL, true);
                     }
                 }
             }
