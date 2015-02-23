@@ -129,6 +129,100 @@ enum HunterSpells
     HUNTER_SPELL_GLYPH_OF_MEND_PET_TICK             = 24406
 };
 
+/// Lesser Proportion - 57894
+class spell_hun_lesser_proportion : public SpellScriptLoader
+{
+    public:
+        spell_hun_lesser_proportion() : SpellScriptLoader("spell_hun_lesser_proportion") { }
+
+        class spell_hun_lesser_proportion_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_lesser_proportion_AuraScript);
+
+            enum eSpells
+            {
+                GlyphOfLesserProportion = 57870
+            };
+
+            void OnUpdate(uint32, AuraEffectPtr p_AurEff)
+            {
+                if (!GetUnitOwner())
+                    return;
+
+                if (Pet* l_Pet = GetUnitOwner()->ToPet())
+                {
+                    if (Unit* l_Owner = l_Pet->GetOwner())
+                    {
+                        if (!l_Owner->HasAura(eSpells::GlyphOfLesserProportion))
+                            p_AurEff->GetBase()->Remove();
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectUpdate += AuraEffectUpdateFn(spell_hun_lesser_proportion_AuraScript::OnUpdate, EFFECT_0, SPELL_AURA_MOD_SCALE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_lesser_proportion_AuraScript();
+        }
+};
+
+/// Glyph of Lesser Proportion - 57870
+class spell_hun_glyph_of_lesser_proportion : public SpellScriptLoader
+{
+    public:
+        spell_hun_glyph_of_lesser_proportion() : SpellScriptLoader("spell_hun_glyph_of_lesser_proportion") { }
+
+        class spell_hun_glyph_of_lesser_proportion_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_glyph_of_lesser_proportion_AuraScript);
+
+            enum eSpells
+            {
+                LesserProportion = 57894
+            };
+
+            void OnApply(constAuraEffectPtr, AuraEffectHandleModes)
+            {
+                if (!GetCaster())
+                    return;
+
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    if (Pet* l_Pet = l_Player->GetPet())
+                        l_Player->CastSpell(l_Pet, eSpells::LesserProportion, true);
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr, AuraEffectHandleModes)
+            {
+                if (!GetTarget())
+                    return;
+
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    if (Pet* l_Pet = l_Player->GetPet())
+                        l_Pet->RemoveAura(eSpells::LesserProportion);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_hun_glyph_of_lesser_proportion_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_hun_glyph_of_lesser_proportion_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_glyph_of_lesser_proportion_AuraScript();
+        }
+};
+
 /// Enhanced Basic Attacks - 157717
 class spell_hun_enhanced_basic_attacks : public SpellScriptLoader
 {
@@ -3639,6 +3733,8 @@ class AreaTrigger_explosive_trap : public AreaTriggerEntityScript
 void AddSC_hunter_spell_scripts()
 {
     /// Spells
+    new spell_hun_lesser_proportion();
+    new spell_hun_glyph_of_lesser_proportion();
     new spell_hun_enhanced_basic_attacks();
     new spell_hun_black_arrow();
     new spell_hun_fetch_glyph();
