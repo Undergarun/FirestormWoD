@@ -3532,7 +3532,7 @@ class spell_hun_mend_pet : public SpellScriptLoader
                 if (l_Caster->HasAura(HUNTER_SPELL_GLYPH_OF_MEND_PET)) ///< Glyph of Mend Pet
                 {
                     if (roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
-                        l_Caster->CastSpell(l_Target, HUNTER_SPELL_GLYPH_OF_MEND_PET_TICK, true); // Dispel
+                        l_Caster->CastSpell(l_Target, HUNTER_SPELL_GLYPH_OF_MEND_PET_TICK, true); ///< Dispel
                 }
             }
 
