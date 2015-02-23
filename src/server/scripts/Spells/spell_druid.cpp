@@ -3087,8 +3087,7 @@ public:
         void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32& p_Amount, bool& /*canBeRecalculated*/)
         {
             Unit* l_Caster = GetCaster();
-
-            if (l_Caster && l_Caster->GetTypeId() == TYPEID_PLAYER && GetEffect(EFFECT_0))
+            if (l_Caster && l_Caster->GetTypeId() == TYPEID_PLAYER && GetEffect(EFFECT_0) && GetEffect(EFFECT_0)->GetAmplitude() > 0)
                 p_Amount = (p_Amount * l_Caster->GetPower(Powers::POWER_COMBO_POINT) * 8) / (GetMaxDuration() / GetEffect(EFFECT_0)->GetAmplitude());
         }
 
