@@ -1811,6 +1811,13 @@ void ScriptMgr::OnPlayerUpdateMovement(Player * p_Player)
     FOREACH_SCRIPT(PlayerScript)->OnPlayerUpdateMovement(p_Player);
 }
 
+/// Called when player accepts some quest
+/// @p_Player : Player instance
+/// @p_Quest  : Accpeted quest
+void ScriptMgr::OnQuestAccept(Player * p_Player, const Quest * p_Quest)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnQuestAccept(p_Player, p_Quest);
+}
 /// Called when player rewards some quest
 /// @p_Player : Player instance
 /// @p_Quest  : Rewarded quest
@@ -1827,6 +1834,22 @@ void ScriptMgr::OnObjectiveValidate(Player * p_Player, uint32 p_QuestID, uint32 
     FOREACH_SCRIPT(PlayerScript)->OnObjectiveValidate(p_Player, p_QuestID, p_ObjectiveID);
 }
 
+/// Called when player completes some quest
+/// @p_Player : Player instance
+/// @p_Quest  : Completed quest
+void ScriptMgr::OnQuestComplete(Player* p_Player, const Quest* p_Quest)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnQuestComplete(p_Player, p_Quest);
+}
+
+/// Called when player abandons some quest
+/// @p_Player : Player instance
+/// @p_Quest  : Removed quest
+void ScriptMgr::OnQuestAbandon(Player* p_Player, const Quest* p_Quest)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnQuestAbandon(p_Player, p_Quest);
+}
+
 /// Called when a player shapeshift
 /// @p_Player : Player instance
 /// @p_Form   : New shapeshift from
@@ -1841,14 +1864,6 @@ void ScriptMgr::OnPlayerChangeShapeshift(Player * p_Player, ShapeshiftForm p_For
 void ScriptMgr::OnPlayerItemLooted(Player* p_Player, Item * p_Item)
 {
     FOREACH_SCRIPT(PlayerScript)->OnItemLooted(p_Player, p_Item);
-}
-
-/// Called when player completes some quest
-/// @p_Player : Player instance
-/// @p_Quest  : Completed quest
-void ScriptMgr::OnQuestComplete(Player* p_Player, const Quest* p_Quest)
-{
-    FOREACH_SCRIPT(PlayerScript)->OnQuestComplete(p_Player, p_Quest);
 }
 
 /// Called when a player receive a scene triggered event

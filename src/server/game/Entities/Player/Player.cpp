@@ -17750,6 +17750,8 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
 
     if (m_Garrison && IsInGarrison())
         m_Garrison->OnQuestStarted(quest);
+
+    sScriptMgr->OnQuestAccept(this, quest);
 }
 
 void Player::CompleteQuest(uint32 quest_id)
@@ -18782,6 +18784,8 @@ void Player::RemoveActiveQuest(uint32 quest_id)
 
         if (m_Garrison && IsInGarrison())
             m_Garrison->OnQuestAbandon(l_Quest);
+
+        sScriptMgr->OnQuestAbandon(this, l_Quest);
 
         return;
     }

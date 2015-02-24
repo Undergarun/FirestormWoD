@@ -701,10 +701,22 @@ class ScriptMgr
         /// @p_Player : Player instance
         void OnPlayerUpdateMovement(Player* p_Player);
 
+        /// Called when player accepts some quest
+        /// @p_Player : Player instance
+        /// @p_Quest  : Accpeted quest
+        void OnQuestAccept(Player * p_Player, const Quest * p_Quest);
         /// Called when player rewards some quest
         /// @p_Player : Player instance
         /// @p_Quest  : Rewarded quest
         void OnQuestReward(Player * p_Player, const Quest * p_Quest);
+        /// Called when player rewards some quest
+        /// @p_Player : Player instance
+        /// @p_Quest  : Rewarded quest
+        void OnQuestComplete(Player* p_Player, const Quest* p_Quest);
+        /// Called when player abandons some quest
+        /// @p_Player : Player instance
+        /// @p_Quest  : Removed quest
+        void OnQuestAbandon(Player* p_Player, const Quest* p_Quest);
         /// Called when a player validates some quest objective
         /// @p_Player      : Player instance
         /// @p_QuestID     : Quest ID
@@ -720,11 +732,6 @@ class ScriptMgr
         /// @p_Player : Player instance
         /// @p_Item   : New looted item instance
         void OnPlayerItemLooted(Player* p_Player, Item * p_Item);
-
-        /// Called when player completes some quest
-        /// @p_Player : Player instance
-        /// @p_Quest  : Rewarded quest
-        void OnQuestComplete(Player* p_Player, const Quest* p_Quest);
 
         /// Called when a player receive a scene triggered event
         /// @p_Player          : Player instance
