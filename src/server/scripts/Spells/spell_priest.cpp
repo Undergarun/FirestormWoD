@@ -1400,16 +1400,27 @@ class spell_pri_devouring_plague: public SpellScriptLoader
 
                             int32 l_Heal = GetHitDamage();
                             l_Player->CastCustomSpell(l_Player, PRIEST_DEVOURING_PLAGUE_HEAL, &l_Heal, NULL, NULL, true);
-                            l_Player->CastSpell(l_Target, PRIEST_DEVOURING_PLAGUE_AURA, true);
                         }
                     }
                 }
+            }
+
+            void HandleAfterHit()
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                l_Caster->CastSpell(l_Target, PRIEST_DEVOURING_PLAGUE_AURA, true);
             }
 
             void Register()
             {
                 OnCheckCast += SpellCheckCastFn(spell_pri_devouring_plague_SpellScript::CheckCast);
                 OnHit += SpellHitFn(spell_pri_devouring_plague_SpellScript::HandleOnHit);
+                AfterHit += SpellHitFn(spell_pri_devouring_plague_SpellScript::HandleAfterHit);
             }
         };
 
