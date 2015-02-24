@@ -3276,33 +3276,46 @@ enum HealingTouchSpells
 /// Healing Touch - 5185
 class spell_dru_healing_touch: public SpellScriptLoader
 {
-public:
-    spell_dru_healing_touch() : SpellScriptLoader("spell_dru_healing_touch") { }
+    public:
+        spell_dru_healing_touch() : SpellScriptLoader("spell_dru_healing_touch") { }
 
-    class spell_dru_healing_touch_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_dru_healing_touch_SpellScript);
-
-        void HandleOnCast()
+        class spell_dru_healing_touch_SpellScript : public SpellScript
         {
-            Unit* l_Caster = GetCaster();
-            if (!l_Caster)
-                return;
+            PrepareSpellScript(spell_dru_healing_touch_SpellScript);
 
-            if (l_Caster->HasAura(SPELL_DRU_BLOODTALONS_TALENT))
-                l_Caster->CastSpell(l_Caster, SPELL_DRU_BLOODTALONS_MOD_DAMAGE, true);
-        }
+            void HandleOnCast()
+            {
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
 
-        void Register()
+                if (l_Caster->HasAura(SPELL_DRU_BLOODTALONS_TALENT))
+                    l_Caster->CastSpell(l_Caster, SPELL_DRU_BLOODTALONS_MOD_DAMAGE, true);
+            }
+
+            void HandleHeal(SpellEffIndex)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (Unit* l_Target = GetHitUnit())
+                    {
+                        if (l_Caster == l_Target)
+                            SetHitHeal(GetHitHeal() * 1.5f);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnCast += SpellCastFn(spell_dru_healing_touch_SpellScript::HandleOnCast);
+                OnEffectHitTarget += SpellEffectFn(spell_dru_healing_touch_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnCast += SpellCastFn(spell_dru_healing_touch_SpellScript::HandleOnCast);
+            return new spell_dru_healing_touch_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_dru_healing_touch_SpellScript();
-    }
 };
 
 /// Starsurge - 78674
