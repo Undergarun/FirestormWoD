@@ -256,6 +256,12 @@ class spell_dk_gorefiends_grasp: public SpellScriptLoader
         }
 };
 
+enum DarkTransformationSpells
+{
+    DarkInfusionStacks              = 91342,
+    DarkTransformationAuraDummy     = 93426
+};
+
 // Dark transformation - transform pet spell - 63560
 class spell_dk_dark_transformation_form: public SpellScriptLoader
 {
@@ -268,14 +274,15 @@ class spell_dk_dark_transformation_form: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (Unit* pet = GetHitUnit())
+                    if (Unit* l_Pet = GetHitUnit())
                     {
-                        if (pet->HasAura(DK_SPELL_DARK_INFUSION_STACKS))
+                        if (l_Pet->HasAura(DarkTransformationSpells::DarkInfusionStacks))
                         {
-                            _player->RemoveAura(DK_SPELL_DARK_INFUSION_STACKS);
-                            pet->RemoveAura(DK_SPELL_DARK_INFUSION_STACKS);
+                            l_Player->RemoveAura(DarkTransformationSpells::DarkInfusionStacks);
+                            l_Player->RemoveAura(DarkTransformationSpells::DarkTransformationAuraDummy);
+                            l_Pet->RemoveAura(DarkTransformationSpells::DarkInfusionStacks);
                         }
                     }
                 }
