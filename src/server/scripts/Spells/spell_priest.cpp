@@ -134,7 +134,8 @@ enum PriestSpells
     PRIEST_GLYPH_OF_POWER_WORD_SHIELD_PROC          = 56160,
     PRIEST_GLYPH_OF_MIND_HARVEST                    = 162532,
     PRIEST_SPELL_VOID_ENTROPY                       = 155361,
-    PRIEST_GLYPH_OF_MIND_BLAST                      = 87194
+    PRIEST_GLYPH_OF_MIND_BLAST                      = 87194,
+    PRIEST_SPELL_CIRCLE_OF_HEALING                  = 34861
 };
 
 // Shadow Orb - 77487 & Glyph od Shadow ravens - 57985
@@ -3012,6 +3013,45 @@ class PlayerScript_insanity: public PlayerScript
         }
 };
 
+/// Chakra: Sanctuary - 81206
+class spell_pri_chakra_sanctuary : public SpellScriptLoader
+{
+    public:
+        spell_pri_chakra_sanctuary() : SpellScriptLoader("spell_pri_chakra_sanctuary") { }
+
+        class spell_pri_chakra_sanctuary_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pri_chakra_sanctuary_AuraScript);
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                if (!GetCaster())
+                    return;
+
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (!p_EventInfo.GetDamageInfo()->GetSpellInfo()->IsHealingSpell())
+                    return;
+
+                if (l_Player->HasSpellCooldown(PRIEST_SPELL_CIRCLE_OF_HEALING))
+                    l_Player->ReduceSpellCooldown(PRIEST_SPELL_CIRCLE_OF_HEALING, p_AurEff->GetAmount());
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pri_chakra_sanctuary_AuraScript::OnProc, EFFECT_1, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pri_chakra_sanctuary_AuraScript();
+        }
+};
+
 enum AreaTriggerSpells
 {
     SPELL_DIVINE_STAR_HOLY = 110744,
@@ -3300,6 +3340,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_words_of_mending();
     new spell_pri_twist_of_fate();
     new spell_pri_divine_aegis();
+    new spell_pri_chakra_sanctuary();
 
     /// Player Script
     new PlayerScript_Shadow_Orb();
