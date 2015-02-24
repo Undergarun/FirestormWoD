@@ -2056,12 +2056,13 @@ class spell_dru_eclipse_mod_damage : public SpellScriptLoader
             enum eSpells
             {
                 Starsurge       = 78674,
+                MasteryEclipse  = 77492
             };
 
             void HandleOnHit()
             {
                 Unit* l_Caster = GetCaster();
-                if (!l_Caster)
+                if (!l_Caster || l_Caster->GetTypeId() != TypeID::TYPEID_PLAYER)
                     return;
 
                 if (AuraEffectPtr l_Aura = l_Caster->GetAuraEffect(Eclipse::Spell::Eclipse, EFFECT_0))
@@ -2069,6 +2070,9 @@ class spell_dru_eclipse_mod_damage : public SpellScriptLoader
                     float l_BonusSolarSpells = 0.0f;
                     float l_BonusLunarSpells = 0.0f;
                     float l_DamageModPCT = l_Aura->GetAmount();
+
+                    if (AuraEffectPtr l_AurEff = l_Caster->GetAuraEffect(eSpells::MasteryEclipse, EFFECT_1))
+                        l_DamageModPCT += l_Caster->GetFloatValue(EPlayerFields::PLAYER_FIELD_MASTERY) * (l_AurEff->GetAmount() / 100);
 
                     float l_Eclipse = Eclipse::g_ElipseMaxValue * std::sin(2 * M_PI * l_Caster->GetPower(Powers::POWER_ECLIPSE) / Eclipse::g_BalanceCycleTime);
 
