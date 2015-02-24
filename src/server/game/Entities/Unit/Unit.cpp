@@ -96,6 +96,8 @@ float playerBaseMoveSpeed[MAX_MOVE_TYPE] =
     3.14f                  // MOVE_PITCH_RATE
 };
 
+#define SPELL_PLAYER_LIFE_STEAL 146347
+
 // Used for prepare can/can`t triggr aura
 static bool InitTriggerAuraData();
 // Define can trigger auras
@@ -828,6 +830,14 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
                         statue->CastCustomSpell(itr, 117895, &bp, NULL, NULL, true, 0, NULLAURA_EFFECT, GetGUID()); // Eminence - statue
             }
         }
+    }
+
+    /// Health leech handling
+    if (GetTypeId() == TypeID::TYPEID_PLAYER && damage > 0 && (!spellProto || spellProto->Id != SPELL_PLAYER_LIFE_STEAL))
+    {
+        float l_Percentage = GetFloatValue(EPlayerFields::PLAYER_FIELD_LIFESTEAL);
+        int32 l_Heal = CalculatePct(damage, (int32)l_Percentage);
+        CastCustomSpell(this, SPELL_PLAYER_LIFE_STEAL, &l_Heal, nullptr, nullptr, true);
     }
 
     if (victim->IsAIEnabled)
@@ -10720,7 +10730,7 @@ void Unit::ModifyAuraState(AuraStateType flag, bool apply)
                     SpellInfo const* spellProto = (*itr).second->GetBase()->GetSpellInfo();
                     if (!spellProto)
                         continue;
-                    if (spellProto->CasterAuraState == uint32(flag) && spellProto->Id != 16491) // Don't remove Second Wind, implemented in ::HandlePeriodicHealAurasTick
+                    if (spellProto->CasterAuraState == uint32(flag))
                         RemoveAura(itr);
                     else
                         ++itr;
@@ -11215,6 +11225,14 @@ int32 Unit::DealHeal(Unit* victim, uint32 addhealth, SpellInfo const* spellProto
         }
     }
 
+    /// Health leech handling
+    if (GetTypeId() == TypeID::TYPEID_PLAYER && addhealth > 0 && spellProto && spellProto->Id != SPELL_PLAYER_LIFE_STEAL)
+    {
+        float l_Percentage = GetFloatValue(EPlayerFields::PLAYER_FIELD_LIFESTEAL);
+        int32 l_Heal = CalculatePct(addhealth, (int32)l_Percentage);
+        CastCustomSpell(this, SPELL_PLAYER_LIFE_STEAL, &l_Heal, nullptr, nullptr, true);
+    }
+
     if (Player* player = unit->ToPlayer())
     {
         if (Battleground* bg = player->GetBattleground())
@@ -11612,16 +11630,6 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         }
     }
 
-    // 77493 - Mastery : Razor Claws
-    if (GetTypeId() == TYPEID_PLAYER && spellProto && damagetype == DOT)
-    {
-        if (HasAura(77493))
-        {
-            float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 3.13f;
-            DoneTotal += CalculatePct(pdamage, Mastery);
-        }
-    }
-
     // 76547 - Mastery : Mana Adept
     if (spellProto && GetTypeId() == TYPEID_PLAYER)
     {
@@ -11923,16 +11931,6 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
     // Custom scripted damage
     switch (spellProto->SpellFamilyName)
     {
-        case SPELLFAMILY_ROGUE:
-        {
-            // Revealing Strike for direct damage abilities
-            if (spellProto->NeedsComboPoints() && damagetype != DOT)
-            {
-                if (AuraEffectPtr aurEff = victim->GetAuraEffect(84617, 2, GetGUID()))
-                    DoneTotalMod *= (100.0f + aurEff->GetAmount()) / 100.0f;
-            }
-            break;
-        }
         case SPELLFAMILY_MAGE:
             // Ice Lance
             if (spellProto->SpellIconID == 186)

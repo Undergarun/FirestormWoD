@@ -3359,6 +3359,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_1].Effect = 0;
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 150306;
                 break;
+            case 102401:///< Wild Charge (Ally)
+                spellInfo->Effects[EFFECT_1].ValueMultiplier = 0;
+                break;
             case 149959: // Earth Shatter
             case 149968:
             case 149969:
@@ -5232,13 +5235,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 20711: ///< Spirit of Redemption
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
-                break;
-            case 5176:  ///< Wrath
-            case 2912:  ///< Starfire
-            case 78674: ///< Starsurge
-                spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_DUMMY;
-                spellInfo->Effects[EFFECT_1].TargetA = TARGET_UNIT_TARGET_ENEMY;
-                spellInfo->Effects[EFFECT_1].Mechanic = MECHANIC_NONE;
                 break;
             case 33891:  ///< Tree form
             case 114282: ///< Tree form

@@ -32,7 +32,7 @@ enum YseraGiftSpells
     SPELL_DRUID_YSERAS_GIFT_HEAL_ALLY   = 145110
 };
 
-// Ysera's Gift - 145108
+/// Ysera's Gift - 145108
 class spell_dru_yseras_gift: public SpellScriptLoader
 {
     public:
@@ -94,7 +94,7 @@ enum ToothAndClawAbsorbSpells
     SPELL_DRUID_TOOTH_AND_CLAW_VISUAL_AURA = 135601
 };
 
-// Tooth and Claw - 135597
+/// Tooth and Claw - 135597
 class spell_dru_tooth_and_claw_absorb: public SpellScriptLoader
 {
     public:
@@ -128,7 +128,7 @@ enum GenesisSpells
     SPELL_DRUID_REJUVENATION = 774
 };
 
-// Genesis - 145518
+/// Genesis - 145518
 class spell_dru_genesis: public SpellScriptLoader
 {
     public:
@@ -179,7 +179,7 @@ enum GlyphOfTheTreantSpells
     SPELL_DRUID_GLYPH_OF_THE_TREANT = 114282
 };
 
-// Glyph of the Treant - 125047
+/// Glyph of the Treant - 125047
 class spell_dru_glyph_of_the_treant: public SpellScriptLoader
 {
     public:
@@ -220,7 +220,7 @@ enum IncarnationChosenOfElune
     SPELL_DRUID_INCARNATION_CHOSEN_OF_ELUNE = 122114
 };
 
-// Incarnation : Chosen of Elune - 102560
+/// Incarnation : Chosen of Elune - 102560
 class spell_dru_incarnation_chosen_of_elune: public SpellScriptLoader
 {
     public:
@@ -255,8 +255,8 @@ class spell_dru_incarnation_chosen_of_elune: public SpellScriptLoader
         }
 };
 
-// Called by Incarnation : Chosen of Elune - 102560, Incarnation : Son of Ursoc - 102558 and Incarnation : King of the Jungle - 102543
-// Incarnation - Skins
+/// Called by Incarnation : Chosen of Elune - 102560, Incarnation : Son of Ursoc - 102558 and Incarnation : King of the Jungle - 102543
+/// Incarnation - Skins
 class spell_dru_incarnation_skins: public SpellScriptLoader
 {
     public:
@@ -312,7 +312,7 @@ enum ItemPVPFeral4PBonus
     SPELL_DRUID_INCARNATION_KING_OF_JUNGLE  = 102543
 };
 
-// Item - PvP Feral 4P Bonus - 131537
+/// Item - PvP Feral 4P Bonus - 131537
 class spell_dru_item_pvp_feral_4p: public SpellScriptLoader
 {
     public:
@@ -367,7 +367,7 @@ class spell_dru_item_pvp_feral_4p: public SpellScriptLoader
         }
 };
 
-// Wild Charge (Moonkin) - 102383
+/// Wild Charge (Moonkin) - 102383
 class spell_dru_wild_charge_moonkin: public SpellScriptLoader
 {
     public:
@@ -402,7 +402,7 @@ class spell_dru_wild_charge_moonkin: public SpellScriptLoader
         }
 };
 
-// Thrash (bear) - 77758
+/// Thrash (bear) - 77758
 class spell_dru_thrash_bear: public SpellScriptLoader
 {
     public:
@@ -433,7 +433,7 @@ class spell_dru_thrash_bear: public SpellScriptLoader
         }
 };
 
-// Swipe - 106785
+/// Swipe - 106785
 class spell_dru_swipe: public SpellScriptLoader
 {
     public:
@@ -483,7 +483,7 @@ enum MaulSpells
     //SPELL_DRUID_TOOTH_AND_CLAW_VISUAL_AURA  = 135601
 };
 
-// Maul - 6807
+/// Maul - 6807
 class spell_dru_maul: public SpellScriptLoader
 {
     public:
@@ -538,7 +538,7 @@ enum NaturesVigilSpells
     SPELL_DRUID_NATURES_VIGIL_DAMAGE = 124991
 };
 
-// Nature's Vigil - 124974
+/// Nature's Vigil - 124974
 class spell_dru_natures_vigil: public SpellScriptLoader
 {
     public:
@@ -674,7 +674,7 @@ enum UrsolsVortexSpells
     SPELL_DRUID_URSOLS_VORTEX_SNARE        = 127797
 };
 
-// Ursol's Vortex - 102793
+/// Ursol's Vortex - 102793
 class spell_dru_ursols_vortex: public SpellScriptLoader
 {
 public:
@@ -736,7 +736,7 @@ public:
     }
 };
 
-// Ursol's Vortex (snare) - 127797
+/// Ursol's Vortex (snare) - 127797
 class spell_dru_ursols_vortex_snare: public SpellScriptLoader
 {
     public:
@@ -781,7 +781,7 @@ enum SolarBeamSpells
     SPELL_DRUID_SOLAR_BEAM_SILENCE = 81261
 };
 
-// Solar beam - 78675
+/// Solar beam - 78675
 class spell_dru_solar_beam: public SpellScriptLoader
 {
     public:
@@ -814,7 +814,7 @@ enum DashSpells
     SPELL_DRUID_STAMPEDING_ROAR = 106898
 };
 
-// Dash - 1850
+/// Dash - 1850
 class spell_dru_dash: public SpellScriptLoader
 {
     public:
@@ -980,7 +980,7 @@ public:
     }
 };
 
-// Regrowth - 8936
+/// Regrowth - 8936
 class spell_dru_regrowth : public SpellScriptLoader
 {
 public:
@@ -1050,7 +1050,7 @@ public:
     }
 };
 
-// Wild growth - 48438
+/// Wild growth - 48438
 class spell_dru_wild_growth : public SpellScriptLoader
 {
 public:
@@ -1090,7 +1090,7 @@ enum SavageDefenseSpells
     SPELL_DRUID_SAVAGE_DEFENSE_DODGE_PCT = 132402
 };
 
-// Savage Defense - 62606
+/// Savage Defense - 62606
 class spell_dru_savage_defense: public SpellScriptLoader
 {
     public:
@@ -1118,8 +1118,8 @@ class spell_dru_savage_defense: public SpellScriptLoader
         }
 };
 
-// Called by Regrowth - 8936 and Healing Touch - 5185
-// Lifebloom - 33763 : Refresh duration
+/// Called by Regrowth - 8936 and Healing Touch - 5185
+/// Lifebloom - 33763 : Refresh duration
 class spell_dru_lifebloom_refresh: public SpellScriptLoader
 {
     public:
@@ -1154,7 +1154,7 @@ class spell_dru_lifebloom_refresh: public SpellScriptLoader
         }
 };
 
-// Lifebloom - 33763
+/// Lifebloom - 33763
 class spell_dru_lifebloom: public SpellScriptLoader
 {
     public:
@@ -1241,8 +1241,8 @@ enum KillerInstinct
     SPELL_DRUID_KILLER_INSTINCT_MOD_STAT = 108300
 };
 
-// Called by Cat Form - 768 and Bear Form - 5487
-// Killer Instinct - 108299
+/// Called by Cat Form - 768 and Bear Form - 5487
+/// Killer Instinct - 108299
 class spell_dru_killer_instinct: public SpellScriptLoader
 {
     public:
@@ -1277,7 +1277,7 @@ class spell_dru_killer_instinct: public SpellScriptLoader
         }
 };
 
-// Nature's Cure - 88423 and Remove Corruption - 2782
+/// Nature's Cure - 88423 and Remove Corruption - 2782
 class spell_dru_natures_cure: public SpellScriptLoader
 {
     public:
@@ -1326,7 +1326,7 @@ class spell_dru_natures_cure: public SpellScriptLoader
         }
 };
 
-// Cat Form - 768
+/// Cat Form - 768
 class spell_dru_cat_form: public SpellScriptLoader
 {
     public:
@@ -1359,7 +1359,7 @@ enum SkullBashSpells
     SPELL_DRUID_SKULL_BASH_INTERUPT = 93985
 };
 
-// Skull Bash - 106839
+/// Skull Bash - 106839
 class spell_dru_skull_bash: public SpellScriptLoader
 {
     public:
@@ -1395,7 +1395,7 @@ enum FaerieSwarmSpells
     SPELL_DRUID_FAE_SILENCE                 = 114238
 };
 
-// Faerie Swarm - 102355
+/// Faerie Swarm - 102355
 class spell_dru_faerie_swarm: public SpellScriptLoader
 {
     public:
@@ -1445,8 +1445,8 @@ enum WildMushroomSpells
     SPELL_DRUID_WILD_MUSHROOM_RESTORATION  = 145205
 };
 
-// Wild Mushroom (Balance) - 88747
-// Wild Mushroom (Restoration) - 145205
+/// Wild Mushroom (Balance) - 88747
+/// Wild Mushroom (Restoration) - 145205
 class spell_dru_wild_mushroom: public SpellScriptLoader
 {
     public:
@@ -1534,7 +1534,7 @@ enum StampedingRoarSpells
     SPELL_DRUID_BEAR_FORM = 5487
 };
 
-// Stampeding Roar - 97993, Stampeding Roar (cat) - 77764 and Stampeding Roar(bear) - 77761
+/// Stampeding Roar - 97993, Stampeding Roar (cat) - 77764 and Stampeding Roar(bear) - 77761
 class spell_dru_stampeding_roar: public SpellScriptLoader
 {
     public:
@@ -1574,7 +1574,7 @@ enum LacerateSpells
     SPELL_DRUID_LACERATE_3_STACKS_MARKER = 158790
 };
 
-// Lacerate - 33745
+/// Lacerate - 33745
 class spell_dru_lacerate: public SpellScriptLoader
 {
     public:
@@ -1625,7 +1625,7 @@ class spell_dru_lacerate: public SpellScriptLoader
         }
 };
 
-// Faerie Fire - 770
+/// Faerie Fire - 770
 class spell_dru_faerie_fire: public SpellScriptLoader
 {
     public:
@@ -1667,7 +1667,7 @@ class spell_dru_faerie_fire: public SpellScriptLoader
         }
 };
 
-// Teleport : Moonglade - 18960
+/// Teleport : Moonglade - 18960
 class spell_dru_teleport_moonglade: public SpellScriptLoader
 {
     public:
@@ -1703,7 +1703,7 @@ enum ActivateCatFormSpells
     SPELL_DRUID_PROWL = 5215
 };
 
-// Prowl - 5215, Displacer Beast - 102280 and Dash - 1850
+/// Prowl - 5215, Displacer Beast - 102280 and Dash - 1850
 class spell_dru_activate_cat_form: public SpellScriptLoader
 {
     public:
@@ -1734,8 +1734,8 @@ class spell_dru_activate_cat_form: public SpellScriptLoader
         }
 };
 
-// Call by Cat Form 768
-// Prowl - 5215, Displacer Beast - 102280 and Dash - 1850
+/// Call by Cat Form 768
+/// Prowl - 5215, Displacer Beast - 102280 and Dash - 1850
 class spell_dru_on_desactivate_cat_form : public SpellScriptLoader
 {
     public:
@@ -1778,7 +1778,7 @@ enum DruidOfFlamesEnum
     SPELL_DRUID_OF_FLAME = 138927
 };
 
-// Druid of the flames - 138927
+/// Druid of the flames - 138927
 class spell_dru_druid_flames : public SpellScriptLoader
 {
 public:
@@ -2053,10 +2053,16 @@ class spell_dru_eclipse_mod_damage : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_eclipse_mod_damage_SpellScript);
 
+            enum eSpells
+            {
+                Starsurge       = 78674,
+                MasteryEclipse  = 77492
+            };
+
             void HandleOnHit()
             {
                 Unit* l_Caster = GetCaster();
-                if (!l_Caster)
+                if (!l_Caster || l_Caster->GetTypeId() != TypeID::TYPEID_PLAYER)
                     return;
 
                 if (AuraEffectPtr l_Aura = l_Caster->GetAuraEffect(Eclipse::Spell::Eclipse, EFFECT_0))
@@ -2064,6 +2070,9 @@ class spell_dru_eclipse_mod_damage : public SpellScriptLoader
                     float l_BonusSolarSpells = 0.0f;
                     float l_BonusLunarSpells = 0.0f;
                     float l_DamageModPCT = l_Aura->GetAmount();
+
+                    if (AuraEffectPtr l_AurEff = l_Caster->GetAuraEffect(eSpells::MasteryEclipse, EFFECT_1))
+                        l_DamageModPCT += l_Caster->GetFloatValue(EPlayerFields::PLAYER_FIELD_MASTERY) * (l_AurEff->GetAmount() / 100);
 
                     float l_Eclipse = Eclipse::g_ElipseMaxValue * std::sin(2 * M_PI * l_Caster->GetPower(Powers::POWER_ECLIPSE) / Eclipse::g_BalanceCycleTime);
 
@@ -2093,10 +2102,27 @@ class spell_dru_eclipse_mod_damage : public SpellScriptLoader
                         l_BonusLunarSpells = l_DamageModPCT;
                     }
 
-                    if (GetSpellInfo()->GetSchoolMask() == SPELL_SCHOOL_MASK_NATURE)
-                        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_BonusSolarSpells));
-                    else if (GetSpellInfo()->GetSchoolMask() == SPELL_SCHOOL_MASK_ARCANE)
-                        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_BonusLunarSpells));
+                    int32 l_Damage = GetHitDamage();
+                    int32 l_BonusDamage = 0;
+
+                    SpellInfo const* l_SpellInfo = GetSpellInfo();
+                    if (l_SpellInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_NATURE)
+                        l_BonusDamage += CalculatePct(GetHitDamage(), l_BonusSolarSpells);
+                    else if (l_SpellInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_ARCANE)
+                        l_BonusDamage += CalculatePct(GetHitDamage(), l_BonusLunarSpells);
+
+                    /// Starsurge has the two schools
+                    if (l_SpellInfo->Id == eSpells::Starsurge)
+                    {
+                        if ((int)l_Eclipse == 0)
+                            l_BonusDamage = CalculatePct(GetHitDamage(), (l_DamageModPCT / 2.0f));
+                        else if (l_Eclipse > 0)
+                            l_BonusDamage = CalculatePct(GetHitDamage(), l_BonusLunarSpells);
+                        else if (l_Eclipse < 0)
+                            l_BonusDamage = CalculatePct(GetHitDamage(), l_BonusSolarSpells);
+                    }
+
+                    SetHitDamage(l_Damage + l_BonusDamage);
                 }
             }
 
@@ -2330,7 +2356,7 @@ class spell_dru_shooting_stars: public SpellScriptLoader
         }
 };
 
-// T10 Restoration 4P - 70691
+/// T10 Restoration 4P - 70691
 class spell_dru_t10_restoration_4p_bonus: public SpellScriptLoader
 {
     public:
@@ -2402,49 +2428,36 @@ class spell_dru_starfall_dummy: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_starfall_dummy_SpellScript);
 
-            enum eSpells
-            {
-                Starfall = 48505
-            };
-
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                Unit* caster = GetCaster();
-                if (!caster)
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
                     return;
 
-                Unit* target = GetHitUnit();
-                if (!target)
+                Unit* l_Target = GetHitUnit();
+                if (!l_Target)
                     return;
 
                 /// Shapeshifting into an animal form or mounting cancels the effect
-                if (caster->GetCreatureType() == CREATURE_TYPE_BEAST || caster->IsMounted())
+                if (l_Caster->GetCreatureType() == CREATURE_TYPE_BEAST || l_Caster->IsMounted())
                 {
-                    if (SpellInfo const* spellInfo = GetTriggeringSpell())
-                        caster->RemoveAurasDueToSpell(spellInfo->Id);
+                    if (SpellInfo const* l_SpellInfo = GetTriggeringSpell())
+                        l_Caster->RemoveAurasDueToSpell(l_SpellInfo->Id);
                     return;
                 }
 
                 /// Any effect which causes you to lose control of your character will supress the starfall effect.
-                if (caster->HasUnitState(UNIT_STATE_CONTROLLED))
+                if (l_Caster->HasUnitState(UNIT_STATE_CONTROLLED))
                     return;
 
                 /// Glyph of Guided Stars - Starfall can only hit targets with Moonfire or Sunfire
-                if (caster->HasAura(SPELL_DRUID_GLYPH_OF_GUIDED_STARS))
-                    if (!target->HasAura(SPELL_DRUID_MOONFIRE) && !target->HasAura(SPELL_DRUID_SUNFIRE))
-                        return;
-
-                caster->CastSpell(target, uint32(GetEffectValue()), true);
-
-                /// Starfall can only launch 20 stars
-                if (AuraEffectPtr starfall = caster->GetAuraEffect(eSpells::Starfall, EFFECT_1))
+                if (l_Caster->HasAura(SPELL_DRUID_GLYPH_OF_GUIDED_STARS))
                 {
-                    int32 amount = starfall->GetAmount();
-                    if (amount > 1)
-                        starfall->SetAmount(amount - 1);
-                    else
-                        caster->RemoveAura(eSpells::Starfall);
+                    if (!l_Target->HasAura(SPELL_DRUID_MOONFIRE) && !l_Target->HasAura(SPELL_DRUID_SUNFIRE))
+                        return;
                 }
+
+                l_Caster->CastSpell(l_Target, uint32(GetEffectValue()), true);
             }
 
             void Register()
@@ -2465,7 +2478,7 @@ enum SavageRoarSpells
     SPELL_DRUID_SAVAGE_ROAR_CAST = 62071
 };
 
-// Savage Roar - 52610
+/// Savage Roar - 52610
 class spell_dru_savage_roar: public SpellScriptLoader
 {
     public:
@@ -2536,7 +2549,7 @@ enum SurvivalInstinctSpells
     SPELL_DRUID_SURVIVAL_INSTINCTS = 50322
 };
 
-// Survival Instincts - 61336
+/// Survival Instincts - 61336
 class spell_dru_survival_instincts: public SpellScriptLoader
 {
     public:
@@ -2571,7 +2584,7 @@ class spell_dru_survival_instincts: public SpellScriptLoader
         }
 };
 
-// Swiftmend - 18562
+/// Swiftmend - 18562
 class spell_dru_swiftmend: public SpellScriptLoader
 {
     public:
@@ -2629,7 +2642,7 @@ enum DruidFormsSpells
     SPELL_WISDOM_OF_THE_FOUR_WINDS = 115913
 };
 
-// Travel form - 783
+/// Travel form - 783
 class spell_dru_travel_form: public SpellScriptLoader
 {
 public:
@@ -2803,7 +2816,7 @@ class spell_dru_glyph_of_the_shapemender_playerscript : public PlayerScript
         }
 };
 
-// 40121 - Swift Flight Form (Passive)
+/// 40121 - Swift Flight Form (Passive)
 class spell_dru_swift_flight_passive: public SpellScriptLoader
 {
 public:
@@ -2837,7 +2850,7 @@ public:
     }
 };
 
-// 114338 - Glyph of the Stag
+/// 114338 - Glyph of the Stag
 class spell_dru_glyph_of_the_stag: public SpellScriptLoader
 {
 public:
@@ -2904,7 +2917,7 @@ enum SpellsRake
     SPELL_DRU_IMPROVED_RAKE = 157276
 };
 
-// Rake - 1822
+/// Rake - 1822
 class spell_dru_rake: public SpellScriptLoader
 {
 public:
@@ -2966,7 +2979,7 @@ enum SpellsShred
     SPELL_DRUID_SWIPE = 106785
 };
 
-// Shred - 5221
+/// Shred - 5221
 class spell_dru_shred: public SpellScriptLoader
 {
 public:
@@ -3036,7 +3049,7 @@ enum SpellsFerociousBite
     SPELL_DRUID_GLYPH_OF_FEROCIOUS_BITE_HEAL = 101024
 };
 
-// Ferocious Bite - 22568
+/// Ferocious Bite - 22568
 class spell_dru_ferocious_bite: public SpellScriptLoader
 {
 public:
@@ -3087,7 +3100,7 @@ public:
     }
 };
 
-// Frenzied Regeneration - 22842
+/// Frenzied Regeneration - 22842
 class spell_dru_frenzied_regeneration: public SpellScriptLoader
 {
 public:
@@ -3124,33 +3137,38 @@ public:
     }
 };
 
-// Rip - 1079
+/// Rip - 1079
 class spell_dru_rip: public SpellScriptLoader
 {
-public:
-    spell_dru_rip() : SpellScriptLoader("spell_dru_rip") { }
+    public:
+        spell_dru_rip() : SpellScriptLoader("spell_dru_rip") { }
 
-    class spell_dru_rip_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_dru_rip_AuraScript);
-
-        void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32& p_Amount, bool& /*canBeRecalculated*/)
+        class spell_dru_rip_AuraScript : public AuraScript
         {
-            Unit* l_Caster = GetCaster();
-            if (l_Caster && l_Caster->GetTypeId() == TYPEID_PLAYER && GetEffect(EFFECT_0) && GetEffect(EFFECT_0)->GetAmplitude() > 0)
-                p_Amount = (p_Amount * l_Caster->GetPower(Powers::POWER_COMBO_POINT) * 8) / (GetMaxDuration() / GetEffect(EFFECT_0)->GetAmplitude());
-        }
+            PrepareAuraScript(spell_dru_rip_AuraScript);
 
-        void Register()
+            void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32& p_Amount, bool& /*canBeRecalculated*/)
+            {
+                Unit* l_Caster = GetCaster();
+                if (l_Caster && l_Caster->GetTypeId() == TYPEID_PLAYER && GetEffect(EFFECT_0) && GetEffect(EFFECT_0)->GetAmplitude() > 0)
+                {
+                    int32 l_TicksCount = GetMaxDuration() / GetEffect(EFFECT_0)->GetAmplitude();
+                    int32 l_AP = l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
+                    int32 l_Combo = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
+                    p_Amount = l_AP * GetSpellInfo()->Effects[EFFECT_0].AttackPowerMultiplier * l_Combo * 8 / l_TicksCount;
+                }
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_rip_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
         {
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_rip_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+            return new spell_dru_rip_AuraScript();
         }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_dru_rip_AuraScript();
-    }
 };
 
 enum DreamOfCenariusSpells
@@ -3159,7 +3177,7 @@ enum DreamOfCenariusSpells
     SPELL_DRUID_DREAM_OF_CENARIUS_PROC = 145162
 };
 
-// Dream of Cenarius - 158501
+/// Dream of Cenarius - 158501
 class spell_dru_dream_of_cenarius: public SpellScriptLoader
 {
 public:
@@ -3212,7 +3230,7 @@ enum PrimalFurySpells
     SPELL_DRUID_PRIMAL_FURY_CP = 159286
 };
 
-// Primal Fury - 16961 159286
+/// Primal Fury - 16961 159286
 class spell_dru_primal_fury: public SpellScriptLoader
 {
 public:
@@ -3264,36 +3282,93 @@ enum HealingTouchSpells
     SPELL_DRU_BLOODTALONS_TALENT = 155672
 };
 
-// Healing Touch - 5185
+/// Healing Touch - 5185
 class spell_dru_healing_touch: public SpellScriptLoader
 {
-public:
-    spell_dru_healing_touch() : SpellScriptLoader("spell_dru_healing_touch") { }
+    public:
+        spell_dru_healing_touch() : SpellScriptLoader("spell_dru_healing_touch") { }
 
-    class spell_dru_healing_touch_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_dru_healing_touch_SpellScript);
-
-        void HandleOnCast()
+        class spell_dru_healing_touch_SpellScript : public SpellScript
         {
-            Unit* l_Caster = GetCaster();
-            if (!l_Caster)
-                return;
+            PrepareSpellScript(spell_dru_healing_touch_SpellScript);
 
-            if (l_Caster->HasAura(SPELL_DRU_BLOODTALONS_TALENT))
-                l_Caster->CastSpell(l_Caster, SPELL_DRU_BLOODTALONS_MOD_DAMAGE, true);
-        }
+            void HandleOnCast()
+            {
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
 
-        void Register()
+                if (l_Caster->HasAura(SPELL_DRU_BLOODTALONS_TALENT))
+                    l_Caster->CastSpell(l_Caster, SPELL_DRU_BLOODTALONS_MOD_DAMAGE, true);
+            }
+
+            void HandleHeal(SpellEffIndex)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (Unit* l_Target = GetHitUnit())
+                    {
+                        if (l_Caster == l_Target)
+                            SetHitHeal(GetHitHeal() * 1.5f);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnCast += SpellCastFn(spell_dru_healing_touch_SpellScript::HandleOnCast);
+                OnEffectHitTarget += SpellEffectFn(spell_dru_healing_touch_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnCast += SpellCastFn(spell_dru_healing_touch_SpellScript::HandleOnCast);
+            return new spell_dru_healing_touch_SpellScript();
         }
-    };
+};
 
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_dru_healing_touch_SpellScript();
-    }
+/// Starsurge - 78674
+class spell_dru_starsurge : public SpellScriptLoader
+{
+    public:
+        spell_dru_starsurge() : SpellScriptLoader("spell_dru_starsurge") { }
+
+        class spell_dru_starsurge_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_starsurge_SpellScript);
+
+            enum eSpells
+            {
+                LunarEmpowerment = 164547,
+                SolarEmpowerment = 164545
+            };
+
+            void HandleDamage(SpellEffIndex)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (Unit* l_Target = GetHitUnit())
+                    {
+                        double l_EclipseAmount = Eclipse::g_ElipseMaxValue * std::sin(2 * M_PI * l_Caster->GetPower(Powers::POWER_ECLIPSE) / Eclipse::g_BalanceCycleTime);
+
+                        if (l_EclipseAmount < 0)
+                            l_Caster->CastSpell(l_Caster, eSpells::SolarEmpowerment, true);
+                        else if (l_EclipseAmount > 0)
+                            l_Caster->CastSpell(l_Caster, eSpells::LunarEmpowerment, true);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_dru_starsurge_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dru_starsurge_SpellScript();
+        }
 };
 
 void AddSC_druid_spell_scripts()
@@ -3358,4 +3433,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_wild_growth();
     new spell_dru_druid_flames();
     new spell_dru_glyph_of_the_shapemender_playerscript();
+    new spell_dru_starsurge();
 }
