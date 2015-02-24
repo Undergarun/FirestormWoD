@@ -2066,6 +2066,12 @@ class spell_warl_conflagrate_aura: public SpellScriptLoader
         }
 };
 
+enum GlyphofNightmareSpells
+{
+    SPELL_WARL_GLYPH_OF_NIGHTMARE_AURA      = 56232,
+    SPELL_WARL_GLYPH_OF_NIGHTMARE           = 143314
+};
+
 /// Call by : Felsteed - 5784, Dreadsteed - 23161
 /// Glyph of Nightmares - 56232
 class spell_warl_glyph_of_nightmares : public SpellScriptLoader
@@ -2081,8 +2087,8 @@ class spell_warl_glyph_of_nightmares : public SpellScriptLoader
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    if (l_Caster->HasAura(56232))
-                        l_Caster->CastSpell(l_Caster, 143314, true);
+                    if (l_Caster->HasAura(SPELL_WARL_GLYPH_OF_NIGHTMARE_AURA))
+                        l_Caster->CastSpell(l_Caster, SPELL_WARL_GLYPH_OF_NIGHTMARE, true);
                 }
             }
 
@@ -2090,8 +2096,8 @@ class spell_warl_glyph_of_nightmares : public SpellScriptLoader
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    if (l_Caster->HasAura(143314))
-                        l_Caster->RemoveAura(143314);
+                    if (l_Caster->HasAura(SPELL_WARL_GLYPH_OF_NIGHTMARE))
+                        l_Caster->RemoveAura(SPELL_WARL_GLYPH_OF_NIGHTMARE);
                 }
             }
 
