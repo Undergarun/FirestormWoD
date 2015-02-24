@@ -36,8 +36,6 @@ enum PriestSpells
     PRIEST_SPELL_REFLECTIVE_SHIELD_DAMAGE           = 33619,
     PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD         = 33202,
     PRIEST_SHADOW_WORD_DEATH                        = 32409,
-    PRIEST_LEAP_OF_FAITH                            = 73325,
-    PRIEST_LEAP_OF_FAITH_JUMP                       = 97817,
     PRIEST_SPELL_HALO_HEAL_SHADOW                   = 120696,
     PRIEST_SPELL_HALO_HEAL_HOLY                     = 120692,
 
@@ -1909,58 +1907,65 @@ class spell_pri_halo_damage: public SpellScriptLoader
 // Halo - 120517 (heal)
 class spell_pri_halo: public SpellScriptLoader
 {
-public:
-    spell_pri_halo() : SpellScriptLoader("spell_pri_halo") { }
+    public:
+        spell_pri_halo() : SpellScriptLoader("spell_pri_halo") { }
 
-    class spell_pri_halo_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_pri_halo_SpellScript);
-
-        void HandleOnHit()
+        class spell_pri_halo_SpellScript : public SpellScript
         {
-            if (Unit* l_Player = GetCaster())
+            PrepareSpellScript(spell_pri_halo_SpellScript);
+
+            void HandleOnHit()
             {
-                if (Unit* l_Target = GetHitUnit())
+                if (Unit* l_Player = GetCaster())
                 {
-                    std::list<Creature*> l_TempListCreature;
-                    std::list<Player*> l_TempListPlayer;
-
-                    AreaTrigger* l_Area = l_Player->GetAreaTrigger(GetSpellInfo()->Id);
-
-                    if (l_Area)
+                    if (Unit* l_Target = GetHitUnit())
                     {
-                        l_Area->GetCreatureListInGrid(l_TempListCreature, GetSpellInfo()->RangeEntry->maxRangeHostile);
-                        for (std::list<Creature*>::iterator i = l_TempListCreature.begin(); i != l_TempListCreature.end(); ++i)
-                        {
-                            if (GetSpellInfo()->Id == PRIEST_SPELL_HALO_AREA_DAMAGE && !(*i)->IsFriendlyTo(l_Player))
-                                l_Player->CastSpell((*i), PRIEST_SPELL_HALO_DAMAGE, true);
-                            if (GetSpellInfo()->Id == PRIEST_SPELL_HALO_AREA_HEAL && (*i)->IsFriendlyTo(l_Player))
-                                l_Player->CastSpell((*i), PRIEST_SPELL_HALO_HEAL_HOLY, true);
-                        }
+                        std::list<Creature*> l_TempListCreature;
+                        std::list<Player*> l_TempListPlayer;
 
-                        l_Area->GetPlayerListInGrid(l_TempListPlayer, GetSpellInfo()->RangeEntry->maxRangeHostile);
-                        for (std::list<Player*>::iterator i = l_TempListPlayer.begin(); i != l_TempListPlayer.end(); ++i)
+                        AreaTrigger* l_Area = l_Player->GetAreaTrigger(GetSpellInfo()->Id);
+
+                        if (l_Area)
                         {
-                            if (GetSpellInfo()->Id == PRIEST_SPELL_HALO_AREA_DAMAGE && (*i)->IsHostileTo(l_Player))
-                                l_Player->CastSpell((*i), PRIEST_SPELL_HALO_DAMAGE, true);
-                            if (GetSpellInfo()->Id == PRIEST_SPELL_HALO_AREA_HEAL && (*i)->IsFriendlyTo(l_Player))
-                                l_Player->CastSpell((*i), PRIEST_SPELL_HALO_HEAL_HOLY, true);
+                            l_Area->GetCreatureListInGrid(l_TempListCreature, GetSpellInfo()->RangeEntry->maxRangeHostile);
+                            for (std::list<Creature*>::iterator i = l_TempListCreature.begin(); i != l_TempListCreature.end(); ++i)
+                            {
+                                if (GetSpellInfo()->Id == PRIEST_SPELL_HALO_AREA_DAMAGE && !(*i)->IsFriendlyTo(l_Player))
+                                    l_Player->CastSpell((*i), PRIEST_SPELL_HALO_DAMAGE, true);
+                                if (GetSpellInfo()->Id == PRIEST_SPELL_HALO_AREA_HEAL && (*i)->IsFriendlyTo(l_Player))
+                                    l_Player->CastSpell((*i), PRIEST_SPELL_HALO_HEAL_HOLY, true);
+                            }
+
+                            l_Area->GetPlayerListInGrid(l_TempListPlayer, GetSpellInfo()->RangeEntry->maxRangeHostile);
+                            for (std::list<Player*>::iterator i = l_TempListPlayer.begin(); i != l_TempListPlayer.end(); ++i)
+                            {
+                                if (GetSpellInfo()->Id == PRIEST_SPELL_HALO_AREA_DAMAGE && (*i)->IsHostileTo(l_Player))
+                                    l_Player->CastSpell((*i), PRIEST_SPELL_HALO_DAMAGE, true);
+                                if (GetSpellInfo()->Id == PRIEST_SPELL_HALO_AREA_HEAL && (*i)->IsFriendlyTo(l_Player))
+                                    l_Player->CastSpell((*i), PRIEST_SPELL_HALO_HEAL_HOLY, true);
+                            }
                         }
                     }
                 }
             }
-        }
 
-    void Register()
-    {
-        OnHit += SpellHitFn(spell_pri_halo_SpellScript::HandleOnHit);
-    }
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_pri_halo_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pri_halo_SpellScript;
+        }
 };
 
-SpellScript* GetSpellScript() const
+enum LeapOfFaithSpells
 {
-    return new spell_pri_halo_SpellScript;
-}
+    EnhancedLeapOfFaithAura     = 157145,
+    EnhancedLeapOfFaith         = 157146,
+    LeapOfFaithJump             = 97817
 };
 
 // Leap of Faith - 73325
@@ -1975,9 +1980,18 @@ class spell_pri_leap_of_faith: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* l_Player = GetCaster())
-                    if (Unit* l_Target = GetHitUnit())
-                        l_Target->CastSpell(l_Player, PRIEST_LEAP_OF_FAITH_JUMP, true);
+                if (Unit* l_Caster = GetCaster())
+                {
+                    Unit* l_Target = GetHitUnit();
+
+                    if (l_Target == nullptr)
+                        return;
+
+                    l_Target->CastSpell(l_Caster, LeapOfFaithSpells::LeapOfFaithJump, true);
+
+                    if (l_Caster->HasAura(LeapOfFaithSpells::EnhancedLeapOfFaithAura))
+                        l_Caster->CastSpell(l_Target, LeapOfFaithSpells::EnhancedLeapOfFaith, true);
+                }
             }
 
             void Register()
