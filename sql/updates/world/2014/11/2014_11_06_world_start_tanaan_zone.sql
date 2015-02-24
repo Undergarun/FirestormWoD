@@ -502,6 +502,11 @@
 			DELETE FROM creature WHERE id = 81696;
 			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('81696','1265','7025','7037','1','4294967295','0','0','3964','-2272.47','59.9632','4.74577','300','0','0','80892','0','0','0','0','0','2048','0','0','0','0',NULL);
 
+		#79097/NPC - Kargath Bladefist
+
+			UPDATE `creature_template` SET `ScriptName` = 'npc_kargath_bladefist' WHERE `entry` = 79097;
+
+
 		-- Game Objects
 
 		#233104/Game Object - Stasis Rune
@@ -712,7 +717,19 @@
 			INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (79537, 34478);
 			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry`=79537;
 
+		#34429/Quest - Kill your hundred
 
+			DELETE FROM `creature_questrelation` WHERE `quest` = 34429;
+			DELETE FROM `gameobject_questrelation` WHERE `quest` = 34429;
+			UPDATE `item_template` SET `StartQuest`=0 WHERE `StartQuest` = 34429;
+			INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (78560, 34429);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry` = 78560;
+			DELETE FROM `creature_involvedrelation` WHERE `quest` = 34429;
+			DELETE FROM `gameobject_involvedrelation` WHERE `quest` = 34429;
+			INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (78561, 34429);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry`=78561;
+
+		#
 		-- Phases
 
 			UPDATE creature SET phasemask = 4294967295 WHERE map = 1265;
@@ -759,6 +776,9 @@
 			(82125, 81776, 79185, 79659, 81885, 78965, 82973, 79770, 88354, 76793);
 			INSERT INTO creature_template_addon (entry, auras) VALUE (81696, "166539"); -- Ghost visual
 			UPDATE creature_template SET scriptname = "npc_tanaan_khadgar_bridge" WHERE entry = 80244;
+			UPDATE `quest_template` SET `Method` = 0 WHERE `Id` = 34420;
+			UPDATE creature SET phasemask = 1 WHERE id IN (82057, 82141) AND areaid = 7040;
+			UPDATE gameobject SET phasemask = 1 WHERE id IN (232239, 232240) AND areaid = 7040;
 
 		-- Quests suit
 
