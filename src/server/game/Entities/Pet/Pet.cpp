@@ -958,6 +958,11 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
     if (IsWarlockPet())
         CastSpell(this, 123746, true);  ///< Fel Energy
 
+    if (GetEntry() == ENTRY_GHOUL && m_owner->HasAura(58640))           ///< Glyph of the Geist
+        CastSpell(this, 121916, true);
+    else if (GetEntry() == ENTRY_GHOUL && m_owner->HasAura(146652))     ///< Glyph of the Skeleton
+        CastSpell(this, 147157, true);
+
     return true;
 }
 
