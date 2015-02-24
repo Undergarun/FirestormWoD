@@ -27104,37 +27104,31 @@ void Player::RemoveItemDependentAurasAndCasts(Item* pItem)
 uint32 Player::GetResurrectionSpellId()
 {
     // search priceless resurrection possibilities
-    uint32 prio = 0;
-    uint32 spell_id = 0;
-    AuraEffectList const& dummyAuras = GetAuraEffectsByType(SPELL_AURA_DUMMY);
-    for (AuraEffectList::const_iterator itr = dummyAuras.begin(); itr != dummyAuras.end(); ++itr)
+    uint32 l_Priority = 0;
+    uint32 l_ResurrectSpellID = 0;
+
+    AuraEffectList const& l_DummyAuras = GetAuraEffectsByType(SPELL_AURA_DUMMY);
+    for (AuraEffectList::const_iterator l_AuraItr = l_DummyAuras.begin(); l_AuraItr != l_DummyAuras.end(); ++l_AuraItr)
     {
         // Soulstone Resurrection                           // prio: 3 (max, non death persistent)
-        if (prio < 2 && (*itr)->GetSpellInfo()->SpellVisual[0] == 99 && (*itr)->GetSpellInfo()->SpellIconID == 92)
+        if (l_Priority < 2 && (*l_AuraItr)->GetId() == 20707)
         {
-            switch ((*itr)->GetId())
-            {
-                case 20707: spell_id =  3026; break;        // rank 1
-                default:
-                    sLog->outError(LOG_FILTER_PLAYER, "Unhandled spell %u: S.Resurrection", (*itr)->GetId());
-                    continue;
-            }
-
-            prio = 3;
+            l_Priority = 3;
+            l_ResurrectSpellID = 3026;
         }
         // Twisting Nether                                  // prio: 2 (max)
-        else if ((*itr)->GetId() == 23701 && roll_chance_i(10))
+        else if ((*l_AuraItr)->GetId() == 23701 && roll_chance_i(10))
         {
-            prio = 2;
-            spell_id = 23700;
+            l_Priority = 2;
+            l_ResurrectSpellID = 23700;
         }
     }
 
     // Reincarnation (passive spell)  // prio: 1
-    if (prio < 1 && HasSpell(20608) && !HasSpellCooldown(21169))
-        spell_id = 21169;
+    if (l_Priority < 1 && HasSpell(20608) && !HasSpellCooldown(21169))
+        l_ResurrectSpellID = 21169;
 
-    return spell_id;
+    return l_ResurrectSpellID;
 }
 
 // Used in triggers for check "Only to targets that grant experience or honor" req
