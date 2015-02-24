@@ -1812,6 +1812,9 @@ class spell_warr_blood_craze : public SpellScriptLoader
             {
                 PreventDefaultAction();
 
+                if (p_ProcInfos.GetDamageInfo()->GetSpellInfo() != nullptr)
+                    return;
+
                 if (!(p_ProcInfos.GetHitMask() & PROC_EX_INTERNAL_MULTISTRIKE))
                     return;
 

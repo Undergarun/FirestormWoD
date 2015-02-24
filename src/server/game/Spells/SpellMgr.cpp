@@ -3362,6 +3362,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 102401:///< Wild Charge (Ally)
                 spellInfo->Effects[EFFECT_1].ValueMultiplier = 0;
                 break;
+            case 159362:///< Blood Craze
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED;
+                break;
             case 149959: // Earth Shatter
             case 149968:
             case 149969:
