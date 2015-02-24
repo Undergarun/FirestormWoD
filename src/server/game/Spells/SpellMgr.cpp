@@ -3359,6 +3359,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_1].Effect = 0;
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 150306;
                 break;
+            case 102401:///< Wild Charge (Ally)
+                spellInfo->Effects[EFFECT_1].ValueMultiplier = 0;
+                break;
             case 149959: // Earth Shatter
             case 149968:
             case 149969:
