@@ -2243,6 +2243,16 @@ class spell_rog_relentless_strikes : public SpellScriptLoader
                             l_Caster->CastSpell(l_Caster, ROGUE_SPELL_RELTENTLESS_STRIKES_PROC, true);
                         }
                     }
+
+                    if (Unit* l_Target = GetHitUnit())
+                    {
+                        if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(ROGUE_SPELL_REVEALING_STRIKE, EFFECT_2, l_Caster->GetGUID()))
+                        {
+                            int32 l_Damage = GetHitDamage();
+                            AddPct(l_Damage, l_AurEff->GetAmount());
+                            SetHitDamage(l_Damage);
+                        }
+                    }
                 }
             }
 

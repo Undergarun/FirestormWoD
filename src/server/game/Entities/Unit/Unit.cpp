@@ -11913,16 +11913,6 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
     // Custom scripted damage
     switch (spellProto->SpellFamilyName)
     {
-        case SPELLFAMILY_ROGUE:
-        {
-            // Revealing Strike for direct damage abilities
-            if (spellProto->NeedsComboPoints() && damagetype != DOT)
-            {
-                if (AuraEffectPtr aurEff = victim->GetAuraEffect(84617, 2, GetGUID()))
-                    DoneTotalMod *= (100.0f + aurEff->GetAmount()) / 100.0f;
-            }
-            break;
-        }
         case SPELLFAMILY_MAGE:
             // Ice Lance
             if (spellProto->SpellIconID == 186)
