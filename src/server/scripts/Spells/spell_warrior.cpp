@@ -504,25 +504,24 @@ class spell_warr_second_wind: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warr_second_wind_AuraScript);
 
-            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& l_ProcInfo)
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& l_ProcInfo)
             {
                 PreventDefaultAction();
 
                 if (Unit* l_Caster = GetCaster())
                 {
-                    if (!(l_ProcInfo.GetHitMask() & (PROC_EX_NORMAL_HIT | PROC_EX_CRITICAL_HIT)))
-                        return;
-
-                    if (l_Caster->GetHealthPct() <= 35.0f)
+                    if (l_Caster->GetHealthPct() <= 35.0f && !l_Caster->HasAura(WARRIOR_SPELL_SECOND_WIND_REGEN))
                         l_Caster->CastSpell(l_Caster, WARRIOR_SPELL_SECOND_WIND_REGEN, true);
                 }
             }
 
-            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*p_Mode*/)
             {
-                if (Unit* caster = GetCaster())
-                    if (caster->HasAura(WARRIOR_SPELL_SECOND_WIND_REGEN))
-                        caster->RemoveAura(WARRIOR_SPELL_SECOND_WIND_REGEN);
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(WARRIOR_SPELL_SECOND_WIND_REGEN))
+                        l_Caster->RemoveAura(WARRIOR_SPELL_SECOND_WIND_REGEN);
+                }
             }
 
             void Register()
