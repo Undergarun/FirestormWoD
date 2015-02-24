@@ -5233,13 +5233,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 20711: ///< Spirit of Redemption
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
-            case 5176:  ///< Wrath
-            case 2912:  ///< Starfire
-            case 78674: ///< Starsurge
-                spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_DUMMY;
-                spellInfo->Effects[EFFECT_1].TargetA = TARGET_UNIT_TARGET_ENEMY;
-                spellInfo->Effects[EFFECT_1].Mechanic = MECHANIC_NONE;
-                break;
             case 33891:  ///< Tree form
             case 114282: ///< Tree form
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(9);
