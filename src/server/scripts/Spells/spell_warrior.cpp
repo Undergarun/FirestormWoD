@@ -1457,35 +1457,35 @@ uint32 g_ReducedSpellsId[REDUCED_SPELLS_ID_MAX] =
 
 class spell_warr_anger_management: public PlayerScript
 {
-public:
-    spell_warr_anger_management() : PlayerScript("spell_warr_anger_management") {}
+    public:
+        spell_warr_anger_management() : PlayerScript("spell_warr_anger_management") {}
 
-    uint16 m_RageSpend = 0;
+        uint16 m_RageSpend = 0;
 
-    void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
-    {
-        if (!p_Player || p_Player->getClass() != CLASS_WARRIOR || p_Power != POWER_RAGE || p_Regen || !p_Player->HasAura(SPELL_WARR_ANGER_MANAGEMENT))
-            return;
-
-        // Get the power earn (if > 0 ) or consum (if < 0)
-        int32 l_diffValue = p_NewValue - p_OldValue;
-
-        // Only get spended rage
-        if (l_diffValue > 0)
-            return;
-
-        m_RageSpend += -l_diffValue / p_Player->GetPowerCoeff(POWER_RAGE);
-        if (m_RageSpend >= sSpellMgr->GetSpellInfo(SPELL_WARR_ANGER_MANAGEMENT)->Effects[EFFECT_0].BasePoints)
+        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
         {
-            for (int l_I = 0; l_I < REDUCED_SPELLS_ID_MAX; l_I++)
-            {
-                if (p_Player->HasSpellCooldown(g_ReducedSpellsId[l_I]))
-                    p_Player->ReduceSpellCooldown(g_ReducedSpellsId[l_I], 1 * IN_MILLISECONDS);
-            }
+            if (!p_Player || p_Player->getClass() != CLASS_WARRIOR || p_Power != POWER_RAGE || p_Regen || !p_Player->HasAura(SPELL_WARR_ANGER_MANAGEMENT))
+                return;
 
-            m_RageSpend = 0;
+            // Get the power earn (if > 0 ) or consum (if < 0)
+            int32 l_diffValue = p_NewValue - p_OldValue;
+
+            // Only get spended rage
+            if (l_diffValue > 0)
+                return;
+
+            m_RageSpend += -l_diffValue / p_Player->GetPowerCoeff(POWER_RAGE);
+            if (m_RageSpend >= sSpellMgr->GetSpellInfo(SPELL_WARR_ANGER_MANAGEMENT)->Effects[EFFECT_0].BasePoints)
+            {
+                for (int l_I = 0; l_I < REDUCED_SPELLS_ID_MAX; l_I++)
+                {
+                    if (p_Player->HasSpellCooldown(g_ReducedSpellsId[l_I]))
+                        p_Player->ReduceSpellCooldown(g_ReducedSpellsId[l_I], 1 * IN_MILLISECONDS);
+                }
+
+                m_RageSpend = 0;
+            }
         }
-    }
 };
 
 /// Execute - 163201
@@ -1600,34 +1600,34 @@ enum ShieldChargeSpells
 /// Shield Charge - 156321
 class spell_warr_shield_charge: public SpellScriptLoader
 {
-public:
-    spell_warr_shield_charge() : SpellScriptLoader("spell_warr_shield_charge") { }
+    public:
+        spell_warr_shield_charge() : SpellScriptLoader("spell_warr_shield_charge") { }
 
-    class spell_warr_shield_charge_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_warr_shield_charge_SpellScript);
-
-        void HandleOnCast()
+        class spell_warr_shield_charge_SpellScript : public SpellScript
         {
-            Unit* l_Caster = GetCaster();
-            Unit* l_Target = GetExplTargetUnit();
-            if (!l_Target)
-                return;
+            PrepareSpellScript(spell_warr_shield_charge_SpellScript);
 
-            l_Caster->CastSpell(l_Target, SPELL_WARR_SHIELD_CHARGE_CHARGE, true);
-            l_Caster->CastSpell(l_Caster, SPELL_WARR_SHIELD_CHARGE_MODIFIER, true);
-        }
+            void HandleOnCast()
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetExplTargetUnit();
+                if (!l_Target)
+                    return;
 
-        void Register()
+                l_Caster->CastSpell(l_Target, SPELL_WARR_SHIELD_CHARGE_CHARGE, true);
+                l_Caster->CastSpell(l_Caster, SPELL_WARR_SHIELD_CHARGE_MODIFIER, true);
+            }
+
+            void Register()
+            {
+                OnCast += SpellCastFn(spell_warr_shield_charge_SpellScript::HandleOnCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnCast += SpellCastFn(spell_warr_shield_charge_SpellScript::HandleOnCast);
+            return new spell_warr_shield_charge_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_warr_shield_charge_SpellScript();
-    }
 };
 
 enum ExecuteSpells
