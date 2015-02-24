@@ -1500,7 +1500,7 @@ enum Opcodes
     CMSG_LFG_PROPOSAL_RESULT                       = 0x0509,    ///< 6.0.3 19116
     CMSG_LFG_SET_BOOT_VOTE                         = 0x0308,    ///< 6.0.3 19116
     CMSG_LFG_SET_COMMENT                           = 0x0000,    ///< 6.0.2 19027 (unused)
-    CMSG_LFG_SET_ROLES                             = 0x0000,    ///< 6.0.2 19027
+    CMSG_DFSET_ROLES                               = 0x1B82,    ///< 6.0.3 19116
     CMSG_LFG_TELEPORT                              = 0x0316,    ///< 6.0.3 19116
     CMSG_SEARCH_LFG_JOIN                           = 0x0000,    ///< 6.0.2 19027 (unused)
     CMSG_SEARCH_LFG_LEAVE                          = 0x0000,    ///< 6.0.2 19027 (unused)

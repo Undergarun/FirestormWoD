@@ -115,24 +115,21 @@ void WorldSession::HandleLfgProposalResultOpcode(WorldPacket& p_Packet)
     sLFGMgr->UpdateProposal(l_ProposalID, GetPlayer()->GetGUID(), l_Accepted);
 }
 
-void WorldSession::HandleLfgSetRolesOpcode(WorldPacket& recvData)
+void WorldSession::HandleDfSetRolesOpcode(WorldPacket& p_Packet)
 {
-    uint32 roles;
-    uint8 unk;
+    uint32 l_RolesDesired;
+    uint8 l_PartyIndex;
 
-    recvData >> roles;                                    // Player Group Roles
-    recvData >> unk;
+    p_Packet >> l_RolesDesired;
+    p_Packet >> l_PartyIndex;
 
-    uint64 guid = GetPlayer()->GetGUID();
-    Group* grp = GetPlayer()->GetGroup();
-    if (!grp)
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_LFG_SET_ROLES [" UI64FMTD "] Not in group", guid);
+    uint64 l_Guid = GetPlayer()->GetGUID();
+    Group* l_Group = GetPlayer()->GetGroup();
+    if (!l_Group)
         return;
-    }
-    uint64 gguid = grp->GetGUID();
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_LFG_SET_ROLES: Group [" UI64FMTD "], Player [" UI64FMTD "], Roles: %u", gguid, guid, roles);
-    sLFGMgr->UpdateRoleCheck(gguid, guid, roles);
+
+    uint64 l_GroupGUID = l_Group->GetGUID();
+    sLFGMgr->UpdateRoleCheck(l_GroupGUID, l_Guid, l_RolesDesired);
 }
 
 void WorldSession::HandleLfgSetCommentOpcode(WorldPacket&  recvData)
