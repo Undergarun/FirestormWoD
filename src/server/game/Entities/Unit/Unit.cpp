@@ -16577,10 +16577,17 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
             {
                 if (roll_chance_f(GetFloatValue(PLAYER_FIELD_MULTISTRIKE)))
                 {
-                    bool l_IsCrit = !(procExtra & PROC_EX_CRITICAL_HIT) && procSpell && roll_chance_f(GetUnitSpellCriticalChance(target, procSpell, procSpell->GetSchoolMask()));
+                    bool l_IsCrit = false;
+
+                    if (procSpell && roll_chance_f(GetUnitSpellCriticalChance(target, procSpell, procSpell->GetSchoolMask())))
+                        l_IsCrit = true;
+                    else if (!procSpell && roll_chance_f(GetUnitCriticalChance(attType, target)))
+                        l_IsCrit = true;
 
                     if (l_IsCrit && procSpell)
                         damage = SpellCriticalDamageBonus(procSpell, damage, target);
+                    else if (l_IsCrit && !procSpell)
+                        damage = MeleeCriticalDamageBonus(nullptr, damage, target, attType);
 
                     uint32 l_MultistrikeDamage = damage * GetFloatValue(PLAYER_FIELD_MULTISTRIKE_EFFECT);
 
@@ -16663,14 +16670,14 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                         CalculateMeleeDamage(target, 0, &damageInfo, attType);
 
                         if (l_IsCrit)
-                            damageInfo.HitInfo |= SPELL_HIT_TYPE_CRIT;
+                            damageInfo.HitInfo |= HITINFO_CRITICALHIT;
 
-                        damageInfo.HitInfo |= SPELL_HIT_TYPE_MULTISTRIKE;
+                        damageInfo.HitInfo |= HITINFO_MULTISTRIKE;
                         damageInfo.damage = l_MultistrikeDamage;
 
                         DealDamageMods(target, damageInfo.damage, &damageInfo.absorb);
                         DealMeleeDamage(&damageInfo, true);
-
+                        SendAttackStateUpdate(&damageInfo);
                         ProcDamageAndSpell(damageInfo.target, l_DoneProcFlag, l_TakenProcFlag, l_ExFlag, damageInfo.damage, damageInfo.attackType);
                     }
                 }
