@@ -631,17 +631,17 @@ void LFGMgr::InitializeLockedDungeons(Player* player)
             }
             else
             {
-                uint32 avgItemLevel = (uint32)player->GetAverageItemLevelEquipped();
+                uint32 avgItemLevel = player->GetAverageItemLevelTotal();
                 if (ar->itemlevelMin && ar->itemlevelMin > avgItemLevel)
                 {
                     lockData.SubReason1 = ar->itemlevelMin;
-                    lockData.SubReason2 = (uint32)player->GetAverageItemLevelEquipped();
+                    lockData.SubReason2 = avgItemLevel;
                     lockData.lockstatus = LFG_LOCKSTATUS_TOO_LOW_GEAR_SCORE;
                 }
                 if (ar->itemlevelMax && ar->itemlevelMax < avgItemLevel)
                 {
                     lockData.SubReason1 = ar->itemlevelMax;
-                    lockData.SubReason2 = (uint32)player->GetAverageItemLevelEquipped();
+                    lockData.SubReason2 = avgItemLevel;
                     lockData.lockstatus = LFG_LOCKSTATUS_TOO_HIGH_GEAR_SCORE;
                 }
             }
@@ -660,7 +660,7 @@ void LFGMgr::InitializeLockedDungeons(Player* player)
                 if (itr == m_entrancePositions.end() && !sObjectMgr->GetMapEntranceTrigger(dungeon->map))
                 {
                     lockData.SubReason1 = ar ? ar->itemlevelMin : 999;
-                    lockData.SubReason2 = (uint32)player->GetAverageItemLevelTotal();
+                    lockData.SubReason2 = player->GetAverageItemLevelTotal();
                     lockData.lockstatus = LFG_LOCKSTATUS_TOO_LOW_GEAR_SCORE;
                 }
             }
