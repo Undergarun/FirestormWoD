@@ -3140,30 +3140,35 @@ public:
 /// Rip - 1079
 class spell_dru_rip: public SpellScriptLoader
 {
-public:
-    spell_dru_rip() : SpellScriptLoader("spell_dru_rip") { }
+    public:
+        spell_dru_rip() : SpellScriptLoader("spell_dru_rip") { }
 
-    class spell_dru_rip_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_dru_rip_AuraScript);
-
-        void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32& p_Amount, bool& /*canBeRecalculated*/)
+        class spell_dru_rip_AuraScript : public AuraScript
         {
-            Unit* l_Caster = GetCaster();
-            if (l_Caster && l_Caster->GetTypeId() == TYPEID_PLAYER && GetEffect(EFFECT_0) && GetEffect(EFFECT_0)->GetAmplitude() > 0)
-                p_Amount = (p_Amount * l_Caster->GetPower(Powers::POWER_COMBO_POINT) * 8) / (GetMaxDuration() / GetEffect(EFFECT_0)->GetAmplitude());
-        }
+            PrepareAuraScript(spell_dru_rip_AuraScript);
 
-        void Register()
+            void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32& p_Amount, bool& /*canBeRecalculated*/)
+            {
+                Unit* l_Caster = GetCaster();
+                if (l_Caster && l_Caster->GetTypeId() == TYPEID_PLAYER && GetEffect(EFFECT_0) && GetEffect(EFFECT_0)->GetAmplitude() > 0)
+                {
+                    int32 l_TicksCount = GetMaxDuration() / GetEffect(EFFECT_0)->GetAmplitude();
+                    int32 l_AP = l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
+                    int32 l_Combo = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
+                    p_Amount = l_AP * GetSpellInfo()->Effects[EFFECT_0].AttackPowerMultiplier * l_Combo * 8 / l_TicksCount;
+                }
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_rip_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
         {
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_rip_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+            return new spell_dru_rip_AuraScript();
         }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_dru_rip_AuraScript();
-    }
 };
 
 enum DreamOfCenariusSpells

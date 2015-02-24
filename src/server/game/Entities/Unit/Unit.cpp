@@ -11612,16 +11612,6 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         }
     }
 
-    // 77493 - Mastery : Razor Claws
-    if (GetTypeId() == TYPEID_PLAYER && spellProto && damagetype == DOT)
-    {
-        if (HasAura(77493))
-        {
-            float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 3.13f;
-            DoneTotal += CalculatePct(pdamage, Mastery);
-        }
-    }
-
     // 76547 - Mastery : Mana Adept
     if (spellProto && GetTypeId() == TYPEID_PLAYER)
     {
