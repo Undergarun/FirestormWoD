@@ -1515,11 +1515,12 @@ class spell_pri_mind_spike: public SpellScriptLoader
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    if (l_Caster->HasAura(PRIEST_SURGE_OF_DARKNESS))
+                    if (AuraPtr l_SurgeOfDarkness = l_Caster->GetAura(PRIEST_SURGE_OF_DARKNESS))
                     {
                         SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(PRIEST_SURGE_OF_DARKNESS);
                         if (l_SpellInfo)
                             SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_SpellInfo->Effects[EFFECT_3].BasePoints));
+                        l_SurgeOfDarkness->ModStackAmount(-1);
                     }
                 }
             }
