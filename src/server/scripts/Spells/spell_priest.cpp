@@ -2433,36 +2433,68 @@ class spell_pri_void_tendrils: public SpellScriptLoader
         }
 };
 
-// Archangel - 81700
+enum ArchangelSpells
+{
+    EmpoweredArchangelAura  = 157197,
+    EmpoweredArchangel      = 172359
+};
+
+/// Archangel - 81700
 class spell_pri_archangel: public SpellScriptLoader
 {
-public:
-    spell_pri_archangel() : SpellScriptLoader("spell_pri_archangel") { }
+    public:
+        spell_pri_archangel() : SpellScriptLoader("spell_pri_archangel") { }
 
-    class spell_pri_archangel_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_pri_archangel_AuraScript);
-
-        void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& amount, bool& /*canBeRecalculated*/)
+        class spell_pri_archangel_AuraScript : public AuraScript
         {
-            if (Unit* l_Caster = GetCaster())
-                if (AuraPtr l_Aura = l_Caster->GetAura(PRIEST_EVANGELISM_STACK))
+            PrepareAuraScript(spell_pri_archangel_AuraScript);
+
+            void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& l_Amount, bool& /*canBeRecalculated*/)
+            {
+                if (Unit* l_Caster = GetCaster())
                 {
-                    amount = l_Aura->GetStackAmount() * GetSpellInfo()->Effects[0].BasePoints;
-                    l_Caster->RemoveAura(l_Aura);
+                    if (AuraPtr l_Aura = l_Caster->GetAura(PRIEST_EVANGELISM_STACK))
+                    {
+                        l_Amount = l_Aura->GetStackAmount() * GetSpellInfo()->Effects[0].BasePoints;
+                        l_Caster->RemoveAura(l_Aura);
+                    }
                 }
-        }
+            }
 
-        void Register()
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_archangel_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_HEALING_DONE_PERCENT);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
         {
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_archangel_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_HEALING_DONE_PERCENT);
+            return new spell_pri_archangel_AuraScript();
         }
-    };
 
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_pri_archangel_AuraScript();
-    }
+        class spell_pri_archangel_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_archangel_SpellScript);
+
+            void HandleAfterCast()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(ArchangelSpells::EmpoweredArchangelAura))
+                        l_Caster->CastSpell(l_Caster, ArchangelSpells::EmpoweredArchangel, true);
+                }
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_pri_archangel_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pri_archangel_SpellScript();
+        }
 };
 
 enum PrayerOfMendingSpells
