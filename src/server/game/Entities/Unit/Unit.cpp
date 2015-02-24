@@ -833,7 +833,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     }
 
     /// Health leech handling
-    if (GetTypeId() == TypeID::TYPEID_PLAYER && damage > 0 && (!spellProto || spellProto->Id != SPELL_PLAYER_LIFE_STEAL)
+    if (GetTypeId() == TypeID::TYPEID_PLAYER && damage > 0 && (!spellProto || spellProto->Id != SPELL_PLAYER_LIFE_STEAL))
     {
         float l_Percentage = GetFloatValue(EPlayerFields::PLAYER_FIELD_LIFESTEAL);
         int32 l_Heal = CalculatePct(damage, (int32)l_Percentage);
