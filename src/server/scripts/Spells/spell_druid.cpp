@@ -2402,49 +2402,36 @@ class spell_dru_starfall_dummy: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_starfall_dummy_SpellScript);
 
-            enum eSpells
-            {
-                Starfall = 48505
-            };
-
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                Unit* caster = GetCaster();
-                if (!caster)
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
                     return;
 
-                Unit* target = GetHitUnit();
-                if (!target)
+                Unit* l_Target = GetHitUnit();
+                if (!l_Target)
                     return;
 
                 /// Shapeshifting into an animal form or mounting cancels the effect
-                if (caster->GetCreatureType() == CREATURE_TYPE_BEAST || caster->IsMounted())
+                if (l_Caster->GetCreatureType() == CREATURE_TYPE_BEAST || l_Caster->IsMounted())
                 {
-                    if (SpellInfo const* spellInfo = GetTriggeringSpell())
-                        caster->RemoveAurasDueToSpell(spellInfo->Id);
+                    if (SpellInfo const* l_SpellInfo = GetTriggeringSpell())
+                        l_Caster->RemoveAurasDueToSpell(l_SpellInfo->Id);
                     return;
                 }
 
                 /// Any effect which causes you to lose control of your character will supress the starfall effect.
-                if (caster->HasUnitState(UNIT_STATE_CONTROLLED))
+                if (l_Caster->HasUnitState(UNIT_STATE_CONTROLLED))
                     return;
 
                 /// Glyph of Guided Stars - Starfall can only hit targets with Moonfire or Sunfire
-                if (caster->HasAura(SPELL_DRUID_GLYPH_OF_GUIDED_STARS))
-                    if (!target->HasAura(SPELL_DRUID_MOONFIRE) && !target->HasAura(SPELL_DRUID_SUNFIRE))
-                        return;
-
-                caster->CastSpell(target, uint32(GetEffectValue()), true);
-
-                /// Starfall can only launch 20 stars
-                if (AuraEffectPtr starfall = caster->GetAuraEffect(eSpells::Starfall, EFFECT_1))
+                if (l_Caster->HasAura(SPELL_DRUID_GLYPH_OF_GUIDED_STARS))
                 {
-                    int32 amount = starfall->GetAmount();
-                    if (amount > 1)
-                        starfall->SetAmount(amount - 1);
-                    else
-                        caster->RemoveAura(eSpells::Starfall);
+                    if (!l_Target->HasAura(SPELL_DRUID_MOONFIRE) && !l_Target->HasAura(SPELL_DRUID_SUNFIRE))
+                        return;
                 }
+
+                l_Caster->CastSpell(l_Target, uint32(GetEffectValue()), true);
             }
 
             void Register()
