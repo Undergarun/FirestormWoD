@@ -2053,6 +2053,11 @@ class spell_dru_eclipse_mod_damage : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_eclipse_mod_damage_SpellScript);
 
+            enum eSpells
+            {
+                Starsurge       = 78674,
+            };
+
             void HandleOnHit()
             {
                 Unit* l_Caster = GetCaster();
@@ -2093,10 +2098,27 @@ class spell_dru_eclipse_mod_damage : public SpellScriptLoader
                         l_BonusLunarSpells = l_DamageModPCT;
                     }
 
-                    if (GetSpellInfo()->GetSchoolMask() == SPELL_SCHOOL_MASK_NATURE)
-                        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_BonusSolarSpells));
-                    else if (GetSpellInfo()->GetSchoolMask() == SPELL_SCHOOL_MASK_ARCANE)
-                        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_BonusLunarSpells));
+                    int32 l_Damage = GetHitDamage();
+                    int32 l_BonusDamage = 0;
+
+                    SpellInfo const* l_SpellInfo = GetSpellInfo();
+                    if (l_SpellInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_NATURE)
+                        l_BonusDamage += CalculatePct(GetHitDamage(), l_BonusSolarSpells);
+                    else if (l_SpellInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_ARCANE)
+                        l_BonusDamage += CalculatePct(GetHitDamage(), l_BonusLunarSpells);
+
+                    /// Starsurge has the two schools
+                    if (l_SpellInfo->Id == eSpells::Starsurge)
+                    {
+                        if ((int)l_Eclipse == 0)
+                            l_BonusDamage = CalculatePct(GetHitDamage(), (l_DamageModPCT / 2.0f));
+                        else if (l_Eclipse > 0)
+                            l_BonusDamage = CalculatePct(GetHitDamage(), l_BonusLunarSpells);
+                        else if (l_Eclipse < 0)
+                            l_BonusDamage = CalculatePct(GetHitDamage(), l_BonusSolarSpells);
+                    }
+
+                    SetHitDamage(l_Damage + l_BonusDamage);
                 }
             }
 
