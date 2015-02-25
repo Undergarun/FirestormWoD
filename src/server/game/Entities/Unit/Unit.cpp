@@ -13102,11 +13102,6 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
         AddPct(DoneTotalMod, amount);
     }
 
-    // Bladestorm - 46924
-    // Increase damage by 160% in Arms spec
-    if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_ARMS && HasAura(46924) && attType == WeaponAttackType::BaseAttack)
-        AddPct(DoneTotalMod, 160);
-
     // Sword of Light - 53503
     // Increase damage dealt by two handed weapons by 25%
     if (pdamage > 0 && GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_PALADIN_RETRIBUTION && HasAura(53503) && ToPlayer()->IsTwoHandUsed() && attType == WeaponAttackType::BaseAttack)
