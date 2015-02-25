@@ -92,6 +92,7 @@ enum PriestSpells
     PRIEST_SURGE_OF_DARKNESS_AURA                   = 162448,
     PRIEST_SHADOW_WORD_INSANITY_DAMAGE              = 129249,
     PRIEST_SPELL_MIND_BLAST                         = 8092,
+    PRIEST_SPELL_MIND_BLAST_MARKER                  = 162414,
     PRIEST_SPELL_2P_S12_SHADOW                      = 92711,
     PRIEST_SPELL_DISPERSION_SPRINT                  = 129960,
     PRIEST_SPELL_4P_S12_SHADOW                      = 131556,
@@ -2838,9 +2839,19 @@ class spell_pri_mind_blast: public SpellScriptLoader
             {
                 PreventHitDefaultEffect(p_EffIndex);
 
-                if (!GetCaster()->HasAura(PRIEST_GLYPH_OF_MIND_HARVEST))
+                Unit* l_Target = GetHitUnit();
+                Unit* l_Caster = GetCaster();
+
+                if (l_Target == nullptr)
                     return;
 
+                if (!l_Caster->HasAura(PRIEST_GLYPH_OF_MIND_HARVEST))
+                    return;
+
+                if (l_Target->HasAura(PRIEST_SPELL_MIND_BLAST_MARKER))
+                    return;
+
+                l_Caster->CastSpell(l_Target, PRIEST_SPELL_MIND_BLAST_MARKER, true);
                 GetSpell()->EffectEnergize(p_EffIndex);
             }
 
