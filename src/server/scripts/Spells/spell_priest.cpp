@@ -2835,29 +2835,49 @@ class spell_pri_mind_blast: public SpellScriptLoader
         {
             PrepareSpellScript(spell_pri_mind_blast_SpellScript);
 
-            void HandleAdditionalsOrbs(SpellEffIndex p_EffIndex)
-            {
-                PreventHitDefaultEffect(p_EffIndex);
+            bool m_HasMarker = false;
 
-                Unit* l_Target = GetHitUnit();
-                Unit* l_Caster = GetCaster();
+            void HandleBeforeCast()
+            {
+                Unit* l_Target = GetExplTargetUnit();
 
                 if (l_Target == nullptr)
                     return;
 
-                if (!l_Caster->HasAura(PRIEST_GLYPH_OF_MIND_HARVEST))
-                    return;
-
                 if (l_Target->HasAura(PRIEST_SPELL_MIND_BLAST_MARKER))
+                    m_HasMarker = true;
+            }
+
+            void HandleEnergize(SpellEffIndex p_EffIndex)
+            {
+                PreventHitDefaultEffect(p_EffIndex);
+
+                Player *l_Player = GetCaster()->ToPlayer();
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(PRIEST_GLYPH_OF_MIND_HARVEST);
+
+                if (l_Player == nullptr || l_SpellInfo == nullptr || !l_Player->HasAura(PRIEST_GLYPH_OF_MIND_HARVEST))
                     return;
 
-                l_Caster->CastSpell(l_Target, PRIEST_SPELL_MIND_BLAST_MARKER, true);
-                GetSpell()->EffectEnergize(p_EffIndex);
+                uint32 l_SpellId = GetSpellInfo()->Id;
+
+                uint32 l_OldCooldown = l_Player->GetSpellCooldownDelay(l_SpellId);
+                uint32 l_NewCooldown = l_OldCooldown + l_SpellInfo->Effects[EFFECT_1].BasePoints;
+
+                l_Player->RemoveSpellCooldown(l_SpellId, true);
+
+                if (m_HasMarker)
+                    l_Player->AddSpellCooldown(l_SpellId, 0, l_OldCooldown, true);
+                else
+                {
+                    l_Player->AddSpellCooldown(l_SpellId, 0, l_NewCooldown, true);
+                    GetSpell()->EffectEnergize(p_EffIndex);
+                }
             }
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_pri_mind_blast_SpellScript::HandleAdditionalsOrbs, EFFECT_3, SPELL_EFFECT_ENERGIZE);
+                BeforeCast += SpellCastFn(spell_pri_mind_blast_SpellScript::HandleBeforeCast);
+                OnEffectHitTarget += SpellEffectFn(spell_pri_mind_blast_SpellScript::HandleEnergize, EFFECT_3, SPELL_EFFECT_ENERGIZE);
             }
         };
 
