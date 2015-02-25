@@ -496,6 +496,33 @@ class spell_hun_thunderstomp : public SpellScriptLoader
         }
 };
 
+/// Burrow Attack  - 95714
+class spell_hun_burrow_attack : public SpellScriptLoader
+{
+    public:
+        spell_hun_burrow_attack() : SpellScriptLoader("spell_hun_burrow_attack") { }
+
+        class spell_hun_burrow_attack_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_burrow_attack_SpellScript);
+
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                SetHitDamage((int32)(GetHitDamage() + ((GetCaster()->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.40f) * 0.288) * 8));
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_hun_burrow_attack_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_burrow_attack_SpellScript();
+        }
+};
+
 /// Steady Focus - 177667
 class spell_hun_steady_focus: public SpellScriptLoader
 {
@@ -3830,6 +3857,7 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_disengage();
     new spell_hun_tame_beast();
     new spell_hun_explosive_trap();
+    new spell_hun_burrow_attack();
 
     // Player Script
     new PlayerScript_thrill_of_the_hunt();
