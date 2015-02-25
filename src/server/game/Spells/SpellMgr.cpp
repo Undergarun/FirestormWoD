@@ -4436,6 +4436,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 123154: ///< Fists of Fury Visual Target
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(35); ///< 4s
                 break;
+            case 31616: ///< Nature's Guardian
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT;
+                spellInfo->Effects[0].BasePoints = 25;
+                break;
             case 53479: ///< Last Stand (Tenacity)
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT;
                 break;

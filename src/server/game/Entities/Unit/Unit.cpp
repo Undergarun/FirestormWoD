@@ -9197,7 +9197,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
                     {
                         if (HealthBelowPctDamaged(30, damage))
                         {
-                            basepoints0 = int32(CountPctFromMaxHealth(triggerAmount));
                             target = this;
                             trigger_spell_id = 31616;
                             if (victim && victim->isAlive())
