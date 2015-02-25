@@ -3694,7 +3694,36 @@ class AreaTrigger_freezing_trap : public AreaTriggerEntityScript
 
 enum class HunterExplosiveTrap : uint32
 {
-    SpellExplosiveEffect = 13812
+    SpellExplosiveEffect = 13812,
+    SpellGlyphOfExplosiveTrap = 119403
+};
+
+// Explosive Trap (damage) - 13812
+class spell_hun_explosive_trap : public SpellScriptLoader
+{
+    public:
+        spell_hun_explosive_trap() : SpellScriptLoader("spell_hun_explosive_trap") { }
+
+        class spell_hun_explosive_trap_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_explosive_trap_SpellScript);
+
+            void HandlePeriodicDamage(SpellEffIndex p_EffIndex)
+            {
+                if (GetCaster()->HasAura((uint32)HunterExplosiveTrap::SpellGlyphOfExplosiveTrap))
+                    PreventHitAura();
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_hun_explosive_trap_SpellScript::HandlePeriodicDamage, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_explosive_trap_SpellScript();
+        }
 };
 
 /// Explosive Trap - 13813
@@ -3800,6 +3829,7 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_misdirection_proc();
     new spell_hun_disengage();
     new spell_hun_tame_beast();
+    new spell_hun_explosive_trap();
 
     // Player Script
     new PlayerScript_thrill_of_the_hunt();
