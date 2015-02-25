@@ -128,6 +128,79 @@ enum ShamanSpells
     SPELL_SHA_IMPROVED_LIGHTNING_SHIELD     = 157774
 };
 
+/// Called by Unleash Flame - 165462, Unleash Life - 73685 and Unleash Elements - 73680
+/// Unleashed Fury - 165477
+class spell_sha_unleashed_fury : public SpellScriptLoader
+{
+    public:
+        spell_sha_unleashed_fury() : SpellScriptLoader("spell_sha_unleashed_fury") { }
+
+        class spell_sha_unleashed_fury_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_unleashed_fury_SpellScript);
+
+            enum eSpells
+            {
+                UnleashedFuryTalent         = 165477,
+                /// Increases the damage dealt by your Lightning Bolt by 30% and Lava Burst by 10% for 10 sec.
+                UnleashedFuryElemental      = 118470,
+                /// Increases the damage dealt by your Lightning Bolt by 30% and increases your multistrike chance by 5% for 8 sec.
+                UnleashedFuryEnhancement    = 118472,
+                /// Increases the healing done by your next single-target heal by 50%, for 10 sec.
+                UnleashedRestauration       = 118473,
+
+                UnleashElements             = 73680,
+                UnleashLife                 = 73685,
+                UnleashFlame                = 165462
+            };
+
+            void HandleDummy(SpellEffIndex)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (!l_Caster->HasAura(eSpells::UnleashedFuryTalent))
+                        return;
+
+                    switch (GetSpellInfo()->Id)
+                    {
+                        case eSpells::UnleashElements:
+                            l_Caster->CastSpell(l_Caster, eSpells::UnleashedFuryEnhancement, true);
+                            break;
+                        case eSpells::UnleashLife:
+                            l_Caster->CastSpell(l_Caster, eSpells::UnleashedRestauration, true);
+                            break;
+                        case eSpells::UnleashFlame:
+                            l_Caster->CastSpell(l_Caster, eSpells::UnleashedFuryElemental, true);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            void Register()
+            {
+                switch (m_scriptSpellId)
+                {
+                    case eSpells::UnleashElements:
+                    case eSpells::UnleashFlame:
+                        OnEffectHitTarget += SpellEffectFn(spell_sha_unleashed_fury_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                        break;
+                    case eSpells::UnleashLife:
+                        OnEffectHitTarget += SpellEffectFn(spell_sha_unleashed_fury_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_HEAL);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_unleashed_fury_SpellScript();
+        }
+};
+
 /// Called by Chain Heal - 1064
 /// High Tide - 157154
 class spell_sha_high_tide : public SpellScriptLoader
@@ -287,7 +360,7 @@ class npc_storm_elemental : public CreatureScript
         }
 };
 
-// Totemic Projection - 108287
+/// Totemic Projection - 108287
 class spell_sha_totemic_projection: public SpellScriptLoader
 {
     public:
@@ -368,7 +441,7 @@ class spell_sha_totemic_projection: public SpellScriptLoader
         }
 };
 
-// Hex - 51514
+/// Hex - 51514
 class spell_sha_hex: public SpellScriptLoader
 {
     public:
@@ -408,7 +481,7 @@ class spell_sha_hex: public SpellScriptLoader
         }
 };
 
-// Water Ascendant - 114052
+/// Water Ascendant - 114052
 class spell_sha_water_ascendant: public SpellScriptLoader
 {
     public:
@@ -489,8 +562,8 @@ class spell_sha_water_ascendant: public SpellScriptLoader
         }
 };
 
-// Called by Shamanistic Rage - 30823
-// Glyph of Shamanistic Rage - 63280
+/// Called by Shamanistic Rage - 30823
+/// Glyph of Shamanistic Rage - 63280
 class spell_sha_glyph_of_shamanistic_rage: public SpellScriptLoader
 {
     public:
@@ -527,8 +600,8 @@ class spell_sha_glyph_of_shamanistic_rage: public SpellScriptLoader
         }
 };
 
-// Called by Ghost Wolf - 2645
-// Glyph of Lakestrider - 55448
+/// Called by Ghost Wolf - 2645
+/// Glyph of Lakestrider - 55448
 class spell_sha_glyph_of_lakestrider: public SpellScriptLoader
 {
     public:
@@ -569,7 +642,7 @@ uint32 g_resetTotemCdSpells[] =
     108273  // Windwalk Totem
 };
 
-// 108285 - Call of the Elements
+/// 108285 - Call of the Elements
 class spell_sha_call_of_the_elements: public SpellScriptLoader
 {
     public:
@@ -602,10 +675,10 @@ class spell_sha_call_of_the_elements: public SpellScriptLoader
         }
 };
 
-// Called by Healing Wave - 331, Greater Healing Wave - 77472 and Healing Surge - 8004
-// Called by Lightning Bolt - 403, Chain Lightning - 421, Earth Shock - 8042 and Stormstrike - 17364
-// Called by Lightning Bolt - 45284, Chain Lightning - 45297
-// Conductivity - 108282
+/// Called by Healing Wave - 331, Greater Healing Wave - 77472 and Healing Surge - 8004
+/// Called by Lightning Bolt - 403, Chain Lightning - 421, Earth Shock - 8042 and Stormstrike - 17364
+/// Called by Lightning Bolt - 45284, Chain Lightning - 45297
+/// Conductivity - 108282
 class spell_sha_conductivity: public SpellScriptLoader
 {
     public:
@@ -654,7 +727,7 @@ class spell_sha_conductivity: public SpellScriptLoader
         }
 };
 
-// Ancestral Guidance - 108281
+/// Ancestral Guidance - 108281
 class spell_sha_ancestral_guidance: public SpellScriptLoader
 {
     public:
@@ -706,7 +779,7 @@ class spell_sha_ancestral_guidance: public SpellScriptLoader
         }
 };
 
-// 64695 - Earthgrab
+/// 64695 - Earthgrab
 class spell_sha_earthgrab: public SpellScriptLoader
 {
     public:
@@ -754,7 +827,7 @@ class spell_sha_earthgrab: public SpellScriptLoader
         }
 };
 
-// Stone Bulwark - 114889
+/// Stone Bulwark - 114889
 class spell_sha_stone_bulwark: public SpellScriptLoader
 {
     public:
@@ -799,7 +872,7 @@ class spell_sha_stone_bulwark: public SpellScriptLoader
         }
 };
 
-// Frost Shock - 8056
+/// Frost Shock - 8056
 class spell_sha_frozen_power: public SpellScriptLoader
 {
     public:
@@ -836,8 +909,8 @@ class spell_sha_frozen_power: public SpellScriptLoader
         }
 };
 
-// Spirit Link - 98020 : triggered by 98017
-// Spirit Link Totem
+/// Spirit Link - 98020 : triggered by 98017
+/// Spirit Link Totem
 class spell_sha_spirit_link: public SpellScriptLoader
 {
     public:
@@ -888,7 +961,7 @@ class spell_sha_spirit_link: public SpellScriptLoader
         }
 };
 
-// Fire Nova - 1535
+/// Fire Nova - 1535
 class spell_sha_fire_nova: public SpellScriptLoader
 {
     public:
@@ -929,7 +1002,7 @@ class spell_sha_fire_nova: public SpellScriptLoader
         }
 };
 
-// 88766 Fulmination handled in 8042 Earth Shock
+/// 88766 Fulmination handled in 8042 Earth Shock
 class spell_sha_fulmination: public SpellScriptLoader
 {
     public:
@@ -980,7 +1053,7 @@ class spell_sha_fulmination: public SpellScriptLoader
         }
 };
 
-// 77762 Lava Surge
+/// 77762 Lava Surge
 class spell_sha_lava_surge: public SpellScriptLoader
 {
     public:
@@ -1013,7 +1086,7 @@ class spell_sha_lava_surge: public SpellScriptLoader
         }
 };
 
-// Healing Stream - 52042
+/// Healing Stream - 52042
 class spell_sha_healing_stream: public SpellScriptLoader
 {
     public:
@@ -1054,7 +1127,7 @@ class spell_sha_healing_stream: public SpellScriptLoader
         }
 };
 
-// Elemental Blast - 117014
+/// Elemental Blast - 117014
 class spell_sha_elemental_blast: public SpellScriptLoader
 {
     public:
@@ -1117,7 +1190,7 @@ class spell_sha_elemental_blast: public SpellScriptLoader
         }
 };
 
-// Earthquake : Ticks - 77478
+/// Earthquake : Ticks - 77478
 class spell_sha_earthquake_tick: public SpellScriptLoader
 {
     public:
@@ -1201,7 +1274,7 @@ class spell_sha_earthquake: public SpellScriptLoader
         }
 };
 
-// Healing Rain - 73920
+/// Healing Rain - 73920
 class spell_sha_healing_rain: public SpellScriptLoader
 {
     public:
@@ -1266,7 +1339,7 @@ class spell_sha_healing_rain: public SpellScriptLoader
         }
 };
 
-// Ascendance - 114049
+/// Ascendance - 114049
 class spell_sha_ascendance: public SpellScriptLoader
 {
     public:
@@ -1355,6 +1428,7 @@ class EarthenPowerTargetSelector
         }
 };
 
+/// Bloodlust - 2825
 class spell_sha_bloodlust: public SpellScriptLoader
 {
     public:
@@ -1399,6 +1473,7 @@ class spell_sha_bloodlust: public SpellScriptLoader
         }
 };
 
+/// Heroism - 32182
 class spell_sha_heroism: public SpellScriptLoader
 {
     public:
@@ -1443,7 +1518,7 @@ class spell_sha_heroism: public SpellScriptLoader
         }
 };
 
-// 58877 - Spirit Hunt
+/// 58877 - Spirit Hunt
 class spell_sha_spirit_hunt: public SpellScriptLoader
 {
     public:
@@ -1473,7 +1548,7 @@ class spell_sha_spirit_hunt: public SpellScriptLoader
         }
 };
 
-// 105792 - Lava Shock Spread
+/// 105792 - Lava Shock Spread
 class spell_sha_lava_lash_spread: public SpellScriptLoader
 {
     public:
@@ -1522,7 +1597,7 @@ class spell_sha_lava_lash_spread: public SpellScriptLoader
         }
 };
 
-// 60103 - Lava Lash
+/// 60103 - Lava Lash
 class spell_sha_lava_lash: public SpellScriptLoader
 {
     public:
@@ -1554,7 +1629,7 @@ class spell_sha_lava_lash: public SpellScriptLoader
         }
 };
 
-// 33757 - Windfury
+/// 33757 - Windfury
 class spell_sha_windfury: public SpellScriptLoader
 {
     public:
@@ -1601,7 +1676,7 @@ class spell_sha_windfury: public SpellScriptLoader
         }
 };
 
-// 10400 - Flametongue
+/// 10400 - Flametongue
 class spell_sha_flametongue: public SpellScriptLoader
 {
     public:
@@ -1634,7 +1709,7 @@ class spell_sha_flametongue: public SpellScriptLoader
         }
 };
 
-// 157804 - Improved Flame Shock
+/// 157804 - Improved Flame Shock
 class spell_sha_improoved_flame_shock: public SpellScriptLoader
 {
     public:
@@ -1665,7 +1740,7 @@ class spell_sha_improoved_flame_shock: public SpellScriptLoader
         }
 };
 
-// 51533 - Feral Spirit
+/// 51533 - Feral Spirit
 class spell_sha_feral_spirit: public SpellScriptLoader
 {
     public:
@@ -1695,7 +1770,7 @@ class spell_sha_feral_spirit: public SpellScriptLoader
         }
 };
 
-// 88766 - Fulmination
+/// 88766 - Fulmination
 class spell_sha_fulmination_proc: public SpellScriptLoader
 {
     public:
@@ -1739,7 +1814,7 @@ class spell_sha_fulmination_proc: public SpellScriptLoader
         }
 };
 
-// 157765 Enhanced Chain Lightning
+/// 157765 Enhanced Chain Lightning
 class spell_sha_enhanced_chain_lightning: public SpellScriptLoader
 {
     public:
@@ -1768,7 +1843,7 @@ class spell_sha_enhanced_chain_lightning: public SpellScriptLoader
         }
 };
 
-// 170374 - Molten Earth
+/// 170374 - Molten Earth
 class spell_sha_molten_earth: public SpellScriptLoader
 {
     public:
@@ -1813,7 +1888,7 @@ class spell_sha_molten_earth: public SpellScriptLoader
         }
 };
 
-// 170377 - Molten Earth Periodic
+/// 170377 - Molten Earth Periodic
 class spell_sha_molten_earth_periodic: public SpellScriptLoader
 {
     public:
@@ -1848,7 +1923,7 @@ class spell_sha_molten_earth_periodic: public SpellScriptLoader
         }
 };
 
-// 170379 - Molten Earth Damage
+/// 170379 - Molten Earth Damage
 class spell_sha_molten_earth_damage: public SpellScriptLoader
 {
     public:
@@ -1882,7 +1957,7 @@ class spell_sha_molten_earth_damage: public SpellScriptLoader
         }
 };
 
-// Echo of Elements - 108283
+/// Echo of Elements - 108283
 class spell_sha_echo_of_elements: public SpellScriptLoader
 {
     public:
@@ -1928,7 +2003,7 @@ class spell_sha_echo_of_elements: public SpellScriptLoader
         }
 };
 
-// 152255 Liquid Magma - a bit hacky, will do it properly later
+/// 152255 Liquid Magma - a bit hacky, will do it properly later
 class spell_sha_liquid_magma: public SpellScriptLoader
 {
     public:
@@ -2006,7 +2081,7 @@ class spell_sha_liquid_magma: public SpellScriptLoader
         }
 };
 
-// 157501 Liquid Magma
+/// 157501 Liquid Magma
 class spell_sha_liquid_magma_visual: public SpellScriptLoader
 {
     public:
@@ -2033,7 +2108,7 @@ class spell_sha_liquid_magma_visual: public SpellScriptLoader
         }
 };
 
-// 2645 Ghost Wolf
+/// 2645 Ghost Wolf
 class spell_sha_ghost_wolf: public SpellScriptLoader
 {
     public:
@@ -2080,7 +2155,7 @@ class spell_sha_ghost_wolf: public SpellScriptLoader
         }
 };
 
-// 51505 Lava Burst
+/// 51505 Lava Burst
 class spell_sha_lava_burst: public SpellScriptLoader
 {
     public:
@@ -2117,39 +2192,39 @@ class spell_sha_lava_burst: public SpellScriptLoader
         }
 };
 
-// Unleash Elements - 73680
+/// Unleash Elements - 73680
 class spell_sha_unleash_elements : public SpellScriptLoader
 {
-public:
-    spell_sha_unleash_elements() : SpellScriptLoader("spell_sha_unleash_elements") { }
+    public:
+        spell_sha_unleash_elements() : SpellScriptLoader("spell_sha_unleash_elements") { }
 
-    class spell_sha_unleash_elements_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_sha_unleash_elements_SpellScript);
-
-        void HandleOnHit()
+        class spell_sha_unleash_elements_SpellScript : public SpellScript
         {
-            if (Unit* l_Caster = GetCaster())
+            PrepareSpellScript(spell_sha_unleash_elements_SpellScript);
+
+            void HandleOnHit()
             {
-                if (l_Caster->HasAura(SPELL_SHA_UNLEASHED_FURY_TALENT))
-                    l_Caster->CastSpell(l_Caster, SPELL_SHA_UNLEASHED_FURY_FLAMETONGUE, true);
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(SPELL_SHA_UNLEASHED_FURY_TALENT))
+                        l_Caster->CastSpell(l_Caster, SPELL_SHA_UNLEASHED_FURY_FLAMETONGUE, true);
+                }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_sha_unleash_elements_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnHit += SpellHitFn(spell_sha_unleash_elements_SpellScript::HandleOnHit);
+            return new spell_sha_unleash_elements_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_sha_unleash_elements_SpellScript();
-    }
 };
 
-// Call by Chain Heal - 1064, Riptide - 61295
-// Tidal Waves - 51564
+/// Call by Chain Heal - 1064, Riptide - 61295
+/// Tidal Waves - 51564
 class spell_sha_tidal_waves : public SpellScriptLoader
 {
 public:
@@ -2186,6 +2261,7 @@ void AddSC_shaman_spell_scripts()
     new npc_storm_elemental();
 
     /// Spells
+    new spell_sha_unleashed_fury();
     new spell_sha_high_tide();
     new spell_sha_tidal_waves();
     new spell_sha_unleash_elements();
