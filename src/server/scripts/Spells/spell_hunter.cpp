@@ -126,7 +126,9 @@ enum HunterSpells
     HUNTER_SPELL_POISONED_AMMO                      = 162543,
     HUNTER_SPELL_POISONED_AMMO_AURA                 = 170661,
     HUNTER_SPELL_GLYPH_OF_MEND_PET                  = 19573,
-    HUNTER_SPELL_GLYPH_OF_MEND_PET_TICK             = 24406
+    HUNTER_SPELL_GLYPH_OF_MEND_PET_TICK             = 24406,
+    HUNTER_SPELL_ENTRAPMENT_AURA                    = 19387,
+    HUNTER_SPELL_ENTRAPMENT                         = 64803
 };
 
 /// Lesser Proportion - 57894
@@ -3636,6 +3638,9 @@ class AreaTrigger_ice_trap : public AreaTriggerEntityScript
                 if (l_Target != nullptr)
                 {
                     l_Caster->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), (uint32)HunterIceTrap::SpellIceTrapEffect, true);
+
+                    if (l_Caster->HasAura(HUNTER_SPELL_ENTRAPMENT_AURA)) ///< Entrapment
+                        l_Caster->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), HUNTER_SPELL_ENTRAPMENT, true);
                     p_AreaTrigger->Remove(0);
                 }
             }
