@@ -188,7 +188,8 @@ enum Opcodes
         SMSG_BAG_SORT_RESULT                        = 0x09E4,   ///< 6.0.3 19116
         SMSG_VIGNETTE_UPDATE                        = 0x09AC,   ///< 6.0.3 19116
         SMSG_ACCOUNT_MOUNT_UPDATE                   = 0x0140,   ///< 6.0.3 19116
-        CMSG_GET_MIRRORIMAGE_DATA                   = 0x08F6,   ///< 6.0.3 19116
+        SMSG_PLAY_SCENE                             = 0x0917,   ///< 6.0.3 19116
+        SMSG_CANCEL_SCENE                           = 0x033F,   ///< 6.0.3 19116
 
         /// Control Alert
         SMSG_LOSS_OF_CONTROL_AURA_UPDATE            = 0x0305,   ///< 6.0.3 19116
@@ -505,6 +506,12 @@ enum Opcodes
         SMSG_BLACK_MARKET_REQUEST_ITEMS_RESULT                  = 0x1BC2, ///< 6.0.3 19116
         SMSG_BLACK_MARKET_BID_ON_ITEM_RESULT                    = 0x0825, ///< 6.0.3 19116
         SMSG_BLACK_MARKET_WON                                   = 0x1BAA, ///< 6.0.3 19116
+
+        /// Garrison
+        SMSG_OPEN_SHIPMENT_NPCFROM_GOSSIP                       = 0x0709, ///< 6.0.3 19116
+        SMSG_GET_SHIPMENT_INFO_RESPONSE                         = 0x1BAB, ///< 6.0.3 19116
+        SMSG_GET_SHIPMENTS                                      = 0x1901, ///< 6.0.3 19116
+        SMSG_CREATE_SHIPMENT_RESPONSE                           = 0x11AB, ///< 6.0.3 19116
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -930,7 +937,6 @@ enum Opcodes
     CMSG_GARRISON_CREATE_CHEAT                              = 0x0000,
     CMSG_GARRISON_DELETE_CHEAT                              = 0x0000,
     CMSG_GARRISON_SET_LEVEL_CHEAT                           = 0x0000,
-    CMSG_UPGRADE_GARRISON                                   = 0x0000,
     CMSG_GARRISON_PLACE_BUILDING_CHEAT                      = 0x0000,
     CMSG_GARRISON_REMOVE_BUILDING_CHEAT                     = 0x0000,
     CMSG_GARRISON_UPGRADE_BUILDING_CHEAT                    = 0x0000,
@@ -959,8 +965,12 @@ enum Opcodes
     CMSG_GARRISON_COMPLETE_MISSION                          = 0x102C,   ///< 6.0.3 19116
     CMSG_GARRISON_MISSION_BONUS_ROLL                        = 0x02C2,   ///< 6.0.3 19116
     CMSG_GARRISON_REQUEST_UPGRADEABLE                       = 0x02BD,   ///< 6.0.3 19116
+    CMSG_UPGRADE_GARRISON                                   = 0x0526,   ///< 6.0.3 19116
     CMSG_GARRISON_REQUEST_LANDING_PAGE_SHIPMENT_INFO        = 0x0000,
     CMSG_GARRISON_MISSION_NPC_HELLO                         = 0x03D9,   ///< 6.0.3 19116
+    CMSG_GET_SHIPMENT_INFO                                  = 0x06E3,   ///< 6.0.3 19116
+    CMSG_CREATE_SHIPMENT                                    = 0x068B,   ///< 6.0.3 19116
+    CMSG_GET_SHIPMENTS                                      = 0x0623,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// User Router
@@ -1162,6 +1172,8 @@ enum Opcodes
     CMSG_SELF_RES                               = 0x1343,   ///< 6.0.3 19116
     CMSG_READ_ITEM                              = 0x09B9,   ///< 6.0.3 19116
     CMSG_COMPLETE_MOVIE                         = 0x13D4,   ///< 6.0.3 19116
+    CMSG_SCENE_TRIGGER_EVENT                    = 0x11B9,   ///< 6.0.3 19116
+    CMSG_GET_MIRRORIMAGE_DATA                   = 0x08F6,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Vehicles
@@ -1742,7 +1754,6 @@ enum Opcodes
     SMSG_AREA_SHARE_INFO_RESPONSE                       = 0x0000,
     SMSG_BEASTMASTER_FAILED                             = 0x0000,
     SMSG_BONUS_ROLL_EMPTY                               = 0x0000,
-    SMSG_CANCEL_SCENE                                   = 0x0000,
     SMSG_CANCEL_ORPHAN_SPELL_VISUAL                     = 0x0000,
     SMSG_CANCEL_SPELL_VISUAL                            = 0x0000,
     SMSG_CHALLENGE_MODE_DELETE_LEADER_RESULT            = 0x0000,
@@ -1776,7 +1787,6 @@ enum Opcodes
     SMSG_PET_BATTLE_SLOT_UPDATE                         = 0x0000,
     SMSG_PLAYER_NOT_FOUND_FAILURE                       = 0x0000,
     SMSG_PLAY_ORPHAN_SPELL_VISUAL                       = 0x0000,
-    SMSG_PLAY_SCENE                                     = 0x0000,
     SMSG_REFRESH_COMPONENT                              = 0x0000,
     SMSG_RESET_WEEKLY_CURRENCY                          = 0x0000,
     SMSG_SCENE_OBJECT_EVENT                             = 0x0000,

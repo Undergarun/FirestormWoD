@@ -41,6 +41,13 @@ namespace MS { namespace Garrison { namespace Interfaces
             /// @p_Owner : Garrison owner
             virtual bool CanUseGarrisonCache(Player * p_Owner) = 0;
 
+            /// Can upgrade the garrison
+            /// @p_Owner : Garrison owner
+            virtual bool CanUpgrade(Player * p_Owner) = 0;
+            /// On upgrade the garrison
+            /// @p_Owner : Garrison owner
+            virtual void OnUpgrade(Player * p_Owner) = 0;
+
             /// When a mission start
             /// @p_Owner     : Garrison owner
             /// @p_MissionID : Started mission ID

@@ -1285,7 +1285,7 @@ enum SpellEffects
     SPELL_EFFECT_DEATH_GRIP                         = 213,
     SPELL_EFFECT_214                                = 214,
     SPELL_EFFECT_215                                = 215,
-    SPELL_EFFECT_216                                = 216,
+    SPELL_EFFECT_CREATE_SHIPMENT                    = 216,
     SPELL_EFFECT_217                                = 217,
     SPELL_EFFECT_218                                = 218,
     SPELL_EFFECT_219                                = 219,
@@ -2166,6 +2166,7 @@ enum GameObjectFlags
     GO_FLAG_NOT_SELECTABLE  = 0x00000010,                   // not selectable even in GM mode
     GO_FLAG_NODESPAWN       = 0x00000020,                   // never despawn, typically for doors, they just change state
     GO_FLAG_TRIGGERED       = 0x00000040,                   // typically, summoned objects. Triggered by spell or other events
+    GO_FLAG_ACTIVATED       = 0x00000100,                   ///< Used in garrison for work order recipes
     GO_FLAG_DAMAGED         = 0x00000200,
     GO_FLAG_DESTROYED       = 0x00000400
 };

@@ -455,7 +455,8 @@ UPDATE quest_template SET PrevQuestId = 33076, NextQuestId = 33080 WHERE Id = 33
 UPDATE quest_template SET PrevQuestId = 33059, NextQuestId = 33081 WHERE Id = 33080; -- Going Undercover
 UPDATE quest_template SET PrevQuestId = 33080, NextQuestId = 33814 WHERE Id = 33081; -- Escape From Shaz'gul
 UPDATE quest_template SET PrevQuestId = 33081, NextQuestId = 36592 WHERE Id = 33814; -- Fast Expansion
-UPDATE quest_template SET PrevQuestId = 33814 WHERE Id = 36592;						 -- Bigger is Better
+--UPDATE quest_template SET PrevQuestId = 33814 WHERE Id = 36592;						 -- Bigger is Better
+UPDATE quest_template SET PrevQuestId = 0 WHERE Id = 36592;						 -- Bigger is Better
 
 UPDATE quest_template SET PrevQuestId = 33765 WHERE Id = 33813;						 -- In Need of a Hero
 

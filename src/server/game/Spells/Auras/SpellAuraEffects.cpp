@@ -3318,7 +3318,7 @@ void AuraEffect::HandleAuraTrackStealthed(AuraApplication const* aurApp, uint8 m
         if (target->HasAuraType(GetAuraType()))
             return;
     }
-    target->ApplyModFlag(PLAYER_FIELD_LIFETIME_MAX_RANK, PLAYER_FIELD_BYTE_TRACK_STEALTHED, apply);
+    target->ApplyModFlag(PLAYER_FIELD_LIFETIME_MAX_RANK, PLAYER_LOCAL_FLAG_TRACK_STEALTHED, apply);
 }
 
 void AuraEffect::HandleAuraModStalked(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -6725,7 +6725,7 @@ void AuraEffect::HandleAuraOverrideSpells(AuraApplication const* aurApp, uint8 m
 
     if (apply)
     {
-        target->SetUInt32Value(PLAYER_FIELD_OVERRIDE_SPELLS_ID, overrideId << 16);
+        target->SetUInt16Value(PLAYER_FIELD_OVERRIDE_SPELLS_ID, PLAYER_BYTES_2_OVERRIDE_SPELLS_UINT16_OFFSET, overrideId);
         if (OverrideSpellDataEntry const* overrideSpells = sOverrideSpellDataStore.LookupEntry(overrideId))
             for (uint8 i = 0; i < MAX_OVERRIDE_SPELL; ++i)
                 if (uint32 spellId = overrideSpells->spellId[i])
@@ -6733,7 +6733,7 @@ void AuraEffect::HandleAuraOverrideSpells(AuraApplication const* aurApp, uint8 m
     }
     else
     {
-        target->SetUInt32Value(PLAYER_FIELD_OVERRIDE_SPELLS_ID, 0);
+        target->SetUInt16Value(PLAYER_FIELD_OVERRIDE_SPELLS_ID, PLAYER_BYTES_2_OVERRIDE_SPELLS_UINT16_OFFSET, 0);
         if (OverrideSpellDataEntry const* overrideSpells = sOverrideSpellDataStore.LookupEntry(overrideId))
             for (uint8 i = 0; i < MAX_OVERRIDE_SPELL; ++i)
                 if (uint32 spellId = overrideSpells->spellId[i])
@@ -6798,9 +6798,9 @@ void AuraEffect::HandlePreventResurrection(AuraApplication const* aurApp, uint8 
         return;
 
     if (apply)
-        aurApp->GetTarget()->RemoveByteFlag(PLAYER_FIELD_LIFETIME_MAX_RANK, 0, PLAYER_FIELD_BYTE_RELEASE_TIMER);
+        aurApp->GetTarget()->RemoveFlag(PLAYER_FIELD_LIFETIME_MAX_RANK, PLAYER_LOCAL_FLAG_RELEASE_TIMER);
     else if (!aurApp->GetTarget()->GetBaseMap()->Instanceable())
-        aurApp->GetTarget()->SetByteFlag(PLAYER_FIELD_LIFETIME_MAX_RANK, 0, PLAYER_FIELD_BYTE_RELEASE_TIMER);
+        aurApp->GetTarget()->SetFlag(PLAYER_FIELD_LIFETIME_MAX_RANK, PLAYER_LOCAL_FLAG_RELEASE_TIMER);
 }
 
 void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const

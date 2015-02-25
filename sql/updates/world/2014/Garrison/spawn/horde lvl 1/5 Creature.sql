@@ -343,7 +343,7 @@ INSERT INTO npc_text (`ID`, `text0_1`, `lang0`, `prob0`, `WDBVerified`) VALUES(8
 DELETE FROM `gossip_menu` WHERE `entry` = 16462;
 REPLACE INTO gossip_menu (entry, `text_id`) VALUES(16462, 82110);
 UPDATE creature_template SET gossip_menu_id = 16462, AIName="SmartAI" WHERE entry=80151;
-REPLACE INTO gossip_menu_option (menu_id, id, `option_icon`, `option_text`, `option_id`, `box_coded`, `box_money`, `box_text`, `npc_option_npcflag`) VALUES(16462, 1, 0, "Let me browse your goods.", 1, 0, 0, "", 1);
+REPLACE INTO gossip_menu_option (menu_id, id, `option_icon`, `option_text`, `option_id`, `box_coded`, `box_money`, `box_text`, `npc_option_npcflag`) VALUES(16462, 1, 0, "I have lost my garrison hearthstone, can you give me another?", 1, 0, 0, "", 1);
 REPLACE INTO gossip_menu_option (menu_id, id, `option_icon`, `option_text`, `option_id`, `box_coded`, `box_money`, `box_text`, `npc_option_npcflag`) VALUES(16462, 2, 1, "I would like to buy from you.", 3, 0, 0, "", 1);
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`='15' AND `SourceGroup`='16462' AND `SourceEntry`='1';
 INSERT INTO `conditions`(`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES ( '15','16462','1','0','0','2','0','110560','1','0','1','0','',NULL);

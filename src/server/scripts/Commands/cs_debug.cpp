@@ -56,6 +56,7 @@ class debug_commandscript: public CommandScript
                 { "movie",          SEC_MODERATOR,      false, &HandleDebugPlayMovieCommand,       "", NULL },
                 { "sound",          SEC_MODERATOR,      false, &HandleDebugPlaySoundCommand,       "", NULL },
                 { "scene",          SEC_ADMINISTRATOR,  false, &HandleDebugPlaySceneCommand,       "", NULL },
+                { "sscene",         SEC_ADMINISTRATOR,  false, &HandleDebugPlaySSceneCommand,      "", NULL },
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand debugSendCommandTable[] =
@@ -361,6 +362,38 @@ class debug_commandscript: public CommandScript
 
             handler->PSendSysMessage("Start playing scene %u - %s !", id, sSceneScriptPackageStore.LookupEntry(id)->Name);
             handler->GetSession()->GetPlayer()->PlayScene(id, handler->GetSession()->GetPlayer());
+            return true;
+        }
+
+        static bool HandleDebugPlaySSceneCommand(ChatHandler* p_Handler, char const* args)
+        {
+            if (!*args)
+            {
+                p_Handler->SendSysMessage(LANG_BAD_VALUE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            uint32 id = atoi((char*)args);
+
+            if (!sSceneScriptPackageStore.LookupEntry(id))
+            {
+                p_Handler->PSendSysMessage("Scene %u doesnt exist !", id);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            Player * l_Player = p_Handler->GetSession()->GetPlayer();
+
+            Position l_Location;
+            l_Location.m_positionX = l_Player->m_positionX;
+            l_Location.m_positionY = l_Player->m_positionY;
+            l_Location.m_positionZ = l_Player->m_positionZ;
+            l_Location.m_orientation = l_Player->m_orientation;
+
+            p_Handler->PSendSysMessage("Start playing standalone scene %u - %s !", id, sSceneScriptPackageStore.LookupEntry(id)->Name);
+            p_Handler->GetSession()->GetPlayer()->PlayStandaloneScene(id, 16, l_Location);
+
             return true;
         }
 

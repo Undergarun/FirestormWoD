@@ -5,8 +5,8 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef GARRISON_MGR_BUILDING_HPP_GARRISON
-#define GARRISON_MGR_BUILDING_HPP_GARRISON
+#ifndef GARRISON_BUILDING_HPP_GARRISON
+#define GARRISON_BUILDING_HPP_GARRISON
 
 namespace MS { namespace Garrison 
 {
@@ -27,4 +27,4 @@ namespace MS { namespace Garrison
 }   ///< namespace Garrison
 }   ///< namespace MS
 
-#endif  ///< GARRISON_MGR_BUILDING_HPP_GARRISON
+#endif  ///< GARRISON_BUILDING_HPP_GARRISON
