@@ -213,9 +213,7 @@ INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`) VALUES
 INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(88915, 1331, 1772.358, 178.3299, 72.15973, 1.583745, 268435455, 65535, 0, 0, 12, 33536, 2048, 0, 0) ON DUPLICATE KEY UPDATE `id` = VALUES(`id`), `map` = VALUES(`map`), `position_x` = VALUES(`position_x`), `position_y` = VALUES(`position_y`), `position_z` = VALUES(`position_z`), `orientation` = VALUES(`orientation`), `spawnMask` = VALUES(`spawnMask`), `phaseMask` = VALUES(`phaseMask`), `equipment_id` = VALUES(`equipment_id`), `npcflag` = VALUES(`npcflag`), `npcflag2` = VALUES(`npcflag2`), `unit_flags` = VALUES(`unit_flags`), `unit_flags2` = VALUES(`unit_flags2`), `unit_flags3` = VALUES(`unit_flags3`), `WorldEffectID` = VALUES(`WorldEffectID`);
 INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`) VALUES(LAST_INSERT_ID(), 0, 0, 1, 0) ON DUPLICATE KEY UPDATE `guid` = VALUES(`guid`), `mount` = VALUES(`mount`), `bytes1` = VALUES(`bytes1`), `bytes2` = VALUES(`bytes2`), `emote` = VALUES(`emote`);
 
----------------------------------------------------------
 -- Npc Gossips & script
----------------------------------------------------------
 UPDATE creature SET MovementType=1, spawndist=40 WHERE id=82177 and map=1331;	-- Dog random movement
 UPDATE creature_template SET speed_walk=2 WHERE entry=82177;                    -- Dog random movement
 
@@ -271,9 +269,7 @@ DELETE FROM `gossip_menu` WHERE `entry` = 16390;
 INSERT INTO `gossip_menu`(`entry`,`text_id`) VALUES ('16390','86020');
 UPDATE creature_template SET gossip_menu_id = 16390 WHERE entry=77209;
 
----------------------------------------------------------
 -- Vendor
----------------------------------------------------------
 UPDATE `creature` SET `npcflag`=`npcflag`|128 WHERE `id`=81347 AND map=1331;
 UPDATE `creature_template` SET `npcflag`=`npcflag`|128 WHERE `entry`=81347;
 DELETE FROM `npc_vendor` WHERE `entry` = 81347 AND `type` = 1;

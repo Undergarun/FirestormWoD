@@ -321,9 +321,7 @@ INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`) VALUES
 INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(89133, 1330, 5618.885, 4501.209, 119.2702, 0, 268435455, 65535, 1, 1, 12, 32768, 4196352, 0, 0) ON DUPLICATE KEY UPDATE `id` = VALUES(`id`), `map` = VALUES(`map`), `position_x` = VALUES(`position_x`), `position_y` = VALUES(`position_y`), `position_z` = VALUES(`position_z`), `orientation` = VALUES(`orientation`), `spawnMask` = VALUES(`spawnMask`), `phaseMask` = VALUES(`phaseMask`), `equipment_id` = VALUES(`equipment_id`), `npcflag` = VALUES(`npcflag`), `npcflag2` = VALUES(`npcflag2`), `unit_flags` = VALUES(`unit_flags`), `unit_flags2` = VALUES(`unit_flags2`), `unit_flags3` = VALUES(`unit_flags3`), `WorldEffectID` = VALUES(`WorldEffectID`);
 INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`) VALUES(LAST_INSERT_ID(), 0, 0, 1, 0) ON DUPLICATE KEY UPDATE `guid` = VALUES(`guid`), `mount` = VALUES(`mount`), `bytes1` = VALUES(`bytes1`), `bytes2` = VALUES(`bytes2`), `emote` = VALUES(`emote`);
 
----------------------------------------------------------
 -- Npc Gossips & script
----------------------------------------------------------
 -- Provisioner rashma
 INSERT INTO npc_text (`ID`, `text0_1`, `lang0`, `prob0`, `WDBVerified`) VALUES(82110, "Eh boss-mon! Ya be needin' a rest?", 0, 100, 19342) ON DUPLICATE KEY UPDATE `ID` = VALUES(`ID`), `text0_1` = VALUES(`text0_1`), `lang0` = VALUES(`lang0`), `prob0` = VALUES(`prob0`), `WDBVerified` = VALUES(`WDBVerified`);
 DELETE FROM `gossip_menu` WHERE `entry` = 16462;
@@ -341,9 +339,7 @@ INSERT INTO npc_text (`ID`, `text0_0`, `lang0`, `prob0`, `WDBVerified`) VALUES(8
 REPLACE INTO gossip_menu (entry, `text_id`) VALUES(17274, 84128);
 UPDATE creature_template SET gossip_menu_id = 17274 WHERE entry=88228;
 
----------------------------------------------------------
 -- Random movement
----------------------------------------------------------
 UPDATE creature SET MovementType=1, spawndist=40 WHERE id=80438 and map=1330;
 UPDATE creature SET MovementType=1, spawndist=40 WHERE id=80437 and map=1330;
 UPDATE creature SET MovementType=1, spawndist=40 WHERE id=77908 and map=1330;
