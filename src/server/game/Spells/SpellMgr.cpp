@@ -3365,6 +3365,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 159362:///< Blood Craze
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED;
                 break;
+            case 30814: ///< Mental Quickness
+                spellInfo->Effects[EFFECT_4].Effect = 0;
+                break;
             case 149959: // Earth Shatter
             case 149968:
             case 149969:
