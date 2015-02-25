@@ -504,7 +504,6 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     float weapon_maxdamage = GetWeaponDamageRange(attType, MAXDAMAGE);
     float attackPower = GetTotalAttackPowerValue(attType);
 
-
     float weapon_with_ap_min = (weapon_mindamage / att_speed) + (attackPower / 3.5f);
     float weapon_with_ap_max = (weapon_maxdamage / att_speed) + (attackPower / 3.5f);
 

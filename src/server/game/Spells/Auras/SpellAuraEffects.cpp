@@ -507,7 +507,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //448 SPELL_AURA_448
     &AuraEffect::HandleNULL,                                      //449 SPELL_AURA_449
     &AuraEffect::HandleNULL,                                      //450 SPELL_AURA_450
-    &AuraEffect::HandleNULL,                                      //451 SPELL_AURA_451
+    &AuraEffect::HandleAuraAdaptation,                            //451 SPELL_AURA_ADAPTATION
     &AuraEffect::HandleNULL,                                      //452 SPELL_AURA_452
     &AuraEffect::HandleNULL,                                      //453 SPELL_AURA_MOD_COOLDOWN_2
     &AuraEffect::HandleNULL,                                      //454 SPELL_AURA_454
@@ -7481,147 +7481,6 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
             // 5..8 ticks have normal tick damage
             damage /= 10; // Prevent insane damage with 10 stacks
         }
-        // Malefic Grasp
-        if (GetSpellInfo()->Id == 103103)
-        {
-            int32 afflictionDamage;
-            SpellInfo const* afflictionSpell;
-
-            // Soul Leech
-            if (caster->HasAura(108370) && caster->GetTypeId() == TYPEID_PLAYER)
-            {
-                int32 bp = int32(damage / 10);
-
-                caster->CastCustomSpell(caster, 108366, &bp, NULL, NULL, true);
-
-                if (Pet* pet = caster->ToPlayer()->GetPet())
-                    caster->CastCustomSpell(pet, 108366, &bp, NULL, NULL, true);
-            }
-
-            // Every tick, Malefic Grasp deals instantly 30% of tick-damage for each affliction effects on the target
-            // Corruption ...
-            if (AuraPtr corruption = target->GetAura(146739, caster->GetGUID()))
-            {
-                afflictionSpell = sSpellMgr->GetSpellInfo(146739);
-                afflictionDamage = caster->CalculateSpellDamage(target, afflictionSpell, 0);
-                afflictionDamage = caster->SpellDamageBonusDone(target, afflictionSpell, afflictionDamage, EFFECT_0, DOT);
-                afflictionDamage = target->SpellDamageBonusTaken(caster, afflictionSpell, afflictionDamage, DOT);
-                afflictionDamage = CalculatePct(afflictionDamage, GetSpellInfo()->Effects[2].BasePoints);
-
-                caster->CastCustomSpell(target, 131740, &afflictionDamage, NULL, NULL, true);
-            }
-            // Unstable Affliction ...
-            if (AuraPtr unstableAffliction = target->GetAura(30108, caster->GetGUID()))
-            {
-                afflictionSpell = sSpellMgr->GetSpellInfo(30108);
-                afflictionDamage = caster->CalculateSpellDamage(target, afflictionSpell, 0);
-                afflictionDamage = caster->SpellDamageBonusDone(target, afflictionSpell, afflictionDamage, EFFECT_0, DOT);
-                afflictionDamage = target->SpellDamageBonusTaken(caster, afflictionSpell, afflictionDamage, DOT);
-                afflictionDamage = CalculatePct(afflictionDamage, GetSpellInfo()->Effects[2].BasePoints);
-
-                caster->CastCustomSpell(target, 131736, &afflictionDamage, NULL, NULL, true);
-            }
-            // Seed of Corruption ...
-            if (AuraPtr seedOfCorruption = target->GetAura(27243, caster->GetGUID()))
-            {
-                afflictionSpell = sSpellMgr->GetSpellInfo(27243);
-                afflictionDamage = caster->CalculateSpellDamage(target, afflictionSpell, 0);
-                afflictionDamage = caster->SpellDamageBonusDone(target, afflictionSpell, afflictionDamage, EFFECT_0, DOT);
-                afflictionDamage = target->SpellDamageBonusTaken(caster, afflictionSpell, afflictionDamage, DOT);
-                afflictionDamage = CalculatePct(afflictionDamage, GetSpellInfo()->Effects[2].BasePoints);
-
-                caster->CastCustomSpell(target, 132566, &afflictionDamage, NULL, NULL, true);
-            }
-            // Agony ...
-            if (AuraPtr agony = target->GetAura(980, caster->GetGUID()))
-            {
-                afflictionSpell = sSpellMgr->GetSpellInfo(980);
-                afflictionDamage = caster->CalculateSpellDamage(target, afflictionSpell, 0);
-                afflictionDamage = caster->SpellDamageBonusDone(target, afflictionSpell, afflictionDamage, EFFECT_0, DOT);
-                afflictionDamage = target->SpellDamageBonusTaken(caster, afflictionSpell, afflictionDamage, DOT);
-                afflictionDamage = CalculatePct(afflictionDamage, GetSpellInfo()->Effects[2].BasePoints);
-
-                agony->ModStackAmount(1);
-
-                caster->CastCustomSpell(target, 131737, &afflictionDamage, NULL, NULL, true);
-            }
-        }
-        // Soul Drain
-        if (GetSpellInfo()->Id == 1120)
-        {
-            // Energize one soul shard every 2 ticks
-            if (!(m_tickNumber%2))
-                caster->EnergizeBySpell(caster, GetSpellInfo()->Id, 100, POWER_SOUL_SHARDS);
-
-            // if target is below 20% of life ...
-            if (target->GetHealthPct() <= 20)
-            {
-                // ... drain soul deal 100% more damage ...
-                damage *= 2;
-
-                int32 afflictionDamage;
-                SpellInfo const* afflictionSpell;
-
-                // ... and deals instantly 60% of tick-damage for each affliction effects on the target
-                // Corruption ...
-                if (AuraPtr corruption = target->GetAura(146739, caster->GetGUID()))
-                {
-                    afflictionSpell = sSpellMgr->GetSpellInfo(146739);
-                    afflictionDamage = caster->CalculateSpellDamage(target, afflictionSpell, 0);
-                    afflictionDamage = caster->SpellDamageBonusDone(target, afflictionSpell, afflictionDamage, EFFECT_0, DOT);
-                    afflictionDamage = target->SpellDamageBonusTaken(caster, afflictionSpell, afflictionDamage, DOT);
-                    afflictionDamage = CalculatePct(afflictionDamage, GetSpellInfo()->Effects[4].BasePoints);
-
-                    caster->CastCustomSpell(target, 131740, &afflictionDamage, NULL, NULL, true);
-                }
-                // Unstable Affliction ...
-                if (AuraPtr unstableAffliction = target->GetAura(30108, caster->GetGUID()))
-                {
-                    afflictionSpell = sSpellMgr->GetSpellInfo(30108);
-                    afflictionDamage = caster->CalculateSpellDamage(target, afflictionSpell, 0);
-                    afflictionDamage = caster->SpellDamageBonusDone(target, afflictionSpell, afflictionDamage, EFFECT_0, DOT);
-                    afflictionDamage = target->SpellDamageBonusTaken(caster, afflictionSpell, afflictionDamage, DOT);
-                    afflictionDamage = CalculatePct(afflictionDamage, GetSpellInfo()->Effects[4].BasePoints);
-
-                    caster->CastCustomSpell(target, 131736, &afflictionDamage, NULL, NULL, true);
-                }
-                // Seed of Corruption ...
-                if (AuraPtr seedOfCorruption = target->GetAura(27243, caster->GetGUID()))
-                {
-                    afflictionSpell = sSpellMgr->GetSpellInfo(27243);
-                    afflictionDamage = caster->CalculateSpellDamage(target, afflictionSpell, 0);
-                    afflictionDamage = caster->SpellDamageBonusDone(target, afflictionSpell, afflictionDamage, EFFECT_0, DOT);
-                    afflictionDamage = target->SpellDamageBonusTaken(caster, afflictionSpell, afflictionDamage, DOT);
-                    afflictionDamage = CalculatePct(afflictionDamage, GetSpellInfo()->Effects[4].BasePoints);
-
-                    caster->CastCustomSpell(target, 132566, &afflictionDamage, NULL, NULL, true);
-                }
-                // Agony ...
-                if (AuraPtr agony = target->GetAura(980, caster->GetGUID()))
-                {
-                    afflictionSpell = sSpellMgr->GetSpellInfo(980);
-                    afflictionDamage = caster->CalculateSpellDamage(target, afflictionSpell, 0);
-                    afflictionDamage = caster->SpellDamageBonusDone(target, afflictionSpell, afflictionDamage, EFFECT_0, DOT);
-                    afflictionDamage = target->SpellDamageBonusTaken(caster, afflictionSpell, afflictionDamage, DOT);
-                    afflictionDamage = CalculatePct(afflictionDamage, GetSpellInfo()->Effects[4].BasePoints);
-
-                    agony->ModStackAmount(1);
-
-                    caster->CastCustomSpell(target, 131737, &afflictionDamage, NULL, NULL, true);
-                }
-            }
-
-            // Soul Leech
-            if (caster->HasAura(108370) && caster->GetTypeId() == TYPEID_PLAYER)
-            {
-                int32 bp = int32(damage / 10);
-
-                caster->CastCustomSpell(caster, 108366, &bp, NULL, NULL, true);
-
-                if (Pet* pet = caster->ToPlayer()->GetPet())
-                    caster->CastCustomSpell(pet, 108366, &bp, NULL, NULL, true);
-            }
-        }
         // Execution Sentence damage-per-tick calculation
         if (GetSpellInfo()->Id == 114916)
         {
@@ -8717,4 +8576,64 @@ void AuraEffect::HandleAuraSetPowerType(AuraApplication const* p_AurApp, uint8 p
 
     Powers l_Power = Powers(l_PowerDisplay->ActualType);
     l_Target->setPowerType(l_Power);
+}
+
+void AuraEffect::HandleAuraAdaptation(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
+{
+    if (!(p_Mode & AuraEffectHandleModes::AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Unit* l_Target = p_AurApp->GetTarget();
+    if (l_Target == nullptr || l_Target->GetTypeId() != TypeID::TYPEID_PLAYER)
+        return;
+
+    Player* l_Player = l_Target->ToPlayer();
+    if (l_Player == nullptr)
+        return;
+
+    SpecIndex l_NewSpec = SpecIndex::SPEC_NONE;
+    if (Pet* l_Pet = l_Player->GetPet())
+    {
+        if (p_Apply)
+        {
+            switch (l_Pet->GetSpecializationId())
+            {
+                case SpecIndex::SPEC_PET_FEROCITY:
+                    l_NewSpec = SpecIndex::SPEC_ROGUE_FEROCITY_ADAPT;
+                    break;
+                case SpecIndex::SPEC_PET_CUNNING:
+                    l_NewSpec = SpecIndex::SPEC_ROGUE_CUNNING_ADAPT;
+                    break;
+                case SpecIndex::SPEC_PET_TENACITY:
+                    l_NewSpec = SpecIndex::SPEC_ROGUE_TENACIOUS_ADAPT;
+                    break;
+                default:
+                    break;
+            }
+        }
+        else
+        {
+            switch (l_Pet->GetSpecializationId())
+            {
+                case SpecIndex::SPEC_ROGUE_FEROCITY_ADAPT:
+                    l_NewSpec = SpecIndex::SPEC_PET_FEROCITY;
+                    break;
+                case SpecIndex::SPEC_ROGUE_CUNNING_ADAPT:
+                    l_NewSpec = SpecIndex::SPEC_PET_CUNNING;
+                    break;
+                case SpecIndex::SPEC_ROGUE_TENACIOUS_ADAPT:
+                    l_NewSpec = SpecIndex::SPEC_PET_TENACITY;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        if (l_Pet->GetSpecializationId())
+            l_Pet->UnlearnSpecializationSpell();
+
+        l_Pet->SetSpecializationId((uint32)l_NewSpec);
+        l_Pet->LearnSpecializationSpell();
+        l_Player->SendTalentsInfoData(true);
+    }
 }

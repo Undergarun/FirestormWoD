@@ -1303,6 +1303,7 @@ void Battleground::AddPlayer(Player* player)
 
         if (GetStatus() == STATUS_WAIT_JOIN)                 // not started yet
         {
+            player->SaveBGLastSpecialization();
             player->CastSpell(player, SPELL_ARENA_PREPARATION, true);
             player->ResetAllPowers();
             SendCountdownTimer();

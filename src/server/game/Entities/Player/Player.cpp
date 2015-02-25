@@ -4344,33 +4344,6 @@ void Player::InitSpellForLevel()
             removeSpell(90267, false, false);
     }
 
-    // Mage players learn automatically Portal: Vale of Eternal Blossom and Teleport: Vale of Eternal Blossom at level 90
-    if (l_Level == 90 && getClass() == CLASS_MAGE)
-    {
-        if (TeamForRace(getRace()) == HORDE)
-        {
-            learnSpell(132627, false); // Teleport: Vale of Eternal Blossoms
-            learnSpell(132626, false); // Portal: Vale of Eternal Blossoms
-
-            // Only for alliance
-            if (HasSpell(132621))
-                removeSpell(132621, false, false);
-            if (HasSpell(132620))
-                removeSpell(132620, false, false);
-        }
-        else
-        {
-            learnSpell(132621, false); // Teleport: Vale of Eternal Blossoms
-            learnSpell(132620, false); // Portal: Vale of Eternal Blossoms
-
-            // Only for horde
-            if (HasSpell(132626))
-                removeSpell(132626, false, false);
-            if (HasSpell(132627))
-                removeSpell(132627, false, false);
-        }
-    }
-
     // Fix Pick Lock update at each level
     if (HasSpell(1804) && getLevel() > 20)
         SetSkill(921, GetSkillStep(921), (getLevel() * 5), (getLevel() * 5));
@@ -5650,28 +5623,14 @@ void Player::_LoadChargesCooldowns(PreparedQueryResult p_Result)
         do
         {
             Field* l_Fields = p_Result->Fetch();
-            uint32 l_SpellID = l_Fields[0].GetUInt32();
+            uint32 l_CategoryID = l_Fields[0].GetUInt32();
             uint8 l_Charge = l_Fields[1].GetUInt8();
             uint64 l_Cooldown = uint64(l_Fields[2].GetUInt32()) * IN_MILLISECONDS;
 
-            SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_SpellID);
-            if (l_SpellInfo == nullptr)
-            {
-                sLog->outError(LOG_FILTER_PLAYER_LOADING, "Player %u has unknown spell %u in `character_charges_cooldown`, skipping.", GetGUIDLow(), l_SpellID);
-                continue;
-            }
-
-            SpellCategoriesEntry const* l_Categories = l_SpellInfo->GetSpellCategories();
-            if (l_Categories == nullptr)
-            {
-                sLog->outError(LOG_FILTER_PLAYER_LOADING, "Spell %u has unknown categories registered, skipping.", l_SpellID);
-                continue;
-            }
-
-            SpellCategoryEntry const* l_Category = sSpellCategoryStores.LookupEntry(l_Categories->ChargesCategory);
+            SpellCategoryEntry const* l_Category = sSpellCategoryStores.LookupEntry(l_CategoryID);
             if (l_Category == nullptr)
             {
-                sLog->outError(LOG_FILTER_PLAYER_LOADING, "Player %u, with spell %u has unknown charges category %u registered, skipping.", GetGUIDLow(), l_SpellID, l_Categories->ChargesCategory);
+                sLog->outError(LOG_FILTER_PLAYER_LOADING, "Player %u has unknown charges category %u registered, skipping.", GetGUIDLow(), l_CategoryID);
                 continue;
             }
 
@@ -5680,16 +5639,16 @@ void Player::_LoadChargesCooldowns(PreparedQueryResult p_Result)
                 continue;
 
             uint64 l_RealCooldown = (l_Cooldown - l_CurrTime);
-            if (m_SpellChargesMap.find(l_SpellID) != m_SpellChargesMap.end())
+            if (m_SpellChargesMap.find(l_CategoryID) != m_SpellChargesMap.end())
             {
-                ChargesData* l_Charges = GetChargesData(l_SpellID);
+                ChargesData* l_Charges = GetChargesData(l_CategoryID);
                 l_Charges->m_ConsumedCharges = l_Charge;
                 l_Charges->m_ChargesCooldown.push_back(l_RealCooldown);
             }
             else
-                m_SpellChargesMap.insert(std::make_pair(l_SpellID, ChargesData(l_Category->MaxCharges, l_RealCooldown, l_Charge)));
+                m_SpellChargesMap.insert(std::make_pair(l_CategoryID, ChargesData(l_Category->MaxCharges, l_RealCooldown, l_Charge)));
 
-            sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Player (GUID: %u) spell %u, charges cooldown loaded (%u secs).", GetGUIDLow(), l_SpellID, uint32(l_Cooldown - l_CurrTime));
+            sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Player (GUID: %u) category %u, charges cooldown loaded (%u secs).", GetGUIDLow(), l_CategoryID, uint32(l_Cooldown - l_CurrTime));
         }
         while (p_Result->NextRow());
     }
@@ -6021,7 +5980,6 @@ void Player::SetSpecializationId(uint8 spec, uint32 id, bool loading)
     else
         _talentMgr->SpecInfo[spec].SpecializationId = id;
 }
-
 
 uint32 Player::GetRoleForGroup(uint32 specializationId)
 {
@@ -9841,7 +9799,6 @@ void Player::DuelComplete(DuelCompleteType p_DuelType)
 }
 
 //---------------------------------------------------------//
-
 void Player::_ApplyItemMods(Item* item, uint8 slot, bool apply)
 {
     if (slot >= INVENTORY_SLOT_BAG_END || !item)
@@ -12283,7 +12240,6 @@ void Player::SendTalentWipeConfirm(uint64 guid, bool specialization)
 /*********************************************************/
 /***                    STORAGE SYSTEM                 ***/
 /*********************************************************/
-
 void Player::SetVirtualItemSlot(uint8 i, Item* item)
 {
     ASSERT(i < 3);
@@ -16920,7 +16876,6 @@ void Player::SendNewItem(Item* item, uint32 p_Quantity, bool received, bool crea
 /*********************************************************/
 /***                    GOSSIP SYSTEM                  ***/
 /*********************************************************/
-
 void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool showQuests /*= false*/)
 {
     PlayerMenu* menu = PlayerTalkClass;
@@ -17284,7 +17239,6 @@ uint32 Player::GetDefaultGossipMenuForSource(WorldObject* source)
 /*********************************************************/
 /***                    QUEST SYSTEM                   ***/
 /*********************************************************/
-
 void Player::PrepareQuestMenu(uint64 guid)
 {
     QuestRelationBounds objectQR;
@@ -18678,7 +18632,6 @@ bool Player::SatisfyQuestMonth(Quest const* qInfo, bool /*msg*/)
     return m_monthlyquests.find(qInfo->GetQuestId()) == m_monthlyquests.end();
 }
 
-
 bool Player::GiveQuestSourceItem(Quest const* quest)
 {
     uint32 srcitem = quest->GetSrcItemId();
@@ -19184,6 +19137,7 @@ void Player::ReputationChanged2(FactionEntry const* factionEntry)
 {
     ReputationChangedQuestCheck(factionEntry);
 }
+
 void Player::ReputationChangedQuestCheck(FactionEntry const* factionEntry)
 {
     for (uint8 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
@@ -19325,6 +19279,7 @@ bool Player::HasQuestForItem(uint32 itemid) const
     }
     return false;
 }
+
 bool Player::HasQuest(uint32 p_QuestID) const
 {
     for (uint8 l_I = 0; l_I < MAX_QUEST_LOG_SIZE; ++l_I)
@@ -19546,7 +19501,6 @@ void Player::SendQuestUpdateAddPlayer(Quest const* p_Quest, const QuestObjective
 /*********************************************************/
 /***                   LOAD SYSTEM                     ***/
 /*********************************************************/
-
 void Player::Initialize(uint32 guid)
 {
     Object::_Create(guid, 0, HIGHGUID_PLAYER);
@@ -21972,7 +21926,6 @@ bool Player::_LoadHomeBind(PreparedQueryResult result)
 /*********************************************************/
 /***                   SAVE SYSTEM                     ***/
 /*********************************************************/
-
 void Player::SaveToDB(bool create /*=false*/)
 {
     // delay auto save at any saves (manual, in code, or autosave)
@@ -23068,7 +23021,6 @@ void Player::outDebugValues() const
 /*********************************************************/
 /***               FLOOD FILTER SYSTEM                 ***/
 /*********************************************************/
-
 void Player::UpdateSpeakTime()
 {
     // ignore chat spam protection for GMs in any mode
@@ -23131,7 +23083,6 @@ bool Player::CanSpeak() const
 /*********************************************************/
 /***              LOW LEVEL FUNCTIONS:Notifiers        ***/
 /*********************************************************/
-
 void Player::SavePositionInDB(uint32 mapid, float x, float y, float z, float o, uint32 zone, uint64 guid)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_POSITION);
@@ -23310,7 +23261,6 @@ void Player::SendResetInstanceFailed(uint32 p_Reason, uint32 p_MapID)
 /*********************************************************/
 /***              Update timers                        ***/
 /*********************************************************/
-
 ///checks the 15 afk reports per 5 minutes limit
 void Player::UpdateAfkReport(time_t currTime)
 {
@@ -25320,13 +25270,13 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
             }
         }
 
-        // TODO: is charge regen time affected by any mods?
+        /// Is charge regen time affected by any mods?
         SpellCategoriesEntry const* categories = spellInfo->GetSpellCategories();
         if (categories && categories->ChargesCategory != 0)
         {
             SpellCategoryEntry const* category = sSpellCategoryStores.LookupEntry(categories->ChargesCategory);
             if (category && category->ChargeRegenTime != 0 && category->MaxCharges != 0)
-                ConsumeCharge(spellInfo->Id, category);
+                ConsumeCharge(category->Id, category);
         }
 
         // replace negative cooldowns by 0
@@ -27153,37 +27103,31 @@ void Player::RemoveItemDependentAurasAndCasts(Item* pItem)
 uint32 Player::GetResurrectionSpellId()
 {
     // search priceless resurrection possibilities
-    uint32 prio = 0;
-    uint32 spell_id = 0;
-    AuraEffectList const& dummyAuras = GetAuraEffectsByType(SPELL_AURA_DUMMY);
-    for (AuraEffectList::const_iterator itr = dummyAuras.begin(); itr != dummyAuras.end(); ++itr)
+    uint32 l_Priority = 0;
+    uint32 l_ResurrectSpellID = 0;
+
+    AuraEffectList const& l_DummyAuras = GetAuraEffectsByType(SPELL_AURA_DUMMY);
+    for (AuraEffectList::const_iterator l_AuraItr = l_DummyAuras.begin(); l_AuraItr != l_DummyAuras.end(); ++l_AuraItr)
     {
         // Soulstone Resurrection                           // prio: 3 (max, non death persistent)
-        if (prio < 2 && (*itr)->GetSpellInfo()->SpellVisual[0] == 99 && (*itr)->GetSpellInfo()->SpellIconID == 92)
+        if (l_Priority < 2 && (*l_AuraItr)->GetId() == 20707)
         {
-            switch ((*itr)->GetId())
-            {
-                case 20707: spell_id =  3026; break;        // rank 1
-                default:
-                    sLog->outError(LOG_FILTER_PLAYER, "Unhandled spell %u: S.Resurrection", (*itr)->GetId());
-                    continue;
-            }
-
-            prio = 3;
+            l_Priority = 3;
+            l_ResurrectSpellID = 3026;
         }
         // Twisting Nether                                  // prio: 2 (max)
-        else if ((*itr)->GetId() == 23701 && roll_chance_i(10))
+        else if ((*l_AuraItr)->GetId() == 23701 && roll_chance_i(10))
         {
-            prio = 2;
-            spell_id = 23700;
+            l_Priority = 2;
+            l_ResurrectSpellID = 23700;
         }
     }
 
     // Reincarnation (passive spell)  // prio: 1
-    if (prio < 1 && HasSpell(20608) && !HasSpellCooldown(21169))
-        spell_id = 21169;
+    if (l_Priority < 1 && HasSpell(20608) && !HasSpellCooldown(21169))
+        l_ResurrectSpellID = 21169;
 
-    return spell_id;
+    return l_ResurrectSpellID;
 }
 
 // Used in triggers for check "Only to targets that grant experience or honor" req
@@ -31875,24 +31819,14 @@ void Player::SendSpellCharges()
     SpellChargesMap l_SpellCharges = m_SpellChargesMap;
     for (auto l_SpellCharge : l_SpellCharges)
     {
-        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_SpellCharge.first);
-        if (l_SpellInfo == nullptr)
-            continue;
-
-        SpellCategoriesEntry const* l_Categories = l_SpellInfo->GetSpellCategories();
-        if (l_Categories == nullptr)
-            continue;
-
         ChargesData l_Charges = l_SpellCharge.second;
-        ///< @TODO: Find how display the right time client side
-        l_Data << uint32(l_Categories->ChargesCategory);
 
+        l_Data << uint32(l_SpellCharge.first);
         if (l_Charges.m_ChargesCooldown.empty())
             l_Data << uint32(0);
         else
             l_Data << uint32(l_Charges.m_ChargesCooldown.front() / IN_MILLISECONDS);
-
-        l_Data << uint8(l_Charges.m_ConsumedCharges + 1);
+        l_Data << uint8(l_Charges.m_ConsumedCharges);
 
         ++l_Count;
     }
@@ -31911,62 +31845,78 @@ void Player::SendClearAllSpellCharges()
     m_SpellChargesMap.clear();
 }
 
-void Player::SendSetSpellCharges(uint32 p_SpellID)
+void Player::SendSetSpellCharges(uint32 p_CategoryID)
 {
-    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(p_SpellID);
-    if (l_SpellInfo == nullptr || l_SpellInfo->GetSpellCategories() == nullptr)
-        return;
-
-    ChargesData* l_Charges = GetChargesData(p_SpellID);
+    ChargesData* l_Charges = GetChargesData(p_CategoryID);
     if (l_Charges == nullptr)
         return;
 
+    SpellCategoryEntry const* l_Category = sSpellCategoryStores.LookupEntry(p_CategoryID);
+    if (l_Category == nullptr)
+        return;
+
+    float l_ModCount = l_Charges->m_MaxCharges - l_Charges->m_ConsumedCharges;
+    if (l_Charges->m_ConsumedCharges && !l_Charges->m_ChargesCooldown.empty())
+    {
+        uint32 l_Time = l_Charges->m_ChargesCooldown.front();
+        uint32 l_BaseTime = l_Category->ChargeRegenTime;
+        l_ModCount += 1.0f - float(l_Time) / float(l_BaseTime);
+    }
+
     WorldPacket l_Data(SMSG_SET_SPELL_CHARGES);
-    l_Data << int32(l_SpellInfo->GetSpellCategories()->ChargesCategory);
-    l_Data << float(l_Charges->m_MaxCharges - l_Charges->m_ConsumedCharges);    ///< @TODO: Find the real value to send
+    l_Data << int32(p_CategoryID);
+    l_Data << float(l_ModCount);
     l_Data.WriteBit(false); ///< IsPet
     l_Data.FlushBits();
     SendDirectMessage(&l_Data);
-
-    l_Charges->m_Changed = false;
 }
 
-void Player::SendClearSpellCharges(uint32 p_SpellID)
+void Player::SendClearSpellCharges(uint32 p_CategoryID)
 {
-    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(p_SpellID);
-    if (l_SpellInfo == nullptr || l_SpellInfo->GetSpellCategories() == nullptr)
-        return;
-
     WorldPacket l_Data(SMSG_CLEAR_SPELL_CHARGES);
     l_Data.appendPackGUID(GetGUID());
-    l_Data << int32(l_SpellInfo->GetSpellCategories()->ChargesCategory);
+    l_Data << int32(p_CategoryID);
     SendDirectMessage(&l_Data);
 }
 
-bool Player::CanUseCharge(uint32 p_SpellID) const
+void Player::RestoreCharge(uint32 p_CategoryID)
 {
-    if (m_SpellChargesMap.find(p_SpellID) == m_SpellChargesMap.end())
+    ChargesData* l_Charges = GetChargesData(p_CategoryID);
+    if (l_Charges == nullptr)
+        return;
+
+    if (l_Charges->m_ChargesCooldown.empty() || !l_Charges->m_ConsumedCharges)
+        return;
+
+    l_Charges->m_ChargesCooldown.erase(l_Charges->m_ChargesCooldown.begin());
+    --l_Charges->m_ConsumedCharges;
+
+    SendSetSpellCharges(p_CategoryID);
+}
+
+bool Player::CanUseCharge(uint32 p_CategoryID) const
+{
+    if (m_SpellChargesMap.find(p_CategoryID) == m_SpellChargesMap.end())
         return true;
 
-    ChargesData l_Charges = m_SpellChargesMap.at(p_SpellID);
+    ChargesData l_Charges = m_SpellChargesMap.at(p_CategoryID);
     if (!l_Charges.m_ConsumedCharges)
         return true;
 
     uint32 l_Count = 0;
     bool l_IsModified = false;
-    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(p_SpellID);
-    Unit::AuraEffectList const& l_ModCharges = GetAuraEffectsByType(SPELL_AURA_MOD_CHARGES);
+    Unit::AuraEffectList const& l_ModCharges = GetAuraEffectsByType(AuraType::SPELL_AURA_MOD_CHARGES);
     for (Unit::AuraEffectList::const_iterator l_Iter = l_ModCharges.begin(); l_Iter != l_ModCharges.end(); ++l_Iter)
     {
-        if (l_SpellInfo != nullptr && (*l_Iter)->GetSpellInfo()->SpellFamilyFlags & l_SpellInfo->SpellFamilyFlags)
+        if ((*l_Iter)->GetMiscValue() == p_CategoryID)
         {
             ++l_Count;
             l_IsModified = true;
         }
     }
 
-    // If spell is not modified, we should assume
-    // that spell doesn't use charges yet
+    /// If spell is not modified, we should assume
+    /// that spell doesn't use charges yet
     if (!l_Count && l_IsModified)
         return true;
 
@@ -31991,13 +31941,11 @@ void Player::UpdateCharges(uint32 const p_Time)
             {
                 if (l_Charges->m_ConsumedCharges <= 1)
                 {
-                    SendClearSpellCharges(l_Iter->first);
                     l_Iter = m_SpellChargesMap.erase(l_Iter);
                     l_MustContinue = true;
                     break;
                 }
 
-                l_Charges->m_Changed = true;
                 l_Charges->m_ChargesCooldown.erase(l_Charges->m_ChargesCooldown.begin() + l_Count);
                 --l_Charges->m_ConsumedCharges;
                 continue;
@@ -32011,35 +31959,26 @@ void Player::UpdateCharges(uint32 const p_Time)
         if (l_MustContinue)
             continue;
 
-        if (l_Charges->m_ConsumedCharges && l_Charges->m_Changed)
-            SendSetSpellCharges(l_Iter->first);
-
         ++l_Iter;
     }
 }
 
-void Player::ConsumeCharge(uint32 p_SpellID, SpellCategoryEntry const* p_Category, bool p_SendPacket /*= false*/)
+void Player::ConsumeCharge(uint32 p_CategoryID, SpellCategoryEntry const* p_Category)
 {
-    if (m_SpellChargesMap.find(p_SpellID) == m_SpellChargesMap.end())
-    {
-        m_SpellChargesMap.insert(std::make_pair(p_SpellID, ChargesData(p_Category->MaxCharges, p_Category->ChargeRegenTime)));
-
-        if (p_SendPacket)
-            SendSetSpellCharges(p_SpellID);
-    }
+    if (m_SpellChargesMap.find(p_CategoryID) == m_SpellChargesMap.end())
+        m_SpellChargesMap.insert(std::make_pair(p_CategoryID, ChargesData(p_Category->MaxCharges, p_Category->ChargeRegenTime)));
     else
     {
-        ChargesData* l_Charges = GetChargesData(p_SpellID);
+        ChargesData* l_Charges = GetChargesData(p_CategoryID);
         ++l_Charges->m_ConsumedCharges;
         l_Charges->m_ChargesCooldown.push_back(p_Category->ChargeRegenTime);
-        l_Charges->m_Changed = true;
     }
 }
 
-ChargesData* Player::GetChargesData(uint32 p_SpellID)
+ChargesData* Player::GetChargesData(uint32 p_CategoryID)
 {
-    if (m_SpellChargesMap.find(p_SpellID) != m_SpellChargesMap.end())
-        return &m_SpellChargesMap[p_SpellID];
+    if (m_SpellChargesMap.find(p_CategoryID) != m_SpellChargesMap.end())
+        return &m_SpellChargesMap[p_CategoryID];
 
     return nullptr;
 }

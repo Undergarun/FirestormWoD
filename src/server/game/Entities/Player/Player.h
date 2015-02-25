@@ -1425,7 +1425,6 @@ struct ChargesData
     {
         m_MaxCharges = 0;
         m_ConsumedCharges = 0;
-        m_Changed = false;
     }
 
     ChargesData(uint32 p_MaxCharges, uint64 p_Cooldown, uint32 p_Charges = 1)
@@ -1436,7 +1435,6 @@ struct ChargesData
         m_ConsumedCharges = p_Charges;
 
         m_ChargesCooldown.push_back(p_Cooldown);
-        m_Changed = true;
     }
 
     std::vector<uint64> GetChargesCooldown() const { return m_ChargesCooldown; }
@@ -1451,10 +1449,9 @@ struct ChargesData
     uint32 m_MaxCharges;
     uint32 m_ConsumedCharges;
     std::vector<uint64> m_ChargesCooldown;
-    bool m_Changed;
 };
 
-///<            SpellID
+///            CategoryID
 typedef std::map<uint32, ChargesData> SpellChargesMap;
 
 struct CompletedChallenge
@@ -3399,13 +3396,14 @@ class Player : public Unit, public GridObject<Player>
 
         void SendSpellCharges();
         void SendClearAllSpellCharges();
-        void SendSetSpellCharges(uint32 p_SpellID);
-        void SendClearSpellCharges(uint32 p_SpellID);
+        void SendSetSpellCharges(uint32 p_CategoryID);
+        void SendClearSpellCharges(uint32 p_CategoryID);
 
-        bool CanUseCharge(uint32 p_SpellID) const;
+        void RestoreCharge(uint32 p_CategoryID);
+        bool CanUseCharge(uint32 p_CategoryID) const;
         void UpdateCharges(uint32 const p_Time);
-        void ConsumeCharge(uint32 p_SpellID, SpellCategoryEntry const* p_Category, bool p_SendPacket = false);
-        ChargesData* GetChargesData(uint32 p_SpellID);
+        void ConsumeCharge(uint32 p_CategoryID, SpellCategoryEntry const* p_Category);
+        ChargesData* GetChargesData(uint32 p_CategoryID);
         //////////////////////////////////////////////////////////////////////////
 
         //////////////////////////////////////////////////////////////////////////

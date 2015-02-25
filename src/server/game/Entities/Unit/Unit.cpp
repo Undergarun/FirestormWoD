@@ -96,6 +96,8 @@ float playerBaseMoveSpeed[MAX_MOVE_TYPE] =
     3.14f                  // MOVE_PITCH_RATE
 };
 
+#define SPELL_PLAYER_LIFE_STEAL 146347
+
 // Used for prepare can/can`t triggr aura
 static bool InitTriggerAuraData();
 // Define can trigger auras
@@ -828,6 +830,14 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
                         statue->CastCustomSpell(itr, 117895, &bp, NULL, NULL, true, 0, NULLAURA_EFFECT, GetGUID()); // Eminence - statue
             }
         }
+    }
+
+    /// Health leech handling
+    if (GetTypeId() == TypeID::TYPEID_PLAYER && damage > 0 && (!spellProto || spellProto->Id != SPELL_PLAYER_LIFE_STEAL))
+    {
+        float l_Percentage = GetFloatValue(EPlayerFields::PLAYER_FIELD_LIFESTEAL);
+        int32 l_Heal = CalculatePct(damage, (int32)l_Percentage);
+        CastCustomSpell(this, SPELL_PLAYER_LIFE_STEAL, &l_Heal, nullptr, nullptr, true);
     }
 
     if (victim->IsAIEnabled)
@@ -7011,26 +7021,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     triggered_spell_id = 99156;
                     break;
                 }
-                // Divine Aegis
-                case 47515:
-                {
-                    if (!target)
-                        return false;
-
-                    if (!procSpell)
-                        return false;
-
-                    if (!(procEx & PROC_EX_CRITICAL_HIT))
-                        return false;
-
-                    uint32 amount = CalculatePct(int32(damage), triggerAmount);
-                    triggered_spell_id = 47753;
-                    amount += target->GetAuraEffect(triggered_spell_id, 0) ? target->GetAuraEffect(triggered_spell_id, 0)->GetAmount() : 0;
-
-                    basepoints0 = std::min(amount, target->CountPctFromMaxHealth(60));
-
-                    break;
-                }
                 // Vampiric Embrace
                 case 15286:
                 {
@@ -9207,7 +9197,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
                     {
                         if (HealthBelowPctDamaged(30, damage))
                         {
-                            basepoints0 = int32(CountPctFromMaxHealth(triggerAmount));
                             target = this;
                             trigger_spell_id = 31616;
                             if (victim && victim->isAlive())
@@ -9460,22 +9449,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
 
             break;
         }
-        case 33605: // Lunar Shower
-        {
-            if (GetTypeId() != TYPEID_PLAYER)
-                return false;
-
-            if (!procSpell)
-                return false;
-
-            if (procSpell->Id != 8921 && procSpell->Id != 93402)
-                return false;
-
-            if (procFlags & PROC_FLAG_DONE_PERIODIC)
-                return false;
-
-            break;
-        }
         case 54943: // Glyph of Blessed Life
             return false;
         case 109306:// Trill of the Hunt
@@ -9546,22 +9519,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
                 arcaneMissiles->RefreshDuration();
                 return false;
             }
-
-            break;
-        }
-        case 93399: // Shooting Stars
-        {
-            if (!procSpell)
-                return false;
-
-            if (procSpell->Id != 8921 && procSpell->Id != 93402)
-                return false;
-
-            if (GetTypeId() != TYPEID_PLAYER)
-                return false;
-
-            if (!(procEx & PROC_EX_CRITICAL_HIT))
-                return false;
 
             break;
         }
@@ -10772,7 +10729,7 @@ void Unit::ModifyAuraState(AuraStateType flag, bool apply)
                     SpellInfo const* spellProto = (*itr).second->GetBase()->GetSpellInfo();
                     if (!spellProto)
                         continue;
-                    if (spellProto->CasterAuraState == uint32(flag) && spellProto->Id != 16491) // Don't remove Second Wind, implemented in ::HandlePeriodicHealAurasTick
+                    if (spellProto->CasterAuraState == uint32(flag))
                         RemoveAura(itr);
                     else
                         ++itr;
@@ -11267,6 +11224,14 @@ int32 Unit::DealHeal(Unit* victim, uint32 addhealth, SpellInfo const* spellProto
         }
     }
 
+    /// Health leech handling
+    if (GetTypeId() == TypeID::TYPEID_PLAYER && addhealth > 0 && spellProto && spellProto->Id != SPELL_PLAYER_LIFE_STEAL)
+    {
+        float l_Percentage = GetFloatValue(EPlayerFields::PLAYER_FIELD_LIFESTEAL);
+        int32 l_Heal = CalculatePct(addhealth, (int32)l_Percentage);
+        CastCustomSpell(this, SPELL_PLAYER_LIFE_STEAL, &l_Heal, nullptr, nullptr, true);
+    }
+
     if (Player* player = unit->ToPlayer())
     {
         if (Battleground* bg = player->GetBattleground())
@@ -11664,16 +11629,6 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         }
     }
 
-    // 77493 - Mastery : Razor Claws
-    if (GetTypeId() == TYPEID_PLAYER && spellProto && damagetype == DOT)
-    {
-        if (HasAura(77493))
-        {
-            float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 3.13f;
-            DoneTotal += CalculatePct(pdamage, Mastery);
-        }
-    }
-
     // 76547 - Mastery : Mana Adept
     if (spellProto && GetTypeId() == TYPEID_PLAYER)
     {
@@ -11975,16 +11930,6 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
     // Custom scripted damage
     switch (spellProto->SpellFamilyName)
     {
-        case SPELLFAMILY_ROGUE:
-        {
-            // Revealing Strike for direct damage abilities
-            if (spellProto->NeedsComboPoints() && damagetype != DOT)
-            {
-                if (AuraEffectPtr aurEff = victim->GetAuraEffect(84617, 2, GetGUID()))
-                    DoneTotalMod *= (100.0f + aurEff->GetAmount()) / 100.0f;
-            }
-            break;
-        }
         case SPELLFAMILY_MAGE:
             // Ice Lance
             if (spellProto->SpellIconID == 186)
@@ -16631,10 +16576,17 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
             {
                 if (roll_chance_f(GetFloatValue(PLAYER_FIELD_MULTISTRIKE)))
                 {
-                    bool l_IsCrit = !(procExtra & PROC_EX_CRITICAL_HIT) && procSpell && roll_chance_f(GetUnitSpellCriticalChance(target, procSpell, procSpell->GetSchoolMask()));
+                    bool l_IsCrit = false;
+
+                    if (procSpell && roll_chance_f(GetUnitSpellCriticalChance(target, procSpell, procSpell->GetSchoolMask())))
+                        l_IsCrit = true;
+                    else if (!procSpell && roll_chance_f(GetUnitCriticalChance(attType, target)))
+                        l_IsCrit = true;
 
                     if (l_IsCrit && procSpell)
                         damage = SpellCriticalDamageBonus(procSpell, damage, target);
+                    else if (l_IsCrit && !procSpell)
+                        damage = MeleeCriticalDamageBonus(nullptr, damage, target, attType);
 
                     uint32 l_MultistrikeDamage = damage * GetFloatValue(PLAYER_FIELD_MULTISTRIKE_EFFECT);
 
@@ -16717,14 +16669,14 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                         CalculateMeleeDamage(target, 0, &damageInfo, attType);
 
                         if (l_IsCrit)
-                            damageInfo.HitInfo |= SPELL_HIT_TYPE_CRIT;
+                            damageInfo.HitInfo |= HITINFO_CRITICALHIT;
 
-                        damageInfo.HitInfo |= SPELL_HIT_TYPE_MULTISTRIKE;
+                        damageInfo.HitInfo |= HITINFO_MULTISTRIKE;
                         damageInfo.damage = l_MultistrikeDamage;
 
                         DealDamageMods(target, damageInfo.damage, &damageInfo.absorb);
                         DealMeleeDamage(&damageInfo, true);
-
+                        SendAttackStateUpdate(&damageInfo);
                         ProcDamageAndSpell(damageInfo.target, l_DoneProcFlag, l_TakenProcFlag, l_ExFlag, damageInfo.damage, damageInfo.attackType);
                     }
                 }
@@ -16909,9 +16861,8 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     }
 
     // Hack Fix Immolate - Critical strikes generate burning embers
-    if (GetTypeId() == TYPEID_PLAYER && procSpell && procSpell->Id == 348 && procExtra & PROC_EX_CRITICAL_HIT)
-        if (roll_chance_i(50))
-            SetPower(POWER_BURNING_EMBERS, GetPower(POWER_BURNING_EMBERS) + 1);
+    if (GetTypeId() == TYPEID_PLAYER && procSpell && procSpell->Id == 348 && (procExtra & PROC_EX_CRITICAL_HIT))
+        SetPower(POWER_BURNING_EMBERS, GetPower(POWER_BURNING_EMBERS) + 1);
 
     // Cast Shadowy Apparitions when Shadow Word : Pain is crit
     if (GetTypeId() == TYPEID_PLAYER && procSpell && procSpell->Id == 589 && HasAura(78203) && procExtra & PROC_EX_CRITICAL_HIT)

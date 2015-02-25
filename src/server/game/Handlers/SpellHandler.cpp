@@ -982,9 +982,9 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
             {
                 // Display Transmogrifications on player's clone
                 if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item->GetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0)))
-                    data << uint32(proto->DisplayInfoID);
+                    data << uint32(proto->ItemId);
                 else
-                    data << uint32(item->GetTemplate()->DisplayInfoID);
+                    data << uint32(item->GetTemplate()->ItemId);
             }
             else
                 data << uint32(0);

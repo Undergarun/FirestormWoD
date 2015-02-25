@@ -1432,6 +1432,26 @@ bool SpellInfo::IsPositive() const
     return !(AttributesCu & SPELL_ATTR0_CU_NEGATIVE);
 }
 
+bool SpellInfo::IsHealingSpell() const
+{
+    return (HasEffect(SPELL_EFFECT_HEALTH_LEECH)
+        || HasEffect(SPELL_EFFECT_HEAL_MAX_HEALTH)
+        || HasEffect(SPELL_EFFECT_HEAL_MECHANICAL)
+        || HasEffect(SPELL_EFFECT_HEAL_PCT)
+        || HasEffect(SPELL_EFFECT_HEAL_MAX_HEALTH)
+        || HasEffect(SPELL_EFFECT_HEAL)
+        || HasAura(SPELL_AURA_OBS_MOD_HEALTH)
+        || HasAura(SPELL_AURA_MOD_HEALTH_REGEN_PERCENT)
+        || HasAura(SPELL_AURA_MOD_HEALING)
+        || HasAura(SPELL_AURA_MOD_HEALING_PCT)
+        || HasAura(SPELL_AURA_MOD_HEALING_DONE)
+        || HasAura(SPELL_AURA_MOD_HEALING_DONE_PERCENT)
+        || HasAura(SPELL_AURA_MOD_HEALTH_REGEN_IN_COMBAT)
+        || HasAura(SPELL_AURA_MOD_SPELL_HEALING_OF_ATTACK_POWER)
+        || HasAura(SPELL_AURA_MOD_BASE_HEALTH_PCT)
+        || HasAura(SPELL_AURA_PERIODIC_HEAL));
+}
+
 bool SpellInfo::IsPositiveEffect(uint8 effIndex) const
 {
     switch (effIndex)
