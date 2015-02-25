@@ -9197,7 +9197,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
                     {
                         if (HealthBelowPctDamaged(30, damage))
                         {
-                            basepoints0 = int32(CountPctFromMaxHealth(triggerAmount));
                             target = this;
                             trigger_spell_id = 31616;
                             if (victim && victim->isAlive())
@@ -16572,10 +16571,17 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
             {
                 if (roll_chance_f(GetFloatValue(PLAYER_FIELD_MULTISTRIKE)))
                 {
-                    bool l_IsCrit = !(procExtra & PROC_EX_CRITICAL_HIT) && procSpell && roll_chance_f(GetUnitSpellCriticalChance(target, procSpell, procSpell->GetSchoolMask()));
+                    bool l_IsCrit = false;
+
+                    if (procSpell && roll_chance_f(GetUnitSpellCriticalChance(target, procSpell, procSpell->GetSchoolMask())))
+                        l_IsCrit = true;
+                    else if (!procSpell && roll_chance_f(GetUnitCriticalChance(attType, target)))
+                        l_IsCrit = true;
 
                     if (l_IsCrit && procSpell)
                         damage = SpellCriticalDamageBonus(procSpell, damage, target);
+                    else if (l_IsCrit && !procSpell)
+                        damage = MeleeCriticalDamageBonus(nullptr, damage, target, attType);
 
                     uint32 l_MultistrikeDamage = damage * GetFloatValue(PLAYER_FIELD_MULTISTRIKE_EFFECT);
 
@@ -16658,14 +16664,14 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                         CalculateMeleeDamage(target, 0, &damageInfo, attType);
 
                         if (l_IsCrit)
-                            damageInfo.HitInfo |= SPELL_HIT_TYPE_CRIT;
+                            damageInfo.HitInfo |= HITINFO_CRITICALHIT;
 
-                        damageInfo.HitInfo |= SPELL_HIT_TYPE_MULTISTRIKE;
+                        damageInfo.HitInfo |= HITINFO_MULTISTRIKE;
                         damageInfo.damage = l_MultistrikeDamage;
 
                         DealDamageMods(target, damageInfo.damage, &damageInfo.absorb);
                         DealMeleeDamage(&damageInfo, true);
-
+                        SendAttackStateUpdate(&damageInfo);
                         ProcDamageAndSpell(damageInfo.target, l_DoneProcFlag, l_TakenProcFlag, l_ExFlag, damageInfo.damage, damageInfo.attackType);
                     }
                 }
@@ -16850,9 +16856,8 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     }
 
     // Hack Fix Immolate - Critical strikes generate burning embers
-    if (GetTypeId() == TYPEID_PLAYER && procSpell && procSpell->Id == 348 && procExtra & PROC_EX_CRITICAL_HIT)
-        if (roll_chance_i(50))
-            SetPower(POWER_BURNING_EMBERS, GetPower(POWER_BURNING_EMBERS) + 1);
+    if (GetTypeId() == TYPEID_PLAYER && procSpell && procSpell->Id == 348 && (procExtra & PROC_EX_CRITICAL_HIT))
+        SetPower(POWER_BURNING_EMBERS, GetPower(POWER_BURNING_EMBERS) + 1);
 
     // Cast Shadowy Apparitions when Shadow Word : Pain is crit
     if (GetTypeId() == TYPEID_PLAYER && procSpell && procSpell->Id == 589 && HasAura(78203) && procExtra & PROC_EX_CRITICAL_HIT)
@@ -19734,7 +19739,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                 if (clawsOfShirvallah)
                     return 55887; // Panther
 
-                uint8 hairColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 3);
+                uint8 hairColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
                 switch (hairColor)
                 {
                     case 7: // Violet
@@ -19782,7 +19787,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                 if (clawsOfShirvallah)
                     return 55889; // Tiger
 
-                uint8 hairColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 3);
+                uint8 hairColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
                 switch (hairColor)
                 {
                     case 0: // Red
@@ -19833,7 +19838,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                     return 55888; // Snowleopard
 
                 // Based on Skin color
-                uint8 skinColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 0);
+                uint8 skinColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_SKIN_ID);
                 // Male
                 if (getGender() == GENDER_MALE)
                 {
@@ -19930,7 +19935,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                 if (clawsOfShirvallah)
                     return 55886; // Lion
 
-                uint8 skinColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 0);
+                uint8 skinColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_SKIN_ID);
                 // Male
                 if (getGender() == GENDER_MALE)
                 {
@@ -20044,7 +20049,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
             // Based on Hair color
             if (getRace() == RACE_NIGHTELF)
             {
-                uint8 hairColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 3);
+                uint8 hairColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
                 switch (hairColor)
                 {
                     case 0: // Green
@@ -20088,7 +20093,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
             }
             else if (getRace() == RACE_TROLL)
             {
-                uint8 hairColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 3);
+                uint8 hairColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
                 switch (hairColor)
                 {
                     case 0: // Red
@@ -20137,7 +20142,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
             else if (getRace() == RACE_WORGEN)
             {
                 // Based on Skin color
-                uint8 skinColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 0);
+                uint8 skinColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_SKIN_ID);
                 // Male
                 if (getGender() == GENDER_MALE)
                 {
@@ -20231,7 +20236,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
             // Based on Skin color
             else if (getRace() == RACE_TAUREN)
             {
-                uint8 skinColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 0);
+                uint8 skinColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_SKIN_ID);
                 // Male
                 if (getGender() == GENDER_MALE)
                 {

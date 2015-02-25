@@ -84,6 +84,7 @@
 #include "WildBattlePet.h"
 #include "PlayerDump.h"
 #include "TransportMgr.h"
+#include "GarrisonShipmentManager.hpp"
 
 uint32 gOnlineGameMaster = 0;
 
@@ -1926,6 +1927,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading FollowerQuests...");
     sObjectMgr->LoadFollowerQuests();
 
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading QuestForItem...");
+    sObjectMgr->LoadQuestForItem();
+
     ///- Initialize game time and timers
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Initialize game time and timers");
     m_gameTime = time(NULL);
@@ -2080,6 +2084,9 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading map challenge mode hotfixes...");
     sObjectMgr->LoadMapChallengeModeHotfixes();
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Init Garrison shipment manager...");
+    sGarrisonShipmentManager->Init();
 
     uint32 startupDuration = GetMSTimeDiffToNow(startupBegin);
 

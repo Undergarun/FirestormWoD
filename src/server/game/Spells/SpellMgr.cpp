@@ -3362,6 +3362,12 @@ void SpellMgr::LoadSpellCustomAttr()
             case 102401:///< Wild Charge (Ally)
                 spellInfo->Effects[EFFECT_1].ValueMultiplier = 0;
                 break;
+            case 159362:///< Blood Craze
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED;
+                break;
+            case 30814: ///< Mental Quickness
+                spellInfo->Effects[EFFECT_4].Effect = 0;
+                break;
             case 149959: // Earth Shatter
             case 149968:
             case 149969:
@@ -4429,6 +4435,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 123154: ///< Fists of Fury Visual Target
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(35); ///< 4s
+                break;
+            case 31616: ///< Nature's Guardian
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT;
+                spellInfo->Effects[0].BasePoints = 25;
                 break;
             case 53479: ///< Last Stand (Tenacity)
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT;

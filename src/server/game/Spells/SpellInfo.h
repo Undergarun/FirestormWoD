@@ -489,6 +489,7 @@ public:
     bool IsAllowingDeadTarget() const;
     bool CanBeUsedInCombat() const;
     bool IsPositive() const;
+    bool IsHealingSpell() const;
     bool IsPositiveEffect(uint8 effIndex) const;
     bool IsChanneled() const;
     bool NeedsComboPoints() const;

@@ -205,7 +205,7 @@ uint32 DB2FileLoader::GetFormatRecordSize(const char * format, int32* index_pos)
             case FT_SORT:
                 i = x;
                 break;
-            case FT_IND:
+            case FT_INDEX:
                 i = x;
                 recordsize += 4;
                 break;
@@ -285,7 +285,7 @@ char* DB2FileLoader::AutoProduceData(const char* format, uint32& records, char**
                     *((float*)(&dataTable[offset])) = getRecord(y).getFloat(x);
                     offset += 4;
                     break;
-                case FT_IND:
+                case FT_INDEX:
                 case FT_INT:
                     *((uint32*)(&dataTable[offset])) = getRecord(y).getUInt(x);
                     offset += 4;
@@ -336,7 +336,7 @@ char* DB2FileLoader::AutoProduceStringsArrayHolders(const char* format, char* da
             switch(format[x])
             {
                 case FT_FLOAT:
-                case FT_IND:
+                case FT_INDEX:
                 case FT_INT:
                     offset += 4;
                     break;
@@ -381,7 +381,7 @@ char* DB2FileLoader::AutoProduceStrings(const char* format, char* dataTable)
             switch(format[x])
         {
             case FT_FLOAT:
-            case FT_IND:
+            case FT_INDEX:
             case FT_INT:
                 offset += 4;
                 break;

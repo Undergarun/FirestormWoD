@@ -288,7 +288,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectDeathGrip,                                //213 SPELL_EFFECT_DEATH_GRIP
     &Spell::EffectNULL,                                     //214 SPELL_EFFECT_214                     Create Garrison
     &Spell::EffectNULL,                                     //215 SPELL_EFFECT_215                     Unk 6.0.1
-    &Spell::EffectNULL,                                     //216 SPELL_EFFECT_216                     Unk 6.0.1
+    &Spell::EffectNULL,                                     //216 SPELL_EFFECT_CREATE_SHIPMENT
     &Spell::EffectNULL,                                     //217 SPELL_EFFECT_217                     Upgrade Garrison (171905)
     &Spell::EffectNULL,                                     //218 SPELL_EFFECT_218                     Unk 6.0.1
     &Spell::EffectNULL,                                     //219 SPELL_EFFECT_219                     Unk 6.0.1

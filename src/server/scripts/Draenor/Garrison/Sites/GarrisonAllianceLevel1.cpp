@@ -138,6 +138,36 @@ namespace MS { namespace Garrison { namespace Sites
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
+    /// Can upgrade the garrison
+    /// @p_Owner : Garrison owner
+    bool InstanceScript_GarrisonAllianceLevel1::CanUpgrade(Player * p_Owner)
+    {
+        if (p_Owner->getLevel() < 93)
+            return false;
+
+        if (!p_Owner->HasQuest(Quests::Alliance_BiggerIsBetter))
+            return false;
+
+        return true;
+    }
+
+    /// On upgrade the garrison
+    /// @p_Owner : Garrison owner
+    void InstanceScript_GarrisonAllianceLevel1::OnUpgrade(Player * p_Owner)
+    {
+        GarrSiteLevelEntry const* l_Entry = p_Owner->GetGarrison()->GetGarrisonSiteLevelEntry();
+
+        if (!l_Entry)
+            return;
+
+        p_Owner->AddMovieDelayedTeleport(l_Entry->CreationMovie, l_Entry->MapID, 1759.94f, 184.86f, 71.50f, 0.57f);
+        p_Owner->SendMovieStart(l_Entry->CreationMovie);
+        p_Owner->CompleteQuest(Quests::Alliance_BiggerIsBetter);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
     /// When a mission start
     /// @p_Owner     : Garrison owner
     /// @p_MissionID : Started mission ID

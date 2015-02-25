@@ -272,6 +272,10 @@ bool LoginQueryHolder::Initialize()
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_GARRISON_BUILDINGS, l_Statement);
 
+    l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GARRISON_WORKORDER);
+    l_Statement->setUInt32(0, l_LowGuid);
+    l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_GARRISON_WORKORDERS, l_Statement);
+
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_DAILY_LOOT_COOLDOWNS);
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_DAILY_LOOT_COOLDOWNS, l_Statement);
@@ -1704,11 +1708,11 @@ void WorldSession::HandleAlterAppearance(WorldPacket& recvData)
     m_Player->ModifyMoney(-int64(cost));                     // it isn't free
     m_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_AT_BARBER, cost);
 
-    m_Player->SetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 2, uint8(bs_hair->Data));
-    m_Player->SetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 3, uint8(Color));
-    m_Player->SetByteValue(PLAYER_FIELD_REST_STATE, 0, uint8(bs_facialHair->Data));
+    m_Player->SetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_HAIR_STYLE_ID, uint8(bs_hair->Data));
+    m_Player->SetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID, uint8(Color));
+    m_Player->SetByteValue(PLAYER_FIELD_REST_STATE, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE, uint8(bs_facialHair->Data));
     if (bs_skinColor)
-        m_Player->SetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 0, uint8(bs_skinColor->Data));
+        m_Player->SetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_SKIN_ID, uint8(bs_skinColor->Data));
 
     m_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_VISIT_BARBER_SHOP, 1);
 
