@@ -46,7 +46,7 @@ bool OPvPCapturePoint::HandlePlayerEnter(Player* player)
     }
 
     if (player->GetTeamId() < 2)
-        return m_activePlayers[player->GetTeamId()].insert(player).second;
+        return m_activePlayers[player->GetTeamId()].insert(player->GetGUID()).second;
 
     return false;
 }
@@ -57,7 +57,7 @@ void OPvPCapturePoint::HandlePlayerLeave(Player* player)
         player->SendUpdateWorldState(m_capturePoint->GetGOInfo()->controlZone.worldState1, 0);
 
     if (player->GetTeamId() < 2)
-        m_activePlayers[player->GetTeamId()].erase(player);
+        m_activePlayers[player->GetTeamId()].erase(player->GetGUID());
 }
 
 void OPvPCapturePoint::SendChangePhase()
@@ -306,12 +306,16 @@ bool OPvPCapturePoint::Update(uint32 diff)
 
     for (uint32 team = 0; team < 2; ++team)
     {
-        for (PlayerSet::iterator itr = m_activePlayers[team].begin(); itr != m_activePlayers[team].end();)
+        for (GuidSet::iterator itr = m_activePlayers[team].begin(); itr != m_activePlayers[team].end();)
         {
-            Player* player = *itr;
+            Player* player = sObjectAccessor->FindPlayer(*itr);
             ++itr;
-            if (!m_capturePoint->IsWithinDistInMap(player, radius) || !player->IsOutdoorPvPActive())
-                HandlePlayerLeave(player);
+
+            if (player)
+            {
+                if (!m_capturePoint->IsWithinDistInMap(player, radius) || !player->IsOutdoorPvPActive())
+                    HandlePlayerLeave(player);
+            }
         }
     }
 
@@ -322,9 +326,9 @@ bool OPvPCapturePoint::Update(uint32 diff)
 
     for (std::list<Player*>::iterator itr = players.begin(); itr != players.end(); ++itr)
     {
-        if ((*itr)->IsOutdoorPvPActive())
+        if ((*itr)->IsOutdoorPvPActive() && (*itr)->GetTeamId() < 2)
         {
-            if (m_activePlayers[(*itr)->GetTeamId()].insert(*itr).second)
+            if (m_activePlayers[(*itr)->GetTeamId()].insert((*itr)->GetGUID()).second)
                 HandlePlayerEnter(*itr);
         }
     }
@@ -429,9 +433,10 @@ void OPvPCapturePoint::SendUpdateWorldState(uint32 field, uint32 value)
     for (uint32 team = 0; team < 2; ++team)
     {
         // send to all players present in the area
-        for (PlayerSet::iterator itr = m_activePlayers[team].begin(); itr != m_activePlayers[team].end(); ++itr)
+        for (GuidSet::iterator itr = m_activePlayers[team].begin(); itr != m_activePlayers[team].end(); ++itr)
         {
-            (*itr)->SendUpdateWorldState(field, value);
+            if (Player* player = sObjectAccessor->FindPlayer((*itr)))
+                player->SendUpdateWorldState(field, value);
         }
     }
 }
@@ -452,8 +457,11 @@ void OPvPCapturePoint::SendObjectiveComplete(uint32 id, uint64 guid)
     }
 
     // send to all players present in the area
-    for (PlayerSet::iterator itr = m_activePlayers[team].begin(); itr != m_activePlayers[team].end(); ++itr)
-        (*itr)->KilledMonsterCredit(id, guid);
+    for (GuidSet::iterator itr = m_activePlayers[team].begin(); itr != m_activePlayers[team].end(); ++itr)
+    {
+        if (Player* player = sObjectAccessor->FindPlayer((*itr)))
+            player->KilledMonsterCredit(id, guid);
+    }
 }
 
 void OutdoorPvP::HandleKill(Player* killer, Unit* killed)
@@ -501,7 +509,7 @@ bool OutdoorPvP::IsInsideObjective(Player* player) const
 bool OPvPCapturePoint::IsInsideObjective(Player* player) const
 {
     if (player && player->GetTeamId() < 2)
-        return m_activePlayers[player->GetTeamId()].find(player) != m_activePlayers[player->GetTeamId()].end();
+        return m_activePlayers[player->GetTeamId()].find(player->GetGUID()) != m_activePlayers[player->GetTeamId()].end();
 
     return false;
 }

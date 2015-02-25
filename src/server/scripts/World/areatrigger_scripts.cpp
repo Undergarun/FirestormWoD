@@ -609,39 +609,6 @@ class AreaTrigger_at_mason_s_folly : public AreaTriggerScript
         }
 };
 
-class AreaTrigger_ice_trap : public AreaTriggerEntityScript
-{
-public:
-    AreaTrigger_ice_trap()
-        : AreaTriggerEntityScript("at_ice_trap")
-    {
-    }
-
-    AreaTriggerEntityScript* GetAI() const
-    {
-        return new AreaTrigger_ice_trap();
-    }
-
-    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
-    {
-        std::list<Unit*> targetList;
-        float l_Radius = 10.0f;
-        Unit* l_Caster = p_AreaTrigger->GetCaster();
-
-        JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(p_AreaTrigger, l_Caster, l_Radius);
-        JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(p_AreaTrigger, targetList, u_check);
-        p_AreaTrigger->VisitNearbyObject(l_Radius, searcher);
-
-        for (auto itr : targetList)
-            itr->CastSpell(itr, 135299, true);
-
-        // Glyph of Black Ice
-        if (l_Caster->GetDistance(p_AreaTrigger) <= l_Radius && l_Caster->HasAura(109263) && !l_Caster->HasAura(83559))
-            l_Caster->CastSpell(l_Caster, 83559, true);
-        else
-            l_Caster->RemoveAura(83559);
-    }
-};
 
 class AreaTrigger_power_word_barrier : public AreaTriggerEntityScript
 {
@@ -1270,7 +1237,6 @@ void AddSC_areatrigger_scripts()
     new AreaTrigger_healing_sphere();
     new AreaTrigger_ursol_vortex();
     new AreaTrigger_power_word_barrier();
-    new AreaTrigger_ice_trap();
 
     new AreaTrigger_at_coilfang_waterfall();
     new AreaTrigger_at_legion_teleporter();

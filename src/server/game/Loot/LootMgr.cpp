@@ -370,37 +370,39 @@ bool LootStoreItem::IsValid(LootStore const& store, uint32 entry) const
 //
 
 // Constructor, copies most fields from LootStoreItem and generates random count
-LootItem::LootItem(LootStoreItem const& li)
+LootItem::LootItem(LootStoreItem const& p_LootItem, uint32 p_ItemBonusDifficulty)
 {
-    itemid      = li.itemid;
-    type        = li.type;
-    conditions  = li.conditions;
+    itemid      = p_LootItem.itemid;
+    type        = p_LootItem.type;
+    conditions  = p_LootItem.conditions;
     currency    = type == LOOT_ITEM_TYPE_CURRENCY;
-    itemBonuses = li.itemBonuses;
+    itemBonuses = p_LootItem.itemBonuses;
 
     if (currency)
     {
-        freeforall = false;
-        needs_quest = false;
+        freeforall        = false;
+        needs_quest       = false;
         follow_loot_rules = false;
-        randomSuffix = 0;
-        randomPropertyId = 0;
+        randomSuffix      = 0;
+        randomPropertyId  = 0;
     }
     else
     {
-        ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemid);
-        freeforall  = proto && (proto->Flags & ITEM_PROTO_FLAG_PARTY_LOOT);
-        follow_loot_rules = proto && (proto->FlagsCu & ITEM_FLAGS_CU_FOLLOW_LOOT_RULES);
-        needs_quest = li.needs_quest;
-        randomSuffix = GenerateEnchSuffixFactor(itemid);
-        randomPropertyId = Item::GenerateItemRandomPropertyId(itemid);
+        auto l_ItemTemplate = sObjectMgr->GetItemTemplate(itemid);
+        freeforall          = l_ItemTemplate && (l_ItemTemplate->Flags & ITEM_PROTO_FLAG_PARTY_LOOT);
+        follow_loot_rules   = l_ItemTemplate && (l_ItemTemplate->FlagsCu & ITEM_FLAGS_CU_FOLLOW_LOOT_RULES);
+        needs_quest         = p_LootItem.needs_quest;
+        randomSuffix        = GenerateEnchSuffixFactor(itemid);
+        randomPropertyId    = Item::GenerateItemRandomPropertyId(itemid);
+
+        Item::GenerateItemBonus(itemid, p_ItemBonusDifficulty, itemBonuses);
     }
 
-    count       = urand(li.mincountOrRef, li.maxcount);     // constructor called for mincountOrRef > 0 only
-    is_looted = 0;
-    is_blocked = 0;
+    count             = urand(p_LootItem.mincountOrRef, p_LootItem.maxcount);     // constructor called for mincountOrRef > 0 only
+    is_looted         = 0;
+    is_blocked        = 0;
     is_underthreshold = 0;
-    is_counted = 0;
+    is_counted        = 0;
 }
 
 // Basic checks for player/item compatibility - if false no chance to see the item in the loot
@@ -467,12 +469,12 @@ void Loot::AddItem(LootStoreItem const & item)
 {
     if (item.needs_quest)                                   // Quest drop
     {
-        if (quest_items.size() < MAX_NR_QUEST_ITEMS)
-            quest_items.push_back(LootItem(item));
+        if (QuestItems.size() < MAX_NR_QUEST_ITEMS)
+            QuestItems.push_back(LootItem(item, ItemBonusDifficulty));
     }
-    else if (items.size() < MAX_NR_LOOT_ITEMS)              // Non-quest drop
+    else if (Items.size() < MAX_NR_LOOT_ITEMS)              // Non-quest drop
     {
-        items.push_back(LootItem(item));
+        Items.push_back(LootItem(item, ItemBonusDifficulty));
 
         // non-conditional one-player only items are counted here,
         // free for all items are counted in FillFFALoot(),
@@ -482,7 +484,7 @@ void Loot::AddItem(LootStoreItem const & item)
         {
             ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item.itemid);
             if (!proto || (proto->Flags & ITEM_PROTO_FLAG_PARTY_LOOT) == 0)
-                ++unlootedCount;
+                ++UnlootedCount;
         }
     }
 }
@@ -503,8 +505,8 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
         return false;
     }
 
-    items.reserve(MAX_NR_LOOT_ITEMS);
-    quest_items.reserve(MAX_NR_QUEST_ITEMS);
+    Items.reserve(MAX_NR_LOOT_ITEMS);
+    QuestItems.reserve(MAX_NR_QUEST_ITEMS);
 
     tab->Process(*this, store.IsRatesAllowed(), lootMode);          // Processing is done there, callback via Loot::AddItem()
 
@@ -512,17 +514,17 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
     Group* group = lootOwner->GetGroup();
     if (!personal && group)
     {
-        roundRobinPlayer = lootOwner->GetGUID();
+        RoundRobinPlayer = lootOwner->GetGUID();
 
         for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
             if (Player* player = itr->getSource())   // should actually be looted object instead of lootOwner but looter has to be really close so doesnt really matter
                 FillNotNormalLootFor(player, player->IsAtGroupRewardDistance(lootOwner));
 
-        for (uint8 i = 0; i < items.size(); ++i)
+        for (uint8 i = 0; i < Items.size(); ++i)
         {
-            if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(items[i].itemid))
+            if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(Items[i].itemid))
                 if (proto->Quality < uint32(group->GetLootThreshold()))
-                    items[i].is_underthreshold = true;
+                    Items[i].is_underthreshold = true;
         }
     }
     // ... for personal loot
@@ -531,7 +533,7 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
 
     if ((lootId == 90406 || lootId == 90399 || lootId == 90397 || lootId == 90400 ||  lootId == 90398 || lootId == 90395 || lootId == 90401) && lootMode == LOOT_MODE_DEFAULT)
     {
-        for (auto itemCurrent: items)
+        for (auto itemCurrent: Items)
             for (auto spellId: sSpellMgr->mSpellCreateItemList)
                 if (const SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(spellId))
                     if (spellInfo->Effects[EFFECT_0].ItemType == itemCurrent.itemid)
@@ -569,13 +571,13 @@ void Loot::FillNotNormalLootFor(Player* player, bool presentAtLooting)
     // Process currency items
     uint32 max_slot = GetMaxSlotInLootFor(player);
     LootItem const* item = NULL;
-    uint32 itemsSize = uint32(items.size());
+    uint32 itemsSize = uint32(Items.size());
     for (uint32 i = 0; i < max_slot; ++i)
     {
-        if (i < items.size())
-            item = &items[i];
+        if (i < Items.size())
+            item = &Items[i];
         else
-            item = &quest_items[i-itemsSize];
+            item = &QuestItems[i-itemsSize];
 
         if (!item->is_looted && item->freeforall && item->AllowedForPlayer(player))
             if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item->itemid))
@@ -588,13 +590,13 @@ void Loot::FillCurrencyLoot(Player* player)
 {
     QuestItemList* ql = new QuestItemList();
 
-    for (uint8 i = 0; i < items.size(); ++i)
+    for (uint8 i = 0; i < Items.size(); ++i)
     {
-        LootItem& item = items[i];
+        LootItem& item = Items[i];
         if (!item.is_looted && item.currency && item.AllowedForPlayer(player))
         {
             ql->push_back(QuestItem(i));
-            ++unlootedCount;
+            ++UnlootedCount;
         }
     }
 
@@ -608,13 +610,13 @@ void Loot::FillFFALoot(Player* player)
 {
     QuestItemList* ql = new QuestItemList();
 
-    for (uint8 i = 0; i < items.size(); ++i)
+    for (uint8 i = 0; i < Items.size(); ++i)
     {
-        LootItem &item = items[i];
+        LootItem &item = Items[i];
         if (!item.is_looted && item.freeforall && item.AllowedForPlayer(player))
         {
             ql->push_back(QuestItem(i));
-            ++unlootedCount;
+            ++UnlootedCount;
         }
     }
 
@@ -626,14 +628,14 @@ void Loot::FillFFALoot(Player* player)
 
 void Loot::FillQuestLoot(Player* player)
 {
-    if (items.size() == MAX_NR_LOOT_ITEMS)
+    if (Items.size() == MAX_NR_LOOT_ITEMS)
         return;
 
     QuestItemList* ql = new QuestItemList();
 
-    for (uint8 i = 0; i < quest_items.size(); ++i)
+    for (uint8 i = 0; i < QuestItems.size(); ++i)
     {
-        LootItem &item = quest_items[i];
+        LootItem &item = QuestItems[i];
 
         if (!item.is_looted && (item.AllowedForPlayer(player) || (item.follow_loot_rules && player->GetGroup() && ((player->GetGroup()->GetLootMethod() == MASTER_LOOT && player->GetGroup()->GetLooterGuid() == player->GetGUID()) || player->GetGroup()->GetLootMethod() != MASTER_LOOT ))))
         {
@@ -644,11 +646,11 @@ void Loot::FillQuestLoot(Player* player)
             //
             // increase once if one looter only, looter-times if free for all
             if (item.freeforall || !item.is_blocked)
-                ++unlootedCount;
+                ++UnlootedCount;
             if (!player->GetGroup() || (player->GetGroup()->GetLootMethod() != GROUP_LOOT && player->GetGroup()->GetLootMethod() != ROUND_ROBIN))
                 item.is_blocked = true;
 
-            if (items.size() + ql->size() == MAX_NR_LOOT_ITEMS)
+            if (Items.size() + ql->size() == MAX_NR_LOOT_ITEMS)
                 break;
         }
     }
@@ -663,9 +665,9 @@ void Loot::FillNonQuestNonFFAConditionalLoot(Player* player, bool presentAtLooti
 {
     QuestItemList* ql = new QuestItemList();
 
-    for (uint8 i = 0; i < items.size(); ++i)
+    for (uint8 i = 0; i < Items.size(); ++i)
     {
-        LootItem &item = items[i];
+        LootItem &item = Items[i];
         if (!item.is_looted && !item.freeforall && (item.AllowedForPlayer(player) || (item.follow_loot_rules && player->GetGroup() && ((player->GetGroup()->GetLootMethod() == MASTER_LOOT && player->GetGroup()->GetLooterGuid() == player->GetGUID()) || player->GetGroup()->GetLootMethod() != MASTER_LOOT ))))
         {
             if (presentAtLooting)
@@ -675,7 +677,7 @@ void Loot::FillNonQuestNonFFAConditionalLoot(Player* player, bool presentAtLooti
                 ql->push_back(QuestItem(i));
                 if (!item.is_counted)
                 {
-                    ++unlootedCount;
+                    ++UnlootedCount;
                     item.is_counted = true;
                 }
             }
@@ -747,7 +749,7 @@ void Loot::NotifyQuestItemRemoved(uint8 questIndex)
                         break;
 
                 if (j < pql.size())
-                    player->SendNotifyLootItemRemoved(items.size()+j);
+                    player->SendNotifyLootItemRemoved(Items.size()+j);
             }
         }
         else
@@ -760,11 +762,11 @@ void Loot::generateMoneyLoot(uint32 minAmount, uint32 maxAmount)
     if (maxAmount > 0)
     {
         if (maxAmount <= minAmount)
-            gold = uint32(maxAmount * sWorld->getRate(RATE_DROP_MONEY));
+            Gold = uint32(maxAmount * sWorld->getRate(RATE_DROP_MONEY));
         else if ((maxAmount - minAmount) < 32700)
-            gold = uint32(urand(minAmount, maxAmount) * sWorld->getRate(RATE_DROP_MONEY));
+            Gold = uint32(urand(minAmount, maxAmount) * sWorld->getRate(RATE_DROP_MONEY));
         else
-            gold = uint32(urand(minAmount >> 8, maxAmount >> 8) * sWorld->getRate(RATE_DROP_MONEY)) << 8;
+            Gold = uint32(urand(minAmount >> 8, maxAmount >> 8) * sWorld->getRate(RATE_DROP_MONEY)) << 8;
     }
 }
 
@@ -772,22 +774,22 @@ LootItem* Loot::LootItemInSlot(uint32 lootSlot, Player* player, QuestItem* *qite
 {
     LootItem* item = NULL;
     bool is_looted = true;
-    if (lootSlot >= items.size())
+    if (lootSlot >= Items.size())
     {
-        uint32 questSlot = lootSlot - items.size();
+        uint32 questSlot = lootSlot - Items.size();
         QuestItemMap::const_iterator itr = PlayerQuestItems.find(player->GetGUIDLow());
         if (itr != PlayerQuestItems.end() && questSlot < itr->second->size())
         {
             QuestItem* qitem2 = &itr->second->at(questSlot);
             if (qitem)
                 *qitem = qitem2;
-            item = &quest_items[qitem2->index];
+            item = &QuestItems[qitem2->index];
             is_looted = qitem2->is_looted;
         }
     }
     else
     {
-        item = &items[lootSlot];
+        item = &Items[lootSlot];
         is_looted = item->is_looted;
         if (item->currency)
         {
@@ -852,7 +854,7 @@ LootItem* Loot::LootItemInSlot(uint32 lootSlot, Player* player, QuestItem* *qite
 uint32 Loot::GetMaxSlotInLootFor(Player* player) const
 {
     QuestItemMap::const_iterator itr = PlayerQuestItems.find(player->GetGUIDLow());
-    return items.size() + (itr != PlayerQuestItems.end() ?  itr->second->size() : 0);
+    return Items.size() + (itr != PlayerQuestItems.end() ?  itr->second->size() : 0);
 }
 
 // return true if there is any FFA, quest or conditional item for the player.
@@ -865,7 +867,7 @@ bool Loot::hasItemFor(Player* player) const
         QuestItemList* cur_list = cur_itr->second;
         for (QuestItemList::const_iterator cui = cur_list->begin(); cui != cur_list->end(); ++cui)
         {
-            const LootItem &item = quest_items[cui->index];
+            const LootItem &item = QuestItems[cui->index];
             if (!cui->is_looted && !item.is_looted)
                 return true;
         }
@@ -878,7 +880,7 @@ bool Loot::hasItemFor(Player* player) const
         QuestItemList* q_list = q_itr->second;
         for (QuestItemList::const_iterator qi = q_list->begin(); qi != q_list->end(); ++qi)
         {
-            const LootItem &item = quest_items[qi->index];
+            const LootItem &item = QuestItems[qi->index];
             if (!qi->is_looted && !item.is_looted)
                 return true;
         }
@@ -891,7 +893,7 @@ bool Loot::hasItemFor(Player* player) const
         QuestItemList* ffa_list = ffa_itr->second;
         for (QuestItemList::const_iterator fi = ffa_list->begin(); fi != ffa_list->end(); ++fi)
         {
-            const LootItem &item = items[fi->index];
+            const LootItem &item = Items[fi->index];
             if (!fi->is_looted && !item.is_looted)
                 return true;
         }
@@ -904,7 +906,7 @@ bool Loot::hasItemFor(Player* player) const
         QuestItemList* conditional_list = nn_itr->second;
         for (QuestItemList::const_iterator ci = conditional_list->begin(); ci != conditional_list->end(); ++ci)
         {
-            const LootItem &item = items[ci->index];
+            const LootItem &item = Items[ci->index];
             if (!ci->is_looted && !item.is_looted)
                 return true;
         }
@@ -916,9 +918,9 @@ bool Loot::hasItemFor(Player* player) const
 // return true if there is any item over the group threshold (i.e. not underthreshold).
 bool Loot::hasOverThresholdItem() const
 {
-    for (uint8 i = 0; i < items.size(); ++i)
+    for (uint8 i = 0; i < Items.size(); ++i)
     {
-        if (!items[i].is_looted && !items[i].is_underthreshold && !items[i].freeforall)
+        if (!Items[i].is_looted && !Items[i].is_underthreshold && !Items[i].freeforall)
             return true;
     }
 
@@ -957,7 +959,7 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
 
     uint8 l_ItemCount       = 0;
     uint8 l_CurrencyCount   = 0;
-    uint8 l_UIType          = LOOT_ITEM_UI_MASTER;
+    uint8 l_UIType          = LOOT_ITEM_UI_NORMAL;
 
     ByteBuffer l_ItemsDataBuffer;
 
@@ -967,15 +969,15 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
         {
             // if you are not the round-robin group looter, you can only see
             // blocked rolled items and quest items, and !ffa items
-            for (uint8 l_I = 0; l_I < l_Loot.items.size(); ++l_I)
+            for (uint8 l_I = 0; l_I < l_Loot.Items.size(); ++l_I)
             {
-                if (!l_Loot.items[l_I].currency && !l_Loot.items[l_I].is_looted && !l_Loot.items[l_I].freeforall && l_Loot.items[l_I].conditions.empty() && l_Loot.items[l_I].AllowedForPlayer(lv.viewer))
+                if (!l_Loot.Items[l_I].currency && !l_Loot.Items[l_I].is_looted && !l_Loot.Items[l_I].freeforall && l_Loot.Items[l_I].conditions.empty() && l_Loot.Items[l_I].AllowedForPlayer(lv.viewer))
                 {
                     uint8 l_SlotType;
 
-                    if (l_Loot.items[l_I].is_blocked)
+                    if (l_Loot.Items[l_I].is_blocked)
                         l_SlotType = LOOT_SLOT_TYPE_ROLL_ONGOING;
-                    else if (l_Loot.roundRobinPlayer == 0 || !l_Loot.items[l_I].is_underthreshold || lv.viewer->GetGUID() == l_Loot.roundRobinPlayer)
+                    else if (l_Loot.RoundRobinPlayer == 0 || !l_Loot.Items[l_I].is_underthreshold || lv.viewer->GetGUID() == l_Loot.RoundRobinPlayer)
                     {
                         // no round robin owner or he has released the loot
                         // or it IS the round robin group owner
@@ -988,30 +990,30 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
 
                     uint8 l_ItemListType = LOOT_LIST_ITEM;
 
-                    if (lv.viewer && lv.viewer->HasQuestForItem(l_Loot.items[l_I].itemid))
+                    if (lv.viewer && lv.viewer->HasQuestForItem(l_Loot.Items[l_I].itemid))
                         l_ItemListType = LOOT_LIST_TRACKING_QUEST;
 
                     l_ItemsDataBuffer.WriteBits(LOOT_ITEM_TYPE_ITEM, 2);        ///< Type
                     l_ItemsDataBuffer.WriteBits(LOOT_ITEM_UI_NORMAL, 3);        ///< Ui Type
                     l_ItemsDataBuffer.WriteBit(false);                          ///< Can Trade To Tap List
                     l_ItemsDataBuffer.FlushBits();
-                    l_ItemsDataBuffer << uint32(l_Loot.items[l_I].count);
+                    l_ItemsDataBuffer << uint32(l_Loot.Items[l_I].count);
                     l_ItemsDataBuffer << uint8(l_SlotType);
                     l_ItemsDataBuffer << uint8(l_I);
-                    l_ItemsDataBuffer << uint32(l_Loot.items[l_I].itemid);
-                    l_ItemsDataBuffer << uint32(l_Loot.items[l_I].randomSuffix);
-                    l_ItemsDataBuffer << uint32(l_Loot.items[l_I].randomPropertyId);
+                    l_ItemsDataBuffer << uint32(l_Loot.Items[l_I].itemid);
+                    l_ItemsDataBuffer << uint32(l_Loot.Items[l_I].randomSuffix);
+                    l_ItemsDataBuffer << uint32(l_Loot.Items[l_I].randomPropertyId);
 
-                    l_ItemsDataBuffer.WriteBit(l_Loot.items[l_I].itemBonuses.size());
+                    l_ItemsDataBuffer.WriteBit(l_Loot.Items[l_I].itemBonuses.size());
                     l_ItemsDataBuffer.WriteBit(false);                          ///< Has Modification
 
-                    if (l_Loot.items[l_I].itemBonuses.size())
+                    if (l_Loot.Items[l_I].itemBonuses.size())
                     {
                         l_ItemsDataBuffer << uint8(0); ///< ItemContext ?????? WTF
-                        l_ItemsDataBuffer << uint32(l_Loot.items[l_I].itemBonuses.size());
+                        l_ItemsDataBuffer << uint32(l_Loot.Items[l_I].itemBonuses.size());
 
-                        for (uint32 l_J = 0; l_J < l_Loot.items[l_I].itemBonuses.size(); l_J++)
-                            l_ItemsDataBuffer << uint32(l_Loot.items[l_I].itemBonuses[l_J]);
+                        for (uint32 l_J = 0; l_J < l_Loot.Items[l_I].itemBonuses.size(); l_J++)
+                            l_ItemsDataBuffer << uint32(l_Loot.Items[l_I].itemBonuses[l_J]);
                     }
 
                     l_ItemsDataBuffer.FlushBits();
@@ -1024,40 +1026,40 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
         }
         case ROUND_ROBIN_PERMISSION:
         {
-            for (uint8 l_I = 0; l_I < l_Loot.items.size(); ++l_I)
+            for (uint8 l_I = 0; l_I < l_Loot.Items.size(); ++l_I)
             {
-                if (!l_Loot.items[l_I].currency && !l_Loot.items[l_I].is_looted && !l_Loot.items[l_I].freeforall && l_Loot.items[l_I].conditions.empty() && l_Loot.items[l_I].AllowedForPlayer(lv.viewer))
+                if (!l_Loot.Items[l_I].currency && !l_Loot.Items[l_I].is_looted && !l_Loot.Items[l_I].freeforall && l_Loot.Items[l_I].conditions.empty() && l_Loot.Items[l_I].AllowedForPlayer(lv.viewer))
                 {
-                    if (l_Loot.roundRobinPlayer != 0 && lv.viewer->GetGUID() != l_Loot.roundRobinPlayer)
+                    if (l_Loot.RoundRobinPlayer != 0 && lv.viewer->GetGUID() != l_Loot.RoundRobinPlayer)
                         // item shall not be displayed.
                         continue;
 
                     uint8 l_ItemListType = LOOT_LIST_ITEM;
 
-                    if (lv.viewer && lv.viewer->HasQuestForItem(l_Loot.items[l_I].itemid))
+                    if (lv.viewer && lv.viewer->HasQuestForItem(l_Loot.Items[l_I].itemid))
                         l_ItemListType = LOOT_LIST_TRACKING_QUEST;
 
                     l_ItemsDataBuffer.WriteBits(LOOT_ITEM_TYPE_ITEM, 2);        ///< Type
-                    l_ItemsDataBuffer.WriteBits(LOOT_ITEM_UI_MASTER, 3);        ///< Ui Type
+                    l_ItemsDataBuffer.WriteBits(LOOT_ITEM_UI_NORMAL, 3);        ///< Ui Type
                     l_ItemsDataBuffer.WriteBit(false);                          ///< Can Trade To Tap List
                     l_ItemsDataBuffer.FlushBits();
-                    l_ItemsDataBuffer << uint32(l_Loot.items[l_I].count);
+                    l_ItemsDataBuffer << uint32(l_Loot.Items[l_I].count);
                     l_ItemsDataBuffer << uint8(l_ItemListType);
                     l_ItemsDataBuffer << uint8(l_I);
-                    l_ItemsDataBuffer << uint32(l_Loot.items[l_I].itemid);
-                    l_ItemsDataBuffer << uint32(l_Loot.items[l_I].randomSuffix);
-                    l_ItemsDataBuffer << uint32(l_Loot.items[l_I].randomPropertyId);
+                    l_ItemsDataBuffer << uint32(l_Loot.Items[l_I].itemid);
+                    l_ItemsDataBuffer << uint32(l_Loot.Items[l_I].randomSuffix);
+                    l_ItemsDataBuffer << uint32(l_Loot.Items[l_I].randomPropertyId);
 
-                    l_ItemsDataBuffer.WriteBit(l_Loot.items[l_I].itemBonuses.size());
+                    l_ItemsDataBuffer.WriteBit(l_Loot.Items[l_I].itemBonuses.size());
                     l_ItemsDataBuffer.WriteBit(false);                          ///< Has Modification
 
-                    if (l_Loot.items[l_I].itemBonuses.size())
+                    if (l_Loot.Items[l_I].itemBonuses.size())
                     {
                         l_ItemsDataBuffer << uint8(0); ///< ItemContext ?????? WTF
-                        l_ItemsDataBuffer << uint32(l_Loot.items[l_I].itemBonuses.size());
+                        l_ItemsDataBuffer << uint32(l_Loot.Items[l_I].itemBonuses.size());
 
-                        for (uint32 l_J = 0; l_J < l_Loot.items[l_I].itemBonuses.size(); l_J++)
-                            l_ItemsDataBuffer << uint32(l_Loot.items[l_I].itemBonuses[l_J]);
+                        for (uint32 l_J = 0; l_J < l_Loot.Items[l_I].itemBonuses.size(); l_J++)
+                            l_ItemsDataBuffer << uint32(l_Loot.Items[l_I].itemBonuses[l_J]);
                     }
 
                     l_ItemsDataBuffer.FlushBits();
@@ -1072,36 +1074,39 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
         case MASTER_PERMISSION:
         case OWNER_PERMISSION:
         {
-            for (uint8 l_I = 0; l_I < l_Loot.items.size(); ++l_I)
+            for (uint8 l_I = 0; l_I < l_Loot.Items.size(); ++l_I)
             {
-                if (!l_Loot.items[l_I].currency && !l_Loot.items[l_I].is_looted && !l_Loot.items[l_I].freeforall && l_Loot.items[l_I].conditions.empty() && l_Loot.items[l_I].AllowedForPlayer(lv.viewer))
+                if (!l_Loot.Items[l_I].currency && !l_Loot.Items[l_I].is_looted && !l_Loot.Items[l_I].freeforall && l_Loot.Items[l_I].conditions.empty() && l_Loot.Items[l_I].AllowedForPlayer(lv.viewer))
                 {
                     uint8 l_ItemListType = LOOT_LIST_ITEM;
-
-                    if (lv.viewer && lv.viewer->HasQuestForItem(l_Loot.items[l_I].itemid))
+                    if (lv.viewer && lv.viewer->HasQuestForItem(l_Loot.Items[l_I].itemid))
                         l_ItemListType = LOOT_LIST_TRACKING_QUEST;
 
-                    l_ItemsDataBuffer.WriteBits(LOOT_ITEM_TYPE_ITEM, 2);             ///< Type
-                    l_ItemsDataBuffer.WriteBits(LOOT_ITEM_UI_MASTER, 3);        ///< Ui Type
+                    uint8 l_UIType = LOOT_ITEM_UI_NORMAL;
+                    if (lv.permission == MASTER_PERMISSION)
+                        l_UIType = LOOT_ITEM_UI_MASTER;
+
+                    l_ItemsDataBuffer.WriteBits(l_ItemListType, 2);             ///< Type
+                    l_ItemsDataBuffer.WriteBits(l_UIType, 3);                   ///< Ui Type
                     l_ItemsDataBuffer.WriteBit(false);                          ///< Can Trade To Tap List
                     l_ItemsDataBuffer.FlushBits();
-                    l_ItemsDataBuffer << uint32(l_Loot.items[l_I].count);
+                    l_ItemsDataBuffer << uint32(l_Loot.Items[l_I].count);
                     l_ItemsDataBuffer << uint8(l_ItemListType);
                     l_ItemsDataBuffer << uint8(l_I);
-                    l_ItemsDataBuffer << uint32(l_Loot.items[l_I].itemid);
-                    l_ItemsDataBuffer << uint32(l_Loot.items[l_I].randomSuffix);
-                    l_ItemsDataBuffer << uint32(l_Loot.items[l_I].randomPropertyId);
+                    l_ItemsDataBuffer << uint32(l_Loot.Items[l_I].itemid);
+                    l_ItemsDataBuffer << uint32(l_Loot.Items[l_I].randomSuffix);
+                    l_ItemsDataBuffer << uint32(l_Loot.Items[l_I].randomPropertyId);
 
-                    l_ItemsDataBuffer.WriteBit(l_Loot.items[l_I].itemBonuses.size());
+                    l_ItemsDataBuffer.WriteBit(l_Loot.Items[l_I].itemBonuses.size());
                     l_ItemsDataBuffer.WriteBit(false);                          ///< Has Modification
 
-                    if (l_Loot.items[l_I].itemBonuses.size())
+                    if (l_Loot.Items[l_I].itemBonuses.size())
                     {
                         l_ItemsDataBuffer << uint8(0); ///< ItemContext ?????? WTF
-                        l_ItemsDataBuffer << uint32(l_Loot.items[l_I].itemBonuses.size());
+                        l_ItemsDataBuffer << uint32(l_Loot.Items[l_I].itemBonuses.size());
 
-                        for (uint32 l_J = 0; l_J < l_Loot.items[l_I].itemBonuses.size(); l_J++)
-                            l_ItemsDataBuffer << uint32(l_Loot.items[l_I].itemBonuses[l_J]);
+                        for (uint32 l_J = 0; l_J < l_Loot.Items[l_I].itemBonuses.size(); l_J++)
+                            l_ItemsDataBuffer << uint32(l_Loot.Items[l_I].itemBonuses[l_J]);
                     }
 
                     l_ItemsDataBuffer.FlushBits();
@@ -1277,7 +1282,7 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
         QuestItemList* q_list = q_itr->second;
         for (QuestItemList::const_iterator qi = q_list->begin(); qi != q_list->end(); ++qi)
         {
-            LootItem &item = l_Loot.quest_items[qi->index];
+            LootItem &item = l_Loot.QuestItems[qi->index];
             if (!qi->is_looted && !item.is_looted)
             {
                 uint8 slottype = 0;
@@ -1314,7 +1319,7 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                 l_ItemsDataBuffer.FlushBits();
                 l_ItemsDataBuffer << uint32(item.count);
                 l_ItemsDataBuffer << uint8(LOOT_ITEM_TYPE_ITEM);
-                l_ItemsDataBuffer << uint8(l_Loot.items.size() + (qi - q_list->begin()));
+                l_ItemsDataBuffer << uint8(l_Loot.Items.size() + (qi - q_list->begin()));
                 l_ItemsDataBuffer << uint32(item.itemid);
                 l_ItemsDataBuffer << uint32(item.randomSuffix);
                 l_ItemsDataBuffer << uint32(item.randomPropertyId);
@@ -1346,7 +1351,7 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
         QuestItemList* ffa_list = ffa_itr->second;
         for (QuestItemList::const_iterator fi = ffa_list->begin(); fi != ffa_list->end(); ++fi)
         {
-            LootItem &item = l_Loot.items[fi->index];
+            LootItem &item = l_Loot.Items[fi->index];
             if (!fi->is_looted && !item.is_looted)
             {
                 uint8 l_ItemListType = LOOT_LIST_ITEM;
@@ -1392,7 +1397,7 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
         QuestItemList* conditional_list = nn_itr->second;
         for (QuestItemList::const_iterator ci = conditional_list->begin(); ci != conditional_list->end(); ++ci)
         {
-            LootItem &item = l_Loot.items[ci->index];
+            LootItem &item = l_Loot.Items[ci->index];
             if (!ci->is_looted && !item.is_looted)
             {
                 uint8 slottype = 0;
@@ -1463,7 +1468,7 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
         QuestItemList* currency_list = currency_itr->second;
         for (QuestItemList::const_iterator ci = currency_list->begin() ; ci != currency_list->end(); ++ci)
         {
-            LootItem& item = l_Loot.items[ci->index];
+            LootItem& item = l_Loot.Items[ci->index];
             if (!ci->is_looted && !item.is_looted)
             {
                 if (CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(item.itemid))
@@ -1472,7 +1477,7 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                     l_CurrenciesDataBuffer << uint32(0);
                 l_CurrenciesDataBuffer << uint32(item.count);
                 l_CurrenciesDataBuffer << uint8(ci->index);
-                l_CurrenciesDataBuffer.WriteBits(LOOT_ITEM_UI_MASTER, 3);
+                l_CurrenciesDataBuffer.WriteBits(LOOT_ITEM_UI_NORMAL, 3);
                 l_CurrenciesDataBuffer.FlushBits();
 
                 ++l_CurrencyCount;
@@ -1483,10 +1488,10 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
     p_Data.appendPackGUID(l_CreatureGuid);
     p_Data.appendPackGUID(l_LootGuid);
     p_Data << uint8(17);                                ///< Failure reason
-    p_Data << uint8(lv.loot.loot_type);
+    p_Data << uint8(lv.loot.Type);
     p_Data << uint8((lv.viewer && lv.viewer->GetGroup()) ? lv.viewer->GetGroup()->GetLootMethod() : FREE_FOR_ALL);
     p_Data << uint8((lv.viewer && lv.viewer->GetGroup()) ? lv.viewer->GetGroup()->GetLootThreshold() : ITEM_QUALITY_UNCOMMON);
-    p_Data << uint32(lv.loot.gold + lv.loot.additionalLinkedGold);
+    p_Data << uint32(lv.loot.Gold + lv.loot.AdditionalLinkedGold);
     p_Data << uint32(l_ItemCount);
     p_Data << uint32(l_CurrencyCount);
 
@@ -1639,7 +1644,7 @@ void LootTemplate::LootGroup::Process(Loot& loot, uint16 lootMode) const
             if (ItemTemplate const* _proto = sObjectMgr->GetItemTemplate(item->itemid))
             {
                 uint8 _item_counter = 0;
-                for (LootItemList::const_iterator _item = loot.items.begin(); _item != loot.items.end(); ++_item)
+                for (LootItemList::const_iterator _item = loot.Items.begin(); _item != loot.Items.end(); ++_item)
                     if (_item->itemid == item->itemid)                             // search through the items that have already dropped
                     {
                         ++_item_counter;
@@ -1857,8 +1862,8 @@ void LootTemplate::Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId
             if (ItemTemplate const* _proto = sObjectMgr->GetItemTemplate(i->itemid))
             {
                 uint8 _item_counter = 0;
-                LootItemList::const_iterator _item = loot.items.begin();
-                for (; _item != loot.items.end(); ++_item)
+                LootItemList::const_iterator _item = loot.Items.begin();
+                for (; _item != loot.Items.end(); ++_item)
                     if (_item->itemid == i->itemid)                               // search through the items that have already dropped
                     {
                         ++_item_counter;
@@ -1867,7 +1872,7 @@ void LootTemplate::Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId
                         else if (_proto->InventoryType != 0 && _item_counter == 1) // Equippable item are limited to 1 drop
                             continue;
                     }
-                if (_item != loot.items.end())
+                if (_item != loot.Items.end())
                     continue;
             }
         }

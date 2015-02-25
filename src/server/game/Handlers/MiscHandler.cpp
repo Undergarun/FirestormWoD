@@ -53,12 +53,14 @@
 #include "Group.h"
 #include "AccountMgr.h"
 #include "Spell.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "TicketMgr.h"
 #include "OutdoorPvP.h"
 #include "OutdoorPvPMgr.h"
+
+#include "BattlegroundPacketFactory.hpp"
 
 void WorldSession::HandleRepopRequestOpcode(WorldPacket& recvData)
 {
@@ -1257,6 +1259,18 @@ void WorldSession::HandleCompleteMovieOpcode(WorldPacket & p_Packet)
     m_Player->MovieDelayedTeleportMutex.unlock();
 }
 
+void WorldSession::HandleSceneTriggerEventOpcode(WorldPacket & p_Packet)
+{
+    if (!m_Player)
+        return;
+
+    uint8 l_EventLenght         = p_Packet.ReadBits(6);
+    uint32 l_SceneInstanceID    = p_Packet.read<uint32>();
+    std::string l_Event         = p_Packet.ReadString(l_EventLenght);
+
+    sScriptMgr->OnSceneTriggerEvent(m_Player, l_SceneInstanceID, l_Event);
+}
+
 void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket& p_Packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_MOVE_TIME_SKIPPED");
@@ -1355,7 +1369,7 @@ void WorldSession::HandleSetActionBarToggles(WorldPacket& p_Packet)
         return;
     }
 
-    m_Player->SetByteValue(PLAYER_FIELD_LIFETIME_MAX_RANK, 1, l_ActionBar);
+    m_Player->SetByteValue(PLAYER_FIELD_LIFETIME_MAX_RANK, PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES, l_ActionBar);
 }
 
 void WorldSession::HandlePlayedTime(WorldPacket& recvData)
@@ -2066,7 +2080,7 @@ void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPacket& p_Packet)
         return;
 
     if (Battleground* l_Battleground = m_Player->GetBattleground())
-        sBattlegroundMgr->SendAreaSpiritHealerQueryOpcode(m_Player, l_Battleground, l_Healer);
+        MS::Battlegrounds::PacketFactory::AreaSpiritHealerQuery(m_Player, l_Battleground, l_Healer);
     else if (Battlefield * l_Battlefield = sBattlefieldMgr->GetBattlefieldToZoneId(m_Player->GetZoneId()))
         l_Battlefield->SendAreaSpiritHealerQueryOpcode(m_Player, l_Healer);
     else if (OutdoorPvP* l_OutdoorPvP = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(m_Player->GetZoneId()))
@@ -2393,4 +2407,18 @@ void WorldSession::HandleSaveCUFProfiles(WorldPacket& p_RecvPacket)
     }
 
     CharacterDatabase.CommitTransaction(l_Transaction);
+}
+
+void WorldSession::HandleMountSetFavoriteOpcode(WorldPacket & p_Packet)
+{
+    uint32  l_MountSpellID = 0;
+    bool    l_IsFavorite   = false;
+
+    p_Packet >> l_MountSpellID;
+    l_IsFavorite = p_Packet.ReadBit();
+
+    if (!m_Player)
+        return;
+
+    m_Player->MountSetFavorite(l_MountSpellID, l_IsFavorite);
 }

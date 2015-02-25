@@ -50,7 +50,7 @@
 #include "ItemEnchantmentMgr.h"
 #include "MapManager.h"
 #include "CreatureAIRegistry.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 #include "OutdoorPvPMgr.h"
 #include "TemporarySummon.h"
 #include "WaypointMovementGenerator.h"
@@ -84,6 +84,7 @@
 #include "WildBattlePet.h"
 #include "PlayerDump.h"
 #include "TransportMgr.h"
+#include "GarrisonShipmentManager.hpp"
 
 uint32 gOnlineGameMaster = 0;
 
@@ -757,13 +758,6 @@ void World::LoadConfigSettings(bool reload)
     {
         sLog->outError(LOG_FILTER_SERVER_LOADING, "CharactersPerAccount (%i) can't be less than CharactersPerRealm (%i).", m_int_configs[CONFIG_CHARACTERS_PER_ACCOUNT], m_int_configs[CONFIG_CHARACTERS_PER_REALM]);
         m_int_configs[CONFIG_CHARACTERS_PER_ACCOUNT] = m_int_configs[CONFIG_CHARACTERS_PER_REALM];
-    }
-
-    m_int_configs[CONFIG_HEROIC_CHARACTERS_PER_REALM] = ConfigMgr::GetIntDefault("HeroicCharactersPerRealm", 1);
-    if (int32(m_int_configs[CONFIG_HEROIC_CHARACTERS_PER_REALM]) < 0 || m_int_configs[CONFIG_HEROIC_CHARACTERS_PER_REALM] > 10)
-    {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "HeroicCharactersPerRealm (%i) must be in range 0..10. Set to 1.", m_int_configs[CONFIG_HEROIC_CHARACTERS_PER_REALM]);
-        m_int_configs[CONFIG_HEROIC_CHARACTERS_PER_REALM] = 1;
     }
 
     m_int_configs[CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_HEROIC_CHARACTER] = ConfigMgr::GetIntDefault("CharacterCreating.MinLevelForHeroicCharacter", 55);
@@ -1933,6 +1927,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading FollowerQuests...");
     sObjectMgr->LoadFollowerQuests();
 
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading QuestForItem...");
+    sObjectMgr->LoadQuestForItem();
+
     ///- Initialize game time and timers
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Initialize game time and timers");
     m_gameTime = time(NULL);
@@ -1978,6 +1975,10 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Starting Map System");
     sMapMgr->Initialize();
 
+    ///- Initialize Battlegrounds
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Starting Battleground System");
+    sBattlegroundMgr->CreateInitialBattlegrounds();
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Starting Game Event system...");
     uint32 nextGameEvent = sGameEventMgr->StartSystem();
     m_timers[WUPDATE_EVENTS].SetInterval(nextGameEvent);    //depend on next event
@@ -1993,9 +1994,6 @@ void World::SetInitialWorldSettings()
 
     sTicketMgr->Initialize();
 
-    ///- Initialize Battlegrounds
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Starting Battleground System");
-    sBattlegroundMgr->CreateInitialBattlegrounds();
     //sBattlegroundMgr->InitAutomaticArenaPointDistribution();
 
     ///- Initialize outdoor pvp
@@ -2086,6 +2084,9 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading map challenge mode hotfixes...");
     sObjectMgr->LoadMapChallengeModeHotfixes();
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Init Garrison shipment manager...");
+    sGarrisonShipmentManager->Init();
 
     uint32 startupDuration = GetMSTimeDiffToNow(startupBegin);
 
@@ -3321,7 +3322,7 @@ void World::InitRandomBGResetTime()
 
 void World::InitCurrencyResetTime()
 {
-    uint32 nextResetDay = sWorld->getWorldState(WS_CURRENCY_RESET_TIME);
+    uint32 nextResetDay = sWorld->getWorldState(MS::Battlegrounds::WsCurrency::ResetTime);
     if (!nextResetDay)
     {
         uint32 baseDay = 16022; // mercredi 13 novembre 2013
@@ -3331,11 +3332,10 @@ void World::InitCurrencyResetTime()
         while (nextResetDay < currentDay)
             nextResetDay += 7;
 
-        sWorld->setWorldState(WS_CURRENCY_RESET_TIME, nextResetDay);
+        sWorld->setWorldState(MS::Battlegrounds::WsCurrency::ResetTime, nextResetDay);
     }
 
     m_NextCurrencyReset = nextResetDay * 86400 + 5 * 3600;
-    sLog->outAshran("World::InitCurrencyResetTime: m_NextCurrencyReset %u, nextResetDay : %u", m_NextCurrencyReset, nextResetDay);
 }
 
 void World::InitDailyLootResetTime()
@@ -3349,7 +3349,6 @@ void World::InitDailyLootResetTime()
     }
 
     m_NextDailyLootReset = l_NextResetDay * 86400 + 5 * 3600;
-    sLog->outAshran("World::InitDailyLootResetTime: m_NextDailyLootReset %u, nextResetDay : %u", m_NextDailyLootReset, l_NextResetDay);
 }
 
 void World::InitServerAutoRestartTime()
@@ -3409,10 +3408,9 @@ void World::ResetCurrencyWeekCap()
         if (itr->second->GetPlayer())
             itr->second->GetPlayer()->ResetCurrencyWeekCap();
 
-    m_NextCurrencyReset = time_t(m_NextCurrencyReset + DAY * 7);
-    sWorld->setWorldState(WS_CURRENCY_RESET_TIME, getWorldState(WS_CURRENCY_RESET_TIME) + 7);
+    sWorld->setWorldState(MS::Battlegrounds::WsCurrency::ResetTime, getWorldState(MS::Battlegrounds::WsCurrency::ResetTime) + 7);
 
-    sLog->outAshran("World::ResetCurrencyWeekCap()");
+    m_NextCurrencyReset = time_t(m_NextCurrencyReset + DAY * 7);
 }
 
 void World::ResetDailyLoots()
@@ -3428,8 +3426,6 @@ void World::ResetDailyLoots()
 
     m_NextDailyLootReset = time_t(m_NextDailyLootReset + DAY);
     sWorld->setWorldState(WS_DAILY_LOOT_RESET_TIME, getWorldState(WS_DAILY_LOOT_RESET_TIME) + 1);
-
-    sLog->outAshran("World::ResetDailyLoots");
 }
 
 void World::LoadDBAllowedSecurityLevel()

@@ -85,7 +85,7 @@ class boss_taran_zhu : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* who, uint32& damage)
+            void DamageTaken(Unit* who, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (damage >= me->GetHealth())
                 {

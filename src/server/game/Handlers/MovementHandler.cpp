@@ -116,7 +116,10 @@ void WorldSession::HandleMoveWorldportAckOpcode()
         else if (Battleground* bg = m_Player->GetBattleground())
         {
             if (m_Player->IsInvitedForBattlegroundInstance(m_Player->GetBattlegroundId()))
+            {
                 bg->AddPlayer(m_Player);
+                bg->DecreaseInvitedCount(m_Player->GetTeam());
+            }
         }
     }
 
@@ -164,7 +167,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
         Difficulty diff = GetPlayer()->GetDifficulty(mEntry->IsRaid());
         if (MapDifficulty const* mapDiff = GetMapDifficultyData(mEntry->MapID, diff))
         {
-            if (mapDiff->resetTime)
+            if (mapDiff->ResetTime)
             {
                 if (time_t timeReset = sInstanceSaveMgr->GetResetTimeFor(mEntry->MapID, diff))
                 {
@@ -403,19 +406,34 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& p_Packet)
 
     sScriptMgr->OnPlayerUpdateMovement(l_PlayerMover);
 
-    // Hack Fix, clean emotes when moving
-    if (l_PlayerMover && l_PlayerMover->GetLastPlayedEmote())
-        l_PlayerMover->HandleEmoteCommand(0);
+    // Remove emote on movements
+    if (l_PlayerMover && l_MovementInfo.HasMovementFlag(MOVEMENTFLAG_MASK_MOVING))
+    {
+        if (uint32 l_EmoteId = l_PlayerMover->GetUInt32Value(UNIT_FIELD_EMOTE_STATE))
+        {
+            if (EmotesEntry const* emoteInfo = sEmotesStore.LookupEntry(l_EmoteId))
+            {
+                if (emoteInfo->EmoteType != EmoteTypes::EmoteLoop)
+                    l_PlayerMover->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
+            }
+        }
+    }
 
     //if (plrMover)
     //    sAnticheatMgr->StartHackDetection(plrMover, movementInfo, opcode);
+
     /*----------------------*/
 
     /* process position-change */
     WorldPacket data(SMSG_MOVE_UPDATE, p_Packet.size());
-    l_MovementInfo.Alive32 = l_MovementInfo.time; // hack, but it's work in 505 in this way ...
-    l_MovementInfo.time = getMSTime();
     l_MovementInfo.guid = l_Mover->GetGUID();
+
+    uint32 l_MSTime = getMSTime();
+
+    if (m_clientTimeDelay == 0)
+        m_clientTimeDelay = l_MSTime - l_MovementInfo.time;
+
+    l_MovementInfo.time = l_MovementInfo.time + m_clientTimeDelay;
 
     WorldSession::WriteMovementInfo(data, &l_MovementInfo);
     l_Mover->SendMessageToSet(&data, m_Player);
@@ -570,6 +588,13 @@ void WorldSession::HandleMoveKnockBackAck(WorldPacket & recvData)
     m_Player->m_movementInfo = movementInfo;
 
     WorldPacket data(SMSG_MOVE_UPDATE_KNOCK_BACK, 200);
+    uint32 l_MSTime = getMSTime();
+
+    if (m_clientTimeDelay == 0)
+        m_clientTimeDelay = l_MSTime - m_Player->m_movementInfo.time;
+
+    m_Player->m_movementInfo.time = m_Player->m_movementInfo.time + m_clientTimeDelay;
+
     WriteMovementInfo(data, &m_Player->m_movementInfo);
 
     m_Player->SendMessageToSet(&data, false);

@@ -63,34 +63,40 @@ enum SpellChannelInterruptFlags
 
 enum SpellAuraInterruptFlags
 {
-    AURA_INTERRUPT_FLAG_HITBYSPELL          = 0x00000001,   // 0    removed when getting hit by a negative spell?
-    AURA_INTERRUPT_FLAG_TAKE_DAMAGE         = 0x00000002,   // 1    removed by any damage
-    AURA_INTERRUPT_FLAG_CAST                = 0x00000004,   // 2    cast any spells
-    AURA_INTERRUPT_FLAG_MOVE                = 0x00000008,   // 3    removed by any movement
-    AURA_INTERRUPT_FLAG_TURNING             = 0x00000010,   // 4    removed by any turning
-    AURA_INTERRUPT_FLAG_JUMP                = 0x00000020,   // 5    removed by entering combat
-    AURA_INTERRUPT_FLAG_NOT_MOUNTED         = 0x00000040,   // 6    removed by dismounting
-    AURA_INTERRUPT_FLAG_NOT_ABOVEWATER      = 0x00000080,   // 7    removed by entering water
-    AURA_INTERRUPT_FLAG_NOT_UNDERWATER      = 0x00000100,   // 8    removed by leaving water
-    AURA_INTERRUPT_FLAG_NOT_SHEATHED        = 0x00000200,   // 9    removed by unsheathing
-    AURA_INTERRUPT_FLAG_TALK                = 0x00000400,   // 10   talk to npc / loot? action on creature
-    AURA_INTERRUPT_FLAG_USE                 = 0x00000800,   // 11   mine/use/open action on gameobject
-    AURA_INTERRUPT_FLAG_MELEE_ATTACK        = 0x00001000,   // 12   removed by attacking
-    AURA_INTERRUPT_FLAG_SPELL_ATTACK        = 0x00002000,   // 13   ???
-    AURA_INTERRUPT_FLAG_UNK14               = 0x00004000,   // 14
-    AURA_INTERRUPT_FLAG_TRANSFORM           = 0x00008000,   // 15   removed by transform?
-    AURA_INTERRUPT_FLAG_UNK16               = 0x00010000,   // 16
-    AURA_INTERRUPT_FLAG_MOUNT               = 0x00020000,   // 17   misdirect, aspect, swim speed
-    AURA_INTERRUPT_FLAG_NOT_SEATED          = 0x00040000,   // 18   removed by standing up (used by food and drink mostly and sleep/Fake Death like)
-    AURA_INTERRUPT_FLAG_CHANGE_MAP          = 0x00080000,   // 19   leaving map/getting teleported
+    AURA_INTERRUPT_FLAG_HITBYSPELL                  = 0x00000001,   // 0    removed when getting hit by a negative spell?
+    AURA_INTERRUPT_FLAG_TAKE_DAMAGE                 = 0x00000002,   // 1    removed by any damage
+    AURA_INTERRUPT_FLAG_CAST                        = 0x00000004,   // 2    cast any spells
+    AURA_INTERRUPT_FLAG_MOVE                        = 0x00000008,   // 3    removed by any movement
+    AURA_INTERRUPT_FLAG_TURNING                     = 0x00000010,   // 4    removed by any turning
+    AURA_INTERRUPT_FLAG_JUMP                        = 0x00000020,   // 5    removed by entering combat
+    AURA_INTERRUPT_FLAG_NOT_MOUNTED                 = 0x00000040,   // 6    removed by dismounting
+    AURA_INTERRUPT_FLAG_NOT_ABOVEWATER              = 0x00000080,   // 7    removed by entering water
+    AURA_INTERRUPT_FLAG_NOT_UNDERWATER              = 0x00000100,   // 8    removed by leaving water
+    AURA_INTERRUPT_FLAG_NOT_SHEATHED                = 0x00000200,   // 9    removed by unsheathing
+    AURA_INTERRUPT_FLAG_TALK                        = 0x00000400,   // 10   talk to npc / loot? action on creature
+    AURA_INTERRUPT_FLAG_USE                         = 0x00000800,   // 11   mine/use/open action on gameobject
+    AURA_INTERRUPT_FLAG_MELEE_ATTACK                = 0x00001000,   // 12   removed by attacking
+    AURA_INTERRUPT_FLAG_SPELL_ATTACK                = 0x00002000,   // 13   ???
+    AURA_INTERRUPT_FLAG_UNK14                       = 0x00004000,   // 14
+    AURA_INTERRUPT_FLAG_TRANSFORM                   = 0x00008000,   // 15   removed by transform?
+    AURA_INTERRUPT_FLAG_UNK16                       = 0x00010000,   // 16
+    AURA_INTERRUPT_FLAG_MOUNT                       = 0x00020000,   // 17   misdirect, aspect, swim speed
+    AURA_INTERRUPT_FLAG_NOT_SEATED                  = 0x00040000,   // 18   removed by standing up (used by food and drink mostly and sleep/Fake Death like)
+    AURA_INTERRUPT_FLAG_CHANGE_MAP                  = 0x00080000,   // 19   leaving map/getting teleported
     AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION    = 0x00100000,   // 20   removed by auras that make you invulnerable, or make other to lose selection on you
-    AURA_INTERRUPT_FLAG_UNK21               = 0x00200000,   // 21
-    AURA_INTERRUPT_FLAG_TELEPORTED          = 0x00400000,   // 22
-    AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT    = 0x00800000,   // 23   removed by entering pvp combat
-    AURA_INTERRUPT_FLAG_DIRECT_DAMAGE       = 0x01000000,   // 24   removed by any direct damage
-    AURA_INTERRUPT_FLAG_LANDING             = 0x02000000,   // 25   removed by hitting the ground
+    AURA_INTERRUPT_FLAG_UNK21                       = 0x00200000,   // 21
+    AURA_INTERRUPT_FLAG_TELEPORTED                  = 0x00400000,   // 22
+    AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT            = 0x00800000,   // 23   removed by entering pvp combat
+    AURA_INTERRUPT_FLAG_DIRECT_DAMAGE               = 0x01000000,   // 24   removed by any direct damage
+    AURA_INTERRUPT_FLAG_LANDING                     = 0x02000000,   // 25   removed by hitting the ground
+    AURA_INTERRUPT_FLAG_UNK25                       = 0x04000000,   // 26
+    AURA_INTERRUPT_FLAG_ANY_DAMAGE                  = 0x08000000,   // 27   removed by any damages, difference with AURA_INTERRUPT_FLAG_TAKE_DAMAGE must be caster/target stuff
+    AURA_INTERRUPT_FLAG_ENTER_COMBAT                = 0x10000000,   // 28   removed by entering pvp
+    AURA_INTERRUPT_FLAG_UNK29                       = 0x20000000,   // 29
+    AURA_INTERRUPT_FLAG_UNK30                       = 0x40000000,   // 30
+    AURA_INTERRUPT_FLAG_UNK31                       = 0x80000000,   // 31
 
-    AURA_INTERRUPT_FLAG_NOT_VICTIM = (AURA_INTERRUPT_FLAG_HITBYSPELL | AURA_INTERRUPT_FLAG_TAKE_DAMAGE | AURA_INTERRUPT_FLAG_DIRECT_DAMAGE),
+    AURA_INTERRUPT_FLAG_NOT_VICTIM = (AURA_INTERRUPT_FLAG_HITBYSPELL | AURA_INTERRUPT_FLAG_TAKE_DAMAGE | AURA_INTERRUPT_FLAG_ANY_DAMAGE | AURA_INTERRUPT_FLAG_DIRECT_DAMAGE),
 };
 
 enum SpellModOp
@@ -109,7 +115,7 @@ enum SpellModOp
     SPELLMOD_COOLDOWN                   = 11,
     SPELLMOD_EFFECT2                    = 12,
     SPELLMOD_IGNORE_ARMOR               = 13,
-    SPELLMOD_COST                       = 14,
+    SPELLMOD_COST                       = 14, ///< Used when SpellPowerEntry::PowerIndex == 0
     SPELLMOD_CRIT_DAMAGE_BONUS          = 15,
     SPELLMOD_RESIST_MISS_CHANCE         = 16,
     SPELLMOD_JUMP_TARGETS               = 17,
@@ -120,15 +126,19 @@ enum SpellModOp
     SPELLMOD_DOT                        = 22,
     SPELLMOD_EFFECT3                    = 23,
     SPELLMOD_BONUS_MULTIPLIER           = 24,
-    // spellmod 25
+    SPELLMOD_UNK_25                     = 25,
     SPELLMOD_PROC_PER_MINUTE            = 26,
     SPELLMOD_VALUE_MULTIPLIER           = 27,
     SPELLMOD_RESIST_DISPEL_CHANCE       = 28,
-    SPELLMOD_CRIT_DAMAGE_BONUS_2        = 29, //one not used spell
+    SPELLMOD_CRIT_DAMAGE_BONUS_2        = 29, ///< One not used spell
     SPELLMOD_SPELL_COST_REFUND_ON_FAIL  = 30,
-    SPELLMOD_UNK31                      = 31,
-    SPELLMOD_UNK32                      = 32,
-    SPELLMOD_EFFECT5                    = 33
+    SPELLMOD_STACK_AMOUNT               = 31,
+    SPELLMOD_EFFECT4                    = 32,
+    SPELLMOD_EFFECT5                    = 33,
+    SPELLMOD_SPELL_COST2                = 34, ///< Used when SpellPowerEntry::PowerIndex == 1
+    SPELLMOD_JUMP_DISTANCE              = 35,
+    SPELLMOD_UNK_36                     = 36,
+    SPELLMOD_STACK_AMOUNT2              = 37  ///< same as SPELLMOD_STACK_AMOUNT but affects tooltips
 };
 
 #define MAX_SPELLMOD 38
@@ -310,20 +320,28 @@ enum HitInfo
     HITINFO_FULL_RESIST         = 0x00000080,
     HITINFO_PARTIAL_RESIST      = 0x00000100,
     HITINFO_CRITICALHIT         = 0x00000200,               // critical hit
-    // 0x00000400
-    // 0x00000800
-    // 0x00001000
+    /// 0x00000400
+    /// 0x00000800
+    /// 0x00001000
     HITINFO_BLOCK               = 0x00002000,               // blocked damage
-    // 0x00004000                                           // Hides worldtext for 0 damage
-    // 0x00008000                                           // Related to blood visual
+    /// 0x00004000                                           // Hides worldtext for 0 damage
+    /// 0x00008000                                           // Related to blood visual
     HITINFO_GLANCING            = 0x00010000,
     HITINFO_CRUSHING            = 0x00020000,
     HITINFO_NO_ANIMATION        = 0x00040000,
-    // 0x00080000
-    // 0x00100000
+    /// 0x00080000
+    /// 0x00100000
     HITINFO_SWINGNOHITSOUND     = 0x00200000,               // unused?
-    // 0x00400000
-    HITINFO_RAGE_GAIN           = 0x00800000
+    /// 0x00400000
+    HITINFO_RAGE_GAIN           = 0x00800000,
+    /// 0x01000000
+    /// 0x02000000
+    HITINFO_MULTISTRIKE         = 0x04000000
+    /// 0x08000000
+    /// 0x10000000
+    /// 0x20000000
+    /// 0x40000000
+    /// 0x80000000
 };
 
 //i would like to remove this: (it is defined in item.h
@@ -1350,6 +1368,14 @@ enum PlayerTotemType
     SUMMON_TYPE_TOTEM_AIR5   = 3399
 };
 
+/// Spell cooldown flags sent in SMSG_SPELL_COOLDOWN
+enum CooldownFlags
+{
+    CooldownFlagNone                  = 0x0,
+    CooldownFlagIncludeGCD            = 0x1,  ///< Starts GCD in addition to normal cooldown specified in the packet
+    CooldownFlagIncludeEventCooldowns = 0x2   ///< Starts GCD for spells that should start their cooldown on events, requires CooldownFlagIncludeGCD set
+};
+
 enum Stagger
 {
     LIGHT_STAGGER       = 124275,
@@ -1577,7 +1603,7 @@ class Unit : public WorldObject
         void setPowerType(Powers power);
         int32 GetPower(Powers power) const;
         float GetPowerPct(Powers power) const { return GetMaxPower(power) ? 100.f * GetPower(power) / GetMaxPower(power) : 0.0f; }
-        int32 GetMinPower(Powers power) const { return power == POWER_ECLIPSE ? -100 : 0; }
+        int32 GetMinPower(Powers power) const { return power == POWER_ECLIPSE ? -10000 : 0; }
         int32 GetMaxPower(Powers power) const;
         int32 GetPowerCoeff(Powers p_powerType) const;
         void SetPower(Powers power, int32 val, bool regen = false);
@@ -1586,6 +1612,9 @@ class Unit : public WorldObject
         // returns the change in power
         int32 ModifyPower(Powers power, int32 val);
         int32 ModifyPowerPct(Powers power, float pct, bool apply = true);
+
+        void AddComboPoints(int8 p_Count);
+        void ClearComboPoints();
 
         PowerTypeSet GetUsablePowers() const;
         uint32 GetPowerIndexByClass(uint32 powerId, uint32 classId) const;
@@ -1826,7 +1855,7 @@ class Unit : public WorldObject
         void SendMessageUnfriendlyToSetInRange(WorldPacket* data, float fist);
 
         void NearTeleportTo(float x, float y, float z, float orientation, bool casting = false);
-        void SendTeleportPacket(Position &oldPos);
+        void SendTeleportPacket(Position &p_NewPosition);
         virtual bool UpdatePosition(float x, float y, float z, float ang, bool teleport = false);
         // returns true if unit's position really changed
         bool UpdatePosition(const Position &pos, bool teleport = false) { return UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport); }
@@ -1861,7 +1890,7 @@ class Unit : public WorldObject
         virtual bool SetDisableGravity(bool disable, bool packetOnly = false);
         bool SetHover(bool enable);
 
-        void SetInFront(Unit const* target);
+        void SetInFront(WorldObject const* target);
         void SetFacingTo(float ori);
         void SetFacingToObject(WorldObject* object);
 
@@ -2457,15 +2486,13 @@ class Unit : public WorldObject
         void _ExitVehicle(Position const* exitPosition = NULL);
         void _EnterVehicle(Vehicle* vehicle, int8 seatId, AuraApplication const* aurApp = NULL);
 
-        void BuildMovementPacket(ByteBuffer *data) const;
-
         bool isMoving() const   { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_MASK_MOVING); }
         bool isTurning() const  { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_MASK_TURNING); }
         virtual bool CanFly() const = 0;
         bool IsFlying() const   { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FLYING | MOVEMENTFLAG_DISABLE_GRAVITY); }
         void SetCanFly(bool apply);
 
-        void RewardRage(float baseRage, bool attacker);
+        void RewardRage(float baseRage);
 
         virtual float GetFollowAngle() const { return static_cast<float>(M_PI/2); }
 
@@ -2489,11 +2516,8 @@ class Unit : public WorldObject
         }
 
         // Handling caster facing during spell cast
-        void FocusTarget(Spell const* focusSpell, uint64 target);
+        void FocusTarget(Spell const* p_FocusSpell, WorldObject* p_Target);
         void ReleaseFocus(Spell const* focusSpell);
-
-        int32 GetEclipsePower() { return m_EclipsePower; };
-        void SetEclipsePower(int32 power, bool send = true);
 
         uint32 GetHealingDoneInPastSecs(uint32 secs);
         uint32 GetHealingTakenInPastSecs(uint32 secs);
@@ -2527,6 +2551,13 @@ class Unit : public WorldObject
         bool EvadeModeIsDisable() const { return m_disableEnterEvadeMode; }
 
         void BuildEncounterFrameData(WorldPacket* p_Data, bool p_Engage, uint8 p_TargetFramePriority = 0);
+
+        bool AddPoisonTarget(uint32 p_SpellID, uint32 p_LowGuid);
+        bool HasPoisonTarget(uint32 p_LowGuid) const;
+        void RemovePoisonTarget(uint32 p_LowGuid, uint32 p_SpellID);
+        void ClearPoisonTargets();
+        ///     LowGuid          SpellIDs
+        std::map<uint32, std::set<uint32>> m_PoisonTargets;
 
     public:
         uint64 _petBattleId;
@@ -2694,8 +2725,6 @@ class Unit : public WorldObject
 
         Spell const* _focusSpell;   ///> Locks the target during spell cast for proper facing
         bool _isWalkingBeforeCharm; // Are we walking before we were charmed?
-
-        int32 m_EclipsePower;
 
         time_t _lastDamagedTime;
 };

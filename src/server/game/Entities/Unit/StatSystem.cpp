@@ -410,8 +410,10 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     float attPowerMod = GetModifierValue(unitMod, TOTAL_VALUE);
     float attPowerMultiplier = GetModifierValue(unitMod, TOTAL_PCT) - 1.0f;
 
-    // 76857 - Mastery : Critical Block - Attack Percentage
-    if (GetTypeId() == TYPEID_PLAYER && HasAura(76857))
+    /// 76857 - Mastery : Critical Block
+    /// 117906 - Mastery: Elusive Brawler
+    /// 77513 - Mastery: Blood Shield
+    if (GetTypeId() == TYPEID_PLAYER && (HasAura(76857) || HasAura(117906) || HasAura(77513)))
         attPowerMultiplier += GetFloatValue(PLAYER_FIELD_MASTERY) / 100;
 
     //add dynamic flat mods
@@ -501,7 +503,6 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     float weapon_mindamage = GetWeaponDamageRange(attType, MINDAMAGE);
     float weapon_maxdamage = GetWeaponDamageRange(attType, MAXDAMAGE);
     float attackPower = GetTotalAttackPowerValue(attType);
-
 
     float weapon_with_ap_min = (weapon_mindamage / att_speed) + (attackPower / 3.5f);
     float weapon_with_ap_max = (weapon_maxdamage / att_speed) + (attackPower / 3.5f);
@@ -599,6 +600,9 @@ void Player::UpdateCritPercentage(WeaponAttackType attType)
 
     value = value < 0.0f ? 0.0f : value;
     SetStatFloatValue(index, value);
+
+    if (HasAuraType(AuraType::SPELL_AURA_ADD_PARRY_PCT_OF_CS_FROM_GEAR))
+        UpdateParryPercentage();
 }
 
 void Player::UpdateAllCritPercentages()
@@ -672,6 +676,10 @@ void Player::UpdateParryPercentage()
 
         // apply diminishing formula to diminishing parry chance
         value = nondiminishing + diminishing * parryCap[pClass] / (diminishing + parryCap[pClass] * k_constant[pClass]);
+
+        /// Apply parry from pct of critical strike from gear
+        value += CalculatePct(GetRatingBonusValue(CR_CRIT_MELEE), GetTotalAuraModifier(SPELL_AURA_ADD_PARRY_PCT_OF_CS_FROM_GEAR));
+
         if (value < 0.0f)
             value = 0.0f;
 
@@ -814,6 +822,10 @@ void Player::UpdateMasteryPercentage()
         value = value < 0.0f ? 0.0f : value;
     }
     SetFloatValue(PLAYER_FIELD_MASTERY, value);
+    
+    // 117906 - Mastery: Elusive Brawler - Update attack power
+    if (HasAura(117906))
+        UpdateAttackPowerAndDamage();
     // Custom MoP Script
     // 76671 - Mastery : Divine Bulwark - Update Block Percentage
     // 76857 - Mastery : Critical Block - Update Block Percentage
@@ -822,6 +834,25 @@ void Player::UpdateMasteryPercentage()
     // 77494 - Mastery : Nature's Guardian - Update Armor
     if (HasAura(77494))
         UpdateArmor();
+
+    /// Update some mastery spells
+    AuraApplicationMap& l_AppliedAuras = GetAppliedAuras();
+    for (auto l_Iter : l_AppliedAuras)
+    {
+        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_Iter.first);
+        if (l_SpellInfo != nullptr && l_SpellInfo->HasAttribute(SpellAttr8::SPELL_ATTR8_MASTERY_SPECIALIZATION))
+        {
+            AuraPtr l_Aura = l_Iter.second->GetBase();
+            for (uint8 l_I = 0; l_I < MAX_SPELL_EFFECTS; ++l_I)
+            {
+                if (AuraEffectPtr l_AurEff = l_Aura->GetEffect(l_I))
+                {
+                    l_AurEff->SetCanBeRecalculated(true);
+                    l_AurEff->ChangeAmount(l_AurEff->CalculateAmount(this), true, true);
+                }
+            }
+        }
+    }
 }
 
 void Player::UpdatePvPPowerPercentage()
@@ -963,7 +994,12 @@ void Player::UpdateManaRegen()
     outOfCombatRegen *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, POWER_MANA);
     combatRegen *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, POWER_MANA);
 
-    // Mana Meditation && Meditation
+    if (HasAuraType(AuraType::SPELL_AURA_MOD_MANA_REGEN_BY_HASTE))
+    {
+        float l_HastePct = 1.0f + GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_HASTE_MELEE) * GetRatingMultiplier(CR_HASTE_MELEE) / 100.0f;
+        outOfCombatRegen *= l_HastePct;
+        combatRegen *= l_HastePct;
+    }
 
     SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, combatRegen);
     SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, outOfCombatRegen);
@@ -1044,16 +1080,16 @@ float Player::GetRegenForPower(Powers p_Power)
             return 0.0f;
     }
 
-    float l_HastePct = 1.0f;
-
+    float l_Pct = 1.0f;
     Unit::AuraEffectList const& l_ModPowerRegenPCT = GetAuraEffectsByType(AuraType::SPELL_AURA_MOD_POWER_REGEN_PERCENT);
     for (Unit::AuraEffectList::const_iterator l_Iter = l_ModPowerRegenPCT.begin(); l_Iter != l_ModPowerRegenPCT.end(); ++l_Iter)
     {
         if (Powers((*l_Iter)->GetMiscValue()) == p_Power)
-            l_HastePct += (*l_Iter)->GetAmount() / 100.0f;
+            l_Pct += (*l_Iter)->GetAmount() / 100.0f;
     }
 
-    return l_BaseRegen - (l_BaseRegen * l_HastePct);
+    float l_HastePct = 1.f / (1.f + (m_baseRatingValue[CR_HASTE_MELEE] * GetRatingMultiplier(CR_HASTE_MELEE) + l_Pct) / 100.f);
+    return l_BaseRegen * l_HastePct;
 }
 
 void Player::_ApplyAllStatBonuses()

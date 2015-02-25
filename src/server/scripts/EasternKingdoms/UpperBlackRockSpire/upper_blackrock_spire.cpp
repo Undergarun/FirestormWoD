@@ -152,7 +152,7 @@ class mob_black_iron_grunt : public CreatureScript
                 m_Events.ScheduleEvent(EVENT_RALLYING_BANNER, 10000);
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage)
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
             {
                 if (me->HealthBelowPctDamaged(20, p_Damage) && !m_DeathEventDone)
                 {
@@ -264,7 +264,7 @@ class mob_black_iron_leadbelcher : public CreatureScript
                 m_Events.ScheduleEvent(EVENT_RIFLE_SHOT, 8000);
             }
 
-            void DamageTaken(Unit* p_Atacker, uint32& p_Damage)
+            void DamageTaken(Unit* p_Atacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
             {
                 if (me->HealthBelowPctDamaged(50, p_Damage) && !m_Canon)
                 {
@@ -414,7 +414,7 @@ class mob_ragemaw_worg : public CreatureScript
                 m_Events.ScheduleEvent(EVENT_FRANTIC_MAULING, 10000);
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage)
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
             {
                 if (me->HealthBelowPctDamaged(50, p_Damage) && !me->HasAura(SPELL_BLACKROCK_RABIES))
                     me->CastSpell(me, SPELL_BLACKROCK_RABIES, true);
@@ -1197,7 +1197,7 @@ class mob_emberscale_adolescent : public CreatureScript
 
             void Reset()
             {
-                if (me->HasAura(eSpells::SpellCaptivityChains))
+                if (me->AddAura(eSpells::SpellCaptivityChains, me))
                 {
                     me->SetReactState(ReactStates::REACT_PASSIVE);
                     me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);

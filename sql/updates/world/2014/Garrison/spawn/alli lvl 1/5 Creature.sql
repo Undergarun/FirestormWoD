@@ -150,9 +150,7 @@ INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`) VALUES
 INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(86470, 1158, 1837.71, 257.507, 86.13415, 5.813615, 268435455, 65535, 0, 16777216, 0, 0, 2048, 0, 0) ON DUPLICATE KEY UPDATE `id` = VALUES(`id`), `map` = VALUES(`map`), `position_x` = VALUES(`position_x`), `position_y` = VALUES(`position_y`), `position_z` = VALUES(`position_z`), `orientation` = VALUES(`orientation`), `spawnMask` = VALUES(`spawnMask`), `phaseMask` = VALUES(`phaseMask`), `equipment_id` = VALUES(`equipment_id`), `npcflag` = VALUES(`npcflag`), `npcflag2` = VALUES(`npcflag2`), `unit_flags` = VALUES(`unit_flags`), `unit_flags2` = VALUES(`unit_flags2`), `unit_flags3` = VALUES(`unit_flags3`), `WorldEffectID` = VALUES(`WorldEffectID`);
 INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`) VALUES(LAST_INSERT_ID(), 0, 50331648, 1, 0) ON DUPLICATE KEY UPDATE `guid` = VALUES(`guid`), `mount` = VALUES(`mount`), `bytes1` = VALUES(`bytes1`), `bytes2` = VALUES(`bytes2`), `emote` = VALUES(`emote`);
 
----------------------------------------------------------
 -- Creature Spawn (Phase 2)
----------------------------------------------------------
 INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(81627, 1158, 1859.583, 252.4913, 77.48222, 3.986816, 268435455, 2, 0, 0, 0, 16896, 2048, 0, 0) ON DUPLICATE KEY UPDATE `id` = VALUES(`id`), `map` = VALUES(`map`), `position_x` = VALUES(`position_x`), `position_y` = VALUES(`position_y`), `position_z` = VALUES(`position_z`), `orientation` = VALUES(`orientation`), `spawnMask` = VALUES(`spawnMask`), `phaseMask` = VALUES(`phaseMask`), `equipment_id` = VALUES(`equipment_id`), `npcflag` = VALUES(`npcflag`), `npcflag2` = VALUES(`npcflag2`), `unit_flags` = VALUES(`unit_flags`), `unit_flags2` = VALUES(`unit_flags2`), `unit_flags3` = VALUES(`unit_flags3`), `WorldEffectID` = VALUES(`WorldEffectID`);
 INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`) VALUES(LAST_INSERT_ID(), 0, 0, 1, 0) ON DUPLICATE KEY UPDATE `guid` = VALUES(`guid`), `mount` = VALUES(`mount`), `bytes1` = VALUES(`bytes1`), `bytes2` = VALUES(`bytes2`), `emote` = VALUES(`emote`);
 
@@ -198,30 +196,22 @@ INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`) VALUES
 INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(81656, 1158, 1882.227, 235.8733, 76.68753, 3.772152, 268435455, 2, 0, 0, 0, 33536, 2048, 0, 0) ON DUPLICATE KEY UPDATE `id` = VALUES(`id`), `map` = VALUES(`map`), `position_x` = VALUES(`position_x`), `position_y` = VALUES(`position_y`), `position_z` = VALUES(`position_z`), `orientation` = VALUES(`orientation`), `spawnMask` = VALUES(`spawnMask`), `phaseMask` = VALUES(`phaseMask`), `equipment_id` = VALUES(`equipment_id`), `npcflag` = VALUES(`npcflag`), `npcflag2` = VALUES(`npcflag2`), `unit_flags` = VALUES(`unit_flags`), `unit_flags2` = VALUES(`unit_flags2`), `unit_flags3` = VALUES(`unit_flags3`), `WorldEffectID` = VALUES(`WorldEffectID`);
 INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`) VALUES(LAST_INSERT_ID(), 0, 0, 1, 0) ON DUPLICATE KEY UPDATE `guid` = VALUES(`guid`), `mount` = VALUES(`mount`), `bytes1` = VALUES(`bytes1`), `bytes2` = VALUES(`bytes2`), `emote` = VALUES(`emote`);
 
----------------------------------------------------------
 -- Creature Spawn (Phase 4)
----------------------------------------------------------
 INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(81441, 1158, 1934.74, 323.7326, 89.0721, 1.136335, 268435455, 4, 0, 1, 0, 32768, 34816, 0, 0) ON DUPLICATE KEY UPDATE `id` = VALUES(`id`), `map` = VALUES(`map`), `position_x` = VALUES(`position_x`), `position_y` = VALUES(`position_y`), `position_z` = VALUES(`position_z`), `orientation` = VALUES(`orientation`), `spawnMask` = VALUES(`spawnMask`), `phaseMask` = VALUES(`phaseMask`), `equipment_id` = VALUES(`equipment_id`), `npcflag` = VALUES(`npcflag`), `npcflag2` = VALUES(`npcflag2`), `unit_flags` = VALUES(`unit_flags`), `unit_flags2` = VALUES(`unit_flags2`), `unit_flags3` = VALUES(`unit_flags3`), `WorldEffectID` = VALUES(`WorldEffectID`);
 INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`) VALUES(LAST_INSERT_ID(), 0, 0, 1, 0) ON DUPLICATE KEY UPDATE `guid` = VALUES(`guid`), `mount` = VALUES(`mount`), `bytes1` = VALUES(`bytes1`), `bytes2` = VALUES(`bytes2`), `emote` = VALUES(`emote`);
 
 INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(81440, 1158, 1935.818, 325.3559, 89.06095, 4.3645, 268435455, 4, 0, 0, 0, 0, 34816, 0, 0) ON DUPLICATE KEY UPDATE `id` = VALUES(`id`), `map` = VALUES(`map`), `position_x` = VALUES(`position_x`), `position_y` = VALUES(`position_y`), `position_z` = VALUES(`position_z`), `orientation` = VALUES(`orientation`), `spawnMask` = VALUES(`spawnMask`), `phaseMask` = VALUES(`phaseMask`), `equipment_id` = VALUES(`equipment_id`), `npcflag` = VALUES(`npcflag`), `npcflag2` = VALUES(`npcflag2`), `unit_flags` = VALUES(`unit_flags`), `unit_flags2` = VALUES(`unit_flags2`), `unit_flags3` = VALUES(`unit_flags3`), `WorldEffectID` = VALUES(`WorldEffectID`);
 INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`) VALUES(LAST_INSERT_ID(), 0, 0, 1, 0) ON DUPLICATE KEY UPDATE `guid` = VALUES(`guid`), `mount` = VALUES(`mount`), `bytes1` = VALUES(`bytes1`), `bytes2` = VALUES(`bytes2`), `emote` = VALUES(`emote`);
 
----------------------------------------------------------
 -- Builders
----------------------------------------------------------
 REPLACE INTO creature_equip_template (entry, `id`, `itemEntry1`, `itemEntry2`, `itemEntry3`) VALUES(81653, 1, 5956, 0, 0);
 UPDATE creature_template_addon SET auras="" WHERE entry=81653;
 UPDATE creature_template SET ScriptName="npc_LunarfallLaborer" WHERE entry=81653;
 
----------------------------------------------------------
 -- Creature EXP
----------------------------------------------------------
 UPDATE creature_template SET `exp`=5 WHERE entry IN(81441,81440,85312,86470,85312,84776,84455,84776,84267,84246,82776,83491,82466,82401,82177,82386,81935,81851,81912,81656,81654,81656,81654,81653,81653,81653,81653,81653,81633,81627,81633,81627,81492,81546,81491,81369,81346,81348,81152,81103,80645,80159,80163,80078,79894,79953,79893,79603,79891,79457,78564,77617,77730,77376,77376,77376,77376,77376,77376,77376,77370,77376,77370,77370,77209,77370);
 
----------------------------------------------------------
 -- Fix vendors flags
----------------------------------------------------------
 UPDATE `creature` SET `npcflag`=`npcflag`|128 WHERE `id`=81346 AND `map`=1158;
 UPDATE `creature` SET `npcflag`=`npcflag`|128 WHERE `id`=81348 AND `map`=1158;
 UPDATE `creature` SET `npcflag`=`npcflag`|128 WHERE `id`=84246 AND `map`=1158;
@@ -229,9 +219,7 @@ UPDATE `creature` SET `npcflag`=`npcflag`|128 WHERE `id`=82386 AND `map`=1158;
 UPDATE `creature` SET `npcflag`=`npcflag`|128 WHERE `id`=82776 AND `map`=1158;
 UPDATE `creature` SET `npcflag`=`npcflag`|128 WHERE `id`=81347 AND `map`=1158;
 
----------------------------------------------------------
 -- Vendor
----------------------------------------------------------
 DELETE FROM `npc_vendor` WHERE `entry` = 81346 AND `type` = 1;
 INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`) VALUES
 (81346, 0, 2901, 0, 0, 0, 1), 
@@ -342,9 +330,7 @@ INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `Exte
 (81347, 0, 117445, 0, 0, 0, 1), 
 (81347, 0, 117452, 0, 0, 0, 1);
 
----------------------------------------------------------
 -- Npc Gossips & script
----------------------------------------------------------
 INSERT INTO npc_text (`ID`, `text0_0`, `lang0`, `prob0`, `WDBVerified`) VALUES(86664, "$GSir:Madam;, an attack on our garrison looms close. I have commissioned some items that you may find useful.", 0, 100, 19243) ON DUPLICATE KEY UPDATE `ID` = VALUES(`ID`), `text0_0` = VALUES(`text0_0`), `lang0` = VALUES(`lang0`), `prob0` = VALUES(`prob0`), `WDBVerified` = VALUES(`WDBVerified`);
 DELETE FROM `gossip_menu` WHERE `entry` = 16916;
 INSERT INTO `gossip_menu`(`entry`,`text_id`) VALUES ('16916','86664');
@@ -422,11 +408,9 @@ UPDATE creature_template SET gossip_menu_id = 0, ScriptName="npc_ShellyHamby" WH
 
 REPLACE INTO creature_text (entry, `groupid`, `id`, `text`, `type`, `language`, `probability`) VALUES(79457, 0, 0, "Be careful, commander. If these pale orcs are real, who knows what powers they possess.", 12, 0, 100);
 REPLACE INTO creature_text (entry, `groupid`, `id`, `text`, `type`, `language`, `probability`) VALUES(79457, 1, 0, "These pale orcs sound dangerous. Hopefully this is the last we see of them.", 12, 0, 100);
-UPDATE creature_template SET ScriptName="npc_VindicatorMaraad" WHERE entry=79457;	
+UPDATE creature_template SET ScriptName="npc_VindicatorMaraad_GarrA" WHERE entry=79457;	
 
----------------------------------------------------------
 -- Quest lines
----------------------------------------------------------
 UPDATE quest_template SET NextQuestId = 33062 WHERE Id = 33359;							-- Meet Us at Starfall Outpost
 UPDATE quest_template SET PrevQuestId = 33359, NextQuestId = 33115 WHERE Id = 33062;	-- Catching His Eye
 UPDATE quest_template SET PrevQuestId = 33062, NextQuestId = 33112 WHERE Id = 33115;	-- Shrouding Stones
@@ -455,9 +439,7 @@ UPDATE quest_template SET PrevQuestId = 33076, NextQuestId = 33080 WHERE Id = 33
 UPDATE quest_template SET PrevQuestId = 33059, NextQuestId = 33081 WHERE Id = 33080; -- Going Undercover
 UPDATE quest_template SET PrevQuestId = 33080, NextQuestId = 33814 WHERE Id = 33081; -- Escape From Shaz'gul
 UPDATE quest_template SET PrevQuestId = 33081, NextQuestId = 36592 WHERE Id = 33814; -- Fast Expansion
-UPDATE quest_template SET PrevQuestId = 33814 WHERE Id = 36592;						 -- Bigger is Better
+-- UPDATE quest_template SET PrevQuestId = 33814 WHERE Id = 36592;						 -- Bigger is Better
+UPDATE quest_template SET PrevQuestId = 0 WHERE Id = 36592;						 -- Bigger is Better
 
 UPDATE quest_template SET PrevQuestId = 33765 WHERE Id = 33813;						 -- In Need of a Hero
-
-
-

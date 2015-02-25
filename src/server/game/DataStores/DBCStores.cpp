@@ -24,6 +24,7 @@
 #include "DBCfmt.h"
 #include "ItemPrototype.h"
 #include "TransportMgr.h"
+#include "Battleground.h"
 #include <iostream>
 #include <fstream>
 #include <map>
@@ -456,13 +457,23 @@ void LoadDBCStores(const std::string& dataPath)
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sMailTemplateStore,           dbcPath, "MailTemplate.dbc");                                                 // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sMapStore,                    dbcPath, "Map.dbc");                                                          // 17399
-    LoadDBC(availableDbcLocales, bad_dbc_files, sMapDifficultyStore,          dbcPath, "MapDifficulty.dbc");                                                // 17399
-    // Fill data
-    sMapDifficultyMap[MAKE_PAIR32(0, 0)] = MapDifficulty(0, 0, false);                                                                                      // Map 0 is missingg from MapDifficulty.dbc use this till its ported to sql
-    for (uint32 i = 0; i < sMapDifficultyStore.GetNumRows(); ++i)
-        if (MapDifficultyEntry const* entry = sMapDifficultyStore.LookupEntry(i))
-            sMapDifficultyMap[MAKE_PAIR32(entry->MapId, entry->Difficulty)] = MapDifficulty(entry->resetTime, entry->maxPlayers, entry->areaTriggerText[0] > 0);
-    sMapDifficultyStore.Clear();
+    LoadDBC(availableDbcLocales, bad_dbc_files, sMapDifficultyStore, dbcPath, "MapDifficulty.dbc");                                                         // 17399
+
+    /// Fill data
+    {
+        sMapDifficultyMap[MAKE_PAIR32(0, 0)] = MapDifficulty(0, 0, 0, false);                                                                               // Map 0 is missingg from MapDifficulty.dbc use this till its ported to sql
+
+        for (uint32 i = 0; i < sMapDifficultyStore.GetNumRows(); ++i)
+        {
+            if (MapDifficultyEntry const* l_MapDiffculty = sMapDifficultyStore.LookupEntry(i))
+            {
+                sMapDifficultyMap[MAKE_PAIR32(l_MapDiffculty->MapId, l_MapDiffculty->Difficulty)] = MapDifficulty(l_MapDiffculty->ResetTime,
+                    l_MapDiffculty->MaxPlayers, l_MapDiffculty->ItemBonusTreeDifficulty, l_MapDiffculty->AreaTriggerText[0] > 0);
+            }
+        }
+
+        sMapDifficultyStore.Clear();
+    }
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sMinorTalentStore,            dbcPath, "MinorTalent.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sMountCapabilityStore,        dbcPath, "MountCapability.dbc");                                              // 17399
@@ -482,8 +493,8 @@ void LoadDBCStores(const std::string& dataPath)
     {
         if (PvPDifficultyEntry const* entry = sPvPDifficultyStore.LookupEntry(i))
         {
-            if (entry->bracketId > MAX_BATTLEGROUND_BRACKETS)
-                ASSERT(false && "Need update MAX_BATTLEGROUND_BRACKETS by DBC data");
+            if (entry->bracketId > MS::Battlegrounds::Brackets::Count)
+                ASSERT(false && "Need update Brackets::Count by DBC data");
         }
     }
 
@@ -1004,7 +1015,7 @@ MapDifficulty const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &di
     return mapDiff;
 }
 
-PvPDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 level)
+/*vPDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 level)
 {
     PvPDifficultyEntry const* maxEntry = NULL;              // Used for level > max listed level case
     for (uint32 i = 0; i < sPvPDifficultyStore.GetNumRows(); ++i)
@@ -1026,9 +1037,9 @@ PvPDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 lev
     }
 
     return maxEntry;
-}
+}*/
 
-PvPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, BattlegroundBracketId id)
+/*vPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, Bracket::Id id)
 {
     for (uint32 i = 0; i < sPvPDifficultyStore.GetNumRows(); ++i)
         if (PvPDifficultyEntry const* entry = sPvPDifficultyStore.LookupEntry(i))
@@ -1036,7 +1047,19 @@ PvPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, BattlegroundB
                 return entry;
 
     return NULL;
-}
+}*/
+
+/*std::size_t GetBracketSizeByMapId(uint32 p_MapId)
+{
+    std::size_t l_Size = 0;
+
+    for (uint32 i = 0; i < sPvPDifficultyStore.GetNumRows(); ++i)
+        if (PvPDifficultyEntry const* entry = sPvPDifficultyStore.LookupEntry(i))
+            if (entry->mapId == p_MapId)
+                l_Size++;
+
+    return l_Size;
+}*/
 
 std::vector<uint32> const* GetTalentTreePrimarySpells(uint32 talentTree)
 {

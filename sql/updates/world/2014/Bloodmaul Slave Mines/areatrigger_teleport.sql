@@ -1,2 +1,0 @@
-INSERT INTO areatrigger_teleport VALUES ('9681', 'Bloodmaul Slave Mines - Entrance', 1175, 1829.37, -245.757, 255.727, 46.1094);
-INSERT INTO areatrigger_teleport VALUES ('9680', 'Bloodmaul Slave Mines - Exit', 1116, 7266.77, 4459.73, 129.463, 280);

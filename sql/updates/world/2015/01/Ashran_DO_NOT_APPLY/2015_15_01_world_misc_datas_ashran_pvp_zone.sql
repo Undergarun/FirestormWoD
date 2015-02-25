@@ -204,6 +204,7 @@ INSERT INTO locales_creature_text VALUES
 (68553, 3, 0, '', 'La Horde a conquis le Bastion de Bouclier-des-Tempêtes !', '', '', '', '¡La horda ha cogido la fortaleza Escudo de Tormenta!', '', '', '', '');
 
 UPDATE creature_template SET unit_flags = unit_flags & ~0x200000, EXP = 5, minlevel = 102, maxlevel = 102, dmg_multiplier = 3, unit_class = 1, ScriptName = 'npc_faction_boss' WHERE entry IN (82876, 82877);
+UPDATE creature_template SET mechanic_immune_mask = 617299839 WHERE entry IN (82876, 82877);
 UPDATE creature_template SET modelid1 = 11686, modelid2 = 0 WHERE entry = 89320;
 DELETE FROM spell_script_names WHERE spell_id IN (178795, 176670, 178531, 178533);
 INSERT INTO spell_script_names VALUE

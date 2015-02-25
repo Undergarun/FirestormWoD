@@ -2,9 +2,7 @@ DELETE FROM creature WHERE map=1152;
 DELETE FROM instance_template WHERE map=1152;
 INSERT INTO instance_template (`map`, `parent`, `script`, `allowMount`) VALUES(1152, 1116, "instance_Garrison_H1", 1);
 
----------------------------------------------------------
 -- Creature Spawn (All phase)
----------------------------------------------------------
 INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(76872, 1152, 5620.18, 4506.769, 119.3535, 1.515481, 268435455, 65535, 0, 4227, 12, 32768, 4196352, 0, 0);
 INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`) VALUES(LAST_INSERT_ID(), 0, 0, 257, 0);
 
@@ -266,9 +264,10 @@ INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`) VALUES
 INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(80225, 1152, 5576.162, 4597.182, 136.6708, 1.394035, 268435455, 65535, 0, 3, 12, 512, 2048, 0, 0) ON DUPLICATE KEY UPDATE `id` = VALUES(`id`), `map` = VALUES(`map`), `position_x` = VALUES(`position_x`), `position_y` = VALUES(`position_y`), `position_z` = VALUES(`position_z`), `orientation` = VALUES(`orientation`), `spawnMask` = VALUES(`spawnMask`), `phaseMask` = VALUES(`phaseMask`), `equipment_id` = VALUES(`equipment_id`), `npcflag` = VALUES(`npcflag`), `npcflag2` = VALUES(`npcflag2`), `unit_flags` = VALUES(`unit_flags`), `unit_flags2` = VALUES(`unit_flags2`), `unit_flags3` = VALUES(`unit_flags3`), `WorldEffectID` = VALUES(`WorldEffectID`);
 INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`) VALUES(LAST_INSERT_ID(), 0, 0, 1, 483) ON DUPLICATE KEY UPDATE `guid` = VALUES(`guid`), `mount` = VALUES(`mount`), `bytes1` = VALUES(`bytes1`), `bytes2` = VALUES(`bytes2`), `emote` = VALUES(`emote`);
 
----------------------------------------------------------
+INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(86775, 1152, 5737.327, 4538.995, 138.0327, 1.249388, 268435455, 65535, 0, 1, 0, 0, 2048, 0, 2099) ON DUPLICATE KEY UPDATE `id` = VALUES(`id`), `map` = VALUES(`map`), `position_x` = VALUES(`position_x`), `position_y` = VALUES(`position_y`), `position_z` = VALUES(`position_z`), `orientation` = VALUES(`orientation`), `spawnMask` = VALUES(`spawnMask`), `phaseMask` = VALUES(`phaseMask`), `equipment_id` = VALUES(`equipment_id`), `npcflag` = VALUES(`npcflag`), `npcflag2` = VALUES(`npcflag2`), `unit_flags` = VALUES(`unit_flags`), `unit_flags2` = VALUES(`unit_flags2`), `unit_flags3` = VALUES(`unit_flags3`), `WorldEffectID` = VALUES(`WorldEffectID`);
+INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`) VALUES(LAST_INSERT_ID(), 0, 0, 1, 0) ON DUPLICATE KEY UPDATE `guid` = VALUES(`guid`), `mount` = VALUES(`mount`), `bytes1` = VALUES(`bytes1`), `bytes2` = VALUES(`bytes2`), `emote` = VALUES(`emote`);
+
 -- Movable peons
----------------------------------------------------------
 INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(79605, 1152, 5574.6655, 4595.129, 136.6, 1.262363, 268435455, 65535, 0, 0, 12, 0, 4196352, 0, 0);
 INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES(LAST_INSERT_ID(), 0, 0, 1, 0, "162907");
 
@@ -284,23 +283,17 @@ INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`, `auras
 INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(79605, 1152, 5571.142090, 4608.910645, 136.7, 5.4288, 268435455, 65535, 0, 0, 12, 0, 4196352, 0, 0);
 INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES(LAST_INSERT_ID(), 0, 0, 1, 0, "162907");
 
----------------------------------------------------------
 -- Creature EXP
----------------------------------------------------------
-UPDATE creature_template SET `exp`=5 WHERE entry IN(76872,76928,77908,77908,78320,78466,78487,79407,79605,79619,79740,79774,79781,79781,79781,79781,79781,79781,79781,79781,74808,80223,80222,79781,79781,79781,79781,79916,79925,79925,79925,79925,79925,79925,80151,80288,80288,80288,80288,80288,80288,80299,80299,80299,80299,80432,80436,80436,80436,80436,80436,80437,80437,80437,80437,80437,80438,80438,80438,80438,80438,80438,80440,80440,80440,80440,80440,80440,80440,80440,80600,80772,81166,81688,83482,84967,85882,86470,88649);
+UPDATE creature_template SET `exp`=5 WHERE entry IN(76872,76928,77908,77908,78320,78466,78487,79407,79605,79619,79740,79774,79781,86775,74808,80223,80222,79916,79925,79925,79925,79925,79925,79925,80151,80288,80288,80288,80288,80288,80288,80299,80299,80299,80299,80432,80436,80436,80436,80436,80436,80437,80437,80437,80437,80437,80438,80438,80438,80438,80438,80438,80440,80440,80440,80440,80440,80440,80440,80440,80600,80772,81166,81688,83482,84967,85882,86470,88649);
 
----------------------------------------------------------
 -- Builders & peon
----------------------------------------------------------
 REPLACE INTO creature_equip_template (entry, `id`, `itemEntry1`, `itemEntry2`, `itemEntry3`) VALUES(78467, 1, 5956, 0, 0);
 REPLACE INTO creature_equip_template (entry, `id`, `itemEntry1`, `itemEntry2`, `itemEntry3`) VALUES(79605, 1, 5956, 0, 0);
 UPDATE creature_template_addon SET auras="" WHERE entry=78467;
 UPDATE creature_template SET ScriptName="npc_FrostwallPeon_Dynamic" WHERE entry = 79605;
 UPDATE creature_template SET ScriptName="npc_FrostwallPeon" WHERE entry = 78467;
 
----------------------------------------------------------
 -- Fix vendors flags
----------------------------------------------------------
 UPDATE `creature_template` SET `npcflag`=`npcflag`|128 WHERE `entry`=84967;
 UPDATE `creature_template` SET `npcflag`=`npcflag`|128 WHERE `entry`=80772;
 UPDATE `creature_template` SET `npcflag`=`npcflag`|128 WHERE `entry`=80151;
@@ -308,10 +301,10 @@ UPDATE `creature_template` SET `npcflag`=`npcflag`|128 WHERE `entry`=79619;
 UPDATE `creature_template` SET `npcflag`=`npcflag`|128 WHERE `entry`=76928;
 UPDATE `creature_template` SET `npcflag`=`npcflag`|128 WHERE `entry`=76872;
 
----------------------------------------------------------
 -- Npc Gossips & script
----------------------------------------------------------
 REPLACE INTO creature_text (entry, `groupid`, `id`, `text`, `type`, `language`, `probability`) VALUES(80223, 0, 0, "Be sure to check back for more resources later, commander. The peons will keep putting them in this chest while you are away.", 12, 0, 100);
+INSERT INTO npc_text (`ID`, `text0_1`, `lang0`, `prob0`, `WDBVerified`) VALUES(82232, "BOLD! Is that what this garrison says to you, commander? No! It does not! But then this is why I was hired.$b$bUsing the small plots we can build a striking array of structures like... an apothecary! Yes, an apothecary. Or perhaps a smithy or a workshop.$b$bIf we use the large plots, we could outfit you with a barracks for your troops that will strike fear into the hearts of your enemies and sleep into the faces of your soldiers.$b$bThe sky is the limit, as is the width and length.", 0, 100, 19342) ON DUPLICATE KEY UPDATE `ID` = VALUES(`ID`), `text0_1` = VALUES(`text0_1`), `lang0` = VALUES(`lang0`), `prob0` = VALUES(`prob0`), `WDBVerified` = VALUES(`WDBVerified`);
+UPDATE creature_template SET ScriptName="npc_LadySena_Garrison" WHERE entry=80223;	
 
 REPLACE INTO creature_text (entry, `groupid`, `id`, `text`, `type`, `language`, `probability`) VALUES(79605, 0, 0, "Just a quick nap...", 12, 0, 100);
 REPLACE INTO creature_text (entry, `groupid`, `id`, `text`, `type`, `language`, `probability`) VALUES(79605, 1, 0, "Mmm... sleep...", 12, 0, 100);
@@ -324,23 +317,68 @@ REPLACE INTO gossip_menu (entry, `text_id`) VALUES(16475, 82234);															
 REPLACE INTO gossip_menu_option (menu_id, id, `option_icon`, `option_text`, `option_id`, `box_coded`, `box_money`, `box_text`, `npc_option_npcflag`) VALUES(16475, 0, 0, "Get the peons back to work.", 1, 0, 0, "", 1);					                                                                                        -- Skaggit
 REPLACE INTO creature_text (entry, `groupid`, `id`, `text`, `type`, `language`, `probability`) VALUES(80225, 0, 0, "You got it. One fully armed and operational army of motivated peons coming right up.", 12, 0, 100);																												-- Skaggit
 
----------------------------------------------------------
--- Quest lines
----------------------------------------------------------
-UPDATE quest_template SET PrevQuestId = 34378 WHERE Id = 34824; -- What We Got
-UPDATE quest_template SET PrevQuestId = 34378 WHERE Id = 34822; -- What We Need
-UPDATE quest_template SET PrevQuestId = 34378 WHERE Id = 34823; -- The Ogron Live?
+INSERT INTO npc_text (`ID`, `text0_0`, `lang0`, `prob0`, `WDBVerified`) VALUES(84128, "$GSir:Madam;, an attack on our garrison looms close. I have commissioned some items that you may find useful.$B$BWhoever these fools are, I welcome the chance to earn another scar.", 0, 100, 19342) ON DUPLICATE KEY UPDATE `ID` = VALUES(`ID`), `text0_0` = VALUES(`text0_0`), `lang0` = VALUES(`lang0`), `prob0` = VALUES(`prob0`), `WDBVerified` = VALUES(`WDBVerified`);
+UPDATE creature_template SET ScriptName="npc_SergeantGrimjaw_Garrison" WHERE entry=79774;	
 
----------------------------------------------------------
+-- Gazlowe
+INSERT INTO npc_text (`ID`, `text0_0`, `lang0`, `prob0`, `WDBVerified`) VALUES(81653, "We're ready for construction! I learned a few new techniques when building Orgrimmar.", 0, 100, 19342) ON DUPLICATE KEY UPDATE `ID` = VALUES(`ID`), `text0_0` = VALUES(`text0_0`), `lang0` = VALUES(`lang0`), `prob0` = VALUES(`prob0`), `WDBVerified` = VALUES(`WDBVerified`);
+REPLACE INTO creature_text (entry, `groupid`, `id`, `text`, `type`, `language`, `probability`) VALUES(78466, 0, 0, "Most buildings take some time to construct. But seein' as how this is your first building, I'm gonna comp ya and employ my handy Senior Peon II to help out.", 12, 0, 100);
+REPLACE INTO gossip_menu (entry, `text_id`) VALUES(16420, 81653);
+UPDATE creature_template SET gossip_menu_id = 16420, ScriptName="npc_Gazlowe_Garrison" WHERE entry=78466;
+
+-- Provisioner rashma
+INSERT INTO npc_text (`ID`, `text0_1`, `lang0`, `prob0`, `WDBVerified`) VALUES(82110, "Eh boss-mon! Ya be needin' a rest?", 0, 100, 19342) ON DUPLICATE KEY UPDATE `ID` = VALUES(`ID`), `text0_1` = VALUES(`text0_1`), `lang0` = VALUES(`lang0`), `prob0` = VALUES(`prob0`), `WDBVerified` = VALUES(`WDBVerified`);
+DELETE FROM `gossip_menu` WHERE `entry` = 16462;
+REPLACE INTO gossip_menu (entry, `text_id`) VALUES(16462, 82110);
+UPDATE creature_template SET gossip_menu_id = 16462, AIName="SmartAI" WHERE entry=80151;
+REPLACE INTO gossip_menu_option (menu_id, id, `option_icon`, `option_text`, `option_id`, `box_coded`, `box_money`, `box_text`, `npc_option_npcflag`) VALUES(16462, 1, 0, "I have lost my garrison hearthstone, can you give me another?", 1, 0, 0, "", 1);
+REPLACE INTO gossip_menu_option (menu_id, id, `option_icon`, `option_text`, `option_id`, `box_coded`, `box_money`, `box_text`, `npc_option_npcflag`) VALUES(16462, 2, 1, "I would like to buy from you.", 3, 0, 0, "", 1);
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`='15' AND `SourceGroup`='16462' AND `SourceEntry`='1';
+INSERT INTO `conditions`(`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES ( '15','16462','1','0','0','2','0','110560','1','0','1','0','',NULL);
+DELETE FROM `smart_scripts` WHERE `entryorguid`='80151';
+INSERT INTO `smart_scripts`(`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES ( '80151','0','0','1','62','0','100','0','16462','1','0','0','56','110560','1','0','0','0','0','7','0','0','0','0','0','0','0','Garrison HearthStone');
+INSERT INTO `smart_scripts`(`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES ( '80151','0','1','0','61','0','100','0','0','0','0','0','72','0','0','0','0','0','0','0','0','2','0','0','0','0','0','Garrison HearthStone');
+
+-- Warmaster ZOG
+INSERT INTO npc_text (`ID`, `text0_0`, `lang0`, `prob0`, `WDBVerified`) VALUES(81978, "Lok'tar Commander $p.$b$bI was sent by Warchief Vol'jin himself to assist you in day to day operations. While you are in the field I can manage, train, and dispatch your troops on missions essential to our survival in this place.", 0, 100, 19342) ON DUPLICATE KEY UPDATE `ID` = VALUES(`ID`), `text0_0` = VALUES(`text0_0`), `lang0` = VALUES(`lang0`), `prob0` = VALUES(`prob0`), `WDBVerified` = VALUES(`WDBVerified`);
+REPLACE INTO gossip_menu (entry, `text_id`) VALUES(16450, 81978);
+UPDATE creature_template SET gossip_menu_id = 16450 WHERE entry=79740;
+
+-- Thrall
+INSERT INTO npc_text (`ID`, `text0_0`, `lang0`, `prob0`, `WDBVerified`) VALUES(91075, "I was raised on stories of Frostfire Ridge, the ancestral home of the Frostwolves.$b$bI never believed I would ever see the clan as they were in their prime, with Durotan as their chief.$b$bHe is... shorter... than I imagined. The burden of leadership weighs heavy on his shoulders.", 0, 100, 19342) ON DUPLICATE KEY UPDATE `ID` = VALUES(`ID`), `text0_0` = VALUES(`text0_0`), `lang0` = VALUES(`lang0`), `prob0` = VALUES(`prob0`), `WDBVerified` = VALUES(`WDBVerified`);
+REPLACE INTO gossip_menu (entry, `text_id`) VALUES(17316, 91075);
+UPDATE creature_template SET gossip_menu_id = 17316 WHERE entry=74808;
+
+-- Yu'rina the Mystic
+INSERT INTO npc_text (`ID`, `text0_1`, `lang0`, `prob0`, `WDBVerified`) VALUES(85029, "More supplies commander? Our soldiers could always use them.", 0, 100, 19342) ON DUPLICATE KEY UPDATE `ID` = VALUES(`ID`), `text0_1` = VALUES(`text0_1`), `lang0` = VALUES(`lang0`), `prob0` = VALUES(`prob0`), `WDBVerified` = VALUES(`WDBVerified`);
+REPLACE INTO gossip_menu (entry, `text_id`) VALUES(16748, 85029);
+UPDATE creature_template SET gossip_menu_id = 16748 WHERE entry=83482;
+
+-- Senior Peon II
+REPLACE INTO creature_text (entry, `groupid`, `id`, `text`, `type`, `language`, `probability`) VALUES(86775, 0, 0, "Okee dokee.", 12, 0, 100);
+INSERT INTO npc_text (`ID`, `text0_0`, `lang0`, `prob0`, `WDBVerified`) VALUES(88704, "Something need doing?", 0, 100, 19342) ON DUPLICATE KEY UPDATE `ID` = VALUES(`ID`), `text0_0` = VALUES(`text0_0`), `lang0` = VALUES(`lang0`), `prob0` = VALUES(`prob0`), `WDBVerified` = VALUES(`WDBVerified`);
+UPDATE creature_template SET ScriptName="npc_SeniorPeonII_Garrison", gossip_menu_id =0 WHERE entry=86775;
+
+-- Quest lines
+UPDATE quest_template SET PrevQuestId = 34378, NextQuestIdChain=34461, NextQuestId=34461, ExclusiveGroup=-34824 WHERE Id = 34824; -- What We Got
+UPDATE quest_template SET PrevQuestId = 34378, NextQuestIdChain=34461, NextQuestId=34461, ExclusiveGroup=-34824 WHERE Id = 34822; -- What We Need
+UPDATE quest_template SET PrevQuestId = 34378, NextQuestIdChain=34461, NextQuestId=34461, ExclusiveGroup=-34824 WHERE Id = 34823; -- The Ogron Live?
+
+UPDATE quest_template SET PrevQuestId = 0 WHERE Id = 34461; -- Build Your Barracks
+UPDATE quest_template_objective SET Flags = 0 WHERE QuestID = 34461;
+
+DELETE FROM spell_script_names WHERE spell_id = 161384;
+INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES ('161384','spell_learning_blueprint');
+
+UPDATE quest_template SET PrevQuestId = 34461 WHERE Id = 34861; -- We Need An Army
+UPDATE quest_template SET PrevQuestId = 34461 WHERE Id = 34462; -- Winds of Change
+
 -- Random movement
----------------------------------------------------------
 UPDATE creature SET MovementType=1, spawndist=40 WHERE id=80438 and map=1152;
 UPDATE creature SET MovementType=1, spawndist=40 WHERE id=80437 and map=1152;
 UPDATE creature SET MovementType=1, spawndist=40 WHERE id=77908 and map=1152;
 
----------------------------------------------------------
 -- Waypoints
----------------------------------------------------------
 DELETE FROM `waypoint_data` WHERE id = 600002;
 insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600002','1','5572.93','4602','136.588','0','0','0','0','100','0');
 insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600002','2','5582','4595.09','136.588','0','0','0','0','100','0');
@@ -364,9 +402,75 @@ insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600002','20','5584.22','4598.71','136.587','0','0','0','0','100','0');
 insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600002','21','5573.03','4602.06','136.587','0','0','0','0','100','0');
 
----------------------------------------------------------
+DELETE FROM `waypoint_data` WHERE id = 600010;
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600010','32','5593.21','4476.756','130.281','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600010','31','5595.23','4473.78','130.356','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600010','30','5597.33','4476.17','130.186','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600010','29','5596.84','4480.53','130.038','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600010','28','5593.2','4484.58','130.058','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600010','27','5586.29','4489.75','130.26','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600010','26','5582.43','4494.93','130.207','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600010','25','5580.06','4500.14','130.316','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600010','24','5579.95','4508.16','130.311','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600010','23','5582.67','4513.47','129.304','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600010','22','5590.19','4520.52','127.066','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600010','21','5598.83','4524.86','125.122','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600010','20','5608.8','4525.04','122.358','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600010','19','5618.76','4525.35','119.791','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600010','18','5628.6','4524.66','119.254','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600010','17','5639.07','4523.9','119.055','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600010','16','5646.06','4523.39','119.064','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600010','15','5654.84','4522.05','119.412','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600010','14','5663.78','4519.13','120.389','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600010','13','5671.21','4516.59','121.885','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600010','12','5682.97','4513.04','124.86','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600010','11','5693.02','4510.01','127.054','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600010','10','5700.11','4506.98','128.373','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600010','9','5710.31','4503.76','129.606','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600010','8','5724.38','4500.47','131.079','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600010','7','5734.43','4500.95','131.579','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600010','6','5736.34','4502.74','131.62','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600010','5','5739.61','4509.22','132.509','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600010','4','5739.01','4516.87','134.543','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600010','3','5738.23','4523.83','136.278','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600010','2','5737.28','4532.54','137.798','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600010','1','5737','4534.97','137.932','0','0','0','0','100','0');
+
+DELETE FROM `waypoint_data` WHERE id = 600011;
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600011','1', '5595.23','4473.78','130.356','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600011','2', '5597.33','4476.17','130.186','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600011','3', '5596.84','4480.53','130.038','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600011','4', '5593.2','4484.58','130.058','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600011','5', '5586.29','4489.75','130.26','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600011','6', '5582.43','4494.93','130.207','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600011','7', '5580.06','4500.14','130.316','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600011','8', '5579.95','4508.16','130.311','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600011','9', '5582.67','4513.47','129.304','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600011','10','5590.19','4520.52','127.066','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600011','11','5598.83','4524.86','125.122','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600011','12','5608.8','4525.04','122.358','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600011','13','5618.76','4525.35','119.791','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600011','14','5628.6','4524.66','119.254','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600011','15','5639.07','4523.9','119.055','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600011','16','5646.06','4523.39','119.064','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600011','17','5654.84','4522.05','119.412','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600011','18','5663.78','4519.13','120.389','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600011','19','5671.21','4516.59','121.885','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600011','20','5682.97','4513.04','124.86','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600011','21','5693.02','4510.01','127.054','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600011','22','5700.11','4506.98','128.373','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600011','23','5710.31','4503.76','129.606','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600011','24','5724.38','4500.47','131.079','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600011','25','5734.43','4500.95','131.579','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600011','26','5736.34','4502.74','131.62','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600011','27','5739.61','4509.22','132.509','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600011','28','5739.01','4516.87','134.543','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600011','29','5738.23','4523.83','136.278','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600011','30','5737.28','4532.54','137.798','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600011','31','5737','4534.97','137.932','0','0','0','0','100','0');
+insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600011','32','5737.33','4539','138.033','0','0','0','0','100','0');
+
 -- Vendor
----------------------------------------------------------
 DELETE FROM `npc_vendor` WHERE `entry` = 84967 AND `type` = 1;
 INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`) VALUES
 (84967, 0, 20815, 0, 0, 0, 1), 

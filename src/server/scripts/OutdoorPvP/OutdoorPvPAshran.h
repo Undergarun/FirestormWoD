@@ -17,7 +17,6 @@
 #include "World.h"
 #include "ObjectMgr.h"
 #include "Language.h"
-#include "MapManager.h"
 
 #ifndef OUTDOOR_PVP_ASHRAN_H
  #define OUTDOOR_PVP_ASHRAN_H
@@ -282,7 +281,7 @@ AshranGraveyard const g_AshranGraveyards[eGraveyards::TotalGraveyards] =
     { eGraveyards::TowerHorde,      TeamId::TEAM_HORDE      }   ///< 5 - Emberfall Tower
 };
 
-uint32 const g_GraveyardIDs[BG_TEAMS_COUNT][eGraveyards::MaxGraveyards] =
+uint32 const g_GraveyardIDs[MS::Battlegrounds::TeamsCount::Value][eGraveyards::MaxGraveyards] =
 {
     /// Alliance
     {
@@ -301,13 +300,13 @@ uint32 const g_GraveyardIDs[BG_TEAMS_COUNT][eGraveyards::MaxGraveyards] =
 Position const g_HordeTeleportPos = { 5216.443359f, -3963.191406f, 5.553593f, 6.242684f };
 Position const g_AllianceTeleportPos = { 3849.396240f, -4013.051025f, 26.282335f, 3.141932f };
 
-uint32 const g_HallowedGroundEntries[BG_TEAMS_COUNT] =
+uint32 const g_HallowedGroundEntries[MS::Battlegrounds::TeamsCount::Value] =
 {
     eAshranDatas::AshranHallowedGroundH,
     eAshranDatas::AshranHallowedGroundA
 };
 
-Position const g_HallowedGroundPos[BG_TEAMS_COUNT] =
+Position const g_HallowedGroundPos[MS::Battlegrounds::TeamsCount::Value] =
 {
     { 5090.467f, -4076.731f, 49.38393f, 3.379836f },    ///< eAshranDatas::AshranHallowedGroundH
     { 3928.052f, -4032.738f, 57.41695f, 5.473989f }     ///< eAshranDatas::AshranHallowedGroundA
@@ -421,25 +420,25 @@ enum eSpecialSpawns
     OgreHordeChapion
 };
 
-const creature_type g_MarketplaceGraveyardSpirits[BG_TEAMS_COUNT] =
+const creature_type g_MarketplaceGraveyardSpirits[MS::Battlegrounds::TeamsCount::Value] =
 {
     { eCreatures::AllianceSpiritGuide, Team::ALLIANCE, eAshranDatas::AshranMapID, 4532.90f, -4007.06f, 6.08817f, 4.7095f },
     { eCreatures::HordeSpiritGuide,    Team::HORDE,    eAshranDatas::AshranMapID, 4532.90f, -4007.06f, 6.08817f, 4.7095f }
 };
 
-const creature_type g_EmberfallTowerSpiritHealer[BG_TEAMS_COUNT] =
+const creature_type g_EmberfallTowerSpiritHealer[MS::Battlegrounds::TeamsCount::Value] =
 {
     { eCreatures::AllianceSpiritGuide, Team::ALLIANCE, eAshranDatas::AshranMapID, 4846.03f, -4186.43f, 31.7727f, 2.7156f },
     { eCreatures::HordeSpiritGuide,    Team::HORDE,    eAshranDatas::AshranMapID, 4846.03f, -4186.43f, 31.7727f, 2.7156f }
 };
 
-const creature_type g_ArchmageOverwatchSpiritHealer[BG_TEAMS_COUNT] =
+const creature_type g_ArchmageOverwatchSpiritHealer[MS::Battlegrounds::TeamsCount::Value] =
 {
     { eCreatures::AllianceSpiritGuide, Team::ALLIANCE, eAshranDatas::AshranMapID, 4192.70f, -4152.65f, 31.7642f, 0.0512f },
     { eCreatures::HordeSpiritGuide,    Team::HORDE,    eAshranDatas::AshranMapID, 4192.70f, -4152.65f, 31.7642f, 0.0512f }
 };
 
-const creature_type g_BasesSpiritHealers[BG_TEAMS_COUNT] =
+const creature_type g_BasesSpiritHealers[MS::Battlegrounds::TeamsCount::Value] =
 {
     { eCreatures::AllianceSpiritGuide, Team::ALLIANCE, eAshranDatas::AshranMapID, 3924.49f, -4030.79f, 59.2817f, 5.9936f },
     { eCreatures::HordeSpiritGuide,    Team::HORDE,    eAshranDatas::AshranMapID, 5089.37f, -4077.54f, 50.9001f, 3.7238f }
@@ -462,7 +461,7 @@ const creature_type g_FactionBossesSpawn[eSpecialSpawns::MaxFactionBosses * 3] =
     { eCreatures::HighWarlordVolrath,    Team::HORDE,    eAshranDatas::AshranMapID, 5046.81f, -4185.73f, 45.47f, 2.7925f }  ///< Emberfall Tower
 };
 
-const creature_type g_FactionTaxisToBase[BG_TEAMS_COUNT][eSpecialSpawns::MaxTaxiToBases] =
+const creature_type g_FactionTaxisToBase[MS::Battlegrounds::TeamsCount::Value][eSpecialSpawns::MaxTaxiToBases] =
 {
     /// Alliance
     {
@@ -478,7 +477,7 @@ const creature_type g_FactionTaxisToBase[BG_TEAMS_COUNT][eSpecialSpawns::MaxTaxi
     }
 };
 
-const creature_type g_EmberfallTowerSpawns[BG_TEAMS_COUNT][eSpawns::EmberfallTowerCreaturesCount] =
+const creature_type g_EmberfallTowerSpawns[MS::Battlegrounds::TeamsCount::Value][eSpawns::EmberfallTowerCreaturesCount] =
 {
     // ALLIANCE
     {
@@ -553,7 +552,7 @@ const go_type g_EmberfallFiresSpawns[eSpawns::EmberfallTowerObjectsCount] =
     { eGameObjects::Smallfire1,             eAshranDatas::AshranMapID, 4768.50f, -4245.03f, 47.74f, 3.60f, 0.00f, 0.00f, 0.00f, 0.00f }
 };
 
-const creature_type g_VolrathsAdvanceSpawns[BG_TEAMS_COUNT][eSpawns::VolrathsAdvanceCreaturesCount] =
+const creature_type g_VolrathsAdvanceSpawns[MS::Battlegrounds::TeamsCount::Value][eSpawns::VolrathsAdvanceCreaturesCount] =
 {
     // ALLIANCE
     {
@@ -630,7 +629,7 @@ const go_type g_VolrathsAdvanceFires[eSpawns::VolrathsAdvanceObjectsCount] =
     { eGameObjects::Smallfire1, eAshranDatas::AshranMapID, 4646.33f, -4207.88f, 12.42f, 0.37f, 0.00f, 0.00f, 0.00f, 0.00f }
 };
 
-const creature_type g_CrossroadSpawns[BG_TEAMS_COUNT][eSpawns::TheCrossroadsCreaturesCount] =
+const creature_type g_CrossroadSpawns[MS::Battlegrounds::TeamsCount::Value][eSpawns::TheCrossroadsCreaturesCount] =
 {
     // Alliance
     {
@@ -674,7 +673,7 @@ const creature_type g_CrossroadsNeutralSpawns[eSpawns::TheCrossroadsCreaturesCou
     { eCreatures::StormshieldFootman, Team::ALLIANCE, eAshranDatas::AshranMapID, 4527.00f, -4169.13f, 7.09213f, 6.21319f }
 };
 
-const go_type g_CrossroadsBanners[BG_TEAMS_COUNT][eSpawns::TheCrossroadsObjectsCount] =
+const go_type g_CrossroadsBanners[MS::Battlegrounds::TeamsCount::Value][eSpawns::TheCrossroadsObjectsCount] =
 {
     // ALLIANCE
     {
@@ -688,7 +687,7 @@ const go_type g_CrossroadsBanners[BG_TEAMS_COUNT][eSpawns::TheCrossroadsObjectsC
     }
 };
 
-const creature_type g_TrembladesVanguardSpawns[BG_TEAMS_COUNT][eSpawns::TrembladesVanguardCreaturesCount] =
+const creature_type g_TrembladesVanguardSpawns[MS::Battlegrounds::TeamsCount::Value][eSpawns::TrembladesVanguardCreaturesCount] =
 {
     // Alliance
     {
@@ -753,7 +752,7 @@ const go_type g_TrembladesVanguardFires[eSpawns::TrembladesVanguardObjectsCount]
     { eGameObjects::Smallfire1, eAshranDatas::AshranMapID, 4307.32f, -4195.97f, 10.80f, 0.37f, 0.00f, 0.00f, 0.00f, 0.00f }
 };
 
-const creature_type g_ArchmageOverwatchSpawns[BG_TEAMS_COUNT][eSpawns::ArchmageOverwatchCreaturesCount] =
+const creature_type g_ArchmageOverwatchSpawns[MS::Battlegrounds::TeamsCount::Value][eSpawns::ArchmageOverwatchCreaturesCount] =
 {
     // Alliance
     {
@@ -985,7 +984,7 @@ class OutdoorPvPAshran : public OutdoorPvP
         OPvPCapturePoint_Graveyard* m_GraveYard;
         OPvPCapturePoint_Middle* m_ControlPoints[eBattleType::MaxBattleType];
         uint64 m_GenericMoPGuids[eBattleType::MaxBattleType];
-        uint64 m_FactionGenericMoP[BG_TEAMS_COUNT];
+        uint64 m_FactionGenericMoP[MS::Battlegrounds::TeamsCount::Value];
         uint32 m_InitPointsTimer;
         bool m_IsInitialized;
         bool m_WillBeReset;
@@ -996,13 +995,13 @@ class OutdoorPvPAshran : public OutdoorPvP
         uint64 m_GrandMasrhalTremblade;
         uint32 m_WorldPvPAreaId;
 
-        GuidSet m_PlayersInWar[BG_TEAMS_COUNT];
-        PlayerTimerMap m_InvitedPlayers[BG_TEAMS_COUNT];
-        PlayerTimerMap m_PlayersWillBeKick[BG_TEAMS_COUNT];
+        GuidSet m_PlayersInWar[MS::Battlegrounds::TeamsCount::Value];
+        PlayerTimerMap m_InvitedPlayers[MS::Battlegrounds::TeamsCount::Value];
+        PlayerTimerMap m_PlayersWillBeKick[MS::Battlegrounds::TeamsCount::Value];
         PlayerCurrencyLoot m_PlayerCurrencyLoots;
 
-        uint32 m_EnnemiesKilled[BG_TEAMS_COUNT];
-        uint32 m_EnnemiesKilledMax[BG_TEAMS_COUNT];
+        uint32 m_EnnemiesKilled[MS::Battlegrounds::TeamsCount::Value];
+        uint32 m_EnnemiesKilledMax[MS::Battlegrounds::TeamsCount::Value];
 
         uint32 m_AshranEvents[eAshranEvents::MaxEvents];
         bool m_AshranEventsWarned[eAshranEvents::MaxEvents];

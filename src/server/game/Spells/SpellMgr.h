@@ -42,52 +42,46 @@ enum SpellCategories
     SPELLCATEGORY_DRINK            = 59,
 };
 
-//SpellFamilyFlags
+/// SpellFamilyFlags
 enum SpellFamilyFlag
 {
-    // SPELLFAMILYFLAG  = SpellFamilyFlags[0]
-    // SPELLFAMILYFLAG1 = SpellFamilyFlags[1]
-    // SPELLFAMILYFLAG2 = SpellFamilyFlags[2]
-
-    // Rogue
+    /// Rogue
     SPELLFAMILYFLAG_ROGUE_VANISH            = 0x00000800,
-    SPELLFAMILYFLAG_ROGUE_VAN_EVAS_SPRINT   = 0x00000860,    // Vanish, Evasion, Sprint
-    SPELLFAMILYFLAG1_ROGUE_COLDB_SHADOWSTEP = 0x00000240,    // Cold Blood, Shadowstep
-    SPELLFAMILYFLAG_ROGUE_KICK              = 0x00000010,   // Kick
-    SPELLFAMILYFLAG1_ROGUE_DISMANTLE        = 0x00100000,   // Dismantle
-    SPELLFAMILYFLAG_ROGUE_BLADE_FLURRY      = 0x40000000,   // Blade Flurry
-    SPELLFAMILYFLAG1_ROGUE_BLADE_FLURRY     = 0x00000800,   // Blade Flurry
+    SPELLFAMILYFLAG_ROGUE_VAN_EVAS_SPRINT   = 0x00000860,   ///< Vanish, Evasion, Sprint
+    SPELLFAMILYFLAG1_ROGUE_COLDB_SHADOWSTEP = 0x00000240,   ///< Cold Blood, Shadowstep
+    SPELLFAMILYFLAG_ROGUE_KICK              = 0x00000010,   ///< Kick
+    SPELLFAMILYFLAG_ROGUE_BLADE_FLURRY      = 0x40000000,   ///< Blade Flurry
+    SPELLFAMILYFLAG1_ROGUE_BLADE_FLURRY     = 0x00000800,   ///< Blade Flurry
 
-    // Warrior
+    /// Warrior
     SPELLFAMILYFLAG_WARRIOR_CHARGE          = 0x00000001,
     SPELLFAMILYFLAG_WARRIOR_SLAM            = 0x00200000,
     SPELLFAMILYFLAG_WARRIOR_EXECUTE         = 0x20000000,
     SPELLFAMILYFLAG_WARRIOR_CONCUSSION_BLOW = 0x04000000,
 
-    // Warlock
+    /// Warlock
     SPELLFAMILYFLAG_WARLOCK_LIFETAP         = 0x00040000,
 
-    // Druid
+    /// Druid
     SPELLFAMILYFLAG2_DRUID_STARFALL         = 0x00000100,
 
-    // Paladin
+    /// Paladin
     SPELLFAMILYFLAG1_PALADIN_DIVINESTORM    = 0x00020000,
 
-    // Shaman
+    /// Shaman
     SPELLFAMILYFLAG_SHAMAN_FROST_SHOCK      = 0x80000000,
     SPELLFAMILYFLAG_SHAMAN_HEALING_STREAM   = 0x00002000,
     SPELLFAMILYFLAG_SHAMAN_MANA_SPRING      = 0x00004000,
     SPELLFAMILYFLAG2_SHAMAN_LAVA_LASH       = 0x00000004,
     SPELLFAMILYFLAG_SHAMAN_FIRE_NOVA        = 0x28000000,
 
-    // Deathknight
+    /// Deathknight
     SPELLFAMILYFLAG_DK_DEATH_STRIKE         = 0x00000010,
     SPELLFAMILYFLAG_DK_DEATH_COIL           = 0x00002000,
 
-    // TODO: Figure out a more accurate name for the following familyflag(s)
-    SPELLFAMILYFLAG_SHAMAN_TOTEM_EFFECTS    = 0x04000000,  // Seems to be linked to most totems and some totem effects
+    /// TODO: Figure out a more accurate name for the following familyflag(s)
+    SPELLFAMILYFLAG_SHAMAN_TOTEM_EFFECTS    = 0x04000000  ///< Seems to be linked to most totems and some totem effects
 };
-
 
 #define SPELL_LINKED_MAX_SPELLS  200000
 
@@ -98,7 +92,6 @@ enum SpellLinkedType
     SPELL_LINK_AURA     = 2 * 200000,   // +: aura; -: immune
     SPELL_LINK_REMOVE   = 0,
 };
-
 
 // Spell proc event related declarations (accessed using SpellMgr functions)
 enum ProcFlags
@@ -599,11 +592,10 @@ inline bool IsProfessionOrRidingSkill(uint32 skill)
 bool IsPartOfSkillLine(uint32 skillId, uint32 spellId);
 
 // spell diminishing returns
-DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto, bool triggered);
+DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto);
 DiminishingReturnsType GetDiminishingReturnsGroupType(DiminishingGroup group);
 DiminishingLevels GetDiminishingReturnsMaxLevel(DiminishingGroup group);
-int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellInfo const* spellproto);
-bool IsDiminishingReturnsGroupDurationLimited(DiminishingGroup group);
+int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto);
 
 typedef std::vector<std::set<uint32> > SpellClassList;
 typedef std::map<uint32, std::set<MinorTalentEntry const*> > SpecializatioPerkMap;

@@ -949,7 +949,7 @@ class npc_razorscale_harpoon_fire_state : public CreatureScript
             { 
             }
 
-            void DamageTaken(Unit* /*who*/, uint32& damage)
+            void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 damage = 0;
             }

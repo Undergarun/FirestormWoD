@@ -60,9 +60,18 @@ class ScriptMgr
 
     /// AreaTriggerScript
     public:
+        /// Assign script to Areatrigger
+        void InitScriptEntity(AreaTrigger* p_AreaTrigger);
         /// Proc when AreaTrigger is created.
         /// @p_AreaTrigger : AreaTrigger instance
         void OnCreateAreaTriggerEntity(AreaTrigger * p_AreaTrigger);
+        /// Procs before creation to specify position and linear destination of the areatrigger
+        /// @p_AreaTrigger: Areatrigger Instance
+        /// @p_Caster: Caster because he the Areatrigger is not spawned so caster is not defined
+        /// @p_SourcePosition: Spawn location of the Areatrigger
+        /// @p_DestinationPostion: Linear destination of the Areatrigger
+        /// @p_PathToLinearDestination: Linear path without the endpoint
+        void OnSetCreatePositionEntity(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition, std::list<Position>& p_PathToLinearDestination);
         /// Proc when AreaTrigger is updated.
         /// @p_AreaTrigger : AreaTrigger instance
         /// @p_Time        : Diff since last update
@@ -546,26 +555,31 @@ class ScriptMgr
         /// @p_SourceInfo : Condition  source
         bool OnConditionCheck(Condition * p_Condition, ConditionSourceInfo & p_SourceInfo);
 
-    /// PlayerScript
+        /// PlayerScript
     public:
+        
         /// Called when a player kills another player
         /// @p_Killer : Killer instance
         /// @p_Killed : Killed instance
         void OnPVPKill(Player * p_Killer, Player * p_Killed);
+        
         /// Called when a player kills a creature
         /// @p_Killer : Killer instance
         /// @p_Killed : Killed instance
         void OnCreatureKill(Player * p_Killer, Creature * p_Killed);
+        
         /// Called when a player is killed by a creature
         /// @p_Killer : Killer instance
         /// @p_Killed : Killed instance
         void OnPlayerKilledByCreature(Creature * p_Killer, Player * p_Killed);
-
-        /// Called when a player kills another player
+        
+        /// Called when power change is modify (SetPower)
         /// @p_Player : Player instance
         /// @p_Power  : Power type
-        /// @p_Value  : New value
-        void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_Value);
+        /// @p_OldValue  : Old value
+        /// @p_NewValue  : New value
+        /// @p_Regen  : If it's a regen modification
+        void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen);
 
         /// Called when a player kills another player
         /// @p_Player : Player instance
@@ -613,6 +627,11 @@ class ScriptMgr
         /// @p_Looser         : Duel looser
         /// @p_CompletionType : Duel Completion Type
         void OnPlayerDuelEnd(Player * p_Winner, Player * p_Looser, DuelCompleteType p_CompletionType);
+
+        /// Called when the player get Teleport
+        /// @p_Player : Player
+        /// @p_SpellID : SpellID
+        void OnTeleport(Player * p_Player, const SpellInfo *p_SpellInfo);
 
         /// The following methods are called when a player sends a chat message. (World)
         /// @p_Player  : Player instance
@@ -683,6 +702,11 @@ class ScriptMgr
         /// @p_GUID : Player instance
         void OnPlayerDelete(uint64 p_GUID);
 
+        /// Called when a update() of a player is done
+        /// @p_Player : Player instance
+        /// @p_Diff : diff time
+        void OnPlayerUpdate(Player * p_Player, uint32 p_Diff);
+
         /// Called when a player is bound to an instance
         /// @p_Player     : Player instance
         /// @p_Difficulty : Instance Difficulty ID
@@ -715,6 +739,32 @@ class ScriptMgr
         /// @p_Player : Player instance
         /// @p_Form   : New shapeshift from
         void OnPlayerChangeShapeshift(Player * p_Player, ShapeshiftForm p_Form);
+
+        /// Called when a player loot an item
+        /// @p_Player : Player instance
+        /// @p_Item   : New looted item instance
+        void OnPlayerItemLooted(Player* p_Player, Item * p_Item);
+
+        /// Called when a player enter in combat
+        /// @p_Player : Player instance
+        void OnPlayerEnterInCombat(Player * p_Player);
+
+        /// Called when a player leave combat status
+        /// @p_Player : Player instance
+        void OnPlayerLeaveCombat(Player * p_Player);
+
+        /// Called when a player receive a scene triggered event
+        /// @p_Player          : Player instance
+        /// @p_SceneInstanceID : Standalone scene instance ID
+        /// @p_Event           : Event string received from client
+        void OnSceneTriggerEvent(Player * p_Player, uint32 p_SceneInstanceID, std::string p_Event);
+
+        /// Called when a player regen a power
+        /// @p_Player         : Player instance
+        /// @p_Power          : Power to be regenerate
+        /// @p_AddValue       : amount of power to regenerate
+        /// @p_PreventDefault : avoid default regeneration
+        void OnPlayerRegenPower(Player * p_Player, Powers const p_Power, float& p_AddValue, bool& p_PreventDefault);
 
     /// BattlegroundScript
     public:

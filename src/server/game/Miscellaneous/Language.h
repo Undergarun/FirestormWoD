@@ -1260,10 +1260,16 @@ enum TrinityStrings
     LANG_ENGULFING_FIRE_RAGEWING            = 14061,
     LANG_NO_SPE_FOR_DYNAMIC_REWARD          = 14062,
 
+    /// Tarlna the Ageless
+    LangWarnGenesis                         = 14063,
+
+    /// Bloodmaul Slagmines
+    LangGugrokkWarnMoltenBarrage            = 14064,
+
     /// Ashran
-    LangDisplaySlainCounter                 = 14063,
-    LangKorlokIsAwakening                   = 14064,
-    LangSendKorlokTheOgreKingEvent          = 14065,
+    LangDisplaySlainCounter                 = 14065,
+    LangKorlokIsAwakening                   = 14066,
+    LangSendKorlokTheOgreKingEvent          = 14067,
     LangAshranReserved1,
     LangAshranReserved2,
     LangAshranReserved3,
@@ -1285,7 +1291,7 @@ enum TrinityStrings
     LangAshranReserved19,
     LangAshranReserved20
 
-    // NOT RESERVED IDS                   14086-1999999999
+    // NOT RESERVED IDS                   14088-1999999999
     // `db_script_string` table index     2000000000-2000009999 (MIN_DB_SCRIPT_STRING_ID-MAX_DB_SCRIPT_STRING_ID)
     // For other tables maybe             2000010000-2147483647 (max index)
 };

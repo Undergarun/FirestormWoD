@@ -112,7 +112,7 @@ class boss_gu_cloudstrike : public CreatureScript
                 summons.DespawnAll();
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (phase == 1 && me->HealthBelowPctDamaged(50, damage))
                 {

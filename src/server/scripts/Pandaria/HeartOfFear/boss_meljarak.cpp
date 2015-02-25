@@ -333,7 +333,7 @@ public:
                 EnterCombat(who);
         }
 
-        void DamageTaken(Unit* attacker, uint32& damage)
+        void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
         {
             if (instance && !inCombat)
             {
@@ -847,7 +847,7 @@ public:
             AttackStart(attacker);
         }
 
-        void DamageTaken(Unit* killer, uint32 &damage)
+        void DamageTaken(Unit* killer, uint32 &damage, SpellInfo const* p_SpellInfo)
         {
             if (killer->GetEntry() == me->GetEntry())
                 return;
@@ -992,7 +992,7 @@ public:
                 respawn = false;
         }
 
-        void DamageTaken(Unit* killer, uint32 &damage)
+        void DamageTaken(Unit* killer, uint32 &damage, SpellInfo const* p_SpellInfo)
         {
             if (killer->GetEntry() == me->GetEntry())
                 return;
@@ -1153,7 +1153,7 @@ public:
                 respawn = false;
         }
 
-        void DamageTaken(Unit* killer, uint32 &damage)
+        void DamageTaken(Unit* killer, uint32 &damage, SpellInfo const* p_SpellInfo)
         {
             if (killer->GetEntry() == me->GetEntry())
                 return;
@@ -1331,7 +1331,7 @@ public:
             timerChecktarget = 500;
         }
 
-        void DamageTaken(Unit* attacker, uint32& damage)
+        void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
         {
             if (attacker->HasAura(SPELL_RESIDUE))
                 damage = 0;

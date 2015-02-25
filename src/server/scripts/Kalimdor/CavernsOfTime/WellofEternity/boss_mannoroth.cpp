@@ -265,7 +265,7 @@ class boss_mannoroth : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*who*/, uint32 &damage)
+            void DamageTaken(Unit* /*who*/, uint32 &damage, SpellInfo const* p_SpellInfo)
             {
                 if (!bDebilitating)
                     if (me->HealthBelowPctDamaged(88, damage))

@@ -32,7 +32,7 @@ enum MasterySpells
     MASTERY_SPELL_LAVA_BURST            = 77451,
     MASTERY_SPELL_ELEMENTAL_BLAST       = 120588,
     MASTERY_SPELL_HAND_OF_LIGHT         = 96172,
-    MASTERY_SPELL_IGNITE                = 12654,
+    MASTERY_SPELL_IGNITE_AURA           = 12654,
     MASTERY_SPELL_BLOOD_SHIELD          = 77535,
     MASTERY_SPELL_DISCIPLINE_SHIELD     = 77484,
     SPELL_DK_SCENT_OF_BLOOD             = 50421,
@@ -40,10 +40,242 @@ enum MasterySpells
     SPELL_MAGE_ICICLE_DAMAGE            = 148022,
     SPELL_MAGE_ICICLE_PERIODIC_TRIGGER  = 148023,
     SPELL_PRIEST_ECHO_OF_LIGHT          = 77489,
-    SPELL_WARRIOR_WEAPONS_MASTER        = 76838
+    SPELL_WARRIOR_WEAPONS_MASTER        = 76838,
+    SPELL_WARLOCK_METAMORPHIS           = 103958,
+    SPELL_WARLOCK_MASTER_DEMONOLOGIST   = 77219,
+    SPELL_PRIEST_MENTAL_ANGUISH         = 77486,
+    MASTERY_SPELL_IGNITE                = 12846
 };
 
-///< Mastery: Sniper Training - 76659
+enum MoltenEarthSpells
+{
+    MoltenEarthDamage   = 170379,
+    MoltenEarthPeriodic = 170377,
+    MoltenEarthAura     = 170374
+};
+
+/// Molten Earth - 170374
+class spell_mastery_molten_earth : public SpellScriptLoader
+{
+    public:
+        spell_mastery_molten_earth() : SpellScriptLoader("spell_mastery_molten_earth") { }
+
+        class spell_mastery_molten_earth_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mastery_molten_earth_AuraScript);
+
+            void OnProc(constAuraEffectPtr, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id == MoltenEarthSpells::MoltenEarthDamage)
+                    return;
+
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = p_EventInfo.GetDamageInfo()->GetVictim();
+                if (l_Caster == nullptr || l_Target == nullptr)
+                    return;
+
+                /// Assuming it's a 33.33% proc chance
+                if (!roll_chance_f(33.33f))
+                    return;
+
+                if (l_Target->HasAura(MoltenEarthSpells::MoltenEarthPeriodic))
+                {
+                    if (AuraPtr l_PeriodicAura = l_Target->GetAura(MoltenEarthSpells::MoltenEarthPeriodic))
+                        l_PeriodicAura->RefreshDuration();
+                }
+                else
+                    l_Caster->AddAura(MoltenEarthSpells::MoltenEarthPeriodic, l_Target);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_mastery_molten_earth_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_mastery_molten_earth_AuraScript();
+        }
+};
+
+/// Molten Earth Periodic - 170377
+class spell_mastery_molten_earth_periodic: public SpellScriptLoader
+{
+    public:
+        spell_mastery_molten_earth_periodic() : SpellScriptLoader("spell_mastery_molten_earth_periodic") { }
+
+        class spell_mastery_molten_earth_periodic_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mastery_molten_earth_periodic_AuraScript);
+
+            void HandleEffectPeriodic(constAuraEffectPtr)
+            {
+                PreventDefaultAction();
+
+                if (GetOwner() == nullptr)
+                    return;
+
+                if (Unit* l_Owner = GetOwner()->ToUnit())
+                {
+                    if (Unit* l_Caster = GetCaster())
+                    {
+                        uint8 l_Count = irand(1, 2);
+
+                        for (uint8 l_I = 0; l_I < l_Count; l_I++)
+                            l_Caster->CastSpell(l_Owner, MoltenEarthSpells::MoltenEarthDamage, true);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_mastery_molten_earth_periodic_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_mastery_molten_earth_periodic_AuraScript();
+        }
+};
+
+/// Molten Earth Damage - 170379
+class spell_mastery_molten_earth_damage: public SpellScriptLoader
+{
+    public:
+        spell_mastery_molten_earth_damage() : SpellScriptLoader("spell_mastery_molten_earth_damage") { }
+
+        class spell_mastery_molten_earth_damage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mastery_molten_earth_damage_SpellScript);
+
+            void HandleDamage(SpellEffIndex)
+            {
+                Unit* l_Target = GetHitUnit();
+                Unit* l_Caster = GetCaster();
+                if (!l_Target || !l_Caster)
+                    return;
+
+                if (AuraPtr l_Aura = l_Caster->GetAura(MoltenEarthSpells::MoltenEarthAura))
+                {
+                    if (Player* l_Player = l_Caster->ToPlayer())
+                        SetHitDamage(GetHitDamage() * l_Player->GetFloatValue(PLAYER_FIELD_MASTERY) * l_Aura->GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier / 100);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_mastery_molten_earth_damage_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_mastery_molten_earth_damage_SpellScript();
+        }
+};
+
+/// Mastery: Razor Claws - 77493
+class spell_mastery_razor_claws : public SpellScriptLoader
+{
+    public:
+        spell_mastery_razor_claws() : SpellScriptLoader("spell_mastery_razor_claws") { }
+
+        class spell_mastery_razor_claws_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mastery_razor_claws_AuraScript);
+
+            void CalculateAmount(constAuraEffectPtr, int32& p_Amount, bool&)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    float l_Mastery = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * float(GetSpellInfo()->Effects[EFFECT_1].BonusMultiplier);
+                    p_Amount = l_Mastery;
+                }
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mastery_razor_claws_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mastery_razor_claws_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_ADD_PCT_MODIFIER);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_mastery_razor_claws_AuraScript();
+        }
+};
+
+/// Mastery: Executioner - 76808
+class spell_mastery_executioner : public SpellScriptLoader
+{
+    public:
+        spell_mastery_executioner() : SpellScriptLoader("spell_mastery_executioner") { }
+
+        class spell_mastery_executioner_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mastery_executioner_AuraScript);
+
+            void CalculateAmount(constAuraEffectPtr, int32& p_Amount, bool&)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    float l_Mastery = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * float(GetSpellInfo()->Effects[EFFECT_2].BonusMultiplier);
+                    p_Amount = l_Mastery;
+                }
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mastery_executioner_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mastery_executioner_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_ADD_PCT_MODIFIER);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mastery_executioner_AuraScript::CalculateAmount, EFFECT_2, SPELL_AURA_ADD_PCT_MODIFIER);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_mastery_executioner_AuraScript();
+        }
+};
+
+/// Mastery: Potent Poisons - 76803
+class spell_mastery_potent_poisons : public SpellScriptLoader
+{
+    public:
+        spell_mastery_potent_poisons() : SpellScriptLoader("spell_mastery_potent_poisons") { }
+
+        class spell_mastery_potent_poisons_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mastery_potent_poisons_AuraScript);
+
+            void CalculateAmount(constAuraEffectPtr, int32& p_Amount, bool&)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    float l_Mastery = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * (float(GetSpellInfo()->Effects[EFFECT_2].BasePoints) / 100.0f);
+                    p_Amount = l_Mastery;
+                }
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mastery_potent_poisons_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mastery_potent_poisons_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_ADD_PCT_MODIFIER);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_mastery_potent_poisons_AuraScript();
+        }
+};
+
+/// Mastery: Sniper Training - 76659
 class spell_mastery_sniper_training : public SpellScriptLoader
 {
     public:
@@ -81,9 +313,19 @@ class spell_mastery_sniper_training : public SpellScriptLoader
                 }
             }
 
+            void OnRemove(constAuraEffectPtr, AuraEffectHandleModes)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    l_Caster->RemoveAura(Masteries::RecentlyMoved);
+                    l_Caster->RemoveAura(Masteries::SniperTrainingAura);
+                }
+            }
+
             void Register()
             {
                 OnEffectUpdate += AuraEffectUpdateFn(spell_mastery_sniper_training_AuraScript::OnUpdate, EFFECT_2, SPELL_AURA_DUMMY);
+                OnEffectRemove += AuraEffectRemoveFn(spell_mastery_sniper_training_AuraScript::OnRemove, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -93,7 +335,7 @@ class spell_mastery_sniper_training : public SpellScriptLoader
         }
 };
 
-///< Sniper Training: Recently Moved - 168809
+/// Sniper Training: Recently Moved - 168809
 class spell_mastery_recently_moved : public SpellScriptLoader
 {
     public:
@@ -139,7 +381,7 @@ class spell_mastery_recently_moved : public SpellScriptLoader
         }
 };
 
-///< Sniper Training - 168811
+/// Sniper Training - 168811
 class spell_mastery_sniper_training_aura : public SpellScriptLoader
 {
     public:
@@ -156,6 +398,9 @@ class spell_mastery_sniper_training_aura : public SpellScriptLoader
 
                 if (Player* l_Player = GetUnitOwner()->ToPlayer())
                 {
+                    if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SpecIndex::SPEC_HUNTER_MARKSMANSHIP)
+                        p_AurEff->GetBase()->Remove();
+
                     float l_Mastery = l_Player->GetFloatValue(EPlayerFields::PLAYER_FIELD_MASTERY) * 0.5f;
                     int32 l_BasePoints = l_Mastery;
 
@@ -353,8 +598,12 @@ class spell_mastery_icicles_trigger: public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
+                    if (caster->HasAura(SPELL_MAGE_ICICLE_PERIODIC_TRIGGER))
+                        return;
+
                     if (GetHitUnit())
                         caster->SetIciclesTarget(GetHitUnit()->GetGUID());
+
                     caster->CastSpell(caster, SPELL_MAGE_ICICLE_PERIODIC_TRIGGER, true);
                 }
             }
@@ -487,14 +736,14 @@ class spell_mastery_shield_discipline: public SpellScriptLoader
         {
             PrepareAuraScript(spell_mastery_shield_discipline_AuraScript);
 
-            void CalculateAmount(constAuraEffectPtr , int32 & amount, bool & )
+            void CalculateAmount(constAuraEffectPtr , int32 & p_Amount, bool & )
             {
                 if (Unit* caster = GetCaster())
                 {
                     if (caster->HasAura(MASTERY_SPELL_DISCIPLINE_SHIELD) && caster->getLevel() >= 80)
                     {
-                        float Mastery = 1 + (caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.5f / 100.0f);
-                        amount = int32(amount * Mastery);
+                        float l_Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.625f;
+                        p_Amount += CalculatePct(p_Amount, l_Mastery);
                     }
                 }
             }
@@ -577,27 +826,31 @@ class spell_mastery_ignite: public SpellScriptLoader
 
             void HandleAfterHit()
             {
-                if (Unit* caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
-                        if (caster->GetTypeId() == TYPEID_PLAYER && caster->HasAura(12846) && caster->getLevel() >= 80)
+                        if (l_Caster->GetTypeId() == TYPEID_PLAYER && l_Caster->HasAura(MASTERY_SPELL_IGNITE) && l_Caster->getLevel() >= 80)
                         {
-                            uint32 procSpellId = GetSpellInfo()->Id ? GetSpellInfo()->Id : 0;
-                            if (procSpellId != MASTERY_SPELL_IGNITE)
+                            const SpellInfo *l_SpellInfo = sSpellMgr->GetSpellInfo(MASTERY_SPELL_IGNITE_AURA);
+                            if (GetSpellInfo()->Id != MASTERY_SPELL_IGNITE_AURA && l_SpellInfo != nullptr)
                             {
-                                float value = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.5f / 100.0f;
+                                float l_Value = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.5f;
 
-                                int32 bp = GetHitDamage();
-                                bp = int32(bp * value / 2);
+                                int32 l_Bp = GetHitDamage();
 
-                                if (target->HasAura(MASTERY_SPELL_IGNITE, caster->GetGUID()))
+                                if (l_Bp)
                                 {
-                                    bp += target->GetRemainingPeriodicAmount(caster->GetGUID(), MASTERY_SPELL_IGNITE, SPELL_AURA_PERIODIC_DAMAGE);
-                                    bp = int32(bp * 0.66f);
-                                }
+                                    l_Bp = int32(CalculatePct(l_Bp, l_Value));
 
-                                caster->CastCustomSpell(target, MASTERY_SPELL_IGNITE, &bp, NULL, NULL, true);
+                                    if (l_SpellInfo->Effects[EFFECT_0].Amplitude > 0)
+                                        l_Bp = l_Bp / (l_SpellInfo->GetMaxDuration() / l_SpellInfo->Effects[EFFECT_0].Amplitude);
+                                    
+                                    if (l_Target->HasAura(MASTERY_SPELL_IGNITE_AURA, l_Caster->GetGUID()))
+                                        l_Bp += l_Target->GetRemainingPeriodicAmount(l_Caster->GetGUID(), MASTERY_SPELL_IGNITE_AURA, SPELL_AURA_PERIODIC_DAMAGE);
+
+                                    l_Caster->CastCustomSpell(l_Target, MASTERY_SPELL_IGNITE_AURA, &l_Bp, NULL, NULL, true);
+                                }
                             }
                         }
                     }
@@ -759,45 +1012,162 @@ class spell_mastery_elemental_overload: public SpellScriptLoader
         }
 };
 
-// Call by Mortal Strike - 12294, Colossus Smash - 86346, Execute - 5308
+// Call by Mortal Strike - 12294, Colossus Smash - 167105, Execute - 5308
 // Mastery: Weapons Master - 76338
 class spell_mastery_weapons_master : public SpellScriptLoader
 {
-public:
-    spell_mastery_weapons_master() : SpellScriptLoader("spell_mastery_weapons_master") { }
+    public:
+        spell_mastery_weapons_master() : SpellScriptLoader("spell_mastery_weapons_master") { }
 
-    class spell_mastery_weapons_master_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_mastery_weapons_master_SpellScript);
-
-        void HandleOnHit()
+        class spell_mastery_weapons_master_SpellScript : public SpellScript
         {
-            if (Unit* l_Caster = GetCaster())
-            {
-                if (l_Caster->HasAura(SPELL_WARRIOR_WEAPONS_MASTER))
-                {
-                    float l_MasteryValue = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 3.5f;
+            PrepareSpellScript(spell_mastery_weapons_master_SpellScript);
 
-                    SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_MasteryValue));
+            void HandleOnHit()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(SPELL_WARRIOR_WEAPONS_MASTER))
+                    {
+                        float l_MasteryValue = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 3.5f;
+
+                        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_MasteryValue));
+                    }
                 }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_mastery_weapons_master_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnHit += SpellHitFn(spell_mastery_weapons_master_SpellScript::HandleOnHit);
+            return new spell_mastery_weapons_master_SpellScript();
         }
-    };
+};
 
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_mastery_weapons_master_SpellScript();
-    }
+// Called by 124915 - Chaos wave, 103964 - Touch of Chao, 603 - Doom, 140720 - Immolation Aura, 6353 - Soul Fire
+// 77219 - Mastery: Master Demonologist
+class spell_mastery_master_demonologist : public SpellScriptLoader
+{
+    public:
+        spell_mastery_master_demonologist() : SpellScriptLoader("spell_mastery_master_demonologist") { }
+
+        class spell_mastery_master_demonologist_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mastery_master_demonologist_SpellScript);
+
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    /// Further increases the damage of your Touch of Chaos, Chaos Wave, Doom, Immolation Aura, and Soul Fire while in Metamorphosis by 12%.
+                    if (l_Caster->HasAura(SPELL_WARLOCK_METAMORPHIS) && l_Caster->HasAura(SPELL_WARLOCK_MASTER_DEMONOLOGIST))
+                    {
+                        float l_MasteryValue = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.5f;
+                        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_MasteryValue));
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_mastery_master_demonologist_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_mastery_master_demonologist_SpellScript();
+        }
+};
+
+enum MasterAnguish
+{
+    SPELL_PRIEST_MIND_BLAST = 8092,
+    SPELL_PRIEST_MIND_SPIKE = 73510,
+    SPELL_PRIEST_MIND_FLAY = 15407
+};
+
+// Called by 8092 - Mind Blast, 73510 - Mind Spike, 15407 - Mind Flay
+// 77486 - Mastery: Mental Anguish
+class spell_mastery_master_mental_anguish : public SpellScriptLoader
+{
+    public:
+        spell_mastery_master_mental_anguish() : SpellScriptLoader("spell_mastery_master_mental_anguish") { }
+
+        class spell_mastery_master_mental_anguish_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mastery_master_mental_anguish_SpellScript);
+
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (GetSpellInfo()->Id != SPELL_PRIEST_MIND_BLAST && GetSpellInfo()->Id != SPELL_PRIEST_MIND_SPIKE)
+                        return;
+
+                    /// Increases the damage of Mind Blast, Mind Spike, and Mind Flay by 20 %.
+                    if (l_Caster->HasAura(SPELL_PRIEST_MENTAL_ANGUISH))
+                    {
+                        float l_MasteryValue = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.5f;
+                        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_MasteryValue));
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_mastery_master_mental_anguish_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        class pell_mastery_master_mental_anguish_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(pell_mastery_master_mental_anguish_AuraScript);
+
+            void CalculateAmount(constAuraEffectPtr, int32& p_Amount, bool&)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (GetSpellInfo()->Id != SPELL_PRIEST_MIND_FLAY)
+                        return;
+
+                    if (l_Caster->HasAura(SPELL_PRIEST_MENTAL_ANGUISH))
+                    {
+                        float l_MasteryValue = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.5f;
+                        p_Amount += CalculatePct(p_Amount, l_MasteryValue);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(pell_mastery_master_mental_anguish_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new pell_mastery_master_mental_anguish_AuraScript();
+        }
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_mastery_master_mental_anguish_SpellScript();
+        }
 };
 
 void AddSC_mastery_spell_scripts()
 {
-    new spell_mastery_weapons_master();
+    new spell_mastery_molten_earth();
+    new spell_mastery_molten_earth_periodic();
+    new spell_mastery_molten_earth_damage();
+    new spell_mastery_razor_claws();
+    new spell_mastery_executioner();
+    new spell_mastery_potent_poisons();
     new spell_mastery_sniper_training();
     new spell_mastery_recently_moved();
     new spell_mastery_sniper_training_aura();
@@ -811,4 +1181,7 @@ void AddSC_mastery_spell_scripts()
     new spell_mastery_ignite();
     new spell_mastery_hand_of_light();
     new spell_mastery_elemental_overload();
+    new spell_mastery_weapons_master();
+    new spell_mastery_master_demonologist();
+    new spell_mastery_master_mental_anguish();
 }

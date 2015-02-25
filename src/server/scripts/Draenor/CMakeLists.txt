@@ -8,10 +8,15 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
+
+file(GLOB_RECURSE sources_Garrison Draenor/Garrison/*.hpp Draenor/Garrison/*.cpp Draenor/Garrison/*.hxx)
+
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
+  ${sources_Garrison}
   Draenor/tanaan_jungle.cpp
   Draenor/tanaan_jungle.h
+  Draenor/gorgrond.cpp
   Draenor/item_strongboxes.cpp
   Draenor/Skyreach/instance_skyreach.h
   Draenor/Skyreach/instance_skyreach.cpp
@@ -21,18 +26,15 @@ set(scripts_STAT_SRCS
   Draenor/Skyreach/boss_araknath.cpp
   Draenor/Skyreach/boss_rukhran.cpp
   Draenor/Skyreach/boss_high_sage_viryx.cpp
-  Draenor/Garrison/GarrisonGO.cpp
   Draenor/BloodmaulSlagMines/instance_bloodmaul.h
   Draenor/BloodmaulSlagMines/instance_bloodmaul.cpp
   Draenor/BloodmaulSlagMines/mob_bloodmaul.cpp
   Draenor/BloodmaulSlagMines/spell_bloodmaul.cpp
   Draenor/BloodmaulSlagMines/areatrigger_bloodmaul.cpp
   Draenor/BloodmaulSlagMines/boss_slave_watcher_crushto.cpp
-  Draenor/Garrison/GarrisonNPC.cpp
-  Draenor/Garrison/GarrisonQuest.cpp
-  Draenor/Garrison/Garrison_A_1.cpp
-  Draenor/Garrison/Garrison_H_1.cpp
-  Draenor/Garrison/Garrison.cpp
+  Draenor/BloodmaulSlagMines/boss_forgemaster_gogduh.cpp
+  Draenor/BloodmaulSlagMines/boss_roltall.cpp
+  Draenor/BloodmaulSlagMines/boss_gugrokk.cpp
 )
 
 message("  -> Prepared: Draenor")

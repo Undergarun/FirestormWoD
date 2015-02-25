@@ -20,6 +20,8 @@
 
 // Customs
 void AddSC_event_april();
+void AddSC_promotion_new_players();
+void AddSC_first_time_connexion();
 //void AddSC_DuelReset();
 
 // spells
@@ -803,11 +805,16 @@ void AddSC_timeless_isle();
 
 // Draenor
 void AddSC_tanaan_jungle();
+void AddSC_gorgrond();
 void AddSC_Garrison_GO();
 void AddSC_Garrison_NPC();
 void AddSC_Garrison_Quest();
 void AddSC_Garrison_A1();
+void AddSC_Garrison_A2();
+void AddSC_Garrison_A3();
 void AddSC_Garrison_H1();
+void AddSC_Garrison_H2();
+void AddSC_Garrison_H3();
 void AddSC_Garrison();
 void AddSC_item_strongboxes();
 
@@ -826,6 +833,9 @@ void AddSC_mob_Bloodmaul();
 void AddSC_spell_Bloodmaul();
 void AddSC_areatrigger_Bloodmaul();
 void AddSC_boss_SlaveWatcherCrushto();
+void AddSC_boss_forgemaster_gogduh();
+void AddSC_boss_roltall();
+void AddSC_boss_gugrokk();
 
 // battlegrounds
 void AddSC_BattlegroundAVcripts();
@@ -1674,11 +1684,16 @@ void AddDraenorScripts()
 {
 #ifdef SCRIPTS
     AddSC_tanaan_jungle();
+    AddSC_gorgrond();
     AddSC_Garrison_GO();
     AddSC_Garrison_NPC();
     AddSC_Garrison_Quest();
     AddSC_Garrison_A1();
+    AddSC_Garrison_A2();
+    AddSC_Garrison_A3();
     AddSC_Garrison_H1();
+    AddSC_Garrison_H2();
+    AddSC_Garrison_H3();
     AddSC_Garrison();
     /* Instance Skyreach*/
     AddSC_instance_Skyreach();
@@ -1694,6 +1709,9 @@ void AddDraenorScripts()
     AddSC_spell_Bloodmaul();
     AddSC_areatrigger_Bloodmaul();
     AddSC_boss_SlaveWatcherCrushto();
+    AddSC_boss_forgemaster_gogduh();
+    AddSC_boss_roltall();
+    AddSC_boss_gugrokk();
     AddSC_item_strongboxes();
 #endif
 }
@@ -1728,5 +1746,7 @@ void AddCustomScripts()
 {
 #ifdef SCRIPTS
     AddSC_event_april();
+    AddSC_promotion_new_players();
+    AddSC_first_time_connexion();
 #endif
 }

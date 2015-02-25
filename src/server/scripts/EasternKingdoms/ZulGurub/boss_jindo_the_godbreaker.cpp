@@ -408,7 +408,7 @@ class npc_jindo_spirit_of_hakkar : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void DamageTaken(Unit* attacker, uint32 &damage)
+            void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const* p_SpellInfo)
             {
                 damage = 0;
             }

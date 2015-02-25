@@ -483,9 +483,6 @@ void SmartAI::EnterEvadeMode()
     else
         me->GetMotionMaster()->MoveTargetedHome();
 
-    // Ouput is useless, it's generic bug related to SmartAI system
-    //sLog->outAshran("SmartAI::EnterEvadeMode Entry %u" , me->GetEntry());
-
     Reset();
 }
 
@@ -648,7 +645,7 @@ void SmartAI::SpellHitTarget(Unit* target, const SpellInfo* spellInfo)
     GetScript()->ProcessEventsFor(SMART_EVENT_SPELLHIT_TARGET, target, 0, 0, false, spellInfo);
 }
 
-void SmartAI::DamageTaken(Unit* doneBy, uint32& damage)
+void SmartAI::DamageTaken(Unit* doneBy, uint32& damage, SpellInfo const*)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_DAMAGED, doneBy, damage);
     if (mInvincibilityHpLevel && (damage >= me->GetHealth() - mInvincibilityHpLevel))

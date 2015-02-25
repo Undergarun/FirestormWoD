@@ -903,7 +903,7 @@ class mob_young_egg_of_jikun : public CreatureScript
                 m_Events.ScheduleEvent(EVENT_HATCH, 10000);
             }
 
-            void DamageTaken(Unit* attacker, uint32 &/*damage*/)
+            void DamageTaken(Unit* attacker, uint32 &/*damage*/, SpellInfo const* p_SpellInfo)
             {
                 m_Events.CancelEvent(EVENT_HATCH);
                 DoAction(ACTION_HATCH);

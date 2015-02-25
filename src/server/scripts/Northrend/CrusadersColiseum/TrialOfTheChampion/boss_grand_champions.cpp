@@ -149,7 +149,7 @@ struct npc_mounted_championAI : ScriptedAI
         return 0;
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32 & damage)
+    void DamageTaken(Unit* /*attacker*/, uint32 & damage, SpellInfo const* p_SpellInfo)
     {
         if (!isGrandChampion())
             return;
@@ -320,11 +320,11 @@ public:
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32 & damage)
+        void DamageTaken(Unit* /*attacker*/, uint32 & damage, SpellInfo const* p_SpellInfo)
         {
             if (isInMountedGauntlet())
             {
-                npc_mounted_championAI::DamageTaken(NULL, damage);
+                npc_mounted_championAI::DamageTaken(NULL, damage, p_SpellInfo);
                 return;
             }
 
@@ -481,11 +481,11 @@ public:
             me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32 & damage)
+        void DamageTaken(Unit* /*attacker*/, uint32 & damage, SpellInfo const* p_SpellInfo)
         {
             if (isInMountedGauntlet())
             {
-                npc_mounted_championAI::DamageTaken(NULL, damage);
+                npc_mounted_championAI::DamageTaken(NULL, damage, p_SpellInfo);
                 return;
             }
 
@@ -668,11 +668,11 @@ public:
                     instance->SetData(BOSS_GRAND_CHAMPIONS, FAIL);
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32 & damage)
+        void DamageTaken(Unit* /*attacker*/, uint32 & damage, SpellInfo const* p_SpellInfo)
         {
             if (isInMountedGauntlet())
             {
-                npc_mounted_championAI::DamageTaken(NULL, damage);
+                npc_mounted_championAI::DamageTaken(NULL, damage, p_SpellInfo);
                 return;
             }
 
@@ -828,11 +828,11 @@ public:
             me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32 & damage)
+        void DamageTaken(Unit* /*attacker*/, uint32 & damage, SpellInfo const* p_SpellInfo)
         {
             if (isInMountedGauntlet())
             {
-                npc_mounted_championAI::DamageTaken(NULL, damage);
+                npc_mounted_championAI::DamageTaken(NULL, damage, p_SpellInfo);
                 return;
             }
 
@@ -1015,11 +1015,11 @@ public:
             me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32 & damage)
+        void DamageTaken(Unit* /*attacker*/, uint32 & damage, SpellInfo const* p_SpellInfo)
         {
             if (isInMountedGauntlet())
             {
-                npc_mounted_championAI::DamageTaken(NULL, damage);
+                npc_mounted_championAI::DamageTaken(NULL, damage, p_SpellInfo);
                 return;
             }
 

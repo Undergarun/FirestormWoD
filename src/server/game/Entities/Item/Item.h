@@ -227,6 +227,36 @@ enum ItemUpdateState
     ITEM_REMOVED               = 3
 };
 
+namespace ItemBonus
+{
+    enum Stats : uint32
+    {
+        Avoidance = 40,
+        Leech     = 41,
+        Speed     = 42
+    };
+
+    namespace Chances
+    {
+        enum
+        {
+            Stats           = 10,
+            Warforged       = 10,
+            PrismaticSocket = 10
+        };
+    }
+
+    namespace HeroicOrRaid
+    {
+        enum
+        {
+            Warforged       = 499,
+            PrismaticSocket = 523
+        };
+    }
+}
+
+
 #define MAX_ITEM_SPELLS 5
 
 bool ItemCanGoIntoBag(ItemTemplate const* proto, ItemTemplate const* pBagProto);
@@ -316,6 +346,16 @@ class Item : public Object
         void SetItemRandomProperties(int32 randomPropId);
         void UpdateItemSuffixFactor();
         static int32 GenerateItemRandomPropertyId(uint32 item_id);
+
+
+        /**
+        * Generate item bonus from item id & current difficulty
+        * @param p_ItemId : Item id of the item which we wanna generate bonus
+        * @param p_MapDifficulty: Information about the current difficulty we are to determine the right bonus to apply
+        * @param p_ItemBonus: Vector of bonus to fill
+        */
+        static void GenerateItemBonus(uint32 p_ItemId, uint32 p_ItemBonusDifficulty, std::vector<uint32>& p_ItemBonus);
+
         void SetEnchantment(EnchantmentSlot slot, uint32 id, uint32 duration, uint32 charges);
         void SetEnchantmentDuration(EnchantmentSlot slot, uint32 duration, Player* owner);
         void SetEnchantmentCharges(EnchantmentSlot slot, uint32 charges);
@@ -337,7 +377,6 @@ class Item : public Object
             {
                 if (uint32(m_text.c_str()[i]) == 0xA0)
                 {
-                    sLog->outAshran("Item::SetText: Incorrect characters %s, m_text set to NULL", m_text.c_str());
                     m_text = "";
                     return;
                 }

@@ -249,7 +249,7 @@ class npc_lumbering_oaf : public CreatureScript
                 me->DespawnOrUnsummon();
             }
 
-            void DamageTaken(Unit* attacker, uint32 &damage)
+            void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const* p_SpellInfo)
             {
                 if (me->GetHealth() <= damage)
                     me->GetVehicleKit()->RemoveAllPassengers();
