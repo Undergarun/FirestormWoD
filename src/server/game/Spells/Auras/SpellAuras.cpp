@@ -1139,7 +1139,7 @@ bool Aura::ModCharges(int32 num, AuraRemoveMode removeMode)
 
         // Hack Fix - Arcane Missiles !
         if (GetId() == 79683)
-            maxCharges = 2;
+            maxCharges = 3;
 
         // limit charges (only on charges increase, charges may be changed manually)
         if ((num > 0) && (charges > int32(maxCharges)))
