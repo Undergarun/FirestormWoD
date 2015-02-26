@@ -5819,6 +5819,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[EFFECT_0].TargetB = 0;
                 break;
+            case 145153:///< Dream of Cenarius (Heal from Wrath)
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ALLY;
+                spellInfo->Effects[0].TargetB = 0;
+                break;
             default:
                 break;
         }
