@@ -3648,9 +3648,11 @@ void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggere
             }
         }
         else
-        {
             SendCastResult(result);
-        }
+
+        /// Restore SpellMods after spell failed
+        if (m_caster->GetTypeId() == TypeID::TYPEID_PLAYER)
+            m_caster->ToPlayer()->RestoreSpellMods(this);
 
         finish(false);
         return;
