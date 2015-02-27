@@ -848,7 +848,11 @@ void AddSC_outdoorpvp_na();
 void AddSC_outdoorpvp_si();
 void AddSC_outdoorpvp_tf();
 void AddSC_outdoorpvp_zm();
-void AddSC_OutdoorPvPAshran();
+void AddSC_AshranMgr();
+void AddSC_AshranNPCAlliance();
+void AddSC_AshranNPCHorde();
+void AddSC_AshranSpells();
+void AddSC_AshranNPCNeutral();
 
 // player
 void AddSC_chat_log();
@@ -1724,7 +1728,11 @@ void AddOutdoorPvPScripts()
     AddSC_outdoorpvp_si();
     AddSC_outdoorpvp_tf();
     AddSC_outdoorpvp_zm();
-    AddSC_OutdoorPvPAshran();
+    AddSC_AshranMgr();
+    AddSC_AshranNPCAlliance();
+    AddSC_AshranNPCHorde();
+    AddSC_AshranSpells();
+    AddSC_AshranNPCNeutral();
 #endif
 }
 

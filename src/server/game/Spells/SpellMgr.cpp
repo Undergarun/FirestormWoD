@@ -3341,20 +3341,26 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
-            case 110744: // Divine Star - should be 2 sec -- WTF Blizz ?
+            case 110744:///< Divine Star - should be 2 sec -- WTF Blizz ?
             case 122121:
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(66);
                 spellInfo->Effects[0].TargetA = SELECT_TARGET_SELF;
                 spellInfo->ExplicitTargetMask = spellInfo->_GetExplicitTargetMask();
                 break;
-            case 20167:  // Seal of Insight
+            case 165096:///< Ogreic Landing
+                spellInfo->Effects[1].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
+                break;
+            case 164868:///< Ogreic Landing
+                spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
+                break;
+            case 20167: ///< Seal of Insight
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_NONE;
                 break;
-            case 150055: // Volcanic Tantrum
-            case 149963: // Shatter Earth
+            case 150055:///< Volcanic Tantrum
+            case 149963:///< Shatter Earth
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(27); // 3 sec
                 break;
-            case 150004: // Magma Barrage
+            case 150004:///< Magma Barrage
                 spellInfo->InterruptFlags = SPELL_INTERRUPT_FLAG_MOVEMENT;
                 spellInfo->Effects[EFFECT_1].Effect = 0;
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 150306;

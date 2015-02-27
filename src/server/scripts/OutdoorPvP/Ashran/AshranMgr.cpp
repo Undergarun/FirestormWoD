@@ -6,7 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "OutdoorPvPAshran.h"
+#include "AshranMgr.hpp"
 #include "ScriptPCH.h"
 #include "MapManager.h"
 
@@ -43,23 +43,19 @@ void OPvPCapturePoint_Middle::ChangeState()
     uint32 l_UpdateVal = 0;
     switch (m_State)
     {
-        case OBJECTIVESTATE_ALLIANCE:
+        case ObjectiveStates::OBJECTIVESTATE_ALLIANCE:
             m_BattleFaction = eControlStatus::ControlAlliance;
             SpawnFactionGuards(m_BattleType, m_BattleFaction);
             l_UpdateVal = eFlagStates::FlagAlliance;
             SendUpdateWorldState(eWorldStates::WorldStateEnableTowerProgressBar, eWorldStates::WorldStateDisabled);
             break;
-        case OBJECTIVESTATE_HORDE:
+        case ObjectiveStates::OBJECTIVESTATE_HORDE:
             m_BattleFaction = eControlStatus::ControlHorde;
             SpawnFactionGuards(m_BattleType, m_BattleFaction);
             l_UpdateVal = eFlagStates::FlagHorde;
             SendUpdateWorldState(eWorldStates::WorldStateEnableTowerProgressBar, eWorldStates::WorldStateDisabled);
             break;
-        case OBJECTIVESTATE_NEUTRAL:
-        case OBJECTIVESTATE_NEUTRAL_ALLIANCE_CHALLENGE:
-        case OBJECTIVESTATE_NEUTRAL_HORDE_CHALLENGE:
-        case OBJECTIVESTATE_ALLIANCE_HORDE_CHALLENGE:
-        case OBJECTIVESTATE_HORDE_ALLIANCE_CHALLENGE:
+        case ObjectiveStates::OBJECTIVESTATE_NEUTRAL:
             m_BattleFaction = eControlStatus::ControlNeutral;
             SpawnFactionGuards(m_BattleType, m_BattleFaction);
             l_UpdateVal = eFlagStates::FlagNeutral;
@@ -70,7 +66,7 @@ void OPvPCapturePoint_Middle::ChangeState()
 
     GameObject* l_Flag = sObjectAccessor->FindGameObject(m_capturePointGUID);
     if (l_Flag)
-        l_Flag->SetByteValue(GAMEOBJECT_BYTES_1, 2, l_UpdateVal);
+        l_Flag->SetByteValue(EGameObjectFields::GAMEOBJECT_BYTES_1, 2, l_UpdateVal);
 
     UpdateTowerState();
 }
@@ -407,12 +403,12 @@ void OPvPCapturePoint_Graveyard::ChangeState()
     uint32 l_UpdateVal = 0;
     switch (m_State)
     {
-        case OBJECTIVESTATE_ALLIANCE:
+        case ObjectiveStates::OBJECTIVESTATE_ALLIANCE:
         {
             m_GraveyardState = eControlStatus::ControlAlliance;
             SpawnFactionFlags(m_GraveyardState);
             l_UpdateVal = eFlagStates::FlagAlliance;
-            m_ControlTime = 15 * MINUTE * IN_MILLISECONDS;
+            m_ControlTime = 15 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS;
 
             if (Creature* l_Herald = ((OutdoorPvPAshran*)m_PvP)->GetHerald())
                 l_Herald->AI()->DoAction(eAshranActions::AnnounceAllianceGraveyard);
@@ -420,12 +416,12 @@ void OPvPCapturePoint_Graveyard::ChangeState()
             SendUpdateWorldState(eWorldStates::WorldStateEnableGraveyardProgressBar, eWorldStates::WorldStateDisabled);
             break;
         }
-        case OBJECTIVESTATE_HORDE:
+        case ObjectiveStates::OBJECTIVESTATE_HORDE:
         {
             m_GraveyardState = eControlStatus::ControlHorde;
             SpawnFactionFlags(m_GraveyardState);
             l_UpdateVal = eFlagStates::FlagHorde;
-            m_ControlTime = 15 * MINUTE * IN_MILLISECONDS;
+            m_ControlTime = 15 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS;
 
             if (Creature* l_Herald = ((OutdoorPvPAshran*)m_PvP)->GetHerald())
                 l_Herald->AI()->DoAction(eAshranActions::AnnounceHordeGraveyard);
@@ -433,11 +429,7 @@ void OPvPCapturePoint_Graveyard::ChangeState()
             SendUpdateWorldState(eWorldStates::WorldStateEnableGraveyardProgressBar, eWorldStates::WorldStateDisabled);
             break;
         }
-        case OBJECTIVESTATE_NEUTRAL:
-        case OBJECTIVESTATE_NEUTRAL_ALLIANCE_CHALLENGE:
-        case OBJECTIVESTATE_NEUTRAL_HORDE_CHALLENGE:
-        case OBJECTIVESTATE_ALLIANCE_HORDE_CHALLENGE:
-        case OBJECTIVESTATE_HORDE_ALLIANCE_CHALLENGE:
+        case ObjectiveStates::OBJECTIVESTATE_NEUTRAL:
         {
             m_GraveyardState = eControlStatus::ControlNeutral;
             SpawnFactionFlags(m_GraveyardState);
@@ -454,7 +446,7 @@ void OPvPCapturePoint_Graveyard::ChangeState()
 
     GameObject* l_Flag = sObjectAccessor->FindGameObject(m_capturePointGUID);
     if (l_Flag)
-        l_Flag->SetByteValue(GAMEOBJECT_BYTES_1, 2, l_UpdateVal);
+        l_Flag->SetByteValue(EGameObjectFields::GAMEOBJECT_BYTES_1, 2, l_UpdateVal);
 
     UpdateTowerState();
 }
@@ -622,13 +614,22 @@ bool OutdoorPvPAshran::SetupOutdoorPvP()
     for (uint8 l_BattleIndex = eBattleType::EmberfallTower; l_BattleIndex < eBattleType::MaxBattleType; ++l_BattleIndex)
     {
         if (g_MiddleBattlesEntries[l_BattleIndex] == m_CurrentBattleState)
+        {
             m_ControlPoints[l_BattleIndex] = new OPvPCapturePoint_Middle(this, eBattleType(l_BattleIndex), eControlStatus::ControlNeutral);
+            m_ControlPoints[l_BattleIndex]->SetState(ObjectiveStates::OBJECTIVESTATE_NEUTRAL);
+        }
         else
         {
             if (l_BattleIndex < 2)
+            {
                 m_ControlPoints[l_BattleIndex] = new OPvPCapturePoint_Middle(this, eBattleType(l_BattleIndex), eControlStatus::ControlHorde);
+                m_ControlPoints[l_BattleIndex]->SetState(ObjectiveStates::OBJECTIVESTATE_HORDE);
+            }
             else
+            {
                 m_ControlPoints[l_BattleIndex] = new OPvPCapturePoint_Middle(this, eBattleType(l_BattleIndex), eControlStatus::ControlAlliance);
+                m_ControlPoints[l_BattleIndex]->SetState(ObjectiveStates::OBJECTIVESTATE_ALLIANCE);
+            }
         }
 
         AddCapturePoint(m_ControlPoints[l_BattleIndex]);
@@ -659,20 +660,6 @@ bool OutdoorPvPAshran::SetupOutdoorPvP()
     {
         AddCreature(eSpecialSpawns::AllianceBaseSpiritHealer + l_TeamID, g_BasesSpiritHealers[l_TeamID]);
         AddAreaTrigger(g_HallowedGroundEntries[l_TeamID], 1, eAshranDatas::AshranHallowedGroundID, g_HallowedGroundPos[l_TeamID], 0, sMapMgr->CreateBaseMap(eAshranDatas::AshranMapID));
-    }
-
-    /// Initialize timers for events
-    /// Must calculate an equal interval between each events - Should be 6min between each
-    uint32 l_Timer = 0;
-    uint32 l_TimerInterval = eAshranDatas::AshranEventTimer * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS / eAshranEvents::MaxEvents;
-    for (uint8 l_Index = 0; l_Index < eAshranEvents::MaxEvents; ++l_Index)
-    {
-        if (l_Index > eAshranEvents::EventKorlokTheOgreKing)    ///< Just Kor'lok yet
-            break;
-
-        l_Timer += l_TimerInterval;
-        ///m_AshranEvents[l_Index] = l_Timer;
-        m_AshranEvents[l_Index] = 30 * IN_MILLISECONDS; ///< For tests
     }
 
     return true;
@@ -1048,6 +1035,7 @@ void OutdoorPvPAshran::ScheduleInitPoints(uint32 p_Diff)
     {
         m_InitPointsTimer = 0;
         InitializeControlPoints();
+        InitializeEvents();
         m_IsInitialized = true;
     }
     else
@@ -1056,11 +1044,20 @@ void OutdoorPvPAshran::ScheduleInitPoints(uint32 p_Diff)
 
 void OutdoorPvPAshran::ScheduleEventsUpdate(uint32 p_Diff)
 {
+    if (!m_IsInitialized)
+        return;
+
     uint32 l_TimeForWarn = eAshranDatas::AshranEventWarning * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS;
     for (uint8 l_Index = 0; l_Index < eAshranEvents::MaxEvents; ++l_Index)
     {
         if (!m_AshranEvents[l_Index])   ///< Events are rescheduled only at their end
             continue;
+
+        if (m_AshranEvents[l_Index] <= l_TimeForWarn && !m_AshranEventsWarned[l_Index])
+        {
+            m_AshranEventsWarned[l_Index] = true;
+            SendEventWarningToPlayers(g_EventWarnTexts[l_Index]);
+        }
 
         if (m_AshranEvents[l_Index] <= p_Diff)
         {
@@ -1070,13 +1067,6 @@ void OutdoorPvPAshran::ScheduleEventsUpdate(uint32 p_Diff)
         }
         else
             m_AshranEvents[l_Index] -= p_Diff;
-
-
-        if (m_AshranEvents[l_Index] <= l_TimeForWarn && !m_AshranEventsWarned[l_Index])
-        {
-            m_AshranEventsWarned[l_Index] = true;
-            SendEventWarningToPlayers(g_EventWarnTexts[l_Index]);
-        }
     }
 }
 
@@ -1100,18 +1090,24 @@ void OutdoorPvPAshran::StartEvent(uint8 p_EventID)
     }
 }
 
-void OutdoorPvPAshran::EndEvent(uint8 p_EventID)
+void OutdoorPvPAshran::EndEvent(uint8 p_EventID, bool p_ScheduleNext /*= true*/)
 {
     if (p_EventID >= eAshranEvents::MaxEvents)  ///< Shouldn't happens
         return;
 
-    m_AshranEvents[p_EventID] = eAshranDatas::AshranEventTimer * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS;
+    if (p_ScheduleNext)
+        m_AshranEvents[p_EventID] = eAshranDatas::AshranEventTimer * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS;
 
     switch (p_EventID)
     {
         case eAshranEvents::EventKorlokTheOgreKing:
         {
-            DelCreature(eSpecialSpawns::NeutralKorlokTheOgreKing);
+            if (p_ScheduleNext)
+            {
+                DelCreature(eSpecialSpawns::NeutralKorlokTheOgreKing);
+                break;
+            }
+
             DelCreature(eSpecialSpawns::OgreAllianceChampion);
             DelCreature(eSpecialSpawns::OgreHordeChapion);
             break;
@@ -1359,6 +1355,23 @@ void OutdoorPvPAshran::InitializeControlPoints()
     }
 }
 
+void OutdoorPvPAshran::InitializeEvents()
+{
+    /// Initialize timers for events
+    /// Must calculate an equal interval between each events - Should be 6min between each
+    uint32 l_Timer = 0;
+    uint32 l_TimerInterval = eAshranDatas::AshranEventTimer * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS / eAshranEvents::MaxEvents;
+    for (uint8 l_Index = 0; l_Index < eAshranEvents::MaxEvents; ++l_Index)
+    {
+        if (l_Index > eAshranEvents::EventKorlokTheOgreKing)    ///< Just Kor'lok yet
+            break;
+
+        l_Timer += l_TimerInterval;
+        ///m_AshranEvents[l_Index] = l_Timer;
+        m_AshranEvents[l_Index] = 30 * IN_MILLISECONDS; ///< For tests
+    }
+}
+
 void OutdoorPvPAshran::SetBattleState(uint32 p_NewState)
 {
     if (!m_IsInitialized)
@@ -1421,6 +1434,25 @@ void OutdoorPvPAshran::SetBattleState(uint32 p_NewState)
     SendUpdateWorldState(eWorldStates::WorldStateNextBattleTimestamp, time(NULL) + (m_NextBattleTimer / TimeConstants::IN_MILLISECONDS));
     SendUpdateWorldState(eWorldStates::WorldStateNextBattleEnabled, eWorldStates::WorldStateEnabled);
     SendUpdateWorldState(eWorldStates::WorldStateControlTheFlag, eWorldStates::WorldStateDisabled);
+}
+
+uint32 OutdoorPvPAshran::GetCurrentBattleType() const
+{
+    switch (m_CurrentBattleState)
+    {
+        case eWorldStates::WorldStateEmberfallTowerBattle:
+            return eBattleType::EmberfallTower;
+        case eWorldStates::WorldStateVolrathsAdvanceBattle:
+            return eBattleType::VolrathsAdvance;
+        case eWorldStates::WorldStateTheCrossroadsBattle:
+            return eBattleType::TheCrossroads;
+        case eWorldStates::WorldStateTrembladesVanguardBattle:
+            return eBattleType::TrembladesVanguard;
+        case eWorldStates::WorldStateArchmageOverwatchBattle:
+            return eBattleType::ArchmageOverwatch;
+        default:                                ///< Shouldn't happens
+            return eBattleType::TheCrossroads;  ///< Default BattleType
+    }
 }
 
 void OutdoorPvPAshran::HandleFactionBossDeath(uint8 p_Faction)
@@ -1559,1292 +1591,7 @@ class OutdoorPvP_Ashran : public OutdoorPvPScript
         }
 };
 
-/// A'shran Herald - 84113
-class npc_ashran_herald : public CreatureScript
-{
-    public:
-        npc_ashran_herald() : CreatureScript("npc_ashran_herald") { }
-
-        struct npc_ashran_heraldAI : public ScriptedAI
-        {
-            npc_ashran_heraldAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
-
-            enum eTalk
-            {
-                TALK_ANNOUNCE_NEUTRAL_GRAVEYARD,
-                TALK_ANNOUNCE_HORDE_GRAVEYARD,
-                TALK_ANNOUNCE_ALLIANCE_GRAVEYARD
-            };
-
-            void Reset()
-            {
-                me->SetReactState(ReactStates::REACT_PASSIVE);
-            }
-
-            void DoAction(int32 const p_Action)
-            {
-                switch (p_Action)
-                {
-                    case eAshranActions::AnnounceMarketplaceGraveyard:
-                        Talk(eTalk::TALK_ANNOUNCE_NEUTRAL_GRAVEYARD);
-                        break;
-                    case eAshranActions::AnnounceHordeGraveyard:
-                        Talk(eTalk::TALK_ANNOUNCE_HORDE_GRAVEYARD);
-                        break;
-                    case eAshranActions::AnnounceAllianceGraveyard:
-                        Talk(eTalk::TALK_ANNOUNCE_ALLIANCE_GRAVEYARD);
-                        break;
-                    default:
-                        break;
-                }
-            }
-        };
-
-        CreatureAI* GetAI(Creature* p_Creature) const
-        {
-            return new npc_ashran_heraldAI(p_Creature);
-        }
-};
-
-/// SLG Generic MoP (Large AOI) - 68553
-class npc_slg_generic_mop : public CreatureScript
-{
-    public:
-        npc_slg_generic_mop() : CreatureScript("npc_slg_generic_mop") { }
-
-        struct npc_slg_generic_mopAI : public ScriptedAI
-        {
-            npc_slg_generic_mopAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
-
-            enum eTalk
-            {
-                TALK_HORDE_VICTORY,
-                TALK_ALLIANCE_KILL_BOSS,
-                TALK_ALLIANCE_VICTORY,
-                TALK_HORDE_KILL_BOSS
-            };
-
-            void Reset()
-            {
-                me->SetReactState(ReactStates::REACT_PASSIVE);
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-            }
-
-            void DoAction(int32 const p_Action)
-            {
-                switch (p_Action)
-                {
-                    case eAshranActions::AnnounceHordeVictory:
-                        Talk(eTalk::TALK_HORDE_VICTORY);
-                        break;
-                    case eAshranActions::AnnounceAllianceKillBoss:
-                        Talk(eTalk::TALK_ALLIANCE_KILL_BOSS);
-                        break;
-                    case eAshranActions::AnnounceAllianceVictory:
-                        Talk(eTalk::TALK_ALLIANCE_VICTORY);
-                        break;
-                    case eAshranActions::AnnounceHordeKillBoss:
-                        Talk(eTalk::TALK_HORDE_KILL_BOSS);
-                        break;
-                    default:
-                        break;
-                }
-            }
-        };
-
-        CreatureAI* GetAI(Creature* p_Creature) const
-        {
-            return new npc_slg_generic_mopAI(p_Creature);
-        }
-};
-
-/// High Warlord Volrath - 82877
-/// Grand Marshal Tremblade - 82876
-class npc_faction_boss : public CreatureScript
-{
-    public:
-        npc_faction_boss() : CreatureScript("npc_faction_boss") { }
-
-        struct npc_faction_bossAI : public BossAI
-        {
-            npc_faction_bossAI(Creature* p_Creature) : BossAI(p_Creature, 0)
-            {
-                m_ZoneScript = sOutdoorPvPMgr->GetZoneScript(p_Creature->GetZoneId());
-                m_BaseHP = me->GetMaxHealth();
-            }
-
-            enum eSpells
-            {
-                SpellBladeTwisterSearcher   = 178798,   ///< Uses 178797 on the target (Only 1)
-                SpellBladeTwisterMissile    = 178797,   ///< Launch 178795, Summons 89320
-                SpellMortalCleave           = 177147,
-                SpellEnableUnitFrame        = 177684,
-
-                SpellAshranLaneMobScaling   = 178838
-            };
-
-            enum eTalk
-            {
-                TalkIntro,
-                TalkAggro,
-                TalkSlay,
-                TalkDeath,
-                TalkVictory
-            };
-
-            enum eEvents
-            {
-                EventMortalCleave = 1,
-                EventBladeTwister
-            };
-
-            EventMap m_Events;
-            ZoneScript* m_ZoneScript;
-
-            bool m_FirstVictim;
-            uint32 m_BaseHP;
-
-            void Reset()
-            {
-                _Reset();
-
-                m_Events.Reset();
-
-                me->RemoveAura(eSpells::SpellEnableUnitFrame);
-                me->RemoveAura(eSpells::SpellAshranLaneMobScaling);
-
-                m_FirstVictim = true;
-
-                me->SetHealth(m_BaseHP);
-
-                if (me->GetEntry() == eCreatures::GrandMarshalTremblade)
-                    me->setFaction(12); ///< Alliance
-            }
-
-            void EnterCombat(Unit* p_Attacker)
-            {
-                _EnterCombat();
-
-                Talk(eTalk::TalkAggro);
-
-                m_Events.ScheduleEvent(eEvents::EventMortalCleave, 5000);
-                m_Events.ScheduleEvent(eEvents::EventBladeTwister, 15000);
-
-                me->CastSpell(me, eSpells::SpellEnableUnitFrame, true);
-            }
-
-            void KilledUnit(Unit* p_Who)
-            {
-                if (p_Who->GetTypeId() == TypeID::TYPEID_PLAYER)
-                    Talk(eTalk::TalkSlay);
-            }
-
-            void JustDied(Unit* p_Killer)
-            {
-                _JustDied();
-
-                Talk(eTalk::TalkDeath);
-
-                uint64 l_GenericGuid = ((OutdoorPvPAshran*)m_ZoneScript)->GetFactionGenericMoP(me->GetEntry() == eCreatures::GrandMarshalTremblade ? TeamId::TEAM_ALLIANCE : TeamId::TEAM_HORDE);
-                if (Creature* l_GenericMoP = sObjectAccessor->FindCreature(l_GenericGuid))
-                    l_GenericMoP->AI()->DoAction(me->GetEntry() == eCreatures::GrandMarshalTremblade ? eAshranActions::AnnounceHordeKillBoss : eAshranActions::AnnounceAllianceKillBoss);
-
-                ((OutdoorPvPAshran*)m_ZoneScript)->HandleFactionBossDeath(me->GetEntry() == eCreatures::GrandMarshalTremblade ? TeamId::TEAM_HORDE : TeamId::TEAM_ALLIANCE);
-
-                /// Upon successfully defeating the enemy leader, those present receive 50 Honor and 250 Conquest
-                std::list<Player*> l_PlayerList;
-                me->GetPlayerListInGrid(l_PlayerList, 100.0f);
-
-                l_PlayerList.remove_if([this](Player* p_Player) -> bool
-                {
-                    if (p_Player == nullptr)
-                        return true;
-
-                    if (!me->IsValidAttackTarget(p_Player))
-                        return true;
-
-                    return false;
-                });
-
-                for (Player* l_Player : l_PlayerList)
-                {
-                    /// Must do a * 100 because of currency precision
-                    l_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_CONQUEST_POINTS, 250 * 100);
-                    l_Player->RewardHonor(l_Player, 1, 50 * 100);
-                }
-
-                /// Trigger strongboxes loot for near players
-                if (me->GetEntry() == eCreatures::GrandMarshalTremblade)
-                    p_Killer->CastSpell(p_Killer, eAshranSpells::SpellAllianceReward, true);
-                else
-                    p_Killer->CastSpell(p_Killer, eAshranSpells::SpellHordeReward, true);
-            }
-
-            void DoAction(int32 const p_Action)
-            {
-                switch (p_Action)
-                {
-                    case eAshranActions::WarspearOutpostInFight:
-                    case eAshranActions::StormshieldStrongholdInFight:
-                        Talk(eTalk::TalkIntro);
-                        break;
-                    case eAshranActions::WarspearVictory:
-                    case eAshranActions::StormshieldVictory:
-                        Talk(eTalk::TalkVictory);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void SpellHit(Unit* p_Target, SpellInfo const* p_SpellInfo)
-            {
-                if (p_SpellInfo->Id == eSpells::SpellBladeTwisterSearcher)
-                    me->CastSpell(p_Target, eSpells::SpellBladeTwisterMissile, false);
-            }
-
-            void UpdateAI(uint32 const p_Diff)
-            {
-                if (!UpdateVictim())
-                {
-                    if (me->isInCombat())
-                        EnterEvadeMode();
-                    return;
-                }
-
-                m_Events.Update(p_Diff);
-
-                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
-                    return;
-
-                switch (m_Events.ExecuteEvent())
-                {
-                    case eEvents::EventMortalCleave:
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(l_Target, eSpells::SpellMortalCleave, false);
-                        m_Events.ScheduleEvent(eEvents::EventMortalCleave, 15000);
-                        break;
-                    case eEvents::EventBladeTwister:
-                        me->CastSpell(me, eSpells::SpellBladeTwisterSearcher, true);
-                        m_Events.ScheduleEvent(eEvents::EventBladeTwister, 30000);
-                        break;
-                    default:
-                        break;
-                }
-
-                DoMeleeAttackIfReady();
-            }
-
-            void OnHostileReferenceAdded(Unit* p_Ennemy)
-            {
-                if (p_Ennemy->GetTypeId() != TypeID::TYPEID_PLAYER)
-                    return;
-
-                if (m_FirstVictim)
-                {
-                    m_FirstVictim = false;
-                    return;
-                }
-
-                float l_HealthPct = me->GetHealthPct();
-                uint32 l_AddedValue = m_BaseHP / 2;
-
-                me->SetMaxHealth(me->GetMaxHealth() + l_AddedValue);
-                me->SetHealth(CalculatePct(me->GetMaxHealth(), l_HealthPct));
-            }
-
-            void OnHostileReferenceRemoved(Unit* p_Ennemy)
-            {
-                if (p_Ennemy->GetTypeId() != TypeID::TYPEID_PLAYER)
-                    return;
-
-                float l_HealthPct = me->GetHealthPct();
-                uint32 l_AddedValue = m_BaseHP / 2;
-
-                if ((me->GetMaxHealth() - l_AddedValue) < m_BaseHP)
-                {
-                    me->SetMaxHealth(m_BaseHP);
-                    me->SetHealth(CalculatePct(m_BaseHP, l_HealthPct));
-                    return;
-                }
-
-                me->SetMaxHealth(me->GetMaxHealth() - l_AddedValue);
-                me->SetHealth(CalculatePct(me->GetMaxHealth(), l_HealthPct));
-            }
-        };
-
-        CreatureAI* GetAI(Creature* p_Creature) const
-        {
-            return new npc_faction_bossAI(p_Creature);
-        }
-};
-
-/// Jeron Emberfall <Warspear Tower Guardian> - 88178
-class npc_jeron_emberfall : public CreatureScript
-{
-    public:
-        npc_jeron_emberfall() : CreatureScript("npc_jeron_emberfall") { }
-
-        struct npc_jeron_emberfallAI : public ScriptedAI
-        {
-            npc_jeron_emberfallAI(Creature* p_Creature) : ScriptedAI(p_Creature)
-            {
-                m_CheckAroundingPlayersTimer = 0;
-                m_PhoenixStrikeTimer = 0;
-            }
-
-            enum eSpells
-            {
-                Fireball                = 176652,
-                Ignite                  = 176600,
-                CombustionNova          = 176605,
-                CombustionNovaStun      = 176608,
-                LivingBomb              = 176670,
-                SummonLavaFury          = 176664,
-
-                TargetedByTheTowerMage  = 176076,
-                PhoenixStrikeSearcher   = 176086,
-                PhoenixStrikeMissile    = 176066
-            };
-
-            enum eTalk
-            {
-                TalkAggro,
-                TalkSlay,
-                TalkDeath,
-                TalkSpell,
-                TalkLivingBomb
-            };
-
-            enum eEvents
-            {
-                EventFireball = 1,
-                EventIgnite,
-                EventLivingBomb,
-                EventCombustionNova
-            };
-
-            EventMap m_Events;
-
-            uint32 m_CheckAroundingPlayersTimer;
-            uint32 m_PhoenixStrikeTimer;
-
-            void Reset()
-            {
-                m_Events.Reset();
-
-                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISARMED);
-            }
-
-            void EnterCombat(Unit* p_Attacker)
-            {
-                Talk(eTalk::TalkAggro);
-
-                m_Events.ScheduleEvent(eEvents::EventFireball, 4000);
-                m_Events.ScheduleEvent(eEvents::EventIgnite, 8000);
-                m_Events.ScheduleEvent(eEvents::EventLivingBomb, 12000);
-                m_Events.ScheduleEvent(eEvents::EventCombustionNova, 15000);
-            }
-
-            void KilledUnit(Unit* p_Who)
-            {
-                if (p_Who->GetTypeId() == TYPEID_PLAYER)
-                    Talk(eTalk::TalkSlay);
-            }
-
-            void JustDied(Unit* p_Killer)
-            {
-                Talk(eTalk::TalkDeath);
-            }
-
-            void SpellHitTarget(Unit* p_Victim, SpellInfo const* p_SpellInfo)
-            {
-                if (p_Victim == nullptr)
-                    return;
-
-                switch (p_SpellInfo->Id)
-                {
-                    case eSpells::PhoenixStrikeSearcher:
-                        me->CastSpell(p_Victim, eSpells::PhoenixStrikeMissile, false);
-                        break;
-                    case eSpells::CombustionNova:
-                        if (p_Victim->HasAura(eSpells::Ignite))
-                            me->CastSpell(p_Victim, eSpells::CombustionNovaStun, true);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void UpdateAI(uint32 const p_Diff)
-            {
-                if (!UpdateVictim())
-                {
-                    ScheduleTargetingPlayers(p_Diff);
-                    SchedulePhoenixStrike(p_Diff);
-                    return;
-                }
-
-                m_Events.Update(p_Diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                switch (m_Events.ExecuteEvent())
-                {
-                    case eEvents::EventFireball:
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
-                            me->CastSpell(l_Target, eSpells::Fireball, false);
-                        m_Events.ScheduleEvent(eEvents::EventFireball, 10000);
-                        break;
-                    case eEvents::EventIgnite:
-                        Talk(eTalk::TalkSpell);
-                        me->CastSpell(me, eSpells::Ignite, true);
-                        m_Events.ScheduleEvent(eEvents::EventIgnite, 9000);
-                        break;
-                    case eEvents::EventLivingBomb:
-                        Talk(eTalk::TalkLivingBomb);
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
-                            me->CastSpell(l_Target, eSpells::LivingBomb, false);
-                        m_Events.ScheduleEvent(eEvents::EventLivingBomb, 15000);
-                        break;
-                    case eEvents::EventCombustionNova:
-                        Talk(eTalk::TalkSpell);
-                        me->CastSpell(me, eSpells::CombustionNova, false);
-                        m_Events.ScheduleEvent(eEvents::EventCombustionNova, 20000);
-                        break;
-                    default:
-                        break;
-                }
-
-                DoMeleeAttackIfReady();
-            }
-
-            void ScheduleTargetingPlayers(uint32 const p_Diff)
-            {
-                if (!m_CheckAroundingPlayersTimer)
-                    return;
-
-                if (m_CheckAroundingPlayersTimer <= p_Diff)
-                {
-                    m_CheckAroundingPlayersTimer = 2500;
-
-                    std::list<Player*> l_PlayerList;
-                    me->GetPlayerListInGrid(l_PlayerList, 200.0f);
-
-                    l_PlayerList.remove_if([this](Player* p_Player) -> bool
-                    {
-                        if (p_Player == nullptr)
-                            return true;
-
-                        if (!me->IsValidAttackTarget(p_Player))
-                            return true;
-
-                        if (p_Player->HasAura(eSpells::TargetedByTheTowerMage))
-                            return true;
-
-                        return false;
-                    });
-
-                    for (Player* l_Player : l_PlayerList)
-                        l_Player->CastSpell(l_Player, eSpells::TargetedByTheTowerMage, true, nullptr, nullptr, me->GetGUID());
-                }
-                else
-                    m_CheckAroundingPlayersTimer -= p_Diff;
-            }
-
-            void SchedulePhoenixStrike(uint32 const p_Diff)
-            {
-                if (!m_PhoenixStrikeTimer)
-                    return;
-
-                if (m_PhoenixStrikeTimer <= p_Diff)
-                {
-                    if (!me->isInCombat())
-                        me->CastSpell(me, eSpells::PhoenixStrikeSearcher, true);
-                    m_PhoenixStrikeTimer = 10000;
-                }
-                else
-                    m_PhoenixStrikeTimer -= p_Diff;
-            }
-        };
-
-        CreatureAI* GetAI(Creature* p_Creature) const
-        {
-            return new npc_jeron_emberfallAI(p_Creature);
-        }
-};
-
-/// Rylai Crestfall <Stormshield Tower Guardian> - 88224
-class npc_rylai_crestfall : public CreatureScript
-{
-    public:
-        npc_rylai_crestfall() : CreatureScript("npc_rylai_crestfall") { }
-
-        struct npc_rylai_crestfallAI : public ScriptedAI
-        {
-            npc_rylai_crestfallAI(Creature* p_Creature) : ScriptedAI(p_Creature)
-            {
-                m_CheckAroundingPlayersTimer = 0;
-                m_FreezingFieldTimer = 0;
-            }
-
-            enum eSpells
-            {
-                Frostbolt       = 176268,
-                FrostboltVolley = 176273,
-                IceBlock        = 176269,
-                Hypotermia      = 41425,
-                MassPolymorph   = 176204,
-                FrostNovaCasted = 176327,
-                NorthrendWinds  = 176267,
-                FrostNova       = 176276,
-                DeepFreeze      = 176278,
-                SummonIceShard  = 177599,   ///< @TODO
-
-                TowerMageTargetingAura  = 176162,   ///< Put on ennemy players around 200 yards
-                FreezingFieldSearcher   = 176163,   ///< Launch frost missile on one player targeted
-                FreezingFieldMissile    = 176165
-            };
-
-            enum eTalk
-            {
-                TalkAggro,
-                TalkSlay,
-                TalkDeath,
-                TalkSpell
-            };
-
-            enum eEvents
-            {
-                EventFrostbolt = 1,
-                EventFrostboltVolley,
-                EventMassPolymorph,
-                EventFrostNova,
-                EventNorthrendWinds
-            };
-
-            EventMap m_Events;
-
-            uint32 m_CheckAroundingPlayersTimer;
-            uint32 m_FreezingFieldTimer;
-
-            void Reset()
-            {
-                m_Events.Reset();
-
-                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISARMED);
-
-                m_CheckAroundingPlayersTimer = 2000;
-                m_FreezingFieldTimer = 10000;
-            }
-
-            void EnterCombat(Unit* p_Attacker)
-            {
-                Talk(eTalk::TalkAggro);
-
-                m_Events.ScheduleEvent(eEvents::EventFrostbolt, 4000);
-                m_Events.ScheduleEvent(eEvents::EventMassPolymorph, 6000);
-                m_Events.ScheduleEvent(eEvents::EventFrostboltVolley, 9000);
-                m_Events.ScheduleEvent(eEvents::EventFrostNova, 12500);
-                m_Events.ScheduleEvent(eEvents::EventNorthrendWinds, 15000);
-            }
-
-            void KilledUnit(Unit* p_Who)
-            {
-                if (p_Who->GetTypeId() == TypeID::TYPEID_PLAYER)
-                    Talk(eTalk::TalkSlay);
-            }
-
-            void JustDied(Unit* p_Killer)
-            {
-                Talk(eTalk::TalkDeath);
-            }
-
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
-            {
-                if (me->HealthBelowPctDamaged(20, p_Damage) && !me->HasAura(eSpells::Hypotermia))
-                {
-                    me->CastSpell(me, eSpells::IceBlock, true);
-                    me->CastSpell(me, eSpells::Hypotermia, true);
-                }
-            }
-
-            void SpellHitTarget(Unit* p_Victim, SpellInfo const* p_SpellInfo)
-            {
-                if (p_Victim == nullptr)
-                    return;
-
-                switch (p_SpellInfo->Id)
-                {
-                    case eSpells::FreezingFieldSearcher:
-                        me->CastSpell(p_Victim, eSpells::FreezingFieldMissile, false);
-                        break;
-                    case eSpells::NorthrendWinds:
-                        if (p_Victim->HasAura(eSpells::FrostNova))
-                            me->CastSpell(p_Victim, eSpells::DeepFreeze, true);
-                        else
-                            me->CastSpell(p_Victim, eSpells::FrostNova, true);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void UpdateAI(uint32 const p_Diff)
-            {
-                if (!UpdateVictim())
-                {
-                    ScheduleTargetingPlayers(p_Diff);
-                    ScheduleFreezingField(p_Diff);
-                    return;
-                }
-
-                m_Events.Update(p_Diff);
-
-                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
-                    return;
-
-                switch (m_Events.ExecuteEvent())
-                {
-                    case eEvents::EventFrostbolt:
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
-                            me->CastSpell(l_Target, eSpells::Frostbolt, false);
-                        m_Events.ScheduleEvent(eEvents::EventFrostbolt, 10000);
-                        break;
-                    case eEvents::EventFrostboltVolley:
-                        Talk(eTalk::TalkSpell);
-                        me->CastSpell(me, eSpells::FrostboltVolley, false);
-                        m_Events.ScheduleEvent(eEvents::EventFrostboltVolley, 20000);
-                        break;
-                    case eEvents::EventMassPolymorph:
-                        me->CastSpell(me, eSpells::MassPolymorph, false);
-                        m_Events.ScheduleEvent(eEvents::EventMassPolymorph, 25000);
-                        break;
-                    case eEvents::EventFrostNova:
-                        me->CastSpell(me, eSpells::FrostNovaCasted, false);
-                        m_Events.ScheduleEvent(eEvents::EventFrostNova, 27500);
-                        break;
-                    case eEvents::EventNorthrendWinds:
-                        Talk(eTalk::TalkSpell);
-                        me->CastSpell(me, eSpells::NorthrendWinds, false);
-                        m_Events.ScheduleEvent(eEvents::EventNorthrendWinds, 30000);
-                        break;
-                    default:
-                        break;
-                }
-
-                DoMeleeAttackIfReady();
-            }
-
-            void ScheduleTargetingPlayers(uint32 const p_Diff)
-            {
-                if (!m_CheckAroundingPlayersTimer)
-                    return;
-
-                if (m_CheckAroundingPlayersTimer <= p_Diff)
-                {
-                    m_CheckAroundingPlayersTimer = 2500;
-
-                    std::list<Player*> l_PlayerList;
-                    me->GetPlayerListInGrid(l_PlayerList, 200.0f);
-
-                    l_PlayerList.remove_if([this](Player* p_Player) -> bool
-                    {
-                        if (p_Player == nullptr)
-                            return true;
-
-                        if (!me->IsValidAttackTarget(p_Player))
-                            return true;
-
-                        if (p_Player->HasAura(eSpells::TowerMageTargetingAura))
-                            return true;
-
-                        return false;
-                    });
-
-                    for (Player* l_Player : l_PlayerList)
-                        l_Player->CastSpell(l_Player, eSpells::TowerMageTargetingAura, true, nullptr, nullptr, me->GetGUID());
-                }
-                else
-                    m_CheckAroundingPlayersTimer -= p_Diff;
-            }
-
-            void ScheduleFreezingField(uint32 const p_Diff)
-            {
-                if (!m_FreezingFieldTimer)
-                    return;
-
-                if (m_FreezingFieldTimer <= p_Diff)
-                {
-                    if (!me->isInCombat())
-                        me->CastSpell(me, eSpells::FreezingFieldSearcher, true);
-                    m_FreezingFieldTimer = 10000;
-                }
-                else
-                    m_FreezingFieldTimer -= p_Diff;
-            }
-        };
-
-        CreatureAI* GetAI(Creature* p_Creature) const
-        {
-            return new npc_rylai_crestfallAI(p_Creature);
-        }
-};
-
-/// Shevan Manille <Flight Master> - 87672
-/// Tina Kelatara <Flight Master> - 87617
-class npc_ashran_flight_masters : public CreatureScript
-{
-    public:
-        npc_ashran_flight_masters() : CreatureScript("npc_ashran_flight_masters") { }
-
-        bool OnGossipSelect(Player* p_Player, Creature*, uint32, uint32)
-        {
-            if (p_Player == nullptr || !p_Player->IsInWorld())
-                return true;
-
-            if (p_Player->GetTeamId() == TeamId::TEAM_ALLIANCE)
-                p_Player->ActivateTaxiPathTo(eAshranDatas::TaxiPathBaseHordeToAlliance, 0, true);
-            else
-                p_Player->ActivateTaxiPathTo(eAshranDatas::TaxiPathBaseAllianceToHorde, 0, true);
-
-            return false;
-        }
-
-        struct npc_ashran_flight_mastersAI : public ScriptedAI
-        {
-            npc_ashran_flight_mastersAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
-
-            void Reset()
-            {
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_ATTACKABLE_1 | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* p_Creature) const
-        {
-            return new npc_ashran_flight_mastersAI(p_Creature);
-        }
-};
-
-/// Alliance Spirit Guide - 80723
-/// Horde Spirit Guide - 80724
-class npc_ashran_spirit_healer : public CreatureScript
-{
-    public:
-        npc_ashran_spirit_healer() : CreatureScript("npc_ashran_spirit_healer") { }
-
-        struct npc_ashran_spirit_healerAI : public ScriptedAI
-        {
-            npc_ashran_spirit_healerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
-
-            void Reset()
-            {
-                me->setDeathState(DeathState::DEAD);
-                me->SetGuidValue(EUnitFields::UNIT_FIELD_CHANNEL_OBJECT, me->GetGUID());
-                me->SetUInt32Value(EUnitFields::UNIT_FIELD_CHANNEL_SPELL, eAshranSpells::SpellSpiritHeal);
-                me->SetFloatValue(EUnitFields::UNIT_FIELD_MOD_CASTING_SPEED, 1.0f);
-                me->SetFloatValue(EUnitFields::UNIT_FIELD_MOD_SPELL_HASTE, 1.0f);
-                DoCast(me, eAshranSpells::SpellSpiritHeal);
-            }
-
-            void JustRespawned() { }
-
-            void UpdateAI(uint32 const)
-            {
-                if (!me->HasUnitState(UnitState::UNIT_STATE_CASTING))
-                    DoCast(me, eAshranSpells::SpellSpiritHeal);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* p_Creature) const
-        {
-            return new npc_ashran_spirit_healerAI(p_Creature);
-        }
-};
-
-/// Kor'lok <The Ogre King> - 80858
-class npc_ashran_korlok : public CreatureScript
-{
-    public:
-        npc_ashran_korlok() : CreatureScript("npc_ashran_korlok") { }
-
-        struct npc_ashran_korlokAI : public ScriptedAI
-        {
-            npc_ashran_korlokAI(Creature* p_Creature) : ScriptedAI(p_Creature)
-            {
-                m_OutdoorPvP = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(p_Creature->GetZoneId());
-                m_BaseHP = me->GetMaxHealth();
-                m_IsAwake = false;
-            }
-
-            enum eSpells
-            {
-                SpellBoomingShoot   = 177150,
-                SpellBoonOfKorlok   = 177164,
-                SpellCrushingLeap   = 164819,
-                SpellCurseOfKorlok  = 165192,
-                SpellMASSIVEKick    = 177157,
-                SpellOgreicLanding  = 165096
-            };
-
-            enum eTalk
-            {
-                TalkAwake,
-                TalkRecruitedByAlliance,
-                TalkRecruitedByHorde,
-                TalkSlay,
-                TalkDeath
-            };
-
-            enum eEvents
-            {
-            };
-
-            enum eActions
-            {
-                ActionHordeRecruit,
-                ActionAllianceRecruit
-            };
-
-            EventMap m_Events;
-            OutdoorPvP* m_OutdoorPvP;
-
-            bool m_IsAwake;
-
-            bool m_FirstVictim;
-            uint32 m_BaseHP;
-
-            void Reset()
-            {
-                if (!m_IsAwake)
-                    Talk(eTalk::TalkAwake);
-
-                m_Events.Reset();
-
-                m_FirstVictim = true;
-                m_IsAwake = true;
-            }
-
-            void EnterCombat(Unit* p_Attacker)
-            {
-            }
-
-            void KilledUnit(Unit* p_Who)
-            {
-                if (p_Who->GetTypeId() == TypeID::TYPEID_PLAYER)
-                    Talk(eTalk::TalkSlay);
-            }
-
-            void JustDied(Unit* p_Killer)
-            {
-                Talk(eTalk::TalkDeath);
-            }
-
-            void DoAction(int32 const p_Action)
-            {
-                switch (p_Action)
-                {
-                    case eActions::ActionAllianceRecruit:
-                    case eActions::ActionHordeRecruit:
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void SpellHit(Unit* p_Target, SpellInfo const* p_SpellInfo)
-            {
-            }
-
-            void UpdateAI(uint32 const p_Diff)
-            {
-                if (!UpdateVictim())
-                    return;
-
-                m_Events.Update(p_Diff);
-
-                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
-                    return;
-
-                /*switch (m_Events.ExecuteEvent())
-                {
-                    default:
-                        break;
-                }*/
-
-                DoMeleeAttackIfReady();
-            }
-
-            void OnHostileReferenceAdded(Unit* p_Ennemy)
-            {
-                if (p_Ennemy->GetTypeId() != TypeID::TYPEID_PLAYER)
-                    return;
-
-                if (m_FirstVictim)
-                {
-                    m_FirstVictim = false;
-                    return;
-                }
-
-                float l_HealthPct = me->GetHealthPct();
-                uint32 l_AddedValue = m_BaseHP / 2;
-
-                me->SetMaxHealth(me->GetMaxHealth() + l_AddedValue);
-                me->SetHealth(CalculatePct(me->GetMaxHealth(), l_HealthPct));
-            }
-
-            void OnHostileReferenceRemoved(Unit* p_Ennemy)
-            {
-                if (p_Ennemy->GetTypeId() != TypeID::TYPEID_PLAYER)
-                    return;
-
-                float l_HealthPct = me->GetHealthPct();
-                uint32 l_AddedValue = m_BaseHP / 2;
-
-                if ((me->GetMaxHealth() - l_AddedValue) < m_BaseHP)
-                {
-                    me->SetMaxHealth(m_BaseHP);
-                    me->SetHealth(CalculatePct(m_BaseHP, l_HealthPct));
-                    return;
-                }
-
-                me->SetMaxHealth(me->GetMaxHealth() - l_AddedValue);
-                me->SetHealth(CalculatePct(me->GetMaxHealth(), l_HealthPct));
-            }
-        };
-
-        CreatureAI* GetAI(Creature* p_Creature) const
-        {
-            return new npc_ashran_korlokAI(p_Creature);
-        }
-};
-
-/// Muk'Mar Raz <Horde Champion> - 81725
-/// Gaul Dun Firok <Alliance Champion> - 81726
-class npc_ashran_faction_champions : public CreatureScript
-{
-    public:
-        npc_ashran_faction_champions() : CreatureScript("npc_ashran_faction_champions") { }
-
-        struct npc_ashran_faction_championsAI : public ScriptedAI
-        {
-            npc_ashran_faction_championsAI(Creature* p_Creature) : ScriptedAI(p_Creature)
-            {
-                m_OutdoorPvP = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(p_Creature->GetZoneId());
-                m_BaseHP = me->GetMaxHealth();
-            }
-
-            enum eSpells
-            {
-                SpellBoomingShoot   = 177150,
-                SpellCrushingLeap   = 164819,
-                SpellMASSIVEKick    = 177157,
-                SpellEnrage         = 164811
-            };
-
-            enum eEvents
-            {
-            };
-
-            enum eActions
-            {
-                ActionHordeRecruit,
-                ActionAllianceRecruit
-            };
-
-            EventMap m_Events;
-            OutdoorPvP* m_OutdoorPvP;
-
-            bool m_FirstVictim;
-            uint32 m_BaseHP;
-
-            void Reset()
-            {
-                m_Events.Reset();
-
-                m_FirstVictim = true;
-            }
-
-            void EnterCombat(Unit* p_Attacker)
-            {
-            }
-
-            void JustDied(Unit* p_Killer)
-            {
-                Creature* l_Korlok = sObjectAccessor->FindCreature(m_OutdoorPvP->GetCreature(eSpecialSpawns::NeutralKorlokTheOgreKing));
-                if (l_Korlok == nullptr || !l_Korlok->IsAIEnabled)    ///< Shouldn't happens
-                    return;
-
-                if (p_Killer->GetTypeId() == TypeID::TYPEID_PLAYER)
-                {
-                    if (p_Killer->ToPlayer()->GetTeamId() == TeamId::TEAM_ALLIANCE)
-                        l_Korlok->AI()->DoAction(eActions::ActionAllianceRecruit);
-                    else
-                        l_Korlok->AI()->DoAction(eActions::ActionHordeRecruit);
-                }
-                else if (p_Killer->GetOwner() && p_Killer->GetOwner()->GetTypeId() == TypeID::TYPEID_PLAYER)
-                {
-                    if (Player* l_Owner = p_Killer->GetOwner()->ToPlayer())
-                    {
-                        if (l_Owner->ToPlayer()->GetTeamId() == TeamId::TEAM_ALLIANCE)
-                            l_Korlok->AI()->DoAction(eActions::ActionAllianceRecruit);
-                        else
-                            l_Korlok->AI()->DoAction(eActions::ActionHordeRecruit);
-                    }
-                }
-            }
-
-            void DoAction(int32 const p_Action)
-            {
-            }
-
-            void SpellHit(Unit* p_Target, SpellInfo const* p_SpellInfo)
-            {
-            }
-
-            void UpdateAI(uint32 const p_Diff)
-            {
-                if (!UpdateVictim())
-                    return;
-
-                m_Events.Update(p_Diff);
-
-                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
-                    return;
-
-                /*switch (m_Events.ExecuteEvent())
-                {
-                    default:
-                        break;
-                }*/
-
-                DoMeleeAttackIfReady();
-            }
-
-            void OnHostileReferenceAdded(Unit* p_Ennemy)
-            {
-                if (p_Ennemy->GetTypeId() != TypeID::TYPEID_PLAYER)
-                    return;
-
-                if (m_FirstVictim)
-                {
-                    m_FirstVictim = false;
-                    return;
-                }
-
-                float l_HealthPct = me->GetHealthPct();
-                uint32 l_AddedValue = m_BaseHP / 2;
-
-                me->SetMaxHealth(me->GetMaxHealth() + l_AddedValue);
-                me->SetHealth(CalculatePct(me->GetMaxHealth(), l_HealthPct));
-            }
-
-            void OnHostileReferenceRemoved(Unit* p_Ennemy)
-            {
-                if (p_Ennemy->GetTypeId() != TypeID::TYPEID_PLAYER)
-                    return;
-
-                float l_HealthPct = me->GetHealthPct();
-                uint32 l_AddedValue = m_BaseHP / 2;
-
-                if ((me->GetMaxHealth() - l_AddedValue) < m_BaseHP)
-                {
-                    me->SetMaxHealth(m_BaseHP);
-                    me->SetHealth(CalculatePct(m_BaseHP, l_HealthPct));
-                    return;
-                }
-
-                me->SetMaxHealth(me->GetMaxHealth() - l_AddedValue);
-                me->SetHealth(CalculatePct(me->GetMaxHealth(), l_HealthPct));
-            }
-        };
-
-        CreatureAI* GetAI(Creature* p_Creature) const
-        {
-            return new npc_ashran_faction_championsAI(p_Creature);
-        }
-};
-
-/// Blade Twister - 178795
-class spell_blade_twister: public SpellScriptLoader
-{
-    public:
-        spell_blade_twister() : SpellScriptLoader("spell_blade_twister") { }
-
-        class spell_blade_twister_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_blade_twister_AuraScript);
-
-            enum eSpells
-            {
-                BladeTwisterDamage = 177167
-            };
-
-            void OnTick(constAuraEffectPtr p_AurEff)
-            {
-                if (Unit* l_Target = GetTarget())
-                {
-                    std::list<Creature*> l_Blades;
-                    l_Target->GetCreatureListWithEntryInGrid(l_Blades, eCreatures::BladeTwisterTrigger, 50.0f);
-
-                    if (l_Blades.empty())
-                    {
-                        p_AurEff->GetBase()->Remove();
-                        return;
-                    }
-
-                    l_Blades.remove_if([this, l_Target](Creature* p_Creature) -> bool
-                    {
-                        if (!p_Creature->GetOwner())
-                            return true;
-
-                        if (p_Creature->GetOwner() != l_Target)
-                            return true;
-
-                        return false;
-                    });
-
-                    for (Creature* l_Creature : l_Blades)
-                        l_Target->CastSpell(l_Creature, eSpells::BladeTwisterDamage, true);
-                }
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_blade_twister_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_blade_twister_AuraScript();
-        }
-};
-
-/// Living Bomb - 176670
-class spell_emberfall_living_bomb: public SpellScriptLoader
-{
-    public:
-        spell_emberfall_living_bomb() : SpellScriptLoader("spell_emberfall_living_bomb") { }
-
-        class spell_emberfall_living_bomb_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_emberfall_living_bomb_AuraScript);
-
-            enum eSpells
-            {
-                LivingBombTriggered = 176673
-            };
-
-            void AfterRemove(constAuraEffectPtr, AuraEffectHandleModes)
-            {
-                AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
-                if (removeMode != AuraRemoveMode::AURA_REMOVE_BY_DEATH && removeMode != AuraRemoveMode::AURA_REMOVE_BY_EXPIRE)
-                    return;
-
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (Unit* l_Target = GetTarget())
-                        l_Caster->CastSpell(l_Target, eSpells::LivingBombTriggered, true);
-                }
-            }
-
-            void Register()
-            {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_emberfall_living_bomb_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_emberfall_living_bomb_AuraScript();
-        }
-};
-
-/// Alliance Reward - 178531
-/// Horde Reward - 178533
-class spell_ashran_faction_rewards : public SpellScriptLoader
-{
-    public:
-        spell_ashran_faction_rewards() : SpellScriptLoader("spell_ashran_faction_rewards") { }
-
-        class spell_ashran_faction_rewards_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_ashran_faction_rewards_SpellScript);
-
-            enum Items
-            {
-                StrongboxHorde      = 120151,
-                StrongboxAlliance   = 118065
-            };
-
-            void CorrectTargets(std::list<WorldObject*>& p_Targets)
-            {
-                if (p_Targets.empty())
-                    return;
-
-                p_Targets.remove_if([this](WorldObject* p_Object) -> bool
-                {
-                    if (p_Object == nullptr || p_Object->GetTypeId() != TypeID::TYPEID_PLAYER)
-                        return true;
-
-                    Player* l_Player = p_Object->ToPlayer();
-                    if (l_Player == nullptr)
-                        return true;
-
-                    /// Only one strongbox per day
-                    if (!l_Player->CanHaveDailyLootForItem(Items::StrongboxAlliance) ||
-                        !l_Player->CanHaveDailyLootForItem(Items::StrongboxHorde))
-                        return true;
-
-                    return false;
-                });
-            }
-
-            void HandleOnHit()
-            {
-                if (GetHitUnit() == nullptr)
-                    return;
-
-                if (Player* l_Player = GetHitUnit()->ToPlayer())
-                {
-                    if (GetSpellInfo()->Id == eAshranSpells::SpellAllianceReward)
-                        l_Player->AddDailyLootCooldown(Items::StrongboxHorde);
-                    else
-                        l_Player->AddDailyLootCooldown(Items::StrongboxAlliance);
-                }
-            }
-
-            void Register()
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ashran_faction_rewards_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
-                OnHit += SpellHitFn(spell_ashran_faction_rewards_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_ashran_faction_rewards_SpellScript();
-        }
-};
-
-void AddSC_OutdoorPvPAshran()
+void AddSC_AshranMgr()
 {
     new OutdoorPvP_Ashran();
-
-    new npc_ashran_herald();
-    new npc_slg_generic_mop();
-    new npc_faction_boss();
-    new npc_jeron_emberfall();
-    new npc_rylai_crestfall();
-    new npc_ashran_flight_masters();
-    new npc_ashran_spirit_healer();
-    new npc_ashran_korlok();
-    new npc_ashran_faction_champions();
-
-    new spell_blade_twister();
-    new spell_emberfall_living_bomb();
-    new spell_ashran_faction_rewards();
 }

@@ -6,21 +6,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "OutdoorPvP.h"
-#include "OutdoorPvPMgr.h"
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "ScriptedEscortAI.h"
-#include "Player.h"
-#include "WorldPacket.h"
-#include "World.h"
-#include "ObjectMgr.h"
-#include "Language.h"
-
-#ifndef OUTDOOR_PVP_ASHRAN_H
- #define OUTDOOR_PVP_ASHRAN_H
-
 enum eAshranDatas
 {
     /// Maps, Zones, Areas IDs
@@ -56,7 +41,8 @@ enum eAshranDatas
     TaxiPathBaseHordeToAlliance = 4665,
     TaxiPathBaseAllianceToHorde = 4666,
     KillCountForPlayer          = 5,
-    KillCountForFactionGuard    = 1
+    KillCountForFactionGuard    = 1,
+    HealthPCTAddedByHostileRef  = 25
 };
 
 enum eAshranSpells
@@ -265,53 +251,6 @@ enum eGraveyards
     TotalGraveyards = 6     ///< Two for bases, Two for towers and Marketplace Graveyard
 };
 
-struct AshranGraveyard
-{
-    uint32 m_ID;
-    TeamId m_StartTeam;
-};
-
-AshranGraveyard const g_AshranGraveyards[eGraveyards::TotalGraveyards] =
-{
-    { eGraveyards::AllianceBase,    TeamId::TEAM_ALLIANCE   },  ///< 0 - Alliance base
-    { eGraveyards::HordeBase,       TeamId::TEAM_HORDE      },  ///< 1 - Horde base
-    { eGraveyards::AllianceCenter,  TeamId::TEAM_NEUTRAL    },  ///< 2 - Marketplace GY (A)
-    { eGraveyards::HordeCenter,     TeamId::TEAM_NEUTRAL    },  ///< 3 - Marketplace GY (H)
-    { eGraveyards::TowerAlliance,   TeamId::TEAM_ALLIANCE   },  ///< 4 - Archmage Overwatch
-    { eGraveyards::TowerHorde,      TeamId::TEAM_HORDE      }   ///< 5 - Emberfall Tower
-};
-
-uint32 const g_GraveyardIDs[MS::Battlegrounds::TeamsCount::Value][eGraveyards::MaxGraveyards] =
-{
-    /// Alliance
-    {
-        eGraveyards::AllianceBase,
-        eGraveyards::TowerAlliance,
-        eGraveyards::AllianceCenter
-    },
-    /// Horde
-    {
-        eGraveyards::HordeBase,
-        eGraveyards::TowerHorde,
-        eGraveyards::HordeCenter
-    }
-};
-
-Position const g_HordeTeleportPos = { 5216.443359f, -3963.191406f, 5.553593f, 6.242684f };
-Position const g_AllianceTeleportPos = { 3849.396240f, -4013.051025f, 26.282335f, 3.141932f };
-
-uint32 const g_HallowedGroundEntries[MS::Battlegrounds::TeamsCount::Value] =
-{
-    eAshranDatas::AshranHallowedGroundH,
-    eAshranDatas::AshranHallowedGroundA
-};
-
-Position const g_HallowedGroundPos[MS::Battlegrounds::TeamsCount::Value] =
-{
-    { 5090.467f, -4076.731f, 49.38393f, 3.379836f },    ///< eAshranDatas::AshranHallowedGroundH
-    { 3928.052f, -4032.738f, 57.41695f, 5.473989f }     ///< eAshranDatas::AshranHallowedGroundA
-};
-
 enum eBanners
 {
     GraveyardBanner0,
@@ -320,24 +259,6 @@ enum eBanners
     GraveyardBanner3,
     GraveyardMaxBanner
 };
-
-const go_type g_GraveyardBanner_H[eBanners::GraveyardMaxBanner] =
-{
-    { eGameObjects::GraveyardBannerHorde, eAshranDatas::AshranMapID, 4527.93f, -3999.18f, 5.95707f, 0.588123f, 0.00f, 0.00f, 0.00f, 0.00f },
-    { eGameObjects::GraveyardBannerHorde, eAshranDatas::AshranMapID, 4528.02f, -4006.75f, 6.05358f, 2.277280f, 0.00f, 0.00f, 0.00f, 0.00f },
-    { eGameObjects::GraveyardBannerHorde, eAshranDatas::AshranMapID, 4537.33f, -3999.50f, 6.13882f, 5.566630f, 0.00f, 0.00f, 0.00f, 0.00f },
-    { eGameObjects::GraveyardBannerHorde, eAshranDatas::AshranMapID, 4536.55f, -4006.41f, 6.38824f, 4.122270f, 0.00f, 0.00f, 0.00f, 0.00f }
-};
-
-const go_type g_GraveyardBanner_A[eBanners::GraveyardMaxBanner] =
-{
-    { eGameObjects::GraveyardBannerAlliance, eAshranDatas::AshranMapID, 4527.93f, -3999.18f, 5.95707f, 0.588123f, 0.00f, 0.00f, 0.00f, 0.00f },
-    { eGameObjects::GraveyardBannerAlliance, eAshranDatas::AshranMapID, 4528.02f, -4006.75f, 6.05358f, 2.277280f, 0.00f, 0.00f, 0.00f, 0.00f },
-    { eGameObjects::GraveyardBannerAlliance, eAshranDatas::AshranMapID, 4537.33f, -3999.50f, 6.13882f, 5.566630f, 0.00f, 0.00f, 0.00f, 0.00f },
-    { eGameObjects::GraveyardBannerAlliance, eAshranDatas::AshranMapID, 4536.55f, -4006.41f, 6.38824f, 4.122270f, 0.00f, 0.00f, 0.00f, 0.00f }
-};
-
-const go_type g_GraveyardBanner_N = { eGameObjects::GraveyardControlBanner, eAshranDatas::AshranMapID, 4532.632f, -4003.269f, 6.317888f, 0.0f, 0.0f, 0.0f, 0.008727f, -0.999962f };
 
 enum eFlagStates
 {
@@ -354,15 +275,6 @@ enum eBattleType
     TrembladesVanguard,
     ArchmageOverwatch,
     MaxBattleType
-};
-
-uint32 const g_TowerControlStatus[eBattleType::MaxBattleType] =
-{
-    eWorldStates::WorldStateEmberfallTowerStatus,
-    eWorldStates::WorldStateVolrathsAdvanceStatus,
-    eWorldStates::WorldStateTheCrossroadsStatus,
-    eWorldStates::WorldStateTrembladesVanguardStatus,
-    eWorldStates::WorldStateArchmageOverwatchStatus
 };
 
 enum eSpawns
@@ -418,6 +330,89 @@ enum eSpecialSpawns
     NeutralKorlokTheOgreKing,
     OgreAllianceChampion,
     OgreHordeChapion
+};
+
+enum eFactions
+{
+    KorlokForHorde      = 1735,
+    KorlokForAlliance   = 2618,
+    KorlokNeutral       = 188,
+    MukmarFaction       = 1735,
+    GaulDunFaction      = 1732
+};
+
+struct AshranGraveyard
+{
+    uint32 m_ID;
+    TeamId m_StartTeam;
+};
+
+AshranGraveyard const g_AshranGraveyards[eGraveyards::TotalGraveyards] =
+{
+    { eGraveyards::AllianceBase,    TeamId::TEAM_ALLIANCE   },  ///< 0 - Alliance base
+    { eGraveyards::HordeBase,       TeamId::TEAM_HORDE      },  ///< 1 - Horde base
+    { eGraveyards::AllianceCenter,  TeamId::TEAM_NEUTRAL    },  ///< 2 - Marketplace GY (A)
+    { eGraveyards::HordeCenter,     TeamId::TEAM_NEUTRAL    },  ///< 3 - Marketplace GY (H)
+    { eGraveyards::TowerAlliance,   TeamId::TEAM_ALLIANCE   },  ///< 4 - Archmage Overwatch
+    { eGraveyards::TowerHorde,      TeamId::TEAM_HORDE      }   ///< 5 - Emberfall Tower
+};
+
+uint32 const g_GraveyardIDs[MS::Battlegrounds::TeamsCount::Value][eGraveyards::MaxGraveyards] =
+{
+    /// Alliance
+    {
+        eGraveyards::AllianceBase,
+        eGraveyards::TowerAlliance,
+        eGraveyards::AllianceCenter
+    },
+    /// Horde
+    {
+        eGraveyards::HordeBase,
+        eGraveyards::TowerHorde,
+        eGraveyards::HordeCenter
+    }
+};
+
+Position const g_HordeTeleportPos = { 5216.443359f, -3963.191406f, 5.553593f, 6.242684f };
+Position const g_AllianceTeleportPos = { 3849.396240f, -4013.051025f, 26.282335f, 3.141932f };
+
+uint32 const g_HallowedGroundEntries[MS::Battlegrounds::TeamsCount::Value] =
+{
+    eAshranDatas::AshranHallowedGroundH,
+    eAshranDatas::AshranHallowedGroundA
+};
+
+Position const g_HallowedGroundPos[MS::Battlegrounds::TeamsCount::Value] =
+{
+    { 5090.467f, -4076.731f, 49.38393f, 3.379836f },    ///< eAshranDatas::AshranHallowedGroundH
+    { 3928.052f, -4032.738f, 57.41695f, 5.473989f }     ///< eAshranDatas::AshranHallowedGroundA
+};
+
+const go_type g_GraveyardBanner_H[eBanners::GraveyardMaxBanner] =
+{
+    { eGameObjects::GraveyardBannerHorde, eAshranDatas::AshranMapID, 4527.93f, -3999.18f, 5.95707f, 0.588123f, 0.00f, 0.00f, 0.00f, 0.00f },
+    { eGameObjects::GraveyardBannerHorde, eAshranDatas::AshranMapID, 4528.02f, -4006.75f, 6.05358f, 2.277280f, 0.00f, 0.00f, 0.00f, 0.00f },
+    { eGameObjects::GraveyardBannerHorde, eAshranDatas::AshranMapID, 4537.33f, -3999.50f, 6.13882f, 5.566630f, 0.00f, 0.00f, 0.00f, 0.00f },
+    { eGameObjects::GraveyardBannerHorde, eAshranDatas::AshranMapID, 4536.55f, -4006.41f, 6.38824f, 4.122270f, 0.00f, 0.00f, 0.00f, 0.00f }
+};
+
+const go_type g_GraveyardBanner_A[eBanners::GraveyardMaxBanner] =
+{
+    { eGameObjects::GraveyardBannerAlliance, eAshranDatas::AshranMapID, 4527.93f, -3999.18f, 5.95707f, 0.588123f, 0.00f, 0.00f, 0.00f, 0.00f },
+    { eGameObjects::GraveyardBannerAlliance, eAshranDatas::AshranMapID, 4528.02f, -4006.75f, 6.05358f, 2.277280f, 0.00f, 0.00f, 0.00f, 0.00f },
+    { eGameObjects::GraveyardBannerAlliance, eAshranDatas::AshranMapID, 4537.33f, -3999.50f, 6.13882f, 5.566630f, 0.00f, 0.00f, 0.00f, 0.00f },
+    { eGameObjects::GraveyardBannerAlliance, eAshranDatas::AshranMapID, 4536.55f, -4006.41f, 6.38824f, 4.122270f, 0.00f, 0.00f, 0.00f, 0.00f }
+};
+
+const go_type g_GraveyardBanner_N = { eGameObjects::GraveyardControlBanner, eAshranDatas::AshranMapID, 4532.632f, -4003.269f, 6.317888f, 0.0f, 0.0f, 0.0f, 0.008727f, -0.999962f };
+
+uint32 const g_TowerControlStatus[eBattleType::MaxBattleType] =
+{
+    eWorldStates::WorldStateEmberfallTowerStatus,
+    eWorldStates::WorldStateVolrathsAdvanceStatus,
+    eWorldStates::WorldStateTheCrossroadsStatus,
+    eWorldStates::WorldStateTrembladesVanguardStatus,
+    eWorldStates::WorldStateArchmageOverwatchStatus
 };
 
 const creature_type g_MarketplaceGraveyardSpirits[MS::Battlegrounds::TeamsCount::Value] =
@@ -855,160 +850,3 @@ uint32 const g_EventWarnTexts[eAshranEvents::MaxEvents] =
 const creature_type g_Korlok            = { eCreatures::KorlokTheOgreKing, Team::TEAM_NONE, eAshranDatas::AshranMapID, 4533.17f, -4446.13f, 28.3867f, 1.56182f };
 const creature_type g_AllianceChapion   = { eCreatures::GaulDunFirok,      Team::ALLIANCE,  eAshranDatas::AshranMapID, 4510.53f, -4384.28f, 20.6805f, 5.79889f };
 const creature_type g_HordeChampion     = { eCreatures::MukmarRaz,         Team::HORDE,     eAshranDatas::AshranMapID, 4553.26f, -4382.69f, 20.6805f, 3.38924f };
-
-class OutdoorPvPAshran;
-
-class OutdoorGraveyardAshran : public OutdoorGraveyard
-{
-    public:
-        OutdoorGraveyardAshran(OutdoorPvPAshran* p_OutdoorPvP);
-};
-
-class OPvPCapturePoint_Middle : public OPvPCapturePoint
-{
-    public:
-
-        OPvPCapturePoint_Middle(OutdoorPvP* p_Outdoor, eBattleType p_Type, uint8 p_Faction);
-
-        void ChangeState();
-
-        void FillInitialWorldStates(ByteBuffer& p_Data);
-        void UpdateTowerState();
-
-        bool Update(uint32 p_Diff);
-
-        void SpawnFactionGuards(eBattleType p_BattleID, uint8 p_Faction);
-
-        void SetBattleFaction(uint32 p_Faction) { m_BattleFaction = p_Faction; }
-        uint32 GetBattleFaction() const { return m_BattleFaction; }
-        eBattleType GetBattleType() const { return m_BattleType; }
-
-    protected:
-
-        eBattleType m_BattleType;
-        uint32 m_BattleFaction;
-};
-
-class OPvPCapturePoint_Graveyard : public OPvPCapturePoint
-{
-    public:
-
-        OPvPCapturePoint_Graveyard(OutdoorPvP* p_Outdoor);
-
-        void ChangeState();
-
-        void SendChangePhase();
-
-        void FillInitialWorldStates(ByteBuffer& p_Data);
-        void UpdateTowerState();
-
-        // Used when player is activated/inactivated in the area
-        bool HandlePlayerEnter(Player* p_Player);
-        void HandlePlayerLeave(Player* p_Player);
-
-        void SpawnFactionFlags(uint8 p_Faction);
-
-        bool Update(uint32 p_Diff);
-        void ScheduleNextControl(uint32 p_Diff);
-
-        uint8 GetGraveyardState() const { return m_GraveyardState; }
-
-    protected:
-
-        uint8 m_GraveyardState;
-        uint32 m_ControlTime;
-};
-
-class OutdoorPvPAshran : public OutdoorPvP
-{
-    using PlayerTimerMap = std::map<uint64, uint32>;
-    using PlayerCurrencyLoot = std::map<uint64, uint32>;
-    using AshranEventsMap = std::map<uint32, uint32>;
-
-    public:
-        OutdoorPvPAshran();
-
-        bool SetupOutdoorPvP();
-
-        void HandlePlayerEnterMap(Player* p_Player, uint32 p_MapID);
-        void HandlePlayerLeaveMap(Player* p_Player, uint32 p_MapID);
-        void HandlePlayerEnterArea(Player* p_Player, uint32 p_AreaID);
-        void HandlePlayerLeaveArea(Player* p_Player, uint32 p_AreaID);
-        void HandlePlayerResurrects(Player* p_Player, uint32 p_ZoneID);
-
-        void HandlePlayerKilled(Player* p_Player);
-        void HandleKill(Player* p_Killer, Unit* p_Killed);
-
-        bool IsFactionGuard(Unit* p_Unit) const;
-
-        void FillCustomPvPLoots(Player* p_Looter, Loot& p_Loot, uint64 p_Container);
-
-        bool Update(uint32 p_Diff);
-        void ScheduleNextBattle(uint32 p_Diff);
-        void ScheduleEndOfBattle(uint32 p_Diff);
-        void ScheduleInitPoints(uint32 p_Diff);
-        void ScheduleEventsUpdate(uint32 p_Diff);
-
-        void StartEvent(uint8 p_EventID);
-        void EndEvent(uint8 p_EventID);
-        void SendEventWarningToPlayers(uint32 p_LangID);
-
-        void FillInitialWorldStates(ByteBuffer& p_Data);
-        void SendRemoveWorldStates(Player* p_Player);
-
-        void HandleBFMGREntryInviteResponse(bool p_Accepted, Player* p_Player);
-
-        void OnCreatureCreate(Creature* p_Creature);
-        Creature* GetHerald() const;
-
-        void ResetControlPoints();
-        void InitializeControlPoints();
-        bool IsInitialized() const { return m_IsInitialized; }
-
-        void SetBattleState(uint32 p_NewState);
-        void SetNextBattleTimer(uint32 p_Time) { m_NextBattleTimer = p_Time * TimeConstants::IN_MILLISECONDS; }
-
-        void AddGenericMoPGuid(uint8 p_Type, uint64 p_Guid) { m_GenericMoPGuids[p_Type] = p_Guid; }
-        uint64 GetGenericMoPGuid(uint8 p_Type) const { return m_GenericMoPGuids[p_Type]; }
-        uint64 GetFactionGenericMoP(uint8 p_Faction) const { return m_FactionGenericMoP[p_Faction]; }
-
-        void HandleFactionBossDeath(uint8 p_Faction);
-
-        OPvPCapturePoint_Middle* GetCapturePoint(uint8 p_Index) const { return m_ControlPoints[p_Index]; }
-
-        WorldSafeLocsEntry const* GetClosestGraveyard(Player* p_Player);
-        uint8 GetSpiritGraveyardID(uint32 p_AreaID, TeamId p_Team) const;
-
-    private:
-
-        OPvPCapturePoint_Graveyard* m_GraveYard;
-        OPvPCapturePoint_Middle* m_ControlPoints[eBattleType::MaxBattleType];
-        uint64 m_GenericMoPGuids[eBattleType::MaxBattleType];
-        uint64 m_FactionGenericMoP[MS::Battlegrounds::TeamsCount::Value];
-        uint32 m_InitPointsTimer;
-        bool m_IsInitialized;
-        bool m_WillBeReset;
-
-        uint64 m_Guid;
-        uint64 m_HeraldGuid;
-        uint64 m_HighWarlordVolrath;
-        uint64 m_GrandMasrhalTremblade;
-        uint32 m_WorldPvPAreaId;
-
-        GuidSet m_PlayersInWar[MS::Battlegrounds::TeamsCount::Value];
-        PlayerTimerMap m_InvitedPlayers[MS::Battlegrounds::TeamsCount::Value];
-        PlayerTimerMap m_PlayersWillBeKick[MS::Battlegrounds::TeamsCount::Value];
-        PlayerCurrencyLoot m_PlayerCurrencyLoots;
-
-        uint32 m_EnnemiesKilled[MS::Battlegrounds::TeamsCount::Value];
-        uint32 m_EnnemiesKilledMax[MS::Battlegrounds::TeamsCount::Value];
-
-        uint32 m_AshranEvents[eAshranEvents::MaxEvents];
-        bool m_AshranEventsWarned[eAshranEvents::MaxEvents];
-
-        uint32 m_CurrentBattleState;
-        uint32 m_NextBattleTimer;
-        uint32 m_MaxBattleTime;
-};
-
-#endif
