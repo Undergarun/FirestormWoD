@@ -3341,6 +3341,9 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 144757: /// Increased All Resist 05
+                spellInfo->AttributesEx11 &= ~SPELL_ATTR11_CAST_WITH_ITEM;
+                break;
             case 110744: // Divine Star - should be 2 sec -- WTF Blizz ?
             case 122121:
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(66);
@@ -5793,9 +5796,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->MaxAffectedTargets = 1;
                 break;
             case 22568: ///< Ferocious Bite
-                spellInfo->Effects[0].BonusMultiplier = 0.0f;
-                break;
-            case 5221: ///< Shred
+            case 5221:  ///< Shred
+            case 22599: ///< Chromatic Mantle of the Dawn
                 spellInfo->Effects[0].BonusMultiplier = 0.0f;
                 break;
             case 158221: ///< Hurricane Strike (damage)
