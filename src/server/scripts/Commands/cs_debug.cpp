@@ -123,12 +123,8 @@ class debug_commandscript: public CommandScript
                 { "moditem",        SEC_ADMINISTRATOR,  false, &HandleDebugModItem,                "", NULL },
                 { "crashtest",      SEC_ADMINISTRATOR,  false, &HandleDebugCrashTest,              "", NULL },
                 { "bgaward",        SEC_ADMINISTRATOR,  false, &HandleDebugBgAward,                "", NULL },
-<<<<<<< HEAD
                 { "heirloom",       SEC_ADMINISTRATOR,  false, &HandleDebugHeirloom,               "", NULL },
-=======
                 { "vignette",       SEC_ADMINISTRATOR,  false, &HandleDebugVignette,               "", NULL },
-
->>>>>>> 695e3a4eb6646b1007f479ab7083f9f8c45fa1c7
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand commandTable[] =
