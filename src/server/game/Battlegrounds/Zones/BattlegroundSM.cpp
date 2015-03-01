@@ -23,7 +23,7 @@
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "ScriptedCreature.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 #include "Player.h"
 #include "GossipDef.h"
 

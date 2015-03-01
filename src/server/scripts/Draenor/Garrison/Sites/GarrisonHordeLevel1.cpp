@@ -83,7 +83,7 @@ namespace MS { namespace Garrison { namespace Sites
                     Creature * l_Creature = HashMapHolder<Creature>::Find(*(m_CreaturesPerEntry[NPCs::NPC_FROSTWALL_PEON_DYNAMIC].begin()));
 
                     if (l_Creature && l_Creature->AI())
-                        l_Creature->AI()->SetData(GARRISON_CREATURE_AI_DATA_PEON_WORKING, HordePeonData::PHASE_WOODCUTTING);
+                        l_Creature->AI()->SetData(CreatureAIDataIDs::PeonWorking, HordePeonData::PHASE_WOODCUTTING);
                 }
             }
         }
@@ -148,7 +148,7 @@ namespace MS { namespace Garrison { namespace Sites
                     Creature * l_Creature = HashMapHolder<Creature>::Find(*(m_CreaturesPerEntry[NPCs::NPC_FROSTWALL_PEON_DYNAMIC].begin()));
 
                     if (l_Creature && l_Creature->AI())
-                        l_Creature->AI()->SetData(GARRISON_CREATURE_AI_DATA_PEON_WORKING, HordePeonData::PHASE_BACK_TO_HOME);
+                        l_Creature->AI()->SetData(CreatureAIDataIDs::PeonWorking, HordePeonData::PHASE_BACK_TO_HOME);
                 }
             }
         }
@@ -186,6 +186,36 @@ namespace MS { namespace Garrison { namespace Sites
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
+    /// Can upgrade the garrison
+    /// @p_Owner : Garrison owner
+    bool InstanceScript_GarrisonHordeLevel1::CanUpgrade(Player * p_Owner)
+    {
+        if (p_Owner->getLevel() < 93)
+            return false;
+
+        if (!p_Owner->HasQuest(Quests::Horde_BiggerIsBetter))
+            return false;
+
+        return true;
+    }
+
+    /// On upgrade the garrison
+    /// @p_Owner : Garrison owner
+    void InstanceScript_GarrisonHordeLevel1::OnUpgrade(Player * p_Owner)
+    {
+        GarrSiteLevelEntry const* l_Entry = p_Owner->GetGarrison()->GetGarrisonSiteLevelEntry();
+
+        if (!l_Entry)
+            return;
+
+        p_Owner->AddMovieDelayedTeleport(l_Entry->CreationMovie, l_Entry->MapID, 5754.82f, 4495.425f, 132.50f, 2.90f);
+        p_Owner->SendMovieStart(l_Entry->CreationMovie);
+        p_Owner->CompleteQuest(Quests::Horde_BiggerIsBetter);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
     /// When a mission start
     /// @p_Owner     : Garrison owner
     /// @p_MissionID : Started mission ID
@@ -201,7 +231,7 @@ namespace MS { namespace Garrison { namespace Sites
     uint32 InstanceScript_GarrisonHordeLevel1::OnPrePurchaseBuilding(Player * p_Owner, uint32 p_BuildingID, uint32 p_BaseTime)
     {
         /// Build your Barracks quest
-        if (p_BuildingID == Buildings::BUILDING_BARRACK && p_Owner->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS))
+        if (p_BuildingID == Buildings::Barracks__Barracks_Level1 && p_Owner->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS))
             return 2;   ///< 2 second, unk retail value
 
         return p_BaseTime;
@@ -212,7 +242,7 @@ namespace MS { namespace Garrison { namespace Sites
     void InstanceScript_GarrisonHordeLevel1::OnPurchaseBuilding(Player * p_Owner, uint32 p_BuildingID)
     {
         /// Build your Barracks quest
-        if (p_BuildingID == Buildings::BUILDING_BARRACK && p_Owner->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS))
+        if (p_BuildingID == Buildings::Barracks__Barracks_Level1 && p_Owner->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS))
         {
             p_Owner->QuestObjectiveSatisfy(36167, 1, QUEST_OBJECTIVE_TYPE_CRITERIA, p_Owner->GetGUID());
 
@@ -238,7 +268,7 @@ namespace MS { namespace Garrison { namespace Sites
     void InstanceScript_GarrisonHordeLevel1::OnBuildingActivated(Player * p_Owner, uint32 p_BuildingID)
     {
         /// Build your Barracks quest
-        if (p_BuildingID == Buildings::BUILDING_BARRACK && p_Owner->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS))
+        if (p_BuildingID == Buildings::Barracks__Barracks_Level1 && p_Owner->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS))
         {
             p_Owner->QuestObjectiveSatisfy(35753, 1, QUEST_OBJECTIVE_TYPE_CRITERIA, p_Owner->GetGUID());
         }

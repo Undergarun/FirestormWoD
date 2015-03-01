@@ -19,6 +19,7 @@
 #ifndef QUEST_H
 #define QUEST_H
 
+#include "DB2Structure.h"
 #include "Define.h"
 #include "DatabaseEnv.h"
 #include "SharedDefines.h"

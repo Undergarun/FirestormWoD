@@ -23,7 +23,7 @@
 #include "Language.h"
 #include "Object.h"
 #include "ObjectMgr.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 #include "Player.h"
 #include "World.h"
 #include "WorldPacket.h"

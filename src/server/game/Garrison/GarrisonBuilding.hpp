@@ -5,15 +5,15 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef GARRISON_MGR_BUILDING_HPP_GARRISON
-#define GARRISON_MGR_BUILDING_HPP_GARRISON
+#ifndef GARRISON_BUILDING_HPP_GARRISON
+#define GARRISON_BUILDING_HPP_GARRISON
 
 namespace MS { namespace Garrison 
 {
     /// Garrison building
     struct GarrisonBuilding
     {
-        uint32 DB_ID;           ///< Building DB ID
+        uint32 DatabaseID;      ///< Building DB ID
         uint32 PlotInstanceID;  ///< Plot instance ID
         uint32 BuildingID;      ///< Building ID (GarrBuilding.db2)
         uint32 SpecID;          ///< Building spec ID
@@ -27,4 +27,4 @@ namespace MS { namespace Garrison
 }   ///< namespace Garrison
 }   ///< namespace MS
 
-#endif  ///< GARRISON_MGR_BUILDING_HPP_GARRISON
+#endif  ///< GARRISON_BUILDING_HPP_GARRISON

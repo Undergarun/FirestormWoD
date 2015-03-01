@@ -967,6 +967,10 @@ void Aura::Update(uint32 diff, Unit* caster)
                     }
                     else
                     {
+                        /// Conversion temp fix
+                        if (m_spellInfo->Id == 119975)
+                            powerPerSecond = 50;
+
                         if (int32(caster->GetPower(powerType)) >= powerPerSecond)
                             caster->ModifyPower(powerType, -powerPerSecond);
                         else
@@ -985,9 +989,9 @@ void Aura::Update(uint32 diff, Unit* caster)
         m_duration -= diff;
         if (m_duration < 0)
             m_duration = 0;
-
-        CallScriptAuraUpdateHandlers(diff);
     }
+
+    CallScriptAuraUpdateHandlers(diff);
 }
 
 int32 Aura::CalcMaxDuration(Unit* caster) const
@@ -1135,7 +1139,7 @@ bool Aura::ModCharges(int32 num, AuraRemoveMode removeMode)
 
         // Hack Fix - Arcane Missiles !
         if (GetId() == 79683)
-            maxCharges = 2;
+            maxCharges = 3;
 
         // limit charges (only on charges increase, charges may be changed manually)
         if ((num > 0) && (charges > int32(maxCharges)))
@@ -1960,8 +1964,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                             }
                         }
                         break;
-                    // Remove Stealth on Subterfuge remove
-                    case 115192:
+                    case 115192:///< Remove Stealth on Subterfuge remove
                     {
                         target->RemoveAura(115191);
                         break;
@@ -2042,7 +2045,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     // Remove Vanish on stealth remove
                     case 1784:
                     case 115191:
-                        target->RemoveAurasDueToSpell(131369, target->GetGUID());
+                        target->RemoveAurasDueToSpell(131361, target->GetGUID());
                         break;
                     default:
                         break;
@@ -3319,39 +3322,11 @@ UnitAura::UnitAura(SpellInfo const* spellproto, uint32 effMask, WorldObject* own
 void UnitAura::_ApplyForTarget(Unit* target, Unit* caster, AuraApplication * aurApp)
 {
     Aura::_ApplyForTarget(target, caster, aurApp);
-
-    // register aura diminishing on apply
-    if (DiminishingGroup group = GetDiminishGroup())
-    {
-        target->ApplyDiminishingAura(group, true);
-        if (GetId() == 82691)       // Ring of Frost
-        {
-            target->ApplyDiminishingAura(DIMINISHING_RING_OF_FROST, true);
-        }
-        else if (GetId() == 44572)  // Deep Freeze
-        {
-            target->ApplyDiminishingAura(DIMINISHING_DEEP_FREEZE, true);
-        }
-    }
 }
 
 void UnitAura::_UnapplyForTarget(Unit* target, Unit* caster, AuraApplication * aurApp)
 {
     Aura::_UnapplyForTarget(target, caster, aurApp);
-
-    // unregister aura diminishing (and store last time)
-    if (DiminishingGroup group = GetDiminishGroup())
-    {
-        target->ApplyDiminishingAura(group, false);
-        if (GetId() == 82691)       // Ring of Frost
-        {
-            target->ApplyDiminishingAura(DIMINISHING_RING_OF_FROST, false);
-        }
-        else if (GetId() == 44572)  // Deep Freeze
-        {
-            target->ApplyDiminishingAura(DIMINISHING_DEEP_FREEZE, false);
-        }
-    }
 }
 
 void UnitAura::Remove(AuraRemoveMode removeMode)

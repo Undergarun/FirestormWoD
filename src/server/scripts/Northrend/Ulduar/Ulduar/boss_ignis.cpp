@@ -351,7 +351,7 @@ class npc_iron_construct : public CreatureScript
                 _brittled = false;
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (me->HasAura(SPELL_BRITTLE) && damage >= needDamage)
                 {

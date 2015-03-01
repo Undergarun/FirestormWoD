@@ -83,7 +83,7 @@ public:
             events.ScheduleEvent(EVENT_DEFILING_HORROR, urand(25000, 45000)); /// @todo adjust timer.
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
+        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const* p_SpellInfo)
         {
             if (uiHopelessnessCount == 0 && !HealthAbovePct(66))
             {

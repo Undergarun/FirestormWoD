@@ -240,7 +240,7 @@ class boss_garajal : public CreatureScript
                 summons.Despawn(summon);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (!pInstance)
                     return;

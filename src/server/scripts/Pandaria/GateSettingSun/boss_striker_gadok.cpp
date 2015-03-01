@@ -202,7 +202,7 @@ class boss_striker_gadok : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 float nextHealthPct = ((float(me->GetHealth()) - damage)  / float(me->GetMaxHealth())) * 100;
 

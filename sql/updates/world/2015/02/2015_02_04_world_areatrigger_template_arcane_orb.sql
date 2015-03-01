@@ -1,0 +1,1 @@
+UPDATE areatrigger_template SET ScriptName = 'spell_areatrigger_arcane_orb' WHERE spell_id = 153626;

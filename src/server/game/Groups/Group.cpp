@@ -28,7 +28,7 @@
 #include "Formulas.h"
 #include "ObjectAccessor.h"
 #include "Battleground.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 #include "MapManager.h"
 #include "InstanceSaveMgr.h"
 #include "MapInstanced.h"
@@ -1283,7 +1283,6 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
 
 void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
 {
-    sLog->outAshran("Group::NeedBeforeGreed: lootedObject[entry: %u, type: %u]", lootedObject->GetEntry(), lootedObject->GetTypeId());
     ItemTemplate const* item;
     uint8 itemSlot = 0;
     for (std::vector<LootItem>::iterator i = loot->Items.begin(); i != loot->Items.end(); ++i, ++itemSlot)
@@ -2133,7 +2132,7 @@ void Group::UpdateLooterGuid(WorldObject* pLootedObject, bool ifneed)
     }
 }
 
-GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* p_BgOrTemplate, BattlegroundQueueTypeId p_BgQueueTypeId, uint32 MinPlayerCount)
+GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* p_BgOrTemplate, MS::Battlegrounds::BattlegroundType::Type p_BgQueueTypeId, uint32 MinPlayerCount)
 {
     // check if this group is LFG group
     if (isLFGGroup())
@@ -2155,13 +2154,13 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
     if (!reference)
         return ERR_BATTLEGROUND_JOIN_FAILED;
 
-    PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(p_BgOrTemplate->GetMapId(), reference->getLevel());
+    MS::Battlegrounds::Bracket const* bracketEntry = MS::Battlegrounds::Brackets::FindForLevel(reference->getLevel());
     if (!bracketEntry)
         return ERR_BATTLEGROUND_JOIN_FAILED;
 
     uint32 team = reference->GetTeam();
 
-    BattlegroundQueueTypeId bgQueueTypeIdRandom = BattlegroundMgr::BGQueueTypeId(BATTLEGROUND_RB, 0);
+    MS::Battlegrounds::BattlegroundType::Type bgQueueTypeIdRandom = MS::Battlegrounds::GetTypeFromId(BATTLEGROUND_RB, 0);
 
     // check every member of the group to be able to join
     memberscount = 0;
@@ -2174,8 +2173,8 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
         // don't allow cross-faction join as group
         if (member->GetTeam() != team)
             return ERR_BATTLEGROUND_JOIN_TIMED_OUT;
-        // not in the same battleground level braket, don't let join
-        PvPDifficultyEntry const* memberBracketEntry = GetBattlegroundBracketByLevel(bracketEntry->mapId, member->getLevel());
+        // not in the same battleground level bracket, don't let join
+        MS::Battlegrounds::Bracket const* memberBracketEntry = MS::Battlegrounds::Brackets::FindForLevel(member->getLevel());
         if (memberBracketEntry != bracketEntry)
             return ERR_BATTLEGROUND_JOIN_RANGE_INDEX;
         // don't let join if someone from the group is already in that bg queue

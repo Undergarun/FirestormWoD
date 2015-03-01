@@ -1,0 +1,42 @@
+#ifndef REPORTING_HPP
+# define REPORTING_HPP
+
+# include <ace/Singleton.h>
+
+# include <queue>
+# include <tuple>
+# include <mutex>
+# include <memory>
+
+# include "Reports.hpp"
+
+namespace MS
+{
+    namespace Reporting
+    {
+        class Reporter
+        {
+        public:
+            typedef std::string report_type;
+            typedef std::unique_ptr<report_type> report_pointer;
+        public:
+            friend class ACE_Singleton<Reporter, ACE_Thread_Mutex>;
+
+            Reporter();
+
+            void Report(report_type const& p_Query);
+            void Fallback(report_pointer p_Query);
+            bool HasReports() const;
+            report_pointer Next();
+
+        private:
+            std::queue<report_pointer> m_ReportQueue;
+            mutable std::mutex m_Mutex;
+            bool m_Activated;
+        };
+    }
+}
+
+# define sReporter ACE_Singleton<MS::Reporting::Reporter, ACE_Thread_Mutex>::instance()
+
+#endif /* !REPORTING_HPP */

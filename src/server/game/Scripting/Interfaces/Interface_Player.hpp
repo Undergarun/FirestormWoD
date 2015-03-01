@@ -163,15 +163,19 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_Killed);
         }
 
-        /// Called when a player kills another player
+        /// Called when power change is modify (SetPower)
         /// @p_Player : Player instance
         /// @p_Power  : Power type
-        /// @p_Value  : New value
-        virtual void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_Value)
+        /// @p_OldValue  : Old value
+        /// @p_NewValue  : New value
+        /// @p_Regen  : If it's a regen modification
+        virtual void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
         {
             UNUSED(p_Player);
             UNUSED(p_Power);
-            UNUSED(p_Value);
+            UNUSED(p_OldValue);
+            UNUSED(p_NewValue);
+            UNUSED(p_Regen);
         }
 
         /// Called when a player kills another player
@@ -250,6 +254,7 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_Player1);
             UNUSED(p_Player2);
         }
+        
         /// Called when a duel ends
         /// @p_Winner         : Duel winner
         /// @p_Looser         : Duel looser
@@ -261,6 +266,15 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_CompletionType);
         }
 
+        /// Called when a player get teleport by a player
+        /// @p_Player : Player
+        /// @p_SpellID : SpellID
+        virtual void OnTeleport(Player * p_Player, const SpellInfo *p_SpellInfo)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_SpellInfo);
+        }
+        
         /// The following methods are called when a player sends a chat message. (World)
         /// @p_Player  : Player instance
         /// @p_Type    : Message type
@@ -395,6 +409,15 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_GUID);
         }
 
+        /// Called when a update() of a player is done
+        /// @p_Player : Player instance
+        /// @p_Diff : diff time
+        virtual void OnUpdate(Player * p_Player, uint32 p_Diff)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_Diff);
+        }
+
         /// Called when a player is bound to an instance
         /// @p_Player     : Player instance
         /// @p_Difficulty : Instance Difficulty ID
@@ -423,7 +446,7 @@ class PlayerScript : public ScriptObjectImpl<false>
 
         /// Called when a player updates his movement
         /// @p_Player : Player instance
-        virtual void OnPlayerUpdateMovement(Player * p_Player)
+        virtual void OnUpdateMovement(Player * p_Player)
         {
             UNUSED(p_Player);
         }
@@ -463,6 +486,44 @@ class PlayerScript : public ScriptObjectImpl<false>
         {
             UNUSED(p_Player);
             UNUSED(p_Item);
+        }
+
+        /// Called when a player enter in combat
+        /// @p_Player : Player instance
+        virtual void OnEnterInCombat(Player * p_Player)
+        {
+            UNUSED(p_Player);
+        }
+
+        /// Called when a player leave combat status
+        /// @p_Player : Player instance
+        virtual void OnLeaveCombat(Player * p_Player)
+        {
+            UNUSED(p_Player);
+        }
+
+        /// Called when a player receive a scene triggered event
+        /// @p_Player          : Player instance
+        /// @p_SceneInstanceID : Standalone scene instance ID
+        /// @p_Event           : Event string received from client
+        virtual void OnSceneTriggerEvent(Player * p_Player, uint32 p_SceneInstanceID, std::string p_Event)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_SceneInstanceID);
+            UNUSED(p_Event);
+        }
+
+        /// Called when a player regen a power
+        /// Return false to prevent default regeneration
+        /// @p_Player   : Player instance
+        /// @p_Power    : Power to be regenerate
+        /// @p_AddValue : amount of power to regenerate
+        virtual void OnRegenPower(Player * p_Player, Powers const p_Power, float& l_AddValue, bool& p_PreventDefault)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_Power);
+            UNUSED(l_AddValue);
+            UNUSED(p_PreventDefault);
         }
 
 };

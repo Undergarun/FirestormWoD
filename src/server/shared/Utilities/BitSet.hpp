@@ -27,6 +27,10 @@ namespace MS { namespace Utilities
             /// @p_Index : Bit position
             void UnsetBit(uint32 p_Index);
 
+            /// get bit at position
+            /// @p_Index : Bit position
+            bool GetBit(uint32 p_Index) const;
+
             /// Append this bit set to a packet
             /// @p_Buffer : Destination buffer
             template<class T> void AppendToByteBuffer(T * p_Buffer)

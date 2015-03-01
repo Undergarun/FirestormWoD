@@ -484,6 +484,7 @@ class boss_chogall : public CreatureScript
                             pPlayer->RemoveAurasDueToSpell(SPELL_CORRUPTION_ABSOLUTE);
                             pPlayer->RemoveAurasDueToSpell(SPELL_CORRUPTION_ABSOLUTE_VISUAL);
                             pPlayer->RemoveAurasDueToSpell(SPELL_CORRUPTED_BLOOD_AURA);
+                            pPlayer->RemoveAurasDueToSpell(SPELL_FESTERING_BLOOD);
                         }
                         break;
                     }
@@ -1031,7 +1032,7 @@ class npc_chogall_corrupting_adherent : public CreatureScript
                             me->InterruptSpell(CURRENT_GENERIC_SPELL);
             }
 
-            void DamageTaken(Unit* /*who*/, uint32& damage)
+            void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (damage >= me->GetHealth())
                 {

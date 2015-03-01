@@ -2708,75 +2708,6 @@ class spell_gen_lifebloom: public SpellScriptLoader
         uint32 _spellId;
 };
 
-enum SummonElemental
-{
-    SPELL_SUMMON_FIRE_ELEMENTAL  = 8985,
-    SPELL_SUMMON_EARTH_ELEMENTAL = 19704
-};
-
-class spell_gen_summon_elemental: public SpellScriptLoader
-{
-    public:
-        spell_gen_summon_elemental(const char* name, uint32 spellId) : SpellScriptLoader(name), _spellId(spellId) { }
-
-        class spell_gen_summon_elemental_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_gen_summon_elemental_AuraScript);
-
-        public:
-            spell_gen_summon_elemental_AuraScript(uint32 spellId) : AuraScript(), _spellId(spellId) { }
-
-            bool Validate(SpellInfo const* /*spell*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(_spellId))
-                    return false;
-                return true;
-            }
-
-            void AfterApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (GetCaster())
-                    if (Unit* owner = GetCaster()->GetOwner())
-                        owner->CastSpell(owner, _spellId, true);
-            }
-
-            void AfterRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (!GetCaster())
-                    return;
-
-                Unit* owner = GetCaster()->GetOwner();
-                if (!owner)
-                    return;
-
-                if (Player* player = owner->ToPlayer())
-                {
-                    if (Pet* pet = player->ToPet())
-                        player->RemovePet(pet, PET_SLOT_OTHER_PET, true, pet->m_Stampeded);
-                    else
-                        player->RemovePet(NULL, PET_SLOT_OTHER_PET, true, true);
-                }
-            }
-
-            void Register()
-            {
-                 AfterEffectApply += AuraEffectApplyFn(spell_gen_summon_elemental_AuraScript::AfterApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                 AfterEffectRemove += AuraEffectRemoveFn(spell_gen_summon_elemental_AuraScript::AfterRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            }
-
-        private:
-            uint32 _spellId;
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_gen_summon_elemental_AuraScript(_spellId);
-        }
-
-    private:
-        uint32 _spellId;
-};
-
 enum Mounts
 {
     SPELL_COLD_WEATHER_FLYING           = 54197,
@@ -3626,8 +3557,6 @@ void AddSC_generic_spell_scripts()
     new spell_gen_lifebloom("spell_cenarion_scout_lifebloom", SPELL_CENARION_SCOUT_LIFEBLOOM_FINAL_HEAL);
     new spell_gen_lifebloom("spell_twisted_visage_lifebloom", SPELL_TWISTED_VISAGE_LIFEBLOOM_FINAL_HEAL);
     new spell_gen_lifebloom("spell_faction_champion_dru_lifebloom", SPELL_FACTION_CHAMPIONS_DRU_LIFEBLOOM_FINAL_HEAL);
-    new spell_gen_summon_elemental("spell_gen_summon_fire_elemental", SPELL_SUMMON_FIRE_ELEMENTAL);
-    new spell_gen_summon_elemental("spell_gen_summon_earth_elemental", SPELL_SUMMON_EARTH_ELEMENTAL);
     new spell_gen_mount("spell_magic_broom", 0, SPELL_MAGIC_BROOM_60, SPELL_MAGIC_BROOM_100, SPELL_MAGIC_BROOM_150, SPELL_MAGIC_BROOM_280);
     new spell_gen_mount("spell_headless_horseman_mount", 0, SPELL_HEADLESS_HORSEMAN_MOUNT_60, SPELL_HEADLESS_HORSEMAN_MOUNT_100, SPELL_HEADLESS_HORSEMAN_MOUNT_150, SPELL_HEADLESS_HORSEMAN_MOUNT_280);
     new spell_gen_mount("spell_winged_steed_of_the_ebon_blade", 0, 0, 0, SPELL_WINGED_STEED_150, SPELL_WINGED_STEED_280);

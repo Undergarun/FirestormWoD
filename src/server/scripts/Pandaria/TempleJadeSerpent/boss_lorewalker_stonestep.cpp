@@ -159,7 +159,7 @@ class boss_lorewalker_stonestep : public CreatureScript
                 _JustDied();
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const* p_SpellInfo)
             {
             }
 
@@ -352,7 +352,7 @@ class mob_zao : public CreatureScript
 
             bool isCorrupted;
 
-            void DamageTaken(Unit* attacker, uint32&)
+            void DamageTaken(Unit* attacker, uint32&, SpellInfo const* p_SpellInfo)
             {
                 if (attacker->ToCreature()
                     && (attacker->ToCreature()->GetEntry() == CREATURE_HAUNTING_SHA_1
@@ -554,7 +554,7 @@ class mob_strife : public CreatureScript
             int32 countIntensity;
             bool hasBeenHit;
 
-            void DamageTaken(Unit* unit, uint32&)
+            void DamageTaken(Unit* unit, uint32&, SpellInfo const* p_SpellInfo)
             {
                 timer_dissipation = TIMER_DISSIPATION;
                 hasBeenHit = true;
@@ -651,7 +651,7 @@ class mob_peril : public CreatureScript
             int32 countIntensity;
             bool hasBeenHit;
 
-            void DamageTaken(Unit* unit, uint32&)
+            void DamageTaken(Unit* unit, uint32&, SpellInfo const* p_SpellInfo)
             {
                 timer_dissipation = TIMER_DISSIPATION;
                 hasBeenHit = true;

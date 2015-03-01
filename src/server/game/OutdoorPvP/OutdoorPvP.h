@@ -174,7 +174,7 @@ class OPvPCapturePoint
     protected:
 
         // active players in the area of the objective, 0 - alliance, 1 - horde
-        PlayerSet m_activePlayers[2];
+        GuidSet m_activePlayers[2];
 
         // total shift needed to capture the objective
         float m_maxValue;

@@ -559,8 +559,8 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
 
     m_spellState = SPELL_STATE_NULL;
     _triggeredCastFlags = triggerFlags;
-    if (info->AttributesEx4 & SPELL_ATTR4_TRIGGERED)
-        _triggeredCastFlags = TRIGGERED_FULL_MASK;
+    if (info->AttributesEx4 & SPELL_ATTR4_CAN_CAST_WHILE_CASTING)
+        _triggeredCastFlags = TriggerCastFlags(uint32(_triggeredCastFlags) | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_CAST_DIRECTLY);
 
     m_CastItem = NULL;
     m_castItemGUID = 0;
@@ -1616,12 +1616,6 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex p_EffIndex, SpellImplicitTar
         {
             switch (m_spellInfo->Id)
             {
-                case 46968: // Shockwave
-                    if (l_UnitTargets.size() < 3)
-                        break;
-
-                    m_caster->ToPlayer()->ReduceSpellCooldown(46968, 20000);
-                    break;
                 // Spinning Crane Kick / Rushing Jade Wind : Give 1 Chi if the spell hits at least 3 targets
                 case 107270:
                 case 117640:
@@ -1948,7 +1942,9 @@ void Spell::SelectImplicitChainTargets(SpellEffIndex effIndex, SpellImplicitTarg
     // Havoc
     if (AuraPtr havoc = m_caster->GetAura(80240))
     {
-        if (havoc->GetCharges() > 0 && target->ToUnit() && !target->ToUnit()->HasAura(80240))
+        int8 l_StacksToDrop = GetSpellInfo()->Id == 116858 ? 3 : 1;
+        if (GetSpellInfo()->SpellFamilyFlags & flag128(0x00000000, 0x00000000, 0x00000000, 0x00400000) &&
+            havoc->GetStackAmount() >= l_StacksToDrop && target->ToUnit() && !target->ToUnit()->HasAura(80240))
         {
             std::list<Unit*> targets;
             Unit* secondTarget = NULL;
@@ -1967,31 +1963,22 @@ void Spell::SelectImplicitChainTargets(SpellEffIndex effIndex, SpellImplicitTarg
                     break;
                 }
             }
-
+            
             if (secondTarget && target->GetGUID() != secondTarget->GetGUID())
             {
-                // Allow only one Chaos Bolt to be duplicated ...
-                if (m_spellInfo->Id == 116858 && havoc->GetCharges() >= 3)
-                {
-                    m_caster->RemoveAura(80240);
-                    secondTarget->RemoveAura(80240);
-                    m_caster->CastSpell(secondTarget, m_spellInfo->Id, true);
-                }
-                // ... or allow three next single target spells to be duplicated
-                else if (targetType.GetTarget() == TARGET_UNIT_TARGET_ENEMY && havoc->GetCharges() > 0)
-                {
-                    havoc->DropCharge();
+                int8 l_Stacks = havoc->GetStackAmount() - l_StacksToDrop;
 
-                    if (AuraPtr secondHavoc = secondTarget->GetAura(80240, m_caster->GetGUID()))
-                        secondHavoc->DropCharge();
-                    if (m_spellInfo->Id == 17877)
-                    {
-                        m_caster->ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, true);
-                        m_caster->CastSpell(secondTarget, m_spellInfo->Id, true);
-                        m_caster->ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, false);;
-                    }
-                    m_caster->CastSpell(secondTarget, m_spellInfo->Id, true);
+                if (l_Stacks > 0)
+                {
+                    havoc->SetStackAmount(l_Stacks);
                 }
+                else
+                {
+                    havoc->Remove();
+                    secondTarget->RemoveAurasDueToSpell(havoc->GetId());
+                }
+
+                AddUnitTarget(secondTarget, effMask, false);
             }
         }
     }
@@ -2944,29 +2931,24 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     }
 
     // Your finishing moves restore X Energy per combo
-    if (m_needComboPoints || m_spellInfo->Id == 127538)
+    if (m_needComboPoints)
     {
-        if (Player* plrCaster = m_caster->ToPlayer())
+        if (Player* l_Caster = m_caster->ToPlayer())
         {
-            if (uint8 cp = plrCaster->GetComboPoints())
+            if (int32 l_Combo = l_Caster->GetPower(Powers::POWER_COMBO_POINT))
             {
-                // Relentless Strikes
-                if (plrCaster->HasAura(58423))
+                if (l_Caster->HasAura(158476)) ///< Soul of the forest
                 {
-                    if (roll_chance_i(cp * 20))
-                    {
-                        if (!plrCaster->HasSpellCooldown(98440))
-                        {
-                            plrCaster->CastSpell(plrCaster, 98440, true); // Restore 25 energy
-                            plrCaster->AddSpellCooldown(98440, 0, 1 * IN_MILLISECONDS); // Prevent double cast
-                        }
-                    }
+                    if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) == SPEC_DRUID_FERAL)
+                        l_Caster->EnergizeBySpell(l_Caster, 158476, 4 * l_Combo, POWER_ENERGY);
                 }
-                // Soul of the Forest - 4 Energy
-                else if (plrCaster->HasAura(114107))
+                else if (l_Caster->HasAura(14161)) ///< Ruthlessness
                 {
-                    if (plrCaster->GetSpecializationId(plrCaster->GetActiveSpec()) == SPEC_DRUID_FERAL)
-                        plrCaster->EnergizeBySpell(plrCaster, 114107, 4 * cp, POWER_ENERGY);
+                    if (roll_chance_i(20 * l_Combo))
+                    {
+                        l_Caster->CastSpell(l_Caster, 139569, true); ///< Combo point awarding
+                        l_Caster->CastSpell(l_Caster, 14181, true);  ///< Energy energize
+                    }
                 }
             }
         }
@@ -3248,35 +3230,15 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
     }
 
     // Get Data Needed for Diminishing Returns, some effects may have multiple auras, so this must be done on spell hit, not aura add
-    m_diminishGroup = GetDiminishingReturnsGroupForSpell(m_spellInfo, m_triggeredByAuraSpell);
+    m_diminishGroup = GetDiminishingReturnsGroupForSpell(m_spellInfo);
     if (m_diminishGroup)
     {
-        m_diminishLevel = DIMINISHING_LEVEL_1;
-        // Special handling for Deep Freeze & Ring of Frost diminishing
-        // Ring of Frost
-        if (m_spellInfo->Id == 82691)
-        {
-            m_diminishLevel = unit->GetDiminishing(DIMINISHING_RING_OF_FROST);
-            if (unit->GetCharmerOrOwnerPlayerOrPlayerItself())
-                unit->IncrDiminishing(DIMINISHING_RING_OF_FROST);
-        }
-        // Deep Freze
-        else if (m_spellInfo->Id == 44572)
-        {
-            m_diminishLevel = unit->GetDiminishing(DIMINISHING_DEEP_FREEZE);
-            if (unit->GetCharmerOrOwnerPlayerOrPlayerItself())
-                unit->IncrDiminishing(DIMINISHING_DEEP_FREEZE);
-        }
-        // Holy Wrath diminishing problem
-        else if (m_spellInfo->Id == 2812)
-        {
-            if ((effectMask & (1 << EFFECT_1)) == 0)
-                m_diminishGroup = DIMINISHING_NONE;
-        }
         m_diminishLevel = unit->GetDiminishing(m_diminishGroup);
         DiminishingReturnsType type = GetDiminishingReturnsGroupType(m_diminishGroup);
         // Increase Diminishing on unit, current informations for actually casts will use values above
-        if ((type == DRTYPE_PLAYER && (unit->GetCharmerOrOwnerPlayerOrPlayerItself() || (unit->GetTypeId() == TYPEID_UNIT && unit->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_ALL_DIMINISH))) || type == DRTYPE_ALL)
+        if ((type == DRTYPE_PLAYER &&
+             (unit->GetCharmerOrOwnerPlayerOrPlayerItself() || (unit->GetTypeId() == TYPEID_UNIT && unit->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_ALL_DIMINISH))) ||
+            type == DRTYPE_ALL)
             unit->IncrDiminishing(m_diminishGroup);
     }
 
@@ -3330,7 +3292,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
 
                 // Now Reduce spell duration using data received at spell hit
                 int32 duration = m_spellAura->GetMaxDuration();
-                int32 limitduration = GetDiminishingReturnsLimitDuration(m_diminishGroup, aurSpellInfo);
+                int32 limitduration = GetDiminishingReturnsLimitDuration(aurSpellInfo);
                 float diminishMod = unit->ApplyDiminishingToDuration(m_diminishGroup, duration, m_originalCaster, m_diminishLevel, limitduration);
 
                 // unit is immune to aura if it was diminished to 0 duration
@@ -3686,9 +3648,11 @@ void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggere
             }
         }
         else
-        {
             SendCastResult(result);
-        }
+
+        /// Restore SpellMods after spell failed
+        if (m_caster->GetTypeId() == TypeID::TYPEID_PLAYER)
+            m_caster->ToPlayer()->RestoreSpellMods(this);
 
         finish(false);
         return;
@@ -3758,8 +3722,10 @@ void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggere
 
         // set target for proper facing
         if ((m_casttime || m_spellInfo->IsChanneled()) && !(_triggeredCastFlags & TRIGGERED_IGNORE_SET_FACING))
-            if (m_caster->GetGUID() != m_targets.GetObjectTargetGUID() && m_caster->GetTypeId() == TYPEID_UNIT)
-                m_caster->FocusTarget(this, m_targets.GetObjectTargetGUID());
+        {
+            if (m_targets.GetObjectTarget() && m_caster != m_targets.GetObjectTarget() && m_caster->GetTypeId() == TYPEID_UNIT)
+                m_caster->FocusTarget(this, m_targets.GetObjectTarget());
+        }
 
         if (!(_triggeredCastFlags & TRIGGERED_IGNORE_GCD) && result == SPELL_CAST_OK)
             TriggerGlobalCooldown();
@@ -4237,25 +4203,22 @@ void Spell::_handle_finish_phase()
         // Take for real after all targets are processed
         if (m_needComboPoints || m_spellInfo->Id == 127538)
         {
-            m_caster->m_movedPlayer->ClearComboPoints();
+            m_caster->ClearComboPoints();
 
-            // Anticipation
-            if (Player* _player = m_caster->ToPlayer())
+            /// Anticipation
+            if (m_caster->HasAura(115189) && m_spellInfo->Id != 5171 && m_spellInfo->Id != 73651)
             {
-                if (_player->HasAura(115189) && m_spellInfo->Id != 5171 && m_spellInfo->Id != 73651)
-                {
-                    int32 basepoints0 = _player->GetAura(115189) ? _player->GetAura(115189)->GetStackAmount() : 0;
-                    _player->CastCustomSpell(m_caster->getVictim(), 115190, &basepoints0, NULL, NULL, true);
+                int32 basepoints0 = m_caster->GetAura(115189)->GetStackAmount();
+                m_caster->CastCustomSpell(m_caster->getVictim(), 115190, &basepoints0, NULL, NULL, true);
 
-                    if (basepoints0)
-                        _player->RemoveAura(115189);
-                }
+                if (basepoints0)
+                    m_caster->RemoveAura(115189);
             }
         }
 
         // Real add combo points from effects
         if (m_comboPointGain)
-            m_caster->m_movedPlayer->GainSpellComboPoints(m_comboPointGain);
+            m_caster->AddComboPoints(m_comboPointGain);
 
         if (m_spellInfo->PowerType == POWER_HOLY_POWER && m_caster->m_movedPlayer->getClass() == CLASS_PALADIN)
             HandleHolyPower(m_caster->m_movedPlayer);
@@ -4489,30 +4452,6 @@ void Spell::finish(bool ok)
 
     switch (m_spellInfo->Id)
     {
-        case 32379: // Shadow Word: Death
-        case 129176:// Shadow Word: Death (overrided by Glyph)
-        {
-            if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                break;
-
-            if (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) != SPEC_PRIEST_SHADOW)
-                break;
-
-            if (m_caster->HasAura(95652))
-                break;
-
-            if (!unitTarget || !unitTarget->isAlive() || unitTarget->GetHealthPct() >= 20.0f)
-            {
-                m_caster->CastSpell(m_caster, 125927, true); // Shadow Orb energize
-                break;
-            }
-
-            m_caster->CastSpell(m_caster, 125927, true); // Shadow Orb energize
-            m_caster->CastSpell(m_caster, 95652, true); // Effect cooldown marker
-            m_caster->ToPlayer()->RemoveSpellCooldown(m_spellInfo->Id, true);
-
-            break;
-        }
         case 49560: // Death Grip
         case 49576: // Death Grip dummy
         {
@@ -4761,14 +4700,10 @@ void Spell::SendSpellStart()
         l_CastFlags |= CAST_FLAG_POWER_LEFT_SELF;
 
     if (m_spellInfo->RuneCostID && m_spellInfo->GetMainPower() == POWER_RUNES)
-        l_CastFlags |= CAST_FLAG_UNKNOWN_19;
+        l_CastFlags |= CAST_FLAG_NO_GCD;
 
     if (m_targets.HasTraj())
         l_CastFlags |= CAST_FLAG_ADJUST_MISSILE;
-
-    //@TODO: Remove this hack
-    if (m_spellInfo->Id == 147193)
-        l_CastFlags |= CAST_FLAG_UNKNOWN_4;
 
     WorldPacket data(SMSG_SPELL_START);
 
@@ -4842,9 +4777,9 @@ void Spell::SendSpellStart()
         }
 
         data.appendPackGUID(m_targets.GetSrc()->_transportGUID);
+        data << float(l_X);
         data << float(l_Y);
         data << float(l_Z);
-        data << float(l_X);
     }
 
     if (m_targets.HasDst())
@@ -4865,9 +4800,9 @@ void Spell::SendSpellStart()
         }
 
         data.appendPackGUID(m_targets.GetDst()->_transportGUID);
+        data << float(l_X);
         data << float(l_Y);
         data << float(l_Z);
-        data << float(l_X);
     }
 
     data << uint32(0);                      ///< Remaining power count
@@ -4914,10 +4849,21 @@ void Spell::SendSpellStart()
 void Spell::SendSpellGo()
 {
     // not send invisible spell casting
-    if (!IsNeedSendToClient())
+    if (!IsNeedSendToClient() && m_spellInfo->Id != 178236)
         return;
 
+    bool l_IsHealthPowerSpell = false;
+    for (auto itr : m_spellInfo->SpellPowers)
+    {
+        if (itr->PowerType == POWER_HEALTH)
+        {
+            l_IsHealthPowerSpell = true;
+            break;
+        }
+    }
+
     uint32 l_CastFlags = CAST_FLAG_UNKNOWN_9;
+    uint32 l_CastFlagsEx = CastFlagsEx::CAST_FLAG_EX_NONE;
 
     // triggered spells with spell visual != 0
     if (m_triggeredByAuraSpell)
@@ -4925,36 +4871,26 @@ void Spell::SendSpellGo()
 
     if ((m_caster->GetTypeId() == TYPEID_PLAYER ||
         (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->isPet()))
-        && m_spellInfo->GetMainPower() != POWER_HEALTH)
+        && !l_IsHealthPowerSpell)
         l_CastFlags |= CAST_FLAG_POWER_LEFT_SELF; // should only be sent to self, but the current messaging doesn't make that possible
-
-    //@TODO: Remove this hack
-    // Hack fix to avoid wow error
-    if (m_spellInfo->Id == 116803 || m_spellInfo->Id == 118327)
-        l_CastFlags &= ~CAST_FLAG_POWER_LEFT_SELF;
 
     if ((m_caster->GetTypeId() == TYPEID_PLAYER)
         && (m_caster->getClass() == CLASS_DEATH_KNIGHT)
         && m_spellInfo->RuneCostID
         && m_spellInfo->GetMainPower() == POWER_RUNES)
     {
-        l_CastFlags |= CAST_FLAG_UNKNOWN_19;                   // same as in SMSG_SPELL_START
-        l_CastFlags |= CAST_FLAG_RUNE_LIST;                    // rune cooldowns list
+        l_CastFlags |= CAST_FLAG_NO_GCD;                    ///< same as in SMSG_SPELL_START
+        l_CastFlags |= CAST_FLAG_RUNE_LIST;                 ///< rune cooldowns list
     }
 
     if (m_spellInfo->HasEffect(SPELL_EFFECT_ACTIVATE_RUNE))
-    {
-        l_CastFlags |= CAST_FLAG_RUNE_LIST;                    // rune cooldowns list
-        l_CastFlags |= CAST_FLAG_UNKNOWN_19;                   // same as in SMSG_SPELL_START
-    }
+        l_CastFlags |= CAST_FLAG_RUNE_LIST;                 ///< rune cooldowns list
 
     if (m_targets.HasTraj())
         l_CastFlags |= CAST_FLAG_ADJUST_MISSILE;
 
-    //@TODO: Remove this hack
-    if (m_spellInfo->Id == 147193)
-        l_CastFlags |= CAST_FLAG_UNKNOWN_4;
-
+    if (!m_spellInfo->StartRecoveryTime)
+        l_CastFlags |= CAST_FLAG_NO_GCD;
 
     uint32 l_MissCount = 0;
     uint32 l_HitCount = 0;
@@ -5010,7 +4946,7 @@ void Spell::SendSpellGo()
     uint64 l_TargetItemGUID = itemTarget ? itemTarget->GetGUID() : 0;
 
     // Unknown
-    bool l_HasUnk1 = false;
+    bool l_HasUnk1 = m_spellInfo->Id == 178236;
 
     // Forge the packet !
     WorldPacket l_Data(SMSG_SPELL_GO);
@@ -5080,7 +5016,7 @@ void Spell::SendSpellGo()
     }
 
     if (l_HasUnk1)
-        l_Data << float(0);
+        l_Data << float(5.825109f);
 
     l_Data << uint32(l_UsablePowers.size());        ///< Remaining power count
 
@@ -5159,9 +5095,8 @@ void Spell::SendSpellGo()
         l_Data << float(l_Itr._position.GetPositionZ());
     }
 
-    l_Data.WriteBits(0, 18);                                      ///< Cast flag ex
-
-    l_Data.WriteBit(l_HasRuneData);                               ///< HasRuneData
+    l_Data.WriteBits(l_CastFlagsEx, 18);                        ///< Cast flag ex
+    l_Data.WriteBit(l_HasRuneData);                             ///< HasRuneData
     l_Data.WriteBit(l_CastFlags & CAST_FLAG_PROJECTILE || l_CastFlags & CAST_FLAG_VISUAL_CHAIN);
     l_Data.FlushBits();
 
@@ -5170,9 +5105,9 @@ void Spell::SendSpellGo()
     {
         Player* l_DeathKnight = m_caster->ToPlayer();
 
-        l_Data << uint8(m_runesState);                            ///< Start
-        l_Data << uint8(l_DeathKnight->GetRunesState());          ///< Count
-        l_Data.WriteBits(MAX_RUNES, 3);                           ///< Cooldowns lenght
+        l_Data << uint8(m_runesState);                          ///< Start
+        l_Data << uint8(l_DeathKnight->GetRunesState());        ///< Count
+        l_Data.WriteBits(MAX_RUNES, 3);                         ///< Cooldowns lenght
         l_Data.FlushBits();
 
         for (uint8 l_I = 0; l_I < MAX_RUNES; ++l_I)
@@ -5180,15 +5115,15 @@ void Spell::SendSpellGo()
             float l_BaseCooldown = float(l_DeathKnight->GetRuneBaseCooldown(l_I));
             uint8 l_Cooldown = uint8((l_BaseCooldown - float(l_DeathKnight->GetRuneCooldown(l_I))) / l_BaseCooldown * 255);
 
-            l_Data << uint8(l_Cooldown);                          ///< Cooldowns
+            l_Data << uint8(l_Cooldown);                        ///< Cooldowns
         }
     }
 
     // JamProjectileVisual
     if (l_CastFlags & CAST_FLAG_PROJECTILE || l_CastFlags & CAST_FLAG_VISUAL_CHAIN)
     {
-        l_Data << uint32(0);                                      ///< Projectile Visual 1
-        l_Data << uint32(0);                                      ///< Projectile Visual 2
+        l_Data << uint32(0);                                    ///< Projectile Visual 1
+        l_Data << uint32(0);                                    ///< Projectile Visual 2
     }
 
     l_Data.WriteBit(l_HasSpellCastLogData);
@@ -5200,9 +5135,9 @@ void Spell::SendSpellGo()
         int32 l_AttackPower = m_caster->GetTotalAttackPowerValue(m_attackType);
         int32 l_SpellPower  = m_caster->SpellBaseDamageBonusDone(m_spellSchoolMask);
 
-        l_Data << int32(l_Health);                                ///< Health
-        l_Data << int32(l_AttackPower);                           ///< Attack power
-        l_Data << int32(l_SpellPower);                            ///< Spell power
+        l_Data << int32(l_Health);                              ///< Health
+        l_Data << int32(l_AttackPower);                         ///< Attack power
+        l_Data << int32(l_SpellPower);                          ///< Spell power
 
         uint32 l_PowerDataSize = l_UsablePowers.size();
 
@@ -5210,8 +5145,8 @@ void Spell::SendSpellGo()
         for (Unit::PowerTypeSet::const_iterator l_Itr = l_UsablePowers.begin(); l_Itr != l_UsablePowers.end(); l_Itr++)
         {
             Powers l_Power = Powers((*l_Itr));
-            l_Data << int32(l_Power);                             ///< Power type
-            l_Data << int32(m_caster->GetPower(l_Power));         ///< Amount
+            l_Data << int32(l_Power);                           ///< Power type
+            l_Data << int32(m_caster->GetPower(l_Power));       ///< Amount
         }
 
         bool l_HasUnknowFloat = false;
@@ -5712,9 +5647,10 @@ void Spell::TakeRunePower(bool didHit)
             if (runeCost[i] < 0)
                 runeCost[i] = 0;
         }
+        sScriptMgr->OnModifyPower(player, POWER_RUNES, 0, runeCost[i], false);
     }
 
-    /* In MOP there is a some spell, that use death rune, e.g - 73975, so don't reset it*/
+    /* In MOP there is a some spell, that use death rune, so don't reset it*/
     //runeCost[RUNE_DEATH] = 0;                               // calculated later
 
     bool gain_runic = runeCostData->NoRuneCost();           //  if spell doesn't have runecost - player can have some runic power, Horn of Winter for example
@@ -5737,12 +5673,6 @@ void Spell::TakeRunePower(bool didHit)
                 // Reaping
                 if (player->HasAura(56835))
                     player->AddRuneBySpell(i, RUNE_DEATH, 56835);
-                break;
-            }
-            case 49998: // Death Strike
-            {
-                // Blood Rites
-                player->AddRuneBySpell(i, RUNE_DEATH, 50034);
                 break;
             }
             default:
@@ -5791,12 +5721,6 @@ void Spell::TakeRunePower(bool didHit)
                         // Reaping
                         if (player->HasAura(56835))
                             player->AddRuneBySpell(i, RUNE_DEATH, 56835);
-                        break;
-                    }
-                    case 49998: // Death Strike
-                    {
-                        // Blood Rites
-                        player->AddRuneBySpell(i, RUNE_DEATH, 50034);
                         break;
                     }
                     default:
@@ -6981,11 +6905,9 @@ SpellCastResult Spell::CheckCast(bool strict)
         }
     }
 
-    // check if caster has at least 1 combo point for spells that require combo points
-    if (m_needComboPoints)
-        if (Player* plrCaster = m_caster->ToPlayer())
-            if (!plrCaster->GetComboPoints())
-                return SPELL_FAILED_NO_COMBO_POINTS;
+    /// Check if caster has at least 1 combo point for spells that require combo points
+    if (m_needComboPoints && !m_caster->GetPower(Powers::POWER_COMBO_POINT))
+        return SPELL_FAILED_NO_COMBO_POINTS;
 
     // all ok
     return SPELL_CAST_OK;
@@ -7088,17 +7010,13 @@ SpellCastResult Spell::CheckCasterAuras() const
         else
             prevented_reason = SPELL_FAILED_STUNNED;
     }
-    else if (unitflag & UNIT_FLAG_CONFUSED && !(m_spellInfo->AttributesEx5 & SPELL_ATTR5_USABLE_WHILE_CONFUSED))
+    else if (unitflag & UNIT_FLAG_CONFUSED && !m_spellInfo->HasAttribute(SPELL_ATTR5_USABLE_WHILE_CONFUSED))
         prevented_reason = SPELL_FAILED_CONFUSED;
-    else if (unitflag & UNIT_FLAG_FLEEING && !(m_spellInfo->AttributesEx5 & SPELL_ATTR5_USABLE_WHILE_FEARED))
+    else if (unitflag & UNIT_FLAG_FLEEING && !m_spellInfo->HasAttribute(SPELL_ATTR5_USABLE_WHILE_FEARED))
         prevented_reason = SPELL_FAILED_FLEEING;
     else if (unitflag & UNIT_FLAG_SILENCED && m_spellInfo->PreventionType == SPELL_PREVENTION_TYPE_SILENCE)
         prevented_reason = SPELL_FAILED_SILENCED;
     else if (unitflag & UNIT_FLAG_PACIFIED && m_spellInfo->PreventionType == SPELL_PREVENTION_TYPE_PACIFY)
-        prevented_reason = SPELL_FAILED_PACIFIED;
-    else if (unitflag & UNIT_FLAG_PACIFIED &&
-        (m_spellInfo->PreventionType == SPELL_PREVENTION_TYPE_UNK2 ||
-        m_spellInfo->Id == 1850) && m_spellInfo->Id != 781) // THIS ... IS ... HACKYYYY !
         prevented_reason = SPELL_FAILED_PACIFIED;
 
     // Barkskin & Hex hotfix 4.3 patch http://eu.battle.net/wow/ru/blog/10037151
@@ -7339,18 +7257,6 @@ SpellCastResult Spell::CheckPower()
             if (failReason != SPELL_CAST_OK)
                 return failReason;
         }
-    }
-
-    switch (m_spellInfo->Id)
-    {
-        case 109468:// Curse of Enfeeblement
-        {
-            if (m_caster->ToPlayer() && m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_WARLOCK_AFFLICTION)
-                return SPELL_CAST_OK;
-            break;
-        }
-        default:
-            break;
     }
 
     // Check power amount
@@ -8309,10 +8215,12 @@ void Spell::DoAllEffectOnLaunchTarget(TargetInfo& targetInfo, float* multiplier)
                         if (targetAmount > 10)
                             m_damage = m_damage * 10/targetAmount;
 
-                        // Hack Fix Frost Bomb : Doesn't add AoE damage to main target
-                        if (m_spellInfo->Id == 113092)
+                        // Hack Fix Frost Bomb, Beast Cleave : Doesn't add AoE damage to main target
+                        if (m_spellInfo->Id == 113092 || m_spellInfo->Id == 118459)
+                        {
                             if (targetInfo.targetGUID == (*m_UniqueTargetInfo.begin()).targetGUID)
                                 continue;
+                        }
                     }
                 }
             }

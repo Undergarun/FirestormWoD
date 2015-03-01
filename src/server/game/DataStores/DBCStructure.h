@@ -536,15 +536,26 @@ struct DurabilityQualityEntry
 
 struct EmotesEntry
 {
-    uint32  Id;                                             // 0        m_ID
-    //char*     EmoteSlashCommand;                          // 1        EmoteSlashCommand
-    //uint32    m_AnimID;                                   // 2        m_AnimID
-    uint32  Flags;                                          // 3        m_EmoteFlags
-    uint32  EmoteType;                                      // 4        m_EmoteSpecProc
-    uint32  UnitStandState;                                 // 5        m_EmoteSpecProcParam
-    //uint32    m_EventSoundID;                             // 6        m_EventSoundID
-    //uint32    SpellVisualKitID;                           // 7        m_SpellVisualKitID
+    uint32  Id;                                         // 0        m_ID
+    char*   EmoteSlashCommand;                          // 1        EmoteSlashCommand
+    uint32  m_AnimID;                                   // 2        m_AnimID
+    uint32  Flags;                                      // 3        m_EmoteFlags
+    uint32  EmoteType;                                  // 4        m_EmoteSpecProc
+    uint32  UnitStandState;                             // 5        m_EmoteSpecProcParam
+    uint32  m_EventSoundID;                             // 6        m_EventSoundID
+    uint32  SpellVisualKitID;                           // 7        m_SpellVisualKitID
 };
+
+/// @see EmoteType in EmotesEntry
+namespace EmoteTypes
+{
+    enum
+    {
+        OneStep,
+        EmoteLoop,
+        StateLoop       ///< Also related to m_EventSoundID, client play the sound only when EmoteType == StateLoop
+    };
+}
 
 struct EmotesTextEntry
 {
@@ -1214,7 +1225,7 @@ struct PvPDifficultyEntry
     uint32  maxLevel;                                       // 4        m_MaxLevel
 
     // helpers
-    BattlegroundBracketId GetBracketId() const { return BattlegroundBracketId(bracketId); }
+    uint32 GetBracketId() const { return bracketId; }
 };
 
 struct QuestSortEntry
@@ -1685,12 +1696,11 @@ struct SpellItemEnchantmentEntry
     uint32  requiredSkill;                                  // 16       m_requiredSkillID
     uint32  requiredSkillValue;                             // 17       m_requiredSkillRank
     uint32  requiredLevel;                                  // 18       m_MinLevel
-    //uint32    m_MaxLevel;                                 // 19       m_MaxLevel
-    // uint32   m_ItemLevel;                                // 20       m_ItemLevel
-    // int32    m_ScalingClass;                             // 21       m_ScalingClass
-    // int32    m_ScalingClassRestricted                    // 22       m_ScalingClassRestricted
-    // float    m_EffectScalingPoints[3]                    // 23 -25   m_EffectScalingPoints
-
+    uint32  m_MaxLevel;                                     // 19       m_MaxLevel
+    uint32  m_ItemLevel;                                    // 20       m_ItemLevel
+    int32   m_ScalingClass;                                 // 21       m_ScalingClass
+    int32   m_ScalingClassRestricted;                       // 22       m_ScalingClassRestricted
+    float   m_EffectScalingPoints[3];                       // 23 -25   m_EffectScalingPoints
 };
 
 //@todo
@@ -1740,7 +1750,7 @@ struct TaxiNodesEntry
     char*   name;                                           // 5        m_Name_lang
     uint32  MountCreatureID[2];                             // 6-7      m_MountCreatureID[2]
     //uint32    m_ConditionID                               // 8        m_ConditionID
-    //uint32    m_Flags                                     // 9        m_Flags
+    uint32    m_Flags;                                      // 9        m_Flags
     //float     m_MapOffset                                 // 10       m_MapOffset
     //float     m_MapOffset                                 // 11       m_MapOffset
 };

@@ -371,11 +371,11 @@ class Battlefield : public ZoneScript
         BfCapturePointMap m_capturePoints;
 
         // Players info maps
-        GuidSet m_players[BG_TEAMS_COUNT];                      // Players in zone
-        GuidSet m_PlayersInQueue[BG_TEAMS_COUNT];               // Players in the queue
-        GuidSet m_PlayersInWar[BG_TEAMS_COUNT];                 // Players in WG combat
-        PlayerTimerMap m_InvitedPlayers[BG_TEAMS_COUNT];
-        PlayerTimerMap m_PlayersWillBeKick[BG_TEAMS_COUNT];
+        GuidSet m_players[MS::Battlegrounds::TeamsCount::Value];                      // Players in zone
+        GuidSet m_PlayersInQueue[MS::Battlegrounds::TeamsCount::Value];               // Players in the queue
+        GuidSet m_PlayersInWar[MS::Battlegrounds::TeamsCount::Value];                 // Players in WG combat
+        PlayerTimerMap m_InvitedPlayers[MS::Battlegrounds::TeamsCount::Value];
+        PlayerTimerMap m_PlayersWillBeKick[MS::Battlegrounds::TeamsCount::Value];
 
         // Variables that must exist for each battlefield
         uint32 m_TypeId;                                        // See enum BattlefieldTypes
@@ -401,7 +401,7 @@ class Battlefield : public ZoneScript
         uint32 m_StartGroupingTimer;                            // Timer for invite players in area 15 minute before start battle
         bool m_StartGrouping;                                   // bool for know if all players in area has been invited
 
-        GuidSet m_Groups[BG_TEAMS_COUNT];                       // Contain different raid group
+        GuidSet m_Groups[MS::Battlegrounds::TeamsCount::Value];                       // Contain different raid group
 
         std::vector<uint64> m_Data64;
         std::vector<uint32> m_Data32;

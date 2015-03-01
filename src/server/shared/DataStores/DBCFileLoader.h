@@ -21,6 +21,7 @@
 #include "Define.h"
 #include "Utilities/ByteConverter.h"
 #include <cassert>
+#include <vector>
 
 class DBCFileLoader
 {

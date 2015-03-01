@@ -5,10 +5,11 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef GARRISON_MGR_FOLLOWER_HPP_GARRISON
-#define GARRISON_MGR_FOLLOWER_HPP_GARRISON
+#ifndef GARRISON_FOLLOWER_HPP_GARRISON
+#define GARRISON_FOLLOWER_HPP_GARRISON
 
 #include "Common.h"
+#include "ByteBuffer.h"
 
 #include <vector>
 
@@ -30,7 +31,7 @@ namespace MS { namespace Garrison
             void Write(ByteBuffer & p_Buffer);
 
         public:
-            uint32 DB_ID;               ///< Database ID
+            uint32 DatabaseID;          ///< Database ID
             uint32 FollowerID;          ///< Follower ID (GarrFollower.db2)
             uint32 Quality;             ///< Follower quality
             int32  Level;               ///< Follower level
@@ -48,4 +49,4 @@ namespace MS { namespace Garrison
 }   ///< namespace Garrison
 }   ///< namespace MS
 
-#endif  ///< GARRISON_MGR_FOLLOWER_HPP_GARRISON
+#endif  ///< GARRISON_FOLLOWER_HPP_GARRISON

@@ -19,6 +19,7 @@
 
 #include "OutdoorPvPAshran.h"
 #include "ScriptPCH.h"
+#include "MapManager.h"
 
 OutdoorGraveyardAshran::OutdoorGraveyardAshran(OutdoorPvPAshran* p_OutdoorPvP) : OutdoorGraveyard(p_OutdoorPvP)
 {
@@ -492,6 +493,9 @@ void OPvPCapturePoint_Graveyard::UpdateTowerState()
 
 bool OPvPCapturePoint_Graveyard::HandlePlayerEnter(Player* p_Player)
 {
+    if (p_Player == nullptr)
+        return false;
+
     if (OPvPCapturePoint::HandlePlayerEnter(p_Player))
     {
         p_Player->SendUpdateWorldState(eWorldStates::WorldStateEnableGraveyardProgressBar, eWorldStates::WorldStateEnabled);
@@ -506,6 +510,9 @@ bool OPvPCapturePoint_Graveyard::HandlePlayerEnter(Player* p_Player)
 
 void OPvPCapturePoint_Graveyard::HandlePlayerLeave(Player* p_Player)
 {
+    if (p_Player == nullptr)
+        return;
+
     p_Player->SendUpdateWorldState(eWorldStates::WorldStateEnableGraveyardProgressBar, eWorldStates::WorldStateDisabled);
     OPvPCapturePoint::HandlePlayerLeave(p_Player);
 }
@@ -591,7 +598,7 @@ OutdoorPvPAshran::OutdoorPvPAshran()
     m_Guid = MAKE_NEW_GUID(m_WorldPvPAreaId, 0, HighGuid::HIGHGUID_TYPE_BATTLEGROUND);
     m_Guid |= eAshranDatas::BattlefieldWorldPvP;
 
-    for (uint8 l_Team = BattlegroundTeamId::BG_TEAM_ALLIANCE; l_Team < BG_TEAMS_COUNT; ++l_Team)
+    for (uint8 l_Team = BattlegroundTeamId::BG_TEAM_ALLIANCE; l_Team < MS::Battlegrounds::TeamsCount::Value; ++l_Team)
     {
         m_PlayersInWar[l_Team].clear();
         m_InvitedPlayers[l_Team].clear();
@@ -698,7 +705,7 @@ void OutdoorPvPAshran::HandlePlayerEnterMap(Player* p_Player, uint32 p_MapID)
 
 void OutdoorPvPAshran::HandlePlayerLeaveMap(Player* p_Player, uint32 p_MapID)
 {
-    if (p_MapID != eAshranDatas::AshranMapID)
+    if (p_MapID != eAshranDatas::AshranMapID || p_Player == nullptr)
         return;
 
     if (p_Player->GetTeamId() < 2)
@@ -716,11 +723,22 @@ void OutdoorPvPAshran::HandlePlayerLeaveMap(Player* p_Player, uint32 p_MapID)
 
 void OutdoorPvPAshran::HandlePlayerEnterArea(Player* p_Player, uint32 p_AreaID)
 {
+    if (p_Player == nullptr)
+        return;
+
     if (p_Player->GetMapId() != eAshranDatas::AshranNeutralMapID && p_Player->GetMapId() != eAshranDatas::AshranMapID)
         return;
 
     if (p_AreaID == eAshranDatas::AshranPreAreaHorde || p_AreaID == eAshranDatas::AshranPreAreaAlliance)
-        p_Player->SwitchToPhasedMap(eAshranDatas::AshranNeutralMapID);
+    {
+        uint64 l_Guid = p_Player->GetGUID();
+
+        sMapMgr->AddCriticalOperation([l_Guid]() -> void
+        {
+            if (Player* l_Player = sObjectAccessor->FindPlayer(l_Guid))
+                l_Player->SwitchToPhasedMap(eAshranDatas::AshranNeutralMapID);
+        });
+    }
 
     /// +30% damage, healing and health for players in their faction bases
     if ((p_AreaID == eAshranDatas::AshranHordeBase && p_Player->GetTeamId() == TeamId::TEAM_HORDE) ||
@@ -738,11 +756,22 @@ void OutdoorPvPAshran::HandlePlayerEnterArea(Player* p_Player, uint32 p_AreaID)
 
 void OutdoorPvPAshran::HandlePlayerLeaveArea(Player* p_Player, uint32 p_AreaID)
 {
+    if (p_Player == nullptr)
+        return;
+
     if (p_Player->GetMapId() != eAshranDatas::AshranNeutralMapID && p_Player->GetMapId() != eAshranDatas::AshranMapID)
         return;
 
     if (p_AreaID == eAshranDatas::AshranPreAreaHorde || p_AreaID == eAshranDatas::AshranPreAreaAlliance)
-        p_Player->SwitchToPhasedMap(eAshranDatas::AshranMapID);
+    {
+        uint64 l_Guid = p_Player->GetGUID();
+
+        sMapMgr->AddCriticalOperation([l_Guid]() -> void
+        {
+            if (Player* l_Player = sObjectAccessor->FindPlayer(l_Guid))
+                l_Player->SwitchToPhasedMap(eAshranDatas::AshranMapID);
+        });
+    }
 
     if (p_AreaID == eAshranDatas::AshranHordeBase || p_AreaID == eAshranDatas::AshranAllianceBase)
         p_Player->RemoveAura(eAshranSpells::SpellHoldYourGround);
@@ -754,6 +783,9 @@ void OutdoorPvPAshran::HandlePlayerLeaveArea(Player* p_Player, uint32 p_AreaID)
 
 void OutdoorPvPAshran::HandlePlayerKilled(Player* p_Player)
 {
+    if (p_Player == nullptr)
+        return;
+
     // Drop half of artifact fragments at player death
     // Even if he's killed by a creature
     if (uint32 l_ArtifactCount = p_Player->GetCurrency(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT, false))
@@ -762,7 +794,7 @@ void OutdoorPvPAshran::HandlePlayerKilled(Player* p_Player)
 
 bool OutdoorPvPAshran::Update(uint32 p_Diff)
 {
-    PlayerTimerMap l_TempList[BG_TEAMS_COUNT];
+    PlayerTimerMap l_TempList[MS::Battlegrounds::TeamsCount::Value];
 
     for (uint8 l_Team = 0; l_Team < 2; ++l_Team)
     {
@@ -1465,9 +1497,9 @@ class npc_faction_boss : public CreatureScript
     public:
         npc_faction_boss() : CreatureScript("npc_faction_boss") { }
 
-        struct npc_faction_bossAI : public ScriptedAI
+        struct npc_faction_bossAI : public BossAI
         {
-            npc_faction_bossAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            npc_faction_bossAI(Creature* p_Creature) : BossAI(p_Creature, 0)
             {
                 m_ZoneScript = sOutdoorPvPMgr->GetZoneScript(p_Creature->GetZoneId());
                 m_BaseHP = me->GetMaxHealth();
@@ -1475,10 +1507,12 @@ class npc_faction_boss : public CreatureScript
 
             enum eSpells
             {
-                SpellBladeTwisterSearcher    = 178798,   ///< Uses 178797 on the target (Only 1)
-                SpellBladeTwisterMissile     = 178797,   ///< Launch 178795, Summons 89320
-                SpellMortalCleave            = 177147,
-                SpellEnableUnitFrame         = 177684
+                SpellBladeTwisterSearcher   = 178798,   ///< Uses 178797 on the target (Only 1)
+                SpellBladeTwisterMissile    = 178797,   ///< Launch 178795, Summons 89320
+                SpellMortalCleave           = 177147,
+                SpellEnableUnitFrame        = 177684,
+
+                SpellAshranLaneMobScaling   = 178838
             };
 
             enum eTalk
@@ -1504,15 +1538,25 @@ class npc_faction_boss : public CreatureScript
 
             void Reset()
             {
+                _Reset();
+
                 m_Events.Reset();
 
                 me->RemoveAura(eSpells::SpellEnableUnitFrame);
+                me->RemoveAura(eSpells::SpellAshranLaneMobScaling);
 
                 m_FirstVictim = true;
+
+                me->SetHealth(m_BaseHP);
+
+                if (me->GetEntry() == eCreatures::GrandMarshalTremblade)
+                    me->setFaction(12); ///< Alliance
             }
 
             void EnterCombat(Unit* p_Attacker)
             {
+                _EnterCombat();
+
                 Talk(eTalk::TalkAggro);
 
                 m_Events.ScheduleEvent(eEvents::EventMortalCleave, 5000);
@@ -1529,6 +1573,8 @@ class npc_faction_boss : public CreatureScript
 
             void JustDied(Unit* p_Killer)
             {
+                _JustDied();
+
                 Talk(eTalk::TalkDeath);
 
                 uint64 l_GenericGuid = ((OutdoorPvPAshran*)m_ZoneScript)->GetFactionGenericMoP(me->GetEntry() == eCreatures::GrandMarshalTremblade ? TeamId::TEAM_ALLIANCE : TeamId::TEAM_HORDE);
@@ -1592,7 +1638,11 @@ class npc_faction_boss : public CreatureScript
             void UpdateAI(uint32 const p_Diff)
             {
                 if (!UpdateVictim())
+                {
+                    if (me->isInCombat())
+                        EnterEvadeMode();
                     return;
+                }
 
                 m_Events.Update(p_Diff);
 
@@ -1943,7 +1993,7 @@ class npc_rylai_crestfall : public CreatureScript
                 Talk(eTalk::TalkDeath);
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage)
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
             {
                 if (me->HealthBelowPctDamaged(20, p_Damage) && !me->HasAura(eSpells::Hypotermia))
                 {

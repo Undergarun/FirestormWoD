@@ -25,6 +25,8 @@
 
 #include <list>
 
+extern DB2Storage <PathNodeEntry>                   sPathNodeStore;
+extern DB2Storage <LocationEntry>                   sLocationStore;
 extern DB2Storage <ItemEntry>                       sItemStore;
 extern DB2Storage <ItemBonusEntry>                  sItemStoreEntry;
 extern DB2Storage <ItemBonusTreeNodeEntry>          sItemBonusTreeNodeStore;
@@ -58,7 +60,8 @@ extern DB2Storage <SpellClassOptionsEntry>          sSpellClassOptionsStore;
 extern DB2Storage <MapChallengeModeEntry>           sMapChallengeModeStore;
 extern DB2Storage <QuestPackageItemEntry>           sQuestPackageItemStore;
 extern DB2Storage <MountEntry>                      sMountStore;
-
+extern DB2Storage <PlayerConditionEntry>            sPlayerConditionStore;
+extern DB2Storage <VignetteEntry>                   sVignetteStore;
 
 //////////////////////////////////////////////////////////////////////////
 /// Garrison DB2
@@ -83,6 +86,8 @@ extern DB2Storage <GarrMechanicEntry>               sGarrMechanicStore;
 extern DB2Storage <GarrEncouterXMechanicEntry>      sGarrEncouterXMechanicStore;
 extern DB2Storage <GarrFollowerLevelXPEntry>        sGarrFollowerLevelXPStore;
 extern DB2Storage <GarrSpecializationEntry>         sGarrSpecializationStore;
+extern DB2Storage <CharShipmentEntry>               sCharShipmentStore;
+extern DB2Storage <CharShipmentContainerEntry>      sCharShipmentContainerStore;
 
 //////////////////////////////////////////////////////////////////////////
 /// Battle pet

@@ -302,18 +302,6 @@ void Object::BuildValuesUpdateBlockForPlayer(UpdateData* data, Player* target) c
     buf << uint8(UPDATETYPE_VALUES);
     buf.append(GetPackGUID());
 
-    if (sWorld->isDelete((Object*)this))
-    {
-        ACE_Stack_Trace trace;
-        sLog->outAshran("BuildValuesUpdateBlockForPlayer this delete !!!");
-    }
-
-    if (sWorld->isDelete(target))
-    {
-        ACE_Stack_Trace trace;
-        sLog->outAshran("BuildValuesUpdateBlockForPlayer target delete !!!");
-    }
-
     BuildValuesUpdate(UPDATETYPE_VALUES, &buf, target);
     BuildDynamicValuesUpdate(UPDATETYPE_VALUES, &buf, target);
 
@@ -785,10 +773,8 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
 
         if (l_HasAreaTriggerSpline)
         {
-            uint32 l_PathNodeCount = l_AreaTrigger->GetDuration() / l_AreaTrigger->GetUpdateInterval();
-
             AreaTriggerMoveTemplate l_MoveTemplate = sObjectMgr->GetAreaTriggerMoveTemplate(l_MainTemplate->m_MoveCurveID);
-            if (l_MoveTemplate.m_path_size != 0)
+            if (l_AreaTrigger->GetTrajectory() != AREATRIGGER_INTERPOLATION_LINEAR && l_MoveTemplate.m_path_size != 0)
             {
                 *p_Data << uint32(l_MoveTemplate.m_duration > 0 ? l_MoveTemplate.m_duration : l_AreaTrigger->GetDuration());  ///< Time To Target
                 *p_Data << uint32(l_ElapsedMS);                                             ///< Elapsed Time For Movement
@@ -805,7 +791,9 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
             }
             else
             {
-                *p_Data << uint32(l_MainTemplate->m_SplineDatas.TimeToTarget);               ///< Time To Target
+                uint32 l_PathNodeCount = l_AreaTrigger->GetDuration() / l_AreaTrigger->GetUpdateInterval();
+
+                *p_Data << uint32(l_AreaTrigger->GetDuration());                            ///< Time To Target
                 *p_Data << uint32(l_ElapsedMS);                                             ///< Elapsed Time For Movement
                 *p_Data << uint32(l_PathNodeCount);                                         ///< Path node count
                 for (uint32 l_I = 0; l_I < l_PathNodeCount; l_I++)
@@ -1078,6 +1066,10 @@ uint32 Object::GetDynamicUpdateFieldData(Player const* target, uint32*& flags) c
                 visibleFlag |= UF_FLAG_PARTY_MEMBER;
             break;
         }
+        case TYPEID_GAMEOBJECT:
+            flags = GameObjectDynamicUpdateFieldFlags;
+            visibleFlag |= UF_FLAG_PUBLIC;
+            break;
         default:
             flags = nullptr;
             break;
@@ -2953,7 +2945,7 @@ TempSummon* WorldObject::SummonCreature(uint32 entry, const Position &pos, TempS
     else
     {
         m_summonCounter++;
-        if (m_summonCounter > 20 && isType(TYPEMASK_PLAYER))
+        if (m_summonCounter > 50 && isType(TYPEMASK_PLAYER))
             sLog->outAshran("Player %u spam summon of creature %u [counter %u]", GetGUIDLow(), entry, m_summonCounter);
     }
 
@@ -3126,7 +3118,7 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
                     break;
                 case ENTRY_VOIDWALKER:
                 case ENTRY_VOIDLORD:
-                    bp = 119907;// Disarm
+                    bp = 119907;// Disarm Removed since 6.0.2 please clean me
                     break;
                 case ENTRY_SUCCUBUS:
                     bp = 119909; // Whiplash
@@ -3170,7 +3162,7 @@ void Player::SendStartTimer(uint32 p_Time, uint32 p_MaxTime, uint8 p_Type)
     SendDirectMessage(&l_Data);
 }
 
-GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime, uint64 viewerGuid, std::list<uint64>* viewersList, uint32 p_AnimProgress, uint32 p_GoHealth)
+GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime, uint64 viewerGuid, std::list<uint64>* viewersList, uint32 p_AnimProgress, uint32 p_GoHealth, bool p_GarrisonPlotObject)
 {
     if (!IsInWorld())
         return NULL;
@@ -3190,6 +3182,14 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float 
     }
 
     go->SetRespawnTime(respawnTime);
+
+    /// ===================== HACK ALERT, THIS IS BAD ================================================ ///
+    /// - Blizzard do like that for some garrison special gameobject but the dynamic update field      ///
+    ///   doesn't exist WTF !!                                                                         ///
+    /// - Need to wait how this thing will elvove to adapt it                                          ///
+    /// ===================== HACK ALERT, THIS IS BAD ===============================================  ///
+    if (p_GarrisonPlotObject)
+        go->SetDynamicValue(GAMEOBJECT_DYNAMIC_UNK, 0, 1);
 
     if (GetTypeId() == TYPEID_PLAYER || GetTypeId() == TYPEID_UNIT) //not sure how to handle this
         ToUnit()->AddGameObject(go);

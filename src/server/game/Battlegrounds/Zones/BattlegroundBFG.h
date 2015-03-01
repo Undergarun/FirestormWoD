@@ -262,14 +262,14 @@ class BattlegroundBFG : public Battleground
         uint8                      m_prevNodes[GILNEAS_BG_DYNAMIC_NODES_COUNT];
         uint32                     m_NodeTimers[GILNEAS_BG_DYNAMIC_NODES_COUNT];
 
-        uint32                     m_lastTick[BG_TEAMS_COUNT];
-        uint32                     m_HonorScoreTicks[BG_TEAMS_COUNT];
-        uint32                     m_ReputationScoreTicks[BG_TEAMS_COUNT];
+        uint32                     m_lastTick[MS::Battlegrounds::TeamsCount::Value];
+        uint32                     m_HonorScoreTicks[MS::Battlegrounds::TeamsCount::Value];
+        uint32                     m_ReputationScoreTicks[MS::Battlegrounds::TeamsCount::Value];
 
         bool                       m_IsInformedNearVictory;
         uint32                     m_HonorTicks;
         uint32                     m_ReputationTicks;
-        bool                       m_TeamScores500Disadvantage[BG_TEAMS_COUNT];
+        bool                       m_TeamScores500Disadvantage[MS::Battlegrounds::TeamsCount::Value];
 };
 
 #endif

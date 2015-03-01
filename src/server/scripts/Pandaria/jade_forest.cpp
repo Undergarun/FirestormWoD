@@ -805,7 +805,7 @@ class mob_pandriarch_windfur : public CreatureScript
 //                events.ScheduleEvent(EVENT_WINDFUR_PUNCH, urand (13000, 17000));
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (Player* player = attacker->ToPlayer())
                 {
@@ -944,7 +944,7 @@ class mob_pandriarch_bramblestaff : public CreatureScript
 //                events.ScheduleEvent(EVENT_WHIRLWIND_2, urand (24000, 27000));
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (Player* player = attacker->ToPlayer())
                 {
@@ -1087,7 +1087,7 @@ class mob_pandriarch_goldendraft : public CreatureScript
                 events.ScheduleEvent(EVENT_FIRE_ALE, urand (8000, 10000));
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (Player* player = attacker->ToPlayer())
                 {
@@ -1228,7 +1228,7 @@ class mob_big_bao : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (Player* player = attacker->ToPlayer())
                 {
@@ -2031,7 +2031,7 @@ class mob_second_big_bao : public CreatureScript
                 events.Reset();
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (Player* player = attacker->ToPlayer())
                 {
@@ -2172,7 +2172,7 @@ class mob_ace_longpaw : public CreatureScript
                 events.Reset();
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (Player* player = attacker->ToPlayer())
                 {
@@ -2313,7 +2313,7 @@ class mob_ningha_darkwheel : public CreatureScript
                 events.Reset();
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (Player* player = attacker->ToPlayer())
                 {
@@ -2454,7 +2454,7 @@ class mob_qua_row_whitebrow : public CreatureScript
                 events.Reset();
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (Player* player = attacker->ToPlayer())
                 {
@@ -2595,7 +2595,7 @@ class mob_suchi_the_sweet : public CreatureScript
                 events.Reset();
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (Player* player = attacker->ToPlayer())
                 {
@@ -2754,7 +2754,7 @@ class mob_chi_ji_student : public CreatureScript
                     playerGuid = CAST_PLR(attacker)->GetGUID();
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (Player* player = attacker->ToPlayer())
                 {

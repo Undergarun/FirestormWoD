@@ -42,6 +42,7 @@
 #include "PhaseMgr.h"
 #include "CUFProfiles.h"
 #include "CinematicPathMgr.h"
+#include "VignetteMgr.hpp"
 #include "BitSet.hpp"
 
 // for template
@@ -501,6 +502,18 @@ enum PlayerFlagsEx
     PLAYER_FLAGS_EX_REAGENT_BANK_UNLOCKED = 0x00000001
 };
 
+enum PlayerLocalFlags
+{
+    PLAYER_LOCAL_FLAG_TRACK_STEALTHED               = 0x00000002,
+    PLAYER_LOCAL_FLAG_RELEASE_TIMER                 = 0x00000008,   // Display time till auto release spirit
+    PLAYER_LOCAL_FLAG_NO_RELEASE_WINDOW             = 0x00000010,   // Display no "release spirit" window at all
+    PLAYER_LOCAL_FLAG_NO_PET_BAR                    = 0x00000020,   // CGPetInfo::IsPetBarUsed
+    PLAYER_LOCAL_FLAG_OVERRIDE_CAMERA_MIN_HEIGHT    = 0x00000040,
+    PLAYER_LOCAL_FLAG_USING_PARTY_GARRISON          = 0x00000100,
+    PLAYER_LOCAL_FLAG_CAN_USE_OBJECTS_MOUNTED       = 0x00000200,
+    PLAYER_LOCAL_FLAG_CAN_VISIT_PARTY_GARRISON      = 0x00000400
+};
+
 // used for PLAYER_FIELD_KNOWN_TITLES field (uint64), (1<<bit_index) without (-1)
 // can't use enum for uint64 values
 #define PLAYER_TITLE_DISABLED              UI64LIT(0x0000000000000000)
@@ -549,21 +562,51 @@ enum PlayerFlagsEx
 #define KNOWN_TITLES_SIZE   10
 #define MAX_TITLE_INDEX     (KNOWN_TITLES_SIZE*64)          // 5 uint64 fields
 
+#define ECLIPSE_FULL_CYCLE_DURATION 40
+
 // used in PLAYER_FIELD_BYTES values
-enum PlayerFieldByteFlags
+enum PlayerBytesOffsets
 {
-    PLAYER_FIELD_BYTE_TRACK_STEALTHED   = 0x00000002,
-    PLAYER_FIELD_BYTE_RELEASE_TIMER     = 0x00000008,       // Display time till auto release spirit
-    PLAYER_FIELD_BYTE_NO_RELEASE_WINDOW = 0x00000010        // Display no "release spirit" window at all
+    PLAYER_BYTES_OFFSET_SKIN_ID         = 0,
+    PLAYER_BYTES_OFFSET_FACE_ID         = 1,
+    PLAYER_BYTES_OFFSET_HAIR_STYLE_ID   = 2,
+    PLAYER_BYTES_OFFSET_HAIR_COLOR_ID   = 3
 };
 
 // used in PLAYER_FIELD_BYTES2 values
 enum PlayerFieldByte2Flags
 {
-    PLAYER_FIELD_BYTE2_NONE                 = 0x00,
-    PLAYER_FIELD_BYTE2_STEALTH              = 0x20,
-    PLAYER_FIELD_BYTE2_INVISIBILITY_GLOW    = 0x40
+    PLAYER_BYTES_2_OFFSET_FACIAL_STYLE      = 0,
+    PLAYER_BYTES_2_OFFSET_PARTY_TYPE        = 1,
+    PLAYER_BYTES_2_OFFSET_BANK_BAG_SLOTS    = 2,
+    PLAYER_BYTES_2_OFFSET_REST_STATE        = 3
 };
+
+enum PlayerBytes3Offsets
+{
+    PLAYER_BYTES_3_OFFSET_GENDER        = 0,
+    PLAYER_BYTES_3_OFFSET_INEBRIATION   = 1,
+    PLAYER_BYTES_3_OFFSET_PVP_TITLE     = 2,
+    PLAYER_BYTES_3_OFFSET_ARENA_FACTION = 3
+};
+
+enum PlayerFieldBytesOffsets
+{
+    PLAYER_FIELD_BYTES_OFFSET_RAF_GRANTABLE_LEVEL   = 0,
+    PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES    = 1,
+    PLAYER_FIELD_BYTES_OFFSET_PVP_RANK              = 2,
+    PLAYER_FIELD_BYTES_OFFSET_LIFETIME_MAX_PVP_RANK = 3
+};
+
+enum PlayerFieldBytes2Offsets
+{
+    PLAYER_FIELD_BYTES_2_OFFSET_AURA_VISION         = 1,
+    PLAYER_FIELD_BYTES_2_OFFSET_OVERRIDE_SPELLS_ID  = 2  // uint16!
+};
+
+static_assert((PLAYER_FIELD_BYTES_2_OFFSET_OVERRIDE_SPELLS_ID & 1) == 0, "PLAYER_FIELD_BYTES_2_OFFSET_OVERRIDE_SPELLS_ID must be aligned to 2 byte boundary");
+
+#define PLAYER_BYTES_2_OVERRIDE_SPELLS_UINT16_OFFSET (PLAYER_FIELD_BYTES_2_OFFSET_OVERRIDE_SPELLS_ID / 2)
 
 enum MirrorTimerType
 {
@@ -952,7 +995,8 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_GARRISON_MISSIONS            = 48,
     PLAYER_LOGIN_QUERY_GARRISON_FOLLOWERS           = 49,
     PLAYER_LOGIN_QUERY_GARRISON_BUILDINGS           = 50,
-    PLAYER_LOGIN_QUERY_DAILY_LOOT_COOLDOWNS         = 51,
+    PLAYER_LOGIN_QUERY_GARRISON_WORKORDERS          = 51,
+    PLAYER_LOGIN_QUERY_DAILY_LOOT_COOLDOWNS         = 52,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -1168,7 +1212,7 @@ struct BGData
                                             ///  when player is teleported to BG - (it is battleground's GUID)
     BattlegroundTypeId bgTypeID;
 
-    std::map<uint32, uint32> bgQueuesJoinedTime;
+    std::map<MS::Battlegrounds::BattlegroundType::Type, uint32> bgQueuesJoinedTime;
 
     std::set<uint32>   bgAfkReporter;
     uint8              bgAfkReportedCount;
@@ -1381,7 +1425,6 @@ struct ChargesData
     {
         m_MaxCharges = 0;
         m_ConsumedCharges = 0;
-        m_Changed = false;
     }
 
     ChargesData(uint32 p_MaxCharges, uint64 p_Cooldown, uint32 p_Charges = 1)
@@ -1392,7 +1435,6 @@ struct ChargesData
         m_ConsumedCharges = p_Charges;
 
         m_ChargesCooldown.push_back(p_Cooldown);
-        m_Changed = true;
     }
 
     std::vector<uint64> GetChargesCooldown() const { return m_ChargesCooldown; }
@@ -1407,10 +1449,9 @@ struct ChargesData
     uint32 m_MaxCharges;
     uint32 m_ConsumedCharges;
     std::vector<uint64> m_ChargesCooldown;
-    bool m_Changed;
 };
 
-///<            SpellID
+///            CategoryID
 typedef std::map<uint32, ChargesData> SpellChargesMap;
 
 struct CompletedChallenge
@@ -1631,8 +1672,8 @@ class Player : public Unit, public GridObject<Player>
         static bool IsReagentBankPos(uint8 bag, uint8 slot);
         bool IsValidPos(uint16 pos, bool explicit_pos) { return IsValidPos(pos >> 8, pos & 255, explicit_pos); }
         bool IsValidPos(uint8 bag, uint8 slot, bool explicit_pos);
-        uint8 GetBankBagSlotCount() const { return GetByteValue(PLAYER_FIELD_REST_STATE, 2); }
-        void SetBankBagSlotCount(uint8 count) { SetByteValue(PLAYER_FIELD_REST_STATE, 2, count); }
+        uint8 GetBankBagSlotCount() const { return GetByteValue(PLAYER_FIELD_REST_STATE, PLAYER_BYTES_2_OFFSET_BANK_BAG_SLOTS); }
+        void SetBankBagSlotCount(uint8 count) { SetByteValue(PLAYER_FIELD_REST_STATE, PLAYER_BYTES_2_OFFSET_BANK_BAG_SLOTS, count); }
         bool HasItemCount(uint32 item, uint32 count = 1, bool inBankAlso = false) const;
         bool HasItemFitToSpellRequirements(SpellInfo const* spellInfo, Item const* ignoreItem = NULL) const;
         bool CanNoReagentCast(SpellInfo const* spellInfo) const;
@@ -1677,7 +1718,23 @@ class Player : public Unit, public GridObject<Player>
         bool StoreNewItemInBestSlots(uint32 item_id, uint32 item_count);
         void AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore const& store, bool broadcast = false);
         void AutoStoreLoot(uint32 loot_id, LootStore const& store, bool broadcast = false) { AutoStoreLoot(NULL_BAG, NULL_SLOT, loot_id, store, broadcast); }
-        void StoreLootItem(uint8 lootSlot, Loot* loot, uint8 linkedLootSlot = 255);
+        void StoreLootItem(uint8 p_LootSlot, Loot* p_Loot, uint8 p_LinkedLootSlot = 255);
+        void AddTrackingQuestIfNeeded(uint64 p_SourceGuid);
+
+        /// Apply a function on every item found in the bags.
+        /// @p_Function : A function that takes the owner of the items, the item to process, the slot bag of the item and the slot of the item.
+        /// If p_Function returns false, then it will stop apply.
+        void ApplyOnBagsItems(std::function<bool(Player*, Item*, uint8, uint8)>&& p_Function);
+
+        /// Apply a function on every item found in the bank.
+        /// @p_Function : A function that takes the owner of the items, the item to process, the slot bag of the item and the slot of the item.
+        /// If p_Function returns false, then it will stop apply.
+        void ApplyOnBankItems(std::function<bool(Player*, Item*, uint8, uint8)>&& p_Function);
+
+        /// Apply a function on every item found in the reagent bank.
+        /// @p_Function : A function that takes the owner of the items, the item to process, the slot bag of the item and the slot of the item.
+        /// If p_Function returns false, then it will stop apply.
+        void ApplyOnReagentBankItems(std::function<bool(Player*, Item*, uint8, uint8)>&& p_Function);
 
         InventoryResult CanTakeMoreSimilarItems(uint32 entry, uint32 count, Item* pItem, uint32* no_space_count = NULL) const;
         InventoryResult CanStoreItem(uint8 bag, uint8 slot, ItemPosCountVec& dest, uint32 entry, uint32 count, Item* pItem = NULL, bool swap = false, uint32* no_space_count = NULL) const;
@@ -1949,6 +2006,8 @@ class Player : public Unit, public GridObject<Player>
         void AddTimedQuest(uint32 quest_id) { m_timedquests.insert(quest_id); }
         void RemoveTimedQuest(uint32 quest_id) { m_timedquests.erase(quest_id); }
 
+        MS::Utilities::BitSet const& GetCompletedQuests() const { return m_CompletedQuestBits; }
+
         /*********************************************************/
         /***                   LOAD SYSTEM                     ***/
         /*********************************************************/
@@ -2027,13 +2086,6 @@ class Player : public Unit, public GridObject<Player>
         Unit* GetSelectedUnit() const;
         Player* GetSelectedPlayer() const;
         void SetSelection(uint64 guid) { m_curSelection = guid; SetGuidValue(UNIT_FIELD_TARGET, guid); }
-
-        uint8 GetComboPoints() const { return m_comboPoints; }
-
-        void AddComboPoints(int8 count, Spell* spell = NULL);
-        void GainSpellComboPoints(int8 count);
-        void ClearComboPoints();
-        void SendComboPoints();
 
         void SendMailResult(uint32 mailId, MailResponseType mailAction, MailResponseResult mailError, uint32 equipError = 0, uint32 item_guid = 0, uint32 item_count = 0);
         void SendNewMail();
@@ -2150,7 +2202,7 @@ class Player : public Unit, public GridObject<Player>
         void CastPassiveTalentSpell(uint32 spellId);
         void RemovePassiveTalentSpell(uint32 spellId);
 
-        void ResetSpec();
+        void ResetSpec(bool p_NoCost = false);
 
         // Dual Spec
         void UpdateSpecCount(uint8 count);
@@ -2348,10 +2400,7 @@ class Player : public Unit, public GridObject<Player>
         void SetArenaPersonalRating(uint8 slot, uint32 value)
         {
             if (slot >= MAX_PVP_SLOT)
-            {
-                sLog->outAshran("ARENA SLOT OVERFLOW!!");
                 return;
-            }
 
             if (value > 3500)
             {
@@ -2369,10 +2418,7 @@ class Player : public Unit, public GridObject<Player>
         void SetArenaMatchMakerRating(uint8 slot, uint32 value)
         {
             if (slot >= MAX_PVP_SLOT)
-            {
-                sLog->outAshran("ARENA SLOT OVERFLOW!!");
                 return;
-            }
 
             if (value > 3500)
             {
@@ -2385,37 +2431,29 @@ class Player : public Unit, public GridObject<Player>
         void IncrementWeekGames(uint8 slot)
         {
             if (slot >= MAX_PVP_SLOT)
-            {
-                sLog->outAshran("ARENA SLOT OVERFLOW!!");
                 return;
-            }
+
             ++m_WeekGames[slot];
         }
         void IncrementWeekWins(uint8 slot)
         {
             if (slot >= MAX_PVP_SLOT)
-            {
-                sLog->outAshran("ARENA SLOT OVERFLOW!!");
                 return;
-            }
+
             ++m_WeekWins[slot];
         }
         void IncrementSeasonGames(uint8 slot)
         {
             if (slot >= MAX_PVP_SLOT)
-            {
-                sLog->outAshran("ARENA SLOT OVERFLOW!!");
                 return;
-            }
+
             ++m_SeasonGames[slot];
         }
         void IncrementSeasonWins(uint8 slot)
         {
             if (slot >= MAX_PVP_SLOT)
-            {
-                sLog->outAshran("ARENA SLOT OVERFLOW!!");
                 return;
-            }
+
             ++m_SeasonWins[slot];
         }
         void FinishWeek();
@@ -2642,7 +2680,7 @@ class Player : public Unit, public GridObject<Player>
         inline SpellCooldowns GetSpellCooldowns() const { return m_spellCooldowns; }
 
         void SetDrunkValue(uint8 newDrunkValue, uint32 itemId = 0);
-        uint8 GetDrunkValue() const { return GetByteValue(PLAYER_FIELD_ARENA_FACTION, 1); }
+        uint8 GetDrunkValue() const { return GetByteValue(PLAYER_FIELD_ARENA_FACTION, PLAYER_BYTES_3_OFFSET_INEBRIATION); }
         static DrunkenState GetDrunkenstateByValue(uint8 value);
 
         uint32 GetDeathTimer() const { return m_deathTimer; }
@@ -2729,47 +2767,70 @@ class Player : public Unit, public GridObject<Player>
         BattlegroundTypeId GetBattlegroundTypeId() const { return m_bgData.bgTypeID; }
         Battleground* GetBattleground() const;
 
-        uint32 GetBattlegroundQueueJoinTime(uint32 bgTypeId) const
+        uint32 GetBattlegroundQueueJoinTime(MS::Battlegrounds::BattlegroundType::Type bgTypeId) const
         {
             auto itr = m_bgData.bgQueuesJoinedTime.find(bgTypeId);
             return itr != m_bgData.bgQueuesJoinedTime.end() ? itr->second : time(NULL);
         }
 
-        void AddBattlegroundQueueJoinTime(uint32 bgTypeId, uint32 joinTime)
+        void ChangeBattlegroundQueueJoinTimeKey(MS::Battlegrounds::BattlegroundType::Type p_BgTypeId, MS::Battlegrounds::BattlegroundType::Type p_OldBgTypeId)
+        {
+            auto l_Itr = m_bgData.bgQueuesJoinedTime.find(p_OldBgTypeId);
+            if (l_Itr != std::end(m_bgData.bgQueuesJoinedTime))
+            {
+                m_bgData.bgQueuesJoinedTime.insert(std::make_pair(p_BgTypeId, l_Itr->second));
+                m_bgData.bgQueuesJoinedTime.erase(l_Itr);
+            }
+        }
+
+        void AddBattlegroundQueueJoinTime(MS::Battlegrounds::BattlegroundType::Type bgTypeId, uint32 joinTime)
         {
             m_bgData.bgQueuesJoinedTime[bgTypeId] = joinTime;
         }
 
-        void RemoveBattlegroundQueueJoinTime(uint32 bgTypeId)
+        void RemoveBattlegroundQueueJoinTime(MS::Battlegrounds::BattlegroundType::Type bgTypeId)
         {
-            if (m_bgData.bgQueuesJoinedTime.find(bgTypeId) != m_bgData.bgQueuesJoinedTime.end())
-                m_bgData.bgQueuesJoinedTime.erase(m_bgData.bgQueuesJoinedTime.find(bgTypeId)->second);
+            auto l_Itr = m_bgData.bgQueuesJoinedTime.find(bgTypeId);
+            if (l_Itr != m_bgData.bgQueuesJoinedTime.end())
+                m_bgData.bgQueuesJoinedTime.erase(l_Itr);
         }
-
+        
+        /// Returns true if the player is in a battleground queue.
         bool InBattlegroundQueue() const
         {
             for (uint8 i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
-                if (m_bgBattlegroundQueueID[i].bgQueueTypeId != BATTLEGROUND_QUEUE_NONE)
+                if (m_bgBattlegroundQueueID[i].BgType <= MS::Battlegrounds::BattlegroundType::DeepwindGorge)
                     return true;
             return false;
         }
 
-        BattlegroundQueueTypeId GetBattlegroundQueueTypeId(uint32 index) const { return m_bgBattlegroundQueueID[index].bgQueueTypeId; }
-        uint32 GetBattlegroundQueueIndex(BattlegroundQueueTypeId bgQueueTypeId) const
+        /// Returns true if the player is in an arena queue.
+        bool InArenaQueue() const
         {
             for (uint8 i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
-                if (m_bgBattlegroundQueueID[i].bgQueueTypeId == bgQueueTypeId)
+                if (m_bgBattlegroundQueueID[i].BgType >= MS::Battlegrounds::BattlegroundType::Arena2v2 && m_bgBattlegroundQueueID[i].BgType <= MS::Battlegrounds::BattlegroundType::ArenaSkirmish3v3)
+                    return true;
+            return false;
+        }
+
+        void SetBattlegroundQueueTypeId(uint32 p_Index, MS::Battlegrounds::BattlegroundType::Type p_Type) { m_bgBattlegroundQueueID[p_Index].BgType = p_Type; }
+        MS::Battlegrounds::BattlegroundType::Type GetBattlegroundQueueTypeId(uint32 index) const { return m_bgBattlegroundQueueID[index].BgType; }
+
+        uint32 GetBattlegroundQueueIndex(MS::Battlegrounds::BattlegroundType::Type bgQueueTypeId) const
+        {
+            for (uint8 i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
+                if (m_bgBattlegroundQueueID[i].BgType == bgQueueTypeId)
                     return i;
             return PLAYER_MAX_BATTLEGROUND_QUEUES;
         }
-        bool IsInvitedForBattlegroundQueueType(BattlegroundQueueTypeId bgQueueTypeId) const
+        bool IsInvitedForBattlegroundQueueType(MS::Battlegrounds::BattlegroundType::Type bgQueueTypeId) const
         {
             for (uint8 i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
-                if (m_bgBattlegroundQueueID[i].bgQueueTypeId == bgQueueTypeId)
+                if (m_bgBattlegroundQueueID[i].BgType == bgQueueTypeId)
                     return m_bgBattlegroundQueueID[i].invitedToInstance != 0;
             return false;
         }
-        bool InBattlegroundQueueForBattlegroundQueueType(BattlegroundQueueTypeId bgQueueTypeId) const
+        bool InBattlegroundQueueForBattlegroundQueueType(MS::Battlegrounds::BattlegroundType::Type bgQueueTypeId) const
         {
             return GetBattlegroundQueueIndex(bgQueueTypeId) < PLAYER_MAX_BATTLEGROUND_QUEUES;
         }
@@ -2779,13 +2840,15 @@ class Player : public Unit, public GridObject<Player>
             m_bgData.bgInstanceID = val;
             m_bgData.bgTypeID = bgTypeId;
         }
-        uint32 AddBattlegroundQueueId(BattlegroundQueueTypeId val)
+
+        
+        uint32 AddBattlegroundQueueId(MS::Battlegrounds::BattlegroundType::Type val)
         {
             for (uint8 i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
             {
-                if (m_bgBattlegroundQueueID[i].bgQueueTypeId == BATTLEGROUND_QUEUE_NONE || m_bgBattlegroundQueueID[i].bgQueueTypeId == val)
+                if (m_bgBattlegroundQueueID[i].BgType == MS::Battlegrounds::BattlegroundType::None || m_bgBattlegroundQueueID[i].BgType == val)
                 {
-                    m_bgBattlegroundQueueID[i].bgQueueTypeId = val;
+                    m_bgBattlegroundQueueID[i].BgType = val;
                     m_bgBattlegroundQueueID[i].invitedToInstance = 0;
                     return i;
                 }
@@ -2795,26 +2858,26 @@ class Player : public Unit, public GridObject<Player>
         bool HasFreeBattlegroundQueueId()
         {
             for (uint8 i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
-                if (m_bgBattlegroundQueueID[i].bgQueueTypeId == BATTLEGROUND_QUEUE_NONE)
+                if (m_bgBattlegroundQueueID[i].BgType == MS::Battlegrounds::BattlegroundType::None)
                     return true;
             return false;
         }
-        void RemoveBattlegroundQueueId(BattlegroundQueueTypeId val)
+        void RemoveBattlegroundQueueId(MS::Battlegrounds::BattlegroundType::Type val)
         {
             for (uint8 i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
             {
-                if (m_bgBattlegroundQueueID[i].bgQueueTypeId == val)
+                if (m_bgBattlegroundQueueID[i].BgType == val)
                 {
-                    m_bgBattlegroundQueueID[i].bgQueueTypeId = BATTLEGROUND_QUEUE_NONE;
+                    m_bgBattlegroundQueueID[i].BgType = MS::Battlegrounds::BattlegroundType::None;
                     m_bgBattlegroundQueueID[i].invitedToInstance = 0;
                     return;
                 }
             }
         }
-        void SetInviteForBattlegroundQueueType(BattlegroundQueueTypeId bgQueueTypeId, uint32 instanceId)
+        void SetInviteForBattlegroundQueueType(MS::Battlegrounds::BattlegroundType::Type bgQueueTypeId, uint32 instanceId)
         {
             for (uint8 i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
-                if (m_bgBattlegroundQueueID[i].bgQueueTypeId == bgQueueTypeId)
+                if (m_bgBattlegroundQueueID[i].BgType == bgQueueTypeId)
                     m_bgBattlegroundQueueID[i].invitedToInstance = instanceId;
         }
         bool IsInvitedForBattlegroundInstance(uint32 instanceId) const
@@ -2824,10 +2887,11 @@ class Player : public Unit, public GridObject<Player>
                     return true;
             return false;
         }
+
         WorldLocation const& GetBattlegroundEntryPoint() const { return m_bgData.joinPos; }
         void SetBattlegroundEntryPoint();
 
-        void SetBGTeam(uint32 team) { m_bgData.bgTeam = team; }
+        void SetBGTeam(uint32 team) { m_bgData.bgTeam = team; SetByteValue(PLAYER_FIELD_ARENA_FACTION, PLAYER_BYTES_3_OFFSET_ARENA_FACTION, uint8(team == ALLIANCE ? 1 : 0)); }
         uint32 GetBGTeam() const { return m_bgData.bgTeam ? m_bgData.bgTeam : GetTeam(); }
         uint8 GetBGLastActiveSpec() const { return m_bgData.m_LastActiveSpec; }
         void SaveBGLastSpecialization() { m_bgData.m_LastActiveSpec = GetActiveSpec(); }
@@ -2901,7 +2965,7 @@ class Player : public Unit, public GridObject<Player>
 
         bool SetHover(bool enable);
 
-        void SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Direction, float p_Magnitude = 0.0f);
+        void SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Direction, float p_Magnitude = 0.0f, uint8 p_Type = 0);
         void RemoveAllMovementForces();
         bool HasMovementForce(uint64 p_Source);
 
@@ -2935,8 +2999,6 @@ class Player : public Unit, public GridObject<Player>
 
         WorldLocation GetStartPosition() const;
 
-        uint32 m_lastEclipseState;
-
         // current pet slot
         PetSlot m_currentPetSlot;
         uint32 m_petSlotUsed;
@@ -2951,22 +3013,22 @@ class Player : public Unit, public GridObject<Player>
 
         PetSlot getSlotForNewPet()
         {
-            uint32 last_known = 0;
+            uint32 l_LastKnow = 0;
             // Call Pet Spells
             // 883 83242 83243 83244 83245
             //  1    2     3     4     5
             if (HasSpell(83245))
-                last_known = 5;
+                l_LastKnow = 5;
             else if (HasSpell(83244))
-                last_known = 4;
+                l_LastKnow = 4;
             else if (HasSpell(83243))
-                last_known = 3;
+                l_LastKnow = 3;
             else if (HasSpell(83242))
-                last_known = 2;
+                l_LastKnow = 2;
             else if (HasSpell(883))
-                last_known = 1;
+                l_LastKnow = 1;
 
-            for (uint32 i = uint32(PET_SLOT_HUNTER_FIRST); i < last_known; ++i)
+            for (uint32 i = uint32(PET_SLOT_HUNTER_FIRST); i < l_LastKnow; ++i)
                 if ((m_petSlotUsed & (1 << i)) == 0)
                     return PetSlot(i);
 
@@ -3254,6 +3316,15 @@ class Player : public Unit, public GridObject<Player>
         /***                  SCENES SYSTEM                    ***/
         /*********************************************************/
         void PlayScene(uint32 sceneId, WorldObject* spectator);
+        /// Play standalone scene script on client side
+        /// @p_ScenePackageID : Scene package ID @ScenePackage.db2
+        /// @p_PlaybackFlags  : Playback flags (@TODO make some reverse on it)
+        /// @p_Location       : Scene script start location
+        /// Return generated Scene instance ID
+        uint32 PlayStandaloneScene(uint32 p_ScenePackageID, uint32 p_PlaybackFlags, Position p_Location);
+        /// Cancel a client-side played standalone scene
+        /// @p_SceneInstanceID : Scene instance ID
+        void CancelStandaloneScene(uint32 p_SceneInstanceID);
 
         /// Compute the unlocked pet battle slot
         uint32 GetUnlockedPetBattleSlot();
@@ -3326,13 +3397,14 @@ class Player : public Unit, public GridObject<Player>
 
         void SendSpellCharges();
         void SendClearAllSpellCharges();
-        void SendSetSpellCharges(uint32 p_SpellID);
-        void SendClearSpellCharges(uint32 p_SpellID);
+        void SendSetSpellCharges(uint32 p_CategoryID);
+        void SendClearSpellCharges(uint32 p_CategoryID);
 
-        bool CanUseCharge(uint32 p_SpellID) const;
+        void RestoreCharge(uint32 p_CategoryID);
+        bool CanUseCharge(uint32 p_CategoryID) const;
         void UpdateCharges(uint32 const p_Time);
-        void ConsumeCharge(uint32 p_SpellID, SpellCategoryEntry const* p_Category, bool p_SendPacket = false);
-        ChargesData* GetChargesData(uint32 p_SpellID);
+        void ConsumeCharge(uint32 p_CategoryID, SpellCategoryEntry const* p_Category);
+        ChargesData* GetChargesData(uint32 p_CategoryID);
         //////////////////////////////////////////////////////////////////////////
 
         //////////////////////////////////////////////////////////////////////////
@@ -3345,6 +3417,15 @@ class Player : public Unit, public GridObject<Player>
 
         CompletedChallengesMap m_CompletedChallenges;
         //////////////////////////////////////////////////////////////////////////
+
+        //////////////////////////////////////////////////////////////////////////
+        /// Vignette
+        //////////////////////////////////////////////////////////////////////////
+
+        Vignette::Manager const& GetVignetteMgr() { return m_VignetteMgr; }
+
+        /////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////
 
         struct MovieDelayedTeleport
         {
@@ -3386,6 +3467,14 @@ class Player : public Unit, public GridObject<Player>
         bool HasHeirloom(HeirloomEntry const* p_HeirloomEntry) const;
         uint32 GetHeirloomUpgradeLevel(HeirloomEntry const* p_HeirloomEntry) const;
         bool CanUpgradeHeirloomWith(HeirloomEntry const* p_HeirloomEntry, uint32 p_ItemId) const;
+
+        void AddCriticalOperation(std::function<void()> const&& p_Function)
+        {
+            m_CriticalOperationLock.acquire();
+            m_CriticalOperation.push(std::function<void()>(p_Function));
+            m_CriticalOperationLock.release();
+        }
+
     protected:
         void OnEnterPvPCombat();
         void OnLeavePvPCombat();
@@ -3410,7 +3499,6 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_regenTimerCount;
         uint32 m_holyPowerRegenTimerCount;
         uint32 m_chiPowerRegenTimerCount;
-        uint32 m_burningEmbersRegenTimerCount;
         uint32 m_soulShardsRegenTimerCount;
         uint32 m_focusRegenTimerCount;
         uint32 m_demonicFuryPowerRegenTimerCount;
@@ -3428,7 +3516,7 @@ class Player : public Unit, public GridObject<Player>
         */
         struct BgBattlegroundQueueID_Rec
         {
-            BattlegroundQueueTypeId bgQueueTypeId;
+            MS::Battlegrounds::BattlegroundType::Type BgType;
             uint32 invitedToInstance;
         };
 
@@ -3564,8 +3652,6 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_ExtraFlags;
         uint64 m_curSelection;
 
-        int8 m_comboPoints;
-
         QuestStatusMap m_QuestStatus;
         QuestObjectiveStatusMap m_questObjectiveStatus;
         QuestStatusSaveMap m_QuestStatusSave;
@@ -3699,6 +3785,9 @@ class Player : public Unit, public GridObject<Player>
         DailyQuestList m_dailyQuestStorage;
 
         MS::Utilities::BitSet m_CompletedQuestBits;
+
+        std::queue<std::function<void()>> m_CriticalOperation;
+        ACE_Thread_Mutex m_CriticalOperationLock;
 
     private:
         // internal common parts for CanStore/StoreItem functions
@@ -3841,6 +3930,11 @@ class Player : public Unit, public GridObject<Player>
 
         uint32 m_PvPCombatTimer;
         bool m_pvpCombat;
+
+        //////////////////////////////////////////////////////////////////////////
+        /// Vignette
+        //////////////////////////////////////////////////////////////////////////
+        Vignette::Manager m_VignetteMgr;
 };
 
 void AddItemsSetItem(Player*player, Item* item);

@@ -20,7 +20,7 @@ namespace MS { namespace Garrison { namespace Sites
     /// Destructor
     GarrisonSiteBase::~GarrisonSiteBase()
     {
-        if (Player * l_Player = sObjectAccessor->FindPlayer(m_OwnerGUID))
+        if (Player * l_Player = HashMapHolder<Player>::Find(m_OwnerGUID))
         {
             if (l_Player->GetGarrison())
                 l_Player->GetGarrison()->_SetGarrisonScript(nullptr);

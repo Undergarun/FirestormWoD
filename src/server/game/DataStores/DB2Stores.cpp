@@ -21,8 +21,12 @@
 #include "SharedDefines.h"
 #include "SpellMgr.h"
 #include "DB2fmt.h"
+#include "Item.h"
 
 #include <map>
+
+DB2Storage <PathNodeEntry>                  sPathNodeStore(PathNodeEntryfmt);
+DB2Storage <LocationEntry>                  sLocationStore(LocationEntryfmt);
 
 std::map<uint32 /*curveID*/, std::map<uint32/*index*/, CurvePointEntry const*, std::greater<uint32>>> HeirloomCurvePoints;
 std::unordered_map<uint32 /*ItemID*/, HeirloomEntry const*> HeirloomEntryByItemID;
@@ -61,6 +65,8 @@ DB2Storage <SpellClassOptionsEntry>         sSpellClassOptionsStore(SpellClassOp
 DB2Storage <MapChallengeModeEntry>          sMapChallengeModeStore(MapChallengeModeEntryfmt);
 DB2Storage <QuestPackageItemEntry>          sQuestPackageItemStore(QuestPackageItemEntryfmt);
 DB2Storage <MountEntry>                     sMountStore(MountEntryfmt);
+DB2Storage <PlayerConditionEntry>           sPlayerConditionStore(PlayerConditionEntryfmt);
+DB2Storage <VignetteEntry>                  sVignetteStore(VignetteEntryfmt);
 
 //////////////////////////////////////////////////////////////////////////
 /// Garrison DB2
@@ -85,6 +91,8 @@ DB2Storage <GarrMechanicEntry>              sGarrMechanicStore(GarrMechanicEntry
 DB2Storage <GarrEncouterXMechanicEntry>     sGarrEncouterXMechanicStore(GarrEncouterXMechanicEntryfmt);
 DB2Storage <GarrFollowerLevelXPEntry>       sGarrFollowerLevelXPStore(GarrFollowerLevelXPEntryfmt);
 DB2Storage <GarrSpecializationEntry>        sGarrSpecializationStore(GarrSpecializationEntryfmt);
+DB2Storage <CharShipmentEntry>              sCharShipmentStore(CharShipmentEntryfmt);
+DB2Storage <CharShipmentContainerEntry>     sCharShipmentContainerStore(CharShipmentContainerEntryfmt);
 
 //////////////////////////////////////////////////////////////////////////
 /// Battle pet
@@ -174,11 +182,15 @@ void LoadDB2Stores(const std::string& dataPath)
     //////////////////////////////////////////////////////////////////////////
     /// Misc DB2
     //////////////////////////////////////////////////////////////////////////
+    LoadDB2(bad_db2_files, sPathNodeStore,                  db2Path, "PathNode.db2");
+    LoadDB2(bad_db2_files, sLocationStore,                  db2Path, "Location.db2");
     LoadDB2(bad_db2_files, sAreaPOIStore,                   db2Path, "AreaPOI.db2");
     LoadDB2(bad_db2_files, sCurvePointStore,                db2Path, "CurvePoint.db2");
     LoadDB2(bad_db2_files, sHolidaysStore,                  db2Path, "Holidays.db2");
     LoadDB2(bad_db2_files, sMapChallengeModeStore,          db2Path, "MapChallengeMode.db2");
     LoadDB2(bad_db2_files, sMountStore,                     db2Path, "Mount.db2");
+    LoadDB2(bad_db2_files, sPlayerConditionStore,           db2Path, "PlayerCondition.db2");
+    LoadDB2(bad_db2_files, sVignetteStore,                  db2Path, "Vignette.db2");
 
     //////////////////////////////////////////////////////////////////////////
     /// Quest DB2
@@ -256,6 +268,8 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sGarrEncouterXMechanicStore,     db2Path, "GarrEncounterXMechanic.db2");
     LoadDB2(bad_db2_files, sGarrFollowerLevelXPStore,       db2Path, "GarrFollowerLevelXP.db2");
     LoadDB2(bad_db2_files, sGarrSpecializationStore,        db2Path, "GarrSpecialization.db2");
+    LoadDB2(bad_db2_files, sCharShipmentStore,              db2Path, "CharShipment.db2");
+    LoadDB2(bad_db2_files, sCharShipmentContainerStore,     db2Path, "CharShipmentContainer.db2");
 
     //////////////////////////////////////////////////////////////////////////
     /// Battle pet DB2

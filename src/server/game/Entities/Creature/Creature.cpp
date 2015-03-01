@@ -37,7 +37,7 @@
 #include "Formulas.h"
 #include "WaypointMovementGenerator.h"
 #include "InstanceScript.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 #include "Util.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
@@ -475,6 +475,8 @@ bool Creature::UpdateEntry(uint32 p_Entry, uint32 p_Team, const CreatureData* p_
     if (l_CreatureTemplate->InhabitType & INHABIT_WATER && IsInWater())
         AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
 
+    loot.SetSource(GetGUID());
+
     return true;
 }
 
@@ -786,7 +788,6 @@ bool Creature::AIM_Initialize(CreatureAI* ai)
     // make sure nothing can change the AI during AI update
     if (m_AI_locked)
     {
-        sLog->outAshran("AIM_Initialize: failed to init, locked.");
         return false;
     }
 

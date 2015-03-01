@@ -84,7 +84,6 @@ MovementStatusElements MovementGlobalSequence[] =
     MSEHasFallData,
     MSEZeroBit,
     MSEZeroBit,
-    MSEZeroBit,
 
     MSETransportGuid,
     MSETransportPositionX,
@@ -112,7 +111,7 @@ MovementStatusElements MovementGlobalSequence[] =
 MovementStatusElements PlayerMoveSequence[] =
 {
     MSEGuid,
-    MSEAlive32,
+    MSETimestamp,
     MSEPositionX,
     MSEPositionY,
     MSEPositionZ,
@@ -120,12 +119,11 @@ MovementStatusElements PlayerMoveSequence[] =
     MSEPitch,
     MSESplineElevation,
     MSEUnkCounter,
-    MSETimestamp,
+    MSEAlive32,
     MSEMovementFlags,
     MSEMovementFlags2,
     MSEHasTransportData,
     MSEHasFallData,
-    MSEZeroBit,
     MSEZeroBit,
     MSEZeroBit,
     MSEFlushBits,
@@ -200,6 +198,7 @@ MovementStatusElements* GetMovementStatusElementsSequence(Opcodes opcode)
         || opcode == CMSG_MOVE_SET_CAN_FLY_ACK
         || opcode == CMSG_MOVE_FEATHER_FALL_ACK
         || opcode == CMSG_MOVE_WATER_WALK_ACK
+        || opcode == CMSG_MOVE_KNOCK_BACK_ACK
         || opcode == CMSG_MOVE_HOVER_ACK
         || opcode == CMSG_MOVE_SPLINE_DONE
         || opcode == CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE)

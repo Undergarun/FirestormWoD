@@ -18,7 +18,7 @@
 
 #ifndef TRINITYCORE_AREATRIGGER_H
 # define TRINITYCORE_AREATRIGGER_H
-  
+
 # include "Object.h"
 # include "Timer.h"
 
@@ -83,6 +83,7 @@ struct AreaTriggerTemplate
     uint32 m_FacingCurveID;
 
     uint32 m_ScriptId;
+    uint32 m_CreatureVisualEntry;
 
     union
     {
@@ -208,10 +209,22 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         void GetPositionFromPathId(uint32 p_MoveCurveId, Position* p_OutPos) const;
         void UpdatePositionWithPathId(uint32 p_Time, Position* p_OutPos);
 
+        uint64 GetGUIDCreatureVisual() { return m_CreatureVisualGUID; };
+
         void SetSource(Position p_Source) { m_Source = p_Source; }
         void SetDestination(Position p_Dest) { m_Destination = p_Dest; }
         void SetTrajectory(AreatriggerInterpolation p_Trajectory) { m_Trajectory = p_Trajectory; }
         void SetUpdateTimerInterval(uint32 p_Timer) { m_UpdateTimer.SetInterval(p_Timer); }
+        void SetPathToLinearDestination(std::list<Position>& l_List) { m_PathToLinearDestination = l_List; }
+        Position const& GetDestination() const { return m_Destination; };
+
+        /*
+         * Cast spell by using unit trigger/dummy at areatrigger posiiton
+         * Use areatrigger owner (caster) for ennemies/friends selection
+         * @param p_Target  : Target of the spell we cast
+         * @param p_SpellId : Id of spell to cast
+         */
+        void CastSpell(Unit* p_Target, uint32 p_SpellId);
 
     protected:
         int32 m_Duration;
@@ -225,5 +238,8 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         IntervalTimer m_UpdateTimer;
         AreaTriggerTemplateList m_Templates;
         AreaTriggerEntityScript* m_Script;
+
+        uint64 m_CreatureVisualGUID;
+        std::list<Position> m_PathToLinearDestination;
 };
 #endif

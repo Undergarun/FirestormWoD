@@ -751,7 +751,7 @@ class boss_thorim : public CreatureScript
                 summon->RemoveCorpse(false);
             }
 
-            void DamageTaken(Unit* attacker, uint32 &damage)
+            void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const* p_SpellInfo)
             {
                 if (damage >= me->GetHealth())
                 {
@@ -1159,7 +1159,7 @@ class npc_thorim_arena_phase_add : public CreatureScript
                 return (IsInArena == ArenaAreaCheck(false)(who));
             }
 
-            void DamageTaken(Unit* attacker, uint32 &damage)
+            void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const* p_SpellInfo)
             {
                 if (!isOnSameSide(attacker))
                     damage = 0;

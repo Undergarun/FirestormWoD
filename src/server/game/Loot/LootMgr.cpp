@@ -971,7 +971,7 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
 
     uint8 l_ItemCount       = 0;
     uint8 l_CurrencyCount   = 0;
-    uint8 l_UIType          = LOOT_ITEM_UI_MASTER;
+    uint8 l_UIType          = LOOT_ITEM_UI_NORMAL;
 
     ByteBuffer l_ItemsDataBuffer;
 
@@ -1052,7 +1052,7 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                         l_ItemListType = LOOT_LIST_TRACKING_QUEST;
 
                     l_ItemsDataBuffer.WriteBits(LOOT_ITEM_TYPE_ITEM, 2);        ///< Type
-                    l_ItemsDataBuffer.WriteBits(LOOT_ITEM_UI_MASTER, 3);        ///< Ui Type
+                    l_ItemsDataBuffer.WriteBits(LOOT_ITEM_UI_NORMAL, 3);        ///< Ui Type
                     l_ItemsDataBuffer.WriteBit(false);                          ///< Can Trade To Tap List
                     l_ItemsDataBuffer.FlushBits();
                     l_ItemsDataBuffer << uint32(l_Loot.Items[l_I].count);
@@ -1091,12 +1091,15 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                 if (!l_Loot.Items[l_I].currency && !l_Loot.Items[l_I].is_looted && !l_Loot.Items[l_I].freeforall && l_Loot.Items[l_I].conditions.empty() && l_Loot.Items[l_I].AllowedForPlayer(lv.viewer))
                 {
                     uint8 l_ItemListType = LOOT_LIST_ITEM;
-
                     if (lv.viewer && lv.viewer->HasQuestForItem(l_Loot.Items[l_I].itemid))
                         l_ItemListType = LOOT_LIST_TRACKING_QUEST;
 
-                    l_ItemsDataBuffer.WriteBits(LOOT_ITEM_TYPE_ITEM, 2);             ///< Type
-                    l_ItemsDataBuffer.WriteBits(LOOT_ITEM_UI_MASTER, 3);        ///< Ui Type
+                    uint8 l_UIType = LOOT_ITEM_UI_NORMAL;
+                    if (lv.permission == MASTER_PERMISSION)
+                        l_UIType = LOOT_ITEM_UI_MASTER;
+
+                    l_ItemsDataBuffer.WriteBits(l_ItemListType, 2);             ///< Type
+                    l_ItemsDataBuffer.WriteBits(l_UIType, 3);                   ///< Ui Type
                     l_ItemsDataBuffer.WriteBit(false);                          ///< Can Trade To Tap List
                     l_ItemsDataBuffer.FlushBits();
                     l_ItemsDataBuffer << uint32(l_Loot.Items[l_I].count);
@@ -1486,7 +1489,7 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                     l_CurrenciesDataBuffer << uint32(0);
                 l_CurrenciesDataBuffer << uint32(item.count);
                 l_CurrenciesDataBuffer << uint8(ci->index);
-                l_CurrenciesDataBuffer.WriteBits(LOOT_ITEM_UI_MASTER, 3);
+                l_CurrenciesDataBuffer.WriteBits(LOOT_ITEM_UI_NORMAL, 3);
                 l_CurrenciesDataBuffer.FlushBits();
 
                 ++l_CurrencyCount;

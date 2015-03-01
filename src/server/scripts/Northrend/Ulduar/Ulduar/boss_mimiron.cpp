@@ -914,7 +914,7 @@ class boss_leviathan_mk : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*who*/, uint32 &damage)
+            void DamageTaken(Unit* /*who*/, uint32 &damage, SpellInfo const* p_SpellInfo)
             {
                 if (damage >= me->GetHealth())
                 {
@@ -1344,7 +1344,7 @@ class boss_vx_001 : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*who*/, uint32 &damage)
+            void DamageTaken(Unit* /*who*/, uint32 &damage, SpellInfo const* p_SpellInfo)
             {
                 if (damage >= me->GetHealth())
                 {
@@ -1873,7 +1873,7 @@ class boss_aerial_unit : public CreatureScript
                     summon->CastSpell(summon, SPELL_EMERGENCY_MODE, true);
             }
 
-            void DamageTaken(Unit* /*who*/, uint32 &damage)
+            void DamageTaken(Unit* /*who*/, uint32 &damage, SpellInfo const* p_SpellInfo)
             {
                 if (damage >= me->GetHealth())
                 {

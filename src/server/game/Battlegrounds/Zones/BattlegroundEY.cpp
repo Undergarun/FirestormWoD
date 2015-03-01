@@ -19,7 +19,7 @@
 #include "ObjectMgr.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 #include "Battleground.h"
 #include "BattlegroundEY.h"
 #include "Creature.h"

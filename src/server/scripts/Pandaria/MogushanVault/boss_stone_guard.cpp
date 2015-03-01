@@ -611,7 +611,7 @@ class boss_generic_guardian : public CreatureScript
                 summons.Despawn(summon);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (pInstance)
                     if (pInstance->GetBossState(DATA_STONE_GUARD) != IN_PROGRESS)

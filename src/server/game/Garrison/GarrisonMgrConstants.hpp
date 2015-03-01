@@ -5,129 +5,180 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef GARRISON_MGR_CONSTANTS_HPP_GARRISON
-#define GARRISON_MGR_CONSTANTS_HPP_GARRISON
+#ifndef GARRISON_CONSTANTS_HPP_GARRISON
+#define GARRISON_CONSTANTS_HPP_GARRISON
 
+#include "SharedDefines.h"
 #include "GarrisonMgrStructures.hpp"
 
-#define GARRISON_MAX_LEVEL                      3
-#define GARRISON_MAX_FOLLOWER_PER_MISSION       3
-#define GARRISON_BASE_MAP                       1116
-#define GARRISON_PLOT_INSTANCE_COUNT            40
-#define GARRISON_CURRENCY_ID                    824
-#define GARRISON_MAX_FOLLOWER_LEVEL             100
-#define GARRISON_DEFAULT_MAX_ACTIVE_FOLLOW      20
-#define GARRISON_FOLLOWER_ACTIVATION_COST       (250 * GOLD)
-#define GARRISON_FOLLOWER_ACTIVATION_MAX_STACK  1
-#define GARRISON_CACHE_MAX_CURRENCY             500
-#define GARRISON_CACHE_HEFTY_CURRENCY           200
-#define GARRISON_CACHE_MIN_CURRENCY             5
-#define GARRISON_CACHE_GENERATE_TICK            (10 * MINUTE)
-#define GARRISON_MISSION_DISTRIB_INTERVAL       (25 * MINUTE)
-#define GARRISON_MISSION_DISTRIB_FOLLOWER_COEFF 1.5
+/// @Hatters gonna hate, float doesn't go into the Globals enum, Change standard ?
+#define GARRISON_MISSION_DISTRIB_FOLLOWER_COEFF (1.5f)
 
 namespace MS { namespace Garrison 
 {
-    enum GarrisonFactionIndex
+    namespace Globals
     {
-        GARRISON_FACTION_HORDE      = 0,
-        GARRISON_FACTION_ALLIANCE   = 1,
-        GARRISON_FACTION_COUNT      = 2
-    };
+        enum
+        {
+            MaxLevel                        = 3,
+            MaxFollowerPerMission           = 3,
+            MaxFollowerLevel                = 100,
+            MaxActiveFollower               = 20,
+            FollowerActivationCost          = (250 * GOLD),
+            FollowerActivationMaxStack      = 1,
+            BaseMap                         = 1116,
+            PlotInstanceCount               = 40,
+            CurrencyID                      = 824,
+            CacheMinToken                   = 5,
+            CacheHeftyToken                 = 200,
+            CacheMaxToken                   = 500,
+            CacheTokenGenerateTime          = (10 * MINUTE),
+            MissionDistributionInterval     = (25 * MINUTE),
+        };
+    }
 
-    enum GarrisonMissionState
+    namespace FactionIndex
     {
-        GARRISON_MISSION_AVAILABLE              = 0,
-        GARRISON_MISSION_IN_PROGRESS            = 1,
-        GARRISON_MISSION_COMPLETE_SUCCESS       = 2,
-        GARRISON_MISSION_COMPLETE_FAILED        = 5
-    };
+        enum Type : uint8
+        {
+            Horde       = 0,
+            Alliance    = 1,
+            Max         = 2
+        };
+    }
 
-    enum GarrisonMissionFlag
+    namespace MissionStates
     {
-        GARRISON_MISSION_FLAG_RARE          = 0x01,
-        GARRISON_MISSION_FLAG_UNK_2         = 0x02,
-        GARRISON_MISSION_FLAG_EXHAUSTING    = 0x04
-    };
+        enum Type : uint8
+        {
+            Available             = 0,
+            InProgress            = 1,
+            CompleteSuccess       = 2,
+            CompleteFailed        = 5
+        };
+    }
 
-    enum GarrisonLearnBluePrintResult
+    namespace MissionFlags
     {
-        GARRISON_LEARN_BLUEPRINT_LEARNED            = 0,
-        GARRISON_LEARN_BLUEPRINT_UNABLE_TO_LEARN    = 1,
-        GARRISON_LEARN_BLUEPRINT_KNOWN              = 21
-    };
+        enum : uint8
+        {
+            Rare        = 0x01,
+            Unk2        = 0x02,
+            Exhausting  = 0x04
+        };
+    }
 
-    enum GarrisonPlotType
+    namespace LearnBluePrintResults
     {
-        GARRISON_PLOT_TYPE_SMALL            = 0,
-        GARRISON_PLOT_TYPE_MEDIUM           = 1,
-        GARRISON_PLOT_TYPE_LARGE            = 2,
-        GARRISON_PLOT_TYPE_FARM             = 3,
-        GARRISON_PLOT_TYPE_MINE             = 4,
-        GARRISON_PLOT_TYPE_FISHING_HUT      = 5,
-        GARRISON_PLOT_TYPE_PET_MENAGERIE    = 6,
-        GARRISON_PLOT_TYPE_MAX              = 7
-    };
+        enum Type : uint8
+        {
+            Learned             = 0,
+            UnableToLearn       = 1,
+            Known               = 21
+        };
+    }
 
-    enum GarrisonPurchaseBuildingResult
+    namespace PlotTypes
     {
-        GARRISON_PURCHASE_BUILDING_OK                       = 0,
-        GARRISON_PURCHASE_BUILDING_BUILDING_EXIST           = 24,
-        GARRISON_PURCHASE_BUILDING_INVALID_PLOT             = 10,
-        GARRISON_PURCHASE_BUILDING_INVALID_BUILDING_ID      = 11,
-        GARRISON_PURCHASE_BUILDING_INVALID_PLOT_BUILDING    = 16,
-        GARRISON_PURCHASE_BUILDING_REQUIRE_BLUE_PRINT       = 22,
-        GARRISON_PURCHASE_BUILDING_NOT_ENOUGH_CURRENCY      = 46,
-        GARRISON_PURCHASE_BUILDING_NOT_ENOUGH_GOLD          = 47
-    };
+        enum
+        {
+            Small           = 0,
+            Medium          = 1,
+            Large           = 2,
+            Farm            = 3,
+            Mine            = 4,
+            FishingHut      = 5,
+            PetMenagerie    = 6,
+            Max             = 7
+        };
+    }
 
-    enum GarrisonMissionBonusRollResult
+    namespace PurchaseBuildingResults
     {
-        GARRISON_MISSION_BONUS_ROLL_OK      = 0,
-        GARRISON_MISSION_BONUS_ROLL_ERROR   = 1
-    };
+        enum Type
+        {
+            Ok                  = 0,
+            BuildingExists      = 24,
+            InvalidBuildingID   = 11,
+            InvalidPlot         = 10,
+            InvalidPlotBuilding = 16,
+            RequireBluePrint    = 22,
+            NotEnoughCurrency   = 46,
+            NotEnoughGold       = 47
+        };
+    }
 
-    enum GarrisonAbilityEffectType
+    namespace MissionBonusRollResults
     {
-        GARRISION_ABILITY_EFFECT_UNK_0                                  = 0,    ///< @TODO
-        GARRISION_ABILITY_EFFECT_MOD_WIN_RATE_SOLO                      = 1,    ///< Proc if MissionFollowerCount == 1
-        GARRISION_ABILITY_EFFECT_MOD_WIN_RATE                           = 2,    ///< Proc every time
-        GARRISION_ABILITY_EFFECT_MOD_TRAVEL_TIME                        = 3,    ///< Proc every time
-        GARRISION_ABILITY_EFFECT_MOD_XP_GAIN                            = 4,    ///< Mod the XP earn (self, party)
-        GARRISION_ABILITY_EFFECT_MOD_WIN_RATE_CLASS                     = 5,    ///< Proc if Find(MissionFollowers[Class], MiscValueA) != NULL 
-        GARRISION_ABILITY_EFFECT_MOD_WIN_RATE_DURATION_MORE             = 6,    ///< Proc if Duration > (3600 * MiscValueB)
-        GARRISION_ABILITY_EFFECT_MOD_WIN_RATE_DURATION_LESS             = 7,    ///< Proc if Duration < (3600 * MiscValueB)
-        GARRISION_ABILITY_EFFECT_MOD_GARR_CURRENCY_DROP                 = 8,    ///< @TODO
-        GARRISION_ABILITY_EFFECT_MOD_WIN_RATE_TRAVEL_DURATION_MORE      = 9,    ///< Proc if TravelDuration > (3600 * MiscValueB)
-        GARRISION_ABILITY_EFFECT_MOD_WIN_RATE_TRAVEL_DURATION_LESS      = 10,   ///< Proc if TravelDuration < (3600 * MiscValueB)
-        GARRISION_ABILITY_EFFECT_UNK_11                                 = 11,   ///< UNUSED
-        GARRISION_ABILITY_EFFECT_MOD_DUMMY_PRODUCTION                   = 12,   ///< @TODO
-        GARRISION_ABILITY_EFFECT_MOD_BRONZE_TREASURE_DROP               = 13,   ///< @TODO
-        GARRISION_ABILITY_EFFECT_MOD_SILVER_TREASURE_DROP               = 14,   ///< @TODO
-        GARRISION_ABILITY_EFFECT_MOD_GOLD_TREASURE_DROP                 = 15,   ///< @TODO
-        GARRISION_ABILITY_EFFECT_MOD_CHEST_DROP_RATE                    = 16,   ///< @TODO
-        GARRISION_ABILITY_EFFECT_MOD_MISSION_DURATION                   = 17    ///< Proc every time
-    };
+        enum Type
+        {
+            Ok      = 0,
+            Error   = 1
+        };
+    }
 
-    enum GarrisonAbilityEffectTargetMask
+    namespace AbilityEffectTypes
     {
-        GARRISON_ABILITY_EFFECT_TARGET_MASK_UNK   = 0 << 0,
-        GARRISON_ABILITY_EFFECT_TARGET_MASK_SELF  = 1 << 0,
-        GARRISON_ABILITY_EFFECT_TARGET_MASK_PARTY = 1 << 1
-    };
+        enum Type
+        {
+            ModUnk0                        = 0,    ///< @TODO
+            ModWinRateSolo                 = 1,    ///< Proc if MissionFollowerCount == 1
+            ModWinRate                     = 2,    ///< Proc every time
+            ModTravelTime                  = 3,    ///< Proc every time
+            ModXpGain                      = 4,    ///< Mod the XP earn (self, party)
+            ModWinRateClass                = 5,    ///< Proc if Find(MissionFollowers[Class], MiscValueA) != NULL 
+            ModWinRateDurationMore         = 6,    ///< Proc if Duration > (3600 * MiscValueB)
+            ModWinRateDurationLess         = 7,    ///< Proc if Duration < (3600 * MiscValueB)
+            ModGarrCurrencyDrop            = 8,    ///< Implemented.
+            ModWinRateTravelDurationMore   = 9,    ///< Proc if TravelDuration > (3600 * MiscValueB)
+            ModWinRateTravelDurationLess   = 10,   ///< Proc if TravelDuration < (3600 * MiscValueB)
+            ModUnk11                       = 11,   ///< UNUSED
+            ModDummyProduction             = 12,   ///< @TODO
+            ModBronzeTreasureDrop          = 13,   ///< @TODO
+            ModSilverTreasureDrop          = 14,   ///< @TODO
+            ModGoldTreasureDrop            = 15,   ///< @TODO
+            ModChestDropRate               = 16,   ///< @TODO
+            ModMissionDuration             = 17    ///< Proc every time
+        };
+    }
 
-    enum GarrMechanicType
+    namespace AbilityEffectTargetMasks
     {
-        GARRISON_MECHANIC_TYPE_ENVIRONMENT  = 0,
-        GARRISON_MECHANIC_TYPE_RACIAL       = 1,
-        GARRISON_MECHANIC_TYPE_ABILITY      = 2
-    };
+        enum Type
+        {
+            Unk     = 0 << 0,
+            Self    = 1 << 0,
+            Party   = 1 << 1
+        };
+    }
+
+    namespace MechanicTypes
+    {
+        enum Type
+        {
+            Environment = 0,
+            Racial      = 1,
+            Ability     = 2
+        };
+    }
 
     /// WorldState : See WorldState.dbc
-    enum GarrisonWorldState
+    namespace WorldStates
     {
-        GARRISON_WORLD_STATE_CACHE_NUM_TOKEN = 9573
-    };
+        enum Type
+        {
+            CacheNumToken = 9573
+        };
+    }
+
+    namespace BaseQuests
+    {
+        enum
+        {
+            FoundedGarrisonH = 36793,
+            FoundedGarrisonA = 36797
+        };
+    }
 
     enum GarrisonAbilitySpells
     {
@@ -147,11 +198,44 @@ namespace MS { namespace Garrison
         TERRAIN_SWAP_GARRISON_SMV_ALLIANCE_TIER_3 = 974
     };
 
-    enum 
+    namespace CreatureAIDataIDs
     {
-        GARRISON_CREATURE_AI_DATA_BUILDER       = 10000,
-        GARRISON_CREATURE_AI_DATA_PEON_WORKING  = 10001
-    };
+        enum
+        {
+            Builder         = 10000,
+            PeonWorking     = 10001,
+            BuildingID      = 10002,
+            PlotInstanceID  = 10003
+        };
+    }
+
+    namespace TaxiNodes
+    {
+        enum
+        {
+            Alliance = 1476,
+            Horde    = 1432
+        };
+    }
+
+    namespace Buildings
+    {
+        enum
+        {
+            DwarvenBunker__WarMill_Level1   = 8,
+            DwarvenBunker__WarMill_Level2   = 9,
+            DwarvenBunker__WarMill_Level3   = 10,
+            Barracks__Barracks_Level1       = 26,
+            Barracks__Barracks_Level2       = 27,
+            Barracks__Barracks_Level3       = 28,
+            Storehouse__Storehouse_Level1   = 51,
+            Storehouse__Storehouse_Level2   = 142,
+            Storehouse__Storehouse_Level3   = 143,
+            TheForge__TheForge_Level1       = 60,
+            TheForge__TheForge_Level2       = 117,
+            TheForge__TheForge_Level3       = 118,
+        };
+    }
 
     enum GarrisonFollowerFlags
     {
@@ -159,79 +243,138 @@ namespace MS { namespace Garrison
         GARRISON_FOLLOWER_FLAG_INACTIVE     = 0x4
     };
 
-    static const uint32 gGarrisonInGarrisonAreaID[GARRISON_FACTION_COUNT] =
+    namespace BuildingType
+    {
+        enum Type
+        {
+            Mine                = 1,
+            Garden              = 2,
+            Barn                = 3,
+            LumberMill          = 4,
+            Tavern              = 5,
+            TradingPost         = 6,
+            Menagerie           = 7,
+            Barracks            = 8,
+            Orchard             = 9,
+            WarFactory          = 10,
+            Stable              = 11,
+            Unk12               = 12,
+            MagusOffice         = 13,
+            SortingOffice       = 14,
+            Magasin             = 15,
+            AlchemyLab          = 16,
+            Forge               = 17,
+            EnchantingCabinet   = 18,
+            EngineeringPole     = 19,
+            ScribeStudy         = 20,
+            ShopGems            = 21,
+            Tannery             = 22,
+            TailoringWorkshop   = 23,
+            FishingHut          = 24,
+            SanctumGladiator    = 25,
+            GnomeWorkshop       = 26
+        };
+    }
+
+    namespace BuildingCategory
+    {
+        enum Type
+        {
+            Prebuilt    = 0,
+            UserBuilt   = 1
+        };
+    }
+
+    namespace WorkOrderGODisplayID
+    {
+        enum
+        {
+            BaseA       = 15585,
+            BaseH       = 20508,
+            AllComplete = 16091,
+        };
+    }
+
+    static const uint32 gGarrisonBuildingMaxWorkOrderPerBuildingLevel[Globals::MaxLevel] =
+    {
+        7,
+        14,
+        21
+    };
+
+    static const uint32 gGarrisonInGarrisonAreaID[FactionIndex::Max] =
     {
         7004,   ///< Horde
-        7078,   ///< Alliance
+        7078    ///< Alliance
     };
 
-    static const uint32 gGarrisonEmptyPlotGameObject[GARRISON_PLOT_TYPE_MAX * GARRISON_FACTION_COUNT] =
+    static const uint32 gGarrisonEmptyPlotGameObject[PlotTypes::Max * FactionIndex::Max] =
     {
         /// Horde
-        233083,     ///< GARRISON_PLOT_TYPE_SMALL
-        232425,     ///< GARRISON_PLOT_TYPE_MEDIUM
-        233081,     ///< GARRISON_PLOT_TYPE_LARGE
-        232415,     ///< GARRISON_PLOT_TYPE_FARM
-        232447,     ///< GARRISON_PLOT_TYPE_MINE
-        232426,     ///< GARRISON_PLOT_TYPE_FISHING_HUT
-        231706,     ///< GARRISON_PLOT_TYPE_PET_MENAGERIE
+        233083,     ///< PlotTypes::Small
+        232425,     ///< PlotTypes::Medium
+        233081,     ///< PlotTypes::Large
+        232425,     ///< PlotTypes::Farm
+        232425,     ///< PlotTypes::Mine
+        233083,     ///< PlotTypes::FishingHut
+        233083,     ///< PlotTypes::PetMenagerie
         /// Alliance
-        229501,     ///< GARRISON_PLOT_TYPE_SMALL
-        232283,     ///< GARRISON_PLOT_TYPE_MEDIUM
-        232143,     ///< GARRISON_PLOT_TYPE_LARGE
-        232286,     ///< GARRISON_PLOT_TYPE_FARM
-        233485,     ///< GARRISON_PLOT_TYPE_MINE
-        237223,     ///< GARRISON_PLOT_TYPE_FISHING_HUT
-        0           ///< GARRISON_PLOT_TYPE_PET_MENAGERIE
+        229501,     ///< PlotTypes::Small
+        232283,     ///< PlotTypes::Medium
+        232143,     ///< PlotTypes::Large
+        232283,     ///< PlotTypes::Farm
+        232283,     ///< PlotTypes::Mine
+        229501,     ///< PlotTypes::FishingHut
+        229501      ///< PlotTypes::PetMenagerie
     };
 
-    static const uint32 gGarrisonBuildingPlotGameObject[GARRISON_PLOT_TYPE_MAX * GARRISON_FACTION_COUNT] =
+    static const uint32 gGarrisonBuildingPlotGameObject[PlotTypes::Max * FactionIndex::Max] =
     {
         /// Horde
-        233958,     ///< GARRISON_PLOT_TYPE_SMALL
-        232373,     ///< GARRISON_PLOT_TYPE_MEDIUM
-        232410,     ///< GARRISON_PLOT_TYPE_LARGE
-        232373,     ///< GARRISON_PLOT_TYPE_FARM          same as GARRISON_PLOT_TYPE_MEDIUM
-        232373,     ///< GARRISON_PLOT_TYPE_MINE          same as GARRISON_PLOT_TYPE_MEDIUM
-        233958,     ///< GARRISON_PLOT_TYPE_FISHING_HUT   same as GARRISON_PLOT_TYPE_SMALL
-        233958,     ///< GARRISON_PLOT_TYPE_PET_MENAGERIE same as GARRISON_PLOT_TYPE_SMALL
+        233958,     ///< PlotTypes::Small
+        232373,     ///< PlotTypes::Medium
+        232410,     ///< PlotTypes::Large
+        232373,     ///< PlotTypes::Farm          same as PlotTypes::Medium
+        232373,     ///< PlotTypes::Mine          same as PlotTypes::Medium
+        233958,     ///< PlotTypes::FishingHut    same as PlotTypes::Small
+        233958,     ///< PlotTypes::PetMenagerie  same as PlotTypes::Small
         /// Alliance
-        233957,     ///< GARRISON_PLOT_TYPE_SMALL
-        232409,     ///< GARRISON_PLOT_TYPE_MEDIUM
-        232411,     ///< GARRISON_PLOT_TYPE_LARGE
-        232409,     ///< GARRISON_PLOT_TYPE_FARM          same as GARRISON_PLOT_TYPE_MEDIUM
-        232409,     ///< GARRISON_PLOT_TYPE_MINE          same as GARRISON_PLOT_TYPE_MEDIUM
-        233957,     ///< GARRISON_PLOT_TYPE_FISHING_HUT   same as GARRISON_PLOT_TYPE_SMALL
-        233957      ///< GARRISON_PLOT_TYPE_PET_MENAGERIE same as GARRISON_PLOT_TYPE_SMALL
+        233957,     ///< PlotTypes::Small
+        232409,     ///< PlotTypes::Medium
+        232411,     ///< PlotTypes::Large
+        232409,     ///< PlotTypes::Farm          same as PlotTypes::Medium
+        232409,     ///< PlotTypes::Mine          same as PlotTypes::Medium
+        233957,     ///< PlotTypes::FishingHut    same as PlotTypes::Small
+        233957      ///< PlotTypes::PetMenagerie  same as PlotTypes::Small
     };
 
-    static const float gGarrisonBuildingPlotAABBDiminishReturnFactor[GARRISON_PLOT_TYPE_MAX * GARRISON_FACTION_COUNT] =
+    static const float gGarrisonBuildingPlotAABBDiminishReturnFactor[PlotTypes::Max * FactionIndex::Max] =
     {
         /// Horde
-        0,          ///< GARRISON_PLOT_TYPE_SMALL
-        0,          ///< GARRISON_PLOT_TYPE_MEDIUM
-        24,         ///< GARRISON_PLOT_TYPE_LARGE
-        0,          ///< GARRISON_PLOT_TYPE_FARM          same as GARRISON_PLOT_TYPE_MEDIUM
-        0,          ///< GARRISON_PLOT_TYPE_MINE          same as GARRISON_PLOT_TYPE_MEDIUM
-        0,          ///< GARRISON_PLOT_TYPE_FISHING_HUT   same as GARRISON_PLOT_TYPE_SMALL
-        0,          ///< GARRISON_PLOT_TYPE_PET_MENAGERIE same as GARRISON_PLOT_TYPE_SMALL
+        10,         ///< PlotTypes::Small
+        16,         ///< PlotTypes::Medium
+        24,         ///< PlotTypes::Large
+        0,          ///< PlotTypes::Farm          same as PlotTypes::Medium
+        0,          ///< PlotTypes::Mine          same as PlotTypes::Medium
+        0,          ///< PlotTypes::FishingHut    same as PlotTypes::Small
+        0,          ///< PlotTypes::PetMenagerie  same as PlotTypes::Small
         /// Alliance
-        10,         ///< GARRISON_PLOT_TYPE_SMALL
-        16,         ///< GARRISON_PLOT_TYPE_MEDIUM
-        24,         ///< GARRISON_PLOT_TYPE_LARGE
-        16,         ///< GARRISON_PLOT_TYPE_FARM          same as GARRISON_PLOT_TYPE_MEDIUM
-        16,         ///< GARRISON_PLOT_TYPE_MINE          same as GARRISON_PLOT_TYPE_MEDIUM
-        10,         ///< GARRISON_PLOT_TYPE_FISHING_HUT   same as GARRISON_PLOT_TYPE_SMALL
-        10          ///< GARRISON_PLOT_TYPE_PET_MENAGERIE same as GARRISON_PLOT_TYPE_SMALL
+        10,         ///< PlotTypes::Small
+        16,         ///< PlotTypes::Medium
+        24,         ///< PlotTypes::Large
+        16,         ///< PlotTypes::Farm          same as PlotTypes::Medium
+        16,         ///< PlotTypes::Mine          same as PlotTypes::Medium
+        10,         ///< PlotTypes::FishingHut    same as PlotTypes::Small
+        10          ///< PlotTypes::PetMenagerie  same as PlotTypes::Small
     };
 
-    static const uint32 gGarrisonBuildingActivationGameObject[GARRISON_FACTION_COUNT] =
+    static const uint32 gGarrisonBuildingActivationGameObject[FactionIndex::Max] =
     {
         233248,     ///< Horde
         233250      ///< Alliance
     };
 
-    static const GarrisonPlotInstanceInfoLocation gGarrisonPlotInstanceInfoLocation[GARRISON_PLOT_INSTANCE_COUNT] =
+    static const GarrisonPlotInstanceInfoLocation gGarrisonPlotInstanceInfoLocation[Globals::PlotInstanceCount] =
     {
         /// SiteLevelID PlotInstanceID      X            Y            Z           O
         /// Alliance Level 1
@@ -283,25 +426,25 @@ namespace MS { namespace Garrison
     };
 
     /// Cache game object position for each faction / level
-    static const GarrisonCacheInfoLocation gGarrisonCacheInfoLocation[GARRISON_FACTION_COUNT * GARRISON_MAX_LEVEL] =
+    static const GarrisonCacheInfoLocation gGarrisonCacheInfoLocation[FactionIndex::Max * Globals::MaxLevel] =
     {
         /// SiteLevelID         X           Y          Z         O
         /// Horde Level 1
         {     258,          5565.679f,  4499.0090f, 132.02610f, 0.081281f  },
         /// Horde level 2
-        {     445,             0.f,        0.f,       0.f,      0.f        },
+        {     445,          5589.409f,  4596.8510f, 136.58750f, 5.953404f  },
         /// Horde level 3
         {     259,          5592.272f,  4589.9390f, 136.66830f, 5.858787f  },
         /// Alliance Level 1
         {       5,          1893.729f,   208.8733f,  77.06371f, 1.685312f  },
         /// Alliance Level 2
-        {     444,             0.f,        0.f,       0.f,      0.f        },
+        {     444,          1949.946f,   287.2795f,  88.96585f, 3.255662f  },
         /// Alliance Level 3
         {       6,             0.f,        0.f,       0.f,      0.f        }
     };
 
     /// Cache game object entry for each faction / state
-    static const uint32 gGarrisonCacheGameObjectID[GARRISON_FACTION_COUNT * 3] =
+    static const uint32 gGarrisonCacheGameObjectID[FactionIndex::Max * 3] =
     {
         /// Horde
         237191,         ///< Normal
@@ -316,4 +459,4 @@ namespace MS { namespace Garrison
 }   ///< namespace Garrison
 }   ///< namespace MS
 
-#endif  ///< GARRISON_MGR_CONSTANTS_HPP_GARRISON
+#endif  ///< GARRISON_CONSTANTS_HPP_GARRISON

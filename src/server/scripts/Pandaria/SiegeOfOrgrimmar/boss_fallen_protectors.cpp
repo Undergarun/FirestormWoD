@@ -194,7 +194,7 @@ class boss_sun_tenderheart : public CreatureScript
             {
             }
 			
-			void DamageTaken(Unit* attacker, uint32& damage)
+			void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (phase == PHASE_COMBAT && me->HealthBelowPctDamaged(nextPhaseHealthPct, damage) && nextPhaseHealthPct > 33.33f)
                 {
@@ -386,7 +386,7 @@ class boss_he_softfoot : public CreatureScript
             {
             }
 			
-			void DamageTaken(Unit* attacker, uint32& damage)
+			void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (phase == PHASE_COMBAT && me->HealthBelowPctDamaged(nextPhaseHealthPct, damage) && nextPhaseHealthPct > 33.33f)
                 {
@@ -581,7 +581,7 @@ class boss_rook_stonetoe : public CreatureScript
             {
             }
 			
-			void DamageTaken(Unit* attacker, uint32& damage)
+			void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (phase == PHASE_COMBAT && me->HealthBelowPctDamaged(nextPhaseHealthPct, damage) && nextPhaseHealthPct > 33.33f)
                 {

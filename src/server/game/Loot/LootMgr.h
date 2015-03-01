@@ -97,13 +97,13 @@ enum LootType
 
 enum LootItemUiType
 {
-    //                                  = 0,
-    LOOT_ITEM_UI_MASTER                 = 1,
+    LOOT_ITEM_UI_NORMAL                 = 0,
+    //                                  = 1,
     LOOT_ITEM_UI_ONLY_ONE_LOOTER        = 2,
-    //                                  = 3,
+    LOOT_ITEM_UI_MASTER                 = 3,
     LOOT_ITEM_UI_ROLL                   = 4,
     //                                  = 5,
-    LOOT_ITEM_UI_NORMAL                 = 6,
+    LOOT_ITEM_UI_ROLL_PENDING           = 6,
     LOOT_ITEM_UI_LOOK_BUT_DONT_TOUCH    = 7
 };
 
@@ -326,6 +326,16 @@ struct Loot
     std::vector<LootItem>            Items;
     std::vector<LootItem>            QuestItems;
 
+    uint32 maxLinkedSlot;
+    uint32 additionalLinkedGold;
+    std::map<uint32, LinkedLootInfo> linkedLoot;
+    std::vector<LootItem> items;
+    std::vector<LootItem> quest_items;
+    uint32 gold;
+    uint8 unlootedCount;
+    uint64 roundRobinPlayer;                                // GUID of the player having the Round-Robin ownership for the loot. If 0, round robin owner has released.
+    LootType loot_type;                                     // required for achievement system
+    uint64 source;                                          ///< Source guid of loot (gameobject, creature) 
     LootType Type;                                           ///< required for achievement system
 
     uint64 RoundRobinPlayer;                                 ///< GUID of the player having the Round-Robin ownership for the loot. If 0, round robin owner has released.
@@ -339,6 +349,8 @@ struct Loot
 
     Loot(uint32 _gold = 0) : alreadyAskedForRoll(false), MaxLinkedSlot(0), AdditionalLinkedGold(0), Gold(_gold), UnlootedCount(0), Type(LOOT_CORPSE), ItemBonusDifficulty(0) {}
     ~Loot() { clear(); }
+
+    void SetSource(uint64 p_Source) { source = p_Source; }
 
     // if loot becomes invalid this reference is used to inform the listener
     void addLootValidatorRef(LootValidatorRef* pLootValidatorRef)

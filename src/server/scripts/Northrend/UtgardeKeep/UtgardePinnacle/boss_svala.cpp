@@ -240,7 +240,7 @@ public:
                 Talk(SAY_SLAY);
         }
 
-        /*void DamageTaken(Unit* attacker, uint32 &damage)
+        /*void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const* p_SpellInfo)
         {
             if (Phase == SVALADEAD)
             {
@@ -656,7 +656,7 @@ class npc_scourge_hulk : public CreatureScript
                 return type == DATA_INCREDIBLE_HULK ? killedByRitualStrike : 0;
             }
 
-            void DamageTaken(Unit* attacker, uint32 &damage)
+            void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const* p_SpellInfo)
             {
                 if (damage >= me->GetHealth() && attacker->GetEntry() == CREATURE_SVALA_SORROWGRAVE)
                     killedByRitualStrike = true;

@@ -3635,6 +3635,11 @@ uint32 GameObjectUpdateFieldFlags[GAMEOBJECT_END] =
     UF_FLAG_VIEWER_DEPENDENT | UF_FLAG_URGENT_SELF_ONLY, // GAMEOBJECT_FIELD_STATE_WORLD_EFFECT_ID
 };
 
+uint32 GameObjectDynamicUpdateFieldFlags[GAMEOBJECT_DYNAMIC_END] =
+{
+    UF_FLAG_PUBLIC | UF_FLAG_URGENT,    // GAMEOBJECT_DYNAMIC_UNK
+};
+
 // > Object > DynamicObject
 uint32 DynamicObjectUpdateFieldFlags[DYNAMICOBJECT_END] =
 {
