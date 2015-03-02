@@ -3387,6 +3387,50 @@ public:
     }
 };
 
+enum EntanglingEnergySpells
+{
+    SPELL_DRUID_ENTANGLING_ROOTS = 339,
+    SPELL_DRUID_ENTANGLING_ENERGY = 164991
+};
+
+/// Call by Starfire - 2912, Wrath - 5176
+/// Entangling Energy - 164991
+class spell_dru_entangling_energy : public SpellScriptLoader
+{
+    public:
+        spell_dru_entangling_energy() : SpellScriptLoader("spell_dru_entangling_energy") { }
+
+        class spell_dru_entangling_energy_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_entangling_energy_SpellScript);
+
+            void HandleAfterHit()
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(EntanglingEnergySpells::SPELL_DRUID_ENTANGLING_ENERGY))
+                {
+                    l_Caster->CastSpell(l_Target, EntanglingEnergySpells::SPELL_DRUID_ENTANGLING_ROOTS, true);
+                    l_Caster->RemoveAura(EntanglingEnergySpells::SPELL_DRUID_ENTANGLING_ENERGY);
+                }
+            }
+
+            void Register()
+            {
+                AfterHit += SpellHitFn(spell_dru_entangling_energy_SpellScript::HandleAfterHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dru_entangling_energy_SpellScript();
+        }
+};
+
 enum UrsaMajor
 {
     SPELL_DRU_URSA_MAJOR_PROC = 159233
@@ -3535,6 +3579,7 @@ class spell_dru_starsurge : public SpellScriptLoader
 
 void AddSC_druid_spell_scripts()
 {
+    new spell_dru_entangling_energy();
     new spell_dru_ursa_major();
     new spell_dru_glyph_of_barkskin();
     new spell_dru_yseras_gift();

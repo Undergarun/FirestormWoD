@@ -3780,6 +3780,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].BasePoints = -20;
                 spellInfo->Effects[1].BasePoints = 30;
                 break;
+            case 164991: ///< Entangling Energy
             case 15286: ///< Vampiric Embrace
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
