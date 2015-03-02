@@ -460,7 +460,6 @@ void WorldSession::HandleGuildBankBuyTab(WorldPacket& p_Packet)
     p_Packet.readPackGUID(l_Banker);
     p_Packet >> l_BankTab;
 
-    printf("RECEIVED BITCHEEEZ\n");
     /// Only for SPELL_EFFECT_UNLOCK_GUILD_VAULT_TAB, this prevent cheating
     if (l_BankTab > 5)
         return;
