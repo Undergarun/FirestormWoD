@@ -68,7 +68,6 @@
 #include "BattlegroundDG.h"
 #include "Guild.h"
 #include <Reporting/Reporter.hpp>
-#include <Reporting/Reports.hpp>
 
 float baseMoveSpeed[MAX_MOVE_TYPE] =
 {

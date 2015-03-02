@@ -21,6 +21,11 @@ Detailed installation guides are available in the wiki for
 [Linux](http://collab.kpsn.org/display/tc/Linux) and
 [Mac OSX](http://collab.kpsn.org/display/tc/Mac).
 
+In order to complete the installation of the core, you need some other dependencies, they are:
+- LibCurl, under linux its the package libcurl4-openssl-dev, under windows you may have to compile it your self,
+- EasyJson headers, for that you only need to execute in your git repo : git submodule init && gitsubmodule update --remote
+- The MS framework that can be found on : https://github.com/MilleniumStudio/ms_framework
+
 
 ## Reporting issues
 
@@ -29,7 +34,7 @@ Issues can be reported via the [Redmine](http://195.154.172.112/redmine/projects
 Please take the time to review existing issues before submitting your own to
 prevent duplicates.
 
-##Commit naming convention
+## Commit naming convention
 - When fixing bug, by all means include the issue number.
 - When completing feature if you have some task identifier, include that.
 - If the identifier included goes with subject, it often makes sense to just reuse it. (**Use Core/XXX: "Commit name" format**)
