@@ -3033,6 +3033,58 @@ public:
     }
 };
 
+enum SpellsBarkskin
+{
+    SPELL_DRUID_GLYPH_OF_BARKSKIN_AURA  = 63057,
+    SPELL_DRUID_GLYPH_OF_BARKSKIN       = 63058
+};
+
+/// Call by Barkskin - 22812
+/// Glyph of Barkskin - 114338
+class spell_dru_glyph_of_barkskin : public SpellScriptLoader
+{
+    public:
+        spell_dru_glyph_of_barkskin() : SpellScriptLoader("spell_dru_glyph_of_barkskin") { }
+
+        class spell_dru_glyph_of_barkskin_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_glyph_of_barkskin_AuraScript);
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(SpellsBarkskin::SPELL_DRUID_GLYPH_OF_BARKSKIN_AURA))
+                    l_Caster->CastSpell(l_Caster, SpellsBarkskin::SPELL_DRUID_GLYPH_OF_BARKSKIN, true);
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(SpellsBarkskin::SPELL_DRUID_GLYPH_OF_BARKSKIN))
+                    l_Caster->RemoveAura(SpellsBarkskin::SPELL_DRUID_GLYPH_OF_BARKSKIN);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_dru_glyph_of_barkskin_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_dru_glyph_of_barkskin_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_glyph_of_barkskin_AuraScript();
+        }
+};
+
 enum SpellsShred
 {
     SPELL_DRUID_SWIPE = 106785
@@ -3432,6 +3484,7 @@ class spell_dru_starsurge : public SpellScriptLoader
 
 void AddSC_druid_spell_scripts()
 {
+    new spell_dru_glyph_of_barkskin();
     new spell_dru_yseras_gift();
     new spell_dru_tooth_and_claw_absorb();
     new spell_dru_genesis();
