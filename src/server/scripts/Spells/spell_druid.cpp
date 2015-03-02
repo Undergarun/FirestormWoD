@@ -3387,6 +3387,57 @@ public:
     }
 };
 
+enum UrsaMajor
+{
+    SPELL_DRU_URSA_MAJOR_PROC = 159233
+};
+
+/// Ursa Major - 159232
+class spell_dru_ursa_major : public SpellScriptLoader
+{
+    public:
+        spell_dru_ursa_major() : SpellScriptLoader("spell_dru_ursa_major") { }
+
+        class spell_dru_ursa_major_Aurascript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_ursa_major_Aurascript);
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_ProcInfos)
+            {
+                PreventDefaultAction();
+
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (p_ProcInfos.GetDamageInfo()->GetSpellInfo() != nullptr)
+                    return;
+
+                if (!(p_ProcInfos.GetHitMask() & PROC_EX_INTERNAL_MULTISTRIKE))
+                    return;
+
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_DRU_URSA_MAJOR_PROC);
+
+                if (l_SpellInfo == nullptr || !l_SpellInfo->GetDuration())
+                    return;
+
+                /// Increases your maximum health by 2 % for 25 sec
+                l_Caster->CastSpell(l_Caster, UrsaMajor::SPELL_DRU_URSA_MAJOR_PROC, true);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dru_ursa_major_Aurascript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_ursa_major_Aurascript();
+        }
+};
+
 enum HealingTouchSpells
 {
     SPELL_DRU_BLOODTALONS_MOD_DAMAGE = 145152,
@@ -3484,6 +3535,7 @@ class spell_dru_starsurge : public SpellScriptLoader
 
 void AddSC_druid_spell_scripts()
 {
+    new spell_dru_ursa_major();
     new spell_dru_glyph_of_barkskin();
     new spell_dru_yseras_gift();
     new spell_dru_tooth_and_claw_absorb();
