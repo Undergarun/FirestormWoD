@@ -1590,7 +1590,8 @@ class spell_dru_wild_mushroom: public SpellScriptLoader
 
 enum StampedingRoarSpells
 {
-    SPELL_DRUID_BEAR_FORM = 5487
+    SPELL_DRUID_BEAR_FORM = 5487,
+    SPELL_DRUID_GLYPH_OF_STAMPEDING_ROAR = 114222
 };
 
 /// Stampeding Roar - 97993, Stampeding Roar (cat) - 77764 and Stampeding Roar(bear) - 77761
@@ -1607,11 +1608,14 @@ class spell_dru_stampeding_roar: public SpellScriptLoader
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (l_Player->GetShapeshiftForm() != FORM_CAT && l_Player->GetShapeshiftForm() != FORM_BEAR)
-                        l_Player->CastSpell(l_Player, SPELL_DRUID_BEAR_FORM, true);
+                    if (!l_Player->HasAura(SPELL_DRUID_GLYPH_OF_STAMPEDING_ROAR))
+                    {
+                        if (l_Player->GetShapeshiftForm() != FORM_CAT && l_Player->GetShapeshiftForm() != FORM_BEAR)
+                            l_Player->CastSpell(l_Player, SPELL_DRUID_BEAR_FORM, true);
+                    }
 
-                    if (Unit* target = GetHitUnit())
-                        target->RemoveMovementImpairingAuras();
+                    if (Unit* l_Target = GetHitUnit())
+                        l_Target->RemoveMovementImpairingAuras();
                 }
             }
 
