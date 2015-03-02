@@ -2171,7 +2171,7 @@ void Guild::SendBankList(WorldSession* p_Session, uint8 p_TabID, bool p_WithCont
         }
     }
 
-    l_Data.WriteBit(false);                 ///< Is Full Update
+    l_Data.WriteBit(p_WithContent && p_WithContent);                        ///< Is Full Update
     l_Data.FlushBits();
 
     p_Session->SendPacket(&l_Data);
@@ -3419,14 +3419,14 @@ void Guild::_SendBankContentUpdate(uint8 tabId, SlotIds slots) const
         size_t rempos = data.wpos();
         data << uint32(-1);                                      // Item withdraw amount, will be filled later
 
-        for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
+        /*for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
             if (_MemberHasTabRights(itr->second->GetGUID(), tabId, GUILD_BANK_RIGHT_VIEW_TAB))
                 if (Player* player = itr->second->FindPlayer())
                 {
                     data.put<uint32>(rempos, uint32(_GetMemberRemainingSlots(player->GetGUID(), tabId)));
                     player->GetSession()->SendPacket(&data);
                 }
-
+                */
         sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_BANK_LIST)");
     }
 }
