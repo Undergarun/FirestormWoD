@@ -273,21 +273,21 @@ enum Opcodes
         SMSG_ACTIVATE_TAXI_REPLY                    = 0x0000, ///<
 
         /// Loot
-        SMSG_LOOT_LIST                              = 0x0000, ///<
-        SMSG_LOOT_RESPONSE                          = 0x0000, ///<
-        SMSG_LOOT_MONEY_NOTIFY                      = 0x0000, ///<
-        SMSG_LOOT_RELEASE                           = 0x0000, ///<
-        SMSG_LOOT_RELEASE_ALL                       = 0x0000, ///<
-        SMSG_LOOT_REMOVED                           = 0x0000, ///<
-        SMSG_COIN_REMOVED                           = 0x0000, ///<
-        SMSG_LOOT_ALL_PASSED                        = 0x0000, ///<
+        SMSG_LOOT_LIST                              = 0x05A1, ///< 6.1.0 19702
+        SMSG_LOOT_RESPONSE                          = 0x1939, ///< 6.1.0 19702
+        SMSG_LOOT_MONEY_NOTIFY                      = 0x1B23, ///< 6.1.0 19702
+        SMSG_LOOT_RELEASE                           = 0x1789, ///< 6.1.0 19702
+        SMSG_LOOT_RELEASE_ALL                       = 0x1B59, ///< 6.1.0 19702
+        SMSG_LOOT_REMOVED                           = 0x17E9, ///< 6.1.0 19702
+        SMSG_COIN_REMOVED                           = 0x11A4, ///< 6.1.0 19702
+        SMSG_LOOT_ALL_PASSED                        = 0x19F9, ///< 6.1.0 19702
         SMSG_LOOT_CONTENTS                          = 0x0000, ///< (unused)
         SMSG_LOOT_ITEM_LIST                         = 0x0000, ///< (unused)
-        SMSG_MASTER_LOOT_CANDIDATE_LIST             = 0x0000, ///<
-        SMSG_LOOT_ROLL                              = 0x0000, ///<
+        SMSG_MASTER_LOOT_CANDIDATE_LIST             = 0x0683, ///< 6.1.0 19702
+        SMSG_LOOT_ROLL                              = 0x09C3, ///< 6.1.0 19702
         SMSG_LOOT_ROLLS_COMPLETE                    = 0x0000, ///< (unused)
-        SMSG_LOOT_ROLL_WON                          = 0x0000, ///<
-        SMSG_LOOT_START_ROLL                        = 0x0000, ///<
+        SMSG_LOOT_ROLL_WON                          = 0x1BEB, ///< 6.1.0 19702
+        SMSG_LOOT_START_ROLL                        = 0x01A1, ///< 6.1.0 19702
         SMSG_AE_LOOT_TARGETS                        = 0x0000, ///< (unused)
         SMSG_AE_LOOT_TARGETS_ACK                    = 0x0000, ///< (unused)
 
@@ -1059,17 +1059,17 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Loot
     //////////////////////////////////////////////////////////////////////////
-    CMSG_LOOT                                   = 0x0000, ///<
-    CMSG_LOOT_MONEY                             = 0x0000, ///<
-    CMSG_LOOT_ITEM                              = 0x0000, ///<
-    CMSG_LOOT_RELEASE                           = 0x0000, ///<
+    CMSG_LOOT                                   = 0x1064, ///< 6.1.0 19702
+    CMSG_LOOT_MONEY                             = 0x1593, ///< 6.1.0 19702
+    CMSG_LOOT_ITEM                              = 0x0843, ///< 6.1.0 19702
+    CMSG_LOOT_RELEASE                           = 0x1BD2, ///< 6.1.0 19702
     CMSG_LOOT_CURRENCY                          = 0x0000,
-    CMSG_LOOT_ROLL                              = 0x0000, ///<
-    CMSG_MASTER_LOOT_ITEM                       = 0x0000, ///<
-    CMSG_DO_MASTER_LOOT_ROLL                    = 0x0000, ///<
-    CMSG_SET_LOOT_SPECIALIZATION                = 0x0000, ///<
-    CMSG_SET_LOOT_METHOD                        = 0x0000, ///<
-    CMSG_OPT_OUT_OF_LOOT                        = 0x0000, ///<
+    CMSG_LOOT_ROLL                              = 0x0431, ///< 6.1.0 19702
+    CMSG_MASTER_LOOT_ITEM                       = 0x0141, ///< 6.1.0 19702
+    CMSG_DO_MASTER_LOOT_ROLL                    = 0x0134, ///< 6.1.0 19702
+    CMSG_SET_LOOT_SPECIALIZATION                = 0x0B7A, ///< 6.1.0 19702
+    CMSG_SET_LOOT_METHOD                        = 0x1BA9, ///< 6.1.0 19702
+    CMSG_OPT_OUT_OF_LOOT                        = 0x1159, ///< 6.1.0 19702
 
     //////////////////////////////////////////////////////////////////////////
     /// Combat
@@ -1846,7 +1846,7 @@ enum Opcodes
     SMSG_MAP_OBJ_EVENTS                                 = 0x0000,
     SMSG_MESSAGE_BOX                                    = 0x0000,
     SMSG_MISSILE_CANCEL                                 = 0x0000,
-    SMSG_NOTIFY_MONEY                                   = 0x0000,
+    SMSG_NOTIFY_MONEY                                   = 0x0A6C, // 6.1.0 19702
     SMSG_MOVE_SET_COMPOUND_STATE                        = 0x0000,
     SMSG_MOVE_UPDATE_COLLISION_HEIGHT                   = 0x0000,
     SMSG_ABORT_NEW_WORLD                                = 0x0000,
