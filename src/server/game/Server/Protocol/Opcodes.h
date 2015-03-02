@@ -66,7 +66,7 @@ enum Opcodes
         SMSG_HOTFIX_NOTIFY                          = 0x199C, ///< 6.1.0 19702
         SMSG_WORLD_SERVER_INFO                      = 0x0864, ///< 6.1.0 19702
         SMSG_INITIAL_SETUP                          = 0x0A6B, ///< 6.1.0 19702
-        SMSG_PONG                                   = 0x0000, ///<
+        SMSG_PONG                                   = 0x0C34, ///< 6.1.0 19702
         SMSG_UITIME                                 = 0x05E3, ///< 6.1.0 19702
 
         /// Query
@@ -1245,13 +1245,13 @@ enum Opcodes
     CMSG_CHAT_MESSAGE_PARTY                     = 0x0000, ///<
     CMSG_CHAT_MESSAGE_YELL                      = 0x1481, ///< 6.1.0 19702
     CMSG_CHAT_MESSAGE_SAY                       = 0x140B, ///< 6.1.0 19702
-    CMSG_CHAT_MESSAGE_OFFICER                   = 0x0000, ///<
-    CMSG_CHAT_MESSAGE_EMOTE                     = 0x0000, ///<
-    CMSG_CHAT_MESSAGE_AFK                       = 0x0000, ///<
-    CMSG_CHAT_MESSAGE_DND                       = 0x0000, ///<
-    CMSG_CHAT_MESSAGE_GUILD                     = 0x0000, ///<
+    CMSG_CHAT_MESSAGE_OFFICER                   = 0x1243, ///< 6.1.0 19702
+    CMSG_CHAT_MESSAGE_EMOTE                     = 0x0C59, ///< 6.1.0 19702
+    CMSG_CHAT_MESSAGE_AFK                       = 0x180C, ///< 6.1.0 19702
+    CMSG_CHAT_MESSAGE_DND                       = 0x0479, ///< 6.1.0 19702
+    CMSG_CHAT_MESSAGE_GUILD                     = 0x1A4B, ///< 6.1.0 19702
     CMSG_CHAT_MESSAGE_RAID                      = 0x0000, ///<
-    CMSG_CHAT_MESSAGE_WHISPER                   = 0x0000, ///<
+    CMSG_CHAT_MESSAGE_WHISPER                   = 0x100C, ///< 6.1.0 19702
     CMSG_CHAT_MESSAGE_CHANNEL                   = 0x0000, ///<
 
     /// Channel

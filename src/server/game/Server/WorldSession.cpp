@@ -1133,7 +1133,7 @@ void WorldSession::SendFeatureSystemStatus()
     bool l_IsRestrictedAccount                  = false;
     bool l_IsTutorialEnabled                    = true;
     bool l_ShowNPETutorial                      = true;
-    bool l_TwitterEnabled                       = false;
+    bool l_TwitterEnabled                       = true;
 
     uint32 l_PlayTimeAlertDisplayAlertTime      = 0;
     uint32 l_PlayTimeAlertDisplayAlertDelay     = 0;
@@ -1172,6 +1172,7 @@ void WorldSession::SendFeatureSystemStatus()
     l_Data.WriteBit(l_IsTutorialEnabled);                           ///< Is tutorial system enabled
     l_Data.WriteBit(l_ShowNPETutorial);                             ///< Show NPE tutorial
     l_Data.WriteBit(l_TwitterEnabled);                              ///< Enable ingame twitter interface -- guessed
+    l_Data.WriteBit(0);                                             ///<
     l_Data.FlushBits();
 
     if (l_EuropaTicketSystemEnabled)
