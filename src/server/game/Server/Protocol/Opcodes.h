@@ -292,7 +292,7 @@ enum Opcodes
         SMSG_AE_LOOT_TARGETS_ACK                    = 0x0000, ///< (unused)
 
         /// Bank
-        SMSG_SHOW_BANK                              = 0x0000, ///<
+        SMSG_SHOW_BANK                              = 0x1B3A, ///< 6.1.0 19702
 
         /// Rune
         SMSG_RESYNC_RUNES                           = 0x0000, ///<
@@ -1036,14 +1036,14 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Bank
     //////////////////////////////////////////////////////////////////////////
-    CMSG_BANKER_ACTIVATE                        = 0x0000, ///<
-    CMSG_AUTOBANK_ITEM                          = 0x0000, ///<
-    CMSG_AUTOSTORE_BANK_ITEM                    = 0x0000, ///<
-    CMSG_BUY_BANK_SLOT                          = 0x0000, ///<
-    CMSG_BUY_REAGENT_BANK                       = 0x0000, ///<
-    CMSG_SORT_BANK_BAGS                         = 0x0000, ///<
-    CMSG_SORT_REAGENT_BANK_BAGS                 = 0x0000, ///<
-    CMSG_DEPOSIT_ALL_REAGENTS                   = 0x0000, ///<
+    CMSG_BANKER_ACTIVATE                        = 0x0931, ///< 6.1.0 19702
+    CMSG_AUTOBANK_ITEM                          = 0x00C6, ///< 6.1.0 19702
+    CMSG_AUTOSTORE_BANK_ITEM                    = 0x00D5, ///< 6.1.0 19702
+    CMSG_BUY_BANK_SLOT                          = 0x0971, ///< 6.1.0 19702
+    CMSG_BUY_REAGENT_BANK                       = 0x0A3C, ///< 6.1.0 19702
+    CMSG_SORT_BANK_BAGS                         = 0x1901, ///< 6.1.0 19702
+    CMSG_SORT_REAGENT_BANK_BAGS                 = 0x0901, ///< 6.1.0 19702
+    CMSG_DEPOSIT_ALL_REAGENTS                   = 0x1142, ///< 6.1.0 19702
 
     //////////////////////////////////////////////////////////////////////////
     /// Auction House
