@@ -148,6 +148,7 @@ const char GarrFollowerLevelXPEntryfmt[] =
     FT_INDEX,
     FT_INT,
     FT_INT,
+    FT_NA,
     FT_END
 };
 const char GarrSpecializationEntryfmt[] =
