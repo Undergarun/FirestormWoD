@@ -239,12 +239,12 @@ enum Opcodes
         SMSG_ATTACK_SWING_ERROR                     = 0x1F4C, ///< 6.1.0 19702
 
         /// Duel
-        SMSG_DUEL_REQUESTED                         = 0x0000, ///<
-        SMSG_DUEL_COUNTDOWN                         = 0x0000, ///<
-        SMSG_DUEL_COMPLETE                          = 0x0000, ///<
-        SMSG_DUEL_INBOUNDS                          = 0x0000, ///<
-        SMSG_DUEL_OUT_OF_BOUNDS                     = 0x0000, ///<
-        SMSG_DUEL_WINNER                            = 0x0000, ///<
+        SMSG_DUEL_REQUESTED                         = 0x0983, ///< 6.1.0 19702
+        SMSG_DUEL_COUNTDOWN                         = 0x1B1A, ///< 6.1.0 19702
+        SMSG_DUEL_COMPLETE                          = 0x1531, ///< 6.1.0 19702
+        SMSG_DUEL_INBOUNDS                          = 0x13A3, ///< 6.1.0 19702
+        SMSG_DUEL_OUT_OF_BOUNDS                     = 0x15F4, ///< 6.1.0 19702
+        SMSG_DUEL_WINNER                            = 0x1519, ///< 6.1.0 19702
         SMSG_CAN_DUEL_RESULT                        = 0x0000, ///< (unused)
 
         /// Vendor
@@ -1080,8 +1080,8 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Duel
     //////////////////////////////////////////////////////////////////////////
-    CMSG_DUEL_PROPOSED                          = 0x0000, ///<
-    CMSG_DUEL_RESPONSE                          = 0x0000, ///<
+    CMSG_DUEL_PROPOSED                          = 0x13D2, ///< 6.1.0 19702
+    CMSG_DUEL_RESPONSE                          = 0x10EB, ///< 6.1.0 19702
 
     //////////////////////////////////////////////////////////////////////////
     /// Spell
