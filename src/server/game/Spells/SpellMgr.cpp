@@ -3360,6 +3360,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 150306;
                 break;
             case 102401:///< Wild Charge (Ally)
+            case 94954: ///< Heroic Leap
                 spellInfo->Effects[EFFECT_1].ValueMultiplier = 0;
                 break;
             case 159362:///< Blood Craze
