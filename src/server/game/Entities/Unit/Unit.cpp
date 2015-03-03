@@ -9331,19 +9331,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
 
             break;
         }
-        // Savage Defense
-        case 62600:
-        {
-            int32 chance = 50;
-
-            // Item - Druid T13 Feral 2P Bonus (Savage Defense and Blood In The Water)
-            if (procSpell && procSpell->Id == 33878 && HasAura(105725))
-                chance = 100;
-
-            if (!roll_chance_i(chance))
-                return false;
-            break;
-        }
         // Item - Hunter T12 2P Bonus
         case 99057:
             if (!victim || GetGUID() == victim->GetGUID())
@@ -9800,16 +9787,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
 
             break;
         }
-        // Blazing Speed
-        case 113857:
-        {
-            uint32 health = CountPctFromMaxHealth(2);
-
-            if (damage < 0 && damage < health && !(procFlags & PROC_FLAG_KILL)) //@todo Comparison of unsigned expression < 0 is always false
-                return false;
-
-            break;
-        }
         // Enrage
         case 13046:
         {
@@ -9842,34 +9819,13 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
 
             break;
         }
-        // Master Marksmann
-        case 34487:
-        {
-            if (!procSpell || procSpell->Id != 56641) // Steady Shot
-                return false;
-
-            if (GetTypeId() != TYPEID_PLAYER || getClass() != CLASS_HUNTER)
-                return false;
-
-            AuraPtr aimed = GetAura(trigger_spell_id);
-            //  After reaching 3 stacks, your next Aimed Shot's cast time and Focus cost are reduced by 100% for 10 sec
-            if (aimed && aimed->GetStackAmount() >= 2)
-            {
-                RemoveAura(trigger_spell_id);
-                CastSpell(this, 82926, true); // Fire !
-
-                return false;
-            }
-
-            break;
-        }
         // Will of the Necropolis
         case 81164:
         {
             if (GetTypeId() != TYPEID_PLAYER || getClass() != CLASS_DEATH_KNIGHT)
                 return false;
 
-            if (GetHealthPct() > 30.0f)
+            if (GetHealthPct() >= 30.0f)
                 return false;
 
             if (ToPlayer()->HasSpellCooldown(81164))
@@ -10055,17 +10011,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
         case 62606:
         {
             basepoints0 = CalculatePct(triggerAmount, GetTotalAttackPowerValue(WeaponAttackType::BaseAttack));
-            break;
-        }
-        // Culling the Herd
-        case 70893:
-        {
-            // check if we're doing a critical hit
-            if (!(procSpell->SpellFamilyFlags[1] & 0x10000000) && (procEx != PROC_EX_CRITICAL_HIT))
-                return false;
-            // check if we're procced by Claw, Bite or Smack (need to use the spell icon ID to detect it)
-            if (!(procSpell->SpellIconID == 262 || procSpell->SpellIconID == 1680 || procSpell->SpellIconID == 473))
-                return false;
             break;
         }
         // Shadow's Fate (Shadowmourne questline)
