@@ -1000,6 +1000,16 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     /// Unlock WoD heroic dungeons
     if (uint32 l_QuestBit = GetQuestUniqueBitFlag(37213))   ///< FLAG - Proving Grounds - Damage Silver
         m_CompletedQuestBits.SetBit(l_QuestBit - 1);
+    if (uint32 l_QuestBit = GetQuestUniqueBitFlag(33090))   ///< FLAG - Proving Grounds - Damage Silver
+        m_CompletedQuestBits.SetBit(l_QuestBit - 1);
+    if (uint32 l_QuestBit = GetQuestUniqueBitFlag(33096))   ///< FLAG - Proving Grounds - Healer Silver
+        m_CompletedQuestBits.SetBit(l_QuestBit - 1);
+    if (uint32 l_QuestBit = GetQuestUniqueBitFlag(37219))   ///< FLAG - Proving Grounds - Healer Silver
+        m_CompletedQuestBits.SetBit(l_QuestBit - 1);
+    if (uint32 l_QuestBit = GetQuestUniqueBitFlag(37216))   ///< FLAG - Proving Grounds - Tank Silver
+        m_CompletedQuestBits.SetBit(l_QuestBit - 1);
+    if (uint32 l_QuestBit = GetQuestUniqueBitFlag(33093))   ///< FLAG - Proving Grounds - Tank Silver
+        m_CompletedQuestBits.SetBit(l_QuestBit - 1);
 
     ///////////////////////////////////////////////////////////
 }
