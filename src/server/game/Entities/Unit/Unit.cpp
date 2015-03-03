@@ -9492,22 +9492,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
 
             break;
         }
-        case 49509: // Scent of Blood
-        {
-            if (GetTypeId() != TYPEID_PLAYER)
-                return false;
-
-            if (getClass() != CLASS_DEATH_KNIGHT)
-                return false;
-
-            if (ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) != SPEC_DK_BLOOD)
-                return false;
-
-            if (!roll_chance_i(15))
-                return false;
-
-            break;
-        }
         case 79684: // Arcane Missiles !
         {
             if (GetTypeId() != TYPEID_PLAYER)
