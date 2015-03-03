@@ -3512,7 +3512,7 @@ namespace MS { namespace Garrison
                     l_Candidates.push_back(l_Entry);
                 }
 
-                uint32 l_ShuffleCount = std::rand() % 20;
+                uint32 l_ShuffleCount = std::rand() % 4;
 
                 for (uint32 l_I = 0; l_I < l_ShuffleCount; ++l_I)
                     std::random_shuffle(l_Candidates.begin(), l_Candidates.end());
