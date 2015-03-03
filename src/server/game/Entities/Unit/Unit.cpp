@@ -9382,24 +9382,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
 
             break;
         }
-        case 122013:// Glyph of Incite
-        {
-            if (GetTypeId() != TYPEID_PLAYER)
-                return false;
-
-            if (!procSpell)
-                return false;
-
-            // Only triggered by Devastate
-            if (procSpell->Id != 20243)
-                return false;
-
-            // Mortal Peace
-            if (!HasAura(85730))
-                return false;
-
-            break;
-        }
         case 108945:// Angelic Bulwark
         {
             if (GetTypeId() != TYPEID_PLAYER)
