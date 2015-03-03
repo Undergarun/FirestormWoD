@@ -158,7 +158,7 @@ enum Opcodes
         SMSG_RESET_FAILED_NOTIFY                    = 0x0000, ///<
         SMSG_SETUP_RESEARCH_HISTORY                 = 0x0000, ///<
         SMSG_RESEARCH_COMPLETE                      = 0x0000, ///<
-        SMSG_REQUEST_CEMETERY_LIST_RESPONSE         = 0x0000, ///<
+        SMSG_REQUEST_CEMETERY_LIST_RESPONSE         = 0x15BB, ///< 6.1.0 19702
         SMSG_PLAYED_TIME                            = 0x0000, ///<
         SMSG_BREAK_TARGET                           = 0x0000, ///<
         SMSG_CANCEL_AUTO_REPEAT                     = 0x0000, ///<
@@ -850,8 +850,8 @@ enum Opcodes
         SMSG_QUEST_GIVER_INVALID_QUEST              = 0x0000, ///<
 
         /// Gossip
-        SMSG_GOSSIP_MESSAGE                         = 0x0000, ///<
-        SMSG_GOSSIP_COMPLETE                        = 0x0000, ///<
+        SMSG_GOSSIP_MESSAGE                         = 0x0117, ///< 6.1.0 19702
+        SMSG_GOSSIP_COMPLETE                        = 0x07A8, ///< 6.1.0 19702
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -1099,7 +1099,7 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Cache
     //////////////////////////////////////////////////////////////////////////
-    CMSG_REQUEST_HOTFIX                         = 0x0000, ///<
+    CMSG_REQUEST_HOTFIX                         = 0x1731, ///< 6.1.0 19702
     CMSG_CREATURE_QUERY                         = 0x007C, ///< 6.1.0 19702
     CMSG_NPC_TEXT_QUERY                         = 0x0E44, ///< 6.1.0 19702
     CMSG_NAME_QUERY                             = 0x15A2, ///< 6.1.0 19702
@@ -1121,8 +1121,8 @@ enum Opcodes
     CMSG_SET_ACTIONBAR_TOGGLES                  = 0x0000, ///<
     CMSG_SET_SELECTION                          = 0x0DC4, ///< 6.1.0 19702
     CMSG_SETSHEATHED                            = 0x0000, ///<
-    CMSG_GOSSIP_HELLO                           = 0x0000, ///<
-    CMSG_GOSSIP_SELECT_OPTION                   = 0x0000, ///<
+    CMSG_GOSSIP_HELLO                           = 0x0483, ///< 6.1.0 19702
+    CMSG_GOSSIP_SELECT_OPTION                   = 0x086A, ///< 6.1.0 19702
     CMSG_TOGGLE_PVP                             = 0x0000, ///<
     CMSG_TUTORIAL                               = 0x0000, ///<
     CMSG_SET_SPECIALIZATION                     = 0x0472, ///< 6.1.0 19702
@@ -1138,14 +1138,14 @@ enum Opcodes
     CMSG_QUERY_CORPSE_LOCATION_FROM_CLIENT      = 0x0000, ///<
     CMSG_QUERY_CORPSE_TRANSPORT                 = 0x0000, ///<
     CMSG_RETURN_TO_GRAVEYARD                    = 0x0000, ///<
-    CMSG_CLOSE_INTERACTION                      = 0x0000, ///<
+    CMSG_CLOSE_INTERACTION                      = 0x0A3A, ///< 6.1.0 19702
     CMSG_ITEM_REFUND_INFO                       = 0x0000, ///<
     CMSG_FAR_SIGHT                              = 0x0000, ///<
     CMSG_MOUNTSPECIAL_ANIM                      = 0x0000, ///<
     CMSG_OPENING_CINEMATIC                      = 0x0000, ///<
     CMSG_NEXT_CINEMATIC_CAMERA                  = 0x0000, ///<
     CMSG_COMPLETE_CINEMATIC                     = 0x0000, ///<
-    CMSG_REQUEST_CEMETERY_LIST                  = 0x0000, ///<
+    CMSG_REQUEST_CEMETERY_LIST                  = 0x0421, ///< 6.1.0 19702
     CMSG_TOTEM_DESTROYED                        = 0x0000, ///<
     CMSG_CONFIRM_RESPEC_WIPE                    = 0x0000, ///<
     CMSG_CANCEL_TRADE                           = 0x1114, ///< 6.1.0 19702
