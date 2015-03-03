@@ -2171,7 +2171,7 @@ void Guild::SendBankList(WorldSession* p_Session, uint8 p_TabID, bool p_WithCont
         }
     }
 
-    l_Data.WriteBit(p_WithContent && p_WithContent);                        ///< Is Full Update
+    l_Data.WriteBit(p_WithContent && p_WithTabInfo);                        ///< Is Full Update
     l_Data.FlushBits();
 
     p_Session->SendPacket(&l_Data);
