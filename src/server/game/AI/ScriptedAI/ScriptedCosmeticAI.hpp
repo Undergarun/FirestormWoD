@@ -21,11 +21,11 @@ namespace MS { namespace AI
     {
         public:
             /// Constructor
-            explicit CosmeticAI(Creature * p_Creature)
-                : CreatureAI(p_Creature)
+            explicit CosmeticAI(Creature * p_Creature) : CreatureAI(p_Creature)
             {
-
+                m_EmptyWarned = true;
             }
+
             /// Destructor
             virtual ~CosmeticAI()
             {
@@ -37,6 +37,7 @@ namespace MS { namespace AI
             /// @p_Function : Callback function
             void AddTimedDelayedOperation(uint32 p_Timeout, std::function<void()> && p_Function)
             {
+                m_EmptyWarned = false;
                 m_TimedDelayedOperations.push_back(std::pair<uint32, std::function<void()>>(p_Timeout, p_Function));
             }
 
@@ -49,6 +50,10 @@ namespace MS { namespace AI
                 else
                     me->RemoveFlag(UNIT_FIELD_NPC_FLAGS + 1, UNIT_NPC_FLAG2_AI_OBSTACLE);
             }
+
+            /// Called after last delayed operation was deleted
+            /// Do whatever you want
+            virtual void LastOperationCalled() { }
 
         public:
             /// On AI Update
@@ -87,6 +92,12 @@ namespace MS { namespace AI
                     if (l_It != std::end(m_TimedDelayedOperations))
                         m_TimedDelayedOperations.erase(l_It);
                 }
+
+                if (m_TimedDelayedOperations.empty() && !m_EmptyWarned)
+                {
+                    m_EmptyWarned = true;
+                    LastOperationCalled();
+                }
             }
 
             /// Called at waypoint reached or point movement finished
@@ -111,6 +122,7 @@ namespace MS { namespace AI
             std::map<uint32, std::function<void()>>                 m_OnPointReached;           ///< Delayed operations
             std::queue<std::function<void()>>                       m_DelayedOperations;        ///< Delayed operations
             std::vector<std::pair<int32, std::function<void()>>>    m_TimedDelayedOperations;   ///< Delayed operations
+            bool                                                    m_EmptyWarned;              ///< Warning when there are no more delayed operations
 
     };
 

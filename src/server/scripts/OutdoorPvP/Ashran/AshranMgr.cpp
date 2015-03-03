@@ -697,7 +697,13 @@ void OutdoorPvPAshran::HandlePlayerEnterMap(Player* p_Player, uint32 p_MapID)
 
     p_Player->CastSpell(p_Player, eAshranSpells::SpellLootable, true);
 
-    if (!m_IsInitialized)
+    /// Give first quest to player
+    if (p_Player->GetTeamId() == TeamId::TEAM_ALLIANCE)
+        p_Player->CastSpell(p_Player, eAshranSpells::WelcomeToAshranAlliance, true);
+    else
+        p_Player->CastSpell(p_Player, eAshranSpells::WelcomeToAshranHorde, true);
+
+    if (!m_IsInitialized && !m_InitPointsTimer)
         m_InitPointsTimer = 2000;
 }
 
@@ -1367,8 +1373,7 @@ void OutdoorPvPAshran::InitializeEvents()
             break;
 
         l_Timer += l_TimerInterval;
-        ///m_AshranEvents[l_Index] = l_Timer;
-        m_AshranEvents[l_Index] = 30 * IN_MILLISECONDS; ///< For tests
+        m_AshranEvents[l_Index] = l_Timer;
     }
 }
 

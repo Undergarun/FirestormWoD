@@ -640,7 +640,6 @@ class npc_ashran_korlok : public CreatureScript
             {
                 ((OutdoorPvPAshran*)m_OutdoorPvP)->EndEvent(eAshranEvents::EventKorlokTheOgreKing, false);
                 me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
-                me->RemoveAura(eSpells::ShadowyGhostCosmeticSpawnSpellBlue);
                 me->SetReactState(ReactStates::REACT_AGGRESSIVE);
 
                 me->CastSpell(me, eSpells::SpellCurseOfKrong, true);
@@ -703,11 +702,6 @@ class npc_ashran_faction_champions : public CreatureScript
                 m_Events.Reset();
 
                 me->CastSpell(me, eSpells::AshranLaneMobScalingAura, true);
-
-                if (me->GetEntry() == eSpecialSpawns::OgreAllianceChampion)
-                    me->setFaction(eFactions::GaulDunFaction);
-                else
-                    me->setFaction(eFactions::MukmarFaction);
             }
 
             void EnterCombat(Unit* p_Attacker)

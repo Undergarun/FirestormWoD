@@ -18,6 +18,7 @@
 #include "World.h"
 #include "ObjectMgr.h"
 #include "Language.h"
+#include "ScriptedCosmeticAI.hpp"
 
 #ifndef ASHRAN_MGR_HPP_ASHRAN
 #define ASHRAN_MGR_HPP_ASHRAN

@@ -204,7 +204,308 @@ class npc_jeron_emberfall : public CreatureScript
         }
 };
 
+/// Mare Wildrunner <Warspear Farseer> - 84660
+class npc_ashran_mare_wildrunner : public CreatureScript
+{
+    public:
+        npc_ashran_mare_wildrunner() : CreatureScript("npc_ashran_mare_wildrunner") { }
+
+        bool OnGossipHello(Player* p_Player, Creature* p_Creature)
+        {
+            return false;
+        }
+};
+
+/// Angry Zurge - 83869
+class npc_ashran_angry_zurge : public CreatureScript
+{
+    public:
+        npc_ashran_angry_zurge() : CreatureScript("npc_ashran_angry_zurge") { }
+
+        bool OnGossipHello(Player* p_Player, Creature* p_Creature)
+        {
+            return false;
+        }
+};
+
+/// Kalgan <Warspear Warrior Leader> - 83830
+class npc_ashran_kalgan : public CreatureScript
+{
+    public:
+        npc_ashran_kalgan() : CreatureScript("npc_ashran_kalgan") { }
+
+        bool OnGossipHello(Player* p_Player, Creature* p_Creature)
+        {
+            return false;
+        }
+};
+
+/// Fura <Warspear Mage Leader> - 83995
+class npc_ashran_fura : public CreatureScript
+{
+    public:
+        npc_ashran_fura() : CreatureScript("npc_ashran_fura") { }
+
+        bool OnGossipHello(Player* p_Player, Creature* p_Creature)
+        {
+            return false;
+        }
+};
+
+/// Nisstyr <Warspear Warlock Leader> - 83997
+class npc_ashran_nisstyr : public CreatureScript
+{
+    public:
+        npc_ashran_nisstyr() : CreatureScript("npc_ashran_nisstyr") { }
+
+        bool OnGossipHello(Player* p_Player, Creature* p_Creature)
+        {
+            return false;
+        }
+};
+
+/// Atomik <Warspear Shaman Leader> - 82204
+class npc_ashran_atomik : public CreatureScript
+{
+    public:
+        npc_ashran_atomik() : CreatureScript("npc_ashran_atomik") { }
+
+        bool OnGossipHello(Player* p_Player, Creature* p_Creature)
+        {
+            return false;
+        }
+};
+
+/// Warspear Shaman - 82438
+class npc_ashran_warspear_shaman : public CreatureScript
+{
+    public:
+        npc_ashran_warspear_shaman() : CreatureScript("npc_ashran_warspear_shaman") { }
+
+        struct npc_ashran_warspear_shamanAI : public ScriptedAI
+        {
+            npc_ashran_warspear_shamanAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            enum eDatas
+            {
+                EventCosmetic       = 1,
+                EarthFury           = 82200,
+                NatureChanneling    = 164850
+            };
+
+            EventMap m_Events;
+
+            void Reset()
+            {
+                m_Events.ScheduleEvent(eDatas::EventCosmetic, 5000);
+            }
+
+            void UpdateAI(uint32 const p_Diff)
+            {
+                m_Events.Update(p_Diff);
+
+                if (m_Events.ExecuteEvent() == eDatas::EventCosmetic)
+                {
+                    if (Creature* l_EarthFury = me->FindNearestCreature(eDatas::EarthFury, 15.0f))
+                        me->CastSpell(l_EarthFury, eDatas::NatureChanneling, false);
+                }
+
+                if (!UpdateVictim())
+                    return;
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_ashran_warspear_shamanAI(p_Creature);
+        }
+};
+
+/// Illandria Belore - 88675
+class npc_ashran_illandria_belore : public CreatureScript
+{
+    public:
+        npc_ashran_illandria_belore() : CreatureScript("npc_ashran_illandria_belore") { }
+
+        enum eTalks
+        {
+            First,
+            Second,
+            Third,
+            Fourth,
+            Fifth
+        };
+
+        enum eData
+        {
+            RahmFlameheart  = 88676,
+            ActionInit      = 0,
+            ActionLoop      = 1,
+            EventLoop       = 1
+        };
+
+        struct npc_ashran_illandria_beloreAI : public MS::AI::CosmeticAI
+        {
+            npc_ashran_illandria_beloreAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
+
+            bool m_Init;
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                m_Init = false;
+
+                if (Creature* l_Creature = me->FindNearestCreature(eData::RahmFlameheart, 15.0f))
+                {
+                    if (l_Creature->AI())
+                    {
+                        m_Init = true;
+                        l_Creature->AI()->DoAction(eData::ActionInit);
+                        ScheduleAllTalks();
+                    }
+                }
+            }
+
+            void DoAction(int32 const p_Action) override
+            {
+                switch (p_Action)
+                {
+                    case eData::ActionInit:
+                        if (m_Init)
+                            break;
+                        m_Init = true;
+                        ScheduleAllTalks();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void ScheduleAllTalks(uint32 p_MoreTime = 0)
+            {
+                AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::First); });
+                AddTimedDelayedOperation(18 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Second); });
+                AddTimedDelayedOperation(36 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Third); });
+                AddTimedDelayedOperation(66 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Fourth); });
+                AddTimedDelayedOperation(83 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Fifth); });
+            }
+
+            void LastOperationCalled() override
+            {
+                m_Events.ScheduleEvent(eData::EventLoop, 48 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void UpdateAI(const uint32 p_Diff) override
+            {
+                MS::AI::CosmeticAI::UpdateAI(p_Diff);
+
+                m_Events.Update(p_Diff);
+
+                if (m_Events.ExecuteEvent() == eData::EventLoop)
+                {
+                    if (Creature* l_Creature = me->FindNearestCreature(eData::RahmFlameheart, 15.0f))
+                    {
+                        if (l_Creature->AI())
+                        {
+                            l_Creature->AI()->DoAction(eData::ActionLoop);
+                            ScheduleAllTalks();
+                        }
+                    }
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_ashran_illandria_beloreAI(p_Creature);
+        }
+};
+
+/// Examiner Rahm Flameheart <The Reliquary> - 88676
+class npc_ashran_examiner_rahm_flameheart : public CreatureScript
+{
+    public:
+        npc_ashran_examiner_rahm_flameheart() : CreatureScript("npc_ashran_examiner_rahm_flameheart") { }
+
+        enum eTalks
+        {
+            First,
+            Second,
+            Third,
+            Fourth
+        };
+
+        enum eData
+        {
+            IllandriaBelore = 88675,
+            ActionInit      = 0,
+            ActionLoop      = 1
+        };
+
+        struct npc_ashran_examiner_rahm_flameheartAI : public MS::AI::CosmeticAI
+        {
+            npc_ashran_examiner_rahm_flameheartAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
+
+            bool m_Init;
+
+            void Reset()
+            {
+                m_Init = false;
+
+                if (Creature* l_Creature = me->FindNearestCreature(eData::IllandriaBelore, 15.0f))
+                {
+                    if (l_Creature->AI())
+                    {
+                        m_Init = true;
+                        l_Creature->AI()->DoAction(eData::ActionInit);
+                        ScheduleAllTalks();
+                    }
+                }
+            }
+
+            void DoAction(int32 const p_Action)
+            {
+                switch (p_Action)
+                {
+                    case eData::ActionInit:
+                        m_Init = true;
+                        ScheduleAllTalks();
+                        break;
+                    case eData::ActionLoop:
+                        ScheduleAllTalks();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void ScheduleAllTalks()
+            {
+                AddTimedDelayedOperation(10 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::First); });
+                AddTimedDelayedOperation(27 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Second); });
+                AddTimedDelayedOperation(75 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Third); });
+                AddTimedDelayedOperation(92 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Fourth); });
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_ashran_examiner_rahm_flameheartAI(p_Creature);
+        }
+};
+
 void AddSC_AshranNPCHorde()
 {
     new npc_jeron_emberfall();
+    new npc_ashran_mare_wildrunner();
+    new npc_ashran_angry_zurge();
+    new npc_ashran_kalgan();
+    new npc_ashran_fura();
+    new npc_ashran_nisstyr();
+    new npc_ashran_atomik();
+    new npc_ashran_warspear_shaman();
+    new npc_ashran_illandria_belore();
+    new npc_ashran_examiner_rahm_flameheart();
 }

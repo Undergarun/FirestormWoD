@@ -47,8 +47,419 @@ INSERT INTO spell_script_names VALUES
 (177150, 'spell_ashran_booming_shout'),
 (165134, 'spell_ashran_curse_of_krong');
 
-DELETE FROM creature_equip_template WHERE entry IN (80858, 81725, 81726);
+DELETE FROM creature_equip_template WHERE entry IN (80858, 81725, 81726, 82883, 85811, 86201, 86202, 88771, 88772, 88774);
 INSERT INTO creature_equip_template VALUES
 (80858, 1, 116377, 0, 0),
 (81725, 1, 110590, 0, 0),
-(81726, 1, 110590, 0, 0);
+(81726, 1, 110590, 0, 0),
+(82883, 1, 47034, 0, 2550),
+(85811, 1, 108942, 0, 23889),
+(86201, 1, 29924, 29924, 0),
+(86202, 1, 17105, 73468, 0),
+(88771, 1, 110173, 110173, 2550),
+(88772, 1, 110173, 110173, 2550),
+(88774, 1, 107367, 0, 2550);
+
+UPDATE creature, creature_equip_template SET creature.`equipment_id` = creature_equip_template.`id` WHERE
+creature.`id` = creature_equip_template.`entry`;
+
+DELETE FROM gameobject WHERE id = 233282 AND map = 1191;
+DELETE FROM creature WHERE id = 85441 AND map = 1191;
+
+UPDATE creature_template SET gossip_menu_id = 65536, ScriptName = 'npc_ashran_atomik' WHERE entry = 82204;
+UPDATE creature_template SET gossip_menu_id = 65537, ScriptName = '' WHERE entry = 83830;
+UPDATE creature_template SET gossip_menu_id = 65538, ScriptName = '' WHERE entry = 83869;
+UPDATE creature_template SET gossip_menu_id = 65539, ScriptName = '' WHERE entry = 83995;
+UPDATE creature_template SET gossip_menu_id = 65540, ScriptName = '' WHERE entry = 83997;
+UPDATE creature_template SET gossip_menu_id = 65541, ScriptName = 'npc_ashran_commander_anne_dunworthy' WHERE entry = 84173;
+UPDATE creature_template SET gossip_menu_id = 65542, ScriptName = 'npc_ashran_general_ushet_wolfbarger' WHERE entry = 84473;
+UPDATE creature_template SET gossip_menu_id = 65543, ScriptName = '' WHERE entry = 84660;
+UPDATE creature_template SET gossip_menu_id = 65544, ScriptName = '' WHERE entry = 88826;
+UPDATE creature_template SET gossip_menu_id = 65545, ScriptName = '' WHERE entry = 88448;
+UPDATE creature_template SET gossip_menu_id = 65546 WHERE entry = 82200;
+UPDATE creature_template SET gossip_menu_id = 65547, ScriptName = '' WHERE entry = 82883;
+UPDATE creature_template SET gossip_menu_id = 65548 WHERE entry = 86201;
+UPDATE creature_template SET gossip_menu_id = 65549 WHERE entry = 86202;
+UPDATE creature_template SET gossip_menu_id = 65550 WHERE entry = 88777;
+UPDATE creature_template SET ScriptName = 'npc_ashran_warspear_shaman' WHERE entry = 82438;
+UPDATE creature_template SET ScriptName = 'npc_ashran_illandria_belore' WHERE entry = 88675;
+UPDATE creature_template SET ScriptName = 'npc_ashran_examiner_rahm_flameheart' WHERE entry = 88676;
+UPDATE creature_template SET npcflag = 0x3 WHERE entry = 86366;
+
+ALTER TABLE `gossip_menu` CHANGE `entry` `entry` INT(10) UNSIGNED DEFAULT '0' NOT NULL, CHANGE `text_id` `text_id` INT(10) UNSIGNED DEFAULT '0' NOT NULL;
+DELETE FROM gossip_menu WHERE entry IN (65536, 65537, 65538, 65539, 65540, 65541, 65542, 65543, 65544, 65545, 65546, 65547, 65548, 65549, 65550);
+DELETE FROM gossip_menu WHERE text_id IN (89855, 85290, 85346, 85455, 85464, 86045, 84857, 82999, 83825, 87402, 88548, 88550, 91432, 91496);
+INSERT INTO gossip_menu (entry, text_id) VALUES
+(65536, 89855),
+(65537, 85290),
+(65538, 85346),
+(65539, 85455),
+(65540, 85464),
+-- (65541, 0),
+(65542, 86045),
+(65543, 84857),
+(65544, 91496),
+(65545, 82999),
+(65546, 83825),
+(65547, 87402),
+(65548, 88550),
+(65549, 88548),
+(65550, 91432);
+
+-- Basic text from horde NPC's, base gossips
+DELETE FROM npc_text WHERE ID IN (82999, 83825, 84857, 85290, 85346, 85455, 85464, 86045, 87402, 88548, 88550, 89855, 91432, 91496);
+INSERT INTO npc_text (ID, text0_0, text0_1) VALUE
+(
+    82999,
+    'Have you seen any of the hidden artifacts?$B$BYou can find fragments all throughout Ashran. I hear killing the creatures in this the outskirts off of the Road of Glory has uncovered some recently.$B$BYou can give me any you find, and I''ll distribute them to those who need them.',
+    'Have you seen any of the hidden artifacts?$B$BYou can find fragments all throughout Ashran. I hear killing the creatures in this the outskirts off of the Road of Glory has uncovered some recently.$B$BYou can give me any you find, and I''ll distribute them to those who need them.'
+);
+INSERT INTO npc_text (ID, text0_0, text0_1) VALUE (83825, '<Let''s out a soft, deep groan>', '<Let''s out a soft, deep groan>');
+INSERT INTO npc_text (ID, text0_0, text0_1) VALUE
+(
+    84857,
+    'Look deep into my eyes, $n and you can survey Ashran from afar.$B$BWhat would you like to see?',
+    'Look deep into my eyes, $n and you can survey Ashran from afar.$B$BWhat would you like to see?'
+);
+INSERT INTO npc_text (ID, text0_0, text0_1) VALUE
+(
+    85290,
+    'Bring me back enough of those artifacts and I can gear up our Wolf Riders and send them out into battle.$B$BHow many have you brought me?',
+    'Bring me back enough of those artifacts and I can gear up our Wolf Riders and send them out into battle.$B$BHow many have you brought me?'
+);
+INSERT INTO npc_text (ID, text0_0, text0_1) VALUE
+(
+    85346,
+    'WHAT ARE YOU DOING JUST STANDING AROUND? GO SLAY SOME ALLIANCE SCUM. BRING ME BACK THEIR HEAD, TEETH, TAILS... WHATHEVER! AND HURRY UP!!',
+    'WHAT ARE YOU DOING JUST STANDING AROUND? GO SLAY SOME ALLIANCE SCUM. BRING ME BACK THEIR HEAD, TEETH, TAILS... WHATHEVER! AND HURRY UP!!'
+);
+INSERT INTO npc_text (ID, text0_0, text0_1) VALUE
+(
+    85455,
+    'The power lies within the artifact fragments, $n. Bring back enough of those and the mages will summon a portal so we can return back to Warspear Outpost faster.$B$BHow many have you brought me?',
+    'The power lies within the artifact fragments, $n. Bring back enough of those and the mages will summon a portal so we can return back to Warspear Outpost faster.$B$BHow many have you brought me?'
+);
+INSERT INTO npc_text (ID, text0_0, text0_1) VALUE
+(
+    85464,
+    'If we can gather enough of the artifact fragments found within Ashran we can activate the Warlock Gateways so we can move between the areas faster.$B$BHow many have you brought me?',
+    'If we can gather enough of the artifact fragments found within Ashran we can activate the Warlock Gateways so we can move between the areas faster.$B$BHow many have you brought me?'
+);
+INSERT INTO npc_text (ID, text0_0, text0_1) VALUE
+(
+    86045,
+    'So how many Alliance have you slain today, $n?',
+    'So how many Alliance have you slain today, $n?'
+);
+-- INSERT INTO npc_text (ID, text0_0, text0_1) VALUE
+-- (
+--     0,
+--     'You don''t need to waste your time with alchemy. Just bring me the ingredients and I''ll do it for you.$B$BWhat are you interested in?',
+--     'You don''t need to waste your time with alchemy. Just bring me the ingredients and I''ll do it for you.$B$BWhat are you interested in?'
+-- );
+INSERT INTO npc_text (ID, text0_0, text0_1) VALUE (88548, 'GO!', 'GO!');
+INSERT INTO npc_text (ID, text0_0, text0_1) VALUE (88550, 'I come and go like the wind.', 'I come and go like the wind.');
+INSERT INTO npc_text (ID, text0_0, text0_1) VALUE
+(
+    91496,
+    'If you run into some trouble with alliance around here, use one of Frizzo Sparkrocket''s flare.$B$BWe can''t help you if we don''t know where you''re at.',
+    'If you run into some trouble with alliance around here, use one of Frizzo Sparkrocket''s flare.$B$BWe can''t help you if we don''t know where you''re at.'
+);
+INSERT INTO npc_text (ID, text0_0, text0_1) VALUE
+(
+    91432,
+    'The Night Elves are attempting to resurrect an Ancient to be used against us using the power of the Artifacts found here in Ashran.$B$BIf you see any alliance out there, take any fragments they carry by any force necessary.',
+    'The Night Elves are attempting to resurrect an Ancient to be used against us using the power of the Artifacts found here in Ashran.$B$BIf you see any alliance out there, take any fragments they carry by any force necessary.'
+);
+INSERT INTO npc_text (ID, text0_0, text0_1) VALUE
+(
+    87402,
+    'I hear you''re a force to be reckoned with in the arena, $n.',
+    'I hear you''re a force to be reckoned with in the arena, $n.'
+);
+INSERT INTO npc_text (ID, text0_0, text0_1) VALUE
+(
+    89855,
+    'The artifact fragments contain enough magical power to restore this Earth Fury to full strength.$B$BHow many have you brouht us?',
+    'The artifact fragments contain enough magical power to restore this Earth Fury to full strength.$B$BHow many have you brouht us?'
+);
+
+-- Basic text from horde NPC's, base gossips
+DELETE FROM locales_npc_text WHERE entry IN (82999, 83825, 84857, 85290, 85346, 85455, 85464, 86045, 87402, 88548, 88550, 89855, 91432, 91496);
+--                                   French                       Spanish                     German                      Russian
+INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, Text0_1_loc3, Text0_0_loc6, Text0_1_loc6, Text0_0_loc8, Text0_1_loc8) VALUE
+(
+    82999,
+    'Avez-vous déniché l''un de ces artéfacts cachés ?$B$BOn trouve des fragments un peu partout dans A''shran. J''ai entendu dire qu''on avait récemment découvert en tuant des créatures rôdant à proximité de la route de la Gloire.$B$BVous pouvez me remettre ceux que vous trouverez, et je me chargerai de les redistribuer aux personnes qui en ont besoin.',
+    'Avez-vous déniché l''un de ces artéfacts cachés ?$B$BOn trouve des fragments un peu partout dans A''shran. J''ai entendu dire qu''on avait récemment découvert en tuant des créatures rôdant à proximité de la route de la Gloire.$B$BVous pouvez me remettre ceux que vous trouverez, et je me chargerai de les redistribuer aux personnes qui en ont besoin.',
+    '¿Has visto alguno de los artefactos ocultos?$B$BPuedes encontrar fragmentos en todo Ashran. He odio que matando a las criaturas en las afueras de este lado de la carretera de la gloria se han descubierto algunos recientemente.$B$BMe puedes dar alguna que encuentres, y la distribuiré a aquellos que los necesitan.',
+    '¿Has visto alguno de los artefactos ocultos?$B$BPuedes encontrar fragmentos en todo Ashran. He odio que matando a las criaturas en las afueras de este lado de la carretera de la gloria se han descubierto algunos recientemente.$B$BMe puedes dar alguna que encuentres, y la distribuiré a aquellos que los necesitan.',
+    '', '', '', ''
+);
+INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, Text0_1_loc3, Text0_0_loc6, Text0_1_loc6, Text0_0_loc8, Text0_1_loc8) VALUE
+(
+    83825,
+    '<Pousse un léger gémissement gutural.>',
+    '<Pousse un léger gémissement gutural.>',
+    '<Vamos a escapar dulcemente, gemido profundo>',
+    '<Vamos a escapar dulcemente, gemido profundo>',
+    '', '', '', ''
+);
+INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, Text0_1_loc3, Text0_0_loc6, Text0_1_loc6, Text0_0_loc8, Text0_1_loc8) VALUE
+(
+    84857,
+    'Plongez votre regard dans le mien $n. Vous pourrez ainsi observer à distance ce qui se passe à A''shran.$B$BQue voulez-vous voir ?',
+    'Plongez votre regard dans le mien $n. Vous pourrez ainsi observer à distance ce qui se passe à A''shran.$B$BQue voulez-vous voir ?',
+    'Mira profundamente en mis ojos, $n y podrás estudiar Ashran desde lejos.$B$B¿Qué te gustaría ver?',
+    'Mira profundamente en mis ojos, $n y podrás estudiar Ashran desde lejos.$B$B¿Qué te gustaría ver?',
+    '', '', '', ''
+);
+INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, Text0_1_loc3, Text0_0_loc6, Text0_1_loc6, Text0_0_loc8, Text0_1_loc8) VALUE
+(
+    85290,
+    'J''ai besoin de beaucoup d''artéfacts pour équiper nos Chevaucheurs de loups et les envoyer au combat.$B$BCombien m''en apportez-vous ?',
+    'J''ai besoin de beaucoup d''artéfacts pour équiper nos Chevaucheurs de loups et les envoyer au combat.$B$BCombien m''en apportez-vous ?',
+    'Tráeme de vuelta suficiente de esos artefactos y puedo orientar nuestros jinetes de lobos y enviarlos a la batalla.$B$B¿Cuántos me has traído?',
+    'Tráeme de vuelta suficiente de esos artefactos y puedo orientar nuestros jinetes de lobos y enviarlos a la batalla.$B$B¿Cuántos me has traído?',
+    '', '', '', ''
+);
+INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, Text0_1_loc3, Text0_0_loc6, Text0_1_loc6, Text0_0_loc8, Text0_1_loc8) VALUE
+(
+    85346,
+    'VOUS COMPTEZ PRENDRE RACINE ICI OU QUOI ? ALLEZ ME TUER LES VERMINES DE L''ALLIANCE. RAPPORTEZ-MOI DES TÊTES, DES DENTS, DES QUEUES... PEU IMPORTE ! ET GROUILLEZ-VOUS !!',
+    'VOUS COMPTEZ PRENDRE RACINE ICI OU QUOI ? ALLEZ ME TUER LES VERMINES DE L''ALLIANCE. RAPPORTEZ-MOI DES TÊTES, DES DENTS, DES QUEUES... PEU IMPORTE ! ET GROUILLEZ-VOUS !!',
+    '¿QUÉ ESTÁS HACIENDO SIMPLEMENTE DANDO VUELTAS ALREDEDOR? VE A MATAR ALGUNA ESCORIA DE ALIANZA. ¡TRÁEME DE VUELTA SU CABEZA, DIENTES, COLAS... LO QUE SEA! Y RÁPIDO !!',
+    '¿QUÉ ESTÁS HACIENDO SIMPLEMENTE DANDO VUELTAS ALREDEDOR? VE A MATAR ALGUNA ESCORIA DE ALIANZA. ¡TRÁEME DE VUELTA SU CABEZA, DIENTES, COLAS... LO QUE SEA! Y RÁPIDO !!',
+    '', '', '', ''
+);
+INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, Text0_1_loc3, Text0_0_loc6, Text0_1_loc6, Text0_0_loc8, Text0_1_loc8) VALUE
+(
+    85455,
+    'L''énergie dons nous avons besoin se trouve dans les fragments d''artéfacts, $n. En quantité suffisante, ils permettront aux mages d''invoquer un portail pour atteindre l''avant-poste de Fer-de-Lance plus rapidement.$B$BCombien m''en apportez-vous ?',
+    'L''énergie dons nous avons besoin se trouve dans les fragments d''artéfacts, $n. En quantité suffisante, ils permettront aux mages d''invoquer un portail pour atteindre l''avant-poste de Fer-de-Lance plus rapidement.$B$BCombien m''en apportez-vous ?',
+    'El poder está dentro de los fragmentos de artefactos, $n. Trae de vuelta lo suficiente de esos y los magos convocarám un portal para que podamos volver a Lanza de Guerra rápido.$B$B¿Cuántos me has traído?',
+    'El poder está dentro de los fragmentos de artefactos, $n. Trae de vuelta lo suficiente de esos y los magos convocarám un portal para que podamos volver a Lanza de Guerra rápido.$B$B¿Cuántos me has traído?',
+    '', '', '', ''
+);
+INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, Text0_1_loc3, Text0_0_loc6, Text0_1_loc6, Text0_0_loc8, Text0_1_loc8) VALUE
+(
+    85464,
+    'Si nous parvenons à nous procurer assez de fragments d''artéfacts qu''on peut trouver à A''shran, nous pourrons activer les portes de déùpnostres pour nous déplacer plus rapidement d''un point à un autre.$B$BCombien m''en apportez-vous ?',
+    'Si nous parvenons à nous procurer assez de fragments d''artéfacts qu''on peut trouver à A''shran, nous pourrons activer les portes de déùpnostres pour nous déplacer plus rapidement d''un point à un autre.$B$BCombien m''en apportez-vous ?',
+    'Si podemos reunir suficiente de los fragmentos de artefactos encontrados dentro Ashran podemos activar el portal de brujo para que podamos pasar entre las zonas más rápido.$B$B¿Cuántos me has traído?',
+    'Si podemos reunir suficiente de los fragmentos de artefactos encontrados dentro Ashran podemos activar el portal de brujo para que podamos pasar entre las zonas más rápido.$B$B¿Cuántos me has traído?',
+    '', '', '', ''
+);
+INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, Text0_1_loc3, Text0_0_loc6, Text0_1_loc6, Text0_0_loc8, Text0_1_loc8) VALUE
+(
+    86045,
+    'Alors, combien de soldats de l''Alliance avez-vous tués ajourd''hui, $n ?',
+    'Alors, combien de soldats de l''Alliance avez-vous tués ajourd''hui, $n ?',
+    'Entonces, ¿cuántos Alianza has matado hoy, $n?',
+    'Entonces, ¿cuántos Alianza has matado hoy, $n?',
+    '', '', '', ''
+);
+-- INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, Text0_1_loc3, Text0_0_loc6, Text0_1_loc6, Text0_0_loc8, Text0_1_loc8) VALUE
+-- (
+--     0,
+--     'Ne perdez pas de temps avec l''alchimie.$B$BApportez-moi les ingrédients et je m''en occuperai pour vous.',
+--     'Ne perdez pas de temps avec l''alchimie.$B$BApportez-moi les ingrédients et je m''en occuperai pour vous.',
+--     'No tienes que perder el tiempo con la alquimia. Sólo tráeme los ingredientes y lo haré para usted.$B$B¿En que está interesado?',
+--     'No tienes que perder el tiempo con la alquimia. Sólo tráeme los ingredientes y lo haré para usted.$B$B¿En que está interesado?',
+--     '', '', '', ''
+-- );
+INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, Text0_1_loc3, Text0_0_loc6, Text0_1_loc6, Text0_0_loc8, Text0_1_loc8) VALUE
+(
+    88550,
+    'Je tranche la gorge de n''importe quel membre de l''Alliance pour une pièce de cuivre.',
+    'Je tranche la gorge de n''importe quel membre de l''Alliance pour une pièce de cuivre.',
+    'Voy y vengo como el viento.',
+    'Voy y vengo como el viento.',
+    '', '', '', ''
+);
+INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, Text0_1_loc3, Text0_0_loc6, Text0_1_loc6, Text0_0_loc8, Text0_1_loc8) VALUE
+(88548, 'PARTEZ !', 'PARTEZ !', '¡VAMOS!', '¡VAMOS!', '', '', '', '');
+INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, Text0_1_loc3, Text0_0_loc6, Text0_1_loc6, Text0_0_loc8, Text0_1_loc8) VALUE
+(
+    91432,
+    'Si vous vous rendez dans le bois Sombre, essayez de cueillir des fleurs des chants. Elles ont de puissantes propriétés magiques. Notez néanmoins que vous devrez peut-être combattre quelques arakkoa pour les obtenir.',
+    'Si vous vous rendez dans le bois Sombre, essayez de cueillir des fleurs des chants. Elles ont de puissantes propriétés magiques. Notez néanmoins que vous devrez peut-être combattre quelques arakkoa pour les obtenir.',
+    'Los Elfos de la Noche están tratando de resucitar un ancestro para ser utilizado contra nosotros usando el poder de los artefactos encontrados aquí en Ashran.$B$BSi ves cualquier alianza por ahí, tomar cualquier fragmento que llevan por la fuerza.',
+    'Los Elfos de la Noche están tratando de resucitar un ancestro para ser utilizado contra nosotros usando el poder de los artefactos encontrados aquí en Ashran.$B$BSi ves cualquier alianza por ahí, tomar cualquier fragmento que llevan por la fuerza.',
+    '', '', '', ''
+);
+INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, Text0_1_loc3, Text0_0_loc6, Text0_1_loc6, Text0_0_loc8, Text0_1_loc8) VALUE
+(
+    91496,
+    'Si l''Alliance vous pose des problèmes dans le coin, utilisez l''une des fusées de Frizzo Grilletorpille.$B$BNous ne pourrons vous aider que si nous savons où vous vous trouvez.',
+    'Si l''Alliance vous pose des problèmes dans le coin, utilisez l''une des fusées de Frizzo Grilletorpille.$B$BNous ne pourrons vous aider que si nous savons où vous vous trouvez.',
+    'Si te encuentras con algún problema con la alianza por aquí, utiliza una bengala de Frizzo Sparkrocket.$B$BNosotros no podemos ayudar si no sabemos donde estás.',
+    'Si te encuentras con algún problema con la alianza por aquí, utiliza una bengala de Frizzo Sparkrocket.$B$BNosotros no podemos ayudar si no sabemos donde estás.',
+    '', '', '', ''
+);
+INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, Text0_1_loc3, Text0_0_loc6, Text0_1_loc6, Text0_0_loc8, Text0_1_loc8) VALUE
+(
+    87402,
+    'Tous les grands seigneurs de guerre ne se ressemblent pas, $c. Certains sont arrivés là à force de temps et d''efforts, d''autres par leurs apptitude au combat. Devinez à quelle catégorie j''appartiens.',
+    'Tous les grands seigneurs de guerre ne se ressemblent pas, $c. Certains sont arrivés là à force de temps et d''efforts, d''autres par leurs apptitude au combat. Devinez à quelle catégorie j''appartiens.',
+    'He oído que eres una fuerza a tener en cuenta en la arena, $n.',
+    'He oído que eres una fuerza a tener en cuenta en la arena, $n.',
+    '', '', '', ''
+);
+INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, Text0_1_loc3, Text0_0_loc6, Text0_1_loc6, Text0_0_loc8, Text0_1_loc8) VALUE
+(
+    89855,
+    'Les fragments d''artéfacts contiennent suffisamment d''énergie margique pour remettre sur pied cette fureur terrestre.$B$BCombien m''en apportez-vous ?',
+    'Les fragments d''artéfacts contiennent suffisamment d''énergie margique pour remettre sur pied cette fureur terrestre.$B$BCombien m''en apportez-vous ?',
+    'Los fragmentos de artefactos contienen suficiente poder mágico para restaurar esta furia de la Tierra a toda su fuerza.$B$B¿Cuántos nos has traído?',
+    'Los fragmentos de artefactos contienen suficiente poder mágico para restaurar esta furia de la Tierra a toda su fuerza.$B$B¿Cuántos nos has traído?',
+    '', '', '', ''
+);
+
+-- Artifact count gossips
+DELETE FROM npc_text WHERE ID IN (85336, 85339, 85340, 85341);
+INSERT INTO npc_text (ID, text0_0, text0_1) VALUES
+(85336, 'We currently have $9313w collected. We need $9705w total.', 'We currently have $9313w collected. We need $9705w total.'),
+(85339, 'We currently have $9312w collected. We need $9707w total.', 'We currently have $9312w collected. We need $9707w total.'),
+(85340, 'We currently have $9262w collected. We need $9708w total.', 'We currently have $9262w collected. We need $9708w total.'),
+(85341, 'We currently have $9253w collected. We need $9706w total.', 'We currently have $9253w collected. We need $9706w total.');
+
+-- Artifact count gossips
+DELETE FROM locales_npc_text WHERE entry IN (85336, 85339, 85340, 85341);
+--                                   French                       Spanish                     German                      Russian
+INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, Text0_1_loc3, Text0_0_loc6, Text0_1_loc6, Text0_0_loc8, Text0_1_loc8) VALUE
+(
+    85336,
+    'Pour l''instant, nous en avons récolté $9313w, mais il nous en faut au total $9705w.',
+    'Pour l''instant, nous en avons récolté $9313w, mais il nous en faut au total $9705w.',
+    'Actualmente hemos recogido $9313w. Necesitamos $9705w total.',
+    'Actualmente hemos recogido $9313w. Necesitamos $9705w total.',
+    '', '', '', ''
+);
+INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, Text0_1_loc3, Text0_0_loc6, Text0_1_loc6, Text0_0_loc8, Text0_1_loc8) VALUE
+(
+    85339,
+    'Pour l''instant, nous en avons récolté $9312w, mais il nous en faut au total $9707w.',
+    'Pour l''instant, nous en avons récolté $9312w, mais il nous en faut au total $9707w.',
+    'Actualmente hemos recogido $9312w. Necesitamos $9707w total.',
+    'Actualmente hemos recogido $9312w. Necesitamos $9707w total.',
+    '', '', '', ''
+);
+INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, Text0_1_loc3, Text0_0_loc6, Text0_1_loc6, Text0_0_loc8, Text0_1_loc8) VALUE
+(
+    85340,
+    'Pour l''instant, nous en avons récolté $9262w, mais il nous en faut au total $9708w.',
+    'Pour l''instant, nous en avons récolté $9262w, mais il nous en faut au total $9708w.',
+    'Actualmente hemos recogido $9262w. Necesitamos $9708w total.',
+    'Actualmente hemos recogido $9262w. Necesitamos $9708w total.',
+    '', '', '', ''
+);
+INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, Text0_1_loc3, Text0_0_loc6, Text0_1_loc6, Text0_0_loc8, Text0_1_loc8) VALUE
+(
+    85341,
+    'Pour l''instant, nous en avons récolté $9253w, mais il nous en faut au total $9706w.',
+    'Pour l''instant, nous en avons récolté $9253w, mais il nous en faut au total $9706w.',
+    'Actualmente hemos recogido $9253w. Necesitamos $9706w total.',
+    'Actualmente hemos recogido $9253w. Necesitamos $9706w total.',
+    '', '', '', ''
+);
+
+DELETE FROM creature_text WHERE entry IN (88675, 88676, 88771, 88772);
+INSERT INTO creature_text VALUES
+(88675, 0, 0, 'These Steamwheedle goblins are reprehensible. They''ll do anything to make a quick coin!', 12, 0, 100, 0, 0, 0, 'IllandriaBelore0'),
+(88675, 1, 0, 'They''ve started selling souvenirs!', 12, 0, 100, 0, 0, 0, 'IllandriaBelore1'),
+(88675, 2, 0, 'I wish it were a jest. They''ve been stringing together artifact fragments and selling them as jewelry. The nerve of them to treat a priceless such a way!', 12, 0, 100, 0, 0, 0, 'IllandriaBelore2'),
+(88675, 3, 0, 'Has Belloc come any closer to finding the location of this mysterious artifact?', 12, 0, 100, 0, 0, 0, 'IllandriaBelore3'),
+(88675, 4, 0, 'We must make haste if we wish to find it before Dr. Jones gets his hands on it.', 12, 0, 100, 0, 0, 0, 'IllandriaBelore4'),
+
+(88676, 0, 0, 'What did they do this time?', 12, 0, 100, 0, 0, 0, 'ExaminerRahmFlameheart0'),
+(88676, 1, 0, 'We''re barely recovering from our assault on the dark portal, and they''re setting up a tourism racket? Surely you must be joking.', 12, 0, 100, 0, 0, 0, 'ExaminerRahmFlameheart1'),
+(88676, 2, 0, 'He''s had some leads, but nothing terribly solid yet.', 12, 0, 100, 0, 0, 0, 'ExaminerRahmFlameheart2'),
+(88676, 3, 0, 'Agreed, there is no telling what the Alliance might do with such a powerful weapon. We must petition for more aid before our cause becomes lost.', 12, 0, 100, 0, 0, 0, 'ExaminerRahmFlameheart3'),
+
+(88771, 0, 0, 'Rogue spies have informed us that the Alliance are building machinery used to drill through rocks. Do you think its for the mines?', 12, 0, 100, 0, 0, 0, 'CenturionFirescream0'),
+(88771, 0, 1, 'Truce? With the Alliance? Never.', 12, 0, 100, 0, 0, 0, 'CenturionFirescream1'),
+
+(88772, 0, 0, 'If only we were able to bring a Zeppelin through the portal. We could take out Stormshield from the skies!', 12, 0, 100, 0, 0, 0, 'LegionnaireHellaxe0'),
+(88772, 0, 1, 'Have you seen how many Death Knights are within our ranks? Why is it that we still can''t penetrate Stormshield? Are they not using Necrotic Plague?', 12, 0, 100, 0, 0, 0, 'LegionnaireHellaxe1');
+
+DELETE FROM locales_creature_text WHERE entry IN (88675, 88676, 88771, 88772);
+--                                                       French     Spanish    German     Russian
+INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, text_loc6, text_loc8) VALUE
+(
+    88675, 0, 0,
+    'Ces gobelins de Gentepression... faudrait les enfermer. Ils feraient n''importe quoi pour de l''argent !',
+    '', '', ''
+);
+INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, text_loc6, text_loc8) VALUE
+(
+    88675, 1, 0,
+    'Ça y est, ils vendent des souvenirs !',
+    '', '', ''
+);
+INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, text_loc6, text_loc8) VALUE
+(
+    88675, 2, 0,
+    'J''aimerais bien. Ils assemblent des bouts de reliques à la va-vite et vendent ça comme bijoux. Traiter des objets aussi inestimables de la sorte, franchement !',
+    '', '', ''
+);
+INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, text_loc6, text_loc8) VALUE
+(
+    88675, 3, 0,
+    'Est-ce que Belloc en sait plus sur l''endroit où se trouve ce mystérieux artéfact ?',
+    '', '', ''
+);
+INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, text_loc6, text_loc8) VALUE
+(
+    88675, 4, 0,
+    'Nous devons nous hâter si nous voulons le trouver avant le docteur Jones.',
+    '', '', ''
+);
+INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, text_loc6, text_loc8) VALUE
+(
+    88676, 0, 0,
+    'Qu''est-ce qu''ils ont encore fait ?',
+    '', '', ''
+);
+INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, text_loc6, text_loc8) VALUE
+(
+    88676, 1, 0,
+    'On se remet à peine de notre assaut sur la Porte des ténèbres, et ils montent un business touristique ? C''est une plaisanterie !',
+    '', '', ''
+);
+INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, text_loc6, text_loc8) VALUE
+(
+    88676, 2, 0,
+    'Il a suivi quelques pistes, mais rien de vraiment concret pour l''instant.',
+    '', '', ''
+);
+INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, text_loc6, text_loc8) VALUE
+(
+    88676, 3, 0,
+    'Je suis d''accord. On ne sait pas ce dont l''Alliance serait capable avec une arme aussi puissante. Nous devons trouver plus de soutien avant que notre quête ne devienne une cause perdue.',
+    '', '', ''
+);
+INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, text_loc6, text_loc8) VALUE
+(
+    88771, 0, 0,
+    'Nos espions nous ont appris que l''Alliance construit un engin de forage. Vous pensez que c''est pour la mine ?',
+    '', '', ''
+);
+INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, text_loc6, text_loc8) VALUE
+(
+    88771, 0, 1,
+    'Une trêve ? Avec l''Alliance ? Plutôt mourir.',
+    '', '', ''
+);
+INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, text_loc6, text_loc8) VALUE
+(
+    88772, 0, 0,
+    'Si seulement nous pouvions faire passer un zeppelin à travers le portail. Nous pourrions raser Bouclier-des-Tempêtes depuis les airs !',
+    '', '', ''
+);
+INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, text_loc6, text_loc8) VALUE
+(
+    88772, 0, 1,
+    'Vous avez vu le nombre de chevaliers de la mort parmi nous ? Comment se fait-il que nous n''arrivions toujours pas à entrer dans Bouclier-des-Tempêtes ? N''utilisent-ils donc pas leur Peste nécrotique ?',
+    '', '', ''
+);

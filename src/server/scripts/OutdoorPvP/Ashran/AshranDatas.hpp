@@ -62,6 +62,10 @@ enum eAshranSpells
     SpellSpiritHeal                 = 22011,
     SpellAncientArtifact            = 168506,   ///< Buff granted when interact with Ancient Artifact object
 
+    /// Quest spells
+    WelcomeToAshranAlliance         = 169144,   ///< Gives quest 36119
+    WelcomeToAshranHorde            = 169146,   ///< Gives quest 36196
+
     /// Events
     SpellEventCollectEmpoweredOre   = 178019,
     SpellEventRisenSpirits          = 178020,

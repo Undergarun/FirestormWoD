@@ -853,6 +853,7 @@ void AddSC_AshranNPCAlliance();
 void AddSC_AshranNPCHorde();
 void AddSC_AshranSpells();
 void AddSC_AshranNPCNeutral();
+void AddSC_AshranQuest();
 
 // player
 void AddSC_chat_log();
@@ -1733,6 +1734,7 @@ void AddOutdoorPvPScripts()
     AddSC_AshranNPCHorde();
     AddSC_AshranSpells();
     AddSC_AshranNPCNeutral();
+    AddSC_AshranQuest();
 #endif
 }
 
