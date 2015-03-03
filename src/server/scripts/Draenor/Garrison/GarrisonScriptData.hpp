@@ -167,6 +167,21 @@ namespace MS { namespace Garrison
         {    0.f,       0.f,      0.f,      0.00f    }  ///< Alliance Level 3
     };
 
+    /// Creature that follow garrison owner level
+    static const uint32 gGarrisonLevelUpdateCreatures[] =
+    {
+        /// Alliance
+        79953,  ///< Lientenant Thorn
+        77370,  ///< Lunarfall Footman
+        85312,  ///< Lunarfall Rifleman
+        88223,  ///< SergeantCrowler
+        /// Horde
+        79781,  ///< Frostwall grunt
+        80299,  ///< Frostwakk Axe thrower
+        88228,  ///< Sergent Grinjaw
+        80572   ///< Frostwall wolf
+    };
+
     namespace HordePeonData 
     {
         enum

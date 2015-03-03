@@ -4193,6 +4193,9 @@ void Player::GiveLevel(uint8 level)
     }
 
     sScriptMgr->OnPlayerLevelChanged(this, oldLevel);
+
+    if (m_Garrison)
+        m_Garrison->OnOwnerLevelChange(level);
 }
 
 void Player::InitTalentForLevel()

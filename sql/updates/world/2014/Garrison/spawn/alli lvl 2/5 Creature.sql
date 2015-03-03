@@ -214,6 +214,16 @@ INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `or
 INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`) VALUES(LAST_INSERT_ID(), 0, 0, 1, 0) ON DUPLICATE KEY UPDATE `guid` = VALUES(`guid`), `mount` = VALUES(`mount`), `bytes1` = VALUES(`bytes1`), `bytes2` = VALUES(`bytes2`), `emote` = VALUES(`emote`);
 
 ---------------------------------------------------------
+-- Creature EXP
+---------------------------------------------------------
+UPDATE creature_template SET `exp`=5 WHERE entry IN (77361,77209,77370,77376,77617,79891,79893,79894,79953,80159,80163,81103,81152,81346,81347,81491,81492,81935,82177,82466,82776,83491,84184,84224,84246,84267,84455,84776,85312,85418,85782,85839,85857,86017,86470,87849,88111,88112,88223,88559,88564,88892,88915);
+
+---------------------------------------------------------
+-- Creature Level
+---------------------------------------------------------
+UPDATE creature_template SET minLevel=90, maxLevel=90 WHERE entry IN(88892, 88915);
+
+---------------------------------------------------------
 -- Npc Gossips & script
 ---------------------------------------------------------
 UPDATE creature SET MovementType=1, spawndist=40 WHERE id=82177 and map=1331;	-- Dog random movement

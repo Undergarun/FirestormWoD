@@ -858,6 +858,22 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
+    /// When the owner player change level
+    /// @p_Level : New owner level
+    void Manager::OnOwnerLevelChange(uint32 p_Level)
+    {
+        Interfaces::GarrisonSite * l_GarrisonScript = GetGarrisonScript();
+
+        if (l_GarrisonScript)
+        {
+            /// Broadcast event
+            l_GarrisonScript->OnOwnerLevelChange(p_Level);
+        }
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
     /// set last used activation game  object
     void Manager::SetLastUsedActivationGameObject(uint64 p_Guid)
     {

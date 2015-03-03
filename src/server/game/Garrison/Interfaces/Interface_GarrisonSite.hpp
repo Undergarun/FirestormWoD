@@ -67,6 +67,9 @@ namespace MS { namespace Garrison { namespace Interfaces
             /// @p_BuildingID : Purchased building ID
             virtual void OnBuildingActivated(Player * p_Owner, uint32 p_BuildingID) = 0;
 
+            /// When the owner player change level
+            /// @p_Level : New owner level
+            virtual void OnOwnerLevelChange(uint32 p_Level) = 0;
     };
 
 }   ///< namespace Interfaces
