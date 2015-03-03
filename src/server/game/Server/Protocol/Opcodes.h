@@ -998,7 +998,7 @@ enum Opcodes
     CMSG_VIOLENCE_LEVEL                         = 0x0071,   ///< 6.1.0 19702
     CMSG_LOAD_SCREEN                            = 0x13E4,   ///< 6.1.0 19702
     CMSG_REQUEST_ACCOUNT_DATA                   = 0x1934,   ///< 6.1.0 19702
-    CMSG_UPDATE_ACCOUNT_DATA                    = 0x093B,   ///< 6.1.0 19702
+    CMSG_UPDATE_ACCOUNT_DATA                    = 0x17BB,   ///< 6.1.0 19702
     CMSG_SET_DUNGEON_DIFFICULTY                 = 0x0000,   ///<
     CMSG_SET_RAID_DIFFICULTY                    = 0x0000,   ///<
     CMSG_AUTO_DECLINE_GUILD_INVITES             = 0x0000,   ///<
