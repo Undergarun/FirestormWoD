@@ -34,12 +34,12 @@ INSERT INTO trinity_string (entry, content_default, content_loc2, content_loc6) 
 
 DELETE FROM spell_script_names WHERE ScriptName IN
 (
-'spell_blade_twister',
-'spell_ashran_blade_twister',
-'spell_emberfall_living_bomb',
-'spell_ashran_emberfall_living_bomb',
-'spell_ashran_booming_shout',
-'spell_ashran_curse_of_krong'
+    'spell_blade_twister',
+    'spell_ashran_blade_twister',
+    'spell_emberfall_living_bomb',
+    'spell_ashran_emberfall_living_bomb',
+    'spell_ashran_booming_shout',
+    'spell_ashran_curse_of_krong'
 );
 
 INSERT INTO spell_script_names VALUES
@@ -86,7 +86,7 @@ UPDATE creature_template SET gossip_menu_id = 65543, ScriptName = '' WHERE entry
 UPDATE creature_template SET gossip_menu_id = 65544, ScriptName = '' WHERE entry = 88826;
 UPDATE creature_template SET gossip_menu_id = 65545, ScriptName = '' WHERE entry = 88448;
 UPDATE creature_template SET gossip_menu_id = 65546 WHERE entry = 82200;
-UPDATE creature_template SET gossip_menu_id = 65547, ScriptName = '' WHERE entry = 82883;
+UPDATE creature_template SET gossip_menu_id = 65547, npcflag = 129 WHERE entry = 82883;
 UPDATE creature_template SET gossip_menu_id = 65548 WHERE entry = 86201;
 UPDATE creature_template SET gossip_menu_id = 65549 WHERE entry = 86202;
 UPDATE creature_template SET gossip_menu_id = 65550 WHERE entry = 88777;
@@ -97,10 +97,16 @@ UPDATE creature_template SET ScriptName = 'npc_ashran_examiner_rahm_flameheart' 
 UPDATE creature_template SET ScriptName = 'npc_ashran_centurion_firescream' WHERE entry = 88771;
 UPDATE creature_template SET ScriptName = 'npc_ashran_legionnaire_hellaxe' WHERE entry = 88772;
 UPDATE creature_template SET npcflag = 0x3 WHERE entry = 86366;
+UPDATE creature_template SET gossip_menu_id = 65560 WHERE entry = 82893;
+UPDATE creature_template SET gossip_menu_id = 65563 WHERE entry = 81870;
+UPDATE creature_template SET gossip_menu_id = 65566 WHERE entry = 82660;
+UPDATE creature_template SET gossip_menu_id = 65569 WHERE entry = 82966;
 
 ALTER TABLE `gossip_menu` CHANGE `entry` `entry` INT(10) UNSIGNED DEFAULT '0' NOT NULL, CHANGE `text_id` `text_id` INT(10) UNSIGNED DEFAULT '0' NOT NULL;
-DELETE FROM gossip_menu WHERE entry IN (65536, 65537, 65538, 65539, 65540, 65541, 65542, 65543, 65544, 65545, 65546, 65547, 65548, 65549, 65550, 65551, 65552, 65553, 65554, 65555, 65556, 65557, 65558, 65559);
-DELETE FROM gossip_menu WHERE text_id IN (89855, 85290, 85346, 85455, 85464, 86045, 84857, 91496, 82999, 83825, 87402, 88550, 88548, 91432, 91435, 85343, 85461, 85460, 85334, 84631, 84476, 85336, 86036);
+DELETE FROM gossip_menu WHERE entry IN (65536, 65537, 65538, 65539, 65540, 65541, 65542, 65543, 65544, 65545, 65546, 65547, 65548, 65549, 65550, 65551, 65552, 65553, 65554, 65555, 65556, 65557, 65558, 65559, 65560, 65561, 65562, 65563, 65564, 65565);
+DELETE FROM gossip_menu WHERE entry IN (65566, 65567, 65568, 65569, 65570, 65571);
+DELETE FROM gossip_menu WHERE text_id IN (89855, 85290, 85346, 85455, 85464, 86045, 84857, 91496, 82999, 83825, 87402, 88550, 88548, 91432, 91435, 85343, 85461, 85460, 85334, 84631, 84476, 85336, 86036, 84924, 85339, 84928, 83896);
+DELETE FROM gossip_menu WHERE text_id IN (84627, 85341, 84642, 84922, 84926, 90226);
 INSERT INTO gossip_menu (entry, text_id) VALUES
 (65536, 89855),
 (65537, 85290),
@@ -133,10 +139,30 @@ INSERT INTO gossip_menu (entry, text_id) VALUES
 -- Mage artifacts
 (65558, 85336),
 -- Warrior artifacts
-(65559, 86036);
+(65559, 86036),
+(65560, 84924),
+-- Paladin artifacts
+(65561, 85339),
+-- Paladin Infos
+(65562, 84928),
+(65563, 83896),
+-- Druid artifacts
+(65564, 85340),
+-- Druid Infos
+(65565, 84624),
+(65566, 84627),
+-- Warlock artifacts
+(65567, 85341),
+-- Warlock Infos
+(65568, 84642),
+(65569, 84922),
+-- Mage artifacts
+(65570, 84926),
+-- Mage Infos
+(65571, 90226);
 
 ALTER TABLE `gossip_menu_option` CHANGE `menu_id` `menu_id` INT(10) UNSIGNED DEFAULT '0' NOT NULL, CHANGE `id` `id` SMALLINT(5) UNSIGNED DEFAULT '0' NOT NULL;
-DELETE FROM gossip_menu_option WHERE menu_id IN (65536, 65537, 65539, 65540, 65543, 65546, 65547);
+DELETE FROM gossip_menu_option WHERE menu_id IN (65536, 65537, 65539, 65540, 65543, 65545, 65546, 65547, 65560, 65563, 65566, 65569);
 INSERT INTO gossip_menu_option VALUES
 -- Shaman
 (65536, 0, 0, 'Take all of my Artifact Fragments!', 1, 3, 0, 0, 0, 0, ''),
@@ -162,10 +188,26 @@ INSERT INTO gossip_menu_option VALUES
 -- Belloc
 (65545, 0, 0, 'Take all of my Artifact Fragments!', 1, 1, 0, 0, 0, 0, ''),
 -- Honor Quartermarster
-(65547, 0, 1, 'I would like to buy from you.', 1, 128, 0, 0, 0, 0, '');
+(65547, 0, 1, 'I would like to buy from you.', 3, 128, 0, 0, 0, 0, ''),
+-- Paladin
+(65560, 0, 0, 'Take all of my Artifact Fragments!', 1, 3, 0, 0, 0, 0, ''),
+(65560, 1, 0, 'How many Artifact Fragments have we collected?', 1, 3, 65561, 0, 0, 0, ''),
+(65560, 2, 0, 'What do the Knight Riders do?', 1, 3, 65562, 0, 0, 0, ''),
+-- Druid
+(65563, 0, 0, 'Take all of my Artifact Fragments!', 1, 3, 0, 0, 0, 0, ''),
+(65563, 1, 0, 'How many Artifact Fragments have we collected?', 1, 3, 65564, 0, 0, 0, ''),
+(65563, 2, 0, 'What does the Ancient of War do?', 1, 3, 65565, 0, 0, 0, ''),
+-- Warlock
+(65566, 0, 0, 'Take all of my Artifact Fragments!', 1, 3, 0, 0, 0, 0, ''),
+(65566, 1, 0, 'How many Artifact Fragments have we collected?', 1, 3, 65567, 0, 0, 0, ''),
+(65566, 2, 0, 'What do the Gateways do?', 1, 3, 65568, 0, 0, 0, ''),
+-- Mage
+(65569, 0, 0, 'Take all of my Artifact Fragments!', 1, 3, 0, 0, 0, 0, ''),
+(65569, 1, 0, 'How many Artifact Fragments have we collected?', 1, 3, 65570, 0, 0, 0, ''),
+(65569, 2, 0, 'What do the Mage Portals do?', 1, 3, 65571, 0, 0, 0, '');
 
 ALTER TABLE `locales_gossip_menu_option` CHANGE `menu_id` `menu_id` INT(10) UNSIGNED DEFAULT '0' NOT NULL;
-DELETE FROM locales_gossip_menu_option WHERE menu_id IN (65536, 65537, 65539, 65540, 65543, 65545, 65547);
+DELETE FROM locales_gossip_menu_option WHERE menu_id IN (65536, 65537, 65539, 65540, 65543, 65545, 65547, 65560, 65563, 65566, 65569);
 --                                                   French            German            Spanish           Russian
 INSERT INTO locales_gossip_menu_option (menu_id, id, option_text_loc2, option_text_loc3, option_text_loc6, option_text_loc8) VALUES
 (
@@ -293,10 +335,94 @@ INSERT INTO locales_gossip_menu_option (menu_id, id, option_text_loc2, option_te
     '',
     '',
     ''
+),
+(
+    65560, 0,
+    'Prenez tous mes fragments d''artéfacts !',
+    '',
+    '',
+    ''
+),
+(
+    65560, 1,
+    'Combien de fragments d''artéfacts avons-nous rassemblés ?',
+    '',
+    '',
+    ''
+),
+(
+    65560, 2,
+    'Quel est le rôle des Chevaucheurs ?',
+    '',
+    '',
+    ''
+),
+(
+    65563, 0,
+    'Prenez tous mes fragments d''artéfacts !',
+    '',
+    '',
+    ''
+),
+(
+    65563, 1,
+    'Combien de fragments d''artéfacts avons-nous rassemblés ?',
+    '',
+    '',
+    ''
+),
+(
+    65563, 2,
+    'À quoi sert l''ancien de la guerre ?',
+    '',
+    '',
+    ''
+),
+(
+    65566, 0,
+    'Prenez tous mes fragments d''artéfacts !',
+    '',
+    '',
+    ''
+),
+(
+    65566, 1,
+    'Combien de fragments d''artéfacts avons-nous rassemblés ?',
+    '',
+    '',
+    ''
+),
+(
+    65566, 2,
+    'À quoi servent les portes ?',
+    '',
+    '',
+    ''
+),
+(
+    65569, 0,
+    'Prenez tous mes fragments d''artéfacts !',
+    '',
+    '',
+    ''
+),
+(
+    65569, 1,
+    'Combien de fragments d''artéfacts avons-nous rassemblés ?',
+    '',
+    '',
+    ''
+),
+(
+    65569, 2,
+    'À quoi servent les portails de mage ?',
+    '',
+    '',
+    ''
 );
 
 -- Basic text from horde NPC's, base gossips
-DELETE FROM npc_text WHERE ID IN (82999, 83825, 84857, 85290, 85346, 85455, 85464, 86045, 87402, 88548, 88550, 89855, 91432, 91496, 91435, 85343, 85461, 85460, 85334, 84631);
+DELETE FROM npc_text WHERE ID IN (82999, 83825, 84857, 85290, 85346, 85455, 85464, 86045, 87402, 88548, 88550, 89855, 91432, 91496, 91435, 85343, 85461, 85460, 85334, 84631, 84924, 84928, 83896, 84624, 84627, 84642, 84922, 90226);
 INSERT INTO npc_text (ID, text0_0, text0_1) VALUES
 (
     82999,
@@ -398,10 +524,50 @@ INSERT INTO npc_text (ID, text0_0, text0_1) VALUES
     85334,
     'Our best Wolf Riders will ride around Ashran to protect and serve. Tear those Alliance dogs to shreds.',
     'Our best Wolf Riders will ride around Ashran to protect and serve. Tear those Alliance dogs to shreds.'
+),
+(
+    84924,
+    'Bring me back enough of those artifacts and I can gear up our Knights and send them out into the battle.$B$BHow many have you brought me?',
+    'Bring me back enough of those artifacts and I can gear up our Knights and send them out into the battle.$B$BHow many have you brought me?'
+),
+(
+    84928,
+    'Our best Knight Riders will ride around Ashran to protect and serve. You know, ruin the Horde''s day.',
+    'Our best Knight Riders will ride around Ashran to protect and serve. You know, ruin the Horde''s day.'
+),
+(
+    83896,
+    'The artifact fragments contain enough magical power to restore this Ancient to full strength.$B$BHow many have you brought us?',
+    'The artifact fragments contain enough magical power to restore this Ancient to full strength.$B$BHow many have you brought us?'
+),
+(
+    84624,
+    'Fangraal will march into the Road of Glory and clear it of any Horde it finds.',
+    'Fangraal will march into the Road of Glory and clear it of any Horde it finds.'
+),
+(
+    84627,
+    'The Warlocks will erect Gateways so we can move around Ashran faster. We just need the magical power from those scattered artifact pieces found around Ashran.$B$BHow many have you brought me?',
+    'The Warlocks will erect Gateways so we can move around Ashran faster. We just need the magical power from those scattered artifact pieces found around Ashran.$B$BHow many have you brought me?'
+),
+(
+    84642,
+    'The Gateways activate at the South-East and North-West of Ashran. Use them to teleport between the two points.',
+    'The Gateways activate at the South-East and North-West of Ashran. Use them to teleport between the two points.'
+),
+(
+    84922,
+    'If you bring us enough of those artifact pieces scattered around Ashran we can use their power to conjure a Mage Porta.$B$BHow many have you brought me?',
+    'If you bring us enough of those artifact pieces scattered around Ashran we can use their power to conjure a Mage Porta.$B$BHow many have you brought me?'
+),
+(
+    90226,
+    'The mages will summon a portal west of Ashran which can be used to take you back to Stormshield Stronghold.',
+    'The mages will summon a portal west of Ashran which can be used to take you back to Stormshield Stronghold.'
 );
 
 -- Basic text from horde NPC's, base gossips
-DELETE FROM locales_npc_text WHERE entry IN (82999, 83825, 84857, 85290, 85346, 85455, 85464, 86045, 87402, 88548, 88550, 89855, 91432, 91496, 91435, 85343, 85461, 85460, 85334);
+DELETE FROM locales_npc_text WHERE entry IN (82999, 83825, 84857, 85290, 85346, 85455, 85464, 86045, 87402, 88548, 88550, 89855, 91432, 91496, 91435, 85343, 85461, 85460, 85334, 84924, 84928, 83896, 84624, 84627, 84642, 84922, 90226);
 --                                   French                      German                      Spanish                     Russian
 INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, Text0_1_loc3, Text0_0_loc6, Text0_1_loc6, Text0_0_loc8, Text0_1_loc8) VALUES
 (
@@ -574,6 +740,70 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     85334,
     'Nos meilleurs Chevaucheurs de loups vont arpenter A''shran pour protéger la province et servir sa population. Et mettre en pièces ces chiens de l''Alliance.',
     'Nos meilleurs Chevaucheurs de loups vont arpenter A''shran pour protéger la province et servir sa population. Et mettre en pièces ces chiens de l''Alliance.',
+    '', '',
+    '', '',
+    '', ''
+),
+(
+    84924,
+    'J''ai besoin de beaucoup d''artéfacts pour équiper nos Chevaucheurs et les envoyer au combat.$B$BCombien m''en apportez-vous ?',
+    'J''ai besoin de beaucoup d''artéfacts pour équiper nos Chevaucheurs et les envoyer au combat.$B$BCombien m''en apportez-vous ?',
+    '', '',
+    '', '',
+    '', ''
+),
+(
+    84928,
+    'Nos meilleurs Chevaucheurs vont arpenter A''shran pour protéger la province, servir la population... et faire vivre un cauchemar à la Horde.',
+    'Nos meilleurs Chevaucheurs vont arpenter A''shran pour protéger la province, servir la population... et faire vivre un cauchemar à la Horde.',
+    '', '',
+    '', '',
+    '', ''
+),
+(
+    83896,
+    'Les fragments d''artéfacts contiennent suffisamment d''énergie magique pour remettre sur pied cet ancien. $B$BCombien m''en apportez-vous ?',
+    'Les fragments d''artéfacts contiennent suffisamment d''énergie magique pour remettre sur pied cet ancien. $B$BCombien m''en apportez-vous ?',
+    '', '',
+    '', '',
+    '', ''
+),
+(
+    84624,
+    'Crograal va arpenter la route de la Gloire pour éliminer les forces de la Horde.',
+    'Crograal va arpenter la route de la Gloire pour éliminer les forces de la Horde.',
+    '', '',
+    '', '',
+    '', ''
+),
+(
+    84627,
+    'Les démonistes vont ouvrir des portes pour que nous puissions nous déplacer plus rapidement dans A''shran. Mais pour ça, nous avons besoin de la puissance magique renfermée dans les fragments d''artéfacts disséminés par ici.$B$BCombien m''en apportez-vous ?',
+    'Les démonistes vont ouvrir des portes pour que nous puissions nous déplacer plus rapidement dans A''shran. Mais pour ça, nous avons besoin de la puissance magique renfermée dans les fragments d''artéfacts disséminés par ici.$B$BCombien m''en apportez-vous ?',
+    '', '',
+    '', '',
+    '', ''
+),
+(
+    84642,
+    'Les portes sont activées au sud-est et au nord-ouest d''A''shran. Servez-vous en pour vous téléporter d''une zone à l''autre.',
+    'Les portes sont activées au sud-est et au nord-ouest d''A''shran. Servez-vous en pour vous téléporter d''une zone à l''autre.',
+    '', '',
+    '', '',
+    '', ''
+),
+(
+    84922,
+    'Si vous récupérez assez des fragments d''artéfacts qu''on peut trouver à A''shran, nous pourrons utiliser l''énergie qu''ils renferment pour invoquer un portail de mage.$B$BCombien m''en apportez-vous ?',
+    'Si vous récupérez assez des fragments d''artéfacts qu''on peut trouver à A''shran, nous pourrons utiliser l''énergie qu''ils renferment pour invoquer un portail de mage.$B$BCombien m''en apportez-vous ?',
+    '', '',
+    '', '',
+    '', ''
+),
+(
+    90226,
+    'Les mages vont invoquer dans l''ouest d''A''shran un portail qui vous permettra de rentrer au bastion de Bouclier-des-Tempêtes.',
+    'Les mages vont invoquer dans l''ouest d''A''shran un portail qui vous permettra de rentrer au bastion de Bouclier-des-Tempêtes.',
     '', '',
     '', '',
     '', ''

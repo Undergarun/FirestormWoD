@@ -2383,7 +2383,7 @@ class spell_dru_shooting_stars_proc : public SpellScriptLoader
 };
 
 /// Shooting Stars - 93400
-class spell_dru_shooting_stars: public SpellScriptLoader
+class spell_dru_shooting_stars : public SpellScriptLoader
 {
     public:
         spell_dru_shooting_stars() : SpellScriptLoader("spell_dru_shooting_stars") { }
