@@ -19,7 +19,7 @@ INSERT INTO `creature_questrelation`(`id`,`quest`) VALUES ( '79815','37043');
 UPDATE creature_template SET ScriptName="npc_FrostwallGrunt_Garr" WHERE entry = 79781;
 UPDATE creature_template SET ScriptName="npc_FrostWallSmith_Garr" WHERE entry = 87630;
 
-UPDATE creature_loot_template SET ChanceOrQuestChance = ChanceOrQuestChance * -1 WHERE item=113681;
+UPDATE creature_loot_template SET ChanceOrQuestChance = ChanceOrQuestChance * -1 WHERE item=113681 AND ChanceOrQuestChance  < 0;
 
 DELETE FROM garrison_plot_content WHERE plot_type_or_building=-8 AND faction_index = 0;
 insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-8','0','-237379','5.47557','5.00065','1.1004','3.58665');

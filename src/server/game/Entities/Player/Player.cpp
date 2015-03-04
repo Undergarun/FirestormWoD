@@ -1000,6 +1000,16 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     /// Unlock WoD heroic dungeons
     if (uint32 l_QuestBit = GetQuestUniqueBitFlag(37213))   ///< FLAG - Proving Grounds - Damage Silver
         m_CompletedQuestBits.SetBit(l_QuestBit - 1);
+    if (uint32 l_QuestBit = GetQuestUniqueBitFlag(33090))   ///< FLAG - Proving Grounds - Damage Silver
+        m_CompletedQuestBits.SetBit(l_QuestBit - 1);
+    if (uint32 l_QuestBit = GetQuestUniqueBitFlag(33096))   ///< FLAG - Proving Grounds - Healer Silver
+        m_CompletedQuestBits.SetBit(l_QuestBit - 1);
+    if (uint32 l_QuestBit = GetQuestUniqueBitFlag(37219))   ///< FLAG - Proving Grounds - Healer Silver
+        m_CompletedQuestBits.SetBit(l_QuestBit - 1);
+    if (uint32 l_QuestBit = GetQuestUniqueBitFlag(37216))   ///< FLAG - Proving Grounds - Tank Silver
+        m_CompletedQuestBits.SetBit(l_QuestBit - 1);
+    if (uint32 l_QuestBit = GetQuestUniqueBitFlag(33093))   ///< FLAG - Proving Grounds - Tank Silver
+        m_CompletedQuestBits.SetBit(l_QuestBit - 1);
 
     ///////////////////////////////////////////////////////////
 }
@@ -9045,6 +9055,11 @@ void Player::ModifyCurrencyFlags(uint32 currencyId, uint8 flags)
 
 void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bool ignoreMultipliers/* = false*/, bool ignoreLimit /* = false */)
 {
+    if (!sWorld->getBoolConfig(WorldBoolConfigs::CONFIG_ARENA_SEASON_IN_PROGRESS) && count >= 0 &&
+        (id == CurrencyTypes::CURRENCY_TYPE_CONQUEST_META_ARENA || id == CurrencyTypes::CURRENCY_TYPE_CONQUEST_META_RBG ||
+        id == CurrencyTypes::CURRENCY_TYPE_CONQUEST_META_RANDOM_BG || id == CurrencyTypes::CURRENCY_TYPE_CONQUEST_POINTS))
+        return;
+
     CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(id);
     if (!currency || !count)
         return;
@@ -22257,9 +22272,6 @@ void Player::SaveToDB(bool create /*=false*/)
 
     // we save the data here to prevent spamming
     sAnticheatMgr->SavePlayerData(this);
-
-    // in this way we prevent to spam the db by each report made!
-    // sAnticheatMgr->SavePlayerData(this);
 
     // save pet (hunter pet level and experience and all type pets health/mana).
     if (Pet* pet = GetPet())

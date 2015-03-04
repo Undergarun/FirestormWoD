@@ -3153,7 +3153,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
         return SPELL_MISS_MISS;
 
     // Hack fix for Cloak of Shadows (just Blood Plague can hit to Cloak of Shadows)
-    if (m_spellInfo->GetSchoolMask() == SPELL_SCHOOL_MASK_MAGIC && unit->HasAura(31224) && m_spellInfo->Id != 59879)
+    if ((m_spellInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_MAGIC) && unit->HasAura(31224) && m_spellInfo->Id != 59879)
         return SPELL_MISS_MISS;
 
     // disable effects to which unit is immune
@@ -3648,9 +3648,11 @@ void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggere
             }
         }
         else
-        {
             SendCastResult(result);
-        }
+
+        /// Restore SpellMods after spell failed
+        if (m_caster->GetTypeId() == TypeID::TYPEID_PLAYER)
+            m_caster->ToPlayer()->RestoreSpellMods(this);
 
         finish(false);
         return;

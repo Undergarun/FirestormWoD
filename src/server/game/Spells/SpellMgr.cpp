@@ -3360,6 +3360,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 150306;
                 break;
             case 102401:///< Wild Charge (Ally)
+            case 94954: ///< Heroic Leap
                 spellInfo->Effects[EFFECT_1].ValueMultiplier = 0;
                 break;
             case 159362:///< Blood Craze
@@ -3367,6 +3368,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 30814: ///< Mental Quickness
                 spellInfo->Effects[EFFECT_4].Effect = 0;
+                break;
+            /// January 12, 2015 - 6.0.3 Hotfixes for January 12th - Class Tuning Changes, Haste More Effective
+            case 165375:///< Sacred Duty - now causes the Paladin to gain 30% (up from 5%) more of the Haste stat from all sources.
+                spellInfo->Effects[EFFECT_0].BasePoints = 30;
                 break;
             case 149959: // Earth Shatter
             case 149968:
@@ -3780,6 +3785,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].BasePoints = -20;
                 spellInfo->Effects[1].BasePoints = 30;
                 break;
+            case 164991: ///< Entangling Energy
             case 15286: ///< Vampiric Embrace
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
@@ -5818,6 +5824,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 125050:///< Fetch (Glyph)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[EFFECT_0].TargetB = 0;
+                break;
+            case 145153:///< Dream of Cenarius (Heal from Wrath)
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ALLY;
+                spellInfo->Effects[0].TargetB = 0;
                 break;
             default:
                 break;

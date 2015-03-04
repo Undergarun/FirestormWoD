@@ -213,19 +213,13 @@ INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`) VALUES
 INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(88915, 1331, 1772.358, 178.3299, 72.15973, 1.583745, 268435455, 65535, 0, 0, 12, 33536, 2048, 0, 0) ON DUPLICATE KEY UPDATE `id` = VALUES(`id`), `map` = VALUES(`map`), `position_x` = VALUES(`position_x`), `position_y` = VALUES(`position_y`), `position_z` = VALUES(`position_z`), `orientation` = VALUES(`orientation`), `spawnMask` = VALUES(`spawnMask`), `phaseMask` = VALUES(`phaseMask`), `equipment_id` = VALUES(`equipment_id`), `npcflag` = VALUES(`npcflag`), `npcflag2` = VALUES(`npcflag2`), `unit_flags` = VALUES(`unit_flags`), `unit_flags2` = VALUES(`unit_flags2`), `unit_flags3` = VALUES(`unit_flags3`), `WorldEffectID` = VALUES(`WorldEffectID`);
 INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`) VALUES(LAST_INSERT_ID(), 0, 0, 1, 0) ON DUPLICATE KEY UPDATE `guid` = VALUES(`guid`), `mount` = VALUES(`mount`), `bytes1` = VALUES(`bytes1`), `bytes2` = VALUES(`bytes2`), `emote` = VALUES(`emote`);
 
----------------------------------------------------------
 -- Creature EXP
----------------------------------------------------------
 UPDATE creature_template SET `exp`=5 WHERE entry IN (77361,77209,77370,77376,77617,79891,79893,79894,79953,80159,80163,81103,81152,81346,81347,81491,81492,81935,82177,82466,82776,83491,84184,84224,84246,84267,84455,84776,85312,85418,85782,85839,85857,86017,86470,87849,88111,88112,88223,88559,88564,88892,88915);
 
----------------------------------------------------------
 -- Creature Level
----------------------------------------------------------
 UPDATE creature_template SET minLevel=90, maxLevel=90 WHERE entry IN(88892, 88915);
 
----------------------------------------------------------
 -- Npc Gossips & script
----------------------------------------------------------
 UPDATE creature SET MovementType=1, spawndist=40 WHERE id=82177 and map=1331;	-- Dog random movement
 UPDATE creature_template SET speed_walk=2 WHERE entry=82177;                    -- Dog random movement
 
@@ -281,9 +275,7 @@ DELETE FROM `gossip_menu` WHERE `entry` = 16390;
 INSERT INTO `gossip_menu`(`entry`,`text_id`) VALUES ('16390','86020');
 UPDATE creature_template SET gossip_menu_id = 16390 WHERE entry=77209;
 
----------------------------------------------------------
 -- Vendor
----------------------------------------------------------
 UPDATE `creature` SET `npcflag`=`npcflag`|128 WHERE `id`=81347 AND map=1331;
 UPDATE `creature_template` SET `npcflag`=`npcflag`|128 WHERE `entry`=81347;
 DELETE FROM `npc_vendor` WHERE `entry` = 81347 AND `type` = 1;

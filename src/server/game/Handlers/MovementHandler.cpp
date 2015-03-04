@@ -419,8 +419,8 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& p_Packet)
         }
     }
 
-    //if (plrMover)
-    //    sAnticheatMgr->StartHackDetection(plrMover, movementInfo, opcode);
+    if (l_PlayerMover)
+        sAnticheatMgr->StartHackDetection(l_PlayerMover, l_MovementInfo, l_OpCode);
 
     /*----------------------*/
 

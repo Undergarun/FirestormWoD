@@ -268,6 +268,7 @@ include_directories(
   ${MYSQL_INCLUDE_DIR}
   ${OPENSSL_INCLUDE_DIR}
   ${EASYJSON_INCLUDE_DIR}
+  ${MSFRAMEWORK_INCLUDE_DIR}
 )
 
 add_library(game STATIC
