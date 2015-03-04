@@ -119,7 +119,7 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_Level : New owner level
     void GarrisonSiteBase::OnOwnerLevelChange(uint32 p_Level)
     {
-        for (uint32 l_I = 0; l_I < sizeof(gGarrisonLevelUpdateCreatures); ++l_I)
+        for (uint32 l_I = 0; l_I < (sizeof(gGarrisonLevelUpdateCreatures) / sizeof(gGarrisonLevelUpdateCreatures[0])); ++l_I)
         {
             uint32 const l_Entry = gGarrisonLevelUpdateCreatures[l_I];
 
