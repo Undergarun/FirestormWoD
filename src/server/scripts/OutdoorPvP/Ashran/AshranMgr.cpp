@@ -1150,27 +1150,27 @@ void OutdoorPvPAshran::FillInitialWorldStates(ByteBuffer& p_Data)
 
     p_Data << uint32(eWorldStates::WorldStateActiveStage) << uint32(-1);
 
-    // Laps event
+    /// Laps event
     p_Data << uint32(eWorldStates::WorldStateEnableLapsEvent) << uint32(eWorldStates::WorldStateDisabled);
     p_Data << uint32(eWorldStates::WorldStateLapsAlliance) << uint32(eWorldStates::WorldStateDisabled);
     p_Data << uint32(eWorldStates::WorldStateLapsHorde) << uint32(eWorldStates::WorldStateDisabled);
 
-    // Ore collection event
+    /// Ore collection event
     p_Data << uint32(eWorldStates::WorldStateOreCollectedAlliance) << uint32(eWorldStates::WorldStateDisabled);
     p_Data << uint32(eWorldStates::WorldStateOreCollectedHorde) << uint32(eWorldStates::WorldStateDisabled);
     p_Data << uint32(eWorldStates::WorldStateEnableOreCollection) << uint32(eWorldStates::WorldStateDisabled);
 
-    // Fire scoring event
+    /// Fire scoring event
     p_Data << uint32(eWorldStates::WorldStateFiresScoringAlliance) << uint32(eWorldStates::WorldStateDisabled);
     p_Data << uint32(eWorldStates::WorldStateFiresScoringHorde) << uint32(eWorldStates::WorldStateDisabled);
     p_Data << uint32(eWorldStates::WorldStateFiresScoringEnabled) << uint32(eWorldStates::WorldStateDisabled);
 
-    // Risen spirits event
+    /// Risen spirits event
     p_Data << uint32(eWorldStates::WorldStateRisenSpiritsCapturedAlliance) << uint32(eWorldStates::WorldStateDisabled);
     p_Data << uint32(eWorldStates::WorldStateRisenSpiritsCapturedHorde) << uint32(eWorldStates::WorldStateDisabled);
     p_Data << uint32(eWorldStates::WorldStateRisenSpiritsCaptureEnabled) << uint32(eWorldStates::WorldStateDisabled);
 
-    // Faction bosses
+    /// Faction bosses
     if (m_CurrentBattleState == eWorldStates::WorldStateGrandMarshalTrembladeBattle)
     {
         p_Data << uint32(eWorldStates::WorldStateTimeRemainingForBoss) << uint32(time(NULL) + (m_MaxBattleTime / IN_MILLISECONDS));
@@ -1189,10 +1189,10 @@ void OutdoorPvPAshran::FillInitialWorldStates(ByteBuffer& p_Data)
         p_Data << uint32(eWorldStates::WorldStateSlayTremblade) << uint32(eWorldStates::WorldStateDisabled);
     }
 
-    // Horde boss
+    /// Horde boss
     p_Data << uint32(eWorldStates::WorldStateWarspearOutpostStatus) << uint32(eControlStatus::ControlHorde);
 
-    // Faction mini-bosses
+    /// Faction mini-bosses
     for (uint32 l_BattleIndex : g_MiddleBattlesEntries)
     {
         if (m_CurrentBattleState == l_BattleIndex)
@@ -1215,8 +1215,25 @@ void OutdoorPvPAshran::FillInitialWorldStates(ByteBuffer& p_Data)
             p_Data << uint32(l_BattleIndex) << uint32(eWorldStates::WorldStateDisabled);
     }
 
-    // Alliance boss
+    /// Alliance boss
     p_Data << uint32(eWorldStates::WorldStateStormshieldStrongholdStatus) << uint32(eControlStatus::ControlAlliance);
+
+    /// Artifact Fragments
+    /// Horde - Current
+    p_Data << uint32(eWorldStates::WorldStateHordeMageArtifactCount) << uint32(0);
+    p_Data << uint32(eWorldStates::WorldStateHordeWarlockArtifactCount) << uint32(0);
+    p_Data << uint32(eWorldStates::WorldStateHordeWarriorArtifactCount) << uint32(0);
+    p_Data << uint32(eWorldStates::WorldStateHordeShamanArtifactCount) << uint32(0);
+    /// Alliance - Current
+    p_Data << uint32(eWorldStates::WorldStateAllianceMageArtifactCount) << uint32(0);
+    p_Data << uint32(eWorldStates::WorldStateAllianceWarlockArtifactCount) << uint32(0);
+    p_Data << uint32(eWorldStates::WorldStateAllianceWarriorArtifactCount) << uint32(0);
+    p_Data << uint32(eWorldStates::WorldStateAllianceShamanArtifactCount) << uint32(0);
+    /// General - Max
+    p_Data << uint32(eWorldStates::WorldStateMageArtifactMaxCount) << uint32(eAshranDatas::MaxArtifactsMageWarlock);
+    p_Data << uint32(eWorldStates::WorldStateWarlockArtifactMaxCount) << uint32(eAshranDatas::MaxArtifactsMageWarlock);
+    p_Data << uint32(eWorldStates::WorldStateWarriorArtifactMaxCount) << uint32(eAshranDatas::MaxArtifactsWarrior);
+    p_Data << uint32(eWorldStates::WorldStateShamanArtifactMaxCount) << uint32(eAshranDatas::MaxArtifactsShaman);
 
     for (OPvPCapturePointMap::iterator l_CapturePoint = m_capturePoints.begin(); l_CapturePoint != m_capturePoints.end(); ++l_CapturePoint)
         l_CapturePoint->second->FillInitialWorldStates(p_Data);

@@ -42,7 +42,12 @@ enum eAshranDatas
     TaxiPathBaseAllianceToHorde = 4666,
     KillCountForPlayer          = 5,
     KillCountForFactionGuard    = 1,
-    HealthPCTAddedByHostileRef  = 25
+    HealthPCTAddedByHostileRef  = 25,
+
+    /// Artifact Fragments
+    MaxArtifactsMageWarlock     = 400,
+    MaxArtifactsWarrior         = 600,
+    MaxArtifactsShaman          = 3000
 };
 
 enum eAshranSpells
@@ -150,7 +155,27 @@ enum eWorldStates
     /// Five Towers line - Control Status
     //////////////////////////////////////////////////
     /// Not implemented yet
-    WorldStateOgreKingThroneStatus         = 9113  ///< 0 - Neutral, 1 - Horde
+    WorldStateOgreKingThroneStatus          = 9113, ///< 0 - Neutral, 1 - Horde
+    /// Not implemented yet
+    //////////////////////////////////////////////////
+    /// Artifact Fragments
+    ///     - Current counter for Horde
+    WorldStateHordeMageArtifactCount        = 9313,
+    WorldStateHordeWarlockArtifactCount     = 9250,
+    WorldStateHordeWarriorArtifactCount     = 9311,
+    WorldStateHordeShamanArtifactCount      = 9261,
+    ///     - Current counter for Alliance
+    WorldStateAllianceMageArtifactCount     = 9314,
+    WorldStateAllianceWarlockArtifactCount  = 9253,
+    WorldStateAllianceWarriorArtifactCount  = 9312,
+    WorldStateAllianceShamanArtifactCount   = 9262,
+    ///     - Max counter
+    WorldStateMageArtifactMaxCount          = 9705, ///< 400
+    WorldStateWarlockArtifactMaxCount       = 9706, ///< 400
+    WorldStateWarriorArtifactMaxCount       = 9707, ///< 600
+    WorldStateShamanArtifactMaxCount        = 9708  ///< 3000
+    /// Artifact Fragments
+    //////////////////////////////////////////////////
 };
 
 enum eAshranEvents

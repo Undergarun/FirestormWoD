@@ -496,6 +496,60 @@ class npc_ashran_examiner_rahm_flameheart : public CreatureScript
         }
 };
 
+/// Centurion Firescream <Warspear Tactician> - 88771
+class npc_ashran_centurion_firescream : public CreatureScript
+{
+    public:
+        npc_ashran_centurion_firescream() : CreatureScript("npc_ashran_centurion_firescream") { }
+
+        struct npc_ashran_centurion_firescreamAI : public MS::AI::CosmeticAI
+        {
+            npc_ashran_centurion_firescreamAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
+
+            void Reset() override
+            {
+                AddTimedDelayedOperation(20 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(0); });
+            }
+
+            void LastOperationCalled() override
+            {
+                Reset();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_ashran_centurion_firescreamAI(p_Creature);
+        }
+};
+
+/// Legionnaire Hellaxe <Warspear Strategist> - 88772
+class npc_ashran_lgeionnaire_hellaxe : public CreatureScript
+{
+    public:
+        npc_ashran_lgeionnaire_hellaxe() : CreatureScript("npc_ashran_lgeionnaire_hellaxe") { }
+
+        struct npc_ashran_lgeionnaire_hellaxeAI : public MS::AI::CosmeticAI
+        {
+            npc_ashran_lgeionnaire_hellaxeAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
+
+            void Reset() override
+            {
+                AddTimedDelayedOperation(30 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(0); });
+            }
+
+            void LastOperationCalled() override
+            {
+                Reset();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_ashran_lgeionnaire_hellaxeAI(p_Creature);
+        }
+};
+
 void AddSC_AshranNPCHorde()
 {
     new npc_jeron_emberfall();
@@ -508,4 +562,6 @@ void AddSC_AshranNPCHorde()
     new npc_ashran_warspear_shaman();
     new npc_ashran_illandria_belore();
     new npc_ashran_examiner_rahm_flameheart();
+    new npc_ashran_centurion_firescream();
+    new npc_ashran_lgeionnaire_hellaxe();
 }
