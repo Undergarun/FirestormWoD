@@ -6500,6 +6500,12 @@ void ObjectMgr::SetHighestGuids()
     result = CharacterDatabase.Query("SELECT MAX(id) from character_garrison_mission");
     if (result)
         m_GarrisonMissionID = (*result)[0].GetUInt32() + 1;
+
+    result = CharacterDatabase.Query("SELECT MAX(id) from character_garrison_work_order");
+    if (result)
+        m_GarrisonWorkOrderID = (*result)[0].GetUInt32() + 1;
+
+    m_StandaloneSceneInstanceID = 1;
 }
 
 uint32 ObjectMgr::GenerateAuctionID()
@@ -6913,8 +6919,8 @@ void ObjectMgr::AddGarrisonPlotBuildingContent(GarrisonPlotBuildingContent & p_D
     WorldDatabase.PQuery("INSERT INTO garrison_plot_content(plot_type_or_building, faction_index, creature_or_gob, x, y, z, o) VALUES "
         "(%d, %u, %d, %f, %f, %f, %f) ", p_Data.PlotTypeOrBuilding, p_Data.FactionIndex, p_Data.CreatureOrGob, p_Data.X, p_Data.Y, p_Data.Z, p_Data.O);
 
-    QueryResult l_Result = WorldDatabase.PQuery("SELECT id FROM garrison_plot_content WHERE plot_type_or_building=%d AND faction_index=%u AND creature_or_gob=%d AND x=%f AND y=%f AND z=%f AND o=%f", 
-                                                p_Data.PlotTypeOrBuilding, p_Data.FactionIndex, p_Data.CreatureOrGob, p_Data.X, p_Data.Y, p_Data.Z, p_Data.O);
+    QueryResult l_Result = WorldDatabase.PQuery("SELECT id FROM garrison_plot_content WHERE plot_type_or_building=%d AND faction_index=%u AND creature_or_gob=%d AND x BETWEEN %f AND %f AND y BETWEEN %f AND %f AND z BETWEEN %f AND %f", 
+                                                p_Data.PlotTypeOrBuilding, p_Data.FactionIndex, p_Data.CreatureOrGob, p_Data.X - 0.5f, p_Data.X + 0.5f, p_Data.Y - 0.5f, p_Data.Y + 0.5f, p_Data.Z - 0.5f, p_Data.Z + 0.5f);
 
     if (!l_Result)
         return;
@@ -10223,6 +10229,23 @@ void ObjectMgr::LoadFollowerQuests()
             continue;
 
         FollowerQuests.push_back(l_Quest->Id);
+    }
+}
+
+void ObjectMgr::LoadQuestForItem()
+{
+    const ObjectMgr::QuestMap & l_QuestTemplates = GetQuestTemplates();
+    for (ObjectMgr::QuestMap::const_iterator l_It = l_QuestTemplates.begin(); l_It != l_QuestTemplates.end(); ++l_It)
+    {
+        Quest * l_Quest = l_It->second;
+
+        for (auto l_Objective : l_Quest->QuestObjectives)
+        {
+            if (l_Objective.Type != QUEST_OBJECTIVE_TYPE_ITEM)
+                continue;
+
+            QuestForItem[l_Objective.ObjectID].push_back(std::pair<uint32, uint8>(l_Quest->Id, l_Objective.Index));
+        }
     }
 }
 

@@ -107,7 +107,7 @@ namespace MS { namespace AI
                 }
             }
 
-        protected:
+        public:
             std::map<uint32, std::function<void()>>                 m_OnPointReached;           ///< Delayed operations
             std::queue<std::function<void()>>                       m_DelayedOperations;        ///< Delayed operations
             std::vector<std::pair<int32, std::function<void()>>>    m_TimedDelayedOperations;   ///< Delayed operations

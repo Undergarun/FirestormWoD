@@ -631,17 +631,17 @@ void LFGMgr::InitializeLockedDungeons(Player* player)
             }
             else
             {
-                uint32 avgItemLevel = (uint32)player->GetAverageItemLevelEquipped();
+                uint32 avgItemLevel = player->GetAverageItemLevelTotal();
                 if (ar->itemlevelMin && ar->itemlevelMin > avgItemLevel)
                 {
                     lockData.SubReason1 = ar->itemlevelMin;
-                    lockData.SubReason2 = (uint32)player->GetAverageItemLevelEquipped();
+                    lockData.SubReason2 = avgItemLevel;
                     lockData.lockstatus = LFG_LOCKSTATUS_TOO_LOW_GEAR_SCORE;
                 }
                 if (ar->itemlevelMax && ar->itemlevelMax < avgItemLevel)
                 {
                     lockData.SubReason1 = ar->itemlevelMax;
-                    lockData.SubReason2 = (uint32)player->GetAverageItemLevelEquipped();
+                    lockData.SubReason2 = avgItemLevel;
                     lockData.lockstatus = LFG_LOCKSTATUS_TOO_HIGH_GEAR_SCORE;
                 }
             }
@@ -660,7 +660,7 @@ void LFGMgr::InitializeLockedDungeons(Player* player)
                 if (itr == m_entrancePositions.end() && !sObjectMgr->GetMapEntranceTrigger(dungeon->map))
                 {
                     lockData.SubReason1 = ar ? ar->itemlevelMin : 999;
-                    lockData.SubReason2 = (uint32)player->GetAverageItemLevelTotal();
+                    lockData.SubReason2 = player->GetAverageItemLevelTotal();
                     lockData.lockstatus = LFG_LOCKSTATUS_TOO_LOW_GEAR_SCORE;
                 }
             }
@@ -2466,9 +2466,9 @@ const LfgDungeonSet& LFGMgr::GetDungeonsByRandom(uint32 randomdungeon, bool chec
     uint32 groupType = dungeon ? dungeon->grouptype : 0;
 
     if (!check)
-        return m_CachedDungeonMap[groupType];
+        return (dungeon ? dungeon->type != TYPEID_RANDOM_DUNGEON : true) ? m_CachedDungeonMap[groupType] : m_CachedDungeonMap[0];
 
-    LfgDungeonSet& cachedDungeon = m_CachedDungeonMap[groupType];
+    LfgDungeonSet& cachedDungeon = (dungeon ? dungeon->type != TYPEID_RANDOM_DUNGEON : true) ? m_CachedDungeonMap[groupType] : m_CachedDungeonMap[0];
     for (LfgDungeonSet::const_iterator it = cachedDungeon.begin(); it != cachedDungeon.end();)
     {
         LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(*it);

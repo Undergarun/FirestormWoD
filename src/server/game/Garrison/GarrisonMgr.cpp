@@ -29,15 +29,15 @@ namespace MS { namespace Garrison
         /// Select Garrison site ID
         switch (GetGarrisonFactionIndex())
         {
-            case Factions::Alliance:
+            case FactionIndex::Alliance:
                 m_GarrisonSiteID = 2;
                 break;
 
-            case Factions::Horde:
+            case FactionIndex::Horde:
                 m_GarrisonSiteID = 71;
                 break;
 
-            case Factions::Max:
+            case FactionIndex::Max:
             default:
                 ASSERT(false);
                 break;
@@ -105,18 +105,19 @@ namespace MS { namespace Garrison
             m_Owner->learnSpell(GARRISON_SPELL_GARR_ABILITY, false);
 
         uint32 l_QuestEntry = 0;
+
         /// Select Garrison site ID
         switch (GetGarrisonFactionIndex())
         {
-            case Factions::Alliance:
+            case FactionIndex::Alliance:
                 l_QuestEntry = BaseQuests::FoundedGarrisonA;
                 break;
 
-            case Factions::Horde:
+            case FactionIndex::Horde:
                 l_QuestEntry = BaseQuests::FoundedGarrisonH;
                 break;
 
-            case Factions::Max:
+            case FactionIndex::Max:
             default:
                 ASSERT(false);
                 break;
@@ -133,11 +134,7 @@ namespace MS { namespace Garrison
             }
         }
 
-        /// Storehouse learning
-        LearnBlueprint(Buildings::Storehouse__Storehouse_Level1);
-        LearnBlueprint(Buildings::Barracks__Barracks_Level1);
-        LearnBlueprint(Buildings::DwarvenBunker__WarMill_Level1);
-        LearnBlueprint(Buildings::TheForge__TheForge_Level1);
+        sGarrisonBuildingManager->LearnAllowedBuildings(m_Owner);
 
         /// Learn garrison taxinodes
         if (m_Owner->getFaction() == HORDE)
@@ -147,7 +144,7 @@ namespace MS { namespace Garrison
     }
 
     /// Load
-    bool Manager::Load(PreparedQueryResult p_GarrisonResult, PreparedQueryResult p_BuildingsResult, PreparedQueryResult p_FollowersResult, PreparedQueryResult p_MissionsResult)
+    bool Manager::Load(PreparedQueryResult p_GarrisonResult, PreparedQueryResult p_BuildingsResult, PreparedQueryResult p_FollowersResult, PreparedQueryResult p_MissionsResult, PreparedQueryResult p_WorkOrderResult)
     {
         if (p_GarrisonResult)
         {
@@ -256,6 +253,24 @@ namespace MS { namespace Garrison
                 } while (p_FollowersResult->NextRow());
             }
 
+            if (p_WorkOrderResult)
+            {
+                do
+                {
+                    l_Fields = p_WorkOrderResult->Fetch();
+
+                    GarrisonWorkOrder l_Order;
+                    l_Order.DatabaseID        = l_Fields[0].GetUInt32();
+                    l_Order.PlotInstanceID    = l_Fields[1].GetUInt32();
+                    l_Order.ShipmentID        = l_Fields[2].GetUInt32();
+                    l_Order.CreationTime      = l_Fields[3].GetUInt32();
+                    l_Order.CompleteTime      = l_Fields[4].GetUInt32();
+
+                    m_WorkOrders.push_back(l_Order);
+
+                } while (p_WorkOrderResult->NextRow());
+            }
+
             Init();
 
             if (!GetGarrisonSiteLevelEntry())
@@ -328,7 +343,7 @@ namespace MS { namespace Garrison
                     continue;
                 }
 
-                const GarrMissionEntry * l_MissionTemplate = sGarrMissionStore.LookupEntry(l_Mission.MissionID);
+                GarrMissionEntry const* l_MissionTemplate = sGarrMissionStore.LookupEntry(l_Mission.MissionID);
 
                 if (!l_MissionTemplate || l_MissionTemplate->RequiredFollowersCount != l_FollowerCount)
                     l_MissionToRemove.push_back(l_Mission.DatabaseID);
@@ -411,7 +426,7 @@ namespace MS { namespace Garrison
                 /// Corrupted DB
                 if (p_Follower.Level == 0)
                 {
-                    const GarrFollowerEntry * l_Entry = sGarrFollowerStore.LookupEntry(p_Follower.FollowerID);
+                    GarrFollowerEntry const* l_Entry = sGarrFollowerStore.LookupEntry(p_Follower.FollowerID);
 
                     if (l_Entry)
                     {
@@ -425,7 +440,7 @@ namespace MS { namespace Garrison
 
                         for (uint32 l_I = 0; l_I < sGarrFollowerXAbilityStore.GetNumRows(); ++l_I)
                         {
-                            const GarrFollowerXAbilityEntry * l_Entry = sGarrFollowerXAbilityStore.LookupEntry(l_I);
+                            GarrFollowerXAbilityEntry const* l_Entry = sGarrFollowerXAbilityStore.LookupEntry(l_I);
 
                             if (l_Entry && l_Entry->FollowerID == p_Follower.FollowerID && sGarrAbilityStore.LookupEntry(l_Entry->AbilityID) && l_Entry->FactionIndex == GetGarrisonFactionIndex())
                                 p_Follower.Abilities.push_back(l_Entry->AbilityID);
@@ -442,15 +457,15 @@ namespace MS { namespace Garrison
             /// Select Garrison site ID
             switch (GetGarrisonFactionIndex())
             {
-                case Factions::Alliance:
+                case FactionIndex::Alliance:
                     l_QuestEntry = BaseQuests::FoundedGarrisonA;
                     break;
 
-                case Factions::Horde:
+                case FactionIndex::Horde:
                     l_QuestEntry = BaseQuests::FoundedGarrisonH;
                     break;
 
-                case Factions::Max:
+                case FactionIndex::Max:
                 default:
                     ASSERT(false);
                     break;
@@ -467,11 +482,7 @@ namespace MS { namespace Garrison
                 }
             }
 
-            /// Storehouse learning
-            LearnBlueprint(Buildings::Storehouse__Storehouse_Level1);
-            LearnBlueprint(Buildings::Barracks__Barracks_Level1);
-            LearnBlueprint(Buildings::DwarvenBunker__WarMill_Level1);
-            LearnBlueprint(Buildings::TheForge__TheForge_Level1);
+            sGarrisonBuildingManager->LearnAllowedBuildings(m_Owner);
 
             return true;
         }
@@ -593,7 +604,11 @@ namespace MS { namespace Garrison
         l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GARRISON_FOLLOWERS);
         l_Stmt->setUInt32(0, p_PlayerGUID);
         p_Transation->Append(l_Stmt);
-    
+
+        l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GARRISON_WORKORDERS);
+        l_Stmt->setUInt32(0, p_PlayerGUID);
+        p_Transation->Append(l_Stmt);
+
         l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GARRISON);
         l_Stmt->setUInt32(0, p_PlayerGUID);
         p_Transation->Append(l_Stmt);
@@ -615,13 +630,27 @@ namespace MS { namespace Garrison
         UpdateMissionDistribution();
         /// Update garrison ability
         UpdateGarrisonAbility();
+        /// Update work order
+        UpdateWorkOrders();
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Set garrison level
+    void Manager::SetLevel(uint32 p_Level)
+    {
+        m_GarrisonLevel = p_Level;
+
+        UninitPlots();
+        Init();
     }
 
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
     /// Get garrison cache token count
-    uint32 Manager::GetGarrisonCacheTokenCount()
+    uint32 Manager::GetGarrisonCacheTokenCount() const
     {
         return m_CacheLastTokenAmount;
     }
@@ -630,12 +659,12 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
 
     /// Get terrain swaps
-    void Manager::GetTerrainSwaps(std::set<uint32> & p_TerrainSwaps)
+    void Manager::GetTerrainSwaps(std::set<uint32> & p_TerrainSwaps) const
     {
         if (!GetGarrisonSiteLevelEntry())
             return;
 
-        if (GetGarrisonFactionIndex() == Factions::Horde)
+        if (GetGarrisonFactionIndex() == FactionIndex::Horde)
         {
             switch (GetGarrisonSiteLevelEntry()->Level)
             {
@@ -675,9 +704,43 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
 
     /// Get garrison script
-    Interfaces::GarrisonSite * Manager::GetGarrisonScript()
+    Interfaces::GarrisonSite * Manager::GetGarrisonScript() const
     {
         return m_GarrisonScript;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Can upgrade the garrison
+    bool Manager::CanUpgrade() const
+    {
+        if (!m_Owner->HasCurrency(Globals::CurrencyID, GetGarrisonSiteLevelEntry()->UpgradeCost))
+            return false;
+
+        if (!m_Owner->HasEnoughMoney((int64)GetGarrisonSiteLevelEntry()->UpgradeMoneyCost))
+            return false;
+
+        Interfaces::GarrisonSite * l_GarrisonScript = GetGarrisonScript();
+
+        if (l_GarrisonScript)
+            return l_GarrisonScript->CanUpgrade(m_Owner);
+
+        return false;
+    }
+
+    /// Upgrade the garrison
+    void Manager::Upgrade()
+    {
+        m_Owner->ModifyCurrency(Globals::CurrencyID, -((int32)GetGarrisonSiteLevelEntry()->UpgradeCost));
+        m_Owner->ModifyMoney(-((int64)GetGarrisonSiteLevelEntry()->UpgradeMoneyCost));
+
+        SetLevel(m_GarrisonLevel + 1);
+
+        Interfaces::GarrisonSite * l_GarrisonScript = GetGarrisonScript();
+
+        if (l_GarrisonScript)
+            l_GarrisonScript->OnUpgrade(m_Owner);
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -805,26 +868,26 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
 
     /// Get GarrSiteLevelEntry for current garrison
-    const GarrSiteLevelEntry * Manager::GetGarrisonSiteLevelEntry()
+    const GarrSiteLevelEntry * Manager::GetGarrisonSiteLevelEntry() const
     {
         return sGarrSiteLevelStore.LookupEntry(m_GarrisonLevelID);
     }
 
     /// Get Garrison Faction Index
-    Factions::Type Manager::GetGarrisonFactionIndex()
+    FactionIndex::Type Manager::GetGarrisonFactionIndex() const
     {
         assert(m_Owner);
 
         switch (m_Owner->GetTeam())
         {
             case ALLIANCE:
-                return Factions::Alliance;
+                return FactionIndex::Alliance;
 
             case HORDE:
-                return Factions::Horde;
+                return FactionIndex::Horde;
         }
 
-        return Factions::Horde;
+        return FactionIndex::Horde;
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -859,14 +922,14 @@ namespace MS { namespace Garrison
     }
 
     /// Get plot instance plot type
-    uint32 Manager::GetPlotType(uint32 p_PlotInstanceID)
+    uint32 Manager::GetPlotType(uint32 p_PlotInstanceID) const
     {
-        const GarrPlotInstanceEntry * l_PlotInstanceEntry = sGarrPlotInstanceStore.LookupEntry(p_PlotInstanceID);
+        GarrPlotInstanceEntry const* l_PlotInstanceEntry = sGarrPlotInstanceStore.LookupEntry(p_PlotInstanceID);
 
         if (!l_PlotInstanceEntry)
             return 0;
 
-        const GarrPlotEntry * l_PlotEntry = sGarrPlotStore.LookupEntry(l_PlotInstanceEntry->PlotID);
+        GarrPlotEntry const* l_PlotEntry = sGarrPlotStore.LookupEntry(l_PlotInstanceEntry->PlotID);
 
         if (!l_PlotEntry)
             return 0;
@@ -875,7 +938,7 @@ namespace MS { namespace Garrison
     }
 
     /// Plot is free ?
-    bool Manager::PlotIsFree(uint32 p_PlotInstanceID)
+    bool Manager::PlotIsFree(uint32 p_PlotInstanceID) const
     {
         for (uint32 l_I = 0; l_I < m_Buildings.size(); ++l_I)
             if (m_Buildings[l_I].PlotInstanceID == p_PlotInstanceID)
@@ -885,7 +948,7 @@ namespace MS { namespace Garrison
     }
 
     /// Has plot instance
-    bool Manager::HasPlotInstance(uint32 p_PlotInstanceID)
+    bool Manager::HasPlotInstance(uint32 p_PlotInstanceID) const
     {
         for (uint32 l_I = 0; l_I < m_Plots.size(); ++l_I)
             if (m_Plots[l_I].PlotInstanceID == p_PlotInstanceID)
@@ -895,7 +958,7 @@ namespace MS { namespace Garrison
     }
 
     /// Get plot location
-    GarrisonPlotInstanceInfoLocation Manager::GetPlot(uint32 p_PlotInstanceID)
+    GarrisonPlotInstanceInfoLocation Manager::GetPlot(uint32 p_PlotInstanceID) const
     {
         for (uint32 l_I = 0; l_I < m_Plots.size(); ++l_I)
         {
@@ -907,9 +970,9 @@ namespace MS { namespace Garrison
     }
 
     /// Get plot instance ID by activation game object
-    uint32 Manager::GetPlotInstanceIDByActivationGameObject(uint64 p_Guid)
+    uint32 Manager::GetPlotInstanceIDByActivationGameObject(uint64 p_Guid) const
     {
-        for (std::map<uint32, uint64>::iterator l_It = m_PlotsActivateGob.begin(); l_It != m_PlotsActivateGob.end(); ++l_It)
+        for (std::map<uint32, uint64>::const_iterator l_It = m_PlotsActivateGob.begin(); l_It != m_PlotsActivateGob.end(); ++l_It)
             if (l_It->second == p_Guid)
                 return l_It->first;
 
@@ -922,7 +985,7 @@ namespace MS { namespace Garrison
     /// Add mission
     bool Manager::AddMission(uint32 p_MissionRecID)
     {
-        const GarrMissionEntry * l_MissionEntry = sGarrMissionStore.LookupEntry(p_MissionRecID);
+        GarrMissionEntry const* l_MissionEntry = sGarrMissionStore.LookupEntry(p_MissionRecID);
 
         if (!l_MissionEntry)
             return false;
@@ -981,7 +1044,7 @@ namespace MS { namespace Garrison
     }
 
     /// Player have mission
-    bool Manager::HaveMission(uint32 p_MissionRecID)
+    bool Manager::HaveMission(uint32 p_MissionRecID)  const
     {
         for (uint32 l_I = 0; l_I < m_Missions.size(); ++l_I)
         {
@@ -1008,7 +1071,7 @@ namespace MS { namespace Garrison
         if (GetActivatedFollowerCount() > m_Stat_MaxActiveFollower)
             return;
 
-        const GarrMissionEntry * l_MissionTemplate = sGarrMissionStore.LookupEntry(p_MissionRecID);
+        GarrMissionEntry const* l_MissionTemplate = sGarrMissionStore.LookupEntry(p_MissionRecID);
 
         if (!m_Owner->HasCurrency(Globals::CurrencyID, l_MissionTemplate->GarrisonCurrencyStartCost))
         {
@@ -1124,7 +1187,7 @@ namespace MS { namespace Garrison
         WorldPacket l_Data(SMSG_GARRISON_START_MISSION_RESULT, 200);
         l_Data << uint32(1);    ///< Result (0 = OK, 1 = failed)
 
-        const GarrMissionEntry * l_MissionTemplate = sGarrMissionStore.LookupEntry(p_MissionRecID);
+        GarrMissionEntry const* l_MissionTemplate = sGarrMissionStore.LookupEntry(p_MissionRecID);
         GarrisonMission * l_Mission = nullptr;
 
         for (uint32 l_I = 0; l_I < m_Missions.size(); ++l_I)
@@ -1174,7 +1237,7 @@ namespace MS { namespace Garrison
         if (!HaveMission(p_MissionRecID))
             return;
 
-        const GarrMissionEntry * l_MissionTemplate = sGarrMissionStore.LookupEntry(p_MissionRecID);
+        GarrMissionEntry const* l_MissionTemplate = sGarrMissionStore.LookupEntry(p_MissionRecID);
 
         GarrisonMission * l_Mission = nullptr;
 
@@ -1232,7 +1295,7 @@ namespace MS { namespace Garrison
         float l_XPModifier = 1.0f;
         for (uint32 l_I = 0; l_I < l_PartyXPModifiersEffect.size(); ++l_I)
         {
-            const GarrAbilityEffectEntry * l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_PartyXPModifiersEffect[l_I]);
+            GarrAbilityEffectEntry const* l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_PartyXPModifiersEffect[l_I]);
 
             if (!l_AbilityEffectEntry)
                 continue;
@@ -1242,7 +1305,7 @@ namespace MS { namespace Garrison
 
         for (uint32 l_Y = 0; l_Y < l_PassiveEffects.size(); ++l_Y)
         {
-            const GarrAbilityEffectEntry * l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_PassiveEffects[l_Y]);
+            GarrAbilityEffectEntry const* l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_PassiveEffects[l_Y]);
 
             if (!l_AbilityEffectEntry)
                 continue;
@@ -1274,7 +1337,7 @@ namespace MS { namespace Garrison
 
                 for (uint32 l_EffectIt = 0; l_EffectIt < sGarrAbilityEffectStore.GetNumRows(); l_EffectIt++)
                 {
-                    const GarrAbilityEffectEntry * l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_EffectIt);
+                    GarrAbilityEffectEntry const* l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_EffectIt);
 
                     if (!l_AbilityEffectEntry || l_AbilityEffectEntry->AbilityID != l_CurrentAbilityID)
                         continue;
@@ -1314,7 +1377,7 @@ namespace MS { namespace Garrison
 
             for (uint32 l_I = 0; l_I < sGarrMissionRewardStore.GetNumRows(); ++l_I)
             {
-                const GarrMissionRewardEntry * l_RewardEntry = sGarrMissionRewardStore.LookupEntry(l_I);
+                GarrMissionRewardEntry const* l_RewardEntry = sGarrMissionRewardStore.LookupEntry(l_I);
 
                 if (!l_RewardEntry || l_RewardEntry->MissionID != p_MissionRecID)
                     continue;
@@ -1337,7 +1400,7 @@ namespace MS { namespace Garrison
                         float l_Modifier = 1.0f;
                         for (uint32 l_I = 0; l_I < l_PartyCurrencyModifiersEffect.size(); ++l_I)
                         {
-                            const GarrAbilityEffectEntry * l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_PartyCurrencyModifiersEffect[l_I]);
+                            GarrAbilityEffectEntry const* l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_PartyCurrencyModifiersEffect[l_I]);
 
                             if (!l_AbilityEffectEntry)
                                 continue;
@@ -1477,7 +1540,7 @@ namespace MS { namespace Garrison
 
         for (auto l_Currency : m_PendingMissionReward.RewardCurrencies)
         {
-            const CurrencyTypesEntry * l_CurrencyEntry = sCurrencyTypesStore.LookupEntry(l_Currency.first);
+            CurrencyTypesEntry const* l_CurrencyEntry = sCurrencyTypesStore.LookupEntry(l_Currency.first);
 
             if (l_CurrencyEntry)
                 m_Owner->ModifyCurrency(l_Currency.first, l_Currency.second * l_CurrencyEntry->GetPrecision());
@@ -1495,7 +1558,7 @@ namespace MS { namespace Garrison
             bool l_IsContractItem = false;
             if (l_ItemTemplate->Spells[0].SpellId)
             {
-                const SpellInfo * l_SpellInfo = sSpellMgr->GetSpellInfo(l_ItemTemplate->Spells[0].SpellId);
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_ItemTemplate->Spells[0].SpellId);
 
                 if (l_SpellInfo && l_SpellInfo->Effects[0].Effect == SPELL_EFFECT_OBTAIN_FOLLOWER)
                 {
@@ -1585,7 +1648,7 @@ namespace MS { namespace Garrison
 
                 for (uint32 l_EffectIt = 0; l_EffectIt < sGarrAbilityEffectStore.GetNumRows(); l_EffectIt++)
                 {
-                    const GarrAbilityEffectEntry * l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_EffectIt);
+                    GarrAbilityEffectEntry const* l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_EffectIt);
 
                     if (!l_AbilityEffectEntry || l_AbilityEffectEntry->AbilityID != l_CurrentAbilityID)
                         continue;
@@ -1612,7 +1675,7 @@ namespace MS { namespace Garrison
 
                 for (uint32 l_EffectIt = 0; l_EffectIt < sGarrAbilityEffectStore.GetNumRows(); l_EffectIt++)
                 {
-                    const GarrAbilityEffectEntry * l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_EffectIt);
+                    GarrAbilityEffectEntry const* l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_EffectIt);
 
                     if (!l_AbilityEffectEntry || l_AbilityEffectEntry->AbilityID != l_CurrentAbilityID)
                         continue;
@@ -1631,14 +1694,14 @@ namespace MS { namespace Garrison
     /// Get the mission travel time
     uint32 Manager::GetMissionTravelDuration(uint32 p_MissionRecID)
     {
-        const GarrMissionEntry    * l_MissionTemplate   = sGarrMissionStore.LookupEntry(p_MissionRecID);
+        GarrMissionEntry const*     l_MissionTemplate = sGarrMissionStore.LookupEntry(p_MissionRecID);
         std::vector<uint32>         l_AbilitiesEffects  = GetMissionFollowersAbilitiesEffects(p_MissionRecID);
         std::vector<uint32>         l_PassiveEffects    = GetBuildingsPassiveAbilityEffects();
         float                       l_MissionTravelTime = l_MissionTemplate->TravelTime;
 
         for (uint32 l_EffectI = 0; l_EffectI < l_AbilitiesEffects.size(); l_EffectI++)
         {
-            const GarrAbilityEffectEntry * l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_AbilitiesEffects[l_EffectI]);
+            GarrAbilityEffectEntry const* l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_AbilitiesEffects[l_EffectI]);
 
             if (!l_AbilityEffectEntry)
                 continue;
@@ -1649,7 +1712,7 @@ namespace MS { namespace Garrison
 
         for (uint32 l_Y = 0; l_Y < l_PassiveEffects.size(); ++l_Y)
         {
-            const GarrAbilityEffectEntry * l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_PassiveEffects[l_Y]);
+            GarrAbilityEffectEntry const* l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_PassiveEffects[l_Y]);
 
             if (!l_AbilityEffectEntry)
                 continue;
@@ -1664,13 +1727,13 @@ namespace MS { namespace Garrison
     /// Get the mission duration
     uint32 Manager::GetMissionDuration(uint32 p_MissionRecID)
     {
-        const GarrMissionEntry    * l_MissionTemplate   = sGarrMissionStore.LookupEntry(p_MissionRecID);
+        GarrMissionEntry const*     l_MissionTemplate   = sGarrMissionStore.LookupEntry(p_MissionRecID);
         std::vector<uint32>         l_AbilitiesEffects  = GetMissionFollowersAbilitiesEffects(p_MissionRecID);
         float                       l_MissionDuration   = l_MissionTemplate->Duration;
 
         for (uint32 l_EffectI = 0; l_EffectI < l_AbilitiesEffects.size(); l_EffectI++)
         {
-            const GarrAbilityEffectEntry * l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_AbilitiesEffects[l_EffectI]);
+            GarrAbilityEffectEntry const* l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_AbilitiesEffects[l_EffectI]);
 
             if (!l_AbilityEffectEntry)
                 continue;
@@ -1685,7 +1748,7 @@ namespace MS { namespace Garrison
     /// Get mission chest chance
     uint32 Manager::GetMissionSuccessChance(uint32 p_MissionRecID)
     {
-        const GarrMissionEntry * l_MissionTemplate = sGarrMissionStore.LookupEntry(p_MissionRecID);
+        GarrMissionEntry const* l_MissionTemplate = sGarrMissionStore.LookupEntry(p_MissionRecID);
 
         std::vector<uint32>                     l_Encounters;
         std::vector<std::pair<uint32, uint32>>  l_EncoutersMechanics;
@@ -1696,7 +1759,7 @@ namespace MS { namespace Garrison
 
         for (uint32 l_I = 0; l_I < sGarrMissionXEncouterStore.GetNumRows(); ++l_I)
         {
-            const GarrMissionXEncouterEntry * l_Encounter = sGarrMissionXEncouterStore.LookupEntry(l_I);
+            GarrMissionXEncouterEntry const* l_Encounter = sGarrMissionXEncouterStore.LookupEntry(l_I);
 
             if (l_Encounter && l_Encounter->MissionID == p_MissionRecID)
                 l_Encounters.push_back(l_Encounter->EncounterID);
@@ -1706,7 +1769,7 @@ namespace MS { namespace Garrison
         {
             for (uint32 l_Y = 0; l_Y < sGarrEncouterXMechanicStore.GetNumRows(); ++l_Y)
             {
-                const GarrEncouterXMechanicEntry * l_EncounterMechanic = sGarrEncouterXMechanicStore.LookupEntry(l_Y);
+                GarrEncouterXMechanicEntry const* l_EncounterMechanic = sGarrEncouterXMechanicStore.LookupEntry(l_Y);
 
                 if (l_EncounterMechanic && l_EncounterMechanic->EncounterID == l_Encounters[l_I])
                     l_EncoutersMechanics.push_back(std::make_pair(l_Encounters[l_I], l_EncounterMechanic->MechanicID));
@@ -1746,8 +1809,8 @@ namespace MS { namespace Garrison
 
         for (uint32 l_I = 0; l_I < l_EncoutersMechanics.size(); ++l_I)
         {
-            const GarrMechanicEntry     * l_MechanicEntry       = sGarrMechanicStore.LookupEntry(l_EncoutersMechanics[l_I].second);
-            const GarrMechanicTypeEntry * l_MechanicTypeEntry   = sGarrMechanicTypeStore.LookupEntry(l_MechanicEntry->MechanicTypeID);
+            GarrMechanicEntry     const* l_MechanicEntry     = sGarrMechanicStore.LookupEntry(l_EncoutersMechanics[l_I].second);
+            GarrMechanicTypeEntry const* l_MechanicTypeEntry = sGarrMechanicTypeStore.LookupEntry(l_MechanicEntry->MechanicTypeID);
 
             if (l_MechanicTypeEntry && l_MechanicTypeEntry->Type != MechanicTypes::Ability)
             {
@@ -1792,8 +1855,8 @@ namespace MS { namespace Garrison
         #pragma region Counter mechanic
         for (uint32 l_I = 0; l_I < l_EncoutersMechanics.size(); ++l_I)
         {
-            const GarrMechanicEntry     * l_MechanicEntry       = sGarrMechanicStore.LookupEntry(l_EncoutersMechanics[l_I].second);
-            const GarrMechanicTypeEntry * l_MechanicTypeEntry   = sGarrMechanicTypeStore.LookupEntry(l_MechanicEntry->MechanicTypeID);
+            GarrMechanicEntry     const* l_MechanicEntry     = sGarrMechanicStore.LookupEntry(l_EncoutersMechanics[l_I].second);
+            GarrMechanicTypeEntry const* l_MechanicTypeEntry = sGarrMechanicTypeStore.LookupEntry(l_MechanicEntry->MechanicTypeID);
 
             if (l_MechanicTypeEntry->Type == MechanicTypes::Ability)
             {
@@ -1810,7 +1873,7 @@ namespace MS { namespace Garrison
 
                             for (uint32 l_EffectI = 0; l_EffectI < sGarrAbilityEffectStore.GetNumRows(); l_EffectI++)
                             {
-                                const GarrAbilityEffectEntry * l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_EffectI);
+                                GarrAbilityEffectEntry const* l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_EffectI);
 
                                 if (!l_AbilityEffectEntry || l_AbilityEffectEntry->AbilityID != l_CurrentAbilityID)
                                     continue;
@@ -1861,8 +1924,8 @@ namespace MS { namespace Garrison
         #pragma region Race Ability Counter
         for (uint32 l_I = 0; l_I < l_EncoutersMechanics.size(); ++l_I)
         {
-            const GarrMechanicEntry     * l_MechanicEntry       = sGarrMechanicStore.LookupEntry(l_EncoutersMechanics[l_I].second);
-            const GarrMechanicTypeEntry * l_MechanicTypeEntry   = sGarrMechanicTypeStore.LookupEntry(l_MechanicEntry->MechanicTypeID);
+            GarrMechanicEntry     const* l_MechanicEntry     = sGarrMechanicStore.LookupEntry(l_EncoutersMechanics[l_I].second);
+            GarrMechanicTypeEntry const* l_MechanicTypeEntry = sGarrMechanicTypeStore.LookupEntry(l_MechanicEntry->MechanicTypeID);
 
             if (l_MechanicTypeEntry->Type == MechanicTypes::Racial)
             {
@@ -1874,7 +1937,7 @@ namespace MS { namespace Garrison
 
                         for (uint32 l_EffectI = 0; l_EffectI < sGarrAbilityEffectStore.GetNumRows(); l_EffectI++)
                         {
-                            const GarrAbilityEffectEntry * l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_EffectI);
+                            GarrAbilityEffectEntry const* l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_EffectI);
 
                             if (!l_AbilityEffectEntry || l_AbilityEffectEntry->AbilityID != l_CurrentAbilityID)
                                 continue;
@@ -1914,7 +1977,7 @@ namespace MS { namespace Garrison
 
                 for (uint32 l_EffectI = 0; l_EffectI < sGarrAbilityEffectStore.GetNumRows(); l_EffectI++)
                 {
-                    const GarrAbilityEffectEntry * l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_EffectI);
+                    GarrAbilityEffectEntry const* l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_EffectI);
 
                     if (!l_AbilityEffectEntry || l_AbilityEffectEntry->AbilityID != l_CurrentAbilityID)
                         continue;
@@ -1955,7 +2018,7 @@ namespace MS { namespace Garrison
 
                 for (uint32 l_EffectI = 0; l_EffectI < sGarrAbilityEffectStore.GetNumRows(); l_EffectI++)
                 {
-                    const GarrAbilityEffectEntry * l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_EffectI);
+                    GarrAbilityEffectEntry const* l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_EffectI);
 
                     if (!l_AbilityEffectEntry || l_AbilityEffectEntry->AbilityID != l_CurrentAbilityID)
                         continue;
@@ -1980,7 +2043,7 @@ namespace MS { namespace Garrison
                             {
                                 if (l_W != l_Y)
                                 {
-                                    const GarrFollowerEntry * l_FollowerTemplate = sGarrFollowerStore.LookupEntry(l_MissionFollowers[l_W]->FollowerID);
+                                    GarrFollowerEntry const* l_FollowerTemplate = sGarrFollowerStore.LookupEntry(l_MissionFollowers[l_W]->FollowerID);
 
                                     if (l_FollowerTemplate && l_FollowerTemplate->Class[GetGarrisonFactionIndex()] == l_AbilityEffectEntry->MiscValueA)
                                     {
@@ -2056,7 +2119,7 @@ namespace MS { namespace Garrison
         #pragma region Passive Effect
         for (uint32 l_Y = 0; l_Y < l_PassiveEffects.size(); ++l_Y)
         {
-            const GarrAbilityEffectEntry * l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_PassiveEffects[l_Y]);
+            GarrAbilityEffectEntry const* l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_PassiveEffects[l_Y]);
 
             if (!l_AbilityEffectEntry)
                 continue;
@@ -2088,7 +2151,7 @@ namespace MS { namespace Garrison
     }
 
     /// Get missions
-    std::vector<GarrisonMission> Manager::GetMissions()
+    std::vector<GarrisonMission> Manager::GetMissions() const
     {
         std::vector<GarrisonMission> l_Result;
 
@@ -2103,7 +2166,7 @@ namespace MS { namespace Garrison
     }
 
     /// Get all completed missions
-    std::vector<GarrisonMission> Manager::GetCompletedMissions()
+    std::vector<GarrisonMission> Manager::GetCompletedMissions() const
     {
         std::vector<GarrisonMission> l_Result;
 
@@ -2123,7 +2186,7 @@ namespace MS { namespace Garrison
         if (GetFollower(p_FollowerID).FollowerID != 0)
             return false;
 
-        const GarrFollowerEntry * l_Entry = sGarrFollowerStore.LookupEntry(p_FollowerID);
+        GarrFollowerEntry const* l_Entry = sGarrFollowerStore.LookupEntry(p_FollowerID);
 
         if (!l_Entry)
             return false;
@@ -2142,7 +2205,7 @@ namespace MS { namespace Garrison
 
         for (uint32 l_I = 0; l_I < sGarrFollowerXAbilityStore.GetNumRows(); ++l_I)
         {
-            const GarrFollowerXAbilityEntry * l_Entry = sGarrFollowerXAbilityStore.LookupEntry(l_I);
+            GarrFollowerXAbilityEntry const* l_Entry = sGarrFollowerXAbilityStore.LookupEntry(l_I);
 
             if (l_Entry && l_Entry->FollowerID == p_FollowerID && sGarrAbilityStore.LookupEntry(l_Entry->AbilityID) && l_Entry->FactionIndex == GetGarrisonFactionIndex())
                 l_Follower.Abilities.push_back(l_Entry->AbilityID);
@@ -2240,13 +2303,13 @@ namespace MS { namespace Garrison
     }
 
     /// Get followers
-    std::vector<GarrisonFollower> Manager::GetFollowers()
+    std::vector<GarrisonFollower> Manager::GetFollowers() const
     {
         return m_Followers;
     }
 
     /// Get follower
-    GarrisonFollower Manager::GetFollower(uint32 p_FollowerID)
+    GarrisonFollower Manager::GetFollower(uint32 p_FollowerID) const
     {
         for (uint32 l_I = 0; l_I < m_Followers.size(); l_I++)
         {
@@ -2261,7 +2324,7 @@ namespace MS { namespace Garrison
     }
 
     /// Get activated followers count
-    uint32 Manager::GetActivatedFollowerCount()
+    uint32 Manager::GetActivatedFollowerCount() const
     {
         uint32 l_ActivatedFollowerCount = 0;
 
@@ -2275,7 +2338,7 @@ namespace MS { namespace Garrison
     }
 
     /// Get num follower activation remaining
-    uint32 Manager::GetNumFollowerActivationsRemaining()
+    uint32 Manager::GetNumFollowerActivationsRemaining() const
     {
         return m_NumFollowerActivation;
     }
@@ -2284,14 +2347,14 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
 
     /// Can build building X at slot instance Y
-    bool Manager::IsBuildingPlotInstanceValid(uint32 p_BuildingRecID, uint32 p_PlotInstanceID)
+    bool Manager::IsBuildingPlotInstanceValid(uint32 p_BuildingRecID, uint32 p_PlotInstanceID) const
     {
-        const GarrBuildingEntry * l_BuildingEntry = sGarrBuildingStore.LookupEntry(p_BuildingRecID);
+        GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(p_BuildingRecID);
 
         if (!l_BuildingEntry)
             return false;
 
-        const GarrPlotInstanceEntry * l_PlotInstanceEntry = sGarrPlotInstanceStore.LookupEntry(p_PlotInstanceID);
+        GarrPlotInstanceEntry const* l_PlotInstanceEntry = sGarrPlotInstanceStore.LookupEntry(p_PlotInstanceID);
 
         if (!l_PlotInstanceEntry)
             return false;
@@ -2299,7 +2362,7 @@ namespace MS { namespace Garrison
         /// Search building plot ID 
         for (uint32 l_I = 0; l_I < sGarrPlotBuildingStore.GetNumRows(); ++l_I)
         {
-            const GarrPlotBuildingEntry * l_PlotBuildingEntry = sGarrPlotBuildingStore.LookupEntry(l_I);
+            GarrPlotBuildingEntry const* l_PlotBuildingEntry = sGarrPlotBuildingStore.LookupEntry(l_I);
 
             if (l_PlotBuildingEntry && l_PlotBuildingEntry->PlotId == l_PlotInstanceEntry->PlotID && l_PlotBuildingEntry->BuildingID == p_BuildingRecID)
                 return true;
@@ -2309,9 +2372,9 @@ namespace MS { namespace Garrison
     }
 
     /// Player fill all condition
-    PurchaseBuildingResults::Type Manager::CanPurchaseBuilding(uint32 p_BuildingRecID)
+    PurchaseBuildingResults::Type Manager::CanPurchaseBuilding(uint32 p_BuildingRecID) const
     {
-        const GarrBuildingEntry * l_BuildingEntry = sGarrBuildingStore.LookupEntry(p_BuildingRecID);
+        GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(p_BuildingRecID);
 
         if (!l_BuildingEntry)
             return PurchaseBuildingResults::InvalidBuildingID;
@@ -2328,7 +2391,7 @@ namespace MS { namespace Garrison
     /// PurchaseBuilding
     GarrisonBuilding Manager::PurchaseBuilding(uint32 p_BuildingRecID, uint32 p_PlotInstanceID, bool p_Triggered)
     {
-        const GarrBuildingEntry * l_BuildingEntry = sGarrBuildingStore.LookupEntry(p_BuildingRecID);
+        GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(p_BuildingRecID);
 
         GarrisonBuilding l_Building;
 
@@ -2361,16 +2424,23 @@ namespace MS { namespace Garrison
         l_Building.DatabaseID       = sObjectMgr->GetNewGarrisonBuildingID();
         l_Building.BuildingID       = p_BuildingRecID;
         l_Building.PlotInstanceID   = p_PlotInstanceID;
-        l_Building.TimeBuiltStart   = time(0);
-        l_Building.TimeBuiltEnd     = time(0) + l_BuildingTime;           ///< 5/5/1905 18:45:05
+        l_Building.TimeBuiltStart   = time(nullptr);
+        l_Building.TimeBuiltEnd     = time(nullptr) + l_BuildingTime;           ///< 5/5/1905 18:45:05
         l_Building.SpecID           = 0;
         l_Building.Active           = false;
         l_Building.BuiltNotified    = false;
 
-        if (p_Triggered)
+        if (l_BuildingEntry->BuildingCategory == BuildingCategory::Prebuilt)
+        {
+            l_Building.TimeBuiltStart   = time(nullptr) - l_BuildingTime;
+            l_Building.TimeBuiltEnd     = time(nullptr);
+            l_Building.Active           = true;
+            l_Building.BuiltNotified    = true;
+        }
+        else if (p_Triggered)
             l_Building.TimeBuiltEnd = l_Building.TimeBuiltStart;
 
-        PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GARRISON_BUILDING);
+        PreparedStatement * l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GARRISON_BUILDING);
 
         uint32 l_Index = 0;
         l_Stmt->setUInt32(l_Index++, l_Building.DatabaseID);
@@ -2395,7 +2465,7 @@ namespace MS { namespace Garrison
     }
 
     /// Get building
-    GarrisonBuilding Manager::GetBuilding(uint32 p_PlotInstanceID)
+    GarrisonBuilding Manager::GetBuilding(uint32 p_PlotInstanceID) const
     {
         for (uint32 l_I = 0; l_I < m_Buildings.size(); ++l_I)
             if (m_Buildings[l_I].PlotInstanceID == p_PlotInstanceID)
@@ -2405,19 +2475,34 @@ namespace MS { namespace Garrison
     }
 
     /// Get buildings
-    std::vector<GarrisonBuilding> Manager::GetBuildings()
+    std::vector<GarrisonBuilding> Manager::GetBuildings() const
     {
-        return m_Buildings;
+        std::vector<GarrisonBuilding> l_Buildings;
+
+        for (uint32 l_I = 0; l_I < m_Buildings.size(); ++l_I)
+        {
+            /// Don't include the building if the owner doesn't have access to it
+            if (!sGarrisonBuildingManager->MatchsConditionsForBuilding(m_Buildings[l_I].BuildingID, m_Owner))
+                continue;
+
+            l_Buildings.push_back(m_Buildings[l_I]);
+        }
+
+        return l_Buildings;
     }
 
     /// Get building passive ability effects
-    std::vector<uint32> Manager::GetBuildingsPassiveAbilityEffects()
+    std::vector<uint32> Manager::GetBuildingsPassiveAbilityEffects() const
     {
         std::vector<uint32> l_PassiveEffects;
 
         for (uint32 l_I = 0; l_I < m_Buildings.size(); ++l_I)
         {
-            const GarrBuildingEntry * l_BuildingTemplate = sGarrBuildingStore.LookupEntry(m_Buildings[l_I].BuildingID);
+            /// Don't include prebuilt building passives if the owner doesn't have access to it
+            if (!sGarrisonBuildingManager->MatchsConditionsForBuilding(m_Buildings[l_I].BuildingID, m_Owner))
+                continue;
+
+            GarrBuildingEntry const* l_BuildingTemplate = sGarrBuildingStore.LookupEntry(m_Buildings[l_I].BuildingID);
 
             if (l_BuildingTemplate && l_BuildingTemplate->PassiveEffect && sGarrAbilityEffectStore.LookupEntry(l_BuildingTemplate->PassiveEffect) != nullptr)
                 l_PassiveEffects.push_back(l_BuildingTemplate->PassiveEffect);
@@ -2443,7 +2528,7 @@ namespace MS { namespace Garrison
         if (!l_Building)
             return;
 
-        const GarrBuildingEntry * l_BuildingEntry = sGarrBuildingStore.LookupEntry(l_Building->BuildingID);
+        GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(l_Building->BuildingID);
 
         if (!l_BuildingEntry)
             return;
@@ -2482,7 +2567,7 @@ namespace MS { namespace Garrison
         if (!l_BuildingID)
             return;
 
-        const GarrBuildingEntry * l_BuildingEntry = sGarrBuildingStore.LookupEntry(l_BuildingID);
+        GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(l_BuildingID);
 
         if (!l_BuildingEntry)
             return;
@@ -2507,7 +2592,7 @@ namespace MS { namespace Garrison
         if (!l_BuildingID)
             return;
 
-        const GarrBuildingEntry * l_BuildingEntry = sGarrBuildingStore.LookupEntry(l_BuildingID);
+        GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(l_BuildingID);
 
         if (!l_BuildingEntry)
             return;
@@ -2548,9 +2633,9 @@ namespace MS { namespace Garrison
     }
 
     /// Has active building
-    bool Manager::HasActiveBuilding(uint32 p_BuildingID)
+    bool Manager::HasActiveBuilding(uint32 p_BuildingID) const
     {
-        for (std::vector<GarrisonBuilding>::iterator l_It = m_Buildings.begin(); l_It != m_Buildings.end(); ++l_It)
+        for (std::vector<GarrisonBuilding>::const_iterator l_It = m_Buildings.begin(); l_It != m_Buildings.end(); ++l_It)
         {
             if (l_It->BuildingID == p_BuildingID && l_It->Active)
                 return true;
@@ -2559,11 +2644,168 @@ namespace MS { namespace Garrison
         return false;
     }
 
+    /// Has building type
+    bool Manager::HasBuildingType(BuildingType::Type p_BuildingType) const
+    {
+        for (std::vector<GarrisonBuilding>::const_iterator l_It = m_Buildings.begin(); l_It != m_Buildings.end(); ++l_It)
+        {
+            GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(l_It->BuildingID);
+
+            if (!l_BuildingEntry)
+                continue;
+
+            if (l_BuildingEntry->BuildingType == p_BuildingType)
+                return true;
+        }
+
+        return false;
+    }
+
+    /// Get building max work order
+    uint32 Manager::GetBuildingMaxWorkOrder(uint32 p_PlotInstanceID) const
+    {
+        if (!HasPlotInstance(p_PlotInstanceID))
+            return 0;
+
+        uint32 l_BuildingID = GetBuilding(p_PlotInstanceID).BuildingID;
+
+        if (!l_BuildingID)
+            return 0;
+
+        GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(l_BuildingID);
+
+        if (!l_BuildingEntry)
+            return 0;
+
+        uint32 l_MaxWorkOrder = 0;
+
+        for (uint32 l_CurrentValue : gGarrisonBuildingMaxWorkOrderPerBuildingLevel)
+        {
+            if (l_CurrentValue == l_BuildingEntry->BonusAmount)
+            {
+                l_MaxWorkOrder += l_BuildingEntry->BonusAmount;
+                break;
+            }
+        }
+
+        if (!l_MaxWorkOrder)
+            return 0;
+
+        for (uint32 l_I = 0; l_I < m_Buildings.size(); ++l_I)
+        {
+            GarrBuildingEntry const* l_Building = sGarrBuildingStore.LookupEntry(m_Buildings[l_I].BuildingID);
+
+            if (!l_Building)
+                continue;
+
+            if (l_Building->BuildingType != BuildingType::Magasin)
+                continue;
+
+            l_MaxWorkOrder += l_Building->BonusAmount;
+        }
+
+        return l_MaxWorkOrder;
+    }
+
+    /// Get in progress work order count
+    uint32 Manager::GetWorkOrderCount(uint32 p_PlotInstanceID) const
+    {
+        return std::count_if(m_WorkOrders.begin(), m_WorkOrders.end(), [p_PlotInstanceID](const GarrisonWorkOrder & p_Order) -> bool
+        {
+            return p_Order.PlotInstanceID == p_PlotInstanceID;
+        });
+    }
+
+    /// Start new work order
+    uint64 Manager::StartWorkOrder(uint32 p_PlotInstanceID, uint32 p_ShipmentID)
+    {
+        CharShipmentEntry const* l_ShipmentEntry = sCharShipmentStore.LookupEntry(p_ShipmentID);
+
+        if (!l_ShipmentEntry)
+            return 0;
+
+        uint32 l_MaxCompleteTime = time(0);
+
+        for (uint32 l_I = 0; l_I < m_WorkOrders.size(); ++l_I)
+        {
+            if (m_WorkOrders[l_I].PlotInstanceID == p_PlotInstanceID)
+                l_MaxCompleteTime = std::max<uint32>(l_MaxCompleteTime, m_WorkOrders[l_I].CompleteTime);
+        }
+
+        GarrisonWorkOrder l_WorkOrder;
+        l_WorkOrder.DatabaseID      = sObjectMgr->GetNewGarrisonWorkOrderID();
+        l_WorkOrder.PlotInstanceID  = p_PlotInstanceID;
+        l_WorkOrder.ShipmentID      = p_ShipmentID;
+        l_WorkOrder.CreationTime    = l_MaxCompleteTime;
+        l_WorkOrder.CompleteTime    = l_MaxCompleteTime + l_ShipmentEntry->Duration;
+
+        PreparedStatement * l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GARRISON_WORKORDER);
+
+        uint32 l_Index = 0;
+        l_Stmt->setUInt32(l_Index++, l_WorkOrder.DatabaseID);
+        l_Stmt->setUInt32(l_Index++, m_ID);
+        l_Stmt->setUInt32(l_Index++, l_WorkOrder.PlotInstanceID);
+        l_Stmt->setUInt32(l_Index++, l_WorkOrder.ShipmentID);
+        l_Stmt->setUInt32(l_Index++, l_WorkOrder.CreationTime);
+        l_Stmt->setUInt32(l_Index++, l_WorkOrder.CompleteTime);
+
+        CharacterDatabase.AsyncQuery(l_Stmt);
+
+        m_WorkOrders.push_back(l_WorkOrder);
+
+        return l_WorkOrder.DatabaseID;
+    }
+
+    /// Delete work order
+    void Manager::DeleteWorkOrder(uint64 p_DBID)
+    {
+        PreparedStatement * l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GARRISON_WORKORDER);
+        l_Stmt->setUInt32(0, p_DBID);
+        CharacterDatabase.AsyncQuery(l_Stmt);
+
+        for (std::vector<GarrisonWorkOrder>::iterator l_It = m_WorkOrders.begin(); l_It != m_WorkOrders.end(); ++l_It)
+        {
+            if (l_It->DatabaseID == p_DBID)
+            {
+                m_WorkOrders.erase(l_It);
+                break;
+            }
+        }
+    }
+
+    /// Get creature plot instance ID
+    uint32 Manager::GetCreaturePlotInstanceID(uint64 p_GUID) const
+    {
+        for (auto & l_Pair : m_PlotsCreatures)
+        {
+            auto l_It = std::find(l_Pair.second.begin(), l_Pair.second.end(), p_GUID);
+
+            if (l_It != l_Pair.second.end())
+                return l_Pair.first;
+        }
+
+        return 0;
+    }
+
+    /// Get gameobject plot instance ID
+    uint32 Manager::GetGameObjectPlotInstanceID(uint64 p_GUID) const
+    {
+        for (auto & l_Pair : m_PlotsGameObjects)
+        {
+            auto l_It = std::find(l_Pair.second.begin(), l_Pair.second.end(), p_GUID);
+
+            if (l_It != l_Pair.second.end())
+                return l_Pair.first;
+        }
+
+        return 0;
+    }
+
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
     /// Get known blueprints
-    std::vector<int32> Manager::GetKnownBlueprints()
+    std::vector<int32> Manager::GetKnownBlueprints() const
     {
         return m_KnownBlueprints;
     }
@@ -2575,7 +2817,7 @@ namespace MS { namespace Garrison
 
         if (std::find(m_KnownBlueprints.begin(), m_KnownBlueprints.end(), p_BuildingRecID) == m_KnownBlueprints.end())
         {
-            const GarrBuildingEntry * l_BuildingEntry = sGarrBuildingStore.LookupEntry(p_BuildingRecID);
+            GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(p_BuildingRecID);
 
             if (l_BuildingEntry)
             {
@@ -2602,7 +2844,7 @@ namespace MS { namespace Garrison
     }
 
     /// Known blue print
-    bool Manager::KnownBlueprint(uint32 p_BuildingRecID)
+    bool Manager::KnownBlueprint(uint32 p_BuildingRecID) const
     {
         return std::find(m_KnownBlueprints.begin(), m_KnownBlueprints.end(), p_BuildingRecID) != m_KnownBlueprints.end();
     }
@@ -2611,9 +2853,18 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
 
     /// Get known specializations
-    std::vector<int32> Manager::GetKnownSpecializations()
+    std::vector<int32> Manager::GetKnownSpecializations() const
     {
         return m_KnownSpecializations;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Get work orders
+    std::vector<GarrisonWorkOrder> Manager::GetWorkOrders() const
+    {
+        return m_WorkOrders;
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -2630,12 +2881,12 @@ namespace MS { namespace Garrison
     /// Init data for level
     void Manager::InitDataForLevel()
     {
-        const GarrSiteLevelEntry * l_SiteEntry = nullptr;
+        GarrSiteLevelEntry const* l_SiteEntry = nullptr;
 
         /// Search garrison site entry by SideID & Level
         for (uint32 l_I = 0; l_I < sGarrSiteLevelStore.GetNumRows(); ++l_I)
         {
-            const GarrSiteLevelEntry * l_CurrentSiteEntry = sGarrSiteLevelStore.LookupEntry(l_I);
+            GarrSiteLevelEntry const* l_CurrentSiteEntry = sGarrSiteLevelStore.LookupEntry(l_I);
 
             if (l_CurrentSiteEntry && l_CurrentSiteEntry->Level == m_GarrisonLevel && l_CurrentSiteEntry->SiteID == m_GarrisonSiteID)
             {
@@ -2660,6 +2911,54 @@ namespace MS { namespace Garrison
         {
             if (gGarrisonPlotInstanceInfoLocation[l_I].SiteLevelID == m_GarrisonLevelID)
                 m_Plots.push_back(gGarrisonPlotInstanceInfoLocation[l_I]);
+        }
+
+        /// Add prebuilt buildings
+        for (uint32 l_I = 0; l_I < sGarrBuildingStore.GetNumRows(); ++l_I)
+        {
+            GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(l_I);
+
+            if (!l_BuildingEntry || l_BuildingEntry->BuildingCategory != BuildingCategory::Prebuilt)
+                continue;
+
+            if (HasBuildingType((BuildingType::Type)l_BuildingEntry->BuildingType))
+                continue;
+
+            uint32 l_PlotID = 0;
+
+            /// Search building plot ID 
+            for (uint32 l_I = 0; l_I < sGarrPlotBuildingStore.GetNumRows(); ++l_I)
+            {
+                GarrPlotBuildingEntry const* l_PlotBuildingEntry = sGarrPlotBuildingStore.LookupEntry(l_I);
+
+                if (l_PlotBuildingEntry && l_PlotBuildingEntry->BuildingID == l_BuildingEntry->BuildingID)
+                {
+                    l_PlotID = l_PlotBuildingEntry->PlotId;
+                    break;
+                }
+            }
+
+            if (!l_PlotID)
+                continue;
+
+            uint32 l_PlotInstanceID = 0;
+
+            /// Search building plot instance ID
+            for (uint32 l_I = 0; l_I < sGarrBuildingStore.GetNumRows(); ++l_I)
+            {
+                GarrPlotInstanceEntry const* l_PlotInstanceEntry = sGarrPlotInstanceStore.LookupEntry(l_I);
+
+                if (l_PlotInstanceEntry && l_PlotInstanceEntry->PlotID == l_PlotID)
+                {
+                    l_PlotInstanceID = l_PlotInstanceEntry->InstanceID;
+                    break;
+                }
+            }
+
+            if (!l_PlotInstanceID || !HasPlotInstance(l_PlotInstanceID))
+                continue;
+
+            PurchaseBuilding(l_BuildingEntry->BuildingID, l_PlotInstanceID, true);
         }
     }
 
@@ -2764,6 +3063,8 @@ namespace MS { namespace Garrison
             m_PlotsGob[p_PlotInstanceID] = 0;
         }
     
+        m_PlotsWorkOrderGob[p_PlotInstanceID] = 0;
+
         uint32 l_GobEntry = 0;
         bool l_SpanwActivateGob = false;
         bool l_IsPlotBuilding = false;
@@ -2785,7 +3086,7 @@ namespace MS { namespace Garrison
             }
             else
             {
-                const GarrBuildingEntry * l_BuildingEntry = sGarrBuildingStore.LookupEntry(l_Building.BuildingID);
+                GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(l_Building.BuildingID);
             
                 if (!l_BuildingEntry)
                     return;
@@ -2916,7 +3217,12 @@ namespace MS { namespace Garrison
                         GameObject * l_Cosmetic = m_Owner->SummonGameObject(-l_Contents[l_I].CreatureOrGob, l_Position.x, l_Position.y, l_Position.z, l_Contents[l_I].O + l_PlotInfo.O, 0, 0, 0, 0, 0);
 
                         if (l_Cosmetic)
+                        {
                             m_PlotsGameObjects[p_PlotInstanceID].push_back(l_Cosmetic->GetGUID());
+
+                            if (l_Cosmetic->GetGoType() == GAMEOBJECT_TYPE_GARRISON_SHIPMENT)
+                                m_PlotsWorkOrderGob[p_PlotInstanceID] = l_Cosmetic->GetGUID();
+                        }
                     }
                 }
 
@@ -2943,7 +3249,7 @@ namespace MS { namespace Garrison
                     /// transform plot coord
                     G3D::Vector3 l_NonRotatedPosition = l_Mat * G3D::Vector3(l_PlotInfo.X, l_PlotInfo.Y, l_PlotInfo.Z);
 
-                    const GameObjectDisplayInfoEntry * l_GobDispInfo = sGameObjectDisplayInfoStore.LookupEntry(l_Gob->GetDisplayId());
+                    GameObjectDisplayInfoEntry const* l_GobDispInfo = sGameObjectDisplayInfoStore.LookupEntry(l_Gob->GetDisplayId());
 
                     /// Work with plot AABB
                     if (l_GobDispInfo)
@@ -2995,24 +3301,24 @@ namespace MS { namespace Garrison
         /// See GetFollowerSoftCap in client for more details
         for (uint32 l_I = 0; l_I < m_Buildings.size(); ++l_I)
         {
-            const GarrBuildingEntry * l_Building = sGarrBuildingStore.LookupEntry(m_Buildings[l_I].BuildingID);
+            GarrBuildingEntry const* l_Building = sGarrBuildingStore.LookupEntry(m_Buildings[l_I].BuildingID);
 
             if (!l_Building)
                 continue;
 
-            if (l_Building->Unk3 != 8)
+            if (l_Building->BuildingType != BuildingType::Barracks)
                 continue;
 
             l_BonusMaxActiveFollower = l_Building->Unk7;
 
             for (uint32 l_Y = 0; l_Y < sGarrSpecializationStore.GetNumRows(); ++l_Y)
             {
-                const GarrSpecializationEntry * l_Specialization = sGarrSpecializationStore.LookupEntry(l_Y);
+                GarrSpecializationEntry const* l_Specialization = sGarrSpecializationStore.LookupEntry(l_Y);
 
                 if (!l_Specialization)
                     continue;
 
-                if (   l_Specialization->Unk2 == l_Building->Unk3
+                if (   l_Specialization->Unk2 == l_Building->BuildingType
                     && l_Specialization->Unk4 <= l_Building->BuildingLevel
                     && l_Specialization->Unk3 == 10)
                 {
@@ -3174,7 +3480,7 @@ namespace MS { namespace Garrison
 
                 for (uint32 l_I = 0; l_I < sGarrMissionStore.GetNumRows(); ++l_I)
                 {
-                    const GarrMissionEntry * l_Entry = sGarrMissionStore.LookupEntry(l_I);
+                    GarrMissionEntry const* l_Entry = sGarrMissionStore.LookupEntry(l_I);
 
                     if (!l_Entry)
                         continue;
@@ -3236,15 +3542,15 @@ namespace MS { namespace Garrison
 
         switch (GetGarrisonFactionIndex())
         {
-            case Factions::Alliance:
+            case FactionIndex::Alliance:
                 l_AbilityOverrideSpellID = GARRISON_SPELL_GARR_ABILITY_ALLIANCE_BASE;
                 break;
 
-            case Factions::Horde:
+            case FactionIndex::Horde:
                 l_AbilityOverrideSpellID = GARRISON_SPELL_GARR_ABILITY_HORDE_BASE;
                 break;
 
-            case Factions::Max:
+            case FactionIndex::Max:
             default:
                 ASSERT(false);
                 break;
@@ -3260,6 +3566,64 @@ namespace MS { namespace Garrison
         {
             if (m_Owner->HasAura(l_AbilityOverrideSpellID))
                 m_Owner->RemoveAura(l_AbilityOverrideSpellID);
+        }
+    }
+
+    /// Update work order
+    void Manager::UpdateWorkOrders()
+    {
+        if (!m_Owner->IsInGarrison())
+            return;
+
+        for (uint32 l_PlotI = 0; l_PlotI < m_Plots.size(); ++l_PlotI)
+        {
+            uint32 l_PlotInstanceID = m_Plots[l_PlotI].PlotInstanceID;
+
+            if (m_PlotsWorkOrderGob[l_PlotInstanceID] == 0)
+                continue;
+
+            GameObject * l_WorkOrderGameObject = HashMapHolder<GameObject>::Find(m_PlotsWorkOrderGob[l_PlotInstanceID]);
+
+            if (!l_WorkOrderGameObject)
+                continue;
+
+            std::vector<GarrisonWorkOrder*> l_PlotWorkOrder;
+
+            for (uint32 l_OrderI = 0; l_OrderI < m_WorkOrders.size(); ++l_OrderI)
+            {
+                if (m_WorkOrders[l_OrderI].PlotInstanceID == l_PlotInstanceID)
+                    l_PlotWorkOrder.push_back(&m_WorkOrders[l_OrderI]);
+            }
+
+            if (l_PlotWorkOrder.size() > 0)
+            {
+                bool l_AllComplete = l_PlotWorkOrder.size() > 1;
+
+                uint32 l_CurrentTimeStamp = time(0);
+                for (uint32 l_OrderI = 0; l_OrderI < l_PlotWorkOrder.size(); ++l_OrderI)
+                {
+                    if (l_PlotWorkOrder[l_OrderI]->CompleteTime > l_CurrentTimeStamp)
+                        l_AllComplete = false;
+                    else if (l_PlotWorkOrder.size() == 1)
+                        l_AllComplete = true;
+                }
+
+                if (l_AllComplete)
+                {
+                    l_WorkOrderGameObject->SetDisplayId(WorkOrderGODisplayID::AllComplete);
+                    l_WorkOrderGameObject->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_ACTIVATED);
+                }
+                else
+                {
+                    l_WorkOrderGameObject->SetDisplayId(GetGarrisonFactionIndex() == FactionIndex::Alliance ? WorkOrderGODisplayID::BaseA : WorkOrderGODisplayID::BaseH);
+                    l_WorkOrderGameObject->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_ACTIVATED);
+                }
+            }
+            else
+            {
+                l_WorkOrderGameObject->SetDisplayId(GetGarrisonFactionIndex() == FactionIndex::Alliance ? WorkOrderGODisplayID::BaseA : WorkOrderGODisplayID::BaseH);
+                l_WorkOrderGameObject->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_ACTIVATED);
+            }
         }
     }
 

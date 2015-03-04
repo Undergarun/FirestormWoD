@@ -1144,6 +1144,11 @@ class spell_mage_combustion: public SpellScriptLoader
         {
             PrepareSpellScript(spell_mage_combustion_SpellScript);
 
+            enum eSpell
+            {
+                CategoryID = 1500
+            };
+
             void HandleOnHit()
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
@@ -1153,15 +1158,10 @@ class spell_mage_combustion: public SpellScriptLoader
                         if (l_Player->HasSpellCooldown(SPELL_MAGE_INFERNO_BLAST_IMPACT))
                             l_Player->RemoveSpellCooldown(SPELL_MAGE_INFERNO_BLAST_IMPACT, true);
 
-                        if (ChargesData* l_Charges = l_Player->GetChargesData(SPELL_MAGE_INFERNO_BLAST))
+                        if (ChargesData* l_Charges = l_Player->GetChargesData(eSpell::CategoryID))
                         {
-                            if (l_Charges->m_ConsumedCharges > 0)
-                                --l_Charges->m_ConsumedCharges;
-
-                            if (!l_Charges->m_ChargesCooldown.empty())
-                                l_Charges->m_ChargesCooldown.erase(l_Charges->m_ChargesCooldown.begin());
-
-                            l_Player->SendClearSpellCharges(SPELL_MAGE_INFERNO_BLAST);
+                            l_Player->m_SpellChargesMap.erase(eSpell::CategoryID);
+                            l_Player->SendClearSpellCharges(eSpell::CategoryID);
                         }
 
                         int32 combustionBp = 0;
@@ -1921,7 +1921,10 @@ class spell_mage_frostfire_bolt: public SpellScriptLoader
                 if (Unit* l_Caster = GetCaster())
                 {
                     if (AuraPtr l_Aura = l_Caster->GetAura(SPELL_MAGE_BRAIN_FREEZE_TRIGGERED))
+                    {
                         SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), sSpellMgr->GetSpellInfo(SPELL_MAGE_BRAIN_FREEZE)->Effects[EFFECT_2].BasePoints));
+                        l_Aura->ModStackAmount(-1);
+                    }
                 }
             }
 

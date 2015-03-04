@@ -410,10 +410,11 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     float attPowerMod = GetModifierValue(unitMod, TOTAL_VALUE);
     float attPowerMultiplier = GetModifierValue(unitMod, TOTAL_PCT) - 1.0f;
 
-    /// 76857 - Mastery : Critical Block
+    /// 76857  - Mastery : Critical Block
     /// 117906 - Mastery: Elusive Brawler
-    /// 77513 - Mastery: Blood Shield
-    if (GetTypeId() == TYPEID_PLAYER && (HasAura(76857) || HasAura(117906) || HasAura(77513)))
+    /// 77513  - Mastery: Blood Shield
+    /// 155783 - Mastery: Primal Tenacity
+    if (GetTypeId() == TYPEID_PLAYER && (HasAura(76857) || HasAura(117906) || HasAura(77513) || HasAura(155783)))
         attPowerMultiplier += GetFloatValue(PLAYER_FIELD_MASTERY) / 100;
 
     //add dynamic flat mods
@@ -503,7 +504,6 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     float weapon_mindamage = GetWeaponDamageRange(attType, MINDAMAGE);
     float weapon_maxdamage = GetWeaponDamageRange(attType, MAXDAMAGE);
     float attackPower = GetTotalAttackPowerValue(attType);
-
 
     float weapon_with_ap_min = (weapon_mindamage / att_speed) + (attackPower / 3.5f);
     float weapon_with_ap_max = (weapon_maxdamage / att_speed) + (attackPower / 3.5f);
@@ -824,8 +824,9 @@ void Player::UpdateMasteryPercentage()
     }
     SetFloatValue(PLAYER_FIELD_MASTERY, value);
     
-    // 117906 - Mastery: Elusive Brawler - Update attack power
-    if (HasAura(117906))
+    /// 117906 - Mastery: Elusive Brawler - Update attack power
+    /// 155783 - Mastery: Primal Tenacity - Update attack power
+    if (HasAura(117906) || HasAura(155783))
         UpdateAttackPowerAndDamage();
     // Custom MoP Script
     // 76671 - Mastery : Divine Bulwark - Update Block Percentage

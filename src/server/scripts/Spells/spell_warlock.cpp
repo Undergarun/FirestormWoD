@@ -1751,6 +1751,44 @@ class spell_warl_drain_soul: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_drain_soul_AuraScript);
 
+            void HandlePeriodicDamage(AuraEffectPtr p_AurEff)
+            {
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                std::list<Unit*> l_TargetList;
+
+                p_AurEff->GetTargetList(l_TargetList);
+                for (auto l_Target : l_TargetList)
+                {
+                    if (l_Caster->getLevel() >= 92 && l_Caster->HasSpell(SPELL_WARL_IMPROVED_DRAIN_SOUL) && l_Target->GetHealthPct() < 20)
+                    {
+                        if (SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_WARL_IMPROVED_DRAIN_SOUL))
+                            p_AurEff->SetAmount(p_AurEff->GetAmount() + CalculatePct(p_AurEff->GetAmount(), l_SpellInfo->Effects[EFFECT_0].BasePoints));
+                    }
+
+                    /// Associate DoT spells to their damage spells
+                    std::list<std::pair<uint32, uint32>> l_DotAurasList;
+                    l_DotAurasList.push_back(std::make_pair(980,    131737)); ///< Agony
+                    l_DotAurasList.push_back(std::make_pair(27243,  132566)); ///< Seed of Corruption
+                    l_DotAurasList.push_back(std::make_pair(30108,  131736)); ///< Unstable Affliction
+                    l_DotAurasList.push_back(std::make_pair(146739, 131740)); ///< Corruption
+
+                    for (std::list<std::pair<uint32, uint32>>::const_iterator l_DotAura = l_DotAurasList.begin(); l_DotAura != l_DotAurasList.end(); ++l_DotAura)
+                    {
+                        if (AuraPtr l_AuraPtr = l_Target->GetAura((*l_DotAura).first, l_Caster->GetGUID()))
+                        {
+                            if (AuraEffectPtr l_AuraEffect = l_AuraPtr->GetEffect(l_AuraPtr->GetEffectIndexByType(SPELL_AURA_PERIODIC_DAMAGE)))
+                            {
+                                int32 l_Bp0 = CalculatePct(l_AuraEffect->GetAmount(), GetSpellInfo()->Effects[EFFECT_2].BasePoints);
+                                l_Caster->CastCustomSpell(l_Target, (*l_DotAura).second, &l_Bp0, NULL, NULL, true);
+                            }
+                        }
+                    }
+                }
+            }
+
             void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Target = GetTarget();
@@ -1762,27 +1800,11 @@ class spell_warl_drain_soul: public SpellScriptLoader
                                 l_Caster->ModifyPower(POWER_SOUL_SHARDS, 1 * l_Caster->GetPowerCoeff(POWER_SOUL_SHARDS));
             }
 
-            void HandleEffectPeriodicUpdate(AuraEffectPtr p_AurEff)
-            {
-                std::list<Unit*> l_TargetList;
-                p_AurEff->GetTargetList(l_TargetList);
-
-                if (Unit* l_Caster = GetCaster())
-                    if (l_Caster->getLevel() >= 92 && l_Caster->HasSpell(SPELL_WARL_IMPROVED_DRAIN_SOUL))
-                    {
-                        for (auto itr : l_TargetList)
-                            if (itr != nullptr && itr->GetHealthPct() < 20)
-                            {
-                                if (SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_WARL_IMPROVED_DRAIN_SOUL))
-                                    p_AurEff->SetAmount(p_AurEff->GetAmount() + CalculatePct(p_AurEff->GetAmount(), l_SpellInfo->Effects[EFFECT_0].BasePoints));
-                            }
-                    }
-            }
-
             void Register()
             {
-                OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_warl_drain_soul_AuraScript::HandleEffectPeriodicUpdate, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
-                OnEffectRemove += AuraEffectApplyFn(spell_warl_drain_soul_AuraScript::HandleRemove, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_warl_drain_soul_AuraScript::HandlePeriodicDamage, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+                OnEffectRemove += AuraEffectApplyFn(spell_warl_drain_soul_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+
             }
         };
 
@@ -1909,7 +1931,8 @@ class spell_warl_rain_of_fire_despawn: public SpellScriptLoader
 enum EmberTapSpells
 {
     SPELL_WARL_GLYPH_OF_EMBER_TAP = 63304,
-    SPELL_WARL_SEARING_FLAMES = 174848
+    SPELL_WARL_SEARING_FLAMES = 174848,
+    SPELL_WARL_ENHANCED_OF_EMBER_TAP = 157121
 };
 // Ember Tap - 114635
 class spell_warl_ember_tap: public SpellScriptLoader
@@ -1921,39 +1944,47 @@ class spell_warl_ember_tap: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_ember_tap_SpellScript);
 
-            void HandleOnHit()
+            void HandleHeal(SpellEffIndex /*effIndex*/)
             {
                 if (!GetHitUnit())
-                    return;
+                return;
 
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    float Mastery = 3.0f * l_Player->GetFloatValue(PLAYER_FIELD_MASTERY) / 100.0f;
-                    float pct = 0.05f * (1 + Mastery);
+                    float pct = (float)(GetSpellInfo()->Effects[EFFECT_0].BasePoints) / 100;
+
+                    if (AuraPtr l_GlyphOfEmberTap = l_Player->GetAura(SPELL_WARL_GLYPH_OF_EMBER_TAP))
+                        pct += ((float)l_GlyphOfEmberTap->GetSpellInfo()->Effects[EFFECT_2].BasePoints / 100);
 
                     int32 healAmount = int32(l_Player->GetMaxHealth() * pct);
-                    healAmount = l_Player->SpellHealingBonusDone(l_Player, GetSpellInfo(), healAmount, EFFECT_0, HEAL);
-                    healAmount = l_Player->SpellHealingBonusTaken(l_Player, GetSpellInfo(), healAmount, HEAL);
+
+                    float Mastery = 3.0f * l_Player->GetFloatValue(PLAYER_FIELD_MASTERY);
+                    healAmount += CalculatePct(healAmount, Mastery);
 
                     if (AuraPtr l_SearingFlames = l_Player->GetAura(SPELL_WARL_SEARING_FLAMES))
                     {
                         healAmount *= 1 + (l_SearingFlames->GetSpellInfo()->Effects[EFFECT_0].BasePoints / 100.0f);
 
-                        // ManaCost == 0, wrong way to retrieve cost ?
-                        //l_Player->ModifyPower(POWER_BURNING_EMBERS, CalculatePct(GetSpellInfo()->ManaCost, l_SearingFlames->GetSpellInfo()->Effects[EFFECT_1].BasePoints));
+                        /// ManaCost == 0, wrong way to retrieve cost ?
+                        ///l_Player->ModifyPower(POWER_BURNING_EMBERS, CalculatePct(GetSpellInfo()->ManaCost, l_SearingFlames->GetSpellInfo()->Effects[EFFECT_1].BasePoints));
                         l_Player->ModifyPower(POWER_BURNING_EMBERS, 5);
                     }
 
-                    if (AuraPtr l_GlyphOfEmberTap = l_Player->GetAura(SPELL_WARL_GLYPH_OF_EMBER_TAP))
-                        healAmount += CalculatePct(l_Player->GetMaxHealth(), l_GlyphOfEmberTap->GetSpellInfo()->Effects[EFFECT_2].BasePoints);
+                    if (l_Player->HasAura(SPELL_WARL_ENHANCED_OF_EMBER_TAP))
+                    {
+                        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_WARL_ENHANCED_OF_EMBER_TAP);
+                        Pet* l_Pet = l_Player->GetPet();
 
+                        if (l_Pet != nullptr && l_SpellInfo != nullptr)
+                            l_Pet->SetHealth(l_Pet->GetHealth() + CalculatePct(healAmount, l_SpellInfo->Effects[EFFECT_0].BasePoints));
+                    }
                     SetHitHeal(healAmount);
                 }
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_warl_ember_tap_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_warl_ember_tap_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL_PCT);
             }
         };
 
@@ -2032,6 +2063,54 @@ class spell_warl_conflagrate_aura: public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_warl_conflagrate_aura_SpellScript();
+        }
+};
+
+enum GlyphofNightmareSpells
+{
+    SPELL_WARL_GLYPH_OF_NIGHTMARE_AURA      = 56232,
+    SPELL_WARL_GLYPH_OF_NIGHTMARE           = 143314
+};
+
+/// Call by : Felsteed - 5784, Dreadsteed - 23161
+/// Glyph of Nightmares - 56232
+class spell_warl_glyph_of_nightmares : public SpellScriptLoader
+{
+    public:
+        spell_warl_glyph_of_nightmares() : SpellScriptLoader("spell_warl_glyph_of_nightmares") { }
+
+        class spell_warl_glyph_of_nightmares_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_glyph_of_nightmares_AuraScript);
+
+            void HandleApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(SPELL_WARL_GLYPH_OF_NIGHTMARE_AURA))
+                        l_Caster->CastSpell(l_Caster, SPELL_WARL_GLYPH_OF_NIGHTMARE, true);
+                }
+            }
+
+            void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(SPELL_WARL_GLYPH_OF_NIGHTMARE))
+                        l_Caster->RemoveAura(SPELL_WARL_GLYPH_OF_NIGHTMARE);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_warl_glyph_of_nightmares_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_MOUNTED, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectApplyFn(spell_warl_glyph_of_nightmares_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_MOUNTED, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_glyph_of_nightmares_AuraScript();
         }
 };
 
@@ -3003,6 +3082,7 @@ class spell_warl_havoc: public SpellScriptLoader
 
 void AddSC_warlock_spell_scripts()
 {
+    new spell_warl_glyph_of_nightmares();
     new spell_warl_cataclysm();
     new spell_warl_siphon_life();
     new spell_warl_corruption();

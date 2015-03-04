@@ -502,6 +502,18 @@ enum PlayerFlagsEx
     PLAYER_FLAGS_EX_REAGENT_BANK_UNLOCKED = 0x00000001
 };
 
+enum PlayerLocalFlags
+{
+    PLAYER_LOCAL_FLAG_TRACK_STEALTHED               = 0x00000002,
+    PLAYER_LOCAL_FLAG_RELEASE_TIMER                 = 0x00000008,   // Display time till auto release spirit
+    PLAYER_LOCAL_FLAG_NO_RELEASE_WINDOW             = 0x00000010,   // Display no "release spirit" window at all
+    PLAYER_LOCAL_FLAG_NO_PET_BAR                    = 0x00000020,   // CGPetInfo::IsPetBarUsed
+    PLAYER_LOCAL_FLAG_OVERRIDE_CAMERA_MIN_HEIGHT    = 0x00000040,
+    PLAYER_LOCAL_FLAG_USING_PARTY_GARRISON          = 0x00000100,
+    PLAYER_LOCAL_FLAG_CAN_USE_OBJECTS_MOUNTED       = 0x00000200,
+    PLAYER_LOCAL_FLAG_CAN_VISIT_PARTY_GARRISON      = 0x00000400
+};
+
 // used for PLAYER_FIELD_KNOWN_TITLES field (uint64), (1<<bit_index) without (-1)
 // can't use enum for uint64 values
 #define PLAYER_TITLE_DISABLED              UI64LIT(0x0000000000000000)
@@ -553,20 +565,48 @@ enum PlayerFlagsEx
 #define ECLIPSE_FULL_CYCLE_DURATION 40
 
 // used in PLAYER_FIELD_BYTES values
-enum PlayerFieldByteFlags
+enum PlayerBytesOffsets
 {
-    PLAYER_FIELD_BYTE_TRACK_STEALTHED   = 0x00000002,
-    PLAYER_FIELD_BYTE_RELEASE_TIMER     = 0x00000008,       // Display time till auto release spirit
-    PLAYER_FIELD_BYTE_NO_RELEASE_WINDOW = 0x00000010        // Display no "release spirit" window at all
+    PLAYER_BYTES_OFFSET_SKIN_ID         = 0,
+    PLAYER_BYTES_OFFSET_FACE_ID         = 1,
+    PLAYER_BYTES_OFFSET_HAIR_STYLE_ID   = 2,
+    PLAYER_BYTES_OFFSET_HAIR_COLOR_ID   = 3
 };
 
 // used in PLAYER_FIELD_BYTES2 values
 enum PlayerFieldByte2Flags
 {
-    PLAYER_FIELD_BYTE2_NONE                 = 0x00,
-    PLAYER_FIELD_BYTE2_STEALTH              = 0x20,
-    PLAYER_FIELD_BYTE2_INVISIBILITY_GLOW    = 0x40
+    PLAYER_BYTES_2_OFFSET_FACIAL_STYLE      = 0,
+    PLAYER_BYTES_2_OFFSET_PARTY_TYPE        = 1,
+    PLAYER_BYTES_2_OFFSET_BANK_BAG_SLOTS    = 2,
+    PLAYER_BYTES_2_OFFSET_REST_STATE        = 3
 };
+
+enum PlayerBytes3Offsets
+{
+    PLAYER_BYTES_3_OFFSET_GENDER        = 0,
+    PLAYER_BYTES_3_OFFSET_INEBRIATION   = 1,
+    PLAYER_BYTES_3_OFFSET_PVP_TITLE     = 2,
+    PLAYER_BYTES_3_OFFSET_ARENA_FACTION = 3
+};
+
+enum PlayerFieldBytesOffsets
+{
+    PLAYER_FIELD_BYTES_OFFSET_RAF_GRANTABLE_LEVEL   = 0,
+    PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES    = 1,
+    PLAYER_FIELD_BYTES_OFFSET_PVP_RANK              = 2,
+    PLAYER_FIELD_BYTES_OFFSET_LIFETIME_MAX_PVP_RANK = 3
+};
+
+enum PlayerFieldBytes2Offsets
+{
+    PLAYER_FIELD_BYTES_2_OFFSET_AURA_VISION         = 1,
+    PLAYER_FIELD_BYTES_2_OFFSET_OVERRIDE_SPELLS_ID  = 2  // uint16!
+};
+
+static_assert((PLAYER_FIELD_BYTES_2_OFFSET_OVERRIDE_SPELLS_ID & 1) == 0, "PLAYER_FIELD_BYTES_2_OFFSET_OVERRIDE_SPELLS_ID must be aligned to 2 byte boundary");
+
+#define PLAYER_BYTES_2_OVERRIDE_SPELLS_UINT16_OFFSET (PLAYER_FIELD_BYTES_2_OFFSET_OVERRIDE_SPELLS_ID / 2)
 
 enum MirrorTimerType
 {
@@ -955,7 +995,8 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_GARRISON_MISSIONS            = 48,
     PLAYER_LOGIN_QUERY_GARRISON_FOLLOWERS           = 49,
     PLAYER_LOGIN_QUERY_GARRISON_BUILDINGS           = 50,
-    PLAYER_LOGIN_QUERY_DAILY_LOOT_COOLDOWNS         = 51,
+    PLAYER_LOGIN_QUERY_GARRISON_WORKORDERS          = 51,
+    PLAYER_LOGIN_QUERY_DAILY_LOOT_COOLDOWNS         = 52,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -1384,7 +1425,6 @@ struct ChargesData
     {
         m_MaxCharges = 0;
         m_ConsumedCharges = 0;
-        m_Changed = false;
     }
 
     ChargesData(uint32 p_MaxCharges, uint64 p_Cooldown, uint32 p_Charges = 1)
@@ -1395,7 +1435,6 @@ struct ChargesData
         m_ConsumedCharges = p_Charges;
 
         m_ChargesCooldown.push_back(p_Cooldown);
-        m_Changed = true;
     }
 
     std::vector<uint64> GetChargesCooldown() const { return m_ChargesCooldown; }
@@ -1410,10 +1449,9 @@ struct ChargesData
     uint32 m_MaxCharges;
     uint32 m_ConsumedCharges;
     std::vector<uint64> m_ChargesCooldown;
-    bool m_Changed;
 };
 
-///<            SpellID
+///            CategoryID
 typedef std::map<uint32, ChargesData> SpellChargesMap;
 
 struct CompletedChallenge
@@ -1634,8 +1672,8 @@ class Player : public Unit, public GridObject<Player>
         static bool IsReagentBankPos(uint8 bag, uint8 slot);
         bool IsValidPos(uint16 pos, bool explicit_pos) { return IsValidPos(pos >> 8, pos & 255, explicit_pos); }
         bool IsValidPos(uint8 bag, uint8 slot, bool explicit_pos);
-        uint8 GetBankBagSlotCount() const { return GetByteValue(PLAYER_FIELD_REST_STATE, 2); }
-        void SetBankBagSlotCount(uint8 count) { SetByteValue(PLAYER_FIELD_REST_STATE, 2, count); }
+        uint8 GetBankBagSlotCount() const { return GetByteValue(PLAYER_FIELD_REST_STATE, PLAYER_BYTES_2_OFFSET_BANK_BAG_SLOTS); }
+        void SetBankBagSlotCount(uint8 count) { SetByteValue(PLAYER_FIELD_REST_STATE, PLAYER_BYTES_2_OFFSET_BANK_BAG_SLOTS, count); }
         bool HasItemCount(uint32 item, uint32 count = 1, bool inBankAlso = false) const;
         bool HasItemFitToSpellRequirements(SpellInfo const* spellInfo, Item const* ignoreItem = NULL) const;
         bool CanNoReagentCast(SpellInfo const* spellInfo) const;
@@ -2642,7 +2680,7 @@ class Player : public Unit, public GridObject<Player>
         inline SpellCooldowns GetSpellCooldowns() const { return m_spellCooldowns; }
 
         void SetDrunkValue(uint8 newDrunkValue, uint32 itemId = 0);
-        uint8 GetDrunkValue() const { return GetByteValue(PLAYER_FIELD_ARENA_FACTION, 1); }
+        uint8 GetDrunkValue() const { return GetByteValue(PLAYER_FIELD_ARENA_FACTION, PLAYER_BYTES_3_OFFSET_INEBRIATION); }
         static DrunkenState GetDrunkenstateByValue(uint8 value);
 
         uint32 GetDeathTimer() const { return m_deathTimer; }
@@ -2853,7 +2891,7 @@ class Player : public Unit, public GridObject<Player>
         WorldLocation const& GetBattlegroundEntryPoint() const { return m_bgData.joinPos; }
         void SetBattlegroundEntryPoint();
 
-        void SetBGTeam(uint32 team) { m_bgData.bgTeam = team; }
+        void SetBGTeam(uint32 team) { m_bgData.bgTeam = team; SetByteValue(PLAYER_FIELD_ARENA_FACTION, PLAYER_BYTES_3_OFFSET_ARENA_FACTION, uint8(team == ALLIANCE ? 1 : 0)); }
         uint32 GetBGTeam() const { return m_bgData.bgTeam ? m_bgData.bgTeam : GetTeam(); }
         uint8 GetBGLastActiveSpec() const { return m_bgData.m_LastActiveSpec; }
         void SaveBGLastSpecialization() { m_bgData.m_LastActiveSpec = GetActiveSpec(); }
@@ -3278,6 +3316,15 @@ class Player : public Unit, public GridObject<Player>
         /***                  SCENES SYSTEM                    ***/
         /*********************************************************/
         void PlayScene(uint32 sceneId, WorldObject* spectator);
+        /// Play standalone scene script on client side
+        /// @p_ScenePackageID : Scene package ID @ScenePackage.db2
+        /// @p_PlaybackFlags  : Playback flags (@TODO make some reverse on it)
+        /// @p_Location       : Scene script start location
+        /// Return generated Scene instance ID
+        uint32 PlayStandaloneScene(uint32 p_ScenePackageID, uint32 p_PlaybackFlags, Position p_Location);
+        /// Cancel a client-side played standalone scene
+        /// @p_SceneInstanceID : Scene instance ID
+        void CancelStandaloneScene(uint32 p_SceneInstanceID);
 
         /// Compute the unlocked pet battle slot
         uint32 GetUnlockedPetBattleSlot();
@@ -3349,13 +3396,14 @@ class Player : public Unit, public GridObject<Player>
 
         void SendSpellCharges();
         void SendClearAllSpellCharges();
-        void SendSetSpellCharges(uint32 p_SpellID);
-        void SendClearSpellCharges(uint32 p_SpellID);
+        void SendSetSpellCharges(uint32 p_CategoryID);
+        void SendClearSpellCharges(uint32 p_CategoryID);
 
-        bool CanUseCharge(uint32 p_SpellID) const;
+        void RestoreCharge(uint32 p_CategoryID);
+        bool CanUseCharge(uint32 p_CategoryID) const;
         void UpdateCharges(uint32 const p_Time);
-        void ConsumeCharge(uint32 p_SpellID, SpellCategoryEntry const* p_Category, bool p_SendPacket = false);
-        ChargesData* GetChargesData(uint32 p_SpellID);
+        void ConsumeCharge(uint32 p_CategoryID, SpellCategoryEntry const* p_Category);
+        ChargesData* GetChargesData(uint32 p_CategoryID);
         //////////////////////////////////////////////////////////////////////////
 
         //////////////////////////////////////////////////////////////////////////

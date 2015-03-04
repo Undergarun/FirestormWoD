@@ -17,7 +17,16 @@
 #include <algorithm>
 
 #include <Reporting/Reporter.hpp>
-#include <Reporting/Reports.hpp>
+using SingletReporterType = MS::DesignPatterns::Singleton<MS::Reporting::Reporter, MS::Threading::NullMutex>;
+
+/// Init Reporter singleton instance
+template <>
+SingletReporterType::ClassPointer SingletReporterType::m_Instance{ nullptr };
+
+/// Init Reporter singleton mutex with NullMutex because we don't want our reporter to be thread-safe.
+template <>
+SingletReporterType::MutexType SingletReporterType::m_Mutex{};
+
 
 namespace BNet2 {
 

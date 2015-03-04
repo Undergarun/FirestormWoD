@@ -2931,24 +2931,23 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     }
 
     // Your finishing moves restore X Energy per combo
-    if (m_needComboPoints || m_spellInfo->Id == 127538)
+    if (m_needComboPoints)
     {
-        if (Player* plrCaster = m_caster->ToPlayer())
+        if (Player* l_Caster = m_caster->ToPlayer())
         {
-            if (int32 l_Combo = plrCaster->GetPower(Powers::POWER_COMBO_POINT))
+            if (int32 l_Combo = l_Caster->GetPower(Powers::POWER_COMBO_POINT))
             {
-                // Soul of the Forest - 4 Energy
-                if (plrCaster->HasAura(114107))
+                if (l_Caster->HasAura(158476)) ///< Soul of the forest
                 {
-                    if (plrCaster->GetSpecializationId(plrCaster->GetActiveSpec()) == SPEC_DRUID_FERAL)
-                        plrCaster->EnergizeBySpell(plrCaster, 114107, 4 * l_Combo, POWER_ENERGY);
+                    if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) == SPEC_DRUID_FERAL)
+                        l_Caster->EnergizeBySpell(l_Caster, 158476, 4 * l_Combo, POWER_ENERGY);
                 }
-                else if (plrCaster->HasAura(14161)) ///< Ruthlessness
+                else if (l_Caster->HasAura(14161)) ///< Ruthlessness
                 {
                     if (roll_chance_i(20 * l_Combo))
                     {
-                        plrCaster->CastSpell(plrCaster, 139569, true);  ///< Combo point awarding
-                        plrCaster->CastSpell(plrCaster, 14181, true);   ///< Energy energize
+                        l_Caster->CastSpell(l_Caster, 139569, true); ///< Combo point awarding
+                        l_Caster->CastSpell(l_Caster, 14181, true);  ///< Energy energize
                     }
                 }
             }
@@ -3154,7 +3153,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
         return SPELL_MISS_MISS;
 
     // Hack fix for Cloak of Shadows (just Blood Plague can hit to Cloak of Shadows)
-    if (m_spellInfo->GetSchoolMask() == SPELL_SCHOOL_MASK_MAGIC && unit->HasAura(31224) && m_spellInfo->Id != 59879)
+    if ((m_spellInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_MAGIC) && unit->HasAura(31224) && m_spellInfo->Id != 59879)
         return SPELL_MISS_MISS;
 
     // disable effects to which unit is immune
@@ -3649,9 +3648,11 @@ void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggere
             }
         }
         else
-        {
             SendCastResult(result);
-        }
+
+        /// Restore SpellMods after spell failed
+        if (m_caster->GetTypeId() == TypeID::TYPEID_PLAYER)
+            m_caster->ToPlayer()->RestoreSpellMods(this);
 
         finish(false);
         return;
@@ -8187,10 +8188,12 @@ void Spell::DoAllEffectOnLaunchTarget(TargetInfo& targetInfo, float* multiplier)
                         if (targetAmount > 10)
                             m_damage = m_damage * 10/targetAmount;
 
-                        // Hack Fix Frost Bomb : Doesn't add AoE damage to main target
-                        if (m_spellInfo->Id == 113092)
+                        // Hack Fix Frost Bomb, Beast Cleave : Doesn't add AoE damage to main target
+                        if (m_spellInfo->Id == 113092 || m_spellInfo->Id == 118459)
+                        {
                             if (targetInfo.targetGUID == (*m_UniqueTargetInfo.begin()).targetGUID)
                                 continue;
+                        }
                     }
                 }
             }

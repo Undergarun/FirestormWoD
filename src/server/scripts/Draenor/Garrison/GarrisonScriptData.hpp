@@ -48,16 +48,21 @@ namespace MS { namespace Garrison
     enum Quests
     {
         /// Alliance
-        QUEST_ETABLISH_YOUR_GARRISON_A  = 34586,
-        QUEST_KEEPING_IT_TOGETHER       = 35176,
-        QUEST_SHIP_SALVAGE              = 35166,
-        QUEST_PALE_MOONLIGHT            = 35174,
-        LostInTransition                = 37087,
+        QUEST_ETABLISH_YOUR_GARRISON_A              = 34586,
+        QUEST_KEEPING_IT_TOGETHER                   = 35176,
+        QUEST_SHIP_SALVAGE                          = 35166,
+        QUEST_PALE_MOONLIGHT                        = 35174,
+        LostInTransition                            = 37087,
+        Alliance_YourFirstBlacksmithingWorkOrder    = 35168,
+        Alliance_BiggerIsBetter                     = 36592,
 
         /// Horde
-        QUEST_ETABLISH_YOUR_GARRISON_H  = 34378,
-        QUEST_WHAT_WE_GOT               = 34824,
-        QUEST_BUILD_YOUR_BARRACKS       = 34461
+        QUEST_ETABLISH_YOUR_GARRISON_H            = 34378,
+        QUEST_WHAT_WE_GOT                         = 34824,
+        QUEST_BUILD_YOUR_BARRACKS                 = 34461,
+        Horde_YourFirstBlacksmithingWorkOrder     = 37569,
+        Horde_BiggerIsBetter                      = 36567
+
     };
 
     /// Garrison achievement related
@@ -92,7 +97,7 @@ namespace MS { namespace Garrison
         NPC_TEXT_SHELLY_HAMBY_TEXT_QUEST             = 83505,
         NPC_TEXT_LADY_SENA                           = 82232,
         NPC_TEXT_SERGENT_GRIMJAW                     = 84128,
-        NPC_TEXT_SENIOR_PEON_II                      = 88704
+        NPC_TEXT_SENIOR_PEON_II                      = 88704,
     };
 
     /// Creature text index
@@ -134,6 +139,14 @@ namespace MS { namespace Garrison
         MOVE_POINT_GAZLOWE_BARRACK_A = 0
     };
 
+    namespace ShipmentIDs
+    {
+        enum
+        {
+            TheForge = 103
+        };
+    }
+
     /// Garrison creation coords
     static const float gGarrisonCreationCoords[][4] =
     {
@@ -145,8 +158,8 @@ namespace MS { namespace Garrison
     static const float gGarrisonHearthStoneTeleportCoord[][4] =
     {
         /// Horde
-        { 5561.15f,  4508.785f, 132.70f,    3.406f   }, ///< Horde Level 1
-        {    0.f,       0.f,      0.f,      0.000f   }, ///< Horde Level 2
+        { 5561.15f,  4508.785f, 132.70000f, 3.406f   }, ///< Horde Level 1
+        { 5565.86f,  4593.500f, 140.89300f, 0.000f   }, ///< Horde Level 2
         { 5563.70f,  4599.920f, 141.71100f, 0.000f   }, ///< Horde Level 3
         /// Alliance
         { 1850.71f,   254.430f,  78.08300f, 1.76f    }, ///< Alliance Level 1

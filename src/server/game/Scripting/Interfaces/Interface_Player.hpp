@@ -502,6 +502,17 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_Player);
         }
 
+        /// Called when a player receive a scene triggered event
+        /// @p_Player          : Player instance
+        /// @p_SceneInstanceID : Standalone scene instance ID
+        /// @p_Event           : Event string received from client
+        virtual void OnSceneTriggerEvent(Player * p_Player, uint32 p_SceneInstanceID, std::string p_Event)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_SceneInstanceID);
+            UNUSED(p_Event);
+        }
+
         /// Called when a player regen a power
         /// Return false to prevent default regeneration
         /// @p_Player   : Player instance
@@ -514,6 +525,7 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(l_AddValue);
             UNUSED(p_PreventDefault);
         }
+
 };
 
 #endif  ///< SCRIPTING_INTERFACES_PLAYER

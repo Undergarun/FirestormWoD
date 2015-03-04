@@ -35,6 +35,7 @@ namespace MS
             /// to see the call stack on crash.
             system("pause");
 #endif
+
             // We can't rescue the thread, shutdown the server 
             exit(SIGTERM);
         }
