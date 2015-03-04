@@ -123,6 +123,9 @@ namespace MS { namespace Garrison { namespace Sites
         {
             uint32 const l_Entry = gGarrisonLevelUpdateCreatures[l_I];
 
+            if (m_CreaturesPerEntry.find(l_Entry) == m_CreaturesPerEntry.end())
+                continue;
+
             std::for_each(m_CreaturesPerEntry[l_Entry].begin(), m_CreaturesPerEntry[l_Entry].end(), [p_Level](uint64 const& p_Guid) -> void
             {
                 if (Creature * l_Creature = HashMapHolder<Creature>::Find(p_Guid))
