@@ -20,6 +20,7 @@
 #include "Buildings/Alliance/ABarracks.hpp"
 
 #include "Buildings/Horde/HTheForge.hpp"
+#include "Buildings/Horde/HTradingPost.hpp"
 
 #include <random>
 
@@ -425,5 +426,8 @@ void AddSC_Garrison_NPC()
         /// The forge
         new MS::Garrison::npc_OrgekIronhand;
         new MS::Garrison::npc_Kinja;
+
+        /// Trading post
+        new MS::Garrison::npc_FaylaFairfeather;
     }
 }
