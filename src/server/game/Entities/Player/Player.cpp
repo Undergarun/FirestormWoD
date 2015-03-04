@@ -22303,9 +22303,6 @@ void Player::SaveToDB(bool create /*=false*/)
     // we save the data here to prevent spamming
     sAnticheatMgr->SavePlayerData(this);
 
-    // in this way we prevent to spam the db by each report made!
-    // sAnticheatMgr->SavePlayerData(this);
-
     // save pet (hunter pet level and experience and all type pets health/mana).
     if (Pet* pet = GetPet())
         pet->SavePetToDB(PET_SLOT_ACTUAL_PET_SLOT, pet->m_Stampeded);
