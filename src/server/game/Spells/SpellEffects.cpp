@@ -6076,16 +6076,16 @@ void Spell::EffectKnockBack(SpellEffIndex effIndex)
 
     switch (m_spellInfo->Id)
     {
-    case 149575: // Explosive Trap
-        if (!m_caster->HasAura(119403)) // Glyph of Explosive Trap
-            return;
-        break;
-    case 51490: // Thunderstorm
-        if (m_caster->HasAura(62132)) // Glyph of Thunderstorm
-            return;
-        break;
-    default:
-        break;
+        case 149575: // Explosive Trap
+            if (!m_caster->HasAura(119403)) // Glyph of Explosive Trap
+                return;
+            break;
+        case 51490: // Thunderstorm
+            if (m_caster->HasAura(62132)) // Glyph of Thunderstorm
+                return;
+            break;
+        default:
+            break;
     }
 
     // Instantly interrupt non melee spells being casted
@@ -6106,10 +6106,8 @@ void Spell::EffectKnockBack(SpellEffIndex effIndex)
         else
             return;
     }
-    else //if (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_KNOCK_BACK)
-    {
+    else
         m_caster->GetPosition(x, y);
-    }
 
     unitTarget->KnockbackFrom(x, y, speedxy, speedz);
 

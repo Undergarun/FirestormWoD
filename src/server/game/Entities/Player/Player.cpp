@@ -10955,7 +10955,7 @@ void Player::_ApplyAllItemMods()
     Called by remove insignia spell effect    */
 void Player::RemovedInsignia(Player* looterPlr)
 {
-    if (!GetBattlegroundId())
+    if (!GetBattlegroundId() && GetMapId() != 1191) ///< Specific handle for Ashran too
         return;
 
     // If not released spirit, do it !
@@ -11148,30 +11148,39 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
     }
     else if (IS_CORPSE_GUID(guid))                          // remove insignia
     {
-        Corpse* bones = ObjectAccessor::GetCorpse(*this, guid);
+        Corpse* l_Corpse = ObjectAccessor::GetCorpse(*this, guid);
 
-        if (!bones || !(loot_type == LOOT_CORPSE || loot_type == LOOT_INSIGNIA) || bones->GetType() != CORPSE_BONES)
+        if (!l_Corpse || !(loot_type == LOOT_CORPSE || loot_type == LOOT_INSIGNIA) || l_Corpse->GetType() != CORPSE_BONES)
         {
             SendLootRelease(guid);
             return;
         }
 
-        loot = &bones->loot;
+        loot = &l_Corpse->loot;
 
-        if (!bones->lootForBody)
+        if (!l_Corpse->lootForBody)
         {
-            bones->lootForBody = true;
-            uint32 pLevel = bones->loot.Gold;
-            bones->loot.clear();
+            l_Corpse->lootForBody = true;
+            uint32 pLevel = l_Corpse->loot.gold;
+            l_Corpse->loot.clear();
+
             if (Battleground* bg = GetBattleground())
+            {
                 if (bg->GetTypeID(true) == BATTLEGROUND_AV)
                     loot->FillLoot(1, LootTemplates_Creature, this, true);
+            }
+            else if (OutdoorPvP* l_OutdoorPvP = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(GetZoneId()))
+            {
+                if (l_OutdoorPvP->GetTypeId() == OutdoorPvPTypes::OUTDOOR_PVP_ASHRAN)
+                    l_OutdoorPvP->FillCustomPvPLoots(this, *loot, l_Corpse->GetOwnerGUID());
+            }
+
             // It may need a better formula
             // Now it works like this: lvl10: ~6copper, lvl70: ~9silver
-            bones->loot.Gold = uint32(urand(50, 150) * 0.016f * pow(float(pLevel)/5.76f, 2.5f) * sWorld->getRate(RATE_DROP_MONEY));
+            l_Corpse->loot.gold = uint32(urand(50, 150) * 0.016f * pow(float(pLevel)/5.76f, 2.5f) * sWorld->getRate(RATE_DROP_MONEY));
         }
 
-        if (bones->lootRecipient != this)
+        if (l_Corpse->lootRecipient != this)
             permission = NONE_PERMISSION;
         else
             permission = OWNER_PERMISSION;
