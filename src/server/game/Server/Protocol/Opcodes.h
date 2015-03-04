@@ -46,7 +46,7 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     #pragma region JamProtocol
         /// Opcodes
-        SMSG_AUTH_CHALLENGE                         = 0x0000, ///<
+        SMSG_AUTH_CHALLENGE                         = 0x007E, ///< 6.1.2 19711
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -54,29 +54,29 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     #pragma region JamDispatch
         /// Base opcodes
-        SMSG_AUTH_RESPONSE                          = 0x0000, ///<
-        SMSG_CACHE_VERSION                          = 0x0000, ///<
-        SMSG_ADDON_INFO                             = 0x0000, ///<
+        SMSG_AUTH_RESPONSE                          = 0x18F6, ///< 6.1.2 19711
+        SMSG_CACHE_VERSION                          = 0x0E09, ///< 6.1.2 19711
+        SMSG_ADDON_INFO                             = 0x1715, ///< 6.1.2 19711
         SMSG_FEATURE_SYSTEM_STATUS                  = 0x0000, ///<
-        SMSG_SET_TIME_ZONE_INFORMATION              = 0x0000, ///<
+        SMSG_SET_TIME_ZONE_INFORMATION              = 0x073A, ///< 6.1.2 19711
         SMSG_LOGIN_VERIFY_WORLD                     = 0x0000, ///<
         SMSG_NEW_WORLD                              = 0x0000, ///<
-        SMSG_LOGIN_SET_TIME_SPEED                   = 0x0000, ///<
+        SMSG_LOGIN_SET_TIME_SPEED                   = 0x0D65, ///< 6.1.2 19711
         SMSG_HOTFIX_NOTIFY_BLOB                     = 0x0000, ///<
         SMSG_HOTFIX_NOTIFY                          = 0x0000, ///<
         SMSG_WORLD_SERVER_INFO                      = 0x0000, ///<
         SMSG_INITIAL_SETUP                          = 0x0000, ///<
-        SMSG_PONG                                   = 0x0000, ///<
+        SMSG_PONG                                   = 0x011D, ///< 6.1.2 19711
         SMSG_UITIME                                 = 0x0000, ///<
 
         /// Query
-        SMSG_DB_REPLY                               = 0x0000, ///<
-        SMSG_CREATURE_QUERY_RESPONSE                = 0x0000, ///<
-        SMSG_NPC_TEXT_UPDATE                        = 0x0000, ///<
-        SMSG_NAME_QUERY_RESPONSE                    = 0x0000, ///<
-        SMSG_REALM_QUERY_RESPONSE                   = 0x0000, ///<
-        SMSG_GAMEOBJECT_QUERY_RESPONSE              = 0x0000, ///<
-        SMSG_QUERY_TIME_RESPONSE                    = 0x0000, ///<
+        SMSG_DB_REPLY                               = 0x09A5, ///< 6.1.2 19711
+        SMSG_CREATURE_QUERY_RESPONSE                = 0x1A15, ///< 6.1.2 19711
+        SMSG_NPC_TEXT_UPDATE                        = 0x071E, ///< 6.1.2 19711
+        SMSG_NAME_QUERY_RESPONSE                    = 0x0C71, ///< 6.1.2 19711
+        SMSG_REALM_QUERY_RESPONSE                   = 0x0DF2, ///< 6.1.2 19711
+        SMSG_GAMEOBJECT_QUERY_RESPONSE              = 0x1345, ///< 6.1.2 19711
+        SMSG_QUERY_TIME_RESPONSE                    = 0x0CF1, ///< 6.1.2 19711
 
         /// Misc
         SMSG_UPDATE_ACTION_BUTTONS                  = 0x0000, ///<
@@ -207,19 +207,19 @@ enum Opcodes
         SMSG_SET_FORCED_REACTIONS                   = 0x0000, ///<
 
         /// Interaction
-        SMSG_LOGOUT_RESPONSE                        = 0x0000, ///<
-        SMSG_LOGOUT_CANCEL_ACK                      = 0x0000, ///<
-        SMSG_LOGOUT_COMPLETE                        = 0x0000, ///<
-        SMSG_GOSSIP_POI                             = 0x0000, ///<
+        SMSG_LOGOUT_RESPONSE                        = 0x0731, ///< 6.1.2 19711
+        SMSG_LOGOUT_CANCEL_ACK                      = 0x08B2, ///< 6.1.2 19711
+        SMSG_LOGOUT_COMPLETE                        = 0x0E95, ///< 6.1.2 19711
+        SMSG_GOSSIP_POI                             = 0x1CA1, ///< 6.1.2 19711
 
         /// World Object management
-        SMSG_UPDATE_OBJECT                          = 0x0000, ///<
-        SMSG_POWER_UPDATE                           = 0x0000, ///<
+        SMSG_UPDATE_OBJECT                          = 0x1CB2, ///< 6.1.2 19711
+        SMSG_POWER_UPDATE                           = 0x0F96, ///< 6.1.2 19711
 
         /// Character list
-        SMSG_ENUM_CHARACTERS_RESULT                 = 0x0000, ///<
-        SMSG_CREATE_CHAR                            = 0x0000, ///<
-        SMSG_CHAR_DELETE                            = 0x0000, ///<
+        SMSG_ENUM_CHARACTERS_RESULT                 = 0x18F1, ///< 6.1.2 19711
+        SMSG_CREATE_CHAR                            = 0x16BA, ///< 6.1.2 19711
+        SMSG_CHAR_DELETE                            = 0x06B8, ///< 6.1.2 19711
         SMSG_SET_PLAYER_DECLINED_NAMES_RESULT       = 0x0000, ///<
         SMSG_CHAR_FACTION_CHANGE                    = 0x0000, ///<
         SMSG_CHAR_RENAME                            = 0x0000, ///<
@@ -227,9 +227,9 @@ enum Opcodes
         SMSG_CHAR_CUSTOMIZE                         = 0x0000, ///<
 
         /// Account data
-        SMSG_ACCOUNT_DATA_TIMES                     = 0x0000, ///<
-        SMSG_UPDATE_ACCOUNT_DATA                    = 0x0000, ///<
-        SMSG_TUTORIAL_FLAGS                         = 0x0000, ///<
+        SMSG_ACCOUNT_DATA_TIMES                     = 0x16B8, ///< 6.1.2 19711
+        SMSG_UPDATE_ACCOUNT_DATA                    = 0x1698, ///< 6.1.2 19711
+        SMSG_TUTORIAL_FLAGS                         = 0x0E82, ///< 6.1.2 19711
 
         /// Combat
         SMSG_ATTACKER_STATE_UPDATE                  = 0x0000, ///<
@@ -980,8 +980,8 @@ enum Opcodes
     CMSG_PING                                   = 0x0000, ///<
     CMSG_AUTH_CONTINUED_SESSION                 = 0x0000, ///<
     CMSG_SUSPEND_TOKEN_RESPONSE                 = 0x0000, ///<
-    CMSG_AUTH_SESSION                           = 0x0000, ///<
-    CMSG_ENABLE_NAGLE                           = 0x0000, ///<
+    CMSG_AUTH_SESSION                           = 0x03DD, ///< 6.1.2 19711
+    CMSG_ENABLE_NAGLE                           = 0x0B55, ///< 6.1.2 19711
     CMSG_SUSPEND_COMMS_ACK                      = 0x0000, ///<
     CMSG_KEEP_ALIVE                             = 0x0000, ///<
     CMSG_OBJECT_UPDATE_FAILED                   = 0x0000, ///<
@@ -990,15 +990,15 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Character
     //////////////////////////////////////////////////////////////////////////
-    CMSG_ENUM_CHARACTERS                        = 0x0000,   ///<
-    CMSG_CREATE_CHARACTER                       = 0x0000,   ///<
-    CMSG_CHAR_DELETE                            = 0x0000,   ///<
+    CMSG_ENUM_CHARACTERS                        = 0x1696,   ///< 6.1.2 19711
+    CMSG_CREATE_CHARACTER                       = 0x1636,   ///< 6.1.2 19711
+    CMSG_CHAR_DELETE                            = 0x12B8,   ///< 6.1.2 19711
     CMSG_REORDER_CHARACTERS                     = 0x0000,   ///<
-    CMSG_PLAYER_LOGIN                           = 0x0000,   ///<
+    CMSG_PLAYER_LOGIN                           = 0x0E98,   ///< 6.1.2 19711
     CMSG_VIOLENCE_LEVEL                         = 0x0000,   ///<
     CMSG_LOAD_SCREEN                            = 0x0000,   ///<
-    CMSG_REQUEST_ACCOUNT_DATA                   = 0x0000,   ///<
-    CMSG_UPDATE_ACCOUNT_DATA                    = 0x0000,   ///<
+    CMSG_REQUEST_ACCOUNT_DATA                   = 0x0798,   ///< 6.1.2 19711
+    CMSG_UPDATE_ACCOUNT_DATA                    = 0x1637,   ///< 6.1.2 19711
     CMSG_SET_DUNGEON_DIFFICULTY                 = 0x0000,   ///<
     CMSG_SET_RAID_DIFFICULTY                    = 0x0000,   ///<
     CMSG_AUTO_DECLINE_GUILD_INVITES             = 0x0000,   ///<
@@ -1100,13 +1100,13 @@ enum Opcodes
     /// Cache
     //////////////////////////////////////////////////////////////////////////
     CMSG_REQUEST_HOTFIX                         = 0x0000, ///<
-    CMSG_CREATURE_QUERY                         = 0x0000, ///<
-    CMSG_NPC_TEXT_QUERY                         = 0x0000, ///<
-    CMSG_NAME_QUERY                             = 0x0000, ///<
-    CMSG_QUEST_QUERY                            = 0x0000, ///<
+    CMSG_CREATURE_QUERY                         = 0x0FD3, ///< 6.1.2 19711
+    CMSG_NPC_TEXT_QUERY                         = 0x1E24, ///< 6.1.2 19711
+    CMSG_NAME_QUERY                             = 0x0BBD, ///< 6.1.2 19711
+    CMSG_QUEST_QUERY                            = 0x0FA9, ///< 6.1.2 19711
     CMSG_QUEST_POI_QUERY                        = 0x0000, ///<
     CMSG_REALM_NAME_QUERY                       = 0x0000, ///<
-    CMSG_GAMEOBJECT_QUERY                       = 0x0000, ///<
+    CMSG_GAMEOBJECT_QUERY                       = 0x06C8, ///< 6.1.2 19711
     CMSG_PETITION_QUERY                         = 0x0000, ///<
     CMSG_QUERY_GUILD_INFO                       = 0x0000, ///<
     CMSG_PAGE_TEXT_QUERY                        = 0x0000, ///<
@@ -1115,8 +1115,8 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Interaction
     //////////////////////////////////////////////////////////////////////////
-    CMSG_LOGOUT_REQUEST                         = 0x0000, ///<
-    CMSG_LOGOUT_CANCEL                          = 0x0000, ///<
+    CMSG_LOGOUT_REQUEST                         = 0x0CA6, ///< 6.1.2 19711
+    CMSG_LOGOUT_CANCEL                          = 0x0F8C, ///< 6.1.2 19711
     CMSG_SET_ACTION_BUTTON                      = 0x0000, ///<
     CMSG_SET_ACTIONBAR_TOGGLES                  = 0x0000, ///<
     CMSG_SET_SELECTION                          = 0x0000, ///<

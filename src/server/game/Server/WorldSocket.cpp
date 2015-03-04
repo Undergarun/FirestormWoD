@@ -845,13 +845,12 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
                     return -1;
                 return HandleSendAuthSession();
             }
-            /*
             case CMSG_ENABLE_NAGLE:
             {
                 sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", opcodeName.c_str());
                 sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
                 return m_Session ? m_Session->HandleEnableNagleAlgorithm() : -1;
-            }*/
+            }
             default:
             {
                 ACE_GUARD_RETURN(LockType, Guard, m_SessionLock, -1);
