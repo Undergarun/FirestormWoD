@@ -107,7 +107,7 @@ namespace MS { namespace Garrison { namespace Sites
 
                 m_OwnerGUID = p_Player->GetGUID();
                 OnOwnerEnter(p_Player);
-                //OnOwnerLevelChange(p_Player->getLevel());
+                OnOwnerLevelChange(p_Player->getLevel());
             }
         }
     }
@@ -119,6 +119,7 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_Level : New owner level
     void GarrisonSiteBase::OnOwnerLevelChange(uint32 p_Level)
     {
+        return;
         for (uint32 l_I = 0; l_I < sizeof(gGarrisonLevelUpdateCreatures); ++l_I)
         {
             uint32 const l_Entry = gGarrisonLevelUpdateCreatures[l_I];
