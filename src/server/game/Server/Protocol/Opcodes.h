@@ -1304,7 +1304,7 @@ enum Opcodes
     CMSG_MOVE_SPLINE_DONE                       = 0x0000, ///<
 
     /// Update
-    CMSG_MOVE_HEARTBEAT                         = 0x0000, ///<
+    CMSG_MOVE_HEARTBEAT                         = 0x055C, ///< 6.1.2 19712
     CMSG_MOVE_SET_FACING                        = 0x0000, ///<
     CMSG_MOVE_SET_PITCH                         = 0x0000, ///<
     CMSG_MOVE_SET_RUN_MODE                      = 0x0000, ///<
@@ -1941,7 +1941,7 @@ inline std::string GetOpcodeNameForLogging(Opcodes id, int p_Direction)
 
     if (id < UNKNOWN_OPCODE)
     {
-        OpcodeHandler* handler = g_OpcodeTable[p_Direction][uint32(id) & 0x0000];
+        OpcodeHandler* handler = g_OpcodeTable[p_Direction][uint32(id) & 0x7FFF];
 
         if (!handler)
             ss << "UNKNOWN OPCODE";
