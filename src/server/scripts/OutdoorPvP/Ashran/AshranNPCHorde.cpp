@@ -524,14 +524,14 @@ class npc_ashran_centurion_firescream : public CreatureScript
 };
 
 /// Legionnaire Hellaxe <Warspear Strategist> - 88772
-class npc_ashran_lgeionnaire_hellaxe : public CreatureScript
+class npc_ashran_legionnaire_hellaxe : public CreatureScript
 {
     public:
-        npc_ashran_lgeionnaire_hellaxe() : CreatureScript("npc_ashran_lgeionnaire_hellaxe") { }
+        npc_ashran_legionnaire_hellaxe() : CreatureScript("npc_ashran_legionnaire_hellaxe") { }
 
-        struct npc_ashran_lgeionnaire_hellaxeAI : public MS::AI::CosmeticAI
+        struct npc_ashran_legionnaire_hellaxeAI : public MS::AI::CosmeticAI
         {
-            npc_ashran_lgeionnaire_hellaxeAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
+            npc_ashran_legionnaire_hellaxeAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
 
             void Reset() override
             {
@@ -546,7 +546,7 @@ class npc_ashran_lgeionnaire_hellaxe : public CreatureScript
 
         CreatureAI* GetAI(Creature* p_Creature) const
         {
-            return new npc_ashran_lgeionnaire_hellaxeAI(p_Creature);
+            return new npc_ashran_legionnaire_hellaxeAI(p_Creature);
         }
 };
 
@@ -563,5 +563,5 @@ void AddSC_AshranNPCHorde()
     new npc_ashran_illandria_belore();
     new npc_ashran_examiner_rahm_flameheart();
     new npc_ashran_centurion_firescream();
-    new npc_ashran_lgeionnaire_hellaxe();
+    new npc_ashran_legionnaire_hellaxe();
 }

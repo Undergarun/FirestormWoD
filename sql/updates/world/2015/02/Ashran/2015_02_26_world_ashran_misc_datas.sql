@@ -95,7 +95,7 @@ UPDATE creature_template SET ScriptName = 'npc_ashran_warspear_shaman' WHERE ent
 UPDATE creature_template SET ScriptName = 'npc_ashran_illandria_belore' WHERE entry = 88675;
 UPDATE creature_template SET ScriptName = 'npc_ashran_examiner_rahm_flameheart' WHERE entry = 88676;
 UPDATE creature_template SET ScriptName = 'npc_ashran_centurion_firescream' WHERE entry = 88771;
-UPDATE creature_template SET ScriptName = 'npc_ashran_lgeionnaire_hellaxe' WHERE entry = 88772;
+UPDATE creature_template SET ScriptName = 'npc_ashran_legionnaire_hellaxe' WHERE entry = 88772;
 UPDATE creature_template SET npcflag = 0x3 WHERE entry = 86366;
 
 ALTER TABLE `gossip_menu` CHANGE `entry` `entry` INT(10) UNSIGNED DEFAULT '0' NOT NULL, CHANGE `text_id` `text_id` INT(10) UNSIGNED DEFAULT '0' NOT NULL;
