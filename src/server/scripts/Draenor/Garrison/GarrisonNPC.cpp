@@ -18,8 +18,10 @@
 #include "Buildings/Alliance/ATheForge.hpp"
 #include "Buildings/Alliance/ADwarvenBunker.hpp"
 #include "Buildings/Alliance/ABarracks.hpp"
+#include "Buildings/Alliance/ATradingPost.hpp"
 
 #include "Buildings/Horde/HTheForge.hpp"
+#include "Buildings/Horde/HTradingPost.hpp"
 
 #include <random>
 
@@ -241,11 +243,17 @@ namespace MS { namespace Garrison
             {
                 p_Player->AddQuest(sObjectMgr->GetQuestTemplate(Quests::QUEST_ETABLISH_YOUR_GARRISON_A), p_Creature);
                 p_Player->CompleteQuest(Quests::QUEST_ETABLISH_YOUR_GARRISON_A);
+
+                if (p_Player->IsQuestRewarded(Quests::Alliance_BiggerIsBetter))
+                    p_Player->RemoveRewardedQuest(Quests::Alliance_BiggerIsBetter);
             }
             else if (l_TeamID == TEAM_HORDE && p_Player->GetQuestStatus(Quests::QUEST_ETABLISH_YOUR_GARRISON_H) != QUEST_STATUS_REWARDED)
             {
                 p_Player->AddQuest(sObjectMgr->GetQuestTemplate(Quests::QUEST_ETABLISH_YOUR_GARRISON_H), p_Creature);
                 p_Player->CompleteQuest(Quests::QUEST_ETABLISH_YOUR_GARRISON_H);
+
+                if (p_Player->IsQuestRewarded(Quests::Horde_BiggerIsBetter))
+                    p_Player->RemoveRewardedQuest(Quests::Horde_BiggerIsBetter);
             }
 
             /// HACK until shadowmoon quest are done : add follower Qiana Moonshadow / Olin Umberhide
@@ -401,6 +409,9 @@ void AddSC_Garrison_NPC()
         new MS::Garrison::npc_TharisStrongcast;
         new MS::Garrison::npc_Segumi;
         new MS::Garrison::npc_RonAshton;
+
+        /// Trading post
+        new MS::Garrison::npc_TraderJoseph;
     }
 
     /// Horde
@@ -419,5 +430,8 @@ void AddSC_Garrison_NPC()
         /// The forge
         new MS::Garrison::npc_OrgekIronhand;
         new MS::Garrison::npc_Kinja;
+
+        /// Trading post
+        new MS::Garrison::npc_FaylaFairfeather;
     }
 }

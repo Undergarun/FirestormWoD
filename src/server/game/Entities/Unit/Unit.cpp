@@ -68,7 +68,6 @@
 #include "BattlegroundDG.h"
 #include "Guild.h"
 #include <Reporting/Reporter.hpp>
-#include <Reporting/Reports.hpp>
 
 float baseMoveSpeed[MAX_MOVE_TYPE] =
 {
@@ -1759,6 +1758,16 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
         {
             victim->RemoveAura(115176);
             victim->RemoveAura(131523);
+        }
+        /// Mastery: Primal Tenacity
+        if (victim->HasSpell(155783) && !victim->HasAura(155783))
+        {
+            victim->CastSpell(victim, 155783, true);
+            if (AuraPtr l_PrimalTenacity = victim->GetAura(155783, victim->GetGUID()))
+            {
+                if (AuraEffectPtr l_AuraEffect = l_PrimalTenacity->GetEffect(l_PrimalTenacity->GetEffectIndexByType(SPELL_AURA_SCHOOL_ABSORB)))
+                    l_AuraEffect->SetAmount((int32)(damageInfo->damage * (l_PrimalTenacity->GetEffect(0)->GetAmount() / 10)));
+            }
         }
     }
 }
@@ -9322,19 +9331,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
 
             break;
         }
-        // Savage Defense
-        case 62600:
-        {
-            int32 chance = 50;
-
-            // Item - Druid T13 Feral 2P Bonus (Savage Defense and Blood In The Water)
-            if (procSpell && procSpell->Id == 33878 && HasAura(105725))
-                chance = 100;
-
-            if (!roll_chance_i(chance))
-                return false;
-            break;
-        }
         // Item - Hunter T12 2P Bonus
         case 99057:
             if (!victim || GetGUID() == victim->GetGUID())
@@ -9369,24 +9365,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
 
             // procs only from Shadow Word: Pain
             if (procSpell->Id != 589 && procSpell->Id != 124464)
-                return false;
-
-            break;
-        }
-        case 122013:// Glyph of Incite
-        {
-            if (GetTypeId() != TYPEID_PLAYER)
-                return false;
-
-            if (!procSpell)
-                return false;
-
-            // Only triggered by Devastate
-            if (procSpell->Id != 20243)
-                return false;
-
-            // Mortal Peace
-            if (!HasAura(85730))
                 return false;
 
             break;
@@ -9479,22 +9457,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
 
             // Don't trigger poison if no damage dealed (except for absorb)
             if (!damage && !(procEx & PROC_EX_ABSORB))
-                return false;
-
-            break;
-        }
-        case 49509: // Scent of Blood
-        {
-            if (GetTypeId() != TYPEID_PLAYER)
-                return false;
-
-            if (getClass() != CLASS_DEATH_KNIGHT)
-                return false;
-
-            if (ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) != SPEC_DK_BLOOD)
-                return false;
-
-            if (!roll_chance_i(15))
                 return false;
 
             break;
@@ -9825,16 +9787,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
 
             break;
         }
-        // Blazing Speed
-        case 113857:
-        {
-            uint32 health = CountPctFromMaxHealth(2);
-
-            if (damage < 0 && damage < health && !(procFlags & PROC_FLAG_KILL)) //@todo Comparison of unsigned expression < 0 is always false
-                return false;
-
-            break;
-        }
         // Enrage
         case 13046:
         {
@@ -9867,34 +9819,13 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
 
             break;
         }
-        // Master Marksmann
-        case 34487:
-        {
-            if (!procSpell || procSpell->Id != 56641) // Steady Shot
-                return false;
-
-            if (GetTypeId() != TYPEID_PLAYER || getClass() != CLASS_HUNTER)
-                return false;
-
-            AuraPtr aimed = GetAura(trigger_spell_id);
-            //  After reaching 3 stacks, your next Aimed Shot's cast time and Focus cost are reduced by 100% for 10 sec
-            if (aimed && aimed->GetStackAmount() >= 2)
-            {
-                RemoveAura(trigger_spell_id);
-                CastSpell(this, 82926, true); // Fire !
-
-                return false;
-            }
-
-            break;
-        }
         // Will of the Necropolis
         case 81164:
         {
             if (GetTypeId() != TYPEID_PLAYER || getClass() != CLASS_DEATH_KNIGHT)
                 return false;
 
-            if (GetHealthPct() > 30.0f)
+            if (GetHealthPct() >= 30.0f)
                 return false;
 
             if (ToPlayer()->HasSpellCooldown(81164))
@@ -10080,17 +10011,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
         case 62606:
         {
             basepoints0 = CalculatePct(triggerAmount, GetTotalAttackPowerValue(WeaponAttackType::BaseAttack));
-            break;
-        }
-        // Culling the Herd
-        case 70893:
-        {
-            // check if we're doing a critical hit
-            if (!(procSpell->SpellFamilyFlags[1] & 0x10000000) && (procEx != PROC_EX_CRITICAL_HIT))
-                return false;
-            // check if we're procced by Claw, Bite or Smack (need to use the spell icon ID to detect it)
-            if (!(procSpell->SpellIconID == 262 || procSpell->SpellIconID == 1680 || procSpell->SpellIconID == 473))
-                return false;
             break;
         }
         // Shadow's Fate (Shadowmourne questline)
@@ -13100,11 +13020,6 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
 
         AddPct(DoneTotalMod, amount);
     }
-
-    // Bladestorm - 46924
-    // Increase damage by 160% in Arms spec
-    if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_ARMS && HasAura(46924) && attType == WeaponAttackType::BaseAttack)
-        AddPct(DoneTotalMod, 160);
 
     // Sword of Light - 53503
     // Increase damage dealt by two handed weapons by 25%

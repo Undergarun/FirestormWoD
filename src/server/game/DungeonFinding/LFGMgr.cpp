@@ -2466,9 +2466,9 @@ const LfgDungeonSet& LFGMgr::GetDungeonsByRandom(uint32 randomdungeon, bool chec
     uint32 groupType = dungeon ? dungeon->grouptype : 0;
 
     if (!check)
-        return m_CachedDungeonMap[groupType];
+        return (dungeon ? dungeon->type != TYPEID_RANDOM_DUNGEON : true) ? m_CachedDungeonMap[groupType] : m_CachedDungeonMap[0];
 
-    LfgDungeonSet& cachedDungeon = m_CachedDungeonMap[groupType];
+    LfgDungeonSet& cachedDungeon = (dungeon ? dungeon->type != TYPEID_RANDOM_DUNGEON : true) ? m_CachedDungeonMap[groupType] : m_CachedDungeonMap[0];
     for (LfgDungeonSet::const_iterator it = cachedDungeon.begin(); it != cachedDungeon.end();)
     {
         LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(*it);

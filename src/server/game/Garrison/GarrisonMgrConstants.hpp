@@ -234,6 +234,9 @@ namespace MS { namespace Garrison
             TheForge__TheForge_Level1       = 60,
             TheForge__TheForge_Level2       = 117,
             TheForge__TheForge_Level3       = 118,
+            TradingPost__TradingPost_Level1 = 111,
+            TradingPost__TradingPost_Level2 = 144,
+            TradingPost__TradingPost_Level3 = 145
         };
     }
 

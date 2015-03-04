@@ -110,7 +110,9 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_Quest : Started quest
     void InstanceScript_GarrisonHordeLevel1::OnQuestStarted(Player * p_Owner, const Quest * p_Quest)
     {
-
+        /// Hack fix for storehouse, need more work
+        if (p_Owner && p_Quest && p_Quest->GetQuestId() == Quests::Horde_LostInTransition)
+            p_Owner->CompleteQuest(Quests::Horde_LostInTransition);
     }
     /// When the garrison owner reward a quest
     /// @p_Owner : Garrison owner

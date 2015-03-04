@@ -126,7 +126,9 @@ enum HunterSpells
     HUNTER_SPELL_POISONED_AMMO                      = 162543,
     HUNTER_SPELL_POISONED_AMMO_AURA                 = 170661,
     HUNTER_SPELL_GLYPH_OF_MEND_PET                  = 19573,
-    HUNTER_SPELL_GLYPH_OF_MEND_PET_TICK             = 24406
+    HUNTER_SPELL_GLYPH_OF_MEND_PET_TICK             = 24406,
+    HUNTER_SPELL_ENTRAPMENT_AURA                    = 19387,
+    HUNTER_SPELL_ENTRAPMENT                         = 64803
 };
 
 /// Lesser Proportion - 57894
@@ -493,6 +495,33 @@ class spell_hun_thunderstomp : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_hun_thunderstomp_SpellScript();
+        }
+};
+
+/// Burrow Attack  - 95714
+class spell_hun_burrow_attack : public SpellScriptLoader
+{
+    public:
+        spell_hun_burrow_attack() : SpellScriptLoader("spell_hun_burrow_attack") { }
+
+        class spell_hun_burrow_attack_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_burrow_attack_SpellScript);
+
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                SetHitDamage((int32)(GetHitDamage() + ((GetCaster()->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.40f) * 0.288) * 8));
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_hun_burrow_attack_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_burrow_attack_SpellScript();
         }
 };
 
@@ -3609,6 +3638,9 @@ class AreaTrigger_ice_trap : public AreaTriggerEntityScript
                 if (l_Target != nullptr)
                 {
                     l_Caster->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), (uint32)HunterIceTrap::SpellIceTrapEffect, true);
+
+                    if (l_Caster->HasAura(HUNTER_SPELL_ENTRAPMENT_AURA)) ///< Entrapment
+                        l_Caster->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), HUNTER_SPELL_ENTRAPMENT, true);
                     p_AreaTrigger->Remove(0);
                 }
             }
@@ -3694,7 +3726,36 @@ class AreaTrigger_freezing_trap : public AreaTriggerEntityScript
 
 enum class HunterExplosiveTrap : uint32
 {
-    SpellExplosiveEffect = 13812
+    SpellExplosiveEffect = 13812,
+    SpellGlyphOfExplosiveTrap = 119403
+};
+
+// Explosive Trap (damage) - 13812
+class spell_hun_explosive_trap : public SpellScriptLoader
+{
+    public:
+        spell_hun_explosive_trap() : SpellScriptLoader("spell_hun_explosive_trap") { }
+
+        class spell_hun_explosive_trap_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_explosive_trap_SpellScript);
+
+            void HandlePeriodicDamage(SpellEffIndex p_EffIndex)
+            {
+                if (GetCaster()->HasAura((uint32)HunterExplosiveTrap::SpellGlyphOfExplosiveTrap))
+                    PreventHitAura();
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_hun_explosive_trap_SpellScript::HandlePeriodicDamage, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_explosive_trap_SpellScript();
+        }
 };
 
 /// Explosive Trap - 13813
@@ -3800,6 +3861,8 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_misdirection_proc();
     new spell_hun_disengage();
     new spell_hun_tame_beast();
+    new spell_hun_explosive_trap();
+    new spell_hun_burrow_attack();
 
     // Player Script
     new PlayerScript_thrill_of_the_hunt();

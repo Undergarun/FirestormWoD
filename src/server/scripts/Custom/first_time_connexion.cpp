@@ -1,7 +1,6 @@
 #include <ScriptPCH.h>
 #include <ScriptMgr.h>
 #include <Reporting/Reporter.hpp>
-#include <Reporting/Reports.hpp>
 
 class ReportingOnFirstTimeConnexion : public PlayerScript
 {

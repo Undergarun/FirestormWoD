@@ -1000,6 +1000,16 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     /// Unlock WoD heroic dungeons
     if (uint32 l_QuestBit = GetQuestUniqueBitFlag(37213))   ///< FLAG - Proving Grounds - Damage Silver
         m_CompletedQuestBits.SetBit(l_QuestBit - 1);
+    if (uint32 l_QuestBit = GetQuestUniqueBitFlag(33090))   ///< FLAG - Proving Grounds - Damage Silver
+        m_CompletedQuestBits.SetBit(l_QuestBit - 1);
+    if (uint32 l_QuestBit = GetQuestUniqueBitFlag(33096))   ///< FLAG - Proving Grounds - Healer Silver
+        m_CompletedQuestBits.SetBit(l_QuestBit - 1);
+    if (uint32 l_QuestBit = GetQuestUniqueBitFlag(37219))   ///< FLAG - Proving Grounds - Healer Silver
+        m_CompletedQuestBits.SetBit(l_QuestBit - 1);
+    if (uint32 l_QuestBit = GetQuestUniqueBitFlag(37216))   ///< FLAG - Proving Grounds - Tank Silver
+        m_CompletedQuestBits.SetBit(l_QuestBit - 1);
+    if (uint32 l_QuestBit = GetQuestUniqueBitFlag(33093))   ///< FLAG - Proving Grounds - Tank Silver
+        m_CompletedQuestBits.SetBit(l_QuestBit - 1);
 
     ///////////////////////////////////////////////////////////
 }
@@ -4193,6 +4203,9 @@ void Player::GiveLevel(uint8 level)
     }
 
     sScriptMgr->OnPlayerLevelChanged(this, oldLevel);
+
+    if (m_Garrison)
+        m_Garrison->OnOwnerLevelChange(level);
 }
 
 void Player::InitTalentForLevel()
@@ -22268,9 +22281,6 @@ void Player::SaveToDB(bool create /*=false*/)
 
     // we save the data here to prevent spamming
     sAnticheatMgr->SavePlayerData(this);
-
-    // in this way we prevent to spam the db by each report made!
-    // sAnticheatMgr->SavePlayerData(this);
 
     // save pet (hunter pet level and experience and all type pets health/mana).
     if (Pet* pet = GetPet())

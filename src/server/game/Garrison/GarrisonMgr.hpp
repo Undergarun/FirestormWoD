@@ -75,6 +75,10 @@ namespace MS { namespace Garrison
             /// When the garrison owner abandon a quest
             void OnQuestAbandon(const Quest * p_Quest);
 
+            /// When the owner player change level
+            /// @p_Level : New owner level
+            void OnOwnerLevelChange(uint32 p_Level);
+
             /// set last used activation game object
             void SetLastUsedActivationGameObject(uint64 p_Guid);
 
