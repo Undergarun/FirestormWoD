@@ -606,35 +606,35 @@ enum Opcodes
         SMSG_AVAILABLE_VOICE_CHANNEL                = 0x0000, ///< (unused)
 
         /// Misc
-        SMSG_SERVER_FIRST_ACHIEVEMENT               = 0x0000, ///<
-        SMSG_RAID_INSTANCE_MESSAGE                  = 0x0000, ///<
-        SMSG_MOTD                                   = 0x0000, ///<
+        SMSG_SERVER_FIRST_ACHIEVEMENT               = 0x11D0, ///< 6.1.2 19711
+        SMSG_RAID_INSTANCE_MESSAGE                  = 0x15CB, ///< 6.1.2 19711
+        SMSG_MOTD                                   = 0x18E8, ///< 6.1.2 19711
         SMSG_EXPECTED_SPAM_RECORDS                  = 0x0000, ///< (unused)
         SMSG_DEFENSE_MESSAGE                        = 0x0000, ///< (unused)
-        SMSG_ZONE_UNDER_ATTACK                      = 0x0000, ///<
-        SMSG_WHO                                    = 0x0000, ///<
+        SMSG_ZONE_UNDER_ATTACK                      = 0x14CF, ///< 6.1.2 19711
+        SMSG_WHO                                    = 0x11CC, ///< 6.1.2 19711
 
         /// Chat
-        SMSG_CHAT_SERVER_MESSAGE                    = 0x0000, ///<
-        SMSG_CHAT_RESTRICTED                        = 0x0000, ///<
+        SMSG_CHAT_SERVER_MESSAGE                    = 0x0000, ///< 6.1.2 19711
+        SMSG_CHAT_RESTRICTED                        = 0x0000, ///< 6.1.2 19711
         SMSG_CHAT_RECONNECT                         = 0x0000, ///< (unused)
-        SMSG_CHAT_PLAYER_NOTFOUND                   = 0x0000, ///<
-        SMSG_CHAT_PLAYER_AMBIGUOUS                  = 0x0000, ///<
+        SMSG_CHAT_PLAYER_NOTFOUND                   = 0x0000, ///< 6.1.2 19711
+        SMSG_CHAT_PLAYER_AMBIGUOUS                  = 0x0000, ///< 6.1.2 19711
         SMSG_CHAT_NOT_IN_PARTY                      = 0x0000, ///< (unused)
         SMSG_CHAT_IS_DOWN                           = 0x0000, ///< (unused)
         SMSG_CHAT_IGNORED_ACCOUNT_MUTED             = 0x0000, ///< (unused)
         SMSG_CHAT_DOWN                              = 0x0000, ///< (unused)
         SMSG_CHAT_AUTO_RESPONDED                    = 0x0000, ///< (unused)
-        SMSG_CHAT                                   = 0x0000, ///<
+        SMSG_CHAT                                   = 0x11E7, ///< 6.1.2 19711
 
         /// Channel
-        SMSG_CHANNEL_NOTIFY_LEFT                    = 0x0000, ///<
-        SMSG_CHANNEL_NOTIFY_JOINED                  = 0x0000, ///<
-        SMSG_CHANNEL_NOTIFY                         = 0x0000, ///<
-        SMSG_CHANNEL_LIST                           = 0x0000, ///<
-        SMSG_USERLIST_ADD                           = 0x0000, ///<
-        SMSG_USERLIST_REMOVE                        = 0x0000, ///<
-        SMSG_USERLIST_UPDATE                        = 0x0000, ///<
+        SMSG_CHANNEL_NOTIFY_LEFT                    = 0x19CF, ///< 6.1.2 19711
+        SMSG_CHANNEL_NOTIFY_JOINED                  = 0x14C3, ///< 6.1.2 19711
+        SMSG_CHANNEL_NOTIFY                         = 0x15EF, ///< 6.1.2 19711
+        SMSG_CHANNEL_LIST                           = 0x14CC, ///< 6.1.2 19711
+        SMSG_USERLIST_ADD                           = 0x15F0, ///< 6.1.2 19711
+        SMSG_USERLIST_REMOVE                        = 0x10E4, ///< 6.1.2 19711
+        SMSG_USERLIST_UPDATE                        = 0x18EF, ///< 6.1.2 19711
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -1021,7 +1021,7 @@ enum Opcodes
     CMSG_SAVE_EQUIPMENT_SET                     = 0x0000,   ///<
     CMSG_USE_EQUIPMENT_SET                      = 0x0000,   ///<
     CMSG_DELETE_EQUIPMENT_SET                   = 0x0000,   ///<
-    CMSG_WHO                                    = 0x0000,   ///<
+    CMSG_WHO                                    = 0x079E,   ///< 6.1.2 19711
     CMSG_SOCKET_GEMS                            = 0x0000,   ///<
     CMSG_RESURRECT_RESPONSE                     = 0x0000,   ///<
     CMSG_QUERY_INSPECT_ACHIEVEMENTS             = 0x0000,   ///<
@@ -1252,33 +1252,33 @@ enum Opcodes
     CMSG_CHAT_MESSAGE_GUILD                     = 0x14E9, ///< 6.1.2 19711
     CMSG_CHAT_MESSAGE_RAID                      = 0x1CAA, ///< 6.1.2 19711
     CMSG_CHAT_MESSAGE_WHISPER                   = 0x103A, ///< 6.1.2 19711
-    CMSG_CHAT_MESSAGE_CHANNEL                   = 0x1199, ///< 6.1.2 19711
+    CMSG_CHAT_MESSAGE_CHANNEL                   = 0x1D8A, ///< 6.1.2 19711
 
     /// Channel
-    CMSG_JOIN_CHANNEL                           = 0x0000, ///<
-    CMSG_CHANNEL_ANNOUNCEMENTS                  = 0x0000, ///<
-    CMSG_CHANNEL_BAN                            = 0x0000, ///<
-    CMSG_CHANNEL_DISPLAY_LIST                   = 0x0000, ///<
-    CMSG_CHANNEL_INVITE                         = 0x0000, ///<
-    CMSG_CHANNEL_KICK                           = 0x0000, ///<
-    CMSG_CHANNEL_LIST                           = 0x0000, ///<
-    CMSG_CHANNEL_MODERATOR                      = 0x0000, ///<
-    CMSG_CHANNEL_MUTE                           = 0x0000, ///<
-    CMSG_CHANNEL_OWNER                          = 0x0000, ///<
-    CMSG_CHANNEL_PASSWORD                       = 0x0000, ///<
-    CMSG_CHANNEL_SET_OWNER                      = 0x0000, ///<
-    CMSG_CHANNEL_SILENCE_ALL                    = 0x0000, ///<
-    CMSG_CHANNEL_SILENCE_VOICE                  = 0x0000, ///<
-    CMSG_CHANNEL_UNBAN                          = 0x0000, ///<
-    CMSG_CHANNEL_UNMODERATOR                    = 0x0000, ///<
-    CMSG_CHANNEL_UNMUTE                         = 0x0000, ///<
-    CMSG_CHANNEL_UNSILENCE_ALL                  = 0x0000, ///<
-    CMSG_CHANNEL_UNSILENCE_VOICE                = 0x0000, ///<
-    CMSG_CHANNEL_VOICE_OFF                      = 0x0000, ///<
-    CMSG_CHANNEL_VOICE_ON                       = 0x0000, ///<
-    CMSG_DECLINE_CHANNEL_INVITE                 = 0x0000, ///<
-    CMSG_LEAVE_CHANNEL                          = 0x0000, ///<
-    CMSG_SET_ACTIVE_VOICE_CHANNEL               = 0x0000, ///<
+    CMSG_JOIN_CHANNEL                           = 0x152A, ///< 6.1.2 19711
+    CMSG_CHANNEL_ANNOUNCEMENTS                  = 0x11B9, ///< 6.1.2 19711
+    CMSG_CHANNEL_BAN                            = 0x187E, ///< 6.1.2 19711
+    CMSG_CHANNEL_DISPLAY_LIST                   = 0x0000, ///< 6.1.2 19711
+    CMSG_CHANNEL_INVITE                         = 0x142D, ///< 6.1.2 19711
+    CMSG_CHANNEL_KICK                           = 0x153D, ///< 6.1.2 19711
+    CMSG_CHANNEL_LIST                           = 0x1999, ///< 6.1.2 19711
+    CMSG_CHANNEL_MODERATOR                      = 0x152D, ///< 6.1.2 19711
+    CMSG_CHANNEL_MUTE                           = 0x1909, ///< 6.1.2 19711
+    CMSG_CHANNEL_OWNER                          = 0x15ED, ///< 6.1.2 19711
+    CMSG_CHANNEL_PASSWORD                       = 0x193A, ///< 6.1.2 19711
+    CMSG_CHANNEL_SET_OWNER                      = 0x14CA, ///< 6.1.2 19711
+    CMSG_CHANNEL_SILENCE_ALL                    = 0x141E, ///< 6.1.2 19711
+    CMSG_CHANNEL_SILENCE_VOICE                  = 0x148E, ///< 6.1.2 19711
+    CMSG_CHANNEL_UNBAN                          = 0x155D, ///< 6.1.2 19711
+    CMSG_CHANNEL_UNMODERATOR                    = 0x10AE, ///< 6.1.2 19711
+    CMSG_CHANNEL_UNMUTE                         = 0x109A, ///< 6.1.2 19711
+    CMSG_CHANNEL_UNSILENCE_ALL                  = 0x11FE, ///< 6.1.2 19711
+    CMSG_CHANNEL_UNSILENCE_VOICE                = 0x10FE, ///< 6.1.2 19711
+    CMSG_CHANNEL_VOICE_OFF                      = 0x103E, ///< 6.1.2 19711
+    CMSG_CHANNEL_VOICE_ON                       = 0x1419, ///< 6.1.2 19711
+    CMSG_DECLINE_CHANNEL_INVITE                 = 0x10D9, ///< 6.1.2 19711
+    CMSG_LEAVE_CHANNEL                          = 0x113D, ///< 6.1.2 19711
+    CMSG_SET_ACTIVE_VOICE_CHANNEL               = 0x0298, ///< 6.1.2 19711
 
     //////////////////////////////////////////////////////////////////////////
     /// Movement
