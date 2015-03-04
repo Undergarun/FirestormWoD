@@ -22,6 +22,7 @@
 
 #include "Buildings/Horde/HTheForge.hpp"
 #include "Buildings/Horde/HTradingPost.hpp"
+#include "Buildings/Horde/HWarMill.hpp"
 
 #include <random>
 
@@ -423,9 +424,12 @@ void AddSC_Garrison_NPC()
         new MS::Garrison::npc_SergeantGrimjaw;
         new MS::Garrison::npc_SeniorPeonII;
         new MS::Garrison::npc_Gazlowe;
+
+        /// War Mill
         new MS::Garrison::npc_GrunLek;
         new MS::Garrison::npc_FrostWallGrunt;
         new MS::Garrison::npc_FrostWallSmith;
+
 
         /// The forge
         new MS::Garrison::npc_OrgekIronhand;
