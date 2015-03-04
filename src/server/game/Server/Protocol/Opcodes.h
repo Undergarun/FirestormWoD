@@ -79,31 +79,31 @@ enum Opcodes
         SMSG_QUERY_TIME_RESPONSE                    = 0x0CF1, ///< 6.1.2 19711
 
         /// Misc
-        SMSG_UPDATE_ACTION_BUTTONS                  = 0x0000, ///<
-        SMSG_SET_PROFICIENCY                        = 0x0000, ///<
-        SMSG_INIT_WORLD_STATES                      = 0x0000, ///<
-        SMSG_UPDATE_WORLD_STATE                     = 0x0000, ///<
-        SMSG_EMOTE                                  = 0x0000, ///<
-        SMSG_EXPLORATION_EXPERIENCE                 = 0x0000, ///<
-        SMSG_LOG_XP_GAIN                            = 0x0000, ///<
-        SMSG_LEVELUP_INFO                           = 0x0000, ///<
-        SMSG_ITEM_PUSH_RESULT                       = 0x0000, ///<
-        SMSG_INIT_CURRENCY                          = 0x0000, ///<
-        SMSG_UPDATE_CURRENCY                        = 0x0000, ///<
-        SMSG_UPDATE_CURRENCY_WEEK_LIMIT             = 0x0000, ///<
-        SMSG_WEEKLY_RESET_CURRENCY                  = 0x0000, ///<
+        SMSG_UPDATE_ACTION_BUTTONS                  = 0x03C0, ///< 6.1.2 19711
+        SMSG_SET_PROFICIENCY                        = 0x0D75, ///< 6.1.2 19711
+        SMSG_INIT_WORLD_STATES                      = 0x09E1, ///< 6.1.2 19711
+        SMSG_UPDATE_WORLD_STATE                     = 0x1DF1, ///< 6.1.2 19711
+        SMSG_EMOTE                                  = 0x0FC0, ///< 6.1.2 19711
+        SMSG_EXPLORATION_EXPERIENCE                 = 0x0692, ///< 6.1.2 19711
+        SMSG_LOG_XP_GAIN                            = 0x0E3E, ///< 6.1.2 19711
+        SMSG_LEVELUP_INFO                           = 0x0B36, ///< 6.1.2 19711
+        SMSG_ITEM_PUSH_RESULT                       = 0x0B15, ///< 6.1.2 19711
+        SMSG_INIT_CURRENCY                          = 0x1CE2, ///< 6.1.2 19711
+        SMSG_UPDATE_CURRENCY                        = 0x0336, ///< 6.1.2 19711
+        SMSG_UPDATE_CURRENCY_WEEK_LIMIT             = 0x0D31, ///< 6.1.2 19711
+        SMSG_WEEKLY_RESET_CURRENCY                  = 0x18F2, ///< 6.1.2 19711
         SMSG_EQUIPMENT_SET_LIST                     = 0x0000, ///<
-        SMSG_BINDER_CONFIRM                         = 0x0000, ///<
-        SMSG_BIND_POINT_UPDATE                      = 0x0000, ///<
+        SMSG_BINDER_CONFIRM                         = 0x19E5, ///< 6.1.2 19711
+        SMSG_BIND_POINT_UPDATE                      = 0x0399, ///< 6.1.2 19711
         SMSG_UPDATE_TALENT_DATA                     = 0x1862, ///< 6.1.2 19711
-        SMSG_TRANSFER_ABORTED                       = 0x0000, ///<
-        SMSG_TRANSFER_PENDING                       = 0x0000, ///<
-        SMSG_INVENTORY_CHANGE_FAILURE               = 0x0000, ///<
-        SMSG_SET_DUNGEON_DIFFICULTY                 = 0x0000, ///<
-        SMSG_SET_RAID_DIFFICULTY                    = 0x0000, ///<
+        SMSG_TRANSFER_ABORTED                       = 0x1D31, ///< 6.1.2 19711
+        SMSG_TRANSFER_PENDING                       = 0x03B8, ///< 6.1.2 19711
+        SMSG_INVENTORY_CHANGE_FAILURE               = 0x07B5, ///< 6.1.2 19711
+        SMSG_SET_DUNGEON_DIFFICULTY                 = 0x19F2, ///< 6.1.2 19711
+        SMSG_SET_RAID_DIFFICULTY                    = 0x0E8B, ///< 6.1.2 19711
         SMSG_LOAD_CUF_PROFILES                      = 0x0000, ///<
-        SMSG_STANDSTATE_UPDATE                      = 0x0000, ///<
-        SMSG_START_TIMER                            = 0x0000, ///<
+        SMSG_STANDSTATE_UPDATE                      = 0x0B37, ///< 6.1.2 19711
+        SMSG_START_TIMER                            = 0x1A2D, ///< 6.1.2 19711
         SMSG_START_ELAPSED_TIMER                    = 0x0000, ///< (unused)
         SMSG_START_ELAPSED_TIMERS                   = 0x0000, ///< (unused)
         SMSG_STOP_ELAPSED_TIMER                     = 0x0000, ///< (unused)
@@ -123,7 +123,7 @@ enum Opcodes
         SMSG_CLEAR_TARGET                           = 0x0000, ///<
         SMSG_WEATHER                                = 0x0000, ///<
         SMSG_SET_PHASE_SHIFT                        = 0x0000, ///<
-        SMSG_TRIGGER_CINEMATIC                      = 0x0000, ///<
+        SMSG_TRIGGER_CINEMATIC                      = 0x1CF6, ///< 6.1.2 19711
         SMSG_TOTEM_CREATED                          = 0x0000, ///<
         SMSG_RESPEC_WIPE_CONFIRM                    = 0x0000, ///<
         SMSG_USE_EQUIPMENT_SET_RESULT               = 0x0000, ///<
@@ -138,15 +138,15 @@ enum Opcodes
         SMSG_RESUME_TOKEN                           = 0x0000, ///<
         SMSG_BARBER_SHOP_RESULT                     = 0x0000, ///<
         SMSG_ENABLE_BARBER_SHOP                     = 0x0000, ///<
-        SMSG_PAGE_TEXT_QUERY_RESPONSE               = 0x0000, ///<
+        SMSG_PAGE_TEXT_QUERY_RESPONSE               = 0x048E, ///< 6.1.2 19711
         SMSG_PAGE_TEXT                              = 0x0000, ///<
         SMSG_READ_ITEM_FAILED                       = 0x0000, ///<
         SMSG_READ_ITEM_OK                           = 0x0000, ///<
         SMSG_TEXT_EMOTE                             = 0x0000, ///<
-        SMSG_TITLE_EARNED                           = 0x0000, ///<
-        SMSG_TITLE_LOST                             = 0x0000, ///<
+        SMSG_TITLE_EARNED                           = 0x1E03, ///< 6.1.2 19711
+        SMSG_TITLE_LOST                             = 0x03B2, ///< 6.1.2 19711
         SMSG_WHOIS                                  = 0x0000, ///<
-        SMSG_TRIGGER_MOVIE                          = 0x0000, ///<
+        SMSG_TRIGGER_MOVIE                          = 0x163A, ///< 6.1.2 19711
         SMSG_UPDATE_LAST_INSTANCE                   = 0x0000, ///<
         SMSG_UPDATE_INSTANCE_OWNERSHIP              = 0x0000, ///<
         SMSG_SUMMON_REQUEST                         = 0x0000, ///<
@@ -159,10 +159,10 @@ enum Opcodes
         SMSG_SETUP_RESEARCH_HISTORY                 = 0x0000, ///<
         SMSG_RESEARCH_COMPLETE                      = 0x0000, ///<
         SMSG_REQUEST_CEMETERY_LIST_RESPONSE         = 0x0000, ///<
-        SMSG_PLAYED_TIME                            = 0x0000, ///<
+        SMSG_PLAYED_TIME                            = 0x1875, ///< 6.1.2 19711
         SMSG_BREAK_TARGET                           = 0x0000, ///<
         SMSG_CANCEL_AUTO_REPEAT                     = 0x0000, ///<
-        SMSG_CANCEL_COMBAT                          = 0x0000, ///<
+        SMSG_CANCEL_COMBAT                          = 0x0220, ///< 6.1.2 19711
         SMSG_COMPLAIN_RESULT                        = 0x0000, ///<
         SMSG_XPGAIN_ABORTED                         = 0x0000, ///< (unused)
         SMSG_SUPERCEDED_SPELL                       = 0x0000, ///<
@@ -174,7 +174,7 @@ enum Opcodes
         SMSG_PRINT_NOTIFICATION                     = 0x0000, ///<
         SMSG_SPECIAL_MOUNT_ANIM                     = 0x0000, ///<
         SMSG_ITEM_TIME_UPDATE                       = 0x0000, ///<
-        SMSG_QUERY_ITEM_TEXT_RESPONSE               = 0x0000, ///<
+        SMSG_QUERY_ITEM_TEXT_RESPONSE               = 0x1D36, ///< 6.1.2 19711
         SMSG_ITEM_PURCHASE_REFUND_RESULT            = 0x0000, ///<
         SMSG_GAMEOBJECT_DESPAWN                     = 0x0000, ///<
         SMSG_GAMEOBJECT_CUSTOM_ANIM                 = 0x0000, ///<
@@ -442,7 +442,7 @@ enum Opcodes
         /// Petition
         SMSG_PETITION_ALREADY_SIGNED                            = 0x0000, ///<
         SMSG_PETITION_DECLINED                                  = 0x0000, ///<
-        SMSG_PETITION_QUERY_RESPONSE                            = 0x0000, ///<
+        SMSG_PETITION_QUERY_RESPONSE                            = 0x1872, ///< 6.1.2 19711
         SMSG_PETITION_SHOW_LIST                                 = 0x0000, ///<
         SMSG_PETITION_SHOW_SIGNATURES                           = 0x0000, ///<
         SMSG_TURN_IN_PETITION_RESULTS                           = 0x0000, ///<
@@ -549,7 +549,7 @@ enum Opcodes
         /// Info
         SMSG_GUILD_ROSTER                           = 0x0000, ///<
         SMSG_GUILD_ROSTER_UPDATE                    = 0x0000, ///< (unused)
-        SMSG_QUERY_GUILD_INFO_RESPONSE              = 0x0000, ///<
+        SMSG_QUERY_GUILD_INFO_RESPONSE              = 0x1194, ///< 6.1.2 19711
         SMSG_GUILD_MEMBER_UPDATE_NOTE               = 0x0000, ///< (unused)
         SMSG_GUILD_REWARDS_LIST                     = 0x0000, ///<
         SMSG_GUILD_SEND_RANK_CHANGE                 = 0x0000, ///<
@@ -819,7 +819,7 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     #pragma region JamQuest
         /// Quest log
-        SMSG_QUERY_QUEST_INFO_RESPONSE              = 0x0000, ///<
+        SMSG_QUERY_QUEST_INFO_RESPONSE              = 0x0817, ///< 6.1.2 19711
         SMSG_QUEST_UPDATE_FAILED_TIMER              = 0x0000, ///<
         SMSG_QUEST_UPDATE_FAILED                    = 0x0000, ///<
         SMSG_QUEST_UPDATE_COMPLETE                  = 0x0000, ///<
@@ -827,7 +827,7 @@ enum Opcodes
         SMSG_QUEST_UPDATE_ADD_CREDIT_SIMPLE         = 0x0000, ///<
         SMSG_QUEST_UPDATE_ADD_CREDIT                = 0x0000, ///<
         SMSG_QUEST_PUSH_RESULT                      = 0x0000, ///<
-        SMSG_QUEST_POIQUERY_RESPONSE                = 0x0000, ///<
+        SMSG_QUEST_POIQUERY_RESPONSE                = 0x051F, ///< 6.1.2 19711
         SMSG_QUEST_LOG_FULL                         = 0x0000, ///<
         SMSG_SET_QUEST_COMPLETED_BIT                = 0x0000, ///<
         SMSG_CLEAR_QUEST_COMPLETED_BITS             = 0x0000, ///<
@@ -850,8 +850,8 @@ enum Opcodes
         SMSG_QUEST_GIVER_INVALID_QUEST              = 0x0000, ///<
 
         /// Gossip
-        SMSG_GOSSIP_MESSAGE                         = 0x0000, ///<
-        SMSG_GOSSIP_COMPLETE                        = 0x0000, ///<
+        SMSG_GOSSIP_MESSAGE                         = 0x0077, ///< 6.1.2 19711
+        SMSG_GOSSIP_COMPLETE                        = 0x0010, ///< 6.1.2 19711
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -977,7 +977,7 @@ enum Opcodes
     CMSG_LOG_STREAMING_ERROR                    = 0x0000, ///<
     CMSG_QUEUED_MESSAGES_END                    = 0x0000, ///<
     CMSG_LOG_DISCONNECT                         = 0x0000, ///<
-    CMSG_PING                                   = 0x0000, ///<
+    CMSG_PING                                   = 0x12DE, ///< 6.1.2 19711
     CMSG_AUTH_CONTINUED_SESSION                 = 0x0000, ///<
     CMSG_SUSPEND_TOKEN_RESPONSE                 = 0x0000, ///<
     CMSG_AUTH_SESSION                           = 0x03DD, ///< 6.1.2 19711
@@ -995,29 +995,29 @@ enum Opcodes
     CMSG_CHAR_DELETE                            = 0x12B8,   ///< 6.1.2 19711
     CMSG_REORDER_CHARACTERS                     = 0x0000,   ///<
     CMSG_PLAYER_LOGIN                           = 0x0E98,   ///< 6.1.2 19711
-    CMSG_VIOLENCE_LEVEL                         = 0x0000,   ///<
-    CMSG_LOAD_SCREEN                            = 0x0000,   ///<
+    CMSG_VIOLENCE_LEVEL                         = 0x0F48,   ///< 6.1.2 19711
+    CMSG_LOAD_SCREEN                            = 0x13C0,   ///< 6.1.2 19711
     CMSG_REQUEST_ACCOUNT_DATA                   = 0x0798,   ///< 6.1.2 19711
     CMSG_UPDATE_ACCOUNT_DATA                    = 0x1637,   ///< 6.1.2 19711
-    CMSG_SET_DUNGEON_DIFFICULTY                 = 0x0000,   ///<
-    CMSG_SET_RAID_DIFFICULTY                    = 0x0000,   ///<
-    CMSG_AUTO_DECLINE_GUILD_INVITES             = 0x0000,   ///<
-    CMSG_SHOWING_CLOAK                          = 0x0000,   ///<
-    CMSG_SHOWING_HELM                           = 0x0000,   ///<
+    CMSG_SET_DUNGEON_DIFFICULTY                 = 0x0E16,   ///< 6.1.2 19711
+    CMSG_SET_RAID_DIFFICULTY                    = 0x0397,   ///< 6.1.2 19711
+    CMSG_AUTO_DECLINE_GUILD_INVITES             = 0x09B1,   ///< 6.1.2 19711
+    CMSG_SHOWING_CLOAK                          = 0x0F04,   ///< 6.1.2 19711
+    CMSG_SHOWING_HELM                           = 0x0C36,   ///< 6.1.2 19711
     CMSG_SET_ACTIVE_MOVER                       = 0x0000,   ///<
     CMSG_LEARN_TALENTS                          = 0x0AAA,   ///< 6.1.2 19711
-    CMSG_AUTOEQUIP_ITEM                         = 0x0000,   ///<
-    CMSG_SWAP_INV_ITEM                          = 0x0000,   ///<
-    CMSG_SWAP_ITEM                              = 0x0000,   ///<
-    CMSG_AUTOSTORE_BAG_ITEM                     = 0x0000,   ///<
+    CMSG_AUTOEQUIP_ITEM                         = 0x0423,   ///< 6.1.2 19711
+    CMSG_SWAP_INV_ITEM                          = 0x003C,   ///< 6.1.2 19711
+    CMSG_SWAP_ITEM                              = 0x0438,   ///< 6.1.2 19711
+    CMSG_AUTOSTORE_BAG_ITEM                     = 0x0424,   ///< 6.1.2 19711
     CMSG_REQUEST_PET_INFO                       = 0x0000,   ///<
     CMSG_STAND_STATE_CHANGE                     = 0x0000,   ///<
     CMSG_BINDER_ACTIVATE                        = 0x0000,   ///<
     CMSG_REQUEST_FORCED_REACTIONS               = 0x0000,   ///<
     CMSG_DESTROY_ITEM                           = 0x0000,   ///<
     CMSG_OPEN_ITEM                              = 0x0000,   ///<
-    CMSG_SET_TITLE                              = 0x0000,   ///<
-    CMSG_PLAYED_TIME                            = 0x0000,   ///<
+    CMSG_SET_TITLE                              = 0x1650,   ///< 6.1.2 19711
+    CMSG_PLAYED_TIME                            = 0x0750,   ///< 6.1.2 19711
     CMSG_SAVE_EQUIPMENT_SET                     = 0x0000,   ///<
     CMSG_USE_EQUIPMENT_SET                      = 0x0000,   ///<
     CMSG_DELETE_EQUIPMENT_SET                   = 0x0000,   ///<
@@ -1025,7 +1025,7 @@ enum Opcodes
     CMSG_SOCKET_GEMS                            = 0x0000,   ///<
     CMSG_RESURRECT_RESPONSE                     = 0x0000,   ///<
     CMSG_QUERY_INSPECT_ACHIEVEMENTS             = 0x0000,   ///<
-    CMSG_SPLIT_ITEM                             = 0x0000,   ///<
+    CMSG_SPLIT_ITEM                             = 0x052B,   ///< 6.1.2 19711
     CMSG_SET_PLAYER_DECLINED_NAMES              = 0x0000,   ///<
     CMSG_MOUNT_SET_FAVORITE                     = 0x0000,   ///<
     CMSG_SORT_BAGS                              = 0x0000,   ///<
@@ -1099,32 +1099,32 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Cache
     //////////////////////////////////////////////////////////////////////////
-    CMSG_REQUEST_HOTFIX                         = 0x0000, ///<
+    CMSG_REQUEST_HOTFIX                         = 0x039F, ///< 6.1.2 19711
     CMSG_CREATURE_QUERY                         = 0x0FD3, ///< 6.1.2 19711
     CMSG_NPC_TEXT_QUERY                         = 0x1E24, ///< 6.1.2 19711
     CMSG_NAME_QUERY                             = 0x0BBD, ///< 6.1.2 19711
     CMSG_QUEST_QUERY                            = 0x0FA9, ///< 6.1.2 19711
-    CMSG_QUEST_POI_QUERY                        = 0x0000, ///<
+    CMSG_QUEST_POI_QUERY                        = 0x1240, ///< 6.1.2 19711
     CMSG_REALM_NAME_QUERY                       = 0x0000, ///<
     CMSG_GAMEOBJECT_QUERY                       = 0x06C8, ///< 6.1.2 19711
-    CMSG_PETITION_QUERY                         = 0x0000, ///<
-    CMSG_QUERY_GUILD_INFO                       = 0x0000, ///<
-    CMSG_PAGE_TEXT_QUERY                        = 0x0000, ///<
-    CMSG_ITEM_TEXT_QUERY                        = 0x0000, ///<
+    CMSG_PETITION_QUERY                         = 0x0FAC, ///< 6.1.2 19711
+    CMSG_QUERY_GUILD_INFO                       = 0x12BE, ///< 6.1.2 19711
+    CMSG_PAGE_TEXT_QUERY                        = 0x1AA2, ///< 6.1.2 19711
+    CMSG_ITEM_TEXT_QUERY                        = 0x037B, ///< 6.1.2 19711
 
     //////////////////////////////////////////////////////////////////////////
     /// Interaction
     //////////////////////////////////////////////////////////////////////////
     CMSG_LOGOUT_REQUEST                         = 0x0CA6, ///< 6.1.2 19711
     CMSG_LOGOUT_CANCEL                          = 0x0F8C, ///< 6.1.2 19711
-    CMSG_SET_ACTION_BUTTON                      = 0x0000, ///<
-    CMSG_SET_ACTIONBAR_TOGGLES                  = 0x0000, ///<
+    CMSG_SET_ACTION_BUTTON                      = 0x133F, ///< 6.1.2 19711
+    CMSG_SET_ACTIONBAR_TOGGLES                  = 0x0F81, ///< 6.1.2 19711
     CMSG_SET_SELECTION                          = 0x0E8C, ///< 6.1.2 19711
     CMSG_SETSHEATHED                            = 0x0000, ///<
-    CMSG_GOSSIP_HELLO                           = 0x0000, ///<
-    CMSG_GOSSIP_SELECT_OPTION                   = 0x0000, ///<
-    CMSG_TOGGLE_PVP                             = 0x0000, ///<
-    CMSG_TUTORIAL                               = 0x0000, ///<
+    CMSG_GOSSIP_HELLO                           = 0x1C22, ///< 6.1.2 19711
+    CMSG_GOSSIP_SELECT_OPTION                   = 0x1E0C, ///< 6.1.2 19711
+    CMSG_TOGGLE_PVP                             = 0x1BC7, ///< 6.1.2 19711
+    CMSG_TUTORIAL                               = 0x0E9F, ///< 6.1.2 19711
     CMSG_SET_SPECIALIZATION                     = 0x0759, ///< 6.1.2 19711
     CMSG_SET_WATCHED_FACTION                    = 0x0000, ///<
     CMSG_SET_FACTION_INACTIVE                   = 0x0000, ///<
@@ -1142,13 +1142,13 @@ enum Opcodes
     CMSG_ITEM_REFUND_INFO                       = 0x0000, ///<
     CMSG_FAR_SIGHT                              = 0x0000, ///<
     CMSG_MOUNTSPECIAL_ANIM                      = 0x0000, ///<
-    CMSG_OPENING_CINEMATIC                      = 0x0000, ///<
-    CMSG_NEXT_CINEMATIC_CAMERA                  = 0x0000, ///<
-    CMSG_COMPLETE_CINEMATIC                     = 0x0000, ///<
+    CMSG_OPENING_CINEMATIC                      = 0x0E0A, ///< 6.1.2 19711
+    CMSG_NEXT_CINEMATIC_CAMERA                  = 0x0CE1, ///< 6.1.2 19711
+    CMSG_COMPLETE_CINEMATIC                     = 0x0CF2, ///< 6.1.2 19711
     CMSG_REQUEST_CEMETERY_LIST                  = 0x0000, ///<
     CMSG_TOTEM_DESTROYED                        = 0x0000, ///<
     CMSG_CONFIRM_RESPEC_WIPE                    = 0x0000, ///<
-    CMSG_CANCEL_TRADE                           = 0x0000, ///<
+    CMSG_CANCEL_TRADE                           = 0x0E0F, ///< 6.1.2 19711
     CMSG_SET_TRADE_CURRENCY                     = 0x0000,
     CMSG_SET_TRADE_GOLD                         = 0x0000,   ///<
     CMSG_SET_TRADE_ITEM                         = 0x0000,   ///<
@@ -1170,7 +1170,7 @@ enum Opcodes
     CMSG_ALTER_APPEARANCE                       = 0x0000,   ///<
     CMSG_SELF_RES                               = 0x0000,   ///<
     CMSG_READ_ITEM                              = 0x0000,   ///<
-    CMSG_COMPLETE_MOVIE                         = 0x0000,   ///<
+    CMSG_COMPLETE_MOVIE                         = 0x1E0A,   ///< 6.1.2 19711
     CMSG_SCENE_TRIGGER_EVENT                    = 0x0000,   ///<
     CMSG_GET_MIRRORIMAGE_DATA                   = 0x0000,   ///<
 
@@ -1516,7 +1516,7 @@ enum Opcodes
     CMSG_LFG_TELEPORT                              = 0x0000,    ///<
     CMSG_SEARCH_LFG_JOIN                           = 0x0000,    ///< (unused)
     CMSG_SEARCH_LFG_LEAVE                          = 0x0000,    ///< (unused)
-    CMSG_RESET_INSTANCES                           = 0x0000,    ///<
+    CMSG_RESET_INSTANCES                           = 0x0A97,    ///< 6.1.2 19711
     CMSG_REQUEST_LFGLIST_BLACKLIST                 = 0x0000,    ///< (unused)
 
     //////////////////////////////////////////////////////////////////////////
