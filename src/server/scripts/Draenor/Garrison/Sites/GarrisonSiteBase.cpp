@@ -107,7 +107,7 @@ namespace MS { namespace Garrison { namespace Sites
 
                 m_OwnerGUID = p_Player->GetGUID();
                 OnOwnerEnter(p_Player);
-                OnOwnerLevelChange(p_Player->getLevel());
+                //OnOwnerLevelChange(p_Player->getLevel());
             }
         }
     }
