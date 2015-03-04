@@ -57,17 +57,17 @@ enum Opcodes
         SMSG_AUTH_RESPONSE                          = 0x18F6, ///< 6.1.2 19711
         SMSG_CACHE_VERSION                          = 0x0E09, ///< 6.1.2 19711
         SMSG_ADDON_INFO                             = 0x1715, ///< 6.1.2 19711
-        SMSG_FEATURE_SYSTEM_STATUS                  = 0x0000, ///<
+        SMSG_FEATURE_SYSTEM_STATUS                  = 0x0B3E, ///< 6.1.2 19711
         SMSG_SET_TIME_ZONE_INFORMATION              = 0x073A, ///< 6.1.2 19711
-        SMSG_LOGIN_VERIFY_WORLD                     = 0x0000, ///<
-        SMSG_NEW_WORLD                              = 0x0000, ///<
+        SMSG_LOGIN_VERIFY_WORLD                     = 0x0A98, ///< 6.1.2 19711
+        SMSG_NEW_WORLD                              = 0x0A15, ///< 6.1.2 19711
         SMSG_LOGIN_SET_TIME_SPEED                   = 0x0D65, ///< 6.1.2 19711
-        SMSG_HOTFIX_NOTIFY_BLOB                     = 0x0000, ///<
-        SMSG_HOTFIX_NOTIFY                          = 0x0000, ///<
-        SMSG_WORLD_SERVER_INFO                      = 0x0000, ///<
-        SMSG_INITIAL_SETUP                          = 0x0000, ///<
+        SMSG_HOTFIX_NOTIFY_BLOB                     = 0x1D71, ///< 6.1.2 19711 
+        SMSG_HOTFIX_NOTIFY                          = 0x1736, ///< 6.1.2 19711
+        SMSG_WORLD_SERVER_INFO                      = 0x0FB5, ///< 6.1.2 19711
+        SMSG_INITIAL_SETUP                          = 0x0238, ///< 6.1.2 19711
         SMSG_PONG                                   = 0x011D, ///< 6.1.2 19711
-        SMSG_UITIME                                 = 0x0000, ///<
+        SMSG_UITIME                                 = 0x0DA1, ///< 6.1.2 19711
 
         /// Query
         SMSG_DB_REPLY                               = 0x09A5, ///< 6.1.2 19711
@@ -95,7 +95,7 @@ enum Opcodes
         SMSG_EQUIPMENT_SET_LIST                     = 0x0000, ///<
         SMSG_BINDER_CONFIRM                         = 0x0000, ///<
         SMSG_BIND_POINT_UPDATE                      = 0x0000, ///<
-        SMSG_UPDATE_TALENT_DATA                     = 0x0000, ///<
+        SMSG_UPDATE_TALENT_DATA                     = 0x1862, ///< 6.1.2 19711
         SMSG_TRANSFER_ABORTED                       = 0x0000, ///<
         SMSG_TRANSFER_PENDING                       = 0x0000, ///<
         SMSG_INVENTORY_CHANGE_FAILURE               = 0x0000, ///<
@@ -232,11 +232,11 @@ enum Opcodes
         SMSG_TUTORIAL_FLAGS                         = 0x0E82, ///< 6.1.2 19711
 
         /// Combat
-        SMSG_ATTACKER_STATE_UPDATE                  = 0x0000, ///<
-        SMSG_ATTACK_START                           = 0x0000, ///<
-        SMSG_ATTACK_STOP                            = 0x0000, ///<
-        SMSG_AI_REACTION                            = 0x0000, ///<
-        SMSG_ATTACK_SWING_ERROR                     = 0x0000, ///<
+        SMSG_ATTACKER_STATE_UPDATE                  = 0x0EBD, ///< 6.1.2 19711
+        SMSG_ATTACK_START                           = 0x1971, ///< 6.1.2 19711
+        SMSG_ATTACK_STOP                            = 0x17C0, ///< 6.1.2 19711
+        SMSG_AI_REACTION                            = 0x1739, ///< 6.1.2 19711
+        SMSG_ATTACK_SWING_ERROR                     = 0x1D66, ///< 6.1.2 19711
 
         /// Duel
         SMSG_DUEL_REQUESTED                         = 0x0000, ///<
@@ -642,50 +642,50 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     #pragma region JamMove
         /// Move speeds
-        SMSG_MOVE_SET_RUN_SPEED                     = 0x0000, ///<
-        SMSG_MOVE_SET_RUN_BACK_SPEED                = 0x0000, ///<
-        SMSG_MOVE_SET_SWIM_SPEED                    = 0x0000, ///<
-        SMSG_MOVE_SET_SWIM_BACK_SPEED               = 0x0000, ///<
-        SMSG_MOVE_SET_FLIGHT_SPEED                  = 0x0000, ///<
-        SMSG_MOVE_SET_FLIGHT_BACK_SPEED             = 0x0000, ///<
-        SMSG_MOVE_SET_WALK_SPEED                    = 0x0000, ///<
-        SMSG_MOVE_SET_TURN_RATE                     = 0x0000, ///<
-        SMSG_MOVE_SET_PITCH_RATE                    = 0x0000, ///<
-        SMSG_MOVE_KNOCK_BACK                        = 0x0000, ///<
-        SMSG_MOVE_UPDATE_RUN_SPEED                  = 0x0000, ///<
-        SMSG_MOVE_UPDATE_RUN_BACK_SPEED             = 0x0000, ///<
-        SMSG_MOVE_UPDATE_SWIM_SPEED                 = 0x0000, ///<
-        SMSG_MOVE_UPDATE_SWIM_BACK_SPEED            = 0x0000, ///<
-        SMSG_MOVE_UPDATE_FLIGHT_SPEED               = 0x0000, ///<
-        SMSG_MOVE_UPDATE_FLIGHT_BACK_SPEED          = 0x0000, ///<
-        SMSG_MOVE_UPDATE_WALK_SPEED                 = 0x0000, ///<
-        SMSG_MOVE_UPDATE_TURN_RATE                  = 0x0000, ///<
-        SMSG_MOVE_UPDATE_PITCH_RATE                 = 0x0000, ///<
-        SMSG_MOVE_UPDATE_KNOCK_BACK                 = 0x0000, ///<
+        SMSG_MOVE_SET_RUN_SPEED                     = 0x1EA9, ///< 6.1.2 19711
+        SMSG_MOVE_SET_RUN_BACK_SPEED                = 0x03DA, ///< 6.1.2 19711
+        SMSG_MOVE_SET_SWIM_SPEED                    = 0x1628, ///< 6.1.2 19711
+        SMSG_MOVE_SET_SWIM_BACK_SPEED               = 0x0605, ///< 6.1.2 19711
+        SMSG_MOVE_SET_FLIGHT_SPEED                  = 0x046D, ///< 6.1.2 19711
+        SMSG_MOVE_SET_FLIGHT_BACK_SPEED             = 0x030D, ///< 6.1.2 19711
+        SMSG_MOVE_SET_WALK_SPEED                    = 0x0F28, ///< 6.1.2 19711
+        SMSG_MOVE_SET_TURN_RATE                     = 0x1E24, ///< 6.1.2 19711
+        SMSG_MOVE_SET_PITCH_RATE                    = 0x0B2C, ///< 6.1.2 19711
+        SMSG_MOVE_KNOCK_BACK                        = 0x1BA3, ///< 6.1.2 19711
+        SMSG_MOVE_UPDATE_RUN_SPEED                  = 0x06DA, ///< 6.1.2 19711
+        SMSG_MOVE_UPDATE_RUN_BACK_SPEED             = 0x1B82, ///< 6.1.2 19711
+        SMSG_MOVE_UPDATE_SWIM_SPEED                 = 0x1A83, ///< 6.1.2 19711
+        SMSG_MOVE_UPDATE_SWIM_BACK_SPEED            = 0x0B06, ///< 6.1.2 19711
+        SMSG_MOVE_UPDATE_FLIGHT_SPEED               = 0x0628, ///< 6.1.2 19711
+        SMSG_MOVE_UPDATE_FLIGHT_BACK_SPEED          = 0x032E, ///< 6.1.2 19711
+        SMSG_MOVE_UPDATE_WALK_SPEED                 = 0x1F29, ///< 6.1.2 19711
+        SMSG_MOVE_UPDATE_TURN_RATE                  = 0x000A, ///< 6.1.2 19711
+        SMSG_MOVE_UPDATE_PITCH_RATE                 = 0x1AAC, ///< 6.1.2 19711
+        SMSG_MOVE_UPDATE_KNOCK_BACK                 = 0x0273, ///< 6.1.2 19711
 
         /// Player
-        SMSG_MOVE_UPDATE                                    = 0x0000, ///<
-        SMSG_MOVE_TELEPORT                                  = 0x0000, ///<
-        SMSG_MOVE_UPDATE_TELEPORT                           = 0x0000, ///<
-        SMSG_MOVE_ROOT                                      = 0x0000, ///<
-        SMSG_MOVE_UNROOT                                    = 0x0000, ///<
-        SMSG_MOVE_WATER_WALK                                = 0x0000, ///<
-        SMSG_MOVE_LAND_WALK                                 = 0x0000, ///<
-        SMSG_MOVE_FEATHER_FALL                              = 0x0000, ///<
-        SMSG_MOVE_NORMAL_FALL                               = 0x0000, ///<
-        SMSG_MOVE_SET_ACTIVE_MOVER                          = 0x0000, ///<
-        SMSG_MOVE_SET_CAN_FLY                               = 0x0000, ///<
-        SMSG_MOVE_UNSET_CAN_FLY                             = 0x0000, ///<
-        SMSG_MOVE_SET_HOVER                                 = 0x0000, ///<
-        SMSG_MOVE_UNSET_HOVER                               = 0x0000, ///<
-        SMSG_MOVE_SET_CAN_TURN_WHILE_FALLING                = 0x0000, ///<
-        SMSG_MOVE_UNSET_CAN_TURN_WHILE_FALLING              = 0x0000, ///<
-        SMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY   = 0x0000, ///<
-        SMSG_MOVE_UNSET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY = 0x0000, ///<
-        SMSG_MOVE_SET_VEHICLE_REC_ID                        = 0x0000, ///<
-        SMSG_MOVE_SET_COLLISION_HEIGHT                      = 0x0000, ///<
-        SMSG_APPLY_MOVEMENT_FORCE                           = 0x0000, ///<
-        SMSG_UNAPPLY_MOVEMENT_FORCE                         = 0x0000, ///<
+        SMSG_MOVE_UPDATE                                    = 0x0F2C, ///< 6.1.2 19711
+        SMSG_MOVE_TELEPORT                                  = 0x1206, ///< 6.1.2 19711
+        SMSG_MOVE_UPDATE_TELEPORT                           = 0x1F21, ///< 6.1.2 19711
+        SMSG_MOVE_ROOT                                      = 0x018A, ///< 6.1.2 19711
+        SMSG_MOVE_UNROOT                                    = 0x046E, ///< 6.1.2 19711
+        SMSG_MOVE_WATER_WALK                                = 0x035C, ///< 6.1.2 19711
+        SMSG_MOVE_LAND_WALK                                 = 0x0AC7, ///< 6.1.2 19711
+        SMSG_MOVE_FEATHER_FALL                              = 0x0674, ///< 6.1.2 19711
+        SMSG_MOVE_NORMAL_FALL                               = 0x04EE, ///< 6.1.2 19711
+        SMSG_MOVE_SET_ACTIVE_MOVER                          = 0x025B, ///< 6.1.2 19711
+        SMSG_MOVE_SET_CAN_FLY                               = 0x012A, ///< 6.1.2 19711
+        SMSG_MOVE_UNSET_CAN_FLY                             = 0x03DC, ///< 6.1.2 19711
+        SMSG_MOVE_SET_HOVER                                 = 0x0B21, ///< 6.1.2 19711
+        SMSG_MOVE_UNSET_HOVER                               = 0x0651, ///< 6.1.2 19711
+        SMSG_MOVE_SET_CAN_TURN_WHILE_FALLING                = 0x0EA1, ///< 6.1.2 19711
+        SMSG_MOVE_UNSET_CAN_TURN_WHILE_FALLING              = 0x124F, ///< 6.1.2 19711
+        SMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY   = 0x0BCF, ///< 6.1.2 19711
+        SMSG_MOVE_UNSET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY = 0x1EAC, ///< 6.1.2 19711
+        SMSG_MOVE_SET_VEHICLE_REC_ID                        = 0x1A29, ///< 6.1.2 19711
+        SMSG_MOVE_SET_COLLISION_HEIGHT                      = 0x1A04, ///< 6.1.2 19711
+        SMSG_APPLY_MOVEMENT_FORCE                           = 0x1F50, ///< 6.1.2 19711
+        SMSG_UNAPPLY_MOVEMENT_FORCE                         = 0x000E, ///< 6.1.2 19711
         SMSG_MOVE_SKIP_TIME                                 = 0x0000, ///< (unused)
         SMSG_MOVE_ENABLE_GRAVITY                            = 0x0000, ///< (unused)
         SMSG_MOVE_DISABLE_GRAVITY                           = 0x0000, ///< (unused)
@@ -693,34 +693,34 @@ enum Opcodes
         SMSG_MOVE_DISABLE_COLLISION                         = 0x0000, ///< (unused)
 
         /// Creature
-        SMSG_MONSTER_MOVE                           = 0x0000, ///<
-        SMSG_SPLINE_MOVE_SET_RUN_SPEED              = 0x0000, ///<
-        SMSG_SPLINE_MOVE_SET_RUN_BACK_SPEED         = 0x0000, ///<
-        SMSG_SPLINE_MOVE_SET_SWIM_SPEED             = 0x0000, ///<
-        SMSG_SPLINE_MOVE_SET_SWIM_BACK_SPEED        = 0x0000, ///<
-        SMSG_SPLINE_MOVE_SET_FLIGHT_SPEED           = 0x0000, ///<
-        SMSG_SPLINE_MOVE_SET_FLIGHT_BACK_SPEED      = 0x0000, ///<
-        SMSG_SPLINE_MOVE_SET_WALK_SPEED             = 0x0000, ///<
-        SMSG_SPLINE_MOVE_SET_TURN_RATE              = 0x0000, ///<
-        SMSG_SPLINE_MOVE_SET_PITCH_RATE             = 0x0000, ///<
-        SMSG_SPLINE_MOVE_ROOT                       = 0x0000, ///<
-        SMSG_SPLINE_MOVE_UNROOT                     = 0x0000, ///<
-        SMSG_SPLINE_MOVE_GRAVITY_DISABLE            = 0x0000, ///<
-        SMSG_SPLINE_MOVE_GRAVITY_ENABLE             = 0x0000, ///<
+        SMSG_MONSTER_MOVE                           = 0x0EA9, ///< 6.1.2 19711
+        SMSG_SPLINE_MOVE_SET_RUN_SPEED              = 0x164F, ///< 6.1.2 19711
+        SMSG_SPLINE_MOVE_SET_RUN_BACK_SPEED         = 0x0305, ///< 6.1.2 19711
+        SMSG_SPLINE_MOVE_SET_SWIM_SPEED             = 0x0E22, ///< 6.1.2 19711
+        SMSG_SPLINE_MOVE_SET_SWIM_BACK_SPEED        = 0x0A47, ///< 6.1.2 19711
+        SMSG_SPLINE_MOVE_SET_FLIGHT_SPEED           = 0x1208, ///< 6.1.2 19711
+        SMSG_SPLINE_MOVE_SET_FLIGHT_BACK_SPEED      = 0x1F22, ///< 6.1.2 19711
+        SMSG_SPLINE_MOVE_SET_WALK_SPEED             = 0x0F28, ///< 6.1.2 19711
+        SMSG_SPLINE_MOVE_SET_TURN_RATE              = 0x035B, ///< 6.1.2 19711
+        SMSG_SPLINE_MOVE_SET_PITCH_RATE             = 0x02C8, ///< 6.1.2 19711
+        SMSG_SPLINE_MOVE_ROOT                       = 0x02D1, ///< 6.1.2 19711
+        SMSG_SPLINE_MOVE_UNROOT                     = 0x1BA2, ///< 6.1.2 19711
+        SMSG_SPLINE_MOVE_GRAVITY_DISABLE            = 0x1A21, ///< 6.1.2 19711
+        SMSG_SPLINE_MOVE_GRAVITY_ENABLE             = 0x0252, ///< 6.1.2 19711
         SMSG_SPLINE_MOVE_COLLISION_DISABLE          = 0x0000, ///< (unused)
         SMSG_SPLINE_MOVE_COLLISION_ENABLE           = 0x0000, ///< (unused)
-        SMSG_SPLINE_MOVE_SET_FEATHER_FALL           = 0x0000, ///<
-        SMSG_SPLINE_MOVE_SET_NORMAL_FALL            = 0x0000, ///<
-        SMSG_SPLINE_MOVE_SET_HOVER                  = 0x0000, ///<
-        SMSG_SPLINE_MOVE_UNSET_HOVER                = 0x0000, ///<
-        SMSG_SPLINE_MOVE_SET_WATER_WALK             = 0x0000, ///<
-        SMSG_SPLINE_MOVE_SET_LAND_WALK              = 0x0000, ///<
+        SMSG_SPLINE_MOVE_SET_FEATHER_FALL           = 0x0F30, ///< 6.1.2 19711
+        SMSG_SPLINE_MOVE_SET_NORMAL_FALL            = 0x037A, ///< 6.1.2 19711
+        SMSG_SPLINE_MOVE_SET_HOVER                  = 0x1B21, ///< 6.1.2 19711
+        SMSG_SPLINE_MOVE_UNSET_HOVER                = 0x0E47, ///< 6.1.2 19711
+        SMSG_SPLINE_MOVE_SET_WATER_WALK             = 0x0EAB, ///< 6.1.2 19711
+        SMSG_SPLINE_MOVE_SET_LAND_WALK              = 0x1A28, ///< 6.1.2 19711
         SMSG_SPLINE_MOVE_START_SWIM                 = 0x0000, ///< (unused)
         SMSG_SPLINE_MOVE_STOP_SWIM                  = 0x0000, ///< (unused)
-        SMSG_SPLINE_MOVE_SET_RUN_MODE               = 0x0000, ///<
-        SMSG_SPLINE_MOVE_SET_WALK_MODE              = 0x0000, ///<
-        SMSG_SPLINE_MOVE_SET_FLYING                 = 0x0000, ///<
-        SMSG_SPLINE_MOVE_UNSET_FLYING               = 0x0000, ///<
+        SMSG_SPLINE_MOVE_SET_RUN_MODE               = 0x1A8C, ///< 6.1.2 19711
+        SMSG_SPLINE_MOVE_SET_WALK_MODE              = 0x0B09, ///< 6.1.2 19711
+        SMSG_SPLINE_MOVE_SET_FLYING                 = 0x0B2A, ///< 6.1.2 19711
+        SMSG_SPLINE_MOVE_UNSET_FLYING               = 0x1A2C, ///< 6.1.2 19711
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -729,78 +729,78 @@ enum Opcodes
     #pragma region JamSpell
         /// Aura
         SMSG_AURA_POINTS_DEPLETED                   = 0x0000, ///< (unused)
-        SMSG_AURA_UPDATE                            = 0x0000, ///<
+        SMSG_AURA_UPDATE                            = 0x1999, ///< 6.1.2 19711
 
         /// Misc
         SMSG_CHEAT_IGNORE_DIMISHING_RETURNS         = 0x0000, ///< (unused)
-        SMSG_DISPEL_FAILED                          = 0x0000, ///<
+        SMSG_DISPEL_FAILED                          = 0x148E, ///< 6.1.2 19711
         SMSG_INCREASE_CAST_TIME_FOR_SPELL           = 0x0000, ///< (unused)
-        SMSG_MIRROR_IMAGE_COMPONENTED_DATA          = 0x0000, ///<
+        SMSG_MIRROR_IMAGE_COMPONENTED_DATA          = 0x159E, ///< 6.1.2 19711
         SMSG_MIRROR_IMAGE_CREATURE_DATA             = 0x0000, ///< (unused)
         SMSG_PET_CLEAR_SPELLS                       = 0x0000, ///< (unused)
         SMSG_REFRESH_SPELL_HISTORY                  = 0x0000, ///< (unused)
         SMSG_RESUME_CAST_BAR                        = 0x0000, ///< (unused)
-        SMSG_CAST_FAILED                            = 0x0000, ///<
-        SMSG_SPELL_FAILURE                          = 0x0000, ///<
-        SMSG_SPELL_FAILED_OTHER                     = 0x0000, ///<
+        SMSG_CAST_FAILED                            = 0x1409, ///< 6.1.2 19711
+        SMSG_SPELL_FAILURE                          = 0x1CAD, ///< 6.1.2 19711
+        SMSG_SPELL_FAILED_OTHER                     = 0x10CE, ///< 6.1.2 19711
         SMSG_PET_CAST_FAILED                        = 0x0000, ///<
-        SMSG_ITEM_COOLDOWN                          = 0x0000, ///<
-        SMSG_MODIFY_COOLDOWN                        = 0x0000, ///<
+        SMSG_ITEM_COOLDOWN                          = 0x0D35, ///< 6.1.2 19711
+        SMSG_MODIFY_COOLDOWN                        = 0x0832, ///< 6.1.2 19711
         SMSG_COOLDOWN_CHEAT                         = 0x0000, ///< (unused)
         SMSG_PET_TAME_FAILURE                       = 0x0000, ///<
-        SMSG_FEIGN_DEATH_RESISTED                   = 0x0000, ///<
+        SMSG_FEIGN_DEATH_RESISTED                   = 0x1CE5, ///< 6.1.2 19711
         SMSG_NOTIFY_DEST_LOC_SPELL_CAST             = 0x0000, ///< (unused)
-        SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA   = 0x0000, ///<
-        SMSG_SET_VEHICLE_REC_ID                     = 0x0000, ///<
+        SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA   = 0x0C66, ///< 6.1.2 19711
+        SMSG_SET_VEHICLE_REC_ID                     = 0x1A29, ///< 6.1.2 19711
         SMSG_CANCEL_SPELL_VISUAL_KIT                = 0x0000, ///< (unused)
-        SMSG_PLAY_SPELL_VISUAL_KIT                  = 0x0000, ///<
-        SMSG_COOLDOWN_EVENT                         = 0x0000, ///<
-        SMSG_DISMOUNT                               = 0x0000, ///<
+        SMSG_PLAY_SPELL_VISUAL_KIT                  = 0x1859, ///< 6.1.2 19711
+        SMSG_COOLDOWN_EVENT                         = 0x0922, ///< 6.1.2 19711
+        SMSG_DISMOUNT                               = 0x03BF, ///< 6.1.2 19711
         SMSG_DISMOUNTRESULT                         = 0x0000, ///< (unused)
-        SMSG_PLAY_SPELL_VISUAL                      = 0x0000, ///<
-        SMSG_MOUNT_RESULT                           = 0x0000, ///<
+        SMSG_PLAY_SPELL_VISUAL                      = 0x11EA, ///< 6.1.2 19711
+        SMSG_MOUNT_RESULT                           = 0x06BE, ///< 6.1.2 19711
 
         /// Spell Book / Bar
         SMSG_UPDATE_WEEKLY_SPELL_USAGE              = 0x0000, ///< (unused)
         SMSG_WEEKLY_SPELL_USAGE                     = 0x0000, ///< (unused)
-        SMSG_SEND_KNOWN_SPELLS                      = 0x0000, ///<
-        SMSG_SEND_SPELL_CHARGES                     = 0x0000, ///<
+        SMSG_SEND_KNOWN_SPELLS                      = 0x109A, ///< 6.1.2 19711
+        SMSG_SEND_SPELL_CHARGES                     = 0x187E, ///< 6.1.2 19711
         SMSG_SEND_SPELL_HISTORY                     = 0x0000, ///< (unused)
         SMSG_SEND_UNLEARN_SPELLS                    = 0x0000, ///< (unused)
-        SMSG_CLEAR_ALL_SPELL_CHARGES                = 0x0000, ///<
-        SMSG_CLEAR_COOLDOWN                         = 0x0000, ///<
-        SMSG_CLEAR_COOLDOWNS                        = 0x0000, ///<
-        SMSG_CATEGORY_COOLDOWN                      = 0x0000, ///<
-        SMSG_CLEAR_SPELL_CHARGES                    = 0x0000, ///<
-        SMSG_SET_FLAT_SPELL_MODIFIER                = 0x0000, ///<
-        SMSG_SET_PCT_SPELL_MODIFIER                 = 0x0000, ///<
-        SMSG_SET_SPELL_CHARGES                      = 0x0000, ///<
-        SMSG_LEARNED_SPELL                          = 0x0000, ///<
-        SMSG_UNLEARNED_SPELLS                       = 0x0000, ///<
+        SMSG_CLEAR_ALL_SPELL_CHARGES                = 0x152D, ///< 6.1.2 19711
+        SMSG_CLEAR_COOLDOWN                         = 0x0A38, ///< 6.1.2 19711
+        SMSG_CLEAR_COOLDOWNS                        = 0x15ED, ///< 6.1.2 19711
+        SMSG_CATEGORY_COOLDOWN                      = 0x15FA, ///< 6.1.2 19711
+        SMSG_CLEAR_SPELL_CHARGES                    = 0x151E, ///< 6.1.2 19711
+        SMSG_SET_FLAT_SPELL_MODIFIER                = 0x192A, ///< 6.1.2 19711
+        SMSG_SET_PCT_SPELL_MODIFIER                 = 0x1DAA, ///< 6.1.2 19711
+        SMSG_SET_SPELL_CHARGES                      = 0x1909, ///< 6.1.2 19711
+        SMSG_LEARNED_SPELL                          = 0x183D, ///< 6.1.2 19711
+        SMSG_UNLEARNED_SPELLS                       = 0x151E, ///< 6.1.2 19711
 
         /// Casting
-        SMSG_SPELL_CHANNEL_START                    = 0x0000, ///<
-        SMSG_SPELL_COOLDOWN                         = 0x0000, ///<
-        SMSG_SPELL_CHANNEL_UPDATE                   = 0x0000, ///<
+        SMSG_SPELL_CHANNEL_START                    = 0x103E, ///< 6.1.2 19711
+        SMSG_SPELL_COOLDOWN                         = 0x1D2A, ///< 6.1.2 19711
+        SMSG_SPELL_CHANNEL_UPDATE                   = 0x10D9, ///< 6.1.2 19711
         SMSG_SPELL_DAMAGE_SHIELD                    = 0x0000,
-        SMSG_SPELL_DELAYED                          = 0x0000, ///<
-        SMSG_SPELL_GO                               = 0x0000, ///<
+        SMSG_SPELL_DELAYED                          = 0x14FD, ///< 6.1.2 19711
+        SMSG_SPELL_GO                               = 0x1CB9, ///< 6.1.2 19711
         SMSG_SPELL_MULTISTRIKE_EFFECT               = 0x0000, ///< (unused)
         SMSG_SPELL_OR_DAMAGE_IMMUNE                 = 0x0000,
-        SMSG_SPELL_START                            = 0x0000, ///<
+        SMSG_SPELL_START                            = 0x14BA, ///< 6.1.2 19711
         SMSG_SPELL_UPDATE_CHAIN_TARGETS             = 0x0000, ///< (unused)
 
         /// Logging
         SMSG_SPELL_DISPELL_LOG                      = 0x0000,
         SMSG_SPELL_ENERGIZE_LOG                     = 0x0000,
-        SMSG_SPELL_EXECUTE_LOG                      = 0x0000, ///<
-        SMSG_SPELL_NON_MELEE_DAMAGE_LOG             = 0x0000, ///<
-        SMSG_SPELL_HEAL_LOG                         = 0x0000, ///<
+        SMSG_SPELL_EXECUTE_LOG                      = 0x1D9A, ///< 6.1.2 19711
+        SMSG_SPELL_NON_MELEE_DAMAGE_LOG             = 0x141E, ///< 6.1.2 19711
+        SMSG_SPELL_HEAL_LOG                         = 0x155A, ///< 6.1.2 19711
         SMSG_SPELL_INSTAKILL_LOG                    = 0x0000,
         SMSG_SPELL_INTERRUPT_LOG                    = 0x0000,
         SMSG_SPELL_MISS_LOG                         = 0x0000,
-        SMSG_ENVIRONMENTAL_DAMAGE_LOG               = 0x0000, ///<
-        SMSG_SPELL_PERIODIC_AURA_LOG                = 0x0000, ///<
+        SMSG_ENVIRONMENTAL_DAMAGE_LOG               = 0x183E, ///< 6.1.2 19711
+        SMSG_SPELL_PERIODIC_AURA_LOG                = 0x14E9, ///< 6.1.2 19711
         SMSG_SPELL_PROC_SCRIPT_LOG                  = 0x0000, ///< Debug opcode (disabled)
         SMSG_SPELL_PROCS_PER_MINUTE_LOG             = 0x0000, ///< Debug opcode (disabled)
         SMSG_SPELL_CHANCE_PROC_LOG                  = 0x0000, ///< Debug opcode (disabled)
@@ -1005,7 +1005,7 @@ enum Opcodes
     CMSG_SHOWING_CLOAK                          = 0x0000,   ///<
     CMSG_SHOWING_HELM                           = 0x0000,   ///<
     CMSG_SET_ACTIVE_MOVER                       = 0x0000,   ///<
-    CMSG_LEARN_TALENTS                          = 0x0000,   ///<
+    CMSG_LEARN_TALENTS                          = 0x0AAA,   ///< 6.1.2 19711
     CMSG_AUTOEQUIP_ITEM                         = 0x0000,   ///<
     CMSG_SWAP_INV_ITEM                          = 0x0000,   ///<
     CMSG_SWAP_ITEM                              = 0x0000,   ///<
@@ -1074,8 +1074,8 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Combat
     //////////////////////////////////////////////////////////////////////////
-    CMSG_ATTACKSTOP                             = 0x0000, ///<
-    CMSG_ATTACKSWING                            = 0x0000, ///<
+    CMSG_ATTACKSTOP                             = 0x0821, ///< 6.1.2 19711
+    CMSG_ATTACKSWING                            = 0x0BF4, ///< 6.1.2 19711
 
     //////////////////////////////////////////////////////////////////////////
     /// Duel
@@ -1086,14 +1086,14 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Spell
     //////////////////////////////////////////////////////////////////////////
-    CMSG_CAST_SPELL                             = 0x0000, ///<
-    CMSG_CANCEL_CAST                            = 0x0000, ///<
-    CMSG_USE_ITEM                               = 0x0000, ///<
-    CMSG_CANCEL_AURA                            = 0x0000, ///<
+    CMSG_CAST_SPELL                             = 0x1274, ///< 6.1.2 19711
+    CMSG_CANCEL_CAST                            = 0x058A, ///< 6.1.2 19711
+    CMSG_USE_ITEM                               = 0x06D0, ///< 6.1.2 19711
+    CMSG_CANCEL_AURA                            = 0x12FB, ///< 6.1.2 19711
     CMSG_CANCEL_AUTO_REPEAT_SPELL               = 0x0000, ///<
-    CMSG_CANCEL_CHANNELLING                     = 0x0000, ///<
+    CMSG_CANCEL_CHANNELLING                     = 0x0F71, ///< 6.1.2 19711
     CMSG_CANCEL_GROWTH_AURA                     = 0x0000, ///<
-    CMSG_CANCEL_MOUNT_AURA                      = 0x0000, ///<
+    CMSG_CANCEL_MOUNT_AURA                      = 0x012D, ///< 6.1.2 19711
     CMSG_CANCEL_QUEUED_SPELL                    = 0x0000, ///<
 
     //////////////////////////////////////////////////////////////////////////
@@ -1119,13 +1119,13 @@ enum Opcodes
     CMSG_LOGOUT_CANCEL                          = 0x0F8C, ///< 6.1.2 19711
     CMSG_SET_ACTION_BUTTON                      = 0x0000, ///<
     CMSG_SET_ACTIONBAR_TOGGLES                  = 0x0000, ///<
-    CMSG_SET_SELECTION                          = 0x0000, ///<
+    CMSG_SET_SELECTION                          = 0x0E8C, ///< 6.1.2 19711
     CMSG_SETSHEATHED                            = 0x0000, ///<
     CMSG_GOSSIP_HELLO                           = 0x0000, ///<
     CMSG_GOSSIP_SELECT_OPTION                   = 0x0000, ///<
     CMSG_TOGGLE_PVP                             = 0x0000, ///<
     CMSG_TUTORIAL                               = 0x0000, ///<
-    CMSG_SET_SPECIALIZATION                     = 0x0000, ///<
+    CMSG_SET_SPECIALIZATION                     = 0x0759, ///< 6.1.2 19711
     CMSG_SET_WATCHED_FACTION                    = 0x0000, ///<
     CMSG_SET_FACTION_INACTIVE                   = 0x0000, ///<
     CMSG_AREATRIGGER                            = 0x0000, ///<
@@ -1163,7 +1163,7 @@ enum Opcodes
     CMSG_INSPECT                                = 0x0000,   ///<
     CMSG_INSPECT_HONOR_STATS                    = 0x0000,   ///<
     CMSG_REQUEST_INSPECT_RATED_BG_STATS         = 0x0000,   ///<
-    CMSG_TIME_SYNC_RESP                         = 0x0000,   ///<
+    CMSG_TIME_SYNC_RESP                         = 0x0550,   ///< 6.1.2 19711
     CMSG_UNLEARN_SKILL                          = 0x0000,   ///<
     CMSG_EMOTE                                  = 0x0000,   ///<
     CMSG_SEND_TEXT_EMOTE                        = 0x0000,   ///<
@@ -1241,18 +1241,18 @@ enum Opcodes
     CMSG_ADDON_REGISTERED_PREFIXES              = 0x0000, ///<
 
     /// Chat
-    CMSG_CHAT_MESSAGE_RAID_WARNING              = 0x0000, ///<
-    CMSG_CHAT_MESSAGE_PARTY                     = 0x0000, ///<
-    CMSG_CHAT_MESSAGE_YELL                      = 0x0000, ///<
-    CMSG_CHAT_MESSAGE_SAY                       = 0x0000, ///<
-    CMSG_CHAT_MESSAGE_OFFICER                   = 0x0000, ///<
-    CMSG_CHAT_MESSAGE_EMOTE                     = 0x0000, ///<
-    CMSG_CHAT_MESSAGE_AFK                       = 0x0000, ///<
-    CMSG_CHAT_MESSAGE_DND                       = 0x0000, ///<
-    CMSG_CHAT_MESSAGE_GUILD                     = 0x0000, ///<
-    CMSG_CHAT_MESSAGE_RAID                      = 0x0000, ///<
-    CMSG_CHAT_MESSAGE_WHISPER                   = 0x0000, ///<
-    CMSG_CHAT_MESSAGE_CHANNEL                   = 0x0000, ///<
+    CMSG_CHAT_MESSAGE_RAID_WARNING              = 0x147A, ///< 6.1.2 19711
+    CMSG_CHAT_MESSAGE_PARTY                     = 0x14BA, ///< 6.1.2 19711
+    CMSG_CHAT_MESSAGE_YELL                      = 0x1CB9, ///< 6.1.2 19711
+    CMSG_CHAT_MESSAGE_SAY                       = 0x192A, ///< 6.1.2 19711
+    CMSG_CHAT_MESSAGE_OFFICER                   = 0x155A, ///< 6.1.2 19711
+    CMSG_CHAT_MESSAGE_EMOTE                     = 0x1DAA, ///< 6.1.2 19711
+    CMSG_CHAT_MESSAGE_AFK                       = 0x185E, ///< 6.1.2 19711
+    CMSG_CHAT_MESSAGE_DND                       = 0x183E, ///< 6.1.2 19711
+    CMSG_CHAT_MESSAGE_GUILD                     = 0x14E9, ///< 6.1.2 19711
+    CMSG_CHAT_MESSAGE_RAID                      = 0x1CAA, ///< 6.1.2 19711
+    CMSG_CHAT_MESSAGE_WHISPER                   = 0x103A, ///< 6.1.2 19711
+    CMSG_CHAT_MESSAGE_CHANNEL                   = 0x1199, ///< 6.1.2 19711
 
     /// Channel
     CMSG_JOIN_CHANNEL                           = 0x0000, ///<
@@ -1284,57 +1284,57 @@ enum Opcodes
     /// Movement
     //////////////////////////////////////////////////////////////////////////
     /// Start
-    CMSG_MOVE_START_FORWARD                     = 0x0000, ///<
-    CMSG_MOVE_START_TURN_LEFT                   = 0x0000, ///<
-    CMSG_MOVE_START_TURN_RIGHT                  = 0x0000, ///<
-    CMSG_MOVE_START_BACKWARD                    = 0x0000, ///<
-    CMSG_MOVE_START_STRAFE_LEFT                 = 0x0000, ///<
-    CMSG_MOVE_START_STRAFE_RIGHT                = 0x0000, ///<
-    CMSG_MOVE_START_ASCEND                      = 0x0000, ///<
-    CMSG_MOVE_START_DESCEND                     = 0x0000, ///<
-    CMSG_MOVE_START_PITCH_UP                    = 0x0000, ///<
-    CMSG_MOVE_START_PITCH_DOWN                  = 0x0000, ///<
-    CMSG_MOVE_START_SWIM                        = 0x0000, ///<
+    CMSG_MOVE_START_FORWARD                     = 0x0004, ///< 6.1.2 19711
+    CMSG_MOVE_START_TURN_LEFT                   = 0x0918, ///< 6.1.2 19711
+    CMSG_MOVE_START_TURN_RIGHT                  = 0x094B, ///< 6.1.2 19711
+    CMSG_MOVE_START_BACKWARD                    = 0x0147, ///< 6.1.2 19711
+    CMSG_MOVE_START_STRAFE_LEFT                 = 0x0844, ///< 6.1.2 19711
+    CMSG_MOVE_START_STRAFE_RIGHT                = 0x0957, ///< 6.1.2 19711
+    CMSG_MOVE_START_ASCEND                      = 0x0510, ///< 6.1.2 19711
+    CMSG_MOVE_START_DESCEND                     = 0x0117, ///< 6.1.2 19711
+    CMSG_MOVE_START_PITCH_UP                    = 0x0450, ///< 6.1.2 19711
+    CMSG_MOVE_START_PITCH_DOWN                  = 0x004B, ///< 6.1.2 19711
+    CMSG_MOVE_START_SWIM                        = 0x0157, ///< 6.1.2 19711
 
     /// Misc
-    CMSG_MOVE_JUMP                              = 0x0000, ///<
-    CMSG_MOVE_FALL_LAND                         = 0x0000, ///<
-    CMSG_WORLD_PORT_RESPONSE                    = 0x0000, ///<
-    CMSG_MOVE_TIME_SKIPPED                      = 0x0000, ///<
-    CMSG_MOVE_SPLINE_DONE                       = 0x0000, ///<
+    CMSG_MOVE_JUMP                              = 0x0158, ///< 6.1.2 19711
+    CMSG_MOVE_FALL_LAND                         = 0x095F, ///< 6.1.2 19711
+    CMSG_WORLD_PORT_RESPONSE                    = 0x061D, ///< 6.1.2 19711
+    CMSG_MOVE_TIME_SKIPPED                      = 0x0903, ///< 6.1.2 19711
+    CMSG_MOVE_SPLINE_DONE                       = 0x0514, ///< 6.1.2 19711
 
     /// Update
-    CMSG_MOVE_HEARTBEAT                         = 0x055C, ///< 6.1.2 19712
-    CMSG_MOVE_SET_FACING                        = 0x0000, ///<
-    CMSG_MOVE_SET_PITCH                         = 0x0000, ///<
-    CMSG_MOVE_SET_RUN_MODE                      = 0x0000, ///<
-    CMSG_MOVE_SET_WALK_MODE                     = 0x0000, ///<
-    CMSG_MOVE_TELEPORT_ACK                      = 0x0000, ///<
-    CMSG_MOVE_CHNG_TRANSPORT                    = 0x0000, ///<
+    CMSG_MOVE_HEARTBEAT                         = 0x055C, ///< 6.1.2 19711
+    CMSG_MOVE_SET_FACING                        = 0x0803, ///< 6.1.2 19711
+    CMSG_MOVE_SET_PITCH                         = 0x080F, ///< 6.1.2 19711
+    CMSG_MOVE_SET_RUN_MODE                      = 0x0053, ///< 6.1.2 19711
+    CMSG_MOVE_SET_WALK_MODE                     = 0x0843, ///< 6.1.2 19711
+    CMSG_MOVE_TELEPORT_ACK                      = 0x0520, ///< 6.1.2 19711
+    CMSG_MOVE_CHNG_TRANSPORT                    = 0x044F, ///< 6.1.2 19711
 
     /// Stop
-    CMSG_MOVE_STOP                              = 0x0000, ///<
-    CMSG_MOVE_STOP_TURN                         = 0x0000, ///<
-    CMSG_MOVE_STOP_STRAFE                       = 0x0000, ///<
-    CMSG_MOVE_STOP_SWIM                         = 0x0000, ///<
-    CMSG_MOVE_STOP_ASCEND                       = 0x0000, ///<
-    CMSG_MOVE_STOP_PITCH                        = 0x0000, ///<
+    CMSG_MOVE_STOP                              = 0x044B, ///< 6.1.2 19711
+    CMSG_MOVE_STOP_TURN                         = 0x0854, ///< 6.1.2 19711
+    CMSG_MOVE_STOP_STRAFE                       = 0x084B, ///< 6.1.2 19711
+    CMSG_MOVE_STOP_SWIM                         = 0x081B, ///< 6.1.2 19711
+    CMSG_MOVE_STOP_ASCEND                       = 0x011C, ///< 6.1.2 19711
+    CMSG_MOVE_STOP_PITCH                        = 0x045B, ///< 6.1.2 19711
 
     /// ACK
-    CMSG_MOVE_SET_RUN_SPEED_CHEAT               = 0x0000, ///<
-    CMSG_MOVE_SET_RUN_BACK_SPEED_CHEAT          = 0x0000, ///<
-    CMSG_MOVE_SET_WALK_SPEED_CHEAT              = 0x0000, ///<
-    CMSG_MOVE_SET_SWIM_SPEED_CHEAT              = 0x0000, ///<
-    CMSG_MOVE_SET_SWIM_BACK_SPEED_CHEAT         = 0x0000, ///<
-    CMSG_MOVE_SET_FLIGHT_SPEED_CHEAT            = 0x0000, ///<
-    CMSG_MOVE_SET_FLIGHT_BACK_SPEED_CHEAT       = 0x0000, ///<
-    CMSG_MOVE_SET_TURN_SPEED_CHEAT              = 0x0000, ///<
-    CMSG_MOVE_SET_PITCH_SPEED_CHEAT             = 0x0000, ///<
-    CMSG_MOVE_KNOCK_BACK_ACK                    = 0x0000, ///<
-    CMSG_MOVE_SET_CAN_FLY_ACK                   = 0x0000, ///<
-    CMSG_MOVE_FEATHER_FALL_ACK                  = 0x0000, ///<
-    CMSG_MOVE_WATER_WALK_ACK                    = 0x0000, ///<
-    CMSG_MOVE_HOVER_ACK                         = 0x0000, ///<
+    CMSG_MOVE_SET_RUN_SPEED_CHEAT               = 0x0407, ///< 6.1.2 19711
+    CMSG_MOVE_SET_RUN_BACK_SPEED_CHEAT          = 0x044C, ///< 6.1.2 19711
+    CMSG_MOVE_SET_WALK_SPEED_CHEAT              = 0x0813, ///< 6.1.2 19711
+    CMSG_MOVE_SET_SWIM_SPEED_CHEAT              = 0x0517, ///< 6.1.2 19711
+    CMSG_MOVE_SET_SWIM_BACK_SPEED_CHEAT         = 0x0110, ///< 6.1.2 19711
+    CMSG_MOVE_SET_FLIGHT_SPEED_CHEAT            = 0x004F, ///< 6.1.2 19711
+    CMSG_MOVE_SET_FLIGHT_BACK_SPEED_CHEAT       = 0x0148, ///< 6.1.2 19711
+    CMSG_MOVE_SET_TURN_SPEED_CHEAT              = 0x014C, ///< 6.1.2 19711
+    CMSG_MOVE_SET_PITCH_SPEED_CHEAT             = 0x0410, ///< 6.1.2 19711
+    CMSG_MOVE_KNOCK_BACK_ACK                    = 0x040F, ///< 6.1.2 19711
+    CMSG_MOVE_SET_CAN_FLY_ACK                   = 0x0C03, ///< 6.1.2 19711
+    CMSG_MOVE_FEATHER_FALL_ACK                  = 0x0120, ///< 6.1.2 19711
+    CMSG_MOVE_WATER_WALK_ACK                    = 0x0C07, ///< 6.1.2 19711
+    CMSG_MOVE_HOVER_ACK                         = 0x0860, ///< 6.1.2 19711
 
     //////////////////////////////////////////////////////////////////////////
     /// Group
@@ -1728,7 +1728,7 @@ enum Opcodes
     CMSG_SUSPEND_TOKEN                                  = 0x0000,
     CMSG_SYNC_DANCE                                     = 0x0000,
     CMSG_TELEPORT_TO_UNIT                               = 0x0000,
-    CMSG_TIME_ADJUSTMENT_RESPONSE                       = 0x0000, ///<
+    CMSG_TIME_ADJUSTMENT_RESPONSE                       = 0x0554, ///< 6.1.2 19711
     CMSG_TIME_SYNC_RESP_FAILED                          = 0x0000, ///<
     CMSG_UNLEARN_SPECIALIZATION                         = 0x0000,
     CMSG_UNREGISTER_ALL_ADDON_PREFIXES                  = 0x0000,
@@ -1873,7 +1873,7 @@ enum Opcodes
     SMSG_STREAMING_MOVIES                               = 0x0000,
     SMSG_SUMMON_CANCEL                                  = 0x0000,
     SMSG_SUPPRESS_NPC_GREETINGS                         = 0x0000,
-    SMSG_TALENTS_INVOLUNTARILY_RESET                    = 0x0000,
+    SMSG_TALENTS_INVOLUNTARILY_RESET                    = 0x1246, // 6.1.2 19711
     SMSG_TIME_ADJUSTMENT                                = 0x0000,
     SMSG_UPDATE_SERVER_PLAYER_POSITION                  = 0x0000,
     SMSG_WAIT_QUEUE_FINISH                              = 0x0000,

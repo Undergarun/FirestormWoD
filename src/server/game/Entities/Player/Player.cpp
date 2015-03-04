@@ -5565,15 +5565,13 @@ void Player::RemoveAllSpellCooldown()
 {
     if (!m_spellCooldowns.empty())
     {
-        WorldPacket l_Data(SMSG_CLEAR_COOLDOWNS, 4 + 8);
-        l_Data.appendPackGUID(GetGUID());
+        WorldPacket l_Data(SMSG_CLEAR_COOLDOWNS, 4);
         l_Data << uint32(GetSpellCooldownMap().size());
 
         for (SpellCooldowns::const_iterator itr = GetSpellCooldownMap().begin(); itr != GetSpellCooldownMap().end(); ++itr)
             l_Data << uint32(itr->first);             ///< Spell ID
 
         SendDirectMessage(&l_Data);
-
         m_spellCooldowns.clear();
     }
 }
