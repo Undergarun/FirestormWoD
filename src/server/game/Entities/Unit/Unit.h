@@ -2420,6 +2420,8 @@ class Unit : public WorldObject
         void SendPetAIReaction(uint64 guid);
         ///----------End of Pet responses methods----------
 
+        void SendItemBonusDebug(uint32 p_Quantity, std::string p_Text, Player* p_Target = nullptr);
+
         void propagateSpeedChange() { GetMotionMaster()->propagateSpeedChange(); }
 
         // reactive attacks

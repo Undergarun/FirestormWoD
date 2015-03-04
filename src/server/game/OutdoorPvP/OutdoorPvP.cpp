@@ -271,10 +271,6 @@ void OutdoorPvP::HandlePlayerLeaveZone(Player* player, uint32 /*zone*/)
     sLog->outDebug(LOG_FILTER_OUTDOORPVP, "Player %s left an outdoorpvp zone", player->GetName());
 }
 
-void OutdoorPvP::HandlePlayerResurrects(Player* /*player*/, uint32 /*zone*/)
-{
-}
-
 bool OutdoorPvP::Update(uint32 p_Diff)
 {
     bool l_ObjectiveChanged = false;
@@ -788,6 +784,14 @@ OutdoorGraveyard* OutdoorPvP::GetGraveyardById(uint32 p_ID)
         sLog->outError(LOG_FILTER_BATTLEFIELD, "OutdoorPvP::GetGraveyardById Id:%u cant be found", p_ID);
 
     return nullptr;
+}
+
+uint64 OutdoorPvP::GetCreature(uint32 p_Type)
+{
+    if (m_Creatures.find(p_Type) == m_Creatures.end())
+        return 0;
+
+    return m_Creatures[p_Type];
 }
 
 OutdoorGraveyard::OutdoorGraveyard(OutdoorPvP* p_OutdoorPvP)

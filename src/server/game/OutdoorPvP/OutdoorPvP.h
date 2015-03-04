@@ -253,6 +253,9 @@ class OutdoorPvP : public ZoneScript
         virtual void HandleKillImpl(Player* /*killer*/, Unit* /*killed*/) {}
         virtual void HandlePlayerKilled(Player* p_Player) { }
 
+        /// Handle some custom PvP loots
+        virtual void FillCustomPvPLoots(Player* p_Looter, Loot& p_Loot, uint64 p_Container) { }
+
         // checks if player is in range of a capture credit marker
         bool IsInsideObjective(Player* player) const;
 
@@ -278,6 +281,8 @@ class OutdoorPvP : public ZoneScript
         OutdoorGraveyard* GetGraveyardById(uint32 p_ID);
         void SetGraveyardNumber(uint32 p_Count) { m_GraveyardList.resize(p_Count); }
 
+        uint64 GetCreature(uint32 p_Type);
+
     protected:
 
         // the map of the objectives belonging to this outdoorpvp
@@ -299,12 +304,12 @@ class OutdoorPvP : public ZoneScript
         uint32 m_LastResurectTimer;         ///< Timer for resurrect players every 30s
 
         // world state stuff
-        virtual void SendRemoveWorldStates(Player* /*player*/) {}
+        virtual void SendRemoveWorldStates(Player* /*p_Player*/) {}
 
-        void BroadcastPacket(WorldPacket & data) const;
+        void BroadcastPacket(WorldPacket& data) const;
 
-        virtual void HandlePlayerEnterZone(Player* player, uint32 zone);
-        virtual void HandlePlayerLeaveZone(Player* player, uint32 zone);
+        virtual void HandlePlayerEnterZone(Player* p_Player, uint32 p_ZoneID);
+        virtual void HandlePlayerLeaveZone(Player* p_Player, uint32 p_ZoneID);
 
         virtual void HandlePlayerEnterMap(Player* p_Player, uint32 p_MapID) { }
         virtual void HandlePlayerLeaveMap(Player* p_Player, uint32 p_MapID) { }
@@ -312,7 +317,7 @@ class OutdoorPvP : public ZoneScript
         virtual void HandlePlayerEnterArea(Player* p_Player, uint32 p_AreaID) { }
         virtual void HandlePlayerLeaveArea(Player* p_Player, uint32 p_AreaID) { }
 
-        virtual void HandlePlayerResurrects(Player* player, uint32 zone);
+        virtual void HandlePlayerResurrects(Player* p_Player, uint32 p_ZoneID) { }
 
         void AddCapturePoint(OPvPCapturePoint* cp)
         {
