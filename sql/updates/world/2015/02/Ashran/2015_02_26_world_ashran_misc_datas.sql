@@ -67,6 +67,11 @@ creature.`id` = creature_equip_template.`entry`;
 DELETE FROM gameobject WHERE id = 233282 AND map = 1191;
 DELETE FROM creature WHERE id = 85441 AND map = 1191;
 
+DELETE FROM creature WHERE id IN (86201, 86202);
+INSERT INTO creature (id, map, zoneId, areaId, spawnMask, phaseMask, equipment_id, position_x, position_y, position_z, orientation, spawntimesecs, curhealth, curmana, unit_flags2) VALUES
+(86201, 1191, 6941, 7099, 1, 1, 1, 5098.05, -4100.28, 59.7991, 5.28609, 300, 1415988, 0, 2048),
+(86202, 1191, 6941, 7099, 1, 1, 1, 5093.30, -4107.56, 59.7992, 0.035701, 300, 1417220, 96656, 2048);
+
 -- Artifact fragments
 -- Horde
 UPDATE creature_template SET gossip_menu_id = 65536, ScriptName = 'npc_ashran_atomik' WHERE entry = 82204;
