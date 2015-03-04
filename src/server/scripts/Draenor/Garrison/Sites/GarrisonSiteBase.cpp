@@ -126,14 +126,18 @@ namespace MS { namespace Garrison { namespace Sites
             if (m_CreaturesPerEntry.find(l_Entry) == m_CreaturesPerEntry.end())
                 continue;
 
-            std::for_each(m_CreaturesPerEntry[l_Entry].begin(), m_CreaturesPerEntry[l_Entry].end(), [p_Level](uint64 const& p_Guid) -> void
+            std::set<uint64>& l_Guids = m_CreaturesPerEntry[l_Entry];
+
+            for (auto l_It = l_Guids.begin(); l_It != l_Guids.end(); ++l_It)
             {
-                if (Creature * l_Creature = HashMapHolder<Creature>::Find(p_Guid))
+                uint64 l_Guid = *l_It;
+
+                if (Creature * l_Creature = HashMapHolder<Creature>::Find(l_Guid))
                 {
                     l_Creature->SetLevel(p_Level);
                     l_Creature->UpdateStatsForLevel();
                 }
-            });
+            }
         }
     }
 

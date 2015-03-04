@@ -227,6 +227,7 @@ Battleground::~Battleground()
     for (BattlegroundScoreMap::const_iterator itr = PlayerScores.begin(); itr != PlayerScores.end(); ++itr)
         delete itr->second;
 }
+
 void Battleground::InitGUID()
 {
     BattlegroundQueueType l_QueueType = BattlegroundQueueType::Battleground;
@@ -2158,6 +2159,7 @@ void Battleground::AwardTeamsWithRewards(BattlegroundAward p_LooserAward, uint32
         CastSpellOnTeam(PVP_AWARD_SPELL_SKIRMISH_WIN, l_WinnerTeam);
     }
 }
+
 uint32 Battleground::GetSpellIdForAward(BattlegroundAward p_Award)
 {
     switch (p_Award)
@@ -2172,4 +2174,3 @@ uint32 Battleground::GetSpellIdForAward(BattlegroundAward p_Award)
             return 0;
     }
 }
-
