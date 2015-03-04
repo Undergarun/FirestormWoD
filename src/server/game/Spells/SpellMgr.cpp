@@ -3353,6 +3353,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 164868:///< Ogreic Landing
                 spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
                 break;
+            case 164850:///< Nature Channeling (Cosmetic)
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+                break;
             case 20167: ///< Seal of Insight
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_NONE;
                 break;
