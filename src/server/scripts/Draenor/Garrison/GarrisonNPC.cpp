@@ -18,6 +18,7 @@
 #include "Buildings/Alliance/ATheForge.hpp"
 #include "Buildings/Alliance/ADwarvenBunker.hpp"
 #include "Buildings/Alliance/ABarracks.hpp"
+#include "Buildings/Alliance/ATradingPost.hpp"
 
 #include "Buildings/Horde/HTheForge.hpp"
 #include "Buildings/Horde/HTradingPost.hpp"
@@ -408,6 +409,9 @@ void AddSC_Garrison_NPC()
         new MS::Garrison::npc_TharisStrongcast;
         new MS::Garrison::npc_Segumi;
         new MS::Garrison::npc_RonAshton;
+
+        /// Trading post
+        new MS::Garrison::npc_TraderJoseph;
     }
 
     /// Horde
