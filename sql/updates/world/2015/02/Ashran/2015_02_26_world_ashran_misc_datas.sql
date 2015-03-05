@@ -281,147 +281,147 @@ INSERT INTO locales_gossip_menu_option (menu_id, id, option_text_loc2, option_te
     65536, 0,
     'Prenez tous mes fragments d''artéfacts !',
     '',
-    '',
+    '¡Ten todos mis Fragmentos de artefacto!',
     ''
 ),
 (
     65536, 1,
     'Combien de fragments d''artéfacts avons-nous rassemblés ?',
     '',
-    '',
+    '¿Cuántos Fragmentos de artefacto hemos recogido?',
     ''
 ),
 (
     65536, 2,
     'À quoi sert Kronus ?',
     '',
-    '',
+    '¿Qué está haciendo Kronus?',
     ''
 ),
 (
     65540, 0,
     'Prenez tous mes fragments d''artéfacts !',
     '',
-    '',
+    '¡Ten todos mis Fragmentos de artefacto!',
     ''
 ),
 (
     65540, 1,
     'Combien de fragments d''artéfacts avons-nous rassemblés ?',
     '',
-    '',
+    '¿Cuántos Fragmentos de artefacto hemos recogido?',
     ''
 ),
 (
     65540, 2,
     'À quoi servent les portes de démoniste ?',
     '',
-    '',
+    '¿Qué hacen los Portales de Brujo?',
     ''
 ),
 (
     65539, 0,
     'Prenez tous mes fragments d''artéfacts !',
     '',
-    '',
+    '¡Ten todos mis Fragmentos de artefacto!',
     ''
 ),
 (
     65539, 1,
     'Combien de fragments d''artéfacts avons-nous rassemblés ?',
     '',
-    '',
+    '¿Cuántos Fragmentos de artefacto hemos recogido?',
     ''
 ),
 (
     65539, 2,
     'À quoi servent les portails de mage ?',
     '',
-    '',
+    '¿Qué hacen los Portales de Mago?',
     ''
 ),
 (
     65537, 0,
     'Prenez tous mes fragments d''artéfacts !',
     '',
-    '',
+    '¡Ten todos mis Fragmentos de artefacto!',
     ''
 ),
 (
     65537, 1,
     'Combien de fragments d''artéfacts avons-nous rassemblés ?',
     '',
-    '',
+    '¿Cuántos Fragmentos de artefacto hemos recogido?',
     ''
 ),
 (
     65537, 2,
     'Quel est le rôle des Chevaucheurs de loups ?',
     '',
-    '',
+    '¿Qué hacen los Ginetes de Lobos?',
     ''
 ),
 (
     65543, 0,
     'Montrez-moi la cime de la Brute.',
     '',
-    '',
+    'Muéstrame el Alzamiento del Tosco.',
     ''
 ),
 (
     65543, 1,
     'Montrez-moi la carrière de la Fournaise.',
     '',
-    '',
+    'Muéstrame la Cantera de Magma.',
     ''
 ),
 (
     65543, 2,
     'Montrez-moi l''amphitéâtre de l''Annihilation.',
     '',
-    '',
+    'Muéstrame el Anfiteatro de la Aniquilación.',
     ''
 ),
 (
     65543, 3,
     'Montrez-moi le cimetière des Cognecendres.',
     '',
-    '',
+    'Muéstrame el Cementerio Machacabrasas.',
     ''
 ),
 (
     65545, 0,
     'Prenez tous mes fragments d''artéfacts !',
     '',
-    '',
+    '¡Ten todos mis Fragmentos de artefacto!',
     ''
 ),
 (
     65586, 0,
     'Prenez tous mes fragments d''artéfacts !',
     '',
-    '',
+    '¡Ten todos mis Fragmentos de artefacto!',
     ''
 ),
 (
     65547, 0,
     'Je voudrais vous acheter quelque chose.',
     '',
-    '',
+    'Me gustaría comprarte algo.',
     ''
 ),
 (
     65560, 0,
     'Prenez tous mes fragments d''artéfacts !',
     '',
-    '',
+    '¡Ten todos mis Fragmentos de artefacto!',
     ''
 ),
 (
     65560, 1,
     'Combien de fragments d''artéfacts avons-nous rassemblés ?',
     '',
-    '',
+    '¿Cuántos Fragmentos de artefacto hemos recogido?',
     ''
 ),
 (
@@ -435,14 +435,14 @@ INSERT INTO locales_gossip_menu_option (menu_id, id, option_text_loc2, option_te
     65563, 0,
     'Prenez tous mes fragments d''artéfacts !',
     '',
-    '',
+    '¡Ten todos mis Fragmentos de artefacto!',
     ''
 ),
 (
     65563, 1,
     'Combien de fragments d''artéfacts avons-nous rassemblés ?',
     '',
-    '',
+    '¿Cuántos Fragmentos de artefacto hemos recogido?',
     ''
 ),
 (
@@ -456,14 +456,14 @@ INSERT INTO locales_gossip_menu_option (menu_id, id, option_text_loc2, option_te
     65566, 0,
     'Prenez tous mes fragments d''artéfacts !',
     '',
-    '',
+    '¡Ten todos mis Fragmentos de artefacto!',
     ''
 ),
 (
     65566, 1,
     'Combien de fragments d''artéfacts avons-nous rassemblés ?',
     '',
-    '',
+    '¿Cuántos Fragmentos de artefacto hemos recogido?',
     ''
 ),
 (
@@ -477,14 +477,14 @@ INSERT INTO locales_gossip_menu_option (menu_id, id, option_text_loc2, option_te
     65569, 0,
     'Prenez tous mes fragments d''artéfacts !',
     '',
-    '',
+    '¡Ten todos mis Fragmentos de artefacto!',
     ''
 ),
 (
     65569, 1,
     'Combien de fragments d''artéfacts avons-nous rassemblés ?',
     '',
-    '',
+    '¿Cuántos Fragmentos de artefacto hemos recogido?',
     ''
 ),
 (
@@ -1246,12 +1246,16 @@ INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, t
 (
     88675, 0, 0,
     'Ces gobelins de Gentepression... faudrait les enfermer. Ils feraient n''importe quoi pour de l''argent !',
-    '', '', ''
+    '',
+    'Esos goblins Bonvapor son reprensibles. ¡Ellos harán lo que sea por un poco de dinero rápido!',
+    ''
 ),
 (
     88675, 1, 0,
     'Ça y est, ils vendent des souvenirs !',
-    '', '', ''
+    '',
+    '¡Ellos han empezado a vender regalos!',
+    ''
 ),
 (
     88675, 2, 0,

@@ -204,30 +204,6 @@ class npc_jeron_emberfall : public CreatureScript
         }
 };
 
-/// Mare Wildrunner <Warspear Farseer> - 84660
-class npc_ashran_mare_wildrunner : public CreatureScript
-{
-    public:
-        npc_ashran_mare_wildrunner() : CreatureScript("npc_ashran_mare_wildrunner") { }
-
-        bool OnGossipHello(Player* p_Player, Creature* p_Creature)
-        {
-            return false;
-        }
-};
-
-/// Angry Zurge - 83869
-class npc_ashran_angry_zurge : public CreatureScript
-{
-    public:
-        npc_ashran_angry_zurge() : CreatureScript("npc_ashran_angry_zurge") { }
-
-        bool OnGossipHello(Player* p_Player, Creature* p_Creature)
-        {
-            return false;
-        }
-};
-
 /// Kalgan <Warspear Warrior Leader> - 83830
 class npc_ashran_kalgan : public CreatureScript
 {
@@ -553,8 +529,6 @@ class npc_ashran_legionnaire_hellaxe : public CreatureScript
 void AddSC_AshranNPCHorde()
 {
     new npc_jeron_emberfall();
-    new npc_ashran_mare_wildrunner();
-    new npc_ashran_angry_zurge();
     new npc_ashran_kalgan();
     new npc_ashran_fura();
     new npc_ashran_nisstyr();
