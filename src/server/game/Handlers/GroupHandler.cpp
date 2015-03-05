@@ -986,12 +986,10 @@ void WorldSession::HandleRaidConfirmReadyCheck(WorldPacket& p_RecvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_READY_CHECK_RESPONSE");
 
-    uint64 l_PartyGUID;
     uint8 l_PartyIndex;
     bool l_IsIsReady;
 
     p_RecvData >> l_PartyIndex;
-    p_RecvData.readPackGUID(l_PartyGUID);
     l_IsIsReady = p_RecvData.ReadBit();
 
     Group* l_Group = GetPlayer()->GetGroup();
