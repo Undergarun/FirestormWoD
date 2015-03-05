@@ -383,7 +383,7 @@ class npc_ashran_illandria_belore : public CreatureScript
                 }
             }
 
-            void ScheduleAllTalks(uint32 p_MoreTime = 0)
+            void ScheduleAllTalks()
             {
                 AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::First); });
                 AddTimedDelayedOperation(18 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Second); });
