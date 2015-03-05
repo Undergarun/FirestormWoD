@@ -204,54 +204,6 @@ class npc_jeron_emberfall : public CreatureScript
         }
 };
 
-/// Kalgan <Warspear Warrior Leader> - 83830
-class npc_ashran_kalgan : public CreatureScript
-{
-    public:
-        npc_ashran_kalgan() : CreatureScript("npc_ashran_kalgan") { }
-
-        bool OnGossipHello(Player* p_Player, Creature* p_Creature)
-        {
-            return false;
-        }
-};
-
-/// Fura <Warspear Mage Leader> - 83995
-class npc_ashran_fura : public CreatureScript
-{
-    public:
-        npc_ashran_fura() : CreatureScript("npc_ashran_fura") { }
-
-        bool OnGossipHello(Player* p_Player, Creature* p_Creature)
-        {
-            return false;
-        }
-};
-
-/// Nisstyr <Warspear Warlock Leader> - 83997
-class npc_ashran_nisstyr : public CreatureScript
-{
-    public:
-        npc_ashran_nisstyr() : CreatureScript("npc_ashran_nisstyr") { }
-
-        bool OnGossipHello(Player* p_Player, Creature* p_Creature)
-        {
-            return false;
-        }
-};
-
-/// Atomik <Warspear Shaman Leader> - 82204
-class npc_ashran_atomik : public CreatureScript
-{
-    public:
-        npc_ashran_atomik() : CreatureScript("npc_ashran_atomik") { }
-
-        bool OnGossipHello(Player* p_Player, Creature* p_Creature)
-        {
-            return false;
-        }
-};
-
 /// Warspear Shaman - 82438
 class npc_ashran_warspear_shaman : public CreatureScript
 {
@@ -529,10 +481,6 @@ class npc_ashran_legionnaire_hellaxe : public CreatureScript
 void AddSC_AshranNPCHorde()
 {
     new npc_jeron_emberfall();
-    new npc_ashran_kalgan();
-    new npc_ashran_fura();
-    new npc_ashran_nisstyr();
-    new npc_ashran_atomik();
     new npc_ashran_warspear_shaman();
     new npc_ashran_illandria_belore();
     new npc_ashran_examiner_rahm_flameheart();
