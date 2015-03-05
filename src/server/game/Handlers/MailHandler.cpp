@@ -618,23 +618,6 @@ void WorldSession::HandleGetMailList(WorldPacket& p_Packet)
 
         l_MailsBuffer << uint32((*itr)->messageID);                         // Message ID
         l_MailsBuffer << uint8((*itr)->messageType);                        // Message Type
-
-        if ((*itr)->messageType == MAIL_NORMAL)
-        {
-            l_MailsBuffer.WriteBit(true);
-            l_MailsBuffer.WriteBit(true);
-            l_MailsBuffer.FlushBits();
-
-            l_MailsBuffer << uint32(g_RealmID);
-            l_MailsBuffer << uint32(g_RealmID);
-        }
-        else
-        {
-            l_MailsBuffer.WriteBit(false);
-            l_MailsBuffer.WriteBit(false);
-            l_MailsBuffer.FlushBits();
-        }
-
         l_MailsBuffer << uint64((*itr)->COD);                               // COD
         l_MailsBuffer << uint32(0);                                         // Package.dbc ID ?
         l_MailsBuffer << uint32((*itr)->stationery);                        // stationery (Stationery.dbc)
