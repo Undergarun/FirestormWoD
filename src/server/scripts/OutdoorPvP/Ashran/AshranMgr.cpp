@@ -56,6 +56,10 @@ void OPvPCapturePoint_Middle::ChangeState()
             SendUpdateWorldState(eWorldStates::WorldStateEnableTowerProgressBar, eWorldStates::WorldStateDisabled);
             break;
         case ObjectiveStates::OBJECTIVESTATE_NEUTRAL:
+        case ObjectiveStates::OBJECTIVESTATE_NEUTRAL_ALLIANCE_CHALLENGE:
+        case ObjectiveStates::OBJECTIVESTATE_NEUTRAL_HORDE_CHALLENGE:
+        case ObjectiveStates::OBJECTIVESTATE_ALLIANCE_HORDE_CHALLENGE:
+        case ObjectiveStates::OBJECTIVESTATE_HORDE_ALLIANCE_CHALLENGE:
             m_BattleFaction = eControlStatus::ControlNeutral;
             SpawnFactionGuards(m_BattleType, m_BattleFaction);
             l_UpdateVal = eFlagStates::FlagNeutral;
@@ -430,6 +434,10 @@ void OPvPCapturePoint_Graveyard::ChangeState()
             break;
         }
         case ObjectiveStates::OBJECTIVESTATE_NEUTRAL:
+        case ObjectiveStates::OBJECTIVESTATE_NEUTRAL_ALLIANCE_CHALLENGE:
+        case ObjectiveStates::OBJECTIVESTATE_NEUTRAL_HORDE_CHALLENGE:
+        case ObjectiveStates::OBJECTIVESTATE_ALLIANCE_HORDE_CHALLENGE:
+        case ObjectiveStates::OBJECTIVESTATE_HORDE_ALLIANCE_CHALLENGE:
         {
             m_GraveyardState = eControlStatus::ControlNeutral;
             SpawnFactionFlags(m_GraveyardState);
@@ -604,7 +612,11 @@ OutdoorPvPAshran::OutdoorPvPAshran()
     }
 
     AddCreature(eSpecialSpawns::AllianceFactionBoss, g_FactionBossesSpawn[0], 5 * TimeConstants::MINUTE);
+    AddCreature(eSpecialSpawns::AllianceMarshalKarshStormforge, g_FactionBossesGuardians[0], 5 * TimeConstants::MINUTE);
+    AddCreature(eSpecialSpawns::AllianceMarshalGabriel, g_FactionBossesGuardians[1], 5 * TimeConstants::MINUTE);
     AddCreature(eSpecialSpawns::HordeFactionBoss, g_FactionBossesSpawn[3], 5 * TimeConstants::MINUTE);
+    AddCreature(eSpecialSpawns::HordeGeneralAevd, g_FactionBossesGuardians[6], 5 * TimeConstants::MINUTE);
+    AddCreature(eSpecialSpawns::HordeWarlordNoktyn, g_FactionBossesGuardians[7], 5 * TimeConstants::MINUTE);
 }
 
 bool OutdoorPvPAshran::SetupOutdoorPvP()
@@ -1408,25 +1420,49 @@ void OutdoorPvPAshran::SetBattleState(uint32 p_NewState)
         {
             case eWorldStates::WorldStateEmberfallTowerBattle:
                 DelCreature(eSpecialSpawns::HordeFactionBoss);
+                DelCreature(eSpecialSpawns::HordeGeneralAevd);
+                DelCreature(eSpecialSpawns::HordeWarlordNoktyn);
                 AddCreature(eSpecialSpawns::HordeFactionBoss, g_FactionBossesSpawn[5], 5 * TimeConstants::MINUTE);
+                AddCreature(eSpecialSpawns::HordeGeneralAevd, g_FactionBossesGuardians[10], 5 * TimeConstants::MINUTE);
+                AddCreature(eSpecialSpawns::HordeWarlordNoktyn, g_FactionBossesGuardians[11], 5 * TimeConstants::MINUTE);
                 break;
             case eWorldStates::WorldStateVolrathsAdvanceBattle:
                 DelCreature(eSpecialSpawns::HordeFactionBoss);
+                DelCreature(eSpecialSpawns::HordeGeneralAevd);
+                DelCreature(eSpecialSpawns::HordeWarlordNoktyn);
                 AddCreature(eSpecialSpawns::HordeFactionBoss, g_FactionBossesSpawn[4], 5 * TimeConstants::MINUTE);
+                AddCreature(eSpecialSpawns::HordeGeneralAevd, g_FactionBossesGuardians[8], 5 * TimeConstants::MINUTE);
+                AddCreature(eSpecialSpawns::HordeWarlordNoktyn, g_FactionBossesGuardians[9], 5 * TimeConstants::MINUTE);
                 break;
             case eWorldStates::WorldStateTheCrossroadsBattle:
                 DelCreature(eSpecialSpawns::AllianceFactionBoss);
                 DelCreature(eSpecialSpawns::HordeFactionBoss);
+                DelCreature(eSpecialSpawns::AllianceMarshalKarshStormforge);
+                DelCreature(eSpecialSpawns::AllianceMarshalGabriel);
+                DelCreature(eSpecialSpawns::HordeGeneralAevd);
+                DelCreature(eSpecialSpawns::HordeWarlordNoktyn);
                 AddCreature(eSpecialSpawns::AllianceFactionBoss, g_FactionBossesSpawn[0], 5 * TimeConstants::MINUTE);
+                AddCreature(eSpecialSpawns::AllianceMarshalKarshStormforge, g_FactionBossesGuardians[0], 5 * TimeConstants::MINUTE);
+                AddCreature(eSpecialSpawns::AllianceMarshalGabriel, g_FactionBossesGuardians[1], 5 * TimeConstants::MINUTE);
                 AddCreature(eSpecialSpawns::HordeFactionBoss, g_FactionBossesSpawn[3], 5 * TimeConstants::MINUTE);
+                AddCreature(eSpecialSpawns::HordeGeneralAevd, g_FactionBossesGuardians[6], 5 * TimeConstants::MINUTE);
+                AddCreature(eSpecialSpawns::HordeWarlordNoktyn, g_FactionBossesGuardians[7], 5 * TimeConstants::MINUTE);
                 break;
             case eWorldStates::WorldStateTrembladesVanguardBattle:
                 DelCreature(eSpecialSpawns::AllianceFactionBoss);
+                DelCreature(eSpecialSpawns::AllianceMarshalKarshStormforge);
+                DelCreature(eSpecialSpawns::AllianceMarshalGabriel);
                 AddCreature(eSpecialSpawns::AllianceFactionBoss, g_FactionBossesSpawn[1], 5 * TimeConstants::MINUTE);
+                AddCreature(eSpecialSpawns::AllianceMarshalKarshStormforge, g_FactionBossesGuardians[2], 5 * TimeConstants::MINUTE);
+                AddCreature(eSpecialSpawns::AllianceMarshalGabriel, g_FactionBossesGuardians[3], 5 * TimeConstants::MINUTE);
                 break;
             case eWorldStates::WorldStateArchmageOverwatchBattle:
                 DelCreature(eSpecialSpawns::AllianceFactionBoss);
+                DelCreature(eSpecialSpawns::AllianceMarshalKarshStormforge);
+                DelCreature(eSpecialSpawns::AllianceMarshalGabriel);
                 AddCreature(eSpecialSpawns::AllianceFactionBoss, g_FactionBossesSpawn[2], 5 * TimeConstants::MINUTE);
+                AddCreature(eSpecialSpawns::AllianceMarshalKarshStormforge, g_FactionBossesGuardians[4], 5 * TimeConstants::MINUTE);
+                AddCreature(eSpecialSpawns::AllianceMarshalGabriel, g_FactionBossesGuardians[5], 5 * TimeConstants::MINUTE);
                 break;
             default:
                 break;

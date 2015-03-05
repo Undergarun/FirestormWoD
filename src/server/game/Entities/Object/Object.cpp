@@ -3804,6 +3804,7 @@ void WorldObject::DestroyForNearbyPlayers()
 
         DestroyForPlayer(player);
         player->m_clientGUIDs.erase(GetGUID());
+        player->GetVignetteMgr().OnWorldObjectDisappear(this);
     }
 }
 

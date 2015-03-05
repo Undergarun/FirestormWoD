@@ -37,7 +37,9 @@ class npc_rylai_crestfall : public CreatureScript
 
                 TowerMageTargetingAura  = 176162,   ///< Put on ennemy players around 200 yards
                 FreezingFieldSearcher   = 176163,   ///< Launch frost missile on one player targeted
-                FreezingFieldMissile    = 176165
+                FreezingFieldMissile    = 176165,
+
+                ConjureRefreshment      = 176351
             };
 
             enum eTalk
@@ -216,6 +218,12 @@ class npc_rylai_crestfall : public CreatureScript
                 }
                 else
                     m_FreezingFieldTimer -= p_Diff;
+            }
+
+            void sGossipSelect(Player* p_Player, uint32 p_Sender, uint32 p_Action)
+            {
+                p_Player->PlayerTalkClass->SendCloseGossip();
+                me->CastSpell(p_Player, eSpells::ConjureRefreshment, false);
             }
         };
 

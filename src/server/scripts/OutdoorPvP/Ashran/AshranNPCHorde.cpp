@@ -33,7 +33,9 @@ class npc_jeron_emberfall : public CreatureScript
 
                 TargetedByTheTowerMage  = 176076,
                 PhoenixStrikeSearcher   = 176086,
-                PhoenixStrikeMissile    = 176066
+                PhoenixStrikeMissile    = 176066,
+
+                ConjureRefreshment      = 176351
             };
 
             enum eTalk
@@ -195,6 +197,12 @@ class npc_jeron_emberfall : public CreatureScript
                 }
                 else
                     m_PhoenixStrikeTimer -= p_Diff;
+            }
+
+            void sGossipSelect(Player* p_Player, uint32 p_Sender, uint32 p_Action)
+            {
+                p_Player->PlayerTalkClass->SendCloseGossip();
+                me->CastSpell(p_Player, eSpells::ConjureRefreshment, false);
             }
         };
 

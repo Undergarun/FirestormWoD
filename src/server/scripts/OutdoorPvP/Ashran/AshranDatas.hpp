@@ -215,6 +215,8 @@ enum eCreatures
     RylaiCrestfall          = 88224,    ///< Alliance Guardian
     AllianceSpiritGuide     = 80723,
     GaulDunFirok            = 81726,    ///< Gaul Dun Firok <Alliance Champion>
+    MarshalKarshStormforge  = 82880,
+    MarshalGabriel          = 82878,
 
     /// Horde
     WarspearBloodGuard      = 83699,
@@ -227,7 +229,9 @@ enum eCreatures
     WarspearWyvern          = 87687,    ///< Horde taxi
     ShevanManille           = 87672,    ///< Horde <Flight Master>
     HordeSpiritGuide        = 80724,
-    MukmarRaz               = 81725     ///< Muk'Mar Raz <Horde Champion>
+    MukmarRaz               = 81725,    ///< Muk'Mar Raz <Horde Champion>
+    GeneralAevd             = 82882,
+    WarlordNoktyn           = 82883
 };
 
 enum eGameObjects
@@ -358,7 +362,14 @@ enum eSpecialSpawns
     /// Throne of the Ogre King
     NeutralKorlokTheOgreKing,
     OgreAllianceChampion,
-    OgreHordeChapion
+    OgreHordeChapion,
+
+    /// Boss factions guardians
+    HordeWarlordNoktyn,
+    HordeGeneralAevd,
+    AllianceMarshalGabriel,
+    AllianceMarshalKarshStormforge,
+    MaxBossGuardian = 2
 };
 
 enum eFactions
@@ -477,12 +488,28 @@ const creature_type g_FactionGuardians[eSpecialSpawns::MaxTowerGuardians] =
 /// Three spawn positions depending on towers status
 const creature_type g_FactionBossesSpawn[eSpecialSpawns::MaxFactionBosses * 3] =
 {
-    { eCreatures::GrandMarshalTremblade, Team::ALLIANCE, eAshranDatas::AshranMapID, 3921.64f, -4086.35f, 66.53f, 0.1372f }, ///< The Crossroads
+    { eCreatures::GrandMarshalTremblade, Team::ALLIANCE, eAshranDatas::AshranMapID, 3914.96f, -4087.11f, 66.53f, 0.1372f }, ///< The Crossroads
     { eCreatures::GrandMarshalTremblade, Team::ALLIANCE, eAshranDatas::AshranMapID, 3955.19f, -4081.59f, 63.72f, 0.1411f }, ///< Tremblade's Vanguard
     { eCreatures::GrandMarshalTremblade, Team::ALLIANCE, eAshranDatas::AshranMapID, 3991.94f, -4094.43f, 57.47f, 6.0214f }, ///< Archmage Overwatch
     { eCreatures::HighWarlordVolrath,    Team::HORDE,    eAshranDatas::AshranMapID, 5125.03f, -4115.48f, 59.13f, 3.8966f }, ///< The Crossroads
     { eCreatures::HighWarlordVolrath,    Team::HORDE,    eAshranDatas::AshranMapID, 5073.46f, -4160.39f, 47.21f, 3.8534f }, ///< Volrath's Advance
-    { eCreatures::HighWarlordVolrath,    Team::HORDE,    eAshranDatas::AshranMapID, 5046.81f, -4185.73f, 45.47f, 2.7925f }  ///< Emberfall Tower
+    { eCreatures::HighWarlordVolrath,    Team::HORDE,    eAshranDatas::AshranMapID, 5035.13f, -4177.21f, 46.15f, 2.9979f }  ///< Emberfall Tower
+};
+
+const creature_type g_FactionBossesGuardians[eSpecialSpawns::MaxBossGuardian * 2 * 3] =
+{
+    { eCreatures::MarshalKarshStormforge,   Team::ALLIANCE, eAshranDatas::AshranMapID, 3922.10f, -4080.21f, 66.53f, 4.8326f },    ///< The Crossroads
+    { eCreatures::MarshalGabriel,           Team::ALLIANCE, eAshranDatas::AshranMapID, 3923.77f, -4091.46f, 66.53f, 1.7185f },    ///< The Crossroads
+    { eCreatures::MarshalKarshStormforge,   Team::ALLIANCE, eAshranDatas::AshranMapID, 3954.91f, -4074.61f, 63.81f, 5.9717f },    ///< Tremblade's Vanguard
+    { eCreatures::MarshalGabriel,           Team::ALLIANCE, eAshranDatas::AshranMapID, 3957.60f, -4089.45f, 63.22f, 0.5868f },    ///< Tremblade's Vanguard
+    { eCreatures::MarshalKarshStormforge,   Team::ALLIANCE, eAshranDatas::AshranMapID, 3993.42f, -4089.08f, 57.23f, 5.8411f },    ///< Archmage Overwatch
+    { eCreatures::MarshalGabriel,           Team::ALLIANCE, eAshranDatas::AshranMapID, 3991.55f, -4100.32f, 57.79f, 0.0764f },    ///< Archmage Overwatch
+    { eCreatures::GeneralAevd,              Team::HORDE,    eAshranDatas::AshranMapID, 5120.18f, -4112.07f, 59.13f, 4.4784f },    ///< The Crossroads
+    { eCreatures::WarlordNoktyn,            Team::HORDE,    eAshranDatas::AshranMapID, 5127.97f, -4120.82f, 59.21f, 3.5152f },    ///< The Crossroads
+    { eCreatures::GeneralAevd,              Team::HORDE,    eAshranDatas::AshranMapID, 5064.04f, -4152.86f, 47.76f, 4.0072f },    ///< Volrath's Advance
+    { eCreatures::WarlordNoktyn,            Team::HORDE,    eAshranDatas::AshranMapID, 5076.36f, -4168.92f, 46.80f, 3.1864f },    ///< Volrath's Advance
+    { eCreatures::GeneralAevd,              Team::HORDE,    eAshranDatas::AshranMapID, 5033.13f, -4165.64f, 46.64f, 3.7904f },    ///< Emberfall Tower
+    { eCreatures::WarlordNoktyn,            Team::HORDE,    eAshranDatas::AshranMapID, 5032.13f, -4185.38f, 47.08f, 2.5503f },    ///< Emberfall Tower
 };
 
 const creature_type g_FactionTaxisToBase[MS::Battlegrounds::TeamsCount::Value][eSpecialSpawns::MaxTaxiToBases] =
