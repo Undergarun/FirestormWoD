@@ -301,25 +301,25 @@ enum Opcodes
         SMSG_CONVERT_RUNE                           = 0x0000, ///<
 
         /// Group
-        SMSG_PARTY_UPDATE                           = 0x0000, ///<
-        SMSG_PARTY_MEMBER_STATE_FULL                = 0x0000, ///<
-        SMSG_PARTY_MEMBER_STATE_PARTIAL             = 0x0000, ///<
-        SMSG_PARTY_INVITE                           = 0x0000, ///<
-        SMSG_GROUP_DECLINE                          = 0x0000, ///<
-        SMSG_PARTY_COMMAND_RESULT                   = 0x0000, ///<
-        SMSG_GROUP_UNINVITE                         = 0x0000, ///<
-        SMSG_GROUP_NEW_LEADER                       = 0x0000, ///<
-        SMSG_MINIMAP_PING                           = 0x0000, ///<
-        SMSG_SET_LOOT_METHOD_FAILED                 = 0x0000, ///<
-        SMSG_RANDOM_ROLL                            = 0x0000, ///<
-        SMSG_SEND_RAID_TARGET_UPDATE_SINGLE         = 0x0000, ///<
-        SMSG_SEND_RAID_TARGET_UPDATE_ALL            = 0x0000, ///<
-        SMSG_READY_CHECK_COMPLETED                  = 0x0000, ///<
-        SMSG_READY_CHECK_RESPONSE                   = 0x0000, ///<
-        SMSG_READY_CHECK_STARTED                    = 0x0000, ///<
-        SMSG_ROLL_POLL_INFORM                       = 0x0000, ///<
-        SMSG_ROLE_CHANGED_INFORM                    = 0x0000, ///<
-        SMSG_GROUP_DESTROYED                        = 0x0000, ///<
+        SMSG_PARTY_UPDATE                           = 0x0F02, ///< 6.1.2 19711
+        SMSG_PARTY_MEMBER_STATE_FULL                = 0x0335, ///< 6.1.2 19711
+        SMSG_PARTY_MEMBER_STATE_PARTIAL             = 0x0A16, ///< 6.1.2 19711
+        SMSG_PARTY_INVITE                           = 0x0E83, ///< 6.1.2 19711
+        SMSG_GROUP_DECLINE                          = 0x139F, ///< 6.1.2 19711
+        SMSG_PARTY_COMMAND_RESULT                   = 0x13B5, ///< 6.1.2 19711
+        SMSG_GROUP_UNINVITE                         = 0x1318, ///< 6.1.2 19711
+        SMSG_GROUP_NEW_LEADER                       = 0x0C32, ///< 6.1.2 19711
+        SMSG_MINIMAP_PING                           = 0x1697, ///< 6.1.2 19711
+        SMSG_SET_LOOT_METHOD_FAILED                 = 0x09B6, ///< 6.1.2 19711
+        SMSG_RANDOM_ROLL                            = 0x1240, ///< 6.1.2 19711
+        SMSG_SEND_RAID_TARGET_UPDATE_SINGLE         = 0x1F0C, ///< 6.1.2 19711
+        SMSG_SEND_RAID_TARGET_UPDATE_ALL            = 0x1F84, ///< 6.1.2 19711
+        SMSG_READY_CHECK_COMPLETED                  = 0x0B35, ///< 6.1.2 19711
+        SMSG_READY_CHECK_RESPONSE                   = 0x0DF6, ///< 6.1.2 19711
+        SMSG_READY_CHECK_STARTED                    = 0x1618, ///< 6.1.2 19711
+        SMSG_ROLL_POLL_INFORM                       = 0x0EC0, ///< 6.1.2 19711
+        SMSG_ROLE_CHANGED_INFORM                    = 0x0F09, ///< 6.1.2 19711
+        SMSG_GROUP_DESTROYED                        = 0x1D75, ///< 6.1.2 19711
 
         /// Battleground
         SMSG_BATTLEFIELD_STATUS_QUEUED                      = 0x0000, ///<
@@ -386,29 +386,29 @@ enum Opcodes
         SMSG_PETBATTLE_UPDATE_BATTLESLOT                    = 0x0000,
 
         /// Instances
-        SMSG_INSTANCE_ENCOUNTER_ENGAGE_UNIT                     = 0x0000, ///<
-        SMSG_INSTANCE_ENCOUNTER_DISENGAGE_UNIT                  = 0x0000, ///<
-        SMSG_INSTANCE_ENCOUNTER_CHANGE_PRIORITY                 = 0x0000, ///<
-        SMSG_INSTANCE_ENCOUNTER_TIMER_START                     = 0x0000, ///<
-        SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_START                 = 0x0000, ///<
-        SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_COMPLETE              = 0x0000, ///<
-        SMSG_INSTANCE_ENCOUNTER_START                           = 0x0000, ///<
-        SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_UPDATE                = 0x0000, ///<
-        SMSG_INSTANCE_ENCOUNTER_END                             = 0x0000, ///<
-        SMSG_INSTANCE_ENCOUNTER_IN_COMBAT_RESURRECTION          = 0x0000, ///<
-        SMSG_INSTANCE_ENCOUNTER_PHASE_SHIFT_CHANGED             = 0x0000, ///<
-        SMSG_INSTANCE_ENCOUNTER_GAIN_COMBAT_RESURRECTION_CHARGE = 0x0000, ///<
-        SMSG_INSTANCE_RESET                                     = 0x0000, ///<
-        SMSG_INSTANCE_RESET_FAILED                              = 0x0000, ///<
-        SMSG_RAID_INSTANCE_INFO                                 = 0x0000, ///< //
-        SMSG_RAID_GROUP_ONLY                                    = 0x0000, ///< //
-        SMSG_RAID_MARKERS_CHANGED                               = 0x0000, ///< //
-        SMSG_INSTANCE_SAVE_CREATED                              = 0x0000, ///< //
+        SMSG_INSTANCE_ENCOUNTER_ENGAGE_UNIT                     = 0x08E6, ///< 6.1.2 19711
+        SMSG_INSTANCE_ENCOUNTER_DISENGAGE_UNIT                  = 0x1DB6, ///< 6.1.2 19711
+        SMSG_INSTANCE_ENCOUNTER_CHANGE_PRIORITY                 = 0x0C72, ///< 6.1.2 19711
+        SMSG_INSTANCE_ENCOUNTER_TIMER_START                     = 0x0619, ///< 6.1.2 19711
+        SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_START                 = 0x0B3D, ///< 6.1.2 19711
+        SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_COMPLETE              = 0x0735, ///< 6.1.2 19711
+        SMSG_INSTANCE_ENCOUNTER_START                           = 0x171A, ///< 6.1.2 19711
+        SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_UPDATE                = 0x1219, ///< 6.1.2 19711
+        SMSG_INSTANCE_ENCOUNTER_END                             = 0x16B5, ///< 6.1.2 19711
+        SMSG_INSTANCE_ENCOUNTER_IN_COMBAT_RESURRECTION          = 0x1717, ///< 6.1.2 19711
+        SMSG_INSTANCE_ENCOUNTER_PHASE_SHIFT_CHANGED             = 0x0F89, ///< 6.1.2 19711
+        SMSG_INSTANCE_ENCOUNTER_GAIN_COMBAT_RESURRECTION_CHARGE = 0x0866, ///< 6.1.2 19711
+        SMSG_INSTANCE_RESET                                     = 0x0825, ///< 6.1.2 19711
+        SMSG_INSTANCE_RESET_FAILED                              = 0x0F40, ///< 6.1.2 19711
+        SMSG_RAID_INSTANCE_INFO                                 = 0x12B5, ///< 6.1.2 19711
+        SMSG_RAID_GROUP_ONLY                                    = 0x1832, ///< 6.1.2 19711
+        SMSG_RAID_MARKERS_CHANGED                               = 0x18F5, ///< 6.1.2 19711
+        SMSG_INSTANCE_SAVE_CREATED                              = 0x0DA2, ///< 6.1.2 19711
 
         /// Scenarios
-        SMSG_SCENARIO_POI                                       = 0x0000, ///<
-        SMSG_SCENARIO_PROGRESS_UPDATE                           = 0x0000, ///<
-        SMSG_SCENARIO_STATE                                     = 0x0000, ///<
+        SMSG_SCENARIO_POI                                       = 0x0CB2, ///< 6.1.2 19711
+        SMSG_SCENARIO_PROGRESS_UPDATE                           = 0x1F89, ///< 6.1.2 19711
+        SMSG_SCENARIO_STATE                                     = 0x0E16, ///< 6.1.2 19711
 
         /// Auction House
         SMSG_AUCTION_HELLO_RESPONSE                             = 0x0000, ///<
@@ -1339,22 +1339,22 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Group
     //////////////////////////////////////////////////////////////////////////
-    CMSG_PARTY_INVITE                           = 0x0000, ///<
-    CMSG_PARTY_INVITE_RESPONSE                  = 0x0000, ///<
-    CMSG_LEAVE_GROUP                            = 0x0000, ///<
-    CMSG_PARTY_UNINVITE                         = 0x0000, ///<
-    CMSG_SET_PARTY_LEADER                       = 0x0000, ///<
-    CMSG_SET_ROLE                               = 0x0000, ///<
-    CMSG_MINIMAP_PING                           = 0x0000, ///<
-    CMSG_RANDOM_ROLL                            = 0x0000, ///<
-    CMSG_UPDATE_RAID_TARGET                     = 0x0000, ///<
-    CMSG_CONVERT_RAID                           = 0x0000, ///<
-    CMSG_DO_READY_CHECK                         = 0x0000, ///<
-    CMSG_READY_CHECK_RESPONSE                   = 0x0000, ///<
-    CMSG_INITIATE_ROLE_POLL                     = 0x0000, ///<
-    CMSG_REQUEST_RAID_INFO                      = 0x0000, ///<
-    CMSG_SET_EVERYONE_IS_ASSISTANT              = 0x0000, ///<
-    CMSG_CLEAR_RAID_MARKER                      = 0x0000, ///<
+    CMSG_PARTY_INVITE                           = 0x12BD, ///< 6.1.2 19711
+    CMSG_PARTY_INVITE_RESPONSE                  = 0x16BF, ///< 6.1.2 19711
+    CMSG_LEAVE_GROUP                            = 0x179E, ///< 6.1.2 19711
+    CMSG_PARTY_UNINVITE                         = 0x02B6, ///< 6.1.2 19711
+    CMSG_SET_PARTY_LEADER                       = 0x131D, ///< 6.1.2 19711
+    CMSG_SET_ROLE                               = 0x0398, ///< 6.1.2 19711
+    CMSG_MINIMAP_PING                           = 0x1218, ///< 6.1.2 19711
+    CMSG_RANDOM_ROLL                            = 0x179F, ///< 6.1.2 19711
+    CMSG_UPDATE_RAID_TARGET                     = 0x17A0, ///< 6.1.2 19711
+    CMSG_CONVERT_RAID                           = 0x0A98, ///< 6.1.2 19711
+    CMSG_DO_READY_CHECK                         = 0x139E, ///< 6.1.2 19711
+    CMSG_READY_CHECK_RESPONSE                   = 0x07B5, ///< 6.1.2 19711
+    CMSG_INITIATE_ROLE_POLL                     = 0x071E, ///< 6.1.2 19711
+    CMSG_REQUEST_RAID_INFO                      = 0x0A96, ///< 6.1.2 19711
+    CMSG_SET_EVERYONE_IS_ASSISTANT              = 0x1716, ///< 6.1.2 19711
+    CMSG_CLEAR_RAID_MARKER                      = 0x0FDB, ///< 6.1.2 19711
 
     //////////////////////////////////////////////////////////////////////////
     /// Friend
