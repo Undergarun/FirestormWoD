@@ -286,16 +286,16 @@ class boss_megaera : public CreatureScript
                 {
                     switch (me->GetMap()->GetSpawnMode())
                     {
-                        case LEGACY_MAN10_DIFFICULTY:
+                        case DIFFICULTY_10_N:
                             p_Killer->SummonGameObject(GOB_MEGAERA_CHEST_10_NORMAL, chestPos.m_positionX, chestPos.m_positionY, chestPos.m_positionZ, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
                             break;
-                        case LEGACY_MAN25_DIFFICULTY:
+                        case DIFFICULTY_25_N:
                             p_Killer->SummonGameObject(GOB_MEGAERA_CHEST_25_NORMAL, chestPos.m_positionX, chestPos.m_positionY, chestPos.m_positionZ, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
                             break;
-                        case LEGACY_MAN10_HEROIC_DIFFICULTY:
+                        case DIFFICULTY_10_HC:
                             p_Killer->SummonGameObject(GOB_MEGAERA_CHEST_10_HEROIC, chestPos.m_positionX, chestPos.m_positionY, chestPos.m_positionZ, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
                             break; 
-                        case LEGACY_MAN25_HEROIC_DIFFICULTY:
+                        case DIFFICULTY_25_HC:
                             p_Killer->SummonGameObject(GOB_MEGAERA_CHEST_25_HEROIC, chestPos.m_positionX, chestPos.m_positionY, chestPos.m_positionZ, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
                             break;
                         default:

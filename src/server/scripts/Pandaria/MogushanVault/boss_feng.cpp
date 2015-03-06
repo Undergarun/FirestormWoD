@@ -1393,8 +1393,8 @@ class spell_mogu_arcane_velocity: public SpellScriptLoader
                 float distance = caster->GetExactDist2d(target);
 
                 uint8 mode = GetCaster()->GetInstanceScript()->instance->GetSpawnMode();
-                int32 mindmg  = (mode == LEGACY_MAN10_DIFFICULTY ? 39000 : (mode == LEGACY_MAN25_DIFFICULTY ? 44850 : (mode == LEGACY_MAN10_HEROIC_DIFFICULTY ? 58500 : (mode == LEGACY_MAN25_HEROIC_DIFFICULTY ? 67275 : 16770))));
-                int32 range   = (mode == LEGACY_MAN10_DIFFICULTY ?  2000 : (mode == LEGACY_MAN25_DIFFICULTY ?  2300 : (mode == LEGACY_MAN10_HEROIC_DIFFICULTY ?  3000 : (mode == LEGACY_MAN25_HEROIC_DIFFICULTY ?  3450 :   860))));
+                int32 mindmg  = (mode == DIFFICULTY_10_N ? 39000 : (mode == DIFFICULTY_25_N ? 44850 : (mode == DIFFICULTY_10_HC ? 58500 : (mode == DIFFICULTY_25_HC ? 67275 : 16770))));
+                int32 range   = (mode == DIFFICULTY_10_N ?  2000 : (mode == DIFFICULTY_25_N ?  2300 : (mode == DIFFICULTY_10_HC ?  3000 : (mode == DIFFICULTY_25_HC ?  3450 :   860))));
 
                 if (distance >= 0.0f && distance <= 60.0f)
                     SetHitDamage(mindmg + int32(range * (distance / MAX_DIST)));

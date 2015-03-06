@@ -1640,12 +1640,12 @@ class spell_rapid_burst: public SpellScriptLoader
 
                 if (Unit* caster = GetCaster())
                 {
-                    switch (caster->GetMap()->GetDifficulty())
+                    switch (caster->GetMap()->GetDifficultyID())
                     {
-                        case LEGACY_MAN10_DIFFICULTY:
+                        case DIFFICULTY_10_N:
                             caster->CastSpell(GetTarget(), RAND(SPELL_RAPID_BURST_LEFT_10, SPELL_RAPID_BURST_RIGHT_10), true, NULL, aurEff);
                             break;
-                        case LEGACY_MAN25_DIFFICULTY:
+                        case DIFFICULTY_25_N:
                             caster->CastSpell(GetTarget(), RAND(SPELL_RAPID_BURST_LEFT_25, SPELL_RAPID_BURST_RIGHT_25), true, NULL, aurEff);
                             break;
                         default:

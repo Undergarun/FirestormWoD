@@ -131,7 +131,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& p_RecvData)
         return;
     }
     // just ignore us
-    if (l_Player->GetInstanceId() != 0 && l_Player->GetDungeonDifficulty() != GetPlayer()->GetDungeonDifficulty())
+    if (l_Player->GetInstanceId() != 0 && l_Player->GetDungeonDifficultyID() != GetPlayer()->GetDungeonDifficultyID())
     {
         SendPartyResult(PARTY_CMD_INVITE, l_TargetName, ERR_IGNORING_YOU_S);
         return;
