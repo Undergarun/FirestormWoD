@@ -243,7 +243,7 @@ enum eGameObjects
     BonfireWithSmokeLarge1  = 233531,
     Smallfire1              = 233534,
     FXFireMediumLowSlow     = 233535,
-    AncientArtifact         = 203232
+    AncientArtifact         = 233825
 };
 
 enum eAshranActions
