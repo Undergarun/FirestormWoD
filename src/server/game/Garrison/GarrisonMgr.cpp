@@ -724,7 +724,7 @@ namespace MS { namespace Garrison
         Interfaces::GarrisonSite * l_GarrisonScript = GetGarrisonScript();
 
         if (l_GarrisonScript)
-            return l_GarrisonScript->CanUpgrade(m_Owner);
+            return l_GarrisonScript->CanUpgrade(m_Owner, m_GarrisonLevel);
 
         return false;
     }

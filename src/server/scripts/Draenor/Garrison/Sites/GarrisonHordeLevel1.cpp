@@ -189,9 +189,13 @@ namespace MS { namespace Garrison { namespace Sites
     //////////////////////////////////////////////////////////////////////////
 
     /// Can upgrade the garrison
-    /// @p_Owner : Garrison owner
-    bool InstanceScript_GarrisonHordeLevel1::CanUpgrade(Player * p_Owner)
+    /// @p_Owner                : Garrison owner
+    /// @p_CurrentGarrisonLevel : Current garrison level
+    bool InstanceScript_GarrisonHordeLevel1::CanUpgrade(Player * p_Owner, uint32 p_CurrentGarrisonLevel)
     {
+        if (p_CurrentGarrisonLevel != 1)
+            return false;
+
         if (p_Owner->getLevel() < 93)
             return false;
 
