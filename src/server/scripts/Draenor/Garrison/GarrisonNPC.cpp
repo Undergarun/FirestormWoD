@@ -240,21 +240,18 @@ namespace MS { namespace Garrison
                                                                     gGarrisonCreationCoords[l_TeamID][3]);
             p_Player->SendMovieStart(l_MovieID);
 
+            p_Player->RemoveRewardedQuest(Quests::Alliance_BiggerIsBetter);
+            p_Player->RemoveRewardedQuest(Quests::Horde_BiggerIsBetter);
+
             if (l_TeamID == TEAM_ALLIANCE && p_Player->GetQuestStatus(Quests::QUEST_ETABLISH_YOUR_GARRISON_A) != QUEST_STATUS_REWARDED)
             {
                 p_Player->AddQuest(sObjectMgr->GetQuestTemplate(Quests::QUEST_ETABLISH_YOUR_GARRISON_A), p_Creature);
                 p_Player->CompleteQuest(Quests::QUEST_ETABLISH_YOUR_GARRISON_A);
-
-                if (p_Player->IsQuestRewarded(Quests::Alliance_BiggerIsBetter))
-                    p_Player->RemoveRewardedQuest(Quests::Alliance_BiggerIsBetter);
             }
             else if (l_TeamID == TEAM_HORDE && p_Player->GetQuestStatus(Quests::QUEST_ETABLISH_YOUR_GARRISON_H) != QUEST_STATUS_REWARDED)
             {
                 p_Player->AddQuest(sObjectMgr->GetQuestTemplate(Quests::QUEST_ETABLISH_YOUR_GARRISON_H), p_Creature);
                 p_Player->CompleteQuest(Quests::QUEST_ETABLISH_YOUR_GARRISON_H);
-
-                if (p_Player->IsQuestRewarded(Quests::Horde_BiggerIsBetter))
-                    p_Player->RemoveRewardedQuest(Quests::Horde_BiggerIsBetter);
             }
 
             /// HACK until shadowmoon quest are done : add follower Qiana Moonshadow / Olin Umberhide
@@ -265,8 +262,8 @@ namespace MS { namespace Garrison
         }
         else
         {
-            if (p_Player->GetCurrency(Globals::CurrencyID, false))
-                p_Player->ModifyCurrency(Globals::CurrencyID, -(int32)p_Player->GetCurrency(Globals::CurrencyID, false));
+            if (p_Player->HasCurrency(Globals::CurrencyID, 200))
+                p_Player->ModifyCurrency(Globals::CurrencyID, -200);
 
             p_Player->DeleteGarrison();
         }
