@@ -3302,7 +3302,7 @@ bool SpellInfo::_IsPositiveTarget(uint32 targetA, uint32 targetB)
 
 SpellTargetRestrictionsEntry const* SpellInfo::GetSpellTargetRestrictions() const
 {
-    if (DifficultyID != Difficulty::NONE_DIFFICULTY)
+    if (DifficultyID != Difficulty::DIFFICULTY_NONE)
     {
         uint32 l_EntryByDifficulty = sSpellMgr->GetDifficultyEntryForDataStore(sSpellTargetRestrictionsStore.GetDbcFileName(), Id, DifficultyID);
         if (l_EntryByDifficulty != 0)
@@ -3314,7 +3314,7 @@ SpellTargetRestrictionsEntry const* SpellInfo::GetSpellTargetRestrictions() cons
 
 SpellEquippedItemsEntry const* SpellInfo::GetSpellEquippedItems() const
 {
-    if (DifficultyID != Difficulty::NONE_DIFFICULTY)
+    if (DifficultyID != Difficulty::DIFFICULTY_NONE)
     {
         uint32 l_EntryByDifficulty = sSpellMgr->GetDifficultyEntryForDataStore(sSpellEquippedItemsStore.GetDbcFileName(), Id, DifficultyID);
         if (l_EntryByDifficulty != 0)
@@ -3326,7 +3326,7 @@ SpellEquippedItemsEntry const* SpellInfo::GetSpellEquippedItems() const
 
 SpellInterruptsEntry const* SpellInfo::GetSpellInterrupts() const
 {
-    if (DifficultyID != Difficulty::NONE_DIFFICULTY)
+    if (DifficultyID != Difficulty::DIFFICULTY_NONE)
     {
         uint32 l_EntryByDifficulty = sSpellMgr->GetDifficultyEntryForDataStore(sSpellInterruptsStore.GetDbcFileName(), Id, DifficultyID);
         if (l_EntryByDifficulty != 0)
@@ -3338,7 +3338,7 @@ SpellInterruptsEntry const* SpellInfo::GetSpellInterrupts() const
 
 SpellLevelsEntry const* SpellInfo::GetSpellLevels() const
 {
-    if (DifficultyID != Difficulty::NONE_DIFFICULTY)
+    if (DifficultyID != Difficulty::DIFFICULTY_NONE)
     {
         uint32 l_EntryByDifficulty = sSpellMgr->GetDifficultyEntryForDataStore(sSpellLevelsStore.GetDbcFileName(), Id, DifficultyID);
         if (l_EntryByDifficulty != 0)
@@ -3380,7 +3380,7 @@ SpellTotemsEntry const* SpellInfo::GetSpellTotems() const
 
 SpellAuraOptionsEntry const* SpellInfo::GetSpellAuraOptions() const
 {
-    if (DifficultyID != Difficulty::NONE_DIFFICULTY)
+    if (DifficultyID != Difficulty::DIFFICULTY_NONE)
     {
         uint32 l_EntryByDifficulty = sSpellMgr->GetDifficultyEntryForDataStore(sSpellAuraOptionsStore.GetDbcFileName(), Id, DifficultyID);
         if (l_EntryByDifficulty != 0)
@@ -3402,7 +3402,7 @@ SpellCastingRequirementsEntry const* SpellInfo::GetSpellCastingRequirements() co
 
 SpellCategoriesEntry const* SpellInfo::GetSpellCategories() const
 {
-    if (DifficultyID != Difficulty::NONE_DIFFICULTY)
+    if (DifficultyID != Difficulty::DIFFICULTY_NONE)
     {
         uint32 l_EntryByDifficulty = sSpellMgr->GetDifficultyEntryForDataStore(sSpellCategoriesStore.GetDbcFileName(), Id, DifficultyID);
         if (l_EntryByDifficulty != 0)
@@ -3419,7 +3419,7 @@ SpellClassOptionsEntry const* SpellInfo::GetSpellClassOptions() const
 
 SpellCooldownsEntry const* SpellInfo::GetSpellCooldowns() const
 {
-    if (DifficultyID != Difficulty::NONE_DIFFICULTY)
+    if (DifficultyID != Difficulty::DIFFICULTY_NONE)
     {
         uint32 l_EntryByDifficulty = sSpellMgr->GetDifficultyEntryForDataStore(sSpellCooldownsStore.GetDbcFileName(), Id, DifficultyID);
         if (l_EntryByDifficulty != 0)

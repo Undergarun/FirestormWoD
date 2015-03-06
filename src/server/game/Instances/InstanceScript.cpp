@@ -652,7 +652,7 @@ void InstanceScript::SendScenarioState(ScenarioData p_Data, Player* p_Player /*=
 
     l_Data << int32(p_Data.m_ScenarioID);
     l_Data << int32(p_Data.m_StepID);
-    l_Data << uint32(instance->GetDifficulty());
+    l_Data << uint32(instance->GetDifficultyID());
     l_Data << uint32(p_Data.m_WaveCurrent);
     l_Data << uint32(p_Data.m_WaveMax);
     l_Data << uint32(p_Data.m_TimerDuration);
@@ -1100,14 +1100,14 @@ bool InstanceScript::IsWipe()
 
 void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 creditEntry, Unit* source)
 {
-    DungeonEncounterList const* encounters = sObjectMgr->GetDungeonEncounterList(instance->GetId(), instance->GetDifficulty());
+    DungeonEncounterList const* encounters = sObjectMgr->GetDungeonEncounterList(instance->GetId(), instance->GetDifficultyID());
     if (!encounters || encounters->empty())
         return;
 
     int32 l_MaxIndex = -100000;
     for (DungeonEncounterList::const_iterator itr = encounters->begin(); itr != encounters->end(); ++itr)
     {
-        if ((*itr)->dbcEntry->OrderIndex > l_MaxIndex && (*itr)->dbcEntry->DifficultyID == NONE_DIFFICULTY)
+        if ((*itr)->dbcEntry->OrderIndex > l_MaxIndex && (*itr)->dbcEntry->DifficultyID == DIFFICULTY_NONE)
             l_MaxIndex = (*itr)->dbcEntry->OrderIndex;
     }
 
