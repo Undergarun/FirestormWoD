@@ -131,7 +131,9 @@ enum WarlockSpells
     WARLOCK_SPELL_IMMOLATE_AURA             = 157736,
     WARLOCK_GLYPH_OF_DRAIN_LIFE             = 63302,
     WARLOCK_GLYPH_OF_DARK_SOUL              = 159665,
-    WARLOCK_SPELL_SYPHON_LIFE               = 63106
+    WARLOCK_SPELL_SYPHON_LIFE               = 63106,
+    WARLOCK_SPELL_SOULBURN_HAUNT            = 157698,
+    WARLOCK_SPELL_SOULBURN_HAUNT_AURA       = 152109
 };
 
 // Called by Grimoire: Imp - 111859, Grimoire: Voidwalker - 111895, Grimoire: Succubus - 111896
@@ -218,6 +220,40 @@ class spell_warl_haunt_dispel: public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_warl_haunt_dispel_AuraScript();
+        }
+};
+
+// Haunt - 48181
+class spell_warl_haunt : public SpellScriptLoader
+{
+    public:
+        spell_warl_haunt() : SpellScriptLoader("spell_warl_haunt") { }
+
+        class spell_warl_haunt_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_haunt_SpellScript);
+
+            void HandleOnHit()
+            {
+                Unit* l_Caster = GetCaster();
+
+                /// Your Haunt spell also increases the damage of your damage over time effects.
+                if (l_Caster->HasAura(WARLOCK_SOULBURN_AURA) && l_Caster->HasAura(WARLOCK_SPELL_SOULBURN_HAUNT_AURA))
+                {
+                    l_Caster->CastSpell(l_Caster, WARLOCK_SPELL_SOULBURN_HAUNT, true);
+                    l_Caster->RemoveAurasDueToSpell(WARLOCK_SOULBURN_AURA);
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warl_haunt_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warl_haunt_SpellScript();
         }
 };
 
@@ -408,8 +444,7 @@ class spell_warl_soulburn_seed_of_corruption_damage: public SpellScriptLoader
                 if (l_Target == nullptr)
                     return;
 
-
-                /// Seed's detonation applies Corruption to all hit targets.
+                /// Your Seed of Corruption detonation effect will afflict Corruption on all enemy targets.
                 if (l_Caster->HasAura(WARLOCK_SEED_OF_CORRUPTION_DUMMY))
                     l_Caster->CastSpell(l_Target, WARLOCK_SPELL_CORRUPTION, true);
             }
@@ -3078,6 +3113,7 @@ class spell_warl_havoc: public SpellScriptLoader
 
 void AddSC_warlock_spell_scripts()
 {
+    new spell_warl_haunt();
     new spell_warl_glyph_of_nightmares();
     new spell_warl_cataclysm();
     new spell_warl_siphon_life();
