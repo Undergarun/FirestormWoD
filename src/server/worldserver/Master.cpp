@@ -582,7 +582,7 @@ int Master::Run()
 
     ///- Initializing the Reporter.
     sLog->outInfo(LOG_FILTER_WORLDSERVER, "REPORTER: Creating instance.");
-    sReporter->SetAddresses({ ConfigMgr::GetStringDefault("ReporterAddress", "localhost:3000") });
+    sReporter->SetAddress({ ConfigMgr::GetStringDefault("ReporterAddress", "localhost:3000") });
 
     ///- Start the databases
     if (!_StartDB())
