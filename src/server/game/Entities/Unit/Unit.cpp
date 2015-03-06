@@ -1145,7 +1145,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         }
     }
 
-    if (damage > 50000 && spellProto != nullptr && GetTypeId() == TYPEID_PLAYER && (ToPlayer()->InBattleground() || ToPlayer()->InArena()) && victim->GetTypeId() == TYPEID_PLAYER)
+    if (damage > 10000 && spellProto != nullptr && GetTypeId() == TYPEID_PLAYER && (ToPlayer()->InBattleground() || ToPlayer()->InArena()) && victim->GetTypeId() == TYPEID_PLAYER)
     {
         using namespace MS::Reporting;
         auto l_Row = sChrSpecializationsStore.LookupEntry(ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()));
