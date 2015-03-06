@@ -11,17 +11,71 @@ INSERT INTO creature_text VALUES
 (80858, 4, 0, 'The empire... will rise again!', 14, 0, 100, 0, 0, 0, 'Death');
 
 DELETE FROM locales_creature_text WHERE entry = 80858;
---                                                       French     Spanish    German     Russian
+--                                                       French     German     Spanish    Russian
 INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, text_loc6, text_loc8) VALUES
-(80858, 0, 0, 'Je suis de retour ! Pauvres gueux, soumettez-vous à la puissance de l’empire ogre !', '', '¡He vuelto! ¡Arrodillaos ante el poder del gran Imperio ogro!', ''),
-(80858, 1, 0, 'Petits guerriers bleus, vous vous êtes montrés dignes d''échapper à mon courroux.', '', 'Guerreros azules pequeños, que han demostrado que son dignos de evitar mi ira.', ''),
-(80858, 2, 0, 'Les rouges, oui, ils seront témoins de ma dévastation !', '', 'Los rojos, sí, ¡van a dar testimonio de mi devastación!', ''),
-(80858, 3, 0, 'Plus d''ennemis ! Donnez-moi plus d''ennemis à égorger !', '', '¡Más, traer más a morir en mi espada!', ''),
-(80858, 3, 1, 'Quelle folie de vous opposer à moi, gringalets !', '', '¡Eres un necio para enfrentarte a mí, debilucho!', ''),
-(80858, 3, 2, 'Des insectes, vous n''êtes que des insectes pour moi !', '', '¡Insectos, sois insectos para mí!', ''),
-(80858, 3, 3, 'Ha ha ha ha !', '', '¡Ja, ja, ja, ja!', ''),
-(80858, 3, 4, 'Une facilité déconcertante !', '', '¡Una facilidad desconcertante!', ''),
-(80858, 4, 0, 'L''empire... renaîtra !', '', '¡El... Imperio... renacerá!', '');
+(
+    80858, 0, 0,
+    'Je suis de retour ! Pauvres gueux, soumettez-vous à la puissance de l’empire ogre !',
+    'Ich bin zurückgekehrt! Bauern, unterwerft euch der Macht des großen Ogerimperiums!',
+    '¡He vuelto! ¡Arrodillaos ante el poder del gran Imperio ogro!',
+    'Я вернулся! Склонитесь, презренные, перед мощью великой империи огров!'
+),
+(
+    80858, 1, 0,
+    'Petits guerriers bleus, vous vous êtes montrés dignes d''échapper à mon courroux.',
+    'Kleine blaue Krieger, Ihr habt euch bewährt und werdet verschont.',
+    'Guerreros azules pequeños, que han demostrado que son dignos de evitar mi ira.',
+    'Маленькие синие воины, вы заслужили честь избежать моего гнева.'
+),
+(
+    80858, 2, 0,
+    'Les rouges, oui, ils seront témoins de ma dévastation !',
+    'Ihr Roten, ja, Ihr werdet Zeugen der Zerstörung!',
+    'Los rojos, sí, ¡van a dar testimonio de mi devastación!',
+    'Красные воины, я обрушу ярость на ваших врагов!'
+),
+(
+    80858, 3, 0,
+    'Plus d''ennemis ! Donnez-moi plus d''ennemis à égorger !',
+    'Mehr, bringt noch mehr für meine Klinge!',
+    '¡Más, traer más a morir en mi espada!',
+    'Еще! Мой клинок жаждет еще крови!'
+),
+(
+    80858, 3, 1,
+    'Quelle folie de vous opposer à moi, gringalets !',
+    'Schwächling, es ist dumm, Widerstand zu leisten!',
+    '¡Eres un necio para enfrentarte a mí, debilucho!',
+    'Глупцы! Вам ли сражаться со мной?'
+),
+(
+    80858, 3, 2,
+    'Des insectes, vous n''êtes que des insectes pour moi !',
+    'Maden, nichts als Maden!',
+    '¡Insectos, sois insectos para mí!',
+    'Букашки, вы всего лишь букашки!'
+),
+(
+    80858, 3, 3,
+    'Ha ha ha ha !',
+    'Ahahahaha!',
+    '¡Ja, ja, ja, ja!',
+    'А-ха-ха-ха-ха!'
+),
+(
+    80858, 3, 4,
+    'Une facilité déconcertante !',
+    'Zu einfach.',
+    '¡Una facilidad desconcertante!',
+    'Слишком просто'
+),
+(
+    80858, 4, 0,
+    'L''empire... renaîtra !',
+    'Das Imperium... wird wiederauferstehen!',
+    '¡El... Imperio... renacerá!',
+    'Империя… восстанет вновь!'
+);
 
 UPDATE creature_template SET faction = 2618, ScriptName = 'npc_ashran_korlok', mechanic_immune_mask = 617299839 WHERE entry = 80858;
 UPDATE creature_template SET ScriptName = 'npc_ashran_faction_champions', mechanic_immune_mask = 617299839 WHERE entry IN (81725, 81726);
@@ -281,98 +335,98 @@ INSERT INTO locales_gossip_menu_option (menu_id, id, option_text_loc2, option_te
     65536, 0,
     'Prenez tous mes fragments d''artéfacts !',
     '',
-    '¡Ten todos mis Fragmentos de artefacto!',
+    '¡Llévate todos mis fragmentos de artefacto!',
     ''
 ),
 (
     65536, 1,
     'Combien de fragments d''artéfacts avons-nous rassemblés ?',
     '',
-    '¿Cuántos Fragmentos de artefacto hemos recogido?',
+    '¿Cuántos fragmentos de artefacto hemos recolectado?',
     ''
 ),
 (
     65536, 2,
     'À quoi sert Kronus ?',
     '',
-    '¿Qué está haciendo Kronus?',
+    '¿A qué se dedica Kronus?',
     ''
 ),
 (
     65540, 0,
     'Prenez tous mes fragments d''artéfacts !',
     '',
-    '¡Ten todos mis Fragmentos de artefacto!',
+    '¡Llévate todos mis fragmentos de artefacto!',
     ''
 ),
 (
     65540, 1,
     'Combien de fragments d''artéfacts avons-nous rassemblés ?',
     '',
-    '¿Cuántos Fragmentos de artefacto hemos recogido?',
+    '¿Cuántos fragmentos de artefacto hemos recolectado?',
     ''
 ),
 (
     65540, 2,
     'À quoi servent les portes de démoniste ?',
     '',
-    '¿Qué hacen los Portales de Brujo?',
+    '¿Qué hacen los portales de brujo?',
     ''
 ),
 (
     65539, 0,
     'Prenez tous mes fragments d''artéfacts !',
     '',
-    '¡Ten todos mis Fragmentos de artefacto!',
+    '¡Llévate todos mis fragmentos de artefacto!',
     ''
 ),
 (
     65539, 1,
     'Combien de fragments d''artéfacts avons-nous rassemblés ?',
     '',
-    '¿Cuántos Fragmentos de artefacto hemos recogido?',
+    '¿Cuántos fragmentos de artefacto hemos recolectado?',
     ''
 ),
 (
     65539, 2,
     'À quoi servent les portails de mage ?',
     '',
-    '¿Qué hacen los Portales de Mago?',
+    '¿Qué hacen los portales de mago?',
     ''
 ),
 (
     65537, 0,
     'Prenez tous mes fragments d''artéfacts !',
     '',
-    '¡Ten todos mis Fragmentos de artefacto!',
+    '¡Llévate todos mis fragmentos de artefacto!',
     ''
 ),
 (
     65537, 1,
     'Combien de fragments d''artéfacts avons-nous rassemblés ?',
     '',
-    '¿Cuántos Fragmentos de artefacto hemos recogido?',
+    '¿Cuántos fragmentos de artefacto hemos recolectado?',
     ''
 ),
 (
     65537, 2,
     'Quel est le rôle des Chevaucheurs de loups ?',
     '',
-    '¿Qué hacen los Ginetes de Lobos?',
+    '¿Qué hacen los Caballeros Lobo?',
     ''
 ),
 (
     65543, 0,
     'Montrez-moi la cime de la Brute.',
     '',
-    'Muéstrame el Alzamiento del Tosco.',
+    'Muéstrame el Alto del Bruto.',
     ''
 ),
 (
     65543, 1,
     'Montrez-moi la carrière de la Fournaise.',
     '',
-    'Muéstrame la Cantera de Magma.',
+    'Muéstrame la Cantera de magma.',
     ''
 ),
 (
@@ -386,126 +440,126 @@ INSERT INTO locales_gossip_menu_option (menu_id, id, option_text_loc2, option_te
     65543, 3,
     'Montrez-moi le cimetière des Cognecendres.',
     '',
-    'Muéstrame el Cementerio Machacabrasas.',
+    'Muéstrame los Cementerios de Machacacenizas.',
     ''
 ),
 (
     65545, 0,
     'Prenez tous mes fragments d''artéfacts !',
     '',
-    '¡Ten todos mis Fragmentos de artefacto!',
+    '¡Llévate todos mis fragmentos de artefacto!',
     ''
 ),
 (
     65586, 0,
     'Prenez tous mes fragments d''artéfacts !',
     '',
-    '¡Ten todos mis Fragmentos de artefacto!',
+    '¡Llévate todos mis fragmentos de artefacto!',
     ''
 ),
 (
     65547, 0,
     'Je voudrais vous acheter quelque chose.',
     '',
-    'Me gustaría comprarte algo.',
+    'Me gustaría comprar algo.',
     ''
 ),
 (
     65560, 0,
     'Prenez tous mes fragments d''artéfacts !',
     '',
-    '¡Ten todos mis Fragmentos de artefacto!',
+    '¡Llévate todos mis fragmentos de artefacto!',
     ''
 ),
 (
     65560, 1,
     'Combien de fragments d''artéfacts avons-nous rassemblés ?',
     '',
-    '¿Cuántos Fragmentos de artefacto hemos recogido?',
+    '¿Cuántos fragmentos de artefacto hemos recolectado?',
     ''
 ),
 (
     65560, 2,
     'Quel est le rôle des Chevaucheurs ?',
     '',
-    '',
+    '¿Qué hacen los jinetes Caballeros?',
     ''
 ),
 (
     65563, 0,
     'Prenez tous mes fragments d''artéfacts !',
     '',
-    '¡Ten todos mis Fragmentos de artefacto!',
+    '¡Llévate todos mis fragmentos de artefacto!',
     ''
 ),
 (
     65563, 1,
     'Combien de fragments d''artéfacts avons-nous rassemblés ?',
     '',
-    '¿Cuántos Fragmentos de artefacto hemos recogido?',
+    '¿Cuántos fragmentos de artefacto hemos recolectado?',
     ''
 ),
 (
     65563, 2,
     'À quoi sert l''ancien de la guerre ?',
     '',
-    '',
+    '¿Qué hace el Anciano de la Guerra?',
     ''
 ),
 (
     65566, 0,
     'Prenez tous mes fragments d''artéfacts !',
     '',
-    '¡Ten todos mis Fragmentos de artefacto!',
+    '¡Llévate todos mis fragmentos de artefacto!',
     ''
 ),
 (
     65566, 1,
     'Combien de fragments d''artéfacts avons-nous rassemblés ?',
     '',
-    '¿Cuántos Fragmentos de artefacto hemos recogido?',
+    '¿Cuántos fragmentos de artefacto hemos recolectado?',
     ''
 ),
 (
     65566, 2,
     'À quoi servent les portes ?',
     '',
-    '',
+    '¿Qué hacen los portales?',
     ''
 ),
 (
     65569, 0,
     'Prenez tous mes fragments d''artéfacts !',
     '',
-    '¡Ten todos mis Fragmentos de artefacto!',
+    '¡Llévate todos mis fragmentos de artefacto!',
     ''
 ),
 (
     65569, 1,
     'Combien de fragments d''artéfacts avons-nous rassemblés ?',
     '',
-    '¿Cuántos Fragmentos de artefacto hemos recogido?',
+    '¿Cuántos fragmentos de artefacto hemos recolectado?',
     ''
 ),
 (
     65569, 2,
     'À quoi servent les portails de mage ?',
     '',
-    '',
+    '¿Qué hacen los portales de mago?',
     ''
 ),
 (
     65587, 0,
     'Pourriez-vous m''invoquer de la nourriture ?',
     '',
-    '',
+    '¿Podrías conjurarme algo de comer?',
     ''
 ),
 (
     65588, 0,
     'Pourriez-vous m''invoquer de la nourriture ?',
     '',
-    '',
+    '¿Podrías conjurarme algo de comer?',
     ''
 );
 
@@ -749,8 +803,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'Avez-vous déniché l''un de ces artéfacts cachés ?$B$BOn trouve des fragments un peu partout dans A''shran. J''ai entendu dire qu''on avait récemment découvert en tuant des créatures rôdant à proximité de la route de la Gloire.$B$BVous pouvez me remettre ceux que vous trouverez, et je me chargerai de les redistribuer aux personnes qui en ont besoin.',
     'Avez-vous déniché l''un de ces artéfacts cachés ?$B$BOn trouve des fragments un peu partout dans A''shran. J''ai entendu dire qu''on avait récemment découvert en tuant des créatures rôdant à proximité de la route de la Gloire.$B$BVous pouvez me remettre ceux que vous trouverez, et je me chargerai de les redistribuer aux personnes qui en ont besoin.',
     '', '',
-    '¿Has visto alguno de los artefactos ocultos?$B$BPuedes encontrar fragmentos en todo Ashran. He odio que matando a las criaturas en las afueras de este lado de la carretera de la gloria se han descubierto algunos recientemente.$B$BMe puedes dar alguna que encuentres, y la distribuiré a aquellos que los necesitan.',
-    '¿Has visto alguno de los artefactos ocultos?$B$BPuedes encontrar fragmentos en todo Ashran. He odio que matando a las criaturas en las afueras de este lado de la carretera de la gloria se han descubierto algunos recientemente.$B$BMe puedes dar alguna que encuentres, y la distribuiré a aquellos que los necesitan.',
+    '¿Viste alguno de los artefactos ocultos?$B$BPuedes encontrar fragmentos por todo Ashran. Escuché que matar a las criaturas en la periferia del Camino de Gloria dejó al descubierto algunos recientemente.$B$BPuedes darme los que encuentres y yo los entregaré a.',
+    '¿Viste alguno de los artefactos ocultos?$B$BPuedes encontrar fragmentos por todo Ashran. Escuché que matar a las criaturas en la periferia del Camino de Gloria dejó al descubierto algunos recientemente.$B$BPuedes darme los que encuentres y yo los entregaré a.',
     '', ''
 ),
 (
@@ -758,8 +812,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     '<Pousse un léger gémissement gutural.>',
     '<Pousse un léger gémissement gutural.>',
     '', '',
-    '<Vamos a escapar dulcemente, gemido profundo>',
-    '<Vamos a escapar dulcemente, gemido profundo>',
+    '<Suelta un gemido suave y profundo>',
+    '<Suelta un gemido suave y profundo>',
     '', ''
 ),
 (
@@ -767,8 +821,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'Plongez votre regard dans le mien $n. Vous pourrez ainsi observer à distance ce qui se passe à A''shran.$B$BQue voulez-vous voir ?',
     'Plongez votre regard dans le mien $n. Vous pourrez ainsi observer à distance ce qui se passe à A''shran.$B$BQue voulez-vous voir ?',
     '', '',
-    'Mira profundamente en mis ojos, $n y podrás estudiar Ashran desde lejos.$B$B¿Qué te gustaría ver?',
-    'Mira profundamente en mis ojos, $n y podrás estudiar Ashran desde lejos.$B$B¿Qué te gustaría ver?',
+    'Veme detenidamente a los ojos, $n, y podrás sondear Ashran desde lejos.$B$B¿Qué te gustaría ver?',
+    'Veme detenidamente a los ojos, $n, y podrás sondear Ashran desde lejos.$B$B¿Qué te gustaría ver?',
     '', ''
 ),
 (
@@ -776,8 +830,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'J''ai besoin de beaucoup d''artéfacts pour équiper nos Chevaucheurs de loups et les envoyer au combat.$B$BCombien m''en apportez-vous ?',
     'J''ai besoin de beaucoup d''artéfacts pour équiper nos Chevaucheurs de loups et les envoyer au combat.$B$BCombien m''en apportez-vous ?',
     '', '',
-    'Tráeme de vuelta suficiente de esos artefactos y puedo orientar nuestros jinetes de lobos y enviarlos a la batalla.$B$B¿Cuántos me has traído?',
-    'Tráeme de vuelta suficiente de esos artefactos y puedo orientar nuestros jinetes de lobos y enviarlos a la batalla.$B$B¿Cuántos me has traído?',
+    'Tráeme suficientes de esos artefactos y podré equipar a nuestros caballeros lobo para enviarlos a la batalla.$B$B¿Cuántos me trajiste?',
+    'Tráeme suficientes de esos artefactos y podré equipar a nuestros caballeros lobo para enviarlos a la batalla.$B$B¿Cuántos me trajiste?',
     '', ''
 ),
 (
@@ -785,8 +839,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'VOUS COMPTEZ PRENDRE RACINE ICI OU QUOI ? ALLEZ ME TUER LES VERMINES DE L''ALLIANCE. RAPPORTEZ-MOI DES TÊTES, DES DENTS, DES QUEUES... PEU IMPORTE ! ET GROUILLEZ-VOUS !!',
     'VOUS COMPTEZ PRENDRE RACINE ICI OU QUOI ? ALLEZ ME TUER LES VERMINES DE L''ALLIANCE. RAPPORTEZ-MOI DES TÊTES, DES DENTS, DES QUEUES... PEU IMPORTE ! ET GROUILLEZ-VOUS !!',
     '', '',
-    '¿QUÉ ESTÁS HACIENDO SIMPLEMENTE DANDO VUELTAS ALREDEDOR? VE A MATAR ALGUNA ESCORIA DE ALIANZA. ¡TRÁEME DE VUELTA SU CABEZA, DIENTES, COLAS... LO QUE SEA! Y RÁPIDO !!',
-    '¿QUÉ ESTÁS HACIENDO SIMPLEMENTE DANDO VUELTAS ALREDEDOR? VE A MATAR ALGUNA ESCORIA DE ALIANZA. ¡TRÁEME DE VUELTA SU CABEZA, DIENTES, COLAS... LO QUE SEA! Y RÁPIDO !!',
+    '¿QUÉ HACES AHÍ SIN HACER NADA? VE A MATAR ALGUNAS ESCORIAS DE LA ALLIANZA. TRÁEME SUS CABEZAS, DIENTES, COLAS... ¡LO QUE SEA! ¡VE, AHORA!',
+    '¿QUÉ HACES AHÍ SIN HACER NADA? VE A MATAR ALGUNAS ESCORIAS DE LA ALLIANZA. TRÁEME SUS CABEZAS, DIENTES, COLAS... ¡LO QUE SEA! ¡VE, AHORA!',
     '', ''
 ),
 (
@@ -794,8 +848,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'L''énergie dons nous avons besoin se trouve dans les fragments d''artéfacts, $n. En quantité suffisante, ils permettront aux mages d''invoquer un portail pour atteindre l''avant-poste de Fer-de-Lance plus rapidement.$B$BCombien m''en apportez-vous ?',
     'L''énergie dons nous avons besoin se trouve dans les fragments d''artéfacts, $n. En quantité suffisante, ils permettront aux mages d''invoquer un portail pour atteindre l''avant-poste de Fer-de-Lance plus rapidement.$B$BCombien m''en apportez-vous ?',
     '', '',
-    'El poder está dentro de los fragmentos de artefactos, $n. Trae de vuelta lo suficiente de esos y los magos convocarám un portal para que podamos volver a Lanza de Guerra rápido.$B$B¿Cuántos me has traído?',
-    'El poder está dentro de los fragmentos de artefactos, $n. Trae de vuelta lo suficiente de esos y los magos convocarám un portal para que podamos volver a Lanza de Guerra rápido.$B$B¿Cuántos me has traído?',
+    'El poder yace en los fragmentos del artefacto, $n. Regresa los suficientes y los magos invocarán los portales para poder regresar más rápido a Lanza de guerra.$B$B¿Cuántos me trajiste?',
+    'El poder yace en los fragmentos del artefacto, $n. Regresa los suficientes y los magos invocarán los portales para poder regresar más rápido a Lanza de guerra.$B$B¿Cuántos me trajiste?',
     '', ''
 ),
 (
@@ -803,8 +857,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'Si nous parvenons à nous procurer assez de fragments d''artéfacts qu''on peut trouver à A''shran, nous pourrons activer les portes de déùpnostres pour nous déplacer plus rapidement d''un point à un autre.$B$BCombien m''en apportez-vous ?',
     'Si nous parvenons à nous procurer assez de fragments d''artéfacts qu''on peut trouver à A''shran, nous pourrons activer les portes de déùpnostres pour nous déplacer plus rapidement d''un point à un autre.$B$BCombien m''en apportez-vous ?',
     '', '',
-    'Si podemos reunir suficiente de los fragmentos de artefactos encontrados dentro Ashran podemos activar el portal de brujo para que podamos pasar entre las zonas más rápido.$B$B¿Cuántos me has traído?',
-    'Si podemos reunir suficiente de los fragmentos de artefactos encontrados dentro Ashran podemos activar el portal de brujo para que podamos pasar entre las zonas más rápido.$B$B¿Cuántos me has traído?',
+    'Si podemos recolectar suficientes de los fragmentos de artefacto hallados en Ashran, podemos activar los portales de brujo para movernos más rápido entre áreas.$B$B¿Cuántos me trajiste?',
+    'Si podemos recolectar suficientes de los fragmentos de artefacto hallados en Ashran, podemos activar los portales de brujo para movernos más rápido entre áreas.$B$B¿Cuántos me trajiste?',
     '', ''
 ),
 (
@@ -812,8 +866,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'Alors, combien de soldats de l''Alliance avez-vous tués ajourd''hui, $n ?',
     'Alors, combien de soldats de l''Alliance avez-vous tués ajourd''hui, $n ?',
     '', '',
-    'Entonces, ¿cuántos Alianza has matado hoy, $n?',
-    'Entonces, ¿cuántos Alianza has matado hoy, $n?',
+    '¿A cuántos de la Alianza mataste hoy, $n?',
+    '¿A cuántos de la Alianza mataste hoy, $n?',
     '', ''
 ),
 (
@@ -821,7 +875,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'Quelqu''un m''a montré un tubercule découvert dans la partie est d''A''shran. $B$BSes vertus médicinales égalent celles de mes potions de soins !',
     'Quelqu''un m''a montré un tubercule découvert dans la partie est d''A''shran. $B$BSes vertus médicinales égalent celles de mes potions de soins !',
     '', '',
-    '', '',
+    'Alguien me mostró una raíz de tubérculo que encontraron en algún lugar al este de Ashran.$B$B¡Rivaliza en poder con mis pociones de sanació!',
+    'Alguien me mostró una raíz de tubérculo que encontraron en algún lugar al este de Ashran.$B$B¡Rivaliza en poder con mis pociones de sanació!',
     '', ''
 ),
 (
@@ -836,8 +891,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
 (
     88548,
     'PARTEZ !', 'PARTEZ !',
-    '¡VAMOS!', '¡VAMOS!',
     '', '',
+    '¡VAMOS!', '¡VAMOS!',
     '', ''
 ),
 (
@@ -845,8 +900,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'Si vous vous rendez dans le bois Sombre, essayez de cueillir des fleurs des chants. Elles ont de puissantes propriétés magiques. Notez néanmoins que vous devrez peut-être combattre quelques arakkoa pour les obtenir.',
     'Si vous vous rendez dans le bois Sombre, essayez de cueillir des fleurs des chants. Elles ont de puissantes propriétés magiques. Notez néanmoins que vous devrez peut-être combattre quelques arakkoa pour les obtenir.',
     '', '',
-    'Los Elfos de la Noche están tratando de resucitar un ancestro para ser utilizado contra nosotros usando el poder de los artefactos encontrados aquí en Ashran.$B$BSi ves cualquier alianza por ahí, tomar cualquier fragmento que llevan por la fuerza.',
-    'Los Elfos de la Noche están tratando de resucitar un ancestro para ser utilizado contra nosotros usando el poder de los artefactos encontrados aquí en Ashran.$B$BSi ves cualquier alianza por ahí, tomar cualquier fragmento que llevan por la fuerza.',
+    'Los elfos de la noche intentan resucitar a un Anciano para usarlo contra nosotros, y utilizan el poder de los artefactos hallados en Ashran.$B$BSi ves ferzas de la Alianza aquí, captura por cualquier medio necesario los fragmentos que lleven.',
+    'Los elfos de la noche intentan resucitar a un Anciano para usarlo contra nosotros, y utilizan el poder de los artefactos hallados en Ashran.$B$BSi ves ferzas de la Alianza aquí, captura por cualquier medio necesario los fragmentos que lleven.',
     '', ''
 ),
 (
@@ -854,8 +909,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'Si l''Alliance vous pose des problèmes dans le coin, utilisez l''une des fusées de Frizzo Grilletorpille.$B$BNous ne pourrons vous aider que si nous savons où vous vous trouvez.',
     'Si l''Alliance vous pose des problèmes dans le coin, utilisez l''une des fusées de Frizzo Grilletorpille.$B$BNous ne pourrons vous aider que si nous savons où vous vous trouvez.',
     '', '',
-    'Si te encuentras con algún problema con la alianza por aquí, utiliza una bengala de Frizzo Sparkrocket.$B$BNosotros no podemos ayudar si no sabemos donde estás.',
-    'Si te encuentras con algún problema con la alianza por aquí, utiliza una bengala de Frizzo Sparkrocket.$B$BNosotros no podemos ayudar si no sabemos donde estás.',
+    'Si te encuentras con la Alianza por aquí, usa una de las bengalas de Frizzo Chispamisil.$B$BNo podemos ayudarte si no sabemos dónde estás.',
+    'Si te encuentras con la Alianza por aquí, usa una de las bengalas de Frizzo Chispamisil.$B$BNo podemos ayudarte si no sabemos dónde estás.',
     '', ''
 ),
 (
@@ -863,8 +918,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'Tous les grands seigneurs de guerre ne se ressemblent pas, $c. Certains sont arrivés là à force de temps et d''efforts, d''autres par leurs apptitude au combat. Devinez à quelle catégorie j''appartiens.',
     'Tous les grands seigneurs de guerre ne se ressemblent pas, $c. Certains sont arrivés là à force de temps et d''efforts, d''autres par leurs apptitude au combat. Devinez à quelle catégorie j''appartiens.',
     '', '',
-    'He oído que eres una fuerza a tener en cuenta en la arena, $n.',
-    'He oído que eres una fuerza a tener en cuenta en la arena, $n.',
+    'No todos los Grandes Señores de la Guerra son iguales, $c. Unos llegamos por persistencia y tiempo, otros por habilidad en la lucha. ¿De qué clase crees que soy?',
+    'No todos los Grandes Señores de la Guerra son iguales, $c. Unos llegamos por persistencia y tiempo, otros por habilidad en la lucha. ¿De qué clase crees que soy?',
     '', ''
 ),
 (
@@ -872,8 +927,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'Les fragments d''artéfacts contiennent suffisamment d''énergie margique pour remettre sur pied cette fureur terrestre.$B$BCombien m''en apportez-vous ?',
     'Les fragments d''artéfacts contiennent suffisamment d''énergie margique pour remettre sur pied cette fureur terrestre.$B$BCombien m''en apportez-vous ?',
     '', '',
-    'Los fragmentos de artefactos contienen suficiente poder mágico para restaurar esta furia de la Tierra a toda su fuerza.$B$B¿Cuántos nos has traído?',
-    'Los fragmentos de artefactos contienen suficiente poder mágico para restaurar esta furia de la Tierra a toda su fuerza.$B$B¿Cuántos nos has traído?',
+    'Los fragmentos del artefacto contienen suficiente poder mágico para devolverle toda su fuerza a esta Furia de tierra.$B$B¿Cuántos me trajiste?',
+    'Los fragmentos del artefacto contienen suficiente poder mágico para devolverle toda su fuerza a esta Furia de tierra.$B$B¿Cuántos me trajiste?',
     '', ''
 ),
 (
@@ -881,7 +936,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'Les flammes se dégageant des braseros près de l''arène des Conquérants ont l''air ordinaires de premier abord. Cependant, je pense qu''ils ont été enchantés par l''antique magie de la Masse-Sanglante.$B$BJ''étais étrangement attirée vers eux. Quand j''en ai touché un, j''ai soudain été remplie d''énergie magique.',
     'Les flammes se dégageant des braseros près de l''arène des Conquérants ont l''air ordinaires de premier abord. Cependant, je pense qu''ils ont été enchantés par l''antique magie de la Masse-Sanglante.$B$BJ''étais étrangement attirée vers eux. Quand j''en ai touché un, j''ai soudain été remplie d''énergie magique.',
     '', '',
-    '', '',
+    'Las llamas de los braseros cerca del Anillo de conquista pueden parecer ordinarias a primera vista. Pero creo que están hechizadas con magia antigua de Gran Magullador.$B$BMe sentí extrañamente atraída hacia ellas y, al tocar una, me inundó de repente la ener.',
+    'Las llamas de los braseros cerca del Anillo de conquista pueden parecer ordinarias a primera vista. Pero creo que están hechizadas con magia antigua de Gran Magullador.$B$BMe sentí extrañamente atraída hacia ellas y, al tocar una, me inundó de repente la ener.',
     '', ''
 ),
 (
@@ -889,7 +945,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'Kronus va patrouiller le long de la route de la Gloire et se chargera d''éliminer les forces de l''Alliance qui croiseront son chemin.',
     'Kronus va patrouiller le long de la route de la Gloire et se chargera d''éliminer les forces de l''Alliance qui croiseront son chemin.',
     '', '',
-    '', '',
+    'Kronus patrullará el Camino de Gloria y lo limpiará de cualquier fuerza de la Alianza.',
+    'Kronus patrullará el Camino de Gloria y lo limpiará de cualquier fuerza de la Alianza.',
     '', ''
 ),
 (
@@ -897,7 +954,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'Les portes se trouvent au nord-ouest et au sud-est ; elles permettent de se déplacer de l''un de ces deux points à l''autre.',
     'Les portes se trouvent au nord-ouest et au sud-est ; elles permettent de se déplacer de l''un de ces deux points à l''autre.',
     '', '',
-    '', '',
+    'Los portales se ubican al noreste y sureste, y se pueden usar para moverse entre esos dos puntos.',
+    'Los portales se ubican al noreste y sureste, y se pueden usar para moverse entre esos dos puntos.',
     '', ''
 ),
 (
@@ -905,7 +963,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'Les mages ouvriront un portail à l''ouest d''A''shran. Il vous permettra de rentrer directement à l''avant-poste de Fer-de-Lance.',
     'Les mages ouvriront un portail à l''ouest d''A''shran. Il vous permettra de rentrer directement à l''avant-poste de Fer-de-Lance.',
     '', '',
-    '', '',
+    'Los magos invocarán un portal al oeste de Ashran que se puede usar para devolverte al Puesto Lanza de Guerra.',
+    'Los magos invocarán un portal al oeste de Ashran que se puede usar para devolverte al Puesto Lanza de Guerra.',
     '', ''
 ),
 (
@@ -913,7 +972,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'Nos meilleurs Chevaucheurs de loups vont arpenter A''shran pour protéger la province et servir sa population. Et mettre en pièces ces chiens de l''Alliance.',
     'Nos meilleurs Chevaucheurs de loups vont arpenter A''shran pour protéger la province et servir sa population. Et mettre en pièces ces chiens de l''Alliance.',
     '', '',
-    '', '',
+    'Nuestro mejor jinete de lobo cabalgará en Ashran para proteger y servir. Despedaza a esos perros de la Alianza.',
+    'Nuestro mejor jinete de lobo cabalgará en Ashran para proteger y servir. Despedaza a esos perros de la Alianza.',
     '', ''
 ),
 (
@@ -921,7 +981,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'J''ai besoin de beaucoup d''artéfacts pour équiper nos Chevaucheurs et les envoyer au combat.$B$BCombien m''en apportez-vous ?',
     'J''ai besoin de beaucoup d''artéfacts pour équiper nos Chevaucheurs et les envoyer au combat.$B$BCombien m''en apportez-vous ?',
     '', '',
-    '', '',
+    'Tráeme suficientes de esos artefactos y podré equipar a nestros caballeros para enviarlos a la batalla.$B$B¿Cuántos me trajiste?',
+    'Tráeme suficientes de esos artefactos y podré equipar a nestros caballeros para enviarlos a la batalla.$B$B¿Cuántos me trajiste?',
     '', ''
 ),
 (
@@ -929,7 +990,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'Nos meilleurs Chevaucheurs vont arpenter A''shran pour protéger la province, servir la population... et faire vivre un cauchemar à la Horde.',
     'Nos meilleurs Chevaucheurs vont arpenter A''shran pour protéger la province, servir la population... et faire vivre un cauchemar à la Horde.',
     '', '',
-    '', '',
+    'Nuestro mejor jinete caballero cabalgará en Ashran para proteger y servir. Ya sabes, para arruinarle el día a la Horda.',
+    'Nuestro mejor jinete caballero cabalgará en Ashran para proteger y servir. Ya sabes, para arruinarle el día a la Horda.',
     '', ''
 ),
 (
@@ -937,7 +999,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'Les fragments d''artéfacts contiennent suffisamment d''énergie magique pour remettre sur pied cet ancien. $B$BCombien m''en apportez-vous ?',
     'Les fragments d''artéfacts contiennent suffisamment d''énergie magique pour remettre sur pied cet ancien. $B$BCombien m''en apportez-vous ?',
     '', '',
-    '', '',
+    'Los fragmentos del artefacto contienen suficiente poder mágico para revivir a este anciano y darle toda su fuerza.$B$B¿Cuántos me trajiste?',
+    'Los fragmentos del artefacto contienen suficiente poder mágico para revivir a este anciano y darle toda su fuerza.$B$B¿Cuántos me trajiste?',
     '', ''
 ),
 (
@@ -945,7 +1008,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'Crograal va arpenter la route de la Gloire pour éliminer les forces de la Horde.',
     'Crograal va arpenter la route de la Gloire pour éliminer les forces de la Horde.',
     '', '',
-    '', '',
+    'Fangraal marchará por el Camino de Gloria y lo limpiará de cualquier fuerza de la Horda.',
+    'Fangraal marchará por el Camino de Gloria y lo limpiará de cualquier fuerza de la Horda.',
     '', ''
 ),
 (
@@ -953,7 +1017,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'Les démonistes vont ouvrir des portes pour que nous puissions nous déplacer plus rapidement dans A''shran. Mais pour ça, nous avons besoin de la puissance magique renfermée dans les fragments d''artéfacts disséminés par ici.$B$BCombien m''en apportez-vous ?',
     'Les démonistes vont ouvrir des portes pour que nous puissions nous déplacer plus rapidement dans A''shran. Mais pour ça, nous avons besoin de la puissance magique renfermée dans les fragments d''artéfacts disséminés par ici.$B$BCombien m''en apportez-vous ?',
     '', '',
-    '', '',
+    'Los brujos erigirán portales para que podamos movernos más rápido por Ashran. Solo necesitamos el poder mágico de esas piezas de artefacto desperdigadas por todo Ashran.$B$B¿Cuántos me trajiste?',
+    'Los brujos erigirán portales para que podamos movernos más rápido por Ashran. Solo necesitamos el poder mágico de esas piezas de artefacto desperdigadas por todo Ashran.$B$B¿Cuántos me trajiste?',
     '', ''
 ),
 (
@@ -961,7 +1026,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'Les portes sont activées au sud-est et au nord-ouest d''A''shran. Servez-vous en pour vous téléporter d''une zone à l''autre.',
     'Les portes sont activées au sud-est et au nord-ouest d''A''shran. Servez-vous en pour vous téléporter d''une zone à l''autre.',
     '', '',
-    '', '',
+    'Los portales se activan hacia el sureste y el noroeste de Ashran. Úsalos para teletransportarte entre ambos puntos.',
+    'Los portales se activan hacia el sureste y el noroeste de Ashran. Úsalos para teletransportarte entre ambos puntos.',
     '', ''
 ),
 (
@@ -969,7 +1035,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'Si vous récupérez assez des fragments d''artéfacts qu''on peut trouver à A''shran, nous pourrons utiliser l''énergie qu''ils renferment pour invoquer un portail de mage.$B$BCombien m''en apportez-vous ?',
     'Si vous récupérez assez des fragments d''artéfacts qu''on peut trouver à A''shran, nous pourrons utiliser l''énergie qu''ils renferment pour invoquer un portail de mage.$B$BCombien m''en apportez-vous ?',
     '', '',
-    '', '',
+    'Si nos traes suficiente de estas piezas de artefacto que están dispersas en Ashran, podemos usar su poder para conjurar un portal de mago.$B$B¿Cuántos me trajiste?',
+    'Si nos traes suficiente de estas piezas de artefacto que están dispersas en Ashran, podemos usar su poder para conjurar un portal de mago.$B$B¿Cuántos me trajiste?',
     '', ''
 ),
 (
@@ -977,7 +1044,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'Les mages vont invoquer dans l''ouest d''A''shran un portail qui vous permettra de rentrer au bastion de Bouclier-des-Tempêtes.',
     'Les mages vont invoquer dans l''ouest d''A''shran un portail qui vous permettra de rentrer au bastion de Bouclier-des-Tempêtes.',
     '', '',
-    '', '',
+    'Los magos invocarán un portal al oeste de Ashran que se puede usar para devolverte al Fuerte Escudo de Tormenta.',
+    'Los magos invocarán un portal al oeste de Ashran que se puede usar para devolverte al Fuerte Escudo de Tormenta.',
     '', ''
 ),
 (
@@ -985,7 +1053,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'Je n''irai pas jusqu''à dire que nous n''étions pas préparés, mais on manque de réserves à Ashran. On n''en a pas emporté assez en traversant le portail. $B$BJ''espère que l''équipe de Brac pourra nous fournir la machinerie lourde nécessaire à notre victoire sur la Horde.',
     'Je n''irai pas jusqu''à dire que nous n''étions pas préparés, mais on manque de réserves à Ashran. On n''en a pas emporté assez en traversant le portail. $B$BJ''espère que l''équipe de Brac pourra nous fournir la machinerie lourde nécessaire à notre victoire sur la Horde.',
     '', '',
-    '', '',
+    'No quiero decir que no estábamos preparados, pero en Ashran escasean los suministros. No trajimos suficientes por el portal.$B$BEspero que el equipo de Piñón nos traiga la maquinaria pesada que necesitamos para ganar esta batalla contra la Horda.',
+    'No quiero decir que no estábamos preparados, pero en Ashran escasean los suministros. No trajimos suficientes por el portal.$B$BEspero que el equipo de Piñón nos traiga la maquinaria pesada que necesitamos para ganar esta batalla contra la Horda.',
     '', ''
 ),
 (
@@ -993,7 +1062,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'Ne ménagez pas la Horde, $n. Rapportez-moi une preuve de sa défaite, et je vous récompenserai généreusement.',
     'Ne ménagez pas la Horde, $n. Rapportez-moi une preuve de sa défaite, et je vous récompenserai généreusement.',
     '', '',
-    '', '',
+    'Sé $Gduro:dura; con la Horda, $n. Tráeme una prueba de su desaparición y serás muy bien $Grecompensado:recompensada;.',
+    'Sé $Gduro:dura; con la Horda, $n. Tráeme una prueba de su desaparición y serás muy bien $Grecompensado:recompensada;.',
     '', ''
 ),
 (
@@ -1001,7 +1071,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'On sous-estime clairement le rôle des soigneurs, $n. Si on pensait plus souvent à nous inclure aux effectifs chargés de partir en mission, il y aurait moins de monde dans ma hutte de guérison.',
     'On sous-estime clairement le rôle des soigneurs, $n. Si on pensait plus souvent à nous inclure aux effectifs chargés de partir en mission, il y aurait moins de monde dans ma hutte de guérison.',
     '', '',
-    '', '',
+    'Se nos subestima a los sanadores, $n. Si nos eligieran más como acompañantes en sus misiones, habría menos en este refugio de sanación.',
+    'Se nos subestima a los sanadores, $n. Si nos eligieran más como acompañantes en sus misiones, habría menos en este refugio de sanación.',
     '', ''
 ),
 (
@@ -1009,7 +1080,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'Vous venez rendre visite à l''un des blessés, $n ?',
     'Vous venez rendre visite à l''un des blessés, $n ?',
     '', '',
-    '', '',
+    '¿Has venido aquí a visitar a los heridos, $n?',
+    '¿Has venido aquí a visitar a los heridos, $n?',
     '', ''
 ),
 (
@@ -1017,7 +1089,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'Ce n''est pas si facile que ça de s''occuper des chevaux, mais au moins on profite du grand air.',
     'Ce n''est pas si facile que ça de s''occuper des chevaux, mais au moins on profite du grand air.',
     '', '',
-    '', '',
+    'Cuidar a los caballos no es tan fácil como parece, pero al menos disfrutas del aire libre.',
+    'Cuidar a los caballos no es tan fácil como parece, pero al menos disfrutas del aire libre.',
     '', ''
 ),
 (
@@ -1025,7 +1098,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'Il vous reste des fragments d''artéfacts, $n ? Mon ami Ecilam en aurait bien besoin.',
     'Il vous reste des fragments d''artéfacts, $n ? Mon ami Ecilam en aurait bien besoin.',
     '', '',
-    '', '',
+    '¿Tienes algunos fragmentos de artefacto de sobra, $n? Mi amigo Ecilam podría usarlos.',
+    '¿Tienes algunos fragmentos de artefacto de sobra, $n? Mi amigo Ecilam podría usarlos.',
     '', ''
 ),
 (
@@ -1033,7 +1107,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'Nos potions fantomatiques sont parfaites pour éviter les gardes de la Horde ou aller se promener dans leur base principale ! Vous avez déjà essayé ça, $n ?',
     'Nos potions fantomatiques sont parfaites pour éviter les gardes de la Horde ou aller se promener dans leur base principale ! Vous avez déjà essayé ça, $n ?',
     '', '',
-    '', '',
+    'Mis pociones fantasma son perfectas para infiltrarse entre los guardias de la Horda, jo hasta para entrar en su base principal! ¿Ya las has probado, $n?',
+    'Mis pociones fantasma son perfectas para infiltrarse entre los guardias de la Horda, jo hasta para entrar en su base principal! ¿Ya las has probado, $n?',
     '', ''
 ),
 (
@@ -1041,7 +1116,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'Nos pouvoirs ne sont pas suffisants pour revitaliser cet ancien, mais nous n''abandonnerons pas. Nous aiderez-vous ?',
     'Nos pouvoirs ne sont pas suffisants pour revitaliser cet ancien, mais nous n''abandonnerons pas. Nous aiderez-vous ?',
     '', '',
-    '', '',
+    'Nestro poder no es lo suficientemente fuerte como para revivir a esto ancestro, pero lo seguiremos intentando. ¿Vas a ayudarnos?',
+    'Nestro poder no es lo suficientemente fuerte como para revivir a esto ancestro, pero lo seguiremos intentando. ¿Vas a ayudarnos?',
     '', ''
 ),
 (
@@ -1049,7 +1125,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'J''étais pratiquement rentré à la base après avoir fait le plein de fragments d''artéfacts quand je me suis fait dépouiller par ces vermines de la Horde. Je vous conseille de rester sur vos gardes, $n.',
     'J''étais pratiquement rentré à la base après avoir fait le plein de fragments d''artéfacts quand je me suis fait dépouiller par ces vermines de la Horde. Je vous conseille de rester sur vos gardes, $n.',
     '', '',
-    '', '',
+    'Estaba por llegar a la base con un montón de esos fragmentos de artefacto cuando la Horda me los robó. Cuídate en todo momento, $n.',
+    'Estaba por llegar a la base con un montón de esos fragmentos de artefacto cuando la Horda me los robó. Cuídate en todo momento, $n.',
     '', ''
 ),
 (
@@ -1057,7 +1134,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'Je me demande ce que Chris Clarkie peut faire de tous les pieds de troll qu''on lui rapporte.',
     'Je me demande ce que Chris Clarkie peut faire de tous les pieds de troll qu''on lui rapporte.',
     '', '',
-    '', '',
+    'Me pregunto qué es lo que Chris Clarkie hace con todos esos Pies de Trol que la traen.',
+    'Me pregunto qué es lo que Chris Clarkie hace con todos esos Pies de Trol que la traen.',
     '', ''
 ),
 (
@@ -1065,7 +1143,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'Comment êtes-vous $garrivé:arrivée; jusqu''ici ? Harrison Jones n''avait pas dit que cette aventure se révélerait aussi... dangereuse.',
     'Comment êtes-vous $garrivé:arrivée; jusqu''ici ? Harrison Jones n''avait pas dit que cette aventure se révélerait aussi... dangereuse.',
     '', '',
-    '', '',
+    '¿Cómo llegaste aquí? Harrison Jones nunca dijo que esta aventura sería tan... peligrosa.',
+    '¿Cómo llegaste aquí? Harrison Jones nunca dijo que esta aventura sería tan... peligrosa.',
     '', ''
 ),
 (
@@ -1073,7 +1152,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'Vous avez croisé Feezzel ? Je n''arrive pas à lui mettre la main dessus.',
     'Vous avez croisé Feezzel ? Je n''arrive pas à lui mettre la main dessus.',
     '', '',
-    '', '',
+    '¿Has visto a Feezzel? No lo encuentro por ninguna parte.',
+    '¿Has visto a Feezzel? No lo encuentro por ninguna parte.',
     '', ''
 ),
 (
@@ -1081,7 +1161,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'L''entrée de la mine est barrée, mais à l''intérieur le travail continue.',
     'L''entrée de la mine est barrée, mais à l''intérieur le travail continue.',
     '', '',
-    '', '',
+    'La entrada a la mina está bloqueada mientras estén trabajando adentro.',
+    'La entrada a la mina está bloqueada mientras estén trabajando adentro.',
     '', ''
 ),
 (
@@ -1089,7 +1170,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'Nous ne sommes pas les seuls à faire des prisonniers, $n.$B$BLa base de la Horde dispose d''une prison située sous la hutte de guérison qui se trouve sur la gauche, de l''autre côté de la porte principale.$B$BSi nous parvenons à mettre la main sur les clés de la prison de Fer-de-Lance qu''on peut trouver à A''shran, nous pourrons libérer les captifs.',
     'Nous ne sommes pas les seuls à faire des prisonniers, $n.$B$BLa base de la Horde dispose d''une prison située sous la hutte de guérison qui se trouve sur la gauche, de l''autre côté de la porte principale.$B$BSi nous parvenons à mettre la main sur les clés de la prison de Fer-de-Lance qu''on peut trouver à A''shran, nous pourrons libérer les captifs.',
     '', '',
-    '', '',
+    'No somos los únicos con prisioneros, $n.$B$BEn la base de la Horda está su prisión, bajo el puesto de auxilio que hay a la izquierda tras cruzar la puerta principal.$B$BSi encontramos algunas de esas llaves de prisión Lanza de guerra en Ashran, podremos liber.',
+    'No somos los únicos con prisioneros, $n.$B$BEn la base de la Horda está su prisión, bajo el puesto de auxilio que hay a la izquierda tras cruzar la puerta principal.$B$BSi encontramos algunas de esas llaves de prisión Lanza de guerra en Ashran, podremos liber.',
     '', ''
 ),
 (
@@ -1097,7 +1179,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'Il fait un peu chaud, aujourd''hui, vous ne trouvez pas ?',
     'Il fait un peu chaud, aujourd''hui, vous ne trouvez pas ?',
     '', '',
-    '', '',
+    'Hoy hace calor, ¿no crees?',
+    'Hoy hace calor, ¿no crees?',
     '', ''
 ),
 (
@@ -1105,7 +1188,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'Difficile de combattre par ce froid, pas vrai ?',
     'Difficile de combattre par ce froid, pas vrai ?',
     '', '',
-    '', '',
+    'El frío de verdad te molesta.',
+    'El frío de verdad te molesta.',
     '', ''
 ),
 (
@@ -1113,7 +1197,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'Nous ne sommes pas les seuls à faire des prisonniers, $c.$B$BLa base de l''Alliance dispose d''une prison, située sous le bâtiment principal.$B$BIl nous suffirait de trouver les clés de la prison de Bouclier-des-Tempêtes pour pouvoir libérer les prisonniers.',
     'Nous ne sommes pas les seuls à faire des prisonniers, $c.$B$BLa base de l''Alliance dispose d''une prison, située sous le bâtiment principal.$B$BIl nous suffirait de trouver les clés de la prison de Bouclier-des-Tempêtes pour pouvoir libérer les prisonniers.',
     '', '',
-    '', '',
+    'No somos los únicos que tienen prisioneros, $c.$B$BEn la base de la Alianza, debajo del edificio principal, hay una prisión.$B$BSolo tenemos que encontrar esas llaves de la prisión de Escudo de Tormenta para liberarlos.',
+    'No somos los únicos que tienen prisioneros, $c.$B$BEn la base de la Alianza, debajo del edificio principal, hay una prisión.$B$BSolo tenemos que encontrar esas llaves de la prisión de Escudo de Tormenta para liberarlos.',
     '', ''
 );
 
