@@ -3347,6 +3347,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = SELECT_TARGET_SELF;
                 spellInfo->ExplicitTargetMask = spellInfo->_GetExplicitTargetMask();
                 break;
+            case 175915:///< Acid Breath (Drov the Ruiner)
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+                break;
             case 165096:///< Ogreic Landing
                 spellInfo->Effects[1].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
                 break;

@@ -2079,6 +2079,22 @@ bool WorldObject::IsInAxe(const WorldObject* obj1, const WorldObject* obj2, floa
     return (size * size) >= GetExactDist2dSq(obj1->GetPositionX() + cos(angle) * dist, obj1->GetPositionY() + sin(angle) * dist);
 }
 
+bool WorldObject::IsInAxe(WorldObject const* p_Object, float p_Width, float p_Range) const
+{
+    if (p_Object == nullptr)
+        return false;
+
+    if (!p_Width)
+        p_Width = GetObjectSize() / 2.0f;
+
+    float l_X = p_Object->GetPositionX() + (p_Range * cos(p_Object->GetOrientation()));
+    float l_Y = p_Object->GetPositionY() + (p_Range * sin(p_Object->GetOrientation()));
+    float l_Angle = p_Object->GetAngle(l_X, l_Y);
+
+    /// Not using sqrt() for performance
+    return (p_Width * p_Width) >= GetExactDist2dSq(p_Object->GetPositionX() + cos(l_Angle) * p_Range, p_Object->GetPositionY() + sin(l_Angle) * p_Range);
+}
+
 bool WorldObject::isInFront(WorldObject const* target,  float arc) const
 {
     return HasInArc(arc, target);
