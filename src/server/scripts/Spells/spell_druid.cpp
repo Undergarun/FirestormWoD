@@ -3262,15 +3262,15 @@ class spell_dru_rip: public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_rip_AuraScript);
 
-            void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32& p_Amount, bool& /*canBeRecalculated*/)
+            void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& /*canBeRecalculated*/)
             {
                 Unit* l_Caster = GetCaster();
-                if (l_Caster && l_Caster->GetTypeId() == TYPEID_PLAYER && GetEffect(EFFECT_0) && GetEffect(EFFECT_0)->GetAmplitude() > 0)
+                if (l_Caster && l_Caster->GetTypeId() == TYPEID_PLAYER && p_AurEff->GetAmplitude() > 0)
                 {
                     int32 l_TicksCount = GetMaxDuration() / GetEffect(EFFECT_0)->GetAmplitude();
-                    int32 l_AP = l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
+                    float l_AP = l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
                     int32 l_Combo = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
-                    p_Amount = l_AP * GetSpellInfo()->Effects[EFFECT_0].AttackPowerMultiplier * l_Combo * 8 / l_TicksCount;
+                    p_Amount = (int32)((l_AP * GetSpellInfo()->Effects[EFFECT_0].AttackPowerMultiplier * l_Combo * 8) / l_TicksCount);
                 }
             }
 

@@ -601,7 +601,10 @@ void Loot::FillCurrencyLoot(Player* player)
     }
 
     if (ql->empty())
+    {
         delete ql;
+        return;
+    }
 
     PlayerCurrencies[player->GetGUIDLow()] = ql;
 }
@@ -621,7 +624,10 @@ void Loot::FillFFALoot(Player* player)
     }
 
     if (ql->empty())
+    {
         delete ql;
+        return;
+    }
 
     PlayerFFAItems[player->GetGUIDLow()] = ql;
 }
@@ -656,7 +662,10 @@ void Loot::FillQuestLoot(Player* player)
     }
 
     if (ql->empty())
+    {
         delete ql;
+        return;
+    }
 
     PlayerQuestItems[player->GetGUIDLow()] = ql;
 }
@@ -685,7 +694,10 @@ void Loot::FillNonQuestNonFFAConditionalLoot(Player* player, bool presentAtLooti
     }
 
     if (ql->empty())
+    {
         delete ql;
+        return;
+    }
 
     PlayerNonQuestNonFFAConditionalItems[player->GetGUIDLow()] = ql;
 }
