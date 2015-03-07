@@ -1223,8 +1223,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'Pour l''instant, nous en avons récolté $9250w, mais il nous en faut au total $9706w.',
     'Pour l''instant, nous en avons récolté $9250w, mais il nous en faut au total $9706w.',
     '', '',
-    'Actualmente hemos recogido $9250w. Necesitamos $9706w total.',
-    'Actualmente hemos recogido $9250w. Necesitamos $9706w total.',
+    'Por el momento tenemos $9250w. Necesitamos un total de $9706w.',
+    'Por el momento tenemos $9250w. Necesitamos un total de $9706w.',
     '', ''
 ),
 (
@@ -1232,8 +1232,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'Pour l''instant, nous en avons récolté $9261w, mais il nous en faut au total $9708w.',
     'Pour l''instant, nous en avons récolté $9261w, mais il nous en faut au total $9708w.',
     '', '',
-    'Actualmente hemos recogido $9261w. Necesitamos $9708w total.',
-    'Actualmente hemos recogido $9261w. Necesitamos $9708w total.',
+    'Por el momento tenemos $9261w. Necesitamos un total de $9708w.',
+    'Por el momento tenemos $9261w. Necesitamos un total de $9708w.',
     '', ''
 ),
 (
@@ -1241,8 +1241,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'Pour l''instant, nous en avons récolté $9314w, mais il nous en faut au total $9705w.',
     'Pour l''instant, nous en avons récolté $9314w, mais il nous en faut au total $9705w.',
     '', '',
-    'Actualmente hemos recogido $9314w. Necesitamos $9705w total.',
-    'Actualmente hemos recogido $9314w. Necesitamos $9705w total.',
+    'Por el momento tenemos $9314w. Necesitamos un total de $9705w.',
+    'Por el momento tenemos $9314w. Necesitamos un total de $9705w.',
     '', ''
 ),
 (
@@ -1250,8 +1250,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'Pour l''instant, nous en avons récolté $9313w, mais il nous en faut au total $9705w.',
     'Pour l''instant, nous en avons récolté $9313w, mais il nous en faut au total $9705w.',
     '', '',
-    'Actualmente hemos recogido $9313w. Necesitamos $9705w total.',
-    'Actualmente hemos recogido $9313w. Necesitamos $9705w total.',
+    'Por el momento tenemos $9313w. Necesitamos un total de $9705w.',
+    'Por el momento tenemos $9313w. Necesitamos un total de $9705w.',
     '', ''
 ),
 (
@@ -1259,8 +1259,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'Pour l''instant, nous en avons récolté $9312w, mais il nous en faut au total $9707w.',
     'Pour l''instant, nous en avons récolté $9312w, mais il nous en faut au total $9707w.',
     '', '',
-    'Actualmente hemos recogido $9312w. Necesitamos $9707w total.',
-    'Actualmente hemos recogido $9312w. Necesitamos $9707w total.',
+    'Por el momento tenemos $9312w. Necesitamos un total de $9707w.',
+    'Por el momento tenemos $9312w. Necesitamos un total de $9707w.',
     '', ''
 ),
 (
@@ -1268,8 +1268,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'Pour l''instant, nous en avons récolté $9262w, mais il nous en faut au total $9708w.',
     'Pour l''instant, nous en avons récolté $9262w, mais il nous en faut au total $9708w.',
     '', '',
-    'Actualmente hemos recogido $9262w. Necesitamos $9708w total.',
-    'Actualmente hemos recogido $9262w. Necesitamos $9708w total.',
+    'Por el momento tenemos $9262w. Necesitamos un total de $9708w.',
+    'Por el momento tenemos $9262w. Necesitamos un total de $9708w.',
     '', ''
 ),
 (
@@ -1277,8 +1277,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'Pour l''instant, nous en avons récolté $9253w, mais il nous en faut au total $9706w.',
     'Pour l''instant, nous en avons récolté $9253w, mais il nous en faut au total $9706w.',
     '', '',
-    'Actualmente hemos recogido $9253w. Necesitamos $9706w total.',
-    'Actualmente hemos recogido $9253w. Necesitamos $9706w total.',
+    'Por el momento tenemos $9253w. Necesitamos un total de $9706w.',
+    'Por el momento tenemos $9253w. Necesitamos un total de $9706w.',
     '', ''
 ),
 (
@@ -1286,8 +1286,8 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     'Pour l''instant, nous en avons récolté $9311w, mais il nous en faut au total $9707w.',
     'Pour l''instant, nous en avons récolté $9311w, mais il nous en faut au total $9707w.',
     '', '',
-    'Actualmente hemos recogido $9311w. Necesitamos $9707w total.',
-    'Actualmente hemos recogido $9311w. Necesitamos $9707w total.',
+    'Por el momento tenemos $9311w. Necesitamos un total de $9707w.',
+    'Por el momento tenemos $9311w. Necesitamos un total de $9707w.',
     '', ''
 );
 
@@ -1332,123 +1332,167 @@ INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, t
     88675, 0, 0,
     'Ces gobelins de Gentepression... faudrait les enfermer. Ils feraient n''importe quoi pour de l''argent !',
     '',
-    'Esos goblins Bonvapor son reprensibles. ¡Ellos harán lo que sea por un poco de dinero rápido!',
+    'Esos goblins Bonvapor son lamentables. ¡Harían cualquier cosa por una moneda!',
     ''
 ),
 (
     88675, 1, 0,
     'Ça y est, ils vendent des souvenirs !',
     '',
-    '¡Ellos han empezado a vender regalos!',
+    '¡Empezaron a vender recuerdos!',
     ''
 ),
 (
     88675, 2, 0,
     'J''aimerais bien. Ils assemblent des bouts de reliques à la va-vite et vendent ça comme bijoux. Traiter des objets aussi inestimables de la sorte, franchement !',
-    '', '', ''
+    '',
+    'Me gustaría que fuera broma. Engarzan fragmentos de artefacto y los venden como joyería. ¡Cómo pueden tratar así algo que no tiene precio!',
+    ''
 ),
 (
     88675, 3, 0,
     'Est-ce que Belloc en sait plus sur l''endroit où se trouve ce mystérieux artéfact ?',
-    '', '', ''
+    '',
+    '¿Está Belloc más cerca de encontrar la ubicación de este misterioso artefacto?',
+    ''
 ),
 (
     88675, 4, 0,
     'Nous devons nous hâter si nous voulons le trouver avant le docteur Jones.',
-    '', '', ''
+    '',
+    'Debemos apresurarnos si queremos encontrarlo antes que el Dr. Jones.',
+    ''
 ),
 (
     88676, 0, 0,
     'Qu''est-ce qu''ils ont encore fait ?',
-    '', '', ''
+    '',
+    '¿Qué hicieron esta vez?',
+    ''
 ),
 (
     88676, 1, 0,
     'On se remet à peine de notre assaut sur la Porte des ténèbres, et ils montent un business touristique ? C''est une plaisanterie !',
-    '', '', ''
+    '',
+    '¿Apenas nos estamos recuperando del asalto contra el Portal Oscuro y montan un negocio turístico? Tienes que estar bromeando...',
+    ''
 ),
 (
     88676, 2, 0,
     'Il a suivi quelques pistes, mais rien de vraiment concret pour l''instant.',
-    '', '', ''
+    '',
+    'Tiene algunas pistas, pero nada demasiado claro.',
+    ''
 ),
 (
     88676, 3, 0,
     'Je suis d''accord. On ne sait pas ce dont l''Alliance serait capable avec une arme aussi puissante. Nous devons trouver plus de soutien avant que notre quête ne devienne une cause perdue.',
-    '', '', ''
+    '',
+    'Así es, no sabemos qué podría hacer la Alianza con un arma tan poderosa. Debemos solicitar más ayuda antes de que nestra causa esté perdida.',
+    ''
 ),
 (
     88771, 0, 0,
     'Nos espions nous ont appris que l''Alliance construit un engin de forage. Vous pensez que c''est pour la mine ?',
-    '', '', ''
+    '',
+    'Los pícaros espías nos informaron que la Alianza está construyendo maquinaria para perforar roca. ¿Crees que es para las minas?',
+    ''
 ),
 (
     88771, 0, 1,
     'Une trêve ? Avec l''Alliance ? Plutôt mourir.',
-    '', '', ''
+    '',
+    '¿Tregua? ¿Con de Alianza? Jamás',
+    ''
 ),
 (
     88772, 0, 0,
     'Si seulement nous pouvions faire passer un zeppelin à travers le portail. Nous pourrions raser Bouclier-des-Tempêtes depuis les airs !',
-    '', '', ''
+    '',
+    'Si fuéramos capaces de traer un dirigible por el portal... ¡Podríamos eliminar Escudo de Tormenta desde el cielo!',
+    ''
 ),
 (
     88772, 0, 1,
     'Vous avez vu le nombre de chevaliers de la mort parmi nous ? Comment se fait-il que nous n''arrivions toujours pas à entrer dans Bouclier-des-Tempêtes ? N''utilisent-ils donc pas leur Peste nécrotique ?',
-    '', '', ''
+    '',
+    '¿Viste cuántos caballeros de la Muerte hay en nuestras filas ? ¿Cómo es que aún no podemos penetrar Escudo de Tormenta? ¿No utilizan Peste necrótica?',
+    ''
 ),
 (
     88679, 0, 0,
     'C''est moche, ce qui s''est passé à la Porte des ténèbres. Vous tenez le coup ?',
-    '', '', ''
+    '',
+    'Lo del Portal Oscuro fue bastante difícil. ¿Cómo te sientes?',
+    ''
 ),
 (
     88679, 1, 0,
     'Ça, c''est bien vrai. Enfin, tant que ce qu''on découvre n''essaie pas de nous arracher la tête !',
-    '', '', ''
+    '',
+    'Es verdad. ¡Bueno, al menos cuando esa historia no te persigue con un hacha!',
+    ''
 ),
 (
     88679, 2, 0,
     'Donc à votre avis, de quelle nature est cet artéfact légendaire ?',
-    '', '', ''
+    '',
+    '¿Cuál suponías que era la naturaleza de este legendario artefacto?',
+    ''
 ),
 (
     88679, 3, 0,
     'Cela me semble un peu tiré par les cheveux. Je n''ai rien vu qui puisse relier les titans à ce monde.',
-    '', '', ''
+    '',
+    'No parece muy verosímil. No he visto ninguna prueba que vincule a los titanes con este mundo.',
+    ''
 ),
 (
     88682, 0, 0,
     'Quelques égratignures, mais j''en ai vu d''autres. Je suis surtout enthousiaste à l''idée de tout ce qu''il y a à découvrir à notre nouvel avant-poste !',
-    '', '', ''
+    '',
+    'Algo lastimado por el desgaste, aunque no es mi primera vez. ¡Me encanta que nuestro nuevo puesto tenga una historia tan fascinante por descubrir!',
+    ''
 ),
 (
     88682, 1, 0,
     'S''il est aussi puissant que le pense le docteur Jones, il pourrait bien être d''origine titanesque.',
-    '', '', ''
+    '',
+    'Si es tan poderoso como piensa el Dr. Jones, podría ser de origen titánico.',
+    ''
 ),
 (
     88682, 2, 0,
     'Peut-être, mais ne serait-il pas formidable de découvrir qu''ils sont arrivés jusqu''ici ? Pensez à tout ce que cela impliquerait !',
-    '', '', ''
+    '',
+    'Puede ser, pero ¿no sería grandioso descubrir que los titanes llegaron incluso aquí? ¡Piensa en las implicaciones!',
+    ''
 ),
 (
     88696, 0, 0,
     'C''est bien ce que nous craignions, nous devons pénétrer dans les mines. Qui sait quels dangers antiques nous y attendent...',
-    '', '', ''
+    '',
+    'Como temíamos, debemos adentrarnos en las minas. Quién sabe qué antiguos peligros habrá allí dentro...',
+    ''
 ),
 (
     88696, 0, 1,
     'Nous devons concentrer tous nos efforts sur les mines. Je suis d''accord avec le docteur Jones, c''est certainement là que se trouve l''artéfact. C''est forcément ça !',
-    '', '', ''
+    '',
+    'Debemos centrar todos nuestros esfuerzos en las minas. Pienso, como el Dr. Jones, que allí está el artefacto. ¡Tiene que estar ahí!',
+    ''
 ),
 (
     88697, 0, 0,
     'Comment sommes-nous censés remporter cette bataille contre la Horde sans armes de siège ?',
-    '', '', ''
+    '',
+    '¿Cómo vamos a gagnar esta batalla contra la Horda sin máquinas de asedio?',
+    ''
 ),
 (
     88697, 0, 1,
     'Si seulement nous avions une canonnière. On pourrait raser Fer-de-Lance depuis les airs !',
-    '', '', ''
+    '',
+    'Si tuviéramos un dirigible... ¡Podríamos eliminar Lanza de Guerra desde el cielo!',
+    ''
 );
