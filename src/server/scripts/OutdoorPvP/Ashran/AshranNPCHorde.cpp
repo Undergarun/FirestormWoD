@@ -148,6 +148,7 @@ class npc_jeron_emberfall : public CreatureScript
                         break;
                 }
 
+                EnterEvadeIfOutOfCombatArea(p_Diff);
                 DoMeleeAttackIfReady();
             }
 
