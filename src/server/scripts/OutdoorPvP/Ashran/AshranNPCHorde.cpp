@@ -60,14 +60,14 @@ class npc_jeron_emberfall : public CreatureScript
             uint32 m_CheckAroundingPlayersTimer;
             uint32 m_PhoenixStrikeTimer;
 
-            void Reset()
+            void Reset() override
             {
                 m_Events.Reset();
 
                 me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISARMED);
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* p_Attacker) override
             {
                 Talk(eTalk::TalkAggro);
 
@@ -77,18 +77,18 @@ class npc_jeron_emberfall : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventCombustionNova, 15000);
             }
 
-            void KilledUnit(Unit* p_Who)
+            void KilledUnit(Unit* p_Who) override
             {
                 if (p_Who->GetTypeId() == TYPEID_PLAYER)
                     Talk(eTalk::TalkSlay);
             }
 
-            void JustDied(Unit* p_Killer)
+            void JustDied(Unit* p_Killer) override
             {
                 Talk(eTalk::TalkDeath);
             }
 
-            void SpellHitTarget(Unit* p_Victim, SpellInfo const* p_SpellInfo)
+            void SpellHitTarget(Unit* p_Victim, SpellInfo const* p_SpellInfo) override
             {
                 if (p_Victim == nullptr)
                     return;
@@ -107,7 +107,7 @@ class npc_jeron_emberfall : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const p_Diff)
+            void UpdateAI(uint32 const p_Diff) override
             {
                 if (!UpdateVictim())
                 {
@@ -199,7 +199,7 @@ class npc_jeron_emberfall : public CreatureScript
                     m_PhoenixStrikeTimer -= p_Diff;
             }
 
-            void sGossipSelect(Player* p_Player, uint32 p_Sender, uint32 p_Action)
+            void sGossipSelect(Player* p_Player, uint32 p_Sender, uint32 p_Action) override
             {
                 p_Player->PlayerTalkClass->SendCloseGossip();
                 me->CastSpell(p_Player, eSpells::ConjureRefreshment, false);
@@ -231,12 +231,12 @@ class npc_ashran_warspear_shaman : public CreatureScript
 
             EventMap m_Events;
 
-            void Reset()
+            void Reset() override
             {
                 m_Events.ScheduleEvent(eDatas::EventCosmetic, 5000);
             }
 
-            void UpdateAI(uint32 const p_Diff)
+            void UpdateAI(uint32 const p_Diff) override
             {
                 m_Events.Update(p_Diff);
 
@@ -386,7 +386,7 @@ class npc_ashran_examiner_rahm_flameheart : public CreatureScript
 
             bool m_Init;
 
-            void Reset()
+            void Reset() override
             {
                 m_Init = false;
 
@@ -401,7 +401,7 @@ class npc_ashran_examiner_rahm_flameheart : public CreatureScript
                 }
             }
 
-            void DoAction(int32 const p_Action)
+            void DoAction(int32 const p_Action) override
             {
                 switch (p_Action)
                 {
@@ -486,6 +486,142 @@ class npc_ashran_legionnaire_hellaxe : public CreatureScript
         }
 };
 
+/// Kalgan <Warspear Warrior Leader> - 83830
+class npc_ashran_kalgan : public CreatureScript
+{
+    public:
+        npc_ashran_kalgan() : CreatureScript("npc_ashran_kalgan") { }
+
+        struct npc_ashran_kalganAI : public ScriptedAI
+        {
+            npc_ashran_kalganAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void sGossipSelect(Player* p_Player, uint32 p_Sender, uint32 p_Action) override
+            {
+                /// "Take all of my Artifact Fragments" is always 0
+                if (p_Action)
+                    return;
+
+                ZoneScript* l_ZoneScript = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(me->GetZoneId());
+                if (l_ZoneScript == nullptr)
+                    return;
+
+                uint32 l_ArtifactCount = p_Player->GetCurrency(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT, true);
+                p_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT, -int32(l_ArtifactCount * CURRENCY_PRECISION), false);
+
+                ((OutdoorPvPAshran*)l_ZoneScript)->AddCollectedArtifacts(TeamId::TEAM_HORDE, eArtifactsDatas::CountForWarriorPaladin, l_ArtifactCount);
+                ((OutdoorPvPAshran*)l_ZoneScript)->RewardHonorAndReputation(l_ArtifactCount, p_Player);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_ashran_kalganAI(p_Creature);
+        }
+};
+
+/// Fura <Warspear Mage Leader> - 83995
+class npc_ashran_fura : public CreatureScript
+{
+    public:
+        npc_ashran_fura() : CreatureScript("npc_ashran_fura") { }
+
+        struct npc_ashran_furaAI : public ScriptedAI
+        {
+            npc_ashran_furaAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void sGossipSelect(Player* p_Player, uint32 p_Sender, uint32 p_Action) override
+            {
+                /// "Take all of my Artifact Fragments" is always 0
+                if (p_Action)
+                    return;
+
+                ZoneScript* l_ZoneScript = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(me->GetZoneId());
+                if (l_ZoneScript == nullptr)
+                    return;
+
+                uint32 l_ArtifactCount = p_Player->GetCurrency(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT, true);
+                p_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT, -int32(l_ArtifactCount * CURRENCY_PRECISION), false);
+
+                ((OutdoorPvPAshran*)l_ZoneScript)->AddCollectedArtifacts(TeamId::TEAM_HORDE, eArtifactsDatas::CountForMage, l_ArtifactCount);
+                ((OutdoorPvPAshran*)l_ZoneScript)->RewardHonorAndReputation(l_ArtifactCount, p_Player);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_ashran_furaAI(p_Creature);
+        }
+};
+
+/// Nisstyr <Warspear Warlock Leader> - 83997
+class npc_ashran_nisstyr : public CreatureScript
+{
+    public:
+        npc_ashran_nisstyr() : CreatureScript("npc_ashran_nisstyr") { }
+
+        struct npc_ashran_nisstyrAI : public ScriptedAI
+        {
+            npc_ashran_nisstyrAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void sGossipSelect(Player* p_Player, uint32 p_Sender, uint32 p_Action) override
+            {
+                /// "Take all of my Artifact Fragments" is always 0
+                if (p_Action)
+                    return;
+
+                ZoneScript* l_ZoneScript = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(me->GetZoneId());
+                if (l_ZoneScript == nullptr)
+                    return;
+
+                uint32 l_ArtifactCount = p_Player->GetCurrency(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT, true);
+                p_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT, -int32(l_ArtifactCount * CURRENCY_PRECISION), false);
+
+                ((OutdoorPvPAshran*)l_ZoneScript)->AddCollectedArtifacts(TeamId::TEAM_HORDE, eArtifactsDatas::CountForWarlock, l_ArtifactCount);
+                ((OutdoorPvPAshran*)l_ZoneScript)->RewardHonorAndReputation(l_ArtifactCount, p_Player);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_ashran_nisstyrAI(p_Creature);
+        }
+};
+
+/// Atomik <Warspear Shaman Leader> - 82204
+class npc_ashran_atomik : public CreatureScript
+{
+    public:
+        npc_ashran_atomik() : CreatureScript("npc_ashran_atomik") { }
+
+        struct npc_ashran_atomikAI : public ScriptedAI
+        {
+            npc_ashran_atomikAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void sGossipSelect(Player* p_Player, uint32 p_Sender, uint32 p_Action) override
+            {
+                /// "Take all of my Artifact Fragments" is always 0
+                if (p_Action)
+                    return;
+
+                ZoneScript* l_ZoneScript = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(me->GetZoneId());
+                if (l_ZoneScript == nullptr)
+                    return;
+
+                uint32 l_ArtifactCount = p_Player->GetCurrency(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT, true);
+                p_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT, -int32(l_ArtifactCount * CURRENCY_PRECISION), false);
+
+                ((OutdoorPvPAshran*)l_ZoneScript)->AddCollectedArtifacts(TeamId::TEAM_HORDE, eArtifactsDatas::CountForDruidShaman, l_ArtifactCount);
+                ((OutdoorPvPAshran*)l_ZoneScript)->RewardHonorAndReputation(l_ArtifactCount, p_Player);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_ashran_atomikAI(p_Creature);
+        }
+};
+
 void AddSC_AshranNPCHorde()
 {
     new npc_jeron_emberfall();
@@ -494,4 +630,8 @@ void AddSC_AshranNPCHorde()
     new npc_ashran_examiner_rahm_flameheart();
     new npc_ashran_centurion_firescream();
     new npc_ashran_legionnaire_hellaxe();
+    new npc_ashran_kalgan();
+    new npc_ashran_fura();
+    new npc_ashran_nisstyr();
+    new npc_ashran_atomik();
 }

@@ -24,7 +24,7 @@ enum eAshranDatas
     KingsRestAreaID             = 7439,
 
     /// Timers
-    AshranTimeForInvite         = 20,
+    AshranTimeForInvite         = 60,
     AshranTimeForBattle         = 25,
     AshranEventTimer            = 30,   ///< In minutes
     AshranEventWarning          = 3,    ///< In minutes
@@ -42,12 +42,7 @@ enum eAshranDatas
     TaxiPathBaseAllianceToHorde = 4666,
     KillCountForPlayer          = 5,
     KillCountForFactionGuard    = 1,
-    HealthPCTAddedByHostileRef  = 25,
-
-    /// Artifact Fragments
-    MaxArtifactsMageWarlock     = 400,
-    MaxArtifactsWarrior         = 600,
-    MaxArtifactsShaman          = 3000
+    HealthPCTAddedByHostileRef  = 25
 };
 
 enum eAshranSpells
@@ -231,7 +226,38 @@ enum eCreatures
     HordeSpiritGuide        = 80724,
     MukmarRaz               = 81725,    ///< Muk'Mar Raz <Horde Champion>
     GeneralAevd             = 82882,
-    WarlordNoktyn           = 82883
+    WarlordNoktyn           = 82883,
+
+    /// Artifact Fragments NPCs
+    /// Horde
+    Nisstyr                 = 83997,    ///< Horde warlock leader
+    Fura                    = 83995,    ///< Horde mage leader
+    Kalgan                  = 83830,    ///< Horde warrior leader
+    Atomik                  = 82204,    ///< Horde shaman leader
+    /// Alliance
+    Marketa                 = 82660,    ///< Alliance warlock leader
+    Ecilam                  = 82966,    ///< Alliance mage leader
+    ValantBrightsworn       = 82893,    ///< Alliance paladin leader
+    Anenga                  = 81870     ///< Alliance druid leader
+};
+
+enum eArtifactsDatas
+{
+    /// Artifact Fragments count
+    MaxCountForMage             = 400,
+    MaxCountForWarlock          = 400,
+    MaxCountForWarriorPaladin   = 600,
+    MaxCountForDruidShaman      = 3000,
+
+    /// Handling IDs
+    CountForMage                = 0,
+    CountForWarlock             = 1,
+    CountForWarriorPaladin      = 2,
+    CountForDruidShaman         = 3,
+    MaxArtifactCounts,
+
+    HonorConversionRate         = 3,
+    ReputationConversionRate    = 5
 };
 
 enum eGameObjects
@@ -378,13 +404,42 @@ enum eFactions
     KorlokForAlliance   = 2618,
     KorlokNeutral       = 188,
     MukmarFaction       = 1735,
-    GaulDunFaction      = 1732
+    GaulDunFaction      = 1732,
+
+    VoljinsSpear        = 1681,
+    WrynnsVanguard      = 1682
 };
 
 struct AshranGraveyard
 {
     uint32 m_ID;
     TeamId m_StartTeam;
+};
+
+uint32 const g_MaxArtifactsToCollect[eArtifactsDatas::MaxArtifactCounts] =
+{
+    eArtifactsDatas::MaxCountForMage,
+    eArtifactsDatas::MaxCountForWarlock,
+    eArtifactsDatas::MaxCountForWarriorPaladin,
+    eArtifactsDatas::MaxCountForDruidShaman
+};
+
+uint32 const g_ArtifactsWorldStates[MS::Battlegrounds::TeamsCount::Value][eArtifactsDatas::MaxArtifactCounts] =
+{
+    /// Alliance
+    {
+        eWorldStates::WorldStateAllianceMageArtifactCount,
+        eWorldStates::WorldStateAllianceWarlockArtifactCount,
+        eWorldStates::WorldStateAllianceWarriorArtifactCount,
+        eWorldStates::WorldStateAllianceShamanArtifactCount
+    },
+    /// Horde
+    {
+        eWorldStates::WorldStateHordeMageArtifactCount,
+        eWorldStates::WorldStateHordeWarlockArtifactCount,
+        eWorldStates::WorldStateHordeWarriorArtifactCount,
+        eWorldStates::WorldStateHordeShamanArtifactCount
+    }
 };
 
 AshranGraveyard const g_AshranGraveyards[eGraveyards::TotalGraveyards] =

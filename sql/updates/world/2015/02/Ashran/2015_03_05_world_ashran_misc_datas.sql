@@ -11,6 +11,15 @@ UPDATE creature_template SET unit_flags = unit_flags & ~0x00200000 WHERE entry I
 UPDATE creature_template SET faction = 123 WHERE entry = 79990;
 UPDATE creature_template SET InhabitType = 4 WHERE entry IN (84102, 85753, 83681, 84644, 80511, 84926, 82895, 88690, 83720);
 UPDATE creature_template SET unit_flags = unit_flags | (0x02|0x200) WHERE entry IN (85668, 86662, 85670, 86647, 85669, 85671, 85673, 86667);
+UPDATE creature_template SET ScriptName = 'npc_ashran_chris_clarkie' WHERE entry = 82909;
+UPDATE creature_template SET ScriptName = 'npc_ashran_kalgan' WHERE entry = 83830;
+UPDATE creature_template SET ScriptName = 'npc_ashran_fura' WHERE entry = 83995;
+UPDATE creature_template SET ScriptName = 'npc_ashran_nisstyr' WHERE entry = 83997;
+UPDATE creature_template SET ScriptName = 'npc_ashran_atomik' WHERE entry = 82204;
+UPDATE creature_template SET ScriptName = 'npc_ashran_marketa' WHERE entry = 82660;
+UPDATE creature_template SET ScriptName = 'npc_ashran_ecilam' WHERE entry = 82966;
+UPDATE creature_template SET ScriptName = 'npc_ashran_valant_brightsworn' WHERE entry = 82893;
+UPDATE creature_template SET ScriptName = 'npc_ashran_anenga' WHERE entry = 81870;
 
 UPDATE creature SET unit_flags = (0x02|0x200) WHERE id IN (85668, 86662, 85670, 86647, 85669, 85671, 85673, 86667);
 
@@ -74,3 +83,6 @@ INSERT INTO gameobject (id, map, zoneId, areaId, spawnMask, phaseMask, position_
 (231219, 1191, 6941, 7100, 1, 1, 3946.10, -4081.52, 54.8282, 2.76012, 0, 0, 0.981865, 0.189584, 1);
 
 UPDATE gameobject SET state = 1 WHERE id IN (236408, 236409, 237736, 237737, 237735, 237734);
+
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_ashran_artifacts_collected';
+INSERT INTO spell_script_names VALUE (177393, 'spell_ashran_artifacts_collected');

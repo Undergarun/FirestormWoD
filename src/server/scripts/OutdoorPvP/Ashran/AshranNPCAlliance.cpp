@@ -64,7 +64,7 @@ class npc_rylai_crestfall : public CreatureScript
             uint32 m_CheckAroundingPlayersTimer;
             uint32 m_FreezingFieldTimer;
 
-            void Reset()
+            void Reset() override
             {
                 m_Events.Reset();
 
@@ -74,7 +74,7 @@ class npc_rylai_crestfall : public CreatureScript
                 m_FreezingFieldTimer = 10000;
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* p_Attacker) override
             {
                 Talk(eTalk::TalkAggro);
 
@@ -85,18 +85,18 @@ class npc_rylai_crestfall : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventNorthrendWinds, 15000);
             }
 
-            void KilledUnit(Unit* p_Who)
+            void KilledUnit(Unit* p_Who) override
             {
                 if (p_Who->GetTypeId() == TypeID::TYPEID_PLAYER)
                     Talk(eTalk::TalkSlay);
             }
 
-            void JustDied(Unit* p_Killer)
+            void JustDied(Unit* p_Killer) override
             {
                 Talk(eTalk::TalkDeath);
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
             {
                 if (me->HealthBelowPctDamaged(20, p_Damage) && !me->HasAura(eSpells::Hypotermia))
                 {
@@ -105,7 +105,7 @@ class npc_rylai_crestfall : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* p_Victim, SpellInfo const* p_SpellInfo)
+            void SpellHitTarget(Unit* p_Victim, SpellInfo const* p_SpellInfo) override
             {
                 if (p_Victim == nullptr)
                     return;
@@ -126,7 +126,7 @@ class npc_rylai_crestfall : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const p_Diff)
+            void UpdateAI(uint32 const p_Diff) override
             {
                 if (!UpdateVictim())
                 {
@@ -220,7 +220,7 @@ class npc_rylai_crestfall : public CreatureScript
                     m_FreezingFieldTimer -= p_Diff;
             }
 
-            void sGossipSelect(Player* p_Player, uint32 p_Sender, uint32 p_Action)
+            void sGossipSelect(Player* p_Player, uint32 p_Sender, uint32 p_Action) override
             {
                 p_Player->PlayerTalkClass->SendCloseGossip();
                 me->CastSpell(p_Player, eSpells::ConjureRefreshment, false);
@@ -357,7 +357,7 @@ class npc_ashran_misirin_stouttoe : public CreatureScript
 
             bool m_Init;
 
-            void Reset()
+            void Reset() override
             {
                 m_Init = false;
 
@@ -372,7 +372,7 @@ class npc_ashran_misirin_stouttoe : public CreatureScript
                 }
             }
 
-            void DoAction(int32 const p_Action)
+            void DoAction(int32 const p_Action) override
             {
                 switch (p_Action)
                 {
@@ -421,12 +421,12 @@ class npc_ashran_stormshield_druid : public CreatureScript
 
             EventMap m_Events;
 
-            void Reset()
+            void Reset() override
             {
                 m_Events.ScheduleEvent(eDatas::EventCosmetic, 5000);
             }
 
-            void UpdateAI(uint32 const p_Diff)
+            void UpdateAI(uint32 const p_Diff) override
             {
                 m_Events.Update(p_Diff);
 
@@ -503,6 +503,142 @@ class npc_ashran_officer_ironore : public CreatureScript
         }
 };
 
+/// Marketa <Stormshield Warlock Leader> - 82660
+class npc_ashran_marketa : public CreatureScript
+{
+    public:
+        npc_ashran_marketa() : CreatureScript("npc_ashran_marketa") { }
+
+        struct npc_ashran_marketaAI : public ScriptedAI
+        {
+            npc_ashran_marketaAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void sGossipSelect(Player* p_Player, uint32 p_Sender, uint32 p_Action) override
+            {
+                /// "Take all of my Artifact Fragments" is always 0
+                if (p_Action)
+                    return;
+
+                ZoneScript* l_ZoneScript = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(me->GetZoneId());
+                if (l_ZoneScript == nullptr)
+                    return;
+
+                uint32 l_ArtifactCount = p_Player->GetCurrency(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT, true);
+                p_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT, -int32(l_ArtifactCount * CURRENCY_PRECISION), false);
+
+                ((OutdoorPvPAshran*)l_ZoneScript)->AddCollectedArtifacts(TeamId::TEAM_ALLIANCE, eArtifactsDatas::CountForWarlock, l_ArtifactCount);
+                ((OutdoorPvPAshran*)l_ZoneScript)->RewardHonorAndReputation(l_ArtifactCount, p_Player);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_ashran_marketaAI(p_Creature);
+        }
+};
+
+/// Ecilam <Stormshield Mage Leader> - 82966
+class npc_ashran_ecilam : public CreatureScript
+{
+    public:
+        npc_ashran_ecilam() : CreatureScript("npc_ashran_ecilam") { }
+
+        struct npc_ashran_ecilamAI : public ScriptedAI
+        {
+            npc_ashran_ecilamAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void sGossipSelect(Player* p_Player, uint32 p_Sender, uint32 p_Action) override
+            {
+                /// "Take all of my Artifact Fragments" is always 0
+                if (p_Action)
+                    return;
+
+                ZoneScript* l_ZoneScript = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(me->GetZoneId());
+                if (l_ZoneScript == nullptr)
+                    return;
+
+                uint32 l_ArtifactCount = p_Player->GetCurrency(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT, true);
+                p_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT, -int32(l_ArtifactCount * CURRENCY_PRECISION), false);
+
+                ((OutdoorPvPAshran*)l_ZoneScript)->AddCollectedArtifacts(TeamId::TEAM_ALLIANCE, eArtifactsDatas::CountForMage, l_ArtifactCount);
+                ((OutdoorPvPAshran*)l_ZoneScript)->RewardHonorAndReputation(l_ArtifactCount, p_Player);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_ashran_ecilamAI(p_Creature);
+        }
+};
+
+/// Valant Brightsworn <Stormshield Paladin Leader> - 82893
+class npc_ashran_valant_brightsworn : public CreatureScript
+{
+    public:
+        npc_ashran_valant_brightsworn() : CreatureScript("npc_ashran_valant_brightsworn") { }
+
+        struct npc_ashran_valant_brightswornAI : public ScriptedAI
+        {
+            npc_ashran_valant_brightswornAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void sGossipSelect(Player* p_Player, uint32 p_Sender, uint32 p_Action) override
+            {
+                /// "Take all of my Artifact Fragments" is always 0
+                if (p_Action)
+                    return;
+
+                ZoneScript* l_ZoneScript = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(me->GetZoneId());
+                if (l_ZoneScript == nullptr)
+                    return;
+
+                uint32 l_ArtifactCount = p_Player->GetCurrency(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT, true);
+                p_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT, -int32(l_ArtifactCount * CURRENCY_PRECISION), false);
+
+                ((OutdoorPvPAshran*)l_ZoneScript)->AddCollectedArtifacts(TeamId::TEAM_ALLIANCE, eArtifactsDatas::CountForWarriorPaladin, l_ArtifactCount);
+                ((OutdoorPvPAshran*)l_ZoneScript)->RewardHonorAndReputation(l_ArtifactCount, p_Player);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_ashran_valant_brightswornAI(p_Creature);
+        }
+};
+
+/// Anenga <Stormshield Druid Leader> - 81870
+class npc_ashran_anenga : public CreatureScript
+{
+    public:
+        npc_ashran_anenga() : CreatureScript("npc_ashran_anenga") { }
+
+        struct npc_ashran_anengaAI : public ScriptedAI
+        {
+            npc_ashran_anengaAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void sGossipSelect(Player* p_Player, uint32 p_Sender, uint32 p_Action) override
+            {
+                /// "Take all of my Artifact Fragments" is always 0
+                if (p_Action)
+                    return;
+
+                ZoneScript* l_ZoneScript = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(me->GetZoneId());
+                if (l_ZoneScript == nullptr)
+                    return;
+
+                uint32 l_ArtifactCount = p_Player->GetCurrency(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT, true);
+                p_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT, -int32(l_ArtifactCount * CURRENCY_PRECISION), false);
+
+                ((OutdoorPvPAshran*)l_ZoneScript)->AddCollectedArtifacts(TeamId::TEAM_ALLIANCE, eArtifactsDatas::CountForDruidShaman, l_ArtifactCount);
+                ((OutdoorPvPAshran*)l_ZoneScript)->RewardHonorAndReputation(l_ArtifactCount, p_Player);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_ashran_anengaAI(p_Creature);
+        }
+};
+
 void AddSC_AshranNPCAlliance()
 {
     new npc_rylai_crestfall();
@@ -511,4 +647,8 @@ void AddSC_AshranNPCAlliance()
     new npc_ashran_stormshield_druid();
     new npc_ashran_officer_rumsfeld();
     new npc_ashran_officer_ironore();
+    new npc_ashran_marketa();
+    new npc_ashran_ecilam();
+    new npc_ashran_valant_brightsworn();
+    new npc_ashran_anenga();
 }

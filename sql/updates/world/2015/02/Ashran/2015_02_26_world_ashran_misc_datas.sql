@@ -142,19 +142,16 @@ UPDATE creature_template SET unit_flags = unit_flags & ~0x00200000 WHERE entry =
 UPDATE creature, creature_equip_template SET creature.`equipment_id` = creature_equip_template.`id` WHERE
 creature.`id` = creature_equip_template.`entry`;
 
--- Artifact fragments
--- Horde
-UPDATE creature_template SET gossip_menu_id = 65536, ScriptName = 'npc_ashran_atomik' WHERE entry = 82204;
-UPDATE creature_template SET gossip_menu_id = 65537, ScriptName = '' WHERE entry = 83830;
-UPDATE creature_template SET gossip_menu_id = 65539, ScriptName = '' WHERE entry = 83995;
-UPDATE creature_template SET gossip_menu_id = 65540, ScriptName = '' WHERE entry = 83997;
-
-UPDATE creature_template SET gossip_menu_id = 65538, ScriptName = '' WHERE entry = 83869;
+UPDATE creature_template SET gossip_menu_id = 65536 WHERE entry = 82204;
+UPDATE creature_template SET gossip_menu_id = 65537 WHERE entry = 83830;
+UPDATE creature_template SET gossip_menu_id = 65539 WHERE entry = 83995;
+UPDATE creature_template SET gossip_menu_id = 65540 WHERE entry = 83997;
+UPDATE creature_template SET gossip_menu_id = 65538 WHERE entry = 83869;
 UPDATE creature_template SET gossip_menu_id = 65541, ScriptName = 'npc_ashran_commander_anne_dunworthy' WHERE entry = 84173;
 UPDATE creature_template SET gossip_menu_id = 65542, ScriptName = 'npc_ashran_general_ushet_wolfbarger' WHERE entry = 84473;
-UPDATE creature_template SET gossip_menu_id = 65543, ScriptName = '' WHERE entry = 84660;
-UPDATE creature_template SET gossip_menu_id = 65544, ScriptName = '' WHERE entry = 88826;
-UPDATE creature_template SET gossip_menu_id = 65545, ScriptName = '' WHERE entry = 88448;
+UPDATE creature_template SET gossip_menu_id = 65543 WHERE entry = 84660;
+UPDATE creature_template SET gossip_menu_id = 65544 WHERE entry = 88826;
+UPDATE creature_template SET gossip_menu_id = 65545 WHERE entry = 88448;
 UPDATE creature_template SET gossip_menu_id = 65546 WHERE entry = 82200;
 UPDATE creature_template SET gossip_menu_id = 65547, npcflag = 129 WHERE entry = 82883;
 UPDATE creature SET npcflag = 129 WHERE id = 82883;
@@ -303,6 +300,7 @@ INSERT INTO gossip_menu_option VALUES
 (65543, 3, 0, 'Show me the Ashmaul Burial Grounds.', 1, 1, 0, 0, 0, 0, ''),
 -- Belloc
 (65586, 0, 0, 'Take all of my Artifact Fragments!', 1, 1, 0, 0, 0, 0, ''),
+-- Harrison Jones
 (65545, 0, 0, 'Take all of my Artifact Fragments!', 1, 1, 0, 0, 0, 0, ''),
 -- Honor Quartermarster
 (65547, 0, 1, 'I would like to buy from you.', 3, 128, 0, 0, 0, 0, ''),

@@ -600,6 +600,9 @@ OutdoorPvPAshran::OutdoorPvPAshran()
         m_NextBattleTimer = eAshranDatas::AshranTimeForBattle * TimeConstants::IN_MILLISECONDS;
         m_MaxBattleTime = 0;
         m_FactionGenericMoP[l_Team] = 0;
+
+        for (uint8 l_I = 0; l_I < eArtifactsDatas::MaxArtifactCounts; ++l_I)
+            m_ArtifactsCollected[l_Team][l_I] = 0;
     }
 
     for (uint8 l_Iter = 0; l_Iter < eBattleType::MaxBattleType; ++l_Iter)
@@ -685,7 +688,7 @@ void OutdoorPvPAshran::HandlePlayerEnterMap(Player* p_Player, uint32 p_MapID)
     if (!p_Player || p_Player->GetTeamId() >= 2 || p_Player->isInFlight())
         return;
 
-    // If the player does not match minimal level requirements for the battlefield, kick him
+    /// If the player does not match minimal level requirements for the battlefield, kick him
     if (p_Player->getLevel() < eAshranDatas::PlayerMinLevel)
     {
         if (m_PlayersWillBeKick[p_Player->GetTeamId()].count(p_Player->GetGUID()) == 0)
@@ -693,18 +696,18 @@ void OutdoorPvPAshran::HandlePlayerEnterMap(Player* p_Player, uint32 p_MapID)
         return;
     }
 
-    // Check if player is not already in war
+    /// Check if player is not already in war or invited
     if (m_PlayersInWar[p_Player->GetTeamId()].count(p_Player->GetGUID()) || m_InvitedPlayers[p_Player->GetTeamId()].count(p_Player->GetGUID()))
         return;
 
     m_InvitedPlayers[p_Player->GetTeamId()][p_Player->GetGUID()] = time(NULL) + eAshranDatas::AshranTimeForInvite;
 
     WorldPacket l_Data(Opcodes::SMSG_BFMGR_ENTRY_INVITE);
-    l_Data << uint64(m_Guid);                       ///< QueueID
-    l_Data << uint32(eAshranDatas::AshranZoneID);   ///< Zone Id
-    l_Data << uint32(time(NULL) + 20);              ///< Invite lasts until
+    l_Data << uint64(m_Guid);                                           ///< QueueID
+    l_Data << uint32(eAshranDatas::AshranZoneID);                       ///< Zone Id
+    l_Data << uint32(time(NULL) + eAshranDatas::AshranTimeForInvite);   ///< Invite lasts until
 
-    ///< Sending the packet to player
+    /// Sending the packet to player
     p_Player->SendDirectMessage(&l_Data);
 
     p_Player->CastSpell(p_Player, eAshranSpells::SpellLootable, true);
@@ -1231,21 +1234,21 @@ void OutdoorPvPAshran::FillInitialWorldStates(ByteBuffer& p_Data)
     p_Data << uint32(eWorldStates::WorldStateStormshieldStrongholdStatus) << uint32(eControlStatus::ControlAlliance);
 
     /// Artifact Fragments
-    /// Horde - Current
-    p_Data << uint32(eWorldStates::WorldStateHordeMageArtifactCount) << uint32(0);
-    p_Data << uint32(eWorldStates::WorldStateHordeWarlockArtifactCount) << uint32(0);
-    p_Data << uint32(eWorldStates::WorldStateHordeWarriorArtifactCount) << uint32(0);
-    p_Data << uint32(eWorldStates::WorldStateHordeShamanArtifactCount) << uint32(0);
     /// Alliance - Current
-    p_Data << uint32(eWorldStates::WorldStateAllianceMageArtifactCount) << uint32(0);
-    p_Data << uint32(eWorldStates::WorldStateAllianceWarlockArtifactCount) << uint32(0);
-    p_Data << uint32(eWorldStates::WorldStateAllianceWarriorArtifactCount) << uint32(0);
-    p_Data << uint32(eWorldStates::WorldStateAllianceShamanArtifactCount) << uint32(0);
+    p_Data << uint32(eWorldStates::WorldStateAllianceMageArtifactCount) << uint32(m_ArtifactsCollected[TeamId::TEAM_ALLIANCE][eArtifactsDatas::CountForMage]);
+    p_Data << uint32(eWorldStates::WorldStateAllianceWarlockArtifactCount) << uint32(m_ArtifactsCollected[TeamId::TEAM_ALLIANCE][eArtifactsDatas::CountForWarlock]);
+    p_Data << uint32(eWorldStates::WorldStateAllianceWarriorArtifactCount) << uint32(m_ArtifactsCollected[TeamId::TEAM_ALLIANCE][eArtifactsDatas::CountForWarriorPaladin]);
+    p_Data << uint32(eWorldStates::WorldStateAllianceShamanArtifactCount) << uint32(m_ArtifactsCollected[TeamId::TEAM_ALLIANCE][eArtifactsDatas::CountForDruidShaman]);
+    /// Horde - Current
+    p_Data << uint32(eWorldStates::WorldStateHordeMageArtifactCount) << uint32(m_ArtifactsCollected[TeamId::TEAM_HORDE][eArtifactsDatas::CountForMage]);
+    p_Data << uint32(eWorldStates::WorldStateHordeWarlockArtifactCount) << uint32(m_ArtifactsCollected[TeamId::TEAM_HORDE][eArtifactsDatas::CountForWarlock]);
+    p_Data << uint32(eWorldStates::WorldStateHordeWarriorArtifactCount) << uint32(m_ArtifactsCollected[TeamId::TEAM_HORDE][eArtifactsDatas::CountForWarriorPaladin]);
+    p_Data << uint32(eWorldStates::WorldStateHordeShamanArtifactCount) << uint32(m_ArtifactsCollected[TeamId::TEAM_HORDE][eArtifactsDatas::CountForDruidShaman]);
     /// General - Max
-    p_Data << uint32(eWorldStates::WorldStateMageArtifactMaxCount) << uint32(eAshranDatas::MaxArtifactsMageWarlock);
-    p_Data << uint32(eWorldStates::WorldStateWarlockArtifactMaxCount) << uint32(eAshranDatas::MaxArtifactsMageWarlock);
-    p_Data << uint32(eWorldStates::WorldStateWarriorArtifactMaxCount) << uint32(eAshranDatas::MaxArtifactsWarrior);
-    p_Data << uint32(eWorldStates::WorldStateShamanArtifactMaxCount) << uint32(eAshranDatas::MaxArtifactsShaman);
+    p_Data << uint32(eWorldStates::WorldStateMageArtifactMaxCount) << uint32(eArtifactsDatas::MaxCountForMage);
+    p_Data << uint32(eWorldStates::WorldStateWarlockArtifactMaxCount) << uint32(eArtifactsDatas::MaxCountForWarlock);
+    p_Data << uint32(eWorldStates::WorldStateWarriorArtifactMaxCount) << uint32(eArtifactsDatas::MaxCountForWarriorPaladin);
+    p_Data << uint32(eWorldStates::WorldStateShamanArtifactMaxCount) << uint32(eArtifactsDatas::MaxCountForDruidShaman);
 
     for (OPvPCapturePointMap::iterator l_CapturePoint = m_capturePoints.begin(); l_CapturePoint != m_capturePoints.end(); ++l_CapturePoint)
         l_CapturePoint->second->FillInitialWorldStates(p_Data);
@@ -1635,6 +1638,50 @@ uint8 OutdoorPvPAshran::GetSpiritGraveyardID(uint32 p_AreaID, TeamId p_Team) con
     }
 
     return 0;
+}
+
+void OutdoorPvPAshran::AddCollectedArtifacts(uint8 p_TeamID, uint8 p_Type, uint32 p_Count)
+{
+    if (p_TeamID > TeamId::TEAM_HORDE || p_Type >= eArtifactsDatas::MaxArtifactCounts || p_Count == 0)
+        return;
+
+    bool l_Event = false;
+    if ((m_ArtifactsCollected[p_TeamID][p_Type] + p_Count) >= g_MaxArtifactsToCollect[p_Type])
+    {
+        p_Count -= g_MaxArtifactsToCollect[p_Type] - m_ArtifactsCollected[p_TeamID][p_Type];
+        m_ArtifactsCollected[p_TeamID][p_Type] = 0;
+        l_Event = true;
+    }
+
+    m_ArtifactsCollected[p_TeamID][p_Type] += p_Count;
+    SendUpdateWorldState(g_ArtifactsWorldStates[p_TeamID][p_Type], m_ArtifactsCollected[p_TeamID][p_Type]);
+
+    if (l_Event)
+    {
+        /// Do something
+    }
+}
+
+void OutdoorPvPAshran::RewardHonorAndReputation(uint32 p_ArtifactCount, Player* p_Player)
+{
+    if (p_Player == nullptr)
+        return;
+
+    p_Player->PlayerTalkClass->SendCloseGossip();
+
+    /// Turning in Artifact Fragments for these purposes is the aim of a number of repeatable quests
+    /// Rewarding 3 Honor Points and 5 reputation with the respective faction for each 1 Artifact Fragment turned in.
+    /// However, the main goal is to further the faction's progress within the current battle.
+    int32 l_HonorPoints = p_ArtifactCount * eArtifactsDatas::HonorConversionRate * CURRENCY_PRECISION;
+    int32 l_Reputation = p_ArtifactCount * eArtifactsDatas::ReputationConversionRate;
+
+    p_Player->RewardHonor(nullptr, 1, l_HonorPoints);
+
+    FactionEntry const* l_Faction = sFactionStore.LookupEntry(p_Player->GetTeamId() == TeamId::TEAM_ALLIANCE ? eFactions::WrynnsVanguard : eFactions::VoljinsSpear);
+    if (l_Faction == nullptr)
+        return;
+
+    p_Player->GetReputationMgr().ModifyReputation(l_Faction, l_Reputation);
 }
 
 class OutdoorPvP_Ashran : public OutdoorPvPScript
