@@ -3475,6 +3475,9 @@ class Player : public Unit, public GridObject<Player>
             m_CriticalOperationLock.release();
         }
 
+        void SetQuestBit(uint32 p_BitIndex, bool p_Completed);
+        void ClearQuestBits(std::vector<uint32> const& p_QuestBits);
+
     protected:
         void OnEnterPvPCombat();
         void OnLeavePvPCombat();

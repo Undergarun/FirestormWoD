@@ -18141,13 +18141,7 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
     if (uint32 l_QuestBit = GetQuestUniqueBitFlag(l_QuestId))
     {
         m_CompletedQuestBits.SetBit(l_QuestBit - 1);
-
-        WorldPacket l_Packet(SMSG_SET_QUEST_COMPLETED_BIT, 8);
-
-        l_Packet << int32(l_QuestBit);
-        l_Packet << int32(l_QuestId);
-
-        SendDirectMessage(&l_Packet);
+        SetQuestBit(l_QuestBit, true);
     }
 
     //lets remove flag for delayed teleports
@@ -18810,13 +18804,7 @@ void Player::RemoveRewardedQuest(uint32 p_QuestId)
         if (uint32 l_QuestBit = GetQuestUniqueBitFlag(p_QuestId))
         {
             m_CompletedQuestBits.UnsetBit(l_QuestBit - 1);
-
-            WorldPacket l_Packet(SMSG_CLEAR_QUEST_COMPLETED_BIT, 8);
-
-            l_Packet << int32(l_QuestBit);
-            l_Packet << int32(p_QuestId);
-
-            SendDirectMessage(&l_Packet);
+            SetQuestBit(l_QuestBit, false);
         }
     }
 }
@@ -26617,16 +26605,7 @@ void Player::ResetDailyQuestStatus()
         }
 
         if (!l_QuestBits.empty())
-        {
-            WorldPacket l_Packet(SMSG_CLEAR_QUEST_COMPLETED_BITS, 8);
-
-            l_Packet << uint32(l_QuestBits.size());
-
-            for (uint32 l_QBit : l_QuestBits)
-                l_Packet << uint32(l_QBit);
-
-            SendDirectMessage(&l_Packet);
-        }
+            ClearQuestBits(l_QuestBits);
     }
 
     ClearDynamicValue(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS);
@@ -26654,16 +26633,7 @@ void Player::ResetWeeklyQuestStatus()
     }
 
     if (!l_QuestBits.empty())
-    {
-        WorldPacket l_Packet(SMSG_CLEAR_QUEST_COMPLETED_BITS, 8);
-
-        l_Packet << uint32(l_QuestBits.size());
-
-        for (uint32 l_QBit : l_QuestBits)
-            l_Packet << uint32(l_QBit);
-
-        SendDirectMessage(&l_Packet);
-    }
+        ClearQuestBits(l_QuestBits);
 
     m_weeklyquests.clear();
     // DB data deleted in caller
@@ -26687,16 +26657,7 @@ void Player::ResetSeasonalQuestStatus(uint16 event_id)
     }
 
     if (!l_QuestBits.empty())
-    {
-        WorldPacket l_Packet(SMSG_CLEAR_QUEST_COMPLETED_BITS, 8);
-
-        l_Packet << uint32(l_QuestBits.size());
-
-        for (uint32 l_QBit : l_QuestBits)
-            l_Packet << uint32(l_QBit);
-
-        SendDirectMessage(&l_Packet);
-    }
+        ClearQuestBits(l_QuestBits);
 
     m_seasonalquests.erase(eventItr);
     // DB data deleted in caller
@@ -26716,16 +26677,7 @@ void Player::ResetMonthlyQuestStatus()
     }
 
     if (!l_QuestBits.empty())
-    {
-        WorldPacket l_Packet(SMSG_CLEAR_QUEST_COMPLETED_BITS, 8);
-
-        l_Packet << uint32(l_QuestBits.size());
-
-        for (uint32 l_QBit : l_QuestBits)
-            l_Packet << uint32(l_QBit);
-
-        SendDirectMessage(&l_Packet);
-    }
+        ClearQuestBits(l_QuestBits);
 
     m_monthlyquests.clear();
     // DB data deleted in caller
@@ -32278,4 +32230,21 @@ bool Player::CanUpgradeHeirloomWith(HeirloomEntry const* p_HeirloomEntry, uint32
         return false;
 
     return HasItemCount(p_ItemId);
+}
+
+void Player::SetQuestBit(uint32 p_BitIndex, bool p_Completed)
+{
+    uint32 l_BitIndex = p_BitIndex % 32;
+    uint32 l_FieldIndex = (p_BitIndex - l_BitIndex) / 32;
+
+    if (p_Completed)
+        SetFlag(PLAYER_FIELD_QUEST_COMPLETED + l_FieldIndex, 1 << l_BitIndex);
+    else
+        RemoveFlag(PLAYER_FIELD_QUEST_COMPLETED + l_FieldIndex, 1 << l_BitIndex);
+}
+
+void Player::ClearQuestBits(std::vector<uint32> const& p_QuestBits)
+{
+    for (auto l_Bit : p_QuestBits)
+        SetQuestBit(l_Bit, false);
 }

@@ -829,9 +829,6 @@ enum Opcodes
         SMSG_QUEST_PUSH_RESULT                      = 0x0000, ///<
         SMSG_QUEST_POIQUERY_RESPONSE                = 0x051F, ///< 6.1.2 19711
         SMSG_QUEST_LOG_FULL                         = 0x0000, ///<
-        SMSG_SET_QUEST_COMPLETED_BIT                = 0x0000, ///<
-        SMSG_CLEAR_QUEST_COMPLETED_BITS             = 0x0000, ///<
-        SMSG_CLEAR_QUEST_COMPLETED_BIT              = 0x0000, ///<
         SMSG_IS_QUEST_COMPLETE_RESPONSE             = 0x0000, ///<
         SMSG_QUEST_FORCE_REMOVED                    = 0x0000, ///<
         SMSG_QUEST_CONFIRM_ACCEPT                   = 0x0000, ///<
@@ -1892,6 +1889,11 @@ enum Opcodes
     SMSG_SERVER_BUCK_DATA                               = 0x0000,
     SMSG_SERVER_BUCK_DATA_START                         = 0x0000,
     SMSG_SHOW_MAILBOX                                   = 0x0000,
+
+    /// RIP
+    SMSG_SET_QUEST_COMPLETED_BIT                = 0x0000, ///<
+    SMSG_CLEAR_QUEST_COMPLETED_BITS             = 0x0000, ///<
+    SMSG_CLEAR_QUEST_COMPLETED_BIT              = 0x0000, ///<
 };
 
 /// Player state
