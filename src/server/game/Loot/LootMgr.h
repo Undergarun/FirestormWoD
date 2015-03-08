@@ -97,8 +97,8 @@ enum LootType
 
 enum LootItemUiType
 {
-    LOOT_ITEM_UI_NORMAL                 = 0,
-    //                                  = 1,
+    //                                  = 0,
+    LOOT_ITEM_UI_NORMAL                 = 1,
     LOOT_ITEM_UI_ONLY_ONE_LOOTER        = 2,
     LOOT_ITEM_UI_MASTER                 = 3,
     LOOT_ITEM_UI_ROLL                   = 4,
