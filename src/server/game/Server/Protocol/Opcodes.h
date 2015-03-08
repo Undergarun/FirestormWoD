@@ -820,31 +820,31 @@ enum Opcodes
     #pragma region JamQuest
         /// Quest log
         SMSG_QUERY_QUEST_INFO_RESPONSE              = 0x0817, ///< 6.1.2 19711
-        SMSG_QUEST_UPDATE_FAILED_TIMER              = 0x0000, ///<
-        SMSG_QUEST_UPDATE_FAILED                    = 0x0000, ///<
-        SMSG_QUEST_UPDATE_COMPLETE                  = 0x0000, ///<
-        SMSG_QUEST_UPDATE_ADD_PVP_CREDIT            = 0x0000, ///<
-        SMSG_QUEST_UPDATE_ADD_CREDIT_SIMPLE         = 0x0000, ///<
-        SMSG_QUEST_UPDATE_ADD_CREDIT                = 0x0000, ///<
-        SMSG_QUEST_PUSH_RESULT                      = 0x0000, ///<
+        SMSG_QUEST_UPDATE_FAILED_TIMER              = 0x0108, ///< 6.1.2 19711
+        SMSG_QUEST_UPDATE_FAILED                    = 0x0573, ///< 6.1.2 19711
+        SMSG_QUEST_UPDATE_COMPLETE                  = 0x0480, ///< 6.1.2 19711
+        SMSG_QUEST_UPDATE_ADD_PVP_CREDIT            = 0x005B, ///< 6.1.2 19711
+        SMSG_QUEST_UPDATE_ADD_CREDIT_SIMPLE         = 0x0070, ///< 6.1.2 19711
+        SMSG_QUEST_UPDATE_ADD_CREDIT                = 0x006C, ///< 6.1.2 19711
+        SMSG_QUEST_PUSH_RESULT                      = 0x007B, ///< 6.1.2 19711
         SMSG_QUEST_POIQUERY_RESPONSE                = 0x051F, ///< 6.1.2 19711
-        SMSG_QUEST_LOG_FULL                         = 0x0000, ///<
-        SMSG_IS_QUEST_COMPLETE_RESPONSE             = 0x0000, ///<
-        SMSG_QUEST_FORCE_REMOVED                    = 0x0000, ///<
-        SMSG_QUEST_CONFIRM_ACCEPT                   = 0x0000, ///<
-        SMSG_QUEST_COMPLETION_NPCRESPONSE           = 0x0000, ///<
-        SMSG_DAILY_QUESTS_RESET                     = 0x0000, ///<
+        SMSG_QUEST_LOG_FULL                         = 0x0508, ///< 6.1.2 19711
+        SMSG_IS_QUEST_COMPLETE_RESPONSE             = 0x0063, ///< 6.1.2 19711
+        SMSG_QUEST_FORCE_REMOVED                    = 0x0504, ///< 6.1.2 19711
+        SMSG_QUEST_CONFIRM_ACCEPT                   = 0x054C, ///< 6.1.2 19711
+        SMSG_QUEST_COMPLETION_NPCRESPONSE           = 0x0540, ///< 6.1.2 19711
+        SMSG_DAILY_QUESTS_RESET                     = 0x055B, ///< 6.1.2 19711
 
         /// Quest giver
-        SMSG_QUEST_GIVER_STATUS_MULTIPLE            = 0x0000, ///<
-        SMSG_QUEST_GIVER_STATUS                     = 0x0000, ///<
-        SMSG_QUEST_GIVER_REQUEST_ITEMS              = 0x0000, ///<
-        SMSG_QUEST_GIVER_QUEST_LIST_MESSAGE         = 0x0000, ///<
-        SMSG_QUEST_GIVER_QUEST_FAILED               = 0x0000, ///<
-        SMSG_QUEST_GIVER_QUEST_DETAILS              = 0x0000, ///<
-        SMSG_QUEST_GIVER_QUEST_COMPLETE             = 0x0000, ///<
-        SMSG_QUEST_GIVER_OFFER_REWARD_MESSAGE       = 0x0000, ///<
-        SMSG_QUEST_GIVER_INVALID_QUEST              = 0x0000, ///<
+        SMSG_QUEST_GIVER_STATUS_MULTIPLE            = 0x0814, ///< 6.1.2 19711
+        SMSG_QUEST_GIVER_STATUS                     = 0x052F, ///< 6.1.2 19711
+        SMSG_QUEST_GIVER_REQUEST_ITEMS              = 0x0528, ///< 6.1.2 19711
+        SMSG_QUEST_GIVER_QUEST_LIST_MESSAGE         = 0x0843, ///< 6.1.2 19711
+        SMSG_QUEST_GIVER_QUEST_FAILED               = 0x007F, ///< 6.1.2 19711
+        SMSG_QUEST_GIVER_QUEST_DETAILS              = 0x0534, ///< 6.1.2 19711
+        SMSG_QUEST_GIVER_QUEST_COMPLETE             = 0x004C, ///< 6.1.2 19711
+        SMSG_QUEST_GIVER_OFFER_REWARD_MESSAGE       = 0x0547, ///< 6.1.2 19711
+        SMSG_QUEST_GIVER_INVALID_QUEST              = 0x0543, ///< 6.1.2 19711
 
         /// Gossip
         SMSG_GOSSIP_MESSAGE                         = 0x0077, ///< 6.1.2 19711
@@ -1206,19 +1206,19 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Quest
     //////////////////////////////////////////////////////////////////////////
-    CMSG_QUESTGIVER_HELLO                       = 0x0000, ///<
-    CMSG_QUEST_GIVER_STATUS_QUERY               = 0x0000, ///<
-    CMSG_QUESTGIVER_STATUS_MULTIPLE_QUERY       = 0x0000, ///<
-    CMSG_QUESTGIVER_QUERY_QUEST                 = 0x0000, ///<
-    CMSG_QUESTGIVER_COMPLETE_QUEST              = 0x0000, ///<
-    CMSG_QUESTGIVER_CHOOSE_REWARD               = 0x0000, ///<
-    CMSG_QUESTGIVER_ACCEPT_QUEST                = 0x0000, ///<
-    CMSG_QUESTGIVER_REQUEST_REWARD              = 0x0000, ///<
-    CMSG_QUEST_CONFIRM_ACCEPT                   = 0x0000, ///<
-    CMSG_QUESTLOG_REMOVE_QUEST                  = 0x0000, ///<
-    CMSG_PUSH_QUEST_TO_PARTY                    = 0x0000, ///<
-    CMSG_QUEST_PUSH_RESULT                      = 0x0000, ///<
-    CMSG_QUERY_QUEST_COMPLETION_NPCS            = 0x0000, ///<
+    CMSG_QUESTGIVER_HELLO                       = 0x01CE, ///< 6.1.2 19711
+    CMSG_QUEST_GIVER_STATUS_QUERY               = 0x0836, ///< 6.1.2 19711
+    CMSG_QUESTGIVER_STATUS_MULTIPLE_QUERY       = 0x0DA5, ///< 6.1.2 19711
+    CMSG_QUESTGIVER_QUERY_QUEST                 = 0x0DA6, ///< 6.1.2 19711
+    CMSG_QUESTGIVER_COMPLETE_QUEST              = 0x0CE6, ///< 6.1.2 19711
+    CMSG_QUESTGIVER_CHOOSE_REWARD               = 0x0DA2, ///< 6.1.2 19711
+    CMSG_QUESTGIVER_ACCEPT_QUEST                = 0x1865, ///< 6.1.2 19711
+    CMSG_QUESTGIVER_REQUEST_REWARD              = 0x19F6, ///< 6.1.2 19711
+    CMSG_QUEST_CONFIRM_ACCEPT                   = 0x08A1, ///< 6.1.2 19711
+    CMSG_QUESTLOG_REMOVE_QUEST                  = 0x1DE1, ///< 6.1.2 19711
+    CMSG_PUSH_QUEST_TO_PARTY                    = 0x0DE1, ///< 6.1.2 19711
+    CMSG_QUEST_PUSH_RESULT                      = 0x1F81, ///< 6.1.2 19711
+    CMSG_QUERY_QUEST_COMPLETION_NPCS            = 0x0489, ///< 6.1.2 19711
 
     //////////////////////////////////////////////////////////////////////////
     /// Account data
