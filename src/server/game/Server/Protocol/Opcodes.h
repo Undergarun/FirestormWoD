@@ -127,8 +127,8 @@ enum Opcodes
         SMSG_TOTEM_CREATED                          = 0x0000, ///<
         SMSG_RESPEC_WIPE_CONFIRM                    = 0x0000, ///<
         SMSG_USE_EQUIPMENT_SET_RESULT               = 0x0000, ///<
-        SMSG_TRADE_STATUS                           = 0x0000, ///<
-        SMSG_TRADE_UPDATED                          = 0x0000, ///<
+        SMSG_TRADE_STATUS                           = 0x071A, ///< 6.1.2 19728
+        SMSG_TRADE_UPDATED                          = 0x123F, ///< 6.1.2 19728
         SMSG_SHOW_NEUTRAL_PLAYER_FACTION_SELECT_UI  = 0x0331, ///< 6.1.2 19728
         SMSG_NEUTRAL_PLAYER_FACTION_SELECT_RESULT   = 0x0000, ///< (unused)
         SMSG_INSPECT_TALENT                         = 0x0000, ///<
@@ -171,8 +171,8 @@ enum Opcodes
         SMSG_PLAY_ONE_SHOT_ANIM_KIT                 = 0x0000, ///<
         SMSG_PLAYER_BOUND                           = 0x0000, ///<
         SMSG_OVERRIDE_LIGHT                         = 0x0000, ///<
-        SMSG_PRINT_NOTIFICATION                     = 0x0000, ///<
-        SMSG_SPECIAL_MOUNT_ANIM                     = 0x0000, ///<
+        SMSG_PRINT_NOTIFICATION                     = 0x0F3D, ///< 6.1.2 19728
+        SMSG_SPECIAL_MOUNT_ANIM                     = 0x1319, ///< 6.1.2 19728
         SMSG_ITEM_TIME_UPDATE                       = 0x0000, ///<
         SMSG_QUERY_ITEM_TEXT_RESPONSE               = 0x1D36, ///< 6.1.2 19728
         SMSG_ITEM_PURCHASE_REFUND_RESULT            = 0x0000, ///<
@@ -185,9 +185,9 @@ enum Opcodes
         SMSG_CROSSED_INEBRIATION_THRESHOLD          = 0x0000, ///<
         SMSG_CLIENT_CONTROL_UPDATE                  = 0x0D32, ///< 6.1.2 19728
         SMSG_AREA_TRIGGER_NO_CORPSE                 = 0x0297, ///< 6.1.2 19728
-        SMSG_BAG_SORT_RESULT                        = 0x0000, ///<
+        SMSG_BAG_SORT_RESULT                        = 0x050E, ///< 6.1.2 19728
         SMSG_VIGNETTE_UPDATE                        = 0x0000, ///<
-        SMSG_ACCOUNT_MOUNT_UPDATE                   = 0x0000, ///<
+        SMSG_ACCOUNT_MOUNT_UPDATE                   = 0x079D, ///< 6.1.2 19728
         SMSG_PLAY_SCENE                             = 0x0000, ///<
         SMSG_CANCEL_SCENE                           = 0x0000, ///<
 
@@ -292,7 +292,7 @@ enum Opcodes
         SMSG_AE_LOOT_TARGETS_ACK                    = 0x0000, ///< (unused)
 
         /// Bank
-        SMSG_SHOW_BANK                              = 0x0000, ///<
+        SMSG_SHOW_BANK                              = 0x179F, ///< 6.1.2 19728
 
         /// Rune
         SMSG_RESYNC_RUNES                           = 0x0000, ///<
@@ -971,7 +971,7 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// User Router
     //////////////////////////////////////////////////////////////////////////
-    CMSG_LOG_STREAMING_ERROR                    = 0x0000, ///<
+    CMSG_LOG_STREAMING_ERROR                    = 0x12D6, ///< 6.1.2 19728
     CMSG_QUEUED_MESSAGES_END                    = 0x0000, ///<
     CMSG_LOG_DISCONNECT                         = 0x012D, ///< 6.1.2 19728
     CMSG_PING                                   = 0x12DE, ///< 6.1.2 19728
@@ -1001,7 +1001,7 @@ enum Opcodes
     CMSG_AUTO_DECLINE_GUILD_INVITES             = 0x09B1,   ///< 6.1.2 19728
     CMSG_SHOWING_CLOAK                          = 0x0F04,   ///< 6.1.2 19728
     CMSG_SHOWING_HELM                           = 0x0C36,   ///< 6.1.2 19728
-    CMSG_SET_ACTIVE_MOVER                       = 0x0000,   ///<
+    CMSG_SET_ACTIVE_MOVER                       = 0x0108,   ///< 6.1.2 19728
     CMSG_LEARN_TALENTS                          = 0x0AAA,   ///< 6.1.2 19728
     CMSG_AUTOEQUIP_ITEM                         = 0x0423,   ///< 6.1.2 19728
     CMSG_SWAP_INV_ITEM                          = 0x003C,   ///< 6.1.2 19728
@@ -1024,8 +1024,8 @@ enum Opcodes
     CMSG_QUERY_INSPECT_ACHIEVEMENTS             = 0x0000,   ///<
     CMSG_SPLIT_ITEM                             = 0x052B,   ///< 6.1.2 19728
     CMSG_SET_PLAYER_DECLINED_NAMES              = 0x0000,   ///<
-    CMSG_MOUNT_SET_FAVORITE                     = 0x0000,   ///<
-    CMSG_SORT_BAGS                              = 0x0000,   ///<
+    CMSG_MOUNT_SET_FAVORITE                     = 0x061E,   ///< 6.1.2 19728
+    CMSG_SORT_BAGS                              = 0x0AF1,   ///< 6.1.2 19728
     CMSG_CHAR_RENAME                            = 0x0000,   ///<
     CMSG_CHAR_CUSTOMIZE                         = 0x0000,   ///<
     CMSG_CHAR_RACE_OR_FACTION_CHANGE            = 0x0000,   ///<
@@ -1033,14 +1033,14 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Bank
     //////////////////////////////////////////////////////////////////////////
-    CMSG_BANKER_ACTIVATE                        = 0x0000, ///<
-    CMSG_AUTOBANK_ITEM                          = 0x0000, ///<
-    CMSG_AUTOSTORE_BANK_ITEM                    = 0x0000, ///<
-    CMSG_BUY_BANK_SLOT                          = 0x0000, ///<
-    CMSG_BUY_REAGENT_BANK                       = 0x0000, ///<
-    CMSG_SORT_BANK_BAGS                         = 0x0000, ///<
-    CMSG_SORT_REAGENT_BANK_BAGS                 = 0x0000, ///<
-    CMSG_DEPOSIT_ALL_REAGENTS                   = 0x0000, ///<
+    CMSG_BANKER_ACTIVATE                        = 0x0CA5, ///< 6.1.2 19728
+    CMSG_AUTOBANK_ITEM                          = 0x043F, ///< 6.1.2 19728
+    CMSG_AUTOSTORE_BANK_ITEM                    = 0x0027, ///< 6.1.2 19728
+    CMSG_BUY_BANK_SLOT                          = 0x1DE2, ///< 6.1.2 19728
+    CMSG_BUY_REAGENT_BANK                       = 0x1D75, ///< 6.1.2 19728
+    CMSG_SORT_BANK_BAGS                         = 0x0659, ///< 6.1.2 19728
+    CMSG_SORT_REAGENT_BANK_BAGS                 = 0x06D2, ///< 6.1.2 19728
+    CMSG_DEPOSIT_ALL_REAGENTS                   = 0x002A, ///< 6.1.2 19728
 
     //////////////////////////////////////////////////////////////////////////
     /// Auction House
@@ -1138,7 +1138,7 @@ enum Opcodes
     CMSG_CLOSE_INTERACTION                      = 0x1C36, ///< 6.1.2 19728
     CMSG_ITEM_REFUND_INFO                       = 0x0000, ///<
     CMSG_FAR_SIGHT                              = 0x0000, ///<
-    CMSG_MOUNTSPECIAL_ANIM                      = 0x0000, ///<
+    CMSG_MOUNTSPECIAL_ANIM                      = 0x01EE, ///< 6.1.2 19728
     CMSG_OPENING_CINEMATIC                      = 0x0E0A, ///< 6.1.2 19728
     CMSG_NEXT_CINEMATIC_CAMERA                  = 0x0CE1, ///< 6.1.2 19728
     CMSG_COMPLETE_CINEMATIC                     = 0x0CF2, ///< 6.1.2 19728
@@ -1146,16 +1146,16 @@ enum Opcodes
     CMSG_TOTEM_DESTROYED                        = 0x0000, ///<
     CMSG_CONFIRM_RESPEC_WIPE                    = 0x0000, ///<
     CMSG_CANCEL_TRADE                           = 0x0E0F, ///< 6.1.2 19728
-    CMSG_SET_TRADE_CURRENCY                     = 0x0000,
-    CMSG_SET_TRADE_GOLD                         = 0x0000,   ///<
-    CMSG_SET_TRADE_ITEM                         = 0x0000,   ///<
-    CMSG_CLEAR_TRADE_ITEM                       = 0x0000,   ///<
-    CMSG_ACCEPT_TRADE                           = 0x0000,   ///<
-    CMSG_BUSY_TRADE                             = 0x0000,   ///<
-    CMSG_BEGIN_TRADE                            = 0x0000,   ///<
-    CMSG_IGNORE_TRADE                           = 0x0000,   ///<
-    CMSG_INITIATE_TRADE                         = 0x0000,   ///<
-    CMSG_UNACCEPT_TRADE                         = 0x0000,   ///<
+    CMSG_SET_TRADE_CURRENCY                     = 0x06F2,   ///< 6.1.2 19728
+    CMSG_SET_TRADE_GOLD                         = 0x0E5A,   ///< 6.1.2 19728
+    CMSG_SET_TRADE_ITEM                         = 0x0626,   ///< 6.1.2 19728
+    CMSG_CLEAR_TRADE_ITEM                       = 0x0F7B,   ///< 6.1.2 19728
+    CMSG_ACCEPT_TRADE                           = 0x0F07,   ///< 6.1.2 19728
+    CMSG_BUSY_TRADE                             = 0x0E2B,   ///< 6.1.2 19728
+    CMSG_BEGIN_TRADE                            = 0x0E53,   ///< 6.1.2 19728
+    CMSG_IGNORE_TRADE                           = 0x1A08,   ///< 6.1.2 19728
+    CMSG_INITIATE_TRADE                         = 0x1A8C,   ///< 6.1.2 19728
+    CMSG_UNACCEPT_TRADE                         = 0x0AD1,   ///< 6.1.2 19728
     CMSG_NEUTRAL_PLAYER_SELECT_FACTION          = 0x0EC8,   ///< 6.1.2 19728
     CMSG_INSPECT                                = 0x0000,   ///<
     CMSG_INSPECT_HONOR_STATS                    = 0x0000,   ///<
@@ -1223,7 +1223,7 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Account data
     //////////////////////////////////////////////////////////////////////////
-    CMSG_GET_UNDELETE_CHARACTER_COOLDOWN_STATUS = 0x0000, ///<
+    CMSG_GET_UNDELETE_CHARACTER_COOLDOWN_STATUS = 0x063D, ///< 6.1.2 19728
 
     //////////////////////////////////////////////////////////////////////////
     /// Chat
@@ -1495,7 +1495,7 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Battle pay
     //////////////////////////////////////////////////////////////////////////
-    CMSG_BATTLE_PAY_GET_PURCHASE_LIST              = 0x0000, ///< (unused)
+    CMSG_BATTLE_PAY_GET_PURCHASE_LIST              = 0x1616, ///< (unused) 6.1.2 19728
 
     //////////////////////////////////////////////////////////////////////////
     /// LFG
