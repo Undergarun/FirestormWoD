@@ -231,7 +231,8 @@ void WorldSession::HandleSendMail(WorldPacket& p_Packet)
             for (uint8 i = 0; i < l_AttachmentsCount; ++i)
             {
                 Item* item = items[i];
-                if (!AccountMgr::IsPlayerAccount(GetSecurity()) && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
+                bool l_MustLog = !AccountMgr::IsPlayerAccount(GetSecurity()) && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE);
+                if (l_MustLog && GetAccountId() != rc_account) ///< It's useless to log self
                 {
                     sLog->outCommand(GetAccountId(), "", GetPlayer()->GetGUIDLow(), GetPlayer()->GetName(),
                                     rc_account, "", 0, l_Target.c_str(),
@@ -250,15 +251,16 @@ void WorldSession::HandleSendMail(WorldPacket& p_Packet)
             }
 
             // if item send to character at another account, then apply item delivery delay
-            needItemDelay = m_Player->GetSession()->GetAccountId() != rc_account;
+            needItemDelay = GetAccountId() != rc_account;
         }
 
-        if (l_SendMoney > 0 && !AccountMgr::IsPlayerAccount(GetSecurity()) && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
+        bool l_MustLog = !AccountMgr::IsPlayerAccount(GetSecurity()) && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE);
+        if (l_SendMoney > 0 && l_MustLog && GetAccountId() != rc_account) ///< It's useless to log self
         {
             //TODO: character guid
             sLog->outCommand(GetAccountId(), "", GetPlayer()->GetGUIDLow(), GetPlayer()->GetName(),
                             rc_account, "", 0, l_Target.c_str(),
-                            "GM %s (Account: %u) mail money: %lu to player: %s (Account: %u)",
+                            "GM %s (Account: %u) mail money: " UI64FMTD " to player: %s (Account: %u)",
                             GetPlayerName().c_str(), GetAccountId(), l_SendMoney, l_Target.c_str(), rc_account);
         }
     }
@@ -268,8 +270,10 @@ void WorldSession::HandleSendMail(WorldPacket& p_Packet)
 
     // Guild Mail
     if (receive && receive->GetGuildId() && m_Player->GetGuildId())
+    {
         if (m_Player->HasAura(83951) && (m_Player->GetGuildId() == receive->GetGuildId()))
             deliver_delay = 0;
+    }
 
     // VIP Accounts receive mails instantly
     if (receive && receive->GetSession()->IsPremium())
