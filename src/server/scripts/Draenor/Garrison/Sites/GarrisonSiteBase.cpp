@@ -107,6 +107,36 @@ namespace MS { namespace Garrison { namespace Sites
 
                 m_OwnerGUID = p_Player->GetGUID();
                 OnOwnerEnter(p_Player);
+                OnOwnerLevelChange(p_Player->getLevel());
+            }
+        }
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// When the owner player change level
+    /// @p_Level : New owner level
+    void GarrisonSiteBase::OnOwnerLevelChange(uint32 p_Level)
+    {
+        for (uint32 l_I = 0; l_I < (sizeof(gGarrisonLevelUpdateCreatures) / sizeof(gGarrisonLevelUpdateCreatures[0])); ++l_I)
+        {
+            uint32 const l_Entry = gGarrisonLevelUpdateCreatures[l_I];
+
+            if (m_CreaturesPerEntry.find(l_Entry) == m_CreaturesPerEntry.end())
+                continue;
+
+            std::set<uint64>& l_Guids = m_CreaturesPerEntry[l_Entry];
+
+            for (auto l_It = l_Guids.begin(); l_It != l_Guids.end(); ++l_It)
+            {
+                uint64 l_Guid = *l_It;
+
+                if (Creature * l_Creature = HashMapHolder<Creature>::Find(l_Guid))
+                {
+                    l_Creature->SetLevel(p_Level);
+                    l_Creature->UpdateStatsForLevel();
+                }
             }
         }
     }

@@ -1263,14 +1263,6 @@ void BattlegroundSM::EndBattleground(uint32 p_Winner)
         l_MineCart->DespawnOrUnsummon();
 }
 
-void BattlegroundSM::UpdatePointsCount(uint32 p_Team)
-{
-    if (p_Team == ALLIANCE)
-        UpdateWorldState(SM_ALLIANCE_RESOURCES, m_TeamScores[TEAM_ALLIANCE]);
-    else
-        UpdateWorldState(SM_HORDE_RESOURCES, m_TeamScores[TEAM_HORDE]);
-}
-
 void BattlegroundSM::AddPlayer(Player* p_Player)
 {
     Battleground::AddPlayer(p_Player);
@@ -1369,8 +1361,8 @@ void BattlegroundSM::UpdatePlayerScore(Player* p_Player, uint32 p_Type, uint32 p
 void BattlegroundSM::FillInitialWorldStates(ByteBuffer& p_Data)
 {
     p_Data << uint32(SM_MINE_CARTS_DISPLAY) << uint32(DISPLAY_WORLDSTATE);
-    p_Data << uint32(SM_ALLIANCE_RESOURCES) << uint32(m_TeamScores[TEAM_HORDE]);
-    p_Data << uint32(SM_HORDE_RESOURCES) << uint32(m_TeamScores[TEAM_ALLIANCE]);
+    p_Data << uint32(SM_ALLIANCE_RESOURCES) << uint32(m_TeamScores[TEAM_ALLIANCE]);
+    p_Data << uint32(SM_HORDE_RESOURCES) << uint32(m_TeamScores[TEAM_HORDE]);
     p_Data << uint32(SM_MINE_CART_1) << uint32(DISPLAY_WORLDSTATE);
     p_Data << uint32(SM_MINE_CART_2) << uint32(DISPLAY_WORLDSTATE);
     p_Data << uint32(SM_DISPLAY_ALLIANCE_RESSOURCES) << uint32(DISPLAY_WORLDSTATE);

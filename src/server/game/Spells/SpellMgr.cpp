@@ -3344,25 +3344,32 @@ void SpellMgr::LoadSpellCustomAttr()
             case 144757: /// Increased All Resist 05
                 spellInfo->AttributesEx11 &= ~SPELL_ATTR11_CAST_WITH_ITEM;
                 break;
-            case 110744: // Divine Star - should be 2 sec -- WTF Blizz ?
+            case 110744:///< Divine Star - should be 2 sec -- WTF Blizz ?
             case 122121:
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(66);
                 spellInfo->Effects[0].TargetA = SELECT_TARGET_SELF;
                 spellInfo->ExplicitTargetMask = spellInfo->_GetExplicitTargetMask();
                 break;
-            case 20167:  // Seal of Insight
+            case 165096:///< Ogreic Landing
+                spellInfo->Effects[1].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
+                break;
+            case 164868:///< Ogreic Landing
+                spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
+                break;
+            case 20167: ///< Seal of Insight
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_NONE;
                 break;
-            case 150055: // Volcanic Tantrum
-            case 149963: // Shatter Earth
+            case 150055:///< Volcanic Tantrum
+            case 149963:///< Shatter Earth
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(27); // 3 sec
                 break;
-            case 150004: // Magma Barrage
+            case 150004:///< Magma Barrage
                 spellInfo->InterruptFlags = SPELL_INTERRUPT_FLAG_MOVEMENT;
                 spellInfo->Effects[EFFECT_1].Effect = 0;
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 150306;
                 break;
             case 102401:///< Wild Charge (Ally)
+            case 94954: ///< Heroic Leap
                 spellInfo->Effects[EFFECT_1].ValueMultiplier = 0;
                 break;
             case 159362:///< Blood Craze
@@ -3370,6 +3377,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 30814: ///< Mental Quickness
                 spellInfo->Effects[EFFECT_4].Effect = 0;
+                break;
+            /// January 12, 2015 - 6.0.3 Hotfixes for January 12th - Class Tuning Changes, Haste More Effective
+            case 165375:///< Sacred Duty - now causes the Paladin to gain 30% (up from 5%) more of the Haste stat from all sources.
+                spellInfo->Effects[EFFECT_0].BasePoints = 30;
                 break;
             case 149959: // Earth Shatter
             case 149968:
@@ -3783,6 +3794,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].BasePoints = -20;
                 spellInfo->Effects[1].BasePoints = 30;
                 break;
+            case 164991: ///< Entangling Energy
             case 15286: ///< Vampiric Embrace
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;

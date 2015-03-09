@@ -17,7 +17,6 @@
 #include <algorithm>
 
 #include <Reporting/Reporter.hpp>
-#include <Reporting/Reports.hpp>
 
 namespace BNet2 {
 

@@ -8,8 +8,11 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
+file(GLOB_RECURSE sources_Ashran OutdoorPvP/Ashran/*.hpp OutdoorPvP/Ashran/*.cpp OutdoorPvP/Ashran/*.hxx)
+
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
+  ${sources_Ashran}
   OutdoorPvP/OutdoorPvPTF.cpp
   OutdoorPvP/OutdoorPvPSI.cpp
   OutdoorPvP/OutdoorPvPSI.h
@@ -20,8 +23,6 @@ set(scripts_STAT_SRCS
   OutdoorPvP/OutdoorPvPHP.h
   OutdoorPvP/OutdoorPvPZM.h
   OutdoorPvP/OutdoorPvPNA.h
-  OutdoorPvP/OutdoorPvPAshran.h
-  OutdoorPvP/OutdoorPvPAshran.cpp
 )
 
 message("  -> Prepared: Outdoor PVP Zones")

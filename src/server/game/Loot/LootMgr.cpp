@@ -123,13 +123,13 @@ uint32 LootStore::LoadLootTable()
         uint16 lootmode            = fields[3].GetUInt16();
         uint8  group               = fields[4].GetUInt8();
         int32  mincountOrRef       = fields[5].GetInt32();
-        int32  maxcount            = fields[6].GetUInt8();
+        int32  maxcount            = fields[6].GetUInt32();
         std::string bonuses        = fields[7].GetString();
 
 
-        if (type == LOOT_ITEM_TYPE_ITEM && maxcount > std::numeric_limits<uint8>::max())
+        if (type == LOOT_ITEM_TYPE_ITEM && maxcount > std::numeric_limits<int32>::max())
         {
-            sLog->outError(LOG_FILTER_SQL, "Table '%s' entry %d item %d: maxcount value (%u) to large. must be less %u - skipped", GetName(), entry, item, maxcount, std::numeric_limits<uint8>::max());
+            sLog->outError(LOG_FILTER_SQL, "Table '%s' entry %d item %d: maxcount value (%u) to large. must be less %u - skipped", GetName(), entry, item, maxcount, std::numeric_limits<int32>::max());
             continue;                                   // error already printed to log/console.
         }
 
@@ -346,7 +346,7 @@ bool LootStoreItem::IsValid(LootStore const& store, uint32 entry) const
             return false;
         }
 
-        if (maxcount < mincountOrRef)                       // wrong max count
+        if ((int32)maxcount < mincountOrRef)                       // wrong max count
         {
             sLog->outError(LOG_FILTER_SQL, "Table '%s' entry %d item %d: max count (%u) less that min count (%i) - skipped", store.GetName(), entry, itemid, int32(maxcount), mincountOrRef);
             return false;
@@ -586,7 +586,7 @@ void Loot::FillNotNormalLootFor(Player* player, bool presentAtLooting)
     }
 }
 
-QuestItemList* Loot::FillCurrencyLoot(Player* player)
+void Loot::FillCurrencyLoot(Player* player)
 {
     QuestItemList* ql = new QuestItemList();
 
@@ -599,17 +599,17 @@ QuestItemList* Loot::FillCurrencyLoot(Player* player)
             ++UnlootedCount;
         }
     }
+
     if (ql->empty())
     {
         delete ql;
-        return NULL;
+        return;
     }
 
     PlayerCurrencies[player->GetGUIDLow()] = ql;
-    return ql;
 }
 
-QuestItemList* Loot::FillFFALoot(Player* player)
+void Loot::FillFFALoot(Player* player)
 {
     QuestItemList* ql = new QuestItemList();
 
@@ -622,20 +622,20 @@ QuestItemList* Loot::FillFFALoot(Player* player)
             ++UnlootedCount;
         }
     }
+
     if (ql->empty())
     {
         delete ql;
-        return NULL;
+        return;
     }
 
     PlayerFFAItems[player->GetGUIDLow()] = ql;
-    return ql;
 }
 
-QuestItemList* Loot::FillQuestLoot(Player* player)
+void Loot::FillQuestLoot(Player* player)
 {
     if (Items.size() == MAX_NR_LOOT_ITEMS)
-        return NULL;
+        return;
 
     QuestItemList* ql = new QuestItemList();
 
@@ -660,17 +660,17 @@ QuestItemList* Loot::FillQuestLoot(Player* player)
                 break;
         }
     }
+
     if (ql->empty())
     {
         delete ql;
-        return NULL;
+        return;
     }
 
     PlayerQuestItems[player->GetGUIDLow()] = ql;
-    return ql;
 }
 
-QuestItemList* Loot::FillNonQuestNonFFAConditionalLoot(Player* player, bool presentAtLooting)
+void Loot::FillNonQuestNonFFAConditionalLoot(Player* player, bool presentAtLooting)
 {
     QuestItemList* ql = new QuestItemList();
 
@@ -692,14 +692,14 @@ QuestItemList* Loot::FillNonQuestNonFFAConditionalLoot(Player* player, bool pres
             }
         }
     }
+
     if (ql->empty())
     {
         delete ql;
-        return NULL;
+        return;
     }
 
     PlayerNonQuestNonFFAConditionalItems[player->GetGUIDLow()] = ql;
-    return ql;
 }
 
 //===================================================

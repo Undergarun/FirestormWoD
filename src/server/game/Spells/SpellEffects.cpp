@@ -1219,27 +1219,6 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
                 m_caster->CastSpell(unitTarget, 31790, true);
                 return;
             }
-            // Cloak of Shadows
-            case 35729:
-            {
-                uint32 dispelMask = SpellInfo::GetDispelMask(DISPEL_ALL);
-                Unit::AuraApplicationMap& Auras = unitTarget->GetAppliedAuras();
-                for (Unit::AuraApplicationMap::iterator iter = Auras.begin(); iter != Auras.end();)
-                {
-                    // remove all harmful spells on you...
-                    SpellInfo const* spell = iter->second->GetBase()->GetSpellInfo();
-                    if ((spell->DmgClass == SPELL_DAMAGE_CLASS_MAGIC // only affect magic spells
-                        || (spell->GetDispelMask() & dispelMask) || (spell->GetSchoolMask() & SPELL_SCHOOL_MASK_MAGIC))
-                        // ignore positive and passive auras
-                        && !iter->second->IsPositive() && !iter->second->GetBase()->IsPassive() && m_spellInfo->CanDispelAura(spell))
-                    {
-                        m_caster->RemoveAura(iter);
-                    }
-                    else
-                        ++iter;
-                }
-                return;
-            }
         }
     }
 
@@ -6097,16 +6076,16 @@ void Spell::EffectKnockBack(SpellEffIndex effIndex)
 
     switch (m_spellInfo->Id)
     {
-    case 149575: // Explosive Trap
-        if (!m_caster->HasAura(119403)) // Glyph of Explosive Trap
-            return;
-        break;
-    case 51490: // Thunderstorm
-        if (m_caster->HasAura(62132)) // Glyph of Thunderstorm
-            return;
-        break;
-    default:
-        break;
+        case 149575: // Explosive Trap
+            if (!m_caster->HasAura(119403)) // Glyph of Explosive Trap
+                return;
+            break;
+        case 51490: // Thunderstorm
+            if (m_caster->HasAura(62132)) // Glyph of Thunderstorm
+                return;
+            break;
+        default:
+            break;
     }
 
     // Instantly interrupt non melee spells being casted
@@ -6127,10 +6106,8 @@ void Spell::EffectKnockBack(SpellEffIndex effIndex)
         else
             return;
     }
-    else //if (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_KNOCK_BACK)
-    {
+    else
         m_caster->GetPosition(x, y);
-    }
 
     unitTarget->KnockbackFrom(x, y, speedxy, speedz);
 

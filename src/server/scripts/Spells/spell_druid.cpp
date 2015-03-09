@@ -476,7 +476,7 @@ class spell_dru_thrash_bear: public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                 {
                     // Each tick grant 1 point of rage
-                    caster->SetPower(POWER_RAGE, caster->GetPower(POWER_RAGE) + 1 * caster->GetPowerCoeff(POWER_RAGE));
+                    caster->ModifyPower(POWER_RAGE, 1 * GetCaster()->GetPowerCoeff(POWER_RAGE));
                 }
             }
 
@@ -1590,7 +1590,8 @@ class spell_dru_wild_mushroom: public SpellScriptLoader
 
 enum StampedingRoarSpells
 {
-    SPELL_DRUID_BEAR_FORM = 5487
+    SPELL_DRUID_BEAR_FORM = 5487,
+    SPELL_DRUID_GLYPH_OF_STAMPEDING_ROAR = 114222
 };
 
 /// Stampeding Roar - 97993, Stampeding Roar (cat) - 77764 and Stampeding Roar(bear) - 77761
@@ -1607,11 +1608,14 @@ class spell_dru_stampeding_roar: public SpellScriptLoader
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (l_Player->GetShapeshiftForm() != FORM_CAT && l_Player->GetShapeshiftForm() != FORM_BEAR)
-                        l_Player->CastSpell(l_Player, SPELL_DRUID_BEAR_FORM, true);
+                    if (!l_Player->HasAura(SPELL_DRUID_GLYPH_OF_STAMPEDING_ROAR))
+                    {
+                        if (l_Player->GetShapeshiftForm() != FORM_CAT && l_Player->GetShapeshiftForm() != FORM_BEAR)
+                            l_Player->CastSpell(l_Player, SPELL_DRUID_BEAR_FORM, true);
+                    }
 
-                    if (Unit* target = GetHitUnit())
-                        target->RemoveMovementImpairingAuras();
+                    if (Unit* l_Target = GetHitUnit())
+                        l_Target->RemoveMovementImpairingAuras();
                 }
             }
 
@@ -3033,6 +3037,58 @@ public:
     }
 };
 
+enum SpellsBarkskin
+{
+    SPELL_DRUID_GLYPH_OF_BARKSKIN_AURA  = 63057,
+    SPELL_DRUID_GLYPH_OF_BARKSKIN       = 63058
+};
+
+/// Call by Barkskin - 22812
+/// Glyph of Barkskin - 114338
+class spell_dru_glyph_of_barkskin : public SpellScriptLoader
+{
+    public:
+        spell_dru_glyph_of_barkskin() : SpellScriptLoader("spell_dru_glyph_of_barkskin") { }
+
+        class spell_dru_glyph_of_barkskin_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_glyph_of_barkskin_AuraScript);
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(SpellsBarkskin::SPELL_DRUID_GLYPH_OF_BARKSKIN_AURA))
+                    l_Caster->CastSpell(l_Caster, SpellsBarkskin::SPELL_DRUID_GLYPH_OF_BARKSKIN, true);
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(SpellsBarkskin::SPELL_DRUID_GLYPH_OF_BARKSKIN))
+                    l_Caster->RemoveAura(SpellsBarkskin::SPELL_DRUID_GLYPH_OF_BARKSKIN);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_dru_glyph_of_barkskin_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_dru_glyph_of_barkskin_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_glyph_of_barkskin_AuraScript();
+        }
+};
+
 enum SpellsShred
 {
     SPELL_DRUID_SWIPE = 106785
@@ -3206,15 +3262,15 @@ class spell_dru_rip: public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_rip_AuraScript);
 
-            void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32& p_Amount, bool& /*canBeRecalculated*/)
+            void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& /*canBeRecalculated*/)
             {
                 Unit* l_Caster = GetCaster();
-                if (l_Caster && l_Caster->GetTypeId() == TYPEID_PLAYER && GetEffect(EFFECT_0) && GetEffect(EFFECT_0)->GetAmplitude() > 0)
+                if (l_Caster && l_Caster->GetTypeId() == TYPEID_PLAYER && p_AurEff->GetAmplitude() > 0)
                 {
                     int32 l_TicksCount = GetMaxDuration() / GetEffect(EFFECT_0)->GetAmplitude();
-                    int32 l_AP = l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
+                    float l_AP = l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
                     int32 l_Combo = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
-                    p_Amount = l_AP * GetSpellInfo()->Effects[EFFECT_0].AttackPowerMultiplier * l_Combo * 8 / l_TicksCount;
+                    p_Amount = (int32)((l_AP * GetSpellInfo()->Effects[EFFECT_0].AttackPowerMultiplier * l_Combo * 8) / l_TicksCount);
                 }
             }
 
@@ -3335,6 +3391,101 @@ public:
     }
 };
 
+enum EntanglingEnergySpells
+{
+    SPELL_DRUID_ENTANGLING_ROOTS = 339,
+    SPELL_DRUID_ENTANGLING_ENERGY = 164991
+};
+
+/// Call by Starfire - 2912, Wrath - 5176
+/// Entangling Energy - 164991
+class spell_dru_entangling_energy : public SpellScriptLoader
+{
+    public:
+        spell_dru_entangling_energy() : SpellScriptLoader("spell_dru_entangling_energy") { }
+
+        class spell_dru_entangling_energy_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_entangling_energy_SpellScript);
+
+            void HandleAfterHit()
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(EntanglingEnergySpells::SPELL_DRUID_ENTANGLING_ENERGY))
+                {
+                    l_Caster->CastSpell(l_Target, EntanglingEnergySpells::SPELL_DRUID_ENTANGLING_ROOTS, true);
+                    l_Caster->RemoveAura(EntanglingEnergySpells::SPELL_DRUID_ENTANGLING_ENERGY);
+                }
+            }
+
+            void Register()
+            {
+                AfterHit += SpellHitFn(spell_dru_entangling_energy_SpellScript::HandleAfterHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dru_entangling_energy_SpellScript();
+        }
+};
+
+enum UrsaMajor
+{
+    SPELL_DRU_URSA_MAJOR_PROC = 159233
+};
+
+/// Ursa Major - 159232
+class spell_dru_ursa_major : public SpellScriptLoader
+{
+    public:
+        spell_dru_ursa_major() : SpellScriptLoader("spell_dru_ursa_major") { }
+
+        class spell_dru_ursa_major_Aurascript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_ursa_major_Aurascript);
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_ProcInfos)
+            {
+                PreventDefaultAction();
+
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (p_ProcInfos.GetDamageInfo()->GetSpellInfo() != nullptr)
+                    return;
+
+                if (!(p_ProcInfos.GetHitMask() & PROC_EX_INTERNAL_MULTISTRIKE))
+                    return;
+
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_DRU_URSA_MAJOR_PROC);
+
+                if (l_SpellInfo == nullptr || !l_SpellInfo->GetDuration())
+                    return;
+
+                /// Increases your maximum health by 2 % for 25 sec
+                l_Caster->CastSpell(l_Caster, UrsaMajor::SPELL_DRU_URSA_MAJOR_PROC, true);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dru_ursa_major_Aurascript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_ursa_major_Aurascript();
+        }
+};
+
 enum HealingTouchSpells
 {
     SPELL_DRU_BLOODTALONS_MOD_DAMAGE = 145152,
@@ -3432,6 +3583,9 @@ class spell_dru_starsurge : public SpellScriptLoader
 
 void AddSC_druid_spell_scripts()
 {
+    new spell_dru_entangling_energy();
+    new spell_dru_ursa_major();
+    new spell_dru_glyph_of_barkskin();
     new spell_dru_yseras_gift();
     new spell_dru_tooth_and_claw_absorb();
     new spell_dru_genesis();
