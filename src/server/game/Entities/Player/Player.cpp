@@ -11161,7 +11161,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
         if (!l_Corpse->lootForBody)
         {
             l_Corpse->lootForBody = true;
-            uint32 pLevel = l_Corpse->loot.gold;
+            uint32 pLevel = l_Corpse->loot.Gold;
             l_Corpse->loot.clear();
 
             if (Battleground* bg = GetBattleground())
@@ -11177,7 +11177,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
 
             // It may need a better formula
             // Now it works like this: lvl10: ~6copper, lvl70: ~9silver
-            l_Corpse->loot.gold = uint32(urand(50, 150) * 0.016f * pow(float(pLevel)/5.76f, 2.5f) * sWorld->getRate(RATE_DROP_MONEY));
+            l_Corpse->loot.Gold = uint32(urand(50, 150) * 0.016f * pow(float(pLevel)/5.76f, 2.5f) * sWorld->getRate(RATE_DROP_MONEY));
         }
 
         if (l_Corpse->lootRecipient != this)
