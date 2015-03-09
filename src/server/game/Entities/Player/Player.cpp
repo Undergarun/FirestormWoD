@@ -19456,8 +19456,8 @@ void Player::SendQuestUpdateAddCredit(Quest const* p_Quest, const QuestObjective
         {
             WorldPacket data(SMSG_QUEST_UPDATE_ADD_CREDIT, (4 * 4 + 8));
             data.appendPackGUID(p_ObjGUID);
-            data << uint32(p_Objective.ObjectID);
             data << uint32(p_Quest->GetQuestId());
+            data << uint32(p_Objective.ObjectID);
             data << uint16(p_OldCount + p_AddCount);
             data << uint16(p_Objective.Amount);
             data << uint8(p_Objective.Type);
