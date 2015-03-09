@@ -1059,6 +1059,10 @@ class WorldSession
         void HandleBlackMarketBid(WorldPacket& recvData);
         void SendBlackMarketBidResult(uint32 itemEntry, uint32 auctionId);
 
+        // Twitter
+        void HandleRequestTwitterStatus(WorldPacket& p_RecvData);
+        void SendTwitterStatus(bool l_Enabled);
+
         //////////////////////////////////////////////////////////////////////////
         /// Garrison
         //////////////////////////////////////////////////////////////////////////

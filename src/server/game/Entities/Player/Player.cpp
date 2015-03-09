@@ -26036,8 +26036,6 @@ void Player::SendInitialPacketsBeforeAddToMap()
     l_Data << uint8(0);                                           ///< Server Expansion Tier
     l_Data << uint32(1135753200);                                 ///< Server Region ID
     l_Data << uint32(0);                                          ///< Raid origin
-    m_CompletedQuestBits.AppendToByteBuffer(&l_Data);
-
     GetSession()->SendPacket(&l_Data);
 
     if (Pet* l_Pet = GetPet())
@@ -26216,21 +26214,22 @@ void Player::SendInitialPacketsAfterAddToMap()
         }
     }
 
-     WorldPacket l_Data(SMSG_ACCOUNT_MOUNT_UPDATE);
-     l_Data.WriteBit(true);                      ///< Is full update
-     l_Data.FlushBits();
-     l_Data << uint32(l_MountSpells.size());
-     l_Data << uint32(l_MountSpells.size());
+    WorldPacket l_Data(SMSG_ACCOUNT_MOUNT_UPDATE);
+    l_Data.WriteBit(true);                      ///< Is full update
+    l_Data.FlushBits();
+    l_Data << uint32(l_MountSpells.size());
+    l_Data << uint32(l_MountSpells.size());
  
-     for (auto l_Pair : l_MountSpells)
-         l_Data << uint32(l_Pair.first);
+    for (auto l_Pair : l_MountSpells)
+        l_Data << uint32(l_Pair.first);
  
-     for (auto l_Pair : l_MountSpells)
-         l_Data.WriteBit(l_Pair.second);
+    for (auto l_Pair : l_MountSpells)
+        l_Data.WriteBit(l_Pair.second);
  
-     l_Data.FlushBits();
+    l_Data.FlushBits();
  
-     SendDirectMessage(&l_Data);
+    SendDirectMessage(&l_Data);
+    GetSession()->SendTwitterStatus(true);
 }
 
 void Player::SendUpdateToOutOfRangeGroupMembers()

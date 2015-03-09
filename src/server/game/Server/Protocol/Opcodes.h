@@ -512,6 +512,11 @@ enum Opcodes
         SMSG_GET_SHIPMENT_INFO_RESPONSE                         = 0x0000, ///<
         SMSG_GET_SHIPMENTS                                      = 0x0000, ///<
         SMSG_CREATE_SHIPMENT_RESPONSE                           = 0x0000, ///<
+
+        /// Twitter
+        SMSG_REQUEST_TWITTER_STATUS_RESPONSE                    = 0x0E1D, ///< 6.1.2 19728
+        SMSG_OAUTH_SAVED_DATA                                   = 0x0CBB, ///< 6.1.2 19728
+
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -1612,6 +1617,11 @@ enum Opcodes
     CMSG_BLACK_MARKET_OPEN                         = 0x0000, ///<
     CMSG_BLACK_MARKET_REQUEST_ITEMS                = 0x0000, ///<
     CMSG_BLACK_MARKET_PLACE_BID                    = 0x0000, ///<
+
+    //////////////////////////////////////////////////////////////////////////
+    /// Twitter
+    //////////////////////////////////////////////////////////////////////////
+    CMSG_REQUEST_TWITTER_STATUS                     = 0x0CDE, ///< 6.1.2 19711
 
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
