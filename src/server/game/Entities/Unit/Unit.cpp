@@ -11512,7 +11512,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         || spellProto->Id == 29722 || spellProto->Id == 114654 || spellProto->Id == 108685
         || spellProto->Id == 108686))
     {
-        float Mastery = (GetFloatValue(PLAYER_FIELD_MASTERY) + 1);
+        float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY);
         DoneTotal += CalculatePct(pdamage, Mastery);
     }
 
