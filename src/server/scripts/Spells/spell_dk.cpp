@@ -1273,7 +1273,7 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
                 if (l_RemoveMode != AURA_REMOVE_BY_EXPIRE)
                     return;
 
-                if (!GetCaster())
+                if (!GetCaster() || m_AmountAbsorb == 0)
                     return;
 
                 if (Player* l_Caster = GetCaster()->ToPlayer())

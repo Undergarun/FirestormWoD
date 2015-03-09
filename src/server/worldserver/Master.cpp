@@ -580,6 +580,10 @@ int Master::Run()
         sLog->outInfo(LOG_FILTER_WORLDSERVER, "Daemon PID: %u\n", pid);
     }
 
+    ///- Initializing the Reporter.
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "REPORTER: Creating instance.");
+    sReporter->SetAddresses({ ConfigMgr::GetStringDefault("ReporterAddress", "localhost:3000") });
+
     ///- Start the databases
     if (!_StartDB())
         return 1;
@@ -603,10 +607,6 @@ int Master::Run()
     #ifdef _WIN32
     Handler.register_handler(SIGBREAK, &SignalBREAK);
     #endif /* _WIN32 */
-
-    ///- Initializing the Reporter.
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "REPORTER: Creating instance.");
-    sReporter->SetAddress(ConfigMgr::GetStringDefault("ReporterAddress", "localhost:3000"));
 
     ///- Launch WorldRunnable thread
     ACE_Based::Thread world_thread(new WorldRunnable);
