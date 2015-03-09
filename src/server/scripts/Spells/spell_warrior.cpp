@@ -1491,42 +1491,42 @@ class spell_warr_anger_management: public PlayerScript
 /// Execute - 163201
 class spell_warr_execute: public SpellScriptLoader
 {
-public:
-    spell_warr_execute() : SpellScriptLoader("spell_warr_execute") { }
+    public:
+        spell_warr_execute() : SpellScriptLoader("spell_warr_execute") { }
 
-    class spell_warr_execute_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_warr_execute_SpellScript);
-
-        void HandleOnHit()
+        class spell_warr_execute_SpellScript : public SpellScript
         {
-            int32 l_Damage = GetHitDamage();
+            PrepareSpellScript(spell_warr_execute_SpellScript);
 
-            // converts each extra rage (up to 30 rage) into additional damage
-            int32 l_RageConsumed = -GetCaster()->ModifyPower(POWER_RAGE, -(GetSpellInfo()->Effects[EFFECT_2].BasePoints * 10));
-            // 30 rage = 320% more weapon damage
-            AddPct(l_Damage, (l_RageConsumed / 1.5f));
-
-            if (GetCaster()->HasAura(SPELL_WARRIOR_WEAPONS_MASTER))
+            void HandleOnHit()
             {
-                float l_MasteryValue = GetCaster()->GetFloatValue(PLAYER_FIELD_MASTERY) * 3.5f;
+                int32 l_Damage = GetHitDamage();
 
-                l_Damage += CalculatePct(l_Damage, l_MasteryValue);
+                // converts each extra rage (up to 30 rage) into additional damage
+                int32 l_RageConsumed = -GetCaster()->ModifyPower(POWER_RAGE, -(GetSpellInfo()->Effects[EFFECT_2].BasePoints * 10));
+                // 30 rage = 320% more weapon damage
+                AddPct(l_Damage, (l_RageConsumed / 1.5f));
+
+                if (GetCaster()->HasAura(SPELL_WARRIOR_WEAPONS_MASTER))
+                {
+                    float l_MasteryValue = GetCaster()->GetFloatValue(PLAYER_FIELD_MASTERY) * 3.5f;
+
+                    l_Damage += CalculatePct(l_Damage, l_MasteryValue);
+                }
+
+                SetHitDamage(l_Damage);
             }
 
-            SetHitDamage(l_Damage);
-        }
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warr_execute_SpellScript::HandleOnHit);
+            }
+        };
 
-        void Register()
+        SpellScript* GetSpellScript() const
         {
-            OnHit += SpellHitFn(spell_warr_execute_SpellScript::HandleOnHit);
+            return new spell_warr_execute_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_warr_execute_SpellScript();
-    }
 };
 
 enum WhirlwindSpells
@@ -1801,6 +1801,42 @@ class spell_warr_blood_bath : public SpellScriptLoader
         }
 };
 
+enum SweepingStrikes
+{
+    SPELL_WARR_GLYPH_OF_SWEEPING_STRIKES = 58384,
+    SPELL_WARRSWEEPING_STRINKES_RAGE_BONUS = 124333
+};
+
+/// Sweeping Strikes (proc) - 12723
+class spell_warr_sweeping_strikes : public SpellScriptLoader
+{
+    public:
+        spell_warr_sweeping_strikes() : SpellScriptLoader("spell_warr_sweeping_strikes") { }
+
+        class spell_warr_sweeping_strikes_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_sweeping_strikes_SpellScript);
+
+            void HandleOnHit()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(SweepingStrikes::SPELL_WARR_GLYPH_OF_SWEEPING_STRIKES))
+                    l_Caster->CastSpell(l_Caster, SweepingStrikes::SPELL_WARRSWEEPING_STRINKES_RAGE_BONUS, true);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warr_sweeping_strikes_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_sweeping_strikes_SpellScript();
+        }
+};
+
 enum BloodCrazeSpells
 {
     SPELL_WARR_BLOOD_CRAZE_HEAL = 159363
@@ -1857,6 +1893,7 @@ void AddSC_warrior_spell_scripts()
     new npc_warrior_ravager();
 
     /// Spells
+    new spell_warr_sweeping_strikes();
     new spell_warr_ravager();
     new spell_warr_rend();
     new spell_warr_slam();
