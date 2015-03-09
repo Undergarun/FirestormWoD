@@ -19,6 +19,7 @@
 #include "Buildings/Alliance/ADwarvenBunker.hpp"
 #include "Buildings/Alliance/ABarracks.hpp"
 #include "Buildings/Alliance/ATradingPost.hpp"
+#include "Buildings/Alliance/ATailoringEmporium.hpp"
 
 #include "Buildings/Horde/HTheForge.hpp"
 #include "Buildings/Horde/HTradingPost.hpp"
@@ -410,6 +411,10 @@ void AddSC_Garrison_NPC()
 
         /// Trading post
         new MS::Garrison::npc_TraderJoseph;
+
+        /// TailoringEmporium
+        new MS::Garrison::npc_ChristopherMacdonald;
+        new MS::Garrison::npc_KaylieMacdonald;
     }
 
     /// Horde
