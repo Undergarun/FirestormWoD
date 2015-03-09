@@ -685,7 +685,7 @@ void InitOpcodes()
         DEFINE_OPCODE_HANDLER(SMSG_USERLIST_REMOVE,                                 STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_USERLIST_UPDATE,                                 STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
 
-        // Twitter
+        /// Twitter
         DEFINE_OPCODE_HANDLER(SMSG_REQUEST_TWITTER_STATUS_RESPONSE,                 STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_OAUTH_SAVED_DATA,                                STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
     #pragma endregion
