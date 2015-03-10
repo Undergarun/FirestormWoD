@@ -411,16 +411,16 @@ enum Opcodes
         SMSG_SCENARIO_STATE                                     = 0x0E16, ///< 6.1.2 19728
 
         /// Auction House
-        SMSG_AUCTION_HELLO_RESPONSE                             = 0x0000, ///<
-        SMSG_AUCTION_BIDDER_LIST_RESULT                         = 0x0000, ///<
-        SMSG_AUCTION_BIDDER_NOTIFICATION                        = 0x0000, ///<
-        SMSG_AUCTION_BUYOUT_NOTIFICATION                        = 0x0000, ///<
-        SMSG_AUCTION_COMMAND_RESULT                             = 0x0000, ///<
-        SMSG_AUCTION_CLOSED_NOTIFICATION                        = 0x0000, ///<
-        SMSG_AUCTION_LIST_PENDING_SALES                         = 0x0000, ///<
-        SMSG_AUCTION_LIST_RESULT                                = 0x0000, ///<
-        SMSG_AUCTION_OWNER_LIST_RESULT                          = 0x0000, ///<
-        SMSG_AUCTION_OWNER_BID_NOTIFICATION                     = 0x0000, ///<
+        SMSG_AUCTION_HELLO_RESPONSE                             = 0x1338, ///< 6.1.2 19728
+        SMSG_AUCTION_BIDDER_LIST_RESULT                         = 0x02B9, ///< 6.1.2 19728
+        SMSG_AUCTION_BIDDER_NOTIFICATION                        = 0x161A, ///< 6.1.2 19728
+        SMSG_AUCTION_BUYOUT_NOTIFICATION                        = 0x073E, ///< 6.1.2 19728
+        SMSG_AUCTION_COMMAND_RESULT                             = 0x13B6, ///< 6.1.2 19728
+        SMSG_AUCTION_CLOSED_NOTIFICATION                        = 0x0EA0, ///< 6.1.2 19728
+        SMSG_AUCTION_LIST_PENDING_SALES                         = 0x0E1F, ///< 6.1.2 19728
+        SMSG_AUCTION_LIST_RESULT                                = 0x0E01, ///< 6.1.2 19728
+        SMSG_AUCTION_OWNER_LIST_RESULT                          = 0x0FA0, ///< 6.1.2 19728
+        SMSG_AUCTION_OWNER_BID_NOTIFICATION                     = 0x0612, ///< 6.1.2 19728
 
         /// Mail
         SMSG_SEND_MAIL_RESULT                                   = 0x17BF, ///< 6.1.2 19728
@@ -1050,13 +1050,13 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Auction House
     //////////////////////////////////////////////////////////////////////////
-    CMSG_AUCTION_LIST_BIDDER_ITEMS              = 0x0000, ///<
-    CMSG_AUCTION_LIST_ITEMS                     = 0x0000, ///<
-    CMSG_AUCTION_LIST_OWNER_ITEMS               = 0x0000, ///<
-    CMSG_AUCTION_LIST_PENDING_SALES             = 0x0000, ///<
-    CMSG_AUCTION_PLACE_BID                      = 0x0000, ///<
-    CMSG_AUCTION_REMOVE_ITEM                    = 0x0000, ///<
-    CMSG_AUCTION_SELL_ITEM                      = 0x0000, ///<
+    CMSG_AUCTION_LIST_BIDDER_ITEMS              = 0x1821, ///< 6.1.2 19728
+    CMSG_AUCTION_LIST_ITEMS                     = 0x0CB6, ///< 6.1.2 19728
+    CMSG_AUCTION_LIST_OWNER_ITEMS               = 0x08A5, ///< 6.1.2 19728
+    CMSG_AUCTION_LIST_PENDING_SALES             = 0x0935, ///< 6.1.2 19728
+    CMSG_AUCTION_PLACE_BID                      = 0x18F6, ///< 6.1.2 19728
+    CMSG_AUCTION_REMOVE_ITEM                    = 0x1C32, ///< 6.1.2 19728
+    CMSG_AUCTION_SELL_ITEM                      = 0x0D25, ///< 6.1.2 19728
 
     //////////////////////////////////////////////////////////////////////////
     /// Loot
@@ -1143,7 +1143,7 @@ enum Opcodes
     CMSG_CLOSE_INTERACTION                      = 0x1C36, ///< 6.1.2 19728
     CMSG_ITEM_REFUND_INFO                       = 0x0000, ///<
     CMSG_FAR_SIGHT                              = 0x0000, ///<
-    CMSG_MOUNTSPECIAL_ANIM                      = 0x01EE, ///< 6.1.2 19728
+    CMSG_MOUNTSPECIAL_ANIM                      = 0x0000, ///<
     CMSG_OPENING_CINEMATIC                      = 0x0E0A, ///< 6.1.2 19728
     CMSG_NEXT_CINEMATIC_CAMERA                  = 0x0CE1, ///< 6.1.2 19728
     CMSG_COMPLETE_CINEMATIC                     = 0x0CF2, ///< 6.1.2 19728
@@ -1166,9 +1166,9 @@ enum Opcodes
     CMSG_INSPECT_HONOR_STATS                    = 0x0000,   ///<
     CMSG_REQUEST_INSPECT_RATED_BG_STATS         = 0x0000,   ///<
     CMSG_TIME_SYNC_RESP                         = 0x0550,   ///< 6.1.2 19728
-    CMSG_UNLEARN_SKILL                          = 0x0000,   ///<
-    CMSG_EMOTE                                  = 0x0931,   ///< 6.1.2 19728
-    CMSG_SEND_TEXT_EMOTE                        = 0x0000,   ///<
+    CMSG_UNLEARN_SKILL                          = 0x0931,   ///< 6.1.2 19728
+    CMSG_EMOTE                                  = 0x0000,   ///<
+    CMSG_SEND_TEXT_EMOTE                        = 0x01EE,   ///< 6.1.2 19728
     CMSG_ALTER_APPEARANCE                       = 0x0000,   ///<
     CMSG_SELF_RES                               = 0x1E0B,   ///< 6.1.2 19728
     CMSG_READ_ITEM                              = 0x0000,   ///<
@@ -1524,7 +1524,7 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Auction House
     //////////////////////////////////////////////////////////////////////////
-    CMSG_AUCTION_HELLO                             = 0x0000, ///<
+    CMSG_AUCTION_HELLO                             = 0x1F82, ///< 6.1.2 19728
 
     //////////////////////////////////////////////////////////////////////////
     /// Trainers
@@ -1621,7 +1621,7 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Twitter
     //////////////////////////////////////////////////////////////////////////
-    CMSG_REQUEST_TWITTER_STATUS                     = 0x0CDE, ///< 6.1.2 19711
+    CMSG_REQUEST_TWITTER_STATUS                     = 0x0CDE, ///< 6.1.2 19728
 
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
