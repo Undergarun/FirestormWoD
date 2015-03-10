@@ -1592,7 +1592,7 @@ class spell_pri_mind_spike: public SpellScriptLoader
         }
 };
 
-// Called by Holy Fire - 14914, Smite - 585 and Penance - 47666
+// Called by Holy Fire - 14914, Smite - 585, Penance - 47666 and Power Word: Solace - 129250
 // Evangelism - 81662
 class spell_pri_evangelism: public SpellScriptLoader
 {
@@ -1605,13 +1605,15 @@ class spell_pri_evangelism: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->HasAura(PRIEST_EVANGELISM_AURA))
                 {
-                    if (l_Player->HasAura(PRIEST_EVANGELISM_AURA))
-                    {
-                        if (GetHitDamage())
-                            l_Player->CastSpell(l_Player, PRIEST_EVANGELISM_STACK, true);
-                    }
+                    if (GetHitDamage())
+                        l_Player->CastSpell(l_Player, PRIEST_EVANGELISM_STACK, true);
                 }
             }
 
