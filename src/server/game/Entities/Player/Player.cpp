@@ -23488,119 +23488,155 @@ void Player::StopCastingCharm()
     }
 }
 
-void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std::string& text, uint32 language, const char* addonPrefix /*= NULL*/, const std::string& channel /*= ""*/) const
+void Player::BuildPlayerChat(WorldPacket* p_Data, Player* p_Target, uint8 p_MsgType, std::string const& p_Text, uint32 p_LangID, char const* p_AddonPrefix /*= nullptr*/, std::string const& p_Channel /*= ""*/) const
 {
-    uint32 speakerNameLength = strlen(GetName());
+    uint32 l_SenderNameLen = strlen(GetName());
+    uint64 l_GuildGuid = const_cast<Player*>(this)->GetGuild() ? const_cast<Player*>(this)->GetGuild()->GetGUID() : 0;
 
-    ObjectGuid senderUnkGuid = GetGUID();
-    ObjectGuid groupGuid = 0;
-    ObjectGuid senderGuid = GetGUID();
-    uint64 guildGuid = const_cast<Player*>(this)->GetGuild() ? const_cast<Player*>(this)->GetGuild()->GetGUID() : 0;
+    p_Data->Initialize(SMSG_CHAT, 100);
+    *p_Data << uint8(p_MsgType);
+    *p_Data << uint8(p_LangID);
+    p_Data->appendPackGUID(GetGUID());
+    p_Data->appendPackGUID(l_GuildGuid);
+    p_Data->appendPackGUID(0);
+    p_Data->appendPackGUID(p_Target != nullptr ? p_Target->GetGUID() : 0);
+    *p_Data << uint32(g_RealmID);
+    *p_Data << uint32(g_RealmID);
+    p_Data->appendPackGUID(GetGroup() ? GetGroup()->GetGUID() : 0);
+    *p_Data << uint32(0);     ///< AchievementID
+    *p_Data << float(0);      ///< DisplayTime
 
-    data->Initialize(SMSG_CHAT, 100);
-    *data << uint8(msgtype);
-    *data << uint8(language);
-    data->appendPackGUID(GetGUID());
-    data->appendPackGUID(guildGuid);
-    data->appendPackGUID(0);// MAKE_NEW_GUID(GetSession()->GetAccountId(), 0, HIGHGUID_WOW_ACCOUNT));
-    data->appendPackGUID(0);
-    *data << uint32(g_RealmID);
-    *data << uint32(g_RealmID);
-    data->appendPackGUID(GetGroup() ? GetGroup()->GetGUID() : 0);
-    *data << uint32(0);
-    *data << float(0);
+    p_Data->WriteBits(l_SenderNameLen, 11);
+    p_Data->WriteBits(0, 11); ///< TargetNameLen
+    p_Data->WriteBits(p_AddonPrefix ? strlen(p_AddonPrefix) : 0, 5);
+    p_Data->WriteBits(p_Channel.length(), 7);
+    p_Data->WriteBits(p_Text.length(), 12);
+    p_Data->WriteBits(GetChatTag(), 10);
+    p_Data->WriteBit(false);  ///< hide chat log
+    p_Data->WriteBit(false);  ///< Faker sender name
+    p_Data->FlushBits();
 
-    data->WriteBits(speakerNameLength, 11);
-    data->WriteBits(0, 11);
-    data->WriteBits(addonPrefix ? strlen(addonPrefix) : 0, 5);
-    data->WriteBits(channel.length(), 7);
-    data->WriteBits(text.length(), 12);
-    data->WriteBits(GetChatTag(), 10);
-    data->WriteBit(false);  ///< hide chat log
-    data->WriteBit(false);  ///< Faker sender name
-    data->FlushBits();
-
-    data->WriteString(GetName());
-    data->WriteString(addonPrefix ? addonPrefix : "");
-    data->WriteString(channel);
-    data->WriteString(text);
+    p_Data->WriteString(GetName());
+    p_Data->WriteString(p_AddonPrefix ? p_AddonPrefix : "");
+    p_Data->WriteString(p_Channel);
+    p_Data->WriteString(p_Text);
 }
 
-void Player::Say(const std::string& text, const uint32 language)
+void Player::Say(std::string const& p_Text, uint32 const p_LangID)
 {
-    std::string _text(text);
-    sScriptMgr->OnPlayerChat(this, CHAT_MSG_SAY, language, _text);
+    std::string l_Text(p_Text);
+    sScriptMgr->OnPlayerChat(this, CHAT_MSG_SAY, p_LangID, l_Text);
 
-    WorldPacket data;;
-    BuildPlayerChat(&data, CHAT_MSG_SAY, _text, language);
-    SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), true);
+    std::list<Player*> l_PlayerList;
+    GetPlayerListInGrid(l_PlayerList, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY));
+
+    for (Player* l_Target : l_PlayerList)
+    {
+        if (!HaveAtClient(l_Target))
+            continue;
+
+        if (WorldSession* l_Session = l_Target->GetSession())
+        {
+            WorldPacket l_Data;
+            BuildPlayerChat(&l_Data, l_Target, CHAT_MSG_SAY, l_Text, p_LangID);
+            l_Session->SendPacket(&l_Data);
+        }
+    }
 }
 
-void Player::Yell(const std::string& text, const uint32 language)
+void Player::Yell(std::string const& p_Text, uint32 const p_LangID)
 {
-    std::string _text(text);
-    sScriptMgr->OnPlayerChat(this, CHAT_MSG_YELL, language, _text);
+    std::string l_Text(p_Text);
+    sScriptMgr->OnPlayerChat(this, CHAT_MSG_YELL, p_LangID, l_Text);
 
-    WorldPacket data;
-    BuildPlayerChat(&data, CHAT_MSG_YELL, _text, language);
-    SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_YELL), true);
+    std::list<Player*> l_PlayerList;
+    GetPlayerListInGrid(l_PlayerList, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_YELL));
+
+    for (Player* l_Target : l_PlayerList)
+    {
+        if (!HaveAtClient(l_Target))
+            continue;
+
+        if (WorldSession* l_Session = l_Target->GetSession())
+        {
+            WorldPacket l_Data;
+            BuildPlayerChat(&l_Data, l_Target, CHAT_MSG_YELL, l_Text, p_LangID);
+            l_Session->SendPacket(&l_Data);
+        }
+    }
 }
 
-void Player::TextEmote(const std::string& text)
+void Player::TextEmote(std::string const& p_Text)
 {
-    std::string _text(text);
-    sScriptMgr->OnPlayerChat(this, CHAT_MSG_EMOTE, LANG_UNIVERSAL, _text);
+    std::string l_Text(p_Text);
+    sScriptMgr->OnPlayerChat(this, CHAT_MSG_EMOTE, LANG_UNIVERSAL, l_Text);
 
-    WorldPacket data;
-    BuildPlayerChat(&data, CHAT_MSG_EMOTE, _text, LANG_UNIVERSAL);
-    SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), true, !sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT));
+    std::list<Player*> l_PlayerList;
+    GetPlayerListInGrid(l_PlayerList, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE));
+
+    for (Player* l_Target : l_PlayerList)
+    {
+        if (!HaveAtClient(l_Target))
+            continue;
+
+        if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT) && l_Target->GetTeamId() != GetTeamId())
+            continue;
+
+        if (WorldSession* l_Session = l_Target->GetSession())
+        {
+            WorldPacket l_Data;
+            /// No specific target needed
+            BuildPlayerChat(&l_Data, nullptr, CHAT_MSG_EMOTE, l_Text, LANG_UNIVERSAL);
+            l_Session->SendPacket(&l_Data);
+        }
+    }
 }
 
-void Player::WhisperAddon(const std::string& text, const std::string& prefix, Player* receiver)
+void Player::WhisperAddon(std::string const& p_Text, std::string const& p_Prefix, Player* p_Receiver)
 {
-    std::string _text(text);
-    sScriptMgr->OnPlayerChat(this, CHAT_MSG_WHISPER, LANG_UNIVERSAL, _text, receiver);
+    std::string l_Text(p_Text);
+    sScriptMgr->OnPlayerChat(this, CHAT_MSG_WHISPER, LANG_UNIVERSAL, l_Text, p_Receiver);
 
-    if (!receiver->GetSession()->IsAddonRegistered(prefix))
+    if (!p_Receiver->GetSession()->IsAddonRegistered(p_Prefix))
         return;
 
-    WorldPacket data;
-    BuildPlayerChat(&data, CHAT_MSG_WHISPER, _text, LANG_UNIVERSAL, prefix.c_str());
-    receiver->GetSession()->SendPacket(&data);
+    WorldPacket l_Data;
+    BuildPlayerChat(&l_Data, nullptr, CHAT_MSG_WHISPER, l_Text, LANG_UNIVERSAL, p_Prefix.c_str());
+    p_Receiver->GetSession()->SendPacket(&l_Data);
 }
 
-void Player::Whisper(const std::string& text, uint32 language, uint64 receiver)
+void Player::Whisper(std::string const& p_Text, uint32 p_LangID, uint64 p_Receiver)
 {
-    Player* rPlayer = ObjectAccessor::FindPlayer(receiver);
+    Player* l_Target = ObjectAccessor::FindPlayer(p_Receiver);
 
-    std::string _text(text);
-    sScriptMgr->OnPlayerChat(this, CHAT_MSG_WHISPER, language, _text, rPlayer);
+    std::string l_Text(p_Text);
+    sScriptMgr->OnPlayerChat(this, CHAT_MSG_WHISPER, p_LangID, l_Text, l_Target);
 
-    // when player you are whispering to is dnd, he cannot receive your message, unless you are in gm mode
-    if (!rPlayer->isDND() || isGameMaster())
+    /// When player you are whispering to is dnd, he cannot receive your message, unless you are in gm mode
+    if (!l_Target->isDND() || isGameMaster())
     {
-        WorldPacket data;
-        BuildPlayerChat(&data, CHAT_MSG_WHISPER, _text, language);
-        rPlayer->GetSession()->SendPacket(&data);
+        WorldPacket l_Data;
+        BuildPlayerChat(&l_Data, l_Target, CHAT_MSG_WHISPER, l_Text, p_LangID);
+        l_Target->GetSession()->SendPacket(&l_Data);
 
-        rPlayer->BuildPlayerChat(&data, CHAT_MSG_WHISPER_INFORM, _text, language);
-        GetSession()->SendPacket(&data);
+        l_Target->BuildPlayerChat(&l_Data, this, CHAT_MSG_WHISPER_INFORM, l_Text, p_LangID);
+        GetSession()->SendPacket(&l_Data);
     }
-    else // announce to player that player he is whispering to is dnd and cannot receive his message
-        ChatHandler(this).PSendSysMessage(LANG_PLAYER_DND, rPlayer->GetName(), rPlayer->dndMsg.c_str());
+    else ///< Announce to player that player he is whispering to is dnd and cannot receive his message
+        ChatHandler(this).PSendSysMessage(LANG_PLAYER_DND, l_Target->GetName(), l_Target->dndMsg.c_str());
 
-    if (!IsAcceptWhispers() && !isGameMaster() && !rPlayer->isGameMaster())
+    if (!IsAcceptWhispers() && !isGameMaster() && !l_Target->isGameMaster())
     {
         SetAcceptWhispers(true);
         ChatHandler(this).SendSysMessage(LANG_COMMAND_WHISPERON);
     }
 
-    // announce to player that player he is whispering to is afk
-    if (rPlayer->isAFK())
-        ChatHandler(this).PSendSysMessage(LANG_PLAYER_AFK, rPlayer->GetName(), rPlayer->afkMsg.c_str());
+    /// Announce to player that player he is whispering to is afk
+    if (l_Target->isAFK())
+        ChatHandler(this).PSendSysMessage(LANG_PLAYER_AFK, l_Target->GetName(), l_Target->afkMsg.c_str());
 
-    // if player whisper someone, auto turn of dnd to be able to receive an answer
-    if (isDND() && !rPlayer->isGameMaster())
+    /// If player whisper someone, auto turn of dnd to be able to receive an answer
+    if (isDND() && !l_Target->isGameMaster())
         ToggleDND();
 }
 
