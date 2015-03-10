@@ -2868,26 +2868,13 @@ class spell_pri_mind_blast: public SpellScriptLoader
             {
                 PreventHitDefaultEffect(p_EffIndex);
 
-                Player *l_Player = GetCaster()->ToPlayer();
-                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(PRIEST_GLYPH_OF_MIND_HARVEST);
+                Unit *l_Caster = GetCaster();
 
-                if (l_Player == nullptr || l_SpellInfo == nullptr || !l_Player->HasAura(PRIEST_GLYPH_OF_MIND_HARVEST))
+                if (!l_Caster->HasAura(PRIEST_GLYPH_OF_MIND_HARVEST))
                     return;
 
-                uint32 l_SpellId = GetSpellInfo()->Id;
-
-                uint32 l_OldCooldown = l_Player->GetSpellCooldownDelay(l_SpellId);
-                uint32 l_NewCooldown = l_OldCooldown + l_SpellInfo->Effects[EFFECT_1].BasePoints;
-
-                l_Player->RemoveSpellCooldown(l_SpellId, true);
-
-                if (m_HasMarker)
-                    l_Player->AddSpellCooldown(l_SpellId, 0, l_OldCooldown, true);
-                else
-                {
-                    l_Player->AddSpellCooldown(l_SpellId, 0, l_NewCooldown, true);
+                if (!m_HasMarker)
                     GetSpell()->EffectEnergize(p_EffIndex);
-                }
             }
 
             void Register()

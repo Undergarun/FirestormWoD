@@ -4969,10 +4969,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
                 break;
-            case 162532: ///< Glyph of Mind Harvest
-                spellInfo->ProcChance = 0;
-                spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
-                break;
             case 162452: ///< Shadowy Insight
                 spellInfo->ProcChance = 0;
                 break;
