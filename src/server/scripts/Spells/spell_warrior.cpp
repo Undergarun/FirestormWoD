@@ -1488,6 +1488,51 @@ class spell_warr_anger_management: public PlayerScript
         }
 };
 
+enum GlyphOfExecutor
+{
+    SpellWarrGlyphOfExecutor = 146971
+};
+
+/// Call by Execute - 5308 (Fury, Protection), Execute - 163201 (Arms)
+/// Glyph of the Executor - 146971
+class spell_warr_glyph_of_executor : public SpellScriptLoader
+{
+    public:
+        spell_warr_glyph_of_executor() : SpellScriptLoader("spell_warr_glyph_of_executor") { }
+
+        class spell_warr_glyph_of_executor_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_glyph_of_executor_SpellScript);
+
+            void HandleAfterHit()
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(GlyphOfExecutor::SpellWarrGlyphOfExecutor);
+
+                if (l_Target == nullptr || l_SpellInfo == nullptr)
+                    return;
+
+                if (!l_Caster->HasAura(GlyphOfExecutor::SpellWarrGlyphOfExecutor))
+                    return;
+
+                if (!l_Target->isAlive()) ///< Killing an enemy with Execute grants you 30 rage.
+                    l_Caster->ModifyPower(POWER_RAGE, l_SpellInfo->Effects[EFFECT_0].BasePoints * l_Caster->GetPowerCoeff(POWER_RAGE));
+            }
+
+            void Register()
+            {
+                AfterHit += SpellHitFn(spell_warr_glyph_of_executor_SpellScript::HandleAfterHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_glyph_of_executor_SpellScript();
+        }
+};
+
 /// Execute - 163201
 class spell_warr_execute: public SpellScriptLoader
 {
@@ -1935,4 +1980,5 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_enhanced_rend();
     new spell_warr_blood_bath();
     new spell_warr_blood_craze();
+    new spell_warr_glyph_of_executor();
 }
