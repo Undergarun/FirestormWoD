@@ -5904,48 +5904,6 @@ void Player::ResetSpec(bool p_NoCost /* = false */)
     if (GetSpecializationId(GetActiveSpec()) == SpecIndex::SPEC_NONE)
         return;
 
-    /// Remove specialization talents
-    for (auto l_Iter : *GetTalentMap(GetActiveSpec()))
-    {
-        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_Iter.first);
-        if (!l_SpellInfo)
-            continue;
-
-        bool l_Remove = false;
-        for (uint32 l_TalentID : l_SpellInfo->m_TalentIDs)
-        {
-            TalentEntry const* l_TalentEntry = sTalentStore.LookupEntry(l_TalentID);
-            if (l_TalentEntry && l_TalentEntry->SpecID == GetSpecializationId(GetActiveSpec()))
-            {
-                l_Remove = true;
-                break;
-            }
-        }
-
-        if (!l_Remove)
-            continue;
-
-        removeSpell(l_Iter.first, true);
-
-        for (uint8 i = 0; i < MAX_EFFECTS; ++i)
-        {
-            if (l_SpellInfo->Effects[i].TriggerSpell > 0 && l_SpellInfo->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL)
-                removeSpell(l_SpellInfo->Effects[i].TriggerSpell, true);
-        }
-
-        for (uint8 i = 0; i < MAX_EFFECTS; ++i)
-        {
-            if (l_SpellInfo->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS ||
-                l_SpellInfo->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2)
-                RemoveAurasDueToSpell(l_SpellInfo->Effects[i].BasePoints);
-        }
-
-        l_Iter.second->state = PLAYERSPELL_REMOVED;
-
-        SetUsedTalentCount(GetUsedTalentCount() - 1);
-        SetFreeTalentPoints(GetFreeTalentPoints() + 1);
-    }
-
     /// Remove specialization Glyphs
     std::vector<uint32> l_Glyphs = GetGlyphMap(GetActiveSpec());
     uint8 l_Slot = 0;
@@ -5994,15 +5952,56 @@ void Player::ResetSpec(bool p_NoCost /* = false */)
     SetSpecializationResetTime(time(nullptr));
 }
 
-void Player::SetSpecializationId(uint8 spec, uint32 id, bool loading)
+void Player::SetSpecializationId(uint8 p_Spec, uint32 p_Specialization, bool p_Loading)
 {
+    /// Remove specialization talents
+    for (auto l_Iter : *GetTalentMap(GetActiveSpec()))
+    {
+        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_Iter.first);
+        if (!l_SpellInfo)
+            continue;
 
-    if (spec == GetActiveSpec())
+        bool l_Remove = false;
+        for (uint32 l_TalentID : l_SpellInfo->m_TalentIDs)
+        {
+            TalentEntry const* l_TalentEntry = sTalentStore.LookupEntry(l_TalentID);
+            if (l_TalentEntry && l_TalentEntry->SpecID != p_Specialization)
+            {
+                l_Remove = true;
+                break;
+            }
+        }
+
+        if (!l_Remove)
+            continue;
+
+        removeSpell(l_Iter.first, true);
+
+        for (uint8 i = 0; i < MAX_EFFECTS; ++i)
+        {
+            if (l_SpellInfo->Effects[i].TriggerSpell > 0 && l_SpellInfo->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL)
+                removeSpell(l_SpellInfo->Effects[i].TriggerSpell, true);
+        }
+
+        for (uint8 i = 0; i < MAX_EFFECTS; ++i)
+        {
+            if (l_SpellInfo->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS ||
+                l_SpellInfo->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2)
+                RemoveAurasDueToSpell(l_SpellInfo->Effects[i].BasePoints);
+        }
+
+        l_Iter.second->state = PLAYERSPELL_REMOVED;
+
+        SetUsedTalentCount(GetUsedTalentCount() - 1);
+        SetFreeTalentPoints(GetFreeTalentPoints() + 1);
+    }
+
+    if (p_Spec == GetActiveSpec())
     {
         float pct = GetHealthPct();
-        SetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID, id);
+        SetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID, p_Specialization);
 
-        if (!loading)
+        if (!p_Loading)
         {
             for (uint8 i = 0; i < INVENTORY_SLOT_BAG_END; ++i)
             {
@@ -6014,9 +6013,9 @@ void Player::SetSpecializationId(uint8 spec, uint32 id, bool loading)
             }
         }
 
-        _talentMgr->SpecInfo[spec].SpecializationId = id;
+        _talentMgr->SpecInfo[p_Spec].SpecializationId = p_Specialization;
 
-        if (!loading)
+        if (!p_Loading)
         {
             for (uint8 i = 0; i < INVENTORY_SLOT_BAG_END; ++i)
             {
@@ -6032,7 +6031,7 @@ void Player::SetSpecializationId(uint8 spec, uint32 id, bool loading)
         return;
     }
     else
-        _talentMgr->SpecInfo[spec].SpecializationId = id;
+        _talentMgr->SpecInfo[p_Spec].SpecializationId = p_Specialization;
 }
 
 uint32 Player::GetRoleForGroup(uint32 specializationId)
