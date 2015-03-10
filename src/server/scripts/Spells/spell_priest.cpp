@@ -1554,7 +1554,7 @@ class spell_pri_mind_spike: public SpellScriptLoader
                     SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(PRIEST_SURGE_OF_DARKNESS);
                     if (l_SpellInfo)
                         SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_SpellInfo->Effects[EFFECT_3].BasePoints));
-                    l_SurgeOfDarkness->ModStackAmount(-1);
+                    l_SurgeOfDarkness->DropStack();
                 }
                 else ///< Surge of Darkness - Your next Mind Spike will not consume your damage-over-time effects ...
                 {
@@ -3265,8 +3265,8 @@ class spell_pri_divine_aegis : public SpellScriptLoader
                 if (!(p_EventInfo.GetHitMask() & PROC_EX_CRITICAL_HIT) && !(p_EventInfo.GetHitMask() & PROC_EX_INTERNAL_MULTISTRIKE))
                     return;
 
-                Unit *l_Caster = GetCaster();
-                Unit *l_Target = GetTarget();
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetTarget();
 
                 if (l_Caster == nullptr || l_Target == nullptr)
                     return;

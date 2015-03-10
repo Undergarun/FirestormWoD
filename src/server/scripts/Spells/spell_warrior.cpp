@@ -1803,8 +1803,8 @@ class spell_warr_blood_bath : public SpellScriptLoader
 
 enum SweepingStrikes
 {
-    SPELL_WARR_GLYPH_OF_SWEEPING_STRIKES = 58384,
-    SPELL_WARRSWEEPING_STRINKES_RAGE_BONUS = 124333
+    SpellWarrGlyphOfSweepingStrikes         = 58384,
+    SpellWarrSweepingStrikesRageBonus       = 124333
 };
 
 /// Sweeping Strikes (proc) - 12723
@@ -1821,8 +1821,8 @@ class spell_warr_sweeping_strikes : public SpellScriptLoader
             {
                 Unit* l_Caster = GetCaster();
 
-                if (l_Caster->HasAura(SweepingStrikes::SPELL_WARR_GLYPH_OF_SWEEPING_STRIKES))
-                    l_Caster->CastSpell(l_Caster, SweepingStrikes::SPELL_WARRSWEEPING_STRINKES_RAGE_BONUS, true);
+                if (l_Caster->HasAura(SweepingStrikes::SpellWarrGlyphOfSweepingStrikes))
+                    l_Caster->CastSpell(l_Caster, SweepingStrikes::SpellWarrSweepingStrikesRageBonus, true);
             }
 
             void Register()
