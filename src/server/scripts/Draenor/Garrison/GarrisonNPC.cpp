@@ -24,6 +24,7 @@
 #include "Buildings/Horde/HTheForge.hpp"
 #include "Buildings/Horde/HTradingPost.hpp"
 #include "Buildings/Horde/HWarMill.hpp"
+#include "Buildings/Horde/HTailoringEmporium.hpp"
 
 #include <random>
 
@@ -432,12 +433,15 @@ void AddSC_Garrison_NPC()
         new MS::Garrison::npc_FrostWallGrunt;
         new MS::Garrison::npc_FrostWallSmith;
 
-
         /// The forge
         new MS::Garrison::npc_OrgekIronhand;
         new MS::Garrison::npc_Kinja;
 
         /// Trading post
         new MS::Garrison::npc_FaylaFairfeather;
+
+        /// Tailoring Emporium
+        new MS::Garrison::npc_WarraTheWeaver;
+        new MS::Garrison::npc_Turga;
     }
 }
