@@ -197,55 +197,6 @@ class spell_warr_ravager : public SpellScriptLoader
         }
 };
 
-/// Slam - 1464
-class spell_warr_slam: public SpellScriptLoader
-{
-    public:
-        spell_warr_slam() : SpellScriptLoader("spell_warr_slam") { }
-
-        class spell_warr_slam_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warr_slam_SpellScript);
-
-            void HandleBeforeHit()
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (target->HasAura(WARRIOR_SPELL_COLOSSUS_SMASH, caster->GetGUID()))
-                            SetHitDamage(int32(GetHitDamage() * 1.1f));
-                    }
-                }
-            }
-
-            void HandleAfterHit()
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        int32 damage = CalculatePct(GetHitDamage(), 35);
-
-                        if (caster->HasAura(WARRIOR_SPELL_SWEEPING_STRIKES))
-                            caster->CastCustomSpell(target, WARRIOR_SPELL_SLAM_AOE, &damage, NULL, NULL, true);
-                    }
-                }
-            }
-
-            void Register()
-            {
-                BeforeHit += SpellHitFn(spell_warr_slam_SpellScript::HandleBeforeHit);
-                AfterHit += SpellHitFn(spell_warr_slam_SpellScript::HandleAfterHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warr_slam_SpellScript();
-        }
-};
-
 /// Victorious State - 32216
 class spell_warr_victorious_state: public SpellScriptLoader
 {
@@ -1941,7 +1892,6 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_sweeping_strikes();
     new spell_warr_ravager();
     new spell_warr_rend();
-    new spell_warr_slam();
     new spell_warr_victorious_state();
     new spell_warr_glyph_of_hindering_strikes();
     new spell_warr_stampeding_shout();
