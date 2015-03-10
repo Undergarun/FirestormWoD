@@ -3980,40 +3980,6 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
             }
             break;
         }
-        case SPELLFAMILY_WARLOCK:
-        {
-            switch (m_spellInfo->Id)
-            {
-                case 30213: // Legion Strike
-                {
-                    if (Unit* owner = m_caster->GetOwner())
-                    {
-                        int32 spd = owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL);
-                        fixed_bonus += spd * 0.264f;
-
-                        if (owner->GetTypeId() == TYPEID_PLAYER)
-                            if (owner->ToPlayer()->GetSpecializationId(owner->ToPlayer()->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
-                                owner->EnergizeBySpell(owner, m_spellInfo->Id, 12, POWER_DEMONIC_FURY);
-                    }
-
-                    break;
-                }
-                case 89753: // Fel Storm
-                {
-                    if (Unit* owner = m_caster->GetOwner())
-                    {
-                        int32 spd = owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL);
-                        fixed_bonus += spd * 0.33f;
-                    }
-
-                    break;
-                }
-                default:
-                    break;
-            }
-
-            break;
-        }
         case SPELLFAMILY_ROGUE:
         {
             switch (m_spellInfo->Id)
