@@ -782,6 +782,12 @@ namespace BNet2 {
             m_Locale                        ///< ClientLang
         ));
 
+        /// User reporting
+        /// Step Login (5)
+        /// We havn't script system in battle.net ...
+        /// @TODO: Use node.js reporter webservice
+        LoginDatabase.PExecute("UPDATE user_reporting SET step = 5, last_ip = '%s' WHERE account_id = %u AND step < 5", m_Socket.getRemoteAddress().c_str(),  m_AccountID);
+
         uint8 l_LockStatus = (l_RealmRequested->allowedSecurityLevel > m_AccountSecurityLevel) ? 1 : 0;
 
         BNet2::Packet l_Buffer(BNet2::SMSG_JOIN_RESPONSE);

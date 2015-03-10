@@ -1311,11 +1311,11 @@ void ScriptMgr::OnSocketClose(WorldSocket * p_Socket, bool p_WasNew)
 /// Called when a packet is sent to a client. The packet object is a copy of the original packet, so reading and modifying it is safe.
 /// @p_Socket : Socket who send the packet
 /// @p_Packet : Sent packet
-void ScriptMgr::OnPacketReceive(WorldSocket * p_Socket, WorldPacket p_Packet)
+void ScriptMgr::OnPacketReceive(WorldSocket * p_Socket, WorldPacket p_Packet, WorldSession* p_Session)
 {
     ASSERT(p_Socket);
 
-    FOREACH_SCRIPT(ServerScript)->OnPacketReceive(p_Socket, p_Packet);
+    FOREACH_SCRIPT(ServerScript)->OnPacketReceive(p_Socket, p_Packet, p_Session);
 }
 /// Called when a (valid) packet is received by a client. The packet object is a copy of the original packet, so reading and modifying it is safe.
 /// @p_Socket : Socket who received the packet
@@ -1797,6 +1797,7 @@ void ScriptMgr::OnPlayerLogin(Player * p_Player)
 {
     FOREACH_SCRIPT(PlayerScript)->OnLogin(p_Player);
 }
+
 /// Called when a player logs out.
 /// @p_Player : Player instance
 void ScriptMgr::OnPlayerLogout(Player * p_Player)
