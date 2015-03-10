@@ -179,19 +179,36 @@ class spell_pri_confession: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* caster = GetCaster()->ToPlayer())
+                if (Player* l_Caster = GetCaster()->ToPlayer())
                 {
                     if (!GetHitUnit())
                         return;
 
-                    if (Player* target = GetHitUnit()->ToPlayer())
+                    if (Player* l_Target = GetHitUnit()->ToPlayer())
                     {
-                        std::string name = target->GetName();
-                        std::string text = "[" + name + "]" + caster->GetSession()->GetTrinityString(LANG_CONFESSION_EMOTE);
-                        text += caster->GetSession()->GetTrinityString(urand(LANG_CONFESSION_START, LANG_CONFESSION_END));
-                        WorldPacket data;
-                        target->BuildPlayerChat(&data, CHAT_MSG_TEXT_EMOTE, text.c_str(), LANG_UNIVERSAL);
-                        target->SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), true);
+                        std::string l_Name = l_Target->GetName();
+                        std::string l_Text = "[" + l_Name + "]" + l_Caster->GetSession()->GetTrinityString(LANG_CONFESSION_EMOTE);
+                        l_Text += l_Caster->GetSession()->GetTrinityString(urand(LANG_CONFESSION_START, LANG_CONFESSION_END));
+
+                        std::list<Player*> l_PlayerList;
+                        l_Caster->GetPlayerListInGrid(l_PlayerList, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY));
+
+                        for (Player* l_Target : l_PlayerList)
+                        {
+                            if (!l_Caster->HaveAtClient(l_Target))
+                                continue;
+
+                            if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT) && l_Target->GetTeamId() != l_Caster->GetTeamId())
+                                continue;
+
+                            if (WorldSession* l_Session = l_Target->GetSession())
+                            {
+                                WorldPacket l_Data;
+                                /// No specific target needed
+                                l_Caster->BuildPlayerChat(&l_Data, nullptr, CHAT_MSG_EMOTE, l_Text, LANG_UNIVERSAL);
+                                l_Session->SendPacket(&l_Data);
+                            }
+                        }
                     }
                 }
             }
