@@ -1363,7 +1363,7 @@ struct PlayerTalentInfo
         for (uint8 i = 0; i < MAX_TALENT_SPECS; ++i)
         {
             SpecInfo[i].Talents = new PlayerTalentMap();
-            memset(SpecInfo[i].Glyphs, 0, MAX_GLYPH_SLOT_INDEX * sizeof(uint32));
+            SpecInfo[i].Glyphs.resize(MAX_GLYPH_SLOT_INDEX);
             SpecInfo[i].TalentTree = 0;
             SpecInfo[i].SpecializationId = 0;
         }
@@ -1382,7 +1382,7 @@ struct PlayerTalentInfo
     struct TalentSpecInfo
     {
         PlayerTalentMap* Talents;
-        uint32 Glyphs[MAX_GLYPH_SLOT_INDEX];
+        std::vector<uint32> Glyphs;
         uint32 TalentTree;
         uint32 SpecializationId;
     } SpecInfo[MAX_TALENT_SPECS];
@@ -2219,6 +2219,7 @@ class Player : public Unit, public GridObject<Player>
         }
         uint32 GetGlyph(uint8 spec, uint8 slot) const { return _talentMgr->SpecInfo[spec].Glyphs[slot]; }
         bool HasGlyph(uint32 spell_id);
+        std::vector<uint32> GetGlyphMap(uint8 p_Spec) { return _talentMgr->SpecInfo[p_Spec].Glyphs; }
 
         PlayerTalentMap const* GetTalentMap(uint8 spec) const { return _talentMgr->SpecInfo[spec].Talents; }
         PlayerTalentMap* GetTalentMap(uint8 spec) { return _talentMgr->SpecInfo[spec].Talents; }

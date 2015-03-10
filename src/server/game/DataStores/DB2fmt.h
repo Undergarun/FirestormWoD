@@ -26,6 +26,7 @@ char const PathNodeEntryfmt[] =
     FT_INT,
     FT_END
 };
+
 char const LocationEntryfmt[] =
 {
     FT_INDEX,
@@ -37,6 +38,7 @@ char const LocationEntryfmt[] =
     FT_FLOAT,
     FT_END
 };
+
 char const CurvePointEntryfmt[] = "niiff";
 const char Itemfmt[] = "niiiiiiii";
 const char ItemBonusfmt[] = "diiiii";
@@ -72,6 +74,14 @@ const char QuestPackageItemEntryfmt[] = "niiii";
 const char MountEntryfmt[] = "iiiisssini";
 const char PlayerConditionEntryfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiisiii";
 const char VignetteEntryfmt[] = "nsiiff";
+
+const char GlyphRequiredSpecfmt[] =
+{
+    FT_INDEX,
+    FT_INT,
+    FT_INT,
+    FT_END
+};
 
 //////////////////////////////////////////////////////////////////////////
 /// Garrison DB2
