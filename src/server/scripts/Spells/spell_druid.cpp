@@ -2747,67 +2747,104 @@ enum DruidFormsSpells
     SPELL_WISDOM_OF_THE_FOUR_WINDS = 115913
 };
 
+/// Called by the cancel of Aquatic Form - 1066, Swift Flight Form - 40120
+/// Flight Form - 33943 and Stag Form - 165961
+/// Shapeshift removal handling
+class spell_dru_travel_form_removal : public SpellScriptLoader
+{
+    public:
+        spell_dru_travel_form_removal() : SpellScriptLoader("spell_dru_travel_form_removal") { }
+
+        class spell_dru_travel_form_removal_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_travel_form_removal_AuraScript);
+
+            void AfterRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Target = GetTarget();
+                if (l_Target == nullptr)
+                    return;
+
+                /// This should only be called by client, if player cancel aura itself
+                /// Or if client send CMSG_CANCEL_AURA when casting incompatible spell with Shapeshift
+                if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_CANCEL)
+                    l_Target->RemoveAura(SPELL_DRUID_TRAVEL_FORM);
+            }
+
+            void Register()
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_dru_travel_form_removal_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_travel_form_removal_AuraScript();
+        }
+};
+
 /// Travel form - 783
 class spell_dru_travel_form: public SpellScriptLoader
 {
-public:
-    spell_dru_travel_form() : SpellScriptLoader("spell_dru_travel_form") { }
+    public:
+        spell_dru_travel_form() : SpellScriptLoader("spell_dru_travel_form") { }
 
-    class spell_dru_travel_form_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_dru_travel_form_SpellScript);
-
-        SpellCastResult CheckCast()
+        class spell_dru_travel_form_SpellScript : public SpellScript
         {
-            if (GetCaster()->GetTypeId() == TYPEID_PLAYER)
+            PrepareSpellScript(spell_dru_travel_form_SpellScript);
+
+            SpellCastResult CheckCast()
+            {
                 if (Player* l_Player = GetCaster()->ToPlayer())
+                {
                     if (!l_Player->GetMap()->IsOutdoors(l_Player->GetPositionX(), l_Player->GetPositionY(), l_Player->GetPositionZ()))
                         return SPELL_FAILED_ONLY_OUTDOORS;
+                }
 
-            return SPELL_CAST_OK;
-        }
+                return SPELL_CAST_OK;
+            }
 
-        void Register()
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_dru_travel_form_SpellScript::CheckCast);
+            }
+        };
+
+        class spell_dru_travel_form_AuraScript : public AuraScript
         {
-            OnCheckCast += SpellCheckCastFn(spell_dru_travel_form_SpellScript::CheckCast);
-        }
-    };
+            PrepareAuraScript(spell_dru_travel_form_AuraScript);
 
-    class spell_dru_travel_form_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_dru_travel_form_AuraScript);
+            void AfterApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                // Call the player script "spell_dru_travel_form_playerscript" below to avoid code duplication
+                if (GetTarget()->GetTypeId() == TYPEID_PLAYER)
+                    sScriptMgr->OnPlayerUpdateMovement(GetTarget()->ToPlayer());
+            }
 
-        void AfterApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void AfterRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_CANCEL)
+                    l_Target->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_dru_travel_form_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_dru_travel_form_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            //Call the player script "spell_dru_travel_form_playerscript" below to avoid code duplication
-            if (GetTarget()->GetTypeId() == TYPEID_PLAYER)
-                sScriptMgr->OnPlayerUpdateMovement(GetTarget()->ToPlayer());
+            return new spell_dru_travel_form_SpellScript();
         }
 
-        void AfterRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        AuraScript* GetAuraScript() const
         {
-            Unit* l_Target = GetTarget();
-
-            if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_CANCEL)
-                l_Target->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
+            return new spell_dru_travel_form_AuraScript();
         }
-
-        void Register()
-        {
-            AfterEffectApply += AuraEffectApplyFn(spell_dru_travel_form_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            AfterEffectRemove += AuraEffectRemoveFn(spell_dru_travel_form_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_dru_travel_form_SpellScript();
-    }
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_dru_travel_form_AuraScript();
-    }
 };
 
 class spell_dru_travel_form_playerscript: public PlayerScript
@@ -2862,28 +2899,16 @@ class spell_dru_travel_form_playerscript: public PlayerScript
                 return;
 
             if (p_Player->IsInWater() && p_Player->GetShapeshiftForm() != FORM_AQUA)
-            {
-                p_Player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
                 p_Player->CastSpell(p_Player, SPELL_DRUID_AQUATIC_FORM, true);
-            }
             else if (!p_Player->IsInWater() && p_Player->getLevel() >= 71 && CheckIfCanFlyInLoc(p_Player) && !p_Player->isInCombat() &&
                      p_Player->GetShapeshiftForm() != FORM_FLIGHT_EPIC && !p_Player->HasAura(SPELL_DRUID_GLYPH_OF_THE_STAG))
-            {
-                p_Player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
                 p_Player->CastSpell(p_Player, SPELL_DRUID_SWIFT_FLIGHT_FORM, true);
-            }
             else if (!p_Player->IsInWater() && p_Player->getLevel() >= 60 && CheckIfCanFlyInLoc(p_Player) && !p_Player->isInCombat() &&
-                     p_Player->GetShapeshiftForm() != FORM_FLIGHT_EPIC && p_Player->GetShapeshiftForm() != FORM_FLIGHT &&
-                     !p_Player->HasAura(SPELL_DRUID_GLYPH_OF_THE_STAG))
-            {
-                p_Player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
+                     p_Player->GetShapeshiftForm() != FORM_FLIGHT_EPIC && p_Player->GetShapeshiftForm() != FORM_FLIGHT && !p_Player->HasAura(SPELL_DRUID_GLYPH_OF_THE_STAG))
                 p_Player->CastSpell(p_Player, SPELL_DRUID_FLIGHT_FORM, true);
-            }
-            else if (!p_Player->IsInWater() && !p_Player->IsFlying() && p_Player->GetShapeshiftForm() != FORM_FLIGHT_EPIC && p_Player->GetShapeshiftForm() != FORM_FLIGHT && p_Player->GetShapeshiftForm() != FORM_STAG)
-            {
-                p_Player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
+            else if (!p_Player->IsInWater() && !p_Player->IsFlying() && p_Player->GetShapeshiftForm() != FORM_FLIGHT_EPIC &&
+                     p_Player->GetShapeshiftForm() != FORM_FLIGHT && p_Player->GetShapeshiftForm() != FORM_STAG)
                 p_Player->CastSpell(p_Player, SPELL_DRUID_STAG_FORM, true);
-            }
         }
 
         void OnChangeShapeshift(Player* p_Player, ShapeshiftForm p_Form)
@@ -3671,6 +3696,7 @@ void AddSC_druid_spell_scripts()
     new spell_dru_savage_roar();
     new spell_dru_survival_instincts();
     new spell_dru_swiftmend();
+    new spell_dru_travel_form_removal();
     new spell_dru_travel_form();
     new spell_dru_travel_form_playerscript();
     new spell_dru_swift_flight_passive();
