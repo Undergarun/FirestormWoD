@@ -1190,14 +1190,16 @@ class spell_dru_lifebloom_refresh: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* player = GetCaster()->ToPlayer())
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (!l_Caster->HasAura(SPELL_DRUID_GLYPH_OF_BLOOMING))
                 {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (!player->HasAura(SPELL_DRUID_GLYPH_OF_BLOOMING))
-                            if (AuraPtr lifebloom = target->GetAura(SPELL_DRUID_LIFEBLOOM, player->GetGUID()))
-                                lifebloom->RefreshDuration();
-                    }
+                    if (AuraPtr l_Lifebloom = l_Target->GetAura(SPELL_DRUID_LIFEBLOOM, l_Caster->GetGUID()))
+                        l_Lifebloom->RefreshDuration();
                 }
             }
 
@@ -1223,7 +1225,7 @@ class spell_dru_lifebloom: public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_lifebloom_AuraScript);
 
-            void AfterRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            void AfterRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*mode*/)
             {
                 // Final heal only on duration end
                 if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
@@ -1231,38 +1233,46 @@ class spell_dru_lifebloom: public SpellScriptLoader
 
                 Unit* l_Target = GetTarget();
                 Unit* l_Caster = GetCaster();
+
                 if (!l_Caster)
                     return;
+
+                SpellInfo const* l_LifebloomFinalHeal = sSpellMgr->GetSpellInfo(SPELL_DRUID_LIFEBLOOM_FINAL_HEAL);
 
                 // final heal
                 int32 l_SpellPower = 0;
                 int32 l_HealAmount = 0;
 
-                l_SpellPower = l_Caster->SpellHealingBonusDone(l_Target, GetSpellInfo(), l_SpellPower, aurEff->GetEffIndex(), HEAL);
+                l_SpellPower = l_Caster->SpellHealingBonusDone(l_Target, GetSpellInfo(), l_SpellPower, p_AurEff->GetEffIndex(), HEAL);
                 l_SpellPower = l_Target->SpellHealingBonusTaken(l_Caster, GetSpellInfo(), l_SpellPower, HEAL);
 
-                l_HealAmount = l_SpellPower * sSpellMgr->GetSpellInfo(SPELL_DRUID_LIFEBLOOM_FINAL_HEAL)->Effects[EFFECT_0].BonusMultiplier;
+                if (l_LifebloomFinalHeal != nullptr)
+                    l_HealAmount = l_SpellPower * l_LifebloomFinalHeal->Effects[EFFECT_0].BonusMultiplier;
 
-                l_Target->CastCustomSpell(l_Target, SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, &l_HealAmount, NULL, NULL, true, NULL, aurEff, GetCasterGUID());
+                l_Target->CastCustomSpell(l_Target, SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, &l_HealAmount, NULL, NULL, true, NULL, p_AurEff, GetCasterGUID());
             }
 
-            void HandleDispel(DispelInfo* dispelInfo)
+            void HandleDispel(DispelInfo* p_DispelInfo)
             {
                 if (constAuraEffectPtr aurEff = GetEffect(EFFECT_0))
                 {
-                    Unit* l_Target = dispelInfo->GetDispeller();
+                    Unit* l_Target = p_DispelInfo->GetDispeller();
                     Unit* l_Caster = GetCaster();
+
                     if (!l_Caster)
                         return;
+
+                    SpellInfo const* l_LifebloomFinalHeal = sSpellMgr->GetSpellInfo(SPELL_DRUID_LIFEBLOOM_FINAL_HEAL);
 
                     // final heal
                     int32 l_SpellPower = 0;
                     int32 l_HealAmount = 0;
 
-                    l_SpellPower = l_Caster->SpellHealingBonusDone(l_Target, GetSpellInfo(), l_SpellPower, aurEff->GetEffIndex(), HEAL, dispelInfo->GetRemovedCharges());
-                    l_SpellPower = l_Target->SpellHealingBonusTaken(l_Caster, GetSpellInfo(), l_SpellPower, HEAL, dispelInfo->GetRemovedCharges());
+                    l_SpellPower = l_Caster->SpellHealingBonusDone(l_Target, GetSpellInfo(), l_SpellPower, aurEff->GetEffIndex(), HEAL, p_DispelInfo->GetRemovedCharges());
+                    l_SpellPower = l_Target->SpellHealingBonusTaken(l_Caster, GetSpellInfo(), l_SpellPower, HEAL, p_DispelInfo->GetRemovedCharges());
 
-                    l_HealAmount = l_SpellPower * sSpellMgr->GetSpellInfo(SPELL_DRUID_LIFEBLOOM_FINAL_HEAL)->Effects[EFFECT_0].BonusMultiplier;
+                    if (l_LifebloomFinalHeal != nullptr)
+                        l_HealAmount = l_SpellPower * l_LifebloomFinalHeal->Effects[EFFECT_0].BonusMultiplier;
 
                     l_Target->CastCustomSpell(l_Target, SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, &l_HealAmount, NULL, NULL, true, NULL, aurEff, GetCasterGUID());
                 }
@@ -1291,6 +1301,38 @@ class spell_dru_lifebloom: public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_dru_lifebloom_AuraScript();
+        }
+};
+
+/// Lifebloom (final heal) - 33778
+class spell_dru_lifebloom_final_heal : public SpellScriptLoader
+{
+    public:
+        spell_dru_lifebloom_final_heal() : SpellScriptLoader("spell_dru_lifebloom_final_heal") { }
+
+        class spell_dru_lifebloom_final_heal_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_lifebloom_final_heal_SpellScript);
+
+            void HandleHeal(SpellEffIndex /*p_EffIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                SpellInfo const* l_GlyphOfBlooming = sSpellMgr->GetSpellInfo(SPELL_DRUID_GLYPH_OF_BLOOMING);
+
+                if (l_GlyphOfBlooming != nullptr && l_Caster->HasAura(SPELL_DRUID_GLYPH_OF_BLOOMING)) ///< Increases the bloom heal of your Lifebloom when it expires by 50%
+                    SetHitHeal(GetHitHeal() + CalculatePct(GetHitHeal(), l_GlyphOfBlooming->Effects[EFFECT_0].BasePoints));
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_dru_lifebloom_final_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dru_lifebloom_final_heal_SpellScript();
         }
 };
 
@@ -3583,6 +3625,7 @@ class spell_dru_starsurge : public SpellScriptLoader
 
 void AddSC_druid_spell_scripts()
 {
+    new spell_dru_lifebloom_final_heal();
     new spell_dru_entangling_energy();
     new spell_dru_ursa_major();
     new spell_dru_glyph_of_barkskin();

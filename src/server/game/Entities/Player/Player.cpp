@@ -5882,38 +5882,90 @@ bool Player::ResetTalents(bool no_cost)
 
 void Player::ResetSpec(bool p_NoCost /* = false */)
 {
-    uint32 cost = 0;
+    uint32 l_Cost = 0;
 
     if (!sWorld->getBoolConfig(CONFIG_NO_RESET_TALENT_COST) && !p_NoCost)
     {
-        cost = GetNextResetSpecializationCost();
+        l_Cost = GetNextResetSpecializationCost();
 
-        if (!HasEnoughMoney(uint64(cost)))
+        if (!HasEnoughMoney(uint64(l_Cost)))
         {
             SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, 0, 0, 0);
             return;
         }
+
         if (isInCombat())
         {
-                SendEquipError(EQUIP_ERR_NOT_IN_COMBAT, 0, 0, 0);
-                return;
+            SendEquipError(EQUIP_ERR_NOT_IN_COMBAT, 0, 0, 0);
+            return;
         }
     }
 
-    if (GetSpecializationId(GetActiveSpec()) == 0)
+    if (GetSpecializationId(GetActiveSpec()) == SpecIndex::SPEC_NONE)
         return;
 
-    for (auto itr : *GetTalentMap(GetActiveSpec()))
+    /// Remove specialization Glyphs
+    std::vector<uint32> l_Glyphs = GetGlyphMap(GetActiveSpec());
+    uint8 l_Slot = 0;
+    for (uint32 l_Glyph : l_Glyphs)
     {
-        SpellInfo const* spell = sSpellMgr->GetSpellInfo(itr.first);
-        if (!spell)
+        GlyphRequiredSpecEntry const* l_GlyphReq = nullptr;
+        for (uint32 l_I = 0; l_I < sGlyphRequiredSpecStore.GetNumRows(); ++l_I)
+        {
+            if (GlyphRequiredSpecEntry const* l_GlyphRequirements = sGlyphRequiredSpecStore.LookupEntry(l_I))
+            {
+                if (l_GlyphRequirements->GlyphID == l_Glyph)
+                {
+                    l_GlyphReq = l_GlyphRequirements;
+                    break;
+                }
+            }
+        }
+
+        if (l_GlyphReq == nullptr)
+        {
+            ++l_Slot;
+            continue;
+        }
+
+        /// If glyph has a spec requirement, remove it
+        if (GlyphPropertiesEntry const* l_GlyphProp = sGlyphPropertiesStore.LookupEntry(l_Glyph))
+        {
+            RemoveAurasDueToSpell(l_GlyphProp->SpellId);
+            SetGlyph(l_Slot, 0);
+        }
+
+        ++l_Slot;
+    }
+
+    RemoveSpecializationSpells();
+    SetSpecializationId(GetActiveSpec(), 0);
+    InitSpellForLevel();
+    UpdateMasteryPercentage();
+    SendTalentsInfoData(false);
+
+    ModifyMoney(-(int64)l_Cost);
+    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TALENTS, l_Cost);
+    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_NUMBER_OF_TALENT_RESETS, 1);
+
+    SetSpecializationResetCost(l_Cost);
+    SetSpecializationResetTime(time(nullptr));
+}
+
+void Player::SetSpecializationId(uint8 p_Spec, uint32 p_Specialization, bool p_Loading)
+{
+    /// Remove specialization talents
+    for (auto l_Iter : *GetTalentMap(GetActiveSpec()))
+    {
+        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_Iter.first);
+        if (!l_SpellInfo)
             continue;
 
         bool l_Remove = false;
-        for (uint32 l_TalentID : spell->m_TalentIDs)
+        for (uint32 l_TalentID : l_SpellInfo->m_TalentIDs)
         {
             TalentEntry const* l_TalentEntry = sTalentStore.LookupEntry(l_TalentID);
-            if (l_TalentEntry && l_TalentEntry->SpecID == GetSpecializationId(GetActiveSpec()))
+            if (l_TalentEntry && l_TalentEntry->SpecID != p_Specialization)
             {
                 l_Remove = true;
                 break;
@@ -5923,45 +5975,33 @@ void Player::ResetSpec(bool p_NoCost /* = false */)
         if (!l_Remove)
             continue;
 
-        removeSpell(itr.first, true);
+        removeSpell(l_Iter.first, true);
 
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            if (spell->Effects[i].TriggerSpell > 0 && spell->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL)
-                removeSpell(spell->Effects[i].TriggerSpell, true);
+        for (uint8 i = 0; i < MAX_EFFECTS; ++i)
+        {
+            if (l_SpellInfo->Effects[i].TriggerSpell > 0 && l_SpellInfo->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL)
+                removeSpell(l_SpellInfo->Effects[i].TriggerSpell, true);
+        }
 
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            if (spell->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS || spell->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2)
-                RemoveAurasDueToSpell(spell->Effects[i].BasePoints);
+        for (uint8 i = 0; i < MAX_EFFECTS; ++i)
+        {
+            if (l_SpellInfo->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS ||
+                l_SpellInfo->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2)
+                RemoveAurasDueToSpell(l_SpellInfo->Effects[i].BasePoints);
+        }
 
-        itr.second->state = PLAYERSPELL_REMOVED;
+        l_Iter.second->state = PLAYERSPELL_REMOVED;
 
         SetUsedTalentCount(GetUsedTalentCount() - 1);
         SetFreeTalentPoints(GetFreeTalentPoints() + 1);
     }
 
-    RemoveSpecializationSpells();
-    SetSpecializationId(GetActiveSpec(), 0);
-    InitSpellForLevel();
-    UpdateMasteryPercentage();
-    SendTalentsInfoData(false);
-
-    ModifyMoney(-(int64)cost);
-    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TALENTS, cost);
-    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_NUMBER_OF_TALENT_RESETS, 1);
-
-    SetSpecializationResetCost(cost);
-    SetSpecializationResetTime(time(NULL));
-}
-
-void Player::SetSpecializationId(uint8 spec, uint32 id, bool loading)
-{
-
-    if (spec == GetActiveSpec())
+    if (p_Spec == GetActiveSpec())
     {
         float pct = GetHealthPct();
-        SetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID, id);
+        SetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID, p_Specialization);
 
-        if (!loading)
+        if (!p_Loading)
         {
             for (uint8 i = 0; i < INVENTORY_SLOT_BAG_END; ++i)
             {
@@ -5973,9 +6013,9 @@ void Player::SetSpecializationId(uint8 spec, uint32 id, bool loading)
             }
         }
 
-        _talentMgr->SpecInfo[spec].SpecializationId = id;
+        _talentMgr->SpecInfo[p_Spec].SpecializationId = p_Specialization;
 
-        if (!loading)
+        if (!p_Loading)
         {
             for (uint8 i = 0; i < INVENTORY_SLOT_BAG_END; ++i)
             {
@@ -5991,7 +6031,7 @@ void Player::SetSpecializationId(uint8 spec, uint32 id, bool loading)
         return;
     }
     else
-        _talentMgr->SpecInfo[spec].SpecializationId = id;
+        _talentMgr->SpecInfo[p_Spec].SpecializationId = p_Specialization;
 }
 
 uint32 Player::GetRoleForGroup(uint32 specializationId)

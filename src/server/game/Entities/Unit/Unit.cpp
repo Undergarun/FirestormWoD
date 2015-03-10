@@ -11488,7 +11488,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
     }
 
     // 76658 - Mastery : Essence of the Viper
-    if (GetTypeId() == TYPEID_PLAYER && spellProto && spellProto->SchoolMask == SPELL_SCHOOL_MASK_SPELL && HasAura(76658))
+    if (GetTypeId() == TYPEID_PLAYER && spellProto && (spellProto->SchoolMask & SPELL_SCHOOL_MASK_SPELL) && HasAura(76658))
     {
         float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY);
         DoneTotal += CalculatePct(pdamage, Mastery);
@@ -11512,7 +11512,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         || spellProto->Id == 29722 || spellProto->Id == 114654 || spellProto->Id == 108685
         || spellProto->Id == 108686))
     {
-        float Mastery = (GetFloatValue(PLAYER_FIELD_MASTERY) + 1);
+        float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY);
         DoneTotal += CalculatePct(pdamage, Mastery);
     }
 
@@ -13040,13 +13040,12 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
         if (HasAura(77223))
         {
             float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
-
             AddPct(DoneTotalMod, Mastery);
         }
     }
 
     // 76658 - Mastery : Essence of the Viper
-    if (GetTypeId() == TYPEID_PLAYER && spellProto && spellProto->SchoolMask == SPELL_SCHOOL_MASK_SPELL && HasAura(76658))
+    if (GetTypeId() == TYPEID_PLAYER && spellProto && (spellProto->SchoolMask & SPELL_SCHOOL_MASK_SPELL) && HasAura(76658))
     {
         float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY);
         AddPct(DoneTotalMod, Mastery);
@@ -15169,7 +15168,7 @@ void Unit::IncrDiminishing(DiminishingGroup group)
             i->hitCount += 1;
         return;
     }
-    m_Diminishing.push_back(DiminishingReturn(group, getMSTime(), DIMINISHING_LEVEL_2));
+    m_Diminishing.push_back(DiminishingReturn(group, getMSTime(), DIMINISHING_LEVEL_1));
 }
 
 float Unit::ApplyDiminishingToDuration(DiminishingGroup group, int32 &duration, Unit* caster, DiminishingLevels Level, int32 limitduration)
