@@ -780,7 +780,6 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket & p_RecvData)
     p_RecvData.readPackGUID(l_Target);
     p_RecvData >> l_Emote;
     p_RecvData >> l_SoundIndex;
-
     sScriptMgr->OnPlayerTextEmote(GetPlayer(), l_Emote, l_SoundIndex, l_Target);
 
     const EmotesTextEntry * l_EmoteTextEntry = sEmotesTextStore.LookupEntry(l_Emote);
