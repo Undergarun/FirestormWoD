@@ -1022,45 +1022,6 @@ class spell_warr_victory_rush: public SpellScriptLoader
         }
 };
 
-/// Last Stand - 12975
-class spell_warr_last_stand: public SpellScriptLoader
-{
-    public:
-        spell_warr_last_stand() : SpellScriptLoader("spell_warr_last_stand") { }
-
-        class spell_warr_last_stand_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warr_last_stand_SpellScript);
-
-            bool Validate(SpellInfo const* /*spellEntry*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(WARRIOR_SPELL_LAST_STAND_TRIGGERED))
-                    return false;
-                return true;
-            }
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    int32 healthModSpellBasePoints0 = int32(caster->CountPctFromMaxHealth(GetSpellInfo()->Effects[EFFECT_0].BasePoints));
-                    caster->CastCustomSpell(caster, WARRIOR_SPELL_LAST_STAND_TRIGGERED, &healthModSpellBasePoints0, NULL, NULL, true, NULL);
-                }
-            }
-
-            void Register()
-            {
-                // add dummy effect spell handler to Last Stand
-                OnEffectHit += SpellEffectFn(spell_warr_last_stand_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warr_last_stand_SpellScript();
-        }
-};
-
 /// Called By Thunder Clap - 6343, Mortal Strike - 12294, Bloodthirst - 23881 and Devastate - 20243
 /// Deep Wounds - 115767
 class spell_warr_deep_wounds: public SpellScriptLoader
@@ -1918,7 +1879,6 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_shockwave();
     new spell_warr_bloodthirst();
     new spell_warr_victory_rush();
-    new spell_warr_last_stand();
     new spell_warr_deep_wounds();
     new spell_warr_charge();
     new spell_warr_shield_wall();
