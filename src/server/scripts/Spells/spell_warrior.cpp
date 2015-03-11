@@ -1495,61 +1495,61 @@ enum WhirlwindSpells
 /// Whirlwind - 1680
 class spell_warr_whirlwind: public SpellScriptLoader
 {
-public:
-    spell_warr_whirlwind() : SpellScriptLoader("spell_warr_whirlwind") { }
+    public:
+        spell_warr_whirlwind() : SpellScriptLoader("spell_warr_whirlwind") { }
 
-    class spell_warr_whirlwind_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_warr_whirlwind_SpellScript);
-
-        void HandleOnHit()
+        class spell_warr_whirlwind_SpellScript : public SpellScript
         {
-            Player* l_Player = GetCaster()->ToPlayer();
-            Unit* l_Target = GetHitUnit();
-            if (!l_Player || !l_Target)
-                return;
+            PrepareSpellScript(spell_warr_whirlwind_SpellScript);
 
-            if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_FURY)
-                l_Player->CastSpell(l_Target, WhirlwindSpells::SpellWarrWirlwindOffHand, true);
-        }
-
-        void HandleNormalizedWeaponDamage(SpellEffIndex p_EffIndex)
-        {
-            Player* l_Player = GetCaster()->ToPlayer();
-
-            if (l_Player == nullptr)
-                return;
-
-            if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
-                PreventHitDefaultEffect(p_EffIndex);
-        }
-
-        void HandleWeaponPercentDamage(SpellEffIndex p_EffIndex)
-        {
-            Player* l_Player = GetCaster()->ToPlayer();
-
-            if (l_Player == nullptr)
-                return;
-
-            if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
+            void HandleOnHit()
             {
-                PreventHitDefaultEffect(p_EffIndex);
-                l_Player->CastSpell(l_Player, WhirlwindSpells::SpellWarrWirlwindSpeArms, true);
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetHitUnit();
+                if (!l_Player || !l_Target)
+                    return;
+
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_FURY)
+                    l_Player->CastSpell(l_Target, WhirlwindSpells::SpellWarrWirlwindOffHand, true);
             }
-        }
 
-        void Register()
+            void HandleNormalizedWeaponDamage(SpellEffIndex p_EffIndex)
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
+                    PreventHitDefaultEffect(p_EffIndex);
+            }
+
+            void HandleWeaponPercentDamage(SpellEffIndex p_EffIndex)
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
+                {
+                    PreventHitDefaultEffect(p_EffIndex);
+                    l_Player->CastSpell(l_Player, WhirlwindSpells::SpellWarrWirlwindSpeArms, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectLaunch += SpellEffectFn(spell_warr_whirlwind_SpellScript::HandleNormalizedWeaponDamage, EFFECT_0, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
+                OnEffectLaunch += SpellEffectFn(spell_warr_whirlwind_SpellScript::HandleWeaponPercentDamage, EFFECT_1, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
+                OnHit += SpellHitFn(spell_warr_whirlwind_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnEffectLaunch += SpellEffectFn(spell_warr_whirlwind_SpellScript::HandleNormalizedWeaponDamage, EFFECT_0, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
-            OnEffectLaunch += SpellEffectFn(spell_warr_whirlwind_SpellScript::HandleWeaponPercentDamage, EFFECT_1, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
-            OnHit += SpellHitFn(spell_warr_whirlwind_SpellScript::HandleOnHit);
+            return new spell_warr_whirlwind_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_warr_whirlwind_SpellScript();
-    }
 };
 
 enum ShieldChargeSpells
