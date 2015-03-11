@@ -90,13 +90,13 @@
 
 enum SkillFieldOffset
 {
-    SKILL_OFFSET_LINEID = 0 * 64,
-    SKILL_OFFSET_STEP = 1 * 64,
-    SKILL_OFFSET_RANK = 2 * 64,
-    SKILL_OFFSET_UNK = 3 * 64,
-    SKILL_OFFSET_MAX_RANK = 4 * 64,
-    SKILL_OFFSET_MODIFIER = 5 * 64,
-    SKILL_OFFSET_TALENT = 6 * 64,
+    SKILL_OFFSET_LINEID     = 0 * 64,
+    SKILL_OFFSET_STEP       = 1 * 64,
+    SKILL_OFFSET_RANK       = 2 * 64,
+    SKILL_OFFSET_UNK        = 3 * 64,
+    SKILL_OFFSET_MAX_RANK   = 4 * 64,
+    SKILL_OFFSET_MODIFIER   = 5 * 64,
+    SKILL_OFFSET_TALENT     = 6 * 64,
 };
 
 enum CharacterFlags
@@ -7819,10 +7819,10 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
             //remove enchantments needing this skill
             UpdateSkillEnchantments(id, currVal, 0);
             // clear skill fields
-            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_LINEID + field, offset, 0);
+            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_LINEID + field, offset, id);
             SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_STEP + field, offset, 0);
             SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_RANK + field, offset, 0);
-            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_MAX_RANK + field, offset, 0);
+            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_MAX_RANK + field, offset, 75);
             SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_MODIFIER + field, offset, 0);
             SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_TALENT + field, offset, 0);
 
@@ -7837,6 +7837,16 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
                 if (SkillLineAbilityEntry const* pAbility = sSkillLineAbilityStore.LookupEntry(j))
                     if (pAbility->skillId == id)
                         removeSpell(sSpellMgr->GetFirstSpellInChain(pAbility->spellId));
+        }
+
+        if (step == 0 && newVal == 0 && maxVal == 0)
+        {
+            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_LINEID + field, offset, id);
+            // update step
+            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_STEP + field, offset, 0);
+            // update value
+            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_RANK + field, offset, 0);
+            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_MAX_RANK + field, offset, 75);
         }
     }
     else if (newVal)                                        //add
