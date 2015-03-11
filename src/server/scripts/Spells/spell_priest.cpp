@@ -1061,6 +1061,35 @@ class spell_pri_holy_word_sanctuary: public SpellScriptLoader
         }
 };
 
+// Holy Word : Sanctuary (heal) - 88686
+class spell_pri_holy_word_sanctuary_heal : public SpellScriptLoader
+{
+    public:
+        spell_pri_holy_word_sanctuary_heal() : SpellScriptLoader("spell_pri_holy_word_sanctuary_heal") { }
+
+        class spell_pri_holy_word_sanctuary_heal_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_holy_word_sanctuary_heal_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
+            {
+                /// Healing up to 6 allies 
+                if (p_Targets.size() > 6)
+                    JadeCore::RandomResizeList(p_Targets, 6);
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_holy_word_sanctuary_heal_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pri_holy_word_sanctuary_heal_SpellScript();
+        }
+};
+
 enum MasterySpells
 {
     MASTERY_SPELL_DISCIPLINE_SHIELD = 77484
@@ -3362,6 +3391,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_divine_insight_holy();
     new spell_pri_divine_insight_discipline();
     new spell_pri_holy_word_sanctuary();
+    new spell_pri_holy_word_sanctuary_heal();
     new spell_pri_smite();
     new spell_pri_lightwell_renew();
     new spell_pri_atonement();
