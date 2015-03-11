@@ -1169,9 +1169,9 @@ class spell_mastery_master_mental_anguish : public SpellScriptLoader
             }
         };
 
-        class pell_mastery_master_mental_anguish_AuraScript : public AuraScript
+        class spell_mastery_master_mental_anguish_AuraScript : public AuraScript
         {
-            PrepareAuraScript(pell_mastery_master_mental_anguish_AuraScript);
+            PrepareAuraScript(spell_mastery_master_mental_anguish_AuraScript);
 
             void CalculateAmount(constAuraEffectPtr, int32& p_Amount, bool&)
             {
@@ -1190,13 +1190,13 @@ class spell_mastery_master_mental_anguish : public SpellScriptLoader
 
             void Register()
             {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(pell_mastery_master_mental_anguish_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mastery_master_mental_anguish_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
             }
         };
 
         AuraScript* GetAuraScript() const
         {
-            return new pell_mastery_master_mental_anguish_AuraScript();
+            return new spell_mastery_master_mental_anguish_AuraScript();
         }
 
         SpellScript* GetSpellScript() const
