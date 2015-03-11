@@ -7,6 +7,7 @@ UPDATE creature_template SET ScriptName = 'npc_ashran_mare_wildrunner' WHERE ent
 UPDATE creature_template SET faction = 1801, npcflag = 1 WHERE entry = 88178;
 UPDATE creature_template SET dmg_multiplier = 10 WHERE entry IN (82876, 82877);
 UPDATE creature_template SET dmg_multiplier = 5 WHERE entry IN (82880, 82878, 82882, 82883);
+UPDATE creature_template SET faction = 47 WHERE entry = 82880;
 UPDATE creature_template SET unit_flags = unit_flags & ~0x00200000 WHERE entry IN (83717, 80256, 84906, 74886, 84878, 84876, 84877);
 UPDATE creature_template SET faction = 123 WHERE entry = 79990;
 UPDATE creature_template SET InhabitType = 4 WHERE entry IN (84102, 85753, 83681, 84644, 80511, 84926, 82895, 88690, 83720);

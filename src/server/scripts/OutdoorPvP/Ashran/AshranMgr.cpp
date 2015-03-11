@@ -1587,14 +1587,25 @@ WorldSafeLocsEntry const* OutdoorPvPAshran::GetClosestGraveyard(Player* p_Player
                     continue;
             }
         }
-        /// Check status of Archmage Overwatch and Emberfall Tower
-        else if (g_GraveyardIDs[l_TeamID][l_I] == eGraveyards::TowerAlliance || g_GraveyardIDs[l_TeamID][l_I] == eGraveyards::TowerHorde)
+        /// Check status of Archmage Overwatch
+        else if (g_GraveyardIDs[l_TeamID][l_I] == eGraveyards::TowerAlliance)
         {
             if (OPvPCapturePoint_Middle* l_CapturePoint = m_ControlPoints[eBattleType::ArchmageOverwatch])
             {
                 uint32 l_State = l_CapturePoint->GetBattleFaction();
                 if (l_State == eControlStatus::ControlNeutral || (l_State == eControlStatus::ControlAlliance && l_TeamID != TeamId::TEAM_ALLIANCE) ||
                     (l_State == eControlStatus::ControlHorde && l_TeamID != TeamId::TEAM_HORDE))
+                    continue;
+            }
+        }
+        /// Check status of Emberfall Tower
+        else if (g_GraveyardIDs[l_TeamID][l_I] == eGraveyards::TowerHorde)
+        {
+            if (OPvPCapturePoint_Middle* l_CapturePoint = m_ControlPoints[eBattleType::EmberfallTower])
+            {
+                uint32 l_State = l_CapturePoint->GetBattleFaction();
+                if (l_State == eControlStatus::ControlNeutral || (l_State == eControlStatus::ControlHorde && l_TeamID != TeamId::TEAM_HORDE) ||
+                    (l_State == eControlStatus::ControlAlliance && l_TeamID != TeamId::TEAM_ALLIANCE))
                     continue;
             }
         }
