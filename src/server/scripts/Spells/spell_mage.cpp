@@ -2424,8 +2424,6 @@ void AddSC_mage_spell_scripts()
     new spell_mage_alter_time_overrided();
     new spell_mage_alter_time();
     new spell_mage_cold_snap();
-    new spell_mage_incanters_absorbtion_absorb();
-    new spell_mage_incanters_absorbtion_manashield();
     new spell_mage_living_bomb();
     new spell_mage_mirror_image_summon();
     new spell_mage_ice_barrier();

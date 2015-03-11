@@ -1551,39 +1551,42 @@ public:
                 l_Player->CastSpell(l_Target, SPELL_WARR_WHIRLWIND_OFFHAND, true);
         }
 
+        void HandleNormalizedWeaponDamage(SpellEffIndex p_EffIndex)
+        {
+            Player* l_Player = GetCaster()->ToPlayer();
+
+            if (l_Player == nullptr)
+                return;
+
+            if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
+                PreventHitDefaultEffect(p_EffIndex);
+        }
+
+        void HandleWeaponPercentDamage(SpellEffIndex p_EffIndex)
+        {
+            Player* l_Player = GetCaster()->ToPlayer();
+
+            if (l_Player == nullptr)
+                return;
+
+            if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
+            {
+                PreventHitDefaultEffect(p_EffIndex);
+                l_Player->CastSpell(l_Player, 168695, true);
+            }
+        }
+
         void Register()
         {
+            OnEffectLaunch += SpellEffectFn(spell_warr_whirlwind_SpellScript::HandleNormalizedWeaponDamage, EFFECT_0, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
+            OnEffectLaunch += SpellEffectFn(spell_warr_whirlwind_SpellScript::HandleWeaponPercentDamage, EFFECT_1, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
             OnHit += SpellHitFn(spell_warr_whirlwind_SpellScript::HandleOnHit);
         }
-    };
-
-    class spell_warr_whirlwind_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_warr_whirlwind_AuraScript);
-
-        void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
-        {
-            if (Unit* l_Caster = GetCaster())
-                if (Player* l_Player = l_Caster->ToPlayer())
-                    if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
-                        amount = 200;
-        }
-
-        void Register()
-        {
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warr_whirlwind_AuraScript::CalculateAmount, EFFECT_1, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
-        }
-
     };
 
     SpellScript* GetSpellScript() const
     {
         return new spell_warr_whirlwind_SpellScript();
-    }
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_warr_whirlwind_AuraScript();
     }
 };
 
