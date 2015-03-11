@@ -1,0 +1,41 @@
+language: cpp
+compiler:
+  - clang
+
+git:
+  depth: 1
+
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get -qq install build-essential libtool gcc-4.8 g++-4.8 make cmake openssl
+  - sudo apt-get -qq install libssl-dev libmysqlclient15-dev libmysql++-dev libace-dev libreadline6-dev zlib1g-dev libbz2-dev
+  - git clone git://github.com/MilleniumStudio/ms_framework.git
+  - mkdir ms_framework/build
+  - cd ms_framework/build
+  - cmake ..
+  - make -j4
+  - sudo make install
+  - cd -
+
+install:
+  # - mysql -uroot -e 'create database test_mysql;'
+  - mkdir build
+  - cd build
+  - cmake .. -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DTOOLS=0 -DCMAKE_BUILD_TYPE=Release
+  - cd ..
+
+#before_script:
+#  - mysql -uroot < sql/create/create_mysql.sql
+#  - mysql -utrinity -ptrinity auth < sql/base/auth_database.sql
+#  - mysql -utrinity -ptrinity characters < sql/base/characters_database.sql
+#  - mysql -utrinity -ptrinity world < sql/base/world_database.sql
+#  - mysql -utrinity -ptrinity monitoring < sql/base/monitoring_database.sql
+#  - cat sql/updates/world/2015/*/*.sql | mysql -utrinity -ptrinity world
+#  - mysql -uroot < sql/create/drop_mysql.sql
+
+script:
+  - cd build
+  - make -j12
+
+notifications:
+  slack: millenium-studio:hJlKAYRaplFP8GVoH5a7FPqv
