@@ -243,7 +243,7 @@ class boss_drov_the_ruiner : public CreatureScript
 
             std::list<uint64> m_GorenList;
 
-            void Reset()
+            void Reset() override
             {
                 m_Events.Reset();
 
@@ -256,13 +256,13 @@ class boss_drov_the_ruiner : public CreatureScript
                 me->SetHealth(m_BaseHP);
             }
 
-            void JustDied(Unit* p_Killer)
+            void JustDied(Unit* p_Killer) override
             {
                 summons.DespawnAll();
                 m_GorenList.clear();
             }
 
-            void JustSummoned(Creature* p_Summoned)
+            void JustSummoned(Creature* p_Summoned) override
             {
                 summons.Summon(p_Summoned);
 
@@ -275,14 +275,14 @@ class boss_drov_the_ruiner : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit*)
+            void EnterCombat(Unit*) override
             {
                 m_Events.ScheduleEvent(eEvents::EventColossalSlam, 6000);
                 m_Events.ScheduleEvent(eEvents::EventCallOfEarth, 18000);
                 m_Events.ScheduleEvent(eEvents::EventGigaSmash, 13000);
             }
 
-            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo)
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
             {
                 if (p_Target == nullptr)
                     return;
@@ -291,7 +291,7 @@ class boss_drov_the_ruiner : public CreatureScript
                     me->CastSpell(p_Target, eSpells::GorenEmerge, true);
             }
 
-            void OnHostileReferenceAdded(Unit* p_Ennemy)
+            void OnHostileReferenceAdded(Unit* p_Ennemy) override
             {
                 if (p_Ennemy->GetTypeId() != TypeID::TYPEID_PLAYER)
                     return;
@@ -309,7 +309,7 @@ class boss_drov_the_ruiner : public CreatureScript
                 me->SetHealth(CalculatePct(me->GetMaxHealth(), l_HealthPct));
             }
 
-            void OnHostileReferenceRemoved(Unit* p_Ennemy)
+            void OnHostileReferenceRemoved(Unit* p_Ennemy) override
             {
                 if (p_Ennemy->GetTypeId() != TypeID::TYPEID_PLAYER)
                     return;
@@ -328,7 +328,7 @@ class boss_drov_the_ruiner : public CreatureScript
                 me->SetHealth(CalculatePct(me->GetMaxHealth(), l_HealthPct));
             }
 
-            void DoAction(int32 const p_Action)
+            void DoAction(int32 const p_Action) override
             {
                 if (p_Action == eAction::ActionGorenSubmerge)
                 {
@@ -342,7 +342,7 @@ class boss_drov_the_ruiner : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const p_Diff)
+            void UpdateAI(uint32 const p_Diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -565,7 +565,7 @@ class npc_drov_rumbling_goren : public CreatureScript
 
             EventMap m_Events;
 
-            void Reset()
+            void Reset() override
             {
                 m_Events.Reset();
 
@@ -580,7 +580,7 @@ class npc_drov_rumbling_goren : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventMove, 1000);
             }
 
-            void DoAction(int32 const p_Action)
+            void DoAction(int32 const p_Action) override
             {
                 if (p_Action == eAction::ActionGorenSubmerge)
                 {
@@ -592,7 +592,7 @@ class npc_drov_rumbling_goren : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const p_Diff)
+            void UpdateAI(uint32 const p_Diff) override
             {
                 m_Events.Update(p_Diff);
 
@@ -651,17 +651,17 @@ class npc_drov_frenzied_rumbler : public CreatureScript
 
             EventMap m_Events;
 
-            void Reset()
+            void Reset() override
             {
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* p_Attacker) override
             {
                 m_Events.ScheduleEvent(eEvent::EventAcidBreath, 5000);
             }
 
-            void UpdateAI(uint32 const p_Diff)
+            void UpdateAI(uint32 const p_Diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -728,7 +728,7 @@ class spell_drov_call_of_earth : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_drov_call_of_earth_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_drov_call_of_earth_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
@@ -790,7 +790,7 @@ class spell_drov_colossal_slam : public SpellScriptLoader
                     l_Caster->CastSpell(l_Caster, eSpell::ColossalSlamAoE, true);
             }
 
-            void Register()
+            void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_drov_colossal_slam_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_129);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_drov_colossal_slam_SpellScript::CorrectTargets, EFFECT_1, TARGET_UNIT_CONE_ENEMY_129);
@@ -844,7 +844,7 @@ class spell_drov_acid_breath : public SpellScriptLoader
                 });
             }
 
-            void Register()
+            void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_drov_acid_breath_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_104);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_drov_acid_breath_SpellScript::CorrectTargets, EFFECT_1, TARGET_UNIT_CONE_ENEMY_104);
