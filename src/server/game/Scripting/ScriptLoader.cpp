@@ -22,6 +22,7 @@
 void AddSC_event_april();
 void AddSC_promotion_new_players();
 void AddSC_first_time_connexion();
+void AddSC_user_reporting();
 //void AddSC_DuelReset();
 
 // spells
@@ -1758,5 +1759,6 @@ void AddCustomScripts()
     AddSC_event_april();
     AddSC_promotion_new_players();
     AddSC_first_time_connexion();
+    AddSC_user_reporting();
 #endif
 }

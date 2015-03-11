@@ -88,14 +88,9 @@ enum WarlockSpells
     WARLOCK_IMP_SWARM                       = 104316,
     WARLOCK_DISRUPTED_NETHER                = 114736,
     WARLOCK_GLYPH_OF_SIPHON_LIFE            = 56218,
-    WARLOCK_SOULBURN_OVERRIDE_1             = 93312,
-    WARLOCK_SOULBURN_OVERRIDE_2             = 93313,
-    WARLOCK_SOULBURN_OVERRIDE_3             = 104245,
-    WARLOCK_SOULBURN_OVERRIDE_4             = 104249,
-    WARLOCK_SOULBURN_OVERRIDE_5             = 104250,
-    WARLOCK_SOULBURN_OVERRIDE_6             = 104251,
-    WARLOCK_SOULBURN_OVERRIDE_7             = 114787,
-    WARLOCK_SEED_OF_CORRUPTION_DUMMY        = 86664,
+    WARLOCK_SOULBURN_OVERRIDE_1             = 93313,
+    WARLOCK_SOULBURN_OVERRIDE_2             = 104249,
+    WARLOCK_SEED_OF_CORRUPTION_DUMMY        = 157697,
     WARLOCK_SOULBURN_DEMONIC_CIRCLE_TELE    = 114794,
     WARLOCK_GRIMOIRE_OF_SUPREMACY_TALENT    = 108499,
     WARLOCK_SUMMON_FEL_IMP                  = 112866,
@@ -136,7 +131,9 @@ enum WarlockSpells
     WARLOCK_SPELL_IMMOLATE_AURA             = 157736,
     WARLOCK_GLYPH_OF_DRAIN_LIFE             = 63302,
     WARLOCK_GLYPH_OF_DARK_SOUL              = 159665,
-    WARLOCK_SPELL_SYPHON_LIFE               = 63106
+    WARLOCK_SPELL_SYPHON_LIFE               = 63106,
+    WARLOCK_SPELL_SOULBURN_HAUNT            = 157698,
+    WARLOCK_SPELL_SOULBURN_HAUNT_AURA       = 152109
 };
 
 // Called by Grimoire: Imp - 111859, Grimoire: Voidwalker - 111895, Grimoire: Succubus - 111896
@@ -223,6 +220,40 @@ class spell_warl_haunt_dispel: public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_warl_haunt_dispel_AuraScript();
+        }
+};
+
+// Haunt - 48181
+class spell_warl_haunt : public SpellScriptLoader
+{
+    public:
+        spell_warl_haunt() : SpellScriptLoader("spell_warl_haunt") { }
+
+        class spell_warl_haunt_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_haunt_SpellScript);
+
+            void HandleOnHit()
+            {
+                Unit* l_Caster = GetCaster();
+
+                /// Your Haunt spell also increases the damage of your damage over time effects.
+                if (l_Caster->HasAura(WARLOCK_SOULBURN_AURA) && l_Caster->HasAura(WARLOCK_SPELL_SOULBURN_HAUNT_AURA))
+                {
+                    l_Caster->CastSpell(l_Caster, WARLOCK_SPELL_SOULBURN_HAUNT, true);
+                    l_Caster->RemoveAurasDueToSpell(WARLOCK_SOULBURN_AURA);
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warl_haunt_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warl_haunt_SpellScript();
         }
 };
 
@@ -397,24 +428,54 @@ class spell_warl_soulburn_seed_of_corruption_damage: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_soulburn_seed_of_corruption_damage_SpellScript);
 
-            void FilterTargets(std::list<WorldObject*>& targets)
+            std::list<uint64> m_Targets;
+
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
             {
-                if (GetExplTargetUnit())
-                    targets.remove(GetExplTargetUnit());
+                for (std::list<WorldObject*>::const_iterator l_It = p_Targets.begin(); l_It != p_Targets.end(); ++l_It)
+                    m_Targets.push_back((*l_It)->GetGUID());
             }
 
-            void HandleScript()
+            void HandleOnHit()
             {
-                // Remove Soul Burn aura
-                if (Unit* caster = GetCaster())
-                    if (caster->HasAura(WARLOCK_SEED_OF_CORRUPTION_DUMMY))
-                        caster->RemoveAurasDueToSpell(WARLOCK_SEED_OF_CORRUPTION_DUMMY);
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                /// Your Seed of Corruption detonation effect will afflict Corruption on all enemy targets.
+                if (l_Caster->HasAura(WARLOCK_SEED_OF_CORRUPTION_DUMMY))
+                    l_Caster->CastSpell(l_Target, WARLOCK_SPELL_CORRUPTION, true);
+            }
+
+            void HandleAfterHit()
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                {
+                    l_Caster->RemoveAurasDueToSpell(WARLOCK_SEED_OF_CORRUPTION_DUMMY);
+                    return;
+                }
+
+                if (m_Targets.size())
+                    m_Targets.remove(l_Target->GetGUID());
+
+                if (!m_Targets.size())
+                {
+                    /// Remove Soul Burn aura
+                    if (l_Caster->HasAura(WARLOCK_SEED_OF_CORRUPTION_DUMMY))
+                        l_Caster->RemoveAurasDueToSpell(WARLOCK_SEED_OF_CORRUPTION_DUMMY);
+                }
             }
 
             void Register()
             {
+                OnHit += SpellHitFn(spell_warl_soulburn_seed_of_corruption_damage_SpellScript::HandleOnHit);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_warl_soulburn_seed_of_corruption_damage_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
-                AfterHit += SpellHitFn(spell_warl_soulburn_seed_of_corruption_damage_SpellScript::HandleScript);
+                AfterHit += SpellHitFn(spell_warl_soulburn_seed_of_corruption_damage_SpellScript::HandleAfterHit);
             }
         };
 
@@ -457,29 +518,11 @@ class spell_warl_soulburn_seed_of_corruption: public SpellScriptLoader
         }
 };
 
-/// Curse of exhaustion is removed in  6.0.2 please clean me
 /// Soulburn - 74434
 class spell_warl_soulburn_override: public SpellScriptLoader
 {
     public:
         spell_warl_soulburn_override() : SpellScriptLoader("spell_warl_soulburn_override") { }
-
-        class spell_warl_soulburn_remove_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warl_soulburn_remove_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Unit* caster = GetCaster())
-                    if (caster->HasAura(WARLOCK_SOULBURN_AURA))
-                        caster->RemoveAurasDueToSpell(WARLOCK_SOULBURN_AURA);
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_warl_soulburn_remove_SpellScript::HandleOnHit);
-            }
-        };
 
         class spell_warl_soulburn_override_AuraScript : public AuraScript
         {
@@ -487,44 +530,22 @@ class spell_warl_soulburn_override: public SpellScriptLoader
 
             void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Unit* player = GetCaster())
-                {
-                    // Overrides Drain Life, Undending Breath and Harvest Life
-                    player->CastSpell(player, WARLOCK_SOULBURN_OVERRIDE_1, true);
-                    // Overrides Seed of Corruption
-                    player->CastSpell(player, WARLOCK_SOULBURN_OVERRIDE_2, true);
-                    // Overrides Curse of Enfeeblement and Curse of Elements
-                    player->CastSpell(player, WARLOCK_SOULBURN_OVERRIDE_3, true);
-                    // Overrides Demonic Circle : Teleport
-                    player->CastSpell(player, WARLOCK_SOULBURN_OVERRIDE_4, true);
-                    // Overrides Curse of Exhaustion
-                    player->CastSpell(player, WARLOCK_SOULBURN_OVERRIDE_5, true);
-                    // Overrides Soul Swap
-                    player->CastSpell(player, WARLOCK_SOULBURN_OVERRIDE_6, true);
-                    // Overrides Health Funnel
-                    player->CastSpell(player, WARLOCK_SOULBURN_OVERRIDE_7, true);
-                }
+                Unit* l_Caster = GetCaster();
+
+                // Overrides Seed of Corruption
+                l_Caster->CastSpell(l_Caster, WARLOCK_SOULBURN_OVERRIDE_1, true);
+                // Overrides Demonic Circle : Teleport
+                l_Caster->CastSpell(l_Caster, WARLOCK_SOULBURN_OVERRIDE_2, true);
             }
 
             void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Unit* player = GetCaster())
-                {
-                    // Overrides Drain Life, Undending Breath and Harvest Life
-                    player->RemoveAura(WARLOCK_SOULBURN_OVERRIDE_1);
-                    // Overrides Seed of Corruption
-                    player->RemoveAura(WARLOCK_SOULBURN_OVERRIDE_2);
-                    // Overrides Curse of Enfeeblement and Curse of Elements
-                    player->RemoveAura(WARLOCK_SOULBURN_OVERRIDE_3);
-                    // Overrides Demonic Circle : Teleport
-                    player->RemoveAura(WARLOCK_SOULBURN_OVERRIDE_4);
-                    // Overrides Curse of Exhaustion
-                    player->RemoveAura(WARLOCK_SOULBURN_OVERRIDE_5);
-                    // Overrides Soul Swap
-                    player->RemoveAura(WARLOCK_SOULBURN_OVERRIDE_6);
-                    // Overrides Health Funnel
-                    player->RemoveAura(WARLOCK_SOULBURN_OVERRIDE_7);
-                }
+                Unit* l_Caster = GetCaster();
+                
+                // Overrides Seed of Corruption
+                l_Caster->RemoveAura(WARLOCK_SOULBURN_OVERRIDE_1);
+                // Overrides Demonic Circle : Teleport
+                l_Caster->RemoveAura(WARLOCK_SOULBURN_OVERRIDE_2);
             }
 
             void Register()
@@ -533,11 +554,6 @@ class spell_warl_soulburn_override: public SpellScriptLoader
                 OnEffectRemove += AuraEffectRemoveFn(spell_warl_soulburn_override_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
             }
         };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warl_soulburn_remove_SpellScript();
-        }
 
         AuraScript* GetAuraScript() const
         {
@@ -1701,26 +1717,36 @@ class spell_warl_soul_swap: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (GetSpellInfo()->Id == WARLOCK_SOUL_SWAP)
-                        {
-                            // Soul Swap override spell
-                            caster->CastSpell(caster, WARLOCK_SOUL_SWAP_AURA, true);
-                            caster->RemoveSoulSwapDOT(target);
-                        }
-                        else if (GetSpellInfo()->Id == WARLOCK_SOUL_SWAP_EXHALE)
-                        {
-                            caster->CastSpell(target, WARLOCK_SOUL_SWAP_VISUAL, true);
-                            caster->ApplySoulSwapDOT(target);
-                            caster->RemoveAurasDueToSpell(WARLOCK_SOUL_SWAP_AURA);
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
 
-                            if (caster->HasAura(WARLOCK_GLYPH_OF_SOUL_SWAP) && caster->ToPlayer())
-                                caster->ToPlayer()->AddSpellCooldown(WARLOCK_SOUL_SWAP, 0, 30 * IN_MILLISECONDS);
-                        }
-                    }
+                if (l_Target == nullptr)
+                    return;
+
+                if (GetSpellInfo()->Id == WARLOCK_SOUL_SWAP)
+                {
+                    // Soul Swap override spell
+                    l_Caster->CastSpell(l_Caster, WARLOCK_SOUL_SWAP_AURA, true);
+                    l_Caster->RemoveSoulSwapDOT(l_Target);
+                }
+                else if (GetSpellInfo()->Id == WARLOCK_SOUL_SWAP_EXHALE)
+                {
+                    l_Caster->CastSpell(l_Target, WARLOCK_SOUL_SWAP_VISUAL, true);
+                    l_Caster->ApplySoulSwapDOT(l_Target);
+                    l_Caster->RemoveAurasDueToSpell(WARLOCK_SOUL_SWAP_AURA);
+
+                    if (l_Caster->HasAura(WARLOCK_GLYPH_OF_SOUL_SWAP) && l_Caster->ToPlayer())
+                        l_Caster->ToPlayer()->AddSpellCooldown(WARLOCK_SOUL_SWAP, 0, 30 * IN_MILLISECONDS);
+                }
+
+                /// Soulburn: Applies Corruption, Unstable Affliction, and Agony without requiring a previous copy.
+                if (l_Caster->HasAura(WARLOCK_SOULBURN_AURA))
+                {
+                    l_Caster->CastSpell(l_Target, WARLOCK_AGONY, true);
+                    l_Caster->CastSpell(l_Target, WARLOCK_SPELL_CORRUPTION, true);
+                    l_Caster->CastSpell(l_Target, WARLOCK_UNSTABLE_AFFLICTION, true);
+                    
+                    l_Caster->RemoveAurasDueToSpell(WARLOCK_SOULBURN_AURA);
                 }
             }
 
@@ -2629,7 +2655,7 @@ class spell_warl_create_healthstone: public SpellScriptLoader
         }
 };
 
-// Seed of Corruption - 27285
+// Seed of Corruption (detonation) - 27285
 class spell_warl_seed_of_corruption: public SpellScriptLoader
 {
     public:
@@ -3087,6 +3113,7 @@ class spell_warl_havoc: public SpellScriptLoader
 
 void AddSC_warlock_spell_scripts()
 {
+    new spell_warl_haunt();
     new spell_warl_glyph_of_nightmares();
     new spell_warl_cataclysm();
     new spell_warl_siphon_life();

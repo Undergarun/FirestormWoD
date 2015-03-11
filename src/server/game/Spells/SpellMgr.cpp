@@ -3341,11 +3341,17 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 144757: /// Increased All Resist 05
+                spellInfo->AttributesEx11 &= ~SPELL_ATTR11_CAST_WITH_ITEM;
+                break;
             case 110744:///< Divine Star - should be 2 sec -- WTF Blizz ?
             case 122121:
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(66);
                 spellInfo->Effects[0].TargetA = SELECT_TARGET_SELF;
                 spellInfo->ExplicitTargetMask = spellInfo->_GetExplicitTargetMask();
+                break;
+            case 175915:///< Acid Breath (Drov the Ruiner)
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
             case 165096:///< Ogreic Landing
                 spellInfo->Effects[1].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
@@ -3754,9 +3760,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 118592: ///< Spinning Crane Kick
                 spellInfo->Effects[0].BasePoints = urand(180, 230);
-                break;
-            case 165381: ///< Righteous Vengeance
-                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MASTERY;
                 break;
             case 48505: ///< Starfall
                 spellInfo->Effects[1].Effect = SPELL_EFFECT_APPLY_AURA;
@@ -4869,6 +4872,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->OverrideSpellList.push_back(115191); ///< Add Stealth (talent) to override spell list of Stealth
                 break;
             case 115191: ///< Subterfuge
+                spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_MOD_STEALTH;
                 spellInfo->AttributesEx |= SPELL_ATTR0_DISABLED_WHILE_ACTIVE;
                 spellInfo->AttributesEx8 |= SPELL_ATTR8_AURA_SEND_AMOUNT;
                 spellInfo->ProcFlags = 0x800A22A8;   ///< 1784 ProcsFlags
@@ -4967,10 +4971,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].Effect = SPELL_EFFECT_APPLY_AURA;
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
-                break;
-            case 162532: ///< Glyph of Mind Harvest
-                spellInfo->ProcChance = 0;
-                spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
             case 162452: ///< Shadowy Insight
                 spellInfo->ProcChance = 0;
@@ -5808,9 +5808,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->MaxAffectedTargets = 1;
                 break;
             case 22568: ///< Ferocious Bite
-                spellInfo->Effects[0].BonusMultiplier = 0.0f;
-                break;
-            case 5221: ///< Shred
+            case 5221:  ///< Shred
+            case 22599: ///< Chromatic Mantle of the Dawn
                 spellInfo->Effects[0].BonusMultiplier = 0.0f;
                 break;
             case 158221: ///< Hurricane Strike (damage)

@@ -408,9 +408,11 @@ class ScriptMgr
         void OnSocketClose(WorldSocket * p_Socket, bool p_WasNew);
 
         /// Called when a packet is sent to a client. The packet object is a copy of the original packet, so reading and modifying it is safe.
-        /// @p_Socket : Socket who send the packet
-        /// @p_Packet : Sent packet
-        void OnPacketReceive(WorldSocket * p_Socket, WorldPacket p_Packet);
+        /// @p_Socket  : Socket who send the packet
+        /// @p_Packet  : Sent packet
+        /// @p_Session : Session who receive the packet /!\ CAN BE NULLPTR
+        void OnPacketReceive(WorldSocket * p_Socket, WorldPacket p_Packet, WorldSession* p_Session = nullptr);
+
         /// Called when a (valid) packet is received by a client. The packet object is a copy of the original packet, so reading and modifying it is safe.
         /// @p_Socket : Socket who received the packet
         /// @p_Packet : Received packet
@@ -692,12 +694,15 @@ class ScriptMgr
         /// Called when a player logs in.
         /// @p_Player : Player instance
         void OnPlayerLogin(Player * p_Player);
+
         /// Called when a player logs out.
         /// @p_Player : Player instance
         void OnPlayerLogout(Player * p_Player);
+
         /// Called when a player is created.
         /// @p_Player : Player instance
         void OnPlayerCreate(Player * p_Player);
+
         /// Called when a player is deleted.
         /// @p_GUID : Player instance
         void OnPlayerDelete(uint64 p_GUID);

@@ -742,6 +742,7 @@ class spell_hun_lone_wolf : public SpellScriptLoader
                     l_Player->removeSpell(LoneWolfes::LoneWolfPrimarStats);
                     l_Player->removeSpell(LoneWolfes::LoneWolfVersatility);
                     l_Player->removeSpell(LoneWolfes::LoneWolfMultistrike);
+                    l_Player->RemoveAura(LoneWolfes::LoneWolfAura);
                 }
             }
 

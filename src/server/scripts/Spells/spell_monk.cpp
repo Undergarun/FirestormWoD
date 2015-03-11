@@ -1292,7 +1292,7 @@ class spell_monk_power_strikes: public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_power_strikes_SpellScript)
 
-            void HandleOnHit()
+            void HandleAfterCast()
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
@@ -1307,7 +1307,7 @@ class spell_monk_power_strikes: public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_monk_power_strikes_SpellScript::HandleOnHit);
+                AfterCast += SpellCastFn(spell_monk_power_strikes_SpellScript::HandleAfterCast);
             }
         };
 
