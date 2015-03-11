@@ -1608,60 +1608,61 @@ class spell_rog_shroud_of_concealment: public SpellScriptLoader
         {
             PrepareSpellScript(spell_rog_shroud_of_concealment_SpellScript);
 
-            void SelectTargets(std::list<WorldObject*>& targets)
+            void SelectTargets(std::list<WorldObject*>& p_Targets)
             {
-                Unit* caster = GetCaster();
-                if (!caster)
+                Unit* l_Caster = GetCaster();
+                
+                if (l_Caster == nullptr)
                     return;
 
                 std::list<WorldObject*> targetsToRemove;
-                targets.remove_if(JadeCore::UnitAuraCheck(true, BG_WS_SPELL_WARSONG_FLAG));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, BG_WS_SPELL_SILVERWING_FLAG));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, BG_KT_SPELL_ORB_PICKED_UP_1));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, BG_KT_SPELL_ORB_PICKED_UP_2));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, BG_KT_SPELL_ORB_PICKED_UP_3));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, BG_KT_SPELL_ORB_PICKED_UP_4));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, BG_KT_ALLIANCE_INSIGNIA));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, BG_KT_HORDE_INSIGNIA));
+                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, BG_WS_SPELL_WARSONG_FLAG));
+                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, BG_WS_SPELL_SILVERWING_FLAG));
+                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, BG_KT_SPELL_ORB_PICKED_UP_1));
+                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, BG_KT_SPELL_ORB_PICKED_UP_2));
+                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, BG_KT_SPELL_ORB_PICKED_UP_3));
+                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, BG_KT_SPELL_ORB_PICKED_UP_4));
+                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, BG_KT_ALLIANCE_INSIGNIA));
+                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, BG_KT_HORDE_INSIGNIA));
 
-                for (auto itr : targets)
+                for (auto itr : p_Targets)
                 {
-                    if (Unit* target = itr->ToUnit())
+                    if (Unit* l_Target = itr->ToUnit())
                     {
-                        if ((!target->IsInRaidWith(caster) && !target->IsInPartyWith(caster)) ||
-                            target->isInCombat() || target->HasUnitState(UNIT_STATE_CASTING))
+                        if ((!l_Target->IsInRaidWith(l_Caster) && !l_Target->IsInPartyWith(l_Caster)) ||
+                            l_Target->isInCombat() || l_Target->HasUnitState(UNIT_STATE_CASTING))
                             targetsToRemove.push_back(itr);
                     }
                 }
 
                 for (auto itr : targetsToRemove)
-                    targets.remove(itr);
+                    p_Targets.remove(itr);
             }
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (AuraPtr l_ShroudOfConcealment = l_Target->GetAura(ROGUE_SPELL_SHROUD_OF_CONCEALMENT_AURA, l_Caster->GetGUID()))
                 {
-                    if (Unit* target = GetHitUnit())
+                    if ((!l_Target->IsInRaidWith(l_Caster) && !l_Target->IsInPartyWith(l_Caster)) ||
+                        l_Target->isInCombat() || l_Target->HasUnitState(UNIT_STATE_CASTING) ||
+                        l_Target->HasAura(BG_WS_SPELL_WARSONG_FLAG) || l_Target->HasAura(BG_WS_SPELL_SILVERWING_FLAG) ||
+                        l_Target->HasAura(BG_KT_SPELL_ORB_PICKED_UP_1) || l_Target->HasAura(BG_KT_SPELL_ORB_PICKED_UP_2) ||
+                        l_Target->HasAura(BG_KT_SPELL_ORB_PICKED_UP_3) || l_Target->HasAura(BG_KT_SPELL_ORB_PICKED_UP_4))
                     {
-                        if (AuraPtr shroudOfConcealment = target->GetAura(ROGUE_SPELL_SHROUD_OF_CONCEALMENT_AURA, caster->GetGUID()))
-                        {
-                            if ((!target->IsInRaidWith(caster) && !target->IsInPartyWith(caster)) ||
-                                target->isInCombat() || target->HasUnitState(UNIT_STATE_CASTING) ||
-                                target->HasAura(BG_WS_SPELL_WARSONG_FLAG) || target->HasAura(BG_WS_SPELL_SILVERWING_FLAG) ||
-                                target->HasAura(BG_KT_SPELL_ORB_PICKED_UP_1) ||target->HasAura(BG_KT_SPELL_ORB_PICKED_UP_2) ||
-                                target->HasAura(BG_KT_SPELL_ORB_PICKED_UP_3) ||target->HasAura(BG_KT_SPELL_ORB_PICKED_UP_4))
-                            {
-                                target->RemoveAura(ROGUE_SPELL_SHROUD_OF_CONCEALMENT_AURA, caster->GetGUID());
-                            }
-                        }
+                        l_Target->RemoveAura(ROGUE_SPELL_SHROUD_OF_CONCEALMENT_AURA, l_Caster->GetGUID());
                     }
                 }
             }
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_rog_shroud_of_concealment_SpellScript::SelectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_rog_shroud_of_concealment_SpellScript::SelectTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
                 OnHit += SpellHitFn(spell_rog_shroud_of_concealment_SpellScript::HandleOnHit);
             }
         };
