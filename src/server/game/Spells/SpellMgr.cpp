@@ -3993,8 +3993,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 52743: ///< Head Smack
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_REQ_TARGET_FACING_CASTER;
                 break;
-            case 53:    ///< Backstab
-            case 8676:  ///< Ambush
             case 21987: ///< Lash of Pain
             case 58563: ///< Assassinate Restless Lookout
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET;
