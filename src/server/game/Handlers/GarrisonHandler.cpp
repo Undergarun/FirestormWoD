@@ -292,7 +292,7 @@ void WorldSession::HandleGarrisonPurchaseBuildingOpcode(WorldPacket & p_RecvData
     p_RecvData >> l_PlotInstanceID;
     p_RecvData >> l_BuildingID;
 
-    sGarrisonBuildingManager->LearnAllowedBuildings(m_Player);
+    sGarrisonBuildingManager->LearnAllowedBuildings(m_Player, l_Garrison);
 
     Creature* l_Unit = GetPlayer()->GetNPCIfCanInteractWithFlag2(l_NpcGUID, UNIT_NPC_FLAG2_GARRISON_ARCHITECT);
 
