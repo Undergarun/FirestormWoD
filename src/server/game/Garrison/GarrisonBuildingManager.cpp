@@ -42,7 +42,7 @@ namespace MS { namespace Garrison
         if (!p_Player || !p_Garrison)
             return;
 
-        auto l_KnownBluePrints = p_Player->GetGarrison()->GetKnownBlueprints();
+        auto l_KnownBluePrints = p_Garrison->GetKnownBlueprints();
 
         for (int32 l_BluePrint : m_AllowedBluePrints)
         {
