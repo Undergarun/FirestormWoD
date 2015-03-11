@@ -1527,7 +1527,8 @@ class spell_warr_execute: public SpellScriptLoader
 
 enum WhirlwindSpells
 {
-    SPELL_WARR_WHIRLWIND_OFFHAND = 44949
+    SpellWarrWirlwindOffHand    = 44949,
+    SpellWarrWirlwindSpeArms    = 168695
 };
 
 /// Whirlwind - 1680
@@ -1548,7 +1549,7 @@ public:
                 return;
 
             if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_FURY)
-                l_Player->CastSpell(l_Target, SPELL_WARR_WHIRLWIND_OFFHAND, true);
+                l_Player->CastSpell(l_Target, WhirlwindSpells::SpellWarrWirlwindOffHand, true);
         }
 
         void HandleNormalizedWeaponDamage(SpellEffIndex p_EffIndex)
@@ -1572,7 +1573,7 @@ public:
             if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
             {
                 PreventHitDefaultEffect(p_EffIndex);
-                l_Player->CastSpell(l_Player, 168695, true);
+                l_Player->CastSpell(l_Player, WhirlwindSpells::SpellWarrWirlwindSpeArms, true);
             }
         }
 
