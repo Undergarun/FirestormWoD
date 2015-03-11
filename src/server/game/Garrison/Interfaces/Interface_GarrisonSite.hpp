@@ -42,8 +42,9 @@ namespace MS { namespace Garrison { namespace Interfaces
             virtual bool CanUseGarrisonCache(Player * p_Owner) = 0;
 
             /// Can upgrade the garrison
-            /// @p_Owner : Garrison owner
-            virtual bool CanUpgrade(Player * p_Owner) = 0;
+            /// @p_Owner                : Garrison owner
+            /// @p_CurrentGarrisonLevel : Current garrison level
+            virtual bool CanUpgrade(Player * p_Owner, uint32 p_CurrentGarrisonLevel) = 0;
             /// On upgrade the garrison
             /// @p_Owner : Garrison owner
             virtual void OnUpgrade(Player * p_Owner) = 0;

@@ -62,7 +62,8 @@ namespace MS { namespace Garrison
         QUEST_BUILD_YOUR_BARRACKS                 = 34461,
         Horde_LostInTransition                    = 37060,
         Horde_YourFirstBlacksmithingWorkOrder     = 37569,
-        Horde_BiggerIsBetter                      = 36567
+        Horde_BiggerIsBetter                      = 36567,
+        Horde_YourFirstTailoringWorkOrder         = 37575
 
     };
 
