@@ -134,7 +134,7 @@ namespace MS { namespace Garrison
             }
         }
 
-        sGarrisonBuildingManager->LearnAllowedBuildings(m_Owner);
+        sGarrisonBuildingManager->LearnAllowedBuildings(m_Owner, this);
 
         /// Learn garrison taxinodes
         if (m_Owner->getFaction() == HORDE)
@@ -482,7 +482,7 @@ namespace MS { namespace Garrison
                 }
             }
 
-            sGarrisonBuildingManager->LearnAllowedBuildings(m_Owner);
+            sGarrisonBuildingManager->LearnAllowedBuildings(m_Owner, this);
 
             return true;
         }
