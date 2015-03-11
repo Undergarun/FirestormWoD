@@ -36,7 +36,7 @@ extern DB2Storage <ItemExtendedCostEntry>           sItemExtendedCostStore;
 extern DB2Storage <ItemSparseEntry>                 sItemSparseStore;
 extern DB2Storage <ItemEffectEntry>                 sItemEffectStore;
 extern DB2Storage <HeirloomEntry>                   sHeirloomStore;
-extern DB2Storage<PvpItemEntry>                     sPvpItemStore;
+extern DB2Storage <PvpItemEntry>                    sPvpItemStore;
 extern DB2Storage <ItemModifiedAppearanceEntry>     sItemModifiedAppearanceStore;
 extern DB2Storage <ItemAppearanceEntry>             sItemAppearanceStore;
 extern DB2Storage <SpellReagentsEntry>              sSpellReagentsStore;
@@ -62,6 +62,7 @@ extern DB2Storage <QuestPackageItemEntry>           sQuestPackageItemStore;
 extern DB2Storage <MountEntry>                      sMountStore;
 extern DB2Storage <PlayerConditionEntry>            sPlayerConditionStore;
 extern DB2Storage <VignetteEntry>                   sVignetteStore;
+extern DB2Storage <GlyphRequiredSpecEntry>          sGlyphRequiredSpecStore;
 
 //////////////////////////////////////////////////////////////////////////
 /// Garrison DB2

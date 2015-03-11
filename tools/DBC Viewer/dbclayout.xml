@@ -3312,8 +3312,8 @@
       <primary>field0</primary>
     </index>
     <field type="int" name="field0" />
-    <field type="int" name="field1" />
-    <field type="int" name="field2" />
+    <field type="string" name="field1" />
+    <field type="string" name="field2" />
     <field type="int" name="field3" />
     <field type="int" name="field4" />
   </SceneScript>
@@ -3322,7 +3322,7 @@
       <primary>field0</primary>
     </index>
     <field type="int" name="field0" />
-    <field type="int" name="field1" />
+    <field type="string" name="field1" />
   </SceneScriptPackage>
   <SceneScriptPackageMember build="0">
     <index>
@@ -4073,9 +4073,9 @@
       <primary>field0</primary>
     </index>
     <field type="int" name="field0" />
-    <field type="int" name="field1" />
-    <field type="int" name="field2" />
-    <field type="int" name="field3" />
+    <field type="float" name="field1" />
+    <field type="float" name="field2" />
+    <field type="float" name="field3" />
     <field type="int" name="field4" />
     <field type="int" name="field5" />
     <field type="int" name="field6" />
@@ -4170,4 +4170,44 @@
     <field type="int" name="field0" />
     <field type="int" name="field1" />
   </UiTextureKit>
+  <BroadcastText build="0">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="MsgType" />
+    <field type="string" name="Text0" />
+    <field type="string" name="Text1" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+    <field type="int" name="field7" />
+    <field type="int" name="field8" />
+    <field type="int" name="field9" />
+    <field type="int" name="SoundID" />
+    <field type="int" name="EmoteID" />
+    <field type="int" name="field12" />
+  </BroadcastText>
+  <Path build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+    <field type="int" name="field7" />
+  </Path>
+  <PathNode build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+  </PathNode>
 </DBFilesClient>

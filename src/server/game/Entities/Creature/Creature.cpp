@@ -1321,23 +1321,30 @@ void Creature::SelectLevel(const CreatureTemplate* cinfo)
         level = bg_level;
 
     SetLevel(level);
+    UpdateStatsForLevel();
+}
 
-    CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(level, cinfo->unit_class);
+void Creature::UpdateStatsForLevel()
+{
+    CreatureTemplate  const* l_CreatureTemplate = GetCreatureTemplate();
+    CreatureBaseStats const* l_Stats            = sObjectMgr->GetCreatureBaseStats(GetUInt32Value(UNIT_FIELD_LEVEL), l_CreatureTemplate->unit_class);
 
-    // health
-    float healthmod = _GetHealthMod(rank);
+    uint32 l_Rank = isPet() ? 0 : l_CreatureTemplate->rank;
 
-    uint32 basehp = stats->GenerateHealth(cinfo);
-    uint32 health = uint32(basehp * healthmod);
+    /// Health
+    float l_HeathMod = _GetHealthMod(l_Rank);
 
-    SetCreateHealth(health);
-    SetMaxHealth(health);
-    SetHealth(health);
+    uint32 l_BaseHP = l_Stats->GenerateHealth(l_CreatureTemplate);
+    uint32 l_Health = uint32(l_BaseHP * l_HeathMod);
+
+    SetCreateHealth(l_Health);
+    SetMaxHealth(l_Health);
+    SetHealth(l_Health);
     ResetPlayerDamageReq();
 
-    // mana
-    uint32 mana = stats->GenerateMana(cinfo);
-    SetCreateMana(mana);
+    /// Mana
+    uint32 l_Mana = l_Stats->GenerateMana(l_CreatureTemplate);
+    SetCreateMana(l_Mana);
 
     switch (getClass())
     {
@@ -1353,30 +1360,30 @@ void Creature::SelectLevel(const CreatureTemplate* cinfo)
             break;
         default:
             setPowerType(POWER_MANA);
-            SetMaxPower(POWER_MANA, mana);
-            SetPower(POWER_MANA, mana);
+            SetMaxPower(POWER_MANA, l_Mana);
+            SetPower(POWER_MANA, l_Mana);
             break;
     }
 
-    SetModifierValue(UNIT_MOD_HEALTH, BASE_VALUE, (float)health);
-    SetModifierValue(UNIT_MOD_MANA, BASE_VALUE, (float)mana);
+    SetModifierValue(UNIT_MOD_HEALTH, BASE_VALUE, (float)l_Health);
+    SetModifierValue(UNIT_MOD_MANA, BASE_VALUE, (float)l_Mana);
 
-    //damage
-    float basedamage = stats->GenerateBaseDamage(cinfo);
-    float weaponBaseMinDamage = basedamage;
-    float weaponBaseMaxDamage = basedamage * 1.5f;
+    /// Damage
+    float l_BaseDamage          = l_Stats->GenerateBaseDamage(l_CreatureTemplate);
+    float l_WeaponBaseMinDamage = l_BaseDamage;
+    float l_WeaponBaseMaxDamage = l_BaseDamage * 1.5f;
 
-    SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MINDAMAGE, weaponBaseMinDamage);
-    SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MAXDAMAGE, weaponBaseMaxDamage);
+    SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MINDAMAGE, l_WeaponBaseMinDamage);
+    SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MAXDAMAGE, l_WeaponBaseMaxDamage);
 
-    SetBaseWeaponDamage(WeaponAttackType::OffAttack, MINDAMAGE, weaponBaseMinDamage);
-    SetBaseWeaponDamage(WeaponAttackType::OffAttack, MAXDAMAGE, weaponBaseMaxDamage);
+    SetBaseWeaponDamage(WeaponAttackType::OffAttack, MINDAMAGE, l_WeaponBaseMinDamage);
+    SetBaseWeaponDamage(WeaponAttackType::OffAttack, MAXDAMAGE, l_WeaponBaseMaxDamage);
 
-    SetBaseWeaponDamage(WeaponAttackType::RangedAttack, MINDAMAGE, weaponBaseMinDamage);
-    SetBaseWeaponDamage(WeaponAttackType::RangedAttack, MAXDAMAGE, weaponBaseMaxDamage);
+    SetBaseWeaponDamage(WeaponAttackType::RangedAttack, MINDAMAGE, l_WeaponBaseMinDamage);
+    SetBaseWeaponDamage(WeaponAttackType::RangedAttack, MAXDAMAGE, l_WeaponBaseMaxDamage);
 
-    SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, stats->AttackPower);
-    SetModifierValue(UNIT_MOD_ATTACK_POWER_RANGED, BASE_VALUE, stats->RangedAttackPower);
+    SetModifierValue(UNIT_MOD_ATTACK_POWER,        BASE_VALUE, l_Stats->AttackPower);
+    SetModifierValue(UNIT_MOD_ATTACK_POWER_RANGED, BASE_VALUE, l_Stats->RangedAttackPower);
 }
 
 float Creature::_GetHealthMod(int32 Rank)

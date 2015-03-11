@@ -488,76 +488,82 @@ class spell_mastery_icicles: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
                         // Calculate damage
-                        int32 hitDamage = GetHitDamage();
-                        if (GetSpell()->IsCritForTarget(target))
-                            hitDamage *= 2;
-                        float Mastery = (_player->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f) / 100.0f;
-                        hitDamage *= Mastery;
+                        int32 l_Damage = GetHitDamage();
+                        if (GetSpell()->IsCritForTarget(l_Target))
+                            l_Damage *= 2;
 
-                        int8 currentMaxAura = 0;
+                        /// Prevent huge hits on player after hitting low level creatures
+                        if (l_Player->getLevel() > l_Target->getLevel())
+                            l_Damage = std::min((uint32)l_Damage, l_Target->GetMaxHealth());
+
+                        l_Damage *= ((l_Player->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f) / 100.0f);
+
+                        int8 l_CurrMaxAura = 0;
 
                         // if hitDamage == 0 we have a miss, so we need to except this variant
-                        if (_player->HasAura(SPELL_MAGE_MASTERY_ICICLES) && hitDamage != 0)
+                        if (l_Player->HasAura(SPELL_MAGE_MASTERY_ICICLES) && l_Damage != 0)
                         {
                             // We need to find how much icicles we have, and which is the last.
-                            for (int i = 0; i < 5; i++)
-                                if (_player->HasAura(IcicleAuras[i]))
-                                    currentMaxAura = i+1;
+                            for (int l_I = 0; l_I < 5; l_I++)
+                            {
+                                if (l_Player->HasAura(IcicleAuras[l_I]))
+                                    l_CurrMaxAura = l_I + 1;
+                            }
 
-                            switch (currentMaxAura)
+                            switch (l_CurrMaxAura)
                             {
                                 case 0:
-                                    _player->AddAura(IcicleAuras[0], _player);
+                                    l_Player->AddAura(IcicleAuras[0], l_Player);
                                     break;
                                 case 1:
-                                    _player->AddAura(IcicleAuras[1], _player);
+                                    l_Player->AddAura(IcicleAuras[1], l_Player);
                                     break;
                                 case 2:
-                                    _player->AddAura(IcicleAuras[2], _player);
+                                    l_Player->AddAura(IcicleAuras[2], l_Player);
                                     break;
                                 case 3:
-                                    _player->AddAura(IcicleAuras[3], _player);
+                                    l_Player->AddAura(IcicleAuras[3], l_Player);
                                     break;
                                 case 4:
-                                    _player->AddAura(IcicleAuras[4], _player);
+                                    l_Player->AddAura(IcicleAuras[4], l_Player);
                                     break;
                                 case 5:
                                 {
                                     // We need to find an icicle, with the smallest duration.
-                                    int32 minDuration = 0;
-                                    int32 smallestIcicle = 0;
-                                    if (AuraPtr icicleCurrentAura = _player->GetAura(IcicleAuras[smallestIcicle]))
-                                        minDuration = _player->GetAura(IcicleAuras[0])->GetDuration();
+                                    int32 l_MinDur = 0;
+                                    int32 l_SmallestIcicle = 0;
+                                    if (AuraPtr l_CurrAura = l_Player->GetAura(IcicleAuras[l_SmallestIcicle]))
+                                        l_MinDur = l_Player->GetAura(IcicleAuras[0])->GetDuration();
 
-                                    for (int i = 1; i < 5; i++)
+                                    for (int l_I = 1; l_I < 5; l_I++)
                                     {
-                                        if (AuraPtr tmpCurrentAura = _player->GetAura(IcicleAuras[i]))
+                                        if (AuraPtr l_TmpCurrAura = l_Player->GetAura(IcicleAuras[l_I]))
                                         {
-                                            if (minDuration > tmpCurrentAura->GetDuration())
+                                            if (l_MinDur > l_TmpCurrAura->GetDuration())
                                             {
-                                                minDuration = tmpCurrentAura->GetDuration();
-                                                smallestIcicle = i;
+                                                l_MinDur = l_TmpCurrAura->GetDuration();
+                                                l_SmallestIcicle = l_I;
                                             }
                                         }
                                     }
 
-                                    if (AuraPtr icicleCurrentAura = _player->GetAura(IcicleAuras[smallestIcicle]))
+                                    if (AuraPtr l_CurrAura = l_Player->GetAura(IcicleAuras[l_SmallestIcicle]))
                                     {
-                                        int32 basepoints = icicleCurrentAura->GetEffect(0)->GetAmount();
-                                        _player->CastSpell(target, IcicleHits[smallestIcicle], true);
-                                        _player->CastCustomSpell(target, SPELL_MAGE_ICICLE_DAMAGE, &basepoints, NULL, NULL, true);
-                                        _player->RemoveAura(IcicleAuras[smallestIcicle]);
+                                        int32 l_BP = l_CurrAura->GetEffect(0)->GetAmount();
+                                        l_Player->CastSpell(l_Target, IcicleHits[l_SmallestIcicle], true);
+                                        l_Player->CastCustomSpell(l_Target, SPELL_MAGE_ICICLE_DAMAGE, &l_BP, NULL, NULL, true);
+                                        l_Player->RemoveAura(IcicleAuras[l_SmallestIcicle]);
                                     }
 
-                                    _player->AddAura(IcicleAuras[smallestIcicle], _player);
+                                    l_Player->AddAura(IcicleAuras[l_SmallestIcicle], l_Player);
 
-                                    if (AuraPtr icicleCurrentAura = _player->GetAura(IcicleAuras[smallestIcicle]))
-                                        icicleCurrentAura->GetEffect(0)->SetAmount(int32(hitDamage));
+                                    if (AuraPtr l_CurrAura = l_Player->GetAura(IcicleAuras[l_SmallestIcicle]))
+                                        l_CurrAura->GetEffect(0)->SetAmount(int32(l_Damage));
 
                                     IcicleOverstack = true;
                                     break;
@@ -565,8 +571,10 @@ class spell_mastery_icicles: public SpellScriptLoader
                             }
 
                             if (IcicleOverstack == false)
-                                if (AuraPtr icicleCurrentAura = _player->GetAura(IcicleAuras[currentMaxAura]))
-                                    icicleCurrentAura->GetEffect(0)->SetAmount(hitDamage);
+                            {
+                                if (AuraPtr l_CurrAura = l_Player->GetAura(IcicleAuras[l_CurrMaxAura]))
+                                    l_CurrAura->GetEffect(0)->SetAmount(l_Damage);
+                            }
                         }
                     }
                 }

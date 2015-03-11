@@ -963,6 +963,7 @@ class WorldObject : public Object, public WorldLocation
 
         bool IsInBetween(const WorldObject* obj1, const WorldObject* obj2, float size = 0) const;
         bool IsInAxe(const WorldObject* obj1, const WorldObject* obj2, float size = 0) const;
+        bool IsInAxe(WorldObject const* p_Object, float p_Width, float p_Range) const;
 
         virtual void CleanupsBeforeDelete(bool finalCleanup = true);  // used in destructor or explicitly before mass creature delete to remove cross-references to already deleted units
 

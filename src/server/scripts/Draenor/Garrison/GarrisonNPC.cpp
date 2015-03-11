@@ -18,8 +18,13 @@
 #include "Buildings/Alliance/ATheForge.hpp"
 #include "Buildings/Alliance/ADwarvenBunker.hpp"
 #include "Buildings/Alliance/ABarracks.hpp"
+#include "Buildings/Alliance/ATradingPost.hpp"
+#include "Buildings/Alliance/ATailoringEmporium.hpp"
 
 #include "Buildings/Horde/HTheForge.hpp"
+#include "Buildings/Horde/HTradingPost.hpp"
+#include "Buildings/Horde/HWarMill.hpp"
+#include "Buildings/Horde/HTailoringEmporium.hpp"
 
 #include <random>
 
@@ -237,6 +242,9 @@ namespace MS { namespace Garrison
                                                                     gGarrisonCreationCoords[l_TeamID][3]);
             p_Player->SendMovieStart(l_MovieID);
 
+            p_Player->RemoveRewardedQuest(Quests::Alliance_BiggerIsBetter);
+            p_Player->RemoveRewardedQuest(Quests::Horde_BiggerIsBetter);
+
             if (l_TeamID == TEAM_ALLIANCE && p_Player->GetQuestStatus(Quests::QUEST_ETABLISH_YOUR_GARRISON_A) != QUEST_STATUS_REWARDED)
             {
                 p_Player->AddQuest(sObjectMgr->GetQuestTemplate(Quests::QUEST_ETABLISH_YOUR_GARRISON_A), p_Creature);
@@ -256,8 +264,8 @@ namespace MS { namespace Garrison
         }
         else
         {
-            if (p_Player->GetCurrency(Globals::CurrencyID, false))
-                p_Player->ModifyCurrency(Globals::CurrencyID, -(int32)p_Player->GetCurrency(Globals::CurrencyID, false));
+            if (p_Player->HasCurrency(Globals::CurrencyID, 200))
+                p_Player->ModifyCurrency(Globals::CurrencyID, -200);
 
             p_Player->DeleteGarrison();
         }
@@ -401,6 +409,13 @@ void AddSC_Garrison_NPC()
         new MS::Garrison::npc_TharisStrongcast;
         new MS::Garrison::npc_Segumi;
         new MS::Garrison::npc_RonAshton;
+
+        /// Trading post
+        new MS::Garrison::npc_TraderJoseph;
+
+        /// TailoringEmporium
+        new MS::Garrison::npc_ChristopherMacdonald;
+        new MS::Garrison::npc_KaylieMacdonald;
     }
 
     /// Horde
@@ -412,6 +427,8 @@ void AddSC_Garrison_NPC()
         new MS::Garrison::npc_SergeantGrimjaw;
         new MS::Garrison::npc_SeniorPeonII;
         new MS::Garrison::npc_Gazlowe;
+
+        /// War Mill
         new MS::Garrison::npc_GrunLek;
         new MS::Garrison::npc_FrostWallGrunt;
         new MS::Garrison::npc_FrostWallSmith;
@@ -419,5 +436,12 @@ void AddSC_Garrison_NPC()
         /// The forge
         new MS::Garrison::npc_OrgekIronhand;
         new MS::Garrison::npc_Kinja;
+
+        /// Trading post
+        new MS::Garrison::npc_FaylaFairfeather;
+
+        /// Tailoring Emporium
+        new MS::Garrison::npc_WarraTheWeaver;
+        new MS::Garrison::npc_Turga;
     }
 }

@@ -169,6 +169,7 @@ include_directories(
   ${MYSQL_INCLUDE_DIR}
   ${CURL_INCLUDE_DIR}
   ${EASYJSON_INCLUDE_DIR}
+  ${MSFRAMEWORK_INCLUDE_DIR}
 )
 
 add_library(scripts STATIC

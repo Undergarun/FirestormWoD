@@ -504,20 +504,9 @@ void WorldSession::HandlePageTextQueryOpcode(WorldPacket& p_Packet)
     p_Packet >> l_PageTextID;
     p_Packet.readPackGUID(l_ItemGUID);
 
-    if (IS_UNIT_GUID(l_ItemGUID))
-    {
-        if (Unit * l_Unit = Unit::GetUnit(*(GetPlayer()), l_ItemGUID))
-            sLog->outError(LOG_FILTER_NETWORKIO, "Received CMSG_PAGE_TEXT_QUERY. Unit Entry: %u", l_Unit->GetEntry());
-    }
-    else if (IS_GAMEOBJECT_GUID(l_ItemGUID))
-    {
-        if (GameObject * l_GameObject = GetPlayer()->GetMap()->GetGameObject(l_ItemGUID))
-            sLog->outError(LOG_FILTER_NETWORKIO, "Received CMSG_PAGE_TEXT_QUERY. Gameobject Entry: %u", l_GameObject->GetEntry());
-    }
-
     while (l_PageTextID)
     {
-        const PageText * l_PageText = sObjectMgr->GetPageText(l_PageTextID);
+        PageText const* l_PageText = sObjectMgr->GetPageText(l_PageTextID);
 
         WorldPacket l_Data(SMSG_PAGE_TEXT_QUERY_RESPONSE, 50);
         l_Data << uint32(l_PageTextID);                             ///< Page Text ID
@@ -528,10 +517,12 @@ void WorldSession::HandlePageTextQueryOpcode(WorldPacket& p_Packet)
         {
             std::string l_Text = l_PageText->Text;
 
-            int loc_idx = GetSessionDbLocaleIndex();
-            if (loc_idx >= 0)
-                if (PageTextLocale const* player = sObjectMgr->GetPageTextLocale(l_PageTextID))
-                    ObjectMgr::GetLocaleString(player->Text, loc_idx, l_Text);
+            int l_Locale = GetSessionDbLocaleIndex();
+            if (l_Locale >= 0)
+            {
+                if (PageTextLocale const* l_PageTxtLocale = sObjectMgr->GetPageTextLocale(l_PageTextID))
+                    ObjectMgr::GetLocaleString(l_PageTxtLocale->Text, l_Locale, l_Text);
+            }
 
             l_Data << uint32(l_PageTextID);                         ///< ID
             l_Data << uint32(l_PageText->NextPage);                 ///< Next Page ID

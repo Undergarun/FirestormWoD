@@ -22,6 +22,7 @@
 void AddSC_event_april();
 void AddSC_promotion_new_players();
 void AddSC_first_time_connexion();
+void AddSC_user_reporting();
 //void AddSC_DuelReset();
 
 // spells
@@ -848,7 +849,12 @@ void AddSC_outdoorpvp_na();
 void AddSC_outdoorpvp_si();
 void AddSC_outdoorpvp_tf();
 void AddSC_outdoorpvp_zm();
-void AddSC_OutdoorPvPAshran();
+void AddSC_AshranMgr();
+void AddSC_AshranNPCAlliance();
+void AddSC_AshranNPCHorde();
+void AddSC_AshranSpells();
+void AddSC_AshranNPCNeutral();
+void AddSC_AshranQuest();
 
 // player
 void AddSC_chat_log();
@@ -1724,7 +1730,12 @@ void AddOutdoorPvPScripts()
     AddSC_outdoorpvp_si();
     AddSC_outdoorpvp_tf();
     AddSC_outdoorpvp_zm();
-    AddSC_OutdoorPvPAshran();
+    AddSC_AshranMgr();
+    AddSC_AshranNPCAlliance();
+    AddSC_AshranNPCHorde();
+    AddSC_AshranSpells();
+    AddSC_AshranNPCNeutral();
+    AddSC_AshranQuest();
 #endif
 }
 
@@ -1748,5 +1759,6 @@ void AddCustomScripts()
     AddSC_event_april();
     AddSC_promotion_new_players();
     AddSC_first_time_connexion();
+    AddSC_user_reporting();
 #endif
 }

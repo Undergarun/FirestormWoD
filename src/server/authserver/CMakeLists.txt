@@ -81,6 +81,7 @@ include_directories(
   ${OPENSSL_INCLUDE_DIR}
   ${EASYJSON_INCLUDE_DIR}
   ${CURL_INCLUDE_DIR}
+  ${MSFRAMEWORK_INCLUDE_DIR}
 )
 
 add_executable(authserver
@@ -108,6 +109,7 @@ target_link_libraries(authserver
   ${OPENSSL_EXTRA_LIBRARIES}
   ${OSX_LIBS}
   ${CURL_LIBRARIES}
+  ${MSFRAMEWORK_LIBRARIES}
 )
 
 if( WIN32 )

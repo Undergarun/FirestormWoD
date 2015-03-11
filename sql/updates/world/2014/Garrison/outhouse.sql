@@ -1,0 +1,1 @@
+UPDATE gameobject_template a SET ScriptName="go_garrison_outhouse" WHERE a.type=7 AND a.flags=64 AND a.data3=40427;

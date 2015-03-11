@@ -2208,17 +2208,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     }
                     break;
                 }
-                case 22812: // Glyph of Barkskin
-                {
-                    if (apply)
-                    {
-                        if (caster->HasAura(63057))
-                            caster->AddAura(63058, caster);
-                    }
-                    else
-                        caster->RemoveAura(63058);
-                    break;
-                }
                 default:
                     break;
             }

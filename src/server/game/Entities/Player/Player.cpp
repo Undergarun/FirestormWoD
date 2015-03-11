@@ -1000,6 +1000,16 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     /// Unlock WoD heroic dungeons
     if (uint32 l_QuestBit = GetQuestUniqueBitFlag(37213))   ///< FLAG - Proving Grounds - Damage Silver
         m_CompletedQuestBits.SetBit(l_QuestBit - 1);
+    if (uint32 l_QuestBit = GetQuestUniqueBitFlag(33090))   ///< FLAG - Proving Grounds - Damage Silver
+        m_CompletedQuestBits.SetBit(l_QuestBit - 1);
+    if (uint32 l_QuestBit = GetQuestUniqueBitFlag(33096))   ///< FLAG - Proving Grounds - Healer Silver
+        m_CompletedQuestBits.SetBit(l_QuestBit - 1);
+    if (uint32 l_QuestBit = GetQuestUniqueBitFlag(37219))   ///< FLAG - Proving Grounds - Healer Silver
+        m_CompletedQuestBits.SetBit(l_QuestBit - 1);
+    if (uint32 l_QuestBit = GetQuestUniqueBitFlag(37216))   ///< FLAG - Proving Grounds - Tank Silver
+        m_CompletedQuestBits.SetBit(l_QuestBit - 1);
+    if (uint32 l_QuestBit = GetQuestUniqueBitFlag(33093))   ///< FLAG - Proving Grounds - Tank Silver
+        m_CompletedQuestBits.SetBit(l_QuestBit - 1);
 
     ///////////////////////////////////////////////////////////
 }
@@ -4194,6 +4204,9 @@ void Player::GiveLevel(uint8 level)
     }
 
     sScriptMgr->OnPlayerLevelChanged(this, oldLevel);
+
+    if (m_Garrison)
+        m_Garrison->OnOwnerLevelChange(level);
 }
 
 void Player::InitTalentForLevel()
@@ -5868,38 +5881,90 @@ bool Player::ResetTalents(bool no_cost)
 
 void Player::ResetSpec(bool p_NoCost /* = false */)
 {
-    uint32 cost = 0;
+    uint32 l_Cost = 0;
 
     if (!sWorld->getBoolConfig(CONFIG_NO_RESET_TALENT_COST) && !p_NoCost)
     {
-        cost = GetNextResetSpecializationCost();
+        l_Cost = GetNextResetSpecializationCost();
 
-        if (!HasEnoughMoney(uint64(cost)))
+        if (!HasEnoughMoney(uint64(l_Cost)))
         {
             SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, 0, 0, 0);
             return;
         }
+
         if (isInCombat())
         {
-                SendEquipError(EQUIP_ERR_NOT_IN_COMBAT, 0, 0, 0);
-                return;
+            SendEquipError(EQUIP_ERR_NOT_IN_COMBAT, 0, 0, 0);
+            return;
         }
     }
 
-    if (GetSpecializationId(GetActiveSpec()) == 0)
+    if (GetSpecializationId(GetActiveSpec()) == SpecIndex::SPEC_NONE)
         return;
 
-    for (auto itr : *GetTalentMap(GetActiveSpec()))
+    /// Remove specialization Glyphs
+    std::vector<uint32> l_Glyphs = GetGlyphMap(GetActiveSpec());
+    uint8 l_Slot = 0;
+    for (uint32 l_Glyph : l_Glyphs)
     {
-        SpellInfo const* spell = sSpellMgr->GetSpellInfo(itr.first);
-        if (!spell)
+        GlyphRequiredSpecEntry const* l_GlyphReq = nullptr;
+        for (uint32 l_I = 0; l_I < sGlyphRequiredSpecStore.GetNumRows(); ++l_I)
+        {
+            if (GlyphRequiredSpecEntry const* l_GlyphRequirements = sGlyphRequiredSpecStore.LookupEntry(l_I))
+            {
+                if (l_GlyphRequirements->GlyphID == l_Glyph)
+                {
+                    l_GlyphReq = l_GlyphRequirements;
+                    break;
+                }
+            }
+        }
+
+        if (l_GlyphReq == nullptr)
+        {
+            ++l_Slot;
+            continue;
+        }
+
+        /// If glyph has a spec requirement, remove it
+        if (GlyphPropertiesEntry const* l_GlyphProp = sGlyphPropertiesStore.LookupEntry(l_Glyph))
+        {
+            RemoveAurasDueToSpell(l_GlyphProp->SpellId);
+            SetGlyph(l_Slot, 0);
+        }
+
+        ++l_Slot;
+    }
+
+    RemoveSpecializationSpells();
+    SetSpecializationId(GetActiveSpec(), 0);
+    InitSpellForLevel();
+    UpdateMasteryPercentage();
+    SendTalentsInfoData(false);
+
+    ModifyMoney(-(int64)l_Cost);
+    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TALENTS, l_Cost);
+    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_NUMBER_OF_TALENT_RESETS, 1);
+
+    SetSpecializationResetCost(l_Cost);
+    SetSpecializationResetTime(time(nullptr));
+}
+
+void Player::SetSpecializationId(uint8 p_Spec, uint32 p_Specialization, bool p_Loading)
+{
+    /// Remove specialization talents
+    for (auto l_Iter : *GetTalentMap(GetActiveSpec()))
+    {
+        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_Iter.first);
+        if (!l_SpellInfo)
             continue;
 
         bool l_Remove = false;
-        for (uint32 l_TalentID : spell->m_TalentIDs)
+        for (uint32 l_TalentID : l_SpellInfo->m_TalentIDs)
         {
             TalentEntry const* l_TalentEntry = sTalentStore.LookupEntry(l_TalentID);
-            if (l_TalentEntry && l_TalentEntry->SpecID == GetSpecializationId(GetActiveSpec()))
+            if (l_TalentEntry && l_TalentEntry->SpecID != p_Specialization)
             {
                 l_Remove = true;
                 break;
@@ -5909,45 +5974,33 @@ void Player::ResetSpec(bool p_NoCost /* = false */)
         if (!l_Remove)
             continue;
 
-        removeSpell(itr.first, true);
+        removeSpell(l_Iter.first, true);
 
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            if (spell->Effects[i].TriggerSpell > 0 && spell->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL)
-                removeSpell(spell->Effects[i].TriggerSpell, true);
+        for (uint8 i = 0; i < MAX_EFFECTS; ++i)
+        {
+            if (l_SpellInfo->Effects[i].TriggerSpell > 0 && l_SpellInfo->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL)
+                removeSpell(l_SpellInfo->Effects[i].TriggerSpell, true);
+        }
 
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            if (spell->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS || spell->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2)
-                RemoveAurasDueToSpell(spell->Effects[i].BasePoints);
+        for (uint8 i = 0; i < MAX_EFFECTS; ++i)
+        {
+            if (l_SpellInfo->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS ||
+                l_SpellInfo->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2)
+                RemoveAurasDueToSpell(l_SpellInfo->Effects[i].BasePoints);
+        }
 
-        itr.second->state = PLAYERSPELL_REMOVED;
+        l_Iter.second->state = PLAYERSPELL_REMOVED;
 
         SetUsedTalentCount(GetUsedTalentCount() - 1);
         SetFreeTalentPoints(GetFreeTalentPoints() + 1);
     }
 
-    RemoveSpecializationSpells();
-    SetSpecializationId(GetActiveSpec(), 0);
-    InitSpellForLevel();
-    UpdateMasteryPercentage();
-    SendTalentsInfoData(false);
-
-    ModifyMoney(-(int64)cost);
-    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TALENTS, cost);
-    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_NUMBER_OF_TALENT_RESETS, 1);
-
-    SetSpecializationResetCost(cost);
-    SetSpecializationResetTime(time(NULL));
-}
-
-void Player::SetSpecializationId(uint8 spec, uint32 id, bool loading)
-{
-
-    if (spec == GetActiveSpec())
+    if (p_Spec == GetActiveSpec())
     {
         float pct = GetHealthPct();
-        SetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID, id);
+        SetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID, p_Specialization);
 
-        if (!loading)
+        if (!p_Loading)
         {
             for (uint8 i = 0; i < INVENTORY_SLOT_BAG_END; ++i)
             {
@@ -5959,9 +6012,9 @@ void Player::SetSpecializationId(uint8 spec, uint32 id, bool loading)
             }
         }
 
-        _talentMgr->SpecInfo[spec].SpecializationId = id;
+        _talentMgr->SpecInfo[p_Spec].SpecializationId = p_Specialization;
 
-        if (!loading)
+        if (!p_Loading)
         {
             for (uint8 i = 0; i < INVENTORY_SLOT_BAG_END; ++i)
             {
@@ -5977,7 +6030,7 @@ void Player::SetSpecializationId(uint8 spec, uint32 id, bool loading)
         return;
     }
     else
-        _talentMgr->SpecInfo[spec].SpecializationId = id;
+        _talentMgr->SpecInfo[p_Spec].SpecializationId = p_Specialization;
 }
 
 uint32 Player::GetRoleForGroup(uint32 specializationId)
@@ -10941,7 +10994,7 @@ void Player::_ApplyAllItemMods()
     Called by remove insignia spell effect    */
 void Player::RemovedInsignia(Player* looterPlr)
 {
-    if (!GetBattlegroundId())
+    if (!GetBattlegroundId() && GetMapId() != 1191) ///< Specific handle for Ashran too
         return;
 
     // If not released spirit, do it !
@@ -11134,30 +11187,39 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
     }
     else if (IS_CORPSE_GUID(guid))                          // remove insignia
     {
-        Corpse* bones = ObjectAccessor::GetCorpse(*this, guid);
+        Corpse* l_Corpse = ObjectAccessor::GetCorpse(*this, guid);
 
-        if (!bones || !(loot_type == LOOT_CORPSE || loot_type == LOOT_INSIGNIA) || bones->GetType() != CORPSE_BONES)
+        if (!l_Corpse || !(loot_type == LOOT_CORPSE || loot_type == LOOT_INSIGNIA) || l_Corpse->GetType() != CORPSE_BONES)
         {
             SendLootRelease(guid);
             return;
         }
 
-        loot = &bones->loot;
+        loot = &l_Corpse->loot;
 
-        if (!bones->lootForBody)
+        if (!l_Corpse->lootForBody)
         {
-            bones->lootForBody = true;
-            uint32 pLevel = bones->loot.Gold;
-            bones->loot.clear();
+            l_Corpse->lootForBody = true;
+            uint32 pLevel = l_Corpse->loot.Gold;
+            l_Corpse->loot.clear();
+
             if (Battleground* bg = GetBattleground())
+            {
                 if (bg->GetTypeID(true) == BATTLEGROUND_AV)
                     loot->FillLoot(1, LootTemplates_Creature, this, true);
+            }
+            else if (OutdoorPvP* l_OutdoorPvP = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(GetZoneId()))
+            {
+                if (l_OutdoorPvP->GetTypeId() == OutdoorPvPTypes::OUTDOOR_PVP_ASHRAN)
+                    l_OutdoorPvP->FillCustomPvPLoots(this, *loot, l_Corpse->GetOwnerGUID());
+            }
+
             // It may need a better formula
             // Now it works like this: lvl10: ~6copper, lvl70: ~9silver
-            bones->loot.Gold = uint32(urand(50, 150) * 0.016f * pow(float(pLevel)/5.76f, 2.5f) * sWorld->getRate(RATE_DROP_MONEY));
+            l_Corpse->loot.Gold = uint32(urand(50, 150) * 0.016f * pow(float(pLevel)/5.76f, 2.5f) * sWorld->getRate(RATE_DROP_MONEY));
         }
 
-        if (bones->lootRecipient != this)
+        if (l_Corpse->lootRecipient != this)
             permission = NONE_PERMISSION;
         else
             permission = OWNER_PERMISSION;
@@ -22251,9 +22313,6 @@ void Player::SaveToDB(bool create /*=false*/)
     // we save the data here to prevent spamming
     sAnticheatMgr->SavePlayerData(this);
 
-    // in this way we prevent to spam the db by each report made!
-    // sAnticheatMgr->SavePlayerData(this);
-
     // save pet (hunter pet level and experience and all type pets health/mana).
     if (Pet* pet = GetPet())
         pet->SavePetToDB(PET_SLOT_ACTUAL_PET_SLOT, pet->m_Stampeded);
@@ -22552,8 +22611,8 @@ void Player::_SaveMail(SQLTransaction& trans)
             stmt->setUInt8(0, uint8(m->HasItems() ? 1 : 0));
             stmt->setUInt32(1, uint32(m->expire_time));
             stmt->setUInt32(2, uint32(m->deliver_time));
-            stmt->setUInt32(3, m->money);
-            stmt->setUInt32(4, m->COD);
+            stmt->setUInt64(3, m->money);
+            stmt->setUInt64(4, m->COD);
             stmt->setUInt8(5, uint8(m->checked));
             stmt->setUInt32(6, m->messageID);
 
@@ -23420,119 +23479,155 @@ void Player::StopCastingCharm()
     }
 }
 
-void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std::string& text, uint32 language, const char* addonPrefix /*= NULL*/, const std::string& channel /*= ""*/) const
+void Player::BuildPlayerChat(WorldPacket* p_Data, Player* p_Target, uint8 p_MsgType, std::string const& p_Text, uint32 p_LangID, char const* p_AddonPrefix /*= nullptr*/, std::string const& p_Channel /*= ""*/) const
 {
-    uint32 speakerNameLength = strlen(GetName());
+    uint32 l_SenderNameLen = strlen(GetName());
+    uint64 l_GuildGuid = const_cast<Player*>(this)->GetGuild() ? const_cast<Player*>(this)->GetGuild()->GetGUID() : 0;
 
-    ObjectGuid senderUnkGuid = GetGUID();
-    ObjectGuid groupGuid = 0;
-    ObjectGuid senderGuid = GetGUID();
-    uint64 guildGuid = const_cast<Player*>(this)->GetGuild() ? const_cast<Player*>(this)->GetGuild()->GetGUID() : 0;
+    p_Data->Initialize(SMSG_CHAT, 100);
+    *p_Data << uint8(p_MsgType);
+    *p_Data << uint8(p_LangID);
+    p_Data->appendPackGUID(GetGUID());
+    p_Data->appendPackGUID(l_GuildGuid);
+    p_Data->appendPackGUID(0);
+    p_Data->appendPackGUID(p_Target != nullptr ? p_Target->GetGUID() : 0);
+    *p_Data << uint32(g_RealmID);
+    *p_Data << uint32(g_RealmID);
+    p_Data->appendPackGUID(GetGroup() ? GetGroup()->GetGUID() : 0);
+    *p_Data << uint32(0);     ///< AchievementID
+    *p_Data << float(0);      ///< DisplayTime
 
-    data->Initialize(SMSG_CHAT, 100);
-    *data << uint8(msgtype);
-    *data << uint8(language);
-    data->appendPackGUID(GetGUID());
-    data->appendPackGUID(guildGuid);
-    data->appendPackGUID(0);// MAKE_NEW_GUID(GetSession()->GetAccountId(), 0, HIGHGUID_WOW_ACCOUNT));
-    data->appendPackGUID(0);
-    *data << uint32(g_RealmID);
-    *data << uint32(g_RealmID);
-    data->appendPackGUID(GetGroup() ? GetGroup()->GetGUID() : 0);
-    *data << uint32(0);
-    *data << float(0);
+    p_Data->WriteBits(l_SenderNameLen, 11);
+    p_Data->WriteBits(0, 11); ///< TargetNameLen
+    p_Data->WriteBits(p_AddonPrefix ? strlen(p_AddonPrefix) : 0, 5);
+    p_Data->WriteBits(p_Channel.length(), 7);
+    p_Data->WriteBits(p_Text.length(), 12);
+    p_Data->WriteBits(GetChatTag(), 10);
+    p_Data->WriteBit(false);  ///< hide chat log
+    p_Data->WriteBit(false);  ///< Faker sender name
+    p_Data->FlushBits();
 
-    data->WriteBits(speakerNameLength, 11);
-    data->WriteBits(0, 11);
-    data->WriteBits(addonPrefix ? strlen(addonPrefix) : 0, 5);
-    data->WriteBits(channel.length(), 7);
-    data->WriteBits(text.length(), 12);
-    data->WriteBits(GetChatTag(), 10);
-    data->WriteBit(false);  ///< hide chat log
-    data->WriteBit(false);  ///< Faker sender name
-    data->FlushBits();
-
-    data->WriteString(GetName());
-    data->WriteString(addonPrefix ? addonPrefix : "");
-    data->WriteString(channel);
-    data->WriteString(text);
+    p_Data->WriteString(GetName());
+    p_Data->WriteString(p_AddonPrefix ? p_AddonPrefix : "");
+    p_Data->WriteString(p_Channel);
+    p_Data->WriteString(p_Text);
 }
 
-void Player::Say(const std::string& text, const uint32 language)
+void Player::Say(std::string const& p_Text, uint32 const p_LangID)
 {
-    std::string _text(text);
-    sScriptMgr->OnPlayerChat(this, CHAT_MSG_SAY, language, _text);
+    std::string l_Text(p_Text);
+    sScriptMgr->OnPlayerChat(this, CHAT_MSG_SAY, p_LangID, l_Text);
 
-    WorldPacket data;;
-    BuildPlayerChat(&data, CHAT_MSG_SAY, _text, language);
-    SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), true);
+    std::list<Player*> l_PlayerList;
+    GetPlayerListInGrid(l_PlayerList, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY));
+
+    for (Player* l_Target : l_PlayerList)
+    {
+        if (!HaveAtClient(l_Target))
+            continue;
+
+        if (WorldSession* l_Session = l_Target->GetSession())
+        {
+            WorldPacket l_Data;
+            BuildPlayerChat(&l_Data, l_Target, CHAT_MSG_SAY, l_Text, p_LangID);
+            l_Session->SendPacket(&l_Data);
+        }
+    }
 }
 
-void Player::Yell(const std::string& text, const uint32 language)
+void Player::Yell(std::string const& p_Text, uint32 const p_LangID)
 {
-    std::string _text(text);
-    sScriptMgr->OnPlayerChat(this, CHAT_MSG_YELL, language, _text);
+    std::string l_Text(p_Text);
+    sScriptMgr->OnPlayerChat(this, CHAT_MSG_YELL, p_LangID, l_Text);
 
-    WorldPacket data;
-    BuildPlayerChat(&data, CHAT_MSG_YELL, _text, language);
-    SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_YELL), true);
+    std::list<Player*> l_PlayerList;
+    GetPlayerListInGrid(l_PlayerList, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_YELL));
+
+    for (Player* l_Target : l_PlayerList)
+    {
+        if (!HaveAtClient(l_Target))
+            continue;
+
+        if (WorldSession* l_Session = l_Target->GetSession())
+        {
+            WorldPacket l_Data;
+            BuildPlayerChat(&l_Data, l_Target, CHAT_MSG_YELL, l_Text, p_LangID);
+            l_Session->SendPacket(&l_Data);
+        }
+    }
 }
 
-void Player::TextEmote(const std::string& text)
+void Player::TextEmote(std::string const& p_Text)
 {
-    std::string _text(text);
-    sScriptMgr->OnPlayerChat(this, CHAT_MSG_EMOTE, LANG_UNIVERSAL, _text);
+    std::string l_Text(p_Text);
+    sScriptMgr->OnPlayerChat(this, CHAT_MSG_EMOTE, LANG_UNIVERSAL, l_Text);
 
-    WorldPacket data;
-    BuildPlayerChat(&data, CHAT_MSG_EMOTE, _text, LANG_UNIVERSAL);
-    SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), true, !sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT));
+    std::list<Player*> l_PlayerList;
+    GetPlayerListInGrid(l_PlayerList, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE));
+
+    for (Player* l_Target : l_PlayerList)
+    {
+        if (!HaveAtClient(l_Target))
+            continue;
+
+        if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT) && l_Target->GetTeamId() != GetTeamId())
+            continue;
+
+        if (WorldSession* l_Session = l_Target->GetSession())
+        {
+            WorldPacket l_Data;
+            /// No specific target needed
+            BuildPlayerChat(&l_Data, nullptr, CHAT_MSG_EMOTE, l_Text, LANG_UNIVERSAL);
+            l_Session->SendPacket(&l_Data);
+        }
+    }
 }
 
-void Player::WhisperAddon(const std::string& text, const std::string& prefix, Player* receiver)
+void Player::WhisperAddon(std::string const& p_Text, std::string const& p_Prefix, Player* p_Receiver)
 {
-    std::string _text(text);
-    sScriptMgr->OnPlayerChat(this, CHAT_MSG_WHISPER, LANG_UNIVERSAL, _text, receiver);
+    std::string l_Text(p_Text);
+    sScriptMgr->OnPlayerChat(this, CHAT_MSG_WHISPER, LANG_UNIVERSAL, l_Text, p_Receiver);
 
-    if (!receiver->GetSession()->IsAddonRegistered(prefix))
+    if (!p_Receiver->GetSession()->IsAddonRegistered(p_Prefix))
         return;
 
-    WorldPacket data;
-    BuildPlayerChat(&data, CHAT_MSG_WHISPER, _text, LANG_UNIVERSAL, prefix.c_str());
-    receiver->GetSession()->SendPacket(&data);
+    WorldPacket l_Data;
+    BuildPlayerChat(&l_Data, nullptr, CHAT_MSG_WHISPER, l_Text, LANG_UNIVERSAL, p_Prefix.c_str());
+    p_Receiver->GetSession()->SendPacket(&l_Data);
 }
 
-void Player::Whisper(const std::string& text, uint32 language, uint64 receiver)
+void Player::Whisper(std::string const& p_Text, uint32 p_LangID, uint64 p_Receiver)
 {
-    Player* rPlayer = ObjectAccessor::FindPlayer(receiver);
+    Player* l_Target = ObjectAccessor::FindPlayer(p_Receiver);
 
-    std::string _text(text);
-    sScriptMgr->OnPlayerChat(this, CHAT_MSG_WHISPER, language, _text, rPlayer);
+    std::string l_Text(p_Text);
+    sScriptMgr->OnPlayerChat(this, CHAT_MSG_WHISPER, p_LangID, l_Text, l_Target);
 
-    // when player you are whispering to is dnd, he cannot receive your message, unless you are in gm mode
-    if (!rPlayer->isDND() || isGameMaster())
+    /// When player you are whispering to is dnd, he cannot receive your message, unless you are in gm mode
+    if (!l_Target->isDND() || isGameMaster())
     {
-        WorldPacket data;
-        BuildPlayerChat(&data, CHAT_MSG_WHISPER, _text, language);
-        rPlayer->GetSession()->SendPacket(&data);
+        WorldPacket l_Data;
+        BuildPlayerChat(&l_Data, l_Target, CHAT_MSG_WHISPER, l_Text, p_LangID);
+        l_Target->GetSession()->SendPacket(&l_Data);
 
-        rPlayer->BuildPlayerChat(&data, CHAT_MSG_WHISPER_INFORM, _text, language);
-        GetSession()->SendPacket(&data);
+        l_Target->BuildPlayerChat(&l_Data, this, CHAT_MSG_WHISPER_INFORM, l_Text, p_LangID);
+        GetSession()->SendPacket(&l_Data);
     }
-    else // announce to player that player he is whispering to is dnd and cannot receive his message
-        ChatHandler(this).PSendSysMessage(LANG_PLAYER_DND, rPlayer->GetName(), rPlayer->dndMsg.c_str());
+    else ///< Announce to player that player he is whispering to is dnd and cannot receive his message
+        ChatHandler(this).PSendSysMessage(LANG_PLAYER_DND, l_Target->GetName(), l_Target->dndMsg.c_str());
 
-    if (!IsAcceptWhispers() && !isGameMaster() && !rPlayer->isGameMaster())
+    if (!IsAcceptWhispers() && !isGameMaster() && !l_Target->isGameMaster())
     {
         SetAcceptWhispers(true);
         ChatHandler(this).SendSysMessage(LANG_COMMAND_WHISPERON);
     }
 
-    // announce to player that player he is whispering to is afk
-    if (rPlayer->isAFK())
-        ChatHandler(this).PSendSysMessage(LANG_PLAYER_AFK, rPlayer->GetName(), rPlayer->afkMsg.c_str());
+    /// Announce to player that player he is whispering to is afk
+    if (l_Target->isAFK())
+        ChatHandler(this).PSendSysMessage(LANG_PLAYER_AFK, l_Target->GetName(), l_Target->afkMsg.c_str());
 
-    // if player whisper someone, auto turn of dnd to be able to receive an answer
-    if (isDND() && !rPlayer->isGameMaster())
+    /// If player whisper someone, auto turn of dnd to be able to receive an answer
+    if (isDND() && !l_Target->isGameMaster())
         ToggleDND();
 }
 

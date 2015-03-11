@@ -3341,25 +3341,41 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
-            case 110744: // Divine Star - should be 2 sec -- WTF Blizz ?
+            case 144757: /// Increased All Resist 05
+                spellInfo->AttributesEx11 &= ~SPELL_ATTR11_CAST_WITH_ITEM;
+                break;
+            case 110744:///< Divine Star - should be 2 sec -- WTF Blizz ?
             case 122121:
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(66);
                 spellInfo->Effects[0].TargetA = SELECT_TARGET_SELF;
                 spellInfo->ExplicitTargetMask = spellInfo->_GetExplicitTargetMask();
                 break;
-            case 20167:  // Seal of Insight
+            case 175915:///< Acid Breath (Drov the Ruiner)
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+                break;
+            case 165096:///< Ogreic Landing
+                spellInfo->Effects[1].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
+                break;
+            case 164868:///< Ogreic Landing
+                spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
+                break;
+            case 164850:///< Nature Channeling (Cosmetic)
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+                break;
+            case 20167: ///< Seal of Insight
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_NONE;
                 break;
-            case 150055: // Volcanic Tantrum
-            case 149963: // Shatter Earth
+            case 150055:///< Volcanic Tantrum
+            case 149963:///< Shatter Earth
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(27); // 3 sec
                 break;
-            case 150004: // Magma Barrage
+            case 150004:///< Magma Barrage
                 spellInfo->InterruptFlags = SPELL_INTERRUPT_FLAG_MOVEMENT;
                 spellInfo->Effects[EFFECT_1].Effect = 0;
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 150306;
                 break;
             case 102401:///< Wild Charge (Ally)
+            case 94954: ///< Heroic Leap
                 spellInfo->Effects[EFFECT_1].ValueMultiplier = 0;
                 break;
             case 159362:///< Blood Craze
@@ -3367,6 +3383,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 30814: ///< Mental Quickness
                 spellInfo->Effects[EFFECT_4].Effect = 0;
+                break;
+            /// January 12, 2015 - 6.0.3 Hotfixes for January 12th - Class Tuning Changes, Haste More Effective
+            case 165375:///< Sacred Duty - now causes the Paladin to gain 30% (up from 5%) more of the Haste stat from all sources.
+                spellInfo->Effects[EFFECT_0].BasePoints = 30;
                 break;
             case 149959: // Earth Shatter
             case 149968:
@@ -3741,9 +3761,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 118592: ///< Spinning Crane Kick
                 spellInfo->Effects[0].BasePoints = urand(180, 230);
                 break;
-            case 165381: ///< Righteous Vengeance
-                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MASTERY;
-                break;
             case 48505: ///< Starfall
                 spellInfo->Effects[1].Effect = SPELL_EFFECT_APPLY_AURA;
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
@@ -3780,6 +3797,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].BasePoints = -20;
                 spellInfo->Effects[1].BasePoints = 30;
                 break;
+            case 164991: ///< Entangling Energy
             case 15286: ///< Vampiric Embrace
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
@@ -4854,6 +4872,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->OverrideSpellList.push_back(115191); ///< Add Stealth (talent) to override spell list of Stealth
                 break;
             case 115191: ///< Subterfuge
+                spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_MOD_STEALTH;
                 spellInfo->AttributesEx |= SPELL_ATTR0_DISABLED_WHILE_ACTIVE;
                 spellInfo->AttributesEx8 |= SPELL_ATTR8_AURA_SEND_AMOUNT;
                 spellInfo->ProcFlags = 0x800A22A8;   ///< 1784 ProcsFlags
@@ -4952,10 +4971,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].Effect = SPELL_EFFECT_APPLY_AURA;
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
-                break;
-            case 162532: ///< Glyph of Mind Harvest
-                spellInfo->ProcChance = 0;
-                spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
             case 162452: ///< Shadowy Insight
                 spellInfo->ProcChance = 0;
@@ -5793,9 +5808,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->MaxAffectedTargets = 1;
                 break;
             case 22568: ///< Ferocious Bite
-                spellInfo->Effects[0].BonusMultiplier = 0.0f;
-                break;
-            case 5221: ///< Shred
+            case 5221:  ///< Shred
+            case 22599: ///< Chromatic Mantle of the Dawn
                 spellInfo->Effects[0].BonusMultiplier = 0.0f;
                 break;
             case 158221: ///< Hurricane Strike (damage)

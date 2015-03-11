@@ -1544,7 +1544,6 @@ bool BattlegroundAV::IsAllTowersControlledAndCaptainAlive(uint32 team) const
     return false;
 }
 
-
 #define REGZAR_TEXT_NEED " supplies are needed for the next upgrade!"
 #define REGZAR_TEXT_MAX "You're already at 1500 supplies!"
 

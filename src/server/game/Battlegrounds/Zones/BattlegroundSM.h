@@ -232,11 +232,10 @@ class BattlegroundSM : public Battleground
         /* Battleground Events */
         void EventReopenDepot(uint32 p_Diff);
 
-        uint32 GetTeamScore(uint32 p_TeamID) const { return m_TeamScores[GetTeamIndexByTeamId(p_TeamID)]; }
+        uint32 GetTeamScore(uint32 p_TeamID) const { return m_TeamScores[p_TeamID]; }
 
     private:
         void EventTeamCapturedMineCart(uint32 p_Team, uint8 p_MineCart);
-        void UpdatePointsCount(uint32 p_Team);
         void SummonMineCart(uint32 p_Diff);
         void FirstMineCartSummon(uint32 p_Diff);
         void MineCartsMoves();

@@ -724,7 +724,7 @@ namespace MS { namespace Garrison
         Interfaces::GarrisonSite * l_GarrisonScript = GetGarrisonScript();
 
         if (l_GarrisonScript)
-            return l_GarrisonScript->CanUpgrade(m_Owner);
+            return l_GarrisonScript->CanUpgrade(m_Owner, m_GarrisonLevel);
 
         return false;
     }
@@ -852,6 +852,22 @@ namespace MS { namespace Garrison
             l_GarrisonScript->OnQuestAbandon(m_Owner, p_Quest);
             /// Update phasing
             m_Owner->SetPhaseMask(l_GarrisonScript->GetPhaseMask(m_Owner), true);
+        }
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// When the owner player change level
+    /// @p_Level : New owner level
+    void Manager::OnOwnerLevelChange(uint32 p_Level)
+    {
+        Interfaces::GarrisonSite * l_GarrisonScript = GetGarrisonScript();
+
+        if (l_GarrisonScript)
+        {
+            /// Broadcast event
+            l_GarrisonScript->OnOwnerLevelChange(p_Level);
         }
     }
 
@@ -3202,7 +3218,7 @@ namespace MS { namespace Garrison
 
                             if (l_Creature->AI())
                             {
-                                if (l_Contents[l_I].PlotTypeOrBuilding > 0)
+                                if (l_IsPlotBuilding)
                                     l_Creature->AI()->SetData(CreatureAIDataIDs::Builder, 1);
                                 else
                                 {
@@ -3512,7 +3528,7 @@ namespace MS { namespace Garrison
                     l_Candidates.push_back(l_Entry);
                 }
 
-                uint32 l_ShuffleCount = std::rand() % 20;
+                uint32 l_ShuffleCount = std::rand() % 4;
 
                 for (uint32 l_I = 0; l_I < l_ShuffleCount; ++l_I)
                     std::random_shuffle(l_Candidates.begin(), l_Candidates.end());

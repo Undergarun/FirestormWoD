@@ -6,5 +6,5 @@ INSERT INTO spell_script_names VALUES
 (93402, 'spell_dru_shooting_stars_proc'),
 (164812, 'spell_dru_shooting_stars_proc'),
 (164815, 'spell_dru_shooting_stars_proc');
-DELETE FROM spell_proc_event WHERE entry = 93499;
-INSERT INTO spell_proc_event (entry, procFlags) VALUE (93499, 0x240000);
+DELETE FROM spell_proc_event WHERE entry = 93399;
+INSERT INTO spell_proc_event (entry, procFlags) VALUE (93399, 0x240000);

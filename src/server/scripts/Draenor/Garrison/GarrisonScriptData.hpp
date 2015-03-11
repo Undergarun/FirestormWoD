@@ -52,7 +52,7 @@ namespace MS { namespace Garrison
         QUEST_KEEPING_IT_TOGETHER                   = 35176,
         QUEST_SHIP_SALVAGE                          = 35166,
         QUEST_PALE_MOONLIGHT                        = 35174,
-        LostInTransition                            = 37087,
+        Alliance_LostInTransition                   = 37087,
         Alliance_YourFirstBlacksmithingWorkOrder    = 35168,
         Alliance_BiggerIsBetter                     = 36592,
 
@@ -60,8 +60,10 @@ namespace MS { namespace Garrison
         QUEST_ETABLISH_YOUR_GARRISON_H            = 34378,
         QUEST_WHAT_WE_GOT                         = 34824,
         QUEST_BUILD_YOUR_BARRACKS                 = 34461,
+        Horde_LostInTransition                    = 37060,
         Horde_YourFirstBlacksmithingWorkOrder     = 37569,
-        Horde_BiggerIsBetter                      = 36567
+        Horde_BiggerIsBetter                      = 36567,
+        Horde_YourFirstTailoringWorkOrder         = 37575
 
     };
 
@@ -165,6 +167,21 @@ namespace MS { namespace Garrison
         { 1850.71f,   254.430f,  78.08300f, 1.76f    }, ///< Alliance Level 1
         { 1947.08f,   324.883f,  90.28076f, 0.00f    }, ///< Alliance Level 2
         {    0.f,       0.f,      0.f,      0.00f    }  ///< Alliance Level 3
+    };
+
+    /// Creature that follow garrison owner level
+    static const uint32 gGarrisonLevelUpdateCreatures[] =
+    {
+        /// Alliance
+        79953,  ///< Lientenant Thorn
+        77370,  ///< Lunarfall Footman
+        85312,  ///< Lunarfall Rifleman
+        88223,  ///< SergeantCrowler
+        /// Horde
+        79781,  ///< Frostwall grunt
+        80299,  ///< Frostwakk Axe thrower
+        88228,  ///< Sergent Grinjaw
+        80572   ///< Frostwall wolf
     };
 
     namespace HordePeonData 

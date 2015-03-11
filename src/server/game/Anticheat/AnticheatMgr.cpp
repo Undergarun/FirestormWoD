@@ -201,7 +201,7 @@ void AnticheatMgr::SpeedHackDetection(Player* player,MovementInfo movementInfo)
     // we did the (uint32) cast to accept a margin of tolerance
     if (clientSpeedRate > speedRate)
     {
-        BuildReport(player,SPEED_HACK_REPORT);
+        BuildReport(player, SPEED_HACK_REPORT);
         //sLog->outError("AnticheatMgr:: Speed-Hack detected player GUID (low) %u",player->GetGUIDLow());
     }
 }
@@ -294,6 +294,7 @@ void AnticheatMgr::BuildReport(Player* player,uint8 reportType)
 
     // increasing total_reports
     m_Players[key].SetTotalReports(m_Players[key].GetTotalReports()+1);
+
     // increasing specific cheat report
     m_Players[key].SetTypeReports(reportType,m_Players[key].GetTypeReports(reportType)+1);
 
@@ -307,7 +308,7 @@ void AnticheatMgr::BuildReport(Player* player,uint8 reportType)
         m_Players[key].SetAverage(average);
     }
 
-    if (sWorld->getIntConfig(CONFIG_ANTICHEAT_MAX_REPORTS_FOR_DAILY_REPORT) < m_Players[key].GetTotalReports())
+    //if (sWorld->getIntConfig(CONFIG_ANTICHEAT_MAX_REPORTS_FOR_DAILY_REPORT) < m_Players[key].GetTotalReports())
     {
         if (!m_Players[key].GetDailyReportState())
         {
@@ -315,25 +316,10 @@ void AnticheatMgr::BuildReport(Player* player,uint8 reportType)
             m_Players[key].SetDailyReportState(true);
         }
     }
-
-    if (m_Players[key].GetTotalReports() > sWorld->getIntConfig(CONFIG_ANTICHEAT_REPORTS_INGAME_NOTIFICATION))
-    {
-        // display warning at the center of the screen, hacky way?
-        std::string str = "";
-        str = "|cFFFFFC00[Anticheat]|cFF00FFFF[|cFF60FF00" + std::string(player->GetName()) + "|cFF00FFFF] Cheat detected!";
-        WorldPacket l_Data(SMSG_PRINT_NOTIFICATION, 2 + str.length());
-        l_Data.WriteBits(str.length(), 12);
-        l_Data.FlushBits();
-        l_Data.WriteString(str);
-        //sWorld->SendGlobalGMMessage(&data); NO MORE OF THIS PLEASE THIS IS FLOODING MY SCREEN FOR NOTHIN'
-    }
 }
 
 void AnticheatMgr::AnticheatGlobalCommand(ChatHandler* handler)
 {
-    // MySQL will sort all for us, anyway this is not the best way we must only save the anticheat data not whole player's data!.
-    sObjectAccessor->SaveAllPlayers();
-
     QueryResult resultDB = CharacterDatabase.Query("SELECT guid,average,total_reports FROM players_reports_status WHERE total_reports != 0 ORDER BY average ASC LIMIT 3;");
     if (!resultDB)
     {

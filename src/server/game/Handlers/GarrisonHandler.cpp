@@ -323,7 +323,32 @@ void WorldSession::HandleGarrisonPurchaseBuildingOpcode(WorldPacket & p_RecvData
         l_Result = l_Garrison->CanPurchaseBuilding(l_BuildingID);
 
     if (!sGarrisonBuildingManager->IsBluePrintAllowedForPurchasingBuilding(l_BuildingID, m_Player))
+    {
         l_Result = MS::Garrison::PurchaseBuildingResults::InvalidBuildingID;
+
+        std::string l_Message = "Building not available yet";
+        switch (m_Player->GetSession()->GetSessionDbcLocale())
+        {
+            case LocaleConstant::LOCALE_frFR:
+                l_Message = "Batiment non disponible";
+                break;
+
+            case LocaleConstant::LOCALE_esES:
+            case LocaleConstant::LOCALE_esMX:
+                l_Message = "Edificio no disponible";
+                break;
+
+            default:
+                break;
+        }
+
+        WorldPacket l_Data(SMSG_PRINT_NOTIFICATION, 2 + l_Message.size());
+        l_Data.WriteBits(l_Message.size(), 12);
+        l_Data.FlushBits();
+        l_Data.WriteString(l_Message);
+
+        SendPacket(&l_Data);
+    }
 
     WorldPacket l_PlaceResult(SMSG_GARRISON_PLACE_BUILDING_RESULT, 26);
     l_PlaceResult << uint32(l_Result);

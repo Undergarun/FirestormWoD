@@ -1389,6 +1389,8 @@ void World::LoadConfigSettings(bool reload)
 
     m_bool_configs[CONFIG_TEMPLATES_ENABLED] = ConfigMgr::GetBoolDefault("Character.Templates.Enabled", false);
 
+    m_bool_configs[CONFIG_AOE_LOOT_ENABLED] = ConfigMgr::GetBoolDefault("LootAoe.Enabled", true);
+
     if (reload)
         sScriptMgr->OnConfigLoad(reload);
 }

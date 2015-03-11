@@ -321,6 +321,15 @@ INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`) VALUES
 INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(89133, 1330, 5618.885, 4501.209, 119.2702, 0, 268435455, 65535, 1, 1, 12, 32768, 4196352, 0, 0) ON DUPLICATE KEY UPDATE `id` = VALUES(`id`), `map` = VALUES(`map`), `position_x` = VALUES(`position_x`), `position_y` = VALUES(`position_y`), `position_z` = VALUES(`position_z`), `orientation` = VALUES(`orientation`), `spawnMask` = VALUES(`spawnMask`), `phaseMask` = VALUES(`phaseMask`), `equipment_id` = VALUES(`equipment_id`), `npcflag` = VALUES(`npcflag`), `npcflag2` = VALUES(`npcflag2`), `unit_flags` = VALUES(`unit_flags`), `unit_flags2` = VALUES(`unit_flags2`), `unit_flags3` = VALUES(`unit_flags3`), `WorldEffectID` = VALUES(`WorldEffectID`);
 INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`) VALUES(LAST_INSERT_ID(), 0, 0, 1, 0) ON DUPLICATE KEY UPDATE `guid` = VALUES(`guid`), `mount` = VALUES(`mount`), `bytes1` = VALUES(`bytes1`), `bytes2` = VALUES(`bytes2`), `emote` = VALUES(`emote`);
 
+-- Creature EXP
+UPDATE creature_template SET `exp`=5 WHERE entry IN (74163,74808,76872,76928,78320,78466,78487,78495,79230,79265,79407,79599,79602,79605,79619,79740,79781,79858,79925,80151,80288,80299,80436,80437,80438,80440,80441,80442,80443,80444,80772,81166,81368,81494,82862,83482,84806,84967,86016,86031,86470,88228,88649,88892,88915,89133);
+
+-- Creature Level
+UPDATE creature_template SET minLevel=90, maxLevel=90 WHERE entry IN(79925, 79605, 80288, 84806, 79916, 79603, 79619, 85882, 80571, 80569, 79812, 84967, 81688, 80241, 86000, 78314, 80223, 80222, 80225, 86775);
+UPDATE creature_template SET minLevel=93, maxLevel=93 WHERE entry IN(80772, 76872, 88649, 78487, 76928, 78320, 80151);
+UPDATE creature_template SET minLevel=95, maxLevel=95 WHERE entry IN(81166);
+UPDATE creature_template SET minLevel=100, maxLevel=100 WHERE entry IN(79407, 78466, 80600, 80432, 79740, 74808);
+
 -- Npc Gossips & script
 -- Provisioner rashma
 INSERT INTO npc_text (`ID`, `text0_1`, `lang0`, `prob0`, `WDBVerified`) VALUES(82110, "Eh boss-mon! Ya be needin' a rest?", 0, 100, 19342) ON DUPLICATE KEY UPDATE `ID` = VALUES(`ID`), `text0_1` = VALUES(`text0_1`), `lang0` = VALUES(`lang0`), `prob0` = VALUES(`prob0`), `WDBVerified` = VALUES(`WDBVerified`);

@@ -50,8 +50,7 @@
 #include "RealmList.h"
 
 #include "BigNumber.h"
-
-#include "ReportWorker.hpp"
+#include <Reporting/Reporter.hpp>
 
 #ifdef _WIN32
 #include "ServiceWin32.h"
@@ -581,6 +580,10 @@ int Master::Run()
         sLog->outInfo(LOG_FILTER_WORLDSERVER, "Daemon PID: %u\n", pid);
     }
 
+    ///- Initializing the Reporter.
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "REPORTER: Creating instance.");
+    sReporter->SetAddresses({ ConfigMgr::GetStringDefault("ReporterAddress", "localhost:3000") });
+
     ///- Start the databases
     if (!_StartDB())
         return 1;
@@ -604,25 +607,6 @@ int Master::Run()
     #ifdef _WIN32
     Handler.register_handler(SIGBREAK, &SignalBREAK);
     #endif /* _WIN32 */
-
-    ///- Launch the reporting thread. Didn't use asyn futures because I don't think it is intended for this use case.
-    std::thread l_Reporter([](){
-        if (ConfigMgr::GetIntDefault("ReporterActivated", 1) != 1)
-            return;
-
-        // Thread which repeat reporting.
-        sLog->outInfo(LOG_FILTER_WORLDSERVER, "REPORTER: Creating worker.");
-        MS::Reporting::ReportWorker l_ReportWorker(ConfigMgr::GetStringDefault("ReporterAddress", "localhost:3000"));
-        while (!World::IsStopped())
-        {
-            l_ReportWorker.ProcessReporting();
-#ifdef _MSC_VER
-            Sleep(1);
-#else
-            usleep(1);
-#endif
-        }
-    });
 
     ///- Launch WorldRunnable thread
     ACE_Based::Thread world_thread(new WorldRunnable);
@@ -728,7 +712,6 @@ int Master::Run()
     // since worldrunnable uses them, it will crash if unloaded after master
     world_thread.wait();
     rar_thread.wait();
-    l_Reporter.join();
 
     if (soap_thread)
     {

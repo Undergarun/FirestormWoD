@@ -171,6 +171,7 @@ include_directories(
   ${OPENSSL_INCLUDE_DIR}
   ${CURL_INCLUDE_DIR}
   ${EASYJSON_INCLUDE_DIR}
+  ${MSFRAMEWORK_INCLUDE_DIR}
 )
 
 add_executable(worldserver
@@ -209,6 +210,7 @@ target_link_libraries(worldserver
   ${OPENSSL_EXTRA_LIBRARIES}
   ${ZLIB_LIBRARIES}
   ${CURL_LIBRARIES}
+  ${MSFRAMEWORK_LIBRARIES}
 )
 
 if( WIN32 )
