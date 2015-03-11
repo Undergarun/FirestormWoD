@@ -21,7 +21,6 @@ class boss_tarlna_the_ageless : public CreatureScript
 
         enum eDatas
         {
-            BossTarlnaTheAgeless,
             MainHandEquipID         = 118056,
             MaxGiantLasherSpawns    = 15,
             HealthScalingCoeff      = 20
@@ -46,7 +45,7 @@ class boss_tarlna_the_ageless : public CreatureScript
 
         struct boss_tarlna_the_agelessAI : public BossAI
         {
-            boss_tarlna_the_agelessAI(Creature* p_Creature) : BossAI(p_Creature, eDatas::BossTarlnaTheAgeless)
+            boss_tarlna_the_agelessAI(Creature* p_Creature) : ScriptedAI(p_Creature)
             {
                 m_BaseHP = me->GetMaxHealth();
             }
@@ -59,8 +58,6 @@ class boss_tarlna_the_ageless : public CreatureScript
             void Reset()
             {
                 m_Events.Reset();
-
-                _Reset();
 
                 summons.DespawnAll();
 
@@ -202,7 +199,6 @@ class boss_drov_the_ruiner : public CreatureScript
 
         enum eDatas
         {
-            BossDrovTheRuiner,
             HealthScalingCoeff  = 20,
             RumblingGoren       = 88106,
             FrenziedGoren       = 88119
@@ -229,9 +225,9 @@ class boss_drov_the_ruiner : public CreatureScript
             ActionGorenSubmerge
         };
 
-        struct boss_drov_the_ruinerAI : public BossAI
+        struct boss_drov_the_ruinerAI : public ScriptedAI
         {
-            boss_drov_the_ruinerAI(Creature* p_Creature) : BossAI(p_Creature, eDatas::BossDrovTheRuiner)
+            boss_drov_the_ruinerAI(Creature* p_Creature) : ScriptedAI(p_Creature)
             {
                 m_BaseHP = me->GetMaxHealth();
             }
@@ -246,8 +242,6 @@ class boss_drov_the_ruiner : public CreatureScript
             void Reset() override
             {
                 m_Events.Reset();
-
-                _Reset();
 
                 summons.DespawnAll();
                 m_GorenList.clear();
