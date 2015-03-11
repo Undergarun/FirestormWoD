@@ -21,7 +21,7 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
     namespace npc_ChristopherMacdonaldData
     {
-        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI * p_This, Creature * p_Me)
+        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI* p_This, Creature* p_Me)
         {
             p_This->SetupActionSequence(ChristopherMacdonald_Level1::MovePointLoc, ChristopherMacdonald_Level1::Sequence, sizeof(ChristopherMacdonald_Level1::Sequence), ChristopherMacdonald_Level1::MovePointIDs::Home);
 
@@ -39,6 +39,7 @@ namespace MS { namespace Garrison
                     p_Me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
                 });
             };
+
             p_This->m_OnPointReached[ChristopherMacdonald_Level1::MovePointIDs::Chest] = [p_This, p_Me]() -> void
             {
                 p_This->AddTimedDelayedOperation(ChristopherMacdonald_Level1::DestPointDuration::Chest, [p_This]() -> void { p_This->DoNextSequenceAction(); });
@@ -53,6 +54,7 @@ namespace MS { namespace Garrison
                     p_Me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
                 });
             };
+
             p_This->m_OnPointReached[ChristopherMacdonald_Level1::MovePointIDs::Armory] = [p_This, p_Me]() -> void
             {
                 p_This->AddTimedDelayedOperation(ChristopherMacdonald_Level1::DestPointDuration::Armory, [p_This]() -> void { p_This->DoNextSequenceAction(); });
@@ -63,6 +65,7 @@ namespace MS { namespace Garrison
                 });
                 p_This->AddTimedDelayedOperation(ChristopherMacdonald_Level1::DestPointDuration::Armory, [p_Me]() -> void { p_Me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0); });
             };
+
             p_This->m_OnPointReached[ChristopherMacdonald_Level1::MovePointIDs::Front] = [p_This, p_Me]() -> void
             {
                 p_This->AddTimedDelayedOperation(ChristopherMacdonald_Level1::DestPointDuration::Front, [p_This]() -> void { p_This->DoNextSequenceAction(); });
@@ -77,6 +80,7 @@ namespace MS { namespace Garrison
                     p_Me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
                 });
             };
+
             p_This->m_OnPointReached[ChristopherMacdonald_Level1::MovePointIDs::Materials] = [p_This, p_Me]() -> void
             {
                 p_This->AddTimedDelayedOperation(ChristopherMacdonald_Level1::DestPointDuration::Materials, [p_This]() -> void { p_This->DoNextSequenceAction(); });
@@ -95,12 +99,12 @@ namespace MS { namespace Garrison
             p_This->DoNextSequenceAction();
         };
 
-        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI * p_This, Creature * p_Me)
+        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* p_This, Creature* p_Me)
         {
 
         };
 
-        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI * p_This, Creature * p_Me)
+        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* p_This, Creature* p_Me)
         {
 
         };
@@ -113,7 +117,7 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
     namespace npc_KaylieMacdonaldAIData
     {
-        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI * p_This, Creature * p_Me)
+        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI* p_This, Creature* p_Me)
         {
             p_This->SetupActionSequence(KaylieMacdonald_Level1::MovePointLoc, KaylieMacdonald_Level1::Sequence, sizeof(KaylieMacdonald_Level1::Sequence), KaylieMacdonald_Level1::MovePointIDs::Home);
 
@@ -131,6 +135,7 @@ namespace MS { namespace Garrison
                     p_Me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
                 });
             };
+
             p_This->m_OnPointReached[KaylieMacdonald_Level1::MovePointIDs::Chest] = [p_This, p_Me]() -> void
             {
                 p_This->AddTimedDelayedOperation(KaylieMacdonald_Level1::DestPointDuration::Chest, [p_This]() -> void { p_This->DoNextSequenceAction(); });
@@ -145,6 +150,7 @@ namespace MS { namespace Garrison
                     p_Me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
                 });
             };
+
             p_This->m_OnPointReached[KaylieMacdonald_Level1::MovePointIDs::Body] = [p_This, p_Me]() -> void
             {
                 p_This->AddTimedDelayedOperation(KaylieMacdonald_Level1::DestPointDuration::Body, [p_This]() -> void { p_This->DoNextSequenceAction(); });
@@ -159,12 +165,12 @@ namespace MS { namespace Garrison
             p_This->DoNextSequenceAction();
         };
 
-        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI * p_This, Creature * p_Me)
+        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* p_This, Creature* p_Me)
         {
 
         };
 
-        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI * p_This, Creature * p_Me)
+        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* p_This, Creature* p_Me)
         {
 
         };

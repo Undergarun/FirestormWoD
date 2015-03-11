@@ -91,7 +91,7 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
     namespace npc_TurgaAIData
     {
-        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI * p_This, Creature * p_Me)
+        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI* p_This, Creature* p_Me)
         {
             p_This->SetupActionSequence(Turga_Level1::MovePointLoc, Turga_Level1::Sequence, sizeof(Turga_Level1::Sequence), Turga_Level1::MovePointIDs::Home);
 
@@ -110,6 +110,7 @@ namespace MS { namespace Garrison
                     p_Me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
                 });
             };
+
             p_This->m_OnPointReached[Turga_Level1::MovePointIDs::Body] = [p_This, p_Me]() -> void
             {
                 p_This->AddTimedDelayedOperation(Turga_Level1::DestPointDuration::Body, [p_This]() -> void { p_This->DoNextSequenceAction(); });
@@ -120,6 +121,7 @@ namespace MS { namespace Garrison
                 });
                 p_This->AddTimedDelayedOperation(Turga_Level1::DestPointDuration::Body, [p_Me]() -> void { p_Me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0); });
             };
+
             p_This->m_OnPointReached[Turga_Level1::MovePointIDs::Table] = [p_This, p_Me]() -> void
             {
                 p_This->AddTimedDelayedOperation(Turga_Level1::DestPointDuration::Table, [p_This]() -> void { p_This->DoNextSequenceAction(); });
@@ -137,12 +139,12 @@ namespace MS { namespace Garrison
             p_This->DoNextSequenceAction();
         };
 
-        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI * p_This, Creature * p_Me)
+        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* p_This, Creature* p_Me)
         {
 
         };
 
-        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI * p_This, Creature * p_Me)
+        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* p_This, Creature* p_Me)
         {
 
         };
