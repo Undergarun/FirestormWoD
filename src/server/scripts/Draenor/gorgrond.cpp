@@ -43,7 +43,7 @@ class boss_tarlna_the_ageless : public CreatureScript
             EventGenesis
         };
 
-        struct boss_tarlna_the_agelessAI : public BossAI
+        struct boss_tarlna_the_agelessAI : public ScriptedAI
         {
             boss_tarlna_the_agelessAI(Creature* p_Creature) : ScriptedAI(p_Creature)
             {
