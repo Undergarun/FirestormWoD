@@ -1090,7 +1090,7 @@ void WorldSession::HandleUseToyOpcode(WorldPacket& p_RecvData)
     p_RecvData >> l_SpellID;
     p_RecvData >> l_Misc;
 
-    l_TargetFlags = p_RecvData.ReadBits(21);
+    l_TargetFlags = p_RecvData.ReadBits(23);
     l_HasSourceTarget = p_RecvData.ReadBit();
     l_HasDestinationTarget = p_RecvData.ReadBit();
     l_HasUnkFloat = p_RecvData.ReadBit();

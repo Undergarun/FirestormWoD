@@ -434,19 +434,19 @@ enum Opcodes
         SMSG_TRAINER_SERVICE                                    = 0x0875, ///< 6.1.2 19750
 
         /// Void Storage
-        SMSG_VOID_ITEM_SWAP_RESPONSE                            = 0x0000, ///<
-        SMSG_VOID_STORAGE_CONTENTS                              = 0x0000, ///<
-        SMSG_VOID_STORAGE_FAILED                                = 0x0000, ///<
-        SMSG_VOID_STORAGE_TRANSFER_CHANGES                      = 0x0000, ///<
-        SMSG_VOID_TRANSFER_RESULT                               = 0x0000, ///<
+        SMSG_VOID_ITEM_SWAP_RESPONSE                            = 0x08A5, ///< 6.1.2 19750
+        SMSG_VOID_STORAGE_CONTENTS                              = 0x0F82, ///< 6.1.2 19750
+        SMSG_VOID_STORAGE_FAILED                                = 0x1962, ///< 6.1.2 19750
+        SMSG_VOID_STORAGE_TRANSFER_CHANGES                      = 0x162F, ///< 6.1.2 19750
+        SMSG_VOID_TRANSFER_RESULT                               = 0x0D66, ///< 6.1.2 19750
 
         /// Petition
-        SMSG_PETITION_ALREADY_SIGNED                            = 0x0000, ///<
-        SMSG_PETITION_DECLINED                                  = 0x0000, ///<
+        SMSG_PETITION_ALREADY_SIGNED                            = 0x0F18, ///< 6.1.2 19750
+        SMSG_PETITION_DECLINED                                  = 0x1C31, ///< 6.1.2 19750
         SMSG_PETITION_QUERY_RESPONSE                            = 0x1872, ///< 6.1.2 19750
-        SMSG_PETITION_SHOW_LIST                                 = 0x0000, ///<
-        SMSG_PETITION_SHOW_SIGNATURES                           = 0x0000, ///<
-        SMSG_TURN_IN_PETITION_RESULTS                           = 0x0000, ///<
+        SMSG_PETITION_SHOW_LIST                                 = 0x0B1F, ///< 6.1.2 19750
+        SMSG_PETITION_SHOW_SIGNATURES                           = 0x1CA2, ///< 6.1.2 19750
+        SMSG_TURN_IN_PETITION_RESULTS                           = 0x0A45, ///< 6.1.2 19750
 
         /// Threat
         SMSG_THREAT_CLEAR                                       = 0x0F1D, ///< 6.1.2 19750
@@ -455,50 +455,50 @@ enum Opcodes
         SMSG_HIGHEST_THREAT_UPDATE                              = 0x0F35, ///< 6.1.2 19750
 
         /// Tickets
-        SMSG_GM_TICKET_GET_TICKET_RESPONSE                      = 0x0000, ///<
-        SMSG_GM_TICKET_RESPONSE                                 = 0x0000, ///<
-        SMSG_GM_TICKET_RESPONSE_ERROR                           = 0x0000, ///<
-        SMSG_GM_TICKET_RESOLVE_RESPONSE                         = 0x0000, ///<
-        SMSG_GM_TICKET_SYSTEM_STATUS                            = 0x0000, ///<
-        SMSG_GM_TICKET_UPDATE                                   = 0x0000, ///<
-        SMSG_GM_TICKET_STATUS_UPDATE                            = 0x0000, ///<
-        SMSG_GM_TICKET_CASE_STATUS                              = 0x0000, ///<
+        SMSG_GM_TICKET_GET_TICKET_RESPONSE                      = 0x0B95, ///< 6.1.2 19750
+        SMSG_GM_TICKET_RESPONSE                                 = 0x07B6, ///< 6.1.2 19750
+        SMSG_GM_TICKET_RESPONSE_ERROR                           = 0x08A2, ///< 6.1.2 19750
+        SMSG_GM_TICKET_RESOLVE_RESPONSE                         = 0x0A37, ///< 6.1.2 19750
+        SMSG_GM_TICKET_SYSTEM_STATUS                            = 0x0B16, ///< 6.1.2 19750
+        SMSG_GM_TICKET_UPDATE                                   = 0x0925, ///< 6.1.2 19750
+        SMSG_GM_TICKET_STATUS_UPDATE                            = 0x13B7, ///< 6.1.2 19750
+        SMSG_GM_TICKET_CASE_STATUS                              = 0x17B7, ///< 6.1.2 19750
 
         /// Toybox
-        SMSG_ACCOUNT_TOYS_UPDATE                                = 0x0000, ///<
+        SMSG_ACCOUNT_TOYS_UPDATE                                = 0x1965, ///< 6.1.2 19750
 
         /// Calendar
-        SMSG_CALENDAR_CLEAR_PENDING_ACTION                      = 0x0000, ///<
-        SMSG_CALENDAR_COMMAND_RESULT                            = 0x0000, ///<
-        SMSG_CALENDAR_EVENT_INITIAL_INVITE                      = 0x0000, ///<
-        SMSG_CALENDAR_EVENT_INVITE                              = 0x0000, ///<
-        SMSG_CALENDAR_EVENT_INVITE_ALERT                        = 0x0000, ///<
-        SMSG_CALENDAR_EVENT_INVITE_NOTES                        = 0x0000, ///<
-        SMSG_CALENDAR_EVENT_INVITE_NOTES_ALERT                  = 0x0000, ///<
-        SMSG_CALENDAR_EVENT_INVITE_REMOVED                      = 0x0000, ///<
-        SMSG_CALENDAR_EVENT_INVITE_REMOVED_ALERT                = 0x0000, ///<
-        SMSG_CALENDAR_EVENT_INVITE_STATUS                       = 0x0000, ///<
-        SMSG_CALENDAR_EVENT_INVITE_STATUS_ALERT                 = 0x0000, ///<
-        SMSG_CALENDAR_EVENT_MODERATOR_STATUS                    = 0x0000, ///<
-        SMSG_CALENDAR_EVENT_REMOVED_ALERT                       = 0x0000, ///<
-        SMSG_CALENDAR_EVENT_UPDATED_ALERT                       = 0x0000, ///<
-        SMSG_CALENDAR_RAID_LOCKOUT_ADDED                        = 0x0000, ///<
-        SMSG_CALENDAR_RAID_LOCKOUT_REMOVED                      = 0x0000, ///<
-        SMSG_CALENDAR_RAID_LOCKOUT_UPDATED                      = 0x0000, ///<
-        SMSG_CALENDAR_SEND_CALENDAR                             = 0x0000, ///<
-        SMSG_CALENDAR_SEND_EVENT                                = 0x0000, ///<
-        SMSG_CALENDAR_SEND_NUM_PENDING                          = 0x0000, ///<
+        SMSG_CALENDAR_CLEAR_PENDING_ACTION                      = 0x0932, ///< 6.1.2 19750
+        SMSG_CALENDAR_COMMAND_RESULT                            = 0x0CE5, ///< 6.1.2 19750
+        SMSG_CALENDAR_EVENT_INITIAL_INVITE                      = 0x1F82, ///< 6.1.2 19750
+        SMSG_CALENDAR_EVENT_INVITE                              = 0x0298, ///< 6.1.2 19750
+        SMSG_CALENDAR_EVENT_INVITE_ALERT                        = 0x1797, ///< 6.1.2 19750
+        SMSG_CALENDAR_EVENT_INVITE_NOTES                        = 0x0F01, ///< 6.1.2 19750
+        SMSG_CALENDAR_EVENT_INVITE_NOTES_ALERT                  = 0x1922, ///< 6.1.2 19750
+        SMSG_CALENDAR_EVENT_INVITE_REMOVED                      = 0x09A6, ///< 6.1.2 19750
+        SMSG_CALENDAR_EVENT_INVITE_REMOVED_ALERT                = 0x0A20, ///< 6.1.2 19750
+        SMSG_CALENDAR_EVENT_INVITE_STATUS                       = 0x1637, ///< 6.1.2 19750
+        SMSG_CALENDAR_EVENT_INVITE_STATUS_ALERT                 = 0x0738, ///< 6.1.2 19750
+        SMSG_CALENDAR_EVENT_MODERATOR_STATUS                    = 0x0835, ///< 6.1.2 19750
+        SMSG_CALENDAR_EVENT_REMOVED_ALERT                       = 0x061D, ///< 6.1.2 19750
+        SMSG_CALENDAR_EVENT_UPDATED_ALERT                       = 0x12B7, ///< 6.1.2 19750
+        SMSG_CALENDAR_RAID_LOCKOUT_ADDED                        = 0x05AE, ///< 6.1.2 19750
+        SMSG_CALENDAR_RAID_LOCKOUT_REMOVED                      = 0x07B9, ///< 6.1.2 19750
+        SMSG_CALENDAR_RAID_LOCKOUT_UPDATED                      = 0x0CF5, ///< 6.1.2 19750
+        SMSG_CALENDAR_SEND_CALENDAR                             = 0x0A1F, ///< 6.1.2 19750
+        SMSG_CALENDAR_SEND_EVENT                                = 0x17BE, ///< 6.1.2 19750
+        SMSG_CALENDAR_SEND_NUM_PENDING                          = 0x129E, ///< 6.1.2 19750
 
         /// Warden
-        SMSG_WARDEN_DATA                                        = 0x0000, ///<
+        SMSG_WARDEN_DATA                                        = 0x0BEC, ///< 6.1.2 19750
 
         /// Challenges
-        SMSG_CHALLENGE_MODE_REQUEST_LEADERS_RESULT              = 0x0000, ///<
+        SMSG_CHALLENGE_MODE_REQUEST_LEADERS_RESULT              = 0x1976, ///< 6.1.2 19750
         SMSG_CHALLENGE_MODE_MAP_STATS_UPDATE                    = 0x0000, ///< (NYI)
-        SMSG_CHALLENGE_MODE_NEW_PLAYER_RECORD                   = 0x0000, ///<
-        SMSG_CHALLENGE_MODE_ALL_MAP_STATS                       = 0x0000, ///<
-        SMSG_CHALLENGE_MODE_START                               = 0x0000, ///<
-        SMSG_CHALLENGE_MODE_COMPLETE                            = 0x0000, ///<
+        SMSG_CHALLENGE_MODE_NEW_PLAYER_RECORD                   = 0x1232, ///< 6.1.2 19750
+        SMSG_CHALLENGE_MODE_ALL_MAP_STATS                       = 0x0D22, ///< 6.1.2 19750
+        SMSG_CHALLENGE_MODE_START                               = 0x0000, ///< This opcode is wrong and not existing
+        SMSG_CHALLENGE_MODE_COMPLETE                            = 0x03B1, ///< 6.1.2 19750
         SMSG_CHALLENGE_MOD_REWARDS                              = 0x0000, ///< (NYI)
 
         /// BlackMarket
@@ -1371,14 +1371,14 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Petition
     //////////////////////////////////////////////////////////////////////////
-    CMSG_OFFER_PETITION                         = 0x0000, ///<
-    CMSG_PETITION_BUY                           = 0x0000, ///<
-    CMSG_PETITION_DECLINE                       = 0x0000, ///<
-    CMSG_PETITION_RENAME                        = 0x0000, ///<
-    CMSG_PETITION_SHOWLIST                      = 0x0000, ///<
-    CMSG_PETITION_SHOW_SIGNATURES               = 0x0000, ///<
-    CMSG_PETITION_SIGN                          = 0x0000, ///<
-    CMSG_TURN_IN_PETITION                       = 0x0000, ///<
+    CMSG_OFFER_PETITION                         = 0x1A17, ///< 6.1.2 19750
+    CMSG_PETITION_BUY                           = 0x1872, ///< 6.1.2 19750
+    CMSG_PETITION_DECLINE                       = 0x1D66, ///< 6.1.2 19750
+    CMSG_PETITION_RENAME                        = 0x0E37, ///< 6.1.2 19750
+    CMSG_PETITION_SHOWLIST                      = 0x0CF5, ///< 6.1.2 19750
+    CMSG_PETITION_SHOW_SIGNATURES               = 0x09B6, ///< 6.1.2 19750
+    CMSG_PETITION_SIGN                          = 0x18E5, ///< 6.1.2 19750
+    CMSG_TURN_IN_PETITION                       = 0x0DF5, ///< 6.1.2 19750
 
     //////////////////////////////////////////////////////////////////////////
     /// Pet
@@ -1535,15 +1535,15 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Void storage
     //////////////////////////////////////////////////////////////////////////
-    CMSG_VOID_STORAGE_QUERY                        = 0x0000, ///<
-    CMSG_VOID_STORAGE_TRANSFER                     = 0x0000, ///<
-    CMSG_VOID_STORAGE_UNLOCK                       = 0x0000, ///<
-    CMSG_VOID_SWAP_ITEM                            = 0x0000, ///<
+    CMSG_VOID_STORAGE_QUERY                        = 0x03D3, ///< 6.1.2 19750
+    CMSG_VOID_STORAGE_TRANSFER                     = 0x0E07, ///< 6.1.2 19750
+    CMSG_VOID_STORAGE_UNLOCK                       = 0x0AA1, ///< 6.1.2 19750
+    CMSG_VOID_SWAP_ITEM                            = 0x0B02, ///< 6.1.2 19750
 
     //////////////////////////////////////////////////////////////////////////
     /// Transmogrification
     //////////////////////////////////////////////////////////////////////////
-    CMSG_TRANSMOGRIFY_ITEMS                        = 0x0000, ///<
+    CMSG_TRANSMOGRIFY_ITEMS                        = 0x03F1, ///< 6.1.2 19750
 
     //////////////////////////////////////////////////////////////////////////
     /// Mail
@@ -1566,50 +1566,50 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// GameMasters
     //////////////////////////////////////////////////////////////////////////
-    CMSG_GMRESPONSE_RESOLVE                         = 0x0000, ///<
-    CMSG_GMSURVEY_SUBMIT                            = 0x0000, ///<
-    CMSG_GMTICKET_CREATE                            = 0x0000, ///<
-    CMSG_GMTICKET_DELETETICKET                      = 0x0000, ///<
-    CMSG_GMTICKET_GETTICKET                         = 0x0000, ///<
-    CMSG_GMTICKET_GET_CASE_STATUS                   = 0x0000, ///<
-    CMSG_GMTICKET_SYSTEMSTATUS                      = 0x0000, ///<
-    CMSG_GMTICKET_UPDATETEXT                        = 0x0000, ///<
-    CMSG_GM_REPORT_LAG                              = 0x0000, ///<
-    CMSG_REPORT_BUG                                 = 0x0000, ///<
-    CMSG_REPORT_SUGGESTION                          = 0x0000, ///<
+    CMSG_GMRESPONSE_RESOLVE                         = 0x0217, ///< 6.1.2 19750
+    CMSG_GMSURVEY_SUBMIT                            = 0x0E15, ///< 6.1.2 19750
+    CMSG_GMTICKET_CREATE                            = 0x0A1E, ///< 6.1.2 19750
+    CMSG_GMTICKET_DELETETICKET                      = 0x129E, ///< 6.1.2 19750
+    CMSG_GMTICKET_GETTICKET                         = 0x0717, ///< 6.1.2 19750
+    CMSG_GMTICKET_GET_CASE_STATUS                   = 0x1A3F, ///< 6.1.2 19750
+    CMSG_GMTICKET_SYSTEMSTATUS                      = 0x0A18, ///< 6.1.2 19750
+    CMSG_GMTICKET_UPDATETEXT                        = 0x13A0, ///< 6.1.2 19750
+    CMSG_GM_REPORT_LAG                              = 0x0B3F, ///< 6.1.2 19750
+    CMSG_REPORT_BUG                                 = 0x0B96, ///< 6.1.2 19750
+    CMSG_REPORT_SUGGESTION                          = 0x1A16, ///< 6.1.2 19750
 
     //////////////////////////////////////////////////////////////////////////
     /// ToyBox
     //////////////////////////////////////////////////////////////////////////
-    CMSG_ADD_NEW_TOY_TO_BOX                         = 0x0000, ///<
-    CMSG_SET_FAVORITE_TOY                           = 0x0000, ///<
-    CMSG_USE_TOY                                    = 0x0000, ///<
+    CMSG_ADD_NEW_TOY_TO_BOX                         = 0x1E48, ///< 6.1.2 19750
+    CMSG_SET_FAVORITE_TOY                           = 0x061E, ///< 6.1.2 19750
+    CMSG_USE_TOY                                    = 0x0B48, ///< 6.1.2 19750
 
     //////////////////////////////////////////////////////////////////////////
     /// Calendar
     //////////////////////////////////////////////////////////////////////////
-    CMSG_CALENDAR_ADD_EVENT                         = 0x0000, ///<
-    CMSG_CALENDAR_COMPLAIN                          = 0x0000, ///<
-    CMSG_CALENDAR_COPY_EVENT                        = 0x0000, ///<
-    CMSG_CALENDAR_EVENT_INVITE                      = 0x0000, ///<
-    CMSG_CALENDAR_EVENT_MODERATOR_STATUS            = 0x0000, ///<
-    CMSG_CALENDAR_EVENT_REMOVE_INVITE               = 0x0000, ///<
-    CMSG_CALENDAR_EVENT_RSVP                        = 0x0000, ///<
-    CMSG_CALENDAR_EVENT_SIGNUP                      = 0x0000, ///<
-    CMSG_CALENDAR_EVENT_STATUS                      = 0x0000, ///<
-    CMSG_CALENDAR_GET_CALENDAR                      = 0x0000, ///<
-    CMSG_CALENDAR_GET_EVENT                         = 0x0000, ///<
-    CMSG_CALENDAR_GET_NUM_PENDING                   = 0x0000, ///<
+    CMSG_CALENDAR_ADD_EVENT                         = 0x0320, ///< 6.1.2 19750
+    CMSG_CALENDAR_COMPLAIN                          = 0x1395, ///< 6.1.2 19750
+    CMSG_CALENDAR_COPY_EVENT                        = 0x123F, ///< 6.1.2 19750
+    CMSG_CALENDAR_EVENT_INVITE                      = 0x02B5, ///< 6.1.2 19750
+    CMSG_CALENDAR_EVENT_MODERATOR_STATUS            = 0x03B8, ///< 6.1.2 19750
+    CMSG_CALENDAR_EVENT_REMOVE_INVITE               = 0x16B8, ///< 6.1.2 19750
+    CMSG_CALENDAR_EVENT_RSVP                        = 0x021E, ///< 6.1.2 19750
+    CMSG_CALENDAR_EVENT_SIGNUP                      = 0x0F3F, ///< 6.1.2 19750
+    CMSG_CALENDAR_EVENT_STATUS                      = 0x13B8, ///< 6.1.2 19750
+    CMSG_CALENDAR_GET_CALENDAR                      = 0x1A38, ///< 6.1.2 19750
+    CMSG_CALENDAR_GET_EVENT                         = 0x13BD, ///< 6.1.2 19750
+    CMSG_CALENDAR_GET_NUM_PENDING                   = 0x0BB6, ///< 6.1.2 19750
     CMSG_CALENDAR_GUILD_FILTER                      = 0x0000, ///<
-    CMSG_CALENDAR_REMOVE_EVENT                      = 0x0000, ///<
-    CMSG_CALENDAR_UPDATE_EVENT                      = 0x0000, ///<
+    CMSG_CALENDAR_REMOVE_EVENT                      = 0x16B8, ///< 6.1.2 19750
+    CMSG_CALENDAR_UPDATE_EVENT                      = 0x0F1E, ///< 6.1.2 19750
 
     //////////////////////////////////////////////////////////////////////////
     /// Challenges
     //////////////////////////////////////////////////////////////////////////
-    CMSG_CHALLENGE_MODE_REQUEST_LEADERS             = 0x0000, ///<
-    CMSG_GET_CHALLENGE_MODE_REWARDS                 = 0x0000, ///<
-    CMSG_CHALLENGE_MODE_REQUEST_MAP_STATS           = 0x0000, ///<
+    CMSG_CHALLENGE_MODE_REQUEST_LEADERS             = 0x1017, ///< 6.1.2 19750
+    CMSG_GET_CHALLENGE_MODE_REWARDS                 = 0x1118, ///< 6.1.2 19750
+    CMSG_CHALLENGE_MODE_REQUEST_MAP_STATS           = 0x1503, ///< 6.1.2 19750
 
     //////////////////////////////////////////////////////////////////////////
     /// BlackMarket
