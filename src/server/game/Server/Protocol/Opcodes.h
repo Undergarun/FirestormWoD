@@ -858,27 +858,27 @@ enum Opcodes
     /// Jam Client Lfg
     //////////////////////////////////////////////////////////////////////////
     #pragma region JamLFG
-        SMSG_LFG_BOOT_PLAYER                              = 0x0000, ///<
-        SMSG_LFG_DISABLED                                 = 0x0000, ///<
-        SMSG_LFG_JOIN_RESULT                              = 0x0000, ///<
-        SMSG_LFG_OFFER_CONTINUE                           = 0x0000, ///<
+        SMSG_LFG_BOOT_PLAYER                              = 0x0E11, ///< 6.1.2 19750
+        SMSG_LFG_DISABLED                                 = 0x0EBA, ///< 6.1.2 19750
+        SMSG_LFG_JOIN_RESULT                              = 0x1B31, ///< 6.1.2 19750
+        SMSG_LFG_OFFER_CONTINUE                           = 0x0FB9, ///< 6.1.2 19750
         SMSG_LFG_OPEN_FROM_GOSSIP                         = 0x0000, ///< (unused)
-        SMSG_LFG_PARTY_INFO                               = 0x0000, ///<
-        SMSG_LFG_PLAYER_INFO                              = 0x0000, ///<
-        SMSG_LFG_PLAYER_REWARD                            = 0x0000, ///<
-        SMSG_LFG_PROPOSAL_UPDATE                          = 0x0000, ///<
-        SMSG_LFG_QUEUE_STATUS                             = 0x0000, ///<
-        SMSG_LFG_ROLE_CHECK_UPDATE                        = 0x0000, ///<
-        SMSG_LFG_ROLE_CHOSEN                              = 0x0000, ///<
+        SMSG_LFG_PARTY_INFO                               = 0x1B39, ///< 6.1.2 19750
+        SMSG_LFG_PLAYER_INFO                              = 0x0E32, ///< 6.1.2 19750
+        SMSG_LFG_PLAYER_REWARD                            = 0x0E91, ///< 6.1.2 19750
+        SMSG_LFG_PROPOSAL_UPDATE                          = 0x1B3A, ///< 6.1.2 19750
+        SMSG_LFG_QUEUE_STATUS                             = 0x1A91, ///< 6.1.2 19750
+        SMSG_LFG_ROLE_CHECK_UPDATE                        = 0x1A11, ///< 6.1.2 19750
+        SMSG_LFG_ROLE_CHOSEN                              = 0x0A9A, ///< 6.1.2 19750
         SMSG_LFG_SEARCH_RESULT                            = 0x0000, ///< (unused)
         SMSG_LFG_SLOT_INVALID                             = 0x0000, ///< (unused)
-        SMSG_LFG_TELEPORT_DENIED                          = 0x0000, ///<
+        SMSG_LFG_TELEPORT_DENIED                          = 0x0FB1, ///< 6.1.2 19750
         SMSG_LFG_LIST_JOIN_RESULT                         = 0x0000, ///< (unused)
         SMSG_LFG_UPDATE_LIST                              = 0x0000, ///<
         SMSG_LFG_UPDATE_PARTY                             = 0x0000,
         SMSG_LFG_UPDATE_PLAYER                            = 0x0000,
         SMSG_LFG_UPDATE_SEARCH                            = 0x0000,
-        SMSG_LFG_UPDATE_STATUS                            = 0x0000, ///<
+        SMSG_LFG_UPDATE_STATUS                            = 0x1A92, ///< 6.1.2 19750
         SMSG_LFG_UPDATE_STATUS_NONE                       = 0x0000,
         SMSG_UPDATE_DUNGEON_ENCOUNTER_FOR_LOOT            = 0x0000,
     #pragma endregion
@@ -1502,17 +1502,16 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// LFG
     //////////////////////////////////////////////////////////////////////////
-    CMSG_DFGET_SYSTEM_INFO                         = 0x0000,    ///<
+    CMSG_DFGET_SYSTEM_INFO                         = 0x1298,    ///< 6.1.2 19750
     CMSG_LFG_GET_PLAYER_INFO                       = 0x0000,
-    CMSG_LFG_GET_STATUS                            = 0x0000,    ///<
-    CMSG_LFG_JOIN                                  = 0x0000,    ///<
-    CMSG_LFG_LEAVE                                 = 0x0000,    ///<
-    CMSG_LFG_PROPOSAL_RESULT                       = 0x0000,    ///<
-    CMSG_LFG_SET_BOOT_VOTE                         = 0x0000,    ///<
+    CMSG_LFG_GET_STATUS                            = 0x1236,    ///< 6.1.2 19750
+    CMSG_LFG_JOIN                                  = 0x1237,    ///< 6.1.2 19750
+    CMSG_LFG_LEAVE                                 = 0x029D,    ///< 6.1.2 19750
+    CMSG_LFG_PROPOSAL_RESULT                       = 0x0795,    ///< 6.1.2 19750
+    CMSG_LFG_SET_BOOT_VOTE                         = 0x0EBF,    ///< 6.1.2 19750
     CMSG_LFG_SET_COMMENT                           = 0x0000,    ///< (unused)
-    CMSG_LFG_SET_ROLES                             = 0x0000,    ///<
-    CMSG_DFSET_ROLES                               = 0x0000,    ///<
-    CMSG_LFG_TELEPORT                              = 0x0000,    ///<
+    CMSG_DFSET_ROLES                               = 0x0297,    ///< 6.1.2 19750
+    CMSG_LFG_TELEPORT                              = 0x0FB7,    ///< 6.1.2 19750
     CMSG_SEARCH_LFG_JOIN                           = 0x0000,    ///< (unused)
     CMSG_SEARCH_LFG_LEAVE                          = 0x0000,    ///< (unused)
     CMSG_RESET_INSTANCES                           = 0x0A97,    ///< 6.1.2 19750
