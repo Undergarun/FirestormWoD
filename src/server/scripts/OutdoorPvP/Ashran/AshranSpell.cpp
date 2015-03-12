@@ -310,8 +310,11 @@ class spell_ashran_artifacts_collected : public SpellScriptLoader
                             break;
                     }
 
-                    uint32 l_Count = ((OutdoorPvPAshran*)l_ZoneScript)->GetArtifactCollected(l_TeamID, l_Type);
-                    p_AurEff->ChangeAmount(l_Count);
+                    if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)l_ZoneScript)
+                    {
+                        uint32 l_Count = l_Ashran->GetArtifactCollected(l_TeamID, l_Type);
+                        p_AurEff->ChangeAmount(l_Count);
+                    }
                 }
             }
 

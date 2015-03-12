@@ -131,15 +131,18 @@ class npc_ashran_harrison_jones : public CreatureScript
                 uint32 l_Count = l_ArtifactCount / eArtifactsDatas::MaxArtifactCounts;
                 uint8 l_Rand = urand(0, eArtifactsDatas::MaxArtifactCounts - 1);
 
-                for (uint8 l_I = 0; l_I < eArtifactsDatas::MaxArtifactCounts; ++l_I)
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)l_ZoneScript)
                 {
-                    if (l_I == l_Rand)
-                        ((OutdoorPvPAshran*)l_ZoneScript)->AddCollectedArtifacts(TeamId::TEAM_ALLIANCE, l_I, l_Count + l_Modulo);
-                    else
-                        ((OutdoorPvPAshran*)l_ZoneScript)->AddCollectedArtifacts(TeamId::TEAM_ALLIANCE, l_I, l_Count);
-                }
+                    for (uint8 l_I = 0; l_I < eArtifactsDatas::MaxArtifactCounts; ++l_I)
+                    {
+                        if (l_I == l_Rand)
+                            l_Ashran->AddCollectedArtifacts(TeamId::TEAM_ALLIANCE, l_I, l_Count + l_Modulo);
+                        else
+                            l_Ashran->AddCollectedArtifacts(TeamId::TEAM_ALLIANCE, l_I, l_Count);
+                    }
 
-                ((OutdoorPvPAshran*)l_ZoneScript)->RewardHonorAndReputation(l_ArtifactCount, p_Player);
+                    l_Ashran->RewardHonorAndReputation(l_ArtifactCount, p_Player);
+                }
             }
         };
 
@@ -190,15 +193,18 @@ class npc_ashran_belloc_brightblade : public CreatureScript
                 uint32 l_Count = l_ArtifactCount / eArtifactsDatas::MaxArtifactCounts;
                 uint8 l_Rand = urand(0, eArtifactsDatas::MaxArtifactCounts - 1);
 
-                for (uint8 l_I = 0; l_I < eArtifactsDatas::MaxArtifactCounts; ++l_I)
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)l_ZoneScript)
                 {
-                    if (l_I == l_Rand)
-                        ((OutdoorPvPAshran*)l_ZoneScript)->AddCollectedArtifacts(TeamId::TEAM_HORDE, l_I, l_Count + l_Modulo);
-                    else
-                        ((OutdoorPvPAshran*)l_ZoneScript)->AddCollectedArtifacts(TeamId::TEAM_HORDE, l_I, l_Count);
-                }
+                    for (uint8 l_I = 0; l_I < eArtifactsDatas::MaxArtifactCounts; ++l_I)
+                    {
+                        if (l_I == l_Rand)
+                            l_Ashran->AddCollectedArtifacts(TeamId::TEAM_HORDE, l_I, l_Count + l_Modulo);
+                        else
+                            l_Ashran->AddCollectedArtifacts(TeamId::TEAM_HORDE, l_I, l_Count);
+                    }
 
-                ((OutdoorPvPAshran*)l_ZoneScript)->RewardHonorAndReputation(l_ArtifactCount, p_Player);
+                    l_Ashran->RewardHonorAndReputation(l_ArtifactCount, p_Player);
+                }
             }
         };
 

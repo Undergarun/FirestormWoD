@@ -187,11 +187,14 @@ class npc_faction_boss : public CreatureScript
 
                 Talk(eTalk::TalkDeath, 0, TextRange::TEXT_RANGE_MAP);
 
-                uint64 l_GenericGuid = ((OutdoorPvPAshran*)m_ZoneScript)->GetFactionGenericMoP(me->GetEntry() == eCreatures::GrandMarshalTremblade ? TeamId::TEAM_ALLIANCE : TeamId::TEAM_HORDE);
-                if (Creature* l_GenericMoP = sObjectAccessor->FindCreature(l_GenericGuid))
-                    l_GenericMoP->AI()->DoAction(me->GetEntry() == eCreatures::GrandMarshalTremblade ? eAshranActions::AnnounceHordeKillBoss : eAshranActions::AnnounceAllianceKillBoss);
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)m_ZoneScript)
+                {
+                    uint64 l_GenericGuid = l_Ashran->GetFactionGenericMoP(me->GetEntry() == eCreatures::GrandMarshalTremblade ? TeamId::TEAM_ALLIANCE : TeamId::TEAM_HORDE);
+                    if (Creature* l_GenericMoP = sObjectAccessor->FindCreature(l_GenericGuid))
+                        l_GenericMoP->AI()->DoAction(me->GetEntry() == eCreatures::GrandMarshalTremblade ? eAshranActions::AnnounceHordeKillBoss : eAshranActions::AnnounceAllianceKillBoss);
 
-                ((OutdoorPvPAshran*)m_ZoneScript)->HandleFactionBossDeath(me->GetEntry() == eCreatures::GrandMarshalTremblade ? TeamId::TEAM_HORDE : TeamId::TEAM_ALLIANCE);
+                    l_Ashran->HandleFactionBossDeath(me->GetEntry() == eCreatures::GrandMarshalTremblade ? TeamId::TEAM_HORDE : TeamId::TEAM_ALLIANCE);
+                }
 
                 /// Upon successfully defeating the enemy leader, those present receive 50 Honor and 250 Conquest
                 std::list<Player*> l_PlayerList;
@@ -504,7 +507,9 @@ class npc_ashran_korlok : public CreatureScript
                     me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
                     me->setFaction(eFactions::KorlokNeutral);
                     me->SetReactState(ReactStates::REACT_PASSIVE);
-                    ((OutdoorPvPAshran*)m_OutdoorPvP)->EndEvent(eAshranEvents::EventKorlokTheOgreKing);
+
+                    if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)m_OutdoorPvP)
+                        l_Ashran->EndEvent(eAshranEvents::EventKorlokTheOgreKing);
                 }
             }
 
@@ -639,7 +644,8 @@ class npc_ashran_korlok : public CreatureScript
 
             void HandleJumpToFight()
             {
-                ((OutdoorPvPAshran*)m_OutdoorPvP)->EndEvent(eAshranEvents::EventKorlokTheOgreKing, false);
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)m_OutdoorPvP)
+                    l_Ashran->EndEvent(eAshranEvents::EventKorlokTheOgreKing, false);
                 me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
                 me->SetReactState(ReactStates::REACT_AGGRESSIVE);
 

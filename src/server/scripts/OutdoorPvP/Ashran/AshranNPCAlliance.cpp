@@ -527,8 +527,11 @@ class npc_ashran_marketa : public CreatureScript
                 uint32 l_ArtifactCount = p_Player->GetCurrency(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT, true);
                 p_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT, -int32(l_ArtifactCount * CURRENCY_PRECISION), false);
 
-                ((OutdoorPvPAshran*)l_ZoneScript)->AddCollectedArtifacts(TeamId::TEAM_ALLIANCE, eArtifactsDatas::CountForWarlock, l_ArtifactCount);
-                ((OutdoorPvPAshran*)l_ZoneScript)->RewardHonorAndReputation(l_ArtifactCount, p_Player);
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)l_ZoneScript)
+                {
+                    l_Ashran->AddCollectedArtifacts(TeamId::TEAM_ALLIANCE, eArtifactsDatas::CountForWarlock, l_ArtifactCount);
+                    l_Ashran->RewardHonorAndReputation(l_ArtifactCount, p_Player);
+                }
             }
         };
 
@@ -561,8 +564,11 @@ class npc_ashran_ecilam : public CreatureScript
                 uint32 l_ArtifactCount = p_Player->GetCurrency(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT, true);
                 p_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT, -int32(l_ArtifactCount * CURRENCY_PRECISION), false);
 
-                ((OutdoorPvPAshran*)l_ZoneScript)->AddCollectedArtifacts(TeamId::TEAM_ALLIANCE, eArtifactsDatas::CountForMage, l_ArtifactCount);
-                ((OutdoorPvPAshran*)l_ZoneScript)->RewardHonorAndReputation(l_ArtifactCount, p_Player);
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)l_ZoneScript)
+                {
+                    l_Ashran->AddCollectedArtifacts(TeamId::TEAM_ALLIANCE, eArtifactsDatas::CountForMage, l_ArtifactCount);
+                    l_Ashran->RewardHonorAndReputation(l_ArtifactCount, p_Player);
+                }
             }
         };
 
@@ -595,8 +601,11 @@ class npc_ashran_valant_brightsworn : public CreatureScript
                 uint32 l_ArtifactCount = p_Player->GetCurrency(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT, true);
                 p_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT, -int32(l_ArtifactCount * CURRENCY_PRECISION), false);
 
-                ((OutdoorPvPAshran*)l_ZoneScript)->AddCollectedArtifacts(TeamId::TEAM_ALLIANCE, eArtifactsDatas::CountForWarriorPaladin, l_ArtifactCount);
-                ((OutdoorPvPAshran*)l_ZoneScript)->RewardHonorAndReputation(l_ArtifactCount, p_Player);
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)l_ZoneScript)
+                {
+                    l_Ashran->AddCollectedArtifacts(TeamId::TEAM_ALLIANCE, eArtifactsDatas::CountForWarriorPaladin, l_ArtifactCount);
+                    l_Ashran->RewardHonorAndReputation(l_ArtifactCount, p_Player);
+                }
             }
         };
 
@@ -629,8 +638,11 @@ class npc_ashran_anenga : public CreatureScript
                 uint32 l_ArtifactCount = p_Player->GetCurrency(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT, true);
                 p_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT, -int32(l_ArtifactCount * CURRENCY_PRECISION), false);
 
-                ((OutdoorPvPAshran*)l_ZoneScript)->AddCollectedArtifacts(TeamId::TEAM_ALLIANCE, eArtifactsDatas::CountForDruidShaman, l_ArtifactCount);
-                ((OutdoorPvPAshran*)l_ZoneScript)->RewardHonorAndReputation(l_ArtifactCount, p_Player);
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)l_ZoneScript)
+                {
+                    l_Ashran->AddCollectedArtifacts(TeamId::TEAM_ALLIANCE, eArtifactsDatas::CountForDruidShaman, l_ArtifactCount);
+                    l_Ashran->RewardHonorAndReputation(l_ArtifactCount, p_Player);
+                }
             }
         };
 

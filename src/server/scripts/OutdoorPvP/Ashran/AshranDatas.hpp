@@ -238,7 +238,13 @@ enum eCreatures
     Marketa                 = 82660,    ///< Alliance warlock leader
     Ecilam                  = 82966,    ///< Alliance mage leader
     ValantBrightsworn       = 82893,    ///< Alliance paladin leader
-    Anenga                  = 81870     ///< Alliance druid leader
+    Anenga                  = 81870,    ///< Alliance druid leader
+
+    /// Artifacts events related
+    /// Alliance
+    PortalMage              = 83435,
+    VignetteDummy           = 84471,
+    Kauper                  = 84466
 };
 
 enum eArtifactsDatas
@@ -262,14 +268,22 @@ enum eArtifactsDatas
 
 enum eGameObjects
 {
+    /// Marketplace Graveyard
     GraveyardBannerHorde    = 233518,
     GraveyardBannerAlliance = 233517,
     GraveyardControlBanner  = 231201,
+
+    /// Road of Glory
     CapturePointBanner      = 230876,
     BonfireWithSmokeLarge1  = 233531,
     Smallfire1              = 233534,
     FXFireMediumLowSlow     = 233535,
-    AncientArtifact         = 233825
+
+    /// Misc
+    AncientArtifact         = 233825,
+
+    /// Artifact events
+    PortalToStormshield     = 233285
 };
 
 enum eAshranActions
@@ -399,10 +413,12 @@ enum eSpecialSpawns
 
     /// Alliance events
     /// Mage portals
-    AllianceMagePortal = AllianceMarshalKarshStormforge + 1,
+    AllianceMagePortal1 = AllianceMarshalKarshStormforge + 1,    ///< Two spawns
+    AllianceMagePortal2,
     AllianceVignetteDummy,
     AllianceKauper,
-    PortalToStormshield
+    AlliancePortalToStormshield,
+    MagePortalsCreatures = 4
 };
 
 enum eFactions
@@ -430,6 +446,16 @@ struct AshranGraveyard
 {
     uint32 m_ID;
     TeamId m_StartTeam;
+};
+
+go_type const g_MagePortalsGob = { eGameObjects::PortalToStormshield, eAshranDatas::AshranMapID, 4645.94f, -4097.77f, 22.6435f, 5.14771f, 0.0f, 0.0f, 0.0f, 0.0f };
+
+creature_type const g_MagePortalsSpawns[eSpecialSpawns::MagePortalsCreatures] =
+{
+    { eCreatures::PortalMage,       Team::ALLIANCE, eAshranDatas::AshranMapID, 4641.67f, -4099.74f, 22.49f, 0.423455f   },
+    { eCreatures::PortalMage,       Team::ALLIANCE, eAshranDatas::AshranMapID, 4649.82f, -4100.56f, 22.49f, 2.602931f   },
+    { eCreatures::VignetteDummy,    Team::ALLIANCE, eAshranDatas::AshranMapID, 4646.04f, -4098.80f, 22.70f, 0.0f        },
+    { eCreatures::Kauper,           Team::ALLIANCE, eAshranDatas::AshranMapID, 4646.18f, -4093.56f, 22.63f, 1.534031f   }
 };
 
 uint32 const g_MaxArtifactsToCollect[eArtifactsDatas::MaxArtifactCounts] =
