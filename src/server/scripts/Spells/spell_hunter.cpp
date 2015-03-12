@@ -322,6 +322,9 @@ class spell_hun_black_arrow : public SpellScriptLoader
 
             void HandleDispel(DispelInfo*)
             {
+                if (!GetCaster())
+                    return;
+
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
                     if (l_Player->HasSpellCooldown(GetSpellInfo()->Id))
