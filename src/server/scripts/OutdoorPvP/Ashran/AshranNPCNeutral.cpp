@@ -20,9 +20,9 @@ class npc_ashran_herald : public CreatureScript
 
             enum eTalk
             {
-                TALK_ANNOUNCE_NEUTRAL_GRAVEYARD,
-                TALK_ANNOUNCE_HORDE_GRAVEYARD,
-                TALK_ANNOUNCE_ALLIANCE_GRAVEYARD
+                AnnounceNeutralGraveyard,
+                AnnounceHordeGraveyard,
+                AnnounceAllianceGraveyard
             };
 
             void Reset() override
@@ -35,13 +35,13 @@ class npc_ashran_herald : public CreatureScript
                 switch (p_Action)
                 {
                     case eAshranActions::AnnounceMarketplaceGraveyard:
-                        Talk(eTalk::TALK_ANNOUNCE_NEUTRAL_GRAVEYARD);
+                        Talk(eTalk::AnnounceNeutralGraveyard, 0, TextRange::TEXT_RANGE_MAP);
                         break;
                     case eAshranActions::AnnounceHordeGraveyard:
-                        Talk(eTalk::TALK_ANNOUNCE_HORDE_GRAVEYARD);
+                        Talk(eTalk::AnnounceHordeGraveyard, 0, TextRange::TEXT_RANGE_MAP);
                         break;
                     case eAshranActions::AnnounceAllianceGraveyard:
-                        Talk(eTalk::TALK_ANNOUNCE_ALLIANCE_GRAVEYARD);
+                        Talk(eTalk::AnnounceAllianceGraveyard, 0, TextRange::TEXT_RANGE_MAP);
                         break;
                     default:
                         break;
@@ -67,10 +67,10 @@ class npc_slg_generic_mop : public CreatureScript
 
             enum eTalk
             {
-                TALK_HORDE_VICTORY,
-                TALK_ALLIANCE_KILL_BOSS,
-                TALK_ALLIANCE_VICTORY,
-                TALK_HORDE_KILL_BOSS
+                HordeVictory,
+                AllianceKillBoss,
+                AllianceVictory,
+                HordeKillBoss
             };
 
             void Reset() override
@@ -84,16 +84,16 @@ class npc_slg_generic_mop : public CreatureScript
                 switch (p_Action)
                 {
                     case eAshranActions::AnnounceHordeVictory:
-                        Talk(eTalk::TALK_HORDE_VICTORY);
+                        Talk(eTalk::HordeVictory, 0, TextRange::TEXT_RANGE_MAP);
                         break;
                     case eAshranActions::AnnounceAllianceKillBoss:
-                        Talk(eTalk::TALK_ALLIANCE_KILL_BOSS);
+                        Talk(eTalk::AllianceKillBoss, 0, TextRange::TEXT_RANGE_MAP);
                         break;
                     case eAshranActions::AnnounceAllianceVictory:
-                        Talk(eTalk::TALK_ALLIANCE_VICTORY);
+                        Talk(eTalk::AllianceVictory, 0, TextRange::TEXT_RANGE_MAP);
                         break;
                     case eAshranActions::AnnounceHordeKillBoss:
-                        Talk(eTalk::TALK_HORDE_KILL_BOSS);
+                        Talk(eTalk::HordeKillBoss, 0, TextRange::TEXT_RANGE_MAP);
                         break;
                     default:
                         break;
@@ -167,7 +167,7 @@ class npc_faction_boss : public CreatureScript
             {
                 _EnterCombat();
 
-                Talk(eTalk::TalkAggro);
+                Talk(eTalk::TalkAggro, 0, TextRange::TEXT_RANGE_MAP);
 
                 m_Events.ScheduleEvent(eEvents::EventMortalCleave, 5000);
                 m_Events.ScheduleEvent(eEvents::EventBladeTwister, 15000);
@@ -178,14 +178,14 @@ class npc_faction_boss : public CreatureScript
             void KilledUnit(Unit* p_Who) override
             {
                 if (p_Who->GetTypeId() == TypeID::TYPEID_PLAYER)
-                    Talk(eTalk::TalkSlay);
+                    Talk(eTalk::TalkSlay, 0, TextRange::TEXT_RANGE_MAP);
             }
 
             void JustDied(Unit* p_Killer) override
             {
                 _JustDied();
 
-                Talk(eTalk::TalkDeath);
+                Talk(eTalk::TalkDeath, 0, TextRange::TEXT_RANGE_MAP);
 
                 uint64 l_GenericGuid = ((OutdoorPvPAshran*)m_ZoneScript)->GetFactionGenericMoP(me->GetEntry() == eCreatures::GrandMarshalTremblade ? TeamId::TEAM_ALLIANCE : TeamId::TEAM_HORDE);
                 if (Creature* l_GenericMoP = sObjectAccessor->FindCreature(l_GenericGuid))
@@ -228,11 +228,11 @@ class npc_faction_boss : public CreatureScript
                 {
                     case eAshranActions::WarspearOutpostInFight:
                     case eAshranActions::StormshieldStrongholdInFight:
-                        Talk(eTalk::TalkIntro);
+                        Talk(eTalk::TalkIntro, 0, TextRange::TEXT_RANGE_MAP);
                         break;
                     case eAshranActions::WarspearVictory:
                     case eAshranActions::StormshieldVictory:
-                        Talk(eTalk::TalkVictory);
+                        Talk(eTalk::TalkVictory, 0, TextRange::TEXT_RANGE_MAP);
                         break;
                     default:
                         break;
@@ -445,7 +445,7 @@ class npc_ashran_korlok : public CreatureScript
                 me->DisableHealthRegen();
 
                 if (!m_IsAwake)
-                    Talk(eTalk::TalkAwake);
+                    Talk(eTalk::TalkAwake, 0, TextRange::TEXT_RANGE_MAP);
 
                 m_Events.Reset();
 
@@ -486,7 +486,7 @@ class npc_ashran_korlok : public CreatureScript
             void KilledUnit(Unit* p_Who) override
             {
                 if (p_Who->GetTypeId() == TypeID::TYPEID_PLAYER)
-                    Talk(eTalk::TalkSlay);
+                    Talk(eTalk::TalkSlay, 0, TextRange::TEXT_RANGE_MAP);
             }
 
             void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
@@ -499,7 +499,7 @@ class npc_ashran_korlok : public CreatureScript
 
                 if (p_Damage >= me->GetHealth())
                 {
-                    Talk(eTalk::TalkDeath);
+                    Talk(eTalk::TalkDeath, 0, TextRange::TEXT_RANGE_MAP);
                     p_Damage = 0;
                     me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
                     me->setFaction(eFactions::KorlokNeutral);
@@ -513,12 +513,12 @@ class npc_ashran_korlok : public CreatureScript
                 switch (p_Action)
                 {
                     case eActions::ActionAllianceRecruit:
-                        Talk(eTalk::TalkRecruitedByAlliance);
+                        Talk(eTalk::TalkRecruitedByAlliance, 0, TextRange::TEXT_RANGE_MAP);
                         me->setFaction(eFactions::KorlokForAlliance);
                         HandleJumpToFight();
                         break;
                     case eActions::ActionHordeRecruit:
-                        Talk(eTalk::TalkRecruitedByHorde);
+                        Talk(eTalk::TalkRecruitedByHorde, 0, TextRange::TEXT_RANGE_MAP);
                         me->setFaction(eFactions::KorlokForHorde);
                         HandleJumpToFight();
                         break;

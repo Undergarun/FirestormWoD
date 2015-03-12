@@ -19,6 +19,7 @@
 #include "ObjectMgr.h"
 #include "Language.h"
 #include "ScriptedCosmeticAI.hpp"
+#include "CreatureTextMgr.h"
 
 #ifndef ASHRAN_MGR_HPP_ASHRAN
 #define ASHRAN_MGR_HPP_ASHRAN
@@ -126,6 +127,7 @@ class OutdoorPvPAshran : public OutdoorPvP
         void HandleBFMGREntryInviteResponse(bool p_Accepted, Player* p_Player);
 
         void OnCreatureCreate(Creature* p_Creature);
+        void OnCreatureRemove(Creature* p_Creature);
         Creature* GetHerald() const;
 
         void ResetControlPoints();
@@ -152,6 +154,9 @@ class OutdoorPvPAshran : public OutdoorPvP
         uint32 GetArtifactCollected(uint8 p_TeamID, uint8 p_Type) const { return m_ArtifactsCollected[p_TeamID][p_Type]; }
         void AddCollectedArtifacts(uint8 p_TeamID, uint8 p_Type, uint32 p_Count);
         void RewardHonorAndReputation(uint32 p_ArtifactCount, Player* p_Player);
+
+        void AddVignetteOnPlayers(Creature* p_Creature, uint32 p_VignetteID);
+        void RemoveVignetteOnPlayers(uint32 p_VignetteID);
 
     private:
 
@@ -185,6 +190,8 @@ class OutdoorPvPAshran : public OutdoorPvP
         uint32 m_CurrentBattleState;
         uint32 m_NextBattleTimer;
         uint32 m_MaxBattleTime;
+
+        std::map<uint32, uint64> m_CurrentVignettes;
 };
 
 #endif

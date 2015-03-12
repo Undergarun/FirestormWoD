@@ -585,6 +585,7 @@ OutdoorPvPAshran::OutdoorPvPAshran()
     m_WillBeReset           = false;
 
     m_PlayerCurrencyLoots.clear();
+    m_CurrentVignettes.clear();
 
     m_Guid = MAKE_NEW_GUID(m_WorldPvPAreaId, 0, HighGuid::HIGHGUID_TYPE_BATTLEGROUND);
     m_Guid |= eAshranDatas::BattlefieldWorldPvP;
@@ -702,12 +703,11 @@ void OutdoorPvPAshran::HandlePlayerEnterMap(Player* p_Player, uint32 p_MapID)
 
     m_InvitedPlayers[p_Player->GetTeamId()][p_Player->GetGUID()] = time(NULL) + eAshranDatas::AshranTimeForInvite;
 
+    /// Sending the packet to player
     WorldPacket l_Data(Opcodes::SMSG_BFMGR_ENTRY_INVITE);
     l_Data << uint64(m_Guid);                                           ///< QueueID
     l_Data << uint32(eAshranDatas::AshranZoneID);                       ///< Zone Id
     l_Data << uint32(time(NULL) + eAshranDatas::AshranTimeForInvite);   ///< Invite lasts until
-
-    /// Sending the packet to player
     p_Player->SendDirectMessage(&l_Data);
 
     p_Player->CastSpell(p_Player, eAshranSpells::SpellLootable, true);
@@ -719,7 +719,25 @@ void OutdoorPvPAshran::HandlePlayerEnterMap(Player* p_Player, uint32 p_MapID)
         p_Player->CastSpell(p_Player, eAshranSpells::WelcomeToAshranHorde, true);
 
     if (!m_IsInitialized && !m_InitPointsTimer)
+    {
+        /// Force the loading of all grids of Ashran for the first time
+        p_Player->GetMap()->LoadAllGrids(3700.0f, 5100.0f, -5050.0f, -3510.0f, p_Player);
+        p_Player->GetMap()->SetObjectVisibility(300.0f);
         m_InitPointsTimer = 2000;
+    }
+
+    /// Init vignettes for Player
+    for (auto l_VignetteItr : m_CurrentVignettes)
+    {
+        if (VignetteEntry const* l_Vignette = sVignetteStore.LookupEntry(l_VignetteItr.first))
+        {
+            if (Creature* l_Creature = Creature::GetCreature(*p_Player, l_VignetteItr.second))
+            {
+                G3D::Vector3 l_Pos = G3D::Vector3(l_Creature->GetPositionX(), l_Creature->GetPositionY(), l_Creature->GetPositionZ());
+                p_Player->GetVignetteMgr().CreateAndAddVignette(l_Vignette, eAshranDatas::AshranMapID, Vignette::Type::SourceScript, l_Pos, l_VignetteItr.second);
+            }
+        }
+    }
 }
 
 void OutdoorPvPAshran::HandlePlayerLeaveMap(Player* p_Player, uint32 p_MapID)
@@ -741,6 +759,16 @@ void OutdoorPvPAshran::HandlePlayerLeaveMap(Player* p_Player, uint32 p_MapID)
 
     if (m_PlayerCurrencyLoots.find(p_Player->GetGUID()) != m_PlayerCurrencyLoots.end())
         m_PlayerCurrencyLoots.erase(p_Player->GetGUID());
+
+    /// Clean all Ashran vignettes for player
+    for (auto l_VignetteItr : m_CurrentVignettes)
+    {
+        VignetteEntry const* l_Vignette = sVignetteStore.LookupEntry(l_VignetteItr.first);
+        if (l_Vignette == nullptr)
+            continue;
+
+        p_Player->GetVignetteMgr().DestroyAndRemoveVignetteByEntry(l_Vignette);
+    }
 }
 
 void OutdoorPvPAshran::HandlePlayerEnterArea(Player* p_Player, uint32 p_AreaID)
@@ -1331,6 +1359,21 @@ void OutdoorPvPAshran::OnCreatureCreate(Creature* p_Creature)
                 m_GraveyardList[l_GraveyardID]->SetSpirit(p_Creature, l_TeamID);
             break;
         }
+        case eCreatures::KorlokTheOgreKing:
+            AddVignetteOnPlayers(p_Creature, eAshranVignettes::VignetteKorlok);
+            break;
+        default:
+            break;
+    }
+}
+
+void OutdoorPvPAshran::OnCreatureRemove(Creature* p_Creature)
+{
+    switch (p_Creature->GetEntry())
+    {
+        case eCreatures::KorlokTheOgreKing:
+            RemoveVignetteOnPlayers(eAshranVignettes::VignetteKorlok);
+            break;
         default:
             break;
     }
@@ -1405,7 +1448,7 @@ void OutdoorPvPAshran::InitializeEvents()
             break;
 
         l_Timer += l_TimerInterval;
-        m_AshranEvents[l_Index] = l_Timer;
+        m_AshranEvents[l_Index] = /*l_Timer*/ 30 * TimeConstants::IN_MILLISECONDS;  ///< For tests
     }
 }
 
@@ -1693,6 +1736,50 @@ void OutdoorPvPAshran::RewardHonorAndReputation(uint32 p_ArtifactCount, Player* 
         return;
 
     p_Player->GetReputationMgr().ModifyReputation(l_Faction, l_Reputation);
+}
+
+void OutdoorPvPAshran::AddVignetteOnPlayers(Creature* p_Creature, uint32 p_VignetteID)
+{
+    VignetteEntry const* l_Vignette = sVignetteStore.LookupEntry(p_VignetteID);
+    if (l_Vignette == nullptr)
+        return;
+
+    G3D::Vector3 l_Position = G3D::Vector3(p_Creature->GetPositionX(), p_Creature->GetPositionY(), p_Creature->GetPositionZ());
+    uint64 l_CreatureGuid = p_Creature->GetGUID();
+    m_CurrentVignettes.insert(std::make_pair(p_VignetteID, l_CreatureGuid));
+
+    for (uint8 l_Team = 0; l_Team < MS::Battlegrounds::TeamsCount::Value; ++l_Team)
+    {
+        for (uint64 l_Guid : m_PlayersInWar[l_Team])
+        {
+            if (Player* l_Player = sObjectAccessor->FindPlayer(l_Guid))
+            {
+                Vignette::Manager& l_VignetteMgr = l_Player->GetVignetteMgr();
+                l_VignetteMgr.CreateAndAddVignette(l_Vignette, eAshranDatas::AshranMapID, Vignette::Type::SourceScript, l_Position, l_CreatureGuid);
+            }
+        }
+    }
+}
+
+void OutdoorPvPAshran::RemoveVignetteOnPlayers(uint32 p_VignetteID)
+{
+    VignetteEntry const* l_Vignette = sVignetteStore.LookupEntry(p_VignetteID);
+    if (l_Vignette == nullptr)
+        return;
+
+    m_CurrentVignettes.erase(p_VignetteID);
+
+    for (uint8 l_Team = 0; l_Team < MS::Battlegrounds::TeamsCount::Value; ++l_Team)
+    {
+        for (uint64 l_Guid : m_PlayersInWar[l_Team])
+        {
+            if (Player* l_Player = sObjectAccessor->FindPlayer(l_Guid))
+            {
+                Vignette::Manager& l_VignetteMgr = l_Player->GetVignetteMgr();
+                l_VignetteMgr.DestroyAndRemoveVignetteByEntry(l_Vignette);
+            }
+        }
+    }
 }
 
 class OutdoorPvP_Ashran : public OutdoorPvPScript

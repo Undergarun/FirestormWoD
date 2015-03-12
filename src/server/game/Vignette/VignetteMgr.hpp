@@ -57,6 +57,12 @@ namespace Vignette
             */
             Vignette::Entity* CreateAndAddVignette(VignetteEntry const* p_VignetteEntry, uint32 const p_MapId, Vignette::Type const p_VignetteType, G3D::Vector3 const p_Position, uint64 const p_SourceGuid = 0);
 
+            /*
+            * Remove the vignettes of the manager if they are of the same ID as specified, and destroy them
+            * @param p_VignetteEntry: DB2 entry of the vignette to remove and destroy
+            */
+            void DestroyAndRemoveVignetteByEntry(VignetteEntry const* p_VignetteEntry);
+
             /**
             * Remove the vignettes of the manager and destroy them
             * @param p_Lamba: Function to call for check if the vignette can be remove & destroy

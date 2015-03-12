@@ -238,9 +238,10 @@ class OutdoorPvP : public ZoneScript
         // setup stuff
         virtual bool SetupOutdoorPvP() {return true;}
 
-        void OnGameObjectCreate(GameObject* go);
-        void OnGameObjectRemove(GameObject* go);
-        void OnCreatureCreate(Creature*) {}
+        void OnGameObjectCreate(GameObject* p_GameObject);
+        void OnGameObjectRemove(GameObject* p_GameObject);
+        void OnCreatureCreate(Creature* p_Creature) { }
+        void OnCreatureRemove(Creature* p_Creature) { }
 
         // send world state update to all players present
         void SendUpdateWorldState(uint32 field, uint32 value);

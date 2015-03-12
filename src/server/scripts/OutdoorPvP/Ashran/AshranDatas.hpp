@@ -395,7 +395,14 @@ enum eSpecialSpawns
     HordeGeneralAevd,
     AllianceMarshalGabriel,
     AllianceMarshalKarshStormforge,
-    MaxBossGuardian = 2
+    MaxBossGuardian = 2,
+
+    /// Alliance events
+    /// Mage portals
+    AllianceMagePortal = AllianceMarshalKarshStormforge + 1,
+    AllianceVignetteDummy,
+    AllianceKauper,
+    PortalToStormshield
 };
 
 enum eFactions
@@ -408,6 +415,15 @@ enum eFactions
 
     VoljinsSpear        = 1681,
     WrynnsVanguard      = 1682
+};
+
+enum eAshranVignettes
+{
+    VignetteKronus              = 367,
+    VignetteCrograal            = 368,
+    VignetteStormshieldPortal   = 432,
+    VignetteWarspearPortal      = 436,
+    VignetteKorlok              = 643
 };
 
 struct AshranGraveyard
