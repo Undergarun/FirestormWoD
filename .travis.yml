@@ -10,7 +10,7 @@ before_install:
   - sudo apt-get -qq update
   - sudo apt-get -qq install build-essential libtool clang make cmake openssl
   - sudo apt-get -qq install libssl-dev libmysqlclient15-dev libmysql++-dev libace-dev libreadline6-dev zlib1g-dev libbz2-dev
-  - git clone git://github.com/MilleniumStudio/ms_framework.git
+  - git clone git@github.com:MilleniumStudio/ms_framework.git
   - mkdir ms_framework/build
   - cd ms_framework/build
   - cmake ..
