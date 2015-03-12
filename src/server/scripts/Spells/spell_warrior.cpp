@@ -1022,45 +1022,6 @@ class spell_warr_victory_rush: public SpellScriptLoader
         }
 };
 
-/// Last Stand - 12975
-class spell_warr_last_stand: public SpellScriptLoader
-{
-    public:
-        spell_warr_last_stand() : SpellScriptLoader("spell_warr_last_stand") { }
-
-        class spell_warr_last_stand_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warr_last_stand_SpellScript);
-
-            bool Validate(SpellInfo const* /*spellEntry*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(WARRIOR_SPELL_LAST_STAND_TRIGGERED))
-                    return false;
-                return true;
-            }
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    int32 healthModSpellBasePoints0 = int32(caster->CountPctFromMaxHealth(GetSpellInfo()->Effects[EFFECT_0].BasePoints));
-                    caster->CastCustomSpell(caster, WARRIOR_SPELL_LAST_STAND_TRIGGERED, &healthModSpellBasePoints0, NULL, NULL, true, NULL);
-                }
-            }
-
-            void Register()
-            {
-                // add dummy effect spell handler to Last Stand
-                OnEffectHit += SpellEffectFn(spell_warr_last_stand_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warr_last_stand_SpellScript();
-        }
-};
-
 /// Called By Thunder Clap - 6343, Mortal Strike - 12294, Bloodthirst - 23881 and Devastate - 20243
 /// Deep Wounds - 115767
 class spell_warr_deep_wounds: public SpellScriptLoader
@@ -1527,7 +1488,8 @@ class spell_warr_execute: public SpellScriptLoader
 
 enum WhirlwindSpells
 {
-    SPELL_WARR_WHIRLWIND_OFFHAND = 44949
+    SpellWarrWirlwindOffHand    = 44949,
+    SpellWarrWirlwindSpeArms    = 168695
 };
 
 /// Whirlwind - 1680
@@ -1548,42 +1510,45 @@ public:
                 return;
 
             if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_FURY)
-                l_Player->CastSpell(l_Target, SPELL_WARR_WHIRLWIND_OFFHAND, true);
+                l_Player->CastSpell(l_Target, WhirlwindSpells::SpellWarrWirlwindOffHand, true);
+        }
+
+        void HandleNormalizedWeaponDamage(SpellEffIndex p_EffIndex)
+        {
+            Player* l_Player = GetCaster()->ToPlayer();
+
+            if (l_Player == nullptr)
+                return;
+
+            if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
+                PreventHitDefaultEffect(p_EffIndex);
+        }
+
+        void HandleWeaponPercentDamage(SpellEffIndex p_EffIndex)
+        {
+            Player* l_Player = GetCaster()->ToPlayer();
+
+            if (l_Player == nullptr)
+                return;
+
+            if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
+            {
+                PreventHitDefaultEffect(p_EffIndex);
+                l_Player->CastSpell(l_Player, WhirlwindSpells::SpellWarrWirlwindSpeArms, true);
+            }
         }
 
         void Register()
         {
+            OnEffectLaunch += SpellEffectFn(spell_warr_whirlwind_SpellScript::HandleNormalizedWeaponDamage, EFFECT_0, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
+            OnEffectLaunch += SpellEffectFn(spell_warr_whirlwind_SpellScript::HandleWeaponPercentDamage, EFFECT_1, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
             OnHit += SpellHitFn(spell_warr_whirlwind_SpellScript::HandleOnHit);
         }
-    };
-
-    class spell_warr_whirlwind_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_warr_whirlwind_AuraScript);
-
-        void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
-        {
-            if (Unit* l_Caster = GetCaster())
-                if (Player* l_Player = l_Caster->ToPlayer())
-                    if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
-                        amount = 200;
-        }
-
-        void Register()
-        {
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warr_whirlwind_AuraScript::CalculateAmount, EFFECT_1, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
-        }
-
     };
 
     SpellScript* GetSpellScript() const
     {
         return new spell_warr_whirlwind_SpellScript();
-    }
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_warr_whirlwind_AuraScript();
     }
 };
 
@@ -1914,7 +1879,6 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_shockwave();
     new spell_warr_bloodthirst();
     new spell_warr_victory_rush();
-    new spell_warr_last_stand();
     new spell_warr_deep_wounds();
     new spell_warr_charge();
     new spell_warr_shield_wall();
