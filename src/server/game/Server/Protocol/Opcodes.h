@@ -464,9 +464,6 @@ enum Opcodes
         SMSG_GM_TICKET_STATUS_UPDATE                            = 0x13B7, ///< 6.1.2 19750
         SMSG_GM_TICKET_CASE_STATUS                              = 0x17B7, ///< 6.1.2 19750
 
-        /// Toybox
-        SMSG_ACCOUNT_TOYS_UPDATE                                = 0x1965, ///< 6.1.2 19750
-
         /// Calendar
         SMSG_CALENDAR_CLEAR_PENDING_ACTION                      = 0x0932, ///< 6.1.2 19750
         SMSG_CALENDAR_COMMAND_RESULT                            = 0x0CE5, ///< 6.1.2 19750
@@ -1905,6 +1902,7 @@ enum Opcodes
     SMSG_CLEAR_QUEST_COMPLETED_BITS             = 0x0000, ///<
     SMSG_CLEAR_QUEST_COMPLETED_BIT              = 0x0000, ///<
     CMSG_ACTIVATE_TAXI_EXPRESS                  = 0x0000, ///<
+    SMSG_ACCOUNT_TOYS_UPDATE                    = 0x0000, ///<
 };
 
 /// Player state
