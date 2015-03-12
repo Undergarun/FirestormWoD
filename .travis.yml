@@ -7,7 +7,7 @@ git:
   depth: 1
 
 before_install:
-  - echo "yes" | sudo add-apt-repository ppa:aroth/testing
+  - echo "yes" | sudo add-apt-repository ppa:george-edison55/cmake-3.x
   - echo "yes" | sudo add-apt-repository ppa:ubuntu-toolchain-r/test
   - sudo apt-get -qq update
   - sudo apt-get -qq install build-essential make cmake openssl gcc-4.8 g++-4.8
