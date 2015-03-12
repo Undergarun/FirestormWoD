@@ -7632,13 +7632,22 @@ bool Player::UpdateCraftSkill(uint32 spellid)
             }
 
             uint32 craft_skill_gain = sWorld->getIntConfig(CONFIG_SKILL_GAIN_CRAFTING);
-            int skill_gain_chance = SkillGainChance(SkillValue, _spell_idx->second->max_value, (_spell_idx->second->max_value + _spell_idx->second->min_value)/2, _spell_idx->second->min_value);
+//             int skill_gain_chance = SkillGainChance(SkillValue, _spell_idx->second->max_value, (_spell_idx->second->max_value + _spell_idx->second->min_value)/2, _spell_idx->second->min_value);
+// 
+//             // Since 4.0.x, we have bonus skill point reward with somes items
+//             if (_spell_idx->second && _spell_idx->second->skill_gain >craft_skill_gain && skill_gain_chance == (int32)(sWorld->getIntConfig(CONFIG_SKILL_CHANCE_ORANGE)*10))
+//                 craft_skill_gain = _spell_idx->second->skill_gain;
+// 
+//             return UpdateSkillPro(_spell_idx->second->skillId, skill_gain_chance, craft_skill_gain);
 
-            // Since 4.0.x, we have bonus skill point reward with somes items
-            if (_spell_idx->second && _spell_idx->second->skill_gain >craft_skill_gain && skill_gain_chance == (int32)(sWorld->getIntConfig(CONFIG_SKILL_CHANCE_ORANGE)*10))
-                craft_skill_gain = _spell_idx->second->skill_gain;
+            if (_spell_idx->second->skill_gain)
+                craft_skill_gain *= _spell_idx->second->skill_gain;
 
-            return UpdateSkillPro(_spell_idx->second->skillId, skill_gain_chance, craft_skill_gain);
+            return UpdateSkillPro(_spell_idx->second->skillId, SkillGainChance(SkillValue,
+                _spell_idx->second->max_value,
+                (_spell_idx->second->max_value + _spell_idx->second->min_value) / 2,
+                _spell_idx->second->min_value),
+                craft_skill_gain);
         }
     }
     return false;
@@ -7688,63 +7697,67 @@ bool Player::UpdateFishingSkill()
 // levels sync. with spell requirement for skill levels to learn
 // bonus abilities in sSkillLineAbilityStore
 // Used only to avoid scan DBC at each skill grow
-static uint32 bonusSkillLevels[] = {75, 150, 225, 300, 375, 450};
-static const size_t bonusSkillLevelsSize = sizeof(bonusSkillLevels) / sizeof(uint32);
+static uint32 g_BonusSkillLevels[] = {75, 150, 225, 300, 375, 450, 525, 600, 700};
+static const size_t g_BonusSkillLevelsSize = sizeof(g_BonusSkillLevels) / sizeof(uint32);
 
-bool Player::UpdateSkillPro(uint16 SkillId, int32 Chance, uint32 step)
+bool Player::UpdateSkillPro(uint16 p_SkillId, int32 p_Chance, uint32 p_Step)
 {
-    sLog->outDebug(LOG_FILTER_PLAYER_SKILLS, "UpdateSkillPro(SkillId %d, Chance %3.1f%%)", SkillId, Chance / 10.0f);
-    if (!SkillId)
+    sLog->outDebug(LOG_FILTER_PLAYER_SKILLS, "UpdateSkillPro(SkillId %d, Chance %3.1f%%)", p_SkillId, p_Chance / 10.0f);
+
+    if (!p_SkillId)
         return false;
 
-    if (Chance <= 0)                                         // speedup in 0 chance case
+    if (p_Chance <= 0)                                         // speedup in 0 chance case
     {
-        sLog->outDebug(LOG_FILTER_PLAYER_SKILLS, "Player::UpdateSkillPro Chance=%3.1f%% missed", Chance / 10.0f);
+        sLog->outDebug(LOG_FILTER_PLAYER_SKILLS, "Player::UpdateSkillPro Chance=%3.1f%% missed", p_Chance / 10.0f);
         return false;
     }
 
-    SkillStatusMap::iterator itr = mSkillStatus.find(SkillId);
-    if (itr == mSkillStatus.end() || itr->second.uState == SKILL_DELETED)
+    SkillStatusMap::iterator l_It = mSkillStatus.find(p_SkillId);
+    if (l_It == mSkillStatus.end() || l_It->second.uState == SKILL_DELETED)
         return false;
 
-    uint16 field = itr->second.pos / 2;
-    uint8 offset = itr->second.pos & 1; // itr->second.pos % 2
+    uint16 l_SkillField       = l_It->second.pos / 2;
+    uint8  l_SkillFieldOffset = l_It->second.pos & 1; // itr->second.pos % 2
 
-    uint16 value = GetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_RANK + field, offset);
-    uint16 max = GetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_MAX_RANK + field, offset);
+    uint16 l_CurrentSkillValue    = GetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_RANK + l_SkillField, l_SkillFieldOffset);
+    uint16 l_CurrentSkillMaxValue = GetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_MAX_RANK + l_SkillField, l_SkillFieldOffset);
 
-    if (!max || !value || value >= max)
+    if (!l_CurrentSkillMaxValue || !l_CurrentSkillValue || l_CurrentSkillValue >= l_CurrentSkillMaxValue)
         return false;
 
-    int32 Roll = irand(1, 1000);
+    int32 l_Roll = irand(1, 1000);
 
-    if (Roll <= Chance)
+    if (l_Roll <= p_Chance)
     {
-        uint16 new_value = value + step;
-        if (new_value > max)
-            new_value = max;
+        uint16 l_NewSkillValue = l_CurrentSkillValue + p_Step;
+        if (l_NewSkillValue > l_CurrentSkillMaxValue)
+            l_NewSkillValue = l_CurrentSkillMaxValue;
 
-        SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_RANK + field, offset, new_value);
-        if (itr->second.uState != SKILL_NEW)
-            itr->second.uState = SKILL_CHANGED;
+        SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_RANK + l_SkillField, l_SkillFieldOffset, l_NewSkillValue);
 
-        for (size_t i = 0; i < bonusSkillLevelsSize; ++i)
+        if (l_It->second.uState != SKILL_NEW)
+            l_It->second.uState = SKILL_CHANGED;
+
+        for (size_t l_I = 0; l_I < g_BonusSkillLevelsSize; ++l_I)
         {
-            uint32 bsl = bonusSkillLevels[i];
-            if (value < bsl && new_value >= bsl)
+            uint32 l_BonusSkillLevel = g_BonusSkillLevels[l_I];
+            if (l_CurrentSkillValue < l_BonusSkillLevel && l_NewSkillValue >= l_BonusSkillLevel)
             {
-                learnSkillRewardedSpells(SkillId, new_value);
+                learnSkillRewardedSpells(p_SkillId, l_NewSkillValue);
                 break;
             }
         }
 
-        UpdateSkillEnchantments(SkillId, value, new_value);
-        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL, SkillId);
-        sLog->outDebug(LOG_FILTER_PLAYER_SKILLS, "Player::UpdateSkillPro Chance=%3.1f%% taken", Chance / 10.0f);
+        UpdateSkillEnchantments(p_SkillId, l_CurrentSkillValue, l_NewSkillValue);
+        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL, p_SkillId);
+
+        sLog->outDebug(LOG_FILTER_PLAYER_SKILLS, "Player::UpdateSkillPro Chance=%3.1f%% taken", p_Chance / 10.0f);
+
         return true;
     }
 
-    sLog->outDebug(LOG_FILTER_PLAYER_SKILLS, "Player::UpdateSkillPro Chance=%3.1f%% missed", Chance / 10.0f);
+    sLog->outDebug(LOG_FILTER_PLAYER_SKILLS, "Player::UpdateSkillPro Chance=%3.1f%% missed", p_Chance / 10.0f);
     return false;
 }
 
