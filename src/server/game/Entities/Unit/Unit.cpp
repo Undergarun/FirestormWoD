@@ -1153,7 +1153,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         if (l_Row != nullptr)
             l_SpeName = l_Row->specializationName;
 
-        sReporter->Report(MakeReport<BattlegroundDealDamageWatcher>::Craft
+        sReporter->Report(MS::Reporting::MakeReport<BattlegroundDealDamageWatcher>::Craft
         (
             GetGUIDLow(),
             sWorld->GetRealmName(),
