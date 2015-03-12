@@ -499,17 +499,17 @@ enum Opcodes
         SMSG_CHALLENGE_MOD_REWARDS                              = 0x0000, ///< (NYI)
 
         /// BlackMarket
-        SMSG_BLACK_MARKET_OPEN_RESULT                           = 0x0000, ///<
-        SMSG_BLACK_MARKET_OUTBID                                = 0x0000, ///<
-        SMSG_BLACK_MARKET_REQUEST_ITEMS_RESULT                  = 0x0000, ///<
-        SMSG_BLACK_MARKET_BID_ON_ITEM_RESULT                    = 0x0000, ///<
-        SMSG_BLACK_MARKET_WON                                   = 0x0000, ///<
+        SMSG_BLACK_MARKET_OPEN_RESULT                           = 0x18B5, ///< 6.1.2 19750
+        SMSG_BLACK_MARKET_OUTBID                                = 0x18E6, ///< 6.1.2 19750
+        SMSG_BLACK_MARKET_REQUEST_ITEMS_RESULT                  = 0x06B6, ///< 6.1.2 19750
+        SMSG_BLACK_MARKET_BID_ON_ITEM_RESULT                    = 0x0DB2, ///< 6.1.2 19750
+        SMSG_BLACK_MARKET_WON                                   = 0x1A45, ///< 6.1.2 19750
 
         /// Garrison
-        SMSG_OPEN_SHIPMENT_NPCFROM_GOSSIP                       = 0x0000, ///<
-        SMSG_GET_SHIPMENT_INFO_RESPONSE                         = 0x0000, ///<
-        SMSG_GET_SHIPMENTS                                      = 0x0000, ///<
-        SMSG_CREATE_SHIPMENT_RESPONSE                           = 0x0000, ///<
+        SMSG_OPEN_SHIPMENT_NPCFROM_GOSSIP                       = 0x00AB, ///< 6.1.2 19750
+        SMSG_GET_SHIPMENT_INFO_RESPONSE                         = 0x1230, ///< 6.1.2 19750
+        SMSG_GET_SHIPMENTS                                      = 0x0D61, ///< 6.1.2 19750
+        SMSG_CREATE_SHIPMENT_RESPONSE                           = 0x1D35, ///< 6.1.2 19750
 
         /// Twitter
         SMSG_REQUEST_TWITTER_STATUS_RESPONSE                    = 0x0E1D, ///< 6.1.2 19750
@@ -967,9 +967,9 @@ enum Opcodes
     CMSG_UPGRADE_GARRISON                                   = 0x0000,   ///<
     CMSG_GARRISON_REQUEST_LANDING_PAGE_SHIPMENT_INFO        = 0x0000,
     CMSG_GARRISON_MISSION_NPC_HELLO                         = 0x0000,   ///<
-    CMSG_GET_SHIPMENT_INFO                                  = 0x0000,   ///<
-    CMSG_CREATE_SHIPMENT                                    = 0x0000,   ///<
-    CMSG_GET_SHIPMENTS                                      = 0x0000,   ///<
+    CMSG_GET_SHIPMENT_INFO                                  = 0x03FA,   ///< 6.1.2 19750
+    CMSG_CREATE_SHIPMENT                                    = 0x010E,   ///< 6.1.2 19750
+    CMSG_GET_SHIPMENTS                                      = 0x06DA,   ///< 6.1.2 19750
 
     //////////////////////////////////////////////////////////////////////////
     /// User Router
@@ -1611,9 +1611,9 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// BlackMarket
     //////////////////////////////////////////////////////////////////////////
-    CMSG_BLACK_MARKET_OPEN                         = 0x0000, ///<
-    CMSG_BLACK_MARKET_REQUEST_ITEMS                = 0x0000, ///<
-    CMSG_BLACK_MARKET_PLACE_BID                    = 0x0000, ///<
+    CMSG_BLACK_MARKET_OPEN                         = 0x0F84, ///< 6.1.2 19750
+    CMSG_BLACK_MARKET_REQUEST_ITEMS                = 0x016D, ///< 6.1.2 19750
+    CMSG_BLACK_MARKET_PLACE_BID                    = 0x1822, ///< 6.1.2 19750
 
     //////////////////////////////////////////////////////////////////////////
     /// Twitter
