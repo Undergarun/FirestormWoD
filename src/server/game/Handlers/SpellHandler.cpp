@@ -511,6 +511,9 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
     p_RecvPacket.readPackGUID(l_TargetGUID);
     p_RecvPacket.readPackGUID(l_TargetItemGUID);
 
+
+    printf("spell id %u guid %llu \n", l_SpellID, l_TargetGUID);
+
     if (l_HasSourceTarget)
     {
         p_RecvPacket.readPackGUID(l_SourceTargetGUID);

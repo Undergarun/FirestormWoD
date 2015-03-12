@@ -4049,6 +4049,8 @@ void Player::GiveGatheringXP()
         gain = 750 * level - 58250;
     else if (level > 84 && level < 90)
         gain = 1720 * level - 138800; // (7400 - 14280),  Guessed, @TODO : find blizzlike formula (7400 - 14280)
+    else if (level > 90 && level < 95)
+        gain = -225 * level + 23100;
 
     float GatheringXpRate = 1;
 
@@ -7632,13 +7634,6 @@ bool Player::UpdateCraftSkill(uint32 spellid)
             }
 
             uint32 craft_skill_gain = sWorld->getIntConfig(CONFIG_SKILL_GAIN_CRAFTING);
-//             int skill_gain_chance = SkillGainChance(SkillValue, _spell_idx->second->max_value, (_spell_idx->second->max_value + _spell_idx->second->min_value)/2, _spell_idx->second->min_value);
-// 
-//             // Since 4.0.x, we have bonus skill point reward with somes items
-//             if (_spell_idx->second && _spell_idx->second->skill_gain >craft_skill_gain && skill_gain_chance == (int32)(sWorld->getIntConfig(CONFIG_SKILL_CHANCE_ORANGE)*10))
-//                 craft_skill_gain = _spell_idx->second->skill_gain;
-// 
-//             return UpdateSkillPro(_spell_idx->second->skillId, skill_gain_chance, craft_skill_gain);
 
             if (_spell_idx->second->skill_gain)
                 craft_skill_gain *= _spell_idx->second->skill_gain;
