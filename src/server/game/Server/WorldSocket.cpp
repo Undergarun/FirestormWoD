@@ -1307,6 +1307,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& p_RecvPacket)
     m_Session->LoadGlobalAccountData();
     m_Session->LoadTutorialsData();
     m_Session->ReadAddonsInfo(l_AddonsCompressedData);
+    m_Session->SetClientBuild(l_ClientBuild);
 
     /// Initialize Warden system only if it is enabled by config
     if (sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED))

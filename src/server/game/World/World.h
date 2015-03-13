@@ -397,6 +397,7 @@ enum WorldIntConfigs
     CONFIG_PVP_ITEM_LEVEL_MIN,
     CONFIG_PVP_ITEM_LEVEL_MAX,
     CONFIG_CHALLENGE_MODE_ITEM_LEVEL_MAX,
+    CONFIG_LAST_CLIENT_BUILD,
     INT_CONFIG_VALUE_COUNT
 };
 
@@ -909,14 +910,14 @@ class World
         void InitWeeklyQuestResetTime();
         void InitMonthlyQuestResetTime();
         void InitRandomBGResetTime();
-        void InitServerAutoRestartTime();
+        //void InitServerAutoRestartTime();
         void InitCurrencyResetTime();
         void InitDailyLootResetTime();
         void ResetDailyQuests();
         void ResetWeeklyQuests();
         void ResetMonthlyQuests();
         void ResetRandomBG();
-        void AutoRestartServer();
+        //void AutoRestartServer();
     private:
         static ACE_Atomic_Op<ACE_Thread_Mutex, bool> m_stopEvent;
         static uint8 m_ExitCode;
