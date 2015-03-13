@@ -25,12 +25,12 @@ class npc_ashran_herald : public CreatureScript
                 TALK_ANNOUNCE_ALLIANCE_GRAVEYARD
             };
 
-            void Reset()
+            void Reset() override
             {
                 me->SetReactState(ReactStates::REACT_PASSIVE);
             }
 
-            void DoAction(int32 const p_Action)
+            void DoAction(int32 const p_Action) override
             {
                 switch (p_Action)
                 {
@@ -73,13 +73,13 @@ class npc_slg_generic_mop : public CreatureScript
                 TALK_HORDE_KILL_BOSS
             };
 
-            void Reset()
+            void Reset() override
             {
                 me->SetReactState(ReactStates::REACT_PASSIVE);
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
             }
 
-            void DoAction(int32 const p_Action)
+            void DoAction(int32 const p_Action) override
             {
                 switch (p_Action)
                 {
@@ -114,9 +114,9 @@ class npc_faction_boss : public CreatureScript
     public:
         npc_faction_boss() : CreatureScript("npc_faction_boss") { }
 
-        struct npc_faction_bossAI : public BossAI
+        struct npc_faction_bossAI : public ScriptedAI
         {
-            npc_faction_bossAI(Creature* p_Creature) : BossAI(p_Creature, 0)
+            npc_faction_bossAI(Creature* p_Creature) : ScriptedAI(p_Creature)
             {
                 m_ZoneScript = sOutdoorPvPMgr->GetZoneScript(p_Creature->GetZoneId());
             }
@@ -150,10 +150,8 @@ class npc_faction_boss : public CreatureScript
             EventMap m_Events;
             ZoneScript* m_ZoneScript;
 
-            void Reset()
+            void Reset() override
             {
-                _Reset();
-
                 m_Events.Reset();
 
                 me->RemoveAura(eSpells::SpellEnableUnitFrame);
@@ -163,10 +161,8 @@ class npc_faction_boss : public CreatureScript
                     me->setFaction(12); ///< Alliance
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* p_Attacker) override
             {
-                _EnterCombat();
-
                 Talk(eTalk::TalkAggro);
 
                 m_Events.ScheduleEvent(eEvents::EventMortalCleave, 5000);
@@ -175,16 +171,14 @@ class npc_faction_boss : public CreatureScript
                 me->CastSpell(me, eSpells::SpellEnableUnitFrame, true);
             }
 
-            void KilledUnit(Unit* p_Who)
+            void KilledUnit(Unit* p_Who) override
             {
                 if (p_Who->GetTypeId() == TypeID::TYPEID_PLAYER)
                     Talk(eTalk::TalkSlay);
             }
 
-            void JustDied(Unit* p_Killer)
+            void JustDied(Unit* p_Killer) override
             {
-                _JustDied();
-
                 Talk(eTalk::TalkDeath);
 
                 uint64 l_GenericGuid = ((OutdoorPvPAshran*)m_ZoneScript)->GetFactionGenericMoP(me->GetEntry() == eCreatures::GrandMarshalTremblade ? TeamId::TEAM_ALLIANCE : TeamId::TEAM_HORDE);
@@ -222,7 +216,7 @@ class npc_faction_boss : public CreatureScript
                     p_Killer->CastSpell(p_Killer, eAshranSpells::SpellHordeReward, true);
             }
 
-            void DoAction(int32 const p_Action)
+            void DoAction(int32 const p_Action) override
             {
                 switch (p_Action)
                 {
@@ -239,13 +233,13 @@ class npc_faction_boss : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* p_Target, SpellInfo const* p_SpellInfo)
+            void SpellHit(Unit* p_Target, SpellInfo const* p_SpellInfo) override
             {
                 if (p_SpellInfo->Id == eSpells::SpellBladeTwisterSearcher)
                     me->CastSpell(p_Target, eSpells::SpellBladeTwisterMissile, false);
             }
 
-            void UpdateAI(uint32 const p_Diff)
+            void UpdateAI(uint32 const p_Diff) override
             {
                 if (!UpdateVictim())
                 {
@@ -276,6 +270,7 @@ class npc_faction_boss : public CreatureScript
                         break;
                 }
 
+                EnterEvadeIfOutOfCombatArea(p_Diff);
                 DoMeleeAttackIfReady();
             }
 
@@ -311,7 +306,7 @@ class npc_ashran_flight_masters : public CreatureScript
     public:
         npc_ashran_flight_masters() : CreatureScript("npc_ashran_flight_masters") { }
 
-        bool OnGossipSelect(Player* p_Player, Creature*, uint32, uint32)
+        bool OnGossipSelect(Player* p_Player, Creature*, uint32, uint32) override
         {
             if (p_Player == nullptr || !p_Player->IsInWorld())
                 return true;
@@ -328,7 +323,7 @@ class npc_ashran_flight_masters : public CreatureScript
         {
             npc_ashran_flight_mastersAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
-            void Reset()
+            void Reset() override
             {
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_ATTACKABLE_1 | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
             }
@@ -351,7 +346,7 @@ class npc_ashran_spirit_healer : public CreatureScript
         {
             npc_ashran_spirit_healerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
-            void Reset()
+            void Reset() override
             {
                 me->setDeathState(DeathState::DEAD);
                 me->SetGuidValue(EUnitFields::UNIT_FIELD_CHANNEL_OBJECT, me->GetGUID());
@@ -361,9 +356,9 @@ class npc_ashran_spirit_healer : public CreatureScript
                 DoCast(me, eAshranSpells::SpellSpiritHeal);
             }
 
-            void JustRespawned() { }
+            void JustRespawned() override { }
 
-            void UpdateAI(uint32 const)
+            void UpdateAI(uint32 const) override
             {
                 if (!me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     DoCast(me, eAshranSpells::SpellSpiritHeal);
@@ -439,7 +434,7 @@ class npc_ashran_korlok : public CreatureScript
             bool m_IsAwake;
             bool m_InFight;
 
-            void Reset()
+            void Reset() override
             {
                 me->DisableHealthRegen();
 
@@ -459,7 +454,7 @@ class npc_ashran_korlok : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode()
+            void EnterEvadeMode() override
             {
                 /// Copy/Paste of classic EnterEvade mode but without RemoveAllAuras
                 /// Sometimes bosses stuck in combat?
@@ -470,7 +465,7 @@ class npc_ashran_korlok : public CreatureScript
                 me->ResetPlayerDamageReq();
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* p_Attacker) override
             {
                 m_InFight = true;
 
@@ -482,13 +477,13 @@ class npc_ashran_korlok : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventBoonOfKorlok, 30000);
             }
 
-            void KilledUnit(Unit* p_Who)
+            void KilledUnit(Unit* p_Who) override
             {
                 if (p_Who->GetTypeId() == TypeID::TYPEID_PLAYER)
                     Talk(eTalk::TalkSlay);
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
             {
                 if (me->getFaction() == eFactions::KorlokNeutral)
                 {
@@ -507,7 +502,7 @@ class npc_ashran_korlok : public CreatureScript
                 }
             }
 
-            void DoAction(int32 const p_Action)
+            void DoAction(int32 const p_Action) override
             {
                 switch (p_Action)
                 {
@@ -526,7 +521,7 @@ class npc_ashran_korlok : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* p_Target, SpellInfo const* p_SpellInfo)
+            void SpellHit(Unit* p_Target, SpellInfo const* p_SpellInfo) override
             {
                 if (p_SpellInfo->Id == eSpells::SpellOgreicLeap)
                 {
@@ -543,7 +538,7 @@ class npc_ashran_korlok : public CreatureScript
                 }
             }
 
-            void MovementInform(uint32 p_Type, uint32 p_ID)
+            void MovementInform(uint32 p_Type, uint32 p_ID) override
             {
                 if (p_ID == 1)
                 {
@@ -555,7 +550,7 @@ class npc_ashran_korlok : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const p_Diff)
+            void UpdateAI(uint32 const p_Diff) override
             {
                 /// Only for Curse of Kor'lok
                 events.Update(p_Diff);
@@ -695,7 +690,7 @@ class npc_ashran_faction_champions : public CreatureScript
             EventMap m_Events;
             OutdoorPvP* m_OutdoorPvP;
 
-            void Reset()
+            void Reset() override
             {
                 me->DisableHealthRegen();
 
@@ -704,14 +699,14 @@ class npc_ashran_faction_champions : public CreatureScript
                 me->CastSpell(me, eSpells::AshranLaneMobScalingAura, true);
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* p_Attacker) override
             {
                 m_Events.ScheduleEvent(eEvents::EventCrushingLeap, 10000);
                 m_Events.ScheduleEvent(eEvents::EventBoomingShout, 5000);
                 m_Events.ScheduleEvent(eEvents::EventMASSIVEKick, 20000);
             }
 
-            void JustDied(Unit* p_Killer)
+            void JustDied(Unit* p_Killer) override
             {
                 Creature* l_Korlok = sObjectAccessor->FindCreature(m_OutdoorPvP->GetCreature(eSpecialSpawns::NeutralKorlokTheOgreKing));
                 if (l_Korlok == nullptr || !l_Korlok->IsAIEnabled)    ///< Shouldn't happens
@@ -736,7 +731,7 @@ class npc_ashran_faction_champions : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
             {
                 if (me->HasAura(eSpells::SpellEnrage))
                     return;
@@ -745,7 +740,7 @@ class npc_ashran_faction_champions : public CreatureScript
                     me->CastSpell(me, eSpells::SpellEnrage, true);
             }
 
-            void UpdateAI(uint32 const p_Diff)
+            void UpdateAI(uint32 const p_Diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -786,6 +781,7 @@ class npc_ashran_faction_champions : public CreatureScript
                         break;
                 }
 
+                EnterEvadeIfOutOfCombatArea(p_Diff);
                 DoMeleeAttackIfReady();
             }
 

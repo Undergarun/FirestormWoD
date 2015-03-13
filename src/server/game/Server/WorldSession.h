@@ -461,6 +461,9 @@ class WorldSession
 
         z_stream_s* GetCompressionStream() { return _compressionStream; }
 
+        void SetClientBuild(uint16 p_ClientBuild) { m_ClientBuild = p_ClientBuild; }
+        uint16 GetClientBuild() const { return m_ClientBuild; }
+
         //////////////////////////////////////////////////////////////////////////
         /// Vote
         //////////////////////////////////////////////////////////////////////////
@@ -1165,6 +1168,8 @@ class WorldSession
         AccountTypes _security;
         uint32 _accountId;
         uint8 m_expansion;
+
+        uint16 m_ClientBuild;
 
         //////////////////////////////////////////////////////////////////////////
         /// Premium

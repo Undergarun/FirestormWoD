@@ -197,55 +197,6 @@ class spell_warr_ravager : public SpellScriptLoader
         }
 };
 
-/// Slam - 1464
-class spell_warr_slam: public SpellScriptLoader
-{
-    public:
-        spell_warr_slam() : SpellScriptLoader("spell_warr_slam") { }
-
-        class spell_warr_slam_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warr_slam_SpellScript);
-
-            void HandleBeforeHit()
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (target->HasAura(WARRIOR_SPELL_COLOSSUS_SMASH, caster->GetGUID()))
-                            SetHitDamage(int32(GetHitDamage() * 1.1f));
-                    }
-                }
-            }
-
-            void HandleAfterHit()
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        int32 damage = CalculatePct(GetHitDamage(), 35);
-
-                        if (caster->HasAura(WARRIOR_SPELL_SWEEPING_STRIKES))
-                            caster->CastCustomSpell(target, WARRIOR_SPELL_SLAM_AOE, &damage, NULL, NULL, true);
-                    }
-                }
-            }
-
-            void Register()
-            {
-                BeforeHit += SpellHitFn(spell_warr_slam_SpellScript::HandleBeforeHit);
-                AfterHit += SpellHitFn(spell_warr_slam_SpellScript::HandleAfterHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warr_slam_SpellScript();
-        }
-};
-
 /// Victorious State - 32216
 class spell_warr_victorious_state: public SpellScriptLoader
 {
@@ -1071,45 +1022,6 @@ class spell_warr_victory_rush: public SpellScriptLoader
         }
 };
 
-/// Last Stand - 12975
-class spell_warr_last_stand: public SpellScriptLoader
-{
-    public:
-        spell_warr_last_stand() : SpellScriptLoader("spell_warr_last_stand") { }
-
-        class spell_warr_last_stand_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warr_last_stand_SpellScript);
-
-            bool Validate(SpellInfo const* /*spellEntry*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(WARRIOR_SPELL_LAST_STAND_TRIGGERED))
-                    return false;
-                return true;
-            }
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    int32 healthModSpellBasePoints0 = int32(caster->CountPctFromMaxHealth(GetSpellInfo()->Effects[EFFECT_0].BasePoints));
-                    caster->CastCustomSpell(caster, WARRIOR_SPELL_LAST_STAND_TRIGGERED, &healthModSpellBasePoints0, NULL, NULL, true, NULL);
-                }
-            }
-
-            void Register()
-            {
-                // add dummy effect spell handler to Last Stand
-                OnEffectHit += SpellEffectFn(spell_warr_last_stand_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warr_last_stand_SpellScript();
-        }
-};
-
 /// Called By Thunder Clap - 6343, Mortal Strike - 12294, Bloodthirst - 23881 and Devastate - 20243
 /// Deep Wounds - 115767
 class spell_warr_deep_wounds: public SpellScriptLoader
@@ -1488,50 +1400,96 @@ class spell_warr_anger_management: public PlayerScript
         }
 };
 
+enum GlyphOfExecutor
+{
+    SpellWarrGlyphOfExecutor = 146971
+};
+
+/// Call by Execute - 5308 (Fury, Protection), Execute - 163201 (Arms)
+/// Glyph of the Executor - 146971
+class spell_warr_glyph_of_executor : public SpellScriptLoader
+{
+    public:
+        spell_warr_glyph_of_executor() : SpellScriptLoader("spell_warr_glyph_of_executor") { }
+
+        class spell_warr_glyph_of_executor_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_glyph_of_executor_SpellScript);
+
+            void HandleAfterHit()
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(GlyphOfExecutor::SpellWarrGlyphOfExecutor);
+
+                if (l_Target == nullptr || l_SpellInfo == nullptr)
+                    return;
+
+                if (!l_Caster->HasAura(GlyphOfExecutor::SpellWarrGlyphOfExecutor))
+                    return;
+
+                if (!l_Target->isAlive()) ///< Killing an enemy with Execute grants you 30 rage.
+                    l_Caster->ModifyPower(POWER_RAGE, l_SpellInfo->Effects[EFFECT_0].BasePoints * l_Caster->GetPowerCoeff(POWER_RAGE));
+            }
+
+            void Register()
+            {
+                AfterHit += SpellHitFn(spell_warr_glyph_of_executor_SpellScript::HandleAfterHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_glyph_of_executor_SpellScript();
+        }
+};
+
 /// Execute - 163201
 class spell_warr_execute: public SpellScriptLoader
 {
-public:
-    spell_warr_execute() : SpellScriptLoader("spell_warr_execute") { }
+    public:
+        spell_warr_execute() : SpellScriptLoader("spell_warr_execute") { }
 
-    class spell_warr_execute_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_warr_execute_SpellScript);
-
-        void HandleOnHit()
+        class spell_warr_execute_SpellScript : public SpellScript
         {
-            int32 l_Damage = GetHitDamage();
+            PrepareSpellScript(spell_warr_execute_SpellScript);
 
-            // converts each extra rage (up to 30 rage) into additional damage
-            int32 l_RageConsumed = -GetCaster()->ModifyPower(POWER_RAGE, -(GetSpellInfo()->Effects[EFFECT_2].BasePoints * 10));
-            // 30 rage = 320% more weapon damage
-            AddPct(l_Damage, (l_RageConsumed / 1.5f));
-
-            if (GetCaster()->HasAura(SPELL_WARRIOR_WEAPONS_MASTER))
+            void HandleOnHit()
             {
-                float l_MasteryValue = GetCaster()->GetFloatValue(PLAYER_FIELD_MASTERY) * 3.5f;
+                int32 l_Damage = GetHitDamage();
 
-                l_Damage += CalculatePct(l_Damage, l_MasteryValue);
+                // converts each extra rage (up to 30 rage) into additional damage
+                int32 l_RageConsumed = -GetCaster()->ModifyPower(POWER_RAGE, -(GetSpellInfo()->Effects[EFFECT_2].BasePoints * 10));
+                // 30 rage = 320% more weapon damage
+                AddPct(l_Damage, (l_RageConsumed / 1.5f));
+
+                if (GetCaster()->HasAura(SPELL_WARRIOR_WEAPONS_MASTER))
+                {
+                    float l_MasteryValue = GetCaster()->GetFloatValue(PLAYER_FIELD_MASTERY) * 3.5f;
+
+                    l_Damage += CalculatePct(l_Damage, l_MasteryValue);
+                }
+
+                SetHitDamage(l_Damage);
             }
 
-            SetHitDamage(l_Damage);
-        }
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warr_execute_SpellScript::HandleOnHit);
+            }
+        };
 
-        void Register()
+        SpellScript* GetSpellScript() const
         {
-            OnHit += SpellHitFn(spell_warr_execute_SpellScript::HandleOnHit);
+            return new spell_warr_execute_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_warr_execute_SpellScript();
-    }
 };
 
 enum WhirlwindSpells
 {
-    SPELL_WARR_WHIRLWIND_OFFHAND = 44949
+    SpellWarrWirlwindOffHand    = 44949,
+    SpellWarrWirlwindSpeArms    = 168695
 };
 
 /// Whirlwind - 1680
@@ -1552,42 +1510,45 @@ public:
                 return;
 
             if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_FURY)
-                l_Player->CastSpell(l_Target, SPELL_WARR_WHIRLWIND_OFFHAND, true);
+                l_Player->CastSpell(l_Target, WhirlwindSpells::SpellWarrWirlwindOffHand, true);
+        }
+
+        void HandleNormalizedWeaponDamage(SpellEffIndex p_EffIndex)
+        {
+            Player* l_Player = GetCaster()->ToPlayer();
+
+            if (l_Player == nullptr)
+                return;
+
+            if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
+                PreventHitDefaultEffect(p_EffIndex);
+        }
+
+        void HandleWeaponPercentDamage(SpellEffIndex p_EffIndex)
+        {
+            Player* l_Player = GetCaster()->ToPlayer();
+
+            if (l_Player == nullptr)
+                return;
+
+            if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
+            {
+                PreventHitDefaultEffect(p_EffIndex);
+                l_Player->CastSpell(l_Player, WhirlwindSpells::SpellWarrWirlwindSpeArms, true);
+            }
         }
 
         void Register()
         {
+            OnEffectLaunch += SpellEffectFn(spell_warr_whirlwind_SpellScript::HandleNormalizedWeaponDamage, EFFECT_0, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
+            OnEffectLaunch += SpellEffectFn(spell_warr_whirlwind_SpellScript::HandleWeaponPercentDamage, EFFECT_1, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
             OnHit += SpellHitFn(spell_warr_whirlwind_SpellScript::HandleOnHit);
         }
-    };
-
-    class spell_warr_whirlwind_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_warr_whirlwind_AuraScript);
-
-        void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
-        {
-            if (Unit* l_Caster = GetCaster())
-                if (Player* l_Player = l_Caster->ToPlayer())
-                    if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
-                        amount = 200;
-        }
-
-        void Register()
-        {
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warr_whirlwind_AuraScript::CalculateAmount, EFFECT_1, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
-        }
-
     };
 
     SpellScript* GetSpellScript() const
     {
         return new spell_warr_whirlwind_SpellScript();
-    }
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_warr_whirlwind_AuraScript();
     }
 };
 
@@ -1801,6 +1762,42 @@ class spell_warr_blood_bath : public SpellScriptLoader
         }
 };
 
+enum SweepingStrikes
+{
+    SpellWarrGlyphOfSweepingStrikes         = 58384,
+    SpellWarrSweepingStrikesRageBonus       = 124333
+};
+
+/// Sweeping Strikes (proc) - 12723
+class spell_warr_sweeping_strikes : public SpellScriptLoader
+{
+    public:
+        spell_warr_sweeping_strikes() : SpellScriptLoader("spell_warr_sweeping_strikes") { }
+
+        class spell_warr_sweeping_strikes_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_sweeping_strikes_SpellScript);
+
+            void HandleOnHit()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(SweepingStrikes::SpellWarrGlyphOfSweepingStrikes))
+                    l_Caster->CastSpell(l_Caster, SweepingStrikes::SpellWarrSweepingStrikesRageBonus, true);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warr_sweeping_strikes_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_sweeping_strikes_SpellScript();
+        }
+};
+
 enum BloodCrazeSpells
 {
     SPELL_WARR_BLOOD_CRAZE_HEAL = 159363
@@ -1857,9 +1854,9 @@ void AddSC_warrior_spell_scripts()
     new npc_warrior_ravager();
 
     /// Spells
+    new spell_warr_sweeping_strikes();
     new spell_warr_ravager();
     new spell_warr_rend();
-    new spell_warr_slam();
     new spell_warr_victorious_state();
     new spell_warr_glyph_of_hindering_strikes();
     new spell_warr_stampeding_shout();
@@ -1882,7 +1879,6 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_shockwave();
     new spell_warr_bloodthirst();
     new spell_warr_victory_rush();
-    new spell_warr_last_stand();
     new spell_warr_deep_wounds();
     new spell_warr_charge();
     new spell_warr_shield_wall();
@@ -1898,4 +1894,5 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_enhanced_rend();
     new spell_warr_blood_bath();
     new spell_warr_blood_craze();
+    new spell_warr_glyph_of_executor();
 }

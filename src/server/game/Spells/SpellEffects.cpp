@@ -3980,40 +3980,6 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
             }
             break;
         }
-        case SPELLFAMILY_WARLOCK:
-        {
-            switch (m_spellInfo->Id)
-            {
-                case 30213: // Legion Strike
-                {
-                    if (Unit* owner = m_caster->GetOwner())
-                    {
-                        int32 spd = owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL);
-                        fixed_bonus += spd * 0.264f;
-
-                        if (owner->GetTypeId() == TYPEID_PLAYER)
-                            if (owner->ToPlayer()->GetSpecializationId(owner->ToPlayer()->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
-                                owner->EnergizeBySpell(owner, m_spellInfo->Id, 12, POWER_DEMONIC_FURY);
-                    }
-
-                    break;
-                }
-                case 89753: // Fel Storm
-                {
-                    if (Unit* owner = m_caster->GetOwner())
-                    {
-                        int32 spd = owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL);
-                        fixed_bonus += spd * 0.33f;
-                    }
-
-                    break;
-                }
-                default:
-                    break;
-            }
-
-            break;
-        }
         case SPELLFAMILY_ROGUE:
         {
             switch (m_spellInfo->Id)
@@ -4056,34 +4022,8 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
         }
         case SPELLFAMILY_HUNTER:
         {
-            float shotMod = 0;
             switch (m_spellInfo->Id)
             {
-                case 53351: // Kill Shot
-                {
-                    // "You attempt to finish the wounded target off, firing a long range attack dealing % weapon damage plus RAP*0.30+543."
-                    shotMod = 0.45f;
-                    // Kill Shot - (100% weapon dmg + 45% RAP + 543) * 150% - EJ
-                    final_bonus = 1.5f;
-                    break;
-                }
-                case 56641: // Steady Shot
-                {
-                    // "A steady shot that causes % weapon damage plus RAP*0.021+280. Generates 9 Focus."
-                    // focus effect done in dummy
-                    shotMod = 0.021f;
-                    break;
-                }
-                case 53209: // Chimera Shot
-                {
-                    shotMod = 0.398f;
-                    break;
-                }
-                case 3044: // Arcane Shot
-                {
-                    shotMod = 0.0483f;
-                    break;
-                }
                 case 75:
                 {
                     m_caster->Attack(unitTarget, false);
@@ -4092,8 +4032,6 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                 default:
                     break;
             }
-
-            spell_bonus += int32((shotMod*m_caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack)));
             break;
         }
         case SPELLFAMILY_DEATHKNIGHT:

@@ -1583,77 +1583,6 @@ class spell_mage_cold_snap: public SpellScriptLoader
         }
 };
 
-class spell_mage_incanters_absorbtion_base_AuraScript : public AuraScript
-{
-    public:
-        enum Spells
-        {
-            SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED = 44413,
-            SPELL_MAGE_INCANTERS_ABSORBTION_R1 = 44394,
-        };
-
-        bool Validate(SpellInfo const* /*spellEntry*/)
-        {
-            return sSpellMgr->GetSpellInfo(SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED)
-                && sSpellMgr->GetSpellInfo(SPELL_MAGE_INCANTERS_ABSORBTION_R1);
-        }
-
-        void Trigger(AuraEffectPtr aurEff, DamageInfo & /*dmgInfo*/, uint32 & absorbAmount)
-        {
-            Unit* target = GetTarget();
-
-            if (AuraEffectPtr talentAurEff = target->GetAuraEffectOfRankedSpell(SPELL_MAGE_INCANTERS_ABSORBTION_R1, EFFECT_0))
-            {
-                int32 bp = CalculatePct(absorbAmount, talentAurEff->GetAmount());
-                target->CastCustomSpell(target, SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED, &bp, NULL, NULL, true, NULL, aurEff);
-            }
-        }
-};
-
-// Incanter's Absorption
-class spell_mage_incanters_absorbtion_absorb: public SpellScriptLoader
-{
-    public:
-        spell_mage_incanters_absorbtion_absorb() : SpellScriptLoader("spell_mage_incanters_absorbtion_absorb") { }
-
-        class spell_mage_incanters_absorbtion_absorb_AuraScript : public spell_mage_incanters_absorbtion_base_AuraScript
-        {
-            PrepareAuraScript(spell_mage_incanters_absorbtion_absorb_AuraScript);
-
-            void Register()
-            {
-                AfterEffectAbsorb += AuraEffectAbsorbFn(spell_mage_incanters_absorbtion_absorb_AuraScript::Trigger, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_mage_incanters_absorbtion_absorb_AuraScript();
-        }
-};
-
-// Incanter's Absorption
-class spell_mage_incanters_absorbtion_manashield: public SpellScriptLoader
-{
-    public:
-        spell_mage_incanters_absorbtion_manashield() : SpellScriptLoader("spell_mage_incanters_absorbtion_manashield") { }
-
-        class spell_mage_incanters_absorbtion_manashield_AuraScript : public spell_mage_incanters_absorbtion_base_AuraScript
-        {
-            PrepareAuraScript(spell_mage_incanters_absorbtion_manashield_AuraScript);
-
-            void Register()
-            {
-                 AfterEffectManaShield += AuraEffectManaShieldFn(spell_mage_incanters_absorbtion_manashield_AuraScript::Trigger, EFFECT_0);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_mage_incanters_absorbtion_manashield_AuraScript();
-        }
-};
-
 // Living Bomb - 44457
 class spell_mage_living_bomb: public SpellScriptLoader
 {
@@ -2495,8 +2424,6 @@ void AddSC_mage_spell_scripts()
     new spell_mage_alter_time_overrided();
     new spell_mage_alter_time();
     new spell_mage_cold_snap();
-    new spell_mage_incanters_absorbtion_absorb();
-    new spell_mage_incanters_absorbtion_manashield();
     new spell_mage_living_bomb();
     new spell_mage_mirror_image_summon();
     new spell_mage_ice_barrier();

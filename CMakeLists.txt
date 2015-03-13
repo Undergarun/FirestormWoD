@@ -12,7 +12,9 @@
 # CMake policies (can not be handled elsewhere)
 cmake_minimum_required(VERSION 2.6)
 cmake_policy(SET CMP0005 OLD)
-cmake_policy(SET CMP0053 OLD)
+if(POLICY CMP0053)
+    cmake_policy(SET CMP0053 OLD)
+endif()
 
 # Set projectname (must be done AFTER setting configurationtypes)
 project(AshranCore)

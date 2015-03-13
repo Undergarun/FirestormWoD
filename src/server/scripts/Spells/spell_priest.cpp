@@ -179,19 +179,36 @@ class spell_pri_confession: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* caster = GetCaster()->ToPlayer())
+                if (Player* l_Caster = GetCaster()->ToPlayer())
                 {
                     if (!GetHitUnit())
                         return;
 
-                    if (Player* target = GetHitUnit()->ToPlayer())
+                    if (Player* l_Target = GetHitUnit()->ToPlayer())
                     {
-                        std::string name = target->GetName();
-                        std::string text = "[" + name + "]" + caster->GetSession()->GetTrinityString(LANG_CONFESSION_EMOTE);
-                        text += caster->GetSession()->GetTrinityString(urand(LANG_CONFESSION_START, LANG_CONFESSION_END));
-                        WorldPacket data;
-                        target->BuildPlayerChat(&data, CHAT_MSG_TEXT_EMOTE, text.c_str(), LANG_UNIVERSAL);
-                        target->SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), true);
+                        std::string l_Name = l_Target->GetName();
+                        std::string l_Text = "[" + l_Name + "]" + l_Caster->GetSession()->GetTrinityString(LANG_CONFESSION_EMOTE);
+                        l_Text += l_Caster->GetSession()->GetTrinityString(urand(LANG_CONFESSION_START, LANG_CONFESSION_END));
+
+                        std::list<Player*> l_PlayerList;
+                        l_Caster->GetPlayerListInGrid(l_PlayerList, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY));
+
+                        for (Player* l_Target : l_PlayerList)
+                        {
+                            if (!l_Caster->HaveAtClient(l_Target))
+                                continue;
+
+                            if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT) && l_Target->GetTeamId() != l_Caster->GetTeamId())
+                                continue;
+
+                            if (WorldSession* l_Session = l_Target->GetSession())
+                            {
+                                WorldPacket l_Data;
+                                /// No specific target needed
+                                l_Caster->BuildPlayerChat(&l_Data, nullptr, CHAT_MSG_EMOTE, l_Text, LANG_UNIVERSAL);
+                                l_Session->SendPacket(&l_Data);
+                            }
+                        }
                     }
                 }
             }
@@ -746,9 +763,8 @@ class spell_pri_shadowfiend: public SpellScriptLoader
         }
 };
 
-// Surge of Light (Discipline, Holy) - 109186 
-// Surge of Light - 114255
-class spell_pri_surge_of_light: public SpellScriptLoader
+/// Surge of Light - 114255
+class spell_pri_surge_of_light : public SpellScriptLoader
 {
     public:
         spell_pri_surge_of_light() : SpellScriptLoader("spell_pri_surge_of_light") { }
@@ -762,19 +778,19 @@ class spell_pri_surge_of_light: public SpellScriptLoader
             void HandleOnPrepare()
             {
                 if (Unit* l_Caster = GetCaster())
-                    if (AuraPtr l_SurgeOfLight = l_Caster->GetAura(PRIEST_SURGE_OF_LIGHT))
-                        m_Duration = l_SurgeOfLight->GetDuration();
+                if (AuraPtr l_SurgeOfLight = l_Caster->GetAura(PRIEST_SURGE_OF_LIGHT))
+                    m_Duration = l_SurgeOfLight->GetDuration();
             }
 
             void HandleOnCast()
             {
                 if (Unit* l_Caster = GetCaster())
-                    if (AuraPtr l_SurgeOfLight = l_Caster->GetAura(PRIEST_SURGE_OF_LIGHT))
-                    {
-                        l_SurgeOfLight->SetDuration(m_Duration);
-                        if (l_SurgeOfLight->GetStackAmount() > 1)
-                            l_SurgeOfLight->SetStackAmount(1);
-                    }
+                if (AuraPtr l_SurgeOfLight = l_Caster->GetAura(PRIEST_SURGE_OF_LIGHT))
+                {
+                    l_SurgeOfLight->SetDuration(m_Duration);
+                    if (l_SurgeOfLight->GetStackAmount() > 1)
+                        l_SurgeOfLight->SetStackAmount(1);
+                }
             }
 
             void Register()
@@ -788,10 +804,17 @@ class spell_pri_surge_of_light: public SpellScriptLoader
         {
             return new spell_pri_surge_of_light_SpellScript();
         }
+};
 
-        class spell_pri_surge_of_light_AuraScript : public AuraScript
+/// Surge of Light (Discipline, Holy) - 109186 
+class spell_pri_surge_of_light_aura : public SpellScriptLoader
+{
+    public:
+        spell_pri_surge_of_light_aura() : SpellScriptLoader("spell_pri_surge_of_light_aura") { }
+
+        class spell_pri_surge_of_light_aura_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_pri_surge_of_light_AuraScript);
+            PrepareAuraScript(spell_pri_surge_of_light_aura_AuraScript);
 
             void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& procInfo)
             {
@@ -805,30 +828,30 @@ class spell_pri_surge_of_light: public SpellScriptLoader
                     if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PRIEST_SHADOW)
                         return;
 
-                        if (roll_chance_i(GetSpellInfo()->Effects[EFFECT_0].BasePoints))
+                    if (roll_chance_i(GetSpellInfo()->Effects[EFFECT_0].BasePoints))
+                    {
+                        if (AuraPtr l_SurgeOfLight = l_Player->GetAura(PRIEST_SURGE_OF_LIGHT))
                         {
-                            if (AuraPtr l_SurgeOfLight = l_Player->GetAura(PRIEST_SURGE_OF_LIGHT))
-                            {
-                                if (l_SurgeOfLight->GetStackAmount() == 2)
-                                    l_SurgeOfLight->SetDuration(l_SurgeOfLight->GetMaxDuration());
-                                else
-                                    l_Player->CastSpell(l_Player, PRIEST_SURGE_OF_LIGHT, true);
-                            }
+                            if (l_SurgeOfLight->GetStackAmount() == 2)
+                                l_SurgeOfLight->SetDuration(l_SurgeOfLight->GetMaxDuration());
                             else
                                 l_Player->CastSpell(l_Player, PRIEST_SURGE_OF_LIGHT, true);
                         }
+                        else
+                            l_Player->CastSpell(l_Player, PRIEST_SURGE_OF_LIGHT, true);
+                    }
                 }
             }
 
             void Register()
             {
-                OnEffectProc += AuraEffectProcFn(spell_pri_surge_of_light_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+                OnEffectProc += AuraEffectProcFn(spell_pri_surge_of_light_aura_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
         AuraScript* GetAuraScript() const
         {
-            return new spell_pri_surge_of_light_AuraScript();
+            return new spell_pri_surge_of_light_aura_AuraScript();
         }
 };
 
@@ -1035,6 +1058,35 @@ class spell_pri_holy_word_sanctuary: public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_pri_holy_word_sanctuary_AuraScript();
+        }
+};
+
+// Holy Word : Sanctuary (heal) - 88686
+class spell_pri_holy_word_sanctuary_heal : public SpellScriptLoader
+{
+    public:
+        spell_pri_holy_word_sanctuary_heal() : SpellScriptLoader("spell_pri_holy_word_sanctuary_heal") { }
+
+        class spell_pri_holy_word_sanctuary_heal_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_holy_word_sanctuary_heal_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
+            {
+                /// Healing up to 6 allies 
+                if (p_Targets.size() > 6)
+                    JadeCore::RandomResizeList(p_Targets, 6);
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_holy_word_sanctuary_heal_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pri_holy_word_sanctuary_heal_SpellScript();
         }
 };
 
@@ -1526,44 +1578,41 @@ class spell_pri_mind_spike: public SpellScriptLoader
 
             void HandleDamage(SpellEffIndex /*effIndex*/)
             {
-                if (Unit* l_Caster = GetCaster())
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (AuraPtr l_SurgeOfDarkness = l_Caster->GetAura(PRIEST_SURGE_OF_DARKNESS))
                 {
-                    if (AuraPtr l_SurgeOfDarkness = l_Caster->GetAura(PRIEST_SURGE_OF_DARKNESS))
-                    {
-                        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(PRIEST_SURGE_OF_DARKNESS);
-                        if (l_SpellInfo)
-                            SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_SpellInfo->Effects[EFFECT_3].BasePoints));
-                        l_SurgeOfDarkness->ModStackAmount(-1);
-                    }
+                    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(PRIEST_SURGE_OF_DARKNESS);
+                    if (l_SpellInfo)
+                        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_SpellInfo->Effects[EFFECT_3].BasePoints));
+                    l_SurgeOfDarkness->DropStack();
+                }
+                else ///< Surge of Darkness - Your next Mind Spike will not consume your damage-over-time effects ...
+                {
+                    /// Mind Spike remove all DoT on the target's
+                    if (l_Target->HasAura(PRIEST_SHADOW_WORD_PAIN, l_Caster->GetGUID()))
+                        l_Target->RemoveAura(PRIEST_SHADOW_WORD_PAIN, l_Caster->GetGUID());
+                    if (l_Target->HasAura(PRIEST_DEVOURING_PLAGUE, l_Caster->GetGUID()))
+                        l_Target->RemoveAura(PRIEST_DEVOURING_PLAGUE, l_Caster->GetGUID());
+                    if (l_Target->HasAura(PRIEST_VAMPIRIC_TOUCH, l_Caster->GetGUID()))
+                        l_Target->RemoveAura(PRIEST_VAMPIRIC_TOUCH, l_Caster->GetGUID());
                 }
             }
 
             void HandleOnHit()
             {
-                if (Unit* l_Caster = GetCaster())
+                Unit* l_Caster = GetCaster();
+                
+                if (l_Caster->HasAura(PRIEST_SPELL_SHADOW_INSIGHT))
                 {
-                    if (Unit* l_Target = GetHitUnit())
-                    {
-                        if (l_Caster->HasAura(PRIEST_SPELL_SHADOW_INSIGHT))
-                        {
-                            if (roll_chance_i(sSpellMgr->GetSpellInfo(PRIEST_SPELL_SHADOW_INSIGHT)->Effects[EFFECT_3].BasePoints))
-                                l_Caster->CastSpell(l_Caster, PRIEST_SPELL_SHADOW_INSIGHT_PROC, true);
-                        }
-                        // Surge of Darkness - Your next Mind Spike will not consume your damage-over-time effects ...
-                        if (!l_Caster->HasAura(PRIEST_SURGE_OF_DARKNESS))
-                        {
-                            // Mind Spike remove all DoT on the target's
-                            if (l_Target->HasAura(PRIEST_SHADOW_WORD_PAIN, l_Caster->GetGUID()))
-                                l_Target->RemoveAura(PRIEST_SHADOW_WORD_PAIN, l_Caster->GetGUID());
-                            if (l_Target->HasAura(PRIEST_DEVOURING_PLAGUE, l_Caster->GetGUID()))
-                                l_Target->RemoveAura(PRIEST_DEVOURING_PLAGUE, l_Caster->GetGUID());
-                            if (l_Target->HasAura(PRIEST_VAMPIRIC_TOUCH, l_Caster->GetGUID()))
-                                l_Target->RemoveAura(PRIEST_VAMPIRIC_TOUCH, l_Caster->GetGUID());
-                        }
-                    }
+                    if (roll_chance_i(sSpellMgr->GetSpellInfo(PRIEST_SPELL_SHADOW_INSIGHT)->Effects[EFFECT_3].BasePoints))
+                        l_Caster->CastSpell(l_Caster, PRIEST_SPELL_SHADOW_INSIGHT_PROC, true);
                 }
             }
-
 
             void Register()
             {
@@ -1578,7 +1627,7 @@ class spell_pri_mind_spike: public SpellScriptLoader
         }
 };
 
-// Called by Holy Fire - 14914, Smite - 585 and Penance - 47666
+// Called by Holy Fire - 14914, Smite - 585, Penance - 47666 and Power Word: Solace - 129250
 // Evangelism - 81662
 class spell_pri_evangelism: public SpellScriptLoader
 {
@@ -1591,13 +1640,15 @@ class spell_pri_evangelism: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->HasAura(PRIEST_EVANGELISM_AURA))
                 {
-                    if (l_Player->HasAura(PRIEST_EVANGELISM_AURA))
-                    {
-                        if (GetHitDamage())
-                            l_Player->CastSpell(l_Player, PRIEST_EVANGELISM_STACK, true);
-                    }
+                    if (GetHitDamage())
+                        l_Player->CastSpell(l_Player, PRIEST_EVANGELISM_STACK, true);
                 }
             }
 
@@ -2852,26 +2903,13 @@ class spell_pri_mind_blast: public SpellScriptLoader
             {
                 PreventHitDefaultEffect(p_EffIndex);
 
-                Player *l_Player = GetCaster()->ToPlayer();
-                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(PRIEST_GLYPH_OF_MIND_HARVEST);
+                Unit *l_Caster = GetCaster();
 
-                if (l_Player == nullptr || l_SpellInfo == nullptr || !l_Player->HasAura(PRIEST_GLYPH_OF_MIND_HARVEST))
+                if (!l_Caster->HasAura(PRIEST_GLYPH_OF_MIND_HARVEST))
                     return;
 
-                uint32 l_SpellId = GetSpellInfo()->Id;
-
-                uint32 l_OldCooldown = l_Player->GetSpellCooldownDelay(l_SpellId);
-                uint32 l_NewCooldown = l_OldCooldown + l_SpellInfo->Effects[EFFECT_1].BasePoints;
-
-                l_Player->RemoveSpellCooldown(l_SpellId, true);
-
-                if (m_HasMarker)
-                    l_Player->AddSpellCooldown(l_SpellId, 0, l_OldCooldown, true);
-                else
-                {
-                    l_Player->AddSpellCooldown(l_SpellId, 0, l_NewCooldown, true);
+                if (!m_HasMarker)
                     GetSpell()->EffectEnergize(p_EffIndex);
-                }
             }
 
             void Register()
@@ -3248,24 +3286,21 @@ class spell_pri_divine_aegis : public SpellScriptLoader
             {
                 PreventDefaultAction();
 
-                if (!(p_EventInfo.GetHitMask() & PROC_EX_CRITICAL_HIT) || !(p_EventInfo.GetHitMask() & PROC_EX_INTERNAL_MULTISTRIKE))
+                if (!(p_EventInfo.GetHitMask() & PROC_EX_CRITICAL_HIT) && !(p_EventInfo.GetHitMask() & PROC_EX_INTERNAL_MULTISTRIKE))
                     return;
 
-                if (!GetCaster())
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetTarget();
+
+                if (l_Caster == nullptr || l_Target == nullptr)
                     return;
 
-                if (Player* l_Caster = GetCaster()->ToPlayer())
-                {
-                    if (Unit* l_Target = GetTarget())
-                    {
-                        if (!p_EventInfo.GetHealInfo())
-                            return;
+                if (!p_EventInfo.GetHealInfo())
+                    return;
 
-                        int32 l_Amount = p_EventInfo.GetHealInfo()->GetHeal();
+                int32 l_Amount = p_EventInfo.GetHealInfo()->GetHeal();
 
-                        l_Caster->CastCustomSpell(l_Target, eDivineAegisSpell::DivineAegisAura, &l_Amount, nullptr, nullptr, true);
-                    }
-                }
+                l_Caster->CastCustomSpell(l_Target, eDivineAegisSpell::DivineAegisAura, &l_Amount, nullptr, nullptr, true);
             }
 
             void Register()
@@ -3356,6 +3391,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_divine_insight_holy();
     new spell_pri_divine_insight_discipline();
     new spell_pri_holy_word_sanctuary();
+    new spell_pri_holy_word_sanctuary_heal();
     new spell_pri_smite();
     new spell_pri_lightwell_renew();
     new spell_pri_atonement();
@@ -3383,6 +3419,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_twist_of_fate();
     new spell_pri_divine_aegis();
     new spell_pri_chakra_sanctuary();
+    new spell_pri_surge_of_light_aura();
 
     /// Player Script
     new PlayerScript_Shadow_Orb();

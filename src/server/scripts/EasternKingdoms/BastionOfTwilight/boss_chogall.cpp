@@ -1515,6 +1515,43 @@ class spell_chogall_worshipping: public SpellScriptLoader
         }
 };
 
+/// Festering Blood - 82914
+class spell_chogall_festering_blood : public SpellScriptLoader
+{
+    public:
+        spell_chogall_festering_blood() : SpellScriptLoader("spell_chogall_festering_blood") { }
+
+        class spell_chogall_festering_blood_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_chogall_festering_blood_AuraScript);
+
+            enum eData
+            {
+                BastionOfTwilight = 671
+            };
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                Unit* l_Target = GetTarget();
+                if (!l_Target)
+                    return;
+
+                if (l_Target->GetMapId() != eData::BastionOfTwilight)
+                    p_AurEff->GetBase()->Remove();
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_chogall_festering_blood_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_chogall_festering_blood_AuraScript();
+        }
+};
+
 void AddSC_boss_chogall()
 {
     new boss_chogall();
@@ -1539,4 +1576,5 @@ void AddSC_boss_chogall()
     new spell_chogall_spilled_blood_of_the_old_god_corruption();
     new spell_chogall_corruption_of_the_old_god_corruption();
     new spell_chogall_worshipping();
+    new spell_chogall_festering_blood();
 }

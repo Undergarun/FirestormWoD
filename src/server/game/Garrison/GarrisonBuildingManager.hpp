@@ -47,6 +47,8 @@ namespace MS { namespace Garrison
         {   64,         94,      BuildingConditionQuest::FishFight,                BuildingConditionQuest::FishFight                }     ///< Fishing Shack
     };
 
+    class Manager;
+
     /// Building manager class
     class BuildingManager
     {
@@ -62,7 +64,8 @@ namespace MS { namespace Garrison
         public:
             /// Learn allowed building blue prints
             /// @p_Player     : Target player
-            void LearnAllowedBuildings(Player * p_Player);
+            /// @p_Garrison   : Target garrison
+            void LearnAllowedBuildings(Player * p_Player, Manager * p_Garrison);
             /// Is that blue print allowed for Purchase a building
             /// @p_BuildingID : Building ID we are looking for
             /// @p_Player     : Target player

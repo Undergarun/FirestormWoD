@@ -47,6 +47,13 @@ struct CurvePointEntry
     float Y;                                                        // 4
 };
 
+struct GlyphRequiredSpecEntry
+{
+    uint32 ID;                                                      ///< 0
+    uint32 GlyphID;                                                 ///< 1
+    uint32 SpecID;                                                  ///< 2
+};
+
 struct PathNodeEntry
 {
     uint32 ID;                                                      ///< 0

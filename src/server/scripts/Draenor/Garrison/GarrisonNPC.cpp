@@ -34,7 +34,7 @@ namespace MS { namespace Garrison
 {
     /// Constructor
     GarrisonNPCAI::GarrisonNPCAI(Creature * p_Creature)
-        : MS::AI::CosmeticAI(p_Creature), m_PlotInstanceLocation(nullptr), m_BuildingID(0)
+        : MS::AI::CosmeticAI(p_Creature), m_PlotInstanceLocation(nullptr), m_BuildingID(0), m_SequenceSize(0)
     {
 
     }
@@ -107,6 +107,9 @@ namespace MS { namespace Garrison
     /// Do next sequence element
     void GarrisonNPCAI::DoNextSequenceAction()
     {
+        if (!m_SequenceSize)
+            return;
+
         if (m_SequencePosition >= m_SequenceSize)
             m_SequencePosition = 0;
 

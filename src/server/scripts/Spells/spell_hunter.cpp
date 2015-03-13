@@ -322,6 +322,9 @@ class spell_hun_black_arrow : public SpellScriptLoader
 
             void HandleDispel(DispelInfo*)
             {
+                if (!GetCaster())
+                    return;
+
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
                     if (l_Player->HasSpellCooldown(GetSpellInfo()->Id))
@@ -742,6 +745,7 @@ class spell_hun_lone_wolf : public SpellScriptLoader
                     l_Player->removeSpell(LoneWolfes::LoneWolfPrimarStats);
                     l_Player->removeSpell(LoneWolfes::LoneWolfVersatility);
                     l_Player->removeSpell(LoneWolfes::LoneWolfMultistrike);
+                    l_Player->RemoveAura(LoneWolfes::LoneWolfAura);
                 }
             }
 
