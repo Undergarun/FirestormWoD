@@ -41,7 +41,7 @@ install:
 
 script:
   - cd build
-  - make -j
+  - make -j20
 
 notifications:
   slack: millenium-studio:hJlKAYRaplFP8GVoH5a7FPqv
