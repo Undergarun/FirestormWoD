@@ -1147,13 +1147,12 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
 
     if (damage > 10000 && spellProto != nullptr && GetTypeId() == TYPEID_PLAYER && (ToPlayer()->InBattleground() || ToPlayer()->InArena()) && victim->GetTypeId() == TYPEID_PLAYER)
     {
-        using namespace MS::Reporting;
         auto l_Row = sChrSpecializationsStore.LookupEntry(ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()));
         std::string l_SpeName = "";
         if (l_Row != nullptr)
             l_SpeName = l_Row->specializationName;
 
-        sReporter->Report(MS::Reporting::MakeReport<BattlegroundDealDamageWatcher>::Craft
+        sReporter->Report(MS::Reporting::MakeReport<MS::Reporting::BattlegroundDealDamageWatcher>::Craft
         (
             GetGUIDLow(),
             sWorld->GetRealmName(),
