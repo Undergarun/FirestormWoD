@@ -20,6 +20,7 @@
 #include "Buildings/Alliance/ABarracks.hpp"
 #include "Buildings/Alliance/ATradingPost.hpp"
 #include "Buildings/Alliance/ATailoringEmporium.hpp"
+#include "Buildings/Alliance/AAlchemyLab.hpp"
 
 #include "Buildings/Horde/HTheForge.hpp"
 #include "Buildings/Horde/HTradingPost.hpp"
@@ -416,6 +417,10 @@ void AddSC_Garrison_NPC()
         /// TailoringEmporium
         new MS::Garrison::npc_ChristopherMacdonald;
         new MS::Garrison::npc_KaylieMacdonald;
+
+        /// Alchemy lab
+        new MS::Garrison::npc_MaryKearie;
+        new MS::Garrison::npc_PeterKearie;
     }
 
     /// Horde
