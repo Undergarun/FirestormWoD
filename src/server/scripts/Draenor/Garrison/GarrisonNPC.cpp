@@ -26,6 +26,7 @@
 #include "Buildings/Horde/HTradingPost.hpp"
 #include "Buildings/Horde/HWarMill.hpp"
 #include "Buildings/Horde/HTailoringEmporium.hpp"
+#include "Buildings/Horde/HAlchemyLab.hpp"
 
 #include <random>
 
@@ -448,5 +449,9 @@ void AddSC_Garrison_NPC()
         /// Tailoring Emporium
         new MS::Garrison::npc_WarraTheWeaver;
         new MS::Garrison::npc_Turga;
+
+        /// Alchemy lab
+        new MS::Garrison::npc_AlbertDeHyde;
+        new MS::Garrison::npc_KeyanaTone;
     }
 }
