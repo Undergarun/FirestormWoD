@@ -290,7 +290,7 @@ enum Opcodes
         SMSG_LOOT_START_ROLL                        = 0x0831, ///< 6.1.2 19750
         SMSG_AE_LOOT_TARGETS                        = 0x0000, ///< (unused)
         SMSG_AE_LOOT_TARGETS_ACK                    = 0x0000, ///< (unused)
-        SMSG_ITEM_BONUS_DEBUG                       = 0x1CB6, ///< 6.0.3 19750
+        SMSG_ITEM_BONUS_DEBUG                       = 0x1CB6, ///< 6.1.2 19750
 
         /// Bank
         SMSG_SHOW_BANK                              = 0x179F, ///< 6.1.2 19750
