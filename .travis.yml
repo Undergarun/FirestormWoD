@@ -19,7 +19,7 @@ before_install:
   - mkdir build
   - cd build
   - cmake ..
-  - make -j4
+  - make -j
   - sudo make install
   - cd ../../../
 
@@ -41,7 +41,7 @@ install:
 
 script:
   - cd build
-  - make -j12
+  - make -j
 
 notifications:
   slack: millenium-studio:hJlKAYRaplFP8GVoH5a7FPqv
