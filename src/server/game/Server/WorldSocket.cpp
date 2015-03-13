@@ -189,13 +189,13 @@ int WorldSocket::SendPacket(WorldPacket const& pct)
 
 #   ifdef WIN32
         switch (pct.GetOpcode())
-        {/*
+        {
             case SMSG_MONSTER_MOVE:
             case SMSG_THREAT_CLEAR:
             case SMSG_THREAT_REMOVE:
             case SMSG_THREAT_UPDATE:
             case SMSG_HIGHEST_THREAT_UPDATE:
-            case SMSG_ATTACKER_STATE_UPDATE:*/
+            case SMSG_ATTACKER_STATE_UPDATE:
                 break;
 
             default:
@@ -824,7 +824,7 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
                 sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", GetOpcodeNameForLogging(opcode, WOW_CLIENT_TO_SERVER).c_str());
                 sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
                 return 0;
-            }
+            }*/
             case CMSG_LOG_DISCONNECT:
             {
                 new_pct->rfinish(); // contains uint32 disconnectReason;
@@ -832,7 +832,6 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
                 sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
                 return 0;
             }
-            */
             // not an opcode, client sends string "WORLD OF WARCRAFT CONNECTION - CLIENT TO SERVER" without opcode
             // first 4 bytes become the opcode (2 dropped)
             case CMSG_HANDSHAKE:
