@@ -6,6 +6,10 @@ compiler:
 git:
   depth: 1
 
+branches:
+  only:
+    - WoD2
+
 before_install:
   - echo "yes" | sudo add-apt-repository ppa:kalakris/cmake
   - echo "yes" | sudo add-apt-repository ppa:ubuntu-toolchain-r/test
