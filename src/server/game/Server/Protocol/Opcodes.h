@@ -887,36 +887,36 @@ enum Opcodes
     /// Jam Client Garrison
     //////////////////////////////////////////////////////////////////////////
     #pragma region JamGarrison
-        SMSG_GET_GARRISON_INFO_RESULT                                   = 0x0000, ///<
-        SMSG_GARRISON_PLOT_PLACED                                       = 0x0000, ///<
-        SMSG_GARRISON_PLOT_REMOVED                                      = 0x0000, ///<
-        SMSG_GARRISON_PLACE_BUILDING_RESULT                             = 0x0000, ///<
-        SMSG_GARRISON_BUILDING_REMOVED                                  = 0x0000, ///<
+        SMSG_GET_GARRISON_INFO_RESULT                                   = 0x0084, ///< 6.1.2 19750
+        SMSG_GARRISON_PLOT_PLACED                                       = 0x00E7, ///< 6.1.2 19750
+        SMSG_GARRISON_PLOT_REMOVED                                      = 0x01AB, ///< 6.1.2 19750
+        SMSG_GARRISON_PLACE_BUILDING_RESULT                             = 0x08A4, ///< 6.1.2 19750
+        SMSG_GARRISON_BUILDING_REMOVED                                  = 0x08F7, ///< 6.1.2 19750
         SMSG_GARRISON_LEARN_SPECIALIZATION_RESULT                       = 0x0000,
         SMSG_GARRISON_BUILDING_SET_ACTIVE_SPECIALIZATION_RESULT         = 0x0000,
-        SMSG_GARRISON_LEARN_BLUEPRINT_RESULT                            = 0x0000, ///<
-        SMSG_GARRISON_BLUEPRINT_AND_SPECIALIZATION_DATA                 = 0x0000, ///<
-        SMSG_GARRISON_GET_BUILDINGS_DATA                                = 0x0000, ///<
-        SMSG_GARRISON_REMOTE_INFO                                       = 0x0000, ///<
-        SMSG_GARRISON_BUILDING_ACTIVATED                                = 0x0000, ///<
+        SMSG_GARRISON_LEARN_BLUEPRINT_RESULT                            = 0x08D8, ///< 6.1.2 19750
+        SMSG_GARRISON_BLUEPRINT_AND_SPECIALIZATION_DATA                 = 0x08EB, ///< 6.1.2 19750
+        SMSG_GARRISON_GET_BUILDINGS_DATA                                = 0x0987, ///< 6.1.2 19750
+        SMSG_GARRISON_REMOTE_INFO                                       = 0x01B0, ///< 6.1.2 19750
+        SMSG_GARRISON_BUILDING_ACTIVATED                                = 0x00AB, ///< 6.1.2 19750
         SMSG_GARRISON_UPGRADE_RESULT                                    = 0x0000,
-        SMSG_GARRISON_ADD_FOLLOWER_RESULT                               = 0x0000, ///<
+        SMSG_GARRISON_ADD_FOLLOWER_RESULT                               = 0x08A3, ///< 6.1.2 19750
         SMSG_GARRISON_REMOVE_FOLLOWER_RESULT                            = 0x0000,
         SMSG_GARRISON_LIST_FOLLOWERS_CHEAT_RESULT                       = 0x0000,
-        SMSG_GARRISON_UPDATE_FOLLOWER_ACTIVATION_COUNT                  = 0x0000, ///<
-        SMSG_GARRISON_UPDATE_FOLLOWER                                   = 0x0000, ///<
-        SMSG_GARRISON_FOLLOWER_CHANGED_XP                               = 0x0000, ///<
+        SMSG_GARRISON_UPDATE_FOLLOWER_ACTIVATION_COUNT                  = 0x088F, ///< 6.1.2 19750
+        SMSG_GARRISON_UPDATE_FOLLOWER                                   = 0x0093, ///< 6.1.2 19750
+        SMSG_GARRISON_FOLLOWER_CHANGED_XP                               = 0x00AC, ///< 6.1.2 19750
         SMSG_GARRISON_FOLLOWER_CHANGED_ITEM_LEVEL                       = 0x0000,
-        SMSG_GARRISON_ADD_MISSION_RESULT                                = 0x0000, ///<
-        SMSG_GARRISON_START_MISSION_RESULT                              = 0x0000, ///<
-        SMSG_GARRISON_COMPLETE_MISSION_RESULT                           = 0x0000, ///<
-        SMSG_GARRISON_MISSION_BONUS_ROLL_RESULT                         = 0x0000, ///<
+        SMSG_GARRISON_ADD_MISSION_RESULT                                = 0x01DB, ///< 6.1.2 19750
+        SMSG_GARRISON_START_MISSION_RESULT                              = 0x01E0, ///< 6.1.2 19750
+        SMSG_GARRISON_COMPLETE_MISSION_RESULT                           = 0x08FF, ///< 6.1.2 19750
+        SMSG_GARRISON_MISSION_BONUS_ROLL_RESULT                         = 0x019C, ///< 6.1.2 19750
         SMSG_GARRISON_ASSIGN_FOLLOWER_TO_BUILDING_RESULT                = 0x0000,
         SMSG_GARRISON_REMOVE_FOLLOWER_FROM_BUILDING_RESULT              = 0x0000,
         SMSG_GARRISON_DELETE_RESULT                                     = 0x0000,
-        SMSG_GARRISON_OPEN_ARCHITECT                                    = 0x0000, ///<
-        SMSG_GARRISON_OPEN_MISSION_NPC                                  = 0x0000, ///<
-        SMSG_GARRISON_REQUEST_UPGRADEABLE_RESULT                        = 0x0000, ///<
+        SMSG_GARRISON_OPEN_ARCHITECT                                    = 0x0000,
+        SMSG_GARRISON_OPEN_MISSION_NPC                                  = 0x0988, ///< 6.1.2 19750
+        SMSG_GARRISON_REQUEST_UPGRADEABLE_RESULT                        = 0x01A8, ///< 6.1.2 19750
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -939,14 +939,14 @@ enum Opcodes
     CMSG_GARRISON_PLACE_BUILDING_CHEAT                      = 0x0000,
     CMSG_GARRISON_REMOVE_BUILDING_CHEAT                     = 0x0000,
     CMSG_GARRISON_UPGRADE_BUILDING_CHEAT                    = 0x0000,
-    CMSG_GARRISON_CANCEL_CONSTRUCTION                       = 0x0000, ///<
+    CMSG_GARRISON_CANCEL_CONSTRUCTION                       = 0x1A02,   ///< 6.1.2 19750
     CMSG_GARRISON_LEARN_BUILDING_SPECIALIZATION_CHEAT       = 0x0000,
     CMSG_GARRISON_SET_ACTIVE_BUILDING_SPECIALIZATION        = 0x0000,
     CMSG_GARRISON_SET_ACTIVE_BUILDING_SPECIALIZATION_CHEAT  = 0x0000,
-    CMSG_GET_GARRISON_INFO                                  = 0x0000, ///<
+    CMSG_GET_GARRISON_INFO                                  = 0x072D,   ///< 6.1.2 19750
     CMSG_GARRISON_LEARN_BLUEPRINT_CHEAT                     = 0x0000,
-    CMSG_GARRISON_REQUEST_BUILDINGS                         = 0x0000, ///<
-    CMSG_GARRISON_PURCHASE_BUILDING                         = 0x0000, ///<
+    CMSG_GARRISON_REQUEST_BUILDINGS                         = 0x0EFC,   ///< 6.1.2 19750
+    CMSG_GARRISON_PURCHASE_BUILDING                         = 0x1208,   ///< 6.1.2 19750
     CMSG_GARRISON_SET_BUILDING_ACTIVE                       = 0x0000,
     CMSG_GARRISON_FORCE_BUILDING_ACTIVE                     = 0x0000,
     CMSG_GARRISON_PORT_CHEAT                                = 0x0000,
@@ -954,19 +954,19 @@ enum Opcodes
     CMSG_GARRISON_SET_FOLLOWER_ITEM_LEVEL_CHEAT             = 0x0000,
     CMSG_GARRISON_ASSIGN_FOLLOWER_TO_BUILDING               = 0x0000,
     CMSG_GARRISON_REMOVE_FOLLOWER_FROM_BUILDING             = 0x0000,
-    CMSG_GARRISON_CHANGE_FOLLOWER_ACTIVATION_STATE          = 0x0000, ///<
+    CMSG_GARRISON_CHANGE_FOLLOWER_ACTIVATION_STATE          = 0x0AC8,   ///< 6.1.2 19750
     CMSG_SHOW_GARRISON_TRANSFER                             = 0x0000,
     CMSG_GARRISON_ADD_UNIQUE_FOLLOWER_CHEAT                 = 0x0000,
     CMSG_GARRISON_REMOVE_FOLLOWER_CHEAT                     = 0x0000,
     CMSG_GARRISON_LIST_FOLLOWERS_CHEAT                      = 0x0000,
     CMSG_GARRISON_ADD_MISSION_CHEAT                         = 0x0000,
-    CMSG_GARRISON_START_MISSION                             = 0x0000,   ///<
-    CMSG_GARRISON_COMPLETE_MISSION                          = 0x0000,   ///<
-    CMSG_GARRISON_MISSION_BONUS_ROLL                        = 0x0000,   ///<
-    CMSG_GARRISON_REQUEST_UPGRADEABLE                       = 0x0000,   ///<
-    CMSG_UPGRADE_GARRISON                                   = 0x0000,   ///<
+    CMSG_GARRISON_START_MISSION                             = 0x0E0E,   ///< 6.1.2 19750
+    CMSG_GARRISON_COMPLETE_MISSION                          = 0x0BA2,   ///< 6.1.2 19750
+    CMSG_GARRISON_MISSION_BONUS_ROLL                        = 0x07D2,   ///< 6.1.2 19750
+    CMSG_GARRISON_REQUEST_UPGRADEABLE                       = 0x0000,   ///< 6.1.2 19750
+    CMSG_UPGRADE_GARRISON                                   = 0x12FA,   ///< 6.1.2 19750
     CMSG_GARRISON_REQUEST_LANDING_PAGE_SHIPMENT_INFO        = 0x0000,
-    CMSG_GARRISON_MISSION_NPC_HELLO                         = 0x0000,   ///<
+    CMSG_GARRISON_MISSION_NPC_HELLO                         = 0x0BA9,   ///< 6.1.2 19750
     CMSG_GET_SHIPMENT_INFO                                  = 0x03FA,   ///< 6.1.2 19750
     CMSG_CREATE_SHIPMENT                                    = 0x010E,   ///< 6.1.2 19750
     CMSG_GET_SHIPMENTS                                      = 0x06DA,   ///< 6.1.2 19750
@@ -993,7 +993,7 @@ enum Opcodes
     CMSG_ENUM_CHARACTERS                        = 0x1696,   ///< 6.1.2 19750
     CMSG_CREATE_CHARACTER                       = 0x1636,   ///< 6.1.2 19750
     CMSG_CHAR_DELETE                            = 0x12B8,   ///< 6.1.2 19750
-    CMSG_REORDER_CHARACTERS                     = 0x0000,   ///<
+    CMSG_REORDER_CHARACTERS                     = 0x17B7,   ///< 6.1.2 19750
     CMSG_PLAYER_LOGIN                           = 0x0E98,   ///< 6.1.2 19750
     CMSG_VIOLENCE_LEVEL                         = 0x0F48,   ///< 6.1.2 19750
     CMSG_LOAD_SCREEN                            = 0x13C0,   ///< 6.1.2 19750
@@ -1011,11 +1011,11 @@ enum Opcodes
     CMSG_SWAP_ITEM                              = 0x0438,   ///< 6.1.2 19750
     CMSG_AUTOSTORE_BAG_ITEM                     = 0x0424,   ///< 6.1.2 19750
     CMSG_REQUEST_PET_INFO                       = 0x0000,   ///<
-    CMSG_STAND_STATE_CHANGE                     = 0x0000,   ///<
+    CMSG_STAND_STATE_CHANGE                     = 0x01AD,   ///< 6.1.2 19750
     CMSG_BINDER_ACTIVATE                        = 0x1C71,   ///< 6.1.2 19750
-    CMSG_REQUEST_FORCED_REACTIONS               = 0x0000,   ///<
+    CMSG_REQUEST_FORCED_REACTIONS               = 0x0DA5,   ///< 6.1.2 19750 - not sure
     CMSG_DESTROY_ITEM                           = 0x0A72,   ///< 6.1.2 19750
-    CMSG_OPEN_ITEM                              = 0x0000,   ///<
+    CMSG_OPEN_ITEM                              = 0x0354,   ///< 6.1.2 19750
     CMSG_SET_TITLE                              = 0x1650,   ///< 6.1.2 19750
     CMSG_PLAYED_TIME                            = 0x0750,   ///< 6.1.2 19750
     CMSG_SAVE_EQUIPMENT_SET                     = 0x09E2,   ///< 6.1.2 19750
@@ -1026,7 +1026,7 @@ enum Opcodes
     CMSG_RESURRECT_RESPONSE                     = 0x033E,   ///< 6.1.2 19750
     CMSG_QUERY_INSPECT_ACHIEVEMENTS             = 0x014E,   ///< 6.1.2 19750
     CMSG_SPLIT_ITEM                             = 0x052B,   ///< 6.1.2 19750
-    CMSG_SET_PLAYER_DECLINED_NAMES              = 0x0000,   ///<
+    CMSG_SET_PLAYER_DECLINED_NAMES              = 0x1617,   ///< 6.1.2 19750
     CMSG_MOUNT_SET_FAVORITE                     = 0x061E,   ///< 6.1.2 19750
     CMSG_SORT_BAGS                              = 0x0AF1,   ///< 6.1.2 19750
     CMSG_CHAR_RENAME                            = 0x0616,   ///< 6.1.2 19750
@@ -1120,7 +1120,7 @@ enum Opcodes
     CMSG_SET_ACTION_BUTTON                      = 0x133F, ///< 6.1.2 19750
     CMSG_SET_ACTIONBAR_TOGGLES                  = 0x0F81, ///< 6.1.2 19750
     CMSG_SET_SELECTION                          = 0x0E8C, ///< 6.1.2 19750
-    CMSG_SETSHEATHED                            = 0x0000, ///<
+    CMSG_SETSHEATHED                            = 0x1CB1, ///< 6.1.2 19750
     CMSG_GOSSIP_HELLO                           = 0x1C22, ///< 6.1.2 19750
     CMSG_GOSSIP_SELECT_OPTION                   = 0x1E0C, ///< 6.1.2 19750
     CMSG_TOGGLE_PVP                             = 0x1BC7, ///< 6.1.2 19750
@@ -1128,11 +1128,11 @@ enum Opcodes
     CMSG_SET_SPECIALIZATION                     = 0x0759, ///< 6.1.2 19750
     CMSG_SET_WATCHED_FACTION                    = 0x1E82, ///< 6.1.2 19750
     CMSG_SET_FACTION_INACTIVE                   = 0x1862, ///< 6.1.2 19750
-    CMSG_AREATRIGGER                            = 0x0000, ///<
+    CMSG_AREATRIGGER                            = 0x0BDB, ///< 6.1.2 19750
     CMSG_GAMEOBJECT_REPORT_USE                  = 0x18B2, ///< 6.1.2 19750
     CMSG_GAMEOBJECT_USE                         = 0x08B1, ///< 6.1.2 19750
-    CMSG_SAVE_CUF_PROFILES                      = 0x0000, ///<
-    CMSG_SPELLCLICK                             = 0x0000, ///<
+    CMSG_SAVE_CUF_PROFILES                      = 0x0EC7, ///< 6.1.2 19750
+    CMSG_SPELLCLICK                             = 0x1DB2, ///< 6.1.2 19750
     CMSG_REPOP_REQUEST                          = 0x0D36, ///< 6.1.2 19750
     CMSG_RECLAIM_CORPSE                         = 0x0DB1, ///< 6.1.2 19750
     CMSG_QUERY_CORPSE_LOCATION_FROM_CLIENT      = 0x03B7, ///< 6.1.2 19750
@@ -1140,14 +1140,14 @@ enum Opcodes
     CMSG_RETURN_TO_GRAVEYARD                    = 0x0C65, ///< 6.1.2 19750
     CMSG_CLOSE_INTERACTION                      = 0x1C36, ///< 6.1.2 19750
     CMSG_ITEM_REFUND_INFO                       = 0x016E, ///< 6.1.2 19750
-    CMSG_FAR_SIGHT                              = 0x0000, ///<
-    CMSG_MOUNTSPECIAL_ANIM                      = 0x0000, ///<
+    CMSG_FAR_SIGHT                              = 0x00EE, ///< 6.1.2 19750
+    CMSG_MOUNTSPECIAL_ANIM                      = 0x02D1, ///< 6.1.2 19750
     CMSG_OPENING_CINEMATIC                      = 0x0E0A, ///< 6.1.2 19750
     CMSG_NEXT_CINEMATIC_CAMERA                  = 0x0CE1, ///< 6.1.2 19750
     CMSG_COMPLETE_CINEMATIC                     = 0x0CF2, ///< 6.1.2 19750
     CMSG_REQUEST_CEMETERY_LIST                  = 0x0FD0, ///< 6.1.2 19750
     CMSG_TOTEM_DESTROYED                        = 0x19B5, ///< 6.1.2 19750
-    CMSG_CONFIRM_RESPEC_WIPE                    = 0x0000, ///<
+    CMSG_CONFIRM_RESPEC_WIPE                    = 0x1226, ///< 6.1.2 19750
     CMSG_CANCEL_TRADE                           = 0x0E0F, ///< 6.1.2 19750
     CMSG_SET_TRADE_CURRENCY                     = 0x06F2,   ///< 6.1.2 19750
     CMSG_SET_TRADE_GOLD                         = 0x0E5A,   ///< 6.1.2 19750
@@ -1171,22 +1171,22 @@ enum Opcodes
     CMSG_SELF_RES                               = 0x1E0B,   ///< 6.1.2 19750
     CMSG_READ_ITEM                              = 0x042A,   ///< 6.1.2 19750
     CMSG_COMPLETE_MOVIE                         = 0x1E0A,   ///< 6.1.2 19750
-    CMSG_SCENE_TRIGGER_EVENT                    = 0x0000,   ///<
-    CMSG_GET_MIRRORIMAGE_DATA                   = 0x0000,   ///<
+    CMSG_SCENE_TRIGGER_EVENT                    = 0x0589,   ///< 6.1.2 19750
+    CMSG_GET_MIRRORIMAGE_DATA                   = 0x0E74,   ///< 6.1.2 19750
 
     //////////////////////////////////////////////////////////////////////////
     /// Vehicles
     //////////////////////////////////////////////////////////////////////////
     CMSG_MOVE_SET_VEHICLE_REC_ID_ACK            = 0x0000, ///<
-    CMSG_PLAYER_VEHICLE_ENTER                   = 0x0000, ///<
-    CMSG_REQUEST_VEHICLE_EXIT                   = 0x0000, ///<
-    CMSG_REQUEST_VEHICLE_NEXT_SEAT              = 0x0000, ///<
-    CMSG_REQUEST_VEHICLE_PREV_SEAT              = 0x0000, ///<
-    CMSG_REQUEST_VEHICLE_SWITCH_SEAT            = 0x0000, ///<
+    CMSG_PLAYER_VEHICLE_ENTER                   = 0x1ED0, ///< 6.1.2 19750
+    CMSG_REQUEST_VEHICLE_EXIT                   = 0x054D, ///< 6.1.2 19750
+    CMSG_REQUEST_VEHICLE_NEXT_SEAT              = 0x0FA3, ///< 6.1.2 19750
+    CMSG_REQUEST_VEHICLE_PREV_SEAT              = 0x1E2A, ///< 6.1.2 19750
+    CMSG_REQUEST_VEHICLE_SWITCH_SEAT            = 0x0E7C, ///< 6.1.2 19750
     CMSG_SET_VEHICLE_REC_ID_ACK                 = 0x0000, ///<
-    CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE     = 0x0000, ///<
-    CMSG_EJECT_PASSENGER                        = 0x0000, ///<
-    CMSG_DISMISS_CONTROLLED_VEHICLE             = 0x0000, ///<
+    CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE     = 0x0404, ///< 6.1.2 19750
+    CMSG_EJECT_PASSENGER                        = 0x1AD0, ///< 6.1.2 19750
+    CMSG_DISMISS_CONTROLLED_VEHICLE             = 0x085F, ///< 6.1.2 19750
 
     //////////////////////////////////////////////////////////////////////////
     /// Vendors
