@@ -91,7 +91,7 @@ class OutdoorPvPAshran : public OutdoorPvP
 {
     using PlayerTimerMap = std::map<uint64, uint32>;
     using PlayerCurrencyLoot = std::map<uint64, uint32>;
-    using AshranEventsMap = std::map<uint32, uint32>;
+    using AshranVignettesMap = std::map<uint32, uint64>;
 
     public:
         OutdoorPvPAshran();
@@ -157,6 +157,9 @@ class OutdoorPvPAshran : public OutdoorPvP
         void AddCollectedArtifacts(uint8 p_TeamID, uint8 p_Type, uint32 p_Count);
         void RewardHonorAndReputation(uint32 p_ArtifactCount, Player* p_Player);
         void StartArtifactEvent(uint8 p_TeamID, uint8 p_Type);
+        void EndArtifactEvent(uint8 p_TeamID, uint8 p_Type);
+        bool IsArtifactEventLaunched(uint8 p_TeamID, uint8 p_Type) const;
+        void AnnounceArtifactEvent(uint8 p_TeamID, uint8 p_Type, bool p_Apply);
 
         template<class T>
         void AddVignetteOnPlayers(T const* p_Object, uint32 p_VignetteID, uint8 p_TeamID = TeamId::TEAM_NEUTRAL);
@@ -186,7 +189,9 @@ class OutdoorPvPAshran : public OutdoorPvP
         uint32 m_EnnemiesKilled[MS::Battlegrounds::TeamsCount::Value];
         uint32 m_EnnemiesKilledMax[MS::Battlegrounds::TeamsCount::Value];
 
+        uint64 m_ArtifactsNPCGuids[MS::Battlegrounds::TeamsCount::Value][eArtifactsDatas::MaxArtifactCounts];
         uint32 m_ArtifactsCollected[MS::Battlegrounds::TeamsCount::Value][eArtifactsDatas::MaxArtifactCounts];
+        bool m_ArtifactEventsLaunched[MS::Battlegrounds::TeamsCount::Value][eArtifactsDatas::MaxArtifactCounts];
 
         uint32 m_AshranEvents[eAshranEvents::MaxEvents];
         bool m_AshranEventsWarned[eAshranEvents::MaxEvents];
@@ -195,8 +200,8 @@ class OutdoorPvPAshran : public OutdoorPvP
         uint32 m_NextBattleTimer;
         uint32 m_MaxBattleTime;
 
-        std::map<uint32, uint64> m_NeutralVignettes;
-        std::map<uint32, uint64> m_FactionVignettes[MS::Battlegrounds::TeamsCount::Value];
+        AshranVignettesMap m_NeutralVignettes;
+        AshranVignettesMap m_FactionVignettes[MS::Battlegrounds::TeamsCount::Value];
 };
 
 #endif

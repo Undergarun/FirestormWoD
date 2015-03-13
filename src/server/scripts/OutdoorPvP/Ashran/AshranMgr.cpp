@@ -604,7 +604,11 @@ OutdoorPvPAshran::OutdoorPvPAshran()
         m_FactionGenericMoP[l_Team] = 0;
 
         for (uint8 l_I = 0; l_I < eArtifactsDatas::MaxArtifactCounts; ++l_I)
+        {
+            m_ArtifactsNPCGuids[l_Team][l_I] = 0;
             m_ArtifactsCollected[l_Team][l_I] = 0;
+            m_ArtifactEventsLaunched[l_Team][l_I] = false;
+        }
     }
 
     for (uint8 l_Iter = 0; l_Iter < eBattleType::MaxBattleType; ++l_Iter)
@@ -1390,8 +1394,35 @@ void OutdoorPvPAshran::OnCreatureCreate(Creature* p_Creature)
         case eCreatures::KorlokTheOgreKing:
             AddVignetteOnPlayers(p_Creature, eAshranVignettes::VignetteKorlok);
             break;
-        case eCreatures::VignetteDummy:
+        case eCreatures::VignetteDummyA:
             AddVignetteOnPlayers(p_Creature, eAshranVignettes::VignetteStormshieldPortal, TeamId::TEAM_ALLIANCE);
+            break;
+        case eCreatures::VignetteDummyH:
+            AddVignetteOnPlayers(p_Creature, eAshranVignettes::VignetteWarspearPortal, TeamId::TEAM_HORDE);
+            break;
+        case eCreatures::Nisstyr:
+            m_ArtifactsNPCGuids[TeamId::TEAM_HORDE][eArtifactsDatas::CountForWarlock] = p_Creature->GetGUID();
+            break;
+        case eCreatures::Fura:
+            m_ArtifactsNPCGuids[TeamId::TEAM_HORDE][eArtifactsDatas::CountForMage] = p_Creature->GetGUID();
+            break;
+        case eCreatures::Kalgan:
+            m_ArtifactsNPCGuids[TeamId::TEAM_HORDE][eArtifactsDatas::CountForWarriorPaladin] = p_Creature->GetGUID();
+            break;
+        case eCreatures::Atomik:
+            m_ArtifactsNPCGuids[TeamId::TEAM_HORDE][eArtifactsDatas::CountForDruidShaman] = p_Creature->GetGUID();
+            break;
+        case eCreatures::Marketa:
+            m_ArtifactsNPCGuids[TeamId::TEAM_ALLIANCE][eArtifactsDatas::CountForWarlock] = p_Creature->GetGUID();
+            break;
+        case eCreatures::Ecilam:
+            m_ArtifactsNPCGuids[TeamId::TEAM_ALLIANCE][eArtifactsDatas::CountForMage] = p_Creature->GetGUID();
+            break;
+        case eCreatures::ValantBrightsworn:
+            m_ArtifactsNPCGuids[TeamId::TEAM_ALLIANCE][eArtifactsDatas::CountForWarriorPaladin] = p_Creature->GetGUID();
+            break;
+        case eCreatures::Anenga:
+            m_ArtifactsNPCGuids[TeamId::TEAM_ALLIANCE][eArtifactsDatas::CountForDruidShaman] = p_Creature->GetGUID();
             break;
         default:
             break;
@@ -1405,8 +1436,11 @@ void OutdoorPvPAshran::OnCreatureRemove(Creature* p_Creature)
         case eCreatures::KorlokTheOgreKing:
             RemoveVignetteOnPlayers(eAshranVignettes::VignetteKorlok);
             break;
-        case eCreatures::VignetteDummy:
+        case eCreatures::VignetteDummyA:
             RemoveVignetteOnPlayers(eAshranVignettes::VignetteStormshieldPortal, TeamId::TEAM_ALLIANCE);
+            break;
+        case eCreatures::VignetteDummyH:
+            RemoveVignetteOnPlayers(eAshranVignettes::VignetteWarspearPortal, TeamId::TEAM_HORDE);
             break;
         default:
             break;
@@ -1417,7 +1451,17 @@ void OutdoorPvPAshran::OnGameObjectCreate(GameObject* p_GameObject)
 {
     switch (p_GameObject->GetEntry())
     {
-        case eGameObjects::PortalToStormshield:
+        case eGameObjects::HordeGateway1:
+            AddVignetteOnPlayers(p_GameObject, eAshranVignettes::VignetteWarlockGateway1, TeamId::TEAM_HORDE);
+            break;
+        case eGameObjects::HordeGateway2:
+            AddVignetteOnPlayers(p_GameObject, eAshranVignettes::VignetteWarlockGateway2, TeamId::TEAM_HORDE);
+            break;
+        case eGameObjects::AllianceGateway1:
+            AddVignetteOnPlayers(p_GameObject, eAshranVignettes::VignetteWarlockGateway1, TeamId::TEAM_ALLIANCE);
+            break;
+        case eGameObjects::AllianceGateway2:
+            AddVignetteOnPlayers(p_GameObject, eAshranVignettes::VignetteWarlockGateway2, TeamId::TEAM_ALLIANCE);
             break;
         default:
             break;
@@ -1428,7 +1472,17 @@ void OutdoorPvPAshran::OnGameObjectRemove(GameObject* p_GameObject)
 {
     switch (p_GameObject->GetEntry())
     {
-        case eGameObjects::PortalToStormshield:
+        case eGameObjects::HordeGateway1:
+            RemoveVignetteOnPlayers(eAshranVignettes::VignetteWarlockGateway1, TeamId::TEAM_HORDE);
+            break;
+        case eGameObjects::HordeGateway2:
+            RemoveVignetteOnPlayers(eAshranVignettes::VignetteWarlockGateway2, TeamId::TEAM_HORDE);
+            break;
+        case eGameObjects::AllianceGateway1:
+            RemoveVignetteOnPlayers(eAshranVignettes::VignetteWarlockGateway1, TeamId::TEAM_ALLIANCE);
+            break;
+        case eGameObjects::AllianceGateway2:
+            RemoveVignetteOnPlayers(eAshranVignettes::VignetteWarlockGateway2, TeamId::TEAM_ALLIANCE);
             break;
         default:
             break;
@@ -1775,25 +1829,33 @@ void OutdoorPvPAshran::StartArtifactEvent(uint8 p_TeamID, uint8 p_Type)
     if (p_Type >= eArtifactsDatas::MaxArtifactCounts || p_TeamID > TeamId::TEAM_HORDE)
         return;
 
+    if (m_ArtifactEventsLaunched[p_TeamID][p_Type])
+        return;
+
+    m_ArtifactEventsLaunched[p_TeamID][p_Type] = true;
+    AnnounceArtifactEvent(p_TeamID, p_Type, true);
+
     if (p_TeamID == TeamId::TEAM_ALLIANCE)
     {
         switch (p_Type)
         {
             case eArtifactsDatas::CountForMage:
-                AddCreature(eSpecialSpawns::AllianceMagePortal1, g_MagePortalsSpawns[0]);
-                AddCreature(eSpecialSpawns::AllianceMagePortal2, g_MagePortalsSpawns[1]);
-                AddCreature(eSpecialSpawns::AllianceVignetteDummy, g_MagePortalsSpawns[2]);
-                AddCreature(eSpecialSpawns::AllianceKauper, g_MagePortalsSpawns[3]);
-                AddObject(eSpecialSpawns::AlliancePortalToStormshield, g_MagePortalsGob);
+                AddCreature(eSpecialSpawns::AllianceMagePortal1, g_MagePortalsSpawns[p_TeamID][0]);
+                AddCreature(eSpecialSpawns::AllianceMagePortal2, g_MagePortalsSpawns[p_TeamID][1]);
+                AddCreature(eSpecialSpawns::AllianceVignetteDummy, g_MagePortalsSpawns[p_TeamID][2]);
+                AddCreature(eSpecialSpawns::AllianceKauper, g_MagePortalsSpawns[p_TeamID][3]);
+                AddObject(eSpecialSpawns::AlliancePortalToStormshield, g_MagePortalsGob[p_TeamID]);
                 break;
             case eArtifactsDatas::CountForWarlock:
+                AddCreature(eSpecialSpawns::AllianceFalconAtherton, g_WarlockGatewaysSpawns[p_TeamID][0]);
+                AddCreature(eSpecialSpawns::AllianceDeckerWatts, g_WarlockGatewaysSpawns[p_TeamID][1]);
+                AddObject(eSpecialSpawns::AllianceWarlockGateway1, g_WarlockGatewaysGob[p_TeamID][0]);
+                AddObject(eSpecialSpawns::AllianceWarlockGateway2, g_WarlockGatewaysGob[p_TeamID][1]);
                 break;
             case eArtifactsDatas::CountForWarriorPaladin:
                 break;
             case eArtifactsDatas::CountForDruidShaman:
                 break;
-            default:
-                return;
         }
     }
     else if (p_TeamID == TeamId::TEAM_HORDE)
@@ -1801,17 +1863,108 @@ void OutdoorPvPAshran::StartArtifactEvent(uint8 p_TeamID, uint8 p_Type)
         switch (p_Type)
         {
             case eArtifactsDatas::CountForMage:
+                AddCreature(eSpecialSpawns::HordeMagePortal1, g_MagePortalsSpawns[p_TeamID][0]);
+                AddCreature(eSpecialSpawns::HordeMagePortal2, g_MagePortalsSpawns[p_TeamID][1]);
+                AddCreature(eSpecialSpawns::HordeVignetteDummy, g_MagePortalsSpawns[p_TeamID][2]);
+                AddCreature(eSpecialSpawns::HordeZaramSunraiser, g_MagePortalsSpawns[p_TeamID][3]);
+                AddObject(eSpecialSpawns::HordePortalToWarspear, g_MagePortalsGob[p_TeamID]);
                 break;
             case eArtifactsDatas::CountForWarlock:
+                AddCreature(eSpecialSpawns::HordeGaylePlagueheart, g_WarlockGatewaysSpawns[p_TeamID][0]);
+                AddCreature(eSpecialSpawns::HordeIlyaPlagueheart, g_WarlockGatewaysSpawns[p_TeamID][1]);
+                AddObject(eSpecialSpawns::HordeWarlockGateway1, g_WarlockGatewaysGob[p_TeamID][0]);
+                AddObject(eSpecialSpawns::HordeWarlockGateway2, g_WarlockGatewaysGob[p_TeamID][1]);
                 break;
             case eArtifactsDatas::CountForWarriorPaladin:
                 break;
             case eArtifactsDatas::CountForDruidShaman:
                 break;
-            default:
-                return;
         }
     }
+}
+
+void OutdoorPvPAshran::EndArtifactEvent(uint8 p_TeamID, uint8 p_Type)
+{
+    if (p_Type >= eArtifactsDatas::MaxArtifactCounts || p_TeamID > TeamId::TEAM_HORDE)
+        return;
+
+    if (!m_ArtifactEventsLaunched[p_TeamID][p_Type])
+        return;
+
+    m_ArtifactEventsLaunched[p_TeamID][p_Type] = false;
+    AnnounceArtifactEvent(p_TeamID, p_Type, false);
+
+    if (p_TeamID == TeamId::TEAM_ALLIANCE)
+    {
+        switch (p_Type)
+        {
+            case eArtifactsDatas::CountForMage:
+                DelCreature(eSpecialSpawns::AllianceMagePortal1);
+                DelCreature(eSpecialSpawns::AllianceMagePortal2);
+                DelCreature(eSpecialSpawns::AllianceVignetteDummy);
+                DelCreature(eSpecialSpawns::AllianceKauper);
+                DelObject(eSpecialSpawns::AlliancePortalToStormshield);
+                break;
+            case eArtifactsDatas::CountForWarlock:
+                DelCreature(eSpecialSpawns::AllianceFalconAtherton);
+                DelCreature(eSpecialSpawns::AllianceDeckerWatts);
+                DelObject(eSpecialSpawns::AllianceWarlockGateway1);
+                DelObject(eSpecialSpawns::AllianceWarlockGateway2);
+                break;
+            case eArtifactsDatas::CountForWarriorPaladin:
+                break;
+            case eArtifactsDatas::CountForDruidShaman:
+                break;
+        }
+    }
+    else if (p_TeamID == TeamId::TEAM_HORDE)
+    {
+        switch (p_Type)
+        {
+            case eArtifactsDatas::CountForMage:
+                DelCreature(eSpecialSpawns::HordeMagePortal1);
+                DelCreature(eSpecialSpawns::HordeMagePortal2);
+                DelCreature(eSpecialSpawns::HordeVignetteDummy);
+                DelCreature(eSpecialSpawns::HordeZaramSunraiser);
+                DelObject(eSpecialSpawns::HordePortalToWarspear);
+                break;
+            case eArtifactsDatas::CountForWarlock:
+                DelCreature(eSpecialSpawns::HordeGaylePlagueheart);
+                DelCreature(eSpecialSpawns::HordeIlyaPlagueheart);
+                DelObject(eSpecialSpawns::HordeWarlockGateway1);
+                DelObject(eSpecialSpawns::HordeWarlockGateway2);
+                break;
+            case eArtifactsDatas::CountForWarriorPaladin:
+                break;
+            case eArtifactsDatas::CountForDruidShaman:
+                break;
+        }
+    }
+}
+
+bool OutdoorPvPAshran::IsArtifactEventLaunched(uint8 p_TeamID, uint8 p_Type) const
+{
+    if (p_Type >= eArtifactsDatas::MaxArtifactCounts || p_TeamID > TeamId::TEAM_HORDE)
+        return false;
+
+    return m_ArtifactEventsLaunched[p_TeamID][p_Type];
+}
+
+void OutdoorPvPAshran::AnnounceArtifactEvent(uint8 p_TeamID, uint8 p_Type, bool p_Apply)
+{
+    if (p_Type >= eArtifactsDatas::MaxArtifactCounts || p_TeamID > TeamId::TEAM_HORDE)
+        return;
+
+    if (!m_ArtifactsNPCGuids[p_TeamID][p_Type])
+        return;
+
+    Creature* l_Creature = sObjectAccessor->FindCreature(m_ArtifactsNPCGuids[p_TeamID][p_Type]);
+    if (l_Creature == nullptr || l_Creature->GetAI() == nullptr)
+        return;
+
+    /// 0: Event activated
+    /// 1: Event deactivated
+    l_Creature->AI()->Talk(p_Apply ? 0 : 1);
 }
 
 void OutdoorPvPAshran::RewardHonorAndReputation(uint32 p_ArtifactCount, Player* p_Player)
@@ -1853,6 +2006,9 @@ inline void OutdoorPvPAshran::AddVignetteOnPlayers(T const* p_Object, uint32 p_V
 
     for (uint8 l_Team = 0; l_Team < MS::Battlegrounds::TeamsCount::Value; ++l_Team)
     {
+        if (p_TeamID != TeamId::TEAM_NEUTRAL && l_Team != p_TeamID)
+            continue;
+
         for (uint64 l_Guid : m_PlayersInWar[l_Team])
         {
             if (Player* l_Player = sObjectAccessor->FindPlayer(l_Guid))
@@ -1880,6 +2036,9 @@ void OutdoorPvPAshran::RemoveVignetteOnPlayers(uint32 p_VignetteID, uint8 p_Team
 
     for (uint8 l_Team = 0; l_Team < MS::Battlegrounds::TeamsCount::Value; ++l_Team)
     {
+        if (p_TeamID != TeamId::TEAM_NEUTRAL && l_Team != p_TeamID)
+            continue;
+
         for (uint64 l_Guid : m_PlayersInWar[l_Team])
         {
             if (Player* l_Player = sObjectAccessor->FindPlayer(l_Guid))

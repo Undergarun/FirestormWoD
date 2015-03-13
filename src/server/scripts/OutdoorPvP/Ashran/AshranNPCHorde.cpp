@@ -493,6 +493,30 @@ class npc_ashran_kalgan : public CreatureScript
     public:
         npc_ashran_kalgan() : CreatureScript("npc_ashran_kalgan") { }
 
+        enum eGossip
+        {
+            RidersSummoned = 84923
+        };
+
+        bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
+        {
+            ZoneScript* l_ZoneScript = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(p_Creature->GetZoneId());
+            if (l_ZoneScript == nullptr)
+                return false;
+
+            if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)l_ZoneScript)
+            {
+                if (l_Ashran->IsArtifactEventLaunched(TeamId::TEAM_HORDE, eArtifactsDatas::CountForWarriorPaladin))
+                {
+                    p_Player->PlayerTalkClass->ClearMenus();
+                    p_Player->SEND_GOSSIP_MENU(eGossip::RidersSummoned, p_Creature->GetGUID());
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         struct npc_ashran_kalganAI : public ScriptedAI
         {
             npc_ashran_kalganAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
@@ -529,6 +553,30 @@ class npc_ashran_fura : public CreatureScript
 {
     public:
         npc_ashran_fura() : CreatureScript("npc_ashran_fura") { }
+
+        enum eGossip
+        {
+            PortalInvoked = 84919
+        };
+
+        bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
+        {
+            ZoneScript* l_ZoneScript = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(p_Creature->GetZoneId());
+            if (l_ZoneScript == nullptr)
+                return false;
+
+            if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)l_ZoneScript)
+            {
+                if (l_Ashran->IsArtifactEventLaunched(TeamId::TEAM_HORDE, eArtifactsDatas::CountForMage))
+                {
+                    p_Player->PlayerTalkClass->ClearMenus();
+                    p_Player->SEND_GOSSIP_MENU(eGossip::PortalInvoked, p_Creature->GetGUID());
+                    return true;
+                }
+            }
+
+            return false;
+        }
 
         struct npc_ashran_furaAI : public ScriptedAI
         {
@@ -567,6 +615,30 @@ class npc_ashran_nisstyr : public CreatureScript
     public:
         npc_ashran_nisstyr() : CreatureScript("npc_ashran_nisstyr") { }
 
+        enum eGossip
+        {
+            GatewaysInvoked = 85463
+        };
+
+        bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
+        {
+            ZoneScript* l_ZoneScript = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(p_Creature->GetZoneId());
+            if (l_ZoneScript == nullptr)
+                return false;
+
+            if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)l_ZoneScript)
+            {
+                if (l_Ashran->IsArtifactEventLaunched(TeamId::TEAM_HORDE, eArtifactsDatas::CountForWarlock))
+                {
+                    p_Player->PlayerTalkClass->ClearMenus();
+                    p_Player->SEND_GOSSIP_MENU(eGossip::GatewaysInvoked, p_Creature->GetGUID());
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         struct npc_ashran_nisstyrAI : public ScriptedAI
         {
             npc_ashran_nisstyrAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
@@ -604,6 +676,30 @@ class npc_ashran_atomik : public CreatureScript
     public:
         npc_ashran_atomik() : CreatureScript("npc_ashran_atomik") { }
 
+        enum eGossip
+        {
+            KronusInvoked = 89853
+        };
+
+        bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
+        {
+            ZoneScript* l_ZoneScript = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(p_Creature->GetZoneId());
+            if (l_ZoneScript == nullptr)
+                return false;
+
+            if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)l_ZoneScript)
+            {
+                if (l_Ashran->IsArtifactEventLaunched(TeamId::TEAM_HORDE, eArtifactsDatas::CountForDruidShaman))
+                {
+                    p_Player->PlayerTalkClass->ClearMenus();
+                    p_Player->SEND_GOSSIP_MENU(eGossip::KronusInvoked, p_Creature->GetGUID());
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         struct npc_ashran_atomikAI : public ScriptedAI
         {
             npc_ashran_atomikAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
@@ -635,6 +731,196 @@ class npc_ashran_atomik : public CreatureScript
         }
 };
 
+/// Zaram Sunraiser <Portal Guardian> - 84468
+class npc_ashran_zaram_sunraiser : public CreatureScript
+{
+    public:
+        npc_ashran_zaram_sunraiser() : CreatureScript("npc_ashran_zaram_sunraiser") { }
+
+        enum eSpells
+        {
+            SpellMoltenArmor    = 79849,
+            SpellFlamestrike    = 79856,
+            SpellFireball       = 79854,
+            SpellBlastWave      = 79857
+        };
+
+        enum eEvents
+        {
+            EventFlamestrike = 1,
+            EventFireball,
+            EventBlastWave
+        };
+
+        struct npc_ashran_zaram_sunraiserAI : public ScriptedAI
+        {
+            npc_ashran_zaram_sunraiserAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                me->CastSpell(me, eSpells::SpellMoltenArmor, true);
+
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                me->CastSpell(me, eSpells::SpellMoltenArmor, true);
+
+                m_Events.ScheduleEvent(eEvents::EventFlamestrike, 7000);
+                m_Events.ScheduleEvent(eEvents::EventFireball, 3000);
+                m_Events.ScheduleEvent(eEvents::EventBlastWave, 9000);
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                ZoneScript* l_ZoneScript = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(me->GetZoneId());
+                if (l_ZoneScript == nullptr)
+                    return;
+
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)l_ZoneScript)
+                    l_Ashran->EndArtifactEvent(TeamId::TEAM_HORDE, eArtifactsDatas::CountForMage);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventFlamestrike:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                            me->CastSpell(l_Target, eSpells::SpellFlamestrike, false);
+                        m_Events.ScheduleEvent(eEvents::EventFlamestrike, 15000);
+                        break;
+                    case eEvents::EventFireball:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::SpellFireball, false);
+                        m_Events.ScheduleEvent(eEvents::EventFireball, 10000);
+                        break;
+                    case eEvents::EventBlastWave:
+                        me->CastSpell(me, eSpells::SpellBlastWave, false);
+                        m_Events.ScheduleEvent(eEvents::EventBlastWave, 20000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_ashran_zaram_sunraiserAI(p_Creature);
+        }
+};
+
+/// Gayle Plagueheart <Gateway Guardian> - 84645
+/// Ilya Plagueheart <Gateway Guardian> - 84646
+class npc_ashran_horde_gateway_guardian : public CreatureScript
+{
+    public:
+        npc_ashran_horde_gateway_guardian() : CreatureScript("npc_ashran_horde_gateway_guardian") { }
+
+        enum eSpells
+        {
+            SpellChaosBolt  = 79939,
+            SpellFelArmor   = 165735,
+            SpellImmolate   = 79937,
+            SpellIncinerate = 79938,
+            SpellSummonImp  = 165736
+        };
+
+        enum eEvents
+        {
+            EventChaosBolt = 1,
+            EventImmolate,
+            EventIncinerate
+        };
+
+        struct npc_ashran_horde_gateway_guardianAI : public ScriptedAI
+        {
+            npc_ashran_horde_gateway_guardianAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                me->CastSpell(me, eSpells::SpellFelArmor, true);
+
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                me->CastSpell(me, eSpells::SpellFelArmor, true);
+                me->CastSpell(me, eSpells::SpellSummonImp, true);
+
+                m_Events.ScheduleEvent(eEvents::EventImmolate, 1000);
+                m_Events.ScheduleEvent(eEvents::EventIncinerate, 2000);
+                m_Events.ScheduleEvent(eEvents::EventChaosBolt, 5000);
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                ZoneScript* l_ZoneScript = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(me->GetZoneId());
+                if (l_ZoneScript == nullptr)
+                    return;
+
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)l_ZoneScript)
+                    l_Ashran->EndArtifactEvent(TeamId::TEAM_HORDE, eArtifactsDatas::CountForWarlock);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventChaosBolt:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::SpellChaosBolt, false);
+                        m_Events.ScheduleEvent(eEvents::EventChaosBolt, 12000);
+                        break;
+                    case eEvents::EventImmolate:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::SpellImmolate, false);
+                        m_Events.ScheduleEvent(eEvents::EventImmolate, 9000);
+                        break;
+                    case eEvents::EventIncinerate:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::SpellIncinerate, false);
+                        m_Events.ScheduleEvent(eEvents::EventIncinerate, 5000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_ashran_horde_gateway_guardianAI(p_Creature);
+        }
+};
+
 void AddSC_AshranNPCHorde()
 {
     new npc_jeron_emberfall();
@@ -647,4 +933,6 @@ void AddSC_AshranNPCHorde()
     new npc_ashran_fura();
     new npc_ashran_nisstyr();
     new npc_ashran_atomik();
+    new npc_ashran_zaram_sunraiser();
+    new npc_ashran_horde_gateway_guardian();
 }

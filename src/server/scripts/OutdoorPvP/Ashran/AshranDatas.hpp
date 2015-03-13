@@ -242,9 +242,17 @@ enum eCreatures
 
     /// Artifacts events related
     /// Alliance
-    PortalMage              = 83435,
-    VignetteDummy           = 84471,
-    Kauper                  = 84466
+    PortalMageA             = 83435,
+    VignetteDummyA          = 84471,
+    Kauper                  = 84466,
+    FalconAtherton          = 84652,
+    DeckerWatts             = 84651,
+    /// Horde
+    PortalMageH             = 83948,
+    VignetteDummyH          = 84683,
+    ZaramSunraiser          = 84468,
+    GaylePlagueheart        = 84645,
+    IlyaPlagueheart         = 84646
 };
 
 enum eArtifactsDatas
@@ -283,7 +291,12 @@ enum eGameObjects
     AncientArtifact         = 233825,
 
     /// Artifact events
-    PortalToStormshield     = 233285
+    PortalToStormshield     = 233285,
+    PortalToWarspear        = 237624,
+    HordeGateway1           = 234082,
+    HordeGateway2           = 234083,
+    AllianceGateway1        = 234067,
+    AllianceGateway2        = 234081
 };
 
 enum eAshranActions
@@ -418,7 +431,29 @@ enum eSpecialSpawns
     AllianceVignetteDummy,
     AllianceKauper,
     AlliancePortalToStormshield,
-    MagePortalsCreatures = 4
+    /// Warlock Gateways
+    AllianceFalconAtherton,
+    AllianceDeckerWatts,
+    AllianceWarlockGateway1,
+    AllianceWarlockGateway2,
+
+    /// Horde events
+    /// Mage portals
+    HordeMagePortal1,
+    HordeMagePortal2,
+    HordeVignetteDummy,
+    HordeZaramSunraiser,
+    HordePortalToWarspear,
+    /// Warlock Gateways
+    HordeGaylePlagueheart,
+    HordeIlyaPlagueheart,
+    HordeWarlockGateway1,
+    HordeWarlockGateway2,
+
+    /// Artifacts events spawn count
+    MagePortalsCreatures        = 4,
+    WarlockGatewaysCreatures    = 2,
+    WarlockGatewaysObjects      = 2
 };
 
 enum eFactions
@@ -437,7 +472,9 @@ enum eAshranVignettes
 {
     VignetteKronus              = 367,
     VignetteCrograal            = 368,
+    VignetteWarlockGateway1     = 431,
     VignetteStormshieldPortal   = 432,
+    VignetteWarlockGateway2     = 435,
     VignetteWarspearPortal      = 436,
     VignetteKorlok              = 643
 };
@@ -448,14 +485,56 @@ struct AshranGraveyard
     TeamId m_StartTeam;
 };
 
-go_type const g_MagePortalsGob = { eGameObjects::PortalToStormshield, eAshranDatas::AshranMapID, 4645.94f, -4097.77f, 22.6435f, 5.14771f, 0.0f, 0.0f, 0.0f, 0.0f };
-
-creature_type const g_MagePortalsSpawns[eSpecialSpawns::MagePortalsCreatures] =
+go_type const g_WarlockGatewaysGob[MS::Battlegrounds::TeamsCount::Value][eSpecialSpawns::WarlockGatewaysObjects] =
 {
-    { eCreatures::PortalMage,       Team::ALLIANCE, eAshranDatas::AshranMapID, 4641.67f, -4099.74f, 22.49f, 0.423455f   },
-    { eCreatures::PortalMage,       Team::ALLIANCE, eAshranDatas::AshranMapID, 4649.82f, -4100.56f, 22.49f, 2.602931f   },
-    { eCreatures::VignetteDummy,    Team::ALLIANCE, eAshranDatas::AshranMapID, 4646.04f, -4098.80f, 22.70f, 0.0f        },
-    { eCreatures::Kauper,           Team::ALLIANCE, eAshranDatas::AshranMapID, 4646.18f, -4093.56f, 22.63f, 1.534031f   }
+    /// Alliance
+    {
+        { eGameObjects::AllianceGateway1, eAshranDatas::AshranMapID, 4167.15f, -4541.17f, 78.3000f, 0.31959f, 0.0f, 0.0f, 0.0f, 0.0f },
+        { eGameObjects::AllianceGateway2, eAshranDatas::AshranMapID, 4941.93f, -3745.08f, 2.05739f, 5.75514f, 0.0f, 0.0f, 0.0f, 0.0f }
+    },
+    /// Horde
+    {
+        { eGameObjects::HordeGateway1, eAshranDatas::AshranMapID, 4768.854f, -3714.03f, 1.33882f, 0.5902176f, 0.0f, 0.0f, 0.0f, 0.0f },
+        { eGameObjects::HordeGateway2, eAshranDatas::AshranMapID, 4028.808f, -4498.14f, 85.7033f, 1.9328010f, 0.0f, 0.0f, 0.0f, 0.0f }
+    }
+};
+
+creature_type const g_WarlockGatewaysSpawns[MS::Battlegrounds::TeamsCount::Value][eSpecialSpawns::WarlockGatewaysCreatures] =
+{
+    /// Alliance
+    {
+        { eCreatures::FalconAtherton,   Team::ALLIANCE, eAshranDatas::AshranMapID, 4172.79f, -4538.52f, 78.1886f, 0.749476f },
+        { eCreatures::DeckerWatts,      Team::ALLIANCE, eAshranDatas::AshranMapID, 4949.16f, -3748.60f, 2.85976f, 5.726880f }
+    },
+    /// Horde
+    {
+        { eCreatures::GaylePlagueheart, Team::HORDE, eAshranDatas::AshranMapID, 4025.942f, -4491.694f, 85.82835f, 1.9133300f },
+        { eCreatures::IlyaPlagueheart,  Team::HORDE, eAshranDatas::AshranMapID, 4773.523f, -3710.321f, 1.422153f, 0.8231511f }
+    }
+};
+
+go_type const g_MagePortalsGob[MS::Battlegrounds::TeamsCount::Value] =
+{
+    { eGameObjects::PortalToStormshield,    eAshranDatas::AshranMapID, 4645.94f, -4097.77f, 22.6435f, 5.14771f, 0.0f, 0.0f, 0.0f, 0.0f },  ///< Alliance
+    { eGameObjects::PortalToWarspear,       eAshranDatas::AshranMapID, 4428.61f, -4082.23f, 28.1979f, 1.69192f, 0.0f, 0.0f, 0.0f, 0.0f }   ///< Horde
+};
+
+creature_type const g_MagePortalsSpawns[MS::Battlegrounds::TeamsCount::Value][eSpecialSpawns::MagePortalsCreatures] =
+{
+    /// Alliance
+    {
+        { eCreatures::PortalMageA,      Team::ALLIANCE, eAshranDatas::AshranMapID, 4641.67f, -4099.74f, 22.49f, 0.423455f   },
+        { eCreatures::PortalMageA,      Team::ALLIANCE, eAshranDatas::AshranMapID, 4649.82f, -4100.56f, 22.49f, 2.602931f   },
+        { eCreatures::VignetteDummyA,   Team::ALLIANCE, eAshranDatas::AshranMapID, 4646.04f, -4098.80f, 22.70f, 0.0f        },
+        { eCreatures::Kauper,           Team::ALLIANCE, eAshranDatas::AshranMapID, 4646.18f, -4093.56f, 22.63f, 1.534031f   }
+    },
+    /// Horde
+    {
+        { eCreatures::PortalMageH,      Team::HORDE, eAshranDatas::AshranMapID, 4432.37f, -4084.51f, 28.15f, 2.839093f  },
+        { eCreatures::PortalMageH,      Team::HORDE, eAshranDatas::AshranMapID, 4424.04f, -4084.11f, 28.15f, 0.283151f  },
+        { eCreatures::VignetteDummyH,   Team::HORDE, eAshranDatas::AshranMapID, 4428.70f, -4082.89f, 28.28f, 0.0f       },
+        { eCreatures::ZaramSunraiser,   Team::HORDE, eAshranDatas::AshranMapID, 4428.91f, -4078.07f, 28.20f, 1.69192f  }
+    }
 };
 
 uint32 const g_MaxArtifactsToCollect[eArtifactsDatas::MaxArtifactCounts] =
