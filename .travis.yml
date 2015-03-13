@@ -27,7 +27,7 @@ install:
   # - mysql -uroot -e 'create database test_mysql;'
   - mkdir build
   - cd build
-  - cmake .. -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DTOOLS=0 -DCMAKE_BUILD_TYPE=Release
+  - cmake .. -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0 -DCMAKE_BUILD_TYPE=Release
   - cd ..
 
 #before_script:
