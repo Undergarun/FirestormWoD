@@ -22,6 +22,7 @@ class garrison_commandscript: public CommandScript
             static ChatCommand blueprintCommandTable[] =
             {
                 { "learn", SEC_GAMEMASTER, true, &HandleBlueprintLearnCommand, "", NULL },
+                { NULL,        0,               false,  NULL, "", NULL }
             };
 
             static ChatCommand plotCommandTable[] =
@@ -30,17 +31,20 @@ class garrison_commandscript: public CommandScript
                 { "add",     SEC_GAMEMASTER, true, &HandlePlotAddCommand,    "", NULL },
                 { "del",     SEC_GAMEMASTER, true, &HandlePlotDelCommand,    "", NULL },
                 { "import",  SEC_GAMEMASTER, true, &HandlePlotImportCommand, "", NULL },
+                { NULL,        0,               false,  NULL, "", NULL }
             };
 
             static ChatCommand followerCommandTable[] =
             {
                 { "add", SEC_GAMEMASTER, true, &HandleFollowerAddCommand, "", NULL },
+                { NULL,        0,               false,  NULL, "", NULL }
             };
 
             static ChatCommand missionCommandTable[] =
             {
                 { "add",            SEC_GAMEMASTER, true, &HandleMissionAddCommand, "", NULL },
                 { "completeall",    SEC_GAMEMASTER, true, &HandleMissionCompleteAllCommand, "", NULL },
+                { NULL,        0,               false,  NULL, "", NULL }
             };
 
             static ChatCommand garrisonCommandTable[] =
