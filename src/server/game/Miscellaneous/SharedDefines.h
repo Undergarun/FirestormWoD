@@ -4707,39 +4707,34 @@ enum PetSlot
 
 enum TradeStatus
 {
-    TRADE_STATUS_WRONG_REALM            = 0,
-    TRADE_STATUS_NOT_ON_TAPLIST         = 1,
-    TRADE_STATUS_YOU_STUNNED            = 2,
-    // 3 - unk
-    TRADE_STATUS_BEGIN_TRADE            = 4,
-    TRADE_STATUS_BUSY_2                 = 5,
-    TRADE_STATUS_PETITION               = 7,
-    TRADE_STATUS_NO_TARGET              = 8,
-    TRADE_STATUS_WRONG_FACTION          = 9,
-    TRADE_STATUS_FAILED                 = 10,
-    TRADE_STATUS_TRADE_COMPLETE         = 11,
-    TRADE_STATUS_TARGET_DEAD            = 12,
-    TRADE_STATUS_PROPOSED               = 13,
-    TRADE_STATUS_BACK_TO_TRADE          = 14,
-    TRADE_STATUS_TARGET_STUNNED         = 15,
-    // 16 - unk
-    TRADE_STATUS_YOU_DEAD               = 17,
-    TRADE_STATUS_TARGET_LOGOUT          = 18,
-    TRADE_STATUS_IGNORE_YOU             = 19,
-    TRADE_STATUS_BUSY                   = 20,
-    TRADE_STATUS_CURRENCY_NOT_TRADABLE  = 21,
-    TRADE_STATUS_TRIAL_ACCOUNT          = 22,
-    TRADE_STATUS_TARGET_TO_FAR          = 23,
-    // 24 - unk
-    TRADE_STATUS_TRADE_ACCEPT           = 25,
+    // The enum has some entiers wrong, well TC will update it properly ^^ - but the important ones are correct
+    TRADE_STATUS_YOU_STUNNED            = 0,
+    TRADE_STATUS_TARGET_DEAD            = 2,
+    TRADE_STATUS_IGNORE_YOU             = 3,
+    TRADE_STATUS_BACK_TO_TRADE          = 4,
+    TRADE_STATUS_TRADE_CANCELED         = 5,
+    TRADE_STATUS_PROPOSED               = 6,
+    TRADE_STATUS_NO_TARGET2             = 7,
+    TRADE_STATUS_TARGET_LOGOUT          = 8,
+    TRADE_STATUS_BEGIN_TRADE            = 9,
+    TRADE_STATUS_TRIAL_ACCOUNT          = 10,
+    TRADE_STATUS_WRONG_REALM            = 12,
+    TRADE_STATUS_NOT_ELIGIBLE           = 14,
+    TRADE_STATUS_TRADE_COMPLETE         = 15,
+    TRADE_STATUS_TARGET_STUNNED         = 16,
+    TRADE_STATUS_TRADE_ACCEPT           = 17,
+    TRADE_STATUS_NO_TARGET              = 18,
+    TRADE_STATUS_CURRENCY_NOT_TRADABLE  = 19,
+    TRADE_STATUS_WRONG_FACTION          = 20,
+    TRADE_STATUS_NOT_ON_TAPLIST         = 21,
+    TRADE_STATUS_TRADE_DECLINE          = 23,
+    TRADE_STATUS_YOU_LOGOUT             = 24,
+    TRADE_STATUS_TARGET_TO_FAR          = 27,
+    TRADE_STATUS_YOU_DEAD2              = 25,
     TRADE_STATUS_NOT_ENOUGH_CURRENCY    = 26,
-    TRADE_STATUS_TRADE_CANCELED         = 27,
-    TRADE_STATUS_NOT_ELIGIBLE           = 28,
-    // 29 - unk
-    // 30 - unk
-    TRADE_STATUS_OPEN_WINDOW            = 31,
-    TRADE_STATUS_YOU_LOGOUT             = 32,
-    TRADE_STATUS_STATE_CHANGED          = 33,
+    TRADE_STATUS_YOU_DEAD               = 28,
+    TRADE_STATUS_OPEN_WINDOW            = 29,
+    TRADE_STATUS_BUSY                   = 30,
 };
 
 enum eUpdateCollisionReasons
