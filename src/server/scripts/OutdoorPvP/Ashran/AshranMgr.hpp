@@ -20,6 +20,7 @@
 #include "Language.h"
 #include "ScriptedCosmeticAI.hpp"
 #include "CreatureTextMgr.h"
+#include "MoveSplineInit.h"
 
 #ifndef ASHRAN_MGR_HPP_ASHRAN
 #define ASHRAN_MGR_HPP_ASHRAN
@@ -164,6 +165,14 @@ class OutdoorPvPAshran : public OutdoorPvP
         template<class T>
         void AddVignetteOnPlayers(T const* p_Object, uint32 p_VignetteID, uint8 p_TeamID = TeamId::TEAM_NEUTRAL);
         void RemoveVignetteOnPlayers(uint32 p_VignetteID, uint8 p_TeamID = TeamId::TEAM_NEUTRAL);
+
+        uint32 CountPlayersForTeam(uint8 p_TeamID) const
+        {
+            if (p_TeamID > TeamId::TEAM_HORDE)
+                return 0;
+
+            return (uint32)m_PlayersInWar[p_TeamID].size();
+        }
 
     private:
 

@@ -1,4 +1,4 @@
-DELETE FROM creature WHERE id IN (83435, 84471, 84466, 84650, 84645, 84646, 84651, 84652, 84470) AND map = 1191;
+DELETE FROM creature WHERE id IN (83435, 84471, 84466, 84650, 84645, 84646, 84651, 84652, 84470, 81883, 82200) AND map = 1191;
 DELETE FROM gameobject WHERE id IN (233285, 234082, 234083, 234067, 234081) AND map = 1191;
 
 UPDATE creature_template SET modelid1 = 11686, modelid2 = 0, InhabitType = 4 WHERE entry IN (84683, 84471);
@@ -8,6 +8,11 @@ UPDATE creature_template SET minlevel = 100, maxlevel = 100, faction = 2110 WHER
 UPDATE creature_template SET minlevel = 101, maxlevel = 101, unit_class = 8, dmg_multiplier = 5, faction = 118, ScriptName = 'npc_ashran_horde_gateway_guardian' WHERE entry IN (84645, 84646);
 UPDATE creature_template SET minlevel = 101, maxlevel = 101, unit_class = 8, dmg_multiplier = 5, faction = 2163, ScriptName = 'npc_ashran_alliance_gateway_guardian' WHERE entry IN (84651, 84652);
 UPDATE creature_template SET unit_flags = unit_flags | (0x02|0x2000000) WHERE entry IN (84631, 84636);
+UPDATE creature_template SET dmg_multiplier = 10, ScriptName = 'npc_ashran_fangraal', mechanic_immune_mask = 617299839 WHERE entry = 81859;
+UPDATE creature_template SET dmg_multiplier = 10, ScriptName = 'npc_ashran_kronus', mechanic_immune_mask = 617299839 WHERE entry = 82201;
+UPDATE creature_template SET ScriptName = 'npc_ashran_underpowered_earth_fury' WHERE entry = 82200;
+UPDATE creature_template SET ScriptName = 'npc_ashran_lifeless_ancient' WHERE entry = 81883;
+UPDATE creature_template SET ScriptName = 'npc_ashran_stormshield_stormcrow' WHERE entry = 82895;
 
 DELETE FROM gameobject_template WHERE entry IN (234082, 234083);
 INSERT INTO gameobject_template VALUES
@@ -25,7 +30,24 @@ INSERT INTO creature_equip_template VALUE
 (84646, 1, 30910, 48032, 0),
 (84645, 1, 30910, 48032, 0);
 
+DELETE FROM spell_script_names WHERE spell_id IN (170896, 168232, 170407);
+INSERT INTO spell_script_names VALUES
+(
+    170896, 'spell_ashran_stone_empowerment',
+    168232, 'spell_ashran_pocket_flying_machine',
+    170407, 'spell_ashran_pocket_flying_machine'
+);
+
+DELETE FROM spell_proc_event WHERE entry IN (170896);
+INSERT INTO spell_proc_event (entry, procFlags) VALUES
+(170896, 0x01000000);
+
 UPDATE gameobject_template SET data2 = 0 WHERE entry = 237624;
+
+DELETE FROM creature_model_info WHERE modelid IN (58973, 61275);
+INSERT INTO creature_model_info VALUES
+(58973, 4, 10, 0, 0),
+(61275, 7.602, 9, 0, 0);
 
 DELETE FROM spell_target_position WHERE id IN (176242, 166511, 166512, 169258, 169259);
 INSERT INTO spell_target_position VALUE
@@ -121,7 +143,7 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     '', ''
 );
 
-DELETE FROM creature_text WHERE entry IN (83995, 82966, 83997, 82660, 82204, 81870, 83830, 82893);
+DELETE FROM creature_text WHERE entry IN (83995, 82966, 83997, 82660, 82204, 81870, 83830, 82893, 81859);
 INSERT INTO creature_text VALUES
 (83995, 0, 0, 'We have activated the |c00FFFF00|Hspell:178539|h[Mage Portal]|h|r!', 12, 0, 100, 0, 0, 0, 'HordeMagePortalActivated'),
 (83995, 1, 0, 'The |c00FFFF00|Hspell:178539|h[Mage Portal]|h|r has been destroyed by the Alliance!', 12, 0, 100, 0, 0, 0, 'HordeMagePortalDeactivated'),
@@ -135,19 +157,22 @@ INSERT INTO creature_text VALUES
 (82660, 0, 0, 'The |c00FFFF00|Hspell:178535|h[Warlock Gateways]|h|r has been activated! Consult your map to the locations.', 12, 0, 100, 0, 0, 0, 'AllianceWarlockGatewaysActivated'),
 (82660, 1, 0, 'The |c00FFFF00|Hspell:178535|h[Warlock Gateways]|h|r has been destroyed by the Horde!', 12, 0, 100, 0, 0, 0, 'AllianceWarlockGatewaysDeactivated'),
 
-(82204, 0, 0, '|c00FFFF00|Hspell:178359|h[Kronus]|h|r has arisen!', 12, 0, 100, 0, 0, 0, 'HordeKronusActivated'),
+(82204, 0, 0, '|c00FFFF00|Hspell:178359|h[Kronus]|h|r has been energized! He''s out to patrol Ashran!!', 12, 0, 100, 0, 0, 0, 'HordeKronusActivated'),
 (82204, 1, 0, 'You fools! The Alliance has killed |c00FFFF00|Hspell:178359|h[Kronus]|h|r!', 12, 0, 100, 0, 0, 0, 'HordeKronusDeactivated'),
 
 (81870, 0, 0, 'We''ve done it! |c00FFFF00|Hspell:178358|h[Fangraal]|h|r marches into Ashran to cleanse the Horde filth. Don''t let him die, Alliance!', 12, 0, 100, 0, 0, 0, 'AllianceFangraalActivated'),
-(81870, 1, 0, '|c00FFFF00|Hspell:178358|h[Fangraal]|h|r has been slain by the Horde!', 12, 0, 100, 0, 0, 0, 'AllianceFangraalDeactivated'),
+(81870, 1, 0, '|c00FFFF00|Hspell:178358|h[Fangraal]|h|r has been slain by the Horde! Poor lil'' guy.', 12, 0, 100, 0, 0, 0, 'AllianceFangraalDeactivated'),
 
 (83830, 0, 0, 'The |c00FFFF00|Hspell:178536|h[Wolf Riders]|h|r are out for duty!', 12, 0, 100, 0, 0, 0, 'HordeWolfRidersActivated'),
 (83830, 1, 0, 'The |c00FFFF00|Hspell:178536|h[Wolf Riders]|h|r have been slain by the Alliance!', 12, 0, 100, 0, 0, 0, 'HordeWolfRidersDeactivated'),
 
 (82893, 0, 0, 'The |c00FFFF00|Hspell:178537|h[Knight Riders]|h|r are out for duty!', 12, 0, 100, 0, 0, 0, 'AllianceKnightRidersActivated'),
-(82893, 1, 0, 'The |c00FFFF00|Hspell:178537|h[Knight Riders]|h|r have been slain by the Horde!', 12, 0, 100, 0, 0, 0, 'AllianceKnightRidersDeactivated');
+(82893, 1, 0, 'The |c00FFFF00|Hspell:178537|h[Knight Riders]|h|r have been slain by the Horde!', 12, 0, 100, 0, 0, 0, 'AllianceKnightRidersDeactivated'),
 
-DELETE FROM locales_creature_text WHERE entry IN (83995, 82966, 83997, 82660, 82204, 81870, 83830, 82893);
+(81859, 0, 0, 'Thank you Druids... you''ve got the nature''s touch.', 12, 0, 100, 0, 0, 0, 'FangraalAwake1'),
+(81859, 1, 0, 'And now, let''s clear those Horde from this land.', 12, 0, 100, 0, 0, 0, 'FangraalAwake2');
+
+DELETE FROM locales_creature_text WHERE entry IN (83995, 82966, 83997, 82660, 82204, 81870, 83830, 82893, 81859);
 --                                                       French     German     Spanish    Russian
 INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, text_loc6, text_loc8) VALUES
 (
@@ -260,5 +285,19 @@ INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, t
     'Les |c00FFFF00|Hspell:178537|h[Chevaucheurs]|h|r ont été tués par la Horde !',
     '',
     '¡La Horda asesinó a los |c00FFFF00|Hspell:178537|h[jinetes caballeros]|h|r!',
+    ''
+),
+(
+    81859, 0, 0,
+    'Merci, druides... vous avez la main verte.',
+    '',
+    'Gracias, druidas... tienen el toque de la naturaleza.',
+    ''
+),
+(
+    81859, 1, 0,
+    'Et maintenant, allons débarrasser cette terre de la Horde.',
+    '',
+    'Y ahora, saquemos a los de la Horda de esta tierra.',
     ''
 );

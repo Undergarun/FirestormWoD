@@ -362,6 +362,121 @@ class spell_ashran_artifacts_collected : public SpellScriptLoader
         }
 };
 
+/// Stone Empowerment - 170896
+class spell_ashran_stone_empowerment : public SpellScriptLoader
+{
+    public:
+        spell_ashran_stone_empowerment() : SpellScriptLoader("spell_ashran_stone_empowerment") { }
+
+        enum eSpell
+        {
+            StoneEmpowermentProc = 170897
+        };
+
+        class spell_ashran_stone_empowerment_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_ashran_stone_empowerment_AuraScript);
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                /// Caster is Kronus, target are enemies
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                if (p_EventInfo.GetActionTarget() == l_Caster)
+                    return;
+
+                l_Caster->CastSpell(l_Caster, eSpell::StoneEmpowermentProc, true);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_ashran_stone_empowerment_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_ashran_stone_empowerment_AuraScript();
+        }
+};
+
+/// Summon Disposable Pocket Flying Machine - 168232 (Alliance)
+/// Summon Disposable Pocket Flying Machine - 170407 (Horde)
+class spell_ashran_pocket_flying_machine : public SpellScriptLoader
+{
+    public:
+        spell_ashran_pocket_flying_machine() : SpellScriptLoader("spell_ashran_pocket_flying_machine") { }
+
+        class spell_ashran_pocket_flying_machine_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_ashran_pocket_flying_machine_SpellScript);
+
+            enum eSpells
+            {
+                DistrubutionAlliance    = 168232,
+                DistrubitionHorde       = 170407
+            };
+
+            void HandleScriptEffect()
+            {
+                if (GetHitUnit() == nullptr)
+                    return;
+
+                if (Player* l_Player = GetHitUnit()->ToPlayer())
+                {
+                    ZoneScript* l_ZoneScript = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(l_Player->GetZoneId());
+                    if (l_ZoneScript == nullptr)
+                        return;
+
+                    if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)l_ZoneScript)
+                    {
+                        uint32 l_ArtifactCount = l_Player->GetCurrency(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT, true);
+                        l_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT, -int32(l_ArtifactCount * CURRENCY_PRECISION), false);
+
+                        uint32 l_Modulo = l_ArtifactCount % eArtifactsDatas::MaxArtifactCounts;
+                        uint32 l_Count = l_ArtifactCount / eArtifactsDatas::MaxArtifactCounts;
+                        uint8 l_Rand = urand(0, eArtifactsDatas::MaxArtifactCounts - 1);
+
+                        uint32 l_SpellID = GetSpellInfo()->Id;
+                        for (uint8 l_I = 0; l_I < eArtifactsDatas::MaxArtifactCounts; ++l_I)
+                        {
+                            if (l_SpellID == eSpells::DistrubutionAlliance)
+                            {
+                                if (l_I == l_Rand)
+                                    l_Ashran->AddCollectedArtifacts(TeamId::TEAM_ALLIANCE, l_I, l_Count + l_Modulo);
+                                else
+                                    l_Ashran->AddCollectedArtifacts(TeamId::TEAM_ALLIANCE, l_I, l_Count);
+                            }
+                            else
+                            {
+                                if (l_I == l_Rand)
+                                    l_Ashran->AddCollectedArtifacts(TeamId::TEAM_HORDE, l_I, l_Count + l_Modulo);
+                                else
+                                    l_Ashran->AddCollectedArtifacts(TeamId::TEAM_HORDE, l_I, l_Count);
+                            }
+                        }
+
+                        l_Ashran->RewardHonorAndReputation(l_ArtifactCount, l_Player);
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                OnHit += SpellHitFn(spell_ashran_pocket_flying_machine_SpellScript::HandleScriptEffect);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_ashran_pocket_flying_machine_SpellScript();
+        }
+};
+
 void AddSC_AshranSpells()
 {
     new spell_ashran_blade_twister();
@@ -370,4 +485,6 @@ void AddSC_AshranSpells()
     new spell_ashran_booming_shout();
     new spell_ashran_curse_of_krong();
     new spell_ashran_artifacts_collected();
+    new spell_ashran_stone_empowerment();
+    new spell_ashran_pocket_flying_machine();
 }

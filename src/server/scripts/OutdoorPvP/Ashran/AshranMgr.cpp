@@ -683,6 +683,10 @@ bool OutdoorPvPAshran::SetupOutdoorPvP()
         AddAreaTrigger(g_HallowedGroundEntries[l_TeamID], 1, eAshranDatas::AshranHallowedGroundID, g_HallowedGroundPos[l_TeamID], 0, sMapMgr->CreateBaseMap(eAshranDatas::AshranMapID));
     }
 
+    /// Summon the two faction guardians
+    AddCreature(eSpecialSpawns::AllianceGuardian, g_AllianceGuardian);
+    AddCreature(eSpecialSpawns::HordeGuardian, g_HordeGuardian);
+
     return true;
 }
 
@@ -1424,6 +1428,12 @@ void OutdoorPvPAshran::OnCreatureCreate(Creature* p_Creature)
         case eCreatures::Anenga:
             m_ArtifactsNPCGuids[TeamId::TEAM_ALLIANCE][eArtifactsDatas::CountForDruidShaman] = p_Creature->GetGUID();
             break;
+        case eCreatures::Frangraal:
+            AddVignetteOnPlayers(p_Creature, eAshranVignettes::VignetteFangraal, TeamId::TEAM_ALLIANCE);
+            break;
+        case eCreatures::Kronus:
+            AddVignetteOnPlayers(p_Creature, eAshranVignettes::VignetteKronus, TeamId::TEAM_HORDE);
+            break;
         default:
             break;
     }
@@ -1441,6 +1451,12 @@ void OutdoorPvPAshran::OnCreatureRemove(Creature* p_Creature)
             break;
         case eCreatures::VignetteDummyH:
             RemoveVignetteOnPlayers(eAshranVignettes::VignetteWarspearPortal, TeamId::TEAM_HORDE);
+            break;
+        case eCreatures::Frangraal:
+            RemoveVignetteOnPlayers(eAshranVignettes::VignetteFangraal, TeamId::TEAM_ALLIANCE);
+            break;
+        case eCreatures::Kronus:
+            RemoveVignetteOnPlayers(eAshranVignettes::VignetteKronus, TeamId::TEAM_HORDE);
             break;
         default:
             break;
@@ -1809,19 +1825,18 @@ void OutdoorPvPAshran::AddCollectedArtifacts(uint8 p_TeamID, uint8 p_Type, uint3
     if (p_TeamID > TeamId::TEAM_HORDE || p_Type >= eArtifactsDatas::MaxArtifactCounts || p_Count == 0)
         return;
 
-    bool l_Event = false;
-    if ((m_ArtifactsCollected[p_TeamID][p_Type] + p_Count) >= g_MaxArtifactsToCollect[p_Type])
+    /// Loop on this to prevent something like giving 900 artifact fragments to a NPC
+    /// which require only 400 fragments to launch event, he'll have 500/400 fragments...
+    /// Will be useless for many events, except Knight and Wolf Riders
+    while ((m_ArtifactsCollected[p_TeamID][p_Type] + p_Count) >= g_MaxArtifactsToCollect[p_Type]);
     {
         p_Count -= g_MaxArtifactsToCollect[p_Type] - m_ArtifactsCollected[p_TeamID][p_Type];
         m_ArtifactsCollected[p_TeamID][p_Type] = 0;
-        l_Event = true;
+        StartArtifactEvent(p_TeamID, p_Type);
     }
 
     m_ArtifactsCollected[p_TeamID][p_Type] += p_Count;
     SendUpdateWorldState(g_ArtifactsWorldStates[p_TeamID][p_Type], m_ArtifactsCollected[p_TeamID][p_Type]);
-
-    if (l_Event)
-        StartArtifactEvent(p_TeamID, p_Type);
 }
 
 void OutdoorPvPAshran::StartArtifactEvent(uint8 p_TeamID, uint8 p_Type)
@@ -1853,8 +1868,12 @@ void OutdoorPvPAshran::StartArtifactEvent(uint8 p_TeamID, uint8 p_Type)
                 AddObject(eSpecialSpawns::AllianceWarlockGateway2, g_WarlockGatewaysGob[p_TeamID][1]);
                 break;
             case eArtifactsDatas::CountForWarriorPaladin:
+                /// This event can happens many times without reset
+                m_ArtifactEventsLaunched[p_TeamID][p_Type] = false;
                 break;
             case eArtifactsDatas::CountForDruidShaman:
+                DelCreature(eSpecialSpawns::AllianceGuardian);
+                AddCreature(eSpecialSpawns::AllianceFangraal, g_AllianceFangraal);
                 break;
         }
     }
@@ -1876,8 +1895,12 @@ void OutdoorPvPAshran::StartArtifactEvent(uint8 p_TeamID, uint8 p_Type)
                 AddObject(eSpecialSpawns::HordeWarlockGateway2, g_WarlockGatewaysGob[p_TeamID][1]);
                 break;
             case eArtifactsDatas::CountForWarriorPaladin:
+                /// This event can happens many times without reset
+                m_ArtifactEventsLaunched[p_TeamID][p_Type] = false;
                 break;
             case eArtifactsDatas::CountForDruidShaman:
+                DelCreature(eSpecialSpawns::HordeGuardian);
+                AddCreature(eSpecialSpawns::HordeKronus, g_HordeKronus);
                 break;
         }
     }
@@ -1914,6 +1937,10 @@ void OutdoorPvPAshran::EndArtifactEvent(uint8 p_TeamID, uint8 p_Type)
             case eArtifactsDatas::CountForWarriorPaladin:
                 break;
             case eArtifactsDatas::CountForDruidShaman:
+                AddCreature(eSpecialSpawns::AllianceGuardian, g_AllianceGuardian);
+                DelCreature(eSpecialSpawns::AllianceFangraal);
+                break;
+            default:    ///< Can't happen
                 break;
         }
     }
@@ -1937,6 +1964,10 @@ void OutdoorPvPAshran::EndArtifactEvent(uint8 p_TeamID, uint8 p_Type)
             case eArtifactsDatas::CountForWarriorPaladin:
                 break;
             case eArtifactsDatas::CountForDruidShaman:
+                AddCreature(eSpecialSpawns::HordeGuardian, g_HordeGuardian);
+                DelCreature(eSpecialSpawns::HordeKronus);
+                break;
+            default:    ///< Can't happen
                 break;
         }
     }

@@ -836,8 +836,7 @@ class npc_ashran_horde_gateway_guardian : public CreatureScript
             SpellChaosBolt  = 79939,
             SpellFelArmor   = 165735,
             SpellImmolate   = 79937,
-            SpellIncinerate = 79938,
-            SpellSummonImp  = 165736
+            SpellIncinerate = 79938
         };
 
         enum eEvents
@@ -863,7 +862,6 @@ class npc_ashran_horde_gateway_guardian : public CreatureScript
             void EnterCombat(Unit* p_Attacker) override
             {
                 me->CastSpell(me, eSpells::SpellFelArmor, true);
-                me->CastSpell(me, eSpells::SpellSummonImp, true);
 
                 m_Events.ScheduleEvent(eEvents::EventImmolate, 1000);
                 m_Events.ScheduleEvent(eEvents::EventIncinerate, 2000);
@@ -921,6 +919,167 @@ class npc_ashran_horde_gateway_guardian : public CreatureScript
         }
 };
 
+/// Kronus <Horde Guardian> - 82201
+class npc_ashran_kronus : public CreatureScript
+{
+    public:
+        npc_ashran_kronus() : CreatureScript("npc_ashran_kronus") { }
+
+        enum eSpells
+        {
+            AshranLaneMobScalingAura    = 164310,
+
+            SpellFractureSearcher       = 170892,
+            SpellFractureMissile        = 170893,   ///< Trigger 170894
+            SpellGroundPound            = 170905,   ///< Periodic Trigger 177605
+            SpellRockShield             = 175058,
+            SpellStoneEmpowermentAura   = 170896
+        };
+
+        enum eEvents
+        {
+            EventFracture = 1,
+            EventGroundPound,
+            EventRockShield
+        };
+
+        struct npc_ashran_kronusAI : public ScriptedAI
+        {
+            npc_ashran_kronusAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void InitializeAI() override
+            {
+                /// Kronus no longer scales their health based the number of players he's fighting.
+                /// Each faction guardian's health now scales based on the number of enemy players active at the time when they're summoned.
+                ZoneScript* l_ZoneScript = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(me->GetZoneId());
+                if (l_ZoneScript == nullptr)
+                    return;
+
+                uint32 l_PlayerCount = 0;
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)l_ZoneScript)
+                    l_PlayerCount = l_Ashran->CountPlayersForTeam(TeamId::TEAM_ALLIANCE);
+
+                if (AuraPtr l_Scaling = me->AddAura(eSpells::AshranLaneMobScalingAura, me))
+                {
+                    if (AuraEffectPtr l_Damage = l_Scaling->GetEffect(EFFECT_0))
+                        l_Damage->ChangeAmount(eAshranDatas::HealthPCTAddedByHostileRef * l_PlayerCount);
+                    if (AuraEffectPtr l_Health = l_Scaling->GetEffect(EFFECT_1))
+                        l_Health->ChangeAmount(eAshranDatas::HealthPCTAddedByHostileRef * l_PlayerCount);
+                }
+            }
+
+            void Reset() override
+            {
+                me->DisableHealthRegen();
+                me->CastSpell(me, eSpells::SpellStoneEmpowermentAura, true);
+
+                me->SetReactState(ReactStates::REACT_AGGRESSIVE);
+
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                m_Events.ScheduleEvent(eEvents::EventFracture, 5000);
+                m_Events.ScheduleEvent(eEvents::EventGroundPound, 12000);
+                m_Events.ScheduleEvent(eEvents::EventRockShield, 9000);
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                ZoneScript* l_ZoneScript = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(me->GetZoneId());
+                if (l_ZoneScript == nullptr)
+                    return;
+
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)l_ZoneScript)
+                    l_Ashran->EndArtifactEvent(TeamId::TEAM_HORDE, eArtifactsDatas::CountForDruidShaman);
+            }
+
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Target == nullptr)
+                    return;
+
+                if (p_SpellInfo->Id == eSpells::SpellFractureSearcher)
+                    me->CastSpell(p_Target, eSpells::SpellFractureMissile, true);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventFracture:
+                        me->CastSpell(me, eSpells::SpellFractureSearcher, true);
+                        m_Events.ScheduleEvent(eEvents::EventFracture, 16000);
+                        break;
+                    case eEvents::EventGroundPound:
+                        me->CastSpell(me, eSpells::SpellGroundPound, false);
+                        m_Events.ScheduleEvent(eEvents::EventGroundPound, 43000);
+                        break;
+                    case eEvents::EventRockShield:
+                        me->CastSpell(me, eSpells::SpellRockShield, true);
+                        m_Events.ScheduleEvent(eEvents::EventRockShield, 39000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_ashran_kronusAI(p_Creature);
+        }
+};
+
+/// Underpowered Earth Fury <Horde Guardian> - 82200
+class npc_ashran_underpowered_earth_fury : public CreatureScript
+{
+    public:
+        npc_ashran_underpowered_earth_fury() : CreatureScript("npc_ashran_underpowered_earth_fury") { }
+
+        struct npc_ashran_underpowered_earth_furyAI : public ScriptedAI
+        {
+            npc_ashran_underpowered_earth_furyAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            enum eData
+            {
+                WarspearShaman = 82438
+            };
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                std::list<Creature*> l_WarspearShamans;
+                me->GetCreatureListWithEntryInGrid(l_WarspearShamans, eData::WarspearShaman, 20.0f);
+
+                for (Creature* l_Creature : l_WarspearShamans)
+                {
+                    if (l_Creature->AI())
+                        l_Creature->AI()->Reset();
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_ashran_underpowered_earth_furyAI(p_Creature);
+        }
+};
+
 void AddSC_AshranNPCHorde()
 {
     new npc_jeron_emberfall();
@@ -935,4 +1094,6 @@ void AddSC_AshranNPCHorde()
     new npc_ashran_atomik();
     new npc_ashran_zaram_sunraiser();
     new npc_ashran_horde_gateway_guardian();
+    new npc_ashran_kronus();
+    new npc_ashran_underpowered_earth_fury();
 }

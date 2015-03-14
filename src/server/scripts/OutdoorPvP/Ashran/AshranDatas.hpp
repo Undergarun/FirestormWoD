@@ -212,6 +212,7 @@ enum eCreatures
     GaulDunFirok            = 81726,    ///< Gaul Dun Firok <Alliance Champion>
     MarshalKarshStormforge  = 82880,
     MarshalGabriel          = 82878,
+    LifelessAncient         = 81883,
 
     /// Horde
     WarspearBloodGuard      = 83699,
@@ -227,6 +228,7 @@ enum eCreatures
     MukmarRaz               = 81725,    ///< Muk'Mar Raz <Horde Champion>
     GeneralAevd             = 82882,
     WarlordNoktyn           = 82883,
+    UnderpoweredEarthFury   = 82200,
 
     /// Artifact Fragments NPCs
     /// Horde
@@ -247,12 +249,14 @@ enum eCreatures
     Kauper                  = 84466,
     FalconAtherton          = 84652,
     DeckerWatts             = 84651,
+    Frangraal               = 81859,
     /// Horde
     PortalMageH             = 83948,
     VignetteDummyH          = 84683,
     ZaramSunraiser          = 84468,
     GaylePlagueheart        = 84645,
-    IlyaPlagueheart         = 84646
+    IlyaPlagueheart         = 84646,
+    Kronus                  = 82201
 };
 
 enum eArtifactsDatas
@@ -387,25 +391,22 @@ enum eSpecialSpawns
     /// Tower guardians (Emberfall Tower & Archmage Overwatch)
     HordeTowerGuardian = eSpawns::ArchmageOverwatchSpawnsIDs,
     AllianceTowerGuardian,
-    MaxTowerGuardians = 2,
 
     /// Faction bosses (High Warlord Volrath & Grand Marshal Tremblade)
-    HordeFactionBoss = AllianceTowerGuardian + 1,
+    HordeFactionBoss,
     AllianceFactionBoss,
-    MaxFactionBosses = 2,
 
     /// Flight masters (after a faction boss died)
-    HordeTaxiToBase1 = AllianceFactionBoss + 1,
+    HordeTaxiToBase1,
     HordeTaxiToBase2,
     HordeFlightMaster,
     AllianceTaxiToBase1,
     AllianceTaxiToBase2,
     AllianceFlightMaster,
-    MaxTaxiToBases = 3,
 
     /// Spirit healers
     /// Two are statics
-    AllianceBaseSpiritHealer = AllianceFlightMaster + 1,
+    AllianceBaseSpiritHealer,
     HordeBaseSpiritHealer,
     /// Three are dynamics
     EmberfallTowerSpiritHealer,
@@ -422,11 +423,10 @@ enum eSpecialSpawns
     HordeGeneralAevd,
     AllianceMarshalGabriel,
     AllianceMarshalKarshStormforge,
-    MaxBossGuardian = 2,
 
     /// Alliance events
     /// Mage portals
-    AllianceMagePortal1 = AllianceMarshalKarshStormforge + 1,    ///< Two spawns
+    AllianceMagePortal1,
     AllianceMagePortal2,
     AllianceVignetteDummy,
     AllianceKauper,
@@ -450,7 +450,17 @@ enum eSpecialSpawns
     HordeWarlockGateway1,
     HordeWarlockGateway2,
 
-    /// Artifacts events spawn count
+    /// Horde and Alliance Guardians
+    AllianceGuardian,
+    HordeGuardian,
+    AllianceFangraal,
+    HordeKronus,
+
+    /// Max spawn count
+    MaxTowerGuardians           = 2,
+    MaxFactionBosses            = 2,
+    MaxTaxiToBases              = 3,
+    MaxBossGuardian             = 2,
     MagePortalsCreatures        = 4,
     WarlockGatewaysCreatures    = 2,
     WarlockGatewaysObjects      = 2
@@ -471,7 +481,7 @@ enum eFactions
 enum eAshranVignettes
 {
     VignetteKronus              = 367,
-    VignetteCrograal            = 368,
+    VignetteFangraal            = 368,
     VignetteWarlockGateway1     = 431,
     VignetteStormshieldPortal   = 432,
     VignetteWarlockGateway2     = 435,
@@ -484,6 +494,12 @@ struct AshranGraveyard
     uint32 m_ID;
     TeamId m_StartTeam;
 };
+
+creature_type const g_AllianceFangraal  = { eCreatures::Frangraal,  Team::ALLIANCE, eAshranDatas::AshranMapID, 3993.69f, -4097.46f, 57.5987f, 1.03238f };
+creature_type const g_HordeKronus       = { eCreatures::Kronus,     Team::HORDE,    eAshranDatas::AshranMapID, 5062.01f, -4202.66f, 49.1949f, 1.59762f };
+
+creature_type const g_AllianceGuardian  = { eCreatures::LifelessAncient,        Team::ALLIANCE, eAshranDatas::AshranMapID, 3983.90f, -4117.12f, 58.0536f, 1.10755f };
+creature_type const g_HordeGuardian     = { eCreatures::UnderpoweredEarthFury,  Team::HORDE,    eAshranDatas::AshranMapID, 5064.02f, -4232.31f, 41.4964f, 2.03435f };
 
 go_type const g_WarlockGatewaysGob[MS::Battlegrounds::TeamsCount::Value][eSpecialSpawns::WarlockGatewaysObjects] =
 {
