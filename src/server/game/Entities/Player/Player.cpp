@@ -28963,6 +28963,7 @@ void Player::BuildPlayerTalentsInfoData(WorldPacket * p_Data)
     {
         PlayerTalentMap & l_PlayerTalent = *GetTalentMap(l_SpeIT);
         ByteBuffer l_Talents(400);
+        int l_TalentCount = 0;
 
         for (PlayerTalentMap::iterator itr = l_PlayerTalent.begin(); itr != l_PlayerTalent.end(); ++itr)
         {
@@ -28988,11 +28989,12 @@ void Player::BuildPlayerTalentsInfoData(WorldPacket * p_Data)
                 }
 
                 l_Talents << uint16(l_Talent);
+                l_TalentCount++;
             }
         }
 
         *p_Data << uint32(GetSpecializationId(l_SpeIT));
-        *p_Data << uint32(((l_Talents.size() - l_Talents.size() % 2) / 2) + (l_Talents.size() % 2));
+        *p_Data << uint32(l_TalentCount);
 
         for (uint8 i = 0; i < MAX_GLYPH_SLOT_INDEX; ++i)
             *p_Data << uint16(GetGlyph(l_SpeIT, i));
