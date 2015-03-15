@@ -28992,7 +28992,7 @@ void Player::BuildPlayerTalentsInfoData(WorldPacket * p_Data)
         }
 
         *p_Data << uint32(GetSpecializationId(l_SpeIT));
-        *p_Data << uint32(l_Talents.size() / 2);
+        *p_Data << uint32(((l_Talents.size() - l_Talents.size() % 2) / 2) + (l_Talents.size() % 2));
 
         for (uint8 i = 0; i < MAX_GLYPH_SLOT_INDEX; ++i)
             *p_Data << uint16(GetGlyph(l_SpeIT, i));
