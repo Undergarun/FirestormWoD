@@ -67,12 +67,6 @@ void WorldSession::HandleQueryGuildInfoOpcode(WorldPacket& p_Packet)
 
 void WorldSession::HandleGuildInviteByNameOpcode(WorldPacket& p_Packet)
 {
-    time_t l_Now = time(NULL);
-    if (l_Now - m_TimeLastGuildInviteCommand < 5)
-        return;
-    else
-       m_TimeLastGuildInviteCommand = l_Now;
-
     uint32 l_NameLenght = 0;
     std::string l_Name = "";
 
