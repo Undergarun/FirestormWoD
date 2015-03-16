@@ -1269,6 +1269,16 @@ void WorldSession::HandleSceneTriggerEventOpcode(WorldPacket & p_Packet)
     sScriptMgr->OnSceneTriggerEvent(m_Player, l_SceneInstanceID, l_Event);
 }
 
+void WorldSession::HandleSceneCancelOpcode(WorldPacket & p_Packet)
+{
+    if (!m_Player)
+        return;
+
+    uint32 l_SceneInstanceID = p_Packet.read<uint32>();
+
+    sScriptMgr->OnSceneCancel(m_Player, l_SceneInstanceID);
+}
+
 void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket& p_Packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_MOVE_TIME_SKIPPED");

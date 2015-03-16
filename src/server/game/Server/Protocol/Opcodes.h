@@ -1161,6 +1161,7 @@ enum Opcodes
     CMSG_READ_ITEM                              = 0x09B9,   ///< 6.0.3 19116
     CMSG_COMPLETE_MOVIE                         = 0x13D4,   ///< 6.0.3 19116
     CMSG_SCENE_TRIGGER_EVENT                    = 0x11B9,   ///< 6.0.3 19116
+    CMSG_SCENE_PLAYBACK_CANCELED                = 0x14B3,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Vehicles
