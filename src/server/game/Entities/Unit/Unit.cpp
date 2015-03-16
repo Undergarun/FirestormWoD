@@ -16757,8 +16757,13 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
             GetOwner()->EnergizeBySpell(GetOwner(), 53253, 20, POWER_FOCUS);
 
     // Fix Drop charge for Killing Machine
-    if (GetTypeId() == TYPEID_PLAYER && HasAura(51124) && getClass() == CLASS_DEATH_KNIGHT && procSpell && (procSpell->Id == 49020 || procSpell->Id == 49143))
-        RemoveAura(51124);
+    if (GetTypeId() == TYPEID_PLAYER && HasAura(51124) && getClass() == CLASS_DEATH_KNIGHT && procSpell && (procSpell->Id == 49020 || procSpell->Id == 49143 || procSpell->Id == 66198 || procSpell->Id == 66196))
+    {
+        if (!haveOffhandWeapon())
+            RemoveAura(51124);
+        else if (procSpell->Id == 66198 || procSpell->Id == 66196)
+            RemoveAura(51124);
+    }
 
     // Fix Drop charge for Blindsight
     if (GetTypeId() == TYPEID_PLAYER && HasAura(121152) && getClass() == CLASS_ROGUE && procSpell && procSpell->Id == 111240)
