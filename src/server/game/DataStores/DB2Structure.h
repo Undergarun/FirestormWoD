@@ -260,19 +260,16 @@ struct RulesetItemUpgradeEntry
 struct ItemExtendedCostEntry
 {
     uint32      ID;                                                     // 0 extended-cost entry id
-    //uint32    reqhonorpoints;                                         // 1 required honor points, only 0
-    //uint32    reqarenapoints;                                         // 2 required arena points, only 0
-    uint32      RequiredArenaSlot;                                      // 3 arena slot restrictions (min slot value)
-    uint32      RequiredItem[MAX_ITEM_EXT_COST_ITEMS];                  // 4-8 required item id
-    uint32      RequiredItemCount[MAX_ITEM_EXT_COST_ITEMS];             // 9-13 required count of 1st item
-    uint32      RequiredPersonalArenaRating;                            // 14 required personal arena rating
-    //uint32    ItemPurchaseGroup;                                      // 15, only 0
-    uint32      RequiredCurrency[MAX_ITEM_EXT_COST_CURRENCIES];         // 16-20 required curency id
-    uint32      RequiredCurrencyCount[MAX_ITEM_EXT_COST_CURRENCIES];    // 21-25 required curency count
-    //uint32    RequiredFactionId;                                      // 26
-    //uint32    RequiredFactionStanding;                                // 27
-    //uint32    RequirementFlags;                                       // 28
-    //uint32    RequiredGuildLevel;                                     // 29 removed in 6.X
+    uint32      RequiredArenaSlot;                                      // 1 arena slot restrictions (min slot value)
+    uint32      RequiredItem[MAX_ITEM_EXT_COST_ITEMS];                  // 2-6 required item id
+    uint32      RequiredItemCount[MAX_ITEM_EXT_COST_ITEMS];             // 7-11 required count of 1st item
+    uint32      RequiredPersonalArenaRating;                            // 12 required personal arena rating
+    //uint32    ItemPurchaseGroup;                                      // 13, only 0
+    uint32      RequiredCurrency[MAX_ITEM_EXT_COST_CURRENCIES];         // 14-18 required curency id
+    uint32      RequiredCurrencyCount[MAX_ITEM_EXT_COST_CURRENCIES];    // 19-23 required curency count
+    //uint32    RequiredFactionId;                                      // 24
+    //uint32    RequiredFactionStanding;                                // 25
+    //uint32    RequirementFlags;                                       // 26
 };
 
 struct QuestPackageItemEntry
