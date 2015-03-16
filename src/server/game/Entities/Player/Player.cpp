@@ -5354,6 +5354,15 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
 
     RemovePassiveTalentSpell(spell_id);
 
+    /// Remove areatrigger
+    std::list<AreaTrigger*> l_AreaTriggerList;
+    GetAreaTriggerList(l_AreaTriggerList, spell_id);
+    if (l_AreaTriggerList.size() > 0)
+    {
+        for (auto l_Itr : l_AreaTriggerList)
+            l_Itr->RemoveFromWorld();
+    }
+
     // remove dependent skill
     SpellLearnSkillNode const* spellLearnSkill = sSpellMgr->GetSpellLearnSkill(spell_id);
     if (spellLearnSkill)
@@ -30868,18 +30877,6 @@ void Player::RemovePassiveTalentSpell(uint32 spellId)
         case 108499:// Grimoire of Supremacy
             RemoveAura(108499);
             break;
-        case 116011:// Rune of Power
-        {
-            if (CountDynObject(spellId))
-            {
-                std::list<DynamicObject*> dynObjList;
-                GetDynObjectList(dynObjList, spellId);
-
-                for (auto itr : dynObjList)
-                    itr->SetDuration(0);
-            }
-            break;
-        }
         case 108501:// Grimoire of Service
             if (HasSpell(111859))
                 removeSpell(111859, false, false);  // WARLOCK_GRIMOIRE_IMP
