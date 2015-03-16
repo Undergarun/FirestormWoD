@@ -839,6 +839,14 @@ void AddSC_boss_forgemaster_gogduh();
 void AddSC_boss_roltall();
 void AddSC_boss_gugrokk();
 
+/* Iron Docks */
+void AddSC_iron_docks_cpp();
+void AddSC_instance_iron_docks();
+void AddSC_boss_nokgar();
+void AddSC_boss_skulloc();
+void AddSC_boss_grimrail();
+void AddSC_boss_oshir();
+
 // battlegrounds
 void AddSC_BattlegroundAVcripts();
 void AddSC_BattlegroundDGScripts();
@@ -1719,6 +1727,15 @@ void AddDraenorScripts()
     AddSC_boss_forgemaster_gogduh();
     AddSC_boss_roltall();
     AddSC_boss_gugrokk();
+    /* Iron Docks*/
+    AddSC_iron_docks_cpp();
+    AddSC_instance_iron_docks();
+    AddSC_boss_nokgar();
+    AddSC_boss_skulloc();
+    AddSC_boss_grimrail();
+    AddSC_boss_oshir();
+
+    /// Battlegrounds strongbox
     AddSC_item_strongboxes();
 #endif
 }
