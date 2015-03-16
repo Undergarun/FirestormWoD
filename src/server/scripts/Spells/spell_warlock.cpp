@@ -2873,37 +2873,78 @@ class spell_warl_unstable_affliction: public SpellScriptLoader
         }
 };
 
+enum ImmolateSpells
+{
+    SpellImmolateMarker = 16003,
+    SpellEmpoweredImmolate = 157114
+};
+
 // Soulburn : Immolate - 348
 class spell_warl_immolate : public SpellScriptLoader
 {
-public:
-    spell_warl_immolate() : SpellScriptLoader("spell_warl_immolate") { }
+    public:
+        spell_warl_immolate() : SpellScriptLoader("spell_warl_immolate") { }
 
-    class spell_warl_immolate_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_warl_immolate_SpellScript);
-
-        void HandleOnHit()
+        class spell_warl_immolate_SpellScript : public SpellScript
         {
-            if (Player* l_Player = GetCaster()->ToPlayer())
+            PrepareSpellScript(spell_warl_immolate_SpellScript);
+
+            bool m_HasMarker = false;
+
+            void HandleBeforeCast()
             {
+                Unit* l_Target = GetExplTargetUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (l_Target->HasAura(ImmolateSpells::SpellImmolateMarker))
+                    m_HasMarker = true;
+            }
+
+            void HandleDamage(SpellEffIndex)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(ImmolateSpells::SpellEmpoweredImmolate);
+
+                if (l_Target == nullptr || l_SpellInfo == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(ImmolateSpells::SpellEmpoweredImmolate) && !m_HasMarker)
+                {
+                    l_Target->CastSpell(l_Target, ImmolateSpells::SpellImmolateMarker, true);
+                    SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_SpellInfo->Effects[EFFECT_0].BasePoints));
+                }
+            }
+
+            void HandleOnHit()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr || l_Player == nullptr)
+                    return;
+
                 if (l_Player->HasAura(WARLOCK_GLYPH_OF_SIPHON_LIFE) && l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARLOCK_DESTRUCTION)
                     l_Player->CastSpell(l_Player, WARLOCK_SPELL_SYPHON_LIFE, true);
-                if (Unit* l_Target = GetHitUnit())
-                    l_Player->CastSpell(l_Target, WARLOCK_SPELL_IMMOLATE_AURA, true);
+
+                l_Player->CastSpell(l_Target, WARLOCK_SPELL_IMMOLATE_AURA, true);
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                BeforeCast += SpellCastFn(spell_warl_immolate_SpellScript::HandleBeforeCast);
+                OnEffectHitTarget += SpellEffectFn(spell_warl_immolate_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnHit += SpellHitFn(spell_warl_immolate_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnHit += SpellHitFn(spell_warl_immolate_SpellScript::HandleOnHit);
+            return new spell_warl_immolate_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_warl_immolate_SpellScript();
-    }
 };
 
 // Call by Soulburn : Immolate (Periodic damage) - 157736
