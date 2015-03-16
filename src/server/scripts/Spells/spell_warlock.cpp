@@ -2145,7 +2145,7 @@ class spell_warl_glyph_of_nightmares : public SpellScriptLoader
         }
 };
 
-// Shadowburn - 29341
+/// Shadowburn - 29341
 class spell_warl_shadowburn: public SpellScriptLoader
 {
     public:
@@ -2157,14 +2157,14 @@ class spell_warl_shadowburn: public SpellScriptLoader
 
             void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Unit* caster = GetCaster())
-                {
-                    AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
-                    if (removeMode == AURA_REMOVE_BY_DEATH)
-                        caster->SetPower(POWER_BURNING_EMBERS, caster->GetPower(POWER_BURNING_EMBERS) + 2 * caster->GetPowerCoeff(POWER_BURNING_EMBERS)); // Give 2 Burning Embers
-                    else if (removeMode == AURA_REMOVE_BY_EXPIRE)
-                        caster->CastSpell(caster, WARLOCK_SHADOWBURN_ENERGIZE, true);
-                }
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
+                if (removeMode == AURA_REMOVE_BY_DEATH)
+                    l_Caster->ModifyPower(POWER_BURNING_EMBERS, 2 * l_Caster->GetPowerCoeff(POWER_BURNING_EMBERS)); ///< Give 2 Burning Ember
             }
 
             void Register()
