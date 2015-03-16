@@ -663,6 +663,9 @@ void BattlegroundDG::EventPlayerClickedOnFlag(Player* p_Player, GameObject* p_Ga
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
+    if (!p_Player->CanUseBattlegroundObject())
+        return;
+
     int32 l_MessageID = 0;
     ChatMsg l_ChatType = CHAT_MSG_BG_SYSTEM_NEUTRAL;
 

@@ -902,6 +902,8 @@ void WorldSession::HandleSpellClick(WorldPacket& p_Packet)
     if (!l_Unit->IsInWorld())
         return;
 
+    m_Player->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_USE);
+
     l_Unit->HandleSpellClick(m_Player);
 }
 

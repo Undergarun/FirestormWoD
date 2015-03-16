@@ -1266,6 +1266,8 @@ void GameObject::Use(Unit* p_User)
         return;
     }
 
+    p_User->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_USE);
+
     switch (GetGoType())
     {
         case GAMEOBJECT_TYPE_DOOR:                          //0
