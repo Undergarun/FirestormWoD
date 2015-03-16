@@ -313,7 +313,12 @@ class spell_warr_shield_block: public SpellScriptLoader
         }
 };
 
-/// Storm Bolt - 107570
+enum StormBoltSpells
+{
+    SpellStormBoltOffHand = 107570
+};
+
+/// Storm Bolt - 107570, Storm Bolt (Off Hand) - 145585
 class spell_warr_storm_bolt: public SpellScriptLoader
 {
     public:
@@ -325,14 +330,15 @@ class spell_warr_storm_bolt: public SpellScriptLoader
 
             void HandleOnCast()
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (Unit* l_Target = GetExplTargetUnit())
-                    {
-                        if (!l_Target->IsImmunedToSpellEffect(sSpellMgr->GetSpellInfo(WARRIOR_SPELL_STORM_BOLT_STUN), EFFECT_0))
-                            l_Caster->CastSpell(l_Target, WARRIOR_SPELL_STORM_BOLT_STUN, true);
-                    }
-                }
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetExplTargetUnit();
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(WARRIOR_SPELL_STORM_BOLT_STUN);
+
+                if (l_Target == nullptr || l_SpellInfo == nullptr)
+                    return;
+
+                if (GetSpellInfo()->Id == StormBoltSpells::SpellStormBoltOffHand && !l_Target->IsImmunedToSpellEffect(l_SpellInfo, EFFECT_0))
+                    l_Caster->CastSpell(l_Target, WARRIOR_SPELL_STORM_BOLT_STUN, true);
             }
 
             void HandleOnHit()
