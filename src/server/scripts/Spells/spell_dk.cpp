@@ -1560,7 +1560,12 @@ class spell_dk_reaping: public SpellScriptLoader
         }
 };
 
-// Death Grip - 49560
+enum DeathGripSpells
+{
+    SpellImprovedDeathGrip = 157367
+};
+
+/// Death Grip - 49560
 class spell_dk_death_grip: public SpellScriptLoader
 {
     public:
@@ -1572,13 +1577,20 @@ class spell_dk_death_grip: public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                int32 damage = GetEffectValue();
-                Position const* pos = GetExplTargetDest();
-                if (Unit* target = GetHitUnit())
-                {
-                    if (!target->HasAuraType(SPELL_AURA_DEFLECT_SPELLS)) // Deterrence
-                        target->CastSpell(pos->GetPositionX(), pos->GetPositionY(), pos->GetPositionZ(), damage, true);
-                }
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                int32 l_Damage = GetEffectValue();
+                Position const* l_Pos = GetExplTargetDest();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (!l_Target->HasAuraType(SPELL_AURA_DEFLECT_SPELLS)) ///< Deterrence
+                    l_Target->CastSpell(l_Pos->GetPositionX(), l_Pos->GetPositionY(), l_Pos->GetPositionZ(), l_Damage, true);
+
+                if (l_Caster->HasSpell(DeathGripSpells::SpellImprovedDeathGrip)) ///< The target of your Death Grip will now automatically have Chains of Ice applied to them.
+                    l_Caster->CastSpell(l_Target, DK_SPELL_CHAINS_OF_ICE, true);
             }
 
             void Register()
