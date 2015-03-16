@@ -506,7 +506,79 @@
 
 			UPDATE `creature_template` SET `ScriptName` = 'npc_kargath_bladefist' WHERE `entry` = 79097;
 
+		#82057/NPC - Shattered Hand Brawler
 
+			UPDATE creature_template SET scriptname = "npc_shattered_hand_brawler" WHERE entry = 82057;
+
+		#78561/NPC - Archmage Khadgar
+
+			UPDATE creature_template SET scriptname = "npc_archmage_khadgar_shadowmoon";
+
+		#79583/NPC - Ungra
+
+			UPDATE `creature_template` SET `ScriptName` = 'npc_tanaan_ungra' WHERE `entry` = 79583;
+
+		#79585/NPC - Taskmaster Gurran
+
+			UPDATE `creature_template` SET `ScriptName` = 'npc_taskmaster_gurran' WHERE `entry` = 79585;
+
+		#79593/NPC - Ankova the Fallen
+
+			UPDATE `creature_template` SET `ScriptName` = 'npc_ankova_the_fallen' WHERE `entry` = 79593;
+
+		#78994/NPC - Yrel
+
+			UPDATE creature_template SET npcflag = 2, scriptname = "npc_tanaan_yrel_summon" WHERE entry = 78994;
+
+		#79794/NPC - Yrel
+
+			UPDATE creature_template SET npcflag = 2, scriptname = "npc_tanaan_yrel" WHERE entry = 79794;
+
+		#79537/NPC - Exarch Maladaar
+
+			UPDATE creature_template SEt scritpname = "npc_exarch_maladaar_tanaan_cave" WHERE entry = 79537;
+
+		#79702/NPC - Keli Dan the Breaker
+
+			UPDATE `creature_template` SET `ScriptName` = 'npc_keli_dan_the_breaker' WHERE `entry` = 79702;
+
+		#78430/NPC - Cordana Felsong
+
+			UPDATE creature_template SET scriptname = "npc_cordana_felsong_blackrock" WHERE entry = 78430;
+
+		#79675/NPC - Lady Liadrin
+
+			UPDATE `creature_template` SET `ScriptName` = 'npc_lady_liadrin_blackrock' WHERE `entry` = 79675;
+
+		#80786/NPC - Blackrock Grunt
+
+			UPDATE `creature_template` SET `ScriptName` = 'npc_blackrock_grunt' WHERE `entry` = 80786;
+
+		#80775-81294/NPC - Ogron Warcrusher
+
+			UPDATE `creature_template` SET `ScriptName` = 'npc_ogron_warcrusher' WHERE `entry` IN (80775, 81294);
+
+		#78996/NPC - Farseer Drek Thar
+
+			UPDATE creature_template SET scriptname = "npc_farseer_drek_thar" WHERE entry = 78996;
+
+		#79917/NPC - Ga Nar
+
+		DELETE FROM creature WHERE id = 79917;
+		insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('79917','1265','7025','7045','1','4294967295','0','0','3538.48','-2133.2','17.2782','0.391606','120','0','0','1','0','0','2','0','0','0','0','0','0','0',NULL);
+		insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('79917','1265','7025','7043','1','4294967295','0','0','4169.52','-2061.3','1.62979','3.11442','120','0','0','1','0','0','2','0','0','0','0','0','0','0',NULL);
+
+		#78568/NPC - Thaelin Darkanvil
+
+			UPDATE `creature_template` SET `ScriptName` = 'npc_thaelin_darkanvil_tanaan' WHERE `entry` = 78568;
+
+		#86039/NPC - Gogluk
+
+			UPDATE creature_template SET vehicleid = 3902, scriptname = "npc_tanaan_gogluk", faction = 14, minlevel = 90, maxlevel = 90 WHERE entry = 86039;
+
+		#86691-86690/NPC - Gogluk Adds
+
+			UPDATE creature_template SET scriptname = "npc_tanaan_gogluk_adds" WHERE entry IN (86691, 86690);
 		-- Game Objects
 
 		#233104/Game Object - Stasis Rune
@@ -536,6 +608,29 @@
 		#23356/233057/Game Object - Mark of (Tanaan)
 
 			UPDATE gameobject_template SET scriptname = "gob_mark_of_tanaan" WHERE entry IN (233056, 233057);
+
+		#231119/Game Object - Blackrock Powder Keg
+
+			UPDATE `gameobject_template` SET `data1` = 231119 WHERE `entry` = 231119;
+			UPDATE `gameobject_template` SET `data1` = 231119 WHERE `entry` = 231119;
+			UPDATE `gameobject_template` SET `data2` = 0, `data11` = 1, `data13` = 1 WHERE `entry` = 231119;
+			UPDATE `gameobject_template` SET `flags` = 0 WHERE `entry` = 231119;
+			UPDATE `gameobject_template` SET `data3` = 1, `data15` = 1 WHERE `entry` = 231119;
+			UPDATE `gameobject_template` SET `data0` = 43 WHERE `entry` = 231119;
+			UPDATE `gameobject_template` SET `data10` = 1, `data12` = 1, `data14` = 0, `data21` = 80 WHERE `entry` = 231119;
+			DELETE FROM gameobject_loot_template WHERE entry = 231119;
+			INSERT INTO `gameobject_loot_template` VALUE (231119, 112323, -100, 1, 0, 1, 1, '');
+
+		#231066/Game Object - Makeshift Plunger
+
+			UPDATE gameobject_template SET scriptname = "gob_makeshift_plunger" WHERE entry = 231066;
+
+		#231261/Game Object - Worldbreaker Side Turret
+
+			UPDATE gameobject_template SET scriptname = "gob_worldbreaker_side_turret" WHERE entry = 231261;
+
+			DELETE FROM gameobject WHERE id = 231261;
+			insert into `gameobject` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `isActive`, `protect_anti_doublet`) values('231261','1265','7025','7044','1','65535','4051.4','-2021.76','77.4','3.10846','0','0','0','0','0','255','1','0',NULL);
 
 		-- Quests
 
@@ -729,7 +824,201 @@
 			INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (78561, 34429);
 			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry`=78561;
 
-		#
+		#34737/Quest - Masters of Shadow
+
+			DELETE FROM `creature_questrelation` WHERE `quest` = 34737;
+			DELETE FROM `gameobject_questrelation` WHERE `quest` = 34737;
+			UPDATE `item_template` SET `StartQuest`=0 WHERE `StartQuest` = 34737;
+			INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (79661, 34737);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry` = 79661;
+			DELETE FROM `creature_involvedrelation` WHERE `quest` = 34737;
+			DELETE FROM `gameobject_involvedrelation` WHERE `quest` = 34737;
+			INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (79675, 34737);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry`=79675;
+			UPDATE `quest_template` SET `RequiredClasses` = 0, `RequiredRaces` = 33555378 WHERE `Id` = 34737;
+
+		#34431/Quest - Masters of Shadow
+
+			DELETE FROM `creature_questrelation` WHERE `quest` = 34431;
+			DELETE FROM `gameobject_questrelation` WHERE `quest` = 34431;
+			UPDATE `item_template` SET `StartQuest`=0 WHERE `StartQuest` = 34431;
+			INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (79661, 34431);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry` = 79661;
+			DELETE FROM `creature_involvedrelation` WHERE `quest` = 34431;
+			DELETE FROM `gameobject_involvedrelation` WHERE `quest` = 34431;
+			INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (79537, 34431);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry`=79537;
+			UPDATE `quest_template` SET `RequiredClasses` = 0, `RequiredRaces` = 18875469 WHERE `Id` = 34431;
+
+		#34739/Quest - The Shadowmoon Clan
+
+			DELETE FROM `creature_questrelation` WHERE `quest` = 34739;
+			DELETE FROM `gameobject_questrelation` WHERE `quest` = 34739;
+			UPDATE `item_template` SET `StartQuest`=0 WHERE `StartQuest` = 34739;
+			INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (78553, 34739);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry` = 78553;
+			DELETE FROM `creature_involvedrelation` WHERE `quest` = 34739;
+			DELETE FROM `gameobject_involvedrelation` WHERE `quest` = 34739;
+			INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (79315, 34739);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry`=79315;
+
+		#34434/Quest - Yrel
+
+			DELETE FROM `creature_questrelation` WHERE `quest` = 34434;
+			DELETE FROM `gameobject_questrelation` WHERE `quest` = 34434;
+			UPDATE `item_template` SET `StartQuest`=0 WHERE `StartQuest` = 34434;
+			INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (79794, 34434);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry` = 79794;
+			DELETE FROM `creature_involvedrelation` WHERE `quest` = 34434;
+			DELETE FROM `gameobject_involvedrelation` WHERE `quest` = 34434;
+			INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (78994, 34434);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry`=78994;
+
+
+		#34740/Quest - Yrel
+
+			DELETE FROM `creature_questrelation` WHERE `quest` = 34740;
+			DELETE FROM `gameobject_questrelation` WHERE `quest` = 34740;
+			UPDATE `item_template` SET `StartQuest`=0 WHERE `StartQuest` = 34740;
+			INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (79794, 34740);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry` = 79794;
+			DELETE FROM `creature_involvedrelation` WHERE `quest` = 34740;
+			DELETE FROM `gameobject_involvedrelation` WHERE `quest` = 34740;
+			INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (78994, 34740);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry`=78994;
+
+		#34436/Quest - Keli Dan the Breaker
+
+			DELETE FROM `creature_questrelation` WHERE `quest` = 34436;
+			DELETE FROM `gameobject_questrelation` WHERE `quest` = 34436;
+			UPDATE `item_template` SET `StartQuest`=0 WHERE `StartQuest` = 34436;
+			INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (79537, 34436);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry` = 79537;
+			DELETE FROM `creature_involvedrelation` WHERE `quest` = 34436;
+			DELETE FROM `gameobject_involvedrelation` WHERE `quest` = 34436;
+			INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (78562, 34436);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry`=78562;
+
+		#34741/Quest - Keli Dan the Breaker
+
+			DELETE FROM `creature_questrelation` WHERE `quest` = 34741;
+			DELETE FROM `gameobject_questrelation` WHERE `quest` = 34741;
+			UPDATE `item_template` SET `StartQuest`=0 WHERE `StartQuest` = 34741;
+			INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (79675, 34741);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry` = 79675;
+			DELETE FROM `creature_involvedrelation` WHERE `quest` = 34741;
+			DELETE FROM `gameobject_involvedrelation` WHERE `quest` = 34741;
+			INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (78562, 34741);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry`=78562;
+
+		#35005/Quest - Prepare for Battle
+
+			DELETE FROM `creature_questrelation` WHERE `quest` = 35005;
+			DELETE FROM `gameobject_questrelation` WHERE `quest` = 35005;
+			UPDATE `item_template` SET `StartQuest`=0 WHERE `StartQuest` = 35005;
+			INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (78553, 35005);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry` = 78553;
+			DELETE FROM `creature_involvedrelation` WHERE `quest` = 35005;
+			DELETE FROM `gameobject_involvedrelation` WHERE `quest` = 35005;
+			INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (78553, 35005);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry`=78553;
+
+		#34439/Quest - The Battle of the Forge
+
+			DELETE FROM `creature_questrelation` WHERE `quest` = 34439;
+			DELETE FROM `gameobject_questrelation` WHERE `quest` = 34439;
+			UPDATE `item_template` SET `StartQuest`=0 WHERE `StartQuest` = 34439;
+			INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (78430, 34439);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry` = 78430;
+			DELETE FROM `creature_involvedrelation` WHERE `quest` = 34439;
+			DELETE FROM `gameobject_involvedrelation` WHERE `quest` = 34439;
+			INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (78996, 34439);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry`=78996;
+
+		#34442/Quest - Ga nar of the Frostwolf
+
+			DELETE FROM `creature_questrelation` WHERE `quest` = 34442;
+			DELETE FROM `gameobject_questrelation` WHERE `quest` = 34442;
+			UPDATE `item_template` SET `StartQuest`=0 WHERE `StartQuest` = 34442;
+			INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (78996, 34442);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry` = 78996;
+			DELETE FROM `creature_involvedrelation` WHERE `quest` = 34442;
+			DELETE FROM `gameobject_involvedrelation` WHERE `quest` = 34442;
+			INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (79917, 34442);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry`=79917;
+
+		#34987/Quest - The Gunpowder Plot
+
+			DELETE FROM `creature_questrelation` WHERE `quest` = 34987;
+			DELETE FROM `gameobject_questrelation` WHERE `quest` = 34987;
+			UPDATE `item_template` SET `StartQuest`=0 WHERE `StartQuest` = 34987;
+			INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (78569, 34987);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry` = 78569;
+			DELETE FROM `creature_involvedrelation` WHERE `quest` = 34987;
+			DELETE FROM `gameobject_involvedrelation` WHERE `quest` = 34987;
+			INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (78569, 34987);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry`=78569;
+
+		#34958/Quest - The Shadow of the Worldbreaker
+
+			DELETE FROM `creature_questrelation` WHERE `quest` = 34958;
+			DELETE FROM `gameobject_questrelation` WHERE `quest` = 34958;
+			UPDATE `item_template` SET `StartQuest`=0 WHERE `StartQuest` = 34958;
+			INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (78568, 34958);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry` = 78568;
+			DELETE FROM `creature_involvedrelation` WHERE `quest` = 34958;
+			DELETE FROM `gameobject_involvedrelation` WHERE `quest` = 34958;
+			INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (78568, 34958);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry`=78568;
+
+		#34925/Quest - Polishing the Iron Throne
+
+			DELETE FROM `creature_questrelation` WHERE `quest` = 34925;
+			DELETE FROM `gameobject_questrelation` WHERE `quest` = 34925;
+			UPDATE `item_template` SET `StartQuest`=0 WHERE `StartQuest` = 34925;
+			INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (79917, 34925);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry` = 79917;
+			DELETE FROM `creature_involvedrelation` WHERE `quest` = 34925;
+			DELETE FROM `gameobject_involvedrelation` WHERE `quest` = 34925;
+			INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (79917, 34925);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry`=79917;
+
+		#34437/Quest - The Prodigal Frostwolf
+
+			DELETE FROM `creature_questrelation` WHERE `quest` = 34437;
+			DELETE FROM `gameobject_questrelation` WHERE `quest` = 34437;
+			UPDATE `item_template` SET `StartQuest`=0 WHERE `StartQuest` = 34437;
+			INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (79917, 34437);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry` = 79917;
+			DELETE FROM `creature_involvedrelation` WHERE `quest` = 34437;
+			DELETE FROM `gameobject_involvedrelation` WHERE `quest` = 34437;
+			INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (78996, 34437);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry`=78996;
+
+		#35747/Quest - Taking a Trip to the Top of the Tank
+
+			DELETE FROM `creature_questrelation` WHERE `quest` = 35747;
+			DELETE FROM `gameobject_questrelation` WHERE `quest` = 35747;
+			UPDATE `item_template` SET `StartQuest`=0 WHERE `StartQuest` = 35747;
+			INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (78563, 35747);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry` = 78563;
+			DELETE FROM `creature_involvedrelation` WHERE `quest` = 35747;
+			DELETE FROM `gameobject_involvedrelation` WHERE `quest` = 35747;
+			INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (80521, 35747);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry`=80521;
+
+		#34445/Quest - a Taste of Iron
+
+			DELETE FROM `creature_questrelation` WHERE `quest` = 34445;
+			DELETE FROM `gameobject_questrelation` WHERE `quest` = 34445;
+			UPDATE `item_template` SET `StartQuest`=0 WHERE `StartQuest` = 34445;
+			INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (80521, 34445);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry` = 80521;
+			DELETE FROM `creature_involvedrelation` WHERE `quest` = 34445;
+			DELETE FROM `gameobject_involvedrelation` WHERE `quest` = 34445;
+			INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (80521, 34445);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry`=80521;
+
 		-- Phases
 
 			UPDATE creature SET phasemask = 4294967295 WHERE map = 1265;
@@ -746,6 +1035,7 @@
 			UPDATE creature SET phasemask = 8 WHERE id IN
 			( 78430, 79316, 78553, 78568, 78556, 78554, 78569, 79315, 79675, 78558, 78559)
 			AND areaId = 7041 AND position_x < 3963 AND position_x > 3931 AND position_y < -2501 AND position_y > -2537;
+			UPDATE gameobject SET phasemask = 2 WHERE id = 231197;
 
 		-- Misc
 
@@ -778,18 +1068,73 @@
 			UPDATE creature_template SET scriptname = "npc_tanaan_khadgar_bridge" WHERE entry = 80244;
 			UPDATE `quest_template` SET `Method` = 0 WHERE `Id` = 34420;
 			UPDATE creature SET phasemask = 1 WHERE id IN (82057, 82141) AND areaid = 7040;
-			UPDATE gameobject SET phasemask = 1 WHERE id IN (232239, 232240) AND areaid = 7040;
+			UPDATE gameobject SET phasemask = 1 WHERE id IN (232239, 232240, 232241) AND areaid IN (7040, 7130);
+			UPDATE gameobject_template SET data2 = 8000 WHERE entry = 233197;
+			UPDATE `quest_template` SET `RequiredRaces` = 67108863 WHERE `Id` IN(34398,35933,34392,34393,34420,34422,34425,34429,34439,34442,34987,34958,34442,34925,34437,35747,34445);
+			UPDATE `quest_template` SET `RequiredRaces` = 18875469 WHERE `Id` IN(35240,35242,34423,34478,34432,34431,34434,34436,35019,35884);
+			UPDATE `quest_template` SET `RequiredRaces` = 33555378 WHERE `Id` IN(34421,35241,35005,34427,34739,34737,34740,34741,35005,34446);
+			DELETE FROM creature WHERE id = 78568 AND npcflag = 0;
+			DELETE FROM vehicle_template_accessory WHERE entry = 86039;
+			INSERT INTO vehicle_template_accessory VALUE (86039, 86690, 0, 1, 'Cannon Turret', 5, 0);
+			INSERT INTO vehicle_template_accessory VALUE (86039, 86691, 1, 1, 'Gun Turret', 5, 0);
+			DELETE FROM npc_spellclick_spells WHERE npc_entry = 86039;
+			INSERT INTO npc_spellclick_spells VALUE (86039, 173426, 1, 0);
+			SELECT * FROM vehicle_template_accessory WHERE entry = 86039;
+			UPDATE gameobject SET state = 2 WHERE id = 232539;
+			UPDATE gameobject SET state = 2 WHERE id = 231261;
 
 		-- Quests suit
 
-			UPDATE `quest_template` SET `PrevQuestId` = 0, `NextQuestId` = 34392, `ExclusiveGroup` = 34398, `NextQuestIdChain` = 34392 WHERE `Id` = 34398;
-			UPDATE `quest_template` SET `PrevQuestId` = 0, `NextQuestId` = 34392, `ExclusiveGroup` = 34398, `NextQuestIdChain` = 34392 WHERE `Id` = 35933;
-			UPDATE `quest_template` SET `PrevQuestId` = 0, `NextQuestId` = 34392, `ExclusiveGroup` = 34398, `NextQuestIdChain` = 34392 WHERE `Id` = 36881;
-			UPDATE `quest_template` SET `PrevQuestId` = 0, `NextQuestId` = 0, `ExclusiveGroup` = 0, `NextQuestIdChain` = 34393 WHERE `Id` = 34392;
+			UPDATE `quest_template` SET `PrevQuestId` = 0, `NextQuestId` = 0, `ExclusiveGroup` = 0, `NextQuestIdChain` = 35933 WHERE `Id` = 34398;
+			UPDATE `quest_template` SET `PrevQuestId` = 34398, `NextQuestId` = 0, `ExclusiveGroup` = 0, `NextQuestIdChain` = 34392 WHERE `Id` = 35933;
+			UPDATE `quest_template` SET `PrevQuestId` = 35933, `NextQuestId` = 0, `ExclusiveGroup` = 0, `NextQuestIdChain` = 34393 WHERE `Id` = 34392;
 			UPDATE `quest_template` SET `PrevQuestId` = 34392, `NextQuestId` = 0, `ExclusiveGroup` = 0, `NextQuestIdChain` = 34420 WHERE `Id` = 34393;
 			UPDATE `quest_template` SET `PrevQuestId` = 34393, `NextQuestId` = 0, `ExclusiveGroup` = 0, `NextQuestIdChain` = 0 WHERE `Id` = 34420;
 
-		-- Talks
+			UPDATE `quest_template` SET `PrevQuestId` = 34420, `NextQuestId` = 34423, `ExclusiveGroup` = -34422, `NextQuestIdChain` = 0 WHERE `Id` = 34422;
+			UPDATE `quest_template` SET `PrevQuestId` = 34420, `NextQuestId` = 34423, `ExclusiveGroup` = -34422, `NextQuestIdChain` = 0 WHERE `Id` = 35240;
+			UPDATE `quest_template` SET `PrevQuestId` = 0, `NextQuestId` = 34425, `ExclusiveGroup` = 0, `NextQuestIdChain` = 0 WHERE `Id` = 34423;
+
+			UPDATE `quest_template` SET `PrevQuestId` = 34420, `NextQuestId` = 35005, `ExclusiveGroup` = -35241, `NextQuestIdChain` = 0 WHERE `Id` = 35241;
+			UPDATE `quest_template` SET `PrevQuestId` = 34420, `NextQuestId` = 35005, `ExclusiveGroup` = -35241, `NextQuestIdChain` = 0 WHERE `Id` = 34421;
+			UPDATE `quest_template` SET `PrevQuestId` = 0, `NextQuestId` = 34425, `ExclusiveGroup` = 0, `NextQuestIdChain` = 0 WHERE `Id` = 35005;
+
+			UPDATE `quest_template` SET `PrevQuestId` = 0, `NextQuestId` = 0, `ExclusiveGroup` = 0, `NextQuestIdChain` = 0 WHERE `Id` = 34425;
+
+			UPDATE `quest_template` SET `PrevQuestId` = 34425, `NextQuestId` = 34429, `ExclusiveGroup` = 0, `NextQuestIdChain` = 0 WHERE `Id` = 34478;
+
+			UPDATE `quest_template` SET `PrevQuestId` = 34425, `NextQuestId` = 34429, `ExclusiveGroup` = 0, `NextQuestIdChain` = 0 WHERE `Id` = 34427;
+
+			UPDATE `quest_template` SET `PrevQuestId` = 0, `NextQuestId` = 0, `ExclusiveGroup` = 0, `NextQuestIdChain` = 0 WHERE `Id` = 34429;
+
+			UPDATE `quest_template` SET `PrevQuestId` = 34429, `NextQuestId` = 34434, `ExclusiveGroup` = -34432, `NextQuestIdChain` = 0 WHERE `Id` = 34432;
+			UPDATE `quest_template` SET `PrevQuestId` = 34429, `NextQuestId` = 34434, `ExclusiveGroup` = -34432, `NextQuestIdChain` = 0 WHERE `Id` = 34431;
+			UPDATE `quest_template` SET `PrevQuestId` = 34432, `NextQuestId` = 34436, `ExclusiveGroup` = 0, `NextQuestIdChain` = 0 WHERE `Id` = 34434;
+			UPDATE `quest_template` SET `PrevQuestId` = 34434, `NextQuestId` = 35019, `ExclusiveGroup` = 0, `NextQuestIdChain` = 0 WHERE `Id` = 34436;
+			UPDATE `quest_template` SET `PrevQuestId` = 34436, `NextQuestId` = 34439, `ExclusiveGroup` = 0, `NextQuestIdChain` = 0 WHERE `Id` = 35019;
+
+			UPDATE `quest_template` SET `PrevQuestId` = 34429, `NextQuestId` = 34740, `ExclusiveGroup` = -34739, `NextQuestIdChain` = 0 WHERE `Id` = 34739;
+			UPDATE `quest_template` SET `PrevQuestId` = 34429, `NextQuestId` = 34740, `ExclusiveGroup` = -34739, `NextQuestIdChain` = 0 WHERE `Id` = 34737;
+			UPDATE `quest_template` SET `PrevQuestId` = 34739, `NextQuestId` = 34741, `ExclusiveGroup` = 0, `NextQuestIdChain` = 0 WHERE `Id` = 34740;
+			UPDATE `quest_template` SET `PrevQuestId` = 34434, `NextQuestId` = 35019, `ExclusiveGroup` = 0, `NextQuestIdChain` = 0 WHERE `Id` = 34741;
+			UPDATE `quest_template` SET `PrevQuestId` = 34741, `NextQuestId` = 34439, `ExclusiveGroup` = 0, `NextQuestIdChain` = 0 WHERE `Id` = 35005;
+
+			UPDATE `quest_template` SET `PrevQuestId` = 0, `NextQuestId` = 34442, `ExclusiveGroup` = 0, `NextQuestIdChain` = 0 WHERE `Id` = 34439;
+
+			UPDATE `quest_template` SET `PrevQuestId` = 34439, `NextQuestId` = 34925, `ExclusiveGroup` = -34442, `NextQuestIdChain` = 0 WHERE `Id` = 34442;
+			UPDATE `quest_template` SET `PrevQuestId` = 34439, `NextQuestId` = 34925, `ExclusiveGroup` = -34442, `NextQuestIdChain` = 0 WHERE `Id` = 34987;
+			UPDATE `quest_template` SET `PrevQuestId` = 34439, `NextQuestId` = 34925, `ExclusiveGroup` = -34442, `NextQuestIdChain` = 0 WHERE `Id` = 34958;
+
+			UPDATE `quest_template` SET `PrevQuestId` = 34442, `NextQuestId` = 35747, `ExclusiveGroup` = -34925, `NextQuestIdChain` = 0 WHERE `Id` = 34925;
+			UPDATE `quest_template` SET `PrevQuestId` = 34442, `NextQuestId` = 35747, `ExclusiveGroup` = -34925, `NextQuestIdChain` = 0 WHERE `Id` = 34437;
+
+			UPDATE `quest_template` SET `PrevQuestId` = 34925, `NextQuestId` = 0, `ExclusiveGroup` = 0, `NextQuestIdChain` = 0 WHERE `Id` = 34445;
+
+			UPDATE `quest_template` SET `PrevQuestId` = 34445, `NextQuestId` = 0, `ExclusiveGroup` = 0, `NextQuestIdChain` = 0 WHERE `Id` = 35884;
+
+			UPDATE `quest_template` SET `PrevQuestId` = 34445, `NextQuestId` = 0, `ExclusiveGroup` = 0, `NextQuestIdChain` = 0 WHERE `Id` = 34446;
+			UPDATE `quest_template` SET `PrevQuestId` = 34740, `NextQuestId` = 35019, `ExclusiveGroup` = 0, `NextQuestIdChain` = 0 WHERE `Id` = 34741;
+			-- Talks
 
 			DELETE FROM creature_text WHERE entry = 82125;
 			insert into `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) values('82125','0','0','I can open up a portal to Stormwind only briefly.','12','0','100','0','0','0','');

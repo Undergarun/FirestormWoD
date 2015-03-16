@@ -3460,6 +3460,10 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 164042:
+                spellInfo->Effects[2].Effect = 0;
+                spellInfo->Effects[3].Effect = 0;
+                break;
             case 133123: // Arcane Barrage
                 spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(10); ///< from 15.0f (RangeEntry.ID 11) to 40.0f
                 break;

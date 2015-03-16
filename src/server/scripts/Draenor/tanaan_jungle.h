@@ -22,7 +22,9 @@ namespace TanaanQuests
         QuestAzerothsLastStand       = 35933,
         QuestKargatharProvingGrounds = 34425,
         QuestAPotentialAlly          = 34478,
-        QuestKillYourHundred         = 34429
+        QuestKillYourHundred         = 34429,
+        QuestMastersOfShadowAlly     = 34431,
+        QuestMastersOfShadowHorde    = 34737
     };
 }
 
@@ -100,7 +102,9 @@ namespace TanaanCreatures
         NpcMoriccalas                = 81990,
         NpcBleedingHollowBloodchosen = 81895,
         NpcArchmageKhadgarSum        = 80244,
-        NpcBlazeOfGloryTrigger       = 300004
+        NpcBlazeOfGloryTrigger       = 300004,
+        NpcKargath                   = 79097,
+        NpcShatteredHandBrawler      = 82057
     };
 }
 
@@ -145,8 +149,9 @@ namespace TanaanActions
 {
     enum
     {
-        ActionTimerSummon      = 1,
-        ActionEventSceneArena  = 2
+        ActionTimerSummon       = 1,
+        ActionEventSceneArena   = 2,
+        ActionSummonHandBrawler = 3
     };
 }
 
