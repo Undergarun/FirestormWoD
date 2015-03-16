@@ -1,4 +1,4 @@
-DELETE FROM creature WHERE id IN (83435, 84471, 84466, 84650, 84645, 84646, 84651, 84652, 84470, 81883, 82200) AND map = 1191;
+DELETE FROM creature WHERE id IN (83435, 84471, 84466, 84650, 84645, 84646, 84651, 84652, 84470, 81883, 82200, 84906) AND map = 1191;
 DELETE FROM gameobject WHERE id IN (233285, 234082, 234083, 234067, 234081) AND map = 1191;
 
 UPDATE creature_template SET modelid1 = 11686, modelid2 = 0, InhabitType = 4 WHERE entry IN (84683, 84471);
@@ -13,6 +13,18 @@ UPDATE creature_template SET dmg_multiplier = 10, ScriptName = 'npc_ashran_kronu
 UPDATE creature_template SET ScriptName = 'npc_ashran_underpowered_earth_fury' WHERE entry = 82200;
 UPDATE creature_template SET ScriptName = 'npc_ashran_lifeless_ancient' WHERE entry = 81883;
 UPDATE creature_template SET ScriptName = 'npc_ashran_stormshield_stormcrow' WHERE entry = 82895;
+UPDATE creature_template SET dmg_multiplier = 15, ScriptName = 'npc_ashran_warspear_gladiator' WHERE entry = 85811;
+UPDATE creature_template SET dmg_multiplier = 15, ScriptName = 'npc_ashran_stormshield_gladiator' WHERE entry = 85812;
+UPDATE creature_template SET dmg_multiplier = 5, ScriptName = 'npc_ashran_mandragoraster' WHERE entry = 83683;
+UPDATE creature_template SET dmg_multiplier = 5, ScriptName = 'npc_ashran_panthora' WHERE entry = 83691;
+UPDATE creature_template SET dmg_multiplier = 500, ScriptName = 'npc_ashran_ancient_inferno' WHERE entry = 84875;
+UPDATE creature_template SET modelid1 = 11686, modelid2 = 0, ScriptName = 'npc_ashran_volcano' WHERE entry = 88227;
+UPDATE creature_template SET dmg_multiplier = 500, ScriptName = 'npc_ashran_goregore' WHERE entry = 84875;
+UPDATE creature_template SET dmg_multiplier = 5, ScriptName = 'npc_ashran_ashmaul_magma_caster' WHERE entry = 84906;
+UPDATE creature_template SET modelid1 = 11686, modelid2 = 0, ScriptName = 'npc_ashran_volcanic_ground' WHERE entry = 84952;
+UPDATE creature_template SET dmg_multiplier = 300, ScriptName = 'npc_ashran_elder_darkweaver_kath' WHERE entry = 85771;
+UPDATE creature_template SET ScriptName = 'npc_ashran_shadow_figurine' WHERE entry = 78620;
+UPDATE creature_template SET dmg_multiplier = 5, ScriptName = 'npc_ashran_ashmaul_destroyer' WHERE entry = 84876;
 
 DELETE FROM gameobject_template WHERE entry IN (234082, 234083);
 INSERT INTO gameobject_template VALUES
@@ -30,15 +42,28 @@ INSERT INTO creature_equip_template VALUE
 (84646, 1, 30910, 48032, 0),
 (84645, 1, 30910, 48032, 0);
 
-DELETE FROM spell_script_names WHERE spell_id IN (170896, 168232, 170407);
+DELETE FROM areatrigger_template WHERE spell_id IN (161519, 176144);
+INSERT INTO areatrigger_template (spell_id, eff_index, entry, scale_x, scale_y, flags, ScriptName) VALUES
+(161519, 0, 2317, 1, 1, 4096, 'areatrigger_ashran_splitting_breath'),
+(161519, 1, 2318, 1, 1, 4096, 'areatrigger_ashran_splitting_breath'),
+(161519, 2, 2319, 1, 1, 4096, 'areatrigger_ashran_splitting_breath'),
+(176144, 0, 3440, 1, 1, 4096, 'areatrigger_ashran_volcano');
+
+DELETE FROM spell_script_names WHERE spell_id IN (161520, 162908, 170896, 168232, 170407, 176542, 158830, 176187);
 INSERT INTO spell_script_names VALUES
+(161520, 'spell_ashran_splitting_breath'),
+(162908, 'spell_ashran_vile_blood'),
 (170896, 'spell_ashran_stone_empowerment'),
 (168232, 'spell_ashran_pocket_flying_machine'),
-(170407, 'spell_ashran_pocket_flying_machine');
+(170407, 'spell_ashran_pocket_flying_machine'),
+(176542, 'spell_ashran_shadow_claws'),
+(158830, 'spell_ashran_darkness_within'),
+(176187, 'spell_ashran_earth_smash');
 
-DELETE FROM spell_proc_event WHERE entry IN (170896);
-INSERT INTO spell_proc_event (entry, procFlags) VALUES
-(170896, 0x01000000);
+DELETE FROM spell_proc_event WHERE entry IN (162908, 170896);
+INSERT INTO spell_proc_event (entry, procFlags, CustomChance) VALUES
+(162908, 0x14, 33),
+(170896, 0x01000000, 100);
 
 UPDATE gameobject_template SET data2 = 0 WHERE entry = 237624;
 

@@ -1080,6 +1080,99 @@ class npc_ashran_underpowered_earth_fury : public CreatureScript
         }
 };
 
+/// Warspear Gladiator - 85811
+class npc_ashran_warspear_gladiator : public CreatureScript
+{
+    public:
+        npc_ashran_warspear_gladiator() : CreatureScript("npc_ashran_warspear_gladiator") { }
+
+        enum eSpells
+        {
+            SpellCleave         = 119419,
+            SpellDevotionAura   = 165712,
+            SpellMortalStrike   = 19643,
+            SpellNet            = 81210,
+            SpellSnapKick       = 15618
+        };
+
+        enum eEvents
+        {
+            EventCleave = 1,
+            EventMortalStrike,
+            EventNet,
+            EventSnapKick
+        };
+
+        struct npc_ashran_warspear_gladiatorAI : public ScriptedAI
+        {
+            npc_ashran_warspear_gladiatorAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+
+                me->CastSpell(me, eSpells::SpellDevotionAura, true);
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                me->CastSpell(me, eSpells::SpellDevotionAura, true);
+                me->CastSpell(p_Attacker, eSpells::SpellNet, true);
+
+                m_Events.ScheduleEvent(eEvents::EventCleave, 3000);
+                m_Events.ScheduleEvent(eEvents::EventMortalStrike, 5000);
+                m_Events.ScheduleEvent(eEvents::EventNet, 8000);
+                m_Events.ScheduleEvent(eEvents::EventSnapKick, 9000);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventCleave:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::SpellCleave, true);
+                        m_Events.ScheduleEvent(eEvents::EventCleave, 15000);
+                        break;
+                    case eEvents::EventMortalStrike:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::SpellMortalStrike, true);
+                        m_Events.ScheduleEvent(eEvents::EventMortalStrike, 10000);
+                        break;
+                    case eEvents::EventNet:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::SpellNet, true);
+                        m_Events.ScheduleEvent(eEvents::EventNet, 20000);
+                        break;
+                    case eEvents::EventSnapKick:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::SpellSnapKick, true);
+                        m_Events.ScheduleEvent(eEvents::EventSnapKick, 20000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_ashran_warspear_gladiatorAI(p_Creature);
+        }
+};
+
 void AddSC_AshranNPCHorde()
 {
     new npc_jeron_emberfall();
@@ -1096,4 +1189,5 @@ void AddSC_AshranNPCHorde()
     new npc_ashran_horde_gateway_guardian();
     new npc_ashran_kronus();
     new npc_ashran_underpowered_earth_fury();
+    new npc_ashran_warspear_gladiator();
 }

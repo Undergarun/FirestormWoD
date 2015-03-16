@@ -3348,6 +3348,12 @@ void SpellMgr::LoadSpellCustomAttr()
             case 177607:///< Fangraal: Entangling Roots
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_TARGET_ENEMY;
                 break;
+            case 165712:///< Stormshield Gladiator: Devotion Aura
+                spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_APPLY_AREA_AURA_FRIEND;
+                break;
+            case 176172:///< Ancient Inferno: Molten Firestorm
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST_RANDOM;
+                break;
             case 110744:///< Divine Star - should be 2 sec -- WTF Blizz ?
             case 122121:
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(66);
@@ -3941,7 +3947,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 176037:///< Noxious Spit (DoT)
             case 155158:///< Meteor Burn
             case 88611: ///< Smoke Bomb
+            case 161517:///< Splitting Breath (DoT)
+            case 176146:///< Volcanic Fallout
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_HIDE_DURATION;
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
                 break;

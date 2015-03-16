@@ -822,6 +822,755 @@ class npc_ashran_faction_champions : public CreatureScript
         }
 };
 
+/// Mandragoraster - 83683
+class npc_ashran_mandragoraster : public CreatureScript
+{
+    public:
+        npc_ashran_mandragoraster() : CreatureScript("npc_ashran_mandragoraster") { }
+
+        struct npc_ashran_mandragorasterAI : public ScriptedAI
+        {
+            npc_ashran_mandragorasterAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            enum eSpells
+            {
+                AshranLaneMobScalingAura    = 164310,
+
+                SpellSplittingBreath        = 161520,
+
+                SpellPiercingChomp          = 161932,
+                SpellPiercingChompAura      = 161933
+            };
+
+            enum eEvents
+            {
+                EventSplittingBreath = 1,
+                EventPiercingChomp
+            };
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                me->DisableHealthRegen();
+
+                me->CastSpell(me, eSpells::AshranLaneMobScalingAura, true);
+
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                m_Events.ScheduleEvent(eEvents::EventSplittingBreath, 5000);
+                m_Events.ScheduleEvent(eEvents::EventPiercingChomp, 8000);
+            }
+
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Target == nullptr)
+                    return;
+
+                if (p_SpellInfo->Id == eSpells::SpellPiercingChomp)
+                    me->CastSpell(p_Target, eSpells::SpellPiercingChompAura, true);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                HandleHealthAndDamageScaling();
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventSplittingBreath:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::SpellSplittingBreath, false);
+                        m_Events.ScheduleEvent(eEvents::EventSplittingBreath, 15000);
+                        break;
+                    case eEvents::EventPiercingChomp:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::SpellPiercingChomp, false);
+                        m_Events.ScheduleEvent(eEvents::EventPiercingChomp, 8000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+
+            void HandleHealthAndDamageScaling()
+            {
+                std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
+                uint32 l_Count = std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this](HostileReference* p_HostileRef) -> bool
+                {
+                    Unit* l_Unit = Unit::GetUnit(*me, p_HostileRef->getUnitGuid());
+                    return l_Unit && l_Unit->GetTypeId() == TypeID::TYPEID_PLAYER;
+                });
+
+                if (AuraPtr l_Scaling = me->GetAura(eSpells::AshranLaneMobScalingAura))
+                {
+                    if (AuraEffectPtr l_Damage = l_Scaling->GetEffect(EFFECT_0))
+                        l_Damage->ChangeAmount(eAshranDatas::HealthPCTAddedByHostileRef * l_Count);
+                    if (AuraEffectPtr l_Health = l_Scaling->GetEffect(EFFECT_1))
+                        l_Health->ChangeAmount(eAshranDatas::HealthPCTAddedByHostileRef * l_Count);
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_ashran_mandragorasterAI(p_Creature);
+        }
+};
+
+/// Panthora - 83691
+class npc_ashran_panthora : public CreatureScript
+{
+    public:
+        npc_ashran_panthora() : CreatureScript("npc_ashran_panthora") { }
+
+        struct npc_ashran_panthoraAI : public ScriptedAI
+        {
+            npc_ashran_panthoraAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            enum eSpells
+            {
+                AshranLaneMobScalingAura    = 164310,
+
+                SpellShadowClaws            = 176542
+            };
+
+            enum eEvents
+            {
+                EventShadowClaws = 1
+            };
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                me->DisableHealthRegen();
+
+                me->CastSpell(me, eSpells::AshranLaneMobScalingAura, true);
+
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                m_Events.ScheduleEvent(eEvents::EventShadowClaws, 5000);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                HandleHealthAndDamageScaling();
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventShadowClaws:
+                        me->CastSpell(me, eSpells::SpellShadowClaws, true);
+                        m_Events.ScheduleEvent(eEvents::EventShadowClaws, 15000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+
+            void HandleHealthAndDamageScaling()
+            {
+                std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
+                uint32 l_Count = std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this](HostileReference* p_HostileRef) -> bool
+                {
+                    Unit* l_Unit = Unit::GetUnit(*me, p_HostileRef->getUnitGuid());
+                    return l_Unit && l_Unit->GetTypeId() == TypeID::TYPEID_PLAYER;
+                });
+
+                if (AuraPtr l_Scaling = me->GetAura(eSpells::AshranLaneMobScalingAura))
+                {
+                    if (AuraEffectPtr l_Damage = l_Scaling->GetEffect(EFFECT_0))
+                        l_Damage->ChangeAmount(eAshranDatas::HealthPCTAddedByHostileRef * l_Count);
+                    if (AuraEffectPtr l_Health = l_Scaling->GetEffect(EFFECT_1))
+                        l_Health->ChangeAmount(eAshranDatas::HealthPCTAddedByHostileRef * l_Count);
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_ashran_panthoraAI(p_Creature);
+        }
+};
+
+/// Ancient Inferno - 84875
+class npc_ashran_ancient_inferno : public CreatureScript
+{
+    public:
+        npc_ashran_ancient_inferno() : CreatureScript("npc_ashran_ancient_inferno") { }
+
+        struct npc_ashran_ancient_infernoAI : public ScriptedAI
+        {
+            npc_ashran_ancient_infernoAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            enum eSpells
+            {
+                AshranLaneMobScalingAura    = 164310,
+
+                SpellLavaBurst              = 176170,
+                SpellMoltenFirestorm        = 176171,
+                SpellVolcanicActivitySearch = 176130,
+                SpellVolcanicActivityMissil = 176132
+            };
+
+            enum eEvents
+            {
+                EventLavaBurst = 1,
+                EventVolcanicActivity,
+                EventMoltenFirestorm
+            };
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                me->DisableHealthRegen();
+
+                me->CastSpell(me, eSpells::AshranLaneMobScalingAura, true);
+
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                m_Events.ScheduleEvent(eEvents::EventLavaBurst, 2000);
+                m_Events.ScheduleEvent(eEvents::EventVolcanicActivity, 8000);
+                m_Events.ScheduleEvent(eEvents::EventMoltenFirestorm, 10000);
+            }
+
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Target == nullptr)
+                    return;
+
+                if (p_SpellInfo->Id == eSpells::SpellVolcanicActivitySearch)
+                    me->CastSpell(p_Target, eSpells::SpellVolcanicActivityMissil, true);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                HandleHealthAndDamageScaling();
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventLavaBurst:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::SpellLavaBurst, false);
+                        m_Events.ScheduleEvent(eEvents::EventLavaBurst, 6000);
+                        break;
+                    case eEvents::EventVolcanicActivity:
+                        me->CastSpell(me, eSpells::SpellVolcanicActivitySearch, true);
+                        m_Events.ScheduleEvent(eEvents::EventVolcanicActivity, 15000);
+                        break;
+                    case eEvents::EventMoltenFirestorm:
+                        me->CastSpell(me, eSpells::SpellMoltenFirestorm, true);
+                        m_Events.ScheduleEvent(eEvents::EventMoltenFirestorm, 20000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+
+            void HandleHealthAndDamageScaling()
+            {
+                std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
+                uint32 l_Count = std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this](HostileReference* p_HostileRef) -> bool
+                {
+                    Unit* l_Unit = Unit::GetUnit(*me, p_HostileRef->getUnitGuid());
+                    return l_Unit && l_Unit->GetTypeId() == TypeID::TYPEID_PLAYER;
+                });
+
+                if (AuraPtr l_Scaling = me->GetAura(eSpells::AshranLaneMobScalingAura))
+                {
+                    if (AuraEffectPtr l_Damage = l_Scaling->GetEffect(EFFECT_0))
+                        l_Damage->ChangeAmount(eAshranDatas::HealthPCTAddedByHostileRef * l_Count);
+                    if (AuraEffectPtr l_Health = l_Scaling->GetEffect(EFFECT_1))
+                        l_Health->ChangeAmount(eAshranDatas::HealthPCTAddedByHostileRef * l_Count);
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_ashran_ancient_infernoAI(p_Creature);
+        }
+};
+
+/// Volcano - 88227
+class npc_ashran_volcano : public CreatureScript
+{
+    public:
+        npc_ashran_volcano() : CreatureScript("npc_ashran_volcano") { }
+
+        struct npc_ashran_volcanoAI : public ScriptedAI
+        {
+            npc_ashran_volcanoAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            enum eSpell
+            {
+                VolcanoAreaTrigger = 176144
+            };
+
+            void Reset() override
+            {
+                me->CastSpell(me, eSpell::VolcanoAreaTrigger, true);
+
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override { }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_ashran_volcanoAI(p_Creature);
+        }
+};
+
+/// Goregore - 84893
+class npc_ashran_goregore : public CreatureScript
+{
+    public:
+        npc_ashran_goregore() : CreatureScript("npc_ashran_goregore") { }
+
+        struct npc_ashran_goregoreAI : public ScriptedAI
+        {
+            npc_ashran_goregoreAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            enum eSpells
+            {
+                AshranLaneMobScalingAura    = 164310,
+                SpellCranky                 = 169710
+            };
+
+            enum eEvents
+            {
+                EventCranky = 1
+            };
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                me->DisableHealthRegen();
+
+                me->CastSpell(me, eSpells::AshranLaneMobScalingAura, true);
+
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                m_Events.ScheduleEvent(eEvents::EventCranky, 1000);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                HandleHealthAndDamageScaling();
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventCranky:
+                        me->CastSpell(me, eSpells::SpellCranky, true);
+                        m_Events.ScheduleEvent(eEvents::EventCranky, 10000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+
+            void HandleHealthAndDamageScaling()
+            {
+                std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
+                uint32 l_Count = std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this](HostileReference* p_HostileRef) -> bool
+                {
+                    Unit* l_Unit = Unit::GetUnit(*me, p_HostileRef->getUnitGuid());
+                    return l_Unit && l_Unit->GetTypeId() == TypeID::TYPEID_PLAYER;
+                });
+
+                if (AuraPtr l_Scaling = me->GetAura(eSpells::AshranLaneMobScalingAura))
+                {
+                    if (AuraEffectPtr l_Damage = l_Scaling->GetEffect(EFFECT_0))
+                        l_Damage->ChangeAmount(eAshranDatas::HealthPCTAddedByHostileRef * l_Count);
+                    if (AuraEffectPtr l_Health = l_Scaling->GetEffect(EFFECT_1))
+                        l_Health->ChangeAmount(eAshranDatas::HealthPCTAddedByHostileRef * l_Count);
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_ashran_goregoreAI(p_Creature);
+        }
+};
+
+/// Ashmaul Magma Caster - 84906
+class npc_ashran_ashmaul_magma_caster : public CreatureScript
+{
+    public:
+        npc_ashran_ashmaul_magma_caster() : CreatureScript("npc_ashran_ashmaul_magma_caster") { }
+
+        struct npc_ashran_ashmaul_magma_casterAI : public ScriptedAI
+        {
+            npc_ashran_ashmaul_magma_casterAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            enum eSpells
+            {
+                SpellLavaBurstVolley    = 169725,
+                SpellVolcanicGround     = 169724
+            };
+
+            enum eEvents
+            {
+                EventLavaBurstVolley = 1,
+                EventVolcanicGround
+            };
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                m_Events.ScheduleEvent(eEvents::EventLavaBurstVolley, 3000);
+                m_Events.ScheduleEvent(eEvents::EventVolcanicGround, 8000);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventLavaBurstVolley:
+                        me->CastSpell(me, eSpells::SpellLavaBurstVolley, false);
+                        m_Events.ScheduleEvent(eEvents::EventLavaBurstVolley, 10000);
+                        break;
+                    case eEvents::EventVolcanicGround:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::SpellVolcanicGround, false);
+                        m_Events.ScheduleEvent(eEvents::EventVolcanicGround, 15000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_ashran_ashmaul_magma_casterAI(p_Creature);
+        }
+};
+
+/// Volcanic Ground - 84952
+class npc_ashran_volcanic_ground : public CreatureScript
+{
+    public:
+        npc_ashran_volcanic_ground() : CreatureScript("npc_ashran_volcanic_ground") { }
+
+        struct npc_ashran_volcanic_groundAI : public ScriptedAI
+        {
+            npc_ashran_volcanic_groundAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            enum eSpell
+            {
+                VolcanicGround = 169723
+            };
+
+            void Reset() override
+            {
+                me->CastSpell(me, eSpell::VolcanicGround, true);
+
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override { }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_ashran_volcanic_groundAI(p_Creature);
+        }
+};
+
+/// Elder Darkweaver Kath - 85771
+class npc_ashran_elder_darkweaver_kath : public CreatureScript
+{
+    public:
+        npc_ashran_elder_darkweaver_kath() : CreatureScript("npc_ashran_elder_darkweaver_kath") { }
+
+        struct npc_ashran_elder_darkweaver_kathAI : public ScriptedAI
+        {
+            npc_ashran_elder_darkweaver_kathAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            enum eSpells
+            {
+                AshranLaneMobScalingAura    = 164310,
+
+                SpellDarknessWithin         = 158830,
+                SpellDarknessWithinSearcher = 158844,
+                SpellDarknessWithinMissile  = 158845,
+                SpellShadowFigurinesSearch  = 158854,
+                SpellShadowFigurinesSpawn   = 158719
+            };
+
+            enum eEvents
+            {
+                EventDarknessWithin = 1,
+                EventShadowFigurines
+            };
+
+            EventMap m_Events;
+            uint8 m_SummonCount;
+
+            void Reset() override
+            {
+                m_SummonCount = 0;
+
+                me->DisableHealthRegen();
+
+                me->CastSpell(me, eSpells::AshranLaneMobScalingAura, true);
+
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                m_Events.ScheduleEvent(eEvents::EventDarknessWithin, 2000);
+                m_Events.ScheduleEvent(eEvents::EventShadowFigurines, 10000);
+            }
+
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Target == nullptr)
+                    return;
+
+                switch (p_SpellInfo->Id)
+                {
+                    case eSpells::SpellDarknessWithinSearcher:
+                        me->CastSpell(p_Target, eSpells::SpellDarknessWithinMissile, true);
+                        break;
+                    case eSpells::SpellShadowFigurinesSearch:
+                        if (m_SummonCount >= 3)
+                            break;
+                        me->CastSpell(p_Target, eSpells::SpellShadowFigurinesSpawn, true);
+                        ++m_SummonCount;
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                HandleHealthAndDamageScaling();
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventDarknessWithin:
+                        me->CastSpell(me, eSpells::SpellDarknessWithin, false);
+                        m_Events.ScheduleEvent(eEvents::EventDarknessWithin, 15000);
+                        break;
+                    case eEvents::EventShadowFigurines:
+                        m_SummonCount = 0;
+                        me->CastSpell(me, eSpells::SpellShadowFigurinesSearch, false);
+                        m_Events.ScheduleEvent(eEvents::EventShadowFigurines, 20000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+
+            void HandleHealthAndDamageScaling()
+            {
+                std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
+                uint32 l_Count = std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this](HostileReference* p_HostileRef) -> bool
+                {
+                    Unit* l_Unit = Unit::GetUnit(*me, p_HostileRef->getUnitGuid());
+                    return l_Unit && l_Unit->GetTypeId() == TypeID::TYPEID_PLAYER;
+                });
+
+                if (AuraPtr l_Scaling = me->GetAura(eSpells::AshranLaneMobScalingAura))
+                {
+                    if (AuraEffectPtr l_Damage = l_Scaling->GetEffect(EFFECT_0))
+                        l_Damage->ChangeAmount(eAshranDatas::HealthPCTAddedByHostileRef * l_Count);
+                    if (AuraEffectPtr l_Health = l_Scaling->GetEffect(EFFECT_1))
+                        l_Health->ChangeAmount(eAshranDatas::HealthPCTAddedByHostileRef * l_Count);
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_ashran_elder_darkweaver_kathAI(p_Creature);
+        }
+};
+
+/// Shadow Figurine - 78620
+class npc_ashran_shadow_figurine : public CreatureScript
+{
+    public:
+        npc_ashran_shadow_figurine() : CreatureScript("npc_ashran_shadow_figurine") { }
+
+        struct npc_ashran_shadow_figurineAI : public ScriptedAI
+        {
+            npc_ashran_shadow_figurineAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            enum eSpell
+            {
+                ShadowChains = 158714
+            };
+
+            void Reset() override
+            {
+                me->CastSpell(me, eSpell::ShadowChains, true);
+
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override { }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_ashran_shadow_figurineAI(p_Creature);
+        }
+};
+
+/// Ashmaul Destroyer - 84876
+class npc_ashran_ashmaul_destroyer : public CreatureScript
+{
+    public:
+        npc_ashran_ashmaul_destroyer() : CreatureScript("npc_ashran_ashmaul_destroyer") { }
+
+        struct npc_ashran_ashmaul_destroyerAI : public ScriptedAI
+        {
+            npc_ashran_ashmaul_destroyerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            enum eSpells
+            {
+                SpellEarthSmash = 176187
+            };
+
+            enum eEvents
+            {
+                EventEarthSmash = 1
+            };
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                me->DisableHealthRegen();
+
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                m_Events.ScheduleEvent(eEvents::EventEarthSmash, 1000);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventEarthSmash:
+                        me->CastSpell(me, eSpells::SpellEarthSmash, false);
+                        m_Events.ScheduleEvent(eEvents::EventEarthSmash, 10000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_ashran_ashmaul_destroyerAI(p_Creature);
+        }
+};
+
 void AddSC_AshranNPCNeutral()
 {
     new npc_ashran_herald();
@@ -831,4 +1580,14 @@ void AddSC_AshranNPCNeutral()
     new npc_ashran_spirit_healer();
     new npc_ashran_korlok();
     new npc_ashran_faction_champions();
+    new npc_ashran_mandragoraster();
+    new npc_ashran_panthora();
+    new npc_ashran_ancient_inferno();
+    new npc_ashran_volcano();
+    new npc_ashran_goregore();
+    new npc_ashran_ashmaul_magma_caster();
+    new npc_ashran_volcanic_ground();
+    new npc_ashran_elder_darkweaver_kath();
+    new npc_ashran_shadow_figurine();
+    new npc_ashran_ashmaul_destroyer();
 }
