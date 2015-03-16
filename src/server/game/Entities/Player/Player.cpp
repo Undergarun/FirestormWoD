@@ -4337,6 +4337,9 @@ void Player::InitSpellForLevel()
             removeSpell(68975, false, false);
     }
 
+    if (getRace() == Races::RACE_NIGHTELF)
+        learnSpell(154748, false);
+
     // Worgen players are automatically granted Apprentice Riding at level 20, as well, due to their racial ability Running Wild.
     // http://www.wowhead.com/spell=33388
     if (l_Level >= 20 && getRace() == RACE_WORGEN)
