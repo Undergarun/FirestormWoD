@@ -1921,12 +1921,13 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket & p_Packet)
                 return;
         }
 
-        Item* itemTransmogrifier = NULL;
+        Item* l_ItemTransmogrifier = nullptr;
+
         // guid of the transmogrifier item, if it's not 0
         if (l_SrcItemGUIDs[l_I])
         {
-            itemTransmogrifier = m_Player->GetItemByGuid(l_SrcItemGUIDs[l_I]);
-            if (!itemTransmogrifier)
+            l_ItemTransmogrifier = m_Player->GetItemByGuid(l_SrcItemGUIDs[l_I]);
+            if (!l_ItemTransmogrifier)
                 return;
         }
         else if (l_SrcVoidItemGUIDs[l_I])
@@ -1935,43 +1936,43 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket & p_Packet)
         }
 
         // transmogrified item
-        Item* itemTransmogrified = m_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, l_Slots[l_I]);
-        if (!itemTransmogrified)
+        Item* l_ItemTransmogrified = m_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, l_Slots[l_I]);
+        if (!l_ItemTransmogrified)
             return;
 
         if (!l_ItemIDs[l_I]) // reset look
         {
-            itemTransmogrified->SetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0, 0);
-            itemTransmogrified->RemoveFlag(ITEM_FIELD_MODIFIERS_MASK, ITEM_TRANSMOGRIFIED);
-            m_Player->SetVisibleItemSlot(l_Slots[l_I], itemTransmogrified);
+            l_ItemTransmogrified->SetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0, 0);
+            l_ItemTransmogrified->RemoveFlag(ITEM_FIELD_MODIFIERS_MASK, ITEM_TRANSMOGRIFIED);
+            m_Player->SetVisibleItemSlot(l_Slots[l_I], l_ItemTransmogrified);
         }
         else
         {
-            if (!itemTransmogrifier)
+            if (!l_ItemTransmogrifier)
                 return;
 
-            if (!Item::CanTransmogrifyItemWithItem(itemTransmogrified, itemTransmogrifier))
+            if (!Item::CanTransmogrifyItemWithItem(l_ItemTransmogrified, l_ItemTransmogrifier))
                 return;
 
             // All okay, proceed
-            itemTransmogrified->SetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0, l_ItemIDs[l_I]);
-            itemTransmogrified->SetFlag(ITEM_FIELD_MODIFIERS_MASK, ITEM_TRANSMOGRIFIED);
-            m_Player->SetVisibleItemSlot(l_Slots[l_I], itemTransmogrified);
+            l_ItemTransmogrified->SetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0, l_ItemTransmogrifier->GetEntry());
+            l_ItemTransmogrified->SetFlag(ITEM_FIELD_MODIFIERS_MASK, ITEM_TRANSMOGRIFIED);
+            m_Player->SetVisibleItemSlot(l_Slots[l_I], l_ItemTransmogrified);
 
-            itemTransmogrified->UpdatePlayedTime(m_Player);
+            l_ItemTransmogrified->UpdatePlayedTime(m_Player);
 
-            itemTransmogrified->SetOwnerGUID(m_Player->GetGUID());
-            itemTransmogrified->SetNotRefundable(m_Player);
-            itemTransmogrified->ClearSoulboundTradeable(m_Player);
+            l_ItemTransmogrified->SetOwnerGUID(m_Player->GetGUID());
+            l_ItemTransmogrified->SetNotRefundable(m_Player);
+            l_ItemTransmogrified->ClearSoulboundTradeable(m_Player);
 
-            if (itemTransmogrifier->GetTemplate()->Bonding == BIND_WHEN_EQUIPED || itemTransmogrifier->GetTemplate()->Bonding == BIND_WHEN_USE)
-                itemTransmogrifier->SetBinding(true);
+            if (l_ItemTransmogrifier->GetTemplate()->Bonding == BIND_WHEN_EQUIPED || l_ItemTransmogrifier->GetTemplate()->Bonding == BIND_WHEN_USE)
+                l_ItemTransmogrifier->SetBinding(true);
 
-            itemTransmogrifier->SetOwnerGUID(m_Player->GetGUID());
-            itemTransmogrifier->SetNotRefundable(m_Player);
-            itemTransmogrifier->ClearSoulboundTradeable(m_Player);
+            l_ItemTransmogrifier->SetOwnerGUID(m_Player->GetGUID());
+            l_ItemTransmogrifier->SetNotRefundable(m_Player);
+            l_ItemTransmogrifier->ClearSoulboundTradeable(m_Player);
 
-            cost += itemTransmogrified->GetSpecialPrice();
+            cost += l_ItemTransmogrified->GetSpecialPrice();
         }
     }
 

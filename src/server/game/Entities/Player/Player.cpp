@@ -23608,9 +23608,19 @@ void Player::WhisperAddon(std::string const& p_Text, std::string const& p_Prefix
 void Player::Whisper(std::string const& p_Text, uint32 p_LangID, uint64 p_Receiver)
 {
     Player* l_Target = ObjectAccessor::FindPlayer(p_Receiver);
+    if (l_Target == nullptr)
+        return;
 
     std::string l_Text(p_Text);
     sScriptMgr->OnPlayerChat(this, CHAT_MSG_WHISPER, p_LangID, l_Text, l_Target);
+
+    if (l_Target->GetSocial()->HasIgnore(GetGUIDLow()))
+    {
+        WorldPacket l_Data;
+        ChatHandler::FillMessageData(&l_Data, GetSession(), CHAT_MSG_IGNORED, LANG_UNIVERSAL, NULL, GetGUID(), GetName(), NULL);
+        GetSession()->SendPacket(&l_Data);
+        return;
+    }
 
     /// When player you are whispering to is dnd, he cannot receive your message, unless you are in gm mode
     if (!l_Target->isDND() || isGameMaster())
@@ -28964,6 +28974,7 @@ void Player::BuildPlayerTalentsInfoData(WorldPacket * p_Data)
     {
         PlayerTalentMap & l_PlayerTalent = *GetTalentMap(l_SpeIT);
         ByteBuffer l_Talents(400);
+        int l_TalentCount = 0;
 
         for (PlayerTalentMap::iterator itr = l_PlayerTalent.begin(); itr != l_PlayerTalent.end(); ++itr)
         {
@@ -28989,11 +29000,12 @@ void Player::BuildPlayerTalentsInfoData(WorldPacket * p_Data)
                 }
 
                 l_Talents << uint16(l_Talent);
+                l_TalentCount++;
             }
         }
 
         *p_Data << uint32(GetSpecializationId(l_SpeIT));
-        *p_Data << uint32(l_Talents.size() / 2);
+        *p_Data << uint32(l_TalentCount);
 
         for (uint8 i = 0; i < MAX_GLYPH_SLOT_INDEX; ++i)
             *p_Data << uint16(GetGlyph(l_SpeIT, i));

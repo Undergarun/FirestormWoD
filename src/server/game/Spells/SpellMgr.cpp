@@ -3993,8 +3993,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 52743: ///< Head Smack
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_REQ_TARGET_FACING_CASTER;
                 break;
-            case 53:    ///< Backstab
-            case 8676:  ///< Ambush
             case 21987: ///< Lash of Pain
             case 58563: ///< Assassinate Restless Lookout
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET;
@@ -4872,7 +4870,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->OverrideSpellList.push_back(115191); ///< Add Stealth (talent) to override spell list of Stealth
                 break;
             case 115191: ///< Subterfuge
-                spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_MOD_STEALTH;
                 spellInfo->AttributesEx |= SPELL_ATTR0_DISABLED_WHILE_ACTIVE;
                 spellInfo->AttributesEx8 |= SPELL_ATTR8_AURA_SEND_AMOUNT;
                 spellInfo->ProcFlags = 0x800A22A8;   ///< 1784 ProcsFlags
