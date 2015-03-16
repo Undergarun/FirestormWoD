@@ -1875,6 +1875,11 @@ void ScriptMgr::OnSceneTriggerEvent(Player * p_Player, uint32 p_SceneInstanceID,
     FOREACH_SCRIPT(PlayerScript)->OnSceneTriggerEvent(p_Player, p_SceneInstanceID, p_Event);
 }
 
+void ScriptMgr::OnSceneCancel(Player* p_Player, uint32 p_SceneInstanceId)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnSceneCancel(p_Player, p_SceneInstanceId);
+}
+
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 

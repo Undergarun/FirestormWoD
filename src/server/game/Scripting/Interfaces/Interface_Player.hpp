@@ -508,6 +508,12 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_Event);
         }
 
+        virtual void OnSceneCancel(Player* p_Player, uint32 p_SceneInstanceId)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_SceneInstanceId);
+        }
+
 };
 
 #endif  ///< SCRIPTING_INTERFACES_PLAYER
