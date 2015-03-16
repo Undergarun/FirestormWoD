@@ -386,7 +386,7 @@ public:
                             if ((*it)->GetAI())
                             {
                                 (*it)->GetAI()->DoAction(ACTION_RELEASE);
-                                wolf_dests.erase(it);
+                                wolf_dests.remove(*it);
                             }
                             break;
                         }
@@ -405,7 +405,7 @@ public:
                             if ((*it)->GetAI())
                             {
                                 (*it)->GetAI()->DoAction(ACTION_RELEASE);
-                                rylak_dests.erase(it);
+                                rylak_dests.remove(*it);
                             }
                             break;
                         }          
